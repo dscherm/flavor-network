@@ -184,6 +184,48 @@ class EdgeMesh {
     opacityAttr.needsUpdate = true;
   }
 
+  /**
+   * Apply profile weights — brighten edges between high-weight nodes, dim the rest.
+   * @param {Map<string, number>} weights - ingredient name → normalized weight (0–1)
+   */
+  applyProfileWeights(weights) {
+    const colorAttr = this._geometry.getAttribute('aColor');
+    const opacityAttr = this._geometry.getAttribute('aOpacity');
+    const tmpColor = new Color();
+    const dimColor = new Color('#060610');
+
+    for (let i = 0; i < this._edgeList.length; i++) {
+      const edge = this._edgeList[i];
+      const vi = edge.vertexIndex;
+      const srcW = weights.get(edge.source) || 0;
+      const tgtW = weights.get(edge.target) || 0;
+
+      // Edge relevance = average of endpoint weights
+      const edgeWeight = (srcW + tgtW) / 2;
+
+      if (edgeWeight > 0) {
+        tmpColor.copy(BASE_COLOR).lerp(BRIGHT_COLOR, edge.strength);
+        tmpColor.lerp(new Color('#ffffff'), edgeWeight * 0.4);
+
+        colorAttr.setXYZ(vi, tmpColor.r, tmpColor.g, tmpColor.b);
+        colorAttr.setXYZ(vi + 1, tmpColor.r, tmpColor.g, tmpColor.b);
+
+        const baseOpacity = MIN_OPACITY + (MAX_OPACITY - MIN_OPACITY) * edge.strength;
+        const boostedOpacity = Math.min(0.8, baseOpacity + edgeWeight * 0.4);
+        opacityAttr.setX(vi, boostedOpacity);
+        opacityAttr.setX(vi + 1, boostedOpacity);
+      } else {
+        colorAttr.setXYZ(vi, dimColor.r, dimColor.g, dimColor.b);
+        colorAttr.setXYZ(vi + 1, dimColor.r, dimColor.g, dimColor.b);
+        opacityAttr.setX(vi, 0.01);
+        opacityAttr.setX(vi + 1, 0.01);
+      }
+    }
+
+    colorAttr.needsUpdate = true;
+    opacityAttr.needsUpdate = true;
+  }
+
   setVisible(visible) {
     this._mesh.visible = visible;
   }
