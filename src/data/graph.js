@@ -1,0 +1,112 @@
+/**
+ * Graph builder — constructs node/edge graph from parsed data.
+ * Nodes = ingredients, Edges = pairings with strength values.
+ */
+
+/**
+ * Build the full ingredient graph from loaded data.
+ * @param {Object} data - Output from loadAllData()
+ * @returns {{ nodes: Map<string, Object>, edges: Array<Object>, ingredientList: string[] }}
+ */
+export function buildGraph(data) {
+  const { pairings, metadata, ingredientCuisines, affinities } = data;
+
+  // Collect all unique ingredients from pairings (both sides)
+  const ingredientSet = new Set();
+  for (const [ingredient, targets] of pairings) {
+    ingredientSet.add(ingredient);
+    for (const target of targets) {
+      ingredientSet.add(target);
+    }
+  }
+
+  const ingredientList = [...ingredientSet].sort();
+
+  // Build nodes
+  const nodes = new Map();
+  let id = 0;
+  for (const name of ingredientList) {
+    const meta = metadata.get(name) || { taste: null, weight: null, volume: null, season: null, tips: [] };
+    const cuisines = ingredientCuisines.get(name) || [];
+    const pairingCount = pairings.has(name) ? pairings.get(name).length : 0;
+    const ingredientAffinities = affinities.get(name) || [];
+
+    nodes.set(name, {
+      id: id++,
+      name,
+      cuisines,
+      taste: meta.taste,
+      weight: meta.weight,
+      volume: meta.volume,
+      season: meta.season,
+      tips: meta.tips,
+      pairingCount,
+      affinities: ingredientAffinities,
+      embedding: null,   // filled later by ML pipeline
+      position3D: null,  // filled later by dimension reduction
+    });
+  }
+
+  // Build edges — deduplicate bidirectional pairs and compute strength
+  const edgeMap = new Map();
+  for (const [source, targets] of pairings) {
+    for (const target of targets) {
+      // Skip if target isn't a known ingredient (could be a cuisine or metadata)
+      if (!nodes.has(target)) continue;
+
+      const key = source < target ? `${source}|${target}` : `${target}|${source}`;
+      if (!edgeMap.has(key)) {
+        edgeMap.set(key, { source: key.split('|')[0], target: key.split('|')[1], strength: 0 });
+      }
+      // Strength increases for each direction the pairing appears
+      edgeMap.get(key).strength += 1;
+    }
+  }
+
+  // Normalize strength to 0-1 range
+  const edges = [...edgeMap.values()];
+  const maxStrength = Math.max(1, ...edges.map(e => e.strength));
+  for (const edge of edges) {
+    edge.strength = edge.strength / maxStrength;
+  }
+
+  return { nodes, edges, ingredientList };
+}
+
+/**
+ * Get all neighbors of an ingredient with their edge strengths.
+ */
+export function getNeighbors(ingredient, edges) {
+  const neighbors = [];
+  for (const edge of edges) {
+    if (edge.source === ingredient) {
+      neighbors.push({ name: edge.target, strength: edge.strength });
+    } else if (edge.target === ingredient) {
+      neighbors.push({ name: edge.source, strength: edge.strength });
+    }
+  }
+  return neighbors.sort((a, b) => b.strength - a.strength);
+}
+
+/**
+ * Get shared pairings between two ingredients.
+ */
+export function getSharedPairings(ing1, ing2, edges) {
+  const neighbors1 = new Set(getNeighbors(ing1, edges).map(n => n.name));
+  const neighbors2 = new Set(getNeighbors(ing2, edges).map(n => n.name));
+  return [...neighbors1].filter(n => neighbors2.has(n));
+}
+
+/**
+ * Build an adjacency list for fast lookups.
+ */
+export function buildAdjacencyList(edges) {
+  const adj = new Map();
+  for (const edge of edges) {
+    if (!adj.has(edge.source)) adj.set(edge.source, []);
+    if (!adj.has(edge.target)) adj.set(edge.target, []);
+    adj.get(edge.source).push({ name: edge.target, strength: edge.strength });
+    adj.get(edge.target).push({ name: edge.source, strength: edge.strength });
+  }
+  return adj;
+}
