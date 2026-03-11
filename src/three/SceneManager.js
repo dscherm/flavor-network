@@ -17,6 +17,12 @@ class SceneManager {
     this._composer = null;
     this._bloomPass = null;
     this._resizeHandler = this.resize.bind(this);
+    this._raycaster = new THREE.Raycaster();
+    this._mouse = new THREE.Vector2();
+    this._raycastTarget = null; // set to an InstancedMesh for node picking
+    this._onNodeClick = null;
+    this._onNodeHover = null;
+    this._hoveredIndex = -1;
   }
 
   init(container) {
@@ -74,6 +80,12 @@ class SceneManager {
     // Resize listener
     window.addEventListener('resize', this._resizeHandler);
 
+    // Raycasting events
+    this._clickHandler = this._onClick.bind(this);
+    this._moveHandler = this._onMouseMove.bind(this);
+    this._renderer.domElement.addEventListener('click', this._clickHandler);
+    this._renderer.domElement.addEventListener('mousemove', this._moveHandler);
+
     return this;
   }
 
@@ -111,6 +123,11 @@ class SceneManager {
   dispose() {
     this.stop();
     window.removeEventListener('resize', this._resizeHandler);
+
+    if (this._renderer) {
+      this._renderer.domElement.removeEventListener('click', this._clickHandler);
+      this._renderer.domElement.removeEventListener('mousemove', this._moveHandler);
+    }
 
     if (this._controls) {
       this._controls.dispose();
@@ -161,6 +178,51 @@ class SceneManager {
   removeFromScene(object3d) {
     if (this._scene && object3d) {
       this._scene.remove(object3d);
+    }
+  }
+
+  setRaycastTarget(instancedMesh) {
+    this._raycastTarget = instancedMesh;
+  }
+
+  onNodeClick(callback) {
+    this._onNodeClick = callback;
+  }
+
+  onNodeHover(callback) {
+    this._onNodeHover = callback;
+  }
+
+  _getMouseNDC(event) {
+    const rect = this._renderer.domElement.getBoundingClientRect();
+    this._mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this._mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  }
+
+  _raycast() {
+    if (!this._raycastTarget) return -1;
+    this._raycaster.setFromCamera(this._mouse, this._camera);
+    const hits = this._raycaster.intersectObject(this._raycastTarget);
+    return hits.length > 0 ? hits[0].instanceId : -1;
+  }
+
+  _onClick(event) {
+    this._getMouseNDC(event);
+    const idx = this._raycast();
+    if (this._onNodeClick) {
+      this._onNodeClick(idx >= 0 ? idx : null);
+    }
+  }
+
+  _onMouseMove(event) {
+    this._getMouseNDC(event);
+    const idx = this._raycast();
+    if (idx !== this._hoveredIndex) {
+      this._hoveredIndex = idx;
+      if (this._onNodeHover) {
+        this._onNodeHover(idx >= 0 ? idx : null);
+      }
+      this._renderer.domElement.style.cursor = idx >= 0 ? 'pointer' : 'default';
     }
   }
 
