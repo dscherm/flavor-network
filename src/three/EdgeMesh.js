@@ -1,0 +1,192 @@
+import {
+  BufferGeometry,
+  Float32BufferAttribute,
+  LineSegments,
+  ShaderMaterial,
+  AdditiveBlending,
+  Color,
+} from 'three';
+
+const BASE_COLOR = new Color('#1a3a5c');
+const BRIGHT_COLOR = new Color('#4f8fff');
+
+const MIN_OPACITY = 0.05;
+const MAX_OPACITY = 0.4;
+
+const edgeVertexShader = /* glsl */ `
+  attribute vec3 aColor;
+  attribute float aOpacity;
+
+  varying vec3 vColor;
+  varying float vOpacity;
+
+  void main() {
+    vColor = aColor;
+    vOpacity = aOpacity;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const edgeFragmentShader = /* glsl */ `
+  varying vec3 vColor;
+  varying float vOpacity;
+
+  void main() {
+    gl_FragColor = vec4(vColor, vOpacity);
+  }
+`;
+
+class EdgeMesh {
+  constructor({ edges, positions }) {
+    const posMap = positions.positions || positions;
+
+    this._edgeList = [];
+    this._nameToEdgeIndices = new Map();
+
+    const validEdges = [];
+    for (let i = 0; i < edges.length; i++) {
+      const edge = edges[i];
+      const srcPos = posMap[edge.source];
+      const tgtPos = posMap[edge.target];
+      if (!srcPos || !tgtPos) continue;
+      validEdges.push({ edge, srcPos, tgtPos });
+    }
+
+    const vertexCount = validEdges.length * 2;
+    const positionArray = new Float32Array(vertexCount * 3);
+    const colorArray = new Float32Array(vertexCount * 3);
+    const opacityArray = new Float32Array(vertexCount);
+
+    const tmpColor = new Color();
+
+    for (let i = 0; i < validEdges.length; i++) {
+      const { edge, srcPos, tgtPos } = validEdges[i];
+      const strength = edge.strength || 0;
+      const vi = i * 2;
+
+      positionArray[vi * 3] = srcPos[0];
+      positionArray[vi * 3 + 1] = srcPos[1];
+      positionArray[vi * 3 + 2] = srcPos[2];
+
+      positionArray[(vi + 1) * 3] = tgtPos[0];
+      positionArray[(vi + 1) * 3 + 1] = tgtPos[1];
+      positionArray[(vi + 1) * 3 + 2] = tgtPos[2];
+
+      tmpColor.copy(BASE_COLOR).lerp(BRIGHT_COLOR, strength);
+
+      colorArray[vi * 3] = tmpColor.r;
+      colorArray[vi * 3 + 1] = tmpColor.g;
+      colorArray[vi * 3 + 2] = tmpColor.b;
+
+      colorArray[(vi + 1) * 3] = tmpColor.r;
+      colorArray[(vi + 1) * 3 + 1] = tmpColor.g;
+      colorArray[(vi + 1) * 3 + 2] = tmpColor.b;
+
+      const opacity = MIN_OPACITY + (MAX_OPACITY - MIN_OPACITY) * strength;
+      opacityArray[vi] = opacity;
+      opacityArray[vi + 1] = opacity;
+
+      this._edgeList.push({
+        source: edge.source,
+        target: edge.target,
+        strength,
+        vertexIndex: vi,
+      });
+
+      const edgeIndex = this._edgeList.length - 1;
+
+      if (!this._nameToEdgeIndices.has(edge.source)) {
+        this._nameToEdgeIndices.set(edge.source, []);
+      }
+      this._nameToEdgeIndices.get(edge.source).push(edgeIndex);
+
+      if (!this._nameToEdgeIndices.has(edge.target)) {
+        this._nameToEdgeIndices.set(edge.target, []);
+      }
+      this._nameToEdgeIndices.get(edge.target).push(edgeIndex);
+    }
+
+    this._geometry = new BufferGeometry();
+    this._geometry.setAttribute('position', new Float32BufferAttribute(positionArray, 3));
+    this._geometry.setAttribute('aColor', new Float32BufferAttribute(colorArray, 3));
+    this._geometry.setAttribute('aOpacity', new Float32BufferAttribute(opacityArray, 1));
+
+    this._defaultColors = new Float32Array(colorArray);
+    this._defaultOpacities = new Float32Array(opacityArray);
+
+    this._material = new ShaderMaterial({
+      vertexShader: edgeVertexShader,
+      fragmentShader: edgeFragmentShader,
+      transparent: true,
+      depthWrite: false,
+      blending: AdditiveBlending,
+    });
+
+    this._mesh = new LineSegments(this._geometry, this._material);
+  }
+
+  getMesh() {
+    return this._mesh;
+  }
+
+  highlightEdgesFor(name, intensity) {
+    const indices = this._nameToEdgeIndices.get(name);
+    if (!indices) return;
+
+    const colorAttr = this._geometry.getAttribute('aColor');
+    const opacityAttr = this._geometry.getAttribute('aOpacity');
+    const tmpColor = new Color();
+
+    for (let i = 0; i < indices.length; i++) {
+      const edgeInfo = this._edgeList[indices[i]];
+      const vi = edgeInfo.vertexIndex;
+
+      tmpColor.copy(BASE_COLOR).lerp(BRIGHT_COLOR, edgeInfo.strength);
+      tmpColor.lerp(new Color('#ffffff'), intensity * 0.6);
+
+      colorAttr.setXYZ(vi, tmpColor.r, tmpColor.g, tmpColor.b);
+      colorAttr.setXYZ(vi + 1, tmpColor.r, tmpColor.g, tmpColor.b);
+
+      const baseOpacity = MIN_OPACITY + (MAX_OPACITY - MIN_OPACITY) * edgeInfo.strength;
+      const highlightOpacity = Math.min(1.0, baseOpacity + intensity * 0.6);
+      opacityAttr.setX(vi, highlightOpacity);
+      opacityAttr.setX(vi + 1, highlightOpacity);
+    }
+
+    colorAttr.needsUpdate = true;
+    opacityAttr.needsUpdate = true;
+  }
+
+  resetHighlights() {
+    const colorAttr = this._geometry.getAttribute('aColor');
+    const opacityAttr = this._geometry.getAttribute('aOpacity');
+
+    colorAttr.array.set(this._defaultColors);
+    opacityAttr.array.set(this._defaultOpacities);
+
+    colorAttr.needsUpdate = true;
+    opacityAttr.needsUpdate = true;
+  }
+
+  setVisible(visible) {
+    this._mesh.visible = visible;
+  }
+
+  dispose() {
+    if (this._geometry) {
+      this._geometry.dispose();
+      this._geometry = null;
+    }
+    if (this._material) {
+      this._material.dispose();
+      this._material = null;
+    }
+    this._mesh = null;
+    this._edgeList = [];
+    this._nameToEdgeIndices.clear();
+    this._defaultColors = null;
+    this._defaultOpacities = null;
+  }
+}
+
+export default EdgeMesh;
