@@ -215,6 +215,11 @@ class SceneManager {
   }
 
   _onMouseMove(event) {
+    // Throttle raycasts to ~30fps for performance
+    const now = performance.now();
+    if (now - (this._lastRaycastTime || 0) < 33) return;
+    this._lastRaycastTime = now;
+
     this._getMouseNDC(event);
     const idx = this._raycast();
     if (idx !== this._hoveredIndex) {
