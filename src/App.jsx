@@ -5,8 +5,9 @@ import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Legend from './components/Legend.jsx';
 import Controls from './components/Controls.jsx';
-import { getNeighbors } from './data/graph.js';
+import { getNeighbors, getSharedPairings } from './data/graph.js';
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
+import ComparePanel from './components/ComparePanel.jsx';
 
 export default function App() {
   const { loading, error, data } = useFlavorData();
@@ -15,6 +16,8 @@ export default function App() {
   const [showParticles, setShowParticles] = useState(true);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareNode, setCompareNode] = useState(null);
 
   const ingredientList = useMemo(() => {
     if (!data) return [];
@@ -41,9 +44,25 @@ export default function App() {
     return data.graph.nodes.get(selectedNode) || null;
   }, [data, selectedNode]);
 
+  const sharedPairings = useMemo(() => {
+    if (!data || !selectedNode || !compareNode) return [];
+    return getSharedPairings(selectedNode, compareNode, data.graph.edges);
+  }, [data, selectedNode, compareNode]);
+
+  const compareNodeData = useMemo(() => {
+    if (!data || !compareNode) return null;
+    return data.graph.nodes.get(compareNode) || null;
+  }, [data, compareNode]);
+
   const handleNodeClick = useCallback((node) => {
-    setSelectedNode(node ? node.name : null);
-  }, []);
+    const name = node ? node.name : null;
+    if (compareMode && selectedNode && name && name !== selectedNode) {
+      setCompareNode(name);
+    } else {
+      setSelectedNode(name);
+      setCompareNode(null);
+    }
+  }, [compareMode, selectedNode]);
 
   const handleSearchSelect = useCallback((name) => {
     setSelectedNode(name);
@@ -95,6 +114,16 @@ export default function App() {
         onClose={handlePanelClose}
         onSelectIngredient={handleSearchSelect}
       />
+      {compareNode && (
+        <ComparePanel
+          node1={selectedNodeData}
+          node2={compareNodeData}
+          sharedPairings={sharedPairings}
+          neighbors1={neighbors}
+          neighbors2={data ? getNeighbors(compareNode, data.graph.edges) : []}
+          onClose={() => { setCompareNode(null); setCompareMode(false); }}
+        />
+      )}
       <Legend />
       <Controls
         showEdges={showEdges}
