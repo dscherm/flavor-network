@@ -110,3 +110,53 @@ export function buildAdjacencyList(edges) {
   }
   return adj;
 }
+
+/**
+ * Find the strongest connection path between two ingredients using
+ * a modified Dijkstra's where edge weight = 1 - strength (prefer strong connections).
+ * Returns the path as an array of ingredient names, or [] if no path exists.
+ */
+export function findStrongestPath(start, end, edges, maxDepth = 5) {
+  const adj = buildAdjacencyList(edges);
+  if (!adj.has(start) || !adj.has(end)) return [];
+
+  // Dijkstra with cost = 1 - strength (so strong edges are cheap)
+  const dist = new Map();
+  const prev = new Map();
+  const visited = new Set();
+
+  dist.set(start, 0);
+  const queue = [{ name: start, cost: 0, depth: 0 }];
+
+  while (queue.length > 0) {
+    // Simple priority queue via sort (fine for small graphs)
+    queue.sort((a, b) => a.cost - b.cost);
+    const { name: current, cost, depth } = queue.shift();
+
+    if (current === end) {
+      // Reconstruct path
+      const path = [];
+      let node = end;
+      while (node) {
+        path.unshift(node);
+        node = prev.get(node) || null;
+      }
+      return path;
+    }
+
+    if (visited.has(current) || depth >= maxDepth) continue;
+    visited.add(current);
+
+    for (const neighbor of (adj.get(current) || [])) {
+      const edgeCost = 1 - neighbor.strength;
+      const newCost = cost + edgeCost;
+      if (!dist.has(neighbor.name) || newCost < dist.get(neighbor.name)) {
+        dist.set(neighbor.name, newCost);
+        prev.set(neighbor.name, current);
+        queue.push({ name: neighbor.name, cost: newCost, depth: depth + 1 });
+      }
+    }
+  }
+
+  return [];
+}
