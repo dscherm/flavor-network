@@ -8,6 +8,8 @@ import Controls from './components/Controls.jsx';
 import { getNeighbors, getSharedPairings } from './data/graph.js';
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
 import ComparePanel from './components/ComparePanel.jsx';
+import Walkthrough from './components/Walkthrough.jsx';
+import HelpButton from './components/HelpButton.jsx';
 
 export default function App() {
   const { loading, error, data } = useFlavorData();
@@ -18,6 +20,9 @@ export default function App() {
   const [selectedTaste, setSelectedTaste] = useState('');
   const [compareMode, setCompareMode] = useState(false);
   const [compareNode, setCompareNode] = useState(null);
+  const [showTour, setShowTour] = useState(
+    () => !localStorage.getItem('flavor-tour-complete')
+  );
 
   const ingredientList = useMemo(() => {
     if (!data) return [];
@@ -137,6 +142,12 @@ export default function App() {
         selectedTaste={selectedTaste}
         onTasteFilter={setSelectedTaste}
       />
+      <Walkthrough
+        active={showTour}
+        onComplete={() => setShowTour(false)}
+        onSkip={() => setShowTour(false)}
+      />
+      <HelpButton onClick={() => setShowTour(true)} />
     </>
   );
 }
