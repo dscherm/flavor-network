@@ -23,6 +23,7 @@ export default function NetworkScene({
   showParticles = true,
   filterCuisine = '',
   filterTaste = '',
+  profileWeights = null,
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -178,6 +179,21 @@ export default function NetworkScene({
       nodes.applyFilter({ cuisine: filterCuisine, taste: filterTaste });
     }
   }, [filterCuisine, filterTaste]);
+
+  // Apply profile weights when in profile mode
+  useEffect(() => {
+    const nodes = nodeMeshRef.current;
+    const edges = edgeMeshRef.current;
+    if (!nodes || !edges) return;
+
+    if (profileWeights && profileWeights.size > 0) {
+      nodes.applyProfileWeights(profileWeights);
+      edges.applyProfileWeights(profileWeights);
+    } else {
+      nodes.resetProfileWeights();
+      edges.resetHighlights();
+    }
+  }, [profileWeights]);
 
   return (
     <div
