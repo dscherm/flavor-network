@@ -211,6 +211,76 @@ class NodeMesh {
     }
   }
 
+  /**
+   * Apply profile weights — scale node size and brightness by personal weight.
+   * Nodes with weight 0 get dimmed; higher weight = larger + brighter.
+   * @param {Map<string, number>} weights - ingredient name → normalized weight (0–1)
+   */
+  applyProfileWeights(weights) {
+    const dummy = new Object3D();
+    const dimColor = new Color('#0d0d15');
+
+    for (let i = 0; i < this._nodeList.length; i++) {
+      const node = this._nodeList[i];
+      const w = weights.get(node.name) || 0;
+
+      // Update color: dim unweighted, brighten weighted
+      if (w > 0) {
+        const base = this._defaultColors[i];
+        const brightened = base.clone().lerp(new Color('#ffffff'), w * 0.35);
+        this._mesh.setColorAt(i, brightened);
+      } else {
+        this._mesh.setColorAt(i, dimColor);
+      }
+
+      // Update scale: base scale from pairing count, boosted by weight
+      this._mesh.getMatrixAt(i, dummy.matrix);
+      dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
+
+      const pairingCount = node.pairingCount || 0;
+      const baseScale = Math.max(0.3, Math.min(2.0, Math.sqrt(pairingCount) * 0.15));
+      const scaleMult = w > 0 ? 1.0 + w * 0.8 : 0.6;
+      const s = baseScale * scaleMult;
+      dummy.scale.set(s, s, s);
+
+      dummy.updateMatrix();
+      this._mesh.setMatrixAt(i, dummy.matrix);
+    }
+
+    this._mesh.instanceMatrix.needsUpdate = true;
+    if (this._mesh.instanceColor) {
+      this._mesh.instanceColor.needsUpdate = true;
+    }
+  }
+
+  /**
+   * Reset node sizes back to defaults (undo profile weight scaling).
+   */
+  resetProfileWeights() {
+    const dummy = new Object3D();
+
+    for (let i = 0; i < this._nodeList.length; i++) {
+      const node = this._nodeList[i];
+
+      this._mesh.getMatrixAt(i, dummy.matrix);
+      dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
+
+      const pairingCount = node.pairingCount || 0;
+      const s = Math.max(0.3, Math.min(2.0, Math.sqrt(pairingCount) * 0.15));
+      dummy.scale.set(s, s, s);
+
+      dummy.updateMatrix();
+      this._mesh.setMatrixAt(i, dummy.matrix);
+
+      this._mesh.setColorAt(i, this._defaultColors[i]);
+    }
+
+    this._mesh.instanceMatrix.needsUpdate = true;
+    if (this._mesh.instanceColor) {
+      this._mesh.instanceColor.needsUpdate = true;
+    }
+  }
+
   dispose() {
     if (this._geometry) {
       this._geometry.dispose();
