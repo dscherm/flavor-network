@@ -1,6 +1,6 @@
 ---
-mode: build-greenfield
-updated: 2026-03-11T10:30
+mode: add-features
+updated: 2026-03-11T11:30
 ---
 
 # Flavor Network — Build Plan
@@ -65,3 +65,22 @@ updated: 2026-03-11T10:30
 - [x] TASK-45: Add responsive layout — panel collapses on mobile, touch controls for 3D #polish
 - [x] TASK-46: Performance optimization — frustum culling, LOD for distant nodes, throttle raycasts #polish
 - [x] TASK-47: Add keyboard shortcuts — Escape to deselect, / to focus search, arrow keys for navigation #polish
+
+## Phase 9: User Flavor Profile — Data Layer
+- [>] TASK-50: Build hooks/useUserProfile.js — localStorage-backed state for user cuisines, ingredients, recipes with add/remove/clear/export/import #profile
+- [ ] TASK-51: Build data/profileWeights.js — compute personal weight per ingredient from user profile (direct selection + cuisine boost + recipe boost + 1-hop cascade) #profile
+- [ ] TASK-52: Add recipe ingredient parser — extract known ingredients from free-text recipe names and pasted recipe text/URLs #profile
+
+## Phase 10: User Flavor Profile — UI
+- [ ] TASK-53: Build components/ProfilePanel.jsx — slide-in panel to manage profile: add/remove cuisines, ingredients, recipes; show profile stats #profile
+- [ ] TASK-54: Build components/RecipeBuilder.jsx — modal to create recipes by selecting ingredients from graph + free-text + paste URL parsing #profile
+- [ ] TASK-55: Build components/ProfileToggle.jsx — button to switch between global view and "My Profile" view mode #profile
+- [ ] TASK-56: Add heart/star toggle on node hover in 3D scene — click to quick-add/remove ingredient from profile #profile
+- [ ] TASK-57: Build components/ProfileInsights.jsx — show top 10 ingredients, "you might like" suggestions, flavor signature (taste breakdown), cuisine affinity #profile
+
+## Phase 11: User Flavor Profile — Visualization
+- [ ] TASK-58: Add applyProfileWeights() to NodeMesh — scale node size and brightness by personal weight in profile mode #profile
+- [ ] TASK-59: Add applyProfileWeights() to EdgeMesh — brighten edges between high-weight nodes in profile mode #profile
+- [ ] TASK-60: Wire profile view toggle in App.jsx + NetworkScene — switch between global and profile-weighted views #profile
+- [ ] TASK-61: Add profile export/import buttons — download profile as JSON, upload JSON to restore #profile
+- [ ] TASK-62: Add walkthrough steps for profile feature — explain how to add preferences, switch views, read insights #profile
