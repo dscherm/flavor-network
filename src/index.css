@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neural-bg text-neural-text antialiased;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  #root {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  /* Scrollbar styling for panels */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: theme('colors.neural.border');
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.neural.muted');
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-neural-surface/90 backdrop-blur-md border border-neural-border rounded-lg;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 10px rgba(79, 143, 255, 0.5);
+  }
+
+  .input-field {
+    @apply bg-neural-bg border border-neural-border rounded-md px-3 py-2 text-neural-text
+           placeholder:text-neural-muted focus:outline-none focus:border-neural-glow
+           focus:shadow-glow transition-all duration-200;
+  }
+}
