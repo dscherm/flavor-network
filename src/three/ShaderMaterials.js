@@ -109,7 +109,12 @@ export function createEdgeMaterial() {
 const particleVertexShader = /* glsl */ `
   uniform float uSize;
 
+  attribute vec3 aColor;
+
+  varying vec3 vColor;
+
   void main() {
+    vColor = aColor;
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
     // Scale point size by distance so particles shrink with perspective
     gl_PointSize = uSize * (300.0 / -mvPosition.z);
@@ -118,8 +123,9 @@ const particleVertexShader = /* glsl */ `
 `;
 
 const particleFragmentShader = /* glsl */ `
-  uniform vec3 uColor;
   uniform float uOpacity;
+
+  varying vec3 vColor;
 
   void main() {
     // Soft circular point sprite
@@ -133,7 +139,7 @@ const particleFragmentShader = /* glsl */ `
     float strength = 1.0 - smoothstep(0.0, 0.5, dist);
     strength = pow(strength, 1.5);
 
-    gl_FragColor = vec4(uColor * strength, uOpacity * strength);
+    gl_FragColor = vec4(vColor * strength, uOpacity * strength);
   }
 `;
 
@@ -142,7 +148,7 @@ export function createParticleMaterial() {
     uniforms: {
       uColor: { value: new Vector3(0.4, 0.7, 1.0) },
       uSize: { value: 6.0 },
-      uOpacity: { value: 0.8 },
+      uOpacity: { value: 0.4 },
     },
     vertexShader: particleVertexShader,
     fragmentShader: particleFragmentShader,

@@ -67,6 +67,18 @@ class SceneManager {
     );
     this._composer.addPass(this._bloomPass);
 
+    // Lighting — required for MeshStandardMaterial
+    const ambientLight = new THREE.AmbientLight(0x404060, 1.0);
+    this._scene.add(ambientLight);
+
+    const pointLight1 = new THREE.PointLight(0x4f8fff, 2.0, 500);
+    pointLight1.position.set(50, 80, 100);
+    this._scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xff6b9d, 1.5, 500);
+    pointLight2.position.set(-80, -50, -60);
+    this._scene.add(pointLight2);
+
     // Controls
     this._controls = new OrbitControls(this._camera, this._renderer.domElement);
     this._controls.enableDamping = true;

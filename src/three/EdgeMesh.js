@@ -129,6 +129,22 @@ class EdgeMesh {
     return this._mesh;
   }
 
+  /**
+   * Dim all edges to near-invisible.
+   */
+  dimAll() {
+    const opacityAttr = this._geometry.getAttribute('aOpacity');
+    const colorAttr = this._geometry.getAttribute('aColor');
+
+    for (let i = 0; i < opacityAttr.count; i++) {
+      opacityAttr.setX(i, 0.01);
+      colorAttr.setXYZ(i, 0.04, 0.04, 0.06);
+    }
+
+    opacityAttr.needsUpdate = true;
+    colorAttr.needsUpdate = true;
+  }
+
   highlightEdgesFor(name, intensity) {
     const indices = this._nameToEdgeIndices.get(name);
     if (!indices) return;
