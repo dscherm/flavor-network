@@ -10,6 +10,8 @@ import { getAllCuisines, getAllTastes } from './data/metadata.js';
 import ComparePanel from './components/ComparePanel.jsx';
 import Walkthrough from './components/Walkthrough.jsx';
 import HelpButton from './components/HelpButton.jsx';
+import ProfilePanel from './components/ProfilePanel.jsx';
+import useUserProfile from './hooks/useUserProfile.js';
 
 export default function App() {
   const { loading, error, data } = useFlavorData();
@@ -23,6 +25,8 @@ export default function App() {
   const [showTour, setShowTour] = useState(
     () => !localStorage.getItem('flavor-tour-complete')
   );
+  const [showProfile, setShowProfile] = useState(false);
+  const userProfile = useUserProfile();
 
   const ingredientList = useMemo(() => {
     if (!data) return [];
@@ -177,6 +181,21 @@ export default function App() {
         onComplete={() => setShowTour(false)}
         onSkip={() => setShowTour(false)}
       />
+      <ProfilePanel
+        profile={userProfile.profile}
+        actions={userProfile}
+        ingredientList={ingredientList}
+        cuisines={cuisines}
+        isOpen={showProfile}
+        onClose={() => setShowProfile(false)}
+      />
+      <button
+        onClick={() => setShowProfile((v) => !v)}
+        className="fixed top-4 left-4 z-50 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg px-3 py-2 text-xs text-gray-400 hover:text-blue-400 transition-colors select-none"
+        aria-label="Toggle profile panel"
+      >
+        {showProfile ? 'Close Profile' : 'My Profile'}
+      </button>
       <HelpButton onClick={() => setShowTour(true)} />
     </>
   );
