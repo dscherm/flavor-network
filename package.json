@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "train": "node src/ml/embeddings.js",
+    "train": "node scripts/train.js",
     "api": "node src/api/server.js"
   },
   "dependencies": {
