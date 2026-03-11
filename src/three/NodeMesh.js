@@ -1,12 +1,33 @@
+import * as THREE from 'three';
 import {
   InstancedMesh,
   SphereGeometry,
-  MeshStandardMaterial,
-  Matrix4,
-  Vector3,
   Color,
   Object3D,
 } from 'three';
+
+const CUISINE_COLORS = {
+  'french cuisine': '#e63946',
+  'italian cuisine': '#2a9d8f',
+  'chinese cuisine': '#e9c46a',
+  'japanese cuisine': '#f4a261',
+  'indian cuisine': '#e76f51',
+  'mexican cuisine': '#06d6a0',
+  'thai cuisine': '#118ab2',
+  'mediterranean cuisine': '#ef476f',
+  'american cuisine': '#ffd166',
+  'spanish cuisine': '#d62828',
+  'korean cuisine': '#7209b7',
+  'vietnamese cuisine': '#4cc9f0',
+  'greek cuisine': '#3a86ff',
+  'moroccan cuisine': '#fb5607',
+  'middle eastern cuisine': '#ff006e',
+  'african cuisine': '#8338ec',
+  'caribbean cuisine': '#06d6a0',
+  'german cuisine': '#ffbe0b',
+  'british cuisine': '#3f88c5',
+  'scandinavian cuisine': '#80ced6',
+};
 
 const TASTE_COLORS = {
   sweet: '#ff6b9d',
@@ -15,19 +36,38 @@ const TASTE_COLORS = {
   umami: '#f39c12',
   spicy: '#e74c3c',
   hot: '#e74c3c',
+  salty: '#3498db',
+  pungent: '#e67e22',
+  astringent: '#1abc9c',
 };
 
 const DEFAULT_COLOR = '#4f8fff';
 
 function getColorForNode(node) {
+  // Primary: color by taste profile
   const taste = (node.taste || '').toLowerCase().trim();
-  for (const [key, hex] of Object.entries(TASTE_COLORS)) {
-    if (taste.includes(key)) {
-      return new Color(hex);
+  if (taste) {
+    for (const [key, hex] of Object.entries(TASTE_COLORS)) {
+      if (taste.includes(key)) {
+        return new Color(hex);
+      }
     }
   }
+
+  // Fallback: color by first cuisine
+  if (node.cuisines && node.cuisines.length > 0) {
+    for (const cuisine of node.cuisines) {
+      const hex = CUISINE_COLORS[cuisine.toLowerCase()];
+      if (hex) return new Color(hex);
+    }
+    const hash = node.cuisines[0].split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+    return new Color().setHSL((hash % 360) / 360, 0.7, 0.55);
+  }
+
   return new Color(DEFAULT_COLOR);
 }
+
+export { getColorForNode };
 
 class NodeMesh {
   constructor({ nodes, positions }) {
@@ -40,11 +80,11 @@ class NodeMesh {
     const count = nodeArray.length;
 
     const geometry = new SphereGeometry(1, 16, 16);
-    const material = new MeshStandardMaterial({
-      emissive: new Color(DEFAULT_COLOR),
-      emissiveIntensity: 0.3,
-      metalness: 0.3,
-      roughness: 0.7,
+
+    // Use MeshBasicMaterial so instance colors show directly without lighting dependency
+    // Combined with bloom post-processing, this gives the glowing neural look
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
       transparent: true,
       opacity: 0.9,
     });
@@ -55,7 +95,6 @@ class NodeMesh {
     this._material = material;
 
     const dummy = new Object3D();
-    const color = new Color();
 
     for (let i = 0; i < count; i++) {
       const node = nodeArray[i];
@@ -103,12 +142,26 @@ class NodeMesh {
     return idx !== undefined ? idx : -1;
   }
 
+  /**
+   * Dim all nodes to near-invisible. Call before setActivation to make selected network pop.
+   */
+  dimAll() {
+    const dimColor = new Color('#0a0a12');
+    for (let i = 0; i < this._nodeList.length; i++) {
+      this._mesh.setColorAt(i, dimColor);
+    }
+    if (this._mesh.instanceColor) {
+      this._mesh.instanceColor.needsUpdate = true;
+    }
+  }
+
   setActivation(name, intensity) {
     const index = this._nameToIndex.get(name);
     if (index === undefined) return;
 
+    // Restore original color and brighten based on intensity
     const base = this._defaultColors[index];
-    const activated = base.clone().lerp(new Color('#ffffff'), intensity);
+    const activated = base.clone().lerp(new Color('#ffffff'), intensity * 0.4);
     this._mesh.setColorAt(index, activated);
 
     if (this._mesh.instanceColor) {
@@ -120,6 +173,39 @@ class NodeMesh {
     for (let i = 0; i < this._defaultColors.length; i++) {
       this._mesh.setColorAt(i, this._defaultColors[i]);
     }
+    if (this._mesh.instanceColor) {
+      this._mesh.instanceColor.needsUpdate = true;
+    }
+  }
+
+  /**
+   * Filter nodes by cuisine and/or taste. Non-matching nodes get dimmed.
+   * @param {{ cuisine?: string, taste?: string }} filter
+   */
+  applyFilter({ cuisine, taste }) {
+    const dummy = new Object3D();
+    const dimColor = new Color('#111118');
+
+    for (let i = 0; i < this._nodeList.length; i++) {
+      const node = this._nodeList[i];
+      let matches = true;
+
+      if (cuisine) {
+        matches = matches && node.cuisines && node.cuisines.some(
+          c => c.toLowerCase().includes(cuisine.toLowerCase())
+        );
+      }
+      if (taste) {
+        matches = matches && node.taste && node.taste.toLowerCase().includes(taste.toLowerCase());
+      }
+
+      if (matches) {
+        this._mesh.setColorAt(i, this._defaultColors[i]);
+      } else {
+        this._mesh.setColorAt(i, dimColor);
+      }
+    }
+
     if (this._mesh.instanceColor) {
       this._mesh.instanceColor.needsUpdate = true;
     }

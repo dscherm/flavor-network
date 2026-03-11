@@ -21,6 +21,8 @@ export default function NetworkScene({
   selectedNode,
   showEdges = true,
   showParticles = true,
+  filterCuisine = '',
+  filterTaste = '',
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -33,8 +35,24 @@ export default function NetworkScene({
   useEffect(() => {
     if (!containerRef.current || !data) return;
 
-    const { graph, positions } = data;
-    if (!positions) return;
+    const { graph } = data;
+    let positions = data.positions;
+
+    // Fallback: generate random 3D positions if embeddings not trained yet
+    if (!positions || !positions.positions) {
+      const fallback = {};
+      for (const [name, node] of graph.nodes) {
+        const angle1 = Math.random() * Math.PI * 2;
+        const angle2 = Math.random() * Math.PI * 2;
+        const radius = 30 + Math.random() * 70;
+        fallback[name] = [
+          radius * Math.sin(angle1) * Math.cos(angle2),
+          radius * Math.sin(angle1) * Math.sin(angle2),
+          radius * Math.cos(angle1),
+        ];
+      }
+      positions = { positions: fallback };
+    }
 
     const manager = new SceneManager();
     manager.init(containerRef.current);
@@ -43,7 +61,7 @@ export default function NetworkScene({
     // Create meshes
     const nodes = new NodeMesh({ nodes: graph.nodes, positions });
     const edges = new EdgeMesh({ edges: graph.edges, positions });
-    const particles = new ParticleSystem({ edges: graph.edges, positions });
+    const particles = new ParticleSystem({ edges: graph.edges, positions, nodes: graph.nodes });
 
     nodeMeshRef.current = nodes;
     edgeMeshRef.current = edges;
@@ -109,21 +127,34 @@ export default function NetworkScene({
 
     nodes.resetActivations();
     edges.resetHighlights();
+    if (particleRef.current) particleRef.current.resetHighlights();
 
     if (selectedNode && data) {
-      // Activate selected node
-      nodes.setActivation(selectedNode, 1.0);
+      // Build set of connected node names + their strength
+      const connectedMap = new Map();
+      connectedMap.set(selectedNode, 1.0);
 
-      // Activate connected nodes based on edge strength
       for (const edge of data.graph.edges) {
         if (edge.source === selectedNode) {
-          nodes.setActivation(edge.target, edge.strength * 0.7);
+          connectedMap.set(edge.target, edge.strength);
         } else if (edge.target === selectedNode) {
-          nodes.setActivation(edge.source, edge.strength * 0.7);
+          connectedMap.set(edge.source, edge.strength);
         }
       }
 
+      // Dim ALL nodes, edges, particles first
+      nodes.dimAll();
+      edges.dimAll();
+      if (particleRef.current) particleRef.current.dimAll();
+
+      // Brighten connected nodes proportional to strength
+      for (const [name, strength] of connectedMap) {
+        nodes.setActivation(name, strength);
+      }
+
+      // Brighten only edges and particles connected to selected node
       edges.highlightEdgesFor(selectedNode, 1.0);
+      if (particleRef.current) particleRef.current.highlightFor(selectedNode);
     }
   }, [selectedNode, data]);
 
@@ -135,6 +166,18 @@ export default function NetworkScene({
   useEffect(() => {
     if (particleRef.current) particleRef.current.setVisible(showParticles);
   }, [showParticles]);
+
+  // Apply cuisine/taste filters
+  useEffect(() => {
+    const nodes = nodeMeshRef.current;
+    if (!nodes) return;
+
+    if (!filterCuisine && !filterTaste) {
+      nodes.resetActivations();
+    } else {
+      nodes.applyFilter({ cuisine: filterCuisine, taste: filterTaste });
+    }
+  }, [filterCuisine, filterTaste]);
 
   return (
     <div

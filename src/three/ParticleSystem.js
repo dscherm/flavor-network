@@ -2,9 +2,11 @@ import {
   BufferGeometry,
   Float32BufferAttribute,
   Points,
+  Color,
 } from 'three';
 
 import { createParticleMaterial } from './ShaderMaterials.js';
+import { getColorForNode } from './NodeMesh.js';
 
 const STRENGTH_THRESHOLD = 0.3;
 const BASE_SPEED = 0.15;
@@ -15,12 +17,15 @@ class ParticleSystem {
    * @param {Object} opts
    * @param {Array<{source: string, target: string, strength: number}>} opts.edges
    * @param {Object} opts.positions - either { positions: { name: [x,y,z] } } or flat { name: [x,y,z] }
+   * @param {Map} [opts.nodes] - graph nodes map for color lookup
    * @param {number} [opts.particlesPerEdge=2]
    */
-  constructor({ edges, positions, particlesPerEdge = 2 }) {
+  constructor({ edges, positions, nodes, particlesPerEdge = 2 }) {
     const posMap = positions.positions || positions;
 
     this._particles = [];
+    const particleColors = [];
+    const defaultColor = new Color(0x4f8fff);
 
     for (let i = 0; i < edges.length; i++) {
       const edge = edges[i];
@@ -33,8 +38,19 @@ class ParticleSystem {
 
       const speed = BASE_SPEED + (MAX_SPEED - BASE_SPEED) * strength;
 
+      // Get color from source node — particle inherits the source ingredient's color
+      let color = defaultColor;
+      if (nodes) {
+        const srcNode = nodes.get(edge.source);
+        if (srcNode) {
+          color = getColorForNode(srcNode);
+        }
+      }
+
       for (let p = 0; p < particlesPerEdge; p++) {
         this._particles.push({
+          source: edge.source,
+          target: edge.target,
           srcX: srcPos[0],
           srcY: srcPos[1],
           srcZ: srcPos[2],
@@ -44,12 +60,14 @@ class ParticleSystem {
           progress: p / particlesPerEdge,
           speed,
         });
+        particleColors.push(color.r, color.g, color.b);
       }
     }
 
     const count = this._particles.length;
     const positionArray = new Float32Array(count * 3);
     const opacityArray = new Float32Array(count);
+    const colorArray = new Float32Array(particleColors);
 
     for (let i = 0; i < count; i++) {
       const pt = this._particles[i];
@@ -63,6 +81,8 @@ class ParticleSystem {
     this._geometry = new BufferGeometry();
     this._geometry.setAttribute('position', new Float32BufferAttribute(positionArray, 3));
     this._geometry.setAttribute('aOpacity', new Float32BufferAttribute(opacityArray, 1));
+    this._geometry.setAttribute('aColor', new Float32BufferAttribute(colorArray, 3));
+    this._defaultColors = new Float32Array(colorArray);
 
     this._material = createParticleMaterial();
 
@@ -116,6 +136,45 @@ class ParticleSystem {
 
     posAttr.needsUpdate = true;
     opacityAttr.needsUpdate = true;
+  }
+
+  /**
+   * Dim all particles to near-invisible.
+   */
+  dimAll() {
+    const colorAttr = this._geometry.getAttribute('aColor');
+    for (let i = 0; i < colorAttr.count; i++) {
+      colorAttr.setXYZ(i, 0.02, 0.02, 0.03);
+    }
+    colorAttr.needsUpdate = true;
+    this._dimmed = true;
+  }
+
+  /**
+   * Brighten only particles connected to the given ingredient.
+   */
+  highlightFor(name) {
+    if (!this._defaultColors) return;
+    const colorAttr = this._geometry.getAttribute('aColor');
+
+    for (let i = 0; i < this._particles.length; i++) {
+      const pt = this._particles[i];
+      if (pt.source === name || pt.target === name) {
+        colorAttr.setXYZ(i, this._defaultColors[i * 3], this._defaultColors[i * 3 + 1], this._defaultColors[i * 3 + 2]);
+      }
+    }
+    colorAttr.needsUpdate = true;
+  }
+
+  /**
+   * Restore all particles to their original colors.
+   */
+  resetHighlights() {
+    if (!this._defaultColors) return;
+    const colorAttr = this._geometry.getAttribute('aColor');
+    colorAttr.array.set(this._defaultColors);
+    colorAttr.needsUpdate = true;
+    this._dimmed = false;
   }
 
   /**

@@ -136,6 +136,8 @@ export default function App() {
         selectedNode={selectedNode}
         showEdges={showEdges}
         showParticles={showParticles}
+        filterCuisine={selectedCuisine}
+        filterTaste={selectedTaste}
       />
       <SearchBar
         ingredients={ingredientList}
