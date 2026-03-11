@@ -14,6 +14,7 @@ import ProfilePanel from './components/ProfilePanel.jsx';
 import RecipeBuilder from './components/RecipeBuilder.jsx';
 import ProfileToggle from './components/ProfileToggle.jsx';
 import NodeFavoriteButton from './components/NodeFavoriteButton.jsx';
+import ProfileInsights from './components/ProfileInsights.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import { computeProfileWeights } from './data/profileWeights.js';
 
@@ -34,6 +35,7 @@ export default function App() {
   const [showRecipeBuilder, setShowRecipeBuilder] = useState(false);
   const [hoveredNode, setHoveredNode] = useState(null);
   const [hoverMousePos, setHoverMousePos] = useState(null);
+  const [showInsights, setShowInsights] = useState(false);
   const userProfile = useUserProfile();
 
   const ingredientList = useMemo(() => {
@@ -226,7 +228,16 @@ export default function App() {
         profileMode={profileMode}
         onToggleMode={() => setProfileMode(v => !v)}
         onOpenPanel={() => setShowProfile(v => !v)}
+        onOpenInsights={() => setShowInsights(v => !v)}
         profileStats={userProfile.stats}
+      />
+      <ProfileInsights
+        profile={userProfile.profile}
+        nodes={data ? data.graph.nodes : null}
+        isOpen={showInsights}
+        onClose={() => setShowInsights(false)}
+        onSelectIngredient={handleSearchSelect}
+        onAddIngredient={userProfile.addIngredient}
       />
       <HelpButton onClick={() => setShowTour(true)} />
     </>
