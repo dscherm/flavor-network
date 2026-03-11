@@ -13,6 +13,7 @@ import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
 import RecipeBuilder from './components/RecipeBuilder.jsx';
 import ProfileToggle from './components/ProfileToggle.jsx';
+import NodeFavoriteButton from './components/NodeFavoriteButton.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import { computeProfileWeights } from './data/profileWeights.js';
 
@@ -31,6 +32,8 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [profileMode, setProfileMode] = useState(false);
   const [showRecipeBuilder, setShowRecipeBuilder] = useState(false);
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const [hoverMousePos, setHoverMousePos] = useState(null);
   const userProfile = useUserProfile();
 
   const ingredientList = useMemo(() => {
@@ -82,6 +85,11 @@ export default function App() {
       setCompareNode(null);
     }
   }, [compareMode, selectedNode]);
+
+  const handleNodeHover = useCallback((node, mousePos) => {
+    setHoveredNode(node);
+    setHoverMousePos(node ? mousePos : null);
+  }, []);
 
   const handleSearchSelect = useCallback((name) => {
     setSelectedNode(name);
@@ -146,13 +154,19 @@ export default function App() {
       <NetworkScene
         data={data}
         onNodeClick={handleNodeClick}
-        onNodeHover={() => {}}
+        onNodeHover={handleNodeHover}
         selectedNode={selectedNode}
         showEdges={showEdges}
         showParticles={showParticles}
         filterCuisine={selectedCuisine}
         filterTaste={selectedTaste}
         profileWeights={profileWeights}
+      />
+      <NodeFavoriteButton
+        node={hoveredNode}
+        mousePos={hoverMousePos}
+        isFavorite={hoveredNode ? userProfile.hasIngredient(hoveredNode.name) : false}
+        onToggle={userProfile.toggleIngredient}
       />
       <SearchBar
         ingredients={ingredientList}

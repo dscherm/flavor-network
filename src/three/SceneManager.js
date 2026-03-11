@@ -237,7 +237,10 @@ class SceneManager {
     if (idx !== this._hoveredIndex) {
       this._hoveredIndex = idx;
       if (this._onNodeHover) {
-        this._onNodeHover(idx >= 0 ? idx : null);
+        this._onNodeHover(
+          idx >= 0 ? idx : null,
+          { x: event.clientX, y: event.clientY }
+        );
       }
       this._renderer.domElement.style.cursor = idx >= 0 ? 'pointer' : 'default';
     }
