@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 12;
 
 const STEPS = [
   {
@@ -72,6 +72,36 @@ const STEPS = [
     content:
       'Use the controls to filter ingredients by cuisine, taste profile, or season. ' +
       'This helps you focus your exploration on specific culinary traditions.',
+    action: null,
+    waitFor: null,
+  },
+  {
+    id: 'profile-add',
+    title: 'Build Your Flavor Profile',
+    content:
+      'Click the edit (pencil) icon in the top-left to open your profile panel. ' +
+      'Add your favorite ingredients, cuisines, and recipes to create a personal flavor profile. ' +
+      'You can also hover over any node and click the heart icon to quick-add it.',
+    action: null,
+    waitFor: null,
+  },
+  {
+    id: 'profile-view',
+    title: 'Your Personal View',
+    content:
+      'Switch between "Global" and "My Profile" using the toggle in the top-left. ' +
+      'In profile mode, nodes scale up based on your preferences — your favorites glow brighter ' +
+      'and connect more prominently.',
+    action: null,
+    waitFor: null,
+  },
+  {
+    id: 'profile-insights',
+    title: 'Discover Your Flavor Signature',
+    content:
+      'Click the chart icon to see your Profile Insights: your taste breakdown, top ingredients, ' +
+      'cuisine affinity, and personalized "you might like" suggestions. ' +
+      'Export your profile anytime to share or back it up.',
     action: null,
     waitFor: null,
   },
