@@ -111,10 +111,10 @@ export default function NetworkScene({
       }
     });
 
-    manager.onNodeHover((idx) => {
+    manager.onNodeHover((idx, mousePos) => {
       if (onNodeHover) {
         const node = idx !== null ? nodes.getNodeAtIndex(idx) : null;
-        onNodeHover(node);
+        onNodeHover(node, mousePos);
       }
     });
   }, [data, onNodeClick, onNodeHover]);
