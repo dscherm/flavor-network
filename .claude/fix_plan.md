@@ -67,8 +67,8 @@ updated: 2026-03-11T11:30
 - [x] TASK-47: Add keyboard shortcuts — Escape to deselect, / to focus search, arrow keys for navigation #polish
 
 ## Phase 9: User Flavor Profile — Data Layer
-- [>] TASK-50: Build hooks/useUserProfile.js — localStorage-backed state for user cuisines, ingredients, recipes with add/remove/clear/export/import #profile
-- [ ] TASK-51: Build data/profileWeights.js — compute personal weight per ingredient from user profile (direct selection + cuisine boost + recipe boost + 1-hop cascade) #profile
+- [x] TASK-50: Build hooks/useUserProfile.js — localStorage-backed state for user cuisines, ingredients, recipes with add/remove/clear/export/import #profile
+- [x] TASK-51: Build data/profileWeights.js — compute personal weight per ingredient from user profile (direct selection + cuisine boost + recipe boost + 1-hop cascade) #profile
 - [ ] TASK-52: Add recipe ingredient parser — extract known ingredients from free-text recipe names and pasted recipe text/URLs #profile
 
 ## Phase 10: User Flavor Profile — UI
