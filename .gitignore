@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.cache/
+*.log
+
+# Ralph runtime files
+.claude/ralph.lock
+.claude/ralph-loop.local.md
+.claude/gate-results.json
+.claude/ralph.stop
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+public/embeddings.json
