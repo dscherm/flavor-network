@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 class SceneManager {
   constructor(canvas) {
@@ -11,6 +14,8 @@ class SceneManager {
     this._clock = null;
     this._animationFrameId = null;
     this._running = false;
+    this._composer = null;
+    this._bloomPass = null;
     this._resizeHandler = this.resize.bind(this);
   }
 
@@ -41,6 +46,20 @@ class SceneManager {
     if (!isCanvas) {
       target.appendChild(this._renderer.domElement);
     }
+
+    // Post-processing
+    const width = target.clientWidth;
+    const height = target.clientHeight;
+    this._composer = new EffectComposer(this._renderer);
+    this._composer.addPass(new RenderPass(this._scene, this._camera));
+
+    this._bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(width, height),
+      1.5,
+      0.4,
+      0.85
+    );
+    this._composer.addPass(this._bloomPass);
 
     // Controls
     this._controls = new OrbitControls(this._camera, this._renderer.domElement);
@@ -84,6 +103,9 @@ class SceneManager {
     this._camera.aspect = width / height;
     this._camera.updateProjectionMatrix();
     this._renderer.setSize(width, height);
+    if (this._composer) {
+      this._composer.setSize(width, height);
+    }
   }
 
   dispose() {
@@ -93,6 +115,12 @@ class SceneManager {
     if (this._controls) {
       this._controls.dispose();
       this._controls = null;
+    }
+
+    if (this._composer) {
+      this._composer.dispose();
+      this._composer = null;
+      this._bloomPass = null;
     }
 
     if (this._renderer) {
@@ -123,6 +151,13 @@ class SceneManager {
     }
   }
 
+  setBloomParams({ strength, radius, threshold }) {
+    if (!this._bloomPass) return;
+    if (strength !== undefined) this._bloomPass.strength = strength;
+    if (radius !== undefined) this._bloomPass.radius = radius;
+    if (threshold !== undefined) this._bloomPass.threshold = threshold;
+  }
+
   removeFromScene(object3d) {
     if (this._scene && object3d) {
       this._scene.remove(object3d);
@@ -140,7 +175,7 @@ class SceneManager {
     if (this._controls) {
       this._controls.update();
     }
-    this._renderer.render(this._scene, this._camera);
+    this._composer.render();
   }
 }
 
