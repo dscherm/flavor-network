@@ -1,9 +1,11 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import Fuse from 'fuse.js';
 
 function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onClose, onCreateRecipe }) {
   const [tab, setTab] = useState('ingredients');
   const [searchQuery, setSearchQuery] = useState('');
+  const [importError, setImportError] = useState('');
+  const fileInputRef = useRef(null);
 
   const ingredientFuse = useMemo(() => {
     const docs = (ingredientList || []).map((name) => ({ name }));
@@ -43,6 +45,30 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
     },
     [tab, actions],
   );
+
+  const handleExport = useCallback(() => {
+    const json = actions.exportProfile();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'flavor-profile.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [actions]);
+
+  const handleImport = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportError('');
+    const reader = new FileReader();
+    reader.onload = () => {
+      const ok = actions.importProfile(reader.result);
+      if (!ok) setImportError('Invalid profile file.');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }, [actions]);
 
   if (!isOpen) return null;
 
@@ -184,16 +210,49 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
       </div>
 
       {/* Footer actions */}
-      {(profile.ingredients.length > 0 || profile.cuisines.length > 0 || profile.recipes.length > 0) && (
-        <div className="p-2 border-t border-[#1e1e2e]">
+      <div className="p-2 border-t border-[#1e1e2e] space-y-1">
+        <div className="flex gap-1">
+          <button
+            onClick={handleExport}
+            disabled={profile.ingredients.length === 0 && profile.cuisines.length === 0 && profile.recipes.length === 0}
+            className="flex-1 text-[10px] text-gray-500 hover:text-blue-400 disabled:text-gray-700 disabled:cursor-default transition-colors py-1 flex items-center justify-center gap-1"
+            title="Download profile as JSON"
+          >
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex-1 text-[10px] text-gray-500 hover:text-blue-400 transition-colors py-1 flex items-center justify-center gap-1"
+            title="Import profile from JSON"
+          >
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            Import
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            className="hidden"
+          />
+        </div>
+        {importError && (
+          <p className="text-[10px] text-red-400 text-center">{importError}</p>
+        )}
+        {(profile.ingredients.length > 0 || profile.cuisines.length > 0 || profile.recipes.length > 0) && (
           <button
             onClick={actions.clearProfile}
             className="w-full text-[10px] text-gray-500 hover:text-red-400 transition-colors py-1"
           >
             Clear All
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
