@@ -11,6 +11,7 @@ import ComparePanel from './components/ComparePanel.jsx';
 import Walkthrough from './components/Walkthrough.jsx';
 import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
+import RecipeBuilder from './components/RecipeBuilder.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
     () => !localStorage.getItem('flavor-tour-complete')
   );
   const [showProfile, setShowProfile] = useState(false);
+  const [showRecipeBuilder, setShowRecipeBuilder] = useState(false);
   const userProfile = useUserProfile();
 
   const ingredientList = useMemo(() => {
@@ -188,7 +190,15 @@ export default function App() {
         cuisines={cuisines}
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
+        onCreateRecipe={() => setShowRecipeBuilder(true)}
       />
+      {showRecipeBuilder && (
+        <RecipeBuilder
+          ingredientList={ingredientList}
+          onSave={userProfile.addRecipe}
+          onClose={() => setShowRecipeBuilder(false)}
+        />
+      )}
       <button
         onClick={() => setShowProfile((v) => !v)}
         className="fixed top-4 left-4 z-50 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg px-3 py-2 text-xs text-gray-400 hover:text-blue-400 transition-colors select-none"

@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import Fuse from 'fuse.js';
 
-function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onClose }) {
+function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onClose, onCreateRecipe }) {
   const [tab, setTab] = useState('ingredients');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -101,6 +101,17 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
       </div>
 
       {/* Search (for ingredients and cuisines tabs) */}
+      {tab === 'recipes' && (
+        <div className="p-2 border-b border-[#1e1e2e]">
+          <button
+            onClick={onCreateRecipe}
+            className="w-full text-[11px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded py-1.5 transition-colors"
+          >
+            + Create Recipe
+          </button>
+        </div>
+      )}
+
       {tab !== 'recipes' && (
         <div className="p-2 border-b border-[#1e1e2e]">
           <input
