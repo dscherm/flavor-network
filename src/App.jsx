@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import useFlavorData from './hooks/useFlavorData.js';
 import NetworkScene from './components/NetworkScene.jsx';
 import SearchBar from './components/SearchBar.jsx';
@@ -77,12 +77,40 @@ export default function App() {
     setSelectedNode(null);
   }, []);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    function handleKeyDown(e) {
+      // Escape to deselect
+      if (e.key === 'Escape') {
+        setSelectedNode(null);
+        setCompareNode(null);
+        setCompareMode(false);
+      }
+      // "/" to focus search (unless already in an input)
+      if (e.key === '/' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[placeholder*="Search"]');
+        if (searchInput) searchInput.focus();
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full bg-neural-bg">
         <div className="text-center">
-          <div className="w-12 h-12 border-2 border-neural-glow border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-neural-muted text-sm">Loading flavor network...</p>
+          <div className="relative w-24 h-24 mx-auto mb-6">
+            <div className="absolute inset-0 border-2 border-neural-glow/30 rounded-full animate-ping" />
+            <div className="absolute inset-2 border-2 border-neural-glow/50 rounded-full animate-spin" style={{ animationDuration: '3s' }} />
+            <div className="absolute inset-4 border-2 border-neural-glow border-t-transparent rounded-full animate-spin" style={{ animationDuration: '1.5s' }} />
+            <div className="absolute inset-[38%] bg-neural-glow/80 rounded-full animate-pulse" />
+          </div>
+          <p className="text-neural-text text-lg font-light tracking-wider mb-1" style={{ textShadow: '0 0 10px rgba(79,143,255,0.5)' }}>
+            Flavor Network
+          </p>
+          <p className="text-neural-muted text-sm">Initializing neural pathways...</p>
         </div>
       </div>
     );
