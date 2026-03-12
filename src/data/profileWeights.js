@@ -1,12 +1,19 @@
 /**
  * profileWeights.js — Compute personal weight per ingredient from user profile.
  *
- * Weight formula (from spec):
- *   +3  if ingredient is directly selected
- *   +1  per cuisine the user likes that the ingredient belongs to
- *   +2  per recipe that contains the ingredient
+ * Weight formula:
+ *   finalWeight = directSelection + cuisineBoost + recipeFrequencyWeight + cascadeBoost
+ *
+ *   directSelection:       +3  if ingredient is directly selected
+ *   cuisineBoost:          +1  per cuisine the user likes that the ingredient belongs to
+ *   recipeFrequencyWeight: frequency * (0.6 + 0.4 * quantityFactor) * scaleFactor
+ *                          — replaces the old binary recipe boost with a signal that
+ *                            rewards higher frequency across recipes and larger quantities
+ *   cascadeBoost:          +0.5 per 1-hop neighbor that already has weight (pairing propagation)
  *   Normalize to 0.0–1.0
  */
+
+import { computeFrequencyWeights } from './frequencyWeights.js';
 
 /**
  * Compute a Map of ingredient name → personal weight (0–1).
@@ -22,14 +29,11 @@ export function computeProfileWeights(profile, nodes) {
   const userCuisines = new Set(profile.cuisines);
   const userIngredients = new Set(profile.ingredients);
 
-  // Pre-index: ingredient → count of recipes it appears in
-  const recipeCount = new Map();
-  for (const recipe of profile.recipes) {
-    for (const ing of recipe.ingredients) {
-      const name = typeof ing === 'string' ? ing : ing.name;
-      recipeCount.set(name, (recipeCount.get(name) || 0) + 1);
-    }
-  }
+  // Compute frequency × quantity weights from user recipes
+  const freqWeights = computeFrequencyWeights(profile.recipes || []);
+
+  // Scale factor so recipeFrequencyWeight is comparable to the old +2-per-recipe boost
+  const FREQ_SCALE = 4;
 
   let maxWeight = 0;
 
@@ -48,14 +52,35 @@ export function computeProfileWeights(profile, nodes) {
       }
     }
 
-    // Recipe boost: +2 per recipe containing this ingredient
-    const rc = recipeCount.get(name) || 0;
-    if (rc > 0) {
-      w += 2 * rc;
+    // Recipe frequency weight: replaces old binary recipe boost.
+    // Higher frequency + larger quantities = stronger signal.
+    // combined = frequency * (0.6 + 0.4 * quantityFactor), already computed by frequencyWeights.
+    const fwEntry = freqWeights.get(name);
+    if (fwEntry) {
+      w += fwEntry.combined * FREQ_SCALE;
     }
 
     weights.set(name, w);
     if (w > maxWeight) maxWeight = w;
+  }
+
+  // Cascade boost: propagate weight through 1-hop pairing neighbors.
+  // Ingredients paired with already-weighted ingredients get a small boost.
+  const CASCADE_BOOST = 0.5;
+  for (const [name, node] of nodes) {
+    if (!node.pairings) continue;
+    let cascadeSum = 0;
+    for (const partner of node.pairings) {
+      const partnerName = typeof partner === 'string' ? partner : partner.name || partner.target;
+      if (partnerName && weights.has(partnerName) && weights.get(partnerName) > 0) {
+        cascadeSum += CASCADE_BOOST;
+      }
+    }
+    if (cascadeSum > 0) {
+      const updated = (weights.get(name) || 0) + cascadeSum;
+      weights.set(name, updated);
+      if (updated > maxWeight) maxWeight = updated;
+    }
   }
 
   // Normalize to 0–1
