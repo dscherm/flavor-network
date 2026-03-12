@@ -6,6 +6,7 @@ export default function ProfileToggle({
   onOpenPanel,
   onOpenInsights,
   onOpenGlobalInsights,
+  onOpenProfileTree,
   profileStats,
   user,
   onLogin,
@@ -76,6 +77,20 @@ export default function ProfileToggle({
         >
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+          </svg>
+        </button>
+      )}
+
+      {/* Profile Tree button (Profile mode) */}
+      {hasProfile && profileMode && onOpenProfileTree && (
+        <button
+          onClick={onOpenProfileTree}
+          className="bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg px-2.5 py-2 text-xs text-gray-500 hover:text-purple-400 transition-colors select-none"
+          aria-label="Flavor tree"
+          title="View your flavor tree"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6z" />
           </svg>
         </button>
       )}

@@ -21,6 +21,7 @@ import ProfileInsights from './components/ProfileInsights.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
 import PalateQuiz from './components/PalateQuiz.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
+import ProfileTreeView from './components/ProfileTreeView.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
@@ -45,6 +46,7 @@ export default function App() {
   const [showGlobalInsights, setShowGlobalInsights] = useState(false);
   const [showPalateQuiz, setShowPalateQuiz] = useState(false);
   const [showTreeExplorer, setShowTreeExplorer] = useState(false);
+  const [showProfileTree, setShowProfileTree] = useState(false);
   const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
   const userProfile = useUserProfile(user);
 
@@ -353,6 +355,7 @@ export default function App() {
         onOpenPanel={() => setShowProfile(v => !v)}
         onOpenInsights={() => setShowInsights(v => !v)}
         onOpenGlobalInsights={() => setShowGlobalInsights(v => !v)}
+        onOpenProfileTree={() => setShowProfileTree(v => !v)}
         profileStats={userProfile.stats}
         user={user}
         onLogin={loginWithGoogle}
@@ -373,6 +376,13 @@ export default function App() {
         filterTaste={selectedTaste}
         isOpen={showGlobalInsights}
         onClose={() => setShowGlobalInsights(false)}
+      />
+      <ProfileTreeView
+        profile={userProfile.profile}
+        nodes={data ? data.graph.nodes : null}
+        isOpen={showProfileTree}
+        onClose={() => setShowProfileTree(false)}
+        onAddIngredient={userProfile.addIngredient}
       />
       <FlavorTreeExplorer
         nodes={data ? data.graph.nodes : null}
