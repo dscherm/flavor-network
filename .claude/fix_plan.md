@@ -158,7 +158,7 @@ updated: 2026-03-11T11:30
 ### Personal Profile Trees
 - [x] TASK-91: Build src/data/profileTree.js — construct personal flavor tree from user's profile data: Your Cuisines → Your Ingredients per cuisine → Your Recipes per ingredient. Shows the user's flavor world as a navigable hierarchy #profile
 - [x] TASK-92: Build components/ProfileTreeView.jsx — visual tree representation of the user's flavor profile. Nodes sized by frequency/weight. Highlight gaps: "You love Thai food but haven't tried lemongrass or galangal". Show suggested branches to explore #ui
-- [ ] TASK-93: Add "Flavor DNA" comparison — compare user's profile tree against cuisine trees to compute similarity scores. "Your profile is 45% Italian, 30% Thai, 15% Mexican, 10% French". Show as a radar chart + tree overlay #analysis
+- [x] TASK-93: Add "Flavor DNA" comparison — compare user's profile tree against cuisine trees to compute similarity scores. "Your profile is 45% Italian, 30% Thai, 15% Mexican, 10% French". Show as a radar chart + tree overlay #analysis
 - [ ] TASK-94: Add profile tree export — generate a shareable "Flavor Passport" image showing the user's tree structure, top ingredients, cuisine affinities, and flavor signature. Downloadable as PNG #profile
 
 ## Phase 16: Polish & Deploy v2
