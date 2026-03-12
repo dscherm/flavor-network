@@ -1,20 +1,32 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { recognizeRecipeImage, terminateOCR } from '../ml/ocr.js';
+import { matchOcrLines } from '../data/ingredientMatcher.js';
 
 /**
  * RecipeScanner — camera capture UI for photographing printed or handwritten
  * recipes / ingredient lists. Supports both live camera capture via getUserMedia
- * and file upload as a fallback. Preview captured image before processing.
+ * and file upload as a fallback. Runs Tesseract.js OCR on the captured image,
+ * then matches extracted text against known ingredients via ingredientMatcher.
  *
  * Props:
- *   onCapture(imageDataUrl: string) — called with the captured image data URL
+ *   ingredientList: string[] — known ingredient names for matching
+ *   onSave(name: string, ingredients: string[]) — save recipe to profile
  *   onClose() — dismiss the scanner modal
  */
-function RecipeScanner({ onCapture, onClose }) {
-  const [mode, setMode] = useState('choose'); // 'choose' | 'camera' | 'preview' | 'loading'
+function RecipeScanner({ ingredientList, onSave, onClose }) {
+  const [mode, setMode] = useState('choose'); // 'choose' | 'camera' | 'preview' | 'loading' | 'results'
   const [imageData, setImageData] = useState(null);
   const [cameraError, setCameraError] = useState('');
   const [streamReady, setStreamReady] = useState(false);
   const [facingMode, setFacingMode] = useState('environment');
+
+  // OCR state
+  const [ocrProgress, setOcrProgress] = useState({ status: '', progress: 0 });
+  const [rawText, setRawText] = useState('');
+  const [matchedIngredients, setMatchedIngredients] = useState([]); // { name, confidence, raw, selected }[]
+  const [recipeName, setRecipeName] = useState('');
+  const [ocrError, setOcrError] = useState('');
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -61,9 +73,12 @@ function RecipeScanner({ onCapture, onClose }) {
     }
   }, [facingMode, stopCamera]);
 
-  // Clean up media stream on unmount
+  // Clean up media stream and OCR worker on unmount
   useEffect(() => {
-    return () => stopCamera();
+    return () => {
+      stopCamera();
+      terminateOCR();
+    };
   }, [stopCamera]);
 
   // Capture photo from video feed — draw frame to canvas, convert to data URL
@@ -112,21 +127,94 @@ function RecipeScanner({ onCapture, onClose }) {
   const handleRetake = useCallback(() => {
     setImageData(null);
     setCameraError('');
+    setOcrError('');
+    setRawText('');
+    setMatchedIngredients([]);
+    setRecipeName('');
     setMode('choose');
   }, []);
 
-  // Process — send image data to parent via onCapture callback
-  const handleProcess = useCallback(() => {
+  // Process — run OCR on captured image, then match ingredients
+  const handleProcess = useCallback(async () => {
     if (!imageData) return;
     setMode('loading');
-    onCapture(imageData);
-  }, [imageData, onCapture]);
+    setOcrError('');
+    setOcrProgress({ status: 'initializing', progress: 0 });
+
+    try {
+      // Step 1: Run Tesseract.js OCR
+      const ocrResult = await recognizeRecipeImage(imageData, {
+        onProgress: setOcrProgress,
+        preprocess: true,
+      });
+
+      if (!ocrResult.text || ocrResult.text.trim().length === 0) {
+        setOcrError('No text could be detected in the image. Try a clearer photo with better lighting.');
+        setMode('preview');
+        return;
+      }
+
+      setRawText(ocrResult.text);
+
+      // Step 2: Match extracted lines against known ingredients
+      const matches = ingredientList && ingredientList.length > 0
+        ? matchOcrLines(ocrResult.lines, ingredientList)
+        : [];
+
+      // Add a 'selected' flag to each match (default: selected if confidence > 0.6)
+      setMatchedIngredients(
+        matches.map((m) => ({ ...m, selected: m.confidence > 0.6 }))
+      );
+
+      // Auto-generate a recipe name from the first line if it looks like a title
+      const firstLine = ocrResult.lines[0] || '';
+      if (firstLine.length > 3 && firstLine.length < 60 && !/^\d/.test(firstLine)) {
+        setRecipeName(firstLine);
+      } else {
+        setRecipeName('Scanned Recipe');
+      }
+
+      setMode('results');
+    } catch (err) {
+      console.error('OCR processing failed:', err);
+      setOcrError(`OCR failed: ${err.message || 'Unknown error'}. Please try again.`);
+      setMode('preview');
+    }
+  }, [imageData, ingredientList]);
+
+  // Toggle ingredient selection in results
+  const toggleIngredient = useCallback((index) => {
+    setMatchedIngredients((prev) =>
+      prev.map((m, i) => (i === index ? { ...m, selected: !m.selected } : m))
+    );
+  }, []);
+
+  // Save selected ingredients as a recipe
+  const handleSave = useCallback(() => {
+    const selected = matchedIngredients
+      .filter((m) => m.selected)
+      .map((m) => m.name);
+
+    if (selected.length === 0) return;
+
+    const name = recipeName.trim() || 'Scanned Recipe';
+    onSave(name, selected);
+    onClose();
+  }, [matchedIngredients, recipeName, onSave, onClose]);
 
   // Close and clean up
   const handleClose = useCallback(() => {
     stopCamera();
+    terminateOCR();
     onClose();
   }, [stopCamera, onClose]);
+
+  // Confidence badge color
+  const confidenceColor = (c) => {
+    if (c >= 0.8) return 'text-green-400 bg-green-500/10 border-green-500/20';
+    if (c >= 0.6) return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+    return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -151,9 +239,9 @@ function RecipeScanner({ onCapture, onClose }) {
 
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
           {/* Camera error / general error */}
-          {cameraError && (
+          {(cameraError || ocrError) && (
             <div className="text-[11px] text-amber-400/80 bg-amber-500/5 border border-amber-500/10 rounded px-2.5 py-2">
-              {cameraError}
+              {cameraError || ocrError}
             </div>
           )}
 
@@ -295,7 +383,7 @@ function RecipeScanner({ onCapture, onClose }) {
             </div>
           )}
 
-          {/* Loading state — processing the image (will be wired to OCR in TASK-69) */}
+          {/* Loading state — OCR in progress */}
           {mode === 'loading' && (
             <div className="py-12 text-center">
               <svg className="w-8 h-8 animate-spin text-blue-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
@@ -303,7 +391,99 @@ function RecipeScanner({ onCapture, onClose }) {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
               <p className="text-sm text-gray-300 mb-1">Processing image...</p>
-              <p className="text-[10px] text-gray-600">Extracting text from your recipe photo</p>
+              <p className="text-[10px] text-gray-600 mb-3">Extracting text from your recipe photo</p>
+              {/* Progress bar */}
+              <div className="w-48 mx-auto bg-[#1a1a2e] rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="h-full bg-blue-500/60 rounded-full transition-all duration-300"
+                  style={{ width: `${Math.round(ocrProgress.progress * 100)}%` }}
+                />
+              </div>
+              <p className="text-[9px] text-gray-600 mt-1.5 capitalize">
+                {ocrProgress.status || 'Initializing'}
+              </p>
+            </div>
+          )}
+
+          {/* Results — show matched ingredients for review */}
+          {mode === 'results' && (
+            <div className="space-y-3">
+              {/* Recipe name input */}
+              <div>
+                <label className="text-[10px] text-gray-500 block mb-1">Recipe Name</label>
+                <input
+                  type="text"
+                  value={recipeName}
+                  onChange={(e) => setRecipeName(e.target.value)}
+                  className="w-full bg-[#1a1a2e] border border-[#2a2a3e] rounded px-2.5 py-1.5 text-[11px] text-gray-200 focus:border-blue-500/40 focus:outline-none transition-colors"
+                  placeholder="Enter recipe name..."
+                />
+              </div>
+
+              {/* Matched ingredients list */}
+              {matchedIngredients.length > 0 ? (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] text-gray-500">
+                      Found {matchedIngredients.length} ingredient{matchedIngredients.length !== 1 ? 's' : ''}
+                    </span>
+                    <span className="text-[9px] text-gray-600">
+                      {matchedIngredients.filter((m) => m.selected).length} selected
+                    </span>
+                  </div>
+                  <div className="space-y-1 max-h-[30vh] overflow-y-auto pr-1">
+                    {matchedIngredients.map((match, i) => (
+                      <button
+                        key={`${match.name}-${i}`}
+                        onClick={() => toggleIngredient(i)}
+                        className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-left transition-colors ${
+                          match.selected
+                            ? 'bg-blue-500/10 border border-blue-500/20'
+                            : 'bg-[#1a1a2e] border border-[#2a2a3e] opacity-50'
+                        }`}
+                      >
+                        {/* Checkbox */}
+                        <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${
+                          match.selected
+                            ? 'bg-blue-500/30 border-blue-500/50'
+                            : 'border-[#3a3a4e]'
+                        }`}>
+                          {match.selected && (
+                            <svg className="w-2.5 h-2.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                        {/* Ingredient name */}
+                        <span className="text-[11px] text-gray-200 flex-1 truncate">
+                          {match.name}
+                        </span>
+                        {/* Confidence badge */}
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full border ${confidenceColor(match.confidence)}`}>
+                          {Math.round(match.confidence * 100)}%
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-[11px] text-gray-400 mb-1">No known ingredients detected</p>
+                  <p className="text-[10px] text-gray-600">
+                    The OCR extracted text but no ingredients matched. Try a clearer photo.
+                  </p>
+                </div>
+              )}
+
+              {/* Raw OCR text (collapsible) */}
+              <details className="group">
+                <summary className="text-[10px] text-gray-600 cursor-pointer hover:text-gray-400 transition-colors">
+                  View raw extracted text
+                </summary>
+                <pre className="mt-1.5 text-[9px] text-gray-500 bg-[#0a0a12] rounded p-2 max-h-[15vh] overflow-y-auto whitespace-pre-wrap break-words border border-[#1e1e2e]">
+                  {rawText || '(no text extracted)'}
+                </pre>
+              </details>
             </div>
           )}
         </div>
@@ -335,6 +515,26 @@ function RecipeScanner({ onCapture, onClose }) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
                 </svg>
                 Process
+              </button>
+            </>
+          )}
+          {mode === 'results' && (
+            <>
+              <button
+                onClick={handleRetake}
+                className="text-[11px] text-gray-400 hover:text-gray-200 border border-[#2a2a3e] rounded px-3 py-1.5 transition-colors"
+              >
+                Retake
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={matchedIngredients.filter((m) => m.selected).length === 0}
+                className="text-[11px] bg-green-500/20 text-green-400 hover:bg-green-500/30 disabled:opacity-30 disabled:cursor-default rounded px-4 py-1.5 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                Add to Profile ({matchedIngredients.filter((m) => m.selected).length})
               </button>
             </>
           )}
