@@ -97,10 +97,10 @@ updated: 2026-03-11T11:30
 
 ### Camera / Image Scanning
 - [x] TASK-68: Build components/RecipeScanner.jsx — camera capture UI using getUserMedia API. Take photo of printed/handwritten recipe or ingredient list. Preview image before processing #profile
-- [ ] TASK-69: Integrate OCR for recipe image scanning — use Tesseract.js (client-side OCR) to extract text from captured recipe photos. Pass extracted text through existing recipeParser to identify known ingredients #ml
-- [ ] TASK-70: Build src/data/ingredientMatcher.js — fuzzy match OCR-extracted text against the 380+ known ingredients using Fuse.js with custom scoring. Handle plurals, abbreviations (tbsp, tsp), misspellings, and partial matches. Return confidence scores per match #data
-- [ ] TASK-71: Add scan results review UI — show extracted ingredients with confidence scores, let user confirm/reject/edit before adding to profile. Highlight low-confidence matches in yellow #ui
-- [ ] TASK-72: Add "Scan Recipe" button to ProfilePanel and RecipeBuilder — integrate camera flow into existing profile management. Support both photo capture and image file upload #ui
+- [x] TASK-69: Integrate OCR for recipe image scanning — use Tesseract.js (client-side OCR) to extract text from captured recipe photos. Pass extracted text through existing recipeParser to identify known ingredients #ml
+- [x] TASK-70: Build src/data/ingredientMatcher.js — fuzzy match OCR-extracted text against the 380+ known ingredients using Fuse.js with custom scoring. Handle plurals, abbreviations (tbsp, tsp), misspellings, and partial matches. Return confidence scores per match #data
+- [x] TASK-71: Add scan results review UI — show extracted ingredients with confidence scores, let user confirm/reject/edit before adding to profile. Highlight low-confidence matches in yellow #ui
+- [x] TASK-72: Add "Scan Recipe" button to ProfilePanel and RecipeBuilder — integrate camera flow into existing profile management. Support both photo capture and image file upload #ui
 
 ## Phase 13: Ingredient Weighting & Frequency Analysis
 > **Goal**: Weight ingredients in the user's profile based on how frequently they appear
