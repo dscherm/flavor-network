@@ -13,6 +13,7 @@ import Fuse from 'fuse.js';
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { scrapeRecipe } from '../data/recipeScraper.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -416,6 +417,126 @@ app.get('/api/pairings/:ingredient1/:ingredient2', (req, res) => {
     shared,
     directConnection,
   });
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/recipe/scrape
+// ---------------------------------------------------------------------------
+
+// Build a Fuse index for matching scraped ingredients against known ingredients
+const ingredientFuse = new Fuse(fuseItems, {
+  keys: ['name'],
+  threshold: 0.3,
+  includeScore: true,
+});
+
+/**
+ * Match a raw ingredient string against known flavor network ingredients.
+ * Strips quantities/units, tries full phrase then sub-phrases.
+ */
+function matchIngredient(raw) {
+  // Strip quantities, units, and prep words
+  let text = raw
+    .toLowerCase()
+    .replace(/[()[\]{}]/g, ' ')
+    .replace(/[^\w\s,/-]/g, ' ')
+    .replace(/\d+\/\d+/g, ' ')
+    .replace(/\d+(\.\d+)?/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const UNITS = new Set([
+    'tsp', 'tsps', 'teaspoon', 'teaspoons', 'tbsp', 'tbsps', 'tablespoon',
+    'tablespoons', 'cup', 'cups', 'c', 'oz', 'ounce', 'ounces', 'lb', 'lbs',
+    'pound', 'pounds', 'g', 'gram', 'grams', 'kg', 'ml', 'l', 'liter',
+    'pinch', 'dash', 'handful', 'bunch', 'sprig', 'sprigs', 'clove', 'cloves',
+    'slice', 'slices', 'piece', 'pieces', 'can', 'cans', 'jar', 'jars',
+    'package', 'pkg', 'stick', 'sticks', 'head', 'heads', 'small', 'medium',
+    'large', 'extra',
+  ]);
+  const STOP = new Set([
+    'a', 'an', 'the', 'of', 'with', 'and', 'or', 'in', 'on', 'to', 'for',
+    'fresh', 'freshly', 'dried', 'dry', 'ground', 'chopped', 'diced',
+    'minced', 'sliced', 'grated', 'shredded', 'crushed', 'whole', 'finely',
+    'roughly', 'coarsely', 'thinly', 'optional', 'garnish', 'taste',
+    'needed', 'desired', 'cooked', 'uncooked', 'raw', 'ripe', 'frozen',
+    'thawed', 'peeled', 'seeded', 'pitted', 'trimmed', 'cored', 'halved',
+    'boneless', 'skinless', 'organic', 'unsalted', 'salted',
+  ]);
+
+  const words = text.split(/[\s,]+/).filter(w => w.length > 0 && !UNITS.has(w) && !STOP.has(w));
+  const cleaned = words.join(' ');
+  if (!cleaned) return null;
+
+  // Try full cleaned phrase
+  let results = ingredientFuse.search(cleaned, { limit: 1 });
+  if (results.length > 0 && results[0].score < 0.3) {
+    return results[0].item.name;
+  }
+
+  // Try sub-phrases (longer first)
+  for (let len = Math.min(words.length, 3); len >= 1; len--) {
+    for (let i = 0; i <= words.length - len; i++) {
+      const phrase = words.slice(i, i + len).join(' ');
+      results = ingredientFuse.search(phrase, { limit: 1 });
+      if (results.length > 0 && results[0].score < 0.25) {
+        return results[0].item.name;
+      }
+    }
+  }
+
+  return null;
+}
+
+app.post('/api/recipe/scrape', async (req, res) => {
+  const { url } = req.body || {};
+
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ error: 'Missing required field: url' });
+  }
+
+  // Validate URL format
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return res.status(400).json({ error: 'Invalid URL format.' });
+  }
+
+  if (!parsed.protocol.startsWith('http')) {
+    return res.status(400).json({ error: 'URL must use http or https protocol.' });
+  }
+
+  try {
+    const recipe = await scrapeRecipe(url);
+
+    // Match each scraped ingredient against known flavor network ingredients
+    const matched = [];
+    const unmatched = [];
+
+    for (const raw of recipe.ingredients) {
+      const known = matchIngredient(raw);
+      if (known) {
+        matched.push({ raw, matched: known });
+      } else {
+        unmatched.push(raw);
+      }
+    }
+
+    res.json({
+      title: recipe.title,
+      source: recipe.source,
+      servings: recipe.servings,
+      ingredients: recipe.ingredients,
+      matched,
+      unmatched,
+      matchedNames: [...new Set(matched.map(m => m.matched))],
+    });
+  } catch (err) {
+    const message = err.message || 'Failed to scrape recipe.';
+    const status = message.includes('HTTP') ? 502 : 500;
+    res.status(status).json({ error: message });
+  }
 });
 
 // ---------------------------------------------------------------------------
