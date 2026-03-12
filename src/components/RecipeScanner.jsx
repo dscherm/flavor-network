@@ -131,6 +131,8 @@ function RecipeScanner({ ingredientList, onSave, onClose }) {
     setRawText('');
     setMatchedIngredients([]);
     setRecipeName('');
+    setEditingIndex(null);
+    setEditValue('');
     setMode('choose');
   }, []);
 
@@ -187,6 +189,35 @@ function RecipeScanner({ ingredientList, onSave, onClose }) {
     setMatchedIngredients((prev) =>
       prev.map((m, i) => (i === index ? { ...m, selected: !m.selected } : m))
     );
+  }, []);
+
+  // Track which ingredient is being edited
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editValue, setEditValue] = useState('');
+
+  // Start editing an ingredient name
+  const startEditing = useCallback((index, currentName) => {
+    setEditingIndex(index);
+    setEditValue(currentName);
+  }, []);
+
+  // Commit the edit
+  const commitEdit = useCallback(() => {
+    if (editingIndex === null) return;
+    const trimmed = editValue.trim();
+    if (trimmed.length > 0) {
+      setMatchedIngredients((prev) =>
+        prev.map((m, i) => (i === editingIndex ? { ...m, name: trimmed } : m))
+      );
+    }
+    setEditingIndex(null);
+    setEditValue('');
+  }, [editingIndex, editValue]);
+
+  // Cancel editing
+  const cancelEdit = useCallback(() => {
+    setEditingIndex(null);
+    setEditValue('');
   }, []);
 
   // Save selected ingredients as a recipe
@@ -433,36 +464,72 @@ function RecipeScanner({ ingredientList, onSave, onClose }) {
                   </div>
                   <div className="space-y-1 max-h-[30vh] overflow-y-auto pr-1">
                     {matchedIngredients.map((match, i) => (
-                      <button
+                      <div
                         key={`${match.name}-${i}`}
-                        onClick={() => toggleIngredient(i)}
                         className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded text-left transition-colors ${
                           match.selected
-                            ? 'bg-blue-500/10 border border-blue-500/20'
+                            ? match.confidence < 0.6
+                              ? 'bg-amber-500/10 border border-amber-500/20'
+                              : 'bg-blue-500/10 border border-blue-500/20'
                             : 'bg-[#1a1a2e] border border-[#2a2a3e] opacity-50'
                         }`}
                       >
                         {/* Checkbox */}
-                        <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${
-                          match.selected
-                            ? 'bg-blue-500/30 border-blue-500/50'
-                            : 'border-[#3a3a4e]'
-                        }`}>
+                        <button
+                          onClick={() => toggleIngredient(i)}
+                          className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 cursor-pointer ${
+                            match.selected
+                              ? 'bg-blue-500/30 border-blue-500/50'
+                              : 'border-[#3a3a4e]'
+                          }`}
+                          aria-label={match.selected ? `Deselect ${match.name}` : `Select ${match.name}`}
+                        >
                           {match.selected && (
                             <svg className="w-2.5 h-2.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                           )}
-                        </div>
-                        {/* Ingredient name */}
-                        <span className="text-[11px] text-gray-200 flex-1 truncate">
-                          {match.name}
-                        </span>
+                        </button>
+                        {/* Ingredient name — editable on click */}
+                        {editingIndex === i ? (
+                          <input
+                            type="text"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={commitEdit}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') commitEdit();
+                              if (e.key === 'Escape') cancelEdit();
+                            }}
+                            autoFocus
+                            className="flex-1 bg-[#0a0a12] border border-blue-500/40 rounded px-1.5 py-0.5 text-[11px] text-gray-200 focus:outline-none"
+                          />
+                        ) : (
+                          <span
+                            className="text-[11px] text-gray-200 flex-1 truncate cursor-text"
+                            onClick={() => startEditing(i, match.name)}
+                            title="Click to edit ingredient name"
+                          >
+                            {match.name}
+                          </span>
+                        )}
+                        {/* Edit button for low-confidence matches */}
+                        {editingIndex !== i && (
+                          <button
+                            onClick={() => startEditing(i, match.name)}
+                            className="text-gray-600 hover:text-gray-400 transition-colors flex-shrink-0"
+                            title="Edit ingredient name"
+                          >
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" />
+                            </svg>
+                          </button>
+                        )}
                         {/* Confidence badge */}
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full border ${confidenceColor(match.confidence)}`}>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full border flex-shrink-0 ${confidenceColor(match.confidence)}`}>
                           {Math.round(match.confidence * 100)}%
                         </span>
-                      </button>
+                      </div>
                     ))}
                   </div>
                 </div>
