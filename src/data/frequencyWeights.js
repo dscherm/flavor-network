@@ -4,79 +4,21 @@
  *
  * Frequency score: fraction of recipes containing an ingredient (0–1).
  * Quantity factor: normalized quantity relative to other ingredients,
- *   using basic unit-to-mL/g conversions. When unitConversions.js is
- *   available (TASK-75), import its table for richer normalization.
+ *   using comprehensive unit conversions with ingredient-specific densities.
  */
 
-// Basic conversion table: unit → grams or mL equivalent.
-// This provides rough normalization; TASK-75 will supply a comprehensive table.
-const UNIT_TO_BASE = {
-  // Volume → mL
-  tsp: 5,
-  teaspoon: 5,
-  teaspoons: 5,
-  tbsp: 15,
-  tablespoon: 15,
-  tablespoons: 15,
-  cup: 240,
-  cups: 240,
-  ml: 1,
-  milliliter: 1,
-  milliliters: 1,
-  l: 1000,
-  liter: 1000,
-  liters: 1000,
-  fl_oz: 30,
-  'fl oz': 30,
-  // Weight → g
-  g: 1,
-  gram: 1,
-  grams: 1,
-  kg: 1000,
-  kilogram: 1000,
-  oz: 28,
-  ounce: 28,
-  ounces: 28,
-  lb: 454,
-  pound: 454,
-  pounds: 454,
-  // Count-based (rough gram equivalents)
-  clove: 5,
-  cloves: 5,
-  pinch: 0.5,
-  dash: 0.5,
-  bunch: 30,
-  sprig: 2,
-  sprigs: 2,
-  slice: 15,
-  slices: 15,
-  piece: 30,
-  pieces: 30,
-  whole: 100,
-  can: 400,
-  head: 200,
-};
+import { toGrams } from './unitConversions.js';
 
 /**
- * Convert a quantity + unit pair to a normalized base amount (grams/mL).
- * Returns null if conversion isn't possible.
+ * Convert a quantity + unit pair to a normalized base amount (grams).
+ * Delegates to unitConversions.js for comprehensive conversion.
  * @param {number|null} quantity
  * @param {string|null} unit
+ * @param {string|null} ingredientName — optional, for density-aware conversion
  * @returns {number|null}
  */
-function toBaseAmount(quantity, unit) {
-  if (quantity == null || quantity <= 0) return null;
-  if (!unit) {
-    // Unitless — treat as count, assume ~30g each (generic item)
-    return quantity * 30;
-  }
-  const key = unit.toLowerCase().replace(/\.$/, '').trim();
-  const factor = UNIT_TO_BASE[key];
-  if (factor == null) {
-    // Unknown unit — use quantity as-is with a default multiplier
-    return quantity * 15;
-  }
-  return quantity * factor;
+function toBaseAmount(quantity, unit, ingredientName = null) {
+  return toGrams(quantity, unit, ingredientName);
 }
 
 /**
@@ -135,7 +77,7 @@ export function computeQuantityFactors(recipes) {
 
       const quantity = typeof ing === 'string' ? null : ing.quantity;
       const unit = typeof ing === 'string' ? null : ing.unit;
-      const base = toBaseAmount(quantity, unit);
+      const base = toBaseAmount(quantity, unit, name);
 
       if (!totals.has(name)) {
         totals.set(name, { sum: 0, count: 0, hasQuantity: false });
