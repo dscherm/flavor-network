@@ -20,6 +20,7 @@ import ProfileToggle from './components/ProfileToggle.jsx';
 import ProfileInsights from './components/ProfileInsights.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
 import PalateQuiz from './components/PalateQuiz.jsx';
+import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
@@ -43,6 +44,8 @@ export default function App() {
   const [showInsights, setShowInsights] = useState(false);
   const [showGlobalInsights, setShowGlobalInsights] = useState(false);
   const [showPalateQuiz, setShowPalateQuiz] = useState(false);
+  const [showTreeExplorer, setShowTreeExplorer] = useState(false);
+  const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
   const userProfile = useUserProfile(user);
 
   // Derived state for backwards compat
@@ -219,6 +222,7 @@ export default function App() {
         filterCuisine={selectedCuisine}
         filterTaste={selectedTaste}
         profileWeights={profileWeights}
+        treeFilterIngredients={treeFilterIngredients}
       />
       <SearchBar
         ingredients={ingredientList}
@@ -370,6 +374,26 @@ export default function App() {
         isOpen={showGlobalInsights}
         onClose={() => setShowGlobalInsights(false)}
       />
+      <FlavorTreeExplorer
+        nodes={data ? data.graph.nodes : null}
+        isOpen={showTreeExplorer}
+        onClose={() => { setShowTreeExplorer(false); setTreeFilterIngredients(null); }}
+        onFilterIngredients={setTreeFilterIngredients}
+      />
+      {/* Tree Explorer toggle button */}
+      <button
+        onClick={() => setShowTreeExplorer(v => !v)}
+        className={`fixed top-[68px] right-4 z-50 p-2 rounded-lg border transition-all ${
+          showTreeExplorer
+            ? 'bg-neural-glow/20 border-neural-glow/40 text-neural-glow'
+            : 'bg-[#12121a]/80 border-[#1e1e2e] text-gray-400 hover:text-gray-200 hover:border-gray-500'
+        }`}
+        title="Flavor Trees"
+      >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+        </svg>
+      </button>
       <HelpButton onClick={() => setShowTour(true)} />
       <PalateQuiz
         active={showPalateQuiz}

@@ -25,6 +25,7 @@ export default function NetworkScene({
   filterCuisine = '',
   filterTaste = '',
   profileWeights = null,
+  treeFilterIngredients = null,
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -210,6 +211,29 @@ export default function NetworkScene({
       }
     }
   }, [filterCuisine, filterTaste, data]);
+
+  // Apply tree-based ingredient filtering
+  useEffect(() => {
+    const nodes = nodeMeshRef.current;
+    const edges = edgeMeshRef.current;
+    const particles = particleRef.current;
+    if (!nodes) return;
+
+    if (!treeFilterIngredients) {
+      // Only reset if no other filters are active
+      if (!filterCuisine && !filterTaste) {
+        nodes.resetActivations();
+        if (edges) edges.resetHighlights();
+        if (particles) particles.resetHighlights();
+      }
+      return;
+    }
+
+    const activeNames = new Set(treeFilterIngredients);
+    nodes.applyFilter(null, activeNames);
+    if (edges) edges.applyFilter(activeNames);
+    if (particles) particles.applyFilter(activeNames);
+  }, [treeFilterIngredients, filterCuisine, filterTaste]);
 
   // Apply profile weights when in profile mode
   useEffect(() => {
