@@ -8,6 +8,7 @@ const DEFAULT_PROFILE = {
   cuisines: [],
   ingredients: [],
   recipes: [],
+  quizAnswers: null,
 };
 
 /**
@@ -49,6 +50,7 @@ function loadLocalProfile() {
       cuisines: Array.isArray(parsed.cuisines) ? parsed.cuisines : [],
       ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
       recipes: Array.isArray(parsed.recipes) ? parsed.recipes.map(normalizeRecipe) : [],
+      quizAnswers: parsed.quizAnswers || null,
     };
   } catch {
     return DEFAULT_PROFILE;
@@ -76,6 +78,7 @@ function mergeProfiles(local, cloud) {
     cuisines: mergeArrays(local.cuisines, cloud.cuisines),
     ingredients: mergeArrays(local.ingredients, cloud.ingredients),
     recipes: mergeRecipes(local.recipes, cloud.recipes),
+    quizAnswers: cloud.quizAnswers || local.quizAnswers || null,
   };
 }
 
@@ -102,6 +105,7 @@ export default function useUserProfile(user) {
             cuisines: Array.isArray(cloudData.cuisines) ? cloudData.cuisines : [],
             ingredients: Array.isArray(cloudData.ingredients) ? cloudData.ingredients : [],
             recipes: Array.isArray(cloudData.recipes) ? cloudData.recipes.map(normalizeRecipe) : [],
+            quizAnswers: cloudData.quizAnswers || null,
           };
           const local = loadLocalProfile();
           const merged = mergeProfiles(local, cloud);
@@ -221,12 +225,17 @@ export default function useUserProfile(user) {
         recipes: Array.isArray(parsed.recipes)
           ? parsed.recipes.map(normalizeRecipe)
           : [],
+        quizAnswers: parsed.quizAnswers || null,
       };
       update(validated);
       return true;
     } catch {
       return false;
     }
+  }, [update]);
+
+  const saveQuizAnswers = useCallback((answers) => {
+    update((prev) => ({ ...prev, quizAnswers: answers }));
   }, [update]);
 
   // --- Queries ---
@@ -259,6 +268,7 @@ export default function useUserProfile(user) {
     importProfile,
     hasIngredient,
     hasCuisine,
+    saveQuizAnswers,
     stats,
   };
 }
