@@ -11,6 +11,8 @@ function RecipeBuilder({ ingredientList, onSave, onClose }) {
   const [urlInput, setUrlInput] = useState('');
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlError, setUrlError] = useState('');
+  const [urlExtracted, setUrlExtracted] = useState([]); // { name, raw, confirmed }[]
+  const [urlScraped, setUrlScraped] = useState(false);
 
   const ingredientFuse = useMemo(() => {
     const docs = (ingredientList || []).map((n) => ({ name: n }));
@@ -70,6 +72,8 @@ function RecipeBuilder({ ingredientList, onSave, onClose }) {
     }
     setUrlLoading(true);
     setUrlError('');
+    setUrlExtracted([]);
+    setUrlScraped(false);
     try {
       const res = await fetch('/api/recipe/scrape', {
         method: 'POST',
@@ -87,30 +91,70 @@ function RecipeBuilder({ ingredientList, onSave, onClose }) {
         { keys: ['name'], threshold: 0.35 },
       );
       const matched = [];
+      const seen = new Set();
       for (const raw of data.ingredients || []) {
         const results = matchFuse.search(raw, { limit: 1 });
-        if (results.length > 0) matched.push(results[0].item.name);
+        if (results.length > 0) {
+          const matchedName = results[0].item.name;
+          if (!seen.has(matchedName)) {
+            seen.add(matchedName);
+            matched.push({ name: matchedName, raw, confirmed: true });
+          }
+        }
       }
       // Also include server-side matched names
       if (data.matchedNames) {
         for (const n of data.matchedNames) {
-          if (!matched.includes(n)) matched.push(n);
+          if (!seen.has(n)) {
+            seen.add(n);
+            matched.push({ name: n, raw: n, confirmed: true });
+          }
         }
-      }
-      if (matched.length > 0) {
-        setSelected((prev) => [...new Set([...prev, ...matched])]);
       }
       if (data.title && !name.trim()) {
         setName(data.title);
       }
-      setUrlInput('');
-      setMode('select');
+      setUrlExtracted(matched);
+      setUrlScraped(true);
+      if (matched.length === 0) {
+        setUrlError('No known ingredients found. Try pasting the ingredient list instead.');
+      }
     } catch (err) {
       setUrlError(err.message || 'Failed to import recipe');
     } finally {
       setUrlLoading(false);
     }
   }, [urlInput, ingredientList, name]);
+
+  const toggleUrlExtracted = useCallback((ingredientName) => {
+    setUrlExtracted((prev) =>
+      prev.map((item) =>
+        item.name === ingredientName ? { ...item, confirmed: !item.confirmed } : item,
+      ),
+    );
+  }, []);
+
+  const confirmedUrlCount = useMemo(
+    () => urlExtracted.filter((i) => i.confirmed).length,
+    [urlExtracted],
+  );
+
+  const handleConfirmUrlImport = useCallback(() => {
+    const confirmed = urlExtracted.filter((i) => i.confirmed).map((i) => i.name);
+    if (confirmed.length > 0) {
+      setSelected((prev) => [...new Set([...prev, ...confirmed])]);
+    }
+    setUrlExtracted([]);
+    setUrlScraped(false);
+    setUrlInput('');
+    setMode('select');
+  }, [urlExtracted]);
+
+  const handleResetUrlImport = useCallback(() => {
+    setUrlExtracted([]);
+    setUrlScraped(false);
+    setUrlError('');
+  }, []);
 
   const handleSave = useCallback(() => {
     if (!name.trim() || selected.length === 0) return;
@@ -255,28 +299,99 @@ function RecipeBuilder({ ingredientList, onSave, onClose }) {
 
           {/* URL import mode */}
           {mode === 'url' && (
-            <div>
-              <input
-                type="url"
-                value={urlInput}
-                onChange={(e) => { setUrlInput(e.target.value); setUrlError(''); }}
-                placeholder="https://www.allrecipes.com/recipe/..."
-                className="w-full text-xs bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-600"
-                disabled={urlLoading}
-              />
-              {urlError && (
-                <p className="text-[10px] text-red-400 mt-1">{urlError}</p>
+            <div className="space-y-2">
+              {!urlScraped && (
+                <>
+                  <input
+                    type="url"
+                    value={urlInput}
+                    onChange={(e) => { setUrlInput(e.target.value); setUrlError(''); }}
+                    placeholder="https://www.allrecipes.com/recipe/..."
+                    className="w-full text-xs bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-600"
+                    disabled={urlLoading}
+                    onKeyDown={(e) => e.key === 'Enter' && handleImportUrl()}
+                  />
+                  <button
+                    onClick={handleImportUrl}
+                    disabled={!urlInput.trim() || urlLoading}
+                    className="w-full text-[11px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 disabled:opacity-30 disabled:cursor-default rounded py-1.5 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    {urlLoading ? (
+                      <>
+                        <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Fetching recipe...
+                      </>
+                    ) : (
+                      'Fetch Ingredients'
+                    )}
+                  </button>
+                  <p className="text-[10px] text-gray-600">
+                    Supports AllRecipes, Food Network, NYT Cooking, and most recipe sites.
+                  </p>
+                </>
               )}
-              <button
-                onClick={handleImportUrl}
-                disabled={!urlInput.trim() || urlLoading}
-                className="mt-1.5 w-full text-[11px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 disabled:opacity-30 disabled:cursor-default rounded py-1.5 transition-colors"
-              >
-                {urlLoading ? 'Importing...' : 'Import from URL'}
-              </button>
-              <p className="text-[10px] text-gray-600 mt-1">
-                Supports AllRecipes, Food Network, NYT Cooking, and most recipe sites.
-              </p>
+
+              {/* Review extracted ingredients with checkboxes */}
+              {urlScraped && urlExtracted.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-[10px] text-gray-500 uppercase tracking-wider block">
+                    Found Ingredients ({confirmedUrlCount} / {urlExtracted.length} selected)
+                  </label>
+                  <div className="bg-[#1a1a2e] border border-[#2a2a3e] rounded max-h-48 overflow-y-auto">
+                    {urlExtracted.map((item) => (
+                      <button
+                        key={item.name}
+                        onClick={() => toggleUrlExtracted(item.name)}
+                        className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs transition-colors border-b border-[#2a2a3e] last:border-b-0 ${
+                          item.confirmed
+                            ? 'text-blue-300 bg-blue-500/5'
+                            : 'text-gray-500 line-through'
+                        }`}
+                      >
+                        <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${
+                          item.confirmed
+                            ? 'border-blue-400 bg-blue-500/20'
+                            : 'border-gray-600'
+                        }`}>
+                          {item.confirmed && (
+                            <svg className="w-2.5 h-2.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </span>
+                        <span className="flex-1 text-left">{item.name}</span>
+                        {item.raw !== item.name && (
+                          <span className="text-[10px] text-gray-600 truncate max-w-[120px]">
+                            {item.raw}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={handleResetUrlImport}
+                      className="flex-1 text-[11px] text-gray-500 hover:text-gray-300 border border-[#2a2a3e] rounded py-1.5 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleConfirmUrlImport}
+                      disabled={confirmedUrlCount === 0}
+                      className="flex-1 text-[11px] bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 disabled:opacity-30 disabled:cursor-default rounded py-1.5 transition-colors"
+                    >
+                      Add {confirmedUrlCount} Ingredient{confirmedUrlCount !== 1 ? 's' : ''}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {urlError && (
+                <p className="text-[10px] text-amber-400/80 bg-amber-500/5 border border-amber-500/10 rounded px-2.5 py-2">{urlError}</p>
+              )}
             </div>
           )}
 
