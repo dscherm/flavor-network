@@ -19,9 +19,9 @@ function TreeNode({ node, depth, expanded, onToggle, onSelect, selectedId }) {
   return (
     <>
       <button
-        onClick={() => {
+        onClick={(e) => {
           if (hasChildren) onToggle(node.id);
-          onSelect(node);
+          onSelect(node, e);
         }}
         className={`w-full text-left flex items-center gap-1.5 py-1.5 px-2 rounded transition-all text-xs group hover:bg-white/5 ${
           isSelected ? 'bg-neural-glow/10 text-neural-glow' : 'text-gray-300'
@@ -158,10 +158,119 @@ function StatsBar({ node }) {
   );
 }
 
+function getIngredientsForNode(node, viewMode) {
+  switch (viewMode) {
+    case 'cuisine': return getTreeIngredients(node);
+    case 'taste': return getTasteIngredients(node);
+    case 'season': return getSeasonIngredients(node);
+    case 'family': return node.ingredients || [];
+    default: return [];
+  }
+}
+
+function CompareView({ nodeA, nodeB, viewMode }) {
+  const ingsA = new Set(getIngredientsForNode(nodeA, viewMode));
+  const ingsB = new Set(getIngredientsForNode(nodeB, viewMode));
+  const shared = [...ingsA].filter(i => ingsB.has(i));
+  const uniqueA = [...ingsA].filter(i => !ingsB.has(i));
+  const uniqueB = [...ingsB].filter(i => !ingsA.has(i));
+
+  // Taste profile overlay
+  const tasteA = nodeA.tasteProfile || {};
+  const tasteB = nodeB.tasteProfile || {};
+  const allTastes = [...new Set([...Object.keys(tasteA), ...Object.keys(tasteB)])].sort();
+
+  return (
+    <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="text-[11px] text-gray-400 text-center">
+        <span className="text-neural-glow">{nodeA.name}</span>
+        {' vs '}
+        <span className="text-purple-400">{nodeB.name}</span>
+      </div>
+
+      {/* Taste profile comparison */}
+      {allTastes.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Taste Profile</p>
+          {allTastes.map(taste => (
+            <div key={taste} className="flex items-center gap-1.5">
+              <span className="text-[9px] text-gray-500 w-12 text-right capitalize">{taste}</span>
+              <div className="flex-1 flex gap-0.5">
+                <div className="flex-1 h-1.5 bg-[#1a1a2e] rounded-full overflow-hidden flex justify-end">
+                  <div className="h-full bg-neural-glow/60 rounded-full" style={{ width: `${Math.round((tasteA[taste] || 0) * 100)}%` }} />
+                </div>
+                <div className="flex-1 h-1.5 bg-[#1a1a2e] rounded-full overflow-hidden">
+                  <div className="h-full bg-purple-400/60 rounded-full" style={{ width: `${Math.round((tasteB[taste] || 0) * 100)}%` }} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="bg-neural-glow/5 rounded p-1.5">
+          <p className="text-[10px] text-neural-glow font-medium">{uniqueA.length}</p>
+          <p className="text-[8px] text-gray-500">Only {nodeA.name}</p>
+        </div>
+        <div className="bg-white/5 rounded p-1.5">
+          <p className="text-[10px] text-green-400 font-medium">{shared.length}</p>
+          <p className="text-[8px] text-gray-500">Shared</p>
+        </div>
+        <div className="bg-purple-500/5 rounded p-1.5">
+          <p className="text-[10px] text-purple-400 font-medium">{uniqueB.length}</p>
+          <p className="text-[8px] text-gray-500">Only {nodeB.name}</p>
+        </div>
+      </div>
+
+      {/* Shared ingredients */}
+      {shared.length > 0 && (
+        <div>
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Shared ({shared.length})</p>
+          <div className="flex flex-wrap gap-1">
+            {shared.slice(0, 30).map(name => (
+              <span key={name} className="text-[9px] bg-green-500/10 text-green-300/70 rounded px-1.5 py-0.5">{name}</span>
+            ))}
+            {shared.length > 30 && <span className="text-[9px] text-gray-600">+{shared.length - 30} more</span>}
+          </div>
+        </div>
+      )}
+
+      {/* Unique to A */}
+      {uniqueA.length > 0 && (
+        <div>
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Only in {nodeA.name} ({uniqueA.length})</p>
+          <div className="flex flex-wrap gap-1">
+            {uniqueA.slice(0, 20).map(name => (
+              <span key={name} className="text-[9px] bg-neural-glow/10 text-neural-glow/70 rounded px-1.5 py-0.5">{name}</span>
+            ))}
+            {uniqueA.length > 20 && <span className="text-[9px] text-gray-600">+{uniqueA.length - 20} more</span>}
+          </div>
+        </div>
+      )}
+
+      {/* Unique to B */}
+      {uniqueB.length > 0 && (
+        <div>
+          <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Only in {nodeB.name} ({uniqueB.length})</p>
+          <div className="flex flex-wrap gap-1">
+            {uniqueB.slice(0, 20).map(name => (
+              <span key={name} className="text-[9px] bg-purple-500/10 text-purple-300/70 rounded px-1.5 py-0.5">{name}</span>
+            ))}
+            {uniqueB.length > 20 && <span className="text-[9px] text-gray-600">+{uniqueB.length - 20} more</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIngredients }) {
   const [viewMode, setViewMode] = useState('cuisine');
   const [expanded, setExpanded] = useState(new Set());
   const [selectedNode, setSelectedNode] = useState(null);
+  const [compareNode, setCompareNode] = useState(null);
   const [breadcrumb, setBreadcrumb] = useState([]);
 
   // Build trees (memoized)
@@ -189,14 +298,27 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
     });
   }, []);
 
-  const handleSelect = useCallback((node) => {
+  const handleSelect = useCallback((node, event) => {
+    // Shift+click to compare
+    if (event?.shiftKey && selectedNode && selectedNode.id !== node.id) {
+      setCompareNode(node);
+      // Filter 3D to show both sets combined
+      if (onFilterIngredients) {
+        const ingsA = getIngredientsForNode(selectedNode, viewMode);
+        const ingsB = getIngredientsForNode(node, viewMode);
+        onFilterIngredients([...new Set([...ingsA, ...ingsB])]);
+      }
+      return;
+    }
+
+    // Regular click
+    setCompareNode(null);
     setSelectedNode(prev => prev?.id === node.id ? null : node);
 
     // Update breadcrumb
     if (node.type === 'region' || node.type === 'taste' || node.type === 'season' || node.type === 'family') {
       setBreadcrumb([node]);
     } else {
-      // Find parent
       for (const parent of currentTree) {
         if (parent.children?.some(c => c.id === node.id)) {
           setBreadcrumb([parent, node]);
@@ -207,30 +329,22 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
 
     // Get ingredients for this node and filter the 3D view
     if (onFilterIngredients) {
-      let ingredients;
-      switch (viewMode) {
-        case 'cuisine':
-          ingredients = getTreeIngredients(node);
-          break;
-        case 'taste':
-          ingredients = getTasteIngredients(node);
-          break;
-        case 'season':
-          ingredients = getSeasonIngredients(node);
-          break;
-        case 'family':
-          ingredients = node.ingredients || [];
-          break;
-        default:
-          ingredients = [];
-      }
+      const ingredients = getIngredientsForNode(node, viewMode);
       onFilterIngredients(ingredients);
     }
-  }, [currentTree, viewMode, onFilterIngredients]);
+  }, [currentTree, viewMode, onFilterIngredients, selectedNode]);
+
+  const handleClearCompare = useCallback(() => {
+    setCompareNode(null);
+    if (selectedNode && onFilterIngredients) {
+      onFilterIngredients(getIngredientsForNode(selectedNode, viewMode));
+    }
+  }, [selectedNode, viewMode, onFilterIngredients]);
 
   const handleBreadcrumbNavigate = useCallback((item) => {
     if (!item) {
       setSelectedNode(null);
+      setCompareNode(null);
       setBreadcrumb([]);
       if (onFilterIngredients) onFilterIngredients(null);
     } else {
@@ -242,6 +356,7 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
     setViewMode(mode);
     setExpanded(new Set());
     setSelectedNode(null);
+    setCompareNode(null);
     setBreadcrumb([]);
     if (onFilterIngredients) onFilterIngredients(null);
   }, [onFilterIngredients]);
@@ -283,26 +398,47 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
         {/* Breadcrumb */}
         <BreadcrumbTrail path={breadcrumb} onNavigate={handleBreadcrumbNavigate} />
 
-        {/* Tree content */}
-        <div className="flex-1 overflow-y-auto py-1">
-          {currentTree.map(node => (
-            <TreeNode
-              key={node.id}
-              node={node}
-              depth={0}
-              expanded={expanded}
-              onToggle={handleToggle}
-              onSelect={handleSelect}
-              selectedId={selectedNode?.id}
-            />
-          ))}
-          {currentTree.length === 0 && (
-            <p className="text-xs text-gray-600 text-center mt-8">No data available</p>
-          )}
-        </div>
+        {/* Compare mode */}
+        {compareNode && selectedNode ? (
+          <>
+            <div className="px-3 py-1.5 border-b border-[#1e1e2e]/50 flex items-center justify-between">
+              <span className="text-[10px] text-gray-500 uppercase tracking-wider">Comparison Mode</span>
+              <button onClick={handleClearCompare} className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors">
+                Exit
+              </button>
+            </div>
+            <CompareView nodeA={selectedNode} nodeB={compareNode} viewMode={viewMode} />
+          </>
+        ) : (
+          <>
+            {/* Tree content */}
+            <div className="flex-1 overflow-y-auto py-1">
+              {currentTree.map(node => (
+                <TreeNode
+                  key={node.id}
+                  node={node}
+                  depth={0}
+                  expanded={expanded}
+                  onToggle={handleToggle}
+                  onSelect={handleSelect}
+                  selectedId={selectedNode?.id}
+                />
+              ))}
+              {currentTree.length === 0 && (
+                <p className="text-xs text-gray-600 text-center mt-8">No data available</p>
+              )}
+              {/* Compare hint */}
+              {selectedNode && !compareNode && (
+                <p className="text-[9px] text-gray-600 text-center mt-2 px-4">
+                  Shift+click another node to compare
+                </p>
+              )}
+            </div>
 
-        {/* Stats bar for selected node */}
-        {selectedNode && <StatsBar node={selectedNode} />}
+            {/* Stats bar for selected node */}
+            {selectedNode && <StatsBar node={selectedNode} />}
+          </>
+        )}
       </div>
     </div>
   );
