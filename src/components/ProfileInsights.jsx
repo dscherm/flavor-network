@@ -6,6 +6,11 @@ import {
   getTasteSignature,
   getCuisineAffinity,
 } from '../data/profileWeights.js';
+import {
+  computeFrequencyScores,
+  classifyByFrequency,
+  getTopByFrequency,
+} from '../data/frequencyWeights.js';
 import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
 
 /**
@@ -29,6 +34,17 @@ export default function ProfileInsights({ profile, nodes, isOpen, onClose, onSel
   const suggestions = useMemo(() => getSuggestions(weights, profile?.ingredients || [], 8), [weights, profile]);
   const tasteSignature = useMemo(() => getTasteSignature(weights, nodes), [weights, nodes]);
   const cuisineAffinity = useMemo(() => getCuisineAffinity(weights, nodes).slice(0, 8), [weights, nodes]);
+
+  const recipes = profile?.recipes || [];
+  const hasEnoughRecipes = recipes.length >= 2;
+
+  const frequencyData = useMemo(() => {
+    if (!hasEnoughRecipes) return null;
+    const scores = computeFrequencyScores(recipes);
+    const classified = classifyByFrequency(scores);
+    const top15 = getTopByFrequency(recipes, 15);
+    return { scores, classified, top15, uniqueCount: scores.size };
+  }, [recipes, hasEnoughRecipes]);
 
   const hasData = profile && (profile.ingredients.length > 0 || profile.cuisines.length > 0 || profile.recipes.length > 0);
 
@@ -172,6 +188,72 @@ export default function ProfileInsights({ profile, nodes, isOpen, onClose, onSel
               </div>
             )}
           </Section>
+
+          {/* Ingredient Frequency */}
+          {frequencyData && (
+            <Section title="Your Most Used Ingredients">
+              {/* Summary stats */}
+              <div className="grid grid-cols-4 gap-1.5 mb-3">
+                <FrequencyStat label="Unique" value={frequencyData.uniqueCount} />
+                <FrequencyStat label="Signature" value={frequencyData.classified.signature.length} color="#22c55e" />
+                <FrequencyStat label="Regular" value={frequencyData.classified.regular.length} color="#3b82f6" />
+                <FrequencyStat label="Occasional" value={frequencyData.classified.occasional.length} color="#6b7280" />
+              </div>
+
+              {/* Bar chart */}
+              <div className="space-y-1">
+                {frequencyData.top15.map(({ name, frequency, combined }) => {
+                  const pct = Math.round(frequency * 100);
+                  const usageCount = Math.round(frequency * recipes.length);
+                  const barColor = frequency >= 0.7
+                    ? '#22c55e'   // green — signature
+                    : frequency >= 0.3
+                      ? '#3b82f6' // blue — regular
+                      : '#6b7280'; // gray — occasional
+                  const tierLabel = frequency >= 0.7
+                    ? 'Signature'
+                    : frequency >= 0.3
+                      ? 'Regular'
+                      : 'Occasional';
+
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => onSelectIngredient?.(name)}
+                      className="w-full text-left group rounded px-1.5 py-1 hover:bg-white/5 transition-colors"
+                      title={`${tierLabel} — used in ${usageCount} of ${recipes.length} recipes`}
+                    >
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs text-neural-text capitalize group-hover:text-neural-glow transition-colors truncate flex-1">
+                          {name}
+                        </span>
+                        <span className="text-[10px] text-neural-muted ml-2 shrink-0">
+                          {usageCount}/{recipes.length} &middot; {pct}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${pct}%`,
+                            background: barColor,
+                            boxShadow: `0 0 6px ${barColor}60`,
+                          }}
+                        />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Legend */}
+              <div className="flex items-center gap-3 mt-2 pt-2 border-t border-white/5">
+                <FrequencyLegendDot color="#22c55e" label="Signature" />
+                <FrequencyLegendDot color="#3b82f6" label="Regular" />
+                <FrequencyLegendDot color="#6b7280" label="Occasional" />
+              </div>
+            </Section>
+          )}
         </div>
       )}
       </div>
@@ -185,5 +267,25 @@ function Section({ title, children }) {
       <h3 className="text-neural-glow/80 text-xs font-medium uppercase tracking-wider mb-2">{title}</h3>
       {children}
     </div>
+  );
+}
+
+function FrequencyStat({ label, value, color }) {
+  return (
+    <div className="text-center rounded bg-white/5 py-1.5 px-1">
+      <div className="text-sm font-semibold text-neural-text" style={color ? { color } : undefined}>
+        {value}
+      </div>
+      <div className="text-[9px] text-neural-muted uppercase tracking-wide">{label}</div>
+    </div>
+  );
+}
+
+function FrequencyLegendDot({ color, label }) {
+  return (
+    <span className="flex items-center gap-1">
+      <span className="w-2 h-2 rounded-full inline-block" style={{ background: color }} />
+      <span className="text-[10px] text-neural-muted">{label}</span>
+    </span>
   );
 }
