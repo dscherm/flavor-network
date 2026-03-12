@@ -151,7 +151,7 @@ updated: 2026-03-11T11:30
 - [x] TASK-87: Build src/data/seasonTree.js — organize by season hierarchy: Season → Sub-season → Peak Ingredients. Spring (early spring, late spring) → Summer → Fall → Winter. Cross-reference with cuisine trees to show seasonal cuisine variations #data
 
 ### Tree Navigation UI
-- [ ] TASK-88: Build components/FlavorTreeExplorer.jsx — collapsible tree panel with multiple view modes: Cuisine, Taste, Ingredient Family, Season. Click a tree node to filter the 3D view to that subtree. Breadcrumb trail showing drill path. Show aggregate stats at each level (ingredient count, avg pairings, dominant taste) #ui
+- [x] TASK-88: Build components/FlavorTreeExplorer.jsx — collapsible tree panel with multiple view modes: Cuisine, Taste, Ingredient Family, Season. Click a tree node to filter the 3D view to that subtree. Breadcrumb trail showing drill path. Show aggregate stats at each level (ingredient count, avg pairings, dominant taste) #ui
 - [ ] TASK-89: Add tree-based 3D filtering — clicking a tree node (e.g., "Asian → Thai") filters the neural network to highlight only ingredients in that branch. Dim non-matching nodes. Animate camera to focus on the filtered cluster #viz
 - [ ] TASK-90: Add tree comparison mode — select two tree nodes (e.g., "French" vs "Thai") and show side-by-side: shared ingredients, unique ingredients, taste profile overlay, pairing pattern differences #analysis
 

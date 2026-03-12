@@ -201,24 +201,31 @@ class NodeMesh {
   }
 
   /**
-   * Filter nodes by cuisine and/or taste. Non-matching nodes get dimmed.
-   * @param {{ cuisine?: string, taste?: string }} filter
+   * Filter nodes by cuisine/taste or by explicit name set. Non-matching nodes get dimmed.
+   * @param {{ cuisine?: string, taste?: string }|null} filter - Cuisine/taste filter object
+   * @param {Set<string>} [activeNames] - If provided, only these ingredient names pass the filter
    */
-  applyFilter({ cuisine, taste }) {
-    const dummy = new Object3D();
+  applyFilter(filter, activeNames) {
     const dimColor = new Color('#111118');
 
     for (let i = 0; i < this._nodeList.length; i++) {
       const node = this._nodeList[i];
-      let matches = true;
+      let matches;
 
-      if (cuisine) {
-        matches = matches && node.cuisines && node.cuisines.some(
-          c => c.toLowerCase().includes(cuisine.toLowerCase())
-        );
-      }
-      if (taste) {
-        matches = matches && tasteMatches(node.taste, taste);
+      if (activeNames) {
+        matches = activeNames.has(node.name);
+      } else {
+        matches = true;
+        const cuisine = filter?.cuisine;
+        const taste = filter?.taste;
+        if (cuisine) {
+          matches = matches && node.cuisines && node.cuisines.some(
+            c => c.toLowerCase().includes(cuisine.toLowerCase())
+          );
+        }
+        if (taste) {
+          matches = matches && tasteMatches(node.taste, taste);
+        }
       }
 
       if (matches) {
