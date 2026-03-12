@@ -19,6 +19,7 @@ import ProfileToggle from './components/ProfileToggle.jsx';
 
 import ProfileInsights from './components/ProfileInsights.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
+import PalateQuiz from './components/PalateQuiz.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
@@ -41,6 +42,7 @@ export default function App() {
   const [showRecipeScanner, setShowRecipeScanner] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
   const [showGlobalInsights, setShowGlobalInsights] = useState(false);
+  const [showPalateQuiz, setShowPalateQuiz] = useState(false);
   const userProfile = useUserProfile(user);
 
   // Derived state for backwards compat
@@ -315,6 +317,7 @@ export default function App() {
         onCreateRecipe={() => setShowRecipeBuilder(true)}
         onImportRecipe={() => setShowRecipeShare(true)}
         onScanRecipe={() => setShowRecipeScanner(true)}
+        onTakeQuiz={() => { setShowProfile(false); setShowPalateQuiz(true); }}
       />
       {showRecipeBuilder && (
         <RecipeBuilder
@@ -366,6 +369,14 @@ export default function App() {
         onClose={() => setShowGlobalInsights(false)}
       />
       <HelpButton onClick={() => setShowTour(true)} />
+      <PalateQuiz
+        active={showPalateQuiz}
+        onComplete={(answers) => {
+          userProfile.saveQuizAnswers(answers);
+          setShowPalateQuiz(false);
+        }}
+        onSkip={() => setShowPalateQuiz(false)}
+      />
     </>
   );
 }

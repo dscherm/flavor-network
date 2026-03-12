@@ -118,7 +118,7 @@ updated: 2026-03-11T11:30
 > flavor preferences through general taste questions before they add any recipes.
 
 ### Questionnaire Engine
-- [ ] TASK-78: Build components/PalateQuiz.jsx — step-based questionnaire with progress bar. Appears on first visit (no profile data) or triggered from ProfilePanel. 10-15 questions, ~2 minutes to complete #ui
+- [x] TASK-78: Build components/PalateQuiz.jsx — step-based questionnaire with progress bar. Appears on first visit (no profile data) or triggered from ProfilePanel. 10-15 questions, ~2 minutes to complete #ui
 - [ ] TASK-79: Design question bank in src/data/palateQuestions.js — curated questions that efficiently map to flavor preferences. Categories: #data
   - **Intensity preferences**: "Do you always add extra garlic to recipes?" (scale: never→always) → maps to allium/pungent affinity
   - **Heat tolerance**: "How spicy do you like your food?" (mild→extreme) → maps to capsaicin/chili ingredients
