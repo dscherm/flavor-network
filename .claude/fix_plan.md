@@ -138,7 +138,7 @@ updated: 2026-03-11T11:30
 - [x] TASK-80: Build src/data/quizScoring.js — map quiz answers to ingredient weights. Each question maps to a set of ingredients with multipliers. Combine across all answers to produce an initial profile weight vector. Use the questionnaire as a Bayesian prior that gets refined by recipe data #data
 - [x] TASK-81: Wire quiz results into useUserProfile — save quiz answers as profile.quizAnswers, compute initial weights from quiz, merge with recipe-based weights (quiz = 30% weight, recipes = 70% weight when recipes exist, quiz = 100% when no recipes). Re-run on quiz retake #profile
 - [x] TASK-82: Add "Retake Quiz" button to ProfilePanel — let users update their answers as tastes evolve. Show how answers changed since last time #ui
-- [ ] TASK-83: Add quiz prompt to walkthrough — if user has no profile, suggest taking the quiz after tour step 3. Non-blocking — user can skip and come back later #demo
+- [x] TASK-83: Add quiz prompt to walkthrough — if user has no profile, suggest taking the quiz after tour step 3. Non-blocking — user can skip and come back later #demo
 
 ## Phase 15: Flavor Hierarchy Trees
 > **Goal**: Build tree structures for cuisines and personal profiles to enable

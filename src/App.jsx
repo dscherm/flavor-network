@@ -306,6 +306,8 @@ export default function App() {
         active={showTour}
         onComplete={() => setShowTour(false)}
         onSkip={() => setShowTour(false)}
+        hasProfile={userProfile.stats.totalItems > 0}
+        onStartQuiz={() => setShowPalateQuiz(true)}
       />
       <ProfilePanel
         profile={userProfile.profile}
