@@ -111,6 +111,51 @@ export default function App() {
     setSelectedNodes([]);
   }, []);
 
+  // Parse URL parameters on mount to pre-load shared recipe ingredients
+  useEffect(() => {
+    if (!data) return;
+    const params = new URLSearchParams(window.location.search);
+    const ingredientsParam = params.get('ingredients');
+    if (ingredientsParam) {
+      const names = ingredientsParam.split(',').map(s => s.trim().toLowerCase());
+      const knownNodes = data.graph.nodes;
+      const matched = names.filter(n => knownNodes.has(n));
+      if (matched.length > 0) {
+        setSelectedNodes(matched);
+      }
+    }
+  }, [data]);
+
+  // Generate shareable recipe URL from current selection
+  const shareUrl = useMemo(() => {
+    if (selectedNodes.length === 0) return '';
+    const params = new URLSearchParams();
+    params.set('ingredients', selectedNodes.join(','));
+    return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+  }, [selectedNodes]);
+
+  const [copied, setCopied] = useState(false);
+  const handleCopyShareLink = useCallback(async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = shareUrl;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [shareUrl]);
+
   // Keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e) {
@@ -199,18 +244,42 @@ export default function App() {
         />
       )}
 
-      {/* Clear Selection button — shown when anything is selected, positioned below search bar */}
+      {/* Clear Selection + Share buttons — shown when anything is selected, positioned below search bar */}
       {selectedNodes.length > 0 && (
-        <button
-          onClick={handleClearSelection}
-          className="fixed top-[60px] left-1/2 -translate-x-1/2 z-50 px-3 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
-        >
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-          Clear Selection
-          <span className="text-gray-600">({selectedNodes.length})</span>
-        </button>
+        <div className="fixed top-[60px] left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
+          <button
+            onClick={handleClearSelection}
+            className="px-3 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
+          >
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Clear Selection
+            <span className="text-gray-600">({selectedNodes.length})</span>
+          </button>
+          <button
+            onClick={handleCopyShareLink}
+            className={`px-3 py-1.5 text-xs bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5 ${
+              copied ? 'text-green-400 border-green-400/30' : 'text-gray-400 hover:text-neural-glow'
+            }`}
+          >
+            {copied ? (
+              <>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Copied!
+              </>
+            ) : (
+              <>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                Share
+              </>
+            )}
+          </button>
+        </div>
       )}
 
       <Legend
