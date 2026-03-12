@@ -14,6 +14,7 @@ import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
 import RecipeBuilder from './components/RecipeBuilder.jsx';
 import RecipeSharePanel from './components/RecipeSharePanel.jsx';
+import RecipeScanner from './components/RecipeScanner.jsx';
 import ProfileToggle from './components/ProfileToggle.jsx';
 
 import ProfileInsights from './components/ProfileInsights.jsx';
@@ -37,6 +38,7 @@ export default function App() {
   const [profileMode, setProfileMode] = useState(false);
   const [showRecipeBuilder, setShowRecipeBuilder] = useState(false);
   const [showRecipeShare, setShowRecipeShare] = useState(false);
+  const [showRecipeScanner, setShowRecipeScanner] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
   const [showGlobalInsights, setShowGlobalInsights] = useState(false);
   const userProfile = useUserProfile(user);
@@ -312,12 +314,14 @@ export default function App() {
         onClose={() => setShowProfile(false)}
         onCreateRecipe={() => setShowRecipeBuilder(true)}
         onImportRecipe={() => setShowRecipeShare(true)}
+        onScanRecipe={() => setShowRecipeScanner(true)}
       />
       {showRecipeBuilder && (
         <RecipeBuilder
           ingredientList={ingredientList}
           onSave={userProfile.addRecipe}
           onClose={() => setShowRecipeBuilder(false)}
+          onScanRecipe={() => { setShowRecipeBuilder(false); setShowRecipeScanner(true); }}
         />
       )}
       {showRecipeShare && (
@@ -325,6 +329,13 @@ export default function App() {
           ingredientList={ingredientList}
           onSave={userProfile.addRecipe}
           onClose={() => setShowRecipeShare(false)}
+        />
+      )}
+      {showRecipeScanner && (
+        <RecipeScanner
+          ingredientList={ingredientList}
+          onSave={userProfile.addRecipe}
+          onClose={() => setShowRecipeScanner(false)}
         />
       )}
       <ProfileToggle
