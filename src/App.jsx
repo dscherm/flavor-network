@@ -22,6 +22,7 @@ import GlobalInsights from './components/GlobalInsights.jsx';
 import PalateQuiz from './components/PalateQuiz.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 import ProfileTreeView from './components/ProfileTreeView.jsx';
+import FlavorDNA from './components/FlavorDNA.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
@@ -47,6 +48,7 @@ export default function App() {
   const [showPalateQuiz, setShowPalateQuiz] = useState(false);
   const [showTreeExplorer, setShowTreeExplorer] = useState(false);
   const [showProfileTree, setShowProfileTree] = useState(false);
+  const [showFlavorDNA, setShowFlavorDNA] = useState(false);
   const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
   const userProfile = useUserProfile(user);
 
@@ -383,6 +385,13 @@ export default function App() {
         isOpen={showProfileTree}
         onClose={() => setShowProfileTree(false)}
         onAddIngredient={userProfile.addIngredient}
+        onOpenFlavorDNA={() => setShowFlavorDNA(true)}
+      />
+      <FlavorDNA
+        profile={userProfile.profile}
+        nodes={data ? data.graph.nodes : null}
+        isOpen={showFlavorDNA}
+        onClose={() => setShowFlavorDNA(false)}
       />
       <FlavorTreeExplorer
         nodes={data ? data.graph.nodes : null}

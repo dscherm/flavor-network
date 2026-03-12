@@ -72,7 +72,7 @@ function TreeNode({ node, depth, expanded, onToggle, weights }) {
   );
 }
 
-export default function ProfileTreeView({ profile, nodes, isOpen, onClose, onAddIngredient }) {
+export default function ProfileTreeView({ profile, nodes, isOpen, onClose, onAddIngredient, onOpenFlavorDNA }) {
   const [expanded, setExpanded] = useState(new Set(['my-cuisines', 'my-ingredients', 'my-recipes']));
 
   const tree = useMemo(() => buildProfileTree(profile, nodes), [profile, nodes]);
@@ -98,9 +98,20 @@ export default function ProfileTreeView({ profile, nodes, isOpen, onClose, onAdd
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-[#1e1e2e]">
           <h2 className="text-sm font-medium text-gray-200 tracking-wide">My Flavor Tree</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none">
-            &times;
-          </button>
+          <div className="flex items-center gap-2">
+            {onOpenFlavorDNA && (
+              <button
+                onClick={onOpenFlavorDNA}
+                className="text-[10px] text-purple-400 hover:text-purple-300 transition-colors bg-purple-500/10 px-2 py-0.5 rounded"
+                title="View Flavor DNA"
+              >
+                DNA
+              </button>
+            )}
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none">
+              &times;
+            </button>
+          </div>
         </div>
 
         {isEmpty ? (
