@@ -162,7 +162,7 @@ updated: 2026-03-11T11:30
 - [x] TASK-94: Add profile tree export — generate a shareable "Flavor Passport" image showing the user's tree structure, top ingredients, cuisine affinities, and flavor signature. Downloadable as PNG #profile
 
 ## Phase 16: Polish & Deploy v2
-- [ ] TASK-95: Update walkthrough tour with new features (recipe scanning, quiz, tree navigation, flavor DNA) #demo
+- [x] TASK-95: Update walkthrough tour with new features (recipe scanning, quiz, tree navigation, flavor DNA) #demo
 - [ ] TASK-96: Performance optimization — lazy-load Tesseract.js for scanning, debounce quiz scoring, virtualize tree lists for large profiles #polish
 - [ ] TASK-97: Deploy updated app to Firebase Hosting #deploy
 - [ ] TASK-98: Data integrity tests v2 — validate quiz scoring maps to correct ingredients, recipe scraping handles edge cases, tree structures are complete and acyclic #testing
