@@ -112,12 +112,29 @@ export function getAllCuisines(nodes) {
 }
 
 /**
- * Get unique list of all taste values in the dataset.
+ * Get the simplified taste categories used for filtering.
+ * Returns only categories that have at least one matching ingredient.
  */
 export function getAllTastes(nodes) {
-  const tastes = new Set();
-  for (const [, node] of nodes) {
-    if (node.taste) tastes.add(node.taste);
+  const categories = ['sweet', 'sour', 'bitter', 'salty', 'spicy', 'pungent', 'astringent'];
+  // Only include categories that have at least one ingredient
+  const active = [];
+  for (const cat of categories) {
+    for (const [, node] of nodes) {
+      if (node.taste && node.taste.toLowerCase().includes(cat)) {
+        active.push(cat);
+        break;
+      }
+    }
   }
-  return [...tastes].sort();
+  // Also check "hot" for the "spicy" category
+  if (!active.includes('spicy')) {
+    for (const [, node] of nodes) {
+      if (node.taste && node.taste.toLowerCase().includes('hot')) {
+        active.push('spicy');
+        break;
+      }
+    }
+  }
+  return active;
 }

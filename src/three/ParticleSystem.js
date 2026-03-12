@@ -178,6 +178,26 @@ class ParticleSystem {
   }
 
   /**
+   * Filter particles — only show particles where both endpoints are in the active set.
+   * @param {Set<string>} activeNames - set of ingredient names that pass the filter
+   */
+  applyFilter(activeNames) {
+    const colorAttr = this._geometry.getAttribute('aColor');
+
+    for (let i = 0; i < this._particles.length; i++) {
+      const pt = this._particles[i];
+      const bothMatch = activeNames.has(pt.source) && activeNames.has(pt.target);
+
+      if (bothMatch) {
+        colorAttr.setXYZ(i, this._defaultColors[i * 3], this._defaultColors[i * 3 + 1], this._defaultColors[i * 3 + 2]);
+      } else {
+        colorAttr.setXYZ(i, 0.02, 0.02, 0.03);
+      }
+    }
+    colorAttr.needsUpdate = true;
+  }
+
+  /**
    * Toggle visibility of the particle system.
    * @param {boolean} visible
    */

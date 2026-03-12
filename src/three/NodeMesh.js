@@ -29,19 +29,41 @@ const CUISINE_COLORS = {
   'scandinavian cuisine': '#80ced6',
 };
 
+// Taste → color mapping. Order matters: more specific compound tastes first,
+// then single-word tastes, so "sour-sweet" matches "sour" before "sweet".
 const TASTE_COLORS = {
-  sweet: '#ff6b9d',
-  sour: '#4ecdc4',
-  bitter: '#9b59b6',
-  umami: '#f39c12',
-  spicy: '#e74c3c',
-  hot: '#e74c3c',
-  salty: '#3498db',
   pungent: '#e67e22',
   astringent: '#1abc9c',
+  salty: '#3498db',
+  sour: '#4ecdc4',
+  bitter: '#9b59b6',
+  hot: '#e74c3c',
+  spicy: '#e74c3c',
+  sweet: '#ff6b9d',
 };
 
 const DEFAULT_COLOR = '#4f8fff';
+
+// Taste filter aliases — when filtering by one of these keys,
+// also match the other keys in the same group.
+const TASTE_ALIASES = {
+  spicy: ['spicy', 'hot'],
+  hot: ['spicy', 'hot'],
+};
+
+/**
+ * Check if an ingredient's taste matches a filter key.
+ * Handles aliases (e.g., "spicy" also matches "hot").
+ */
+export function tasteMatches(nodeTaste, filterKey) {
+  if (!nodeTaste || !filterKey) return false;
+  const tasteLower = nodeTaste.toLowerCase();
+  const aliases = TASTE_ALIASES[filterKey.toLowerCase()];
+  if (aliases) {
+    return aliases.some(alias => tasteLower.includes(alias));
+  }
+  return tasteLower.includes(filterKey.toLowerCase());
+}
 
 function getColorForNode(node) {
   // Primary: color by taste profile
@@ -196,7 +218,7 @@ class NodeMesh {
         );
       }
       if (taste) {
-        matches = matches && node.taste && node.taste.toLowerCase().includes(taste.toLowerCase());
+        matches = matches && tasteMatches(node.taste, taste);
       }
 
       if (matches) {

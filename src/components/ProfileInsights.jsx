@@ -32,10 +32,26 @@ export default function ProfileInsights({ profile, nodes, isOpen, onClose, onSel
 
   const hasData = profile && (profile.ingredients.length > 0 || profile.cuisines.length > 0 || profile.recipes.length > 0);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed top-4 right-4 z-40 w-80 max-h-[calc(100vh-2rem)] overflow-y-auto panel rounded-lg border border-neural-glow/20 bg-neural-bg/95 backdrop-blur-md shadow-xl">
+    <div className={`fixed top-4 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
+      {/* Tab */}
+      <button
+        onClick={onClose}
+        className={`self-start mt-8 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-r-0 rounded-l-lg px-1.5 py-3 transition-all duration-300 ${
+          isOpen ? 'text-purple-400 translate-x-0' : 'text-gray-500 translate-x-full pointer-events-none opacity-0'
+        }`}
+        aria-label="Hide insights"
+        title="Profile Insights"
+      >
+        <span className="text-[10px] uppercase tracking-widest font-medium" style={{ writingMode: 'vertical-rl' }}>
+          Insights
+        </span>
+      </button>
+
+      {/* Panel */}
+      <div className={`w-80 max-h-full overflow-y-auto panel rounded-lg border border-neural-glow/20 bg-neural-bg/95 backdrop-blur-md shadow-xl transition-transform duration-300 ease-in-out ${
+        isOpen ? 'translate-x-0' : 'translate-x-[calc(100%+4px)]'
+      }`}>
       {/* Header */}
       <div className="sticky top-0 bg-neural-bg/95 backdrop-blur-md p-4 pb-2 border-b border-neural-glow/10 flex items-center justify-between">
         <h2 className="text-neural-text font-semibold text-sm tracking-wide">Profile Insights</h2>
@@ -158,6 +174,7 @@ export default function ProfileInsights({ profile, nodes, isOpen, onClose, onSel
           </Section>
         </div>
       )}
+      </div>
     </div>
   );
 }

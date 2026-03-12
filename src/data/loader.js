@@ -58,6 +58,7 @@ export async function loadIngredientPairings(basePath = '/data') {
 
 /**
  * Load and parse cuisines.csv → Map<cuisine, string[]> of ingredients
+ * Handles both directions: "creole cuisine,garlic" and "garlic,creole cuisine"
  */
 export async function loadCuisines(basePath = '/data') {
   const res = await fetch(`${basePath}/cuisines.csv`);
@@ -65,11 +66,28 @@ export async function loadCuisines(basePath = '/data') {
   const pairs = parseCsvPairs(text);
 
   const cuisines = new Map();
-  for (const [cuisine, ingredient] of pairs) {
+  for (const [col1, col2] of pairs) {
+    // Determine which column is the cuisine and which is the ingredient
+    let cuisine, ingredient;
+    const col2Lower = col2.toLowerCase();
+    if (col1.includes('cuisine')) {
+      cuisine = col1;
+      ingredient = col2Lower;
+    } else if (col2Lower.includes('cuisine')) {
+      cuisine = col2Lower;
+      ingredient = col1;
+    } else {
+      // Fallback: treat col1 as cuisine
+      cuisine = col1;
+      ingredient = col2Lower;
+    }
+
     if (!cuisines.has(cuisine)) {
       cuisines.set(cuisine, []);
     }
-    cuisines.get(cuisine).push(ingredient.toLowerCase());
+    if (!cuisines.get(cuisine).includes(ingredient)) {
+      cuisines.get(cuisine).push(ingredient);
+    }
   }
   return cuisines;
 }
@@ -128,16 +146,74 @@ export async function loadAffinities(basePath = '/data') {
 }
 
 /**
- * Build a reverse lookup: ingredient → cuisines it belongs to
+ * Build a reverse lookup: ingredient → cuisines it belongs to.
+ * If knownIngredients is provided, attempts to match cuisine ingredient names
+ * to actual graph node names (handles "cayenne" → "cayenne, ground", etc.)
  */
-export function buildIngredientCuisineMap(cuisines) {
+export function buildIngredientCuisineMap(cuisines, knownIngredients = null) {
   const map = new Map();
+
+  // Build a lookup for fuzzy matching: base name → full node name
+  let nameIndex = null;
+  if (knownIngredients) {
+    nameIndex = new Map();
+    for (const name of knownIngredients) {
+      // Index by full name
+      nameIndex.set(name, name);
+      // Index by base name (before comma), e.g. "cayenne, ground" → "cayenne"
+      const commaIdx = name.indexOf(',');
+      if (commaIdx > 0) {
+        const base = name.slice(0, commaIdx).trim();
+        if (!nameIndex.has(base)) {
+          nameIndex.set(base, name);
+        }
+      }
+    }
+    // Common spelling variants
+    const variants = [
+      ['crawfish', 'crayfish'],
+    ];
+    for (const [a, b] of variants) {
+      if (!nameIndex.has(a) && nameIndex.has(b)) nameIndex.set(a, nameIndex.get(b));
+      if (!nameIndex.has(b) && nameIndex.has(a)) nameIndex.set(b, nameIndex.get(a));
+    }
+  }
+
+  function resolveName(ing) {
+    if (!nameIndex) return ing;
+    // Exact match first
+    if (nameIndex.has(ing)) return nameIndex.get(ing);
+    // Try base name (before colon for multi-value refs like "pepper: black, white")
+    if (ing.includes(':')) {
+      const parts = ing.split(':');
+      const base = parts[0].trim();
+      const values = parts[1].split(',').map(s => s.trim());
+      // Return all resolved individual entries
+      const resolved = [];
+      for (const val of values) {
+        const combined = `${base}, ${val}`;
+        if (nameIndex.has(combined)) resolved.push(nameIndex.get(combined));
+        else if (nameIndex.has(val)) resolved.push(nameIndex.get(val));
+      }
+      return resolved.length > 0 ? resolved : null;
+    }
+    return null; // No match found — ingredient doesn't exist as a node
+  }
+
   for (const [cuisine, ingredients] of cuisines) {
     for (const ing of ingredients) {
-      if (!map.has(ing)) {
-        map.set(ing, []);
+      const resolved = resolveName(ing);
+      if (!resolved) continue; // Skip ingredients that don't exist as nodes
+
+      const names = Array.isArray(resolved) ? resolved : [resolved];
+      for (const name of names) {
+        if (!map.has(name)) {
+          map.set(name, []);
+        }
+        if (!map.get(name).includes(cuisine)) {
+          map.get(name).push(cuisine);
+        }
       }
-      map.get(ing).push(cuisine);
     }
   }
   return map;
@@ -154,7 +230,16 @@ export async function loadAllData(basePath = '/data') {
     loadAffinities(basePath),
   ]);
 
-  const ingredientCuisines = buildIngredientCuisineMap(cuisines);
+  // Collect all known ingredient names from pairings (both sides)
+  const knownIngredients = new Set();
+  for (const [ingredient, targets] of pairings) {
+    knownIngredients.add(ingredient);
+    for (const target of targets) {
+      knownIngredients.add(target);
+    }
+  }
+
+  const ingredientCuisines = buildIngredientCuisineMap(cuisines, knownIngredients);
 
   return {
     pairings,

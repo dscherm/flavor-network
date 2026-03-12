@@ -70,8 +70,6 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
     e.target.value = '';
   }, [actions]);
 
-  if (!isOpen) return null;
-
   const tabs = [
     { key: 'ingredients', label: 'Ingredients', count: profile.ingredients.length },
     { key: 'cuisines', label: 'Cuisines', count: profile.cuisines.length },
@@ -86,7 +84,11 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
         : null; // recipes handled separately
 
   return (
-    <div className="fixed left-4 top-16 bottom-4 w-72 z-40 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg flex flex-col select-none overflow-hidden">
+    <div className={`fixed top-16 left-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
+      {/* Panel */}
+      <div className={`w-72 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-r-lg flex flex-col overflow-hidden transition-transform duration-300 ease-in-out ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-[#1e1e2e]">
         <h2 className="text-sm font-medium text-gray-200 tracking-wide">My Profile</h2>
@@ -253,6 +255,21 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
           </button>
         )}
       </div>
+      </div>
+
+      {/* Tab */}
+      <button
+        onClick={isOpen ? onClose : onClose} // toggle handled by parent
+        className={`self-start mt-4 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-l-0 rounded-r-lg px-1.5 py-3 transition-all duration-300 ${
+          isOpen ? 'text-blue-400 translate-x-0' : 'text-gray-500 hover:text-gray-300 -translate-x-full pointer-events-none opacity-0'
+        }`}
+        aria-label="Hide profile"
+        title="My Profile"
+      >
+        <span className="text-[10px] uppercase tracking-widest font-medium" style={{ writingMode: 'vertical-rl' }}>
+          Profile
+        </span>
+      </button>
     </div>
   );
 }
