@@ -7,7 +7,10 @@ function RecipeBuilder({ ingredientList, onSave, onClose }) {
   const [selected, setSelected] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [pasteText, setPasteText] = useState('');
-  const [mode, setMode] = useState('select'); // 'select' | 'paste'
+  const [mode, setMode] = useState('select'); // 'select' | 'paste' | 'url'
+  const [urlInput, setUrlInput] = useState('');
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlError, setUrlError] = useState('');
 
   const ingredientFuse = useMemo(() => {
     const docs = (ingredientList || []).map((n) => ({ name: n }));
@@ -55,6 +58,59 @@ function RecipeBuilder({ ingredientList, onSave, onClose }) {
     setPasteText('');
     setMode('select');
   }, [pasteText, parserIndex]);
+
+  const handleImportUrl = useCallback(async () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    try {
+      new URL(trimmed);
+    } catch {
+      setUrlError('Please enter a valid URL');
+      return;
+    }
+    setUrlLoading(true);
+    setUrlError('');
+    try {
+      const res = await fetch('/api/recipe/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: trimmed }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to scrape (${res.status})`);
+      }
+      const data = await res.json();
+      // Re-match against known ingredients using local Fuse for better accuracy
+      const matchFuse = new Fuse(
+        (ingredientList || []).map((n) => ({ name: n })),
+        { keys: ['name'], threshold: 0.35 },
+      );
+      const matched = [];
+      for (const raw of data.ingredients || []) {
+        const results = matchFuse.search(raw, { limit: 1 });
+        if (results.length > 0) matched.push(results[0].item.name);
+      }
+      // Also include server-side matched names
+      if (data.matchedNames) {
+        for (const n of data.matchedNames) {
+          if (!matched.includes(n)) matched.push(n);
+        }
+      }
+      if (matched.length > 0) {
+        setSelected((prev) => [...new Set([...prev, ...matched])]);
+      }
+      if (data.title && !name.trim()) {
+        setName(data.title);
+      }
+      setUrlInput('');
+      setMode('select');
+    } catch (err) {
+      setUrlError(err.message || 'Failed to import recipe');
+    } finally {
+      setUrlLoading(false);
+    }
+  }, [urlInput, ingredientList, name]);
 
   const handleSave = useCallback(() => {
     if (!name.trim() || selected.length === 0) return;
@@ -128,6 +184,16 @@ function RecipeBuilder({ ingredientList, onSave, onClose }) {
             >
               Paste Ingredients
             </button>
+            <button
+              onClick={() => setMode('url')}
+              className={`flex-1 py-1.5 text-[10px] transition-colors ${
+                mode === 'url'
+                  ? 'text-blue-400 border-b-2 border-blue-400'
+                  : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              Import URL
+            </button>
           </div>
 
           {/* Search & select mode */}
@@ -184,6 +250,33 @@ function RecipeBuilder({ ingredientList, onSave, onClose }) {
               >
                 Parse &amp; Add Ingredients
               </button>
+            </div>
+          )}
+
+          {/* URL import mode */}
+          {mode === 'url' && (
+            <div>
+              <input
+                type="url"
+                value={urlInput}
+                onChange={(e) => { setUrlInput(e.target.value); setUrlError(''); }}
+                placeholder="https://www.allrecipes.com/recipe/..."
+                className="w-full text-xs bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-600"
+                disabled={urlLoading}
+              />
+              {urlError && (
+                <p className="text-[10px] text-red-400 mt-1">{urlError}</p>
+              )}
+              <button
+                onClick={handleImportUrl}
+                disabled={!urlInput.trim() || urlLoading}
+                className="mt-1.5 w-full text-[11px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 disabled:opacity-30 disabled:cursor-default rounded py-1.5 transition-colors"
+              >
+                {urlLoading ? 'Importing...' : 'Import from URL'}
+              </button>
+              <p className="text-[10px] text-gray-600 mt-1">
+                Supports AllRecipes, Food Network, NYT Cooking, and most recipe sites.
+              </p>
             </div>
           )}
 
