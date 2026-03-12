@@ -5,7 +5,8 @@ import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Legend from './components/Legend.jsx';
 import Controls from './components/Controls.jsx';
-import { getNeighbors, getSharedPairings } from './data/graph.js';
+import { getNeighbors } from './data/graph.js';
+// NodeFavoriteButton removed — favorite is now in IngredientPanel
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
 import ComparePanel from './components/ComparePanel.jsx';
 import Walkthrough from './components/Walkthrough.jsx';
@@ -13,30 +14,34 @@ import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
 import RecipeBuilder from './components/RecipeBuilder.jsx';
 import ProfileToggle from './components/ProfileToggle.jsx';
-import NodeFavoriteButton from './components/NodeFavoriteButton.jsx';
+
 import ProfileInsights from './components/ProfileInsights.jsx';
+import GlobalInsights from './components/GlobalInsights.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
+import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
 
 export default function App() {
   const { loading, error, data } = useFlavorData();
-  const [selectedNode, setSelectedNode] = useState(null);
+  const { user, loginWithGoogle, logout } = useAuth();
+  const [selectedNodes, setSelectedNodes] = useState([]);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
-  const [compareMode, setCompareMode] = useState(false);
-  const [compareNode, setCompareNode] = useState(null);
   const [showTour, setShowTour] = useState(
     () => !localStorage.getItem('flavor-tour-complete')
   );
   const [showProfile, setShowProfile] = useState(false);
   const [profileMode, setProfileMode] = useState(false);
   const [showRecipeBuilder, setShowRecipeBuilder] = useState(false);
-  const [hoveredNode, setHoveredNode] = useState(null);
-  const [hoverMousePos, setHoverMousePos] = useState(null);
   const [showInsights, setShowInsights] = useState(false);
-  const userProfile = useUserProfile();
+  const [showGlobalInsights, setShowGlobalInsights] = useState(false);
+  const userProfile = useUserProfile(user);
+
+  // Derived state for backwards compat
+  const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
+  const isComparing = selectedNodes.length >= 2;
 
   const ingredientList = useMemo(() => {
     if (!data) return [];
@@ -63,54 +68,53 @@ export default function App() {
     return data.graph.nodes.get(selectedNode) || null;
   }, [data, selectedNode]);
 
-  const sharedPairings = useMemo(() => {
-    if (!data || !selectedNode || !compareNode) return [];
-    return getSharedPairings(selectedNode, compareNode, data.graph.edges);
-  }, [data, selectedNode, compareNode]);
-
-  const compareNodeData = useMemo(() => {
-    if (!data || !compareNode) return null;
-    return data.graph.nodes.get(compareNode) || null;
-  }, [data, compareNode]);
-
   const profileWeights = useMemo(() => {
     if (!profileMode || !data) return null;
     return computeProfileWeights(userProfile.profile, data.graph.nodes);
   }, [profileMode, data, userProfile.profile]);
 
   const handleNodeClick = useCallback((node) => {
-    const name = node ? node.name : null;
-    if (compareMode && selectedNode && name && name !== selectedNode) {
-      setCompareNode(name);
-    } else {
-      setSelectedNode(name);
-      setCompareNode(null);
+    if (!node) {
+      // Clicked empty space — clear all
+      setSelectedNodes([]);
+      return;
     }
-  }, [compareMode, selectedNode]);
-
-  const handleNodeHover = useCallback((node, mousePos) => {
-    setHoveredNode(node);
-    setHoverMousePos(node ? mousePos : null);
+    const name = node.name;
+    setSelectedNodes((prev) => {
+      if (prev.includes(name)) {
+        // Already selected — remove it
+        return prev.filter((n) => n !== name);
+      }
+      // Add to selection
+      return [...prev, name];
+    });
   }, []);
 
   const handleSearchSelect = useCallback((name) => {
-    setSelectedNode(name);
+    setSelectedNodes((prev) => {
+      if (prev.includes(name)) return prev;
+      return [...prev, name];
+    });
   }, []);
 
   const handlePanelClose = useCallback(() => {
-    setSelectedNode(null);
+    setSelectedNodes([]);
+  }, []);
+
+  const handleRemoveFromCompare = useCallback((name) => {
+    setSelectedNodes((prev) => prev.filter((n) => n !== name));
+  }, []);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedNodes([]);
   }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e) {
-      // Escape to deselect
       if (e.key === 'Escape') {
-        setSelectedNode(null);
-        setCompareNode(null);
-        setCompareMode(false);
+        setSelectedNodes([]);
       }
-      // "/" to focus search (unless already in an input)
       if (e.key === '/' && e.target.tagName !== 'INPUT') {
         e.preventDefault();
         const searchInput = document.querySelector('input[placeholder*="Search"]');
@@ -156,41 +160,61 @@ export default function App() {
       <NetworkScene
         data={data}
         onNodeClick={handleNodeClick}
-        onNodeHover={handleNodeHover}
+        onNodeHover={() => {}}
         selectedNode={selectedNode}
+        selectedNodes={selectedNodes}
         showEdges={showEdges}
         showParticles={showParticles}
         filterCuisine={selectedCuisine}
         filterTaste={selectedTaste}
         profileWeights={profileWeights}
       />
-      <NodeFavoriteButton
-        node={hoveredNode}
-        mousePos={hoverMousePos}
-        isFavorite={hoveredNode ? userProfile.hasIngredient(hoveredNode.name) : false}
-        onToggle={userProfile.toggleIngredient}
-      />
       <SearchBar
         ingredients={ingredientList}
         onSelect={handleSearchSelect}
       />
-      <IngredientPanel
-        node={selectedNodeData}
-        neighbors={neighbors}
-        onClose={handlePanelClose}
-        onSelectIngredient={handleSearchSelect}
-      />
-      {compareNode && (
-        <ComparePanel
-          node1={selectedNodeData}
-          node2={compareNodeData}
-          sharedPairings={sharedPairings}
-          neighbors1={neighbors}
-          neighbors2={data ? getNeighbors(compareNode, data.graph.edges) : []}
-          onClose={() => { setCompareNode(null); setCompareMode(false); }}
+
+      {/* Single selection: show ingredient detail panel */}
+      {!isComparing && (
+        <IngredientPanel
+          node={selectedNodeData}
+          neighbors={neighbors}
+          onClose={handlePanelClose}
+          onSelectIngredient={handleSearchSelect}
+          isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
+          onToggleFavorite={userProfile.toggleIngredient}
         />
       )}
-      <Legend />
+
+      {/* Multi-selection: show comparison panel */}
+      {isComparing && (
+        <ComparePanel
+          selectedNames={selectedNodes}
+          nodes={data.graph.nodes}
+          edges={data.graph.edges}
+          onRemove={handleRemoveFromCompare}
+          onClose={handleClearSelection}
+        />
+      )}
+
+      {/* Clear Selection button — shown when anything is selected, positioned below search bar */}
+      {selectedNodes.length > 0 && (
+        <button
+          onClick={handleClearSelection}
+          className="fixed top-[60px] left-1/2 -translate-x-1/2 z-50 px-3 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
+        >
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Clear Selection
+          <span className="text-gray-600">({selectedNodes.length})</span>
+        </button>
+      )}
+
+      <Legend
+        selectedTaste={selectedTaste}
+        onTasteFilter={setSelectedTaste}
+      />
       <Controls
         showEdges={showEdges}
         showParticles={showParticles}
@@ -229,7 +253,11 @@ export default function App() {
         onToggleMode={() => setProfileMode(v => !v)}
         onOpenPanel={() => setShowProfile(v => !v)}
         onOpenInsights={() => setShowInsights(v => !v)}
+        onOpenGlobalInsights={() => setShowGlobalInsights(v => !v)}
         profileStats={userProfile.stats}
+        user={user}
+        onLogin={loginWithGoogle}
+        onLogout={logout}
       />
       <ProfileInsights
         profile={userProfile.profile}
@@ -238,6 +266,14 @@ export default function App() {
         onClose={() => setShowInsights(false)}
         onSelectIngredient={handleSearchSelect}
         onAddIngredient={userProfile.addIngredient}
+      />
+      <GlobalInsights
+        nodes={data ? data.graph.nodes : null}
+        edges={data ? data.graph.edges : null}
+        filterCuisine={selectedCuisine}
+        filterTaste={selectedTaste}
+        isOpen={showGlobalInsights}
+        onClose={() => setShowGlobalInsights(false)}
       />
       <HelpButton onClick={() => setShowTour(true)} />
     </>

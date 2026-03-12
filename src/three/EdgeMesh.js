@@ -226,6 +226,38 @@ class EdgeMesh {
     opacityAttr.needsUpdate = true;
   }
 
+  /**
+   * Filter edges — only show edges where both endpoints are in the active set.
+   * @param {Set<string>} activeNames - set of ingredient names that pass the filter
+   */
+  applyFilter(activeNames) {
+    const colorAttr = this._geometry.getAttribute('aColor');
+    const opacityAttr = this._geometry.getAttribute('aOpacity');
+    const dimColor = new Color('#060610');
+
+    for (let i = 0; i < this._edgeList.length; i++) {
+      const edge = this._edgeList[i];
+      const vi = edge.vertexIndex;
+      const bothMatch = activeNames.has(edge.source) && activeNames.has(edge.target);
+
+      if (bothMatch) {
+        // Restore default
+        colorAttr.setXYZ(vi, this._defaultColors[vi * 3], this._defaultColors[vi * 3 + 1], this._defaultColors[vi * 3 + 2]);
+        colorAttr.setXYZ(vi + 1, this._defaultColors[(vi + 1) * 3], this._defaultColors[(vi + 1) * 3 + 1], this._defaultColors[(vi + 1) * 3 + 2]);
+        opacityAttr.setX(vi, this._defaultOpacities[vi]);
+        opacityAttr.setX(vi + 1, this._defaultOpacities[vi + 1]);
+      } else {
+        colorAttr.setXYZ(vi, dimColor.r, dimColor.g, dimColor.b);
+        colorAttr.setXYZ(vi + 1, dimColor.r, dimColor.g, dimColor.b);
+        opacityAttr.setX(vi, 0.01);
+        opacityAttr.setX(vi + 1, 0.01);
+      }
+    }
+
+    colorAttr.needsUpdate = true;
+    opacityAttr.needsUpdate = true;
+  }
+
   setVisible(visible) {
     this._mesh.visible = visible;
   }

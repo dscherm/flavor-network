@@ -1,6 +1,8 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase.js';
 
-const STORAGE_KEY = 'flavor-user-profile';
+const STORAGE_KEY = 'flavor-user-profile-v2';
 
 const DEFAULT_PROFILE = {
   cuisines: [],
@@ -8,7 +10,7 @@ const DEFAULT_PROFILE = {
   recipes: [],
 };
 
-function loadProfile() {
+function loadLocalProfile() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_PROFILE;
@@ -23,17 +25,83 @@ function loadProfile() {
   }
 }
 
-function saveProfile(profile) {
+function saveLocalProfile(profile) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
 }
 
-export default function useUserProfile() {
-  const [profile, setProfile] = useState(loadProfile);
+function mergeProfiles(local, cloud) {
+  const mergeArrays = (a, b) => [...new Set([...a, ...b])];
+  const mergeRecipes = (a, b) => {
+    const seen = new Set(a.map((r) => r.name.toLowerCase()));
+    const merged = [...a];
+    for (const r of b) {
+      if (!seen.has(r.name.toLowerCase())) {
+        merged.push(r);
+        seen.add(r.name.toLowerCase());
+      }
+    }
+    return merged;
+  };
+  return {
+    cuisines: mergeArrays(local.cuisines, cloud.cuisines),
+    ingredients: mergeArrays(local.ingredients, cloud.ingredients),
+    recipes: mergeRecipes(local.recipes, cloud.recipes),
+  };
+}
+
+export default function useUserProfile(user) {
+  const [profile, setProfile] = useState(loadLocalProfile);
+  const [cloudLoaded, setCloudLoaded] = useState(false);
+  const skipNextSync = useRef(false);
+
+  // Load from Firestore on login, merge with local
+  useEffect(() => {
+    if (!user) {
+      setCloudLoaded(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const ref = doc(db, 'profiles', user.uid);
+        const snap = await getDoc(ref);
+        if (cancelled) return;
+        if (snap.exists()) {
+          const cloudData = snap.data();
+          const cloud = {
+            cuisines: Array.isArray(cloudData.cuisines) ? cloudData.cuisines : [],
+            ingredients: Array.isArray(cloudData.ingredients) ? cloudData.ingredients : [],
+            recipes: Array.isArray(cloudData.recipes) ? cloudData.recipes : [],
+          };
+          const local = loadLocalProfile();
+          const merged = mergeProfiles(local, cloud);
+          skipNextSync.current = true;
+          setProfile(merged);
+          saveLocalProfile(merged);
+        }
+      } catch (err) {
+        console.error('Failed to load cloud profile:', err);
+      }
+      if (!cancelled) setCloudLoaded(true);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  // Sync to Firestore whenever profile changes (if logged in)
+  useEffect(() => {
+    if (!user || !cloudLoaded) return;
+    if (skipNextSync.current) {
+      skipNextSync.current = false;
+      return;
+    }
+    const ref = doc(db, 'profiles', user.uid);
+    setDoc(ref, profile).catch((err) => console.error('Failed to save cloud profile:', err));
+  }, [profile, user, cloudLoaded]);
 
   const update = useCallback((updater) => {
     setProfile((prev) => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
-      saveProfile(next);
+      saveLocalProfile(next);
       return next;
     });
   }, []);

@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 import SceneManager from '../three/SceneManager.js';
-import NodeMesh from '../three/NodeMesh.js';
+import NodeMesh, { tasteMatches } from '../three/NodeMesh.js';
 import EdgeMesh from '../three/EdgeMesh.js';
 import ParticleSystem from '../three/ParticleSystem.js';
 
@@ -19,6 +19,7 @@ export default function NetworkScene({
   onNodeClick,
   onNodeHover,
   selectedNode,
+  selectedNodes = [],
   showEdges = true,
   showParticles = true,
   filterCuisine = '',
@@ -120,7 +121,7 @@ export default function NetworkScene({
     });
   }, [data, onNodeClick, onNodeHover]);
 
-  // Handle selection changes — activation spread
+  // Handle selection changes — activation spread (supports multiple nodes)
   useEffect(() => {
     const nodes = nodeMeshRef.current;
     const edges = edgeMeshRef.current;
@@ -130,16 +131,21 @@ export default function NetworkScene({
     edges.resetHighlights();
     if (particleRef.current) particleRef.current.resetHighlights();
 
-    if (selectedNode && data) {
-      // Build set of connected node names + their strength
-      const connectedMap = new Map();
-      connectedMap.set(selectedNode, 1.0);
+    const activeNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
 
-      for (const edge of data.graph.edges) {
-        if (edge.source === selectedNode) {
-          connectedMap.set(edge.target, edge.strength);
-        } else if (edge.target === selectedNode) {
-          connectedMap.set(edge.source, edge.strength);
+    if (activeNodes.length > 0 && data) {
+      // Build combined connected map from all selected nodes
+      const connectedMap = new Map();
+      for (const sel of activeNodes) {
+        connectedMap.set(sel, 1.0);
+        for (const edge of data.graph.edges) {
+          if (edge.source === sel) {
+            const prev = connectedMap.get(edge.target) || 0;
+            connectedMap.set(edge.target, Math.max(prev, edge.strength));
+          } else if (edge.target === sel) {
+            const prev = connectedMap.get(edge.source) || 0;
+            connectedMap.set(edge.source, Math.max(prev, edge.strength));
+          }
         }
       }
 
@@ -153,11 +159,13 @@ export default function NetworkScene({
         nodes.setActivation(name, strength);
       }
 
-      // Brighten only edges and particles connected to selected node
-      edges.highlightEdgesFor(selectedNode, 1.0);
-      if (particleRef.current) particleRef.current.highlightFor(selectedNode);
+      // Brighten edges and particles for all selected nodes
+      for (const sel of activeNodes) {
+        edges.highlightEdgesFor(sel, 1.0);
+        if (particleRef.current) particleRef.current.highlightFor(sel);
+      }
     }
-  }, [selectedNode, data]);
+  }, [selectedNode, selectedNodes, data]);
 
   // Toggle visibility
   useEffect(() => {
@@ -168,17 +176,40 @@ export default function NetworkScene({
     if (particleRef.current) particleRef.current.setVisible(showParticles);
   }, [showParticles]);
 
-  // Apply cuisine/taste filters
+  // Apply cuisine/taste filters to nodes, edges, and particles
   useEffect(() => {
     const nodes = nodeMeshRef.current;
+    const edges = edgeMeshRef.current;
+    const particles = particleRef.current;
     if (!nodes) return;
 
     if (!filterCuisine && !filterTaste) {
       nodes.resetActivations();
+      if (edges) edges.resetHighlights();
+      if (particles) particles.resetHighlights();
     } else {
       nodes.applyFilter({ cuisine: filterCuisine, taste: filterTaste });
+
+      // Compute the set of node names that match the filter
+      if (data) {
+        const activeNames = new Set();
+        for (const [name, node] of data.graph.nodes) {
+          let matches = true;
+          if (filterCuisine) {
+            matches = matches && node.cuisines && node.cuisines.some(
+              c => c.toLowerCase().includes(filterCuisine.toLowerCase())
+            );
+          }
+          if (filterTaste) {
+            matches = matches && tasteMatches(node.taste, filterTaste);
+          }
+          if (matches) activeNames.add(name);
+        }
+        if (edges) edges.applyFilter(activeNames);
+        if (particles) particles.applyFilter(activeNames);
+      }
     }
-  }, [filterCuisine, filterTaste]);
+  }, [filterCuisine, filterTaste, data]);
 
   // Apply profile weights when in profile mode
   useEffect(() => {
