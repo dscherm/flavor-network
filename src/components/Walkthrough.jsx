@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const TOTAL_STEPS = 12;
-
-const STEPS = [
+const BASE_STEPS = [
   {
     id: 'welcome',
     title: 'Welcome to the Flavor Network',
@@ -116,6 +114,25 @@ const STEPS = [
   },
 ];
 
+const QUIZ_STEP = {
+  id: 'quiz-prompt',
+  title: 'Discover Your Palate',
+  content:
+    'Want a personalized experience right away? Take a quick 2-minute quiz to ' +
+    'identify your flavor preferences. You can always skip this and come back later.',
+  action: null,
+  waitFor: null,
+  quizPrompt: true,
+};
+
+function buildSteps(hasProfile) {
+  if (hasProfile) return BASE_STEPS;
+  // Insert quiz prompt after step 3 (fly-to-garlic, index 2)
+  const steps = [...BASE_STEPS];
+  steps.splice(3, 0, QUIZ_STEP);
+  return steps;
+}
+
 function ProgressDots({ current, total }) {
   return (
     <div className="flex items-center justify-center gap-1.5 mt-4">
@@ -136,7 +153,9 @@ function ProgressDots({ current, total }) {
   );
 }
 
-function Walkthrough({ active, onComplete, onSkip, sceneManager }) {
+function Walkthrough({ active, onComplete, onSkip, sceneManager, hasProfile, onStartQuiz }) {
+  const steps = buildSteps(hasProfile);
+  const totalSteps = steps.length;
   const [currentStep, setCurrentStep] = useState(0);
   const [visible, setVisible] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
@@ -207,7 +226,7 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager }) {
   useEffect(() => {
     if (!active) return;
 
-    const step = STEPS[currentStep];
+    const step = steps[currentStep];
     if (!step || !step.action || !sceneManager) return;
 
     if (step.action === 'flyToGarlic') {
@@ -242,7 +261,7 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager }) {
   }, [active, currentStep, sceneManager]);
 
   const handleNext = useCallback(() => {
-    if (currentStep >= TOTAL_STEPS - 1) {
+    if (currentStep >= totalSteps - 1) {
       localStorage.setItem('flavor-tour-complete', 'true');
       setFadeIn(false);
       setTimeout(() => {
@@ -265,7 +284,7 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager }) {
   if (!visible) return null;
 
   const step = STEPS[currentStep];
-  const isLastStep = currentStep === TOTAL_STEPS - 1;
+  const isLastStep = currentStep === totalSteps - 1;
 
   return (
     <div
@@ -288,7 +307,7 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager }) {
       >
         {/* Step counter */}
         <p className="text-[11px] uppercase tracking-widest text-gray-500 font-semibold mb-3">
-          Step {currentStep + 1} of {TOTAL_STEPS}
+          Step {currentStep + 1} of {totalSteps}
         </p>
 
         {/* Title */}
@@ -305,8 +324,21 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager }) {
         {/* Content */}
         <p className="text-sm text-gray-400 leading-relaxed mb-4">{step.content}</p>
 
+        {/* Quiz prompt button */}
+        {step.quizPrompt && onStartQuiz && (
+          <button
+            onClick={() => {
+              handleSkip();
+              setTimeout(() => onStartQuiz(), 350);
+            }}
+            className="w-full mb-4 py-2.5 rounded-lg text-sm font-medium bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 hover:border-purple-500/50 transition-all"
+          >
+            Take the Palate Quiz
+          </button>
+        )}
+
         {/* Progress dots */}
-        <ProgressDots current={currentStep} total={TOTAL_STEPS} />
+        <ProgressDots current={currentStep} total={totalSteps} />
 
         {/* Footer actions */}
         <div className="flex items-center justify-between mt-5">
