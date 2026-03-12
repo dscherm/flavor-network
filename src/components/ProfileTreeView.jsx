@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { buildProfileTree, findProfileGaps } from '../data/profileTree.js';
 import { computeProfileWeights } from '../data/profileWeights.js';
+import FlavorPassport from './FlavorPassport.jsx';
 
 function TreeNode({ node, depth, expanded, onToggle, weights }) {
   const hasChildren = node.children && node.children.length > 0;
@@ -99,6 +100,7 @@ export default function ProfileTreeView({ profile, nodes, isOpen, onClose, onAdd
         <div className="flex items-center justify-between p-3 border-b border-[#1e1e2e]">
           <h2 className="text-sm font-medium text-gray-200 tracking-wide">My Flavor Tree</h2>
           <div className="flex items-center gap-2">
+            <FlavorPassport profile={profile} nodes={nodes} />
             {onOpenFlavorDNA && (
               <button
                 onClick={onOpenFlavorDNA}
