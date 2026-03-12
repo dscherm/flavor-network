@@ -104,6 +104,34 @@ const BASE_STEPS = [
     waitFor: null,
   },
   {
+    id: 'recipe-scanning',
+    title: 'Import Recipes',
+    content:
+      'Paste a recipe URL or scan a printed recipe with your camera to auto-extract ingredients. ' +
+      'Find these options in your profile panel under the Recipes tab.',
+    action: null,
+    waitFor: null,
+  },
+  {
+    id: 'tree-explorer',
+    title: 'Flavor Trees',
+    content:
+      'Click the grid icon (top-right) to explore the Flavor Tree — browse ingredients by ' +
+      'Cuisine, Taste, Family, or Season. Shift+click two nodes to compare them.',
+    action: null,
+    waitFor: null,
+  },
+  {
+    id: 'flavor-dna',
+    title: 'Your Flavor DNA',
+    content:
+      'In profile mode, open your Flavor Tree and click "DNA" to see your Flavor DNA — ' +
+      'a radar chart showing which world cuisines your palate aligns with. ' +
+      'Download a Flavor Passport to share your profile.',
+    action: null,
+    waitFor: null,
+  },
+  {
     id: 'complete',
     title: "You're Ready to Explore!",
     content:
