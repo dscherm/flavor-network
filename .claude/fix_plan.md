@@ -165,4 +165,4 @@ updated: 2026-03-11T11:30
 - [x] TASK-95: Update walkthrough tour with new features (recipe scanning, quiz, tree navigation, flavor DNA) #demo
 - [x] TASK-96: Performance optimization — lazy-load Tesseract.js for scanning, debounce quiz scoring, virtualize tree lists for large profiles #polish
 - [x] TASK-97: Deploy updated app to Firebase Hosting #deploy
-- [ ] TASK-98: Data integrity tests v2 — validate quiz scoring maps to correct ingredients, recipe scraping handles edge cases, tree structures are complete and acyclic #testing
+- [x] TASK-98: Data integrity tests v2 — validate quiz scoring maps to correct ingredients, recipe scraping handles edge cases, tree structures are complete and acyclic #testing
