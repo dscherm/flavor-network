@@ -1,15 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
 import palateQuestions from '../data/palateQuestions.js';
 
-export default function PalateQuiz({ active, onComplete, onSkip, questions }) {
+export default function PalateQuiz({ active, onComplete, onSkip, questions, previousAnswers }) {
   const items = questions || palateQuestions;
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [fadeIn, setFadeIn] = useState(false);
   const [slideDir, setSlideDir] = useState('right'); // animation direction
+  const isRetake = previousAnswers && Object.keys(previousAnswers).length > 0;
 
   useEffect(() => {
     if (active) {
+      // Pre-populate with previous answers when retaking
+      if (previousAnswers) {
+        setAnswers({ ...previousAnswers });
+      }
       setFadeIn(false);
       requestAnimationFrame(() => requestAnimationFrame(() => setFadeIn(true)));
     } else {
@@ -189,9 +194,18 @@ export default function PalateQuiz({ active, onComplete, onSkip, questions }) {
 
           {/* Question content */}
           <div className="px-6 pb-2">
-            <h3 className="text-lg font-semibold text-white mb-1" style={{ textShadow: '0 0 20px rgba(79,143,255,0.2)' }}>
-              {current.title}
-            </h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold text-white" style={{ textShadow: '0 0 20px rgba(79,143,255,0.2)' }}>
+                {current.title}
+              </h3>
+              {isRetake && previousAnswers[current.id] !== undefined &&
+                JSON.stringify(currentAnswer) !== JSON.stringify(previousAnswers[current.id]) &&
+                currentAnswer !== undefined && (
+                <span className="text-[10px] text-amber-400/80 bg-amber-400/10 px-1.5 py-0.5 rounded">
+                  changed
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-300">{current.question}</p>
             {renderQuestion()}
           </div>

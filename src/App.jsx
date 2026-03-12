@@ -371,6 +371,7 @@ export default function App() {
       <HelpButton onClick={() => setShowTour(true)} />
       <PalateQuiz
         active={showPalateQuiz}
+        previousAnswers={userProfile.profile.quizAnswers}
         onComplete={(answers) => {
           userProfile.saveQuizAnswers(answers);
           setShowPalateQuiz(false);
