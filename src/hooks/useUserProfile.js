@@ -10,6 +10,36 @@ const DEFAULT_PROFILE = {
   recipes: [],
 };
 
+/**
+ * Normalize a recipe ingredient to structured form.
+ * Handles both old format (string) and new format ({ name, quantity, unit, raw }).
+ * @param {string|Object} ing
+ * @returns {{ name: string, quantity: number|null, unit: string|null, raw: string }}
+ */
+function normalizeIngredient(ing) {
+  if (typeof ing === 'string') {
+    return { name: ing.toLowerCase(), quantity: null, unit: null, raw: ing };
+  }
+  return {
+    name: String(ing.name || '').toLowerCase(),
+    quantity: typeof ing.quantity === 'number' ? ing.quantity : null,
+    unit: ing.unit ? String(ing.unit) : null,
+    raw: String(ing.raw || ing.name || ''),
+  };
+}
+
+/**
+ * Normalize a recipe's ingredients array to structured format.
+ */
+function normalizeRecipe(recipe) {
+  return {
+    name: String(recipe.name || ''),
+    ingredients: Array.isArray(recipe.ingredients)
+      ? recipe.ingredients.map(normalizeIngredient)
+      : [],
+  };
+}
+
 function loadLocalProfile() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -18,7 +48,7 @@ function loadLocalProfile() {
     return {
       cuisines: Array.isArray(parsed.cuisines) ? parsed.cuisines : [],
       ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
-      recipes: Array.isArray(parsed.recipes) ? parsed.recipes : [],
+      recipes: Array.isArray(parsed.recipes) ? parsed.recipes.map(normalizeRecipe) : [],
     };
   } catch {
     return DEFAULT_PROFILE;
@@ -71,7 +101,7 @@ export default function useUserProfile(user) {
           const cloud = {
             cuisines: Array.isArray(cloudData.cuisines) ? cloudData.cuisines : [],
             ingredients: Array.isArray(cloudData.ingredients) ? cloudData.ingredients : [],
-            recipes: Array.isArray(cloudData.recipes) ? cloudData.recipes : [],
+            recipes: Array.isArray(cloudData.recipes) ? cloudData.recipes.map(normalizeRecipe) : [],
           };
           const local = loadLocalProfile();
           const merged = mergeProfiles(local, cloud);
@@ -154,7 +184,7 @@ export default function useUserProfile(user) {
   const addRecipe = useCallback((name, ingredients) => {
     const recipe = {
       name: name.trim(),
-      ingredients: ingredients.map((i) => i.toLowerCase()),
+      ingredients: ingredients.map(normalizeIngredient),
     };
     update((prev) => ({
       ...prev,
@@ -189,12 +219,7 @@ export default function useUserProfile(user) {
           ? parsed.ingredients.map((i) => i.toLowerCase())
           : [],
         recipes: Array.isArray(parsed.recipes)
-          ? parsed.recipes.map((r) => ({
-              name: String(r.name || ''),
-              ingredients: Array.isArray(r.ingredients)
-                ? r.ingredients.map((i) => i.toLowerCase())
-                : [],
-            }))
+          ? parsed.recipes.map(normalizeRecipe)
           : [],
       };
       update(validated);

@@ -48,6 +48,121 @@ const COOKING_WORDS = new Set([
   'crispy', 'creamy', 'spicy', 'sweet', 'tangy', 'savory',
 ]);
 
+// Regex to match leading quantity + unit in an ingredient line
+// e.g., "2 cups flour" → { quantity: 2, unit: "cups", rest: "flour" }
+// e.g., "1/2 tsp vanilla" → { quantity: 0.5, unit: "tsp", rest: "vanilla" }
+const QTY_REGEX = /^(\d+\s*\/\s*\d+|\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?)\s*/;
+
+/**
+ * Parse a quantity string into a number.
+ * Handles fractions (1/2), decimals (1.5), and ranges (2-3 → avg).
+ * @param {string} str
+ * @returns {number|null}
+ */
+export function parseQuantity(str) {
+  if (!str) return null;
+  const trimmed = str.trim();
+  // Range: "2-3" → average
+  if (/^\d+(?:\.\d+)?\s*-\s*\d+(?:\.\d+)?$/.test(trimmed)) {
+    const [lo, hi] = trimmed.split(/\s*-\s*/).map(Number);
+    return (lo + hi) / 2;
+  }
+  // Fraction: "1/2"
+  if (/^\d+\s*\/\s*\d+$/.test(trimmed)) {
+    const [num, den] = trimmed.split(/\s*\/\s*/).map(Number);
+    return den !== 0 ? num / den : null;
+  }
+  // Decimal or integer
+  const n = parseFloat(trimmed);
+  return isNaN(n) ? null : n;
+}
+
+/**
+ * Extract quantity, unit, and remainder from a raw ingredient line.
+ * @param {string} line - e.g., "2 cups fresh basil, chopped"
+ * @returns {{ quantity: number|null, unit: string|null, rest: string, raw: string }}
+ */
+export function extractQuantityUnit(line) {
+  const raw = line.trim();
+  let text = raw
+    .replace(/^[\s•\-*·▪►●○◆]\s*/, '')  // strip bullets
+    .replace(/^\d+[\s.):-]+(?=\D)/, '')    // strip list numbers like "1. " or "1) "
+    .trim();
+
+  let quantity = null;
+  let unit = null;
+
+  // Try to match quantity
+  const qtyMatch = text.match(QTY_REGEX);
+  if (qtyMatch) {
+    quantity = parseQuantity(qtyMatch[1]);
+    text = text.slice(qtyMatch[0].length).trim();
+  }
+
+  // Try to match unit
+  const words = text.split(/\s+/);
+  if (words.length > 1 && UNITS.has(words[0].toLowerCase())) {
+    unit = words[0].toLowerCase();
+    text = words.slice(1).join(' ');
+  }
+
+  return { quantity, unit, rest: text, raw };
+}
+
+/**
+ * Parse pasted recipe text and return structured ingredients with quantity/unit.
+ * @param {string} text - Full recipe text or ingredient list
+ * @param {Fuse} index - Fuse.js index built from ingredient list
+ * @returns {Array<{ name: string, quantity: number|null, unit: string|null, raw: string }>}
+ */
+export function parseRecipeTextStructured(text, index) {
+  const lines = text
+    .split(/[\n\r]+/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  const results = [];
+  const seen = new Set();
+
+  for (const line of lines) {
+    const { quantity, unit, rest, raw } = extractQuantityUnit(line);
+    const cleaned = cleanIngredientLine(rest);
+    if (cleaned.length === 0) continue;
+
+    // Try full cleaned phrase
+    let matches = index.search(cleaned, { limit: 1 });
+    if (matches.length > 0 && matches[0].score < 0.3) {
+      const name = matches[0].item.name;
+      if (!seen.has(name)) {
+        seen.add(name);
+        results.push({ name, quantity, unit, raw });
+      }
+      continue;
+    }
+
+    // Try subphrases
+    const words = cleaned.split(/\s+/);
+    let foundInLine = false;
+    for (let len = Math.min(words.length, 3); len >= 1; len--) {
+      for (let i = 0; i <= words.length - len; i++) {
+        const phrase = words.slice(i, i + len).join(' ');
+        matches = index.search(phrase, { limit: 1 });
+        if (matches.length > 0 && matches[0].score < 0.25) {
+          const name = matches[0].item.name;
+          if (!seen.has(name)) {
+            seen.add(name);
+            results.push({ name, quantity, unit, raw });
+            foundInLine = true;
+          }
+        }
+      }
+      if (foundInLine) break;
+    }
+  }
+
+  return results;
+}
+
 /**
  * Build a Fuse.js index from the known ingredient list.
  * @param {string[]} ingredientList - Array of known ingredient names

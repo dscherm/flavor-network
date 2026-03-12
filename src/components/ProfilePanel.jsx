@@ -325,14 +325,20 @@ function RecipeList({ recipes, onRemove }) {
           </div>
           {recipe.ingredients.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1">
-              {recipe.ingredients.map((ing) => (
-                <span
-                  key={ing}
-                  className="text-[9px] bg-blue-500/10 text-blue-300/70 rounded px-1 py-0.5"
-                >
-                  {ing}
-                </span>
-              ))}
+              {recipe.ingredients.map((ing) => {
+                const name = typeof ing === 'string' ? ing : ing.name;
+                const qty = typeof ing === 'object' && ing.quantity != null
+                  ? `${ing.quantity}${ing.unit ? ' ' + ing.unit : ''} `
+                  : '';
+                return (
+                  <span
+                    key={name}
+                    className="text-[9px] bg-blue-500/10 text-blue-300/70 rounded px-1 py-0.5"
+                  >
+                    {qty}{name}
+                  </span>
+                );
+              })}
             </div>
           )}
         </li>
