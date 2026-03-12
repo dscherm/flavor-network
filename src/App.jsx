@@ -13,6 +13,7 @@ import Walkthrough from './components/Walkthrough.jsx';
 import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
 import RecipeBuilder from './components/RecipeBuilder.jsx';
+import RecipeSharePanel from './components/RecipeSharePanel.jsx';
 import ProfileToggle from './components/ProfileToggle.jsx';
 
 import ProfileInsights from './components/ProfileInsights.jsx';
@@ -35,6 +36,7 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [profileMode, setProfileMode] = useState(false);
   const [showRecipeBuilder, setShowRecipeBuilder] = useState(false);
+  const [showRecipeShare, setShowRecipeShare] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
   const [showGlobalInsights, setShowGlobalInsights] = useState(false);
   const userProfile = useUserProfile(user);
@@ -240,12 +242,20 @@ export default function App() {
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
         onCreateRecipe={() => setShowRecipeBuilder(true)}
+        onImportRecipe={() => setShowRecipeShare(true)}
       />
       {showRecipeBuilder && (
         <RecipeBuilder
           ingredientList={ingredientList}
           onSave={userProfile.addRecipe}
           onClose={() => setShowRecipeBuilder(false)}
+        />
+      )}
+      {showRecipeShare && (
+        <RecipeSharePanel
+          ingredientList={ingredientList}
+          onSave={userProfile.addRecipe}
+          onClose={() => setShowRecipeShare(false)}
         />
       )}
       <ProfileToggle
