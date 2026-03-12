@@ -2,7 +2,7 @@
  * profileWeights.js — Compute personal weight per ingredient from user profile.
  *
  * Weight formula:
- *   finalWeight = directSelection + cuisineBoost + recipeFrequencyWeight + cascadeBoost
+ *   finalWeight = directSelection + cuisineBoost + recipeFrequencyWeight + quizWeight + cascadeBoost
  *
  *   directSelection:       +3  if ingredient is directly selected
  *   cuisineBoost:          +1  per cuisine the user likes that the ingredient belongs to
@@ -14,6 +14,7 @@
  */
 
 import { computeFrequencyWeights } from './frequencyWeights.js';
+import { scoreQuiz } from './quizScoring.js';
 
 /**
  * Compute a Map of ingredient name → personal weight (0–1).
@@ -31,6 +32,12 @@ export function computeProfileWeights(profile, nodes) {
 
   // Compute frequency × quantity weights from user recipes
   const freqWeights = computeFrequencyWeights(profile.recipes || []);
+
+  // Compute quiz-based weights if quiz answers exist
+  const quizWeights = profile.quizAnswers ? scoreQuiz(profile.quizAnswers) : null;
+  const hasRecipeData = freqWeights.size > 0 || userIngredients.size > 0 || userCuisines.size > 0;
+  // Quiz contributes 30% when recipe/profile data exists, 100% when it's the only signal
+  const QUIZ_SCALE = hasRecipeData ? 1.2 : 4;
 
   // Scale factor so recipeFrequencyWeight is comparable to the old +2-per-recipe boost
   const FREQ_SCALE = 4;
@@ -58,6 +65,14 @@ export function computeProfileWeights(profile, nodes) {
     const fwEntry = freqWeights.get(name);
     if (fwEntry) {
       w += fwEntry.combined * FREQ_SCALE;
+    }
+
+    // Quiz weight: add ingredient affinity signal from palate questionnaire
+    if (quizWeights) {
+      const qw = quizWeights.get(name);
+      if (qw) {
+        w += qw * QUIZ_SCALE;
+      }
     }
 
     weights.set(name, w);
