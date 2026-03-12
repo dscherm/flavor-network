@@ -1,83 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
-
-// Minimal question set for the quiz engine — TASK-79 will build the full question bank
-const DEFAULT_QUESTIONS = [
-  {
-    id: 'heat',
-    type: 'scale',
-    title: 'Heat Tolerance',
-    question: 'How spicy do you like your food?',
-    labels: ['Mild', 'Medium', 'Hot', 'Very Hot', 'Extreme'],
-  },
-  {
-    id: 'sweet_savory',
-    type: 'choice',
-    title: 'Sweet vs Savory',
-    question: 'When snacking, do you reach for sweet or savory?',
-    options: ['Sweet', 'Savory', 'Both equally'],
-  },
-  {
-    id: 'herbs',
-    type: 'multi',
-    title: 'Herb Preferences',
-    question: 'Pick your top 3 herbs:',
-    options: ['Basil', 'Cilantro', 'Parsley', 'Rosemary', 'Thyme', 'Mint', 'Dill', 'Oregano', 'Tarragon', 'Chives'],
-    max: 3,
-  },
-  {
-    id: 'acid',
-    type: 'scale',
-    title: 'Acid Tolerance',
-    question: 'Do you squeeze lemon or lime on everything?',
-    labels: ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'],
-  },
-  {
-    id: 'umami',
-    type: 'choice',
-    title: 'Umami Seeking',
-    question: 'Do you add soy sauce, parmesan, or mushrooms to boost flavor?',
-    options: ['Rarely', 'Sometimes', 'Frequently', 'Every chance I get'],
-  },
-  {
-    id: 'aromas',
-    type: 'multi',
-    title: 'Aromatic Preferences',
-    question: 'Which aromas appeal to you most? (pick 3)',
-    options: ['Smoky', 'Floral', 'Earthy', 'Citrusy', 'Herbal', 'Nutty', 'Buttery', 'Spicy'],
-    max: 3,
-  },
-  {
-    id: 'cooking_fat',
-    type: 'choice',
-    title: 'Cooking Fat',
-    question: 'Your go-to cooking fat?',
-    options: ['Butter', 'Olive oil', 'Coconut oil', 'Sesame oil', 'Ghee', 'Neutral oil'],
-  },
-  {
-    id: 'bitter',
-    type: 'scale',
-    title: 'Bitter Appreciation',
-    question: 'Do you enjoy dark chocolate, coffee, or hoppy beer?',
-    labels: ['Not at all', 'A little', 'Moderately', 'Quite a bit', 'Love them'],
-  },
-  {
-    id: 'texture',
-    type: 'choice',
-    title: 'Texture Preference',
-    question: 'Crunchy or creamy?',
-    options: ['Crunchy', 'Creamy', 'Both equally'],
-  },
-  {
-    id: 'adventure',
-    type: 'scale',
-    title: 'Culinary Adventure',
-    question: 'How adventurous are you with unfamiliar cuisines?',
-    labels: ['Very cautious', 'Somewhat cautious', 'Open', 'Adventurous', 'Will try anything'],
-  },
-];
+import palateQuestions from '../data/palateQuestions.js';
 
 export default function PalateQuiz({ active, onComplete, onSkip, questions }) {
-  const items = questions || DEFAULT_QUESTIONS;
+  const items = questions || palateQuestions;
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [fadeIn, setFadeIn] = useState(false);
