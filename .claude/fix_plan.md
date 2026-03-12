@@ -107,7 +107,7 @@ updated: 2026-03-11T11:30
 > across recipes and the quantities used, creating a more accurate flavor fingerprint.
 
 ### Frequency-Based Weighting
-- [ ] TASK-73: Extend recipe data model — add quantity and unit fields per ingredient in each recipe: { name, ingredients: [{ name, quantity, unit, raw }] }. Update RecipeBuilder to capture quantities when available #data
+- [>] TASK-73: Extend recipe data model — add quantity and unit fields per ingredient in each recipe: { name, ingredients: [{ name, quantity, unit, raw }] }. Update RecipeBuilder to capture quantities when available #data
 - [ ] TASK-74: Build src/data/frequencyWeights.js — compute ingredient frequency score across all user recipes (how many recipes use garlic? 8 out of 10 = 0.8 frequency). Combine with quantity normalization (2 cloves garlic vs 1/4 tsp saffron) using standard unit conversions #data
 - [ ] TASK-75: Build unit conversion table in src/data/unitConversions.js — map common cooking units to a normalized volume/weight scale: tsp→mL, tbsp→mL, cup→mL, oz→g, cloves→g, pinch→g, "to taste"→minimum. Handle ingredient-specific densities (flour vs butter vs liquid) #data
 - [ ] TASK-76: Update profileWeights.js — integrate frequency and quantity weights into the existing weight calculation: finalWeight = directSelection + cuisineBoost + recipeFrequency * quantityFactor + cascadeBoost. Higher frequency + larger quantities = stronger signal #profile
