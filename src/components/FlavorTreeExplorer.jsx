@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import { buildCuisineTree, getTreeIngredients } from '../data/cuisineTree.js';
 import { buildTasteTree, getTasteIngredients } from '../data/tasteTree.js';
 import { buildIngredientFamilyTree } from '../data/ingredientFamilyTree.js';
@@ -11,7 +11,7 @@ const VIEW_MODES = [
   { key: 'season', label: 'Season' },
 ];
 
-function TreeNode({ node, depth, expanded, onToggle, onSelect, selectedId }) {
+const TreeNode = memo(function TreeNode({ node, depth, expanded, onToggle, onSelect, selectedId }) {
   const hasChildren = node.children && node.children.length > 0;
   const isExpanded = expanded.has(node.id);
   const isSelected = selectedId === node.id;
@@ -69,7 +69,7 @@ function TreeNode({ node, depth, expanded, onToggle, onSelect, selectedId }) {
       )}
     </>
   );
-}
+});
 
 function BreadcrumbTrail({ path, onNavigate }) {
   if (path.length === 0) return null;
@@ -168,7 +168,7 @@ function getIngredientsForNode(node, viewMode) {
   }
 }
 
-function CompareView({ nodeA, nodeB, viewMode }) {
+const CompareView = memo(function CompareView({ nodeA, nodeB, viewMode }) {
   const ingsA = new Set(getIngredientsForNode(nodeA, viewMode));
   const ingsB = new Set(getIngredientsForNode(nodeB, viewMode));
   const shared = [...ingsA].filter(i => ingsB.has(i));
@@ -264,7 +264,7 @@ function CompareView({ nodeA, nodeB, viewMode }) {
       )}
     </div>
   );
-}
+});
 
 export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIngredients }) {
   const [viewMode, setViewMode] = useState('cuisine');
