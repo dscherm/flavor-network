@@ -1,23 +1,36 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { recognizeRecipeImage, terminateOCR } from '../ml/ocr.js';
+import { buildIngredientIndex, parseIngredients } from '../data/recipeParser.js';
 
 /**
- * RecipeScanner — capture a photo of a recipe or ingredient list using the
- * device camera (getUserMedia) or upload an image file. Provides a preview
- * before handing the image off for OCR processing.
+ * RecipeScanner — capture or upload recipe images, run OCR via Tesseract.js,
+ * match extracted text against known ingredients, and let the user review
+ * before adding to their profile.
  *
  * Props:
- *   onCapture(imageDataUrl: string) — called with a data-URL of the captured/uploaded image
+ *   ingredientList: string[] — known ingredients from flavor network
+ *   onSave(name: string, ingredients: string[]) — save confirmed ingredients
  *   onClose() — close the scanner modal
  */
-function RecipeScanner({ onCapture, onClose }) {
-  const [mode, setMode] = useState('choose'); // 'choose' | 'camera' | 'preview'
+function RecipeScanner({ ingredientList, onSave, onClose }) {
+  const [mode, setMode] = useState('choose'); // 'choose' | 'camera' | 'preview' | 'processing' | 'results'
   const [imageData, setImageData] = useState(null);
   const [cameraError, setCameraError] = useState('');
   const [facingMode, setFacingMode] = useState('environment');
+  const [ocrProgress, setOcrProgress] = useState({ status: '', progress: 0 });
+  const [ocrText, setOcrText] = useState('');
+  const [ocrConfidence, setOcrConfidence] = useState(0);
+  const [extracted, setExtracted] = useState([]); // { name, confirmed }[]
+  const [recipeName, setRecipeName] = useState('');
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  const parserIndex = useMemo(
+    () => buildIngredientIndex(ingredientList || []),
+    [ingredientList],
+  );
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -50,9 +63,12 @@ function RecipeScanner({ onCapture, onClose }) {
     }
   }, [facingMode, stopCamera]);
 
-  // Clean up camera on unmount
+  // Clean up camera and OCR worker on unmount
   useEffect(() => {
-    return () => stopCamera();
+    return () => {
+      stopCamera();
+      terminateOCR();
+    };
   }, [stopCamera]);
 
   const handleCapture = useCallback(() => {
@@ -93,14 +109,75 @@ function RecipeScanner({ onCapture, onClose }) {
 
   const handleRetake = useCallback(() => {
     setImageData(null);
+    setOcrText('');
+    setOcrConfidence(0);
+    setExtracted([]);
+    setRecipeName('');
     setMode('choose');
   }, []);
 
-  const handleConfirm = useCallback(() => {
-    if (imageData) {
-      onCapture(imageData);
+  // Run OCR on the captured image
+  const handleProcess = useCallback(async () => {
+    if (!imageData) return;
+    setMode('processing');
+    setOcrProgress({ status: 'initializing', progress: 0 });
+
+    try {
+      const result = await recognizeRecipeImage(imageData, {
+        onProgress: setOcrProgress,
+      });
+
+      setOcrText(result.text);
+      setOcrConfidence(result.confidence);
+
+      // Match OCR text against known ingredients
+      const matched = parseIngredients(result.text, parserIndex);
+      const items = matched.map((name) => ({ name, confirmed: true }));
+
+      setExtracted(items);
+      setMode('results');
+
+      if (items.length === 0) {
+        setCameraError(
+          'No known ingredients detected. The image may be blurry or the text may not be a recipe. Try retaking or uploading a clearer image.'
+        );
+      }
+    } catch (err) {
+      setCameraError(err.message || 'OCR processing failed. Please try again.');
+      setMode('preview');
     }
-  }, [imageData, onCapture]);
+  }, [imageData, parserIndex]);
+
+  const toggleIngredient = useCallback((name) => {
+    setExtracted((prev) =>
+      prev.map((item) =>
+        item.name === name ? { ...item, confirmed: !item.confirmed } : item,
+      ),
+    );
+  }, []);
+
+  const confirmedIngredients = useMemo(
+    () => extracted.filter((i) => i.confirmed).map((i) => i.name),
+    [extracted],
+  );
+
+  const handleSave = useCallback(() => {
+    if (confirmedIngredients.length === 0) return;
+    const name = recipeName.trim() || 'Scanned Recipe';
+    onSave(name, confirmedIngredients);
+    onClose();
+  }, [recipeName, confirmedIngredients, onSave, onClose]);
+
+  // Progress bar label
+  const progressLabel = useMemo(() => {
+    const { status, progress } = ocrProgress;
+    const pct = Math.round(progress * 100);
+    if (status === 'initializing') return 'Loading OCR engine...';
+    if (status === 'loading tesseract core') return `Loading OCR engine... ${pct}%`;
+    if (status === 'loading language traineddata') return `Loading language data... ${pct}%`;
+    if (status === 'recognizing text') return `Recognizing text... ${pct}%`;
+    return `Processing... ${pct}%`;
+  }, [ocrProgress]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -168,7 +245,7 @@ function RecipeScanner({ onCapture, onClose }) {
             </div>
           )}
 
-          {/* Camera error */}
+          {/* Camera error / general error */}
           {cameraError && (
             <div className="text-[11px] text-amber-400/80 bg-amber-500/5 border border-amber-500/10 rounded px-2.5 py-2">
               {cameraError}
@@ -191,7 +268,6 @@ function RecipeScanner({ onCapture, onClose }) {
               </div>
 
               <div className="flex items-center justify-center gap-3">
-                {/* Flip camera */}
                 <button
                   onClick={handleFlipCamera}
                   className="p-2 bg-[#1a1a2e] border border-[#2a2a3e] rounded-full hover:border-blue-500/30 transition-colors"
@@ -202,7 +278,6 @@ function RecipeScanner({ onCapture, onClose }) {
                   </svg>
                 </button>
 
-                {/* Capture button */}
                 <button
                   onClick={handleCapture}
                   className="w-14 h-14 rounded-full border-4 border-white/80 bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
@@ -211,7 +286,6 @@ function RecipeScanner({ onCapture, onClose }) {
                   <div className="w-10 h-10 rounded-full bg-white/90" />
                 </button>
 
-                {/* Back button */}
                 <button
                   onClick={() => { stopCamera(); setMode('choose'); }}
                   className="p-2 bg-[#1a1a2e] border border-[#2a2a3e] rounded-full hover:border-blue-500/30 transition-colors"
@@ -229,7 +303,7 @@ function RecipeScanner({ onCapture, onClose }) {
             </div>
           )}
 
-          {/* Image preview */}
+          {/* Image preview (before OCR) */}
           {mode === 'preview' && imageData && (
             <div className="space-y-3">
               <div className="rounded-lg overflow-hidden bg-black">
@@ -239,10 +313,118 @@ function RecipeScanner({ onCapture, onClose }) {
                   className="w-full h-auto max-h-[50vh] object-contain"
                 />
               </div>
-
               <p className="text-[10px] text-gray-500 text-center">
                 Make sure text is clearly visible. Retake if the image is blurry or cut off.
               </p>
+            </div>
+          )}
+
+          {/* Processing — OCR in progress */}
+          {mode === 'processing' && (
+            <div className="space-y-3 py-4">
+              {imageData && (
+                <div className="rounded-lg overflow-hidden bg-black opacity-50">
+                  <img
+                    src={imageData}
+                    alt="Processing"
+                    className="w-full h-auto max-h-[30vh] object-contain"
+                  />
+                </div>
+              )}
+              <div className="space-y-2">
+                <p className="text-[11px] text-gray-300 text-center">{progressLabel}</p>
+                <div className="w-full h-1.5 bg-[#1a1a2e] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500/60 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.max(5, ocrProgress.progress * 100)}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Results — matched ingredients */}
+          {mode === 'results' && (
+            <div className="space-y-3">
+              {/* Confidence indicator */}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-gray-500">OCR confidence:</span>
+                <span className={`text-[10px] font-medium ${
+                  ocrConfidence >= 80 ? 'text-green-400' :
+                  ocrConfidence >= 50 ? 'text-amber-400' : 'text-red-400'
+                }`}>
+                  {Math.round(ocrConfidence)}%
+                </span>
+              </div>
+
+              {/* Recipe name */}
+              <div>
+                <label className="text-[10px] text-gray-500 uppercase tracking-wider mb-1 block">
+                  Recipe Name
+                </label>
+                <input
+                  type="text"
+                  value={recipeName}
+                  onChange={(e) => setRecipeName(e.target.value)}
+                  placeholder="Name this scanned recipe"
+                  className="w-full text-xs bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-600"
+                />
+              </div>
+
+              {/* Ingredient checklist */}
+              {extracted.length > 0 && (
+                <div>
+                  <label className="text-[10px] text-gray-500 uppercase tracking-wider mb-1 block">
+                    Detected Ingredients ({confirmedIngredients.length} / {extracted.length} selected)
+                  </label>
+                  <div className="bg-[#1a1a2e] border border-[#2a2a3e] rounded max-h-48 overflow-y-auto">
+                    {extracted.map((item) => (
+                      <button
+                        key={item.name}
+                        onClick={() => toggleIngredient(item.name)}
+                        className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs transition-colors border-b border-[#2a2a3e] last:border-b-0 ${
+                          item.confirmed
+                            ? 'text-blue-300 bg-blue-500/5'
+                            : 'text-gray-500 line-through'
+                        }`}
+                      >
+                        <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${
+                          item.confirmed
+                            ? 'border-blue-400 bg-blue-500/20'
+                            : 'border-gray-600'
+                        }`}>
+                          {item.confirmed && (
+                            <svg className="w-2.5 h-2.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </span>
+                        <span className="flex-1 text-left">{item.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Raw OCR text (collapsible) */}
+              {ocrText && (
+                <details className="group">
+                  <summary className="text-[10px] text-gray-500 cursor-pointer hover:text-gray-300 transition-colors">
+                    Show raw OCR text
+                  </summary>
+                  <pre className="mt-1 text-[10px] text-gray-600 bg-[#1a1a2e] border border-[#2a2a3e] rounded p-2 max-h-32 overflow-y-auto whitespace-pre-wrap font-mono">
+                    {ocrText}
+                  </pre>
+                </details>
+              )}
+
+              {/* Retake link */}
+              <button
+                onClick={handleRetake}
+                className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                Scan a different image
+              </button>
             </div>
           )}
         </div>
@@ -267,12 +449,21 @@ function RecipeScanner({ onCapture, onClose }) {
                 Retake
               </button>
               <button
-                onClick={handleConfirm}
+                onClick={handleProcess}
                 className="text-[11px] bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded px-4 py-1.5 transition-colors"
               >
                 Process Image
               </button>
             </>
+          )}
+          {mode === 'results' && (
+            <button
+              onClick={handleSave}
+              disabled={confirmedIngredients.length === 0}
+              className="text-[11px] bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 disabled:opacity-30 disabled:cursor-default rounded px-4 py-1.5 transition-colors"
+            >
+              Add to Profile ({confirmedIngredients.length})
+            </button>
           )}
         </div>
       </div>
