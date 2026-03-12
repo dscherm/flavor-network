@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { recognizeRecipeImage, terminateOCR } from '../ml/ocr.js';
-import { buildIngredientIndex, parseIngredients } from '../data/recipeParser.js';
+import { matchOcrLines } from '../data/ingredientMatcher.js';
 
 /**
  * RecipeScanner — capture or upload recipe images, run OCR via Tesseract.js,
@@ -26,11 +26,6 @@ function RecipeScanner({ ingredientList, onSave, onClose }) {
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const fileInputRef = useRef(null);
-
-  const parserIndex = useMemo(
-    () => buildIngredientIndex(ingredientList || []),
-    [ingredientList],
-  );
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -130,9 +125,14 @@ function RecipeScanner({ ingredientList, onSave, onClose }) {
       setOcrText(result.text);
       setOcrConfidence(result.confidence);
 
-      // Match OCR text against known ingredients
-      const matched = parseIngredients(result.text, parserIndex);
-      const items = matched.map((name) => ({ name, confirmed: true }));
+      // Match OCR text lines against known ingredients with confidence scores
+      const matched = matchOcrLines(result.lines, ingredientList || []);
+      const items = matched.map((m) => ({
+        name: m.name,
+        confidence: m.confidence,
+        raw: m.raw,
+        confirmed: m.confidence >= 0.5,
+      }));
 
       setExtracted(items);
       setMode('results');
@@ -146,7 +146,7 @@ function RecipeScanner({ ingredientList, onSave, onClose }) {
       setCameraError(err.message || 'OCR processing failed. Please try again.');
       setMode('preview');
     }
-  }, [imageData, parserIndex]);
+  }, [imageData, ingredientList]);
 
   const toggleIngredient = useCallback((name) => {
     setExtracted((prev) =>
@@ -400,6 +400,15 @@ function RecipeScanner({ ingredientList, onSave, onClose }) {
                           )}
                         </span>
                         <span className="flex-1 text-left">{item.name}</span>
+                        {item.confidence != null && (
+                          <span className={`text-[9px] px-1 rounded ${
+                            item.confidence >= 0.8 ? 'text-green-500/70' :
+                            item.confidence >= 0.5 ? 'text-gray-500' :
+                            'text-amber-400/70 bg-amber-500/5'
+                          }`}>
+                            {Math.round(item.confidence * 100)}%
+                          </span>
+                        )}
                       </button>
                     ))}
                   </div>
