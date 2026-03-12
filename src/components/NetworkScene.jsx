@@ -233,7 +233,44 @@ export default function NetworkScene({
     nodes.applyFilter(null, activeNames);
     if (edges) edges.applyFilter(activeNames);
     if (particles) particles.applyFilter(activeNames);
-  }, [treeFilterIngredients, filterCuisine, filterTaste]);
+
+    // Animate camera to focus on the centroid of filtered nodes
+    if (data && sceneRef.current && treeFilterIngredients.length > 0) {
+      let cx = 0, cy = 0, cz = 0, count = 0;
+      for (const [name, node] of data.graph.nodes) {
+        if (activeNames.has(name) && node.position3D) {
+          cx += node.position3D[0];
+          cy += node.position3D[1];
+          cz += node.position3D[2];
+          count++;
+        }
+      }
+      if (count > 0) {
+        cx /= count; cy /= count; cz /= count;
+        const camera = sceneRef.current.getCamera();
+        if (camera) {
+          const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+          // Position camera slightly offset from centroid
+          const dist = Math.max(30, Math.sqrt(count) * 5);
+          const targetPos = { x: cx + dist * 0.3, y: cy + dist * 0.2, z: cz + dist };
+          const duration = 1200;
+          const startTime = performance.now();
+          function animateFly(now) {
+            const t = Math.min((now - startTime) / duration, 1);
+            const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            camera.position.set(
+              startPos.x + (targetPos.x - startPos.x) * ease,
+              startPos.y + (targetPos.y - startPos.y) * ease,
+              startPos.z + (targetPos.z - startPos.z) * ease
+            );
+            camera.lookAt(cx, cy, cz);
+            if (t < 1) requestAnimationFrame(animateFly);
+          }
+          requestAnimationFrame(animateFly);
+        }
+      }
+    }
+  }, [treeFilterIngredients, filterCuisine, filterTaste, data]);
 
   // Apply profile weights when in profile mode
   useEffect(() => {
