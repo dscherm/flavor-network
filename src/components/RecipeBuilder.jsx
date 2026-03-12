@@ -1,10 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import Fuse from 'fuse.js';
-import { buildIngredientIndex, parseIngredients } from '../data/recipeParser.js';
+import { buildIngredientIndex, parseIngredients, parseRecipeTextStructured } from '../data/recipeParser.js';
 
 function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
   const [name, setName] = useState('');
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState([]); // { name, quantity, unit, raw }[]
   const [searchQuery, setSearchQuery] = useState('');
   const [pasteText, setPasteText] = useState('');
   const [mode, setMode] = useState('select'); // 'select' | 'paste' | 'url'
@@ -13,6 +13,7 @@ function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
   const [urlError, setUrlError] = useState('');
   const [urlExtracted, setUrlExtracted] = useState([]); // { name, raw, confirmed }[]
   const [urlScraped, setUrlScraped] = useState(false);
+  const [editingIdx, setEditingIdx] = useState(null);
 
   const ingredientFuse = useMemo(() => {
     const docs = (ingredientList || []).map((n) => ({ name: n }));
@@ -24,6 +25,11 @@ function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
     [ingredientList],
   );
 
+  const selectedNames = useMemo(
+    () => new Set(selected.map((s) => s.name)),
+    [selected],
+  );
+
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     return ingredientFuse
@@ -31,9 +37,18 @@ function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
       .map((r) => r.item.name);
   }, [searchQuery, ingredientFuse]);
 
-  const toggleIngredient = useCallback((ing) => {
+  const toggleIngredient = useCallback((ingName) => {
+    setSelected((prev) => {
+      if (prev.some((s) => s.name === ingName)) {
+        return prev.filter((s) => s.name !== ingName);
+      }
+      return [...prev, { name: ingName, quantity: null, unit: null, raw: ingName }];
+    });
+  }, []);
+
+  const updateIngredient = useCallback((idx, updates) => {
     setSelected((prev) =>
-      prev.includes(ing) ? prev.filter((i) => i !== ing) : [...prev, ing],
+      prev.map((item, i) => (i === idx ? { ...item, ...updates } : item)),
     );
   }, []);
 
@@ -42,20 +57,40 @@ function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
     const found = parseIngredients(name, parserIndex);
     if (found.length > 0) {
       setSelected((prev) => {
-        const combined = new Set([...prev, ...found]);
-        return [...combined];
+        const existing = new Set(prev.map((s) => s.name));
+        const newItems = found
+          .filter((n) => !existing.has(n))
+          .map((n) => ({ name: n, quantity: null, unit: null, raw: n }));
+        return [...prev, ...newItems];
       });
     }
   }, [name, parserIndex]);
 
   const handleParsePaste = useCallback(() => {
     if (!pasteText.trim()) return;
-    const found = parseIngredients(pasteText, parserIndex);
-    if (found.length > 0) {
-      setSelected((prev) => {
-        const combined = new Set([...prev, ...found]);
-        return [...combined];
-      });
+    const lineCount = pasteText.trim().split(/[\n\r]+/).filter((l) => l.trim()).length;
+    if (lineCount > 1) {
+      // Multi-line: use structured parser to capture quantities
+      const structured = parseRecipeTextStructured(pasteText, parserIndex);
+      if (structured.length > 0) {
+        setSelected((prev) => {
+          const existing = new Set(prev.map((s) => s.name));
+          const newItems = structured.filter((s) => !existing.has(s.name));
+          return [...prev, ...newItems];
+        });
+      }
+    } else {
+      // Single line: treat as recipe name
+      const found = parseIngredients(pasteText, parserIndex);
+      if (found.length > 0) {
+        setSelected((prev) => {
+          const existing = new Set(prev.map((s) => s.name));
+          const newItems = found
+            .filter((n) => !existing.has(n))
+            .map((n) => ({ name: n, quantity: null, unit: null, raw: n }));
+          return [...prev, ...newItems];
+        });
+      }
     }
     setPasteText('');
     setMode('select');
@@ -140,9 +175,15 @@ function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
   );
 
   const handleConfirmUrlImport = useCallback(() => {
-    const confirmed = urlExtracted.filter((i) => i.confirmed).map((i) => i.name);
+    const confirmed = urlExtracted.filter((i) => i.confirmed);
     if (confirmed.length > 0) {
-      setSelected((prev) => [...new Set([...prev, ...confirmed])]);
+      setSelected((prev) => {
+        const existing = new Set(prev.map((s) => s.name));
+        const newItems = confirmed
+          .filter((i) => !existing.has(i.name))
+          .map((i) => ({ name: i.name, quantity: null, unit: null, raw: i.raw }));
+        return [...prev, ...newItems];
+      });
     }
     setUrlExtracted([]);
     setUrlScraped(false);
@@ -265,7 +306,7 @@ function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
               {searchResults.length > 0 && (
                 <ul className="mt-1 bg-[#1a1a2e] border border-[#2a2a3e] rounded max-h-32 overflow-y-auto">
                   {searchResults.map((ing) => {
-                    const isSelected = selected.includes(ing);
+                    const isSelected = selectedNames.has(ing);
                     return (
                       <li key={ing}>
                         <button
@@ -413,19 +454,61 @@ function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
               Ingredients ({selected.length})
             </label>
             {selected.length > 0 ? (
-              <div className="flex flex-wrap gap-1">
-                {selected.map((ing) => (
-                  <button
-                    key={ing}
-                    onClick={() => toggleIngredient(ing)}
-                    className="text-[10px] bg-blue-500/15 text-blue-300 rounded px-1.5 py-0.5 hover:bg-red-500/15 hover:text-red-300 transition-colors group"
-                    title={`Remove ${ing}`}
+              <div className="space-y-1">
+                {selected.map((item, idx) => (
+                  <div
+                    key={item.name}
+                    className="flex items-center gap-1 text-[10px] bg-blue-500/10 rounded px-1.5 py-1"
                   >
-                    {ing}
-                    <span className="ml-0.5 opacity-50 group-hover:opacity-100">
+                    <button
+                      onClick={() => toggleIngredient(item.name)}
+                      className="text-red-400/60 hover:text-red-300 transition-colors flex-shrink-0"
+                      title={`Remove ${item.name}`}
+                    >
                       &times;
-                    </span>
-                  </button>
+                    </button>
+                    <span className="text-blue-300 flex-shrink-0">{item.name}</span>
+                    {editingIdx === idx ? (
+                      <div className="flex items-center gap-1 ml-auto" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="number"
+                          value={item.quantity ?? ''}
+                          onChange={(e) => updateIngredient(idx, {
+                            quantity: e.target.value === '' ? null : parseFloat(e.target.value),
+                          })}
+                          placeholder="qty"
+                          step="any"
+                          min="0"
+                          className="w-12 text-[10px] bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-600"
+                        />
+                        <input
+                          type="text"
+                          value={item.unit ?? ''}
+                          onChange={(e) => updateIngredient(idx, {
+                            unit: e.target.value || null,
+                          })}
+                          placeholder="unit"
+                          className="w-14 text-[10px] bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-600"
+                        />
+                        <button
+                          onClick={() => setEditingIdx(null)}
+                          className="text-gray-500 hover:text-gray-300 transition-colors"
+                        >
+                          ok
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setEditingIdx(idx)}
+                        className="ml-auto text-gray-600 hover:text-gray-400 transition-colors"
+                        title="Edit quantity"
+                      >
+                        {item.quantity != null
+                          ? `${item.quantity}${item.unit ? ' ' + item.unit : ''}`
+                          : 'qty?'}
+                      </button>
+                    )}
+                  </div>
                 ))}
               </div>
             ) : (

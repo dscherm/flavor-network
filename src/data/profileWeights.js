@@ -26,7 +26,8 @@ export function computeProfileWeights(profile, nodes) {
   const recipeCount = new Map();
   for (const recipe of profile.recipes) {
     for (const ing of recipe.ingredients) {
-      recipeCount.set(ing, (recipeCount.get(ing) || 0) + 1);
+      const name = typeof ing === 'string' ? ing : ing.name;
+      recipeCount.set(name, (recipeCount.get(name) || 0) + 1);
     }
   }
 
