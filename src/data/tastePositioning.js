@@ -1,69 +1,101 @@
 /**
- * tastePositioning.js — Compute 3D positions for ingredients based on taste axes.
+ * tastePositioning.js — Compute 3D positions for ingredients based on
+ * a 7-dimensional taste space projected into 3D.
  *
- * Axes:
- *   X: Sweet (negative) ←→ Salty/Umami (positive)
- *   Y: Mild/Neutral (negative) ←→ Spicy/Pungent (positive)
- *   Z: Light/Fresh (negative) ←→ Rich/Bitter (positive)
+ * Taste dimensions: Sweet, Salty, Sour, Bitter, Umami, Spicy, Rich
  *
- * Ingredients without taste metadata are placed using their pairing neighbors'
- * average position (gravity pull), with jitter to avoid overlap.
+ * Each ingredient is scored on all 7 channels (0–1), then multiplied by
+ * a projection matrix that maps 7D → 3D.  The projection vectors are
+ * arranged on a sphere with near-maximal angular separation (Minkowski-
+ * inspired), so every taste occupies its own unique direction in 3D space.
+ * Bitter and Rich are ~135° apart; no two tastes share an axis.
  *
- * The result is a spatial layout where the 3D axes carry semantic meaning.
+ * Ingredients without taste metadata are inferred from pairing neighbors.
  */
 
 import { TASTE_HIERARCHY } from './tasteTree.js';
 
 // ---------------------------------------------------------------------------
-// Axis mappings — each taste contributes a signed vector along the 3 axes
+// 7-dimensional taste projection vectors  (each ~unit length)
+// Arranged for maximum angular separation in 3D — no two tastes are
+// collinear or antipodal, so each has its own unique spatial direction.
 // ---------------------------------------------------------------------------
 
-const TASTE_VECTORS = {
-  sweet:     { x: -1.0, y: -0.2, z: -0.3 },
-  sour:      { x: -0.3, y:  0.0, z: -0.6 },
-  bitter:    { x:  0.1, y:  0.0, z:  1.0 },
-  salty:     { x:  1.0, y:  0.0, z:  0.3 },
-  spicy:     { x:  0.0, y:  1.0, z:  0.2 },
-  hot:       { x:  0.0, y:  1.0, z:  0.2 },
-  pungent:   { x:  0.2, y:  0.8, z:  0.3 },
-  astringent:{ x:  0.0, y:  0.1, z:  0.7 },
-  umami:     { x:  0.8, y:  0.0, z:  0.5 },
-  tart:      { x: -0.3, y:  0.0, z: -0.5 },
-  acidic:    { x: -0.3, y:  0.0, z: -0.5 },
+export const TASTE_AXES = {
+  //              X       Y       Z
+  sweet:   [ -0.88,  -0.42,   0.21],
+  salty:   [  0.93,  -0.31,  -0.16],
+  sour:    [ -0.31,  -0.79,  -0.53],
+  bitter:  [  0.36,   0.31,  -0.88],
+  umami:   [  0.57,   0.67,   0.36],
+  spicy:   [ -0.26,   0.88,   0.31],
+  rich:    [  0.11,  -0.10,   0.93],
 };
 
-// Weight metadata maps to the Z-axis (light → negative, heavy → positive)
-const WEIGHT_VECTORS = {
-  light:       { x: 0, y: 0, z: -0.6 },
-  'light-medium': { x: 0, y: 0, z: -0.3 },
-  medium:      { x: 0, y: 0, z:  0.0 },
-  'medium-heavy': { x: 0, y: 0, z:  0.3 },
-  heavy:       { x: 0, y: 0, z:  0.6 },
+// Normalize each projection vector to unit length
+for (const key of Object.keys(TASTE_AXES)) {
+  const v = TASTE_AXES[key];
+  const len = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  v[0] /= len;
+  v[1] /= len;
+  v[2] /= len;
+}
+
+// ---------------------------------------------------------------------------
+// Taste keyword matchers — map taste metadata strings to channel scores
+// ---------------------------------------------------------------------------
+
+const TASTE_CHANNEL_KEYWORDS = {
+  sweet:  ['sweet'],
+  salty:  ['salty'],
+  sour:   ['sour', 'tart', 'acidic'],
+  bitter: ['bitter', 'astringent'],
+  umami:  ['umami'],
+  spicy:  ['spicy', 'hot', 'pungent'],
+  rich:   [],  // scored via weight metadata and name hints
+};
+
+// Weight metadata → rich channel score
+const WEIGHT_TO_RICH = {
+  light:          0.0,
+  'light-medium': 0.2,
+  medium:         0.4,
+  'medium-heavy': 0.7,
+  heavy:          1.0,
 };
 
 // ---------------------------------------------------------------------------
-// Keyword-based scoring for ingredients without explicit taste metadata
+// Name-based hints for ingredients without explicit taste metadata
+// Each hint maps to one or more taste channels with a score
 // ---------------------------------------------------------------------------
 
-const KEYWORD_HINTS = [
-  // Sweet indicators
-  { keywords: ['sugar', 'honey', 'maple', 'vanilla', 'caramel', 'chocolate', 'fruit', 'berry', 'jam', 'syrup', 'candy', 'dessert', 'sweet potato', 'date', 'fig', 'molasses', 'agave'], vector: { x: -0.7, y: -0.1, z: -0.2 } },
-  // Salty / umami indicators
-  { keywords: ['soy', 'miso', 'fish sauce', 'anchovy', 'parmesan', 'bacon', 'ham', 'prosciutto', 'salt', 'olive', 'caper', 'seaweed', 'mushroom', 'worcestershire'], vector: { x: 0.7, y: 0.0, z: 0.4 } },
-  // Spicy indicators
-  { keywords: ['chile', 'pepper', 'cayenne', 'jalapeño', 'habanero', 'sriracha', 'tabasco', 'wasabi', 'horseradish', 'ginger', 'chipotle', 'serrano'], vector: { x: 0.0, y: 0.8, z: 0.1 } },
-  // Citrus / sour indicators
-  { keywords: ['lemon', 'lime', 'orange', 'grapefruit', 'vinegar', 'citrus', 'yuzu', 'tamarind', 'cranberry', 'rhubarb'], vector: { x: -0.3, y: 0.0, z: -0.5 } },
-  // Bitter / rich indicators
-  { keywords: ['coffee', 'cocoa', 'dark chocolate', 'beer', 'wine', 'espresso', 'arugula', 'radicchio', 'endive', 'kale'], vector: { x: 0.1, y: 0.0, z: 0.8 } },
-  // Herb / fresh indicators
-  { keywords: ['basil', 'mint', 'cilantro', 'parsley', 'dill', 'chervil', 'tarragon', 'chive'], vector: { x: -0.1, y: 0.2, z: -0.4 } },
-  // Aromatic / warm spice indicators
-  { keywords: ['cinnamon', 'clove', 'nutmeg', 'cardamom', 'allspice', 'star anise', 'cumin', 'coriander', 'turmeric', 'saffron', 'curry'], vector: { x: 0.1, y: 0.5, z: 0.3 } },
-  // Dairy / cream indicators
-  { keywords: ['cream', 'butter', 'cheese', 'milk', 'yogurt', 'mascarpone', 'ricotta', 'brie'], vector: { x: -0.2, y: -0.3, z: 0.2 } },
-  // Allium indicators
-  { keywords: ['garlic', 'onion', 'shallot', 'leek', 'scallion'], vector: { x: 0.3, y: 0.5, z: 0.1 } },
+const NAME_HINTS = [
+  { keywords: ['sugar', 'honey', 'maple', 'vanilla', 'caramel', 'chocolate', 'fruit', 'berry', 'jam', 'syrup', 'candy', 'dessert', 'sweet potato', 'date', 'fig', 'molasses', 'agave'],
+    channels: { sweet: 0.8 } },
+  { keywords: ['soy', 'miso', 'fish sauce', 'anchovy', 'parmesan', 'bacon', 'ham', 'prosciutto', 'olive', 'caper', 'seaweed', 'mushroom', 'worcestershire'],
+    channels: { umami: 0.8, salty: 0.4 } },
+  { keywords: ['salt'],
+    channels: { salty: 0.9 } },
+  { keywords: ['chile', 'pepper', 'cayenne', 'jalapeño', 'habanero', 'sriracha', 'tabasco', 'wasabi', 'horseradish', 'chipotle', 'serrano'],
+    channels: { spicy: 0.8 } },
+  { keywords: ['ginger'],
+    channels: { spicy: 0.5, sweet: 0.2 } },
+  { keywords: ['lemon', 'lime', 'grapefruit', 'vinegar', 'citrus', 'yuzu', 'tamarind', 'cranberry', 'rhubarb'],
+    channels: { sour: 0.8 } },
+  { keywords: ['orange'],
+    channels: { sour: 0.4, sweet: 0.5 } },
+  { keywords: ['coffee', 'espresso', 'cocoa', 'dark chocolate', 'arugula', 'radicchio', 'endive', 'kale'],
+    channels: { bitter: 0.8, rich: 0.5 } },
+  { keywords: ['beer', 'wine'],
+    channels: { bitter: 0.4, rich: 0.3 } },
+  { keywords: ['basil', 'mint', 'cilantro', 'parsley', 'dill', 'chervil', 'tarragon', 'chive'],
+    channels: { sour: 0.2 } },
+  { keywords: ['cinnamon', 'clove', 'nutmeg', 'cardamom', 'allspice', 'star anise', 'cumin', 'coriander', 'turmeric', 'saffron', 'curry'],
+    channels: { spicy: 0.5, rich: 0.3 } },
+  { keywords: ['cream', 'butter', 'cheese', 'milk', 'yogurt', 'mascarpone', 'ricotta', 'brie'],
+    channels: { rich: 0.8, sweet: 0.2 } },
+  { keywords: ['garlic', 'onion', 'shallot', 'leek', 'scallion'],
+    channels: { umami: 0.5, spicy: 0.3 } },
 ];
 
 // ---------------------------------------------------------------------------
@@ -79,7 +111,6 @@ function hashString(str) {
 }
 
 function seededRandom(seed) {
-  // Simple LCG
   const a = 1664525;
   const c = 1013904223;
   const m = 2 ** 32;
@@ -91,11 +122,76 @@ function seededRandom(seed) {
 }
 
 // ---------------------------------------------------------------------------
+// Score an ingredient on 7 taste channels (0–1 each)
+// ---------------------------------------------------------------------------
+
+function scoreIngredient(name, node) {
+  const channels = { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, spicy: 0, rich: 0 };
+  let signals = 0;
+
+  // From taste metadata string (e.g. "sweet, sour")
+  if (node.taste) {
+    const tasteLower = node.taste.toLowerCase();
+    for (const [channel, keywords] of Object.entries(TASTE_CHANNEL_KEYWORDS)) {
+      for (const kw of keywords) {
+        if (tasteLower.includes(kw)) {
+          channels[channel] = Math.max(channels[channel], 0.9);
+          signals++;
+        }
+      }
+    }
+  }
+
+  // From weight metadata → rich channel
+  if (node.weight) {
+    const wLower = node.weight.toLowerCase().trim();
+    const richScore = WEIGHT_TO_RICH[wLower];
+    if (richScore !== undefined) {
+      channels.rich = Math.max(channels.rich, richScore);
+      signals++;
+    }
+  }
+
+  // From ingredient name hints
+  const nameLower = name.toLowerCase();
+  for (const hint of NAME_HINTS) {
+    for (const kw of hint.keywords) {
+      if (nameLower.includes(kw) || kw.includes(nameLower)) {
+        for (const [ch, score] of Object.entries(hint.channels)) {
+          channels[ch] = Math.max(channels[ch], score * 0.6); // Slightly lower confidence for name hints
+        }
+        signals++;
+        break;
+      }
+    }
+  }
+
+  return { channels, signals };
+}
+
+// ---------------------------------------------------------------------------
+// Project a 7D taste vector to 3D using the projection matrix
+// ---------------------------------------------------------------------------
+
+function projectTo3D(channels) {
+  let x = 0, y = 0, z = 0;
+  for (const [taste, score] of Object.entries(channels)) {
+    const axis = TASTE_AXES[taste];
+    if (axis && score > 0) {
+      x += axis[0] * score;
+      y += axis[1] * score;
+      z += axis[2] * score;
+    }
+  }
+  return { x, y, z };
+}
+
+// ---------------------------------------------------------------------------
 // Main positioning function
 // ---------------------------------------------------------------------------
 
 /**
- * Compute taste-based 3D positions for all nodes.
+ * Compute taste-based 3D positions for all nodes using 7D → 3D projection.
  *
  * @param {Map<string, Object>} nodes - Graph nodes with taste/weight metadata
  * @param {Array<Object>} edges - Graph edges with source/target/strength
@@ -104,58 +200,14 @@ function seededRandom(seed) {
  */
 export function computeTastePositions(nodes, edges, spread = 50) {
   const positions = {};
-  const scored = new Map(); // name → { x, y, z } raw vector before spread
+  const scored = new Map(); // name → { x, y, z } raw projected vector
 
-  // --- Phase 1: Score ingredients that have taste/weight metadata ---
+  // --- Phase 1: Score ingredients on 7 taste channels, project to 3D ---
   for (const [name, node] of nodes) {
-    const vec = { x: 0, y: 0, z: 0 };
-    let signals = 0;
-
-    // Score from taste metadata string (e.g. "sweet, sour")
-    if (node.taste) {
-      const tasteLower = node.taste.toLowerCase();
-      for (const [keyword, tv] of Object.entries(TASTE_VECTORS)) {
-        if (tasteLower.includes(keyword)) {
-          vec.x += tv.x;
-          vec.y += tv.y;
-          vec.z += tv.z;
-          signals++;
-        }
-      }
-    }
-
-    // Score from weight metadata
-    if (node.weight) {
-      const wLower = node.weight.toLowerCase().trim();
-      const wv = WEIGHT_VECTORS[wLower];
-      if (wv) {
-        vec.x += wv.x;
-        vec.y += wv.y;
-        vec.z += wv.z;
-        signals++;
-      }
-    }
-
-    // Score from ingredient name keyword hints
-    const nameLower = name.toLowerCase();
-    for (const hint of KEYWORD_HINTS) {
-      for (const kw of hint.keywords) {
-        if (nameLower.includes(kw) || kw.includes(nameLower)) {
-          vec.x += hint.vector.x * 0.5; // Half weight for name hints
-          vec.y += hint.vector.y * 0.5;
-          vec.z += hint.vector.z * 0.5;
-          signals++;
-          break; // Only count first keyword match per hint group
-        }
-      }
-    }
+    const { channels, signals } = scoreIngredient(name, node);
 
     if (signals > 0) {
-      // Normalize by number of signals to keep magnitudes comparable
-      const norm = Math.max(1, signals * 0.5);
-      vec.x /= norm;
-      vec.y /= norm;
-      vec.z /= norm;
+      const vec = projectTo3D(channels);
       scored.set(name, vec);
     }
   }
@@ -169,7 +221,6 @@ export function computeTastePositions(nodes, edges, spread = 50) {
     adj.get(edge.target).push({ name: edge.source, strength: edge.strength });
   }
 
-  // Iterate a few times to propagate positions
   for (let iter = 0; iter < 3; iter++) {
     for (const [name] of nodes) {
       if (scored.has(name)) continue;
@@ -202,11 +253,9 @@ export function computeTastePositions(nodes, edges, spread = 50) {
     const hash = hashString(name);
     const rng = seededRandom(hash);
 
-    // Jitter: more for unscored ingredients, less for scored ones
     const hasScore = scored.has(name) && (vec.x !== 0 || vec.y !== 0 || vec.z !== 0);
     const jitterScale = hasScore ? spread * 0.15 : spread * 0.4;
 
-    // Spherical jitter for natural distribution
     const jitterAngle1 = rng() * Math.PI * 2;
     const jitterAngle2 = rng() * Math.PI * 2;
     const jitterR = rng() * jitterScale;
@@ -220,7 +269,7 @@ export function computeTastePositions(nodes, edges, spread = 50) {
 
   // --- Phase 4: Repulsion pass to reduce overlap ---
   const names = Object.keys(positions);
-  const minDist = spread * 0.06; // Minimum distance between nodes
+  const minDist = spread * 0.06;
   for (let iter = 0; iter < 5; iter++) {
     for (let i = 0; i < names.length; i++) {
       for (let j = i + 1; j < names.length; j++) {

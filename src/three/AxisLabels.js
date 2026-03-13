@@ -111,40 +111,52 @@ export function createCocktailAxisLabels(spread = 45) {
 }
 
 /**
- * Build axis label sprites for the main Network taste axes.
+ * Build taste-direction label sprites for the main Network view.
+ *
+ * Uses the 7D → 3D projection vectors from tastePositioning.js to place
+ * 7 labels around the cloud, one per taste dimension.  Each label sits
+ * in the direction that taste "pulls" ingredients toward, so the spatial
+ * layout is self-documenting.
+ *
  * @param {number} spread - Spatial spread used in positioning (default 50)
- * @returns {THREE.Group} Group containing all axis label sprites
+ * @returns {THREE.Group} Group containing 7 taste label sprites
  */
 export function createTasteAxisLabels(spread = 50) {
+  // Import projection vectors so labels match the positioning math
+  // (inlined here to avoid circular deps — values mirror TASTE_AXES)
+  const TASTE_DIRS = {
+    Sweet:   [-0.88, -0.42,  0.21],
+    Salty:   [ 0.93, -0.31, -0.16],
+    Sour:    [-0.31, -0.79, -0.53],
+    Bitter:  [ 0.36,  0.31, -0.88],
+    Umami:   [ 0.57,  0.67,  0.36],
+    Spicy:   [-0.26,  0.88,  0.31],
+    Rich:    [ 0.11, -0.10,  0.93],
+  };
+
+  // Distinct color per taste for visual separation
+  const TASTE_COLORS = {
+    Sweet:   'rgba(251, 146, 180, 0.9)',  // pink
+    Salty:   'rgba(147, 197, 253, 0.9)',  // light blue
+    Sour:    'rgba(253, 224, 71, 0.9)',   // yellow
+    Bitter:  'rgba(167, 139, 250, 0.9)',  // purple
+    Umami:   'rgba(249, 168, 112, 0.9)',  // orange
+    Spicy:   'rgba(248, 113, 113, 0.9)',  // red
+    Rich:    'rgba(180, 140, 100, 0.9)',  // warm brown
+  };
+
   const group = new THREE.Group();
   const offset = spread * 1.43;
 
-  // X axis: Sweet (negative) ↔ Salty/Umami (positive)
-  const sweetLabel = createTextSprite('Sweet', 'rgba(248, 113, 113, 0.9)');
-  sweetLabel.position.set(-offset, 0, 0);
-  group.add(sweetLabel);
+  for (const [taste, dir] of Object.entries(TASTE_DIRS)) {
+    // Normalize direction
+    const len = Math.sqrt(dir[0] ** 2 + dir[1] ** 2 + dir[2] ** 2);
+    const nx = dir[0] / len, ny = dir[1] / len, nz = dir[2] / len;
 
-  const saltyLabel = createTextSprite('Salty / Umami', 'rgba(248, 113, 113, 0.9)');
-  saltyLabel.position.set(offset, 0, 0);
-  group.add(saltyLabel);
-
-  // Y axis: Mild (negative) ↔ Spicy/Pungent (positive)
-  const mildLabel = createTextSprite('Mild', 'rgba(74, 222, 128, 0.9)');
-  mildLabel.position.set(0, -offset, 0);
-  group.add(mildLabel);
-
-  const spicyLabel = createTextSprite('Spicy', 'rgba(74, 222, 128, 0.9)');
-  spicyLabel.position.set(0, offset, 0);
-  group.add(spicyLabel);
-
-  // Z axis: Light/Fresh (negative) ↔ Rich/Bitter (positive)
-  const lightLabel = createTextSprite('Light / Fresh', 'rgba(96, 165, 250, 0.9)');
-  lightLabel.position.set(0, 0, -offset);
-  group.add(lightLabel);
-
-  const richLabel = createTextSprite('Rich / Bitter', 'rgba(96, 165, 250, 0.9)');
-  richLabel.position.set(0, 0, offset);
-  group.add(richLabel);
+    const label = createTextSprite(taste, TASTE_COLORS[taste]);
+    label.position.set(nx * offset, ny * offset, nz * offset);
+    group.add(label);
+  }
 
   return group;
 }
