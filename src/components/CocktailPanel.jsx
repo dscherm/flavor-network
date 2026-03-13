@@ -6,6 +6,60 @@ import CocktailCard from './CocktailCard.jsx';
 import { computeCompatibility, detectCodexTemplate, suggestNextIngredients } from '../data/cocktailScoring.js';
 
 /**
+ * Resolve cocktail ingredient names to network node names.
+ * Handles modifiers so that "light rum" highlights "rum", "lime juice" highlights "lime", etc.
+ * Returns a deduplicated array of names.
+ */
+// Modifier words that precede a base spirit/ingredient — stripped to find the node
+const INGREDIENT_MODIFIERS = /^(light|dark|aged|gold|golden|white|black|silver|amber|blended|spiced|añejo|reposado|blanco|overproof|navy|jamaican|demerara|london dry|dry|sweet|fresh|frozen|powdered|superfine|granulated|crushed|whole|ground|extra|heavy|double|old|young|single|small|large)\s+/i;
+
+function resolveIngredientNames(ingredients, cocktailNodes) {
+  const names = new Set();
+  for (const ing of ingredients) {
+    const name = (typeof ing === 'string' ? ing : ing.name).toLowerCase().trim();
+    names.add(name);
+
+    if (!cocktailNodes) continue;
+
+    // If already a known node, no need to resolve further
+    if (cocktailNodes.has(name)) continue;
+
+    // "X juice" → also add "X" if it's a known node
+    const juiceMatch = name.match(/^(.+?)\s+juice$/i);
+    if (juiceMatch) {
+      const fruit = juiceMatch[1].toLowerCase().trim();
+      if (cocktailNodes.has(fruit)) {
+        names.add(fruit);
+        continue;
+      }
+    }
+
+    // Strip modifier words: "light rum" → "rum", "spiced rum" → "rum", etc.
+    let stripped = name;
+    let changed = true;
+    while (changed) {
+      const next = stripped.replace(INGREDIENT_MODIFIERS, '');
+      changed = next !== stripped;
+      stripped = next;
+    }
+    if (stripped !== name && cocktailNodes.has(stripped)) {
+      names.add(stripped);
+      continue;
+    }
+
+    // Try checking if any known node name is contained in this name
+    // e.g., "kahlua coffee liqueur" → "kahlua"
+    for (const nodeName of cocktailNodes.keys()) {
+      if (nodeName.length >= 3 && name.includes(nodeName)) {
+        names.add(nodeName);
+        break;
+      }
+    }
+  }
+  return Array.from(names);
+}
+
+/**
  * CocktailPanel — Right-side panel in Cocktail Lab with tabs:
  *   Lookup: Search cocktails from TheCocktailDB
  *   Builder: (future) Build cocktails with ingredient selection
@@ -90,8 +144,7 @@ export default function CocktailPanel({
       setSwapIngredient(null);
       if (switchToLookup) setTab('lookup');
       if (onHighlightIngredients) {
-        const names = cocktail.ingredients.map(i => i.name);
-        onHighlightIngredients(names);
+        onHighlightIngredients(resolveIngredientNames(cocktail.ingredients, cocktailNodes));
       }
     } else if (cocktail.id) {
       // Filter result — need to fetch full details
@@ -101,12 +154,11 @@ export default function CocktailPanel({
         setSwapIngredient(null);
         if (switchToLookup) setTab('lookup');
         if (onHighlightIngredients) {
-          const names = full.ingredients.map(i => i.name);
-          onHighlightIngredients(names);
+          onHighlightIngredients(resolveIngredientNames(full.ingredients, cocktailNodes));
         }
       }
     }
-  }, [cocktailDB, onHighlightIngredients]);
+  }, [cocktailDB, onHighlightIngredients, cocktailNodes]);
 
   const handleRandom = useCallback(async () => {
     const cocktail = await cocktailDB.getRandom();
@@ -115,11 +167,10 @@ export default function CocktailPanel({
       setSearchResults([]);
       setSwapIngredient(null);
       if (onHighlightIngredients) {
-        const names = cocktail.ingredients.map(i => i.name);
-        onHighlightIngredients(names);
+        onHighlightIngredients(resolveIngredientNames(cocktail.ingredients, cocktailNodes));
       }
     }
-  }, [cocktailDB, onHighlightIngredients]);
+  }, [cocktailDB, onHighlightIngredients, cocktailNodes]);
 
   const handleBack = useCallback(() => {
     setSelectedCocktail(null);
@@ -137,9 +188,9 @@ export default function CocktailPanel({
     setPreviewAlt(null);
     // Re-highlight the cocktail ingredients
     if (selectedCocktail && onHighlightIngredients) {
-      onHighlightIngredients(selectedCocktail.ingredients.map(i => i.name));
+      onHighlightIngredients(resolveIngredientNames(selectedCocktail.ingredients, cocktailNodes));
     }
-  }, [selectedCocktail, onHighlightIngredients]);
+  }, [selectedCocktail, onHighlightIngredients, cocktailNodes]);
 
   // Compute alternatives for swapped ingredient
   const alternatives = useMemo(() => {
@@ -217,9 +268,9 @@ export default function CocktailPanel({
     setPreviewAlt(null);
     // Re-highlight with updated ingredients
     if (onHighlightIngredients) {
-      onHighlightIngredients(updated.ingredients.map(i => i.name));
+      onHighlightIngredients(resolveIngredientNames(updated.ingredients, cocktailNodes));
     }
-  }, [previewAlt, swapIngredient, selectedCocktail, onHighlightIngredients]);
+  }, [previewAlt, swapIngredient, selectedCocktail, onHighlightIngredients, cocktailNodes]);
 
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [exportCocktail, setExportCocktail] = useState(null);
@@ -235,7 +286,7 @@ export default function CocktailPanel({
 
   const handleLoadCocktail = useCallback((cocktail) => {
     if (onHighlightIngredients) {
-      onHighlightIngredients(cocktail.ingredients.map(i => i.name));
+      onHighlightIngredients(resolveIngredientNames(cocktail.ingredients, cocktailNodes));
     }
     // Switch to builder tab and load ingredients
     setTab('builder');
@@ -243,7 +294,7 @@ export default function CocktailPanel({
     for (const ing of cocktail.ingredients) {
       onBuilderAdd?.(ing.name);
     }
-  }, [onHighlightIngredients, onBuilderClear, onBuilderAdd]);
+  }, [onHighlightIngredients, onBuilderClear, onBuilderAdd, cocktailNodes]);
 
   const handleDeleteCocktail = useCallback((id) => {
     if (userProfile) {

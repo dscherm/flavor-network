@@ -31,6 +31,7 @@ export default function NetworkScene({
   treeFilterIngredients = null,
   sceneExtras = null, // Additional Three.js objects to add to the scene
   showNodeLabels = false, // Show name labels on selected nodes
+  labelNodeNames = null, // Additional node names to show labels for (e.g., filtered category)
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -171,7 +172,7 @@ export default function NetworkScene({
     }
   }, [selectedNode, selectedNodes, data]);
 
-  // Show/hide node name labels for selected nodes
+  // Show/hide node name labels for selected nodes and/or explicitly labeled nodes
   useEffect(() => {
     const manager = sceneRef.current;
     if (!manager || !showNodeLabels || !data) return;
@@ -182,13 +183,15 @@ export default function NetworkScene({
       nodeLabelGroupRef.current = null;
     }
 
+    // Combine selected nodes and explicit label names (deduplicated)
     const activeNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
-    if (activeNodes.length === 0) return;
+    const allLabelNames = new Set([...activeNodes, ...(labelNodeNames || [])]);
+    if (allLabelNames.size === 0) return;
 
     const posMap = data.positions?.positions || data.positions || {};
     const labelGroup = new THREE.Group();
 
-    for (const name of activeNodes) {
+    for (const name of allLabelNames) {
       const pos = posMap[name];
       if (pos) {
         labelGroup.add(createNodeLabel(name, pos));
@@ -197,7 +200,7 @@ export default function NetworkScene({
 
     manager.addToScene(labelGroup);
     nodeLabelGroupRef.current = labelGroup;
-  }, [selectedNode, selectedNodes, data, showNodeLabels]);
+  }, [selectedNode, selectedNodes, data, showNodeLabels, labelNodeNames]);
 
   // Toggle visibility
   useEffect(() => {

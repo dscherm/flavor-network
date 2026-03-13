@@ -23,6 +23,7 @@ export default function CocktailLab({ fullData, userProfile }) {
   const [highlightedIngredients, setHighlightedIngredients] = useState(null);
   const [builderIngredients, setBuilderIngredients] = useState([]);
   const [templateFilter, setTemplateFilter] = useState(null);
+  const [filterCategory, setFilterCategory] = useState('');
 
   // Build cocktail graph on mount
   useEffect(() => {
@@ -145,6 +146,22 @@ export default function CocktailLab({ fullData, userProfile }) {
     setSelectedNodes([]);
   }, []);
 
+  // Compute ingredient names matching the selected category filter
+  const categoryFilteredNames = useMemo(() => {
+    if (!filterCategory || !cocktailData) return null;
+    const names = [];
+    for (const [name, node] of cocktailData.graph.nodes) {
+      if (node.cocktailCategory === filterCategory) {
+        names.push(name);
+      }
+    }
+    return names.length > 0 ? names : null;
+  }, [filterCategory, cocktailData]);
+
+  const handleCategoryFilter = useCallback((key) => {
+    setFilterCategory(prev => prev === key ? '' : key);
+  }, []);
+
   const handleTemplateFilter = useCallback((template) => {
     if (!cocktailData) return;
     if (templateFilter === template.name) {
@@ -204,9 +221,10 @@ export default function CocktailLab({ fullData, userProfile }) {
         filterCuisine=""
         filterTaste=""
         profileWeights={null}
-        treeFilterIngredients={null}
+        treeFilterIngredients={categoryFilteredNames}
         sceneExtras={axisLabels}
         showNodeLabels={true}
+        labelNodeNames={categoryFilteredNames}
       />
 
       <SearchBar
@@ -316,22 +334,45 @@ export default function CocktailLab({ fullData, userProfile }) {
         </div>
       </div>
 
-      {/* Category legend */}
+      {/* Category legend — clickable to filter */}
       <div className="fixed bottom-4 right-4 z-30 bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
         <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Ingredient Types</p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
           {Object.entries(COCKTAIL_CATEGORIES)
             .filter(([key]) => key !== 'Other')
-            .map(([key, { label, color }]) => (
-              <div key={key} className="flex items-center gap-1 text-[9px] text-gray-500">
-                <span
-                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: color }}
-                />
-                {label}
-              </div>
-            ))}
+            .map(([key, { label, color }]) => {
+              const isActive = filterCategory === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleCategoryFilter(key)}
+                  className={`flex items-center gap-1 text-[9px] text-left rounded px-1 py-0.5 transition-colors ${
+                    isActive
+                      ? 'text-white bg-white/10 ring-1 ring-white/20'
+                      : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                  }`}
+                  title={isActive ? `Clear ${label} filter` : `Show only ${label}`}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-shadow"
+                    style={{
+                      backgroundColor: color,
+                      boxShadow: isActive ? `0 0 6px ${color}` : 'none',
+                    }}
+                  />
+                  {label}
+                </button>
+              );
+            })}
         </div>
+        {filterCategory && (
+          <button
+            onClick={() => setFilterCategory('')}
+            className="mt-1 text-[8px] text-gray-600 hover:text-blue-400 transition-colors"
+          >
+            Show all
+          </button>
+        )}
       </div>
     </>
   );
