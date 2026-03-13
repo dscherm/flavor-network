@@ -19,6 +19,7 @@ export default function CocktailLab({ fullData }) {
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [highlightedIngredients, setHighlightedIngredients] = useState(null);
+  const [builderIngredients, setBuilderIngredients] = useState([]);
 
   // Build cocktail graph on mount
   useEffect(() => {
@@ -72,13 +73,22 @@ export default function CocktailLab({ fullData }) {
       setSelectedNodes([]);
       return;
     }
+    // If panel is open, also add/remove from builder
+    if (panelOpen) {
+      setBuilderIngredients(prev => {
+        if (prev.includes(node.name)) {
+          return prev.filter(n => n !== node.name);
+        }
+        return [...prev, node.name];
+      });
+    }
     setSelectedNodes((prev) => {
       if (prev.includes(node.name)) {
         return prev.filter((n) => n !== node.name);
       }
       return [...prev, node.name];
     });
-  }, []);
+  }, [panelOpen]);
 
   const handleSearchSelect = useCallback((name) => {
     setSelectedNodes((prev) => {
@@ -101,11 +111,32 @@ export default function CocktailLab({ fullData }) {
   }, []);
 
   const handleSelectAlternative = useCallback((originalName, altName, cocktail) => {
-    // Highlight the alternative and the remaining cocktail ingredients
     if (cocktail) {
       const others = cocktail.ingredients.map(i => i.name).filter(n => n !== originalName);
       setSelectedNodes([altName, ...others]);
     }
+  }, []);
+
+  const handleBuilderAdd = useCallback((name) => {
+    setBuilderIngredients(prev => {
+      if (prev.includes(name)) return prev;
+      const next = [...prev, name];
+      setSelectedNodes(next);
+      return next;
+    });
+  }, []);
+
+  const handleBuilderRemove = useCallback((name) => {
+    setBuilderIngredients(prev => {
+      const next = prev.filter(n => n !== name);
+      setSelectedNodes(next);
+      return next;
+    });
+  }, []);
+
+  const handleBuilderClear = useCallback(() => {
+    setBuilderIngredients([]);
+    setSelectedNodes([]);
   }, []);
 
   if (loading) {
@@ -221,8 +252,13 @@ export default function CocktailLab({ fullData }) {
         onClose={() => setPanelOpen(false)}
         cocktailNodes={cocktailData?.graph?.nodes}
         cocktailEdges={cocktailData?.graph?.edges}
+        ingredientList={ingredientList}
         onHighlightIngredients={handleHighlightIngredients}
         onSelectAlternative={handleSelectAlternative}
+        builderIngredients={builderIngredients}
+        onBuilderAdd={handleBuilderAdd}
+        onBuilderRemove={handleBuilderRemove}
+        onBuilderClear={handleBuilderClear}
       />
 
       {/* Category legend */}

@@ -1,6 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
 import useCocktailDB from '../hooks/useCocktailDB.js';
 import CocktailRecipeCard from './CocktailRecipeCard.jsx';
+import CocktailBuilder from './CocktailBuilder.jsx';
+import { computeCompatibility, detectCodexTemplate, suggestNextIngredients } from '../data/cocktailScoring.js';
 
 /**
  * CocktailPanel — Right-side panel in Cocktail Lab with tabs:
@@ -13,16 +15,34 @@ export default function CocktailPanel({
   onClose,
   cocktailNodes,
   cocktailEdges,
+  ingredientList,
   onHighlightIngredients,
   onSelectAlternative,
+  builderIngredients = [],
+  onBuilderAdd,
+  onBuilderRemove,
+  onBuilderClear,
 }) {
   const [tab, setTab] = useState('lookup');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedCocktail, setSelectedCocktail] = useState(null);
   const [swapIngredient, setSwapIngredient] = useState(null);
-  const [previewAlt, setPreviewAlt] = useState(null); // { name, score, category }
+  const [previewAlt, setPreviewAlt] = useState(null);
   const cocktailDB = useCocktailDB();
+
+  // Builder scoring
+  const compatibilityScore = useMemo(() => {
+    return computeCompatibility(builderIngredients, cocktailEdges);
+  }, [builderIngredients, cocktailEdges]);
+
+  const codexTemplate = useMemo(() => {
+    return detectCodexTemplate(builderIngredients, cocktailNodes);
+  }, [builderIngredients, cocktailNodes]);
+
+  const suggestions = useMemo(() => {
+    return suggestNextIngredients(builderIngredients, cocktailNodes, cocktailEdges);
+  }, [builderIngredients, cocktailNodes, cocktailEdges]);
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;
@@ -307,12 +327,19 @@ export default function CocktailPanel({
           )}
 
           {tab === 'builder' && (
-            <div className="p-3 flex items-center justify-center h-48">
-              <p className="text-[10px] text-gray-600 text-center">
-                Cocktail builder coming soon.
-                <br />Use the Lookup tab to explore cocktails.
-              </p>
-            </div>
+            <CocktailBuilder
+              cocktailNodes={cocktailNodes}
+              cocktailEdges={cocktailEdges}
+              ingredientList={ingredientList}
+              selectedNodes={builderIngredients}
+              onAddIngredient={onBuilderAdd}
+              onRemoveIngredient={onBuilderRemove}
+              onClearIngredients={onBuilderClear}
+              builderIngredients={builderIngredients}
+              codexTemplate={codexTemplate}
+              compatibilityScore={compatibilityScore}
+              suggestions={suggestions}
+            />
           )}
 
           {tab === 'saved' && (
