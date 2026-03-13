@@ -203,8 +203,8 @@ spec: .claude/specs/cocktail-lab-prd.md
 ## Phase 20: Cocktail Lab — Save & Share
 > **Goal**: Persist cocktail creations and enable sharing via exportable images.
 
-- [ ] TASK-115: Add cocktails[] to user profile schema in useUserProfile.js — each cocktail: { id, name, ingredients: [{name, quantity, unit}], instructions, template, createdAt }. Save/load/delete cocktails. Sync with Firebase #profile
-- [ ] TASK-116: Build "My Cocktails" tab in CocktailPanel — list saved cocktails with click to load (highlights on network + fills builder). Delete button with confirmation. Show Codex template badge per cocktail #ui
+- [x] TASK-115: Add cocktails[] to user profile schema in useUserProfile.js — each cocktail: { id, name, ingredients: [{name, quantity, unit}], instructions, template, createdAt }. Save/load/delete cocktails. Sync with Firebase #profile
+- [x] TASK-116: Build "My Cocktails" tab in CocktailPanel — list saved cocktails with click to load (highlights on network + fills builder). Delete button with confirmation. Show Codex template badge per cocktail #ui
 - [ ] TASK-117: Create src/components/CocktailCard.jsx — canvas-rendered exportable cocktail card (600x800 PNG). Sections: cocktail name, ingredient list with measures, mini network diagram showing ingredient connections, Codex template badge, compatibility score. Download as cocktail-card.png #ui
 
 ## Phase 21: Cocktail Lab — Polish & Deploy
