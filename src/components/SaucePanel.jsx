@@ -403,7 +403,7 @@ export default function SaucePanel({
                 </button>
               </div>
 
-              {/* Sauce type selector — switches to browse tab with filter */}
+              {/* Sauce type selector — shows filtered recipes inline */}
               {!selectedSauce && (
                 <div>
                   <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Browse by Type</p>
@@ -411,13 +411,12 @@ export default function SaucePanel({
                     {familyNames.map(family => (
                       <button
                         key={family}
-                        onClick={() => {
-                          setBrowseFilter(family);
-                          setTab('browse');
-                          setSelectedSauce(null);
-                        }}
-                        className="text-[9px] text-gray-400 hover:text-amber-300 bg-[#1a1a2e] hover:bg-amber-500/10 border border-[#2a2a3e] hover:border-amber-500/20 rounded px-1.5 py-1 transition-all"
-                        title={`Show ${family} recipes`}
+                        onClick={() => setLookupTypeFilter(prev => prev === family ? '' : family)}
+                        className={`text-[9px] px-1.5 py-1 rounded border transition-all ${
+                          lookupTypeFilter === family
+                            ? 'text-amber-300 bg-amber-500/15 border-amber-500/30'
+                            : 'text-gray-400 hover:text-amber-300 bg-[#1a1a2e] hover:bg-amber-500/10 border-[#2a2a3e] hover:border-amber-500/20'
+                        }`}
                       >
                         {family}
                       </button>
@@ -426,7 +425,33 @@ export default function SaucePanel({
                 </div>
               )}
 
-              {/* Back from meal detail */}
+              {/* Type-filtered recipe list */}
+              {!selectedSauce && lookupTypeFilter && lookupTypeSauces.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-[9px] text-gray-600 uppercase tracking-wider">
+                    {lookupTypeFilter} ({lookupTypeSauces.length})
+                  </p>
+                  {lookupTypeSauces.map((sauce, idx) => (
+                    <button
+                      key={`${sauce.name}-${idx}`}
+                      onClick={() => handleSelectSauce(sauce)}
+                      className="w-full flex items-center gap-2 p-2 rounded-lg bg-[#1a1a2e]/50 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all text-left"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-200 truncate">{sauce.name}</p>
+                        {sauce.cuisine && (
+                          <span className="text-[8px] text-gray-600">{sauce.cuisine}</span>
+                        )}
+                      </div>
+                      <span className="text-[9px] text-gray-600 flex-shrink-0">
+                        {sauce.ingredients.length} ing.
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Selected sauce/meal detail */}
               {selectedSauce && (
                 <>
                   <button
@@ -443,11 +468,20 @@ export default function SaucePanel({
                       {selectedSauce.image && (
                         <img src={selectedSauce.image} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
                       )}
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-200">{selectedSauce.name}</h3>
-                        {selectedSauce.cuisine && (
-                          <span className="text-[8px] text-gray-500">{selectedSauce.cuisine}</span>
-                        )}
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-medium text-gray-200 leading-tight">{selectedSauce.name}</h3>
+                        <div className="flex gap-1 mt-1 flex-wrap">
+                          {selectedSauce.motherSauce && selectedSauce.motherSauce !== 'Lookup' && (
+                            <span className="text-[8px] text-amber-400/80 bg-amber-500/10 rounded px-1.5 py-0.5">
+                              {selectedSauce.motherSauce}
+                            </span>
+                          )}
+                          {selectedSauce.cuisine && (
+                            <span className="text-[8px] text-gray-500 bg-gray-500/10 rounded px-1.5 py-0.5">
+                              {selectedSauce.cuisine}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -459,6 +493,22 @@ export default function SaucePanel({
                         </div>
                       ))}
                     </div>
+                    {selectedSauce.instructions && (
+                      <div>
+                        <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Technique</p>
+                        <p className="text-[10px] text-gray-400 leading-relaxed">{selectedSauce.instructions}</p>
+                      </div>
+                    )}
+                    {selectedSauce.pairsWith && selectedSauce.pairsWith.length > 0 && (
+                      <div>
+                        <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Pairs With</p>
+                        <div className="flex flex-wrap gap-1">
+                          {selectedSauce.pairsWith.map(item => (
+                            <span key={item} className="text-[9px] text-gray-400 bg-[#1a1a2e] rounded px-1.5 py-0.5">{item}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <button
                       onClick={() => handleLoadIntoBuilder(selectedSauce)}
                       className="w-full text-[10px] text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 rounded py-1.5 transition-colors"
