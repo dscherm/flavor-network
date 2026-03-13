@@ -5,7 +5,7 @@ function HelpButton({ onClick }) {
       aria-label="Show guided tour"
       title="Show guided tour"
       className={
-        'fixed top-4 left-4 z-50 w-8 h-8 flex items-center justify-center ' +
+        'fixed top-14 left-4 z-50 w-8 h-8 flex items-center justify-center ' +
         'rounded-full bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] ' +
         'text-gray-400 text-sm font-bold ' +
         'transition-all duration-200 ' +

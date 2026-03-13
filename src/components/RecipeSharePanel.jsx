@@ -1,14 +1,13 @@
 import { useState, useMemo, useCallback } from 'react';
 import { buildIngredientIndex, parseIngredients } from '../data/recipeParser.js';
-
-const API_BASE = 'http://localhost:3001';
+import { scrapeRecipe } from '../data/recipeScraper.js';
 
 /**
  * RecipeSharePanel — paste a recipe URL or text, preview extracted ingredients,
  * and add them to the user's profile as a recipe.
  *
  * Supports:
- * - Recipe URL scraping via /api/recipe/scrape endpoint
+ * - Recipe URL scraping (client-side via CORS proxy)
  * - Direct text paste fallback using local recipeParser
  * - Ingredient preview with confirm/reject per ingredient
  */
@@ -47,17 +46,7 @@ function RecipeSharePanel({ ingredientList, onSave, onClose }) {
     setScraped(false);
 
     try {
-      const res = await fetch(`${API_BASE}/api/recipe/scrape`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url.trim() }),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Server returned ${res.status}`);
-      }
-
-      const data = await res.json();
+      const data = await scrapeRecipe(url.trim());
       if (data.title) setRecipeName(data.title);
 
       const matched = (data.ingredients || [])
@@ -85,9 +74,8 @@ function RecipeSharePanel({ ingredientList, onSave, onClose }) {
         setError('No known ingredients found in this recipe. Try pasting the ingredient list instead.');
       }
     } catch (err) {
-      // API not available — prompt user to paste text instead
       setError(
-        'Could not fetch recipe from URL. The scrape API may not be running. ' +
+        'Could not fetch recipe from URL. The site may block external access. ' +
         'Try pasting the recipe text directly instead.'
       );
     } finally {

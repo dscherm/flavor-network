@@ -311,7 +311,7 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager, hasProfile, onS
 
   if (!visible) return null;
 
-  const step = STEPS[currentStep];
+  const step = steps[currentStep];
   const isLastStep = currentStep === totalSteps - 1;
 
   return (

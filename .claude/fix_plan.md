@@ -1,6 +1,7 @@
 ---
 mode: add-features
-updated: 2026-03-11T11:30
+updated: 2026-03-13T16:00
+spec: .claude/specs/cocktail-lab-prd.md
 ---
 
 # Flavor Network — Build Plan
@@ -166,3 +167,52 @@ updated: 2026-03-11T11:30
 - [x] TASK-96: Performance optimization — lazy-load Tesseract.js for scanning, debounce quiz scoring, virtualize tree lists for large profiles #polish
 - [x] TASK-97: Deploy updated app to Firebase Hosting #deploy
 - [x] TASK-98: Data integrity tests v2 — validate quiz scoring maps to correct ingredients, recipe scraping handles edge cases, tree structures are complete and acyclic #testing
+
+## Phase 17: Cocktail Lab — Foundation
+> **Goal**: Add top-level tab navigation and build the cocktail-only neural network
+> with Cocktail Codex-based 3D positioning.
+> **Spec**: .claude/specs/cocktail-lab-prd.md
+
+- [x] TASK-99: Add top-level tab navigation bar to App.jsx — persistent nav with `Network | Cocktail Lab` tabs. Switching tabs swaps the entire view. Style consistent with existing dark theme. Network tab renders the current app unchanged #ui
+- [ ] TASK-100: Create public/data/cocktail_augment.json — hand-curated cocktail ingredient definitions (spirits, liqueurs, vermouth, bitters, citrus, sweeteners, lengtheners, dairy/egg, herbs/aromatics) with pairing edges. ~80-120 nodes with strength values for key pairings not in Flavor Bible #data
+- [ ] TASK-101: Create src/data/cocktailData.js — load cocktail_augment.json, define cocktail ingredient categories (Spirit, Liqueur, Bitter, Citrus, Sweetener, Lengthener, Dairy, Herb, Other), export category membership for each ingredient #data
+- [ ] TASK-102: Create src/data/cocktailGraph.js — build cocktail-only subgraph by filtering Flavor Bible nodes to cocktail-relevant ingredients + merging augmented nodes/edges from cocktail_augment.json. Output same format as graph.js (nodes Map, edges array, ingredientList) #data
+- [ ] TASK-103: Create src/data/cocktailPositioning.js — Cocktail Codex axis vectors. X: Spirit-forward↔Modified, Y: Short↔Long, Z: Simple↔Complex. Each ingredient gets a role vector based on Codex templates (Old Fashioned, Martini, Daiquiri, Sidecar, Highball, Flip). Neighbor gravity + jitter for unscored nodes, repulsion pass for overlap #viz
+- [ ] TASK-104: Create src/components/CocktailLab.jsx — main container component for Cocktail Lab tab. Renders its own NetworkScene with cocktail graph data and Codex positions. Includes axis labels as floating text overlays on the 3D scene #ui
+- [ ] TASK-105: Add cocktail families to src/data/ingredientFamilyTree.js — Spirits & Liqueurs, Bitters & Modifiers, Mixers & Lengtheners families with keywords #data
+
+## Phase 18: Cocktail Lab — Lookup & Swap
+> **Goal**: Integrate TheCocktailDB API for cocktail lookup with interactive
+> ingredient swapping on the network.
+
+- [ ] TASK-106: Create src/hooks/useCocktailDB.js — TheCocktailDB API hook with localStorage caching (24h TTL). Methods: searchByName(query), searchByIngredient(ingredient), getById(id), getRandom(). Normalize API response to { name, image, glass, ingredients: [{name, measure}], instructions } #data
+- [ ] TASK-107: Create src/components/CocktailPanel.jsx — right-side panel with tabs: Lookup, Builder, My Cocktails. Lookup tab has search bar for cocktail names, shows result cards in a scrollable list #ui
+- [ ] TASK-108: Create src/components/CocktailRecipeCard.jsx — displays cocktail recipe: name, image, glass type, ingredient list with measures, instructions. Each ingredient is clickable (enters swap mode). Highlights cocktail's ingredients on the network with activation spread between them #ui
+- [ ] TASK-109: Implement ingredient swap mode — clicking an ingredient in a recipe card highlights its neighbor nodes on the network. Edge brightness = pairing strength with other cocktail ingredients. Side panel shows ranked alternatives list sorted by average compatibility with remaining ingredients. Compatibility score 0-10 #viz
+- [ ] TASK-110: Implement real-time swap preview — clicking an alternative in the ranked list previews the swap: network updates highlighting, recipe card shows the substitution, compatibility score recalculates. "Accept swap" button confirms change to working recipe #ui
+
+## Phase 19: Cocktail Lab — Builder
+> **Goal**: Bidirectional cocktail builder that syncs between network clicks
+> and panel selection, with Codex template detection and suggestions.
+
+- [ ] TASK-111: Create src/components/CocktailBuilder.jsx — ingredient builder panel with search input + selected ingredients list with quantity/unit fields. Clicking a node on the cocktail network adds it to the builder. Searching in the builder highlights the node on the network. Both stay in sync #ui
+- [ ] TASK-112: Implement compatibility scoring — as ingredients are added, compute overall cocktail compatibility (average pairwise pairing strength). Display as a colored score bar in the builder panel. Show per-ingredient compatibility breakdown #data
+- [ ] TASK-113: Implement Codex template detection — analyze current ingredient set against the 6 Codex templates (Old Fashioned, Martini, Daiquiri, Sidecar, Highball, Flip). Show closest match as a badge. Suggest missing components: "Add a sweetener for a Daiquiri structure" #data
+- [ ] TASK-114: Implement "what to add next" suggestions — based on current ingredients, suggest additions ranked by average pairing strength with existing ingredients. Filter by Codex role gaps (e.g., no citrus yet → suggest citrus first). Show as a suggestion row below the builder #data
+
+## Phase 20: Cocktail Lab — Save & Share
+> **Goal**: Persist cocktail creations and enable sharing via exportable images.
+
+- [ ] TASK-115: Add cocktails[] to user profile schema in useUserProfile.js — each cocktail: { id, name, ingredients: [{name, quantity, unit}], instructions, template, createdAt }. Save/load/delete cocktails. Sync with Firebase #profile
+- [ ] TASK-116: Build "My Cocktails" tab in CocktailPanel — list saved cocktails with click to load (highlights on network + fills builder). Delete button with confirmation. Show Codex template badge per cocktail #ui
+- [ ] TASK-117: Create src/components/CocktailCard.jsx — canvas-rendered exportable cocktail card (600x800 PNG). Sections: cocktail name, ingredient list with measures, mini network diagram showing ingredient connections, Codex template badge, compatibility score. Download as cocktail-card.png #ui
+
+## Phase 21: Cocktail Lab — Polish & Deploy
+> **Goal**: Final polish, axis labels, transitions, and deployment.
+
+- [ ] TASK-118: Add 3D axis labels to cocktail scene — floating text sprites at axis extremes: "Spirit-forward"↔"Modified" (X), "Short"↔"Long" (Y), "Simple"↔"Complex" (Z). Subtle, semi-transparent, face camera #viz
+- [ ] TASK-119: Add Codex template legend overlay — small visual showing the 6 templates with icons, positioned on the cocktail scene. Clickable to filter network to ingredients of that template type #ui
+- [ ] TASK-120: Smooth tab transitions — fade/slide animation between Network and Cocktail Lab tabs. Lazy-mount cocktail scene (don't initialize Three.js until tab is first opened) #polish
+- [ ] TASK-121: Update walkthrough tour — add Cocktail Lab steps to the tour for users who have the feature. Explain axes, lookup, swap, and builder #demo
+- [ ] TASK-122: Cocktail Lab integration tests — validate CocktailDB caching, cocktail graph construction, Codex positioning produces distinct clusters, swap mode returns valid alternatives, save/load cocktails round-trips correctly #testing
+- [ ] TASK-123: Deploy Cocktail Lab to Firebase Hosting #deploy

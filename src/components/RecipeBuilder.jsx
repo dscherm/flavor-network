@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import Fuse from 'fuse.js';
 import { buildIngredientIndex, parseIngredients, parseRecipeTextStructured } from '../data/recipeParser.js';
+import { scrapeRecipe } from '../data/recipeScraper.js';
 
 function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
   const [name, setName] = useState('');
@@ -110,16 +111,7 @@ function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
     setUrlExtracted([]);
     setUrlScraped(false);
     try {
-      const res = await fetch('/api/recipe/scrape', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: trimmed }),
-      });
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Failed to scrape (${res.status})`);
-      }
-      const data = await res.json();
+      const data = await scrapeRecipe(trimmed);
       // Re-match against known ingredients using local Fuse for better accuracy
       const matchFuse = new Fuse(
         (ingredientList || []).map((n) => ({ name: n })),
@@ -134,15 +126,6 @@ function RecipeBuilder({ ingredientList, onSave, onClose, onScanRecipe }) {
           if (!seen.has(matchedName)) {
             seen.add(matchedName);
             matched.push({ name: matchedName, raw, confirmed: true });
-          }
-        }
-      }
-      // Also include server-side matched names
-      if (data.matchedNames) {
-        for (const n of data.matchedNames) {
-          if (!seen.has(n)) {
-            seen.add(n);
-            matched.push({ name: n, raw: n, confirmed: true });
           }
         }
       }

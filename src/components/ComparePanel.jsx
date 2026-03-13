@@ -82,7 +82,7 @@ export default function ComparePanel({ selectedNames, nodes, edges, onRemove, on
   }, [selectedNames, neighborSets]);
 
   return (
-    <div className="fixed top-4 right-0 bottom-4 z-40 flex items-stretch select-none">
+    <div className="fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none">
       {/* Tab */}
       <button
         onClick={() => setCollapsed((v) => !v)}

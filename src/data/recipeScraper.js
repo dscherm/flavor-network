@@ -16,12 +16,19 @@ const FETCH_TIMEOUT_MS = 10_000;
 const USER_AGENT =
   'Mozilla/5.0 (compatible; FlavorNetworkBot/1.0; +https://github.com/flavor-network)';
 
+// CORS proxies — tried in order; first success wins
+const CORS_PROXIES = [
+  (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+];
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
 /**
  * Scrape a recipe URL and return structured data.
+ * Works both server-side (Node) and client-side (browser via CORS proxy).
  *
  * @param {string} url - Absolute URL to a recipe page
  * @returns {Promise<{ title: string, ingredients: string[], servings: string|null, source: string }>}
@@ -76,7 +83,17 @@ export async function scrapeRecipe(url) {
 // Fetch
 // ---------------------------------------------------------------------------
 
+const IS_BROWSER = typeof window !== 'undefined';
+
 async function fetchPage(url) {
+  // In Node (server), fetch directly. In browser, use CORS proxies.
+  if (!IS_BROWSER) {
+    return fetchDirect(url);
+  }
+  return fetchViaCorsProxy(url);
+}
+
+async function fetchDirect(url) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
@@ -98,6 +115,31 @@ async function fetchPage(url) {
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function fetchViaCorsProxy(url) {
+  let lastError;
+  for (const makeProxyUrl of CORS_PROXIES) {
+    const proxyUrl = makeProxyUrl(url);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    try {
+      const res = await fetch(proxyUrl, {
+        signal: controller.signal,
+        redirect: 'follow',
+      });
+      clearTimeout(timer);
+      if (!res.ok) {
+        lastError = new Error(`Proxy returned ${res.status}`);
+        continue;
+      }
+      return await res.text();
+    } catch (err) {
+      clearTimeout(timer);
+      lastError = err;
+    }
+  }
+  throw lastError || new Error('All CORS proxies failed');
 }
 
 // ---------------------------------------------------------------------------
