@@ -111,6 +111,45 @@ export function createCocktailAxisLabels(spread = 45) {
 }
 
 /**
+ * Build axis label sprites for the Sauce Lab.
+ * @param {number} spread - Spatial spread used in positioning (default 45)
+ * @returns {THREE.Group} Group containing all axis label sprites
+ */
+export function createSauceAxisLabels(spread = 45) {
+  const group = new THREE.Group();
+  const offset = spread * 1.43;
+
+  // X axis: Light/Thin (negative) ←→ Rich/Heavy (positive)
+  const lightLabel = createTextSprite('Light / Thin', 'rgba(253, 224, 71, 0.9)');
+  lightLabel.position.set(-offset, 0, 0);
+  group.add(lightLabel);
+
+  const richLabel = createTextSprite('Rich / Heavy', 'rgba(253, 224, 71, 0.9)');
+  richLabel.position.set(offset, 0, 0);
+  group.add(richLabel);
+
+  // Y axis: Mild/Subtle (negative) ←→ Bold/Intense (positive)
+  const mildLabel = createTextSprite('Mild', 'rgba(74, 222, 128, 0.9)');
+  mildLabel.position.set(0, -offset, 0);
+  group.add(mildLabel);
+
+  const boldLabel = createTextSprite('Bold / Intense', 'rgba(74, 222, 128, 0.9)');
+  boldLabel.position.set(0, offset, 0);
+  group.add(boldLabel);
+
+  // Z axis: Simple/Quick (negative) ←→ Complex/Layered (positive)
+  const simpleLabel = createTextSprite('Simple', 'rgba(167, 139, 250, 0.9)');
+  simpleLabel.position.set(0, 0, -offset);
+  group.add(simpleLabel);
+
+  const complexLabel = createTextSprite('Complex', 'rgba(167, 139, 250, 0.9)');
+  complexLabel.position.set(0, 0, offset);
+  group.add(complexLabel);
+
+  return group;
+}
+
+/**
  * Build taste-direction label sprites for the main Network view.
  *
  * Uses the 7D → 3D projection vectors from tastePositioning.js to place

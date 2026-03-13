@@ -1,21 +1,22 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import NetworkScene from './NetworkScene.jsx';
 import SearchBar from './SearchBar.jsx';
 import IngredientPanel from './IngredientPanel.jsx';
-import CocktailPanel from './CocktailPanel.jsx';
-import { buildCocktailGraph } from '../data/cocktailGraph.js';
-import { computeCocktailPositions } from '../data/cocktailPositioning.js';
+import SaucePanel from './SaucePanel.jsx';
+import { buildSauceGraph } from '../data/sauceGraph.js';
+import { computeSaucePositions } from '../data/saucePositioning.js';
 import { getNeighbors } from '../data/graph.js';
-import { COCKTAIL_CATEGORIES } from '../data/cocktailData.js';
-import { CODEX_TEMPLATES } from '../data/cocktailScoring.js';
-import { createCocktailAxisLabels } from '../three/AxisLabels.js';
+import { SAUCE_CATEGORIES, loadSauceAugment } from '../data/sauceData.js';
+import { SAUCE_TEMPLATES } from '../data/sauceScoring.js';
+import { createSauceAxisLabels } from '../three/AxisLabels.js';
 
 /**
- * CocktailLab — Main container for the Cocktail Lab tab.
- * Renders its own NetworkScene with cocktail-only data and Codex positioning.
+ * SauceLab — Main container for the Sauce Lab tab.
+ * Renders its own NetworkScene with sauce-only data and mother sauce positioning.
  */
-export default function CocktailLab({ fullData, userProfile }) {
-  const [cocktailData, setCocktailData] = useState(null);
+export default function SauceLab({ fullData, userProfile }) {
+  const [sauceData, setSauceData] = useState(null);
+  const [curatedSauces, setCuratedSauces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedNodes, setSelectedNodes] = useState([]);
@@ -25,23 +26,23 @@ export default function CocktailLab({ fullData, userProfile }) {
   const [templateFilter, setTemplateFilter] = useState(null);
   const [filterCategory, setFilterCategory] = useState('');
 
-  // Build cocktail graph on mount
+  // Build sauce graph and load curated recipes on mount
   useEffect(() => {
     if (!fullData) return;
     let cancelled = false;
 
     async function build() {
       try {
-        const graph = await buildCocktailGraph(fullData.graph);
-        const positions = computeCocktailPositions(graph.nodes, graph.edges);
+        const [graph, augment] = await Promise.all([
+          buildSauceGraph(fullData.graph),
+          loadSauceAugment(),
+        ]);
+        const positions = computeSaucePositions(graph.nodes, graph.edges);
 
         if (cancelled) return;
 
-        setCocktailData({
-          graph,
-          positions,
-          embeddings: null,
-        });
+        setSauceData({ graph, positions, embeddings: null });
+        setCuratedSauces(augment.sauces || []);
         setLoading(false);
       } catch (err) {
         if (!cancelled) {
@@ -57,30 +58,44 @@ export default function CocktailLab({ fullData, userProfile }) {
 
   const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
 
-  // Create 3D axis label sprites (created once, lives in the scene)
-  const axisLabels = useMemo(() => createCocktailAxisLabels(45), []);
+  const axisLabels = useMemo(() => createSauceAxisLabels(45), []);
 
   const ingredientList = useMemo(() => {
-    if (!cocktailData) return [];
-    return cocktailData.graph.ingredientList;
-  }, [cocktailData]);
+    if (!sauceData) return [];
+    return sauceData.graph.ingredientList;
+  }, [sauceData]);
 
   const neighbors = useMemo(() => {
-    if (!cocktailData || !selectedNode) return [];
-    return getNeighbors(selectedNode, cocktailData.graph.edges);
-  }, [cocktailData, selectedNode]);
+    if (!sauceData || !selectedNode) return [];
+    return getNeighbors(selectedNode, sauceData.graph.edges);
+  }, [sauceData, selectedNode]);
 
   const selectedNodeData = useMemo(() => {
-    if (!cocktailData || !selectedNode) return null;
-    return cocktailData.graph.nodes.get(selectedNode) || null;
-  }, [cocktailData, selectedNode]);
+    if (!sauceData || !selectedNode) return null;
+    return sauceData.graph.nodes.get(selectedNode) || null;
+  }, [sauceData, selectedNode]);
+
+  // Category filter
+  const categoryFilteredNames = useMemo(() => {
+    if (!filterCategory || !sauceData) return null;
+    const names = [];
+    for (const [name, node] of sauceData.graph.nodes) {
+      if (node.sauceCategory === filterCategory) {
+        names.push(name);
+      }
+    }
+    return names.length > 0 ? names : null;
+  }, [filterCategory, sauceData]);
+
+  const handleCategoryFilter = useCallback((key) => {
+    setFilterCategory(prev => prev === key ? '' : key);
+  }, []);
 
   const handleNodeClick = useCallback((node) => {
     if (!node) {
       setSelectedNodes([]);
       return;
     }
-    // If panel is open, also add/remove from builder
     if (panelOpen) {
       setBuilderIngredients(prev => {
         if (prev.includes(node.name)) {
@@ -117,13 +132,6 @@ export default function CocktailLab({ fullData, userProfile }) {
     }
   }, []);
 
-  const handleSelectAlternative = useCallback((originalName, altName, cocktail) => {
-    if (cocktail) {
-      const others = cocktail.ingredients.map(i => i.name).filter(n => n !== originalName);
-      setSelectedNodes([altName, ...others]);
-    }
-  }, []);
-
   const handleBuilderAdd = useCallback((name) => {
     setBuilderIngredients(prev => {
       if (prev.includes(name)) return prev;
@@ -146,52 +154,34 @@ export default function CocktailLab({ fullData, userProfile }) {
     setSelectedNodes([]);
   }, []);
 
-  // Compute ingredient names matching the selected category filter
-  const categoryFilteredNames = useMemo(() => {
-    if (!filterCategory || !cocktailData) return null;
-    const names = [];
-    for (const [name, node] of cocktailData.graph.nodes) {
-      if (node.cocktailCategory === filterCategory) {
-        names.push(name);
-      }
-    }
-    return names.length > 0 ? names : null;
-  }, [filterCategory, cocktailData]);
-
-  const handleCategoryFilter = useCallback((key) => {
-    setFilterCategory(prev => prev === key ? '' : key);
-  }, []);
-
   const handleTemplateFilter = useCallback((template) => {
-    if (!cocktailData) return;
+    if (!sauceData) return;
     if (templateFilter === template.name) {
-      // Toggle off
       setTemplateFilter(null);
       setSelectedNodes([]);
       return;
     }
     setTemplateFilter(template.name);
-    // Highlight all ingredients matching the template's required roles
     const roles = new Set(Object.keys(template.roles));
     const matching = [];
-    for (const [name, node] of cocktailData.graph.nodes) {
-      if (roles.has(node.cocktailCategory)) {
+    for (const [name, node] of sauceData.graph.nodes) {
+      if (roles.has(node.sauceCategory)) {
         matching.push(name);
       }
     }
     setSelectedNodes(matching);
-  }, [cocktailData, templateFilter]);
+  }, [sauceData, templateFilter]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
         <div className="text-center">
           <div className="relative w-16 h-16 mx-auto mb-4">
-            <div className="absolute inset-0 border-2 border-purple-400/30 rounded-full animate-ping" />
-            <div className="absolute inset-2 border-2 border-purple-400/50 rounded-full animate-spin" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-[30%] bg-purple-400/80 rounded-full animate-pulse" />
+            <div className="absolute inset-0 border-2 border-amber-400/30 rounded-full animate-ping" />
+            <div className="absolute inset-2 border-2 border-amber-400/50 rounded-full animate-spin" style={{ animationDuration: '2s' }} />
+            <div className="absolute inset-[30%] bg-amber-400/80 rounded-full animate-pulse" />
           </div>
-          <p className="text-gray-400 text-sm">Building cocktail network...</p>
+          <p className="text-gray-400 text-sm">Building sauce network...</p>
         </div>
       </div>
     );
@@ -201,7 +191,7 @@ export default function CocktailLab({ fullData, userProfile }) {
     return (
       <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
         <div className="text-center panel p-6">
-          <p className="text-red-400 mb-2">Failed to build cocktail network</p>
+          <p className="text-red-400 mb-2">Failed to build sauce network</p>
           <p className="text-neural-muted text-sm">{error}</p>
         </div>
       </div>
@@ -211,7 +201,7 @@ export default function CocktailLab({ fullData, userProfile }) {
   return (
     <>
       <NetworkScene
-        data={cocktailData}
+        data={sauceData}
         onNodeClick={handleNodeClick}
         onNodeHover={() => {}}
         selectedNode={selectedNode}
@@ -232,8 +222,8 @@ export default function CocktailLab({ fullData, userProfile }) {
         onSelect={handleSearchSelect}
       />
 
-      {/* Ingredient detail panel */}
-      {selectedNode && selectedNodes.length < 2 && (
+      {/* Ingredient detail panel — only when panel is closed and single node selected */}
+      {selectedNode && selectedNodes.length < 2 && !panelOpen && (
         <IngredientPanel
           node={selectedNodeData}
           neighbors={neighbors}
@@ -259,76 +249,73 @@ export default function CocktailLab({ fullData, userProfile }) {
         </div>
       )}
 
-      {/* 3D axis labels are now sprites in the scene (see sceneExtras prop) */}
-
-      {/* Axis legend (compact) */}
+      {/* Axis legend */}
       <div className="fixed bottom-16 left-4 z-30 pointer-events-none select-none bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg px-3 py-2">
-        <p className="text-[9px] text-gray-400 uppercase tracking-wider font-medium mb-1.5">Codex Axes</p>
+        <p className="text-[9px] text-gray-400 uppercase tracking-wider font-medium mb-1.5">Sauce Axes</p>
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-[11px] text-gray-300">
-            <span className="w-2 h-2 rounded-full bg-red-400/70 inline-block flex-shrink-0" />
-            X: Spirit-forward ↔ Modified
+            <span className="w-2 h-2 rounded-full bg-yellow-400/70 inline-block flex-shrink-0" />
+            X: Light ↔ Rich
           </div>
           <div className="flex items-center gap-2 text-[11px] text-gray-300">
             <span className="w-2 h-2 rounded-full bg-green-400/70 inline-block flex-shrink-0" />
-            Y: Short ↔ Long
+            Y: Mild ↔ Bold
           </div>
           <div className="flex items-center gap-2 text-[11px] text-gray-300">
-            <span className="w-2 h-2 rounded-full bg-blue-400/70 inline-block flex-shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-purple-400/70 inline-block flex-shrink-0" />
             Z: Simple ↔ Complex
           </div>
         </div>
       </div>
 
-      {/* Cocktail Panel toggle */}
+      {/* Sauce Panel toggle */}
       <button
         onClick={() => setPanelOpen(p => !p)}
         className={`fixed top-14 right-4 z-50 px-3 py-1.5 text-xs rounded-lg backdrop-blur-md border transition-all select-none ${
           panelOpen
-            ? 'bg-purple-500/20 text-purple-300 border-purple-500/30'
-            : 'bg-[#12121a]/90 text-gray-400 hover:text-purple-300 border-[#1e1e2e] hover:border-purple-500/20'
+            ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+            : 'bg-[#12121a]/90 text-gray-400 hover:text-amber-300 border-[#1e1e2e] hover:border-amber-500/20'
         }`}
       >
         <svg className="w-4 h-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
         </svg>
-        Cocktails
+        Sauces
       </button>
 
-      {/* Cocktail Panel */}
-      <CocktailPanel
+      {/* Sauce Panel */}
+      <SaucePanel
         isOpen={panelOpen}
         onClose={() => setPanelOpen(false)}
-        cocktailNodes={cocktailData?.graph?.nodes}
-        cocktailEdges={cocktailData?.graph?.edges}
+        sauceNodes={sauceData?.graph?.nodes}
+        sauceEdges={sauceData?.graph?.edges}
         ingredientList={ingredientList}
         onHighlightIngredients={handleHighlightIngredients}
-        onSelectAlternative={handleSelectAlternative}
         builderIngredients={builderIngredients}
         onBuilderAdd={handleBuilderAdd}
         onBuilderRemove={handleBuilderRemove}
         onBuilderClear={handleBuilderClear}
         userProfile={userProfile}
+        curatedSauces={curatedSauces}
       />
 
-      {/* Codex template legend */}
+      {/* Mother Sauce template legend */}
       <div className="fixed bottom-32 right-4 z-30 bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
-        <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Cocktail Codex</p>
+        <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Mother Sauces</p>
         <div className="space-y-0.5">
-          {CODEX_TEMPLATES.map(t => (
+          {SAUCE_TEMPLATES.map(t => (
             <button
               key={t.name}
               onClick={() => handleTemplateFilter(t)}
               className={`w-full flex items-center gap-1.5 text-[9px] text-left px-1 py-0.5 rounded transition-colors ${
                 templateFilter === t.name
-                  ? 'bg-purple-500/20 text-purple-300'
+                  ? 'bg-amber-500/20 text-amber-300'
                   : 'text-gray-500 hover:text-gray-300 hover:bg-[#1a1a2e]'
               }`}
               title={t.description}
             >
-              <span className="w-1 h-1 rounded-full bg-purple-400/60 flex-shrink-0" />
+              <span className="w-1 h-1 rounded-full bg-amber-400/60 flex-shrink-0" />
               <span className="truncate">{t.name}</span>
-              <span className="text-[7px] text-gray-700 ml-auto flex-shrink-0">{t.description.split(' + ').length}pt</span>
             </button>
           ))}
         </div>
@@ -338,7 +325,7 @@ export default function CocktailLab({ fullData, userProfile }) {
       <div className="fixed bottom-4 right-4 z-30 bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
         <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Ingredient Types</p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
-          {Object.entries(COCKTAIL_CATEGORIES)
+          {Object.entries(SAUCE_CATEGORIES)
             .filter(([key]) => key !== 'Other')
             .map(([key, { label, color }]) => {
               const isActive = filterCategory === key;
