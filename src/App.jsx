@@ -32,6 +32,7 @@ export default function App() {
   const { loading, error, data } = useFlavorData();
   const { user, loginWithGoogle, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail'
+  const [cocktailMounted, setCocktailMounted] = useState(false); // lazy mount
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
@@ -226,7 +227,10 @@ export default function App() {
           ].map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => {
+                setActiveTab(tab.key);
+                if (tab.key === 'cocktail') setCocktailMounted(true);
+              }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                 activeTab === tab.key
                   ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
@@ -246,7 +250,7 @@ export default function App() {
       </nav>
 
       {/* Network tab */}
-      {activeTab === 'network' && <>
+      <div className={`transition-opacity duration-300 ${activeTab === 'network' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'}`}>
       <NetworkScene
         data={data}
         onNodeClick={handleNodeClick}
@@ -455,11 +459,17 @@ export default function App() {
         }}
         onSkip={() => setShowPalateQuiz(false)}
       />
-      </>}
+      </div>
 
-      {/* Cocktail Lab tab */}
-      {activeTab === 'cocktail' && (
-        <CocktailLab fullData={data} userProfile={userProfile} />
+      {/* Cocktail Lab tab — lazy-mounted, stays mounted after first open */}
+      {cocktailMounted && (
+        <div
+          className={`transition-opacity duration-300 ${
+            activeTab === 'cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+          }`}
+        >
+          <CocktailLab fullData={data} userProfile={userProfile} />
+        </div>
       )}
     </>
   );
