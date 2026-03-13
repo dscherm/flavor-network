@@ -27,6 +27,7 @@ import CocktailLab from './components/CocktailLab.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
+import { createTasteAxisLabels } from './three/AxisLabels.js';
 
 export default function App() {
   const { loading, error, data } = useFlavorData();
@@ -88,6 +89,8 @@ export default function App() {
     if (!profileMode || !data) return null;
     return computeProfileWeights(userProfile.profile, data.graph.nodes);
   }, [profileMode, data, userProfile.profile]);
+
+  const tasteAxisLabels = useMemo(() => createTasteAxisLabels(50), []);
 
   const handleNodeClick = useCallback((node) => {
     if (!node) {
@@ -263,6 +266,7 @@ export default function App() {
         filterTaste={selectedTaste}
         profileWeights={profileWeights}
         treeFilterIngredients={treeFilterIngredients}
+        sceneExtras={tasteAxisLabels}
       />
       <SearchBar
         ingredients={ingredientList}
