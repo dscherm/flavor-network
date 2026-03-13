@@ -3,6 +3,7 @@ import { useState } from 'react';
 /**
  * CocktailRecipeCard — Displays a cocktail recipe with swap functionality.
  * Each ingredient is clickable to enter swap mode, showing ranked alternatives.
+ * Supports real-time swap preview with accept/cancel.
  */
 export default function CocktailRecipeCard({
   cocktail,
@@ -11,6 +12,8 @@ export default function CocktailRecipeCard({
   alternatives,
   onSelectAlternative,
   onCancelSwap,
+  previewAlt,
+  onAcceptSwap,
 }) {
   const [expandInstructions, setExpandInstructions] = useState(false);
 
@@ -50,6 +53,7 @@ export default function CocktailRecipeCard({
         <div className="space-y-0.5">
           {cocktail.ingredients.map((ing, idx) => {
             const isSwapping = swapIngredient === ing.name;
+            const isBeingReplaced = previewAlt && swapIngredient === ing.name;
             return (
               <button
                 key={`${ing.name}-${idx}`}
@@ -61,12 +65,23 @@ export default function CocktailRecipeCard({
                   }
                 }}
                 className={`w-full flex items-center justify-between px-2 py-1 rounded text-left text-[11px] transition-all ${
-                  isSwapping
+                  isBeingReplaced
+                    ? 'bg-green-500/15 border border-green-500/30 text-green-300'
+                    : isSwapping
                     ? 'bg-purple-500/20 border border-purple-500/40 text-purple-300'
                     : 'hover:bg-[#1a1a2e] text-gray-300 border border-transparent'
                 }`}
               >
-                <span className="truncate">{ing.name}</span>
+                <span className="truncate">
+                  {isBeingReplaced ? (
+                    <>
+                      <span className="line-through text-gray-600 mr-1">{ing.name}</span>
+                      <span className="text-green-300">{previewAlt.name}</span>
+                    </>
+                  ) : (
+                    ing.name
+                  )}
+                </span>
                 <span className="text-[9px] text-gray-600 flex-shrink-0 ml-2">
                   {ing.measure || '—'}
                 </span>
@@ -94,36 +109,59 @@ export default function CocktailRecipeCard({
             </button>
           </div>
 
+          {/* Preview accept bar */}
+          {previewAlt && (
+            <div className="flex items-center justify-between mb-2 px-2 py-1.5 bg-green-500/10 border border-green-500/20 rounded">
+              <p className="text-[10px] text-green-300">
+                {swapIngredient} → <span className="font-medium">{previewAlt.name}</span>
+                <span className="text-[9px] text-gray-500 ml-1">({previewAlt.score}/10)</span>
+              </p>
+              <button
+                onClick={onAcceptSwap}
+                className="text-[9px] bg-green-500/20 text-green-300 hover:bg-green-500/30 rounded px-2 py-0.5 transition-colors"
+              >
+                Accept
+              </button>
+            </div>
+          )}
+
           {alternatives && alternatives.length > 0 ? (
             <div className="space-y-0.5 max-h-48 overflow-y-auto">
-              {alternatives.map((alt) => (
-                <button
-                  key={alt.name}
-                  onClick={() => onSelectAlternative?.(alt.name)}
-                  className="w-full flex items-center justify-between px-2 py-1 rounded text-left text-[10px] hover:bg-purple-500/10 transition-colors group"
-                >
-                  <div className="min-w-0 flex-1">
-                    <span className="text-gray-300 group-hover:text-purple-300 truncate block">
-                      {alt.name}
-                    </span>
-                    <span className="text-[8px] text-gray-600">{alt.category}</span>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                    <div className="w-12 h-1 bg-[#1a1a2e] rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${Math.min(100, alt.score * 10)}%`,
-                          backgroundColor: alt.score > 7 ? '#a78bfa' : alt.score > 4 ? '#7c3aed50' : '#4c1d9550',
-                        }}
-                      />
+              {alternatives.map((alt) => {
+                const isPreview = previewAlt?.name === alt.name;
+                return (
+                  <button
+                    key={alt.name}
+                    onClick={() => onSelectAlternative?.(alt.name)}
+                    className={`w-full flex items-center justify-between px-2 py-1 rounded text-left text-[10px] transition-colors group ${
+                      isPreview
+                        ? 'bg-green-500/15 border border-green-500/30'
+                        : 'hover:bg-purple-500/10 border border-transparent'
+                    }`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <span className={`truncate block ${isPreview ? 'text-green-300' : 'text-gray-300 group-hover:text-purple-300'}`}>
+                        {alt.name}
+                      </span>
+                      <span className="text-[8px] text-gray-600">{alt.category}</span>
                     </div>
-                    <span className="text-[9px] text-gray-500 w-5 text-right">
-                      {alt.score}
-                    </span>
-                  </div>
-                </button>
-              ))}
+                    <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                      <div className="w-12 h-1 bg-[#1a1a2e] rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${Math.min(100, alt.score * 10)}%`,
+                            backgroundColor: isPreview ? '#4ade80' : alt.score > 7 ? '#a78bfa' : alt.score > 4 ? '#7c3aed50' : '#4c1d9550',
+                          }}
+                        />
+                      </div>
+                      <span className="text-[9px] text-gray-500 w-5 text-right">
+                        {alt.score}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <p className="text-[9px] text-gray-600 text-center py-2">
