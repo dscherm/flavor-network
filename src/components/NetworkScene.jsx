@@ -3,7 +3,9 @@ import SceneManager from '../three/SceneManager.js';
 import NodeMesh, { tasteMatches } from '../three/NodeMesh.js';
 import EdgeMesh from '../three/EdgeMesh.js';
 import ParticleSystem from '../three/ParticleSystem.js';
+import * as THREE from 'three';
 import { computeTastePositions } from '../data/tastePositioning.js';
+import { createNodeLabel } from '../three/AxisLabels.js';
 
 /**
  * React wrapper for the Three.js scene. Manages SceneManager lifecycle via refs.
@@ -28,11 +30,13 @@ export default function NetworkScene({
   profileWeights = null,
   treeFilterIngredients = null,
   sceneExtras = null, // Additional Three.js objects to add to the scene
+  showNodeLabels = false, // Show name labels on selected nodes
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
   const nodeMeshRef = useRef(null);
   const edgeMeshRef = useRef(null);
+  const nodeLabelGroupRef = useRef(null);
   const particleRef = useRef(null);
   const frameRef = useRef(null);
 
@@ -166,6 +170,34 @@ export default function NetworkScene({
       }
     }
   }, [selectedNode, selectedNodes, data]);
+
+  // Show/hide node name labels for selected nodes
+  useEffect(() => {
+    const manager = sceneRef.current;
+    if (!manager || !showNodeLabels || !data) return;
+
+    // Remove previous labels
+    if (nodeLabelGroupRef.current) {
+      manager.removeFromScene(nodeLabelGroupRef.current);
+      nodeLabelGroupRef.current = null;
+    }
+
+    const activeNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
+    if (activeNodes.length === 0) return;
+
+    const posMap = data.positions?.positions || data.positions || {};
+    const labelGroup = new THREE.Group();
+
+    for (const name of activeNodes) {
+      const pos = posMap[name];
+      if (pos) {
+        labelGroup.add(createNodeLabel(name, pos));
+      }
+    }
+
+    manager.addToScene(labelGroup);
+    nodeLabelGroupRef.current = labelGroup;
+  }, [selectedNode, selectedNodes, data, showNodeLabels]);
 
   // Toggle visibility
   useEffect(() => {
