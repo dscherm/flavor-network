@@ -23,6 +23,7 @@ import PalateQuiz from './components/PalateQuiz.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 import ProfileTreeView from './components/ProfileTreeView.jsx';
 import FlavorDNA from './components/FlavorDNA.jsx';
+import CocktailLab from './components/CocktailLab.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
@@ -458,16 +459,7 @@ export default function App() {
 
       {/* Cocktail Lab tab */}
       {activeTab === 'cocktail' && (
-        <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
-          <div className="text-center">
-            <div className="text-4xl mb-4" style={{ filter: 'grayscale(0)' }}>&#127864;</div>
-            <h2 className="text-lg font-semibold text-gray-200 mb-2">Cocktail Lab</h2>
-            <p className="text-sm text-gray-500 max-w-md">
-              Coming soon — build cocktails on a neural network with Cocktail Codex positioning,
-              ingredient swapping, and recipe lookup.
-            </p>
-          </div>
-        </div>
+        <CocktailLab fullData={data} />
       )}
     </>
   );
