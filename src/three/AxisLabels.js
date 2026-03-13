@@ -78,7 +78,7 @@ export function createNodeLabel(text, position) {
  */
 export function createCocktailAxisLabels(spread = 45) {
   const group = new THREE.Group();
-  const offset = spread * 1.3; // Place labels just beyond the node cloud
+  const offset = spread * 1.43; // Place labels just beyond the node cloud
 
   // X axis: Spirit-forward (negative) ↔ Modified (positive)
   const spiritLabel = createTextSprite('Spirit-forward', 'rgba(248, 113, 113, 0.9)');
@@ -117,7 +117,7 @@ export function createCocktailAxisLabels(spread = 45) {
  */
 export function createTasteAxisLabels(spread = 50) {
   const group = new THREE.Group();
-  const offset = spread * 1.3;
+  const offset = spread * 1.43;
 
   // X axis: Sweet (negative) ↔ Salty/Umami (positive)
   const sweetLabel = createTextSprite('Sweet', 'rgba(248, 113, 113, 0.9)');
