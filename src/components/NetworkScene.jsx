@@ -3,6 +3,7 @@ import SceneManager from '../three/SceneManager.js';
 import NodeMesh, { tasteMatches } from '../three/NodeMesh.js';
 import EdgeMesh from '../three/EdgeMesh.js';
 import ParticleSystem from '../three/ParticleSystem.js';
+import { computeTastePositions } from '../data/tastePositioning.js';
 
 /**
  * React wrapper for the Three.js scene. Manages SceneManager lifecycle via refs.
@@ -26,6 +27,7 @@ export default function NetworkScene({
   filterTaste = '',
   profileWeights = null,
   treeFilterIngredients = null,
+  sceneExtras = null, // Additional Three.js objects to add to the scene
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -41,20 +43,9 @@ export default function NetworkScene({
     const { graph } = data;
     let positions = data.positions;
 
-    // Fallback: generate random 3D positions if embeddings not trained yet
+    // Compute taste-axis positions if no pre-computed positions available
     if (!positions || !positions.positions) {
-      const fallback = {};
-      for (const [name, node] of graph.nodes) {
-        const angle1 = Math.random() * Math.PI * 2;
-        const angle2 = Math.random() * Math.PI * 2;
-        const radius = 30 + Math.random() * 70;
-        fallback[name] = [
-          radius * Math.sin(angle1) * Math.cos(angle2),
-          radius * Math.sin(angle1) * Math.sin(angle2),
-          radius * Math.cos(angle1),
-        ];
-      }
-      positions = { positions: fallback };
+      positions = computeTastePositions(graph.nodes, graph.edges, 50);
     }
 
     const manager = new SceneManager();
@@ -73,6 +64,14 @@ export default function NetworkScene({
     manager.addToScene(nodes.getMesh());
     manager.addToScene(edges.getMesh());
     manager.addToScene(particles.getMesh());
+
+    // Add any extra scene objects (e.g., axis labels)
+    if (sceneExtras) {
+      const extras = Array.isArray(sceneExtras) ? sceneExtras : [sceneExtras];
+      for (const obj of extras) {
+        if (obj) manager.addToScene(obj);
+      }
+    }
 
     // Set up raycasting
     manager.setRaycastTarget(nodes.getMesh());

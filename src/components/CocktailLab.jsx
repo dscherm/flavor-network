@@ -8,6 +8,7 @@ import { computeCocktailPositions } from '../data/cocktailPositioning.js';
 import { getNeighbors } from '../data/graph.js';
 import { COCKTAIL_CATEGORIES } from '../data/cocktailData.js';
 import { CODEX_TEMPLATES } from '../data/cocktailScoring.js';
+import { createCocktailAxisLabels } from '../three/AxisLabels.js';
 
 /**
  * CocktailLab — Main container for the Cocktail Lab tab.
@@ -54,6 +55,9 @@ export default function CocktailLab({ fullData, userProfile }) {
   }, [fullData]);
 
   const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
+
+  // Create 3D axis label sprites (created once, lives in the scene)
+  const axisLabels = useMemo(() => createCocktailAxisLabels(45), []);
 
   const ingredientList = useMemo(() => {
     if (!cocktailData) return [];
@@ -201,6 +205,7 @@ export default function CocktailLab({ fullData, userProfile }) {
         filterTaste=""
         profileWeights={null}
         treeFilterIngredients={null}
+        sceneExtras={axisLabels}
       />
 
       <SearchBar
@@ -235,36 +240,7 @@ export default function CocktailLab({ fullData, userProfile }) {
         </div>
       )}
 
-      {/* Axis labels — floating at viewport edges */}
-      <div className="fixed inset-0 z-30 pointer-events-none select-none" style={{ top: '3.5rem' }}>
-        {/* X axis: left = Spirit-forward, right = Modified */}
-        <div className="absolute left-4 top-1/2 -translate-y-1/2">
-          <span className="text-xs text-red-400/80 font-medium tracking-wider writing-vertical"
-            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', transform: 'rotate(180deg)' }}>
-            Spirit-forward
-          </span>
-        </div>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-          <span className="text-xs text-red-400/80 font-medium tracking-wider"
-            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
-            Modified
-          </span>
-        </div>
-        {/* Y axis: bottom = Short, top = Long */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-          <span className="text-xs text-green-400/80 font-medium tracking-wider">Short</span>
-        </div>
-        <div className="absolute top-4 left-1/2 -translate-x-1/2">
-          <span className="text-xs text-green-400/80 font-medium tracking-wider">Long</span>
-        </div>
-        {/* Z axis hint in corner */}
-        <div className="absolute bottom-4 left-4">
-          <div className="flex items-center gap-1 text-[10px] text-blue-400/70">
-            <span className="w-2 h-px bg-blue-400/60 inline-block" />
-            Depth: Simple ↔ Complex
-          </div>
-        </div>
-      </div>
+      {/* 3D axis labels are now sprites in the scene (see sceneExtras prop) */}
 
       {/* Axis legend (compact) */}
       <div className="fixed bottom-16 left-4 z-30 pointer-events-none select-none bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg px-3 py-2">
