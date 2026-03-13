@@ -7,6 +7,7 @@ import { buildCocktailGraph } from '../data/cocktailGraph.js';
 import { computeCocktailPositions } from '../data/cocktailPositioning.js';
 import { getNeighbors } from '../data/graph.js';
 import { COCKTAIL_CATEGORIES } from '../data/cocktailData.js';
+import { CODEX_TEMPLATES } from '../data/cocktailScoring.js';
 
 /**
  * CocktailLab — Main container for the Cocktail Lab tab.
@@ -20,6 +21,7 @@ export default function CocktailLab({ fullData, userProfile }) {
   const [panelOpen, setPanelOpen] = useState(false);
   const [highlightedIngredients, setHighlightedIngredients] = useState(null);
   const [builderIngredients, setBuilderIngredients] = useState([]);
+  const [templateFilter, setTemplateFilter] = useState(null);
 
   // Build cocktail graph on mount
   useEffect(() => {
@@ -138,6 +140,26 @@ export default function CocktailLab({ fullData, userProfile }) {
     setBuilderIngredients([]);
     setSelectedNodes([]);
   }, []);
+
+  const handleTemplateFilter = useCallback((template) => {
+    if (!cocktailData) return;
+    if (templateFilter === template.name) {
+      // Toggle off
+      setTemplateFilter(null);
+      setSelectedNodes([]);
+      return;
+    }
+    setTemplateFilter(template.name);
+    // Highlight all ingredients matching the template's required roles
+    const roles = new Set(Object.keys(template.roles));
+    const matching = [];
+    for (const [name, node] of cocktailData.graph.nodes) {
+      if (roles.has(node.cocktailCategory)) {
+        matching.push(name);
+      }
+    }
+    setSelectedNodes(matching);
+  }, [cocktailData, templateFilter]);
 
   if (loading) {
     return (
@@ -292,6 +314,29 @@ export default function CocktailLab({ fullData, userProfile }) {
         onBuilderClear={handleBuilderClear}
         userProfile={userProfile}
       />
+
+      {/* Codex template legend */}
+      <div className="fixed bottom-32 right-4 z-30 bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
+        <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Cocktail Codex</p>
+        <div className="space-y-0.5">
+          {CODEX_TEMPLATES.map(t => (
+            <button
+              key={t.name}
+              onClick={() => handleTemplateFilter(t)}
+              className={`w-full flex items-center gap-1.5 text-[9px] text-left px-1 py-0.5 rounded transition-colors ${
+                templateFilter === t.name
+                  ? 'bg-purple-500/20 text-purple-300'
+                  : 'text-gray-500 hover:text-gray-300 hover:bg-[#1a1a2e]'
+              }`}
+              title={t.description}
+            >
+              <span className="w-1 h-1 rounded-full bg-purple-400/60 flex-shrink-0" />
+              <span className="truncate">{t.name}</span>
+              <span className="text-[7px] text-gray-700 ml-auto flex-shrink-0">{t.description.split(' + ').length}pt</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Category legend */}
       <div className="fixed bottom-4 right-4 z-30 bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
