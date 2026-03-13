@@ -195,10 +195,10 @@ spec: .claude/specs/cocktail-lab-prd.md
 > **Goal**: Bidirectional cocktail builder that syncs between network clicks
 > and panel selection, with Codex template detection and suggestions.
 
-- [ ] TASK-111: Create src/components/CocktailBuilder.jsx — ingredient builder panel with search input + selected ingredients list with quantity/unit fields. Clicking a node on the cocktail network adds it to the builder. Searching in the builder highlights the node on the network. Both stay in sync #ui
-- [ ] TASK-112: Implement compatibility scoring — as ingredients are added, compute overall cocktail compatibility (average pairwise pairing strength). Display as a colored score bar in the builder panel. Show per-ingredient compatibility breakdown #data
-- [ ] TASK-113: Implement Codex template detection — analyze current ingredient set against the 6 Codex templates (Old Fashioned, Martini, Daiquiri, Sidecar, Highball, Flip). Show closest match as a badge. Suggest missing components: "Add a sweetener for a Daiquiri structure" #data
-- [ ] TASK-114: Implement "what to add next" suggestions — based on current ingredients, suggest additions ranked by average pairing strength with existing ingredients. Filter by Codex role gaps (e.g., no citrus yet → suggest citrus first). Show as a suggestion row below the builder #data
+- [x] TASK-111: Create src/components/CocktailBuilder.jsx — ingredient builder panel with search input + selected ingredients list with quantity/unit fields. Clicking a node on the cocktail network adds it to the builder. Searching in the builder highlights the node on the network. Both stay in sync #ui
+- [x] TASK-112: Implement compatibility scoring — as ingredients are added, compute overall cocktail compatibility (average pairwise pairing strength). Display as a colored score bar in the builder panel. Show per-ingredient compatibility breakdown #data
+- [x] TASK-113: Implement Codex template detection — analyze current ingredient set against the 6 Codex templates (Old Fashioned, Martini, Daiquiri, Sidecar, Highball, Flip). Show closest match as a badge. Suggest missing components: "Add a sweetener for a Daiquiri structure" #data
+- [x] TASK-114: Implement "what to add next" suggestions — based on current ingredients, suggest additions ranked by average pairing strength with existing ingredients. Filter by Codex role gaps (e.g., no citrus yet → suggest citrus first). Show as a suggestion row below the builder #data
 
 ## Phase 20: Cocktail Lab — Save & Share
 > **Goal**: Persist cocktail creations and enable sharing via exportable images.
