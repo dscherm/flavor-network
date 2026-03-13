@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import SauceBuilder from './SauceBuilder.jsx';
-import { computeCompatibility, detectSauceTemplate, suggestNextIngredients } from '../data/sauceScoring.js';
+import { computeCompatibility, detectSauceTemplate, suggestNextIngredients, SAUCE_TEMPLATES } from '../data/sauceScoring.js';
 
 /**
  * Resolve sauce ingredient names to network node names.
@@ -395,6 +395,25 @@ export default function SaucePanel({
                   {searchLoading ? '...' : 'Go'}
                 </button>
               </div>
+
+              {/* Mother sauce quick-search */}
+              {!selectedSauce && (
+                <div>
+                  <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Sauce Types</p>
+                  <div className="flex flex-wrap gap-1">
+                    {SAUCE_TEMPLATES.map(t => (
+                      <button
+                        key={t.name}
+                        onClick={() => { setSearchQuery(t.name); }}
+                        className="text-[9px] text-gray-400 hover:text-amber-300 bg-[#1a1a2e] hover:bg-amber-500/10 border border-[#2a2a3e] hover:border-amber-500/20 rounded px-1.5 py-1 transition-all"
+                        title={t.description}
+                      >
+                        {t.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Back from meal detail */}
               {selectedSauce && (
