@@ -99,6 +99,18 @@ const FAMILIES = [
     name: 'Spice Blends & Condiments',
     keywords: ['curry', 'garam masala', 'five-spice', 'za\'atar', 'ras el hanout', 'berbere', 'jerk', 'harissa', 'sriracha', 'hot sauce', 'ketchup', 'mayonnaise', 'mustard'],
   },
+  {
+    name: 'Spirits & Liqueurs',
+    keywords: ['vodka', 'gin', 'rum', 'tequila', 'whiskey', 'bourbon', 'brandy', 'cognac', 'mezcal', 'sake', 'amaretto', 'cointreau', 'triple sec', 'campari', 'aperol', 'chartreuse', 'kahlua', 'maraschino liqueur', 'st-germain', 'benedictine', 'drambuie', 'curacao', 'absinthe', 'champagne'],
+  },
+  {
+    name: 'Bitters & Modifiers',
+    keywords: ['angostura bitters', 'orange bitters', 'peychaud', 'chocolate bitters', 'vermouth', 'dry vermouth', 'sweet vermouth', 'lillet'],
+  },
+  {
+    name: 'Mixers & Lengtheners',
+    keywords: ['tonic water', 'soda water', 'ginger beer', 'ginger ale', 'cola', 'prosecco', 'grenadine', 'simple syrup', 'demerara syrup', 'orgeat', 'falernum', 'honey syrup', 'agave syrup'],
+  },
 ];
 
 /**

@@ -179,7 +179,7 @@ spec: .claude/specs/cocktail-lab-prd.md
 - [x] TASK-102: Create src/data/cocktailGraph.js — build cocktail-only subgraph by filtering Flavor Bible nodes to cocktail-relevant ingredients + merging augmented nodes/edges from cocktail_augment.json. Output same format as graph.js (nodes Map, edges array, ingredientList) #data
 - [x] TASK-103: Create src/data/cocktailPositioning.js — Cocktail Codex axis vectors. X: Spirit-forward↔Modified, Y: Short↔Long, Z: Simple↔Complex. Each ingredient gets a role vector based on Codex templates (Old Fashioned, Martini, Daiquiri, Sidecar, Highball, Flip). Neighbor gravity + jitter for unscored nodes, repulsion pass for overlap #viz
 - [x] TASK-104: Create src/components/CocktailLab.jsx — main container component for Cocktail Lab tab. Renders its own NetworkScene with cocktail graph data and Codex positions. Includes axis labels as floating text overlays on the 3D scene #ui
-- [ ] TASK-105: Add cocktail families to src/data/ingredientFamilyTree.js — Spirits & Liqueurs, Bitters & Modifiers, Mixers & Lengtheners families with keywords #data
+- [x] TASK-105: Add cocktail families to src/data/ingredientFamilyTree.js — Spirits & Liqueurs, Bitters & Modifiers, Mixers & Lengtheners families with keywords #data
 
 ## Phase 18: Cocktail Lab — Lookup & Swap
 > **Goal**: Integrate TheCocktailDB API for cocktail lookup with interactive
