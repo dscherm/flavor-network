@@ -371,7 +371,7 @@ export default function CocktailPanel({
                 </button>
               </div>
 
-              {/* Codex quick-search */}
+              {/* Codex type selector */}
               {!selectedCocktail && (
                 <div>
                   <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Cocktail Codex</p>
@@ -379,8 +379,18 @@ export default function CocktailPanel({
                     {CODEX_TEMPLATES.map(t => (
                       <button
                         key={t.name}
-                        onClick={() => { setSearchQuery(t.name); }}
-                        className="text-[9px] text-gray-400 hover:text-purple-300 bg-[#1a1a2e] hover:bg-purple-500/10 border border-[#2a2a3e] hover:border-purple-500/20 rounded px-1.5 py-1 transition-all"
+                        onClick={async () => {
+                          setSearchQuery(t.name);
+                          const results = await cocktailDB.searchByName(t.name);
+                          setSearchResults(results);
+                          setSelectedCocktail(null);
+                          setSwapIngredient(null);
+                        }}
+                        className={`text-[9px] px-1.5 py-1 rounded border transition-all ${
+                          searchQuery === t.name && searchResults.length > 0
+                            ? 'text-purple-300 bg-purple-500/15 border-purple-500/30'
+                            : 'text-gray-400 hover:text-purple-300 bg-[#1a1a2e] hover:bg-purple-500/10 border-[#2a2a3e] hover:border-purple-500/20'
+                        }`}
                         title={t.description}
                       >
                         {t.name}
