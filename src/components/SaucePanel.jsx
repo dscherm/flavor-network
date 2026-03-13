@@ -403,54 +403,26 @@ export default function SaucePanel({
                 </button>
               </div>
 
-              {/* Sauce type selector */}
+              {/* Sauce type selector — switches to browse tab with filter */}
               {!selectedSauce && (
                 <div>
                   <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Browse by Type</p>
                   <div className="flex flex-wrap gap-1">
-                    {SAUCE_TEMPLATES.map(t => (
+                    {familyNames.map(family => (
                       <button
-                        key={t.name}
-                        onClick={() => setLookupTypeFilter(prev => prev === t.name ? '' : t.name)}
-                        className={`text-[9px] px-1.5 py-1 rounded border transition-all ${
-                          lookupTypeFilter === t.name
-                            ? 'text-amber-300 bg-amber-500/15 border-amber-500/30'
-                            : 'text-gray-400 hover:text-amber-300 bg-[#1a1a2e] hover:bg-amber-500/10 border-[#2a2a3e] hover:border-amber-500/20'
-                        }`}
-                        title={t.description}
+                        key={family}
+                        onClick={() => {
+                          setBrowseFilter(family);
+                          setTab('browse');
+                          setSelectedSauce(null);
+                        }}
+                        className="text-[9px] text-gray-400 hover:text-amber-300 bg-[#1a1a2e] hover:bg-amber-500/10 border border-[#2a2a3e] hover:border-amber-500/20 rounded px-1.5 py-1 transition-all"
+                        title={`Show ${family} recipes`}
                       >
-                        {t.name}
+                        {family}
                       </button>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Type-filtered recipe list */}
-              {!selectedSauce && lookupTypeFilter && lookupTypeSauces.length > 0 && (
-                <div className="space-y-1">
-                  <p className="text-[9px] text-gray-600 uppercase tracking-wider">
-                    {lookupTypeFilter} Recipes ({lookupTypeSauces.length})
-                  </p>
-                  {lookupTypeSauces.map((sauce, idx) => (
-                    <button
-                      key={`${sauce.name}-${idx}`}
-                      onClick={() => handleSelectSauce(sauce)}
-                      className="w-full flex items-center gap-2 p-2 rounded-lg bg-[#1a1a2e]/50 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all text-left"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-gray-200 truncate">{sauce.name}</p>
-                        <div className="flex gap-1 mt-0.5">
-                          {sauce.cuisine && (
-                            <span className="text-[8px] text-gray-600">{sauce.cuisine}</span>
-                          )}
-                        </div>
-                      </div>
-                      <span className="text-[9px] text-gray-600 flex-shrink-0">
-                        {sauce.ingredients.length} ing.
-                      </span>
-                    </button>
-                  ))}
                 </div>
               )}
 
