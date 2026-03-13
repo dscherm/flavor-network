@@ -57,6 +57,21 @@ function createTextSprite(text, color = '#ffffff', fontSize = 48) {
 }
 
 /**
+ * Create a small label sprite for a node (50% of axis label size).
+ * @param {string} text - Ingredient name
+ * @param {number[]} position - [x, y, z] world position
+ * @returns {THREE.Sprite}
+ */
+export function createNodeLabel(text, position) {
+  const sprite = createTextSprite(text, 'rgba(255, 255, 255, 0.95)', 36);
+  const aspect = sprite.scale.x / sprite.scale.y;
+  const scale = 1; // 50% of axis label scale (2)
+  sprite.scale.set(scale * aspect, scale, 1);
+  sprite.position.set(position[0], position[1] + 2.5, position[2]);
+  return sprite;
+}
+
+/**
  * Build axis label sprites for the Cocktail Lab Codex axes.
  * @param {number} spread - Spatial spread used in positioning (default 45)
  * @returns {THREE.Group} Group containing all axis label sprites

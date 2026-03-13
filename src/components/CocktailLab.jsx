@@ -206,6 +206,7 @@ export default function CocktailLab({ fullData, userProfile }) {
         profileWeights={null}
         treeFilterIngredients={null}
         sceneExtras={axisLabels}
+        showNodeLabels={true}
       />
 
       <SearchBar
