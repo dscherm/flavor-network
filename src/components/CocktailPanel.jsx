@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import useCocktailDB from '../hooks/useCocktailDB.js';
 import CocktailRecipeCard from './CocktailRecipeCard.jsx';
 import CocktailBuilder from './CocktailBuilder.jsx';
+import CocktailCard from './CocktailCard.jsx';
 import { computeCompatibility, detectCodexTemplate, suggestNextIngredients } from '../data/cocktailScoring.js';
 
 /**
@@ -191,6 +192,7 @@ export default function CocktailPanel({
   }, [previewAlt, swapIngredient, selectedCocktail, onHighlightIngredients]);
 
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [exportCocktail, setExportCocktail] = useState(null);
 
   const handleSaveFromBuilder = useCallback((name) => {
     if (!userProfile || !builderIngredients.length) return;
@@ -409,6 +411,12 @@ export default function CocktailPanel({
                       >
                         Load
                       </button>
+                      <button
+                        onClick={() => setExportCocktail(cocktail)}
+                        className="text-[9px] text-gray-500 hover:text-purple-300 transition-colors"
+                      >
+                        Export
+                      </button>
                       {confirmDelete === cocktail.id ? (
                         <>
                           <button
@@ -443,6 +451,22 @@ export default function CocktailPanel({
           )}
         </div>
       </div>
+
+      {/* Export card modal */}
+      {exportCocktail && (
+        <CocktailCard
+          cocktail={exportCocktail}
+          compatibilityScore={computeCompatibility(
+            exportCocktail.ingredients.map(i => i.name),
+            cocktailEdges
+          )}
+          codexTemplate={detectCodexTemplate(
+            exportCocktail.ingredients.map(i => i.name),
+            cocktailNodes
+          )}
+          onClose={() => setExportCocktail(null)}
+        />
+      )}
     </div>
   );
 }
