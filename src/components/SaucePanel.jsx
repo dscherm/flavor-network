@@ -91,6 +91,7 @@ export default function SaucePanel({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [lookupTypeFilter, setLookupTypeFilter] = useState('');
 
   // Builder scoring
   const compatibilityScore = useMemo(() => {
@@ -117,6 +118,12 @@ export default function SaucePanel({
   }, [curatedSauces]);
 
   const familyNames = useMemo(() => Object.keys(saucesByFamily), [saucesByFamily]);
+
+  // Sauces matching the selected type in the lookup tab
+  const lookupTypeSauces = useMemo(() => {
+    if (!lookupTypeFilter) return [];
+    return curatedSauces.filter(s => s.motherSauce === lookupTypeFilter);
+  }, [lookupTypeFilter, curatedSauces]);
 
   const filteredSauces = useMemo(() => {
     if (!browseFilter) return curatedSauces;
@@ -396,22 +403,54 @@ export default function SaucePanel({
                 </button>
               </div>
 
-              {/* Mother sauce quick-search */}
+              {/* Sauce type selector */}
               {!selectedSauce && (
                 <div>
-                  <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Sauce Types</p>
+                  <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Browse by Type</p>
                   <div className="flex flex-wrap gap-1">
                     {SAUCE_TEMPLATES.map(t => (
                       <button
                         key={t.name}
-                        onClick={() => { setSearchQuery(t.name); }}
-                        className="text-[9px] text-gray-400 hover:text-amber-300 bg-[#1a1a2e] hover:bg-amber-500/10 border border-[#2a2a3e] hover:border-amber-500/20 rounded px-1.5 py-1 transition-all"
+                        onClick={() => setLookupTypeFilter(prev => prev === t.name ? '' : t.name)}
+                        className={`text-[9px] px-1.5 py-1 rounded border transition-all ${
+                          lookupTypeFilter === t.name
+                            ? 'text-amber-300 bg-amber-500/15 border-amber-500/30'
+                            : 'text-gray-400 hover:text-amber-300 bg-[#1a1a2e] hover:bg-amber-500/10 border-[#2a2a3e] hover:border-amber-500/20'
+                        }`}
                         title={t.description}
                       >
                         {t.name}
                       </button>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Type-filtered recipe list */}
+              {!selectedSauce && lookupTypeFilter && lookupTypeSauces.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-[9px] text-gray-600 uppercase tracking-wider">
+                    {lookupTypeFilter} Recipes ({lookupTypeSauces.length})
+                  </p>
+                  {lookupTypeSauces.map((sauce, idx) => (
+                    <button
+                      key={`${sauce.name}-${idx}`}
+                      onClick={() => handleSelectSauce(sauce)}
+                      className="w-full flex items-center gap-2 p-2 rounded-lg bg-[#1a1a2e]/50 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all text-left"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-200 truncate">{sauce.name}</p>
+                        <div className="flex gap-1 mt-0.5">
+                          {sauce.cuisine && (
+                            <span className="text-[8px] text-gray-600">{sauce.cuisine}</span>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-[9px] text-gray-600 flex-shrink-0">
+                        {sauce.ingredients.length} ing.
+                      </span>
+                    </button>
+                  ))}
                 </div>
               )}
 
