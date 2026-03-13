@@ -17,9 +17,12 @@ export default function CocktailBuilder({
   codexTemplate,
   compatibilityScore,
   suggestions,
+  onSave,
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [quantities, setQuantities] = useState({});
+  const [cocktailName, setCocktailName] = useState('');
+  const [saved, setSaved] = useState(false);
 
   // Filter ingredients for search
   const filteredIngredients = useMemo(() => {
@@ -200,6 +203,33 @@ export default function CocktailBuilder({
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Save cocktail */}
+      {builderIngredients.length >= 2 && onSave && (
+        <div className="border-t border-[#1e1e2e] pt-2 space-y-1.5">
+          <input
+            type="text"
+            value={cocktailName}
+            onChange={(e) => { setCocktailName(e.target.value); setSaved(false); }}
+            placeholder="Name your cocktail..."
+            className="w-full text-xs bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-purple-500 placeholder-gray-600"
+          />
+          <button
+            onClick={() => {
+              onSave(cocktailName || 'My Cocktail');
+              setSaved(true);
+              setTimeout(() => setSaved(false), 2000);
+            }}
+            className={`w-full text-[10px] py-1.5 rounded transition-colors ${
+              saved
+                ? 'bg-green-500/20 text-green-300'
+                : 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20'
+            }`}
+          >
+            {saved ? 'Saved!' : 'Save Cocktail'}
+          </button>
         </div>
       )}
     </div>
