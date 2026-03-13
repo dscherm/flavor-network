@@ -49,7 +49,7 @@ export default function ProfileInsights({ profile, nodes, isOpen, onClose, onSel
   const hasData = profile && (profile.ingredients.length > 0 || profile.cuisines.length > 0 || profile.recipes.length > 0);
 
   return (
-    <div className={`fixed top-4 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
+    <div className={`fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
       {/* Tab */}
       <button
         onClick={onClose}

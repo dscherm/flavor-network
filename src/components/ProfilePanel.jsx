@@ -84,7 +84,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
         : null; // recipes handled separately
 
   return (
-    <div className={`fixed top-16 left-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
+    <div className={`fixed top-24 left-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
       {/* Panel */}
       <div className={`w-72 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-r-lg flex flex-col overflow-hidden transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full'

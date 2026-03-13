@@ -30,6 +30,7 @@ import { computeProfileWeights } from './data/profileWeights.js';
 export default function App() {
   const { loading, error, data } = useFlavorData();
   const { user, loginWithGoogle, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail'
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
@@ -215,6 +216,36 @@ export default function App() {
 
   return (
     <>
+      {/* Top-level tab navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-[60] flex items-center h-10 bg-[#0a0a12]/95 backdrop-blur-md border-b border-[#1e1e2e]">
+        <div className="flex items-center gap-0.5 px-3 h-full">
+          {[
+            { key: 'network', label: 'Network', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z' },
+            { key: 'cocktail', label: 'Cocktail Lab', icon: 'M7.5 21H2V3h5l4.286 10L16 3h6v18h-5.5v-9.571L13 21h-2.5L7.5 11.429V21z' },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                activeTab === tab.key
+                  ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
+                  : 'text-gray-500 hover:text-gray-300 border border-transparent'
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d={tab.icon} />
+              </svg>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <div className="ml-auto px-3 text-[9px] text-gray-600 tracking-wider uppercase">
+          Powered by the Flavor Network
+        </div>
+      </nav>
+
+      {/* Network tab */}
+      {activeTab === 'network' && <>
       <NetworkScene
         data={data}
         onNodeClick={handleNodeClick}
@@ -258,7 +289,7 @@ export default function App() {
 
       {/* Clear Selection + Share buttons — shown when anything is selected, positioned below search bar */}
       {selectedNodes.length > 0 && (
-        <div className="fixed top-[60px] left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
+        <div className="fixed top-[100px] left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
           <button
             onClick={handleClearSelection}
             className="px-3 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
@@ -402,7 +433,7 @@ export default function App() {
       {/* Tree Explorer toggle button */}
       <button
         onClick={() => setShowTreeExplorer(v => !v)}
-        className={`fixed top-[68px] right-4 z-50 p-2 rounded-lg border transition-all ${
+        className={`fixed top-[108px] right-4 z-50 p-2 rounded-lg border transition-all ${
           showTreeExplorer
             ? 'bg-neural-glow/20 border-neural-glow/40 text-neural-glow'
             : 'bg-[#12121a]/80 border-[#1e1e2e] text-gray-400 hover:text-gray-200 hover:border-gray-500'
@@ -423,6 +454,21 @@ export default function App() {
         }}
         onSkip={() => setShowPalateQuiz(false)}
       />
+      </>}
+
+      {/* Cocktail Lab tab */}
+      {activeTab === 'cocktail' && (
+        <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
+          <div className="text-center">
+            <div className="text-4xl mb-4" style={{ filter: 'grayscale(0)' }}>&#127864;</div>
+            <h2 className="text-lg font-semibold text-gray-200 mb-2">Cocktail Lab</h2>
+            <p className="text-sm text-gray-500 max-w-md">
+              Coming soon — build cocktails on a neural network with Cocktail Codex positioning,
+              ingredient swapping, and recipe lookup.
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 }

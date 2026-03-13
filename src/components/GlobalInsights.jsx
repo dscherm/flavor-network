@@ -254,7 +254,7 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
   }, [nodes, edges, filterCuisine, filterTaste]);
 
   return (
-    <div className={`fixed top-4 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
+    <div className={`fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
       {/* Tab */}
       <button
         onClick={() => {
