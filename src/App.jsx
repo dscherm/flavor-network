@@ -459,7 +459,7 @@ export default function App() {
 
       {/* Cocktail Lab tab */}
       {activeTab === 'cocktail' && (
-        <CocktailLab fullData={data} />
+        <CocktailLab fullData={data} userProfile={userProfile} />
       )}
     </>
   );

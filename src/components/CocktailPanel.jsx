@@ -22,6 +22,7 @@ export default function CocktailPanel({
   onBuilderAdd,
   onBuilderRemove,
   onBuilderClear,
+  userProfile,
 }) {
   const [tab, setTab] = useState('lookup');
   const [searchQuery, setSearchQuery] = useState('');
@@ -189,10 +190,40 @@ export default function CocktailPanel({
     }
   }, [previewAlt, swapIngredient, selectedCocktail, onHighlightIngredients]);
 
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  const handleSaveFromBuilder = useCallback((name) => {
+    if (!userProfile || !builderIngredients.length) return;
+    userProfile.addCocktail({
+      name: name || 'My Cocktail',
+      ingredients: builderIngredients.map(n => ({ name: n, quantity: '', unit: 'oz' })),
+      template: codexTemplate?.name || null,
+    });
+  }, [userProfile, builderIngredients, codexTemplate]);
+
+  const handleLoadCocktail = useCallback((cocktail) => {
+    if (onHighlightIngredients) {
+      onHighlightIngredients(cocktail.ingredients.map(i => i.name));
+    }
+    // Switch to builder tab and load ingredients
+    setTab('builder');
+    onBuilderClear?.();
+    for (const ing of cocktail.ingredients) {
+      onBuilderAdd?.(ing.name);
+    }
+  }, [onHighlightIngredients, onBuilderClear, onBuilderAdd]);
+
+  const handleDeleteCocktail = useCallback((id) => {
+    if (userProfile) {
+      userProfile.removeCocktail(id);
+      setConfirmDelete(null);
+    }
+  }, [userProfile]);
+
   const tabs = [
     { key: 'lookup', label: 'Lookup' },
     { key: 'builder', label: 'Builder' },
-    { key: 'saved', label: 'My Cocktails' },
+    { key: 'saved', label: `My Cocktails${(userProfile?.profile?.cocktails?.length || 0) > 0 ? ` (${userProfile.profile.cocktails.length})` : ''}` },
   ];
 
   return (
@@ -339,14 +370,75 @@ export default function CocktailPanel({
               codexTemplate={codexTemplate}
               compatibilityScore={compatibilityScore}
               suggestions={suggestions}
+              onSave={handleSaveFromBuilder}
             />
           )}
 
           {tab === 'saved' && (
-            <div className="p-3 flex items-center justify-center h-48">
-              <p className="text-[10px] text-gray-600 text-center">
-                Saved cocktails coming soon.
-              </p>
+            <div className="p-3 space-y-2">
+              {(!userProfile?.profile?.cocktails || userProfile.profile.cocktails.length === 0) ? (
+                <div className="flex items-center justify-center h-48">
+                  <p className="text-[10px] text-gray-600 text-center">
+                    No saved cocktails yet.
+                    <br />Use the Builder tab to create and save cocktails.
+                  </p>
+                </div>
+              ) : (
+                userProfile.profile.cocktails.map((cocktail) => (
+                  <div
+                    key={cocktail.id}
+                    className="p-2 rounded-lg bg-[#1a1a2e]/50 border border-[#2a2a3e] hover:border-purple-500/20 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="text-xs text-gray-200 font-medium truncate">{cocktail.name}</h4>
+                      <div className="flex items-center gap-1">
+                        {cocktail.template && (
+                          <span className="text-[8px] text-purple-400/60 bg-purple-500/10 rounded px-1 py-0.5">
+                            {cocktail.template}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-gray-500 mb-1.5">
+                      {cocktail.ingredients.map(i => i.name).join(' · ')}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleLoadCocktail(cocktail)}
+                        className="text-[9px] text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 rounded px-2 py-0.5 transition-colors"
+                      >
+                        Load
+                      </button>
+                      {confirmDelete === cocktail.id ? (
+                        <>
+                          <button
+                            onClick={() => handleDeleteCocktail(cocktail.id)}
+                            className="text-[9px] text-red-400 hover:text-red-300 bg-red-500/10 rounded px-2 py-0.5 transition-colors"
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(null)}
+                            className="text-[9px] text-gray-500 hover:text-gray-400 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDelete(cocktail.id)}
+                          className="text-[9px] text-gray-600 hover:text-red-400 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[8px] text-gray-700 mt-1">
+                      {new Date(cocktail.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>

@@ -12,7 +12,7 @@ import { COCKTAIL_CATEGORIES } from '../data/cocktailData.js';
  * CocktailLab — Main container for the Cocktail Lab tab.
  * Renders its own NetworkScene with cocktail-only data and Codex positioning.
  */
-export default function CocktailLab({ fullData }) {
+export default function CocktailLab({ fullData, userProfile }) {
   const [cocktailData, setCocktailData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -259,6 +259,7 @@ export default function CocktailLab({ fullData }) {
         onBuilderAdd={handleBuilderAdd}
         onBuilderRemove={handleBuilderRemove}
         onBuilderClear={handleBuilderClear}
+        userProfile={userProfile}
       />
 
       {/* Category legend */}
