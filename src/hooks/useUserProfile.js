@@ -8,6 +8,7 @@ const DEFAULT_PROFILE = {
   cuisines: [],
   ingredients: [],
   recipes: [],
+  cocktails: [],
   quizAnswers: null,
 };
 
@@ -50,6 +51,7 @@ function loadLocalProfile() {
       cuisines: Array.isArray(parsed.cuisines) ? parsed.cuisines : [],
       ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
       recipes: Array.isArray(parsed.recipes) ? parsed.recipes.map(normalizeRecipe) : [],
+      cocktails: Array.isArray(parsed.cocktails) ? parsed.cocktails : [],
       quizAnswers: parsed.quizAnswers || null,
     };
   } catch {
@@ -74,10 +76,22 @@ function mergeProfiles(local, cloud) {
     }
     return merged;
   };
+  const mergeCocktails = (a, b) => {
+    const seen = new Set(a.map((c) => c.id));
+    const merged = [...a];
+    for (const c of b) {
+      if (!seen.has(c.id)) {
+        merged.push(c);
+        seen.add(c.id);
+      }
+    }
+    return merged;
+  };
   return {
     cuisines: mergeArrays(local.cuisines, cloud.cuisines),
     ingredients: mergeArrays(local.ingredients, cloud.ingredients),
     recipes: mergeRecipes(local.recipes, cloud.recipes),
+    cocktails: mergeCocktails(local.cocktails || [], cloud.cocktails || []),
     quizAnswers: cloud.quizAnswers || local.quizAnswers || null,
   };
 }
@@ -105,6 +119,7 @@ export default function useUserProfile(user) {
             cuisines: Array.isArray(cloudData.cuisines) ? cloudData.cuisines : [],
             ingredients: Array.isArray(cloudData.ingredients) ? cloudData.ingredients : [],
             recipes: Array.isArray(cloudData.recipes) ? cloudData.recipes.map(normalizeRecipe) : [],
+            cocktails: Array.isArray(cloudData.cocktails) ? cloudData.cocktails : [],
             quizAnswers: cloudData.quizAnswers || null,
           };
           const local = loadLocalProfile();
@@ -203,6 +218,39 @@ export default function useUserProfile(user) {
     }));
   }, [update]);
 
+  // --- Cocktails ---
+  const addCocktail = useCallback((cocktail) => {
+    const entry = {
+      id: cocktail.id || `cocktail_${Date.now()}`,
+      name: cocktail.name || 'Untitled',
+      ingredients: Array.isArray(cocktail.ingredients) ? cocktail.ingredients : [],
+      instructions: cocktail.instructions || '',
+      template: cocktail.template || null,
+      createdAt: cocktail.createdAt || new Date().toISOString(),
+    };
+    update((prev) => ({
+      ...prev,
+      cocktails: [...(prev.cocktails || []), entry],
+    }));
+    return entry.id;
+  }, [update]);
+
+  const removeCocktail = useCallback((id) => {
+    update((prev) => ({
+      ...prev,
+      cocktails: (prev.cocktails || []).filter((c) => c.id !== id),
+    }));
+  }, [update]);
+
+  const updateCocktail = useCallback((id, changes) => {
+    update((prev) => ({
+      ...prev,
+      cocktails: (prev.cocktails || []).map((c) =>
+        c.id === id ? { ...c, ...changes } : c
+      ),
+    }));
+  }, [update]);
+
   // --- Bulk ---
   const clearProfile = useCallback(() => {
     update(DEFAULT_PROFILE);
@@ -224,6 +272,9 @@ export default function useUserProfile(user) {
           : [],
         recipes: Array.isArray(parsed.recipes)
           ? parsed.recipes.map(normalizeRecipe)
+          : [],
+        cocktails: Array.isArray(parsed.cocktails)
+          ? parsed.cocktails
           : [],
         quizAnswers: parsed.quizAnswers || null,
       };
@@ -251,7 +302,8 @@ export default function useUserProfile(user) {
     cuisineCount: profile.cuisines.length,
     ingredientCount: profile.ingredients.length,
     recipeCount: profile.recipes.length,
-    totalItems: profile.cuisines.length + profile.ingredients.length + profile.recipes.length,
+    cocktailCount: (profile.cocktails || []).length,
+    totalItems: profile.cuisines.length + profile.ingredients.length + profile.recipes.length + (profile.cocktails || []).length,
   }), [profile]);
 
   return {
@@ -263,6 +315,9 @@ export default function useUserProfile(user) {
     toggleIngredient,
     addRecipe,
     removeRecipe,
+    addCocktail,
+    removeCocktail,
+    updateCocktail,
     clearProfile,
     exportProfile,
     importProfile,
