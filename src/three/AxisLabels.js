@@ -94,3 +94,42 @@ export function createCocktailAxisLabels(spread = 45) {
 
   return group;
 }
+
+/**
+ * Build axis label sprites for the main Network taste axes.
+ * @param {number} spread - Spatial spread used in positioning (default 50)
+ * @returns {THREE.Group} Group containing all axis label sprites
+ */
+export function createTasteAxisLabels(spread = 50) {
+  const group = new THREE.Group();
+  const offset = spread * 1.3;
+
+  // X axis: Sweet (negative) ↔ Salty/Umami (positive)
+  const sweetLabel = createTextSprite('Sweet', 'rgba(248, 113, 113, 0.9)');
+  sweetLabel.position.set(-offset, 0, 0);
+  group.add(sweetLabel);
+
+  const saltyLabel = createTextSprite('Salty / Umami', 'rgba(248, 113, 113, 0.9)');
+  saltyLabel.position.set(offset, 0, 0);
+  group.add(saltyLabel);
+
+  // Y axis: Mild (negative) ↔ Spicy/Pungent (positive)
+  const mildLabel = createTextSprite('Mild', 'rgba(74, 222, 128, 0.9)');
+  mildLabel.position.set(0, -offset, 0);
+  group.add(mildLabel);
+
+  const spicyLabel = createTextSprite('Spicy', 'rgba(74, 222, 128, 0.9)');
+  spicyLabel.position.set(0, offset, 0);
+  group.add(spicyLabel);
+
+  // Z axis: Light/Fresh (negative) ↔ Rich/Bitter (positive)
+  const lightLabel = createTextSprite('Light / Fresh', 'rgba(96, 165, 250, 0.9)');
+  lightLabel.position.set(0, 0, -offset);
+  group.add(lightLabel);
+
+  const richLabel = createTextSprite('Rich / Bitter', 'rgba(96, 165, 250, 0.9)');
+  richLabel.position.set(0, 0, offset);
+  group.add(richLabel);
+
+  return group;
+}
