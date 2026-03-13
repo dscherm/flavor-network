@@ -18,6 +18,9 @@ export default function CocktailBuilder({
   compatibilityScore,
   suggestions,
   onSave,
+  matchingCocktails = [],
+  matchLoading = false,
+  onSelectCocktail,
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [quantities, setQuantities] = useState({});
@@ -117,6 +120,51 @@ export default function CocktailBuilder({
           <span className="text-[8px] text-gray-500">
             {codexTemplate.confidence}% match
           </span>
+        </div>
+      )}
+
+      {/* Matching existing cocktails */}
+      {builderIngredients.length >= 2 && (
+        <div>
+          <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">
+            {matchLoading ? 'Searching cocktails...' : matchingCocktails.length > 0
+              ? `Existing Cocktails (${matchingCocktails.length})`
+              : 'No known cocktails match'}
+          </p>
+          {matchingCocktails.length > 0 && (
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              {matchingCocktails.map((cocktail) => (
+                <button
+                  key={cocktail.id}
+                  onClick={() => onSelectCocktail?.(cocktail, true)}
+                  className="w-full flex items-center gap-2 p-1.5 rounded-lg bg-[#1a1a2e]/50 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all text-left"
+                >
+                  {cocktail.image && (
+                    <img
+                      src={`${cocktail.image}/preview`}
+                      alt=""
+                      className="w-8 h-8 rounded object-cover flex-shrink-0"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] text-gray-200 truncate">{cocktail.name}</p>
+                    <p className="text-[8px] text-gray-600">
+                      {cocktail.overlapCount}/{builderIngredients.length} ingredients match
+                      {cocktail.totalIngredients > cocktail.overlapCount && (
+                        <span className="text-gray-700"> · {cocktail.totalIngredients} total</span>
+                      )}
+                    </p>
+                  </div>
+                  <span className={`text-[9px] font-medium flex-shrink-0 ${
+                    cocktail.overlapPercent === 100 ? 'text-green-400' :
+                    cocktail.overlapPercent >= 75 ? 'text-amber-400' : 'text-gray-500'
+                  }`}>
+                    {cocktail.overlapPercent}%
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
