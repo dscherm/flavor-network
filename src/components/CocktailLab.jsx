@@ -213,20 +213,51 @@ export default function CocktailLab({ fullData, userProfile }) {
         </div>
       )}
 
-      {/* Axis labels */}
-      <div className="fixed bottom-16 left-4 z-30 pointer-events-none select-none">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-[9px] text-gray-600">
-            <span className="w-2 h-px bg-red-400/40 inline-block" />
-            <span>X: Spirit-forward ← → Modified</span>
+      {/* Axis labels — floating at viewport edges */}
+      <div className="fixed inset-0 z-30 pointer-events-none select-none" style={{ top: '3.5rem' }}>
+        {/* X axis: left = Spirit-forward, right = Modified */}
+        <div className="absolute left-4 top-1/2 -translate-y-1/2">
+          <span className="text-[10px] text-red-400/50 font-medium tracking-wider writing-vertical"
+            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', transform: 'rotate(180deg)' }}>
+            Spirit-forward
+          </span>
+        </div>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+          <span className="text-[10px] text-red-400/50 font-medium tracking-wider"
+            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
+            Modified
+          </span>
+        </div>
+        {/* Y axis: bottom = Short, top = Long */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+          <span className="text-[10px] text-green-400/50 font-medium tracking-wider">Short</span>
+        </div>
+        <div className="absolute top-4 left-1/2 -translate-x-1/2">
+          <span className="text-[10px] text-green-400/50 font-medium tracking-wider">Long</span>
+        </div>
+        {/* Z axis hint in corner */}
+        <div className="absolute bottom-4 left-4">
+          <div className="flex items-center gap-1 text-[9px] text-blue-400/40">
+            <span className="w-2 h-px bg-blue-400/30 inline-block" />
+            Depth: Simple ↔ Complex
           </div>
-          <div className="flex items-center gap-2 text-[9px] text-gray-600">
-            <span className="w-2 h-px bg-green-400/40 inline-block" />
-            <span>Y: Short ← → Long</span>
+        </div>
+      </div>
+
+      {/* Axis legend (compact) */}
+      <div className="fixed bottom-16 left-4 z-30 pointer-events-none select-none bg-[#12121a]/60 backdrop-blur-sm rounded px-2 py-1.5">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-1.5 text-[8px] text-gray-600">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400/40 inline-block" />
+            X: Spirit-forward ↔ Modified
           </div>
-          <div className="flex items-center gap-2 text-[9px] text-gray-600">
-            <span className="w-2 h-px bg-blue-400/40 inline-block" />
-            <span>Z: Simple ← → Complex</span>
+          <div className="flex items-center gap-1.5 text-[8px] text-gray-600">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400/40 inline-block" />
+            Y: Short ↔ Long
+          </div>
+          <div className="flex items-center gap-1.5 text-[8px] text-gray-600">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400/40 inline-block" />
+            Z: Simple ↔ Complex
           </div>
         </div>
       </div>
