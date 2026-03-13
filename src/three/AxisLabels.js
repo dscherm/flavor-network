@@ -50,7 +50,7 @@ function createTextSprite(text, color = '#ffffff', fontSize = 48) {
 
   // Scale sprite to reasonable world-space size
   const aspect = canvas.width / canvas.height;
-  const scale = 8;
+  const scale = 2;
   sprite.scale.set(scale * aspect, scale, 1);
 
   return sprite;
