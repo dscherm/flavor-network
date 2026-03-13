@@ -215,4 +215,4 @@ spec: .claude/specs/cocktail-lab-prd.md
 - [x] TASK-120: Smooth tab transitions — fade/slide animation between Network and Cocktail Lab tabs. Lazy-mount cocktail scene (don't initialize Three.js until tab is first opened) #polish
 - [x] TASK-121: Update walkthrough tour — add Cocktail Lab steps to the tour for users who have the feature. Explain axes, lookup, swap, and builder #demo
 - [x] TASK-122: Cocktail Lab integration tests — validate CocktailDB caching, cocktail graph construction, Codex positioning produces distinct clusters, swap mode returns valid alternatives, save/load cocktails round-trips correctly #testing
-- [ ] TASK-123: Deploy Cocktail Lab to Firebase Hosting #deploy
+- [x] TASK-123: Deploy Cocktail Lab to Firebase Hosting #deploy
