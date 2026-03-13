@@ -205,14 +205,14 @@ spec: .claude/specs/cocktail-lab-prd.md
 
 - [x] TASK-115: Add cocktails[] to user profile schema in useUserProfile.js — each cocktail: { id, name, ingredients: [{name, quantity, unit}], instructions, template, createdAt }. Save/load/delete cocktails. Sync with Firebase #profile
 - [x] TASK-116: Build "My Cocktails" tab in CocktailPanel — list saved cocktails with click to load (highlights on network + fills builder). Delete button with confirmation. Show Codex template badge per cocktail #ui
-- [ ] TASK-117: Create src/components/CocktailCard.jsx — canvas-rendered exportable cocktail card (600x800 PNG). Sections: cocktail name, ingredient list with measures, mini network diagram showing ingredient connections, Codex template badge, compatibility score. Download as cocktail-card.png #ui
+- [x] TASK-117: Create src/components/CocktailCard.jsx — canvas-rendered exportable cocktail card (600x800 PNG). Sections: cocktail name, ingredient list with measures, mini network diagram showing ingredient connections, Codex template badge, compatibility score. Download as cocktail-card.png #ui
 
 ## Phase 21: Cocktail Lab — Polish & Deploy
 > **Goal**: Final polish, axis labels, transitions, and deployment.
 
-- [ ] TASK-118: Add 3D axis labels to cocktail scene — floating text sprites at axis extremes: "Spirit-forward"↔"Modified" (X), "Short"↔"Long" (Y), "Simple"↔"Complex" (Z). Subtle, semi-transparent, face camera #viz
-- [ ] TASK-119: Add Codex template legend overlay — small visual showing the 6 templates with icons, positioned on the cocktail scene. Clickable to filter network to ingredients of that template type #ui
-- [ ] TASK-120: Smooth tab transitions — fade/slide animation between Network and Cocktail Lab tabs. Lazy-mount cocktail scene (don't initialize Three.js until tab is first opened) #polish
+- [x] TASK-118: Add 3D axis labels to cocktail scene — floating text sprites at axis extremes: "Spirit-forward"↔"Modified" (X), "Short"↔"Long" (Y), "Simple"↔"Complex" (Z). Subtle, semi-transparent, face camera #viz
+- [x] TASK-119: Add Codex template legend overlay — small visual showing the 6 templates with icons, positioned on the cocktail scene. Clickable to filter network to ingredients of that template type #ui
+- [x] TASK-120: Smooth tab transitions — fade/slide animation between Network and Cocktail Lab tabs. Lazy-mount cocktail scene (don't initialize Three.js until tab is first opened) #polish
 - [ ] TASK-121: Update walkthrough tour — add Cocktail Lab steps to the tour for users who have the feature. Explain axes, lookup, swap, and builder #demo
 - [ ] TASK-122: Cocktail Lab integration tests — validate CocktailDB caching, cocktail graph construction, Codex positioning produces distinct clusters, swap mode returns valid alternatives, save/load cocktails round-trips correctly #testing
 - [ ] TASK-123: Deploy Cocktail Lab to Firebase Hosting #deploy
