@@ -3,7 +3,7 @@ import useCocktailDB from '../hooks/useCocktailDB.js';
 import CocktailRecipeCard from './CocktailRecipeCard.jsx';
 import CocktailBuilder from './CocktailBuilder.jsx';
 import CocktailCard from './CocktailCard.jsx';
-import { computeCompatibility, detectCodexTemplate, suggestNextIngredients } from '../data/cocktailScoring.js';
+import { computeCompatibility, detectCodexTemplate, suggestNextIngredients, CODEX_TEMPLATES } from '../data/cocktailScoring.js';
 
 /**
  * Resolve cocktail ingredient names to network node names.
@@ -370,6 +370,25 @@ export default function CocktailPanel({
                   Or try a random cocktail
                 </button>
               </div>
+
+              {/* Codex quick-search */}
+              {!selectedCocktail && (
+                <div>
+                  <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Cocktail Codex</p>
+                  <div className="flex flex-wrap gap-1">
+                    {CODEX_TEMPLATES.map(t => (
+                      <button
+                        key={t.name}
+                        onClick={() => { setSearchQuery(t.name); }}
+                        className="text-[9px] text-gray-400 hover:text-purple-300 bg-[#1a1a2e] hover:bg-purple-500/10 border border-[#2a2a3e] hover:border-purple-500/20 rounded px-1.5 py-1 transition-all"
+                        title={t.description}
+                      >
+                        {t.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {cocktailDB.error && (
                 <p className="text-[10px] text-amber-400/80 bg-amber-500/5 border border-amber-500/10 rounded px-2 py-1.5">
