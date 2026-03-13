@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import useCocktailDB from '../hooks/useCocktailDB.js';
 import CocktailRecipeCard from './CocktailRecipeCard.jsx';
 import CocktailBuilder from './CocktailBuilder.jsx';
@@ -33,6 +33,35 @@ export default function CocktailPanel({
   const [previewAlt, setPreviewAlt] = useState(null);
   const cocktailDB = useCocktailDB();
 
+  // Existing cocktail match lookup — debounced when builder ingredients change
+  const [matchingCocktails, setMatchingCocktails] = useState([]);
+  const [matchLoading, setMatchLoading] = useState(false);
+  const matchTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (matchTimerRef.current) clearTimeout(matchTimerRef.current);
+
+    if (builderIngredients.length < 2) {
+      setMatchingCocktails([]);
+      return;
+    }
+
+    setMatchLoading(true);
+    matchTimerRef.current = setTimeout(async () => {
+      try {
+        const matches = await cocktailDB.findByIngredients(builderIngredients);
+        setMatchingCocktails(matches);
+      } catch {
+        setMatchingCocktails([]);
+      }
+      setMatchLoading(false);
+    }, 600); // debounce 600ms
+
+    return () => {
+      if (matchTimerRef.current) clearTimeout(matchTimerRef.current);
+    };
+  }, [builderIngredients, cocktailDB]);
+
   // Builder scoring
   const compatibilityScore = useMemo(() => {
     return computeCompatibility(builderIngredients, cocktailEdges);
@@ -54,12 +83,12 @@ export default function CocktailPanel({
     setSwapIngredient(null);
   }, [searchQuery, cocktailDB]);
 
-  const handleSelectCocktail = useCallback(async (cocktail) => {
-    // If it's a full cocktail (from search), use directly
+  const handleSelectCocktail = useCallback(async (cocktail, switchToLookup = false) => {
+    // If it's a full cocktail (from search or match), use directly
     if (cocktail.ingredients && cocktail.ingredients.length > 0) {
       setSelectedCocktail(cocktail);
       setSwapIngredient(null);
-      // Highlight ingredients on the network
+      if (switchToLookup) setTab('lookup');
       if (onHighlightIngredients) {
         const names = cocktail.ingredients.map(i => i.name);
         onHighlightIngredients(names);
@@ -70,6 +99,7 @@ export default function CocktailPanel({
       if (full) {
         setSelectedCocktail(full);
         setSwapIngredient(null);
+        if (switchToLookup) setTab('lookup');
         if (onHighlightIngredients) {
           const names = full.ingredients.map(i => i.name);
           onHighlightIngredients(names);
@@ -373,6 +403,9 @@ export default function CocktailPanel({
               compatibilityScore={compatibilityScore}
               suggestions={suggestions}
               onSave={handleSaveFromBuilder}
+              matchingCocktails={matchingCocktails}
+              matchLoading={matchLoading}
+              onSelectCocktail={handleSelectCocktail}
             />
           )}
 
