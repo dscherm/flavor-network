@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import NetworkScene from './NetworkScene.jsx';
 import SearchBar from './SearchBar.jsx';
 import IngredientPanel from './IngredientPanel.jsx';
+import CocktailPanel from './CocktailPanel.jsx';
 import { buildCocktailGraph } from '../data/cocktailGraph.js';
 import { computeCocktailPositions } from '../data/cocktailPositioning.js';
 import { getNeighbors } from '../data/graph.js';
@@ -16,6 +17,8 @@ export default function CocktailLab({ fullData }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedNodes, setSelectedNodes] = useState([]);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [highlightedIngredients, setHighlightedIngredients] = useState(null);
 
   // Build cocktail graph on mount
   useEffect(() => {
@@ -86,6 +89,23 @@ export default function CocktailLab({ fullData }) {
 
   const handlePanelClose = useCallback(() => {
     setSelectedNodes([]);
+  }, []);
+
+  const handleHighlightIngredients = useCallback((names) => {
+    setHighlightedIngredients(names);
+    if (names && names.length > 0) {
+      setSelectedNodes(names);
+    } else {
+      setSelectedNodes([]);
+    }
+  }, []);
+
+  const handleSelectAlternative = useCallback((originalName, altName, cocktail) => {
+    // Highlight the alternative and the remaining cocktail ingredients
+    if (cocktail) {
+      const others = cocktail.ingredients.map(i => i.name).filter(n => n !== originalName);
+      setSelectedNodes([altName, ...others]);
+    }
   }, []);
 
   if (loading) {
@@ -179,6 +199,31 @@ export default function CocktailLab({ fullData }) {
           </div>
         </div>
       </div>
+
+      {/* Cocktail Panel toggle */}
+      <button
+        onClick={() => setPanelOpen(p => !p)}
+        className={`fixed top-14 right-4 z-50 px-3 py-1.5 text-xs rounded-lg backdrop-blur-md border transition-all select-none ${
+          panelOpen
+            ? 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+            : 'bg-[#12121a]/90 text-gray-400 hover:text-purple-300 border-[#1e1e2e] hover:border-purple-500/20'
+        }`}
+      >
+        <svg className="w-4 h-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+        </svg>
+        Cocktails
+      </button>
+
+      {/* Cocktail Panel */}
+      <CocktailPanel
+        isOpen={panelOpen}
+        onClose={() => setPanelOpen(false)}
+        cocktailNodes={cocktailData?.graph?.nodes}
+        cocktailEdges={cocktailData?.graph?.edges}
+        onHighlightIngredients={handleHighlightIngredients}
+        onSelectAlternative={handleSelectAlternative}
+      />
 
       {/* Category legend */}
       <div className="fixed bottom-4 right-4 z-30 bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
