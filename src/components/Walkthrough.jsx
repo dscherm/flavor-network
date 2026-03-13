@@ -132,6 +132,16 @@ const BASE_STEPS = [
     waitFor: null,
   },
   {
+    id: 'cocktail-lab',
+    title: 'Cocktail Lab',
+    content:
+      'Switch to the Cocktail Lab tab to explore cocktail-specific ingredients arranged by the ' +
+      'Cocktail Codex framework. Look up real cocktails, swap ingredients to discover alternatives, ' +
+      'build your own creations with compatibility scoring, and save them to your profile.',
+    action: null,
+    waitFor: null,
+  },
+  {
     id: 'complete',
     title: "You're Ready to Explore!",
     content:
