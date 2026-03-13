@@ -189,7 +189,7 @@ spec: .claude/specs/cocktail-lab-prd.md
 - [x] TASK-107: Create src/components/CocktailPanel.jsx — right-side panel with tabs: Lookup, Builder, My Cocktails. Lookup tab has search bar for cocktail names, shows result cards in a scrollable list #ui
 - [x] TASK-108: Create src/components/CocktailRecipeCard.jsx — displays cocktail recipe: name, image, glass type, ingredient list with measures, instructions. Each ingredient is clickable (enters swap mode). Highlights cocktail's ingredients on the network with activation spread between them #ui
 - [x] TASK-109: Implement ingredient swap mode — clicking an ingredient in a recipe card highlights its neighbor nodes on the network. Edge brightness = pairing strength with other cocktail ingredients. Side panel shows ranked alternatives list sorted by average compatibility with remaining ingredients. Compatibility score 0-10 #viz
-- [ ] TASK-110: Implement real-time swap preview — clicking an alternative in the ranked list previews the swap: network updates highlighting, recipe card shows the substitution, compatibility score recalculates. "Accept swap" button confirms change to working recipe #ui
+- [x] TASK-110: Implement real-time swap preview — clicking an alternative in the ranked list previews the swap: network updates highlighting, recipe card shows the substitution, compatibility score recalculates. "Accept swap" button confirms change to working recipe #ui
 
 ## Phase 19: Cocktail Lab — Builder
 > **Goal**: Bidirectional cocktail builder that syncs between network clicks
