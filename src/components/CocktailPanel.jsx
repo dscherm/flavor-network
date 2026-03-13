@@ -21,6 +21,7 @@ export default function CocktailPanel({
   const [searchResults, setSearchResults] = useState([]);
   const [selectedCocktail, setSelectedCocktail] = useState(null);
   const [swapIngredient, setSwapIngredient] = useState(null);
+  const [previewAlt, setPreviewAlt] = useState(null); // { name, score, category }
   const cocktailDB = useCocktailDB();
 
   const handleSearch = useCallback(async () => {
@@ -76,10 +77,12 @@ export default function CocktailPanel({
 
   const handleSwapIngredient = useCallback((ingredientName) => {
     setSwapIngredient(ingredientName);
+    setPreviewAlt(null);
   }, []);
 
   const handleCancelSwap = useCallback(() => {
     setSwapIngredient(null);
+    setPreviewAlt(null);
     // Re-highlight the cocktail ingredients
     if (selectedCocktail && onHighlightIngredients) {
       onHighlightIngredients(selectedCocktail.ingredients.map(i => i.name));
@@ -136,12 +139,35 @@ export default function CocktailPanel({
     return scored.slice(0, 15);
   }, [swapIngredient, cocktailNodes, cocktailEdges, selectedCocktail]);
 
-  // When swap mode is active, highlight alternatives on network
+  // When swap mode is active, preview alternative on network
   const handleSelectAlt = useCallback((altName) => {
+    const alt = alternatives.find(a => a.name === altName);
+    setPreviewAlt(alt || { name: altName, score: 0, category: '' });
+    // Highlight the alternative + remaining ingredients on the network
     if (onSelectAlternative) {
       onSelectAlternative(swapIngredient, altName, selectedCocktail);
     }
-  }, [swapIngredient, selectedCocktail, onSelectAlternative]);
+  }, [swapIngredient, selectedCocktail, onSelectAlternative, alternatives]);
+
+  // Accept the previewed swap — replace ingredient in working cocktail
+  const handleAcceptSwap = useCallback(() => {
+    if (!previewAlt || !swapIngredient || !selectedCocktail) return;
+    const updated = {
+      ...selectedCocktail,
+      ingredients: selectedCocktail.ingredients.map(ing =>
+        ing.name === swapIngredient
+          ? { ...ing, name: previewAlt.name, measure: ing.measure }
+          : ing
+      ),
+    };
+    setSelectedCocktail(updated);
+    setSwapIngredient(null);
+    setPreviewAlt(null);
+    // Re-highlight with updated ingredients
+    if (onHighlightIngredients) {
+      onHighlightIngredients(updated.ingredients.map(i => i.name));
+    }
+  }, [previewAlt, swapIngredient, selectedCocktail, onHighlightIngredients]);
 
   const tabs = [
     { key: 'lookup', label: 'Lookup' },
@@ -236,6 +262,8 @@ export default function CocktailPanel({
                     alternatives={alternatives}
                     onSelectAlternative={handleSelectAlt}
                     onCancelSwap={handleCancelSwap}
+                    previewAlt={previewAlt}
+                    onAcceptSwap={handleAcceptSwap}
                   />
                 </div>
               )}
