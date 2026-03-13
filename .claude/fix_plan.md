@@ -213,6 +213,6 @@ spec: .claude/specs/cocktail-lab-prd.md
 - [x] TASK-118: Add 3D axis labels to cocktail scene — floating text sprites at axis extremes: "Spirit-forward"↔"Modified" (X), "Short"↔"Long" (Y), "Simple"↔"Complex" (Z). Subtle, semi-transparent, face camera #viz
 - [x] TASK-119: Add Codex template legend overlay — small visual showing the 6 templates with icons, positioned on the cocktail scene. Clickable to filter network to ingredients of that template type #ui
 - [x] TASK-120: Smooth tab transitions — fade/slide animation between Network and Cocktail Lab tabs. Lazy-mount cocktail scene (don't initialize Three.js until tab is first opened) #polish
-- [ ] TASK-121: Update walkthrough tour — add Cocktail Lab steps to the tour for users who have the feature. Explain axes, lookup, swap, and builder #demo
-- [ ] TASK-122: Cocktail Lab integration tests — validate CocktailDB caching, cocktail graph construction, Codex positioning produces distinct clusters, swap mode returns valid alternatives, save/load cocktails round-trips correctly #testing
+- [x] TASK-121: Update walkthrough tour — add Cocktail Lab steps to the tour for users who have the feature. Explain axes, lookup, swap, and builder #demo
+- [x] TASK-122: Cocktail Lab integration tests — validate CocktailDB caching, cocktail graph construction, Codex positioning produces distinct clusters, swap mode returns valid alternatives, save/load cocktails round-trips correctly #testing
 - [ ] TASK-123: Deploy Cocktail Lab to Firebase Hosting #deploy
