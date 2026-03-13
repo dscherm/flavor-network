@@ -185,7 +185,7 @@ spec: .claude/specs/cocktail-lab-prd.md
 > **Goal**: Integrate TheCocktailDB API for cocktail lookup with interactive
 > ingredient swapping on the network.
 
-- [ ] TASK-106: Create src/hooks/useCocktailDB.js — TheCocktailDB API hook with localStorage caching (24h TTL). Methods: searchByName(query), searchByIngredient(ingredient), getById(id), getRandom(). Normalize API response to { name, image, glass, ingredients: [{name, measure}], instructions } #data
+- [x] TASK-106: Create src/hooks/useCocktailDB.js — TheCocktailDB API hook with localStorage caching (24h TTL). Methods: searchByName(query), searchByIngredient(ingredient), getById(id), getRandom(). Normalize API response to { name, image, glass, ingredients: [{name, measure}], instructions } #data
 - [ ] TASK-107: Create src/components/CocktailPanel.jsx — right-side panel with tabs: Lookup, Builder, My Cocktails. Lookup tab has search bar for cocktail names, shows result cards in a scrollable list #ui
 - [ ] TASK-108: Create src/components/CocktailRecipeCard.jsx — displays cocktail recipe: name, image, glass type, ingredient list with measures, instructions. Each ingredient is clickable (enters swap mode). Highlights cocktail's ingredients on the network with activation spread between them #ui
 - [ ] TASK-109: Implement ingredient swap mode — clicking an ingredient in a recipe card highlights its neighbor nodes on the network. Edge brightness = pairing strength with other cocktail ingredients. Side panel shows ranked alternatives list sorted by average compatibility with remaining ingredients. Compatibility score 0-10 #viz
