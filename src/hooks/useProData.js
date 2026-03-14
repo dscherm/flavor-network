@@ -22,15 +22,16 @@ const CATEGORY_TO_TASTE = {
   chili: 'spicy',
   sweetener: 'sweet',
   nut: 'bitter',
-  grain: null,
-  liquid: null,
-  thickener: null,
+  grain: 'salty',
+  liquid: 'sour',
+  thickener: 'astringent',
   mixer: 'sour',
   spirit: 'bitter',
   liqueur: 'sweet',
   bitters: 'bitter',
   vegetable: 'astringent',
-  other: null,
+  fruit: 'sweet',
+  other: 'pungent',
 };
 
 /**
