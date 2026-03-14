@@ -38,8 +38,50 @@ async function run() {
     }
   }
 
-  // Load categories
+  // Load categories (exact lookup table)
   const categories = readJson(path.join(DATA_DIR, 'categories.json')) || {};
+
+  // Keyword-based category inference for ingredients not in the lookup table
+  const CATEGORY_KEYWORDS = [
+    // Order matters — more specific patterns first
+    { pattern: /\b(rum|gin|vodka|whiskey|bourbon|tequila|brandy|cognac|mezcal|sake|scotch|pisco|cachaca|aquavit|schnapps)\b/, category: 'spirit', taste: 'bitter' },
+    { pattern: /\b(liqueur|amaretto|kahlua|cointreau|chartreuse|campari|aperol|triple sec|curacao|sambuca|limoncello|midori|baileys|frangelico|grand marnier|drambuie|benedictine)\b/, category: 'liqueur', taste: 'sweet' },
+    { pattern: /\b(vermouth|bitters|angostura)\b/, category: 'bitters', taste: 'bitter' },
+    { pattern: /\b(butter|oil|lard|ghee|margarine|shortening|dripping|tallow|schmaltz)\b/, category: 'fat', taste: 'sweet' },
+    { pattern: /\b(cream|milk|yogurt|cheese|ricotta|mascarpone|mozzarella|cheddar|parmesan|gruyere|brie|camembert|feta|gouda|provolone|monterey|colby|swiss|cottage|sour cream|buttermilk|whey|kefir|creme fraiche)\b/, category: 'dairy', taste: 'sweet' },
+    { pattern: /\b(chicken|beef|pork|lamb|veal|turkey|duck|goose|rabbit|venison|bison|bacon|ham|sausage|salami|prosciutto|pancetta|chorizo|pepperoni|steak|roast|meatball|ground meat|mince)\b/, category: 'protein', taste: 'salty' },
+    { pattern: /\b(salmon|tuna|cod|halibut|tilapia|trout|bass|snapper|swordfish|mahi|catfish|sardine|anchov|shrimp|prawn|crab|lobster|scallop|clam|mussel|oyster|squid|octopus|calamari|fish)\b/, category: 'protein', taste: 'salty' },
+    { pattern: /\b(soy sauce|fish sauce|oyster sauce|miso|worcestershire|tamari|hoisin|teriyaki|ponzu|dashi|bonito|kombu|anchov|parmesan|umami)\b/, category: 'umami', taste: 'salty' },
+    { pattern: /\b(lemon|lime|orange|grapefruit|tangerine|mandarin|clementine|yuzu|citrus|bergamot|kumquat|pomelo)\b/, category: 'citrus', taste: 'sour' },
+    { pattern: /\b(vinegar|tamarind|verjus|amchur|sumac)\b/, category: 'acid', taste: 'sour' },
+    { pattern: /\b(chili|chile|pepper|jalapeno|habanero|serrano|chipotle|ancho|guajillo|pasilla|cayenne|tabasco|sriracha|gochujang|gochugaru|harissa|sambal|hot sauce|chilli)\b/, category: 'chili', taste: 'spicy' },
+    { pattern: /\b(basil|parsley|cilantro|mint|thyme|rosemary|oregano|sage|dill|tarragon|chervil|chive|bay leaf|marjoram|lavender|lemongrass|epazote|shiso|sorrel)\b/, category: 'herb', taste: 'astringent' },
+    { pattern: /\b(cumin|coriander|turmeric|paprika|cinnamon|nutmeg|clove|cardamom|allspice|fenugreek|saffron|star anise|fennel seed|caraway|juniper|szechuan|mustard seed|celery seed|poppy seed|annatto|sumac|za'atar|ras el hanout|garam masala|curry powder|five spice)\b/, category: 'spice', taste: 'pungent' },
+    { pattern: /\b(garlic|onion|shallot|ginger|galangal|scallion|leek|celery|carrot|fennel bulb)\b/, category: 'aromatic', taste: 'pungent' },
+    { pattern: /\b(sugar|honey|syrup|molasses|agave|stevia|jaggery|treacle|caramel|confectioner|sweetener)\b/, category: 'sweetener', taste: 'sweet' },
+    { pattern: /\b(almond|walnut|pecan|cashew|pistachio|hazelnut|macadamia|pine nut|peanut|chestnut|coconut|sesame|tahini|praline)\b/, category: 'nut', taste: 'bitter' },
+    { pattern: /\b(flour|cornstarch|arrowroot|tapioca|breadcrumb|cornmeal|semolina)\b/, category: 'thickener', taste: null },
+    { pattern: /\b(rice|pasta|noodle|bread|oat|wheat|barley|quinoa|couscous|bulgur|polenta|tortilla|cracker|cereal|granola|farro|millet)\b/, category: 'grain', taste: null },
+    { pattern: /\b(stock|broth|wine|beer|water|juice|coconut milk|tea|coffee|espresso|cola|soda|tonic|prosecco|champagne|cider)\b/, category: 'liquid', taste: null },
+    { pattern: /\b(tomato|potato|sweet potato|mushroom|spinach|kale|broccoli|cauliflower|cabbage|corn|pea|bean|squash|zucchini|eggplant|asparagus|artichoke|beet|turnip|radish|cucumber|lettuce|arugula|watercress|chard|bok choy|sprout|okra|plantain|yam|taro)\b/, category: 'vegetable', taste: 'astringent' },
+    { pattern: /\b(apple|pear|peach|plum|cherry|grape|berry|strawberry|blueberry|raspberry|blackberry|cranberry|fig|date|raisin|prune|apricot|mango|pineapple|banana|papaya|melon|watermelon|cantaloupe|kiwi|passion fruit|guava|lychee|pomegranate|persimmon|quince)\b/, category: 'fruit', taste: 'sweet' },
+    { pattern: /\b(egg)\b/, category: 'protein', taste: null },
+    { pattern: /\b(chocolate|cocoa|vanilla|extract|preserve|jam|jelly|marmalade|chutney|relish|pickle|olive|caper)\b/, category: 'other', taste: null },
+    { pattern: /\b(salt|pepper|seasoning)\b/, category: 'seasoning', taste: 'pungent' },
+  ];
+
+  function inferCategory(name) {
+    // Exact lookup first
+    const exact = categories[name];
+    if (exact && !exact._comment) return exact;
+    // Keyword matching
+    for (const rule of CATEGORY_KEYWORDS) {
+      if (rule.pattern.test(name)) {
+        return { category: rule.category, taste: rule.taste };
+      }
+    }
+    return { category: 'other', taste: null };
+  }
 
   // Build master ingredient set
   const masterIngredients = new Map(); // name → { sources: [], category, taste, totalCount }
@@ -47,10 +89,10 @@ async function run() {
     if (!data.ingredients) continue;
     for (const [name, count] of Object.entries(data.ingredients)) {
       if (!masterIngredients.has(name)) {
-        const catInfo = categories[name] || {};
+        const catInfo = inferCategory(name);
         masterIngredients.set(name, {
           sources: [],
-          category: catInfo.category || 'unknown',
+          category: catInfo.category || 'other',
           taste: catInfo.taste || null,
           totalCount: 0,
         });
