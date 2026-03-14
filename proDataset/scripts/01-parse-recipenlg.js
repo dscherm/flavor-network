@@ -16,6 +16,73 @@ const OUT_PATH = path.join(PROCESSED_DIR, 'recipenlg-cooccurrence.json');
 // Ingredients too generic to form meaningful pairs
 const SKIP_SET = new Set(['salt', 'pepper', 'water', 'oil', 'black pepper']);
 
+// Known food-related words. An ingredient must contain at least one of these
+// (or be in the synonyms/categories tables) to pass the filter.
+import { readFileSync } from 'fs';
+const _synonyms = JSON.parse(readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')), '..', 'data', 'synonyms.json'), 'utf8'));
+const _categories = JSON.parse(readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1')), '..', 'data', 'categories.json'), 'utf8'));
+const KNOWN_FOODS = new Set([
+  ...Object.keys(_synonyms).map(s => s.toLowerCase()),
+  ...Object.values(_synonyms).map(s => s.toLowerCase()),
+  ...Object.keys(_categories).filter(k => !k.startsWith('_')).map(s => s.toLowerCase()),
+]);
+
+// Food indicator words — if an ingredient contains one of these substrings, it's likely food
+const FOOD_INDICATORS = [
+  'sauce', 'juice', 'oil', 'flour', 'sugar', 'cream', 'milk', 'butter', 'cheese',
+  'chicken', 'beef', 'pork', 'lamb', 'fish', 'shrimp', 'egg', 'rice', 'bean',
+  'pepper', 'onion', 'garlic', 'tomato', 'potato', 'lemon', 'lime', 'orange',
+  'herb', 'spice', 'vinegar', 'stock', 'broth', 'wine', 'beer', 'syrup',
+  'honey', 'salt', 'mustard', 'ketchup', 'mayo', 'dressing', 'paste',
+  'powder', 'seed', 'nut', 'berry', 'fruit', 'vegetable', 'leaf', 'root',
+  'chili', 'chile', 'curry', 'ginger', 'cinnamon', 'vanilla', 'cocoa', 'chocolate',
+  'bread', 'noodle', 'pasta', 'cake', 'cookie', 'pie', 'jam', 'jelly',
+  'yogurt', 'sour cream', 'whip', 'baking', 'yeast', 'gelatin', 'cornstarch',
+  'mushroom', 'celery', 'carrot', 'lettuce', 'spinach', 'basil', 'parsley',
+  'thyme', 'oregano', 'cilantro', 'mint', 'dill', 'rosemary', 'sage',
+  'cumin', 'paprika', 'turmeric', 'nutmeg', 'clove', 'allspice', 'cardamom',
+  'soy', 'miso', 'sesame', 'coconut', 'almond', 'walnut', 'pecan', 'peanut',
+  'olive', 'caper', 'anchov', 'bacon', 'ham', 'sausage', 'turkey', 'duck',
+  'salmon', 'tuna', 'cod', 'crab', 'lobster', 'scallop', 'clam', 'mussel',
+  'rum', 'gin', 'vodka', 'whiskey', 'bourbon', 'tequila', 'brandy', 'liqueur',
+  'vermouth', 'bitters', 'campari', 'aperol', 'prosecco', 'champagne',
+  'extract', 'zest', 'peel', 'rind', 'puree', 'reduction', 'glaze',
+  'marinade', 'rub', 'brine', 'cure', 'smoke', 'roast', 'grill', 'fry',
+  'broccoli', 'cauliflower', 'cabbage', 'corn', 'pea', 'squash', 'zucchini',
+  'avocado', 'mango', 'pineapple', 'banana', 'apple', 'pear', 'peach',
+  'plum', 'cherry', 'grape', 'strawberry', 'blueberry', 'raspberry',
+  'cranberry', 'fig', 'date', 'raisin', 'prune', 'apricot', 'melon',
+  'oat', 'wheat', 'barley', 'quinoa', 'couscous', 'bulgur', 'polenta',
+  'tofu', 'tempeh', 'seitan', 'lentil', 'chickpea', 'edamame',
+];
+
+/**
+ * Check if an ingredient name is likely a real food item.
+ */
+function looksLikeFood(name) {
+  if (!name || name.length < 2 || name.length > 50) return false;
+  if (/^\d+$/.test(name)) return false;
+  if (!/[a-z]/.test(name)) return false;
+
+  // Known food? Pass immediately.
+  if (KNOWN_FOODS.has(name)) return true;
+
+  // Contains a food indicator word? Pass.
+  for (const indicator of FOOD_INDICATORS) {
+    if (name.includes(indicator)) return true;
+  }
+
+  // Check if any word in the name is a known food
+  for (const word of name.split(/\s+/)) {
+    if (KNOWN_FOODS.has(word)) return true;
+    // Check singular form
+    if (word.endsWith('s') && KNOWN_FOODS.has(word.slice(0, -1))) return true;
+    if (word.endsWith('es') && KNOWN_FOODS.has(word.slice(0, -2))) return true;
+  }
+
+  return false;
+}
+
 async function run() {
   log('Step 1: Parse RecipeNLG CSV');
   log('TIP: run with  node --max-old-space-size=4096  for large files');
@@ -48,10 +115,10 @@ async function run() {
       }
       if (!Array.isArray(ner) || ner.length === 0) return;
 
-      // Canonicalize + dedupe per recipe
+      // Canonicalize + dedupe per recipe + filter non-food
       const cleaned = [...new Set(
         ner.map(n => canonicalizeIngredient(n))
-           .filter(n => n && !SKIP_SET.has(n))
+           .filter(n => n && !SKIP_SET.has(n) && looksLikeFood(n))
       )];
 
       // Count ingredient frequency
