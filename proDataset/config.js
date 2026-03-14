@@ -32,6 +32,6 @@ export const RATE_LIMITS = {
 
 // Filtering thresholds
 export const MIN_RECIPE_COUNT = 3;         // pair must appear in 3+ recipes
-export const MIN_INGREDIENT_RECIPES = 10;  // ingredient must appear in 10+ recipes
+export const MIN_INGREDIENT_RECIPES = 50;  // ingredient must appear in 50+ recipes (filters noise from 2.2M dataset)
 export const MIN_BLENDED_STRENGTH = 0.05;  // drop pairs below this after blending
 export const MIN_SOURCES = 1;              // pair must appear in at least N sources

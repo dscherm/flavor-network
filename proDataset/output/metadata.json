@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-03-14T14:23:15.628Z",
+  "generatedAt": "2026-03-14T14:47:43.340Z",
   "sources": {
     "recipenlg": {
-      "pairs": 0,
-      "ingredients": 0,
-      "totalRecipes": null
+      "pairs": 381407,
+      "ingredients": 4017,
+      "totalRecipes": 2231142
     },
     "flavordb": {
       "pairs": 0,
@@ -31,6 +31,6 @@
   "thresholds": {
     "MIN_BLENDED_STRENGTH": 0.05
   },
-  "totalIngredients": 930,
-  "totalPairings": 332
+  "totalIngredients": 4488,
+  "totalPairings": 113269
 }
