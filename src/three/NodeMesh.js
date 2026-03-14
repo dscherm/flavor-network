@@ -66,13 +66,25 @@ export function tasteMatches(nodeTaste, filterKey) {
 }
 
 function getColorForNode(node) {
-  // Primary: color by taste profile
+  // Primary: color by taste profile — supports multi-taste blending
   const taste = (node.taste || '').toLowerCase().trim();
   if (taste) {
+    const matchedColors = [];
     for (const [key, hex] of Object.entries(TASTE_COLORS)) {
       if (taste.includes(key)) {
-        return new Color(hex);
+        matchedColors.push(new Color(hex));
       }
+    }
+    if (matchedColors.length === 1) {
+      return matchedColors[0];
+    }
+    if (matchedColors.length >= 2) {
+      // Blend all matched colors equally
+      const blended = matchedColors[0].clone();
+      for (let i = 1; i < matchedColors.length; i++) {
+        blended.lerp(matchedColors[i], 1 / (i + 1));
+      }
+      return blended;
     }
   }
 
