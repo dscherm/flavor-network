@@ -6,6 +6,33 @@
 import { useState, useEffect } from 'react';
 import { computeTastePositions } from '../data/tastePositioning.js';
 
+// Map proDataset categories to taste strings that NodeMesh can color.
+// NodeMesh checks node.taste for: pungent, astringent, salty, sour, bitter, hot, spicy, sweet
+const CATEGORY_TO_TASTE = {
+  aromatic: 'pungent',
+  fat: 'sweet',
+  dairy: 'sweet',
+  protein: 'salty',
+  umami: 'salty',
+  citrus: 'sour',
+  acid: 'sour',
+  herb: 'astringent',
+  spice: 'pungent',
+  seasoning: 'pungent',
+  chili: 'spicy',
+  sweetener: 'sweet',
+  nut: 'bitter',
+  grain: null,
+  liquid: null,
+  thickener: null,
+  mixer: 'sour',
+  spirit: 'bitter',
+  liqueur: 'sweet',
+  bitters: 'bitter',
+  vegetable: 'astringent',
+  other: null,
+};
+
 /**
  * Build a graph from the proDataset output files (ingredients.json + pairings.json).
  * Returns the same structure as buildGraph() from graph.js:
@@ -19,11 +46,13 @@ function buildProGraph(ingredientsData, pairingsData) {
   for (const [name, info] of Object.entries(ingredientsData)) {
     if (name.startsWith('_')) continue; // skip meta keys
     const sources = info.sources || [];
+    // Use explicit taste if available, otherwise infer from category
+    const taste = info.taste || CATEGORY_TO_TASTE[info.category] || null;
     nodes.set(name, {
       id: id++,
       name,
       cuisines: [],
-      taste: info.taste || null,
+      taste,
       weight: null,
       volume: null,
       season: null,
