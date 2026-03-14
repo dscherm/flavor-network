@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-03-14T14:23:15.628Z",
+  "sources": {
+    "recipenlg": {
+      "pairs": 0,
+      "ingredients": 0,
+      "totalRecipes": null
+    },
+    "flavordb": {
+      "pairs": 0,
+      "ingredients": 0,
+      "totalRecipes": null
+    },
+    "mealdb": {
+      "pairs": 2022,
+      "ingredients": 721,
+      "totalRecipes": 593
+    },
+    "cocktaildb": {
+      "pairs": 204,
+      "ingredients": 266,
+      "totalRecipes": 426
+    }
+  },
+  "weights": {
+    "recipenlg": 0.4,
+    "flavordb": 0.3,
+    "mealdb": 0.15,
+    "cocktaildb": 0.15
+  },
+  "thresholds": {
+    "MIN_BLENDED_STRENGTH": 0.05
+  },
+  "totalIngredients": 930,
+  "totalPairings": 332
+}

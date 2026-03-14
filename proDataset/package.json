@@ -1,0 +1,19 @@
+{
+  "name": "flavor-network-prodataset",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent flavor pairing dataset pipeline from open sources",
+  "scripts": {
+    "all": "node scripts/run-all.js",
+    "recipenlg": "node --max-old-space-size=4096 scripts/01-parse-recipenlg.js",
+    "flavordb": "node scripts/02-fetch-flavordb.js",
+    "mealdb": "node scripts/03-fetch-mealdb.js",
+    "cocktaildb": "node scripts/04-fetch-cocktaildb.js",
+    "blend": "node scripts/05-blend.js"
+  },
+  "dependencies": {
+    "csv-parser": "^3.0.0",
+    "p-limit": "^5.0.0"
+  }
+}

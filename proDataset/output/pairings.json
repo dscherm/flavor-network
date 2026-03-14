@@ -1,0 +1,3654 @@
+[
+  {
+    "ingredientA": "egg",
+    "ingredientB": "nutmeg",
+    "strength": 0.164799,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.098658,
+      "cocktaildb": 1
+    }
+  },
+  {
+    "ingredientA": "chocolate",
+    "ingredientB": "vanilla",
+    "strength": 0.154845,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.221364,
+      "cocktaildb": 0.810937
+    }
+  },
+  {
+    "ingredientA": "galangal",
+    "ingredientB": "makrut lime leave",
+    "strength": 0.15,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 1,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cinnamon",
+    "ingredientB": "red wine",
+    "strength": 0.148676,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.991175
+    }
+  },
+  {
+    "ingredientA": "chocolate",
+    "ingredientB": "milk",
+    "strength": 0.133632,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.179704,
+      "cocktaildb": 0.711178
+    }
+  },
+  {
+    "ingredientA": "dry vermouth",
+    "ingredientB": "olive",
+    "strength": 0.130948,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.872984
+    }
+  },
+  {
+    "ingredientA": "coffee",
+    "ingredientB": "whipped cream",
+    "strength": 0.128762,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.858411
+    }
+  },
+  {
+    "ingredientA": "egg",
+    "ingredientB": "powdered sugar",
+    "strength": 0.127118,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.146775,
+      "cocktaildb": 0.700677
+    }
+  },
+  {
+    "ingredientA": "cream",
+    "ingredientB": "nutmeg",
+    "strength": 0.126964,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.149175,
+      "cocktaildb": 0.697253
+    }
+  },
+  {
+    "ingredientA": "cream",
+    "ingredientB": "creme de cacao",
+    "strength": 0.126673,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.844486
+    }
+  },
+  {
+    "ingredientA": "baileys irish cream",
+    "ingredientB": "sambuca",
+    "strength": 0.124673,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.831154
+    }
+  },
+  {
+    "ingredientA": "maraschino liqueur",
+    "ingredientB": "orange bitters",
+    "strength": 0.124673,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.831154
+    }
+  },
+  {
+    "ingredientA": "cachaca",
+    "ingredientB": "lime",
+    "strength": 0.124673,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.831154
+    }
+  },
+  {
+    "ingredientA": "milk",
+    "ingredientB": "vanilla",
+    "strength": 0.124651,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.176942,
+      "cocktaildb": 0.654064
+    }
+  },
+  {
+    "ingredientA": "milk",
+    "ingredientB": "nutmeg",
+    "strength": 0.124596,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.119465,
+      "cocktaildb": 0.711178
+    }
+  },
+  {
+    "ingredientA": "egg white",
+    "ingredientB": "powdered sugar",
+    "strength": 0.123798,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.29349,
+      "cocktaildb": 0.531831
+    }
+  },
+  {
+    "ingredientA": "egg",
+    "ingredientB": "milk",
+    "strength": 0.122869,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.156238,
+      "cocktaildb": 0.662889
+    }
+  },
+  {
+    "ingredientA": "cream",
+    "ingredientB": "egg white",
+    "strength": 0.122839,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.24869,
+      "cocktaildb": 0.570237
+    }
+  },
+  {
+    "ingredientA": "lemongrass",
+    "ingredientB": "makrut lime leave",
+    "strength": 0.12217,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.814468,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "galangal",
+    "ingredientB": "lemongrass",
+    "strength": 0.12217,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.814468,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lemongrass",
+    "ingredientB": "lime juice",
+    "strength": 0.12217,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.814468,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "all-purpose seasoning",
+    "ingredientB": "scotch bonnet",
+    "strength": 0.118828,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.792189,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "carbonated water",
+    "ingredientB": "powdered sugar",
+    "strength": 0.117879,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.785863
+    }
+  },
+  {
+    "ingredientA": "cardamom",
+    "ingredientB": "sugar",
+    "strength": 0.116397,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.104848,
+      "cocktaildb": 0.671133
+    }
+  },
+  {
+    "ingredientA": "kahlua",
+    "ingredientB": "sambuca",
+    "strength": 0.116106,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.77404
+    }
+  },
+  {
+    "ingredientA": "maraschino cherry",
+    "ingredientB": "orange",
+    "strength": 0.115137,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.767581
+    }
+  },
+  {
+    "ingredientA": "baileys irish cream",
+    "ingredientB": "kahlua",
+    "strength": 0.112864,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.752427
+    }
+  },
+  {
+    "ingredientA": "cream",
+    "ingredientB": "vanilla",
+    "strength": 0.109011,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.246622,
+      "cocktaildb": 0.480118
+    }
+  },
+  {
+    "ingredientA": "port",
+    "ingredientB": "powdered sugar",
+    "strength": 0.107394,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.715961
+    }
+  },
+  {
+    "ingredientA": "crusty bread",
+    "ingredientB": "tinned tomato",
+    "strength": 0.104972,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.699813,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "paella rice",
+    "ingredientB": "saffron",
+    "strength": 0.104334,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.695562,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "mussel",
+    "ingredientB": "saffron",
+    "strength": 0.102503,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.683354,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cinnamon",
+    "ingredientB": "sugar",
+    "strength": 0.101719,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.134007,
+      "cocktaildb": 0.544117
+    }
+  },
+  {
+    "ingredientA": "lamb leg",
+    "ingredientB": "pita bread",
+    "strength": 0.101345,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.675632,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cherry",
+    "ingredientB": "whiskey",
+    "strength": 0.09974,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.66493
+    }
+  },
+  {
+    "ingredientA": "strong white bread flour",
+    "ingredientB": "yeast",
+    "strength": 0.096172,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.641144,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "sugar",
+    "ingredientB": "vanilla",
+    "strength": 0.095444,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.134007,
+      "cocktaildb": 0.502287
+    }
+  },
+  {
+    "ingredientA": "maraschino cherry",
+    "ingredientB": "maraschino liqueur",
+    "strength": 0.095345,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.635632
+    }
+  },
+  {
+    "ingredientA": "bitter",
+    "ingredientB": "scotch",
+    "strength": 0.095066,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.633772
+    }
+  },
+  {
+    "ingredientA": "chickpea",
+    "ingredientB": "harissa spice",
+    "strength": 0.095059,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.633725,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "sauerkraut",
+    "ingredientB": "sour cream",
+    "strength": 0.09434,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.628936,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "peanut",
+    "ingredientB": "tamarind paste",
+    "strength": 0.093901,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.626004,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lime",
+    "ingredientB": "mint",
+    "strength": 0.093863,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.253942,
+      "cocktaildb": 0.37181
+    }
+  },
+  {
+    "ingredientA": "apple",
+    "ingredientB": "lemon",
+    "strength": 0.093696,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.624639
+    }
+  },
+  {
+    "ingredientA": "carbonated water",
+    "ingredientB": "egg white",
+    "strength": 0.092103,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.614019
+    }
+  },
+  {
+    "ingredientA": "almond",
+    "ingredientB": "orange blossom water",
+    "strength": 0.090999,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.606657,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coconut milk",
+    "ingredientB": "thai green curry paste",
+    "strength": 0.090999,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.606657,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "scotch",
+    "ingredientB": "sweet vermouth",
+    "strength": 0.090752,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.605013
+    }
+  },
+  {
+    "ingredientA": "egg yolk",
+    "ingredientB": "vanilla pod",
+    "strength": 0.08984,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.598935,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "basil",
+    "ingredientB": "thai green curry paste",
+    "strength": 0.08984,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.598935,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "orange bitters",
+    "ingredientB": "sweet vermouth",
+    "strength": 0.089562,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.597082
+    }
+  },
+  {
+    "ingredientA": "self-raising flour",
+    "ingredientB": "suet",
+    "strength": 0.089464,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.596429,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "black treacle",
+    "ingredientB": "self-raising flour",
+    "strength": 0.089464,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.596429,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "baguette",
+    "ingredientB": "mayonnaise",
+    "strength": 0.089094,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.593957,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chilli",
+    "ingredientB": "peanut",
+    "strength": 0.088727,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.591516,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "bean sprout",
+    "ingredientB": "rice noodle",
+    "strength": 0.088456,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.589706,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "nutmeg",
+    "ingredientB": "powdered sugar",
+    "strength": 0.088342,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.588945
+    }
+  },
+  {
+    "ingredientA": "ham",
+    "ingredientB": "mozzarella",
+    "strength": 0.088009,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.586727,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chocolate",
+    "ingredientB": "desiccated coconut",
+    "strength": 0.088009,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.586727,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "courgette",
+    "ingredientB": "yellow pepper",
+    "strength": 0.088009,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.586727,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "birds-eye chillie",
+    "ingredientB": "fish sauce",
+    "strength": 0.087657,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.584377,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "makrut lime leave",
+    "strength": 0.087657,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.584377,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "galangal",
+    "strength": 0.087657,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.584377,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "lime leave",
+    "strength": 0.087657,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.584377,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coffee",
+    "ingredientB": "vanilla",
+    "strength": 0.087624,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.584162
+    }
+  },
+  {
+    "ingredientA": "beef fillet",
+    "ingredientB": "mushroom",
+    "strength": 0.086625,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.577498,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "dry sherry",
+    "ingredientB": "saffron",
+    "strength": 0.086625,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.577498,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fish stock",
+    "ingredientB": "prawn",
+    "strength": 0.086625,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.577498,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "dry vermouth",
+    "ingredientB": "scotch",
+    "strength": 0.086049,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.573661
+    }
+  },
+  {
+    "ingredientA": "orange",
+    "ingredientB": "sugar",
+    "strength": 0.084746,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.159266,
+      "cocktaildb": 0.405709
+    }
+  },
+  {
+    "ingredientA": "almond",
+    "ingredientB": "almond extract",
+    "strength": 0.084667,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.564447,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "greek yogurt",
+    "ingredientB": "tahini",
+    "strength": 0.084667,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.564447,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "garam masala",
+    "ingredientB": "turmeric",
+    "strength": 0.084667,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.564447,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "sesame seed oil",
+    "ingredientB": "starch",
+    "strength": 0.084044,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.56029,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chorizo",
+    "ingredientB": "crusty bread",
+    "strength": 0.084044,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.56029,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "apricot brandy",
+    "ingredientB": "orange juice",
+    "strength": 0.083754,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.558359
+    }
+  },
+  {
+    "ingredientA": "cornstarch",
+    "ingredientB": "dulce de leche",
+    "strength": 0.083509,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.556725,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "saffron",
+    "ingredientB": "squid",
+    "strength": 0.082836,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.552239,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "avocado",
+    "ingredientB": "sour cream",
+    "strength": 0.082836,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.552239,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "mayonnaise",
+    "ingredientB": "white wine vinegar",
+    "strength": 0.081963,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.546419,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "parmesan",
+    "ingredientB": "spaghetti",
+    "strength": 0.081678,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.544518,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "amaretto",
+    "ingredientB": "cranberry juice",
+    "strength": 0.080995,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.539968
+    }
+  },
+  {
+    "ingredientA": "chorizo",
+    "ingredientB": "sherry vinegar",
+    "strength": 0.080702,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.53801,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "beetroot",
+    "ingredientB": "dill",
+    "strength": 0.080293,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.535288,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "carbonated water",
+    "ingredientB": "lemon",
+    "strength": 0.080178,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.53452
+    }
+  },
+  {
+    "ingredientA": "cherry",
+    "ingredientB": "powdered sugar",
+    "strength": 0.079775,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.531831
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "lemongrass",
+    "strength": 0.079494,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.52996,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chocolate",
+    "ingredientB": "condensed milk",
+    "strength": 0.078462,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.52308,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "bitter",
+    "ingredientB": "sweet vermouth",
+    "strength": 0.077234,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.514894
+    }
+  },
+  {
+    "ingredientA": "almond",
+    "ingredientB": "digestive biscuit",
+    "strength": 0.076504,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.51003,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "garam masala",
+    "ingredientB": "green chilli",
+    "strength": 0.076504,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.51003,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "aubergine",
+    "ingredientB": "courgette",
+    "strength": 0.076504,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.51003,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lamb",
+    "ingredientB": "saffron",
+    "strength": 0.076504,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.51003,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cannellini bean",
+    "ingredientB": "parmesan",
+    "strength": 0.076504,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.51003,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fennel",
+    "ingredientB": "white wine",
+    "strength": 0.076328,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.508851,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "dry vermouth",
+    "ingredientB": "maraschino liqueur",
+    "strength": 0.076292,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.508616
+    }
+  },
+  {
+    "ingredientA": "dulce de leche",
+    "ingredientB": "egg yolk",
+    "strength": 0.075346,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.502308,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cornstarch",
+    "ingredientB": "peanut oil",
+    "strength": 0.075346,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.502308,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "red wine",
+    "ingredientB": "rosemary",
+    "strength": 0.07512,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.500801,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "beetroot",
+    "ingredientB": "greek yogurt",
+    "strength": 0.07512,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.500801,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chicken stock",
+    "ingredientB": "lime leave",
+    "strength": 0.074453,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.49635,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "amaretto",
+    "ingredientB": "cream",
+    "strength": 0.074428,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.496186
+    }
+  },
+  {
+    "ingredientA": "coconut milk",
+    "ingredientB": "thai red curry paste",
+    "strength": 0.074321,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.495472,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "rice vinegar",
+    "ingredientB": "sesame seed",
+    "strength": 0.0738,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.492001,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "nutmeg",
+    "ingredientB": "shortcrust pastry",
+    "strength": 0.0738,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.492001,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cream",
+    "ingredientB": "powdered sugar",
+    "strength": 0.073233,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.250313,
+      "cocktaildb": 0.237909
+    }
+  },
+  {
+    "ingredientA": "green chilli",
+    "ingredientB": "turmeric",
+    "strength": 0.073163,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.48775,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "scotch bonnet",
+    "ingredientB": "thyme",
+    "strength": 0.073163,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.48775,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "all-purpose seasoning",
+    "ingredientB": "thyme",
+    "strength": 0.073163,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.48775,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "nut oil",
+    "strength": 0.073163,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.48775,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "red wine",
+    "ingredientB": "sugar",
+    "strength": 0.07305,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.487003
+    }
+  },
+  {
+    "ingredientA": "peanut",
+    "ingredientB": "prawn",
+    "strength": 0.072849,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.48566,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "bitter",
+    "ingredientB": "dry vermouth",
+    "strength": 0.072531,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.483542
+    }
+  },
+  {
+    "ingredientA": "olive",
+    "ingredientB": "tinned tomato",
+    "strength": 0.071529,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.47686,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "egg white",
+    "ingredientB": "grenadine",
+    "strength": 0.07151,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.476731
+    }
+  },
+  {
+    "ingredientA": "grenadine",
+    "ingredientB": "pineapple juice",
+    "strength": 0.07151,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.476731
+    }
+  },
+  {
+    "ingredientA": "coconut milk",
+    "ingredientB": "kidney bean",
+    "strength": 0.071331,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.475542,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coconut milk",
+    "ingredientB": "lemongrass",
+    "strength": 0.071331,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.475542,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lime juice",
+    "ingredientB": "tequila",
+    "strength": 0.071258,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.475052
+    }
+  },
+  {
+    "ingredientA": "desiccated coconut",
+    "ingredientB": "powdered sugar",
+    "strength": 0.071135,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.474233,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "digestive biscuit",
+    "ingredientB": "powdered sugar",
+    "strength": 0.071135,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.474233,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "peanut",
+    "ingredientB": "rice noodle",
+    "strength": 0.070892,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.47261,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lemon",
+    "ingredientB": "powdered sugar",
+    "strength": 0.070882,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.472549
+    }
+  },
+  {
+    "ingredientA": "bacon",
+    "ingredientB": "red wine",
+    "strength": 0.070458,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.469722,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "brown sugar",
+    "ingredientB": "ice cream",
+    "strength": 0.070173,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.46782,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "egg yolk",
+    "ingredientB": "puff pastry",
+    "strength": 0.070173,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.46782,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cornstarch",
+    "ingredientB": "shrimp",
+    "strength": 0.070173,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.46782,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "allspice",
+    "ingredientB": "kidney bean",
+    "strength": 0.070173,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.46782,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "mozzarella",
+    "ingredientB": "oregano",
+    "strength": 0.070173,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.46782,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cinnamon",
+    "ingredientB": "lemon",
+    "strength": 0.070026,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.059336,
+      "cocktaildb": 0.407504
+    }
+  },
+  {
+    "ingredientA": "birds-eye chillie",
+    "ingredientB": "lime",
+    "strength": 0.069472,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.46315,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "prawn",
+    "ingredientB": "rice noodle",
+    "strength": 0.068789,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.458591,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cardamom",
+    "ingredientB": "turmeric",
+    "strength": 0.068789,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.458591,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cucumber",
+    "ingredientB": "lettuce",
+    "strength": 0.068342,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.455612,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cream",
+    "ingredientB": "milk",
+    "strength": 0.068285,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.164991,
+      "cocktaildb": 0.29024
+    }
+  },
+  {
+    "ingredientA": "maraschino cherry",
+    "ingredientB": "sugar",
+    "strength": 0.0681,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.453998
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "sirloin steak",
+    "strength": 0.067989,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.453263,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "beef stock",
+    "ingredientB": "worcestershire sauce",
+    "strength": 0.067989,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.453263,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "aubergine",
+    "ingredientB": "greek yogurt",
+    "strength": 0.067989,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.453263,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "king prawn",
+    "strength": 0.067989,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.453263,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "orange juice",
+    "ingredientB": "peach schnapp",
+    "strength": 0.067943,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.452955
+    }
+  },
+  {
+    "ingredientA": "orange juice",
+    "ingredientB": "sweet and sour",
+    "strength": 0.067943,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.452955
+    }
+  },
+  {
+    "ingredientA": "rice vinegar",
+    "ingredientB": "sesame seed oil",
+    "strength": 0.067366,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.449105,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lime",
+    "ingredientB": "rice noodle",
+    "strength": 0.067004,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.446691,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "almond",
+    "ingredientB": "brandy",
+    "strength": 0.066957,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.446383,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "red pepper",
+    "ingredientB": "yellow pepper",
+    "strength": 0.066957,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.446383,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "allspice",
+    "ingredientB": "scotch bonnet",
+    "strength": 0.066831,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.445541,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "milk",
+    "ingredientB": "sugar",
+    "strength": 0.066295,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.129556,
+      "cocktaildb": 0.312409
+    }
+  },
+  {
+    "ingredientA": "lemon",
+    "ingredientB": "red wine",
+    "strength": 0.066076,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.440509
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "rice noodle",
+    "strength": 0.066032,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.440212,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "peanut",
+    "strength": 0.065718,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.438122,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coriander",
+    "ingredientB": "makrut lime leave",
+    "strength": 0.065,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.433333,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coriander",
+    "ingredientB": "galangal",
+    "strength": 0.065,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.433333,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cucumber",
+    "ingredientB": "rice vinegar",
+    "strength": 0.065,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.433333,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "celery",
+    "ingredientB": "vegetable stock cube",
+    "strength": 0.064686,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.431243,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "beef stock",
+    "ingredientB": "red wine",
+    "strength": 0.064647,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.430983,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "squid",
+    "ingredientB": "white wine",
+    "strength": 0.064376,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.429175,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "pecan nut",
+    "ingredientB": "vanilla",
+    "strength": 0.064376,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.429175,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "maple syrup",
+    "ingredientB": "vanilla",
+    "strength": 0.064376,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.429175,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chorizo",
+    "ingredientB": "squid",
+    "strength": 0.064376,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.429175,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "basil",
+    "ingredientB": "green bean",
+    "strength": 0.063842,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.425611,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "grapefruit juice",
+    "ingredientB": "lime juice",
+    "strength": 0.063621,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.424141
+    }
+  },
+  {
+    "ingredientA": "soy sauce",
+    "ingredientB": "starch",
+    "strength": 0.063616,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.424104,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "hotsauce",
+    "ingredientB": "mushroom",
+    "strength": 0.063616,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.424104,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "mushroom",
+    "ingredientB": "worcestershire sauce",
+    "strength": 0.063616,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.424104,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "sake",
+    "ingredientB": "soy sauce",
+    "strength": 0.063616,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.424104,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "soy sauce",
+    "ingredientB": "tofu",
+    "strength": 0.063616,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.424104,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "soy sauce",
+    "ingredientB": "water chestnut",
+    "strength": 0.063616,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.424104,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "sichuan pepper",
+    "ingredientB": "soy sauce",
+    "strength": 0.063616,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.424104,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "peanut oil",
+    "ingredientB": "soy sauce",
+    "strength": 0.063616,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.424104,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "bean sprout",
+    "ingredientB": "fish sauce",
+    "strength": 0.063616,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.424104,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chorizo",
+    "ingredientB": "tinned tomato",
+    "strength": 0.063503,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.423355,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "powdered sugar",
+    "ingredientB": "whiskey",
+    "strength": 0.063408,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.42272
+    }
+  },
+  {
+    "ingredientA": "almond",
+    "ingredientB": "apricot",
+    "strength": 0.063169,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.421125,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lemongrass",
+    "ingredientB": "red chilli",
+    "strength": 0.063169,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.421125,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "currant",
+    "ingredientB": "lemon",
+    "strength": 0.062729,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.418192,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cucumber",
+    "ingredientB": "peanut",
+    "strength": 0.062729,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.418192,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "lime",
+    "strength": 0.062678,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.41785,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "mint",
+    "ingredientB": "soda water",
+    "strength": 0.062496,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.416637
+    }
+  },
+  {
+    "ingredientA": "lemongrass",
+    "ingredientB": "lime",
+    "strength": 0.062468,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.416454,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "orange juice",
+    "ingredientB": "pineapple juice",
+    "strength": 0.062409,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.416059
+    }
+  },
+  {
+    "ingredientA": "cornstarch",
+    "ingredientB": "vinegar",
+    "strength": 0.06201,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.413403,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "black treacle",
+    "ingredientB": "brown sugar",
+    "strength": 0.06201,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.413403,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "paprika",
+    "ingredientB": "white bean",
+    "strength": 0.061449,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.409657,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cucumber",
+    "ingredientB": "mint",
+    "strength": 0.061449,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.409657,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "celery salt",
+    "ingredientB": "paprika",
+    "strength": 0.061449,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.409657,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "angostura bitters",
+    "ingredientB": "lime juice",
+    "strength": 0.061329,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.408857
+    }
+  },
+  {
+    "ingredientA": "lime",
+    "ingredientB": "star anise",
+    "strength": 0.06131,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.408732,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "baking powder",
+    "ingredientB": "molasse",
+    "strength": 0.06131,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.408732,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lime",
+    "ingredientB": "nut oil",
+    "strength": 0.06131,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.408732,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chili powder",
+    "ingredientB": "cumin",
+    "strength": 0.061282,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.408548,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "hotsauce",
+    "ingredientB": "pork",
+    "strength": 0.061034,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.406896,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "oyster sauce",
+    "ingredientB": "sesame seed oil",
+    "strength": 0.061034,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.406896,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lemon juice",
+    "ingredientB": "maraschino cherry",
+    "strength": 0.060856,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.405709
+    }
+  },
+  {
+    "ingredientA": "paella rice",
+    "ingredientB": "red pepper",
+    "strength": 0.060626,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.404174,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "corn flour",
+    "ingredientB": "green chilli",
+    "strength": 0.060626,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.404174,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "gin",
+    "ingredientB": "orange bitters",
+    "strength": 0.060095,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.400635
+    }
+  },
+  {
+    "ingredientA": "brown sugar",
+    "ingredientB": "raisin",
+    "strength": 0.060053,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.400353,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "dry vermouth",
+    "ingredientB": "whiskey",
+    "strength": 0.059926,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.399505
+    }
+  },
+  {
+    "ingredientA": "bean sprout",
+    "ingredientB": "lime",
+    "strength": 0.059925,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.399503,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "feta",
+    "ingredientB": "red chilli",
+    "strength": 0.059827,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.398845,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lemon",
+    "ingredientB": "orange",
+    "strength": 0.059777,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.223431,
+      "cocktaildb": 0.175085
+    }
+  },
+  {
+    "ingredientA": "ginger ale",
+    "ingredientB": "lime",
+    "strength": 0.059533,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.396884
+    }
+  },
+  {
+    "ingredientA": "bacon",
+    "ingredientB": "mozzarella",
+    "strength": 0.059306,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.395374,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "spaghetti",
+    "ingredientB": "tomato paste",
+    "strength": 0.059306,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.395374,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "parmesan",
+    "ingredientB": "spinach",
+    "strength": 0.059306,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.395374,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lime",
+    "ingredientB": "thai red curry paste",
+    "strength": 0.059126,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.394174,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "carrot",
+    "ingredientB": "lamb shoulder",
+    "strength": 0.059049,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.393663,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "maraschino cherry",
+    "ingredientB": "soda water",
+    "strength": 0.059013,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.393422
+    }
+  },
+  {
+    "ingredientA": "cucumber",
+    "ingredientB": "rice noodle",
+    "strength": 0.058668,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.391123,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cornstarch",
+    "ingredientB": "oyster sauce",
+    "strength": 0.058668,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.391123,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chicken stock",
+    "ingredientB": "dry sherry",
+    "strength": 0.058574,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.390494,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "bay leaf",
+    "ingredientB": "red wine",
+    "strength": 0.058346,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.388974,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cumin",
+    "ingredientB": "garam masala",
+    "strength": 0.058293,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.388618,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lime",
+    "ingredientB": "peanut",
+    "strength": 0.058239,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.388263,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "sesame seed oil",
+    "ingredientB": "soy sauce",
+    "strength": 0.058195,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.387964,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "banana",
+    "ingredientB": "vanilla",
+    "strength": 0.058045,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.386966,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "almond extract",
+    "ingredientB": "vanilla",
+    "strength": 0.058045,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.386966,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "tonic water",
+    "ingredientB": "vodka",
+    "strength": 0.057992,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.386612
+    }
+  },
+  {
+    "ingredientA": "grenadine",
+    "ingredientB": "proof rum",
+    "strength": 0.057992,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.386612
+    }
+  },
+  {
+    "ingredientA": "chive",
+    "ingredientB": "mushroom",
+    "strength": 0.057922,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.386145,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "gin",
+    "ingredientB": "maraschino liqueur",
+    "strength": 0.057803,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.385351
+    }
+  },
+  {
+    "ingredientA": "carbonated water",
+    "ingredientB": "gin",
+    "strength": 0.057803,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.385351
+    }
+  },
+  {
+    "ingredientA": "celery",
+    "ingredientB": "leek",
+    "strength": 0.057556,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.383705,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chickpea",
+    "ingredientB": "greek yogurt",
+    "strength": 0.057556,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.383705,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "mint",
+    "ingredientB": "rocket",
+    "strength": 0.057075,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.380498,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "golden caster sugar",
+    "ingredientB": "mint",
+    "strength": 0.057075,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.380498,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lime juice",
+    "ingredientB": "triple sec",
+    "strength": 0.057054,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.380359
+    }
+  },
+  {
+    "ingredientA": "cilantro",
+    "ingredientB": "green chilli",
+    "strength": 0.056837,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.378915,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "dill",
+    "ingredientB": "sour cream",
+    "strength": 0.056837,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.378915,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chicken leg",
+    "ingredientB": "parsley",
+    "strength": 0.056837,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.378915,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "parsley",
+    "ingredientB": "smoked haddock",
+    "strength": 0.056837,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.378915,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "ginger",
+    "ingredientB": "nut oil",
+    "strength": 0.056837,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.378915,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coconut milk",
+    "ingredientB": "green bean",
+    "strength": 0.056837,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.378915,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "nut oil",
+    "ingredientB": "red chilli",
+    "strength": 0.056837,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.378915,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "oyster sauce",
+    "ingredientB": "soy sauce",
+    "strength": 0.056485,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.376566,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "rice vinegar",
+    "strength": 0.056485,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.376566,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lemon",
+    "ingredientB": "tahini",
+    "strength": 0.056397,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.375983,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "egg white",
+    "ingredientB": "egg yolk",
+    "strength": 0.056397,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.375983,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cornstarch",
+    "ingredientB": "egg white",
+    "strength": 0.056397,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.375983,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cream",
+    "ingredientB": "digestive biscuit",
+    "strength": 0.056252,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.375015,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "avocado",
+    "ingredientB": "lime",
+    "strength": 0.056137,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.374245,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "kidney bean",
+    "ingredientB": "rice",
+    "strength": 0.056137,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.374245,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cranberry juice",
+    "ingredientB": "orange juice",
+    "strength": 0.056134,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.374229
+    }
+  },
+  {
+    "ingredientA": "orange juice",
+    "ingredientB": "red wine",
+    "strength": 0.056134,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.374229
+    }
+  },
+  {
+    "ingredientA": "lime",
+    "ingredientB": "soda water",
+    "strength": 0.055771,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.37181
+    }
+  },
+  {
+    "ingredientA": "brown sugar",
+    "ingredientB": "molasse",
+    "strength": 0.055679,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.371194,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "allspice",
+    "ingredientB": "raisin",
+    "strength": 0.055679,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.371194,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "basil",
+    "ingredientB": "courgette",
+    "strength": 0.055679,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.371194,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "brown sugar",
+    "ingredientB": "nut oil",
+    "strength": 0.055679,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.371194,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "noodle",
+    "ingredientB": "soy sauce",
+    "strength": 0.055453,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.369686,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "red pepper",
+    "ingredientB": "tiger prawn",
+    "strength": 0.055453,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.369686,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "shiitake",
+    "ingredientB": "soy sauce",
+    "strength": 0.055453,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.369686,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "sesame seed",
+    "ingredientB": "sesame seed oil",
+    "strength": 0.055341,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.368937,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lemon juice",
+    "ingredientB": "orange",
+    "strength": 0.055322,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.368812
+    }
+  },
+  {
+    "ingredientA": "cayenne pepper",
+    "ingredientB": "turmeric",
+    "strength": 0.055117,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.367448,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chili flake",
+    "ingredientB": "paprika",
+    "strength": 0.055117,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.367448,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lamb",
+    "ingredientB": "mint",
+    "strength": 0.055117,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.367448,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lime juice",
+    "ingredientB": "maraschino liqueur",
+    "strength": 0.055054,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.367027
+    }
+  },
+  {
+    "ingredientA": "lime juice",
+    "ingredientB": "simple syrup",
+    "strength": 0.055054,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.367027
+    }
+  },
+  {
+    "ingredientA": "ginger",
+    "ingredientB": "starch",
+    "strength": 0.055006,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.366707,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "ginger",
+    "ingredientB": "sweet potato",
+    "strength": 0.055006,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.366707,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cumin",
+    "ingredientB": "turmeric",
+    "strength": 0.054951,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.366338,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cumin",
+    "ingredientB": "smoked paprika",
+    "strength": 0.054951,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.366338,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cumin",
+    "ingredientB": "lamb mince",
+    "strength": 0.054951,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.366338,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "allspice",
+    "ingredientB": "coconut milk",
+    "strength": 0.05488,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.365865,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "baking powder",
+    "ingredientB": "vanilla",
+    "strength": 0.054875,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.365836,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "condensed milk",
+    "ingredientB": "cream",
+    "strength": 0.054868,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.365786,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "fruit",
+    "ingredientB": "milk",
+    "strength": 0.054785,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.365235,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "milk",
+    "ingredientB": "vanilla pod",
+    "strength": 0.054785,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.365235,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "rice noodle",
+    "ingredientB": "sesame seed oil",
+    "strength": 0.054703,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.364686,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "dry vermouth",
+    "ingredientB": "sweet vermouth",
+    "strength": 0.054699,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.364663
+    }
+  },
+  {
+    "ingredientA": "orange",
+    "ingredientB": "sweet vermouth",
+    "strength": 0.054699,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.364663
+    }
+  },
+  {
+    "ingredientA": "fish sauce",
+    "ingredientB": "red chilli",
+    "strength": 0.054654,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.364358,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "sugar",
+    "ingredientB": "yoghurt",
+    "strength": 0.054582,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.363879
+    }
+  },
+  {
+    "ingredientA": "chocolate",
+    "ingredientB": "cream",
+    "strength": 0.054421,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.362807,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "carrot",
+    "ingredientB": "celery",
+    "strength": 0.054309,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.362063,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "tomato paste",
+    "ingredientB": "worcestershire sauce",
+    "strength": 0.054133,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.360887,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "mint",
+    "ingredientB": "peanut",
+    "strength": 0.054004,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.360029,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coriander",
+    "ingredientB": "rice noodle",
+    "strength": 0.053495,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.356636,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "kidney bean",
+    "ingredientB": "thyme",
+    "strength": 0.053495,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.356636,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coriander",
+    "ingredientB": "lamb mince",
+    "strength": 0.053495,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.356636,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cucumber",
+    "ingredientB": "fish sauce",
+    "strength": 0.053495,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.356636,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "orange",
+    "ingredientB": "soda water",
+    "strength": 0.053479,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.356526
+    }
+  },
+  {
+    "ingredientA": "apricot",
+    "ingredientB": "mint",
+    "strength": 0.053286,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.35524,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "green pepper",
+    "ingredientB": "red pepper",
+    "strength": 0.053182,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.354546,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coffee",
+    "ingredientB": "sugar",
+    "strength": 0.053136,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.354239
+    }
+  },
+  {
+    "ingredientA": "bourbon",
+    "ingredientB": "sugar",
+    "strength": 0.053136,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.354239
+    }
+  },
+  {
+    "ingredientA": "cream",
+    "ingredientB": "kahlua",
+    "strength": 0.052965,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.353102
+    }
+  },
+  {
+    "ingredientA": "pork",
+    "ingredientB": "rice vinegar",
+    "strength": 0.052872,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.352478,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "king prawn",
+    "ingredientB": "white wine",
+    "strength": 0.052872,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.352478,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "saffron",
+    "ingredientB": "white wine",
+    "strength": 0.052872,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.352478,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "raisin",
+    "ingredientB": "vanilla",
+    "strength": 0.052872,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.352478,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "saffron",
+    "ingredientB": "vegetable stock",
+    "strength": 0.052872,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.352478,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "gin",
+    "ingredientB": "green chartreuse",
+    "strength": 0.052852,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.352346
+    }
+  },
+  {
+    "ingredientA": "blue curacao",
+    "ingredientB": "gin",
+    "strength": 0.052852,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.352346
+    }
+  },
+  {
+    "ingredientA": "apricot brandy",
+    "ingredientB": "gin",
+    "strength": 0.052852,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.352346
+    }
+  },
+  {
+    "ingredientA": "bean sprout",
+    "ingredientB": "scallion",
+    "strength": 0.052749,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.351658,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "simple syrup",
+    "ingredientB": "soda water",
+    "strength": 0.052739,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.351592
+    }
+  },
+  {
+    "ingredientA": "carrot",
+    "ingredientB": "swede",
+    "strength": 0.052718,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.351453,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chocolate",
+    "ingredientB": "powdered sugar",
+    "strength": 0.052626,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.350841,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "brown sugar",
+    "ingredientB": "peanut",
+    "strength": 0.052609,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.350724,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cherry",
+    "ingredientB": "lemon",
+    "strength": 0.052558,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.35039
+    }
+  },
+  {
+    "ingredientA": "black pudding",
+    "ingredientB": "tomato",
+    "strength": 0.052261,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.34841,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "mussel",
+    "ingredientB": "tomato",
+    "strength": 0.052261,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.34841,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "beef",
+    "ingredientB": "beef stock",
+    "strength": 0.052111,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.347407,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "beef stock",
+    "ingredientB": "mushroom",
+    "strength": 0.052111,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.347407,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "shrimp",
+    "ingredientB": "soy sauce",
+    "strength": 0.052111,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.347407,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "red pepper",
+    "ingredientB": "tomato ketchup",
+    "strength": 0.052111,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.347407,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lemon",
+    "ingredientB": "whiskey",
+    "strength": 0.052002,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.346682
+    }
+  },
+  {
+    "ingredientA": "scallion",
+    "ingredientB": "sesame seed oil",
+    "strength": 0.051999,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.346658,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cumin",
+    "ingredientB": "lamb leg",
+    "strength": 0.051961,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.346409,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cornstarch",
+    "ingredientB": "sesame seed oil",
+    "strength": 0.051714,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.344757,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coriander",
+    "ingredientB": "garam masala",
+    "strength": 0.051664,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.344428,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coconut milk",
+    "ingredientB": "king prawn",
+    "strength": 0.051664,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.344428,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "red cabbage",
+    "ingredientB": "red chilli",
+    "strength": 0.051664,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.344428,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "lime juice",
+    "ingredientB": "mint",
+    "strength": 0.051293,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.341953
+    }
+  },
+  {
+    "ingredientA": "coconut milk",
+    "ingredientB": "lime",
+    "strength": 0.050964,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.339757,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "red wine",
+    "ingredientB": "tomato paste",
+    "strength": 0.050791,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.338607,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "scallion",
+    "ingredientB": "shrimp",
+    "strength": 0.050791,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.338607,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "almond",
+    "ingredientB": "powdered sugar",
+    "strength": 0.050669,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.33779,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "egg white",
+    "ingredientB": "lemon",
+    "strength": 0.05064,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0,
+      "cocktaildb": 0.337602
+    }
+  },
+  {
+    "ingredientA": "chorizo",
+    "ingredientB": "olive",
+    "strength": 0.050601,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.337338,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chickpea",
+    "ingredientB": "chorizo",
+    "strength": 0.050601,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.337338,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "peanut",
+    "ingredientB": "sesame seed oil",
+    "strength": 0.050601,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.337338,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cinnamon",
+    "ingredientB": "star anise",
+    "strength": 0.050506,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.336706,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "butter bean",
+    "ingredientB": "parsley",
+    "strength": 0.050506,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.336706,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "basil",
+    "ingredientB": "parmesan",
+    "strength": 0.050506,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.336706,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "cinnamon",
+    "ingredientB": "molasse",
+    "strength": 0.050506,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.336706,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "coriander",
+    "ingredientB": "sweet chilli sauce",
+    "strength": 0.050506,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.336706,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "red wine",
+    "ingredientB": "thyme",
+    "strength": 0.050153,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.334356,
+      "cocktaildb": 0
+    }
+  },
+  {
+    "ingredientA": "chocolate",
+    "ingredientB": "self-raising flour",
+    "strength": 0.05013,
+    "breakdown": {
+      "recipenlg": 0,
+      "flavordb": 0,
+      "mealdb": 0.334201,
+      "cocktaildb": 0
+    }
+  }
+]
