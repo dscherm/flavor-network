@@ -37,6 +37,7 @@ const TASTE_COLORS = {
   salty: '#3498db',
   sour: '#4ecdc4',
   bitter: '#9b59b6',
+  umami: '#f39c12',
   hot: '#e74c3c',
   spicy: '#e74c3c',
   sweet: '#ff6b9d',
