@@ -1,0 +1,31 @@
+{
+  "appId": "com.neuralflavor.app",
+  "appName": "Flavor Network",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile",
+    "backgroundColor": "#0a0a0f",
+    "allowsLinkPreview": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0a0a0f",
+      "showSpinner": false,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 500
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#0a0a0f"
+    }
+  },
+  "server": {
+    "allowNavigation": [
+      "www.thecocktaildb.com",
+      "www.themealdb.com",
+      "cosylab.iiitd.edu.in"
+    ]
+  }
+}

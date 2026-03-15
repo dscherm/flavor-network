@@ -8,9 +8,18 @@
     "build": "vite build",
     "preview": "vite preview",
     "train": "node scripts/train.js",
-    "api": "node src/api/server.js"
+    "api": "node src/api/server.js",
+    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "ios:build": "npm run build && npx cap sync ios && cd ios/App && xcodebuild build -workspace App.xcworkspace -scheme App -configuration Debug -destination 'generic/platform=iOS Simulator'"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/haptics": "^8.0.1",
+    "@capacitor/ios": "^8.2.0",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.1",
     "@tensorflow/tfjs": "^4.22.0",
     "cors": "^2.8.5",
     "express": "^4.21.0",
