@@ -16,10 +16,11 @@ export const MEALDB_BASE = 'https://www.themealdb.com/api/json/v1/1';
 export const COCKTAILDB_BASE = 'https://www.thecocktaildb.com/api/json/v1/1';
 
 // Blending weights (must sum to 1.0)
+// FlavorDB weight redistributed to active sources since its dataset is empty.
 export const WEIGHTS = {
-  recipenlg: 0.40,
-  flavordb: 0.30,
-  mealdb: 0.15,
+  recipenlg: 0.60,
+  flavordb: 0.05,
+  mealdb: 0.20,
   cocktaildb: 0.15,
 };
 
@@ -33,5 +34,5 @@ export const RATE_LIMITS = {
 // Filtering thresholds
 export const MIN_RECIPE_COUNT = 3;         // pair must appear in 3+ recipes
 export const MIN_INGREDIENT_RECIPES = 50;  // ingredient must appear in 50+ recipes (filters noise from 2.2M dataset)
-export const MIN_BLENDED_STRENGTH = 0.05;  // drop pairs below this after blending
+export const MIN_BLENDED_STRENGTH = 0.02;  // drop pairs below this after blending
 export const MIN_SOURCES = 1;              // pair must appear in at least N sources

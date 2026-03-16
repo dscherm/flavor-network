@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-14T14:47:43.340Z",
+  "generatedAt": "2026-03-16T22:32:51.433Z",
   "sources": {
     "recipenlg": {
       "pairs": 381407,
@@ -23,14 +23,14 @@
     }
   },
   "weights": {
-    "recipenlg": 0.4,
-    "flavordb": 0.3,
-    "mealdb": 0.15,
+    "recipenlg": 0.6,
+    "flavordb": 0.05,
+    "mealdb": 0.2,
     "cocktaildb": 0.15
   },
   "thresholds": {
-    "MIN_BLENDED_STRENGTH": 0.05
+    "MIN_BLENDED_STRENGTH": 0.02
   },
   "totalIngredients": 4488,
-  "totalPairings": 113269
+  "totalPairings": 51726
 }

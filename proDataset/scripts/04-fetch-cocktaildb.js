@@ -4,7 +4,7 @@ import {
   MIN_RECIPE_COUNT,
 } from '../config.js';
 import {
-  canonicalizeIngredient, pairKey, computePMI, normalizeMap,
+  canonicalizeIngredient, pairKey, computePMI, computeHybridScore, normalizeMap,
   throttledFetch, ensureDir, readJson, writeJson, log,
 } from '../utils.js';
 
@@ -98,23 +98,26 @@ async function run() {
   log(`Unique ingredients: ${ingredientFreq.size}`);
   log(`Unique pairs (raw): ${pairCounts.size}`);
 
-  // Compute PMI
+  // Compute hybrid score (NPMI + log-count)
   const pmiMap = new Map();
+  const scoreMap = new Map();
   for (const [key, count] of pairCounts) {
     if (count < MIN_RECIPE_COUNT) continue;
     const [a, b] = key.split('|');
     const pmi = computePMI(count, ingredientFreq.get(a), ingredientFreq.get(b), totalRecipes);
+    const hybrid = computeHybridScore(count, ingredientFreq.get(a), ingredientFreq.get(b), totalRecipes);
     pmiMap.set(key, pmi);
+    scoreMap.set(key, hybrid);
   }
 
-  const normalizedPMI = normalizeMap(pmiMap);
+  const normalizedScores = normalizeMap(scoreMap);
 
   const pairs = {};
   for (const [key, pmi] of pmiMap) {
     pairs[key] = {
       count: pairCounts.get(key),
       pmi: Math.round(pmi * 1e6) / 1e6,
-      strength: Math.round(normalizedPMI.get(key) * 1e6) / 1e6,
+      strength: Math.round(normalizedScores.get(key) * 1e6) / 1e6,
     };
   }
 
