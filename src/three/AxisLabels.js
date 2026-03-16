@@ -152,37 +152,39 @@ export function createSauceAxisLabels(spread = 45) {
 /**
  * Build taste-direction label sprites for the main Network view.
  *
- * Uses the 7D → 3D projection vectors from tastePositioning.js to place
- * 7 labels around the cloud, one per taste dimension.  Each label sits
+ * Uses the 8D → 3D projection vectors from tastePositioning.js to place
+ * 8 labels around the cloud, one per taste dimension.  Each label sits
  * in the direction that taste "pulls" ingredients toward, so the spatial
  * layout is self-documenting.
  *
  * @param {number} spread - Spatial spread used in positioning (default 50)
- * @returns {THREE.Group} Group containing 7 taste label sprites
+ * @returns {THREE.Group} Group containing 8 taste label sprites
  */
 export function createTasteAxisLabels(spread = 50) {
   // Import projection vectors so labels match the positioning math
   // (inlined here to avoid circular deps — values mirror TASTE_AXES)
-  // Mirrors TASTE_AXES from tastePositioning.js
+  // Mirrors TASTE_AXES from tastePositioning.js (square antiprism)
   const TASTE_DIRS = {
-    Sweet:   [-0.88, -0.42,  0.21],
-    Salty:   [ 0.93, -0.31, -0.16],
-    Sour:    [-0.31, -0.79, -0.53],
-    Bitter:  [ 0.36,  0.31, -0.88],
-    Umami:   [ 0.57,  0.67,  0.36],
-    Spicy:   [-0.26,  0.88,  0.31],
-    Pungent: [ 0.11, -0.10,  0.93],
+    Sweet:      [  0.83,   0.56,   0.00],
+    Salty:      [  0.00,   0.56,   0.83],
+    Sour:       [ -0.83,   0.56,   0.00],
+    Bitter:     [  0.00,   0.56,  -0.83],
+    Umami:      [  0.59,  -0.56,   0.59],
+    Spicy:      [ -0.59,  -0.56,   0.59],
+    Pungent:    [ -0.59,  -0.56,  -0.59],
+    Astringent: [  0.59,  -0.56,  -0.59],
   };
 
   // Matches Legend.jsx and color.js
   const TASTE_COLORS = {
-    Sweet:   'rgba(251, 146, 180, 0.9)',  // pink
-    Salty:   'rgba(147, 197, 253, 0.9)',  // light blue
-    Sour:    'rgba(253, 224, 71, 0.9)',   // yellow
-    Bitter:  'rgba(167, 139, 250, 0.9)',  // purple
-    Umami:   'rgba(249, 168, 112, 0.9)',  // orange
-    Spicy:   'rgba(248, 113, 113, 0.9)',  // red
-    Pungent: 'rgba(180, 140, 100, 0.9)',  // warm brown
+    Sweet:      'rgba(251, 146, 180, 0.9)',  // pink
+    Salty:      'rgba(147, 197, 253, 0.9)',  // light blue
+    Sour:       'rgba(253, 224, 71, 0.9)',   // yellow
+    Bitter:     'rgba(167, 139, 250, 0.9)',  // purple
+    Umami:      'rgba(249, 168, 112, 0.9)',  // orange
+    Spicy:      'rgba(248, 113, 113, 0.9)',  // red
+    Pungent:    'rgba(180, 140, 100, 0.9)',  // warm brown
+    Astringent: 'rgba(74, 222, 128, 0.9)',   // green
   };
 
   const group = new THREE.Group();
