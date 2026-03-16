@@ -1,16 +1,20 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { TASTE_KEYS } from '../data/recipeLayout.js';
+import { scoreIngredient } from '../data/tastePositioning.js';
 
 const PAPER_COLOR = '#fefae0';
 const LINE_COLOR = '#c9b99a';
 const MARGIN_COLOR = '#e07070';
 const PENCIL_COLOR = '#3a3428';
 const LINE_SPACING = 28;
-const NODE_RADIUS = 18;
-const CENTER_RADIUS = 26;
+const NODE_RADIUS = 22;
+const CENTER_SIZE = 36; // half-diagonal of rhombus
+const STAR_THRESHOLD = 0.22; // strength above this → star shape
+const FONT_FAMILY = 'Caveat, cursive';
 
-function desaturate(hex, amount = 0.35) {
+// Colored-pencil fill: desaturate + add grain-like opacity
+function pencilColor(hex, amount = 0.3) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
@@ -21,21 +25,72 @@ function desaturate(hex, amount = 0.35) {
   return `rgb(${nr},${ng},${nb})`;
 }
 
-// Wobbly line for hand-drawn effect
+// Blend an ingredient's taste channels into a single weighted color
+function blendTasteColor(name, node) {
+  const { channels } = scoreIngredient(name, node || {});
+  let rSum = 0, gSum = 0, bSum = 0, wSum = 0;
+  for (const [taste, weight] of Object.entries(channels)) {
+    if (weight <= 0) continue;
+    const hex = TASTE_COLORS[taste] || TASTE_COLORS.default;
+    rSum += parseInt(hex.slice(1, 3), 16) * weight;
+    gSum += parseInt(hex.slice(3, 5), 16) * weight;
+    bSum += parseInt(hex.slice(5, 7), 16) * weight;
+    wSum += weight;
+  }
+  if (wSum === 0) return '#d4c8a0';
+  return `rgb(${Math.round(rSum / wSum)},${Math.round(gSum / wSum)},${Math.round(bSum / wSum)})`;
+}
+
+// Draw a rhombus (diamond) centered at (x, y)
+function drawRhombus(ctx, x, y, halfDiag) {
+  ctx.beginPath();
+  ctx.moveTo(x, y - halfDiag);       // top
+  ctx.lineTo(x + halfDiag, y);       // right
+  ctx.lineTo(x, y + halfDiag);       // bottom
+  ctx.lineTo(x - halfDiag, y);       // left
+  ctx.closePath();
+}
+
+// Draw a 5-point star centered at (x, y)
+function drawStar(ctx, x, y, outerR, innerR) {
+  const points = 5;
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const angle = (Math.PI / 2 * -1) + (i * Math.PI) / points;
+    const r = i % 2 === 0 ? outerR : innerR;
+    const px = x + Math.cos(angle) * r;
+    const py = y + Math.sin(angle) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+}
+
+// Wobbly hand-drawn line
 function wobblyLine(ctx, x1, y1, x2, y2, segments = 8) {
   ctx.beginPath();
   ctx.moveTo(x1, y1);
   for (let i = 1; i <= segments; i++) {
     const t = i / segments;
-    const mx = x1 + (x2 - x1) * t + (Math.random() - 0.5) * 2;
-    const my = y1 + (y2 - y1) * t + (Math.random() - 0.5) * 2;
+    const mx = x1 + (x2 - x1) * t + (Math.random() - 0.5) * 1.8;
+    const my = y1 + (y2 - y1) * t + (Math.random() - 0.5) * 1.8;
     ctx.lineTo(mx, my);
   }
   ctx.stroke();
 }
 
+// Fit text inside a width, returning font size
+function fitText(ctx, text, maxWidth, baseSize = 14, minSize = 9) {
+  for (let size = baseSize; size >= minSize; size--) {
+    ctx.font = `${size}px ${FONT_FAMILY}`;
+    if (ctx.measureText(text).width <= maxWidth) return size;
+  }
+  return minSize;
+}
+
 export default function NotebookCanvas({
   centerIngredient,
+  centerNode,
   layoutPositions,
   recipeIngredients,
   hoveredNode,
@@ -115,15 +170,16 @@ export default function NotebookCanvas({
 
     const targets = [];
 
-    // Draw taste axis lines (faint)
+    // Draw taste axis lines with darkened labels
     if (centerIngredient) {
       const axisLen = 400;
-      for (const taste of TASTE_KEYS) {
-        const angle = Math.PI * 2 * TASTE_KEYS.indexOf(taste) / 8;
+      for (let idx = 0; idx < TASTE_KEYS.length; idx++) {
+        const taste = TASTE_KEYS[idx];
+        const angle = Math.PI * 2 * idx / 8;
         const ex = Math.cos(angle) * axisLen;
         const ey = Math.sin(angle) * axisLen;
 
-        ctx.strokeStyle = 'rgba(180,160,130,0.2)';
+        ctx.strokeStyle = 'rgba(160,140,110,0.18)';
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 6]);
         ctx.beginPath();
@@ -132,23 +188,27 @@ export default function NotebookCanvas({
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Axis label
-        ctx.font = '14px Caveat, cursive';
-        ctx.fillStyle = 'rgba(140,120,100,0.5)';
+        // Darkened axis label
+        const tasteColor = TASTE_COLORS[taste] || TASTE_COLORS.default;
+        const darkened = pencilColor(tasteColor, -0.3);
+        ctx.font = `bold 16px ${FONT_FAMILY}`;
+        ctx.fillStyle = darkened;
+        ctx.globalAlpha = 0.8;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(taste, ex * 1.12, ey * 1.12);
+        ctx.globalAlpha = 1;
       }
     }
 
     // Draw connection lines from center to pairings
     if (centerIngredient && layoutPositions) {
-      for (const [name, pos] of layoutPositions) {
-        const opacity = 0.15 + pos.strength * 0.5;
+      for (const [, pos] of layoutPositions) {
+        const opacity = 0.12 + pos.strength * 0.45;
         const color = TASTE_COLORS[pos.dominantTaste] || TASTE_COLORS.default;
-        ctx.strokeStyle = desaturate(color, 0.5);
+        ctx.strokeStyle = pencilColor(color, 0.45);
         ctx.globalAlpha = opacity;
-        ctx.lineWidth = 1 + pos.strength * 1.5;
+        ctx.lineWidth = 0.8 + pos.strength * 1.5;
         wobblyLine(ctx, 0, 0, pos.x, pos.y, 6);
         ctx.globalAlpha = 1;
       }
@@ -159,76 +219,90 @@ export default function NotebookCanvas({
       for (const [name, pos] of layoutPositions) {
         const isInRecipe = recipeIngredients.includes(name);
         const isHovered = hoveredNode === name;
+        const isStrong = pos.strength >= STAR_THRESHOLD;
         const color = TASTE_COLORS[pos.dominantTaste] || TASTE_COLORS.default;
-        const nodeColor = desaturate(color, 0.3);
+        const fillCol = pencilColor(color, isInRecipe ? 0.25 : 0.5);
         const r = NODE_RADIUS + (isHovered ? 4 : 0);
 
-        // Node circle
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = isInRecipe ? nodeColor : desaturate(color, 0.55);
-        ctx.globalAlpha = isInRecipe ? 0.9 : 0.6;
+        // Draw shape: star for strong pairings, circle for others
+        if (isStrong) {
+          drawStar(ctx, pos.x, pos.y, r, r * 0.45);
+        } else {
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+        }
+
+        ctx.fillStyle = fillCol;
+        ctx.globalAlpha = isInRecipe ? 0.85 : 0.55;
         ctx.fill();
         ctx.globalAlpha = 1;
 
-        // Border
-        ctx.strokeStyle = isInRecipe ? PENCIL_COLOR : 'rgba(100,90,70,0.4)';
+        // Border — pencil stroke style
+        ctx.strokeStyle = isInRecipe ? PENCIL_COLOR : 'rgba(90,80,60,0.4)';
         ctx.lineWidth = isInRecipe ? 2 : 1;
         ctx.stroke();
 
-        // Label
-        ctx.font = `${isHovered ? 'bold ' : ''}16px Caveat, cursive`;
+        // Text INSIDE the node
+        const maxTextWidth = r * 1.6;
+        const fontSize = fitText(ctx, name, maxTextWidth);
+        ctx.font = `${isHovered ? 'bold ' : ''}${fontSize}px ${FONT_FAMILY}`;
         ctx.fillStyle = PENCIL_COLOR;
         ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(name, pos.x, pos.y + r + 4);
+        ctx.textBaseline = 'middle';
+        ctx.fillText(name, pos.x, pos.y);
 
-        targets.push({ name, x: pos.x, y: pos.y, radius: r + 6 });
+        targets.push({ name, x: pos.x, y: pos.y, radius: r + 4 });
       }
     }
 
-    // Draw center ingredient
+    // Draw center ingredient as rhombus with blended taste color
     if (centerIngredient) {
-      ctx.beginPath();
-      ctx.arc(0, 0, CENTER_RADIUS, 0, Math.PI * 2);
-      ctx.fillStyle = '#f5e6c8';
+      const blendedColor = blendTasteColor(centerIngredient, centerNode);
+      const fillCol = pencilColor(blendedColor, 0.2);
+
+      drawRhombus(ctx, 0, 0, CENTER_SIZE);
+      ctx.fillStyle = fillCol;
+      ctx.globalAlpha = 0.75;
       ctx.fill();
+      ctx.globalAlpha = 1;
       ctx.strokeStyle = PENCIL_COLOR;
       ctx.lineWidth = 2.5;
       ctx.stroke();
 
-      ctx.font = 'bold 20px Caveat, cursive';
+      // Text inside rhombus
+      const maxW = CENTER_SIZE * 1.3;
+      const cFontSize = fitText(ctx, centerIngredient, maxW, 18, 11);
+      ctx.font = `bold ${cFontSize}px ${FONT_FAMILY}`;
       ctx.fillStyle = PENCIL_COLOR;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(centerIngredient, 0, 0);
 
-      targets.push({ name: centerIngredient, x: 0, y: 0, radius: CENTER_RADIUS + 6 });
+      targets.push({ name: centerIngredient, x: 0, y: 0, radius: CENTER_SIZE + 6 });
     }
 
     // Tooltip for hovered node
     if (hoveredNode && layoutPositions && layoutPositions.has(hoveredNode)) {
       const pos = layoutPositions.get(hoveredNode);
       const str = Math.round(pos.strength * 100);
-      ctx.font = 'bold 14px Caveat, cursive';
-      ctx.fillStyle = 'rgba(58,52,40,0.85)';
       const txt = `${str}% match`;
+      ctx.font = `bold 14px ${FONT_FAMILY}`;
       const tw = ctx.measureText(txt).width;
-      ctx.fillStyle = 'rgba(254,250,224,0.92)';
-      ctx.fillRect(pos.x - tw / 2 - 6, pos.y - NODE_RADIUS - 26, tw + 12, 22);
+      const tipY = pos.y - NODE_RADIUS - 28;
+      ctx.fillStyle = 'rgba(254,250,224,0.93)';
+      ctx.fillRect(pos.x - tw / 2 - 6, tipY, tw + 12, 22);
       ctx.strokeStyle = 'rgba(100,90,70,0.3)';
       ctx.lineWidth = 1;
-      ctx.strokeRect(pos.x - tw / 2 - 6, pos.y - NODE_RADIUS - 26, tw + 12, 22);
+      ctx.strokeRect(pos.x - tw / 2 - 6, tipY, tw + 12, 22);
       ctx.fillStyle = PENCIL_COLOR;
-      ctx.font = 'bold 14px Caveat, cursive';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(txt, pos.x, pos.y - NODE_RADIUS - 15);
+      ctx.fillText(txt, pos.x, tipY + 11);
     }
 
     ctx.restore();
     hitTargets.current = targets;
-  }, [centerIngredient, layoutPositions, recipeIngredients, hoveredNode, width, height, camera]);
+  }, [centerIngredient, centerNode, layoutPositions, recipeIngredients, hoveredNode, width, height, camera]);
 
   // Mouse handlers
   const handleMouseDown = useCallback((e) => {

@@ -13,6 +13,7 @@ export default function RecipePanel({
   onSave,
   recipeTitle,
   onTitleChange,
+  centerIngredient,
 }) {
   // Compute dominant taste badge for each ingredient
   const tasteBadges = useMemo(() => {
@@ -71,21 +72,42 @@ export default function RecipePanel({
         {ingredients.map((name) => {
           const taste = tasteBadges[name];
           const color = TASTE_COLORS[taste] || TASTE_COLORS.default;
+          const isCenter = name === centerIngredient;
           return (
             <div
               key={name}
-              className="flex items-center gap-2 py-1.5 border-b border-[#e8dcc8]"
+              className={`flex items-center gap-2 py-1.5 border-b transition-colors ${
+                isCenter ? 'border-[#c9b99a] bg-[#f5edd0]/60' : 'border-[#e8dcc8]'
+              }`}
             >
+              {/* Taste color indicator — diamond for center, circle for others */}
+              {isCenter ? (
+                <span
+                  className="inline-block flex-shrink-0"
+                  style={{ width: 14, height: 14, transform: 'rotate(45deg)', backgroundColor: color, borderRadius: 2 }}
+                />
+              ) : (
+                <span
+                  className="inline-block w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: color }}
+                />
+              )}
               <span
-                className="inline-block w-3 h-3 rounded-full flex-shrink-0"
-                style={{ backgroundColor: color }}
-              />
-              <span className="text-lg flex-1" style={{ color: '#3a3428' }}>
+                className={`text-lg flex-1 ${isCenter ? 'font-bold' : ''}`}
+                style={{ color: '#3a3428' }}
+              >
                 {name}
               </span>
+              {isCenter && (
+                <span className="text-xs px-1.5 py-0.5 rounded" style={{ color: '#8a7a5a', backgroundColor: '#e8dcc0' }}>
+                  center
+                </span>
+              )}
               <button
                 onClick={() => onRecenter(name)}
-                className="text-sm px-1.5 py-0.5 rounded hover:bg-[#e8dcc8] transition-colors"
+                className={`text-sm px-1.5 py-0.5 rounded hover:bg-[#e8dcc8] transition-colors ${
+                  isCenter ? 'opacity-30 pointer-events-none' : ''
+                }`}
                 style={{ color: '#7a6a4a' }}
                 title="Re-center on this ingredient"
               >
