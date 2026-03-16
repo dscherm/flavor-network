@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
 const TASTE_COLORS = [
-  { label: 'Sweet', key: 'sweet', color: '#ff6b9d' },
-  { label: 'Sour', key: 'sour', color: '#4ecdc4' },
-  { label: 'Bitter', key: 'bitter', color: '#9b59b6' },
-  { label: 'Salty', key: 'salty', color: '#3498db' },
-  { label: 'Spicy / Hot', key: 'spicy', color: '#e74c3c' },
-  { label: 'Pungent', key: 'pungent', color: '#e67e22' },
+  { label: 'Sweet', key: 'sweet', color: '#fb92b4' },
+  { label: 'Sour', key: 'sour', color: '#fde047' },
+  { label: 'Bitter', key: 'bitter', color: '#a78bfa' },
+  { label: 'Salty', key: 'salty', color: '#93c5fd' },
+  { label: 'Umami', key: 'umami', color: '#f9a870' },
+  { label: 'Spicy / Hot', key: 'spicy', color: '#f87171' },
+  { label: 'Rich', key: 'rich', color: '#b48c64' },
   { label: 'Default', key: '', color: '#4f8fff' },
 ];
 
