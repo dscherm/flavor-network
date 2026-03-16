@@ -122,10 +122,11 @@ export default function useProData() {
 
     async function load() {
       try {
-        const [ingredientsRes, pairingsRes, seasonRegionRes] = await Promise.all([
+        const [ingredientsRes, pairingsRes, seasonRegionRes, cuisineMapRes] = await Promise.all([
           fetch('/proDataset/ingredients.json'),
           fetch('/proDataset/pairings.json'),
           fetch('/data/season_region.json').catch(() => null),
+          fetch('/data/cuisine_map.json').catch(() => null),
         ]);
 
         if (!ingredientsRes.ok) throw new Error('Failed to load proDataset/ingredients.json');
@@ -134,6 +135,7 @@ export default function useProData() {
         const ingredientsData = await ingredientsRes.json();
         const pairingsData = await pairingsRes.json();
         const seasonRegionData = seasonRegionRes?.ok ? await seasonRegionRes.json() : {};
+        const cuisineMapData = cuisineMapRes?.ok ? await cuisineMapRes.json() : {};
 
         if (cancelled) return;
 
@@ -157,6 +159,14 @@ export default function useProData() {
           if (sr) {
             node.season = sr.season || null;
             node.regions = sr.regions || [];
+          }
+        }
+
+        // Merge cuisine data into graph nodes
+        for (const [name, node] of graph.nodes) {
+          const cuisines = cuisineMapData[name];
+          if (cuisines && cuisines.length > 0) {
+            node.cuisines = cuisines;
           }
         }
 
