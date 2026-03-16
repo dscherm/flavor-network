@@ -1,12 +1,11 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
-import useFlavorData from './hooks/useFlavorData.js';
+import useProData from './hooks/useProData.js';
 import NetworkScene from './components/NetworkScene.jsx';
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Legend from './components/Legend.jsx';
 import Controls from './components/Controls.jsx';
 import { getNeighbors } from './data/graph.js';
-// NodeFavoriteButton removed — favorite is now in IngredientPanel
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
 import ComparePanel from './components/ComparePanel.jsx';
 import Walkthrough from './components/Walkthrough.jsx';
@@ -25,19 +24,18 @@ import ProfileTreeView from './components/ProfileTreeView.jsx';
 import FlavorDNA from './components/FlavorDNA.jsx';
 import CocktailLab from './components/CocktailLab.jsx';
 import SauceLab from './components/SauceLab.jsx';
-import ProDataNetwork from './components/ProDataNetwork.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
 import { createTasteAxisLabels } from './three/AxisLabels.js';
 
 export default function App() {
-  const { loading, error, data } = useFlavorData();
+  // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
+  const { loading, error, data } = useProData();
   const { user, loginWithGoogle, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'prodata'
+  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce'
   const [cocktailMounted, setCocktailMounted] = useState(false); // lazy mount
   const [sauceMounted, setSauceMounted] = useState(false); // lazy mount
-  const [proDataMounted, setProDataMounted] = useState(false); // lazy mount
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
@@ -232,7 +230,6 @@ export default function App() {
             { key: 'network', label: 'Network', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z' },
             { key: 'cocktail', label: 'Cocktail Lab', icon: 'M7.5 21H2V3h5l4.286 10L16 3h6v18h-5.5v-9.571L13 21h-2.5L7.5 11.429V21z' },
             { key: 'sauce', label: 'Sauce Lab', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25' },
-            { key: 'prodata', label: 'ProData', icon: 'M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125' },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -240,7 +237,6 @@ export default function App() {
                 setActiveTab(tab.key);
                 if (tab.key === 'cocktail') setCocktailMounted(true);
                 if (tab.key === 'sauce') setSauceMounted(true);
-                if (tab.key === 'prodata') setProDataMounted(true);
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                 activeTab === tab.key
@@ -495,16 +491,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ProData tab — lazy-mounted, independent dataset */}
-      {proDataMounted && (
-        <div
-          className={`transition-opacity duration-300 ${
-            activeTab === 'prodata' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
-          }`}
-        >
-          <ProDataNetwork />
-        </div>
-      )}
     </>
   );
 }
