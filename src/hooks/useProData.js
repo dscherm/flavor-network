@@ -122,9 +122,10 @@ export default function useProData() {
 
     async function load() {
       try {
-        const [ingredientsRes, pairingsRes] = await Promise.all([
+        const [ingredientsRes, pairingsRes, seasonRegionRes] = await Promise.all([
           fetch('/proDataset/ingredients.json'),
           fetch('/proDataset/pairings.json'),
+          fetch('/data/season_region.json').catch(() => null),
         ]);
 
         if (!ingredientsRes.ok) throw new Error('Failed to load proDataset/ingredients.json');
@@ -132,10 +133,32 @@ export default function useProData() {
 
         const ingredientsData = await ingredientsRes.json();
         const pairingsData = await pairingsRes.json();
+        const seasonRegionData = seasonRegionRes?.ok ? await seasonRegionRes.json() : {};
 
         if (cancelled) return;
 
         const graph = buildProGraph(ingredientsData, pairingsData);
+
+        // Merge season and region data into graph nodes
+        // Build reverse index for fuzzy matching (sr name → sr entry)
+        const srEntries = Object.entries(seasonRegionData);
+        for (const [name, node] of graph.nodes) {
+          // Exact match first
+          let sr = seasonRegionData[name];
+          // Fuzzy fallback: check if ingredient name contains an SR key or vice versa
+          if (!sr) {
+            for (const [srName, srData] of srEntries) {
+              if (name.includes(srName) || srName.includes(name)) {
+                sr = srData;
+                break;
+              }
+            }
+          }
+          if (sr) {
+            node.season = sr.season || null;
+            node.regions = sr.regions || [];
+          }
+        }
 
         // Compute 3D positions using the taste positioning system
         const positions = computeTastePositions(graph.nodes, graph.edges, 50);
