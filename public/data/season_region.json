@@ -1,0 +1,3086 @@
+{
+  "pineapple": {
+    "season": "spring-summer",
+    "regions": ["South America", "Southeast Asia", "Caribbean", "Central America"]
+  },
+  "strawberry": {
+    "season": "late spring",
+    "regions": ["North America", "Western Europe", "Mediterranean"]
+  },
+  "raisin": {
+    "season": "autumn",
+    "regions": ["Mediterranean", "Central Asia", "North America"]
+  },
+  "banana": {
+    "season": "year-round",
+    "regions": ["South America", "Southeast Asia", "Central America", "Caribbean", "Sub-Saharan Africa"]
+  },
+  "peach": {
+    "season": "summer",
+    "regions": ["East Asia", "Mediterranean", "North America"]
+  },
+  "apple": {
+    "season": "autumn",
+    "regions": ["Central Asia", "Western Europe", "North America", "East Asia"]
+  },
+  "grape": {
+    "season": "late summer",
+    "regions": ["Mediterranean", "Western Europe", "North America", "Middle East"]
+  },
+  "cherry": {
+    "season": "early summer",
+    "regions": ["Western Europe", "North America", "East Asia", "Middle East"]
+  },
+  "watermelon": {
+    "season": "summer",
+    "regions": ["Sub-Saharan Africa", "Mediterranean", "Middle East", "North America"]
+  },
+  "cranberry": {
+    "season": "autumn",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "apricot": {
+    "season": "early summer",
+    "regions": ["Central Asia", "Mediterranean", "Middle East"]
+  },
+  "date": {
+    "season": "autumn-winter",
+    "regions": ["Middle East", "North Africa", "South Asia"]
+  },
+  "raspberry": {
+    "season": "summer",
+    "regions": ["North America", "Western Europe", "Northern Europe"]
+  },
+  "mango": {
+    "season": "summer",
+    "regions": ["South Asia", "Southeast Asia", "Central America", "Caribbean", "Sub-Saharan Africa"]
+  },
+  "prune": {
+    "season": "autumn",
+    "regions": ["Western Europe", "North America", "Central Asia"]
+  },
+  "blackberry": {
+    "season": "summer",
+    "regions": ["North America", "Western Europe", "Northern Europe"]
+  },
+  "blueberry": {
+    "season": "summer",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "fig": {
+    "season": "late summer",
+    "regions": ["Mediterranean", "Middle East", "North Africa"]
+  },
+  "pear": {
+    "season": "autumn",
+    "regions": ["Western Europe", "East Asia", "North America"]
+  },
+  "plum": {
+    "season": "summer",
+    "regions": ["East Asia", "Western Europe", "North America", "Eastern Europe"]
+  },
+  "kiwi fruit": {
+    "season": "autumn-winter",
+    "regions": ["East Asia", "Oceania", "Mediterranean"]
+  },
+  "honeydew melon": {
+    "season": "summer",
+    "regions": ["North Africa", "Mediterranean", "North America"]
+  },
+  "guava": {
+    "season": "autumn-winter",
+    "regions": ["Central America", "South America", "South Asia", "Southeast Asia", "Caribbean"]
+  },
+  "cantaloupe": {
+    "season": "summer",
+    "regions": ["Mediterranean", "North America", "South Asia"]
+  },
+  "papaya": {
+    "season": "year-round",
+    "regions": ["Central America", "South America", "Southeast Asia", "Caribbean"]
+  },
+  "pomegranate": {
+    "season": "autumn",
+    "regions": ["Middle East", "Mediterranean", "South Asia", "Central Asia"]
+  },
+  "persimmon": {
+    "season": "autumn-winter",
+    "regions": ["East Asia", "North America", "Mediterranean"]
+  },
+  "lychee": {
+    "season": "early summer",
+    "regions": ["East Asia", "Southeast Asia", "South Asia"]
+  },
+  "passion fruit": {
+    "season": "autumn-winter",
+    "regions": ["South America", "Southeast Asia", "Oceania", "Sub-Saharan Africa"]
+  },
+  "starfruit": {
+    "season": "autumn-winter",
+    "regions": ["Southeast Asia", "South Asia", "Caribbean"]
+  },
+  "dragon fruit": {
+    "season": "summer",
+    "regions": ["Southeast Asia", "Central America", "South America"]
+  },
+  "jackfruit": {
+    "season": "summer",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "durian": {
+    "season": "summer",
+    "regions": ["Southeast Asia"]
+  },
+  "rambutan": {
+    "season": "summer",
+    "regions": ["Southeast Asia"]
+  },
+  "quince": {
+    "season": "autumn",
+    "regions": ["Mediterranean", "Middle East", "Central Asia"]
+  },
+  "gooseberry": {
+    "season": "summer",
+    "regions": ["Northern Europe", "Eastern Europe", "North America"]
+  },
+  "currant": {
+    "season": "summer",
+    "regions": ["Northern Europe", "Eastern Europe", "Western Europe"]
+  },
+  "boysenberry": {
+    "season": "early summer",
+    "regions": ["North America"]
+  },
+  "elderberry": {
+    "season": "late summer",
+    "regions": ["Northern Europe", "Western Europe", "North America"]
+  },
+  "mulberry": {
+    "season": "early summer",
+    "regions": ["East Asia", "Middle East", "North America"]
+  },
+  "nectarine": {
+    "season": "summer",
+    "regions": ["Mediterranean", "North America", "East Asia"]
+  },
+  "tangerine": {
+    "season": "winter",
+    "regions": ["East Asia", "Mediterranean", "North America"]
+  },
+  "clementine": {
+    "season": "winter",
+    "regions": ["Mediterranean", "North Africa"]
+  },
+  "kumquat": {
+    "season": "winter",
+    "regions": ["East Asia", "Mediterranean"]
+  },
+  "plantain": {
+    "season": "year-round",
+    "regions": ["Caribbean", "Central America", "Sub-Saharan Africa", "South America"]
+  },
+  "rhubarb": {
+    "season": "spring",
+    "regions": ["Northern Europe", "North America", "Central Asia"]
+  },
+  "corn": {
+    "season": "summer",
+    "regions": ["North America", "Central America", "South America"]
+  },
+  "potato": {
+    "season": "summer-autumn",
+    "regions": ["South America", "Northern Europe", "Eastern Europe", "North America"]
+  },
+  "lettuce": {
+    "season": "spring-summer",
+    "regions": ["Mediterranean", "North America", "Western Europe"]
+  },
+  "broccoli": {
+    "season": "autumn-winter",
+    "regions": ["Mediterranean", "North America", "Western Europe"]
+  },
+  "tomato": {
+    "season": "summer",
+    "regions": ["Central America", "South America", "Mediterranean", "North America"]
+  },
+  "onion": {
+    "season": "year-round",
+    "regions": ["Central Asia", "South Asia", "Mediterranean", "Global"]
+  },
+  "celery": {
+    "season": "autumn",
+    "regions": ["Mediterranean", "North America", "Western Europe"]
+  },
+  "carrot": {
+    "season": "autumn-winter",
+    "regions": ["Central Asia", "Western Europe", "North America"]
+  },
+  "bell pepper": {
+    "season": "summer",
+    "regions": ["Central America", "South America", "Mediterranean", "North America"]
+  },
+  "green bean": {
+    "season": "summer",
+    "regions": ["Central America", "South America", "North America", "Western Europe"]
+  },
+  "pea": {
+    "season": "spring",
+    "regions": ["Mediterranean", "Central Asia", "Northern Europe", "North America"]
+  },
+  "spinach": {
+    "season": "spring",
+    "regions": ["Central Asia", "Mediterranean", "East Asia"]
+  },
+  "zucchini": {
+    "season": "summer",
+    "regions": ["Central America", "Mediterranean", "North America"]
+  },
+  "squash": {
+    "season": "autumn",
+    "regions": ["Central America", "North America", "South America"]
+  },
+  "butternut squash": {
+    "season": "autumn-winter",
+    "regions": ["Central America", "North America"]
+  },
+  "acorn squash": {
+    "season": "autumn",
+    "regions": ["North America", "Central America"]
+  },
+  "spaghetti squash": {
+    "season": "autumn",
+    "regions": ["North America", "Central America"]
+  },
+  "pumpkin": {
+    "season": "autumn",
+    "regions": ["North America", "Central America", "South America"]
+  },
+  "cucumber": {
+    "season": "summer",
+    "regions": ["South Asia", "Mediterranean", "East Asia", "North America"]
+  },
+  "eggplant": {
+    "season": "summer",
+    "regions": ["South Asia", "Southeast Asia", "Mediterranean", "Middle East"]
+  },
+  "artichoke": {
+    "season": "spring",
+    "regions": ["Mediterranean", "North Africa"]
+  },
+  "asparagus": {
+    "season": "spring",
+    "regions": ["Mediterranean", "Western Europe", "North America"]
+  },
+  "cauliflower": {
+    "season": "autumn-winter",
+    "regions": ["Mediterranean", "South Asia", "Western Europe"]
+  },
+  "brussels sprout": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Northern Europe", "North America"]
+  },
+  "cabbage": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Eastern Europe", "East Asia", "Northern Europe"]
+  },
+  "kale": {
+    "season": "autumn-winter",
+    "regions": ["Northern Europe", "Western Europe", "North America"]
+  },
+  "collard green": {
+    "season": "autumn-winter",
+    "regions": ["North America", "Sub-Saharan Africa"]
+  },
+  "swiss chard": {
+    "season": "summer-autumn",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "bok choy": {
+    "season": "autumn-winter",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "napa cabbage": {
+    "season": "autumn-winter",
+    "regions": ["East Asia"]
+  },
+  "turnip": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Northern Europe", "East Asia"]
+  },
+  "rutabaga": {
+    "season": "autumn-winter",
+    "regions": ["Northern Europe", "Eastern Europe"]
+  },
+  "parsnip": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Northern Europe"]
+  },
+  "beet": {
+    "season": "summer-autumn",
+    "regions": ["Eastern Europe", "Mediterranean", "North America"]
+  },
+  "radish": {
+    "season": "spring",
+    "regions": ["East Asia", "Western Europe", "Mediterranean"]
+  },
+  "daikon": {
+    "season": "autumn-winter",
+    "regions": ["East Asia", "South Asia"]
+  },
+  "sweet potato": {
+    "season": "autumn-winter",
+    "regions": ["Central America", "Sub-Saharan Africa", "North America", "East Asia", "Oceania"]
+  },
+  "yam": {
+    "season": "autumn-winter",
+    "regions": ["Sub-Saharan Africa", "Caribbean", "Southeast Asia"]
+  },
+  "taro": {
+    "season": "autumn",
+    "regions": ["Southeast Asia", "Oceania", "East Asia", "Caribbean"]
+  },
+  "cassava": {
+    "season": "year-round",
+    "regions": ["South America", "Sub-Saharan Africa", "Southeast Asia", "Caribbean"]
+  },
+  "jicama": {
+    "season": "autumn-winter",
+    "regions": ["Central America", "Southeast Asia"]
+  },
+  "celery root": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Northern Europe", "Mediterranean"]
+  },
+  "fennel": {
+    "season": "autumn-winter",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "leek": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Northern Europe", "Mediterranean"]
+  },
+  "shallot": {
+    "season": "autumn",
+    "regions": ["Southeast Asia", "Western Europe", "South Asia"]
+  },
+  "scallion": {
+    "season": "spring-summer",
+    "regions": ["East Asia", "North America", "Global"]
+  },
+  "ramp": {
+    "season": "early spring",
+    "regions": ["North America"]
+  },
+  "vidalia onion": {
+    "season": "late spring",
+    "regions": ["North America"]
+  },
+  "pearl onion": {
+    "season": "autumn",
+    "regions": ["Western Europe", "North America"]
+  },
+  "okra": {
+    "season": "summer",
+    "regions": ["Sub-Saharan Africa", "South Asia", "North America", "Caribbean"]
+  },
+  "watercress": {
+    "season": "spring",
+    "regions": ["Western Europe", "Northern Europe", "East Asia"]
+  },
+  "arugula": {
+    "season": "spring",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "endive": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Mediterranean"]
+  },
+  "radicchio": {
+    "season": "autumn-winter",
+    "regions": ["Mediterranean"]
+  },
+  "frisee": {
+    "season": "autumn",
+    "regions": ["Western Europe", "Mediterranean"]
+  },
+  "dandelion green": {
+    "season": "spring",
+    "regions": ["Western Europe", "North America", "Mediterranean"]
+  },
+  "mushroom": {
+    "season": "autumn",
+    "regions": ["East Asia", "Western Europe", "North America"]
+  },
+  "shiitake mushroom": {
+    "season": "autumn",
+    "regions": ["East Asia"]
+  },
+  "portobello mushroom": {
+    "season": "autumn",
+    "regions": ["North America", "Western Europe"]
+  },
+  "chanterelle": {
+    "season": "summer-autumn",
+    "regions": ["Northern Europe", "Western Europe", "North America"]
+  },
+  "porcini": {
+    "season": "autumn",
+    "regions": ["Western Europe", "Mediterranean", "Northern Europe"]
+  },
+  "morel": {
+    "season": "spring",
+    "regions": ["North America", "Western Europe"]
+  },
+  "truffle": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Mediterranean"]
+  },
+  "enoki mushroom": {
+    "season": "autumn-winter",
+    "regions": ["East Asia"]
+  },
+  "oyster mushroom": {
+    "season": "autumn",
+    "regions": ["East Asia", "North America", "Western Europe"]
+  },
+  "maitake mushroom": {
+    "season": "autumn",
+    "regions": ["East Asia", "North America"]
+  },
+  "king oyster mushroom": {
+    "season": "autumn-winter",
+    "regions": ["East Asia", "Mediterranean"]
+  },
+  "bamboo shoot": {
+    "season": "spring",
+    "regions": ["East Asia", "Southeast Asia", "South Asia"]
+  },
+  "water chestnut": {
+    "season": "autumn-winter",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "lotus root": {
+    "season": "autumn",
+    "regions": ["East Asia", "South Asia", "Southeast Asia"]
+  },
+  "edamame": {
+    "season": "summer",
+    "regions": ["East Asia"]
+  },
+  "snow pea": {
+    "season": "spring",
+    "regions": ["East Asia", "North America"]
+  },
+  "sugar snap pea": {
+    "season": "spring",
+    "regions": ["North America", "Western Europe"]
+  },
+  "fiddlehead fern": {
+    "season": "early spring",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "sorrel": {
+    "season": "spring",
+    "regions": ["Western Europe", "Northern Europe", "Eastern Europe"]
+  },
+  "kohlrabi": {
+    "season": "autumn",
+    "regions": ["Western Europe", "Northern Europe", "South Asia"]
+  },
+  "celeriac": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Northern Europe"]
+  },
+  "salsify": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Mediterranean"]
+  },
+  "chayote": {
+    "season": "autumn",
+    "regions": ["Central America", "South America", "Southeast Asia"]
+  },
+  "bitter melon": {
+    "season": "summer",
+    "regions": ["South Asia", "Southeast Asia", "East Asia"]
+  },
+  "winter melon": {
+    "season": "summer-autumn",
+    "regions": ["East Asia", "Southeast Asia", "South Asia"]
+  },
+  "kabocha": {
+    "season": "autumn",
+    "regions": ["East Asia"]
+  },
+  "delicata squash": {
+    "season": "autumn",
+    "regions": ["North America"]
+  },
+  "patty pan squash": {
+    "season": "summer",
+    "regions": ["North America", "Western Europe"]
+  },
+  "tomatillo": {
+    "season": "summer",
+    "regions": ["Central America", "North America"]
+  },
+  "jerusalem artichoke": {
+    "season": "winter",
+    "regions": ["North America", "Western Europe"]
+  },
+  "cardoon": {
+    "season": "autumn",
+    "regions": ["Mediterranean"]
+  },
+  "manioc": {
+    "season": "year-round",
+    "regions": ["South America", "Sub-Saharan Africa", "Southeast Asia"]
+  },
+  "breadfruit": {
+    "season": "summer",
+    "regions": ["Oceania", "Caribbean", "Southeast Asia"]
+  },
+  "oregano": {
+    "season": "summer",
+    "regions": ["Mediterranean", "Central America"]
+  },
+  "dill": {
+    "season": "spring-summer",
+    "regions": ["Northern Europe", "Eastern Europe", "Mediterranean"]
+  },
+  "thyme": {
+    "season": "spring-summer",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "parsley": {
+    "season": "spring-summer",
+    "regions": ["Mediterranean", "Western Europe", "Middle East"]
+  },
+  "bay leaf": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "South Asia"]
+  },
+  "basil": {
+    "season": "summer",
+    "regions": ["Mediterranean", "Southeast Asia", "South Asia"]
+  },
+  "cilantro": {
+    "season": "spring-summer",
+    "regions": ["South Asia", "Southeast Asia", "Central America", "East Asia", "Middle East"]
+  },
+  "rosemary": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "sage": {
+    "season": "autumn-winter",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "chive": {
+    "season": "spring-summer",
+    "regions": ["Northern Europe", "Western Europe", "East Asia"]
+  },
+  "mint": {
+    "season": "spring-summer",
+    "regions": ["Mediterranean", "Middle East", "South Asia", "Southeast Asia"]
+  },
+  "tarragon": {
+    "season": "spring-summer",
+    "regions": ["Western Europe", "Central Asia"]
+  },
+  "marjoram": {
+    "season": "summer",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "savory": {
+    "season": "summer",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "lovage": {
+    "season": "spring-summer",
+    "regions": ["Western Europe", "Northern Europe"]
+  },
+  "lemon balm": {
+    "season": "spring-summer",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "epazote": {
+    "season": "summer",
+    "regions": ["Central America"]
+  },
+  "culantro": {
+    "season": "summer",
+    "regions": ["Caribbean", "Central America", "Southeast Asia"]
+  },
+  "lemongrass": {
+    "season": "summer",
+    "regions": ["Southeast Asia", "South Asia"]
+  },
+  "thai basil": {
+    "season": "summer",
+    "regions": ["Southeast Asia"]
+  },
+  "shiso": {
+    "season": "summer",
+    "regions": ["East Asia"]
+  },
+  "perilla": {
+    "season": "summer",
+    "regions": ["East Asia"]
+  },
+  "curry leaf": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "kaffir lime leaf": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "pandan leaf": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia"]
+  },
+  "lavender": {
+    "season": "summer",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "chamomile": {
+    "season": "summer",
+    "regions": ["Western Europe", "Mediterranean", "Northern Europe"]
+  },
+  "borage": {
+    "season": "summer",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "chervil": {
+    "season": "spring",
+    "regions": ["Western Europe"]
+  },
+  "lemon verbena": {
+    "season": "summer",
+    "regions": ["South America", "Mediterranean"]
+  },
+  "hyssop": {
+    "season": "summer",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "woodruff": {
+    "season": "spring",
+    "regions": ["Western Europe", "Northern Europe"]
+  },
+  "cinnamon": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia", "Middle East"]
+  },
+  "curry powder": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "nutmeg": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "Caribbean"]
+  },
+  "allspice": {
+    "season": "year-round",
+    "regions": ["Caribbean", "Central America"]
+  },
+  "clove": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "East Asia", "South Asia"]
+  },
+  "cumin": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East", "North Africa", "Central America"]
+  },
+  "coriander": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East", "Mediterranean", "Southeast Asia"]
+  },
+  "turmeric": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "paprika": {
+    "season": "year-round",
+    "regions": ["Eastern Europe", "Central America", "Mediterranean"]
+  },
+  "saffron": {
+    "season": "autumn",
+    "regions": ["Middle East", "Mediterranean", "South Asia", "Central Asia"]
+  },
+  "cardamom": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East", "East Asia", "Northern Europe"]
+  },
+  "ginger": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia", "East Asia"]
+  },
+  "star anise": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "anise": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Middle East"]
+  },
+  "fennel seed": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "South Asia"]
+  },
+  "fenugreek": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East", "North Africa"]
+  },
+  "mustard seed": {
+    "season": "year-round",
+    "regions": ["South Asia", "Western Europe", "Northern Europe"]
+  },
+  "celery seed": {
+    "season": "year-round",
+    "regions": ["North America", "South Asia"]
+  },
+  "caraway": {
+    "season": "year-round",
+    "regions": ["Northern Europe", "Eastern Europe", "Central Asia"]
+  },
+  "juniper berry": {
+    "season": "autumn",
+    "regions": ["Northern Europe", "Western Europe"]
+  },
+  "mace": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "Caribbean"]
+  },
+  "grains of paradise": {
+    "season": "year-round",
+    "regions": ["Sub-Saharan Africa"]
+  },
+  "sumac": {
+    "season": "year-round",
+    "regions": ["Middle East", "Mediterranean"]
+  },
+  "za'atar": {
+    "season": "year-round",
+    "regions": ["Middle East", "Mediterranean"]
+  },
+  "ras el hanout": {
+    "season": "year-round",
+    "regions": ["North Africa"]
+  },
+  "garam masala": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "five spice": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "berbere": {
+    "season": "year-round",
+    "regions": ["Sub-Saharan Africa"]
+  },
+  "achiote": {
+    "season": "year-round",
+    "regions": ["Central America", "Caribbean", "South America"]
+  },
+  "szechuan peppercorn": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "long pepper": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "galangal": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia"]
+  },
+  "asafoetida": {
+    "season": "year-round",
+    "regions": ["South Asia", "Central Asia"]
+  },
+  "nigella seed": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East"]
+  },
+  "mahlab": {
+    "season": "year-round",
+    "regions": ["Middle East", "Mediterranean"]
+  },
+  "annatto": {
+    "season": "year-round",
+    "regions": ["Central America", "South America", "Caribbean"]
+  },
+  "tamarind": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia", "Sub-Saharan Africa", "Caribbean"]
+  },
+  "vanilla": {
+    "season": "year-round",
+    "regions": ["Central America", "Southeast Asia", "Oceania", "Sub-Saharan Africa"]
+  },
+  "wasabi": {
+    "season": "spring",
+    "regions": ["East Asia"]
+  },
+  "horseradish": {
+    "season": "autumn-winter",
+    "regions": ["Eastern Europe", "Northern Europe", "North America"]
+  },
+  "chili powder": {
+    "season": "year-round",
+    "regions": ["Central America", "South Asia", "East Asia"]
+  },
+  "cayenne": {
+    "season": "year-round",
+    "regions": ["Central America", "South America", "South Asia"]
+  },
+  "red pepper": {
+    "season": "summer",
+    "regions": ["Central America", "South Asia", "East Asia"]
+  },
+  "jalapeno": {
+    "season": "summer",
+    "regions": ["Central America", "North America"]
+  },
+  "habanero": {
+    "season": "summer",
+    "regions": ["Caribbean", "Central America"]
+  },
+  "serrano": {
+    "season": "summer",
+    "regions": ["Central America"]
+  },
+  "poblano": {
+    "season": "summer",
+    "regions": ["Central America"]
+  },
+  "ancho": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "chipotle": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "guajillo": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "pasilla": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "thai chili": {
+    "season": "summer",
+    "regions": ["Southeast Asia"]
+  },
+  "scotch bonnet": {
+    "season": "summer",
+    "regions": ["Caribbean"]
+  },
+  "bird's eye chili": {
+    "season": "summer",
+    "regions": ["Southeast Asia", "South Asia"]
+  },
+  "gochugaru": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "aleppo pepper": {
+    "season": "year-round",
+    "regions": ["Middle East"]
+  },
+  "piri piri": {
+    "season": "summer",
+    "regions": ["Sub-Saharan Africa", "Mediterranean"]
+  },
+  "tabasco": {
+    "season": "year-round",
+    "regions": ["North America"]
+  },
+  "sriracha": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "harissa": {
+    "season": "year-round",
+    "regions": ["North Africa"]
+  },
+  "gochujang": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "sambal": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "orange": {
+    "season": "winter",
+    "regions": ["East Asia", "Mediterranean", "North America", "South America"]
+  },
+  "lemon": {
+    "season": "winter-spring",
+    "regions": ["Mediterranean", "South Asia", "North America"]
+  },
+  "lime": {
+    "season": "summer",
+    "regions": ["Southeast Asia", "Central America", "South Asia", "Caribbean"]
+  },
+  "grapefruit": {
+    "season": "winter",
+    "regions": ["Caribbean", "North America", "Mediterranean"]
+  },
+  "blood orange": {
+    "season": "winter",
+    "regions": ["Mediterranean"]
+  },
+  "meyer lemon": {
+    "season": "winter-spring",
+    "regions": ["East Asia", "North America"]
+  },
+  "key lime": {
+    "season": "spring-summer",
+    "regions": ["Caribbean", "Central America", "North America"]
+  },
+  "yuzu": {
+    "season": "winter",
+    "regions": ["East Asia"]
+  },
+  "bergamot": {
+    "season": "winter",
+    "regions": ["Mediterranean"]
+  },
+  "calamansi": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "pomelo": {
+    "season": "winter",
+    "regions": ["Southeast Asia", "East Asia"]
+  },
+  "mandarin": {
+    "season": "winter",
+    "regions": ["East Asia", "Mediterranean"]
+  },
+  "ugli fruit": {
+    "season": "winter",
+    "regions": ["Caribbean"]
+  },
+  "peanut": {
+    "season": "autumn",
+    "regions": ["South America", "Sub-Saharan Africa", "Southeast Asia", "North America"]
+  },
+  "almond": {
+    "season": "autumn",
+    "regions": ["Mediterranean", "Central Asia", "Middle East", "North America"]
+  },
+  "coconut": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia", "Caribbean", "Oceania", "Sub-Saharan Africa"]
+  },
+  "sesame seed": {
+    "season": "year-round",
+    "regions": ["East Asia", "South Asia", "Middle East", "Sub-Saharan Africa"]
+  },
+  "walnut": {
+    "season": "autumn",
+    "regions": ["Central Asia", "Western Europe", "North America", "East Asia"]
+  },
+  "pecan": {
+    "season": "autumn",
+    "regions": ["North America"]
+  },
+  "cashew": {
+    "season": "year-round",
+    "regions": ["South America", "South Asia", "Southeast Asia", "Sub-Saharan Africa"]
+  },
+  "pistachio": {
+    "season": "autumn",
+    "regions": ["Middle East", "Central Asia", "Mediterranean"]
+  },
+  "macadamia": {
+    "season": "autumn",
+    "regions": ["Oceania", "North America"]
+  },
+  "hazelnut": {
+    "season": "autumn",
+    "regions": ["Western Europe", "Mediterranean"]
+  },
+  "chestnut": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Mediterranean", "East Asia"]
+  },
+  "pine nut": {
+    "season": "autumn",
+    "regions": ["Mediterranean", "East Asia", "North America"]
+  },
+  "brazil nut": {
+    "season": "year-round",
+    "regions": ["South America"]
+  },
+  "sunflower seed": {
+    "season": "autumn",
+    "regions": ["North America", "Eastern Europe"]
+  },
+  "pumpkin seed": {
+    "season": "autumn",
+    "regions": ["Central America", "North America"]
+  },
+  "flaxseed": {
+    "season": "year-round",
+    "regions": ["Central Asia", "North America"]
+  },
+  "poppy seed": {
+    "season": "year-round",
+    "regions": ["Central Asia", "Western Europe", "South Asia"]
+  },
+  "hemp seed": {
+    "season": "year-round",
+    "regions": ["Central Asia", "North America"]
+  },
+  "chia seed": {
+    "season": "year-round",
+    "regions": ["Central America", "South America"]
+  },
+  "chicken": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia", "East Asia", "North America", "Global"]
+  },
+  "beef": {
+    "season": "year-round",
+    "regions": ["North America", "South America", "Western Europe", "Sub-Saharan Africa"]
+  },
+  "pork": {
+    "season": "year-round",
+    "regions": ["East Asia", "Western Europe", "Central America", "Southeast Asia"]
+  },
+  "lamb": {
+    "season": "spring",
+    "regions": ["Middle East", "Mediterranean", "South Asia", "Oceania", "North Africa"]
+  },
+  "veal": {
+    "season": "spring",
+    "regions": ["Western Europe", "Mediterranean"]
+  },
+  "duck": {
+    "season": "autumn",
+    "regions": ["East Asia", "Western Europe"]
+  },
+  "goose": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Eastern Europe", "East Asia"]
+  },
+  "turkey": {
+    "season": "autumn",
+    "regions": ["North America", "Central America"]
+  },
+  "quail": {
+    "season": "autumn",
+    "regions": ["Western Europe", "Middle East", "North America"]
+  },
+  "pheasant": {
+    "season": "autumn",
+    "regions": ["Western Europe", "Northern Europe"]
+  },
+  "partridge": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Northern Europe"]
+  },
+  "rabbit": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Mediterranean"]
+  },
+  "venison": {
+    "season": "autumn-winter",
+    "regions": ["Northern Europe", "North America"]
+  },
+  "bison": {
+    "season": "year-round",
+    "regions": ["North America"]
+  },
+  "goat": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East", "Sub-Saharan Africa", "Caribbean", "Central America"]
+  },
+  "foie gras": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe"]
+  },
+  "prosciutto": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "pancetta": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "chorizo": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Central America"]
+  },
+  "salami": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "andouille": {
+    "season": "year-round",
+    "regions": ["North America", "Western Europe"]
+  },
+  "salmon": {
+    "season": "summer",
+    "regions": ["North America", "Northern Europe", "East Asia"]
+  },
+  "tuna": {
+    "season": "summer",
+    "regions": ["East Asia", "Mediterranean", "North America"]
+  },
+  "cod": {
+    "season": "winter",
+    "regions": ["Northern Europe", "North America"]
+  },
+  "halibut": {
+    "season": "spring-summer",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "swordfish": {
+    "season": "summer",
+    "regions": ["Mediterranean", "North America"]
+  },
+  "sea bass": {
+    "season": "summer-autumn",
+    "regions": ["Mediterranean", "East Asia"]
+  },
+  "trout": {
+    "season": "spring-summer",
+    "regions": ["North America", "Western Europe", "Northern Europe"]
+  },
+  "sardine": {
+    "season": "spring-summer",
+    "regions": ["Mediterranean", "North America", "East Asia"]
+  },
+  "anchovy": {
+    "season": "spring",
+    "regions": ["Mediterranean", "East Asia"]
+  },
+  "mackerel": {
+    "season": "summer-autumn",
+    "regions": ["East Asia", "Northern Europe", "Mediterranean"]
+  },
+  "snapper": {
+    "season": "summer",
+    "regions": ["Caribbean", "Southeast Asia", "North America"]
+  },
+  "mahi mahi": {
+    "season": "summer",
+    "regions": ["Caribbean", "North America", "Oceania"]
+  },
+  "tilapia": {
+    "season": "year-round",
+    "regions": ["Sub-Saharan Africa", "Southeast Asia", "Central America"]
+  },
+  "catfish": {
+    "season": "summer",
+    "regions": ["North America", "Southeast Asia"]
+  },
+  "flounder": {
+    "season": "summer-autumn",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "sole": {
+    "season": "spring-summer",
+    "regions": ["Western Europe", "Northern Europe"]
+  },
+  "monkfish": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Northern Europe"]
+  },
+  "grouper": {
+    "season": "summer",
+    "regions": ["Caribbean", "Southeast Asia"]
+  },
+  "red snapper": {
+    "season": "summer",
+    "regions": ["Caribbean", "North America"]
+  },
+  "branzino": {
+    "season": "summer-autumn",
+    "regions": ["Mediterranean"]
+  },
+  "arctic char": {
+    "season": "summer",
+    "regions": ["Northern Europe", "North America"]
+  },
+  "wahoo": {
+    "season": "summer",
+    "regions": ["Caribbean", "Oceania"]
+  },
+  "yellowtail": {
+    "season": "winter",
+    "regions": ["East Asia", "North America"]
+  },
+  "eel": {
+    "season": "autumn",
+    "regions": ["East Asia", "Northern Europe"]
+  },
+  "skate": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "North America"]
+  },
+  "herring": {
+    "season": "autumn",
+    "regions": ["Northern Europe", "Eastern Europe"]
+  },
+  "smelt": {
+    "season": "winter-spring",
+    "regions": ["North America", "Northern Europe", "East Asia"]
+  },
+  "shrimp": {
+    "season": "summer",
+    "regions": ["Southeast Asia", "East Asia", "North America", "Mediterranean"]
+  },
+  "lobster": {
+    "season": "summer",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "crab": {
+    "season": "summer-autumn",
+    "regions": ["North America", "East Asia", "Southeast Asia"]
+  },
+  "soft-shell crab": {
+    "season": "spring-summer",
+    "regions": ["North America"]
+  },
+  "scallop": {
+    "season": "autumn-winter",
+    "regions": ["North America", "East Asia", "Northern Europe"]
+  },
+  "mussel": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Northern Europe", "Mediterranean"]
+  },
+  "clam": {
+    "season": "autumn-winter",
+    "regions": ["North America", "Mediterranean", "East Asia"]
+  },
+  "oyster": {
+    "season": "autumn-winter",
+    "regions": ["North America", "Western Europe", "East Asia"]
+  },
+  "squid": {
+    "season": "winter",
+    "regions": ["Mediterranean", "East Asia", "Southeast Asia"]
+  },
+  "octopus": {
+    "season": "summer",
+    "regions": ["Mediterranean", "East Asia"]
+  },
+  "cuttlefish": {
+    "season": "spring",
+    "regions": ["Mediterranean", "East Asia"]
+  },
+  "crawfish": {
+    "season": "spring",
+    "regions": ["North America"]
+  },
+  "crayfish": {
+    "season": "spring",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "conch": {
+    "season": "autumn-winter",
+    "regions": ["Caribbean"]
+  },
+  "abalone": {
+    "season": "winter-spring",
+    "regions": ["East Asia", "Oceania", "North America"]
+  },
+  "sea urchin": {
+    "season": "winter",
+    "regions": ["East Asia", "Mediterranean"]
+  },
+  "caviar": {
+    "season": "winter",
+    "regions": ["Eastern Europe", "Central Asia"]
+  },
+  "egg": {
+    "season": "spring",
+    "regions": ["Global"]
+  },
+  "quail egg": {
+    "season": "spring",
+    "regions": ["East Asia", "Western Europe"]
+  },
+  "duck egg": {
+    "season": "spring",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "tofu": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "tempeh": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "miso": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "natto": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "seitan": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "buttermilk": {
+    "season": "year-round",
+    "regions": ["South Asia", "Northern Europe", "North America"]
+  },
+  "yogurt": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East", "Central Asia", "Mediterranean"]
+  },
+  "kefir": {
+    "season": "year-round",
+    "regions": ["Central Asia", "Eastern Europe"]
+  },
+  "ricotta": {
+    "season": "spring",
+    "regions": ["Mediterranean"]
+  },
+  "mozzarella": {
+    "season": "spring-summer",
+    "regions": ["Mediterranean"]
+  },
+  "burrata": {
+    "season": "spring-summer",
+    "regions": ["Mediterranean"]
+  },
+  "parmesan": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "pecorino": {
+    "season": "spring",
+    "regions": ["Mediterranean"]
+  },
+  "gruyere": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "brie": {
+    "season": "autumn",
+    "regions": ["Western Europe"]
+  },
+  "camembert": {
+    "season": "autumn",
+    "regions": ["Western Europe"]
+  },
+  "roquefort": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "gorgonzola": {
+    "season": "autumn",
+    "regions": ["Mediterranean"]
+  },
+  "stilton": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe"]
+  },
+  "feta": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "halloumi": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Middle East"]
+  },
+  "manchego": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "mascarpone": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "goat cheese": {
+    "season": "spring-summer",
+    "regions": ["Western Europe", "Mediterranean"]
+  },
+  "paneer": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "queso fresco": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "cotija": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "ghee": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East"]
+  },
+  "clotted cream": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "creme fraiche": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "labneh": {
+    "season": "year-round",
+    "regions": ["Middle East", "Mediterranean"]
+  },
+  "rice": {
+    "season": "autumn",
+    "regions": ["East Asia", "South Asia", "Southeast Asia"]
+  },
+  "wild rice": {
+    "season": "autumn",
+    "regions": ["North America"]
+  },
+  "quinoa": {
+    "season": "autumn",
+    "regions": ["South America"]
+  },
+  "barley": {
+    "season": "summer",
+    "regions": ["Middle East", "Northern Europe", "Central Asia"]
+  },
+  "oat": {
+    "season": "summer",
+    "regions": ["Northern Europe", "North America"]
+  },
+  "buckwheat": {
+    "season": "autumn",
+    "regions": ["Eastern Europe", "East Asia", "Central Asia"]
+  },
+  "millet": {
+    "season": "autumn",
+    "regions": ["Sub-Saharan Africa", "South Asia", "East Asia"]
+  },
+  "sorghum": {
+    "season": "autumn",
+    "regions": ["Sub-Saharan Africa", "South Asia"]
+  },
+  "farro": {
+    "season": "summer",
+    "regions": ["Mediterranean", "Middle East"]
+  },
+  "freekeh": {
+    "season": "early summer",
+    "regions": ["Middle East", "North Africa"]
+  },
+  "bulgur": {
+    "season": "year-round",
+    "regions": ["Middle East", "Mediterranean"]
+  },
+  "couscous": {
+    "season": "year-round",
+    "regions": ["North Africa", "Mediterranean"]
+  },
+  "polenta": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "teff": {
+    "season": "autumn",
+    "regions": ["Sub-Saharan Africa"]
+  },
+  "amaranth": {
+    "season": "autumn",
+    "regions": ["Central America", "South America"]
+  },
+  "spelt": {
+    "season": "summer",
+    "regions": ["Western Europe", "Middle East"]
+  },
+  "soba noodle": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "udon noodle": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "rice noodle": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "East Asia"]
+  },
+  "ramen noodle": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "soy sauce": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "fish sauce": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "East Asia"]
+  },
+  "oyster sauce": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "hoisin sauce": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "worcestershire sauce": {
+    "season": "year-round",
+    "regions": ["Western Europe", "North America"]
+  },
+  "tamari": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "mirin": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "rice vinegar": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "balsamic vinegar": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "sherry vinegar": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "red wine vinegar": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "apple cider vinegar": {
+    "season": "year-round",
+    "regions": ["North America", "Western Europe"]
+  },
+  "coconut milk": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia", "Caribbean"]
+  },
+  "coconut cream": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia"]
+  },
+  "tahini": {
+    "season": "year-round",
+    "regions": ["Middle East", "Mediterranean"]
+  },
+  "hummus": {
+    "season": "year-round",
+    "regions": ["Middle East", "Mediterranean"]
+  },
+  "kimchi": {
+    "season": "autumn-winter",
+    "regions": ["East Asia"]
+  },
+  "sauerkraut": {
+    "season": "autumn-winter",
+    "regions": ["Eastern Europe", "Western Europe"]
+  },
+  "mango chutney": {
+    "season": "summer",
+    "regions": ["South Asia"]
+  },
+  "pickled ginger": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "preserved lemon": {
+    "season": "year-round",
+    "regions": ["North Africa", "Middle East"]
+  },
+  "dulce de leche": {
+    "season": "year-round",
+    "regions": ["South America"]
+  },
+  "molasses": {
+    "season": "year-round",
+    "regions": ["Caribbean", "North America"]
+  },
+  "maple syrup": {
+    "season": "early spring",
+    "regions": ["North America"]
+  },
+  "honey": {
+    "season": "summer-autumn",
+    "regions": ["Global"]
+  },
+  "agave": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "palm sugar": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia"]
+  },
+  "jaggery": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "piloncillo": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "olive oil": {
+    "season": "autumn",
+    "regions": ["Mediterranean", "Middle East"]
+  },
+  "sesame oil": {
+    "season": "year-round",
+    "regions": ["East Asia", "South Asia", "Middle East"]
+  },
+  "coconut oil": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia", "Oceania"]
+  },
+  "peanut oil": {
+    "season": "year-round",
+    "regions": ["East Asia", "Sub-Saharan Africa"]
+  },
+  "walnut oil": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "avocado oil": {
+    "season": "year-round",
+    "regions": ["Central America", "North America"]
+  },
+  "palm oil": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "Sub-Saharan Africa"]
+  },
+  "mustard oil": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "lard": {
+    "season": "year-round",
+    "regions": ["Central America", "Western Europe", "East Asia"]
+  },
+  "tallow": {
+    "season": "year-round",
+    "regions": ["Western Europe", "North America"]
+  },
+  "schmaltz": {
+    "season": "year-round",
+    "regions": ["Eastern Europe"]
+  },
+  "duck fat": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "avocado": {
+    "season": "year-round",
+    "regions": ["Central America", "South America", "North America"]
+  },
+  "olive": {
+    "season": "autumn",
+    "regions": ["Mediterranean", "Middle East"]
+  },
+  "caper": {
+    "season": "spring-summer",
+    "regions": ["Mediterranean"]
+  },
+  "sun-dried tomato": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "roasted red pepper": {
+    "season": "summer",
+    "regions": ["Mediterranean", "Eastern Europe"]
+  },
+  "hearts of palm": {
+    "season": "year-round",
+    "regions": ["South America", "Central America"]
+  },
+  "nori": {
+    "season": "winter-spring",
+    "regions": ["East Asia"]
+  },
+  "wakame": {
+    "season": "spring",
+    "regions": ["East Asia"]
+  },
+  "kombu": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "dulse": {
+    "season": "summer",
+    "regions": ["Northern Europe", "North America"]
+  },
+  "hijiki": {
+    "season": "spring",
+    "regions": ["East Asia"]
+  },
+  "lentil": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East", "Mediterranean"]
+  },
+  "chickpea": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East", "Mediterranean", "North Africa"]
+  },
+  "black bean": {
+    "season": "year-round",
+    "regions": ["Central America", "South America", "Caribbean"]
+  },
+  "kidney bean": {
+    "season": "year-round",
+    "regions": ["Central America", "South Asia", "Caribbean"]
+  },
+  "navy bean": {
+    "season": "year-round",
+    "regions": ["North America"]
+  },
+  "pinto bean": {
+    "season": "year-round",
+    "regions": ["Central America", "North America"]
+  },
+  "cannellini bean": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "fava bean": {
+    "season": "spring",
+    "regions": ["Mediterranean", "Middle East", "North Africa"]
+  },
+  "lima bean": {
+    "season": "summer",
+    "regions": ["South America", "North America"]
+  },
+  "mung bean": {
+    "season": "year-round",
+    "regions": ["South Asia", "East Asia", "Southeast Asia"]
+  },
+  "adzuki bean": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "black-eyed pea": {
+    "season": "summer",
+    "regions": ["Sub-Saharan Africa", "North America"]
+  },
+  "split pea": {
+    "season": "year-round",
+    "regions": ["Northern Europe", "South Asia"]
+  },
+  "pigeon pea": {
+    "season": "year-round",
+    "regions": ["South Asia", "Caribbean", "Sub-Saharan Africa"]
+  },
+  "urad dal": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "chana dal": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "red lentil": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East"]
+  },
+  "french lentil": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "brandy": {
+    "season": "autumn",
+    "regions": ["Western Europe", "South America"]
+  },
+  "bourbon": {
+    "season": "year-round",
+    "regions": ["North America"]
+  },
+  "rum": {
+    "season": "year-round",
+    "regions": ["Caribbean"]
+  },
+  "whiskey": {
+    "season": "year-round",
+    "regions": ["Western Europe", "North America", "East Asia"]
+  },
+  "tequila": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "mezcal": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "vodka": {
+    "season": "year-round",
+    "regions": ["Eastern Europe", "Northern Europe"]
+  },
+  "gin": {
+    "season": "year-round",
+    "regions": ["Western Europe", "Northern Europe"]
+  },
+  "sake": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "soju": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "pisco": {
+    "season": "year-round",
+    "regions": ["South America"]
+  },
+  "grappa": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "absinthe": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "aquavit": {
+    "season": "year-round",
+    "regions": ["Northern Europe"]
+  },
+  "cachaca": {
+    "season": "year-round",
+    "regions": ["South America"]
+  },
+  "triple sec": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "kahlua": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "grand marnier": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "amaretto": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "chartreuse": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "cointreau": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "campari": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "aperol": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "limoncello": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "maraschino liqueur": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Eastern Europe"]
+  },
+  "benedictine": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "sambuca": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "vermouth": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "angostura bitters": {
+    "season": "year-round",
+    "regions": ["Caribbean"]
+  },
+  "orange bitters": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "champagne": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "prosecco": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "beer": {
+    "season": "year-round",
+    "regions": ["Northern Europe", "Western Europe", "East Asia"]
+  },
+  "stout": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe"]
+  },
+  "red wine": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Western Europe", "South America", "North America"]
+  },
+  "white wine": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Western Europe", "North America"]
+  },
+  "sherry": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "port": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "marsala": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "madeira": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "ginger ale": {
+    "season": "year-round",
+    "regions": ["North America", "Western Europe"]
+  },
+  "ginger beer": {
+    "season": "year-round",
+    "regions": ["Caribbean", "Western Europe"]
+  },
+  "dark chocolate": {
+    "season": "year-round",
+    "regions": ["Central America", "South America", "Sub-Saharan Africa", "Western Europe"]
+  },
+  "cocoa": {
+    "season": "year-round",
+    "regions": ["Central America", "South America", "Sub-Saharan Africa"]
+  },
+  "white chocolate": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "carob": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "matcha": {
+    "season": "spring",
+    "regions": ["East Asia"]
+  },
+  "green tea": {
+    "season": "spring",
+    "regions": ["East Asia", "South Asia"]
+  },
+  "black tea": {
+    "season": "year-round",
+    "regions": ["South Asia", "East Asia", "Sub-Saharan Africa"]
+  },
+  "oolong tea": {
+    "season": "spring-summer",
+    "regions": ["East Asia"]
+  },
+  "rooibos": {
+    "season": "year-round",
+    "regions": ["Sub-Saharan Africa"]
+  },
+  "hibiscus": {
+    "season": "summer",
+    "regions": ["Sub-Saharan Africa", "Central America", "Caribbean"]
+  },
+  "rose water": {
+    "season": "year-round",
+    "regions": ["Middle East", "South Asia", "North Africa"]
+  },
+  "orange blossom water": {
+    "season": "year-round",
+    "regions": ["Middle East", "North Africa", "Mediterranean"]
+  },
+  "coffee": {
+    "season": "year-round",
+    "regions": ["South America", "Sub-Saharan Africa", "Southeast Asia", "Central America"]
+  },
+  "espresso": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "pomegranate molasses": {
+    "season": "year-round",
+    "regions": ["Middle East"]
+  },
+  "date syrup": {
+    "season": "year-round",
+    "regions": ["Middle East"]
+  },
+  "corn syrup": {
+    "season": "year-round",
+    "regions": ["North America"]
+  },
+  "brown rice syrup": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "malt": {
+    "season": "year-round",
+    "regions": ["Northern Europe", "Western Europe"]
+  },
+  "dijon mustard": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "whole grain mustard": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "english mustard": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "chinese mustard": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "mayonnaise": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Western Europe", "North America"]
+  },
+  "ketchup": {
+    "season": "year-round",
+    "regions": ["North America"]
+  },
+  "aioli": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "pesto": {
+    "season": "summer",
+    "regions": ["Mediterranean"]
+  },
+  "chimichurri": {
+    "season": "year-round",
+    "regions": ["South America"]
+  },
+  "salsa verde": {
+    "season": "summer",
+    "regions": ["Central America", "Mediterranean"]
+  },
+  "zhug": {
+    "season": "year-round",
+    "regions": ["Middle East"]
+  },
+  "chermoula": {
+    "season": "year-round",
+    "regions": ["North Africa"]
+  },
+  "romesco": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "sofrito": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Caribbean"]
+  },
+  "mole": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "dashi": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "bonito flake": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "dried shrimp": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia", "Sub-Saharan Africa"]
+  },
+  "dried scallop": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "miso paste": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "doenjang": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "doubanjiang": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "black bean sauce": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "xo sauce": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "nam pla": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "shrimp paste": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "East Asia"]
+  },
+  "belacan": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "curry paste": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia"]
+  },
+  "red curry paste": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "green curry paste": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "massaman curry paste": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "tom yum paste": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "satay sauce": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "chili oil": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "black vinegar": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "shaoxing wine": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "palm vinegar": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "ume plum": {
+    "season": "early summer",
+    "regions": ["East Asia"]
+  },
+  "umeboshi": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "yuzu juice": {
+    "season": "winter",
+    "regions": ["East Asia"]
+  },
+  "sudachi": {
+    "season": "autumn",
+    "regions": ["East Asia"]
+  },
+  "dried persimmon": {
+    "season": "winter",
+    "regions": ["East Asia"]
+  },
+  "goji berry": {
+    "season": "late summer",
+    "regions": ["East Asia", "Central Asia"]
+  },
+  "jujube": {
+    "season": "autumn",
+    "regions": ["East Asia", "South Asia", "Middle East"]
+  },
+  "dried longan": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "dried apricot": {
+    "season": "year-round",
+    "regions": ["Central Asia", "Middle East", "Mediterranean"]
+  },
+  "dried fig": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Middle East"]
+  },
+  "dried cranberry": {
+    "season": "year-round",
+    "regions": ["North America"]
+  },
+  "dried cherry": {
+    "season": "year-round",
+    "regions": ["North America", "Western Europe"]
+  },
+  "dried mango": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "dried pineapple": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South America"]
+  },
+  "dried banana": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "Sub-Saharan Africa"]
+  },
+  "dried coconut": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia"]
+  },
+  "ginkgo nut": {
+    "season": "autumn",
+    "regions": ["East Asia"]
+  },
+  "lotus seed": {
+    "season": "autumn",
+    "regions": ["East Asia", "South Asia"]
+  },
+  "water caltrop": {
+    "season": "autumn",
+    "regions": ["East Asia"]
+  },
+  "perilla seed": {
+    "season": "autumn",
+    "regions": ["East Asia"]
+  },
+  "shiso leaf": {
+    "season": "summer",
+    "regions": ["East Asia"]
+  },
+  "kinome": {
+    "season": "spring",
+    "regions": ["East Asia"]
+  },
+  "myoga": {
+    "season": "summer",
+    "regions": ["East Asia"]
+  },
+  "chrysanthemum": {
+    "season": "autumn",
+    "regions": ["East Asia"]
+  },
+  "sansho pepper": {
+    "season": "spring-summer",
+    "regions": ["East Asia"]
+  },
+  "togarashi": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "furikake": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "ponzu": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "black garlic": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "fermented black bean": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "century egg": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "salted duck egg": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "silken tofu": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "firm tofu": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "dried tofu": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "tofu skin": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "yuba": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "edamame bean": {
+    "season": "summer",
+    "regions": ["East Asia"]
+  },
+  "azuki bean": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "red bean paste": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "white bean paste": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "glutinous rice": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "jasmine rice": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "basmati rice": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "arborio rice": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "sushi rice": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "sticky rice": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "East Asia"]
+  },
+  "black rice": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "red rice": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "mochi": {
+    "season": "winter",
+    "regions": ["East Asia"]
+  },
+  "rice paper": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "wonton wrapper": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "spring roll wrapper": {
+    "season": "year-round",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "phyllo dough": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Middle East"]
+  },
+  "pita bread": {
+    "season": "year-round",
+    "regions": ["Middle East", "Mediterranean"]
+  },
+  "naan": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "roti": {
+    "season": "year-round",
+    "regions": ["South Asia", "Southeast Asia", "Caribbean"]
+  },
+  "tortilla": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "injera": {
+    "season": "year-round",
+    "regions": ["Sub-Saharan Africa"]
+  },
+  "focaccia": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "ciabatta": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "sourdough": {
+    "season": "year-round",
+    "regions": ["Western Europe", "North America"]
+  },
+  "brioche": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "pumpernickel": {
+    "season": "year-round",
+    "regions": ["Northern Europe", "Eastern Europe"]
+  },
+  "green garlic": {
+    "season": "early spring",
+    "regions": ["Mediterranean", "Central Asia"]
+  },
+  "garlic scape": {
+    "season": "early summer",
+    "regions": ["North America", "East Asia"]
+  },
+  "ramp leaf": {
+    "season": "early spring",
+    "regions": ["North America"]
+  },
+  "fiddlehead": {
+    "season": "early spring",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "stinging nettle": {
+    "season": "early spring",
+    "regions": ["Northern Europe", "Western Europe"]
+  },
+  "purslane": {
+    "season": "summer",
+    "regions": ["Mediterranean", "South Asia"]
+  },
+  "mache": {
+    "season": "winter-spring",
+    "regions": ["Western Europe"]
+  },
+  "mizuna": {
+    "season": "spring-summer",
+    "regions": ["East Asia"]
+  },
+  "tatsoi": {
+    "season": "autumn-winter",
+    "regions": ["East Asia"]
+  },
+  "gai lan": {
+    "season": "autumn-winter",
+    "regions": ["East Asia"]
+  },
+  "choy sum": {
+    "season": "autumn-winter",
+    "regions": ["East Asia"]
+  },
+  "yu choy": {
+    "season": "autumn-winter",
+    "regions": ["East Asia"]
+  },
+  "mustard green": {
+    "season": "autumn-winter",
+    "regions": ["East Asia", "South Asia", "North America"]
+  },
+  "rapini": {
+    "season": "autumn-winter",
+    "regions": ["Mediterranean"]
+  },
+  "broccoli rabe": {
+    "season": "autumn-winter",
+    "regions": ["Mediterranean"]
+  },
+  "romanesco": {
+    "season": "autumn",
+    "regions": ["Mediterranean"]
+  },
+  "savoy cabbage": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe"]
+  },
+  "red cabbage": {
+    "season": "autumn-winter",
+    "regions": ["Northern Europe", "Eastern Europe"]
+  },
+  "chinese cabbage": {
+    "season": "autumn-winter",
+    "regions": ["East Asia"]
+  },
+  "crosne": {
+    "season": "winter",
+    "regions": ["East Asia", "Western Europe"]
+  },
+  "sunchoke": {
+    "season": "winter",
+    "regions": ["North America"]
+  },
+  "scorzonera": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "Mediterranean"]
+  },
+  "hamburg parsley": {
+    "season": "autumn-winter",
+    "regions": ["Eastern Europe", "Western Europe"]
+  },
+  "celtuce": {
+    "season": "spring-summer",
+    "regions": ["East Asia"]
+  },
+  "chinese long bean": {
+    "season": "summer",
+    "regions": ["East Asia", "Southeast Asia"]
+  },
+  "yard-long bean": {
+    "season": "summer",
+    "regions": ["Southeast Asia", "East Asia"]
+  },
+  "winged bean": {
+    "season": "summer",
+    "regions": ["Southeast Asia"]
+  },
+  "snake gourd": {
+    "season": "summer",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "ridge gourd": {
+    "season": "summer",
+    "regions": ["South Asia"]
+  },
+  "bottle gourd": {
+    "season": "summer",
+    "regions": ["South Asia", "East Asia"]
+  },
+  "ivy gourd": {
+    "season": "summer",
+    "regions": ["South Asia", "Southeast Asia"]
+  },
+  "drum stick": {
+    "season": "spring-summer",
+    "regions": ["South Asia"]
+  },
+  "banana blossom": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia"]
+  },
+  "banana leaf": {
+    "season": "year-round",
+    "regions": ["Southeast Asia", "South Asia", "Central America"]
+  },
+  "pandanus": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "torch ginger": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "kencur": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "candlenut": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "candle nut": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "kemangi": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "laksa leaf": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "curry plant": {
+    "season": "summer",
+    "regions": ["Mediterranean"]
+  },
+  "ajwain": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "kalonji": {
+    "season": "year-round",
+    "regions": ["South Asia", "Middle East"]
+  },
+  "amchur": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "chaat masala": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "panch phoron": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "kashmiri chili": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "green cardamom": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "black cardamom": {
+    "season": "year-round",
+    "regions": ["South Asia", "East Asia"]
+  },
+  "kokum": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "black salt": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "pink salt": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "fleur de sel": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "maldon salt": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "smoked salt": {
+    "season": "year-round",
+    "regions": ["Northern Europe"]
+  },
+  "sel gris": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "pepperberry": {
+    "season": "year-round",
+    "regions": ["Oceania"]
+  },
+  "wattleseed": {
+    "season": "year-round",
+    "regions": ["Oceania"]
+  },
+  "lemon myrtle": {
+    "season": "year-round",
+    "regions": ["Oceania"]
+  },
+  "bush tomato": {
+    "season": "year-round",
+    "regions": ["Oceania"]
+  },
+  "finger lime": {
+    "season": "summer",
+    "regions": ["Oceania"]
+  },
+  "quandong": {
+    "season": "autumn",
+    "regions": ["Oceania"]
+  },
+  "davidson plum": {
+    "season": "autumn",
+    "regions": ["Oceania"]
+  },
+  "kakadu plum": {
+    "season": "summer",
+    "regions": ["Oceania"]
+  },
+  "macadamia nut": {
+    "season": "autumn",
+    "regions": ["Oceania", "North America"]
+  },
+  "feijoa": {
+    "season": "autumn",
+    "regions": ["South America", "Oceania"]
+  },
+  "tamarillo": {
+    "season": "autumn-winter",
+    "regions": ["South America", "Oceania"]
+  },
+  "cape gooseberry": {
+    "season": "summer",
+    "regions": ["South America", "Sub-Saharan Africa"]
+  },
+  "acai": {
+    "season": "year-round",
+    "regions": ["South America"]
+  },
+  "cupuacu": {
+    "season": "year-round",
+    "regions": ["South America"]
+  },
+  "lucuma": {
+    "season": "autumn",
+    "regions": ["South America"]
+  },
+  "cherimoya": {
+    "season": "winter",
+    "regions": ["South America", "Central America"]
+  },
+  "soursop": {
+    "season": "year-round",
+    "regions": ["Caribbean", "South America", "Southeast Asia"]
+  },
+  "sapodilla": {
+    "season": "winter-spring",
+    "regions": ["Central America", "South Asia"]
+  },
+  "mamey": {
+    "season": "summer",
+    "regions": ["Central America", "Caribbean"]
+  },
+  "pitahaya": {
+    "season": "summer",
+    "regions": ["Central America", "Southeast Asia"]
+  },
+  "prickly pear": {
+    "season": "late summer",
+    "regions": ["Central America", "Mediterranean"]
+  },
+  "nopal": {
+    "season": "spring",
+    "regions": ["Central America"]
+  },
+  "huitlacoche": {
+    "season": "summer",
+    "regions": ["Central America"]
+  },
+  "squash blossom": {
+    "season": "summer",
+    "regions": ["Central America", "Mediterranean"]
+  },
+  "pepita": {
+    "season": "autumn",
+    "regions": ["Central America"]
+  },
+  "amaranth leaf": {
+    "season": "summer",
+    "regions": ["Central America", "South Asia"]
+  },
+  "chayote squash": {
+    "season": "autumn",
+    "regions": ["Central America"]
+  },
+  "huauzontle": {
+    "season": "summer",
+    "regions": ["Central America"]
+  },
+  "hierba santa": {
+    "season": "summer",
+    "regions": ["Central America"]
+  },
+  "hoja santa": {
+    "season": "summer",
+    "regions": ["Central America"]
+  },
+  "chile de arbol": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "morita pepper": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "mulato pepper": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "cascabel pepper": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "negro chilhuacle": {
+    "season": "year-round",
+    "regions": ["Central America"]
+  },
+  "smoked paprika": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "pimenton": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "urfa pepper": {
+    "season": "year-round",
+    "regions": ["Middle East"]
+  },
+  "marash pepper": {
+    "season": "year-round",
+    "regions": ["Middle East"]
+  },
+  "espelette pepper": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "calabrian chili": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "nduja": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "pepperoncini": {
+    "season": "summer",
+    "regions": ["Mediterranean"]
+  },
+  "banana pepper": {
+    "season": "summer",
+    "regions": ["North America", "Mediterranean"]
+  },
+  "cherry pepper": {
+    "season": "summer",
+    "regions": ["North America"]
+  },
+  "hatch chile": {
+    "season": "late summer",
+    "regions": ["North America"]
+  },
+  "anaheim pepper": {
+    "season": "summer",
+    "regions": ["North America"]
+  },
+  "new mexico chile": {
+    "season": "late summer",
+    "regions": ["North America"]
+  },
+  "fresno pepper": {
+    "season": "summer",
+    "regions": ["North America"]
+  },
+  "shishito pepper": {
+    "season": "summer",
+    "regions": ["East Asia"]
+  },
+  "padron pepper": {
+    "season": "summer",
+    "regions": ["Mediterranean"]
+  },
+  "hungarian wax pepper": {
+    "season": "summer",
+    "regions": ["Eastern Europe"]
+  },
+  "cubanelle pepper": {
+    "season": "summer",
+    "regions": ["Caribbean"]
+  },
+  "aji amarillo": {
+    "season": "summer",
+    "regions": ["South America"]
+  },
+  "rocoto pepper": {
+    "season": "summer",
+    "regions": ["South America"]
+  },
+  "aji panca": {
+    "season": "year-round",
+    "regions": ["South America"]
+  },
+  "malagueta pepper": {
+    "season": "year-round",
+    "regions": ["South America"]
+  },
+  "scotch bonnet pepper": {
+    "season": "summer",
+    "regions": ["Caribbean"]
+  },
+  "trinidad scorpion": {
+    "season": "summer",
+    "regions": ["Caribbean"]
+  },
+  "carolina reaper": {
+    "season": "summer",
+    "regions": ["North America"]
+  },
+  "ghost pepper": {
+    "season": "summer",
+    "regions": ["South Asia"]
+  },
+  "dried shrimp paste": {
+    "season": "year-round",
+    "regions": ["Southeast Asia"]
+  },
+  "lap cheong": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "char siu": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "peking duck": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "five spice duck": {
+    "season": "year-round",
+    "regions": ["East Asia"]
+  },
+  "tandoori": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "tikka masala": {
+    "season": "year-round",
+    "regions": ["South Asia"]
+  },
+  "merguez": {
+    "season": "year-round",
+    "regions": ["North Africa"]
+  },
+  "suya": {
+    "season": "year-round",
+    "regions": ["Sub-Saharan Africa"]
+  },
+  "biltong": {
+    "season": "year-round",
+    "regions": ["Sub-Saharan Africa"]
+  },
+  "jerky": {
+    "season": "year-round",
+    "regions": ["North America", "South America"]
+  },
+  "bresaola": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "jambon": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "speck": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "Western Europe"]
+  },
+  "guanciale": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "lardo": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "coppa": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "soppressata": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "mortadella": {
+    "season": "year-round",
+    "regions": ["Mediterranean"]
+  },
+  "sweetbread": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "tripe": {
+    "season": "year-round",
+    "regions": ["Mediterranean", "East Asia", "Central America"]
+  },
+  "oxtail": {
+    "season": "year-round",
+    "regions": ["Caribbean", "Western Europe", "East Asia"]
+  },
+  "bone marrow": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "head cheese": {
+    "season": "year-round",
+    "regions": ["Western Europe", "Eastern Europe"]
+  },
+  "blood sausage": {
+    "season": "year-round",
+    "regions": ["Western Europe", "Eastern Europe", "South America"]
+  },
+  "haggis": {
+    "season": "year-round",
+    "regions": ["Western Europe"]
+  },
+  "soft-shell turtle": {
+    "season": "autumn",
+    "regions": ["East Asia"]
+  },
+  "frog leg": {
+    "season": "spring-summer",
+    "regions": ["Western Europe", "Southeast Asia"]
+  },
+  "snail": {
+    "season": "autumn",
+    "regions": ["Western Europe"]
+  },
+  "crocodile": {
+    "season": "year-round",
+    "regions": ["Oceania", "Sub-Saharan Africa", "Southeast Asia"]
+  },
+  "kangaroo": {
+    "season": "year-round",
+    "regions": ["Oceania"]
+  },
+  "emu": {
+    "season": "year-round",
+    "regions": ["Oceania"]
+  },
+  "ostrich": {
+    "season": "year-round",
+    "regions": ["Sub-Saharan Africa"]
+  },
+  "wild boar": {
+    "season": "autumn-winter",
+    "regions": ["Western Europe", "North America"]
+  },
+  "elk": {
+    "season": "autumn",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "moose": {
+    "season": "autumn",
+    "regions": ["North America", "Northern Europe"]
+  },
+  "grouse": {
+    "season": "autumn",
+    "regions": ["Northern Europe", "North America"]
+  },
+  "woodcock": {
+    "season": "autumn",
+    "regions": ["Western Europe"]
+  },
+  "guinea fowl": {
+    "season": "year-round",
+    "regions": ["Sub-Saharan Africa", "Western Europe"]
+  },
+  "squab": {
+    "season": "year-round",
+    "regions": ["Western Europe", "East Asia", "Middle East"]
+  },
+  "cornish game hen": {
+    "season": "year-round",
+    "regions": ["North America"]
+  }
+}
