@@ -170,7 +170,7 @@ export function createTasteAxisLabels(spread = 50) {
     Bitter:  [ 0.36,  0.31, -0.88],
     Umami:   [ 0.57,  0.67,  0.36],
     Spicy:   [-0.26,  0.88,  0.31],
-    Rich:    [ 0.11, -0.10,  0.93],
+    Pungent: [ 0.11, -0.10,  0.93],
   };
 
   // Distinct color per taste for visual separation
@@ -181,7 +181,7 @@ export function createTasteAxisLabels(spread = 50) {
     Bitter:  'rgba(167, 139, 250, 0.9)',  // purple
     Umami:   'rgba(249, 168, 112, 0.9)',  // orange
     Spicy:   'rgba(248, 113, 113, 0.9)',  // red
-    Rich:    'rgba(180, 140, 100, 0.9)',  // warm brown
+    Pungent: 'rgba(180, 140, 100, 0.9)',  // warm brown
   };
 
   const group = new THREE.Group();
