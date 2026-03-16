@@ -10,8 +10,8 @@ import {
 const BASE_COLOR = new Color('#1a3a5c');
 const BRIGHT_COLOR = new Color('#4f8fff');
 
-const MIN_OPACITY = 0.05;
-const MAX_OPACITY = 0.4;
+const MIN_OPACITY = 0.025;
+const MAX_OPACITY = 0.2;
 
 const edgeVertexShader = /* glsl */ `
   attribute vec3 aColor;
