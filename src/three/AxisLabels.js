@@ -185,7 +185,7 @@ export function createTasteAxisLabels(spread = 50) {
   };
 
   const group = new THREE.Group();
-  const offset = spread * 1.43;
+  const offset = spread * 1.645; // 15% further out than 1.43
 
   for (const [taste, dir] of Object.entries(TASTE_DIRS)) {
     // Normalize direction
@@ -193,6 +193,9 @@ export function createTasteAxisLabels(spread = 50) {
     const nx = dir[0] / len, ny = dir[1] / len, nz = dir[2] / len;
 
     const label = createTextSprite(taste, TASTE_COLORS[taste]);
+    // Double the default sprite scale
+    label.scale.x *= 2;
+    label.scale.y *= 2;
     label.position.set(nx * offset, ny * offset, nz * offset);
     group.add(label);
   }
