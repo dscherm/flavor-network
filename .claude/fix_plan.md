@@ -216,3 +216,26 @@ spec: .claude/specs/cocktail-lab-prd.md
 - [x] TASK-121: Update walkthrough tour — add Cocktail Lab steps to the tour for users who have the feature. Explain axes, lookup, swap, and builder #demo
 - [x] TASK-122: Cocktail Lab integration tests — validate CocktailDB caching, cocktail graph construction, Codex positioning produces distinct clusters, swap mode returns valid alternatives, save/load cocktails round-trips correctly #testing
 - [x] TASK-123: Deploy Cocktail Lab to Firebase Hosting #deploy
+
+## Phase 22: Recipe Lab — 2D Notebook Visualization
+> **Goal**: New tab with a 2D canvas-based recipe planning view. Yellow
+> notebook pad aesthetic, ingredients arranged radially by taste axis,
+> colored-pencil style visuals.
+
+- [x] TASK-124: Create src/data/recipeLayout.js — radial layout algorithm mapping 8 taste axes to 2D angles, grouping pairings by dominant taste, spreading within ±15° arcs, distance = inverse strength, capped at 60 pairings #data
+- [x] TASK-125: Create src/components/NotebookCanvas.jsx — Canvas 2D renderer: yellow ruled-paper background, red margin, radial taste-axis lines with darkened labels, pencil-stroke connection lines, taste-colored nodes (stars for high-strength, circles for others), rhombus center node with blended flavor-profile color, text inside nodes, pan/zoom/touch support #viz
+- [x] TASK-126: Create src/components/RecipePanel.jsx — right sidebar: recipe title input, ingredient list with taste badges and diamond indicator for center ingredient, re-center/remove buttons, compatibility score bar, save/clear actions #ui
+- [x] TASK-127: Create src/components/RecipeLab.jsx — main container with notebook-themed Fuse.js search bar (Caveat font), state management for center ingredient + recipe list, auto-adds selected ingredient as first recipe item, passes centerNode for blended color #ui
+- [x] TASK-128: Wire Recipe Lab tab into App.jsx — lazy mount with recipeMounted state, tab entry with clipboard icon, passes fullData + selectedNode + userProfile #ui
+- [x] TASK-129: Add Caveat handwritten font to index.html via Google Fonts link #polish
+- [x] TASK-130: Export scoreIngredient from tastePositioning.js for reuse by recipeLayout and NotebookCanvas #data
+
+## Phase 23: ProData Pipeline — Scoring Fix
+> **Goal**: Fix severe underrepresentation of common ingredients in pairings
+> caused by PMI frequency bias.
+
+- [x] TASK-131: Add computeNPMI and computeHybridScore to proDataset/utils.js — NPMI normalizes to [0,1], hybrid blends NPMI (65%) with log-count (35%) so common ingredient pairs survive #data
+- [x] TASK-132: Update all pipeline scripts (01, 03, 04) to use hybrid scoring instead of raw PMI #data
+- [x] TASK-133: Redistribute FlavorDB weight (30%→5%) to active sources in config.js, lower MIN_BLENDED_STRENGTH to 0.02 #data
+- [x] TASK-134: Add smart cap to 05-blend.js — guarantee minimum 15 pairings per ingredient, then fill to 40K cap by strength #data
+- [x] TASK-135: Re-run full pipeline and deploy updated dataset (51K pairings, eggplant 3→77, garlic 0→696) #deploy
