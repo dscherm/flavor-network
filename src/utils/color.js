@@ -10,7 +10,7 @@ export const TASTE_COLORS = {
   umami: '#f9a870',
   spicy: '#f87171',
   hot: '#f87171',
-  rich: '#b48c64',
+  pungent: '#b48c64',
   default: '#4f8fff',
 };
 
