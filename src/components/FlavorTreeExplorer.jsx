@@ -306,13 +306,14 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
       if (onFilterIngredients) {
         const ingsA = getIngredientsForNode(selectedNode, viewMode);
         const ingsB = getIngredientsForNode(node, viewMode);
-        onFilterIngredients([...new Set([...ingsA, ...ingsB])]);
+        onFilterIngredients([...new Set([...ingsA, ...ingsB])], `${selectedNode.name} vs ${node.name}`);
       }
       return;
     }
 
     // Regular click
     setCompareNode(null);
+    const isDeselecting = selectedNode?.id === node.id;
     setSelectedNode(prev => prev?.id === node.id ? null : node);
 
     // Update breadcrumb
@@ -329,15 +330,19 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
 
     // Get ingredients for this node and filter the 3D view
     if (onFilterIngredients) {
-      const ingredients = getIngredientsForNode(node, viewMode);
-      onFilterIngredients(ingredients);
+      if (isDeselecting) {
+        onFilterIngredients(null, null);
+      } else {
+        const ingredients = getIngredientsForNode(node, viewMode);
+        onFilterIngredients(ingredients, node.name);
+      }
     }
   }, [currentTree, viewMode, onFilterIngredients, selectedNode]);
 
   const handleClearCompare = useCallback(() => {
     setCompareNode(null);
     if (selectedNode && onFilterIngredients) {
-      onFilterIngredients(getIngredientsForNode(selectedNode, viewMode));
+      onFilterIngredients(getIngredientsForNode(selectedNode, viewMode), selectedNode.name);
     }
   }, [selectedNode, viewMode, onFilterIngredients]);
 
@@ -346,7 +351,7 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
       setSelectedNode(null);
       setCompareNode(null);
       setBreadcrumb([]);
-      if (onFilterIngredients) onFilterIngredients(null);
+      if (onFilterIngredients) onFilterIngredients(null, null);
     } else {
       handleSelect(item);
     }
@@ -358,7 +363,7 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
     setSelectedNode(null);
     setCompareNode(null);
     setBreadcrumb([]);
-    if (onFilterIngredients) onFilterIngredients(null);
+    if (onFilterIngredients) onFilterIngredients(null, null);
   }, [onFilterIngredients]);
 
   return (

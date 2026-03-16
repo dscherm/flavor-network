@@ -7,7 +7,7 @@ const TASTE_COLORS = [
   { label: 'Salty', key: 'salty', color: '#93c5fd' },
   { label: 'Umami', key: 'umami', color: '#f9a870' },
   { label: 'Spicy / Hot', key: 'spicy', color: '#f87171' },
-  { label: 'Rich', key: 'rich', color: '#b48c64' },
+  { label: 'Pungent', key: 'pungent', color: '#b48c64' },
   { label: 'Default', key: '', color: '#4f8fff' },
 ];
 

@@ -245,13 +245,64 @@ function renderMarkdown(text) {
   });
 }
 
-export default function GlobalInsights({ nodes, edges, filterCuisine, filterTaste, isOpen, onClose }) {
+export default function GlobalInsights({ nodes, edges, filterCuisine, filterTaste, treeFilterIngredients, treeFilterLabel, selectedNodes, isOpen, onClose }) {
   const [collapsed, setCollapsed] = useState(false);
 
+  // Determine what's being analyzed and build a context label
+  const analysisContext = useMemo(() => {
+    if (treeFilterIngredients && treeFilterLabel) {
+      return { label: treeFilterLabel, type: 'Flavor Tree' };
+    }
+    if (filterCuisine) {
+      return { label: filterCuisine.replace(/ cuisine$/i, ''), type: 'Cuisine Filter' };
+    }
+    if (filterTaste) {
+      return { label: filterTaste, type: 'Taste Filter' };
+    }
+    if (selectedNodes && selectedNodes.length > 0) {
+      return { label: selectedNodes.join(', '), type: 'Selected Ingredients' };
+    }
+    return null;
+  }, [treeFilterIngredients, treeFilterLabel, filterCuisine, filterTaste, selectedNodes]);
+
+  // Filter nodes/edges to only active set when tree or selection filters are present
+  const [activeNodeMap, activeEdgeList] = useMemo(() => {
+    if (!nodes || !edges) return [nodes, edges];
+
+    // Tree filter takes priority
+    if (treeFilterIngredients && treeFilterIngredients.length > 0) {
+      const treeSet = new Set(treeFilterIngredients);
+      const filteredNodes = new Map();
+      for (const [name, node] of nodes) {
+        if (treeSet.has(name)) filteredNodes.set(name, node);
+      }
+      const filteredEdges = edges.filter(e => treeSet.has(e.source) && treeSet.has(e.target));
+      return [filteredNodes, filteredEdges];
+    }
+
+    // Selected ingredients — show them plus their direct connections
+    if (selectedNodes && selectedNodes.length > 0) {
+      const selSet = new Set(selectedNodes);
+      const expandedSet = new Set(selectedNodes);
+      for (const e of edges) {
+        if (selSet.has(e.source)) expandedSet.add(e.target);
+        if (selSet.has(e.target)) expandedSet.add(e.source);
+      }
+      const filteredNodes = new Map();
+      for (const [name, node] of nodes) {
+        if (expandedSet.has(name)) filteredNodes.set(name, node);
+      }
+      const filteredEdges = edges.filter(e => expandedSet.has(e.source) && expandedSet.has(e.target));
+      return [filteredNodes, filteredEdges];
+    }
+
+    return [nodes, edges];
+  }, [nodes, edges, treeFilterIngredients, selectedNodes]);
+
   const insights = useMemo(() => {
-    if (!nodes || !edges) return [];
-    return computeInsights(nodes, edges, filterCuisine, filterTaste);
-  }, [nodes, edges, filterCuisine, filterTaste]);
+    if (!activeNodeMap || !activeEdgeList) return [];
+    return computeInsights(activeNodeMap, activeEdgeList, filterCuisine, filterTaste);
+  }, [activeNodeMap, activeEdgeList, filterCuisine, filterTaste]);
 
   return (
     <div className={`fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
@@ -293,15 +344,11 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
           </button>
         </div>
 
-        {/* Filter indicator */}
-        {(filterCuisine || filterTaste) && (
-          <div className="mx-4 mt-3 px-2.5 py-1.5 rounded border border-cyan-800/30 bg-cyan-900/20 flex items-center gap-2">
-            <svg className="w-3 h-3 text-cyan-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            <span className="text-[11px] text-cyan-300">
-              Filtered: <span className="font-medium">{filterCuisine || filterTaste}</span>
-            </span>
+        {/* Context label — shows what is being analyzed */}
+        {analysisContext && (
+          <div className="mx-4 mt-3 px-2.5 py-1.5 rounded border border-cyan-800/30 bg-cyan-900/20">
+            <div className="text-[9px] text-cyan-600 uppercase tracking-wider mb-0.5">{analysisContext.type}</div>
+            <div className="text-[11px] text-cyan-300 font-medium capitalize truncate">{analysisContext.label}</div>
           </div>
         )}
 

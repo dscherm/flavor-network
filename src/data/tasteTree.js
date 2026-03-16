@@ -42,10 +42,19 @@ const TASTE_HIERARCHY = {
   Salty: {
     keywords: ['salty'],
     subcategories: {
-      'Umami-Salty': ['soy sauce', 'miso', 'fish sauce', 'anchovy', 'parmesan', 'mushroom', 'dried tomato'],
       'Brined-Salty': ['olive', 'caper', 'pickle', 'feta'],
       'Mineral-Salty': ['seaweed', 'sea salt'],
       'Other Salty': [],
+    },
+  },
+  Umami: {
+    keywords: ['umami'],
+    subcategories: {
+      'Fermented-Umami': ['soy sauce', 'miso', 'fish sauce', 'worcestershire', 'kimchi', 'sauerkraut'],
+      'Protein-Umami': ['anchovy', 'parmesan', 'bacon', 'ham', 'prosciutto', 'dried tomato', 'tomato paste'],
+      'Fungi-Umami': ['mushroom', 'truffle', 'shiitake', 'porcini', 'maitake'],
+      'Sea-Umami': ['seaweed', 'kombu', 'bonito', 'dashi', 'nori'],
+      'Other Umami': [],
     },
   },
   Spicy: {

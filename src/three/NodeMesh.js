@@ -50,6 +50,8 @@ const DEFAULT_COLOR = '#4f8fff';
 const TASTE_ALIASES = {
   spicy: ['spicy', 'hot'],
   hot: ['spicy', 'hot'],
+  pungent: ['pungent'],
+  umami: ['umami'],
 };
 
 /**
