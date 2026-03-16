@@ -11,6 +11,7 @@ export const TASTE_COLORS = {
   spicy: '#f87171',
   hot: '#f87171',
   pungent: '#b48c64',
+  astringent: '#4ade80',
   default: '#4f8fff',
 };
 

@@ -2,12 +2,12 @@
  * tastePositioning.js — Compute 3D positions for ingredients based on
  * a 7-dimensional taste space projected into 3D.
  *
- * Taste dimensions: Sweet, Salty, Sour, Bitter, Umami, Spicy, Pungent
+ * Taste dimensions: Sweet, Salty, Sour, Bitter, Umami, Spicy, Pungent, Astringent
  *
- * Each ingredient is scored on all 7 channels (0–1), then multiplied by
- * a projection matrix that maps 7D → 3D.  The projection vectors are
- * arranged on a sphere with near-maximal angular separation (Minkowski-
- * inspired), so every taste occupies its own unique direction in 3D space.
+ * Each ingredient is scored on all 8 channels (0–1), then multiplied by
+ * a projection matrix that maps 8D → 3D.  The projection vectors are
+ * the vertices of a square antiprism — the Thomson-optimal placement of
+ * 8 points on a unit sphere, giving 71.7° minimum angular separation.
  * No two tastes share an axis.
  *
  * Ingredients without taste metadata are inferred from pairing neighbors.
@@ -16,20 +16,20 @@
 import { TASTE_HIERARCHY } from './tasteTree.js';
 
 // ---------------------------------------------------------------------------
-// 7-dimensional taste projection vectors  (each ~unit length)
-// Arranged for maximum angular separation in 3D — no two tastes are
-// collinear or antipodal, so each has its own unique spatial direction.
+// 8-dimensional taste projection vectors — square antiprism on the unit sphere
+// Thomson-optimal placement: 71.7° minimum angular separation between any pair.
 // ---------------------------------------------------------------------------
 
 export const TASTE_AXES = {
-  //              X       Y       Z
-  sweet:   [ -0.88,  -0.42,   0.21],
-  salty:   [  0.93,  -0.31,  -0.16],
-  sour:    [ -0.31,  -0.79,  -0.53],
-  bitter:  [  0.36,   0.31,  -0.88],
-  umami:   [  0.57,   0.67,   0.36],
-  spicy:   [ -0.26,   0.88,   0.31],
-  pungent: [  0.11,  -0.10,   0.93],
+  //                 X       Y       Z
+  sweet:      [  0.83,   0.56,   0.00],
+  salty:      [  0.00,   0.56,   0.83],
+  sour:       [ -0.83,   0.56,   0.00],
+  bitter:     [  0.00,   0.56,  -0.83],
+  umami:      [  0.59,  -0.56,   0.59],
+  spicy:      [ -0.59,  -0.56,   0.59],
+  pungent:    [ -0.59,  -0.56,  -0.59],
+  astringent: [  0.59,  -0.56,  -0.59],
 };
 
 // Normalize each projection vector to unit length
@@ -46,13 +46,14 @@ for (const key of Object.keys(TASTE_AXES)) {
 // ---------------------------------------------------------------------------
 
 const TASTE_CHANNEL_KEYWORDS = {
-  sweet:   ['sweet'],
-  salty:   ['salty'],
-  sour:    ['sour', 'tart', 'acidic'],
-  bitter:  ['bitter', 'astringent'],
-  umami:   ['umami'],
-  spicy:   ['spicy', 'hot'],
-  pungent: ['pungent'],
+  sweet:      ['sweet'],
+  salty:      ['salty'],
+  sour:       ['sour', 'tart', 'acidic'],
+  bitter:     ['bitter'],
+  umami:      ['umami'],
+  spicy:      ['spicy', 'hot'],
+  pungent:    ['pungent'],
+  astringent: ['astringent'],
 };
 
 // ---------------------------------------------------------------------------
@@ -77,8 +78,12 @@ const NAME_HINTS = [
     channels: { sour: 0.4, sweet: 0.5 } },
   { keywords: ['coffee', 'espresso', 'cocoa', 'dark chocolate', 'arugula', 'radicchio', 'endive', 'kale'],
     channels: { bitter: 0.8 } },
-  { keywords: ['beer', 'wine'],
+  { keywords: ['beer'],
     channels: { bitter: 0.4 } },
+  { keywords: ['wine', 'tea', 'pomegranate', 'persimmon'],
+    channels: { astringent: 0.7, bitter: 0.3 } },
+  { keywords: ['corn', 'lettuce', 'broccoli', 'cabbage', 'squash', 'bean', 'pea', 'celery', 'cucumber', 'eggplant', 'asparagus', 'cauliflower', 'artichoke'],
+    channels: { astringent: 0.6, sweet: 0.2 } },
   { keywords: ['basil', 'mint', 'cilantro', 'parsley', 'dill', 'chervil', 'tarragon', 'chive'],
     channels: { sour: 0.2 } },
   { keywords: ['cinnamon', 'clove', 'nutmeg', 'cardamom', 'allspice', 'star anise', 'cumin', 'coriander', 'turmeric', 'saffron', 'curry'],
@@ -121,7 +126,7 @@ function seededRandom(seed) {
 // ---------------------------------------------------------------------------
 
 function scoreIngredient(name, node) {
-  const channels = { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, spicy: 0, pungent: 0 };
+  const channels = { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, spicy: 0, pungent: 0, astringent: 0 };
   let signals = 0;
 
   // From taste metadata string (e.g. "sweet, sour")

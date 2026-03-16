@@ -52,6 +52,7 @@ const TASTE_ALIASES = {
   hot: ['spicy', 'hot'],
   pungent: ['pungent'],
   umami: ['umami'],
+  astringent: ['astringent'],
 };
 
 /**
