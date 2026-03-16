@@ -10,9 +10,9 @@ const PENCIL_COLOR = '#3a3428';
 const LINE_SPACING = 28;
 const CENTER_SIZE = 36; // half-diagonal of rhombus
 const FONT_FAMILY = 'Caveat, cursive';
-const OVAL_PAD_X = 14;
-const OVAL_PAD_Y = 8;
-const STAR_OUTER = 24;
+const OVAL_PAD_X = 16;
+const OVAL_PAD_Y = 10;
+const STAR_OUTER = 26;
 
 // Colored-pencil fill: desaturate + add grain-like opacity
 function pencilColor(hex, amount = 0.3) {
