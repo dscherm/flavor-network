@@ -3,12 +3,14 @@
  */
 
 export const TASTE_COLORS = {
-  sweet: '#ff6b9d',
-  sour: '#4ecdc4',
-  bitter: '#9b59b6',
-  umami: '#f39c12',
-  spicy: '#e74c3c',
-  hot: '#e74c3c',
+  sweet: '#fb92b4',
+  sour: '#fde047',
+  bitter: '#a78bfa',
+  salty: '#93c5fd',
+  umami: '#f9a870',
+  spicy: '#f87171',
+  hot: '#f87171',
+  rich: '#b48c64',
   default: '#4f8fff',
 };
 
