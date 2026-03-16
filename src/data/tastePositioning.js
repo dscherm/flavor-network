@@ -125,7 +125,7 @@ function seededRandom(seed) {
 // Score an ingredient on 7 taste channels (0–1 each)
 // ---------------------------------------------------------------------------
 
-function scoreIngredient(name, node) {
+export function scoreIngredient(name, node) {
   const channels = { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, spicy: 0, pungent: 0, astringent: 0 };
   let signals = 0;
 

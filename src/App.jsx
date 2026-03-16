@@ -24,6 +24,7 @@ import ProfileTreeView from './components/ProfileTreeView.jsx';
 import FlavorDNA from './components/FlavorDNA.jsx';
 import CocktailLab from './components/CocktailLab.jsx';
 import SauceLab from './components/SauceLab.jsx';
+import RecipeLab from './components/RecipeLab.jsx';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
@@ -36,6 +37,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce'
   const [cocktailMounted, setCocktailMounted] = useState(false); // lazy mount
   const [sauceMounted, setSauceMounted] = useState(false); // lazy mount
+  const [recipeMounted, setRecipeMounted] = useState(false); // lazy mount
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
@@ -231,6 +233,7 @@ export default function App() {
             { key: 'network', label: 'Network', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z' },
             { key: 'cocktail', label: 'Cocktail Lab', icon: 'M7.5 21H2V3h5l4.286 10L16 3h6v18h-5.5v-9.571L13 21h-2.5L7.5 11.429V21z' },
             { key: 'sauce', label: 'Sauce Lab', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25' },
+            { key: 'recipe', label: 'Recipe Lab', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z' },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -238,6 +241,7 @@ export default function App() {
                 setActiveTab(tab.key);
                 if (tab.key === 'cocktail') setCocktailMounted(true);
                 if (tab.key === 'sauce') setSauceMounted(true);
+                if (tab.key === 'recipe') setRecipeMounted(true);
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                 activeTab === tab.key
@@ -495,6 +499,17 @@ export default function App() {
           }`}
         >
           <SauceLab fullData={data} userProfile={userProfile} />
+        </div>
+      )}
+
+      {/* Recipe Lab tab — lazy-mounted, stays mounted after first open */}
+      {recipeMounted && (
+        <div
+          className={`transition-opacity duration-300 ${
+            activeTab === 'recipe' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+          }`}
+        >
+          <RecipeLab fullData={data} initialIngredient={selectedNode} userProfile={userProfile} />
         </div>
       )}
 
