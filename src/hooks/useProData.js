@@ -163,10 +163,13 @@ export default function useProData() {
         }
 
         // Merge cuisine data into graph nodes
+        // cuisineTree.js expects lowercase values with " cuisine" suffix
         for (const [name, node] of graph.nodes) {
           const cuisines = cuisineMapData[name];
           if (cuisines && cuisines.length > 0) {
-            node.cuisines = cuisines;
+            node.cuisines = cuisines.map(c =>
+              c.toLowerCase().endsWith(' cuisine') ? c.toLowerCase() : c.toLowerCase() + ' cuisine'
+            );
           }
         }
 
