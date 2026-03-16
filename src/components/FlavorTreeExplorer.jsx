@@ -3,12 +3,14 @@ import { buildCuisineTree, getTreeIngredients } from '../data/cuisineTree.js';
 import { buildTasteTree, getTasteIngredients } from '../data/tasteTree.js';
 import { buildIngredientFamilyTree } from '../data/ingredientFamilyTree.js';
 import { buildSeasonTree, getSeasonIngredients } from '../data/seasonTree.js';
+import { buildRegionTree, getRegionIngredients } from '../data/regionTree.js';
 
 const VIEW_MODES = [
   { key: 'cuisine', label: 'Cuisine' },
   { key: 'taste', label: 'Taste' },
   { key: 'family', label: 'Family' },
   { key: 'season', label: 'Season' },
+  { key: 'region', label: 'Region' },
 ];
 
 const TreeNode = memo(function TreeNode({ node, depth, expanded, onToggle, onSelect, selectedId }) {
@@ -163,6 +165,7 @@ function getIngredientsForNode(node, viewMode) {
     case 'cuisine': return getTreeIngredients(node);
     case 'taste': return getTasteIngredients(node);
     case 'season': return getSeasonIngredients(node);
+    case 'region': return getRegionIngredients(node);
     case 'family': return node.ingredients || [];
     default: return [];
   }
@@ -278,6 +281,7 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
   const tasteTree = useMemo(() => buildTasteTree(nodes), [nodes]);
   const familyTree = useMemo(() => buildIngredientFamilyTree(nodes), [nodes]);
   const seasonTree = useMemo(() => buildSeasonTree(nodes), [nodes]);
+  const regionTree = useMemo(() => buildRegionTree(nodes), [nodes]);
 
   const currentTree = useMemo(() => {
     switch (viewMode) {
@@ -285,9 +289,10 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
       case 'taste': return tasteTree;
       case 'family': return familyTree;
       case 'season': return seasonTree;
+      case 'region': return regionTree;
       default: return [];
     }
-  }, [viewMode, cuisineTree, tasteTree, familyTree, seasonTree]);
+  }, [viewMode, cuisineTree, tasteTree, familyTree, seasonTree, regionTree]);
 
   const handleToggle = useCallback((id) => {
     setExpanded(prev => {
@@ -317,7 +322,7 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
     setSelectedNode(prev => prev?.id === node.id ? null : node);
 
     // Update breadcrumb
-    if (node.type === 'region' || node.type === 'taste' || node.type === 'season' || node.type === 'family') {
+    if (node.type === 'region' || node.type === 'continent' || node.type === 'taste' || node.type === 'season' || node.type === 'family') {
       setBreadcrumb([node]);
     } else {
       for (const parent of currentTree) {
