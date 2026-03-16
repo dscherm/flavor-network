@@ -212,6 +212,39 @@ async function run() {
 
   log(`Blended pairs after filtering (>=${MIN_BLENDED_STRENGTH}): ${blendedPairs.length}`);
 
+  // Smart cap: keep top MAX_PAIRS by strength, but guarantee every ingredient
+  // retains at least MIN_PAIRS_PER_INGREDIENT of its best pairings.
+  const MAX_PAIRS = 40000;
+  const MIN_PAIRS_PER_INGREDIENT = 15;
+
+  const kept = new Set();
+  // Phase 1: guarantee minimum pairings per ingredient
+  const byIngredient = new Map();
+  for (let i = 0; i < blendedPairs.length; i++) {
+    const p = blendedPairs[i];
+    for (const name of [p.ingredientA, p.ingredientB]) {
+      if (!byIngredient.has(name)) byIngredient.set(name, []);
+      byIngredient.get(name).push(i);
+    }
+  }
+  for (const [, indices] of byIngredient) {
+    // Already sorted by strength, take top MIN_PAIRS_PER_INGREDIENT
+    for (let j = 0; j < Math.min(MIN_PAIRS_PER_INGREDIENT, indices.length); j++) {
+      kept.add(indices[j]);
+    }
+  }
+  log(`  Guaranteed minimum pairings: ${kept.size} pairs for ${byIngredient.size} ingredients`);
+
+  // Phase 2: fill remaining slots from top-strength pairs
+  for (let i = 0; i < blendedPairs.length && kept.size < MAX_PAIRS; i++) {
+    kept.add(i);
+  }
+
+  const finalPairs = [...kept].sort((a, b) => a - b).map(i => blendedPairs[i]);
+  finalPairs.sort((a, b) => b.strength - a.strength);
+
+  log(`Final pairs after smart cap (max ${MAX_PAIRS}): ${finalPairs.length}`);
+
   // Build output structures
   const ingredientsOut = {};
   for (const [name, info] of masterIngredients) {
@@ -223,7 +256,7 @@ async function run() {
     };
   }
 
-  const pairingsOut = blendedPairs.map(p => ({
+  const pairingsOut = finalPairs.map(p => ({
     ingredientA: p.ingredientA,
     ingredientB: p.ingredientB,
     strength: p.strength,

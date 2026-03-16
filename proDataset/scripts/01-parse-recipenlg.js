@@ -6,7 +6,7 @@ import {
   MIN_RECIPE_COUNT, MIN_INGREDIENT_RECIPES,
 } from '../config.js';
 import {
-  canonicalizeIngredient, pairKey, computePMI, normalizeMap,
+  canonicalizeIngredient, pairKey, computePMI, computeHybridScore, normalizeMap,
   ensureDir, writeJson, log,
 } from '../utils.js';
 
@@ -149,7 +149,8 @@ async function run() {
   }
   log(`Ingredients after frequency filter (>=${MIN_INGREDIENT_RECIPES}): ${validIngredients.size}`);
 
-  // Compute PMI for each pair, filter by MIN_RECIPE_COUNT
+  // Compute hybrid score (NPMI + log-count) for each pair, filter by MIN_RECIPE_COUNT
+  const scoreMap = new Map();
   const pmiMap = new Map();
   let kept = 0;
   let dropped = 0;
@@ -160,14 +161,16 @@ async function run() {
     if (!validIngredients.has(a) || !validIngredients.has(b)) { dropped++; continue; }
 
     const pmi = computePMI(count, ingredientFreq.get(a), ingredientFreq.get(b), totalRecipes);
+    const hybrid = computeHybridScore(count, ingredientFreq.get(a), ingredientFreq.get(b), totalRecipes);
     pmiMap.set(key, pmi);
+    scoreMap.set(key, hybrid);
     kept++;
   }
 
   log(`Pairs kept: ${kept}, dropped: ${dropped}`);
 
-  // Normalize PMI to [0,1]
-  const normalizedPMI = normalizeMap(pmiMap);
+  // Normalize hybrid scores to [0,1]
+  const normalizedScores = normalizeMap(scoreMap);
 
   // Build output
   const pairs = {};
@@ -175,7 +178,7 @@ async function run() {
     pairs[key] = {
       count: pairCount.get(key),
       pmi: Math.round(pmi * 1e6) / 1e6,
-      strength: Math.round(normalizedPMI.get(key) * 1e6) / 1e6,
+      strength: Math.round(normalizedScores.get(key) * 1e6) / 1e6,
     };
   }
 

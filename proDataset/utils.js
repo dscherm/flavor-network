@@ -76,6 +76,31 @@ export function computePMI(pairCount, countA, countB, total) {
   return Math.max(0, pmi); // clamp negatives
 }
 
+/* ───────── NPMI (Normalized PMI) ───────── */
+// Returns value in [0, 1] where 1 = perfect co-occurrence, 0 = independent or worse
+export function computeNPMI(pairCount, countA, countB, total) {
+  if (!pairCount || !countA || !countB || !total) return 0;
+  const pAB = pairCount / total;
+  const pA = countA / total;
+  const pB = countB / total;
+  const pmi = Math.log2(pAB / (pA * pB));
+  if (pmi <= 0) return 0;
+  const npmi = pmi / (-Math.log2(pAB));
+  return Math.max(0, Math.min(1, npmi));
+}
+
+/* ───────── Hybrid score: NPMI + log-count ───────── */
+// Blends statistical surprise (NPMI) with raw co-occurrence frequency so that
+// common, genuinely paired ingredients (eggplant+garlic) aren't penalized.
+// logCountWeight controls the blend: 0 = pure NPMI, 1 = pure log-count.
+export function computeHybridScore(pairCount, countA, countB, total, logCountWeight = 0.35) {
+  const npmi = computeNPMI(pairCount, countA, countB, total);
+  // log-count normalized: log2(count+1) / log2(maxReasonableCount)
+  // Using log2(total) as the ceiling since no pair can exceed total
+  const logCount = Math.log2(pairCount + 1) / Math.log2(total);
+  return npmi * (1 - logCountWeight) + logCount * logCountWeight;
+}
+
 /* ───────── Normalize map values to [0,1] ───────── */
 
 export function normalizeMap(map) {
