@@ -2,13 +2,13 @@
  * tastePositioning.js — Compute 3D positions for ingredients based on
  * a 7-dimensional taste space projected into 3D.
  *
- * Taste dimensions: Sweet, Salty, Sour, Bitter, Umami, Spicy, Rich
+ * Taste dimensions: Sweet, Salty, Sour, Bitter, Umami, Spicy, Pungent
  *
  * Each ingredient is scored on all 7 channels (0–1), then multiplied by
  * a projection matrix that maps 7D → 3D.  The projection vectors are
  * arranged on a sphere with near-maximal angular separation (Minkowski-
  * inspired), so every taste occupies its own unique direction in 3D space.
- * Bitter and Rich are ~135° apart; no two tastes share an axis.
+ * No two tastes share an axis.
  *
  * Ingredients without taste metadata are inferred from pairing neighbors.
  */
@@ -29,7 +29,7 @@ export const TASTE_AXES = {
   bitter:  [  0.36,   0.31,  -0.88],
   umami:   [  0.57,   0.67,   0.36],
   spicy:   [ -0.26,   0.88,   0.31],
-  rich:    [  0.11,  -0.10,   0.93],
+  pungent: [  0.11,  -0.10,   0.93],
 };
 
 // Normalize each projection vector to unit length
@@ -46,22 +46,13 @@ for (const key of Object.keys(TASTE_AXES)) {
 // ---------------------------------------------------------------------------
 
 const TASTE_CHANNEL_KEYWORDS = {
-  sweet:  ['sweet'],
-  salty:  ['salty'],
-  sour:   ['sour', 'tart', 'acidic'],
-  bitter: ['bitter', 'astringent'],
-  umami:  ['umami'],
-  spicy:  ['spicy', 'hot', 'pungent'],
-  rich:   [],  // scored via weight metadata and name hints
-};
-
-// Weight metadata → rich channel score
-const WEIGHT_TO_RICH = {
-  light:          0.0,
-  'light-medium': 0.2,
-  medium:         0.4,
-  'medium-heavy': 0.7,
-  heavy:          1.0,
+  sweet:   ['sweet'],
+  salty:   ['salty'],
+  sour:    ['sour', 'tart', 'acidic'],
+  bitter:  ['bitter', 'astringent'],
+  umami:   ['umami'],
+  spicy:   ['spicy', 'hot'],
+  pungent: ['pungent'],
 };
 
 // ---------------------------------------------------------------------------
@@ -76,26 +67,30 @@ const NAME_HINTS = [
     channels: { umami: 0.8, salty: 0.4 } },
   { keywords: ['salt'],
     channels: { salty: 0.9 } },
-  { keywords: ['chile', 'pepper', 'cayenne', 'jalapeño', 'habanero', 'sriracha', 'tabasco', 'wasabi', 'horseradish', 'chipotle', 'serrano'],
+  { keywords: ['chile', 'pepper', 'cayenne', 'jalapeño', 'habanero', 'sriracha', 'tabasco', 'chipotle', 'serrano'],
     channels: { spicy: 0.8 } },
   { keywords: ['ginger'],
-    channels: { spicy: 0.5, sweet: 0.2 } },
+    channels: { spicy: 0.5, pungent: 0.4, sweet: 0.2 } },
   { keywords: ['lemon', 'lime', 'grapefruit', 'vinegar', 'citrus', 'yuzu', 'tamarind', 'cranberry', 'rhubarb'],
     channels: { sour: 0.8 } },
   { keywords: ['orange'],
     channels: { sour: 0.4, sweet: 0.5 } },
   { keywords: ['coffee', 'espresso', 'cocoa', 'dark chocolate', 'arugula', 'radicchio', 'endive', 'kale'],
-    channels: { bitter: 0.8, rich: 0.5 } },
+    channels: { bitter: 0.8 } },
   { keywords: ['beer', 'wine'],
-    channels: { bitter: 0.4, rich: 0.3 } },
+    channels: { bitter: 0.4 } },
   { keywords: ['basil', 'mint', 'cilantro', 'parsley', 'dill', 'chervil', 'tarragon', 'chive'],
     channels: { sour: 0.2 } },
   { keywords: ['cinnamon', 'clove', 'nutmeg', 'cardamom', 'allspice', 'star anise', 'cumin', 'coriander', 'turmeric', 'saffron', 'curry'],
-    channels: { spicy: 0.5, rich: 0.3 } },
+    channels: { spicy: 0.5, pungent: 0.3 } },
   { keywords: ['cream', 'butter', 'cheese', 'milk', 'yogurt', 'mascarpone', 'ricotta', 'brie'],
-    channels: { rich: 0.8, sweet: 0.2 } },
+    channels: { sweet: 0.2, umami: 0.3 } },
   { keywords: ['garlic', 'onion', 'shallot', 'leek', 'scallion'],
-    channels: { umami: 0.5, spicy: 0.3 } },
+    channels: { pungent: 0.9, umami: 0.4 } },
+  { keywords: ['mustard', 'horseradish', 'wasabi', 'radish', 'turnip'],
+    channels: { pungent: 0.8, spicy: 0.3 } },
+  { keywords: ['black pepper', 'white pepper', 'sichuan'],
+    channels: { pungent: 0.5, spicy: 0.6 } },
 ];
 
 // ---------------------------------------------------------------------------
@@ -126,7 +121,7 @@ function seededRandom(seed) {
 // ---------------------------------------------------------------------------
 
 function scoreIngredient(name, node) {
-  const channels = { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, spicy: 0, rich: 0 };
+  const channels = { sweet: 0, salty: 0, sour: 0, bitter: 0, umami: 0, spicy: 0, pungent: 0 };
   let signals = 0;
 
   // From taste metadata string (e.g. "sweet, sour")
@@ -139,16 +134,6 @@ function scoreIngredient(name, node) {
           signals++;
         }
       }
-    }
-  }
-
-  // From weight metadata → rich channel
-  if (node.weight) {
-    const wLower = node.weight.toLowerCase().trim();
-    const richScore = WEIGHT_TO_RICH[wLower];
-    if (richScore !== undefined) {
-      channels.rich = Math.max(channels.rich, richScore);
-      signals++;
     }
   }
 

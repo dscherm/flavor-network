@@ -163,6 +163,7 @@ export function createSauceAxisLabels(spread = 45) {
 export function createTasteAxisLabels(spread = 50) {
   // Import projection vectors so labels match the positioning math
   // (inlined here to avoid circular deps — values mirror TASTE_AXES)
+  // Mirrors TASTE_AXES from tastePositioning.js
   const TASTE_DIRS = {
     Sweet:   [-0.88, -0.42,  0.21],
     Salty:   [ 0.93, -0.31, -0.16],
@@ -173,7 +174,7 @@ export function createTasteAxisLabels(spread = 50) {
     Pungent: [ 0.11, -0.10,  0.93],
   };
 
-  // Distinct color per taste for visual separation
+  // Matches Legend.jsx and color.js
   const TASTE_COLORS = {
     Sweet:   'rgba(251, 146, 180, 0.9)',  // pink
     Salty:   'rgba(147, 197, 253, 0.9)',  // light blue
