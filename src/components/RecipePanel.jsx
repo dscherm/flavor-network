@@ -14,6 +14,7 @@ export default function RecipePanel({
   recipeTitle,
   onTitleChange,
   centerIngredient,
+  techniques = [],
 }) {
   // Compute dominant taste badge for each ingredient
   const tasteBadges = useMemo(() => {
@@ -130,6 +131,24 @@ export default function RecipePanel({
           );
         })}
       </div>
+
+      {/* Common Techniques */}
+      {techniques.length > 0 && (
+        <div className="px-4 py-2 border-t border-[#d8cca8]">
+          <p className="text-sm font-bold mb-1" style={{ color: '#7a6a4a' }}>Common Techniques</p>
+          <div className="flex flex-wrap gap-1.5">
+            {techniques.map((t) => (
+              <span
+                key={t}
+                className="inline-block text-sm px-2 py-0.5 rounded-md"
+                style={{ backgroundColor: '#e8dcc0', color: '#5a4a2a' }}
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Compatibility score */}
       {compatibility !== null && (

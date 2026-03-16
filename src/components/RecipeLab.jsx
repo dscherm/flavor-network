@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import { getNeighbors } from '../data/graph.js';
-import { computeRadialLayout } from '../data/recipeLayout.js';
+import { computeRadialLayout, extractTechniques } from '../data/recipeLayout.js';
 import NotebookCanvas from './NotebookCanvas.jsx';
 import RecipePanel from './RecipePanel.jsx';
 
@@ -137,6 +137,12 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile }) 
     if (!fullData || !centerIngredient || pairings.length === 0) return null;
     return computeRadialLayout(centerIngredient, pairings, fullData.graph.nodes);
   }, [fullData, centerIngredient, pairings]);
+
+  // Extract techniques from pairings (filtered out of canvas)
+  const techniques = useMemo(() => {
+    if (pairings.length === 0) return [];
+    return extractTechniques(pairings);
+  }, [pairings]);
 
   const handleClickNode = useCallback((name) => {
     if (!name) return;
@@ -281,6 +287,7 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile }) 
           recipeTitle={recipeTitle}
           onTitleChange={setRecipeTitle}
           centerIngredient={centerIngredient}
+          techniques={techniques}
         />
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
-import { TASTE_KEYS } from '../data/recipeLayout.js';
+import { TASTE_KEYS, STAR_THRESHOLD } from '../data/recipeLayout.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 
 const PAPER_COLOR = '#fefae0';
@@ -8,10 +8,11 @@ const LINE_COLOR = '#c9b99a';
 const MARGIN_COLOR = '#e07070';
 const PENCIL_COLOR = '#3a3428';
 const LINE_SPACING = 28;
-const NODE_RADIUS = 22;
 const CENTER_SIZE = 36; // half-diagonal of rhombus
-const STAR_THRESHOLD = 0.22; // strength above this → star shape
 const FONT_FAMILY = 'Caveat, cursive';
+const OVAL_PAD_X = 14;
+const OVAL_PAD_Y = 8;
+const STAR_OUTER = 24;
 
 // Colored-pencil fill: desaturate + add grain-like opacity
 function pencilColor(hex, amount = 0.3) {
@@ -222,36 +223,57 @@ export default function NotebookCanvas({
         const isStrong = pos.strength >= STAR_THRESHOLD;
         const color = TASTE_COLORS[pos.dominantTaste] || TASTE_COLORS.default;
         const fillCol = pencilColor(color, isInRecipe ? 0.25 : 0.5);
-        const r = NODE_RADIUS + (isHovered ? 4 : 0);
+        const hoverGrow = isHovered ? 3 : 0;
 
-        // Draw shape: star for strong pairings, circle for others
         if (isStrong) {
+          // Star shape for strong pairings
+          const r = STAR_OUTER + hoverGrow;
           drawStar(ctx, pos.x, pos.y, r, r * 0.45);
+
+          ctx.fillStyle = fillCol;
+          ctx.globalAlpha = isInRecipe ? 0.85 : 0.55;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = isInRecipe ? PENCIL_COLOR : 'rgba(90,80,60,0.4)';
+          ctx.lineWidth = isInRecipe ? 2 : 1;
+          ctx.stroke();
+
+          // Text inside star
+          const maxW = r * 1.5;
+          const fontSize = fitText(ctx, name, maxW);
+          ctx.font = `${isHovered ? 'bold ' : ''}${fontSize}px ${FONT_FAMILY}`;
+          ctx.fillStyle = PENCIL_COLOR;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(name, pos.x, pos.y);
+
+          targets.push({ name, x: pos.x, y: pos.y, radius: r + 4 });
         } else {
+          // Oval fitted to text
+          const fontSize = fitText(ctx, name, 120, 13, 9);
+          ctx.font = `${isHovered ? 'bold ' : ''}${fontSize}px ${FONT_FAMILY}`;
+          const tw = ctx.measureText(name).width;
+          const hw = tw / 2 + OVAL_PAD_X + hoverGrow;
+          const hh = fontSize / 2 + OVAL_PAD_Y + hoverGrow;
+
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+          ctx.ellipse(pos.x, pos.y, hw, hh, 0, 0, Math.PI * 2);
+          ctx.fillStyle = fillCol;
+          ctx.globalAlpha = isInRecipe ? 0.85 : 0.55;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = isInRecipe ? PENCIL_COLOR : 'rgba(90,80,60,0.4)';
+          ctx.lineWidth = isInRecipe ? 2 : 1;
+          ctx.stroke();
+
+          // Text inside oval
+          ctx.fillStyle = PENCIL_COLOR;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(name, pos.x, pos.y);
+
+          targets.push({ name, x: pos.x, y: pos.y, radius: Math.max(hw, hh) + 2 });
         }
-
-        ctx.fillStyle = fillCol;
-        ctx.globalAlpha = isInRecipe ? 0.85 : 0.55;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-
-        // Border — pencil stroke style
-        ctx.strokeStyle = isInRecipe ? PENCIL_COLOR : 'rgba(90,80,60,0.4)';
-        ctx.lineWidth = isInRecipe ? 2 : 1;
-        ctx.stroke();
-
-        // Text INSIDE the node
-        const maxTextWidth = r * 1.6;
-        const fontSize = fitText(ctx, name, maxTextWidth);
-        ctx.font = `${isHovered ? 'bold ' : ''}${fontSize}px ${FONT_FAMILY}`;
-        ctx.fillStyle = PENCIL_COLOR;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(name, pos.x, pos.y);
-
-        targets.push({ name, x: pos.x, y: pos.y, radius: r + 4 });
       }
     }
 
@@ -288,7 +310,7 @@ export default function NotebookCanvas({
       const txt = `${str}% match`;
       ctx.font = `bold 14px ${FONT_FAMILY}`;
       const tw = ctx.measureText(txt).width;
-      const tipY = pos.y - NODE_RADIUS - 28;
+      const tipY = pos.y - 28 - 22;
       ctx.fillStyle = 'rgba(254,250,224,0.93)';
       ctx.fillRect(pos.x - tw / 2 - 6, tipY, tw + 12, 22);
       ctx.strokeStyle = 'rgba(100,90,70,0.3)';
