@@ -56,6 +56,7 @@ export default function App() {
   const [showProfileTree, setShowProfileTree] = useState(false);
   const [showFlavorDNA, setShowFlavorDNA] = useState(false);
   const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
+  const [treeFilterLabel, setTreeFilterLabel] = useState(null);
   const userProfile = useUserProfile(user);
 
   // Derived state for backwards compat
@@ -420,6 +421,9 @@ export default function App() {
         edges={data ? data.graph.edges : null}
         filterCuisine={selectedCuisine}
         filterTaste={selectedTaste}
+        treeFilterIngredients={treeFilterIngredients}
+        treeFilterLabel={treeFilterLabel}
+        selectedNodes={selectedNodes}
         isOpen={showGlobalInsights}
         onClose={() => setShowGlobalInsights(false)}
       />
@@ -440,8 +444,11 @@ export default function App() {
       <FlavorTreeExplorer
         nodes={data ? data.graph.nodes : null}
         isOpen={showTreeExplorer}
-        onClose={() => { setShowTreeExplorer(false); setTreeFilterIngredients(null); }}
-        onFilterIngredients={setTreeFilterIngredients}
+        onClose={() => { setShowTreeExplorer(false); setTreeFilterIngredients(null); setTreeFilterLabel(null); }}
+        onFilterIngredients={(ingredients, label) => {
+          setTreeFilterIngredients(ingredients);
+          setTreeFilterLabel(label || null);
+        }}
       />
       {/* Tree Explorer toggle button */}
       <button

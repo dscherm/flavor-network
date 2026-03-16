@@ -116,7 +116,7 @@ export function getAllCuisines(nodes) {
  * Returns only categories that have at least one matching ingredient.
  */
 export function getAllTastes(nodes) {
-  const categories = ['sweet', 'sour', 'bitter', 'salty', 'spicy', 'pungent', 'astringent'];
+  const categories = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'spicy', 'pungent', 'astringent'];
   // Only include categories that have at least one ingredient
   const active = [];
   for (const cat of categories) {
