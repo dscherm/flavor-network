@@ -25,6 +25,7 @@ export default function SauceLab({ fullData, userProfile }) {
   const [builderIngredients, setBuilderIngredients] = useState([]);
   const [templateFilter, setTemplateFilter] = useState(null);
   const [filterCategory, setFilterCategory] = useState('');
+  const [legendOpen, setLegendOpen] = useState(false);
 
   // Build sauce graph and load curated recipes on mount
   useEffect(() => {
@@ -299,67 +300,87 @@ export default function SauceLab({ fullData, userProfile }) {
         curatedSauces={curatedSauces}
       />
 
-      {/* Mother Sauce template legend */}
-      <div className="fixed bottom-32 right-4 z-30 bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
-        <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Mother Sauces</p>
-        <div className="space-y-0.5">
-          {SAUCE_TEMPLATES.map(t => (
-            <button
-              key={t.name}
-              onClick={() => handleTemplateFilter(t)}
-              className={`w-full flex items-center gap-1.5 text-[9px] text-left px-1 py-0.5 rounded transition-colors ${
-                templateFilter === t.name
-                  ? 'bg-amber-500/20 text-amber-300'
-                  : 'text-gray-500 hover:text-gray-300 hover:bg-[#1a1a2e]'
-              }`}
-              title={t.description}
-            >
-              <span className="w-1 h-1 rounded-full bg-amber-400/60 flex-shrink-0" />
-              <span className="truncate">{t.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Combined right-side legend — slide-out panel */}
+      <div
+        className="fixed bottom-4 right-0 z-30 flex items-end select-none transition-transform duration-300 ease-in-out"
+        style={{ transform: legendOpen ? 'translateX(0)' : 'translateX(calc(100% - 28px))' }}
+      >
+        {/* Tab */}
+        <button
+          onClick={() => setLegendOpen(v => !v)}
+          className={`bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-r-0 rounded-l-lg px-1.5 py-3 transition-colors shrink-0 ${
+            legendOpen ? 'text-amber-400' : 'text-gray-500 hover:text-gray-300'
+          }`}
+          title="Legend"
+        >
+          <span className="text-[10px] uppercase tracking-widest font-medium" style={{ writingMode: 'vertical-rl' }}>
+            Legend
+          </span>
+        </button>
 
-      {/* Category legend — clickable to filter */}
-      <div className="fixed bottom-4 right-4 z-30 bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
-        <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Ingredient Types</p>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
-          {Object.entries(SAUCE_CATEGORIES)
-            .filter(([key]) => key !== 'Other')
-            .map(([key, { label, color }]) => {
-              const isActive = filterCategory === key;
-              return (
-                <button
-                  key={key}
-                  onClick={() => handleCategoryFilter(key)}
-                  className={`flex items-center gap-1 text-[9px] text-left rounded px-1 py-0.5 transition-colors ${
-                    isActive
-                      ? 'text-white bg-white/10 ring-1 ring-white/20'
-                      : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
-                  }`}
-                  title={isActive ? `Clear ${label} filter` : `Show only ${label}`}
-                >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-shadow"
-                    style={{
-                      backgroundColor: color,
-                      boxShadow: isActive ? `0 0 6px ${color}` : 'none',
-                    }}
-                  />
-                  {label}
-                </button>
-              );
-            })}
+        {/* Panel */}
+        <div className="bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-l-lg p-3 border-l-0 max-h-[70vh] overflow-y-auto">
+          {/* Mother Sauces */}
+          <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Mother Sauces</p>
+          <div className="space-y-0.5 mb-3">
+            {SAUCE_TEMPLATES.map(t => (
+              <button
+                key={t.name}
+                onClick={() => handleTemplateFilter(t)}
+                className={`w-full flex items-center gap-1.5 text-[9px] text-left px-1 py-0.5 rounded transition-colors ${
+                  templateFilter === t.name
+                    ? 'bg-amber-500/20 text-amber-300'
+                    : 'text-gray-500 hover:text-gray-300 hover:bg-[#1a1a2e]'
+                }`}
+                title={t.description}
+              >
+                <span className="w-1 h-1 rounded-full bg-amber-400/60 flex-shrink-0" />
+                <span className="truncate">{t.name}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Ingredient Types */}
+          <div className="border-t border-[#1e1e2e] pt-2">
+            <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Ingredient Types</p>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+              {Object.entries(SAUCE_CATEGORIES)
+                .filter(([key]) => key !== 'Other')
+                .map(([key, { label, color }]) => {
+                  const isActive = filterCategory === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => handleCategoryFilter(key)}
+                      className={`flex items-center gap-1 text-[9px] text-left rounded px-1 py-0.5 transition-colors ${
+                        isActive
+                          ? 'text-white bg-white/10 ring-1 ring-white/20'
+                          : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                      }`}
+                      title={isActive ? `Clear ${label} filter` : `Show only ${label}`}
+                    >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-shadow"
+                        style={{
+                          backgroundColor: color,
+                          boxShadow: isActive ? `0 0 6px ${color}` : 'none',
+                        }}
+                      />
+                      {label}
+                    </button>
+                  );
+                })}
+            </div>
+            {filterCategory && (
+              <button
+                onClick={() => setFilterCategory('')}
+                className="mt-1 text-[8px] text-gray-600 hover:text-blue-400 transition-colors"
+              >
+                Show all
+              </button>
+            )}
+          </div>
         </div>
-        {filterCategory && (
-          <button
-            onClick={() => setFilterCategory('')}
-            className="mt-1 text-[8px] text-gray-600 hover:text-blue-400 transition-colors"
-          >
-            Show all
-          </button>
-        )}
       </div>
     </>
   );
