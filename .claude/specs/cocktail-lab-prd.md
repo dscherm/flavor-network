@@ -1,17 +1,75 @@
-# Cocktail Lab — Mini PRD
+# Labs — PRD
 
 ## Overview
 
-A cocktail creation tool powered by the Flavor Network, accessible via a top-level tab navigation (`Network | Cocktail Lab`). It presents a focused 3D neural network of cocktail-relevant ingredients (~80-120 nodes), positioned using Cocktail Codex architectural axes. Users can look up cocktails from TheCocktailDB, swap ingredients with real-time pairing visualization, and build original cocktails by clicking nodes on the network or searching in a side panel.
+The Flavor Network includes three specialized lab environments, each accessible via a **Labs dropdown** in the top navigation bar. The navigation uses two top-level elements: a `Network` tab and a `Labs` dropdown that contains Cocktail Lab, Sauce Lab, and Recipe Lab. When a lab is active, the dropdown button shows the active lab's name and a cyan highlight.
+
+### Lab Summary
+
+| Lab | Purpose | Rendering | Key Feature |
+|-----|---------|-----------|-------------|
+| **Cocktail Lab** | Cocktail creation with Codex-based positioning | 3D (Three.js NetworkScene) | Ingredient swap, template detection |
+| **Sauce Lab** | Sauce building with mother-sauce axis positioning | 3D (Three.js NetworkScene) | Mother sauce templates, builder |
+| **Recipe Lab** | General recipe planning on a 2D notebook canvas | 2D (Canvas API) | Radial taste layout, pencil aesthetic |
 
 ---
 
 ## Navigation
 
-- **Top-level tab bar** sits above the current interface: `Network | Cocktail Lab`
+- **Top nav bar**: `Network` button + `Labs ▾` dropdown
 - `Network` = the existing Flavor Network (unchanged)
-- `Cocktail Lab` = new cocktail-focused interface with its own scene, panel, and controls
-- Switching tabs swaps the entire view — separate NetworkScene instances, not a filter on the same scene
+- `Labs ▾` dropdown contains: Cocktail Lab, Sauce Lab, Recipe Lab
+- Active lab name replaces "Labs" text in the dropdown button
+- Each lab is **lazy-mounted** on first open and stays mounted for instant switching
+- Switching between labs or back to Network swaps the entire view
+
+---
+
+## Recipe Lab (2D Canvas)
+
+### Concept
+A notebook-pad-style 2D visualization for planning recipes. Users search for a center ingredient, and its pairings radiate outward grouped by dominant taste axis. The aesthetic is a yellow ruled notebook with colored-pencil-style ingredient nodes.
+
+### Visual Design
+- **Background**: Yellow ruled paper (#fefae0), horizontal lines, red margin line
+- **Center ingredient**: Rhombus (diamond) shape, filled with blended flavor-profile color
+- **Strong pairings** (>=22% match): 5-point star shapes
+- **Normal pairings**: Text-fitted ovals (sized to ingredient name)
+- **All colors**: Desaturated pencil-texture tints from TASTE_COLORS
+- **Font**: Caveat (Google Fonts handwritten)
+- **Taste axis lines**: 8 faint dashed radials, dark-tinted labels at edges
+- **Connection lines**: Wobbly pencil strokes from center to each pairing
+
+### Layout Algorithm (recipeLayout.js)
+- 8 taste axes at 45° intervals
+- Pairings grouped by dominant taste channel (via scoreIngredient)
+- Stronger pairings closer to center, weaker farther out
+- Staggered rings to reduce initial clumping
+- **Force-directed repulsion** (up to 80 iterations) eliminates all overlaps
+- Node bounds include 6px gap margin
+- Technique/non-food items filtered out of canvas
+
+### Interactions
+- Pan (click-drag), zoom (scroll/pinch)
+- Click pairing → add to recipe list
+- Click recipe ingredient → re-center canvas on it
+- Hover → tooltip with match percentage
+
+### Recipe Panel (right sidebar)
+- Recipe title input
+- Ingredient list with taste-color badges
+- Center ingredient marked with diamond + "center" badge
+- Re-center / remove buttons per ingredient
+- **Common Techniques** section (filtered non-food items like "grill pan")
+- Compatibility score (avg pairwise strength)
+- Save / Clear buttons
+
+### Technique Filtering
+Items matching technique/non-food patterns (grill pan, foil, cooking spray, etc.) are excluded from the canvas and shown separately in the recipe panel.
+
+---
+
+## Cocktail Lab (3D Scene)
 
 ---
 
@@ -135,7 +193,7 @@ Each ingredient gets a Codex role vector based on which templates it commonly ap
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Network  │  Cocktail Lab                           │  ← tab bar
+│  Network  │  Labs ▾                                 │  ← tab bar
 ├─────────────────────────────────────────────────────┤
 │                                        ┌───────────┐│
 │                                        │ Search    ││

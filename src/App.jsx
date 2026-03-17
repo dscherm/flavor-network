@@ -34,10 +34,11 @@ export default function App() {
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
   const { loading, error, data } = useProData();
   const { user, loginWithGoogle, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce'
+  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe'
   const [cocktailMounted, setCocktailMounted] = useState(false); // lazy mount
   const [sauceMounted, setSauceMounted] = useState(false); // lazy mount
   const [recipeMounted, setRecipeMounted] = useState(false); // lazy mount
+  const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
@@ -229,32 +230,78 @@ export default function App() {
       {/* Top-level tab navigation */}
       <nav className="fixed top-0 left-0 right-0 z-[60] flex items-center h-10 bg-[#0a0a12]/95 backdrop-blur-md border-b border-[#1e1e2e]">
         <div className="flex items-center gap-0.5 px-3 h-full">
-          {[
-            { key: 'network', label: 'Network', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z' },
-            { key: 'cocktail', label: 'Cocktail Lab', icon: 'M7.5 21H2V3h5l4.286 10L16 3h6v18h-5.5v-9.571L13 21h-2.5L7.5 11.429V21z' },
-            { key: 'sauce', label: 'Sauce Lab', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25' },
-            { key: 'recipe', label: 'Recipe Lab', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z' },
-          ].map((tab) => (
+          {/* Network tab */}
+          <button
+            onClick={() => { setActiveTab('network'); setLabDropdownOpen(false); }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              activeTab === 'network'
+                ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
+                : 'text-gray-500 hover:text-gray-300 border border-transparent'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+            </svg>
+            Network
+          </button>
+
+          {/* Labs dropdown */}
+          <div className="relative">
             <button
-              key={tab.key}
-              onClick={() => {
-                setActiveTab(tab.key);
-                if (tab.key === 'cocktail') setCocktailMounted(true);
-                if (tab.key === 'sauce') setSauceMounted(true);
-                if (tab.key === 'recipe') setRecipeMounted(true);
-              }}
+              onClick={() => setLabDropdownOpen(v => !v)}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                activeTab === tab.key
+                activeTab !== 'network'
                   ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
                   : 'text-gray-500 hover:text-gray-300 border border-transparent'
               }`}
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                <path d={tab.icon} />
+                <path d="M13 11.33L18 2l-1.73-1-5.27 9.33L5.73 1 4 2l5 9.33V19H6v2h12v-2h-3v-7.67z" />
               </svg>
-              {tab.label}
+              {activeTab === 'cocktail' ? 'Cocktail Lab' : activeTab === 'sauce' ? 'Sauce Lab' : activeTab === 'recipe' ? 'Recipe Lab' : 'Labs'}
+              <svg className={`w-3 h-3 transition-transform ${labDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 10l5 5 5-5z" />
+              </svg>
             </button>
-          ))}
+            {labDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-[59]" onClick={() => setLabDropdownOpen(false)} />
+                <div className="absolute top-full left-0 mt-1 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
+                  {[
+                    { key: 'cocktail', label: 'Cocktail Lab', icon: 'M7.5 21H2V3h5l4.286 10L16 3h6v18h-5.5v-9.571L13 21h-2.5L7.5 11.429V21z' },
+                    { key: 'sauce', label: 'Sauce Lab', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25' },
+                    { key: 'recipe', label: 'Recipe Lab', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z' },
+                  ].map((lab) => (
+                    <button
+                      key={lab.key}
+                      onClick={() => {
+                        setActiveTab(lab.key);
+                        if (lab.key === 'cocktail') setCocktailMounted(true);
+                        if (lab.key === 'sauce') setSauceMounted(true);
+                        if (lab.key === 'recipe') setRecipeMounted(true);
+                        setLabDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
+                        activeTab === lab.key
+                          ? 'text-cyan-300 bg-cyan-500/10'
+                          : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                      }`}
+                    >
+                      <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                        <path d={lab.icon} />
+                      </svg>
+                      {lab.label}
+                      {activeTab === lab.key && (
+                        <svg className="w-3 h-3 ml-auto text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
         <div className="ml-auto px-3 text-[9px] text-gray-600 tracking-wider uppercase">
           Powered by the Flavor Network

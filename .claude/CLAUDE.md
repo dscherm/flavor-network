@@ -5,7 +5,8 @@
 - **Rendering**: Three.js scene with post-processing (bloom/glow), OrbitControls for 3D navigation
 - **API**: Express.js REST endpoint for ingredient lookup (`/api/ingredient/:name`)
 - **Search**: In-app fuzzy search bar (fuse.js) + drilldown panel showing pairings, cuisines, metadata
-- **Data**: ProData proprietary dataset — 3,831 ingredients, 20,000 pairings derived from RecipeNLG (2.2M recipes), TheMealDB, and TheCocktailDB. NO Flavor Bible dependency.
+- **Data**: ProData proprietary dataset — 4,488 ingredients, 51,726 pairings derived from RecipeNLG (2.2M recipes), TheMealDB, and TheCocktailDB. NPMI + log-count hybrid scoring. NO Flavor Bible dependency.
+- **Navigation**: Network tab + Labs dropdown (Cocktail Lab, Sauce Lab, Recipe Lab). Labs are lazy-mounted.
 - **iOS**: Capacitor wraps the web app for App Store distribution (com.neuralflavor.app)
 
 ## Data Sources (ProData Pipeline)
@@ -28,8 +29,11 @@ src/
 │   ├── IngredientPanel.jsx  # Drilldown info panel
 │   ├── Legend.jsx           # Color/size legend
 │   ├── Controls.jsx         # Filter/view controls
-│   ├── CocktailLab.jsx      # Cocktail Lab tab (uses ProData graph)
-│   ├── SauceLab.jsx         # Sauce Lab tab (uses ProData graph)
+│   ├── CocktailLab.jsx      # Cocktail Lab (3D, uses ProData graph)
+│   ├── SauceLab.jsx         # Sauce Lab (3D, uses ProData graph)
+│   ├── RecipeLab.jsx        # Recipe Lab (2D canvas, notebook aesthetic)
+│   ├── NotebookCanvas.jsx   # Canvas 2D renderer for Recipe Lab
+│   ├── RecipePanel.jsx      # Recipe Lab right sidebar
 │   └── ...                  # Profile, insights, quiz, etc.
 ├── three/
 │   ├── SceneManager.js      # Three.js scene, camera, renderer, post-processing
