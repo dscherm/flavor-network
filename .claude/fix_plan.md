@@ -239,3 +239,13 @@ spec: .claude/specs/cocktail-lab-prd.md
 - [x] TASK-133: Redistribute FlavorDB weight (30%→5%) to active sources in config.js, lower MIN_BLENDED_STRENGTH to 0.02 #data
 - [x] TASK-134: Add smart cap to 05-blend.js — guarantee minimum 15 pairings per ingredient, then fill to 40K cap by strength #data
 - [x] TASK-135: Re-run full pipeline and deploy updated dataset (51K pairings, eggplant 3→77, garlic 0→696) #deploy
+
+## Phase 24: Recipe Lab — Layout & Polish
+> **Goal**: Fix node overlapping, add technique filtering, and consolidate
+> navigation into a Labs dropdown.
+
+- [x] TASK-136: Replace flat tab bar with Network button + Labs dropdown containing Cocktail Lab, Sauce Lab, Recipe Lab. Dropdown shows active lab name, click-outside-to-close, checkmark on active item #ui
+- [x] TASK-137: Rewrite recipeLayout.js repulsion: force-directed with 80-iteration convergence, both-axis push, 6px gap margin, staggered ring placement, larger base radius (340px) #viz
+- [x] TASK-138: Change non-star nodes from circles to text-fitted ovals (ctx.ellipse) sized to ingredient name #viz
+- [x] TASK-139: Filter technique/non-food items (grill pan, cooking spray, foil, etc.) out of canvas, show in "Common Techniques" section in recipe panel #data
+- [x] TASK-140: Update cocktail-lab-prd.md → labs-prd.md: add Recipe Lab section, update navigation to Labs dropdown, add lab summary table #docs
