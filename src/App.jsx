@@ -34,7 +34,7 @@ export default function App() {
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
   const { loading, error, data } = useProData();
   const { user, loginWithGoogle, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe'
+  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'recipe-cocktail' | 'recipe-sauce'
   const [cocktailMounted, setCocktailMounted] = useState(false); // lazy mount
   const [sauceMounted, setSauceMounted] = useState(false); // lazy mount
   const [recipeMounted, setRecipeMounted] = useState(false); // lazy mount
@@ -258,7 +258,7 @@ export default function App() {
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M13 11.33L18 2l-1.73-1-5.27 9.33L5.73 1 4 2l5 9.33V19H6v2h12v-2h-3v-7.67z" />
               </svg>
-              {activeTab === 'cocktail' ? 'Cocktail Lab' : activeTab === 'sauce' ? 'Sauce Lab' : activeTab === 'recipe' ? 'Recipe Lab' : 'Labs'}
+              {activeTab === 'cocktail' ? 'Cocktail Lab' : activeTab === 'sauce' ? 'Sauce Lab' : activeTab === 'recipe' ? 'Recipe Lab' : activeTab === 'recipe-cocktail' ? 'Cocktail Recipe' : activeTab === 'recipe-sauce' ? 'Sauce Recipe' : 'Labs'}
               <svg className={`w-3 h-3 transition-transform ${labDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
@@ -268,9 +268,11 @@ export default function App() {
                 <div className="fixed inset-0 z-[59]" onClick={() => setLabDropdownOpen(false)} />
                 <div className="absolute top-full left-0 mt-1 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
                   {[
-                    { key: 'cocktail', label: 'Cocktail Lab', icon: 'M7.5 21H2V3h5l4.286 10L16 3h6v18h-5.5v-9.571L13 21h-2.5L7.5 11.429V21z' },
-                    { key: 'sauce', label: 'Sauce Lab', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25' },
-                    { key: 'recipe', label: 'Recipe Lab', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z' },
+                    { key: 'recipe', label: 'Recipe Lab', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z', section: null },
+                    { key: 'sauce', label: 'Sauce Lab', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25', section: null },
+                    { key: 'recipe-sauce', label: 'Sauce Recipe', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z', section: null, indent: true },
+                    { key: 'cocktail', label: 'Cocktail Lab', icon: 'M7.5 21H2V3h5l4.286 10L16 3h6v18h-5.5v-9.571L13 21h-2.5L7.5 11.429V21z', section: null },
+                    { key: 'recipe-cocktail', label: 'Cocktail Recipe', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z', section: null, indent: true },
                   ].map((lab) => (
                     <button
                       key={lab.key}
@@ -278,16 +280,20 @@ export default function App() {
                         setActiveTab(lab.key);
                         if (lab.key === 'cocktail') setCocktailMounted(true);
                         if (lab.key === 'sauce') setSauceMounted(true);
-                        if (lab.key === 'recipe') setRecipeMounted(true);
+                        if (lab.key === 'recipe' || lab.key === 'recipe-cocktail' || lab.key === 'recipe-sauce') setRecipeMounted(true);
                         setLabDropdownOpen(false);
                       }}
                       className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
+                        lab.indent ? 'pl-7' : ''
+                      } ${
                         activeTab === lab.key
                           ? 'text-cyan-300 bg-cyan-500/10'
-                          : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                          : lab.indent
+                            ? 'text-gray-500 hover:text-gray-300 hover:bg-[#1a1a2a]'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
                       }`}
                     >
-                      <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className={`${lab.indent ? 'w-3 h-3' : 'w-3.5 h-3.5'} flex-shrink-0`} viewBox="0 0 24 24" fill="currentColor">
                         <path d={lab.icon} />
                       </svg>
                       {lab.label}
@@ -549,14 +555,36 @@ export default function App() {
         </div>
       )}
 
-      {/* Recipe Lab tab — lazy-mounted, stays mounted after first open */}
+      {/* Recipe Lab tab — taste mode */}
       {recipeMounted && (
         <div
           className={`transition-opacity duration-300 ${
             activeTab === 'recipe' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
           }`}
         >
-          <RecipeLab fullData={data} initialIngredient={selectedNode} userProfile={userProfile} />
+          <RecipeLab fullData={data} initialIngredient={selectedNode} userProfile={userProfile} labMode="taste" />
+        </div>
+      )}
+
+      {/* Recipe Lab — cocktail mode */}
+      {recipeMounted && (
+        <div
+          className={`transition-opacity duration-300 ${
+            activeTab === 'recipe-cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+          }`}
+        >
+          <RecipeLab fullData={data} initialIngredient={selectedNode} userProfile={userProfile} labMode="cocktail" key="recipe-cocktail" />
+        </div>
+      )}
+
+      {/* Recipe Lab — sauce mode */}
+      {recipeMounted && (
+        <div
+          className={`transition-opacity duration-300 ${
+            activeTab === 'recipe-sauce' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+          }`}
+        >
+          <RecipeLab fullData={data} initialIngredient={selectedNode} userProfile={userProfile} labMode="sauce" key="recipe-sauce" />
         </div>
       )}
 

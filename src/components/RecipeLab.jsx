@@ -4,16 +4,22 @@ import { getNeighbors } from '../data/graph.js';
 import { computeRadialLayout, extractTechniques } from '../data/recipeLayout.js';
 import NotebookCanvas from './NotebookCanvas.jsx';
 import RecipePanel from './RecipePanel.jsx';
+import StructureSelector from './StructureSelector.jsx';
 
 const FONT_FAMILY = 'Caveat, cursive';
 
-export default function RecipeLab({ fullData, initialIngredient, userProfile }) {
+/**
+ * @param {string} labMode - 'taste' (default), 'cocktail', or 'sauce'
+ *   Controls which structure templates are available and axis labeling.
+ */
+export default function RecipeLab({ fullData, initialIngredient, userProfile, labMode = 'taste' }) {
   const [centerIngredient, setCenterIngredient] = useState(initialIngredient || null);
   const [recipeIngredients, setRecipeIngredients] = useState(
     initialIngredient ? [initialIngredient] : []
   );
   const [recipeTitle, setRecipeTitle] = useState('');
   const [hoveredNode, setHoveredNode] = useState(null);
+  const [selectedStructure, setSelectedStructure] = useState(null);
   const containerRef = useRef(null);
   const [size, setSize] = useState({ width: 800, height: 600 });
 
@@ -200,6 +206,17 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile }) 
 
   return (
     <div className="fixed inset-0 pt-10 flex" style={{ backgroundColor: '#fefae0' }}>
+      {/* Structure selector — top left, only for cocktail/sauce modes */}
+      {(labMode === 'cocktail' || labMode === 'sauce') && (
+        <div className="absolute top-12 left-3 z-20">
+          <StructureSelector
+            mode={labMode}
+            selected={selectedStructure}
+            onSelect={setSelectedStructure}
+          />
+        </div>
+      )}
+
       {/* Notebook-themed search bar */}
       <div
         ref={searchContainerRef}
@@ -268,6 +285,8 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile }) 
           onClickNode={handleClickNode}
           width={canvasWidth}
           height={size.height}
+          labMode={labMode}
+          selectedStructure={selectedStructure}
         />
       </div>
 
@@ -288,6 +307,8 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile }) 
           onTitleChange={setRecipeTitle}
           centerIngredient={centerIngredient}
           techniques={techniques}
+          labMode={labMode}
+          selectedStructure={selectedStructure}
         />
       </div>
     </div>

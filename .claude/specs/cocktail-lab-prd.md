@@ -67,6 +67,45 @@ A notebook-pad-style 2D visualization for planning recipes. Users search for a c
 ### Technique Filtering
 Items matching technique/non-food patterns (grill pan, foil, cooking spray, etc.) are excluded from the canvas and shown separately in the recipe panel.
 
+### Cross-Lab Recipe Modes
+The Recipe Lab can be entered in three modes via the Labs dropdown:
+- **Recipe Lab** (taste mode) — default 8 taste axes, no structure templates
+- **Cocktail Recipe** — cocktail codex axes (Spirit-forward/Modified, Short/Long), structure selector with 6 Codex templates
+- **Sauce Recipe** — mother sauce axes (Light/Rich, Mild/Bold), structure selector with 10 sauce templates
+
+### Structure Selector (top-left dropdown)
+When in cocktail or sauce recipe mode, a subtle dropdown in the top-left corner lets users select a structure template:
+
+**Cocktail Codex Templates:**
+| Template | Structure | Hand-drawn Icon |
+|----------|-----------|-----------------|
+| Old Fashioned | Spirit + Sugar + Bitters | Rocks glass |
+| Martini | Spirit + Vermouth | Martini glass |
+| Daiquiri | Spirit + Citrus + Sugar | Coupe glass |
+| Sidecar | Spirit + Liqueur + Citrus | Coupe with sugar rim |
+| Highball | Spirit + Lengthener | Tall glass with bubbles |
+| Flip | Spirit + Sugar + Egg | Wine glass |
+
+**Mother Sauce Templates:**
+| Template | Structure | Hand-drawn Icon |
+|----------|-----------|-----------------|
+| Béchamel | Roux + Milk | Pot with lid |
+| Velouté | Roux + Stock | Ladle |
+| Espagnole | Roux + Stock + Mirepoix | Deep pot |
+| Tomato | Tomato + Aromatics + Herbs | Tomato |
+| Hollandaise | Butter + Egg + Acid | Whisk |
+| Curry | Fat + Aromatics + Spices | Bowl with steam |
+| Stir-fry | Soy/Fish Sauce + Aromatics | Wok |
+| Mole | Chilies + Spices + Chocolate | Mortar & pestle |
+| Salsa | Tomato + Chili + Herbs | Chili pepper |
+| Nut Sauce | Peanut/Tahini + Acid | Peanut shape |
+
+### Structure Scoring (Recipe Panel)
+- **Selected structure adherence**: Confidence bar (0-100%) showing how well ingredients match the template's required roles. Lists missing roles.
+- **"Starting to look like..."**: When no structure is selected (or the best match differs), shows the highest-scoring template with confidence. At >=70% says "This is a [name]!". Also shows runner-up if close.
+- Uses ProData ingredient categories mapped to cocktail/sauce roles via `structureScoring.js`.
+- Structure selection does NOT filter pairings — all pairings remain visible. Scoring is informational.
+
 ---
 
 ## Cocktail Lab (3D Scene)
