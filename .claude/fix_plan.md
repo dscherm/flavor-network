@@ -260,3 +260,15 @@ spec: .claude/specs/cocktail-lab-prd.md
 - [x] TASK-144: Add structure adherence display to RecipePanel — shows selected structure confidence bar + missing roles, and "starting to look like a..." hint for best-matching unselected template #ui
 - [x] TASK-145: Update NotebookCanvas axis labels — show cocktail axes (Spirit-forward/Modified/Short/Long) or sauce axes (Light/Rich/Mild/Bold) based on labMode #viz
 - [x] TASK-146: Update PRD with cross-lab recipe modes, structure selector, and scoring system #docs
+
+## Phase 26: Recipe Analysis Panel
+> **Goal**: Add an analysis panel to the Recipe Lab that provides
+> intelligent observations about the recipe — what's interesting,
+> what's unusual, suggestions for additions/swaps. Adapts per lab mode.
+>
+> **Delegated to**: analysis-engineer agent (monitored by main loop)
+
+- [x] TASK-147: Create src/data/recipeAnalysis.js — analysis engine that examines a recipe's ingredients against the graph. Returns: unusual pairings (low-strength edges), interesting cross-category combos, weak links, top 5 suggestions to add (by avg pairing strength), top 3 swap recommendations (weakest member → strongest alternative). For cocktail/sauce modes, also returns missing role recommendations based on structureScoring.js #data
+- [x] TASK-148: Create src/components/RecipeAnalysis.jsx — slide-in panel (or expandable section in RecipePanel) that renders analysis results. Sections: "What's Interesting" (unusual combos with explanations), "What's Unusual" (weak links flagged), "Suggestions" (add/swap recommendations with strength scores). Notebook-themed styling (Caveat font, pencil colors). Adapts header/content per labMode #ui
+- [x] TASK-149: Wire RecipeAnalysis into RecipeLab.jsx — toggle button to show/hide analysis, pass ingredients + graph data + labMode + selectedStructure. Auto-refresh analysis when recipe changes #ui
+- [x] TASK-150: Update PRD and fix_plan with analysis panel documentation #docs

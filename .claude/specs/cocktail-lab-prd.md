@@ -106,6 +106,21 @@ When in cocktail or sauce recipe mode, a subtle dropdown in the top-left corner 
 - Uses ProData ingredient categories mapped to cocktail/sauce roles via `structureScoring.js`.
 - Structure selection does NOT filter pairings — all pairings remain visible. Scoring is informational.
 
+### Recipe Analysis Panel
+An expandable analysis section in the recipe sidebar, toggled by a sparkle-icon "Analyze" button. Requires 3+ ingredients. Sections:
+
+| Section | Content |
+|---------|---------|
+| **What's Interesting** | Cross-category ingredient pairs with above-median strength. Shows pairs with strength badges. |
+| **Watch Out** | Ingredients with weak average connection to the rest of the recipe (avg < 5%) or zero-strength pairs. |
+| **Try Adding** | Top 5 non-recipe ingredients ranked by average pairing strength with existing recipe members. Must connect to 2+ recipe items. |
+| **Consider Swapping** | Weakest ingredient identified; top 3 replacements shown with improvement delta. |
+| **Structure Advice** | (Cocktail/sauce modes only) Template adherence, missing roles, actionable advice ("Add a citrus element to complete the Daiquiri"). |
+
+Implementation: `recipeAnalysis.js` (analysis engine, uses `buildAdjacencyList` for efficient lookups) + `RecipeAnalysis.jsx` (collapsible section UI). Analysis computed lazily via `useMemo` only when toggle is active.
+
+**Agent delegation trace**: Phase 26 was implemented by the `analysis-engineer` agent in an isolated worktree, reviewed by the main loop agent, then merged to master. Tasks TASK-147 through TASK-150 in fix_plan.md.
+
 ---
 
 ## Cocktail Lab (3D Scene)

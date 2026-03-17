@@ -1,8 +1,10 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { getNeighbors } from '../data/graph.js';
 import { scoreStructures } from '../data/structureScoring.js';
+import { analyzeRecipe } from '../data/recipeAnalysis.js';
+import RecipeAnalysis from './RecipeAnalysis.jsx';
 
 export default function RecipePanel({
   ingredients,
@@ -40,6 +42,13 @@ export default function RecipePanel({
     if (labMode === 'taste' || ingredients.length === 0) return null;
     return scoreStructures(ingredients, nodes, labMode);
   }, [ingredients, nodes, labMode]);
+
+  const [showAnalysis, setShowAnalysis] = useState(false);
+
+  const analysis = useMemo(() => {
+    if (!showAnalysis || ingredients.length < 3) return null;
+    return analyzeRecipe(ingredients, nodes, edges, labMode, selectedStructure);
+  }, [showAnalysis, ingredients, nodes, edges, labMode, selectedStructure]);
 
   // Compute compatibility score (avg pairwise strength)
   const compatibility = useMemo(() => {
@@ -140,6 +149,28 @@ export default function RecipePanel({
           );
         })}
       </div>
+
+      {/* Analysis toggle + panel */}
+      {ingredients.length >= 3 && (
+        <div className="px-4 py-2 border-t border-[#d8cca8]">
+          <button
+            onClick={() => setShowAnalysis(!showAnalysis)}
+            className="flex items-center gap-1.5 text-sm py-1 px-2 rounded-md transition-colors hover:bg-[#e8dcc8]"
+            style={{ color: showAnalysis ? '#3a3428' : '#7a6a4a' }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+            </svg>
+            Analyze
+            <span className="text-xs" style={{ color: '#9a8a6a' }}>{showAnalysis ? '\u25B4' : '\u25BE'}</span>
+          </button>
+          {showAnalysis && (
+            <div className="mt-1">
+              <RecipeAnalysis analysis={analysis} />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Common Techniques */}
       {techniques.length > 0 && (
