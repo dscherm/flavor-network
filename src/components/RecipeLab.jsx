@@ -92,15 +92,18 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
   }, [fuse]);
 
   const selectFromSearch = useCallback((name) => {
-    setCenterIngredient(name);
+    // Only set center if no focal ingredient exists yet
+    if (!centerIngredient) {
+      setCenterIngredient(name);
+    }
     setRecipeIngredients(prev =>
-      prev.includes(name) ? prev : [name, ...prev]
+      prev.includes(name) ? prev : [...prev, name]
     );
     setSearchQuery('');
     setSearchResults([]);
     setSearchOpen(false);
     setHighlightIdx(-1);
-  }, []);
+  }, [centerIngredient]);
 
   const handleSearchKeyDown = useCallback((e) => {
     if (!searchOpen || searchResults.length === 0) {
@@ -157,16 +160,11 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
 
   const handleClickNode = useCallback((name) => {
     if (!name) return;
-    // If clicking center, do nothing
+    // If clicking center or already in recipe, do nothing
     if (name === centerIngredient) return;
+    if (recipeIngredients.includes(name)) return;
 
-    // If already in recipe, re-center on it
-    if (recipeIngredients.includes(name)) {
-      setCenterIngredient(name);
-      return;
-    }
-
-    // Add to recipe
+    // Add to recipe without changing focal ingredient
     setRecipeIngredients(prev => [...prev, name]);
   }, [centerIngredient, recipeIngredients]);
 
