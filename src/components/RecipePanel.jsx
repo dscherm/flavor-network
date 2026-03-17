@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { getNeighbors } from '../data/graph.js';
+import { scoreStructures } from '../data/structureScoring.js';
 
 export default function RecipePanel({
   ingredients,
@@ -15,6 +16,8 @@ export default function RecipePanel({
   onTitleChange,
   centerIngredient,
   techniques = [],
+  labMode = 'taste',
+  selectedStructure,
 }) {
   // Compute dominant taste badge for each ingredient
   const tasteBadges = useMemo(() => {
@@ -31,6 +34,12 @@ export default function RecipePanel({
     }
     return map;
   }, [ingredients, nodes]);
+
+  // Structure scoring — only for cocktail/sauce modes
+  const structureScores = useMemo(() => {
+    if (labMode === 'taste' || ingredients.length === 0) return null;
+    return scoreStructures(ingredients, nodes, labMode);
+  }, [ingredients, nodes, labMode]);
 
   // Compute compatibility score (avg pairwise strength)
   const compatibility = useMemo(() => {
@@ -149,6 +158,62 @@ export default function RecipePanel({
           </div>
         </div>
       )}
+
+      {/* Structure scoring — cocktail/sauce modes */}
+      {structureScores && structureScores.length > 0 && ingredients.length >= 2 && (() => {
+        const selected = selectedStructure
+          ? structureScores.find(s => s.key === selectedStructure)
+          : null;
+        const best = structureScores[0];
+        const second = structureScores[1];
+        // Show "starting to look like" for the best match
+        const showLooksLike = best && best.confidence >= 40 && (!selected || selected.key !== best.key);
+
+        return (
+          <div className="px-4 py-2 border-t border-[#d8cca8]">
+            {/* Selected structure adherence */}
+            {selected && (
+              <div className="mb-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm" style={{ color: '#5a4a2a' }}>{selected.name} adherence</span>
+                  <span
+                    className="text-xl font-bold"
+                    style={{ color: selected.confidence > 60 ? '#4a8a4a' : selected.confidence > 30 ? '#8a7a3a' : '#8a4a4a' }}
+                  >
+                    {selected.confidence}%
+                  </span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-[#e8dcc8] mt-0.5">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${selected.confidence}%`,
+                      backgroundColor: selected.confidence > 60 ? '#6aaa6a' : selected.confidence > 30 ? '#aaa06a' : '#aa6a6a',
+                    }}
+                  />
+                </div>
+                {selected.missing.length > 0 && (
+                  <p className="text-xs mt-1" style={{ color: '#8a7a5a' }}>
+                    Missing: {selected.missing.join(', ')}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* "Starting to look like..." hint */}
+            {showLooksLike && (
+              <p className="text-sm italic" style={{ color: '#7a6a4a' }}>
+                {best.confidence >= 70
+                  ? `This is a ${best.name}! (${best.confidence}%)`
+                  : `Starting to look like a ${best.name}... (${best.confidence}%)`}
+                {second && second.confidence >= 40 && second.key !== best.key && (
+                  <span style={{ color: '#9a8a6a' }}>{' '}or a {second.name} ({second.confidence}%)</span>
+                )}
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Compatibility score */}
       {compatibility !== null && (

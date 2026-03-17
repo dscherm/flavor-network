@@ -249,3 +249,14 @@ spec: .claude/specs/cocktail-lab-prd.md
 - [x] TASK-138: Change non-star nodes from circles to text-fitted ovals (ctx.ellipse) sized to ingredient name #viz
 - [x] TASK-139: Filter technique/non-food items (grill pan, cooking spray, foil, etc.) out of canvas, show in "Common Techniques" section in recipe panel #data
 - [x] TASK-140: Update cocktail-lab-prd.md → labs-prd.md: add Recipe Lab section, update navigation to Labs dropdown, add lab summary table #docs
+
+## Phase 25: Recipe Lab — Structure Templates & Cross-Lab Modes
+> **Goal**: Let users plan cocktail and sauce recipes in the 2D notebook
+> canvas with structure template scoring and lab-specific axis labels.
+
+- [x] TASK-141: Add recipe-cocktail and recipe-sauce tab variants to App.jsx. Reorder dropdown: Recipe Lab, Sauce Lab, Sauce Recipe, Cocktail Lab, Cocktail Recipe. Each recipe variant passes labMode to RecipeLab #ui
+- [x] TASK-142: Create StructureSelector.jsx — top-left dropdown with hand-drawn canvas icons for each cocktail codex template (6) and mother sauce (10). Notebook aesthetic, click-outside-to-close #ui
+- [x] TASK-143: Create structureScoring.js — score recipe ingredients against all templates using ProData categories mapped to cocktail/sauce roles. Returns sorted confidence scores with missing roles #data
+- [x] TASK-144: Add structure adherence display to RecipePanel — shows selected structure confidence bar + missing roles, and "starting to look like a..." hint for best-matching unselected template #ui
+- [x] TASK-145: Update NotebookCanvas axis labels — show cocktail axes (Spirit-forward/Modified/Short/Long) or sauce axes (Light/Rich/Mild/Bold) based on labMode #viz
+- [x] TASK-146: Update PRD with cross-lab recipe modes, structure selector, and scoring system #docs

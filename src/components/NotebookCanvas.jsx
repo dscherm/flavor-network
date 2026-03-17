@@ -1,7 +1,13 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { TASTE_KEYS, STAR_THRESHOLD } from '../data/recipeLayout.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
+
+// Axis labels per lab mode — mapped to 8 radial positions
+const COCKTAIL_AXES = ['Spirit-forward', 'Dry', 'Short', 'Concentrated', 'Modified', 'Sweet', 'Long', 'Diluted'];
+const SAUCE_AXES = ['Light', 'Thin', 'Mild', 'Subtle', 'Rich', 'Heavy', 'Bold', 'Intense'];
+const COCKTAIL_AXIS_COLORS = ['#e74c3c', '#e67e22', '#3498db', '#8e44ad', '#9b59b6', '#f1c40f', '#3498db', '#27ae60'];
+const SAUCE_AXIS_COLORS = ['#f1c40f', '#3498db', '#e67e22', '#2ecc71', '#e74c3c', '#9b59b6', '#c0392b', '#1abc9c'];
 
 const PAPER_COLOR = '#fefae0';
 const LINE_COLOR = '#c9b99a';
@@ -99,6 +105,8 @@ export default function NotebookCanvas({
   onClickNode,
   width,
   height,
+  labMode = 'taste',
+  selectedStructure,
 }) {
   const canvasRef = useRef(null);
   const [camera, setCamera] = useState({ x: 0, y: 0, zoom: 1 });
@@ -171,11 +179,18 @@ export default function NotebookCanvas({
 
     const targets = [];
 
-    // Draw taste axis lines with darkened labels
+    // Draw axis lines with labels (taste, cocktail, or sauce axes)
     if (centerIngredient) {
       const axisLen = 400;
-      for (let idx = 0; idx < TASTE_KEYS.length; idx++) {
-        const taste = TASTE_KEYS[idx];
+      const axisLabels = labMode === 'cocktail' ? COCKTAIL_AXES
+        : labMode === 'sauce' ? SAUCE_AXES
+        : TASTE_KEYS;
+      const axisColors = labMode === 'cocktail' ? COCKTAIL_AXIS_COLORS
+        : labMode === 'sauce' ? SAUCE_AXIS_COLORS
+        : null;
+
+      for (let idx = 0; idx < 8; idx++) {
+        const label = axisLabels[idx] || '';
         const angle = Math.PI * 2 * idx / 8;
         const ex = Math.cos(angle) * axisLen;
         const ey = Math.sin(angle) * axisLen;
@@ -189,15 +204,17 @@ export default function NotebookCanvas({
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Darkened axis label
-        const tasteColor = TASTE_COLORS[taste] || TASTE_COLORS.default;
-        const darkened = pencilColor(tasteColor, -0.3);
+        // Axis label — use taste color or lab-specific color
+        const baseColor = axisColors
+          ? axisColors[idx]
+          : (TASTE_COLORS[label] || TASTE_COLORS.default);
+        const darkened = pencilColor(baseColor, -0.3);
         ctx.font = `bold 16px ${FONT_FAMILY}`;
         ctx.fillStyle = darkened;
         ctx.globalAlpha = 0.8;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(taste, ex * 1.12, ey * 1.12);
+        ctx.fillText(label, ex * 1.12, ey * 1.12);
         ctx.globalAlpha = 1;
       }
     }
