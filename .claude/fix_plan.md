@@ -272,3 +272,12 @@ spec: .claude/specs/cocktail-lab-prd.md
 - [x] TASK-148: Create src/components/RecipeAnalysis.jsx — slide-in panel (or expandable section in RecipePanel) that renders analysis results. Sections: "What's Interesting" (unusual combos with explanations), "What's Unusual" (weak links flagged), "Suggestions" (add/swap recommendations with strength scores). Notebook-themed styling (Caveat font, pencil colors). Adapts header/content per labMode #ui
 - [x] TASK-149: Wire RecipeAnalysis into RecipeLab.jsx — toggle button to show/hide analysis, pass ingredients + graph data + labMode + selectedStructure. Auto-refresh analysis when recipe changes #ui
 - [x] TASK-150: Update PRD and fix_plan with analysis panel documentation #docs
+
+## Phase 27: Recipe Lab — Add Without Re-centering
+> **Goal**: Allow users to add ingredients to a recipe without changing the
+> focal ingredient. The focal ingredient (set when entering Recipe Lab) stays
+> fixed; clicking canvas nodes or searching adds to the recipe list and updates
+> the chart without re-centering.
+
+- [x] TASK-151: Update handleClickNode in RecipeLab.jsx — clicking a canvas node that is already in the recipe no longer re-centers; clicking a new node adds it to the recipe list without changing centerIngredient #ui
+- [x] TASK-152: Update selectFromSearch in RecipeLab.jsx — searching for an ingredient adds it to the recipe list without changing centerIngredient (only sets center if no focal ingredient exists yet). Users can still explicitly re-center via the re-center button in RecipePanel #ui
