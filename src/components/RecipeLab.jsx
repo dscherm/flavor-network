@@ -20,6 +20,11 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
   const [recipeTitle, setRecipeTitle] = useState('');
   const [hoveredNode, setHoveredNode] = useState(null);
   const [selectedStructure, setSelectedStructure] = useState(null);
+
+  // Reset structure selection when switching lab modes
+  useEffect(() => {
+    setSelectedStructure(null);
+  }, [labMode]);
   const containerRef = useRef(null);
   const [size, setSize] = useState({ width: 800, height: 600 });
 

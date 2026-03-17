@@ -555,36 +555,21 @@ export default function App() {
         </div>
       )}
 
-      {/* Recipe Lab tab — taste mode */}
+      {/* Recipe Lab — all modes share one instance, labMode switches based on activeTab */}
       {recipeMounted && (
         <div
           className={`transition-opacity duration-300 ${
-            activeTab === 'recipe' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+            activeTab === 'recipe' || activeTab === 'recipe-cocktail' || activeTab === 'recipe-sauce'
+              ? 'opacity-100'
+              : 'opacity-0 pointer-events-none fixed inset-0'
           }`}
         >
-          <RecipeLab fullData={data} initialIngredient={selectedNode} userProfile={userProfile} labMode="taste" />
-        </div>
-      )}
-
-      {/* Recipe Lab — cocktail mode */}
-      {recipeMounted && (
-        <div
-          className={`transition-opacity duration-300 ${
-            activeTab === 'recipe-cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
-          }`}
-        >
-          <RecipeLab fullData={data} initialIngredient={selectedNode} userProfile={userProfile} labMode="cocktail" key="recipe-cocktail" />
-        </div>
-      )}
-
-      {/* Recipe Lab — sauce mode */}
-      {recipeMounted && (
-        <div
-          className={`transition-opacity duration-300 ${
-            activeTab === 'recipe-sauce' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
-          }`}
-        >
-          <RecipeLab fullData={data} initialIngredient={selectedNode} userProfile={userProfile} labMode="sauce" key="recipe-sauce" />
+          <RecipeLab
+            fullData={data}
+            initialIngredient={selectedNode}
+            userProfile={userProfile}
+            labMode={activeTab === 'recipe-cocktail' ? 'cocktail' : activeTab === 'recipe-sauce' ? 'sauce' : 'taste'}
+          />
         </div>
       )}
 
