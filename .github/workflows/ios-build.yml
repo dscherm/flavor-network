@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 30
 
     steps:
@@ -38,7 +38,7 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.2'
+          xcode-version: latest-stable
 
       # --- Code Signing ---
       - name: Install Apple certificate and provisioning profile
@@ -85,6 +85,8 @@ jobs:
             DEVELOPMENT_TEAM=23WJWB9WCN \
             PROVISIONING_PROFILE_SPECIFIER=NeuralFlavor \
             CODE_SIGN_IDENTITY="Apple Distribution" \
+            IPHONEOS_DEPLOYMENT_TARGET=16.0 \
+            SUPPORTS_MACCATALYST=NO \
             2>&1 | tee /tmp/archive.log | tail -200
 
       - name: Export IPA
