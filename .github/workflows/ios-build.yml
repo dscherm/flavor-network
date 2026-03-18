@@ -1,13 +1,20 @@
-name: iOS Build
+name: iOS Build & Deploy
 
 on:
   push:
     branches: [master]
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: 'Upload to TestFlight'
+        required: false
+        default: 'true'
+        type: boolean
 
 jobs:
   build-ios:
-    runs-on: macos-latest
+    runs-on: macos-15
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -33,54 +40,109 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Build iOS (unsigned for CI validation)
+      # --- Code Signing ---
+      - name: Install Apple certificate and provisioning profile
+        env:
+          CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          # Create temp keychain
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 12)
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Import certificate
+          CERT_PATH=$RUNNER_TEMP/certificate.p12
+          echo -n "$CERTIFICATE_P12_BASE64" | base64 --decode -o $CERT_PATH
+          security import $CERT_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # Install provisioning profile
+          PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
+          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o $PROFILE_PATH
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PROFILE_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      # --- Build & Archive ---
+      - name: Archive for App Store
         working-directory: ios/App
         run: |
-          xcodebuild build \
+          xcodebuild archive \
             -workspace App.xcworkspace \
             -scheme App \
-            -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/App.xcarchive \
+            -destination 'generic/platform=iOS' \
             -allowProvisioningUpdates \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            | tail -20
+            | xcpretty || tail -50
 
-      - name: Upload build artifacts
+      - name: Export IPA
+        run: |
+          cat > $RUNNER_TEMP/ExportOptions.plist << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>destination</key>
+            <string>upload</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.neuralflavor.app</key>
+              <string>${{ secrets.PROVISIONING_PROFILE_NAME }}</string>
+            </dict>
+          </dict>
+          </plist>
+          PLIST
+
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/App.xcarchive \
+            -exportPath $RUNNER_TEMP/export \
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist
+
+      # --- Upload to TestFlight ---
+      - name: Upload to TestFlight
+        if: ${{ github.event_name == 'push' || inputs.upload_testflight == 'true' }}
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.ASC_API_KEY_BASE64 }}
+        run: |
+          # Write API key to file
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo -n "$APP_STORE_CONNECT_API_KEY" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8
+
+          xcrun notarytool store-credentials "AC_PASSWORD" \
+            --apple-id "placeholder" --team-id "placeholder" --password "placeholder" 2>/dev/null || true
+
+          xcrun altool --upload-app \
+            -f "$RUNNER_TEMP/export/App.ipa" \
+            --type ios \
+            --apiKey "$APP_STORE_CONNECT_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+
+      # --- Artifacts ---
+      - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: ios-build
-          path: ios/App/build/
-          retention-days: 7
+          name: FlavorNetwork-iOS
+          path: $RUNNER_TEMP/export/*.ipa
+          retention-days: 30
 
-  # Uncomment this job when you have Apple Developer credentials set up
-  # build-and-deploy:
-  #   runs-on: macos-latest
-  #   needs: build-ios
-  #   if: github.ref == 'refs/heads/master'
-  #   steps:
-  #     - name: Build for App Store
-  #       working-directory: ios/App
-  #       run: |
-  #         xcodebuild archive \
-  #           -workspace App.xcworkspace \
-  #           -scheme App \
-  #           -configuration Release \
-  #           -archivePath $RUNNER_TEMP/App.xcarchive \
-  #           CODE_SIGN_IDENTITY="${{ secrets.APPLE_CERT_IDENTITY }}" \
-  #           PROVISIONING_PROFILE_SPECIFIER="${{ secrets.APPLE_PROVISIONING_PROFILE }}"
-  #
-  #     - name: Export IPA
-  #       run: |
-  #         xcodebuild -exportArchive \
-  #           -archivePath $RUNNER_TEMP/App.xcarchive \
-  #           -exportPath $RUNNER_TEMP/export \
-  #           -exportOptionsPlist ios/ExportOptions.plist
-  #
-  #     - name: Upload to App Store Connect
-  #       run: |
-  #         xcrun altool --upload-app \
-  #           -f $RUNNER_TEMP/export/App.ipa \
-  #           -u ${{ secrets.APPLE_ID }} \
-  #           -p ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      # --- Cleanup ---
+      - name: Clean up keychain
+        if: always()
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db 2>/dev/null || true
+          rm -f $RUNNER_TEMP/certificate.p12
+          rm -f $RUNNER_TEMP/profile.mobileprovision
