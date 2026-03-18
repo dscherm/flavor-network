@@ -134,6 +134,11 @@ export default function App() {
     setSelectedNodes([]);
   }, []);
 
+  // Sync lab selections so Recipe Lab can pick up the selected ingredient
+  const handleLabSelectionChange = useCallback((nodes) => {
+    setSelectedNodes(nodes);
+  }, []);
+
   // Parse URL parameters on mount to pre-load shared recipe ingredients
   useEffect(() => {
     if (!data) return;
@@ -540,7 +545,7 @@ export default function App() {
             activeTab === 'cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
           }`}
         >
-          <CocktailLab fullData={data} userProfile={userProfile} />
+          <CocktailLab fullData={data} userProfile={userProfile} onSelectionChange={handleLabSelectionChange} />
         </div>
       )}
 
@@ -551,7 +556,7 @@ export default function App() {
             activeTab === 'sauce' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
           }`}
         >
-          <SauceLab fullData={data} userProfile={userProfile} />
+          <SauceLab fullData={data} userProfile={userProfile} onSelectionChange={handleLabSelectionChange} />
         </div>
       )}
 

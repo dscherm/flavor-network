@@ -14,7 +14,7 @@ import { createCocktailAxisLabels } from '../three/AxisLabels.js';
  * CocktailLab — Main container for the Cocktail Lab tab.
  * Renders its own NetworkScene with cocktail-only data and Codex positioning.
  */
-export default function CocktailLab({ fullData, userProfile }) {
+export default function CocktailLab({ fullData, userProfile, onSelectionChange }) {
   const [cocktailData, setCocktailData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -57,6 +57,11 @@ export default function CocktailLab({ fullData, userProfile }) {
   }, [fullData]);
 
   const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
+
+  // Propagate selection to parent so Recipe Lab can pick it up
+  useEffect(() => {
+    if (onSelectionChange) onSelectionChange(selectedNodes);
+  }, [selectedNodes, onSelectionChange]);
 
   // Create 3D axis label sprites (created once, lives in the scene)
   const axisLabels = useMemo(() => createCocktailAxisLabels(45), []);

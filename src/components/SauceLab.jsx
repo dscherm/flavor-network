@@ -14,7 +14,7 @@ import { createSauceAxisLabels } from '../three/AxisLabels.js';
  * SauceLab — Main container for the Sauce Lab tab.
  * Renders its own NetworkScene with sauce-only data and mother sauce positioning.
  */
-export default function SauceLab({ fullData, userProfile }) {
+export default function SauceLab({ fullData, userProfile, onSelectionChange }) {
   const [sauceData, setSauceData] = useState(null);
   const [curatedSauces, setCuratedSauces] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,6 +58,11 @@ export default function SauceLab({ fullData, userProfile }) {
   }, [fullData]);
 
   const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
+
+  // Propagate selection to parent so Recipe Lab can pick it up
+  useEffect(() => {
+    if (onSelectionChange) onSelectionChange(selectedNodes);
+  }, [selectedNodes, onSelectionChange]);
 
   const axisLabels = useMemo(() => createSauceAxisLabels(45), []);
 
