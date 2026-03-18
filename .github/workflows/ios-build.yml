@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-15
+    runs-on: macos-14
     timeout-minutes: 30
 
     steps:
@@ -38,7 +38,7 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          xcode-version: '16.2'
 
       # --- Code Signing ---
       - name: Install Apple certificate and provisioning profile
@@ -73,6 +73,7 @@ jobs:
       - name: Archive for App Store
         working-directory: ios/App
         run: |
+          set -o pipefail
           xcodebuild archive \
             -project App.xcodeproj \
             -scheme App \
@@ -80,7 +81,11 @@ jobs:
             -archivePath $RUNNER_TEMP/App.xcarchive \
             -destination 'generic/platform=iOS' \
             -allowProvisioningUpdates \
-            | xcpretty || tail -50
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM=23WJWB9WCN \
+            PROVISIONING_PROFILE_SPECIFIER=NeuralFlavor \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            2>&1 | tail -80
 
       - name: Export IPA
         run: |
@@ -118,11 +123,8 @@ jobs:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.ASC_API_KEY_BASE64 }}
         run: |
           # Write API key to file
-          mkdir -p ~/.appstoreconnect/private_keys
-          echo -n "$APP_STORE_CONNECT_API_KEY" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8
-
-          xcrun notarytool store-credentials "AC_PASSWORD" \
-            --apple-id "placeholder" --team-id "placeholder" --password "placeholder" 2>/dev/null || true
+          mkdir -p ~/.private_keys
+          echo -n "$APP_STORE_CONNECT_API_KEY" | base64 --decode > ~/.private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8
 
           xcrun altool --upload-app \
             -f "$RUNNER_TEMP/export/App.ipa" \
