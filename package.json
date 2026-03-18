@@ -14,10 +14,10 @@
     "ios:build": "npm run build && npx cap sync ios && cd ios/App && xcodebuild build -workspace App.xcworkspace -scheme App -configuration Debug -destination 'generic/platform=iOS Simulator'"
   },
   "dependencies": {
-    "@capacitor/cli": "^8.2.0",
-    "@capacitor/core": "^8.2.0",
+    "@capacitor/cli": "^8.0.1",
+    "@capacitor/core": "^8.0.1",
     "@capacitor/haptics": "^8.0.1",
-    "@capacitor/ios": "^8.2.0",
+    "@capacitor/ios": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.1",
     "@tensorflow/tfjs": "^4.22.0",
