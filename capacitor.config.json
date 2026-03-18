@@ -8,19 +8,7 @@
     "backgroundColor": "#0a0a0f",
     "allowsLinkPreview": false
   },
-  "plugins": {
-    "SplashScreen": {
-      "launchShowDuration": 2000,
-      "backgroundColor": "#0a0a0f",
-      "showSpinner": false,
-      "launchAutoHide": true,
-      "launchFadeOutDuration": 500
-    },
-    "StatusBar": {
-      "style": "LIGHT",
-      "backgroundColor": "#0a0a0f"
-    }
-  },
+  "plugins": {},
   "server": {
     "allowNavigation": [
       "www.thecocktaildb.com",
