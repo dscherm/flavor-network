@@ -125,7 +125,6 @@ jobs:
 
       # --- Upload to TestFlight ---
       - name: Upload to TestFlight
-        if: ${{ github.event_name == 'push' || inputs.upload_testflight == 'true' }}
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
@@ -135,8 +134,12 @@ jobs:
           mkdir -p ~/.private_keys
           echo -n "$APP_STORE_CONNECT_API_KEY" | base64 --decode > ~/.private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8
 
+          # Find the IPA (name may vary)
+          IPA_PATH=$(find $RUNNER_TEMP/export -name "*.ipa" | head -1)
+          echo "Found IPA: $IPA_PATH"
+
           xcrun altool --upload-app \
-            -f "$RUNNER_TEMP/export/App.ipa" \
+            -f "$IPA_PATH" \
             --type ios \
             --apiKey "$APP_STORE_CONNECT_KEY_ID" \
             --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
@@ -147,7 +150,8 @@ jobs:
         if: always()
         with:
           name: FlavorNetwork-iOS
-          path: $RUNNER_TEMP/export/*.ipa
+          path: |
+            ${{ runner.temp }}/export/*.ipa
           retention-days: 30
 
       # --- Cleanup ---
