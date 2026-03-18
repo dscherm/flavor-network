@@ -85,7 +85,7 @@ jobs:
             DEVELOPMENT_TEAM=23WJWB9WCN \
             PROVISIONING_PROFILE_SPECIFIER=NeuralFlavor \
             CODE_SIGN_IDENTITY="Apple Distribution" \
-            2>&1 | tail -80
+            2>&1 | tee /tmp/archive.log | tail -200
 
       - name: Export IPA
         run: |
