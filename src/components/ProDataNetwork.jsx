@@ -191,6 +191,7 @@ export default function ProDataNetwork() {
           onSelectIngredient={handleSearchSelect}
           isFavorite={false}
           onToggleFavorite={() => {}}
+          graphNodes={data?.graph?.nodes}
         />
       )}
 

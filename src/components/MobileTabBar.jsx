@@ -8,6 +8,7 @@ export default function MobileTabBar({
   onOpenGlobalInsights,
   onOpenProfileTree,
   onOpenTreeExplorer,
+  onOpenBridge,
   onOpenHelp,
   profileMode,
   onToggleProfileMode,
@@ -132,6 +133,12 @@ export default function MobileTabBar({
                   className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
                 >
                   Flavor Trees
+                </button>
+                <button
+                  onClick={() => { onOpenBridge(); setMoreOpen(false); }}
+                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
+                >
+                  Flavor Bridge
                 </button>
                 <button
                   onClick={() => { onOpenHelp(); setMoreOpen(false); }}

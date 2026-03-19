@@ -237,6 +237,7 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange }) {
           onSelectIngredient={handleSearchSelect}
           isFavorite={false}
           onToggleFavorite={() => {}}
+          graphNodes={sauceData?.graph?.nodes}
         />
       )}
 

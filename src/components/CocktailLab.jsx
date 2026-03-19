@@ -247,6 +247,7 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange }
           onSelectIngredient={handleSearchSelect}
           isFavorite={false}
           onToggleFavorite={() => {}}
+          graphNodes={cocktailData?.graph?.nodes}
         />
       )}
 

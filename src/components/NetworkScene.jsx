@@ -139,6 +139,13 @@ export default function NetworkScene({
     const activeNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
 
     if (activeNodes.length > 0 && data) {
+      // Progressive disclosure: show edges for the selected node even if
+      // edges are globally hidden (e.g., on mobile). This reveals connections
+      // contextually without overwhelming the full network view.
+      if (!showEdges) {
+        edges.setVisible(true);
+      }
+
       // Build combined connected map from all selected nodes
       const connectedMap = new Map();
       for (const sel of activeNodes) {
@@ -169,8 +176,11 @@ export default function NetworkScene({
         edges.highlightEdgesFor(sel, 1.0);
         if (particleRef.current) particleRef.current.highlightFor(sel);
       }
+    } else {
+      // No selection: restore edge visibility to match the showEdges toggle
+      if (edges) edges.setVisible(showEdges);
     }
-  }, [selectedNode, selectedNodes, data]);
+  }, [selectedNode, selectedNodes, data, showEdges]);
 
   // Show/hide node name labels for selected nodes and/or explicitly labeled nodes
   useEffect(() => {
@@ -202,10 +212,12 @@ export default function NetworkScene({
     nodeLabelGroupRef.current = labelGroup;
   }, [selectedNode, selectedNodes, data, showNodeLabels, labelNodeNames]);
 
-  // Toggle visibility
+  // Toggle visibility — but keep edges visible if a node is selected (progressive disclosure)
   useEffect(() => {
-    if (edgeMeshRef.current) edgeMeshRef.current.setVisible(showEdges);
-  }, [showEdges]);
+    if (!edgeMeshRef.current) return;
+    const hasSelection = selectedNodes.length > 0 || !!selectedNode;
+    edgeMeshRef.current.setVisible(showEdges || hasSelection);
+  }, [showEdges, selectedNode, selectedNodes]);
 
   useEffect(() => {
     if (particleRef.current) particleRef.current.setVisible(showParticles);
