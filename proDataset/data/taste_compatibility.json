@@ -1,0 +1,36 @@
+{
+  "tastes": ["sweet", "sour", "bitter", "salty", "umami", "spicy", "pungent", "astringent"],
+  "matrix": [
+    [0.4, 0.9, 0.7, 0.8, 0.5, 0.7, 0.4, 0.6],
+    [0.9, 0.4, 0.5, 0.7, 0.8, 0.8, 0.5, 0.4],
+    [0.7, 0.5, 0.2, 0.6, 0.7, 0.5, 0.4, 0.5],
+    [0.8, 0.7, 0.6, 0.3, 0.8, 0.7, 0.5, 0.5],
+    [0.5, 0.8, 0.7, 0.8, 0.3, 0.6, 0.5, 0.4],
+    [0.7, 0.8, 0.5, 0.7, 0.6, 0.3, 0.7, 0.5],
+    [0.4, 0.5, 0.4, 0.5, 0.5, 0.7, 0.4, 0.5],
+    [0.6, 0.4, 0.5, 0.5, 0.4, 0.5, 0.5, 0.2]
+  ],
+  "sources": [
+    "Keast & Breslin (2003) - binary taste interactions",
+    "Yamaguchi & Ninomiya (2000) - umami synergy",
+    "Breslin (1996) - bitterness suppression"
+  ],
+  "notes": {
+    "sweet+sour": "0.9 — classic complementary (lemonade principle)",
+    "sweet+bitter": "0.7 — sugar tempers bitterness (coffee+sugar)",
+    "sweet+salty": "0.8 — salt enhances sweetness (salted caramel)",
+    "sweet+umami": "0.5 — neutral, not commonly paired",
+    "sweet+spicy": "0.7 — Thai principle, sugar moderates capsaicin",
+    "sour+umami": "0.8 — Japanese principle (ponzu+dashi)",
+    "sour+salty": "0.7 — brightening effect (lime+salt)",
+    "sour+spicy": "0.8 — Mexican/Thai principle (lime+chili)",
+    "sour+astringent": "0.4 — both pucker, excessive together",
+    "bitter+umami": "0.7 — beer+cheese, coffee+aged foods",
+    "bitter+bitter": "0.2 — compounding unpleasant",
+    "salty+umami": "0.8 — strong synergy (Yamaguchi 2000)",
+    "salty+spicy": "0.7 — common combination",
+    "spicy+pungent": "0.7 — related sensations",
+    "astringent+astringent": "0.2 — compounding unpleasant",
+    "diagonal": "0.3-0.4 — harmonious but not interesting"
+  }
+}

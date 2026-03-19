@@ -1,0 +1,7 @@
+{
+  "weights": [2.0, 0.5, 2.5, 1.5, 1.0, 0.8, 0.3, 1.2],
+  "bias": -3.0,
+  "feature_names": ["x1_npmi", "x2_freq", "x3_chemical", "x4_taste", "x5_bridge", "x6_cuisine", "x7_hub_asymmetry", "x8_compound_diversity"],
+  "note": "Initial weights from food science literature. Will be fine-tuned with supervised training.",
+  "training_status": "untrained — using proposed initial weights"
+}

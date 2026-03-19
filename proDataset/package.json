@@ -10,7 +10,10 @@
     "flavordb": "node scripts/02-fetch-flavordb.js",
     "mealdb": "node scripts/03-fetch-mealdb.js",
     "cocktaildb": "node scripts/04-fetch-cocktaildb.js",
-    "blend": "node scripts/05-blend.js"
+    "blend": "node scripts/05-blend.js",
+    "compounds": "node scripts/05-process-compounds.js",
+    "features": "node scripts/06-compute-features.js",
+    "blend-v2": "node scripts/07-blend-v2.js"
   },
   "dependencies": {
     "csv-parser": "^3.0.0",

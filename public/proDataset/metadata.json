@@ -1,5 +1,50 @@
 {
-  "generatedAt": "2026-03-16T22:32:51.433Z",
+  "generatedAt": "2026-03-19T20:40:15.742Z",
+  "pipeline": "blend-v2 (perceptron)",
+  "perceptron": {
+    "weights": [
+      2,
+      0.5,
+      2.5,
+      1.5,
+      1,
+      0.8,
+      0.3,
+      1.2
+    ],
+    "bias": -3,
+    "featureNames": [
+      "x1_npmi",
+      "x2_freq",
+      "x3_chemical",
+      "x4_taste",
+      "x5_bridge",
+      "x6_cuisine",
+      "x7_hub_asymmetry",
+      "x8_compound_diversity"
+    ],
+    "trainingStatus": "untrained — using proposed initial weights"
+  },
+  "thresholds": {
+    "MIN_BLENDED_STRENGTH": 0.1,
+    "MAX_PAIRS": 40000,
+    "MIN_PAIRS_PER_INGREDIENT": 15
+  },
+  "featureSource": {
+    "file": "processed/pair-features.json",
+    "compoundSource": "builtin",
+    "fallbacksUsed": {
+      "x3_chemical": false,
+      "x3_jaccard": true,
+      "x4_taste": false,
+      "x6_cuisine": true,
+      "x8_compound_diversity": false
+    }
+  },
+  "totalIngredients": 4488,
+  "totalPairings": 50312,
+  "totalFeaturePairsEvaluated": 381845,
+  "pairsBelowThreshold": 0,
   "sources": {
     "recipenlg": {
       "pairs": 381407,
@@ -21,16 +66,5 @@
       "ingredients": 266,
       "totalRecipes": 426
     }
-  },
-  "weights": {
-    "recipenlg": 0.6,
-    "flavordb": 0.05,
-    "mealdb": 0.2,
-    "cocktaildb": 0.15
-  },
-  "thresholds": {
-    "MIN_BLENDED_STRENGTH": 0.02
-  },
-  "totalIngredients": 4488,
-  "totalPairings": 51726
+  }
 }

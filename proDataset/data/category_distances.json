@@ -1,0 +1,19 @@
+{
+  "adjacent_pairs": [
+    ["herb", "spice"],
+    ["citrus", "fruit"],
+    ["protein", "umami"],
+    ["fat", "dairy"],
+    ["spirit", "liqueur"],
+    ["sweetener", "fruit"],
+    ["grain", "thickener"],
+    ["vegetable", "aromatic"],
+    ["acid", "citrus"],
+    ["mixer", "liquid"],
+    ["chili", "spice"],
+    ["seasoning", "spice"],
+    ["bitters", "liqueur"],
+    ["nut", "fat"]
+  ],
+  "notes": "Same category = 0.0, adjacent pair = 0.5, all others = 1.0. Adjacency reflects culinary functional similarity: herb/spice are both flavor modifiers, citrus/fruit are both plant-derived sweet/sour, protein/umami are both savory, fat/dairy are both lipid-rich, spirit/liqueur are both alcoholic, etc. Four additional pairs (chili+spice, seasoning+spice, bitters+liqueur, nut+fat) added for completeness based on culinary overlap present in the categories.json data."
+}
