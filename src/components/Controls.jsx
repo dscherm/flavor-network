@@ -42,7 +42,7 @@ function Controls({
 
   return (
     <div
-      className="fixed right-0 z-40 flex items-end select-none transition-transform duration-300 ease-in-out"
+      className="fixed right-0 z-40 hidden sm:flex items-end select-none transition-transform duration-300 ease-in-out"
       style={{ bottom: 'var(--bottom-safe)', transform: open ? 'translateX(0)' : 'translateX(calc(100% - 28px))' }}
     >
       {/* Tab */}

@@ -7,6 +7,10 @@ export default function ProfileToggle({
   onOpenInsights,
   onOpenGlobalInsights,
   onOpenProfileTree,
+  onOpenTreeExplorer,
+  showTreeExplorer,
+  onOpenBridge,
+  showBridge,
   profileStats,
   user,
   onLogin,
@@ -140,6 +144,42 @@ export default function ProfileToggle({
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
           <span className="hidden sm:inline">Sign in</span>
+        </button>
+      )}
+
+      {/* Flavor Trees toggle */}
+      {onOpenTreeExplorer && (
+        <button
+          onClick={onOpenTreeExplorer}
+          className={`bg-[#12121a]/90 backdrop-blur-md border rounded-lg px-2.5 py-2 text-xs transition-all select-none ${
+            showTreeExplorer
+              ? 'bg-neural-glow/20 border-neural-glow/40 text-neural-glow'
+              : 'border-[#1e1e2e] text-gray-500 hover:text-gray-200 hover:border-gray-500'
+          }`}
+          aria-label="Flavor Trees"
+          title="Flavor Trees"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+          </svg>
+        </button>
+      )}
+
+      {/* Flavor Bridge toggle */}
+      {onOpenBridge && (
+        <button
+          onClick={onOpenBridge}
+          className={`bg-[#12121a]/90 backdrop-blur-md border rounded-lg px-2.5 py-2 text-xs transition-all select-none ${
+            showBridge
+              ? 'bg-neural-glow/20 border-neural-glow/40 text-neural-glow'
+              : 'border-[#1e1e2e] text-gray-500 hover:text-gray-200 hover:border-gray-500'
+          }`}
+          aria-label="Flavor Bridge"
+          title="Flavor Bridge"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
         </button>
       )}
     </div>

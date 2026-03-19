@@ -59,48 +59,76 @@ function makeLabel(text, color, size) {
   return sprite;
 }
 
-/** Compute 2D wheel positions for all nodes */
+/** Compute 2D wheel positions — octagonal spiral layout.
+ *  Ingredients spiral outward from center based on taste weights.
+ *  Inner ring = strongest taste affinity, outer ring = weaker/multi-taste.
+ *  Octagonal sector boundaries match the TasteRadar shape. */
 function computeWheelPositions(nodes) {
   const positions = {};
-  const sectorAngle = (Math.PI * 2) / TASTE_ORDER.length; // 45 deg
+  const N = TASTE_ORDER.length; // 8
+  const sectorAngle = (Math.PI * 2) / N;
+
+  // Bin ingredients by dominant taste for spiral ordering
+  const bins = {};
+  for (const t of TASTE_ORDER) bins[t] = [];
 
   for (const [name, node] of nodes) {
     const { channels } = scoreIngredient(name, node);
-    // Determine dominant tastes and average angle
-    let totalWeight = 0;
-    let ax = 0, ay = 0; // unit-circle accumulator for circular mean
-    for (let i = 0; i < TASTE_ORDER.length; i++) {
-      const w = channels[TASTE_ORDER[i]] || 0;
-      if (w > 0) {
-        const angle = i * sectorAngle;
-        ax += Math.cos(angle) * w;
-        ay += Math.sin(angle) * w;
-        totalWeight += w;
+    // Find dominant taste
+    let bestTaste = 'sweet', bestScore = 0;
+    for (const t of TASTE_ORDER) {
+      const s = channels[t] || 0;
+      if (s > bestScore) { bestScore = s; bestTaste = t; }
+    }
+    const totalWeight = TASTE_ORDER.reduce((s, t) => s + (channels[t] || 0), 0);
+    bins[bestTaste].push({ name, node, channels, totalWeight, bestScore });
+  }
+
+  // Sort each bin: strongest affinity first (spirals outward = weaker)
+  for (const t of TASTE_ORDER) {
+    bins[t].sort((a, b) => b.bestScore - a.bestScore);
+  }
+
+  // Place ingredients in Archimedean spiral within each sector
+  for (let ti = 0; ti < N; ti++) {
+    const taste = TASTE_ORDER[ti];
+    const centerAngle = ti * sectorAngle - Math.PI / 2; // start from top
+    const items = bins[taste];
+
+    for (let idx = 0; idx < items.length; idx++) {
+      const { name, channels, bestScore } = items[idx];
+      const rng = seededRng(hashStr(name));
+
+      // Spiral: inner items = strong affinity, outer = weaker
+      // radius increases with index, starts at 8, max ~48
+      const spiralT = idx / Math.max(1, items.length - 1); // 0 to 1
+      const baseRadius = 8 + spiralT * 40;
+
+      // Angular offset within sector — spiral rotation
+      // Each item rotates slightly from center angle, staying within sector
+      const maxSpread = sectorAngle * 0.4; // use 80% of sector width
+      const spiralAngle = centerAngle + (rng() - 0.5) * maxSpread * (0.3 + spiralT * 0.7);
+
+      // Multi-taste pull: if ingredient has secondary tastes, pull slightly toward them
+      let pullX = 0, pullZ = 0;
+      for (let j = 0; j < N; j++) {
+        if (j === ti) continue;
+        const w = channels[TASTE_ORDER[j]] || 0;
+        if (w > 0.2) {
+          const pullAngle = j * sectorAngle - Math.PI / 2;
+          pullX += Math.cos(pullAngle) * w * 3;
+          pullZ += Math.sin(pullAngle) * w * 3;
+        }
       }
-    }
-    const rng = seededRng(hashStr(name));
-    let theta;
-    if (totalWeight > 0) {
-      theta = Math.atan2(ay, ax);
-    } else {
-      // No taste info -- hash to a random angle
-      theta = rng() * Math.PI * 2;
-    }
 
-    // Radial position by category
-    const cat = (node.category || 'default').toLowerCase();
-    let radius = CATEGORY_RADII.default;
-    for (const [k, r] of Object.entries(CATEGORY_RADII)) {
-      if (cat.includes(k)) { radius = r; break; }
+      // Small jitter for overlap prevention
+      const jx = (rng() - 0.5) * 2;
+      const jz = (rng() - 0.5) * 2;
+
+      const x = baseRadius * Math.cos(spiralAngle) + pullX + jx;
+      const z = baseRadius * Math.sin(spiralAngle) + pullZ + jz;
+      positions[name] = [x, 0, z];
     }
-
-    // Jitter to prevent overlap
-    const jr = (rng() - 0.5) * 8;
-    const jt = (rng() - 0.5) * 0.3;
-    const r = radius + jr;
-    const t = theta + jt;
-
-    positions[name] = [r * Math.cos(t), 0, r * Math.sin(t)];
   }
   return positions;
 }
@@ -316,17 +344,34 @@ export default function LivingArchView({
     }
     scene.add(labelGroup);
 
-    // --- Sector lines for wheel mode (initially invisible) ---
+    // --- Octagonal sector lines + concentric rings for wheel mode ---
     const sectorGroup = new THREE.Group();
     sectorGroup.visible = false;
-    const sectorAngle = (Math.PI * 2) / TASTE_ORDER.length;
+    const N_TASTES = TASTE_ORDER.length;
+    const sectorAngle = (Math.PI * 2) / N_TASTES;
     const lineMat = new THREE.LineBasicMaterial({ color: 0x333355, transparent: true, opacity: 0.4 });
-    for (let i = 0; i < TASTE_ORDER.length; i++) {
-      const angle = i * sectorAngle;
-      const pts = [new THREE.Vector3(0, 0.1, 0), new THREE.Vector3(Math.cos(angle)*50, 0.1, Math.sin(angle)*50)];
+    const faintMat = new THREE.LineBasicMaterial({ color: 0x222244, transparent: true, opacity: 0.2 });
+
+    // Radial sector dividers (from center to edge)
+    for (let i = 0; i < N_TASTES; i++) {
+      const angle = i * sectorAngle - Math.PI / 2;
+      const pts = [new THREE.Vector3(0, 0.1, 0), new THREE.Vector3(Math.cos(angle) * 55, 0.1, Math.sin(angle) * 55)];
       const lg = new THREE.BufferGeometry().setFromPoints(pts);
       sectorGroup.add(new THREE.Line(lg, lineMat));
     }
+
+    // Concentric octagonal rings at 25%, 50%, 75%, 100%
+    for (const pct of [0.25, 0.5, 0.75, 1.0]) {
+      const ringR = 50 * pct;
+      const ringPts = [];
+      for (let i = 0; i <= N_TASTES; i++) {
+        const angle = (i % N_TASTES) * sectorAngle - Math.PI / 2;
+        ringPts.push(new THREE.Vector3(Math.cos(angle) * ringR, 0.1, Math.sin(angle) * ringR));
+      }
+      const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPts);
+      sectorGroup.add(new THREE.Line(ringGeo, pct === 1.0 ? lineMat : faintMat));
+    }
+
     scene.add(sectorGroup);
 
     // --- Taste pop-out state ---
@@ -594,8 +639,8 @@ export default function LivingArchView({
         const sA = (Math.PI * 2) / TASTE_ORDER.length;
         labelGroup.children.forEach((sprite, idx) => {
           const a3 = sprite.userData.axis3D;
-          const angle = idx * sA;
-          const w2 = [Math.cos(angle) * 48, 2, Math.sin(angle) * 48];
+          const angle = idx * sA - Math.PI / 2; // start from top
+          const w2 = [Math.cos(angle) * 55, 2, Math.sin(angle) * 55];
           sprite.position.set(
             a3[0] + (w2[0] - a3[0]) * et,
             a3[1] + (w2[1] - a3[1]) * et,
