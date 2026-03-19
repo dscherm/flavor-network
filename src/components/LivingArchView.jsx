@@ -99,15 +99,19 @@ function computeWheelPositions(nodes) {
       const { name, channels, bestScore } = items[idx];
       const rng = seededRng(hashStr(name));
 
-      // Spiral: inner items = strong affinity, outer = weaker
-      // radius increases with index, starts at 8, max ~48
+      // Archimedean spiral: radius grows with index, angle rotates progressively
+      // Most-paired ingredients near center, least-paired at edge
       const spiralT = idx / Math.max(1, items.length - 1); // 0 to 1
-      const baseRadius = 8 + spiralT * 40;
+      const baseRadius = 6 + spiralT * 42;
 
-      // Angular offset within sector — spiral rotation
-      // Each item rotates slightly from center angle, staying within sector
-      const maxSpread = sectorAngle * 0.4; // use 80% of sector width
-      const spiralAngle = centerAngle + (rng() - 0.5) * maxSpread * (0.3 + spiralT * 0.7);
+      // True spiral: angle advances with each item, wrapping within the sector
+      // ~3 full spiral turns across all items in the sector
+      const spiralTurns = 3;
+      const halfSector = sectorAngle * 0.42; // stay within ~84% of sector
+      const spiralProgress = (idx / Math.max(1, items.length)) * spiralTurns * Math.PI * 2;
+      const spiralOffset = Math.sin(spiralProgress) * halfSector * spiralT;
+      const jitter = (rng() - 0.5) * 1.5; // tiny jitter for overlap
+      const spiralAngle = centerAngle + spiralOffset + jitter * 0.05;
 
       // Multi-taste pull: if ingredient has secondary tastes, pull slightly toward them
       let pullX = 0, pullZ = 0;
@@ -168,11 +172,15 @@ export default function LivingArchView({
     const count = nodeArray.length;
     if (count === 0) return;
 
-    // Positions
+    // Positions — prefer GAT embeddings, fall back to taste-axis positions
     let posData = data.positions;
     if (!posData || !posData.positions) posData = computeTastePositions(graph.nodes, graph.edges, 50);
-    const pos3D = posData.positions || posData;
+    const tastePos = posData.positions || posData;
     const pos2D = computeWheelPositions(graph.nodes);
+
+    // Check if GAT embeddings are available
+    const sampleNode = nodeArray[0];
+    const hasEmbeddings = sampleNode && sampleNode.embedding && typeof sampleNode.embedding.x === 'number';
 
     // Name index map
     const nameIdx = new Map();
@@ -184,9 +192,16 @@ export default function LivingArchView({
     const curPos = new Float32Array(count * 3);
 
     for (let i = 0; i < count; i++) {
-      const name = nodeArray[i].name;
-      const a = pos3D[name] || [0,0,0];
-      const b = pos2D[name] || [0,0,0];
+      const node = nodeArray[i];
+      const name = node.name;
+      // 3D mode: use GAT embeddings if available, otherwise taste positions
+      let a;
+      if (hasEmbeddings && node.embedding) {
+        a = [node.embedding.x, node.embedding.y, node.embedding.z];
+      } else {
+        a = tastePos[name] || [0, 0, 0];
+      }
+      const b = pos2D[name] || [0, 0, 0];
       posA[i*3] = a[0]; posA[i*3+1] = a[1]; posA[i*3+2] = a[2];
       posB[i*3] = b[0]; posB[i*3+1] = b[1]; posB[i*3+2] = b[2];
       curPos[i*3] = a[0]; curPos[i*3+1] = a[1]; curPos[i*3+2] = a[2];
@@ -939,20 +954,29 @@ export default function LivingArchView({
   return (
     <div className="absolute inset-0 pt-10">
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      {/* Toggle button */}
-      <button
-        onClick={handleToggle}
-        className="absolute top-14 left-4 z-50 px-4 py-2 rounded-lg text-sm font-medium
-          bg-gray-900/80 border border-gray-700 text-gray-200 hover:bg-gray-800
-          backdrop-blur-sm transition-colors duration-200 select-none"
-        title={mode === 'neural' ? 'Switch to Flavor Wheel' : 'Switch to Neural Cloud'}
+      {/* Toggle switch — bottom center */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
+        style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))' }}
       >
-        {mode === 'neural' ? 'Neural Cloud \u2192 Wheel' : 'Flavor Wheel \u2192 Cloud'}
-      </button>
-      {/* Mode indicator */}
-      <div className="absolute top-14 right-4 z-50 px-3 py-1 rounded text-xs font-mono
-        bg-gray-900/60 border border-gray-800 text-gray-500 backdrop-blur-sm select-none">
-        {mode === 'neural' ? '3D NEURAL' : '2D WHEEL'}
+        <span className={`text-[11px] font-medium transition-colors ${mode === 'neural' ? 'text-cyan-400' : 'text-gray-600'}`}>
+          3D Neural
+        </span>
+        <button
+          onClick={handleToggle}
+          className="relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+          style={{ backgroundColor: mode === 'wheel' ? '#4f8fff' : '#333344' }}
+          title={mode === 'neural' ? 'Switch to Flavor Wheel' : 'Switch to Neural Cloud'}
+          role="switch"
+          aria-checked={mode === 'wheel'}
+        >
+          <span
+            className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-300"
+            style={{ transform: mode === 'wheel' ? 'translateX(26px)' : 'translateX(2px)' }}
+          />
+        </button>
+        <span className={`text-[11px] font-medium transition-colors ${mode === 'wheel' ? 'text-blue-400' : 'text-gray-600'}`}>
+          2D Wheel
+        </span>
       </div>
     </div>
   );
