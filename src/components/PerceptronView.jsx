@@ -152,9 +152,9 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
           </filter>
         </defs>
         <g transform={`translate(${pan.x},${pan.y}) scale(${zoom})`}>
-          <text x={LX[0]} y={30} textAnchor="middle" fill="#666" fontSize="12" fontFamily="monospace">INPUT: Taste</text>
-          <text x={LX[1]} y={30} textAnchor="middle" fill="#666" fontSize="12" fontFamily="monospace">HIDDEN: Category</text>
-          <text x={LX[2]} y={30} textAnchor="middle" fill="#666" fontSize="12" fontFamily="monospace">OUTPUT: Ingredients</text>
+          <text x={LX[0]} y={30} textAnchor="middle" fill="#666" fontSize="12" fontFamily="monospace">Taste</text>
+          <text x={LX[1]} y={30} textAnchor="middle" fill="#666" fontSize="12" fontFamily="monospace">Category</text>
+          <text x={LX[2]} y={30} textAnchor="middle" fill="#666" fontSize="12" fontFamily="monospace">Ingredients</text>
 
           {/* Taste->Category lines */}
           {tcLinks.map((lk, i) => {
@@ -230,9 +230,9 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
                 fillOpacity={isSel ? 0.9 : isH ? 0.8 : 0.5} stroke={isSel ? '#fff' : col}
                 strokeWidth={isSel ? 2 : 0.5} filter={isSel ? 'url(#pcgs)' : 'url(#pcg)'}
                 className={fired && isSel ? 'pc-pulse' : ''} />
-              {(i < 20 || isSel || isH) && <text x={ing.x - 12} y={ing.y + 3} textAnchor="end"
-                fill={isSel ? '#fff' : '#888'} fontSize={isSel ? '9' : '7'} fontFamily="monospace"
-                pointerEvents="none">{ing.name}</text>}
+              <text x={ing.x - 12} y={ing.y + 3} textAnchor="end"
+                fill={isSel ? '#fff' : isH ? '#ccc' : '#888'} fontSize={isSel ? '9' : '7'} fontFamily="monospace"
+                pointerEvents="none">{ing.name}</text>
             </g>);
           })}
         </g>

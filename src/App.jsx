@@ -23,9 +23,7 @@ import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 import ProfileTreeView from './components/ProfileTreeView.jsx';
 import FlavorDNA from './components/FlavorDNA.jsx';
 import FlavorBridge from './components/FlavorBridge.jsx';
-import FlavorWheelView from './components/FlavorWheelView.jsx';
 import PerceptronView from './components/PerceptronView.jsx';
-import ConstellationView from './components/ConstellationView.jsx';
 import PathwayView from './components/PathwayView.jsx';
 import LivingArchView from './components/LivingArchView.jsx';
 import CocktailLab from './components/CocktailLab.jsx';
@@ -296,7 +294,7 @@ export default function App() {
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
               </svg>
-              {{ neural: 'Neural Cloud', wheel: 'Flavor Wheel', perceptron: 'Perceptron', constellation: 'Constellation', pathway: 'Pathway Map', living: 'Living Arch' }[viewMode]}
+              {{ neural: 'Neural Cloud', perceptron: 'Perceptron', pathway: 'Pathway Map', living: 'Living Arch' }[viewMode] || 'Neural Cloud'}
               <svg className={`w-3 h-3 transition-transform ${viewDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
@@ -307,8 +305,6 @@ export default function App() {
                 <div className="absolute top-full left-0 mt-1 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
                   {[
                     { key: 'neural', label: 'Neural Cloud', desc: 'Original 3D network' },
-                    { key: 'wheel', label: 'Flavor Wheel', desc: '3D arcs over taste wheel' },
-                    { key: 'constellation', label: 'Constellation', desc: 'Star field by connectivity' },
                     { key: 'living', label: 'Living Architecture', desc: '3D ↔ 2D morph' },
                     { key: 'perceptron', label: 'Perceptron Layers', desc: 'Neural network diagram' },
                     { key: 'pathway', label: 'Pathway Map', desc: 'Subway-style routes' },
@@ -419,16 +415,6 @@ export default function App() {
           sceneExtras={tasteAxisLabels}
         />
       )}
-      {/* View mode: Flavor Wheel */}
-      {viewMode === 'wheel' && (
-        <FlavorWheelView
-          data={data}
-          onNodeClick={handleNodeClick}
-          selectedNode={selectedNode}
-          selectedNodes={selectedNodes}
-          filterTaste={selectedTaste}
-        />
-      )}
       {/* View mode: Perceptron Layers */}
       {viewMode === 'perceptron' && (
         <PerceptronView
@@ -436,16 +422,6 @@ export default function App() {
           onNodeClick={handleNodeClick}
           selectedNode={selectedNode}
           selectedNodes={selectedNodes}
-        />
-      )}
-      {/* View mode: Constellation */}
-      {viewMode === 'constellation' && (
-        <ConstellationView
-          data={data}
-          onNodeClick={handleNodeClick}
-          selectedNode={selectedNode}
-          selectedNodes={selectedNodes}
-          filterTaste={selectedTaste}
         />
       )}
       {/* View mode: Pathway Map */}
