@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --nav-h: calc(2.5rem + env(safe-area-inset-top, 0px));
+    --bottom-safe: calc(1rem + env(safe-area-inset-bottom, 0px));
+    --tab-bar-h: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
   body {
     @apply bg-neural-bg text-neural-text antialiased;
     margin: 0;
@@ -49,38 +55,12 @@
            placeholder:text-neural-muted focus:outline-none focus:border-neural-glow
            focus:shadow-glow transition-all duration-200;
   }
-}
 
-/* Responsive: panels collapse on mobile */
-@media (max-width: 768px) {
-  /* Search bar goes full width */
-  .fixed.w-96 {
-    width: calc(100% - 2rem) !important;
-    left: 1rem !important;
-    transform: none !important;
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
-  /* Ingredient panel goes to bottom sheet */
-  .fixed.right-4.w-80 {
-    right: 0 !important;
-    left: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    max-height: 50vh !important;
-    border-radius: 1rem 1rem 0 0 !important;
-  }
-
-  /* Legend and Controls stack vertically */
-  .fixed.bottom-4.left-4,
-  .fixed.bottom-4.right-4 {
-    position: fixed !important;
-    left: 0.5rem !important;
-    right: 0.5rem !important;
-    width: auto !important;
-  }
-
-  .fixed.bottom-4.left-4 {
-    bottom: 4rem !important;
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }

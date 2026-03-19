@@ -25,6 +25,9 @@ import FlavorDNA from './components/FlavorDNA.jsx';
 import CocktailLab from './components/CocktailLab.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
+import MobileTabBar from './components/MobileTabBar.jsx';
+import BottomSheet from './components/BottomSheet.jsx';
+import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
@@ -60,6 +63,8 @@ export default function App() {
   const [showFlavorDNA, setShowFlavorDNA] = useState(false);
   const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
   const [treeFilterLabel, setTreeFilterLabel] = useState(null);
+  const isMobile = useIsMobile();
+  const [activePanel, setActivePanel] = useState(null); // mobile bottom sheet panel
   const userProfile = useUserProfile(user);
 
   // Derived state for backwards compat
@@ -102,28 +107,42 @@ export default function App() {
     if (!node) {
       // Clicked empty space — clear all
       setSelectedNodes([]);
+      setActivePanel(null);
       return;
     }
     const name = node.name;
     setSelectedNodes((prev) => {
-      if (prev.includes(name)) {
-        // Already selected — remove it
-        return prev.filter((n) => n !== name);
+      const next = prev.includes(name)
+        ? prev.filter((n) => n !== name)
+        : [...prev, name];
+      // Open bottom sheet on mobile when selecting
+      if (next.length >= 2) {
+        setActivePanel('compare');
+      } else if (next.length === 1) {
+        setActivePanel('ingredient');
+      } else {
+        setActivePanel(null);
       }
-      // Add to selection
-      return [...prev, name];
+      return next;
     });
   }, []);
 
   const handleSearchSelect = useCallback((name) => {
     setSelectedNodes((prev) => {
       if (prev.includes(name)) return prev;
-      return [...prev, name];
+      const next = [...prev, name];
+      if (next.length >= 2) {
+        setActivePanel('compare');
+      } else {
+        setActivePanel('ingredient');
+      }
+      return next;
     });
   }, []);
 
   const handlePanelClose = useCallback(() => {
     setSelectedNodes([]);
+    setActivePanel(null);
   }, []);
 
   const handleRemoveFromCompare = useCallback((name) => {
@@ -132,6 +151,7 @@ export default function App() {
 
   const handleClearSelection = useCallback(() => {
     setSelectedNodes([]);
+    setActivePanel(null);
   }, []);
 
   // Sync lab selections so Recipe Lab can pick up the selected ingredient
@@ -233,8 +253,12 @@ export default function App() {
   return (
     <>
       {/* Top-level tab navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-[60] flex items-center h-10 bg-[#0a0a12]/95 backdrop-blur-md border-b border-[#1e1e2e]">
-        <div className="flex items-center gap-0.5 px-3 h-full">
+      <nav className="fixed top-0 left-0 right-0 z-[60] flex items-center h-10 bg-[#0a0a12]/95 backdrop-blur-md border-b border-[#1e1e2e] safe-top">
+        {/* Mobile: show app name */}
+        <span className="sm:hidden px-3 text-xs text-cyan-300/80 font-medium tracking-wide" style={{ textShadow: '0 0 10px rgba(79,143,255,0.3)' }}>
+          Flavor Network
+        </span>
+        <div className="hidden sm:flex items-center gap-0.5 px-3 h-full">
           {/* Network tab */}
           <button
             onClick={() => { setActiveTab('network'); setLabDropdownOpen(false); }}
@@ -340,8 +364,8 @@ export default function App() {
         onSelect={handleSearchSelect}
       />
 
-      {/* Single selection: show ingredient detail panel */}
-      {!isComparing && (
+      {/* Single selection: show ingredient detail panel (desktop only) */}
+      {!isMobile && !isComparing && (
         <IngredientPanel
           node={selectedNodeData}
           neighbors={neighbors}
@@ -352,8 +376,8 @@ export default function App() {
         />
       )}
 
-      {/* Multi-selection: show comparison panel */}
-      {isComparing && (
+      {/* Multi-selection: show comparison panel (desktop only) */}
+      {!isMobile && isComparing && (
         <ComparePanel
           selectedNames={selectedNodes}
           nodes={data.graph.nodes}
@@ -515,7 +539,7 @@ export default function App() {
       {/* Tree Explorer toggle button */}
       <button
         onClick={() => setShowTreeExplorer(v => !v)}
-        className={`fixed top-[108px] right-4 z-50 p-2 rounded-lg border transition-all ${
+        className={`fixed top-[108px] right-4 z-50 p-2 rounded-lg border transition-all hidden sm:block ${
           showTreeExplorer
             ? 'bg-neural-glow/20 border-neural-glow/40 text-neural-glow'
             : 'bg-[#12121a]/80 border-[#1e1e2e] text-gray-400 hover:text-gray-200 hover:border-gray-500'
@@ -574,8 +598,90 @@ export default function App() {
             initialIngredient={selectedNode}
             userProfile={userProfile}
             labMode={activeTab === 'recipe-cocktail' ? 'cocktail' : activeTab === 'recipe-sauce' ? 'sauce' : 'taste'}
+            isMobile={isMobile}
           />
         </div>
+      )}
+
+      {/* Mobile bottom sheet for panels */}
+      {isMobile && (
+        <BottomSheet
+          isOpen={activePanel != null}
+          onClose={() => setActivePanel(null)}
+          title={
+            activePanel === 'ingredient' ? (selectedNodeData?.name || 'Details') :
+            activePanel === 'compare' ? `Comparing ${selectedNodes.length}` :
+            activePanel === 'insights' ? 'Profile Insights' :
+            activePanel === 'global-insights' ? 'Network Analysis' :
+            activePanel === 'profile-tree' ? 'My Flavor Tree' :
+            activePanel === 'tree-explorer' ? 'Flavor Trees' :
+            'Panel'
+          }
+        >
+          {activePanel === 'ingredient' && selectedNodeData && (
+            <IngredientPanel
+              node={selectedNodeData}
+              neighbors={neighbors}
+              onClose={() => setActivePanel(null)}
+              onSelectIngredient={handleSearchSelect}
+              isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
+              onToggleFavorite={userProfile.toggleIngredient}
+              embedded
+            />
+          )}
+          {activePanel === 'compare' && isComparing && (
+            <ComparePanel
+              selectedNames={selectedNodes}
+              nodes={data.graph.nodes}
+              edges={data.graph.edges}
+              onRemove={handleRemoveFromCompare}
+              onClose={handleClearSelection}
+              embedded
+            />
+          )}
+          {activePanel === 'global-insights' && (
+            <GlobalInsights
+              nodes={data ? data.graph.nodes : null}
+              edges={data ? data.graph.edges : null}
+              filterCuisine={selectedCuisine}
+              filterTaste={selectedTaste}
+              treeFilterIngredients={treeFilterIngredients}
+              treeFilterLabel={treeFilterLabel}
+              selectedNodes={selectedNodes}
+              isOpen={true}
+              onClose={() => setActivePanel(null)}
+              embedded
+            />
+          )}
+        </BottomSheet>
+      )}
+
+      {/* Mobile tab bar */}
+      {isMobile && (
+        <MobileTabBar
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            if (tab === 'cocktail') setCocktailMounted(true);
+            if (tab === 'sauce') setSauceMounted(true);
+            if (tab === 'recipe' || tab === 'recipe-cocktail' || tab === 'recipe-sauce') setRecipeMounted(true);
+            setLabDropdownOpen(false);
+          }}
+          onOpenProfile={() => setShowProfile(v => !v)}
+          onOpenInsights={() => setShowInsights(v => !v)}
+          onOpenGlobalInsights={() => {
+            setActivePanel(activePanel === 'global-insights' ? null : 'global-insights');
+            setShowGlobalInsights(v => !v);
+          }}
+          onOpenProfileTree={() => setShowProfileTree(v => !v)}
+          onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
+          onOpenHelp={() => setShowTour(true)}
+          profileMode={profileMode}
+          onToggleProfileMode={() => setProfileMode(v => !v)}
+          user={user}
+          onLogin={loginWithGoogle}
+          onLogout={logout}
+        />
       )}
 
     </>

@@ -245,7 +245,7 @@ function renderMarkdown(text) {
   });
 }
 
-export default function GlobalInsights({ nodes, edges, filterCuisine, filterTaste, treeFilterIngredients, treeFilterLabel, selectedNodes, isOpen, onClose }) {
+export default function GlobalInsights({ nodes, edges, filterCuisine, filterTaste, treeFilterIngredients, treeFilterLabel, selectedNodes, isOpen, onClose, embedded = false }) {
   const [collapsed, setCollapsed] = useState(false);
 
   // Determine what's being analyzed and build a context label
@@ -304,8 +304,56 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
     return computeInsights(activeNodeMap, activeEdgeList, filterCuisine, filterTaste);
   }, [activeNodeMap, activeEdgeList, filterCuisine, filterTaste]);
 
+  if (embedded) {
+    return (
+      <div className="space-y-4">
+        {analysisContext && (
+          <div className="px-2.5 py-1.5 rounded border border-cyan-800/30 bg-cyan-900/20">
+            <div className="text-[9px] text-cyan-600 uppercase tracking-wider mb-0.5">{analysisContext.type}</div>
+            <div className="text-[11px] text-cyan-300 font-medium capitalize truncate">{analysisContext.label}</div>
+          </div>
+        )}
+        {insights.map((insight, i) => (
+          <div key={i} className="rounded-lg border border-cyan-900/25 bg-[#0d1f38]/80 overflow-hidden">
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-cyan-900/15">
+              <span style={{ color: insight.color }}>{ICONS[insight.icon]}</span>
+              <span className="text-xs font-mono font-semibold uppercase tracking-wider" style={{ color: insight.color }}>{insight.title}</span>
+            </div>
+            <div className="px-3 py-2.5 space-y-2">
+              <p className="text-[12px] text-cyan-200/80 leading-relaxed">{renderMarkdown(insight.body)}</p>
+              {insight.detail && <p className="text-[11px] text-cyan-400/50 leading-relaxed italic">{renderMarkdown(insight.detail)}</p>}
+              {insight.bars && (
+                <div className="mt-2 space-y-1">
+                  {insight.bars.map((bar) => (
+                    <div key={bar.label} className="flex items-center gap-2">
+                      <span className="text-[10px] text-cyan-300/50 w-16 text-right truncate capitalize font-mono">{bar.label}</span>
+                      <div className="flex-1 h-1.5 bg-cyan-950/50 rounded-full overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${Math.round(bar.value * 100)}%`, background: bar.color }} />
+                      </div>
+                      <span className="text-[9px] text-cyan-600 font-mono w-7 text-right">{Math.round(bar.value * 100)}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {insight.stats && (
+                <div className="flex gap-1 mt-2">
+                  {insight.stats.map((stat) => (
+                    <div key={stat.label} className="flex-1 text-center px-1 py-1.5 rounded bg-cyan-950/40 border border-cyan-900/20">
+                      <div className="text-[10px] text-cyan-100 font-mono font-semibold">{stat.value}</div>
+                      <div className="text-[8px] text-cyan-600 uppercase tracking-wider">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className={`fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
+    <div className={`fixed right-0 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`} style={{ top: 'var(--nav-h)', bottom: 'var(--bottom-safe)' }}>
       {/* Tab */}
       <button
         onClick={() => {

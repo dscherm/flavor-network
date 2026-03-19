@@ -12,7 +12,7 @@ const FONT_FAMILY = 'Caveat, cursive';
  * @param {string} labMode - 'taste' (default), 'cocktail', or 'sauce'
  *   Controls which structure templates are available and axis labeling.
  */
-export default function RecipeLab({ fullData, initialIngredient, userProfile, labMode = 'taste' }) {
+export default function RecipeLab({ fullData, initialIngredient, userProfile, labMode = 'taste', isMobile = false }) {
   const [centerIngredient, setCenterIngredient] = useState(initialIngredient || null);
   const [recipeIngredients, setRecipeIngredients] = useState(
     initialIngredient ? [initialIngredient] : []
@@ -205,10 +205,10 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
 
   // Panel width for layout calculation
   const panelWidth = 280;
-  const canvasWidth = Math.max(300, size.width - panelWidth);
+  const canvasWidth = isMobile ? size.width : Math.max(300, size.width - panelWidth);
 
   return (
-    <div className="fixed inset-0 pt-10 flex" style={{ backgroundColor: '#fefae0' }}>
+    <div className={`fixed inset-0 pt-10 flex ${isMobile ? 'flex-col' : ''}`} style={{ backgroundColor: '#fefae0' }}>
       {/* Structure selector — top left, only for cocktail/sauce modes */}
       {(labMode === 'cocktail' || labMode === 'sauce') && (
         <div className="absolute top-12 left-3 z-20">
@@ -223,8 +223,8 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
       {/* Notebook-themed search bar */}
       <div
         ref={searchContainerRef}
-        className="absolute top-12 left-1/2 -translate-x-1/2 z-20"
-        style={{ width: 340 }}
+        className="absolute top-12 left-1/2 -translate-x-1/2 z-20 w-[calc(100%-2rem)] sm:w-[340px]"
+        style={isMobile ? {} : { width: 340 }}
       >
         <div className="relative">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="rgba(120,100,70,0.6)" strokeWidth={2}>
@@ -293,27 +293,53 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
         />
       </div>
 
-      {/* Recipe panel sidebar */}
-      <div
-        className="flex-shrink-0 border-l-2 border-[#d8cca8] overflow-hidden"
-        style={{ width: panelWidth, backgroundColor: '#fef9e0' }}
-      >
-        <RecipePanel
-          ingredients={recipeIngredients}
-          nodes={fullData?.graph?.nodes}
-          edges={fullData?.graph?.edges}
-          onRemove={handleRemoveIngredient}
-          onRecenter={handleRecenter}
-          onClear={handleClear}
-          onSave={handleSave}
-          recipeTitle={recipeTitle}
-          onTitleChange={setRecipeTitle}
-          centerIngredient={centerIngredient}
-          techniques={techniques}
-          labMode={labMode}
-          selectedStructure={selectedStructure}
-        />
-      </div>
+      {/* Recipe panel sidebar — desktop */}
+      {!isMobile && (
+        <div
+          className="flex-shrink-0 border-l-2 border-[#d8cca8] overflow-hidden"
+          style={{ width: panelWidth, backgroundColor: '#fef9e0' }}
+        >
+          <RecipePanel
+            ingredients={recipeIngredients}
+            nodes={fullData?.graph?.nodes}
+            edges={fullData?.graph?.edges}
+            onRemove={handleRemoveIngredient}
+            onRecenter={handleRecenter}
+            onClear={handleClear}
+            onSave={handleSave}
+            recipeTitle={recipeTitle}
+            onTitleChange={setRecipeTitle}
+            centerIngredient={centerIngredient}
+            techniques={techniques}
+            labMode={labMode}
+            selectedStructure={selectedStructure}
+          />
+        </div>
+      )}
+
+      {/* Recipe panel — mobile bottom sheet */}
+      {isMobile && recipeIngredients.length > 0 && (
+        <div
+          className="flex-shrink-0 border-t-2 border-[#d8cca8] overflow-y-auto"
+          style={{ maxHeight: '40vh', backgroundColor: '#fef9e0' }}
+        >
+          <RecipePanel
+            ingredients={recipeIngredients}
+            nodes={fullData?.graph?.nodes}
+            edges={fullData?.graph?.edges}
+            onRemove={handleRemoveIngredient}
+            onRecenter={handleRecenter}
+            onClear={handleClear}
+            onSave={handleSave}
+            recipeTitle={recipeTitle}
+            onTitleChange={setRecipeTitle}
+            centerIngredient={centerIngredient}
+            techniques={techniques}
+            labMode={labMode}
+            selectedStructure={selectedStructure}
+          />
+        </div>
+      )}
     </div>
   );
 }
