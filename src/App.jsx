@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import useProData from './hooks/useProData.js';
-import NetworkScene from './components/NetworkScene.jsx';
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Legend from './components/Legend.jsx';
@@ -35,7 +34,6 @@ import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
-import { createTasteAxisLabels } from './three/AxisLabels.js';
 
 export default function App() {
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
@@ -46,7 +44,7 @@ export default function App() {
   const [sauceMounted, setSauceMounted] = useState(false); // lazy mount
   const [recipeMounted, setRecipeMounted] = useState(false); // lazy mount
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('neural'); // 'neural' | 'wheel' | 'perceptron' | 'constellation' | 'pathway' | 'living'
+  const [viewMode, setViewMode] = useState('living'); // 'living' | 'perceptron' | 'pathway'
   const [viewDropdownOpen, setViewDropdownOpen] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [showEdges, setShowEdges] = useState(() => !window.matchMedia('(max-width: 640px)').matches);
@@ -108,7 +106,6 @@ export default function App() {
     return computeProfileWeights(userProfile.profile, data.graph.nodes);
   }, [profileMode, data, userProfile.profile]);
 
-  const tasteAxisLabels = useMemo(() => createTasteAxisLabels(50), []);
 
   const handleNodeClick = useCallback((node) => {
     if (!node) {
@@ -294,7 +291,7 @@ export default function App() {
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
               </svg>
-              {{ neural: 'Neural Cloud', perceptron: 'Perceptron', pathway: 'Pathway Map', living: 'Living Arch' }[viewMode] || 'Neural Cloud'}
+              {{ living: 'Living Architecture', perceptron: 'Perceptron', pathway: 'Pathway Map' }[viewMode] || 'Living Architecture'}
               <svg className={`w-3 h-3 transition-transform ${viewDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
@@ -304,7 +301,6 @@ export default function App() {
                 <div className="fixed inset-0 z-[59]" onClick={() => setViewDropdownOpen(false)} />
                 <div className="absolute top-full left-0 mt-1 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
                   {[
-                    { key: 'neural', label: 'Neural Cloud', desc: 'Original 3D network' },
                     { key: 'living', label: 'Living Architecture', desc: '3D ↔ 2D morph' },
                     { key: 'perceptron', label: 'Perceptron Layers', desc: 'Neural network diagram' },
                     { key: 'pathway', label: 'Pathway Map', desc: 'Subway-style routes' },
@@ -398,23 +394,6 @@ export default function App() {
 
       {/* Network tab */}
       <div className={`transition-opacity duration-300 ${activeTab === 'network' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'}`}>
-      {/* View mode: Neural Cloud (default) */}
-      {viewMode === 'neural' && (
-        <NetworkScene
-          data={data}
-          onNodeClick={handleNodeClick}
-          onNodeHover={() => {}}
-          selectedNode={selectedNode}
-          selectedNodes={selectedNodes}
-          showEdges={showEdges}
-          showParticles={showParticles}
-          filterCuisine={selectedCuisine}
-          filterTaste={selectedTaste}
-          profileWeights={profileWeights}
-          treeFilterIngredients={treeFilterIngredients}
-          sceneExtras={tasteAxisLabels}
-        />
-      )}
       {/* View mode: Perceptron Layers */}
       {viewMode === 'perceptron' && (
         <PerceptronView

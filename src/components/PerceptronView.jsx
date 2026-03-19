@@ -58,7 +58,7 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
       return { name, count, dom: dom ? dom[0] : null };
     });
     const all = [...data.graph.nodes.values()].sort((a, b) => b.pairingCount - a.pairingCount);
-    return { categories: cats, topIng: all.slice(0, 50), catTastes: ct };
+    return { categories: cats, topIng: all.slice(0, 100), catTastes: ct };
   }, [data]);
 
   const tastePts = useMemo(() => {
@@ -80,8 +80,8 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
       const nb = getNeighbors(sn.name, data.graph.edges).slice(0, 30);
       return [sn, ...nb.map(n => nodes.get(n.name)).filter(Boolean)];
     }
-    if (actTaste) return [...nodes.values()].filter(n => n.taste?.toLowerCase().includes(actTaste)).sort((a, b) => b.pairingCount - a.pairingCount).slice(0, 40);
-    if (actCat) return [...nodes.values()].filter(n => n.category === actCat).sort((a, b) => b.pairingCount - a.pairingCount).slice(0, 40);
+    if (actTaste) return [...nodes.values()].filter(n => n.taste?.toLowerCase().includes(actTaste)).sort((a, b) => b.pairingCount - a.pairingCount);
+    if (actCat) return [...nodes.values()].filter(n => n.category === actCat).sort((a, b) => b.pairingCount - a.pairingCount);
     return topIng;
   }, [data, sel, actTaste, actCat, topIng]);
 

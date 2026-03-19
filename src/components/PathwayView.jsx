@@ -124,10 +124,10 @@ function classifyEdge(edge, nodesMap) {
   const jitter = (hash % 100) / 1000; // 0 to 0.099, for deterministic tiebreaking
 
   const scores = {
-    tradition: 0.2 + (str < 0.3 ? 0.15 : 0) + jitter * 0.3,
-    chemistry: str * 0.7 + (str > 0.5 ? 0.15 : 0) + ((hash >> 3) % 100) / 1000 * 0.3,
-    bridge:    (isTrueBridge ? 0.55 : 0) + (isCrossCategory ? 0.15 : 0) + ((hash >> 5) % 100) / 1000 * 0.3,
-    balance:   compat * 0.5 + (compat > 0.7 ? 0.15 : 0) + ((hash >> 7) % 100) / 1000 * 0.3,
+    tradition: 0.3 + (str > 0.4 ? 0.1 : 0) + jitter * 0.2,
+    chemistry: (str > 0.65 ? 0.45 : str > 0.5 ? 0.3 : 0.1) + ((hash >> 3) % 100) / 1000 * 0.2,
+    bridge:    (isTrueBridge ? 0.55 : 0) + (isCrossCategory ? 0.2 : 0) + ((hash >> 5) % 100) / 1000 * 0.2,
+    balance:   compat * 0.6 + (compat > 0.6 ? 0.2 : 0) + ((hash >> 7) % 100) / 1000 * 0.2,
   };
 
   let best = 'tradition', bestVal = -1;
