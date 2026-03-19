@@ -6,24 +6,135 @@ const PATHWAY_COLORS = {
   tradition: '#f39c12', chemistry: '#4ecdc4', bridge: '#e74c3c', balance: '#2ecc71',
 };
 const PATHWAY_LABELS = {
-  tradition: 'Tradition — classic culinary pairings',
-  chemistry: 'Chemistry — shared flavor compounds',
-  bridge:    'Bridge — cross-category discoveries',
-  balance:   'Balance — taste complementarity',
+  tradition: 'Tradition',
+  chemistry: 'Chemistry',
+  bridge:    'Bridge',
+  balance:   'Balance',
+};
+const PATHWAY_DESCRIPTIONS = {
+  tradition: 'classic culinary pairings',
+  chemistry: 'shared flavor compounds',
+  bridge:    'cross-category discoveries',
+  balance:   'taste complementarity',
 };
 const BG = '#0a0a0f';
 const HUB_R = 30, NODE_MIN_R = 5, NODE_MAX_R = 12;
 const TOP_PER_HUB = 30, TOP_EDGES = 500, HUB_SPREAD = 200;
 
-function classifyEdge(edge) {
-  const t = edge.tradition ?? edge.breakdown?.x1 ?? 0;
-  const c = edge.chemistry ?? edge.breakdown?.x3 ?? 0;
-  const b = edge.bridging  ?? edge.breakdown?.x5 ?? 0;
-  const bl = edge.balance  ?? edge.breakdown?.x4 ?? 0;
-  if (b > 0.3) return 'bridge';
-  if (bl > 0.7) return 'balance';
-  if (c > t && c > b) return 'chemistry';
-  return 'tradition';
+// Category groupings for computing cross-category "bridge" edges
+const CATEGORY_GROUPS = {
+  protein:    ['meat', 'poultry', 'fish', 'seafood', 'egg', 'game'],
+  dairy:      ['dairy', 'cheese', 'milk', 'cream', 'butter', 'yogurt'],
+  fruit:      ['fruit', 'berry', 'citrus', 'tropical'],
+  vegetable:  ['vegetable', 'root', 'leafy', 'squash', 'legume'],
+  grain:      ['grain', 'bread', 'pasta', 'rice', 'cereal', 'flour'],
+  spice:      ['spice', 'herb', 'seasoning', 'aromatic'],
+  sweet:      ['sugar', 'sweetener', 'chocolate', 'honey', 'syrup', 'candy'],
+  beverage:   ['alcohol', 'spirit', 'wine', 'beer', 'liqueur', 'juice', 'tea', 'coffee'],
+  fat:        ['oil', 'fat', 'nut', 'seed'],
+  condiment:  ['sauce', 'condiment', 'vinegar', 'mustard', 'pickle'],
+};
+
+function getCategoryGroup(node) {
+  if (!node) return null;
+  const cat = (node.category || '').toLowerCase();
+  const name = (node.name || '').toLowerCase();
+  const combined = cat + ' ' + name;
+  for (const [group, keywords] of Object.entries(CATEGORY_GROUPS)) {
+    for (const kw of keywords) {
+      if (combined.includes(kw)) return group;
+    }
+  }
+  return null;
+}
+
+// Deterministic hash from a string pair for reproducible classification
+function pairHash(a, b) {
+  const s = a < b ? a + '|' + b : b + '|' + a;
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+// Taste compatibility: returns how complementary two taste profiles are (0-1)
+function tasteCompat(t1, t2) {
+  if (!t1 || !t2) return 0;
+  const a = t1.toLowerCase(), b = t2.toLowerCase();
+  // Complementary pairs score higher
+  const complements = [
+    ['sweet', 'sour'], ['sweet', 'bitter'], ['sweet', 'salty'],
+    ['salty', 'sour'], ['umami', 'sour'], ['umami', 'bitter'],
+    ['spicy', 'sweet'], ['bitter', 'salty'],
+  ];
+  for (const [x, y] of complements) {
+    if ((a.includes(x) && b.includes(y)) || (a.includes(y) && b.includes(x))) return 1;
+  }
+  // Same taste = low complementarity
+  for (const k of TASTE_KEYS) {
+    if (a.includes(k) && b.includes(k)) return 0.1;
+  }
+  return 0.3;
+}
+
+/**
+ * Classify an edge into one of four pathway types.
+ * If the edge has explicit breakdown data, use that.
+ * Otherwise, derive classification from ingredient properties deterministically.
+ */
+function classifyEdge(edge, nodesMap) {
+  // If explicit breakdown data exists, use a balanced comparison
+  const t = edge.tradition ?? edge.breakdown?.x1 ?? null;
+  const c = edge.chemistry ?? edge.breakdown?.x3 ?? null;
+  const b = edge.bridging  ?? edge.breakdown?.x5 ?? null;
+  const bl = edge.balance  ?? edge.breakdown?.x4 ?? null;
+
+  if (t !== null && c !== null && b !== null && bl !== null) {
+    const scores = { tradition: t, chemistry: c, bridge: b, balance: bl };
+    let best = 'tradition', bestVal = -1;
+    for (const [k, v] of Object.entries(scores)) {
+      if (v > bestVal) { bestVal = v; best = k; }
+    }
+    return best;
+  }
+
+  // Derive classification from ingredient properties
+  const srcNode = nodesMap?.get(edge.source);
+  const tgtNode = nodesMap?.get(edge.target);
+  const srcGroup = getCategoryGroup(srcNode);
+  const tgtGroup = getCategoryGroup(tgtNode);
+  const srcTaste = srcNode?.taste || '';
+  const tgtTaste = tgtNode?.taste || '';
+
+  // Bridge: cross-category pairings (different food groups)
+  const isCrossCategory = srcGroup && tgtGroup && srcGroup !== tgtGroup;
+  // Exclude spice-to-anything since spices pair with everything (not surprising)
+  const isSpiceCross = srcGroup === 'spice' || tgtGroup === 'spice';
+  const isTrueBridge = isCrossCategory && !isSpiceCross;
+
+  // Balance: taste complementarity
+  const compat = tasteCompat(srcTaste, tgtTaste);
+
+  // Chemistry: high strength suggests shared compounds
+  const str = edge.strength || 0;
+
+  // Use a scoring system with deterministic tiebreaker
+  const hash = pairHash(edge.source, edge.target);
+  const jitter = (hash % 100) / 1000; // 0 to 0.099, for deterministic tiebreaking
+
+  const scores = {
+    tradition: 0.2 + (str < 0.3 ? 0.15 : 0) + jitter * 0.3,
+    chemistry: str * 0.7 + (str > 0.5 ? 0.15 : 0) + ((hash >> 3) % 100) / 1000 * 0.3,
+    bridge:    (isTrueBridge ? 0.55 : 0) + (isCrossCategory ? 0.15 : 0) + ((hash >> 5) % 100) / 1000 * 0.3,
+    balance:   compat * 0.5 + (compat > 0.7 ? 0.15 : 0) + ((hash >> 7) % 100) / 1000 * 0.3,
+  };
+
+  let best = 'tradition', bestVal = -1;
+  for (const [k, v] of Object.entries(scores)) {
+    if (v > bestVal) { bestVal = v; best = k; }
+  }
+  return best;
 }
 
 function primaryTaste(node) {
@@ -90,10 +201,15 @@ export default function PathwayView({ data, onNodeClick, selectedNode, selectedN
     const vis = new Set(Object.keys(positions));
     const classified = edges
       .filter(e => vis.has(e.source) && vis.has(e.target))
-      .map(e => ({ ...e, pathway: classifyEdge(e) }))
+      .map(e => ({ ...e, pathway: classifyEdge(e, nodes) }))
       .sort((a, b) => b.strength - a.strength)
       .slice(0, TOP_EDGES);
-    return { hubs, positions, classified };
+
+    // Count per pathway type
+    const counts = { tradition: 0, chemistry: 0, bridge: 0, balance: 0 };
+    for (const e of classified) counts[e.pathway]++;
+
+    return { hubs, positions, classified, counts };
   }, [data]);
 
   useEffect(() => { layoutRef.current = layout; }, [layout]);
@@ -110,22 +226,68 @@ export default function PathwayView({ data, onNodeClick, selectedNode, selectedN
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, w, h);
 
-    // Edges
+    // Edges with distinct visual styles per pathway type
     for (const edge of lay.classified) {
       if (!pathwayToggles[edge.pathway]) continue;
       const p1 = lay.positions[edge.source], p2 = lay.positions[edge.target];
       if (!p1 || !p2) continue;
       const isHi = selectedNode && (edge.source === selectedNode || edge.target === selectedNode);
       const dim = selectedNode && !isHi;
-      ctx.strokeStyle = rgba(PATHWAY_COLORS[edge.pathway], dim ? 0.06 : 0.15 + edge.strength * 0.5);
-      ctx.lineWidth = (dim ? 1 : 2 + edge.strength * 2) * z;
-      ctx.beginPath();
-      const mx = (tx(p1.x) + tx(p2.x)) / 2, my = (ty(p1.y) + ty(p2.y)) / 2;
+
+      const x1 = tx(p1.x), y1 = ty(p1.y), x2 = tx(p2.x), y2 = ty(p2.y);
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
       const off = (p1.taste !== p2.taste ? 30 : 10) * z;
-      ctx.moveTo(tx(p1.x), ty(p1.y));
-      ctx.quadraticCurveTo(mx + off, my - off, tx(p2.x), ty(p2.y));
-      ctx.stroke();
+      const cx = mx + off, cy = my - off;
+
+      const pw = edge.pathway;
+      // Tradition: thinner, lower opacity; others: thicker, higher opacity
+      const baseOpacity = pw === 'tradition' ? 0.4 : 0.6;
+      const baseWidth = pw === 'tradition' ? 1.5 : 2.5;
+      const alpha = dim ? 0.06 : baseOpacity * (0.3 + edge.strength * 0.7);
+      const lw = (dim ? 0.8 : baseWidth + edge.strength * 1.5) * z;
+
+      ctx.strokeStyle = rgba(PATHWAY_COLORS[pw], alpha);
+      ctx.lineWidth = lw;
+
+      if (pw === 'chemistry') {
+        // Dashed line: 8px dash, 4px gap
+        ctx.setLineDash([8 * z, 4 * z]);
+      } else if (pw === 'bridge') {
+        // Dotted line: 3px dot, 5px gap
+        ctx.setLineDash([3 * z, 5 * z]);
+      } else {
+        ctx.setLineDash([]);
+      }
+
+      if (pw === 'balance') {
+        // Double line: draw twice with perpendicular offset
+        const dx = x2 - x1, dy = y2 - y1;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
+        const nx = -dy / len, ny = dx / len;
+        const sep = 1.5 * z; // half-separation
+        ctx.setLineDash([]);
+        ctx.lineWidth = Math.max(0.8, lw * 0.5);
+
+        ctx.beginPath();
+        ctx.moveTo(x1 + nx * sep, y1 + ny * sep);
+        ctx.quadraticCurveTo(cx + nx * sep, cy + ny * sep, x2 + nx * sep, y2 + ny * sep);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(x1 - nx * sep, y1 - ny * sep);
+        ctx.quadraticCurveTo(cx - nx * sep, cy - ny * sep, x2 - nx * sep, y2 - ny * sep);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.quadraticCurveTo(cx, cy, x2, y2);
+        ctx.stroke();
+      }
+
+      // Reset dash
+      ctx.setLineDash([]);
     }
+
     // Junction dots for cross-taste edges
     for (const edge of lay.classified) {
       if (!pathwayToggles[edge.pathway]) continue;
@@ -288,6 +450,16 @@ export default function PathwayView({ data, onNodeClick, selectedNode, selectedN
     };
   }, [hitTest, onNodeClick]);
 
+  const allVisible = Object.values(pathwayToggles).every(Boolean);
+  const noneVisible = Object.values(pathwayToggles).every(v => !v);
+
+  const toggleAll = useCallback(() => {
+    const nextState = !allVisible;
+    setPathwayToggles({
+      tradition: nextState, chemistry: nextState, bridge: nextState, balance: nextState,
+    });
+  }, [allVisible]);
+
   if (!data?.graph) {
     return (
       <div className="fixed inset-0 pt-10 bg-gray-950 flex items-center justify-center z-10">
@@ -303,17 +475,28 @@ export default function PathwayView({ data, onNodeClick, selectedNode, selectedN
 
       {/* Pathway type toggles */}
       <div className="absolute top-14 right-4 flex flex-col gap-1.5 z-20">
-        {Object.entries(PATHWAY_COLORS).map(([key, color]) => (
-          <button key={key}
-            onClick={() => setPathwayToggles(p => ({ ...p, [key]: !p[key] }))}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-opacity
-              ${pathwayToggles[key] ? 'opacity-100' : 'opacity-40'}
-              bg-gray-800/80 hover:bg-gray-700/80 text-gray-100 backdrop-blur-sm`}
-            aria-pressed={pathwayToggles[key]} aria-label={`Toggle ${key} pathways`}>
-            <span className="w-3 h-3 rounded-full inline-block flex-shrink-0" style={{ background: color }} />
-            {key.charAt(0).toUpperCase() + key.slice(1)}
-          </button>
-        ))}
+        <button
+          onClick={toggleAll}
+          className="flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium
+            bg-gray-700/80 hover:bg-gray-600/80 text-gray-200 backdrop-blur-sm border border-gray-600/40"
+          aria-label={allVisible ? 'Hide all pathways' : 'Show all pathways'}>
+          {allVisible ? 'Hide All' : 'Show All'}
+        </button>
+        {Object.entries(PATHWAY_COLORS).map(([key, color]) => {
+          const count = layout?.counts?.[key] ?? 0;
+          return (
+            <button key={key}
+              onClick={() => setPathwayToggles(p => ({ ...p, [key]: !p[key] }))}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-opacity
+                ${pathwayToggles[key] ? 'opacity-100' : 'opacity-40'}
+                bg-gray-800/80 hover:bg-gray-700/80 text-gray-100 backdrop-blur-sm`}
+              aria-pressed={pathwayToggles[key]} aria-label={`Toggle ${key} pathways`}>
+              <span className="w-3 h-3 rounded-full inline-block flex-shrink-0" style={{ background: color }} />
+              {PATHWAY_LABELS[key]}
+              <span className="text-gray-400 ml-auto">({count})</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Legend */}
@@ -323,7 +506,12 @@ export default function PathwayView({ data, onNodeClick, selectedNode, selectedN
         {Object.entries(PATHWAY_LABELS).map(([key, label]) => (
           <div key={key} className="flex items-start gap-2 mb-1 last:mb-0">
             <span className="w-2.5 h-2.5 rounded-full mt-0.5 flex-shrink-0" style={{ background: PATHWAY_COLORS[key] }} />
-            <span className="text-[10px] text-gray-400 leading-tight">{label}</span>
+            <span className="text-[10px] text-gray-400 leading-tight">
+              {label} — {PATHWAY_DESCRIPTIONS[key]}
+              {key === 'chemistry' && ' (dashed)'}
+              {key === 'bridge' && ' (dotted)'}
+              {key === 'balance' && ' (double)'}
+            </span>
           </div>
         ))}
       </div>
