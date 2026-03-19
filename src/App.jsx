@@ -555,6 +555,10 @@ export default function App() {
         onOpenInsights={() => setShowInsights(v => !v)}
         onOpenGlobalInsights={() => setShowGlobalInsights(v => !v)}
         onOpenProfileTree={() => setShowProfileTree(v => !v)}
+        onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
+        showTreeExplorer={showTreeExplorer}
+        onOpenBridge={() => setShowBridge(v => !v)}
+        showBridge={showBridge}
         profileStats={userProfile.stats}
         user={user}
         onLogin={loginWithGoogle}
@@ -602,34 +606,6 @@ export default function App() {
           setTreeFilterLabel(label || null);
         }}
       />
-      {/* Tree Explorer toggle button */}
-      <button
-        onClick={() => setShowTreeExplorer(v => !v)}
-        className={`fixed top-[108px] right-4 z-50 p-2 rounded-lg border transition-all hidden sm:block ${
-          showTreeExplorer
-            ? 'bg-neural-glow/20 border-neural-glow/40 text-neural-glow'
-            : 'bg-[#12121a]/80 border-[#1e1e2e] text-gray-400 hover:text-gray-200 hover:border-gray-500'
-        }`}
-        title="Flavor Trees"
-      >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-        </svg>
-      </button>
-      {/* Flavor Bridge toggle button */}
-      <button
-        onClick={() => setShowBridge(v => !v)}
-        className={`fixed top-[148px] right-4 z-50 p-2 rounded-lg border transition-all hidden sm:block ${
-          showBridge
-            ? 'bg-neural-glow/20 border-neural-glow/40 text-neural-glow'
-            : 'bg-[#12121a]/80 border-[#1e1e2e] text-gray-400 hover:text-gray-200 hover:border-gray-500'
-        }`}
-        title="Flavor Bridge"
-      >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-        </svg>
-      </button>
       <FlavorBridge
         nodes={data ? data.graph.nodes : null}
         edges={data ? data.graph.edges : null}
