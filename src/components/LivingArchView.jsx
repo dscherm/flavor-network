@@ -104,14 +104,16 @@ function computeWheelPositions(nodes) {
       const spiralT = idx / Math.max(1, items.length - 1); // 0 to 1
       const baseRadius = 6 + spiralT * 42;
 
-      // True spiral: angle advances with each item, wrapping within the sector
-      // ~3 full spiral turns across all items in the sector
-      const spiralTurns = 3;
-      const halfSector = sectorAngle * 0.42; // stay within ~84% of sector
-      const spiralProgress = (idx / Math.max(1, items.length)) * spiralTurns * Math.PI * 2;
-      const spiralOffset = Math.sin(spiralProgress) * halfSector * spiralT;
-      const jitter = (rng() - 0.5) * 1.5; // tiny jitter for overlap
-      const spiralAngle = centerAngle + spiralOffset + jitter * 0.05;
+      // Swirl: angle advances continuously, spreading within the sector
+      // More spread than a tight spiral, ingredients fill the sector space
+      const spiralTurns = 1.8;
+      const halfSector = sectorAngle * 0.4;
+      const angleAdvance = spiralT * spiralTurns * Math.PI * 2 / N;
+      // Spread outward from center line as radius grows
+      const spread = halfSector * spiralT * 0.7;
+      const wobble = Math.sin(idx * 0.9) * spread;
+      const jitter = (rng() - 0.5) * 3;
+      const spiralAngle = centerAngle + angleAdvance + wobble + jitter * 0.04;
 
       // Multi-taste pull: if ingredient has secondary tastes, pull slightly toward them
       let pullX = 0, pullZ = 0;
@@ -125,9 +127,9 @@ function computeWheelPositions(nodes) {
         }
       }
 
-      // Small jitter for overlap prevention
-      const jx = (rng() - 0.5) * 2;
-      const jz = (rng() - 0.5) * 2;
+      // Jitter for spacing — more spread between ingredients
+      const jx = (rng() - 0.5) * 5;
+      const jz = (rng() - 0.5) * 5;
 
       const x = baseRadius * Math.cos(spiralAngle) + pullX + jx;
       const z = baseRadius * Math.sin(spiralAngle) + pullZ + jz;
@@ -963,15 +965,15 @@ export default function LivingArchView({
         </span>
         <button
           onClick={handleToggle}
-          className="relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+          className="relative w-10 h-5 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
           style={{ backgroundColor: mode === 'wheel' ? '#4f8fff' : '#333344' }}
           title={mode === 'neural' ? 'Switch to Flavor Wheel' : 'Switch to Neural Cloud'}
           role="switch"
           aria-checked={mode === 'wheel'}
         >
           <span
-            className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-300"
-            style={{ transform: mode === 'wheel' ? 'translateX(26px)' : 'translateX(2px)' }}
+            className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-300"
+            style={{ transform: mode === 'wheel' ? 'translateX(22px)' : 'translateX(2px)' }}
           />
         </button>
         <span className={`text-[11px] font-medium transition-colors ${mode === 'wheel' ? 'text-blue-400' : 'text-gray-600'}`}>

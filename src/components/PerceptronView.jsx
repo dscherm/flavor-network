@@ -1,6 +1,6 @@
 /**
- * PerceptronView.jsx — GAT Architecture Diagram for the Flavor Network.
- * Renders the actual model architecture: Taste Profile → GAT Attention Heads → Embedding → Clusters → Ingredients.
+ * PerceptronView.jsx — Flavor Network architecture diagram.
+ * 4 meaningful layers: Taste → Category → Flavor Cluster → Ingredients.
  * Pure SVG with pan/zoom, glow filters, and activation animations.
  */
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
@@ -31,49 +31,60 @@ const domTaste = (taste) => {
 };
 
 const CLUSTERS = [
-  { id: 0, label: 'sweet-floral', color: '#FAC775' },
-  { id: 1, label: 'acidic-bright', color: '#5DCAA5' },
-  { id: 2, label: 'earthy-savory', color: '#97C459' },
-  { id: 3, label: 'bitter-umami', color: '#7F77DD' },
-  { id: 4, label: 'spicy-warm', color: '#F0997B' },
-  { id: 5, label: 'fresh-herbal', color: '#85B7EB' },
-  { id: 6, label: 'smoky-rich', color: '#888780' },
-  { id: 7, label: 'creamy-mild', color: '#F4C0D1' },
+  { id: 0, label: 'Sweet & Floral', color: '#FAC775' },
+  { id: 1, label: 'Acidic & Bright', color: '#5DCAA5' },
+  { id: 2, label: 'Earthy & Savory', color: '#97C459' },
+  { id: 3, label: 'Bitter & Umami', color: '#7F77DD' },
+  { id: 4, label: 'Spicy & Warm', color: '#F0997B' },
+  { id: 5, label: 'Fresh & Herbal', color: '#85B7EB' },
+  { id: 6, label: 'Smoky & Rich', color: '#888780' },
+  { id: 7, label: 'Creamy & Mild', color: '#F4C0D1' },
 ];
 
-// 5 layer x-positions
-const LX = [80, 260, 440, 620, 820];
-const LAYER_LABELS = ['Taste Profile', 'GAT Layer 1', 'Embedding', 'Clusters', 'Ingredients'];
-const LAYER_SUBLABELS = ['8-dim input', '4 attention heads', '8-dim output', 'k-means', ''];
+const LX = [80, 300, 520, 760];
+const LAYER_LABELS = ['Taste', 'Category', 'Flavor Family', 'Ingredients'];
 
-// 4 attention head colors
-const HEAD_COLORS = ['#4f8fff', '#ff6b9d', '#4ecdc4', '#f39c12'];
+function hashName(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return h;
+}
 
 export default function PerceptronView({ data, onNodeClick, selectedNode, selectedNodes = [] }) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [drag, setDrag] = useState(null);
   const [hovered, setHovered] = useState(null);
-  const [actCluster, setActCluster] = useState(null);
+  const [actCat, setActCat] = useState(null);
   const [actTaste, setActTaste] = useState(null);
+  const [actCluster, setActCluster] = useState(null);
   const [fired, setFired] = useState(false);
   const touchRef = useRef(0);
   const sel = selectedNode || (selectedNodes.length > 0 ? selectedNodes[0] : null);
 
-  // Build cluster bins from ingredient data
-  const { clusterBins, topIng } = useMemo(() => {
-    if (!data?.graph) return { clusterBins: {}, topIng: [] };
-    const bins = {};
+  // Compute categories and cluster bins
+  const { categories, catTastes, clusterBins, topIng } = useMemo(() => {
+    if (!data?.graph) return { categories: [], catTastes: {}, clusterBins: {}, topIng: [] };
+    const cc = {}, ct = {}, bins = {};
     for (const c of CLUSTERS) bins[c.id] = [];
-    const all = [];
+
     for (const [, n] of data.graph.nodes) {
-      all.push(n);
+      const c = n.category || 'other';
+      cc[c] = (cc[c] || 0) + 1;
+      if (!ct[c]) ct[c] = {};
+      const d = domTaste(n.taste);
+      if (d) ct[c][d] = (ct[c][d] || 0) + 1;
       const cid = n.cluster ?? Math.abs(hashName(n.name)) % 8;
       if (!bins[cid]) bins[cid] = [];
       bins[cid].push(n);
     }
-    all.sort((a, b) => b.pairingCount - a.pairingCount);
-    return { clusterBins: bins, topIng: all.slice(0, 80) };
+    const cats = Object.entries(cc).sort((a, b) => b[1] - a[1]).slice(0, 16).map(([name, count]) => {
+      const ts = ct[name] || {};
+      const dom = Object.entries(ts).sort((a, b) => b[1] - a[1])[0];
+      return { name, count, dom: dom ? dom[0] : null };
+    });
+    const all = [...data.graph.nodes.values()].sort((a, b) => b.pairingCount - a.pairingCount);
+    return { categories: cats, catTastes: ct, clusterBins: bins, topIng: all.slice(0, 80) };
   }, [data]);
 
   // Visible ingredients
@@ -87,9 +98,10 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
       return [sn, ...nb.map(n => nodes.get(n.name)).filter(Boolean)];
     }
     if (actTaste) return [...nodes.values()].filter(n => n.taste?.toLowerCase().includes(actTaste)).sort((a, b) => b.pairingCount - a.pairingCount).slice(0, 60);
+    if (actCat) return [...nodes.values()].filter(n => n.category === actCat).sort((a, b) => b.pairingCount - a.pairingCount).slice(0, 60);
     if (actCluster != null) return (clusterBins[actCluster] || []).sort((a, b) => b.pairingCount - a.pairingCount).slice(0, 60);
     return topIng;
-  }, [data, sel, actTaste, actCluster, topIng, clusterBins]);
+  }, [data, sel, actTaste, actCat, actCluster, topIng, clusterBins]);
 
   // Layout points
   const tastePts = useMemo(() => {
@@ -97,35 +109,21 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
     return TASTES.map((t, i) => ({ ...t, x: LX[0], y: s + i * g }));
   }, []);
 
-  // GAT hidden layer: 4 heads × 4 nodes each = 16 hidden nodes
-  const headPts = useMemo(() => {
-    const pts = [];
-    for (let h = 0; h < 4; h++) {
-      for (let n = 0; n < 4; n++) {
-        const y = 160 + h * 120 + n * 25;
-        pts.push({ head: h, idx: n, x: LX[1], y, color: HEAD_COLORS[h] });
-      }
-    }
-    return pts;
-  }, []);
+  const catPts = useMemo(() => {
+    const g = Math.min(36, 520 / Math.max(categories.length, 1));
+    const s = 300 - (categories.length - 1) * g / 2;
+    return categories.map((c, i) => ({ ...c, x: LX[1], y: s + i * g }));
+  }, [categories]);
 
-  // Embedding layer: 8 nodes
-  const embPts = useMemo(() => {
-    const g = 55, s = 300 - 7 * g / 2;
-    return Array.from({ length: 8 }, (_, i) => ({ idx: i, x: LX[2], y: s + i * g }));
-  }, []);
-
-  // Cluster layer: 8 clusters
   const clusterPts = useMemo(() => {
-    const g = 60, s = 300 - (CLUSTERS.length - 1) * g / 2;
-    return CLUSTERS.map((c, i) => ({ ...c, x: LX[3], y: s + i * g, count: (clusterBins[c.id] || []).length }));
+    const g = 55, s = 300 - (CLUSTERS.length - 1) * g / 2;
+    return CLUSTERS.map((c, i) => ({ ...c, x: LX[2], y: s + i * g, count: (clusterBins[c.id] || []).length }));
   }, [clusterBins]);
 
-  // Ingredient points
   const ingPts = useMemo(() => {
     const g = Math.min(18, 500 / Math.max(visIng.length, 1));
     const s = 300 - (visIng.length - 1) * g / 2;
-    return visIng.map((n, i) => ({ ...n, x: LX[4], y: s + i * g }));
+    return visIng.map((n, i) => ({ ...n, x: LX[3], y: s + i * g }));
   }, [visIng]);
 
   useEffect(() => {
@@ -140,7 +138,7 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
     return data.graph.nodes.get(typeof sel === 'string' ? sel : sel.name) || null;
   }, [sel, data]);
 
-  // Pan/zoom handlers
+  // Pan/zoom
   const onWheel = useCallback(e => { e.preventDefault(); setZoom(z => Math.max(0.2, Math.min(3, z * (e.deltaY > 0 ? 0.9 : 1.1)))); }, []);
   const onPtrDown = useCallback(e => { if (e.button === 0) setDrag({ x: e.clientX - pan.x, y: e.clientY - pan.y }); }, [pan]);
   const onPtrMove = useCallback(e => { if (drag) setPan({ x: e.clientX - drag.x, y: e.clientY - drag.y }); }, [drag]);
@@ -159,9 +157,44 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
   }, [drag]);
   const onTouchE = useCallback(() => { setDrag(null); touchRef.current = 0; }, []);
 
+  // Taste->Category links
+  const tcLinks = useMemo(() => {
+    const links = [];
+    for (const cat of categories) {
+      const ts = catTastes[cat.name] || {};
+      const tot = Object.values(ts).reduce((s, v) => s + v, 0);
+      for (const t of TASTES) {
+        const c = ts[t.key] || 0;
+        if (c > 0) links.push({ taste: t.key, cat: cat.name, op: Math.min(0.8, c / tot * 1.5) });
+      }
+    }
+    return links;
+  }, [categories, catTastes]);
+
+  // Category->Cluster links (map categories to their dominant cluster)
+  const ccLinks = useMemo(() => {
+    const links = [];
+    for (const cat of categories) {
+      const clusterCounts = {};
+      for (const [, n] of data?.graph?.nodes || []) {
+        if (n.category !== cat.name) continue;
+        const cid = n.cluster ?? Math.abs(hashName(n.name)) % 8;
+        clusterCounts[cid] = (clusterCounts[cid] || 0) + 1;
+      }
+      const total = Object.values(clusterCounts).reduce((s, v) => s + v, 0);
+      for (const [cid, count] of Object.entries(clusterCounts)) {
+        if (count / total > 0.1) { // only show links with >10% representation
+          links.push({ cat: cat.name, cluster: parseInt(cid), op: Math.min(0.7, count / total) });
+        }
+      }
+    }
+    return links;
+  }, [categories, data]);
+
   const sn = selData?.name;
   const st = selData?.taste?.toLowerCase().split(/\s+/) || [];
-  const sc = selData?.cluster ?? null;
+  const sc = selData?.category;
+  const scl = selData?.cluster ?? null;
 
   if (!data?.graph) return null;
 
@@ -181,130 +214,111 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
         <g transform={`translate(${pan.x},${pan.y}) scale(${zoom})`}>
           {/* Layer labels */}
           {LAYER_LABELS.map((label, i) => (
-            <g key={i}>
-              <text x={LX[i]} y={22} textAnchor="middle" fill="#555" fontSize="11" fontFamily="monospace" fontWeight="bold">{label}</text>
-              {LAYER_SUBLABELS[i] && <text x={LX[i]} y={36} textAnchor="middle" fill="#333" fontSize="9" fontFamily="monospace">{LAYER_SUBLABELS[i]}</text>}
-            </g>
+            <text key={i} x={LX[i]} y={25} textAnchor="middle" fill="#555" fontSize="12" fontFamily="monospace" fontWeight="bold">{label}</text>
           ))}
 
-          {/* Connections: Taste → GAT Heads (sparse, colored by head) */}
-          {headPts.map((hp, i) => {
-            const srcTaste = tastePts[Math.floor(hp.head * 2 + hp.idx / 2) % 8];
-            if (!srcTaste) return null;
-            const act = fired && st.includes(srcTaste.key);
-            return <line key={`th${i}`} x1={srcTaste.x + 20} y1={srcTaste.y} x2={hp.x - 8} y2={hp.y}
-              stroke={hp.color} strokeOpacity={act ? 0.6 : 0.08} strokeWidth={act ? 1.5 : 0.4} />;
+          {/* Taste → Category connections */}
+          {tcLinks.map((lk, i) => {
+            const tp = tastePts.find(t => t.key === lk.taste), cp = catPts.find(c => c.name === lk.cat);
+            if (!tp || !cp) return null;
+            const act = fired && st.includes(lk.taste) && lk.cat === sc;
+            return <line key={`tc${i}`} x1={tp.x + 20} y1={tp.y} x2={cp.x - 14} y2={cp.y}
+              stroke={TC[lk.taste]} strokeOpacity={act ? 0.7 : lk.op * 0.2} strokeWidth={act ? 2 : 0.4}
+              className={act ? 'nn-draw' : ''} />;
           })}
 
-          {/* Connections: GAT Heads → Embedding */}
-          {headPts.map((hp, i) => {
-            const tgtEmb = embPts[hp.idx % 8 + (hp.head < 2 ? 0 : 4)] || embPts[i % 8];
-            if (!tgtEmb) return null;
-            return <line key={`he${i}`} x1={hp.x + 8} y1={hp.y} x2={tgtEmb.x - 8} y2={tgtEmb.y}
-              stroke={hp.color} strokeOpacity={0.06} strokeWidth={0.4} />;
+          {/* Category → Cluster connections */}
+          {ccLinks.map((lk, i) => {
+            const cp = catPts.find(c => c.name === lk.cat);
+            const cl = clusterPts.find(c => c.id === lk.cluster);
+            if (!cp || !cl) return null;
+            const act = fired && sc === lk.cat && scl === lk.cluster;
+            return <line key={`cc${i}`} x1={cp.x + 14} y1={cp.y} x2={cl.x - 16} y2={cl.y}
+              stroke={cl.color} strokeOpacity={act ? 0.6 : lk.op * 0.15} strokeWidth={act ? 1.5 : 0.4}
+              className={act ? 'nn-draw' : ''} />;
           })}
 
-          {/* Connections: Embedding → Clusters */}
-          {embPts.map((ep, i) => {
-            const tgt = clusterPts[i];
-            if (!tgt) return null;
-            return <line key={`ec${i}`} x1={ep.x + 8} y1={ep.y} x2={tgt.x - 18} y2={tgt.y}
-              stroke={tgt.color} strokeOpacity={0.12} strokeWidth={0.6} />;
-          })}
-
-          {/* Connections: Cluster → Ingredients */}
+          {/* Cluster → Ingredient connections */}
           {ingPts.map((ing, i) => {
             const cid = ing.cluster ?? Math.abs(hashName(ing.name)) % 8;
-            const cp = clusterPts[cid];
-            if (!cp) return null;
+            const cl = clusterPts[cid];
+            if (!cl) return null;
             const isSel = sn === ing.name;
-            return <line key={`ci${i}`} x1={cp.x + 18} y1={cp.y} x2={ing.x - 8} y2={ing.y}
-              stroke={cp.color} strokeOpacity={isSel ? 0.6 : 0.08} strokeWidth={isSel ? 1.5 : 0.3}
-              className={fired && isSel ? 'gat-draw' : ''} />;
+            return <line key={`ci${i}`} x1={cl.x + 16} y1={cl.y} x2={ing.x - 8} y2={ing.y}
+              stroke={cl.color} strokeOpacity={isSel ? 0.5 : 0.06} strokeWidth={isSel ? 1.5 : 0.3}
+              className={fired && isSel ? 'nn-draw' : ''} />;
           })}
 
-          {/* Pairing arcs between selected ingredient and its neighbors */}
+          {/* Pairing arcs */}
           {fired && sn && ingPts.length > 1 && (() => {
             const sp = ingPts.find(p => p.name === sn);
             if (!sp) return null;
             return getNeighbors(sn, data.graph.edges).slice(0, 10).map((nb, i) => {
               const np = ingPts.find(p => p.name === nb.name);
               if (!np) return null;
-              const isNovel = nb.known === false;
               return <path key={`a${i}`}
-                d={`M${sp.x + 8},${sp.y} Q${sp.x + 70},${(sp.y + np.y) / 2} ${np.x + 8},${np.y}`}
-                fill="none" stroke={isNovel ? '#7F77DD' : '#f39c12'}
-                strokeOpacity={nb.strength * 0.7} strokeWidth={1 + nb.strength}
-                strokeDasharray={isNovel ? '4 3' : 'none'}
-                className="gat-arc" />;
+                d={`M${sp.x + 8},${sp.y} Q${sp.x + 60},${(sp.y + np.y) / 2} ${np.x + 8},${np.y}`}
+                fill="none" stroke="#f39c12" strokeOpacity={nb.strength * 0.7} strokeWidth={1 + nb.strength}
+                className="nn-arc" />;
             });
           })()}
 
-          {/* Layer 1: Taste Profile nodes */}
+          {/* Taste nodes */}
           {tastePts.map(t => {
             const act = fired && st.includes(t.key), hov = actTaste === t.key;
-            return (<g key={t.key} className="cursor-pointer" onClick={() => { setActTaste(actTaste === t.key ? null : t.key); setActCluster(null); }}
-              onMouseEnter={() => setHovered(`t-${t.key}`)} onMouseLeave={() => setHovered(null)}>
-              <circle cx={t.x} cy={t.y} r={20} fill={t.color} fillOpacity={act || hov ? 0.9 : 0.4}
-                stroke={t.color} strokeWidth={act ? 2 : 0.5} filter={act ? 'url(#gs)' : 'url(#gn)'}
-                className={act ? 'gat-pulse' : ''} />
+            return (<g key={t.key} className="cursor-pointer"
+              onClick={() => { setActTaste(actTaste === t.key ? null : t.key); setActCat(null); setActCluster(null); }}>
+              <circle cx={t.x} cy={t.y} r={22} fill={t.color} fillOpacity={act || hov ? 0.85 : 0.4}
+                stroke={t.color} strokeWidth={act ? 2.5 : 0.5} filter={act ? 'url(#gs)' : 'url(#gn)'}
+                className={act ? 'nn-pulse' : ''} />
               <text x={t.x} y={t.y + 3} textAnchor="middle" fill="#fff" fontSize="8" fontFamily="monospace"
                 fontWeight="bold" pointerEvents="none">{t.label}</text>
             </g>);
           })}
 
-          {/* Layer 2: GAT Attention Head nodes */}
-          {headPts.map((hp, i) => {
-            const label = `H${hp.head + 1}`;
-            return (<g key={`h${i}`}>
-              <circle cx={hp.x} cy={hp.y} r={6} fill={hp.color} fillOpacity={0.35}
-                stroke={hp.color} strokeWidth={0.5} filter="url(#gn)" />
-              {hp.idx === 0 && <text x={hp.x - 12} y={hp.y + 3} textAnchor="end" fill={hp.color}
-                fontSize="8" fontFamily="monospace" fontWeight="bold" opacity={0.6}>{label}</text>}
+          {/* Category nodes */}
+          {catPts.map(c => {
+            const bd = c.dom ? (TC[c.dom] || '#4f8fff') : '#4f8fff';
+            const act = fired && sc === c.name, hov = actCat === c.name;
+            return (<g key={c.name} className="cursor-pointer"
+              onClick={() => { setActCat(actCat === c.name ? null : c.name); setActTaste(null); setActCluster(null); }}>
+              <circle cx={c.x} cy={c.y} r={13} fill={act || hov ? bd : '#1a1a2e'}
+                fillOpacity={act || hov ? 0.7 : 0.6} stroke={bd} strokeWidth={act ? 2 : 0.5}
+                filter={act ? 'url(#gs)' : 'url(#gn)'} className={act ? 'nn-pulse' : ''} />
+              <text x={c.x + 18} y={c.y + 3} fill={act ? '#fff' : '#999'} fontSize="8" fontFamily="monospace"
+                pointerEvents="none">{c.name}</text>
+              <text x={c.x + 18} y={c.y + 13} fill="#555" fontSize="7" fontFamily="monospace"
+                pointerEvents="none">{c.count}</text>
             </g>);
           })}
 
-          {/* Layer 3: Embedding nodes */}
-          {embPts.map((ep, i) => (
-            <g key={`e${i}`}>
-              <circle cx={ep.x} cy={ep.y} r={8} fill="#2a2a4a" stroke="#4f8fff"
-                strokeWidth={0.5} fillOpacity={0.8} filter="url(#gn)" />
-              <text x={ep.x} y={ep.y + 3} textAnchor="middle" fill="#4f8fff" fontSize="7"
-                fontFamily="monospace" pointerEvents="none">d{i + 1}</text>
-            </g>
-          ))}
-
-          {/* Layer 4: Cluster nodes */}
+          {/* Cluster nodes */}
           {clusterPts.map(c => {
-            const act = actCluster === c.id || (fired && sc === c.id);
+            const act = actCluster === c.id || (fired && scl === c.id);
             return (<g key={`cl${c.id}`} className="cursor-pointer"
-              onClick={() => { setActCluster(actCluster === c.id ? null : c.id); setActTaste(null); }}
-              onMouseEnter={() => setHovered(`cl-${c.id}`)} onMouseLeave={() => setHovered(null)}>
-              <circle cx={c.x} cy={c.y} r={16} fill={c.color} fillOpacity={act ? 0.8 : 0.3}
-                stroke={c.color} strokeWidth={act ? 2 : 0.5} filter={act ? 'url(#gs)' : 'url(#gn)'}
-                className={act ? 'gat-pulse' : ''} />
-              <text x={c.x} y={c.y + 3} textAnchor="middle" fill="#fff" fontSize="6"
-                fontFamily="monospace" pointerEvents="none">{c.label}</text>
-              <text x={c.x} y={c.y + 12} textAnchor="middle" fill={c.color} fontSize="7"
+              onClick={() => { setActCluster(actCluster === c.id ? null : c.id); setActTaste(null); setActCat(null); }}>
+              <circle cx={c.x} cy={c.y} r={18} fill={c.color} fillOpacity={act ? 0.75 : 0.3}
+                stroke={c.color} strokeWidth={act ? 2.5 : 0.5} filter={act ? 'url(#gs)' : 'url(#gn)'}
+                className={act ? 'nn-pulse' : ''} />
+              <text x={c.x} y={c.y + 3} textAnchor="middle" fill="#fff" fontSize="7"
+                fontFamily="monospace" fontWeight="bold" pointerEvents="none">{c.label}</text>
+              <text x={c.x} y={c.y + 14} textAnchor="middle" fill={c.color} fontSize="7"
                 fontFamily="monospace" opacity={0.5} pointerEvents="none">{c.count}</text>
             </g>);
           })}
 
-          {/* Layer 5: Ingredient nodes */}
-          {ingPts.map((ing, i) => {
+          {/* Ingredient nodes */}
+          {ingPts.map((ing) => {
             const cid = ing.cluster ?? Math.abs(hashName(ing.name)) % 8;
             const col = CLUSTERS[cid]?.color || tasteColor(ing.taste);
             const isSel = sn === ing.name, isH = hovered === `i-${ing.name}`;
-            const isNovel = ing.known === false;
             return (<g key={ing.name} className="cursor-pointer" onClick={() => onNodeClick?.(ing)}
               onMouseEnter={() => setHovered(`i-${ing.name}`)} onMouseLeave={() => setHovered(null)}>
               <circle cx={ing.x} cy={ing.y} r={isSel ? 9 : 6} fill={col}
                 fillOpacity={isSel ? 0.9 : isH ? 0.7 : 0.4}
-                stroke={isNovel ? '#7F77DD' : isSel ? '#fff' : col}
-                strokeWidth={isSel ? 2 : isNovel ? 1 : 0.3}
-                strokeDasharray={isNovel ? '2 2' : 'none'}
+                stroke={isSel ? '#fff' : col} strokeWidth={isSel ? 2 : 0.3}
                 filter={isSel ? 'url(#gs)' : 'url(#gn)'}
-                className={fired && isSel ? 'gat-pulse' : ''} />
+                className={fired && isSel ? 'nn-pulse' : ''} />
               <text x={ing.x + 12} y={ing.y + 3} textAnchor="start"
                 fill={isSel ? '#fff' : isH ? '#ccc' : '#666'} fontSize={isSel ? '8' : '7'} fontFamily="monospace"
                 pointerEvents="none">{ing.name}</text>
@@ -315,72 +329,39 @@ export default function PerceptronView({ data, onNodeClick, selectedNode, select
 
       {/* Info panel */}
       {fired && selData && (
-        <div className="absolute bottom-4 right-4 bg-gray-900/90 border border-gray-700 rounded-lg p-3 w-60 backdrop-blur-sm">
-          <div className="text-gray-400 text-[10px] font-mono uppercase tracking-wider mb-1">GAT Embedding</div>
-          <div className="text-white text-sm font-mono mb-2">{selData.name}</div>
-          {selData.embeddingFull && (
-            <div className="space-y-0.5 mb-2">
-              {selData.embeddingFull.slice(0, 8).map((v, i) => (
-                <div key={i} className="flex items-center gap-1">
-                  <span className="text-gray-600 text-[8px] font-mono w-4">d{i + 1}</span>
-                  <div className="flex-1 h-1 bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full bg-blue-500/60" style={{ width: `${Math.abs(v) * 50}%`, marginLeft: v < 0 ? `${50 - Math.abs(v) * 50}%` : '50%' }} />
-                  </div>
-                  <span className="text-gray-600 text-[8px] font-mono w-8 text-right">{v.toFixed(2)}</span>
+        <div className="absolute bottom-4 right-4 bg-gray-900/90 border border-gray-700 rounded-lg p-3 w-56 backdrop-blur-sm">
+          <div className="text-white text-sm font-mono mb-1">{selData.name}</div>
+          <div className="space-y-1 text-[10px] font-mono">
+            {selData.taste && <div className="flex gap-2"><span className="text-gray-500">Taste</span><span style={{ color: tasteColor(selData.taste) }}>{selData.taste}</span></div>}
+            {selData.category && <div className="flex gap-2"><span className="text-gray-500">Category</span><span className="text-gray-300">{selData.category}</span></div>}
+            <div className="flex gap-2 items-center">
+              <span className="text-gray-500">Family</span>
+              <span className="px-1.5 py-0.5 rounded text-[9px]" style={{ backgroundColor: CLUSTERS[selData.cluster ?? 0]?.color + '30', color: CLUSTERS[selData.cluster ?? 0]?.color }}>
+                {CLUSTERS[selData.cluster ?? 0]?.label}
+              </span>
+            </div>
+            <div className="flex gap-2"><span className="text-gray-500">Pairings</span><span className="text-gray-300">{selData.pairingCount}</span></div>
+            {selData.bridgingScore != null && (
+              <div className="flex gap-2 items-center">
+                <span className="text-gray-500">Bridging</span>
+                <div className="flex-1 h-1 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-purple-500/60" style={{ width: `${selData.bridgingScore * 100}%` }} />
                 </div>
-              ))}
-            </div>
-          )}
-          <div className="flex items-center gap-2 text-[10px]">
-            <span className="text-gray-500 font-mono">cluster</span>
-            <span className="px-1.5 py-0.5 rounded text-white font-mono" style={{ backgroundColor: CLUSTERS[selData.cluster ?? 0]?.color + '40' }}>
-              {selData.clusterLabel || CLUSTERS[selData.cluster ?? 0]?.label}
-            </span>
-          </div>
-          {selData.bridgingScore != null && (
-            <div className="flex items-center gap-2 text-[10px] mt-1">
-              <span className="text-gray-500 font-mono">bridging</span>
-              <div className="flex-1 h-1 bg-gray-800 rounded-full overflow-hidden">
-                <div className="h-full rounded-full bg-purple-500/60" style={{ width: `${selData.bridgingScore * 100}%` }} />
+                <span className="text-gray-600">{(selData.bridgingScore * 100).toFixed(0)}%</span>
               </div>
-              <span className="text-gray-600 font-mono">{selData.bridgingScore.toFixed(2)}</span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
-      {/* Legend */}
-      <div className="absolute top-14 right-4 bg-gray-900/70 border border-gray-800 rounded-lg p-2 backdrop-blur-sm">
-        <div className="text-[9px] text-gray-500 font-mono mb-1">Attention Heads</div>
-        <div className="flex gap-1.5">
-          {HEAD_COLORS.map((c, i) => (
-            <div key={i} className="flex items-center gap-0.5">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} />
-              <span className="text-[8px] text-gray-500 font-mono">H{i + 1}</span>
-            </div>
-          ))}
-        </div>
-        <div className="text-[9px] text-gray-500 font-mono mt-1.5 mb-0.5">Novel pairing</div>
-        <div className="flex items-center gap-1">
-          <div className="w-4 h-0 border-t border-dashed border-purple-400" />
-          <span className="text-[8px] text-gray-500 font-mono">predicted</span>
-        </div>
-      </div>
-
       <style>{`
-        @keyframes gp { 0%,100%{opacity:.7} 50%{opacity:1} }
-        .gat-pulse { animation: gp 1.5s ease-in-out infinite; }
-        @keyframes gd { from{stroke-dashoffset:500} to{stroke-dashoffset:0} }
-        .gat-draw { stroke-dasharray:500; animation: gd .8s ease-out forwards; }
-        @keyframes ga { from{stroke-dashoffset:300;opacity:0} to{stroke-dashoffset:0;opacity:1} }
-        .gat-arc { stroke-dasharray:300; animation: ga 1s ease-out .5s both; }
+        @keyframes nnp { 0%,100%{opacity:.7} 50%{opacity:1} }
+        .nn-pulse { animation: nnp 1.5s ease-in-out infinite; }
+        @keyframes nnd { from{stroke-dashoffset:500} to{stroke-dashoffset:0} }
+        .nn-draw { stroke-dasharray:500; animation: nnd .8s ease-out forwards; }
+        @keyframes nna { from{stroke-dashoffset:300;opacity:0} to{stroke-dashoffset:0;opacity:1} }
+        .nn-arc { stroke-dasharray:300; animation: nna 1s ease-out .5s both; }
       `}</style>
     </div>
   );
-}
-
-function hashName(s) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
-  return h;
 }
