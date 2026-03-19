@@ -36,3 +36,16 @@ export const MIN_RECIPE_COUNT = 3;         // pair must appear in 3+ recipes
 export const MIN_INGREDIENT_RECIPES = 50;  // ingredient must appear in 50+ recipes (filters noise from 2.2M dataset)
 export const MIN_BLENDED_STRENGTH = 0.02;  // drop pairs below this after blending
 export const MIN_SOURCES = 1;              // pair must appear in at least N sources
+
+// Feature computation (Step 06)
+export const FEATURE_FALLBACKS = {
+  x3_chemical: 0.5,
+  x4_taste: 0.5,
+  x6_cuisine: 0.3,
+  x8_compound_diversity: 0.3,
+};
+
+export const COMPOUND_CLASSES = [
+  'terpene', 'aldehyde', 'ester', 'pyrazine', 'sulfur',
+  'lactone', 'furanone', 'phenol', 'organic_acid', 'alcohol'
+];

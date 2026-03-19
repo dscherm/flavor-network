@@ -1,0 +1,591 @@
+{
+  "source": "Ahn et al. 2011 + food science literature",
+  "note": "Built-in fallback compound database. Will be supplemented by FooDB/FlavorDB when available.",
+  "ingredients": {
+    "garlic": {
+      "compounds": [
+        { "name": "diallyl disulfide", "class": "sulfur" },
+        { "name": "allicin", "class": "sulfur" },
+        { "name": "methyl allyl disulfide", "class": "sulfur" },
+        { "name": "diallyl trisulfide", "class": "sulfur" }
+      ]
+    },
+    "onion": {
+      "compounds": [
+        { "name": "dipropyl disulfide", "class": "sulfur" },
+        { "name": "propanethiol", "class": "sulfur" },
+        { "name": "thiopropanal S-oxide", "class": "sulfur" }
+      ]
+    },
+    "basil": {
+      "compounds": [
+        { "name": "linalool", "class": "terpene" },
+        { "name": "eugenol", "class": "phenol" },
+        { "name": "estragole", "class": "phenol" },
+        { "name": "1,8-cineole", "class": "terpene" }
+      ]
+    },
+    "tomato": {
+      "compounds": [
+        { "name": "hexanal", "class": "aldehyde" },
+        { "name": "2-isobutylthiazole", "class": "sulfur" },
+        { "name": "beta-ionone", "class": "aldehyde" },
+        { "name": "6-methyl-5-hepten-2-one", "class": "aldehyde" }
+      ]
+    },
+    "lemon": {
+      "compounds": [
+        { "name": "limonene", "class": "terpene" },
+        { "name": "citral", "class": "terpene" },
+        { "name": "linalool", "class": "terpene" },
+        { "name": "gamma-terpinene", "class": "terpene" }
+      ]
+    },
+    "vanilla": {
+      "compounds": [
+        { "name": "vanillin", "class": "phenol" },
+        { "name": "4-hydroxybenzaldehyde", "class": "aldehyde" },
+        { "name": "guaiacol", "class": "phenol" }
+      ]
+    },
+    "chocolate": {
+      "compounds": [
+        { "name": "2,3-dimethylpyrazine", "class": "pyrazine" },
+        { "name": "trimethylpyrazine", "class": "pyrazine" },
+        { "name": "phenylacetaldehyde", "class": "aldehyde" },
+        { "name": "linalool", "class": "terpene" }
+      ]
+    },
+    "cinnamon": {
+      "compounds": [
+        { "name": "cinnamaldehyde", "class": "aldehyde" },
+        { "name": "eugenol", "class": "phenol" },
+        { "name": "linalool", "class": "terpene" },
+        { "name": "coumarin", "class": "lactone" }
+      ]
+    },
+    "ginger": {
+      "compounds": [
+        { "name": "gingerol", "class": "phenol" },
+        { "name": "zingiberene", "class": "terpene" },
+        { "name": "beta-sesquiphellandrene", "class": "terpene" },
+        { "name": "ar-curcumene", "class": "terpene" }
+      ]
+    },
+    "thyme": {
+      "compounds": [
+        { "name": "thymol", "class": "phenol" },
+        { "name": "carvacrol", "class": "phenol" },
+        { "name": "linalool", "class": "terpene" },
+        { "name": "p-cymene", "class": "terpene" }
+      ]
+    },
+    "rosemary": {
+      "compounds": [
+        { "name": "1,8-cineole", "class": "terpene" },
+        { "name": "camphor", "class": "terpene" },
+        { "name": "alpha-pinene", "class": "terpene" },
+        { "name": "verbenone", "class": "terpene" }
+      ]
+    },
+    "mint": {
+      "compounds": [
+        { "name": "menthol", "class": "terpene" },
+        { "name": "menthone", "class": "terpene" },
+        { "name": "menthyl acetate", "class": "ester" },
+        { "name": "limonene", "class": "terpene" }
+      ]
+    },
+    "coffee": {
+      "compounds": [
+        { "name": "2-furfurylthiol", "class": "sulfur" },
+        { "name": "2,3-butanedione", "class": "aldehyde" },
+        { "name": "2-methylfuran", "class": "furanone" },
+        { "name": "guaiacol", "class": "phenol" }
+      ]
+    },
+    "butter": {
+      "compounds": [
+        { "name": "diacetyl", "class": "aldehyde" },
+        { "name": "butyric acid", "class": "organic_acid" },
+        { "name": "delta-decalactone", "class": "lactone" },
+        { "name": "acetoin", "class": "aldehyde" }
+      ]
+    },
+    "cheese": {
+      "compounds": [
+        { "name": "butyric acid", "class": "organic_acid" },
+        { "name": "propionic acid", "class": "organic_acid" },
+        { "name": "methional", "class": "sulfur" },
+        { "name": "3-methylbutanal", "class": "aldehyde" }
+      ]
+    },
+    "strawberry": {
+      "compounds": [
+        { "name": "furaneol", "class": "furanone" },
+        { "name": "gamma-decalactone", "class": "lactone" },
+        { "name": "methyl butyrate", "class": "ester" },
+        { "name": "linalool", "class": "terpene" }
+      ]
+    },
+    "apple": {
+      "compounds": [
+        { "name": "ethyl butyrate", "class": "ester" },
+        { "name": "hexanal", "class": "aldehyde" },
+        { "name": "trans-2-hexenal", "class": "aldehyde" },
+        { "name": "alpha-farnesene", "class": "terpene" }
+      ]
+    },
+    "banana": {
+      "compounds": [
+        { "name": "isoamyl acetate", "class": "ester" },
+        { "name": "eugenol", "class": "phenol" },
+        { "name": "butyl acetate", "class": "ester" }
+      ]
+    },
+    "orange": {
+      "compounds": [
+        { "name": "limonene", "class": "terpene" },
+        { "name": "octanal", "class": "aldehyde" },
+        { "name": "decanal", "class": "aldehyde" },
+        { "name": "linalool", "class": "terpene" }
+      ]
+    },
+    "black pepper": {
+      "compounds": [
+        { "name": "piperine", "class": "phenol" },
+        { "name": "beta-caryophyllene", "class": "terpene" },
+        { "name": "limonene", "class": "terpene" },
+        { "name": "linalool", "class": "terpene" }
+      ]
+    },
+    "cumin": {
+      "compounds": [
+        { "name": "cuminaldehyde", "class": "aldehyde" },
+        { "name": "gamma-terpinene", "class": "terpene" },
+        { "name": "beta-pinene", "class": "terpene" },
+        { "name": "p-cymene", "class": "terpene" }
+      ]
+    },
+    "clove": {
+      "compounds": [
+        { "name": "eugenol", "class": "phenol" },
+        { "name": "eugenyl acetate", "class": "ester" },
+        { "name": "beta-caryophyllene", "class": "terpene" }
+      ]
+    },
+    "nutmeg": {
+      "compounds": [
+        { "name": "myristicin", "class": "phenol" },
+        { "name": "elemicin", "class": "phenol" },
+        { "name": "sabinene", "class": "terpene" },
+        { "name": "alpha-pinene", "class": "terpene" }
+      ]
+    },
+    "parsley": {
+      "compounds": [
+        { "name": "myristicin", "class": "phenol" },
+        { "name": "apiol", "class": "phenol" },
+        { "name": "alpha-pinene", "class": "terpene" },
+        { "name": "beta-phellandrene", "class": "terpene" }
+      ]
+    },
+    "cilantro": {
+      "compounds": [
+        { "name": "decanal", "class": "aldehyde" },
+        { "name": "dodecanal", "class": "aldehyde" },
+        { "name": "linalool", "class": "terpene" },
+        { "name": "2-decenal", "class": "aldehyde" }
+      ]
+    },
+    "oregano": {
+      "compounds": [
+        { "name": "carvacrol", "class": "phenol" },
+        { "name": "thymol", "class": "phenol" },
+        { "name": "gamma-terpinene", "class": "terpene" },
+        { "name": "p-cymene", "class": "terpene" }
+      ]
+    },
+    "sage": {
+      "compounds": [
+        { "name": "thujone", "class": "terpene" },
+        { "name": "1,8-cineole", "class": "terpene" },
+        { "name": "camphor", "class": "terpene" },
+        { "name": "alpha-pinene", "class": "terpene" }
+      ]
+    },
+    "mushroom": {
+      "compounds": [
+        { "name": "1-octen-3-ol", "class": "alcohol" },
+        { "name": "lenthionine", "class": "sulfur" },
+        { "name": "3-octanone", "class": "aldehyde" }
+      ]
+    },
+    "honey": {
+      "compounds": [
+        { "name": "phenylacetaldehyde", "class": "aldehyde" },
+        { "name": "benzaldehyde", "class": "aldehyde" },
+        { "name": "linalool", "class": "terpene" },
+        { "name": "nonanal", "class": "aldehyde" }
+      ]
+    },
+    "wine": {
+      "compounds": [
+        { "name": "ethanol", "class": "alcohol" },
+        { "name": "ethyl acetate", "class": "ester" },
+        { "name": "linalool", "class": "terpene" },
+        { "name": "3-mercaptohexanol", "class": "sulfur" }
+      ]
+    },
+    "soy sauce": {
+      "compounds": [
+        { "name": "4-hydroxy-2,5-dimethyl-3-furanone", "class": "furanone" },
+        { "name": "2-methylpropanal", "class": "aldehyde" },
+        { "name": "methional", "class": "sulfur" }
+      ]
+    },
+    "coconut": {
+      "compounds": [
+        { "name": "delta-octalactone", "class": "lactone" },
+        { "name": "gamma-nonalactone", "class": "lactone" },
+        { "name": "delta-decalactone", "class": "lactone" }
+      ]
+    },
+    "peanut": {
+      "compounds": [
+        { "name": "2-ethyl-3-methylpyrazine", "class": "pyrazine" },
+        { "name": "2,3-dimethylpyrazine", "class": "pyrazine" },
+        { "name": "methional", "class": "sulfur" }
+      ]
+    },
+    "olive oil": {
+      "compounds": [
+        { "name": "hexanal", "class": "aldehyde" },
+        { "name": "trans-2-hexenal", "class": "aldehyde" },
+        { "name": "1-penten-3-one", "class": "aldehyde" },
+        { "name": "hexyl acetate", "class": "ester" }
+      ]
+    },
+    "sesame": {
+      "compounds": [
+        { "name": "2-furfurylthiol", "class": "sulfur" },
+        { "name": "2-ethyl-3-methylpyrazine", "class": "pyrazine" },
+        { "name": "sesamol", "class": "phenol" },
+        { "name": "2-pentylfuran", "class": "furanone" }
+      ]
+    },
+    "fish": {
+      "compounds": [
+        { "name": "trimethylamine", "class": "sulfur" },
+        { "name": "dimethyl sulfide", "class": "sulfur" },
+        { "name": "2,4-heptadienal", "class": "aldehyde" }
+      ]
+    },
+    "beef": {
+      "compounds": [
+        { "name": "2-methyl-3-furanthiol", "class": "sulfur" },
+        { "name": "4-hydroxy-5-methyl-3-furanone", "class": "furanone" },
+        { "name": "diacetyl", "class": "aldehyde" }
+      ]
+    },
+    "chicken": {
+      "compounds": [
+        { "name": "2-methyl-3-furanthiol", "class": "sulfur" },
+        { "name": "hexanal", "class": "aldehyde" },
+        { "name": "nonanal", "class": "aldehyde" },
+        { "name": "2,4-decadienal", "class": "aldehyde" }
+      ]
+    },
+    "pork": {
+      "compounds": [
+        { "name": "2-methyl-3-furanthiol", "class": "sulfur" },
+        { "name": "skatole", "class": "sulfur" },
+        { "name": "androstenone", "class": "aldehyde" },
+        { "name": "hexanal", "class": "aldehyde" }
+      ]
+    },
+    "carrot": {
+      "compounds": [
+        { "name": "beta-ionone", "class": "aldehyde" },
+        { "name": "myristicin", "class": "phenol" },
+        { "name": "alpha-pinene", "class": "terpene" },
+        { "name": "sabinene", "class": "terpene" }
+      ]
+    },
+    "celery": {
+      "compounds": [
+        { "name": "3-n-butylphthalide", "class": "lactone" },
+        { "name": "sedanenolide", "class": "lactone" },
+        { "name": "limonene", "class": "terpene" }
+      ]
+    },
+    "potato": {
+      "compounds": [
+        { "name": "methional", "class": "sulfur" },
+        { "name": "2-ethyl-3-methylpyrazine", "class": "pyrazine" },
+        { "name": "decanal", "class": "aldehyde" }
+      ]
+    },
+    "rice": {
+      "compounds": [
+        { "name": "2-acetyl-1-pyrroline", "class": "furanone" },
+        { "name": "hexanal", "class": "aldehyde" },
+        { "name": "nonanal", "class": "aldehyde" }
+      ]
+    },
+    "wheat": {
+      "compounds": [
+        { "name": "2-acetyl-1-pyrroline", "class": "furanone" },
+        { "name": "hexanal", "class": "aldehyde" },
+        { "name": "maltol", "class": "furanone" }
+      ]
+    },
+    "vinegar": {
+      "compounds": [
+        { "name": "acetic acid", "class": "organic_acid" },
+        { "name": "ethyl acetate", "class": "ester" },
+        { "name": "acetaldehyde", "class": "aldehyde" }
+      ]
+    },
+    "lime": {
+      "compounds": [
+        { "name": "limonene", "class": "terpene" },
+        { "name": "alpha-terpineol", "class": "terpene" },
+        { "name": "geranial", "class": "terpene" },
+        { "name": "neral", "class": "terpene" }
+      ]
+    },
+    "cucumber": {
+      "compounds": [
+        { "name": "2,6-nonadienal", "class": "aldehyde" },
+        { "name": "2-nonenal", "class": "aldehyde" },
+        { "name": "hexanal", "class": "aldehyde" }
+      ]
+    },
+    "avocado": {
+      "compounds": [
+        { "name": "hexanal", "class": "aldehyde" },
+        { "name": "2,4-decadienal", "class": "aldehyde" },
+        { "name": "ethanol", "class": "alcohol" }
+      ]
+    },
+    "walnut": {
+      "compounds": [
+        { "name": "2-methylpropanal", "class": "aldehyde" },
+        { "name": "hexanal", "class": "aldehyde" },
+        { "name": "1-octen-3-ol", "class": "alcohol" }
+      ]
+    },
+    "almond": {
+      "compounds": [
+        { "name": "benzaldehyde", "class": "aldehyde" }
+      ]
+    },
+    "pistachio": {
+      "compounds": [
+        { "name": "alpha-pinene", "class": "terpene" },
+        { "name": "limonene", "class": "terpene" },
+        { "name": "terpinolene", "class": "terpene" },
+        { "name": "beta-myrcene", "class": "terpene" }
+      ]
+    },
+    "caramel": {
+      "compounds": [
+        { "name": "furaneol", "class": "furanone" },
+        { "name": "maltol", "class": "furanone" },
+        { "name": "cyclotene", "class": "furanone" },
+        { "name": "diacetyl", "class": "aldehyde" }
+      ]
+    },
+    "maple syrup": {
+      "compounds": [
+        { "name": "maple furanone", "class": "furanone" },
+        { "name": "vanillin", "class": "phenol" },
+        { "name": "cyclotene", "class": "furanone" },
+        { "name": "dihydroactinidiolide", "class": "lactone" }
+      ]
+    },
+    "miso": {
+      "compounds": [
+        { "name": "ethanol", "class": "alcohol" },
+        { "name": "4-hydroxy-2,5-dimethyl-3-furanone", "class": "furanone" },
+        { "name": "ethyl acetate", "class": "ester" },
+        { "name": "3-methyl-1-butanol", "class": "alcohol" }
+      ]
+    },
+    "dill": {
+      "compounds": [
+        { "name": "carvone", "class": "terpene" },
+        { "name": "limonene", "class": "terpene" },
+        { "name": "alpha-phellandrene", "class": "terpene" },
+        { "name": "dill ether", "class": "terpene" }
+      ]
+    },
+    "tarragon": {
+      "compounds": [
+        { "name": "estragole", "class": "phenol" },
+        { "name": "anethole", "class": "phenol" },
+        { "name": "ocimene", "class": "terpene" },
+        { "name": "limonene", "class": "terpene" }
+      ]
+    },
+    "fennel": {
+      "compounds": [
+        { "name": "anethole", "class": "phenol" },
+        { "name": "estragole", "class": "phenol" },
+        { "name": "fenchone", "class": "terpene" },
+        { "name": "limonene", "class": "terpene" }
+      ]
+    },
+    "cardamom": {
+      "compounds": [
+        { "name": "1,8-cineole", "class": "terpene" },
+        { "name": "alpha-terpinyl acetate", "class": "ester" },
+        { "name": "linalool", "class": "terpene" },
+        { "name": "linalyl acetate", "class": "ester" }
+      ]
+    },
+    "turmeric": {
+      "compounds": [
+        { "name": "ar-turmerone", "class": "terpene" },
+        { "name": "turmerone", "class": "terpene" },
+        { "name": "zingiberene", "class": "terpene" },
+        { "name": "curcumin", "class": "phenol" }
+      ]
+    },
+    "saffron": {
+      "compounds": [
+        { "name": "safranal", "class": "aldehyde" },
+        { "name": "2-hydroxy-4,4,6-trimethyl-2,5-cyclohexadien-1-one", "class": "aldehyde" },
+        { "name": "isophorone", "class": "aldehyde" }
+      ]
+    },
+    "wasabi": {
+      "compounds": [
+        { "name": "allyl isothiocyanate", "class": "sulfur" },
+        { "name": "6-methylthiohexyl isothiocyanate", "class": "sulfur" }
+      ]
+    },
+    "horseradish": {
+      "compounds": [
+        { "name": "allyl isothiocyanate", "class": "sulfur" },
+        { "name": "2-phenylethyl isothiocyanate", "class": "sulfur" }
+      ]
+    },
+    "bay leaf": {
+      "compounds": [
+        { "name": "1,8-cineole", "class": "terpene" },
+        { "name": "linalool", "class": "terpene" },
+        { "name": "eugenol", "class": "phenol" },
+        { "name": "alpha-pinene", "class": "terpene" }
+      ]
+    },
+    "star anise": {
+      "compounds": [
+        { "name": "anethole", "class": "phenol" },
+        { "name": "estragole", "class": "phenol" },
+        { "name": "limonene", "class": "terpene" },
+        { "name": "linalool", "class": "terpene" }
+      ]
+    },
+    "chili pepper": {
+      "compounds": [
+        { "name": "capsaicin", "class": "phenol" },
+        { "name": "dihydrocapsaicin", "class": "phenol" },
+        { "name": "beta-carotene", "class": "terpene" }
+      ]
+    },
+    "truffle": {
+      "compounds": [
+        { "name": "dimethyl sulfide", "class": "sulfur" },
+        { "name": "2,4-dithiapentane", "class": "sulfur" },
+        { "name": "bis(methylthio)methane", "class": "sulfur" }
+      ]
+    },
+    "soybean": {
+      "compounds": [
+        { "name": "hexanal", "class": "aldehyde" },
+        { "name": "1-octen-3-ol", "class": "alcohol" },
+        { "name": "hexanol", "class": "alcohol" },
+        { "name": "2-pentylfuran", "class": "furanone" }
+      ]
+    },
+    "corn": {
+      "compounds": [
+        { "name": "dimethyl sulfide", "class": "sulfur" },
+        { "name": "2-acetyl-1-pyrroline", "class": "furanone" },
+        { "name": "acetaldehyde", "class": "aldehyde" }
+      ]
+    },
+    "bacon": {
+      "compounds": [
+        { "name": "guaiacol", "class": "phenol" },
+        { "name": "4-methylguaiacol", "class": "phenol" },
+        { "name": "2,6-dimethylpyrazine", "class": "pyrazine" },
+        { "name": "hexanal", "class": "aldehyde" }
+      ]
+    },
+    "cream": {
+      "compounds": [
+        { "name": "diacetyl", "class": "aldehyde" },
+        { "name": "delta-decalactone", "class": "lactone" },
+        { "name": "butyric acid", "class": "organic_acid" },
+        { "name": "acetoin", "class": "aldehyde" }
+      ]
+    },
+    "egg": {
+      "compounds": [
+        { "name": "dimethyl sulfide", "class": "sulfur" },
+        { "name": "hydrogen sulfide", "class": "sulfur" },
+        { "name": "methional", "class": "sulfur" },
+        { "name": "2-acetyl-1-pyrroline", "class": "furanone" }
+      ]
+    },
+    "rum": {
+      "compounds": [
+        { "name": "ethyl butyrate", "class": "ester" },
+        { "name": "ethyl hexanoate", "class": "ester" },
+        { "name": "isoamyl alcohol", "class": "alcohol" },
+        { "name": "vanillin", "class": "phenol" }
+      ]
+    },
+    "whiskey": {
+      "compounds": [
+        { "name": "vanillin", "class": "phenol" },
+        { "name": "guaiacol", "class": "phenol" },
+        { "name": "eugenol", "class": "phenol" },
+        { "name": "furfural", "class": "furanone" }
+      ]
+    },
+    "gin": {
+      "compounds": [
+        { "name": "alpha-pinene", "class": "terpene" },
+        { "name": "limonene", "class": "terpene" },
+        { "name": "linalool", "class": "terpene" },
+        { "name": "beta-myrcene", "class": "terpene" }
+      ]
+    },
+    "tequila": {
+      "compounds": [
+        { "name": "isoamyl alcohol", "class": "alcohol" },
+        { "name": "ethyl acetate", "class": "ester" },
+        { "name": "beta-damascenone", "class": "aldehyde" },
+        { "name": "vanillin", "class": "phenol" }
+      ]
+    },
+    "vodka": {
+      "compounds": [
+        { "name": "ethanol", "class": "alcohol" },
+        { "name": "acetaldehyde", "class": "aldehyde" }
+      ]
+    },
+    "beer": {
+      "compounds": [
+        { "name": "linalool", "class": "terpene" },
+        { "name": "geraniol", "class": "terpene" },
+        { "name": "4-vinylguaiacol", "class": "phenol" },
+        { "name": "isoamyl acetate", "class": "ester" }
+      ]
+    }
+  }
+}

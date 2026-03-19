@@ -1,0 +1,1423 @@
+{
+  "garlic": {
+    "compounds": {
+      "diallyl disulfide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "allicin": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "methyl allyl disulfide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "diallyl trisulfide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      }
+    }
+  },
+  "onion": {
+    "compounds": {
+      "dipropyl disulfide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "propanethiol": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "thiopropanal S-oxide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      }
+    }
+  },
+  "basil": {
+    "compounds": {
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "eugenol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "estragole": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "1,8-cineole": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "tomato": {
+    "compounds": {
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "2-isobutylthiazole": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "beta-ionone": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "6-methyl-5-hepten-2-one": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "lemon": {
+    "compounds": {
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "citral": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "gamma-terpinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "vanilla": {
+    "compounds": {
+      "vanillin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "4-hydroxybenzaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "guaiacol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      }
+    }
+  },
+  "chocolate": {
+    "compounds": {
+      "2,3-dimethylpyrazine": {
+        "concentration_mg": 0,
+        "class": "pyrazine"
+      },
+      "trimethylpyrazine": {
+        "concentration_mg": 0,
+        "class": "pyrazine"
+      },
+      "phenylacetaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "cinnamon": {
+    "compounds": {
+      "cinnamaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "eugenol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "coumarin": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      }
+    }
+  },
+  "ginger": {
+    "compounds": {
+      "gingerol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "zingiberene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "beta-sesquiphellandrene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "ar-curcumene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "thyme": {
+    "compounds": {
+      "thymol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "carvacrol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "p-cymene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "rosemary": {
+    "compounds": {
+      "1,8-cineole": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "camphor": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "alpha-pinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "verbenone": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "mint": {
+    "compounds": {
+      "menthol": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "menthone": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "menthyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "coffee": {
+    "compounds": {
+      "2-furfurylthiol": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "2,3-butanedione": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "2-methylfuran": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "guaiacol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      }
+    }
+  },
+  "butter": {
+    "compounds": {
+      "diacetyl": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "butyric acid": {
+        "concentration_mg": 0,
+        "class": "organic_acid"
+      },
+      "delta-decalactone": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      },
+      "acetoin": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "cheese": {
+    "compounds": {
+      "butyric acid": {
+        "concentration_mg": 0,
+        "class": "organic_acid"
+      },
+      "propionic acid": {
+        "concentration_mg": 0,
+        "class": "organic_acid"
+      },
+      "methional": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "3-methylbutanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "strawberry": {
+    "compounds": {
+      "furaneol": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "gamma-decalactone": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      },
+      "methyl butyrate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "apple": {
+    "compounds": {
+      "ethyl butyrate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "trans-2-hexenal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "alpha-farnesene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "banana": {
+    "compounds": {
+      "isoamyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "eugenol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "butyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      }
+    }
+  },
+  "orange": {
+    "compounds": {
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "octanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "decanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "black pepper": {
+    "compounds": {
+      "piperine": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "beta-caryophyllene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "cumin": {
+    "compounds": {
+      "cuminaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "gamma-terpinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "beta-pinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "p-cymene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "clove": {
+    "compounds": {
+      "eugenol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "eugenyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "beta-caryophyllene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "nutmeg": {
+    "compounds": {
+      "myristicin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "elemicin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "sabinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "alpha-pinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "parsley": {
+    "compounds": {
+      "myristicin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "apiol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "alpha-pinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "beta-phellandrene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "cilantro": {
+    "compounds": {
+      "decanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "dodecanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "2-decenal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "oregano": {
+    "compounds": {
+      "carvacrol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "thymol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "gamma-terpinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "p-cymene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "sage": {
+    "compounds": {
+      "thujone": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "1,8-cineole": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "camphor": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "alpha-pinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "mushroom": {
+    "compounds": {
+      "1-octen-3-ol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      },
+      "lenthionine": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "3-octanone": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "honey": {
+    "compounds": {
+      "phenylacetaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "benzaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "nonanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "wine": {
+    "compounds": {
+      "ethanol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      },
+      "ethyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "3-mercaptohexanol": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      }
+    }
+  },
+  "soy sauce": {
+    "compounds": {
+      "4-hydroxy-2,5-dimethyl-3-furanone": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "2-methylpropanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "methional": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      }
+    }
+  },
+  "coconut": {
+    "compounds": {
+      "delta-octalactone": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      },
+      "gamma-nonalactone": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      },
+      "delta-decalactone": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      }
+    }
+  },
+  "peanut": {
+    "compounds": {
+      "2-ethyl-3-methylpyrazine": {
+        "concentration_mg": 0,
+        "class": "pyrazine"
+      },
+      "2,3-dimethylpyrazine": {
+        "concentration_mg": 0,
+        "class": "pyrazine"
+      },
+      "methional": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      }
+    }
+  },
+  "olive oil": {
+    "compounds": {
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "trans-2-hexenal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "1-penten-3-one": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "hexyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      }
+    }
+  },
+  "sesame": {
+    "compounds": {
+      "2-furfurylthiol": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "2-ethyl-3-methylpyrazine": {
+        "concentration_mg": 0,
+        "class": "pyrazine"
+      },
+      "sesamol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "2-pentylfuran": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      }
+    }
+  },
+  "fish": {
+    "compounds": {
+      "trimethylamine": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "dimethyl sulfide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "2,4-heptadienal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "beef": {
+    "compounds": {
+      "2-methyl-3-furanthiol": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "4-hydroxy-5-methyl-3-furanone": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "diacetyl": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "chicken": {
+    "compounds": {
+      "2-methyl-3-furanthiol": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "nonanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "2,4-decadienal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "pork": {
+    "compounds": {
+      "2-methyl-3-furanthiol": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "skatole": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "androstenone": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "carrot": {
+    "compounds": {
+      "beta-ionone": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "myristicin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "alpha-pinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "sabinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "celery": {
+    "compounds": {
+      "3-n-butylphthalide": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      },
+      "sedanenolide": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      },
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "potato": {
+    "compounds": {
+      "methional": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "2-ethyl-3-methylpyrazine": {
+        "concentration_mg": 0,
+        "class": "pyrazine"
+      },
+      "decanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "rice": {
+    "compounds": {
+      "2-acetyl-1-pyrroline": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "nonanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "wheat": {
+    "compounds": {
+      "2-acetyl-1-pyrroline": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "maltol": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      }
+    }
+  },
+  "vinegar": {
+    "compounds": {
+      "acetic acid": {
+        "concentration_mg": 0,
+        "class": "organic_acid"
+      },
+      "ethyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "acetaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "lime": {
+    "compounds": {
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "alpha-terpineol": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "geranial": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "neral": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "cucumber": {
+    "compounds": {
+      "2,6-nonadienal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "2-nonenal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "avocado": {
+    "compounds": {
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "2,4-decadienal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "ethanol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      }
+    }
+  },
+  "walnut": {
+    "compounds": {
+      "2-methylpropanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "1-octen-3-ol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      }
+    }
+  },
+  "almond": {
+    "compounds": {
+      "benzaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "pistachio": {
+    "compounds": {
+      "alpha-pinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "terpinolene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "beta-myrcene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "caramel": {
+    "compounds": {
+      "furaneol": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "maltol": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "cyclotene": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "diacetyl": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "maple syrup": {
+    "compounds": {
+      "maple furanone": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "vanillin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "cyclotene": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "dihydroactinidiolide": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      }
+    }
+  },
+  "miso": {
+    "compounds": {
+      "ethanol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      },
+      "4-hydroxy-2,5-dimethyl-3-furanone": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "ethyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "3-methyl-1-butanol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      }
+    }
+  },
+  "dill": {
+    "compounds": {
+      "carvone": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "alpha-phellandrene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "dill ether": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "tarragon": {
+    "compounds": {
+      "estragole": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "anethole": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "ocimene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "fennel": {
+    "compounds": {
+      "anethole": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "estragole": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "fenchone": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "cardamom": {
+    "compounds": {
+      "1,8-cineole": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "alpha-terpinyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "linalyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      }
+    }
+  },
+  "turmeric": {
+    "compounds": {
+      "ar-turmerone": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "turmerone": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "zingiberene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "curcumin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      }
+    }
+  },
+  "saffron": {
+    "compounds": {
+      "safranal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "2-hydroxy-4,4,6-trimethyl-2,5-cyclohexadien-1-one": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "isophorone": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "wasabi": {
+    "compounds": {
+      "allyl isothiocyanate": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "6-methylthiohexyl isothiocyanate": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      }
+    }
+  },
+  "horseradish": {
+    "compounds": {
+      "allyl isothiocyanate": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "2-phenylethyl isothiocyanate": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      }
+    }
+  },
+  "bay leaf": {
+    "compounds": {
+      "1,8-cineole": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "eugenol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "alpha-pinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "star anise": {
+    "compounds": {
+      "anethole": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "estragole": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "chili pepper": {
+    "compounds": {
+      "capsaicin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "dihydrocapsaicin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "beta-carotene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "truffle": {
+    "compounds": {
+      "dimethyl sulfide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "2,4-dithiapentane": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "bis(methylthio)methane": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      }
+    }
+  },
+  "soybean": {
+    "compounds": {
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "1-octen-3-ol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      },
+      "hexanol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      },
+      "2-pentylfuran": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      }
+    }
+  },
+  "corn": {
+    "compounds": {
+      "dimethyl sulfide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "2-acetyl-1-pyrroline": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      },
+      "acetaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "bacon": {
+    "compounds": {
+      "guaiacol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "4-methylguaiacol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "2,6-dimethylpyrazine": {
+        "concentration_mg": 0,
+        "class": "pyrazine"
+      },
+      "hexanal": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "cream": {
+    "compounds": {
+      "diacetyl": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "delta-decalactone": {
+        "concentration_mg": 0,
+        "class": "lactone"
+      },
+      "butyric acid": {
+        "concentration_mg": 0,
+        "class": "organic_acid"
+      },
+      "acetoin": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "egg": {
+    "compounds": {
+      "dimethyl sulfide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "hydrogen sulfide": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "methional": {
+        "concentration_mg": 0,
+        "class": "sulfur"
+      },
+      "2-acetyl-1-pyrroline": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      }
+    }
+  },
+  "rum": {
+    "compounds": {
+      "ethyl butyrate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "ethyl hexanoate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "isoamyl alcohol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      },
+      "vanillin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      }
+    }
+  },
+  "whiskey": {
+    "compounds": {
+      "vanillin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "guaiacol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "eugenol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "furfural": {
+        "concentration_mg": 0,
+        "class": "furanone"
+      }
+    }
+  },
+  "gin": {
+    "compounds": {
+      "alpha-pinene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "limonene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "beta-myrcene": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      }
+    }
+  },
+  "tequila": {
+    "compounds": {
+      "isoamyl alcohol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      },
+      "ethyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      },
+      "beta-damascenone": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      },
+      "vanillin": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      }
+    }
+  },
+  "vodka": {
+    "compounds": {
+      "ethanol": {
+        "concentration_mg": 0,
+        "class": "alcohol"
+      },
+      "acetaldehyde": {
+        "concentration_mg": 0,
+        "class": "aldehyde"
+      }
+    }
+  },
+  "beer": {
+    "compounds": {
+      "linalool": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "geraniol": {
+        "concentration_mg": 0,
+        "class": "terpene"
+      },
+      "4-vinylguaiacol": {
+        "concentration_mg": 0,
+        "class": "phenol"
+      },
+      "isoamyl acetate": {
+        "concentration_mg": 0,
+        "class": "ester"
+      }
+    }
+  },
+  "_meta": {
+    "source": "builtin",
+    "generatedAt": "2026-03-19T20:15:05.205Z",
+    "ingredientCount": 77
+  }
+}
