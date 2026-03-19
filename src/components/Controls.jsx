@@ -42,8 +42,8 @@ function Controls({
 
   return (
     <div
-      className="fixed bottom-4 right-0 z-40 flex items-end select-none transition-transform duration-300 ease-in-out"
-      style={{ transform: open ? 'translateX(0)' : 'translateX(calc(100% - 28px))' }}
+      className="fixed right-0 z-40 flex items-end select-none transition-transform duration-300 ease-in-out"
+      style={{ bottom: 'var(--bottom-safe)', transform: open ? 'translateX(0)' : 'translateX(calc(100% - 28px))' }}
     >
       {/* Tab */}
       <button

@@ -54,7 +54,7 @@ function SectionHeading({ children }) {
   );
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, isFavorite, onToggleFavorite }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, isFavorite, onToggleFavorite, embedded = false }) {
   const panelRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -83,8 +83,100 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     ? [...neighbors].sort((a, b) => b.strength - a.strength)
     : [];
 
+  // Embedded mode: just render content without fixed positioning
+  if (embedded) {
+    return (
+      <div>
+        {/* Ingredient name + favorite */}
+        <div className="flex items-start gap-2 pr-8 mb-1">
+          <h2
+            className="text-2xl font-bold text-gray-100"
+            style={{ textShadow: '0 0 20px rgba(56, 189, 248, 0.4), 0 0 40px rgba(139, 92, 246, 0.2)' }}
+          >
+            {name}
+          </h2>
+          {onToggleFavorite && (
+            <button
+              onClick={() => onToggleFavorite(name)}
+              className={`mt-1 flex-shrink-0 transition-colors ${isFavorite ? 'text-pink-400 hover:text-pink-300' : 'text-gray-600 hover:text-pink-400'}`}
+              aria-label={isFavorite ? `Remove ${name} from favorites` : `Add ${name} to favorites`}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+          )}
+        </div>
+        {pairingCount != null && <p className="text-xs text-gray-500 mb-3">{pairingCount} pairing{pairingCount !== 1 ? 's' : ''}</p>}
+        {(taste || weight || volume || season) && (
+          <section>
+            <SectionHeading>Properties</SectionHeading>
+            <div className="flex flex-wrap gap-1.5">
+              <PropertyBadge label="taste" value={taste} isTaste />
+              <PropertyBadge label="weight" value={weight} />
+              <PropertyBadge label="volume" value={volume} />
+              <PropertyBadge label="season" value={season} />
+            </div>
+          </section>
+        )}
+        {cuisines && cuisines.length > 0 && (
+          <section>
+            <SectionHeading>Cuisines</SectionHeading>
+            <div className="flex flex-wrap gap-1.5">
+              {cuisines.map((cuisine) => (
+                <span key={cuisine} className="inline-block px-2 py-0.5 rounded border text-xs font-medium bg-indigo-500/15 text-indigo-300 border-indigo-500/25">{cuisine}</span>
+              ))}
+            </div>
+          </section>
+        )}
+        {sortedNeighbors.length > 0 && (
+          <section>
+            <SectionHeading>Top Pairings</SectionHeading>
+            <ul className="space-y-1.5">
+              {sortedNeighbors.map((neighbor) => (
+                <li key={neighbor.name}>
+                  <button
+                    onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors group"
+                  >
+                    <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
+                    <StrengthBar strength={neighbor.strength} />
+                    <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {affinities && affinities.length > 0 && (
+          <section>
+            <SectionHeading>Affinities</SectionHeading>
+            <div className="space-y-1.5">
+              {affinities.map((combo, idx) => {
+                const display = Array.isArray(combo) ? combo.join(' + ') : String(combo);
+                return <div key={idx} className="px-2 py-1.5 rounded-md bg-gray-800/40 border border-gray-700/30 text-sm text-gray-300">{display}</div>;
+              })}
+            </div>
+          </section>
+        )}
+        {tips && tips.length > 0 && (
+          <section>
+            <SectionHeading>Tips</SectionHeading>
+            {Array.isArray(tips) ? (
+              <ul className="space-y-1.5 text-sm text-gray-400 list-disc list-inside">
+                {tips.map((tip, idx) => <li key={idx}>{tip}</li>)}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-400">{tips}</p>
+            )}
+          </section>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none">
+    <div className="fixed right-0 z-40 flex items-stretch select-none" style={{ top: 'var(--nav-h)', bottom: 'var(--bottom-safe)' }}>
       {/* Tab */}
       <button
         onClick={() => setCollapsed((v) => !v)}

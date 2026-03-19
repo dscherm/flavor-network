@@ -16,7 +16,7 @@ function getColor(index) {
   return INGREDIENT_COLORS[index % INGREDIENT_COLORS.length];
 }
 
-export default function ComparePanel({ selectedNames, nodes, edges, onRemove, onClose }) {
+export default function ComparePanel({ selectedNames, nodes, edges, onRemove, onClose, embedded = false }) {
   const [collapsed, setCollapsed] = useState(false);
 
   // Auto-expand when selection changes
@@ -81,8 +81,83 @@ export default function ComparePanel({ selectedNames, nodes, edges, onRemove, on
     return connections.sort((a, b) => b.strength - a.strength);
   }, [selectedNames, neighborSets]);
 
+  // Embedded content for bottom sheet
+  const embeddedContent = (
+    <>
+      {/* Selected ingredients as removable tags */}
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        {selectedNames.map((name, i) => {
+          const c = getColor(i);
+          return (
+            <span key={name} className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border ${c.bg} ${c.text} ${c.border}`}>
+              {name}
+              <button onClick={() => onRemove(name)} className="ml-0.5 hover:opacity-70 text-current" aria-label={`Remove ${name}`}>&times;</button>
+            </span>
+          );
+        })}
+      </div>
+      {directConnections.length > 0 && (
+        <section className="mb-4">
+          <h3 className="text-xs text-neural-muted uppercase tracking-wider mb-2">Direct Connections</h3>
+          <div className="space-y-1.5">
+            {directConnections.map(({ a, b, strength }) => {
+              const idxA = selectedNames.indexOf(a);
+              const idxB = selectedNames.indexOf(b);
+              return (
+                <div key={`${a}-${b}`} className="flex items-center gap-2 text-xs">
+                  <span style={{ color: getColor(idxA).dot }}>{a}</span>
+                  <div className="flex-1 h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-purple-500" style={{ width: `${Math.round(strength * 100)}%` }} />
+                  </div>
+                  <span style={{ color: getColor(idxB).dot }}>{b}</span>
+                  <span className="text-gray-500 tabular-nums w-8 text-right">{Math.round(strength * 100)}%</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+      <section className="mb-4">
+        <h3 className="text-xs text-neural-muted uppercase tracking-wider mb-2">Shared by All ({sharedByAll.length})</h3>
+        {sharedByAll.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {sharedByAll.slice(0, 20).map((name) => (
+              <span key={name} className="px-2 py-0.5 text-xs rounded bg-white/10 text-neural-text border border-white/10">{name}</span>
+            ))}
+            {sharedByAll.length > 20 && <span className="px-2 py-0.5 text-xs text-neural-muted">+{sharedByAll.length - 20} more</span>}
+          </div>
+        ) : (
+          <p className="text-xs text-neural-muted italic">No pairings shared by all</p>
+        )}
+      </section>
+      <section>
+        <h3 className="text-xs text-neural-muted uppercase tracking-wider mb-2">Unique Pairings</h3>
+        <div className="space-y-3">
+          {selectedNames.map((name, i) => {
+            const c = getColor(i);
+            const unique = uniquePairings[i];
+            return (
+              <div key={name}>
+                <h4 className={`text-xs font-medium mb-1 ${c.text}`}>{name}<span className="text-neural-muted font-normal ml-1">({unique.length})</span></h4>
+                {unique.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {unique.map((n) => <span key={n} className={`px-1.5 py-0.5 text-[11px] rounded ${c.bg} ${c.text} border ${c.border}`}>{n}</span>)}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-neural-muted italic">No unique pairings</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </>
+  );
+
+  if (embedded) return <div>{embeddedContent}</div>;
+
   return (
-    <div className="fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none">
+    <div className="fixed right-0 z-40 flex items-stretch select-none" style={{ top: 'var(--nav-h)', bottom: 'var(--bottom-safe)' }}>
       {/* Tab */}
       <button
         onClick={() => setCollapsed((v) => !v)}

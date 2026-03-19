@@ -18,7 +18,7 @@ export default function ProfileToggle({
   );
 
   return (
-    <div className="fixed top-14 left-4 z-50 flex items-center gap-2 flex-wrap">
+    <div className="fixed left-4 z-50 hidden sm:flex items-center gap-2 flex-wrap" style={{ top: 'var(--nav-h)' }}>
       {/* View mode toggle */}
       <div className="bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg flex overflow-hidden">
         <button

@@ -24,7 +24,7 @@ import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
  *   - onSelectIngredient: (name) => void
  *   - onAddIngredient: (name) => void
  */
-export default function ProfileInsights({ profile, nodes, isOpen, onClose, onSelectIngredient, onAddIngredient }) {
+export default function ProfileInsights({ profile, nodes, isOpen, onClose, onSelectIngredient, onAddIngredient, embedded = false }) {
   const weights = useMemo(() => {
     if (!profile || !nodes) return new Map();
     return computeProfileWeights(profile, nodes);
@@ -49,7 +49,7 @@ export default function ProfileInsights({ profile, nodes, isOpen, onClose, onSel
   const hasData = profile && (profile.ingredients.length > 0 || profile.cuisines.length > 0 || profile.recipes.length > 0);
 
   return (
-    <div className={`fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
+    <div className={`fixed right-0 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`} style={{ top: 'var(--nav-h)', bottom: 'var(--bottom-safe)' }}>
       {/* Tab */}
       <button
         onClick={onClose}

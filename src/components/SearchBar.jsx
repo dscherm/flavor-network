@@ -111,7 +111,7 @@ function SearchBar({ ingredients, onSelect }) {
   }, []);
 
   return (
-    <div className="search-container fixed top-14 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] sm:w-80 md:w-96">
+    <div className="search-container fixed left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] sm:w-80 md:w-96" style={{ top: 'var(--nav-h)' }}>
       <input
         ref={inputRef}
         type="text"

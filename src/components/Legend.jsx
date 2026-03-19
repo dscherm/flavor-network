@@ -17,8 +17,8 @@ function Legend({ selectedTaste, onTasteFilter }) {
 
   return (
     <div
-      className="fixed bottom-4 left-0 z-40 flex items-end select-none transition-transform duration-300 ease-in-out"
-      style={{ transform: open ? 'translateX(0)' : 'translateX(calc(-100% + 28px))' }}
+      className="fixed left-0 z-40 flex items-end select-none transition-transform duration-300 ease-in-out"
+      style={{ bottom: 'var(--bottom-safe)', transform: open ? 'translateX(0)' : 'translateX(calc(-100% + 28px))' }}
     >
       {/* Panel */}
       <div className="bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-r-lg p-3 border-r-0">

@@ -92,7 +92,7 @@ export default function ProfileTreeView({ profile, nodes, isOpen, onClose, onAdd
   const isEmpty = tree.length === 0;
 
   return (
-    <div className={`fixed top-24 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
+    <div className={`fixed right-0 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`} style={{ top: 'calc(var(--nav-h) + 2.5rem)', bottom: 'var(--bottom-safe)' }}>
       <div className={`w-80 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-l-lg flex flex-col overflow-hidden transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
