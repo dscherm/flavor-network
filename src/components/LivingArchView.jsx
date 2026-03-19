@@ -84,9 +84,9 @@ function computeWheelPositions(nodes) {
     bins[bestTaste].push({ name, node, channels, totalWeight, bestScore });
   }
 
-  // Sort each bin: strongest affinity first (spirals outward = weaker)
+  // Sort each bin: most-paired first (center), least-paired outward
   for (const t of TASTE_ORDER) {
-    bins[t].sort((a, b) => b.bestScore - a.bestScore);
+    bins[t].sort((a, b) => (b.node.pairingCount || 0) - (a.node.pairingCount || 0));
   }
 
   // Place ingredients in Archimedean spiral within each sector
