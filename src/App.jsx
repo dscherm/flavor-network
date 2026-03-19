@@ -22,6 +22,7 @@ import PalateQuiz from './components/PalateQuiz.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 import ProfileTreeView from './components/ProfileTreeView.jsx';
 import FlavorDNA from './components/FlavorDNA.jsx';
+import FlavorBridge from './components/FlavorBridge.jsx';
 import CocktailLab from './components/CocktailLab.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
@@ -43,8 +44,8 @@ export default function App() {
   const [recipeMounted, setRecipeMounted] = useState(false); // lazy mount
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState([]);
-  const [showEdges, setShowEdges] = useState(true);
-  const [showParticles, setShowParticles] = useState(true);
+  const [showEdges, setShowEdges] = useState(() => !window.matchMedia('(max-width: 640px)').matches);
+  const [showParticles, setShowParticles] = useState(() => !window.matchMedia('(max-width: 640px)').matches);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
   const [showTour, setShowTour] = useState(
@@ -61,6 +62,7 @@ export default function App() {
   const [showTreeExplorer, setShowTreeExplorer] = useState(false);
   const [showProfileTree, setShowProfileTree] = useState(false);
   const [showFlavorDNA, setShowFlavorDNA] = useState(false);
+  const [showBridge, setShowBridge] = useState(false);
   const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
   const [treeFilterLabel, setTreeFilterLabel] = useState(null);
   const isMobile = useIsMobile();
@@ -373,6 +375,7 @@ export default function App() {
           onSelectIngredient={handleSearchSelect}
           isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
           onToggleFavorite={userProfile.toggleIngredient}
+          graphNodes={data?.graph?.nodes}
         />
       )}
 
@@ -550,6 +553,28 @@ export default function App() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
         </svg>
       </button>
+      {/* Flavor Bridge toggle button */}
+      <button
+        onClick={() => setShowBridge(v => !v)}
+        className={`fixed top-[148px] right-4 z-50 p-2 rounded-lg border transition-all hidden sm:block ${
+          showBridge
+            ? 'bg-neural-glow/20 border-neural-glow/40 text-neural-glow'
+            : 'bg-[#12121a]/80 border-[#1e1e2e] text-gray-400 hover:text-gray-200 hover:border-gray-500'
+        }`}
+        title="Flavor Bridge"
+      >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+        </svg>
+      </button>
+      <FlavorBridge
+        nodes={data ? data.graph.nodes : null}
+        edges={data ? data.graph.edges : null}
+        ingredientList={ingredientList}
+        isOpen={showBridge}
+        onClose={() => setShowBridge(false)}
+        onSelectIngredient={handleSearchSelect}
+      />
       <HelpButton onClick={() => setShowTour(true)} />
       <PalateQuiz
         active={showPalateQuiz}
@@ -626,6 +651,7 @@ export default function App() {
               onSelectIngredient={handleSearchSelect}
               isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
               onToggleFavorite={userProfile.toggleIngredient}
+              graphNodes={data?.graph?.nodes}
               embedded
             />
           )}
@@ -675,6 +701,7 @@ export default function App() {
           }}
           onOpenProfileTree={() => setShowProfileTree(v => !v)}
           onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
+          onOpenBridge={() => setShowBridge(v => !v)}
           onOpenHelp={() => setShowTour(true)}
           profileMode={profileMode}
           onToggleProfileMode={() => setProfileMode(v => !v)}

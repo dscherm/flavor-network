@@ -1,6 +1,8 @@
 # Flavor Network — User Experience Survey
 
-**Instructions**: For each use case, rate your experience on a 1–5 scale and add any notes.
+**Instructions**: For each use case, rate your experience on a 1-5 scale and add any notes.
+
+> **Testing on iOS?** Use [UX_SURVEY_IOS.md](UX_SURVEY_IOS.md) instead — it covers all mobile-specific interactions (tab bar, bottom sheet, touch gestures, safe areas) plus the core features below adapted for small screens.
 
 **Likert Scale**:
 | 1 | 2 | 3 | 4 | 5 |
@@ -290,6 +292,7 @@
 ### N3. Responsiveness on mobile / smaller screens
 - **Rating**: [ ]
 - **Notes**:
+- *For detailed mobile testing, see [UX_SURVEY_IOS.md](UX_SURVEY_IOS.md)*
 
 ### N4. Transition animations between tabs (Network, Cocktail Lab, Sauce Lab, Recipe Lab)
 - **Rating**: [ ]
@@ -325,3 +328,4 @@
 
 **Date**: _______________
 **Device/Browser**: _______________
+**Platform**: [ ] Desktop  [ ] Mobile (use [iOS survey](UX_SURVEY_IOS.md) for detailed mobile testing)

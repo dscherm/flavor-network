@@ -1,4 +1,5 @@
-import { useCallback, useRef, useEffect, useState } from 'react';
+import { useCallback, useRef, useEffect, useState, useMemo } from 'react';
+import TasteRadar from './TasteRadar.jsx';
 
 const TASTE_COLORS = {
   sweet: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
@@ -54,7 +55,47 @@ function SectionHeading({ children }) {
   );
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, isFavorite, onToggleFavorite, embedded = false }) {
+const TASTE_OPPOSITES = {
+  sweet: 'bitter',
+  bitter: 'sweet',
+  sour: 'umami',
+  umami: 'sour',
+  salty: 'sweet',
+  spicy: 'astringent',
+  astringent: 'spicy',
+  pungent: 'sour',
+};
+
+function getDiscoveryFact(node, neighbors) {
+  if (!node) return null;
+  const { name, pairingCount, cuisines, taste } = node;
+  const sortedNeighbors = neighbors
+    ? [...neighbors].sort((a, b) => b.strength - a.strength)
+    : [];
+
+  if (pairingCount > 100) {
+    return `${name} is a network hub -- it connects to ${pairingCount} other ingredients`;
+  }
+  if (cuisines && cuisines.length >= 3) {
+    return `${name} bridges ${cuisines.length} different cuisines`;
+  }
+  if (sortedNeighbors.length > 0 && sortedNeighbors[0].strength > 0.9) {
+    return `${name}'s strongest bond is with ${sortedNeighbors[0].name} at ${Math.round(sortedNeighbors[0].strength * 100)}%`;
+  }
+  if (taste) {
+    const key = taste.toLowerCase().trim();
+    const opposite = TASTE_OPPOSITES[key];
+    if (opposite) {
+      return `As a ${key} ingredient, ${name} contrasts well with ${opposite} flavors`;
+    }
+  }
+  if (pairingCount != null) {
+    return `${name} has ${pairingCount} pairings across the flavor network`;
+  }
+  return null;
+}
+
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, isFavorite, onToggleFavorite, embedded = false, graphNodes }) {
   const panelRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -83,6 +124,19 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     ? [...neighbors].sort((a, b) => b.strength - a.strength)
     : [];
 
+  const discoveryFact = getDiscoveryFact(node, neighbors);
+
+  // Build ingredient list for TasteRadar: selected ingredient + top 5 neighbors
+  const radarIngredients = useMemo(() => {
+    const items = [name];
+    const sorted = neighbors
+      ? [...neighbors].sort((a, b) => b.strength - a.strength)
+      : [];
+    const top5 = sorted.slice(0, 5);
+    for (const n of top5) items.push(n.name);
+    return items;
+  }, [name, neighbors]);
+
   // Embedded mode: just render content without fixed positioning
   if (embedded) {
     return (
@@ -107,7 +161,12 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             </button>
           )}
         </div>
-        {pairingCount != null && <p className="text-xs text-gray-500 mb-3">{pairingCount} pairing{pairingCount !== 1 ? 's' : ''}</p>}
+        {pairingCount != null && <p className="text-xs text-gray-500 mb-1">{pairingCount} pairing{pairingCount !== 1 ? 's' : ''}</p>}
+        {discoveryFact && (
+          <div className="text-[11px] text-cyan-400/60 italic mb-3">
+            {discoveryFact}
+          </div>
+        )}
         {(taste || weight || volume || season) && (
           <section>
             <SectionHeading>Properties</SectionHeading>
@@ -116,6 +175,19 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               <PropertyBadge label="weight" value={weight} />
               <PropertyBadge label="volume" value={volume} />
               <PropertyBadge label="season" value={season} />
+            </div>
+          </section>
+        )}
+        {graphNodes && (
+          <section>
+            <SectionHeading>Taste Radar</SectionHeading>
+            <div className="flex justify-center">
+              <TasteRadar
+                ingredients={radarIngredients}
+                nodes={graphNodes}
+                compact
+                theme="dark"
+              />
             </div>
           </section>
         )}
@@ -242,9 +314,15 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
         </div>
 
         {pairingCount != null && (
-          <p className="text-xs text-gray-500 mb-3">
+          <p className="text-xs text-gray-500 mb-1">
             {pairingCount} pairing{pairingCount !== 1 ? 's' : ''}
           </p>
+        )}
+
+        {discoveryFact && (
+          <div className="text-[11px] text-cyan-400/60 italic mb-3">
+            {discoveryFact}
+          </div>
         )}
 
         {/* Properties */}
@@ -256,6 +334,21 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               <PropertyBadge label="weight" value={weight} />
               <PropertyBadge label="volume" value={volume} />
               <PropertyBadge label="season" value={season} />
+            </div>
+          </section>
+        )}
+
+        {/* Taste Radar */}
+        {graphNodes && (
+          <section>
+            <SectionHeading>Taste Radar</SectionHeading>
+            <div className="flex justify-center">
+              <TasteRadar
+                ingredients={radarIngredients}
+                nodes={graphNodes}
+                compact
+                theme="dark"
+              />
             </div>
           </section>
         )}

@@ -5,6 +5,7 @@ import { getNeighbors } from '../data/graph.js';
 import { scoreStructures } from '../data/structureScoring.js';
 import { analyzeRecipe } from '../data/recipeAnalysis.js';
 import RecipeAnalysis from './RecipeAnalysis.jsx';
+import TasteRadar from './TasteRadar.jsx';
 
 export default function RecipePanel({
   ingredients,
@@ -80,6 +81,18 @@ export default function RecipePanel({
           style={{ color: '#3a3428', fontFamily: 'Caveat, cursive' }}
         />
       </div>
+
+      {/* Taste Radar */}
+      {ingredients.length > 0 && (
+        <div className="px-4 py-2 border-b border-[#e8dcc8] flex justify-center">
+          <TasteRadar
+            ingredients={ingredients}
+            nodes={nodes}
+            compact
+            theme="warm"
+          />
+        </div>
+      )}
 
       {/* Ingredient list */}
       <div className="flex-1 overflow-y-auto px-4 py-2">

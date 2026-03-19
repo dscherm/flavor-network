@@ -1,14 +1,33 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Fuse from 'fuse.js';
 
+const MOBILE_HINTS = [
+  'Search ingredients...',
+  "Try 'garlic' or 'chocolate'...",
+  'Discover unexpected pairings...',
+  'Search 4,488 ingredients...',
+];
+
 function SearchBar({ ingredients, onSelect }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
+  const [hintIndex, setHintIndex] = useState(0);
 
   const inputRef = useRef(null);
   const listRef = useRef(null);
+  const isMobileRef = useRef(window.matchMedia('(max-width: 640px)').matches);
+  const [inputFocused, setInputFocused] = useState(false);
+
+  // Rotate placeholder hints on mobile (pause while input is focused)
+  useEffect(() => {
+    if (!isMobileRef.current || inputFocused) return;
+    const interval = setInterval(() => {
+      setHintIndex((prev) => (prev + 1) % MOBILE_HINTS.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [inputFocused]);
 
   const fuse = useMemo(() => {
     const docs = (ingredients || []).map((n) => ({ name: n }));
@@ -119,9 +138,11 @@ function SearchBar({ ingredients, onSelect }) {
         onChange={handleQueryChange}
         onKeyDown={handleKeyDown}
         onFocus={() => {
+          setInputFocused(true);
           if (results.length > 0) setIsOpen(true);
         }}
-        placeholder="Search ingredients..."
+        onBlur={() => setInputFocused(false)}
+        placeholder={isMobileRef.current ? MOBILE_HINTS[hintIndex] : 'Search ingredients...'}
         aria-label="Search ingredients"
         aria-autocomplete="list"
         aria-expanded={isOpen}
