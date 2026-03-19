@@ -241,8 +241,8 @@ export default function PathwayView({ data, onNodeClick, selectedNode, selectedN
 
       const pw = edge.pathway;
       // Tradition: thinner, lower opacity; others: thicker, higher opacity
-      const baseOpacity = pw === 'tradition' ? 0.4 : 0.6;
-      const baseWidth = pw === 'tradition' ? 1.5 : 2.5;
+      const baseOpacity = 0.55;
+      const baseWidth = 2.0;
       const alpha = dim ? 0.06 : baseOpacity * (0.3 + edge.strength * 0.7);
       const lw = (dim ? 0.8 : baseWidth + edge.strength * 1.5) * z;
 
@@ -250,21 +250,25 @@ export default function PathwayView({ data, onNodeClick, selectedNode, selectedN
       ctx.lineWidth = lw;
 
       if (pw === 'chemistry') {
-        // Dashed line: 8px dash, 4px gap
+        // Dashed line
         ctx.setLineDash([8 * z, 4 * z]);
       } else if (pw === 'bridge') {
-        // Dotted line: 3px dot, 5px gap
+        // Dotted line
         ctx.setLineDash([3 * z, 5 * z]);
+      } else if (pw === 'balance') {
+        // Dash-dot pattern
+        ctx.setLineDash([10 * z, 3 * z, 3 * z, 3 * z]);
       } else {
+        // Tradition: solid
         ctx.setLineDash([]);
       }
 
-      if (pw === 'balance') {
-        // Double line: draw twice with perpendicular offset
+      if (false) {
+        // (removed double-line balance rendering)
         const dx = x2 - x1, dy = y2 - y1;
         const len = Math.sqrt(dx * dx + dy * dy) || 1;
         const nx = -dy / len, ny = dx / len;
-        const sep = 1.5 * z; // half-separation
+        const sep = 1.5 * z;
         ctx.setLineDash([]);
         ctx.lineWidth = Math.max(0.8, lw * 0.5);
 
@@ -510,7 +514,7 @@ export default function PathwayView({ data, onNodeClick, selectedNode, selectedN
               {label} — {PATHWAY_DESCRIPTIONS[key]}
               {key === 'chemistry' && ' (dashed)'}
               {key === 'bridge' && ' (dotted)'}
-              {key === 'balance' && ' (double)'}
+              {key === 'balance' && ' (dash-dot)'}
             </span>
           </div>
         ))}

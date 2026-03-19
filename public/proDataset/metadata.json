@@ -1,70 +1,70 @@
 {
-  "generatedAt": "2026-03-19T20:40:15.742Z",
-  "pipeline": "blend-v2 (perceptron)",
-  "perceptron": {
-    "weights": [
-      2,
-      0.5,
-      2.5,
-      1.5,
-      1,
-      0.8,
-      0.3,
-      1.2
-    ],
-    "bias": -3,
-    "featureNames": [
-      "x1_npmi",
-      "x2_freq",
-      "x3_chemical",
-      "x4_taste",
-      "x5_bridge",
-      "x6_cuisine",
-      "x7_hub_asymmetry",
-      "x8_compound_diversity"
-    ],
-    "trainingStatus": "untrained — using proposed initial weights"
-  },
-  "thresholds": {
-    "MIN_BLENDED_STRENGTH": 0.1,
-    "MAX_PAIRS": 40000,
-    "MIN_PAIRS_PER_INGREDIENT": 15
-  },
-  "featureSource": {
-    "file": "processed/pair-features.json",
-    "compoundSource": "builtin",
-    "fallbacksUsed": {
-      "x3_chemical": false,
-      "x3_jaccard": true,
-      "x4_taste": false,
-      "x6_cuisine": true,
-      "x8_compound_diversity": false
+  "version": "2.0",
+  "ingredientCount": 4488,
+  "pairingCount": 50312,
+  "novelPairingCount": 200,
+  "embeddingDim": 8,
+  "embeddingDim3D": 3,
+  "clusterCount": 8,
+  "clusters": [
+    {
+      "id": 0,
+      "label": "sweet-floral",
+      "color": "#FAC775"
+    },
+    {
+      "id": 1,
+      "label": "acidic-bright",
+      "color": "#5DCAA5"
+    },
+    {
+      "id": 2,
+      "label": "earthy-savory",
+      "color": "#97C459"
+    },
+    {
+      "id": 3,
+      "label": "bitter-umami",
+      "color": "#7F77DD"
+    },
+    {
+      "id": 4,
+      "label": "spicy-warm",
+      "color": "#F0997B"
+    },
+    {
+      "id": 5,
+      "label": "fresh-herbal",
+      "color": "#85B7EB"
+    },
+    {
+      "id": 6,
+      "label": "smoky-rich",
+      "color": "#888780"
+    },
+    {
+      "id": 7,
+      "label": "creamy-mild",
+      "color": "#F4C0D1"
     }
-  },
-  "totalIngredients": 4488,
-  "totalPairings": 50312,
-  "totalFeaturePairsEvaluated": 381845,
-  "pairsBelowThreshold": 0,
-  "sources": {
-    "recipenlg": {
-      "pairs": 381407,
-      "ingredients": 4017,
-      "totalRecipes": 2231142
-    },
-    "flavordb": {
-      "pairs": 0,
-      "ingredients": 0,
-      "totalRecipes": null
-    },
-    "mealdb": {
-      "pairs": 2022,
-      "ingredients": 721,
-      "totalRecipes": 593
-    },
-    "cocktaildb": {
-      "pairs": 204,
-      "ingredients": 266,
-      "totalRecipes": 426
-    }
-  }
+  ],
+  "edgeFeatures": [
+    "tradition",
+    "chemistry",
+    "novelty",
+    "balance",
+    "bridging",
+    "x1",
+    "x2",
+    "x3",
+    "x4",
+    "x5",
+    "x6",
+    "x7",
+    "x8"
+  ],
+  "gnnModel": "GAT",
+  "gnnTrainedAt": "2026-03-19T19:34:19.501819",
+  "distanceThreshold": 0.3,
+  "sceneScale": 40.0
 }

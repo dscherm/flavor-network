@@ -32,21 +32,23 @@ with open(os.path.join(DATA_DIR, 'ingredients.json')) as f:
 with open(os.path.join(DATA_DIR, 'pairings.json')) as f:
     pairings = json.load(f)
 
-# Our ingredients.json is an array of objects with 'name' (not 'id')
-# Normalize to use 'name' as the identifier
-ingredients = []
-for ing in ingredients_raw:
-    if isinstance(ing, dict):
-        ingredients.append(ing)
-    else:
-        # Handle if it's a different format
-        continue
+# Our ingredients.json is a dict keyed by ingredient name
+# Convert to array format for processing
+if isinstance(ingredients_raw, dict):
+    ingredients = []
+    for name, data in ingredients_raw.items():
+        entry = dict(data)
+        entry['name'] = name
+        ingredients.append(entry)
+elif isinstance(ingredients_raw, list):
+    ingredients = ingredients_raw
+else:
+    ingredients = []
 
 # Build name-to-index mapping
 id_to_idx = {}
 for i, ing in enumerate(ingredients):
-    name = ing.get('id') or ing.get('name') or ''
-    name = name.lower().strip()
+    name = (ing.get('id') or ing.get('name') or '').lower().strip()
     id_to_idx[name] = i
     ing['_idx'] = i
     ing['_id'] = name
@@ -303,10 +305,19 @@ for p in pairings:
     p['predictedNovelty'] = round(max(0.0, min(1.0, pred)), 3)
     p['flavorDistance'] = round(d, 4)
 
-# Write ingredients
+# Write ingredients — preserve original dict format
 out_ingredients = os.path.join(DATA_DIR, 'ingredients.json')
-with open(out_ingredients, 'w') as f:
-    json.dump(ingredients, f)
+if isinstance(ingredients_raw, dict):
+    out_dict = {}
+    for ing in ingredients:
+        name = ing['_id'] if '_id' in ing else ing.get('name', '')
+        entry = {k: v for k, v in ing.items() if k not in ('_idx', '_id', 'name')}
+        out_dict[name] = entry
+    with open(out_ingredients, 'w') as f:
+        json.dump(out_dict, f)
+else:
+    with open(out_ingredients, 'w') as f:
+        json.dump(ingredients, f)
 print(f"  Wrote {out_ingredients} ({len(ingredients)} ingredients)")
 
 # Write pairings (known + novel)
