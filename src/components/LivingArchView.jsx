@@ -233,7 +233,7 @@ export default function LivingArchView({
     const tmp = new THREE.Color();
 
     // Base edge opacity multiplier (10% of original brightness)
-    const BASE_EDGE_DIM = 0.1;
+    const BASE_EDGE_DIM = 0.2;
     // Edge opacity for popped-out ingredient connections
     const POPOUT_EDGE_OPACITY = 0.3;
 
