@@ -116,6 +116,19 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     }
   }, [node]);
 
+  // Build ingredient list for TasteRadar: selected ingredient + top 5 neighbors
+  // (must be before early return to satisfy rules of hooks)
+  const radarIngredients = useMemo(() => {
+    if (!node) return [];
+    const items = [node.name];
+    const sorted = neighbors
+      ? [...neighbors].sort((a, b) => b.strength - a.strength)
+      : [];
+    const top5 = sorted.slice(0, 5);
+    for (const n of top5) items.push(n.name);
+    return items;
+  }, [node, neighbors]);
+
   if (!node) return null;
 
   const { name, cuisines, taste, weight, volume, season, tips, pairingCount, affinities } = node;
@@ -125,17 +138,6 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     : [];
 
   const discoveryFact = getDiscoveryFact(node, neighbors);
-
-  // Build ingredient list for TasteRadar: selected ingredient + top 5 neighbors
-  const radarIngredients = useMemo(() => {
-    const items = [name];
-    const sorted = neighbors
-      ? [...neighbors].sort((a, b) => b.strength - a.strength)
-      : [];
-    const top5 = sorted.slice(0, 5);
-    for (const n of top5) items.push(n.name);
-    return items;
-  }, [name, neighbors]);
 
   // Embedded mode: just render content without fixed positioning
   if (embedded) {

@@ -184,9 +184,10 @@ class NodeMesh {
    * Dim all nodes to near-invisible. Call before setActivation to make selected network pop.
    */
   dimAll() {
-    const dimColor = new Color('#0a0a12');
     for (let i = 0; i < this._nodeList.length; i++) {
-      this._mesh.setColorAt(i, dimColor);
+      const base = this._defaultColors[i];
+      const dimmed = base.clone().multiplyScalar(0.15);
+      this._mesh.setColorAt(i, dimmed);
     }
     if (this._mesh.instanceColor) {
       this._mesh.instanceColor.needsUpdate = true;
@@ -199,7 +200,7 @@ class NodeMesh {
 
     // Restore original color and brighten based on intensity
     const base = this._defaultColors[index];
-    const activated = base.clone().lerp(new Color('#ffffff'), intensity * 0.4);
+    const activated = base.clone().lerp(new Color('#ffffff'), intensity * 0.6);
     this._mesh.setColorAt(index, activated);
 
     if (this._mesh.instanceColor) {
