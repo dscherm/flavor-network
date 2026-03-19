@@ -3,527 +3,527 @@
     "gin|lemon juice": {
       "count": 18,
       "pmi": 0.885739,
-      "strength": 0.192325
+      "strength": 0.454469
     },
     "gin|grenadine": {
       "count": 14,
       "pmi": 1.212829,
-      "strength": 0.263348
+      "strength": 0.496936
     },
     "grenadine|lemon juice": {
       "count": 8,
       "pmi": 1.136657,
-      "strength": 0.246808
+      "strength": 0.369364
     },
     "cream|gin": {
       "count": 5,
       "pmi": 0.158036,
-      "strength": 0.034315
+      "strength": 0.082944
     },
     "egg white|gin": {
       "count": 6,
       "pmi": 1.037742,
-      "strength": 0.22533
+      "strength": 0.298571
     },
     "egg white|grenadine": {
       "count": 5,
       "pmi": 2.195551,
-      "strength": 0.476731
+      "strength": 0.517073
     },
     "cream|milk": {
       "count": 3,
       "pmi": 1.336679,
-      "strength": 0.29024
+      "strength": 0.255447
     },
     "cream|egg white": {
       "count": 5,
       "pmi": 2.626185,
-      "strength": 0.570237
+      "strength": 0.608827
     },
     "gin|tonic water": {
       "count": 4,
       "pmi": 1.35967,
-      "strength": 0.295232
+      "strength": 0.30297
     },
     "lemon juice|rum": {
       "count": 7,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.084231
     },
     "grenadine|rum": {
       "count": 6,
       "pmi": 0.278013,
-      "strength": 0.060366
+      "strength": 0.129773
     },
     "cranberry juice|orange juice": {
       "count": 4,
       "pmi": 1.723482,
-      "strength": 0.374229
+      "strength": 0.376781
     },
     "orange juice|soda water": {
       "count": 4,
       "pmi": 0.608005,
-      "strength": 0.132019
+      "strength": 0.15047
     },
     "lemon juice|vodka": {
       "count": 7,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.084231
     },
     "egg white|rum": {
       "count": 5,
       "pmi": 1.062284,
-      "strength": 0.230659
+      "strength": 0.27561
     },
     "orange juice|rum": {
       "count": 8,
       "pmi": 0.220982,
-      "strength": 0.047983
+      "strength": 0.151195
     },
     "gin|maraschino liqueur": {
       "count": 8,
       "pmi": 1.774708,
-      "strength": 0.385351
+      "strength": 0.521387
     },
     "lemon juice|maraschino liqueur": {
       "count": 3,
       "pmi": 1.090853,
-      "strength": 0.236863
+      "strength": 0.208468
     },
     "lemon juice|triple sec": {
       "count": 5,
       "pmi": 0.88922,
-      "strength": 0.193081
+      "strength": 0.238736
     },
     "scotch|sweet vermouth": {
       "count": 4,
       "pmi": 2.786342,
-      "strength": 0.605013
+      "strength": 0.592417
     },
     "dry vermouth|scotch": {
       "count": 4,
       "pmi": 2.641952,
-      "strength": 0.573661
+      "strength": 0.563123
     },
     "dry vermouth|sweet vermouth": {
       "count": 3,
       "pmi": 1.679427,
-      "strength": 0.364663
+      "strength": 0.320948
     },
     "orange bitters|sweet vermouth": {
       "count": 3,
       "pmi": 2.749817,
-      "strength": 0.597082
+      "strength": 0.525505
     },
     "rum|triple sec": {
       "count": 6,
       "pmi": 0.708647,
-      "strength": 0.153872
+      "strength": 0.225452
     },
     "lime juice|rum": {
       "count": 13,
       "pmi": 1.303292,
-      "strength": 0.282991
+      "strength": 0.505963
     },
     "rum|sugar": {
       "count": 11,
       "pmi": 0.462822,
-      "strength": 0.100495
+      "strength": 0.253379
     },
     "mint|rum": {
       "count": 6,
       "pmi": 1.53177,
-      "strength": 0.332601
+      "strength": 0.408334
     },
     "lime juice|triple sec": {
       "count": 6,
       "pmi": 1.751716,
-      "strength": 0.380359
+      "strength": 0.457202
     },
     "lime juice|sugar": {
       "count": 7,
       "pmi": 0.853814,
-      "strength": 0.185393
+      "strength": 0.28105
     },
     "lime juice|mint": {
       "count": 3,
       "pmi": 1.574838,
-      "strength": 0.341953
+      "strength": 0.30096
     },
     "egg white|sugar": {
       "count": 3,
       "pmi": 0.768925,
-      "strength": 0.166961
+      "strength": 0.146946
     },
     "mint|sugar": {
       "count": 4,
       "pmi": 1.390414,
-      "strength": 0.301908
+      "strength": 0.309207
     },
     "cream|creme de cacao": {
       "count": 4,
       "pmi": 3.88922,
-      "strength": 0.844486
+      "strength": 0.816172
     },
     "cream|nutmeg": {
       "count": 5,
       "pmi": 3.211148,
-      "strength": 0.697253
+      "strength": 0.733464
     },
     "cream|kahlua": {
       "count": 3,
       "pmi": 1.626185,
-      "strength": 0.353102
+      "strength": 0.310773
     },
     "dry vermouth|lemon juice": {
       "count": 3,
       "pmi": 0.283499,
-      "strength": 0.061557
+      "strength": 0.054178
     },
     "dry vermouth|lemon": {
       "count": 5,
       "pmi": 0.806339,
-      "strength": 0.175085
+      "strength": 0.221077
     },
     "bourbon|lemon": {
       "count": 3,
       "pmi": 1.00226,
-      "strength": 0.217626
+      "strength": 0.191537
     },
     "lemon|lemon juice": {
       "count": 4,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.027116
     },
     "lemon|sweet vermouth": {
       "count": 4,
       "pmi": 0.628801,
-      "strength": 0.136535
+      "strength": 0.154689
     },
     "orange|sweet vermouth": {
       "count": 3,
       "pmi": 1.679427,
-      "strength": 0.364663
+      "strength": 0.320948
     },
     "lemon|orange": {
       "count": 5,
       "pmi": 0.806339,
-      "strength": 0.175085
+      "strength": 0.221077
     },
     "dry vermouth|whiskey": {
       "count": 3,
       "pmi": 1.839892,
-      "strength": 0.399505
+      "strength": 0.351614
     },
     "gin|sweet vermouth": {
       "count": 8,
       "pmi": 1.111743,
-      "strength": 0.241398
+      "strength": 0.363428
     },
     "bitter|sweet vermouth": {
       "count": 3,
       "pmi": 2.371305,
-      "strength": 0.514894
+      "strength": 0.45317
     },
     "bitter|gin": {
       "count": 7,
       "pmi": 1.466585,
-      "strength": 0.318447
+      "strength": 0.422304
     },
     "grenadine|orange juice": {
       "count": 8,
       "pmi": 1.354249,
-      "strength": 0.294055
+      "strength": 0.421208
     },
     "grenadine|pineapple juice": {
       "count": 7,
       "pmi": 2.195551,
-      "strength": 0.476731
+      "strength": 0.590343
     },
     "orange juice|pineapple juice": {
       "count": 8,
       "pmi": 1.916127,
-      "strength": 0.416059
+      "strength": 0.555082
     },
     "baileys irish cream|kahlua": {
       "count": 7,
       "pmi": 3.465249,
-      "strength": 0.752427
+      "strength": 0.88303
     },
     "kahlua|sambuca": {
       "count": 4,
       "pmi": 3.564785,
-      "strength": 0.77404
+      "strength": 0.75035
     },
     "gin|orange bitters": {
       "count": 7,
       "pmi": 1.845097,
-      "strength": 0.400635
+      "strength": 0.509557
     },
     "gin|green chartreuse": {
       "count": 3,
       "pmi": 1.622705,
-      "strength": 0.352346
+      "strength": 0.310108
     },
     "gin|triple sec": {
       "count": 9,
       "pmi": 1.006033,
-      "strength": 0.218445
+      "strength": 0.358365
     },
     "egg white|lemon juice": {
       "count": 4,
       "pmi": 1.183963,
-      "strength": 0.25708
+      "strength": 0.267322
     },
     "gin|simple syrup": {
       "count": 4,
       "pmi": 0.35967,
-      "strength": 0.078097
+      "strength": 0.100087
     },
     "lemon juice|simple syrup": {
       "count": 5,
       "pmi": 1.412782,
-      "strength": 0.306765
+      "strength": 0.35029
     },
     "bitter|scotch": {
       "count": 3,
       "pmi": 2.918793,
-      "strength": 0.633772
+      "strength": 0.557798
     },
     "bitter|dry vermouth": {
       "count": 3,
       "pmi": 2.226915,
-      "strength": 0.483542
+      "strength": 0.425576
     },
     "blue curacao|gin": {
       "count": 3,
       "pmi": 1.622705,
-      "strength": 0.352346
+      "strength": 0.310108
     },
     "gin|maraschino cherry": {
       "count": 6,
       "pmi": 1.137278,
-      "strength": 0.246943
+      "strength": 0.320686
     },
     "gin|lemon": {
       "count": 17,
       "pmi": 0.589152,
-      "strength": 0.127926
+      "strength": 0.355993
     },
     "bitter|lemon": {
       "count": 3,
       "pmi": 0.761251,
-      "strength": 0.165294
+      "strength": 0.145479
     },
     "dry vermouth|maraschino liqueur": {
       "count": 3,
       "pmi": 2.342392,
-      "strength": 0.508616
+      "strength": 0.447644
     },
     "maraschino cherry|maraschino liqueur": {
       "count": 3,
       "pmi": 2.927355,
-      "strength": 0.635632
+      "strength": 0.559434
     },
     "dry vermouth|gin": {
       "count": 9,
       "pmi": 1.137278,
-      "strength": 0.246943
+      "strength": 0.39059
     },
     "pineapple juice|rum": {
       "count": 7,
       "pmi": 1.062284,
-      "strength": 0.230659
+      "strength": 0.329105
     },
     "lime juice|pineapple juice": {
       "count": 3,
       "pmi": 0.882961,
-      "strength": 0.191722
+      "strength": 0.168739
     },
     "rum|vodka": {
       "count": 6,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.068004
     },
     "orange juice|vodka": {
       "count": 9,
       "pmi": 0.524174,
-      "strength": 0.113817
+      "strength": 0.240051
     },
     "orange juice|peach schnapp": {
       "count": 3,
       "pmi": 2.086052,
-      "strength": 0.452955
+      "strength": 0.398656
     },
     "baileys irish cream|sambuca": {
       "count": 4,
       "pmi": 3.827819,
-      "strength": 0.831154
+      "strength": 0.803715
     },
     "lemon|whiskey": {
       "count": 7,
       "pmi": 1.596621,
-      "strength": 0.346682
+      "strength": 0.452279
     },
     "powdered sugar|whiskey": {
       "count": 4,
       "pmi": 1.946807,
-      "strength": 0.42272
+      "strength": 0.42209
     },
     "cherry|whiskey": {
       "count": 4,
       "pmi": 3.062284,
-      "strength": 0.66493
+      "strength": 0.648401
     },
     "lemon|powdered sugar": {
       "count": 16,
       "pmi": 2.176289,
-      "strength": 0.472549
+      "strength": 0.803868
     },
     "egg white|lemon": {
       "count": 6,
       "pmi": 1.554801,
-      "strength": 0.337602
+      "strength": 0.413451
     },
     "cherry|lemon": {
       "count": 5,
       "pmi": 1.613694,
-      "strength": 0.35039
+      "strength": 0.393098
     },
     "egg white|powdered sugar": {
       "count": 5,
       "pmi": 2.449307,
-      "strength": 0.531831
+      "strength": 0.57114
     },
     "cherry|powdered sugar": {
       "count": 4,
       "pmi": 2.449307,
-      "strength": 0.531831
+      "strength": 0.524039
     },
     "orange juice|sweet and sour": {
       "count": 3,
       "pmi": 2.086052,
-      "strength": 0.452955
+      "strength": 0.398656
     },
     "cherry|gin": {
       "count": 4,
       "pmi": 0.774708,
-      "strength": 0.168216
+      "strength": 0.184291
     },
     "maraschino liqueur|orange bitters": {
       "count": 4,
       "pmi": 3.827819,
-      "strength": 0.831154
+      "strength": 0.803715
     },
     "lemon juice|orange bitters": {
       "count": 3,
       "pmi": 1.353888,
-      "strength": 0.293977
+      "strength": 0.258736
     },
     "coffee|milk": {
       "count": 3,
       "pmi": 1.400809,
-      "strength": 0.304165
+      "strength": 0.267702
     },
     "lime|sugar": {
       "count": 6,
       "pmi": 0.768925,
-      "strength": 0.166961
+      "strength": 0.238845
     },
     "cachaca|lime": {
       "count": 3,
       "pmi": 3.827819,
-      "strength": 0.831154
+      "strength": 0.731518
     },
     "ginger ale|rum": {
       "count": 3,
       "pmi": 0.647247,
-      "strength": 0.14054
+      "strength": 0.123692
     },
     "lime|rum": {
       "count": 9,
       "pmi": 0.910281,
-      "strength": 0.197654
+      "strength": 0.334854
     },
     "coca-cola|rum": {
       "count": 4,
       "pmi": 1.325319,
-      "strength": 0.287773
+      "strength": 0.296001
     },
     "cream|rum": {
       "count": 4,
       "pmi": 0.123685,
-      "strength": 0.026856
+      "strength": 0.05221
     },
     "maraschino liqueur|rum": {
       "count": 3,
       "pmi": 0.647247,
-      "strength": 0.14054
+      "strength": 0.123692
     },
     "lime juice|maraschino liqueur": {
       "count": 3,
       "pmi": 1.690316,
-      "strength": 0.367027
+      "strength": 0.323029
     },
     "lemon|rum": {
       "count": 10,
       "pmi": 0.111194,
-      "strength": 0.024144
+      "strength": 0.150998
     },
     "powdered sugar|rum": {
       "count": 7,
       "pmi": 0.754162,
-      "strength": 0.163755
+      "strength": 0.258078
     },
     "port|powdered sugar": {
       "count": 3,
       "pmi": 3.297304,
-      "strength": 0.715961
+      "strength": 0.630133
     },
     "carbonated water|lemon": {
       "count": 9,
       "pmi": 2.461691,
-      "strength": 0.53452
+      "strength": 0.715782
     },
     "carbonated water|powdered sugar": {
       "count": 9,
       "pmi": 3.619232,
-      "strength": 0.785863
+      "strength": 1
     },
     "carbonated water|egg white": {
       "count": 3,
       "pmi": 2.827819,
-      "strength": 0.614019
+      "strength": 0.540412
     },
     "lime juice|vodka": {
       "count": 5,
       "pmi": 0.058047,
-      "strength": 0.012604
+      "strength": 0.06164
     },
     "cranberry juice|vodka": {
       "count": 5,
       "pmi": 1.517479,
-      "strength": 0.329498
+      "strength": 0.372598
     },
     "coffee|sugar": {
       "count": 8,
       "pmi": 1.631422,
-      "strength": 0.354239
+      "strength": 0.487248
     },
     "sugar|vanilla": {
       "count": 7,
       "pmi": 2.313246,
-      "strength": 0.502287
+      "strength": 0.617474
     },
     "sugar|vodka": {
       "count": 4,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.027116
     },
     "coffee|vanilla": {
       "count": 4,
       "pmi": 2.690316,
-      "strength": 0.584162
+      "strength": 0.572935
     },
     "coffee|vodka": {
       "count": 3,
@@ -533,122 +533,122 @@
     "vanilla|vodka": {
       "count": 3,
       "pmi": 0.780513,
-      "strength": 0.169477
+      "strength": 0.14916
     },
     "chocolate|milk": {
       "count": 4,
       "pmi": 3.275278,
-      "strength": 0.711178
+      "strength": 0.691614
     },
     "gin|mint": {
       "count": 3,
       "pmi": 0.244193,
-      "strength": 0.053023
+      "strength": 0.046667
     },
     "lime|powdered sugar": {
       "count": 3,
       "pmi": 0.712342,
-      "strength": 0.154674
+      "strength": 0.136133
     },
     "gin|lime": {
       "count": 5,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.049272
     },
     "ginger ale|lime": {
       "count": 3,
       "pmi": 1.827819,
-      "strength": 0.396884
+      "strength": 0.349306
     },
     "dry vermouth|olive": {
       "count": 4,
       "pmi": 4.020464,
-      "strength": 0.872984
+      "strength": 0.842799
     },
     "lemon|scotch": {
       "count": 4,
       "pmi": 1.176289,
-      "strength": 0.255414
+      "strength": 0.265765
     },
     "lemon|vodka": {
       "count": 6,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.068004
     },
     "angostura bitters|lime juice": {
       "count": 4,
       "pmi": 1.882961,
-      "strength": 0.408857
+      "strength": 0.409137
     },
     "cream|vanilla": {
       "count": 3,
       "pmi": 2.211148,
-      "strength": 0.480118
+      "strength": 0.422563
     },
     "milk|vanilla": {
       "count": 5,
       "pmi": 3.012244,
-      "strength": 0.654064
+      "strength": 0.691084
     },
     "chocolate|vanilla": {
       "count": 3,
       "pmi": 3.73471,
-      "strength": 0.810937
+      "strength": 0.713724
     },
     "milk|sugar": {
       "count": 7,
       "pmi": 1.438777,
-      "strength": 0.312409
+      "strength": 0.415893
     },
     "bourbon|sugar": {
       "count": 4,
       "pmi": 1.631422,
-      "strength": 0.354239
+      "strength": 0.358104
     },
     "cream|sugar": {
       "count": 3,
       "pmi": 0.152254,
-      "strength": 0.03306
+      "strength": 0.029097
     },
     "milk|rum": {
       "count": 4,
       "pmi": 0.187815,
-      "strength": 0.040781
+      "strength": 0.065221
     },
     "milk|nutmeg": {
       "count": 5,
       "pmi": 3.275278,
-      "strength": 0.711178
+      "strength": 0.747128
     },
     "rum|vanilla": {
       "count": 3,
       "pmi": 0.647247,
-      "strength": 0.14054
+      "strength": 0.123692
     },
     "nutmeg|rum": {
       "count": 4,
       "pmi": 1.325319,
-      "strength": 0.287773
+      "strength": 0.296001
     },
     "brandy|lemon": {
       "count": 4,
       "pmi": 1.176289,
-      "strength": 0.255414
+      "strength": 0.265765
     },
     "carbonated water|gin": {
       "count": 8,
       "pmi": 1.774708,
-      "strength": 0.385351
+      "strength": 0.521387
     },
     "kahlua|vodka": {
       "count": 3,
       "pmi": 0.195551,
-      "strength": 0.042461
+      "strength": 0.037371
     },
     "simple syrup|vodka": {
       "count": 5,
       "pmi": 1.102441,
-      "strength": 0.239379
+      "strength": 0.284166
     },
     "coffee|rum": {
       "count": 3,
@@ -658,167 +658,167 @@
     "egg|milk": {
       "count": 3,
       "pmi": 3.052886,
-      "strength": 0.662889
+      "strength": 0.583424
     },
     "egg|nutmeg": {
       "count": 4,
       "pmi": 4.605427,
-      "strength": 1
+      "strength": 0.961478
     },
     "apricot brandy|gin": {
       "count": 3,
       "pmi": 1.622705,
-      "strength": 0.352346
+      "strength": 0.310108
     },
     "lemon juice|sugar": {
       "count": 10,
       "pmi": 0.768925,
-      "strength": 0.166961
+      "strength": 0.31703
     },
     "amaretto|cream": {
       "count": 5,
       "pmi": 2.285148,
-      "strength": 0.496186
+      "strength": 0.536163
     },
     "gin|sugar": {
       "count": 7,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.084231
     },
     "gin|orange": {
       "count": 9,
       "pmi": 1.137278,
-      "strength": 0.246943
+      "strength": 0.39059
     },
     "orange|sugar": {
       "count": 9,
       "pmi": 1.868461,
-      "strength": 0.405709
+      "strength": 0.570122
     },
     "maraschino cherry|sugar": {
       "count": 7,
       "pmi": 2.090853,
-      "strength": 0.453998
+      "strength": 0.566208
     },
     "lemon juice|orange": {
       "count": 8,
       "pmi": 1.698536,
-      "strength": 0.368812
+      "strength": 0.503238
     },
     "lemon juice|maraschino cherry": {
       "count": 6,
       "pmi": 1.868461,
-      "strength": 0.405709
+      "strength": 0.483141
     },
     "maraschino cherry|orange": {
       "count": 8,
       "pmi": 3.535037,
-      "strength": 0.767581
+      "strength": 0.940805
     },
     "angostura bitters|vodka": {
       "count": 3,
       "pmi": 0.558121,
-      "strength": 0.121188
+      "strength": 0.10666
     },
     "tonic water|vodka": {
       "count": 4,
       "pmi": 1.780513,
-      "strength": 0.386612
+      "strength": 0.388352
     },
     "lemon|lime": {
       "count": 5,
       "pmi": 0.291766,
-      "strength": 0.063353
+      "strength": 0.111438
     },
     "lemon|sugar": {
       "count": 9,
       "pmi": 0.402797,
-      "strength": 0.087461
+      "strength": 0.210248
     },
     "soda water|sugar": {
       "count": 8,
       "pmi": 1.390414,
-      "strength": 0.301908
+      "strength": 0.429825
     },
     "apple|lemon": {
       "count": 3,
       "pmi": 2.876729,
-      "strength": 0.624639
+      "strength": 0.549759
     },
     "lemon|soda water": {
       "count": 5,
       "pmi": 0.498217,
-      "strength": 0.10818
+      "strength": 0.155426
     },
     "rum|soda water": {
       "count": 5,
       "pmi": 0.268735,
-      "strength": 0.058352
+      "strength": 0.106531
     },
     "cherry|sugar": {
       "count": 3,
       "pmi": 1.090853,
-      "strength": 0.236863
+      "strength": 0.208468
     },
     "amaretto|vodka": {
       "count": 5,
       "pmi": 0.854514,
-      "strength": 0.185545
+      "strength": 0.231341
     },
     "gin|lime juice": {
       "count": 8,
       "pmi": 0.315276,
-      "strength": 0.068458
+      "strength": 0.173662
     },
     "lime juice|simple syrup": {
       "count": 4,
       "pmi": 1.690316,
-      "strength": 0.367027
+      "strength": 0.370052
     },
     "cream|vodka": {
       "count": 4,
       "pmi": 0.256951,
-      "strength": 0.055793
+      "strength": 0.079247
     },
     "gin|powdered sugar": {
       "count": 9,
       "pmi": 0.829155,
-      "strength": 0.180039
+      "strength": 0.314935
     },
     "red wine|sugar": {
       "count": 5,
       "pmi": 2.242857,
-      "strength": 0.487003
+      "strength": 0.527152
     },
     "cinnamon|red wine": {
       "count": 3,
       "pmi": 4.564785,
-      "strength": 0.991175
+      "strength": 0.872356
     },
     "lemon|red wine": {
       "count": 5,
       "pmi": 2.028732,
-      "strength": 0.440509
+      "strength": 0.481529
     },
     "cinnamon|sugar": {
       "count": 4,
       "pmi": 2.505891,
-      "strength": 0.544117
+      "strength": 0.535518
     },
     "cinnamon|lemon": {
       "count": 3,
       "pmi": 1.876729,
-      "strength": 0.407504
+      "strength": 0.358653
     },
     "gin|soda water": {
       "count": 7,
       "pmi": 0.466585,
-      "strength": 0.101312
+      "strength": 0.191787
     },
     "lime|soda water": {
       "count": 6,
       "pmi": 1.712342,
-      "strength": 0.37181
+      "strength": 0.448454
     },
     "gin|pineapple juice": {
       "count": 3,
@@ -828,12 +828,12 @@
     "pineapple juice|triple sec": {
       "count": 3,
       "pmi": 1.403793,
-      "strength": 0.304813
+      "strength": 0.268273
     },
     "grenadine|proof rum": {
       "count": 3,
       "pmi": 1.780513,
-      "strength": 0.386612
+      "strength": 0.340266
     },
     "orange|vodka": {
       "count": 3,
@@ -843,27 +843,27 @@
     "grapefruit juice|lime juice": {
       "count": 3,
       "pmi": 1.95335,
-      "strength": 0.424141
+      "strength": 0.373296
     },
     "coffee|whipped cream": {
       "count": 4,
       "pmi": 3.95335,
-      "strength": 0.858411
+      "strength": 0.829183
     },
     "orange|orange juice": {
       "count": 3,
       "pmi": 0.50109,
-      "strength": 0.108804
+      "strength": 0.095761
     },
     "coca-cola|vodka": {
       "count": 3,
       "pmi": 1.043548,
-      "strength": 0.226591
+      "strength": 0.199428
     },
     "gin|vodka": {
       "count": 6,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.068004
     },
     "soda water|vodka": {
       "count": 3,
@@ -873,57 +873,57 @@
     "simple syrup|soda water": {
       "count": 3,
       "pmi": 1.619232,
-      "strength": 0.351592
+      "strength": 0.309444
     },
     "lemon juice|soda water": {
       "count": 8,
       "pmi": 1.390414,
-      "strength": 0.301908
+      "strength": 0.429825
     },
     "maraschino cherry|soda water": {
       "count": 3,
       "pmi": 1.811877,
-      "strength": 0.393422
+      "strength": 0.34626
     },
     "orange|soda water": {
       "count": 4,
       "pmi": 1.641952,
-      "strength": 0.356526
+      "strength": 0.36024
     },
     "triple sec|vodka": {
       "count": 5,
       "pmi": 0.578879,
-      "strength": 0.125695
+      "strength": 0.172612
     },
     "amaretto|cranberry juice": {
       "count": 3,
       "pmi": 2.486782,
-      "strength": 0.539968
+      "strength": 0.475238
     },
     "sugar|yoghurt": {
       "count": 3,
       "pmi": 1.675816,
-      "strength": 0.363879
+      "strength": 0.320258
     },
     "cream|powdered sugar": {
       "count": 3,
       "pmi": 1.09567,
-      "strength": 0.237909
+      "strength": 0.209389
     },
     "tequila|vodka": {
       "count": 3,
       "pmi": 0.278013,
-      "strength": 0.060366
+      "strength": 0.05313
     },
     "gin|rum": {
       "count": 4,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.027116
     },
     "rum|tequila": {
       "count": 3,
       "pmi": 0.144746,
-      "strength": 0.03143
+      "strength": 0.027662
     },
     "gin|tequila": {
       "count": 3,
@@ -933,57 +933,57 @@
     "coca-cola|gin": {
       "count": 3,
       "pmi": 0.622705,
-      "strength": 0.135211
+      "strength": 0.119002
     },
     "lemon|tequila": {
       "count": 3,
       "pmi": 0.374228,
-      "strength": 0.081258
+      "strength": 0.071517
     },
     "coca-cola|lemon": {
       "count": 3,
       "pmi": 1.139763,
-      "strength": 0.247483
+      "strength": 0.217815
     },
     "lime|mint": {
       "count": 3,
       "pmi": 1.712342,
-      "strength": 0.37181
+      "strength": 0.327238
     },
     "mint|soda water": {
       "count": 3,
       "pmi": 1.918793,
-      "strength": 0.416637
+      "strength": 0.366692
     },
     "lime juice|tequila": {
       "count": 6,
       "pmi": 2.187815,
-      "strength": 0.475052
+      "strength": 0.554095
     },
     "grenadine|tequila": {
       "count": 3,
       "pmi": 1.278013,
-      "strength": 0.277502
+      "strength": 0.244235
     },
     "cardamom|sugar": {
       "count": 3,
       "pmi": 3.090853,
-      "strength": 0.671133
+      "strength": 0.590679
     },
     "angostura bitters|rum": {
       "count": 4,
       "pmi": 0.839892,
-      "strength": 0.18237
+      "strength": 0.197516
     },
     "gin|orange juice": {
       "count": 4,
       "pmi": 0,
-      "strength": 0
+      "strength": 0.027116
     },
     "maraschino cherry|rum": {
       "count": 3,
       "pmi": 0.424854,
-      "strength": 0.092251
+      "strength": 0.081192
     },
     "lemon juice|orange juice": {
       "count": 3,
@@ -993,32 +993,32 @@
     "orange juice|simple syrup": {
       "count": 3,
       "pmi": 0.893407,
-      "strength": 0.19399
+      "strength": 0.170735
     },
     "apricot brandy|orange juice": {
       "count": 3,
       "pmi": 2.571479,
-      "strength": 0.558359
+      "strength": 0.491424
     },
     "egg|powdered sugar": {
       "count": 4,
       "pmi": 3.226915,
-      "strength": 0.700677
+      "strength": 0.681802
     },
     "nutmeg|powdered sugar": {
       "count": 4,
       "pmi": 2.712342,
-      "strength": 0.588945
+      "strength": 0.577404
     },
     "orange juice|red wine": {
       "count": 3,
       "pmi": 1.723482,
-      "strength": 0.374229
+      "strength": 0.329367
     },
     "orange juice|tequila": {
       "count": 3,
       "pmi": 0.805945,
-      "strength": 0.174999
+      "strength": 0.154021
     }
   },
   "ingredients": {

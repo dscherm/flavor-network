@@ -307,7 +307,7 @@ export default function LivingArchView({
       const taste = TASTE_ORDER[i];
       const axis = TASTE_AXES[taste];
       const hex = TASTE_HEX[taste] || '#ffffff';
-      const sprite = makeLabel(taste.toUpperCase(), hex, 12);
+      const sprite = makeLabel(taste.toUpperCase(), hex, 24);
       // Position at the extreme of the taste axis in 3D mode
       sprite.position.set(axis[0] * 60, axis[1] * 60, axis[2] * 60);
       sprite.userData = { taste, axis3D: [axis[0]*60, axis[1]*60, axis[2]*60], isLabel: true };
