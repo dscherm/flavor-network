@@ -1,0 +1,545 @@
+import { useRef, useEffect, useCallback, useState } from 'react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { computeTastePositions, TASTE_AXES, scoreIngredient } from '../data/tastePositioning.js';
+import { getColorForNode } from '../three/NodeMesh.js';
+
+// --- Constants ---
+
+const TASTE_ORDER = ['sweet','sour','bitter','salty','umami','spicy','pungent','astringent'];
+const TASTE_HEX = {
+  sweet:'#fb92b4', sour:'#fde047', bitter:'#a78bfa', salty:'#93c5fd',
+  umami:'#f9a870', spicy:'#f87171', pungent:'#b48c64', astringent:'#4ade80',
+};
+const CATEGORY_RADII = {
+  protein:40, meat:40, seafood:38, dairy:32, vegetable:35, fruit:30,
+  herb:28, spice:25, grain:33, nut:27, condiment:22, oil:20, default:30,
+};
+const TRANSITION_DURATION = 1500; // ms
+
+// --- Helpers ---
+
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2;
+}
+
+function hashStr(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return h;
+}
+
+function seededRng(seed) {
+  let st = seed >>> 0;
+  return () => { st = (1664525 * st + 1013904223) % 4294967296; return st / 4294967296; };
+}
+
+/** Create a billboard sprite with text */
+function makeLabel(text, color, size) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const fontSize = 48;
+  canvas.width = 512; canvas.height = 96;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = `bold ${fontSize}px "Inter", "Segoe UI", sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.shadowColor = color; ctx.shadowBlur = 12;
+  ctx.fillText(text, canvas.width/2, canvas.height/2);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.85 });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(size, size * 96/512, 1);
+  return sprite;
+}
+
+/** Compute 2D wheel positions for all nodes */
+function computeWheelPositions(nodes) {
+  const positions = {};
+  const sectorAngle = (Math.PI * 2) / TASTE_ORDER.length; // 45 deg
+
+  for (const [name, node] of nodes) {
+    const { channels } = scoreIngredient(name, node);
+    // Determine dominant tastes and average angle
+    let totalWeight = 0;
+    let ax = 0, ay = 0; // unit-circle accumulator for circular mean
+    for (let i = 0; i < TASTE_ORDER.length; i++) {
+      const w = channels[TASTE_ORDER[i]] || 0;
+      if (w > 0) {
+        const angle = i * sectorAngle;
+        ax += Math.cos(angle) * w;
+        ay += Math.sin(angle) * w;
+        totalWeight += w;
+      }
+    }
+    const rng = seededRng(hashStr(name));
+    let theta;
+    if (totalWeight > 0) {
+      theta = Math.atan2(ay, ax);
+    } else {
+      // No taste info -- hash to a random angle
+      theta = rng() * Math.PI * 2;
+    }
+
+    // Radial position by category
+    const cat = (node.category || 'default').toLowerCase();
+    let radius = CATEGORY_RADII.default;
+    for (const [k, r] of Object.entries(CATEGORY_RADII)) {
+      if (cat.includes(k)) { radius = r; break; }
+    }
+
+    // Jitter to prevent overlap
+    const jr = (rng() - 0.5) * 8;
+    const jt = (rng() - 0.5) * 0.3;
+    const r = radius + jr;
+    const t = theta + jt;
+
+    positions[name] = [r * Math.cos(t), 0, r * Math.sin(t)];
+  }
+  return positions;
+}
+
+// ==========================================================================
+// Component
+// ==========================================================================
+
+export default function LivingArchView({
+  data,
+  onNodeClick,
+  selectedNode,
+  selectedNodes = [],
+  showEdges = true,
+  showParticles = true,
+  filterTaste = '',
+}) {
+  const containerRef = useRef(null);
+  const stateRef = useRef(null); // holds all Three.js state
+  const [mode, setMode] = useState('neural'); // 'neural' | 'wheel'
+  const modeRef = useRef('neural');
+
+  // Keep modeRef in sync for use inside animation loop
+  useEffect(() => { modeRef.current = mode; }, [mode]);
+
+  // ---- Build scene ----
+  useEffect(() => {
+    if (!containerRef.current || !data) return;
+    const { graph } = data;
+    const nodeArray = Array.from(graph.nodes.values());
+    const count = nodeArray.length;
+    if (count === 0) return;
+
+    // Positions
+    let posData = data.positions;
+    if (!posData || !posData.positions) posData = computeTastePositions(graph.nodes, graph.edges, 50);
+    const pos3D = posData.positions || posData;
+    const pos2D = computeWheelPositions(graph.nodes);
+
+    // Name index map
+    const nameIdx = new Map();
+    nodeArray.forEach((n, i) => nameIdx.set(n.name, i));
+
+    // Float32Arrays for both position sets
+    const posA = new Float32Array(count * 3);
+    const posB = new Float32Array(count * 3);
+    const curPos = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      const name = nodeArray[i].name;
+      const a = pos3D[name] || [0,0,0];
+      const b = pos2D[name] || [0,0,0];
+      posA[i*3] = a[0]; posA[i*3+1] = a[1]; posA[i*3+2] = a[2];
+      posB[i*3] = b[0]; posB[i*3+1] = b[1]; posB[i*3+2] = b[2];
+      curPos[i*3] = a[0]; curPos[i*3+1] = a[1]; curPos[i*3+2] = a[2];
+    }
+
+    // --- Renderer, Scene, Camera ---
+    const el = containerRef.current;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0a0f);
+
+    const camera = new THREE.PerspectiveCamera(60, el.clientWidth/el.clientHeight, 0.1, 2000);
+    camera.position.set(0, 40, 120);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(el.clientWidth, el.clientHeight);
+    el.appendChild(renderer.domElement);
+
+    // Post-processing
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(el.clientWidth, el.clientHeight), 1.5, 0.4, 0.85));
+
+    // Lights
+    scene.add(new THREE.AmbientLight(0x404060, 1.0));
+    const pl1 = new THREE.PointLight(0x4f8fff, 2.0, 500); pl1.position.set(50, 80, 100); scene.add(pl1);
+    const pl2 = new THREE.PointLight(0xff6b9d, 1.5, 500); pl2.position.set(-80, -50, -60); scene.add(pl2);
+
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; controls.dampingFactor = 0.05;
+    controls.minDistance = 10; controls.maxDistance = 300;
+
+    // --- InstancedMesh for nodes ---
+    const geo = new THREE.SphereGeometry(1, 16, 16);
+    const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+    const mesh = new THREE.InstancedMesh(geo, mat, count);
+    mesh.frustumCulled = true;
+    const dummy = new THREE.Object3D();
+    const defaultColors = [];
+
+    for (let i = 0; i < count; i++) {
+      const node = nodeArray[i];
+      dummy.position.set(curPos[i*3], curPos[i*3+1], curPos[i*3+2]);
+      const pc = node.pairingCount || 0;
+      const s = Math.max(0.3, Math.min(2.0, Math.sqrt(pc) * 0.15));
+      dummy.scale.set(s, s, s);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+      const c = getColorForNode(node);
+      defaultColors.push(c.clone());
+      mesh.setColorAt(i, c);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    scene.add(mesh);
+
+    // --- Edges (BufferGeometry + LineSegments) ---
+    const validEdges = [];
+    for (const edge of graph.edges) {
+      const si = nameIdx.get(edge.source);
+      const ti = nameIdx.get(edge.target);
+      if (si !== undefined && ti !== undefined) validEdges.push({ edge, si, ti });
+    }
+
+    const edgeVerts = new Float32Array(validEdges.length * 6);
+    const edgeColors = new Float32Array(validEdges.length * 6);
+    const edgeOpacities = new Float32Array(validEdges.length * 2);
+    const baseC = new THREE.Color('#1a3a5c');
+    const brightC = new THREE.Color('#4f8fff');
+    const tmp = new THREE.Color();
+
+    function updateEdgePositions() {
+      for (let i = 0; i < validEdges.length; i++) {
+        const { si, ti, edge } = validEdges[i];
+        const o = i * 6;
+        edgeVerts[o]   = curPos[si*3];   edgeVerts[o+1] = curPos[si*3+1]; edgeVerts[o+2] = curPos[si*3+2];
+        edgeVerts[o+3] = curPos[ti*3];   edgeVerts[o+4] = curPos[ti*3+1]; edgeVerts[o+5] = curPos[ti*3+2];
+        const str = edge.strength || 0;
+        tmp.copy(baseC).lerp(brightC, str);
+        edgeColors[o]   = tmp.r; edgeColors[o+1] = tmp.g; edgeColors[o+2] = tmp.b;
+        edgeColors[o+3] = tmp.r; edgeColors[o+4] = tmp.g; edgeColors[o+5] = tmp.b;
+        const op = 0.025 + 0.175 * str;
+        edgeOpacities[i*2] = op; edgeOpacities[i*2+1] = op;
+      }
+    }
+    updateEdgePositions();
+
+    const edgeGeo = new THREE.BufferGeometry();
+    edgeGeo.setAttribute('position', new THREE.Float32BufferAttribute(edgeVerts, 3));
+    edgeGeo.setAttribute('aColor', new THREE.Float32BufferAttribute(edgeColors, 3));
+    edgeGeo.setAttribute('aOpacity', new THREE.Float32BufferAttribute(edgeOpacities, 1));
+
+    const edgeMat = new THREE.ShaderMaterial({
+      vertexShader: `
+        attribute vec3 aColor;
+        attribute float aOpacity;
+        varying vec3 vColor;
+        varying float vOpacity;
+        void main() {
+          vColor = aColor;
+          vOpacity = aOpacity;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        varying float vOpacity;
+        void main() { gl_FragColor = vec4(vColor, vOpacity); }
+      `,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+    const edgeMesh = new THREE.LineSegments(edgeGeo, edgeMat);
+    scene.add(edgeMesh);
+
+    // --- Taste Region Labels (Sprites) ---
+    const labelGroup = new THREE.Group();
+    for (let i = 0; i < TASTE_ORDER.length; i++) {
+      const taste = TASTE_ORDER[i];
+      const axis = TASTE_AXES[taste];
+      const hex = TASTE_HEX[taste] || '#ffffff';
+      const sprite = makeLabel(taste.toUpperCase(), hex, 12);
+      // Position at the extreme of the taste axis in 3D mode
+      sprite.position.set(axis[0] * 60, axis[1] * 60, axis[2] * 60);
+      sprite.userData = { taste, axis3D: [axis[0]*60, axis[1]*60, axis[2]*60] };
+      labelGroup.add(sprite);
+    }
+    scene.add(labelGroup);
+
+    // --- Sector lines for wheel mode (initially invisible) ---
+    const sectorGroup = new THREE.Group();
+    sectorGroup.visible = false;
+    const sectorAngle = (Math.PI * 2) / TASTE_ORDER.length;
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x333355, transparent: true, opacity: 0.4 });
+    for (let i = 0; i < TASTE_ORDER.length; i++) {
+      const angle = i * sectorAngle;
+      const pts = [new THREE.Vector3(0, 0.1, 0), new THREE.Vector3(Math.cos(angle)*50, 0.1, Math.sin(angle)*50)];
+      const lg = new THREE.BufferGeometry().setFromPoints(pts);
+      sectorGroup.add(new THREE.Line(lg, lineMat));
+    }
+    scene.add(sectorGroup);
+
+    // --- Raycasting ---
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function raycast(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObject(mesh);
+      return hits.length > 0 ? hits[0].instanceId : -1;
+    }
+
+    function onClick(event) {
+      const idx = raycast(event);
+      if (onNodeClick) onNodeClick(idx >= 0 ? nodeArray[idx] : null);
+    }
+    renderer.domElement.addEventListener('click', onClick);
+    renderer.domElement.style.cursor = 'default';
+    let lastHover = -1;
+    function onMove(event) {
+      const idx = raycast(event);
+      if (idx !== lastHover) {
+        lastHover = idx;
+        renderer.domElement.style.cursor = idx >= 0 ? 'pointer' : 'default';
+      }
+    }
+    renderer.domElement.addEventListener('mousemove', onMove);
+
+    // --- Transition state ---
+    const transition = { active: false, startTime: 0, fromMode: 'neural', toMode: 'wheel' };
+
+    // Camera targets
+    const camTargets = {
+      neural: { pos: [0, 40, 120], lookAt: [0, 0, 0] },
+      wheel:  { pos: [0, 120, 0.1], lookAt: [0, 0, 0] },
+    };
+
+    // Store starting camera for transition
+    let camStart = { pos: [0,40,120], lookAt: [0,0,0] };
+
+    // --- Resize ---
+    function onResize() {
+      const w = el.clientWidth, h = el.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+      composer.setSize(w, h);
+    }
+    window.addEventListener('resize', onResize);
+
+    // --- Animate ---
+    let running = true;
+    function animate() {
+      if (!running) return;
+      requestAnimationFrame(animate);
+
+      // Handle transition
+      if (transition.active) {
+        const elapsed = performance.now() - transition.startTime;
+        let t = Math.min(elapsed / TRANSITION_DURATION, 1);
+        const et = easeInOutCubic(t);
+
+        const isToWheel = transition.toMode === 'wheel';
+        const srcPos = isToWheel ? posA : posB;
+        const dstPos = isToWheel ? posB : posA;
+
+        // Lerp node positions
+        for (let i = 0; i < count; i++) {
+          curPos[i*3]   = srcPos[i*3]   + (dstPos[i*3]   - srcPos[i*3])   * et;
+          curPos[i*3+1] = srcPos[i*3+1] + (dstPos[i*3+1] - srcPos[i*3+1]) * et;
+          curPos[i*3+2] = srcPos[i*3+2] + (dstPos[i*3+2] - srcPos[i*3+2]) * et;
+
+          mesh.getMatrixAt(i, dummy.matrix);
+          dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
+          dummy.position.set(curPos[i*3], curPos[i*3+1], curPos[i*3+2]);
+          dummy.updateMatrix();
+          mesh.setMatrixAt(i, dummy.matrix);
+        }
+        mesh.instanceMatrix.needsUpdate = true;
+
+        // Update edge positions
+        updateEdgePositions();
+        edgeGeo.getAttribute('position').array.set(edgeVerts);
+        edgeGeo.getAttribute('position').needsUpdate = true;
+
+        // Lerp labels between 3D axis positions and 2D wheel positions
+        const sA = (Math.PI * 2) / TASTE_ORDER.length;
+        labelGroup.children.forEach((sprite, idx) => {
+          const a3 = sprite.userData.axis3D;
+          const angle = idx * sA;
+          const w2 = [Math.cos(angle) * 48, 2, Math.sin(angle) * 48];
+          sprite.position.set(
+            a3[0] + (w2[0] - a3[0]) * et,
+            a3[1] + (w2[1] - a3[1]) * et,
+            a3[2] + (w2[2] - a3[2]) * et,
+          );
+        });
+
+        // Lerp camera
+        const camEnd = camTargets[transition.toMode];
+        camera.position.set(
+          camStart.pos[0] + (camEnd.pos[0] - camStart.pos[0]) * et,
+          camStart.pos[1] + (camEnd.pos[1] - camStart.pos[1]) * et,
+          camStart.pos[2] + (camEnd.pos[2] - camStart.pos[2]) * et,
+        );
+        camera.lookAt(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
+
+        // Show/hide sector lines
+        sectorGroup.visible = et > 0.3;
+        const sectorOpacity = Math.max(0, (et - 0.3) / 0.7) * 0.4;
+        lineMat.opacity = isToWheel ? sectorOpacity : 0.4 * (1 - et);
+
+        if (t >= 1) {
+          transition.active = false;
+          // Reset controls target
+          controls.target.set(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
+          controls.update();
+          sectorGroup.visible = transition.toMode === 'wheel';
+        }
+      }
+
+      controls.update();
+      composer.render();
+    }
+    animate();
+
+    // --- Expose trigger function ---
+    const triggerTransition = (toMode) => {
+      if (transition.active) return;
+      const fromMode = toMode === 'wheel' ? 'neural' : 'wheel';
+      camStart = { pos: [camera.position.x, camera.position.y, camera.position.z], lookAt: [0,0,0] };
+      transition.active = true;
+      transition.startTime = performance.now();
+      transition.fromMode = fromMode;
+      transition.toMode = toMode;
+    };
+
+    stateRef.current = {
+      scene, camera, renderer, composer, controls, mesh, edgeMesh, edgeGeo,
+      nodeArray, nameIdx, defaultColors, curPos, posA, posB,
+      triggerTransition, labelGroup, sectorGroup,
+    };
+
+    return () => {
+      running = false;
+      window.removeEventListener('resize', onResize);
+      renderer.domElement.removeEventListener('click', onClick);
+      renderer.domElement.removeEventListener('mousemove', onMove);
+      controls.dispose();
+      composer.dispose();
+      renderer.dispose();
+      geo.dispose();
+      mat.dispose();
+      edgeGeo.dispose();
+      edgeMat.dispose();
+      lineMat.dispose();
+      labelGroup.children.forEach(s => { s.material.map.dispose(); s.material.dispose(); });
+      if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
+      stateRef.current = null;
+    };
+  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ---- Selection handling ----
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st) return;
+    const { mesh, defaultColors, nodeArray, nameIdx, edgeMesh: em } = st;
+    const count = nodeArray.length;
+    const activeNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
+
+    if (activeNodes.length > 0 && data) {
+      const connMap = new Map();
+      for (const sel of activeNodes) {
+        connMap.set(sel, 1.0);
+        for (const edge of data.graph.edges) {
+          if (edge.source === sel) connMap.set(edge.target, Math.max(connMap.get(edge.target)||0, edge.strength));
+          else if (edge.target === sel) connMap.set(edge.source, Math.max(connMap.get(edge.source)||0, edge.strength));
+        }
+      }
+      for (let i = 0; i < count; i++) {
+        const name = nodeArray[i].name;
+        const str = connMap.get(name);
+        if (str !== undefined) {
+          const c = defaultColors[i].clone().lerp(new THREE.Color('#ffffff'), str * 0.6);
+          mesh.setColorAt(i, c);
+        } else {
+          mesh.setColorAt(i, defaultColors[i].clone().multiplyScalar(0.15));
+        }
+      }
+    } else {
+      for (let i = 0; i < count; i++) mesh.setColorAt(i, defaultColors[i]);
+    }
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, [selectedNode, selectedNodes, data]);
+
+  // ---- Edge visibility ----
+  useEffect(() => {
+    const st = stateRef.current;
+    if (st && st.edgeMesh) st.edgeMesh.visible = showEdges;
+  }, [showEdges]);
+
+  // ---- Taste filter ----
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st || !data) return;
+    const { mesh, defaultColors, nodeArray } = st;
+    const dimColor = new THREE.Color('#111118');
+
+    if (!filterTaste) {
+      for (let i = 0; i < nodeArray.length; i++) mesh.setColorAt(i, defaultColors[i]);
+    } else {
+      const fl = filterTaste.toLowerCase();
+      for (let i = 0; i < nodeArray.length; i++) {
+        const taste = (nodeArray[i].taste || '').toLowerCase();
+        mesh.setColorAt(i, taste.includes(fl) ? defaultColors[i] : dimColor);
+      }
+    }
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, [filterTaste, data]);
+
+  // ---- Toggle handler ----
+  const handleToggle = useCallback(() => {
+    const next = mode === 'neural' ? 'wheel' : 'neural';
+    setMode(next);
+    if (stateRef.current) stateRef.current.triggerTransition(next);
+  }, [mode]);
+
+  return (
+    <div className="absolute inset-0 pt-10">
+      <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+      {/* Toggle button */}
+      <button
+        onClick={handleToggle}
+        className="absolute top-14 left-4 z-50 px-4 py-2 rounded-lg text-sm font-medium
+          bg-gray-900/80 border border-gray-700 text-gray-200 hover:bg-gray-800
+          backdrop-blur-sm transition-colors duration-200 select-none"
+        title={mode === 'neural' ? 'Switch to Flavor Wheel' : 'Switch to Neural Cloud'}
+      >
+        {mode === 'neural' ? 'Neural Cloud \u2192 Wheel' : 'Flavor Wheel \u2192 Cloud'}
+      </button>
+      {/* Mode indicator */}
+      <div className="absolute top-14 right-4 z-50 px-3 py-1 rounded text-xs font-mono
+        bg-gray-900/60 border border-gray-800 text-gray-500 backdrop-blur-sm select-none">
+        {mode === 'neural' ? '3D NEURAL' : '2D WHEEL'}
+      </div>
+    </div>
+  );
+}
