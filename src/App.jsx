@@ -23,6 +23,11 @@ import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 import ProfileTreeView from './components/ProfileTreeView.jsx';
 import FlavorDNA from './components/FlavorDNA.jsx';
 import FlavorBridge from './components/FlavorBridge.jsx';
+import FlavorWheelView from './components/FlavorWheelView.jsx';
+import PerceptronView from './components/PerceptronView.jsx';
+import ConstellationView from './components/ConstellationView.jsx';
+import PathwayView from './components/PathwayView.jsx';
+import LivingArchView from './components/LivingArchView.jsx';
 import CocktailLab from './components/CocktailLab.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
@@ -43,6 +48,8 @@ export default function App() {
   const [sauceMounted, setSauceMounted] = useState(false); // lazy mount
   const [recipeMounted, setRecipeMounted] = useState(false); // lazy mount
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('neural'); // 'neural' | 'wheel' | 'perceptron' | 'constellation' | 'pathway' | 'living'
+  const [viewDropdownOpen, setViewDropdownOpen] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [showEdges, setShowEdges] = useState(() => !window.matchMedia('(max-width: 640px)').matches);
   const [showParticles, setShowParticles] = useState(() => !window.matchMedia('(max-width: 640px)').matches);
@@ -276,6 +283,54 @@ export default function App() {
             Network
           </button>
 
+          {/* View mode dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => { setViewDropdownOpen(v => !v); setLabDropdownOpen(false); }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                activeTab === 'network' && viewMode !== 'neural'
+                  ? 'text-purple-300 bg-purple-500/10 border border-purple-500/20'
+                  : 'text-gray-500 hover:text-gray-300 border border-transparent'
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+              </svg>
+              {{ neural: 'Neural Cloud', wheel: 'Flavor Wheel', perceptron: 'Perceptron', constellation: 'Constellation', pathway: 'Pathway Map', living: 'Living Arch' }[viewMode]}
+              <svg className={`w-3 h-3 transition-transform ${viewDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 10l5 5 5-5z" />
+              </svg>
+            </button>
+            {viewDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-[59]" onClick={() => setViewDropdownOpen(false)} />
+                <div className="absolute top-full left-0 mt-1 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
+                  {[
+                    { key: 'neural', label: 'Neural Cloud', desc: 'Original 3D network' },
+                    { key: 'wheel', label: 'Flavor Wheel', desc: '3D arcs over taste wheel' },
+                    { key: 'constellation', label: 'Constellation', desc: 'Star field by connectivity' },
+                    { key: 'living', label: 'Living Architecture', desc: '3D ↔ 2D morph' },
+                    { key: 'perceptron', label: 'Perceptron Layers', desc: 'Neural network diagram' },
+                    { key: 'pathway', label: 'Pathway Map', desc: 'Subway-style routes' },
+                  ].map((v) => (
+                    <button
+                      key={v.key}
+                      onClick={() => { setViewMode(v.key); setActiveTab('network'); setViewDropdownOpen(false); }}
+                      className={`w-full flex flex-col items-start px-3 py-2 text-left transition-colors ${
+                        viewMode === v.key
+                          ? 'text-purple-300 bg-purple-500/10'
+                          : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                      }`}
+                    >
+                      <span className="text-xs font-medium">{v.label}</span>
+                      <span className="text-[10px] text-gray-600">{v.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Labs dropdown */}
           <div className="relative">
             <button
@@ -347,20 +402,73 @@ export default function App() {
 
       {/* Network tab */}
       <div className={`transition-opacity duration-300 ${activeTab === 'network' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'}`}>
-      <NetworkScene
-        data={data}
-        onNodeClick={handleNodeClick}
-        onNodeHover={() => {}}
-        selectedNode={selectedNode}
-        selectedNodes={selectedNodes}
-        showEdges={showEdges}
-        showParticles={showParticles}
-        filterCuisine={selectedCuisine}
-        filterTaste={selectedTaste}
-        profileWeights={profileWeights}
-        treeFilterIngredients={treeFilterIngredients}
-        sceneExtras={tasteAxisLabels}
-      />
+      {/* View mode: Neural Cloud (default) */}
+      {viewMode === 'neural' && (
+        <NetworkScene
+          data={data}
+          onNodeClick={handleNodeClick}
+          onNodeHover={() => {}}
+          selectedNode={selectedNode}
+          selectedNodes={selectedNodes}
+          showEdges={showEdges}
+          showParticles={showParticles}
+          filterCuisine={selectedCuisine}
+          filterTaste={selectedTaste}
+          profileWeights={profileWeights}
+          treeFilterIngredients={treeFilterIngredients}
+          sceneExtras={tasteAxisLabels}
+        />
+      )}
+      {/* View mode: Flavor Wheel */}
+      {viewMode === 'wheel' && (
+        <FlavorWheelView
+          data={data}
+          onNodeClick={handleNodeClick}
+          selectedNode={selectedNode}
+          selectedNodes={selectedNodes}
+          filterTaste={selectedTaste}
+        />
+      )}
+      {/* View mode: Perceptron Layers */}
+      {viewMode === 'perceptron' && (
+        <PerceptronView
+          data={data}
+          onNodeClick={handleNodeClick}
+          selectedNode={selectedNode}
+          selectedNodes={selectedNodes}
+        />
+      )}
+      {/* View mode: Constellation */}
+      {viewMode === 'constellation' && (
+        <ConstellationView
+          data={data}
+          onNodeClick={handleNodeClick}
+          selectedNode={selectedNode}
+          selectedNodes={selectedNodes}
+          filterTaste={selectedTaste}
+        />
+      )}
+      {/* View mode: Pathway Map */}
+      {viewMode === 'pathway' && (
+        <PathwayView
+          data={data}
+          onNodeClick={handleNodeClick}
+          selectedNode={selectedNode}
+          selectedNodes={selectedNodes}
+        />
+      )}
+      {/* View mode: Living Architecture */}
+      {viewMode === 'living' && (
+        <LivingArchView
+          data={data}
+          onNodeClick={handleNodeClick}
+          selectedNode={selectedNode}
+          selectedNodes={selectedNodes}
+          showEdges={showEdges}
+          showParticles={showParticles}
+          filterTaste={selectedTaste}
+        />
+      )}
       <SearchBar
         ingredients={ingredientList}
         onSelect={handleSearchSelect}
