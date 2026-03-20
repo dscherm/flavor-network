@@ -508,7 +508,7 @@ export default function LivingArchView({
       }
       const range = Math.max(1, maxPC - minPC);
       const MIN_HEIGHT = 3;   // closest to wheel (most pairings)
-      const MAX_HEIGHT = POPOUT_HEIGHT * 1.5; // furthest from wheel (fewest pairings)
+      const MAX_HEIGHT = 60;  // furthest from wheel (fewest pairings)
       for (const idx of indices) {
         const pc = nodeArray[idx].pairingCount || 1;
         // Normalized: 0 = fewest pairings, 1 = most pairings
