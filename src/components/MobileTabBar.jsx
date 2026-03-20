@@ -15,17 +15,20 @@ export default function MobileTabBar({
   user,
   onLogin,
   onLogout,
+  viewMode,
+  onViewModeChange,
 }) {
   const [labsOpen, setLabsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [viewsOpen, setViewsOpen] = useState(false);
 
   const isLabActive = activeTab !== 'network';
 
   return (
     <>
       {/* Backdrop for popovers */}
-      {(labsOpen || moreOpen) && (
-        <div className="fixed inset-0 z-[69]" onClick={() => { setLabsOpen(false); setMoreOpen(false); }} />
+      {(labsOpen || moreOpen || viewsOpen) && (
+        <div className="fixed inset-0 z-[69]" onClick={() => { setLabsOpen(false); setMoreOpen(false); setViewsOpen(false); }} />
       )}
 
       <div
@@ -35,7 +38,7 @@ export default function MobileTabBar({
         <div className="flex items-center justify-around h-14">
           {/* Network */}
           <button
-            onClick={() => { onTabChange('network'); setLabsOpen(false); setMoreOpen(false); }}
+            onClick={() => { onTabChange('network'); setLabsOpen(false); setMoreOpen(false); setViewsOpen(false); }}
             className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
               activeTab === 'network' ? 'text-cyan-400' : 'text-gray-500'
             }`}
@@ -46,10 +49,51 @@ export default function MobileTabBar({
             <span className="text-[10px]">Network</span>
           </button>
 
+          {/* Views */}
+          <div className="relative">
+            <button
+              onClick={() => { setViewsOpen(v => !v); setLabsOpen(false); setMoreOpen(false); }}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
+                viewsOpen ? 'text-purple-400' : activeTab === 'network' ? 'text-purple-400/60' : 'text-gray-500'
+              }`}
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+              </svg>
+              <span className="text-[10px]">Views</span>
+            </button>
+            {viewsOpen && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[71] overflow-hidden">
+                {[
+                  { key: 'living', label: 'Living Architecture', desc: '3D \u2194 2D morph' },
+                  { key: 'perceptron', label: 'Perceptron Layers', desc: 'Neural diagram' },
+                  { key: 'pathway', label: 'Pathway Map', desc: 'Subway-style routes' },
+                ].map(v => (
+                  <button
+                    key={v.key}
+                    onClick={() => {
+                      if (onViewModeChange) onViewModeChange(v.key);
+                      onTabChange('network');
+                      setViewsOpen(false);
+                    }}
+                    className={`w-full flex flex-col items-start px-3 py-2.5 text-left transition-colors ${
+                      viewMode === v.key
+                        ? 'text-purple-300 bg-purple-500/10'
+                        : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                    }`}
+                  >
+                    <span className="text-xs font-medium">{v.label}</span>
+                    <span className="text-[10px] text-gray-600">{v.desc}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Labs */}
           <div className="relative">
             <button
-              onClick={() => { setLabsOpen(v => !v); setMoreOpen(false); }}
+              onClick={() => { setLabsOpen(v => !v); setMoreOpen(false); setViewsOpen(false); }}
               className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
                 isLabActive ? 'text-cyan-400' : 'text-gray-500'
               }`}
@@ -86,7 +130,7 @@ export default function MobileTabBar({
 
           {/* Profile */}
           <button
-            onClick={() => { onOpenProfile(); setLabsOpen(false); setMoreOpen(false); }}
+            onClick={() => { onOpenProfile(); setLabsOpen(false); setMoreOpen(false); setViewsOpen(false); }}
             className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-500 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -98,7 +142,7 @@ export default function MobileTabBar({
           {/* More */}
           <div className="relative">
             <button
-              onClick={() => { setMoreOpen(v => !v); setLabsOpen(false); }}
+              onClick={() => { setMoreOpen(v => !v); setLabsOpen(false); setViewsOpen(false); }}
               className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
                 moreOpen ? 'text-cyan-400' : 'text-gray-500'
               }`}

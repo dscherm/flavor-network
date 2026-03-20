@@ -747,6 +747,8 @@ export default function App() {
           user={user}
           onLogin={loginWithGoogle}
           onLogout={logout}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
       )}
 
