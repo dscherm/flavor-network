@@ -152,7 +152,7 @@ function primaryTaste(node) {
   return first || null;
 }
 
-export default function FlavorBridge({ nodes, edges, ingredientList, isOpen, onClose, onSelectIngredient }) {
+export default function FlavorBridge({ nodes, edges, ingredientList, isOpen, onClose, onSelectIngredient, onPathChange }) {
   const [fromIngredient, setFromIngredient] = useState(null);
   const [toIngredient, setToIngredient] = useState(null);
 
@@ -229,6 +229,13 @@ export default function FlavorBridge({ nodes, edges, ingredientList, isOpen, onC
       }
     }
   }, [ingredientList, edges]);
+
+  // Emit path changes to parent for 3D highlighting
+  useEffect(() => {
+    if (onPathChange) {
+      onPathChange(path.length >= 2 ? path : null);
+    }
+  }, [path, onPathChange]);
 
   // Reset state when panel closes
   useEffect(() => {

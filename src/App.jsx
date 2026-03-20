@@ -45,6 +45,7 @@ export default function App() {
   const [recipeMounted, setRecipeMounted] = useState(false); // lazy mount
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [viewMode, setViewMode] = useState('living'); // 'living' | 'perceptron' | 'pathway'
+  const [livingMode, setLivingMode] = useState('neural'); // 'neural' | 'wheel' — lifted for persistence across tab switches
   const [viewDropdownOpen, setViewDropdownOpen] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [showEdges, setShowEdges] = useState(() => !window.matchMedia('(max-width: 640px)').matches);
@@ -68,6 +69,7 @@ export default function App() {
   const [showBridge, setShowBridge] = useState(false);
   const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
   const [treeFilterLabel, setTreeFilterLabel] = useState(null);
+  const [bridgePathIngredients, setBridgePathIngredients] = useState(null);
   const isMobile = useIsMobile();
   const [activePanel, setActivePanel] = useState(null); // mobile bottom sheet panel
   const userProfile = useUserProfile(user);
@@ -422,6 +424,10 @@ export default function App() {
           showEdges={showEdges}
           showParticles={showParticles}
           filterTaste={selectedTaste}
+          treeFilterIngredients={treeFilterIngredients}
+          bridgePathIngredients={bridgePathIngredients}
+          mode={livingMode}
+          onModeChange={setLivingMode}
         />
       )}
       <SearchBar
@@ -611,8 +617,9 @@ export default function App() {
         edges={data ? data.graph.edges : null}
         ingredientList={ingredientList}
         isOpen={showBridge}
-        onClose={() => setShowBridge(false)}
+        onClose={() => { setShowBridge(false); setBridgePathIngredients(null); }}
         onSelectIngredient={handleSearchSelect}
+        onPathChange={setBridgePathIngredients}
       />
       <HelpButton onClick={() => setShowTour(true)} />
       <PalateQuiz
