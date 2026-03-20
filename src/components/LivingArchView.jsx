@@ -500,22 +500,24 @@ export default function LivingArchView({
       }
       // 2D wheel mode: vertical displacement perpendicular to wheel
       // Most pairings = close to wheel plane, fewest = furthest away
-      let minPC = Infinity, maxPC = 0;
-      for (const idx of indices) {
-        const pc = nodeArray[idx].pairingCount || 1;
-        if (pc < minPC) minPC = pc;
-        if (pc > maxPC) maxPC = pc;
-      }
-      const range = Math.max(1, maxPC - minPC);
-      const MIN_HEIGHT = 3;   // closest to wheel (most pairings)
-      const MAX_HEIGHT = 60;  // furthest from wheel (fewest pairings)
-      for (const idx of indices) {
-        const pc = nodeArray[idx].pairingCount || 1;
-        // Normalized: 0 = fewest pairings, 1 = most pairings
-        const norm = (pc - minPC) / range;
-        // Invert: most pairings → MIN_HEIGHT (close), fewest → MAX_HEIGHT (far)
-        const height = MIN_HEIGHT + (1 - norm) * (MAX_HEIGHT - MIN_HEIGHT);
-        tasteSelection.yOffsets[idx] = sign * height;
+      // Use percentile rank so height spreads evenly across the actual distribution
+      // (pairing counts are power-law: log transform prevents bunching at the top)
+      const MIN_HEIGHT = 2;   // closest to wheel (most pairings)
+      const MAX_HEIGHT = 55;  // furthest from wheel (fewest pairings)
+
+      // Collect and sort pairing counts to compute percentile rank
+      const pcs = [];
+      for (const idx of indices) pcs.push({ idx, pc: nodeArray[idx].pairingCount || 1 });
+      pcs.sort((a, b) => b.pc - a.pc); // descending: most pairings first
+
+      const n = pcs.length;
+      for (let rank = 0; rank < n; rank++) {
+        // percentile: 0 = most pairings, 1 = fewest
+        const pct = n > 1 ? rank / (n - 1) : 0;
+        // Square-root curve: gentle rise for top ingredients, steeper spread for lower ones
+        const curved = Math.sqrt(pct);
+        const height = MIN_HEIGHT + curved * (MAX_HEIGHT - MIN_HEIGHT);
+        tasteSelection.yOffsets[pcs[rank].idx] = sign * height;
       }
     }
 
