@@ -472,6 +472,39 @@ export default function LivingArchView({
       popEdgeMesh.visible = edgeCount > 0;
     }
 
+    /** Compute pairing-count-based Y offset for a set of ingredient indices.
+     *  In 2D wheel mode: more pairings = closer to plane, fewer = further away.
+     *  In 3D mode: use fixed POPOUT_HEIGHT as before. */
+    function computePairingOffset(indices, direction) {
+      const sign = direction > 0 ? 1 : -1;
+      if (modeRef.current !== 'wheel') {
+        // 3D mode: fixed height
+        for (const idx of indices) {
+          tasteSelection.yOffsets[idx] = sign * POPOUT_HEIGHT;
+        }
+        return;
+      }
+      // 2D wheel mode: displace by inverse pairing count
+      // Find min/max pairing count in the set
+      let minPC = Infinity, maxPC = 0;
+      for (const idx of indices) {
+        const pc = nodeArray[idx].pairingCount || 1;
+        if (pc < minPC) minPC = pc;
+        if (pc > maxPC) maxPC = pc;
+      }
+      const range = Math.max(1, maxPC - minPC);
+      const MIN_HEIGHT = 3;   // closest to plane (most pairings)
+      const MAX_HEIGHT = POPOUT_HEIGHT * 1.5; // furthest from plane (fewest pairings)
+      for (const idx of indices) {
+        const pc = nodeArray[idx].pairingCount || 1;
+        // Normalized: 0 = fewest pairings, 1 = most pairings
+        const norm = (pc - minPC) / range;
+        // Invert: most pairings → MIN_HEIGHT (close), fewest → MAX_HEIGHT (far)
+        const height = MIN_HEIGHT + (1 - norm) * (MAX_HEIGHT - MIN_HEIGHT);
+        tasteSelection.yOffsets[idx] = sign * height;
+      }
+    }
+
     /** Start pop-out animation for a taste click */
     function handleTasteClick(taste) {
       if (tasteSelection.animating) return;
@@ -490,9 +523,7 @@ export default function LivingArchView({
         tasteSelection.taste1 = taste;
         tasteSelection.set1 = getIndicesForTaste(taste);
         tasteSelection.yOffsets.fill(0);
-        for (const idx of tasteSelection.set1) {
-          tasteSelection.yOffsets[idx] = POPOUT_HEIGHT;
-        }
+        computePairingOffset(tasteSelection.set1, 1);
         tasteSelection.animDirection = 1;
         tasteSelection.animating = true;
         tasteSelection.animStartTime = performance.now();
@@ -505,9 +536,7 @@ export default function LivingArchView({
         for (const idx of tasteSelection.set1) {
           tasteSelection.set2.delete(idx);
         }
-        for (const idx of tasteSelection.set2) {
-          tasteSelection.yOffsets[idx] = -POPOUT_HEIGHT;
-        }
+        computePairingOffset(tasteSelection.set2, -1);
         tasteSelection.animDirection = 1;
         tasteSelection.animating = true;
         tasteSelection.animStartTime = performance.now();
@@ -965,8 +994,8 @@ export default function LivingArchView({
   return (
     <div className="absolute inset-0 pt-10">
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      {/* Toggle switch — bottom center */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
+      {/* Toggle switch — bottom center, raised on mobile to clear tab bar */}
+      <div className="absolute bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
         style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))' }}
       >
         <span className={`text-[11px] font-medium transition-colors ${mode === 'neural' ? 'text-cyan-400' : 'text-gray-600'}`}>
