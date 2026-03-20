@@ -84,9 +84,21 @@ function computeWheelPositions(nodes) {
     bins[bestTaste].push({ name, node, channels, totalWeight, bestScore });
   }
 
-  // Sort each bin: most-paired first (center), least-paired outward
+  // Sort each bin: most-paired first (center), then shuffle slightly
+  // to prevent clumping of similar ingredients
   for (const t of TASTE_ORDER) {
     bins[t].sort((a, b) => (b.node.pairingCount || 0) - (a.node.pairingCount || 0));
+    // Interleave: take every 3rd item to spread similar ingredients apart
+    const original = [...bins[t]];
+    const shuffled = [];
+    const thirds = [[], [], []];
+    original.forEach((item, i) => thirds[i % 3].push(item));
+    for (let i = 0; i < Math.max(thirds[0].length, thirds[1].length, thirds[2].length); i++) {
+      if (thirds[0][i]) shuffled.push(thirds[0][i]);
+      if (thirds[1][i]) shuffled.push(thirds[1][i]);
+      if (thirds[2][i]) shuffled.push(thirds[2][i]);
+    }
+    bins[t] = shuffled;
   }
 
   // Place ingredients in Archimedean spiral within each sector
@@ -99,40 +111,37 @@ function computeWheelPositions(nodes) {
       const { name, channels, bestScore } = items[idx];
       const rng = seededRng(hashStr(name));
 
-      // Archimedean spiral: radius grows with index, angle rotates progressively
-      // Most-paired ingredients near center, least-paired at edge
-      const spiralT = idx / Math.max(1, items.length - 1); // 0 to 1
-      const baseRadius = 6 + spiralT * 42;
+      // Radius: most-paired start at 16, least-paired reach ~55
+      const spiralT = idx / Math.max(1, items.length - 1);
+      const baseRadius = 16 + spiralT * 40;
 
-      // Swirl: angle advances continuously, spreading within the sector
-      // More spread than a tight spiral, ingredients fill the sector space
-      const spiralTurns = 1.8;
-      const halfSector = sectorAngle * 0.4;
+      // Swirl with wide spread — ingredients fill the full sector width
+      const spiralTurns = 1.5;
+      const halfSector = sectorAngle * 0.42;
+      // Continuous angle advance creates the swirl
       const angleAdvance = spiralT * spiralTurns * Math.PI * 2 / N;
-      // Spread outward from center line as radius grows
-      const spread = halfSector * spiralT * 0.7;
-      const wobble = Math.sin(idx * 0.9) * spread;
-      const jitter = (rng() - 0.5) * 3;
-      const spiralAngle = centerAngle + angleAdvance + wobble + jitter * 0.04;
+      // Wide spread — ingredients drift freely across sector boundaries
+      const sectorSpread = (rng() - 0.5) * halfSector * 3.0 * (0.5 + spiralT * 0.5);
+      const spiralAngle = centerAngle + angleAdvance + sectorSpread;
 
-      // Multi-taste pull: if ingredient has secondary tastes, pull slightly toward them
+      // Strong multi-taste pull — ingredients blend across sector boundaries
       let pullX = 0, pullZ = 0;
       for (let j = 0; j < N; j++) {
         if (j === ti) continue;
         const w = channels[TASTE_ORDER[j]] || 0;
-        if (w > 0.2) {
+        if (w > 0.05) {
           const pullAngle = j * sectorAngle - Math.PI / 2;
-          pullX += Math.cos(pullAngle) * w * 3;
-          pullZ += Math.sin(pullAngle) * w * 3;
+          pullX += Math.cos(pullAngle) * w * 12;
+          pullZ += Math.sin(pullAngle) * w * 12;
         }
       }
 
-      // Jitter for spacing — more spread between ingredients
-      const jx = (rng() - 0.5) * 5;
-      const jz = (rng() - 0.5) * 5;
+      // Radial jitter for more spacing between ingredients
+      const jr = (rng() - 0.5) * 12;
+      const r = baseRadius + jr;
 
-      const x = baseRadius * Math.cos(spiralAngle) + pullX + jx;
-      const z = baseRadius * Math.sin(spiralAngle) + pullZ + jz;
+      const x = r * Math.cos(spiralAngle) + pullX;
+      const z = r * Math.sin(spiralAngle) + pullZ;
       positions[name] = [x, 0, z];
     }
   }
@@ -965,15 +974,15 @@ export default function LivingArchView({
         </span>
         <button
           onClick={handleToggle}
-          className="relative w-10 h-5 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+          className="relative w-9 h-5 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 flex-shrink-0"
           style={{ backgroundColor: mode === 'wheel' ? '#4f8fff' : '#333344' }}
           title={mode === 'neural' ? 'Switch to Flavor Wheel' : 'Switch to Neural Cloud'}
           role="switch"
           aria-checked={mode === 'wheel'}
         >
           <span
-            className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-300"
-            style={{ transform: mode === 'wheel' ? 'translateX(22px)' : 'translateX(2px)' }}
+            className="absolute top-[2px] left-[2px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300"
+            style={{ transform: mode === 'wheel' ? 'translateX(16px)' : 'translateX(0)' }}
           />
         </button>
         <span className={`text-[11px] font-medium transition-colors ${mode === 'wheel' ? 'text-blue-400' : 'text-gray-600'}`}>
