@@ -81,11 +81,11 @@ function assessBalance(counts, total) {
 }
 
 export default function TasteRadar({ ingredients = [], nodes, compact = false, theme = 'dark' }) {
-  const svgSize = compact ? 140 : 200;
+  const svgSize = compact ? 160 : 260;
   const cx = svgSize / 2;
   const cy = svgSize / 2;
-  const radius = compact ? 50 : 75;
-  const labelOffset = compact ? 14 : 20;
+  const radius = compact ? 50 : 90;
+  const labelOffset = compact ? 14 : 28;
 
   const counts = useMemo(() => computeTasteCounts(ingredients, nodes), [ingredients, nodes]);
   const total = ingredients.length || 1;
@@ -131,8 +131,8 @@ export default function TasteRadar({ ingredients = [], nodes, compact = false, t
     };
   });
 
-  const fontSize = compact ? 8 : 10;
-  const assessmentFontSize = compact ? 9 : 11;
+  const fontSize = compact ? 8 : 12;
+  const assessmentFontSize = compact ? 9 : 13;
 
   return (
     <div className="flex flex-col items-center gap-1">

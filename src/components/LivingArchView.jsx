@@ -111,9 +111,10 @@ function computeWheelPositions(nodes) {
       const { name, channels, bestScore } = items[idx];
       const rng = seededRng(hashStr(name));
 
-      // Radius: most-paired start at 16, least-paired reach ~55
+      // Radius: most-paired start at 28 (outside 2nd octagon ring), least-paired reach ~55
+      // This ensures no ingredients in innermost ring (0-12.5) and only top-paired in 2nd ring (12.5-25)
       const spiralT = idx / Math.max(1, items.length - 1);
-      const baseRadius = 16 + spiralT * 40;
+      const baseRadius = 28 + spiralT * 27;
 
       // Swirl with wide spread — ingredients fill the full sector width
       const spiralTurns = 1.5;
@@ -166,11 +167,18 @@ export default function LivingArchView({
   showEdges = true,
   showParticles = true,
   filterTaste = '',
+  treeFilterIngredients = null,
+  bridgePathIngredients = null,
+  mode: externalMode,
+  onModeChange,
 }) {
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
-  const [mode, setMode] = useState('neural'); // 'neural' | 'wheel'
-  const modeRef = useRef('neural');
+  // Use lifted state if provided, otherwise local state
+  const [localMode, setLocalMode] = useState('neural');
+  const mode = externalMode !== undefined ? externalMode : localMode;
+  const setMode = onModeChange || setLocalMode;
+  const modeRef = useRef(mode);
 
   // Keep modeRef in sync for use inside animation loop
   useEffect(() => { modeRef.current = mode; }, [mode]);
@@ -282,12 +290,11 @@ export default function LivingArchView({
     const edgeVerts = new Float32Array(validEdges.length * 6);
     const edgeColors = new Float32Array(validEdges.length * 6);
     const edgeOpacities = new Float32Array(validEdges.length * 2);
-    const baseC = new THREE.Color('#1a3a5c');
-    const brightC = new THREE.Color('#4f8fff');
     const tmp = new THREE.Color();
+    const tmp2 = new THREE.Color();
 
-    // Base edge opacity multiplier (10% of original brightness)
-    const BASE_EDGE_DIM = 0.2;
+    // Base edge opacity multiplier — 50% brighter than before (was 0.2, now 0.3)
+    const BASE_EDGE_DIM = 0.3;
     // Edge opacity for popped-out ingredient connections
     const POPOUT_EDGE_OPACITY = 0.3;
 
@@ -298,11 +305,18 @@ export default function LivingArchView({
         edgeVerts[o]   = curPos[si*3];   edgeVerts[o+1] = curPos[si*3+1]; edgeVerts[o+2] = curPos[si*3+2];
         edgeVerts[o+3] = curPos[ti*3];   edgeVerts[o+4] = curPos[ti*3+1]; edgeVerts[o+5] = curPos[ti*3+2];
         const str = edge.strength || 0;
-        tmp.copy(baseC).lerp(brightC, str);
-        // Apply base dimming (10% brightness) by multiplying color
-        edgeColors[o]   = tmp.r * BASE_EDGE_DIM; edgeColors[o+1] = tmp.g * BASE_EDGE_DIM; edgeColors[o+2] = tmp.b * BASE_EDGE_DIM;
-        edgeColors[o+3] = tmp.r * BASE_EDGE_DIM; edgeColors[o+4] = tmp.g * BASE_EDGE_DIM; edgeColors[o+5] = tmp.b * BASE_EDGE_DIM;
-        const op = (0.025 + 0.175 * str) * BASE_EDGE_DIM;
+        // Color-code edges: source node color → target node color (GPU interpolates)
+        tmp.copy(defaultColors[si]);
+        tmp2.copy(defaultColors[ti]);
+        // Boost brightness based on strength
+        const brighten = 0.3 + 0.7 * str;
+        edgeColors[o]   = tmp.r * BASE_EDGE_DIM * brighten;
+        edgeColors[o+1] = tmp.g * BASE_EDGE_DIM * brighten;
+        edgeColors[o+2] = tmp.b * BASE_EDGE_DIM * brighten;
+        edgeColors[o+3] = tmp2.r * BASE_EDGE_DIM * brighten;
+        edgeColors[o+4] = tmp2.g * BASE_EDGE_DIM * brighten;
+        edgeColors[o+5] = tmp2.b * BASE_EDGE_DIM * brighten;
+        const op = (0.04 + 0.26 * str) * BASE_EDGE_DIM;
         edgeOpacities[i*2] = op; edgeOpacities[i*2+1] = op;
       }
     }
@@ -413,6 +427,9 @@ export default function LivingArchView({
       yOffsets: new Float32Array(count),
       // Current animated Y offsets
       yCurrentOffsets: new Float32Array(count),
+      // Radial XZ offsets for wheel mode (target values per ingredient)
+      xzOffsets: new Float32Array(count * 2), // [x0,z0, x1,z1, ...]
+      xzCurrentOffsets: new Float32Array(count * 2),
     };
 
     /** Compute which ingredients match a taste */
@@ -472,19 +489,19 @@ export default function LivingArchView({
       popEdgeMesh.visible = edgeCount > 0;
     }
 
-    /** Compute pairing-count-based Y offset for a set of ingredient indices.
-     *  In 2D wheel mode: more pairings = closer to plane, fewer = further away.
-     *  In 3D mode: use fixed POPOUT_HEIGHT as before. */
+    /** Compute pairing-count-based offset for a set of ingredient indices.
+     *  In 2D wheel mode: radial XZ push — high pairings stay close to center, low pairings push outward.
+     *  In 3D mode: use fixed Y POPOUT_HEIGHT as before. */
     function computePairingOffset(indices, direction) {
       const sign = direction > 0 ? 1 : -1;
       if (modeRef.current !== 'wheel') {
-        // 3D mode: fixed height
+        // 3D mode: fixed Y height
         for (const idx of indices) {
           tasteSelection.yOffsets[idx] = sign * POPOUT_HEIGHT;
         }
         return;
       }
-      // 2D wheel mode: displace by inverse pairing count
+      // 2D wheel mode: radial push on XZ plane
       // Find min/max pairing count in the set
       let minPC = Infinity, maxPC = 0;
       for (const idx of indices) {
@@ -493,15 +510,24 @@ export default function LivingArchView({
         if (pc > maxPC) maxPC = pc;
       }
       const range = Math.max(1, maxPC - minPC);
-      const MIN_HEIGHT = 3;   // closest to plane (most pairings)
-      const MAX_HEIGHT = POPOUT_HEIGHT * 1.5; // furthest from plane (fewest pairings)
+      const MIN_PUSH = 2;   // closest to center (most pairings) — minimal push
+      const MAX_PUSH = 25;  // furthest from center (fewest pairings)
       for (const idx of indices) {
         const pc = nodeArray[idx].pairingCount || 1;
         // Normalized: 0 = fewest pairings, 1 = most pairings
         const norm = (pc - minPC) / range;
-        // Invert: most pairings → MIN_HEIGHT (close), fewest → MAX_HEIGHT (far)
-        const height = MIN_HEIGHT + (1 - norm) * (MAX_HEIGHT - MIN_HEIGHT);
-        tasteSelection.yOffsets[idx] = sign * height;
+        // Invert: most pairings → MIN_PUSH, fewest → MAX_PUSH
+        const pushDist = MIN_PUSH + (1 - norm) * (MAX_PUSH - MIN_PUSH);
+        // Compute radial direction from center to current position
+        const cx = curPos[idx*3];
+        const cz = curPos[idx*3+2];
+        const dist = Math.sqrt(cx * cx + cz * cz) || 1;
+        const dirX = cx / dist;
+        const dirZ = cz / dist;
+        tasteSelection.xzOffsets[idx*2]     = sign * dirX * pushDist;
+        tasteSelection.xzOffsets[idx*2 + 1] = sign * dirZ * pushDist;
+        // Also add a small Y pop for visual depth
+        tasteSelection.yOffsets[idx] = sign * (MIN_PUSH + (1 - norm) * 5);
       }
     }
 
@@ -558,6 +584,8 @@ export default function LivingArchView({
       tasteSelection.set2.clear();
       tasteSelection.yOffsets.fill(0);
       tasteSelection.yCurrentOffsets.fill(0);
+      tasteSelection.xzOffsets.fill(0);
+      tasteSelection.xzCurrentOffsets.fill(0);
       popEdgeMesh.visible = false;
       popEdgeGeo.setDrawRange(0, 0);
       // Reset node colors
@@ -696,10 +724,13 @@ export default function LivingArchView({
           const a3 = sprite.userData.axis3D;
           const angle = idx * sA - Math.PI / 2; // start from top
           const w2 = [Math.cos(angle) * 55, 2, Math.sin(angle) * 55];
+          // Swap source/dest based on transition direction
+          const srcLabel = isToWheel ? a3 : w2;
+          const dstLabel = isToWheel ? w2 : a3;
           sprite.position.set(
-            a3[0] + (w2[0] - a3[0]) * et,
-            a3[1] + (w2[1] - a3[1]) * et,
-            a3[2] + (w2[2] - a3[2]) * et,
+            srcLabel[0] + (dstLabel[0] - srcLabel[0]) * et,
+            srcLabel[1] + (dstLabel[1] - srcLabel[1]) * et,
+            srcLabel[2] + (dstLabel[2] - srcLabel[2]) * et,
           );
         });
 
@@ -713,9 +744,13 @@ export default function LivingArchView({
         camera.lookAt(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
 
         // Show/hide sector lines
-        sectorGroup.visible = et > 0.3;
-        const sectorOpacity = Math.max(0, (et - 0.3) / 0.7) * 0.4;
-        lineMat.opacity = isToWheel ? sectorOpacity : 0.4 * (1 - et);
+        if (isToWheel) {
+          sectorGroup.visible = et > 0.3;
+          lineMat.opacity = Math.max(0, (et - 0.3) / 0.7) * 0.4;
+        } else {
+          sectorGroup.visible = et < 0.7;
+          lineMat.opacity = 0.4 * (1 - et);
+        }
 
         if (t >= 1) {
           transition.active = false;
@@ -736,6 +771,8 @@ export default function LivingArchView({
           // Animating outward
           for (let i = 0; i < count; i++) {
             tasteSelection.yCurrentOffsets[i] = tasteSelection.yOffsets[i] * et;
+            tasteSelection.xzCurrentOffsets[i*2]     = tasteSelection.xzOffsets[i*2] * et;
+            tasteSelection.xzCurrentOffsets[i*2 + 1] = tasteSelection.xzOffsets[i*2 + 1] * et;
           }
           // Dim non-selected ingredients
           const allSelected = new Set([...tasteSelection.set1, ...tasteSelection.set2]);
@@ -749,9 +786,11 @@ export default function LivingArchView({
           }
           if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
         } else {
-          // Animating back to wheel (reverse)
+          // Animating back (reverse)
           for (let i = 0; i < count; i++) {
             tasteSelection.yCurrentOffsets[i] = tasteSelection.yOffsets[i] * (1 - et);
+            tasteSelection.xzCurrentOffsets[i*2]     = tasteSelection.xzOffsets[i*2] * (1 - et);
+            tasteSelection.xzCurrentOffsets[i*2 + 1] = tasteSelection.xzOffsets[i*2 + 1] * (1 - et);
           }
           // Restore colors
           for (let i = 0; i < count; i++) {
@@ -766,11 +805,15 @@ export default function LivingArchView({
           if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
         }
 
-        // Apply Y offsets to current positions and update instance matrices
+        // Apply Y + XZ offsets to current positions and update instance matrices
         for (let i = 0; i < count; i++) {
           mesh.getMatrixAt(i, dummy.matrix);
           dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
-          dummy.position.set(curPos[i*3], curPos[i*3+1] + tasteSelection.yCurrentOffsets[i], curPos[i*3+2]);
+          dummy.position.set(
+            curPos[i*3] + tasteSelection.xzCurrentOffsets[i*2],
+            curPos[i*3+1] + tasteSelection.yCurrentOffsets[i],
+            curPos[i*3+2] + tasteSelection.xzCurrentOffsets[i*2 + 1]
+          );
           dummy.updateMatrix();
           mesh.setMatrixAt(i, dummy.matrix);
         }
@@ -788,12 +831,12 @@ export default function LivingArchView({
               const { si, ti, edge } = validEdges[ei];
               if (!allSelected.has(si) || !allSelected.has(ti)) continue;
               const o = edgeCount * 6;
-              popEdgeVerts[o]   = curPos[si*3];
+              popEdgeVerts[o]   = curPos[si*3] + tasteSelection.xzCurrentOffsets[si*2];
               popEdgeVerts[o+1] = curPos[si*3+1] + tasteSelection.yCurrentOffsets[si];
-              popEdgeVerts[o+2] = curPos[si*3+2];
-              popEdgeVerts[o+3] = curPos[ti*3];
+              popEdgeVerts[o+2] = curPos[si*3+2] + tasteSelection.xzCurrentOffsets[si*2+1];
+              popEdgeVerts[o+3] = curPos[ti*3] + tasteSelection.xzCurrentOffsets[ti*2];
               popEdgeVerts[o+4] = curPos[ti*3+1] + tasteSelection.yCurrentOffsets[ti];
-              popEdgeVerts[o+5] = curPos[ti*3+2];
+              popEdgeVerts[o+5] = curPos[ti*3+2] + tasteSelection.xzCurrentOffsets[ti*2+1];
               const isCross = (tasteSelection.set1.has(si) && tasteSelection.set2.has(ti)) ||
                               (tasteSelection.set2.has(si) && tasteSelection.set1.has(ti));
               const c = isCross ? crossColor : popColor;
@@ -823,12 +866,12 @@ export default function LivingArchView({
               const { si, ti, edge } = validEdges[ei];
               if (!allSelected.has(si) || !allSelected.has(ti)) continue;
               const o = edgeCount * 6;
-              popEdgeVerts[o]   = curPos[si*3];
+              popEdgeVerts[o]   = curPos[si*3] + tasteSelection.xzCurrentOffsets[si*2];
               popEdgeVerts[o+1] = curPos[si*3+1] + tasteSelection.yCurrentOffsets[si];
-              popEdgeVerts[o+2] = curPos[si*3+2];
-              popEdgeVerts[o+3] = curPos[ti*3];
+              popEdgeVerts[o+2] = curPos[si*3+2] + tasteSelection.xzCurrentOffsets[si*2+1];
+              popEdgeVerts[o+3] = curPos[ti*3] + tasteSelection.xzCurrentOffsets[ti*2];
               popEdgeVerts[o+4] = curPos[ti*3+1] + tasteSelection.yCurrentOffsets[ti];
-              popEdgeVerts[o+5] = curPos[ti*3+2];
+              popEdgeVerts[o+5] = curPos[ti*3+2] + tasteSelection.xzCurrentOffsets[ti*2+1];
               const isCross = (tasteSelection.set1.has(si) && tasteSelection.set2.has(ti)) ||
                               (tasteSelection.set2.has(si) && tasteSelection.set1.has(ti));
               const c = isCross ? crossColor : popColor;
@@ -861,15 +904,19 @@ export default function LivingArchView({
         }
       }
 
-      // Even when not animating taste pop-out, keep Y offsets applied
+      // Even when not animating taste pop-out, keep Y + XZ offsets applied
       // (for static state after animation completes with direction=1)
       if (!tasteSelection.animating && (tasteSelection.taste1 !== null || tasteSelection.taste2 !== null)) {
-        // Ensure positions include Y offsets
+        // Ensure positions include Y + XZ offsets
         for (let i = 0; i < count; i++) {
-          if (tasteSelection.yCurrentOffsets[i] !== 0) {
+          if (tasteSelection.yCurrentOffsets[i] !== 0 || tasteSelection.xzCurrentOffsets[i*2] !== 0 || tasteSelection.xzCurrentOffsets[i*2+1] !== 0) {
             mesh.getMatrixAt(i, dummy.matrix);
             dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
-            dummy.position.set(curPos[i*3], curPos[i*3+1] + tasteSelection.yCurrentOffsets[i], curPos[i*3+2]);
+            dummy.position.set(
+              curPos[i*3] + tasteSelection.xzCurrentOffsets[i*2],
+              curPos[i*3+1] + tasteSelection.yCurrentOffsets[i],
+              curPos[i*3+2] + tasteSelection.xzCurrentOffsets[i*2+1]
+            );
             dummy.updateMatrix();
             mesh.setMatrixAt(i, dummy.matrix);
           }
@@ -898,8 +945,10 @@ export default function LivingArchView({
 
     stateRef.current = {
       scene, camera, renderer, composer, controls, mesh, edgeMesh, edgeGeo,
+      edgeColors, edgeOpacities, validEdges,
       nodeArray, nameIdx, defaultColors, curPos, posA, posB,
       triggerTransition, labelGroup, sectorGroup, tasteSelection,
+      updateEdgePositions,
     };
 
     return () => {
@@ -984,18 +1033,127 @@ export default function LivingArchView({
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [filterTaste, data]);
 
+  // ---- Tree filter highlighting (TASK-155) ----
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st || !data) return;
+    const { mesh, defaultColors, nodeArray, edgeGeo, edgeColors, edgeOpacities, validEdges, updateEdgePositions: updateEdges } = st;
+    const dimColor = new THREE.Color('#111118');
+
+    if (!treeFilterIngredients || treeFilterIngredients.length === 0) {
+      // Reset if no other filters active
+      if (!filterTaste) {
+        for (let i = 0; i < nodeArray.length; i++) mesh.setColorAt(i, defaultColors[i]);
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+        // Reset edge colors
+        updateEdges();
+        edgeGeo.getAttribute('aColor').needsUpdate = true;
+        edgeGeo.getAttribute('aOpacity').needsUpdate = true;
+      }
+      return;
+    }
+
+    const activeSet = new Set(treeFilterIngredients);
+    const count = nodeArray.length;
+    for (let i = 0; i < count; i++) {
+      const name = nodeArray[i].name;
+      if (activeSet.has(name)) {
+        mesh.setColorAt(i, defaultColors[i].clone().lerp(new THREE.Color('#ffffff'), 0.3));
+      } else {
+        mesh.setColorAt(i, dimColor);
+      }
+    }
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+
+    // Dim edges not connecting active ingredients
+    const nameIdx = st.nameIdx;
+    for (let i = 0; i < validEdges.length; i++) {
+      const { si, ti } = validEdges[i];
+      const srcName = nodeArray[si].name;
+      const tgtName = nodeArray[ti].name;
+      const o = i * 6;
+      if (activeSet.has(srcName) && activeSet.has(tgtName)) {
+        // Keep bright
+      } else {
+        edgeColors[o] *= 0.1; edgeColors[o+1] *= 0.1; edgeColors[o+2] *= 0.1;
+        edgeColors[o+3] *= 0.1; edgeColors[o+4] *= 0.1; edgeColors[o+5] *= 0.1;
+        edgeOpacities[i*2] *= 0.1; edgeOpacities[i*2+1] *= 0.1;
+      }
+    }
+    edgeGeo.getAttribute('aColor').needsUpdate = true;
+    edgeGeo.getAttribute('aOpacity').needsUpdate = true;
+  }, [treeFilterIngredients, filterTaste, data]);
+
+  // ---- Bridge path highlighting (TASK-159) ----
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st || !data) return;
+    const { mesh, defaultColors, nodeArray, edgeGeo, edgeColors, edgeOpacities, validEdges, updateEdgePositions: updateEdges } = st;
+    const dimColor = new THREE.Color('#111118');
+    const pathColor = new THREE.Color('#22d3ee');
+
+    if (!bridgePathIngredients || bridgePathIngredients.length === 0) {
+      // Don't reset if tree filter is active
+      if (!treeFilterIngredients) {
+        for (let i = 0; i < nodeArray.length; i++) mesh.setColorAt(i, defaultColors[i]);
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+        updateEdges();
+        edgeGeo.getAttribute('aColor').needsUpdate = true;
+        edgeGeo.getAttribute('aOpacity').needsUpdate = true;
+      }
+      return;
+    }
+
+    const pathSet = new Set(bridgePathIngredients);
+    const count = nodeArray.length;
+    for (let i = 0; i < count; i++) {
+      const name = nodeArray[i].name;
+      if (pathSet.has(name)) {
+        mesh.setColorAt(i, defaultColors[i].clone().lerp(pathColor, 0.5));
+      } else {
+        mesh.setColorAt(i, defaultColors[i].clone().lerp(dimColor, 0.7));
+      }
+    }
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+
+    // Highlight edges along path
+    const pathEdgeSet = new Set();
+    for (let i = 0; i < bridgePathIngredients.length - 1; i++) {
+      pathEdgeSet.add(`${bridgePathIngredients[i]}|${bridgePathIngredients[i+1]}`);
+      pathEdgeSet.add(`${bridgePathIngredients[i+1]}|${bridgePathIngredients[i]}`);
+    }
+    updateEdges();
+    for (let i = 0; i < validEdges.length; i++) {
+      const { si, ti } = validEdges[i];
+      const key = `${nodeArray[si].name}|${nodeArray[ti].name}`;
+      const o = i * 6;
+      if (pathEdgeSet.has(key)) {
+        // Bright cyan for path edges
+        edgeColors[o] = pathColor.r; edgeColors[o+1] = pathColor.g; edgeColors[o+2] = pathColor.b;
+        edgeColors[o+3] = pathColor.r; edgeColors[o+4] = pathColor.g; edgeColors[o+5] = pathColor.b;
+        edgeOpacities[i*2] = 0.8; edgeOpacities[i*2+1] = 0.8;
+      } else {
+        edgeColors[o] *= 0.15; edgeColors[o+1] *= 0.15; edgeColors[o+2] *= 0.15;
+        edgeColors[o+3] *= 0.15; edgeColors[o+4] *= 0.15; edgeColors[o+5] *= 0.15;
+        edgeOpacities[i*2] *= 0.15; edgeOpacities[i*2+1] *= 0.15;
+      }
+    }
+    edgeGeo.getAttribute('aColor').needsUpdate = true;
+    edgeGeo.getAttribute('aOpacity').needsUpdate = true;
+  }, [bridgePathIngredients, treeFilterIngredients, data]);
+
   // ---- Toggle handler ----
   const handleToggle = useCallback(() => {
     const next = mode === 'neural' ? 'wheel' : 'neural';
     setMode(next);
     if (stateRef.current) stateRef.current.triggerTransition(next);
-  }, [mode]);
+  }, [mode, setMode]);
 
   return (
     <div className="absolute inset-0 pt-10">
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      {/* Toggle switch — bottom center, raised on mobile to clear tab bar */}
-      <div className="absolute bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
+      {/* Toggle switch — bottom center, z-[60] to stay above MobileTabBar on iOS */}
+      <div className="absolute bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-3 px-4 py-2 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
         style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))' }}
       >
         <span className={`text-[11px] font-medium transition-colors ${mode === 'neural' ? 'text-cyan-400' : 'text-gray-600'}`}>
