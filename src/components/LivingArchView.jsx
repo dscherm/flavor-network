@@ -427,9 +427,6 @@ export default function LivingArchView({
       yOffsets: new Float32Array(count),
       // Current animated Y offsets
       yCurrentOffsets: new Float32Array(count),
-      // Radial XZ offsets for wheel mode (target values per ingredient)
-      xzOffsets: new Float32Array(count * 2), // [x0,z0, x1,z1, ...]
-      xzCurrentOffsets: new Float32Array(count * 2),
     };
 
     /** Compute which ingredients match a taste */
@@ -489,20 +486,20 @@ export default function LivingArchView({
       popEdgeMesh.visible = edgeCount > 0;
     }
 
-    /** Compute pairing-count-based offset for a set of ingredient indices.
-     *  In 2D wheel mode: radial XZ push — high pairings stay close to center, low pairings push outward.
-     *  In 3D mode: use fixed Y POPOUT_HEIGHT as before. */
+    /** Compute pairing-count-based Y offset for a set of ingredient indices.
+     *  In 2D wheel mode: vertical pop — most pairings closest to wheel, fewest pairings furthest.
+     *  In 3D mode: use fixed POPOUT_HEIGHT as before. */
     function computePairingOffset(indices, direction) {
       const sign = direction > 0 ? 1 : -1;
       if (modeRef.current !== 'wheel') {
-        // 3D mode: fixed Y height
+        // 3D mode: fixed height
         for (const idx of indices) {
           tasteSelection.yOffsets[idx] = sign * POPOUT_HEIGHT;
         }
         return;
       }
-      // 2D wheel mode: radial push on XZ plane
-      // Find min/max pairing count in the set
+      // 2D wheel mode: vertical displacement perpendicular to wheel
+      // Most pairings = close to wheel plane, fewest = furthest away
       let minPC = Infinity, maxPC = 0;
       for (const idx of indices) {
         const pc = nodeArray[idx].pairingCount || 1;
@@ -510,24 +507,15 @@ export default function LivingArchView({
         if (pc > maxPC) maxPC = pc;
       }
       const range = Math.max(1, maxPC - minPC);
-      const MIN_PUSH = 2;   // closest to center (most pairings) — minimal push
-      const MAX_PUSH = 25;  // furthest from center (fewest pairings)
+      const MIN_HEIGHT = 3;   // closest to wheel (most pairings)
+      const MAX_HEIGHT = POPOUT_HEIGHT * 1.5; // furthest from wheel (fewest pairings)
       for (const idx of indices) {
         const pc = nodeArray[idx].pairingCount || 1;
         // Normalized: 0 = fewest pairings, 1 = most pairings
         const norm = (pc - minPC) / range;
-        // Invert: most pairings → MIN_PUSH, fewest → MAX_PUSH
-        const pushDist = MIN_PUSH + (1 - norm) * (MAX_PUSH - MIN_PUSH);
-        // Compute radial direction from center to current position
-        const cx = curPos[idx*3];
-        const cz = curPos[idx*3+2];
-        const dist = Math.sqrt(cx * cx + cz * cz) || 1;
-        const dirX = cx / dist;
-        const dirZ = cz / dist;
-        tasteSelection.xzOffsets[idx*2]     = sign * dirX * pushDist;
-        tasteSelection.xzOffsets[idx*2 + 1] = sign * dirZ * pushDist;
-        // Also add a small Y pop for visual depth
-        tasteSelection.yOffsets[idx] = sign * (MIN_PUSH + (1 - norm) * 5);
+        // Invert: most pairings → MIN_HEIGHT (close), fewest → MAX_HEIGHT (far)
+        const height = MIN_HEIGHT + (1 - norm) * (MAX_HEIGHT - MIN_HEIGHT);
+        tasteSelection.yOffsets[idx] = sign * height;
       }
     }
 
@@ -584,8 +572,6 @@ export default function LivingArchView({
       tasteSelection.set2.clear();
       tasteSelection.yOffsets.fill(0);
       tasteSelection.yCurrentOffsets.fill(0);
-      tasteSelection.xzOffsets.fill(0);
-      tasteSelection.xzCurrentOffsets.fill(0);
       popEdgeMesh.visible = false;
       popEdgeGeo.setDrawRange(0, 0);
       // Reset node colors
@@ -768,11 +754,9 @@ export default function LivingArchView({
         const et = easeInOutCubic(t);
 
         if (tasteSelection.animDirection === 1) {
-          // Animating outward
+          // Animating outward (Y only — perpendicular to wheel)
           for (let i = 0; i < count; i++) {
             tasteSelection.yCurrentOffsets[i] = tasteSelection.yOffsets[i] * et;
-            tasteSelection.xzCurrentOffsets[i*2]     = tasteSelection.xzOffsets[i*2] * et;
-            tasteSelection.xzCurrentOffsets[i*2 + 1] = tasteSelection.xzOffsets[i*2 + 1] * et;
           }
           // Dim non-selected ingredients
           const allSelected = new Set([...tasteSelection.set1, ...tasteSelection.set2]);
@@ -789,8 +773,6 @@ export default function LivingArchView({
           // Animating back (reverse)
           for (let i = 0; i < count; i++) {
             tasteSelection.yCurrentOffsets[i] = tasteSelection.yOffsets[i] * (1 - et);
-            tasteSelection.xzCurrentOffsets[i*2]     = tasteSelection.xzOffsets[i*2] * (1 - et);
-            tasteSelection.xzCurrentOffsets[i*2 + 1] = tasteSelection.xzOffsets[i*2 + 1] * (1 - et);
           }
           // Restore colors
           for (let i = 0; i < count; i++) {
@@ -805,15 +787,11 @@ export default function LivingArchView({
           if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
         }
 
-        // Apply Y + XZ offsets to current positions and update instance matrices
+        // Apply Y offsets to current positions and update instance matrices
         for (let i = 0; i < count; i++) {
           mesh.getMatrixAt(i, dummy.matrix);
           dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
-          dummy.position.set(
-            curPos[i*3] + tasteSelection.xzCurrentOffsets[i*2],
-            curPos[i*3+1] + tasteSelection.yCurrentOffsets[i],
-            curPos[i*3+2] + tasteSelection.xzCurrentOffsets[i*2 + 1]
-          );
+          dummy.position.set(curPos[i*3], curPos[i*3+1] + tasteSelection.yCurrentOffsets[i], curPos[i*3+2]);
           dummy.updateMatrix();
           mesh.setMatrixAt(i, dummy.matrix);
         }
@@ -831,12 +809,12 @@ export default function LivingArchView({
               const { si, ti, edge } = validEdges[ei];
               if (!allSelected.has(si) || !allSelected.has(ti)) continue;
               const o = edgeCount * 6;
-              popEdgeVerts[o]   = curPos[si*3] + tasteSelection.xzCurrentOffsets[si*2];
+              popEdgeVerts[o]   = curPos[si*3];
               popEdgeVerts[o+1] = curPos[si*3+1] + tasteSelection.yCurrentOffsets[si];
-              popEdgeVerts[o+2] = curPos[si*3+2] + tasteSelection.xzCurrentOffsets[si*2+1];
-              popEdgeVerts[o+3] = curPos[ti*3] + tasteSelection.xzCurrentOffsets[ti*2];
+              popEdgeVerts[o+2] = curPos[si*3+2];
+              popEdgeVerts[o+3] = curPos[ti*3];
               popEdgeVerts[o+4] = curPos[ti*3+1] + tasteSelection.yCurrentOffsets[ti];
-              popEdgeVerts[o+5] = curPos[ti*3+2] + tasteSelection.xzCurrentOffsets[ti*2+1];
+              popEdgeVerts[o+5] = curPos[ti*3+2];
               const isCross = (tasteSelection.set1.has(si) && tasteSelection.set2.has(ti)) ||
                               (tasteSelection.set2.has(si) && tasteSelection.set1.has(ti));
               const c = isCross ? crossColor : popColor;
@@ -866,12 +844,12 @@ export default function LivingArchView({
               const { si, ti, edge } = validEdges[ei];
               if (!allSelected.has(si) || !allSelected.has(ti)) continue;
               const o = edgeCount * 6;
-              popEdgeVerts[o]   = curPos[si*3] + tasteSelection.xzCurrentOffsets[si*2];
+              popEdgeVerts[o]   = curPos[si*3];
               popEdgeVerts[o+1] = curPos[si*3+1] + tasteSelection.yCurrentOffsets[si];
-              popEdgeVerts[o+2] = curPos[si*3+2] + tasteSelection.xzCurrentOffsets[si*2+1];
-              popEdgeVerts[o+3] = curPos[ti*3] + tasteSelection.xzCurrentOffsets[ti*2];
+              popEdgeVerts[o+2] = curPos[si*3+2];
+              popEdgeVerts[o+3] = curPos[ti*3];
               popEdgeVerts[o+4] = curPos[ti*3+1] + tasteSelection.yCurrentOffsets[ti];
-              popEdgeVerts[o+5] = curPos[ti*3+2] + tasteSelection.xzCurrentOffsets[ti*2+1];
+              popEdgeVerts[o+5] = curPos[ti*3+2];
               const isCross = (tasteSelection.set1.has(si) && tasteSelection.set2.has(ti)) ||
                               (tasteSelection.set2.has(si) && tasteSelection.set1.has(ti));
               const c = isCross ? crossColor : popColor;
@@ -904,19 +882,15 @@ export default function LivingArchView({
         }
       }
 
-      // Even when not animating taste pop-out, keep Y + XZ offsets applied
+      // Even when not animating taste pop-out, keep Y offsets applied
       // (for static state after animation completes with direction=1)
       if (!tasteSelection.animating && (tasteSelection.taste1 !== null || tasteSelection.taste2 !== null)) {
-        // Ensure positions include Y + XZ offsets
+        // Ensure positions include Y offsets
         for (let i = 0; i < count; i++) {
-          if (tasteSelection.yCurrentOffsets[i] !== 0 || tasteSelection.xzCurrentOffsets[i*2] !== 0 || tasteSelection.xzCurrentOffsets[i*2+1] !== 0) {
+          if (tasteSelection.yCurrentOffsets[i] !== 0) {
             mesh.getMatrixAt(i, dummy.matrix);
             dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
-            dummy.position.set(
-              curPos[i*3] + tasteSelection.xzCurrentOffsets[i*2],
-              curPos[i*3+1] + tasteSelection.yCurrentOffsets[i],
-              curPos[i*3+2] + tasteSelection.xzCurrentOffsets[i*2+1]
-            );
+            dummy.position.set(curPos[i*3], curPos[i*3+1] + tasteSelection.yCurrentOffsets[i], curPos[i*3+2]);
             dummy.updateMatrix();
             mesh.setMatrixAt(i, dummy.matrix);
           }
