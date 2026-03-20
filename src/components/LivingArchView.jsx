@@ -316,7 +316,7 @@ export default function LivingArchView({
         edgeColors[o+3] = tmp2.r * BASE_EDGE_DIM * brighten;
         edgeColors[o+4] = tmp2.g * BASE_EDGE_DIM * brighten;
         edgeColors[o+5] = tmp2.b * BASE_EDGE_DIM * brighten;
-        const op = (0.04 + 0.26 * str) * BASE_EDGE_DIM;
+        const op = Math.max(0.03, (0.08 + 0.32 * str) * BASE_EDGE_DIM);
         edgeOpacities[i*2] = op; edgeOpacities[i*2+1] = op;
       }
     }
@@ -329,6 +329,7 @@ export default function LivingArchView({
 
     const edgeMat = new THREE.ShaderMaterial({
       vertexShader: `
+        precision highp float;
         attribute vec3 aColor;
         attribute float aOpacity;
         varying vec3 vColor;
@@ -340,6 +341,7 @@ export default function LivingArchView({
         }
       `,
       fragmentShader: `
+        precision highp float;
         varying vec3 vColor;
         varying float vOpacity;
         void main() { gl_FragColor = vec4(vColor, vOpacity); }
