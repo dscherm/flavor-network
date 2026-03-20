@@ -14,6 +14,7 @@ const MIN_OPACITY = 0.025;
 const MAX_OPACITY = 0.2;
 
 const edgeVertexShader = /* glsl */ `
+  precision highp float;
   attribute vec3 aColor;
   attribute float aOpacity;
 
@@ -28,6 +29,7 @@ const edgeVertexShader = /* glsl */ `
 `;
 
 const edgeFragmentShader = /* glsl */ `
+  precision highp float;
   varying vec3 vColor;
   varying float vOpacity;
 
