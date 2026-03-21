@@ -357,6 +357,97 @@ export default function LivingArchView({
     const edgeMesh = new THREE.LineSegments(edgeGeo, edgeMat);
     scene.add(edgeMesh);
 
+    // --- Particles flowing along strong edges ---
+    const PARTICLE_THRESHOLD = 0.3;
+    const PARTICLES_PER_EDGE = 2;
+    const particleData = [];
+    const particleColorArr = [];
+    const defaultParticleColor = new THREE.Color(0x4f8fff);
+
+    for (const { edge, si, ti } of validEdges) {
+      if ((edge.strength || 0) <= PARTICLE_THRESHOLD) continue;
+      const col = defaultColors[si] || defaultParticleColor;
+      const speed = 0.15 + 0.45 * (edge.strength || 0);
+      for (let p = 0; p < PARTICLES_PER_EDGE; p++) {
+        particleData.push({ si, ti, progress: p / PARTICLES_PER_EDGE, speed });
+        particleColorArr.push(col.r, col.g, col.b);
+      }
+    }
+
+    const pCount = particleData.length;
+    const particlePositions = new Float32Array(pCount * 3);
+    const particleOpacities = new Float32Array(pCount);
+    const particleColors = new Float32Array(particleColorArr);
+
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
+    particleGeo.setAttribute('aOpacity', new THREE.Float32BufferAttribute(particleOpacities, 1));
+    particleGeo.setAttribute('aColor', new THREE.Float32BufferAttribute(particleColors, 3));
+
+    const particleMat = new THREE.ShaderMaterial({
+      vertexShader: `
+        precision highp float;
+        attribute float aOpacity;
+        attribute vec3 aColor;
+        varying float vOpacity;
+        varying vec3 vColor;
+        void main() {
+          vOpacity = aOpacity;
+          vColor = aColor;
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = 3.0 * (200.0 / -mvPos.z);
+          gl_Position = projectionMatrix * mvPos;
+        }
+      `,
+      fragmentShader: `
+        precision highp float;
+        varying float vOpacity;
+        varying vec3 vColor;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          if (d > 0.5) discard;
+          float alpha = smoothstep(0.5, 0.2, d) * vOpacity;
+          gl_FragColor = vec4(vColor, alpha);
+        }
+      `,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+
+    const particleMesh = new THREE.Points(particleGeo, particleMat);
+    particleMesh.frustumCulled = false;
+    scene.add(particleMesh);
+
+    let lastTime = performance.now();
+
+    function updateParticles() {
+      const now = performance.now();
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+      const posAttr = particleGeo.getAttribute('position');
+      const opAttr = particleGeo.getAttribute('aOpacity');
+
+      for (let i = 0; i < pCount; i++) {
+        const pd = particleData[i];
+        pd.progress += pd.speed * dt;
+        if (pd.progress >= 1) pd.progress -= Math.floor(pd.progress);
+        const t = pd.progress;
+
+        // Lerp between source and target using curPos (which animates during transitions)
+        const si3 = pd.si * 3, ti3 = pd.ti * 3;
+        const yOff1 = tasteSelection.yCurrentOffsets[pd.si] || 0;
+        const yOff2 = tasteSelection.yCurrentOffsets[pd.ti] || 0;
+        posAttr.array[i*3]   = curPos[si3]   + (curPos[ti3]   - curPos[si3])   * t;
+        posAttr.array[i*3+1] = (curPos[si3+1] + yOff1) + ((curPos[ti3+1] + yOff2) - (curPos[si3+1] + yOff1)) * t;
+        posAttr.array[i*3+2] = curPos[si3+2] + (curPos[ti3+2] - curPos[si3+2]) * t;
+
+        // Fade near endpoints
+        const fade = Math.min(t, 1 - t) * 4;
+        opAttr.array[i] = Math.min(fade, 1.0) * 0.7;
+      }
+      posAttr.needsUpdate = true;
+      opAttr.needsUpdate = true;
+    }
+
     // --- Pop-out edges (for taste selection connections) ---
     const MAX_POPOUT_EDGES = 10000;
     const popEdgeVerts = new Float32Array(MAX_POPOUT_EDGES * 6);
@@ -911,6 +1002,7 @@ export default function LivingArchView({
         buildPopoutEdges();
       }
 
+      updateParticles();
       controls.update();
       composer.render();
     }
@@ -947,6 +1039,8 @@ export default function LivingArchView({
       mat.dispose();
       edgeGeo.dispose();
       edgeMat.dispose();
+      particleGeo.dispose();
+      particleMat.dispose();
       popEdgeGeo.dispose();
       popEdgeMat.dispose();
       lineMat.dispose();
