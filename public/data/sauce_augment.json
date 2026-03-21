@@ -161,7 +161,24 @@
     { "name": "crayfish", "category": "Other", "taste": "sweet, briny", "weight": "medium", "codexRole": "other" },
     { "name": "poppy seed", "category": "Other", "taste": "nutty, mild", "weight": "light", "codexRole": "other" },
     { "name": "sugar", "category": "Other", "taste": "sweet", "weight": "light", "codexRole": "other" },
-    { "name": "tomato puree", "category": "Other", "taste": "smooth, acidic", "weight": "medium", "codexRole": "other" }
+    { "name": "tomato puree", "category": "Other", "taste": "smooth, acidic", "weight": "medium", "codexRole": "other" },
+
+    { "name": "demi-glace", "category": "Liquid", "taste": "rich, savory, complex", "weight": "heavy", "codexRole": "liquid" },
+    { "name": "beurre blanc", "category": "Other", "taste": "rich, tangy, buttery", "weight": "medium-heavy", "codexRole": "other" },
+    { "name": "aioli", "category": "Other", "taste": "garlicky, rich", "weight": "medium-heavy", "codexRole": "other" },
+    { "name": "sriracha", "category": "Chili", "taste": "hot, sweet, garlicky", "weight": "medium", "codexRole": "heat" },
+    { "name": "sambal oelek", "category": "Chili", "taste": "hot, bright", "weight": "medium", "codexRole": "heat" },
+    { "name": "harissa", "category": "Chili", "taste": "hot, smoky, complex", "weight": "medium-heavy", "codexRole": "heat" },
+    { "name": "pesto", "category": "Other", "taste": "herbal, nutty, savory", "weight": "medium", "codexRole": "other" },
+    { "name": "chimichurri", "category": "Other", "taste": "herbal, tangy, bright", "weight": "light-medium", "codexRole": "other" },
+    { "name": "beurre monte", "category": "Fat", "taste": "rich, buttery", "weight": "medium-heavy", "codexRole": "base" },
+    { "name": "veloute", "category": "Liquid", "taste": "savory, velvety", "weight": "medium", "codexRole": "liquid" },
+    { "name": "roux", "category": "Thickener", "taste": "neutral, toasty", "weight": "medium", "codexRole": "thickener" },
+    { "name": "fumet", "category": "Liquid", "taste": "briny, delicate", "weight": "light-medium", "codexRole": "liquid" },
+    { "name": "remoulade", "category": "Other", "taste": "tangy, herbal", "weight": "medium", "codexRole": "other" },
+    { "name": "ponzu", "category": "Acid", "taste": "sour, citrusy, umami", "weight": "light-medium", "codexRole": "acid" },
+    { "name": "nuoc cham", "category": "Acid", "taste": "sweet, sour, salty, spicy", "weight": "light-medium", "codexRole": "acid" },
+    { "name": "nam jim", "category": "Acid", "taste": "sweet, sour, spicy, salty", "weight": "light-medium", "codexRole": "acid" }
   ],
 
   "pairings": [
@@ -961,7 +978,112 @@
     { "source": "sugar", "target": "rice vinegar", "strength": 0.88 },
     { "source": "sugar", "target": "soy sauce", "strength": 0.78 },
     { "source": "sugar", "target": "tomato", "strength": 0.75 },
-    { "source": "sugar", "target": "lime juice", "strength": 0.82 }
+    { "source": "sugar", "target": "lime juice", "strength": 0.82 },
+
+    { "source": "demi-glace", "target": "veal stock", "strength": 0.95 },
+    { "source": "demi-glace", "target": "beef stock", "strength": 0.90 },
+    { "source": "demi-glace", "target": "red wine", "strength": 0.90 },
+    { "source": "demi-glace", "target": "madeira wine", "strength": 0.90 },
+    { "source": "demi-glace", "target": "butter", "strength": 0.85 },
+    { "source": "demi-glace", "target": "shallot", "strength": 0.85 },
+    { "source": "demi-glace", "target": "thyme", "strength": 0.80 },
+    { "source": "demi-glace", "target": "black pepper", "strength": 0.80 },
+
+    { "source": "beurre blanc", "target": "butter", "strength": 0.95 },
+    { "source": "beurre blanc", "target": "white wine", "strength": 0.95 },
+    { "source": "beurre blanc", "target": "shallot", "strength": 0.90 },
+    { "source": "beurre blanc", "target": "white wine vinegar", "strength": 0.85 },
+    { "source": "beurre blanc", "target": "cream", "strength": 0.80 },
+    { "source": "beurre blanc", "target": "lemon juice", "strength": 0.80 },
+    { "source": "beurre blanc", "target": "tarragon", "strength": 0.75 },
+    { "source": "beurre blanc", "target": "fish stock", "strength": 0.80 },
+
+    { "source": "aioli", "target": "garlic", "strength": 0.95 },
+    { "source": "aioli", "target": "olive oil", "strength": 0.95 },
+    { "source": "aioli", "target": "egg yolk", "strength": 0.90 },
+    { "source": "aioli", "target": "lemon juice", "strength": 0.90 },
+    { "source": "aioli", "target": "dijon mustard", "strength": 0.80 },
+    { "source": "aioli", "target": "salt", "strength": 0.85 },
+
+    { "source": "sriracha", "target": "garlic", "strength": 0.90 },
+    { "source": "sriracha", "target": "lime juice", "strength": 0.85 },
+    { "source": "sriracha", "target": "sugar", "strength": 0.80 },
+    { "source": "sriracha", "target": "soy sauce", "strength": 0.85 },
+    { "source": "sriracha", "target": "mayonnaise", "strength": 0.80 },
+    { "source": "sriracha", "target": "honey", "strength": 0.78 },
+    { "source": "sriracha", "target": "sesame oil", "strength": 0.80 },
+    { "source": "sriracha", "target": "rice vinegar", "strength": 0.80 },
+
+    { "source": "sambal oelek", "target": "garlic", "strength": 0.85 },
+    { "source": "sambal oelek", "target": "lime juice", "strength": 0.85 },
+    { "source": "sambal oelek", "target": "fish sauce", "strength": 0.85 },
+    { "source": "sambal oelek", "target": "coconut milk", "strength": 0.80 },
+    { "source": "sambal oelek", "target": "palm sugar", "strength": 0.80 },
+    { "source": "sambal oelek", "target": "shrimp paste", "strength": 0.85 },
+    { "source": "sambal oelek", "target": "lemongrass", "strength": 0.78 },
+
+    { "source": "harissa", "target": "olive oil", "strength": 0.90 },
+    { "source": "harissa", "target": "garlic", "strength": 0.90 },
+    { "source": "harissa", "target": "cumin", "strength": 0.90 },
+    { "source": "harissa", "target": "coriander", "strength": 0.85 },
+    { "source": "harissa", "target": "tomato paste", "strength": 0.85 },
+    { "source": "harissa", "target": "lemon juice", "strength": 0.80 },
+    { "source": "harissa", "target": "smoked paprika", "strength": 0.85 },
+    { "source": "harissa", "target": "caraway", "strength": 0.80 },
+
+    { "source": "pesto", "target": "basil", "strength": 0.95 },
+    { "source": "pesto", "target": "olive oil", "strength": 0.95 },
+    { "source": "pesto", "target": "parmesan", "strength": 0.95 },
+    { "source": "pesto", "target": "garlic", "strength": 0.90 },
+    { "source": "pesto", "target": "almond", "strength": 0.80 },
+    { "source": "pesto", "target": "lemon juice", "strength": 0.75 },
+
+    { "source": "chimichurri", "target": "parsley", "strength": 0.95 },
+    { "source": "chimichurri", "target": "oregano", "strength": 0.90 },
+    { "source": "chimichurri", "target": "olive oil", "strength": 0.95 },
+    { "source": "chimichurri", "target": "garlic", "strength": 0.90 },
+    { "source": "chimichurri", "target": "red wine vinegar", "strength": 0.90 },
+    { "source": "chimichurri", "target": "chili flake", "strength": 0.80 },
+
+    { "source": "roux", "target": "butter", "strength": 0.95 },
+    { "source": "roux", "target": "flour", "strength": 0.95 },
+    { "source": "roux", "target": "milk", "strength": 0.85 },
+    { "source": "roux", "target": "chicken stock", "strength": 0.85 },
+
+    { "source": "ponzu", "target": "soy sauce", "strength": 0.90 },
+    { "source": "ponzu", "target": "yuzu", "strength": 0.95 },
+    { "source": "ponzu", "target": "mirin", "strength": 0.85 },
+    { "source": "ponzu", "target": "rice vinegar", "strength": 0.85 },
+    { "source": "ponzu", "target": "bonito flakes", "strength": 0.80 },
+    { "source": "ponzu", "target": "dashi", "strength": 0.80 },
+
+    { "source": "nuoc cham", "target": "fish sauce", "strength": 0.95 },
+    { "source": "nuoc cham", "target": "lime juice", "strength": 0.95 },
+    { "source": "nuoc cham", "target": "sugar", "strength": 0.90 },
+    { "source": "nuoc cham", "target": "garlic", "strength": 0.85 },
+    { "source": "nuoc cham", "target": "thai chili", "strength": 0.85 },
+
+    { "source": "fumet", "target": "fish stock", "strength": 0.95 },
+    { "source": "fumet", "target": "white wine", "strength": 0.85 },
+    { "source": "fumet", "target": "shallot", "strength": 0.80 },
+    { "source": "fumet", "target": "butter", "strength": 0.75 },
+
+    { "source": "remoulade", "target": "mayonnaise", "strength": 0.95 },
+    { "source": "remoulade", "target": "dijon mustard", "strength": 0.90 },
+    { "source": "remoulade", "target": "capers", "strength": 0.85 },
+    { "source": "remoulade", "target": "cornichons", "strength": 0.85 },
+    { "source": "remoulade", "target": "parsley", "strength": 0.80 },
+    { "source": "remoulade", "target": "tarragon", "strength": 0.80 },
+
+    { "source": "beurre monte", "target": "butter", "strength": 0.95 },
+    { "source": "beurre monte", "target": "water", "strength": 0.70 },
+
+    { "source": "nam jim", "target": "fish sauce", "strength": 0.90 },
+    { "source": "nam jim", "target": "lime juice", "strength": 0.95 },
+    { "source": "nam jim", "target": "thai chili", "strength": 0.90 },
+    { "source": "nam jim", "target": "garlic", "strength": 0.85 },
+    { "source": "nam jim", "target": "palm sugar", "strength": 0.85 },
+    { "source": "nam jim", "target": "cilantro", "strength": 0.80 }
   ],
 
   "sauceIngredientNames": [
@@ -995,7 +1117,10 @@
     "curry paste green", "curry paste red", "curry powder",
     "berbere spice", "suya spice", "worcestershire sauce", "ketchup",
     "cucumber", "sour cream", "mayonnaise", "buttermilk", "crayfish", "poppy seed",
-    "sugar"
+    "sugar",
+    "demi-glace", "beurre blanc", "aioli", "sriracha", "sambal oelek", "harissa",
+    "pesto", "chimichurri", "beurre monte", "veloute", "roux", "fumet",
+    "remoulade", "ponzu", "nuoc cham", "nam jim"
   ],
 
   "sauces": [
