@@ -48,8 +48,8 @@ export default function App() {
   const [livingMode, setLivingMode] = useState('neural'); // 'neural' | 'wheel' — lifted for persistence across tab switches
   const [viewDropdownOpen, setViewDropdownOpen] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState([]);
-  const [showEdges, setShowEdges] = useState(() => !window.matchMedia('(max-width: 640px)').matches);
-  const [showParticles, setShowParticles] = useState(() => !window.matchMedia('(max-width: 640px)').matches);
+  const [showEdges, setShowEdges] = useState(true);
+  const [showParticles, setShowParticles] = useState(true);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
   const [showTour, setShowTour] = useState(
