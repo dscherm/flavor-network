@@ -2,17 +2,16 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import { getNeighbors } from '../data/graph.js';
 import { computeRadialLayout, extractTechniques } from '../data/recipeLayout.js';
+import { buildIngredientIndex, parseIngredients } from '../data/recipeParser.js';
+import { scrapeRecipe } from '../data/recipeScraper.js';
 import NotebookCanvas from './NotebookCanvas.jsx';
 import RecipePanel from './RecipePanel.jsx';
 import StructureSelector from './StructureSelector.jsx';
 
 const FONT_FAMILY = 'Caveat, cursive';
 
-/**
- * @param {string} labMode - 'taste' (default), 'cocktail', or 'sauce'
- *   Controls which structure templates are available and axis labeling.
- */
-export default function RecipeLab({ fullData, initialIngredient, userProfile, labMode = 'taste', isMobile = false }) {
+export default function RecipeLab({ fullData, initialIngredient, userProfile, isMobile = false }) {
+  const [labMode, setLabMode] = useState('taste'); // internal mode: 'taste' | 'cocktail' | 'sauce'
   const [centerIngredient, setCenterIngredient] = useState(initialIngredient || null);
   const [recipeIngredients, setRecipeIngredients] = useState(
     initialIngredient ? [initialIngredient] : []
@@ -20,6 +19,7 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
   const [recipeTitle, setRecipeTitle] = useState('');
   const [hoveredNode, setHoveredNode] = useState(null);
   const [selectedStructure, setSelectedStructure] = useState(null);
+  const [showImport, setShowImport] = useState(false);
 
   // Reset structure selection when switching lab modes
   useEffect(() => {
@@ -92,7 +92,6 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
   }, [fuse]);
 
   const selectFromSearch = useCallback((name) => {
-    // Only set center if no focal ingredient exists yet
     if (!centerIngredient) {
       setCenterIngredient(name);
     }
@@ -160,20 +159,15 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
 
   const handleClickNode = useCallback((name) => {
     if (!name) return;
-    // If clicking center or already in recipe, do nothing
     if (name === centerIngredient) return;
     if (recipeIngredients.includes(name)) return;
-
-    // Add to recipe without changing focal ingredient
     setRecipeIngredients(prev => [...prev, name]);
   }, [centerIngredient, recipeIngredients]);
 
   const handleRemoveIngredient = useCallback((name) => {
     setRecipeIngredients(prev => prev.filter(n => n !== name));
-    // If we removed the center ingredient, pick the first remaining or null
     if (name === centerIngredient) {
       setRecipeIngredients(prev => {
-        // prev already has the item removed from the earlier filter
         return prev;
       });
       setCenterIngredient(prev => {
@@ -203,12 +197,58 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
     userProfile?.addRecipe?.(recipe);
   }, [recipeIngredients, recipeTitle, userProfile]);
 
+  // Import: add extracted ingredients to the current recipe
+  const handleImportIngredients = useCallback((names) => {
+    for (const name of names) {
+      if (!centerIngredient && names.indexOf(name) === 0) {
+        setCenterIngredient(name);
+      }
+      setRecipeIngredients(prev =>
+        prev.includes(name) ? prev : [...prev, name]
+      );
+    }
+    setShowImport(false);
+  }, [centerIngredient]);
+
   // Panel width for layout calculation
   const panelWidth = 280;
   const canvasWidth = isMobile ? size.width : Math.max(300, size.width - panelWidth);
 
   return (
     <div className={`fixed inset-0 pt-10 flex ${isMobile ? 'flex-col' : ''}`} style={{ backgroundColor: '#fefae0' }}>
+      {/* Mode tabs — top bar */}
+      <div className="absolute top-11 right-3 z-20 flex items-center gap-1">
+        {[
+          { key: 'taste', label: 'General' },
+          { key: 'cocktail', label: 'Cocktail' },
+          { key: 'sauce', label: 'Sauce' },
+        ].map(m => (
+          <button
+            key={m.key}
+            onClick={() => setLabMode(m.key)}
+            className={`px-2 py-1 text-xs rounded-md border transition-colors ${
+              labMode === m.key
+                ? 'bg-[#e8dcc0] border-[#c9b99a] text-[#5a4a2a] font-medium'
+                : 'border-[#d8cca8] text-[#a09070] hover:bg-[#f0e8d0]'
+            }`}
+            style={{ fontFamily: FONT_FAMILY }}
+          >
+            {m.label}
+          </button>
+        ))}
+        <button
+          onClick={() => setShowImport(true)}
+          className="px-2 py-1 text-xs rounded-md border border-[#c9b99a] text-[#7a6a4a] hover:bg-[#e8dcc0] transition-colors flex items-center gap-1"
+          style={{ fontFamily: FONT_FAMILY }}
+          title="Import recipe from URL or text"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.813a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364L4.34 8.374" />
+          </svg>
+          Import
+        </button>
+      </div>
+
       {/* Structure selector — top left, only for cocktail/sauce modes */}
       {(labMode === 'cocktail' || labMode === 'sauce') && (
         <div className="absolute top-12 left-3 z-20">
@@ -340,6 +380,230 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, la
           />
         </div>
       )}
+
+      {/* Import modal */}
+      {showImport && (
+        <ImportModal
+          ingredientList={fullData?.graph?.ingredientList || []}
+          onImport={handleImportIngredients}
+          onClose={() => setShowImport(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function ImportModal({ ingredientList, onImport, onClose }) {
+  const [mode, setMode] = useState('url');
+  const [url, setUrl] = useState('');
+  const [pasteText, setPasteText] = useState('');
+  const [recipeName, setRecipeName] = useState('');
+  const [extracted, setExtracted] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [scraped, setScraped] = useState(false);
+
+  const parserIndex = useMemo(
+    () => buildIngredientIndex(ingredientList || []),
+    [ingredientList],
+  );
+
+  const handleScrapeUrl = useCallback(async () => {
+    const trimmed = url.trim();
+    if (!trimmed) return;
+    try { const parsed = new URL(trimmed); if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') throw new Error(); }
+    catch { setError('Please enter a valid URL'); return; }
+
+    setLoading(true);
+    setError('');
+    setExtracted([]);
+    setScraped(false);
+    try {
+      const data = await scrapeRecipe(trimmed);
+      if (data.title) setRecipeName(data.title);
+      const matched = (data.ingredients || [])
+        .map((ing) => {
+          const results = parserIndex.search(ing, { limit: 1 });
+          if (results.length > 0 && results[0].score < 0.35) {
+            return { name: results[0].item.name, confirmed: true };
+          }
+          return null;
+        })
+        .filter(Boolean);
+      const seen = new Set();
+      const unique = matched.filter((m) => { if (seen.has(m.name)) return false; seen.add(m.name); return true; });
+      setExtracted(unique);
+      setScraped(true);
+      if (unique.length === 0) setError('No known ingredients found. Try pasting the ingredient list instead.');
+    } catch {
+      setError('Could not fetch recipe. Try pasting the text directly.');
+    } finally {
+      setLoading(false);
+    }
+  }, [url, parserIndex]);
+
+  const handleParseText = useCallback(() => {
+    if (!pasteText.trim()) return;
+    setError('');
+    const found = parseIngredients(pasteText, parserIndex);
+    const items = found.map((name) => ({ name, confirmed: true }));
+    setExtracted(items);
+    setScraped(true);
+    if (items.length === 0) setError('No known ingredients matched. Try a longer list.');
+  }, [pasteText, parserIndex]);
+
+  const toggleIngredient = useCallback((name) => {
+    setExtracted((prev) =>
+      prev.map((item) => item.name === name ? { ...item, confirmed: !item.confirmed } : item)
+    );
+  }, []);
+
+  const confirmed = useMemo(() => extracted.filter(i => i.confirmed).map(i => i.name), [extracted]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div
+        className="w-[420px] max-h-[75vh] bg-[#fefae0] border-2 border-[#c9b99a] rounded-lg flex flex-col overflow-hidden shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-4 py-3 border-b-2 border-[#d8cca8]">
+          <h2 className="text-lg font-medium" style={{ fontFamily: 'Caveat, cursive', color: '#5a4a2a' }}>
+            Import Recipe
+          </h2>
+          <button onClick={onClose} className="text-[#a09070] hover:text-[#5a4a2a] text-xl leading-none">&times;</button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {!scraped && (
+            <>
+              <div className="flex border-b-2 border-[#d8cca8]">
+                <button
+                  onClick={() => { setMode('url'); setError(''); }}
+                  className={`flex-1 py-1.5 text-sm transition-colors ${
+                    mode === 'url' ? 'text-[#5a4a2a] border-b-2 border-[#8a7a5a]' : 'text-[#a09070]'
+                  }`}
+                  style={{ fontFamily: 'Caveat, cursive' }}
+                >
+                  Paste URL
+                </button>
+                <button
+                  onClick={() => { setMode('paste'); setError(''); }}
+                  className={`flex-1 py-1.5 text-sm transition-colors ${
+                    mode === 'paste' ? 'text-[#5a4a2a] border-b-2 border-[#8a7a5a]' : 'text-[#a09070]'
+                  }`}
+                  style={{ fontFamily: 'Caveat, cursive' }}
+                >
+                  Paste Text
+                </button>
+              </div>
+
+              {mode === 'url' && (
+                <div>
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={e => setUrl(e.target.value)}
+                    placeholder="https://www.allrecipes.com/recipe/..."
+                    className="w-full text-sm bg-white/60 border-2 border-[#c9b99a] rounded-lg px-3 py-2 focus:outline-none focus:border-[#8a7a5a] placeholder-[#b8a88a]"
+                    style={{ fontFamily: 'Caveat, cursive', color: '#3a3428' }}
+                    onKeyDown={e => e.key === 'Enter' && handleScrapeUrl()}
+                  />
+                  <button
+                    onClick={handleScrapeUrl}
+                    disabled={!url.trim() || loading}
+                    className="mt-2 w-full text-sm bg-[#e8dcc0] hover:bg-[#d8cca8] disabled:opacity-40 rounded-lg py-2 transition-colors"
+                    style={{ fontFamily: 'Caveat, cursive', color: '#5a4a2a' }}
+                  >
+                    {loading ? 'Fetching...' : 'Extract Ingredients'}
+                  </button>
+                </div>
+              )}
+
+              {mode === 'paste' && (
+                <div>
+                  <textarea
+                    value={pasteText}
+                    onChange={e => setPasteText(e.target.value)}
+                    placeholder={"Paste ingredient list...\n2 cups flour\n3 cloves garlic\n1 tbsp olive oil"}
+                    rows={5}
+                    className="w-full text-sm bg-white/60 border-2 border-[#c9b99a] rounded-lg px-3 py-2 focus:outline-none focus:border-[#8a7a5a] placeholder-[#b8a88a] resize-none"
+                    style={{ fontFamily: 'Caveat, cursive', color: '#3a3428' }}
+                  />
+                  <button
+                    onClick={handleParseText}
+                    disabled={!pasteText.trim()}
+                    className="mt-1.5 w-full text-sm bg-[#e8dcc0] hover:bg-[#d8cca8] disabled:opacity-40 rounded-lg py-2 transition-colors"
+                    style={{ fontFamily: 'Caveat, cursive', color: '#5a4a2a' }}
+                  >
+                    Extract Ingredients
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {error && (
+            <div className="text-sm bg-[#f5e6c8] border border-[#c9a96a] rounded-lg px-3 py-2" style={{ fontFamily: 'Caveat, cursive', color: '#8a6a2a' }}>
+              {error}
+            </div>
+          )}
+
+          {scraped && extracted.length > 0 && (
+            <div className="space-y-2">
+              <div className="bg-white/40 border-2 border-[#c9b99a] rounded-lg max-h-48 overflow-y-auto">
+                {extracted.map(item => (
+                  <button
+                    key={item.name}
+                    onClick={() => toggleIngredient(item.name)}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm border-b border-[#e8dcc0] last:border-b-0 transition-colors ${
+                      item.confirmed ? 'text-[#3a3428]' : 'text-[#b8a88a] line-through'
+                    }`}
+                    style={{ fontFamily: 'Caveat, cursive' }}
+                  >
+                    <span className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                      item.confirmed ? 'border-[#7a6a4a] bg-[#e8dcc0]' : 'border-[#c9b99a]'
+                    }`}>
+                      {item.confirmed && (
+                        <svg className="w-3 h-3 text-[#5a4a2a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </span>
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => { setScraped(false); setExtracted([]); setError(''); }}
+                className="text-xs text-[#a09070] hover:text-[#7a6a4a] transition-colors"
+                style={{ fontFamily: 'Caveat, cursive' }}
+              >
+                Start over
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-2 px-4 py-3 border-t-2 border-[#d8cca8]">
+          <button
+            onClick={onClose}
+            className="text-sm px-3 py-1.5 text-[#a09070] hover:text-[#5a4a2a] transition-colors"
+            style={{ fontFamily: 'Caveat, cursive' }}
+          >
+            Cancel
+          </button>
+          {scraped && (
+            <button
+              onClick={() => onImport(confirmed)}
+              disabled={confirmed.length === 0}
+              className="text-sm bg-[#d8cca8] hover:bg-[#c9b99a] disabled:opacity-40 rounded-lg px-4 py-1.5 transition-colors"
+              style={{ fontFamily: 'Caveat, cursive', color: '#3a3428' }}
+            >
+              Add {confirmed.length} to Recipe
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

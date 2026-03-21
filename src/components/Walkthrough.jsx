@@ -1,145 +1,49 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const BASE_STEPS = [
+const STEPS = [
   {
     id: 'welcome',
     title: 'Welcome to the Flavor Network',
     content:
       'A neural map of ingredient relationships. Each glowing node is an ingredient. ' +
       'Connections show flavor pairings discovered from culinary data.',
-    action: null,
-    waitFor: null,
   },
   {
     id: 'navigation',
     title: 'Navigate the Network',
     content:
       'Drag to rotate the view. Scroll to zoom in and out. Shift+drag to pan. ' +
-      'Try rotating the scene now, or press Next to continue.',
-    action: null,
+      'Click any node to see its pairings, cuisines, and taste profile.',
     waitFor: 'drag',
   },
   {
-    id: 'fly-to-garlic',
-    title: 'Exploring Garlic',
+    id: 'search',
+    title: 'Search & Discover',
     content:
-      'This is garlic — one of the most connected ingredients in the network. ' +
-      'It pairs well with hundreds of other flavors across many cuisines.',
-    action: 'flyToGarlic',
-    waitFor: null,
+      'Use the search bar to find any ingredient. Select multiple ingredients to see how they connect. ' +
+      'Use the Controls panel to filter by cuisine or taste.',
   },
   {
-    id: 'ingredient-panel',
-    title: 'Ingredient Details',
+    id: 'explore',
+    title: 'Explore Tools',
     content:
-      'Click any node to open its detail panel. You will find pairings, cuisines, ' +
-      'taste profiles, affinities, and tips — all sourced from the Flavor Bible.',
-    action: null,
-    waitFor: null,
+      'Open the Explore menu to browse Flavor Trees by category, find Flavor Bridges between ingredients, ' +
+      'or view Network Insights for global statistics.',
   },
   {
-    id: 'activation-spread',
-    title: 'Activation Spread',
+    id: 'labs',
+    title: 'Recipe Labs',
     content:
-      'When you select an ingredient, connected nodes light up. Brighter glow means a ' +
-      'stronger pairing. This visualizes the neural network of flavor relationships.',
-    action: null,
-    waitFor: null,
+      'Switch to the Labs tab to plan recipes visually. Recipe Lab lets you build dishes ingredient by ingredient. ' +
+      'Cocktail Lab and Sauce Lab offer specialized frameworks for drinks and sauces.',
   },
   {
-    id: 'search-demo',
-    title: 'Search Ingredients',
+    id: 'profile',
+    title: 'Your Flavor Profile',
     content:
-      'Use the search bar at the top to find any ingredient instantly. ' +
-      'Try searching for "basil" to see autocomplete in action.',
-    action: 'demoSearch',
-    waitFor: null,
-  },
-  {
-    id: 'comparison-mode',
-    title: 'Compare Ingredients',
-    content:
-      'Select two ingredients to compare them side by side. You will see their shared ' +
-      'pairings and discover unexpected flavor bridges between them.',
-    action: null,
-    waitFor: null,
-  },
-  {
-    id: 'filters',
-    title: 'Filter and Focus',
-    content:
-      'Use the controls to filter ingredients by cuisine, taste profile, or season. ' +
-      'This helps you focus your exploration on specific culinary traditions.',
-    action: null,
-    waitFor: null,
-  },
-  {
-    id: 'profile-add',
-    title: 'Build Your Flavor Profile',
-    content:
-      'Click the edit (pencil) icon in the top-left to open your profile panel. ' +
-      'Add your favorite ingredients, cuisines, and recipes to create a personal flavor profile. ' +
-      'You can also hover over any node and click the heart icon to quick-add it.',
-    action: null,
-    waitFor: null,
-  },
-  {
-    id: 'profile-view',
-    title: 'Your Personal View',
-    content:
-      'Switch between "Global" and "My Profile" using the toggle in the top-left. ' +
-      'In profile mode, nodes scale up based on your preferences — your favorites glow brighter ' +
-      'and connect more prominently.',
-    action: null,
-    waitFor: null,
-  },
-  {
-    id: 'profile-insights',
-    title: 'Discover Your Flavor Signature',
-    content:
-      'Click the chart icon to see your Profile Insights: your taste breakdown, top ingredients, ' +
-      'cuisine affinity, and personalized "you might like" suggestions. ' +
-      'Export your profile anytime to share or back it up.',
-    action: null,
-    waitFor: null,
-  },
-  {
-    id: 'recipe-scanning',
-    title: 'Import Recipes',
-    content:
-      'Paste a recipe URL or scan a printed recipe with your camera to auto-extract ingredients. ' +
-      'Find these options in your profile panel under the Recipes tab.',
-    action: null,
-    waitFor: null,
-  },
-  {
-    id: 'tree-explorer',
-    title: 'Flavor Trees',
-    content:
-      'Click the grid icon (top-right) to explore the Flavor Tree — browse ingredients by ' +
-      'Cuisine, Taste, Family, or Season. Shift+click two nodes to compare them.',
-    action: null,
-    waitFor: null,
-  },
-  {
-    id: 'flavor-dna',
-    title: 'Your Flavor DNA',
-    content:
-      'In profile mode, open your Flavor Tree and click "DNA" to see your Flavor DNA — ' +
-      'a radar chart showing which world cuisines your palate aligns with. ' +
-      'Download a Flavor Passport to share your profile.',
-    action: null,
-    waitFor: null,
-  },
-  {
-    id: 'cocktail-lab',
-    title: 'Cocktail Lab',
-    content:
-      'Switch to the Cocktail Lab tab to explore cocktail-specific ingredients arranged by the ' +
-      'Cocktail Codex framework. Look up real cocktails, swap ingredients to discover alternatives, ' +
-      'build your own creations with compatibility scoring, and save them to your profile.',
-    action: null,
-    waitFor: null,
+      'Click the Profile icon to save favorite ingredients, cuisines, and recipes. ' +
+      'Toggle to Profile view to see the network weighted by your preferences. ' +
+      'Check the Insights tab for your flavor signature and personalized suggestions.',
   },
   {
     id: 'complete',
@@ -147,29 +51,8 @@ const BASE_STEPS = [
     content:
       'You now know the essentials. Click the "?" button anytime to replay this tour. ' +
       'Happy exploring!',
-    action: null,
-    waitFor: null,
   },
 ];
-
-const QUIZ_STEP = {
-  id: 'quiz-prompt',
-  title: 'Discover Your Palate',
-  content:
-    'Want a personalized experience right away? Take a quick 2-minute quiz to ' +
-    'identify your flavor preferences. You can always skip this and come back later.',
-  action: null,
-  waitFor: null,
-  quizPrompt: true,
-};
-
-function buildSteps(hasProfile) {
-  if (hasProfile) return BASE_STEPS;
-  // Insert quiz prompt after step 3 (fly-to-garlic, index 2)
-  const steps = [...BASE_STEPS];
-  steps.splice(3, 0, QUIZ_STEP);
-  return steps;
-}
 
 function ProgressDots({ current, total }) {
   return (
@@ -191,21 +74,18 @@ function ProgressDots({ current, total }) {
   );
 }
 
-function Walkthrough({ active, onComplete, onSkip, sceneManager, hasProfile, onStartQuiz }) {
-  const steps = buildSteps(hasProfile);
-  const totalSteps = steps.length;
+function Walkthrough({ active, onComplete, onSkip }) {
+  const totalSteps = STEPS.length;
   const [currentStep, setCurrentStep] = useState(0);
   const [visible, setVisible] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
   const dragDetectedRef = useRef(false);
 
-  // Show/hide based on active prop
   useEffect(() => {
     if (active) {
       setCurrentStep(0);
       setVisible(true);
       dragDetectedRef.current = false;
-      // Trigger fade-in on next frame
       requestAnimationFrame(() => {
         setFadeIn(true);
       });
@@ -216,32 +96,24 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager, hasProfile, onS
     }
   }, [active]);
 
-  // Listen for drag events on step 1 (navigation)
+  // Listen for drag events on navigation step
   useEffect(() => {
     if (!active || currentStep !== 1) return;
 
     let mouseDown = false;
     let moved = false;
 
-    const handleMouseDown = () => {
-      mouseDown = true;
-      moved = false;
-    };
-
+    const handleMouseDown = () => { mouseDown = true; moved = false; };
     const handleMouseMove = () => {
       if (mouseDown && !moved) {
         moved = true;
         dragDetectedRef.current = true;
-        // Auto-advance after brief delay so user sees result
         setTimeout(() => {
           setCurrentStep((prev) => (prev === 1 ? 2 : prev));
         }, 800);
       }
     };
-
-    const handleMouseUp = () => {
-      mouseDown = false;
-    };
+    const handleMouseUp = () => { mouseDown = false; };
 
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
@@ -259,44 +131,6 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager, hasProfile, onS
       window.removeEventListener('touchend', handleMouseUp);
     };
   }, [active, currentStep]);
-
-  // Execute step actions when step changes
-  useEffect(() => {
-    if (!active) return;
-
-    const step = steps[currentStep];
-    if (!step || !step.action || !sceneManager) return;
-
-    if (step.action === 'flyToGarlic') {
-      // Fly camera toward a position where garlic would likely be
-      const camera = sceneManager.getCamera();
-      if (camera) {
-        const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
-        const targetPos = { x: 15, y: 5, z: 40 };
-        const duration = 1500;
-        const startTime = performance.now();
-
-        function animateFly(now) {
-          const elapsed = now - startTime;
-          const t = Math.min(elapsed / duration, 1);
-          // Ease in-out cubic
-          const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-          camera.position.set(
-            startPos.x + (targetPos.x - startPos.x) * ease,
-            startPos.y + (targetPos.y - startPos.y) * ease,
-            startPos.z + (targetPos.z - startPos.z) * ease
-          );
-
-          if (t < 1) {
-            requestAnimationFrame(animateFly);
-          }
-        }
-
-        requestAnimationFrame(animateFly);
-      }
-    }
-  }, [active, currentStep, sceneManager]);
 
   const handleNext = useCallback(() => {
     if (currentStep >= totalSteps - 1) {
@@ -321,7 +155,7 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager, hasProfile, onS
 
   if (!visible) return null;
 
-  const step = steps[currentStep];
+  const step = STEPS[currentStep];
   const isLastStep = currentStep === totalSteps - 1;
 
   return (
@@ -332,10 +166,8 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager, hasProfile, onS
       }
       style={{ pointerEvents: fadeIn ? 'auto' : 'none' }}
     >
-      {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/60" onClick={handleSkip} />
 
-      {/* Step card */}
       <div
         className={
           'relative z-10 w-full max-w-md mx-4 ' +
@@ -343,12 +175,10 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager, hasProfile, onS
           'p-6 shadow-2xl'
         }
       >
-        {/* Step counter */}
         <p className="text-[11px] uppercase tracking-widest text-gray-500 font-semibold mb-3">
           Step {currentStep + 1} of {totalSteps}
         </p>
 
-        {/* Title */}
         <h2
           className="text-xl font-bold text-gray-100 mb-2"
           style={{
@@ -359,26 +189,10 @@ function Walkthrough({ active, onComplete, onSkip, sceneManager, hasProfile, onS
           {step.title}
         </h2>
 
-        {/* Content */}
         <p className="text-sm text-gray-400 leading-relaxed mb-4">{step.content}</p>
 
-        {/* Quiz prompt button */}
-        {step.quizPrompt && onStartQuiz && (
-          <button
-            onClick={() => {
-              handleSkip();
-              setTimeout(() => onStartQuiz(), 350);
-            }}
-            className="w-full mb-4 py-2.5 rounded-lg text-sm font-medium bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 hover:border-purple-500/50 transition-all"
-          >
-            Take the Palate Quiz
-          </button>
-        )}
-
-        {/* Progress dots */}
         <ProgressDots current={currentStep} total={totalSteps} />
 
-        {/* Footer actions */}
         <div className="flex items-center justify-between mt-5">
           <button
             onClick={handleSkip}

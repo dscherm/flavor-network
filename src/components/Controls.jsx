@@ -1,33 +1,6 @@
 import React, { useState } from 'react';
 
-function Toggle({ label, checked, onChange }) {
-  return (
-    <label className="flex items-center justify-between gap-3 cursor-pointer">
-      <span className="text-xs text-gray-400">{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:ring-offset-[#12121a] ${
-          checked ? 'bg-blue-600' : 'bg-gray-700'
-        }`}
-      >
-        <span
-          className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
-            checked ? 'translate-x-[18px]' : 'translate-x-[3px]'
-          }`}
-        />
-      </button>
-    </label>
-  );
-}
-
 function Controls({
-  showEdges,
-  showParticles,
-  onToggleEdges,
-  onToggleParticles,
   cuisines,
   selectedCuisine,
   onCuisineFilter,
@@ -61,14 +34,9 @@ function Controls({
 
       {/* Panel */}
       <div className="bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-l-lg p-3 w-52 border-l-0">
-        <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Controls</h3>
+        <h3 className="text-xs text-gray-500 uppercase tracking-wider mb-2">Filters</h3>
 
         <div className="space-y-2">
-          <Toggle label="Edges" checked={showEdges} onChange={onToggleEdges} />
-          <Toggle label="Particles" checked={showParticles} onChange={onToggleParticles} />
-        </div>
-
-        <div className="mt-3 pt-2 border-t border-[#1e1e2e] space-y-2">
           <div>
             <label htmlFor="cuisine-filter" className="block text-xs text-gray-500 mb-1">
               Cuisine

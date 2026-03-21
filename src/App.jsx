@@ -6,24 +6,13 @@ import Legend from './components/Legend.jsx';
 import Controls from './components/Controls.jsx';
 import { getNeighbors } from './data/graph.js';
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
-import ComparePanel from './components/ComparePanel.jsx';
 import Walkthrough from './components/Walkthrough.jsx';
 import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
-import RecipeBuilder from './components/RecipeBuilder.jsx';
-import RecipeSharePanel from './components/RecipeSharePanel.jsx';
-import RecipeScanner from './components/RecipeScanner.jsx';
 import ProfileToggle from './components/ProfileToggle.jsx';
-
-import ProfileInsights from './components/ProfileInsights.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
-import PalateQuiz from './components/PalateQuiz.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
-import ProfileTreeView from './components/ProfileTreeView.jsx';
-import FlavorDNA from './components/FlavorDNA.jsx';
 import FlavorBridge from './components/FlavorBridge.jsx';
-import PerceptronView from './components/PerceptronView.jsx';
-import PathwayView from './components/PathwayView.jsx';
 import LivingArchView from './components/LivingArchView.jsx';
 import CocktailLab from './components/CocktailLab.jsx';
 import SauceLab from './components/SauceLab.jsx';
@@ -39,17 +28,14 @@ export default function App() {
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
   const { loading, error, data } = useProData();
   const { user, loginWithGoogle, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'recipe-cocktail' | 'recipe-sauce'
-  const [cocktailMounted, setCocktailMounted] = useState(false); // lazy mount
-  const [sauceMounted, setSauceMounted] = useState(false); // lazy mount
-  const [recipeMounted, setRecipeMounted] = useState(false); // lazy mount
+  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe'
+  const [cocktailMounted, setCocktailMounted] = useState(false);
+  const [sauceMounted, setSauceMounted] = useState(false);
+  const [recipeMounted, setRecipeMounted] = useState(false);
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('living'); // 'living' | 'perceptron' | 'pathway'
-  const [livingMode, setLivingMode] = useState('neural'); // 'neural' | 'wheel' — lifted for persistence across tab switches
-  const [viewDropdownOpen, setViewDropdownOpen] = useState(false);
+  const [exploreDropdownOpen, setExploreDropdownOpen] = useState(false);
+  const [livingMode, setLivingMode] = useState('neural');
   const [selectedNodes, setSelectedNodes] = useState([]);
-  const [showEdges, setShowEdges] = useState(true);
-  const [showParticles, setShowParticles] = useState(true);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
   const [showTour, setShowTour] = useState(
@@ -57,26 +43,18 @@ export default function App() {
   );
   const [showProfile, setShowProfile] = useState(false);
   const [profileMode, setProfileMode] = useState(false);
-  const [showRecipeBuilder, setShowRecipeBuilder] = useState(false);
-  const [showRecipeShare, setShowRecipeShare] = useState(false);
-  const [showRecipeScanner, setShowRecipeScanner] = useState(false);
-  const [showInsights, setShowInsights] = useState(false);
   const [showGlobalInsights, setShowGlobalInsights] = useState(false);
-  const [showPalateQuiz, setShowPalateQuiz] = useState(false);
   const [showTreeExplorer, setShowTreeExplorer] = useState(false);
-  const [showProfileTree, setShowProfileTree] = useState(false);
-  const [showFlavorDNA, setShowFlavorDNA] = useState(false);
   const [showBridge, setShowBridge] = useState(false);
   const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
   const [treeFilterLabel, setTreeFilterLabel] = useState(null);
   const [bridgePathIngredients, setBridgePathIngredients] = useState(null);
   const isMobile = useIsMobile();
-  const [activePanel, setActivePanel] = useState(null); // mobile bottom sheet panel
+  const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
 
-  // Derived state for backwards compat
+  // Derived state
   const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
-  const isComparing = selectedNodes.length >= 2;
 
   const ingredientList = useMemo(() => {
     if (!data) return [];
@@ -111,7 +89,6 @@ export default function App() {
 
   const handleNodeClick = useCallback((node) => {
     if (!node) {
-      // Clicked empty space — clear all
       setSelectedNodes([]);
       setActivePanel(null);
       return;
@@ -121,10 +98,7 @@ export default function App() {
       const next = prev.includes(name)
         ? prev.filter((n) => n !== name)
         : [...prev, name];
-      // Open bottom sheet on mobile when selecting
-      if (next.length >= 2) {
-        setActivePanel('compare');
-      } else if (next.length === 1) {
+      if (next.length >= 1) {
         setActivePanel('ingredient');
       } else {
         setActivePanel(null);
@@ -137,11 +111,7 @@ export default function App() {
     setSelectedNodes((prev) => {
       if (prev.includes(name)) return prev;
       const next = [...prev, name];
-      if (next.length >= 2) {
-        setActivePanel('compare');
-      } else {
-        setActivePanel('ingredient');
-      }
+      setActivePanel('ingredient');
       return next;
     });
   }, []);
@@ -151,16 +121,11 @@ export default function App() {
     setActivePanel(null);
   }, []);
 
-  const handleRemoveFromCompare = useCallback((name) => {
-    setSelectedNodes((prev) => prev.filter((n) => n !== name));
-  }, []);
-
   const handleClearSelection = useCallback(() => {
     setSelectedNodes([]);
     setActivePanel(null);
   }, []);
 
-  // Sync lab selections so Recipe Lab can pick up the selected ingredient
   const handleLabSelectionChange = useCallback((nodes) => {
     setSelectedNodes(nodes);
   }, []);
@@ -196,7 +161,6 @@ export default function App() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback for older browsers
       const textarea = document.createElement('textarea');
       textarea.value = shareUrl;
       textarea.style.position = 'fixed';
@@ -267,7 +231,7 @@ export default function App() {
         <div className="hidden sm:flex items-center gap-0.5 px-3 h-full">
           {/* Network tab */}
           <button
-            onClick={() => { setActiveTab('network'); setLabDropdownOpen(false); }}
+            onClick={() => { setActiveTab('network'); setLabDropdownOpen(false); setExploreDropdownOpen(false); }}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
               activeTab === 'network'
                 ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
@@ -280,55 +244,10 @@ export default function App() {
             Network
           </button>
 
-          {/* View mode dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => { setViewDropdownOpen(v => !v); setLabDropdownOpen(false); }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                activeTab === 'network' && viewMode !== 'neural'
-                  ? 'text-purple-300 bg-purple-500/10 border border-purple-500/20'
-                  : 'text-gray-500 hover:text-gray-300 border border-transparent'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-              </svg>
-              {{ living: 'Living Architecture', perceptron: 'Perceptron', pathway: 'Pathway Map' }[viewMode] || 'Living Architecture'}
-              <svg className={`w-3 h-3 transition-transform ${viewDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7 10l5 5 5-5z" />
-              </svg>
-            </button>
-            {viewDropdownOpen && (
-              <>
-                <div className="fixed inset-0 z-[59]" onClick={() => setViewDropdownOpen(false)} />
-                <div className="absolute top-full left-0 mt-1 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
-                  {[
-                    { key: 'living', label: 'Living Architecture', desc: '3D ↔ 2D morph' },
-                    { key: 'perceptron', label: 'Perceptron Layers', desc: 'Neural network diagram' },
-                    { key: 'pathway', label: 'Pathway Map', desc: 'Subway-style routes' },
-                  ].map((v) => (
-                    <button
-                      key={v.key}
-                      onClick={() => { setViewMode(v.key); setActiveTab('network'); setViewDropdownOpen(false); }}
-                      className={`w-full flex flex-col items-start px-3 py-2 text-left transition-colors ${
-                        viewMode === v.key
-                          ? 'text-purple-300 bg-purple-500/10'
-                          : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
-                      }`}
-                    >
-                      <span className="text-xs font-medium">{v.label}</span>
-                      <span className="text-[10px] text-gray-600">{v.desc}</span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
           {/* Labs dropdown */}
           <div className="relative">
             <button
-              onClick={() => setLabDropdownOpen(v => !v)}
+              onClick={() => { setLabDropdownOpen(v => !v); setExploreDropdownOpen(false); }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                 activeTab !== 'network'
                   ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
@@ -338,7 +257,7 @@ export default function App() {
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M13 11.33L18 2l-1.73-1-5.27 9.33L5.73 1 4 2l5 9.33V19H6v2h12v-2h-3v-7.67z" />
               </svg>
-              {activeTab === 'cocktail' ? 'Cocktail Lab' : activeTab === 'sauce' ? 'Sauce Lab' : activeTab === 'recipe' ? 'Recipe Lab' : activeTab === 'recipe-cocktail' ? 'Cocktail Recipe' : activeTab === 'recipe-sauce' ? 'Sauce Recipe' : 'Labs'}
+              {activeTab === 'cocktail' ? 'Cocktail Lab' : activeTab === 'sauce' ? 'Sauce Lab' : activeTab === 'recipe' ? 'Recipe Lab' : 'Labs'}
               <svg className={`w-3 h-3 transition-transform ${labDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
@@ -348,11 +267,9 @@ export default function App() {
                 <div className="fixed inset-0 z-[59]" onClick={() => setLabDropdownOpen(false)} />
                 <div className="absolute top-full left-0 mt-1 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
                   {[
-                    { key: 'recipe', label: 'Recipe Lab', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z', section: null },
-                    { key: 'sauce', label: 'Sauce Lab', icon: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25', section: null },
-                    { key: 'recipe-sauce', label: 'Sauce Recipe', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z', section: null, indent: true },
-                    { key: 'cocktail', label: 'Cocktail Lab', icon: 'M7.5 21H2V3h5l4.286 10L16 3h6v18h-5.5v-9.571L13 21h-2.5L7.5 11.429V21z', section: null },
-                    { key: 'recipe-cocktail', label: 'Cocktail Recipe', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2z', section: null, indent: true },
+                    { key: 'recipe', label: 'Recipe Lab' },
+                    { key: 'cocktail', label: 'Cocktail Lab' },
+                    { key: 'sauce', label: 'Sauce Lab' },
                   ].map((lab) => (
                     <button
                       key={lab.key}
@@ -360,22 +277,15 @@ export default function App() {
                         setActiveTab(lab.key);
                         if (lab.key === 'cocktail') setCocktailMounted(true);
                         if (lab.key === 'sauce') setSauceMounted(true);
-                        if (lab.key === 'recipe' || lab.key === 'recipe-cocktail' || lab.key === 'recipe-sauce') setRecipeMounted(true);
+                        if (lab.key === 'recipe') setRecipeMounted(true);
                         setLabDropdownOpen(false);
                       }}
                       className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                        lab.indent ? 'pl-7' : ''
-                      } ${
                         activeTab === lab.key
                           ? 'text-cyan-300 bg-cyan-500/10'
-                          : lab.indent
-                            ? 'text-gray-500 hover:text-gray-300 hover:bg-[#1a1a2a]'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                          : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
                       }`}
                     >
-                      <svg className={`${lab.indent ? 'w-3 h-3' : 'w-3.5 h-3.5'} flex-shrink-0`} viewBox="0 0 24 24" fill="currentColor">
-                        <path d={lab.icon} />
-                      </svg>
                       {lab.label}
                       {activeTab === lab.key && (
                         <svg className="w-3 h-3 ml-auto text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
@@ -388,6 +298,81 @@ export default function App() {
               </>
             )}
           </div>
+
+          {/* Explore dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => { setExploreDropdownOpen(v => !v); setLabDropdownOpen(false); }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                showTreeExplorer || showBridge || showGlobalInsights
+                  ? 'text-purple-300 bg-purple-500/10 border border-purple-500/20'
+                  : 'text-gray-500 hover:text-gray-300 border border-transparent'
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              Explore
+              <svg className={`w-3 h-3 transition-transform ${exploreDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 10l5 5 5-5z" />
+              </svg>
+            </button>
+            {exploreDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-[59]" onClick={() => setExploreDropdownOpen(false)} />
+                <div className="absolute top-full left-0 mt-1 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
+                  <button
+                    onClick={() => { setShowTreeExplorer(v => !v); setExploreDropdownOpen(false); setActiveTab('network'); }}
+                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
+                      showTreeExplorer ? 'text-purple-300 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                    </svg>
+                    Flavor Trees
+                  </button>
+                  <button
+                    onClick={() => { setShowBridge(v => !v); setExploreDropdownOpen(false); setActiveTab('network'); }}
+                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
+                      showBridge ? 'text-purple-300 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    Flavor Bridge
+                  </button>
+                  <button
+                    onClick={() => { setShowGlobalInsights(v => !v); setExploreDropdownOpen(false); setActiveTab('network'); }}
+                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
+                      showGlobalInsights ? 'text-purple-300 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                    </svg>
+                    Network Insights
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Profile button */}
+          <button
+            onClick={() => setShowProfile(v => !v)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              showProfile
+                ? 'text-blue-300 bg-blue-500/10 border border-blue-500/20'
+                : 'text-gray-500 hover:text-gray-300 border border-transparent'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Profile
+          </button>
         </div>
         <div className="ml-auto px-3 text-[9px] text-gray-600 tracking-wider uppercase">
           Powered by the Flavor Network
@@ -396,47 +381,26 @@ export default function App() {
 
       {/* Network tab */}
       <div className={`transition-opacity duration-300 ${activeTab === 'network' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'}`}>
-      {/* View mode: Perceptron Layers */}
-      {viewMode === 'perceptron' && (
-        <PerceptronView
-          data={data}
-          onNodeClick={handleNodeClick}
-          selectedNode={selectedNode}
-          selectedNodes={selectedNodes}
-        />
-      )}
-      {/* View mode: Pathway Map */}
-      {viewMode === 'pathway' && (
-        <PathwayView
-          data={data}
-          onNodeClick={handleNodeClick}
-          selectedNode={selectedNode}
-          selectedNodes={selectedNodes}
-        />
-      )}
-      {/* View mode: Living Architecture */}
-      {viewMode === 'living' && (
-        <LivingArchView
-          data={data}
-          onNodeClick={handleNodeClick}
-          selectedNode={selectedNode}
-          selectedNodes={selectedNodes}
-          showEdges={showEdges}
-          showParticles={showParticles}
-          filterTaste={selectedTaste}
-          treeFilterIngredients={treeFilterIngredients}
-          bridgePathIngredients={bridgePathIngredients}
-          mode={livingMode}
-          onModeChange={setLivingMode}
-        />
-      )}
+      <LivingArchView
+        data={data}
+        onNodeClick={handleNodeClick}
+        selectedNode={selectedNode}
+        selectedNodes={selectedNodes}
+        showEdges={true}
+        showParticles={true}
+        filterTaste={selectedTaste}
+        treeFilterIngredients={treeFilterIngredients}
+        bridgePathIngredients={bridgePathIngredients}
+        mode={livingMode}
+        onModeChange={setLivingMode}
+      />
       <SearchBar
         ingredients={ingredientList}
         onSelect={handleSearchSelect}
       />
 
-      {/* Single selection: show ingredient detail panel (desktop only) */}
-      {!isMobile && !isComparing && (
+      {/* Ingredient detail panel (desktop only) */}
+      {!isMobile && (
         <IngredientPanel
           node={selectedNodeData}
           neighbors={neighbors}
@@ -448,18 +412,7 @@ export default function App() {
         />
       )}
 
-      {/* Multi-selection: show comparison panel (desktop only) */}
-      {!isMobile && isComparing && (
-        <ComparePanel
-          selectedNames={selectedNodes}
-          nodes={data.graph.nodes}
-          edges={data.graph.edges}
-          onRemove={handleRemoveFromCompare}
-          onClose={handleClearSelection}
-        />
-      )}
-
-      {/* Clear Selection + Share buttons — shown when anything is selected, positioned below search bar */}
+      {/* Clear Selection + Share buttons */}
       {selectedNodes.length > 0 && (
         <div className="fixed top-[100px] left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
           <button
@@ -502,10 +455,6 @@ export default function App() {
         onTasteFilter={setSelectedTaste}
       />
       <Controls
-        showEdges={showEdges}
-        showParticles={showParticles}
-        onToggleEdges={() => setShowEdges(v => !v)}
-        onToggleParticles={() => setShowParticles(v => !v)}
         cuisines={cuisines}
         selectedCuisine={selectedCuisine}
         onCuisineFilter={setSelectedCuisine}
@@ -517,8 +466,6 @@ export default function App() {
         active={showTour}
         onComplete={() => setShowTour(false)}
         onSkip={() => setShowTour(false)}
-        hasProfile={userProfile.stats.totalItems > 0}
-        onStartQuiz={() => setShowPalateQuiz(true)}
       />
       <ProfilePanel
         profile={userProfile.profile}
@@ -527,56 +474,17 @@ export default function App() {
         cuisines={cuisines}
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
-        onCreateRecipe={() => setShowRecipeBuilder(true)}
-        onImportRecipe={() => setShowRecipeShare(true)}
-        onScanRecipe={() => setShowRecipeScanner(true)}
-        onTakeQuiz={() => { setShowProfile(false); setShowPalateQuiz(true); }}
-      />
-      {showRecipeBuilder && (
-        <RecipeBuilder
-          ingredientList={ingredientList}
-          onSave={userProfile.addRecipe}
-          onClose={() => setShowRecipeBuilder(false)}
-          onScanRecipe={() => { setShowRecipeBuilder(false); setShowRecipeScanner(true); }}
-        />
-      )}
-      {showRecipeShare && (
-        <RecipeSharePanel
-          ingredientList={ingredientList}
-          onSave={userProfile.addRecipe}
-          onClose={() => setShowRecipeShare(false)}
-        />
-      )}
-      {showRecipeScanner && (
-        <RecipeScanner
-          ingredientList={ingredientList}
-          onSave={userProfile.addRecipe}
-          onClose={() => setShowRecipeScanner(false)}
-        />
-      )}
-      <ProfileToggle
-        profileMode={profileMode}
-        onToggleMode={() => setProfileMode(v => !v)}
-        onOpenPanel={() => setShowProfile(v => !v)}
-        onOpenInsights={() => setShowInsights(v => !v)}
-        onOpenGlobalInsights={() => setShowGlobalInsights(v => !v)}
-        onOpenProfileTree={() => setShowProfileTree(v => !v)}
-        onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
-        showTreeExplorer={showTreeExplorer}
-        onOpenBridge={() => setShowBridge(v => !v)}
-        showBridge={showBridge}
-        profileStats={userProfile.stats}
+        graphNodes={data?.graph?.nodes}
+        onSelectIngredient={handleSearchSelect}
         user={user}
         onLogin={loginWithGoogle}
         onLogout={logout}
+        onReplayTour={() => { setShowProfile(false); setShowTour(true); }}
       />
-      <ProfileInsights
-        profile={userProfile.profile}
-        nodes={data ? data.graph.nodes : null}
-        isOpen={showInsights}
-        onClose={() => setShowInsights(false)}
-        onSelectIngredient={handleSearchSelect}
-        onAddIngredient={userProfile.addIngredient}
+      <ProfileToggle
+        profileMode={profileMode}
+        onToggleMode={() => setProfileMode(v => !v)}
+        profileStats={userProfile.stats}
       />
       <GlobalInsights
         nodes={data ? data.graph.nodes : null}
@@ -588,20 +496,6 @@ export default function App() {
         selectedNodes={selectedNodes}
         isOpen={showGlobalInsights}
         onClose={() => setShowGlobalInsights(false)}
-      />
-      <ProfileTreeView
-        profile={userProfile.profile}
-        nodes={data ? data.graph.nodes : null}
-        isOpen={showProfileTree}
-        onClose={() => setShowProfileTree(false)}
-        onAddIngredient={userProfile.addIngredient}
-        onOpenFlavorDNA={() => setShowFlavorDNA(true)}
-      />
-      <FlavorDNA
-        profile={userProfile.profile}
-        nodes={data ? data.graph.nodes : null}
-        isOpen={showFlavorDNA}
-        onClose={() => setShowFlavorDNA(false)}
       />
       <FlavorTreeExplorer
         nodes={data ? data.graph.nodes : null}
@@ -622,18 +516,9 @@ export default function App() {
         onPathChange={setBridgePathIngredients}
       />
       <HelpButton onClick={() => setShowTour(true)} />
-      <PalateQuiz
-        active={showPalateQuiz}
-        previousAnswers={userProfile.profile.quizAnswers}
-        onComplete={(answers) => {
-          userProfile.saveQuizAnswers(answers);
-          setShowPalateQuiz(false);
-        }}
-        onSkip={() => setShowPalateQuiz(false)}
-      />
       </div>
 
-      {/* Cocktail Lab tab — lazy-mounted, stays mounted after first open */}
+      {/* Cocktail Lab tab — lazy-mounted */}
       {cocktailMounted && (
         <div
           className={`transition-opacity duration-300 ${
@@ -644,7 +529,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Sauce Lab tab — lazy-mounted, stays mounted after first open */}
+      {/* Sauce Lab tab — lazy-mounted */}
       {sauceMounted && (
         <div
           className={`transition-opacity duration-300 ${
@@ -655,11 +540,11 @@ export default function App() {
         </div>
       )}
 
-      {/* Recipe Lab — all modes share one instance, labMode switches based on activeTab */}
+      {/* Recipe Lab — with internal mode switcher */}
       {recipeMounted && (
         <div
           className={`transition-opacity duration-300 ${
-            activeTab === 'recipe' || activeTab === 'recipe-cocktail' || activeTab === 'recipe-sauce'
+            activeTab === 'recipe'
               ? 'opacity-100'
               : 'opacity-0 pointer-events-none fixed inset-0'
           }`}
@@ -668,7 +553,6 @@ export default function App() {
             fullData={data}
             initialIngredient={selectedNode}
             userProfile={userProfile}
-            labMode={activeTab === 'recipe-cocktail' ? 'cocktail' : activeTab === 'recipe-sauce' ? 'sauce' : 'taste'}
             isMobile={isMobile}
           />
         </div>
@@ -681,11 +565,7 @@ export default function App() {
           onClose={() => setActivePanel(null)}
           title={
             activePanel === 'ingredient' ? (selectedNodeData?.name || 'Details') :
-            activePanel === 'compare' ? `Comparing ${selectedNodes.length}` :
-            activePanel === 'insights' ? 'Profile Insights' :
             activePanel === 'global-insights' ? 'Network Analysis' :
-            activePanel === 'profile-tree' ? 'My Flavor Tree' :
-            activePanel === 'tree-explorer' ? 'Flavor Trees' :
             'Panel'
           }
         >
@@ -698,16 +578,6 @@ export default function App() {
               isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
               onToggleFavorite={userProfile.toggleIngredient}
               graphNodes={data?.graph?.nodes}
-              embedded
-            />
-          )}
-          {activePanel === 'compare' && isComparing && (
-            <ComparePanel
-              selectedNames={selectedNodes}
-              nodes={data.graph.nodes}
-              edges={data.graph.edges}
-              onRemove={handleRemoveFromCompare}
-              onClose={handleClearSelection}
               embedded
             />
           )}
@@ -736,26 +606,16 @@ export default function App() {
             setActiveTab(tab);
             if (tab === 'cocktail') setCocktailMounted(true);
             if (tab === 'sauce') setSauceMounted(true);
-            if (tab === 'recipe' || tab === 'recipe-cocktail' || tab === 'recipe-sauce') setRecipeMounted(true);
+            if (tab === 'recipe') setRecipeMounted(true);
             setLabDropdownOpen(false);
           }}
           onOpenProfile={() => setShowProfile(v => !v)}
-          onOpenInsights={() => setShowInsights(v => !v)}
+          onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
+          onOpenBridge={() => setShowBridge(v => !v)}
           onOpenGlobalInsights={() => {
             setActivePanel(activePanel === 'global-insights' ? null : 'global-insights');
             setShowGlobalInsights(v => !v);
           }}
-          onOpenProfileTree={() => setShowProfileTree(v => !v)}
-          onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
-          onOpenBridge={() => setShowBridge(v => !v)}
-          onOpenHelp={() => setShowTour(true)}
-          profileMode={profileMode}
-          onToggleProfileMode={() => setProfileMode(v => !v)}
-          user={user}
-          onLogin={loginWithGoogle}
-          onLogout={logout}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
         />
       )}
 
