@@ -4,31 +4,20 @@ export default function MobileTabBar({
   activeTab,
   onTabChange,
   onOpenProfile,
-  onOpenInsights,
-  onOpenGlobalInsights,
-  onOpenProfileTree,
   onOpenTreeExplorer,
   onOpenBridge,
-  onOpenHelp,
-  profileMode,
-  onToggleProfileMode,
-  user,
-  onLogin,
-  onLogout,
-  viewMode,
-  onViewModeChange,
+  onOpenGlobalInsights,
 }) {
   const [labsOpen, setLabsOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [viewsOpen, setViewsOpen] = useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
 
   const isLabActive = activeTab !== 'network';
 
   return (
     <>
       {/* Backdrop for popovers */}
-      {(labsOpen || moreOpen || viewsOpen) && (
-        <div className="fixed inset-0 z-[69]" onClick={() => { setLabsOpen(false); setMoreOpen(false); setViewsOpen(false); }} />
+      {(labsOpen || exploreOpen) && (
+        <div className="fixed inset-0 z-[69]" onClick={() => { setLabsOpen(false); setExploreOpen(false); }} />
       )}
 
       <div
@@ -38,7 +27,7 @@ export default function MobileTabBar({
         <div className="flex items-center justify-around h-14">
           {/* Network */}
           <button
-            onClick={() => { onTabChange('network'); setLabsOpen(false); setMoreOpen(false); setViewsOpen(false); }}
+            onClick={() => { onTabChange('network'); setLabsOpen(false); setExploreOpen(false); }}
             className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
               activeTab === 'network' ? 'text-cyan-400' : 'text-gray-500'
             }`}
@@ -49,51 +38,10 @@ export default function MobileTabBar({
             <span className="text-[10px]">Network</span>
           </button>
 
-          {/* Views */}
-          <div className="relative">
-            <button
-              onClick={() => { setViewsOpen(v => !v); setLabsOpen(false); setMoreOpen(false); }}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
-                viewsOpen ? 'text-purple-400' : activeTab === 'network' ? 'text-purple-400/60' : 'text-gray-500'
-              }`}
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-              </svg>
-              <span className="text-[10px]">Views</span>
-            </button>
-            {viewsOpen && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[71] overflow-hidden">
-                {[
-                  { key: 'living', label: 'Living Architecture', desc: '3D \u2194 2D morph' },
-                  { key: 'perceptron', label: 'Perceptron Layers', desc: 'Neural diagram' },
-                  { key: 'pathway', label: 'Pathway Map', desc: 'Subway-style routes' },
-                ].map(v => (
-                  <button
-                    key={v.key}
-                    onClick={() => {
-                      if (onViewModeChange) onViewModeChange(v.key);
-                      onTabChange('network');
-                      setViewsOpen(false);
-                    }}
-                    className={`w-full flex flex-col items-start px-3 py-2.5 text-left transition-colors ${
-                      viewMode === v.key
-                        ? 'text-purple-300 bg-purple-500/10'
-                        : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
-                    }`}
-                  >
-                    <span className="text-xs font-medium">{v.label}</span>
-                    <span className="text-[10px] text-gray-600">{v.desc}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Labs */}
           <div className="relative">
             <button
-              onClick={() => { setLabsOpen(v => !v); setMoreOpen(false); setViewsOpen(false); }}
+              onClick={() => { setLabsOpen(v => !v); setExploreOpen(false); }}
               className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
                 isLabActive ? 'text-cyan-400' : 'text-gray-500'
               }`}
@@ -107,10 +55,8 @@ export default function MobileTabBar({
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[71] overflow-hidden">
                 {[
                   { key: 'recipe', label: 'Recipe Lab' },
-                  { key: 'sauce', label: 'Sauce Lab' },
-                  { key: 'recipe-sauce', label: 'Sauce Recipe' },
                   { key: 'cocktail', label: 'Cocktail Lab' },
-                  { key: 'recipe-cocktail', label: 'Cocktail Recipe' },
+                  { key: 'sauce', label: 'Sauce Lab' },
                 ].map(lab => (
                   <button
                     key={lab.key}
@@ -128,9 +74,46 @@ export default function MobileTabBar({
             )}
           </div>
 
+          {/* Explore */}
+          <div className="relative">
+            <button
+              onClick={() => { setExploreOpen(v => !v); setLabsOpen(false); }}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
+                exploreOpen ? 'text-purple-400' : 'text-gray-500'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              <span className="text-[10px]">Explore</span>
+            </button>
+            {exploreOpen && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[71] overflow-hidden">
+                <button
+                  onClick={() => { onOpenTreeExplorer(); setExploreOpen(false); }}
+                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
+                >
+                  Flavor Trees
+                </button>
+                <button
+                  onClick={() => { onOpenBridge(); setExploreOpen(false); }}
+                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
+                >
+                  Flavor Bridge
+                </button>
+                <button
+                  onClick={() => { onOpenGlobalInsights(); setExploreOpen(false); }}
+                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
+                >
+                  Network Insights
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Profile */}
           <button
-            onClick={() => { onOpenProfile(); setLabsOpen(false); setMoreOpen(false); setViewsOpen(false); }}
+            onClick={() => { onOpenProfile(); setLabsOpen(false); setExploreOpen(false); }}
             className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-500 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -138,86 +121,6 @@ export default function MobileTabBar({
             </svg>
             <span className="text-[10px]">Profile</span>
           </button>
-
-          {/* More */}
-          <div className="relative">
-            <button
-              onClick={() => { setMoreOpen(v => !v); setLabsOpen(false); setViewsOpen(false); }}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
-                moreOpen ? 'text-cyan-400' : 'text-gray-500'
-              }`}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
-              </svg>
-              <span className="text-[10px]">More</span>
-            </button>
-            {moreOpen && (
-              <div className="absolute bottom-full right-0 mb-2 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[71] overflow-hidden">
-                <button
-                  onClick={() => { onOpenGlobalInsights(); setMoreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                >
-                  Network Insights
-                </button>
-                <button
-                  onClick={() => { onOpenInsights(); setMoreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                >
-                  Profile Insights
-                </button>
-                <button
-                  onClick={() => { onOpenProfileTree(); setMoreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                >
-                  My Flavor Tree
-                </button>
-                <button
-                  onClick={() => { onOpenTreeExplorer(); setMoreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                >
-                  Flavor Trees
-                </button>
-                <button
-                  onClick={() => { onOpenBridge(); setMoreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                >
-                  Flavor Bridge
-                </button>
-                <button
-                  onClick={() => { onOpenHelp(); setMoreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                >
-                  Guided Tour
-                </button>
-                <div className="border-t border-[#2a2a3a]">
-                  <button
-                    onClick={() => { onToggleProfileMode(); setMoreOpen(false); }}
-                    className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                  >
-                    {profileMode ? 'Switch to Global View' : 'Switch to Profile View'}
-                  </button>
-                </div>
-                <div className="border-t border-[#2a2a3a]">
-                  {user ? (
-                    <button
-                      onClick={() => { onLogout(); setMoreOpen(false); }}
-                      className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                    >
-                      Sign Out
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => { onLogin(); setMoreOpen(false); }}
-                      className="w-full text-left px-3 py-2.5 text-xs text-blue-400 hover:text-blue-300 hover:bg-[#1a1a2a] transition-colors"
-                    >
-                      Sign In
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </>

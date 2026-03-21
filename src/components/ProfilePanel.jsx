@@ -1,7 +1,20 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import Fuse from 'fuse.js';
+import {
+  computeProfileWeights,
+  getTopIngredients,
+  getSuggestions,
+  getTasteSignature,
+  getCuisineAffinity,
+} from '../data/profileWeights.js';
+import {
+  computeFrequencyScores,
+  classifyByFrequency,
+  getTopByFrequency,
+} from '../data/frequencyWeights.js';
+import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
 
-function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onClose, onCreateRecipe, onImportRecipe, onScanRecipe, onTakeQuiz }) {
+function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onClose, graphNodes, onSelectIngredient, user, onLogin, onLogout, onReplayTour }) {
   const [tab, setTab] = useState('ingredients');
   const [searchQuery, setSearchQuery] = useState('');
   const [importError, setImportError] = useState('');
@@ -70,10 +83,34 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
     e.target.value = '';
   }, [actions]);
 
+  // Insights computations
+  const weights = useMemo(() => {
+    if (!profile || !graphNodes) return new Map();
+    return computeProfileWeights(profile, graphNodes);
+  }, [profile, graphNodes]);
+
+  const topIngredients = useMemo(() => getTopIngredients(weights, 10), [weights]);
+  const suggestions = useMemo(() => getSuggestions(weights, profile?.ingredients || [], 8), [weights, profile]);
+  const tasteSignature = useMemo(() => getTasteSignature(weights, graphNodes), [weights, graphNodes]);
+  const cuisineAffinity = useMemo(() => getCuisineAffinity(weights, graphNodes).slice(0, 8), [weights, graphNodes]);
+
+  const recipes = profile?.recipes || [];
+  const hasEnoughRecipes = recipes.length >= 2;
+  const frequencyData = useMemo(() => {
+    if (!hasEnoughRecipes) return null;
+    const scores = computeFrequencyScores(recipes);
+    const classified = classifyByFrequency(scores);
+    const top15 = getTopByFrequency(recipes, 15);
+    return { scores, classified, top15, uniqueCount: scores.size };
+  }, [recipes, hasEnoughRecipes]);
+
+  const hasInsightsData = profile && (profile.ingredients.length > 0 || profile.cuisines.length > 0 || profile.recipes.length > 0);
+
   const tabs = [
     { key: 'ingredients', label: 'Ingredients', count: profile.ingredients.length },
     { key: 'cuisines', label: 'Cuisines', count: profile.cuisines.length },
     { key: 'recipes', label: 'Recipes', count: profile.recipes.length },
+    { key: 'insights', label: 'Insights', count: null },
   ];
 
   const currentItems =
@@ -81,7 +118,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
       ? profile.cuisines
       : tab === 'ingredients'
         ? profile.ingredients
-        : null; // recipes handled separately
+        : null;
 
   return (
     <div className={`fixed top-24 left-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
@@ -129,37 +166,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
       </div>
 
       {/* Search (for ingredients and cuisines tabs) */}
-      {tab === 'recipes' && (
-        <div className="p-2 border-b border-[#1e1e2e] space-y-1">
-          <button
-            onClick={onCreateRecipe}
-            className="w-full text-[11px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded py-1.5 transition-colors"
-          >
-            + Create Recipe
-          </button>
-          <button
-            onClick={onImportRecipe}
-            className="w-full text-[11px] bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 rounded py-1.5 transition-colors flex items-center justify-center gap-1"
-          >
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.813a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364L4.34 8.374" />
-            </svg>
-            Import from URL
-          </button>
-          <button
-            onClick={onScanRecipe}
-            className="w-full text-[11px] bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 rounded py-1.5 transition-colors flex items-center justify-center gap-1"
-          >
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
-            </svg>
-            Scan Recipe
-          </button>
-        </div>
-      )}
-
-      {tab !== 'recipes' && (
+      {(tab === 'ingredients' || tab === 'cuisines') && (
         <div className="p-2 border-b border-[#1e1e2e]">
           <input
             type="text"
@@ -196,53 +203,236 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
         </div>
       )}
 
-      {/* Item List */}
+      {/* Content area */}
       <div className="flex-1 overflow-y-auto p-2">
-        {tab === 'recipes' ? (
+        {/* Ingredients / Cuisines list */}
+        {(tab === 'ingredients' || tab === 'cuisines') && (
+          currentItems && currentItems.length > 0 ? (
+            <ul className="space-y-1">
+              {currentItems.map((name) => (
+                <li
+                  key={name}
+                  className="flex items-center justify-between px-2 py-1 rounded bg-[#1a1a2e]/50 group"
+                >
+                  <span className="text-xs text-gray-300 truncate">{name}</span>
+                  <button
+                    onClick={() => handleRemove(name)}
+                    className="text-gray-600 hover:text-red-400 transition-colors text-xs opacity-0 group-hover:opacity-100"
+                    aria-label={`Remove ${name}`}
+                  >
+                    &times;
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-[11px] text-gray-600 text-center mt-6">
+              No {tab} added yet.
+              <br />
+              Use the search above to add some.
+            </p>
+          )
+        )}
+
+        {/* Recipes list */}
+        {tab === 'recipes' && (
           <RecipeList
             recipes={profile.recipes}
             onRemove={actions.removeRecipe}
           />
-        ) : currentItems && currentItems.length > 0 ? (
-          <ul className="space-y-1">
-            {currentItems.map((name) => (
-              <li
-                key={name}
-                className="flex items-center justify-between px-2 py-1 rounded bg-[#1a1a2e]/50 group"
-              >
-                <span className="text-xs text-gray-300 truncate">{name}</span>
-                <button
-                  onClick={() => handleRemove(name)}
-                  className="text-gray-600 hover:text-red-400 transition-colors text-xs opacity-0 group-hover:opacity-100"
-                  aria-label={`Remove ${name}`}
-                >
-                  &times;
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-[11px] text-gray-600 text-center mt-6">
-            No {tab} added yet.
-            <br />
-            Use the search above to add some.
-          </p>
+        )}
+
+        {/* Insights tab */}
+        {tab === 'insights' && (
+          !hasInsightsData ? (
+            <div className="text-center mt-6">
+              <p className="text-neural-muted text-xs">Add ingredients, cuisines, or recipes to see your flavor insights.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Taste Signature */}
+              <InsightSection title="Flavor Signature">
+                {Object.keys(tasteSignature).length === 0 ? (
+                  <p className="text-neural-muted text-xs">No taste data available.</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {Object.entries(tasteSignature)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([taste, proportion]) => (
+                        <div key={taste} className="flex items-center gap-2">
+                          <span className="text-xs text-neural-muted w-12 text-right capitalize">{taste}</span>
+                          <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${Math.round(proportion * 100)}%`,
+                                background: TASTE_COLORS[taste] || TASTE_COLORS.default,
+                                boxShadow: `0 0 6px ${TASTE_COLORS[taste] || TASTE_COLORS.default}60`,
+                              }}
+                            />
+                          </div>
+                          <span className="text-xs text-neural-muted w-8">{Math.round(proportion * 100)}%</span>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </InsightSection>
+
+              {/* Top Ingredients */}
+              <InsightSection title="Top 10 Ingredients">
+                {topIngredients.length === 0 ? (
+                  <p className="text-neural-muted text-xs">Add ingredients to see your top picks.</p>
+                ) : (
+                  <div className="space-y-1">
+                    {topIngredients.map(({ name, weight }, i) => (
+                      <button
+                        key={name}
+                        onClick={() => onSelectIngredient?.(name)}
+                        className="w-full flex items-center gap-2 px-1 py-0.5 rounded hover:bg-white/5 transition-colors text-left group"
+                      >
+                        <span className="text-neural-glow/60 text-xs w-4 text-right">{i + 1}</span>
+                        <span className="flex-1 text-neural-text text-xs capitalize group-hover:text-neural-glow transition-colors">
+                          {name}
+                        </span>
+                        <div className="w-12 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-neural-glow/70"
+                            style={{ width: `${Math.round(weight * 100)}%` }}
+                          />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </InsightSection>
+
+              {/* You Might Like */}
+              <InsightSection title="You Might Like">
+                {suggestions.length === 0 ? (
+                  <p className="text-neural-muted text-xs">Add more preferences for suggestions.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-1">
+                    {suggestions.map(({ name }) => (
+                      <button
+                        key={name}
+                        onClick={() => actions.addIngredient(name)}
+                        className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] border border-neural-glow/20 text-neural-text/80 hover:border-neural-glow/50 hover:text-neural-glow transition-colors bg-white/5"
+                        title={`Add ${name} to profile`}
+                      >
+                        <span className="text-neural-glow/60">+</span>
+                        <span className="capitalize">{name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </InsightSection>
+
+              {/* Cuisine Affinity */}
+              <InsightSection title="Cuisine Affinity">
+                {cuisineAffinity.length === 0 ? (
+                  <p className="text-neural-muted text-xs">No cuisine data available.</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {cuisineAffinity.map(({ cuisine, score }) => (
+                      <div key={cuisine} className="flex items-center gap-2">
+                        <span className="text-xs text-neural-muted w-20 text-right capitalize truncate">{cuisine}</span>
+                        <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${Math.round(score * 100)}%`,
+                              background: colorForCuisine(cuisine),
+                              boxShadow: `0 0 6px ${colorForCuisine(cuisine)}60`,
+                            }}
+                          />
+                        </div>
+                        <span className="text-[10px] text-neural-muted w-7">{Math.round(score * 100)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </InsightSection>
+
+              {/* Ingredient Frequency */}
+              {frequencyData && (
+                <InsightSection title="Most Used Ingredients">
+                  <div className="grid grid-cols-4 gap-1 mb-2">
+                    <FrequencyStat label="Unique" value={frequencyData.uniqueCount} />
+                    <FrequencyStat label="Signature" value={frequencyData.classified.signature.length} color="#22c55e" />
+                    <FrequencyStat label="Regular" value={frequencyData.classified.regular.length} color="#3b82f6" />
+                    <FrequencyStat label="Occasional" value={frequencyData.classified.occasional.length} color="#6b7280" />
+                  </div>
+                  <div className="space-y-1">
+                    {frequencyData.top15.map(({ name, frequency }) => {
+                      const pct = Math.round(frequency * 100);
+                      const barColor = frequency >= 0.7 ? '#22c55e' : frequency >= 0.3 ? '#3b82f6' : '#6b7280';
+                      return (
+                        <button
+                          key={name}
+                          onClick={() => onSelectIngredient?.(name)}
+                          className="w-full text-left group rounded px-1 py-0.5 hover:bg-white/5 transition-colors"
+                        >
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-[10px] text-neural-text capitalize group-hover:text-neural-glow transition-colors truncate flex-1">
+                              {name}
+                            </span>
+                            <span className="text-[9px] text-neural-muted ml-1 shrink-0">{pct}%</span>
+                          </div>
+                          <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${pct}%`, background: barColor }}
+                            />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </InsightSection>
+              )}
+            </div>
+          )
         )}
       </div>
 
       {/* Footer actions */}
       <div className="p-2 border-t border-[#1e1e2e] space-y-1">
-        {onTakeQuiz && (
+        {/* Auth */}
+        {user ? (
+          <div className="flex items-center gap-2 px-1 py-1">
+            <img src={user.photoURL || ''} alt="" className="w-4 h-4 rounded-full" referrerPolicy="no-referrer" />
+            <span className="text-[10px] text-gray-400 truncate flex-1">{user.displayName || user.email}</span>
+            <button onClick={onLogout} className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors">
+              Sign Out
+            </button>
+          </div>
+        ) : (
           <button
-            onClick={onTakeQuiz}
-            className="w-full text-[11px] bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 rounded py-1.5 transition-colors flex items-center justify-center gap-1.5"
+            onClick={onLogin}
+            className="w-full text-[11px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded py-1.5 transition-colors flex items-center justify-center gap-1.5"
           >
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            {profile.quizAnswers ? 'Retake Palate Quiz' : 'Take Palate Quiz'}
+            Sign In with Google
           </button>
         )}
+        {/* Replay tour */}
+        {onReplayTour && (
+          <button
+            onClick={onReplayTour}
+            className="w-full text-[10px] text-gray-500 hover:text-gray-300 transition-colors py-1 flex items-center justify-center gap-1"
+          >
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+            </svg>
+            Replay Guided Tour
+          </button>
+        )}
+        {/* Export/Import */}
         <div className="flex gap-1">
           <button
             onClick={handleExport}
@@ -289,7 +479,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
 
       {/* Tab */}
       <button
-        onClick={isOpen ? onClose : onClose} // toggle handled by parent
+        onClick={isOpen ? onClose : onClose}
         className={`self-start mt-4 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-l-0 rounded-r-lg px-1.5 py-3 transition-all duration-300 ${
           isOpen ? 'text-blue-400 translate-x-0' : 'text-gray-500 hover:text-gray-300 -translate-x-full pointer-events-none opacity-0'
         }`}
@@ -304,13 +494,33 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
   );
 }
 
+function InsightSection({ title, children }) {
+  return (
+    <div>
+      <h3 className="text-neural-glow/80 text-[10px] font-medium uppercase tracking-wider mb-1.5">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function FrequencyStat({ label, value, color }) {
+  return (
+    <div className="text-center rounded bg-white/5 py-1 px-0.5">
+      <div className="text-xs font-semibold text-neural-text" style={color ? { color } : undefined}>
+        {value}
+      </div>
+      <div className="text-[8px] text-neural-muted uppercase tracking-wide">{label}</div>
+    </div>
+  );
+}
+
 function RecipeList({ recipes, onRemove }) {
   if (recipes.length === 0) {
     return (
       <p className="text-[11px] text-gray-600 text-center mt-6">
         No recipes added yet.
         <br />
-        Use the Recipe Builder to create one.
+        Use Recipe Lab to create one.
       </p>
     );
   }
