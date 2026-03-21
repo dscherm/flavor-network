@@ -223,7 +223,9 @@ export default function LivingArchView({
       const b = pos2D[name] || [0, 0, 0];
       posA[i*3] = a[0]; posA[i*3+1] = a[1]; posA[i*3+2] = a[2];
       posB[i*3] = b[0]; posB[i*3+1] = b[1]; posB[i*3+2] = b[2];
-      curPos[i*3] = a[0]; curPos[i*3+1] = a[1]; curPos[i*3+2] = a[2];
+      // Start from the current mode's positions
+      const startPos = modeRef.current === 'wheel' ? b : a;
+      curPos[i*3] = startPos[0]; curPos[i*3+1] = startPos[1]; curPos[i*3+2] = startPos[2];
     }
 
     // --- Renderer, Scene, Camera ---
@@ -232,7 +234,11 @@ export default function LivingArchView({
     scene.background = new THREE.Color(0x0a0a0f);
 
     const camera = new THREE.PerspectiveCamera(60, el.clientWidth/el.clientHeight, 0.1, 2000);
-    camera.position.set(0, 40, 120);
+    if (modeRef.current === 'wheel') {
+      camera.position.set(0, 120, 0.1);
+    } else {
+      camera.position.set(0, 40, 120);
+    }
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -388,7 +394,7 @@ export default function LivingArchView({
 
     // --- Octagonal sector lines + concentric rings for wheel mode ---
     const sectorGroup = new THREE.Group();
-    sectorGroup.visible = false;
+    sectorGroup.visible = modeRef.current === 'wheel';
     const N_TASTES = TASTE_ORDER.length;
     const sectorAngle = (Math.PI * 2) / N_TASTES;
     const lineMat = new THREE.LineBasicMaterial({ color: 0x333355, transparent: true, opacity: 0.4 });
