@@ -35,6 +35,8 @@ export default function App() {
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [exploreDropdownOpen, setExploreDropdownOpen] = useState(false);
   const [livingMode, setLivingMode] = useState('neural');
+  const [showEdges, setShowEdges] = useState(true);
+  const [showParticles, setShowParticles] = useState(true);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
@@ -386,8 +388,8 @@ export default function App() {
         onNodeClick={handleNodeClick}
         selectedNode={selectedNode}
         selectedNodes={selectedNodes}
-        showEdges={true}
-        showParticles={true}
+        showEdges={showEdges}
+        showParticles={showParticles}
         filterTaste={selectedTaste}
         treeFilterIngredients={treeFilterIngredients}
         bridgePathIngredients={bridgePathIngredients}
@@ -455,6 +457,10 @@ export default function App() {
         onTasteFilter={setSelectedTaste}
       />
       <Controls
+        showEdges={showEdges}
+        showParticles={showParticles}
+        onToggleEdges={() => setShowEdges(v => !v)}
+        onToggleParticles={() => setShowParticles(v => !v)}
         cuisines={cuisines}
         selectedCuisine={selectedCuisine}
         onCuisineFilter={setSelectedCuisine}

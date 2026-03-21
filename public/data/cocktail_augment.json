@@ -106,7 +106,16 @@
     { "name": "grapefruit juice", "category": "Citrus", "taste": "bitter/sour", "weight": "light", "codexRole": "sour" },
     { "name": "apple juice", "category": "Fruit", "taste": "sweet", "weight": "light", "codexRole": "accent" },
     { "name": "pomegranate juice", "category": "Fruit", "taste": "sweet/sour", "weight": "light", "codexRole": "accent" },
-    { "name": "passion fruit juice", "category": "Fruit", "taste": "sweet/sour", "weight": "light", "codexRole": "accent" }
+    { "name": "passion fruit juice", "category": "Fruit", "taste": "sweet/sour", "weight": "light", "codexRole": "accent" },
+
+    { "name": "lemon juice", "category": "Citrus", "taste": "sour", "weight": "light", "codexRole": "sour" },
+    { "name": "lime juice", "category": "Citrus", "taste": "sour", "weight": "light", "codexRole": "sour" },
+    { "name": "orange juice", "category": "Citrus", "taste": "sweet/sour", "weight": "light", "codexRole": "sour" },
+
+    { "name": "baileys irish cream", "category": "Liqueur", "taste": "sweet/creamy", "weight": "heavy", "codexRole": "modifier" },
+    { "name": "grand marnier", "category": "Liqueur", "taste": "sweet/bitter/orange", "weight": "medium", "codexRole": "modifier" },
+    { "name": "blue curacao", "category": "Liqueur", "taste": "sweet/bitter/orange", "weight": "light-medium", "codexRole": "modifier" },
+    { "name": "apricot brandy", "category": "Spirit", "taste": "sweet/fruity", "weight": "medium", "codexRole": "modifier" }
   ],
 
   "pairings": [
@@ -682,7 +691,77 @@
     { "source": "coffee liqueur", "target": "tia maria", "strength": 0.85 },
 
     { "source": "chocolate liqueur", "target": "creme de cacao", "strength": 0.88 },
-    { "source": "chocolate liqueur", "target": "godiva liqueur", "strength": 0.85 }
+    { "source": "chocolate liqueur", "target": "godiva liqueur", "strength": 0.85 },
+
+    { "source": "lemon juice", "target": "gin", "strength": 0.95 },
+    { "source": "lemon juice", "target": "vodka", "strength": 0.85 },
+    { "source": "lemon juice", "target": "whiskey", "strength": 0.85 },
+    { "source": "lemon juice", "target": "bourbon", "strength": 0.85 },
+    { "source": "lemon juice", "target": "cognac", "strength": 0.80 },
+    { "source": "lemon juice", "target": "rum", "strength": 0.80 },
+    { "source": "lemon juice", "target": "simple syrup", "strength": 0.95 },
+    { "source": "lemon juice", "target": "honey syrup", "strength": 0.85 },
+    { "source": "lemon juice", "target": "egg white", "strength": 0.80 },
+    { "source": "lemon juice", "target": "triple sec", "strength": 0.80 },
+    { "source": "lemon juice", "target": "cointreau", "strength": 0.80 },
+    { "source": "lemon juice", "target": "st-germain", "strength": 0.80 },
+
+    { "source": "lime juice", "target": "rum", "strength": 0.95 },
+    { "source": "lime juice", "target": "tequila", "strength": 0.95 },
+    { "source": "lime juice", "target": "gin", "strength": 0.90 },
+    { "source": "lime juice", "target": "vodka", "strength": 0.85 },
+    { "source": "lime juice", "target": "mezcal", "strength": 0.90 },
+    { "source": "lime juice", "target": "cachaca", "strength": 0.95 },
+    { "source": "lime juice", "target": "simple syrup", "strength": 0.95 },
+    { "source": "lime juice", "target": "agave syrup", "strength": 0.90 },
+    { "source": "lime juice", "target": "triple sec", "strength": 0.90 },
+    { "source": "lime juice", "target": "cointreau", "strength": 0.90 },
+    { "source": "lime juice", "target": "ginger beer", "strength": 0.85 },
+    { "source": "lime juice", "target": "coconut cream", "strength": 0.80 },
+
+    { "source": "orange juice", "target": "vodka", "strength": 0.90 },
+    { "source": "orange juice", "target": "tequila", "strength": 0.85 },
+    { "source": "orange juice", "target": "rum", "strength": 0.85 },
+    { "source": "orange juice", "target": "champagne", "strength": 0.90 },
+    { "source": "orange juice", "target": "prosecco", "strength": 0.85 },
+    { "source": "orange juice", "target": "grenadine", "strength": 0.80 },
+    { "source": "orange juice", "target": "triple sec", "strength": 0.80 },
+    { "source": "orange juice", "target": "campari", "strength": 0.75 },
+    { "source": "orange juice", "target": "cranberry juice", "strength": 0.80 },
+    { "source": "orange juice", "target": "pineapple juice", "strength": 0.80 },
+
+    { "source": "baileys irish cream", "target": "kahlua", "strength": 0.90 },
+    { "source": "baileys irish cream", "target": "vodka", "strength": 0.80 },
+    { "source": "baileys irish cream", "target": "whiskey", "strength": 0.85 },
+    { "source": "baileys irish cream", "target": "heavy cream", "strength": 0.85 },
+    { "source": "baileys irish cream", "target": "coffee liqueur", "strength": 0.90 },
+    { "source": "baileys irish cream", "target": "espresso", "strength": 0.85 },
+    { "source": "baileys irish cream", "target": "chocolate liqueur", "strength": 0.85 },
+    { "source": "baileys irish cream", "target": "frangelico", "strength": 0.75 },
+
+    { "source": "grand marnier", "target": "cognac", "strength": 0.90 },
+    { "source": "grand marnier", "target": "lemon juice", "strength": 0.85 },
+    { "source": "grand marnier", "target": "lime juice", "strength": 0.80 },
+    { "source": "grand marnier", "target": "orange juice", "strength": 0.85 },
+    { "source": "grand marnier", "target": "champagne", "strength": 0.80 },
+    { "source": "grand marnier", "target": "cranberry juice", "strength": 0.75 },
+    { "source": "grand marnier", "target": "tequila", "strength": 0.80 },
+
+    { "source": "blue curacao", "target": "vodka", "strength": 0.85 },
+    { "source": "blue curacao", "target": "rum", "strength": 0.80 },
+    { "source": "blue curacao", "target": "tequila", "strength": 0.80 },
+    { "source": "blue curacao", "target": "lemon juice", "strength": 0.80 },
+    { "source": "blue curacao", "target": "lime juice", "strength": 0.80 },
+    { "source": "blue curacao", "target": "orange juice", "strength": 0.80 },
+    { "source": "blue curacao", "target": "pineapple juice", "strength": 0.80 },
+    { "source": "blue curacao", "target": "coconut cream", "strength": 0.75 },
+
+    { "source": "apricot brandy", "target": "gin", "strength": 0.85 },
+    { "source": "apricot brandy", "target": "lemon juice", "strength": 0.85 },
+    { "source": "apricot brandy", "target": "orange juice", "strength": 0.80 },
+    { "source": "apricot brandy", "target": "lime juice", "strength": 0.75 },
+    { "source": "apricot brandy", "target": "grenadine", "strength": 0.70 },
+    { "source": "apricot brandy", "target": "simple syrup", "strength": 0.70 }
   ],
 
   "cocktailIngredientNames": [
@@ -725,6 +804,8 @@
     "peach bitters",
     "cranberry juice", "pineapple juice", "grapefruit juice",
     "apple juice", "pomegranate juice", "passion fruit juice",
+    "lemon juice", "lime juice", "orange juice",
+    "baileys irish cream", "grand marnier", "blue curacao", "apricot brandy",
     "apple", "beer", "cider", "fig", "kiwi", "milk", "cream",
     "egg", "egg yolk", "whipped cream",
     "rose", "wormwood", "sour mix", "olive brine",
