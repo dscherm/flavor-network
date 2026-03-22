@@ -166,6 +166,8 @@ export default function LivingArchView({
   selectedNodes = [],
   showEdges = true,
   showParticles = true,
+  edgeBrightness = 1.0,
+  particleBrightness = 1.0,
   filterTaste = '',
   treeFilterIngredients = null,
   bridgePathIngredients = null,
@@ -334,6 +336,7 @@ export default function LivingArchView({
     edgeGeo.setAttribute('aOpacity', new THREE.Float32BufferAttribute(edgeOpacities, 1));
 
     const edgeMat = new THREE.ShaderMaterial({
+      uniforms: { uBrightness: { value: 1.0 } },
       vertexShader: `
         precision highp float;
         attribute vec3 aColor;
@@ -348,9 +351,10 @@ export default function LivingArchView({
       `,
       fragmentShader: `
         precision highp float;
+        uniform float uBrightness;
         varying vec3 vColor;
         varying float vOpacity;
-        void main() { gl_FragColor = vec4(vColor, vOpacity); }
+        void main() { gl_FragColor = vec4(vColor * uBrightness, vOpacity * uBrightness); }
       `,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     });
@@ -385,6 +389,7 @@ export default function LivingArchView({
     particleGeo.setAttribute('aColor', new THREE.Float32BufferAttribute(particleColors, 3));
 
     const particleMat = new THREE.ShaderMaterial({
+      uniforms: { uBrightness: { value: 1.0 } },
       vertexShader: `
         precision highp float;
         attribute float aOpacity;
@@ -401,13 +406,14 @@ export default function LivingArchView({
       `,
       fragmentShader: `
         precision highp float;
+        uniform float uBrightness;
         varying float vOpacity;
         varying vec3 vColor;
         void main() {
           float d = length(gl_PointCoord - vec2(0.5));
           if (d > 0.5) discard;
-          float alpha = smoothstep(0.5, 0.2, d) * vOpacity;
-          gl_FragColor = vec4(vColor, alpha);
+          float alpha = smoothstep(0.5, 0.2, d) * vOpacity * uBrightness;
+          gl_FragColor = vec4(vColor * uBrightness, alpha);
         }
       `,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
@@ -1020,8 +1026,9 @@ export default function LivingArchView({
     };
 
     stateRef.current = {
-      scene, camera, renderer, composer, controls, mesh, edgeMesh, edgeGeo,
+      scene, camera, renderer, composer, controls, mesh, edgeMesh, edgeMat, edgeGeo,
       edgeColors, edgeOpacities, validEdges,
+      particleMesh, particleMat,
       nodeArray, nameIdx, defaultColors, curPos, posA, posB,
       triggerTransition, labelGroup, sectorGroup, tasteSelection,
       updateEdgePositions,
@@ -1091,6 +1098,24 @@ export default function LivingArchView({
     const st = stateRef.current;
     if (st && st.edgeMesh) st.edgeMesh.visible = showEdges;
   }, [showEdges]);
+
+  // ---- Particle visibility ----
+  useEffect(() => {
+    const st = stateRef.current;
+    if (st && st.particleMesh) st.particleMesh.visible = showParticles;
+  }, [showParticles]);
+
+  // ---- Edge brightness ----
+  useEffect(() => {
+    const st = stateRef.current;
+    if (st && st.edgeMat) st.edgeMat.uniforms.uBrightness.value = edgeBrightness;
+  }, [edgeBrightness]);
+
+  // ---- Particle brightness ----
+  useEffect(() => {
+    const st = stateRef.current;
+    if (st && st.particleMat) st.particleMat.uniforms.uBrightness.value = particleBrightness;
+  }, [particleBrightness]);
 
   // ---- Taste filter ----
   useEffect(() => {
