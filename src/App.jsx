@@ -37,6 +37,8 @@ export default function App() {
   const [livingMode, setLivingMode] = useState('neural');
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
+  const [edgeBrightness, setEdgeBrightness] = useState(1.0);
+  const [particleBrightness, setParticleBrightness] = useState(1.0);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
@@ -390,6 +392,8 @@ export default function App() {
         selectedNodes={selectedNodes}
         showEdges={showEdges}
         showParticles={showParticles}
+        edgeBrightness={edgeBrightness}
+        particleBrightness={particleBrightness}
         filterTaste={selectedTaste}
         treeFilterIngredients={treeFilterIngredients}
         bridgePathIngredients={bridgePathIngredients}
@@ -461,6 +465,10 @@ export default function App() {
         showParticles={showParticles}
         onToggleEdges={() => setShowEdges(v => !v)}
         onToggleParticles={() => setShowParticles(v => !v)}
+        edgeBrightness={edgeBrightness}
+        particleBrightness={particleBrightness}
+        onEdgeBrightnessChange={setEdgeBrightness}
+        onParticleBrightnessChange={setParticleBrightness}
         cuisines={cuisines}
         selectedCuisine={selectedCuisine}
         onCuisineFilter={setSelectedCuisine}

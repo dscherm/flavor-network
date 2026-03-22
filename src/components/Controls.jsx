@@ -23,11 +23,39 @@ function Toggle({ label, checked, onChange }) {
   );
 }
 
+function Slider({ label, value, onChange, min = 0, max = 2, step = 0.05 }) {
+  const pct = Math.round(value * 100);
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-400">{label}</span>
+        <span className="text-[10px] text-gray-500 tabular-nums">{pct}%</span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="w-full h-1 bg-gray-700 rounded-full appearance-none cursor-pointer accent-blue-500
+          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3
+          [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500
+          [&::-webkit-slider-thumb]:hover:bg-blue-400 [&::-webkit-slider-thumb]:transition-colors"
+      />
+    </div>
+  );
+}
+
 function Controls({
   showEdges,
   showParticles,
   onToggleEdges,
   onToggleParticles,
+  edgeBrightness = 1.0,
+  particleBrightness = 1.0,
+  onEdgeBrightnessChange,
+  onParticleBrightnessChange,
   cuisines,
   selectedCuisine,
   onCuisineFilter,
@@ -65,7 +93,13 @@ function Controls({
 
         <div className="space-y-2">
           <Toggle label="Edges" checked={showEdges} onChange={onToggleEdges} />
+          {showEdges && (
+            <Slider label="Edge Brightness" value={edgeBrightness} onChange={onEdgeBrightnessChange} />
+          )}
           <Toggle label="Particles" checked={showParticles} onChange={onToggleParticles} />
+          {showParticles && (
+            <Slider label="Particle Brightness" value={particleBrightness} onChange={onParticleBrightnessChange} />
+          )}
         </div>
 
         <div className="mt-3 pt-2 border-t border-[#1e1e2e] space-y-2">
