@@ -45,8 +45,8 @@ show_status() {
 
   # Main loop (fix_plan.md)
   if [ -f ".claude/fix_plan.md" ]; then
-    local total=$(grep -c '^\- \[' .claude/fix_plan.md 2>/dev/null || echo 0)
-    local done=$(grep -c '^\- \[x\]' .claude/fix_plan.md 2>/dev/null || echo 0)
+    local total=$(grep -c '^\- \[' .claude/fix_plan.md 2>/dev/null | tr -d ' \r\n' || echo 0)
+    local done=$(grep -c '^\- \[x\]' .claude/fix_plan.md 2>/dev/null | tr -d ' \r\n' || echo 0)
     local remain=$((total - done))
     echo "  Main Loop:       $done/$total ($remain remaining)"
   fi
@@ -57,8 +57,8 @@ show_status() {
     local name="${dir%/}"
     local plan="$dir/plan.md"
     if [ -f "$plan" ]; then
-      local total=$(wc -l < "$plan" | tr -d ' ')
-      local done=$(grep -c '"passes": true' "$plan" 2>/dev/null || echo 0)
+      local total=$(wc -l < "$plan" | tr -d ' \r\n')
+      local done=$(grep -c '"passes": true' "$plan" 2>/dev/null | tr -d ' \r\n' || echo 0)
       local remain=$((total - done))
       printf "  %-18s %d/%d (%d remaining)\n" "${name}:" "$done" "$total" "$remain"
     fi
