@@ -338,3 +338,55 @@ ralph.sh (orchestrator)
 ```
 
 **Key insight**: The main Ralph and all mini-ralphs share the same validation gates, the same shared memory, and the same orchestrator. They differ in prompt (domain rules), plan (task list), and local memory (domain learnings). This gives each loop autonomy within its domain while maintaining project-wide consistency.
+
+---
+
+## Variants Across Projects
+
+The mini-ralph pattern adapts to each project's conventions. These are the known variations:
+
+### Directory Placement
+
+| Pattern | Example | When to use |
+|---|---|---|
+| `{domain}-ralph/` at project root | `ingredient-ralph/`, `road-ralph/` | Most projects — simple, discoverable |
+| `ralph/{track}/` subdirectory | `ralph/berserkr/`, `ralph/config-engine/` | When multiple independent tracks share infrastructure |
+| `pipelines/{name}-ralph/` | `pipelines/fusion-ralph/` | Pipeline-oriented projects (staged transforms) |
+
+### Plan Format
+
+| Format | Example | When to use |
+|---|---|---|
+| **JSON-per-line** | `{"task": 1, "passes": false}` | Machine-parseable, `grep -c` for status counts |
+| **Markdown checklist** | `- [ ] TASK-1: description` | Human-readable, works with main fix_plan.md |
+
+Both work. Pick whichever your project already uses. The key is that `ralph.sh --status` can count completions — JSON uses `grep -c '"passes": true'`, markdown uses `grep -c '\[x\]'`.
+
+### Completion Signals
+
+| Signal | Used by |
+|---|---|
+| `<promise>COMPLETE</promise>` | Most projects |
+| `<promise>ALL TASKS COMPLETE</promise>` | Main ralph (backward compat) |
+| `RALPH_COMPLETE` | berserkr-godot |
+| `SIGNAL: COMPLETE` | DissonantDreams |
+
+Match your project's existing convention. The signal is just a grep target in ralph.sh — any unique string works.
+
+### Orchestrator Location
+
+| Pattern | Location |
+|---|---|
+| Single ralph.sh at root | `./ralph.sh --preset {name}` |
+| Per-track ralph.sh | `ralph/{track}/ralph.sh` |
+| No ralph.sh (prompt-only) | `while :; do cat prompt.md \| claude; done` |
+
+### Memory System
+
+| Pattern | Shared memory | Local memory |
+|---|---|---|
+| `.claude/memories.md` + `{domain}-ralph/memories.md` | Project-wide learnings | Domain-specific learnings |
+| `.ralph/memories.md` + `{domain}-ralph/memory.md` | Global persistent | Loop-specific |
+| `memories.md` at root + `activity.md` | Single memory file | Activity log as memory |
+
+The principle is always the same: **shared memory for cross-domain learnings, local memory for domain-specific patterns**. File names and locations vary by project.
