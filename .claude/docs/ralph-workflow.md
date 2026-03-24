@@ -5,10 +5,12 @@
 | Task Type | Action | Agent |
 |-----------|--------|-------|
 | Three.js scene, shaders, 3D rendering | Delegate | scene-architect |
-| Data parsing, ML training, API | Delegate | data-engineer |
+| Data parsing, API | Delegate | data-engineer |
 | React components, search UI, panels | Delegate | ui-builder |
 | Walkthrough/demo feature | Delegate | tour-guide |
 | Ingredient/pairing data quality | Mini-loop | ingredient-ralph |
+| Dead code, unused deps, stale files | Mini-loop | cleanup-ralph |
+| Component decomposition, extraction | Mini-loop | refactor-ralph |
 | Config, scaffold, wiring, small fixes | Work directly | (main loop) |
 | Build/gate validation | Work directly | (main loop) |
 
@@ -19,6 +21,8 @@ Specialized autonomous loops for domain-specific work. Each has its own plan.md,
 | Preset | Directory | Domain | Run Command |
 |--------|-----------|--------|-------------|
 | ingredient | `ingredient-ralph/` | Data quality: ingredients, pairings, augments | `bash ralph.sh --preset ingredient` |
+| cleanup | `cleanup-ralph/` | Dead code, unused deps, stale docs | `bash ralph.sh --preset cleanup` |
+| refactor | `refactor-ralph/` | Component decomposition (LivingArchView) | `bash ralph.sh --preset refactor` |
 
 ### Orchestration commands
 ```bash

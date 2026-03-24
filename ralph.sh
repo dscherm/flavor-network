@@ -30,6 +30,8 @@ resolve_preset() {
   case "$1" in
     default)    echo ".claude/PROMPT.md" ;;
     ingredient) echo "ingredient-ralph/prompt.md" ;;
+    cleanup)    echo "cleanup-ralph/prompt.md" ;;
+    refactor)   echo "refactor-ralph/prompt.md" ;;
     *)          echo "" ;;
   esac
 }

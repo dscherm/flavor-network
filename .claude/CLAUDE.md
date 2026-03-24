@@ -5,7 +5,7 @@
 - **Rendering**: Three.js scene with post-processing (bloom/glow), OrbitControls for 3D navigation
 - **API**: Express.js REST endpoint for ingredient lookup (`/api/ingredient/:name`)
 - **Search**: In-app fuzzy search bar (fuse.js) + drilldown panel showing pairings, cuisines, metadata
-- **Data**: ProData proprietary dataset — 4,488 ingredients, 51,726 pairings derived from RecipeNLG (2.2M recipes), TheMealDB, and TheCocktailDB. NPMI + log-count hybrid scoring. NO Flavor Bible dependency.
+- **Data**: ProData proprietary dataset — 3,913 ingredients, 48,588 pairings derived from RecipeNLG (2.2M recipes), TheMealDB, and TheCocktailDB. NPMI + log-count hybrid scoring. NO Flavor Bible dependency.
 - **Navigation**: Network tab + Labs dropdown (Cocktail Lab, Sauce Lab, Recipe Lab). Labs are lazy-mounted.
 - **iOS**: Capacitor wraps the web app for App Store distribution (com.neuralflavor.app)
 
@@ -16,7 +16,7 @@ The app uses a proprietary dataset built from open sources via `proDataset/`:
 - **TheCocktailDB**: 426 drinks → co-occurrence (15% weight)
 - **FlavorDB**: Chemical compound overlap (30% weight, when API available)
 
-The Flavor Bible CSV data is retained in `public/data/` and `src/hooks/useFlavorData.js` for reference but is NOT used by the app. The app uses `useProData()` hook which loads from `public/proDataset/`.
+The Flavor Bible CSV data and legacy hooks (useFlavorData.js, loader.js) were removed on 2026-03-24. The app uses `useProData()` hook which loads from `public/proDataset/`.
 
 ## Key Directories
 ```
@@ -42,14 +42,14 @@ src/
 │   ├── ParticleSystem.js    # Animated particles flowing along edges
 │   └── ShaderMaterials.js   # Custom glow/pulse/activation shaders
 ├── data/
-│   ├── loader.js            # Parse CSV/JSON data files (legacy Flavor Bible)
+│   ├── graph.js             # Build node/edge graph from pairings
 │   ├── graph.js             # Build node/edge graph from pairings
 │   ├── cocktailGraph.js     # Cocktail subgraph builder
 │   ├── sauceGraph.js        # Sauce subgraph builder
 │   └── metadata.js          # Ingredient metadata accessors
 ├── hooks/
 │   ├── useProData.js        # PRIMARY: Loads ProData dataset (proprietary)
-│   └── useFlavorData.js     # LEGACY: Loads Flavor Bible data (not used in app)
+│   └── useIsMobile.js       # Responsive mobile detection hook
 └── utils/
     └── color.js             # Color scales for cuisines, taste, activation
 proDataset/                  # Proprietary dataset pipeline (standalone Node.js)
@@ -59,7 +59,7 @@ proDataset/                  # Proprietary dataset pipeline (standalone Node.js)
 └── output/                  # Final blended dataset
 public/
 ├── proDataset/              # ACTIVE: ingredients.json, pairings.json (served to app)
-└── data/                    # LEGACY: Flavor Bible CSV/JSON (retained but not loaded)
+└── data/                    # Augment data (cocktail_augment.json, sauce_augment.json, cuisine_map.json, season_region.json)
 ios/                         # Capacitor iOS project (Xcode)
 ```
 
@@ -106,7 +106,7 @@ npm run blend        # Blend all sources into output/
 - ALL ingredient data comes from ProData (useProData hook), NOT Flavor Bible
 
 ## Critical Rules
-- NEVER use useFlavorData in the app — it is legacy. Use useProData.
+- useFlavorData and loader.js have been removed. Use useProData exclusively.
 - Use InstancedMesh for nodes (performance — thousands of spheres)
 - Use BufferGeometry for edges (performance — thousands of lines)
 - API responses must include CORS headers

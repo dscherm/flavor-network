@@ -3,12 +3,12 @@
 ## Decisions
 
 ### mem-1710153000-a1b1
-> Tech stack: React 18 + Vite + Three.js + TensorFlow.js + Tailwind + Express + Fuse.js. Chosen for 3D neural-network aesthetic with real ML embeddings.
-<!-- tags: architecture, stack | created: 2026-03-11 -->
+> Tech stack: React 18 + Vite + Three.js + Tailwind + Express + Fuse.js. TensorFlow.js removed 2026-03-24 (unused). 3D neural-network aesthetic with GAT embeddings pre-computed in ProData pipeline.
+<!-- tags: architecture, stack | created: 2026-03-11, updated: 2026-03-24 -->
 
 ### mem-1710153000-a1b2
-> Data source is Flavor Bible dataset from food-tools/flavor-map repo. Key files: ingredients.csv (ingredient-pairing pairs), cuisines.csv (cuisine-ingredient pairs), ingredient_metadata.csv (taste/weight/volume/season), affinities.csv (flavor combos). Large JSON files (graph.json, pairings.json) are 1M+ tokens — never read directly.
-<!-- tags: data, architecture | created: 2026-03-11 -->
+> Data source is ProData proprietary dataset (3,913 ingredients, 48,588 pairings) from RecipeNLG (2.2M recipes), TheMealDB, TheCocktailDB. Flavor Bible CSV data removed from public/data/ on 2026-03-24. Legacy loader.js and useFlavorData.js also removed. Large JSON files (ingredients.json, pairings.json) are 1M+ tokens — never read directly.
+<!-- tags: data, architecture | created: 2026-03-11, updated: 2026-03-24 -->
 
 ## Fixes
 
