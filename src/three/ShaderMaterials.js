@@ -157,3 +157,82 @@ export function createParticleMaterial() {
     blending: AdditiveBlending,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Living Architecture — edge material with per-vertex color/opacity + brightness
+// ---------------------------------------------------------------------------
+
+const livingEdgeVertexShader = /* glsl */ `
+        precision highp float;
+        attribute vec3 aColor;
+        attribute float aOpacity;
+        varying vec3 vColor;
+        varying float vOpacity;
+        void main() {
+          vColor = aColor;
+          vOpacity = aOpacity;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+`;
+
+const livingEdgeFragmentShader = /* glsl */ `
+        precision highp float;
+        uniform float uBrightness;
+        varying vec3 vColor;
+        varying float vOpacity;
+        void main() { gl_FragColor = vec4(vColor * uBrightness, vOpacity * uBrightness); }
+`;
+
+export function createLivingEdgeMaterial() {
+  return new ShaderMaterial({
+    uniforms: { uBrightness: { value: 1.0 } },
+    vertexShader: livingEdgeVertexShader,
+    fragmentShader: livingEdgeFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    blending: AdditiveBlending,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Living Architecture — particle material with per-vertex color/opacity + brightness
+// ---------------------------------------------------------------------------
+
+const livingParticleVertexShader = /* glsl */ `
+        precision highp float;
+        attribute float aOpacity;
+        attribute vec3 aColor;
+        varying float vOpacity;
+        varying vec3 vColor;
+        void main() {
+          vOpacity = aOpacity;
+          vColor = aColor;
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = 3.0 * (200.0 / -mvPos.z);
+          gl_Position = projectionMatrix * mvPos;
+        }
+`;
+
+const livingParticleFragmentShader = /* glsl */ `
+        precision highp float;
+        uniform float uBrightness;
+        varying float vOpacity;
+        varying vec3 vColor;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          if (d > 0.5) discard;
+          float alpha = smoothstep(0.5, 0.2, d) * vOpacity * uBrightness;
+          gl_FragColor = vec4(vColor * uBrightness, alpha);
+        }
+`;
+
+export function createLivingParticleMaterial() {
+  return new ShaderMaterial({
+    uniforms: { uBrightness: { value: 1.0 } },
+    vertexShader: livingParticleVertexShader,
+    fragmentShader: livingParticleFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    blending: AdditiveBlending,
+  });
+}
