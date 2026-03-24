@@ -6,154 +6,18 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { computeTastePositions, TASTE_AXES, scoreIngredient } from '../data/tastePositioning.js';
 import { getColorForNode } from '../three/NodeMesh.js';
-
-// --- Constants ---
-
-const TASTE_ORDER = ['sweet','sour','bitter','salty','umami','spicy','pungent','astringent'];
-const TASTE_HEX = {
-  sweet:'#fb92b4', sour:'#fde047', bitter:'#a78bfa', salty:'#93c5fd',
-  umami:'#f9a870', spicy:'#f87171', pungent:'#b48c64', astringent:'#4ade80',
-};
-const CATEGORY_RADII = {
-  protein:40, meat:40, seafood:38, dairy:32, vegetable:35, fruit:30,
-  herb:28, spice:25, grain:33, nut:27, condiment:22, oil:20, default:30,
-};
-const TRANSITION_DURATION = 1500; // ms
-const POPOUT_DURATION = 800; // ms for taste pop-out animation
-const POPOUT_HEIGHT = 15; // units above/below wheel
-
-// --- Helpers ---
-
-function easeInOutCubic(t) {
-  return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2;
-}
-
-function hashStr(s) {
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
-  return h;
-}
-
-function seededRng(seed) {
-  let st = seed >>> 0;
-  return () => { st = (1664525 * st + 1013904223) % 4294967296; return st / 4294967296; };
-}
-
-/** Create a billboard sprite with text */
-function makeLabel(text, color, size) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const fontSize = 48;
-  canvas.width = 512; canvas.height = 96;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = `bold ${fontSize}px "Inter", "Segoe UI", sans-serif`;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillStyle = color;
-  ctx.shadowColor = color; ctx.shadowBlur = 12;
-  ctx.fillText(text, canvas.width/2, canvas.height/2);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.85 });
-  const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(size, size * 96/512, 1);
-  return sprite;
-}
-
-/** Compute 2D wheel positions — octagonal spiral layout.
- *  Ingredients spiral outward from center based on taste weights.
- *  Inner ring = strongest taste affinity, outer ring = weaker/multi-taste.
- *  Octagonal sector boundaries match the TasteRadar shape. */
-function computeWheelPositions(nodes) {
-  const positions = {};
-  const N = TASTE_ORDER.length; // 8
-  const sectorAngle = (Math.PI * 2) / N;
-
-  // Bin ingredients by dominant taste for spiral ordering
-  const bins = {};
-  for (const t of TASTE_ORDER) bins[t] = [];
-
-  for (const [name, node] of nodes) {
-    const { channels } = scoreIngredient(name, node);
-    // Find dominant taste
-    let bestTaste = 'sweet', bestScore = 0;
-    for (const t of TASTE_ORDER) {
-      const s = channels[t] || 0;
-      if (s > bestScore) { bestScore = s; bestTaste = t; }
-    }
-    const totalWeight = TASTE_ORDER.reduce((s, t) => s + (channels[t] || 0), 0);
-    bins[bestTaste].push({ name, node, channels, totalWeight, bestScore });
-  }
-
-  // Sort each bin: most-paired first (center), then shuffle slightly
-  // to prevent clumping of similar ingredients
-  for (const t of TASTE_ORDER) {
-    bins[t].sort((a, b) => (b.node.pairingCount || 0) - (a.node.pairingCount || 0));
-    // Interleave: take every 3rd item to spread similar ingredients apart
-    const original = [...bins[t]];
-    const shuffled = [];
-    const thirds = [[], [], []];
-    original.forEach((item, i) => thirds[i % 3].push(item));
-    for (let i = 0; i < Math.max(thirds[0].length, thirds[1].length, thirds[2].length); i++) {
-      if (thirds[0][i]) shuffled.push(thirds[0][i]);
-      if (thirds[1][i]) shuffled.push(thirds[1][i]);
-      if (thirds[2][i]) shuffled.push(thirds[2][i]);
-    }
-    bins[t] = shuffled;
-  }
-
-  // Place ingredients in Archimedean spiral within each sector
-  for (let ti = 0; ti < N; ti++) {
-    const taste = TASTE_ORDER[ti];
-    const centerAngle = ti * sectorAngle - Math.PI / 2; // start from top
-    const items = bins[taste];
-
-    for (let idx = 0; idx < items.length; idx++) {
-      const { name, channels, bestScore } = items[idx];
-      const rng = seededRng(hashStr(name));
-
-      // Radius: most-paired start at 28 (outside 2nd octagon ring), least-paired reach ~55
-      // This ensures no ingredients in innermost ring (0-12.5) and only top-paired in 2nd ring (12.5-25)
-      const spiralT = idx / Math.max(1, items.length - 1);
-      const baseRadius = 28 + spiralT * 27;
-
-      // Swirl with wide spread — ingredients fill the full sector width
-      const spiralTurns = 1.5;
-      const halfSector = sectorAngle * 0.42;
-      // Continuous angle advance creates the swirl
-      const angleAdvance = spiralT * spiralTurns * Math.PI * 2 / N;
-      // Wide spread — ingredients drift freely across sector boundaries
-      const sectorSpread = (rng() - 0.5) * halfSector * 3.0 * (0.5 + spiralT * 0.5);
-      const spiralAngle = centerAngle + angleAdvance + sectorSpread;
-
-      // Strong multi-taste pull — ingredients blend across sector boundaries
-      let pullX = 0, pullZ = 0;
-      for (let j = 0; j < N; j++) {
-        if (j === ti) continue;
-        const w = channels[TASTE_ORDER[j]] || 0;
-        if (w > 0.05) {
-          const pullAngle = j * sectorAngle - Math.PI / 2;
-          pullX += Math.cos(pullAngle) * w * 12;
-          pullZ += Math.sin(pullAngle) * w * 12;
-        }
-      }
-
-      // Radial jitter for more spacing between ingredients
-      const jr = (rng() - 0.5) * 12;
-      const r = baseRadius + jr;
-
-      const x = r * Math.cos(spiralAngle) + pullX;
-      const z = r * Math.sin(spiralAngle) + pullZ;
-      positions[name] = [x, 0, z];
-    }
-  }
-  return positions;
-}
-
-/** Check if an ingredient has a specific taste */
-function ingredientHasTaste(name, node, taste) {
-  const { channels } = scoreIngredient(name, node);
-  return (channels[taste] || 0) > 0.1;
-}
+import { createLivingEdgeMaterial, createLivingParticleMaterial } from '../three/ShaderMaterials.js';
+import { easeInOutCubic, hashStr, seededRng, makeLabel, computeWheelPositions, ingredientHasTaste } from './livingArchUtils.js';
+import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DURATION, POPOUT_HEIGHT } from './livingArchConstants.js';
+import { handleSceneClick, handleSceneMove } from './livingArchInteraction.js';
+import {
+  createTasteSelection,
+  getIndicesForTaste as _getIndicesForTaste,
+  buildPopoutEdges as _buildPopoutEdges,
+  computePairingOffset as _computePairingOffset,
+  handleTasteClick as _handleTasteClick,
+  clearTasteSelection as _clearTasteSelection,
+} from './livingArchTaste.js';
 
 // ==========================================================================
 // Component
@@ -335,29 +199,7 @@ export default function LivingArchView({
     edgeGeo.setAttribute('aColor', new THREE.Float32BufferAttribute(edgeColors, 3));
     edgeGeo.setAttribute('aOpacity', new THREE.Float32BufferAttribute(edgeOpacities, 1));
 
-    const edgeMat = new THREE.ShaderMaterial({
-      uniforms: { uBrightness: { value: 1.0 } },
-      vertexShader: `
-        precision highp float;
-        attribute vec3 aColor;
-        attribute float aOpacity;
-        varying vec3 vColor;
-        varying float vOpacity;
-        void main() {
-          vColor = aColor;
-          vOpacity = aOpacity;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        precision highp float;
-        uniform float uBrightness;
-        varying vec3 vColor;
-        varying float vOpacity;
-        void main() { gl_FragColor = vec4(vColor * uBrightness, vOpacity * uBrightness); }
-      `,
-      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    });
+    const edgeMat = createLivingEdgeMaterial();
     const edgeMesh = new THREE.LineSegments(edgeGeo, edgeMat);
     scene.add(edgeMesh);
 
@@ -388,36 +230,7 @@ export default function LivingArchView({
     particleGeo.setAttribute('aOpacity', new THREE.Float32BufferAttribute(particleOpacities, 1));
     particleGeo.setAttribute('aColor', new THREE.Float32BufferAttribute(particleColors, 3));
 
-    const particleMat = new THREE.ShaderMaterial({
-      uniforms: { uBrightness: { value: 1.0 } },
-      vertexShader: `
-        precision highp float;
-        attribute float aOpacity;
-        attribute vec3 aColor;
-        varying float vOpacity;
-        varying vec3 vColor;
-        void main() {
-          vOpacity = aOpacity;
-          vColor = aColor;
-          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-          gl_PointSize = 3.0 * (200.0 / -mvPos.z);
-          gl_Position = projectionMatrix * mvPos;
-        }
-      `,
-      fragmentShader: `
-        precision highp float;
-        uniform float uBrightness;
-        varying float vOpacity;
-        varying vec3 vColor;
-        void main() {
-          float d = length(gl_PointCoord - vec2(0.5));
-          if (d > 0.5) discard;
-          float alpha = smoothstep(0.5, 0.2, d) * vOpacity * uBrightness;
-          gl_FragColor = vec4(vColor * uBrightness, alpha);
-        }
-      `,
-      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    });
+    const particleMat = createLivingParticleMaterial();
 
     const particleMesh = new THREE.Points(particleGeo, particleMat);
     particleMesh.frustumCulled = false;
@@ -464,11 +277,7 @@ export default function LivingArchView({
     popEdgeGeo.setAttribute('aColor', new THREE.Float32BufferAttribute(popEdgeColors, 3));
     popEdgeGeo.setAttribute('aOpacity', new THREE.Float32BufferAttribute(popEdgeOpacities, 1));
     popEdgeGeo.setDrawRange(0, 0);
-    const popEdgeMat = new THREE.ShaderMaterial({
-      vertexShader: edgeMat.vertexShader,
-      fragmentShader: edgeMat.fragmentShader,
-      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    });
+    const popEdgeMat = createLivingEdgeMaterial();
     const popEdgeMesh = new THREE.LineSegments(popEdgeGeo, popEdgeMat);
     popEdgeMesh.visible = false;
     scene.add(popEdgeMesh);
@@ -520,234 +329,49 @@ export default function LivingArchView({
     scene.add(sectorGroup);
 
     // --- Taste pop-out state ---
-    const tasteSelection = {
-      taste1: null,       // first selected taste
-      taste2: null,       // second selected taste (comparison)
-      set1: new Set(),    // ingredient indices matching taste1
-      set2: new Set(),    // ingredient indices matching taste2
-      animating: false,
-      animStartTime: 0,
-      animDirection: 1,   // 1 = popping out, -1 = returning
-      // Y offsets per ingredient (target values)
-      yOffsets: new Float32Array(count),
-      // Current animated Y offsets
-      yCurrentOffsets: new Float32Array(count),
-    };
+    const tasteSelection = createTasteSelection(count);
 
     /** Compute which ingredients match a taste */
     function getIndicesForTaste(taste) {
-      const indices = new Set();
-      for (let i = 0; i < count; i++) {
-        const node = nodeArray[i];
-        if (ingredientHasTaste(node.name, node, taste)) {
-          indices.add(i);
-        }
-      }
-      return indices;
+      return _getIndicesForTaste(taste, nodeArray);
     }
 
     /** Build pop-out edge geometry for selected taste groups */
     function buildPopoutEdges() {
-      const allSelected = new Set([...tasteSelection.set1, ...tasteSelection.set2]);
-      if (allSelected.size === 0) {
-        popEdgeMesh.visible = false;
-        popEdgeGeo.setDrawRange(0, 0);
-        return;
-      }
-
-      let edgeCount = 0;
-      const popColor = new THREE.Color('#4f8fff');
-      const crossColor = new THREE.Color('#ff6bdf');
-
-      for (let i = 0; i < validEdges.length && edgeCount < MAX_POPOUT_EDGES; i++) {
-        const { si, ti, edge } = validEdges[i];
-        const siSel = allSelected.has(si);
-        const tiSel = allSelected.has(ti);
-        if (!siSel || !tiSel) continue;
-
-        // Both endpoints are in the selected set
-        const o = edgeCount * 6;
-        popEdgeVerts[o]   = curPos[si*3];   popEdgeVerts[o+1] = curPos[si*3+1]; popEdgeVerts[o+2] = curPos[si*3+2];
-        popEdgeVerts[o+3] = curPos[ti*3];   popEdgeVerts[o+4] = curPos[ti*3+1]; popEdgeVerts[o+5] = curPos[ti*3+2];
-
-        // Cross-group edges (one in set1, one in set2) get a different color
-        const isCross = (tasteSelection.set1.has(si) && tasteSelection.set2.has(ti)) ||
-                        (tasteSelection.set2.has(si) && tasteSelection.set1.has(ti));
-        const c = isCross ? crossColor : popColor;
-        const str = edge.strength || 0;
-        const opacity = POPOUT_EDGE_OPACITY * (0.3 + 0.7 * str);
-
-        popEdgeColors[o]   = c.r; popEdgeColors[o+1] = c.g; popEdgeColors[o+2] = c.b;
-        popEdgeColors[o+3] = c.r; popEdgeColors[o+4] = c.g; popEdgeColors[o+5] = c.b;
-        popEdgeOpacities[edgeCount*2] = opacity;
-        popEdgeOpacities[edgeCount*2+1] = opacity;
-        edgeCount++;
-      }
-
-      popEdgeGeo.setDrawRange(0, edgeCount * 2);
-      popEdgeGeo.getAttribute('position').needsUpdate = true;
-      popEdgeGeo.getAttribute('aColor').needsUpdate = true;
-      popEdgeGeo.getAttribute('aOpacity').needsUpdate = true;
-      popEdgeMesh.visible = edgeCount > 0;
+      _buildPopoutEdges(tasteSelection, validEdges, curPos, popEdgeGeo, popEdgeMesh, POPOUT_EDGE_OPACITY, MAX_POPOUT_EDGES);
     }
 
-    /** Compute pairing-count-based Y offset for a set of ingredient indices.
-     *  In 2D wheel mode: vertical pop — most pairings closest to wheel, fewest pairings furthest.
-     *  In 3D mode: use fixed POPOUT_HEIGHT as before. */
+    /** Compute pairing-count-based Y offset for a set of ingredient indices */
     function computePairingOffset(indices, direction) {
-      const sign = direction > 0 ? 1 : -1;
-      if (modeRef.current !== 'wheel') {
-        // 3D mode: fixed height
-        for (const idx of indices) {
-          tasteSelection.yOffsets[idx] = sign * POPOUT_HEIGHT;
-        }
-        return;
-      }
-      // 2D wheel mode: vertical displacement perpendicular to wheel
-      // Most pairings = close to wheel plane, fewest = furthest away
-      // Use percentile rank so height spreads evenly across the actual distribution
-      // (pairing counts are power-law: log transform prevents bunching at the top)
-      const MIN_HEIGHT = 2;   // closest to wheel (most pairings)
-      const MAX_HEIGHT = 55;  // furthest from wheel (fewest pairings)
-
-      // Collect and sort pairing counts to compute percentile rank
-      const pcs = [];
-      for (const idx of indices) pcs.push({ idx, pc: nodeArray[idx].pairingCount || 1 });
-      pcs.sort((a, b) => b.pc - a.pc); // descending: most pairings first
-
-      const n = pcs.length;
-      for (let rank = 0; rank < n; rank++) {
-        // percentile: 0 = most pairings, 1 = fewest
-        const pct = n > 1 ? rank / (n - 1) : 0;
-        // Square-root curve: gentle rise for top ingredients, steeper spread for lower ones
-        const curved = Math.sqrt(pct);
-        const height = MIN_HEIGHT + curved * (MAX_HEIGHT - MIN_HEIGHT);
-        tasteSelection.yOffsets[pcs[rank].idx] = sign * height;
-      }
+      _computePairingOffset(indices, direction, tasteSelection, modeRef, nodeArray);
     }
 
     /** Start pop-out animation for a taste click */
     function handleTasteClick(taste) {
-      if (tasteSelection.animating) return;
-
-      if (tasteSelection.taste1 === taste) {
-        // Clicking the same taste again -- clear everything
-        tasteSelection.animDirection = -1;
-        tasteSelection.animating = true;
-        tasteSelection.animStartTime = performance.now();
-        // After animation completes, clear state (handled in animate loop)
-        return;
-      }
-
-      if (tasteSelection.taste1 === null) {
-        // First taste selection -- pop up
-        tasteSelection.taste1 = taste;
-        tasteSelection.set1 = getIndicesForTaste(taste);
-        tasteSelection.yOffsets.fill(0);
-        computePairingOffset(tasteSelection.set1, 1);
-        tasteSelection.animDirection = 1;
-        tasteSelection.animating = true;
-        tasteSelection.animStartTime = performance.now();
-      } else if (tasteSelection.taste2 === null) {
-        // Second taste selection -- pop down
-        if (taste === tasteSelection.taste2) return;
-        tasteSelection.taste2 = taste;
-        tasteSelection.set2 = getIndicesForTaste(taste);
-        // Remove overlapping ingredients from set2 (keep them in set1 above)
-        for (const idx of tasteSelection.set1) {
-          tasteSelection.set2.delete(idx);
-        }
-        computePairingOffset(tasteSelection.set2, -1);
-        tasteSelection.animDirection = 1;
-        tasteSelection.animating = true;
-        tasteSelection.animStartTime = performance.now();
-      } else {
-        // Already have two tastes selected -- clear and start fresh
-        tasteSelection.animDirection = -1;
-        tasteSelection.animating = true;
-        tasteSelection.animStartTime = performance.now();
-        // Queue the new selection after clear completes
-        tasteSelection._pendingTaste = taste;
-      }
+      _handleTasteClick(taste, tasteSelection, nodeArray, modeRef, validEdges);
     }
 
     /** Clear taste selection (called when clicking empty space or same taste) */
     function clearTasteSelection() {
-      tasteSelection.taste1 = null;
-      tasteSelection.taste2 = null;
-      tasteSelection.set1.clear();
-      tasteSelection.set2.clear();
-      tasteSelection.yOffsets.fill(0);
-      tasteSelection.yCurrentOffsets.fill(0);
-      popEdgeMesh.visible = false;
-      popEdgeGeo.setDrawRange(0, 0);
-      // Reset node colors
-      for (let i = 0; i < count; i++) {
-        mesh.setColorAt(i, defaultColors[i]);
-      }
-      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      _clearTasteSelection(tasteSelection, count, mesh, defaultColors, popEdgeMesh, popEdgeGeo);
     }
 
-    // --- Raycasting ---
+    // --- Raycasting (delegated to livingArchInteraction.js) ---
     const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    function raycastLabels(event) {
-      const rect = renderer.domElement.getBoundingClientRect();
-      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-      // Check taste label sprites first
-      const labelHits = raycaster.intersectObjects(tasteLabelSprites);
-      if (labelHits.length > 0) {
-        return { type: 'label', taste: labelHits[0].object.userData.taste };
-      }
-      // Then check instanced mesh
-      const meshHits = raycaster.intersectObject(mesh);
-      if (meshHits.length > 0) {
-        return { type: 'node', instanceId: meshHits[0].instanceId };
-      }
-      return { type: 'none' };
-    }
+    const hoverState = { lastHover: -1, lastHoverType: 'none' };
 
     function onClick(event) {
-      const hit = raycastLabels(event);
-      if (hit.type === 'label') {
-        handleTasteClick(hit.taste);
-        return;
-      }
-      if (hit.type === 'node') {
-        // If taste selection is active, clear it
-        if (tasteSelection.taste1 !== null && !tasteSelection.animating) {
-          tasteSelection.animDirection = -1;
-          tasteSelection.animating = true;
-          tasteSelection.animStartTime = performance.now();
-        }
-        if (onNodeClick) onNodeClick(nodeArray[hit.instanceId]);
-        return;
-      }
-      // Clicked empty space
-      if (tasteSelection.taste1 !== null && !tasteSelection.animating) {
-        tasteSelection.animDirection = -1;
-        tasteSelection.animating = true;
-        tasteSelection.animStartTime = performance.now();
-      }
-      if (onNodeClick) onNodeClick(null);
+      handleSceneClick(event, camera, renderer, tasteLabelSprites, mesh, nodeArray, raycaster, {
+        onNodeClick,
+        handleTasteClick,
+        tasteSelection,
+      });
     }
     renderer.domElement.addEventListener('click', onClick);
     renderer.domElement.style.cursor = 'default';
-    let lastHover = -1;
-    let lastHoverType = 'none';
+
     function onMove(event) {
-      const hit = raycastLabels(event);
-      const newType = hit.type;
-      const newId = hit.type === 'node' ? hit.instanceId : (hit.type === 'label' ? hit.taste : -1);
-      const curId = lastHoverType === 'node' ? lastHover : (lastHoverType === 'label' ? lastHover : -1);
-      if (newType !== lastHoverType || newId !== curId) {
-        lastHoverType = newType;
-        lastHover = newId;
-        renderer.domElement.style.cursor = (newType === 'node' || newType === 'label') ? 'pointer' : 'default';
-      }
+      handleSceneMove(event, camera, renderer, tasteLabelSprites, mesh, raycaster, hoverState);
     }
     renderer.domElement.addEventListener('mousemove', onMove);
 
@@ -776,84 +400,83 @@ export default function LivingArchView({
     // --- Animate ---
     let running = true;
     const dimColor = new THREE.Color('#111118');
-    function animate() {
-      if (!running) return;
-      requestAnimationFrame(animate);
 
-      // Handle mode transition (neural <-> wheel)
-      if (transition.active) {
-        const elapsed = performance.now() - transition.startTime;
-        let t = Math.min(elapsed / TRANSITION_DURATION, 1);
-        const et = easeInOutCubic(t);
+    function updateModeTransition() {
+      if (!transition.active) return;
 
-        const isToWheel = transition.toMode === 'wheel';
-        const srcPos = isToWheel ? posA : posB;
-        const dstPos = isToWheel ? posB : posA;
+      const elapsed = performance.now() - transition.startTime;
+      let t = Math.min(elapsed / TRANSITION_DURATION, 1);
+      const et = easeInOutCubic(t);
 
-        // Lerp node positions
-        for (let i = 0; i < count; i++) {
-          curPos[i*3]   = srcPos[i*3]   + (dstPos[i*3]   - srcPos[i*3])   * et;
-          curPos[i*3+1] = srcPos[i*3+1] + (dstPos[i*3+1] - srcPos[i*3+1]) * et;
-          curPos[i*3+2] = srcPos[i*3+2] + (dstPos[i*3+2] - srcPos[i*3+2]) * et;
+      const isToWheel = transition.toMode === 'wheel';
+      const srcPos = isToWheel ? posA : posB;
+      const dstPos = isToWheel ? posB : posA;
 
-          mesh.getMatrixAt(i, dummy.matrix);
-          dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
-          dummy.position.set(curPos[i*3], curPos[i*3+1], curPos[i*3+2]);
-          dummy.updateMatrix();
-          mesh.setMatrixAt(i, dummy.matrix);
-        }
-        mesh.instanceMatrix.needsUpdate = true;
+      // Lerp node positions
+      for (let i = 0; i < count; i++) {
+        curPos[i*3]   = srcPos[i*3]   + (dstPos[i*3]   - srcPos[i*3])   * et;
+        curPos[i*3+1] = srcPos[i*3+1] + (dstPos[i*3+1] - srcPos[i*3+1]) * et;
+        curPos[i*3+2] = srcPos[i*3+2] + (dstPos[i*3+2] - srcPos[i*3+2]) * et;
 
-        // Update edge positions
-        updateEdgePositions();
-        edgeGeo.getAttribute('position').array.set(edgeVerts);
-        edgeGeo.getAttribute('position').needsUpdate = true;
-        edgeGeo.getAttribute('aColor').needsUpdate = true;
-        edgeGeo.getAttribute('aOpacity').needsUpdate = true;
+        mesh.getMatrixAt(i, dummy.matrix);
+        dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
+        dummy.position.set(curPos[i*3], curPos[i*3+1], curPos[i*3+2]);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
 
-        // Lerp labels between 3D axis positions and 2D wheel positions
-        const sA = (Math.PI * 2) / TASTE_ORDER.length;
-        labelGroup.children.forEach((sprite, idx) => {
-          const a3 = sprite.userData.axis3D;
-          const angle = idx * sA - Math.PI / 2; // start from top
-          const w2 = [Math.cos(angle) * 55, 2, Math.sin(angle) * 55];
-          // Swap source/dest based on transition direction
-          const srcLabel = isToWheel ? a3 : w2;
-          const dstLabel = isToWheel ? w2 : a3;
-          sprite.position.set(
-            srcLabel[0] + (dstLabel[0] - srcLabel[0]) * et,
-            srcLabel[1] + (dstLabel[1] - srcLabel[1]) * et,
-            srcLabel[2] + (dstLabel[2] - srcLabel[2]) * et,
-          );
-        });
+      // Update edge positions
+      updateEdgePositions();
+      edgeGeo.getAttribute('position').array.set(edgeVerts);
+      edgeGeo.getAttribute('position').needsUpdate = true;
+      edgeGeo.getAttribute('aColor').needsUpdate = true;
+      edgeGeo.getAttribute('aOpacity').needsUpdate = true;
 
-        // Lerp camera
-        const camEnd = camTargets[transition.toMode];
-        camera.position.set(
-          camStart.pos[0] + (camEnd.pos[0] - camStart.pos[0]) * et,
-          camStart.pos[1] + (camEnd.pos[1] - camStart.pos[1]) * et,
-          camStart.pos[2] + (camEnd.pos[2] - camStart.pos[2]) * et,
+      // Lerp labels between 3D axis positions and 2D wheel positions
+      const sA = (Math.PI * 2) / TASTE_ORDER.length;
+      labelGroup.children.forEach((sprite, idx) => {
+        const a3 = sprite.userData.axis3D;
+        const angle = idx * sA - Math.PI / 2; // start from top
+        const w2 = [Math.cos(angle) * 55, 2, Math.sin(angle) * 55];
+        // Swap source/dest based on transition direction
+        const srcLabel = isToWheel ? a3 : w2;
+        const dstLabel = isToWheel ? w2 : a3;
+        sprite.position.set(
+          srcLabel[0] + (dstLabel[0] - srcLabel[0]) * et,
+          srcLabel[1] + (dstLabel[1] - srcLabel[1]) * et,
+          srcLabel[2] + (dstLabel[2] - srcLabel[2]) * et,
         );
-        camera.lookAt(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
+      });
 
-        // Show/hide sector lines
-        if (isToWheel) {
-          sectorGroup.visible = et > 0.3;
-          lineMat.opacity = Math.max(0, (et - 0.3) / 0.7) * 0.4;
-        } else {
-          sectorGroup.visible = et < 0.7;
-          lineMat.opacity = 0.4 * (1 - et);
-        }
+      // Lerp camera
+      const camEnd = camTargets[transition.toMode];
+      camera.position.set(
+        camStart.pos[0] + (camEnd.pos[0] - camStart.pos[0]) * et,
+        camStart.pos[1] + (camEnd.pos[1] - camStart.pos[1]) * et,
+        camStart.pos[2] + (camEnd.pos[2] - camStart.pos[2]) * et,
+      );
+      camera.lookAt(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
 
-        if (t >= 1) {
-          transition.active = false;
-          // Reset controls target
-          controls.target.set(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
-          controls.update();
-          sectorGroup.visible = transition.toMode === 'wheel';
-        }
+      // Show/hide sector lines
+      if (isToWheel) {
+        sectorGroup.visible = et > 0.3;
+        lineMat.opacity = Math.max(0, (et - 0.3) / 0.7) * 0.4;
+      } else {
+        sectorGroup.visible = et < 0.7;
+        lineMat.opacity = 0.4 * (1 - et);
       }
 
+      if (t >= 1) {
+        transition.active = false;
+        // Reset controls target
+        controls.target.set(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
+        controls.update();
+        sectorGroup.visible = transition.toMode === 'wheel';
+      }
+    }
+
+    function updateTasteAnimation() {
       // Handle taste pop-out animation
       if (tasteSelection.animating) {
         const elapsed = performance.now() - tasteSelection.animStartTime;
@@ -1007,7 +630,14 @@ export default function LivingArchView({
         // Keep pop-out edges updated with current positions
         buildPopoutEdges();
       }
+    }
 
+    function animate() {
+      if (!running) return;
+      requestAnimationFrame(animate);
+
+      updateModeTransition();
+      updateTasteAnimation();
       updateParticles();
       controls.update();
       composer.render();
@@ -1093,29 +723,15 @@ export default function LivingArchView({
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [selectedNode, selectedNodes, data]);
 
-  // ---- Edge visibility ----
+  // ---- Visibility & brightness (edges + particles) ----
   useEffect(() => {
     const st = stateRef.current;
-    if (st && st.edgeMesh) st.edgeMesh.visible = showEdges;
-  }, [showEdges]);
-
-  // ---- Particle visibility ----
-  useEffect(() => {
-    const st = stateRef.current;
-    if (st && st.particleMesh) st.particleMesh.visible = showParticles;
-  }, [showParticles]);
-
-  // ---- Edge brightness ----
-  useEffect(() => {
-    const st = stateRef.current;
-    if (st && st.edgeMat) st.edgeMat.uniforms.uBrightness.value = edgeBrightness;
-  }, [edgeBrightness]);
-
-  // ---- Particle brightness ----
-  useEffect(() => {
-    const st = stateRef.current;
-    if (st && st.particleMat) st.particleMat.uniforms.uBrightness.value = particleBrightness;
-  }, [particleBrightness]);
+    if (!st) return;
+    if (st.edgeMesh) st.edgeMesh.visible = showEdges;
+    if (st.particleMesh) st.particleMesh.visible = showParticles;
+    if (st.edgeMat) st.edgeMat.uniforms.uBrightness.value = edgeBrightness;
+    if (st.particleMat) st.particleMat.uniforms.uBrightness.value = particleBrightness;
+  }, [showEdges, showParticles, edgeBrightness, particleBrightness]);
 
   // ---- Taste filter ----
   useEffect(() => {
