@@ -6,6 +6,17 @@
  */
 
 /**
+ * Regex to strip common culinary modifiers from ingredient names.
+ * Used by SaucePanel to resolve "fresh basil" -> "basil", etc.
+ */
+export const INGREDIENT_MODIFIERS = /^(fresh|dried|ground|whole|crushed|chopped|minced|sliced|diced|roasted|toasted|smoked|blanched|raw|unsalted|salted|dark|light|sweet|hot|mild|extra|pure|virgin|cold-pressed|clarified)\s+/i;
+
+/**
+ * TheMealDB API base URL for supplementary sauce recipe lookup.
+ */
+export const MEALDB_BASE = 'https://www.themealdb.com/api/json/v1/1';
+
+/**
  * Sauce ingredient categories used for positioning and UI grouping.
  */
 export const SAUCE_CATEGORIES = {

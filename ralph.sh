@@ -32,6 +32,8 @@ resolve_preset() {
     ingredient) echo "ingredient-ralph/prompt.md" ;;
     cleanup)    echo "cleanup-ralph/prompt.md" ;;
     refactor)   echo "refactor-ralph/prompt.md" ;;
+    cocktail)   echo "cocktail-ralph/prompt.md" ;;
+    sauce)      echo "sauce-ralph/prompt.md" ;;
     *)          echo "" ;;
   esac
 }

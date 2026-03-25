@@ -1,12 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import SauceBuilder from './SauceBuilder.jsx';
 import { computeCompatibility, detectSauceTemplate, suggestNextIngredients, SAUCE_TEMPLATES } from '../data/sauceScoring.js';
-
-/**
- * Resolve sauce ingredient names to network node names.
- * Strips modifiers so "fresh basil" → "basil", "dried red chili" → "chili", etc.
- */
-const INGREDIENT_MODIFIERS = /^(fresh|dried|ground|whole|crushed|chopped|minced|sliced|diced|roasted|toasted|smoked|blanched|raw|unsalted|salted|dark|light|sweet|hot|mild|extra|pure|virgin|cold-pressed|clarified)\s+/i;
+import { INGREDIENT_MODIFIERS, MEALDB_BASE } from '../data/sauceData.js';
 
 function resolveIngredientNames(ingredients, sauceNodes) {
   const names = new Set();
@@ -17,7 +12,7 @@ function resolveIngredientNames(ingredients, sauceNodes) {
     if (!sauceNodes) continue;
     if (sauceNodes.has(name)) continue;
 
-    // Strip modifiers: "fresh basil" → "basil"
+    // Strip modifiers: "fresh basil" -> "basil"
     let stripped = name;
     let changed = true;
     while (changed) {
@@ -41,8 +36,11 @@ function resolveIngredientNames(ingredients, sauceNodes) {
   return Array.from(names);
 }
 
-// TheMealDB API for supplementary sauce lookup
-const MEALDB_BASE = 'https://www.themealdb.com/api/json/v1/1';
+
+const SAUCE_KEYWORDS = /sauce|gravy|dressing|dip|marinade/i;
+function isSauceRelevant(meal) {
+  return SAUCE_KEYWORDS.test(meal.name || '');
+}
 
 function normalizeMeal(raw) {
   if (!raw) return null;
@@ -69,6 +67,7 @@ function normalizeMeal(raw) {
  * SaucePanel — Right-side panel in Sauce Lab with tabs:
  *   Browse: Curated sauce recipes organized by mother sauce family
  *   Builder: Build sauces with ingredient selection
+ *   My Sauces: Saved user creations
  *   Lookup: Search TheMealDB for additional recipes
  */
 export default function SaucePanel({
@@ -78,12 +77,14 @@ export default function SaucePanel({
   sauceEdges,
   ingredientList,
   onHighlightIngredients,
+  onSelectAlternative,
   builderIngredients = [],
   onBuilderAdd,
   onBuilderRemove,
   onBuilderClear,
   userProfile,
   curatedSauces = [],
+  adjacencyMap,
 }) {
   const [tab, setTab] = useState('browse');
   const [selectedSauce, setSelectedSauce] = useState(null);
@@ -93,18 +94,25 @@ export default function SaucePanel({
   const [searchLoading, setSearchLoading] = useState(false);
   const [lookupTypeFilter, setLookupTypeFilter] = useState('');
 
+  // Swap state
+  const [swapIngredient, setSwapIngredient] = useState(null);
+  const [previewAlt, setPreviewAlt] = useState(null);
+
+  // My Sauces state
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
   // Builder scoring
   const compatibilityScore = useMemo(() => {
-    return computeCompatibility(builderIngredients, sauceEdges);
-  }, [builderIngredients, sauceEdges]);
+    return computeCompatibility(builderIngredients, sauceEdges, adjacencyMap);
+  }, [builderIngredients, sauceEdges, adjacencyMap]);
 
   const sauceTemplate = useMemo(() => {
     return detectSauceTemplate(builderIngredients, sauceNodes);
   }, [builderIngredients, sauceNodes]);
 
   const suggestions = useMemo(() => {
-    return suggestNextIngredients(builderIngredients, sauceNodes, sauceEdges);
-  }, [builderIngredients, sauceNodes, sauceEdges]);
+    return suggestNextIngredients(builderIngredients, sauceNodes, sauceEdges, adjacencyMap);
+  }, [builderIngredients, sauceNodes, sauceEdges, adjacencyMap]);
 
   // Group curated sauces by mother sauce
   const saucesByFamily = useMemo(() => {
@@ -132,6 +140,8 @@ export default function SaucePanel({
 
   const handleSelectSauce = useCallback((sauce) => {
     setSelectedSauce(sauce);
+    setSwapIngredient(null);
+    setPreviewAlt(null);
     if (onHighlightIngredients) {
       onHighlightIngredients(resolveIngredientNames(sauce.ingredients, sauceNodes));
     }
@@ -139,6 +149,8 @@ export default function SaucePanel({
 
   const handleBack = useCallback(() => {
     setSelectedSauce(null);
+    setSwapIngredient(null);
+    setPreviewAlt(null);
     if (onHighlightIngredients) onHighlightIngredients(null);
   }, [onHighlightIngredients]);
 
@@ -153,6 +165,107 @@ export default function SaucePanel({
     setTab('builder');
   }, [onBuilderClear, onBuilderAdd, sauceNodes]);
 
+  // --- Swap functionality ---
+  const handleSwapIngredient = useCallback((ingredientName) => {
+    setSwapIngredient(ingredientName);
+    setPreviewAlt(null);
+  }, []);
+
+  const handleCancelSwap = useCallback(() => {
+    setSwapIngredient(null);
+    setPreviewAlt(null);
+    // Re-highlight the sauce ingredients
+    if (selectedSauce && onHighlightIngredients) {
+      onHighlightIngredients(resolveIngredientNames(selectedSauce.ingredients, sauceNodes));
+    }
+  }, [selectedSauce, onHighlightIngredients, sauceNodes]);
+
+  // Compute alternatives for swapped ingredient
+  const swapAlternatives = useMemo(() => {
+    if (!swapIngredient || !sauceNodes || !adjacencyMap || !selectedSauce) return [];
+
+    const swapName = swapIngredient.toLowerCase().trim();
+    const otherIngredients = selectedSauce.ingredients
+      .map(i => (typeof i === 'string' ? i : i.name).toLowerCase().trim())
+      .filter(n => n !== swapName);
+    const otherSet = new Set(otherIngredients);
+
+    // Find neighbors of the swap target
+    // Try direct name first, then resolved name
+    let swapNeighbors = adjacencyMap.get(swapName);
+    if (!swapNeighbors) {
+      const resolved = resolveIngredientNames([swapName], sauceNodes);
+      for (const r of resolved) {
+        swapNeighbors = adjacencyMap.get(r);
+        if (swapNeighbors) break;
+      }
+    }
+    if (!swapNeighbors) return [];
+
+    const neighborMap = new Map();
+    for (const [neighbor, strength] of swapNeighbors) {
+      if (neighbor !== swapName && !otherSet.has(neighbor)) {
+        neighborMap.set(neighbor, strength);
+      }
+    }
+
+    // Score each alternative by average pairing with remaining sauce ingredients
+    const scored = [];
+    for (const [altName, directStrength] of neighborMap) {
+      if (!sauceNodes.has(altName)) continue;
+
+      let totalStrength = directStrength;
+      let pairCount = 1;
+
+      for (const other of otherIngredients) {
+        const otherNeighbors = adjacencyMap.get(other);
+        const strength = otherNeighbors?.get(altName) || 0;
+        if (strength > 0) {
+          totalStrength += strength;
+          pairCount++;
+        }
+      }
+
+      const avgStrength = totalStrength / Math.max(1, pairCount);
+      const node = sauceNodes.get(altName);
+      scored.push({
+        name: altName,
+        score: Math.round(avgStrength * 10 * 10) / 10, // 0-10 scale, 1 decimal
+        category: node?.category || 'Other',
+      });
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 10);
+  }, [swapIngredient, sauceNodes, adjacencyMap, selectedSauce]);
+
+  const handleSelectAlt = useCallback((altName) => {
+    const alt = swapAlternatives.find(a => a.name === altName);
+    setPreviewAlt(alt || { name: altName, score: 0, category: '' });
+    if (onSelectAlternative) {
+      onSelectAlternative(swapIngredient, altName, selectedSauce);
+    }
+  }, [swapIngredient, selectedSauce, onSelectAlternative, swapAlternatives]);
+
+  const handleAcceptSwap = useCallback(() => {
+    if (!previewAlt || !swapIngredient || !selectedSauce) return;
+    const updated = {
+      ...selectedSauce,
+      ingredients: selectedSauce.ingredients.map(ing => {
+        const ingName = (typeof ing === 'string' ? ing : ing.name).toLowerCase().trim();
+        return ingName === swapIngredient.toLowerCase().trim()
+          ? { ...ing, name: previewAlt.name, measure: ing.measure || '' }
+          : ing;
+      }),
+    };
+    setSelectedSauce(updated);
+    setSwapIngredient(null);
+    setPreviewAlt(null);
+    if (onHighlightIngredients) {
+      onHighlightIngredients(resolveIngredientNames(updated.ingredients, sauceNodes));
+    }
+  }, [previewAlt, swapIngredient, selectedSauce, onHighlightIngredients, sauceNodes]);
+
   // TheMealDB search
   const handleMealSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;
@@ -161,6 +274,8 @@ export default function SaucePanel({
       const res = await fetch(`${MEALDB_BASE}/search.php?s=${encodeURIComponent(searchQuery.trim())}`);
       const json = await res.json();
       const meals = (json.meals || []).map(normalizeMeal).filter(Boolean);
+      // Sort sauce-relevant results first
+      meals.sort((a, b) => (isSauceRelevant(b) ? 1 : 0) - (isSauceRelevant(a) ? 1 : 0));
       setSearchResults(meals);
     } catch {
       setSearchResults([]);
@@ -178,6 +293,8 @@ export default function SaucePanel({
       pairsWith: [],
       image: meal.image,
     });
+    setSwapIngredient(null);
+    setPreviewAlt(null);
     if (onHighlightIngredients) {
       onHighlightIngredients(resolveIngredientNames(meal.ingredients, sauceNodes));
     }
@@ -188,15 +305,198 @@ export default function SaucePanel({
     userProfile.addSauce?.({
       name: name || 'My Sauce',
       ingredients: builderIngredients.map(n => ({ name: n, quantity: '', unit: 'tbsp' })),
+      instructions: '',
       template: sauceTemplate?.name || null,
+      motherSauce: sauceTemplate?.name || '',
+      createdAt: Date.now(),
     });
   }, [userProfile, builderIngredients, sauceTemplate]);
+
+  // --- My Sauces handlers ---
+  const handleLoadSavedSauce = useCallback((sauce) => {
+    if (onHighlightIngredients) {
+      onHighlightIngredients(resolveIngredientNames(sauce.ingredients, sauceNodes));
+    }
+    setTab('builder');
+    onBuilderClear?.();
+    for (const ing of sauce.ingredients) {
+      const name = typeof ing === 'string' ? ing : ing.name;
+      if (sauceNodes?.has(name)) {
+        onBuilderAdd?.(name);
+      }
+    }
+  }, [onHighlightIngredients, onBuilderClear, onBuilderAdd, sauceNodes]);
+
+  const handleDeleteSauce = useCallback((id) => {
+    if (userProfile) {
+      userProfile.removeSauce(id);
+      setConfirmDelete(null);
+    }
+  }, [userProfile]);
+
+  const savedSauceCount = userProfile?.profile?.sauces?.length || 0;
 
   const tabs = [
     { key: 'browse', label: 'Recipes' },
     { key: 'builder', label: 'Builder' },
+    { key: 'saved', label: `My Sauces${savedSauceCount > 0 ? ` (${savedSauceCount})` : ''}` },
     { key: 'lookup', label: 'Lookup' },
   ];
+
+  // Render the sauce detail view (shared between browse and lookup tabs)
+  const renderSauceDetail = () => (
+    <div className="space-y-2.5">
+      <div className="flex gap-2.5">
+        {selectedSauce.image && (
+          <img src={selectedSauce.image} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+        )}
+        <div className="min-w-0">
+          <h3 className="text-sm font-medium text-gray-200 leading-tight">{selectedSauce.name}</h3>
+          <div className="flex gap-1 mt-1 flex-wrap">
+            {selectedSauce.motherSauce && selectedSauce.motherSauce !== 'Lookup' && (
+              <span className="text-[8px] text-amber-400/80 bg-amber-500/10 rounded px-1.5 py-0.5">
+                {selectedSauce.motherSauce}
+              </span>
+            )}
+            {selectedSauce.cuisine && (
+              <span className="text-[8px] text-gray-500 bg-gray-500/10 rounded px-1.5 py-0.5">
+                {selectedSauce.cuisine}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Ingredients with swap support */}
+      <div>
+        <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">
+          Ingredients
+          {!swapIngredient && (
+            <span className="text-gray-700 normal-case ml-1">- tap to swap</span>
+          )}
+        </p>
+        <div className="space-y-0.5">
+          {selectedSauce.ingredients.map((ing, idx) => {
+            const ingName = (typeof ing === 'string' ? ing : ing.name);
+            const isSwapping = swapIngredient && swapIngredient.toLowerCase() === ingName.toLowerCase();
+            return (
+              <button
+                key={`${ingName}-${idx}`}
+                onClick={() => {
+                  if (swapIngredient) {
+                    // If already swapping a different ingredient, switch target
+                    if (!isSwapping) {
+                      handleSwapIngredient(ingName);
+                    }
+                  } else {
+                    handleSwapIngredient(ingName);
+                  }
+                }}
+                className={`w-full flex items-center justify-between px-2 py-1 text-[11px] rounded transition-all text-left ${
+                  isSwapping
+                    ? 'text-amber-300 bg-amber-500/15 border border-amber-500/30'
+                    : swapIngredient
+                    ? 'text-gray-500 hover:text-gray-300 hover:bg-[#1a1a2e]'
+                    : 'text-gray-300 hover:bg-amber-500/10 hover:text-amber-200'
+                }`}
+              >
+                <span className="truncate">{ingName}</span>
+                <span className="text-[9px] text-gray-600 flex-shrink-0 ml-2">{ing.measure || ''}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Swap alternatives panel */}
+      {swapIngredient && (
+        <div className="border border-amber-500/20 rounded-lg p-2 bg-amber-500/5 space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-[9px] text-amber-400 uppercase tracking-wider">
+              Swap: {swapIngredient}
+            </p>
+            <button
+              onClick={handleCancelSwap}
+              className="text-[9px] text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+
+          {swapAlternatives.length > 0 ? (
+            <div className="space-y-0.5">
+              {swapAlternatives.map((alt) => {
+                const isPreview = previewAlt?.name === alt.name;
+                return (
+                  <button
+                    key={alt.name}
+                    onClick={() => handleSelectAlt(alt.name)}
+                    className={`w-full flex items-center justify-between px-2 py-1 text-[11px] rounded transition-all text-left ${
+                      isPreview
+                        ? 'text-amber-200 bg-amber-500/20 border border-amber-500/30'
+                        : 'text-gray-300 hover:bg-amber-500/10 hover:text-amber-200'
+                    }`}
+                  >
+                    <span className="truncate">{alt.name}</span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+                      <span className="text-[8px] text-gray-600">{alt.category}</span>
+                      <span className={`text-[9px] font-medium ${
+                        alt.score >= 7 ? 'text-green-400' : alt.score >= 4 ? 'text-yellow-400' : 'text-gray-500'
+                      }`}>
+                        {alt.score}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-[9px] text-gray-600 text-center py-2">
+              No alternatives found in network
+            </p>
+          )}
+
+          {/* Accept swap button */}
+          {previewAlt && (
+            <button
+              onClick={handleAcceptSwap}
+              className="w-full text-[10px] text-green-300 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 rounded py-1.5 transition-colors"
+            >
+              Replace {swapIngredient} with {previewAlt.name}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Instructions */}
+      {selectedSauce.instructions && (
+        <div>
+          <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Technique</p>
+          <p className="text-[10px] text-gray-400 leading-relaxed">{selectedSauce.instructions}</p>
+        </div>
+      )}
+
+      {/* Pairs with */}
+      {selectedSauce.pairsWith && selectedSauce.pairsWith.length > 0 && (
+        <div>
+          <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Pairs With</p>
+          <div className="flex flex-wrap gap-1">
+            {selectedSauce.pairsWith.map(item => (
+              <span key={item} className="text-[9px] text-gray-400 bg-[#1a1a2e] rounded px-1.5 py-0.5">{item}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Load into builder */}
+      <button
+        onClick={() => handleLoadIntoBuilder(selectedSauce)}
+        className="w-full text-[10px] text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 rounded py-1.5 transition-colors"
+      >
+        Load into Builder
+      </button>
+    </div>
+  );
 
   return (
     <div className={`fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
@@ -246,71 +546,7 @@ export default function SaucePanel({
               )}
 
               {/* Sauce detail */}
-              {selectedSauce && (
-                <div className="space-y-2.5">
-                  <div className="flex gap-2.5">
-                    {selectedSauce.image && (
-                      <img src={selectedSauce.image} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
-                    )}
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-medium text-gray-200 leading-tight">{selectedSauce.name}</h3>
-                      <div className="flex gap-1 mt-1 flex-wrap">
-                        {selectedSauce.motherSauce && selectedSauce.motherSauce !== 'Lookup' && (
-                          <span className="text-[8px] text-amber-400/80 bg-amber-500/10 rounded px-1.5 py-0.5">
-                            {selectedSauce.motherSauce}
-                          </span>
-                        )}
-                        {selectedSauce.cuisine && (
-                          <span className="text-[8px] text-gray-500 bg-gray-500/10 rounded px-1.5 py-0.5">
-                            {selectedSauce.cuisine}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Ingredients */}
-                  <div>
-                    <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Ingredients</p>
-                    <div className="space-y-0.5">
-                      {selectedSauce.ingredients.map((ing, idx) => (
-                        <div key={`${ing.name}-${idx}`} className="flex items-center justify-between px-2 py-1 text-[11px] text-gray-300 hover:bg-[#1a1a2e] rounded">
-                          <span className="truncate">{ing.name}</span>
-                          <span className="text-[9px] text-gray-600 flex-shrink-0 ml-2">{ing.measure || '—'}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Instructions */}
-                  {selectedSauce.instructions && (
-                    <div>
-                      <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Technique</p>
-                      <p className="text-[10px] text-gray-400 leading-relaxed">{selectedSauce.instructions}</p>
-                    </div>
-                  )}
-
-                  {/* Pairs with */}
-                  {selectedSauce.pairsWith && selectedSauce.pairsWith.length > 0 && (
-                    <div>
-                      <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Pairs With</p>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedSauce.pairsWith.map(item => (
-                          <span key={item} className="text-[9px] text-gray-400 bg-[#1a1a2e] rounded px-1.5 py-0.5">{item}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Load into builder */}
-                  <button
-                    onClick={() => handleLoadIntoBuilder(selectedSauce)}
-                    className="w-full text-[10px] text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 rounded py-1.5 transition-colors"
-                  >
-                    Load into Builder
-                  </button>
-                </div>
-              )}
+              {selectedSauce && renderSauceDetail()}
 
               {/* Browse list */}
               {!selectedSauce && (
@@ -380,6 +616,81 @@ export default function SaucePanel({
               suggestions={suggestions}
               onSave={handleSaveFromBuilder}
             />
+          )}
+
+          {tab === 'saved' && (
+            <div className="p-3 space-y-2">
+              {(!userProfile?.profile?.sauces || userProfile.profile.sauces.length === 0) ? (
+                <div className="flex items-center justify-center h-48">
+                  <p className="text-[10px] text-gray-600 text-center">
+                    No saved sauces yet.
+                    <br />Use the Builder tab to create and save sauces.
+                  </p>
+                </div>
+              ) : (
+                userProfile.profile.sauces.map((sauce) => (
+                  <div
+                    key={sauce.id}
+                    className="p-2 rounded-lg bg-[#1a1a2e]/50 border border-[#2a2a3e] hover:border-amber-500/20 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="text-xs text-gray-200 font-medium truncate">{sauce.name}</h4>
+                      <div className="flex items-center gap-1">
+                        {sauce.template && (
+                          <span className="text-[8px] text-amber-400/60 bg-amber-500/10 rounded px-1 py-0.5">
+                            {sauce.template}
+                          </span>
+                        )}
+                        {sauce.motherSauce && (
+                          <span className="text-[8px] text-amber-400/40 bg-amber-500/5 rounded px-1 py-0.5">
+                            {sauce.motherSauce}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-gray-500 mb-1.5">
+                      {sauce.ingredients.map(i =>
+                        i.quantity ? `${i.quantity} ${i.unit || 'tbsp'} ${i.name}` : i.name
+                      ).join(' · ')}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleLoadSavedSauce(sauce)}
+                        className="text-[9px] text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 rounded px-2 py-0.5 transition-colors"
+                      >
+                        Load
+                      </button>
+                      {confirmDelete === sauce.id ? (
+                        <>
+                          <button
+                            onClick={() => handleDeleteSauce(sauce.id)}
+                            className="text-[9px] text-red-400 hover:text-red-300 bg-red-500/10 rounded px-2 py-0.5 transition-colors"
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(null)}
+                            className="text-[9px] text-gray-500 hover:text-gray-400 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDelete(sauce.id)}
+                          className="text-[9px] text-gray-600 hover:text-red-400 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[8px] text-gray-700 mt-1">
+                      {new Date(sauce.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
           )}
 
           {tab === 'lookup' && (
@@ -463,59 +774,7 @@ export default function SaucePanel({
                     </svg>
                     Back
                   </button>
-                  <div className="space-y-2.5">
-                    <div className="flex gap-2.5">
-                      {selectedSauce.image && (
-                        <img src={selectedSauce.image} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
-                      )}
-                      <div className="min-w-0">
-                        <h3 className="text-sm font-medium text-gray-200 leading-tight">{selectedSauce.name}</h3>
-                        <div className="flex gap-1 mt-1 flex-wrap">
-                          {selectedSauce.motherSauce && selectedSauce.motherSauce !== 'Lookup' && (
-                            <span className="text-[8px] text-amber-400/80 bg-amber-500/10 rounded px-1.5 py-0.5">
-                              {selectedSauce.motherSauce}
-                            </span>
-                          )}
-                          {selectedSauce.cuisine && (
-                            <span className="text-[8px] text-gray-500 bg-gray-500/10 rounded px-1.5 py-0.5">
-                              {selectedSauce.cuisine}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Ingredients</p>
-                      {selectedSauce.ingredients.map((ing, idx) => (
-                        <div key={idx} className="flex justify-between px-2 py-0.5 text-[11px] text-gray-300">
-                          <span>{ing.name}</span>
-                          <span className="text-gray-600">{ing.measure}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {selectedSauce.instructions && (
-                      <div>
-                        <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Technique</p>
-                        <p className="text-[10px] text-gray-400 leading-relaxed">{selectedSauce.instructions}</p>
-                      </div>
-                    )}
-                    {selectedSauce.pairsWith && selectedSauce.pairsWith.length > 0 && (
-                      <div>
-                        <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">Pairs With</p>
-                        <div className="flex flex-wrap gap-1">
-                          {selectedSauce.pairsWith.map(item => (
-                            <span key={item} className="text-[9px] text-gray-400 bg-[#1a1a2e] rounded px-1.5 py-0.5">{item}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <button
-                      onClick={() => handleLoadIntoBuilder(selectedSauce)}
-                      className="w-full text-[10px] text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 rounded py-1.5 transition-colors"
-                    >
-                      Load into Builder
-                    </button>
-                  </div>
+                  {renderSauceDetail()}
                 </>
               )}
 
@@ -525,21 +784,31 @@ export default function SaucePanel({
                   <p className="text-[9px] text-gray-600 uppercase tracking-wider">
                     {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
                   </p>
-                  {searchResults.map(meal => (
-                    <button
-                      key={meal.id}
-                      onClick={() => handleSelectMeal(meal)}
-                      className="w-full flex items-center gap-2.5 p-2 rounded-lg bg-[#1a1a2e]/50 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all text-left"
-                    >
-                      {meal.image && (
-                        <img src={`${meal.image}/preview`} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-xs text-gray-200 truncate">{meal.name}</p>
-                        {meal.cuisine && <p className="text-[9px] text-gray-600">{meal.cuisine}</p>}
-                      </div>
-                    </button>
-                  ))}
+                  {searchResults.map(meal => {
+                    const relevant = isSauceRelevant(meal);
+                    return (
+                      <button
+                        key={meal.id}
+                        onClick={() => handleSelectMeal(meal)}
+                        className={`w-full flex items-center gap-2.5 p-2 rounded-lg bg-[#1a1a2e]/50 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all text-left ${
+                          !relevant ? 'opacity-60' : ''
+                        }`}
+                      >
+                        {meal.image && (
+                          <img src={`${meal.image}/preview`} alt="" className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs text-gray-200 truncate">{meal.name}</p>
+                          <div className="flex items-center gap-1.5">
+                            {meal.cuisine && <span className="text-[9px] text-gray-600">{meal.cuisine}</span>}
+                            {!relevant && (
+                              <span className="text-[8px] text-gray-600 italic">May not be a sauce</span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 

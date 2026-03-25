@@ -120,3 +120,19 @@ export async function buildCocktailGraph(fullGraph, basePath = '/data') {
 
   return { nodes, edges, ingredientList, augmentedMap };
 }
+
+/**
+ * Build an adjacency map for O(1) edge lookups.
+ * @param {Array} edges - Array of { source, target, strength }
+ * @returns {Map<string, Map<string, number>>} adjacency map: name -> (neighbor -> strength)
+ */
+export function buildAdjacencyMap(edges) {
+  const adj = new Map();
+  for (const edge of edges) {
+    if (!adj.has(edge.source)) adj.set(edge.source, new Map());
+    if (!adj.has(edge.target)) adj.set(edge.target, new Map());
+    adj.get(edge.source).set(edge.target, edge.strength);
+    adj.get(edge.target).set(edge.source, edge.strength);
+  }
+  return adj;
+}

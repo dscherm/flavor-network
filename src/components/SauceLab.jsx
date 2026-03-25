@@ -3,7 +3,7 @@ import NetworkScene from './NetworkScene.jsx';
 import SearchBar from './SearchBar.jsx';
 import IngredientPanel from './IngredientPanel.jsx';
 import SaucePanel from './SaucePanel.jsx';
-import { buildSauceGraph } from '../data/sauceGraph.js';
+import { buildSauceGraph, buildAdjacencyMap } from '../data/sauceGraph.js';
 import { computeSaucePositions } from '../data/saucePositioning.js';
 import { getNeighbors } from '../data/graph.js';
 import { SAUCE_CATEGORIES, loadSauceAugment } from '../data/sauceData.js';
@@ -42,7 +42,9 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange }) {
 
         if (cancelled) return;
 
-        setSauceData({ graph, positions, embeddings: null });
+        const adjacencyMap = buildAdjacencyMap(graph.edges);
+
+        setSauceData({ graph, positions, embeddings: null, adjacencyMap });
         setCuratedSauces(augment.sauces || []);
         setLoading(false);
       } catch (err) {
@@ -304,6 +306,7 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange }) {
         onBuilderClear={handleBuilderClear}
         userProfile={userProfile}
         curatedSauces={curatedSauces}
+        adjacencyMap={sauceData?.adjacencyMap}
       />
 
       {/* Combined right-side legend — slide-out panel */}

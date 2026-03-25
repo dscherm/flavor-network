@@ -1,0 +1,185 @@
+{
+  "description": "Key aroma compounds for top cocktail ingredients. Used by cocktail-agent to justify pairings via shared volatiles.",
+  "ingredients": [
+    {
+      "name": "gin",
+      "key_compounds": ["alpha-pinene", "myrcene", "limonene", "linalool", "coriandrol"],
+      "aroma_profile": "Juniper-forward with citrus and floral notes",
+      "bridges_to": ["vermouth (linalool)", "lemon (limonene)", "cucumber (linalool)", "tonic (quinine bitterness complements juniper)"]
+    },
+    {
+      "name": "vodka",
+      "key_compounds": ["ethanol"],
+      "aroma_profile": "Neutral carrier with minimal congeners; flavor comes from co-ingredients",
+      "bridges_to": ["any citrus (neutral base amplifies limonene)", "ginger (carries gingerol heat cleanly)", "coffee (transparent vehicle for pyrazines)"]
+    },
+    {
+      "name": "white rum",
+      "key_compounds": ["ethyl acetate", "ethyl butyrate", "isoamyl acetate", "acetaldehyde"],
+      "aroma_profile": "Light ester-driven tropical and fruity character",
+      "bridges_to": ["pineapple (ethyl butyrate)", "coconut (lactone affinity with esters)", "lime (citric acid brightens ester fruitiness)", "mint (limonene meets tropical esters)"]
+    },
+    {
+      "name": "dark rum",
+      "key_compounds": ["vanillin", "beta-methyl-gamma-octalactone", "furfural", "5-methylfurfural", "eugenol"],
+      "aroma_profile": "Rich caramel and vanilla from oak aging, with dried fruit esters",
+      "bridges_to": ["bourbon (vanillin, oak lactones)", "coffee (furans, caramel overlap)", "chocolate (vanillin, pyrazines)", "honey (furfural, caramel notes)"]
+    },
+    {
+      "name": "bourbon",
+      "key_compounds": ["vanillin", "eugenol", "beta-methyl-gamma-octalactone", "furfural", "syringaldehyde"],
+      "aroma_profile": "Sweet vanilla and baking spice from charred oak, with caramel undertones",
+      "bridges_to": ["dark rum (vanillin, oak lactones)", "angostura bitters (eugenol)", "honey (furfural, caramel)", "chocolate (vanillin, pyrazines)"]
+    },
+    {
+      "name": "rye whiskey",
+      "key_compounds": ["eugenol", "vanillin", "beta-methyl-gamma-octalactone", "4-vinylguaiacol", "isoeugenol"],
+      "aroma_profile": "Spicy and peppery with higher phenolic content than bourbon, drier oak character",
+      "bridges_to": ["angostura bitters (eugenol, cinnamaldehyde affinity)", "ginger (spicy phenolic overlap with gingerol)", "vermouth dry (herbal-spice bridge)", "campari (bitter phenolics complement spice)"]
+    },
+    {
+      "name": "scotch",
+      "key_compounds": ["phenol", "guaiacol", "4-methylguaiacol", "maltol", "ethyl hexanoate"],
+      "aroma_profile": "Smoky phenolics from peat, malty sweetness, fruity esters",
+      "bridges_to": ["mezcal (guaiacol smoke overlap)", "honey (maltol sweetness bridge)", "lemon (esters brighten smoke)", "ginger (phenolic-spice synergy)"]
+    },
+    {
+      "name": "tequila",
+      "key_compounds": ["isoamyl alcohol", "isobutanol", "ethyl acetate", "linalool", "beta-damascenone"],
+      "aroma_profile": "Herbaceous agave with vegetal-floral notes and light tropical esters",
+      "bridges_to": ["lime (limonene and citric acid are canonical bridge)", "grapefruit (nootkatone complements agave vegetal notes)", "cointreau (linalool)", "pineapple (ester overlap)"]
+    },
+    {
+      "name": "mezcal",
+      "key_compounds": ["guaiacol", "4-methylguaiacol", "isoamyl alcohol", "ethyl acetate", "phenol"],
+      "aroma_profile": "Pronounced smoke from roasted agave, with earthy and fruity ester complexity",
+      "bridges_to": ["scotch (guaiacol smoke)", "grapefruit (nootkatone cuts through smoke)", "pineapple (ethyl butyrate contrasts smoke)", "honey (caramel compounds soften phenolics)"]
+    },
+    {
+      "name": "cognac",
+      "key_compounds": ["ethyl octanoate", "ethyl decanoate", "vanillin", "beta-methyl-gamma-octalactone", "tannins"],
+      "aroma_profile": "Fruity esters with oak-derived vanilla, dried fruit, and grape tannins",
+      "bridges_to": ["cointreau (ester and limonene overlap — Sidecar bridge)", "lemon (citral brightens fruit esters)", "honey (floral volatiles complement grape esters)", "dark rum (vanillin, oak lactones)"]
+    },
+    {
+      "name": "sweet vermouth",
+      "key_compounds": ["thujone", "linalool", "citral", "vanillin", "cinnamaldehyde"],
+      "aroma_profile": "Wormwood bitterness layered with floral botanicals, caramel, and warm spice",
+      "bridges_to": ["gin (linalool)", "bourbon (vanillin)", "campari (herbal-bitter synergy)", "angostura bitters (cinnamaldehyde, eugenol)"]
+    },
+    {
+      "name": "dry vermouth",
+      "key_compounds": ["thujone", "limonene", "linalool", "citral", "carvone"],
+      "aroma_profile": "Herbaceous wormwood with bright citrus peel oils and dry botanical finish",
+      "bridges_to": ["gin (linalool, limonene — Martini bridge)", "lemon (citral, limonene)", "olive (fatty acid contrast to herbal terpenes)", "cointreau (limonene)"]
+    },
+    {
+      "name": "campari",
+      "key_compounds": ["gentiopicroside", "limonene", "linalool", "quinine-related alkaloids"],
+      "aroma_profile": "Intensely bitter from gentian root, with supporting citrus oils and herbal complexity",
+      "bridges_to": ["sweet vermouth (herbal-bitter synergy — Negroni bridge)", "gin (linalool, limonene)", "grapefruit (naringin bitterness harmony)", "orange (limonene)"]
+    },
+    {
+      "name": "cointreau",
+      "key_compounds": ["limonene", "linalool", "ethyl acetate", "decanal", "myrcene"],
+      "aroma_profile": "Bright orange peel oil with floral sweetness and clean citrus esters",
+      "bridges_to": ["lemon (limonene, citral — Margarita bridge)", "cognac (ester overlap — Sidecar bridge)", "tequila (linalool)", "gin (limonene, linalool)"]
+    },
+    {
+      "name": "maraschino liqueur",
+      "key_compounds": ["benzaldehyde", "linalool", "eugenol", "methyl salicylate"],
+      "aroma_profile": "Almond-cherry kernel aroma from cherry pits, with subtle floral and spice",
+      "bridges_to": ["lemon (linalool — Aviation bridge)", "gin (linalool)", "chartreuse (herbal terpene complexity)", "coffee (benzaldehyde-pyrazine interplay)"]
+    },
+    {
+      "name": "chartreuse",
+      "key_compounds": ["thymol", "carvacrol", "linalool", "alpha-pinene", "eucalyptol", "menthol"],
+      "aroma_profile": "Extraordinarily complex herbal terpene blend from 130 botanicals; minty, herbaceous, and warm",
+      "bridges_to": ["gin (alpha-pinene, linalool)", "lime (limonene cuts herbal density)", "mint (menthol)", "maraschino (linalool — Last Word bridge)"]
+    },
+    {
+      "name": "simple syrup",
+      "key_compounds": ["sucrose"],
+      "aroma_profile": "Pure sweetness with no aroma compounds; serves as textural and flavor-balance baseline",
+      "bridges_to": ["any citrus (sucrose balances citric acid)", "bitters (sweetness tames bitter alkaloids)", "egg white (sucrose stabilizes protein foam)"]
+    },
+    {
+      "name": "lime juice",
+      "key_compounds": ["citric acid", "limonene", "geraniol", "linalool", "gamma-terpinene"],
+      "aroma_profile": "Sharp citric acidity with green-floral terpenes and bright peel oils",
+      "bridges_to": ["gin (linalool, limonene)", "tequila (canonical Margarita bridge)", "rum (citric acid brightens esters)", "mint (limonene — Mojito bridge)"]
+    },
+    {
+      "name": "lemon juice",
+      "key_compounds": ["citric acid", "limonene", "citral", "linalool", "geranial"],
+      "aroma_profile": "Bright citric acidity with dominant lemon-peel aldehyde aroma",
+      "bridges_to": ["gin (limonene, linalool — Gimlet/Tom Collins bridge)", "cognac (citral brightens fruit esters)", "honey (citral and floral volatiles — Bee's Knees bridge)", "cointreau (limonene)"]
+    },
+    {
+      "name": "grapefruit juice",
+      "key_compounds": ["naringin", "limonene", "nootkatone", "1-p-menthene-8-thiol", "decanal"],
+      "aroma_profile": "Distinctively bitter from naringin, with sulfur-tinged tropical citrus and woody nootkatone",
+      "bridges_to": ["campari (naringin-gentian bitter harmony)", "tequila (nootkatone complements agave vegetal)", "mezcal (bitter-smoke contrast)", "gin (limonene)"]
+    },
+    {
+      "name": "orange juice",
+      "key_compounds": ["limonene", "valencene", "decanal", "ethyl butyrate", "linalool"],
+      "aroma_profile": "Sweet citrus with waxy aldehydes and fruity esters",
+      "bridges_to": ["cointreau (limonene, decanal — orange-on-orange amplification)", "campari (limonene — Garibaldi bridge)", "bourbon (decanal aldehyde meets vanillin)", "rum (ethyl butyrate ester synergy)"]
+    },
+    {
+      "name": "angostura bitters",
+      "key_compounds": ["cinnamaldehyde", "eugenol", "gentiopicroside", "limonene", "caryophyllene"],
+      "aroma_profile": "Warm cinnamon-clove spice over gentian root bitterness with citrus highlights",
+      "bridges_to": ["bourbon (eugenol — Old Fashioned bridge)", "rye whiskey (spicy phenolic synergy)", "sweet vermouth (cinnamaldehyde, bitter overlap — Manhattan bridge)", "dark rum (eugenol meets oak spice)"]
+    },
+    {
+      "name": "egg white",
+      "key_compounds": ["ovalbumin", "ovomucin"],
+      "aroma_profile": "No significant aroma; protein matrix creates silky foam that traps and slowly releases volatile aromas from other ingredients",
+      "bridges_to": ["lemon (citric acid denatures protein for stable foam — Whiskey Sour bridge)", "gin (foam traps and releases linalool gradually)", "bitters (aromatic dash on foam surface maximizes volatile perception)"]
+    },
+    {
+      "name": "ginger",
+      "key_compounds": ["gingerol", "shogaol", "zingiberene", "beta-sesquiphellandrene", "geranial"],
+      "aroma_profile": "Pungent heat from gingerol with citrus-woody terpene backbone",
+      "bridges_to": ["lime (geranial overlap)", "bourbon (spice-on-spice with eugenol)", "scotch (phenolic-spice synergy)", "honey (geranial bridge to floral volatiles)"]
+    },
+    {
+      "name": "honey",
+      "key_compounds": ["phenylacetaldehyde", "beta-damascenone", "linalool", "furfural", "methylglyoxal"],
+      "aroma_profile": "Floral volatiles with caramel undertones; exact profile varies by botanical source",
+      "bridges_to": ["lemon (linalool — Bee's Knees bridge)", "bourbon (furfural caramel overlap)", "scotch (maltol-furfural sweetness bridge)", "ginger (floral volatile synergy)"]
+    },
+    {
+      "name": "coffee",
+      "key_compounds": ["2-furfurylthiol", "furanones", "pyrazines", "cafestol", "guaiacol"],
+      "aroma_profile": "Roasty pyrazines with caramel furans and sulfurous depth; smoky guaiacol in dark roasts",
+      "bridges_to": ["dark rum (furans, caramel — Espresso Martini bridge)", "bourbon (vanillin, furfural)", "chocolate (pyrazine overlap)", "mezcal (guaiacol smoke)"]
+    },
+    {
+      "name": "chocolate",
+      "key_compounds": ["theobromine", "2,3-dimethylpyrazine", "trimethylpyrazine", "vanillin", "linalool"],
+      "aroma_profile": "Bitter alkaloid base with roasty pyrazines, vanilla, and subtle floral notes",
+      "bridges_to": ["coffee (pyrazine overlap)", "bourbon (vanillin)", "dark rum (vanillin, caramel furans)", "mint (menthol-theobromine contrast — classic pairing)"]
+    },
+    {
+      "name": "coconut",
+      "key_compounds": ["delta-decalactone", "gamma-octalactone", "gamma-nonalactone", "delta-octalactone"],
+      "aroma_profile": "Creamy lactone-dominated aroma with waxy tropical character",
+      "bridges_to": ["white rum (ester-lactone tropical synergy — Pina Colada bridge)", "pineapple (ethyl butyrate with lactones)", "dark rum (oak lactone overlap)", "lime (citric acid cuts lactone richness)"]
+    },
+    {
+      "name": "pineapple",
+      "key_compounds": ["ethyl butyrate", "ethyl hexanoate", "methyl butyrate", "bromelain", "furaneol"],
+      "aroma_profile": "Intensely fruity ester profile with caramel furaneol sweetness; bromelain enzyme affects texture",
+      "bridges_to": ["white rum (ethyl butyrate — Pina Colada bridge)", "coconut (lactone-ester tropical synergy)", "mezcal (ester-smoke contrast)", "lime (citric acid and ester brightness)"]
+    },
+    {
+      "name": "mint",
+      "key_compounds": ["menthol", "menthone", "limonene", "menthyl acetate", "1,8-cineole"],
+      "aroma_profile": "Dominant cooling menthol sensation with sweet terpene and camphoraceous notes",
+      "bridges_to": ["lime (limonene — Mojito bridge)", "rum (menthol cooling contrasts ester warmth)", "chartreuse (menthol, herbal terpene kinship)", "chocolate (menthol-theobromine classic contrast)"]
+    }
+  ]
+}

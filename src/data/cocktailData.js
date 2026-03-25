@@ -6,6 +6,12 @@
  */
 
 /**
+ * Modifier words that precede a base spirit/ingredient — stripped to find the node.
+ * e.g. "light rum" → "rum", "spiced rum" → "rum"
+ */
+export const INGREDIENT_MODIFIERS = /^(light|dark|aged|gold|golden|white|black|silver|amber|blended|spiced|añejo|reposado|blanco|overproof|navy|jamaican|demerara|london dry|dry|sweet|fresh|frozen|powdered|superfine|granulated|crushed|whole|ground|extra|heavy|double|old|young|single|small|large)\s+/i;
+
+/**
  * Cocktail ingredient categories used for Codex positioning and UI grouping.
  */
 export const COCKTAIL_CATEGORIES = {
