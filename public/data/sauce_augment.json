@@ -1165,10 +1165,66 @@
     },
     {
       "name": "caraway",
-      "category": "spice",
+      "category": "Seasoning",
       "taste": "pungent",
       "weight": "light",
       "codexRole": "spice"
+    },
+    {
+      "name": "doenjang",
+      "category": "Other",
+      "taste": "salty umami",
+      "weight": "heavy",
+      "codexRole": "seasoning"
+    },
+    {
+      "name": "shito",
+      "category": "Chili",
+      "taste": "spicy umami",
+      "weight": "heavy",
+      "codexRole": "seasoning"
+    },
+    {
+      "name": "berbere",
+      "category": "Seasoning",
+      "taste": "spicy pungent",
+      "weight": "medium",
+      "codexRole": "seasoning"
+    },
+    {
+      "name": "toum",
+      "category": "Other",
+      "taste": "pungent",
+      "weight": "heavy",
+      "codexRole": "base"
+    },
+    {
+      "name": "sumac",
+      "category": "Seasoning",
+      "taste": "sour",
+      "weight": "light",
+      "codexRole": "acid"
+    },
+    {
+      "name": "pomegranate molasses",
+      "category": "Acid",
+      "taste": "sour sweet",
+      "weight": "heavy",
+      "codexRole": "acid"
+    },
+    {
+      "name": "preserved lemon",
+      "category": "Acid",
+      "taste": "salty sour",
+      "weight": "medium",
+      "codexRole": "acid"
+    },
+    {
+      "name": "kombu",
+      "category": "Other",
+      "taste": "umami",
+      "weight": "light",
+      "codexRole": "protein"
     }
   ],
   "pairings": [
@@ -4531,6 +4587,4006 @@
       "source": "nam jim",
       "target": "cilantro",
       "strength": 0.8
+    },
+    {
+      "source": "flour",
+      "target": "butter",
+      "strength": 0.95
+    },
+    {
+      "source": "cream",
+      "target": "butter",
+      "strength": 0.9
+    },
+    {
+      "source": "egg yolk",
+      "target": "butter",
+      "strength": 0.92
+    },
+    {
+      "source": "shallot",
+      "target": "butter",
+      "strength": 0.85
+    },
+    {
+      "source": "white wine",
+      "target": "butter",
+      "strength": 0.88
+    },
+    {
+      "source": "lemon juice",
+      "target": "butter",
+      "strength": 0.87
+    },
+    {
+      "source": "garlic",
+      "target": "butter",
+      "strength": 0.85
+    },
+    {
+      "source": "parsley",
+      "target": "butter",
+      "strength": 0.8
+    },
+    {
+      "source": "thyme",
+      "target": "butter",
+      "strength": 0.78
+    },
+    {
+      "source": "salt",
+      "target": "butter",
+      "strength": 0.9
+    },
+    {
+      "source": "black pepper",
+      "target": "butter",
+      "strength": 0.82
+    },
+    {
+      "source": "tarragon",
+      "target": "butter",
+      "strength": 0.8
+    },
+    {
+      "source": "butter",
+      "target": "nutmeg",
+      "strength": 0.78
+    },
+    {
+      "source": "milk",
+      "target": "butter",
+      "strength": 0.9
+    },
+    {
+      "source": "parmesan",
+      "target": "butter",
+      "strength": 0.85
+    },
+    {
+      "source": "dijon mustard",
+      "target": "butter",
+      "strength": 0.72
+    },
+    {
+      "source": "egg yolk",
+      "target": "clarified butter",
+      "strength": 0.95
+    },
+    {
+      "source": "lemon juice",
+      "target": "clarified butter",
+      "strength": 0.9
+    },
+    {
+      "source": "tarragon",
+      "target": "clarified butter",
+      "strength": 0.85
+    },
+    {
+      "source": "white wine vinegar",
+      "target": "clarified butter",
+      "strength": 0.88
+    },
+    {
+      "source": "cayenne",
+      "target": "clarified butter",
+      "strength": 0.72
+    },
+    {
+      "source": "salt",
+      "target": "clarified butter",
+      "strength": 0.85
+    },
+    {
+      "source": "onion",
+      "target": "ghee",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "ghee",
+      "strength": 0.88
+    },
+    {
+      "source": "ginger",
+      "target": "ghee",
+      "strength": 0.87
+    },
+    {
+      "source": "cumin",
+      "target": "ghee",
+      "strength": 0.85
+    },
+    {
+      "source": "turmeric",
+      "target": "ghee",
+      "strength": 0.83
+    },
+    {
+      "source": "garam masala",
+      "target": "ghee",
+      "strength": 0.88
+    },
+    {
+      "source": "cream",
+      "target": "ghee",
+      "strength": 0.82
+    },
+    {
+      "source": "tomato",
+      "target": "ghee",
+      "strength": 0.8
+    },
+    {
+      "source": "curry leaf",
+      "target": "ghee",
+      "strength": 0.8
+    },
+    {
+      "source": "fenugreek",
+      "target": "ghee",
+      "strength": 0.75
+    },
+    {
+      "source": "garlic",
+      "target": "olive oil",
+      "strength": 0.95
+    },
+    {
+      "source": "onion",
+      "target": "olive oil",
+      "strength": 0.88
+    },
+    {
+      "source": "tomato",
+      "target": "olive oil",
+      "strength": 0.92
+    },
+    {
+      "source": "olive oil",
+      "target": "basil",
+      "strength": 0.92
+    },
+    {
+      "source": "oregano",
+      "target": "olive oil",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon juice",
+      "target": "olive oil",
+      "strength": 0.85
+    },
+    {
+      "source": "red wine vinegar",
+      "target": "olive oil",
+      "strength": 0.82
+    },
+    {
+      "source": "anchovy",
+      "target": "olive oil",
+      "strength": 0.8
+    },
+    {
+      "source": "olive oil",
+      "target": "chili flake",
+      "strength": 0.88
+    },
+    {
+      "source": "parsley",
+      "target": "olive oil",
+      "strength": 0.85
+    },
+    {
+      "source": "olive oil",
+      "target": "rosemary",
+      "strength": 0.85
+    },
+    {
+      "source": "capers",
+      "target": "olive oil",
+      "strength": 0.78
+    },
+    {
+      "source": "olive oil",
+      "target": "roasted red pepper",
+      "strength": 0.85
+    },
+    {
+      "source": "cilantro",
+      "target": "olive oil",
+      "strength": 0.78
+    },
+    {
+      "source": "salt",
+      "target": "olive oil",
+      "strength": 0.88
+    },
+    {
+      "source": "soy sauce",
+      "target": "sesame oil",
+      "strength": 0.92
+    },
+    {
+      "source": "ginger",
+      "target": "sesame oil",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "sesame oil",
+      "strength": 0.87
+    },
+    {
+      "source": "scallion",
+      "target": "sesame oil",
+      "strength": 0.85
+    },
+    {
+      "source": "sesame oil",
+      "target": "rice vinegar",
+      "strength": 0.82
+    },
+    {
+      "source": "chili flake",
+      "target": "sesame oil",
+      "strength": 0.78
+    },
+    {
+      "source": "miso",
+      "target": "sesame oil",
+      "strength": 0.75
+    },
+    {
+      "source": "garlic",
+      "target": "peanut oil",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger",
+      "target": "peanut oil",
+      "strength": 0.8
+    },
+    {
+      "source": "soy sauce",
+      "target": "peanut oil",
+      "strength": 0.78
+    },
+    {
+      "source": "dried red chili",
+      "target": "peanut oil",
+      "strength": 0.78
+    },
+    {
+      "source": "coconut milk",
+      "target": "coconut oil",
+      "strength": 0.88
+    },
+    {
+      "source": "curry leaf",
+      "target": "coconut oil",
+      "strength": 0.82
+    },
+    {
+      "source": "turmeric",
+      "target": "coconut oil",
+      "strength": 0.78
+    },
+    {
+      "source": "onion",
+      "target": "palm oil",
+      "strength": 0.82
+    },
+    {
+      "source": "scotch bonnet",
+      "target": "palm oil",
+      "strength": 0.8
+    },
+    {
+      "source": "palm oil",
+      "target": "dried shrimp",
+      "strength": 0.82
+    },
+    {
+      "source": "ancho chili",
+      "target": "lard",
+      "strength": 0.8
+    },
+    {
+      "source": "guajillo chili",
+      "target": "lard",
+      "strength": 0.78
+    },
+    {
+      "source": "onion",
+      "target": "lard",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "lard",
+      "strength": 0.8
+    },
+    {
+      "source": "milk",
+      "target": "flour",
+      "strength": 0.92
+    },
+    {
+      "source": "cream",
+      "target": "flour",
+      "strength": 0.85
+    },
+    {
+      "source": "chicken stock",
+      "target": "flour",
+      "strength": 0.88
+    },
+    {
+      "source": "veal stock",
+      "target": "flour",
+      "strength": 0.85
+    },
+    {
+      "source": "salt",
+      "target": "flour",
+      "strength": 0.8
+    },
+    {
+      "source": "soy sauce",
+      "target": "cornstarch",
+      "strength": 0.85
+    },
+    {
+      "source": "chicken stock",
+      "target": "cornstarch",
+      "strength": 0.82
+    },
+    {
+      "source": "water",
+      "target": "cornstarch",
+      "strength": 0.8
+    },
+    {
+      "source": "rice vinegar",
+      "target": "cornstarch",
+      "strength": 0.72
+    },
+    {
+      "source": "lemon juice",
+      "target": "egg yolk",
+      "strength": 0.92
+    },
+    {
+      "source": "white wine vinegar",
+      "target": "egg yolk",
+      "strength": 0.9
+    },
+    {
+      "source": "cream",
+      "target": "egg yolk",
+      "strength": 0.85
+    },
+    {
+      "source": "tarragon",
+      "target": "egg yolk",
+      "strength": 0.82
+    },
+    {
+      "source": "dijon mustard",
+      "target": "egg yolk",
+      "strength": 0.8
+    },
+    {
+      "source": "cayenne",
+      "target": "egg yolk",
+      "strength": 0.7
+    },
+    {
+      "source": "salt",
+      "target": "egg yolk",
+      "strength": 0.85
+    },
+    {
+      "source": "onion",
+      "target": "chicken stock",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "chicken stock",
+      "strength": 0.85
+    },
+    {
+      "source": "thyme",
+      "target": "chicken stock",
+      "strength": 0.82
+    },
+    {
+      "source": "bay leaf",
+      "target": "chicken stock",
+      "strength": 0.8
+    },
+    {
+      "source": "carrot",
+      "target": "chicken stock",
+      "strength": 0.82
+    },
+    {
+      "source": "celery",
+      "target": "chicken stock",
+      "strength": 0.8
+    },
+    {
+      "source": "cream",
+      "target": "chicken stock",
+      "strength": 0.85
+    },
+    {
+      "source": "white wine",
+      "target": "chicken stock",
+      "strength": 0.82
+    },
+    {
+      "source": "salt",
+      "target": "chicken stock",
+      "strength": 0.88
+    },
+    {
+      "source": "red wine",
+      "target": "veal stock",
+      "strength": 0.9
+    },
+    {
+      "source": "shallot",
+      "target": "veal stock",
+      "strength": 0.85
+    },
+    {
+      "source": "thyme",
+      "target": "veal stock",
+      "strength": 0.82
+    },
+    {
+      "source": "bay leaf",
+      "target": "veal stock",
+      "strength": 0.8
+    },
+    {
+      "source": "tomato paste",
+      "target": "veal stock",
+      "strength": 0.85
+    },
+    {
+      "source": "madeira wine",
+      "target": "veal stock",
+      "strength": 0.88
+    },
+    {
+      "source": "meat glaze",
+      "target": "veal stock",
+      "strength": 0.92
+    },
+    {
+      "source": "black pepper",
+      "target": "veal stock",
+      "strength": 0.78
+    },
+    {
+      "source": "onion",
+      "target": "beef stock",
+      "strength": 0.88
+    },
+    {
+      "source": "red wine",
+      "target": "beef stock",
+      "strength": 0.88
+    },
+    {
+      "source": "tomato paste",
+      "target": "beef stock",
+      "strength": 0.85
+    },
+    {
+      "source": "thyme",
+      "target": "beef stock",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "beef stock",
+      "strength": 0.82
+    },
+    {
+      "source": "white wine",
+      "target": "fish stock",
+      "strength": 0.9
+    },
+    {
+      "source": "shallot",
+      "target": "fish stock",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon juice",
+      "target": "fish stock",
+      "strength": 0.82
+    },
+    {
+      "source": "cream",
+      "target": "fish stock",
+      "strength": 0.85
+    },
+    {
+      "source": "dill",
+      "target": "fish stock",
+      "strength": 0.78
+    },
+    {
+      "source": "parsley",
+      "target": "fish stock",
+      "strength": 0.75
+    },
+    {
+      "source": "soy sauce",
+      "target": "dashi",
+      "strength": 0.95
+    },
+    {
+      "source": "mirin",
+      "target": "dashi",
+      "strength": 0.92
+    },
+    {
+      "source": "sake",
+      "target": "dashi",
+      "strength": 0.88
+    },
+    {
+      "source": "bonito flakes",
+      "target": "dashi",
+      "strength": 0.95
+    },
+    {
+      "source": "dashi",
+      "target": "miso",
+      "strength": 0.92
+    },
+    {
+      "source": "nutmeg",
+      "target": "milk",
+      "strength": 0.85
+    },
+    {
+      "source": "salt",
+      "target": "milk",
+      "strength": 0.82
+    },
+    {
+      "source": "white pepper",
+      "target": "milk",
+      "strength": 0.78
+    },
+    {
+      "source": "onion",
+      "target": "milk",
+      "strength": 0.75
+    },
+    {
+      "source": "bay leaf",
+      "target": "milk",
+      "strength": 0.78
+    },
+    {
+      "source": "cream",
+      "target": "nutmeg",
+      "strength": 0.85
+    },
+    {
+      "source": "parmesan",
+      "target": "cream",
+      "strength": 0.9
+    },
+    {
+      "source": "cream",
+      "target": "gruyere",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "cream",
+      "strength": 0.82
+    },
+    {
+      "source": "white wine",
+      "target": "cream",
+      "strength": 0.82
+    },
+    {
+      "source": "shallot",
+      "target": "cream",
+      "strength": 0.8
+    },
+    {
+      "source": "thyme",
+      "target": "cream",
+      "strength": 0.75
+    },
+    {
+      "source": "black pepper",
+      "target": "cream",
+      "strength": 0.78
+    },
+    {
+      "source": "salt",
+      "target": "cream",
+      "strength": 0.85
+    },
+    {
+      "source": "cream",
+      "target": "dijon mustard",
+      "strength": 0.82
+    },
+    {
+      "source": "curry paste green",
+      "target": "coconut milk",
+      "strength": 0.95
+    },
+    {
+      "source": "curry paste red",
+      "target": "coconut milk",
+      "strength": 0.95
+    },
+    {
+      "source": "lemongrass",
+      "target": "coconut milk",
+      "strength": 0.9
+    },
+    {
+      "source": "galangal",
+      "target": "coconut milk",
+      "strength": 0.88
+    },
+    {
+      "source": "coconut milk",
+      "target": "kaffir lime leaf",
+      "strength": 0.92
+    },
+    {
+      "source": "fish sauce",
+      "target": "coconut milk",
+      "strength": 0.88
+    },
+    {
+      "source": "palm sugar",
+      "target": "coconut milk",
+      "strength": 0.85
+    },
+    {
+      "source": "thai basil",
+      "target": "coconut milk",
+      "strength": 0.82
+    },
+    {
+      "source": "thai chili",
+      "target": "coconut milk",
+      "strength": 0.82
+    },
+    {
+      "source": "turmeric",
+      "target": "coconut milk",
+      "strength": 0.8
+    },
+    {
+      "source": "coconut milk",
+      "target": "peanut",
+      "strength": 0.85
+    },
+    {
+      "source": "lime juice",
+      "target": "coconut milk",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger",
+      "target": "coconut milk",
+      "strength": 0.78
+    },
+    {
+      "source": "shallot",
+      "target": "white wine",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "white wine",
+      "strength": 0.82
+    },
+    {
+      "source": "thyme",
+      "target": "white wine",
+      "strength": 0.78
+    },
+    {
+      "source": "parsley",
+      "target": "white wine",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon juice",
+      "target": "white wine",
+      "strength": 0.78
+    },
+    {
+      "source": "shallot",
+      "target": "red wine",
+      "strength": 0.9
+    },
+    {
+      "source": "thyme",
+      "target": "red wine",
+      "strength": 0.82
+    },
+    {
+      "source": "bay leaf",
+      "target": "red wine",
+      "strength": 0.8
+    },
+    {
+      "source": "black pepper",
+      "target": "red wine",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "red wine",
+      "strength": 0.8
+    },
+    {
+      "source": "shallot",
+      "target": "madeira wine",
+      "strength": 0.85
+    },
+    {
+      "source": "meat glaze",
+      "target": "madeira wine",
+      "strength": 0.9
+    },
+    {
+      "source": "thyme",
+      "target": "madeira wine",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "onion",
+      "strength": 0.92
+    },
+    {
+      "source": "celery",
+      "target": "onion",
+      "strength": 0.85
+    },
+    {
+      "source": "carrot",
+      "target": "onion",
+      "strength": 0.88
+    },
+    {
+      "source": "tomato",
+      "target": "onion",
+      "strength": 0.88
+    },
+    {
+      "source": "cumin",
+      "target": "onion",
+      "strength": 0.82
+    },
+    {
+      "source": "onion",
+      "target": "bay leaf",
+      "strength": 0.82
+    },
+    {
+      "source": "thyme",
+      "target": "onion",
+      "strength": 0.8
+    },
+    {
+      "source": "salt",
+      "target": "onion",
+      "strength": 0.88
+    },
+    {
+      "source": "ginger",
+      "target": "garlic",
+      "strength": 0.9
+    },
+    {
+      "source": "soy sauce",
+      "target": "garlic",
+      "strength": 0.9
+    },
+    {
+      "source": "tomato",
+      "target": "garlic",
+      "strength": 0.88
+    },
+    {
+      "source": "cumin",
+      "target": "garlic",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "chili flake",
+      "strength": 0.88
+    },
+    {
+      "source": "parsley",
+      "target": "garlic",
+      "strength": 0.82
+    },
+    {
+      "source": "cilantro",
+      "target": "garlic",
+      "strength": 0.82
+    },
+    {
+      "source": "black pepper",
+      "target": "garlic",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon juice",
+      "target": "garlic",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "tahini",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "yogurt",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "anchovy",
+      "strength": 0.88
+    },
+    {
+      "source": "tarragon",
+      "target": "shallot",
+      "strength": 0.88
+    },
+    {
+      "source": "white wine vinegar",
+      "target": "shallot",
+      "strength": 0.9
+    },
+    {
+      "source": "thyme",
+      "target": "shallot",
+      "strength": 0.82
+    },
+    {
+      "source": "soy sauce",
+      "target": "ginger",
+      "strength": 0.92
+    },
+    {
+      "source": "scallion",
+      "target": "ginger",
+      "strength": 0.88
+    },
+    {
+      "source": "rice vinegar",
+      "target": "ginger",
+      "strength": 0.8
+    },
+    {
+      "source": "mirin",
+      "target": "ginger",
+      "strength": 0.82
+    },
+    {
+      "source": "sake",
+      "target": "ginger",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger",
+      "target": "turmeric",
+      "strength": 0.85
+    },
+    {
+      "source": "cumin",
+      "target": "ginger",
+      "strength": 0.78
+    },
+    {
+      "source": "ginger",
+      "target": "coriander",
+      "strength": 0.82
+    },
+    {
+      "source": "lemongrass",
+      "target": "ginger",
+      "strength": 0.82
+    },
+    {
+      "source": "lime juice",
+      "target": "ginger",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger",
+      "target": "honey",
+      "strength": 0.82
+    },
+    {
+      "source": "fish sauce",
+      "target": "ginger",
+      "strength": 0.8
+    },
+    {
+      "source": "galangal",
+      "target": "lemongrass",
+      "strength": 0.9
+    },
+    {
+      "source": "kaffir lime leaf",
+      "target": "lemongrass",
+      "strength": 0.92
+    },
+    {
+      "source": "thai chili",
+      "target": "lemongrass",
+      "strength": 0.85
+    },
+    {
+      "source": "lemongrass",
+      "target": "shrimp paste",
+      "strength": 0.85
+    },
+    {
+      "source": "fish sauce",
+      "target": "lemongrass",
+      "strength": 0.85
+    },
+    {
+      "source": "kaffir lime leaf",
+      "target": "galangal",
+      "strength": 0.9
+    },
+    {
+      "source": "thai chili",
+      "target": "galangal",
+      "strength": 0.82
+    },
+    {
+      "source": "galangal",
+      "target": "shrimp paste",
+      "strength": 0.82
+    },
+    {
+      "source": "soy sauce",
+      "target": "scallion",
+      "strength": 0.88
+    },
+    {
+      "source": "rice vinegar",
+      "target": "scallion",
+      "strength": 0.78
+    },
+    {
+      "source": "sesame seed",
+      "target": "scallion",
+      "strength": 0.8
+    },
+    {
+      "source": "cream",
+      "target": "leek",
+      "strength": 0.82
+    },
+    {
+      "source": "thyme",
+      "target": "leek",
+      "strength": 0.78
+    },
+    {
+      "source": "butter",
+      "target": "leek",
+      "strength": 0.82
+    },
+    {
+      "source": "basil",
+      "target": "tomato",
+      "strength": 0.95
+    },
+    {
+      "source": "oregano",
+      "target": "tomato",
+      "strength": 0.9
+    },
+    {
+      "source": "chili flake",
+      "target": "tomato",
+      "strength": 0.85
+    },
+    {
+      "source": "tomato",
+      "target": "anchovy",
+      "strength": 0.85
+    },
+    {
+      "source": "capers",
+      "target": "tomato",
+      "strength": 0.8
+    },
+    {
+      "source": "tomato",
+      "target": "olives",
+      "strength": 0.82
+    },
+    {
+      "source": "tomato paste",
+      "target": "tomato",
+      "strength": 0.92
+    },
+    {
+      "source": "salt",
+      "target": "tomato",
+      "strength": 0.88
+    },
+    {
+      "source": "tomato",
+      "target": "sugar",
+      "strength": 0.75
+    },
+    {
+      "source": "parmesan",
+      "target": "tomato",
+      "strength": 0.85
+    },
+    {
+      "source": "red wine",
+      "target": "tomato",
+      "strength": 0.78
+    },
+    {
+      "source": "cumin",
+      "target": "tomato",
+      "strength": 0.75
+    },
+    {
+      "source": "onion",
+      "target": "tomato paste",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "tomato paste",
+      "strength": 0.88
+    },
+    {
+      "source": "oregano",
+      "target": "tomato paste",
+      "strength": 0.82
+    },
+    {
+      "source": "paprika",
+      "target": "tomato paste",
+      "strength": 0.78
+    },
+    {
+      "source": "smoked paprika",
+      "target": "tomato paste",
+      "strength": 0.78
+    },
+    {
+      "source": "mirin",
+      "target": "soy sauce",
+      "strength": 0.92
+    },
+    {
+      "source": "sake",
+      "target": "soy sauce",
+      "strength": 0.88
+    },
+    {
+      "source": "rice vinegar",
+      "target": "soy sauce",
+      "strength": 0.85
+    },
+    {
+      "source": "soy sauce",
+      "target": "brown sugar",
+      "strength": 0.85
+    },
+    {
+      "source": "soy sauce",
+      "target": "five-spice powder",
+      "strength": 0.85
+    },
+    {
+      "source": "soy sauce",
+      "target": "star anise",
+      "strength": 0.82
+    },
+    {
+      "source": "hoisin sauce",
+      "target": "soy sauce",
+      "strength": 0.85
+    },
+    {
+      "source": "oyster sauce",
+      "target": "soy sauce",
+      "strength": 0.85
+    },
+    {
+      "source": "soy sauce",
+      "target": "shaoxing wine",
+      "strength": 0.9
+    },
+    {
+      "source": "lime juice",
+      "target": "fish sauce",
+      "strength": 0.92
+    },
+    {
+      "source": "palm sugar",
+      "target": "fish sauce",
+      "strength": 0.9
+    },
+    {
+      "source": "thai chili",
+      "target": "fish sauce",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "fish sauce",
+      "strength": 0.85
+    },
+    {
+      "source": "cilantro",
+      "target": "fish sauce",
+      "strength": 0.82
+    },
+    {
+      "source": "tamarind",
+      "target": "fish sauce",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "oyster sauce",
+      "strength": 0.85
+    },
+    {
+      "source": "ginger",
+      "target": "oyster sauce",
+      "strength": 0.82
+    },
+    {
+      "source": "scallion",
+      "target": "oyster sauce",
+      "strength": 0.8
+    },
+    {
+      "source": "sesame oil",
+      "target": "oyster sauce",
+      "strength": 0.8
+    },
+    {
+      "source": "mirin",
+      "target": "miso",
+      "strength": 0.85
+    },
+    {
+      "source": "sake",
+      "target": "miso",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger",
+      "target": "miso",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "hoisin sauce",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger",
+      "target": "hoisin sauce",
+      "strength": 0.8
+    },
+    {
+      "source": "scallion",
+      "target": "hoisin sauce",
+      "strength": 0.78
+    },
+    {
+      "source": "sesame oil",
+      "target": "hoisin sauce",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "black bean paste",
+      "strength": 0.9
+    },
+    {
+      "source": "ginger",
+      "target": "black bean paste",
+      "strength": 0.85
+    },
+    {
+      "source": "scallion",
+      "target": "black bean paste",
+      "strength": 0.82
+    },
+    {
+      "source": "shaoxing wine",
+      "target": "black bean paste",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "doubanjiang",
+      "strength": 0.9
+    },
+    {
+      "source": "ginger",
+      "target": "doubanjiang",
+      "strength": 0.85
+    },
+    {
+      "source": "sichuan peppercorn",
+      "target": "doubanjiang",
+      "strength": 0.92
+    },
+    {
+      "source": "soy sauce",
+      "target": "doubanjiang",
+      "strength": 0.85
+    },
+    {
+      "source": "scallion",
+      "target": "doubanjiang",
+      "strength": 0.82
+    },
+    {
+      "source": "sesame oil",
+      "target": "doubanjiang",
+      "strength": 0.78
+    },
+    {
+      "source": "soy sauce",
+      "target": "gochujang",
+      "strength": 0.9
+    },
+    {
+      "source": "sesame oil",
+      "target": "gochujang",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "gochujang",
+      "strength": 0.9
+    },
+    {
+      "source": "ginger",
+      "target": "gochujang",
+      "strength": 0.85
+    },
+    {
+      "source": "rice vinegar",
+      "target": "gochujang",
+      "strength": 0.82
+    },
+    {
+      "source": "brown sugar",
+      "target": "gochujang",
+      "strength": 0.82
+    },
+    {
+      "source": "gochugaru",
+      "target": "gochujang",
+      "strength": 0.88
+    },
+    {
+      "source": "sesame seed",
+      "target": "gochujang",
+      "strength": 0.8
+    },
+    {
+      "source": "soy sauce",
+      "target": "gochugaru",
+      "strength": 0.85
+    },
+    {
+      "source": "sesame oil",
+      "target": "gochugaru",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "gochugaru",
+      "strength": 0.85
+    },
+    {
+      "source": "palm sugar",
+      "target": "tamarind",
+      "strength": 0.88
+    },
+    {
+      "source": "peanut",
+      "target": "tamarind",
+      "strength": 0.82
+    },
+    {
+      "source": "dried red chili",
+      "target": "tamarind",
+      "strength": 0.8
+    },
+    {
+      "source": "tamarind",
+      "target": "jaggery",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon juice",
+      "target": "tahini",
+      "strength": 0.92
+    },
+    {
+      "source": "salt",
+      "target": "tahini",
+      "strength": 0.85
+    },
+    {
+      "source": "cumin",
+      "target": "tahini",
+      "strength": 0.78
+    },
+    {
+      "source": "olive oil",
+      "target": "tahini",
+      "strength": 0.8
+    },
+    {
+      "source": "cucumber",
+      "target": "yogurt",
+      "strength": 0.9
+    },
+    {
+      "source": "yogurt",
+      "target": "mint",
+      "strength": 0.9
+    },
+    {
+      "source": "dill",
+      "target": "yogurt",
+      "strength": 0.82
+    },
+    {
+      "source": "cumin",
+      "target": "yogurt",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon juice",
+      "target": "yogurt",
+      "strength": 0.82
+    },
+    {
+      "source": "salt",
+      "target": "yogurt",
+      "strength": 0.85
+    },
+    {
+      "source": "lime juice",
+      "target": "peanut",
+      "strength": 0.85
+    },
+    {
+      "source": "fish sauce",
+      "target": "peanut",
+      "strength": 0.85
+    },
+    {
+      "source": "thai chili",
+      "target": "peanut",
+      "strength": 0.82
+    },
+    {
+      "source": "palm sugar",
+      "target": "peanut",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "peanut",
+      "strength": 0.8
+    },
+    {
+      "source": "scotch bonnet",
+      "target": "peanut",
+      "strength": 0.75
+    },
+    {
+      "source": "salt",
+      "target": "lemon juice",
+      "strength": 0.9
+    },
+    {
+      "source": "parsley",
+      "target": "lemon juice",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon juice",
+      "target": "capers",
+      "strength": 0.82
+    },
+    {
+      "source": "lime juice",
+      "target": "cilantro",
+      "strength": 0.92
+    },
+    {
+      "source": "jalapeno",
+      "target": "lime juice",
+      "strength": 0.85
+    },
+    {
+      "source": "salt",
+      "target": "lime juice",
+      "strength": 0.88
+    },
+    {
+      "source": "lime juice",
+      "target": "thai chili",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "lime juice",
+      "strength": 0.82
+    },
+    {
+      "source": "white wine vinegar",
+      "target": "tarragon",
+      "strength": 0.92
+    },
+    {
+      "source": "black pepper",
+      "target": "white wine vinegar",
+      "strength": 0.78
+    },
+    {
+      "source": "dijon mustard",
+      "target": "white wine vinegar",
+      "strength": 0.82
+    },
+    {
+      "source": "oregano",
+      "target": "red wine vinegar",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "red wine vinegar",
+      "strength": 0.8
+    },
+    {
+      "source": "parsley",
+      "target": "red wine vinegar",
+      "strength": 0.78
+    },
+    {
+      "source": "cilantro",
+      "target": "red wine vinegar",
+      "strength": 0.78
+    },
+    {
+      "source": "rice vinegar",
+      "target": "sugar",
+      "strength": 0.88
+    },
+    {
+      "source": "olive oil",
+      "target": "balsamic vinegar",
+      "strength": 0.88
+    },
+    {
+      "source": "honey",
+      "target": "balsamic vinegar",
+      "strength": 0.78
+    },
+    {
+      "source": "basil",
+      "target": "balsamic vinegar",
+      "strength": 0.75
+    },
+    {
+      "source": "jalapeno",
+      "target": "tomatillo",
+      "strength": 0.9
+    },
+    {
+      "source": "cilantro",
+      "target": "tomatillo",
+      "strength": 0.9
+    },
+    {
+      "source": "onion",
+      "target": "tomatillo",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "tomatillo",
+      "strength": 0.85
+    },
+    {
+      "source": "lime juice",
+      "target": "tomatillo",
+      "strength": 0.82
+    },
+    {
+      "source": "guajillo chili",
+      "target": "ancho chili",
+      "strength": 0.88
+    },
+    {
+      "source": "pasilla chili",
+      "target": "ancho chili",
+      "strength": 0.88
+    },
+    {
+      "source": "ancho chili",
+      "target": "chocolate",
+      "strength": 0.88
+    },
+    {
+      "source": "cumin",
+      "target": "ancho chili",
+      "strength": 0.82
+    },
+    {
+      "source": "cinnamon",
+      "target": "ancho chili",
+      "strength": 0.78
+    },
+    {
+      "source": "sesame seed",
+      "target": "ancho chili",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "ancho chili",
+      "strength": 0.82
+    },
+    {
+      "source": "onion",
+      "target": "ancho chili",
+      "strength": 0.82
+    },
+    {
+      "source": "tomato",
+      "target": "ancho chili",
+      "strength": 0.8
+    },
+    {
+      "source": "ancho chili",
+      "target": "plantain",
+      "strength": 0.75
+    },
+    {
+      "source": "cumin",
+      "target": "guajillo chili",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "guajillo chili",
+      "strength": 0.85
+    },
+    {
+      "source": "oregano",
+      "target": "guajillo chili",
+      "strength": 0.78
+    },
+    {
+      "source": "chocolate",
+      "target": "pasilla chili",
+      "strength": 0.82
+    },
+    {
+      "source": "cinnamon",
+      "target": "pasilla chili",
+      "strength": 0.75
+    },
+    {
+      "source": "tomato",
+      "target": "chipotle",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "chipotle",
+      "strength": 0.82
+    },
+    {
+      "source": "cumin",
+      "target": "chipotle",
+      "strength": 0.8
+    },
+    {
+      "source": "lime juice",
+      "target": "chipotle",
+      "strength": 0.78
+    },
+    {
+      "source": "brown sugar",
+      "target": "chipotle",
+      "strength": 0.75
+    },
+    {
+      "source": "mango",
+      "target": "habanero",
+      "strength": 0.82
+    },
+    {
+      "source": "lime juice",
+      "target": "habanero",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "habanero",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "aji amarillo",
+      "strength": 0.85
+    },
+    {
+      "source": "onion",
+      "target": "aji amarillo",
+      "strength": 0.82
+    },
+    {
+      "source": "lime juice",
+      "target": "aji amarillo",
+      "strength": 0.8
+    },
+    {
+      "source": "cilantro",
+      "target": "aji amarillo",
+      "strength": 0.78
+    },
+    {
+      "source": "onion",
+      "target": "scotch bonnet",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "scotch bonnet",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger",
+      "target": "scotch bonnet",
+      "strength": 0.78
+    },
+    {
+      "source": "lime juice",
+      "target": "scotch bonnet",
+      "strength": 0.8
+    },
+    {
+      "source": "allspice",
+      "target": "scotch bonnet",
+      "strength": 0.78
+    },
+    {
+      "source": "cilantro",
+      "target": "jalapeno",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "jalapeno",
+      "strength": 0.82
+    },
+    {
+      "source": "onion",
+      "target": "jalapeno",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "thai chili",
+      "strength": 0.88
+    },
+    {
+      "source": "palm sugar",
+      "target": "thai chili",
+      "strength": 0.82
+    },
+    {
+      "source": "sichuan peppercorn",
+      "target": "dried red chili",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "dried red chili",
+      "strength": 0.85
+    },
+    {
+      "source": "ginger",
+      "target": "dried red chili",
+      "strength": 0.82
+    },
+    {
+      "source": "soy sauce",
+      "target": "dried red chili",
+      "strength": 0.8
+    },
+    {
+      "source": "basil",
+      "target": "parmesan",
+      "strength": 0.88
+    },
+    {
+      "source": "black pepper",
+      "target": "parmesan",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "parmesan",
+      "strength": 0.82
+    },
+    {
+      "source": "nutmeg",
+      "target": "gruyere",
+      "strength": 0.85
+    },
+    {
+      "source": "white pepper",
+      "target": "gruyere",
+      "strength": 0.8
+    },
+    {
+      "source": "milk",
+      "target": "cheddar",
+      "strength": 0.85
+    },
+    {
+      "source": "dijon mustard",
+      "target": "cheddar",
+      "strength": 0.82
+    },
+    {
+      "source": "cayenne",
+      "target": "cheddar",
+      "strength": 0.72
+    },
+    {
+      "source": "capers",
+      "target": "anchovy",
+      "strength": 0.88
+    },
+    {
+      "source": "olives",
+      "target": "anchovy",
+      "strength": 0.85
+    },
+    {
+      "source": "parsley",
+      "target": "anchovy",
+      "strength": 0.78
+    },
+    {
+      "source": "red wine",
+      "target": "meat glaze",
+      "strength": 0.9
+    },
+    {
+      "source": "shallot",
+      "target": "meat glaze",
+      "strength": 0.85
+    },
+    {
+      "source": "thyme",
+      "target": "meat glaze",
+      "strength": 0.82
+    },
+    {
+      "source": "butter",
+      "target": "meat glaze",
+      "strength": 0.85
+    },
+    {
+      "source": "tomato",
+      "target": "ground beef",
+      "strength": 0.9
+    },
+    {
+      "source": "onion",
+      "target": "ground beef",
+      "strength": 0.92
+    },
+    {
+      "source": "garlic",
+      "target": "ground beef",
+      "strength": 0.88
+    },
+    {
+      "source": "red wine",
+      "target": "ground beef",
+      "strength": 0.85
+    },
+    {
+      "source": "carrot",
+      "target": "ground beef",
+      "strength": 0.82
+    },
+    {
+      "source": "celery",
+      "target": "ground beef",
+      "strength": 0.8
+    },
+    {
+      "source": "onion",
+      "target": "pancetta",
+      "strength": 0.88
+    },
+    {
+      "source": "tomato",
+      "target": "pancetta",
+      "strength": 0.88
+    },
+    {
+      "source": "chili flake",
+      "target": "pancetta",
+      "strength": 0.8
+    },
+    {
+      "source": "black pepper",
+      "target": "pancetta",
+      "strength": 0.82
+    },
+    {
+      "source": "parmesan",
+      "target": "pancetta",
+      "strength": 0.85
+    },
+    {
+      "source": "black pepper",
+      "target": "guanciale",
+      "strength": 0.9
+    },
+    {
+      "source": "parmesan",
+      "target": "guanciale",
+      "strength": 0.9
+    },
+    {
+      "source": "egg yolk",
+      "target": "guanciale",
+      "strength": 0.88
+    },
+    {
+      "source": "tomato",
+      "target": "guanciale",
+      "strength": 0.85
+    },
+    {
+      "source": "chili flake",
+      "target": "guanciale",
+      "strength": 0.78
+    },
+    {
+      "source": "thai chili",
+      "target": "shrimp paste",
+      "strength": 0.85
+    },
+    {
+      "source": "palm sugar",
+      "target": "shrimp paste",
+      "strength": 0.8
+    },
+    {
+      "source": "lime juice",
+      "target": "shrimp paste",
+      "strength": 0.82
+    },
+    {
+      "source": "scotch bonnet",
+      "target": "dried shrimp",
+      "strength": 0.78
+    },
+    {
+      "source": "onion",
+      "target": "dried shrimp",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger",
+      "target": "dried shrimp",
+      "strength": 0.78
+    },
+    {
+      "source": "cinnamon",
+      "target": "chocolate",
+      "strength": 0.85
+    },
+    {
+      "source": "sesame seed",
+      "target": "chocolate",
+      "strength": 0.78
+    },
+    {
+      "source": "peanut",
+      "target": "chocolate",
+      "strength": 0.8
+    },
+    {
+      "source": "plantain",
+      "target": "chocolate",
+      "strength": 0.72
+    },
+    {
+      "source": "lime juice",
+      "target": "mango",
+      "strength": 0.85
+    },
+    {
+      "source": "cilantro",
+      "target": "mango",
+      "strength": 0.78
+    },
+    {
+      "source": "ginger",
+      "target": "mango",
+      "strength": 0.78
+    },
+    {
+      "source": "honey",
+      "target": "mango",
+      "strength": 0.75
+    },
+    {
+      "source": "almond",
+      "target": "roasted red pepper",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "roasted red pepper",
+      "strength": 0.88
+    },
+    {
+      "source": "smoked paprika",
+      "target": "roasted red pepper",
+      "strength": 0.82
+    },
+    {
+      "source": "tomato",
+      "target": "roasted red pepper",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "almond",
+      "strength": 0.8
+    },
+    {
+      "source": "olive oil",
+      "target": "almond",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon juice",
+      "target": "almond",
+      "strength": 0.75
+    },
+    {
+      "source": "white wine",
+      "target": "dijon mustard",
+      "strength": 0.78
+    },
+    {
+      "source": "tarragon",
+      "target": "dijon mustard",
+      "strength": 0.78
+    },
+    {
+      "source": "shallot",
+      "target": "dijon mustard",
+      "strength": 0.78
+    },
+    {
+      "source": "soy sauce",
+      "target": "honey",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "honey",
+      "strength": 0.8
+    },
+    {
+      "source": "dijon mustard",
+      "target": "honey",
+      "strength": 0.78
+    },
+    {
+      "source": "ketchup",
+      "target": "brown sugar",
+      "strength": 0.82
+    },
+    {
+      "source": "worcestershire sauce",
+      "target": "brown sugar",
+      "strength": 0.8
+    },
+    {
+      "source": "lime juice",
+      "target": "palm sugar",
+      "strength": 0.82
+    },
+    {
+      "source": "cumin",
+      "target": "jaggery",
+      "strength": 0.75
+    },
+    {
+      "source": "ginger",
+      "target": "jaggery",
+      "strength": 0.75
+    },
+    {
+      "source": "coriander",
+      "target": "cumin",
+      "strength": 0.9
+    },
+    {
+      "source": "turmeric",
+      "target": "cumin",
+      "strength": 0.85
+    },
+    {
+      "source": "chili flake",
+      "target": "cumin",
+      "strength": 0.8
+    },
+    {
+      "source": "cilantro",
+      "target": "cumin",
+      "strength": 0.82
+    },
+    {
+      "source": "lime juice",
+      "target": "cumin",
+      "strength": 0.78
+    },
+    {
+      "source": "turmeric",
+      "target": "coriander",
+      "strength": 0.85
+    },
+    {
+      "source": "cilantro",
+      "target": "coriander",
+      "strength": 0.8
+    },
+    {
+      "source": "black pepper",
+      "target": "turmeric",
+      "strength": 0.8
+    },
+    {
+      "source": "onion",
+      "target": "garam masala",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "garam masala",
+      "strength": 0.85
+    },
+    {
+      "source": "ginger",
+      "target": "garam masala",
+      "strength": 0.85
+    },
+    {
+      "source": "tomato",
+      "target": "garam masala",
+      "strength": 0.82
+    },
+    {
+      "source": "cream",
+      "target": "garam masala",
+      "strength": 0.8
+    },
+    {
+      "source": "yogurt",
+      "target": "garam masala",
+      "strength": 0.8
+    },
+    {
+      "source": "onion",
+      "target": "curry powder",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "curry powder",
+      "strength": 0.85
+    },
+    {
+      "source": "coconut milk",
+      "target": "curry powder",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger",
+      "target": "curry powder",
+      "strength": 0.82
+    },
+    {
+      "source": "cream",
+      "target": "curry powder",
+      "strength": 0.75
+    },
+    {
+      "source": "cumin",
+      "target": "fenugreek",
+      "strength": 0.82
+    },
+    {
+      "source": "turmeric",
+      "target": "fenugreek",
+      "strength": 0.8
+    },
+    {
+      "source": "cream",
+      "target": "fenugreek",
+      "strength": 0.75
+    },
+    {
+      "source": "tomato",
+      "target": "fenugreek",
+      "strength": 0.78
+    },
+    {
+      "source": "cinnamon",
+      "target": "cardamom",
+      "strength": 0.85
+    },
+    {
+      "source": "clove",
+      "target": "cardamom",
+      "strength": 0.82
+    },
+    {
+      "source": "cream",
+      "target": "cardamom",
+      "strength": 0.75
+    },
+    {
+      "source": "yogurt",
+      "target": "cardamom",
+      "strength": 0.72
+    },
+    {
+      "source": "clove",
+      "target": "cinnamon",
+      "strength": 0.85
+    },
+    {
+      "source": "allspice",
+      "target": "cinnamon",
+      "strength": 0.82
+    },
+    {
+      "source": "cumin",
+      "target": "cinnamon",
+      "strength": 0.78
+    },
+    {
+      "source": "cinnamon",
+      "target": "star anise",
+      "strength": 0.8
+    },
+    {
+      "source": "five-spice powder",
+      "target": "star anise",
+      "strength": 0.88
+    },
+    {
+      "source": "ginger",
+      "target": "five-spice powder",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "five-spice powder",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "sichuan peppercorn",
+      "strength": 0.85
+    },
+    {
+      "source": "ginger",
+      "target": "sichuan peppercorn",
+      "strength": 0.82
+    },
+    {
+      "source": "soy sauce",
+      "target": "sichuan peppercorn",
+      "strength": 0.82
+    },
+    {
+      "source": "sesame oil",
+      "target": "sichuan peppercorn",
+      "strength": 0.8
+    },
+    {
+      "source": "mustard seed",
+      "target": "curry leaf",
+      "strength": 0.9
+    },
+    {
+      "source": "turmeric",
+      "target": "mustard seed",
+      "strength": 0.8
+    },
+    {
+      "source": "dried red chili",
+      "target": "mustard seed",
+      "strength": 0.82
+    },
+    {
+      "source": "ghee",
+      "target": "mustard seed",
+      "strength": 0.82
+    },
+    {
+      "source": "onion",
+      "target": "berbere spice",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "berbere spice",
+      "strength": 0.85
+    },
+    {
+      "source": "ginger",
+      "target": "berbere spice",
+      "strength": 0.82
+    },
+    {
+      "source": "ghee",
+      "target": "berbere spice",
+      "strength": 0.85
+    },
+    {
+      "source": "tomato paste",
+      "target": "berbere spice",
+      "strength": 0.8
+    },
+    {
+      "source": "peanut",
+      "target": "suya spice",
+      "strength": 0.9
+    },
+    {
+      "source": "ginger",
+      "target": "suya spice",
+      "strength": 0.8
+    },
+    {
+      "source": "cayenne",
+      "target": "suya spice",
+      "strength": 0.82
+    },
+    {
+      "source": "onion",
+      "target": "suya spice",
+      "strength": 0.78
+    },
+    {
+      "source": "lemongrass",
+      "target": "curry paste green",
+      "strength": 0.92
+    },
+    {
+      "source": "galangal",
+      "target": "curry paste green",
+      "strength": 0.9
+    },
+    {
+      "source": "kaffir lime leaf",
+      "target": "curry paste green",
+      "strength": 0.9
+    },
+    {
+      "source": "thai chili",
+      "target": "curry paste green",
+      "strength": 0.9
+    },
+    {
+      "source": "shrimp paste",
+      "target": "curry paste green",
+      "strength": 0.85
+    },
+    {
+      "source": "cilantro",
+      "target": "curry paste green",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "curry paste green",
+      "strength": 0.88
+    },
+    {
+      "source": "thai basil",
+      "target": "curry paste green",
+      "strength": 0.85
+    },
+    {
+      "source": "lemongrass",
+      "target": "curry paste red",
+      "strength": 0.92
+    },
+    {
+      "source": "galangal",
+      "target": "curry paste red",
+      "strength": 0.9
+    },
+    {
+      "source": "kaffir lime leaf",
+      "target": "curry paste red",
+      "strength": 0.88
+    },
+    {
+      "source": "dried red chili",
+      "target": "curry paste red",
+      "strength": 0.92
+    },
+    {
+      "source": "shrimp paste",
+      "target": "curry paste red",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "curry paste red",
+      "strength": 0.88
+    },
+    {
+      "source": "butter",
+      "target": "worcestershire sauce",
+      "strength": 0.75
+    },
+    {
+      "source": "garlic",
+      "target": "worcestershire sauce",
+      "strength": 0.78
+    },
+    {
+      "source": "cayenne",
+      "target": "worcestershire sauce",
+      "strength": 0.8
+    },
+    {
+      "source": "worcestershire sauce",
+      "target": "ketchup",
+      "strength": 0.82
+    },
+    {
+      "source": "cayenne",
+      "target": "ketchup",
+      "strength": 0.78
+    },
+    {
+      "source": "smoked paprika",
+      "target": "ketchup",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "mayonnaise",
+      "strength": 0.88
+    },
+    {
+      "source": "lemon juice",
+      "target": "mayonnaise",
+      "strength": 0.85
+    },
+    {
+      "source": "dijon mustard",
+      "target": "mayonnaise",
+      "strength": 0.82
+    },
+    {
+      "source": "capers",
+      "target": "mayonnaise",
+      "strength": 0.78
+    },
+    {
+      "source": "mayonnaise",
+      "target": "cornichons",
+      "strength": 0.8
+    },
+    {
+      "source": "dill",
+      "target": "sour cream",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "sour cream",
+      "strength": 0.8
+    },
+    {
+      "source": "chili flake",
+      "target": "sour cream",
+      "strength": 0.72
+    },
+    {
+      "source": "garlic",
+      "target": "buttermilk",
+      "strength": 0.78
+    },
+    {
+      "source": "dill",
+      "target": "buttermilk",
+      "strength": 0.8
+    },
+    {
+      "source": "parsley",
+      "target": "buttermilk",
+      "strength": 0.75
+    },
+    {
+      "source": "onion",
+      "target": "buttermilk",
+      "strength": 0.75
+    },
+    {
+      "source": "lime juice",
+      "target": "mint",
+      "strength": 0.8
+    },
+    {
+      "source": "cilantro",
+      "target": "mint",
+      "strength": 0.78
+    },
+    {
+      "source": "cream",
+      "target": "tarragon",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "basil",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "oregano",
+      "strength": 0.85
+    },
+    {
+      "source": "bay leaf",
+      "target": "thyme",
+      "strength": 0.88
+    },
+    {
+      "source": "parsley",
+      "target": "thyme",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "thyme",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "bay leaf",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "rosemary",
+      "strength": 0.88
+    },
+    {
+      "source": "lemon juice",
+      "target": "rosemary",
+      "strength": 0.78
+    },
+    {
+      "source": "butter",
+      "target": "sage",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "sage",
+      "strength": 0.8
+    },
+    {
+      "source": "tarragon",
+      "target": "chervil",
+      "strength": 0.82
+    },
+    {
+      "source": "cream",
+      "target": "chervil",
+      "strength": 0.78
+    },
+    {
+      "source": "butter",
+      "target": "chervil",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon juice",
+      "target": "dill",
+      "strength": 0.82
+    },
+    {
+      "source": "cream",
+      "target": "dill",
+      "strength": 0.78
+    },
+    {
+      "source": "dill",
+      "target": "cucumber",
+      "strength": 0.88
+    },
+    {
+      "source": "thai chili",
+      "target": "thai basil",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "thai basil",
+      "strength": 0.85
+    },
+    {
+      "source": "fish sauce",
+      "target": "thai basil",
+      "strength": 0.82
+    },
+    {
+      "source": "tomatillo",
+      "target": "epazote",
+      "strength": 0.82
+    },
+    {
+      "source": "jalapeno",
+      "target": "epazote",
+      "strength": 0.78
+    },
+    {
+      "source": "onion",
+      "target": "epazote",
+      "strength": 0.75
+    },
+    {
+      "source": "turmeric",
+      "target": "curry leaf",
+      "strength": 0.82
+    },
+    {
+      "source": "dried red chili",
+      "target": "curry leaf",
+      "strength": 0.82
+    },
+    {
+      "source": "onion",
+      "target": "curry leaf",
+      "strength": 0.8
+    },
+    {
+      "source": "thai chili",
+      "target": "kaffir lime leaf",
+      "strength": 0.85
+    },
+    {
+      "source": "fish sauce",
+      "target": "kaffir lime leaf",
+      "strength": 0.82
+    },
+    {
+      "source": "olives",
+      "target": "capers",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "olives",
+      "strength": 0.8
+    },
+    {
+      "source": "dijon mustard",
+      "target": "cornichons",
+      "strength": 0.82
+    },
+    {
+      "source": "parsley",
+      "target": "cornichons",
+      "strength": 0.75
+    },
+    {
+      "source": "cream",
+      "target": "crayfish",
+      "strength": 0.82
+    },
+    {
+      "source": "butter",
+      "target": "crayfish",
+      "strength": 0.8
+    },
+    {
+      "source": "white wine",
+      "target": "crayfish",
+      "strength": 0.78
+    },
+    {
+      "source": "soy sauce",
+      "target": "yuzu",
+      "strength": 0.88
+    },
+    {
+      "source": "dashi",
+      "target": "yuzu",
+      "strength": 0.82
+    },
+    {
+      "source": "mirin",
+      "target": "yuzu",
+      "strength": 0.78
+    },
+    {
+      "source": "soy sauce",
+      "target": "bonito flakes",
+      "strength": 0.9
+    },
+    {
+      "source": "mirin",
+      "target": "bonito flakes",
+      "strength": 0.85
+    },
+    {
+      "source": "sake",
+      "target": "bonito flakes",
+      "strength": 0.82
+    },
+    {
+      "source": "sake",
+      "target": "mirin",
+      "strength": 0.88
+    },
+    {
+      "source": "rice vinegar",
+      "target": "mirin",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger",
+      "target": "shaoxing wine",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "shaoxing wine",
+      "strength": 0.82
+    },
+    {
+      "source": "scallion",
+      "target": "shaoxing wine",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "smoked paprika",
+      "strength": 0.82
+    },
+    {
+      "source": "olive oil",
+      "target": "smoked paprika",
+      "strength": 0.8
+    },
+    {
+      "source": "cumin",
+      "target": "smoked paprika",
+      "strength": 0.78
+    },
+    {
+      "source": "cayenne",
+      "target": "smoked paprika",
+      "strength": 0.78
+    },
+    {
+      "source": "onion",
+      "target": "paprika",
+      "strength": 0.82
+    },
+    {
+      "source": "cream",
+      "target": "paprika",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "paprika",
+      "strength": 0.8
+    },
+    {
+      "source": "butter",
+      "target": "cayenne",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "cayenne",
+      "strength": 0.78
+    },
+    {
+      "source": "white wine vinegar",
+      "target": "cayenne",
+      "strength": 0.78
+    },
+    {
+      "source": "clove",
+      "target": "allspice",
+      "strength": 0.82
+    },
+    {
+      "source": "onion",
+      "target": "poppy seed",
+      "strength": 0.72
+    },
+    {
+      "source": "cream",
+      "target": "poppy seed",
+      "strength": 0.68
+    },
+    {
+      "source": "chicken stock",
+      "target": "arrowroot",
+      "strength": 0.78
+    },
+    {
+      "source": "water",
+      "target": "arrowroot",
+      "strength": 0.75
+    },
+    {
+      "source": "coconut milk",
+      "target": "tapioca starch",
+      "strength": 0.75
+    },
+    {
+      "source": "water",
+      "target": "tapioca starch",
+      "strength": 0.72
+    },
+    {
+      "source": "soy sauce",
+      "target": "sesame seed",
+      "strength": 0.82
+    },
+    {
+      "source": "honey",
+      "target": "sesame seed",
+      "strength": 0.75
+    },
+    {
+      "source": "sesame oil",
+      "target": "sesame seed",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "cucumber",
+      "strength": 0.82
+    },
+    {
+      "source": "mint",
+      "target": "cucumber",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "vegetable oil",
+      "strength": 0.8
+    },
+    {
+      "source": "onion",
+      "target": "vegetable oil",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger",
+      "target": "vegetable oil",
+      "strength": 0.78
+    },
+    {
+      "source": "garlic",
+      "target": "tomato puree",
+      "strength": 0.88
+    },
+    {
+      "source": "onion",
+      "target": "tomato puree",
+      "strength": 0.85
+    },
+    {
+      "source": "basil",
+      "target": "tomato puree",
+      "strength": 0.85
+    },
+    {
+      "source": "oregano",
+      "target": "tomato puree",
+      "strength": 0.82
+    },
+    {
+      "source": "olive oil",
+      "target": "tomato puree",
+      "strength": 0.85
+    },
+    {
+      "source": "soy sauce",
+      "target": "sugar",
+      "strength": 0.78
+    },
+    {
+      "source": "lime juice",
+      "target": "sugar",
+      "strength": 0.82
+    },
+    {
+      "source": "veal stock",
+      "target": "demi-glace",
+      "strength": 0.95
+    },
+    {
+      "source": "beef stock",
+      "target": "demi-glace",
+      "strength": 0.9
+    },
+    {
+      "source": "red wine",
+      "target": "demi-glace",
+      "strength": 0.9
+    },
+    {
+      "source": "madeira wine",
+      "target": "demi-glace",
+      "strength": 0.9
+    },
+    {
+      "source": "butter",
+      "target": "demi-glace",
+      "strength": 0.85
+    },
+    {
+      "source": "shallot",
+      "target": "demi-glace",
+      "strength": 0.85
+    },
+    {
+      "source": "thyme",
+      "target": "demi-glace",
+      "strength": 0.8
+    },
+    {
+      "source": "black pepper",
+      "target": "demi-glace",
+      "strength": 0.8
+    },
+    {
+      "source": "butter",
+      "target": "beurre blanc",
+      "strength": 0.95
+    },
+    {
+      "source": "white wine",
+      "target": "beurre blanc",
+      "strength": 0.95
+    },
+    {
+      "source": "shallot",
+      "target": "beurre blanc",
+      "strength": 0.9
+    },
+    {
+      "source": "white wine vinegar",
+      "target": "beurre blanc",
+      "strength": 0.85
+    },
+    {
+      "source": "cream",
+      "target": "beurre blanc",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon juice",
+      "target": "beurre blanc",
+      "strength": 0.8
+    },
+    {
+      "source": "tarragon",
+      "target": "beurre blanc",
+      "strength": 0.75
+    },
+    {
+      "source": "fish stock",
+      "target": "beurre blanc",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "aioli",
+      "strength": 0.95
+    },
+    {
+      "source": "olive oil",
+      "target": "aioli",
+      "strength": 0.95
+    },
+    {
+      "source": "egg yolk",
+      "target": "aioli",
+      "strength": 0.9
+    },
+    {
+      "source": "lemon juice",
+      "target": "aioli",
+      "strength": 0.9
+    },
+    {
+      "source": "dijon mustard",
+      "target": "aioli",
+      "strength": 0.8
+    },
+    {
+      "source": "salt",
+      "target": "aioli",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "sriracha",
+      "strength": 0.9
+    },
+    {
+      "source": "lime juice",
+      "target": "sriracha",
+      "strength": 0.85
+    },
+    {
+      "source": "sugar",
+      "target": "sriracha",
+      "strength": 0.8
+    },
+    {
+      "source": "soy sauce",
+      "target": "sriracha",
+      "strength": 0.85
+    },
+    {
+      "source": "mayonnaise",
+      "target": "sriracha",
+      "strength": 0.8
+    },
+    {
+      "source": "honey",
+      "target": "sriracha",
+      "strength": 0.78
+    },
+    {
+      "source": "sesame oil",
+      "target": "sriracha",
+      "strength": 0.8
+    },
+    {
+      "source": "rice vinegar",
+      "target": "sriracha",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "sambal oelek",
+      "strength": 0.85
+    },
+    {
+      "source": "lime juice",
+      "target": "sambal oelek",
+      "strength": 0.85
+    },
+    {
+      "source": "fish sauce",
+      "target": "sambal oelek",
+      "strength": 0.85
+    },
+    {
+      "source": "coconut milk",
+      "target": "sambal oelek",
+      "strength": 0.8
+    },
+    {
+      "source": "palm sugar",
+      "target": "sambal oelek",
+      "strength": 0.8
+    },
+    {
+      "source": "shrimp paste",
+      "target": "sambal oelek",
+      "strength": 0.85
+    },
+    {
+      "source": "lemongrass",
+      "target": "sambal oelek",
+      "strength": 0.78
+    },
+    {
+      "source": "olive oil",
+      "target": "harissa",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "harissa",
+      "strength": 0.9
+    },
+    {
+      "source": "cumin",
+      "target": "harissa",
+      "strength": 0.9
+    },
+    {
+      "source": "coriander",
+      "target": "harissa",
+      "strength": 0.85
+    },
+    {
+      "source": "tomato paste",
+      "target": "harissa",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon juice",
+      "target": "harissa",
+      "strength": 0.8
+    },
+    {
+      "source": "smoked paprika",
+      "target": "harissa",
+      "strength": 0.85
+    },
+    {
+      "source": "caraway",
+      "target": "harissa",
+      "strength": 0.8
+    },
+    {
+      "source": "basil",
+      "target": "pesto",
+      "strength": 0.95
+    },
+    {
+      "source": "olive oil",
+      "target": "pesto",
+      "strength": 0.95
+    },
+    {
+      "source": "parmesan",
+      "target": "pesto",
+      "strength": 0.95
+    },
+    {
+      "source": "garlic",
+      "target": "pesto",
+      "strength": 0.9
+    },
+    {
+      "source": "almond",
+      "target": "pesto",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon juice",
+      "target": "pesto",
+      "strength": 0.75
+    },
+    {
+      "source": "parsley",
+      "target": "chimichurri",
+      "strength": 0.95
+    },
+    {
+      "source": "oregano",
+      "target": "chimichurri",
+      "strength": 0.9
+    },
+    {
+      "source": "olive oil",
+      "target": "chimichurri",
+      "strength": 0.95
+    },
+    {
+      "source": "garlic",
+      "target": "chimichurri",
+      "strength": 0.9
+    },
+    {
+      "source": "red wine vinegar",
+      "target": "chimichurri",
+      "strength": 0.9
+    },
+    {
+      "source": "chili flake",
+      "target": "chimichurri",
+      "strength": 0.8
+    },
+    {
+      "source": "butter",
+      "target": "roux",
+      "strength": 0.95
+    },
+    {
+      "source": "flour",
+      "target": "roux",
+      "strength": 0.95
+    },
+    {
+      "source": "milk",
+      "target": "roux",
+      "strength": 0.85
+    },
+    {
+      "source": "chicken stock",
+      "target": "roux",
+      "strength": 0.85
+    },
+    {
+      "source": "soy sauce",
+      "target": "ponzu",
+      "strength": 0.9
+    },
+    {
+      "source": "yuzu",
+      "target": "ponzu",
+      "strength": 0.95
+    },
+    {
+      "source": "mirin",
+      "target": "ponzu",
+      "strength": 0.85
+    },
+    {
+      "source": "rice vinegar",
+      "target": "ponzu",
+      "strength": 0.85
+    },
+    {
+      "source": "bonito flakes",
+      "target": "ponzu",
+      "strength": 0.8
+    },
+    {
+      "source": "dashi",
+      "target": "ponzu",
+      "strength": 0.8
+    },
+    {
+      "source": "fish sauce",
+      "target": "nuoc cham",
+      "strength": 0.95
+    },
+    {
+      "source": "lime juice",
+      "target": "nuoc cham",
+      "strength": 0.95
+    },
+    {
+      "source": "sugar",
+      "target": "nuoc cham",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "nuoc cham",
+      "strength": 0.85
+    },
+    {
+      "source": "thai chili",
+      "target": "nuoc cham",
+      "strength": 0.85
+    },
+    {
+      "source": "fish stock",
+      "target": "fumet",
+      "strength": 0.95
+    },
+    {
+      "source": "white wine",
+      "target": "fumet",
+      "strength": 0.85
+    },
+    {
+      "source": "shallot",
+      "target": "fumet",
+      "strength": 0.8
+    },
+    {
+      "source": "butter",
+      "target": "fumet",
+      "strength": 0.75
+    },
+    {
+      "source": "mayonnaise",
+      "target": "remoulade",
+      "strength": 0.95
+    },
+    {
+      "source": "dijon mustard",
+      "target": "remoulade",
+      "strength": 0.9
+    },
+    {
+      "source": "capers",
+      "target": "remoulade",
+      "strength": 0.85
+    },
+    {
+      "source": "cornichons",
+      "target": "remoulade",
+      "strength": 0.85
+    },
+    {
+      "source": "parsley",
+      "target": "remoulade",
+      "strength": 0.8
+    },
+    {
+      "source": "tarragon",
+      "target": "remoulade",
+      "strength": 0.8
+    },
+    {
+      "source": "butter",
+      "target": "beurre monte",
+      "strength": 0.95
+    },
+    {
+      "source": "water",
+      "target": "beurre monte",
+      "strength": 0.7
+    },
+    {
+      "source": "fish sauce",
+      "target": "nam jim",
+      "strength": 0.9
+    },
+    {
+      "source": "lime juice",
+      "target": "nam jim",
+      "strength": 0.95
+    },
+    {
+      "source": "thai chili",
+      "target": "nam jim",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "nam jim",
+      "strength": 0.85
+    },
+    {
+      "source": "palm sugar",
+      "target": "nam jim",
+      "strength": 0.85
+    },
+    {
+      "source": "cilantro",
+      "target": "nam jim",
+      "strength": 0.8
+    },
+    {
+      "source": "gochujang",
+      "target": "sugar",
+      "strength": 0.78
+    },
+    {
+      "source": "sugar",
+      "target": "gochujang",
+      "strength": 0.78
+    },
+    {
+      "source": "gochujang",
+      "target": "scallion",
+      "strength": 0.68
+    },
+    {
+      "source": "scallion",
+      "target": "gochujang",
+      "strength": 0.68
+    },
+    {
+      "source": "doenjang",
+      "target": "garlic",
+      "strength": 0.88
+    },
+    {
+      "source": "garlic",
+      "target": "doenjang",
+      "strength": 0.88
+    },
+    {
+      "source": "doenjang",
+      "target": "scallion",
+      "strength": 0.85
+    },
+    {
+      "source": "scallion",
+      "target": "doenjang",
+      "strength": 0.85
+    },
+    {
+      "source": "doenjang",
+      "target": "gochugaru",
+      "strength": 0.82
+    },
+    {
+      "source": "gochugaru",
+      "target": "doenjang",
+      "strength": 0.82
+    },
+    {
+      "source": "doenjang",
+      "target": "sesame oil",
+      "strength": 0.8
+    },
+    {
+      "source": "sesame oil",
+      "target": "doenjang",
+      "strength": 0.8
+    },
+    {
+      "source": "doenjang",
+      "target": "tofu",
+      "strength": 0.75
+    },
+    {
+      "source": "tofu",
+      "target": "doenjang",
+      "strength": 0.75
+    },
+    {
+      "source": "doenjang",
+      "target": "onion",
+      "strength": 0.72
+    },
+    {
+      "source": "onion",
+      "target": "doenjang",
+      "strength": 0.72
+    },
+    {
+      "source": "shito",
+      "target": "palm oil",
+      "strength": 0.9
+    },
+    {
+      "source": "palm oil",
+      "target": "shito",
+      "strength": 0.9
+    },
+    {
+      "source": "shito",
+      "target": "scotch bonnet",
+      "strength": 0.88
+    },
+    {
+      "source": "scotch bonnet",
+      "target": "shito",
+      "strength": 0.88
+    },
+    {
+      "source": "shito",
+      "target": "dried shrimp",
+      "strength": 0.85
+    },
+    {
+      "source": "dried shrimp",
+      "target": "shito",
+      "strength": 0.85
+    },
+    {
+      "source": "shito",
+      "target": "garlic",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "shito",
+      "strength": 0.82
+    },
+    {
+      "source": "shito",
+      "target": "ginger",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger",
+      "target": "shito",
+      "strength": 0.8
+    },
+    {
+      "source": "shito",
+      "target": "onion",
+      "strength": 0.78
+    },
+    {
+      "source": "onion",
+      "target": "shito",
+      "strength": 0.78
+    },
+    {
+      "source": "shito",
+      "target": "tomato paste",
+      "strength": 0.72
+    },
+    {
+      "source": "tomato paste",
+      "target": "shito",
+      "strength": 0.72
+    },
+    {
+      "source": "berbere",
+      "target": "onion",
+      "strength": 0.88
+    },
+    {
+      "source": "onion",
+      "target": "berbere",
+      "strength": 0.88
+    },
+    {
+      "source": "berbere",
+      "target": "garlic",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "berbere",
+      "strength": 0.85
+    },
+    {
+      "source": "berbere",
+      "target": "ginger",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger",
+      "target": "berbere",
+      "strength": 0.82
+    },
+    {
+      "source": "berbere",
+      "target": "butter",
+      "strength": 0.8
+    },
+    {
+      "source": "butter",
+      "target": "berbere",
+      "strength": 0.8
+    },
+    {
+      "source": "berbere",
+      "target": "tomato paste",
+      "strength": 0.78
+    },
+    {
+      "source": "tomato paste",
+      "target": "berbere",
+      "strength": 0.78
+    },
+    {
+      "source": "berbere",
+      "target": "fenugreek",
+      "strength": 0.75
+    },
+    {
+      "source": "fenugreek",
+      "target": "berbere",
+      "strength": 0.75
+    },
+    {
+      "source": "berbere",
+      "target": "cardamom",
+      "strength": 0.7
+    },
+    {
+      "source": "cardamom",
+      "target": "berbere",
+      "strength": 0.7
+    },
+    {
+      "source": "palm oil",
+      "target": "garlic",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "palm oil",
+      "strength": 0.8
+    },
+    {
+      "source": "palm oil",
+      "target": "ginger",
+      "strength": 0.78
+    },
+    {
+      "source": "ginger",
+      "target": "palm oil",
+      "strength": 0.78
+    },
+    {
+      "source": "palm oil",
+      "target": "tomato",
+      "strength": 0.75
+    },
+    {
+      "source": "tomato",
+      "target": "palm oil",
+      "strength": 0.75
+    },
+    {
+      "source": "scotch bonnet",
+      "target": "thyme",
+      "strength": 0.75
+    },
+    {
+      "source": "thyme",
+      "target": "scotch bonnet",
+      "strength": 0.75
+    },
+    {
+      "source": "scotch bonnet",
+      "target": "tomato",
+      "strength": 0.7
+    },
+    {
+      "source": "tomato",
+      "target": "scotch bonnet",
+      "strength": 0.7
+    },
+    {
+      "source": "aji amarillo",
+      "target": "cumin",
+      "strength": 0.72
+    },
+    {
+      "source": "cumin",
+      "target": "aji amarillo",
+      "strength": 0.72
+    },
+    {
+      "source": "aji amarillo",
+      "target": "mayonnaise",
+      "strength": 0.68
+    },
+    {
+      "source": "mayonnaise",
+      "target": "aji amarillo",
+      "strength": 0.68
+    },
+    {
+      "source": "toum",
+      "target": "garlic",
+      "strength": 0.9
+    },
+    {
+      "source": "garlic",
+      "target": "toum",
+      "strength": 0.9
+    },
+    {
+      "source": "toum",
+      "target": "lemon juice",
+      "strength": 0.88
+    },
+    {
+      "source": "lemon juice",
+      "target": "toum",
+      "strength": 0.88
+    },
+    {
+      "source": "toum",
+      "target": "vegetable oil",
+      "strength": 0.85
+    },
+    {
+      "source": "vegetable oil",
+      "target": "toum",
+      "strength": 0.85
+    },
+    {
+      "source": "toum",
+      "target": "salt",
+      "strength": 0.8
+    },
+    {
+      "source": "salt",
+      "target": "toum",
+      "strength": 0.8
+    },
+    {
+      "source": "toum",
+      "target": "olive oil",
+      "strength": 0.75
+    },
+    {
+      "source": "olive oil",
+      "target": "toum",
+      "strength": 0.75
+    },
+    {
+      "source": "toum",
+      "target": "mint",
+      "strength": 0.68
+    },
+    {
+      "source": "mint",
+      "target": "toum",
+      "strength": 0.68
+    },
+    {
+      "source": "sumac",
+      "target": "olive oil",
+      "strength": 0.85
+    },
+    {
+      "source": "olive oil",
+      "target": "sumac",
+      "strength": 0.85
+    },
+    {
+      "source": "sumac",
+      "target": "onion",
+      "strength": 0.82
+    },
+    {
+      "source": "onion",
+      "target": "sumac",
+      "strength": 0.82
+    },
+    {
+      "source": "sumac",
+      "target": "parsley",
+      "strength": 0.8
+    },
+    {
+      "source": "parsley",
+      "target": "sumac",
+      "strength": 0.8
+    },
+    {
+      "source": "sumac",
+      "target": "lemon juice",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon juice",
+      "target": "sumac",
+      "strength": 0.78
+    },
+    {
+      "source": "sumac",
+      "target": "garlic",
+      "strength": 0.75
+    },
+    {
+      "source": "garlic",
+      "target": "sumac",
+      "strength": 0.75
+    },
+    {
+      "source": "sumac",
+      "target": "yogurt",
+      "strength": 0.7
+    },
+    {
+      "source": "yogurt",
+      "target": "sumac",
+      "strength": 0.7
+    },
+    {
+      "source": "sumac",
+      "target": "pomegranate molasses",
+      "strength": 0.68
+    },
+    {
+      "source": "pomegranate molasses",
+      "target": "sumac",
+      "strength": 0.68
+    },
+    {
+      "source": "pomegranate molasses",
+      "target": "olive oil",
+      "strength": 0.85
+    },
+    {
+      "source": "olive oil",
+      "target": "pomegranate molasses",
+      "strength": 0.85
+    },
+    {
+      "source": "pomegranate molasses",
+      "target": "garlic",
+      "strength": 0.82
+    },
+    {
+      "source": "garlic",
+      "target": "pomegranate molasses",
+      "strength": 0.82
+    },
+    {
+      "source": "pomegranate molasses",
+      "target": "lemon juice",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon juice",
+      "target": "pomegranate molasses",
+      "strength": 0.78
+    },
+    {
+      "source": "pomegranate molasses",
+      "target": "onion",
+      "strength": 0.72
+    },
+    {
+      "source": "onion",
+      "target": "pomegranate molasses",
+      "strength": 0.72
+    },
+    {
+      "source": "pomegranate molasses",
+      "target": "honey",
+      "strength": 0.7
+    },
+    {
+      "source": "honey",
+      "target": "pomegranate molasses",
+      "strength": 0.7
+    },
+    {
+      "source": "pomegranate molasses",
+      "target": "tahini",
+      "strength": 0.68
+    },
+    {
+      "source": "tahini",
+      "target": "pomegranate molasses",
+      "strength": 0.68
+    },
+    {
+      "source": "preserved lemon",
+      "target": "olive oil",
+      "strength": 0.88
+    },
+    {
+      "source": "olive oil",
+      "target": "preserved lemon",
+      "strength": 0.88
+    },
+    {
+      "source": "preserved lemon",
+      "target": "garlic",
+      "strength": 0.85
+    },
+    {
+      "source": "garlic",
+      "target": "preserved lemon",
+      "strength": 0.85
+    },
+    {
+      "source": "preserved lemon",
+      "target": "cilantro",
+      "strength": 0.82
+    },
+    {
+      "source": "cilantro",
+      "target": "preserved lemon",
+      "strength": 0.82
+    },
+    {
+      "source": "preserved lemon",
+      "target": "cumin",
+      "strength": 0.78
+    },
+    {
+      "source": "cumin",
+      "target": "preserved lemon",
+      "strength": 0.78
+    },
+    {
+      "source": "preserved lemon",
+      "target": "onion",
+      "strength": 0.75
+    },
+    {
+      "source": "onion",
+      "target": "preserved lemon",
+      "strength": 0.75
+    },
+    {
+      "source": "preserved lemon",
+      "target": "parsley",
+      "strength": 0.72
+    },
+    {
+      "source": "parsley",
+      "target": "preserved lemon",
+      "strength": 0.72
+    },
+    {
+      "source": "palm sugar",
+      "target": "garlic",
+      "strength": 0.8
+    },
+    {
+      "source": "garlic",
+      "target": "palm sugar",
+      "strength": 0.8
+    },
+    {
+      "source": "bonito flakes",
+      "target": "kombu",
+      "strength": 0.9
+    },
+    {
+      "source": "kombu",
+      "target": "bonito flakes",
+      "strength": 0.9
+    },
+    {
+      "source": "bonito flakes",
+      "target": "rice vinegar",
+      "strength": 0.75
+    },
+    {
+      "source": "rice vinegar",
+      "target": "bonito flakes",
+      "strength": 0.75
+    },
+    {
+      "source": "bonito flakes",
+      "target": "water",
+      "strength": 0.72
+    },
+    {
+      "source": "water",
+      "target": "bonito flakes",
+      "strength": 0.72
+    },
+    {
+      "source": "kombu",
+      "target": "soy sauce",
+      "strength": 0.85
+    },
+    {
+      "source": "soy sauce",
+      "target": "kombu",
+      "strength": 0.85
+    },
+    {
+      "source": "kombu",
+      "target": "mirin",
+      "strength": 0.82
+    },
+    {
+      "source": "mirin",
+      "target": "kombu",
+      "strength": 0.82
+    },
+    {
+      "source": "kombu",
+      "target": "sake",
+      "strength": 0.78
+    },
+    {
+      "source": "sake",
+      "target": "kombu",
+      "strength": 0.78
+    },
+    {
+      "source": "kombu",
+      "target": "water",
+      "strength": 0.75
+    },
+    {
+      "source": "water",
+      "target": "kombu",
+      "strength": 0.75
+    },
+    {
+      "source": "kombu",
+      "target": "rice vinegar",
+      "strength": 0.7
+    },
+    {
+      "source": "rice vinegar",
+      "target": "kombu",
+      "strength": 0.7
+    },
+    {
+      "source": "kombu",
+      "target": "miso",
+      "strength": 0.68
+    },
+    {
+      "source": "miso",
+      "target": "kombu",
+      "strength": 0.68
     }
   ],
   "sauceIngredientNames": [
@@ -4699,7 +8755,23 @@
     "remoulade",
     "ponzu",
     "nuoc cham",
-    "nam jim"
+    "nam jim",
+    "caraway",
+    "doenjang",
+    "shito",
+    "berbere",
+    "toum",
+    "sumac",
+    "pomegranate molasses",
+    "preserved lemon",
+    "kombu",
+    "cold butter",
+    "vinegar",
+    "fruit puree",
+    "red pepper flakes",
+    "dried chili",
+    "peanuts",
+    "sesame seeds"
   ],
   "sauces": [
     {
@@ -7841,6 +11913,258 @@
         "crab cakes",
         "fried seafood",
         "po'boys"
+      ]
+    },
+    {
+      "name": "Aji Sauce",
+      "motherSauce": "Salsa",
+      "cuisine": "Peruvian",
+      "ingredients": [
+        {
+          "name": "aji amarillo",
+          "measure": "4"
+        },
+        {
+          "name": "mayonnaise",
+          "measure": "1 cup"
+        },
+        {
+          "name": "lime juice",
+          "measure": "2 tbsp"
+        },
+        {
+          "name": "garlic",
+          "measure": "1 clove"
+        },
+        {
+          "name": "salt",
+          "measure": "to taste"
+        }
+      ],
+      "instructions": "Deseed aji amarillo peppers and blend with garlic and lime juice until smooth. Fold into mayonnaise and season with salt. Chill before serving.",
+      "pairsWith": [
+        "grilled chicken",
+        "potatoes",
+        "empanadas"
+      ]
+    },
+    {
+      "name": "Nuoc Cham",
+      "motherSauce": "Independent",
+      "cuisine": "Vietnamese",
+      "ingredients": [
+        {
+          "name": "fish sauce",
+          "measure": "3 tbsp"
+        },
+        {
+          "name": "lime juice",
+          "measure": "2 tbsp"
+        },
+        {
+          "name": "sugar",
+          "measure": "2 tbsp"
+        },
+        {
+          "name": "garlic",
+          "measure": "1 clove"
+        },
+        {
+          "name": "thai chili",
+          "measure": "1"
+        },
+        {
+          "name": "water",
+          "measure": "2 tbsp"
+        }
+      ],
+      "instructions": "Dissolve sugar in warm water. Add fish sauce and lime juice. Mince garlic and thinly slice thai chili, stir in. Let sit 10 minutes for flavors to meld.",
+      "pairsWith": [
+        "spring rolls",
+        "grilled pork",
+        "noodles"
+      ]
+    },
+    {
+      "name": "Beurre Blanc",
+      "motherSauce": "Hollandaise",
+      "cuisine": "French",
+      "ingredients": [
+        {
+          "name": "white wine",
+          "measure": "1/2 cup"
+        },
+        {
+          "name": "shallot",
+          "measure": "2 tbsp"
+        },
+        {
+          "name": "cold butter",
+          "measure": "1 cup"
+        },
+        {
+          "name": "lemon juice",
+          "measure": "1 tbsp"
+        },
+        {
+          "name": "salt",
+          "measure": "to taste"
+        }
+      ],
+      "instructions": "Mince shallot and simmer with white wine until reduced to 2 tablespoons. Over low heat, whisk in cold butter one tablespoon at a time until emulsified. Finish with lemon juice and salt.",
+      "pairsWith": [
+        "fish",
+        "scallops",
+        "vegetables"
+      ]
+    },
+    {
+      "name": "Beurre Noisette",
+      "motherSauce": "Independent",
+      "cuisine": "French",
+      "ingredients": [
+        {
+          "name": "butter",
+          "measure": "1/2 cup"
+        },
+        {
+          "name": "lemon juice",
+          "measure": "1 tbsp"
+        },
+        {
+          "name": "capers",
+          "measure": "1 tbsp"
+        },
+        {
+          "name": "parsley",
+          "measure": "1 tbsp"
+        }
+      ],
+      "instructions": "Melt butter over medium heat and cook, swirling occasionally, until milk solids turn golden brown and it smells nutty. Remove from heat immediately, add lemon juice, capers, and chopped parsley.",
+      "pairsWith": [
+        "fish",
+        "ravioli",
+        "vegetables"
+      ]
+    },
+    {
+      "name": "Gastrique",
+      "motherSauce": "Independent",
+      "cuisine": "French",
+      "ingredients": [
+        {
+          "name": "sugar",
+          "measure": "1/2 cup"
+        },
+        {
+          "name": "vinegar",
+          "measure": "1/4 cup"
+        },
+        {
+          "name": "fruit puree",
+          "measure": "1/2 cup"
+        }
+      ],
+      "instructions": "Cook sugar in a dry saucepan over medium heat until it caramelizes to a deep amber. Carefully add vinegar (it will sputter) and stir until dissolved. Add fruit puree and simmer until slightly thickened.",
+      "pairsWith": [
+        "duck",
+        "foie gras",
+        "pork"
+      ]
+    },
+    {
+      "name": "Chimichurri Verde",
+      "motherSauce": "Salsa",
+      "cuisine": "Argentine",
+      "ingredients": [
+        {
+          "name": "parsley",
+          "measure": "1 cup"
+        },
+        {
+          "name": "oregano",
+          "measure": "1/4 cup"
+        },
+        {
+          "name": "garlic",
+          "measure": "4 cloves"
+        },
+        {
+          "name": "olive oil",
+          "measure": "1/2 cup"
+        },
+        {
+          "name": "red wine vinegar",
+          "measure": "2 tbsp"
+        },
+        {
+          "name": "red pepper flakes",
+          "measure": "1 tsp"
+        }
+      ],
+      "instructions": "Finely chop parsley, oregano, and garlic. Combine in a bowl with olive oil, red wine vinegar, and red pepper flakes. Let rest at least 30 minutes before serving.",
+      "pairsWith": [
+        "steak",
+        "grilled chicken",
+        "empanadas"
+      ]
+    },
+    {
+      "name": "Dashi",
+      "motherSauce": "Independent",
+      "cuisine": "Japanese",
+      "ingredients": [
+        {
+          "name": "water",
+          "measure": "4 cups"
+        },
+        {
+          "name": "kombu",
+          "measure": "1 piece"
+        },
+        {
+          "name": "bonito flakes",
+          "measure": "1 cup"
+        }
+      ],
+      "instructions": "Soak kombu in water for 30 minutes. Heat slowly until just before boiling, then remove kombu. Bring to a boil, add bonito flakes, and immediately remove from heat. Let steep 5 minutes, then strain.",
+      "pairsWith": [
+        "miso soup",
+        "ramen",
+        "soba"
+      ]
+    },
+    {
+      "name": "Salsa Macha",
+      "motherSauce": "Salsa",
+      "cuisine": "Mexican",
+      "ingredients": [
+        {
+          "name": "vegetable oil",
+          "measure": "1 cup"
+        },
+        {
+          "name": "dried chili",
+          "measure": "6"
+        },
+        {
+          "name": "peanuts",
+          "measure": "1/4 cup"
+        },
+        {
+          "name": "garlic",
+          "measure": "4 cloves"
+        },
+        {
+          "name": "sesame seeds",
+          "measure": "1 tbsp"
+        }
+      ],
+      "instructions": "Heat oil and fry dried chilies, peanuts, garlic, and sesame seeds until toasted and fragrant. Let cool slightly, then blend or chop to desired consistency. Store submerged in the frying oil.",
+      "pairsWith": [
+        "tacos",
+        "eggs",
+        "noodles"
       ]
     }
   ]

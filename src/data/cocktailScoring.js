@@ -12,31 +12,37 @@ const CODEX_TEMPLATES = [
     name: 'Old Fashioned',
     roles: { Spirit: 1, Sweetener: 1, Bitters: 1 },
     description: 'Spirit + Sugar + Bitters',
+    technique: 'stirred',
   },
   {
     name: 'Martini',
     roles: { Spirit: 1, Vermouth: 1, Bitters: 0.5 },
     description: 'Spirit + Vermouth (+ optional Bitters)',
+    technique: 'stirred',
   },
   {
     name: 'Daiquiri',
     roles: { Spirit: 1, Citrus: 1, Sweetener: 1 },
     description: 'Spirit + Citrus + Sugar',
+    technique: 'shaken',
   },
   {
     name: 'Sidecar',
     roles: { Spirit: 1, Liqueur: 1, Citrus: 1 },
     description: 'Spirit + Liqueur + Citrus',
+    technique: 'shaken',
   },
   {
     name: 'Highball',
     roles: { Spirit: 1, Lengthener: 1 },
     description: 'Spirit + Lengthener',
+    technique: 'built',
   },
   {
     name: 'Flip',
     roles: { Spirit: 1, Sweetener: 1, 'Dairy/Egg': 1 },
     description: 'Spirit + Sugar + Whole Egg',
+    technique: 'shaken',
   },
 ];
 
@@ -48,9 +54,10 @@ const CODEX_TEMPLATES = [
  * Compute average pairwise compatibility for a set of ingredients.
  * @param {string[]} ingredients - Ingredient names
  * @param {Array} edges - Graph edges with { source, target, strength }
+ * @param {Map} [adjacencyMap] - Optional adjacency map for O(1) lookups
  * @returns {number} Score 0-10
  */
-export function computeCompatibility(ingredients, edges) {
+export function computeCompatibility(ingredients, edges, adjacencyMap) {
   if (!ingredients || ingredients.length < 2 || !edges) return 0;
 
   let totalStrength = 0;
@@ -60,19 +67,19 @@ export function computeCompatibility(ingredients, edges) {
     for (let j = i + 1; j < ingredients.length; j++) {
       const a = ingredients[i];
       const b = ingredients[j];
-      let found = false;
-      for (const edge of edges) {
-        if ((edge.source === a && edge.target === b) ||
-            (edge.target === a && edge.source === b)) {
-          totalStrength += edge.strength;
-          found = true;
-          break;
+      if (adjacencyMap) {
+        const strength = adjacencyMap.get(a)?.get(b) || 0;
+        totalStrength += strength;
+      } else {
+        for (const edge of edges) {
+          if ((edge.source === a && edge.target === b) ||
+              (edge.target === a && edge.source === b)) {
+            totalStrength += edge.strength;
+            break;
+          }
         }
       }
       pairCount++;
-      if (!found) {
-        // No edge = 0 compatibility for this pair
-      }
     }
   }
 
@@ -123,6 +130,7 @@ export function detectCodexTemplate(ingredients, nodes) {
       bestTemplate = {
         name: template.name,
         description: template.description,
+        technique: template.technique,
         confidence: Math.round(score * 100),
         missingRoles: missing,
       };
@@ -142,9 +150,10 @@ export function detectCodexTemplate(ingredients, nodes) {
  * @param {string[]} currentIngredients - Already selected ingredients
  * @param {Map} nodes - Graph nodes map
  * @param {Array} edges - Graph edges
+ * @param {Map} [adjacencyMap] - Optional adjacency map for O(1) lookups
  * @returns {Array<{ name, score, category, reason }>}
  */
-export function suggestNextIngredients(currentIngredients, nodes, edges) {
+export function suggestNextIngredients(currentIngredients, nodes, edges, adjacencyMap) {
   if (!currentIngredients || currentIngredients.length === 0 || !nodes || !edges) return [];
 
   // Detect template to find role gaps
@@ -161,13 +170,26 @@ export function suggestNextIngredients(currentIngredients, nodes, edges) {
     let totalStrength = 0;
     let pairs = 0;
 
-    for (const ing of currentIngredients) {
-      for (const edge of edges) {
-        if ((edge.source === name && edge.target === ing) ||
-            (edge.target === name && edge.source === ing)) {
-          totalStrength += edge.strength;
-          pairs++;
-          break;
+    if (adjacencyMap) {
+      const neighbors = adjacencyMap.get(name);
+      if (neighbors) {
+        for (const ing of currentIngredients) {
+          const strength = neighbors.get(ing) || 0;
+          if (strength > 0) {
+            totalStrength += strength;
+            pairs++;
+          }
+        }
+      }
+    } else {
+      for (const ing of currentIngredients) {
+        for (const edge of edges) {
+          if ((edge.source === name && edge.target === ing) ||
+              (edge.target === name && edge.source === ing)) {
+            totalStrength += edge.strength;
+            pairs++;
+            break;
+          }
         }
       }
     }

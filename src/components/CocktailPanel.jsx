@@ -4,14 +4,13 @@ import CocktailRecipeCard from './CocktailRecipeCard.jsx';
 import CocktailBuilder from './CocktailBuilder.jsx';
 import CocktailCard from './CocktailCard.jsx';
 import { computeCompatibility, detectCodexTemplate, suggestNextIngredients, CODEX_TEMPLATES } from '../data/cocktailScoring.js';
+import { INGREDIENT_MODIFIERS } from '../data/cocktailData.js';
 
 /**
  * Resolve cocktail ingredient names to network node names.
  * Handles modifiers so that "light rum" highlights "rum", "lime juice" highlights "lime", etc.
  * Returns a deduplicated array of names.
  */
-// Modifier words that precede a base spirit/ingredient — stripped to find the node
-const INGREDIENT_MODIFIERS = /^(light|dark|aged|gold|golden|white|black|silver|amber|blended|spiced|añejo|reposado|blanco|overproof|navy|jamaican|demerara|london dry|dry|sweet|fresh|frozen|powdered|superfine|granulated|crushed|whole|ground|extra|heavy|double|old|young|single|small|large)\s+/i;
 
 function resolveIngredientNames(ingredients, cocktailNodes) {
   const names = new Set();
@@ -70,6 +69,7 @@ export default function CocktailPanel({
   onClose,
   cocktailNodes,
   cocktailEdges,
+  adjacencyMap,
   ingredientList,
   onHighlightIngredients,
   onSelectAlternative,
@@ -118,16 +118,16 @@ export default function CocktailPanel({
 
   // Builder scoring
   const compatibilityScore = useMemo(() => {
-    return computeCompatibility(builderIngredients, cocktailEdges);
-  }, [builderIngredients, cocktailEdges]);
+    return computeCompatibility(builderIngredients, cocktailEdges, adjacencyMap);
+  }, [builderIngredients, cocktailEdges, adjacencyMap]);
 
   const codexTemplate = useMemo(() => {
     return detectCodexTemplate(builderIngredients, cocktailNodes);
   }, [builderIngredients, cocktailNodes]);
 
   const suggestions = useMemo(() => {
-    return suggestNextIngredients(builderIngredients, cocktailNodes, cocktailEdges);
-  }, [builderIngredients, cocktailNodes, cocktailEdges]);
+    return suggestNextIngredients(builderIngredients, cocktailNodes, cocktailEdges, adjacencyMap);
+  }, [builderIngredients, cocktailNodes, cocktailEdges, adjacencyMap]);
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;
@@ -194,20 +194,21 @@ export default function CocktailPanel({
 
   // Compute alternatives for swapped ingredient
   const alternatives = useMemo(() => {
-    if (!swapIngredient || !cocktailNodes || !cocktailEdges || !selectedCocktail) return [];
+    if (!swapIngredient || !cocktailNodes || !adjacencyMap || !selectedCocktail) return [];
 
     const otherIngredients = selectedCocktail.ingredients
       .map(i => i.name)
       .filter(n => n !== swapIngredient);
+    const otherSet = new Set(otherIngredients);
 
-    // Find all neighbors of the swap target
+    // Find all neighbors of the swap target using adjacency map
+    const swapNeighbors = adjacencyMap.get(swapIngredient);
+    if (!swapNeighbors) return [];
+
     const neighborMap = new Map();
-    for (const edge of cocktailEdges) {
-      if (edge.source === swapIngredient && !otherIngredients.includes(edge.target) && edge.target !== swapIngredient) {
-        neighborMap.set(edge.target, (neighborMap.get(edge.target) || 0) + edge.strength);
-      }
-      if (edge.target === swapIngredient && !otherIngredients.includes(edge.source) && edge.source !== swapIngredient) {
-        neighborMap.set(edge.source, (neighborMap.get(edge.source) || 0) + edge.strength);
+    for (const [neighbor, strength] of swapNeighbors) {
+      if (neighbor !== swapIngredient && !otherSet.has(neighbor)) {
+        neighborMap.set(neighbor, strength);
       }
     }
 
@@ -220,12 +221,10 @@ export default function CocktailPanel({
       let pairCount = 1;
 
       for (const other of otherIngredients) {
-        for (const edge of cocktailEdges) {
-          if ((edge.source === altName && edge.target === other) ||
-              (edge.target === altName && edge.source === other)) {
-            totalStrength += edge.strength;
-            pairCount++;
-          }
+        const strength = adjacencyMap.get(altName)?.get(other) || 0;
+        if (strength > 0) {
+          totalStrength += strength;
+          pairCount++;
         }
       }
 
@@ -240,7 +239,7 @@ export default function CocktailPanel({
 
     scored.sort((a, b) => b.score - a.score);
     return scored.slice(0, 15);
-  }, [swapIngredient, cocktailNodes, cocktailEdges, selectedCocktail]);
+  }, [swapIngredient, cocktailNodes, adjacencyMap, selectedCocktail]);
 
   // When swap mode is active, preview alternative on network
   const handleSelectAlt = useCallback((altName) => {
@@ -275,12 +274,18 @@ export default function CocktailPanel({
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [exportCocktail, setExportCocktail] = useState(null);
 
-  const handleSaveFromBuilder = useCallback((name) => {
+  const handleSaveFromBuilder = useCallback((name, quantities = {}) => {
     if (!userProfile || !builderIngredients.length) return;
     userProfile.addCocktail({
       name: name || 'My Cocktail',
-      ingredients: builderIngredients.map(n => ({ name: n, quantity: '', unit: 'oz' })),
+      ingredients: builderIngredients.map(n => ({
+        name: n,
+        quantity: quantities[n]?.amount || '',
+        unit: quantities[n]?.unit || 'oz',
+      })),
+      instructions: '',
       template: codexTemplate?.name || null,
+      createdAt: Date.now(),
     });
   }, [userProfile, builderIngredients, codexTemplate]);
 
@@ -515,7 +520,9 @@ export default function CocktailPanel({
                       </div>
                     </div>
                     <p className="text-[9px] text-gray-500 mb-1.5">
-                      {cocktail.ingredients.map(i => i.name).join(' · ')}
+                      {cocktail.ingredients.map(i =>
+                        i.quantity ? `${i.quantity} ${i.unit || 'oz'} ${i.name}` : i.name
+                      ).join(' · ')}
                     </p>
                     <div className="flex items-center gap-1.5">
                       <button

@@ -9,6 +9,7 @@ const DEFAULT_PROFILE = {
   ingredients: [],
   recipes: [],
   cocktails: [],
+  sauces: [],
   quizAnswers: null,
 };
 
@@ -52,6 +53,7 @@ function loadLocalProfile() {
       ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
       recipes: Array.isArray(parsed.recipes) ? parsed.recipes.map(normalizeRecipe) : [],
       cocktails: Array.isArray(parsed.cocktails) ? parsed.cocktails : [],
+      sauces: Array.isArray(parsed.sauces) ? parsed.sauces : [],
       quizAnswers: parsed.quizAnswers || null,
     };
   } catch {
@@ -87,11 +89,23 @@ function mergeProfiles(local, cloud) {
     }
     return merged;
   };
+  const mergeSauces = (a, b) => {
+    const seen = new Set(a.map((s) => s.id));
+    const merged = [...a];
+    for (const s of b) {
+      if (!seen.has(s.id)) {
+        merged.push(s);
+        seen.add(s.id);
+      }
+    }
+    return merged;
+  };
   return {
     cuisines: mergeArrays(local.cuisines, cloud.cuisines),
     ingredients: mergeArrays(local.ingredients, cloud.ingredients),
     recipes: mergeRecipes(local.recipes, cloud.recipes),
     cocktails: mergeCocktails(local.cocktails || [], cloud.cocktails || []),
+    sauces: mergeSauces(local.sauces || [], cloud.sauces || []),
     quizAnswers: cloud.quizAnswers || local.quizAnswers || null,
   };
 }
@@ -120,6 +134,7 @@ export default function useUserProfile(user) {
             ingredients: Array.isArray(cloudData.ingredients) ? cloudData.ingredients : [],
             recipes: Array.isArray(cloudData.recipes) ? cloudData.recipes.map(normalizeRecipe) : [],
             cocktails: Array.isArray(cloudData.cocktails) ? cloudData.cocktails : [],
+            sauces: Array.isArray(cloudData.sauces) ? cloudData.sauces : [],
             quizAnswers: cloudData.quizAnswers || null,
           };
           const local = loadLocalProfile();
@@ -251,6 +266,40 @@ export default function useUserProfile(user) {
     }));
   }, [update]);
 
+  // --- Sauces ---
+  const addSauce = useCallback((sauce) => {
+    const entry = {
+      id: sauce.id || `sauce_${Date.now()}`,
+      name: sauce.name || 'Untitled',
+      ingredients: Array.isArray(sauce.ingredients) ? sauce.ingredients : [],
+      instructions: sauce.instructions || '',
+      template: sauce.template || null,
+      motherSauce: sauce.motherSauce || '',
+      createdAt: sauce.createdAt || Date.now(),
+    };
+    update((prev) => ({
+      ...prev,
+      sauces: [...(prev.sauces || []), entry],
+    }));
+    return entry.id;
+  }, [update]);
+
+  const removeSauce = useCallback((id) => {
+    update((prev) => ({
+      ...prev,
+      sauces: (prev.sauces || []).filter((s) => s.id !== id),
+    }));
+  }, [update]);
+
+  const updateSauce = useCallback((id, changes) => {
+    update((prev) => ({
+      ...prev,
+      sauces: (prev.sauces || []).map((s) =>
+        s.id === id ? { ...s, ...changes } : s
+      ),
+    }));
+  }, [update]);
+
   // --- Bulk ---
   const clearProfile = useCallback(() => {
     update(DEFAULT_PROFILE);
@@ -275,6 +324,9 @@ export default function useUserProfile(user) {
           : [],
         cocktails: Array.isArray(parsed.cocktails)
           ? parsed.cocktails
+          : [],
+        sauces: Array.isArray(parsed.sauces)
+          ? parsed.sauces
           : [],
         quizAnswers: parsed.quizAnswers || null,
       };
@@ -303,7 +355,8 @@ export default function useUserProfile(user) {
     ingredientCount: profile.ingredients.length,
     recipeCount: profile.recipes.length,
     cocktailCount: (profile.cocktails || []).length,
-    totalItems: profile.cuisines.length + profile.ingredients.length + profile.recipes.length + (profile.cocktails || []).length,
+    sauceCount: (profile.sauces || []).length,
+    totalItems: profile.cuisines.length + profile.ingredients.length + profile.recipes.length + (profile.cocktails || []).length + (profile.sauces || []).length,
   }), [profile]);
 
   return {
@@ -318,6 +371,9 @@ export default function useUserProfile(user) {
     addCocktail,
     removeCocktail,
     updateCocktail,
+    addSauce,
+    removeSauce,
+    updateSauce,
     clearProfile,
     exportProfile,
     importProfile,

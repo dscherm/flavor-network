@@ -1,5 +1,20 @@
 import { useRef, useCallback } from 'react';
 
+/** Canvas roundRect polyfill for browsers that lack ctx.roundRect(). */
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
 /**
  * CocktailCard — Exportable cocktail card rendered as a styled div.
  * Download as PNG using html2canvas-style approach (renders to canvas).
@@ -29,7 +44,7 @@ export default function CocktailCard({ cocktail, compatibilityScore, codexTempla
     // Border
     ctx.strokeStyle = '#2a2a3e';
     ctx.lineWidth = 1;
-    ctx.roundRect(10, 10, 580, 780, 16);
+    roundRect(ctx, 10, 10, 580, 780, 16);
     ctx.stroke();
 
     // Purple accent line
@@ -53,8 +68,7 @@ export default function CocktailCard({ cocktail, compatibilityScore, codexTempla
       const badgeText = `${codexTemplate.name} (${codexTemplate.confidence}%)`;
       const metrics = ctx.measureText(badgeText);
       const bw = metrics.width + 24;
-      ctx.beginPath();
-      ctx.roundRect(300 - bw / 2, yPos - 14, bw, 22, 6);
+      roundRect(ctx, 300 - bw / 2, yPos - 14, bw, 22, 6);
       ctx.fill();
       ctx.fillStyle = '#a78bfa';
       ctx.font = '12px system-ui, -apple-system, sans-serif';
@@ -74,14 +88,12 @@ export default function CocktailCard({ cocktail, compatibilityScore, codexTempla
       const barWidth = 200;
       const barX = 300 - barWidth / 2;
       ctx.fillStyle = '#1a1a2e';
-      ctx.beginPath();
-      ctx.roundRect(barX, yPos - 4, barWidth, 8, 4);
+      roundRect(ctx, barX, yPos - 4, barWidth, 8, 4);
       ctx.fill();
 
       const scoreColor = compatibilityScore > 7 ? '#4ade80' : compatibilityScore > 4 ? '#facc15' : '#f87171';
       ctx.fillStyle = scoreColor;
-      ctx.beginPath();
-      ctx.roundRect(barX, yPos - 4, barWidth * Math.min(1, compatibilityScore / 10), 8, 4);
+      roundRect(ctx, barX, yPos - 4, barWidth * Math.min(1, compatibilityScore / 10), 8, 4);
       ctx.fill();
 
       ctx.fillStyle = scoreColor;

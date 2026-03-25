@@ -116,6 +116,9 @@ export default function CocktailBuilder({
           </svg>
           <span className="text-[10px] text-purple-300">
             {codexTemplate.name}
+            {codexTemplate.technique && (
+              <span className="text-gray-500"> — {codexTemplate.technique.charAt(0).toUpperCase() + codexTemplate.technique.slice(1)}</span>
+            )}
           </span>
           <span className="text-[8px] text-gray-500">
             {codexTemplate.confidence}% match
@@ -266,7 +269,7 @@ export default function CocktailBuilder({
           />
           <button
             onClick={() => {
-              onSave(cocktailName || 'My Cocktail');
+              onSave(cocktailName || 'My Cocktail', quantities);
               setSaved(true);
               setTimeout(() => setSaved(false), 2000);
             }}

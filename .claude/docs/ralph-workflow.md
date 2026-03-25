@@ -23,6 +23,8 @@ Specialized autonomous loops for domain-specific work. Each has its own plan.md,
 | ingredient | `ingredient-ralph/` | Data quality: ingredients, pairings, augments | `bash ralph.sh --preset ingredient` |
 | cleanup | `cleanup-ralph/` | Dead code, unused deps, stale docs | `bash ralph.sh --preset cleanup` |
 | refactor | `refactor-ralph/` | Component decomposition (LivingArchView) | `bash ralph.sh --preset refactor` |
+| cocktail | `cocktail-ralph/` | Cocktail Lab data, scoring, features | `bash ralph.sh --preset cocktail` |
+| sauce | `sauce-ralph/` | Sauce Lab data, recipes, features | `bash ralph.sh --preset sauce` |
 
 ### Orchestration commands
 ```bash

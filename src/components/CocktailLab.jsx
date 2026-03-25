@@ -3,7 +3,7 @@ import NetworkScene from './NetworkScene.jsx';
 import SearchBar from './SearchBar.jsx';
 import IngredientPanel from './IngredientPanel.jsx';
 import CocktailPanel from './CocktailPanel.jsx';
-import { buildCocktailGraph } from '../data/cocktailGraph.js';
+import { buildCocktailGraph, buildAdjacencyMap } from '../data/cocktailGraph.js';
 import { computeCocktailPositions } from '../data/cocktailPositioning.js';
 import { getNeighbors } from '../data/graph.js';
 import { COCKTAIL_CATEGORIES } from '../data/cocktailData.js';
@@ -38,10 +38,13 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange }
 
         if (cancelled) return;
 
+        const adjacencyMap = buildAdjacencyMap(graph.edges);
+
         setCocktailData({
           graph,
           positions,
           embeddings: null,
+          adjacencyMap,
         });
         setLoading(false);
       } catch (err) {
@@ -308,6 +311,7 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange }
         onClose={() => setPanelOpen(false)}
         cocktailNodes={cocktailData?.graph?.nodes}
         cocktailEdges={cocktailData?.graph?.edges}
+        adjacencyMap={cocktailData?.adjacencyMap}
         ingredientList={ingredientList}
         onHighlightIngredients={handleHighlightIngredients}
         onSelectAlternative={handleSelectAlternative}

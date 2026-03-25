@@ -749,6 +749,167 @@
       "taste": "pungent spicy",
       "weight": "light",
       "codexRole": "spice"
+    },
+    {
+      "name": "rhum agricole",
+      "category": "Spirit",
+      "taste": "sweet pungent",
+      "weight": "medium",
+      "codexRole": "base"
+    },
+    {
+      "name": "aquavit",
+      "category": "Spirit",
+      "taste": "bitter pungent",
+      "weight": "medium",
+      "codexRole": "base"
+    },
+    {
+      "name": "genever",
+      "category": "Spirit",
+      "taste": "bitter sweet",
+      "weight": "medium",
+      "codexRole": "base"
+    },
+    {
+      "name": "shochu",
+      "category": "Spirit",
+      "taste": "sweet",
+      "weight": "light",
+      "codexRole": "base"
+    },
+    {
+      "name": "baijiu",
+      "category": "Spirit",
+      "taste": "pungent",
+      "weight": "heavy",
+      "codexRole": "base"
+    },
+    {
+      "name": "sotol",
+      "category": "Spirit",
+      "taste": "bitter pungent",
+      "weight": "medium",
+      "codexRole": "base"
+    },
+    {
+      "name": "grappa",
+      "category": "Spirit",
+      "taste": "bitter pungent",
+      "weight": "heavy",
+      "codexRole": "base"
+    },
+    {
+      "name": "eau de vie",
+      "category": "Spirit",
+      "taste": "sweet",
+      "weight": "light",
+      "codexRole": "base"
+    },
+    {
+      "name": "soju",
+      "category": "Spirit",
+      "taste": "sweet",
+      "weight": "light",
+      "codexRole": "base"
+    },
+    {
+      "name": "arrack",
+      "category": "Spirit",
+      "taste": "sweet pungent",
+      "weight": "medium",
+      "codexRole": "base"
+    },
+    {
+      "name": "velvet falernum",
+      "category": "Liqueur",
+      "taste": "spicy sweet",
+      "weight": "medium",
+      "codexRole": "modifier"
+    },
+    {
+      "name": "allspice dram",
+      "category": "Liqueur",
+      "taste": "spicy sweet",
+      "weight": "medium",
+      "codexRole": "accent"
+    },
+    {
+      "name": "creme de violette",
+      "category": "Liqueur",
+      "taste": "bitter sweet",
+      "weight": "light",
+      "codexRole": "accent"
+    },
+    {
+      "name": "suze",
+      "category": "Liqueur",
+      "taste": "bitter",
+      "weight": "medium",
+      "codexRole": "modifier"
+    },
+    {
+      "name": "amaro nonino",
+      "category": "Liqueur",
+      "taste": "bitter sweet",
+      "weight": "medium",
+      "codexRole": "modifier"
+    },
+    {
+      "name": "fernet branca",
+      "category": "Liqueur",
+      "taste": "bitter pungent",
+      "weight": "heavy",
+      "codexRole": "seasoning"
+    },
+    {
+      "name": "cynar",
+      "category": "Liqueur",
+      "taste": "bitter sweet",
+      "weight": "medium",
+      "codexRole": "modifier"
+    },
+    {
+      "name": "licor 43",
+      "category": "Liqueur",
+      "taste": "sweet",
+      "weight": "medium",
+      "codexRole": "sweetener"
+    },
+    {
+      "name": "pimm's",
+      "category": "Liqueur",
+      "taste": "bitter sweet",
+      "weight": "light",
+      "codexRole": "modifier"
+    },
+    {
+      "name": "coconut water",
+      "category": "Mixer",
+      "taste": "sweet",
+      "weight": "light",
+      "codexRole": "lengthener"
+    },
+    {
+      "name": "cinnamon syrup",
+      "category": "Sweetener",
+      "taste": "spicy sweet",
+      "weight": "medium",
+      "codexRole": "sweetener"
+    },
+    {
+      "name": "oleo saccharum",
+      "category": "Sweetener",
+      "taste": "sweet",
+      "weight": "medium",
+      "codexRole": "sweetener"
+    },
+    {
+      "name": "saline solution",
+      "category": "Seasoning",
+      "taste": "salty",
+      "weight": "light",
+      "codexRole": "seasoning"
     }
   ],
   "pairings": [
@@ -3391,6 +3552,4496 @@
       "source": "apricot brandy",
       "target": "simple syrup",
       "strength": 0.7
+    },
+    {
+      "source": "pisco",
+      "target": "lime juice",
+      "strength": 0.9
+    },
+    {
+      "source": "pisco",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "cachaca",
+      "target": "lime juice",
+      "strength": 0.95
+    },
+    {
+      "source": "cachaca",
+      "target": "coconut",
+      "strength": 0.75
+    },
+    {
+      "source": "cachaca",
+      "target": "pineapple juice",
+      "strength": 0.78
+    },
+    {
+      "source": "rhum agricole",
+      "target": "lime juice",
+      "strength": 0.88
+    },
+    {
+      "source": "rhum agricole",
+      "target": "simple syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "rhum agricole",
+      "target": "orange juice",
+      "strength": 0.78
+    },
+    {
+      "source": "rhum agricole",
+      "target": "falernum",
+      "strength": 0.8
+    },
+    {
+      "source": "rhum agricole",
+      "target": "angostura bitters",
+      "strength": 0.75
+    },
+    {
+      "source": "rhum agricole",
+      "target": "pineapple juice",
+      "strength": 0.82
+    },
+    {
+      "source": "rhum agricole",
+      "target": "coconut cream",
+      "strength": 0.76
+    },
+    {
+      "source": "aquavit",
+      "target": "lemon juice",
+      "strength": 0.82
+    },
+    {
+      "source": "aquavit",
+      "target": "dill",
+      "strength": 0.8
+    },
+    {
+      "source": "aquavit",
+      "target": "grapefruit juice",
+      "strength": 0.78
+    },
+    {
+      "source": "aquavit",
+      "target": "honey",
+      "strength": 0.75
+    },
+    {
+      "source": "aquavit",
+      "target": "caraway",
+      "strength": 0.72
+    },
+    {
+      "source": "aquavit",
+      "target": "tonic water",
+      "strength": 0.7
+    },
+    {
+      "source": "genever",
+      "target": "lemon juice",
+      "strength": 0.85
+    },
+    {
+      "source": "genever",
+      "target": "sugar",
+      "strength": 0.8
+    },
+    {
+      "source": "genever",
+      "target": "orange",
+      "strength": 0.78
+    },
+    {
+      "source": "genever",
+      "target": "angostura bitters",
+      "strength": 0.75
+    },
+    {
+      "source": "genever",
+      "target": "sweet vermouth",
+      "strength": 0.82
+    },
+    {
+      "source": "genever",
+      "target": "dry vermouth",
+      "strength": 0.78
+    },
+    {
+      "source": "shochu",
+      "target": "lemon juice",
+      "strength": 0.82
+    },
+    {
+      "source": "shochu",
+      "target": "soda water",
+      "strength": 0.8
+    },
+    {
+      "source": "shochu",
+      "target": "grapefruit juice",
+      "strength": 0.78
+    },
+    {
+      "source": "shochu",
+      "target": "green tea",
+      "strength": 0.75
+    },
+    {
+      "source": "shochu",
+      "target": "cucumber",
+      "strength": 0.72
+    },
+    {
+      "source": "shochu",
+      "target": "ginger",
+      "strength": 0.7
+    },
+    {
+      "source": "baijiu",
+      "target": "lemon juice",
+      "strength": 0.78
+    },
+    {
+      "source": "baijiu",
+      "target": "honey syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "baijiu",
+      "target": "ginger",
+      "strength": 0.8
+    },
+    {
+      "source": "baijiu",
+      "target": "lychee",
+      "strength": 0.72
+    },
+    {
+      "source": "baijiu",
+      "target": "soda water",
+      "strength": 0.7
+    },
+    {
+      "source": "baijiu",
+      "target": "simple syrup",
+      "strength": 0.68
+    },
+    {
+      "source": "sotol",
+      "target": "lime juice",
+      "strength": 0.85
+    },
+    {
+      "source": "sotol",
+      "target": "agave syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "sotol",
+      "target": "grapefruit juice",
+      "strength": 0.78
+    },
+    {
+      "source": "sotol",
+      "target": "mezcal",
+      "strength": 0.72
+    },
+    {
+      "source": "sotol",
+      "target": "orange bitters",
+      "strength": 0.7
+    },
+    {
+      "source": "sotol",
+      "target": "pineapple juice",
+      "strength": 0.75
+    },
+    {
+      "source": "grappa",
+      "target": "lemon juice",
+      "strength": 0.82
+    },
+    {
+      "source": "grappa",
+      "target": "honey",
+      "strength": 0.78
+    },
+    {
+      "source": "grappa",
+      "target": "espresso",
+      "strength": 0.8
+    },
+    {
+      "source": "grappa",
+      "target": "simple syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "grappa",
+      "target": "orange",
+      "strength": 0.72
+    },
+    {
+      "source": "grappa",
+      "target": "chamomile",
+      "strength": 0.68
+    },
+    {
+      "source": "eau de vie",
+      "target": "lemon juice",
+      "strength": 0.82
+    },
+    {
+      "source": "eau de vie",
+      "target": "simple syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "eau de vie",
+      "target": "prosecco",
+      "strength": 0.78
+    },
+    {
+      "source": "eau de vie",
+      "target": "elderflower",
+      "strength": 0.75
+    },
+    {
+      "source": "eau de vie",
+      "target": "peach",
+      "strength": 0.85
+    },
+    {
+      "source": "eau de vie",
+      "target": "apricot",
+      "strength": 0.82
+    },
+    {
+      "source": "soju",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "soju",
+      "target": "watermelon",
+      "strength": 0.78
+    },
+    {
+      "source": "soju",
+      "target": "peach",
+      "strength": 0.8
+    },
+    {
+      "source": "soju",
+      "target": "grapefruit juice",
+      "strength": 0.75
+    },
+    {
+      "source": "soju",
+      "target": "soda water",
+      "strength": 0.72
+    },
+    {
+      "source": "soju",
+      "target": "yogurt",
+      "strength": 0.68
+    },
+    {
+      "source": "arrack",
+      "target": "lime juice",
+      "strength": 0.85
+    },
+    {
+      "source": "arrack",
+      "target": "simple syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "arrack",
+      "target": "pineapple juice",
+      "strength": 0.8
+    },
+    {
+      "source": "arrack",
+      "target": "coconut",
+      "strength": 0.78
+    },
+    {
+      "source": "arrack",
+      "target": "angostura bitters",
+      "strength": 0.72
+    },
+    {
+      "source": "arrack",
+      "target": "ginger beer",
+      "strength": 0.75
+    },
+    {
+      "source": "velvet falernum",
+      "target": "rum",
+      "strength": 0.88
+    },
+    {
+      "source": "velvet falernum",
+      "target": "lime juice",
+      "strength": 0.85
+    },
+    {
+      "source": "velvet falernum",
+      "target": "angostura bitters",
+      "strength": 0.78
+    },
+    {
+      "source": "velvet falernum",
+      "target": "pineapple juice",
+      "strength": 0.8
+    },
+    {
+      "source": "velvet falernum",
+      "target": "ginger beer",
+      "strength": 0.75
+    },
+    {
+      "source": "velvet falernum",
+      "target": "bourbon",
+      "strength": 0.7
+    },
+    {
+      "source": "allspice dram",
+      "target": "rum",
+      "strength": 0.85
+    },
+    {
+      "source": "allspice dram",
+      "target": "lime juice",
+      "strength": 0.78
+    },
+    {
+      "source": "allspice dram",
+      "target": "angostura bitters",
+      "strength": 0.8
+    },
+    {
+      "source": "allspice dram",
+      "target": "honey",
+      "strength": 0.75
+    },
+    {
+      "source": "allspice dram",
+      "target": "bourbon",
+      "strength": 0.72
+    },
+    {
+      "source": "allspice dram",
+      "target": "lemon juice",
+      "strength": 0.76
+    },
+    {
+      "source": "creme de violette",
+      "target": "gin",
+      "strength": 0.88
+    },
+    {
+      "source": "creme de violette",
+      "target": "lemon juice",
+      "strength": 0.82
+    },
+    {
+      "source": "creme de violette",
+      "target": "maraschino liqueur",
+      "strength": 0.85
+    },
+    {
+      "source": "creme de violette",
+      "target": "simple syrup",
+      "strength": 0.7
+    },
+    {
+      "source": "creme de violette",
+      "target": "prosecco",
+      "strength": 0.72
+    },
+    {
+      "source": "creme de violette",
+      "target": "egg white",
+      "strength": 0.68
+    },
+    {
+      "source": "suze",
+      "target": "gin",
+      "strength": 0.82
+    },
+    {
+      "source": "suze",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "suze",
+      "target": "tonic water",
+      "strength": 0.78
+    },
+    {
+      "source": "suze",
+      "target": "grapefruit juice",
+      "strength": 0.76
+    },
+    {
+      "source": "suze",
+      "target": "dry vermouth",
+      "strength": 0.75
+    },
+    {
+      "source": "suze",
+      "target": "simple syrup",
+      "strength": 0.68
+    },
+    {
+      "source": "amaro nonino",
+      "target": "bourbon",
+      "strength": 0.85
+    },
+    {
+      "source": "amaro nonino",
+      "target": "sweet vermouth",
+      "strength": 0.82
+    },
+    {
+      "source": "amaro nonino",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "amaro nonino",
+      "target": "orange bitters",
+      "strength": 0.78
+    },
+    {
+      "source": "amaro nonino",
+      "target": "rye whiskey",
+      "strength": 0.82
+    },
+    {
+      "source": "amaro nonino",
+      "target": "prosecco",
+      "strength": 0.72
+    },
+    {
+      "source": "fernet branca",
+      "target": "cola",
+      "strength": 0.82
+    },
+    {
+      "source": "fernet branca",
+      "target": "mint",
+      "strength": 0.78
+    },
+    {
+      "source": "fernet branca",
+      "target": "espresso",
+      "strength": 0.75
+    },
+    {
+      "source": "fernet branca",
+      "target": "sugar",
+      "strength": 0.7
+    },
+    {
+      "source": "fernet branca",
+      "target": "rye whiskey",
+      "strength": 0.72
+    },
+    {
+      "source": "fernet branca",
+      "target": "ginger beer",
+      "strength": 0.68
+    },
+    {
+      "source": "cynar",
+      "target": "bourbon",
+      "strength": 0.8
+    },
+    {
+      "source": "cynar",
+      "target": "sweet vermouth",
+      "strength": 0.82
+    },
+    {
+      "source": "cynar",
+      "target": "lemon juice",
+      "strength": 0.78
+    },
+    {
+      "source": "cynar",
+      "target": "orange bitters",
+      "strength": 0.75
+    },
+    {
+      "source": "cynar",
+      "target": "grapefruit juice",
+      "strength": 0.76
+    },
+    {
+      "source": "cynar",
+      "target": "soda water",
+      "strength": 0.68
+    },
+    {
+      "source": "licor 43",
+      "target": "espresso",
+      "strength": 0.85
+    },
+    {
+      "source": "licor 43",
+      "target": "heavy cream",
+      "strength": 0.82
+    },
+    {
+      "source": "licor 43",
+      "target": "vodka",
+      "strength": 0.78
+    },
+    {
+      "source": "licor 43",
+      "target": "orange juice",
+      "strength": 0.8
+    },
+    {
+      "source": "licor 43",
+      "target": "vanilla",
+      "strength": 0.75
+    },
+    {
+      "source": "licor 43",
+      "target": "milk",
+      "strength": 0.72
+    },
+    {
+      "source": "pimm's",
+      "target": "lemon-lime soda",
+      "strength": 0.85
+    },
+    {
+      "source": "pimm's",
+      "target": "cucumber",
+      "strength": 0.82
+    },
+    {
+      "source": "pimm's",
+      "target": "strawberry",
+      "strength": 0.8
+    },
+    {
+      "source": "pimm's",
+      "target": "mint",
+      "strength": 0.78
+    },
+    {
+      "source": "pimm's",
+      "target": "lemon juice",
+      "strength": 0.75
+    },
+    {
+      "source": "pimm's",
+      "target": "ginger ale",
+      "strength": 0.82
+    },
+    {
+      "source": "coconut water",
+      "target": "rum",
+      "strength": 0.82
+    },
+    {
+      "source": "coconut water",
+      "target": "lime juice",
+      "strength": 0.8
+    },
+    {
+      "source": "coconut water",
+      "target": "pineapple juice",
+      "strength": 0.85
+    },
+    {
+      "source": "coconut water",
+      "target": "vodka",
+      "strength": 0.72
+    },
+    {
+      "source": "coconut water",
+      "target": "coconut cream",
+      "strength": 0.78
+    },
+    {
+      "source": "coconut water",
+      "target": "ginger",
+      "strength": 0.7
+    },
+    {
+      "source": "passion fruit syrup",
+      "target": "lime juice",
+      "strength": 0.82
+    },
+    {
+      "source": "passion fruit syrup",
+      "target": "pineapple juice",
+      "strength": 0.78
+    },
+    {
+      "source": "passion fruit syrup",
+      "target": "egg white",
+      "strength": 0.72
+    },
+    {
+      "source": "cinnamon syrup",
+      "target": "bourbon",
+      "strength": 0.85
+    },
+    {
+      "source": "cinnamon syrup",
+      "target": "rum",
+      "strength": 0.82
+    },
+    {
+      "source": "cinnamon syrup",
+      "target": "lemon juice",
+      "strength": 0.78
+    },
+    {
+      "source": "cinnamon syrup",
+      "target": "apple",
+      "strength": 0.8
+    },
+    {
+      "source": "cinnamon syrup",
+      "target": "angostura bitters",
+      "strength": 0.75
+    },
+    {
+      "source": "cinnamon syrup",
+      "target": "egg white",
+      "strength": 0.7
+    },
+    {
+      "source": "oleo saccharum",
+      "target": "lemon juice",
+      "strength": 0.88
+    },
+    {
+      "source": "oleo saccharum",
+      "target": "rum",
+      "strength": 0.82
+    },
+    {
+      "source": "oleo saccharum",
+      "target": "brandy",
+      "strength": 0.85
+    },
+    {
+      "source": "oleo saccharum",
+      "target": "tea",
+      "strength": 0.8
+    },
+    {
+      "source": "oleo saccharum",
+      "target": "bourbon",
+      "strength": 0.78
+    },
+    {
+      "source": "oleo saccharum",
+      "target": "prosecco",
+      "strength": 0.75
+    },
+    {
+      "source": "saline solution",
+      "target": "bourbon",
+      "strength": 0.78
+    },
+    {
+      "source": "saline solution",
+      "target": "tequila",
+      "strength": 0.78
+    },
+    {
+      "source": "saline solution",
+      "target": "rum",
+      "strength": 0.75
+    },
+    {
+      "source": "saline solution",
+      "target": "lime juice",
+      "strength": 0.72
+    },
+    {
+      "source": "saline solution",
+      "target": "simple syrup",
+      "strength": 0.7
+    },
+    {
+      "source": "saline solution",
+      "target": "grapefruit juice",
+      "strength": 0.72
+    },
+    {
+      "source": "falernum",
+      "target": "lime juice",
+      "strength": 0.85
+    },
+    {
+      "source": "falernum",
+      "target": "angostura bitters",
+      "strength": 0.78
+    },
+    {
+      "source": "falernum",
+      "target": "pineapple juice",
+      "strength": 0.8
+    },
+    {
+      "source": "falernum",
+      "target": "ginger beer",
+      "strength": 0.75
+    },
+    {
+      "source": "aperol",
+      "target": "gin",
+      "strength": 0.8
+    },
+    {
+      "source": "aperol",
+      "target": "lemon juice",
+      "strength": 0.78
+    },
+    {
+      "source": "aperol",
+      "target": "grapefruit juice",
+      "strength": 0.82
+    },
+    {
+      "source": "aperol",
+      "target": "orange juice",
+      "strength": 0.75
+    },
+    {
+      "source": "yellow chartreuse",
+      "target": "lemon juice",
+      "strength": 0.82
+    },
+    {
+      "source": "yellow chartreuse",
+      "target": "maraschino liqueur",
+      "strength": 0.8
+    },
+    {
+      "source": "yellow chartreuse",
+      "target": "dry vermouth",
+      "strength": 0.78
+    },
+    {
+      "source": "yellow chartreuse",
+      "target": "lime juice",
+      "strength": 0.75
+    },
+    {
+      "source": "yellow chartreuse",
+      "target": "pineapple juice",
+      "strength": 0.72
+    },
+    {
+      "source": "benedictine",
+      "target": "rye whiskey",
+      "strength": 0.85
+    },
+    {
+      "source": "benedictine",
+      "target": "bourbon",
+      "strength": 0.82
+    },
+    {
+      "source": "benedictine",
+      "target": "lemon juice",
+      "strength": 0.78
+    },
+    {
+      "source": "benedictine",
+      "target": "angostura bitters",
+      "strength": 0.8
+    },
+    {
+      "source": "benedictine",
+      "target": "honey",
+      "strength": 0.72
+    },
+    {
+      "source": "galliano",
+      "target": "orange juice",
+      "strength": 0.85
+    },
+    {
+      "source": "galliano",
+      "target": "lime juice",
+      "strength": 0.75
+    },
+    {
+      "source": "galliano",
+      "target": "cream",
+      "strength": 0.72
+    },
+    {
+      "source": "galliano",
+      "target": "coffee liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "amaro montenegro",
+      "target": "rye whiskey",
+      "strength": 0.8
+    },
+    {
+      "source": "amaro montenegro",
+      "target": "lemon juice",
+      "strength": 0.78
+    },
+    {
+      "source": "amaro montenegro",
+      "target": "orange bitters",
+      "strength": 0.75
+    },
+    {
+      "source": "orgeat",
+      "target": "lime juice",
+      "strength": 0.85
+    },
+    {
+      "source": "orgeat",
+      "target": "orange juice",
+      "strength": 0.8
+    },
+    {
+      "source": "orgeat",
+      "target": "bourbon",
+      "strength": 0.75
+    },
+    {
+      "source": "orgeat",
+      "target": "brandy",
+      "strength": 0.78
+    },
+    {
+      "source": "orgeat",
+      "target": "pineapple juice",
+      "strength": 0.82
+    },
+    {
+      "source": "honey syrup",
+      "target": "lemon juice",
+      "strength": 0.85
+    },
+    {
+      "source": "honey syrup",
+      "target": "rum",
+      "strength": 0.82
+    },
+    {
+      "source": "honey syrup",
+      "target": "scotch",
+      "strength": 0.85
+    },
+    {
+      "source": "honey syrup",
+      "target": "rye whiskey",
+      "strength": 0.75
+    },
+    {
+      "source": "demerara syrup",
+      "target": "lime juice",
+      "strength": 0.82
+    },
+    {
+      "source": "demerara syrup",
+      "target": "lemon juice",
+      "strength": 0.78
+    },
+    {
+      "source": "demerara syrup",
+      "target": "cognac",
+      "strength": 0.75
+    },
+    {
+      "source": "ginger syrup",
+      "target": "lemon juice",
+      "strength": 0.85
+    },
+    {
+      "source": "ginger syrup",
+      "target": "lime juice",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger syrup",
+      "target": "vodka",
+      "strength": 0.75
+    },
+    {
+      "source": "ginger syrup",
+      "target": "soda water",
+      "strength": 0.72
+    },
+    {
+      "source": "lemon",
+      "target": "simple syrup",
+      "strength": 0.95
+    },
+    {
+      "source": "lime",
+      "target": "simple syrup",
+      "strength": 0.95
+    },
+    {
+      "source": "rum",
+      "target": "simple syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "vodka",
+      "target": "simple syrup",
+      "strength": 0.7
+    },
+    {
+      "source": "gin",
+      "target": "simple syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "whiskey",
+      "target": "simple syrup",
+      "strength": 0.7
+    },
+    {
+      "source": "bourbon",
+      "target": "simple syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "mint",
+      "target": "simple syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "egg white",
+      "target": "simple syrup",
+      "strength": 0.7
+    },
+    {
+      "source": "rum",
+      "target": "demerara syrup",
+      "strength": 0.9
+    },
+    {
+      "source": "bourbon",
+      "target": "demerara syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "lime",
+      "target": "demerara syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon",
+      "target": "demerara syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "angostura bitters",
+      "target": "demerara syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "rum",
+      "target": "orgeat",
+      "strength": 0.9
+    },
+    {
+      "source": "lime",
+      "target": "orgeat",
+      "strength": 0.85
+    },
+    {
+      "source": "orange",
+      "target": "orgeat",
+      "strength": 0.7
+    },
+    {
+      "source": "curacao",
+      "target": "orgeat",
+      "strength": 0.8
+    },
+    {
+      "source": "tequila",
+      "target": "triple sec",
+      "strength": 0.95
+    },
+    {
+      "source": "lime",
+      "target": "triple sec",
+      "strength": 0.9
+    },
+    {
+      "source": "lemon",
+      "target": "triple sec",
+      "strength": 0.8
+    },
+    {
+      "source": "vodka",
+      "target": "triple sec",
+      "strength": 0.75
+    },
+    {
+      "source": "cognac",
+      "target": "triple sec",
+      "strength": 0.85
+    },
+    {
+      "source": "tequila",
+      "target": "cointreau",
+      "strength": 0.95
+    },
+    {
+      "source": "lime",
+      "target": "cointreau",
+      "strength": 0.9
+    },
+    {
+      "source": "cognac",
+      "target": "cointreau",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "cointreau",
+      "strength": 0.8
+    },
+    {
+      "source": "gin",
+      "target": "campari",
+      "strength": 0.95
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "campari",
+      "strength": 0.95
+    },
+    {
+      "source": "orange",
+      "target": "campari",
+      "strength": 0.85
+    },
+    {
+      "source": "soda water",
+      "target": "campari",
+      "strength": 0.7
+    },
+    {
+      "source": "prosecco",
+      "target": "campari",
+      "strength": 0.8
+    },
+    {
+      "source": "prosecco",
+      "target": "aperol",
+      "strength": 0.95
+    },
+    {
+      "source": "soda water",
+      "target": "aperol",
+      "strength": 0.8
+    },
+    {
+      "source": "orange",
+      "target": "aperol",
+      "strength": 0.85
+    },
+    {
+      "source": "gin",
+      "target": "chartreuse",
+      "strength": 0.85
+    },
+    {
+      "source": "maraschino liqueur",
+      "target": "chartreuse",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "chartreuse",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "chartreuse",
+      "strength": 0.7
+    },
+    {
+      "source": "gin",
+      "target": "maraschino liqueur",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "maraschino liqueur",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon",
+      "target": "maraschino liqueur",
+      "strength": 0.8
+    },
+    {
+      "source": "gin",
+      "target": "st-germain",
+      "strength": 0.85
+    },
+    {
+      "source": "champagne",
+      "target": "st-germain",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "st-germain",
+      "strength": 0.8
+    },
+    {
+      "source": "prosecco",
+      "target": "st-germain",
+      "strength": 0.8
+    },
+    {
+      "source": "soda water",
+      "target": "st-germain",
+      "strength": 0.7
+    },
+    {
+      "source": "vodka",
+      "target": "kahlua",
+      "strength": 0.9
+    },
+    {
+      "source": "heavy cream",
+      "target": "kahlua",
+      "strength": 0.85
+    },
+    {
+      "source": "coffee",
+      "target": "kahlua",
+      "strength": 0.95
+    },
+    {
+      "source": "rum",
+      "target": "kahlua",
+      "strength": 0.7
+    },
+    {
+      "source": "cognac",
+      "target": "benedictine",
+      "strength": 0.85
+    },
+    {
+      "source": "whiskey",
+      "target": "benedictine",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon",
+      "target": "benedictine",
+      "strength": 0.7
+    },
+    {
+      "source": "whiskey",
+      "target": "drambuie",
+      "strength": 0.9
+    },
+    {
+      "source": "lemon",
+      "target": "drambuie",
+      "strength": 0.7
+    },
+    {
+      "source": "rum",
+      "target": "curacao",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "curacao",
+      "strength": 0.8
+    },
+    {
+      "source": "orange",
+      "target": "curacao",
+      "strength": 0.85
+    },
+    {
+      "source": "cognac",
+      "target": "absinthe",
+      "strength": 0.7
+    },
+    {
+      "source": "simple syrup",
+      "target": "absinthe",
+      "strength": 0.7
+    },
+    {
+      "source": "peychaud's bitters",
+      "target": "absinthe",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "absinthe",
+      "strength": 0.65
+    },
+    {
+      "source": "lime",
+      "target": "mezcal",
+      "strength": 0.9
+    },
+    {
+      "source": "agave syrup",
+      "target": "mezcal",
+      "strength": 0.9
+    },
+    {
+      "source": "orange",
+      "target": "mezcal",
+      "strength": 0.75
+    },
+    {
+      "source": "grapefruit",
+      "target": "mezcal",
+      "strength": 0.8
+    },
+    {
+      "source": "pineapple",
+      "target": "mezcal",
+      "strength": 0.75
+    },
+    {
+      "source": "gin",
+      "target": "dry vermouth",
+      "strength": 0.95
+    },
+    {
+      "source": "vodka",
+      "target": "dry vermouth",
+      "strength": 0.8
+    },
+    {
+      "source": "olive",
+      "target": "dry vermouth",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "dry vermouth",
+      "strength": 0.7
+    },
+    {
+      "source": "whiskey",
+      "target": "sweet vermouth",
+      "strength": 0.95
+    },
+    {
+      "source": "bourbon",
+      "target": "sweet vermouth",
+      "strength": 0.9
+    },
+    {
+      "source": "gin",
+      "target": "sweet vermouth",
+      "strength": 0.9
+    },
+    {
+      "source": "angostura bitters",
+      "target": "sweet vermouth",
+      "strength": 0.85
+    },
+    {
+      "source": "orange bitters",
+      "target": "sweet vermouth",
+      "strength": 0.75
+    },
+    {
+      "source": "gin",
+      "target": "lillet blanc",
+      "strength": 0.85
+    },
+    {
+      "source": "vodka",
+      "target": "lillet blanc",
+      "strength": 0.7
+    },
+    {
+      "source": "lemon",
+      "target": "lillet blanc",
+      "strength": 0.8
+    },
+    {
+      "source": "whiskey",
+      "target": "angostura bitters",
+      "strength": 0.95
+    },
+    {
+      "source": "bourbon",
+      "target": "angostura bitters",
+      "strength": 0.95
+    },
+    {
+      "source": "rum",
+      "target": "angostura bitters",
+      "strength": 0.85
+    },
+    {
+      "source": "gin",
+      "target": "angostura bitters",
+      "strength": 0.75
+    },
+    {
+      "source": "simple syrup",
+      "target": "angostura bitters",
+      "strength": 0.8
+    },
+    {
+      "source": "gin",
+      "target": "orange bitters",
+      "strength": 0.85
+    },
+    {
+      "source": "whiskey",
+      "target": "orange bitters",
+      "strength": 0.8
+    },
+    {
+      "source": "dry vermouth",
+      "target": "orange bitters",
+      "strength": 0.75
+    },
+    {
+      "source": "cognac",
+      "target": "peychaud's bitters",
+      "strength": 0.9
+    },
+    {
+      "source": "whiskey",
+      "target": "peychaud's bitters",
+      "strength": 0.8
+    },
+    {
+      "source": "bourbon",
+      "target": "chocolate bitters",
+      "strength": 0.8
+    },
+    {
+      "source": "rum",
+      "target": "chocolate bitters",
+      "strength": 0.75
+    },
+    {
+      "source": "coffee",
+      "target": "chocolate bitters",
+      "strength": 0.8
+    },
+    {
+      "source": "gin",
+      "target": "tonic water",
+      "strength": 0.95
+    },
+    {
+      "source": "vodka",
+      "target": "tonic water",
+      "strength": 0.75
+    },
+    {
+      "source": "lime",
+      "target": "tonic water",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "tonic water",
+      "strength": 0.7
+    },
+    {
+      "source": "whiskey",
+      "target": "soda water",
+      "strength": 0.75
+    },
+    {
+      "source": "vodka",
+      "target": "soda water",
+      "strength": 0.7
+    },
+    {
+      "source": "lime",
+      "target": "soda water",
+      "strength": 0.7
+    },
+    {
+      "source": "vodka",
+      "target": "ginger beer",
+      "strength": 0.9
+    },
+    {
+      "source": "rum",
+      "target": "ginger beer",
+      "strength": 0.85
+    },
+    {
+      "source": "bourbon",
+      "target": "ginger beer",
+      "strength": 0.8
+    },
+    {
+      "source": "lime",
+      "target": "ginger beer",
+      "strength": 0.9
+    },
+    {
+      "source": "ginger",
+      "target": "ginger beer",
+      "strength": 0.9
+    },
+    {
+      "source": "whiskey",
+      "target": "ginger ale",
+      "strength": 0.8
+    },
+    {
+      "source": "bourbon",
+      "target": "ginger ale",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "cola",
+      "strength": 0.9
+    },
+    {
+      "source": "whiskey",
+      "target": "cola",
+      "strength": 0.75
+    },
+    {
+      "source": "lime",
+      "target": "cola",
+      "strength": 0.7
+    },
+    {
+      "source": "lemon",
+      "target": "prosecco",
+      "strength": 0.7
+    },
+    {
+      "source": "lemon",
+      "target": "egg white",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "egg white",
+      "strength": 0.8
+    },
+    {
+      "source": "bourbon",
+      "target": "egg white",
+      "strength": 0.8
+    },
+    {
+      "source": "gin",
+      "target": "egg white",
+      "strength": 0.75
+    },
+    {
+      "source": "vodka",
+      "target": "heavy cream",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "heavy cream",
+      "strength": 0.7
+    },
+    {
+      "source": "brandy",
+      "target": "heavy cream",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "coconut cream",
+      "strength": 0.95
+    },
+    {
+      "source": "pineapple",
+      "target": "coconut cream",
+      "strength": 0.95
+    },
+    {
+      "source": "lime",
+      "target": "coconut cream",
+      "strength": 0.75
+    },
+    {
+      "source": "vodka",
+      "target": "grenadine",
+      "strength": 0.7
+    },
+    {
+      "source": "rum",
+      "target": "grenadine",
+      "strength": 0.75
+    },
+    {
+      "source": "tequila",
+      "target": "grenadine",
+      "strength": 0.7
+    },
+    {
+      "source": "orange",
+      "target": "grenadine",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon",
+      "target": "grenadine",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "falernum",
+      "strength": 0.9
+    },
+    {
+      "source": "lime",
+      "target": "falernum",
+      "strength": 0.85
+    },
+    {
+      "source": "ginger",
+      "target": "falernum",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon",
+      "target": "honey syrup",
+      "strength": 0.9
+    },
+    {
+      "source": "bourbon",
+      "target": "honey syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "gin",
+      "target": "honey syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger",
+      "target": "honey syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "tequila",
+      "target": "agave syrup",
+      "strength": 0.95
+    },
+    {
+      "source": "lime",
+      "target": "agave syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "grapefruit",
+      "target": "agave syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "lime",
+      "target": "cachaca",
+      "strength": 0.95
+    },
+    {
+      "source": "sugar",
+      "target": "cachaca",
+      "strength": 0.9
+    },
+    {
+      "source": "simple syrup",
+      "target": "cachaca",
+      "strength": 0.85
+    },
+    {
+      "source": "passion fruit",
+      "target": "cachaca",
+      "strength": 0.82
+    },
+    {
+      "source": "pineapple",
+      "target": "cachaca",
+      "strength": 0.78
+    },
+    {
+      "source": "coconut cream",
+      "target": "cachaca",
+      "strength": 0.75
+    },
+    {
+      "source": "ginger",
+      "target": "cachaca",
+      "strength": 0.75
+    },
+    {
+      "source": "lime",
+      "target": "pisco",
+      "strength": 0.92
+    },
+    {
+      "source": "simple syrup",
+      "target": "pisco",
+      "strength": 0.88
+    },
+    {
+      "source": "egg white",
+      "target": "pisco",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "pisco",
+      "strength": 0.85
+    },
+    {
+      "source": "angostura bitters",
+      "target": "pisco",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger",
+      "target": "pisco",
+      "strength": 0.75
+    },
+    {
+      "source": "grapefruit",
+      "target": "pisco",
+      "strength": 0.72
+    },
+    {
+      "source": "lemon",
+      "target": "scotch",
+      "strength": 0.88
+    },
+    {
+      "source": "ginger",
+      "target": "scotch",
+      "strength": 0.8
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "scotch",
+      "strength": 0.85
+    },
+    {
+      "source": "drambuie",
+      "target": "scotch",
+      "strength": 0.9
+    },
+    {
+      "source": "angostura bitters",
+      "target": "scotch",
+      "strength": 0.82
+    },
+    {
+      "source": "orange bitters",
+      "target": "scotch",
+      "strength": 0.78
+    },
+    {
+      "source": "cherry",
+      "target": "scotch",
+      "strength": 0.72
+    },
+    {
+      "source": "lemon",
+      "target": "sloe gin",
+      "strength": 0.85
+    },
+    {
+      "source": "simple syrup",
+      "target": "sloe gin",
+      "strength": 0.8
+    },
+    {
+      "source": "soda water",
+      "target": "sloe gin",
+      "strength": 0.78
+    },
+    {
+      "source": "gin",
+      "target": "sloe gin",
+      "strength": 0.82
+    },
+    {
+      "source": "prosecco",
+      "target": "sloe gin",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon",
+      "target": "apple brandy",
+      "strength": 0.85
+    },
+    {
+      "source": "simple syrup",
+      "target": "apple brandy",
+      "strength": 0.8
+    },
+    {
+      "source": "angostura bitters",
+      "target": "apple brandy",
+      "strength": 0.78
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "apple brandy",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger",
+      "target": "apple brandy",
+      "strength": 0.78
+    },
+    {
+      "source": "cinnamon",
+      "target": "apple brandy",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon",
+      "target": "applejack",
+      "strength": 0.82
+    },
+    {
+      "source": "lime",
+      "target": "applejack",
+      "strength": 0.78
+    },
+    {
+      "source": "simple syrup",
+      "target": "applejack",
+      "strength": 0.78
+    },
+    {
+      "source": "ginger beer",
+      "target": "applejack",
+      "strength": 0.8
+    },
+    {
+      "source": "cinnamon",
+      "target": "applejack",
+      "strength": 0.78
+    },
+    {
+      "source": "gin",
+      "target": "green chartreuse",
+      "strength": 0.88
+    },
+    {
+      "source": "lime",
+      "target": "green chartreuse",
+      "strength": 0.85
+    },
+    {
+      "source": "maraschino liqueur",
+      "target": "green chartreuse",
+      "strength": 0.9
+    },
+    {
+      "source": "lemon",
+      "target": "green chartreuse",
+      "strength": 0.78
+    },
+    {
+      "source": "cognac",
+      "target": "green chartreuse",
+      "strength": 0.75
+    },
+    {
+      "source": "pineapple",
+      "target": "green chartreuse",
+      "strength": 0.72
+    },
+    {
+      "source": "gin",
+      "target": "yellow chartreuse",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "yellow chartreuse",
+      "strength": 0.8
+    },
+    {
+      "source": "lime",
+      "target": "yellow chartreuse",
+      "strength": 0.78
+    },
+    {
+      "source": "pineapple",
+      "target": "yellow chartreuse",
+      "strength": 0.75
+    },
+    {
+      "source": "honey syrup",
+      "target": "yellow chartreuse",
+      "strength": 0.72
+    },
+    {
+      "source": "heavy cream",
+      "target": "creme de cacao",
+      "strength": 0.85
+    },
+    {
+      "source": "vodka",
+      "target": "creme de cacao",
+      "strength": 0.8
+    },
+    {
+      "source": "brandy",
+      "target": "creme de cacao",
+      "strength": 0.82
+    },
+    {
+      "source": "coffee",
+      "target": "creme de cacao",
+      "strength": 0.78
+    },
+    {
+      "source": "mint",
+      "target": "creme de cacao",
+      "strength": 0.75
+    },
+    {
+      "source": "heavy cream",
+      "target": "creme de menthe",
+      "strength": 0.8
+    },
+    {
+      "source": "creme de cacao",
+      "target": "creme de menthe",
+      "strength": 0.85
+    },
+    {
+      "source": "vodka",
+      "target": "creme de menthe",
+      "strength": 0.75
+    },
+    {
+      "source": "brandy",
+      "target": "creme de menthe",
+      "strength": 0.72
+    },
+    {
+      "source": "champagne",
+      "target": "creme de cassis",
+      "strength": 0.9
+    },
+    {
+      "source": "prosecco",
+      "target": "creme de cassis",
+      "strength": 0.85
+    },
+    {
+      "source": "gin",
+      "target": "creme de cassis",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon",
+      "target": "creme de cassis",
+      "strength": 0.75
+    },
+    {
+      "source": "gin",
+      "target": "creme de mure",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "creme de mure",
+      "strength": 0.82
+    },
+    {
+      "source": "simple syrup",
+      "target": "creme de mure",
+      "strength": 0.78
+    },
+    {
+      "source": "prosecco",
+      "target": "creme de mure",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "creme de banane",
+      "strength": 0.82
+    },
+    {
+      "source": "heavy cream",
+      "target": "creme de banane",
+      "strength": 0.78
+    },
+    {
+      "source": "coconut cream",
+      "target": "creme de banane",
+      "strength": 0.8
+    },
+    {
+      "source": "pineapple",
+      "target": "creme de banane",
+      "strength": 0.75
+    },
+    {
+      "source": "vodka",
+      "target": "chambord raspberry liqueur",
+      "strength": 0.8
+    },
+    {
+      "source": "champagne",
+      "target": "chambord raspberry liqueur",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon",
+      "target": "chambord raspberry liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "prosecco",
+      "target": "chambord raspberry liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "gin",
+      "target": "chambord raspberry liqueur",
+      "strength": 0.75
+    },
+    {
+      "source": "gin",
+      "target": "cherry heering",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "cherry heering",
+      "strength": 0.8
+    },
+    {
+      "source": "pineapple",
+      "target": "cherry heering",
+      "strength": 0.78
+    },
+    {
+      "source": "brandy",
+      "target": "cherry heering",
+      "strength": 0.82
+    },
+    {
+      "source": "benedictine",
+      "target": "cherry heering",
+      "strength": 0.75
+    },
+    {
+      "source": "espresso",
+      "target": "frangelico",
+      "strength": 0.85
+    },
+    {
+      "source": "heavy cream",
+      "target": "frangelico",
+      "strength": 0.8
+    },
+    {
+      "source": "bourbon",
+      "target": "frangelico",
+      "strength": 0.78
+    },
+    {
+      "source": "vodka",
+      "target": "frangelico",
+      "strength": 0.75
+    },
+    {
+      "source": "kahlua",
+      "target": "frangelico",
+      "strength": 0.82
+    },
+    {
+      "source": "espresso",
+      "target": "sambuca",
+      "strength": 0.85
+    },
+    {
+      "source": "coffee",
+      "target": "sambuca",
+      "strength": 0.82
+    },
+    {
+      "source": "cream",
+      "target": "sambuca",
+      "strength": 0.72
+    },
+    {
+      "source": "lemon",
+      "target": "sambuca",
+      "strength": 0.7
+    },
+    {
+      "source": "vodka",
+      "target": "galliano",
+      "strength": 0.82
+    },
+    {
+      "source": "orange",
+      "target": "galliano",
+      "strength": 0.8
+    },
+    {
+      "source": "coffee",
+      "target": "galliano",
+      "strength": 0.78
+    },
+    {
+      "source": "heavy cream",
+      "target": "galliano",
+      "strength": 0.75
+    },
+    {
+      "source": "heavy cream",
+      "target": "godiva liqueur",
+      "strength": 0.85
+    },
+    {
+      "source": "vodka",
+      "target": "godiva liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "kahlua",
+      "target": "godiva liqueur",
+      "strength": 0.8
+    },
+    {
+      "source": "coffee",
+      "target": "godiva liqueur",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon",
+      "target": "pernod",
+      "strength": 0.72
+    },
+    {
+      "source": "sugar",
+      "target": "pernod",
+      "strength": 0.75
+    },
+    {
+      "source": "soda water",
+      "target": "pernod",
+      "strength": 0.8
+    },
+    {
+      "source": "gin",
+      "target": "pernod",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon",
+      "target": "ouzo",
+      "strength": 0.72
+    },
+    {
+      "source": "sugar",
+      "target": "ouzo",
+      "strength": 0.75
+    },
+    {
+      "source": "soda water",
+      "target": "ouzo",
+      "strength": 0.8
+    },
+    {
+      "source": "mint",
+      "target": "ouzo",
+      "strength": 0.7
+    },
+    {
+      "source": "vodka",
+      "target": "tia maria",
+      "strength": 0.82
+    },
+    {
+      "source": "heavy cream",
+      "target": "tia maria",
+      "strength": 0.8
+    },
+    {
+      "source": "espresso",
+      "target": "tia maria",
+      "strength": 0.88
+    },
+    {
+      "source": "kahlua",
+      "target": "tia maria",
+      "strength": 0.78
+    },
+    {
+      "source": "lime",
+      "target": "southern comfort",
+      "strength": 0.78
+    },
+    {
+      "source": "orange",
+      "target": "southern comfort",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon",
+      "target": "southern comfort",
+      "strength": 0.75
+    },
+    {
+      "source": "cola",
+      "target": "southern comfort",
+      "strength": 0.78
+    },
+    {
+      "source": "ginger ale",
+      "target": "southern comfort",
+      "strength": 0.72
+    },
+    {
+      "source": "gin",
+      "target": "dubonnet rouge",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "dubonnet rouge",
+      "strength": 0.78
+    },
+    {
+      "source": "orange bitters",
+      "target": "dubonnet rouge",
+      "strength": 0.75
+    },
+    {
+      "source": "orange",
+      "target": "dubonnet rouge",
+      "strength": 0.72
+    },
+    {
+      "source": "gin",
+      "target": "elderflower cordial",
+      "strength": 0.88
+    },
+    {
+      "source": "prosecco",
+      "target": "elderflower cordial",
+      "strength": 0.85
+    },
+    {
+      "source": "soda water",
+      "target": "elderflower cordial",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon",
+      "target": "elderflower cordial",
+      "strength": 0.82
+    },
+    {
+      "source": "vodka",
+      "target": "elderflower cordial",
+      "strength": 0.78
+    },
+    {
+      "source": "champagne",
+      "target": "elderflower cordial",
+      "strength": 0.82
+    },
+    {
+      "source": "ginger beer",
+      "target": "jagermeister",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon",
+      "target": "jagermeister",
+      "strength": 0.7
+    },
+    {
+      "source": "lime",
+      "target": "jagermeister",
+      "strength": 0.72
+    },
+    {
+      "source": "cola",
+      "target": "jagermeister",
+      "strength": 0.75
+    },
+    {
+      "source": "espresso",
+      "target": "jagermeister",
+      "strength": 0.78
+    },
+    {
+      "source": "bourbon",
+      "target": "amaro montenegro",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon",
+      "target": "amaro montenegro",
+      "strength": 0.78
+    },
+    {
+      "source": "orange",
+      "target": "amaro montenegro",
+      "strength": 0.8
+    },
+    {
+      "source": "gin",
+      "target": "amaro montenegro",
+      "strength": 0.78
+    },
+    {
+      "source": "soda water",
+      "target": "amaro montenegro",
+      "strength": 0.72
+    },
+    {
+      "source": "vodka",
+      "target": "midori melon liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon",
+      "target": "midori melon liqueur",
+      "strength": 0.75
+    },
+    {
+      "source": "soda water",
+      "target": "midori melon liqueur",
+      "strength": 0.72
+    },
+    {
+      "source": "pineapple",
+      "target": "midori melon liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "lime",
+      "target": "midori melon liqueur",
+      "strength": 0.72
+    },
+    {
+      "source": "rum",
+      "target": "coconut liqueur",
+      "strength": 0.88
+    },
+    {
+      "source": "pineapple",
+      "target": "coconut liqueur",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "coconut liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "coconut cream",
+      "target": "coconut liqueur",
+      "strength": 0.82
+    },
+    {
+      "source": "rum",
+      "target": "banana liqueur",
+      "strength": 0.82
+    },
+    {
+      "source": "heavy cream",
+      "target": "banana liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "coconut cream",
+      "target": "banana liqueur",
+      "strength": 0.8
+    },
+    {
+      "source": "pineapple",
+      "target": "banana liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "vodka",
+      "target": "coffee liqueur",
+      "strength": 0.85
+    },
+    {
+      "source": "heavy cream",
+      "target": "coffee liqueur",
+      "strength": 0.82
+    },
+    {
+      "source": "espresso",
+      "target": "coffee liqueur",
+      "strength": 0.9
+    },
+    {
+      "source": "rum",
+      "target": "coffee liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "kahlua",
+      "target": "coffee liqueur",
+      "strength": 0.85
+    },
+    {
+      "source": "heavy cream",
+      "target": "chocolate liqueur",
+      "strength": 0.85
+    },
+    {
+      "source": "vodka",
+      "target": "chocolate liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "kahlua",
+      "target": "chocolate liqueur",
+      "strength": 0.82
+    },
+    {
+      "source": "espresso",
+      "target": "chocolate liqueur",
+      "strength": 0.8
+    },
+    {
+      "source": "coffee",
+      "target": "chocolate liqueur",
+      "strength": 0.82
+    },
+    {
+      "source": "orange",
+      "target": "peach schnapps",
+      "strength": 0.82
+    },
+    {
+      "source": "vodka",
+      "target": "peach schnapps",
+      "strength": 0.8
+    },
+    {
+      "source": "cranberry juice",
+      "target": "peach schnapps",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon",
+      "target": "peach schnapps",
+      "strength": 0.75
+    },
+    {
+      "source": "prosecco",
+      "target": "peach schnapps",
+      "strength": 0.75
+    },
+    {
+      "source": "vodka",
+      "target": "butterscotch schnapps",
+      "strength": 0.78
+    },
+    {
+      "source": "heavy cream",
+      "target": "butterscotch schnapps",
+      "strength": 0.8
+    },
+    {
+      "source": "kahlua",
+      "target": "butterscotch schnapps",
+      "strength": 0.75
+    },
+    {
+      "source": "bourbon",
+      "target": "butterscotch schnapps",
+      "strength": 0.75
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "sherry",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon",
+      "target": "sherry",
+      "strength": 0.78
+    },
+    {
+      "source": "gin",
+      "target": "sherry",
+      "strength": 0.8
+    },
+    {
+      "source": "orange bitters",
+      "target": "sherry",
+      "strength": 0.75
+    },
+    {
+      "source": "whiskey",
+      "target": "sherry",
+      "strength": 0.75
+    },
+    {
+      "source": "brandy",
+      "target": "port",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon",
+      "target": "port",
+      "strength": 0.75
+    },
+    {
+      "source": "cognac",
+      "target": "port",
+      "strength": 0.8
+    },
+    {
+      "source": "egg white",
+      "target": "port",
+      "strength": 0.72
+    },
+    {
+      "source": "orange",
+      "target": "port",
+      "strength": 0.75
+    },
+    {
+      "source": "gin",
+      "target": "lillet",
+      "strength": 0.85
+    },
+    {
+      "source": "vodka",
+      "target": "lillet",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon",
+      "target": "lillet",
+      "strength": 0.8
+    },
+    {
+      "source": "tonic water",
+      "target": "lillet",
+      "strength": 0.78
+    },
+    {
+      "source": "prosecco",
+      "target": "lillet",
+      "strength": 0.75
+    },
+    {
+      "source": "vodka",
+      "target": "espresso",
+      "strength": 0.85
+    },
+    {
+      "source": "kahlua",
+      "target": "espresso",
+      "strength": 0.9
+    },
+    {
+      "source": "simple syrup",
+      "target": "espresso",
+      "strength": 0.82
+    },
+    {
+      "source": "rum",
+      "target": "espresso",
+      "strength": 0.78
+    },
+    {
+      "source": "bourbon",
+      "target": "espresso",
+      "strength": 0.75
+    },
+    {
+      "source": "heavy cream",
+      "target": "espresso",
+      "strength": 0.8
+    },
+    {
+      "source": "vodka",
+      "target": "tomato juice",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon",
+      "target": "tomato juice",
+      "strength": 0.8
+    },
+    {
+      "source": "salt",
+      "target": "tomato juice",
+      "strength": 0.82
+    },
+    {
+      "source": "black pepper",
+      "target": "tomato juice",
+      "strength": 0.78
+    },
+    {
+      "source": "jalapeño",
+      "target": "tomato juice",
+      "strength": 0.75
+    },
+    {
+      "source": "vodka",
+      "target": "cranberry juice",
+      "strength": 0.88
+    },
+    {
+      "source": "lime",
+      "target": "cranberry juice",
+      "strength": 0.82
+    },
+    {
+      "source": "triple sec",
+      "target": "cranberry juice",
+      "strength": 0.8
+    },
+    {
+      "source": "gin",
+      "target": "cranberry juice",
+      "strength": 0.78
+    },
+    {
+      "source": "orange",
+      "target": "cranberry juice",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "cranberry juice",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "pineapple juice",
+      "strength": 0.9
+    },
+    {
+      "source": "vodka",
+      "target": "pineapple juice",
+      "strength": 0.8
+    },
+    {
+      "source": "coconut cream",
+      "target": "pineapple juice",
+      "strength": 0.88
+    },
+    {
+      "source": "lime",
+      "target": "pineapple juice",
+      "strength": 0.82
+    },
+    {
+      "source": "tequila",
+      "target": "pineapple juice",
+      "strength": 0.78
+    },
+    {
+      "source": "coconut liqueur",
+      "target": "pineapple juice",
+      "strength": 0.85
+    },
+    {
+      "source": "tequila",
+      "target": "grapefruit juice",
+      "strength": 0.88
+    },
+    {
+      "source": "mezcal",
+      "target": "grapefruit juice",
+      "strength": 0.85
+    },
+    {
+      "source": "vodka",
+      "target": "grapefruit juice",
+      "strength": 0.78
+    },
+    {
+      "source": "gin",
+      "target": "grapefruit juice",
+      "strength": 0.8
+    },
+    {
+      "source": "salt",
+      "target": "grapefruit juice",
+      "strength": 0.75
+    },
+    {
+      "source": "lime",
+      "target": "grapefruit juice",
+      "strength": 0.78
+    },
+    {
+      "source": "bourbon",
+      "target": "apple juice",
+      "strength": 0.82
+    },
+    {
+      "source": "brandy",
+      "target": "apple juice",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger",
+      "target": "apple juice",
+      "strength": 0.78
+    },
+    {
+      "source": "cinnamon",
+      "target": "apple juice",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon",
+      "target": "apple juice",
+      "strength": 0.75
+    },
+    {
+      "source": "vodka",
+      "target": "pomegranate juice",
+      "strength": 0.78
+    },
+    {
+      "source": "gin",
+      "target": "pomegranate juice",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon",
+      "target": "pomegranate juice",
+      "strength": 0.8
+    },
+    {
+      "source": "lime",
+      "target": "pomegranate juice",
+      "strength": 0.78
+    },
+    {
+      "source": "simple syrup",
+      "target": "pomegranate juice",
+      "strength": 0.72
+    },
+    {
+      "source": "rum",
+      "target": "passion fruit juice",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "passion fruit juice",
+      "strength": 0.82
+    },
+    {
+      "source": "prosecco",
+      "target": "passion fruit juice",
+      "strength": 0.8
+    },
+    {
+      "source": "vodka",
+      "target": "passion fruit juice",
+      "strength": 0.78
+    },
+    {
+      "source": "vanilla",
+      "target": "passion fruit juice",
+      "strength": 0.78
+    },
+    {
+      "source": "bourbon",
+      "target": "cola",
+      "strength": 0.8
+    },
+    {
+      "source": "mezcal",
+      "target": "tonic water",
+      "strength": 0.78
+    },
+    {
+      "source": "rum",
+      "target": "coconut milk",
+      "strength": 0.88
+    },
+    {
+      "source": "pineapple",
+      "target": "coconut milk",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "coconut milk",
+      "strength": 0.78
+    },
+    {
+      "source": "coconut cream",
+      "target": "coconut milk",
+      "strength": 0.9
+    },
+    {
+      "source": "rum",
+      "target": "cream of coconut",
+      "strength": 0.9
+    },
+    {
+      "source": "pineapple juice",
+      "target": "cream of coconut",
+      "strength": 0.88
+    },
+    {
+      "source": "lime",
+      "target": "cream of coconut",
+      "strength": 0.75
+    },
+    {
+      "source": "vodka",
+      "target": "cream of coconut",
+      "strength": 0.72
+    },
+    {
+      "source": "rum",
+      "target": "condensed milk",
+      "strength": 0.78
+    },
+    {
+      "source": "lime",
+      "target": "condensed milk",
+      "strength": 0.82
+    },
+    {
+      "source": "coconut cream",
+      "target": "condensed milk",
+      "strength": 0.8
+    },
+    {
+      "source": "espresso",
+      "target": "condensed milk",
+      "strength": 0.78
+    },
+    {
+      "source": "vodka",
+      "target": "lemon-lime soda",
+      "strength": 0.78
+    },
+    {
+      "source": "rum",
+      "target": "lemon-lime soda",
+      "strength": 0.78
+    },
+    {
+      "source": "whiskey",
+      "target": "lemon-lime soda",
+      "strength": 0.72
+    },
+    {
+      "source": "gin",
+      "target": "lemon-lime soda",
+      "strength": 0.72
+    },
+    {
+      "source": "gin",
+      "target": "bitter lemon",
+      "strength": 0.82
+    },
+    {
+      "source": "vodka",
+      "target": "bitter lemon",
+      "strength": 0.75
+    },
+    {
+      "source": "pernod",
+      "target": "bitter lemon",
+      "strength": 0.72
+    },
+    {
+      "source": "rum",
+      "target": "orgeat syrup",
+      "strength": 0.88
+    },
+    {
+      "source": "lime",
+      "target": "orgeat syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "cognac",
+      "target": "orgeat syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "gin",
+      "target": "orgeat syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "bourbon",
+      "target": "ginger syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "scotch",
+      "target": "ginger syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "lime",
+      "target": "ginger syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon",
+      "target": "ginger syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "rum",
+      "target": "ginger syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "bourbon",
+      "target": "vanilla syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "espresso",
+      "target": "vanilla syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "rum",
+      "target": "vanilla syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "vodka",
+      "target": "vanilla syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "rum",
+      "target": "passion fruit syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "passion fruit syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "prosecco",
+      "target": "passion fruit syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "vodka",
+      "target": "passion fruit syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "gin",
+      "target": "raspberry syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon",
+      "target": "raspberry syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "vodka",
+      "target": "raspberry syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "prosecco",
+      "target": "raspberry syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "mint syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "lime",
+      "target": "mint syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "soda water",
+      "target": "mint syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "bourbon",
+      "target": "mint syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "rum",
+      "target": "coconut syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "pineapple",
+      "target": "coconut syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "lime",
+      "target": "coconut syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "vodka",
+      "target": "coconut syrup",
+      "strength": 0.72
+    },
+    {
+      "source": "rum",
+      "target": "pineapple syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "lime",
+      "target": "pineapple syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "tequila",
+      "target": "pineapple syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "vodka",
+      "target": "pineapple syrup",
+      "strength": 0.72
+    },
+    {
+      "source": "gin",
+      "target": "rosemary syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon",
+      "target": "rosemary syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "grapefruit",
+      "target": "rosemary syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "vodka",
+      "target": "rosemary syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "brown sugar",
+      "strength": 0.85
+    },
+    {
+      "source": "bourbon",
+      "target": "brown sugar",
+      "strength": 0.82
+    },
+    {
+      "source": "lime",
+      "target": "brown sugar",
+      "strength": 0.78
+    },
+    {
+      "source": "cinnamon",
+      "target": "brown sugar",
+      "strength": 0.8
+    },
+    {
+      "source": "bourbon",
+      "target": "corn syrup",
+      "strength": 0.72
+    },
+    {
+      "source": "rum",
+      "target": "corn syrup",
+      "strength": 0.72
+    },
+    {
+      "source": "lemon",
+      "target": "corn syrup",
+      "strength": 0.7
+    },
+    {
+      "source": "bourbon",
+      "target": "peach bitters",
+      "strength": 0.82
+    },
+    {
+      "source": "gin",
+      "target": "peach bitters",
+      "strength": 0.78
+    },
+    {
+      "source": "prosecco",
+      "target": "peach bitters",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon",
+      "target": "peach bitters",
+      "strength": 0.72
+    },
+    {
+      "source": "scotch",
+      "target": "sherry",
+      "strength": 0.78
+    },
+    {
+      "source": "angostura bitters",
+      "target": "sherry",
+      "strength": 0.72
+    },
+    {
+      "source": "scotch",
+      "target": "cherry heering",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon",
+      "target": "cherry heering",
+      "strength": 0.78
+    },
+    {
+      "source": "applejack",
+      "target": "apple brandy",
+      "strength": 0.9
+    },
+    {
+      "source": "apple juice",
+      "target": "apple brandy",
+      "strength": 0.85
+    },
+    {
+      "source": "apple juice",
+      "target": "applejack",
+      "strength": 0.82
+    },
+    {
+      "source": "dry vermouth",
+      "target": "creme de cassis",
+      "strength": 0.75
+    },
+    {
+      "source": "cranberry juice",
+      "target": "chambord raspberry liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "espresso",
+      "target": "galliano",
+      "strength": 0.78
+    },
+    {
+      "source": "cranberry juice",
+      "target": "southern comfort",
+      "strength": 0.75
+    },
+    {
+      "source": "peach schnapps",
+      "target": "southern comfort",
+      "strength": 0.8
+    },
+    {
+      "source": "pineapple juice",
+      "target": "peach schnapps",
+      "strength": 0.78
+    },
+    {
+      "source": "pineapple juice",
+      "target": "midori melon liqueur",
+      "strength": 0.78
+    },
+    {
+      "source": "coconut cream",
+      "target": "midori melon liqueur",
+      "strength": 0.75
+    },
+    {
+      "source": "apple juice",
+      "target": "butterscotch schnapps",
+      "strength": 0.75
+    },
+    {
+      "source": "orange",
+      "target": "jagermeister",
+      "strength": 0.72
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "amaro montenegro",
+      "strength": 0.78
+    },
+    {
+      "source": "angostura bitters",
+      "target": "amaro montenegro",
+      "strength": 0.75
+    },
+    {
+      "source": "whiskey",
+      "target": "dubonnet rouge",
+      "strength": 0.75
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "dubonnet rouge",
+      "strength": 0.78
+    },
+    {
+      "source": "chocolate bitters",
+      "target": "port",
+      "strength": 0.75
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "port",
+      "strength": 0.72
+    },
+    {
+      "source": "passion fruit juice",
+      "target": "pisco",
+      "strength": 0.82
+    },
+    {
+      "source": "passion fruit syrup",
+      "target": "cachaca",
+      "strength": 0.8
+    },
+    {
+      "source": "orange bitters",
+      "target": "sloe gin",
+      "strength": 0.72
+    },
+    {
+      "source": "coffee liqueur",
+      "target": "tia maria",
+      "strength": 0.85
+    },
+    {
+      "source": "rum",
+      "target": "tia maria",
+      "strength": 0.78
+    },
+    {
+      "source": "chocolate bitters",
+      "target": "godiva liqueur",
+      "strength": 0.8
+    },
+    {
+      "source": "pernod",
+      "target": "sambuca",
+      "strength": 0.8
+    },
+    {
+      "source": "ouzo",
+      "target": "sambuca",
+      "strength": 0.85
+    },
+    {
+      "source": "coconut milk",
+      "target": "coconut liqueur",
+      "strength": 0.8
+    },
+    {
+      "source": "creme de banane",
+      "target": "banana liqueur",
+      "strength": 0.9
+    },
+    {
+      "source": "creme de cacao",
+      "target": "chocolate liqueur",
+      "strength": 0.88
+    },
+    {
+      "source": "godiva liqueur",
+      "target": "chocolate liqueur",
+      "strength": 0.85
+    },
+    {
+      "source": "gin",
+      "target": "lemon juice",
+      "strength": 0.95
+    },
+    {
+      "source": "vodka",
+      "target": "lemon juice",
+      "strength": 0.85
+    },
+    {
+      "source": "whiskey",
+      "target": "lemon juice",
+      "strength": 0.85
+    },
+    {
+      "source": "bourbon",
+      "target": "lemon juice",
+      "strength": 0.85
+    },
+    {
+      "source": "cognac",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "rum",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "simple syrup",
+      "target": "lemon juice",
+      "strength": 0.95
+    },
+    {
+      "source": "egg white",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "triple sec",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "cointreau",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "st-germain",
+      "target": "lemon juice",
+      "strength": 0.8
+    },
+    {
+      "source": "rum",
+      "target": "lime juice",
+      "strength": 0.95
+    },
+    {
+      "source": "tequila",
+      "target": "lime juice",
+      "strength": 0.95
+    },
+    {
+      "source": "gin",
+      "target": "lime juice",
+      "strength": 0.9
+    },
+    {
+      "source": "vodka",
+      "target": "lime juice",
+      "strength": 0.85
+    },
+    {
+      "source": "mezcal",
+      "target": "lime juice",
+      "strength": 0.9
+    },
+    {
+      "source": "simple syrup",
+      "target": "lime juice",
+      "strength": 0.95
+    },
+    {
+      "source": "agave syrup",
+      "target": "lime juice",
+      "strength": 0.9
+    },
+    {
+      "source": "triple sec",
+      "target": "lime juice",
+      "strength": 0.9
+    },
+    {
+      "source": "cointreau",
+      "target": "lime juice",
+      "strength": 0.9
+    },
+    {
+      "source": "ginger beer",
+      "target": "lime juice",
+      "strength": 0.85
+    },
+    {
+      "source": "coconut cream",
+      "target": "lime juice",
+      "strength": 0.8
+    },
+    {
+      "source": "vodka",
+      "target": "orange juice",
+      "strength": 0.9
+    },
+    {
+      "source": "tequila",
+      "target": "orange juice",
+      "strength": 0.85
+    },
+    {
+      "source": "rum",
+      "target": "orange juice",
+      "strength": 0.85
+    },
+    {
+      "source": "champagne",
+      "target": "orange juice",
+      "strength": 0.9
+    },
+    {
+      "source": "prosecco",
+      "target": "orange juice",
+      "strength": 0.85
+    },
+    {
+      "source": "grenadine",
+      "target": "orange juice",
+      "strength": 0.8
+    },
+    {
+      "source": "triple sec",
+      "target": "orange juice",
+      "strength": 0.8
+    },
+    {
+      "source": "campari",
+      "target": "orange juice",
+      "strength": 0.75
+    },
+    {
+      "source": "cranberry juice",
+      "target": "orange juice",
+      "strength": 0.8
+    },
+    {
+      "source": "pineapple juice",
+      "target": "orange juice",
+      "strength": 0.8
+    },
+    {
+      "source": "kahlua",
+      "target": "baileys irish cream",
+      "strength": 0.9
+    },
+    {
+      "source": "vodka",
+      "target": "baileys irish cream",
+      "strength": 0.8
+    },
+    {
+      "source": "whiskey",
+      "target": "baileys irish cream",
+      "strength": 0.85
+    },
+    {
+      "source": "heavy cream",
+      "target": "baileys irish cream",
+      "strength": 0.85
+    },
+    {
+      "source": "coffee liqueur",
+      "target": "baileys irish cream",
+      "strength": 0.9
+    },
+    {
+      "source": "espresso",
+      "target": "baileys irish cream",
+      "strength": 0.85
+    },
+    {
+      "source": "chocolate liqueur",
+      "target": "baileys irish cream",
+      "strength": 0.85
+    },
+    {
+      "source": "frangelico",
+      "target": "baileys irish cream",
+      "strength": 0.75
+    },
+    {
+      "source": "cognac",
+      "target": "grand marnier",
+      "strength": 0.9
+    },
+    {
+      "source": "lemon juice",
+      "target": "grand marnier",
+      "strength": 0.85
+    },
+    {
+      "source": "lime juice",
+      "target": "grand marnier",
+      "strength": 0.8
+    },
+    {
+      "source": "orange juice",
+      "target": "grand marnier",
+      "strength": 0.85
+    },
+    {
+      "source": "champagne",
+      "target": "grand marnier",
+      "strength": 0.8
+    },
+    {
+      "source": "cranberry juice",
+      "target": "grand marnier",
+      "strength": 0.75
+    },
+    {
+      "source": "tequila",
+      "target": "grand marnier",
+      "strength": 0.8
+    },
+    {
+      "source": "vodka",
+      "target": "blue curacao",
+      "strength": 0.85
+    },
+    {
+      "source": "rum",
+      "target": "blue curacao",
+      "strength": 0.8
+    },
+    {
+      "source": "tequila",
+      "target": "blue curacao",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon juice",
+      "target": "blue curacao",
+      "strength": 0.8
+    },
+    {
+      "source": "lime juice",
+      "target": "blue curacao",
+      "strength": 0.8
+    },
+    {
+      "source": "orange juice",
+      "target": "blue curacao",
+      "strength": 0.8
+    },
+    {
+      "source": "pineapple juice",
+      "target": "blue curacao",
+      "strength": 0.8
+    },
+    {
+      "source": "coconut cream",
+      "target": "blue curacao",
+      "strength": 0.75
+    },
+    {
+      "source": "gin",
+      "target": "apricot brandy",
+      "strength": 0.85
+    },
+    {
+      "source": "lemon juice",
+      "target": "apricot brandy",
+      "strength": 0.85
+    },
+    {
+      "source": "orange juice",
+      "target": "apricot brandy",
+      "strength": 0.8
+    },
+    {
+      "source": "lime juice",
+      "target": "apricot brandy",
+      "strength": 0.75
+    },
+    {
+      "source": "grenadine",
+      "target": "apricot brandy",
+      "strength": 0.7
+    },
+    {
+      "source": "simple syrup",
+      "target": "apricot brandy",
+      "strength": 0.7
+    },
+    {
+      "source": "lime juice",
+      "target": "pisco",
+      "strength": 0.9
+    },
+    {
+      "source": "lemon juice",
+      "target": "pisco",
+      "strength": 0.8
+    },
+    {
+      "source": "coconut",
+      "target": "cachaca",
+      "strength": 0.75
+    },
+    {
+      "source": "pineapple juice",
+      "target": "cachaca",
+      "strength": 0.78
+    },
+    {
+      "source": "lime juice",
+      "target": "rhum agricole",
+      "strength": 0.88
+    },
+    {
+      "source": "simple syrup",
+      "target": "rhum agricole",
+      "strength": 0.82
+    },
+    {
+      "source": "orange juice",
+      "target": "rhum agricole",
+      "strength": 0.78
+    },
+    {
+      "source": "falernum",
+      "target": "rhum agricole",
+      "strength": 0.8
+    },
+    {
+      "source": "angostura bitters",
+      "target": "rhum agricole",
+      "strength": 0.75
+    },
+    {
+      "source": "pineapple juice",
+      "target": "rhum agricole",
+      "strength": 0.82
+    },
+    {
+      "source": "coconut cream",
+      "target": "rhum agricole",
+      "strength": 0.76
+    },
+    {
+      "source": "lemon juice",
+      "target": "aquavit",
+      "strength": 0.82
+    },
+    {
+      "source": "dill",
+      "target": "aquavit",
+      "strength": 0.8
+    },
+    {
+      "source": "grapefruit juice",
+      "target": "aquavit",
+      "strength": 0.78
+    },
+    {
+      "source": "honey",
+      "target": "aquavit",
+      "strength": 0.75
+    },
+    {
+      "source": "caraway",
+      "target": "aquavit",
+      "strength": 0.72
+    },
+    {
+      "source": "tonic water",
+      "target": "aquavit",
+      "strength": 0.7
+    },
+    {
+      "source": "lemon juice",
+      "target": "genever",
+      "strength": 0.85
+    },
+    {
+      "source": "sugar",
+      "target": "genever",
+      "strength": 0.8
+    },
+    {
+      "source": "orange",
+      "target": "genever",
+      "strength": 0.78
+    },
+    {
+      "source": "angostura bitters",
+      "target": "genever",
+      "strength": 0.75
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "genever",
+      "strength": 0.82
+    },
+    {
+      "source": "dry vermouth",
+      "target": "genever",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon juice",
+      "target": "shochu",
+      "strength": 0.82
+    },
+    {
+      "source": "soda water",
+      "target": "shochu",
+      "strength": 0.8
+    },
+    {
+      "source": "grapefruit juice",
+      "target": "shochu",
+      "strength": 0.78
+    },
+    {
+      "source": "green tea",
+      "target": "shochu",
+      "strength": 0.75
+    },
+    {
+      "source": "cucumber",
+      "target": "shochu",
+      "strength": 0.72
+    },
+    {
+      "source": "ginger",
+      "target": "shochu",
+      "strength": 0.7
+    },
+    {
+      "source": "lemon juice",
+      "target": "baijiu",
+      "strength": 0.78
+    },
+    {
+      "source": "honey syrup",
+      "target": "baijiu",
+      "strength": 0.75
+    },
+    {
+      "source": "ginger",
+      "target": "baijiu",
+      "strength": 0.8
+    },
+    {
+      "source": "lychee",
+      "target": "baijiu",
+      "strength": 0.72
+    },
+    {
+      "source": "soda water",
+      "target": "baijiu",
+      "strength": 0.7
+    },
+    {
+      "source": "simple syrup",
+      "target": "baijiu",
+      "strength": 0.68
+    },
+    {
+      "source": "lime juice",
+      "target": "sotol",
+      "strength": 0.85
+    },
+    {
+      "source": "agave syrup",
+      "target": "sotol",
+      "strength": 0.82
+    },
+    {
+      "source": "grapefruit juice",
+      "target": "sotol",
+      "strength": 0.78
+    },
+    {
+      "source": "mezcal",
+      "target": "sotol",
+      "strength": 0.72
+    },
+    {
+      "source": "orange bitters",
+      "target": "sotol",
+      "strength": 0.7
+    },
+    {
+      "source": "pineapple juice",
+      "target": "sotol",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon juice",
+      "target": "grappa",
+      "strength": 0.82
+    },
+    {
+      "source": "honey",
+      "target": "grappa",
+      "strength": 0.78
+    },
+    {
+      "source": "espresso",
+      "target": "grappa",
+      "strength": 0.8
+    },
+    {
+      "source": "simple syrup",
+      "target": "grappa",
+      "strength": 0.75
+    },
+    {
+      "source": "orange",
+      "target": "grappa",
+      "strength": 0.72
+    },
+    {
+      "source": "chamomile",
+      "target": "grappa",
+      "strength": 0.68
+    },
+    {
+      "source": "lemon juice",
+      "target": "eau de vie",
+      "strength": 0.82
+    },
+    {
+      "source": "simple syrup",
+      "target": "eau de vie",
+      "strength": 0.8
+    },
+    {
+      "source": "prosecco",
+      "target": "eau de vie",
+      "strength": 0.78
+    },
+    {
+      "source": "elderflower",
+      "target": "eau de vie",
+      "strength": 0.75
+    },
+    {
+      "source": "peach",
+      "target": "eau de vie",
+      "strength": 0.85
+    },
+    {
+      "source": "apricot",
+      "target": "eau de vie",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon juice",
+      "target": "soju",
+      "strength": 0.8
+    },
+    {
+      "source": "watermelon",
+      "target": "soju",
+      "strength": 0.78
+    },
+    {
+      "source": "peach",
+      "target": "soju",
+      "strength": 0.8
+    },
+    {
+      "source": "grapefruit juice",
+      "target": "soju",
+      "strength": 0.75
+    },
+    {
+      "source": "soda water",
+      "target": "soju",
+      "strength": 0.72
+    },
+    {
+      "source": "yogurt",
+      "target": "soju",
+      "strength": 0.68
+    },
+    {
+      "source": "lime juice",
+      "target": "arrack",
+      "strength": 0.85
+    },
+    {
+      "source": "simple syrup",
+      "target": "arrack",
+      "strength": 0.82
+    },
+    {
+      "source": "pineapple juice",
+      "target": "arrack",
+      "strength": 0.8
+    },
+    {
+      "source": "coconut",
+      "target": "arrack",
+      "strength": 0.78
+    },
+    {
+      "source": "angostura bitters",
+      "target": "arrack",
+      "strength": 0.72
+    },
+    {
+      "source": "ginger beer",
+      "target": "arrack",
+      "strength": 0.75
+    },
+    {
+      "source": "rum",
+      "target": "velvet falernum",
+      "strength": 0.88
+    },
+    {
+      "source": "lime juice",
+      "target": "velvet falernum",
+      "strength": 0.85
+    },
+    {
+      "source": "angostura bitters",
+      "target": "velvet falernum",
+      "strength": 0.78
+    },
+    {
+      "source": "pineapple juice",
+      "target": "velvet falernum",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger beer",
+      "target": "velvet falernum",
+      "strength": 0.75
+    },
+    {
+      "source": "bourbon",
+      "target": "velvet falernum",
+      "strength": 0.7
+    },
+    {
+      "source": "rum",
+      "target": "allspice dram",
+      "strength": 0.85
+    },
+    {
+      "source": "lime juice",
+      "target": "allspice dram",
+      "strength": 0.78
+    },
+    {
+      "source": "angostura bitters",
+      "target": "allspice dram",
+      "strength": 0.8
+    },
+    {
+      "source": "honey",
+      "target": "allspice dram",
+      "strength": 0.75
+    },
+    {
+      "source": "bourbon",
+      "target": "allspice dram",
+      "strength": 0.72
+    },
+    {
+      "source": "lemon juice",
+      "target": "allspice dram",
+      "strength": 0.76
+    },
+    {
+      "source": "gin",
+      "target": "creme de violette",
+      "strength": 0.88
+    },
+    {
+      "source": "lemon juice",
+      "target": "creme de violette",
+      "strength": 0.82
+    },
+    {
+      "source": "maraschino liqueur",
+      "target": "creme de violette",
+      "strength": 0.85
+    },
+    {
+      "source": "simple syrup",
+      "target": "creme de violette",
+      "strength": 0.7
+    },
+    {
+      "source": "prosecco",
+      "target": "creme de violette",
+      "strength": 0.72
+    },
+    {
+      "source": "egg white",
+      "target": "creme de violette",
+      "strength": 0.68
+    },
+    {
+      "source": "gin",
+      "target": "suze",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon juice",
+      "target": "suze",
+      "strength": 0.8
+    },
+    {
+      "source": "tonic water",
+      "target": "suze",
+      "strength": 0.78
+    },
+    {
+      "source": "grapefruit juice",
+      "target": "suze",
+      "strength": 0.76
+    },
+    {
+      "source": "dry vermouth",
+      "target": "suze",
+      "strength": 0.75
+    },
+    {
+      "source": "simple syrup",
+      "target": "suze",
+      "strength": 0.68
+    },
+    {
+      "source": "bourbon",
+      "target": "amaro nonino",
+      "strength": 0.85
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "amaro nonino",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon juice",
+      "target": "amaro nonino",
+      "strength": 0.8
+    },
+    {
+      "source": "orange bitters",
+      "target": "amaro nonino",
+      "strength": 0.78
+    },
+    {
+      "source": "rye whiskey",
+      "target": "amaro nonino",
+      "strength": 0.82
+    },
+    {
+      "source": "prosecco",
+      "target": "amaro nonino",
+      "strength": 0.72
+    },
+    {
+      "source": "cola",
+      "target": "fernet branca",
+      "strength": 0.82
+    },
+    {
+      "source": "mint",
+      "target": "fernet branca",
+      "strength": 0.78
+    },
+    {
+      "source": "espresso",
+      "target": "fernet branca",
+      "strength": 0.75
+    },
+    {
+      "source": "sugar",
+      "target": "fernet branca",
+      "strength": 0.7
+    },
+    {
+      "source": "rye whiskey",
+      "target": "fernet branca",
+      "strength": 0.72
+    },
+    {
+      "source": "ginger beer",
+      "target": "fernet branca",
+      "strength": 0.68
+    },
+    {
+      "source": "bourbon",
+      "target": "cynar",
+      "strength": 0.8
+    },
+    {
+      "source": "sweet vermouth",
+      "target": "cynar",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon juice",
+      "target": "cynar",
+      "strength": 0.78
+    },
+    {
+      "source": "orange bitters",
+      "target": "cynar",
+      "strength": 0.75
+    },
+    {
+      "source": "grapefruit juice",
+      "target": "cynar",
+      "strength": 0.76
+    },
+    {
+      "source": "soda water",
+      "target": "cynar",
+      "strength": 0.68
+    },
+    {
+      "source": "espresso",
+      "target": "licor 43",
+      "strength": 0.85
+    },
+    {
+      "source": "heavy cream",
+      "target": "licor 43",
+      "strength": 0.82
+    },
+    {
+      "source": "vodka",
+      "target": "licor 43",
+      "strength": 0.78
+    },
+    {
+      "source": "orange juice",
+      "target": "licor 43",
+      "strength": 0.8
+    },
+    {
+      "source": "vanilla",
+      "target": "licor 43",
+      "strength": 0.75
+    },
+    {
+      "source": "milk",
+      "target": "licor 43",
+      "strength": 0.72
+    },
+    {
+      "source": "lemon-lime soda",
+      "target": "pimm's",
+      "strength": 0.85
+    },
+    {
+      "source": "cucumber",
+      "target": "pimm's",
+      "strength": 0.82
+    },
+    {
+      "source": "strawberry",
+      "target": "pimm's",
+      "strength": 0.8
+    },
+    {
+      "source": "mint",
+      "target": "pimm's",
+      "strength": 0.78
+    },
+    {
+      "source": "lemon juice",
+      "target": "pimm's",
+      "strength": 0.75
+    },
+    {
+      "source": "ginger ale",
+      "target": "pimm's",
+      "strength": 0.82
+    },
+    {
+      "source": "rum",
+      "target": "coconut water",
+      "strength": 0.82
+    },
+    {
+      "source": "lime juice",
+      "target": "coconut water",
+      "strength": 0.8
+    },
+    {
+      "source": "pineapple juice",
+      "target": "coconut water",
+      "strength": 0.85
+    },
+    {
+      "source": "vodka",
+      "target": "coconut water",
+      "strength": 0.72
+    },
+    {
+      "source": "coconut cream",
+      "target": "coconut water",
+      "strength": 0.78
+    },
+    {
+      "source": "ginger",
+      "target": "coconut water",
+      "strength": 0.7
+    },
+    {
+      "source": "lime juice",
+      "target": "passion fruit syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "pineapple juice",
+      "target": "passion fruit syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "egg white",
+      "target": "passion fruit syrup",
+      "strength": 0.72
+    },
+    {
+      "source": "bourbon",
+      "target": "cinnamon syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "rum",
+      "target": "cinnamon syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon juice",
+      "target": "cinnamon syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "apple",
+      "target": "cinnamon syrup",
+      "strength": 0.8
+    },
+    {
+      "source": "angostura bitters",
+      "target": "cinnamon syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "egg white",
+      "target": "cinnamon syrup",
+      "strength": 0.7
+    },
+    {
+      "source": "lemon juice",
+      "target": "oleo saccharum",
+      "strength": 0.88
+    },
+    {
+      "source": "rum",
+      "target": "oleo saccharum",
+      "strength": 0.82
+    },
+    {
+      "source": "brandy",
+      "target": "oleo saccharum",
+      "strength": 0.85
+    },
+    {
+      "source": "tea",
+      "target": "oleo saccharum",
+      "strength": 0.8
+    },
+    {
+      "source": "bourbon",
+      "target": "oleo saccharum",
+      "strength": 0.78
+    },
+    {
+      "source": "prosecco",
+      "target": "oleo saccharum",
+      "strength": 0.75
+    },
+    {
+      "source": "bourbon",
+      "target": "saline solution",
+      "strength": 0.78
+    },
+    {
+      "source": "tequila",
+      "target": "saline solution",
+      "strength": 0.78
+    },
+    {
+      "source": "rum",
+      "target": "saline solution",
+      "strength": 0.75
+    },
+    {
+      "source": "lime juice",
+      "target": "saline solution",
+      "strength": 0.72
+    },
+    {
+      "source": "simple syrup",
+      "target": "saline solution",
+      "strength": 0.7
+    },
+    {
+      "source": "grapefruit juice",
+      "target": "saline solution",
+      "strength": 0.72
+    },
+    {
+      "source": "lime juice",
+      "target": "falernum",
+      "strength": 0.85
+    },
+    {
+      "source": "angostura bitters",
+      "target": "falernum",
+      "strength": 0.78
+    },
+    {
+      "source": "pineapple juice",
+      "target": "falernum",
+      "strength": 0.8
+    },
+    {
+      "source": "ginger beer",
+      "target": "falernum",
+      "strength": 0.75
+    },
+    {
+      "source": "gin",
+      "target": "aperol",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon juice",
+      "target": "aperol",
+      "strength": 0.78
+    },
+    {
+      "source": "grapefruit juice",
+      "target": "aperol",
+      "strength": 0.82
+    },
+    {
+      "source": "orange juice",
+      "target": "aperol",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon juice",
+      "target": "yellow chartreuse",
+      "strength": 0.82
+    },
+    {
+      "source": "maraschino liqueur",
+      "target": "yellow chartreuse",
+      "strength": 0.8
+    },
+    {
+      "source": "dry vermouth",
+      "target": "yellow chartreuse",
+      "strength": 0.78
+    },
+    {
+      "source": "lime juice",
+      "target": "yellow chartreuse",
+      "strength": 0.75
+    },
+    {
+      "source": "pineapple juice",
+      "target": "yellow chartreuse",
+      "strength": 0.72
+    },
+    {
+      "source": "rye whiskey",
+      "target": "benedictine",
+      "strength": 0.85
+    },
+    {
+      "source": "bourbon",
+      "target": "benedictine",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon juice",
+      "target": "benedictine",
+      "strength": 0.78
+    },
+    {
+      "source": "angostura bitters",
+      "target": "benedictine",
+      "strength": 0.8
+    },
+    {
+      "source": "honey",
+      "target": "benedictine",
+      "strength": 0.72
+    },
+    {
+      "source": "orange juice",
+      "target": "galliano",
+      "strength": 0.85
+    },
+    {
+      "source": "lime juice",
+      "target": "galliano",
+      "strength": 0.75
+    },
+    {
+      "source": "cream",
+      "target": "galliano",
+      "strength": 0.72
+    },
+    {
+      "source": "coffee liqueur",
+      "target": "galliano",
+      "strength": 0.78
+    },
+    {
+      "source": "rye whiskey",
+      "target": "amaro montenegro",
+      "strength": 0.8
+    },
+    {
+      "source": "lemon juice",
+      "target": "amaro montenegro",
+      "strength": 0.78
+    },
+    {
+      "source": "orange bitters",
+      "target": "amaro montenegro",
+      "strength": 0.75
+    },
+    {
+      "source": "lime juice",
+      "target": "orgeat",
+      "strength": 0.85
+    },
+    {
+      "source": "orange juice",
+      "target": "orgeat",
+      "strength": 0.8
+    },
+    {
+      "source": "bourbon",
+      "target": "orgeat",
+      "strength": 0.75
+    },
+    {
+      "source": "brandy",
+      "target": "orgeat",
+      "strength": 0.78
+    },
+    {
+      "source": "pineapple juice",
+      "target": "orgeat",
+      "strength": 0.82
+    },
+    {
+      "source": "rum",
+      "target": "honey syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "rye whiskey",
+      "target": "honey syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "lime juice",
+      "target": "demerara syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "lemon juice",
+      "target": "demerara syrup",
+      "strength": 0.78
+    },
+    {
+      "source": "cognac",
+      "target": "demerara syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "lemon juice",
+      "target": "ginger syrup",
+      "strength": 0.85
+    },
+    {
+      "source": "lime juice",
+      "target": "ginger syrup",
+      "strength": 0.82
+    },
+    {
+      "source": "vodka",
+      "target": "ginger syrup",
+      "strength": 0.75
+    },
+    {
+      "source": "soda water",
+      "target": "ginger syrup",
+      "strength": 0.72
     }
   ],
   "cocktailIngredientNames": [
@@ -3568,6 +8219,29 @@
     "olive brine",
     "maraschino cherry",
     "blood orange",
-    "blueberry"
+    "blueberry",
+    "rhum agricole",
+    "aquavit",
+    "genever",
+    "shochu",
+    "baijiu",
+    "sotol",
+    "grappa",
+    "eau de vie",
+    "soju",
+    "arrack",
+    "velvet falernum",
+    "allspice dram",
+    "creme de violette",
+    "suze",
+    "amaro nonino",
+    "fernet branca",
+    "cynar",
+    "licor 43",
+    "pimm's",
+    "coconut water",
+    "cinnamon syrup",
+    "oleo saccharum",
+    "saline solution"
   ]
 }

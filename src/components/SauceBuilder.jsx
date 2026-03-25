@@ -112,8 +112,13 @@ export default function SauceBuilder({
           <span className="text-[10px] text-amber-300">
             {sauceTemplate.name}
           </span>
+          {sauceTemplate.technique && (
+            <span className="text-[9px] text-amber-400/60 capitalize">
+              — {sauceTemplate.technique}
+            </span>
+          )}
           <span className="text-[8px] text-gray-500">
-            {sauceTemplate.confidence}% match
+            · {sauceTemplate.confidence}%
           </span>
         </div>
       )}
