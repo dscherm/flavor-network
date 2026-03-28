@@ -305,6 +305,28 @@ After completion, the mini-ralph directory stays in the repo. Its scripts are re
 
 ---
 
+## Determinism and Reproducibility
+
+The Ralph Loop is non-deterministic. Two runs on the same codebase produce different results.
+
+### Reproducibility Boundaries
+- **Task level**: Roughly reproducible. Same task + same codebase state produces similar outcomes.
+- **Sequence level**: Not reproducible. Running 20 iterations twice will not produce identical repos.
+
+### Audit Trail
+- `.ralph/logs/` — Full agent output per iteration (the replay mechanism)
+- `.ralph/metrics.jsonl` — Quantitative records (duration, files changed, gate results)
+- `activity.md` — Structured progress log with verification results
+- `git log` — Every task produces one commit
+
+### Recommendations
+- Pin the model ID in agent invocation rather than relying on defaults
+- Run plan mode before and after a build run to validate consistency
+- Treat iteration logs as source of truth for what happened
+- Use metrics.jsonl for trend analysis (velocity, cost, pass rate over time)
+
+---
+
 ## Relationship Diagram
 
 ```

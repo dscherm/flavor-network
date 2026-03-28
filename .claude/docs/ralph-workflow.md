@@ -25,6 +25,7 @@ Specialized autonomous loops for domain-specific work. Each has its own plan.md,
 | refactor | `refactor-ralph/` | Component decomposition (LivingArchView) | `bash ralph.sh --preset refactor` |
 | cocktail | `cocktail-ralph/` | Cocktail Lab data, scoring, features | `bash ralph.sh --preset cocktail` |
 | sauce | `sauce-ralph/` | Sauce Lab data, recipes, features | `bash ralph.sh --preset sauce` |
+| harness | `harness-ralph/` | Loop infrastructure, gates, safety, metrics | `bash ralph.sh --preset harness` |
 
 ### Orchestration commands
 ```bash

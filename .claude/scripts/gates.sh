@@ -85,10 +85,55 @@ echo "  Gate 4: Console.log check..."
 LOGS=$(git diff --cached --unified=0 2>/dev/null | grep "^+" | grep -c "console\.log" || true)
 if [ "$LOGS" -gt 0 ]; then
   echo "  ⚠️ Gate 4: Found $LOGS console.log statements in staged changes"
-  echo "  \"gate4_logs\": \"WARN ($LOGS)\"" >> "$RESULTS_FILE"
+  echo "  \"gate4_logs\": \"WARN ($LOGS)\"," >> "$RESULTS_FILE"
 else
   echo "  ✅ Gate 4: No console.log in staged changes"
-  echo "  \"gate4_logs\": \"PASS\"" >> "$RESULTS_FILE"
+  echo "  \"gate4_logs\": \"PASS\"," >> "$RESULTS_FILE"
+fi
+
+# Gate 5: Secrets scan (BLOCKING)
+echo "  Gate 5: Secrets scan..."
+SECRET_PATTERN='AWS_SECRET_ACCESS_KEY|PRIVATE_KEY|api_key\s*=\s*['"'"'"]|password\s*=\s*['"'"'"]|Bearer\s+[A-Za-z0-9._~+/=-]+=*|-----BEGIN (RSA |EC |DSA )?PRIVATE KEY-----|sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}'
+SECRET_MATCHES=$(git diff --cached -U0 2>/dev/null | grep "^+" | grep -iE "$SECRET_PATTERN" || true)
+if [ -n "$SECRET_MATCHES" ]; then
+  echo "  ❌ Gate 5 FAILED: Potential secret detected in staged changes"
+  # Show redacted matches (replace long alphanumeric runs with ***)
+  echo "$SECRET_MATCHES" | sed 's/[A-Za-z0-9_\-]\{12,\}/***/g' | while IFS= read -r line; do
+    echo "    $line"
+  done
+  echo "  \"gate5_secrets\": \"FAIL\"," >> "$RESULTS_FILE"
+  PASS=false
+else
+  echo "  ✅ Gate 5: No secrets detected"
+  echo "  \"gate5_secrets\": \"PASS\"," >> "$RESULTS_FILE"
+fi
+
+# Gate 6: Staged-file denylist (BLOCKING)
+echo "  Gate 6: Staged-file denylist..."
+DENIED_FILES=""
+for f in $(git diff --cached --name-only 2>/dev/null); do
+  basename_f=$(basename "$f")
+  case "$basename_f" in
+    .env|.env.*) DENIED_FILES="$DENIED_FILES $f" ;;
+    *.pem)       DENIED_FILES="$DENIED_FILES $f" ;;
+    *.key)       DENIED_FILES="$DENIED_FILES $f" ;;
+    credentials.*) DENIED_FILES="$DENIED_FILES $f" ;;
+    id_rsa)      DENIED_FILES="$DENIED_FILES $f" ;;
+    id_ed25519)  DENIED_FILES="$DENIED_FILES $f" ;;
+    *.p12)       DENIED_FILES="$DENIED_FILES $f" ;;
+    *.pfx)       DENIED_FILES="$DENIED_FILES $f" ;;
+  esac
+done
+if [ -n "$DENIED_FILES" ]; then
+  echo "  ❌ Gate 6 FAILED: Sensitive file staged:"
+  for f in $DENIED_FILES; do
+    echo "    - $f"
+  done
+  echo "  \"gate6_denylist\": \"FAIL\"" >> "$RESULTS_FILE"
+  PASS=false
+else
+  echo "  ✅ Gate 6: No sensitive files staged"
+  echo "  \"gate6_denylist\": \"PASS\"" >> "$RESULTS_FILE"
 fi
 
 echo "}" >> "$RESULTS_FILE"

@@ -5,6 +5,12 @@ updated: 2026-03-24T20:00
 
 # Flavor Network — Fix Plan (2026-03-24)
 
+## Active Mini-Loops
+
+- [ ] HARNESS-RALPH: 12 tasks (0/12 complete) → `harness-ralph/plan.md`
+  Run via: `bash ralph.sh --preset harness`
+  Spec: C:\Users\scher\.claude\RALPH_LOOP_SPEC.md
+
 ## Completed Mini-Loops
 
 - [x] COCKTAIL-RALPH: 10 tasks (10/10 complete) → `cocktail-ralph/plan.md`
