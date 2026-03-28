@@ -9,6 +9,9 @@
 #   bash ralph.sh --status               # Show progress across all loops
 #   bash ralph.sh --list-presets         # Show available presets
 #   bash ralph.sh --chain ingredient     # Run presets in sequence
+#   bash ralph.sh --timeout 900          # Per-iteration timeout (seconds)
+#   bash ralph.sh --force                # Skip safety checks (dirty tree, main branch)
+#   bash ralph.sh --plan                 # Read-only codebase analysis (writes fix_plan_analysis.md)
 #
 # To stop: Ctrl+C or create .claude/ralph.stop file
 
@@ -24,6 +27,9 @@ PRESET="default"
 CHAIN=()
 DO_STATUS=false
 DO_LIST=false
+TIMEOUT=1800
+FORCE=false
+DO_PLAN=false
 
 # ── Preset resolver ──────────────────────────────────────────────
 resolve_preset() {
@@ -34,6 +40,7 @@ resolve_preset() {
     refactor)   echo "refactor-ralph/prompt.md" ;;
     cocktail)   echo "cocktail-ralph/prompt.md" ;;
     sauce)      echo "sauce-ralph/prompt.md" ;;
+    harness)    echo "harness-ralph/prompt.md" ;;
     *)          echo "" ;;
   esac
 }
@@ -66,6 +73,12 @@ show_status() {
     fi
   done
 
+  # Enhanced dashboard via Node.js
+  if [ -f "tools/ralph_status.cjs" ]; then
+    echo ""
+    node tools/ralph_status.cjs
+  fi
+
   echo ""
 }
 
@@ -93,6 +106,9 @@ while [[ $# -gt 0 ]]; do
     --status)     DO_STATUS=true; shift ;;
     --list-presets) DO_LIST=true; shift ;;
     --chain)      shift; while [[ $# -gt 0 && ! "$1" =~ ^-- ]]; do CHAIN+=("$1"); shift; done ;;
+    --timeout)    TIMEOUT="$2"; shift 2 ;;
+    --force)      FORCE=true; shift ;;
+    --plan)       DO_PLAN=true; shift ;;
     *)            echo "Unknown arg: $1"; exit 1 ;;
   esac
 done
@@ -100,6 +116,18 @@ done
 # Handle status/list commands
 if [ "$DO_STATUS" = true ]; then show_status; exit 0; fi
 if [ "$DO_LIST" = true ]; then list_presets; exit 0; fi
+
+# Handle plan mode
+if [ "$DO_PLAN" = true ]; then
+  echo "📋 Plan mode — read-only analysis"
+  OUTPUT=$(unset CLAUDECODE; cat PLAN_PROMPT.md | claude --print --dangerously-skip-permissions 2>&1) || true
+  echo "$OUTPUT" | tail -30
+  if echo "$OUTPUT" | grep -q "<promise>PLAN_COMPLETE</promise>"; then
+    echo ""
+    echo "Plan analysis complete. See fix_plan_analysis.md"
+  fi
+  exit 0
+fi
 
 # Handle chain mode
 if [ ${#CHAIN[@]} -gt 0 ]; then
@@ -137,6 +165,28 @@ if [ -f "$LOCK_FILE" ]; then
   fi
 fi
 
+# ── Startup safety checks ───────────────────────────────────────
+# Dirty tree check
+DIRTY=$(git status --porcelain 2>/dev/null | grep -v '^??' | head -5)
+if [ -n "$DIRTY" ] && [ "$FORCE" != true ]; then
+  echo "WARNING: Working tree has uncommitted changes:"
+  echo "$DIRTY"
+  echo "   Commit or stash changes, or use --force to override."
+  exit 1
+fi
+
+# Main branch warning
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+if [[ "$BRANCH" == "main" || "$BRANCH" == "master" ]] && [ "$FORCE" != true ]; then
+  echo "WARNING: Running on '$BRANCH' branch. Consider using a feature branch."
+  echo "   Use --force to override."
+  exit 1
+fi
+
+# Ensure .ralph directory exists and metrics file
+mkdir -p .ralph
+touch .ralph/metrics.jsonl
+
 # Set lock
 echo $$ > "$LOCK_FILE"
 trap "rm -f $LOCK_FILE; echo ''; echo '🛑 Ralph stopped after $ITERATION iterations.'" EXIT
@@ -146,8 +196,14 @@ echo "║   🧠 Ralph — Flavor Network Builder     ║"
 echo "║   Preset: $(printf '%-29s' "$PRESET")║"
 echo "║   Prompt: $(printf '%-29s' "$PROMPT_FILE")║"
 echo "║   Max iterations: $(printf '%-21s' "${MAX_ITERATIONS:-unlimited}")║"
+echo "║   Timeout/iter:   $(printf '%-21s' "${TIMEOUT}s")║"
 echo "╚══════════════════════════════════════════╝"
 echo ""
+
+# ── Consecutive failure tracking ─────────────────────────────────
+CONSECUTIVE_FAILURES=0
+LAST_GATE_HASH=""
+SAME_ERROR_COUNT=0
 
 # ── The Loop ─────────────────────────────────────────────────────
 while true; do
@@ -170,6 +226,12 @@ while true; do
   echo "  📍 [$PRESET] Iteration $ITERATION ($(date '+%H:%M:%S'))"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+  # Start iteration timer
+  ITER_START=$(date +%s)
+
+  # Prepare slim context files for this iteration
+  node tools/prepare_context.cjs
+
   if [ "$DRY_RUN" = true ]; then
     echo "  [DRY RUN] Would execute: cat $PROMPT_FILE | claude"
     echo "  Sleeping 2s..."
@@ -177,15 +239,42 @@ while true; do
     continue
   fi
 
-  # Feed the prompt to Claude Code
-  OUTPUT=$(unset CLAUDECODE; cat "$PROMPT_FILE" | claude --print --dangerously-skip-permissions 2>&1) || true
+  # Feed the prompt to Claude Code (with optional timeout)
+  TIMED_OUT=false
+  if command -v timeout &>/dev/null; then
+    OUTPUT=$(unset CLAUDECODE; cat "$PROMPT_FILE" | timeout "${TIMEOUT}s" claude --print --dangerously-skip-permissions 2>&1) || {
+      EXIT_CODE=$?
+      # Exit code 124 = timeout killed the process
+      if [ "$EXIT_CODE" -eq 124 ]; then
+        TIMED_OUT=true
+      fi
+    }
+  else
+    OUTPUT=$(unset CLAUDECODE; cat "$PROMPT_FILE" | claude --print --dangerously-skip-permissions 2>&1) || true
+  fi
 
   echo "$OUTPUT" | tail -20
+
+  # Handle timeout
+  if [ "$TIMED_OUT" = true ]; then
+    echo ""
+    echo "TIMEOUT: Agent exceeded ${TIMEOUT}s for iteration $ITERATION"
+    echo "TIMEOUT: Agent exceeded ${TIMEOUT}s at iteration $ITERATION ($(date '+%Y-%m-%d %H:%M:%S'))" > .ralph/gate_failure.md
+    # Record timeout metrics
+    ITER_END=$(date +%s)
+    DURATION=$((ITER_END - ITER_START))
+    FILES_CHANGED=$(git diff --name-only HEAD~1 2>/dev/null | wc -l | tr -d ' \r\n')
+    echo "{\"iteration\":$ITERATION,\"preset\":\"$PRESET\",\"duration_s\":$DURATION,\"gate_result\":\"timeout\",\"files_changed\":$FILES_CHANGED,\"timestamp\":\"$(date -Iseconds)\"}" >> .ralph/metrics.jsonl
+    echo ""
+    echo "  Next iteration in 3s... (create .claude/ralph.stop to halt)"
+    sleep 3
+    continue
+  fi
 
   # Check for completion promise
   if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>\|<promise>ALL TASKS COMPLETE</promise>"; then
     echo ""
-    echo "🎉 All tasks complete for preset '$PRESET'!"
+    echo "All tasks complete for preset '$PRESET'!"
     echo "   Total iterations: $ITERATION"
     break
   fi
@@ -193,13 +282,56 @@ while true; do
   # Check for blocked
   if echo "$OUTPUT" | grep -q "<promise>BLOCKED"; then
     echo ""
-    echo "⚠️  Preset '$PRESET' is BLOCKED."
+    echo "Preset '$PRESET' is BLOCKED."
     echo "$OUTPUT" | grep "<promise>BLOCKED"
     break
   fi
 
+  # ── Gate execution (harness-level) ──────────────────────────────
+  echo "  Running gates..."
+  GATE_OUTPUT=$(bash .claude/scripts/gates.sh 2>&1) && GATE_EXIT=0 || GATE_EXIT=$?
+  if [ "$GATE_EXIT" -ne 0 ]; then
+    echo "  Gate FAILED (exit $GATE_EXIT):"
+    echo "$GATE_OUTPUT" | tail -10
+    echo "$GATE_OUTPUT" > .ralph/gate_failure.md
+    # ── Consecutive failure tracking ──
+    CONSECUTIVE_FAILURES=$((CONSECUTIVE_FAILURES + 1))
+    if [ "$CONSECUTIVE_FAILURES" -ge 3 ]; then
+      echo "  WARNING: $CONSECUTIVE_FAILURES consecutive gate failures. Consider stopping."
+    fi
+    # ── Repeated error detection (same hash 3x = auto-BLOCKED) ──
+    GATE_HASH=$(echo "$GATE_OUTPUT" | md5sum | cut -d' ' -f1)
+    if [ "$GATE_HASH" = "$LAST_GATE_HASH" ]; then
+      SAME_ERROR_COUNT=$((SAME_ERROR_COUNT + 1))
+    else
+      SAME_ERROR_COUNT=1
+    fi
+    LAST_GATE_HASH="$GATE_HASH"
+    if [ "$SAME_ERROR_COUNT" -ge 3 ]; then
+      echo "  Same gate error 3 times. Auto-BLOCKED."
+      break
+    fi
+  else
+    echo "  Gates passed."
+    > .ralph/gate_failure.md
+    CONSECUTIVE_FAILURES=0
+    LAST_GATE_HASH=""
+    SAME_ERROR_COUNT=0
+  fi
+
+  # ── Metrics tracking ──────────────────────────────────────────────
+  ITER_END=$(date +%s)
+  DURATION=$((ITER_END - ITER_START))
+  FILES_CHANGED=$(git diff --name-only HEAD~1 2>/dev/null | wc -l | tr -d ' \r\n')
+  if [ "$GATE_EXIT" -eq 0 ]; then
+    GATE_RESULT="pass"
+  else
+    GATE_RESULT="fail"
+  fi
+  echo "{\"iteration\":$ITERATION,\"preset\":\"$PRESET\",\"duration_s\":$DURATION,\"gate_result\":\"$GATE_RESULT\",\"files_changed\":$FILES_CHANGED,\"timestamp\":\"$(date -Iseconds)\"}" >> .ralph/metrics.jsonl
+
   # Brief pause between iterations
   echo ""
-  echo "  ⏳ Next iteration in 3s... (create .claude/ralph.stop to halt)"
+  echo "  Next iteration in 3s... (create .claude/ralph.stop to halt)"
   sleep 3
 done
