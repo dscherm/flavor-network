@@ -7,10 +7,15 @@ import { scrapeRecipe } from '../data/recipeScraper.js';
 import NotebookCanvas from './NotebookCanvas.jsx';
 import RecipePanel from './RecipePanel.jsx';
 import StructureSelector from './StructureSelector.jsx';
+import RecipeLabMobile from './RecipeLabMobile.jsx';
 
 const FONT_FAMILY = 'Caveat, cursive';
 
 export default function RecipeLab({ fullData, initialIngredient, userProfile, isMobile = false }) {
+  // Mobile: render dedicated mobile layout
+  if (isMobile) {
+    return <RecipeLabMobile fullData={fullData} initialIngredient={initialIngredient} userProfile={userProfile} />;
+  }
   const [labMode, setLabMode] = useState('taste'); // internal mode: 'taste' | 'cocktail' | 'sauce'
   const [centerIngredient, setCenterIngredient] = useState(initialIngredient || null);
   const [recipeIngredients, setRecipeIngredients] = useState(
