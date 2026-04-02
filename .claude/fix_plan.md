@@ -7,8 +7,7 @@ updated: 2026-03-24T20:00
 
 ## Active Mini-Loops
 
-- [x] RECIPE-MOBILE-RALPH: 14 tasks (14/14 complete) → `recipe-mobile-ralph/plan.md`
-  Spec: `.claude/specs/recipe-lab-mobile.md`
+- [x] RECIPE-MOBILE-RALPH: 14 tasks (14/14 complete) → `.claude/specs/recipe-lab-mobile.md`
   Mobile Recipe Lab UX redesign: taste wheel + notebook + suggestion drawer
 
 - [ ] HARNESS-RALPH: 12 tasks (0/12 complete) → `harness-ralph/plan.md`
