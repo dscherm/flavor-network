@@ -171,11 +171,14 @@ export default function LivingArchView({
     const POPOUT_EDGE_OPACITY = 0.3;
 
     function updateEdgePositions() {
+      const yOffsets = tasteSelection.yCurrentOffsets;
       for (let i = 0; i < validEdges.length; i++) {
         const { si, ti, edge } = validEdges[i];
         const o = i * 6;
-        edgeVerts[o]   = curPos[si*3];   edgeVerts[o+1] = curPos[si*3+1]; edgeVerts[o+2] = curPos[si*3+2];
-        edgeVerts[o+3] = curPos[ti*3];   edgeVerts[o+4] = curPos[ti*3+1]; edgeVerts[o+5] = curPos[ti*3+2];
+        const syOff = yOffsets ? (yOffsets[si] || 0) : 0;
+        const tyOff = yOffsets ? (yOffsets[ti] || 0) : 0;
+        edgeVerts[o]   = curPos[si*3];   edgeVerts[o+1] = curPos[si*3+1] + syOff; edgeVerts[o+2] = curPos[si*3+2];
+        edgeVerts[o+3] = curPos[ti*3];   edgeVerts[o+4] = curPos[ti*3+1] + tyOff; edgeVerts[o+5] = curPos[ti*3+2];
         const str = edge.strength || 0;
         // Color-code edges: source node color → target node color (GPU interpolates)
         tmp.copy(defaultColors[si]);
@@ -527,6 +530,11 @@ export default function LivingArchView({
         }
         mesh.instanceMatrix.needsUpdate = true;
 
+        // Update main edges to follow node Y offsets
+        updateEdgePositions();
+        edgeGeo.getAttribute('position').array.set(edgeVerts);
+        edgeGeo.getAttribute('position').needsUpdate = true;
+
         // Update pop-out edges with offset positions
         if (tasteSelection.animDirection === 1) {
           // Rebuild pop-out edges with current offset positions
@@ -626,6 +634,11 @@ export default function LivingArchView({
           }
         }
         mesh.instanceMatrix.needsUpdate = true;
+
+        // Keep main edges following node Y offsets
+        updateEdgePositions();
+        edgeGeo.getAttribute('position').array.set(edgeVerts);
+        edgeGeo.getAttribute('position').needsUpdate = true;
 
         // Keep pop-out edges updated with current positions
         buildPopoutEdges();
