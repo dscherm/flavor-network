@@ -37,8 +37,8 @@ export default function App() {
   const [livingMode, setLivingMode] = useState('neural');
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
-  const [edgeBrightness, setEdgeBrightness] = useState(1.0);
-  const [particleBrightness, setParticleBrightness] = useState(1.0);
+  const [edgeBrightness, setEdgeBrightness] = useState(0.5);
+  const [particleBrightness, setParticleBrightness] = useState(0.5);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
