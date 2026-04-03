@@ -8,7 +8,8 @@ import {
 import { createParticleMaterial } from './ShaderMaterials.js';
 import { getColorForNode } from './NodeMesh.js';
 
-const STRENGTH_THRESHOLD = 0.3;
+const IS_MOBILE = typeof window !== 'undefined' && window.innerWidth < 640;
+const STRENGTH_THRESHOLD = IS_MOBILE ? 0.5 : 0.3;
 const BASE_SPEED = 0.15;
 const MAX_SPEED = 0.6;
 
@@ -20,7 +21,7 @@ class ParticleSystem {
    * @param {Map} [opts.nodes] - graph nodes map for color lookup
    * @param {number} [opts.particlesPerEdge=2]
    */
-  constructor({ edges, positions, nodes, particlesPerEdge = 2 }) {
+  constructor({ edges, positions, nodes, particlesPerEdge = IS_MOBILE ? 1 : 2 }) {
     const posMap = positions.positions || positions;
 
     this._particles = [];

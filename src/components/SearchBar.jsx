@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react';
 import Fuse from 'fuse.js';
 
 const MOBILE_HINTS = [
@@ -126,11 +126,15 @@ function SearchBar({ ingredients, onSelect }) {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   return (
-    <div className="search-container fixed left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] sm:w-80 md:w-96" style={{ top: 'var(--nav-h)' }}>
+    <div className="search-container fixed left-1/2 -translate-x-1/2 z-[55] w-[calc(100%-2rem)] sm:w-80 md:w-96" style={{ top: 'var(--nav-h)' }}>
       <input
         ref={inputRef}
         type="text"
@@ -193,4 +197,4 @@ function SearchBar({ ingredients, onSelect }) {
   );
 }
 
-export default SearchBar;
+export default memo(SearchBar);

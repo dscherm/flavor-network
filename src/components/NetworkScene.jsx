@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, memo } from 'react';
 import SceneManager from '../three/SceneManager.js';
 import NodeMesh, { tasteMatches } from '../three/NodeMesh.js';
 import EdgeMesh from '../three/EdgeMesh.js';
@@ -17,7 +17,7 @@ import { createNodeLabel } from '../three/AxisLabels.js';
  *   - showEdges: boolean
  *   - showParticles: boolean
  */
-export default function NetworkScene({
+export default memo(function NetworkScene({
   data,
   onNodeClick,
   onNodeHover,
@@ -339,4 +339,4 @@ export default function NetworkScene({
       style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
     />
   );
-}
+});

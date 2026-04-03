@@ -1,8 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import viteCompression from 'vite-plugin-compression';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    viteCompression({ algorithm: 'gzip', threshold: 1024 }),
+    viteCompression({ algorithm: 'brotliCompress', threshold: 1024, ext: '.br' }),
+  ],
   test: {
     environment: 'jsdom',
     globals: true,
