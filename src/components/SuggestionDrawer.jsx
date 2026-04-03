@@ -8,6 +8,73 @@ import { analyzeRecipe } from '../data/recipeAnalysis.js';
 const FONT_FAMILY = 'Caveat, cursive';
 const AXES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'spicy', 'pungent', 'astringent'];
 
+function ChipButton({ chip, onAdd, showTasteBadge = false }) {
+  return (
+    <button
+      onClick={() => !chip.inRecipe && onAdd(chip.name)}
+      disabled={chip.inRecipe}
+      className="flex items-start gap-1.5 p-2 rounded-lg border text-left transition-colors"
+      style={{
+        borderColor: chip.inRecipe ? '#e8dcc0' : '#c9b99a',
+        backgroundColor: chip.inRecipe ? '#f5edd0' : '#fefae0',
+        opacity: chip.inRecipe ? 0.5 : 1,
+        borderLeftWidth: 3,
+        borderLeftColor: TASTE_COLORS[chip.taste] || TASTE_COLORS.default,
+      }}
+    >
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-1">
+          <span
+            className="text-sm truncate"
+            style={{ fontFamily: FONT_FAMILY, color: '#3a3428' }}
+          >
+            {chip.name}
+          </span>
+          <span
+            className="text-xs flex-shrink-0"
+            style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}
+          >
+            {chip.matchPct}%
+          </span>
+        </div>
+        {showTasteBadge && chip.taste !== 'default' ? (
+          <div className="flex gap-1 mt-0.5">
+            <span
+              className="text-[10px] px-1.5 rounded-full"
+              style={{
+                fontFamily: FONT_FAMILY,
+                color: '#fff',
+                backgroundColor: TASTE_COLORS[chip.taste] || TASTE_COLORS.default,
+              }}
+            >
+              {chip.taste}
+            </span>
+          </div>
+        ) : chip.tasteLabels.length > 0 && (
+          <div className="flex gap-1 mt-0.5">
+            {chip.tasteLabels.map(t => (
+              <span
+                key={t}
+                className="text-[10px] px-1 rounded"
+                style={{
+                  fontFamily: FONT_FAMILY,
+                  color: '#7a6a4a',
+                  backgroundColor: `${TASTE_COLORS[t] || TASTE_COLORS.default}22`,
+                }}
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      {!chip.inRecipe && (
+        <span className="text-base flex-shrink-0" style={{ color: '#a09070' }}>+</span>
+      )}
+    </button>
+  );
+}
+
 // Snap points (from bottom of screen)
 const PEEK_HEIGHT = 56;
 const HALF_RATIO = 0.4;   // 40vh
@@ -168,18 +235,28 @@ export default function SuggestionDrawer({
     });
   }, [pairings, nodes, edges, recipeIngredients]);
 
-  // Filter by active tab
-  const filteredChips = useMemo(() => {
-    if (activeTab === 'all') return chipData;
+  // Filter by active tab — split into matches + complements for taste tabs
+  const { filteredChips, complementChips } = useMemo(() => {
+    if (activeTab === 'all') return { filteredChips: chipData, complementChips: [] };
     if (activeTab === 'best') {
-      // Show pairings that fill the weakest taste axis
-      if (!nodes || recipeIngredients.length === 0) return chipData;
+      if (!nodes || recipeIngredients.length === 0) return { filteredChips: chipData, complementChips: [] };
       const profile = aggregateRecipeTastes(recipeIngredients, nodes);
       const [weakAxis] = findWeakestAxis(profile.normalized);
-      return chipData.filter(c => c.taste === weakAxis || c.tasteLabels.includes(weakAxis));
+      const matches = chipData.filter(c => c.taste === weakAxis || c.tasteLabels.includes(weakAxis));
+      return { filteredChips: matches, complementChips: [] };
     }
-    // Filter by specific taste
-    return chipData.filter(c => c.taste === activeTab || c.tasteLabels.includes(activeTab));
+    // Taste tab: split into matching taste + high-strength complements from other tastes
+    const matches = [];
+    const complements = [];
+    const MIN_COMPLEMENT_STRENGTH = 0.5;
+    for (const chip of chipData) {
+      if (chip.taste === activeTab || chip.tasteLabels.includes(activeTab)) {
+        matches.push(chip);
+      } else if (chip.strength >= MIN_COMPLEMENT_STRENGTH && !chip.inRecipe) {
+        complements.push(chip);
+      }
+    }
+    return { filteredChips: matches, complementChips: complements.slice(0, 12) };
   }, [chipData, activeTab, nodes, recipeIngredients]);
 
   // "Give me a suggestion" handler
@@ -225,7 +302,7 @@ export default function SuggestionDrawer({
 
   const tabs = [
     { key: 'all', label: 'All' },
-    { key: 'best', label: 'Best' },
+    { key: 'best', label: 'Balance' },
     ...AXES.map(a => ({ key: a, label: a })),
   ];
 
@@ -316,58 +393,27 @@ export default function SuggestionDrawer({
 
           <div className="grid grid-cols-2 gap-1.5">
             {filteredChips.map(chip => (
-              <button
-                key={chip.name}
-                onClick={() => !chip.inRecipe && onAddIngredient(chip.name)}
-                disabled={chip.inRecipe}
-                className="flex items-start gap-1.5 p-2 rounded-lg border text-left transition-colors"
-                style={{
-                  borderColor: chip.inRecipe ? '#e8dcc0' : '#c9b99a',
-                  backgroundColor: chip.inRecipe ? '#f5edd0' : '#fefae0',
-                  opacity: chip.inRecipe ? 0.5 : 1,
-                  borderLeftWidth: 3,
-                  borderLeftColor: TASTE_COLORS[chip.taste] || TASTE_COLORS.default,
-                }}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-1">
-                    <span
-                      className="text-sm truncate"
-                      style={{ fontFamily: FONT_FAMILY, color: '#3a3428' }}
-                    >
-                      {chip.name}
-                    </span>
-                    <span
-                      className="text-xs flex-shrink-0"
-                      style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}
-                    >
-                      {chip.matchPct}%
-                    </span>
-                  </div>
-                  {chip.tasteLabels.length > 0 && (
-                    <div className="flex gap-1 mt-0.5">
-                      {chip.tasteLabels.map(t => (
-                        <span
-                          key={t}
-                          className="text-[10px] px-1 rounded"
-                          style={{
-                            fontFamily: FONT_FAMILY,
-                            color: '#7a6a4a',
-                            backgroundColor: `${TASTE_COLORS[t] || TASTE_COLORS.default}22`,
-                          }}
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {!chip.inRecipe && (
-                  <span className="text-base flex-shrink-0" style={{ color: '#a09070' }}>+</span>
-                )}
-              </button>
+              <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} />
             ))}
           </div>
+
+          {/* Complements section — cross-taste high-strength pairings */}
+          {complementChips.length > 0 && (
+            <>
+              <div className="flex items-center gap-2 mt-3 mb-1.5 px-1">
+                <div className="flex-1 h-px" style={{ backgroundColor: '#d8cca8' }} />
+                <span className="text-xs" style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}>
+                  Complements
+                </span>
+                <div className="flex-1 h-px" style={{ backgroundColor: '#d8cca8' }} />
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {complementChips.map(chip => (
+                  <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} showTasteBadge />
+                ))}
+              </div>
+            </>
+          )}
 
           {/* Suggestion feature */}
           {snapState === 'full' && recipeIngredients.length >= 2 && (
