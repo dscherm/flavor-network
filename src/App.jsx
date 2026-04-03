@@ -53,6 +53,7 @@ export default function App() {
   const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
   const [treeFilterLabel, setTreeFilterLabel] = useState(null);
   const [bridgePathIngredients, setBridgePathIngredients] = useState(null);
+  const [showFilteredList, setShowFilteredList] = useState(false);
   const isMobile = useIsMobile();
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
@@ -192,6 +193,27 @@ export default function App() {
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Double-tap on canvas to clear tree filter
+  const handleCanvasDoubleTap = useCallback(() => {
+    setTreeFilterIngredients(null);
+    setTreeFilterLabel(null);
+    setShowFilteredList(false);
+  }, []);
+
+  // Auto-show filtered list when filter is set
+  useEffect(() => {
+    if (treeFilterIngredients && treeFilterIngredients.length > 0) {
+      setShowFilteredList(true);
+    }
+  }, [treeFilterIngredients]);
+
+  // Clear filter handler
+  const handleClearTreeFilter = useCallback(() => {
+    setTreeFilterIngredients(null);
+    setTreeFilterLabel(null);
+    setShowFilteredList(false);
   }, []);
 
   if (loading) {
@@ -399,6 +421,7 @@ export default function App() {
         bridgePathIngredients={bridgePathIngredients}
         mode={livingMode}
         onModeChange={setLivingMode}
+        onDoubleTap={handleCanvasDoubleTap}
       />
       <SearchBar
         ingredients={ingredientList}
@@ -454,6 +477,78 @@ export default function App() {
             )}
           </button>
         </div>
+      )}
+
+      {/* Filtered ingredients panel — shows when a tree filter is active */}
+      {treeFilterIngredients && treeFilterIngredients.length > 0 && showFilteredList && (
+        <div className="fixed left-2 z-40 w-72 sm:w-80 max-h-[50vh] flex flex-col bg-[#12121a]/95 backdrop-blur-md border border-[#1e1e2e] rounded-lg overflow-hidden" style={{ top: 'calc(var(--nav-h) + 3.5rem)' }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-3 py-2 border-b border-[#1e1e2e]">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-neural-glow">{treeFilterLabel}</span>
+              <span className="text-[10px] text-gray-500">{treeFilterIngredients.length}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setShowFilteredList(false)}
+                className="text-gray-500 hover:text-gray-300 text-xs px-1"
+                title="Minimize"
+              >
+                &minus;
+              </button>
+              <button
+                onClick={handleClearTreeFilter}
+                className="text-gray-500 hover:text-red-400 text-xs px-1"
+                title="Clear filter (or double-tap canvas)"
+              >
+                &times;
+              </button>
+            </div>
+          </div>
+          {/* Scrollable ingredient cards */}
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            {treeFilterIngredients.map(name => {
+              const node = data?.graph?.nodes?.get(name);
+              const taste = node?.taste || '';
+              const pairingCount = node?.pairingCount || 0;
+              return (
+                <button
+                  key={name}
+                  onClick={() => handleSearchSelect(name)}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-[#1a1a2a]/60 hover:bg-[#1a1a2a] border border-[#2a2a3a]/50 transition-colors text-left"
+                >
+                  <span className="text-xs text-gray-200 flex-1 truncate">{name}</span>
+                  {taste && (
+                    <span className="text-[9px] text-gray-500 capitalize">{taste}</span>
+                  )}
+                  <span className="text-[9px] text-gray-600">{pairingCount}p</span>
+                </button>
+              );
+            })}
+          </div>
+          {/* Footer hint */}
+          <div className="px-3 py-1.5 border-t border-[#1e1e2e] text-[9px] text-gray-600 text-center">
+            Double-tap canvas to clear filter
+          </div>
+        </div>
+      )}
+
+      {/* Minimized filter indicator */}
+      {treeFilterIngredients && treeFilterIngredients.length > 0 && !showFilteredList && (
+        <button
+          onClick={() => setShowFilteredList(true)}
+          className="fixed left-2 z-40 px-3 py-1.5 bg-[#12121a]/90 backdrop-blur-md border border-neural-glow/30 rounded-lg text-xs text-neural-glow flex items-center gap-2 transition-colors hover:bg-[#1a1a2a]"
+          style={{ top: 'calc(var(--nav-h) + 3.5rem)' }}
+        >
+          <span>{treeFilterLabel}</span>
+          <span className="text-gray-500">{treeFilterIngredients.length}</span>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleClearTreeFilter(); }}
+            className="text-gray-500 hover:text-red-400 ml-1"
+          >
+            &times;
+          </button>
+        </button>
       )}
 
       <Legend
@@ -514,10 +609,12 @@ export default function App() {
       <FlavorTreeExplorer
         nodes={data ? data.graph.nodes : null}
         isOpen={showTreeExplorer}
-        onClose={() => { setShowTreeExplorer(false); setTreeFilterIngredients(null); setTreeFilterLabel(null); }}
+        onClose={() => { setShowTreeExplorer(false); }}
         onFilterIngredients={(ingredients, label) => {
           setTreeFilterIngredients(ingredients);
           setTreeFilterLabel(label || null);
+          // Auto-close the tree panel when a filter is selected
+          if (ingredients) setShowTreeExplorer(false);
         }}
       />
       <FlavorBridge

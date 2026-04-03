@@ -37,6 +37,7 @@ export default function LivingArchView({
   bridgePathIngredients = null,
   mode: externalMode,
   onModeChange,
+  onDoubleTap,
 }) {
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
@@ -171,7 +172,7 @@ export default function LivingArchView({
     const POPOUT_EDGE_OPACITY = 0.3;
 
     function updateEdgePositions() {
-      const yOffsets = tasteSelection.yCurrentOffsets;
+      const yOffsets = tasteSelection ? tasteSelection.yCurrentOffsets : null;
       for (let i = 0; i < validEdges.length; i++) {
         const { si, ti, edge } = validEdges[i];
         const o = i * 6;
@@ -371,6 +372,14 @@ export default function LivingArchView({
       });
     }
     renderer.domElement.addEventListener('click', onClick);
+    // Double-tap detection for clearing filters
+    let lastTap = 0;
+    function onTouchEnd() {
+      const now = Date.now();
+      if (now - lastTap < 400 && onDoubleTap) onDoubleTap();
+      lastTap = now;
+    }
+    renderer.domElement.addEventListener('touchend', onTouchEnd);
     renderer.domElement.style.cursor = 'default';
 
     function onMove(event) {
@@ -681,6 +690,7 @@ export default function LivingArchView({
       running = false;
       window.removeEventListener('resize', onResize);
       renderer.domElement.removeEventListener('click', onClick);
+      renderer.domElement.removeEventListener('touchend', onTouchEnd);
       renderer.domElement.removeEventListener('mousemove', onMove);
       controls.dispose();
       composer.dispose();
