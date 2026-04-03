@@ -243,7 +243,8 @@ export default function SuggestionDrawer({
     >
       {/* Drag handle */}
       <div
-        className="flex flex-col items-center pt-2 pb-1 cursor-grab flex-shrink-0"
+        className="flex flex-col items-center justify-center cursor-grab flex-shrink-0"
+        style={{ minHeight: '44px' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}

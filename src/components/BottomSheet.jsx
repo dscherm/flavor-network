@@ -109,7 +109,8 @@ export default function BottomSheet({ isOpen, onClose, title, children }) {
       <div className="h-full bg-[#12121a]/95 backdrop-blur-md border-t border-[#2a2a3a] rounded-t-2xl flex flex-col overflow-hidden">
         {/* Drag handle */}
         <div
-          className="flex-shrink-0 flex flex-col items-center pt-2 pb-1 cursor-grab active:cursor-grabbing"
+          className="flex-shrink-0 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing"
+          style={{ minHeight: '44px' }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}

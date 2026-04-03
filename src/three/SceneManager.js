@@ -46,7 +46,7 @@ class SceneManager {
       alpha: true,
       logarithmicDepthBuffer: true,
     });
-    this._renderer.setPixelRatio(window.devicePixelRatio);
+    this._renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
     this._renderer.setSize(target.clientWidth, target.clientHeight);
 
     if (!isCanvas) {

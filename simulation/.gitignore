@@ -1,0 +1,4 @@
+output/*.json
+output/*.md
+output/test-results.json
+!output/.gitkeep
