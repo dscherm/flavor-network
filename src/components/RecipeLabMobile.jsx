@@ -174,20 +174,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, userProfi
     if (drawerSnap === 'peek') setDrawerSnap('half');
   }, [drawerSnap]);
 
-  // Compatibility score
-  const compatibility = useMemo(() => {
-    if (!fullData || recipeIngredients.length < 2) return null;
-    let total = 0, count = 0;
-    for (let i = 0; i < recipeIngredients.length; i++) {
-      for (let j = i + 1; j < recipeIngredients.length; j++) {
-        const neighbors = getNeighbors(recipeIngredients[i], fullData.graph.edges);
-        const found = neighbors.find(n => n.name === recipeIngredients[j]);
-        total += found ? found.strength : 0;
-        count++;
-      }
-    }
-    return count > 0 ? (total / count) * 100 : null;
-  }, [fullData, recipeIngredients]);
 
   return (
     <div
@@ -244,11 +230,11 @@ export default function RecipeLabMobile({ fullData, initialIngredient, userProfi
               <li
                 key={name}
                 onMouseDown={(e) => { e.preventDefault(); selectFromSearch(name); }}
-                onTouchEnd={(e) => { e.preventDefault(); selectFromSearch(name); }}
-                className={`px-4 py-2 cursor-pointer text-lg transition-colors ${
+                onTouchStart={(e) => { e.preventDefault(); selectFromSearch(name); }}
+                className={`px-4 py-3 cursor-pointer text-lg transition-colors ${
                   idx === highlightIdx ? 'bg-[#e8dcc0]' : ''
                 }`}
-                style={{ fontFamily: FONT_FAMILY, color: '#3a3428' }}
+                style={{ fontFamily: FONT_FAMILY, color: '#3a3428', minHeight: '48px', display: 'flex', alignItems: 'center' }}
               >
                 {name}
               </li>
@@ -278,7 +264,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, userProfi
           onRecenter={handleRecenter}
           recipeTitle={recipeTitle}
           onTitleChange={setRecipeTitle}
-          compatibility={compatibility}
+          compatibility={null}
         />
 
         {/* Save / Clear buttons */}
