@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Fuse from 'fuse.js';
 
 const MOBILE_HINTS = [
@@ -197,4 +197,4 @@ function SearchBar({ ingredients, onSelect }) {
   );
 }
 
-export default memo(SearchBar);
+export default SearchBar;

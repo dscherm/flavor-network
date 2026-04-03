@@ -171,8 +171,11 @@ export default function LivingArchView({
     // Edge opacity for popped-out ingredient connections
     const POPOUT_EDGE_OPACITY = 0.3;
 
+    // tasteSelection is created later — updateEdgePositions references it via closure
+    let tasteSelectionRef = null;
+
     function updateEdgePositions() {
-      const yOffsets = tasteSelection ? tasteSelection.yCurrentOffsets : null;
+      const yOffsets = tasteSelectionRef ? tasteSelectionRef.yCurrentOffsets : null;
       for (let i = 0; i < validEdges.length; i++) {
         const { si, ti, edge } = validEdges[i];
         const o = i * 6;
@@ -257,8 +260,8 @@ export default function LivingArchView({
 
         // Lerp between source and target using curPos (which animates during transitions)
         const si3 = pd.si * 3, ti3 = pd.ti * 3;
-        const yOff1 = tasteSelection.yCurrentOffsets[pd.si] || 0;
-        const yOff2 = tasteSelection.yCurrentOffsets[pd.ti] || 0;
+        const yOff1 = tasteSelectionRef ? (tasteSelectionRef.yCurrentOffsets[pd.si] || 0) : 0;
+        const yOff2 = tasteSelectionRef ? (tasteSelectionRef.yCurrentOffsets[pd.ti] || 0) : 0;
         posAttr.array[i*3]   = curPos[si3]   + (curPos[ti3]   - curPos[si3])   * t;
         posAttr.array[i*3+1] = (curPos[si3+1] + yOff1) + ((curPos[ti3+1] + yOff2) - (curPos[si3+1] + yOff1)) * t;
         posAttr.array[i*3+2] = curPos[si3+2] + (curPos[ti3+2] - curPos[si3+2]) * t;
@@ -334,6 +337,7 @@ export default function LivingArchView({
 
     // --- Taste pop-out state ---
     const tasteSelection = createTasteSelection(count);
+    tasteSelectionRef = tasteSelection;
 
     /** Compute which ingredients match a taste */
     function getIndicesForTaste(taste) {
