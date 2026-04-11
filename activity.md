@@ -5,6 +5,35 @@
 
 ---
 
+## 2026-04-10 — Task 17: Reconcile harness-ralph plan.md
+
+**Goal:** harness-ralph/plan.md listed all 12 tasks as `passes: false` but the implementations were already shipped on disk across several earlier sessions. Sync the plan with reality so prepare_context doesn't keep re-picking them.
+
+**Verified present on disk:**
+- Task 1 (gate failure loop): `.ralph/gate_failure.md` exists + PROMPT.md Phase 1 reads it
+- Task 2 (per-iteration timeout): `--timeout` flag in ralph.sh lines 12, 109, 244
+- Task 3 (startup safety checks): `--force` flag + dirty-tree/main-branch guards
+- Task 4 (secrets + denylist gates): Gate 5 + Gate 6 in `.claude/scripts/gates.sh`
+- Task 5 (activity.md structured format): this file
+- Task 6 (metrics.jsonl): written in ralph.sh iteration loop
+- Task 7 (PLAN_PROMPT.md): `D:/Projects/flavor-network/PLAN_PROMPT.md`
+- Task 8 (prepare_context script): `tools/prepare_context.cjs`
+- Task 9 (consecutive failure detection): `CONSECUTIVE_FAILURES` counter in ralph.sh
+- Task 10 (ralph_status dashboard): `tools/ralph_status.cjs`
+- Task 11 (ralph.ps1 PowerShell variant): `ralph.ps1` at project root
+- Task 12 (determinism docs): `.claude/docs/mini-ralph-reference.md`
+
+**Changes Made:**
+- `harness-ralph/plan.md`: flipped all 12 `passes: false` → `passes: true`.
+
+**Verification:**
+- Grepped each claimed artifact; all present.
+- No code changes to flavor-network itself — this is a metadata reconciliation.
+
+**Status:** COMPLETE
+
+---
+
 ## 2026-04-10 — Task 15: Adaptive quality FPS monitor
 
 **Goal:** Even after Tasks 5, 7, 10, 13 etc., older iPhones may still struggle. Add a running FPS monitor that automatically degrades quality tiers when FPS drops below 25 for ≥2s and restores when back above 45 for ≥5s.
