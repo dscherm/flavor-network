@@ -119,27 +119,12 @@ export default function useProData() {
 
   useEffect(() => {
     let cancelled = false;
+    let worker = null;
 
-    async function load() {
-      try {
-        const [ingredientsRes, pairingsRes, seasonRegionRes, cuisineMapRes] = await Promise.all([
-          fetch('/proDataset/ingredients.json'),
-          fetch('/proDataset/pairings.json'),
-          fetch('/data/season_region.json').catch(() => null),
-          fetch('/data/cuisine_map.json').catch(() => null),
-        ]);
+    function finish(ingredientsData, pairingsData, seasonRegionData, cuisineMapData) {
+      if (cancelled) return;
 
-        if (!ingredientsRes.ok) throw new Error('Failed to load proDataset/ingredients.json');
-        if (!pairingsRes.ok) throw new Error('Failed to load proDataset/pairings.json');
-
-        const ingredientsData = await ingredientsRes.json();
-        const pairingsData = await pairingsRes.json();
-        const seasonRegionData = seasonRegionRes?.ok ? await seasonRegionRes.json() : {};
-        const cuisineMapData = cuisineMapRes?.ok ? await cuisineMapRes.json() : {};
-
-        if (cancelled) return;
-
-        const graph = buildProGraph(ingredientsData, pairingsData);
+      const graph = buildProGraph(ingredientsData, pairingsData);
 
         // Merge season and region data into graph nodes
         // Build reverse index for fuzzy matching (sr name → sr entry)
@@ -186,16 +171,75 @@ export default function useProData() {
           },
         });
         setLoading(false);
-      } catch (err) {
-        if (!cancelled) {
-          setError(err.message);
-          setLoading(false);
-        }
-      }
     }
 
-    load();
-    return () => { cancelled = true; };
+    // Try to use a Web Worker for the fetch+parse (keeps the 27MB
+    // JSON.parse off the main thread). Fall back to main-thread
+    // fetching if Worker construction or the module URL fails —
+    // vitest/jsdom and older browsers don't support module workers.
+    try {
+      worker = new Worker(
+        new URL('../workers/pairingsParser.worker.js', import.meta.url),
+        { type: 'module' }
+      );
+      worker.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg || cancelled) return;
+        if (msg.type === 'loaded') {
+          try {
+            finish(
+              msg.ingredientsData,
+              msg.pairingsData,
+              msg.seasonRegionData || {},
+              msg.cuisineMapData || {}
+            );
+          } catch (err) {
+            setError(err.message);
+            setLoading(false);
+          }
+        } else if (msg.type === 'error') {
+          setError(msg.message);
+          setLoading(false);
+        }
+      };
+      worker.onerror = (err) => {
+        if (cancelled) return;
+        setError(err.message || 'pairings worker failed');
+        setLoading(false);
+      };
+      worker.postMessage({ type: 'load' });
+    } catch {
+      // Fallback: load on main thread (no Worker support)
+      (async () => {
+        try {
+          const [ingredientsRes, pairingsRes, seasonRegionRes, cuisineMapRes] = await Promise.all([
+            fetch('/proDataset/ingredients.json'),
+            fetch('/proDataset/pairings.json'),
+            fetch('/data/season_region.json').catch(() => null),
+            fetch('/data/cuisine_map.json').catch(() => null),
+          ]);
+          if (!ingredientsRes.ok) throw new Error('Failed to load proDataset/ingredients.json');
+          if (!pairingsRes.ok) throw new Error('Failed to load proDataset/pairings.json');
+          const ingredientsData = await ingredientsRes.json();
+          const pairingsData = await pairingsRes.json();
+          const seasonRegionData = seasonRegionRes?.ok ? await seasonRegionRes.json() : {};
+          const cuisineMapData = cuisineMapRes?.ok ? await cuisineMapRes.json() : {};
+          finish(ingredientsData, pairingsData, seasonRegionData, cuisineMapData);
+        } catch (err) {
+          if (!cancelled) {
+            setError(err.message);
+            setLoading(false);
+          }
+        }
+      })();
+    }
+
+    return () => {
+      cancelled = true;
+      if (worker) {
+        try { worker.terminate(); } catch { /* ignore */ }
+      }
+    };
   }, []);
 
   return { loading, error, data };
