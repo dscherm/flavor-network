@@ -80,7 +80,7 @@ export default function CocktailBuilder({
               <button
                 key={name}
                 onClick={() => handleAddFromSearch(name)}
-                className="w-full text-left text-[11px] text-gray-300 hover:bg-purple-500/10 hover:text-purple-300 px-2 py-1.5 transition-colors"
+                className="w-full min-h-[44px] flex items-center text-left text-[11px] text-gray-300 hover:bg-purple-500/10 hover:text-purple-300 px-2 py-1.5 transition-colors"
               >
                 {name}
               </button>
@@ -140,7 +140,7 @@ export default function CocktailBuilder({
                 <button
                   key={cocktail.id}
                   onClick={() => onSelectCocktail?.(cocktail, true)}
-                  className="w-full flex items-center gap-2 p-1.5 rounded-lg bg-[#1a1a2e]/50 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all text-left"
+                  className="w-full min-h-[44px] flex items-center gap-2 p-1.5 rounded-lg bg-[#1a1a2e]/50 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 transition-all text-left"
                 >
                   {cocktail.image && (
                     <img
@@ -273,7 +273,7 @@ export default function CocktailBuilder({
               setSaved(true);
               setTimeout(() => setSaved(false), 2000);
             }}
-            className={`w-full text-[10px] py-1.5 rounded transition-colors ${
+            className={`w-full min-h-[44px] text-[10px] py-1.5 rounded transition-colors ${
               saved
                 ? 'bg-green-500/20 text-green-300'
                 : 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20'

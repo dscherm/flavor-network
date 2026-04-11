@@ -1,6 +1,6 @@
 ---
 mode: bugfix-and-enhance
-updated: 2026-04-11T13:20
+updated: 2026-04-11T13:30
 ---
 
 # Flavor Network — Fix Plan (2026-04-11)
@@ -46,7 +46,7 @@ _None._
 ## Newly Exposed Pain Points (from the now-passing simulation)
 
 - [x] TASK-176: Audit + fix 28 chef tap targets on iPhone 15 Pro — IngredientPanel Top Pairings (20 rows), favorite heart, Details tab, close ×; Share/Clear Selection; tree-filter minimize/close/cards; ProfilePanel + GlobalInsights side tabs #mobile
-- [ ] TASK-177: Audit + fix 67 cocktail-builder tap targets — CocktailPanel/CocktailBuilder components #mobile
+- [x] TASK-177: Fix 67 cocktail-builder tap targets — CocktailBuilder (search dropdown, matching cocktails, save), CocktailPanel (search results, close ×, tabs), CocktailRecipeCard (ingredient row, alternative row); + TASK-176 IngredientPanel/App fixes also reduce shared violations #mobile
 - [x] TASK-178: Add data-testid="recipe-lab" to RecipeLab/RecipeLabMobile — stale selector was ~700ms of the 13.2s, remaining ~11.5s is real mount latency (see TASK-179/180) #test
 - [ ] TASK-179: Reduce Cocktail Lab mount time (10.5s) — heavy graph build #perf
 - [ ] TASK-180: Reduce Recipe Lab mount time (~11.5s under Chromium SwiftShader) — profile the mobile lab's componentDidMount / effect chain #perf
