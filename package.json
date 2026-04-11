@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build:pairings": "node scripts/buildPairingsBinary.cjs",
+    "prebuild": "npm run build:pairings",
     "build": "vite build",
     "preview": "vite preview",
     "api": "node src/api/server.js",
