@@ -1,7 +1,24 @@
 # Flavor Network — Activity Log
 
-**Last updated:** 2026-03-25
-**Status:** All mini-ralph loops complete (46/46 tasks)
+**Last updated:** 2026-04-10
+**Status:** Round 2 iOS UX fixes in progress (1/8 tasks)
+
+---
+
+## 2026-04-10 — Task 10: Move pairings.json parse to Web Worker
+
+**Goal:** Offload the 27MB JSON fetch+parse from the main thread. Simulation reported JSON parse blocking for 6.8s on WiFi and 16.9s on LTE — root cause of F-grade TTI and FPS.
+
+**Changes Made:**
+- `src/workers/pairingsParser.worker.js` (NEW): fetches ingredients.json, pairings.json, season_region.json, cuisine_map.json and parses them in a dedicated worker thread. Emits progress events per stage.
+- `src/hooks/useProData.js`: instantiate Worker via `new URL('../workers/pairingsParser.worker.js', import.meta.url), { type: 'module' }`. Wire `onmessage` to a `finish()` helper that still runs buildProGraph + computeTastePositions on the main thread (cheap compared to the parse). Fall back to main-thread loading when Worker construction fails (jsdom/older browsers).
+- Cleanup in useEffect terminates the worker on unmount.
+
+**Verification:**
+- `npx vitest run src/` — 17 passed, 0 failed (useProData has no direct tests; fallback path keeps it jsdom-compatible)
+- `npm run build` — PASS, worker emitted as `assets/pairingsParser.worker-*.js` (1.19 kB raw / 0.43 kB gzip)
+
+**Status:** COMPLETE
 
 ---
 
