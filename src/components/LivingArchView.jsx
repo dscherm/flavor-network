@@ -907,16 +907,20 @@ export default function LivingArchView({
         </span>
         <button
           onClick={handleToggle}
-          className="relative w-9 h-5 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 flex-shrink-0"
-          style={{ backgroundColor: mode === 'wheel' ? '#4f8fff' : '#333344' }}
+          className="relative min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 flex-shrink-0"
           title={mode === 'neural' ? 'Switch to Flavor Wheel' : 'Switch to Neural Cloud'}
           role="switch"
           aria-checked={mode === 'wheel'}
         >
           <span
-            className="absolute top-[2px] left-[2px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300"
-            style={{ transform: mode === 'wheel' ? 'translateX(16px)' : 'translateX(0)' }}
-          />
+            className="relative block w-9 h-5 rounded-full transition-colors duration-300"
+            style={{ backgroundColor: mode === 'wheel' ? '#4f8fff' : '#333344' }}
+          >
+            <span
+              className="absolute top-[2px] left-[2px] w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300"
+              style={{ transform: mode === 'wheel' ? 'translateX(16px)' : 'translateX(0)' }}
+            />
+          </span>
         </button>
         <span className={`text-[11px] font-medium transition-colors ${mode === 'wheel' ? 'text-blue-400' : 'text-gray-600'}`}>
           2D Wheel

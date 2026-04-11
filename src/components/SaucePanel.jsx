@@ -506,7 +506,7 @@ export default function SaucePanel({
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-[#1e1e2e]">
           <h2 className="text-sm font-medium text-gray-200 tracking-wide">Sauce Lab</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none">
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none min-w-[44px] min-h-[44px] flex items-center justify-center">
             &times;
           </button>
         </div>

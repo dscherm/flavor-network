@@ -67,7 +67,7 @@ export default function SauceBuilder({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search ingredients to add..."
-          className="w-full text-xs bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder-gray-600"
+          className="w-full min-h-[44px] text-xs bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder-gray-600"
         />
         {filteredIngredients.length > 0 && (
           <div className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a2e] border border-[#2a2a3e] rounded shadow-lg z-10 max-h-40 overflow-y-auto">
@@ -219,7 +219,7 @@ export default function SauceBuilder({
             value={sauceName}
             onChange={(e) => { setSauceName(e.target.value); setSaved(false); }}
             placeholder="Name your sauce..."
-            className="w-full text-xs bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder-gray-600"
+            className="w-full min-h-[44px] text-xs bg-[#1a1a2e] border border-[#2a2a3e] text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder-gray-600"
           />
           <button
             onClick={() => {
