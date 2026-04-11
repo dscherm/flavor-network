@@ -386,7 +386,8 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
           </div>
           <button
             onClick={onClose}
-            className="text-cyan-800 hover:text-cyan-400 transition-colors text-lg leading-none"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-cyan-800 hover:text-cyan-400 transition-colors text-lg leading-none"
+            aria-label="Close insights"
           >
             &times;
           </button>

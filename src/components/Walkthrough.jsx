@@ -196,7 +196,7 @@ function Walkthrough({ active, onComplete, onSkip }) {
         <div className="flex items-center justify-between mt-5">
           <button
             onClick={handleSkip}
-            className="text-xs text-gray-500 hover:text-gray-300 transition-colors focus:outline-none"
+            className="min-h-[44px] px-3 text-xs text-gray-500 hover:text-gray-300 transition-colors focus:outline-none flex items-center"
           >
             Skip Tour
           </button>
@@ -204,7 +204,7 @@ function Walkthrough({ active, onComplete, onSkip }) {
           <button
             onClick={handleNext}
             className={
-              'px-4 py-2 rounded-md text-sm font-medium transition-all focus:outline-none ' +
+              'min-h-[44px] px-4 py-2 rounded-md text-sm font-medium transition-all focus:outline-none ' +
               'focus:ring-1 focus:ring-cyan-500 ' +
               'bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 ' +
               'hover:bg-cyan-600/30 hover:border-cyan-500/50 ' +
