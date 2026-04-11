@@ -5,6 +5,39 @@
 
 ---
 
+## 2026-04-11 — TASK-175: Unblock Playwright chef + cocktail-builder specs
+
+**Goal:** Chef and cocktail-builder specs had been timing out at 5 min (the long-standing Round 1 Task 8 blocker). Get both finishing under budget so we can re-measure the Round 2 perf gains.
+
+**Root cause trace:** `measureLoadMetrics` defaulted to a 240s timeout for the "Initializing neural pathways" spinner. That 4-minute budget made sense when the initial load could take 2-3 minutes under throttled conditions with the 27 MB pairings.json parse. After Round 2 (Web Worker + binary pairings, commits ee311ac + 8f3c8c3), the real TTI dropped to 8s, but the old timeout was still on the books — a single flaky selector anywhere in the spec could eat the rest of the 300s budget.
+
+**Changes Made:**
+- `simulation/lib/metrics.js`:
+  - New `withTimeout(label, ms, fn)` helper. Races `fn()` against a hard timer; on expiry returns `{__timeout: true, label, timeoutMs}` instead of throwing, so measurement failures don't fail the simulation.
+  - `measureLoadMetrics` default timeout: 240_000 → 60_000
+  - Wrapped in `withTimeout`: `collectFPS` (10s), `collectFetchMetrics` (5s), `measureMemory` (5s), `measureWebGLStats` (5s), `auditTapTargets` (15s)
+
+**Verification:**
+- `node --check simulation/lib/metrics.js` — syntax OK
+- `npx vitest run src/` — 17/17 pass (unit tests unaffected)
+- `npm run build` — PASS
+- `npx playwright test --project chef --project cocktail-builder` — **both pass in 4.8m** (first time on record)
+
+**Measured gains from Round 2 (now visible for the first time):**
+- chef TTI: 15.8s → 8.4s
+- cocktail-builder TTI: 15.8s → 8.4s
+
+**New pain points exposed (pre-existing; pre-Round-2 specs were timing out before reaching them):**
+- chef: 28 tap-target violations on iPhone 15 Pro / 393px (different path than curious-browser/375px)
+- cocktail-builder: 67 tap-target violations — CocktailPanel/CocktailBuilder components not yet audited
+- slow-tab-switch: 13.2s — likely a stale `waitForSelector` hitting full 10s timeout before fallback
+- slow-cocktail-mount: 10.5s — cocktail graph build is slow
+- FPS 1.3 — SwiftShader baseline (Chromium headless), adaptive quality monitor can't help here
+
+**Status:** COMPLETE
+
+---
+
 ## 2026-04-11 — TASK-174: Fix remaining 318×32 region-list tap targets
 
 **Goal:** Close the 7 tap-target violations left after Task 12 — the 318×32 list items with dynamic labels like "European 1531", "Americas 1333", "Asian 1026", etc. from the iPhone SE report.

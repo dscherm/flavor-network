@@ -41,4 +41,11 @@ _None._
 ## Known Follow-Ups
 
 - [x] TASK-174: Fix ~7 remaining 318×32 region-list tap targets — added min-h-[44px] to FlavorTreeExplorer TreeNode #mobile
-- [ ] TASK-175: Unblock chef.spec.js + cocktail-builder.spec.js — still timing out at 5 min, blocks a clean simulation re-measure #test
+- [x] TASK-175: Unblock chef.spec.js + cocktail-builder.spec.js — both now finish in 4.8m; 60s measureLoadMetrics default + withTimeout wrappers #test
+
+## Newly Exposed Pain Points (from the now-passing simulation)
+
+- [ ] TASK-176: Audit + fix 28 chef tap targets on iPhone 15 Pro (393px) — different UI path than curious-browser #mobile
+- [ ] TASK-177: Audit + fix 67 cocktail-builder tap targets — CocktailPanel/CocktailBuilder components #mobile
+- [ ] TASK-178: Investigate chef slow-tab-switch (13.2s) — likely stale waitForSelector hitting full 10s timeout #test
+- [ ] TASK-179: Reduce Cocktail Lab mount time (10.5s) — heavy graph build #perf
