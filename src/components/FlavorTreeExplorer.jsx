@@ -25,7 +25,7 @@ const TreeNode = memo(function TreeNode({ node, depth, expanded, onToggle, onSel
           if (hasChildren) onToggle(node.id);
           onSelect(node, e);
         }}
-        className={`w-full text-left flex items-center gap-1.5 py-1.5 px-2 rounded transition-all text-xs group hover:bg-white/5 ${
+        className={`w-full min-h-[44px] text-left flex items-center gap-1.5 py-1.5 px-2 rounded transition-all text-xs group hover:bg-white/5 ${
           isSelected ? 'bg-neural-glow/10 text-neural-glow' : 'text-gray-300'
         }`}
         style={{ paddingLeft: `${depth * 14 + 8}px` }}
