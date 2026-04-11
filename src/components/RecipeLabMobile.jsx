@@ -178,6 +178,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, userProfi
   return (
     <div
       ref={containerRef}
+      data-testid="recipe-lab"
       className="fixed inset-0 pt-10 flex flex-col"
       style={{ backgroundColor: '#fefae0' }}
     >

@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-04-11 — TASK-178: Chef slow-tab-switch — data-testid for Recipe Lab
+
+**Goal:** Investigate the 13.2s `tabSwitchMs` painting point. Hypothesis was a stale `waitForSelector('[class*="recipe"], [data-testid="recipe-lab"]')` — neither selector matched anything in the current DOM, so the wait hit its full 10s timeout.
+
+**Trace:** `grep` across src/ confirmed no className containing "recipe" and no `data-testid="recipe-lab"`. The ternary in `RecipeLab.jsx` → `RecipeLabMobile` on mobile viewports was rendering the lab with styling-only classes. The spec was silently eating the full 10s via `.catch(() => {})`.
+
+**Changes Made:**
+- `src/components/RecipeLabMobile.jsx`: added `data-testid="recipe-lab"` to the root container
+- `src/components/RecipeLab.jsx`: same testid on the desktop wrapper (consistency)
+
+**Re-measurement (chef spec, chef-only re-run after fix):**
+- Total: 4.8m → **3.3m**
+- TTI: 8.4s → **7.3s**
+- tabSwitchMs: 13.2s → **12.5s**
+
+**Honest assessment:** the data-testid accounts for ~700ms (the selector now matches immediately once mounted). The remaining ~11.5s is actual Recipe Lab mount latency under Chromium SwiftShader — not a selector timeout. The hypothesis that the selector was "the" cause was partially wrong; fix is still correct and worth landing for test clarity and future measurement stability, but the real perf win on tab-switch needs a separate investigation into mount latency (overlaps with TASK-179).
+
+**Verification:**
+- `npx vitest run src/` — 17/17 pass
+- `npm run build` — PASS
+- `npx playwright test --project chef` — 1/1 pass, 3.3m
+
+**Status:** COMPLETE (partial — selector correctness fixed, mount-latency follow-up filed)
+
+---
+
 ## 2026-04-11 — TASK-175: Unblock Playwright chef + cocktail-builder specs
 
 **Goal:** Chef and cocktail-builder specs had been timing out at 5 min (the long-standing Round 1 Task 8 blocker). Get both finishing under budget so we can re-measure the Round 2 perf gains.

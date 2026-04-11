@@ -47,5 +47,6 @@ _None._
 
 - [ ] TASK-176: Audit + fix 28 chef tap targets on iPhone 15 Pro (393px) — different UI path than curious-browser #mobile
 - [ ] TASK-177: Audit + fix 67 cocktail-builder tap targets — CocktailPanel/CocktailBuilder components #mobile
-- [ ] TASK-178: Investigate chef slow-tab-switch (13.2s) — likely stale waitForSelector hitting full 10s timeout #test
+- [x] TASK-178: Add data-testid="recipe-lab" to RecipeLab/RecipeLabMobile — stale selector was ~700ms of the 13.2s, remaining ~11.5s is real mount latency (see TASK-179/180) #test
 - [ ] TASK-179: Reduce Cocktail Lab mount time (10.5s) — heavy graph build #perf
+- [ ] TASK-180: Reduce Recipe Lab mount time (~11.5s under Chromium SwiftShader) — profile the mobile lab's componentDidMount / effect chain #perf
