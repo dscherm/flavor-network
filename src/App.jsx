@@ -446,7 +446,7 @@ export default function App() {
         <div className="fixed top-[100px] left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
           <button
             onClick={handleClearSelection}
-            className="px-3 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
+            className="px-3 py-1.5 min-h-[44px] text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
           >
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -456,7 +456,7 @@ export default function App() {
           </button>
           <button
             onClick={handleCopyShareLink}
-            className={`px-3 py-1.5 text-xs bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 min-h-[44px] text-xs bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5 ${
               copied ? 'text-green-400 border-green-400/30' : 'text-gray-400 hover:text-neural-glow'
             }`}
           >
@@ -491,14 +491,14 @@ export default function App() {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setShowFilteredList(false)}
-                className="text-gray-500 hover:text-gray-300 text-xs px-1"
+                className="text-gray-500 hover:text-gray-300 text-xs min-w-[44px] min-h-[44px] flex items-center justify-center"
                 title="Minimize"
               >
                 &minus;
               </button>
               <button
                 onClick={handleClearTreeFilter}
-                className="text-gray-500 hover:text-red-400 text-xs px-1"
+                className="text-gray-500 hover:text-red-400 text-xs min-w-[44px] min-h-[44px] flex items-center justify-center"
                 title="Clear filter (or double-tap canvas)"
               >
                 &times;
@@ -515,7 +515,7 @@ export default function App() {
                 <button
                   key={name}
                   onClick={() => handleSearchSelect(name)}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-[#1a1a2a]/60 hover:bg-[#1a1a2a] border border-[#2a2a3a]/50 transition-colors text-left"
+                  className="w-full min-h-[44px] flex items-center gap-2 px-3 py-2 rounded-md bg-[#1a1a2a]/60 hover:bg-[#1a1a2a] border border-[#2a2a3a]/50 transition-colors text-left"
                 >
                   <span className="text-xs text-gray-200 flex-1 truncate">{name}</span>
                   {taste && (
@@ -537,14 +537,14 @@ export default function App() {
       {treeFilterIngredients && treeFilterIngredients.length > 0 && !showFilteredList && (
         <button
           onClick={() => setShowFilteredList(true)}
-          className="fixed left-2 z-40 px-3 py-1.5 bg-[#12121a]/90 backdrop-blur-md border border-neural-glow/30 rounded-lg text-xs text-neural-glow flex items-center gap-2 transition-colors hover:bg-[#1a1a2a]"
+          className="fixed left-2 z-40 px-3 py-1.5 min-h-[44px] bg-[#12121a]/90 backdrop-blur-md border border-neural-glow/30 rounded-lg text-xs text-neural-glow flex items-center gap-2 transition-colors hover:bg-[#1a1a2a]"
           style={{ top: 'calc(var(--nav-h) + 3.5rem)' }}
         >
           <span>{treeFilterLabel}</span>
           <span className="text-gray-500">{treeFilterIngredients.length}</span>
           <button
             onClick={(e) => { e.stopPropagation(); handleClearTreeFilter(); }}
-            className="text-gray-500 hover:text-red-400 ml-1"
+            className="text-gray-500 hover:text-red-400 ml-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             &times;
           </button>

@@ -154,7 +154,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           {onToggleFavorite && (
             <button
               onClick={() => onToggleFavorite(name)}
-              className={`mt-1 flex-shrink-0 transition-colors ${isFavorite ? 'text-pink-400 hover:text-pink-300' : 'text-gray-600 hover:text-pink-400'}`}
+              className={`mt-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors ${isFavorite ? 'text-pink-400 hover:text-pink-300' : 'text-gray-600 hover:text-pink-400'}`}
               aria-label={isFavorite ? `Remove ${name} from favorites` : `Add ${name} to favorites`}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
@@ -211,7 +211,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 <li key={neighbor.name}>
                   <button
                     onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
-                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors group"
+                    className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors group"
                   >
                     <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
                     <StrengthBar strength={neighbor.strength} />
@@ -254,7 +254,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
       {/* Tab */}
       <button
         onClick={() => setCollapsed((v) => !v)}
-        className={`self-start mt-8 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-r-0 rounded-l-lg px-1.5 py-3 transition-colors ${
+        className={`self-start mt-8 min-w-[44px] min-h-[44px] flex items-center justify-center bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-r-0 rounded-l-lg px-1.5 py-3 transition-colors ${
           collapsed ? 'text-cyan-400' : 'text-gray-500 hover:text-gray-300'
         }`}
         aria-label={collapsed ? 'Show details' : 'Hide details'}
@@ -280,7 +280,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
         <button
           onClick={onClose}
           aria-label="Close panel"
-          className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-100 hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-100 hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M1 1l12 12M13 1L1 13" />
@@ -300,7 +300,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           {onToggleFavorite && (
             <button
               onClick={() => onToggleFavorite(name)}
-              className={`mt-1 flex-shrink-0 transition-colors ${
+              className={`mt-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors ${
                 isFavorite
                   ? 'text-pink-400 hover:text-pink-300'
                   : 'text-gray-600 hover:text-pink-400'
@@ -381,7 +381,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 <li key={neighbor.name}>
                   <button
                     onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
-                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
+                    className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
                   >
                     <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">
                       {neighbor.name}
