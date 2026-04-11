@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-04-11 — TASK-174: Fix remaining 318×32 region-list tap targets
+
+**Goal:** Close the 7 tap-target violations left after Task 12 — the 318×32 list items with dynamic labels like "European 1531", "Americas 1333", "Asian 1026", etc. from the iPhone SE report.
+
+**Trace:** Violations point at `button.w-full` in a drill-down UI. Followed the labels to `src/data/cuisineTree.js` (region names) → `regionTree.js` (tree builder) → `FlavorTreeExplorer.jsx` → `TreeNode` component (one button per tree row, any depth, any view mode).
+
+**Changes Made:**
+- `src/components/FlavorTreeExplorer.jsx`: added `min-h-[44px]` to the `TreeNode` button className. Fixes region rows and also covers the cuisine/taste/family/season trees via the same component — future-proof.
+
+**Verification:**
+- `npx vitest run src/` — 17/17 pass
+- `npm run build` — PASS
+
+**Status:** COMPLETE
+
+---
+
 ## 2026-04-10 — Task 12: Audit and fix <44px tap targets
 
 **Goal:** Fix the 29 tap-target violations reported by `simulation/output/curious-browser-report.json` (iPhone SE / 375px). Target: <5 violations per spec.

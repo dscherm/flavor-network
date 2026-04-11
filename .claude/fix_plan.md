@@ -40,5 +40,5 @@ _None._
 
 ## Known Follow-Ups
 
-- [ ] TASK-174: Locate + fix ~7 remaining 318×32 region-list tap targets (dynamic "European1531"-style labels in drill-down UI) #mobile
+- [x] TASK-174: Fix ~7 remaining 318×32 region-list tap targets — added min-h-[44px] to FlavorTreeExplorer TreeNode #mobile
 - [ ] TASK-175: Unblock chef.spec.js + cocktail-builder.spec.js — still timing out at 5 min, blocks a clean simulation re-measure #test
