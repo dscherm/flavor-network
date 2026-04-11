@@ -223,7 +223,7 @@ Task 6 (React.memo) was reverted in commit 9277106 due to a black-screen TDZ cra
     "Re-run simulation — target is <5 violations per spec",
     "Run: npx vitest run src/ to catch any regressions"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

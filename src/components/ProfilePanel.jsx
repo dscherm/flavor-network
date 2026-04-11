@@ -135,7 +135,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
           </span>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none"
             aria-label="Close profile panel"
           >
             &times;
@@ -149,7 +149,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
           <button
             key={t.key}
             onClick={() => { setTab(t.key); setSearchQuery(''); }}
-            className={`flex-1 py-2 text-[11px] transition-colors ${
+            className={`flex-1 min-h-[44px] py-2 text-[11px] transition-colors flex items-center justify-center ${
               tab === t.key
                 ? 'text-blue-400 border-b-2 border-blue-400'
                 : 'text-gray-500 hover:text-gray-300'
@@ -409,7 +409,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
         ) : (
           <button
             onClick={onLogin}
-            className="w-full text-[11px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded py-1.5 transition-colors flex items-center justify-center gap-1.5"
+            className="w-full min-h-[44px] text-[11px] bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded py-1.5 transition-colors flex items-center justify-center gap-1.5"
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -424,7 +424,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
         {onReplayTour && (
           <button
             onClick={onReplayTour}
-            className="w-full text-[10px] text-gray-500 hover:text-gray-300 transition-colors py-1 flex items-center justify-center gap-1"
+            className="w-full min-h-[44px] text-[10px] text-gray-500 hover:text-gray-300 transition-colors py-1 flex items-center justify-center gap-1"
           >
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
@@ -437,7 +437,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
           <button
             onClick={handleExport}
             disabled={profile.ingredients.length === 0 && profile.cuisines.length === 0 && profile.recipes.length === 0}
-            className="flex-1 text-[10px] text-gray-500 hover:text-blue-400 disabled:text-gray-700 disabled:cursor-default transition-colors py-1 flex items-center justify-center gap-1"
+            className="flex-1 min-h-[44px] text-[10px] text-gray-500 hover:text-blue-400 disabled:text-gray-700 disabled:cursor-default transition-colors py-1 flex items-center justify-center gap-1"
             title="Download profile as JSON"
           >
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -447,7 +447,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex-1 text-[10px] text-gray-500 hover:text-blue-400 transition-colors py-1 flex items-center justify-center gap-1"
+            className="flex-1 min-h-[44px] text-[10px] text-gray-500 hover:text-blue-400 transition-colors py-1 flex items-center justify-center gap-1"
             title="Import profile from JSON"
           >
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

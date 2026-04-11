@@ -61,7 +61,7 @@ export default function MobileTabBar({
                   <button
                     key={lab.key}
                     onClick={() => { onTabChange(lab.key); setLabsOpen(false); }}
-                    className={`w-full text-left px-3 py-2.5 text-xs font-medium transition-colors ${
+                    className={`w-full text-left px-3 py-2.5 min-h-[44px] text-xs font-medium transition-colors ${
                       activeTab === lab.key
                         ? 'text-cyan-300 bg-cyan-500/10'
                         : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
@@ -91,19 +91,19 @@ export default function MobileTabBar({
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[71] overflow-hidden">
                 <button
                   onClick={() => { onOpenTreeExplorer(); setExploreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
+                  className="w-full text-left px-3 py-2.5 min-h-[44px] text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
                 >
                   Flavor Trees
                 </button>
                 <button
                   onClick={() => { onOpenBridge(); setExploreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
+                  className="w-full text-left px-3 py-2.5 min-h-[44px] text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
                 >
                   Flavor Bridge
                 </button>
                 <button
                   onClick={() => { onOpenGlobalInsights(); setExploreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
+                  className="w-full text-left px-3 py-2.5 min-h-[44px] text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
                 >
                   Network Insights
                 </button>

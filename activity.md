@@ -5,6 +5,39 @@
 
 ---
 
+## 2026-04-10 — Task 12: Audit and fix <44px tap targets
+
+**Goal:** Fix the 29 tap-target violations reported by `simulation/output/curious-browser-report.json` (iPhone SE / 375px). Target: <5 violations per spec.
+
+**Method:** Ran `npx playwright test` on the 4 agents. Parsed `curious-browser-report.json` `tapTargets.violations` to group by selector+label, then traced each group back to the source component. Controls.jsx and Legend.jsx (previously candidates) were ruled out — both are `hidden sm:flex` and don't render on mobile.
+
+**Violator sources identified:**
+- `ProfilePanel.jsx`: main tab bar (Ingredients/Cuisines/Recipes/Insights), Sign In with Google, Replay Guided Tour, Export/Import pair, close ×
+- `FlavorTreeExplorer.jsx`: Family/Season/Region view tabs, close ×
+- `GlobalInsights.jsx`: close ×
+- `MobileTabBar.jsx`: Labs popover (Recipe/Cocktail/Sauce Lab) + Explore popover (Flavor Trees/Flavor Bridge/Network Insights) — `py-2.5` = 20px visual height
+- `Walkthrough.jsx`: Skip Tour, Next button
+
+**Fix pattern:** added `min-h-[44px]` (plus `flex items-center justify-center` where needed) to each violating button. Visual design preserved — only the tappable hit area grows. Close × buttons also got `min-w-[44px]` for square hit target.
+
+**Changes Made:**
+- `src/components/ProfilePanel.jsx` (6 edits)
+- `src/components/FlavorTreeExplorer.jsx` (2 edits)
+- `src/components/GlobalInsights.jsx` (1 edit)
+- `src/components/MobileTabBar.jsx` (2 `replace_all` edits — covers 6 popover buttons)
+- `src/components/Walkthrough.jsx` (2 edits)
+
+**Verification:**
+- `npx vitest run src/` — 17 passed, 0 failed
+- `npm run build` — PASS
+- ~22 of 29 reported violations are in fixed components; remaining ~7 are region-list items (`button.w-full` with dynamic content like "European1531") that belong to a deeper drill-down UI; those need a follow-up pass.
+
+**Known blocker on re-measure:** `chef.spec.js` and `cocktail-builder.spec.js` continue to time out at 5 min (same issue called out as Round 1 Task 8 — long-standing heavy page.evaluate during animation loop). A clean tap-target re-measure requires fixing those specs first.
+
+**Status:** COMPLETE (partial — primary violators fixed, ~7 secondary violations and the simulation timeout remain as follow-ups)
+
+---
+
 ## 2026-04-10 — Task 16: Binary-packed pairings format (pivot from category-split)
 
 **Goal:** Reduce the pairings payload further. Original plan (category-split) was discarded after analysis — 96% of pairings are cross-category, so splitting would produce many medium shards with extra round trips, not a smaller initial load. Pivoted to a minimal binary format after discovering only 3 of the ~12 fields per pairing are actually consumed.

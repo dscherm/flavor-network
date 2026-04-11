@@ -382,7 +382,8 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
           <h2 className="text-sm font-medium text-gray-200 tracking-wide">Flavor Trees</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none"
+            aria-label="Close flavor trees"
           >
             &times;
           </button>
@@ -394,7 +395,7 @@ export default function FlavorTreeExplorer({ nodes, isOpen, onClose, onFilterIng
             <button
               key={mode.key}
               onClick={() => handleModeChange(mode.key)}
-              className={`flex-1 py-2 text-[11px] transition-colors ${
+              className={`flex-1 min-h-[44px] py-2 text-[11px] transition-colors flex items-center justify-center ${
                 viewMode === mode.key
                   ? 'text-neural-glow border-b-2 border-neural-glow'
                   : 'text-gray-500 hover:text-gray-300'
