@@ -322,7 +322,7 @@ export default function CocktailPanel({
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-[#1e1e2e]">
           <h2 className="text-sm font-medium text-gray-200 tracking-wide">Cocktail Lab</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none">
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none min-w-[44px] min-h-[44px] flex items-center justify-center">
             &times;
           </button>
         </div>
@@ -333,7 +333,7 @@ export default function CocktailPanel({
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex-1 py-1.5 text-[10px] transition-colors ${
+              className={`flex-1 min-h-[44px] py-1.5 text-[10px] transition-colors ${
                 tab === t.key
                   ? 'text-purple-400 border-b-2 border-purple-400'
                   : 'text-gray-500 hover:text-gray-300'
@@ -446,7 +446,7 @@ export default function CocktailPanel({
                     <button
                       key={cocktail.id}
                       onClick={() => handleSelectCocktail(cocktail)}
-                      className="w-full flex items-center gap-2.5 p-2 rounded-lg bg-[#1a1a2e]/50 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/20 transition-all text-left"
+                      className="w-full min-h-[44px] flex items-center gap-2.5 p-2 rounded-lg bg-[#1a1a2e]/50 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/20 transition-all text-left"
                     >
                       {cocktail.image && (
                         <img

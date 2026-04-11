@@ -64,7 +64,7 @@ export default function CocktailRecipeCard({
                     onSwapIngredient?.(ing.name);
                   }
                 }}
-                className={`w-full flex items-center justify-between px-2 py-1 rounded text-left text-[11px] transition-all ${
+                className={`w-full min-h-[44px] flex items-center justify-between px-2 py-1 rounded text-left text-[11px] transition-all ${
                   isBeingReplaced
                     ? 'bg-green-500/15 border border-green-500/30 text-green-300'
                     : isSwapping
@@ -133,7 +133,7 @@ export default function CocktailRecipeCard({
                   <button
                     key={alt.name}
                     onClick={() => onSelectAlternative?.(alt.name)}
-                    className={`w-full flex items-center justify-between px-2 py-1 rounded text-left text-[10px] transition-colors group ${
+                    className={`w-full min-h-[44px] flex items-center justify-between px-2 py-1 rounded text-left text-[10px] transition-colors group ${
                       isPreview
                         ? 'bg-green-500/15 border border-green-500/30'
                         : 'hover:bg-purple-500/10 border border-transparent'
