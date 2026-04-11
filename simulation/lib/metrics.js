@@ -4,6 +4,28 @@
  */
 
 /**
+ * Wrap a promise-returning function in a hard timeout so a single hung
+ * page.evaluate cannot burn the spec's entire 5-minute budget. Returns
+ * a sentinel {__timeout: true, label} on expiry instead of throwing —
+ * measurement failures shouldn't fail the simulation, they should just
+ * be logged.
+ */
+async function withTimeout(label, ms, fn) {
+  let timer;
+  const timeoutPromise = new Promise((resolve) => {
+    timer = setTimeout(
+      () => resolve({ __timeout: true, label, timeoutMs: ms }),
+      ms
+    );
+  });
+  try {
+    return await Promise.race([fn(), timeoutPromise]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
  * Start FPS sampling via requestAnimationFrame loop.
  * Call collectFPS() after sampling period to retrieve results.
  * @param {import('@playwright/test').Page} page
@@ -30,7 +52,7 @@ export async function startFPSSampler(page) {
  * @returns {{ fps: number, p50: number, p95: number, p99: number, frameCount: number, droppedFrames: number }}
  */
 export async function collectFPS(page) {
-  return await page.evaluate(() => {
+  return await withTimeout('collectFPS', 10_000, () => page.evaluate(() => {
     const sampler = window.__fpsSampler;
     if (!sampler) return { fps: 0, p50: 0, p95: 0, p99: 0, frameCount: 0, droppedFrames: 0 };
     sampler.running = false;
@@ -60,7 +82,7 @@ export async function collectFPS(page) {
       frameCount: frames.length,
       droppedFrames,
     };
-  });
+  }));
 }
 
 /**
@@ -71,10 +93,12 @@ export async function collectFPS(page) {
  * @param {number} timeoutMs
  * @returns {{ tti: number, fcp: number, lcp: number, cls: number }}
  */
-export async function measureLoadMetrics(page, timeoutMs = 240_000) {
+export async function measureLoadMetrics(page, timeoutMs = 60_000) {
   const navStart = await page.evaluate(() => performance.timing.navigationStart);
 
   // Wait for loading spinner to disappear (app renders "Initializing neural pathways...")
+  // Default budget was 240s; dropped to 60s after Round 2 perf work (Web Worker +
+  // binary pairings) brought real TTI to ~2-5s on Chromium SwiftShader.
   await page.waitForSelector('text=Initializing neural pathways', { state: 'hidden', timeout: timeoutMs })
     .catch(() => {}); // may already be gone
 
@@ -155,7 +179,9 @@ export async function installFetchInterceptor(page) {
  * @param {import('@playwright/test').Page} page
  */
 export async function collectFetchMetrics(page) {
-  return await page.evaluate(() => window.__fetchMetrics || {});
+  return await withTimeout('collectFetchMetrics', 5_000,
+    () => page.evaluate(() => window.__fetchMetrics || {})
+  );
 }
 
 /**
@@ -163,7 +189,7 @@ export async function collectFetchMetrics(page) {
  * @param {import('@playwright/test').Page} page
  */
 export async function measureMemory(page) {
-  return await page.evaluate(() => {
+  return await withTimeout('measureMemory', 5_000, () => page.evaluate(() => {
     if (performance.memory) {
       return {
         usedJSHeapMB: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024 * 10) / 10,
@@ -172,7 +198,7 @@ export async function measureMemory(page) {
       };
     }
     return { usedJSHeapMB: null, totalJSHeapMB: null, limitMB: null };
-  });
+  }));
 }
 
 /**
@@ -180,7 +206,7 @@ export async function measureMemory(page) {
  * @param {import('@playwright/test').Page} page
  */
 export async function measureWebGLStats(page) {
-  return await page.evaluate(() => {
+  return await withTimeout('measureWebGLStats', 5_000, () => page.evaluate(() => {
     // SceneManager exposes renderer on the canvas element's __sceneManager
     const canvas = document.querySelector('canvas');
     if (!canvas) return { available: false };
@@ -200,7 +226,7 @@ export async function measureWebGLStats(page) {
     }
 
     return { available: false, canvasPresent: true };
-  });
+  }));
 }
 
 /**
@@ -209,7 +235,7 @@ export async function measureWebGLStats(page) {
  * @returns {{ violations: Array<{ selector: string, width: number, height: number, label: string }>, total: number, passing: number }}
  */
 export async function auditTapTargets(page) {
-  return await page.evaluate(() => {
+  return await withTimeout('auditTapTargets', 15_000, () => page.evaluate(() => {
     const MIN_SIZE = 44;
     const interactive = document.querySelectorAll('button, a, input, [role="button"], [tabindex]');
     const violations = [];
@@ -236,7 +262,7 @@ export async function auditTapTargets(page) {
     });
 
     return { violations, total: violations.length + passing, passing };
-  });
+  }));
 }
 
 /**
