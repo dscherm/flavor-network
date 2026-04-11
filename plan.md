@@ -204,7 +204,7 @@ Task 6 (React.memo) was reverted in commit 9277106 due to a black-screen TDZ cra
     "Add a Playwright test in simulation/ that taps the canvas center on iPhone 12 viewport and asserts a node-selected state change",
     "Manually test on a real device or iOS simulator if available"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

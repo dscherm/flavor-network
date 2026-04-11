@@ -92,11 +92,18 @@ class SceneManager {
     // Resize listener
     window.addEventListener('resize', this._resizeHandler);
 
-    // Raycasting events
-    this._clickHandler = this._onClick.bind(this);
-    this._moveHandler = this._onMouseMove.bind(this);
-    this._renderer.domElement.addEventListener('click', this._clickHandler);
-    this._renderer.domElement.addEventListener('mousemove', this._moveHandler);
+    // Raycasting events — use pointer events so touch works on iOS.
+    // Tap is distinguished from drag by tracking pointerdown position
+    // and only firing the click handler if movement stayed under a
+    // small threshold on pointerup.
+    this._pointerDownPos = null;
+    this._pointerTapThresholdPx = 10;
+    this._pointerDownHandler = this._onPointerDown.bind(this);
+    this._pointerUpHandler = this._onPointerUp.bind(this);
+    this._moveHandler = this._onPointerMove.bind(this);
+    this._renderer.domElement.addEventListener('pointerdown', this._pointerDownHandler);
+    this._renderer.domElement.addEventListener('pointerup', this._pointerUpHandler);
+    this._renderer.domElement.addEventListener('pointermove', this._moveHandler);
 
     return this;
   }
@@ -137,8 +144,9 @@ class SceneManager {
     window.removeEventListener('resize', this._resizeHandler);
 
     if (this._renderer) {
-      this._renderer.domElement.removeEventListener('click', this._clickHandler);
-      this._renderer.domElement.removeEventListener('mousemove', this._moveHandler);
+      this._renderer.domElement.removeEventListener('pointerdown', this._pointerDownHandler);
+      this._renderer.domElement.removeEventListener('pointerup', this._pointerUpHandler);
+      this._renderer.domElement.removeEventListener('pointermove', this._moveHandler);
     }
 
     if (this._controls) {
@@ -218,7 +226,21 @@ class SceneManager {
     return hits.length > 0 ? hits[0].instanceId : -1;
   }
 
-  _onClick(event) {
+  _onPointerDown(event) {
+    // Record where the pointer went down so we can distinguish tap from drag.
+    this._pointerDownPos = { x: event.clientX, y: event.clientY };
+  }
+
+  _onPointerUp(event) {
+    // Only treat as a tap/click if movement stayed under the threshold.
+    // OrbitControls otherwise interprets the gesture as a drag and we
+    // would select a node at the end of every rotate.
+    if (!this._pointerDownPos) return;
+    const dx = event.clientX - this._pointerDownPos.x;
+    const dy = event.clientY - this._pointerDownPos.y;
+    this._pointerDownPos = null;
+    if (Math.hypot(dx, dy) > this._pointerTapThresholdPx) return;
+
     this._getMouseNDC(event);
     const idx = this._raycast();
     if (this._onNodeClick) {
@@ -226,7 +248,11 @@ class SceneManager {
     }
   }
 
-  _onMouseMove(event) {
+  _onPointerMove(event) {
+    // Hover state is a mouse-only concept — skip for touch/pen to
+    // avoid firing hover updates during a two-finger pinch or drag.
+    if (event.pointerType && event.pointerType !== 'mouse') return;
+
     // Throttle raycasts to ~30fps for performance
     const now = performance.now();
     if (now - (this._lastRaycastTime || 0) < 33) return;

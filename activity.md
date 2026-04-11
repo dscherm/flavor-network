@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-04-10 — Task 11: Verify 3D canvas touch picking
+
+**Goal:** Fix the simulation finding 'tap on 3D canvas center did not select a node' on iPhone 12/LTE. SceneManager.js was bound to `click` and `mousemove`, which do not reliably fire on iOS touch and do not distinguish tap from OrbitControls drag.
+
+**Changes Made:**
+- `src/three/SceneManager.js`: replaced `click`/`mousemove` listeners with `pointerdown`/`pointerup`/`pointermove`. Pointer events work uniformly across mouse, touch, and pen on iOS Safari 13+.
+- Added a tap-vs-drag discriminator: `pointerdown` records start position, `pointerup` only fires the node-click handler if cumulative movement stayed under 10px (otherwise OrbitControls would log a drag as a tap at the drop point).
+- `pointermove` hover handler filters to `pointerType === 'mouse'` so touch gestures don't trigger hover raycasts during pinch/rotate.
+- Matching dispose cleanup for all three new listeners.
+
+**Verification:**
+- `npx vitest run src/` — 17 passed, 0 failed
+- `npm run build` — PASS
+
+**Status:** COMPLETE
+
+---
+
 ## 2026-04-10 — Task 10: Move pairings.json parse to Web Worker
 
 **Goal:** Offload the 27MB JSON fetch+parse from the main thread. Simulation reported JSON parse blocking for 6.8s on WiFi and 16.9s on LTE — root cause of F-grade TTI and FPS.
