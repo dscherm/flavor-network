@@ -53,6 +53,22 @@ class SceneManager {
     this._onNodeClick = null;
     this._onNodeHover = null;
     this._hoveredIndex = -1;
+
+    // Adaptive quality state — the monitor watches FPS and degrades
+    // or restores one tier at a time. Tier 0 is the initial config.
+    // Tier 1: halve DPR. Tier 2: also disable bloom. Tier 3: also
+    // emit an 'adaptive-quality:degrade' event for ParticleSystem.
+    this._qualityTier = 0;
+    this._qualityMaxTier = 3;
+    this._fpsSampleSum = 0;
+    this._fpsSampleCount = 0;
+    this._fpsLowStreakMs = 0;
+    this._fpsHighStreakMs = 0;
+    this._qualityDegradeMs = 2000;
+    this._qualityRestoreMs = 5000;
+    this._qualityDegradeFps = 25;
+    this._qualityRestoreFps = 45;
+    this._adaptiveQualityEnabled = true;
   }
 
   init(container) {
@@ -312,6 +328,7 @@ class SceneManager {
     this._animationFrameId = requestAnimationFrame(this._animate.bind(this));
     const delta = this._clock.getDelta();
     this._tick(delta);
+    if (this._adaptiveQualityEnabled) this._sampleFps(delta);
   }
 
   _tick(deltaTime) {
@@ -319,6 +336,74 @@ class SceneManager {
       this._controls.update();
     }
     this._composer.render();
+  }
+
+  _sampleFps(delta) {
+    // Accumulate samples over a 1-second window, then evaluate.
+    if (delta <= 0) return;
+    this._fpsSampleSum += 1 / delta;
+    this._fpsSampleCount += 1;
+    const windowMs = this._fpsSampleCount * delta * 1000;
+    if (windowMs < 1000) return;
+
+    const avgFps = this._fpsSampleSum / this._fpsSampleCount;
+    this._fpsSampleSum = 0;
+    this._fpsSampleCount = 0;
+
+    if (avgFps < this._qualityDegradeFps) {
+      this._fpsLowStreakMs += windowMs;
+      this._fpsHighStreakMs = 0;
+      if (this._fpsLowStreakMs >= this._qualityDegradeMs
+          && this._qualityTier < this._qualityMaxTier) {
+        this._qualityTier += 1;
+        this._applyQualityTier();
+        this._fpsLowStreakMs = 0;
+      }
+    } else if (avgFps > this._qualityRestoreFps) {
+      this._fpsHighStreakMs += windowMs;
+      this._fpsLowStreakMs = 0;
+      if (this._fpsHighStreakMs >= this._qualityRestoreMs
+          && this._qualityTier > 0) {
+        this._qualityTier -= 1;
+        this._applyQualityTier();
+        this._fpsHighStreakMs = 0;
+      }
+    } else {
+      // Middle band — decay both streaks so a single bad second
+      // doesn't eventually trip the threshold.
+      this._fpsLowStreakMs = Math.max(0, this._fpsLowStreakMs - windowMs);
+      this._fpsHighStreakMs = Math.max(0, this._fpsHighStreakMs - windowMs);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.fn = window.fn || {};
+      window.fn.qualityTier = this._qualityTier;
+      window.fn.lastAvgFps = Math.round(avgFps * 10) / 10;
+    }
+  }
+
+  _applyQualityTier() {
+    const tier = this._qualityTier;
+    // Tier 1+: DPR 1.0 (was min(2, devicePixelRatio))
+    if (this._renderer) {
+      const dpr = tier >= 1 ? 1 : Math.min(2, window.devicePixelRatio || 1);
+      this._renderer.setPixelRatio(dpr);
+    }
+    // Tier 2+: disable bloom if it was enabled
+    if (this._bloomPass) {
+      const shouldEnableBloom = tier < 2;
+      this._bloomPass.enabled = shouldEnableBloom;
+    }
+    // Tier 3: dispatch an event so ParticleSystem (or others) can react
+    if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+      try {
+        window.dispatchEvent(new CustomEvent('fn:quality-tier', {
+          detail: { tier, degradeParticles: tier >= 3 },
+        }));
+      } catch {
+        // CustomEvent unsupported in some jsdom environments — ignore
+      }
+    }
   }
 }
 

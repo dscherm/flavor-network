@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-04-10 — Task 15: Adaptive quality FPS monitor
+
+**Goal:** Even after Tasks 5, 7, 10, 13 etc., older iPhones may still struggle. Add a running FPS monitor that automatically degrades quality tiers when FPS drops below 25 for ≥2s and restores when back above 45 for ≥5s.
+
+**Changes Made:**
+- `src/three/SceneManager.js`:
+  - New state: `_qualityTier`, `_fpsSampleSum`, streak counters, thresholds (25/45 fps, 2000/5000 ms).
+  - New `_sampleFps(delta)` — accumulates samples over 1-second windows, evaluates streak, degrades or restores by one tier. Middle-band decays both streaks.
+  - New `_applyQualityTier()` — Tier 1 halves DPR to 1.0, Tier 2 also disables bloom via `_bloomPass.enabled = false`, Tier 3 dispatches `fn:quality-tier` CustomEvent so ParticleSystem can self-reduce.
+  - Exposes `window.fn.qualityTier` and `window.fn.lastAvgFps` for manual inspection.
+  - Wired into `_animate()` via `this._sampleFps(delta)` after `_tick()`.
+
+**Verification:**
+- `npx vitest run src/` — 17 passed, 0 failed
+- `npm run build` — PASS (bundle unchanged size)
+
+**Status:** COMPLETE
+
+---
+
 ## 2026-04-10 — Task 14: Re-land React.memo on leaf components
 
 **Goal:** Memoize the 3 leaf components that were reverted in commit 9277106. The revert ALSO fixed the tasteSelection TDZ bug via a ref indirection; the underlying cause is resolved, so memoizing leaf components (no refs, no hoisting complexity) is safe now.
