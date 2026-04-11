@@ -262,7 +262,7 @@ Task 6 (React.memo) was reverted in commit 9277106 due to a black-screen TDZ cra
     "Run: npx vitest run src/",
     "Run simulation to confirm no FPS regression"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
