@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-04-10 — Task 14: Re-land React.memo on leaf components
+
+**Goal:** Memoize the 3 leaf components that were reverted in commit 9277106. The revert ALSO fixed the tasteSelection TDZ bug via a ref indirection; the underlying cause is resolved, so memoizing leaf components (no refs, no hoisting complexity) is safe now.
+
+**Changes Made:**
+- `src/components/SearchBar.jsx`: re-imported `memo`, wrapped export in `memo(SearchBar)`.
+- `src/components/Legend.jsx`: wrapped export in `React.memo(Legend)`.
+- `src/components/Controls.jsx`: wrapped export in `React.memo(Controls)`.
+- Deliberately skipped NetworkScene.jsx and LivingArchView.jsx — these were the two that caused the production black-screen (they hold closure state over animate loops and the hoisting order matters).
+
+**Verification:**
+- `npx vitest run src/` — 17 passed, 0 failed
+- `npm run build` — PASS, bundle still 415 kB (no regression)
+
+**Status:** COMPLETE
+
+---
+
 ## 2026-04-10 — Task 13: Disable bloom on low-end devices
 
 **Goal:** Cocktail Lab FPS is 1.2 on iPhone 13/WiFi — UnrealBloomPass is the dominant cost. Add device-capability detection and skip bloom on low-end devices.

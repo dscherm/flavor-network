@@ -89,4 +89,4 @@ function Legend({ selectedTaste, onTasteFilter }) {
   );
 }
 
-export default Legend;
+export default React.memo(Legend);
