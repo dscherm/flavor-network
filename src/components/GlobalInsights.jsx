@@ -359,7 +359,7 @@ export default function GlobalInsights({ nodes, edges, filterCuisine, filterTast
         onClick={() => {
           if (isOpen) setCollapsed((v) => !v);
         }}
-        className={`self-start mt-8 bg-[#0a1628]/90 backdrop-blur-md border border-cyan-900/40 border-r-0 rounded-l-lg px-1.5 py-3 transition-all duration-300 ${
+        className={`self-start mt-8 min-w-[44px] min-h-[44px] flex items-center justify-center bg-[#0a1628]/90 backdrop-blur-md border border-cyan-900/40 border-r-0 rounded-l-lg px-1.5 py-3 transition-all duration-300 ${
           isOpen
             ? collapsed
               ? 'text-cyan-400 pointer-events-auto'

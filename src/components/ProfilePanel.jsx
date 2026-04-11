@@ -480,7 +480,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
       {/* Tab */}
       <button
         onClick={isOpen ? onClose : onClose}
-        className={`self-start mt-4 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-l-0 rounded-r-lg px-1.5 py-3 transition-all duration-300 ${
+        className={`self-start mt-4 min-w-[44px] min-h-[44px] flex items-center justify-center bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-l-0 rounded-r-lg px-1.5 py-3 transition-all duration-300 ${
           isOpen ? 'text-blue-400 translate-x-0' : 'text-gray-500 hover:text-gray-300 -translate-x-full pointer-events-none opacity-0'
         }`}
         aria-label="Hide profile"
