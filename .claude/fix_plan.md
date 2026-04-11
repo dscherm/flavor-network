@@ -1,6 +1,6 @@
 ---
 mode: bugfix-and-enhance
-updated: 2026-04-11T13:40
+updated: 2026-04-11T12:30
 ---
 
 # Flavor Network — Fix Plan (2026-04-11)
@@ -50,3 +50,11 @@ _None._
 - [x] TASK-178: Add data-testid="recipe-lab" to RecipeLab/RecipeLabMobile — stale selector was ~700ms of the 13.2s, remaining ~11.5s is real mount latency (see TASK-179/180) #test
 - [x] TASK-179: Reduce Cocktail Lab mount — replaced O(N²) Phase 4 repulsion in cocktailPositioning with shared spatial-hash helper (4.5× at 1500 nodes, ~13× at 6000) #perf
 - [x] TASK-180: Reduce Recipe Lab mount — same root cause, fix shared via spatialRepulsion.js (also applied to saucePositioning) #perf
+
+## Investigated & Rejected
+
+- [~] TASK-181: Pre-bake cocktail subgraph at build time — investigated then reverted. Node microbenchmark showed buildFromLive 3.25ms vs buildFromPrebuilt 0.89ms — ~2.4ms real savings on device. Playwright-reported 1100ms "buildGraph" was main-thread microtask contention from Chromium software WebGL during tab transition, NOT actual JS work. Not worth the maintenance burden of a build script + new static asset + two code paths.
+
+## Future Work
+
+- [ ] TASK-182: Move buildCocktailGraph + computeCocktailPositions off the main thread (Web Worker) — parallel to the pairings parser worker from TASK-166. UX win (main thread stays responsive during Labs→Cocktail transition) even though total wall-clock is similar. Reuse src/workers/pairingsParser.worker.js or add a new cocktailBuild.worker.js. Defer until real-device measurement confirms main-thread contention is actually user-visible; under SwiftShader the measurement is dominated by software WebGL and any worker win will be invisible. See 2026-04-11 session memory note for context on why the prebuild approach (TASK-181) was rejected. #perf
