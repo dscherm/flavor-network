@@ -281,7 +281,7 @@ Task 6 (React.memo) was reverted in commit 9277106 due to a black-screen TDZ cra
     "Expose window.fn.qualityTier for manual testing",
     "Document the tiers in a code comment"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
