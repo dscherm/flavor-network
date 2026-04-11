@@ -242,7 +242,7 @@ Task 6 (React.memo) was reverted in commit 9277106 due to a black-screen TDZ cra
     "Verify Cocktail Lab renders without bloom on mobile viewport (devtools iPhone preset)",
     "Re-run simulation cocktail-builder spec — expect FPS > 20"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

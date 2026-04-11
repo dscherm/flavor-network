@@ -4,6 +4,36 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
+/**
+ * Device-capability check: returns true for devices where bloom
+ * post-processing is too expensive (~1fps on iPhone 13 per simulation).
+ * Override with localStorage keys 'fn.forceBloom' (force on) or
+ * 'fn.disableBloom' (force off) for manual testing.
+ */
+function isLowEndForBloom() {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      if (localStorage.getItem('fn.forceBloom') === '1') return false;
+      if (localStorage.getItem('fn.disableBloom') === '1') return true;
+    }
+  } catch {
+    // private mode / SSR — ignore
+  }
+  if (typeof navigator === 'undefined' || typeof window === 'undefined') {
+    return false;
+  }
+  // Heuristic: low deviceMemory, coarse pointer (touch), or small viewport.
+  const memory = navigator.deviceMemory;
+  if (typeof memory === 'number' && memory > 0 && memory < 4) return true;
+  const coarse = typeof window.matchMedia === 'function'
+    && window.matchMedia('(pointer: coarse)').matches;
+  const narrow = typeof window.innerWidth === 'number' && window.innerWidth < 768;
+  if (coarse && narrow) return true;
+  const mobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+  if (mobileUA && narrow) return true;
+  return false;
+}
+
 class SceneManager {
   constructor(canvas) {
     this._canvas = canvas;
@@ -59,13 +89,18 @@ class SceneManager {
     this._composer = new EffectComposer(this._renderer);
     this._composer.addPass(new RenderPass(this._scene, this._camera));
 
-    this._bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(width, height),
-      1.5,
-      0.4,
-      0.85
-    );
-    this._composer.addPass(this._bloomPass);
+    // Skip bloom on low-end devices — UnrealBloomPass is the dominant
+    // cost on iPhone 13 (FPS drops to ~1.2 with bloom on per simulation).
+    this._bloomEnabled = !isLowEndForBloom();
+    if (this._bloomEnabled) {
+      this._bloomPass = new UnrealBloomPass(
+        new THREE.Vector2(width, height),
+        1.5,
+        0.4,
+        0.85
+      );
+      this._composer.addPass(this._bloomPass);
+    }
 
     // Lighting — required for MeshStandardMaterial
     const ambientLight = new THREE.AmbientLight(0x404060, 1.0);

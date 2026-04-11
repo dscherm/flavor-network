@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-04-10 — Task 13: Disable bloom on low-end devices
+
+**Goal:** Cocktail Lab FPS is 1.2 on iPhone 13/WiFi — UnrealBloomPass is the dominant cost. Add device-capability detection and skip bloom on low-end devices.
+
+**Changes Made:**
+- `src/three/SceneManager.js`: new `isLowEndForBloom()` helper at module scope. Checks localStorage override (`fn.forceBloom` / `fn.disableBloom`), then `navigator.deviceMemory < 4`, then `pointer: coarse + viewport < 768`, then mobile UA + narrow viewport.
+- In `init()`, only instantiate and add `UnrealBloomPass` when `isLowEndForBloom()` returns false. Tracked as `this._bloomEnabled`.
+- `setBloomParams` already guards on `this._bloomPass` existence so it no-ops safely.
+
+**Verification:**
+- `npx vitest run src/` — 17 passed, 0 failed
+- `npm run build` — PASS
+
+**Status:** COMPLETE
+
+---
+
 ## 2026-04-10 — Task 11: Verify 3D canvas touch picking
 
 **Goal:** Fix the simulation finding 'tap on 3D canvas center did not select a node' on iPhone 12/LTE. SceneManager.js was bound to `click` and `mousemove`, which do not reliably fire on iOS touch and do not distinguish tap from OrbitControls drag.
