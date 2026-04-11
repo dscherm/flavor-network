@@ -285,22 +285,22 @@ Task 6 (React.memo) was reverted in commit 9277106 due to a black-screen TDZ cra
 }
 ```
 
-### Task 16: Split pairings.json by ingredient category for lazy-load
+### Task 16: Binary-packed pairings format (PIVOTED from category-split)
 
 ```json
 {
   "category": "performance",
   "priority": 7,
-  "description": "Even after Web Worker offload (Task 10), the 27MB payload still eats LTE users' data budget. Split pairings.json into per-category shards and lazy-load on demand when a user selects from that category. Listed as 'high impact, 1-2 weeks' in recommendations.md.",
+  "description": "Reduce the pairings payload. Analysis of the data found 96% of pairings cross ingredient categories, making category-split useless as a lazy-load axis. Pivoted to a minimal binary format after discovering only 3 of the ~12 per-pairing fields are actually consumed. Result: 1.35 MB brotli → 168 KB brotli (88% reduction).",
   "steps": [
-    "Write scripts/splitPairings.cjs — reads public/data/pairings.json, groups by ingredient category, writes public/data/pairings/<category>.json + public/data/pairings/index.json (category manifest)",
-    "Update useProData.js (post Task 10) to load the manifest first, then fetch shards on demand via the worker",
-    "Add a small in-memory cache keyed by category",
-    "Update Vite build to include the split files",
-    "Measure: total payload on first paint should drop to <3MB",
-    "Re-run simulation — TTI should drop below 8s on LTE"
+    "Grep src/ to confirm only ingredientA/ingredientB/strength are read from pairings",
+    "Write scripts/buildPairingsBinary.cjs — packs into 8-byte records (u16 idxA, u16 idxB, f32 strength) with FNPR header",
+    "Update worker to prefer pairings.bin via DataView decode, fall back to pairings.json on error",
+    "Widen vite-plugin-compression filter to include .bin so sidecars are emitted",
+    "Add build:pairings script + prebuild hook in package.json",
+    "Run: npx vitest run src/ + npm run build — verify all emitted"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

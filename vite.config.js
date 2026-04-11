@@ -5,8 +5,17 @@ import viteCompression from 'vite-plugin-compression';
 export default defineConfig({
   plugins: [
     react(),
-    viteCompression({ algorithm: 'gzip', threshold: 1024 }),
-    viteCompression({ algorithm: 'brotliCompress', threshold: 1024, ext: '.br' }),
+    viteCompression({
+      algorithm: 'gzip',
+      threshold: 1024,
+      filter: /\.(js|mjs|json|css|html|bin)$/i,
+    }),
+    viteCompression({
+      algorithm: 'brotliCompress',
+      threshold: 1024,
+      ext: '.br',
+      filter: /\.(js|mjs|json|css|html|bin)$/i,
+    }),
   ],
   test: {
     environment: 'jsdom',

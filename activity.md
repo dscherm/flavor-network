@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-04-10 — Task 16: Binary-packed pairings format (pivot from category-split)
+
+**Goal:** Reduce the pairings payload further. Original plan (category-split) was discarded after analysis — 96% of pairings are cross-category, so splitting would produce many medium shards with extra round trips, not a smaller initial load. Pivoted to a minimal binary format after discovering only 3 of the ~12 fields per pairing are actually consumed.
+
+**Key finding:** `grep pairing\.` across `src/` showed only `ingredientA`, `ingredientB`, and `strength` are read. Every other field (tradition, chemistry, novelty, balance, bridging, sharedCompounds, explanation, breakdown.x1..x8, known, predictedNovelty, flavorDistance) was dead weight.
+
+**Changes Made:**
+- `scripts/buildPairingsBinary.cjs` (NEW): packs pairings.json into `public/proDataset/pairings.bin`. Layout: 4-byte magic 'FNPR', u32 version, u32 count, then records of `(u16 idxA, u16 idxB, f32 strength)` = 8 bytes each. Ingredient indices derived from `ingredients.json` insertion order (stable per JSON spec).
+- `src/workers/pairingsParser.worker.js`: new `decodePairingsBinary()` helper. Worker fetches `pairings.bin` first, decodes via `DataView`, falls back to `pairings.json` on error or 404 so old deployments keep working.
+- `vite.config.js`: widened `vite-plugin-compression` filter to include `.bin` files so gzip/brotli sidecars get emitted.
+- `package.json`: added `build:pairings` script and a `prebuild` hook so `npm run build` always regenerates the binary.
+
+**Payload results (over-the-wire):**
+- `pairings.json`: 27 MB raw / 2.30 MB gzip / 1.35 MB brotli
+- `pairings.bin`: 380 KB raw / **218 KB gzip** / **168 KB brotli**
+- Brotli reduction: **88%** (1.35 MB → 168 KB)
+- All 48,588 pairings preserved, zero dropped.
+
+**Verification:**
+- `npx vitest run src/` — 17 passed, 0 failed
+- `npm run build` — PASS, prebuild script runs, sidecars emitted
+
+**Status:** COMPLETE
+
+---
+
 ## 2026-04-10 — Task 17: Reconcile harness-ralph plan.md
 
 **Goal:** harness-ralph/plan.md listed all 12 tasks as `passes: false` but the implementations were already shipped on disk across several earlier sessions. Sync the plan with reality so prepare_context doesn't keep re-picking them.
