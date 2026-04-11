@@ -124,7 +124,7 @@ export default function BottomSheet({ isOpen, onClose, title, children }) {
           <h2 className="text-sm font-medium text-gray-200">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none"
+            className="text-gray-500 hover:text-gray-300 transition-colors text-lg leading-none min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             &times;
           </button>

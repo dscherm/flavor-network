@@ -221,7 +221,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, userProfi
             onKeyDown={handleSearchKeyDown}
             onFocus={() => { if (searchResults.length > 0) setSearchOpen(true); }}
             placeholder="Search ingredients..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-[#c9b99a] bg-[#fefae0]/95 text-lg outline-none transition-colors focus:border-[#8a7a5a] placeholder-[#b8a88a]"
+            className="w-full min-h-[44px] pl-10 pr-4 py-2 rounded-lg border-2 border-[#c9b99a] bg-[#fefae0]/95 text-lg outline-none transition-colors focus:border-[#8a7a5a] placeholder-[#b8a88a]"
             style={{ fontFamily: FONT_FAMILY, color: '#3a3428' }}
           />
         </div>
