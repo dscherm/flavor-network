@@ -1,3 +1,5 @@
+import { applySpatialHashRepulsion } from './spatialRepulsion.js';
+
 /**
  * tastePositioning.js — Compute 3D positions for ingredients based on
  * a 7-dimensional taste space projected into 3D.
@@ -257,30 +259,8 @@ export function computeTastePositions(nodes, edges, spread = 50) {
     ];
   }
 
-  // --- Phase 4: Repulsion pass to reduce overlap ---
-  const names = Object.keys(positions);
-  const minDist = spread * 0.06;
-  for (let iter = 0; iter < 5; iter++) {
-    for (let i = 0; i < names.length; i++) {
-      for (let j = i + 1; j < names.length; j++) {
-        const a = positions[names[i]];
-        const b = positions[names[j]];
-        const dx = b[0] - a[0];
-        const dy = b[1] - a[1];
-        const dz = b[2] - a[2];
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (dist < minDist && dist > 0.001) {
-          const push = (minDist - dist) * 0.5 / dist;
-          a[0] -= dx * push;
-          a[1] -= dy * push;
-          a[2] -= dz * push;
-          b[0] += dx * push;
-          b[1] += dy * push;
-          b[2] += dz * push;
-        }
-      }
-    }
-  }
+  // --- Phase 4: Repulsion pass (spatial hash, O(N) per iteration) ---
+  applySpatialHashRepulsion(positions, Object.keys(positions), spread * 0.06, 5);
 
   return { positions };
 }
