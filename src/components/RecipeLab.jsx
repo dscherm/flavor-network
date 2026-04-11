@@ -220,7 +220,7 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, is
   const canvasWidth = isMobile ? size.width : Math.max(300, size.width - panelWidth);
 
   return (
-    <div className={`fixed inset-0 pt-10 flex ${isMobile ? 'flex-col' : ''}`} style={{ backgroundColor: '#fefae0' }}>
+    <div data-testid="recipe-lab" className={`fixed inset-0 pt-10 flex ${isMobile ? 'flex-col' : ''}`} style={{ backgroundColor: '#fefae0' }}>
       {/* Mode tabs — top bar */}
       <div className="absolute top-11 right-3 z-20 flex items-center gap-1">
         {[
