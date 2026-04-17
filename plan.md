@@ -989,6 +989,111 @@ interactive bridge on a future run.
 }
 ```
 
+---
+
+## Round 9 — Fix plan (2026-04-17)
+
+### Task 55: R9-55 — Cluster labels for ML network views
+
+```json
+{
+  "id": "R9-55",
+  "title": "Categorical cluster labels for 3D and 2D ML views",
+  "category": "viz",
+  "priority": 1,
+  "description": "The ML views need discovered cluster labels rendered in the same style as the taste axis labels (floating 3D sprites in 3D mode, edge-positioned text in 2D mode). Use k-means (k=8-12) on the Node2Vec embeddings to find clusters, then auto-label each cluster by the dominant category/cuisine/taste of its members (e.g., 'Baking', 'Asian Aromatics', 'Mediterranean Herbs'). Labels positioned at cluster centroids in 3D; at convex hull edges in 2D.",
+  "steps": [
+    "Run k-means(k=10) on the 64-dim Node2Vec embeddings in a new script flavor-gnn/src/infer/cluster_labels.py",
+    "For each cluster, compute: dominant category, dominant cuisine, dominant taste, top 5 ingredients by pairing count",
+    "Auto-generate a 1-2 word label per cluster from the dominant features (e.g., cluster with 80% dairy + baking → 'Baking & Dairy')",
+    "Output public/proDataset/cluster_labels.json: { clusters: [ {id, label, centroid_3d: [x,y,z], centroid_2d: [x,y], color, top_ingredients} ] }",
+    "In LivingArchView: load cluster_labels.json, render as THREE.Sprite labels at centroids (same style as taste labels) when in ml/ml2d mode",
+    "For 2D mode: position labels at cluster centroid x,z coordinates with y=2",
+    "Labels should fade in/out during mode transitions just like taste labels do"
+  ]
+}
+```
+
+### Task 56: R9-56 — Molecular explanation linked to ingredients and clusters
+
+```json
+{
+  "id": "R9-56",
+  "title": "Contextual molecular explanation in layman terms",
+  "category": "ia",
+  "priority": 2,
+  "description": "Redesign how molecular info is presented. Instead of abstract compound names + SMILES, explain WHY ingredients are positioned where they are using shared molecular patterns. Replace 'Molecular Profile' with 'Why this is here' — a plain-English explanation linking the ingredient's chemistry to its cluster neighbors. Replace Molecule of the Day with 'Shared Molecular Patterns' — an interactive feature that shows what compounds two nearby clusters have in common.",
+  "steps": [
+    "Write flavor-gnn/src/infer/explain_clusters.py: for each cluster pair that's adjacent in the layout, find shared compounds (FooDB compound overlap via Jaccard), emit plain-English explanations like 'Mediterranean Herbs and Citrus share linalool (floral) and limonene (citrus) — that's why lemon works with basil'",
+    "Output public/proDataset/cluster_explanations.json with per-cluster and per-pair explanations",
+    "Rewrite IngredientPanel 'Why it tastes this way' section: lead with the cluster membership ('This ingredient is in the Baking & Dairy cluster'), explain position via shared molecules with nearest neighbors ('Butter is near vanilla because they share diacetyl, which creates a rich creamy flavor')",
+    "Replace MoleculeOfTheDay with a 'Discover Patterns' card that shows a random cluster-pair molecular overlap with ingredients from both sides",
+    "Add an interactive mode: click two clusters on the network to see their molecular overlap explained",
+    "Use recipeScoring.js taste balance in the explanation when relevant ('This cluster tends toward sweet + fatty — pairing with something from the Citrus cluster adds sour balance')"
+  ]
+}
+```
+
+### Task 57: R9-57 — Remove Training Trace
+
+```json
+{
+  "id": "R9-57",
+  "title": "Remove Training Trace tab and component",
+  "category": "cleanup",
+  "priority": 3,
+  "description": "Remove the Training Trace feature — it served as a demo during development but doesn't fit the production app. Remove the tab from Labs dropdown, the lazy import, the component file, and the public/models/training_trace.json data file.",
+  "steps": [
+    "Remove TrainingProgress lazy import from App.jsx",
+    "Remove 'training' from Labs dropdown menu items",
+    "Remove trainingMounted state and the TrainingProgress mount block",
+    "Delete src/components/TrainingProgress.jsx",
+    "Delete public/models/training_trace.json",
+    "Remove 'Training Trace' from MobileTabBar if referenced"
+  ]
+}
+```
+
+### Task 58.5: R9-58B — Interactive Molecule Lab (PhET-inspired)
+
+```json
+{
+  "id": "R9-58B",
+  "title": "Interactive molecular viewer for Molecule Lab",
+  "category": "viz",
+  "priority": 4,
+  "description": "Redesign Molecule Lab from a static preset picker into an interactive molecular experience inspired by PhET (phet.colorado.edu/en/simulations/build-a-molecule and molecule-shapes). Core idea: when a user selects an ingredient, show its key flavor compound as a rotatable 3D ball-and-stick model where atoms are colored by element and functional groups are highlighted with taste/odor annotations. Users can rotate the molecule, tap atoms to see their role, and see how molecular shape creates flavor. For presets, show the molecule and explain 'this bond arrangement is why caffeine tastes bitter — the nitrogen ring activates bitter receptors.' Uses Three.js for 3D rendering (already in deps) with atom coordinates derived from SMILES via a simple 2D→3D coordinate generator or precomputed.",
+  "steps": [
+    "Precompute 3D atom coordinates for the 10 presets using RDKit's AllChem.EmbedMolecule (Python side). Output public/models/preset_molecules.json with {name, atoms: [{element, x, y, z}], bonds: [{from, to, order}], functional_groups: [{atoms: [idx], label, taste_relevance}]}",
+    "Create src/components/MoleculeViewer3D.jsx — Three.js scene with: spheres for atoms (colored by element: C=gray, N=blue, O=red, S=yellow, H=white), cylinders for bonds, OrbitControls for rotation",
+    "Add tap/hover on atoms: show tooltip with element name + any functional group membership ('This nitrogen is part of a purine ring — common in bitter alkaloids')",
+    "Highlight functional groups: when user taps a group annotation, pulse-glow those atoms and show the taste/odor connection",
+    "Integrate into MoleculeLab: replace the static SMILES code display with the interactive 3D viewer. Keep the taste/odor bars alongside",
+    "For ingredients (not just presets): show the top compound's 3D structure when the user clicks 'See molecule' in the ingredient panel's 'Why it tastes this way' section"
+  ]
+}
+```
+
+### Task 59: R9-59 — Training data expansion plan + implementation
+
+```json
+{
+  "id": "R9-58",
+  "title": "Expand training data for better model quality",
+  "category": "ml",
+  "priority": 4,
+  "description": "Systematically increase the training set from 4,176 to 10,000+ compounds. Three sources: (1) FlavorDB full molecule scrape — the current scraper only fetches per-entity molecules (1,788); scraping the molecule endpoint directly could yield 25k+. (2) FlavorNet (flavornet.org) — 738 aroma compounds with odor descriptors, freely downloadable. (3) Leffingwell PMP — published list of 3,500+ aroma chemicals with CAS numbers (convertible to SMILES via PubChem API). Each new source adds both positives AND negatives for the odor heads, directly addressing the sparse-label problem.",
+  "steps": [
+    "Write chemDataset/scripts/06-fetch-flavornet.js: scrape flavornet.org compound list (738 rows, CAS + odor descriptor). Map odor descriptors to our 6 odor categories",
+    "Write chemDataset/scripts/07-fetch-pubchem-smiles.js: given a list of CAS numbers, batch-query PubChem API for canonical SMILES. Use for FlavorNet + any CAS-only sources",
+    "Extend 02-fetch-flavordb.js: add a molecule-index endpoint scrape (/flavordb2/molecules?page=N) to capture molecules not linked to any entity. This could add 5-10k molecules beyond the 1,788 entity-linked ones",
+    "Update build_compounds.py to incorporate FlavorNet data",
+    "Retrain M3 with expanded dataset, report before/after CV metrics",
+    "Regenerate all downstream artifacts (positions, entropy, presets, compound info)"
+  ]
+}
+```
+
 ## Round 6 scope confirmations (2026-04-15)
 
 - R6-33: user chose option **D** — full browser inference via rdkit-js + onnxruntime-web for per-layer activations.

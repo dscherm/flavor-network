@@ -305,6 +305,24 @@ export default function LivingArchView({
       opAttr.needsUpdate = true;
     }
 
+    // --- Cluster labels for ML views ---
+    const clusterLabelGroup = new THREE.Group();
+    const clusterData = data.clusterLabels;
+    if (clusterData?.clusters) {
+      const TASTE_HEX_MAP = { sweet: '#ff4fb8', bitter: '#9d4edd', umami: '#ffd700', salty: '#4f9eff', sour: '#00ffd0', pungent: '#ff8c42', spicy: '#ff4444', astringent: '#6bcb77' };
+      for (const cl of clusterData.clusters) {
+        const hex = TASTE_HEX_MAP[cl.dominant_taste] || '#aaaaaa';
+        const sprite = makeLabel(cl.label.toUpperCase(), hex, 20);
+        const c3 = cl.centroid_3d || [0, 0, 0];
+        sprite.position.set(c3[0], c3[1] + 4, c3[2]);
+        sprite.userData = { clusterId: cl.id, centroid_3d: c3, centroid_2d: cl.centroid_2d || [0, 0] };
+        sprite.material.opacity = 0.7;
+        clusterLabelGroup.add(sprite);
+      }
+    }
+    clusterLabelGroup.visible = modeRef.current === 'ml' || modeRef.current === 'ml2d';
+    scene.add(clusterLabelGroup);
+
     // --- Pop-out edges (for taste selection connections) ---
     const MAX_POPOUT_EDGES = 10000;
     const popEdgeVerts = new Float32Array(MAX_POPOUT_EDGES * 6);
@@ -495,7 +513,7 @@ export default function LivingArchView({
         const a3 = sprite.userData.axis3D;
         const angle = idx * sA - Math.PI / 2;
         const w2 = [Math.cos(angle) * 55, 2, Math.sin(angle) * 55];
-        // Show/hide labels — visible in taste modes (neural + taste2d)
+        // Show/hide taste labels — visible in taste modes
         const toTaste = transition.toMode === 'neural' || transition.toMode === 'taste2d';
         const fromTaste = transition.fromMode === 'neural' || transition.fromMode === 'taste2d';
         if (toTaste && !fromTaste) {
@@ -504,6 +522,36 @@ export default function LivingArchView({
           labelGroup.visible = et < 0.7;
         } else {
           labelGroup.visible = toTaste;
+        }
+        // Show/hide cluster labels — visible in ML modes
+        const toML = transition.toMode === 'ml' || transition.toMode === 'ml2d';
+        const fromML = transition.fromMode === 'ml' || transition.fromMode === 'ml2d';
+        if (toML && !fromML) {
+          clusterLabelGroup.visible = et > 0.3;
+        } else if (fromML && !toML) {
+          clusterLabelGroup.visible = et < 0.7;
+        } else {
+          clusterLabelGroup.visible = toML;
+        }
+        // Lerp cluster label positions between 3D and 2D centroids
+        if (clusterLabelGroup.visible) {
+          clusterLabelGroup.children.forEach((sprite) => {
+            const c3 = sprite.userData.centroid_3d;
+            const c2 = sprite.userData.centroid_2d;
+            const from3d = transition.fromMode === 'ml';
+            const to3d = transition.toMode === 'ml';
+            const srcY = from3d ? c3[1] + 4 : 2;
+            const dstY = to3d ? c3[1] + 4 : 2;
+            const srcX = from3d ? c3[0] : (c2[0] || 0);
+            const dstX = to3d ? c3[0] : (c2[0] || 0);
+            const srcZ = from3d ? c3[2] : (c2[1] || 0);
+            const dstZ = to3d ? c3[2] : (c2[1] || 0);
+            sprite.position.set(
+              srcX + (dstX - srcX) * et,
+              srcY + (dstY - srcY) * et,
+              srcZ + (dstZ - srcZ) * et,
+            );
+          });
         }
         // For ml↔neural transitions, labels stay at 3D axis positions.
         // For transitions involving wheel, lerp to/from wheel positions.
@@ -547,6 +595,7 @@ export default function LivingArchView({
         controls.update();
         sectorGroup.visible = transition.toMode === 'taste2d';
         labelGroup.visible = transition.toMode === 'neural' || transition.toMode === 'taste2d';
+        clusterLabelGroup.visible = transition.toMode === 'ml' || transition.toMode === 'ml2d';
       }
     }
 
@@ -745,7 +794,7 @@ export default function LivingArchView({
       edgeColors, edgeOpacities, validEdges,
       particleMesh, particleMat,
       nodeArray, nameIdx, defaultColors, curPos, posA, posB, posC, posD, posForMode,
-      triggerTransition, labelGroup, sectorGroup, tasteSelection,
+      triggerTransition, labelGroup, clusterLabelGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
     };
 

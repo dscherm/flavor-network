@@ -1,8 +1,8 @@
 import { useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
 import useProData from './hooks/useProData.js';
-const TrainingProgress = lazy(() => import('./components/TrainingProgress.jsx'));
+// TrainingProgress removed — served as dev demo, not production feature
 const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
-const MoleculeOfTheDay = lazy(() => import('./components/MoleculeOfTheDay.jsx'));
+const DiscoverPatterns = lazy(() => import('./components/DiscoverPatterns.jsx'));
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Legend from './components/Legend.jsx';
@@ -35,7 +35,7 @@ export default function App() {
   const [cocktailMounted, setCocktailMounted] = useState(false);
   const [sauceMounted, setSauceMounted] = useState(false);
   const [recipeMounted, setRecipeMounted] = useState(false);
-  const [trainingMounted, setTrainingMounted] = useState(false);
+  // trainingMounted removed
   const [moleculeMounted, setMoleculeMounted] = useState(false);
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [exploreDropdownOpen, setExploreDropdownOpen] = useState(false);
@@ -348,7 +348,6 @@ export default function App() {
                     { key: 'cocktail', label: 'Cocktail Lab' },
                     { key: 'sauce', label: 'Sauce Lab' },
                     { key: 'molecule', label: 'Molecule Lab' },
-                    { key: 'training', label: 'Training Trace' },
                   ].map((lab) => (
                     <button
                       key={lab.key}
@@ -358,7 +357,6 @@ export default function App() {
                         if (lab.key === 'sauce') setSauceMounted(true);
                         if (lab.key === 'recipe') setRecipeMounted(true);
                         if (lab.key === 'molecule') setMoleculeMounted(true);
-                        if (lab.key === 'training') setTrainingMounted(true);
                         setLabDropdownOpen(false);
                       }}
                       className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
@@ -735,10 +733,13 @@ export default function App() {
         </div>
       )}
 
-      {/* Molecule of the Day — dismissible landing card */}
-      {activeTab === 'network' && (
+      {/* Discover Patterns — shows shared molecular patterns between clusters */}
+      {activeTab === 'network' && data?.clusterExplanations && (
         <Suspense fallback={null}>
-          <MoleculeOfTheDay onOpen={() => { setMoleculeMounted(true); setActiveTab('molecule'); }} />
+          <DiscoverPatterns
+            clusterExplanations={data.clusterExplanations}
+            onSelectIngredient={handleSearchSelect}
+          />
         </Suspense>
       )}
 
@@ -751,19 +752,6 @@ export default function App() {
         >
           <Suspense fallback={<div className="p-6 text-gray-400">Loading Molecule Lab…</div>}>
             <MoleculeLab />
-          </Suspense>
-        </div>
-      )}
-
-      {/* Training Trace tab — lazy-mounted */}
-      {trainingMounted && (
-        <div
-          className={`transition-opacity duration-300 ${
-            activeTab === 'training' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
-          }`}
-        >
-          <Suspense fallback={<div className="p-6 text-gray-400">Loading training trace…</div>}>
-            <TrainingProgress />
           </Suspense>
         </div>
       )}

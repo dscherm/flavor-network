@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import MessagePassingDiagram from './MessagePassingDiagram.jsx';
+import MoleculeViewer3D from './MoleculeViewer3D.jsx';
 
 /**
  * MoleculeLab — preset picker for GNN taste predictions.
@@ -40,18 +41,18 @@ export default function MoleculeLab() {
   const [smilesInput, setSmilesInput] = useState('');
   const [predicting, setPredicting] = useState(false);
   const [customResult, setCustomResult] = useState(null);
+  const [moleculeData, setMoleculeData] = useState(null);
 
   useEffect(() => {
-    fetch('/models/preset_predictions.json')
-      .then((r) => {
-        if (!r.ok) throw new Error(`preset_predictions.json: HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((d) => {
-        setData(d);
-        setSelected(d.presets?.[0] || null);
-      })
-      .catch((e) => setError(e.message));
+    Promise.all([
+      fetch('/models/preset_predictions.json').then(r => r.ok ? r.json() : null),
+      fetch('/models/preset_molecules.json').then(r => r.ok ? r.json() : null),
+    ]).then(([predictions, molecules]) => {
+      if (!predictions) { setError('preset_predictions.json missing'); return; }
+      setData(predictions);
+      setMoleculeData(molecules);
+      setSelected(predictions.presets?.[0] || null);
+    }).catch((e) => setError(e.message));
   }, []);
 
   if (error) {
@@ -172,10 +173,18 @@ export default function MoleculeLab() {
         <div>
           <div className="mb-4">
             <h3 className="text-lg font-semibold">{selected.name}</h3>
-            <code className="text-xs text-cyan-300 break-all block mt-1 bg-[#13131a] p-2 rounded">
-              {selected.smiles}
-            </code>
-            <p className="text-xs text-gray-400 mt-2">{selected.intuition}</p>
+            <p className="text-xs text-gray-400 mt-1 mb-2">{selected.intuition}</p>
+            {moleculeData?.[selected.name] ? (
+              <MoleculeViewer3D
+                moleculeData={moleculeData[selected.name]}
+                predictions={selected.predictions}
+                tasks={data.tasks}
+              />
+            ) : (
+              <code className="text-xs text-cyan-300 break-all block bg-[#13131a] p-2 rounded">
+                {selected.smiles}
+              </code>
+            )}
           </div>
 
           <h4 className="text-sm uppercase tracking-wider text-gray-500 mb-2">Predicted taste</h4>

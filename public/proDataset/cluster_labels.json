@@ -1,0 +1,225 @@
+{
+  "k": 10,
+  "clusters": [
+    {
+      "id": 0,
+      "label": "Baked",
+      "size": 273,
+      "centroid_3d": [
+        -32.85,
+        13.07,
+        -0.95
+      ],
+      "centroid_2d": [
+        -37.03,
+        7.47
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "cream cheese",
+        "pecan",
+        "nut",
+        "pineapple",
+        "banana"
+      ]
+    },
+    {
+      "id": 1,
+      "label": "Protein",
+      "size": 853,
+      "centroid_3d": [
+        18.66,
+        5.98,
+        7.2
+      ],
+      "centroid_2d": [
+        13.09,
+        16.67
+      ],
+      "dominant_taste": "pungent",
+      "top_ingredients": [
+        "sugar",
+        "butter",
+        "milk",
+        "tomato",
+        "brown sugar"
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Condiment",
+      "size": 378,
+      "centroid_3d": [
+        16.5,
+        11.86,
+        -8.31
+      ],
+      "centroid_2d": [
+        18.41,
+        11.72
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "parmesan",
+        "basil",
+        "oregano",
+        "red pepper",
+        "mozzarella"
+      ]
+    },
+    {
+      "id": 3,
+      "label": "Chili",
+      "size": 328,
+      "centroid_3d": [
+        9.52,
+        -15.65,
+        -9.54
+      ],
+      "centroid_2d": [
+        17.01,
+        -19.57
+      ],
+      "dominant_taste": "pungent",
+      "top_ingredients": [
+        "cumin",
+        "cilantro",
+        "lime juice",
+        "lime",
+        "coriander"
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Chili",
+      "size": 314,
+      "centroid_3d": [
+        12.14,
+        -26.69,
+        2.63
+      ],
+      "centroid_2d": [
+        18.22,
+        -34.23
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "ginger",
+        "soy sauce",
+        "cornstarch",
+        "sesame oil",
+        "sesame"
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Spirit",
+      "size": 198,
+      "centroid_3d": [
+        -33.23,
+        1.83,
+        -13.06
+      ],
+      "centroid_2d": [
+        -26.8,
+        -11.0
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "orange juice",
+        "orange",
+        "mint",
+        "pineapple juice",
+        "rum"
+      ]
+    },
+    {
+      "id": 6,
+      "label": "Vegetable",
+      "size": 531,
+      "centroid_3d": [
+        17.69,
+        -3.82,
+        -8.84
+      ],
+      "centroid_2d": [
+        18.07,
+        -0.05
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "olive oil",
+        "parsley",
+        "thyme",
+        "bay leaf",
+        "white wine"
+      ]
+    },
+    {
+      "id": 7,
+      "label": "Thickener",
+      "size": 174,
+      "centroid_3d": [
+        -20.06,
+        -6.69,
+        18.59
+      ],
+      "centroid_2d": [
+        -19.87,
+        -17.24
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "oat",
+        "maple syrup",
+        "wheat flour",
+        "date",
+        "rolled oat"
+      ]
+    },
+    {
+      "id": 8,
+      "label": "Sweetener",
+      "size": 334,
+      "centroid_3d": [
+        -32.1,
+        3.6,
+        5.93
+      ],
+      "centroid_2d": [
+        -41.62,
+        -2.34
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "vanilla",
+        "baking soda",
+        "cream",
+        "chocolate",
+        "powdered sugar"
+      ]
+    },
+    {
+      "id": 9,
+      "label": "Fruit",
+      "size": 530,
+      "centroid_3d": [
+        -13.93,
+        2.48,
+        2.29
+      ],
+      "centroid_2d": [
+        -11.78,
+        4.65
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "egg",
+        "onion",
+        "flour",
+        "garlic",
+        "cinnamon"
+      ]
+    }
+  ]
+}
