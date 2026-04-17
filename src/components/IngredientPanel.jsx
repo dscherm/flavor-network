@@ -249,6 +249,17 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             </div>
           </section>
         )}
+        {node.clusterLabel && (
+          <section>
+            <SectionHeading>Flavor Cluster</SectionHeading>
+            <p className="text-xs text-gray-300 mb-1">
+              This ingredient is in the <span className="text-cyan-300 font-medium">{node.clusterLabel}</span> cluster
+            </p>
+            <p className="text-[10px] text-gray-500">
+              Ingredients cluster by how often they appear together in recipes and how similar their molecular structures are.
+            </p>
+          </section>
+        )}
         {node.gnnProbs && (
           <section>
             <SectionHeading>Why it tastes this way</SectionHeading>

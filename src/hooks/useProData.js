@@ -222,9 +222,34 @@ export default function useProData() {
           // optional
         }
 
+        // Cluster labels + explanations for ML network views
+        let clusterLabels = null;
+        let clusterExplanations = null;
+        try {
+          const clRes = await fetch('/proDataset/cluster_labels.json');
+          if (clRes.ok) clusterLabels = await clRes.json();
+        } catch { /* optional */ }
+        try {
+          const ceRes = await fetch('/proDataset/cluster_explanations.json');
+          if (ceRes.ok) {
+            clusterExplanations = await ceRes.json();
+            // Attach cluster info to each node
+            const ic = clusterExplanations.ingredient_clusters || {};
+            for (const [name, info] of Object.entries(ic)) {
+              const node = graph.nodes.get(name);
+              if (node) {
+                node.clusterLabel = info.cluster_label;
+                node.clusterId = info.cluster_id;
+              }
+            }
+          }
+        } catch { /* optional */ }
+
         setData({
           graph,
           positions,
+          clusterLabels,
+          clusterExplanations,
           embeddings: null,
           raw: {
             ingredientsData,
