@@ -1,5 +1,8 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
 import useProData from './hooks/useProData.js';
+const TrainingProgress = lazy(() => import('./components/TrainingProgress.jsx'));
+const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
+const MoleculeOfTheDay = lazy(() => import('./components/MoleculeOfTheDay.jsx'));
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Legend from './components/Legend.jsx';
@@ -32,13 +35,15 @@ export default function App() {
   const [cocktailMounted, setCocktailMounted] = useState(false);
   const [sauceMounted, setSauceMounted] = useState(false);
   const [recipeMounted, setRecipeMounted] = useState(false);
+  const [trainingMounted, setTrainingMounted] = useState(false);
+  const [moleculeMounted, setMoleculeMounted] = useState(false);
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [exploreDropdownOpen, setExploreDropdownOpen] = useState(false);
-  const [livingMode, setLivingMode] = useState('neural');
+  const [livingMode, setLivingMode] = useState('ml');
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
-  const [edgeBrightness, setEdgeBrightness] = useState(0.5);
-  const [particleBrightness, setParticleBrightness] = useState(0.5);
+  const [edgeBrightness] = useState(0.3);
+  const [particleBrightness] = useState(0.3);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
@@ -54,6 +59,9 @@ export default function App() {
   const [treeFilterLabel, setTreeFilterLabel] = useState(null);
   const [bridgePathIngredients, setBridgePathIngredients] = useState(null);
   const [showFilteredList, setShowFilteredList] = useState(false);
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const [hoverPos, setHoverPos] = useState(null);
+  const [highlightPairings, setHighlightPairings] = useState(null);
   const isMobile = useIsMobile();
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
@@ -81,6 +89,28 @@ export default function App() {
     return getNeighbors(selectedNode, data.graph.edges);
   }, [data, selectedNode]);
 
+  const commonPairings = useMemo(() => {
+    if (!data || selectedNodes.length < 2) return [];
+    const pairingsByNode = selectedNodes.map((name) => {
+      const nbrs = getNeighbors(name, data.graph.edges);
+      return new Map(nbrs.map((n) => [n.name, n.strength]));
+    });
+    const allNames = new Set();
+    for (const m of pairingsByNode) for (const k of m.keys()) allNames.add(k);
+    const shared = [];
+    for (const name of allNames) {
+      if (selectedNodes.includes(name)) continue;
+      let minStrength = Infinity;
+      let allHave = true;
+      for (const m of pairingsByNode) {
+        if (!m.has(name)) { allHave = false; break; }
+        minStrength = Math.min(minStrength, m.get(name));
+      }
+      if (allHave) shared.push({ name, strength: minStrength });
+    }
+    return shared.sort((a, b) => b.strength - a.strength).slice(0, 20);
+  }, [data, selectedNodes]);
+
   const selectedNodeData = useMemo(() => {
     if (!data || !selectedNode) return null;
     return data.graph.nodes.get(selectedNode) || null;
@@ -95,9 +125,11 @@ export default function App() {
   const handleNodeClick = useCallback((node) => {
     if (!node) {
       setSelectedNodes([]);
+      setHighlightPairings(null);
       setActivePanel(null);
       return;
     }
+    setHighlightPairings(null);
     const name = node.name;
     setSelectedNodes((prev) => {
       const next = prev.includes(name)
@@ -123,11 +155,13 @@ export default function App() {
 
   const handlePanelClose = useCallback(() => {
     setSelectedNodes([]);
+    setHighlightPairings(null);
     setActivePanel(null);
   }, []);
 
   const handleClearSelection = useCallback(() => {
     setSelectedNodes([]);
+    setHighlightPairings(null);
     setActivePanel(null);
   }, []);
 
@@ -248,6 +282,23 @@ export default function App() {
 
   return (
     <>
+      {/* Screen-reader-only live region: announces the currently-selected
+          ingredient and its top pairings so keyboard/screen-reader users
+          know what's happening in the 3D canvas they can't see. */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {selectedNodeData
+          ? `Selected ${selectedNodeData.name}. ${selectedNodeData.pairingCount || 0} pairings. `
+            + `Taste: ${selectedNodeData.taste || 'unknown'}.`
+          : selectedNodes.length > 1
+            ? `${selectedNodes.length} ingredients selected.`
+            : 'No ingredient selected.'}
+      </div>
+
       {/* Top-level tab navigation */}
       <nav className="fixed top-0 left-0 right-0 z-[60] flex items-center h-10 bg-[#0a0a12]/95 backdrop-blur-md border-b border-[#1e1e2e] safe-top">
         {/* Mobile: show app name */}
@@ -296,6 +347,8 @@ export default function App() {
                     { key: 'recipe', label: 'Recipe Lab' },
                     { key: 'cocktail', label: 'Cocktail Lab' },
                     { key: 'sauce', label: 'Sauce Lab' },
+                    { key: 'molecule', label: 'Molecule Lab' },
+                    { key: 'training', label: 'Training Trace' },
                   ].map((lab) => (
                     <button
                       key={lab.key}
@@ -304,6 +357,8 @@ export default function App() {
                         if (lab.key === 'cocktail') setCocktailMounted(true);
                         if (lab.key === 'sauce') setSauceMounted(true);
                         if (lab.key === 'recipe') setRecipeMounted(true);
+                        if (lab.key === 'molecule') setMoleculeMounted(true);
+                        if (lab.key === 'training') setTrainingMounted(true);
                         setLabDropdownOpen(false);
                       }}
                       className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
@@ -410,6 +465,10 @@ export default function App() {
       <LivingArchView
         data={data}
         onNodeClick={handleNodeClick}
+        onNodeHover={(node, pos) => {
+          setHoveredNode(node);
+          setHoverPos(pos);
+        }}
         selectedNode={selectedNode}
         selectedNodes={selectedNodes}
         showEdges={showEdges}
@@ -422,7 +481,20 @@ export default function App() {
         mode={livingMode}
         onModeChange={setLivingMode}
         onDoubleTap={handleCanvasDoubleTap}
+        highlightPairings={highlightPairings}
       />
+      {/* Hover tooltip — shows ingredient name at cursor position */}
+      {hoveredNode && hoverPos && (
+        <div
+          className="fixed z-[70] px-2 py-1 rounded bg-[#0d0d16]/95 border border-purple-500/40 text-xs text-white pointer-events-none whitespace-nowrap"
+          style={{ left: hoverPos.x + 12, top: hoverPos.y - 8 }}
+        >
+          <span className="font-medium">{hoveredNode.name}</span>
+          {hoveredNode.taste && (
+            <span className="ml-2 text-gray-400">{hoveredNode.taste}</span>
+          )}
+        </div>
+      )}
       <SearchBar
         ingredients={ingredientList}
         onSelect={handleSearchSelect}
@@ -435,6 +507,14 @@ export default function App() {
           neighbors={neighbors}
           onClose={handlePanelClose}
           onSelectIngredient={handleSearchSelect}
+          onHighlightPairings={(names) => setHighlightPairings(
+            highlightPairings ? null : names
+          )}
+          commonPairings={commonPairings}
+          selectedNodes={selectedNodes}
+          selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
+          selectedCount={selectedNodes.length}
+          onBuildRecipe={() => { setRecipeMounted(true); setActiveTab('recipe'); }}
           isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
           onToggleFavorite={userProfile.toggleIngredient}
           graphNodes={data?.graph?.nodes}
@@ -555,22 +635,7 @@ export default function App() {
         selectedTaste={selectedTaste}
         onTasteFilter={setSelectedTaste}
       />
-      <Controls
-        showEdges={showEdges}
-        showParticles={showParticles}
-        onToggleEdges={() => setShowEdges(v => !v)}
-        onToggleParticles={() => setShowParticles(v => !v)}
-        edgeBrightness={edgeBrightness}
-        particleBrightness={particleBrightness}
-        onEdgeBrightnessChange={setEdgeBrightness}
-        onParticleBrightnessChange={setParticleBrightness}
-        cuisines={cuisines}
-        selectedCuisine={selectedCuisine}
-        onCuisineFilter={setSelectedCuisine}
-        tastes={tastes}
-        selectedTaste={selectedTaste}
-        onTasteFilter={setSelectedTaste}
-      />
+      {/* Controls panel removed — brightness fixed at 30% */}
       <Walkthrough
         active={showTour}
         onComplete={() => setShowTour(false)}
@@ -663,9 +728,43 @@ export default function App() {
           <RecipeLab
             fullData={data}
             initialIngredient={selectedNode}
+            initialIngredients={selectedNodes}
             userProfile={userProfile}
             isMobile={isMobile}
           />
+        </div>
+      )}
+
+      {/* Molecule of the Day — dismissible landing card */}
+      {activeTab === 'network' && (
+        <Suspense fallback={null}>
+          <MoleculeOfTheDay onOpen={() => { setMoleculeMounted(true); setActiveTab('molecule'); }} />
+        </Suspense>
+      )}
+
+      {/* Molecule Lab tab — lazy-mounted */}
+      {moleculeMounted && (
+        <div
+          className={`transition-opacity duration-300 ${
+            activeTab === 'molecule' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+          }`}
+        >
+          <Suspense fallback={<div className="p-6 text-gray-400">Loading Molecule Lab…</div>}>
+            <MoleculeLab />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Training Trace tab — lazy-mounted */}
+      {trainingMounted && (
+        <div
+          className={`transition-opacity duration-300 ${
+            activeTab === 'training' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+          }`}
+        >
+          <Suspense fallback={<div className="p-6 text-gray-400">Loading training trace…</div>}>
+            <TrainingProgress />
+          </Suspense>
         </div>
       )}
 
@@ -686,6 +785,13 @@ export default function App() {
               neighbors={neighbors}
               onClose={() => setActivePanel(null)}
               onSelectIngredient={handleSearchSelect}
+              onHighlightPairings={(names) => setHighlightPairings(
+                highlightPairings ? null : names
+              )}
+              commonPairings={commonPairings}
+              selectedNodes={selectedNodes}
+              selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
+              selectedCount={selectedNodes.length}
               isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
               onToggleFavorite={userProfile.toggleIngredient}
               graphNodes={data?.graph?.nodes}

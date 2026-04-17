@@ -72,7 +72,7 @@ export function handleSceneClick(event, camera, renderer, labelSprites, mesh, no
  * @param {THREE.Raycaster} raycaster
  * @param {Object} hoverState - mutable { lastHover, lastHoverType } object
  */
-export function handleSceneMove(event, camera, renderer, labelSprites, mesh, raycaster, hoverState) {
+export function handleSceneMove(event, camera, renderer, labelSprites, mesh, raycaster, hoverState, callbacks) {
   const hit = raycastLabels(event, camera, renderer, labelSprites, mesh, raycaster);
   const newType = hit.type;
   const newId = hit.type === 'node' ? hit.instanceId : (hit.type === 'label' ? hit.taste : -1);
@@ -81,5 +81,12 @@ export function handleSceneMove(event, camera, renderer, labelSprites, mesh, ray
     hoverState.lastHoverType = newType;
     hoverState.lastHover = newId;
     renderer.domElement.style.cursor = (newType === 'node' || newType === 'label') ? 'pointer' : 'default';
+    if (callbacks?.onNodeHover) {
+      if (newType === 'node') {
+        callbacks.onNodeHover(newId, { x: event.clientX, y: event.clientY });
+      } else {
+        callbacks.onNodeHover(null, null);
+      }
+    }
   }
 }

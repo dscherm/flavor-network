@@ -1,5 +1,6 @@
 import { useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import TasteRadar from './TasteRadar.jsx';
+import { scoreRecipe, verdictForScore } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
   sweet: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
@@ -95,7 +96,7 @@ function getDiscoveryFact(node, neighbors) {
   return null;
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, isFavorite, onToggleFavorite, embedded = false, graphNodes }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes }) {
   const panelRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -116,18 +117,43 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     }
   }, [node]);
 
-  // Build ingredient list for TasteRadar: selected ingredient + top 5 neighbors
-  // (must be before early return to satisfy rules of hooks)
+  // Build ingredient list for TasteRadar: all selected + top shared/individual pairings
   const radarIngredients = useMemo(() => {
     if (!node) return [];
-    const items = [node.name];
-    const sorted = neighbors
-      ? [...neighbors].sort((a, b) => b.strength - a.strength)
-      : [];
-    const top5 = sorted.slice(0, 5);
-    for (const n of top5) items.push(n.name);
-    return items;
-  }, [node, neighbors]);
+    const items = selectedNodes.length >= 2
+      ? [...selectedNodes]
+      : [node.name];
+    const pairings = selectedNodes.length >= 2 && commonPairings.length > 0
+      ? commonPairings
+      : (neighbors ? [...neighbors].sort((a, b) => b.strength - a.strength) : []);
+    for (const n of pairings.slice(0, 5)) items.push(n.name);
+    return [...new Set(items)];
+  }, [node, neighbors, selectedNodes, commonPairings]);
+
+  const balanceScore = useMemo(() => {
+    if (selectedCount < 2) return null;
+    return scoreRecipe(selectedNodesData);
+  }, [selectedNodesData, selectedCount]);
+
+  const balanceVerdict = balanceScore ? verdictForScore(balanceScore) : null;
+
+  const tasteSuggestion = useMemo(() => {
+    if (!balanceScore || !balanceScore.profile || selectedCount < 2) return null;
+    const TASTES = ['sweet', 'bitter', 'umami', 'salty', 'sour'];
+    let weakest = null, weakestVal = Infinity;
+    for (let i = 0; i < TASTES.length; i++) {
+      if (balanceScore.profile[i] < weakestVal) {
+        weakestVal = balanceScore.profile[i];
+        weakest = TASTES[i];
+      }
+    }
+    if (!weakest || weakestVal > 0.15) return null;
+    const filler = (commonPairings || []).find(p => {
+      const n = graphNodes?.get(p.name);
+      return n && (n.taste || '').toLowerCase().includes(weakest);
+    });
+    return { taste: weakest, ingredient: filler?.name || null };
+  }, [balanceScore, commonPairings, graphNodes, selectedCount]);
 
   if (!node) return null;
 
@@ -164,6 +190,49 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           )}
         </div>
         {pairingCount != null && <p className="text-xs text-gray-500 mb-1">{pairingCount} pairing{pairingCount !== 1 ? 's' : ''}</p>}
+        {selectedCount >= 2 && (
+          <section className="mb-3">
+            <SectionHeading>Selected Ingredients ({selectedCount})</SectionHeading>
+            <div className="flex flex-wrap gap-1.5">
+              {selectedNodesData.map((n) => (
+                <span
+                  key={n.name}
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border ${
+                    n.name === name
+                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+                      : 'bg-gray-800/60 text-gray-300 border-gray-700/40'
+                  }`}
+                >
+                  {n.name}
+                  {n.taste && <span className="text-gray-500 text-[10px]">{n.taste}</span>}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+        {balanceScore && selectedCount >= 2 && (
+          <section className="mb-3">
+            <SectionHeading>Taste Balance</SectionHeading>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
+                <div className="h-full rounded" style={{
+                  width: `${Math.round(balanceScore.balance * 100)}%`,
+                  background: balanceScore.balance > 0.6 ? '#34d399' : balanceScore.balance > 0.3 ? '#fbbf24' : '#f87171',
+                }} />
+              </div>
+              <span className="text-[10px] text-gray-400 w-8 text-right">{Math.round(balanceScore.balance * 100)}%</span>
+            </div>
+            <p className="text-xs text-gray-300">{balanceVerdict}</p>
+            {tasteSuggestion && (
+              <p className="text-[11px] text-cyan-400/80 mt-1">
+                Missing {tasteSuggestion.taste}
+                {tasteSuggestion.ingredient && (
+                  <> — try <button onClick={() => onSelectIngredient?.(tasteSuggestion.ingredient)} className="underline hover:text-cyan-300">{tasteSuggestion.ingredient}</button></>
+                )}
+              </p>
+            )}
+          </section>
+        )}
         {discoveryFact && (
           <div className="text-[11px] text-cyan-400/60 italic mb-3">
             {discoveryFact}
@@ -178,6 +247,63 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               <PropertyBadge label="volume" value={volume} />
               <PropertyBadge label="season" value={season} />
             </div>
+          </section>
+        )}
+        {node.gnnProbs && (
+          <section>
+            <SectionHeading>Why it tastes this way</SectionHeading>
+            {node.gnnCompounds && (
+              <div className="mb-2">
+                <p className="text-[11px] text-gray-400 mb-1.5">
+                  Contains {node.gnnCompounds.total_compounds} flavor compounds.
+                  {node.gnnCompounds.top_compounds?.length > 0 && ' Key molecules:'}
+                </p>
+                <div className="space-y-1 mb-2">
+                  {(node.gnnCompounds.top_compounds || []).slice(0, 3).map((c, i) => (
+                    <div key={i} className="flex items-center gap-2 text-[11px]">
+                      <span className="text-gray-200 font-medium truncate max-w-[40%]">{c.name}</span>
+                      {c.tags?.length > 0 && (
+                        <span className="text-gray-500">{c.tags.slice(0, 2).join(', ')}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <p className="text-[10px] text-gray-500 mb-1">Our AI analyzed these molecular structures and predicts:</p>
+            <div className="space-y-1">
+              {Object.entries(node.gnnProbs).filter(([t]) => !t.startsWith('odor_')).map(([t, p]) => (
+                <div key={t} className="flex items-center gap-2">
+                  <span className="w-12 text-[10px] uppercase text-gray-500">{t}</span>
+                  <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
+                    <div className="h-full rounded transition-all duration-500" style={{
+                      width: `${Math.max(0, Math.min(1, p)) * 100}%`,
+                      background: t === 'sweet' ? '#ff4fb8' : t === 'bitter' ? '#9d4edd' : t === 'umami' ? '#ffd700' : t === 'salty' ? '#4f9eff' : '#00ffd0',
+                    }} />
+                  </div>
+                  <span className="w-8 text-right text-[10px] text-gray-400 tabular-nums">{Math.round(p * 100)}%</span>
+                </div>
+              ))}
+            </div>
+            {Object.entries(node.gnnProbs).some(([t]) => t.startsWith('odor_')) && (
+              <>
+                <p className="text-[10px] text-gray-500 mt-2 mb-1">Predicted aroma:</p>
+                <div className="space-y-1">
+                  {Object.entries(node.gnnProbs).filter(([t]) => t.startsWith('odor_')).map(([t, p]) => (
+                    <div key={t} className="flex items-center gap-2">
+                      <span className="w-12 text-[10px] uppercase text-gray-500">{t.replace('odor_', '')}</span>
+                      <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
+                        <div className="h-full rounded transition-all duration-500" style={{
+                          width: `${Math.max(0, Math.min(1, p)) * 100}%`,
+                          background: t === 'odor_fruity' ? '#ff8c42' : t === 'odor_floral' ? '#e879a8' : t === 'odor_green' ? '#6bcb77' : t === 'odor_woody' ? '#a67c52' : t === 'odor_spicy' ? '#ff4444' : '#d4aa70',
+                        }} />
+                      </div>
+                      <span className="w-8 text-right text-[10px] text-gray-400 tabular-nums">{Math.round(p * 100)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </section>
         )}
         {graphNodes && (
@@ -203,9 +329,40 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             </div>
           </section>
         )}
-        {sortedNeighbors.length > 0 && (
+        {selectedCount >= 2 && commonPairings.length > 0 && (
           <section>
-            <SectionHeading>Top Pairings</SectionHeading>
+            <SectionHeading>
+              <button
+                onClick={() => onHighlightPairings && onHighlightPairings(commonPairings.map(n => n.name))}
+                className="hover:text-cyan-300 transition-colors cursor-pointer"
+                title="Highlight common pairings on the network"
+              >Common Pairings ({commonPairings.length}) ↗</button>
+            </SectionHeading>
+            <ul className="space-y-1.5">
+              {commonPairings.map((neighbor) => (
+                <li key={`common-${neighbor.name}`}>
+                  <button
+                    onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
+                    className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors group"
+                  >
+                    <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-emerald-300 transition-colors">{neighbor.name}</span>
+                    <StrengthBar strength={neighbor.strength} />
+                    <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {selectedCount < 2 && sortedNeighbors.length > 0 && (
+          <section>
+            <SectionHeading>
+              <button
+                onClick={() => onHighlightPairings && onHighlightPairings(sortedNeighbors.map(n => n.name))}
+                className="hover:text-cyan-300 transition-colors cursor-pointer"
+                title="Highlight all top pairings on the network"
+              >Top Pairings ↗</button>
+            </SectionHeading>
             <ul className="space-y-1.5">
               {sortedNeighbors.map((neighbor) => (
                 <li key={neighbor.name}>
@@ -244,6 +401,14 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               <p className="text-sm text-gray-400">{tips}</p>
             )}
           </section>
+        )}
+        {onBuildRecipe && (
+          <button
+            onClick={onBuildRecipe}
+            className="w-full mt-4 px-4 py-2.5 min-h-[44px] bg-gradient-to-r from-purple-600/30 to-cyan-600/30 hover:from-purple-600/50 hover:to-cyan-600/50 border border-purple-500/30 rounded-lg text-sm text-gray-200 font-medium transition-all"
+          >
+            Build a recipe with {selectedCount >= 2 ? `these ${selectedCount} ingredients` : name} →
+          </button>
         )}
       </div>
     );
@@ -321,6 +486,50 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </p>
         )}
 
+        {selectedCount >= 2 && (
+          <section className="mb-3">
+            <SectionHeading>Selected Ingredients ({selectedCount})</SectionHeading>
+            <div className="flex flex-wrap gap-1.5">
+              {selectedNodesData.map((n) => (
+                <span
+                  key={`dt-${n.name}`}
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border ${
+                    n.name === name
+                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+                      : 'bg-gray-800/60 text-gray-300 border-gray-700/40'
+                  }`}
+                >
+                  {n.name}
+                  {n.taste && <span className="text-gray-500 text-[10px]">{n.taste}</span>}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+        {balanceScore && selectedCount >= 2 && (
+          <section className="mb-3">
+            <SectionHeading>Taste Balance</SectionHeading>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
+                <div className="h-full rounded" style={{
+                  width: `${Math.round(balanceScore.balance * 100)}%`,
+                  background: balanceScore.balance > 0.6 ? '#34d399' : balanceScore.balance > 0.3 ? '#fbbf24' : '#f87171',
+                }} />
+              </div>
+              <span className="text-[10px] text-gray-400 w-8 text-right">{Math.round(balanceScore.balance * 100)}%</span>
+            </div>
+            <p className="text-xs text-gray-300">{balanceVerdict}</p>
+            {tasteSuggestion && (
+              <p className="text-[11px] text-cyan-400/80 mt-1">
+                Missing {tasteSuggestion.taste}
+                {tasteSuggestion.ingredient && (
+                  <> — try <button onClick={() => onSelectIngredient?.(tasteSuggestion.ingredient)} className="underline hover:text-cyan-300">{tasteSuggestion.ingredient}</button></>
+                )}
+              </p>
+            )}
+          </section>
+        )}
+
         {discoveryFact && (
           <div className="text-[11px] text-cyan-400/60 italic mb-3">
             {discoveryFact}
@@ -337,6 +546,28 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               <PropertyBadge label="volume" value={volume} />
               <PropertyBadge label="season" value={season} />
             </div>
+          </section>
+        )}
+
+        {/* Molecular Profile — GNN-predicted taste from molecular structure */}
+        {node.gnnProbs && (
+          <section>
+            <SectionHeading>Molecular Profile</SectionHeading>
+            <div className="space-y-1">
+              {Object.entries(node.gnnProbs).map(([t, p]) => (
+                <div key={`dt-mp-${t}`} className="flex items-center gap-2">
+                  <span className="w-12 text-[10px] uppercase text-gray-500">{t}</span>
+                  <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
+                    <div className="h-full rounded transition-all duration-500" style={{
+                      width: `${Math.max(0, Math.min(1, p)) * 100}%`,
+                      background: t === 'sweet' ? '#ff4fb8' : t === 'bitter' ? '#9d4edd' : t === 'umami' ? '#ffd700' : t === 'salty' ? '#4f9eff' : '#00ffd0',
+                    }} />
+                  </div>
+                  <span className="w-8 text-right text-[10px] text-gray-400 tabular-nums">{Math.round(p * 100)}%</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] text-gray-600 mt-1">GNN-predicted taste from molecular structure</p>
           </section>
         )}
 
@@ -372,10 +603,41 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
 
-        {/* Top Pairings */}
-        {sortedNeighbors.length > 0 && (
+        {/* Common Pairings (multi-select) or Top Pairings (single-select) */}
+        {selectedCount >= 2 && commonPairings.length > 0 && (
           <section>
-            <SectionHeading>Top Pairings</SectionHeading>
+            <SectionHeading>
+              <button
+                onClick={() => onHighlightPairings && onHighlightPairings(commonPairings.map(n => n.name))}
+                className="hover:text-cyan-300 transition-colors cursor-pointer"
+                title="Highlight common pairings on the network"
+              >Common Pairings ({commonPairings.length}) ↗</button>
+            </SectionHeading>
+            <ul className="space-y-1.5">
+              {commonPairings.map((neighbor) => (
+                <li key={`dtc-${neighbor.name}`}>
+                  <button
+                    onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
+                    className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
+                  >
+                    <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-emerald-300 transition-colors">{neighbor.name}</span>
+                    <StrengthBar strength={neighbor.strength} />
+                    <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {selectedCount < 2 && sortedNeighbors.length > 0 && (
+          <section>
+            <SectionHeading>
+              <button
+                onClick={() => onHighlightPairings && onHighlightPairings(sortedNeighbors.map(n => n.name))}
+                className="hover:text-cyan-300 transition-colors cursor-pointer"
+                title="Highlight all top pairings on the network"
+              >Top Pairings ↗</button>
+            </SectionHeading>
             <ul className="space-y-1.5">
               {sortedNeighbors.map((neighbor) => (
                 <li key={neighbor.name}>
@@ -383,13 +645,9 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                     onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
                     className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
                   >
-                    <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">
-                      {neighbor.name}
-                    </span>
+                    <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
                     <StrengthBar strength={neighbor.strength} />
-                    <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">
-                      {Math.round(neighbor.strength * 100)}%
-                    </span>
+                    <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
                   </button>
                 </li>
               ))}
@@ -431,6 +689,16 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               <p className="text-sm text-gray-400">{tips}</p>
             )}
           </section>
+        )}
+
+        {/* Build a recipe CTA */}
+        {onBuildRecipe && (
+          <button
+            onClick={onBuildRecipe}
+            className="w-full mt-4 px-4 py-2.5 min-h-[44px] bg-gradient-to-r from-purple-600/30 to-cyan-600/30 hover:from-purple-600/50 hover:to-cyan-600/50 border border-purple-500/30 rounded-lg text-sm text-gray-200 font-medium transition-all"
+          >
+            Build a recipe with {selectedCount >= 2 ? `these ${selectedCount} ingredients` : name} →
+          </button>
         )}
       </div>
     </div>

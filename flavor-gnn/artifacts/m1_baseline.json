@@ -1,0 +1,72 @@
+{
+  "model": "RandomForest(n=300, class_weight=balanced)",
+  "features": {
+    "type": "morgan",
+    "radius": 2,
+    "bits": 2048
+  },
+  "seed": 42,
+  "compounds": 4176,
+  "per_task": {
+    "sweet": {
+      "skipped": false,
+      "n": 4176,
+      "positives": 596,
+      "train_n": 3340,
+      "test_n": 836,
+      "test_positives": 119,
+      "f1": 0.728110599078341,
+      "precision": 0.8061224489795918,
+      "recall": 0.6638655462184874,
+      "f1_macro": 0.8437803854498234
+    },
+    "bitter": {
+      "skipped": false,
+      "n": 4176,
+      "positives": 2068,
+      "train_n": 3340,
+      "test_n": 836,
+      "test_positives": 414,
+      "f1": 0.8816425120772947,
+      "precision": 0.8816425120772947,
+      "recall": 0.8816425120772947,
+      "f1_macro": 0.8827643840007326
+    },
+    "umami": {
+      "skipped": false,
+      "n": 4176,
+      "positives": 52,
+      "train_n": 3340,
+      "test_n": 836,
+      "test_positives": 10,
+      "f1": 0.5714285714285714,
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1_macro": 0.7839048767878684
+    },
+    "salty": {
+      "skipped": false,
+      "n": 4176,
+      "positives": 16,
+      "train_n": 3340,
+      "test_n": 836,
+      "test_positives": 3,
+      "f1": 0.2857142857142857,
+      "precision": 0.25,
+      "recall": 0.3333333333333333,
+      "f1_macro": 0.6413556413556414
+    },
+    "sour": {
+      "skipped": false,
+      "n": 4176,
+      "positives": 50,
+      "train_n": 3340,
+      "test_n": 836,
+      "test_positives": 10,
+      "f1": 0.42105263157894735,
+      "precision": 0.4444444444444444,
+      "recall": 0.4,
+      "f1_macro": 0.7071990320629159
+    }
+  }
+}

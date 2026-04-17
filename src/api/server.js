@@ -548,6 +548,40 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Not found.' });
 });
 
+// ---------------------------------------------------------------------------
+// GNN taste prediction — shells out to the Python CLI tool.
+// GET /api/gnn/predict?smiles=<SMILES>
+// ---------------------------------------------------------------------------
+
+import { execFile } from 'node:child_process';
+
+app.get('/api/gnn/predict', (req, res) => {
+  const smiles = (req.query.smiles || '').trim();
+  if (!smiles || smiles.length > 500) {
+    return res.status(400).json({ error: 'Invalid or missing SMILES parameter', valid: false });
+  }
+  const gnnDir = join(__dirname, '..', '..', 'flavor-gnn');
+  execFile(
+    'py', ['-3.11', '-m', 'src.infer.predict_smiles', smiles],
+    { cwd: gnnDir, timeout: 30000 },
+    (err, stdout, stderr) => {
+      if (err) {
+        return res.status(500).json({
+          error: `Prediction failed: ${err.message}`,
+          stderr: (stderr || '').slice(0, 500),
+          valid: false,
+        });
+      }
+      try {
+        const result = JSON.parse(stdout.trim().split('\n').pop());
+        res.json(result);
+      } catch {
+        res.status(500).json({ error: 'Failed to parse prediction output', valid: false });
+      }
+    },
+  );
+});
+
 // Global error handler
 app.use((err, _req, res, _next) => {
   const status = err.status || 500;

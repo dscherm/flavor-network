@@ -1,0 +1,37 @@
+{
+  "model": "MPNN(GINEConv, 3 layers, hidden=128)",
+  "seed": 42,
+  "epochs": 30,
+  "batch_size": 64,
+  "device": "cpu",
+  "per_task": {
+    "bitter": {
+      "skipped": false,
+      "task": "bitter",
+      "n": 4176,
+      "positives": 2068,
+      "train_n": 3340,
+      "test_n": 836,
+      "best": {
+        "f1": 0.8283313325330132,
+        "precision": 0.8233890214797136,
+        "recall": 0.8333333333333334,
+        "epoch": 30
+      }
+    },
+    "sweet": {
+      "skipped": false,
+      "task": "sweet",
+      "n": 4176,
+      "positives": 596,
+      "train_n": 3340,
+      "test_n": 836,
+      "best": {
+        "f1": 0.6909090909090909,
+        "precision": 0.6089743589743589,
+        "recall": 0.7983193277310925,
+        "epoch": 24
+      }
+    }
+  }
+}

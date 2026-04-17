@@ -11,7 +11,7 @@ import RecipeLabMobile from './RecipeLabMobile.jsx';
 
 const FONT_FAMILY = 'Caveat, cursive';
 
-export default function RecipeLab({ fullData, initialIngredient, userProfile, isMobile = false }) {
+export default function RecipeLab({ fullData, initialIngredient, initialIngredients, userProfile, isMobile = false }) {
   // Mobile: render dedicated mobile layout
   if (isMobile) {
     return <RecipeLabMobile fullData={fullData} initialIngredient={initialIngredient} userProfile={userProfile} />;
@@ -52,15 +52,24 @@ export default function RecipeLab({ fullData, initialIngredient, userProfile, is
     return () => ro.disconnect();
   }, []);
 
-  // Sync initialIngredient when it changes
+  // Sync initialIngredient(s) when they change
   useEffect(() => {
-    if (initialIngredient && initialIngredient !== centerIngredient) {
+    if (initialIngredients && initialIngredients.length > 0) {
+      setCenterIngredient(initialIngredients[0]);
+      setRecipeIngredients(prev => {
+        const merged = [...prev];
+        for (const ing of initialIngredients) {
+          if (!merged.includes(ing)) merged.push(ing);
+        }
+        return merged;
+      });
+    } else if (initialIngredient && initialIngredient !== centerIngredient) {
       setCenterIngredient(initialIngredient);
       setRecipeIngredients(prev =>
         prev.includes(initialIngredient) ? prev : [initialIngredient, ...prev]
       );
     }
-  }, [initialIngredient]);
+  }, [initialIngredient, initialIngredients]);
 
   // Fuse.js search index
   const fuse = useMemo(() => {

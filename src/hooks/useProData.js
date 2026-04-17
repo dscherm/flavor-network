@@ -61,8 +61,10 @@ function buildProGraph(ingredientsData, pairingsData) {
       tips: [],
       pairingCount: 0,
       affinities: [],
-      embedding: null,
-      position3D: null,
+      embedding: info.embeddingFull || null,
+      position3D: info.embedding
+        ? [info.embedding.x, info.embedding.y, info.embedding.z]
+        : null,
       // ProData-specific
       category: info.category || null,
       sourceCount: sources.length,
@@ -121,7 +123,7 @@ export default function useProData() {
     let cancelled = false;
     let worker = null;
 
-    function finish(ingredientsData, pairingsData, seasonRegionData, cuisineMapData) {
+    async function finish(ingredientsData, pairingsData, seasonRegionData, cuisineMapData) {
       if (cancelled) return;
 
       const graph = buildProGraph(ingredientsData, pairingsData);
@@ -158,8 +160,67 @@ export default function useProData() {
           }
         }
 
-        // Compute 3D positions using the taste positioning system
-        const positions = computeTastePositions(graph.nodes, graph.edges, 50);
+        // Prefer GNN + Node2Vec positions (gnn_positions.json covers all
+        // 3913 ingredients via recipe-graph topology with GNN chemical-
+        // similarity anchors). Fall back to the 8-axis taste sphere only
+        // if the positions file is missing.
+        let positions;
+        try {
+          const gnnRes = await fetch('/proDataset/gnn_positions.json');
+          if (gnnRes.ok) {
+            const gnnRaw = await gnnRes.json();
+            const posMap = {};
+            let count = 0;
+            for (const [name, xyz] of Object.entries(gnnRaw)) {
+              if (name.startsWith('_')) continue;
+              if (!Array.isArray(xyz) || xyz.length !== 3) continue;
+              posMap[name] = xyz;
+              count++;
+            }
+            if (count > graph.nodes.size * 0.5) {
+              positions = { positions: posMap, _source: 'gnn+node2vec', _count: count };
+            }
+          }
+        } catch {
+          // fall through to taste axes
+        }
+        if (!positions) {
+          positions = computeTastePositions(graph.nodes, graph.edges, 50);
+        }
+
+        // Same for per-ingredient entropy (used by color shader for uncertainty viz)
+        try {
+          const entRes = await fetch('/proDataset/gnn_entropy.json');
+          if (entRes.ok) {
+            const entRaw = await entRes.json();
+            for (const [name, info] of Object.entries(entRaw)) {
+              if (name.startsWith('_')) continue;
+              const node = graph.nodes.get(name);
+              if (node && info && typeof info.entropy_norm === 'number') {
+                node.gnnEntropy = info.entropy_norm;
+                node.gnnProbs = info.probs || null;
+              }
+            }
+          }
+        } catch {
+          // optional
+        }
+
+        // Per-ingredient compound info (names + flavor tags for the UI)
+        try {
+          const cmpRes = await fetch('/proDataset/gnn_compounds.json');
+          if (cmpRes.ok) {
+            const cmpRaw = await cmpRes.json();
+            for (const [name, info] of Object.entries(cmpRaw)) {
+              const node = graph.nodes.get(name);
+              if (node && info) {
+                node.gnnCompounds = info;
+              }
+            }
+          }
+        } catch {
+          // optional
+        }
 
         setData({
           graph,
@@ -186,17 +247,16 @@ export default function useProData() {
         const msg = event.data;
         if (!msg || cancelled) return;
         if (msg.type === 'loaded') {
-          try {
-            finish(
-              msg.ingredientsData,
-              msg.pairingsData,
-              msg.seasonRegionData || {},
-              msg.cuisineMapData || {}
-            );
-          } catch (err) {
+          finish(
+            msg.ingredientsData,
+            msg.pairingsData,
+            msg.seasonRegionData || {},
+            msg.cuisineMapData || {}
+          ).catch((err) => {
+            if (cancelled) return;
             setError(err.message);
             setLoading(false);
-          }
+          });
         } else if (msg.type === 'error') {
           setError(msg.message);
           setLoading(false);
@@ -224,7 +284,7 @@ export default function useProData() {
           const pairingsData = await pairingsRes.json();
           const seasonRegionData = seasonRegionRes?.ok ? await seasonRegionRes.json() : {};
           const cuisineMapData = cuisineMapRes?.ok ? await cuisineMapRes.json() : {};
-          finish(ingredientsData, pairingsData, seasonRegionData, cuisineMapData);
+          await finish(ingredientsData, pairingsData, seasonRegionData, cuisineMapData);
         } catch (err) {
           if (!cancelled) {
             setError(err.message);

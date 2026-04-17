@@ -8,8 +8,28 @@ import {
 import { createParticleMaterial } from './ShaderMaterials.js';
 import { getColorForNode } from './NodeMesh.js';
 
-const IS_MOBILE = typeof window !== 'undefined' && window.innerWidth < 640;
-const STRENGTH_THRESHOLD = IS_MOBILE ? 0.5 : 0.3;
+function _detectLowQuality() {
+  if (typeof window === 'undefined') return false;
+  try {
+    if (typeof localStorage !== 'undefined') {
+      if (localStorage.getItem('fn.forceMobileQuality') === '1') return true;
+      if (localStorage.getItem('fn.forceHighQuality') === '1') return false;
+    }
+  } catch {
+    // private mode / SSR — ignore
+  }
+  const memory = typeof navigator !== 'undefined' ? navigator.deviceMemory : undefined;
+  if (typeof memory === 'number' && memory > 0 && memory < 4) return true;
+  const narrow = window.innerWidth < 900;
+  const coarse = typeof window.matchMedia === 'function'
+    && window.matchMedia('(pointer: coarse)').matches;
+  if (narrow && coarse) return true;
+  return window.innerWidth < 640;
+}
+
+const IS_MOBILE = _detectLowQuality();
+// Raised from 0.5 to 0.6 on mobile to further cut particle count (R6-36).
+const STRENGTH_THRESHOLD = IS_MOBILE ? 0.6 : 0.3;
 const BASE_SPEED = 0.15;
 const MAX_SPEED = 0.6;
 
