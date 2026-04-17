@@ -320,3 +320,676 @@ Task 6 (React.memo) was reverted in commit 9277106 due to a black-screen TDZ cra
   "passes": true
 }
 ```
+
+---
+
+## Round 3 — chemDataset scrapers for flavor-gnn (2026-04-15)
+
+Three chemDataset fetchers (`02-flavordb`, `04-bitterdb`, `05-supersweetdb`) are TODO
+stubs that only write empty JSON. Without real data the GNN cannot progress past M0.
+Tasks ordered by ML signal value: FlavorDB (odor tags + 25k molecules) is highest
+leverage; BitterDB and SuperSweetDB sharpen per-task labels.
+
+All three share conventions: RATE_MS=1000 rate limit, cache raw responses under
+`chemDataset/raw/<source>/`, idempotent re-runs, output schemas documented in each
+script's header comment. Use `node-fetch` (already in deps) and honor robots.txt.
+
+### Task 18: Implement FlavorDB scraper (02-fetch-flavordb.js)
+
+```json
+{
+  "id": "R3-18",
+  "title": "Implement FlavorDB scraper",
+  "category": "data-pipeline",
+  "priority": 1,
+  "passes": true,
+  "description": "Replace stub in chemDataset/scripts/02-fetch-flavordb.js with a real scrape of cosylab.iiitd.edu.in/flavordb2. Produces processed/flavordb.json with {entities: {<name>: {id, category, molecules: [<pubchem_id>]}}, molecules: {<pubchem_id>: {name, smiles, flavor_profile: [<tag>], ...}}}. Highest leverage source: 25,595 molecules with taste + odor tags — required for the GNN's odor_class head.",
+  "steps": [
+    "Read chemDataset/scripts/02-fetch-flavordb.js and chemDataset/scripts/common.js for helpers (RAW, PROCESSED, ensureDir, writeJson, sleep)",
+    "Page through GET https://cosylab.iiitd.edu.in/flavordb2/entities_json?start=<N>&count=30 until {entities: []} empty. Cache each page to raw/flavordb/entities_<N>.json",
+    "For each entity, GET /entity_details?id=<entity_id>. Cache to raw/flavordb/entity_<id>.json. Skip if file already exists (idempotent)",
+    "Sleep RATE_MS (1000ms) between requests. Retry on transient 5xx with exponential backoff; skip on 404",
+    "Aggregate into processed/flavordb.json with the exact schema in the header comment. Include _fetched_at ISO timestamp, drop _stub flag",
+    "Add per-page/per-entity progress logs ([flavordb] page N, entity ID)",
+    "Run: cd chemDataset && npm run flavordb. Verify processed/flavordb.json has entities/molecules populated and raw/flavordb/ has cached JSON",
+    "Run: npm run blend. Verify public/chemDataset/pairings.json strength scores now incorporate flavordb compound overlaps (diff byte count vs current 34961 KB)"
+  ]
+}
+```
+
+### Task 19: Implement BitterDB scraper (04-fetch-bitterdb.js)
+
+```json
+{
+  "id": "R3-19",
+  "title": "Implement BitterDB scraper",
+  "category": "data-pipeline",
+  "priority": 2,
+  "passes": true,
+  "description": "Replace stub in chemDataset/scripts/04-fetch-bitterdb.js with a real scrape of bitterdb.agri.huji.ac.il/dbbitter.php. Produces processed/bitterdb.json with {compounds: {<id>: {name, smiles, sources: []}}}. ~1041 bitter molecules — improves the GNN's bitter-taste head precision.",
+  "steps": [
+    "Read chemDataset/scripts/04-fetch-bitterdb.js header comment for output schema",
+    "GET https://bitterdb.agri.huji.ac.il/dbbitter.php — the page renders compound list in HTML. Parse with a lightweight regex or add cheerio (add to package.json deps if needed — prefer regex to avoid new deps)",
+    "For each compound, follow the detail link to extract name, SMILES, and any listed natural sources. Cache each detail page under raw/bitterdb/compound_<id>.html",
+    "Sleep 1000ms between requests. Idempotent: skip if raw/bitterdb/compound_<id>.html exists",
+    "Aggregate into processed/bitterdb.json. Include _fetched_at, drop _stub",
+    "Run: cd chemDataset && npm run bitterdb. Verify processed/bitterdb.json has ~1000 compounds",
+    "Run: npm run blend. Confirm no errors"
+  ]
+}
+```
+
+### Task 20: Implement SuperSweetDB scraper (05-fetch-supersweetdb.js)
+
+```json
+{
+  "id": "R3-20",
+  "title": "Implement SuperSweetDB scraper",
+  "category": "data-pipeline",
+  "priority": 3,
+  "passes": true,
+  "description": "Replace stub in chemDataset/scripts/05-fetch-supersweetdb.js. Original host (webdocs.cs.ualberta.ca/SuperSweetDB) is offline — either locate an archived mirror or fall back to extracting the sweet subset from already-fetched ChemTasteDB (processed/chemtastedb.json). Produces processed/supersweetdb.json with {compounds: {<id>: {name, smiles, intensity}}}.",
+  "steps": [
+    "Check Wayback Machine for the original SuperSweetDB mirror (https://web.archive.org/web/*/webdocs.cs.ualberta.ca/SuperSweetDB). If reachable, scrape with 1 req/sec",
+    "If no mirror works, implement the documented fallback: read processed/chemtastedb.json, filter to compounds where taste_class == 'sweet', map intensity from the ChemTasteDB relative-sweetness field",
+    "Log which path was taken ([supersweetdb] using mirror=... or using chemtastedb fallback)",
+    "Aggregate into processed/supersweetdb.json. Include _fetched_at and _source: 'mirror'|'chemtastedb-fallback', drop _stub",
+    "Run: cd chemDataset && npm run supersweetdb. Verify non-empty compounds output",
+    "Run: npm run blend. Confirm no errors"
+  ]
+}
+```
+
+### Task 21: Wire chemDataset compounds into flavor-gnn M0 data join
+
+```json
+{
+  "id": "R3-21",
+  "title": "Wire chemDataset into flavor-gnn M0 data join",
+  "category": "ml",
+  "priority": 4,
+  "passes": true,
+  "description": "Once Tasks 18-20 land, produce the M0 artifact described in flavor-gnn/README.md: a unified compounds.parquet with SMILES + multi-label taste + odor class, joined across all five chemDataset sources. This is the prerequisite for the M1 Random Forest baseline.",
+  "steps": [
+    "Check flavor-gnn/src/ for any existing data-join scaffold",
+    "Write flavor-gnn/src/data/build_compounds.py: reads ../chemDataset/processed/{foodb,flavordb,chemtastedb,bitterdb,supersweetdb}.json, joins on pubchem_id or InChIKey, emits compounds.parquet with columns [pubchem_id, smiles, sweet, bitter, umami, salty, sour, odor_class, intensity]",
+    "Handle label conflicts: if a compound is labeled sweet in ChemTasteDB and bitter in BitterDB, keep both (multi-label)",
+    "Log row counts per source and after join. Expect ~10-30k rows after SMILES-available filter",
+    "Run: cd flavor-gnn && python -m src.data.build_compounds. Verify compounds.parquet written",
+    "Update flavor-gnn/README.md Milestone M0 status from 'scaffold' to 'done' once verified"
+  ]
+}
+```
+
+---
+
+## Round 4 — flavor-gnn M1→M4 (2026-04-15)
+
+Builds on the M0 artifact (flavor-gnn/data/compounds.parquet, 4176 compounds with
+multi-label taste + odor class). Goal: end-to-end pipeline from SMILES to ONNX
+model consumed by a build-time rescoring step for pairings.json.
+
+### Task 22: M1 Random Forest baseline on Morgan fingerprints
+
+```json
+{
+  "id": "R4-22",
+  "title": "M1 RF baseline on Morgan fingerprints",
+  "category": "ml",
+  "priority": 1,
+  "description": "Establish per-task F1 targets for the GNN to beat. Morgan fingerprint (radius=2, 2048 bits) + scikit-learn RandomForestClassifier per binary label (sweet/bitter/umami/salty/sour). Stratified 80/20 train/test split, seed=42. Report macro-F1 and per-class precision/recall. Artifact: flavor-gnn/artifacts/m1_baseline.json with metrics + top feature importances per task.",
+  "steps": [
+    "pip install rdkit-pypi scikit-learn",
+    "Write flavor-gnn/src/baselines/morgan_rf.py: reads data/compounds.parquet, computes Morgan fingerprints via rdkit, trains one RF per taste label, reports per-task F1, writes artifacts/m1_baseline.json",
+    "Skip rows whose smiles fails rdkit parsing; log the drop count",
+    "Run: python -m src.baselines.morgan_rf. Verify artifacts/m1_baseline.json exists",
+    "Record per-task macro-F1 as the M2 target to beat"
+  ]
+}
+```
+
+### Task 23: M2 MPNN baseline (3-layer message passing on bitter + sweet)
+
+```json
+{
+  "id": "R4-23",
+  "title": "M2 MPNN baseline on bitter/sweet",
+  "category": "ml",
+  "priority": 2,
+  "description": "Small 3-layer message-passing GNN trained on the two best-populated labels (bitter=2068, sweet=596). Goal: beat M1 RF on both. Atom features: element one-hot, degree, formal charge, hybridization, aromaticity. Bond features: bond type, conjugation, in-ring. Artifact: flavor-gnn/artifacts/m2_mpnn_bitter.pt and m2_mpnn_sweet.pt with per-task F1.",
+  "steps": [
+    "pip install torch torch-geometric (Windows cpu wheels; fall back to PyG Lightning install docs if scatter/sparse fails)",
+    "Write flavor-gnn/src/models/mpnn.py: featurizer (smiles -> Data), 3-layer GINConv backbone, global_mean_pool, 2-layer MLP head",
+    "Write flavor-gnn/src/train/train_single.py: 80/20 split, Adam(1e-3), 50 epochs, early-stop on val F1, save best checkpoint",
+    "Train bitter and sweet models separately",
+    "Compare per-task F1 to M1. If MPNN < RF by >5 points, diagnose: too-small data, featurizer bug, or depth issue",
+    "Record results in artifacts/m2_results.json"
+  ]
+}
+```
+
+### Task 24: M3 multi-task joint training
+
+```json
+{
+  "id": "R4-24",
+  "title": "M3 multi-task joint training",
+  "category": "ml",
+  "priority": 3,
+  "description": "Shared GNN backbone + per-task heads for all five tastes + odor class. Trained jointly with masked BCE loss (a compound without a label for a head contributes 0 to that head's loss). Expect gains from shared representation, especially on the sparse labels (salty=16, umami=52, sour=50). Artifact: flavor-gnn/artifacts/m3_multitask.pt.",
+  "steps": [
+    "Extend src/models/mpnn.py with a multi-head variant: shared backbone, one linear head per task",
+    "Write src/train/train_multitask.py with per-task masking (label=None -> loss_mask=0)",
+    "Use the same 80/20 split as M2 for fair comparison",
+    "Compare per-task F1 to M2 single-task baselines. Expect multi-task to match or beat on common tasks and improve on sparse ones",
+    "Record in artifacts/m3_multitask.json"
+  ]
+}
+```
+
+### Task 25: M4 ONNX export + browser wrapper + pairings rescoring
+
+```json
+{
+  "id": "R4-25",
+  "title": "M4 ONNX export + pairings rescoring",
+  "category": "ml",
+  "priority": 4,
+  "description": "Export the M3 multi-task model to ONNX, run it offline on all 70k FooDB compounds to produce taste/odor predictions, and feed those predictions back into 10-blend.js's scoring formula. Net effect: pairings.json strength scores now benefit from predicted labels on the 68k currently-unlabeled compounds.",
+  "steps": [
+    "Write flavor-gnn/src/export/to_onnx.py: torch.onnx.export of the multi-task model with a dynamic axis on node/edge counts, dummy input via a small featurized graph",
+    "Write flavor-gnn/src/infer/score_all.py: reads foodb.json compounds, featurizes each SMILES, runs ONNX inference via onnxruntime (python), writes chemDataset/processed/predictions.json { pubchem_id: {sweet, bitter, umami, salty, sour, odor_class, intensity} }",
+    "Update chemDataset/scripts/10-blend.js to read predictions.json and use predicted intensity + taste when ground-truth labels are missing. Gate behind a flag so the old behavior stays available",
+    "Run: cd chemDataset && npm run blend. Compare before/after pairings.json byte size and spot-check 10 ingredient pairings",
+    "(Optional web deployment) public/models/flavor-gnn.onnx + src/ml/flavorGnn.js wrapper for onnxruntime-web. Skip if build-time rescoring is enough"
+  ]
+}
+```
+
+---
+
+## Round 5 — Make version C visibly demonstrate the GNN (2026-04-15)
+
+Until these ship, version C renders identically to A/B — the chemDataset and
+GNN artifacts exist on disk but no UI surface consumes them. These five tasks
+turn the trained model into a visible, interactive feature.
+
+**Bias awareness carried across all 5 tasks:** BitterDB and ChemTasteDB
+contributed positives-only training sets, so the classifier head overpredicts
+bitter/sweet on out-of-distribution FooDB compounds (see /docs bias table).
+Prefer the GNN's penultimate 128-d representation (less biased, encodes
+structure) over the output sigmoids for geometry/embedding purposes. Output
+sigmoids are fine for classification demos (R5-28) as long as uncertainty is
+also surfaced (R5-29).
+
+### Task 26: R5-26 — GNN embedding layout (replace taste axes with learned representation)
+
+```json
+{
+  "id": "R5-26",
+  "title": "GNN-learned embedding as 3D layout",
+  "category": "ml-viz",
+  "priority": 1,
+  "description": "Extract the MPNN's penultimate 128-d graph embedding for every proDataset ingredient (via SMILES-of-representative-compound lookup), reduce to 3D with UMAP, and use that as the positions map instead of computeTastePositions. Ingredients cluster by what the network learned, not by 8 hand-coded taste channels.",
+  "steps": [
+    "Add a forward_embedding() method on MPNN that returns the pooled graph vector before the classifier head",
+    "Write flavor-gnn/src/infer/embed_ingredients.py: for each proDataset ingredient, find its best representative SMILES via name→chemtastedb/flavordb/foodb lookup (fall back to the single most-connected compound). Run embedding forward pass, stack into (N, 128) matrix.",
+    "Reduce to 3D with umap-learn (n_neighbors=15, min_dist=0.1, random_state=42). Renormalize so 95th-percentile distance = 50 to match the existing camera framing.",
+    "Write output to public/proDataset/gnn_positions.json: { ingredient_name: [x,y,z] }",
+    "Add a toggle in useProData (prefers gnn_positions.json when present, falls back to computeTastePositions). Default ON so the feature is visible without user action.",
+    "Document in flavor-gnn/README the caveat that ingredients without a SMILES lookup fall back to taste axes"
+  ]
+}
+```
+
+### Task 27: R5-27 — Animate message passing on the selected molecule
+
+```json
+{
+  "id": "R5-27",
+  "title": "Message-passing animation overlay",
+  "category": "ml-viz",
+  "priority": 2,
+  "description": "When a user selects an ingredient with a representative SMILES, show a small molecular graph overlay in the drilldown panel where the 3 MPNN layers play out as an animation: atoms light up at t=0, neighbors activate at t=1, etc., ending with the pooled signal and the predicted taste bars. Uses Three.js for the overlay (atoms as instanced spheres, bonds as lines, Gaussian glow on activation).",
+  "steps": [
+    "Add src/ml/flavorGnnRuntime.js — wraps onnxruntime-web (public/models/flavor-gnn.onnx copied from flavor-gnn/artifacts)",
+    "Export intermediate layer activations from the ONNX model. Since the current ONNX graph only emits final logits, re-export with multiple output nodes (one per GINEConv layer) — update flavor-gnn/src/export/to_onnx.py to register additional output_names",
+    "Add src/components/MessagePassingOverlay.jsx — renders molecule graph + activation animation on a small canvas inside IngredientPanel",
+    "Hook into IngredientPanel.jsx — mount the overlay when a representative SMILES exists",
+    "Animation timing: 800ms per layer, 2400ms total, loop with a 500ms pause"
+  ]
+}
+```
+
+### Task 28: R5-28 — SMILES sketch → real-time prediction panel
+
+```json
+{
+  "id": "R5-28",
+  "title": "SMILES input with live taste prediction",
+  "category": "ml-viz",
+  "priority": 3,
+  "description": "New tab or modal: SMILES text field (copy-paste or manually typed) runs through the ONNX GNN on every change and renders a 5-bar sweet/bitter/umami/salty/sour chart + top-3 odor tokens from the FlavorDB vocabulary. Also shows a small 2D depiction of the parsed molecule via rdkit-js (or a WASM alternative) for feedback.",
+  "steps": [
+    "Add rdkit-js as a dependency and confirm it works in a Vite browser bundle",
+    "Create src/components/MoleculeLab.jsx — text input + debounced validation (300ms), calls flavorGnnRuntime.predict(smiles)",
+    "Render prediction bars with Tailwind + simple CSS animation when values change",
+    "Add a small preset picker (caffeine, vanillin, capsaicin, aspartame, MSG) so first-time users get immediate results",
+    "Wire into App.jsx navigation as a new 'Lab' tab (lazy-loaded to avoid pulling rdkit-js into the main bundle)"
+  ]
+}
+```
+
+### Task 29: R5-29 — Uncertainty coloring (prediction entropy as node saturation)
+
+```json
+{
+  "id": "R5-29",
+  "title": "Color nodes by prediction entropy",
+  "category": "ml-viz",
+  "priority": 4,
+  "description": "For every ingredient that has a representative SMILES with GNN predictions, compute entropy = -Σ p*log(p) across the 5 taste channels. High entropy ⇒ model uncertain ⇒ node rendered desaturated/pink-tinted. Low entropy ⇒ confident ⇒ solid saturated color. This lets users see where the network is guessing vs. confident.",
+  "steps": [
+    "Extend embed_ingredients.py to also emit per-ingredient prediction probabilities + entropy to public/proDataset/gnn_entropy.json",
+    "Modify src/utils/color.js to accept an entropy value and desaturate/shift the base color (lerp toward gray or toward a 'uncertainty pink')",
+    "Wire into NodeMesh.js color assignment path — read entropy from node and apply the shift",
+    "Add a legend blurb explaining uncertainty coloring (goes in Legend.jsx)",
+    "Sanity-check: nodes with lots of ground-truth labels (ChemTasteDB/BitterDB matches) should have low entropy; FooDB-only compounds should have higher entropy"
+  ]
+}
+```
+
+### Task 30: R5-30 — Training-progress visualization (stream loss + ingredient re-embedding)
+
+```json
+{
+  "id": "R5-30",
+  "title": "Training tab showing loss curve + live re-embedding",
+  "category": "ml-viz",
+  "priority": 5,
+  "description": "Retrain the M3 multi-task GNN while periodically snapshotting (every 2 epochs) both the loss value and the 2D PCA projection of 30 representative compounds' embeddings. Save all snapshots to artifacts/m3_training_trace.json. The app reads that file and plays back the trajectory: loss curve animates left-to-right while compound dots migrate across a 2D view, converging toward their true taste clusters. This is the clearest visual 'this is a neural network' signal.",
+  "steps": [
+    "Modify src/train/train_multitask.py to add a --trace flag that dumps per-epoch { loss, val_f1_per_task, embeddings_30: {<smiles>: [x,y]} } to artifacts/m3_training_trace.json",
+    "Choose the 30 compounds: 6 per taste class, selected as the most-central positives (pick medoids via simple mean distance on Morgan fingerprints)",
+    "Retrain with --trace and verify the trace file covers all 40 epochs",
+    "Copy the trace to public/models/training_trace.json",
+    "Add src/components/TrainingProgress.jsx — reads trace, uses recharts (already in deps?) or a hand-rolled SVG for the loss curve, uses Canvas 2D for the migrating dots. Play control: play/pause/speed",
+    "Mount under a new 'Training' sub-tab inside the Lab area (same tab as R5-28's MoleculeLab). Lazy-load both."
+  ]
+}
+```
+
+---
+
+## Round 6 — Brainstormed follow-ups (2026-04-15)
+
+Not scheduled for execution yet. These are concrete solutions to the five open
+problems identified after Round 5. Each task is scoped and ready for the
+interactive bridge on a future run.
+
+### Task 31: R6-31 — Coverage: Node2Vec positions on proData edges + synonym dictionary
+
+```json
+{
+  "id": "R6-31",
+  "title": "Node2Vec positions for full proDataset coverage",
+  "category": "ml-viz",
+  "priority": 1,
+  "description": "Replace the 216/3913 GNN-overlay with a two-layer layout: (1) Node2Vec embedding on proDataset's pairing graph covers all 3913 ingredients, (2) GNN-derived positions attract the 216 matches so GNN-labeled nodes act as anchors for their recipe neighbors. Bonus: curate 50-100 synonyms (scallion→green onion, cilantro→coriander) to raise direct matches to ~400.",
+  "steps": [
+    "pip install node2vec. Build edge list from proDataset/pairings.json (weight = strength)",
+    "Fit Node2Vec(d=64, walks=20, p=1, q=1). Reduce to 3D with UMAP",
+    "Blend: for each ingredient, position = 0.7 * node2vec_pos + 0.3 * gnn_pos (when gnn_pos exists)",
+    "Create chemDataset/data/ingredient_synonyms.json and thread through build_compounds / embed_ingredients",
+    "Target: >3500/3913 ingredients (>90%) have some structured position (node2vec or gnn-blended)"
+  ]
+}
+```
+
+### Task 32: R6-32 — Bias fix: real negatives + distribution shift
+
+```json
+{
+  "id": "R6-32",
+  "title": "Debiased training via FlavorDB negatives + logit shift",
+  "category": "ml",
+  "priority": 2,
+  "description": "Two fixes stacked: (a) mine FlavorDB molecules WITHOUT each taste token as soft negatives for that task (adds ~20k rows of y=0 signal); (b) apply a logit shift at inference so prediction rates match an expected prior. Expected: umami F1 rises from 0.18 toward 0.45, bitter prediction rate drops from 17% to 5%.",
+  "steps": [
+    "Extend src/data/build_compounds.py: for each molecule in FlavorDB with a flavor_profile, emit y=0 for tastes not listed (currently only y=1 positives are added)",
+    "Retrain M3 with the new compounds.parquet, log before/after class balance",
+    "Add src/infer/calibrate.py: compute train_prior from the parquet, accept a target_prior per task, output a logit shift vector",
+    "Bake the shift into score_all.py and preset_predictions.py",
+    "Validate on the 10 preset molecules — caffeine should stay >0.9 bitter; MSG should stay ~1.0 umami"
+  ]
+}
+```
+
+### Task 33: R6-33 — Real per-layer activations in MessagePassingDiagram
+
+```json
+{
+  "id": "R6-33",
+  "title": "Real GNN activations replace schematic diagram",
+  "category": "ml-viz",
+  "priority": 3,
+  "description": "Two-stage delivery: (a) re-export M3 ONNX with intermediate layer outputs named layer1/layer2/layer3/pool/logits; (b) for each of the 10 presets, precompute per-layer activation dumps and play them back in MessagePassingDiagram. Shows real data flowing through the network rather than abstract circles.",
+  "steps": [
+    "Modify flavor-gnn/src/export/to_onnx.py to register intermediate outputs at each GINEConv layer",
+    "Write flavor-gnn/src/infer/preset_activations.py: run each preset SMILES through the extended model, save {preset_name: {layer_k: [atom_activations]}} to public/models/preset_activations.json",
+    "Update MessagePassingDiagram.jsx: swap the schematic atoms for real atom positions (pull from a simple rdkit-js 2D depiction) and color circles by actual activation magnitude",
+    "Animate through layers at 500ms intervals with the real per-atom values"
+  ]
+}
+```
+
+### Task 34: R6-34 — Arbitrary SMILES input for Molecule Lab
+
+```json
+{
+  "id": "R6-34",
+  "title": "rdkit-js + onnxruntime-web for live SMILES prediction",
+  "category": "ml-viz",
+  "priority": 4,
+  "description": "Add a SMILES text field to MoleculeLab that runs live inference on arbitrary input. rdkit-js parses/validates the SMILES and generates atom/bond features; onnxruntime-web runs the M3 ONNX model (already exported). Fallback: if rdkit-js bundle fails to load, degrade to a Python /api/predict endpoint called from the UI.",
+  "steps": [
+    "npm install @rdkit/rdkit (WASM build). Verify it loads in a Vite-built bundle without SSR issues",
+    "Write src/ml/flavorGnnRuntime.js: loadModel() once, predict(smiles) -> {taste probs}",
+    "Extend MoleculeLab: SMILES input + debounced validate + live prediction bars. Reuse MessagePassingDiagram for feedback",
+    "Handle errors gracefully — invalid SMILES, atoms outside the training featurizer vocab (report 'out of domain')",
+    "Bundle budget: lazy-load rdkit-js only when the user opens Molecule Lab, target <6MB gzip addition"
+  ]
+}
+```
+
+### Task 35: R6-35 — GNN-powered recipe compatibility scoring
+
+```json
+{
+  "id": "R6-35",
+  "title": "Recipe scoring using GNN taste predictions",
+  "category": "feature",
+  "priority": 5,
+  "description": "Finally close the loop: when users build a multi-ingredient selection, score compatibility using predicted taste profiles instead of (or alongside) raw pairing edge strength. Specifically: the score rewards complementary taste profiles (sweet + sour + salty = well-balanced) and penalizes monotone combinations (5 bitter ingredients).",
+  "steps": [
+    "Compute per-ingredient taste vectors from proDataset/gnn_entropy.json probs (fall back to node.taste string for unmatched ingredients)",
+    "Write src/data/recipeScoring.js: takes a list of ingredient names, aggregates their 5-D taste vectors, returns a 'balance' score (low variance = balanced, plus a 'coverage' term for number of tastes >0.3)",
+    "Wire into the existing CocktailLab / SauceLab / RecipeLab — add a 'GNN balance' widget next to the current pairing score",
+    "A/B visible only via the Molecule Lab's settings for now — ship invisible by default, validate the scoring feels right before surfacing",
+    "Document in README that recipe scoring is experimental and depends on the ML pipeline"
+  ]
+}
+```
+
+### Task 36: R6-36 — Mobile particle/bloom performance pass
+
+```json
+{
+  "id": "R6-36",
+  "title": "ParticleSystem + bloom mobile performance",
+  "category": "performance",
+  "priority": 6,
+  "description": "Particles still render full-intensity on mobile; bloom post-processing drags A-series iPhones to <20 FPS. Target 30 FPS on iPhone 12 baseline.",
+  "steps": [
+    "Profile the main-thread frame with Safari remote devtools on a real iPhone 12 LTE + WiFi",
+    "ParticleSystem: drop to 1 particle per edge on mobile, raise strength threshold to 0.6, clamp per-frame update budget to 2ms",
+    "Bloom: disable on devices with navigator.deviceMemory < 4 OR userAgent mobile AND viewport width < 900",
+    "Add window.fn.forceMobileQuality localStorage override for testing",
+    "Re-run simulation cocktail-builder spec — target FPS > 25"
+  ]
+}
+```
+
+### Task 37: R6-37 — Accessibility baseline (keyboard + ARIA)
+
+```json
+{
+  "id": "R6-37",
+  "title": "Keyboard navigation + ARIA labels",
+  "category": "accessibility",
+  "priority": 7,
+  "description": "Currently no keyboard nav, no screen-reader labels, and selectable nodes aren't discoverable without mouse. Ship a baseline: tab reaches all interactive controls, arrow keys cycle through focused ingredient's pairings, Enter selects, Escape deselects.",
+  "steps": [
+    "Audit SearchBar, Controls, Legend, IngredientPanel, Lab tabs for tabIndex and aria-label",
+    "Add a keyboard listener in NetworkScene: tab cycles focus through the top-N pairing-count nodes, Enter selects",
+    "aria-live region that announces the selected ingredient and its top 3 pairings",
+    "Focus outline (2px cyan) on focused nodes — hook into NodeMesh",
+    "Target: Lighthouse accessibility score ≥ 90"
+  ]
+}
+```
+
+### Task 38: R6-38 — Molecule of the Day
+
+```json
+{
+  "id": "R6-38",
+  "title": "Molecule of the Day landing card",
+  "category": "feature",
+  "priority": 8,
+  "description": "On app load, pick a stable-per-day random preset, show a dismissible card at the top of the Network view with the molecule name, predicted taste, and a one-line intuition. Gives returning users a reason to come back and new users a narrative hook.",
+  "steps": [
+    "Seed a PRNG with new Date().toISOString().slice(0, 10) so the pick is stable within a calendar day",
+    "Add src/components/MoleculeOfTheDay.jsx — reads preset_predictions.json, renders a small card with taste bars",
+    "Mount it as an overlay in App.jsx; dismissible via localStorage flag (remembers for 24h)",
+    "On click, open Molecule Lab with that preset pre-selected"
+  ]
+}
+```
+
+### Task 39: R6-39 — Side-by-side molecule comparison
+
+```json
+{
+  "id": "R6-39",
+  "title": "Compare two molecules in Molecule Lab",
+  "category": "feature",
+  "priority": 9,
+  "description": "Add a comparison mode to Molecule Lab: select two presets (or SMILES after R6-34) and see their taste bars side-by-side with diffs highlighted. Demonstrates the GNN distinguishing structural isomers and near-variants (aspartame vs neotame, caffeine vs theobromine).",
+  "steps": [
+    "Extend MoleculeLab with a 'Compare' toggle; swap the single-column prediction layout for a two-column side-by-side",
+    "Add preset pairs with an 'interesting contrast' flag: (caffeine, theobromine), (aspartame, stevioside), (glucose, fructose), (citric acid, malic acid)",
+    "Highlight per-taste diffs with color + magnitude indicator",
+    "Share-link support — URL query params encode the two selected molecule names"
+  ]
+}
+```
+
+---
+
+---
+
+## Round 7 — Network tab multi-select + labeling UX (2026-04-16)
+
+### Task 40: R7-40 — Hover/touch tooltip showing ingredient name
+
+```json
+{
+  "id": "R7-40",
+  "title": "Hover tooltip with ingredient name",
+  "category": "ux",
+  "priority": 1,
+  "description": "Show a floating label when hovering over a node (mouse) or long-pressing (iOS touch). Uses the existing onNodeHover callback from SceneManager. Renders a positioned div overlay on NetworkScene."
+}
+```
+
+### Task 41: R7-41 — Always show labels on selected nodes
+
+```json
+{
+  "id": "R7-41",
+  "title": "Always label selected nodes",
+  "category": "ux",
+  "priority": 2,
+  "description": "Ensure showNodeLabels is always true when any node is selected. Labels should persist as user adds more selections, not just flash on click."
+}
+```
+
+### Task 42: R7-42 — Click Top Pairings to highlight + label on network
+
+```json
+{
+  "id": "R7-42",
+  "title": "Top Pairings click to highlight/label on network",
+  "category": "ux",
+  "priority": 3,
+  "description": "In IngredientPanel: (a) clicking an individual pairing ingredient adds it to selectedNodes; (b) clicking the 'Top Pairings' heading highlights and labels ALL top pairings on the 3D network via labelNodeNames."
+}
+```
+
+### Task 43: R7-43 — Multi-select common pairings + taste radar
+
+```json
+{
+  "id": "R7-43",
+  "title": "Common pairings filter + taste radar for multi-select",
+  "category": "ux",
+  "priority": 4,
+  "description": "When 2+ ingredients are selected, compute their shared pairings (ingredients paired with ALL selected), show in IngredientPanel as a 'Common Pairings' section, and display a taste radar chart summarizing the combined taste profile."
+}
+```
+
+---
+
+## Round 8 — Information Architecture + Training Improvements (2026-04-16)
+
+### IA improvements: collapse features into the natural flow
+
+### Task 44: R8-44 — Molecular Profile card inline in IngredientPanel
+
+```json
+{
+  "id": "R8-44",
+  "title": "Molecular Profile card in IngredientPanel",
+  "category": "ia",
+  "priority": 1,
+  "description": "Move GNN taste prediction bars from the separate Molecule Lab tab into IngredientPanel as a 'Molecular Profile' collapsible section. When an ingredient has GNN predictions (via gnn_entropy.json), show the 5 taste bars inline. Falls back gracefully to just showing the taste string when no GNN data exists. This makes the GNN visible in the natural ingredient-discovery flow."
+}
+```
+
+### Task 45: R8-45 — Balance score + taste gap suggestion in multi-select
+
+```json
+{
+  "id": "R8-45",
+  "title": "Balance score and taste gap suggestion",
+  "category": "ia",
+  "priority": 2,
+  "description": "When 2+ ingredients are selected, show a balance score (from recipeScoring.js) with a human-readable verdict and a taste-gap suggestion: 'Your selection is 60% sweet — try adding something umami like parmesan.' Uses GNN probs when available, falls back to taste strings."
+}
+```
+
+### Task 46: R8-46 — 'Build a recipe' button carries selection into Recipe Lab
+
+```json
+{
+  "id": "R8-46",
+  "title": "Build a recipe carries selection",
+  "category": "ia",
+  "priority": 3,
+  "description": "Add a 'Build a recipe →' button at the bottom of IngredientPanel. Clicking it switches to Recipe Lab with all currently-selected ingredients pre-loaded. No more re-selecting when switching tabs."
+}
+```
+
+### Task 47: R8-47 — Absorb Flavor Bridge into multi-select flow
+
+```json
+{
+  "id": "R8-47",
+  "title": "Flavor Bridge as auto-path in multi-select",
+  "category": "ia",
+  "priority": 4,
+  "description": "When exactly 2 ingredients are selected, auto-compute the strongest path between them (using FlavorBridge's findStrongestPath) and show it as a 'Flavor Path' card in IngredientPanel. Remove Flavor Bridge from the Explore dropdown — it's now contextual."
+}
+```
+
+### Task 48: R8-48 — Collapse Network Insights into Legend area
+
+```json
+{
+  "id": "R8-48",
+  "title": "Network Insights as legend stat cards",
+  "category": "ia",
+  "priority": 5,
+  "description": "Move the 5 GlobalInsights computations into small stat cards below the Legend. Always visible, no dropdown needed. Remove 'Network Insights' from the Explore dropdown."
+}
+```
+
+### Task 49: R8-49 — Training Trace becomes onboarding 'How it works' modal
+
+```json
+{
+  "id": "R8-49",
+  "title": "Training Trace as onboarding modal",
+  "category": "ia",
+  "priority": 6,
+  "description": "Replace the Training Trace tab with a '?' button that opens a modal showing a condensed 10-second autoplay of the training animation + a brief explanation. Accessible anytime but not a primary navigation destination. Remove 'Training Trace' from Labs dropdown."
+}
+```
+
+### Task 50: R8-50 — Simplify navigation to Search | Filter | Build | Profile
+
+```json
+{
+  "id": "R8-50",
+  "title": "Simplify top nav to 4 actions",
+  "category": "ia",
+  "priority": 7,
+  "description": "Replace the current 'Network | Labs (5) | Explore (3) | Profile' with 'Search | Filter | Build | Profile'. Search focuses the search bar. Filter opens taste/cuisine/tree filter overlay. Build opens the unified recipe builder (Recipe Lab with mode selector for Recipe/Cocktail/Sauce). Profile unchanged. Molecule Lab and Training Trace absorbed into other surfaces per R8-44 and R8-49."
+}
+```
+
+### Training improvements
+
+### Task 51: R8-51 — Mine FlavorDB for real negatives
+
+```json
+{
+  "id": "R8-51",
+  "title": "FlavorDB real negatives in build_compounds",
+  "category": "ml",
+  "priority": 8,
+  "description": "Extend build_compounds.py: for each FlavorDB molecule with a non-empty flavor_profile, emit y=0 for tastes NOT listed. A molecule tagged 'fruity,floral' without 'bitter' → bitter=0 (soft negative). Retrain M3 and compare calibration curves before/after."
+}
+```
+
+### Task 52: R8-52 — Add odor prediction head
+
+```json
+{
+  "id": "R8-52",
+  "title": "Odor classification head on M3",
+  "category": "ml",
+  "priority": 9,
+  "description": "Add a 6th head to the multi-task model: odor_class from FlavorDB's odor descriptors (fruity, woody, floral, herbal, spicy, chemical — top-6 categories). This makes the model predict flavor, not just taste. Retrain with the expanded label set."
+}
+```
+
+### Task 53: R8-53 — Integrate BitterSweet published balanced dataset
+
+```json
+{
+  "id": "R8-53",
+  "title": "BitterSweet dataset integration",
+  "category": "ml",
+  "priority": 10,
+  "description": "Download BitterSweet (Tuwani et al. 2019) balanced bitter/sweet dataset. Merge into build_compounds.py. Adds ~2-3k properly balanced rows with real negatives. Retrain and report per-task F1 improvement."
+}
+```
+
+### Task 54: R8-54 — 5-fold cross-validation + calibration curves
+
+```json
+{
+  "id": "R8-54",
+  "title": "Proper evaluation with CV and calibration",
+  "category": "ml",
+  "priority": 11,
+  "description": "Replace single 80/20 split with 5-fold stratified CV. Report mean±std F1 per task. Add calibration curve plots (predicted probability vs actual frequency) to artifacts/. If variance >10% F1, flag as data-limited."
+}
+```
+
+## Round 6 scope confirmations (2026-04-15)
+
+- R6-33: user chose option **D** — full browser inference via rdkit-js + onnxruntime-web for per-layer activations.
+- R6-34: user chose option **C** — hybrid: rdkit-js parses/validates in the browser, Python API endpoint runs inference.

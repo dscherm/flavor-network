@@ -1,0 +1,20 @@
+{
+  "name": "flavor-network-c-chemdataset",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "foodb": "node scripts/01-fetch-foodb.js",
+    "flavordb": "node scripts/02-fetch-flavordb.js",
+    "chemtastedb": "node scripts/03-fetch-chemtastedb.js",
+    "bitterdb": "node scripts/04-fetch-bitterdb.js",
+    "supersweetdb": "node scripts/05-fetch-supersweetdb.js",
+    "blend": "node scripts/10-blend.js",
+    "all": "npm run foodb && npm run flavordb && npm run chemtastedb && npm run bitterdb && npm run supersweetdb && npm run blend"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.6",
+    "node-fetch": "^3.3.2",
+    "xlsx": "^0.18.5"
+  }
+}

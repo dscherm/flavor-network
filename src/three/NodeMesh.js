@@ -69,7 +69,23 @@ export function tasteMatches(nodeTaste, filterKey) {
   return tasteLower.includes(filterKey.toLowerCase());
 }
 
+// Uncertainty tint: desaturated warm pink. When the GNN is maximally
+// unsure about a compound's taste (entropy_norm=1), the node color is
+// pulled halfway toward this tone. Confident predictions (entropy_norm≈0)
+// keep their original taste color. See flavor-gnn/src/infer/embed_ingredients.py
+// for how entropy is computed.
+const UNCERTAINTY_TINT = new Color(0xcc8899);
+const UNCERTAINTY_MAX_BLEND = 0.5;
+
+function _applyUncertainty(baseColor, node) {
+  const e = node && typeof node.gnnEntropy === 'number' ? node.gnnEntropy : null;
+  if (e == null) return baseColor;
+  const t = Math.max(0, Math.min(1, e)) * UNCERTAINTY_MAX_BLEND;
+  return baseColor.clone().lerp(UNCERTAINTY_TINT, t);
+}
+
 function getColorForNode(node) {
+  let base;
   // Primary: color by taste profile — supports multi-taste blending
   const taste = (node.taste || '').toLowerCase().trim();
   if (taste) {
@@ -80,29 +96,34 @@ function getColorForNode(node) {
       }
     }
     if (matchedColors.length === 1) {
-      return matchedColors[0];
-    }
-    if (matchedColors.length >= 2) {
+      base = matchedColors[0];
+    } else if (matchedColors.length >= 2) {
       // Blend all matched colors equally
       const blended = matchedColors[0].clone();
       for (let i = 1; i < matchedColors.length; i++) {
         blended.lerp(matchedColors[i], 1 / (i + 1));
       }
-      return blended;
+      base = blended;
     }
   }
 
-  // Fallback: color by first cuisine
-  if (node.cuisines && node.cuisines.length > 0) {
-    for (const cuisine of node.cuisines) {
-      const hex = CUISINE_COLORS[cuisine.toLowerCase()];
-      if (hex) return new Color(hex);
+  if (!base) {
+    // Fallback: color by first cuisine
+    if (node.cuisines && node.cuisines.length > 0) {
+      for (const cuisine of node.cuisines) {
+        const hex = CUISINE_COLORS[cuisine.toLowerCase()];
+        if (hex) { base = new Color(hex); break; }
+      }
+      if (!base) {
+        const hash = node.cuisines[0].split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+        base = new Color().setHSL((hash % 360) / 360, 0.7, 0.55);
+      }
+    } else {
+      base = new Color(DEFAULT_COLOR);
     }
-    const hash = node.cuisines[0].split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-    return new Color().setHSL((hash % 360) / 360, 0.7, 0.55);
   }
 
-  return new Color(DEFAULT_COLOR);
+  return _applyUncertainty(base, node);
 }
 
 export { getColorForNode };

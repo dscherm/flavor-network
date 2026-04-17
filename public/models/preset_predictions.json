@@ -1,0 +1,327 @@
+{
+  "tasks": [
+    "sweet",
+    "bitter",
+    "umami",
+    "salty",
+    "sour",
+    "odor_fruity",
+    "odor_floral",
+    "odor_green",
+    "odor_woody",
+    "odor_spicy",
+    "odor_fatty"
+  ],
+  "presets": [
+    {
+      "name": "Caffeine",
+      "smiles": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+      "intuition": "Classic bitter alkaloid",
+      "predictions": {
+        "sweet": 0.0,
+        "bitter": 0.9885,
+        "umami": 0.0029,
+        "salty": 0.0,
+        "sour": 0.0001,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0
+      },
+      "predictions_raw": {
+        "sweet": 0.0001,
+        "bitter": 0.9987,
+        "umami": 0.0134,
+        "salty": 0.0,
+        "sour": 0.0001,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0
+      }
+    },
+    {
+      "name": "Vanillin",
+      "smiles": "COC1=C(C=CC(=C1)C=O)O",
+      "intuition": "Sweet-vanilla aroma",
+      "predictions": {
+        "sweet": 0.4172,
+        "bitter": 0.0461,
+        "umami": 0.0168,
+        "salty": 0.0001,
+        "sour": 0.0651,
+        "odor_fruity": 0.4804,
+        "odor_floral": 0.641,
+        "odor_green": 0.4865,
+        "odor_woody": 0.77,
+        "odor_spicy": 0.7136,
+        "odor_fatty": 0.5376
+      },
+      "predictions_raw": {
+        "sweet": 0.7681,
+        "bitter": 0.3064,
+        "umami": 0.0741,
+        "salty": 0.0001,
+        "sour": 0.1178,
+        "odor_fruity": 0.5385,
+        "odor_floral": 0.7177,
+        "odor_green": 0.5352,
+        "odor_woody": 0.8155,
+        "odor_spicy": 0.7989,
+        "odor_fatty": 0.628
+      }
+    },
+    {
+      "name": "Capsaicin",
+      "smiles": "CC(C)/C=C/CCCCC(=O)NCC1=CC(=C(C=C1)O)OC",
+      "intuition": "Chili pungency (not a taste our model tracks)",
+      "predictions": {
+        "sweet": 0.097,
+        "bitter": 0.0686,
+        "umami": 0.2011,
+        "salty": 0.0023,
+        "sour": 0.0062,
+        "odor_fruity": 0.0474,
+        "odor_floral": 0.0136,
+        "odor_green": 0.1234,
+        "odor_woody": 0.0811,
+        "odor_spicy": 0.0673,
+        "odor_fatty": 0.0919
+      },
+      "predictions_raw": {
+        "sweet": 0.3319,
+        "bitter": 0.4026,
+        "umami": 0.5411,
+        "salty": 0.0018,
+        "sour": 0.0118,
+        "odor_fruity": 0.0591,
+        "odor_floral": 0.0193,
+        "odor_green": 0.1461,
+        "odor_woody": 0.1044,
+        "odor_spicy": 0.1032,
+        "odor_fatty": 0.1281
+      }
+    },
+    {
+      "name": "Aspartame",
+      "smiles": "COC(=O)C(CC1=CC=CC=C1)NC(=O)C(CC(=O)O)N",
+      "intuition": "Artificial sweetener, ~200\u00d7 sucrose",
+      "predictions": {
+        "sweet": 0.2595,
+        "bitter": 0.0986,
+        "umami": 0.5714,
+        "salty": 0.3659,
+        "sour": 0.3059,
+        "odor_fruity": 0.0004,
+        "odor_floral": 0.0,
+        "odor_green": 0.0006,
+        "odor_woody": 0.0002,
+        "odor_spicy": 0.0003,
+        "odor_fatty": 0.0015
+      },
+      "predictions_raw": {
+        "sweet": 0.6185,
+        "bitter": 0.5,
+        "umami": 0.862,
+        "salty": 0.3156,
+        "sour": 0.458,
+        "odor_fruity": 0.0005,
+        "odor_floral": 0.0,
+        "odor_green": 0.0007,
+        "odor_woody": 0.0003,
+        "odor_spicy": 0.0005,
+        "odor_fatty": 0.0021
+      }
+    },
+    {
+      "name": "Monosodium Glutamate",
+      "smiles": "C(CC(C(=O)[O-])N)C(=O)O.[Na+]",
+      "intuition": "Canonical umami",
+      "predictions": {
+        "sweet": 0.1016,
+        "bitter": 0.0246,
+        "umami": 0.9783,
+        "salty": 0.9943,
+        "sour": 0.9009,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0002
+      },
+      "predictions_raw": {
+        "sweet": 0.3436,
+        "bitter": 0.1871,
+        "umami": 0.9953,
+        "salty": 0.9928,
+        "sour": 0.9458,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0001,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0003
+      }
+    },
+    {
+      "name": "Quinine",
+      "smiles": "COC1=CC2=C(C=C1)C(=CN=C2)C(C1CC2CCN1CC2C=C)O",
+      "intuition": "Extremely bitter, used in tonic water",
+      "predictions": {
+        "sweet": 0.0032,
+        "bitter": 0.8557,
+        "umami": 0.0005,
+        "salty": 0.0001,
+        "sour": 0.0,
+        "odor_fruity": 0.0002,
+        "odor_floral": 0.0,
+        "odor_green": 0.0002,
+        "odor_woody": 0.0004,
+        "odor_spicy": 0.0001,
+        "odor_fatty": 0.0002
+      },
+      "predictions_raw": {
+        "sweet": 0.0146,
+        "bitter": 0.9819,
+        "umami": 0.0021,
+        "salty": 0.0001,
+        "sour": 0.0,
+        "odor_fruity": 0.0002,
+        "odor_floral": 0.0,
+        "odor_green": 0.0003,
+        "odor_woody": 0.0005,
+        "odor_spicy": 0.0001,
+        "odor_fatty": 0.0002
+      }
+    },
+    {
+      "name": "Citric Acid",
+      "smiles": "OC(=O)CC(O)(CC(=O)O)C(=O)O",
+      "intuition": "Sour / tart (lemons)",
+      "predictions": {
+        "sweet": 0.0848,
+        "bitter": 0.0074,
+        "umami": 0.9306,
+        "salty": 0.9732,
+        "sour": 0.9968,
+        "odor_fruity": 0.0002,
+        "odor_floral": 0.0,
+        "odor_green": 0.0003,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0007,
+        "odor_fatty": 0.0042
+      },
+      "predictions_raw": {
+        "sweet": 0.3001,
+        "bitter": 0.0642,
+        "umami": 0.9843,
+        "salty": 0.9667,
+        "sour": 0.9983,
+        "odor_fruity": 0.0002,
+        "odor_floral": 0.0,
+        "odor_green": 0.0004,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0012,
+        "odor_fatty": 0.0061
+      }
+    },
+    {
+      "name": "Glucose",
+      "smiles": "C([C@@H]1[C@H]([C@@H]([C@H]([C@H](O1)O)O)O)O)O",
+      "intuition": "Primary sugar, mildly sweet",
+      "predictions": {
+        "sweet": 0.7609,
+        "bitter": 0.0486,
+        "umami": 0.0015,
+        "salty": 0.0068,
+        "sour": 0.0087,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0
+      },
+      "predictions_raw": {
+        "sweet": 0.9364,
+        "bitter": 0.3183,
+        "umami": 0.0069,
+        "salty": 0.0055,
+        "sour": 0.0166,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0
+      }
+    },
+    {
+      "name": "Menthol",
+      "smiles": "CC(C)C1CCC(C)CC1O",
+      "intuition": "Cooling, minty \u2014 odor-dominant",
+      "predictions": {
+        "sweet": 0.1201,
+        "bitter": 0.0393,
+        "umami": 0.0164,
+        "salty": 0.0,
+        "sour": 0.0003,
+        "odor_fruity": 0.2469,
+        "odor_floral": 0.1782,
+        "odor_green": 0.6078,
+        "odor_woody": 0.6352,
+        "odor_spicy": 0.5892,
+        "odor_fatty": 0.1747
+      },
+      "predictions_raw": {
+        "sweet": 0.3872,
+        "bitter": 0.2725,
+        "umami": 0.0723,
+        "salty": 0.0,
+        "sour": 0.0006,
+        "odor_fruity": 0.2927,
+        "odor_floral": 0.236,
+        "odor_green": 0.6533,
+        "odor_woody": 0.6969,
+        "odor_spicy": 0.6958,
+        "odor_fatty": 0.2352
+      }
+    },
+    {
+      "name": "Sodium Chloride",
+      "smiles": "[Na+].[Cl-]",
+      "intuition": "Pure salt",
+      "predictions": {
+        "sweet": 0.0103,
+        "bitter": 0.6159,
+        "umami": 0.002,
+        "salty": 0.9999,
+        "sour": 0.002,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0
+      },
+      "predictions_raw": {
+        "sweet": 0.0461,
+        "bitter": 0.9362,
+        "umami": 0.0092,
+        "salty": 0.9998,
+        "sour": 0.0038,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0
+      }
+    }
+  ]
+}

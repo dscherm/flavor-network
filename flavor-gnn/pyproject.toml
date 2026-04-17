@@ -1,0 +1,22 @@
+[project]
+name = "flavor-gnn"
+version = "0.1.0"
+description = "Graph neural network for taste and odor prediction on molecular SMILES"
+requires-python = ">=3.10"
+dependencies = [
+  "rdkit-pypi>=2023.9",
+  "torch>=2.1",
+  "torch-geometric>=2.4",
+  "numpy",
+  "pandas",
+  "scikit-learn",
+  "pyarrow",
+]
+
+[project.optional-dependencies]
+export = ["onnx", "onnxruntime"]
+dev = ["pytest", "ruff"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

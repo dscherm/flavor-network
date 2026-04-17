@@ -15,6 +15,9 @@ function isLowEndForBloom() {
     if (typeof localStorage !== 'undefined') {
       if (localStorage.getItem('fn.forceBloom') === '1') return false;
       if (localStorage.getItem('fn.disableBloom') === '1') return true;
+      // Unified mobile-quality override — when set, treats device as low-end
+      // across ParticleSystem + SceneManager + any other GPU-sensitive path.
+      if (localStorage.getItem('fn.forceMobileQuality') === '1') return true;
     }
   } catch {
     // private mode / SSR — ignore
