@@ -60,15 +60,17 @@ export default function LivingArchView({
     const count = nodeArray.length;
     if (count === 0) return;
 
-    // Four position sets:
+    // Five position sets:
     //   posA = ML 3D (Node2Vec + GNN, UMAP) — default "ml" mode
     //   posB = ML 2D (Node2Vec, PCA) — "ml2d" mode
-    //   posC = Taste axes (8-channel sphere) — "neural" mode
+    //   posC = Taste axes 3D (8-channel sphere) — "neural" mode
+    //   posD = Taste axes 2D (octagonal wheel) — "taste2d" mode
     const mlPosData = data.positions;
     const mlPos = (mlPosData && mlPosData.positions) ? mlPosData.positions : null;
     const tasteAxisData = computeTastePositions(graph.nodes, graph.edges, 50);
     const tastePos = mlPos || tasteAxisData.positions || {};
     const tasteAxisPos = tasteAxisData.positions || {};
+    const pos2D = computeWheelPositions(graph.nodes);
     // PCA 2D positions loaded async below; start with empty
     let pca2dPos = {};
 
@@ -76,22 +78,24 @@ export default function LivingArchView({
     const nameIdx = new Map();
     nodeArray.forEach((n, i) => nameIdx.set(n.name, i));
 
-    // Float32Arrays for three position sets
+    // Float32Arrays for four position sets
     const posA = new Float32Array(count * 3); // ML 3D
     const posB = new Float32Array(count * 3); // ML 2D (PCA) — Y=0 flat plane
-    const posC = new Float32Array(count * 3); // Taste axis positions
+    const posC = new Float32Array(count * 3); // Taste axis 3D
+    const posD = new Float32Array(count * 3); // Taste axis 2D (wheel)
     const curPos = new Float32Array(count * 3);
 
-    const posForMode = { ml: posA, ml2d: posB, neural: posC };
+    const posForMode = { ml: posA, ml2d: posB, neural: posC, taste2d: posD };
 
     for (let i = 0; i < count; i++) {
       const name = nodeArray[i].name;
       const ml = (mlPos && mlPos[name]) || tasteAxisPos[name] || [0, 0, 0];
       const ta = tasteAxisPos[name] || [0, 0, 0];
+      const wh = pos2D[name] || [0, 0, 0];
       posA[i*3] = ml[0]; posA[i*3+1] = ml[1]; posA[i*3+2] = ml[2];
-      // PCA 2D: x,z on the flat plane, y=0 (filled after async load)
       posB[i*3] = 0; posB[i*3+1] = 0; posB[i*3+2] = 0;
       posC[i*3] = ta[0]; posC[i*3+1] = ta[1]; posC[i*3+2] = ta[2];
+      posD[i*3] = wh[0]; posD[i*3+1] = wh[1]; posD[i*3+2] = wh[2];
       const start = posForMode[modeRef.current] || posA;
       curPos[i*3] = start[i*3]; curPos[i*3+1] = start[i*3+1]; curPos[i*3+2] = start[i*3+2];
     }
@@ -118,8 +122,8 @@ export default function LivingArchView({
     scene.background = new THREE.Color(0x0a0a0f);
 
     const camera = new THREE.PerspectiveCamera(60, el.clientWidth/el.clientHeight, 0.1, 2000);
-    if (modeRef.current === 'ml2d') {
-      camera.position.set(0, 100, 0.1);
+    if (modeRef.current === 'ml2d' || modeRef.current === 'taste2d') {
+      camera.position.set(0, modeRef.current === 'taste2d' ? 120 : 100, 0.1);
     } else {
       camera.position.set(0, 40, 120);
     }
@@ -320,13 +324,13 @@ export default function LivingArchView({
       labelGroup.add(sprite);
       tasteLabelSprites.push(sprite);
     }
-    // Hide taste labels in ML modes — they only apply to taste axes
-    labelGroup.visible = modeRef.current === 'neural';
+    // Show taste labels in taste modes, hide in ML modes
+    labelGroup.visible = modeRef.current === 'neural' || modeRef.current === 'taste2d';
     scene.add(labelGroup);
 
     // --- Octagonal sector lines + concentric rings for wheel mode ---
     const sectorGroup = new THREE.Group();
-    sectorGroup.visible = false; // sectors only used in deprecated wheel mode
+    sectorGroup.visible = modeRef.current === 'taste2d';
     const N_TASTES = TASTE_ORDER.length;
     const sectorAngle = (Math.PI * 2) / N_TASTES;
     const lineMat = new THREE.LineBasicMaterial({ color: 0x333355, transparent: true, opacity: 0.4 });
@@ -421,9 +425,10 @@ export default function LivingArchView({
 
     // Camera targets per mode
     const camTargets = {
-      ml:     { pos: [0, 40, 120], lookAt: [0, 0, 0] },
-      ml2d:   { pos: [0, 100, 0.1], lookAt: [0, 0, 0] },
-      neural: { pos: [0, 40, 120], lookAt: [0, 0, 0] },
+      ml:      { pos: [0, 40, 120], lookAt: [0, 0, 0] },
+      ml2d:    { pos: [0, 100, 0.1], lookAt: [0, 0, 0] },
+      neural:  { pos: [0, 40, 120], lookAt: [0, 0, 0] },
+      taste2d: { pos: [0, 120, 0.1], lookAt: [0, 0, 0] },
     };
 
     // Store starting camera for transition
@@ -480,19 +485,21 @@ export default function LivingArchView({
         const a3 = sprite.userData.axis3D;
         const angle = idx * sA - Math.PI / 2;
         const w2 = [Math.cos(angle) * 55, 2, Math.sin(angle) * 55];
-        // Show/hide labels — only visible in neural (taste axes) mode
-        if (transition.toMode === 'neural') {
+        // Show/hide labels — visible in taste modes (neural + taste2d)
+        const toTaste = transition.toMode === 'neural' || transition.toMode === 'taste2d';
+        const fromTaste = transition.fromMode === 'neural' || transition.fromMode === 'taste2d';
+        if (toTaste && !fromTaste) {
           labelGroup.visible = et > 0.3;
-        } else if (transition.fromMode === 'neural') {
+        } else if (fromTaste && !toTaste) {
           labelGroup.visible = et < 0.7;
         } else {
-          labelGroup.visible = false;
+          labelGroup.visible = toTaste;
         }
         // For ml↔neural transitions, labels stay at 3D axis positions.
         // For transitions involving wheel, lerp to/from wheel positions.
-        // Labels always at 3D axis positions (only visible in neural mode)
-        const srcLabel = a3;
-        const dstLabel = a3;
+        // Lerp labels between 3D axis and 2D wheel positions for taste modes
+        const srcLabel = (transition.fromMode === 'taste2d') ? w2 : a3;
+        const dstLabel = (transition.toMode === 'taste2d') ? w2 : a3;
         sprite.position.set(
           srcLabel[0] + (dstLabel[0] - srcLabel[0]) * et,
           srcLabel[1] + (dstLabel[1] - srcLabel[1]) * et,
@@ -509,17 +516,27 @@ export default function LivingArchView({
       );
       camera.lookAt(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
 
-      // Sector lines disabled (wheel mode removed)
-      sectorGroup.visible = false;
-      lineMat.opacity = 0;
+      // Sector lines for taste2d mode
+      const toTaste2d = transition.toMode === 'taste2d';
+      const fromTaste2d = transition.fromMode === 'taste2d';
+      if (toTaste2d) {
+        sectorGroup.visible = et > 0.3;
+        lineMat.opacity = Math.max(0, (et - 0.3) / 0.7) * 0.4;
+      } else if (fromTaste2d) {
+        sectorGroup.visible = et < 0.7;
+        lineMat.opacity = 0.4 * (1 - et);
+      } else {
+        sectorGroup.visible = false;
+        lineMat.opacity = 0;
+      }
 
       if (t >= 1) {
         transition.active = false;
         // Reset controls target
         controls.target.set(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
         controls.update();
-        sectorGroup.visible = false;
-        labelGroup.visible = transition.toMode === 'neural';
+        sectorGroup.visible = transition.toMode === 'taste2d';
+        labelGroup.visible = transition.toMode === 'neural' || transition.toMode === 'taste2d';
       }
     }
 
@@ -717,7 +734,7 @@ export default function LivingArchView({
       scene, camera, renderer, composer, controls, mesh, edgeMesh, edgeMat, edgeGeo,
       edgeColors, edgeOpacities, validEdges,
       particleMesh, particleMat,
-      nodeArray, nameIdx, defaultColors, curPos, posA, posB, posC, posForMode,
+      nodeArray, nameIdx, defaultColors, curPos, posA, posB, posC, posD, posForMode,
       triggerTransition, labelGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
     };
@@ -955,8 +972,8 @@ export default function LivingArchView({
   }, [bridgePathIngredients, treeFilterIngredients, data]);
 
   // ---- Toggle handler (3-way: ml → neural → wheel → ml) ----
-  const MODE_CYCLE = ['ml', 'ml2d', 'neural'];
-  const MODE_LABELS = { ml: '3D Network', ml2d: '2D Network', neural: 'Taste Axes' };
+  const MODE_CYCLE = ['ml', 'ml2d', 'neural', 'taste2d'];
+  const MODE_LABELS = { ml: '3D Network', ml2d: '2D Network', neural: '3D Taste', taste2d: '2D Taste' };
   const handleModeSwitch = useCallback((target) => {
     if (target === mode) return;
     setMode(target);
