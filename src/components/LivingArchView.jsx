@@ -43,6 +43,7 @@ export default function LivingArchView({
 }) {
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
+  const [pcaAxes, setPcaAxes] = useState(null);
   // Use lifted state if provided, otherwise local state
   const [localMode, setLocalMode] = useState('ml');
   const mode = externalMode !== undefined ? externalMode : localMode;
@@ -112,6 +113,15 @@ export default function LivingArchView({
           if (p && Array.isArray(p) && p.length === 2) {
             posB[i*3] = p[0]; posB[i*3+1] = 0; posB[i*3+2] = p[1];
           }
+        }
+        // Extract axis labels for the 2D overlay
+        if (raw._meta) {
+          const a1 = raw._meta.axis1 || {};
+          const a2 = raw._meta.axis2 || {};
+          setPcaAxes({
+            x: { low: (a1.low || []).slice(0, 3).join(', '), high: (a1.high || []).slice(0, 3).join(', ') },
+            y: { low: (a2.low || []).slice(0, 3).join(', '), high: (a2.high || []).slice(0, 3).join(', ') },
+          });
         }
       })
       .catch(() => {});
@@ -983,7 +993,25 @@ export default function LivingArchView({
   return (
     <div className="absolute inset-0 pt-10">
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      {/* 3-way mode selector — bottom center */}
+      {/* PCA axis labels — visible only in 2D Network mode */}
+      {mode === 'ml2d' && pcaAxes && (
+        <>
+          <div className="absolute left-2 top-1/2 -translate-y-1/2 z-[55] text-[10px] text-gray-500 max-w-[100px] text-center pointer-events-none">
+            <div className="text-cyan-400/60 font-medium">{pcaAxes.x.low}</div>
+          </div>
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 z-[55] text-[10px] text-gray-500 max-w-[100px] text-center pointer-events-none">
+            <div className="text-cyan-400/60 font-medium">{pcaAxes.x.high}</div>
+          </div>
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 z-[55] text-[10px] text-gray-500 text-center pointer-events-none">
+            <div className="text-purple-400/60 font-medium">{pcaAxes.y.high}</div>
+          </div>
+          <div className="absolute bottom-32 sm:bottom-16 left-1/2 -translate-x-1/2 z-[55] text-[10px] text-gray-500 text-center pointer-events-none">
+            <div className="text-purple-400/60 font-medium">{pcaAxes.y.low}</div>
+          </div>
+        </>
+      )}
+
+      {/* 4-way mode selector — bottom center */}
       <div className="absolute bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1 px-2 py-1.5 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
         style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))' }}
       >
