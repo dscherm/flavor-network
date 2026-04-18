@@ -245,9 +245,6 @@ export default function useProData() {
           }
         } catch { /* optional */ }
 
-        setData({
-          graph,
-          positions,
         // Bridge compounds for molecular journey
         let bridgeCompounds = null;
         let bridgeMolecules3D = null;
@@ -261,6 +258,8 @@ export default function useProData() {
         } catch { /* optional */ }
 
         setData({
+          graph,
+          positions,
           clusterLabels,
           clusterExplanations,
           bridgeCompounds,
