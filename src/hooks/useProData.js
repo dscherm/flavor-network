@@ -248,8 +248,24 @@ export default function useProData() {
         setData({
           graph,
           positions,
+        // Bridge compounds for molecular journey
+        let bridgeCompounds = null;
+        let bridgeMolecules3D = null;
+        try {
+          const [bcRes, bm3dRes] = await Promise.all([
+            fetch('/proDataset/bridge_compounds.json'),
+            fetch('/models/bridge_molecules_3d.json'),
+          ]);
+          if (bcRes.ok) bridgeCompounds = await bcRes.json();
+          if (bm3dRes.ok) bridgeMolecules3D = await bm3dRes.json();
+        } catch { /* optional */ }
+
+        setData({
+          ...{}, // spread placeholder
           clusterLabels,
           clusterExplanations,
+          bridgeCompounds,
+          bridgeMolecules3D,
           embeddings: null,
           raw: {
             ingredientsData,

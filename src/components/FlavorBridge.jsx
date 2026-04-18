@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Fuse from 'fuse.js';
 import { findStrongestPath } from '../data/graph.js';
 import { colorForTaste } from '../utils/color.js';
+import MoleculeViewer3D from './MoleculeViewer3D.jsx';
 
 /**
  * Fuzzy search input with dropdown, styled to match the main SearchBar.
@@ -152,7 +153,7 @@ function primaryTaste(node) {
   return first || null;
 }
 
-export default function FlavorBridge({ nodes, edges, ingredientList, isOpen, onClose, onSelectIngredient, onPathChange }) {
+export default function FlavorBridge({ nodes, edges, ingredientList, isOpen, onClose, onSelectIngredient, onPathChange, bridgeCompounds, bridgeMolecules3D }) {
   const [fromIngredient, setFromIngredient] = useState(null);
   const [toIngredient, setToIngredient] = useState(null);
 
@@ -356,25 +357,61 @@ export default function FlavorBridge({ nodes, edges, ingredientList, isOpen, onC
                       )}
                     </div>
 
-                    {/* Edge connector */}
-                    {edgeAfter && (
-                      <div className="flex items-center gap-2 py-1 ml-[5px]">
-                        {/* Vertical line */}
-                        <div className="flex flex-col items-center">
-                          <div
-                            className="w-0.5 h-5"
-                            style={{
-                              background: `linear-gradient(to bottom, ${colorForTaste(primaryTaste(nodes.get(edgeAfter.from)))}, ${colorForTaste(primaryTaste(nodes.get(edgeAfter.to)))})`,
-                              opacity: 0.5,
-                            }}
-                          />
+                    {/* Edge connector with molecular bridge */}
+                    {edgeAfter && (() => {
+                      const bKey1 = `${edgeAfter.from}|${edgeAfter.to}`;
+                      const bKey2 = `${edgeAfter.to}|${edgeAfter.from}`;
+                      const bridge = bridgeCompounds?.[bKey1] || bridgeCompounds?.[bKey2];
+                      return (
+                        <div className="py-1 ml-[5px]">
+                          <div className="flex items-center gap-2">
+                            <div className="flex flex-col items-center">
+                              <div
+                                className="w-0.5 h-5"
+                                style={{
+                                  background: `linear-gradient(to bottom, ${colorForTaste(primaryTaste(nodes.get(edgeAfter.from)))}, ${colorForTaste(primaryTaste(nodes.get(edgeAfter.to)))})`,
+                                  opacity: 0.5,
+                                }}
+                              />
+                            </div>
+                            <span className="text-[10px] text-gray-500 font-mono">
+                              {Math.round(edgeAfter.strength * 100)}%
+                            </span>
+                            {bridge && (
+                              <span className="text-[10px] text-cyan-400/70 italic truncate">
+                                via {bridge.summary}
+                              </span>
+                            )}
+                          </div>
+                          {bridge?.bridges?.length > 0 && (
+                            <details className="ml-4 mt-0.5">
+                              <summary className="text-[10px] text-purple-400/70 cursor-pointer hover:text-purple-300">
+                                Molecular bridge ({bridge.distinctive_count} shared)
+                              </summary>
+                              <div className="mt-1 space-y-1.5 pl-1 border-l border-purple-500/20">
+                                <p className="text-[10px] text-gray-400 italic">{bridge.narrative}</p>
+                                {bridge.bridges.slice(0, 2).map((mol, mi) => (
+                                  <div key={mi} className="p-1.5 bg-[#13131a] rounded border border-[#2a2a3a]">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] text-cyan-300 font-medium">{mol.name}</span>
+                                      <span className="text-[9px] text-gray-500">{(mol.tags || []).slice(0, 2).join(', ')}</span>
+                                    </div>
+                                    {bridgeMolecules3D?.[mol.name] && (
+                                      <details className="mt-1">
+                                        <summary className="text-[9px] text-gray-500 cursor-pointer hover:text-gray-300">View 3D molecule</summary>
+                                        <div className="mt-1">
+                                          <MoleculeViewer3D moleculeData={bridgeMolecules3D[mol.name]} />
+                                        </div>
+                                      </details>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
+                          )}
                         </div>
-                        {/* Strength label */}
-                        <span className="text-[10px] text-gray-500 font-mono">
-                          {Math.round(edgeAfter.strength * 100)}%
-                        </span>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
                 );
               })}
@@ -447,6 +484,42 @@ export default function FlavorBridge({ nodes, edges, ingredientList, isOpen, onC
             </p>
           </div>
         )}
+
+        {/* Molecular Journey Summary */}
+        {bothSelected && !sameIngredient && path.length >= 3 && bridgeCompounds && !noPath && (() => {
+          const journeyMols = [];
+          for (let i = 0; i < path.length - 1; i++) {
+            const k1 = `${path[i]}|${path[i+1]}`;
+            const k2 = `${path[i+1]}|${path[i]}`;
+            const b = bridgeCompounds[k1] || bridgeCompounds[k2];
+            if (b?.bridges?.[0]) journeyMols.push({ from: path[i], to: path[i+1], mol: b.bridges[0], narrative: b.narrative });
+          }
+          if (journeyMols.length === 0) return null;
+          const categories = [...new Set(journeyMols.map(j => j.narrative))];
+          return (
+            <div className="space-y-1.5 pt-2 border-t border-[#2a2a3a]">
+              <h3 className="text-[10px] uppercase tracking-wider text-gray-500">Molecular Journey</h3>
+              <div className="h-2 rounded-full overflow-hidden flex">
+                {journeyMols.map((j, i) => {
+                  const tags = j.mol.tags || [];
+                  const hue = tags.includes('sweet') ? 330 : tags.includes('fruity') ? 30 : tags.includes('floral') ? 300 : tags.includes('green') ? 140 : tags.includes('woody') ? 30 : tags.includes('spicy') ? 0 : 210;
+                  return <div key={i} className="flex-1" style={{ background: `hsl(${hue}, 60%, 45%)` }} title={`${j.from} → ${j.to}: ${j.mol.name}`} />;
+                })}
+              </div>
+              <p className="text-[10px] text-gray-400">
+                This path travels through {categories.join(', then ')}.
+                Each hop shares molecules that let your palate bridge the gap.
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {journeyMols.map((j, i) => (
+                  <span key={i} className="text-[9px] px-1.5 py-0.5 bg-purple-900/30 border border-purple-500/20 rounded text-purple-300">
+                    {j.mol.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
