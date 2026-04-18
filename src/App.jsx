@@ -3,11 +3,12 @@ import useProData from './hooks/useProData.js';
 // TrainingProgress removed — served as dev demo, not production feature
 const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
 const DiscoverPatterns = lazy(() => import('./components/DiscoverPatterns.jsx'));
+import HowItWorks from './components/HowItWorks.jsx';
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Legend from './components/Legend.jsx';
 import Controls from './components/Controls.jsx';
-import { getNeighbors } from './data/graph.js';
+import { getNeighbors, findStrongestPath } from './data/graph.js';
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
 import Walkthrough from './components/Walkthrough.jsx';
 import HelpButton from './components/HelpButton.jsx';
@@ -115,6 +116,14 @@ export default function App() {
     if (!data || !selectedNode) return null;
     return data.graph.nodes.get(selectedNode) || null;
   }, [data, selectedNode]);
+
+  // Auto-compute flavor path between exactly 2 selected ingredients
+  const flavorPath = useMemo(() => {
+    if (!data || selectedNodes.length !== 2) return null;
+    const path = getNeighbors ? findStrongestPath(selectedNodes[0], selectedNodes[1], data.graph.edges) : [];
+    if (path.length <= 2) return null; // Direct connection, no interesting path
+    return path;
+  }, [data, selectedNodes]);
 
   const profileWeights = useMemo(() => {
     if (!profileMode || !data) return null;
@@ -512,6 +521,7 @@ export default function App() {
           selectedNodes={selectedNodes}
           selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
           selectedCount={selectedNodes.length}
+          flavorPath={flavorPath}
           onBuildRecipe={() => { setRecipeMounted(true); setActiveTab('recipe'); }}
           isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
           onToggleFavorite={userProfile.toggleIngredient}
@@ -690,6 +700,7 @@ export default function App() {
         onPathChange={setBridgePathIngredients}
       />
       <HelpButton onClick={() => setShowTour(true)} />
+      <HowItWorks />
       </div>
 
       {/* Cocktail Lab tab — lazy-mounted */}

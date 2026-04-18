@@ -96,7 +96,7 @@ function getDiscoveryFact(node, neighbors) {
   return null;
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes }) {
   const panelRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -231,6 +231,28 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 )}
               </p>
             )}
+          </section>
+        )}
+        {flavorPath && flavorPath.length > 2 && selectedCount === 2 && (
+          <section className="mb-3">
+            <SectionHeading>Flavor Path</SectionHeading>
+            <p className="text-[10px] text-gray-500 mb-1.5">Strongest connection between your two ingredients:</p>
+            <div className="flex items-center flex-wrap gap-1">
+              {flavorPath.map((name, i) => (
+                <span key={name} className="flex items-center gap-1">
+                  <button
+                    onClick={() => onSelectIngredient?.(name)}
+                    className={`px-1.5 py-0.5 rounded text-[11px] transition-colors ${
+                      selectedNodes.includes(name)
+                        ? 'bg-cyan-500/20 text-cyan-300'
+                        : 'bg-gray-800/60 text-gray-300 hover:text-cyan-300'
+                    }`}
+                  >{name}</button>
+                  {i < flavorPath.length - 1 && <span className="text-gray-600 text-[10px]">→</span>}
+                </span>
+              ))}
+            </div>
+            <p className="text-[10px] text-gray-500 mt-1">{flavorPath.length - 2} ingredient{flavorPath.length - 2 !== 1 ? 's' : ''} bridge these flavors</p>
           </section>
         )}
         {discoveryFact && (
@@ -541,6 +563,28 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
 
+        {flavorPath && flavorPath.length > 2 && selectedCount === 2 && (
+          <section className="mb-3">
+            <SectionHeading>Flavor Path</SectionHeading>
+            <p className="text-[10px] text-gray-500 mb-1.5">Strongest connection between your two ingredients:</p>
+            <div className="flex items-center flex-wrap gap-1">
+              {flavorPath.map((name, i) => (
+                <span key={name} className="flex items-center gap-1">
+                  <button
+                    onClick={() => onSelectIngredient?.(name)}
+                    className={`px-1.5 py-0.5 rounded text-[11px] transition-colors ${
+                      selectedNodes.includes(name)
+                        ? 'bg-cyan-500/20 text-cyan-300'
+                        : 'bg-gray-800/60 text-gray-300 hover:text-cyan-300'
+                    }`}
+                  >{name}</button>
+                  {i < flavorPath.length - 1 && <span className="text-gray-600 text-[10px]">→</span>}
+                </span>
+              ))}
+            </div>
+            <p className="text-[10px] text-gray-500 mt-1">{flavorPath.length - 2} ingredient{flavorPath.length - 2 !== 1 ? 's' : ''} bridge these flavors</p>
+          </section>
+        )}
         {discoveryFact && (
           <div className="text-[11px] text-cyan-400/60 italic mb-3">
             {discoveryFact}
