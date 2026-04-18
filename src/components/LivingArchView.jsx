@@ -314,8 +314,12 @@ export default function LivingArchView({
         const hex = TASTE_HEX_MAP[cl.dominant_taste] || '#aaaaaa';
         const sprite = makeLabel(cl.label.toUpperCase(), hex, 20);
         const c3 = cl.centroid_3d || [0, 0, 0];
-        sprite.position.set(c3[0], c3[1] + 4, c3[2]);
-        sprite.userData = { clusterId: cl.id, centroid_3d: c3, centroid_2d: cl.centroid_2d || [0, 0] };
+        // Push labels outward from origin so they sit at cluster edges, not inside
+        const dist = Math.sqrt(c3[0]*c3[0] + c3[1]*c3[1] + c3[2]*c3[2]) || 1;
+        const pushFactor = 1.4;
+        const pushed = [c3[0] * pushFactor, c3[1] * pushFactor + 4, c3[2] * pushFactor];
+        sprite.position.set(pushed[0], pushed[1], pushed[2]);
+        sprite.userData = { clusterId: cl.id, centroid_3d: pushed, centroid_2d: cl.centroid_2d ? [cl.centroid_2d[0] * pushFactor, cl.centroid_2d[1] * pushFactor] : [0, 0] };
         sprite.material.opacity = 0.7;
         clusterLabelGroup.add(sprite);
       }
@@ -1042,23 +1046,7 @@ export default function LivingArchView({
   return (
     <div className="absolute inset-0 pt-10">
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      {/* PCA axis labels — visible only in 2D Network mode */}
-      {mode === 'ml2d' && pcaAxes && (
-        <>
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 z-[55] text-[10px] text-gray-500 max-w-[100px] text-center pointer-events-none">
-            <div className="text-cyan-400/60 font-medium">{pcaAxes.x.low}</div>
-          </div>
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 z-[55] text-[10px] text-gray-500 max-w-[100px] text-center pointer-events-none">
-            <div className="text-cyan-400/60 font-medium">{pcaAxes.x.high}</div>
-          </div>
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 z-[55] text-[10px] text-gray-500 text-center pointer-events-none">
-            <div className="text-purple-400/60 font-medium">{pcaAxes.y.high}</div>
-          </div>
-          <div className="absolute bottom-32 sm:bottom-16 left-1/2 -translate-x-1/2 z-[55] text-[10px] text-gray-500 text-center pointer-events-none">
-            <div className="text-purple-400/60 font-medium">{pcaAxes.y.low}</div>
-          </div>
-        </>
-      )}
+      {/* PCA axis labels removed — cluster labels provide enough context */}
 
       {/* 4-way mode selector — bottom center */}
       <div className="absolute bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1 px-2 py-1.5 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
