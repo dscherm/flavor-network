@@ -698,6 +698,8 @@ export default function App() {
         onClose={() => { setShowBridge(false); setBridgePathIngredients(null); }}
         onSelectIngredient={handleSearchSelect}
         onPathChange={setBridgePathIngredients}
+        bridgeCompounds={data?.bridgeCompounds}
+        bridgeMolecules3D={data?.bridgeMolecules3D}
       />
       <HelpButton onClick={() => setShowTour(true)} />
       <HowItWorks />
