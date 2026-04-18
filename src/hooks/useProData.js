@@ -261,7 +261,6 @@ export default function useProData() {
         } catch { /* optional */ }
 
         setData({
-          ...{}, // spread placeholder
           clusterLabels,
           clusterExplanations,
           bridgeCompounds,
