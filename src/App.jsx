@@ -37,7 +37,7 @@ export default function App() {
   const [sauceMounted, setSauceMounted] = useState(false);
   const [recipeMounted, setRecipeMounted] = useState(false);
   // trainingMounted removed
-  const [moleculeMounted, setMoleculeMounted] = useState(false);
+  const [moleculeLabOpen, setMoleculeLabOpen] = useState(false);
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [exploreDropdownOpen, setExploreDropdownOpen] = useState(false);
   const [livingMode, setLivingMode] = useState('ml');
@@ -356,7 +356,7 @@ export default function App() {
                     { key: 'recipe', label: 'Recipe Lab' },
                     { key: 'cocktail', label: 'Cocktail Lab' },
                     { key: 'sauce', label: 'Sauce Lab' },
-                    { key: 'molecule', label: 'Molecule Lab' },
+                    { key: 'molecule', label: 'Pairing Chemistry' },
                   ].map((lab) => (
                     <button
                       key={lab.key}
@@ -365,7 +365,7 @@ export default function App() {
                         if (lab.key === 'cocktail') setCocktailMounted(true);
                         if (lab.key === 'sauce') setSauceMounted(true);
                         if (lab.key === 'recipe') setRecipeMounted(true);
-                        if (lab.key === 'molecule') setMoleculeMounted(true);
+                        if (lab.key === 'molecule') { setMoleculeLabOpen(v => !v); setLabDropdownOpen(false); return; }
                         setLabDropdownOpen(false);
                       }}
                       className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
@@ -754,18 +754,17 @@ export default function App() {
         </Suspense>
       )}
 
-      {/* Molecule Lab tab — lazy-mounted */}
-      {moleculeMounted && (
-        <div
-          className={`transition-opacity duration-300 ${
-            activeTab === 'molecule' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
-          }`}
-        >
-          <Suspense fallback={<div className="p-6 text-gray-400">Loading Molecule Lab…</div>}>
-            <MoleculeLab />
-          </Suspense>
-        </div>
-      )}
+      {/* Molecule Lab — slide-out card */}
+      <Suspense fallback={null}>
+        <MoleculeLab
+          isOpen={moleculeLabOpen}
+          onClose={() => setMoleculeLabOpen(false)}
+          selectedNodes={selectedNodes}
+          selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
+          graphNodes={data?.graph?.nodes}
+          onSelectIngredient={handleSearchSelect}
+        />
+      </Suspense>
 
       {/* Mobile bottom sheet for panels */}
       {isMobile && (
