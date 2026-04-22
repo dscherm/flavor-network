@@ -5,6 +5,7 @@ import PredictedProfile from './PredictedProfile.jsx';
 import SharedMoleculesCard from './SharedMoleculesCard.jsx';
 import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
 import FlavorPathCard from './FlavorPathCard.jsx';
+import MoleculeTasteMap from './MoleculeTasteMap.jsx';
 import { scoreRecipe, verdictForScore } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
@@ -101,7 +102,7 @@ function getDiscoveryFact(node, neighbors) {
   return null;
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes }) {
   const panelRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -295,10 +296,15 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             {node.gnnCompounds && (
               <div className="mb-2">
                 <p className="text-[11px] text-gray-400 mb-1.5">
-                  Contains {node.gnnCompounds.total_compounds} flavor compounds.
-                  {node.gnnCompounds.top_compounds?.length > 0 && ' Key molecules:'}
+                  Contains {node.gnnCompounds.total_compounds} flavor compounds. Each molecule below links to the tastes and aromas it's known for:
                 </p>
-                <div className="space-y-1 mb-2">
+                <MoleculeTasteMap
+                  compounds={(node.gnnCompounds.top_compounds || []).slice(0, 5)}
+                  compoundTastes={compoundTastes}
+                />
+                {/* Legacy list kept hidden — MoleculeTasteMap above replaces it.
+                    Remove this block once R14 ships. */}
+                <div className="space-y-1 mb-2 hidden">
                   {(node.gnnCompounds.top_compounds || []).slice(0, 3).map((c, i) => (
                     <div key={i} className="flex items-center gap-2 text-[11px]">
                       <span className="text-gray-200 font-medium truncate max-w-[40%]">{c.name}</span>

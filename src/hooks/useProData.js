@@ -284,17 +284,20 @@ export default function useProData({ enabled = true } = {}) {
         let gnnEntropy = null;
         let odorThresholds = null;
         let ingredientThresholds = null;
+        let compoundTastes = null;
         try {
-          const [geImpRes, geRes, otRes, itRes] = await Promise.all([
+          const [geImpRes, geRes, otRes, itRes, ctRes] = await Promise.all([
             fetch('/proDataset/gnn_entropy_imputed.json'),
             fetch('/proDataset/gnn_entropy.json'),
             fetch('/proDataset/odor_thresholds.json'),
             fetch('/proDataset/ingredient_profile_thresholds.json'),
+            fetch('/proDataset/compound_tastes.json'),
           ]);
           if (geImpRes.ok) gnnEntropy = await geImpRes.json();
           else if (geRes.ok) gnnEntropy = await geRes.json();
           if (otRes.ok) odorThresholds = await otRes.json();
           if (itRes.ok) ingredientThresholds = await itRes.json();
+          if (ctRes.ok) compoundTastes = await ctRes.json();
         } catch { /* optional */ }
 
         setData({
@@ -307,6 +310,7 @@ export default function useProData({ enabled = true } = {}) {
           gnnEntropy,
           odorThresholds,
           ingredientThresholds,
+          compoundTastes,
           embeddings: null,
           raw: {
             ingredientsData,
