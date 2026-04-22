@@ -564,6 +564,8 @@ export default function App() {
           onToggleFavorite={userProfile.toggleIngredient}
           graphNodes={data?.graph?.nodes}
           bridgeCompounds={data?.bridgeCompounds}
+          gnnEntropy={data?.gnnEntropy}
+          odorThresholds={data?.odorThresholds}
         />
       )}
 

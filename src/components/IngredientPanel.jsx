@@ -1,6 +1,7 @@
 import { useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import TasteRadar from './TasteRadar.jsx';
 import OdorBadge from './OdorBadge.jsx';
+import PredictedProfile from './PredictedProfile.jsx';
 import { scoreRecipe, verdictForScore } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
@@ -97,7 +98,7 @@ function getDiscoveryFact(node, neighbors) {
   return null;
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes, bridgeCompounds }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds }) {
   const panelRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -270,6 +271,19 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               <PropertyBadge label="volume" value={volume} />
               <PropertyBadge label="season" value={season} />
             </div>
+          </section>
+        )}
+        {node.name && gnnEntropy && odorThresholds && (
+          <section>
+            <SectionHeading>Predicted profile</SectionHeading>
+            <PredictedProfile
+              name={node.name}
+              gnnEntropy={gnnEntropy}
+              odorThresholds={odorThresholds}
+            />
+            <p className="text-[10px] text-gray-500 mt-1.5">
+              Predicted by the molecular GNN from compound structure. Threshold-calibrated per task.
+            </p>
           </section>
         )}
         {node.clusterLabel && (
