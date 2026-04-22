@@ -3,6 +3,7 @@ import TasteRadar from './TasteRadar.jsx';
 import OdorBadge from './OdorBadge.jsx';
 import PredictedProfile from './PredictedProfile.jsx';
 import SharedMoleculesCard from './SharedMoleculesCard.jsx';
+import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
 import { scoreRecipe, verdictForScore } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
@@ -659,18 +660,16 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
 
-        {/* Taste Radar */}
+        {/* Profile Radars — swipe between Taste / Aroma / Combined */}
         {graphNodes && (
           <section>
-            <SectionHeading>Taste Radar</SectionHeading>
-            <div className="flex justify-center">
-              <TasteRadar
-                ingredients={radarIngredients}
-                nodes={graphNodes}
-                compact
-                theme="dark"
-              />
-            </div>
+            <SectionHeading>Profile Radar</SectionHeading>
+            <ProfileRadarCarousel
+              ingredientName={node?.name}
+              ingredients={radarIngredients}
+              graphNodes={graphNodes}
+              gnnEntropy={gnnEntropy}
+            />
           </section>
         )}
 
