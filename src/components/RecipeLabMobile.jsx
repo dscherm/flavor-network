@@ -14,12 +14,15 @@ const FONT_FAMILY = 'Caveat, cursive';
  *   2. Recipe Notebook (middle) — scrollable ingredient list
  *   3. Suggestion Drawer (bottom) — pull-up sheet with taste tabs + chips
  */
-export default function RecipeLabMobile({ fullData, initialIngredient, userProfile }) {
+export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, userProfile }) {
   const [labMode, setLabMode] = useState('taste');
-  const [centerIngredient, setCenterIngredient] = useState(initialIngredient || null);
-  const [recipeIngredients, setRecipeIngredients] = useState(
-    initialIngredient ? [initialIngredient] : []
-  );
+  // Seed with the full set of selected ingredients when present — fixes
+  // the "Build Recipe" button previously losing all but the first.
+  const initialSeed = (initialIngredients && initialIngredients.length > 0)
+    ? [...new Set(initialIngredients)]
+    : (initialIngredient ? [initialIngredient] : []);
+  const [centerIngredient, setCenterIngredient] = useState(initialSeed[0] || null);
+  const [recipeIngredients, setRecipeIngredients] = useState(initialSeed);
   const [recipeTitle, setRecipeTitle] = useState('');
   const [selectedStructure, setSelectedStructure] = useState(null);
   const [drawerSnap, setDrawerSnap] = useState('peek');
@@ -39,15 +42,22 @@ export default function RecipeLabMobile({ fullData, initialIngredient, userProfi
   // Reset structure on mode change
   useEffect(() => { setSelectedStructure(null); }, [labMode]);
 
-  // Sync initialIngredient
+  // Sync initialIngredients (plural) — when the user clicks "Build Recipe"
+  // from IngredientPanel with multiple ingredients selected, mirror all of
+  // them into the recipe. Falls back to initialIngredient for the single-
+  // select path.
   useEffect(() => {
-    if (initialIngredient && initialIngredient !== centerIngredient) {
-      setCenterIngredient(initialIngredient);
-      setRecipeIngredients(prev =>
-        prev.includes(initialIngredient) ? prev : [initialIngredient, ...prev]
-      );
-    }
-  }, [initialIngredient]);
+    const incoming = (initialIngredients && initialIngredients.length > 0)
+      ? [...new Set(initialIngredients)]
+      : (initialIngredient ? [initialIngredient] : []);
+    if (incoming.length === 0) return;
+    setCenterIngredient(prev => prev || incoming[0]);
+    setRecipeIngredients(prev => {
+      const missing = incoming.filter(n => !prev.includes(n));
+      return missing.length > 0 ? [...prev, ...missing] : prev;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialIngredient, Array.isArray(initialIngredients) ? initialIngredients.join('|') : '']);
 
   // Container width
   useEffect(() => {
