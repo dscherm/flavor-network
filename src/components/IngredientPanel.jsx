@@ -2,6 +2,7 @@ import { useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import TasteRadar from './TasteRadar.jsx';
 import OdorBadge from './OdorBadge.jsx';
 import PredictedProfile from './PredictedProfile.jsx';
+import SharedMoleculesCard from './SharedMoleculesCard.jsx';
 import { scoreRecipe, verdictForScore } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
@@ -672,6 +673,20 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 </span>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Shared Molecules — chemistry explanation when exactly 2 ingredients
+            are selected. Folds FlavorBridge's per-segment bridge-compound
+            panel into the IngredientPanel inline (R13 Phase 2a). */}
+        {selectedCount === 2 && bridgeCompounds && selectedNodes.length >= 2 && (
+          <section>
+            <SectionHeading>Shared Molecules</SectionHeading>
+            <SharedMoleculesCard
+              a={selectedNodes[0]}
+              b={selectedNodes[1]}
+              bridgeCompounds={bridgeCompounds}
+            />
           </section>
         )}
 
