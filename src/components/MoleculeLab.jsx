@@ -98,16 +98,15 @@ export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selec
     return matches.sort((a, b) => b.sharedCount - a.sharedCount).slice(0, 8);
   }, [selectedNodes, selectedNodesData, graphNodes]);
 
-  if (!isOpen) return null;
-
   const node1 = selectedNodesData[0];
   const node2 = selectedNodesData[1];
   const count = selectedNodes.length;
 
-  // Find a preset molecule for the 3D viewer
+  // All hooks MUST be called before any conditional return (React rules of
+  // hooks). Previously this useMemo sat after `if (!isOpen) return null`,
+  // which crashed with error #310 when isOpen toggled.
   const viewerMolecule = useMemo(() => {
     if (!moleculeData) return null;
-    // Try to find a compound name that matches a preset
     if (count === 2 && sharedCompounds.length > 0) {
       for (const c of sharedCompounds) {
         for (const [, mol] of Object.entries(moleculeData)) {
@@ -122,9 +121,10 @@ export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selec
         }
       }
     }
-    // Fall back to first preset
     return Object.values(moleculeData)[0] || null;
   }, [moleculeData, count, node1, sharedCompounds]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed left-0 top-10 bottom-0 z-[58] w-80 sm:w-96 bg-[#0a0a0f]/95 backdrop-blur-md border-r border-[#2a2a3a] overflow-y-auto transition-transform duration-300"
