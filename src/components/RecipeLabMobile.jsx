@@ -220,8 +220,9 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       className="fixed inset-0 pt-10 flex flex-col"
       style={{ backgroundColor: '#fefae0' }}
     >
-      {/* Mode tabs */}
-      <div className="absolute top-11 right-3 z-20 flex items-center gap-1">
+      {/* Mode tabs — full-width strip under the top nav so they're obvious
+          on mobile. User previously missed the corner-tucked tabs. */}
+      <div className="relative z-20 mx-2 mt-1 mb-2 flex items-center gap-1 p-1 rounded-lg border border-[#c9b99a] bg-[#f5edd0]">
         {[
           { key: 'taste', label: 'General' },
           { key: 'cocktail', label: 'Cocktail' },
@@ -230,10 +231,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           <button
             key={m.key}
             onClick={() => setLabMode(m.key)}
-            className={`px-2 py-1 text-xs rounded-md border transition-colors ${
+            className={`flex-1 min-h-[40px] px-3 py-1.5 text-base rounded-md border transition-colors ${
               labMode === m.key
-                ? 'bg-[#e8dcc0] border-[#c9b99a] text-[#5a4a2a] font-medium'
-                : 'border-[#d8cca8] text-[#a09070] hover:bg-[#f0e8d0]'
+                ? 'bg-[#e8dcc0] border-[#c9b99a] text-[#5a4a2a] font-medium shadow-sm'
+                : 'border-transparent text-[#a09070] hover:bg-[#f0e8d0]'
             }`}
             style={{ fontFamily: FONT_FAMILY }}
           >
