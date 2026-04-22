@@ -113,13 +113,30 @@ function buildProGraph(ingredientsData, pairingsData) {
 
 /**
  * Hook that loads the proprietary dataset and returns the same shape as useFlavorData.
+ *
+ * Options:
+ *   enabled (default true) — when false, skips the fetch entirely and returns
+ *     { loading:false, data:null, error:null }. Flipping to true triggers the
+ *     fetch exactly once. Used by the Start Page to defer the 27MB pairings
+ *     download until the user picks a mode.
+ *
+ * Return value also includes `retry()` — invoking it re-runs the fetch,
+ * used by the Error Card's Retry button when the initial fetch fails.
  */
-export default function useProData() {
-  const [loading, setLoading] = useState(true);
+export default function useProData({ enabled = true } = {}) {
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      setError(null);
+      return;
+    }
+    setLoading(true);
+    setError(null);
     let cancelled = false;
     let worker = null;
 
@@ -339,7 +356,9 @@ export default function useProData() {
         try { worker.terminate(); } catch { /* ignore */ }
       }
     };
-  }, []);
+  }, [enabled, retryCount]);
 
-  return { loading, error, data };
+  const retry = () => setRetryCount((c) => c + 1);
+
+  return { loading, error, data, retry };
 }

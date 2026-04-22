@@ -1098,3 +1098,138 @@ interactive bridge on a future run.
 
 - R6-33: user chose option **D** — full browser inference via rdkit-js + onnxruntime-web for per-layer activations.
 - R6-34: user chose option **C** — hybrid: rdkit-js parses/validates in the browser, Python API endpoint runs inference.
+
+---
+
+## Round 10 — Lab ML models, Recipe Lab scope filters, onboarding, and polish (2026-04-21)
+
+Six interactive-mode tasks added by the user. Ordered by surface-area risk: the MoleculeLab crash blocks the whole panel, so it leads; ML work in labs and recipe-lab filters are mid-risk feature work; onboarding and axis-label polish close the round.
+
+### Task 60: R10-60 — Fix React error #310 in MoleculeLab (hooks called after early return)
+
+```json
+{
+  "id": "R10-60",
+  "title": "Fix MoleculeLab useMemo called after early return",
+  "category": "bugfix",
+  "priority": 1,
+  "description": "Production React error #310 ('Rendered more hooks than during the previous render') fires from MoleculeLab.jsx:108. Root cause: the component has `if (!isOpen) return null;` at line 101, but then calls `useMemo` for `viewerMolecule` at line 108 — below the early return. When isOpen toggles, the hook count changes across renders, tripping React's hook-order invariant. Fix by moving every hook above any conditional return.",
+  "steps": [
+    "Open src/components/MoleculeLab.jsx",
+    "Confirm the bug: the useMemo at line 108 (viewerMolecule) sits AFTER `if (!isOpen) return null;` at line 101",
+    "Move the viewerMolecule useMemo (and any other hooks below line 101) to above the `if (!isOpen) return null;` guard — all hooks must run unconditionally on every render",
+    "While you're in the file, audit every other useState / useEffect / useMemo / useCallback for the same pattern and relocate if needed",
+    "Run: npm run build — confirm no TDZ / hooks warnings and the minified bundle loads without error #310",
+    "Open the app, toggle MoleculeLab open and closed 10 times with varying selection counts (0, 1, 2, 3 nodes) — confirm no crash",
+    "Run: npx vitest run src/ to confirm no regressions"
+  ]
+}
+```
+
+### Task 61: R10-61 — Rebuild Cocktail Lab and Sauce Lab on the ML (GNN/Node2Vec) model like the Network tab
+
+```json
+{
+  "id": "R10-61",
+  "title": "Lab 3D views use the same ML embedding layout as the Network",
+  "category": "ml-viz",
+  "priority": 2,
+  "description": "Today Cocktail Lab and Sauce Lab render their 3D subgraphs using the legacy taste-axis positions (computeTastePositions) while the Network tab uses the GNN/Node2Vec-blended positions from public/proDataset/gnn_positions.json (R5-26 + R6-31). Port the labs to consume the same ML layout so neighborhoods are chemistry-driven there too, and the three views feel like one coherent model. Keep the lab-specific filtering (cocktail-scope or sauce-scope ingredients only) but swap the positioning source.",
+  "steps": [
+    "Read src/components/CocktailLab.jsx and src/components/SauceLab.jsx — locate where node positions are assigned (likely via cocktailGraph.js / sauceGraph.js or a local layout call)",
+    "Read src/hooks/useProData.js to see how gnn_positions.json is loaded for the Network tab — reuse that loader (don't fetch twice; lift it if needed)",
+    "For each lab: when the ML position exists for a node, use it; when it doesn't, fall back to the current taste-axis position (same pattern as Network)",
+    "Preserve the lab's scope filter — CocktailLab keeps only cocktail-relevant ingredients, SauceLab keeps only sauce-relevant ingredients (see Task R10-62 for the canonical scope logic to share)",
+    "Cluster labels / axis labels in the labs should switch with the mode in the same way NetworkScene / LivingArchView do (reuse cluster_labels.json from R9-55 when present)",
+    "Verify visually: in Cocktail Lab, spirits cluster together; in Sauce Lab, emulsifiers and acids cluster. Both should look like chemistry clusters, not taste axes",
+    "Run: npx vitest run src/ and npm run build"
+  ]
+}
+```
+
+### Task 62: R10-62 — Recipe Lab: Cocktail + Sauce tabs filter to their ingredient scope
+
+```json
+{
+  "id": "R10-62",
+  "title": "Recipe Lab Cocktail/Sauce tabs respect ingredient scope",
+  "category": "bugfix",
+  "priority": 3,
+  "description": "In Recipe Lab, the Cocktail and Sauce tabs currently show the full ProData ingredient set — users can add 'chicken thighs' to a cocktail or 'bourbon' to a béarnaise. Filter each tab's pickable ingredients to the scope used by CocktailLab and SauceLab so the experience matches user expectation. Centralize the scope logic so all three lab surfaces (Cocktail Lab, Sauce Lab, Recipe Lab tabs) agree.",
+  "steps": [
+    "Find the current cocktail-scope filter in src/data/cocktailGraph.js and sauce-scope filter in src/data/sauceGraph.js — extract the 'is-in-scope' predicates into a shared module (e.g., src/data/labScope.js exporting isCocktailIngredient(node) and isSauceIngredient(node))",
+    "Update CocktailLab and SauceLab to import from the shared module so behavior stays identical",
+    "Open src/components/RecipeLab.jsx (and any SearchBar / picker it uses for the Cocktail and Sauce tabs) — wire the shared predicates into the ingredient list when the active tab is Cocktail or Sauce",
+    "The Recipe tab keeps the full ingredient set",
+    "Edge case: also filter the autocomplete dropdown, not just the submitted list — users shouldn't even see out-of-scope options",
+    "Verify manually: switch Recipe Lab to Cocktail tab, search 'chicken' — no results; search 'bourbon' — returns. Switch to Sauce tab, search 'bourbon' — no results; search 'butter' — returns",
+    "Run: npx vitest run src/"
+  ]
+}
+```
+
+### Task 63: R10-63 — Update, retrain, and improve the GNN model
+
+```json
+{
+  "id": "R10-63",
+  "title": "Refresh and improve the flavor-gnn model",
+  "category": "ml",
+  "priority": 4,
+  "description": "The multi-task GNN in flavor-gnn/ has accumulated TODOs (better negatives R8-51, odor head R8-52, BitterSweet data R8-53, proper CV R8-54, FlavorNet + PubChem expansion R9-58). Do a consolidated pass: pull in the data expansions, retrain M3 with the new labels, and regenerate all downstream artifacts the UI depends on (gnn_positions.json, gnn_entropy.json, preset_predictions.json, cluster_labels.json, cluster_explanations.json, compound_info.json). Treat this as the production retrain, not a one-off experiment.",
+  "steps": [
+    "Run the outstanding data-expansion tasks if not yet done: R8-51 (FlavorDB real negatives), R8-52 (odor head), R8-53 (BitterSweet merge), R9-58 (FlavorNet + PubChem SMILES, FlavorDB full molecule scrape)",
+    "Add R8-54 5-fold CV to src/train/train_multitask.py and report mean±std per-task F1 — gate the retrain on CV actually running",
+    "Retrain M3 with the combined dataset. Save per-task F1 before/after to artifacts/m3_retrain_compare.json",
+    "Re-export ONNX (src/export/to_onnx.py) and copy to public/models/flavor-gnn.onnx",
+    "Re-run all inference scripts: embed_ingredients.py → gnn_positions.json, entropy pass → gnn_entropy.json, preset_predictions.py → preset_predictions.json, cluster_labels.py (R9-55) → cluster_labels.json, explain_clusters.py (R9-56) → cluster_explanations.json",
+    "Spot-check 10 presets in Molecule Lab and 20 random ingredients in the Network — sanity-check that positions and taste bars still read right",
+    "Document the retrain in flavor-gnn/README.md with the new metrics table"
+  ]
+}
+```
+
+### Task 64: R10-64 — Brainstorm then build a start / onboarding page
+
+**Brainstorm complete (2026-04-21).** Crystallized spec at `.omc/specs/deep-interview-start-page.md` (ambiguity 8%, ontology converged 100%). Decisions: mode-picker with Discover / Build / Learn cards, one-time localStorage-gated (`fn-start-seen`), pairings.json load deferred behind first card click, playful tone, no separate hero — cards are the hero. The executor should implement from the spec's "Implementation Plan" section and ignore the Phase-1 brainstorm step below.
+
+```json
+{
+  "id": "R10-64",
+  "title": "Start page that orients the user before the network loads",
+  "category": "ia",
+  "priority": 5,
+  "spec_file": ".omc/specs/deep-interview-start-page.md",
+  "description": "Ship the start page per the deep-interview spec. 3 mode cards (Discover→Network, Build→Recipe Lab, Learn→Molecule Lab+HowItWorks). Gate useProData behind first card click via localStorage key 'fn-start-seen'. See spec for acceptance criteria, copy, visuals, and refactor plan.",
+  "steps": [
+    "READ .omc/specs/deep-interview-start-page.md end-to-end before touching code",
+    "PHASE 2 (design): with the chosen direction, produce a short spec in docs/start-page-spec.md — entry points, copy, primary CTA, how it dismisses, localStorage key for 'seen-before'",
+    "PHASE 3 (build): implement src/components/StartPage.jsx; mount in App.jsx ahead of the network; respect the dismissal flag so returning users skip it; make sure the 3D scene doesn't mount / parse the 27MB pairings payload while the start page is showing (this is a free perf win — defer the heavy load behind the CTA click)",
+    "Accessibility: Escape dismisses, focus trap while visible, reduced-motion respects the user's OS setting",
+    "Mobile-first layout (≤375px viewport) since half the audience is on iOS",
+    "Verify the Network, Labs, and all downstream tabs still work after dismissing the start page",
+    "Run: npx vitest run src/ + npm run build"
+  ]
+}
+```
+
+### Task 65: R10-65 — Push network axis labels further out
+
+```json
+{
+  "id": "R10-65",
+  "title": "Move network axis labels outward so they don't overlap nodes",
+  "category": "viz",
+  "priority": 6,
+  "description": "The taste-axis labels in the Network view sit close enough to the point cloud that they overlap dense clusters. Push them outward (along each axis direction, away from the origin) so they read as axis annotations rather than node labels. Apply the same treatment wherever axis labels render — NetworkScene, LivingArchView, the ML/taste mode transitions — and keep them in sync with the camera so they remain legible at all zoom levels.",
+  "steps": [
+    "Grep src/ for where the 8 taste-axis label sprites are created (likely NetworkScene.jsx or LivingArchView.jsx — look for 'sweet', 'sour', 'bitter' as axis label text)",
+    "Locate the radius constant / position multiplier used to place them — increase by ~1.5x as a starting point, then tune by eye",
+    "Confirm the labels stay clear of the 95th-percentile node cluster at default zoom and also at the closest sensible zoom",
+    "If labels start clipping the frustum or disappearing behind the OrbitControls target, cap the outward distance or switch to a billboard sprite that auto-scales with camera distance",
+    "Apply the same outward push to cluster labels from R9-55 if they render in the same scene, preserving their cluster-centroid anchor with a constant outward offset",
+    "Verify in all three mode transitions: taste → ML → ML-2D — labels fade in/out cleanly at the new radius",
+    "Mobile check: on a 375px viewport, labels should still be readable and not clipped by the viewport edges"
+  ]
+}
+```
