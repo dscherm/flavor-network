@@ -157,6 +157,17 @@ export default function SuggestionDrawer({
   const dragRef = useRef({ startY: 0, startHeight: 0, dragging: false });
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
   const [suggestion, setSuggestion] = useState(null);
+  // Scaffolded filter surface: show ONE filter class at a time (taste OR
+  // cuisine) rather than both in one long strip — avoids overwhelming.
+  const [filterMode, setFilterMode] = useState('taste');
+
+  // If the user switches modes, drop them back to "all" so stale taste
+  // selection doesn't hide cuisine-filtered results, and vice versa.
+  const switchMode = useCallback((mode) => {
+    setFilterMode(mode);
+    onTabChange?.('all');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onTabChange]);
 
   useEffect(() => {
     const onResize = () => setViewportHeight(window.innerHeight);
@@ -326,12 +337,19 @@ export default function SuggestionDrawer({
     return [...set].sort();
   }, [chipData, nodes]);
 
-  const tabs = [
-    { key: 'all', label: 'All' },
-    { key: 'best', label: 'Balance' },
-    ...AXES.map(a => ({ key: a, label: a })),
-    ...cuisineOptions.map(c => ({ key: `cuisine:${c}`, label: c, isCuisine: true })),
-  ];
+  // Tabs differ by mode. 'all' is always available; 'balance' + taste axes
+  // show only in taste mode; cuisine list only in cuisine mode. Keeps the
+  // surface compact and the choice explicit.
+  const tabs = filterMode === 'cuisine'
+    ? [
+        { key: 'all', label: 'All' },
+        ...cuisineOptions.map(c => ({ key: `cuisine:${c}`, label: c, isCuisine: true })),
+      ]
+    : [
+        { key: 'all', label: 'All' },
+        { key: 'best', label: 'Balance' },
+        ...AXES.map(a => ({ key: a, label: a })),
+      ];
 
   return (
     <div
@@ -376,7 +394,32 @@ export default function SuggestionDrawer({
         </div>
       </div>
 
-      {/* Taste tab bar */}
+      {/* Filter-mode toggle (Taste vs. Cuisine) — scaffolded so we only
+          show one flavor-axis class at a time. Cuisine mode is hidden
+          when no chip carries a cuisine tag (most ingredients). */}
+      {snapState !== 'peek' && cuisineOptions.length > 0 && (
+        <div className="flex-shrink-0 px-2 pb-1 flex items-center gap-1.5">
+          <span className="text-[10px] uppercase tracking-wider" style={{ color: '#a09070', fontFamily: FONT_FAMILY }}>Filter by</span>
+          {[
+            { k: 'taste', label: 'Taste' },
+            { k: 'cuisine', label: 'Cuisine' },
+          ].map(({ k, label }) => (
+            <button
+              key={k}
+              onClick={() => switchMode(k)}
+              className="px-2.5 py-0.5 rounded-full text-xs transition-colors"
+              style={{
+                fontFamily: FONT_FAMILY,
+                color: filterMode === k ? '#3a3428' : '#a09070',
+                backgroundColor: filterMode === k ? '#e8dcc0' : 'transparent',
+                border: `1px solid ${filterMode === k ? '#c9b99a' : 'transparent'}`,
+              }}
+            >{label}</button>
+          ))}
+        </div>
+      )}
+
+      {/* Active-mode tab strip */}
       {snapState !== 'peek' && (
         <div className="flex-shrink-0 overflow-x-auto px-2 pb-1" style={{ scrollbarWidth: 'none' }}>
           <div className="flex gap-1 min-w-max">
