@@ -22,20 +22,27 @@ export function seededRng(seed) {
 /** Create a billboard sprite with text */
 export function makeLabel(text, color, size) {
   const canvas = document.createElement('canvas');
+  // Higher-resolution texture for sharper rendering on mobile.
+  const fontSize = 72;
+  canvas.width = 768; canvas.height = 144;
   const ctx = canvas.getContext('2d');
-  const fontSize = 48;
-  canvas.width = 512; canvas.height = 96;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.font = `bold ${fontSize}px "Inter", "Segoe UI", sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  // Dark outline underneath the fill so labels stay readable over
+  // bright nodes and the bloom pass.
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = 'rgba(0,0,0,0.85)';
+  ctx.strokeText(text, canvas.width/2, canvas.height/2);
   ctx.fillStyle = color;
-  ctx.shadowColor = color; ctx.shadowBlur = 12;
+  ctx.shadowColor = color; ctx.shadowBlur = 16;
   ctx.fillText(text, canvas.width/2, canvas.height/2);
   const tex = new THREE.CanvasTexture(canvas);
   tex.needsUpdate = true;
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.85 });
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.95 });
   const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(size, size * 96/512, 1);
+  sprite.scale.set(size, size * 144/768, 1);
   return sprite;
 }
 
