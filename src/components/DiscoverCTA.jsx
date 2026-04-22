@@ -261,16 +261,26 @@ export default function DiscoverCTA({ edges, nodes, ingredientList, onPickPair }
         </div>
 
         <div className="flex gap-1.5">
-          <button
-            onClick={handleOpen}
-            disabled={!partner}
-            className="flex-1 px-3 py-1.5 bg-cyan-700/40 hover:bg-cyan-600/50 disabled:opacity-40 disabled:cursor-not-allowed border border-cyan-500/40 rounded text-xs text-cyan-100 transition-colors"
-          >Open pair →</button>
-          <button
-            onClick={() => setSalt(s => s + 1)}
-            className="px-3 py-1.5 bg-[#1a1a24] hover:bg-[#22222e] border border-[#2a2a3a] rounded text-xs text-gray-400 transition-colors"
-            title="Pick another"
-          >↻</button>
+          {partner ? (
+            <>
+              <button
+                onClick={handleOpen}
+                className="flex-1 px-3 py-1.5 bg-cyan-700/40 hover:bg-cyan-600/50 border border-cyan-500/40 rounded text-xs text-cyan-100 transition-colors"
+              >Open pair →</button>
+              <button
+                onClick={() => setSalt(s => s + 1)}
+                className="px-3 py-1.5 bg-[#1a1a24] hover:bg-[#22222e] border border-[#2a2a3a] rounded text-xs text-gray-400 transition-colors"
+                title="Pick another"
+              >↻</button>
+            </>
+          ) : (
+            <button
+              onClick={seed ? () => setSalt(s => s + 1) : handleRandomSeed}
+              className="flex-1 px-3 py-1.5 bg-[#1a1a24] hover:bg-[#22222e] border border-[#2a2a3a] rounded text-xs text-gray-400 transition-colors"
+            >
+              {seed ? 'Try another filter ↻' : 'Pick a random ingredient 🎲'}
+            </button>
+          )}
         </div>
       </div>
     </div>
