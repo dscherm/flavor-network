@@ -4,6 +4,8 @@ import useProData from './hooks/useProData.js';
 const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
 const DiscoverPatterns = lazy(() => import('./components/DiscoverPatterns.jsx'));
 import HowItWorks from './components/HowItWorks.jsx';
+import StartPage from './components/StartPage.jsx';
+import ErrorCard from './components/ErrorCard.jsx';
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Legend from './components/Legend.jsx';
@@ -28,9 +30,32 @@ import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
 
+function readStartPageFlag() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reset') === 'start') {
+      localStorage.removeItem('fn-start-seen');
+      return false;
+    }
+  } catch {
+    // ignore
+  }
+  try {
+    return localStorage.getItem('fn-start-seen') === '1';
+  } catch {
+    return false;
+  }
+}
+
 export default function App() {
+  // StartPage gate — set after the user picks a mode (or on returning visits).
+  // While false, useProData is disabled so the 27MB pairings payload does not
+  // download until the user clicks a card.
+  const [startPageComplete, setStartPageComplete] = useState(readStartPageFlag);
+  const [howItWorksInitialOpen, setHowItWorksInitialOpen] = useState(false);
+
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
-  const { loading, error, data } = useProData();
+  const { loading, error, data, retry } = useProData({ enabled: startPageComplete });
   const { user, loginWithGoogle, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe'
   const [cocktailMounted, setCocktailMounted] = useState(false);
@@ -66,6 +91,27 @@ export default function App() {
   const isMobile = useIsMobile();
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
+
+  const handleModeSelect = useCallback((mode) => {
+    setStartPageComplete(true);
+    if (mode === 'discover') {
+      setActiveTab('network');
+    } else if (mode === 'build') {
+      setActiveTab('recipe');
+      setRecipeMounted(true);
+    } else if (mode === 'learn') {
+      setMoleculeLabOpen(true);
+      setHowItWorksInitialOpen(true);
+    }
+  }, []);
+
+  const handleStartOver = useCallback(() => {
+    try { localStorage.removeItem('fn-start-seen'); } catch { /* ignore */ }
+    setStartPageComplete(false);
+    setHowItWorksInitialOpen(false);
+    setMoleculeLabOpen(false);
+    setActiveTab('network');
+  }, []);
 
   // Derived state
   const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
@@ -259,6 +305,14 @@ export default function App() {
     setShowFilteredList(false);
   }, []);
 
+  if (!startPageComplete) {
+    return <StartPage onModeSelect={handleModeSelect} />;
+  }
+
+  if (error) {
+    return <ErrorCard onRetry={retry} onStartOver={handleStartOver} />;
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full bg-neural-bg">
@@ -273,17 +327,6 @@ export default function App() {
             Flavor Network
           </p>
           <p className="text-neural-muted text-sm">Initializing neural pathways...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center w-full h-full bg-neural-bg">
-        <div className="text-center panel p-6">
-          <p className="text-red-400 mb-2">Failed to load data</p>
-          <p className="text-neural-muted text-sm">{error}</p>
         </div>
       </div>
     );
@@ -702,7 +745,7 @@ export default function App() {
         bridgeMolecules3D={data?.bridgeMolecules3D}
       />
       <HelpButton onClick={() => setShowTour(true)} />
-      <HowItWorks />
+      <HowItWorks initialOpen={howItWorksInitialOpen} />
       </div>
 
       {/* Cocktail Lab tab — lazy-mounted */}

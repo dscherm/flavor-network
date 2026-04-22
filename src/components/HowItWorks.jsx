@@ -11,8 +11,8 @@ const TASTE_COLORS = {
   salty: '#4f9eff', sour: '#00ffd0',
 };
 
-export default function HowItWorks() {
-  const [open, setOpen] = useState(false);
+export default function HowItWorks({ initialOpen = false } = {}) {
+  const [open, setOpen] = useState(initialOpen);
 
   return (
     <>
