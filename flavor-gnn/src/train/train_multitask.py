@@ -33,6 +33,26 @@ TASKS = ("sweet", "bitter", "umami", "salty", "sour",
 SEED = 42
 
 
+def focal_loss(logits: torch.Tensor, y: torch.Tensor,
+               pos_weight: torch.Tensor, gamma: float = 2.0) -> torch.Tensor:
+    """Focal BCE — downweights easy examples, upweights hard ones.
+
+    FL(p,y) = -[α y (1-p)^γ log(p) + (1-y) p^γ log(1-p)]
+
+    With α implemented via pos_weight so positives on rare tasks get an
+    additional (pos_count/neg_count)^{-1} multiplier on top of the focal
+    modulation. Designed to lift tasks where standard BCE + pos_weight
+    underfits because the model predicts low-confidence positives that
+    get swallowed by the "easy negative" gradient mass.
+    """
+    p = torch.sigmoid(logits)
+    # Clamp for numerical stability when computing logs.
+    p_clamp = p.clamp(min=1e-7, max=1 - 1e-7)
+    pos_term = pos_weight * y * ((1 - p_clamp) ** gamma) * torch.log(p_clamp)
+    neg_term = (1 - y) * (p_clamp ** gamma) * torch.log(1 - p_clamp)
+    return -(pos_term + neg_term).mean()
+
+
 def _project_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
@@ -211,7 +231,8 @@ def train(df: pd.DataFrame, epochs: int, batch_size: int, device: str,
 
 
 def _train_one_fold(df: pd.DataFrame, tr_idx, te_idx, epochs: int,
-                    batch_size: int, device: str) -> dict:
+                    batch_size: int, device: str, loss_type: str = "bce",
+                    gamma: float = 2.0) -> dict:
     """Train on a pre-split fold; return per-task best F1 dict."""
     from torch_geometric.loader import DataLoader
     data_list, Y = _featurize_all(df)
@@ -237,7 +258,10 @@ def _train_one_fold(df: pd.DataFrame, tr_idx, te_idx, epochs: int,
             opt.zero_grad()
             logits = model(batch)
             y = batch.y.view(-1, len(TASKS))
-            loss = F.binary_cross_entropy_with_logits(logits, y, pos_weight=pos_weight)
+            if loss_type == "focal":
+                loss = focal_loss(logits, y, pos_weight=pos_weight, gamma=gamma)
+            else:
+                loss = F.binary_cross_entropy_with_logits(logits, y, pos_weight=pos_weight)
             loss.backward()
             opt.step()
         model.eval()
@@ -258,7 +282,8 @@ def _train_one_fold(df: pd.DataFrame, tr_idx, te_idx, epochs: int,
     return best
 
 
-def cross_validate(df: pd.DataFrame, folds: int, epochs: int, batch_size: int, device: str) -> dict:
+def cross_validate(df: pd.DataFrame, folds: int, epochs: int, batch_size: int, device: str,
+                   loss_type: str = "bce", gamma: float = 2.0) -> dict:
     """Stratified K-fold CV. Stratifies on the bitter label (dense + balanced).
     Returns per-task mean/std F1 across folds."""
     data_list, Y = _featurize_all(df)
@@ -268,7 +293,8 @@ def cross_validate(df: pd.DataFrame, folds: int, epochs: int, batch_size: int, d
     per_task_scores = {t: [] for t in TASKS}
     for fold, (tr_idx, te_idx) in enumerate(skf.split(idx, strat), start=1):
         print(f"[M3-CV] fold {fold}/{folds}  n_train={len(tr_idx)}  n_test={len(te_idx)}")
-        best = _train_one_fold(df, tr_idx, te_idx, epochs, batch_size, device)
+        best = _train_one_fold(df, tr_idx, te_idx, epochs, batch_size, device,
+                               loss_type=loss_type, gamma=gamma)
         for t in TASKS:
             per_task_scores[t].append(best[t])
         scores = "  ".join(f"{t}={best[t]:.3f}" for t in TASKS)
@@ -295,6 +321,11 @@ def main() -> int:
                         default=None, help="Write per-epoch loss + embeddings to this path")
     parser.add_argument("--cv", type=int, default=0,
                         help="If >1, run stratified K-fold cross-validation instead of a single train/test split. Writes per-task mean/std F1 to artifacts/cv_results.json.")
+    parser.add_argument("--loss", choices=["bce", "focal"], default="bce",
+                        help="Loss function. 'bce' is BCE+pos_weight (default). 'focal' uses focal-BCE with --gamma to downweight easy examples.")
+    parser.add_argument("--gamma", type=float, default=2.0, help="Focal loss γ (default 2).")
+    parser.add_argument("--cv-out", default=None,
+                        help="Custom CV output path — defaults to artifacts/cv_results.json (bce) or artifacts/cv_results_focal.json (focal)")
     args = parser.parse_args()
 
     _set_seed(SEED)
@@ -305,14 +336,21 @@ def main() -> int:
     print(f"[M3] loaded {len(df)} compounds")
 
     if args.cv and args.cv > 1:
-        summary = cross_validate(df, args.cv, args.epochs, args.batch_size, device)
-        cv_path = _project_root() / "flavor-gnn" / "artifacts" / "cv_results.json"
+        summary = cross_validate(df, args.cv, args.epochs, args.batch_size, device,
+                                 loss_type=args.loss, gamma=args.gamma)
+        if args.cv_out:
+            cv_path = Path(args.cv_out)
+        elif args.loss == "focal":
+            cv_path = _project_root() / "flavor-gnn" / "artifacts" / "cv_results_focal.json"
+        else:
+            cv_path = _project_root() / "flavor-gnn" / "artifacts" / "cv_results.json"
         cv_path.parent.mkdir(parents=True, exist_ok=True)
         cv_path.write_text(json.dumps({
             "model": "MPNN multi-task (GINEConv, 3 layers, hidden=128)",
             "tasks": list(TASKS),
             "folds": args.cv, "epochs": args.epochs, "batch_size": args.batch_size,
             "device": device, "seed": SEED,
+            "loss": args.loss, "gamma": args.gamma if args.loss == "focal" else None,
             "per_task": summary,
         }, indent=2))
         print(f"[M3-CV] wrote {cv_path}")
