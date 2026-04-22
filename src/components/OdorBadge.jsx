@@ -39,9 +39,15 @@ export default function OdorBadge({ a, b, bridgeCompounds, compact = false }) {
 
   const color = TAG_COLORS[badge.tag] || '#a5b4fc';
 
+  const compoundList = (badge.compounds || []).slice(0, 4).join(', ');
+  const more = (badge.compounds || []).length - 4;
+  const title = compoundList
+    ? `${badge.count} of ${badge.total} shared molecules carry the "${badge.tag}" note — ${compoundList}${more > 0 ? ` + ${more} more` : ''}`
+    : `${badge.count} of ${badge.total} shared bridge compounds carry the "${badge.tag}" note`;
+
   return (
     <span
-      title={`${badge.count} of ${badge.total} shared bridge compounds carry the "${badge.tag}" note`}
+      title={title}
       className={`inline-flex items-center gap-1 px-1.5 rounded-full border text-[9px] leading-none ${compact ? 'py-[1px]' : 'py-0.5'}`}
       style={{
         color,

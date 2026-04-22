@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { pickPairing } from '../utils/discoverPick.js';
 
 const TASTE_OPTIONS = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'pungent', 'spicy', 'astringent'];
-
 const DISMISS_KEY = 'fn.discover.dismissed';
+const LAST_SEED_KEY = 'fn.discover.seed';
 
 function dismissActiveToday() {
   try {
@@ -14,21 +14,82 @@ function dismissActiveToday() {
   } catch { return false; }
 }
 
-export default function DiscoverCTA({ edges, nodes, onPickPair }) {
+function pickRandomSeed(list) {
+  if (!list || list.length === 0) return '';
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+export default function DiscoverCTA({ edges, nodes, ingredientList, onPickPair }) {
   const [dismissed, setDismissed] = useState(() => dismissActiveToday());
-  const [kind, setKind] = useState('surprise');
+
+  // User-seeded: the ingredient the user provides. Discover finds the
+  // best partner for THIS ingredient. Persists across session in localStorage.
+  const [seed, setSeed] = useState(() => {
+    try { return localStorage.getItem(LAST_SEED_KEY) || ''; } catch { return ''; }
+  });
+  const [seedInput, setSeedInput] = useState(seed);
+  const [seedResults, setSeedResults] = useState([]);
+  const [seedOpen, setSeedOpen] = useState(false);
+  const seedRef = useRef(null);
+
+  // Filter kind for the partner: any | taste:X | cuisine:Y
+  const [kind, setKind] = useState('any');
   const [tasteValue, setTasteValue] = useState('sweet');
+  const [cuisineValue, setCuisineValue] = useState('italian');
+
+  // Regenerate counter — increments on ↻ to pick a different partner
   const [salt, setSalt] = useState(0);
+
+  const cuisineOptions = useMemo(() => {
+    if (!nodes) return [];
+    const set = new Set();
+    for (const node of nodes.values()) {
+      for (const c of node.cuisines || []) set.add(String(c).toLowerCase());
+    }
+    return [...set].sort().slice(0, 12);
+  }, [nodes]);
 
   const filter = useMemo(() => {
     if (kind === 'taste') return { kind: 'taste', value: tasteValue };
+    if (kind === 'cuisine') return { kind: 'cuisine', value: cuisineValue };
     return { kind: 'surprise' };
-  }, [kind, tasteValue]);
+  }, [kind, tasteValue, cuisineValue]);
 
-  const picked = useMemo(() => {
+  // When seed is set, filter edges to only those involving the seed, then
+  // apply the user's filter. When seed is empty, fall back to unrestricted
+  // surprise mode across all strong pairings.
+  const partner = useMemo(() => {
     if (!edges || !nodes) return null;
-    return pickPairing(edges, nodes, filter, salt);
-  }, [edges, nodes, filter, salt]);
+    let pool = edges;
+    if (seed) {
+      pool = edges.filter(e => e.source === seed || e.target === seed);
+      if (pool.length === 0) return null;
+    }
+    const pick = pickPairing(pool, nodes, filter, salt);
+    return pick;
+  }, [edges, nodes, filter, salt, seed]);
+
+  // Seed autocomplete — fuzzy-ish substring, capped at 8 results
+  useEffect(() => {
+    if (!seedInput || !ingredientList) { setSeedResults([]); return; }
+    const q = seedInput.toLowerCase().trim();
+    if (q.length < 2) { setSeedResults([]); return; }
+    const matches = [];
+    for (const name of ingredientList) {
+      if (name.toLowerCase().includes(q)) matches.push(name);
+      if (matches.length >= 8) break;
+    }
+    setSeedResults(matches);
+  }, [seedInput, ingredientList]);
+
+  // Click-outside to close suggestions
+  useEffect(() => {
+    function onClick(e) {
+      if (seedRef.current && !seedRef.current.contains(e.target)) setSeedOpen(false);
+    }
+    if (seedOpen) document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [seedOpen]);
 
   if (dismissed) return null;
   if (!edges || !nodes) return null;
@@ -38,16 +99,42 @@ export default function DiscoverCTA({ edges, nodes, onPickPair }) {
     setDismissed(true);
   };
 
-  const handleOpen = () => {
-    if (picked && onPickPair) onPickPair([picked.source, picked.target]);
+  const handleSetSeed = (name) => {
+    setSeed(name);
+    setSeedInput(name);
+    setSeedOpen(false);
+    setSalt(0);
+    try { localStorage.setItem(LAST_SEED_KEY, name); } catch { /* ignore */ }
   };
+
+  const handleClearSeed = () => {
+    setSeed('');
+    setSeedInput('');
+    setSalt(0);
+    try { localStorage.removeItem(LAST_SEED_KEY); } catch { /* ignore */ }
+  };
+
+  const handleRandomSeed = () => {
+    const name = pickRandomSeed(ingredientList);
+    if (name) handleSetSeed(name);
+  };
+
+  const handleOpen = () => {
+    if (partner && onPickPair) onPickPair([partner.source, partner.target]);
+  };
+
+  const partnerName = partner
+    ? (seed
+        ? (partner.source === seed ? partner.target : partner.source)
+        : `${partner.source} + ${partner.target}`)
+    : null;
 
   return (
     <div className="fixed bottom-4 left-4 w-80 z-40 bg-[#0d0d16]/95 border border-cyan-500/40 rounded-lg shadow-xl backdrop-blur-sm">
       <div className="flex justify-between items-start p-3 border-b border-[#2a2a3a]">
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-cyan-400">Today's Pairing</div>
-          <div className="text-[10px] text-gray-500">Pick a direction</div>
+          <div className="text-[10px] uppercase tracking-widest text-cyan-400">Pair with…</div>
+          <div className="text-[10px] text-gray-500">Start with an ingredient, we find the match</div>
         </div>
         <button
           onClick={handleDismiss}
@@ -57,23 +144,60 @@ export default function DiscoverCTA({ edges, nodes, onPickPair }) {
       </div>
 
       <div className="p-3 space-y-2.5">
+        {/* Seed ingredient input */}
+        <div ref={seedRef} className="relative">
+          <div className="flex gap-1">
+            <input
+              type="text"
+              value={seedInput}
+              onChange={(e) => { setSeedInput(e.target.value); setSeedOpen(true); }}
+              onFocus={() => setSeedOpen(true)}
+              placeholder="Type an ingredient..."
+              className="flex-1 bg-[#1a1a24] border border-[#2a2a3a] rounded px-2 py-1 text-[11px] text-white placeholder-gray-600 focus:border-cyan-500/50 focus:outline-none"
+            />
+            <button
+              onClick={handleRandomSeed}
+              className="px-2 py-1 bg-[#1a1a24] hover:bg-[#22222e] border border-[#2a2a3a] rounded text-[10px] text-gray-400"
+              title="Random ingredient"
+            >🎲</button>
+            {seed && (
+              <button
+                onClick={handleClearSeed}
+                className="px-2 py-1 bg-[#1a1a24] hover:bg-[#22222e] border border-[#2a2a3a] rounded text-[10px] text-gray-400"
+                title="Clear"
+              >×</button>
+            )}
+          </div>
+          {seedOpen && seedResults.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-[#0d0d16] border border-[#2a2a3a] rounded shadow-lg z-50 max-h-40 overflow-y-auto">
+              {seedResults.map(name => (
+                <button
+                  key={name}
+                  onClick={() => handleSetSeed(name)}
+                  className="w-full text-left px-2 py-1.5 text-[11px] text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-300"
+                >{name}</button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Partner filter */}
         <div className="flex flex-wrap gap-1">
-          <button
-            onClick={() => { setKind('surprise'); setSalt(0); }}
-            className={`px-2 py-1 rounded text-[10px] border transition-colors ${
-              kind === 'surprise'
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                : 'text-gray-400 border-[#2a2a3a] hover:border-cyan-500/30'
-            }`}
-          >Surprise</button>
-          <button
-            onClick={() => { setKind('taste'); setSalt(0); }}
-            className={`px-2 py-1 rounded text-[10px] border transition-colors ${
-              kind === 'taste'
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                : 'text-gray-400 border-[#2a2a3a] hover:border-cyan-500/30'
-            }`}
-          >By taste</button>
+          {[
+            { k: 'any', label: 'Any' },
+            { k: 'taste', label: 'By taste' },
+            { k: 'cuisine', label: 'By cuisine' },
+          ].map(({ k, label }) => (
+            <button
+              key={k}
+              onClick={() => { setKind(k); setSalt(0); }}
+              className={`px-2 py-1 rounded text-[10px] border transition-colors ${
+                kind === k
+                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                  : 'text-gray-400 border-[#2a2a3a] hover:border-cyan-500/30'
+              }`}
+            >{label}</button>
+          ))}
         </div>
 
         {kind === 'taste' && (
@@ -92,27 +216,55 @@ export default function DiscoverCTA({ edges, nodes, onPickPair }) {
           </div>
         )}
 
+        {kind === 'cuisine' && cuisineOptions.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {cuisineOptions.map(c => (
+              <button
+                key={c}
+                onClick={() => { setCuisineValue(c); setSalt(0); }}
+                className={`px-1.5 py-0.5 rounded text-[9px] border transition-colors capitalize ${
+                  cuisineValue === c
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    : 'text-gray-500 border-[#2a2a3a] hover:border-amber-500/30'
+                }`}
+              >{c}</button>
+            ))}
+          </div>
+        )}
+
+        {/* Result */}
         <div className="min-h-[48px] flex items-center justify-center rounded bg-[#1a1a24] border border-[#2a2a3a] px-2 py-1.5">
-          {picked ? (
+          {partner ? (
             <div className="text-center w-full">
-              <div className="text-xs text-white font-medium leading-tight">
-                {picked.source}
-                <span className="text-gray-500 mx-1.5">+</span>
-                {picked.target}
-              </div>
+              {seed ? (
+                <>
+                  <div className="text-[9px] text-gray-500 mb-0.5">
+                    {seed} pairs with
+                  </div>
+                  <div className="text-xs text-white font-medium leading-tight">
+                    {partnerName}
+                  </div>
+                </>
+              ) : (
+                <div className="text-xs text-white font-medium leading-tight">
+                  {partnerName}
+                </div>
+              )}
               <div className="text-[9px] text-gray-500 mt-1">
-                strength {(picked.strength * 100).toFixed(0)}%
+                strength {(partner.strength * 100).toFixed(0)}%
               </div>
             </div>
           ) : (
-            <div className="text-[10px] text-gray-500">No pairing matches this filter.</div>
+            <div className="text-[10px] text-gray-500">
+              {seed ? `No ${kind === 'any' ? 'strong' : kind} pairings for ${seed}.` : 'Pick an ingredient above.'}
+            </div>
           )}
         </div>
 
         <div className="flex gap-1.5">
           <button
             onClick={handleOpen}
-            disabled={!picked}
+            disabled={!partner}
             className="flex-1 px-3 py-1.5 bg-cyan-700/40 hover:bg-cyan-600/50 disabled:opacity-40 disabled:cursor-not-allowed border border-cyan-500/40 rounded text-xs text-cyan-100 transition-colors"
           >Open pair →</button>
           <button

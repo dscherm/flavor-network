@@ -45,6 +45,7 @@ describe('getOdorBadge', () => {
     expect(r.tag).toBe('citrus');
     expect(r.count).toBe(3);
     expect(r.total).toBe(4);
+    expect(r.compounds).toEqual(['Limonene', 'Linalool', 'Citral']);
   });
 
   it('order-insensitive (b|a works)', () => {
