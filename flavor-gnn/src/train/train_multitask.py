@@ -23,7 +23,7 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 from sklearn.metrics import f1_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 from ..models.featurize import ATOM_DIM, BOND_DIM, smiles_to_data
 from ..models.mpnn import MPNN
@@ -210,6 +210,80 @@ def train(df: pd.DataFrame, epochs: int, batch_size: int, device: str,
     }, best_ckpt
 
 
+def _train_one_fold(df: pd.DataFrame, tr_idx, te_idx, epochs: int,
+                    batch_size: int, device: str) -> dict:
+    """Train on a pre-split fold; return per-task best F1 dict."""
+    from torch_geometric.loader import DataLoader
+    data_list, Y = _featurize_all(df)
+    tr = [data_list[i] for i in tr_idx]
+    te = [data_list[i] for i in te_idx]
+    tr_loader = DataLoader(tr, batch_size=batch_size, shuffle=True)
+    te_loader = DataLoader(te, batch_size=batch_size, shuffle=False)
+
+    Y_tr = Y[tr_idx]
+    pos_weight = torch.tensor(
+        [(len(Y_tr) - Y_tr[:, i].sum()) / max(1, Y_tr[:, i].sum()) for i in range(len(TASKS))],
+        dtype=torch.float32, device=device,
+    )
+
+    model = MPNN(ATOM_DIM, BOND_DIM, hidden=128, num_layers=3, num_tasks=len(TASKS)).to(device)
+    opt = torch.optim.Adam(model.parameters(), lr=1e-3)
+    best = {t: -1.0 for t in TASKS}
+
+    for _ in range(1, epochs + 1):
+        model.train()
+        for batch in tr_loader:
+            batch = batch.to(device)
+            opt.zero_grad()
+            logits = model(batch)
+            y = batch.y.view(-1, len(TASKS))
+            loss = F.binary_cross_entropy_with_logits(logits, y, pos_weight=pos_weight)
+            loss.backward()
+            opt.step()
+        model.eval()
+        ys, ps = [], []
+        with torch.no_grad():
+            for batch in te_loader:
+                batch = batch.to(device)
+                logits = model(batch)
+                y = batch.y.view(-1, len(TASKS))
+                ys.append(y.cpu().numpy())
+                ps.append((torch.sigmoid(logits) > 0.5).cpu().numpy())
+        y_arr = np.concatenate(ys, 0)
+        p_arr = np.concatenate(ps, 0)
+        for i, t in enumerate(TASKS):
+            f1 = f1_score(y_arr[:, i], p_arr[:, i], zero_division=0)
+            if f1 > best[t]:
+                best[t] = float(f1)
+    return best
+
+
+def cross_validate(df: pd.DataFrame, folds: int, epochs: int, batch_size: int, device: str) -> dict:
+    """Stratified K-fold CV. Stratifies on the bitter label (dense + balanced).
+    Returns per-task mean/std F1 across folds."""
+    data_list, Y = _featurize_all(df)
+    strat = Y[:, TASKS.index("bitter")]
+    idx = np.arange(len(data_list))
+    skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=SEED)
+    per_task_scores = {t: [] for t in TASKS}
+    for fold, (tr_idx, te_idx) in enumerate(skf.split(idx, strat), start=1):
+        print(f"[M3-CV] fold {fold}/{folds}  n_train={len(tr_idx)}  n_test={len(te_idx)}")
+        best = _train_one_fold(df, tr_idx, te_idx, epochs, batch_size, device)
+        for t in TASKS:
+            per_task_scores[t].append(best[t])
+        scores = "  ".join(f"{t}={best[t]:.3f}" for t in TASKS)
+        print(f"[M3-CV] fold {fold} best: {scores}")
+    summary = {
+        t: {
+            "mean": float(np.mean(per_task_scores[t])),
+            "std": float(np.std(per_task_scores[t])),
+            "per_fold": [float(v) for v in per_task_scores[t]],
+        }
+        for t in TASKS
+    }
+    return summary
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", default=str(_project_root() / "flavor-gnn" / "data" / "compounds.parquet"))
@@ -219,6 +293,8 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--trace", nargs="?", const=str(_project_root() / "flavor-gnn" / "artifacts" / "m3_training_trace.json"),
                         default=None, help="Write per-epoch loss + embeddings to this path")
+    parser.add_argument("--cv", type=int, default=0,
+                        help="If >1, run stratified K-fold cross-validation instead of a single train/test split. Writes per-task mean/std F1 to artifacts/cv_results.json.")
     args = parser.parse_args()
 
     _set_seed(SEED)
@@ -227,6 +303,23 @@ def main() -> int:
 
     df = pd.read_parquet(args.data)
     print(f"[M3] loaded {len(df)} compounds")
+
+    if args.cv and args.cv > 1:
+        summary = cross_validate(df, args.cv, args.epochs, args.batch_size, device)
+        cv_path = _project_root() / "flavor-gnn" / "artifacts" / "cv_results.json"
+        cv_path.parent.mkdir(parents=True, exist_ok=True)
+        cv_path.write_text(json.dumps({
+            "model": "MPNN multi-task (GINEConv, 3 layers, hidden=128)",
+            "tasks": list(TASKS),
+            "folds": args.cv, "epochs": args.epochs, "batch_size": args.batch_size,
+            "device": device, "seed": SEED,
+            "per_task": summary,
+        }, indent=2))
+        print(f"[M3-CV] wrote {cv_path}")
+        for t in TASKS:
+            s = summary[t]
+            print(f"       {t:12s}: F1 = {s['mean']:.3f} ± {s['std']:.3f}")
+        return 0
 
     trace_path = Path(args.trace) if args.trace else None
     results, ckpt = train(df, args.epochs, args.batch_size, device, trace_path=trace_path)

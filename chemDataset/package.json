@@ -9,8 +9,10 @@
     "chemtastedb": "node scripts/03-fetch-chemtastedb.js",
     "bitterdb": "node scripts/04-fetch-bitterdb.js",
     "supersweetdb": "node scripts/05-fetch-supersweetdb.js",
+    "flavornet": "node scripts/06-fetch-flavornet.js",
+    "pubchem-smiles": "node scripts/07-fetch-pubchem-smiles.js",
     "blend": "node scripts/10-blend.js",
-    "all": "npm run foodb && npm run flavordb && npm run chemtastedb && npm run bitterdb && npm run supersweetdb && npm run blend"
+    "all": "npm run foodb && npm run flavordb && npm run chemtastedb && npm run bitterdb && npm run supersweetdb && npm run flavornet && npm run pubchem-smiles && npm run blend"
   },
   "dependencies": {
     "csv-parse": "^5.5.6",
