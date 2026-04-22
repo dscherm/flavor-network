@@ -11,6 +11,8 @@ _None._
 
 ## Completed Mini-Loops
 
+- [x] R11-DISCOVER-DEPTH: 9 tasks (9/9 complete) → `r11-discover-depth/plan.md`
+  Q2 cluster label fix, Q1 Discover CTA + MoleculeOfTheDay wire-up, Q3 OdorBadge across IngredientPanel/Cocktail/Sauce/SuggestionDrawer, doc drift, R12 retrain filed (TASK-183), gate sidecar tool + npm scripts
 - [x] IOS-UX-ROUND2: 8 tasks (8/8 complete) → `plan.md` (Round 2 section)
   Web Worker + binary pairings + pointer events + bloom gating + React.memo + adaptive quality + tap-target fixes
 - [x] HARNESS-RALPH: 12 tasks (12/12 complete) → `harness-ralph/plan.md`
@@ -58,3 +60,4 @@ _None._
 ## Future Work
 
 - [ ] TASK-182: Move buildCocktailGraph + computeCocktailPositions off the main thread (Web Worker) — parallel to the pairings parser worker from TASK-166. UX win (main thread stays responsive during Labs→Cocktail transition) even though total wall-clock is similar. Reuse src/workers/pairingsParser.worker.js or add a new cocktailBuild.worker.js. Defer until real-device measurement confirms main-thread contention is actually user-visible; under SwiftShader the measurement is dominated by software WebGL and any worker win will be invisible. See 2026-04-11 session memory note for context on why the prebuild approach (TASK-181) was rejected. #perf
+- [ ] TASK-183 (R12): Retrain multi-task GNN head with class-balanced / focal loss to fix odor prediction collapse. Current R10-63 F1 scores: salty 0.18, spicy 0.24, umami 0.25, sour 0.29 (near-random); floral 0.33, fatty 0.38, woody 0.43 (weak); fruity 0.57, green 0.49, bitter 0.78 (usable). Pairwise odor-cosine p50 = 1.000 confirms collapse — model regresses toward class priors on minority classes. Proposed fix: class-balanced BCE or focal loss, oversample minority classes, consider separate head per task instead of single multi-task head. Acceptance: F1 >= 0.5 on at least 4 of 6 odor heads before promoting GNN-derived odor badges to UI (R11 ships bridge_compounds.json badges instead). See r11-discover-depth/prd.md + .claude/.chemdataset-status.md for full analysis. #ml #chemistry

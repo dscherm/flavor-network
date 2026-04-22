@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import SauceBuilder from './SauceBuilder.jsx';
+import OdorBadge from './OdorBadge.jsx';
 import { computeCompatibility, detectSauceTemplate, suggestNextIngredients, SAUCE_TEMPLATES } from '../data/sauceScoring.js';
 import { INGREDIENT_MODIFIERS, MEALDB_BASE } from '../data/sauceData.js';
 
@@ -85,6 +86,7 @@ export default function SaucePanel({
   userProfile,
   curatedSauces = [],
   adjacencyMap,
+  bridgeCompounds,
 }) {
   const [tab, setTab] = useState('browse');
   const [selectedSauce, setSelectedSauce] = useState(null);
@@ -445,6 +447,7 @@ export default function SaucePanel({
                       }`}>
                         {alt.score}
                       </span>
+                      <OdorBadge a={swapIngredient} b={alt.name} bridgeCompounds={bridgeCompounds} compact />
                     </div>
                   </button>
                 );

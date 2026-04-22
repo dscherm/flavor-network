@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import OdorBadge from './OdorBadge.jsx';
 
 /**
  * CocktailRecipeCard — Displays a cocktail recipe with swap functionality.
@@ -14,6 +15,7 @@ export default function CocktailRecipeCard({
   onCancelSwap,
   previewAlt,
   onAcceptSwap,
+  bridgeCompounds,
 }) {
   const [expandInstructions, setExpandInstructions] = useState(false);
 
@@ -158,6 +160,7 @@ export default function CocktailRecipeCard({
                       <span className="text-[9px] text-gray-500 w-5 text-right">
                         {alt.score}
                       </span>
+                      <OdorBadge a={swapIngredient} b={alt.name} bridgeCompounds={bridgeCompounds} compact />
                     </div>
                   </button>
                 );

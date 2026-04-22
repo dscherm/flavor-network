@@ -78,6 +78,7 @@ export default function CocktailPanel({
   onBuilderRemove,
   onBuilderClear,
   userProfile,
+  bridgeCompounds,
 }) {
   const [tab, setTab] = useState('lookup');
   const [searchQuery, setSearchQuery] = useState('');

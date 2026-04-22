@@ -1,5 +1,6 @@
 import { useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import TasteRadar from './TasteRadar.jsx';
+import OdorBadge from './OdorBadge.jsx';
 import { scoreRecipe, verdictForScore } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
@@ -96,7 +97,7 @@ function getDiscoveryFact(node, neighbors) {
   return null;
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes, bridgeCompounds }) {
   const panelRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -381,6 +382,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                     <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-emerald-300 transition-colors">{neighbor.name}</span>
                     <StrengthBar strength={neighbor.strength} />
                     <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                    <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
                   </button>
                 </li>
               ))}
@@ -406,6 +408,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                     <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
                     <StrengthBar strength={neighbor.strength} />
                     <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                    <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
                   </button>
                 </li>
               ))}
@@ -678,6 +681,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                     <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-emerald-300 transition-colors">{neighbor.name}</span>
                     <StrengthBar strength={neighbor.strength} />
                     <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                    <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
                   </button>
                 </li>
               ))}
@@ -703,6 +707,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                     <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
                     <StrengthBar strength={neighbor.strength} />
                     <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                    <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
                   </button>
                 </li>
               ))}

@@ -309,6 +309,7 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange }) {
 
       {/* Sauce Panel */}
       <SaucePanel
+        bridgeCompounds={fullData?.bridgeCompounds}
         isOpen={panelOpen}
         onClose={() => setPanelOpen(false)}
         sauceNodes={sauceData?.graph?.nodes}
