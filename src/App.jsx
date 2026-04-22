@@ -30,28 +30,12 @@ import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
 
-function readStartPageFlag() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('reset') === 'start') {
-      localStorage.removeItem('fn-start-seen');
-      return false;
-    }
-  } catch {
-    // ignore
-  }
-  try {
-    return localStorage.getItem('fn-start-seen') === '1';
-  } catch {
-    return false;
-  }
-}
-
 export default function App() {
-  // StartPage gate — set after the user picks a mode (or on returning visits).
-  // While false, useProData is disabled so the 27MB pairings payload does not
-  // download until the user clicks a card.
-  const [startPageComplete, setStartPageComplete] = useState(readStartPageFlag);
+  // StartPage gate — set after the user picks a mode. Shown on every cold
+  // load and every refresh (no persistence). While false, useProData is
+  // disabled so the 27MB pairings payload does not download until the user
+  // clicks a card.
+  const [startPageComplete, setStartPageComplete] = useState(false);
   const [howItWorksInitialOpen, setHowItWorksInitialOpen] = useState(false);
 
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
@@ -106,7 +90,6 @@ export default function App() {
   }, []);
 
   const handleStartOver = useCallback(() => {
-    try { localStorage.removeItem('fn-start-seen'); } catch { /* ignore */ }
     setStartPageComplete(false);
     setHowItWorksInitialOpen(false);
     setMoleculeLabOpen(false);

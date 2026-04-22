@@ -6,12 +6,7 @@ import ErrorCard from './ErrorCard.jsx';
 
 
 describe('StartPage', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
-
   afterEach(() => {
-    localStorage.clear();
     vi.restoreAllMocks();
   });
 
@@ -30,41 +25,25 @@ describe('StartPage', () => {
     expect(subtitle.textContent).toMatch(/molecular chemistry/i);
   });
 
-  it('clicking Discover sets localStorage flag and fires onModeSelect("discover")', () => {
+  it('clicking Discover fires onModeSelect("discover")', () => {
     const onModeSelect = vi.fn();
-    const { container } = render(<StartPage onModeSelect={onModeSelect} />);
-    const btn = container.querySelector('[data-mode="discover"]');
-    expect(btn).toBeTruthy();
-    fireEvent.click(btn);
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
-    expect(onModeSelect).toHaveBeenCalledWith('discover');
-  });
-
-  it('clicking Build sets localStorage flag and fires onModeSelect("build")', () => {
-    const onModeSelect = vi.fn();
-    const { container } = render(<StartPage onModeSelect={onModeSelect} />);
-    fireEvent.click(container.querySelector('[data-mode="build"]'));
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
-    expect(onModeSelect).toHaveBeenCalledWith('build');
-  });
-
-  it('clicking Learn sets localStorage flag and fires onModeSelect("learn")', () => {
-    const onModeSelect = vi.fn();
-    const { container } = render(<StartPage onModeSelect={onModeSelect} />);
-    fireEvent.click(container.querySelector('[data-mode="learn"]'));
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
-    expect(onModeSelect).toHaveBeenCalledWith('learn');
-  });
-
-  it('falls through gracefully when localStorage.setItem throws (private-mode Safari)', () => {
-    const onModeSelect = vi.fn();
-    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new Error('QuotaExceededError');
-    });
     const { container } = render(<StartPage onModeSelect={onModeSelect} />);
     fireEvent.click(container.querySelector('[data-mode="discover"]'));
     expect(onModeSelect).toHaveBeenCalledWith('discover');
-    spy.mockRestore();
+  });
+
+  it('clicking Build fires onModeSelect("build")', () => {
+    const onModeSelect = vi.fn();
+    const { container } = render(<StartPage onModeSelect={onModeSelect} />);
+    fireEvent.click(container.querySelector('[data-mode="build"]'));
+    expect(onModeSelect).toHaveBeenCalledWith('build');
+  });
+
+  it('clicking Learn fires onModeSelect("learn")', () => {
+    const onModeSelect = vi.fn();
+    const { container } = render(<StartPage onModeSelect={onModeSelect} />);
+    fireEvent.click(container.querySelector('[data-mode="learn"]'));
+    expect(onModeSelect).toHaveBeenCalledWith('learn');
   });
 
   it('renders 3 button elements so Tab reaches each card', () => {
@@ -92,7 +71,6 @@ describe('StartPage', () => {
     // synthesize natively when Enter is pressed on a focused <button>.
     buildBtn.click();
     expect(onModeSelect).toHaveBeenCalledWith('build');
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
   });
 
   it('applies motion-safe class to animated elements (reduced-motion opt-out)', () => {
@@ -160,7 +138,6 @@ function FlowHarness({ fetchShouldFail = false, onReady = () => {} }) {
   };
 
   const handleModeSelect = (mode) => {
-    try { localStorage.setItem('fn-start-seen', '1'); } catch { /* ignore */ }
     setStartPageComplete(true);
     simulateFetch();
     window.__selectedMode = mode;
@@ -169,7 +146,6 @@ function FlowHarness({ fetchShouldFail = false, onReady = () => {} }) {
   const retry = () => simulateFetch();
 
   const handleStartOver = () => {
-    try { localStorage.removeItem('fn-start-seen'); } catch { /* ignore */ }
     setStartPageComplete(false);
     setError(null);
   };
@@ -182,23 +158,20 @@ function FlowHarness({ fetchShouldFail = false, onReady = () => {} }) {
 
 describe('App-level flow integration', () => {
   beforeEach(() => {
-    localStorage.clear();
     delete window.__selectedMode;
   });
 
   afterEach(() => {
-    localStorage.clear();
     delete window.__selectedMode;
   });
 
-  it('happy path: mode click → loading → app ready, localStorage persisted', async () => {
+  it('happy path: mode click → loading → app ready', async () => {
     const { container, getByTestId } = render(<FlowHarness fetchShouldFail={false} />);
     expect(container.querySelector('[data-mode="discover"]')).toBeTruthy();
     await act(async () => {
       fireEvent.click(container.querySelector('[data-mode="discover"]'));
     });
     await waitFor(() => expect(getByTestId('app-ready')).toBeTruthy());
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
     expect(window.__selectedMode).toBe('discover');
   });
 
@@ -212,44 +185,33 @@ describe('App-level flow integration', () => {
     });
     expect(screen.getByText('Retry')).toBeTruthy();
     expect(screen.getByText('Start over')).toBeTruthy();
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
   });
 
-  it('Retry re-invokes fetch and preserves fn-start-seen=1', async () => {
+  it('Retry re-invokes fetch (error persists if fetch still fails)', async () => {
     const { container } = render(<FlowHarness fetchShouldFail={true} />);
     await act(async () => {
       fireEvent.click(container.querySelector('[data-mode="learn"]'));
     });
     await waitFor(() => screen.getByText("Couldn't load the flavor network."));
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
-
     await act(async () => {
       fireEvent.click(screen.getByText('Retry'));
     });
-
-    // The fetch ran again and failed again, so ErrorCard is still on screen.
-    // localStorage must remain set so a browser refresh does NOT re-show StartPage
-    // after a transient failure (per the spec's round-7 decision).
     await waitFor(() => screen.getByText("Couldn't load the flavor network."));
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
   });
 
-  it('Start over clears localStorage AND returns to StartPage', async () => {
+  it('Start over returns to StartPage', async () => {
     const { container } = render(<FlowHarness fetchShouldFail={true} />);
     await act(async () => {
       fireEvent.click(container.querySelector('[data-mode="discover"]'));
     });
     await waitFor(() => screen.getByText("Couldn't load the flavor network."));
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
     await act(async () => {
       fireEvent.click(screen.getByText('Start over'));
     });
-    // StartPage is back with all 3 cards
     await waitFor(() => {
       expect(container.querySelector('[data-mode="discover"]')).toBeTruthy();
       expect(container.querySelector('[data-mode="build"]')).toBeTruthy();
       expect(container.querySelector('[data-mode="learn"]')).toBeTruthy();
     });
-    expect(localStorage.getItem('fn-start-seen')).toBeNull();
   });
 });

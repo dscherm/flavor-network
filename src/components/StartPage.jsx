@@ -130,11 +130,6 @@ export default function StartPage({ onModeSelect }) {
   }, []);
 
   const handleSelect = (id) => {
-    try {
-      localStorage.setItem('fn-start-seen', '1');
-    } catch {
-      // Private-mode Safari silently fails; fall through — user still enters app.
-    }
     onModeSelect?.(id);
   };
 
@@ -189,9 +184,6 @@ export default function StartPage({ onModeSelect }) {
           })}
         </div>
 
-        <p className="text-center text-[11px] text-neural-muted/60 mt-8">
-          You can revisit this later with <code className="text-cyan-400/70">?reset=start</code>
-        </p>
       </div>
     </div>
   );
