@@ -53,5 +53,14 @@ export function getOdorBadge(a, b, bridgeCompounds) {
   if (bestCount < MIN_COUNT) return null;
   if (bestCount / total < MIN_DOMINANCE) return null;
 
-  return { tag: bestTag, count: bestCount, total };
+  // Collect the specific compounds that carry the winning tag so the UI
+  // can explain *why* the badge appears.
+  const compoundNames = [];
+  for (const bridge of bridges) {
+    if (Array.isArray(bridge.tags) && bridge.tags.includes(bestTag) && bridge.name) {
+      compoundNames.push(bridge.name);
+    }
+  }
+
+  return { tag: bestTag, count: bestCount, total, compounds: compoundNames };
 }
