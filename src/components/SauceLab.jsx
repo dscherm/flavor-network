@@ -38,7 +38,20 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange }) {
           buildSauceGraph(fullData.graph),
           loadSauceAugment(),
         ]);
-        const positions = computeSaucePositions(graph.nodes, graph.edges);
+
+        // GNN-first layout with role-based fallback for nodes not in proDataset.
+        const gnnMap = fullData?.positions?.positions || {};
+        const posMap = {};
+        const missing = [];
+        for (const [name] of graph.nodes) {
+          if (gnnMap[name]) posMap[name] = gnnMap[name];
+          else missing.push(name);
+        }
+        if (missing.length) {
+          const fallback = computeSaucePositions(graph.nodes, graph.edges).positions;
+          for (const n of missing) posMap[n] = fallback[n];
+        }
+        const positions = { positions: posMap };
 
         if (cancelled) return;
 
@@ -66,7 +79,9 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange }) {
     if (onSelectionChange) onSelectionChange(selectedNodes);
   }, [selectedNodes, onSelectionChange]);
 
-  const axisLabels = useMemo(() => createSauceAxisLabels(45), []);
+  // Mother-sauce axes don't map to the GNN layout; nodes now cluster by
+  // chemistry. Hide the sprites.
+  const axisLabels = null;
 
   const ingredientList = useMemo(() => {
     if (!sauceData) return [];

@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import { getNeighbors } from '../data/graph.js';
+import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import TasteWheel from './TasteWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import SuggestionDrawer from './SuggestionDrawer.jsx';
@@ -58,12 +59,39 @@ export default function RecipeLabMobile({ fullData, initialIngredient, userProfi
     return () => ro.disconnect();
   }, []);
 
-  // Fuse search
+  // Scope sets (cocktail / sauce) — lazy-loaded once, cached across mode switches.
+  const [cocktailScope, setCocktailScope] = useState(null);
+  const [sauceScope, setSauceScope] = useState(null);
+  useEffect(() => {
+    if (labMode === 'cocktail' && !cocktailScope) {
+      getCocktailScope().then(setCocktailScope).catch(() => setCocktailScope(new Set()));
+    } else if (labMode === 'sauce' && !sauceScope) {
+      getSauceScope().then(setSauceScope).catch(() => setSauceScope(new Set()));
+    }
+  }, [labMode, cocktailScope, sauceScope]);
+
+  // Ingredient list filtered by the current lab mode.
+  // General mode → full proDataset. Cocktail/Sauce → only scope-appropriate ingredients.
+  const scopedIngredients = useMemo(() => {
+    if (!fullData) return [];
+    const all = fullData.graph.ingredientList;
+    if (labMode === 'cocktail') {
+      if (!cocktailScope) return all; // while loading, don't pretend to filter
+      return all.filter((n) => cocktailScope.has(n.toLowerCase()));
+    }
+    if (labMode === 'sauce') {
+      if (!sauceScope) return all;
+      return all.filter((n) => sauceScope.has(n.toLowerCase()));
+    }
+    return all;
+  }, [fullData, labMode, cocktailScope, sauceScope]);
+
+  // Fuse search — index rebuilt when scope changes.
   const fuse = useMemo(() => {
-    if (!fullData) return null;
-    const docs = fullData.graph.ingredientList.map(n => ({ name: n }));
+    if (!scopedIngredients.length) return null;
+    const docs = scopedIngredients.map(n => ({ name: n }));
     return new Fuse(docs, { keys: ['name'], threshold: 0.4 });
-  }, [fullData]);
+  }, [scopedIngredients]);
 
   // Click-outside search close
   useEffect(() => {
