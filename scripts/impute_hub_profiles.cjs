@@ -34,6 +34,13 @@ const K = 20;
 const MIN_NEIGHBORS = 5;
 const MIN_TOTAL_STRENGTH = 2.0; // K=20 * 0.1 avg strength = 2.0
 
+// Blending mix between mean-pool and max-pool: 0 = pure mean, 1 = pure max.
+// Pure mean dilutes distinctive signals (mayonnaise averaged across herbs
+// + cheese + spices loses its 'fatty' extremity). Pure max overconfides on
+// any single strong neighbor. 0.6 max / 0.4 mean preserves distinctive
+// per-task peaks while still smoothing outliers.
+const MAX_MIX = 0.6;
+
 const ge = JSON.parse(fs.readFileSync(gePath, 'utf8'));
 const ing = JSON.parse(fs.readFileSync(ingPath, 'utf8'));
 const pairs = JSON.parse(fs.readFileSync(pairsPath, 'utf8'));
@@ -74,17 +81,29 @@ for (const h of hubs) {
     skipped++;
     continue;
   }
-  const probs = {};
-  for (const task of TASKS) probs[task] = 0;
+  // Per-task weighted mean + weighted max across top-K neighbors.
+  const weightedSum = {};
+  const weightedMax = {};
+  for (const task of TASKS) { weightedSum[task] = 0; weightedMax[task] = 0; }
   for (const { n, s } of top) {
     const entry = ge[n];
     if (!entry || !entry.probs) continue;
     for (const task of TASKS) {
-      probs[task] += (entry.probs[task] || 0) * s;
+      const p = entry.probs[task] || 0;
+      weightedSum[task] += p * s;
+      // Strength-weighted "how strong does a paired ingredient express
+      // this task" — use the neighbor's p scaled by its relative strength
+      // rank, not raw strength (otherwise max would always ~= top neighbor).
+      const scaled = p * Math.sqrt(s);
+      if (scaled > weightedMax[task]) weightedMax[task] = scaled;
     }
   }
+  const probs = {};
   for (const task of TASKS) {
-    probs[task] = Number((probs[task] / totalStrength).toFixed(4));
+    const mean = weightedSum[task] / totalStrength;
+    const max = weightedMax[task];
+    const blended = MAX_MIX * max + (1 - MAX_MIX) * mean;
+    probs[task] = Number(blended.toFixed(4));
   }
 
   // Simple entropy for completeness (same formula as the real entries).
@@ -106,7 +125,7 @@ for (const h of hubs) {
 }
 
 // Merge: start from real entries, add imputed ones alongside.
-const merged = { _meta: { ...ge._meta, imputed_count: ok, imputed_algorithm: 'knn-pairing-strength', k: K, min_neighbors: MIN_NEIGHBORS } };
+const merged = { _meta: { ...ge._meta, imputed_count: ok, imputed_algorithm: 'knn-pairing-strength-blended', k: K, min_neighbors: MIN_NEIGHBORS, max_mix: MAX_MIX } };
 for (const name of Object.keys(ge)) {
   if (name === '_meta') continue;
   merged[name] = ge[name];
