@@ -559,6 +559,7 @@ export default function App() {
           gnnEntropy={data?.gnnEntropy}
           odorThresholds={data?.odorThresholds}
           ingredientThresholds={data?.ingredientThresholds}
+          compoundTastes={data?.compoundTastes}
         />
       )}
 
