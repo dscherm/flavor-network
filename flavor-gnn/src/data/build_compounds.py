@@ -79,11 +79,23 @@ def _merge_labels(row: dict, update: dict) -> None:
             row[k] = row.get(k, 0) | int(update[k])
 
 
+def _load_optional(name: str) -> dict:
+    """Load a processed source, return empty dict if missing (for new sources
+    that haven't been scraped yet — FlavorNet + pubchem_smiles fall here)."""
+    try:
+        return _load(name)
+    except FileNotFoundError:
+        print(f"[M0] skipping optional source: {name}.json not present")
+        return {}
+
+
 def build() -> pd.DataFrame:
     flavordb = _load("flavordb")
     chemtastedb = _load("chemtastedb")
     bitterdb = _load("bitterdb")
     supersweetdb = _load("supersweetdb")
+    flavornet = _load_optional("flavornet")
+    pubchem_smiles = _load_optional("pubchem_smiles")
 
     compounds: dict[str, dict] = {}
 
@@ -181,6 +193,33 @@ def build() -> pd.DataFrame:
         r["sweet"] = 1
         if c.get("intensity") is not None and r["intensity"] is None:
             r["intensity"] = c["intensity"]
+
+    # FlavorNet — CAS-keyed aroma compounds. No taste labels, but odor
+    # descriptors populate the odor_* category flags via the same keyword
+    # bucketing used for FlavorDB. SMILES comes from the PubChem CAS lookup.
+    cas_smiles = (pubchem_smiles or {}).get("cas", {})
+    for cas, entry in (flavornet.get("compounds", {}) if flavornet else {}).items():
+        resolved = cas_smiles.get(cas)
+        smiles = resolved.get("smiles") if resolved else None
+        if not smiles:
+            continue
+        r = _row(resolved.get("cid"), smiles,
+                 inchi_key=resolved.get("inchikey"), cas=cas)
+        if r is None:
+            continue
+        descriptor = (entry.get("descriptor") or "").lower()
+        if descriptor:
+            tag = descriptor.split(",")[0].strip()
+            r["flavor_tags"] = sorted(set(r["flavor_tags"]) | {tag})
+            if not r["odor_class"]:
+                r["odor_class"] = tag
+            odor = _odor_flags([descriptor])
+            for k, v in odor.items():
+                r[k] = r.get(k, 0) | v
+            # FlavorNet contributes real negatives for tastes — if a row has an
+            # odor descriptor but no taste tokens, the taste=0 values are
+            # informed. Mark the profile as present so masking can use it.
+            r["has_profile"] = 1
 
     df = pd.DataFrame(list(compounds.values()))
     df = df.dropna(subset=["smiles"])
