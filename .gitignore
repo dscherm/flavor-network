@@ -23,3 +23,13 @@ Thumbs.db
 
 # Build artifacts
 public/embeddings.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# chemDataset local data (scraped sources)
+chemDataset/raw/
+chemDataset/processed/
