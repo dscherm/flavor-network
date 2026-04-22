@@ -250,6 +250,16 @@ export default function SuggestionDrawer({
       const matches = chipData.filter(c => c.taste === weakAxis || c.tasteLabels.includes(weakAxis));
       return { filteredChips: matches, complementChips: [] };
     }
+    // Cuisine tab — filter by the chip's node.cuisines list.
+    if (activeTab.startsWith('cuisine:')) {
+      const target = activeTab.slice(8).toLowerCase();
+      const matches = chipData.filter(c => {
+        const node = nodes?.get(c.name);
+        const cuisines = (node?.cuisines || []).map(x => String(x).toLowerCase());
+        return cuisines.includes(target);
+      });
+      return { filteredChips: matches, complementChips: [] };
+    }
     // Taste tab: split into matching taste + high-strength complements from other tastes
     const matches = [];
     const complements = [];
@@ -305,10 +315,22 @@ export default function SuggestionDrawer({
     }
   }, [recipeIngredients, nodes, edges, labMode, selectedStructure]);
 
+  // Cuisines that any pairing chip actually has — avoids empty tabs.
+  const cuisineOptions = useMemo(() => {
+    if (!nodes || chipData.length === 0) return [];
+    const set = new Set();
+    for (const c of chipData) {
+      const node = nodes.get(c.name);
+      for (const cu of (node?.cuisines || [])) set.add(String(cu).toLowerCase());
+    }
+    return [...set].sort();
+  }, [chipData, nodes]);
+
   const tabs = [
     { key: 'all', label: 'All' },
     { key: 'best', label: 'Balance' },
     ...AXES.map(a => ({ key: a, label: a })),
+    ...cuisineOptions.map(c => ({ key: `cuisine:${c}`, label: c, isCuisine: true })),
   ];
 
   return (
