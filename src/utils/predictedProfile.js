@@ -1,37 +1,41 @@
 /**
- * predictedProfile — for a given ingredient, return the set of tasks
- * (tastes + odors) where the GNN's calibrated probability exceeds the
- * per-task threshold.
+ * predictedProfile — for a given ingredient, return tasks (tastes + odors)
+ * where the GNN's probability exceeds the ingredient-level percentile
+ * threshold AND the underlying molecule-level head is trustworthy
+ * (F1 >= MIN_F1).
+ *
+ * Why two different thresholds:
+ *  - `calibrated_threshold` (odor_thresholds.json) is tuned at the
+ *    MOLECULE level to maximize F1 per-compound. Applied to an
+ *    ingredient's mean-pooled probability (average of 20 compounds),
+ *    this threshold almost never triggers because mean-pool dilutes
+ *    extremes.
+ *  - `ingredient_threshold` (ingredient_profile_thresholds.json) is
+ *    the p85 of the ingredient-level probability distribution — i.e.,
+ *    flag the top 15% of ingredients for each task. This is what
+ *    actually discriminates "this ingredient leans X" at the UI level.
  *
  * Inputs:
- *   - name: ingredient name (canonical key in gnn_entropy.json)
- *   - gnnEntropy: contents of public/proDataset/gnn_entropy.json
- *                 — shape { [name]: { probs: { task: p, ... }, entropy, ... }, _meta: ... }
- *   - odorThresholds: contents of public/proDataset/odor_thresholds.json
- *                     — shape { per_task: [{ task, calibrated_threshold, calibrated_f1, ... }], ... }
+ *   - name, gnnEntropy (per-ingredient probs + optional imputed flag)
+ *   - ingredientThresholds (shape: { per_task: [{ task, ingredient_threshold, molecule_f1 }] })
  *
- * Returns an array of { task, prob, threshold, confidence } sorted by
- * (prob - threshold) descending — most confident tags first. Returns an
- * empty array when data is missing or no task clears its threshold.
- *
- * Tasks with calibrated F1 below MIN_F1 are filtered out — we don't
- * publish predictions we don't trust. Currently only odor_spicy and
- * (optionally) salty sit below the cutoff.
+ * Returns an array of { task, prob, threshold, confidence, imputed }
+ * sorted by confidence descending.
  */
 
 const MIN_F1 = 0.4;
-const MIN_CONFIDENCE = 0.05; // require probability ≥ threshold + this margin
+const MIN_CONFIDENCE = 0.02; // small margin above threshold
 
-export function getPredictedProfile(name, gnnEntropy, odorThresholds) {
-  if (!name || !gnnEntropy || !odorThresholds) return [];
+export function getPredictedProfile(name, gnnEntropy, ingredientThresholds) {
+  if (!name || !gnnEntropy || !ingredientThresholds) return [];
   const entry = gnnEntropy[name];
   if (!entry || !entry.probs) return [];
 
   const thresholdMap = new Map();
-  for (const row of odorThresholds.per_task || []) {
-    if (row.calibrated_f1 >= MIN_F1) {
-      thresholdMap.set(row.task, row.calibrated_threshold);
-    }
+  for (const row of ingredientThresholds.per_task || []) {
+    if (row.molecule_f1 != null && row.molecule_f1 < MIN_F1) continue;
+    if (typeof row.ingredient_threshold !== 'number') continue;
+    thresholdMap.set(row.task, row.ingredient_threshold);
   }
   if (thresholdMap.size === 0) return [];
 
@@ -44,8 +48,9 @@ export function getPredictedProfile(name, gnnEntropy, odorThresholds) {
     results.push({
       task,
       prob: Number(prob.toFixed(3)),
-      threshold: Number(threshold.toFixed(2)),
+      threshold: Number(threshold.toFixed(3)),
       confidence: Number(margin.toFixed(3)),
+      imputed: entry.imputed === true,
     });
   }
 

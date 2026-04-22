@@ -566,6 +566,7 @@ export default function App() {
           bridgeCompounds={data?.bridgeCompounds}
           gnnEntropy={data?.gnnEntropy}
           odorThresholds={data?.odorThresholds}
+          ingredientThresholds={data?.ingredientThresholds}
         />
       )}
 

@@ -98,7 +98,7 @@ function getDiscoveryFact(node, neighbors) {
   return null;
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds }) {
   const panelRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -273,16 +273,16 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             </div>
           </section>
         )}
-        {node.name && gnnEntropy && odorThresholds && (
+        {node.name && gnnEntropy && ingredientThresholds && (
           <section>
             <SectionHeading>Predicted profile</SectionHeading>
             <PredictedProfile
               name={node.name}
               gnnEntropy={gnnEntropy}
-              odorThresholds={odorThresholds}
+              ingredientThresholds={ingredientThresholds}
             />
             <p className="text-[10px] text-gray-500 mt-1.5">
-              Predicted by the molecular GNN from compound structure. Threshold-calibrated per task.
+              Predicted by the molecular GNN from compound structure. Tags flag the top ~15% of ingredients for each trait.
             </p>
           </section>
         )}

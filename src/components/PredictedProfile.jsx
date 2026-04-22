@@ -23,8 +23,8 @@ const TASK_LABELS = {
   odor_fatty: 'fatty',
 };
 
-export default function PredictedProfile({ name, gnnEntropy, odorThresholds }) {
-  const tags = getPredictedProfile(name, gnnEntropy, odorThresholds);
+export default function PredictedProfile({ name, gnnEntropy, ingredientThresholds }) {
+  const tags = getPredictedProfile(name, gnnEntropy, ingredientThresholds);
   if (tags.length === 0) return null;
 
   return (
@@ -33,15 +33,21 @@ export default function PredictedProfile({ name, gnnEntropy, odorThresholds }) {
         const color = TASK_COLORS[tag.task] || '#a5b4fc';
         const label = TASK_LABELS[tag.task] || tag.task;
         const isOdor = tag.task.startsWith('odor_');
+        const titleBase = `${label}: predicted probability ${(tag.prob * 100).toFixed(0)}% (threshold ${(tag.threshold * 100).toFixed(0)}%)`;
+        const title = tag.imputed
+          ? `${titleBase} — imputed from top-paired neighbors (this ingredient isn't directly in the GNN training set)`
+          : titleBase;
         return (
           <span
             key={tag.task}
-            title={`${label}: predicted probability ${(tag.prob * 100).toFixed(0)}% (threshold ${(tag.threshold * 100).toFixed(0)}%)`}
+            title={title}
             className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border text-[10px] leading-none"
             style={{
               color,
               borderColor: `${color}55`,
               background: `${color}11`,
+              opacity: tag.imputed ? 0.85 : 1,
+              borderStyle: tag.imputed ? 'dashed' : 'solid',
             }}
           >
             <span
