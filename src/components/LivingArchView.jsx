@@ -313,13 +313,18 @@ export default function LivingArchView({
       for (const cl of clusterData.clusters) {
         const hex = TASTE_HEX_MAP[cl.dominant_taste] || '#aaaaaa';
         const sprite = makeLabel(cl.label.toUpperCase(), hex, 20);
-        const c3 = cl.centroid_3d || [0, 0, 0];
-        // Push labels outward from origin so they sit at cluster edges, not inside
-        const dist = Math.sqrt(c3[0]*c3[0] + c3[1]*c3[1] + c3[2]*c3[2]) || 1;
-        const pushFactor = 1.4;
-        const pushed = [c3[0] * pushFactor, c3[1] * pushFactor + 4, c3[2] * pushFactor];
-        sprite.position.set(pushed[0], pushed[1], pushed[2]);
-        sprite.userData = { clusterId: cl.id, centroid_3d: pushed, centroid_2d: cl.centroid_2d ? [cl.centroid_2d[0] * pushFactor, cl.centroid_2d[1] * pushFactor] : [0, 0] };
+        // Anchor at the position of the cluster's top hub ingredient rather
+        // than the raw centroid — Node2Vec embeddings cluster directionally
+        // on a hypersphere, so centroids average toward origin. See
+        // r11-discover-depth task 1.
+        const a3 = cl.label_anchor_3d || cl.centroid_3d || [0, 0, 0];
+        const a2 = cl.label_anchor_2d || cl.centroid_2d || [0, 0];
+        sprite.position.set(a3[0], a3[1] + 4, a3[2]);
+        sprite.userData = {
+          clusterId: cl.id,
+          centroid_3d: [a3[0], a3[1] + 4, a3[2]],
+          centroid_2d: [a2[0], a2[1]],
+        };
         sprite.material.opacity = 0.7;
         clusterLabelGroup.add(sprite);
       }

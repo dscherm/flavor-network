@@ -21,6 +21,16 @@
         "nut",
         "pineapple",
         "banana"
+      ],
+      "anchor_ingredient": "cream cheese",
+      "label_anchor_3d": [
+        8.959,
+        3.108,
+        5.269
+      ],
+      "label_anchor_2d": [
+        -24.399999618530273,
+        12.086999893188477
       ]
     },
     {
@@ -43,6 +53,16 @@
         "milk",
         "tomato",
         "brown sugar"
+      ],
+      "anchor_ingredient": "sugar",
+      "label_anchor_3d": [
+        9.044,
+        3.326,
+        5.425
+      ],
+      "label_anchor_2d": [
+        4.789000034332275,
+        2.885999917984009
       ]
     },
     {
@@ -65,11 +85,21 @@
         "oregano",
         "red pepper",
         "mozzarella"
+      ],
+      "anchor_ingredient": "basil",
+      "label_anchor_3d": [
+        -36.863,
+        -18.895,
+        2.865
+      ],
+      "label_anchor_2d": [
+        21.426000595092773,
+        11.781999588012695
       ]
     },
     {
       "id": 3,
-      "label": "Chili",
+      "label": "Chili (cumin)",
       "size": 328,
       "centroid_3d": [
         -0.2,
@@ -87,11 +117,21 @@
         "lime juice",
         "lime",
         "coriander"
+      ],
+      "anchor_ingredient": "cumin",
+      "label_anchor_3d": [
+        -38.653,
+        -8.496,
+        -27.999
+      ],
+      "label_anchor_2d": [
+        21.43000030517578,
+        -8.010000228881836
       ]
     },
     {
       "id": 4,
-      "label": "Chili",
+      "label": "Chili (ginger)",
       "size": 314,
       "centroid_3d": [
         0.73,
@@ -109,6 +149,16 @@
         "cornstarch",
         "sesame oil",
         "sesame"
+      ],
+      "anchor_ingredient": "ginger",
+      "label_anchor_3d": [
+        9.596,
+        -0.21,
+        10.53
+      ],
+      "label_anchor_2d": [
+        -5.873000144958496,
+        -20.729999542236328
       ]
     },
     {
@@ -122,7 +172,7 @@
       ],
       "centroid_2d": [
         -26.8,
-        -11.0
+        -11
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
@@ -131,6 +181,16 @@
         "mint",
         "pineapple juice",
         "rum"
+      ],
+      "anchor_ingredient": "orange",
+      "label_anchor_3d": [
+        8.824,
+        2.575,
+        9.03
+      ],
+      "label_anchor_2d": [
+        -25.007999420166016,
+        -10.79800033569336
       ]
     },
     {
@@ -153,6 +213,16 @@
         "thyme",
         "bay leaf",
         "white wine"
+      ],
+      "anchor_ingredient": "olive oil",
+      "label_anchor_3d": [
+        -12.315,
+        -23.754,
+        4.91
+      ],
+      "label_anchor_2d": [
+        4.242000102996826,
+        8.899999618530273
       ]
     },
     {
@@ -175,6 +245,16 @@
         "wheat flour",
         "date",
         "rolled oat"
+      ],
+      "anchor_ingredient": "oat",
+      "label_anchor_3d": [
+        8.868,
+        1.797,
+        11.291
+      ],
+      "label_anchor_2d": [
+        -36.7869987487793,
+        -5.489999771118164
       ]
     },
     {
@@ -197,6 +277,16 @@
         "cream",
         "chocolate",
         "powdered sugar"
+      ],
+      "anchor_ingredient": "vanilla",
+      "label_anchor_3d": [
+        -38.589,
+        -7.526,
+        -27.87
+      ],
+      "label_anchor_2d": [
+        -39.46799850463867,
+        1.0390000343322754
       ]
     },
     {
@@ -219,6 +309,16 @@
         "flour",
         "garlic",
         "cinnamon"
+      ],
+      "anchor_ingredient": "onion",
+      "label_anchor_3d": [
+        -12.479,
+        26.895,
+        10.285
+      ],
+      "label_anchor_2d": [
+        -8.593999862670898,
+        3.9549999237060547
       ]
     }
   ]

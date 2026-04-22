@@ -333,6 +333,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, userProfi
         onSnapChange={setDrawerSnap}
         labMode={labMode}
         selectedStructure={selectedStructure}
+        bridgeCompounds={fullData?.bridgeCompounds}
       />
     </div>
   );

@@ -3,6 +3,8 @@ import useProData from './hooks/useProData.js';
 // TrainingProgress removed — served as dev demo, not production feature
 const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
 const DiscoverPatterns = lazy(() => import('./components/DiscoverPatterns.jsx'));
+import MoleculeOfTheDay from './components/MoleculeOfTheDay.jsx';
+import DiscoverCTA from './components/DiscoverCTA.jsx';
 import HowItWorks from './components/HowItWorks.jsx';
 import StartPage from './components/StartPage.jsx';
 import ErrorCard from './components/ErrorCard.jsx';
@@ -37,6 +39,10 @@ export default function App() {
   // clicks a card.
   const [startPageComplete, setStartPageComplete] = useState(false);
   const [howItWorksInitialOpen, setHowItWorksInitialOpen] = useState(false);
+  // Increments when user picks Learn mode — used as key on MoleculeOfTheDay
+  // to force-remount so the card re-reads its dismissal state and re-shows
+  // even if dismissed earlier today.
+  const [motdTick, setMotdTick] = useState(0);
 
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
   const { loading, error, data, retry } = useProData({ enabled: startPageComplete });
@@ -84,8 +90,13 @@ export default function App() {
       setActiveTab('recipe');
       setRecipeMounted(true);
     } else if (mode === 'learn') {
-      setMoleculeLabOpen(true);
-      setHowItWorksInitialOpen(true);
+      // Show MoleculeOfTheDay as the Learn entry point instead of
+      // immediately opening MoleculeLab + HowItWorks. The card rotates
+      // daily, has an "Open in Molecule Lab →" CTA that reveals the
+      // deeper views on demand.
+      setActiveTab('network');
+      try { localStorage.removeItem('fn.motd.dismissed'); } catch { /* ignore */ }
+      setMotdTick((t) => t + 1);
     }
   }, []);
 
@@ -552,6 +563,7 @@ export default function App() {
           isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
           onToggleFavorite={userProfile.toggleIngredient}
           graphNodes={data?.graph?.nodes}
+          bridgeCompounds={data?.bridgeCompounds}
         />
       )}
 
@@ -780,6 +792,26 @@ export default function App() {
             onSelectIngredient={handleSearchSelect}
           />
         </Suspense>
+      )}
+
+      {/* Molecule of the Day — daily-rotating landing card on the network tab */}
+      {activeTab === 'network' && (
+        <MoleculeOfTheDay
+          key={motdTick}
+          onOpen={() => { setMoleculeLabOpen(true); setHowItWorksInitialOpen(false); }}
+        />
+      )}
+
+      {/* Discover CTA — user-typed pairing-of-the-day on the network tab */}
+      {activeTab === 'network' && data && (
+        <DiscoverCTA
+          edges={data.graph.edges}
+          nodes={data.graph.nodes}
+          onPickPair={(names) => {
+            setSelectedNodes(names);
+            setActivePanel('ingredient');
+          }}
+        />
       )}
 
       {/* Molecule Lab — slide-out card */}

@@ -4,11 +4,12 @@ import { getNeighbors } from '../data/graph.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { findWeakestAxis, aggregateRecipeTastes } from '../data/tasteScoring.js';
 import { analyzeRecipe } from '../data/recipeAnalysis.js';
+import OdorBadge from './OdorBadge.jsx';
 
 const FONT_FAMILY = 'Caveat, cursive';
 const AXES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'spicy', 'pungent', 'astringent'];
 
-function ChipButton({ chip, onAdd, showTasteBadge = false }) {
+function ChipButton({ chip, onAdd, showTasteBadge = false, centerIngredient, bridgeCompounds }) {
   return (
     <button
       onClick={() => !chip.inRecipe && onAdd(chip.name)}
@@ -36,6 +37,9 @@ function ChipButton({ chip, onAdd, showTasteBadge = false }) {
           >
             {chip.matchPct}%
           </span>
+          {centerIngredient && (
+            <OdorBadge a={centerIngredient} b={chip.name} bridgeCompounds={bridgeCompounds} compact />
+          )}
         </div>
         {showTasteBadge && chip.taste !== 'default' ? (
           <div className="flex gap-1 mt-0.5">
@@ -147,6 +151,7 @@ export default function SuggestionDrawer({
   onSnapChange,
   labMode = 'taste',
   selectedStructure = null,
+  bridgeCompounds,
 }) {
   const sheetRef = useRef(null);
   const dragRef = useRef({ startY: 0, startHeight: 0, dragging: false });
@@ -393,7 +398,7 @@ export default function SuggestionDrawer({
 
           <div className="grid grid-cols-2 gap-1.5">
             {filteredChips.map(chip => (
-              <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} />
+              <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} centerIngredient={centerIngredient} bridgeCompounds={bridgeCompounds} />
             ))}
           </div>
 
@@ -409,7 +414,7 @@ export default function SuggestionDrawer({
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 {complementChips.map(chip => (
-                  <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} showTasteBadge />
+                  <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} showTasteBadge centerIngredient={centerIngredient} bridgeCompounds={bridgeCompounds} />
                 ))}
               </div>
             </>

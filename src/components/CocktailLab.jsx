@@ -325,6 +325,7 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange }
 
       {/* Cocktail Panel */}
       <CocktailPanel
+        bridgeCompounds={fullData?.bridgeCompounds}
         isOpen={panelOpen}
         onClose={() => setPanelOpen(false)}
         cocktailNodes={cocktailData?.graph?.nodes}
