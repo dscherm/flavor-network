@@ -62,8 +62,20 @@ def load_model(ckpt_path: Path, device: str):
     return model, ckpt["hidden"]
 
 
-def build_name_to_compound_smiles(foodb: dict, chem_ingredients: dict):
+def build_name_to_compound_smiles(foodb: dict, chem_ingredients: dict,
+                                  training_smiles: set | None = None):
     """Map chemDataset ingredient name → list of SMILES + compound info.
+
+    Prioritizes compounds whose SMILES appeared in the M3 training set —
+    those are the flavor/taste-annotated molecules the GNN actually learned
+    something about. Without this, FooDB's per-food compound list leads
+    with generic nutrients (Sucrose, Ethanol, Retinol, Vitamin D, ...)
+    shared across most foods, producing identical GNN predictions for
+    ~72% of ingredients. See TASK-186.
+
+    Also merges in FlavorDB name-matched tags when flavordb.json is
+    present (used only for the UI "top_compounds" display, not
+    prioritization).
 
     Returns:
         smiles_map: { norm_name: [smiles, ...] }
@@ -72,34 +84,51 @@ def build_name_to_compound_smiles(foodb: dict, chem_ingredients: dict):
     foodb_compounds = foodb.get("compounds", {})
     smiles_map = {}
     compound_info_map = {}
+    training_smiles = training_smiles or set()
 
-    # Load FlavorDB for compound flavor descriptions
+    # Load FlavorDB tags (for UI display, not prioritization — FlavorDB is
+    # optional and often not scraped). Build a normalized-name index once.
+    fdb_tags: dict[str, list[str]] = {}
     try:
         flavordb = json.load((_project_root() / "chemDataset" / "processed" / "flavordb.json").open("r", encoding="utf-8"))
-        fdb_mols = flavordb.get("molecules", {})
+        for _pid, mol in flavordb.get("molecules", {}).items():
+            name = mol.get("name")
+            if not name:
+                continue
+            profile = mol.get("flavor_profile") or []
+            if profile:
+                fdb_tags[_norm(name)] = profile
     except Exception:
-        fdb_mols = {}
+        pass
 
     foods = foodb.get("foods", {})
     for food_name, food_info in foods.items():
-        compound_ids = food_info.get("compounds", [])[:MAX_COMPOUNDS]
-        smiles = []
-        compounds = []
-        for cid in compound_ids:
+        # Gather every compound with a valid SMILES in the `cas` field,
+        # then sort so training-set compounds come first.
+        all_compounds: list[dict] = []
+        for cid in food_info.get("compounds", []):
             c = foodb_compounds.get(str(cid)) or foodb_compounds.get(cid)
             if not c:
                 continue
             smi = c.get("cas")  # SMILES in mislabeled 'cas' field
-            if smi and isinstance(smi, str) and len(smi) < 300:
-                smiles.append(smi)
-                # Look up flavor info from FlavorDB by compound name
-                cname = c.get("name", "")
-                tags = []
-                for pid, mol in fdb_mols.items():
-                    if mol.get("name") and _norm(mol["name"]) == _norm(cname):
-                        tags = mol.get("flavor_profile") or []
-                        break
-                compounds.append({"name": cname, "smiles": smi, "flavor_tags": tags})
+            if not (smi and isinstance(smi, str) and 0 < len(smi) < 300):
+                continue
+            cname = c.get("name", "")
+            in_training = smi in training_smiles
+            tags = fdb_tags.get(_norm(cname), [])
+            all_compounds.append({
+                "name": cname,
+                "smiles": smi,
+                "flavor_tags": tags,
+                "_priority": 1 if in_training else 0,
+            })
+
+        # Sort: training-set first (stable — preserves original within each bucket).
+        all_compounds.sort(key=lambda c: -c["_priority"])
+        picked = all_compounds[:MAX_COMPOUNDS]
+        smiles = [c["smiles"] for c in picked]
+        compounds = [{"name": c["name"], "smiles": c["smiles"], "flavor_tags": c["flavor_tags"]} for c in picked]
+
         key = _norm(food_name)
         if smiles:
             smiles_map[key] = smiles
@@ -179,7 +208,18 @@ def main() -> int:
     with open(args.prodata, "r", encoding="utf-8") as fh:
         prodata = json.load(fh)
 
-    smiles_map, compound_info_map = build_name_to_compound_smiles(foodb, {})
+    # Training SMILES — used to prioritize compounds the GNN has actually
+    # seen. Without this the mean-pool is dominated by generic nutrients.
+    training_smiles: set = set()
+    try:
+        import pandas as pd
+        train_df = pd.read_parquet(_project_root() / "flavor-gnn" / "data" / "compounds.parquet")
+        training_smiles = set(train_df["smiles"].tolist())
+        print(f"[embed] loaded {len(training_smiles)} training SMILES for prioritization")
+    except Exception as e:
+        print(f"[embed] WARNING could not load training SMILES: {e}")
+
+    smiles_map, compound_info_map = build_name_to_compound_smiles(foodb, {}, training_smiles=training_smiles)
     print(f"[embed] indexed {len(smiles_map)} FooDB foods with SMILES")
 
     ingredient_names = [n for n in prodata.keys() if not n.startswith("_")]
