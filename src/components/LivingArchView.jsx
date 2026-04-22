@@ -312,20 +312,24 @@ export default function LivingArchView({
       const TASTE_HEX_MAP = { sweet: '#ff4fb8', bitter: '#9d4edd', umami: '#ffd700', salty: '#4f9eff', sour: '#00ffd0', pungent: '#ff8c42', spicy: '#ff4444', astringent: '#6bcb77' };
       for (const cl of clusterData.clusters) {
         const hex = TASTE_HEX_MAP[cl.dominant_taste] || '#aaaaaa';
-        const sprite = makeLabel(cl.label.toUpperCase(), hex, 20);
+        // Larger label (28 world units) so it stays readable on mobile
+        // viewports where the camera is ~120 units out.
+        const sprite = makeLabel(cl.label.toUpperCase(), hex, 28);
         // Anchor at the position of the cluster's top hub ingredient rather
         // than the raw centroid — Node2Vec embeddings cluster directionally
         // on a hypersphere, so centroids average toward origin. See
         // r11-discover-depth task 1.
         const a3 = cl.label_anchor_3d || cl.centroid_3d || [0, 0, 0];
         const a2 = cl.label_anchor_2d || cl.centroid_2d || [0, 0];
-        sprite.position.set(a3[0], a3[1] + 4, a3[2]);
+        // Lift labels 8 units above the anchor node so they don't overlap
+        // the ingredient sphere.
+        sprite.position.set(a3[0], a3[1] + 8, a3[2]);
         sprite.userData = {
           clusterId: cl.id,
-          centroid_3d: [a3[0], a3[1] + 4, a3[2]],
+          centroid_3d: [a3[0], a3[1] + 8, a3[2]],
           centroid_2d: [a2[0], a2[1]],
         };
-        sprite.material.opacity = 0.7;
+        sprite.material.opacity = 0.95;
         clusterLabelGroup.add(sprite);
       }
     }
