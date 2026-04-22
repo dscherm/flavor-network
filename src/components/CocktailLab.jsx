@@ -34,7 +34,24 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange }
     async function build() {
       try {
         const graph = await buildCocktailGraph(fullData.graph);
-        const positions = computeCocktailPositions(graph.nodes, graph.edges);
+
+        // Use GNN positions from the full proDataset when available so the
+        // Cocktail Lab clusters by the same chemistry-learned embedding the
+        // Network view uses. Nodes without GNN coverage (e.g. augmented
+        // cocktail ingredients not in proDataset) fall back to the role-based
+        // Codex layout so nothing is left unpositioned.
+        const gnnMap = fullData?.positions?.positions || {};
+        const posMap = {};
+        const missing = [];
+        for (const [name] of graph.nodes) {
+          if (gnnMap[name]) posMap[name] = gnnMap[name];
+          else missing.push(name);
+        }
+        if (missing.length) {
+          const fallback = computeCocktailPositions(graph.nodes, graph.edges).positions;
+          for (const n of missing) posMap[n] = fallback[n];
+        }
+        const positions = { positions: posMap };
 
         if (cancelled) return;
 
@@ -66,8 +83,9 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange }
     if (onSelectionChange) onSelectionChange(selectedNodes);
   }, [selectedNodes, onSelectionChange]);
 
-  // Create 3D axis label sprites (created once, lives in the scene)
-  const axisLabels = useMemo(() => createCocktailAxisLabels(45), []);
+  // Cocktail Codex axes are meaningless under the GNN layout (nodes now
+  // cluster by chemistry, not by role). Hide the sprites.
+  const axisLabels = null;
 
   const ingredientList = useMemo(() => {
     if (!cocktailData) return [];
