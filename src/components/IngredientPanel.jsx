@@ -627,20 +627,35 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           <section>
             <SectionHeading>Molecular Profile</SectionHeading>
             <div className="space-y-1">
-              {Object.entries(node.gnnProbs).map(([t, p]) => (
-                <div key={`dt-mp-${t}`} className="flex items-center gap-2">
-                  <span className="w-12 text-[10px] uppercase text-gray-500">{t}</span>
-                  <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
-                    <div className="h-full rounded transition-all duration-500" style={{
-                      width: `${Math.max(0, Math.min(1, p)) * 100}%`,
-                      background: t === 'sweet' ? '#ff4fb8' : t === 'bitter' ? '#9d4edd' : t === 'umami' ? '#ffd700' : t === 'salty' ? '#4f9eff' : '#00ffd0',
-                    }} />
+              {Object.entries(node.gnnProbs).map(([t, p]) => {
+                const label = t.startsWith('odor_') ? t.slice(5) : t;
+                const color = t === 'sweet' ? '#ff4fb8'
+                  : t === 'bitter' ? '#9d4edd'
+                  : t === 'umami' ? '#ffd700'
+                  : t === 'salty' ? '#4f9eff'
+                  : t === 'sour' ? '#00ffd0'
+                  : t === 'odor_fruity' ? '#ff8c42'
+                  : t === 'odor_floral' ? '#e879a8'
+                  : t === 'odor_green' ? '#6bcb77'
+                  : t === 'odor_woody' ? '#a67c52'
+                  : t === 'odor_spicy' ? '#ff4444'
+                  : t === 'odor_fatty' ? '#d4aa70'
+                  : '#00ffd0';
+                return (
+                  <div key={`dt-mp-${t}`} className="flex items-center gap-2">
+                    <span className="w-14 text-[10px] uppercase text-gray-500">{label}</span>
+                    <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
+                      <div className="h-full rounded transition-all duration-500" style={{
+                        width: `${Math.max(0, Math.min(1, p)) * 100}%`,
+                        background: color,
+                      }} />
+                    </div>
+                    <span className="w-8 text-right text-[10px] text-gray-400 tabular-nums">{Math.round(p * 100)}%</span>
                   </div>
-                  <span className="w-8 text-right text-[10px] text-gray-400 tabular-nums">{Math.round(p * 100)}%</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
-            <p className="text-[10px] text-gray-600 mt-1">GNN-predicted taste from molecular structure</p>
+            <p className="text-[10px] text-gray-600 mt-1">GNN-predicted taste + aroma from molecular structure</p>
           </section>
         )}
 

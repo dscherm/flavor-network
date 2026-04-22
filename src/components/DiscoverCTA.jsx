@@ -46,7 +46,7 @@ export default function DiscoverCTA({ edges, nodes, ingredientList, onPickPair }
     for (const node of nodes.values()) {
       for (const c of node.cuisines || []) set.add(String(c).toLowerCase());
     }
-    return [...set].sort().slice(0, 12);
+    return [...set].sort();
   }, [nodes]);
 
   const filter = useMemo(() => {
@@ -130,7 +130,10 @@ export default function DiscoverCTA({ edges, nodes, ingredientList, onPickPair }
     : null;
 
   return (
-    <div className="fixed bottom-4 left-4 w-80 z-40 bg-[#0d0d16]/95 border border-cyan-500/40 rounded-lg shadow-xl backdrop-blur-sm">
+    <div
+      className="fixed left-2 right-2 sm:left-4 sm:right-auto sm:w-80 z-40 bg-[#0d0d16]/95 border border-cyan-500/40 rounded-lg shadow-xl backdrop-blur-sm"
+      style={{ bottom: 'calc(var(--mobile-nav-h, 3.5rem) + env(safe-area-inset-bottom, 0px) + 0.5rem)' }}
+    >
       <div className="flex justify-between items-start p-3 border-b border-[#2a2a3a]">
         <div>
           <div className="text-[10px] uppercase tracking-widest text-cyan-400">Pair with…</div>
@@ -217,19 +220,15 @@ export default function DiscoverCTA({ edges, nodes, ingredientList, onPickPair }
         )}
 
         {kind === 'cuisine' && cuisineOptions.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <select
+            value={cuisineValue}
+            onChange={(e) => { setCuisineValue(e.target.value); setSalt(0); }}
+            className="w-full bg-[#1a1a24] border border-[#2a2a3a] rounded px-2 py-1 text-[11px] text-amber-300 focus:border-amber-500/50 focus:outline-none capitalize"
+          >
             {cuisineOptions.map(c => (
-              <button
-                key={c}
-                onClick={() => { setCuisineValue(c); setSalt(0); }}
-                className={`px-1.5 py-0.5 rounded text-[9px] border transition-colors capitalize ${
-                  cuisineValue === c
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                    : 'text-gray-500 border-[#2a2a3a] hover:border-amber-500/30'
-                }`}
-              >{c}</button>
+              <option key={c} value={c} className="capitalize bg-[#0d0d16]">{c}</option>
             ))}
-          </div>
+          </select>
         )}
 
         {/* Result */}
