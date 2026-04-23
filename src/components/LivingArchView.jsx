@@ -1165,26 +1165,20 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh || !st.defaultColors || !st.clusterColors) return;
-    const { mesh, defaultColors, clusterColors, nodeArray, tasteSelection } = st;
+    const { mesh, defaultColors, clusterColors, nodeArray } = st;
     const source = (mode === 'ml' || mode === 'ml2d') ? clusterColors : defaultColors;
-    // Rewrite defaultColors in-place so the selection-clear path reads
-    // the right palette next time.
-    const tasteBased = (mode === 'neural' || mode === 'taste2d');
+    // Always re-stamp on mode change. Previous guard left taste-selection
+    // artifacts visible when user switched Network ↔ Taste mode, which
+    // showed up as "clusters with multiple different colors."
     for (let i = 0; i < nodeArray.length; i++) {
-      // defaultColors holds whichever palette is currently "active". We
-      // mirror the active source into it each mode change.
+      // Mirror the active palette into defaultColors so selection-clear
+      // paths read the right source. For neural/taste2d we already have
+      // taste colors in defaultColors; for ml/ml2d we copy cluster
+      // colors over so restoration from selection matches current mode.
       defaultColors[i].copy(source[i]);
+      mesh.setColorAt(i, source[i]);
     }
-    // If user has no active ingredient selection AND no taste selection
-    // is active, re-stamp the mesh colors now.
-    if (!tasteSelection || (tasteSelection.taste1 === null && tasteSelection.taste2 === null)) {
-      for (let i = 0; i < nodeArray.length; i++) {
-        mesh.setColorAt(i, source[i]);
-      }
-      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-    }
-    // tasteBased is logged for debug clarity; no runtime effect.
-    void tasteBased;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [mode]);
 
   // ---- Toggle handler (3-way: ml → neural → wheel → ml) ----
