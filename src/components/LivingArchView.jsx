@@ -1189,7 +1189,12 @@ export default function LivingArchView({
 
   // ---- Toggle handler (3-way: ml → neural → wheel → ml) ----
   const MODE_CYCLE = ['ml', 'ml2d', 'neural', 'taste2d'];
-  const MODE_LABELS = { ml: '3D Network', ml2d: '2D Network', neural: '3D Taste', taste2d: '2D Taste' };
+  const MODE_LABELS = {
+    ml: 'Cooks With · 3D',
+    ml2d: 'Cooks With · 2D',
+    neural: 'Tastes Like · 3D',
+    taste2d: 'Tastes Like · Wheel',
+  };
   const handleModeSwitch = useCallback((target) => {
     if (target === mode) return;
     setMode(target);
