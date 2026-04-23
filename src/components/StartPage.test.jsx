@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent, screen, waitFor, act } from '@testing-library/react';
 import StartPage from './StartPage.jsx';
@@ -116,18 +116,22 @@ describe('ErrorCard', () => {
 // gating semantics (readStartPageFlag, startPageComplete state, handleModeSelect,
 // handleStartOver) so a regression in either component or the wiring contract
 // is caught here.
-function FlowHarness({ fetchShouldFail = false, onReady = () => {} }) {
+function FlowHarness({ fetchShouldFail = false, failUntilAttempt = 0, onReady = () => {} }) {
   const [startPageComplete, setStartPageComplete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fetchCount, setFetchCount] = useState(0);
+  const attemptRef = useRef(0);
 
   const simulateFetch = () => {
     setLoading(true);
     setError(null);
     setFetchCount((c) => c + 1);
+    attemptRef.current += 1;
+    const attemptNum = attemptRef.current;
     Promise.resolve().then(() => {
-      if (fetchShouldFail) {
+      const shouldFail = fetchShouldFail || attemptNum <= failUntilAttempt;
+      if (shouldFail) {
         setError(new Error('mock fetch failure'));
         setLoading(false);
       } else {
@@ -197,6 +201,19 @@ describe('App-level flow integration', () => {
       fireEvent.click(screen.getByText('Retry'));
     });
     await waitFor(() => screen.getByText("Couldn't load the flavor network."));
+  });
+
+  it('500 → Error Card → Retry succeeds → routes to selected mode', async () => {
+    const { container, getByTestId } = render(<FlowHarness failUntilAttempt={1} />);
+    await act(async () => {
+      fireEvent.click(container.querySelector('[data-mode="discover"]'));
+    });
+    await waitFor(() => screen.getByText("Couldn't load the flavor network."));
+    await act(async () => {
+      fireEvent.click(screen.getByText('Retry'));
+    });
+    await waitFor(() => expect(getByTestId('app-ready')).toBeTruthy());
+    expect(window.__selectedMode).toBe('discover');
   });
 
   it('Start over returns to StartPage', async () => {
