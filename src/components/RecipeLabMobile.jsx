@@ -6,6 +6,9 @@ import TasteWheel from './TasteWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import SuggestionDrawer from './SuggestionDrawer.jsx';
 import RecipeLabTemplates from './RecipeLabTemplates.jsx';
+import ClassicalMatchCard from './ClassicalMatchCard.jsx';
+import ClassicalMatchToast from './ClassicalMatchToast.jsx';
+import { matchClassical } from '../data/classicalMatcher.js';
 
 const FONT_FAMILY = 'Caveat, cursive';
 
@@ -253,6 +256,22 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         selected={selectedStructure}
         onSelect={setSelectedStructure}
         onClear={() => setSelectedStructure(null)}
+      />
+
+      {/* Classical taxonomy match — on-demand "where does this fit?"
+          card. Shows only when the recipe at least partially matches a
+          Mother Sauce / Cocktail Codex entry. */}
+      <ClassicalMatchCard
+        labMode={labMode}
+        ingredients={recipeIngredients}
+      />
+
+      {/* Celebratory toast when the recipe completes a classical entry. */}
+      <ClassicalMatchToast
+        match={useMemo(
+          () => matchClassical(labMode, recipeIngredients).complete,
+          [labMode, recipeIngredients],
+        )}
       />
 
       {/* Search bar */}
