@@ -14,7 +14,7 @@ import { createCocktailAxisLabels } from '../three/AxisLabels.js';
  * CocktailLab — Main container for the Cocktail Lab tab.
  * Renders its own NetworkScene with cocktail-only data and Codex positioning.
  */
-export default function CocktailLab({ fullData, userProfile, onSelectionChange }) {
+export default function CocktailLab({ fullData, userProfile, onSelectionChange, onOpenRecipeLab }) {
   const [cocktailData, setCocktailData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -325,6 +325,7 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange }
 
       {/* Cocktail Panel */}
       <CocktailPanel
+        onOpenRecipeLab={onOpenRecipeLab}
         bridgeCompounds={fullData?.bridgeCompounds}
         isOpen={panelOpen}
         onClose={() => setPanelOpen(false)}

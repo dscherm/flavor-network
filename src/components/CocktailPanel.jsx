@@ -79,6 +79,7 @@ export default function CocktailPanel({
   onBuilderClear,
   userProfile,
   bridgeCompounds,
+  onOpenRecipeLab,
 }) {
   const [tab, setTab] = useState('lookup');
   const [searchQuery, setSearchQuery] = useState('');
@@ -311,9 +312,20 @@ export default function CocktailPanel({
 
   const tabs = [
     { key: 'lookup', label: 'Lookup' },
-    { key: 'builder', label: 'Builder' },
+    { key: 'builder', label: 'Builder ↗' },
     { key: 'saved', label: `My Cocktails${(userProfile?.profile?.cocktails?.length || 0) > 0 ? ` (${userProfile.profile.cocktails.length})` : ''}` },
   ];
+
+  // Clicking the Builder tab redirects to Recipe Lab (Cocktail mode) so
+  // the build flow is unified rather than a separate sub-panel. Other
+  // tabs (Lookup, My Cocktails) keep local state.
+  const handleTabClick = (key) => {
+    if (key === 'builder' && onOpenRecipeLab) {
+      onOpenRecipeLab('cocktail', builderIngredients);
+      return;
+    }
+    setTab(key);
+  };
 
   return (
     <div className={`fixed top-14 right-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
@@ -333,7 +345,7 @@ export default function CocktailPanel({
           {tabs.map(t => (
             <button
               key={t.key}
-              onClick={() => setTab(t.key)}
+              onClick={() => handleTabClick(t.key)}
               className={`flex-1 min-h-[44px] py-1.5 text-[10px] transition-colors ${
                 tab === t.key
                   ? 'text-purple-400 border-b-2 border-purple-400'

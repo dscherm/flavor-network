@@ -87,6 +87,7 @@ export default function SaucePanel({
   curatedSauces = [],
   adjacencyMap,
   bridgeCompounds,
+  onOpenRecipeLab,
 }) {
   const [tab, setTab] = useState('browse');
   const [selectedSauce, setSelectedSauce] = useState(null);
@@ -340,10 +341,20 @@ export default function SaucePanel({
 
   const tabs = [
     { key: 'browse', label: 'Recipes' },
-    { key: 'builder', label: 'Builder' },
+    { key: 'builder', label: 'Builder ↗' },
     { key: 'saved', label: `My Sauces${savedSauceCount > 0 ? ` (${savedSauceCount})` : ''}` },
     { key: 'lookup', label: 'Lookup' },
   ];
+
+  // Builder tab redirects to Recipe Lab (Sauce mode) — the build flow
+  // is unified there. Other tabs keep local state.
+  const handleTabClick = (key) => {
+    if (key === 'builder' && onOpenRecipeLab) {
+      onOpenRecipeLab('sauce', builderIngredients);
+      return;
+    }
+    setTab(key);
+  };
 
   // Render the sauce detail view (shared between browse and lookup tabs)
   const renderSauceDetail = () => (
@@ -519,7 +530,7 @@ export default function SaucePanel({
           {tabs.map(t => (
             <button
               key={t.key}
-              onClick={() => setTab(t.key)}
+              onClick={() => handleTabClick(t.key)}
               className={`flex-1 py-1.5 text-[10px] transition-colors ${
                 tab === t.key
                   ? 'text-amber-400 border-b-2 border-amber-400'
