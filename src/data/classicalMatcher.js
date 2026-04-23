@@ -80,10 +80,19 @@ export function matchClassical(labMode, recipeIngredients) {
   }
 
   const all = walk(tree, recipeIngredients);
-  // Prefer deeper matches over shallower when ratios tie-or-close (the
-  // user built "Mornay" → we should say Mornay, not just Béchamel).
+  // Ranking:
+  //   1. Higher ratio wins (fraction of this node's keys the recipe covers).
+  //   2. On tied ratios, prefer the node whose key-set is LARGER because
+  //      more-specific descriptions (Espagnole = 7 keys) beat generic
+  //      parents (Demi-glace's 4-key subset) when the user supplied
+  //      enough ingredients to satisfy the larger set.
+  //   3. Finally break with depth desc so Mornay still beats Béchamel
+  //      when their key-counts are equal and user added cheese.
   all.sort((a, b) => {
     if (Math.abs(a.ratio - b.ratio) > 0.01) return b.ratio - a.ratio;
+    const aKeys = a.key_ingredients?.length ?? 0;
+    const bKeys = b.key_ingredients?.length ?? 0;
+    if (aKeys !== bKeys) return bKeys - aKeys;
     return b.depth - a.depth;
   });
 

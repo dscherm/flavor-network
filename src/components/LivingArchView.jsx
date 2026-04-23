@@ -41,6 +41,7 @@ export default function LivingArchView({
   onNodeHover,
   highlightPairings = null,
   flyToTarget = null,
+  highlightIngredients = null,
 }) {
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
@@ -943,6 +944,51 @@ export default function LivingArchView({
     if (Array.isArray(flyToTarget)) st.flyToPoint?.(flyToTarget);
     else if (flyToTarget.position) st.flyToPoint?.(flyToTarget.position);
   }, [flyToTarget]);
+
+  // Cluster highlight labels — spawn ingredient-name sprites at the
+  // top-N member positions (in the current mode's position set) so
+  // the user can see "what's in this cluster" after flying to it.
+  // Auto-clears after 8s.
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st) return;
+    // Clear any existing highlight group
+    if (st._clusterHighlightGroup) {
+      st.scene.remove(st._clusterHighlightGroup);
+      st._clusterHighlightGroup.children.forEach(s => {
+        s.material.map?.dispose();
+        s.material.dispose();
+      });
+      st._clusterHighlightGroup = null;
+    }
+    if (!highlightIngredients || highlightIngredients.length === 0) return;
+    const { scene, nameIdx, posForMode } = st;
+    const posSet = posForMode[modeRef.current] || posForMode.ml;
+    const group = new THREE.Group();
+    for (const name of highlightIngredients) {
+      const idx = nameIdx.get(name);
+      if (idx === undefined) continue;
+      const sprite = makeLabel(name, '#fff1b8', 16);
+      sprite.position.set(posSet[idx * 3], posSet[idx * 3 + 1] + 3.5, posSet[idx * 3 + 2]);
+      sprite.material.opacity = 0.95;
+      group.add(sprite);
+    }
+    scene.add(group);
+    st._clusterHighlightGroup = group;
+    const timeout = setTimeout(() => {
+      const cur = stateRef.current;
+      if (!cur) return;
+      if (cur._clusterHighlightGroup === group) {
+        cur.scene.remove(group);
+        group.children.forEach(s => {
+          s.material.map?.dispose();
+          s.material.dispose();
+        });
+        cur._clusterHighlightGroup = null;
+      }
+    }, 8000);
+    return () => clearTimeout(timeout);
+  }, [highlightIngredients]);
 
   // ---- Visibility & brightness (edges + particles) ----
   useEffect(() => {
