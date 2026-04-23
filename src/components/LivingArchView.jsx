@@ -167,7 +167,19 @@ export default function LivingArchView({
     const mesh = new THREE.InstancedMesh(geo, mat, count);
     mesh.frustumCulled = true;
     const dummy = new THREE.Object3D();
-    const defaultColors = [];
+    const defaultColors = [];       // taste-based (used in neural/taste2d)
+    const clusterColors = [];       // cluster-id-based (used in ml/ml2d)
+
+    // 10-hue cluster palette — semantically tuned:
+    //   0 Fruit&Nut Desserts — pink   5 Cocktails&Drinks — purple
+    //   1 Savory American    — orange 6 French&Herbs     — lime
+    //   2 Italian            — green  7 Whole Grain      — amber
+    //   3 Mexican & Latin    — red    8 Choc & Vanilla   — brown
+    //   4 East Asian         — gold   9 Kitchen Staples  — slate
+    const CLUSTER_HEX = ['#f472b6', '#ea580c', '#22c55e', '#dc2626', '#facc15',
+                         '#a855f7', '#84cc16', '#b45309', '#78350f', '#64748b'];
+    const fallbackHex = '#808080';
+    const clusterColorByID = CLUSTER_HEX.map(h => new THREE.Color(h));
 
     for (let i = 0; i < count; i++) {
       const node = nodeArray[i];
@@ -179,7 +191,17 @@ export default function LivingArchView({
       mesh.setMatrixAt(i, dummy.matrix);
       const c = getColorForNode(node);
       defaultColors.push(c.clone());
-      mesh.setColorAt(i, c);
+      const cid = typeof node.clusterId === 'number' ? node.clusterId : -1;
+      clusterColors.push(
+        cid >= 0 && cid < clusterColorByID.length
+          ? clusterColorByID[cid].clone()
+          : new THREE.Color(fallbackHex),
+      );
+      // Initial color set by mode — Network modes use cluster, taste modes use taste.
+      const initColor = (modeRef.current === 'ml' || modeRef.current === 'ml2d')
+        ? clusterColors[i]
+        : c;
+      mesh.setColorAt(i, initColor);
     }
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
@@ -332,6 +354,13 @@ export default function LivingArchView({
           centroid_2d: [a2[0], a2[1]],
         };
         sprite.material.opacity = 0.95;
+        // Render cluster labels in front of everything so they never get
+        // occluded by the ingredient spheres they sit next to. User
+        // request: "labels should not be clustered themselves" +
+        // "placed in front of the cluster."
+        sprite.material.depthTest = false;
+        sprite.material.depthWrite = false;
+        sprite.renderOrder = 999;
         clusterLabelGroup.add(sprite);
       }
     }
@@ -836,7 +865,7 @@ export default function LivingArchView({
       scene, camera, renderer, composer, controls, mesh, edgeMesh, edgeMat, edgeGeo,
       edgeColors, edgeOpacities, validEdges,
       particleMesh, particleMat,
-      nodeArray, nameIdx, defaultColors, curPos, posA, posB, posC, posD, posForMode,
+      nodeArray, nameIdx, defaultColors, clusterColors, curPos, posA, posB, posC, posD, posForMode,
       triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
     };
@@ -1127,6 +1156,36 @@ export default function LivingArchView({
     edgeGeo.getAttribute('aColor').needsUpdate = true;
     edgeGeo.getAttribute('aOpacity').needsUpdate = true;
   }, [bridgePathIngredients, treeFilterIngredients, data]);
+
+  // ---- Node coloring per mode: clusters in ml/ml2d, tastes in neural/taste2d.
+  // Runs on mode change, but skips if a selection/highlight is active so we
+  // don't stomp those brighter colors. Selection effect will restore from
+  // defaultColors when cleared; we update defaultColors in-place so the
+  // restore path picks up the current palette.
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st || !st.mesh || !st.defaultColors || !st.clusterColors) return;
+    const { mesh, defaultColors, clusterColors, nodeArray, tasteSelection } = st;
+    const source = (mode === 'ml' || mode === 'ml2d') ? clusterColors : defaultColors;
+    // Rewrite defaultColors in-place so the selection-clear path reads
+    // the right palette next time.
+    const tasteBased = (mode === 'neural' || mode === 'taste2d');
+    for (let i = 0; i < nodeArray.length; i++) {
+      // defaultColors holds whichever palette is currently "active". We
+      // mirror the active source into it each mode change.
+      defaultColors[i].copy(source[i]);
+    }
+    // If user has no active ingredient selection AND no taste selection
+    // is active, re-stamp the mesh colors now.
+    if (!tasteSelection || (tasteSelection.taste1 === null && tasteSelection.taste2 === null)) {
+      for (let i = 0; i < nodeArray.length; i++) {
+        mesh.setColorAt(i, source[i]);
+      }
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    }
+    // tasteBased is logged for debug clarity; no runtime effect.
+    void tasteBased;
+  }, [mode]);
 
   // ---- Toggle handler (3-way: ml → neural → wheel → ml) ----
   const MODE_CYCLE = ['ml', 'ml2d', 'neural', 'taste2d'];
