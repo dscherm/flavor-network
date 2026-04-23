@@ -437,6 +437,7 @@ export default function LivingArchView({
     function onClick(event) {
       handleSceneClick(event, camera, renderer, tasteLabelSprites, mesh, nodeArray, raycaster, {
         onNodeClick,
+        mode: modeRef.current,
         handleTasteClick,
         tasteSelection,
       });
@@ -454,6 +455,7 @@ export default function LivingArchView({
 
     function onMove(event) {
       handleSceneMove(event, camera, renderer, tasteLabelSprites, mesh, raycaster, hoverState, {
+        mode: modeRef.current,
         onNodeHover: onNodeHover ? (instanceId, mousePos) => {
           const node = instanceId !== null ? nodeArray[instanceId] : null;
           onNodeHover(node, mousePos);
