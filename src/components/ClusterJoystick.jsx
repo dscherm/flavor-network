@@ -66,13 +66,8 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo }) {
 
   return (
     <div
-      className="fixed left-1/2 -translate-x-1/2 z-30 select-none pointer-events-none"
-      style={{
-        // Raise 5vh (~5% of viewport) above the mode selector + tab bar
-        // per iOS feedback: was too low for one-thumb reach.
-        bottom: 'calc(var(--mobile-nav-h, 3.5rem) + env(safe-area-inset-bottom, 0px) + 4.5rem + 5vh)',
-        maxWidth: 'calc(100vw - 1rem)',
-      }}
+      className="fixed left-1/2 -translate-x-1/2 z-30 select-none pointer-events-none bottom-[calc(var(--mobile-nav-h,3.5rem)+env(safe-area-inset-bottom,0px)+4.5rem+5vh)] sm:bottom-20"
+      style={{ maxWidth: 'calc(100vw - 1rem)' }}
       aria-label={isTasteMode ? 'Fly to taste region' : 'Fly to cluster'}
     >
       <div
