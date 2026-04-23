@@ -59,7 +59,8 @@
     "pause_on_signals": [
       "NEEDS_REVIEW",
       "SPAWN_REQUESTED"
-    ]
+    ],
+    "pre_commit_gate": true
   },
   "context": {
     "recent_activity_count": 5,
