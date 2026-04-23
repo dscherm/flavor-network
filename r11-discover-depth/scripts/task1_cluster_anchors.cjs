@@ -22,9 +22,16 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..');
 const PROD = path.join(ROOT, 'public', 'proDataset');
 
-const MIN_SEPARATION = 12;
+const MIN_SEPARATION = 14;
 const Y_LIFT = 8;
 const REPULSION_ITERATIONS = 30;
+// After computing each cluster's real member centroid, push the label
+// outward along the centroid direction so it floats in front of the
+// cluster blob instead of sitting inside it. With members at r ≈ 22
+// and camera at 120, labels at r ≈ 42 subtend enough screen angle to
+// clearly read and associate with their cluster.
+const LABEL_MIN_RADIUS_3D = 42;
+const LABEL_MIN_RADIUS_2D = 46;
 
 const cluster = JSON.parse(fs.readFileSync(path.join(PROD, 'cluster_labels.json'), 'utf8'));
 const gp = JSON.parse(fs.readFileSync(path.join(PROD, 'gnn_positions.json'), 'utf8'));
@@ -55,11 +62,27 @@ function centroidOfNames(names, positions, dim) {
   return s.map(x => x / n);
 }
 
-// Step 1: compute real member centroids per cluster.
+// Step 1: compute real member centroids per cluster, then push outward
+// along the centroid direction so labels sit in front of the cluster.
+function outward3(p, minR) {
+  const m = Math.sqrt(p[0] ** 2 + p[1] ** 2 + p[2] ** 2) || 1;
+  if (m >= minR) return p;
+  const s = minR / m;
+  return [p[0] * s, p[1] * s, p[2] * s];
+}
+function outward2(p, minR) {
+  const m = Math.sqrt(p[0] ** 2 + p[1] ** 2) || 1;
+  if (m >= minR) return p;
+  const s = minR / m;
+  return [p[0] * s, p[1] * s];
+}
+
 for (const c of clusters) {
   const members = membersByCluster.get(c.id) || c.top_ingredients || [];
-  const c3 = centroidOfNames(members, gp, 3) || c.centroid_3d || [0, 0, 0];
-  const c2 = centroidOfNames(members, pca, 2) || c.centroid_2d || [0, 0];
+  const c3raw = centroidOfNames(members, gp, 3) || c.centroid_3d || [0, 0, 0];
+  const c2raw = centroidOfNames(members, pca, 2) || c.centroid_2d || [0, 0];
+  const c3 = outward3(c3raw, LABEL_MIN_RADIUS_3D);
+  const c2 = outward2(c2raw, LABEL_MIN_RADIUS_2D);
   c._pos3 = [c3[0], c3[1] + Y_LIFT, c3[2]];
   c._pos2 = [c2[0], c2[1]];
   c._memberCount = members.length;
