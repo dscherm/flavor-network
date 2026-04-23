@@ -40,6 +40,7 @@ export default function LivingArchView({
   onDoubleTap,
   onNodeHover,
   highlightPairings = null,
+  flyToTarget = null,
 }) {
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
@@ -802,12 +803,38 @@ export default function LivingArchView({
       transition.toMode = toMode;
     };
 
+    // Camera fly-to an arbitrary [x,y,z] target — used by the
+    // ClusterJoystick to jump to a cluster anchor and by future
+    // "focus ingredient" navigation. Preserves the user's current
+    // camera-to-target direction so the angle doesn't snap awkwardly.
+    const flyToPoint = (target) => {
+      if (!target) return;
+      const targetVec = new THREE.Vector3(target[0], target[1], target[2]);
+      const currentDir = camera.position.clone().sub(controls.target).normalize();
+      const distance = 70;
+      const camEnd = targetVec.clone().add(currentDir.multiplyScalar(distance));
+
+      const startPos = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const t0 = performance.now();
+      const DURATION = 900;
+      function tween() {
+        const dt = Math.min(1, (performance.now() - t0) / DURATION);
+        const e = dt < 0.5 ? 4 * dt ** 3 : 1 - Math.pow(-2 * dt + 2, 3) / 2;
+        camera.position.lerpVectors(startPos, camEnd, e);
+        controls.target.lerpVectors(startTarget, targetVec, e);
+        controls.update();
+        if (dt < 1 && stateRef.current) requestAnimationFrame(tween);
+      }
+      tween();
+    };
+
     stateRef.current = {
       scene, camera, renderer, composer, controls, mesh, edgeMesh, edgeMat, edgeGeo,
       edgeColors, edgeOpacities, validEdges,
       particleMesh, particleMat,
       nodeArray, nameIdx, defaultColors, curPos, posA, posB, posC, posD, posForMode,
-      triggerTransition, labelGroup, clusterLabelGroup, sectorGroup, tasteSelection,
+      triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
     };
 
@@ -904,6 +931,16 @@ export default function LivingArchView({
     scene.add(group);
     st._nodeLabelGroup = group;
   }, [selectedNode, selectedNodes, highlightPairings, data]);
+
+  // ClusterJoystick fly-to. Each time flyToTarget changes to a new
+  // {x,y,z,key} object, animate the camera to that point. Key used
+  // so re-taps of the same cluster retrigger the animation.
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st || !flyToTarget) return;
+    if (Array.isArray(flyToTarget)) st.flyToPoint?.(flyToTarget);
+    else if (flyToTarget.position) st.flyToPoint?.(flyToTarget.position);
+  }, [flyToTarget]);
 
   // ---- Visibility & brightness (edges + particles) ----
   useEffect(() => {

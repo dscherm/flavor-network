@@ -4,6 +4,7 @@ import useProData from './hooks/useProData.js';
 const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
 const DiscoverPatterns = lazy(() => import('./components/DiscoverPatterns.jsx'));
 import DiscoverCTA from './components/DiscoverCTA.jsx';
+import ClusterJoystick from './components/ClusterJoystick.jsx';
 import HowItWorks from './components/HowItWorks.jsx';
 import StartPage from './components/StartPage.jsx';
 import ErrorCard from './components/ErrorCard.jsx';
@@ -73,6 +74,7 @@ export default function App() {
   const [hoveredNode, setHoveredNode] = useState(null);
   const [hoverPos, setHoverPos] = useState(null);
   const [highlightPairings, setHighlightPairings] = useState(null);
+  const [flyToTarget, setFlyToTarget] = useState(null);
   const isMobile = useIsMobile();
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
@@ -518,6 +520,7 @@ export default function App() {
         onModeChange={setLivingMode}
         onDoubleTap={handleCanvasDoubleTap}
         highlightPairings={highlightPairings}
+        flyToTarget={flyToTarget}
       />
       {/* Hover tooltip — shows ingredient name at cursor position */}
       {hoveredNode && hoverPos && (
@@ -802,6 +805,20 @@ export default function App() {
           onPickPair={(names) => {
             setSelectedNodes(names);
             setActivePanel('ingredient');
+          }}
+        />
+      )}
+
+      {/* ClusterJoystick — pinned bottom-center pill strip, tap to
+          fly the camera to a cluster's label anchor. */}
+      {activeTab === 'network' && data?.clusterLabels?.clusters && (
+        <ClusterJoystick
+          clusters={data.clusterLabels.clusters}
+          onFlyTo={(cluster) => {
+            const pos = cluster.label_anchor_3d || cluster.centroid_3d;
+            // Append a timestamp so re-tapping the same cluster re-fires
+            // the useEffect in LivingArchView.
+            if (pos) setFlyToTarget({ position: pos, ts: Date.now() });
           }}
         />
       )}
