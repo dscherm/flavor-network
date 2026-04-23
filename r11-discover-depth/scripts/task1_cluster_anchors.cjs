@@ -30,8 +30,8 @@ const REPULSION_ITERATIONS = 30;
 // cluster blob instead of sitting inside it. With members at r ≈ 22
 // and camera at 120, labels at r ≈ 42 subtend enough screen angle to
 // clearly read and associate with their cluster.
-const LABEL_MIN_RADIUS_3D = 42;
-const LABEL_MIN_RADIUS_2D = 46;
+const LABEL_MIN_RADIUS_3D = 55;
+const LABEL_MIN_RADIUS_2D = 55;
 
 const cluster = JSON.parse(fs.readFileSync(path.join(PROD, 'cluster_labels.json'), 'utf8'));
 const gp = JSON.parse(fs.readFileSync(path.join(PROD, 'gnn_positions.json'), 'utf8'));

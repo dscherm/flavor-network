@@ -336,9 +336,10 @@ export default function LivingArchView({
       const TASTE_HEX_MAP = { sweet: '#ff4fb8', bitter: '#9d4edd', umami: '#ffd700', salty: '#4f9eff', sour: '#00ffd0', pungent: '#ff8c42', spicy: '#ff4444', astringent: '#6bcb77' };
       for (const cl of clusterData.clusters) {
         const hex = TASTE_HEX_MAP[cl.dominant_taste] || '#aaaaaa';
-        // Larger label (28 world units) so it stays readable on mobile
-        // viewports where the camera is ~120 units out.
-        const sprite = makeLabel(cl.label.toUpperCase(), hex, 28);
+        // Slightly smaller sprite (22 world units) so 10 cluster labels
+        // at radius ~55 don't visually collide in 3D → 2D projection.
+        // Still readable at camera distance 120.
+        const sprite = makeLabel(cl.label.toUpperCase(), hex, 22);
         // Anchor at the position of the cluster's top hub ingredient rather
         // than the raw centroid — Node2Vec embeddings cluster directionally
         // on a hypersphere, so centroids average toward origin. See

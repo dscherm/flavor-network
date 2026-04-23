@@ -22,15 +22,15 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..');
 const PROD = path.join(ROOT, 'public', 'proDataset');
 
-const ALPHA = 0.70;
+const ALPHA = 0.82;
 // Project each cluster centroid onto this radius sphere (direction
 // preserved) so clusters are forced apart before blending. Without this,
 // true centroids sit within ~10u of origin — blending shrinks intra-
 // spread but can't widen inter-cluster distance.
-const CENTROID_RADIUS = 22;
+const CENTROID_RADIUS = 30;
 // Iterative repulsion target: minimum centroid separation.
-const MIN_CENTROID_SEPARATION = 22;
-const REPULSION_ITERS = 60;
+const MIN_CENTROID_SEPARATION = 30;
+const REPULSION_ITERS = 80;
 
 // Always read from raw on repeat runs — avoids compounding the blend.
 const rawOnDisk = path.join(PROD, 'gnn_positions_raw.json');
