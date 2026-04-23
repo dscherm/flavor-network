@@ -3,7 +3,7 @@
   "clusters": [
     {
       "id": 0,
-      "label": "Baked",
+      "label": "Fruit & Nut Desserts",
       "size": 273,
       "centroid_3d": [
         -6.07,
@@ -35,7 +35,7 @@
     },
     {
       "id": 1,
-      "label": "Protein",
+      "label": "Savory American",
       "size": 853,
       "centroid_3d": [
         -2.6,
@@ -67,7 +67,7 @@
     },
     {
       "id": 2,
-      "label": "Condiment",
+      "label": "Italian",
       "size": 378,
       "centroid_3d": [
         2.65,
@@ -99,7 +99,7 @@
     },
     {
       "id": 3,
-      "label": "Chili (cumin)",
+      "label": "Mexican & Latin",
       "size": 328,
       "centroid_3d": [
         -0.2,
@@ -131,7 +131,7 @@
     },
     {
       "id": 4,
-      "label": "Chili (ginger)",
+      "label": "East Asian",
       "size": 314,
       "centroid_3d": [
         0.73,
@@ -163,7 +163,7 @@
     },
     {
       "id": 5,
-      "label": "Spirit",
+      "label": "Cocktails & Drinks",
       "size": 198,
       "centroid_3d": [
         7.37,
@@ -195,7 +195,7 @@
     },
     {
       "id": 6,
-      "label": "Vegetable",
+      "label": "French & Herbs",
       "size": 531,
       "centroid_3d": [
         0.83,
@@ -227,7 +227,7 @@
     },
     {
       "id": 7,
-      "label": "Thickener",
+      "label": "Whole Grain",
       "size": 174,
       "centroid_3d": [
         -3.63,
@@ -259,7 +259,7 @@
     },
     {
       "id": 8,
-      "label": "Sweetener",
+      "label": "Chocolate & Vanilla",
       "size": 334,
       "centroid_3d": [
         1.37,
@@ -291,7 +291,7 @@
     },
     {
       "id": 9,
-      "label": "Fruit",
+      "label": "Kitchen Staples",
       "size": 530,
       "centroid_3d": [
         2.55,
