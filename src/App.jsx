@@ -729,7 +729,16 @@ export default function App() {
             activeTab === 'cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
           }`}
         >
-          <CocktailLab fullData={data} userProfile={userProfile} onSelectionChange={handleLabSelectionChange} />
+          <CocktailLab
+            fullData={data}
+            userProfile={userProfile}
+            onSelectionChange={handleLabSelectionChange}
+            onOpenRecipeLab={(_mode, initialIngredients) => {
+              setSelectedNodes(Array.isArray(initialIngredients) ? [...initialIngredients] : []);
+              setRecipeMounted(true);
+              setActiveTab('recipe');
+            }}
+          />
         </div>
       )}
 
@@ -740,7 +749,16 @@ export default function App() {
             activeTab === 'sauce' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
           }`}
         >
-          <SauceLab fullData={data} userProfile={userProfile} onSelectionChange={handleLabSelectionChange} />
+          <SauceLab
+            fullData={data}
+            userProfile={userProfile}
+            onSelectionChange={handleLabSelectionChange}
+            onOpenRecipeLab={(_mode, initialIngredients) => {
+              setSelectedNodes(Array.isArray(initialIngredients) ? [...initialIngredients] : []);
+              setRecipeMounted(true);
+              setActiveTab('recipe');
+            }}
+          />
         </div>
       )}
 
