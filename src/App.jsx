@@ -8,6 +8,11 @@ import ClusterJoystick from './components/ClusterJoystick.jsx';
 import HowItWorks from './components/HowItWorks.jsx';
 import StartPage from './components/StartPage.jsx';
 import ErrorCard from './components/ErrorCard.jsx';
+import {
+  readStartPageFlag,
+  writeStartPageFlag,
+  clearStartPageFlag,
+} from './utils/startPageFlag.js';
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Legend from './components/Legend.jsx';
@@ -33,11 +38,11 @@ import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
 
 export default function App() {
-  // StartPage gate — set after the user picks a mode. Shown on every cold
-  // load and every refresh (no persistence). While false, useProData is
-  // disabled so the 27MB pairings payload does not download until the user
-  // clicks a card.
-  const [startPageComplete, setStartPageComplete] = useState(false);
+  // StartPage gate — persisted via localStorage key `fn-start-seen`. Returning
+  // users with the flag set skip the picker entirely. `?reset=start` clears
+  // the flag on mount (for testing). While false, useProData is disabled so
+  // the 27MB pairings payload does not download until the user clicks a card.
+  const [startPageComplete, setStartPageComplete] = useState(readStartPageFlag);
   const [howItWorksInitialOpen, setHowItWorksInitialOpen] = useState(false);
 
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
@@ -81,6 +86,7 @@ export default function App() {
   const userProfile = useUserProfile(user);
 
   const handleModeSelect = useCallback((mode) => {
+    writeStartPageFlag();
     setStartPageComplete(true);
     if (mode === 'discover') {
       setActiveTab('network');
@@ -97,6 +103,7 @@ export default function App() {
   }, []);
 
   const handleStartOver = useCallback(() => {
+    clearStartPageFlag();
     setStartPageComplete(false);
     setHowItWorksInitialOpen(false);
     setMoleculeLabOpen(false);
