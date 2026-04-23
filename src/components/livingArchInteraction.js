@@ -36,8 +36,16 @@ export function raycastLabels(event, camera, renderer, labelSprites, mesh, rayca
  * @param {Object} callbacks - { onNodeClick, handleTasteClick, tasteSelection }
  */
 export function handleSceneClick(event, camera, renderer, labelSprites, mesh, nodeArray, raycaster, callbacks) {
-  const { onNodeClick, handleTasteClick, tasteSelection } = callbacks;
-  const hit = raycastLabels(event, camera, renderer, labelSprites, mesh, raycaster);
+  const { onNodeClick, handleTasteClick, tasteSelection, mode } = callbacks;
+  // In Network modes (ml / ml2d) the taste labels are visually hidden
+  // and taste-driven translation of ingredients is confusing. Treat any
+  // raycast as a node/empty click; skip the label path.
+  const skipLabelInteraction = mode === 'ml' || mode === 'ml2d';
+  const hit = raycastLabels(
+    event, camera, renderer,
+    skipLabelInteraction ? [] : labelSprites,
+    mesh, raycaster,
+  );
 
   if (hit.type === 'label') {
     handleTasteClick(hit.taste);
@@ -73,7 +81,13 @@ export function handleSceneClick(event, camera, renderer, labelSprites, mesh, no
  * @param {Object} hoverState - mutable { lastHover, lastHoverType } object
  */
 export function handleSceneMove(event, camera, renderer, labelSprites, mesh, raycaster, hoverState, callbacks) {
-  const hit = raycastLabels(event, camera, renderer, labelSprites, mesh, raycaster);
+  const mode = callbacks?.mode;
+  const skipLabelInteraction = mode === 'ml' || mode === 'ml2d';
+  const hit = raycastLabels(
+    event, camera, renderer,
+    skipLabelInteraction ? [] : labelSprites,
+    mesh, raycaster,
+  );
   const newType = hit.type;
   const newId = hit.type === 'node' ? hit.instanceId : (hit.type === 'label' ? hit.taste : -1);
   const curId = hoverState.lastHoverType === 'node' ? hoverState.lastHover : (hoverState.lastHoverType === 'label' ? hoverState.lastHover : -1);

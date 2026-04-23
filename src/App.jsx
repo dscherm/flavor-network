@@ -449,29 +449,7 @@ export default function App() {
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                     </svg>
-                    Flavor Trees
-                  </button>
-                  <button
-                    onClick={() => { setShowBridge(v => !v); setExploreDropdownOpen(false); setActiveTab('network'); }}
-                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                      showBridge ? 'text-purple-300 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
-                    }`}
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
-                    Flavor Bridge
-                  </button>
-                  <button
-                    onClick={() => { setShowGlobalInsights(v => !v); setExploreDropdownOpen(false); setActiveTab('network'); }}
-                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                      showGlobalInsights ? 'text-purple-300 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
-                    }`}
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
-                    </svg>
-                    Network Insights
+                    Ingredient Tree
                   </button>
                 </div>
               </>
@@ -809,16 +787,19 @@ export default function App() {
         />
       )}
 
-      {/* ClusterJoystick — pinned bottom-center pill strip, tap to
-          fly the camera to a cluster's label anchor. */}
+      {/* ClusterJoystick — pinned bottom-center pill strip. In Network
+          modes the pills are clusters; in Taste modes they're tastes. */}
       {activeTab === 'network' && data?.clusterLabels?.clusters && (
         <ClusterJoystick
           clusters={data.clusterLabels.clusters}
-          onFlyTo={(cluster) => {
-            const pos = cluster.label_anchor_3d || cluster.centroid_3d;
-            // Append a timestamp so re-tapping the same cluster re-fires
-            // the useEffect in LivingArchView.
-            if (pos) setFlyToTarget({ position: pos, ts: Date.now() });
+          mode={livingMode}
+          onFlyTo={(target) => {
+            // Cluster object or raw {position, ts} target.
+            if (target && target.label_anchor_3d) {
+              setFlyToTarget({ position: target.label_anchor_3d, ts: Date.now() });
+            } else if (target && target.position) {
+              setFlyToTarget({ position: target.position, ts: Date.now() });
+            }
           }}
         />
       )}
