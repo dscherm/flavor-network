@@ -75,6 +75,7 @@ export default function App() {
   const [hoverPos, setHoverPos] = useState(null);
   const [highlightPairings, setHighlightPairings] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
+  const [clusterHighlights, setClusterHighlights] = useState(null);
   const isMobile = useIsMobile();
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
@@ -499,6 +500,7 @@ export default function App() {
         onDoubleTap={handleCanvasDoubleTap}
         highlightPairings={highlightPairings}
         flyToTarget={flyToTarget}
+        highlightIngredients={clusterHighlights}
       />
       {/* Hover tooltip — shows ingredient name at cursor position */}
       {hoveredNode && hoverPos && (
@@ -797,8 +799,14 @@ export default function App() {
             // Cluster object or raw {position, ts} target.
             if (target && target.label_anchor_3d) {
               setFlyToTarget({ position: target.label_anchor_3d, ts: Date.now() });
+              // Surface top-5 cluster members so the user sees "what's
+              // actually here" after the camera lands. Use an array ref
+              // so repeated taps of the same cluster re-spawn labels.
+              const names = (target.top_ingredients || []).slice(0, 5);
+              setClusterHighlights(names.length > 0 ? [...names] : null);
             } else if (target && target.position) {
               setFlyToTarget({ position: target.position, ts: Date.now() });
+              setClusterHighlights(null);
             }
           }}
         />
