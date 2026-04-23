@@ -20,6 +20,9 @@ function pickRandomSeed(list) {
 }
 
 export default function DiscoverCTA({ edges, nodes, ingredientList, onPickPair }) {
+  // "Dismissed" now means collapsed-to-toggle (not hidden entirely) so
+  // the iOS user can always reopen the pairing finder. The x still
+  // persists for 24h in localStorage — re-expanding resets it.
   const [dismissed, setDismissed] = useState(() => dismissActiveToday());
 
   // User-seeded: the ingredient the user provides. Discover finds the
@@ -91,8 +94,29 @@ export default function DiscoverCTA({ edges, nodes, ingredientList, onPickPair }
     return () => document.removeEventListener('mousedown', onClick);
   }, [seedOpen]);
 
-  if (dismissed) return null;
   if (!edges || !nodes) return null;
+
+  // When dismissed, render only a small always-visible toggle pill so
+  // the user can recover the pairing finder on any device.
+  if (dismissed) {
+    return (
+      <button
+        onClick={() => {
+          try { localStorage.removeItem(DISMISS_KEY); } catch { /* ignore */ }
+          setDismissed(false);
+        }}
+        className="fixed z-40 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0d0d16]/95 border border-cyan-500/40 text-[11px] text-cyan-300 shadow-lg backdrop-blur-sm hover:bg-[#12121e]/95 transition-colors left-2 sm:left-4"
+        style={{ bottom: 'calc(var(--mobile-nav-h, 3.5rem) + env(safe-area-inset-bottom, 0px) + 0.5rem)' }}
+        aria-label="Open pairing finder"
+      >
+        <span
+          className="inline-block rounded-full"
+          style={{ width: 6, height: 6, background: '#22d3ee', boxShadow: '0 0 6px #22d3ee' }}
+        />
+        Pair with…
+      </button>
+    );
+  }
 
   const handleDismiss = () => {
     try { localStorage.setItem(DISMISS_KEY, JSON.stringify({ date: new Date().toISOString().slice(0, 10) })); } catch { /* ignore */ }
