@@ -5,6 +5,7 @@ import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import TasteWheel from './TasteWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import SuggestionDrawer from './SuggestionDrawer.jsx';
+import RecipeLabTemplates from './RecipeLabTemplates.jsx';
 
 const FONT_FAMILY = 'Caveat, cursive';
 
@@ -242,6 +243,17 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           </button>
         ))}
       </div>
+
+      {/* Mode-specific template starters — "Start from" row of canonical
+          cocktails / mother sauces. Tapping one sets selectedStructure,
+          which SuggestionDrawer uses to bias recommendations toward the
+          template's unfilled roles. */}
+      <RecipeLabTemplates
+        labMode={labMode}
+        selected={selectedStructure}
+        onSelect={setSelectedStructure}
+        onClear={() => setSelectedStructure(null)}
+      />
 
       {/* Search bar */}
       <div
