@@ -62,6 +62,35 @@ function SectionHeading({ children }) {
   );
 }
 
+/**
+ * CollapsibleSection — default-collapsed info section. Avoids overwhelming
+ * the user with long panels; they opt in per section. Essentials (Name,
+ * Properties, Profile Radar) stay un-collapsed and use plain <section>.
+ */
+function CollapsibleSection({ title, badge, children, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <section className="mt-5 first:mt-0">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center gap-2 text-[11px] uppercase tracking-widest text-gray-500 font-semibold mb-2 hover:text-gray-300 transition-colors"
+      >
+        <span className="opacity-60 text-[10px] leading-none w-3">
+          {open ? '▾' : '▸'}
+        </span>
+        <span>{title}</span>
+        {badge != null && (
+          <span className="text-[10px] text-gray-600 normal-case tracking-normal font-normal">
+            {badge}
+          </span>
+        )}
+      </button>
+      {open && <div>{children}</div>}
+    </section>
+  );
+}
+
 const TASTE_OPPOSITES = {
   sweet: 'bitter',
   bitter: 'sweet',
@@ -267,8 +296,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
         {node.name && gnnEntropy && ingredientThresholds && (
-          <section>
-            <SectionHeading>Predicted profile</SectionHeading>
+          <CollapsibleSection title="Predicted profile">
             <PredictedProfile
               name={node.name}
               gnnEntropy={gnnEntropy}
@@ -277,22 +305,20 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             <p className="text-[10px] text-gray-500 mt-1.5">
               Predicted by the molecular GNN from compound structure. Tags flag the top ~15% of ingredients for each trait.
             </p>
-          </section>
+          </CollapsibleSection>
         )}
         {node.clusterLabel && (
-          <section>
-            <SectionHeading>Flavor Cluster</SectionHeading>
+          <CollapsibleSection title="Flavor Cluster" badge={node.clusterLabel}>
             <p className="text-xs text-gray-300 mb-1">
               This ingredient is in the <span className="text-cyan-300 font-medium">{node.clusterLabel}</span> cluster
             </p>
             <p className="text-[10px] text-gray-500">
               Ingredients cluster by how often they appear together in recipes and how similar their molecular structures are.
             </p>
-          </section>
+          </CollapsibleSection>
         )}
         {node.gnnProbs && (
-          <section>
-            <SectionHeading>Why it tastes this way</SectionHeading>
+          <CollapsibleSection title="Why it tastes this way">
             {node.gnnCompounds && (
               <div className="mb-2">
                 <p className="text-[11px] text-gray-400 mb-1.5">
@@ -350,7 +376,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 </div>
               </>
             )}
-          </section>
+          </CollapsibleSection>
         )}
         {graphNodes && (
           <section>
@@ -366,14 +392,13 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
         {cuisines && cuisines.length > 0 && (
-          <section>
-            <SectionHeading>Cuisines</SectionHeading>
+          <CollapsibleSection title="Cuisines" badge={`(${cuisines.length})`}>
             <div className="flex flex-wrap gap-1.5">
               {cuisines.map((cuisine) => (
                 <span key={cuisine} className="inline-block px-2 py-0.5 rounded border text-xs font-medium bg-indigo-500/15 text-indigo-300 border-indigo-500/25">{cuisine}</span>
               ))}
             </div>
-          </section>
+          </CollapsibleSection>
         )}
         {selectedCount >= 2 && commonPairings.length > 0 && (
           <section>
@@ -402,14 +427,12 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
         {selectedCount < 2 && sortedNeighbors.length > 0 && (
-          <section>
-            <SectionHeading>
-              <button
-                onClick={() => onHighlightPairings && onHighlightPairings(sortedNeighbors.map(n => n.name))}
-                className="hover:text-cyan-300 transition-colors cursor-pointer"
-                title="Highlight all top pairings on the network"
-              >Top Pairings ↗</button>
-            </SectionHeading>
+          <CollapsibleSection title="Top Pairings" badge={`(${sortedNeighbors.length})`}>
+            <button
+              onClick={(e) => { e.stopPropagation(); onHighlightPairings && onHighlightPairings(sortedNeighbors.map(n => n.name)); }}
+              className="text-[10px] text-cyan-400 hover:text-cyan-300 mb-1.5"
+              title="Highlight all top pairings on the network"
+            >Highlight all on network ↗</button>
             <ul className="space-y-1.5">
               {sortedNeighbors.map((neighbor) => (
                 <li key={neighbor.name}>
@@ -425,22 +448,20 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 </li>
               ))}
             </ul>
-          </section>
+          </CollapsibleSection>
         )}
         {affinities && affinities.length > 0 && (
-          <section>
-            <SectionHeading>Affinities</SectionHeading>
+          <CollapsibleSection title="Affinities" badge={`(${affinities.length})`}>
             <div className="space-y-1.5">
               {affinities.map((combo, idx) => {
                 const display = Array.isArray(combo) ? combo.join(' + ') : String(combo);
                 return <div key={idx} className="px-2 py-1.5 rounded-md bg-gray-800/40 border border-gray-700/30 text-sm text-gray-300">{display}</div>;
               })}
             </div>
-          </section>
+          </CollapsibleSection>
         )}
         {tips && tips.length > 0 && (
-          <section>
-            <SectionHeading>Tips</SectionHeading>
+          <CollapsibleSection title="Tips">
             {Array.isArray(tips) ? (
               <ul className="space-y-1.5 text-sm text-gray-400 list-disc list-inside">
                 {tips.map((tip, idx) => <li key={idx}>{tip}</li>)}
@@ -448,7 +469,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             ) : (
               <p className="text-sm text-gray-400">{tips}</p>
             )}
-          </section>
+          </CollapsibleSection>
         )}
         {onBuildRecipe && (
           <button
@@ -608,10 +629,11 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
 
-        {/* Molecular Profile — GNN-predicted taste from molecular structure */}
+        {/* Molecular Profile — collapsed by default; the Profile Radar
+            Carousel below shows the same data graphically. Kept for
+            users who want numeric probabilities. */}
         {node.gnnProbs && (
-          <section>
-            <SectionHeading>Molecular Profile</SectionHeading>
+          <CollapsibleSection title="Molecular Profile">
             <div className="space-y-1">
               {Object.entries(node.gnnProbs).map(([t, p]) => {
                 const label = t.startsWith('odor_') ? t.slice(5) : t;
@@ -642,7 +664,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               })}
             </div>
             <p className="text-[10px] text-gray-600 mt-1">GNN-predicted taste + aroma from molecular structure</p>
-          </section>
+          </CollapsibleSection>
         )}
 
         {/* Profile Radars — swipe between Taste / Aroma / Combined */}
@@ -660,8 +682,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
 
         {/* Cuisines */}
         {cuisines && cuisines.length > 0 && (
-          <section>
-            <SectionHeading>Cuisines</SectionHeading>
+          <CollapsibleSection title="Cuisines" badge={`(${cuisines.length})`}>
             <div className="flex flex-wrap gap-1.5">
               {cuisines.map((cuisine) => (
                 <span
@@ -672,7 +693,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 </span>
               ))}
             </div>
-          </section>
+          </CollapsibleSection>
         )}
 
         {/* Shared Molecules — chemistry explanation when exactly 2 ingredients
@@ -717,14 +738,12 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
         {selectedCount < 2 && sortedNeighbors.length > 0 && (
-          <section>
-            <SectionHeading>
-              <button
-                onClick={() => onHighlightPairings && onHighlightPairings(sortedNeighbors.map(n => n.name))}
-                className="hover:text-cyan-300 transition-colors cursor-pointer"
-                title="Highlight all top pairings on the network"
-              >Top Pairings ↗</button>
-            </SectionHeading>
+          <CollapsibleSection title="Top Pairings" badge={`(${sortedNeighbors.length})`}>
+            <button
+              onClick={(e) => { e.stopPropagation(); onHighlightPairings && onHighlightPairings(sortedNeighbors.map(n => n.name)); }}
+              className="text-[10px] text-cyan-400 hover:text-cyan-300 mb-1.5"
+              title="Highlight all top pairings on the network"
+            >Highlight all on network ↗</button>
             <ul className="space-y-1.5">
               {sortedNeighbors.map((neighbor) => (
                 <li key={neighbor.name}>
@@ -740,13 +759,12 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 </li>
               ))}
             </ul>
-          </section>
+          </CollapsibleSection>
         )}
 
         {/* Affinities */}
         {affinities && affinities.length > 0 && (
-          <section>
-            <SectionHeading>Affinities</SectionHeading>
+          <CollapsibleSection title="Affinities" badge={`(${affinities.length})`}>
             <div className="space-y-1.5">
               {affinities.map((combo, idx) => {
                 const display = Array.isArray(combo) ? combo.join(' + ') : String(combo);
@@ -760,13 +778,12 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 );
               })}
             </div>
-          </section>
+          </CollapsibleSection>
         )}
 
         {/* Tips */}
         {tips && tips.length > 0 && (
-          <section>
-            <SectionHeading>Tips</SectionHeading>
+          <CollapsibleSection title="Tips">
             {Array.isArray(tips) ? (
               <ul className="space-y-1.5 text-sm text-gray-400 list-disc list-inside">
                 {tips.map((tip, idx) => (
@@ -776,7 +793,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             ) : (
               <p className="text-sm text-gray-400">{tips}</p>
             )}
-          </section>
+          </CollapsibleSection>
         )}
 
         {/* Build a recipe CTA */}
