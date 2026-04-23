@@ -86,12 +86,17 @@ def build_name_to_compound_smiles(foodb: dict, chem_ingredients: dict,
     compound_info_map = {}
     training_smiles = training_smiles or set()
 
-    # Load FlavorDB tags (for UI display, not prioritization — FlavorDB is
-    # optional and often not scraped). Build a normalized-name index once.
+    # Load FlavorDB — used for (1) per-molecule tags on FooDB compounds and
+    # (2) secondary SMILES index for hub ingredients FooDB doesn't cover
+    # (butter, honey, vinegar, cheddar, ...). TASK-189.
     fdb_tags: dict[str, list[str]] = {}
+    fdb_entities: dict = {}
+    fdb_molecules: dict = {}
     try:
         flavordb = json.load((_project_root() / "chemDataset" / "processed" / "flavordb.json").open("r", encoding="utf-8"))
-        for _pid, mol in flavordb.get("molecules", {}).items():
+        fdb_entities = flavordb.get("entities", {})
+        fdb_molecules = flavordb.get("molecules", {})
+        for _pid, mol in fdb_molecules.items():
             name = mol.get("name")
             if not name:
                 continue
@@ -133,6 +138,44 @@ def build_name_to_compound_smiles(foodb: dict, chem_ingredients: dict,
         if smiles:
             smiles_map[key] = smiles
             compound_info_map[key] = compounds
+
+    # Secondary pass: index FlavorDB entities so hub ingredients missing
+    # from FooDB (butter, honey, vinegar, cheese-cheddar, ...) still get
+    # real compound SMILES instead of falling back to the generic-nutrient
+    # bucket. FooDB wins on collisions — it's the primary source.
+    fdb_added = 0
+    for entity_alias, entity_info in fdb_entities.items():
+        key = _norm(entity_alias)
+        if not key or key in smiles_map:
+            continue
+        all_compounds: list[dict] = []
+        for pid in entity_info.get("molecules", []):
+            m = fdb_molecules.get(str(pid)) or fdb_molecules.get(pid)
+            if not m:
+                continue
+            smi = m.get("smiles")
+            if not (smi and isinstance(smi, str) and 0 < len(smi) < 300):
+                continue
+            cname = m.get("name") or ""
+            in_training = smi in training_smiles
+            tags = m.get("flavor_profile") or []
+            all_compounds.append({
+                "name": cname,
+                "smiles": smi,
+                "flavor_tags": tags,
+                "_priority": 1 if in_training else 0,
+            })
+        all_compounds.sort(key=lambda c: -c["_priority"])
+        picked = all_compounds[:MAX_COMPOUNDS]
+        if picked:
+            smiles_map[key] = [c["smiles"] for c in picked]
+            compound_info_map[key] = [
+                {"name": c["name"], "smiles": c["smiles"], "flavor_tags": c["flavor_tags"]}
+                for c in picked
+            ]
+            fdb_added += 1
+    if fdb_added:
+        print(f"[embed] added {fdb_added} FlavorDB entities to SMILES index")
 
     return smiles_map, compound_info_map
 
