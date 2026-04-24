@@ -42,6 +42,7 @@ export default function LivingArchView({
   highlightPairings = null,
   flyToTarget = null,
   highlightIngredients = null,
+  focusedClusterId = null,
 }) {
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
@@ -116,6 +117,26 @@ export default function LivingArchView({
             posB[i*3] = p[0]; posB[i*3+1] = 0; posB[i*3+2] = p[1];
           }
         }
+        // Recompute 2D cluster centroids from the freshly-loaded PCA
+        // and refresh connector line 2D endpoints. Lines will sit at
+        // these positions when mode = ml2d.
+        const sum2d = new Map();
+        const cnt = new Map();
+        for (let i = 0; i < count; i++) {
+          const cid = typeof nodeArray[i].clusterId === 'number' ? nodeArray[i].clusterId : -1;
+          if (cid < 0) continue;
+          const p = raw[nodeArray[i].name];
+          if (!p || !Array.isArray(p)) continue;
+          if (!sum2d.has(cid)) { sum2d.set(cid, [0,0]); cnt.set(cid, 0); }
+          const s2 = sum2d.get(cid);
+          s2[0] += p[0]; s2[1] += p[1];
+          cnt.set(cid, cnt.get(cid) + 1);
+        }
+        for (const [cid, s2] of sum2d) {
+          const n = cnt.get(cid) || 1;
+          centroidByCluster2d.set(cid, [s2[0]/n, s2[1]/n]);
+        }
+        if (typeof updateClusterConnectors === 'function') updateClusterConnectors();
         // Extract axis labels for the 2D overlay
         if (raw._meta) {
           const a1 = raw._meta.axis1 || {};
@@ -368,6 +389,86 @@ export default function LivingArchView({
     clusterLabelGroup.visible = modeRef.current === 'ml' || modeRef.current === 'ml2d';
     scene.add(clusterLabelGroup);
 
+    // --- Connector lines from each cluster label to its actual cluster
+    // centroid. Needed because label anchors were spread to r=55 for
+    // readability but the balls blend to ~r=30 — without a line, users
+    // can't tell which blob a label belongs to.
+    const clusterConnectorGroup = new THREE.Group();
+    const centroidByCluster3d = new Map();
+    const centroidByCluster2d = new Map();
+    {
+      const sum3d = new Map();
+      const sum2d = new Map();
+      const cnt = new Map();
+      for (let i = 0; i < nodeArray.length; i++) {
+        const cid = typeof nodeArray[i].clusterId === 'number' ? nodeArray[i].clusterId : -1;
+        if (cid < 0) continue;
+        if (!sum3d.has(cid)) { sum3d.set(cid, [0,0,0]); sum2d.set(cid, [0,0]); cnt.set(cid, 0); }
+        const s3 = sum3d.get(cid);
+        s3[0] += posA[i*3]; s3[1] += posA[i*3+1]; s3[2] += posA[i*3+2];
+        // posB starts zeroed; real values land asynchronously. Update
+        // happens in the pca fetch handler below.
+        cnt.set(cid, cnt.get(cid) + 1);
+      }
+      for (const [cid, s3] of sum3d) {
+        const n = cnt.get(cid) || 1;
+        centroidByCluster3d.set(cid, [s3[0]/n, s3[1]/n, s3[2]/n]);
+        centroidByCluster2d.set(cid, [0, 0]);
+      }
+    }
+    if (clusterData?.clusters) {
+      clusterLabelGroup.children.forEach((sprite) => {
+        const cid = sprite.userData.clusterId;
+        const c3 = centroidByCluster3d.get(cid);
+        if (!c3) return;
+        const geom = new THREE.BufferGeometry();
+        geom.setAttribute('position', new THREE.BufferAttribute(
+          new Float32Array([
+            sprite.position.x, sprite.position.y, sprite.position.z,
+            c3[0], c3[1], c3[2],
+          ]), 3));
+        const lineColor = (sprite.material.color && sprite.material.color.clone())
+          || new THREE.Color('#888888');
+        const line = new THREE.Line(geom, new THREE.LineBasicMaterial({
+          color: lineColor, transparent: true, opacity: 0.35,
+        }));
+        line.userData = { clusterId: cid };
+        line.renderOrder = 998;
+        clusterConnectorGroup.add(line);
+      });
+    }
+    clusterConnectorGroup.visible = clusterLabelGroup.visible;
+    scene.add(clusterConnectorGroup);
+
+    // Recompute each connector line's endpoints: anchor end = sprite
+    // position, centroid end = actual cluster centroid in the current
+    // mode's position space. Callable at init, on async PCA load, on
+    // mode change, and each transition frame.
+    function updateClusterConnectors() {
+      const modeIs3D = modeRef.current === 'ml';
+      clusterConnectorGroup.children.forEach((line) => {
+        const cid = line.userData.clusterId;
+        const sprite = clusterLabelGroup.children.find(s => s.userData.clusterId === cid);
+        if (!sprite) return;
+        const c3 = centroidByCluster3d.get(cid) || [0,0,0];
+        const c2 = centroidByCluster2d.get(cid) || [0,0];
+        // In 3D mode: use gnn_positions centroid. In 2D mode: use pca
+        // centroid (X,0,Z plane — matches posB layout).
+        const ex = modeIs3D ? c3[0] : c2[0];
+        const ey = modeIs3D ? c3[1] : 0;
+        const ez = modeIs3D ? c3[2] : c2[1];
+        const attr = line.geometry.getAttribute('position');
+        attr.array[0] = sprite.position.x;
+        attr.array[1] = sprite.position.y;
+        attr.array[2] = sprite.position.z;
+        attr.array[3] = ex;
+        attr.array[4] = ey;
+        attr.array[5] = ez;
+        attr.needsUpdate = true;
+      });
+    }
+    updateClusterConnectors();
+
     // --- Pop-out edges (for taste selection connections) ---
     const MAX_POPOUT_EDGES = 10000;
     const popEdgeVerts = new Float32Array(MAX_POPOUT_EDGES * 6);
@@ -580,6 +681,7 @@ export default function LivingArchView({
         } else {
           clusterLabelGroup.visible = toML;
         }
+        clusterConnectorGroup.visible = clusterLabelGroup.visible;
         // Lerp cluster label positions between 3D and 2D centroids
         if (clusterLabelGroup.visible) {
           clusterLabelGroup.children.forEach((sprite) => {
@@ -599,6 +701,7 @@ export default function LivingArchView({
               srcZ + (dstZ - srcZ) * et,
             );
           });
+          updateClusterConnectors();
         }
         // For ml↔neural transitions, labels stay at 3D axis positions.
         // For transitions involving wheel, lerp to/from wheel positions.
@@ -643,6 +746,8 @@ export default function LivingArchView({
         sectorGroup.visible = transition.toMode === 'taste2d';
         labelGroup.visible = transition.toMode === 'neural' || transition.toMode === 'taste2d';
         clusterLabelGroup.visible = transition.toMode === 'ml' || transition.toMode === 'ml2d';
+        clusterConnectorGroup.visible = clusterLabelGroup.visible;
+        if (clusterConnectorGroup.visible) updateClusterConnectors();
       }
     }
 
@@ -1181,6 +1286,29 @@ export default function LivingArchView({
     }
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [mode]);
+
+  // ---- Cluster focus mode: when focusedClusterId is set, dim every
+  // node outside that cluster so the focused blob visually pops. Runs
+  // after the mode color effect (defaultColors already reflect the
+  // active palette). When focus clears, restores full-intensity source.
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st || !st.mesh || !st.clusterColors || !st.defaultColors) return;
+    const { mesh, clusterColors, defaultColors, nodeArray } = st;
+    const inClusterMode = mode === 'ml' || mode === 'ml2d';
+    const source = inClusterMode ? clusterColors : defaultColors;
+    const DIM = 0.12;
+    const tmp = new THREE.Color();
+    for (let i = 0; i < nodeArray.length; i++) {
+      if (focusedClusterId == null || nodeArray[i].clusterId === focusedClusterId) {
+        mesh.setColorAt(i, source[i]);
+      } else {
+        tmp.copy(source[i]).multiplyScalar(DIM);
+        mesh.setColorAt(i, tmp);
+      }
+    }
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, [focusedClusterId, mode]);
 
   // ---- Toggle handler (3-way: ml → neural → wheel → ml) ----
   const MODE_CYCLE = ['ml', 'ml2d', 'neural', 'taste2d'];

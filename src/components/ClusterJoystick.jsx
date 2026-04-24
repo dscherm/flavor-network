@@ -34,7 +34,7 @@ const TASTE_TARGETS = {
   astringent: [0, -60, 0],
 };
 
-export default function ClusterJoystick({ clusters, mode, onFlyTo }) {
+export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedClusterId = null, onClusterFocus }) {
   const [active, setActive] = useState(null);
   const isTasteMode = mode === 'neural' || mode === 'taste2d';
 
@@ -59,6 +59,15 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo }) {
     setTimeout(() => setActive(null), 500);
     if (item.cluster) {
       onFlyTo?.(item.cluster);
+      // Cluster focus: re-tap same pill clears focus, else enter focus
+      // on that cluster. Parent owns the state; we just toggle.
+      if (onClusterFocus) {
+        if (focusedClusterId === item.cluster.id) {
+          onClusterFocus(null);
+        } else {
+          onClusterFocus(item.cluster.id);
+        }
+      }
     } else if (item.target) {
       onFlyTo?.({ ...item.target, ts: Date.now() });
     }
@@ -85,19 +94,23 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo }) {
           <span className="text-[9px] uppercase tracking-wider text-gray-500 pr-1 whitespace-nowrap flex-shrink-0">Fly to</span>
           {items.map(item => {
             const isActive = active === item.id;
+            const isFocused = item.cluster && focusedClusterId === item.cluster.id;
             const c = item.color;
+            const bgAlpha = isFocused ? '55' : isActive ? '40' : '14';
+            const borderAlpha = isFocused ? 'ff' : isActive ? 'aa' : '44';
             return (
               <button
                 key={item.id}
                 onClick={() => handleTap(item)}
                 onTouchStart={(e) => { e.preventDefault(); handleTap(item); }}
-                title={`Fly to ${item.label}`}
+                title={isFocused ? `Exit ${item.label} focus` : `Focus on ${item.label}`}
                 className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] whitespace-nowrap transition-colors flex-shrink-0 capitalize"
                 style={{
                   color: c,
-                  background: isActive ? `${c}40` : `${c}14`,
-                  border: `1px solid ${c}${isActive ? 'aa' : '44'}`,
+                  background: `${c}${bgAlpha}`,
+                  border: `1px solid ${c}${borderAlpha}`,
                   minHeight: 26,
+                  boxShadow: isFocused ? `0 0 6px ${c}88` : undefined,
                 }}
               >
                 <span

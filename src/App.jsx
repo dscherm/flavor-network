@@ -81,6 +81,7 @@ export default function App() {
   const [highlightPairings, setHighlightPairings] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
   const [clusterHighlights, setClusterHighlights] = useState(null);
+  const [focusedCluster, setFocusedCluster] = useState(null);
   const isMobile = useIsMobile();
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
@@ -175,6 +176,20 @@ export default function App() {
 
 
   const handleNodeClick = useCallback((node) => {
+    // Cluster-focus gate: when a cluster is focused, clicking empty
+    // space exits focus; clicking a node outside the focused cluster
+    // is ignored; clicking a node inside the focused cluster selects
+    // normally. Exit via another cluster pill is handled separately.
+    if (focusedCluster !== null) {
+      if (!node) {
+        setFocusedCluster(null);
+        setSelectedNodes([]);
+        setHighlightPairings(null);
+        setActivePanel(null);
+        return;
+      }
+      if (node.clusterId !== focusedCluster) return;
+    }
     if (!node) {
       setSelectedNodes([]);
       setHighlightPairings(null);
@@ -194,7 +209,7 @@ export default function App() {
       }
       return next;
     });
-  }, []);
+  }, [focusedCluster]);
 
   const handleSearchSelect = useCallback((name) => {
     setSelectedNodes((prev) => {
@@ -508,6 +523,7 @@ export default function App() {
         highlightPairings={highlightPairings}
         flyToTarget={flyToTarget}
         highlightIngredients={clusterHighlights}
+        focusedClusterId={focusedCluster}
       />
       {/* Hover tooltip — shows ingredient name at cursor position */}
       {hoveredNode && hoverPos && (
@@ -820,6 +836,17 @@ export default function App() {
         <ClusterJoystick
           clusters={data.clusterLabels.clusters}
           mode={livingMode}
+          focusedClusterId={focusedCluster}
+          onClusterFocus={(id) => {
+            setFocusedCluster(id);
+            // Exiting focus also clears any stale selection so the user
+            // isn't stuck with panels open for ingredients they can no
+            // longer reach.
+            if (id === null) {
+              setSelectedNodes([]);
+              setActivePanel(null);
+            }
+          }}
           onFlyTo={(target) => {
             // Cluster object or raw {position, ts} target.
             if (target && target.label_anchor_3d) {
