@@ -23,6 +23,7 @@ Thumbs.db
 
 # Build artifacts
 public/embeddings.json
+public/chemDataset/
 
 # Python
 __pycache__/
