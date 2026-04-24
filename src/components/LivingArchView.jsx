@@ -56,6 +56,15 @@ export default function LivingArchView({
   // Keep modeRef in sync for use inside animation loop
   useEffect(() => { modeRef.current = mode; }, [mode]);
 
+  // Refs for callbacks/props consumed inside the scene-setup useEffect
+  // closure, which only runs on [data] changes. Without these refs the
+  // closure captures stale values (focusedClusterId stays null, cluster
+  // focus click-gating fails).
+  const onNodeClickRef = useRef(onNodeClick);
+  useEffect(() => { onNodeClickRef.current = onNodeClick; }, [onNodeClick]);
+  const focusedClusterIdRef = useRef(focusedClusterId);
+  useEffect(() => { focusedClusterIdRef.current = focusedClusterId; }, [focusedClusterId]);
+
   // ---- Build scene ----
   useEffect(() => {
     if (!containerRef.current || !data) return;
@@ -568,7 +577,16 @@ export default function LivingArchView({
 
     function onClick(event) {
       handleSceneClick(event, camera, renderer, tasteLabelSprites, mesh, nodeArray, raycaster, {
-        onNodeClick,
+        // Gate clicks by the current cluster focus (read via ref so we
+        // always see the latest value — the scene-setup useEffect runs
+        // only on [data] change). Nodes outside the focused cluster
+        // are silently ignored; empty clicks propagate (App.jsx exits
+        // focus on null).
+        onNodeClick: (node) => {
+          const focused = focusedClusterIdRef.current;
+          if (focused != null && node && node.clusterId !== focused) return;
+          onNodeClickRef.current?.(node);
+        },
         mode: modeRef.current,
         handleTasteClick,
         tasteSelection,
@@ -972,7 +990,7 @@ export default function LivingArchView({
       edgeColors, edgeOpacities, validEdges,
       particleMesh, particleMat,
       nodeArray, nameIdx, defaultColors, clusterColors, curPos, posA, posB, posC, posD, posForMode,
-      triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, sectorGroup, tasteSelection,
+      triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
     };
 
@@ -1287,27 +1305,47 @@ export default function LivingArchView({
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [mode]);
 
-  // ---- Cluster focus mode: when focusedClusterId is set, dim every
-  // node outside that cluster so the focused blob visually pops. Runs
-  // after the mode color effect (defaultColors already reflect the
-  // active palette). When focus clears, restores full-intensity source.
+  // ---- Cluster focus mode: dim every node OUTSIDE the focused cluster
+  // to 12% intensity and boost focused nodes to 150% (bloom post-process
+  // amplifies this into a visible glow). Also dim non-focused cluster
+  // labels to 25% opacity so the visual hierarchy matches.
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh || !st.clusterColors || !st.defaultColors) return;
-    const { mesh, clusterColors, defaultColors, nodeArray } = st;
+    const { mesh, clusterColors, defaultColors, nodeArray, clusterLabelGroup } = st;
     const inClusterMode = mode === 'ml' || mode === 'ml2d';
     const source = inClusterMode ? clusterColors : defaultColors;
     const DIM = 0.12;
+    const GLOW = 1.5;
     const tmp = new THREE.Color();
     for (let i = 0; i < nodeArray.length; i++) {
-      if (focusedClusterId == null || nodeArray[i].clusterId === focusedClusterId) {
+      const match = nodeArray[i].clusterId === focusedClusterId;
+      if (focusedClusterId == null) {
         mesh.setColorAt(i, source[i]);
+      } else if (match) {
+        tmp.copy(source[i]).multiplyScalar(GLOW);
+        mesh.setColorAt(i, tmp);
       } else {
         tmp.copy(source[i]).multiplyScalar(DIM);
         mesh.setColorAt(i, tmp);
       }
     }
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    // Label + connector opacity
+    if (clusterLabelGroup) {
+      clusterLabelGroup.children.forEach((sprite) => {
+        const cid = sprite.userData?.clusterId;
+        const isFocused = focusedClusterId == null || cid === focusedClusterId;
+        sprite.material.opacity = isFocused ? 0.95 : 0.22;
+      });
+    }
+    if (st.clusterConnectorGroup) {
+      st.clusterConnectorGroup.children.forEach((line) => {
+        const cid = line.userData?.clusterId;
+        const isFocused = focusedClusterId == null || cid === focusedClusterId;
+        line.material.opacity = isFocused ? 0.55 : 0.1;
+      });
+    }
   }, [focusedClusterId, mode]);
 
   // ---- Toggle handler (3-way: ml → neural → wheel → ml) ----
