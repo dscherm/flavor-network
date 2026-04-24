@@ -175,6 +175,18 @@ export async function installFetchInterceptor(page) {
 }
 
 /**
+ * Pre-seed localStorage so the StartPage picker (R10-64) doesn't block the
+ * 3D canvas. Personas are power-user simulations; they'd only see the
+ * picker on the very first visit. Must be called BEFORE page.goto().
+ * @param {import('@playwright/test').Page} page
+ */
+export async function bypassStartPage(page) {
+  await page.addInitScript(() => {
+    try { localStorage.setItem('fn-start-seen', '1'); } catch { /* private mode */ }
+  });
+}
+
+/**
  * Collect fetch timing metrics (JSON parse durations).
  * @param {import('@playwright/test').Page} page
  */

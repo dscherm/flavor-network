@@ -16,7 +16,7 @@ import { personas, humanDelay, touchDrag } from '../lib/timing.js';
 import {
   startFPSSampler, collectFPS,
   measureLoadMetrics, installFetchInterceptor, collectFetchMetrics,
-  measureMemory, auditTapTargets, testPinchZoom,
+  measureMemory, auditTapTargets, testPinchZoom, bypassStartPage,
 } from '../lib/metrics.js';
 import { writeReport } from '../lib/reporter.js';
 
@@ -38,6 +38,7 @@ test('Home Cook browsing journey', async ({ page }) => {
 
   // --- Setup ---
   await installFetchInterceptor(page);
+  await bypassStartPage(page);
   const { cdp } = await applyThrottle(page, 'lte');
 
   // --- Navigate + measure load ---
