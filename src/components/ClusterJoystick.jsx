@@ -22,6 +22,11 @@ const TASTE_COLORS = {
 
 const TASTE_ORDER = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'spicy', 'pungent', 'astringent'];
 
+// Cluster palette — mirrors CLUSTER_HEX in LivingArchView.jsx so pill
+// color matches the ingredient-ball color for each cluster.
+const CLUSTER_HEX = ['#f472b6', '#ea580c', '#22c55e', '#dc2626', '#facc15',
+                     '#a855f7', '#84cc16', '#b45309', '#78350f', '#64748b'];
+
 // Rough 3D positions per taste matching livingArchTaste TASTE_AXES.
 const TASTE_TARGETS = {
   sweet:      [0, 60, 0],
@@ -48,7 +53,7 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
     : (clusters || []).map(cl => ({
         id: `cluster:${cl.id}`,
         label: cl.label,
-        color: TASTE_COLORS[cl.dominant_taste] || '#aaaaaa',
+        color: CLUSTER_HEX[cl.id] || '#aaaaaa',
         cluster: cl,
       }));
 

@@ -19,8 +19,12 @@ export function seededRng(seed) {
   return () => { st = (1664525 * st + 1013904223) % 4294967296; return st / 4294967296; };
 }
 
-/** Create a billboard sprite with text */
-export function makeLabel(text, color, size) {
+/** Create a billboard sprite with text.
+ *  opts.glow=false disables the shadow-blur fill so ingredient-level
+ *  highlights stay readable under the bloom post-process (cluster
+ *  labels keep glow=true for visual prominence). */
+export function makeLabel(text, color, size, opts = {}) {
+  const glow = opts.glow !== false;
   const canvas = document.createElement('canvas');
   // Higher-resolution texture for sharper rendering on mobile.
   const fontSize = 72;
@@ -36,7 +40,7 @@ export function makeLabel(text, color, size) {
   ctx.strokeStyle = 'rgba(0,0,0,0.85)';
   ctx.strokeText(text, canvas.width/2, canvas.height/2);
   ctx.fillStyle = color;
-  ctx.shadowColor = color; ctx.shadowBlur = 16;
+  if (glow) { ctx.shadowColor = color; ctx.shadowBlur = 16; }
   ctx.fillText(text, canvas.width/2, canvas.height/2);
   const tex = new THREE.CanvasTexture(canvas);
   tex.needsUpdate = true;

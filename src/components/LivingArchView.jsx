@@ -145,6 +145,17 @@ export default function LivingArchView({
           const n = cnt.get(cid) || 1;
           centroidByCluster2d.set(cid, [s2[0]/n, s2[1]/n]);
         }
+        // Now that we have real 2D centroids, update each label's 2D
+        // target to point outward from its cluster. Transition lerp
+        // reads userData.centroid_2d.
+        if (typeof outwardLabelPos2D === 'function') {
+          clusterLabelGroup.children.forEach((sprite) => {
+            const cid = sprite.userData?.clusterId;
+            const c2 = centroidByCluster2d.get(cid);
+            if (!c2) return;
+            sprite.userData.centroid_2d = outwardLabelPos2D(c2);
+          });
+        }
         if (typeof updateClusterConnectors === 'function') updateClusterConnectors();
         // Extract axis labels for the 2D overlay
         if (raw._meta) {
@@ -359,36 +370,66 @@ export default function LivingArchView({
       opAttr.needsUpdate = true;
     }
 
+    // --- Per-cluster centroid from actual (blended) node positions.
+    // Computed BEFORE label setup so labels can be placed radially outward
+    // from each cluster's centroid. Used again by connector lines below.
+    const centroidByCluster3d = new Map();
+    const centroidByCluster2d = new Map();
+    {
+      const sum3d = new Map();
+      const cnt = new Map();
+      for (let i = 0; i < nodeArray.length; i++) {
+        const cid = typeof nodeArray[i].clusterId === 'number' ? nodeArray[i].clusterId : -1;
+        if (cid < 0) continue;
+        if (!sum3d.has(cid)) { sum3d.set(cid, [0,0,0]); cnt.set(cid, 0); }
+        const s3 = sum3d.get(cid);
+        s3[0] += posA[i*3]; s3[1] += posA[i*3+1]; s3[2] += posA[i*3+2];
+        cnt.set(cid, cnt.get(cid) + 1);
+      }
+      for (const [cid, s3] of sum3d) {
+        const n = cnt.get(cid) || 1;
+        centroidByCluster3d.set(cid, [s3[0]/n, s3[1]/n, s3[2]/n]);
+        centroidByCluster2d.set(cid, [0, 0]); // populated by async PCA fetch
+      }
+    }
+
+    // Project each centroid onto a label-radius sphere (outward). The
+    // resulting label position lies along the ray from origin → centroid,
+    // past the centroid, so the connector line points OUTWARD from the
+    // cluster center rather than arbitrary anchor-ingredient angles.
+    const LABEL_R_3D = 62;
+    const LABEL_R_2D = 68;
+    function outwardLabelPos3D(c3) {
+      const mag = Math.hypot(c3[0], c3[1], c3[2]) || 1e-3;
+      return [c3[0] / mag * LABEL_R_3D, c3[1] / mag * LABEL_R_3D, c3[2] / mag * LABEL_R_3D];
+    }
+    function outwardLabelPos2D(c2) {
+      const mag = Math.hypot(c2[0], c2[1]) || 1e-3;
+      return [c2[0] / mag * LABEL_R_2D, c2[1] / mag * LABEL_R_2D];
+    }
+
     // --- Cluster labels for ML views ---
+    const CLUSTER_LABEL_HEX = ['#f472b6', '#ea580c', '#22c55e', '#dc2626', '#facc15',
+                               '#a855f7', '#84cc16', '#b45309', '#78350f', '#64748b'];
     const clusterLabelGroup = new THREE.Group();
     const clusterData = data.clusterLabels;
     if (clusterData?.clusters) {
-      const TASTE_HEX_MAP = { sweet: '#ff4fb8', bitter: '#9d4edd', umami: '#ffd700', salty: '#4f9eff', sour: '#00ffd0', pungent: '#ff8c42', spicy: '#ff4444', astringent: '#6bcb77' };
       for (const cl of clusterData.clusters) {
-        const hex = TASTE_HEX_MAP[cl.dominant_taste] || '#aaaaaa';
-        // Slightly smaller sprite (22 world units) so 10 cluster labels
-        // at radius ~55 don't visually collide in 3D → 2D projection.
-        // Still readable at camera distance 120.
+        const hex = CLUSTER_LABEL_HEX[cl.id] || '#aaaaaa';
         const sprite = makeLabel(cl.label.toUpperCase(), hex, 22);
-        // Anchor at the position of the cluster's top hub ingredient rather
-        // than the raw centroid — Node2Vec embeddings cluster directionally
-        // on a hypersphere, so centroids average toward origin. See
-        // r11-discover-depth task 1.
-        const a3 = cl.label_anchor_3d || cl.centroid_3d || [0, 0, 0];
-        const a2 = cl.label_anchor_2d || cl.centroid_2d || [0, 0];
-        // Lift labels 8 units above the anchor node so they don't overlap
-        // the ingredient sphere.
-        sprite.position.set(a3[0], a3[1] + 8, a3[2]);
+        const c3 = centroidByCluster3d.get(cl.id);
+        const p3 = c3 ? outwardLabelPos3D(c3) : [0, 0, 0];
+        const p2Init = [0, 0]; // real 2D position lands when PCA fetch resolves
+        sprite.position.set(p3[0], p3[1], p3[2]);
         sprite.userData = {
           clusterId: cl.id,
-          centroid_3d: [a3[0], a3[1] + 8, a3[2]],
-          centroid_2d: [a2[0], a2[1]],
+          // "centroid_3d" / "centroid_2d" are the label-position targets
+          // consumed by the transition lerp. Historical names; these are
+          // the outward-projected label anchors, not raw centroids.
+          centroid_3d: [p3[0], p3[1], p3[2]],
+          centroid_2d: p2Init,
         };
         sprite.material.opacity = 0.95;
-        // Render cluster labels in front of everything so they never get
-        // occluded by the ingredient spheres they sit next to. User
-        // request: "labels should not be clustered themselves" +
-        // "placed in front of the cluster."
         sprite.material.depthTest = false;
         sprite.material.depthWrite = false;
         sprite.renderOrder = 999;
@@ -399,32 +440,9 @@ export default function LivingArchView({
     scene.add(clusterLabelGroup);
 
     // --- Connector lines from each cluster label to its actual cluster
-    // centroid. Needed because label anchors were spread to r=55 for
-    // readability but the balls blend to ~r=30 — without a line, users
-    // can't tell which blob a label belongs to.
+    // centroid. Label sits at r=62 outward, centroid at r~30 → line always
+    // points radially inward from label to cluster center.
     const clusterConnectorGroup = new THREE.Group();
-    const centroidByCluster3d = new Map();
-    const centroidByCluster2d = new Map();
-    {
-      const sum3d = new Map();
-      const sum2d = new Map();
-      const cnt = new Map();
-      for (let i = 0; i < nodeArray.length; i++) {
-        const cid = typeof nodeArray[i].clusterId === 'number' ? nodeArray[i].clusterId : -1;
-        if (cid < 0) continue;
-        if (!sum3d.has(cid)) { sum3d.set(cid, [0,0,0]); sum2d.set(cid, [0,0]); cnt.set(cid, 0); }
-        const s3 = sum3d.get(cid);
-        s3[0] += posA[i*3]; s3[1] += posA[i*3+1]; s3[2] += posA[i*3+2];
-        // posB starts zeroed; real values land asynchronously. Update
-        // happens in the pca fetch handler below.
-        cnt.set(cid, cnt.get(cid) + 1);
-      }
-      for (const [cid, s3] of sum3d) {
-        const n = cnt.get(cid) || 1;
-        centroidByCluster3d.set(cid, [s3[0]/n, s3[1]/n, s3[2]/n]);
-        centroidByCluster2d.set(cid, [0, 0]);
-      }
-    }
     if (clusterData?.clusters) {
       clusterLabelGroup.children.forEach((sprite) => {
         const cid = sprite.userData.clusterId;
@@ -439,7 +457,7 @@ export default function LivingArchView({
         const lineColor = (sprite.material.color && sprite.material.color.clone())
           || new THREE.Color('#888888');
         const line = new THREE.Line(geom, new THREE.LineBasicMaterial({
-          color: lineColor, transparent: true, opacity: 0.35,
+          color: lineColor, transparent: true, opacity: 0.55,
         }));
         line.userData = { clusterId: cid };
         line.renderOrder = 998;
@@ -1121,9 +1139,12 @@ export default function LivingArchView({
     for (const name of highlightIngredients) {
       const idx = nameIdx.get(name);
       if (idx === undefined) continue;
-      const sprite = makeLabel(name, '#fff1b8', 16);
+      // Ingredient name labels are small body text on top of bright
+      // ingredient spheres + bloom pass. Skip glow and use a calmer
+      // off-white so the text doesn't blow out in the bloom.
+      const sprite = makeLabel(name, '#d4d8e0', 14, { glow: false });
       sprite.position.set(posSet[idx * 3], posSet[idx * 3 + 1] + 3.5, posSet[idx * 3 + 2]);
-      sprite.material.opacity = 0.95;
+      sprite.material.opacity = 0.85;
       group.add(sprite);
     }
     scene.add(group);
