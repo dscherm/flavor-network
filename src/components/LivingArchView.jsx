@@ -977,32 +977,60 @@ export default function LivingArchView({
       transition.toMode = toMode;
     };
 
-    // Camera fly-to an arbitrary [x,y,z] target — used by the
-    // ClusterJoystick. Camera lands on the OUTWARD side of the target
-    // (same direction as target's outward vector from origin), looking
-    // back toward origin, so the label is in the foreground and the
-    // cluster sits behind it. For 2D modes, keep the top-down angle.
-    const flyToPoint = (target) => {
-      if (!target) return;
-      const targetVec = new THREE.Vector3(target[0], target[1], target[2]);
+    // Camera fly-to a label position with optional cluster centroid.
+    // The label sits at radius ~62 outward from origin; the cluster centroid
+    // sits much closer (radius ~5–25). To get "label in front, cluster behind",
+    // the camera must land BEYOND the label along the (centroid → label) ray
+    // and orbit-focus on the centroid (not the label) so subsequent user
+    // rotation pivots around the cluster.
+    //
+    // labelPos: [x,y,z] of the label (where the user clicked)
+    // centroidPos: [x,y,z] of the cluster centroid; if null, falls back to
+    //              outward-from-origin direction (legacy behavior).
+    const flyToPoint = (labelPos, centroidPos = null) => {
+      if (!labelPos) return;
+      const labelVec = new THREE.Vector3(labelPos[0], labelPos[1], labelPos[2]);
+      const centroidVec = centroidPos
+        ? new THREE.Vector3(centroidPos[0], centroidPos[1], centroidPos[2])
+        : null;
       const is2D = modeRef.current === 'ml2d' || modeRef.current === 'taste2d';
-      const distance = 70;
+      // Camera-to-label distance. Was 70 — too far in 3D: the label sprite
+      // (world-scale ~22 wide) shrinks and gets washed out by the cluster's
+      // bloom glow behind it. 30 gives the label real visual weight in the
+      // foreground while keeping the whole cluster body visible behind.
+      const distance = is2D ? 70 : 30;
       let camEnd;
+      let lookAt;
       if (is2D) {
-        // Top-down: camera stays above the target, looking straight down.
-        camEnd = new THREE.Vector3(targetVec.x, 100, targetVec.z + 0.1);
+        // Top-down: camera stays above the label, looking straight down.
+        // No "behind" in 2D, so center the view on the label itself.
+        camEnd = new THREE.Vector3(labelVec.x, 100, labelVec.z + 0.1);
+        lookAt = labelVec.clone();
       } else {
-        // 3D: place camera outward past the target (along origin→target
-        // direction). Fallback to current direction if target is at origin.
-        const outward = targetVec.clone();
+        // 3D: outward = direction from cluster centroid toward the label.
+        // This is the side of the cluster the user is "looking from".
+        // Camera lands `distance` further along that ray, past the label,
+        // so the label sits between the camera and the cluster body.
+        let outward;
+        if (centroidVec) {
+          outward = labelVec.clone().sub(centroidVec);
+          if (outward.length() < 0.01) outward = labelVec.clone();
+        } else {
+          outward = labelVec.clone();
+        }
         const len = outward.length();
         if (len < 0.01) {
+          // Degenerate: label and centroid coincide and both at origin.
+          // Use current camera-to-target direction as a last resort.
           const currentDir = camera.position.clone().sub(controls.target).normalize();
-          camEnd = targetVec.clone().add(currentDir.multiplyScalar(distance));
+          camEnd = labelVec.clone().add(currentDir.multiplyScalar(distance));
         } else {
           outward.divideScalar(len);
-          camEnd = targetVec.clone().add(outward.multiplyScalar(distance));
+          camEnd = labelVec.clone().add(outward.multiplyScalar(distance));
         }
+        // Orbit pivot is the cluster centroid so the user rotates around the
+        // cluster, not the label sprite. Falls back to label if no centroid.
+        lookAt = centroidVec ? centroidVec.clone() : labelVec.clone();
       }
 
       const startPos = camera.position.clone();
@@ -1013,7 +1041,7 @@ export default function LivingArchView({
         const dt = Math.min(1, (performance.now() - t0) / DURATION);
         const e = dt < 0.5 ? 4 * dt ** 3 : 1 - Math.pow(-2 * dt + 2, 3) / 2;
         camera.position.lerpVectors(startPos, camEnd, e);
-        controls.target.lerpVectors(startTarget, targetVec, e);
+        controls.target.lerpVectors(startTarget, lookAt, e);
         controls.update();
         if (dt < 1 && stateRef.current) requestAnimationFrame(tween);
       }
@@ -1027,6 +1055,10 @@ export default function LivingArchView({
       nodeArray, nameIdx, defaultColors, clusterColors, curPos, posA, posB, posC, posD, posForMode,
       triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
+      // Expose runtime cluster centroids (3D from posA, 2D from PCA) so the
+      // fly-to useEffect can orbit-center on a cluster's actual centroid
+      // rather than the outward label anchor.
+      centroidByCluster3d, centroidByCluster2d,
     };
 
     return () => {
@@ -1123,14 +1155,44 @@ export default function LivingArchView({
     st._nodeLabelGroup = group;
   }, [selectedNode, selectedNodes, highlightPairings, data]);
 
-  // ClusterJoystick fly-to. Each time flyToTarget changes to a new
-  // {x,y,z,key} object, animate the camera to that point. Key used
-  // so re-taps of the same cluster retrigger the animation.
+  // ClusterJoystick fly-to. Each time flyToTarget changes, animate the
+  // camera. When a clusterId is provided, resolve the LIVE label sprite
+  // position (clusterLabelGroup) and the runtime cluster centroid — the
+  // static label_anchor_3d in cluster_labels.json is computed from
+  // pre-blend centroids and does not match where the label actually
+  // renders after gnn_positions cluster blending.
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !flyToTarget) return;
-    if (Array.isArray(flyToTarget)) st.flyToPoint?.(flyToTarget);
-    else if (flyToTarget.position) st.flyToPoint?.(flyToTarget.position);
+    if (Array.isArray(flyToTarget)) {
+      st.flyToPoint?.(flyToTarget);
+      return;
+    }
+    let labelPos = flyToTarget.position;
+    let centroid = null;
+    if (typeof flyToTarget.clusterId === 'number') {
+      const cid = flyToTarget.clusterId;
+      const is2D = modeRef.current === 'ml2d' || modeRef.current === 'taste2d';
+      const sprite = st.clusterLabelGroup?.children?.find(s => s.userData?.clusterId === cid);
+      if (sprite) {
+        // In 2D mode the sprite's userData carries the [x, z] target the
+        // mode-transition lerp settles on; in 3D the sprite.position is
+        // the live render position. Use whichever matches the current mode.
+        if (is2D) {
+          const c2 = sprite.userData?.centroid_2d;
+          if (Array.isArray(c2) && c2.length === 2) labelPos = [c2[0], 0, c2[1]];
+          else labelPos = [sprite.position.x, 0, sprite.position.z];
+        } else {
+          labelPos = [sprite.position.x, sprite.position.y, sprite.position.z];
+        }
+      }
+      const c = is2D
+        ? st.centroidByCluster2d?.get(cid)
+        : st.centroidByCluster3d?.get(cid);
+      if (c) centroid = is2D ? [c[0], 0, c[1]] : c;
+    }
+    if (!labelPos) return;
+    st.flyToPoint?.(labelPos, centroid);
   }, [flyToTarget]);
 
   // Cluster highlight labels — spawn ingredient-name sprites at the

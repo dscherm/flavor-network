@@ -262,6 +262,66 @@ export default function useProData({ enabled = true } = {}) {
           }
         } catch { /* optional */ }
 
+        // Impute 3D positions for ingredients missing from gnn_positions.json.
+        // ~594 of 3913 ingredients have a clusterId but no GNN coordinate
+        // (e.g. five-spice powder, red curry, hoisin, gochujang). Without
+        // imputation they fall back to the taste-axis sphere in LivingArchView,
+        // which scatters them by taste tag rather than by cluster — making them
+        // appear orphaned from their actual cluster. Place each missing
+        // ingredient at its cluster centroid plus a small deterministic jitter
+        // (hashed from the name) so they sit visibly inside the cluster cloud.
+        if (positions?.positions && clusterExplanations?.ingredient_clusters) {
+          const posMap = positions.positions;
+          // Compute per-cluster centroid from ingredients that DO have positions.
+          const sumByCluster = new Map();
+          const cntByCluster = new Map();
+          for (const [name, node] of graph.nodes) {
+            if (typeof node.clusterId !== 'number') continue;
+            const p = posMap[name];
+            if (!p) continue;
+            const cid = node.clusterId;
+            if (!sumByCluster.has(cid)) { sumByCluster.set(cid, [0, 0, 0]); cntByCluster.set(cid, 0); }
+            const s = sumByCluster.get(cid);
+            s[0] += p[0]; s[1] += p[1]; s[2] += p[2];
+            cntByCluster.set(cid, cntByCluster.get(cid) + 1);
+          }
+          const centroidByCluster = new Map();
+          for (const [cid, s] of sumByCluster) {
+            const n = cntByCluster.get(cid) || 1;
+            centroidByCluster.set(cid, [s[0] / n, s[1] / n, s[2] / n]);
+          }
+          // Deterministic per-name jitter via a small string hash → 3 angles.
+          // Magnitude ~3 keeps the imputed point well inside the cluster cloud
+          // (typical East Asian member sits 3–8 units from centroid).
+          let imputed = 0;
+          const JITTER_R = 3.0;
+          for (const [name, node] of graph.nodes) {
+            if (typeof node.clusterId !== 'number') continue;
+            if (posMap[name]) continue;
+            const c = centroidByCluster.get(node.clusterId);
+            if (!c) continue;
+            // FNV-1a-ish hash for a stable per-name seed in [0,1).
+            let h = 2166136261;
+            for (let i = 0; i < name.length; i++) {
+              h ^= name.charCodeAt(i);
+              h = Math.imul(h, 16777619);
+            }
+            const u = ((h >>> 0) % 10000) / 10000;
+            const v = (((h >>> 8) >>> 0) % 10000) / 10000;
+            const w = (((h >>> 16) >>> 0) % 10000) / 10000;
+            const theta = u * 2 * Math.PI;
+            const phi = Math.acos(2 * v - 1);
+            const r = JITTER_R * Math.cbrt(w);
+            posMap[name] = [
+              c[0] + r * Math.sin(phi) * Math.cos(theta),
+              c[1] + r * Math.sin(phi) * Math.sin(theta),
+              c[2] + r * Math.cos(phi),
+            ];
+            imputed++;
+          }
+          positions._imputed_count = imputed;
+        }
+
         // Bridge compounds for molecular journey
         let bridgeCompounds = null;
         let bridgeMolecules3D = null;
