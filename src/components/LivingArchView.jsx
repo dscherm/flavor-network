@@ -978,15 +978,32 @@ export default function LivingArchView({
     };
 
     // Camera fly-to an arbitrary [x,y,z] target — used by the
-    // ClusterJoystick to jump to a cluster anchor and by future
-    // "focus ingredient" navigation. Preserves the user's current
-    // camera-to-target direction so the angle doesn't snap awkwardly.
+    // ClusterJoystick. Camera lands on the OUTWARD side of the target
+    // (same direction as target's outward vector from origin), looking
+    // back toward origin, so the label is in the foreground and the
+    // cluster sits behind it. For 2D modes, keep the top-down angle.
     const flyToPoint = (target) => {
       if (!target) return;
       const targetVec = new THREE.Vector3(target[0], target[1], target[2]);
-      const currentDir = camera.position.clone().sub(controls.target).normalize();
+      const is2D = modeRef.current === 'ml2d' || modeRef.current === 'taste2d';
       const distance = 70;
-      const camEnd = targetVec.clone().add(currentDir.multiplyScalar(distance));
+      let camEnd;
+      if (is2D) {
+        // Top-down: camera stays above the target, looking straight down.
+        camEnd = new THREE.Vector3(targetVec.x, 100, targetVec.z + 0.1);
+      } else {
+        // 3D: place camera outward past the target (along origin→target
+        // direction). Fallback to current direction if target is at origin.
+        const outward = targetVec.clone();
+        const len = outward.length();
+        if (len < 0.01) {
+          const currentDir = camera.position.clone().sub(controls.target).normalize();
+          camEnd = targetVec.clone().add(currentDir.multiplyScalar(distance));
+        } else {
+          outward.divideScalar(len);
+          camEnd = targetVec.clone().add(outward.multiplyScalar(distance));
+        }
+      }
 
       const startPos = camera.position.clone();
       const startTarget = controls.target.clone();
