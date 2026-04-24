@@ -850,7 +850,16 @@ export default function App() {
           onFlyTo={(target) => {
             // Cluster object or raw {position, ts} target.
             if (target && target.label_anchor_3d) {
-              setFlyToTarget({ position: target.label_anchor_3d, ts: Date.now() });
+              // Pass clusterId so LivingArchView can orbit-center the camera
+              // on the runtime cluster centroid (label in foreground, cluster
+              // body behind). Static centroid_3d in cluster_labels.json is
+              // stale vs the GNN-blended runtime positions, so we let
+              // LivingArchView resolve it from its live centroid map.
+              setFlyToTarget({
+                position: target.label_anchor_3d,
+                clusterId: target.id,
+                ts: Date.now(),
+              });
               // Surface top-5 cluster members so the user sees "what's
               // actually here" after the camera lands. Use an array ref
               // so repeated taps of the same cluster re-spawn labels.
