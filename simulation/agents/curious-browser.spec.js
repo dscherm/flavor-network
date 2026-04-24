@@ -16,7 +16,7 @@ import { personas, humanDelay } from '../lib/timing.js';
 import {
   startFPSSampler, collectFPS,
   measureLoadMetrics, installFetchInterceptor, collectFetchMetrics,
-  measureMemory, auditTapTargets,
+  measureMemory, auditTapTargets, bypassStartPage,
 } from '../lib/metrics.js';
 import { writeReport } from '../lib/reporter.js';
 
@@ -43,6 +43,7 @@ test('Curious Browser worst-case journey', async ({ page }) => {
 
   // --- Setup ---
   await installFetchInterceptor(page);
+  await bypassStartPage(page);
   const { cdp } = await applyThrottle(page, 'slow4g');
 
   // --- Track page weight via CDP ---

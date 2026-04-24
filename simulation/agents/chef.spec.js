@@ -16,7 +16,7 @@ import { personas, humanType, humanDelay, touchDrag } from '../lib/timing.js';
 import {
   startFPSSampler, collectFPS,
   measureLoadMetrics, installFetchInterceptor, collectFetchMetrics,
-  measureMemory, auditTapTargets, measureWebGLStats,
+  measureMemory, auditTapTargets, measureWebGLStats, bypassStartPage,
 } from '../lib/metrics.js';
 import { writeReport } from '../lib/reporter.js';
 
@@ -39,6 +39,7 @@ test('Chef power user journey', async ({ page }) => {
 
   // --- Setup ---
   await installFetchInterceptor(page);
+  await bypassStartPage(page);
   const { cdp } = await applyThrottle(page, 'wifi');
 
   // --- Navigate + measure load ---
