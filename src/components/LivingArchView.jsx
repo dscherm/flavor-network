@@ -1191,6 +1191,27 @@ export default function LivingArchView({
         : st.centroidByCluster3d?.get(cid);
       if (c) centroid = is2D ? [c[0], 0, c[1]] : c;
     }
+    // Taste-mode pills (sweet/sour/...): same shape, but the live label
+    // sprite lives in labelGroup (keyed by userData.taste) and the
+    // "centroid" is the average position of nodes scoring that taste in
+    // posC (the taste-axis-3D position set).
+    if (typeof flyToTarget.taste === 'string') {
+      const taste = flyToTarget.taste;
+      const sprite = st.labelGroup?.children?.find(s => s.userData?.taste === taste);
+      if (sprite) {
+        labelPos = [sprite.position.x, sprite.position.y, sprite.position.z];
+      }
+      const { nodeArray, posC } = st;
+      if (nodeArray && posC) {
+        let sx = 0, sy = 0, sz = 0, n = 0;
+        for (let i = 0; i < nodeArray.length; i++) {
+          if (!ingredientHasTaste(nodeArray[i].name, nodeArray[i], taste)) continue;
+          sx += posC[i*3]; sy += posC[i*3+1]; sz += posC[i*3+2];
+          n++;
+        }
+        if (n > 0) centroid = [sx/n, sy/n, sz/n];
+      }
+    }
     if (!labelPos) return;
     st.flyToPoint?.(labelPos, centroid);
   }, [flyToTarget]);

@@ -866,7 +866,11 @@ export default function App() {
               const names = (target.top_ingredients || []).slice(0, 5);
               setClusterHighlights(names.length > 0 ? [...names] : null);
             } else if (target && target.position) {
-              setFlyToTarget({ position: target.position, ts: Date.now() });
+              setFlyToTarget({
+                position: target.position,
+                taste: target.taste || null,
+                ts: Date.now(),
+              });
               setClusterHighlights(null);
             }
           }}

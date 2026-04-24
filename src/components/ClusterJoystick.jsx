@@ -48,7 +48,10 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
         id: `taste:${t}`,
         label: t,
         color: TASTE_COLORS[t],
-        target: { position: TASTE_TARGETS[t], ts: 0 },
+        // Pass `taste` so LivingArchView can resolve the LIVE taste label
+        // sprite + compute the actual centroid of ingredients with this
+        // taste. The static TASTE_TARGETS position is a fallback only.
+        target: { position: TASTE_TARGETS[t], taste: t, ts: 0 },
       }))
     : (clusters || []).map(cl => ({
         id: `cluster:${cl.id}`,
