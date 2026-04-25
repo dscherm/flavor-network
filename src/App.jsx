@@ -753,7 +753,11 @@ export default function App() {
             onSelectionChange={handleLabSelectionChange}
             onOpenRecipeLab={(mode, initialIngredients) => {
               setSelectedNodes(Array.isArray(initialIngredients) ? [...initialIngredients] : []);
-              setRecipeInitialMode(mode || null);
+              // Cocktail handoff always lands on the Cocktail tab in
+              // Recipe Lab so the suggestions are filtered to the
+              // cocktail scope. mode is 'replace' (informational only —
+              // chips show inline swap targets, no separate filter).
+              setRecipeInitialMode('cocktail');
               setRecipeMounted(true);
               setActiveTab('recipe');
             }}
