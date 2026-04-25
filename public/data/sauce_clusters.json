@@ -1,0 +1,238 @@
+{
+  "_meta": {
+    "source": "sauce_augment.json",
+    "saucesClassified": 25,
+    "ingredients": 49,
+    "generatedAt": "2026-04-25T16:33:24.606Z"
+  },
+  "clusters": [
+    {
+      "id": 0,
+      "label": "Béchamel",
+      "color": "#fde68a",
+      "members": 10
+    },
+    {
+      "id": 1,
+      "label": "Velouté",
+      "color": "#facc15",
+      "members": 4
+    },
+    {
+      "id": 2,
+      "label": "Espagnole",
+      "color": "#92400e",
+      "members": 14
+    },
+    {
+      "id": 3,
+      "label": "Tomate",
+      "color": "#dc2626",
+      "members": 14
+    },
+    {
+      "id": 4,
+      "label": "Hollandaise",
+      "color": "#fb923c",
+      "members": 7
+    }
+  ],
+  "ingredient_clusters": {
+    "butter": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "flour": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "milk": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "salt": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "white pepper": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "nutmeg": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "gruyere": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "parmesan": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "onion": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "cream": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "black pepper": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "cheddar": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "dijon mustard": {
+      "cluster_id": 0,
+      "cluster_label": "Béchamel"
+    },
+    "cayenne": {
+      "cluster_id": 4,
+      "cluster_label": "Hollandaise"
+    },
+    "chicken stock": {
+      "cluster_id": 1,
+      "cluster_label": "Velouté"
+    },
+    "lemon juice": {
+      "cluster_id": 1,
+      "cluster_label": "Velouté"
+    },
+    "veal stock": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "egg yolk": {
+      "cluster_id": 4,
+      "cluster_label": "Hollandaise"
+    },
+    "shallot": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "white wine": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "fish stock": {
+      "cluster_id": 1,
+      "cluster_label": "Velouté"
+    },
+    "parsley": {
+      "cluster_id": 1,
+      "cluster_label": "Velouté"
+    },
+    "tomato paste": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "carrot": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "celery": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "thyme": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "bay leaf": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "meat glaze": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "red wine": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "tomato": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "tarragon": {
+      "cluster_id": 4,
+      "cluster_label": "Hollandaise"
+    },
+    "white wine vinegar": {
+      "cluster_id": 4,
+      "cluster_label": "Hollandaise"
+    },
+    "madeira wine": {
+      "cluster_id": 2,
+      "cluster_label": "Espagnole"
+    },
+    "olive oil": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "garlic": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "tomato puree": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "sugar": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "basil": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "oregano": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "chili flake": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "dried red chili": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "anchovy": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "olives": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "capers": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "ground beef": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "pancetta": {
+      "cluster_id": 3,
+      "cluster_label": "Tomate"
+    },
+    "clarified butter": {
+      "cluster_id": 4,
+      "cluster_label": "Hollandaise"
+    },
+    "water": {
+      "cluster_id": 4,
+      "cluster_label": "Hollandaise"
+    },
+    "cold butter": {
+      "cluster_id": 4,
+      "cluster_label": "Hollandaise"
+    }
+  }
+}

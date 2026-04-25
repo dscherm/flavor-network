@@ -1,0 +1,1124 @@
+{
+  "_meta": {
+    "source": "cocktaildb",
+    "drinksClassified": 426,
+    "ingredients": 269,
+    "generatedAt": "2026-04-25T16:33:24.549Z"
+  },
+  "clusters": [
+    {
+      "id": 0,
+      "label": "Old-Fashioned",
+      "color": "#b45309",
+      "members": 192
+    },
+    {
+      "id": 1,
+      "label": "Martini",
+      "color": "#94a3b8",
+      "members": 13
+    },
+    {
+      "id": 2,
+      "label": "Daiquiri",
+      "color": "#facc15",
+      "members": 41
+    },
+    {
+      "id": 3,
+      "label": "Sidecar",
+      "color": "#ea580c",
+      "members": 2
+    },
+    {
+      "id": 4,
+      "label": "Highball",
+      "color": "#22c55e",
+      "members": 21
+    },
+    {
+      "id": 5,
+      "label": "Flip",
+      "color": "#a855f7",
+      "members": 0
+    }
+  ],
+  "ingredient_clusters": {
+    "gin": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "grand marnier": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lemon juice": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "grenadine": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "amaretto": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "baileys irish cream": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cognac": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cream": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "milk": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "egg white": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "proof rum": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "wild turkey": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "absolut vodka": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "tonic water": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "rum": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "applejack": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "grapefruit juice": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "strawberry schnapp": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "orange juice": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "cranberry juice": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "soda water": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "vodka": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "pisang ambon": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "apple juice": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lemonade": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "maraschino cherry": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "kahlua": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "peach nectar": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "vermouth": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "maraschino liqueur": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "triple sec": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "scotch": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "sweet vermouth": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "dry vermouth": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "orange bitters": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lime juice": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "sugar": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "mint": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "creme de cacao": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "nutmeg": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "crown royal": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "bourbon": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "blackberry brandy": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lemon": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "campari": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "orange": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "whiskey": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "pineapple juice": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "bitter": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "sambuca": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "green chartreuse": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "irish cream": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "goldschlager": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "champagne": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "peach schnapp": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "simple syrup": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "creme de mure": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "blue curacao": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "angostura bitters": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "passion fruit juice": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "galliano": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "prosecco": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "chocolate": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cherry heering": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "wormwood": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "water": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "corona": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "bacardi limon": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "everclear": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "mountain dew": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "surge": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "sloe gin": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "midori melon liqueur": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "jägermeister": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "southern comfort": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lime": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "sour mix": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "banana liqueur": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "vanilla ice-cream": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "powdered sugar": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cherry": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "sweet and sour": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "coffee": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "brandy": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cachaca": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "ginger ale": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "coca-cola": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "cherry brandy": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "falernum": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "añejo rum": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "blackstrap rum": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lager": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "port": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "carbonated water": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cointreau": {
+      "cluster_id": 3,
+      "cluster_label": "Sidecar"
+    },
+    "vanilla": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "caramel coloring": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "egg yolk": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lillet blanc": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "absinthe": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "chocolate liqueur": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "wine": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "almond flavoring": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "peach bitter": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cider": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "blackcurrant cordial": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "fruit punch": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "sprite": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "tequila": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "olive": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "olive brine": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "ginger beer": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "brown sugar": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "pisco": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "pineapple syrup": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "st. germain": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "black pepper": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lavender": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "damn": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "dubonnet rouge": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cinnamon": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "whipped cream": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "chocolate syrup": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "salt": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "vanilla syrup": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "espresso": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "egg": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "condensed milk": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "apricot brandy": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "elderflower cordial": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "mezcal": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "coffee liqueur": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "rose": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "strawberrie": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "honey": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "fig": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "thyme": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "benedictine": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "yoghurt": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "banana": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "fruit": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "apple": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "apricot nectar": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "pomegranate juice": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "raspberry liqueur": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lillet": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "firewater": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "absolut peppar": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "tabasco sauce": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "fruit juice": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "dr. pepper": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "beer": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "sarsaparilla": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "pineapple": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "peach vodka": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "sirup of rose": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "red wine": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "malibu rum": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "orange spiral": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "green creme de menthe": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "whisky": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "tea": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "blackberrie": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "cherry juice": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "chili flake": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "ginger": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "grape juice": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "carbonated soft drink": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "sherbet": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "corn syrup": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "butter": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "half-and-half": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "marshmallow": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "iced tea": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "coconut syrup": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "peach brandy": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "guinness stout": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "aperol": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "chambord raspberry liqueur": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "jack daniel": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "ani": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "jello": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "mint syrup": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "yellow chartreuse": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "apple brandy": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "tennessee whiskey": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "creme de cassi": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "grain alcohol": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "kiwi liqueur": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "bitter lemon": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "absolut kurant": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "kiwi": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cranberry vodka": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "apfelkorn": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "schweppes russchian": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "kool-aid": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "papaya": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "absolut citron": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "asafoetida": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cayenne pepper": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "drambuie": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "mango": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "tia maria": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "coconut liqueur": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "cumin": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "orgeat syrup": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "tomato juice": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "sauce": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "worcestershire sauce": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "soy sauce": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "ricard": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "pepsi cola": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "pina colada mix": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "daiquiri mix": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cardamom": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cucumber": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "white creme de menthe": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "frangelico": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lemon-lime soda": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "oreo cookie": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "butterscotch schnapp": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "jagermeister": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "rosemary syrup": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "rosemary": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "grape soda": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "orange curacao": {
+      "cluster_id": 3,
+      "cluster_label": "Sidecar"
+    },
+    "blended scotch": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "honey syrup": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "ginger syrup": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "islay single malt scotch": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "coconut milk": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "passoa": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "passion fruit syrup": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "cherry liqueur": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "pink lemonade": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "coffee brandy": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "lime vodka": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "sherry": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "black sambuca": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "raspberry syrup": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "up": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "raspberry vodka": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "peychaud bitter": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "amaro montenegro": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "ruby port": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "blood orange": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "allspice": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "advocaat": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "jim beam": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "godiva liqueur": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "anisette": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "creme de banane": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "cherrie": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "fresca": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "coriander": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "celery salt": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "rosso vermouth": {
+      "cluster_id": 1,
+      "cluster_label": "Martini"
+    },
+    "melon liqueur": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "yukon jack": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "maple syrup": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "limeade": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "agave syrup": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "white wine": {
+      "cluster_id": 4,
+      "cluster_label": "Highball"
+    },
+    "cream of coconut": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "peachtree schnapp": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "root beer": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "pernod": {
+      "cluster_id": 2,
+      "cluster_label": "Daiquiri"
+    },
+    "ouzo": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    },
+    "zima": {
+      "cluster_id": 0,
+      "cluster_label": "Old-Fashioned"
+    }
+  }
+}
