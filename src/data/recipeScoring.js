@@ -104,3 +104,67 @@ export function verdictForScore(score) {
   if (c < 0.2) return `Monotone — dominated by ${score.dominantTastes[0] || 'one taste'}`;
   return 'Uneven — try adding a contrasting taste';
 }
+
+/* ──────────────────────────────────────────────────────────────────
+ * Aroma profile (replaces the misleading "taste balance" UI).
+ *
+ * Aggregates the GNN-predicted odor_* probabilities across the
+ * selected ingredients and returns a normalized 6-D profile. This
+ * is closer to how flavor actually works — taste (sweet/bitter/...)
+ * is only ~5 channels, but aroma is the dominant flavor signal and
+ * the GNN heads for it (fruity/floral/green/woody/spicy/fatty) are
+ * decent post-calibration.
+ *
+ * Reports a profile rather than a single "balance" score because
+ * food-pairing theory says aroma OVERLAP (not diversity) predicts
+ * good pairings — so a balance number would be misleading. Showing
+ * the bars lets the user see "this combo trends woody + spicy"
+ * directly.
+ * ────────────────────────────────────────────────────────────── */
+const AROMAS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
+
+export const AROMA_LABELS = {
+  odor_fruity: 'fruity',
+  odor_floral: 'floral',
+  odor_green: 'green',
+  odor_woody: 'woody',
+  odor_spicy: 'spicy',
+  odor_fatty: 'fatty',
+};
+
+export const AROMA_COLORS = {
+  odor_fruity: '#ff8c42',
+  odor_floral: '#e879a8',
+  odor_green:  '#6bcb77',
+  odor_woody:  '#a67c52',
+  odor_spicy:  '#ff4444',
+  odor_fatty:  '#d4aa70',
+};
+
+export function scoreRecipeAroma(ingredients) {
+  if (!ingredients || ingredients.length === 0) {
+    return { profile: AROMAS.map(() => 0), dominantAromas: [], confidence: 0, hasSignal: false };
+  }
+  const agg = AROMAS.map(() => 0);
+  let gnnCount = 0;
+  for (const ing of ingredients) {
+    if (!ing?.gnnProbs) continue;
+    gnnCount++;
+    for (let i = 0; i < AROMAS.length; i++) {
+      agg[i] += ing.gnnProbs[AROMAS[i]] || 0;
+    }
+  }
+  const total = agg.reduce((s, v) => s + v, 0);
+  const profile = total > 0 ? agg.map(v => v / total) : agg;
+  const dominantAromas = AROMAS
+    .map((a, i) => ({ a, p: profile[i] }))
+    .sort((x, y) => y.p - x.p)
+    .filter(x => x.p > 0)
+    .map(x => x.a);
+  return {
+    profile,
+    dominantAromas,
+    confidence: gnnCount / ingredients.length,
+    hasSignal: total > 0,
+  };
+}

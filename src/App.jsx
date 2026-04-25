@@ -176,26 +176,20 @@ export default function App() {
 
 
   const handleNodeClick = useCallback((node) => {
-    // Cluster-focus gate: when a cluster is focused, clicking empty
-    // space exits focus; clicking a node outside the focused cluster
-    // is ignored; clicking a node inside the focused cluster selects
-    // normally. Exit via another cluster pill is handled separately.
+    // Cluster-focus gate: when a cluster is focused, an empty-space
+    // click exits focus (but no longer clears the IngredientPanel —
+    // panel only closes via its X button). Clicking a node outside
+    // the focused cluster is ignored.
     if (focusedCluster !== null) {
       if (!node) {
         setFocusedCluster(null);
-        setSelectedNodes([]);
-        setHighlightPairings(null);
-        setActivePanel(null);
         return;
       }
       if (node.clusterId !== focusedCluster) return;
     }
-    if (!node) {
-      setSelectedNodes([]);
-      setHighlightPairings(null);
-      setActivePanel(null);
-      return;
-    }
+    // Empty-space click is a no-op so OrbitControls drags / camera
+    // moves don't dismiss the open panel and selected ingredients.
+    if (!node) return;
     setHighlightPairings(null);
     const name = node.name;
     setSelectedNodes((prev) => {

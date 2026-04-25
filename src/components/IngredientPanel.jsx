@@ -6,7 +6,7 @@ import SharedMoleculesCard from './SharedMoleculesCard.jsx';
 import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
 import FlavorPathCard from './FlavorPathCard.jsx';
 import MoleculeTasteMap from './MoleculeTasteMap.jsx';
-import { scoreRecipe, verdictForScore } from '../data/recipeScoring.js';
+import { scoreRecipeAroma, AROMA_LABELS, AROMA_COLORS } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
   sweet: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
@@ -91,6 +91,41 @@ function CollapsibleSection({ title, badge, children, defaultOpen = false }) {
   );
 }
 
+function AromaProfileSection({ aroma }) {
+  if (!aroma || !aroma.hasSignal) return null;
+  const entries = Object.keys(AROMA_LABELS).map((key, i) => ({
+    key,
+    label: AROMA_LABELS[key],
+    color: AROMA_COLORS[key],
+    p: aroma.profile[i] || 0,
+  })).sort((a, b) => b.p - a.p);
+  return (
+    <section className="mb-3">
+      <SectionHeading>Aroma Profile</SectionHeading>
+      <div className="space-y-1">
+        {entries.map(e => (
+          <div key={e.key} className="flex items-center gap-2">
+            <span className="w-12 text-[10px] uppercase text-gray-500">{e.label}</span>
+            <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
+              <div
+                className="h-full rounded transition-all duration-500"
+                style={{ width: `${Math.max(0, Math.min(1, e.p)) * 100}%`, background: e.color }}
+              />
+            </div>
+            <span className="w-8 text-right text-[10px] text-gray-400 tabular-nums">
+              {Math.round(e.p * 100)}%
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-gray-500 mt-1.5">
+        Aggregate of GNN-predicted aromas across the selected ingredients
+        {aroma.confidence < 1 && ` · ${Math.round(aroma.confidence * 100)}% coverage`}
+      </p>
+    </section>
+  );
+}
+
 const TASTE_OPPOSITES = {
   sweet: 'bitter',
   bitter: 'sweet',
@@ -165,30 +200,14 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     return [...new Set(items)];
   }, [node, neighbors, selectedNodes, commonPairings]);
 
-  const balanceScore = useMemo(() => {
+  // Aroma profile across selected ingredients — replaces the old
+  // Taste Balance %, which was a misleading single-number summary
+  // over only 5 taste channels. Aroma is the dominant flavor signal
+  // and the GNN's odor heads are reasonably calibrated.
+  const aromaProfile = useMemo(() => {
     if (selectedCount < 2) return null;
-    return scoreRecipe(selectedNodesData);
+    return scoreRecipeAroma(selectedNodesData);
   }, [selectedNodesData, selectedCount]);
-
-  const balanceVerdict = balanceScore ? verdictForScore(balanceScore) : null;
-
-  const tasteSuggestion = useMemo(() => {
-    if (!balanceScore || !balanceScore.profile || selectedCount < 2) return null;
-    const TASTES = ['sweet', 'bitter', 'umami', 'salty', 'sour'];
-    let weakest = null, weakestVal = Infinity;
-    for (let i = 0; i < TASTES.length; i++) {
-      if (balanceScore.profile[i] < weakestVal) {
-        weakestVal = balanceScore.profile[i];
-        weakest = TASTES[i];
-      }
-    }
-    if (!weakest || weakestVal > 0.15) return null;
-    const filler = (commonPairings || []).find(p => {
-      const n = graphNodes?.get(p.name);
-      return n && (n.taste || '').toLowerCase().includes(weakest);
-    });
-    return { taste: weakest, ingredient: filler?.name || null };
-  }, [balanceScore, commonPairings, graphNodes, selectedCount]);
 
   if (!node) return null;
 
@@ -245,29 +264,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             </div>
           </section>
         )}
-        {balanceScore && selectedCount >= 2 && (
-          <section className="mb-3">
-            <SectionHeading>Taste Balance</SectionHeading>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
-                <div className="h-full rounded" style={{
-                  width: `${Math.round(balanceScore.balance * 100)}%`,
-                  background: balanceScore.balance > 0.6 ? '#34d399' : balanceScore.balance > 0.3 ? '#fbbf24' : '#f87171',
-                }} />
-              </div>
-              <span className="text-[10px] text-gray-400 w-8 text-right">{Math.round(balanceScore.balance * 100)}%</span>
-            </div>
-            <p className="text-xs text-gray-300">{balanceVerdict}</p>
-            {tasteSuggestion && (
-              <p className="text-[11px] text-cyan-400/80 mt-1">
-                Missing {tasteSuggestion.taste}
-                {tasteSuggestion.ingredient && (
-                  <> — try <button onClick={() => onSelectIngredient?.(tasteSuggestion.ingredient)} className="underline hover:text-cyan-300">{tasteSuggestion.ingredient}</button></>
-                )}
-              </p>
-            )}
-          </section>
-        )}
+        <AromaProfileSection aroma={aromaProfile} />
         {flavorPath && flavorPath.length > 2 && selectedCount === 2 && (
           <section className="mb-3">
             <SectionHeading>Flavor Path</SectionHeading>
@@ -484,8 +481,15 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
   }
 
   return (
-    <div className="fixed right-0 z-40 flex items-stretch select-none" style={{ top: 'var(--nav-h)', bottom: 'var(--bottom-safe)' }}>
-      {/* Tab */}
+    <div
+      className={`fixed right-0 z-40 flex items-stretch select-none transition-transform duration-300 ease-in-out ${
+        collapsed ? 'translate-x-80' : 'translate-x-0'
+      }`}
+      style={{ top: 'var(--nav-h)', bottom: 'var(--bottom-safe)' }}
+    >
+      {/* Tab — when the container slides right by w-80 (panel width),
+          the panel goes off-screen and this button lands flush with
+          the viewport's right edge. */}
       <button
         onClick={() => setCollapsed((v) => !v)}
         className={`self-start mt-8 min-w-[44px] min-h-[44px] flex items-center justify-center bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-r-0 rounded-l-lg px-1.5 py-3 transition-colors ${
@@ -506,9 +510,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
         aria-label={`Details for ${name}`}
         tabIndex={-1}
         onKeyDown={handleKeyDown}
-        className={`w-80 overflow-y-auto bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-4 focus:outline-none transition-transform duration-300 ease-in-out ${
-          collapsed ? 'translate-x-[calc(100%+4px)]' : 'translate-x-0'
-        }`}
+        className="w-80 overflow-y-auto bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-4 focus:outline-none"
       >
         {/* Close button */}
         <button
@@ -575,29 +577,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             </div>
           </section>
         )}
-        {balanceScore && selectedCount >= 2 && (
-          <section className="mb-3">
-            <SectionHeading>Taste Balance</SectionHeading>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="flex-1 h-2 bg-[#1a1a24] rounded overflow-hidden">
-                <div className="h-full rounded" style={{
-                  width: `${Math.round(balanceScore.balance * 100)}%`,
-                  background: balanceScore.balance > 0.6 ? '#34d399' : balanceScore.balance > 0.3 ? '#fbbf24' : '#f87171',
-                }} />
-              </div>
-              <span className="text-[10px] text-gray-400 w-8 text-right">{Math.round(balanceScore.balance * 100)}%</span>
-            </div>
-            <p className="text-xs text-gray-300">{balanceVerdict}</p>
-            {tasteSuggestion && (
-              <p className="text-[11px] text-cyan-400/80 mt-1">
-                Missing {tasteSuggestion.taste}
-                {tasteSuggestion.ingredient && (
-                  <> — try <button onClick={() => onSelectIngredient?.(tasteSuggestion.ingredient)} className="underline hover:text-cyan-300">{tasteSuggestion.ingredient}</button></>
-                )}
-              </p>
-            )}
-          </section>
-        )}
+        <AromaProfileSection aroma={aromaProfile} />
 
         {flavorPath && flavorPath.length > 2 && selectedCount === 2 && (
           <section className="mb-3">
