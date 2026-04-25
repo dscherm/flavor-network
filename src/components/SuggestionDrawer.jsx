@@ -5,6 +5,7 @@ import { scoreIngredient } from '../data/tastePositioning.js';
 import { findWeakestAxis, aggregateRecipeTastes } from '../data/tasteScoring.js';
 import { analyzeRecipe } from '../data/recipeAnalysis.js';
 import { rankByRecipeCooccurrence } from '../data/recipeSuggestionEngine.js';
+import { AROMA_LABELS, AROMA_COLORS } from '../data/recipeScoring.js';
 import OdorBadge from './OdorBadge.jsx';
 
 // `?engine=v1` forces the legacy avg-NPMI ranking even when the new
@@ -192,6 +193,16 @@ export default function SuggestionDrawer({
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  // Sync filterMode when activeTab is set externally (e.g. tapping an
+  // aroma bar in the Recipe Lab). Without this, an `aroma:fruity` tab
+  // would be active but the visible tab strip would still be the taste
+  // strip — confusing.
+  useEffect(() => {
+    if (typeof activeTab !== 'string') return;
+    if (activeTab.startsWith('aroma:') && filterMode !== 'aroma') setFilterMode('aroma');
+    else if (activeTab.startsWith('cuisine:') && filterMode !== 'cuisine') setFilterMode('cuisine');
+  }, [activeTab, filterMode]);
+
   const sheetHeight = getSnapHeight(snapState, viewportHeight);
 
   // Drag gesture
@@ -314,6 +325,27 @@ export default function SuggestionDrawer({
       });
       return { filteredChips: matches, complementChips: [] };
     }
+    // Aroma tab — filter by GNN-predicted odor probability for the
+    // selected aroma class. Threshold of 0.2 = "this ingredient is
+    // meaningfully <aroma>" (calibrated post-R12). Sort by both the
+    // engine strength AND the aroma probability so chips that are
+    // BOTH high-pairing AND strongly <aroma> bubble up.
+    if (activeTab.startsWith('aroma:')) {
+      const odorKey = activeTab.slice(6);
+      const AROMA_THRESHOLD = 0.2;
+      const matches = chipData
+        .map(c => {
+          const node = nodes?.get(c.name);
+          const p = node?.gnnProbs?.[`odor_${odorKey}`] || 0;
+          return { ...c, aromaProb: p };
+        })
+        .filter(c => c.aromaProb >= AROMA_THRESHOLD)
+        .sort((a, b) => {
+          if (a.inRecipe !== b.inRecipe) return a.inRecipe ? 1 : -1;
+          return (b.strength + b.aromaProb) - (a.strength + a.aromaProb);
+        });
+      return { filteredChips: matches, complementChips: [] };
+    }
     // Taste tab: split into matching taste + high-strength complements from other tastes
     const matches = [];
     const complements = [];
@@ -380,13 +412,23 @@ export default function SuggestionDrawer({
     return [...set].sort();
   }, [chipData, nodes]);
 
-  // Tabs differ by mode. 'all' is always available; 'balance' + taste axes
-  // show only in taste mode; cuisine list only in cuisine mode. Keeps the
-  // surface compact and the choice explicit.
+  // Tabs differ by mode. 'all' is always available; 'balance' + taste
+  // axes show only in taste mode; cuisine list only in cuisine mode;
+  // aroma classes only in aroma mode. Keeps the surface compact.
   const tabs = filterMode === 'cuisine'
     ? [
         { key: 'all', label: 'All' },
         ...cuisineOptions.map(c => ({ key: `cuisine:${c}`, label: c, isCuisine: true })),
+      ]
+    : filterMode === 'aroma'
+    ? [
+        { key: 'all', label: 'All' },
+        ...Object.keys(AROMA_LABELS).map(odorKey => ({
+          key: `aroma:${odorKey.replace('odor_', '')}`,
+          label: AROMA_LABELS[odorKey],
+          aromaColor: AROMA_COLORS[odorKey],
+          isAroma: true,
+        })),
       ]
     : [
         { key: 'all', label: 'All' },
@@ -437,15 +479,16 @@ export default function SuggestionDrawer({
         </div>
       </div>
 
-      {/* Filter-mode toggle (Taste vs. Cuisine) — scaffolded so we only
-          show one flavor-axis class at a time. Cuisine mode is hidden
-          when no chip carries a cuisine tag (most ingredients). */}
-      {snapState !== 'peek' && cuisineOptions.length > 0 && (
+      {/* Filter-mode toggle (Taste / Aroma / Cuisine) — show one
+          flavor-axis class at a time. Cuisine mode is hidden when
+          no chip carries a cuisine tag (most ingredients). */}
+      {snapState !== 'peek' && (
         <div className="flex-shrink-0 px-2 pb-1 flex items-center gap-1.5">
           <span className="text-[10px] uppercase tracking-wider" style={{ color: '#a09070', fontFamily: FONT_FAMILY }}>Filter by</span>
           {[
             { k: 'taste', label: 'Taste' },
-            { k: 'cuisine', label: 'Cuisine' },
+            { k: 'aroma', label: 'Aroma' },
+            ...(cuisineOptions.length > 0 ? [{ k: 'cuisine', label: 'Cuisine' }] : []),
           ].map(({ k, label }) => (
             <button
               key={k}
@@ -468,7 +511,7 @@ export default function SuggestionDrawer({
           <div className="flex gap-1 min-w-max">
             {tabs.map(t => {
               const isActive = activeTab === t.key;
-              const tasteColor = TASTE_COLORS[t.key];
+              const dotColor = t.aromaColor || TASTE_COLORS[t.key];
               return (
                 <button
                   key={t.key}
@@ -477,14 +520,14 @@ export default function SuggestionDrawer({
                   style={{
                     fontFamily: FONT_FAMILY,
                     color: isActive ? '#3a3428' : '#a09070',
-                    backgroundColor: isActive && tasteColor ? `${tasteColor}33` : isActive ? '#e8dcc0' : 'transparent',
-                    border: `1px solid ${isActive ? (tasteColor || '#c9b99a') : 'transparent'}`,
+                    backgroundColor: isActive && dotColor ? `${dotColor}33` : isActive ? '#e8dcc0' : 'transparent',
+                    border: `1px solid ${isActive ? (dotColor || '#c9b99a') : 'transparent'}`,
                   }}
                 >
-                  {tasteColor && (
+                  {dotColor && (
                     <span
                       className="inline-block w-2 h-2 rounded-full mr-1"
-                      style={{ backgroundColor: tasteColor }}
+                      style={{ backgroundColor: dotColor }}
                     />
                   )}
                   {t.label}

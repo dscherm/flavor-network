@@ -298,6 +298,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         <AromaProfileBars
           ingredients={recipeIngredients}
           nodes={fullData?.graph?.nodes}
+          onTapAroma={(key) => {
+            setActiveTab(`aroma:${key}`);
+            if (drawerSnap === 'peek') setDrawerSnap('half');
+          }}
         />
       </div>
 
