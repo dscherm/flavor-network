@@ -88,6 +88,17 @@ const STEPS = [
     flag: 'sauce-clusters',
     prereq: () => null, // reads public/data/sauce_augment.json which is checked in
   },
+  {
+    num: 11,
+    name: 'Parse cocktail codex',
+    script: './11-parse-cocktail-codex.js',
+    flag: 'cocktail-codex',
+    prereq: () => {
+      const f = path.join(__dirname, '..', '..', 'COCKTAIL_CODEX_NEEDS.md');
+      if (!fs.existsSync(f)) return `Missing ${f} (curated codex source).`;
+      return null;
+    },
+  },
 ];
 
 function parseArgs() {

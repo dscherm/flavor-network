@@ -1,0 +1,4084 @@
+{
+  "_meta": {
+    "generatedAt": "2026-04-25T19:50:02.359Z",
+    "source": "COCKTAIL_CODEX_NEEDS.md",
+    "cocktailCount": 172,
+    "familyCount": 7,
+    "subclusterCount": 32,
+    "syrupCount": 23
+  },
+  "clusters": [
+    {
+      "id": 0,
+      "name": "Old-Fashioned",
+      "color": "#b45309"
+    },
+    {
+      "id": 1,
+      "name": "Martini",
+      "color": "#94a3b8"
+    },
+    {
+      "id": 2,
+      "name": "Daiquiri",
+      "color": "#facc15"
+    },
+    {
+      "id": 3,
+      "name": "Sidecar",
+      "color": "#ea580c"
+    },
+    {
+      "id": 4,
+      "name": "Whisky Highball",
+      "color": "#22c55e"
+    },
+    {
+      "id": 5,
+      "name": "Flip",
+      "color": "#a855f7"
+    },
+    {
+      "id": 6,
+      "name": "Syrups",
+      "color": "#fbbf24"
+    }
+  ],
+  "subclusters": [
+    {
+      "id": "5-root",
+      "family_id": 5,
+      "name": "Root"
+    },
+    {
+      "id": "4-root",
+      "family_id": 4,
+      "name": "Root"
+    },
+    {
+      "id": "3-root",
+      "family_id": 3,
+      "name": "Root"
+    },
+    {
+      "id": "2-root",
+      "family_id": 2,
+      "name": "Root"
+    },
+    {
+      "id": "1-root",
+      "family_id": 1,
+      "name": "Root"
+    },
+    {
+      "id": "0-root",
+      "family_id": 0,
+      "name": "Root"
+    },
+    {
+      "id": "0-core",
+      "family_id": 0,
+      "name": "Core"
+    },
+    {
+      "id": "0-experimenting-with-balance",
+      "family_id": 0,
+      "name": "Experimenting with Balance"
+    },
+    {
+      "id": "0-seasoning",
+      "family_id": 0,
+      "name": "Seasoning"
+    },
+    {
+      "id": "0-variations",
+      "family_id": 0,
+      "name": "Variations"
+    },
+    {
+      "id": "0-extended-family",
+      "family_id": 0,
+      "name": "Extended Family"
+    },
+    {
+      "id": "1-core",
+      "family_id": 1,
+      "name": "Core"
+    },
+    {
+      "id": "1-experimenting-with-balance",
+      "family_id": 1,
+      "name": "Experimenting with Balance"
+    },
+    {
+      "id": "1-extended-family",
+      "family_id": 1,
+      "name": "Extended Family"
+    },
+    {
+      "id": "2-core",
+      "family_id": 2,
+      "name": "Core"
+    },
+    {
+      "id": "2-experimenting-with-balance",
+      "family_id": 2,
+      "name": "Experimenting with Balance"
+    },
+    {
+      "id": "2-variations",
+      "family_id": 2,
+      "name": "Variations"
+    },
+    {
+      "id": "2-extended-family",
+      "family_id": 2,
+      "name": "Extended Family"
+    },
+    {
+      "id": "3-core",
+      "family_id": 3,
+      "name": "Core"
+    },
+    {
+      "id": "3-experimenting-with-balance",
+      "family_id": 3,
+      "name": "Experimenting with Balance"
+    },
+    {
+      "id": "3-seasoning",
+      "family_id": 3,
+      "name": "Seasoning"
+    },
+    {
+      "id": "3-variations",
+      "family_id": 3,
+      "name": "Variations"
+    },
+    {
+      "id": "3-extended-family",
+      "family_id": 3,
+      "name": "Extended Family"
+    },
+    {
+      "id": "4-core",
+      "family_id": 4,
+      "name": "Core"
+    },
+    {
+      "id": "4-experimenting-with-the-balance",
+      "family_id": 4,
+      "name": "Experimenting with the Balance"
+    },
+    {
+      "id": "4-variations",
+      "family_id": 4,
+      "name": "Variations"
+    },
+    {
+      "id": "4-extended-family",
+      "family_id": 4,
+      "name": "Extended Family"
+    },
+    {
+      "id": "5-core",
+      "family_id": 5,
+      "name": "Core"
+    },
+    {
+      "id": "5-balance",
+      "family_id": 5,
+      "name": "Balance"
+    },
+    {
+      "id": "5-seasoning",
+      "family_id": 5,
+      "name": "Seasoning"
+    },
+    {
+      "id": "5-variations-extended-family",
+      "family_id": 5,
+      "name": "Variations & Extended Family"
+    },
+    {
+      "id": "6-recipes",
+      "family_id": 6,
+      "name": "Recipes"
+    }
+  ],
+  "cocktails": [
+    {
+      "id": "old-fashioned--golden-boy",
+      "name": "Golden Boy",
+      "family_id": 0,
+      "subcluster_id": "0-core",
+      "ingredients": [
+        "Raisin-infused scotch",
+        "Rainwater madeira",
+        "Calvados",
+        "Bénédictine",
+        "Peychaud’s bitters"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "Raisin-infused scotch",
+        "Rainwater madeira",
+        "Calvados",
+        "Bénédictine",
+        "Peychaud’s bitters",
+        "Garnish: Lemon twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--vermouth-cocktail",
+      "name": "Vermouth Cocktail",
+      "family_id": 0,
+      "subcluster_id": "0-core",
+      "ingredients": [
+        "Sweet vermouth",
+        "Simple syrup",
+        "Angostura bitters",
+        "Orange bitters"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "Sweet vermouth",
+        "Simple syrup",
+        "Angostura bitters",
+        "Orange bitters",
+        "Garnish: Lemon twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--exit-strategy",
+      "name": "Exit Strategy",
+      "family_id": 0,
+      "subcluster_id": "0-core",
+      "ingredients": [
+        "Amaro (Nonino)",
+        "Brandy",
+        "Amaro (Meletti)",
+        "Salt solution"
+      ],
+      "garnishes": [
+        "Orange twist"
+      ],
+      "recipe_text": [
+        "Amaro (Nonino)",
+        "Brandy",
+        "Amaro (Meletti)",
+        "Salt solution",
+        "Garnish: Orange twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--ti-punch",
+      "name": "Ti’ Punch",
+      "family_id": 0,
+      "subcluster_id": "0-core",
+      "ingredients": [
+        "Rhum agricole blanc",
+        "Cane sugar syrup"
+      ],
+      "garnishes": [
+        "Lime peel disk"
+      ],
+      "recipe_text": [
+        "Rhum agricole blanc",
+        "Cane sugar syrup",
+        "Garnish: Lime peel disk"
+      ]
+    },
+    {
+      "id": "old-fashioned--fancy-free",
+      "name": "Fancy-Free",
+      "family_id": 0,
+      "subcluster_id": "0-experimenting-with-balance",
+      "ingredients": [
+        "Rye",
+        "Maraschino liqueur",
+        "Angostura bitters",
+        "Orange bitters"
+      ],
+      "garnishes": [
+        "Orange twist"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Maraschino liqueur",
+        "Angostura bitters",
+        "Orange bitters",
+        "Garnish: Orange twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--chrysanthemum",
+      "name": "Chrysanthemum",
+      "family_id": 0,
+      "subcluster_id": "0-experimenting-with-balance",
+      "ingredients": [
+        "Dry vermouth",
+        "Bénédictine",
+        "Absinthe"
+      ],
+      "garnishes": [
+        "Orange twist"
+      ],
+      "recipe_text": [
+        "Dry vermouth",
+        "Bénédictine",
+        "Absinthe",
+        "Garnish: Orange twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--stinger",
+      "name": "Stinger",
+      "family_id": 0,
+      "subcluster_id": "0-experimenting-with-balance",
+      "ingredients": [
+        "Cognac",
+        "White crème de menthe",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "Mint sprig"
+      ],
+      "recipe_text": [
+        "Cognac",
+        "White crème de menthe",
+        "Simple syrup",
+        "Garnish: Mint sprig"
+      ]
+    },
+    {
+      "id": "old-fashioned--monte-carlo",
+      "name": "Monte Carlo",
+      "family_id": 0,
+      "subcluster_id": "0-experimenting-with-balance",
+      "ingredients": [
+        "Rye",
+        "Bénédictine",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Bénédictine",
+        "Angostura bitters",
+        "Garnish: Lemon twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--improved-whiskey-cocktail",
+      "name": "Improved Whiskey Cocktail",
+      "family_id": 0,
+      "subcluster_id": "0-seasoning",
+      "ingredients": [
+        "Bourbon",
+        "Maraschino liqueur",
+        "Absinthe",
+        "Angostura bitters",
+        "Peychaud’s bitters"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "Bourbon",
+        "Maraschino liqueur",
+        "Absinthe",
+        "Angostura bitters",
+        "Peychaud’s bitters",
+        "Garnish: Lemon twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--pop-quiz",
+      "name": "Pop Quiz",
+      "family_id": 0,
+      "subcluster_id": "0-seasoning",
+      "ingredients": [
+        "Bourbon",
+        "Amaro",
+        "Simple syrup",
+        "Mole bitters"
+      ],
+      "garnishes": [
+        "Orange twist"
+      ],
+      "recipe_text": [
+        "Bourbon",
+        "Amaro",
+        "Simple syrup",
+        "Mole bitters",
+        "Garnish: Orange twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--night-owl",
+      "name": "Night Owl",
+      "family_id": 0,
+      "subcluster_id": "0-seasoning",
+      "ingredients": [
+        "Bourbon",
+        "Cacao nib-infused amaro",
+        "Demerara gum syrup",
+        "Toasted pecan bitters"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "Bourbon",
+        "Cacao nib-infused amaro",
+        "Demerara gum syrup",
+        "Toasted pecan bitters",
+        "Garnish: Lemon twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--normandie-club-old-fashioned",
+      "name": "Normandie Club Old-Fashioned",
+      "family_id": 0,
+      "subcluster_id": "0-seasoning",
+      "ingredients": [
+        "Coconut-infused bourbon",
+        "Apple brandy",
+        "Spiced almond Demerara gum syrup",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "Dried apple slice"
+      ],
+      "recipe_text": [
+        "Coconut-infused bourbon",
+        "Apple brandy",
+        "Spiced almond Demerara gum syrup",
+        "Angostura bitters",
+        "Garnish: Dried apple slice"
+      ]
+    },
+    {
+      "id": "old-fashioned--snowbird",
+      "name": "Snowbird",
+      "family_id": 0,
+      "subcluster_id": "0-variations",
+      "ingredients": [
+        "Rye",
+        "Apple brandy",
+        "Cardamom-infused elderflower liqueur",
+        "Demerara gum syrup",
+        "Celery bitters"
+      ],
+      "garnishes": [
+        "Grapefruit twist"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Apple brandy",
+        "Cardamom-infused elderflower liqueur",
+        "Demerara gum syrup",
+        "Celery bitters",
+        "Garnish: Grapefruit twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--cold-girl-fever",
+      "name": "Cold Girl Fever",
+      "family_id": 0,
+      "subcluster_id": "0-variations",
+      "ingredients": [
+        "Scotch",
+        "Peated Islay scotch",
+        "Raisin honey syrup",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "Orange and lemon twists"
+      ],
+      "recipe_text": [
+        "Scotch",
+        "Peated Islay scotch",
+        "Raisin honey syrup",
+        "Angostura bitters",
+        "Garnish: Orange and lemon twists"
+      ]
+    },
+    {
+      "id": "old-fashioned--ned-ryerson",
+      "name": "Ned Ryerson",
+      "family_id": 0,
+      "subcluster_id": "0-variations",
+      "ingredients": [
+        "Rye",
+        "Apple brandy",
+        "Demerara gum syrup",
+        "Castillian bitters",
+        "Orange bitters"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Apple brandy",
+        "Demerara gum syrup",
+        "Castillian bitters",
+        "Orange bitters",
+        "Garnish: Lemon twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--deadpan",
+      "name": "Deadpan",
+      "family_id": 0,
+      "subcluster_id": "0-variations",
+      "ingredients": [
+        "Cognac",
+        "Sesame-infused rum",
+        "Solera sherry",
+        "Vanilla liqueur",
+        "Aromatic bitters"
+      ],
+      "garnishes": [
+        "Orange twist"
+      ],
+      "recipe_text": [
+        "Cognac",
+        "Sesame-infused rum",
+        "Solera sherry",
+        "Vanilla liqueur",
+        "Aromatic bitters",
+        "Garnish: Orange twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--autumn-old-fashioned",
+      "name": "Autumn Old-Fashioned",
+      "family_id": 0,
+      "subcluster_id": "0-variations",
+      "ingredients": [
+        "Rye",
+        "Bonded apple brandy",
+        "Bas-Armagnac",
+        "Peated Scotch",
+        "Dark maple syrup",
+        "Mole bitters",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "Orange and lemon twists"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Bonded apple brandy",
+        "Bas-Armagnac",
+        "Peated Scotch",
+        "Dark maple syrup",
+        "Mole bitters",
+        "Angostura bitters",
+        "Garnish: Orange and lemon twists"
+      ]
+    },
+    {
+      "id": "old-fashioned--bad-santa",
+      "name": "Bad Santa",
+      "family_id": 0,
+      "subcluster_id": "0-variations",
+      "ingredients": [
+        "Cocoa butter-infused vodka",
+        "White crème de cacao",
+        "Vanilla liqueur",
+        "White mint liqueur",
+        "Salt solution"
+      ],
+      "garnishes": [
+        "Candy cane"
+      ],
+      "recipe_text": [
+        "Cocoa butter-infused vodka",
+        "White crème de cacao",
+        "Vanilla liqueur",
+        "White mint liqueur",
+        "Salt solution",
+        "Garnish: Candy cane"
+      ]
+    },
+    {
+      "id": "old-fashioned--beach-bonfire",
+      "name": "Beach Bonfire",
+      "family_id": 0,
+      "subcluster_id": "0-variations",
+      "ingredients": [
+        "Bourbon",
+        "Amburana cachaça",
+        "Pineapple gum syrup",
+        "Angostura bitters",
+        "Mole bitters"
+      ],
+      "garnishes": [
+        "Dehydrated pineapple slice"
+      ],
+      "recipe_text": [
+        "Bourbon",
+        "Amburana cachaça",
+        "Pineapple gum syrup",
+        "Angostura bitters",
+        "Mole bitters",
+        "Garnish: Dehydrated pineapple slice"
+      ]
+    },
+    {
+      "id": "old-fashioned--champagne-cocktail",
+      "name": "Champagne Cocktail",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Dry champagne",
+        "1 sugar cube",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "Dry champagne",
+        "1 sugar cube",
+        "Angostura bitters",
+        "Garnish: Lemon twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--the-field-marshall",
+      "name": "The Field Marshall",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Armagnac",
+        "Orange liqueur",
+        "Angostura bitters",
+        "Peychaud's bitters",
+        "Dry Champagne"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "Armagnac",
+        "Orange liqueur",
+        "Angostura bitters",
+        "Peychaud's bitters",
+        "Dry Champagne",
+        "Garnish: Lemon twist"
+      ]
+    },
+    {
+      "id": "old-fashioned--pretty-wings",
+      "name": "Pretty Wings",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Chamomile-infused Americano aperitif",
+        "Gentian liqueur",
+        "Grapefruit bitters",
+        "Champagne"
+      ],
+      "garnishes": [
+        "Lemon wheel"
+      ],
+      "recipe_text": [
+        "Chamomile-infused Americano aperitif",
+        "Gentian liqueur",
+        "Grapefruit bitters",
+        "Champagne",
+        "Garnish: Lemon wheel"
+      ]
+    },
+    {
+      "id": "old-fashioned--celebrate",
+      "name": "Celebrate",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Pear brandy",
+        "Fino sherry",
+        "Reposado tequila",
+        "Cinnamon syrup",
+        "Champagne Acid solution",
+        "Dry Champagne"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Pear brandy",
+        "Fino sherry",
+        "Reposado tequila",
+        "Cinnamon syrup",
+        "Champagne Acid solution",
+        "Dry Champagne",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "old-fashioned--mint-julep",
+      "name": "Mint Julep",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Bourbon",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "1 mint bouquet"
+      ],
+      "recipe_text": [
+        "Bourbon",
+        "Simple syrup",
+        "Garnish: 1 mint bouquet"
+      ]
+    },
+    {
+      "id": "old-fashioned--last-one-standing",
+      "name": "Last One Standing",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Cognac",
+        "Jamaican pot still gold rum",
+        "Amaro",
+        "Peach liqueur"
+      ],
+      "garnishes": [
+        "1 mint bouquet, 1 peach slice, and confectioners’ sugar"
+      ],
+      "recipe_text": [
+        "Cognac",
+        "Jamaican pot still gold rum",
+        "Amaro",
+        "Peach liqueur",
+        "Garnish: 1 mint bouquet, 1 peach slice, and confectioners’ sugar"
+      ]
+    },
+    {
+      "id": "old-fashioned--heritage-julep",
+      "name": "Heritage Julep",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Calvados",
+        "Pear liqueur",
+        "Pear brandy",
+        "Amaro",
+        "Cinnamon syrup",
+        "Phosphoric acid solution"
+      ],
+      "garnishes": [
+        "1 mint bouquet, 3 apple slices on a skewer, and confectioners’ sugar"
+      ],
+      "recipe_text": [
+        "Calvados",
+        "Pear liqueur",
+        "Pear brandy",
+        "Amaro",
+        "Cinnamon syrup",
+        "Phosphoric acid solution",
+        "Garnish: 1 mint bouquet, 3 apple slices on a skewer, and confectioners’ sugar"
+      ]
+    },
+    {
+      "id": "old-fashioned--camellia-julep",
+      "name": "Camellia Julep",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Cacao nib-infused pear brandy",
+        "Amontillado sherry",
+        "Demerara gum syrup"
+      ],
+      "garnishes": [
+        "1 mint bouquet"
+      ],
+      "recipe_text": [
+        "Cacao nib-infused pear brandy",
+        "Amontillado sherry",
+        "Demerara gum syrup",
+        "Garnish: 1 mint bouquet"
+      ]
+    },
+    {
+      "id": "old-fashioned--sazerac",
+      "name": "Sazerac",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Rye",
+        "Cognac",
+        "Absinthe (for rinsing the glass)",
+        "Demerara gum syrup",
+        "Peychaud’s bitters",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "1 lemon twist (expressed and discarded)"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Cognac",
+        "Absinthe (for rinsing the glass)",
+        "Demerara gum syrup",
+        "Peychaud’s bitters",
+        "Angostura bitters",
+        "Garnish: 1 lemon twist (expressed and discarded)"
+      ]
+    },
+    {
+      "id": "old-fashioned--cut-and-paste",
+      "name": "Cut and Paste",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Apple brandy",
+        "Irish whiskey",
+        "Honey syrup",
+        "Absinthe (for rinse)",
+        "Peychaud’s bitters",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Apple brandy",
+        "Irish whiskey",
+        "Honey syrup",
+        "Absinthe (for rinse)",
+        "Peychaud’s bitters",
+        "Angostura bitters",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "old-fashioned--save-tonight",
+      "name": "Save Tonight",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Sour cherry-infused rye",
+        "Apple brandy",
+        "Demerara gum syrup",
+        "Absinthe (for rinse)",
+        "Peychaud’s bitters",
+        "Absinthe (as seasoning)"
+      ],
+      "garnishes": [
+        "1 brandied cherry"
+      ],
+      "recipe_text": [
+        "Sour cherry-infused rye",
+        "Apple brandy",
+        "Demerara gum syrup",
+        "Absinthe (for rinse)",
+        "Peychaud’s bitters",
+        "Absinthe (as seasoning)",
+        "Garnish: 1 brandied cherry"
+      ]
+    },
+    {
+      "id": "old-fashioned--bananarac",
+      "name": "Bananarac",
+      "family_id": 0,
+      "subcluster_id": "0-extended-family",
+      "ingredients": [
+        "Cognac",
+        "Rye",
+        "Banana liqueur",
+        "Demerara gum syrup",
+        "Absinthe (for rinse)",
+        "Aromatic bitters"
+      ],
+      "garnishes": [
+        "1 lemon twist (expressed and discarded)"
+      ],
+      "recipe_text": [
+        "Cognac",
+        "Rye",
+        "Banana liqueur",
+        "Demerara gum syrup",
+        "Absinthe (for rinse)",
+        "Aromatic bitters",
+        "Garnish: 1 lemon twist (expressed and discarded)"
+      ]
+    },
+    {
+      "id": "martini--vesper",
+      "name": "Vesper",
+      "family_id": 1,
+      "subcluster_id": "1-core",
+      "ingredients": [
+        "Gin",
+        "Vodka",
+        "Lillet blanc"
+      ],
+      "garnishes": [
+        "1 lemon twist"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Vodka",
+        "Lillet blanc",
+        "Garnish: 1 lemon twist"
+      ]
+    },
+    {
+      "id": "martini--dean-martin",
+      "name": "Dean Martin",
+      "family_id": 1,
+      "subcluster_id": "1-core",
+      "ingredients": [
+        "Gin",
+        "Douglas fir brandy",
+        "Blanc vermouth",
+        "Dry vermouth",
+        "Salt solution"
+      ],
+      "garnishes": [
+        "4 sprays of Après-Ski Tincture"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Douglas fir brandy",
+        "Blanc vermouth",
+        "Dry vermouth",
+        "Salt solution",
+        "Garnish: 4 sprays of Après-Ski Tincture"
+      ]
+    },
+    {
+      "id": "martini--martini-very-dry",
+      "name": "Martini (Very Dry)",
+      "family_id": 1,
+      "subcluster_id": "1-experimenting-with-balance",
+      "ingredients": [
+        "Gin",
+        "Dry vermouth"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Dry vermouth",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "martini--martini-our-root-recipe",
+      "name": "Martini (Our Root Recipe)",
+      "family_id": 1,
+      "subcluster_id": "1-experimenting-with-balance",
+      "ingredients": [
+        "Gin",
+        "Dry vermouth"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Dry vermouth",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "martini--martini-wet",
+      "name": "Martini (Wet)",
+      "family_id": 1,
+      "subcluster_id": "1-experimenting-with-balance",
+      "ingredients": [
+        "Gin",
+        "Dry vermouth"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Dry vermouth",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "martini--normandie-club-martini-1",
+      "name": "Normandie Club Martini #1",
+      "family_id": 1,
+      "subcluster_id": "1-experimenting-with-balance",
+      "ingredients": [
+        "Vodka",
+        "Fino sherry",
+        "White honey syrup"
+      ],
+      "garnishes": [
+        "3 or 4 sprays of Sel Gris Solution"
+      ],
+      "recipe_text": [
+        "Vodka",
+        "Fino sherry",
+        "White honey syrup",
+        "Garnish: 3 or 4 sprays of Sel Gris Solution"
+      ]
+    },
+    {
+      "id": "martini--little-victory",
+      "name": "Little Victory",
+      "family_id": 1,
+      "subcluster_id": "1-experimenting-with-balance",
+      "ingredients": [
+        "Gin",
+        "Vodka",
+        "Root beer-infused Americano aperitif",
+        "Orange marmalade"
+      ],
+      "garnishes": [
+        "1 orange wedge"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Vodka",
+        "Root beer-infused Americano aperitif",
+        "Orange marmalade",
+        "Garnish: 1 orange wedge"
+      ]
+    },
+    {
+      "id": "martini--martinez",
+      "name": "Martinez",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Old Tom gin",
+        "Sweet vermouth",
+        "Maraschino liqueur",
+        "House orange bitters"
+      ],
+      "garnishes": [
+        "1 lemon twist"
+      ],
+      "recipe_text": [
+        "Old Tom gin",
+        "Sweet vermouth",
+        "Maraschino liqueur",
+        "House orange bitters",
+        "Garnish: 1 lemon twist"
+      ]
+    },
+    {
+      "id": "martini--perfect-manhattan",
+      "name": "Perfect Manhattan",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Rye",
+        "Sweet vermouth",
+        "Dry vermouth",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "1 lemon twist"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Sweet vermouth",
+        "Dry vermouth",
+        "Angostura bitters",
+        "Garnish: 1 lemon twist"
+      ]
+    },
+    {
+      "id": "martini--blood-orange",
+      "name": "Blood Orange",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Rye",
+        "Cognac",
+        "Blood orange-infused sweet vermouth"
+      ],
+      "garnishes": [
+        "1 blood orange wheel"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Cognac",
+        "Blood orange-infused sweet vermouth",
+        "Garnish: 1 blood orange wheel"
+      ]
+    },
+    {
+      "id": "martini--mea-culpa",
+      "name": "Mea Culpa",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Vodka",
+        "Fino sherry",
+        "Dry sack sherry",
+        "Apricot liqueur",
+        "China-China Amer (bittersweet liqueur)",
+        "Salt solution"
+      ],
+      "garnishes": [
+        "1 lemon twist"
+      ],
+      "recipe_text": [
+        "Vodka",
+        "Fino sherry",
+        "Dry sack sherry",
+        "Apricot liqueur",
+        "China-China Amer (bittersweet liqueur)",
+        "Salt solution",
+        "Garnish: 1 lemon twist"
+      ]
+    },
+    {
+      "id": "martini--beth-s-going-to-town",
+      "name": "Beth's Going to Town",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Scotch",
+        "Aviation gin (or a spicy, contemporary gin)",
+        "Sweet vermouth",
+        "Apricot liqueur",
+        "Amaro (Ramazzotti)"
+      ],
+      "garnishes": [
+        "1 mint leaf"
+      ],
+      "recipe_text": [
+        "Scotch",
+        "Aviation gin (or a spicy, contemporary gin)",
+        "Sweet vermouth",
+        "Apricot liqueur",
+        "Amaro (Ramazzotti)",
+        "Garnish: 1 mint leaf"
+      ]
+    },
+    {
+      "id": "martini--brooklyn",
+      "name": "Brooklyn",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Rye",
+        "Dry vermouth",
+        "China-China Amer (bittersweet liqueur)",
+        "Maraschino liqueur"
+      ],
+      "garnishes": [
+        "1 brandied cherry"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Dry vermouth",
+        "China-China Amer (bittersweet liqueur)",
+        "Maraschino liqueur",
+        "Garnish: 1 brandied cherry"
+      ]
+    },
+    {
+      "id": "martini--poet-s-dream",
+      "name": "Poet’s Dream",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Gin",
+        "Dry vermouth",
+        "Bénédictine",
+        "Orange bitters"
+      ],
+      "garnishes": [
+        "1 lemon twist"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Dry vermouth",
+        "Bénédictine",
+        "Orange bitters",
+        "Garnish: 1 lemon twist"
+      ]
+    },
+    {
+      "id": "martini--european-union",
+      "name": "European Union",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Old Tom gin",
+        "Calvados",
+        "Sweet vermouth",
+        "Strega (liqueur)",
+        "Aromatic bitters"
+      ],
+      "garnishes": [
+        "1 brandied cherry"
+      ],
+      "recipe_text": [
+        "Old Tom gin",
+        "Calvados",
+        "Sweet vermouth",
+        "Strega (liqueur)",
+        "Aromatic bitters",
+        "Garnish: 1 brandied cherry"
+      ]
+    },
+    {
+      "id": "martini--watercress",
+      "name": "Watercress",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Watercress-infused gin",
+        "Vodka",
+        "Dry vermouth",
+        "Blanc vermouth",
+        "Peach liqueur",
+        "Salt solution"
+      ],
+      "garnishes": [
+        "1 apple slice"
+      ],
+      "recipe_text": [
+        "Watercress-infused gin",
+        "Vodka",
+        "Dry vermouth",
+        "Blanc vermouth",
+        "Peach liqueur",
+        "Salt solution",
+        "Garnish: 1 apple slice"
+      ]
+    },
+    {
+      "id": "martini--negroni",
+      "name": "Negroni",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Gin",
+        "Sweet vermouth",
+        "Campari"
+      ],
+      "garnishes": [
+        "1 orange half wheel"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Sweet vermouth",
+        "Campari",
+        "Garnish: 1 orange half wheel"
+      ]
+    },
+    {
+      "id": "martini--strawberry-negroni",
+      "name": "Strawberry Negroni",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Gin",
+        "Campari",
+        "Sweet vermouth",
+        "Clarified strawberry syrup",
+        "Cacao nib tincture"
+      ],
+      "garnishes": [
+        "1 strawberry slice"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Campari",
+        "Sweet vermouth",
+        "Clarified strawberry syrup",
+        "Cacao nib tincture",
+        "Garnish: 1 strawberry slice"
+      ]
+    },
+    {
+      "id": "martini--white-negroni",
+      "name": "White Negroni",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Gin",
+        "Blanc vermouth",
+        "Suze (gentian liqueur)"
+      ],
+      "garnishes": [
+        "1 orange twist"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Blanc vermouth",
+        "Suze (gentian liqueur)",
+        "Garnish: 1 orange twist"
+      ]
+    },
+    {
+      "id": "martini--la-rosita",
+      "name": "La Rosita",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Reposado tequila",
+        "Sweet vermouth",
+        "Dry vermouth",
+        "Campari",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "1 orange twist"
+      ],
+      "recipe_text": [
+        "Reposado tequila",
+        "Sweet vermouth",
+        "Dry vermouth",
+        "Campari",
+        "Angostura bitters",
+        "Garnish: 1 orange twist"
+      ]
+    },
+    {
+      "id": "martini--boulevardier",
+      "name": "Boulevardier",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Bourbon",
+        "Sweet vermouth",
+        "Campari"
+      ],
+      "garnishes": [
+        "1 brandied cherry"
+      ],
+      "recipe_text": [
+        "Bourbon",
+        "Sweet vermouth",
+        "Campari",
+        "Garnish: 1 brandied cherry"
+      ]
+    },
+    {
+      "id": "martini--old-pal",
+      "name": "Old Pal",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Rye",
+        "Dry vermouth",
+        "Campari"
+      ],
+      "garnishes": [
+        "1 lemon twist"
+      ],
+      "recipe_text": [
+        "Rye",
+        "Dry vermouth",
+        "Campari",
+        "Garnish: 1 lemon twist"
+      ]
+    },
+    {
+      "id": "martini--abbot-kinney",
+      "name": "Abbot Kinney",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Gin",
+        "Blanc vermouth",
+        "Suze (gentian liqueur)",
+        "Elderflower liqueur",
+        "Verjus blanc",
+        "Celery bitters"
+      ],
+      "garnishes": [
+        "1 celery ribbon"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Blanc vermouth",
+        "Suze (gentian liqueur)",
+        "Elderflower liqueur",
+        "Verjus blanc",
+        "Celery bitters",
+        "Garnish: 1 celery ribbon"
+      ]
+    },
+    {
+      "id": "martini--bamboo",
+      "name": "Bamboo",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Amontillado sherry",
+        "Blanc vermouth",
+        "Dry vermouth",
+        "Orange bitters"
+      ],
+      "garnishes": [
+        "1 lemon twist"
+      ],
+      "recipe_text": [
+        "Amontillado sherry",
+        "Blanc vermouth",
+        "Dry vermouth",
+        "Orange bitters",
+        "Garnish: 1 lemon twist"
+      ]
+    },
+    {
+      "id": "martini--sonoma",
+      "name": "Sonoma",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Dry, unoaked Chardonnay",
+        "Calvados",
+        "Verjus blanc",
+        "Honey syrup",
+        "Salt solution"
+      ],
+      "garnishes": [
+        "4 sprays of white pepper-infused vodka"
+      ],
+      "recipe_text": [
+        "Dry, unoaked Chardonnay",
+        "Calvados",
+        "Verjus blanc",
+        "Honey syrup",
+        "Salt solution",
+        "Garnish: 4 sprays of white pepper-infused vodka"
+      ]
+    },
+    {
+      "id": "martini--meyer-lemon-aperitif",
+      "name": "Meyer Lemon Aperitif",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "Fino sherry",
+        "Blanc vermouth",
+        "Dry vermouth",
+        "Pisco",
+        "Meyer lemon zest",
+        "Cane sugar syrup",
+        "Orange bitters"
+      ],
+      "garnishes": [
+        "10 Meyer lemon wheels (for 1-liter batch)"
+      ],
+      "recipe_text": [
+        "Fino sherry",
+        "Blanc vermouth",
+        "Dry vermouth",
+        "Pisco",
+        "Meyer lemon zest",
+        "Cane sugar syrup",
+        "Orange bitters",
+        "Garnish: 10 Meyer lemon wheels (for 1-liter batch)"
+      ]
+    },
+    {
+      "id": "daiquiri--amaretto-sour",
+      "name": "Amaretto Sour",
+      "family_id": 2,
+      "subcluster_id": "2-core",
+      "ingredients": [
+        "Amaretto",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "Orange half wheel and brandied cherry"
+      ],
+      "recipe_text": [
+        "Amaretto",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Angostura bitters",
+        "Garnish: Orange half wheel and brandied cherry"
+      ]
+    },
+    {
+      "id": "daiquiri--fresh-gimlet",
+      "name": "Fresh Gimlet",
+      "family_id": 2,
+      "subcluster_id": "2-core",
+      "ingredients": [
+        "Gin",
+        "Fresh lime juice",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "Lime wedge"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Garnish: Lime wedge"
+      ]
+    },
+    {
+      "id": "daiquiri--pisco-sour",
+      "name": "Pisco Sour",
+      "family_id": 2,
+      "subcluster_id": "2-experimenting-with-balance",
+      "ingredients": [
+        "Pisco",
+        "Fresh lemon juice",
+        "Fresh lime juice",
+        "Simple syrup",
+        "1 egg white"
+      ],
+      "garnishes": [
+        "3 drops Angostura bitters"
+      ],
+      "recipe_text": [
+        "Pisco",
+        "Fresh lemon juice",
+        "Fresh lime juice",
+        "Simple syrup",
+        "1 egg white",
+        "Garnish: 3 drops Angostura bitters"
+      ]
+    },
+    {
+      "id": "daiquiri--hemingway-daiquiri",
+      "name": "Hemingway Daiquiri",
+      "family_id": 2,
+      "subcluster_id": "2-experimenting-with-balance",
+      "ingredients": [
+        "White rum",
+        "Maraschino liqueur",
+        "Fresh grapefruit juice",
+        "Fresh lime juice",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "Lime wedge"
+      ],
+      "recipe_text": [
+        "White rum",
+        "Maraschino liqueur",
+        "Fresh grapefruit juice",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Garnish: Lime wedge"
+      ]
+    },
+    {
+      "id": "daiquiri--cat-video",
+      "name": "Cat Video",
+      "family_id": 2,
+      "subcluster_id": "2-experimenting-with-balance",
+      "ingredients": [
+        "Pisco",
+        "Berry liqueur (Crème Yvette)",
+        "Singani",
+        "Fresh lemon juice",
+        "Fresh lime juice",
+        "Simple syrup",
+        "1 egg white"
+      ],
+      "garnishes": [
+        "1 expressed and discarded lemon twist; 1 edible flower"
+      ],
+      "recipe_text": [
+        "Pisco",
+        "Berry liqueur (Crème Yvette)",
+        "Singani",
+        "Fresh lemon juice",
+        "Fresh lime juice",
+        "Simple syrup",
+        "1 egg white",
+        "Garnish: 1 expressed and discarded lemon twist; 1 edible flower"
+      ]
+    },
+    {
+      "id": "daiquiri--high-five",
+      "name": "High Five",
+      "family_id": 2,
+      "subcluster_id": "2-experimenting-with-balance",
+      "ingredients": [
+        "Gin",
+        "Aperol",
+        "Fresh grapefruit juice",
+        "Fresh lime juice",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "A high five!"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Aperol",
+        "Fresh grapefruit juice",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Garnish: A high five!"
+      ]
+    },
+    {
+      "id": "daiquiri--bee-s-knees",
+      "name": "Bee’s Knees",
+      "family_id": 2,
+      "subcluster_id": "2-variations",
+      "ingredients": [
+        "Gin",
+        "Fresh lemon juice",
+        "Honey syrup"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Fresh lemon juice",
+        "Honey syrup",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "daiquiri--brown-derby",
+      "name": "Brown Derby",
+      "family_id": 2,
+      "subcluster_id": "2-variations",
+      "ingredients": [
+        "Bourbon",
+        "Fresh grapefruit juice",
+        "Fresh lemon juice",
+        "Honey syrup"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Bourbon",
+        "Fresh grapefruit juice",
+        "Fresh lemon juice",
+        "Honey syrup",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "daiquiri--whiskey-sour",
+      "name": "Whiskey Sour",
+      "family_id": 2,
+      "subcluster_id": "2-variations",
+      "ingredients": [
+        "Bourbon",
+        "Fresh lemon juice",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "Lemon wedge"
+      ],
+      "recipe_text": [
+        "Bourbon",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Garnish: Lemon wedge"
+      ]
+    },
+    {
+      "id": "daiquiri--pink-lady",
+      "name": "Pink Lady",
+      "family_id": 2,
+      "subcluster_id": "2-variations",
+      "ingredients": [
+        "Gin",
+        "Apple brandy",
+        "Fresh lemon juice",
+        "Grenadine",
+        "Simple syrup",
+        "1 egg white"
+      ],
+      "garnishes": [
+        "Brandied cherry"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Apple brandy",
+        "Fresh lemon juice",
+        "Grenadine",
+        "Simple syrup",
+        "1 egg white",
+        "Garnish: Brandied cherry"
+      ]
+    },
+    {
+      "id": "daiquiri--smoke-and-mirrors",
+      "name": "Smoke and Mirrors",
+      "family_id": 2,
+      "subcluster_id": "2-variations",
+      "ingredients": [
+        "Blended scotch",
+        "Peated Islay scotch",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Absinthe",
+        "4 mint leaves"
+      ],
+      "garnishes": [
+        "Mint sprig"
+      ],
+      "recipe_text": [
+        "Blended scotch",
+        "Peated Islay scotch",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Absinthe",
+        "4 mint leaves",
+        "Garnish: Mint sprig"
+      ]
+    },
+    {
+      "id": "daiquiri--kentucky-maid",
+      "name": "Kentucky Maid",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Bourbon",
+        "Fresh lime juice",
+        "Simple syrup",
+        "5 mint leaves",
+        "3 slices cucumber"
+      ],
+      "garnishes": [
+        "Mint sprig and cucumber wheel"
+      ],
+      "recipe_text": [
+        "Bourbon",
+        "Fresh lime juice",
+        "Simple syrup",
+        "5 mint leaves",
+        "3 slices cucumber",
+        "Garnish: Mint sprig and cucumber wheel"
+      ]
+    },
+    {
+      "id": "daiquiri--southside",
+      "name": "Southside",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Gin",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Angostura bitters",
+        "5 mint leaves"
+      ],
+      "garnishes": [
+        "1 mint leaf"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Angostura bitters",
+        "5 mint leaves",
+        "Garnish: 1 mint leaf"
+      ]
+    },
+    {
+      "id": "daiquiri--pompadour",
+      "name": "Pompadour",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Aged rhum agricole",
+        "Pineau des Charentes",
+        "Fresh lemon juice",
+        "Vanilla lactic syrup"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Aged rhum agricole",
+        "Pineau des Charentes",
+        "Fresh lemon juice",
+        "Vanilla lactic syrup",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "daiquiri--smokescreen",
+      "name": "Smokescreen",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Blended scotch",
+        "Peated Islay scotch",
+        "Green Chartreuse",
+        "Fresh lime juice",
+        "Simple syrup",
+        "4 mint leaves"
+      ],
+      "garnishes": [
+        "Mint sprig"
+      ],
+      "recipe_text": [
+        "Blended scotch",
+        "Peated Islay scotch",
+        "Green Chartreuse",
+        "Fresh lime juice",
+        "Simple syrup",
+        "4 mint leaves",
+        "Garnish: Mint sprig"
+      ]
+    },
+    {
+      "id": "daiquiri--mai-tai",
+      "name": "Mai Tai",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Jamaican rum",
+        "Rhum agricole blanc",
+        "Orange liqueur",
+        "Fresh lime juice",
+        "Orgeat",
+        "Simple syrup",
+        "Angostura bitters"
+      ],
+      "garnishes": [
+        "Mint bouquet"
+      ],
+      "recipe_text": [
+        "Jamaican rum",
+        "Rhum agricole blanc",
+        "Orange liqueur",
+        "Fresh lime juice",
+        "Orgeat",
+        "Simple syrup",
+        "Angostura bitters",
+        "Garnish: Mint bouquet"
+      ]
+    },
+    {
+      "id": "daiquiri--jack-frost",
+      "name": "Jack Frost",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Blanco tequila",
+        "Pear brandy",
+        "Dry vermouth",
+        "White mint liqueur",
+        "Fresh lime juice",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "Mint and sage bouquet; dusting of powdered sugar"
+      ],
+      "recipe_text": [
+        "Blanco tequila",
+        "Pear brandy",
+        "Dry vermouth",
+        "White mint liqueur",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Garnish: Mint and sage bouquet; dusting of powdered sugar"
+      ]
+    },
+    {
+      "id": "daiquiri--touch-and-go",
+      "name": "Touch and Go",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Blanco tequila",
+        "Mezcal",
+        "Basil stem syrup",
+        "Fresh lemon juice",
+        "1/2 mandarin orange"
+      ],
+      "garnishes": [
+        "1 basil leaf"
+      ],
+      "recipe_text": [
+        "Blanco tequila",
+        "Mezcal",
+        "Basil stem syrup",
+        "Fresh lemon juice",
+        "1/2 mandarin orange",
+        "Garnish: 1 basil leaf"
+      ]
+    },
+    {
+      "id": "daiquiri--caipirinha",
+      "name": "Caipirinha",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Cachaça",
+        "1 whole lime (muddled)",
+        "1 sugar cube",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "No garnish (muddled limes remain in glass)"
+      ],
+      "recipe_text": [
+        "Cachaça",
+        "1 whole lime (muddled)",
+        "1 sugar cube",
+        "Simple syrup",
+        "Garnish: No garnish (muddled limes remain in glass)"
+      ]
+    },
+    {
+      "id": "daiquiri--french-75",
+      "name": "French 75",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Gin",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Dry sparkling wine"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Dry sparkling wine",
+        "Garnish: Lemon twist"
+      ]
+    },
+    {
+      "id": "daiquiri--old-cuban",
+      "name": "Old Cuban",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Aged rum",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Angostura bitters",
+        "6 mint leaves",
+        "Dry Champagne"
+      ],
+      "garnishes": [
+        "1 mint leaf"
+      ],
+      "recipe_text": [
+        "Aged rum",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Angostura bitters",
+        "6 mint leaves",
+        "Dry Champagne",
+        "Garnish: 1 mint leaf"
+      ]
+    },
+    {
+      "id": "daiquiri--ramos-gin-fizz",
+      "name": "Ramos Gin Fizz",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Gin",
+        "Fresh lime/lemon juices",
+        "Simple syrup",
+        "Heavy cream",
+        "1 egg white",
+        "Orange flower water",
+        "Seltzer"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Fresh lime/lemon juices",
+        "Simple syrup",
+        "Heavy cream",
+        "1 egg white",
+        "Orange flower water",
+        "Seltzer",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "daiquiri--moscow-mule",
+      "name": "Moscow Mule",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Vodka",
+        "Fresh lime juice",
+        "Ginger syrup",
+        "Seltzer"
+      ],
+      "garnishes": [
+        "Lime wheel and candied ginger"
+      ],
+      "recipe_text": [
+        "Vodka",
+        "Fresh lime juice",
+        "Ginger syrup",
+        "Seltzer",
+        "Garnish: Lime wheel and candied ginger"
+      ]
+    },
+    {
+      "id": "daiquiri--grapefruit-collins",
+      "name": "Grapefruit Collins",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Gin",
+        "Fresh grapefruit/lemon juices",
+        "Simple syrup",
+        "Seltzer",
+        "Peychaud’s bitters"
+      ],
+      "garnishes": [
+        "Grapefruit half wheel"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Fresh grapefruit/lemon juices",
+        "Simple syrup",
+        "Seltzer",
+        "Peychaud’s bitters",
+        "Garnish: Grapefruit half wheel"
+      ]
+    },
+    {
+      "id": "daiquiri--silver-fizz",
+      "name": "Silver Fizz",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Gin",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "1 egg white",
+        "Seltzer"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Gin",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "1 egg white",
+        "Seltzer",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "daiquiri--accidental-guru",
+      "name": "Accidental Guru",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "Irish whiskey",
+        "Peach liqueur",
+        "Fresh lime juice",
+        "Ginger syrup",
+        "Wheat beer"
+      ],
+      "garnishes": [
+        "Lime wheel"
+      ],
+      "recipe_text": [
+        "Irish whiskey",
+        "Peach liqueur",
+        "Fresh lime juice",
+        "Ginger syrup",
+        "Wheat beer",
+        "Garnish: Lime wheel"
+      ]
+    },
+    {
+      "id": "sidecar--sidecar-our-ideal-recipe",
+      "name": "Sidecar (Our Ideal Recipe)",
+      "family_id": 3,
+      "subcluster_id": "3-core",
+      "ingredients": [
+        "Cognac",
+        "Dry Curaçao (orange liqueur)",
+        "Fresh lemon juice",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "1 orange twist"
+      ],
+      "recipe_text": [
+        "Cognac",
+        "Dry Curaçao (orange liqueur)",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Garnish: 1 orange twist"
+      ]
+    },
+    {
+      "id": "sidecar--margarita",
+      "name": "Margarita",
+      "family_id": 3,
+      "subcluster_id": "3-core",
+      "ingredients": [
+        "Blanco tequila",
+        "Orange liqueur",
+        "Fresh lime juice",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "Kosher salt",
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Blanco tequila",
+        "Orange liqueur",
+        "Fresh lime juice",
+        "Simple syrup",
+        "Rim: Kosher salt",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "sidecar--margarita-dry",
+      "name": "Margarita (Dry)",
+      "family_id": 3,
+      "subcluster_id": "3-experimenting-with-balance",
+      "ingredients": [
+        "Blanco tequila",
+        "Orange liqueur",
+        "Fresh lime juice"
+      ],
+      "garnishes": [
+        "Kosher salt"
+      ],
+      "recipe_text": [
+        "Blanco tequila",
+        "Orange liqueur",
+        "Fresh lime juice",
+        "Rim: Kosher salt"
+      ]
+    },
+    {
+      "id": "sidecar--margarita-sweet",
+      "name": "Margarita (Sweet)",
+      "family_id": 3,
+      "subcluster_id": "3-experimenting-with-balance",
+      "ingredients": [
+        "Blanco tequila",
+        "Orange liqueur",
+        "Fresh lime juice",
+        "Simple syrup (increased amount)"
+      ],
+      "garnishes": [
+        "Kosher salt"
+      ],
+      "recipe_text": [
+        "Blanco tequila",
+        "Orange liqueur",
+        "Fresh lime juice",
+        "Simple syrup (increased amount)",
+        "Rim: Kosher salt"
+      ]
+    },
+    {
+      "id": "sidecar--between-the-sheets-classic",
+      "name": "Between the Sheets (Classic)",
+      "family_id": 3,
+      "subcluster_id": "3-experimenting-with-balance",
+      "ingredients": [
+        "Cognac",
+        "Rum",
+        "Orange liqueur",
+        "Fresh lemon juice"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Cognac",
+        "Rum",
+        "Orange liqueur",
+        "Fresh lemon juice"
+      ]
+    },
+    {
+      "id": "sidecar--between-the-sheets-our-ideal-recipe",
+      "name": "Between the Sheets (Our Ideal Recipe)",
+      "family_id": 3,
+      "subcluster_id": "3-experimenting-with-balance",
+      "ingredients": [
+        "Cognac",
+        "Jamaican reserve blend rum",
+        "Dry Curaçao (orange liqueur)",
+        "Fresh lemon juice",
+        "Demerara gum syrup",
+        "White Lady (Classic Variation)",
+        "Gin",
+        "Orange liqueur",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "1 egg white"
+      ],
+      "garnishes": [
+        "1 lemon twist"
+      ],
+      "recipe_text": [
+        "Cognac",
+        "Jamaican reserve blend rum",
+        "Dry Curaçao (orange liqueur)",
+        "Fresh lemon juice",
+        "Demerara gum syrup",
+        "White Lady (Classic Variation)",
+        "Gin",
+        "Orange liqueur",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "1 egg white",
+        "Garnish: 1 lemon twist"
+      ]
+    },
+    {
+      "id": "sidecar--20th-century",
+      "name": "20th Century",
+      "family_id": 3,
+      "subcluster_id": "3-experimenting-with-balance",
+      "ingredients": [
+        "Gin",
+        "Lillet blanc",
+        "White crème de cacao",
+        "Fresh lemon juice",
+        "Last Word (Classic)",
+        "Gin",
+        "Green Chartreuse",
+        "Maraschino liqueur",
+        "Fresh lime juice"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Gin",
+        "Lillet blanc",
+        "White crème de cacao",
+        "Fresh lemon juice",
+        "Last Word (Classic)",
+        "Gin",
+        "Green Chartreuse",
+        "Maraschino liqueur",
+        "Fresh lime juice"
+      ]
+    },
+    {
+      "id": "sidecar--crop-top",
+      "name": "Crop Top",
+      "family_id": 3,
+      "subcluster_id": "3-experimenting-with-balance",
+      "ingredients": [
+        "Gin",
+        "Amaro (specifically Montenegro)",
+        "Grapefruit liqueur (Crème de Pamplemousse)",
+        "Fresh lemon juice"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Gin",
+        "Amaro (specifically Montenegro)",
+        "Grapefruit liqueur (Crème de Pamplemousse)",
+        "Fresh lemon juice"
+      ]
+    },
+    {
+      "id": "sidecar--peaches-and-smoke",
+      "name": "Peaches and Smoke",
+      "family_id": 3,
+      "subcluster_id": "3-seasoning",
+      "ingredients": [
+        "Lillet rosé",
+        "Cognac",
+        "Peated Islay scotch (used as seasoning)",
+        "Peach liqueur",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "1 muddled peach wedge"
+      ],
+      "garnishes": [
+        "1 peach wedge"
+      ],
+      "recipe_text": [
+        "Lillet rosé",
+        "Cognac",
+        "Peated Islay scotch (used as seasoning)",
+        "Peach liqueur",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "1 muddled peach wedge",
+        "Garnish: 1 peach wedge"
+      ]
+    },
+    {
+      "id": "sidecar--rational-thought",
+      "name": "Rational Thought",
+      "family_id": 3,
+      "subcluster_id": "3-variations",
+      "ingredients": [
+        "Cognac",
+        "Pear brandy",
+        "Dry curaçao (orange liqueur)",
+        "Fresh lemon juice",
+        "Cinnamon syrup"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Cognac",
+        "Pear brandy",
+        "Dry curaçao (orange liqueur)",
+        "Fresh lemon juice",
+        "Cinnamon syrup"
+      ]
+    },
+    {
+      "id": "sidecar--beausoleil",
+      "name": "Beausoleil",
+      "family_id": 3,
+      "subcluster_id": "3-variations",
+      "ingredients": [
+        "Dry vermouth",
+        "Pinot Noir grappa",
+        "Limoncello",
+        "Fresh lemon juice",
+        "Simple syrup"
+      ],
+      "garnishes": [
+        "1 thyme sprig"
+      ],
+      "recipe_text": [
+        "Dry vermouth",
+        "Pinot Noir grappa",
+        "Limoncello",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Garnish: 1 thyme sprig"
+      ]
+    },
+    {
+      "id": "sidecar--corpse-reviver-2",
+      "name": "Corpse Reviver #2",
+      "family_id": 3,
+      "subcluster_id": "3-extended-family",
+      "ingredients": [
+        "Gin",
+        "Lillet blanc",
+        "Orange liqueur",
+        "Fresh lemon juice",
+        "Absinthe (2 dashes)"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Gin",
+        "Lillet blanc",
+        "Orange liqueur",
+        "Fresh lemon juice",
+        "Absinthe (2 dashes)"
+      ]
+    },
+    {
+      "id": "sidecar--la-valencia",
+      "name": "La Valencia",
+      "family_id": 3,
+      "subcluster_id": "3-extended-family",
+      "ingredients": [
+        "Chamomile-infused rye whiskey",
+        "Manzanilla sherry",
+        "Yellow Chartreuse",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Angostura bitters"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Chamomile-infused rye whiskey",
+        "Manzanilla sherry",
+        "Yellow Chartreuse",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Angostura bitters"
+      ]
+    },
+    {
+      "id": "sidecar--fish-house-punch",
+      "name": "Fish House Punch",
+      "family_id": 3,
+      "subcluster_id": "3-extended-family",
+      "ingredients": [
+        "Cognac",
+        "Reserve blend rum",
+        "Peach liqueur",
+        "Fresh lemon juice",
+        "Cane sugar syrup",
+        "Cold seltzer"
+      ],
+      "garnishes": [
+        "1 lemon wheel and freshly grated nutmeg"
+      ],
+      "recipe_text": [
+        "Cognac",
+        "Reserve blend rum",
+        "Peach liqueur",
+        "Fresh lemon juice",
+        "Cane sugar syrup",
+        "Cold seltzer",
+        "Garnish: 1 lemon wheel and freshly grated nutmeg"
+      ]
+    },
+    {
+      "id": "sidecar--chatham-cocktail",
+      "name": "Chatham Cocktail",
+      "family_id": 3,
+      "subcluster_id": "3-extended-family",
+      "ingredients": [
+        "Americano bianco",
+        "Puerto Fino sherry",
+        "Grand Marnier (orange liqueur)",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Pinch of salt",
+        "Champagne"
+      ],
+      "garnishes": [
+        "1 grapefruit twist"
+      ],
+      "recipe_text": [
+        "Americano bianco",
+        "Puerto Fino sherry",
+        "Grand Marnier (orange liqueur)",
+        "Fresh lemon juice",
+        "Simple syrup",
+        "Pinch of salt",
+        "Champagne",
+        "Garnish: 1 grapefruit twist"
+      ]
+    },
+    {
+      "id": "sidecar--twist-of-menton",
+      "name": "Twist of Menton",
+      "family_id": 3,
+      "subcluster_id": "3-extended-family",
+      "ingredients": [
+        "Vodka",
+        "Aperol",
+        "Amaro (specifically Nonino)",
+        "Fresh lemon juice",
+        "Strawberry cream syrup",
+        "Long Island Iced Tea",
+        "Vodka",
+        "Gin",
+        "Blanco tequila",
+        "White rum",
+        "Orange liqueur",
+        "Fresh lemon juice",
+        "Cold cola"
+      ],
+      "garnishes": [
+        "1 lemon wedge"
+      ],
+      "recipe_text": [
+        "Vodka",
+        "Aperol",
+        "Amaro (specifically Nonino)",
+        "Fresh lemon juice",
+        "Strawberry cream syrup",
+        "Long Island Iced Tea",
+        "Vodka",
+        "Gin",
+        "Blanco tequila",
+        "White rum",
+        "Orange liqueur",
+        "Fresh lemon juice",
+        "Cold cola",
+        "Garnish: 1 lemon wedge"
+      ]
+    },
+    {
+      "id": "whisky-highball--americano",
+      "name": "Americano",
+      "family_id": 4,
+      "subcluster_id": "4-core",
+      "ingredients": [
+        "Bitter red aperitif",
+        "Sweet vermouth",
+        "Cold seltzer"
+      ],
+      "garnishes": [
+        "1 orange half wheel (served with a small bottle of cold seltzer)"
+      ],
+      "recipe_text": [
+        "Bitter red aperitif",
+        "Sweet vermouth",
+        "Cold seltzer",
+        "Garnish: 1 orange half wheel (served with a small bottle of cold seltzer)"
+      ]
+    },
+    {
+      "id": "whisky-highball--paloma",
+      "name": "Paloma",
+      "family_id": 4,
+      "subcluster_id": "4-experimenting-with-the-balance",
+      "ingredients": [
+        "Blanco tequila",
+        "Grapefruit liqueur",
+        "Fresh lime juice",
+        "Cold grapefruit soda"
+      ],
+      "garnishes": [
+        "Kosher salt",
+        "1 grapefruit wedge"
+      ],
+      "recipe_text": [
+        "Blanco tequila",
+        "Grapefruit liqueur",
+        "Fresh lime juice",
+        "Cold grapefruit soda",
+        "Rim: Kosher salt",
+        "Garnish: 1 grapefruit wedge"
+      ]
+    },
+    {
+      "id": "whisky-highball--cuba-libre",
+      "name": "Cuba Libre",
+      "family_id": 4,
+      "subcluster_id": "4-experimenting-with-the-balance",
+      "ingredients": [
+        "White rum",
+        "Fresh lime juice",
+        "Cold cola"
+      ],
+      "garnishes": [
+        "1 lime wedge"
+      ],
+      "recipe_text": [
+        "White rum",
+        "Fresh lime juice",
+        "Cold cola",
+        "Garnish: 1 lime wedge"
+      ]
+    },
+    {
+      "id": "whisky-highball--negroni-sbagliato",
+      "name": "Negroni Sbagliato",
+      "family_id": 4,
+      "subcluster_id": "4-experimenting-with-the-balance",
+      "ingredients": [
+        "Sweet vermouth",
+        "Bitter red aperitif",
+        "Cold prosecco"
+      ],
+      "garnishes": [
+        "1 orange wedge"
+      ],
+      "recipe_text": [
+        "Sweet vermouth",
+        "Bitter red aperitif",
+        "Cold prosecco",
+        "Garnish: 1 orange wedge"
+      ]
+    },
+    {
+      "id": "whisky-highball--screwdriver",
+      "name": "Screwdriver",
+      "family_id": 4,
+      "subcluster_id": "4-experimenting-with-the-balance",
+      "ingredients": [
+        "Vodka",
+        "Fresh orange juice",
+        "Citric acid solution (if needed)"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Vodka",
+        "Fresh orange juice",
+        "Citric acid solution (if needed)",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "whisky-highball--gin-and-tonic",
+      "name": "Gin and Tonic",
+      "family_id": 4,
+      "subcluster_id": "4-variations",
+      "ingredients": [
+        "London dry gin",
+        "Cold tonic water"
+      ],
+      "garnishes": [
+        "1 lime wedge"
+      ],
+      "recipe_text": [
+        "London dry gin",
+        "Cold tonic water",
+        "Garnish: 1 lime wedge"
+      ]
+    },
+    {
+      "id": "whisky-highball--tequila-sunrise",
+      "name": "Tequila Sunrise",
+      "family_id": 4,
+      "subcluster_id": "4-variations",
+      "ingredients": [
+        "Blanco tequila",
+        "Fresh orange juice",
+        "Fresh lime juice",
+        "House grenadine"
+      ],
+      "garnishes": [
+        "1 orange half wheel and 1 lime wedge"
+      ],
+      "recipe_text": [
+        "Blanco tequila",
+        "Fresh orange juice",
+        "Fresh lime juice",
+        "House grenadine",
+        "Garnish: 1 orange half wheel and 1 lime wedge"
+      ]
+    },
+    {
+      "id": "whisky-highball--harvey-wallbanger",
+      "name": "Harvey Wallbanger",
+      "family_id": 4,
+      "subcluster_id": "4-variations",
+      "ingredients": [
+        "Vodka",
+        "Herbal liqueur (Galliano)",
+        "Fresh orange juice",
+        "Fresh lemon juice"
+      ],
+      "garnishes": [
+        "1 orange half wheel"
+      ],
+      "recipe_text": [
+        "Vodka",
+        "Herbal liqueur (Galliano)",
+        "Fresh orange juice",
+        "Fresh lemon juice",
+        "Garnish: 1 orange half wheel"
+      ]
+    },
+    {
+      "id": "whisky-highball--bloody-mary-classic-variation",
+      "name": "Bloody Mary (Classic Variation)",
+      "family_id": 4,
+      "subcluster_id": "4-variations",
+      "ingredients": [
+        "Vodka",
+        "Basic Bloody Mary Mix",
+        "Fresh lemon juice"
+      ],
+      "garnishes": [
+        "Kosher salt and pepper",
+        "1 lemon wedge and 1 celery stalk"
+      ],
+      "recipe_text": [
+        "Vodka",
+        "Basic Bloody Mary Mix",
+        "Fresh lemon juice",
+        "Rim: Kosher salt and pepper",
+        "Garnish: 1 lemon wedge and 1 celery stalk"
+      ]
+    },
+    {
+      "id": "whisky-highball--bloody-mary-verde",
+      "name": "Bloody Mary Verde",
+      "family_id": 4,
+      "subcluster_id": "4-variations",
+      "ingredients": [
+        "Jalapeño-infused vodka",
+        "Verde Mix (tomatillo-based)",
+        "Fresh lime juice"
+      ],
+      "garnishes": [
+        "Kosher salt and chile powder",
+        "1 cherry tomato and 1 lemon wedge on a skewer"
+      ],
+      "recipe_text": [
+        "Jalapeño-infused vodka",
+        "Verde Mix (tomatillo-based)",
+        "Fresh lime juice",
+        "Rim: Kosher salt and chile powder",
+        "Garnish: 1 cherry tomato and 1 lemon wedge on a skewer"
+      ]
+    },
+    {
+      "id": "whisky-highball--nobody-s-robots",
+      "name": "Nobody’s Robots",
+      "family_id": 4,
+      "subcluster_id": "4-variations",
+      "ingredients": [
+        "Vodka",
+        "Dry sack sherry",
+        "Clarified orange juice",
+        "Vanilla lactic syrup",
+        "Citric acid solution",
+        "Orange extract",
+        "Cold seltzer"
+      ],
+      "garnishes": [
+        "1 orange half wheel"
+      ],
+      "recipe_text": [
+        "Vodka",
+        "Dry sack sherry",
+        "Clarified orange juice",
+        "Vanilla lactic syrup",
+        "Citric acid solution",
+        "Orange extract",
+        "Cold seltzer",
+        "Garnish: 1 orange half wheel"
+      ]
+    },
+    {
+      "id": "whisky-highball--normandie-club-bloody-mary",
+      "name": "Normandie Club Bloody Mary",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Aquavit",
+        "Normandie Club Bloody Mary Mix",
+        "Fresh lemon juice",
+        "Fresh lime juice"
+      ],
+      "garnishes": [
+        "Lemon pepper salt",
+        "1 cherry tomato and 1 lemon wedge on a skewer"
+      ],
+      "recipe_text": [
+        "Aquavit",
+        "Normandie Club Bloody Mary Mix",
+        "Fresh lemon juice",
+        "Fresh lime juice",
+        "Rim: Lemon pepper salt",
+        "Garnish: 1 cherry tomato and 1 lemon wedge on a skewer"
+      ]
+    },
+    {
+      "id": "whisky-highball--mimosa",
+      "name": "Mimosa",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Fresh orange juice",
+        "Citric acid solution",
+        "Cold dry sparkling wine"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Fresh orange juice",
+        "Citric acid solution",
+        "Cold dry sparkling wine",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "whisky-highball--bellini",
+      "name": "Bellini",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Fresh peach puree",
+        "Cold prosecco"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Fresh peach puree",
+        "Cold prosecco",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "whisky-highball--apple-pop",
+      "name": "Apple Pop",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Apple brandy",
+        "Pear brandy",
+        "Blanc vermouth",
+        "Apple celery soda"
+      ],
+      "garnishes": [
+        "1 mint sprig and 1 celery leaf"
+      ],
+      "recipe_text": [
+        "Apple brandy",
+        "Pear brandy",
+        "Blanc vermouth",
+        "Apple celery soda",
+        "Garnish: 1 mint sprig and 1 celery leaf"
+      ]
+    },
+    {
+      "id": "whisky-highball--kir-royale",
+      "name": "Kir Royale",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Crème de cassis",
+        "Cold, dry Champagne"
+      ],
+      "garnishes": [
+        "No garnish"
+      ],
+      "recipe_text": [
+        "Crème de cassis",
+        "Cold, dry Champagne",
+        "Garnish: No garnish"
+      ]
+    },
+    {
+      "id": "whisky-highball--st-germain-cocktail",
+      "name": "St-Germain Cocktail",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Elderflower liqueur",
+        "Cold dry sparkling wine",
+        "Cold seltzer"
+      ],
+      "garnishes": [
+        "1 lemon twist"
+      ],
+      "recipe_text": [
+        "Elderflower liqueur",
+        "Cold dry sparkling wine",
+        "Cold seltzer",
+        "Garnish: 1 lemon twist"
+      ]
+    },
+    {
+      "id": "whisky-highball--aperol-spritz",
+      "name": "Aperol Spritz",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Aperol",
+        "Cold prosecco",
+        "Cold seltzer"
+      ],
+      "garnishes": [
+        "1 grapefruit wedge"
+      ],
+      "recipe_text": [
+        "Aperol",
+        "Cold prosecco",
+        "Cold seltzer",
+        "Garnish: 1 grapefruit wedge"
+      ]
+    },
+    {
+      "id": "whisky-highball--daisy-chain",
+      "name": "Daisy Chain",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Manzanilla sherry",
+        "Elderflower liqueur",
+        "Gentian liqueur (Suze)",
+        "Verjus blanc",
+        "Fresh lemon juice",
+        "Salt solution",
+        "Normandy sparkling apple cider"
+      ],
+      "garnishes": [
+        "5 thin apple slices on a skewer"
+      ],
+      "recipe_text": [
+        "Manzanilla sherry",
+        "Elderflower liqueur",
+        "Gentian liqueur (Suze)",
+        "Verjus blanc",
+        "Fresh lemon juice",
+        "Salt solution",
+        "Normandy sparkling apple cider",
+        "Garnish: 5 thin apple slices on a skewer"
+      ]
+    },
+    {
+      "id": "whisky-highball--wine-spritz-improved-wine-spritz",
+      "name": "Wine Spritz / Improved Wine Spritz",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Crisp white or rosé wine",
+        "(Optional) Fresh lemon juice & Simple syrup",
+        "Cold seltzer"
+      ],
+      "garnishes": [
+        "1 lemon wheel"
+      ],
+      "recipe_text": [
+        "Crisp white or rosé wine",
+        "(Optional) Fresh lemon juice & Simple syrup",
+        "Cold seltzer",
+        "Garnish: 1 lemon wheel"
+      ]
+    },
+    {
+      "id": "whisky-highball--king-s-landing",
+      "name": "King’s Landing",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Birch-infused sweet vermouth",
+        "Pear liqueur",
+        "Fresh lemon juice",
+        "Cold cava"
+      ],
+      "garnishes": [
+        "1 lemon wheel"
+      ],
+      "recipe_text": [
+        "Birch-infused sweet vermouth",
+        "Pear liqueur",
+        "Fresh lemon juice",
+        "Cold cava",
+        "Garnish: 1 lemon wheel"
+      ]
+    },
+    {
+      "id": "whisky-highball--normandie-club-spritz-1-3",
+      "name": "Normandie Club Spritz #1 & #3",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "Spirit Base (Vermouth, Brandy, or Tequila/Pisco)",
+        "Clarified juices (Cucumber, Lime, or Grapefruit)",
+        "CO2",
+        "CO2 bottle"
+      ],
+      "garnishes": [
+        "Mint sprig or grapefruit half wheel"
+      ],
+      "recipe_text": [
+        "Spirit Base (Vermouth, Brandy, or Tequila/Pisco)",
+        "Clarified juices (Cucumber, Lime, or Grapefruit)",
+        "CO2",
+        "CO2 bottle",
+        "Garnish: Mint sprig or grapefruit half wheel"
+      ]
+    },
+    {
+      "id": "flip--brandy-flip",
+      "name": "Brandy Flip",
+      "family_id": 5,
+      "subcluster_id": "5-core",
+      "ingredients": [
+        "1½ ounces Cognac",
+        "¾ ounce Demerara Gum Syrup",
+        "1 whole egg"
+      ],
+      "garnishes": [
+        "Nutmeg"
+      ],
+      "recipe_text": [
+        "1½ ounces Cognac",
+        "¾ ounce Demerara Gum Syrup",
+        "1 whole egg",
+        "Garnish: Nutmeg"
+      ]
+    },
+    {
+      "id": "flip--coffee-cocktail",
+      "name": "Coffee Cocktail",
+      "family_id": 5,
+      "subcluster_id": "5-core",
+      "ingredients": [
+        "1½ ounces tawny port",
+        "1 ounce Cognac",
+        "¼ ounce simple syrup",
+        "1 whole egg"
+      ],
+      "garnishes": [
+        "Nutmeg"
+      ],
+      "recipe_text": [
+        "1½ ounces tawny port",
+        "1 ounce Cognac",
+        "¼ ounce simple syrup",
+        "1 whole egg",
+        "Garnish: Nutmeg"
+      ]
+    },
+    {
+      "id": "flip--eggnog",
+      "name": "Eggnog",
+      "family_id": 5,
+      "subcluster_id": "5-balance",
+      "ingredients": [
+        "¾ ounce Rum",
+        "¾ ounce Cognac",
+        "1 teaspoon Vanilla Liqueur",
+        "½ ounce Cane Sugar Syrup",
+        "1 ounce heavy cream",
+        "1 whole egg"
+      ],
+      "garnishes": [
+        "Cinnamon and nutmeg"
+      ],
+      "recipe_text": [
+        "¾ ounce Rum",
+        "¾ ounce Cognac",
+        "1 teaspoon Vanilla Liqueur",
+        "½ ounce Cane Sugar Syrup",
+        "1 ounce heavy cream",
+        "1 whole egg",
+        "Garnish: Cinnamon and nutmeg"
+      ]
+    },
+    {
+      "id": "flip--brandy-alexander",
+      "name": "Brandy Alexander",
+      "family_id": 5,
+      "subcluster_id": "5-balance",
+      "ingredients": [
+        "1½ ounces Cognac",
+        "1 ounce white crème de cacao",
+        "1 ounce heavy cream"
+      ],
+      "garnishes": [
+        "Nutmeg"
+      ],
+      "recipe_text": [
+        "1½ ounces Cognac",
+        "1 ounce white crème de cacao",
+        "1 ounce heavy cream",
+        "Garnish: Nutmeg"
+      ]
+    },
+    {
+      "id": "flip--new-york-flip",
+      "name": "New York Flip",
+      "family_id": 5,
+      "subcluster_id": "5-balance",
+      "ingredients": [
+        "1 ounce bourbon",
+        "¾ ounce tawny port",
+        "¼ ounce simple syrup",
+        "¾ ounce heavy cream",
+        "1 egg yolk"
+      ],
+      "garnishes": [
+        "Nutmeg"
+      ],
+      "recipe_text": [
+        "1 ounce bourbon",
+        "¾ ounce tawny port",
+        "¼ ounce simple syrup",
+        "¾ ounce heavy cream",
+        "1 egg yolk",
+        "Garnish: Nutmeg"
+      ]
+    },
+    {
+      "id": "flip--almond-orchard",
+      "name": "Almond Orchard",
+      "family_id": 5,
+      "subcluster_id": "5-balance",
+      "ingredients": [
+        "4½ ounces Almond Milk",
+        "1½ ounces Tea-Infused Apple Brandy",
+        "¼ teaspoon Maraschino Liqueur",
+        "¼ ounce Demerara Gum Syrup",
+        "2 drops Lactic Acid Solution",
+        "1 drop Salt Solution"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "4½ ounces Almond Milk",
+        "1½ ounces Tea-Infused Apple Brandy",
+        "¼ teaspoon Maraschino Liqueur",
+        "¼ ounce Demerara Gum Syrup",
+        "2 drops Lactic Acid Solution",
+        "1 drop Salt Solution"
+      ]
+    },
+    {
+      "id": "flip--barnaby-jones",
+      "name": "Barnaby Jones",
+      "family_id": 5,
+      "subcluster_id": "5-seasoning",
+      "ingredients": [
+        "1½ ounces scotch",
+        "½ ounce artichoke-based amaro",
+        "½ ounce dark, robust maple syrup",
+        "½ ounce heavy cream",
+        "1 whole egg",
+        "12 coffee beans"
+      ],
+      "garnishes": [
+        "Cinnamon"
+      ],
+      "recipe_text": [
+        "1½ ounces scotch",
+        "½ ounce artichoke-based amaro",
+        "½ ounce dark, robust maple syrup",
+        "½ ounce heavy cream",
+        "1 whole egg",
+        "12 coffee beans",
+        "Garnish: Cinnamon"
+      ]
+    },
+    {
+      "id": "flip--jump-in-the-line",
+      "name": "Jump in the Line",
+      "family_id": 5,
+      "subcluster_id": "5-seasoning",
+      "ingredients": [
+        "1 orange half wheel",
+        "½ strawberry",
+        "1½ ounces amontillado sherry",
+        "½ ounce amaro",
+        "¾ ounce rhum agricole",
+        "1 teaspoon dry curaçao",
+        "½ ounce Coconut Cream",
+        "1 dash bitters"
+      ],
+      "garnishes": [
+        "1 pineapple leaf, 1 orange half wheel, 1 mint sprig"
+      ],
+      "recipe_text": [
+        "1 orange half wheel",
+        "½ strawberry",
+        "1½ ounces amontillado sherry",
+        "½ ounce amaro",
+        "¾ ounce rhum agricole",
+        "1 teaspoon dry curaçao",
+        "½ ounce Coconut Cream",
+        "1 dash bitters",
+        "Garnish: 1 pineapple leaf, 1 orange half wheel, 1 mint sprig"
+      ]
+    },
+    {
+      "id": "flip--white-russian",
+      "name": "White Russian",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "1½ ounces vodka",
+        "1 ounce coffee liqueur",
+        "1 ounce half-and-half"
+      ],
+      "garnishes": [
+        "3 coffee beans"
+      ],
+      "recipe_text": [
+        "1½ ounces vodka",
+        "1 ounce coffee liqueur",
+        "1 ounce half-and-half",
+        "Garnish: 3 coffee beans"
+      ]
+    },
+    {
+      "id": "flip--irish-coffee",
+      "name": "Irish Coffee",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "2 ounces heavy cream",
+        "1½ ounces Irish whiskey",
+        "¼ ounce Demerara Gum Syrup",
+        "3 ounces hot brewed coffee"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "2 ounces heavy cream",
+        "1½ ounces Irish whiskey",
+        "¼ ounce Demerara Gum Syrup",
+        "3 ounces hot brewed coffee"
+      ]
+    },
+    {
+      "id": "flip--grasshopper",
+      "name": "Grasshopper",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "1 ounce white crème de menthe",
+        "1 ounce white crème de cacao",
+        "1 ounce heavy cream",
+        "8 mint leaves"
+      ],
+      "garnishes": [
+        "1 mint leaf"
+      ],
+      "recipe_text": [
+        "1 ounce white crème de menthe",
+        "1 ounce white crème de cacao",
+        "1 ounce heavy cream",
+        "8 mint leaves",
+        "Garnish: 1 mint leaf"
+      ]
+    },
+    {
+      "id": "flip--tom-and-jerry",
+      "name": "Tom and Jerry",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "1 ounce rum",
+        "1 ounce Cognac",
+        "2 ounces Tom and Jerry Batter",
+        "2 ounces hot milk"
+      ],
+      "garnishes": [
+        "Nutmeg"
+      ],
+      "recipe_text": [
+        "1 ounce rum",
+        "1 ounce Cognac",
+        "2 ounces Tom and Jerry Batter",
+        "2 ounces hot milk",
+        "Garnish: Nutmeg"
+      ]
+    },
+    {
+      "id": "flip--golden-cadillac",
+      "name": "Golden Cadillac",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "1 ounce herbal liqueur",
+        "1 ounce white crème de cacao",
+        "1 ounce heavy cream"
+      ],
+      "garnishes": [
+        "Dark chocolate"
+      ],
+      "recipe_text": [
+        "1 ounce herbal liqueur",
+        "1 ounce white crème de cacao",
+        "1 ounce heavy cream",
+        "Garnish: Dark chocolate"
+      ]
+    },
+    {
+      "id": "flip--pi-a-colada",
+      "name": "Piña Colada",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "2 ounces white rum",
+        "½ ounce black strap rum",
+        "1½ ounces fresh pineapple juice",
+        "1½ ounces Coconut Cream"
+      ],
+      "garnishes": [
+        "1 pineapple wedge, 1 brandied cherry"
+      ],
+      "recipe_text": [
+        "2 ounces white rum",
+        "½ ounce black strap rum",
+        "1½ ounces fresh pineapple juice",
+        "1½ ounces Coconut Cream",
+        "Garnish: 1 pineapple wedge, 1 brandied cherry"
+      ]
+    },
+    {
+      "id": "flip--frozen-mudslide",
+      "name": "Frozen Mudslide",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "1 ounce vodka",
+        "1½ ounces Irish Cream",
+        "1 ounce coffee liqueur",
+        "3 scoops vanilla or coffee ice cream"
+      ],
+      "garnishes": [
+        "finely grated dark chocolate"
+      ],
+      "recipe_text": [
+        "1 ounce vodka",
+        "1½ ounces Irish Cream",
+        "1 ounce coffee liqueur",
+        "3 scoops vanilla or coffee ice cream",
+        "Garnish: finely grated dark chocolate"
+      ]
+    },
+    {
+      "id": "flip--hans-gruber",
+      "name": "Hans Gruber",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "2 ounces heavy cream",
+        "¼ ounce dark, robust maple syrup",
+        "1 ounce Toasted Pecan-Infused Rum",
+        "¾ ounce Brown Butter-Infused Apple Brandy",
+        "1 ounce Pedro Ximénez sherry",
+        "1 teaspoon Vanilla Liqueur",
+        "¼ ounce Cane Sugar Syrup",
+        "3 drops Salt Solution"
+      ],
+      "garnishes": [
+        "1 spritz of Black Strap rum"
+      ],
+      "recipe_text": [
+        "2 ounces heavy cream",
+        "¼ ounce dark, robust maple syrup",
+        "1 ounce Toasted Pecan-Infused Rum",
+        "¾ ounce Brown Butter-Infused Apple Brandy",
+        "1 ounce Pedro Ximénez sherry",
+        "1 teaspoon Vanilla Liqueur",
+        "¼ ounce Cane Sugar Syrup",
+        "3 drops Salt Solution",
+        "Garnish: 1 spritz of Black Strap rum"
+      ]
+    },
+    {
+      "id": "flip--indulge",
+      "name": "Indulge",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "4½ ounces Almond Milk",
+        "¾ ounce Brown Butter-Infused Apple Brandy",
+        "¾ ounce 7-year rum",
+        "1 teaspoon amaretto",
+        "½ ounce Spiced Almond Demerara Gum Syrup",
+        "2 drops Lactic Acid Solution",
+        "1 drop Salt Solution"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "4½ ounces Almond Milk",
+        "¾ ounce Brown Butter-Infused Apple Brandy",
+        "¾ ounce 7-year rum",
+        "1 teaspoon amaretto",
+        "½ ounce Spiced Almond Demerara Gum Syrup",
+        "2 drops Lactic Acid Solution",
+        "1 drop Salt Solution"
+      ]
+    },
+    {
+      "id": "flip--saturday-morning-cartoons",
+      "name": "Saturday Morning Cartoons",
+      "family_id": 5,
+      "subcluster_id": "5-variations-extended-family",
+      "ingredients": [
+        "1 ounce cachaça",
+        "½ ounce Cacao Nib Tincture",
+        "¼ ounce vanilla liqueur",
+        "¾ ounce Demerara Gum Syrup",
+        "4 ounces Almond Milk"
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "1 ounce cachaça",
+        "½ ounce Cacao Nib Tincture",
+        "¼ ounce vanilla liqueur",
+        "¾ ounce Demerara Gum Syrup",
+        "4 ounces Almond Milk"
+      ]
+    },
+    {
+      "id": "daiquiri--hurricane",
+      "name": "Hurricane",
+      "family_id": 2,
+      "subcluster_id": "2-extended-family",
+      "ingredients": [
+        "2 oz Dark rum",
+        "2 oz Light rum",
+        "2 oz Passion fruit puree",
+        "1 oz Orange juice",
+        "1 oz Lime juice",
+        "0.5 oz Simple syrup",
+        "0.5 oz Grenadine"
+      ],
+      "garnishes": [
+        "Orange slice",
+        "Maraschino cherry"
+      ],
+      "recipe_text": [
+        "2 oz Dark rum",
+        "2 oz Light rum",
+        "2 oz Passion fruit puree",
+        "1 oz Orange juice",
+        "1 oz Lime juice",
+        "0.5 oz Simple syrup",
+        "0.5 oz Grenadine",
+        "Garnish: Orange slice",
+        "Garnish: Maraschino cherry"
+      ]
+    },
+    {
+      "id": "whisky-highball--singapore-sling",
+      "name": "Singapore Sling",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "1.5 oz Gin",
+        "0.5 oz Cherry Heering",
+        "0.25 oz Bénédictine",
+        "0.25 oz Cointreau",
+        "4 oz Pineapple juice",
+        "0.5 oz Lime juice",
+        "0.33 oz Grenadine",
+        "1 dash Angostura bitters",
+        "Soda water (top)"
+      ],
+      "garnishes": [
+        "Pineapple wedge",
+        "Maraschino cherry"
+      ],
+      "recipe_text": [
+        "1.5 oz Gin",
+        "0.5 oz Cherry Heering",
+        "0.25 oz Bénédictine",
+        "0.25 oz Cointreau",
+        "4 oz Pineapple juice",
+        "0.5 oz Lime juice",
+        "0.33 oz Grenadine",
+        "1 dash Angostura bitters",
+        "Soda water (top)",
+        "Garnish: Pineapple wedge",
+        "Garnish: Maraschino cherry"
+      ]
+    },
+    {
+      "id": "whisky-highball--pimm-s-cup",
+      "name": "Pimm's Cup",
+      "family_id": 4,
+      "subcluster_id": "4-extended-family",
+      "ingredients": [
+        "2 oz Pimm's No. 1",
+        "4 oz Ginger ale (or lemonade)",
+        "1 Lemon wedge",
+        "1 Cucumber spear"
+      ],
+      "garnishes": [
+        "Mint sprig",
+        "Cucumber slice",
+        "Orange wheel"
+      ],
+      "recipe_text": [
+        "2 oz Pimm's No. 1",
+        "4 oz Ginger ale (or lemonade)",
+        "1 Lemon wedge",
+        "1 Cucumber spear",
+        "Garnish: Mint sprig",
+        "Garnish: Cucumber slice",
+        "Garnish: Orange wheel"
+      ]
+    },
+    {
+      "id": "martini--dirty-martini",
+      "name": "Dirty Martini",
+      "family_id": 1,
+      "subcluster_id": "1-extended-family",
+      "ingredients": [
+        "70ml/2fl oz Vodka",
+        "1 tbsp Dry Vermouth",
+        "2 tbsp Olive Brine",
+        "1 wedge Lemon"
+      ],
+      "garnishes": [
+        "1 Olive"
+      ],
+      "recipe_text": [
+        "70ml/2fl oz Vodka",
+        "1 tbsp Dry Vermouth",
+        "2 tbsp Olive Brine",
+        "1 wedge Lemon",
+        "Garnish: 1 Olive"
+      ]
+    },
+    {
+      "id": "old-fashioned--old-fashioned--root",
+      "name": "Old-Fashioned",
+      "family_id": 0,
+      "subcluster_id": "0-root",
+      "ingredients": [
+        "2 oz Bourbon",
+        "1 sugar cube",
+        "2 dashes Angostura bitters",
+        "Splash of water"
+      ],
+      "garnishes": [
+        "Orange peel"
+      ],
+      "recipe_text": [
+        "2 oz Bourbon",
+        "1 sugar cube",
+        "2 dashes Angostura bitters",
+        "Splash of water",
+        "Garnish: Orange peel"
+      ],
+      "isRoot": true
+    },
+    {
+      "id": "martini--martini--root",
+      "name": "Martini",
+      "family_id": 1,
+      "subcluster_id": "1-root",
+      "ingredients": [
+        "2 oz Gin",
+        "0.5 oz Dry vermouth"
+      ],
+      "garnishes": [
+        "Lemon twist or olive"
+      ],
+      "recipe_text": [
+        "2 oz Gin",
+        "0.5 oz Dry vermouth",
+        "Garnish: Lemon twist or olive"
+      ],
+      "isRoot": true
+    },
+    {
+      "id": "daiquiri--daiquiri--root",
+      "name": "Daiquiri",
+      "family_id": 2,
+      "subcluster_id": "2-root",
+      "ingredients": [
+        "2 oz White rum",
+        "0.75 oz Lime juice",
+        "0.5 oz Simple syrup"
+      ],
+      "garnishes": [
+        "Lime wheel"
+      ],
+      "recipe_text": [
+        "2 oz White rum",
+        "0.75 oz Lime juice",
+        "0.5 oz Simple syrup",
+        "Garnish: Lime wheel"
+      ],
+      "isRoot": true
+    },
+    {
+      "id": "sidecar--sidecar--root",
+      "name": "Sidecar",
+      "family_id": 3,
+      "subcluster_id": "3-root",
+      "ingredients": [
+        "2 oz Cognac",
+        "0.75 oz Orange liqueur",
+        "0.75 oz Lemon juice"
+      ],
+      "garnishes": [
+        "Orange twist",
+        "Sugar rim (optional)"
+      ],
+      "recipe_text": [
+        "2 oz Cognac",
+        "0.75 oz Orange liqueur",
+        "0.75 oz Lemon juice",
+        "Garnish: Orange twist",
+        "Garnish: Sugar rim (optional)"
+      ],
+      "isRoot": true
+    },
+    {
+      "id": "whisky-highball--whisky-highball--root",
+      "name": "Whisky Highball",
+      "family_id": 4,
+      "subcluster_id": "4-root",
+      "ingredients": [
+        "2 oz Hakushu 12-yr Japanese whisky",
+        "4 oz Cold seltzer"
+      ],
+      "garnishes": [
+        "Lemon twist"
+      ],
+      "recipe_text": [
+        "2 oz Hakushu 12-yr Japanese whisky",
+        "4 oz Cold seltzer",
+        "Garnish: Lemon twist"
+      ],
+      "isRoot": true
+    },
+    {
+      "id": "flip--flip--root",
+      "name": "Flip",
+      "family_id": 5,
+      "subcluster_id": "5-root",
+      "ingredients": [
+        "2 oz Sherry",
+        "0.25 oz Gum syrup",
+        "1 whole egg"
+      ],
+      "garnishes": [
+        "Nutmeg"
+      ],
+      "recipe_text": [
+        "2 oz Sherry",
+        "0.25 oz Gum syrup",
+        "1 whole egg",
+        "Garnish: Nutmeg"
+      ],
+      "isRoot": true
+    },
+    {
+      "id": "syrup--simple-syrup",
+      "name": "Simple Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "1:1 ratio of white sugar to water."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "1:1 ratio of white sugar to water."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--cane-sugar-syrup",
+      "name": "Cane Sugar Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "1:1 ratio of raw cane sugar to water."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "1:1 ratio of raw cane sugar to water."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--demerara-gum-syrup",
+      "name": "Demerara Gum Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "2 parts Demerara sugar, 1 part water, and gum arabic for texture."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "2 parts Demerara sugar, 1 part water, and gum arabic for texture."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--spiced-almond-demerara-gum-syrup",
+      "name": "Spiced Almond Demerara Gum Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Demerara gum syrup infused with cinnamon, cardamom, cloves, and sliced almonds."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Demerara gum syrup infused with cinnamon, cardamom, cloves, and sliced almonds."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--pineapple-gum-syrup",
+      "name": "Pineapple Gum Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Demerara gum syrup infused with fresh pineapple."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Demerara gum syrup infused with fresh pineapple."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--raisin-honey-syrup",
+      "name": "Raisin Honey Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Honey syrup infused with raisins."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Honey syrup infused with raisins."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--salt-solution",
+      "name": "Salt Solution",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "1 part salt to 4 parts water."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "1 part salt to 4 parts water."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--champagne-acid",
+      "name": "Champagne Acid",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "A blend of tartaric and lactic acids."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "A blend of tartaric and lactic acids."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--white-honey-syrup",
+      "name": "White Honey Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "1:1 ratio of mild white honey to water."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "1:1 ratio of mild white honey to water."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--clarified-strawberry-syrup",
+      "name": "Clarified Strawberry Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Strawberry syrup filtered for clarity (typically using agar-agar)."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Strawberry syrup filtered for clarity (typically using agar-agar)."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--sel-gris-solution",
+      "name": "Sel Gris Solution",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Saline solution made with grey sea salt."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Saline solution made with grey sea salt."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--apr-s-ski-tincture",
+      "name": "Après-Ski Tincture",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Alpine botanical infusion (page 297)."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Alpine botanical infusion (page 297)."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--white-pepper-infused-vodka",
+      "name": "White Pepper-Infused Vodka",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "High-proof vodka steeped with white peppercorns."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "High-proof vodka steeped with white peppercorns."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--honey-syrup",
+      "name": "Honey Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "1:1 ratio of honey to water."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "1:1 ratio of honey to water."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--ginger-syrup",
+      "name": "Ginger Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "(House recipe, page 48) Fresh ginger juice blended with sugar."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "(House recipe, page 48) Fresh ginger juice blended with sugar."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--orgeat",
+      "name": "Orgeat",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Almond-based syrup with sugar and a hint of orange flower water."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Almond-based syrup with sugar and a hint of orange flower water."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--basil-stem-syrup",
+      "name": "Basil Stem Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Simple syrup infused with fresh basil stems."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Simple syrup infused with fresh basil stems."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--vanilla-lactic-syrup",
+      "name": "Vanilla Lactic Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Syrup with vanilla and lactic acid for creamy tartness."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Syrup with vanilla and lactic acid for creamy tartness."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--cinnamon-syrup",
+      "name": "Cinnamon Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Simple syrup infused with crushed cinnamon sticks."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Simple syrup infused with crushed cinnamon sticks."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--strawberry-cream-syrup",
+      "name": "Strawberry Cream Syrup",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "A rich strawberry syrup typically made with sugar, fresh berries, and a touch of cream or dairy-free alternative for body (page 286)."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "A rich strawberry syrup typically made with sugar, fresh berries, and a touch of cream or dairy-free alternative for body (page 286)."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--house-grenadine",
+      "name": "House Grenadine",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Homemade pomegranate syrup (page 47)."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Homemade pomegranate syrup (page 47)."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--citric-acid-solution",
+      "name": "Citric Acid Solution",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Citric acid powder and water for a \"bite\" (page 298)."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Citric acid powder and water for a \"bite\" (page 298)."
+      ],
+      "isSyrup": true
+    },
+    {
+      "id": "syrup--verde-mix",
+      "name": "Verde Mix",
+      "family_id": 6,
+      "subcluster_id": "6-recipes",
+      "ingredients": [
+        "Tomatillo, cucumber, and honey-based savory mix (page 296)."
+      ],
+      "garnishes": [],
+      "recipe_text": [
+        "Tomatillo, cucumber, and honey-based savory mix (page 296)."
+      ],
+      "isSyrup": true
+    }
+  ],
+  "syrups": [
+    {
+      "id": "syrup-simple-syrup",
+      "name": "Simple Syrup",
+      "instructions": "1:1 ratio of white sugar to water."
+    },
+    {
+      "id": "syrup-cane-sugar-syrup",
+      "name": "Cane Sugar Syrup",
+      "instructions": "1:1 ratio of raw cane sugar to water."
+    },
+    {
+      "id": "syrup-demerara-gum-syrup",
+      "name": "Demerara Gum Syrup",
+      "instructions": "2 parts Demerara sugar, 1 part water, and gum arabic for texture."
+    },
+    {
+      "id": "syrup-spiced-almond-demerara-gum-syrup",
+      "name": "Spiced Almond Demerara Gum Syrup",
+      "instructions": "Demerara gum syrup infused with cinnamon, cardamom, cloves, and sliced almonds."
+    },
+    {
+      "id": "syrup-pineapple-gum-syrup",
+      "name": "Pineapple Gum Syrup",
+      "instructions": "Demerara gum syrup infused with fresh pineapple."
+    },
+    {
+      "id": "syrup-raisin-honey-syrup",
+      "name": "Raisin Honey Syrup",
+      "instructions": "Honey syrup infused with raisins."
+    },
+    {
+      "id": "syrup-salt-solution",
+      "name": "Salt Solution",
+      "instructions": "1 part salt to 4 parts water."
+    },
+    {
+      "id": "syrup-champagne-acid",
+      "name": "Champagne Acid",
+      "instructions": "A blend of tartaric and lactic acids."
+    },
+    {
+      "id": "syrup-white-honey-syrup",
+      "name": "White Honey Syrup",
+      "instructions": "1:1 ratio of mild white honey to water."
+    },
+    {
+      "id": "syrup-clarified-strawberry-syrup",
+      "name": "Clarified Strawberry Syrup",
+      "instructions": "Strawberry syrup filtered for clarity (typically using agar-agar)."
+    },
+    {
+      "id": "syrup-sel-gris-solution",
+      "name": "Sel Gris Solution",
+      "instructions": "Saline solution made with grey sea salt."
+    },
+    {
+      "id": "syrup-apr-s-ski-tincture",
+      "name": "Après-Ski Tincture",
+      "instructions": "Alpine botanical infusion (page 297)."
+    },
+    {
+      "id": "syrup-white-pepper-infused-vodka",
+      "name": "White Pepper-Infused Vodka",
+      "instructions": "High-proof vodka steeped with white peppercorns."
+    },
+    {
+      "id": "syrup-honey-syrup",
+      "name": "Honey Syrup",
+      "instructions": "1:1 ratio of honey to water."
+    },
+    {
+      "id": "syrup-ginger-syrup",
+      "name": "Ginger Syrup",
+      "instructions": "(House recipe, page 48) Fresh ginger juice blended with sugar."
+    },
+    {
+      "id": "syrup-orgeat",
+      "name": "Orgeat",
+      "instructions": "Almond-based syrup with sugar and a hint of orange flower water."
+    },
+    {
+      "id": "syrup-basil-stem-syrup",
+      "name": "Basil Stem Syrup",
+      "instructions": "Simple syrup infused with fresh basil stems."
+    },
+    {
+      "id": "syrup-vanilla-lactic-syrup",
+      "name": "Vanilla Lactic Syrup",
+      "instructions": "Syrup with vanilla and lactic acid for creamy tartness."
+    },
+    {
+      "id": "syrup-cinnamon-syrup",
+      "name": "Cinnamon Syrup",
+      "instructions": "Simple syrup infused with crushed cinnamon sticks."
+    },
+    {
+      "id": "syrup-strawberry-cream-syrup",
+      "name": "Strawberry Cream Syrup",
+      "instructions": "A rich strawberry syrup typically made with sugar, fresh berries, and a touch of cream or dairy-free alternative for body (page 286)."
+    },
+    {
+      "id": "syrup-house-grenadine",
+      "name": "House Grenadine",
+      "instructions": "Homemade pomegranate syrup (page 47)."
+    },
+    {
+      "id": "syrup-citric-acid-solution",
+      "name": "Citric Acid Solution",
+      "instructions": "Citric acid powder and water for a \"bite\" (page 298)."
+    },
+    {
+      "id": "syrup-verde-mix",
+      "name": "Verde Mix",
+      "instructions": "Tomatillo, cucumber, and honey-based savory mix (page 296)."
+    }
+  ]
+}
