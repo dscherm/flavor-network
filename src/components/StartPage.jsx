@@ -2,23 +2,23 @@ import { useRef, useEffect } from 'react';
 
 const MODES = [
   {
-    id: 'discover',
-    label: 'Discover ingredients',
-    description: 'Explore a 3D network of 3,913 ingredients grouped by shared chemistry.',
+    id: 'pairing',
+    label: 'Explore Pairing Model',
+    description: 'A 3D network of 3,913 ingredients clustered by shared chemistry and 48,588 pairings.',
   },
   {
-    id: 'build',
-    label: 'Build a recipe',
-    description: 'Start with an ingredient, get pairings that balance sweet, sour, bitter, salty, umami.',
+    id: 'cocktail',
+    label: 'Explore Cocktail Model',
+    description: '172 cocktails grouped into the 7 Codex super-clusters — Old-Fashioned, Martini, Daiquiri, and more.',
   },
   {
-    id: 'learn',
-    label: 'Learn the science',
-    description: 'See the molecules, the model, and why basil tastes like strawberry.',
+    id: 'sauce',
+    label: 'Explore Sauce Model',
+    description: '77 sauces grouped into the 10 mother families — Béchamel, Velouté, Hollandaise, Curry, Mole, and more.',
   },
 ];
 
-function DiscoverVisual() {
+function PairingVisual() {
   const dots = [
     { x: 50, y: 12, d: 0 },
     { x: 14, y: 36, d: 0.3 },
@@ -57,69 +57,62 @@ function DiscoverVisual() {
   );
 }
 
-function BuildVisual() {
+function CocktailVisual() {
   return (
     <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
-      {/* Recipe list (lines) */}
-      <rect x="10" y="18" width="30" height="4" rx="1" fill="rgba(236,72,153,0.7)" />
-      <rect x="10" y="28" width="24" height="3" rx="1" fill="rgba(236,72,153,0.5)" />
-      <rect x="10" y="36" width="28" height="3" rx="1" fill="rgba(236,72,153,0.5)" />
-      <rect x="10" y="44" width="20" height="3" rx="1" fill="rgba(236,72,153,0.5)" />
-      {/* Cocktail glass */}
+      {/* Martini glass — codex of cocktails */}
       <path
-        d="M 55 20 L 85 20 L 72 48 L 68 48 Z"
-        fill="none" stroke="rgb(34,211,238)" strokeWidth="1.8"
+        d="M 22 22 L 78 22 L 54 56 L 46 56 Z"
+        fill="rgba(167,139,250,0.15)" stroke="rgb(167,139,250)" strokeWidth="2"
       />
-      <line x1="70" y1="48" x2="70" y2="62" stroke="rgb(34,211,238)" strokeWidth="1.8" />
-      <line x1="62" y1="62" x2="78" y2="62" stroke="rgb(34,211,238)" strokeWidth="1.8" />
-      {/* Sauce bowl */}
-      <ellipse cx="50" cy="82" rx="22" ry="5" fill="none" stroke="rgb(251,191,36)" strokeWidth="1.8" />
-      <path
-        d="M 28 82 Q 28 94 50 94 Q 72 94 72 82"
-        fill="rgba(251,191,36,0.15)" stroke="rgb(251,191,36)" strokeWidth="1.8"
+      <line x1="50" y1="56" x2="50" y2="80" stroke="rgb(167,139,250)" strokeWidth="2" />
+      <line x1="34" y1="80" x2="66" y2="80" stroke="rgb(167,139,250)" strokeWidth="2" />
+      {/* Olive */}
+      <circle cx="44" cy="44" r="3.5" fill="rgb(125,186,94)"
+        style={{ filter: 'drop-shadow(0 0 4px rgba(125,186,94,0.8))' }}
       />
+      {/* Surface ripple — implies "cocktails clustering" */}
+      <line x1="28" y1="30" x2="72" y2="30" stroke="rgba(167,139,250,0.4)" strokeWidth="1" />
     </svg>
   );
 }
 
-function LearnVisual() {
+function SauceVisual() {
   return (
-    <svg
-      viewBox="0 0 100 100"
-      className="w-20 h-20 motion-safe:[animation:fn-spin_10s_linear_infinite]"
-      aria-hidden="true"
-    >
-      {/* Caffeine-ish skeleton: purine ring schematic */}
-      <g>
-        {/* Hexagon (pyrimidine) */}
-        <polygon
-          points="30,30 50,22 70,30 70,50 50,58 30,50"
-          fill="none" stroke="rgba(167,139,250,0.8)" strokeWidth="1.6"
-        />
-        {/* Imidazole-ish pentagon */}
-        <polygon
-          points="70,50 84,46 88,60 78,70 66,62"
-          fill="none" stroke="rgba(34,211,238,0.8)" strokeWidth="1.6"
-        />
-        {/* Atoms */}
-        <circle cx="30" cy="30" r="4" fill="rgb(167,139,250)" />
-        <circle cx="70" cy="30" r="4" fill="rgb(167,139,250)" />
-        <circle cx="30" cy="50" r="4" fill="rgb(34,211,238)" />
-        <circle cx="70" cy="50" r="4" fill="rgb(167,139,250)" />
-        <circle cx="50" cy="22" r="3" fill="rgb(251,191,36)" />
-        <circle cx="50" cy="58" r="3" fill="rgb(251,191,36)" />
-        <circle cx="84" cy="46" r="3" fill="rgb(34,211,238)" />
-        <circle cx="88" cy="60" r="3" fill="rgb(34,211,238)" />
-        <circle cx="78" cy="70" r="3" fill="rgb(251,191,36)" />
-      </g>
+    <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
+      {/* Sauce pan with handle */}
+      <path
+        d="M 22 38 L 78 38 L 74 76 Q 74 84 66 84 L 34 84 Q 26 84 26 76 Z"
+        fill="rgba(251,191,36,0.18)" stroke="rgb(251,191,36)" strokeWidth="2"
+      />
+      <rect x="78" y="44" width="14" height="4" rx="1.5" fill="rgb(251,191,36)" />
+      {/* Sauce surface — three swirls suggesting mother sauces */}
+      <ellipse cx="50" cy="42" rx="26" ry="3.5" fill="rgba(217,74,61,0.6)" />
+      <path
+        d="M 36 42 Q 42 40 50 42 Q 58 44 64 42"
+        fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.8"
+      />
+      {/* Steam */}
+      <path
+        d="M 40 22 Q 44 18 40 14 Q 36 10 40 6"
+        fill="none" stroke="rgba(251,191,36,0.4)" strokeWidth="1.4"
+        className="motion-safe:animate-pulse"
+        style={{ animationDuration: '3s' }}
+      />
+      <path
+        d="M 56 22 Q 60 18 56 14 Q 52 10 56 6"
+        fill="none" stroke="rgba(251,191,36,0.4)" strokeWidth="1.4"
+        className="motion-safe:animate-pulse"
+        style={{ animationDuration: '3s', animationDelay: '0.8s' }}
+      />
     </svg>
   );
 }
 
 const VISUALS = {
-  discover: DiscoverVisual,
-  build: BuildVisual,
-  learn: LearnVisual,
+  pairing: PairingVisual,
+  cocktail: CocktailVisual,
+  sauce: SauceVisual,
 };
 
 export default function StartPage({ onModeSelect }) {
@@ -152,7 +145,7 @@ export default function StartPage({ onModeSelect }) {
             Find flavors that work together.
           </h1>
           <p className="text-sm sm:text-base text-neural-muted max-w-2xl mx-auto leading-relaxed">
-            Built on 2.2M recipes, 48,588 pairings, and real molecular chemistry. Pick a mode to start.
+            Built on 2.2M recipes, 48,588 pairings, and real molecular chemistry. Pick a model to explore.
           </p>
         </header>
 
