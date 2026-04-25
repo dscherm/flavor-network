@@ -53,6 +53,13 @@ export default function App() {
   const [sauceMounted, setSauceMounted] = useState(false);
   const [recipeMounted, setRecipeMounted] = useState(false);
   const [recipeInitialMode, setRecipeInitialMode] = useState(null);
+  // One-shot handoff payload to the Recipe Lab. ONLY explicit user
+  // actions ("Build Recipe" from the IngredientPanel, "Open in Recipe
+  // Lab" from a cocktail/sauce card) write to this. The Recipe Lab
+  // resets its bowl every time `ts` changes — never on plain
+  // `selectedNodes` updates, so clicking around in the Network /
+  // Cocktail / Sauce tabs no longer silently pollutes the recipe.
+  const [recipeHandoff, setRecipeHandoff] = useState(null);
   // trainingMounted removed
   const [moleculeLabOpen, setMoleculeLabOpen] = useState(false);
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
@@ -552,7 +559,17 @@ export default function App() {
           selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
           selectedCount={selectedNodes.length}
           flavorPath={flavorPath}
-          onBuildRecipe={() => { setRecipeMounted(true); setActiveTab('recipe'); }}
+          onBuildRecipe={() => {
+            // Explicit handoff: replace the Recipe Lab bowl with the
+            // currently-selected nodes from the Network tab.
+            setRecipeHandoff({
+              ingredients: [...selectedNodes],
+              mode: null,
+              ts: Date.now(),
+            });
+            setRecipeMounted(true);
+            setActiveTab('recipe');
+          }}
           isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
           onToggleFavorite={userProfile.toggleIngredient}
           graphNodes={data?.graph?.nodes}
@@ -751,12 +768,17 @@ export default function App() {
             fullData={data}
             userProfile={userProfile}
             onSelectionChange={handleLabSelectionChange}
-            onOpenRecipeLab={(mode, initialIngredients) => {
-              setSelectedNodes(Array.isArray(initialIngredients) ? [...initialIngredients] : []);
-              // Cocktail handoff always lands on the Cocktail tab in
-              // Recipe Lab so the suggestions are filtered to the
-              // cocktail scope. mode is 'replace' (informational only —
-              // chips show inline swap targets, no separate filter).
+            onOpenRecipeLab={(_mode, initialIngredients) => {
+              // Explicit cocktail handoff — REPLACE the bowl (don't
+              // mix this cocktail's ingredients with whatever food
+              // recipe was already in progress) and route through the
+              // one-shot handoff so the Recipe Lab actually picks up
+              // the change even when already mounted.
+              setRecipeHandoff({
+                ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
+                mode: 'cocktail',
+                ts: Date.now(),
+              });
               setRecipeInitialMode('cocktail');
               setRecipeMounted(true);
               setActiveTab('recipe');
@@ -777,7 +799,15 @@ export default function App() {
             userProfile={userProfile}
             onSelectionChange={handleLabSelectionChange}
             onOpenRecipeLab={(_mode, initialIngredients) => {
-              setSelectedNodes(Array.isArray(initialIngredients) ? [...initialIngredients] : []);
+              // Same one-shot handoff pattern as Cocktail Lab —
+              // replaces the bowl rather than appending to whatever
+              // was already there.
+              setRecipeHandoff({
+                ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
+                mode: 'sauce',
+                ts: Date.now(),
+              });
+              setRecipeInitialMode('sauce');
               setRecipeMounted(true);
               setActiveTab('recipe');
             }}
@@ -799,6 +829,7 @@ export default function App() {
             initialIngredient={selectedNode}
             initialIngredients={selectedNodes}
             initialMode={recipeInitialMode}
+            handoff={recipeHandoff}
             userProfile={userProfile}
             isMobile={isMobile}
           />

@@ -18,7 +18,7 @@ const FONT_FAMILY = 'Caveat, cursive';
  *   2. Recipe Notebook (middle) — scrollable ingredient list
  *   3. Suggestion Drawer (bottom) — pull-up sheet with taste tabs + chips
  */
-export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, userProfile }) {
+export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, handoff = null, userProfile }) {
   // initialMode === 'cocktail' arrives when the user taps "Open in
   // Recipe Lab" from a cocktail card; default the lab into cocktail
   // mode so the suggestion drawer scopes to cocktail-relevant
@@ -49,22 +49,32 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   // Reset structure on mode change
   useEffect(() => { setSelectedStructure(null); }, [labMode]);
 
-  // Sync initialIngredients (plural) — when the user clicks "Build Recipe"
-  // from IngredientPanel with multiple ingredients selected, mirror all of
-  // them into the recipe. Falls back to initialIngredient for the single-
-  // select path.
+  // One-shot handoff watcher. Only fires when App.jsx writes a new
+  // `handoff` payload (explicit "Build Recipe" / "Open in Recipe Lab"
+  // button presses). REPLACES the bowl rather than appending so the
+  // user gets a clean slate for the new recipe context — fixes the
+  // bug where exploring cocktails / sauces / network selections
+  // silently piled extra ingredients onto an in-progress recipe.
+  //
+  // `initialIngredients` is intentionally NOT a dependency here: the
+  // first-mount seed already lives in `useState(initialSeed)` above,
+  // and post-mount we want the bowl to be controlled exclusively by
+  // (a) the user's in-lab actions and (b) explicit handoff events.
   useEffect(() => {
-    const incoming = (initialIngredients && initialIngredients.length > 0)
-      ? [...new Set(initialIngredients)]
-      : (initialIngredient ? [initialIngredient] : []);
+    if (!handoff || !handoff.ts) return;
+    const incoming = Array.isArray(handoff.ingredients)
+      ? [...new Set(handoff.ingredients)]
+      : [];
     if (incoming.length === 0) return;
-    setCenterIngredient(prev => prev || incoming[0]);
-    setRecipeIngredients(prev => {
-      const missing = incoming.filter(n => !prev.includes(n));
-      return missing.length > 0 ? [...prev, ...missing] : prev;
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialIngredient, Array.isArray(initialIngredients) ? initialIngredients.join('|') : '']);
+    setRecipeIngredients(incoming);
+    setCenterIngredient(incoming[0]);
+    setRecipeTitle('');
+    setSelectedStructure(null);
+    setActiveTab('all');
+    setDrawerSnap('half');
+    if (handoff.mode === 'cocktail') setLabMode('cocktail');
+    else if (handoff.mode === 'sauce') setLabMode('sauce');
+  }, [handoff?.ts]);
 
   // Scope sets (cocktail / sauce) — lazy-loaded once, cached across mode switches.
   const [cocktailScope, setCocktailScope] = useState(null);
