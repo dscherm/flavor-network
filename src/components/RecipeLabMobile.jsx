@@ -383,6 +383,11 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         bridgeCompounds={fullData?.bridgeCompounds}
         recipePairs={fullData?.recipePairs}
         globalCount={fullData?.globalCount}
+        scopeFilter={
+          labMode === 'cocktail' ? cocktailScope :
+          labMode === 'sauce' ? sauceScope :
+          null
+        }
       />
     </div>
   );
