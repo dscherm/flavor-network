@@ -457,30 +457,147 @@ export default function SuggestionDrawer({
   // is set (e.g. cocktail mode), filters out non-cocktail ingredients
   // like flour, bread, olive oil. Falls back through stripped-qualifier
   // forms if the literal bowl string has no edges (e.g. "fresh lemon
-  // juice" → "lemon juice").
+  // juice" → "lemon juice"; "mint leaves" → "mint"; "white rum" → "rum").
   const replaceColumns = useMemo(() => {
     if (!edges || recipeIngredients.length === 0) return [];
     const bowlSet = new Set(recipeIngredients);
     const COLUMN_LIMIT = 12;
-    const QUALIFIER_RE = /^(fresh|cold|hot|chilled|sweet|dry|aged|blanc|blanco|reposado|añejo|anejo|green|yellow|white|black|dark|light|red|rosé|rose|classic|whole|half|heavy|spiced|smoked|toasted|infused|house)\s+/i;
+    const QUALIFIER_RE = /^(fresh|cold|hot|chilled|sweet|dry|aged|blanc|blanco|reposado|añejo|anejo|green|yellow|white|black|dark|light|red|rosé|rose|classic|whole|half|heavy|spiced|smoked|toasted|infused|house|extra|virgin|raw|organic|unsalted|salted)\s+/i;
+    // Trailing words that get pluck-stripped: "mint leaves" → "mint",
+    // "soda water" → "soda", "orange peel" → "orange".
+    const TRAILING_TOKENS = new Set([
+      'leaves','leaf','peel','peels','zest','wedge','wedges','slice','slices',
+      'sprig','sprigs','twist','twists','wheel','wheels','ribbon','ribbons',
+      'cube','cubes','crystals','flakes','powder','dust','seeds','seed',
+    ]);
+    // Hand-curated aliases for cocktail terms with no direct edge in
+    // pairings.json. Maps to the canonical ingredient with non-empty
+    // pairings. Values were verified against the live data:
+    //   seltzer (0)        → soda water (65)
+    //   whisky/rye (0)     → whiskey (23)
+    //   creme de menthe(0) → mint (100)
+    //   sugar cube (0)     → sugar (995)
+    //   maraschino (0)     → cherry (20)
+    //   aperol/pisco (0)   → campari (15) / brandy (56)
+    //   demerara (0)       → sugar (995)
+    //   agave (0)          → honey (115)
+    const ALIASES = new Map([
+      ['seltzer', 'soda water'],
+      ['club soda', 'soda water'],
+      ['sparkling water', 'soda water'],
+      ['whisky', 'whiskey'],
+      ['rye', 'whiskey'],
+      ['rye whiskey', 'whiskey'],
+      ['scotch', 'whiskey'],
+      ['scotch whisky', 'whiskey'],
+      ['crème de menthe', 'mint'],
+      ['creme de menthe', 'mint'],
+      ['crème de cacao', 'chocolate'],
+      ['creme de cacao', 'chocolate'],
+      ['crème de violette', 'violet'],
+      ['creme de violette', 'violet'],
+      ['sugar cube', 'sugar'],
+      ['sugar cubes', 'sugar'],
+      ['demerara', 'sugar'],
+      ['demerara sugar', 'sugar'],
+      ['simple syrup', 'sugar'],          // fallback only — direct hit usually wins
+      ['rich syrup', 'sugar'],
+      ['agave', 'honey'],
+      ['agave nectar', 'honey'],
+      ['agave syrup', 'honey'],
+      ['maraschino', 'cherry'],
+      ['maraschino liqueur', 'cherry'],
+      ['aperol', 'campari'],
+      ['pisco', 'brandy'],
+      ['mezcal', 'tequila'],
+      ['cachaça', 'rum'],
+      ['cachaca', 'rum'],
+      ['rhum', 'rum'],
+      ['rhum agricole', 'rum'],
+      ['armagnac', 'cognac'],
+      ['calvados', 'brandy'],
+      ['absinthe', 'anise'],
+      ['pastis', 'anise'],
+      ['chartreuse', 'herbs'],
+      ['green chartreuse', 'herbs'],
+      ['yellow chartreuse', 'herbs'],
+      ['benedictine', 'herbs'],
+      ['drambuie', 'whiskey'],
+      ['fernet', 'mint'],
+      ['fernet branca', 'mint'],
+      ['amaro', 'orange peel'],
+      ['amaretto', 'almond'],
+      ['frangelico', 'hazelnut'],
+      ['galliano', 'vanilla'],
+      ['kahlúa', 'coffee'],
+      ['kahlua', 'coffee'],
+      ['baileys', 'cream'],
+      ['curaçao', 'orange'],
+      ['curacao', 'orange'],
+      ['blue curaçao', 'orange'],
+      ['blue curacao', 'orange'],
+      ['grand marnier', 'orange'],
+      ['triple sec', 'orange'],         // direct hit usually wins (37)
+      ['st-germain', 'elderflower'],
+      ['st germain', 'elderflower'],
+      ['lillet', 'wine'],
+      ['lillet blanc', 'wine'],
+      ['cocchi americano', 'wine'],
+      ['dolin', 'vermouth'],
+      ['punt e mes', 'vermouth'],
+      ['carpano antica', 'vermouth'],
+      ['suze', 'gentian'],
+      ['velvet falernum', 'lime'],
+      ['orgeat', 'almond'],
+      ['allspice dram', 'allspice'],
+      ['mole bitters', 'chocolate'],
+      ['peychaud', 'anise'],
+      ["peychaud's", 'anise'],
+      ['peychauds', 'anise'],
+      ['angostura', 'bitters'],
+      ['angostura bitters', 'bitters'],
+    ]);
     function lookupNeighbors(ing) {
+      const ingLc = ing.toLowerCase();
+      // 1. Literal hit
       let neighbors = getNeighbors(ing, edges);
       if (neighbors.length > 0) return neighbors;
-      // Strip leading qualifier(s) and retry: "fresh lemon juice" → "lemon juice"
+      // 2. Alias table — covers brand-name spirits and non-indexed terms
+      if (ALIASES.has(ingLc)) {
+        neighbors = getNeighbors(ALIASES.get(ingLc), edges);
+        if (neighbors.length > 0) return neighbors;
+      }
+      // 3. Strip leading qualifier(s): "fresh lemon juice" → "lemon juice"
       let stripped = ing;
       while (QUALIFIER_RE.test(stripped)) {
         stripped = stripped.replace(QUALIFIER_RE, '');
         neighbors = getNeighbors(stripped, edges);
         if (neighbors.length > 0) return neighbors;
+        if (ALIASES.has(stripped.toLowerCase())) {
+          neighbors = getNeighbors(ALIASES.get(stripped.toLowerCase()), edges);
+          if (neighbors.length > 0) return neighbors;
+        }
       }
-      // Last-ditch: head-noun fallback (drop everything before the last
-      // 2 words). "amaro nonino" → "amaro"; "white crème de menthe" →
-      // "crème de menthe" → "de menthe" → "menthe".
-      const tokens = stripped.split(/\s+/).filter(Boolean);
-      while (tokens.length > 1) {
-        tokens.shift();
+      // 4. Pop trailing modifier nouns: "mint leaves" → "mint",
+      //    "orange peel" → "orange", "lime wedge" → "lime".
+      let tokens = stripped.split(/\s+/).filter(Boolean);
+      while (tokens.length > 1 && TRAILING_TOKENS.has(tokens[tokens.length - 1].toLowerCase())) {
+        tokens.pop();
         neighbors = getNeighbors(tokens.join(' '), edges);
         if (neighbors.length > 0) return neighbors;
+      }
+      // 5. Last-ditch head-noun fallback (drop leading words):
+      //    "white crème de menthe" → "crème de menthe" → "de menthe" → "menthe"
+      tokens = stripped.split(/\s+/).filter(Boolean);
+      while (tokens.length > 1) {
+        tokens.shift();
+        const candidate = tokens.join(' ');
+        neighbors = getNeighbors(candidate, edges);
+        if (neighbors.length > 0) return neighbors;
+        if (ALIASES.has(candidate.toLowerCase())) {
+          neighbors = getNeighbors(ALIASES.get(candidate.toLowerCase()), edges);
+          if (neighbors.length > 0) return neighbors;
+        }
       }
       return [];
     }
