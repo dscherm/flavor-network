@@ -8,7 +8,12 @@ import { computeSaucePositions } from '../data/saucePositioning.js';
 import { getNeighbors } from '../data/graph.js';
 import { SAUCE_CATEGORIES, loadSauceAugment } from '../data/sauceData.js';
 import { SAUCE_TEMPLATES } from '../data/sauceScoring.js';
-import { createSauceAxisLabels } from '../three/AxisLabels.js';
+import { createClusterLabels } from '../three/AxisLabels.js';
+import {
+  computeClusterCentroids,
+  applyClusterBlend,
+  spreadCentroidsOnCircle,
+} from '../data/labClusterBlend.js';
 
 /**
  * SauceLab — Main container for the Sauce Lab tab.
@@ -34,9 +39,10 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange, onO
 
     async function build() {
       try {
-        const [graph, augment] = await Promise.all([
+        const [graph, augment, clusterRes] = await Promise.all([
           buildSauceGraph(fullData.graph),
           loadSauceAugment(),
+          fetch('/data/sauce_clusters.json').catch(() => null),
         ]);
 
         // GNN-first layout with role-based fallback for nodes not in proDataset.
@@ -44,20 +50,51 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange, onO
         const posMap = {};
         const missing = [];
         for (const [name] of graph.nodes) {
-          if (gnnMap[name]) posMap[name] = gnnMap[name];
+          if (gnnMap[name]) posMap[name] = { ...gnnMap[name] }; // copy so we don't mutate fullData
           else missing.push(name);
         }
         if (missing.length) {
           const fallback = computeSaucePositions(graph.nodes, graph.edges).positions;
           for (const n of missing) posMap[n] = fallback[n];
         }
+
+        // Convert positions to plain mutable arrays so the cluster
+        // blend can mutate in-place without poking GNN data.
+        for (const k in posMap) {
+          if (Array.isArray(posMap[k])) posMap[k] = [...posMap[k]];
+        }
+
+        // Mother-sauce clustering: pull each ingredient toward its
+        // cluster centroid so members of each mother sauce form a
+        // visible cloud (the LivingArchView pattern). Centroids are
+        // first re-spread on a circle so the 5 families don't pile up
+        // in the same chemistry-space corner.
+        let clusterMeta = null;
+        if (clusterRes && clusterRes.ok) {
+          const clData = await clusterRes.json();
+          const ingredientClusters = clData.ingredient_clusters || {};
+          const rawCentroids = computeClusterCentroids(posMap, ingredientClusters);
+          const spread = spreadCentroidsOnCircle(rawCentroids, clData.clusters || [], 38);
+          applyClusterBlend(posMap, ingredientClusters, spread, 0.7);
+          clusterMeta = { clusters: clData.clusters || [], centroids: spread };
+          // Attach cluster id/label to each node so panels + filters
+          // can read it the same way "Cooks With" does.
+          for (const [name, node] of graph.nodes) {
+            const cl = ingredientClusters[name];
+            if (cl) {
+              node.clusterId = cl.cluster_id;
+              node.clusterLabel = cl.cluster_label;
+            }
+          }
+        }
+
         const positions = { positions: posMap };
 
         if (cancelled) return;
 
         const adjacencyMap = buildAdjacencyMap(graph.edges);
 
-        setSauceData({ graph, positions, embeddings: null, adjacencyMap });
+        setSauceData({ graph, positions, embeddings: null, adjacencyMap, clusterMeta });
         setCuratedSauces(augment.sauces || []);
         setLoading(false);
       } catch (err) {
@@ -79,9 +116,13 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange, onO
     if (onSelectionChange) onSelectionChange(selectedNodes);
   }, [selectedNodes, onSelectionChange]);
 
-  // Mother-sauce axes don't map to the GNN layout; nodes now cluster by
-  // chemistry. Hide the sprites.
-  const axisLabels = null;
+  // Cluster label sprites — one per mother sauce, floating at the
+  // cluster's centroid in 3D so each cloud is named in the scene.
+  const axisLabels = useMemo(() => {
+    if (!sauceData?.clusterMeta) return null;
+    const { clusters, centroids } = sauceData.clusterMeta;
+    return createClusterLabels(clusters, centroids);
+  }, [sauceData]);
 
   const ingredientList = useMemo(() => {
     if (!sauceData) return [];

@@ -70,6 +70,24 @@ const STEPS = [
       return null;
     },
   },
+  {
+    num: 9,
+    name: 'Derive cocktail-codex clusters',
+    script: './09-derive-cocktail-clusters.js',
+    flag: 'cocktail-clusters',
+    prereq: () => {
+      const dir = path.join(__dirname, '..', 'raw', 'cocktaildb');
+      if (!fs.existsSync(dir)) return `Missing ${dir}. Run step 4 first.`;
+      return null;
+    },
+  },
+  {
+    num: 10,
+    name: 'Derive mother-sauce clusters',
+    script: './10-derive-sauce-clusters.js',
+    flag: 'sauce-clusters',
+    prereq: () => null, // reads public/data/sauce_augment.json which is checked in
+  },
 ];
 
 function parseArgs() {

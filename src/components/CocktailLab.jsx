@@ -8,7 +8,12 @@ import { computeCocktailPositions } from '../data/cocktailPositioning.js';
 import { getNeighbors } from '../data/graph.js';
 import { COCKTAIL_CATEGORIES } from '../data/cocktailData.js';
 import { CODEX_TEMPLATES } from '../data/cocktailScoring.js';
-import { createCocktailAxisLabels } from '../three/AxisLabels.js';
+import { createClusterLabels } from '../three/AxisLabels.js';
+import {
+  computeClusterCentroids,
+  applyClusterBlend,
+  spreadCentroidsOnCircle,
+} from '../data/labClusterBlend.js';
 
 /**
  * CocktailLab — Main container for the Cocktail Lab tab.
@@ -33,24 +38,49 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange, 
 
     async function build() {
       try {
-        const graph = await buildCocktailGraph(fullData.graph);
+        const [graph, clusterRes] = await Promise.all([
+          buildCocktailGraph(fullData.graph),
+          fetch('/data/cocktail_clusters.json').catch(() => null),
+        ]);
 
         // Use GNN positions from the full proDataset when available so the
-        // Cocktail Lab clusters by the same chemistry-learned embedding the
-        // Network view uses. Nodes without GNN coverage (e.g. augmented
-        // cocktail ingredients not in proDataset) fall back to the role-based
-        // Codex layout so nothing is left unpositioned.
+        // Cocktail Lab starts from the same chemistry-learned embedding the
+        // Network view uses. Nodes without GNN coverage fall back to the
+        // role-based Codex layout so nothing is left unpositioned.
         const gnnMap = fullData?.positions?.positions || {};
         const posMap = {};
         const missing = [];
         for (const [name] of graph.nodes) {
-          if (gnnMap[name]) posMap[name] = gnnMap[name];
+          if (gnnMap[name]) posMap[name] = [...gnnMap[name]]; // copy so we don't mutate fullData
           else missing.push(name);
         }
         if (missing.length) {
           const fallback = computeCocktailPositions(graph.nodes, graph.edges).positions;
           for (const n of missing) posMap[n] = fallback[n];
         }
+
+        // Cocktail-codex clustering: derive each ingredient's family from
+        // 426 cached CocktailDB recipes (build-time step 09) and pull
+        // members toward their family's centroid so the codex archetypes
+        // form visible clouds. Centroids are first re-spread on a circle
+        // so the 6 families don't pile up in chemistry-space corners.
+        let clusterMeta = null;
+        if (clusterRes && clusterRes.ok) {
+          const clData = await clusterRes.json();
+          const ingredientClusters = clData.ingredient_clusters || {};
+          const rawCentroids = computeClusterCentroids(posMap, ingredientClusters);
+          const spread = spreadCentroidsOnCircle(rawCentroids, clData.clusters || [], 38);
+          applyClusterBlend(posMap, ingredientClusters, spread, 0.7);
+          clusterMeta = { clusters: clData.clusters || [], centroids: spread };
+          for (const [name, node] of graph.nodes) {
+            const cl = ingredientClusters[name];
+            if (cl) {
+              node.clusterId = cl.cluster_id;
+              node.clusterLabel = cl.cluster_label;
+            }
+          }
+        }
+
         const positions = { positions: posMap };
 
         if (cancelled) return;
@@ -62,6 +92,7 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange, 
           positions,
           embeddings: null,
           adjacencyMap,
+          clusterMeta,
         });
         setLoading(false);
       } catch (err) {
@@ -83,9 +114,14 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange, 
     if (onSelectionChange) onSelectionChange(selectedNodes);
   }, [selectedNodes, onSelectionChange]);
 
-  // Cocktail Codex axes are meaningless under the GNN layout (nodes now
-  // cluster by chemistry, not by role). Hide the sprites.
-  const axisLabels = null;
+  // Cocktail-codex cluster label sprites — one per family at its
+  // centroid. Each cocktail family (Old-Fashioned / Martini / Daiquiri
+  // / Sidecar / Highball / Flip) reads as a region label in the scene.
+  const axisLabels = useMemo(() => {
+    if (!cocktailData?.clusterMeta) return null;
+    const { clusters, centroids } = cocktailData.clusterMeta;
+    return createClusterLabels(clusters, centroids);
+  }, [cocktailData]);
 
   const ingredientList = useMemo(() => {
     if (!cocktailData) return [];

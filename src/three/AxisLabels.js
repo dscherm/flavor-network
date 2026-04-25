@@ -150,6 +150,34 @@ export function createSauceAxisLabels(spread = 45) {
 }
 
 /**
+ * Build cluster label sprites for the lab views (Cocktail Lab, Sauce
+ * Lab). Each label sits slightly above its cluster's centroid so it
+ * reads as a region label, not a node tag. Mirrors the cluster label
+ * pattern used in LivingArchView for "Cooks With".
+ *
+ * @param {Array<{ id: number, label: string, color: string }>} clusters
+ * @param {Map<number, [number, number, number]>} centroids
+ * @returns {THREE.Group}
+ */
+export function createClusterLabels(clusters, centroids) {
+  const group = new THREE.Group();
+  for (const cl of clusters) {
+    const c = centroids.get(cl.id);
+    if (!c) continue;
+    const sprite = createTextSprite(cl.label, cl.color || 'rgba(255,255,255,0.9)', 56);
+    // Push the label up + slightly outward so it reads above the cloud.
+    const len = Math.hypot(c[0], c[2]) || 1;
+    const outward = 1.15;
+    sprite.position.set(c[0] * outward, c[1] + 6, c[2] * outward);
+    sprite.scale.x *= 1.4;
+    sprite.scale.y *= 1.4;
+    sprite.userData.clusterId = cl.id;
+    group.add(sprite);
+  }
+  return group;
+}
+
+/**
  * Build taste-direction label sprites for the main Network view.
  *
  * Uses the 8D → 3D projection vectors from tastePositioning.js to place
