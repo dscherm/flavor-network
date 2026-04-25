@@ -376,6 +376,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         labMode={labMode}
         selectedStructure={selectedStructure}
         bridgeCompounds={fullData?.bridgeCompounds}
+        recipePairs={fullData?.recipePairs}
+        globalCount={fullData?.globalCount}
       />
     </div>
   );

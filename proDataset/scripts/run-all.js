@@ -59,6 +59,17 @@ const STEPS = [
       return null;
     },
   },
+  {
+    num: 8,
+    name: 'Derive recipe_pairs.json (slim browser asset)',
+    script: './08-derive-recipe-pairs.js',
+    flag: 'recipe-pairs',
+    prereq: () => {
+      const f = path.join(PROCESSED_DIR, 'recipenlg-cooccurrence.json');
+      if (!fs.existsSync(f)) return `Missing ${f}. Run step 1 first.`;
+      return null;
+    },
+  },
 ];
 
 function parseArgs() {
