@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import { getNeighbors } from '../data/graph.js';
 import { getCocktailScope, getSauceScope } from '../data/labScope.js';
-import TasteWheel from './TasteWheel.jsx';
+import AromaProfileBars from './AromaProfileBars.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import SuggestionDrawer from './SuggestionDrawer.jsx';
 import RecipeLabTemplates from './RecipeLabTemplates.jsx';
@@ -14,7 +14,7 @@ const FONT_FAMILY = 'Caveat, cursive';
 
 /**
  * RecipeLabMobile — Mobile-specific Recipe Lab with 3-zone layout:
- *   1. Taste Wheel (top) — octagonal pencil-shaded flavor radar
+ *   1. Aroma Profile (top) — 6-axis aroma bars from GNN predictions
  *   2. Recipe Notebook (middle) — scrollable ingredient list
  *   3. Suggestion Drawer (bottom) — pull-up sheet with taste tabs + chips
  */
@@ -40,9 +40,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const searchInputRef = useRef(null);
   const searchContainerRef = useRef(null);
 
-  const containerRef = useRef(null);
-  const [containerWidth, setContainerWidth] = useState(375);
-
   // Reset structure on mode change
   useEffect(() => { setSelectedStructure(null); }, [labMode]);
 
@@ -62,16 +59,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialIngredient, Array.isArray(initialIngredients) ? initialIngredients.join('|') : '']);
-
-  // Container width
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const ro = new ResizeObserver(([entry]) => {
-      setContainerWidth(entry.contentRect.width);
-    });
-    ro.observe(containerRef.current);
-    return () => ro.disconnect();
-  }, []);
 
   // Scope sets (cocktail / sauce) — lazy-loaded once, cached across mode switches.
   const [cocktailScope, setCocktailScope] = useState(null);
@@ -210,16 +197,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     setActiveTab('all');
   }, []);
 
-  // Taste wheel → drawer interaction
-  const handleTapAxis = useCallback((axis) => {
-    setActiveTab(axis);
-    if (drawerSnap === 'peek') setDrawerSnap('half');
-  }, [drawerSnap]);
-
-
   return (
     <div
-      ref={containerRef}
       data-testid="recipe-lab"
       className="fixed inset-0 pt-10 flex flex-col"
       style={{ backgroundColor: '#fefae0' }}
@@ -314,13 +293,11 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         )}
       </div>
 
-      {/* Zone 1: Taste Wheel */}
-      <div className="flex-shrink-0 flex justify-center">
-        <TasteWheel
+      {/* Zone 1: Aroma Profile */}
+      <div className="flex-shrink-0">
+        <AromaProfileBars
           ingredients={recipeIngredients}
           nodes={fullData?.graph?.nodes}
-          onTapAxis={handleTapAxis}
-          width={containerWidth}
         />
       </div>
 
