@@ -5,6 +5,7 @@ import { scoreIngredient } from '../data/tastePositioning.js';
 import { findWeakestAxis, aggregateRecipeTastes } from '../data/tasteScoring.js';
 import { analyzeRecipe } from '../data/recipeAnalysis.js';
 import { rankByRecipeCooccurrence } from '../data/recipeSuggestionEngine.js';
+import useIsMobile from '../hooks/useIsMobile.js';
 import { AROMA_LABELS, AROMA_COLORS } from '../data/recipeScoring.js';
 import OdorBadge from './OdorBadge.jsx';
 
@@ -203,6 +204,7 @@ export default function SuggestionDrawer({
 }) {
   const sheetRef = useRef(null);
   const dragRef = useRef({ startY: 0, startHeight: 0, dragging: false });
+  const isMobile = useIsMobile();
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
   const [suggestion, setSuggestion] = useState(null);
   // Scaffolded filter surface: show ONE filter class at a time (taste OR
@@ -453,13 +455,37 @@ export default function SuggestionDrawer({
   // strength). The column header is the ingredient being replaced —
   // chip click swaps that ingredient with the chip. When scopeFilter
   // is set (e.g. cocktail mode), filters out non-cocktail ingredients
-  // like flour, bread, olive oil.
+  // like flour, bread, olive oil. Falls back through stripped-qualifier
+  // forms if the literal bowl string has no edges (e.g. "fresh lemon
+  // juice" → "lemon juice").
   const replaceColumns = useMemo(() => {
     if (!edges || recipeIngredients.length === 0) return [];
     const bowlSet = new Set(recipeIngredients);
     const COLUMN_LIMIT = 12;
+    const QUALIFIER_RE = /^(fresh|cold|hot|chilled|sweet|dry|aged|blanc|blanco|reposado|añejo|anejo|green|yellow|white|black|dark|light|red|rosé|rose|classic|whole|half|heavy|spiced|smoked|toasted|infused|house)\s+/i;
+    function lookupNeighbors(ing) {
+      let neighbors = getNeighbors(ing, edges);
+      if (neighbors.length > 0) return neighbors;
+      // Strip leading qualifier(s) and retry: "fresh lemon juice" → "lemon juice"
+      let stripped = ing;
+      while (QUALIFIER_RE.test(stripped)) {
+        stripped = stripped.replace(QUALIFIER_RE, '');
+        neighbors = getNeighbors(stripped, edges);
+        if (neighbors.length > 0) return neighbors;
+      }
+      // Last-ditch: head-noun fallback (drop everything before the last
+      // 2 words). "amaro nonino" → "amaro"; "white crème de menthe" →
+      // "crème de menthe" → "de menthe" → "menthe".
+      const tokens = stripped.split(/\s+/).filter(Boolean);
+      while (tokens.length > 1) {
+        tokens.shift();
+        neighbors = getNeighbors(tokens.join(' '), edges);
+        if (neighbors.length > 0) return neighbors;
+      }
+      return [];
+    }
     return recipeIngredients.map(bi => {
-      const candidates = getNeighbors(bi, edges)
+      const candidates = lookupNeighbors(bi)
         .filter(n => !bowlSet.has(n.name))
         .filter(n => !scopeFilter || scopeFilter.has(n.name.toLowerCase()))
         .slice(0, COLUMN_LIMIT)
@@ -630,13 +656,25 @@ export default function SuggestionDrawer({
           {recipeIngredients.length > 0 ? (
             // Column layout — one column per bowl ingredient. Header IS
             // the replacement target, so chip click swaps that
-            // ingredient with the chip. Horizontal scroll for >3
-            // columns; each column ~150px wide.
-            <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'thin' }}>
+            // ingredient with the chip.
+            //   • Desktop: CSS grid auto-fits as many ~180px columns as
+            //     the viewport allows; wraps to a new row beyond that.
+            //   • Mobile (≤640px / iOS Capacitor): 2 columns max,
+            //     stacked into more rows when bowl size > 2.
+            <div
+              className="grid gap-2 pb-1"
+              style={{
+                gridTemplateColumns: isMobile
+                  ? (replaceColumns.length <= 2
+                      ? `repeat(${replaceColumns.length}, minmax(0, 1fr))`
+                      : 'repeat(2, minmax(0, 1fr))')
+                  : 'repeat(auto-fit, minmax(180px, 1fr))',
+              }}
+            >
               {replaceColumns.map(col => {
                 const filtered = applyChipFilter(col.candidates, activeTab, nodes);
                 return (
-                  <div key={col.ingredient} className="flex-shrink-0 flex flex-col" style={{ width: '160px' }}>
+                  <div key={col.ingredient} className="flex flex-col min-w-0">
                     <div
                       className="px-2 py-1.5 rounded-t-lg border-2 border-b-0 mb-0"
                       style={{
