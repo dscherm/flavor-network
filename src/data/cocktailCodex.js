@@ -17,22 +17,28 @@
  *   }
  */
 
+// STOP only strips MEASUREMENT, GLUE, and METHOD words — never ingredient
+// nouns. "Simple syrup", "Egg white", "Heavy cream", "Sweet vermouth"
+// must survive normalization with both tokens intact, so words like
+// `syrup`/`liqueur`/`vermouth`/`cream`/`egg`/`sugar` are deliberately
+// NOT in the stop list. Similarly we keep color/character qualifiers
+// (`white`, `dark`, `sweet`, `dry`, `aged`) so that "White rum" stays
+// "white rum" — the SuggestionDrawer's fallback chain (graph.js
+// lookupNeighbors) handles the strip-to-head-noun retry.
 const STOP = new Set([
-  'oz','ounce','ounces','cl','ml','dash','dashes','drop','drops','tsp','tbsp','teaspoon',
-  'tablespoon','parts','part','cube','cubes','splash','sprays','spray','to','taste','pinch',
-  'cold','hot','chilled','fresh','dry','sweet','aged','blanc','blanco','reposado',
-  'añejo','anejo','green','yellow','white','black','dark','light','red','rosé','rose',
-  'classic','our','ideal','recipe','very','wet','optional','if','needed','for','of','the',
-  'a','an','and','or','with','muddled','expressed','discarded','served','rim','garnish',
-  'no','none','about','around','approximately','splash','small','large','whole','half',
-  'thin','sliced','crushed','grated','small','batch','high','high-proof','proof','blended',
-  'reserve','signature','specifically','typically','standard',
-  'house','peated','aromatic','barrel','infused','solution','tincture','syrup','mix','puree',
-  'extract','batter','cordial','liqueur','spirit','base','bitter','bitters','aperitif',
-  'apertif','vermouth','sherry','wine','beer','soda','tonic','water','seltzer','milk',
-  'cream','heavy','egg','sugar','salt','pepper','ice',
-  // measurement-words / unit fragments common in lines
-  'cup','jigger','part','tin','splashes','liter','liters','pony','splash',
+  // units
+  'oz','ounce','ounces','cl','ml','dash','dashes','drop','drops','tsp','tbsp','teaspoon','teaspoons',
+  'tablespoon','tablespoons','parts','part','cube','cubes','splash','splashes','sprays','spray',
+  'pinch','jigger','jiggers','cup','cups','liter','liters','pony','tin','batch',
+  // glue
+  'to','taste','of','the','a','an','and','or','with','no','none','about','around',
+  'approximately','very','if','needed','for','optional','our','ideal','recipe','classic',
+  'signature','specifically','typically','standard','wet',
+  // pure qualifiers (safe to strip without changing identity)
+  'fresh','cold','hot','chilled',
+  // method / preparation
+  'small','large','whole','half','thin','sliced','crushed','grated','muddled','expressed',
+  'discarded','served','rim','garnish','blended','reserve',
 ]);
 
 // Ingredient-name normalization: strip leading measurement, parenthetical
@@ -42,7 +48,9 @@ export function normalizeIngredient(raw) {
   if (!raw) return '';
   let s = String(raw).trim();
   // remove leading measurement (number, fraction, units)
-  s = s.replace(/^[¼½¾⅓⅔⅛⅜⅝⅞0-9]+[¼½¾⅓⅔⅛⅜⅝⅞0-9.\s/()-]*\s*(oz|ounce|ounces|cl|ml|dash|dashes|drop|drops|tsp|tbsp|teaspoons?|tablespoons?|parts?|cubes?|splash|sprays?|to taste|pinch|jiggers?|cups?)?\s*/i, '');
+  // Long alternatives first so `dashes` matches before `dash` (regex
+  // alternation is left-priority, not longest-match).
+  s = s.replace(/^[¼½¾⅓⅔⅛⅜⅝⅞0-9]+[¼½¾⅓⅔⅛⅜⅝⅞0-9.\s/()-]*\s*(ounces|ounce|oz|dashes|dash|drops|drop|teaspoons?|tablespoons?|tsp|tbsp|parts?|cubes?|splashes|splash|sprays?|to taste|pinch|jiggers?|cups?|cl|ml)?\s*/i, '');
   // strip parenthetical
   s = s.replace(/\([^)]*\)/g, '');
   // remove trailing qualifiers like "(infused)" residue / commas
