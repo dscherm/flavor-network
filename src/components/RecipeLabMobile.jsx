@@ -19,7 +19,11 @@ const FONT_FAMILY = 'Caveat, cursive';
  *   3. Suggestion Drawer (bottom) — pull-up sheet with taste tabs + chips
  */
 export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, userProfile }) {
-  const [labMode, setLabMode] = useState('taste');
+  // initialMode === 'cocktail' arrives when the user taps "Open in
+  // Recipe Lab" from a cocktail card; default the lab into cocktail
+  // mode so the suggestion drawer scopes to cocktail-relevant
+  // ingredients and the cuisine filter is suppressed.
+  const [labMode, setLabMode] = useState(initialMode === 'cocktail' ? 'cocktail' : 'taste');
   // Seed with the full set of selected ingredients when present — fixes
   // the "Build Recipe" button previously losing all but the first.
   const initialSeed = (initialIngredients && initialIngredients.length > 0)
@@ -29,9 +33,9 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [recipeIngredients, setRecipeIngredients] = useState(initialSeed);
   const [recipeTitle, setRecipeTitle] = useState('');
   const [selectedStructure, setSelectedStructure] = useState(null);
-  // Replace-mode entry from a cocktail should pop the drawer open; the
-  // default 'peek' state would hide every replacement section.
-  const [drawerSnap, setDrawerSnap] = useState(initialMode === 'replace' ? 'half' : 'peek');
+  // Cocktail handoff should pop the drawer open so the user sees the
+  // suggestion chips (with inline swap targets) right away.
+  const [drawerSnap, setDrawerSnap] = useState(initialMode === 'cocktail' ? 'half' : 'peek');
   const [activeTab, setActiveTab] = useState('all');
 
   // Search state
@@ -379,7 +383,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         bridgeCompounds={fullData?.bridgeCompounds}
         recipePairs={fullData?.recipePairs}
         globalCount={fullData?.globalCount}
-        defaultFilterMode={initialMode === 'replace' ? 'replace' : null}
       />
     </div>
   );

@@ -25,73 +25,98 @@ if (typeof window !== 'undefined' && !window.__fnEngineLogged) {
 const FONT_FAMILY = 'Caveat, cursive';
 const AXES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'spicy', 'pungent', 'astringent'];
 
-function ChipButton({ chip, onAdd, showTasteBadge = false, centerIngredient, bridgeCompounds }) {
+function ChipButton({ chip, onAdd, onSwap = null, swapTarget = null, showTasteBadge = false, centerIngredient, bridgeCompounds }) {
   return (
-    <button
-      onClick={() => !chip.inRecipe && onAdd(chip.name)}
-      disabled={chip.inRecipe}
-      className="flex items-start gap-1.5 p-2 rounded-lg border text-left transition-colors"
+    <div
+      className="flex flex-col rounded-lg border transition-colors"
       style={{
         borderColor: chip.inRecipe ? '#e8dcc0' : '#c9b99a',
         backgroundColor: chip.inRecipe ? '#f5edd0' : '#fefae0',
         opacity: chip.inRecipe ? 0.5 : 1,
         borderLeftWidth: 3,
         borderLeftColor: TASTE_COLORS[chip.taste] || TASTE_COLORS.default,
+        overflow: 'hidden',
       }}
     >
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-1">
-          <span
-            className="text-sm truncate"
-            style={{ fontFamily: FONT_FAMILY, color: '#3a3428' }}
-          >
-            {chip.name}
-          </span>
-          <span
-            className="text-xs flex-shrink-0"
-            style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}
-          >
-            {chip.matchPct}%
-          </span>
-          {centerIngredient && (
-            <OdorBadge a={centerIngredient} b={chip.name} bridgeCompounds={bridgeCompounds} compact />
-          )}
-        </div>
-        {showTasteBadge && chip.taste !== 'default' ? (
-          <div className="flex gap-1 mt-0.5">
+      <button
+        onClick={() => !chip.inRecipe && onAdd(chip.name)}
+        disabled={chip.inRecipe}
+        className="flex items-start gap-1.5 p-2 text-left transition-colors hover:bg-[#f5edd0]"
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-1">
             <span
-              className="text-[10px] px-1.5 rounded-full"
-              style={{
-                fontFamily: FONT_FAMILY,
-                color: '#fff',
-                backgroundColor: TASTE_COLORS[chip.taste] || TASTE_COLORS.default,
-              }}
+              className="text-sm truncate"
+              style={{ fontFamily: FONT_FAMILY, color: '#3a3428' }}
             >
-              {chip.taste}
+              {chip.name}
             </span>
+            <span
+              className="text-xs flex-shrink-0"
+              style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}
+            >
+              {chip.matchPct}%
+            </span>
+            {centerIngredient && (
+              <OdorBadge a={centerIngredient} b={chip.name} bridgeCompounds={bridgeCompounds} compact />
+            )}
           </div>
-        ) : chip.tasteLabels.length > 0 && (
-          <div className="flex gap-1 mt-0.5">
-            {chip.tasteLabels.map(t => (
+          {showTasteBadge && chip.taste !== 'default' ? (
+            <div className="flex gap-1 mt-0.5">
               <span
-                key={t}
-                className="text-[10px] px-1 rounded"
+                className="text-[10px] px-1.5 rounded-full"
                 style={{
                   fontFamily: FONT_FAMILY,
-                  color: '#7a6a4a',
-                  backgroundColor: `${TASTE_COLORS[t] || TASTE_COLORS.default}22`,
+                  color: '#fff',
+                  backgroundColor: TASTE_COLORS[chip.taste] || TASTE_COLORS.default,
                 }}
               >
-                {t}
+                {chip.taste}
               </span>
-            ))}
-          </div>
+            </div>
+          ) : chip.tasteLabels.length > 0 && (
+            <div className="flex gap-1 mt-0.5">
+              {chip.tasteLabels.map(t => (
+                <span
+                  key={t}
+                  className="text-[10px] px-1 rounded"
+                  style={{
+                    fontFamily: FONT_FAMILY,
+                    color: '#7a6a4a',
+                    backgroundColor: `${TASTE_COLORS[t] || TASTE_COLORS.default}22`,
+                  }}
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        {!chip.inRecipe && (
+          <span className="text-base flex-shrink-0" style={{ color: '#a09070' }}>+</span>
         )}
-      </div>
-      {!chip.inRecipe && (
-        <span className="text-base flex-shrink-0" style={{ color: '#a09070' }}>+</span>
+      </button>
+      {/* Swap target sub-label: which bowl ingredient this chip could
+          replace. Tap = swap (remove old, add this). Stays hidden when
+          the bowl is empty so additive flows aren't cluttered. */}
+      {swapTarget && !chip.inRecipe && (
+        <button
+          onClick={() => onSwap && onSwap(swapTarget, chip.name)}
+          className="text-left px-2 py-1 border-t transition-colors hover:bg-[#f0e2c0]"
+          style={{
+            fontFamily: FONT_FAMILY,
+            color: '#7a6a4a',
+            backgroundColor: '#f5edd0',
+            borderColor: '#e8dcc0',
+            fontSize: '10px',
+          }}
+          title={`Tap to replace "${swapTarget}" with ${chip.name}`}
+        >
+          <span style={{ color: '#a09070' }}>↔ Replace </span>
+          <span style={{ fontWeight: 600 }}>{swapTarget}</span>
+        </button>
       )}
-    </button>
+    </div>
   );
 }
 
@@ -171,7 +196,6 @@ export default function SuggestionDrawer({
   bridgeCompounds,
   recipePairs = null,
   globalCount = null,
-  defaultFilterMode = null,   // 'taste' | 'aroma' | 'cuisine' | 'replace'
 }) {
   const sheetRef = useRef(null);
   const dragRef = useRef({ startY: 0, startHeight: 0, dragging: false });
@@ -179,16 +203,7 @@ export default function SuggestionDrawer({
   const [suggestion, setSuggestion] = useState(null);
   // Scaffolded filter surface: show ONE filter class at a time (taste OR
   // cuisine) rather than both in one long strip — avoids overwhelming.
-  // defaultFilterMode lets the entry point (e.g. cocktail → "Open in
-  // Recipe Lab") drop the user straight into Replace mode.
-  const [filterMode, setFilterMode] = useState(defaultFilterMode || 'taste');
-
-  // When the entry point changes the requested initial mode (e.g. user
-  // navigates from a different cocktail), honor it once.
-  useEffect(() => {
-    if (defaultFilterMode) setFilterMode(defaultFilterMode);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultFilterMode]);
+  const [filterMode, setFilterMode] = useState('taste');
 
   // If the user switches modes, drop them back to "all" so stale taste
   // selection doesn't hide cuisine-filtered results, and vice versa.
@@ -213,6 +228,18 @@ export default function SuggestionDrawer({
     if (activeTab.startsWith('aroma:') && filterMode !== 'aroma') setFilterMode('aroma');
     else if (activeTab.startsWith('cuisine:') && filterMode !== 'cuisine') setFilterMode('cuisine');
   }, [activeTab, filterMode]);
+
+  // If labMode flips to cocktail while filterMode is cuisine, drop back
+  // to taste — the cuisine button is hidden in cocktail context, so
+  // staying on cuisine would leave the user with no visible filter
+  // selected and an empty chip pool.
+  useEffect(() => {
+    if (labMode === 'cocktail' && filterMode === 'cuisine') {
+      setFilterMode('taste');
+      onTabChange?.('all');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [labMode]);
 
   const sheetHeight = getSnapHeight(snapState, viewportHeight);
 
@@ -412,25 +439,34 @@ export default function SuggestionDrawer({
     }
   }, [recipeIngredients, nodes, edges, labMode, selectedStructure]);
 
-  // Replace-mode sections: for each bowl ingredient, top pairings that
-  // aren't already in the bowl. Each section is one "box" showing what
-  // could substitute for that ingredient. Click → swap.
-  const replaceSections = useMemo(() => {
-    if (!edges || recipeIngredients.length === 0) return [];
-    const bowlSet = new Set(recipeIngredients);
-    return recipeIngredients.map(ing => {
-      const neighbors = getNeighbors(ing, edges)
-        .filter(n => !bowlSet.has(n.name))
-        .slice(0, 8)
-        .map(n => {
-          const node = nodes?.get(n.name);
-          const taste = getDominantTaste(n.name, node);
-          const tasteLabels = getTasteLabels(n.name, node);
-          return { name: n.name, strength: n.strength, taste, tasteLabels, inRecipe: false, matchPct: Math.round(n.strength * 100) };
-        });
-      return { ingredient: ing, alternatives: neighbors };
-    });
-  }, [recipeIngredients, edges, nodes]);
+  // Swap-target lookup: for each candidate chip, the bowl ingredient
+  // it could most naturally replace. Heuristic: argmax bowl ingredient
+  // by pair strength to the chip — ingredients that pair strongly with
+  // a candidate often play similar roles in a recipe (e.g. gin and rye
+  // both pair with vermouth → either could anchor a Manhattan-style
+  // build). Annotated below each chip in the suggestion drawer.
+  const swapTargetByName = useMemo(() => {
+    const map = new Map();
+    if (!edges || recipeIngredients.length === 0) return map;
+    // Pre-index each bowl ingredient's neighbors so the chip lookup is O(B).
+    const bowlNeighbors = new Map();
+    for (const bi of recipeIngredients) {
+      const lookup = new Map();
+      for (const n of getNeighbors(bi, edges)) lookup.set(n.name, n.strength);
+      bowlNeighbors.set(bi, lookup);
+    }
+    return {
+      get(name) {
+        let bestBi = null, bestScore = -Infinity;
+        for (const bi of recipeIngredients) {
+          if (bi === name) continue;
+          const s = bowlNeighbors.get(bi)?.get(name) || 0;
+          if (s > bestScore) { bestScore = s; bestBi = bi; }
+        }
+        return bestScore > 0 ? bestBi : null;
+      },
+    };
+  }, [recipeIngredients, edges]);
 
   // Cuisines that any pairing chip actually has — avoids empty tabs.
   const cuisineOptions = useMemo(() => {
@@ -510,19 +546,17 @@ export default function SuggestionDrawer({
         </div>
       </div>
 
-      {/* Filter-mode toggle (Taste / Aroma / Cuisine / Replace) — show one
-          flavor-axis class at a time. Cuisine mode is hidden when
-          no chip carries a cuisine tag (most ingredients). Replace
-          mode shows per-bowl-ingredient swap candidates and only
-          appears when there's something in the bowl. */}
+      {/* Filter-mode toggle (Taste / Aroma / Cuisine) — show one
+          flavor-axis class at a time. Cuisine mode is hidden in
+          cocktail context (cocktail ingredients rarely carry cuisine
+          tags) AND when no chip exposes one (most pure ingredients). */}
       {snapState !== 'peek' && (
         <div className="flex-shrink-0 px-2 pb-1 flex items-center gap-1.5">
           <span className="text-[10px] uppercase tracking-wider" style={{ color: '#a09070', fontFamily: FONT_FAMILY }}>Filter by</span>
           {[
             { k: 'taste', label: 'Taste' },
             { k: 'aroma', label: 'Aroma' },
-            ...(cuisineOptions.length > 0 ? [{ k: 'cuisine', label: 'Cuisine' }] : []),
-            ...(recipeIngredients.length > 0 ? [{ k: 'replace', label: 'Replace' }] : []),
+            ...(labMode !== 'cocktail' && cuisineOptions.length > 0 ? [{ k: 'cuisine', label: 'Cuisine' }] : []),
           ].map(({ k, label }) => (
             <button
               key={k}
@@ -539,9 +573,8 @@ export default function SuggestionDrawer({
         </div>
       )}
 
-      {/* Active-mode tab strip — hidden in Replace mode (sections are
-          grouped by ingredient instead of by filter). */}
-      {snapState !== 'peek' && filterMode !== 'replace' && (
+      {/* Active-mode tab strip */}
+      {snapState !== 'peek' && (
         <div className="flex-shrink-0 overflow-x-auto px-2 pb-1" style={{ scrollbarWidth: 'none' }}>
           <div className="flex gap-1 min-w-max">
             {tabs.map(t => {
@@ -576,65 +609,28 @@ export default function SuggestionDrawer({
       {/* Ingredient chips grid */}
       {snapState !== 'peek' && (
         <div className="flex-1 overflow-y-auto px-2 pb-2">
-          {!centerIngredient && filterMode !== 'replace' && (
+          {!centerIngredient && recipeIngredients.length === 0 && (
             <p className="text-center text-sm py-4" style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}>
               Search to get started
             </p>
           )}
 
-          {filterMode === 'replace' ? (
-            <div className="space-y-3">
-              {replaceSections.length === 0 && (
-                <p className="text-center text-sm py-4" style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}>
-                  Add ingredients to the bowl to see replacement options.
-                </p>
-              )}
-              {replaceSections.map(section => (
-                <div
-                  key={section.ingredient}
-                  className="rounded-lg border-2 border-[#d8cca8] bg-[#f8f1d6] p-2"
-                >
-                  <div className="flex items-center justify-between mb-1.5 px-1">
-                    <span className="text-xs uppercase tracking-wider" style={{ color: '#7a6a4a', fontFamily: FONT_FAMILY }}>
-                      Replace
-                    </span>
-                    <span className="text-sm font-medium truncate ml-2" style={{ color: '#3a3428', fontFamily: FONT_FAMILY }}>
-                      {section.ingredient}
-                    </span>
-                  </div>
-                  {section.alternatives.length === 0 ? (
-                    <p className="text-xs px-1 py-2" style={{ color: '#a09070', fontFamily: FONT_FAMILY }}>
-                      No alternatives found.
-                    </p>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {section.alternatives.map(chip => (
-                        <ChipButton
-                          key={chip.name}
-                          chip={chip}
-                          onAdd={(name) => {
-                            if (onSwapIngredient) onSwapIngredient(section.ingredient, name);
-                            else onAddIngredient(name);
-                          }}
-                          centerIngredient={section.ingredient}
-                          bridgeCompounds={bridgeCompounds}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-1.5">
-              {filteredChips.map(chip => (
-                <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} centerIngredient={centerIngredient} bridgeCompounds={bridgeCompounds} />
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-2 gap-1.5">
+            {filteredChips.map(chip => (
+              <ChipButton
+                key={chip.name}
+                chip={chip}
+                onAdd={onAddIngredient}
+                onSwap={onSwapIngredient}
+                swapTarget={swapTargetByName.get(chip.name)}
+                centerIngredient={centerIngredient}
+                bridgeCompounds={bridgeCompounds}
+              />
+            ))}
+          </div>
 
           {/* Complements section — cross-taste high-strength pairings */}
-          {filterMode !== 'replace' && complementChips.length > 0 && (
+          {complementChips.length > 0 && (
             <>
               <div className="flex items-center gap-2 mt-3 mb-1.5 px-1">
                 <div className="flex-1 h-px" style={{ backgroundColor: '#d8cca8' }} />
@@ -645,7 +641,16 @@ export default function SuggestionDrawer({
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 {complementChips.map(chip => (
-                  <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} showTasteBadge centerIngredient={centerIngredient} bridgeCompounds={bridgeCompounds} />
+                  <ChipButton
+                    key={chip.name}
+                    chip={chip}
+                    onAdd={onAddIngredient}
+                    onSwap={onSwapIngredient}
+                    swapTarget={swapTargetByName.get(chip.name)}
+                    showTasteBadge
+                    centerIngredient={centerIngredient}
+                    bridgeCompounds={bridgeCompounds}
+                  />
                 ))}
               </div>
             </>
