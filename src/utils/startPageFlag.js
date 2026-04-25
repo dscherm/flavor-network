@@ -1,4 +1,7 @@
-const STORAGE_KEY = 'fn-start-seen';
+// Bump the version suffix whenever the StartPage redesign should
+// re-show to users who already dismissed the previous one. v2 ships
+// the three "Explore X Model" entry points (Pairing / Cocktail / Sauce).
+const STORAGE_KEY = 'fn-start-seen-v2';
 
 export function readStartPageFlag() {
   try {
