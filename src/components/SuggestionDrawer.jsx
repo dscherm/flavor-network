@@ -4,7 +4,22 @@ import { getNeighbors } from '../data/graph.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { findWeakestAxis, aggregateRecipeTastes } from '../data/tasteScoring.js';
 import { analyzeRecipe } from '../data/recipeAnalysis.js';
+import { rankByRecipeCooccurrence } from '../data/recipeSuggestionEngine.js';
 import OdorBadge from './OdorBadge.jsx';
+
+// `?engine=v1` forces the legacy avg-NPMI ranking even when the new
+// engine has data. Default = v2 (recipe-level co-occurrence). Read once
+// at module load — switching mid-session requires a refresh.
+const ENGINE_MODE = (() => {
+  if (typeof window === 'undefined') return 'v2';
+  const p = new URLSearchParams(window.location.search).get('engine');
+  return p === 'v1' ? 'v1' : 'v2';
+})();
+if (typeof window !== 'undefined' && !window.__fnEngineLogged) {
+  window.__fnEngineLogged = true;
+  // eslint-disable-next-line no-console
+  console.log('[SuggestionDrawer] engine =', ENGINE_MODE);
+}
 
 const FONT_FAMILY = 'Caveat, cursive';
 const AXES = ['sweet', 'salty', 'sour', 'bitter', 'umami', 'spicy', 'pungent', 'astringent'];
@@ -152,6 +167,8 @@ export default function SuggestionDrawer({
   labMode = 'taste',
   selectedStructure = null,
   bridgeCompounds,
+  recipePairs = null,
+  globalCount = null,
 }) {
   const sheetRef = useRef(null);
   const dragRef = useRef({ startY: 0, startHeight: 0, dragging: false });
@@ -213,13 +230,25 @@ export default function SuggestionDrawer({
     handleDragEnd(e.changedTouches[0].clientY);
   }, [handleDragEnd]);
 
-  // Get pairings for center ingredient
+  // Engine v2: rank candidates by recipe-level co-occurrence × familiarity,
+  // pulling from the entire bowl (recipeIngredients ∪ centerIngredient) so
+  // suggestions reflect the *recipe direction*, not just the searched item.
+  // v1 fallback uses the legacy pairwise NPMI from `edges` for A/B comparison.
+  const useV2 = ENGINE_MODE === 'v2' && !!recipePairs && !!globalCount;
+
   const pairings = useMemo(() => {
+    if (useV2) {
+      const bowl = [...new Set([...(recipeIngredients || []), ...(centerIngredient ? [centerIngredient] : [])])];
+      if (bowl.length === 0) return [];
+      return rankByRecipeCooccurrence(bowl, recipePairs, globalCount, 100);
+    }
     if (!centerIngredient || !edges) return [];
     return getNeighbors(centerIngredient, edges);
-  }, [centerIngredient, edges]);
+  }, [useV2, centerIngredient, recipeIngredients, edges, recipePairs, globalCount]);
 
-  // Compute avg strength to all recipe ingredients for sorting
+  // Decorate pairings with taste tags + in-recipe state. In v2 the strength
+  // is already aggregated over the bowl, so no per-chip avg loop is needed.
+  // In v1, fall back to the legacy avg-pairwise computation.
   const chipData = useMemo(() => {
     if (!nodes || pairings.length === 0) return [];
     const recipeSet = new Set(recipeIngredients);
@@ -230,9 +259,8 @@ export default function SuggestionDrawer({
       const tasteLabels = getTasteLabels(name, node);
       const inRecipe = recipeSet.has(name);
 
-      // If recipe has >1 ingredient, compute avg strength to all recipe ingredients
-      let avgStrength = strength;
-      if (recipeIngredients.length > 1) {
+      let finalStrength = strength;
+      if (!useV2 && recipeIngredients.length > 1) {
         let total = 0, count = 0;
         for (const ri of recipeIngredients) {
           if (ri === name) continue;
@@ -240,16 +268,15 @@ export default function SuggestionDrawer({
           const found = riNeighbors.find(n => n.name === name);
           if (found) { total += found.strength; count++; }
         }
-        if (count > 0) avgStrength = total / count;
+        if (count > 0) finalStrength = total / count;
       }
 
-      return { name, strength: avgStrength, taste, tasteLabels, inRecipe, matchPct: Math.round(avgStrength * 100) };
+      return { name, strength: finalStrength, taste, tasteLabels, inRecipe, matchPct: Math.round(finalStrength * 100) };
     }).sort((a, b) => {
-      // In-recipe items go to bottom
       if (a.inRecipe !== b.inRecipe) return a.inRecipe ? 1 : -1;
       return b.strength - a.strength;
     });
-  }, [pairings, nodes, edges, recipeIngredients]);
+  }, [pairings, nodes, edges, recipeIngredients, useV2]);
 
   // Filter by active tab — split into matches + complements for taste tabs
   const { filteredChips, complementChips } = useMemo(() => {

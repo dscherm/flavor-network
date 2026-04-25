@@ -322,6 +322,21 @@ export default function useProData({ enabled = true } = {}) {
           positions._imputed_count = imputed;
         }
 
+        // Recipe-level co-occurrence + globalCount (top-50 partners per
+        // ingredient, slim derivative of recipenlg-cooccurrence.json).
+        // Drives the v2 SuggestionDrawer ranking — Approach A: weighted
+        // recipe co-occurrence × familiarity.
+        let recipePairs = null;
+        let globalCount = null;
+        try {
+          const rpRes = await fetch('/proDataset/recipe_pairs.json');
+          if (rpRes.ok) {
+            const rp = await rpRes.json();
+            recipePairs = rp.pairs || null;
+            globalCount = rp.globalCount || null;
+          }
+        } catch { /* optional */ }
+
         // Bridge compounds for molecular journey
         let bridgeCompounds = null;
         let bridgeMolecules3D = null;
@@ -371,6 +386,8 @@ export default function useProData({ enabled = true } = {}) {
           odorThresholds,
           ingredientThresholds,
           compoundTastes,
+          recipePairs,
+          globalCount,
           embeddings: null,
           raw: {
             ingredientsData,
