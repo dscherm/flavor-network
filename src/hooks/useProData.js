@@ -326,16 +326,23 @@ export default function useProData({ enabled = true } = {}) {
         // ingredient, slim derivative of recipenlg-cooccurrence.json).
         // Drives the v2 SuggestionDrawer ranking — Approach A: weighted
         // recipe co-occurrence × familiarity.
+        // Retry up to 3× because a transient QUIC/HTTP3 failure on the
+        // 2.7 MB asset would silently disable v2 and fall back to the
+        // legacy ranking (which doesn't react to bowl changes).
         let recipePairs = null;
         let globalCount = null;
-        try {
-          const rpRes = await fetch('/proDataset/recipe_pairs.json');
-          if (rpRes.ok) {
-            const rp = await rpRes.json();
-            recipePairs = rp.pairs || null;
-            globalCount = rp.globalCount || null;
-          }
-        } catch { /* optional */ }
+        for (let attempt = 0; attempt < 3 && !recipePairs; attempt++) {
+          try {
+            const rpRes = await fetch('/proDataset/recipe_pairs.json');
+            if (rpRes.ok) {
+              const rp = await rpRes.json();
+              recipePairs = rp.pairs || null;
+              globalCount = rp.globalCount || null;
+              break;
+            }
+          } catch { /* retry */ }
+          if (attempt < 2) await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
+        }
 
         // Bridge compounds for molecular journey
         let bridgeCompounds = null;
