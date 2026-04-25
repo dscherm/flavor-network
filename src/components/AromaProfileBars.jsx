@@ -9,8 +9,12 @@ const FONT_FAMILY = 'Caveat, cursive';
  * channel and the GNN's odor heads are reasonably calibrated, so the
  * 6-D aroma profile is a more honest "what does this combo smell like"
  * read than the old 8-axis taste octagon.
+ *
+ * `onTapAroma(odorKey)` fires when the user taps a bar — used to
+ * route the SuggestionDrawer to a chips-filtered-by-that-aroma view
+ * (mirrors the wheel's old onTapAxis behaviour).
  */
-export default function AromaProfileBars({ ingredients = [], nodes }) {
+export default function AromaProfileBars({ ingredients = [], nodes, onTapAroma }) {
   const aroma = useMemo(() => {
     if (!nodes || ingredients.length === 0) return null;
     const data = ingredients
@@ -62,35 +66,47 @@ export default function AromaProfileBars({ ingredients = [], nodes }) {
 
       {aroma?.hasSignal && (
         <div className="space-y-1.5">
-          {entries.map(e => (
-            <div key={e.key} className="flex items-center gap-2">
-              <span
-                className="w-14 text-xs capitalize"
-                style={{ fontFamily: FONT_FAMILY, color: '#5a4a2a' }}
+          {entries.map(e => {
+            const tappable = !!onTapAroma;
+            const Wrapper = tappable ? 'button' : 'div';
+            return (
+              <Wrapper
+                key={e.key}
+                {...(tappable ? {
+                  type: 'button',
+                  onClick: () => onTapAroma(e.key),
+                  title: `Show ingredients with strong ${e.label} aroma`,
+                } : {})}
+                className={`w-full flex items-center gap-2 ${tappable ? 'rounded-sm hover:bg-[#f0e8d0]/60 active:bg-[#f0e8d0] transition-colors px-1 py-0.5 -mx-1' : ''}`}
               >
-                {e.label}
-              </span>
-              <div
-                className="flex-1 h-3 rounded-sm overflow-hidden"
-                style={{ background: '#f0e8d0', border: '1px solid #d8cca8' }}
-              >
+                <span
+                  className="w-14 text-xs capitalize text-left"
+                  style={{ fontFamily: FONT_FAMILY, color: '#5a4a2a' }}
+                >
+                  {e.label}
+                </span>
                 <div
-                  className="h-full transition-all duration-500"
-                  style={{
-                    width: `${Math.max(0, Math.min(1, e.p)) * 100}%`,
-                    background: e.color,
-                    opacity: 0.85,
-                  }}
-                />
-              </div>
-              <span
-                className="w-8 text-right text-[11px] tabular-nums"
-                style={{ fontFamily: FONT_FAMILY, color: '#7a6a4a' }}
-              >
-                {Math.round(e.p * 100)}%
-              </span>
-            </div>
-          ))}
+                  className="flex-1 h-3 rounded-sm overflow-hidden"
+                  style={{ background: '#f0e8d0', border: '1px solid #d8cca8' }}
+                >
+                  <div
+                    className="h-full transition-all duration-500"
+                    style={{
+                      width: `${Math.max(0, Math.min(1, e.p)) * 100}%`,
+                      background: e.color,
+                      opacity: 0.85,
+                    }}
+                  />
+                </div>
+                <span
+                  className="w-8 text-right text-[11px] tabular-nums"
+                  style={{ fontFamily: FONT_FAMILY, color: '#7a6a4a' }}
+                >
+                  {Math.round(e.p * 100)}%
+                </span>
+              </Wrapper>
+            );
+          })}
         </div>
       )}
     </div>
