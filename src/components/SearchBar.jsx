@@ -92,9 +92,13 @@ function SearchBar({ ingredients, onSelect }) {
         }
         case 'Enter': {
           e.preventDefault();
-          if (highlightIndex >= 0 && highlightIndex < results.length) {
-            selectItem(results[highlightIndex].name);
-          }
+          // If user navigated with arrows, take their pick. Otherwise
+          // default to the top result so a plain type-and-press-enter
+          // selects the best match without forcing arrow-down first.
+          const idx = highlightIndex >= 0 && highlightIndex < results.length
+            ? highlightIndex
+            : 0;
+          selectItem(results[idx].name);
           break;
         }
         case 'Escape': {

@@ -242,8 +242,24 @@ export default function SuggestionDrawer({
       if (bowl.length === 0) return [];
       return rankByRecipeCooccurrence(bowl, recipePairs, globalCount, 100);
     }
-    if (!centerIngredient || !edges) return [];
-    return getNeighbors(centerIngredient, edges);
+    // Legacy v1 fallback: union of neighbors across the bowl so the
+    // chip pool actually reacts when ingredients are added (the old
+    // centerIngredient-only path froze the pool whenever the user
+    // stopped searching).
+    if (!edges) return [];
+    const seed = centerIngredient || (recipeIngredients?.[recipeIngredients.length - 1] ?? null);
+    if (!seed && (recipeIngredients?.length ?? 0) === 0) return [];
+    const seen = new Map();
+    const seeds = recipeIngredients?.length > 0
+      ? recipeIngredients
+      : (seed ? [seed] : []);
+    for (const s of seeds) {
+      for (const n of getNeighbors(s, edges)) {
+        const prev = seen.get(n.name);
+        if (!prev || n.strength > prev.strength) seen.set(n.name, n);
+      }
+    }
+    return [...seen.values()].sort((a, b) => b.strength - a.strength);
   }, [useV2, centerIngredient, recipeIngredients, edges, recipePairs, globalCount]);
 
   // Decorate pairings with taste tags + in-recipe state. In v2 the strength
