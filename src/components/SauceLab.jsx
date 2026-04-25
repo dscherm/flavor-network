@@ -1,105 +1,50 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import NetworkScene from './NetworkScene.jsx';
 import SearchBar from './SearchBar.jsx';
-import IngredientPanel from './IngredientPanel.jsx';
-import SaucePanel from './SaucePanel.jsx';
-import { buildSauceGraph, buildAdjacencyMap } from '../data/sauceGraph.js';
-import { computeSaucePositions } from '../data/saucePositioning.js';
-import { getNeighbors } from '../data/graph.js';
-import { SAUCE_CATEGORIES, loadSauceAugment } from '../data/sauceData.js';
-import { SAUCE_TEMPLATES } from '../data/sauceScoring.js';
-import { createClusterLabels } from '../three/AxisLabels.js';
+import SauceDetailPanel from './SauceDetailPanel.jsx';
 import {
-  computeClusterCentroids,
-  applyClusterBlend,
-  spreadCentroidsOnCircle,
-  propagateClustersFromNeighbors,
-  attachClusterColors,
-} from '../data/labClusterBlend.js';
+  loadSauceCodex,
+  computeSauceCodexPositions,
+} from '../data/sauceCodex.js';
+import { createClusterLabels } from '../three/AxisLabels.js';
 
 /**
- * SauceLab — Main container for the Sauce Lab tab.
- * Renders its own NetworkScene with sauce-only data and mother sauce positioning.
+ * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
+ * grouped into the 10 mother-sauce families:
+ *   Béchamel, Velouté, Espagnole, Hollandaise, Tomato (French),
+ *   Curry, Stir-fry, Mole, Salsa, Nut Sauce (global).
+ *
+ * Click a sauce → detail panel with two tabs (Ingredients with
+ * technique, Similar sauces by Jaccard) plus an "Open in Recipe Lab"
+ * button that hands the ingredients off in Sauce mode.
+ *
+ * Mirror of CocktailLab.jsx — replaces the previous ingredient-graph
+ * + Sauce Builder + Browse/Saved/Lookup panel that lived here.
  */
-export default function SauceLab({ fullData, userProfile, onSelectionChange, onOpenRecipeLab }) {
-  const [sauceData, setSauceData] = useState(null);
-  const [curatedSauces, setCuratedSauces] = useState([]);
+export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
+  const [codexData, setCodexData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedNodes, setSelectedNodes] = useState([]);
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [highlightedIngredients, setHighlightedIngredients] = useState(null);
-  const [builderIngredients, setBuilderIngredients] = useState([]);
-  const [templateFilter, setTemplateFilter] = useState(null);
-  const [filterCategory, setFilterCategory] = useState('');
-  const [legendOpen, setLegendOpen] = useState(false);
+  const [selectedSauce, setSelectedSauce] = useState(null);
+  const [filterFamily, setFilterFamily] = useState(null);
 
-  // Build sauce graph and load curated recipes on mount
   useEffect(() => {
-    if (!fullData) return;
     let cancelled = false;
-
     async function build() {
       try {
-        const [graph, augment, clusterRes] = await Promise.all([
-          buildSauceGraph(fullData.graph),
-          loadSauceAugment(),
-          fetch('/data/sauce_clusters.json').catch(() => null),
-        ]);
-
-        // GNN-first layout with role-based fallback for nodes not in proDataset.
-        const gnnMap = fullData?.positions?.positions || {};
-        const posMap = {};
-        const missing = [];
-        for (const [name] of graph.nodes) {
-          if (gnnMap[name]) posMap[name] = { ...gnnMap[name] }; // copy so we don't mutate fullData
-          else missing.push(name);
-        }
-        if (missing.length) {
-          const fallback = computeSaucePositions(graph.nodes, graph.edges).positions;
-          for (const n of missing) posMap[n] = fallback[n];
-        }
-
-        // Convert positions to plain mutable arrays so the cluster
-        // blend can mutate in-place without poking GNN data.
-        for (const k in posMap) {
-          if (Array.isArray(posMap[k])) posMap[k] = [...posMap[k]];
-        }
-
-        // Mother-sauce clustering: pull each ingredient toward its
-        // cluster centroid so members of each mother sauce form a
-        // visible cloud (the LivingArchView pattern). Centroids are
-        // first re-spread on a circle so the 5 families don't pile up
-        // in the same chemistry-space corner.
-        let clusterMeta = null;
-        if (clusterRes && clusterRes.ok) {
-          const clData = await clusterRes.json();
-          const ingredientClusters = { ...(clData.ingredient_clusters || {}) };
-          const clusters = clData.clusters || [];
-          // Fill in unclustered ingredients via neighbor majority vote.
-          // The build-time classifier only sees ingredients in the 25
-          // classified mother-sauce recipes; everything else (most of the
-          // sauce graph) needs to inherit a family from its strongest
-          // neighbors so the cloud is contiguous, not spotty.
-          propagateClustersFromNeighbors(ingredientClusters, graph.edges, clusters);
-          const rawCentroids = computeClusterCentroids(posMap, ingredientClusters);
-          const spread = spreadCentroidsOnCircle(rawCentroids, clusters, 38);
-          applyClusterBlend(posMap, ingredientClusters, spread, 0.7);
-          // Attach cluster id/label/color to each node. clusterColor is
-          // what NodeMesh.getColorForNode uses to override the default
-          // taste palette so the family cloud is visually obvious.
-          attachClusterColors(graph.nodes, ingredientClusters, clusters);
-          clusterMeta = { clusters, centroids: spread };
-        }
-
-        const positions = { positions: posMap };
-
+        const codex = await loadSauceCodex();
+        const positions = computeSauceCodexPositions(codex.nodes, codex.codex.clusters);
         if (cancelled) return;
-
-        const adjacencyMap = buildAdjacencyMap(graph.edges);
-
-        setSauceData({ graph, positions, embeddings: null, adjacencyMap, clusterMeta });
-        setCuratedSauces(augment.sauces || []);
+        setCodexData({
+          graph: {
+            nodes: codex.nodes,
+            edges: codex.edges,
+            ingredientList: codex.ingredientList,
+          },
+          positions,
+          ingredientToSauces: codex.ingredientToSauces,
+          codex: codex.codex,
+        });
         setLoading(false);
       } catch (err) {
         if (!cancelled) {
@@ -108,137 +53,90 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange, onO
         }
       }
     }
-
     build();
     return () => { cancelled = true; };
-  }, [fullData]);
-
-  const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
-
-  // Propagate selection to parent so Recipe Lab can pick it up
-  useEffect(() => {
-    if (onSelectionChange) onSelectionChange(selectedNodes);
-  }, [selectedNodes, onSelectionChange]);
-
-  // Cluster label sprites — one per mother sauce, floating at the
-  // cluster's centroid in 3D so each cloud is named in the scene.
-  const axisLabels = useMemo(() => {
-    if (!sauceData?.clusterMeta) return null;
-    const { clusters, centroids } = sauceData.clusterMeta;
-    return createClusterLabels(clusters, centroids);
-  }, [sauceData]);
-
-  const ingredientList = useMemo(() => {
-    if (!sauceData) return [];
-    return sauceData.graph.ingredientList;
-  }, [sauceData]);
-
-  const neighbors = useMemo(() => {
-    if (!sauceData || !selectedNode) return [];
-    return getNeighbors(selectedNode, sauceData.graph.edges);
-  }, [sauceData, selectedNode]);
-
-  const selectedNodeData = useMemo(() => {
-    if (!sauceData || !selectedNode) return null;
-    return sauceData.graph.nodes.get(selectedNode) || null;
-  }, [sauceData, selectedNode]);
-
-  // Category filter
-  const categoryFilteredNames = useMemo(() => {
-    if (!filterCategory || !sauceData) return null;
-    const names = [];
-    for (const [name, node] of sauceData.graph.nodes) {
-      if (node.sauceCategory === filterCategory) {
-        names.push(name);
-      }
-    }
-    return names.length > 0 ? names : null;
-  }, [filterCategory, sauceData]);
-
-  const handleCategoryFilter = useCallback((key) => {
-    setFilterCategory(prev => prev === key ? '' : key);
   }, []);
 
-  const handleNodeClick = useCallback((node) => {
-    if (!node) {
-      setSelectedNodes([]);
-      return;
+  // 3D cluster labels — one per family at its centroid (root sauce
+  // for families that have an eponymous root; first sauce otherwise).
+  const sceneExtras = useMemo(() => {
+    if (!codexData) return null;
+    const centroids = new Map();
+    for (const fam of codexData.codex.clusters) {
+      const rootName = [...codexData.graph.nodes.values()]
+        .find(n => n.isRoot && n.family_id === fam.id)?.name;
+      if (rootName) {
+        centroids.set(fam.id, codexData.positions.positions[rootName]);
+      } else {
+        const first = [...codexData.graph.nodes.values()].find(n => n.family_id === fam.id);
+        if (first) centroids.set(fam.id, codexData.positions.positions[first.name]);
+      }
     }
-    if (panelOpen) {
-      setBuilderIngredients(prev => {
-        if (prev.includes(node.name)) {
-          return prev.filter(n => n !== node.name);
-        }
-        return [...prev, node.name];
+    const clusters = codexData.codex.clusters.map(c => ({
+      id: c.id,
+      label: c.name,
+      color: c.color,
+    }));
+    return createClusterLabels(clusters, centroids);
+  }, [codexData]);
+
+  // Selection → parent (kept for parity with CocktailLab; App.jsx no
+  // longer uses this for the Recipe Lab handoff, but ingredient
+  // panels and other consumers still read selectedNodes).
+  useEffect(() => {
+    if (onSelectionChange) onSelectionChange(selectedSauce ? [selectedSauce] : []);
+  }, [selectedSauce, onSelectionChange]);
+
+  // Similar sauces by Jaccard edge weight (within the same family).
+  const similarSauces = useMemo(() => {
+    if (!selectedSauce || !codexData) return [];
+    const sims = [];
+    const familyById = new Map(codexData.codex.clusters.map(c => [c.id, c]));
+    for (const e of codexData.graph.edges) {
+      if (e.kind !== 'jaccard') continue;
+      let other = null;
+      if (e.source === selectedSauce) other = e.target;
+      else if (e.target === selectedSauce) other = e.source;
+      if (!other) continue;
+      const node = codexData.graph.nodes.get(other);
+      if (!node) continue;
+      sims.push({
+        name: other,
+        similarity: e.strength,
+        family_id: node.family_id,
+        color: familyById.get(node.family_id)?.color || '#888',
       });
     }
-    setSelectedNodes((prev) => {
-      if (prev.includes(node.name)) {
-        return prev.filter((n) => n !== node.name);
-      }
-      return [...prev, node.name];
-    });
-  }, [panelOpen]);
+    sims.sort((a, b) => b.similarity - a.similarity);
+    return sims.slice(0, 8);
+  }, [selectedSauce, codexData]);
+
+  const familyForSelected = useMemo(() => {
+    if (!selectedSauce || !codexData) return null;
+    const node = codexData.graph.nodes.get(selectedSauce);
+    if (!node) return null;
+    return codexData.codex.clusters.find(c => c.id === node.family_id) || null;
+  }, [selectedSauce, codexData]);
+
+  // Family filter — when active, NetworkScene highlights only that
+  // family's sauces (uses the existing treeFilterIngredients hook).
+  const familyFilteredNames = useMemo(() => {
+    if (filterFamily == null || !codexData) return null;
+    const names = [];
+    for (const [name, n] of codexData.graph.nodes) {
+      if (n.family_id === filterFamily) names.push(name);
+    }
+    return names.length > 0 ? names : null;
+  }, [filterFamily, codexData]);
+
+  const handleNodeClick = useCallback((node) => {
+    if (!node) return; // empty-space click no longer dismisses
+    setSelectedSauce(node.name);
+  }, []);
 
   const handleSearchSelect = useCallback((name) => {
-    setSelectedNodes((prev) => {
-      if (prev.includes(name)) return prev;
-      return [...prev, name];
-    });
+    setSelectedSauce(name);
   }, []);
-
-  const handlePanelClose = useCallback(() => {
-    setSelectedNodes([]);
-  }, []);
-
-  const handleHighlightIngredients = useCallback((names) => {
-    setHighlightedIngredients(names);
-    if (names && names.length > 0) {
-      setSelectedNodes(names);
-    } else {
-      setSelectedNodes([]);
-    }
-  }, []);
-
-  const handleBuilderAdd = useCallback((name) => {
-    setBuilderIngredients(prev => {
-      if (prev.includes(name)) return prev;
-      const next = [...prev, name];
-      setSelectedNodes(next);
-      return next;
-    });
-  }, []);
-
-  const handleBuilderRemove = useCallback((name) => {
-    setBuilderIngredients(prev => {
-      const next = prev.filter(n => n !== name);
-      setSelectedNodes(next);
-      return next;
-    });
-  }, []);
-
-  const handleBuilderClear = useCallback(() => {
-    setBuilderIngredients([]);
-    setSelectedNodes([]);
-  }, []);
-
-  const handleTemplateFilter = useCallback((template) => {
-    if (!sauceData) return;
-    if (templateFilter === template.name) {
-      setTemplateFilter(null);
-      setSelectedNodes([]);
-      return;
-    }
-    setTemplateFilter(template.name);
-    const roles = new Set(Object.keys(template.roles));
-    const matching = [];
-    for (const [name, node] of sauceData.graph.nodes) {
-      if (roles.has(node.sauceCategory)) {
-        matching.push(name);
-      }
-    }
-    setSelectedNodes(matching);
-  }, [sauceData, templateFilter]);
 
   if (loading) {
     return (
@@ -249,40 +147,41 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange, onO
             <div className="absolute inset-2 border-2 border-amber-400/50 rounded-full animate-spin" style={{ animationDuration: '2s' }} />
             <div className="absolute inset-[30%] bg-amber-400/80 rounded-full animate-pulse" />
           </div>
-          <p className="text-gray-400 text-sm">Building sauce network...</p>
+          <p className="text-gray-400 text-sm">Building sauce codex...</p>
         </div>
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
         <div className="text-center panel p-6">
-          <p className="text-red-400 mb-2">Failed to build sauce network</p>
+          <p className="text-red-400 mb-2">Failed to load sauce codex</p>
           <p className="text-neural-muted text-sm">{error}</p>
         </div>
       </div>
     );
   }
 
+  const ingredientList = codexData?.graph?.ingredientList || [];
+
   return (
     <>
       <NetworkScene
-        data={sauceData}
+        data={codexData}
         onNodeClick={handleNodeClick}
         onNodeHover={() => {}}
-        selectedNode={selectedNode}
-        selectedNodes={selectedNodes}
+        selectedNode={selectedSauce}
+        selectedNodes={selectedSauce ? [selectedSauce] : []}
         showEdges={true}
         showParticles={true}
         filterCuisine=""
         filterTaste=""
         profileWeights={null}
-        treeFilterIngredients={categoryFilteredNames}
-        sceneExtras={axisLabels}
+        treeFilterIngredients={familyFilteredNames}
+        sceneExtras={sceneExtras}
         showNodeLabels={true}
-        labelNodeNames={categoryFilteredNames}
+        labelNodeNames={familyFilteredNames}
       />
 
       <SearchBar
@@ -290,167 +189,48 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange, onO
         onSelect={handleSearchSelect}
       />
 
-      {/* Ingredient detail panel — only when panel is closed and single node selected */}
-      {selectedNode && selectedNodes.length < 2 && !panelOpen && (
-        <IngredientPanel
-          node={selectedNodeData}
-          neighbors={neighbors}
-          onClose={handlePanelClose}
-          onSelectIngredient={handleSearchSelect}
-          isFavorite={false}
-          onToggleFavorite={() => {}}
-          graphNodes={sauceData?.graph?.nodes}
+      {selectedSauce && (
+        <SauceDetailPanel
+          sauce={codexData.graph.nodes.get(selectedSauce)}
+          family={familyForSelected}
+          similarSauces={similarSauces}
+          onSelectSauce={(name) => setSelectedSauce(name)}
+          onOpenRecipeLab={onOpenRecipeLab}
+          onClose={() => setSelectedSauce(null)}
         />
       )}
 
-      {/* Clear selection */}
-      {selectedNodes.length > 0 && (
-        <div className="fixed top-[100px] left-1/2 -translate-x-1/2 z-50">
-          <button
-            onClick={() => setSelectedNodes([])}
-            className="px-3 py-1.5 text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
-          >
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Clear ({selectedNodes.length})
-          </button>
-        </div>
-      )}
-
-      {/* Axis legend */}
-      <div className="fixed bottom-16 left-4 z-30 pointer-events-none select-none bg-[#12121a]/80 backdrop-blur-md border border-[#1e1e2e] rounded-lg px-3 py-2">
-        <p className="text-[9px] text-gray-400 uppercase tracking-wider font-medium mb-1.5">Sauce Axes</p>
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-[11px] text-gray-300">
-            <span className="w-2 h-2 rounded-full bg-yellow-400/70 inline-block flex-shrink-0" />
-            X: Light ↔ Rich
-          </div>
-          <div className="flex items-center gap-2 text-[11px] text-gray-300">
-            <span className="w-2 h-2 rounded-full bg-green-400/70 inline-block flex-shrink-0" />
-            Y: Mild ↔ Bold
-          </div>
-          <div className="flex items-center gap-2 text-[11px] text-gray-300">
-            <span className="w-2 h-2 rounded-full bg-purple-400/70 inline-block flex-shrink-0" />
-            Z: Simple ↔ Complex
-          </div>
-        </div>
-      </div>
-
-      {/* Sauce Panel toggle */}
-      <button
-        onClick={() => setPanelOpen(p => !p)}
-        className={`fixed top-14 right-4 z-50 px-3 py-1.5 text-xs rounded-lg backdrop-blur-md border transition-all select-none ${
-          panelOpen
-            ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-            : 'bg-[#12121a]/90 text-gray-400 hover:text-amber-300 border-[#1e1e2e] hover:border-amber-500/20'
-        }`}
-      >
-        <svg className="w-4 h-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-        </svg>
-        Sauces
-      </button>
-
-      {/* Sauce Panel */}
-      <SaucePanel
-        onOpenRecipeLab={onOpenRecipeLab}
-        bridgeCompounds={fullData?.bridgeCompounds}
-        isOpen={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        sauceNodes={sauceData?.graph?.nodes}
-        sauceEdges={sauceData?.graph?.edges}
-        ingredientList={ingredientList}
-        onHighlightIngredients={handleHighlightIngredients}
-        builderIngredients={builderIngredients}
-        onBuilderAdd={handleBuilderAdd}
-        onBuilderRemove={handleBuilderRemove}
-        onBuilderClear={handleBuilderClear}
-        userProfile={userProfile}
-        curatedSauces={curatedSauces}
-        adjacencyMap={sauceData?.adjacencyMap}
-      />
-
-      {/* Combined right-side legend — slide-out panel */}
-      <div
-        className="fixed bottom-4 right-0 z-30 flex items-end select-none transition-transform duration-300 ease-in-out"
-        style={{ transform: legendOpen ? 'translateX(0)' : 'translateX(calc(100% - 28px))' }}
-      >
-        {/* Tab */}
-        <button
-          onClick={() => setLegendOpen(v => !v)}
-          className={`bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-r-0 rounded-l-lg px-1.5 py-3 transition-colors shrink-0 ${
-            legendOpen ? 'text-amber-400' : 'text-gray-500 hover:text-gray-300'
-          }`}
-          title="Legend"
-        >
-          <span className="text-[10px] uppercase tracking-widest font-medium" style={{ writingMode: 'vertical-rl' }}>
-            Legend
-          </span>
-        </button>
-
-        {/* Panel */}
-        <div className="bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-l-lg p-3 border-l-0 max-h-[70vh] overflow-y-auto">
-          {/* Mother Sauces */}
-          <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Mother Sauces</p>
-          <div className="space-y-0.5 mb-3">
-            {SAUCE_TEMPLATES.map(t => (
+      {/* Family filter chips — pinned bottom-left, identical pattern
+          to CocktailLab. Tap to isolate a family in the scene. */}
+      <div className="fixed bottom-4 left-4 z-30 select-none bg-[#12121a]/85 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
+        <p className="text-[8px] text-gray-500 uppercase tracking-wider mb-1.5">Mother Sauces</p>
+        <div className="flex flex-wrap gap-1 max-w-[300px]">
+          {codexData.codex.clusters.map(c => {
+            const active = filterFamily === c.id;
+            return (
               <button
-                key={t.name}
-                onClick={() => handleTemplateFilter(t)}
-                className={`w-full flex items-center gap-1.5 text-[9px] text-left px-1 py-0.5 rounded transition-colors ${
-                  templateFilter === t.name
-                    ? 'bg-amber-500/20 text-amber-300'
-                    : 'text-gray-500 hover:text-gray-300 hover:bg-[#1a1a2e]'
+                key={c.id}
+                onClick={() => setFilterFamily(active ? null : c.id)}
+                className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded transition-colors ${
+                  active ? 'bg-white/15 text-white ring-1 ring-white/20' : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
-                title={t.description}
               >
-                <span className="w-1 h-1 rounded-full bg-amber-400/60 flex-shrink-0" />
-                <span className="truncate">{t.name}</span>
+                <span
+                  className="w-1.5 h-1.5 rounded-full inline-block flex-shrink-0"
+                  style={{ backgroundColor: c.color }}
+                />
+                {c.name}
               </button>
-            ))}
-          </div>
-
-          {/* Ingredient Types */}
-          <div className="border-t border-[#1e1e2e] pt-2">
-            <p className="text-[8px] text-gray-600 uppercase tracking-wider mb-1">Ingredient Types</p>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
-              {Object.entries(SAUCE_CATEGORIES)
-                .filter(([key]) => key !== 'Other')
-                .map(([key, { label, color }]) => {
-                  const isActive = filterCategory === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => handleCategoryFilter(key)}
-                      className={`flex items-center gap-1 text-[9px] text-left rounded px-1 py-0.5 transition-colors ${
-                        isActive
-                          ? 'text-white bg-white/10 ring-1 ring-white/20'
-                          : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
-                      }`}
-                      title={isActive ? `Clear ${label} filter` : `Show only ${label}`}
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-shadow"
-                        style={{
-                          backgroundColor: color,
-                          boxShadow: isActive ? `0 0 6px ${color}` : 'none',
-                        }}
-                      />
-                      {label}
-                    </button>
-                  );
-                })}
-            </div>
-            {filterCategory && (
-              <button
-                onClick={() => setFilterCategory('')}
-                className="mt-1 text-[8px] text-gray-600 hover:text-blue-400 transition-colors"
-              >
-                Show all
-              </button>
-            )}
-          </div>
+            );
+          })}
+          {filterFamily != null && (
+            <button
+              onClick={() => setFilterFamily(null)}
+              className="text-[9px] text-gray-500 hover:text-blue-400 transition-colors px-1"
+            >
+              clear
+            </button>
+          )}
         </div>
       </div>
     </>

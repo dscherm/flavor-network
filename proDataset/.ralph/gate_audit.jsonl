@@ -1,0 +1,4 @@
+{"timestamp": "2026-04-25T13:17:59Z", "gate": "pre_commit_gate", "reason": "harness.pre_commit_gate not enabled in ralph.config.json", "skipped": true}
+{"timestamp": "2026-04-25T13:18:09Z", "gate": "pre_commit_gate", "reason": "harness.pre_commit_gate not enabled in ralph.config.json", "skipped": true}
+{"timestamp": "2026-04-25T16:33:35Z", "gate": "pre_commit_gate", "reason": "harness.pre_commit_gate not enabled in ralph.config.json", "skipped": true}
+{"timestamp": "2026-04-25T16:33:46Z", "gate": "pre_commit_gate", "reason": "harness.pre_commit_gate not enabled in ralph.config.json", "skipped": true}
