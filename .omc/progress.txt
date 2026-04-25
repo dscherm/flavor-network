@@ -1,0 +1,43 @@
+R10-64 Start Page — Ralph progress log
+========================================
+
+2026-04-21 — Ralph started
+  Spec: .omc/specs/deep-interview-start-page.md (5% ambiguity, 7 rounds)
+  PRD: .omc/prd.json (5 user stories, ACs mapped from spec)
+  Reviewer: architect
+
+Story order: US-01 (useProData gate) → US-02 (StartPage.jsx) → US-03 (App.jsx wire) → US-04 (ErrorCard) → US-05 (tests)
+Reasoning: US-01 must land first because US-03 depends on the useProData enabled gate. US-02 can be drafted in parallel but its acceptance needs App wiring; safer to sequence.
+
+Codebase anchors (verified via explore agent):
+  - App.jsx:33 — useProData() called on mount (blocks until loaded)
+  - App.jsx:51-53 — existing localStorage key `flavor-tour-complete` (separate from fn-start-seen)
+  - App.jsx:262-279 — loading spinner (reuse as post-CTA surface)
+  - App.jsx:318-349 — top nav: Network | Labs | Explore | Profile
+  - useProData.js:316-321 — pairings.json fetch (parallel useEffect)
+  - useProData.js:118-120 — returns { loading, error, data }
+  - HowItWorks.jsx — `?` modal (reusable from Learn card)
+  - Walkthrough.jsx — post-entry tour (unchanged)
+
+Implementation notes:
+  - Scan every useProData() call site before editing — only App.jsx should pass enabled=false
+  - Wrap localStorage.setItem in try/catch (private-mode Safari silently fails)
+  - Do NOT break flavor-tour-complete flow (independent of fn-start-seen)
+  - Target <300ms first-paint on mid-range mobile (pre-inline CSS if needed)
+
+2026-04-21 — R10-64 COMPLETE
+  Files created: src/components/StartPage.jsx, ErrorCard.jsx, StartPage.test.jsx
+  Files modified: src/App.jsx, src/hooks/useProData.js, src/components/HowItWorks.jsx
+  Tests: 34 passed across 3 test files (17 in StartPage.test.jsx alone: 9 StartPage + 3 ErrorCard + 5 integration/flow)
+  Build: npm run build = exit 0 (bundles + compression emitted)
+  Architect review: APPROVED on second pass (3 blocking gaps fixed: Enter-key test, App-level flow harness, PRD path aligned to colocated convention)
+  Deslop: cleaned dead `shouldFail` var + empty act block in Retry test; simplified test intent; no behavior change
+
+  Key design decisions (from spec):
+    - useProData({ enabled }) gate defaults true for backwards-compat; false defers 27MB fetch
+    - retry() increments an internal counter that's in the effect's dep array
+    - StartPage uses native <button> elements (Tab + Enter activation for free)
+    - Per-card polished visuals: CSS-only animated dots (Discover), SVG composite (Build), CSS-rotated SVG molecule (Learn)
+    - Reduced-motion opt-out via Tailwind motion-safe: prefix
+    - Error Card copy: "Couldn't load the flavor network." (verbatim from spec)
+    - ?reset=start query param clears localStorage in readStartPageFlag() before the mount check

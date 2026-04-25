@@ -1,0 +1,705 @@
+# Deep Interview Spec: Information-Theoretic Recipe Lab Suggestions
+
+## Metadata
+- Interview ID: r10-67-recipe-info-theory
+- Rounds: 3 (+1 self-probe, +1 consensus review, +1 critic re-review)
+- Final Ambiguity Score: 7% (post-revision-2; was 12% then 18%)
+- Type: brownfield (extends existing SuggestionDrawer)
+- Generated: 2026-04-24, revised 2026-04-25 (post architect + critic review)
+- Threshold: 20%
+- Status: PASSED → REVISED (incorporates architect must-fixes + critic criticals)
+- Inspiration: 3Blue1Brown, "Solving Wordle using information theory" (https://www.youtube.com/watch?v=v68zYyaEmEA). Note: the analogy is **structural metaphor**, not isomorphism — Recipe Lab has no hidden answer; instead, the latent variable being narrowed is `cluster ∈ {0..9}` from `cluster_labels.json`, with `P(cluster | bowl)` computed from corpus co-occurrence. See "Defined Random Variable" below.
+
+## Clarity Breakdown (post-revision-2)
+| Dimension | Score | Weight | Weighted |
+|-----------|-------|--------|----------|
+| Goal Clarity | 0.96 | 0.35 | 0.336 | (RV defined AND substrate-grounded)
+| Constraint Clarity | 0.94 | 0.25 | 0.235 | (lifted bus, calibration plan, no recipe-index)
+| Success Criteria | 0.93 | 0.25 | 0.233 | (binding ship gate, no escape clause, falsifiable bias test)
+| Context Clarity | 0.85 | 0.15 | 0.128 |
+| **Total Clarity** | | | **0.932** |
+| **Ambiguity** | | | **0.068 (~7%)** |
+
+## Goal
+
+Replace the current "average pairing strength to recipe ingredients" ranking
+in `SuggestionDrawer.jsx` with a **phase-shifting, information-theoretic
+suggestion engine** that:
+1. Adapts its scoring framing as the recipe build progresses
+   (reductive → coherent → predictive).
+2. Maintains a **per-user prior** that improves with usage signals
+   (search, click, recipe-save), seeded with the corpus prior.
+3. Surfaces **context-unexpected** suggestions in a labeled "wildcard"
+   slot so chefs can find non-obvious bridges (the "kalamata + chocolate"
+   surprises) without losing the safe defaults.
+
+The Wordle inspiration is structural, not literal: each ingredient choice
+*reduces uncertainty* about the recipe direction, and the engine should
+maximize expected information gain — but weighted by a real-recipe
+frequency prior so it doesn't recommend gibberish.
+
+## Defined Random Variable (post-revision-2)
+
+The critic flagged (round 1) that "expected entropy reduction over the
+recipe direction" was hand-waved, then flagged (round 2) that the
+proposed recipe-inverted-index data substrate doesn't exist in
+`public/`. Revised to use only data we actually ship.
+
+**`Cluster`** — a discrete random variable over the 10 ingredient
+clusters defined in `public/proDataset/cluster_labels.json` (Fruit & Nut
+Desserts, Savory American, Italian, Mexican & Latin, East Asian,
+Cocktails & Drinks, French & Herbs, Whole Grain, Chocolate & Vanilla,
+Kitchen Staples).
+
+**`P(Cluster = k | ingredient_i)`** — soft cluster distribution per
+ingredient, derived from the ingredient's top-50 pairing neighbors:
+```
+clusterMatrix[i, k] = (count of i's top-50 neighbors with cluster_id = k) / 50
+```
+Stored as a Float32Array of shape 3913 × 10 (~150 KB). Built once per
+session in `useProData.js` after `cluster_explanations.json` loads.
+Uses `data.adjacency` (also precomputed) so the build is O(N × 50)
+≈ 200K ops, runs in <100 ms.
+
+**`P(Cluster = k | bowl)`** — marginalized over the bowl's pairing
+distribution:
+```
+bowl_dist[i] = (1/B) × Σ_{j ∈ bowl} adj[j][i]   (normalized to sum 1)
+P(Cluster = k | bowl) = Σ_i clusterMatrix[i, k] × bowl_dist[i]
+                      = clusterMatrix.T @ bowl_dist     (matrix-vector product)
+```
+Add Laplace smoothing (ε = 0.01 per cluster) post-multiplication so
+rare bowls don't get zero-probability clusters. Cost per render:
+3913 × 10 = 40K ops. Trivial.
+
+**No recipe-inverted-index needed.** The marginal-over-pairwise
+formulation gets us a well-defined `P(Cluster | bowl)` using only
+`adjacency` + `clusterMatrix`, both of which are derivable from
+`pairings.json` and `cluster_explanations.json` — data we already
+ship to `public/`.
+
+The reductive-phase score is a real Shannon quantity:
+```
+score_R(c) = pairing_strength(c, bowl) × ΔH_c
+ΔH_c = H(P(Cluster | bowl)) − H(P(Cluster | bowl ∪ {c}))
+
+where P(Cluster | bowl ∪ {c}) ≈
+   (B / (B+1)) × P(Cluster | bowl) + (1 / (B+1)) × clusterMatrix[c, ·]
+```
+The mixing weight `1 / (B+1)` reflects adding one ingredient to a
+bowl of size B. Stays a probability distribution by construction.
+
+This makes the entropy framing well-typed AND substrate-grounded: the
+random variable, its support, the conditional distribution, AND the
+data backing each are all defined and shipped.
+
+**Fallbacks for missing data:**
+- An ingredient not in `cluster_explanations.json` (rare — ~2% of
+  the catalog) gets `clusterMatrix[i, ·] = uniform(0.1, 0.1, ...)` so
+  it contributes neutrally to `P(Cluster | bowl)`.
+- An ingredient with `< 5` pairing neighbors gets the same neutral
+  fallback (insufficient signal for soft cluster assignment).
+
+## Constraints
+
+### Engine constraints
+- **Phase-aware ranking:** The score function shifts based on bowl size
+  (`N` = number of in-bowl ingredients):
+  - `N = 0`: **special-case** — corpus frequency only, no phase math.
+    Top-K most-paired ingredients overall.
+  - `N = 1 or 2` (early): **reductive** — favor candidates that maximize
+    expected entropy reduction over `P(Cluster | bowl)` as defined in
+    "Defined Random Variable" above.
+  - `3 ≤ N ≤ 5` (mid): **coherent** — favor candidates whose own pairing
+    distribution has minimum KL divergence from the bowl's aggregate
+    pairing signature (a distribution over the same support: all
+    ingredients).
+  - `N ≥ 6` (late): **predictive** — straight `P(candidate | bowl)` from
+    co-occurrence frequency in the corpus.
+- **No hard cliffs between phases:** linear blend across the boundaries
+  (at N=3 use 0.5 × reductive + 0.5 × coherent) so the drawer doesn't
+  reshuffle abruptly.
+- **H≈0 tiebreaker:** if `H(Cluster | bowl) < 0.05` (single-cluster
+  bowl), the reductive contribution collapses to ties. Fall back to
+  `pairing_strength × corpusFreq` as the tiebreaker so the drawer
+  still differentiates candidates.
+- **Surprise slot:** drawer is split into **safe slots** (top of phase
+  ranking) and **wildcard slots**. Wildcard ranking is
+  `pairing_strength(c, bowl) × surprisal(c | bowl)` SUBJECT TO three
+  eligibility filters:
+  - **Pairing floor**: `pairing_strength(c, bowl) ≥ 0.3`. Prevents
+    "weak surprises" — wildcards must actually pair well.
+  - **Familiarity floor**: candidate must appear in `≥ 100` corpus
+    recipes (`pairingCount(c) ≥ 100`). Prevents long-tail noise like
+    "purslane / sumac / galangal" filling slots for every Italian bowl.
+  - **Differentiation requirement**: a wildcard candidate must NOT also
+    appear in the safe top-K. Compute safe slots first; rank eligible
+    wildcards from the remainder. (Without this, at predictive phase
+    where surprisal is the inverse of P(c|bowl), the wildcard top would
+    just be the safe bottom.)
+  - Slot ratio: **7 safe + 3 wildcard** desktop, **4 safe + 2 wildcard**
+    mobile. **Wildcard section hidden entirely when `N ≤ 1`** —
+    insufficient bowl signal to compute meaningful surprisal.
+- **Latency budget:** <50ms recompute after each ingredient change.
+  **Hard requirement:** `useProData` must precompute and expose
+  `data.adjacency` (via the existing `buildAdjacencyList()` at
+  `src/data/graph.js:103`) so per-candidate work is O(B + N̄) Map
+  lookup, NOT O(B × E) linear scan over 48,588 edges. The current
+  `getNeighbors(name, edges)` pattern is the bottleneck and must be
+  replaced with `adjacency.get(name)`.
+- **Cluster matrix precomputed unconditionally:** `data.clusterMatrix`
+  = Float32Array of shape 3913 × 10, where
+  `clusterMatrix[i*10 + k] = P(Cluster = k | ingredient_i)` derived
+  from the ingredient's top-50 pairing neighbors. ~150 KB. Built once
+  after `cluster_explanations.json` loads in `useProData.js`. Skip
+  the "if too slow, precompute" hedge — it WILL be too slow.
+- **No recipe inverted index.** Critic-round-2 fix: the spec
+  previously called for `data.recipeIndex` to retrieve recipes
+  containing the bowl, but `pairings.json` is pairwise edges only —
+  recipe membership isn't shipped to `public/`. Reductive-phase math
+  now marginalizes over pairwise edges + `clusterMatrix` (see
+  "Defined Random Variable"). No new data files needed.
+
+### Per-user model constraints
+- **Storage:** localStorage only for v1. Key: `fn-recipe-prior` →
+  versioned shape (forward-compat with future Firebase merge):
+  ```json
+  {
+    "version": 1,
+    "ingredientWeights": {
+      "<name>": {
+        "weight": 0.0,
+        "lastSignal": "<iso8601>",
+        "sources": { "save": 0, "click": 0, "search": 0 }
+      }
+    },
+    "nSaves": 0,
+    "lastUpdated": "<iso8601>"
+  }
+  ```
+  Per-signal counts let v2 conflict-resolve by signal type instead of
+  losing data on flat last-writer-wins merges.
+- **Signals + weights (terminal-action-only for clicks):**
+  - **Recipe saved** → for each ingredient that survives to the saved
+    recipe: `+1.0`. Primary signal.
+  - **Suggestion clicked AND survives to save**: counted as part of the
+    save (above). In-flight clicks that get removed before save **do
+    NOT bump** — prevents "speculative click" pollution flagged by the
+    critic.
+  - **Searched + result selected (clicked)**: `+0.5`.
+  - **Searched, no click** (refined signal): `+0.2`, only if (a) query
+    is `≥ 4 chars`, (b) at least one result was displayed for `≥ 800ms`,
+    and (c) no other ingredient was added in that session window. Hard
+    signal floor — drops the noise the critic flagged (10:1 search noise
+    dominance).
+- **Removed-ingredient handling:** removing an ingredient from the bowl
+  before save subtracts any provisional credit it accrued. Undo/redo is
+  signal-neutral — only the saved end-state matters.
+- **Time decay:** weights multiply by `0.99 ^ days_since_lastSignal` on
+  each read. Old preferences fade; model tracks current taste.
+- **Cold-start blend:** user prior is mixed with corpus prior with weight
+  `α = N_saves / (N_saves + 5)`. Brand-new users (`N_saves = 0`) see
+  pure corpus.
+- **Privacy:** no PII, no cross-device sync, no telemetry to a server in
+  v1. Model stays on-device.
+
+### Implementation constraints
+- **Brownfield:** modifies `SuggestionDrawer.jsx` ranking logic; does NOT
+  redesign the UI shell. Existing chip rendering, snap-points, and panel
+  layout stay.
+- **Bundle budget:** no new heavy deps. Pure-JS info-theory math
+  (`log`, `−Σ p log p` loops over typed arrays).
+- **Backwards-compat:** if `localStorage.getItem('fn-recipe-prior')`
+  fails (private mode, quota), the engine silently falls back to corpus
+  prior. No errors surfaced.
+- **Determinism:** suggestions are deterministic per `(bowl, user-prior)`
+  state. No random sampling — wildcard slots use a deterministic
+  `pairing × surprisal` ranking, not Thompson sampling.
+- **Engine context object:** the engine receives a single
+  `engineContext = { adjacency, corpusFreq, clusterMatrix, userPriorRef,
+  signalBus }` rather than 5 drilled props. Single reference is
+  React.memo-stable and makes v2 (Firebase swap) a one-line change.
+- **TDZ avoidance:** keep `SuggestionDrawer` as a plain default export
+  (NO `memo()` wrapper). Project history (`.claude/.ralph-lessons.md`,
+  React Memo Vite TDZ lesson) shows `memo()` wrapping closures over
+  later-declared `const`s breaks production builds in this repo. The
+  signal bus + `userPriorRef` use `useRef` so child components never
+  capture them by closure.
+- **A/B toggle:** `?engine=v1` query param forces the legacy
+  avg-pairing-strength ranking even when the new engine is the default.
+  Used by the offline benchmark and for manual A/B comparison in
+  production. Default = `v2` (the new engine).
+
+## Non-Goals
+
+- **NOT a global personalization system.** Per-user model is local to the
+  device. No accounts, no Firebase sync (v2 candidate).
+- **NOT a multi-step lookahead.** Wordle's 2-step lookahead would be
+  ~3913² = 15M ops per render — too expensive. Single-step expected info
+  gain only.
+- **NOT a recipe-completer.** Engine suggests next ingredients; it does
+  not auto-fill or auto-write recipes.
+- **NOT visible to users as "AI" or "personalized."** No "we learned you
+  like X" UI in v1 — just a better drawer. Personalization is invisible.
+- **NOT changing the search bar UX.** The search signal is captured
+  passively (every typed query that displays results). No new UI.
+
+## Acceptance Criteria
+
+**Phase ranking (happy path):**
+- [ ] With 0 ingredients in the bowl, suggestion drawer shows top-K
+  popular ingredients ranked by corpus frequency.
+- [ ] After adding `tomato`, drawer ranking shifts: top items are
+  high-NPMI partners of tomato, ordered by `expected entropy reduction
+  over cluster distribution` (reductive phase).
+- [ ] After adding 4 ingredients, drawer ranking is coherent-phase:
+  candidates with min KL-divergence from the bowl's aggregate signature
+  appear first.
+- [ ] After 6+ ingredients, drawer is predictive-phase: pure
+  `P(candidate | bowl)` ranking.
+- [ ] No abrupt reshuffling at phase boundaries (linear blend).
+
+**Surprise slots:**
+- [ ] Drawer is visually split into "safe" (top) and "wildcard" (bottom,
+  labeled "Try something unexpected" or similar) sections.
+- [ ] Wildcard slots contain candidates with high `pairing_strength ×
+  surprisal` — verifiably different from safe slots.
+- [ ] Splits: 7+3 desktop, 4+2 mobile (matches `useIsMobile` hook).
+
+**Per-user model:**
+- [ ] On first session: drawer uses pure corpus prior (no localStorage
+  state).
+- [ ] After saving a recipe with 5 ingredients: `localStorage` contains
+  `fn-recipe-prior` with those 5 ingredients each at weight ≈ 1.0.
+- [ ] After 5 synthetic saves all containing ingredient X (and X is
+  NOT in the v1 cold-start top-10 for the test bowl): X appears in
+  the v2 top-10 for the same bowl. Concrete + automated test.
+- [ ] Time decay verified: a weight set today reads as ≈0.5 after 70
+  days of inactivity (0.99^70 ≈ 0.495).
+- [ ] Search-without-click adds +0.2 to that ingredient's weight.
+
+**Cold-start + safety:**
+- [ ] Brand-new user (cleared localStorage) sees same suggestions as a
+  user with `N_saves = 0`.
+- [ ] localStorage write failure (private mode) does not break the
+  drawer.
+- [ ] Drawer recompute stays <50ms with a 10-ingredient bowl
+  (measure with `performance.mark`).
+
+**Tests (vitest):**
+- [ ] `infoTheory.test.js` — unit tests for the pure math:
+  `entropy()`, `klDivergence()` (with Laplace ε=1e-6), `surprisal()`,
+  `phaseBlend()` (smooth at boundaries N=2/3 and N=5/6, weights sum to 1).
+- [ ] `userPrior.test.js` — load/save/decay logic, signal weighting,
+  cold-start blend, versioned-shape round-trip, private-mode fallback,
+  removed-ingredient signal subtraction.
+- [ ] `suggestionEngine.test.js` — given a fixed bowl + mini corpus,
+  asserts the top-3 safe and top-2 wildcard suggestions match expected
+  values across all three phases AND at N=0, N=1, N=10.
+- [ ] **`scripts/engineBenchmark.cjs` (kill criterion, build-time)** —
+  held-out RecipeNLG benchmark. Reads from `proDataset/processed/`
+  (server-only, NOT shipped to `public/`); runs in Node during CI.
+  Generates `.omc/artifacts/engine-benchmark.json` with results.
+  - **Sample size:** 500 held-out recipes (RecipeNLG has 2.2M; 500 is
+    trivial, gives tight CIs).
+  - **Stratification:** stratified random sample by recipe length
+    bucket (short ≤5, medium 6-10, long ≥11) and primary cluster ID
+    of the most-frequent ingredient. Equal counts per stratum.
+  - **Seed:** fixed at `42` so the benchmark is reproducible across
+    runs.
+  - **Procedure:** for each held-out recipe, hold out the LAST
+    ingredient and use the prefix as the bowl. Rank the true held-out
+    ingredient under v1 (legacy avg-strength) and v2 (new engine).
+  - **Metrics:** Mean Reciprocal Rank (MRR) + Recall@10.
+  - **Statistical test:** bootstrap 1000 resamples to compute
+    95% CI on `(MRR_v2 / MRR_v1 − 1)`. Ship gate requires lower
+    bound of CI to be ≥ 0 (significant non-regression).
+  - **Ship gate (binding, no escape clause):** v2 MRR ≥ 1.05 × v1 MRR
+    AND bootstrap 95% CI lower bound ≥ 0. If either fails, do not
+    ship — open an investigation task. The previous "diversity escape
+    clause" was a loophole and is removed.
+  - The build script fails CI when the gate fails. The benchmark
+    artifact is committed so we can track lift over time.
+
+**Signal hygiene:**
+- [ ] Adding then removing an ingredient before save does NOT bump that
+  ingredient's user prior.
+- [ ] Search query `≤ 3` chars does NOT emit search-no-click signal.
+- [ ] Search results displayed for `< 800ms` does NOT emit signal
+  (debounce gate).
+- [ ] Signal counts in `sources` field track which signal type fired
+  (save / click / search) — verifiable by `localStorage.getItem`
+  after a known interaction sequence.
+
+**A/B mechanism:**
+- [ ] `?engine=v1` URL forces legacy ranking even with new engine
+  installed. Visible in dev-tools console log on first render.
+- [ ] No `engine` param → defaults to v2 (new engine).
+
+## Assumptions Exposed & Resolved
+
+| Assumption | Challenge | Resolution |
+|------------|-----------|------------|
+| "Higher likelihood of occurrence" = corpus frequency | What about user-personalized likelihood? | Phase-shifting: corpus-prior reductive/coherent/predictive, blended with user prior |
+| One scoring function fits all phases | Wordle uses fixed entropy-max throughout | Build phase changes what kind of info matters: cuisine reduction → coherence → next-token prediction. Linear blend across boundaries |
+| "Surprise" is best modeled as low corpus frequency | Three flavors compared (corpus-rare, user-rare, context-unexpected) | **Context-unexpected** picked: `−log P(candidate \| bowl)` × pairing strength. Most info-theoretic and most generative |
+| Single ranked list with surprises mixed in | Surprises get buried in mid-list | **Split drawer**: 7 safe + 3 wildcard with visual labels (4+2 mobile) |
+| User model needs cross-device sync | Most users use one device per session | **localStorage only** v1. Add Firebase only when telemetry shows multi-device usage |
+| Click-through is the strongest learning signal | Many users skip the drawer | Use **recipe-completion** as primary (high signal-to-noise) AND **search-bar usage** as secondary (high frequency, lower confidence). Different weights |
+| Cold-start with random suggestions to bootstrap learning | Hostile UX for first-time users | **Pure corpus prior** at N_saves=0; smooth ramp via α = N_saves/(N_saves+5) |
+| Two-step lookahead would help | 3B1B's Wordle gets a measurable lift from it | **Skip** — 15M ops per render is over budget. Single-step expected info gain only |
+| "Expected entropy reduction over recipe direction" is well-defined | (Critic) Wordle has a hidden answer; recipes don't. What's the random variable? | **Cluster ∈ {0..9} from cluster_labels.json**, with `P(Cluster \| bowl)` from corpus co-occurrence + Laplace smoothing. See "Defined Random Variable" |
+| `getNeighbors()` is fine for per-render scoring | (Architect) O(48,588) linear scan × B candidates × 3913 = catastrophic | **Mandatory `data.adjacency` precompute** in `useProData` via existing `buildAdjacencyList()`. O(1) Map lookup |
+| Wildcard ranking is independent of safe ranking | (Architect) At predictive phase, `−log P(c\|bowl)` is the inverse of `P(c\|bowl)` → wildcard top = safe bottom | **Compute safe first, exclude from wildcard pool, add pairing floor (≥0.3) + familiarity floor (≥100 corpus appearances)** |
+| Search-no-click is a useful soft signal | (Critic) Search noise dominates volume 10:1 vs save signal | **Hardened gate**: ≥4 chars + 800ms debounce + no add in window. Drops most noise |
+| In-flight clicks bump the prior | (Critic) Speculative clicks pollute the model | **Provisional bumps in `useRef`, commit only on save**, revert on remove |
+| No need for kill criterion — instrument later | (Critic) No metric → can't detect regression | **`engineBenchmark.test.js` ships in CI** with MRR ≥ 1.10× v1 ship gate on 50-recipe held-out slice |
+
+## Technical Context
+
+**Brownfield findings:**
+
+- `src/components/SuggestionDrawer.jsx:216–242` — current ranking logic.
+  For each candidate, computes average pairing strength against every
+  in-bowl ingredient via `getNeighbors()` (O(N×E) per render, but works).
+  Sorts descending, displays as chips.
+- `src/data/graph.js:79` — `getNeighbors(ingredient, edges)` returns
+  `[{name, strength}]` sorted by strength desc. Strength is normalized
+  pairing weight (NPMI + log-count hybrid, already info-theoretic).
+- `src/components/SearchBar.jsx` — uses `Fuse.js` for fuzzy matching
+  (`threshold: 0.4`). Searches do NOT currently emit a signal anywhere.
+  This is the hook point for the search-as-implicit-positive signal.
+- `src/components/RecipeLab.jsx` is a thin alias for
+  `RecipeLabMobile.jsx` (web + iOS share layout). All work happens in
+  `RecipeLabMobile` + `SuggestionDrawer`.
+- `useProData()` at `src/hooks/useProData.js` exposes `data.graph.edges`
+  with normalized strength. The corpus prior `P(ingredient)` can be
+  derived once per session as `pairingCount / totalPairings` and
+  cached in `useMemo`.
+
+**No existing user-prior infrastructure** — this spec adds it from
+scratch. The localStorage approach is intentionally minimal so it can be
+deleted/reset without ceremony.
+
+## Algorithm Sketch (revised — types check, wildcard inversion fixed)
+
+All probability distributions below have **3913-element support** (one
+entry per ingredient) unless noted otherwise.
+
+### 1. Bowl pairing distribution `bowl_dist[3913]`
+```
+For each candidate i:
+  bowl_dist[i] = (1/B) × Σ_{j in bowl} adj.get(j).get(i) || 0
+Normalize so Σ bowl_dist[i] = 1.
+```
+This is a probability distribution over candidates — what an "average
+bowl ingredient" tends to pair with. Critic-fix: previously this was
+called `bowl_signature` and was conflated with a per-candidate scalar.
+Now explicit: it's a vector indexed by candidate.
+
+### 2. Per-phase score for each candidate `c`
+
+- **N=0 special case:** `score(c) = corpusFreq(c)`. No phase math.
+- **Reductive** (N=1, 2):
+  `score_R(c) = pairing_strength(c, bowl) × ΔH_c`
+  where:
+  - `H_before = H(P(Cluster | bowl))` — entropy of cluster posterior
+    over the 10 chemDataset clusters, computed via the recipe inverted
+    index + Laplace smoothing.
+  - `P(Cluster | bowl ∪ {c})` is updated by adding `clusterMatrix[c, ·]`
+    weighted by `pairing_strength(c, bowl)` and renormalizing.
+  - `ΔH_c = H_before − H(P(Cluster | bowl ∪ {c}))`.
+  - **H≈0 fallback:** if `H_before < 0.05`, set `score_R(c) =
+    pairing_strength(c, bowl) × corpusFreq(c)`.
+- **Coherent** (N=3, 4, 5):
+  Both `bowl_dist` and `neighbor_dist(c)` are over the same 3913-support.
+  `score_C(c) = −D_KL(neighbor_dist(c) || bowl_dist + ε)` with Laplace
+  ε = 1e-6 added to `bowl_dist` so KL is defined everywhere.
+- **Predictive** (N ≥ 6):
+  `score_P(c) = P(c | bowl) = bowl_dist[c]`.
+
+### 3. Phase blend (linear, smooth at boundaries)
+
+`w_R = max(0, 1 − N/3)`,
+`w_C = max(0, 1 − |N − 4| / 3)`,
+`w_P = max(0, (N − 5) / 3)`.
+
+Normalize to sum 1. `score(c) = w_R·score_R + w_C·score_C + w_P·score_P`.
+
+### 4. User-prior blend
+`final_score(c) = score(c) × (1 + α × normalized_user_prior(c))`
+where `α = N_saves / (N_saves + 5)` and `normalized_user_prior(c) =
+userWeight(c) / max(userWeight)`.
+
+### 5. Wildcard score (with eligibility filters)
+
+Compute safe top-K first using `final_score`. Then, from the REMAINING
+candidates only, apply eligibility filters and rank wildcards:
+```
+For each candidate c not in safe top-K:
+  if pairing_strength(c, bowl) < 0.3: skip          // pairing floor
+  if pairingCount(c) < 100: skip                    // familiarity floor
+  surprisal_c = −log(bowl_dist[c] + ε)
+  wildcard_score[c] = pairing_strength(c, bowl) × surprisal_c
+Sort, take top wildcard_K.
+```
+
+This solves the architect-flagged inversion bug: at predictive phase
+where `surprisal = −log P(c|bowl)` is the inverse of `score_P`, the
+wildcard ranking would otherwise be the safe-bottom ranking. Excluding
+safe top-K + adding a pairing floor breaks the tie. Familiarity floor
+prevents the critic-flagged "exotic-only" degeneration.
+
+### 6. Wildcard hidden when N ≤ 1
+At N=0 and N=1 there's insufficient bowl signal to compute meaningful
+surprisal. The drawer shows `safe_K + wildcard_K` safe items
+(10 desktop / 6 mobile) and the wildcard section is omitted entirely.
+
+## Implementation Plan (for executor)
+
+### New files
+1. `src/data/infoTheory.js` — pure math primitives:
+   `entropy(probs)`, `klDivergence(p, q)` (with Laplace ε=1e-6),
+   `surprisal(p)`, `phaseBlend(N)`. Pure functions, fully unit-tested.
+2. `src/data/userPrior.js` — localStorage layer:
+   `loadPrior()`, `savePrior()`, `decay(prior)`,
+   `bumpSignal(prior, name, type, weight)`,
+   `revertProvisional(prior, name)` (for removed ingredients),
+   `blendWithCorpus(prior, corpusFreq, alpha)`. Handles private-mode
+   try/catch. Versioned shape (v1) from day 1.
+3. `src/data/suggestionEngine.js` — top-level:
+   `rankSuggestions(bowl, engineContext, opts)` →
+   `{ safe: [...], wildcard: [...], debug: {...} }`. Receives the single
+   `engineContext` object (`adjacency` / `corpusFreq` / `clusterMatrix`
+   / `userPriorRef` / `signalBus`). Composes math primitives and
+   per-phase scores. `debug` carries phase weights + entropy values
+   for the optional dev overlay.
+4. `scripts/engineBenchmark.cjs` — build-time held-out evaluation:
+   reads `proDataset/processed/recipenlg-cooccurrence.json` (or
+   equivalent recipe-level corpus, server-only), runs both engines
+   against the held-out slice, computes MRR + Recall@10 + bootstrap
+   CI, writes `.omc/artifacts/engine-benchmark.json`, exits non-zero
+   if ship gate fails. Wired into `npm run gate` and CI.
+5. `src/data/__tests__/infoTheory.test.js`,
+   `userPrior.test.js`,
+   `suggestionEngine.test.js`.
+   (`engineBenchmark` runs in CI as a script, not vitest, because the
+   recipe-level data is too large to import as a JS module.)
+
+### Files to modify
+1. `src/hooks/useProData.js` — add three precomputes (all on the
+   returned `data` object, all built once per session):
+   - `data.adjacency` (`Map<name, Map<name, strength>>`) via
+     `buildAdjacencyList(edges)` at `graph.js:103`. **Mandatory** —
+     unblocks the latency budget.
+   - `data.corpusFreq` (`Map<name, number>`) — `pairingCount(name) /
+     totalPairings`.
+   - `data.clusterMatrix` (Float32Array, 3913 × 10) — built after
+     `cluster_explanations.json` + `data.adjacency` are both ready.
+     Each row is the soft cluster distribution of that ingredient's
+     top-50 pairing neighbors. Normalized to sum 1.
+2. `src/components/SuggestionDrawer.jsx` — replace the avg-strength
+   ranking (lines 216–242) with `rankSuggestions(bowl, engineContext)`.
+   Render two sections: safe and wildcard with a divider + label
+   ("Try something unexpected"). **Keep the plain default export — do
+   NOT wrap in `memo()`.** (TDZ class per
+   `.claude/.ralph-lessons.md`.)
+3. `src/App.jsx` — owns the signal bus (`useRef({ priorWeights,
+   provisional })`) and exposes `bumpSignal(name, type, weight)` /
+   `revertProvisional(name)` / `commitProvisional()` to all tabs.
+   The bus lives at App level (NOT in `RecipeLabMobile`) because Labs
+   are lazy-mounted: navigating Network → Labs → Network → Labs would
+   reinitialize a Lab-level ref and lose provisional click history.
+   Provisional state is also mirrored to `sessionStorage` on every
+   change for tab-reload safety. Persisted state (`fn-recipe-prior`)
+   only updates on commit.
+4. `src/components/RecipeLabMobile.jsx` — receives `signalBus` prop
+   from App, plumbs `engineContext` down to `SuggestionDrawer`. Signal
+   capture:
+   - On recipe save → call `commitProvisional()` + bump each surviving
+     ingredient by 1.0. Increment `nSaves`.
+   - On suggestion click → call `bumpSignal(name, 'click', 0.5)`
+     (provisional, not persisted yet).
+   - On ingredient remove before save → call `revertProvisional(name)`.
+5. `src/components/SearchBar.jsx` — emit signals via `onSearchSignal`
+   prop with hardened gates:
+   - Search query `≥ 4` chars AND results displayed `≥ 800ms`
+     (debounce) AND no ingredient added in that window → emit
+     `+0.2` for the top Fuse.js match.
+   - Result selected → emit `+0.5` for that ingredient.
+   - **No `memo()` wrap on this file** if signal-emit logic captures
+     parent state via closure — same TDZ class as above.
+
+### Precompute bootstrap (in `useProData.js`)
+All precomputes happen inside the existing `finish()` function after
+the relevant source data loads. Total added cost: <500ms one-time at
+session start. Memory cost: ~1 MB combined (adjacency dominates).
+
+### A/B toggle
+At app entry (`App.jsx`), read `?engine=` URL param. Pass `engineMode
+∈ {'v1', 'v2'}` down to `RecipeLabMobile`. When `v1`, skip
+`rankSuggestions()` and use the legacy avg-strength code (which we
+keep around in a single `legacyRanking()` helper inside
+`SuggestionDrawer.jsx`). Default = `v2`.
+
+### Telemetry hooks (optional v1.1)
+Add `console.debug('[suggest]', { phase, bowl, top5, debug })` behind
+a `VITE_DEBUG_SUGGEST` env flag for tuning the phase boundaries with
+real interactions.
+
+## Risks / Notes for executor
+
+1. **Phase boundary justification (pre-merge probe).** The N=2/3 and
+   N=5/6 cutoffs were initial guesses. Before merge, run a quick
+   probe in `scripts/engineBenchmark.cjs`: compute median + p25/p75
+   bowl size at recipe-save time across the held-out 500 recipes. If
+   median is far from N=4 (the coherent-phase center), shift the
+   cutoffs accordingly before locking. Critic-round-2 fix: this is
+   no longer a v1.1 follow-up.
+2. **KL divergence zero-handling** — Laplace smoothing `ε = 1e-6` on
+   `bowl_dist` before computing `D_KL(neighbor_dist(c) || bowl_dist)`.
+   Both distributions are over the same 3913-support so the math
+   type-checks.
+3. **Adjacency precompute is mandatory, not optional.** `getNeighbors()`
+   is O(E=48,588) linear scan per call. The new engine calls it B× per
+   candidate × 3913 candidates = catastrophic. `data.adjacency` →
+   O(B + N̄) is the only way to hit the 50ms budget.
+4. **Cluster matrix is mandatory unconditional precompute.** Skip the
+   "if too slow, precompute" hedge — it WILL be too slow. ~150KB heap
+   cost is fine.
+5. **Time decay only fires on read.** A user who doesn't open the app
+   for 6 months will see their prior decay all at once on next launch.
+   That's correct behavior — preferences age.
+6. **Wildcard inversion bug** — at predictive phase, `surprisal =
+   −log P(c|bowl)` is the inverse of `score_P`, so wildcard top would
+   equal safe bottom without correction. Fixed in Algorithm Sketch §5
+   by computing safe top-K first, then ranking wildcards from the
+   remainder + adding pairing floor (≥0.3) + familiarity floor (≥100
+   corpus appearances).
+7. **Search signal hardening** — `+0.2` only emitted when query ≥4
+   chars + 800ms debounce + no ingredient added in window. Prevents
+   the critic-flagged 10:1 search-noise dominance.
+8. **In-flight click pollution** — clicks on suggestions that get
+   removed before save MUST NOT bump the prior. Provisional bumps
+   live in a `useRef` and only commit on save (or evict on remove).
+9. **Save-button existence** — confirm `RecipeLabMobile` exposes a
+   save action before signal-capture work begins. If absent, file an
+   adjacent task to add one (the spec implicitly requires it).
+10. **Kill criterion** — `engineBenchmark.test.js` runs in CI on every
+    build. Ship gate: v2 MRR ≥ 1.10 × v1 MRR on a 50-recipe held-out
+    slice. If the engine ever regresses this gate, the build fails.
+11. **A/B toggle ergonomics** — `?engine=v1` is the escape hatch for
+    field debugging. Surface a single console log line on engine
+    initialization so support / power-users can confirm which version
+    is running.
+12. **Forward-compat to Firebase** — versioned localStorage shape
+    (`version: 1`, per-signal `sources` counts) means the v2 sync
+    layer can merge by signal type instead of last-writer-wins on a
+    flat name→weight map. Adds ~3-4× storage size (still <50KB) for
+    that future flexibility.
+13. **Substrate-grounded reductive math** — critic-round-2 caught that
+    the spec's first revision assumed a recipe inverted index, but
+    `pairings.json` ships only pairwise NPMI edges (recipe membership
+    was destroyed at blend time). Reductive-phase math now uses
+    `clusterMatrix.T @ bowl_dist` — pure marginal over pairwise edges,
+    needs only data we ship.
+14. **Signal bus must live at App.jsx** — Labs are lazy-mounted, so a
+    `useRef` in `RecipeLabMobile` would reinitialize on every Lab
+    remount and lose provisional click history. Bus is at App level
+    + mirrored to `sessionStorage` for tab-reload safety. Persisted
+    `fn-recipe-prior` only updates on explicit `commitProvisional()`.
+15. **Search-noise calibration plan** — the ≥4 chars + 800ms +
+    no-add-in-window gate is uncalibrated. Add a `console.debug`
+    counter (behind `VITE_DEBUG_SUGGEST`) that logs (a) emissions
+    per session, (b) ingredient-class breakdown, so we can verify
+    post-launch that the ratio of search-signal:save-signal is at
+    most ~3:1 (down from the critic-flagged 10:1).
+
+## Interview Transcript
+
+<details>
+<summary>3 rounds of interactive Q&A + 1 self-probe round</summary>
+
+### Round 1 — Goal Clarity
+**Q:** Predictive vs reductive vs coherent vs phase-shifting framing? And what does "surprise" mean?
+**A:** (d) phase-shifting. (Surprise question rolled to Round 2.)
+**Ambiguity after:** 47%
+
+### Round 2 — Success Criteria
+**Q (A):** Surprise framing? Drawer composition (slots vs temperature)?
+**A:** Context-unexpected.
+**Q (B):** Improvement signal? Storage locus?
+**A:** Recipe completion (other questions deferred).
+**Ambiguity after:** 41%
+
+### Round 3 — Constraints
+**Q:** Drawer composition / storage locus / cold-start (with recommendations).
+**A:** Ratify all recommendations. Plus: add **search-bar usage** as a secondary signal.
+**Ambiguity after:** 25%
+
+### Round 4 — Self-probe (Context Clarity)
+Read `SuggestionDrawer.jsx`, `graph.js`, `SearchBar.jsx`, `RecipeLab.jsx`,
+`RecipeLabMobile.jsx`. Confirmed: current ranking is avg pairing strength
+(no info-theory, no phase, no user model). Search bar uses Fuse.js with
+no signal emission. RecipeLab is a thin alias for RecipeLabMobile.
+**Ambiguity after:** 18% — below threshold.
+
+### Round 5 — Consensus review (planner / architect / critic)
+
+**Planner**: 7-task sequence, parallelizable lanes 1+2 and 6+7. v1
+ships at task 5. No structural pushback.
+
+**Architect (7 must-fixes, all incorporated):**
+- `getNeighbors()` is O(E) — must precompute `data.adjacency` from
+  existing `buildAdjacencyList()`.
+- `engineContext` as single prop instead of 6 drilled values.
+- Cluster matrix unconditional precompute.
+- Wildcard ranking inversion bug at predictive phase — fixed via
+  safe-first / floor / familiarity rules.
+- `H ≈ 0` tiebreaker fallback.
+- N=0 special case.
+- Versioned localStorage shape with per-signal counts.
+- Keep `SuggestionDrawer` as plain export — no `memo()` (TDZ class).
+
+**Critic (REVISE → 2 criticals + 4 majors, all incorporated):**
+- 🔴 Defined the random variable explicitly: `Cluster ∈ {0..9}` from
+  `cluster_labels.json`, with `P(Cluster | bowl)` from corpus
+  co-occurrence + Laplace smoothing. Entropy framing now well-typed.
+- 🔴 Added kill criterion: `engineBenchmark.test.js` runs MRR + Recall@10
+  on a 50-recipe held-out slice. Ship gate: v2 MRR ≥ 1.10 × v1.
+- Wildcard familiarity floor (`pairingCount ≥ 100`) prevents
+  long-tail noise.
+- Search-no-click hardened (≥4 chars + 800ms debounce + no add in
+  window).
+- In-flight click pollution prevented (provisional bumps in `useRef`,
+  commit on save only).
+- Phase boundaries flagged for v1.1 empirical follow-up.
+
+**Ambiguity after revisions:** ~12%. Spec ready for executor.
+
+### Round 6 — Critic re-review (REVISE_AGAIN)
+
+Critic returned two new criticals on the revised spec:
+- **Recipe inverted index unbuildable** from `pairings.json` (only
+  pairwise edges shipped — recipe membership not in `public/`). Fixed
+  by redefining `P(Cluster | bowl) = clusterMatrix.T @ bowl_dist` —
+  marginal over pairwise edges, needs only data we ship. The recipe
+  inverted index is dropped entirely.
+- **Kill criterion gameable + undersized.** 50 recipes too small;
+  "OR diversity escape clause" was a loophole. Fixed by bumping to
+  500 stratified recipes, fixed seed (42), bootstrap 95% CI for
+  significance, ship gate now `MRR_v2 ≥ 1.05 × MRR_v1 AND lower-CI ≥
+  0` (no escape clause). Benchmark moved to `scripts/engineBenchmark.cjs`
+  (Node, build-time) since recipe-level data is server-only.
+
+Plus three majors:
+- Signal bus lifted from `RecipeLabMobile` to `App.jsx` so Lab
+  lazy-remount doesn't lose provisional clicks.
+- Phase boundaries now justified pre-merge by a probe of bowl-size
+  distribution at recipe-save time in the held-out slice.
+- "Visibly bias" acceptance criterion replaced with a concrete
+  automated test (5 synthetic saves of X → X must appear in top-10).
+
+**Ambiguity after revision-2:** ~7%. Spec ready for executor.
+
+</details>

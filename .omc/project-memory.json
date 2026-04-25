@@ -1,0 +1,869 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777122494402,
+  "projectRoot": "D:\\Projects\\flavor-network",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "express",
+        "version": "4.21.0",
+        "category": "backend"
+      },
+      {
+        "name": "react",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "@playwright/test",
+        "version": "1.59.1",
+        "category": "testing"
+      },
+      {
+        "name": "vite",
+        "version": "6.0.0",
+        "category": "build"
+      },
+      {
+        "name": "vitest",
+        "version": "4.1.2",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "vite",
+      "build:pairings": "node scripts/buildPairingsBinary.cjs",
+      "prebuild": "npm run build:pairings",
+      "build": "vite build",
+      "preview": "vite preview",
+      "api": "node src/api/server.js",
+      "gate": "node scripts/gate.cjs",
+      "gate:quick": "node scripts/gate.cjs --no-build",
+      "ios:sync": "npm run build && npx cap sync ios",
+      "ios:open": "npx cap open ios",
+      "ios:build": "npm run build && npx cap sync ios && cd ios/App && xcodebuild build -workspace App.xcworkspace -scheme App -configuration Debug -destination 'generic/platform=iOS Simulator'"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "scripts",
+      "src",
+      "tests"
+    ],
+    "gitBranches": {
+      "defaultBranch": "master",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "chemDataset": {
+      "path": "chemDataset",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1777122494381,
+      "keyFiles": [
+        "package-lock.json",
+        "package.json",
+        "README.md",
+        "watchdog.ps1"
+      ]
+    },
+    "cleanup-ralph": {
+      "path": "cleanup-ralph",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1777122494382,
+      "keyFiles": [
+        "memories.md",
+        "plan.md",
+        "prd.md",
+        "prompt.md"
+      ]
+    },
+    "cocktail-ralph": {
+      "path": "cocktail-ralph",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1777122494389,
+      "keyFiles": [
+        "memories.md",
+        "plan.md",
+        "prd.md",
+        "prompt.md"
+      ]
+    },
+    "data": {
+      "path": "data",
+      "purpose": "Data files",
+      "fileCount": 22,
+      "lastAccessed": 1777122494390,
+      "keyFiles": [
+        "affinities.csv",
+        "cluster.py",
+        "clusters-no-null-cuisines.json",
+        "clusters.json",
+        "cuisines.csv"
+      ]
+    },
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 3,
+      "lastAccessed": 1777122494390,
+      "keyFiles": [
+        "index.html",
+        "index.html.br",
+        "index.html.gz"
+      ]
+    },
+    "flavor-gnn": {
+      "path": "flavor-gnn",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1777122494390,
+      "keyFiles": [
+        "pyproject.toml",
+        "README.md"
+      ]
+    },
+    "harness-ralph": {
+      "path": "harness-ralph",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1777122494390,
+      "keyFiles": [
+        "memories.md",
+        "plan.md",
+        "prd.md",
+        "prompt.md"
+      ]
+    },
+    "ingredient-ralph": {
+      "path": "ingredient-ralph",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1777122494391,
+      "keyFiles": [
+        "memories.md",
+        "plan.md",
+        "prd.md",
+        "prompt.md"
+      ]
+    },
+    "ios": {
+      "path": "ios",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1777122494391,
+      "keyFiles": [
+        "debug.xcconfig"
+      ]
+    },
+    "proDataset": {
+      "path": "proDataset",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1777122494391,
+      "keyFiles": [
+        "config.js",
+        "package-lock.json",
+        "package.json",
+        "utils.js"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 0,
+      "lastAccessed": 1777122494391,
+      "keyFiles": []
+    },
+    "r11-discover-depth": {
+      "path": "r11-discover-depth",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1777122494392,
+      "keyFiles": [
+        "plan.md",
+        "prd.md"
+      ]
+    },
+    "refactor-ralph": {
+      "path": "refactor-ralph",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1777122494392,
+      "keyFiles": [
+        "memories.md",
+        "plan.md",
+        "prd.md",
+        "prompt.md"
+      ]
+    },
+    "sauce-ralph": {
+      "path": "sauce-ralph",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1777122494392,
+      "keyFiles": [
+        "memories.md",
+        "plan.md",
+        "prd.md",
+        "prompt.md"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 6,
+      "lastAccessed": 1777122494392,
+      "keyFiles": [
+        "buildPairingsBinary.cjs",
+        "build_compound_tastes.cjs",
+        "expand_cuisines.cjs",
+        "gate.cjs",
+        "generate_cuisine_map.cjs"
+      ]
+    },
+    "simulation": {
+      "path": "simulation",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1777122494393,
+      "keyFiles": [
+        "playwright.config.js",
+        "screenshot.config.js"
+      ]
+    },
+    "simulation-ralph": {
+      "path": "simulation-ralph",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1777122494393,
+      "keyFiles": [
+        "plan.md",
+        "PROMPT.md"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 4,
+      "lastAccessed": 1777122494393,
+      "keyFiles": [
+        "App.jsx",
+        "firebase.js",
+        "index.css",
+        "main.jsx"
+      ]
+    },
+    "test-results": {
+      "path": "test-results",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777122494393,
+      "keyFiles": []
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 3,
+      "lastAccessed": 1777122494393,
+      "keyFiles": [
+        "cocktail-lab.test.mjs",
+        "data-integrity.test.mjs",
+        "sauce-lab.test.mjs"
+      ]
+    },
+    "tools": {
+      "path": "tools",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1777122494394,
+      "keyFiles": [
+        "prepare_context.cjs",
+        "ralph_status.cjs"
+      ]
+    },
+    "train": {
+      "path": "train",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1777122494394,
+      "keyFiles": [
+        "model.py",
+        "requirements.txt",
+        "train_gnn.py"
+      ]
+    },
+    "chemDataset\\node_modules": {
+      "path": "chemDataset\\node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1777122494394,
+      "keyFiles": []
+    },
+    "chemDataset\\scripts": {
+      "path": "chemDataset\\scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 11,
+      "lastAccessed": 1777122494395,
+      "keyFiles": [
+        "00-status.js",
+        "01-fetch-foodb.js",
+        "02-fetch-flavordb.js"
+      ]
+    },
+    "cocktail-ralph\\data": {
+      "path": "cocktail-ralph\\data",
+      "purpose": "Data files",
+      "fileCount": 1,
+      "lastAccessed": 1777122494395,
+      "keyFiles": [
+        "compound_notes.json"
+      ]
+    },
+    "cocktail-ralph\\scripts": {
+      "path": "cocktail-ralph\\scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 3,
+      "lastAccessed": 1777122494395,
+      "keyFiles": [
+        "task2_expand_augment.cjs",
+        "task3_symmetry.cjs",
+        "task9_validate_augment.cjs"
+      ]
+    },
+    "dist\\assets": {
+      "path": "dist\\assets",
+      "purpose": "Static assets",
+      "fileCount": 31,
+      "lastAccessed": 1777122494396,
+      "keyFiles": [
+        "DiscoverPatterns-C96xQ4sk.js",
+        "DiscoverPatterns-C96xQ4sk.js.br",
+        "DiscoverPatterns-C96xQ4sk.js.gz"
+      ]
+    },
+    "dist\\data": {
+      "path": "dist\\data",
+      "purpose": "Data files",
+      "fileCount": 12,
+      "lastAccessed": 1777122494396,
+      "keyFiles": [
+        "cocktail_augment.json",
+        "cocktail_augment.json.br",
+        "cocktail_augment.json.gz"
+      ]
+    },
+    "dist\\models": {
+      "path": "dist\\models",
+      "purpose": "Data models",
+      "fileCount": 12,
+      "lastAccessed": 1777122494396,
+      "keyFiles": [
+        "bridge_molecules_3d.json",
+        "bridge_molecules_3d.json.br",
+        "bridge_molecules_3d.json.gz"
+      ]
+    },
+    "flavor-gnn\\data": {
+      "path": "flavor-gnn\\data",
+      "purpose": "Data files",
+      "fileCount": 2,
+      "lastAccessed": 1777122494396,
+      "keyFiles": [
+        "compounds.parquet",
+        "compound_labels.json"
+      ]
+    },
+    "flavor-gnn\\src": {
+      "path": "flavor-gnn\\src",
+      "purpose": "Source code",
+      "fileCount": 2,
+      "lastAccessed": 1777122494396,
+      "keyFiles": [
+        "train.py",
+        "__init__.py"
+      ]
+    },
+    "ingredient-ralph\\scripts": {
+      "path": "ingredient-ralph\\scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 12,
+      "lastAccessed": 1777122494397,
+      "keyFiles": [
+        "task10_rescale_strength.cjs",
+        "task11_remove_recipes.cjs",
+        "task12b_reclassify_remaining.cjs"
+      ]
+    },
+    "ios\\App": {
+      "path": "ios\\App",
+      "purpose": "Application code",
+      "fileCount": 0,
+      "lastAccessed": 1777122494397,
+      "keyFiles": []
+    },
+    "proDataset\\data": {
+      "path": "proDataset\\data",
+      "purpose": "Data files",
+      "fileCount": 6,
+      "lastAccessed": 1777122494398,
+      "keyFiles": [
+        "categories.json",
+        "category_distances.json",
+        "compound_database.json"
+      ]
+    },
+    "proDataset\\node_modules": {
+      "path": "proDataset\\node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1777122494398,
+      "keyFiles": []
+    },
+    "proDataset\\scripts": {
+      "path": "proDataset\\scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 9,
+      "lastAccessed": 1777122494398,
+      "keyFiles": [
+        "01-parse-recipenlg.js",
+        "02-fetch-flavordb.js",
+        "03-fetch-mealdb.js"
+      ]
+    },
+    "public\\data": {
+      "path": "public\\data",
+      "purpose": "Data files",
+      "fileCount": 4,
+      "lastAccessed": 1777122494398,
+      "keyFiles": [
+        "cocktail_augment.json",
+        "cuisine_map.json",
+        "sauce_augment.json"
+      ]
+    },
+    "public\\models": {
+      "path": "public\\models",
+      "purpose": "Data models",
+      "fileCount": 4,
+      "lastAccessed": 1777122494398,
+      "keyFiles": [
+        "bridge_molecules_3d.json",
+        "preset_activations.json",
+        "preset_molecules.json"
+      ]
+    },
+    "r11-discover-depth\\scripts": {
+      "path": "r11-discover-depth\\scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 3,
+      "lastAccessed": 1777122494399,
+      "keyFiles": [
+        "task1_cluster_anchors.cjs",
+        "task2_cluster_rename.cjs",
+        "task3_cluster_blend_positions.cjs"
+      ]
+    },
+    "sauce-ralph\\scripts": {
+      "path": "sauce-ralph\\scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 3,
+      "lastAccessed": 1777122494399,
+      "keyFiles": [
+        "task2_symmetry.cjs",
+        "task6_expand.cjs",
+        "task8_validate.cjs"
+      ]
+    },
+    "simulation\\lib": {
+      "path": "simulation\\lib",
+      "purpose": "Library code",
+      "fileCount": 5,
+      "lastAccessed": 1777122494399,
+      "keyFiles": [
+        "devices.js",
+        "metrics.js",
+        "reporter.js"
+      ]
+    },
+    "src\\api": {
+      "path": "src\\api",
+      "purpose": "API routes",
+      "fileCount": 1,
+      "lastAccessed": 1777122494400,
+      "keyFiles": [
+        "server.js"
+      ]
+    },
+    "src\\components": {
+      "path": "src\\components",
+      "purpose": "UI components",
+      "fileCount": 59,
+      "lastAccessed": 1777122494400,
+      "keyFiles": [
+        "BottomSheet.jsx",
+        "ClassicalMatchCard.jsx",
+        "ClassicalMatchToast.jsx"
+      ]
+    },
+    "src\\data": {
+      "path": "src\\data",
+      "purpose": "Data files",
+      "fileCount": 36,
+      "lastAccessed": 1777122494401,
+      "keyFiles": [
+        "classicalMatcher.js",
+        "classicalMatcher.test.js",
+        "classicalTree.js"
+      ]
+    },
+    "src\\test": {
+      "path": "src\\test",
+      "purpose": "Test files",
+      "fileCount": 1,
+      "lastAccessed": 1777122494401,
+      "keyFiles": [
+        "setup.js"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src\\components\\SuggestionDrawer.jsx",
+      "accessCount": 51,
+      "lastAccessed": 1777151619882,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\RecipeLabMobile.jsx",
+      "accessCount": 37,
+      "lastAccessed": 1777152430980,
+      "type": "directory"
+    },
+    {
+      "path": "src\\App.jsx",
+      "accessCount": 18,
+      "lastAccessed": 1777152402412,
+      "type": "directory"
+    },
+    {
+      "path": "src\\components\\CocktailLab.jsx",
+      "accessCount": 14,
+      "lastAccessed": 1777152932187,
+      "type": "directory"
+    },
+    {
+      "path": "proDataset\\scripts\\11-parse-cocktail-codex.js",
+      "accessCount": 11,
+      "lastAccessed": 1777151425794,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\SauceLab.jsx",
+      "accessCount": 10,
+      "lastAccessed": 1777153411276,
+      "type": "directory"
+    },
+    {
+      "path": "src",
+      "accessCount": 10,
+      "lastAccessed": 1777153422331,
+      "type": "directory"
+    },
+    {
+      "path": "src\\components\\IngredientPanel.jsx",
+      "accessCount": 9,
+      "lastAccessed": 1777125636322,
+      "type": "file"
+    },
+    {
+      "path": "src\\hooks\\useProData.js",
+      "accessCount": 4,
+      "lastAccessed": 1777124297334,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\AromaProfileBars.jsx",
+      "accessCount": 4,
+      "lastAccessed": 1777128031730,
+      "type": "file"
+    },
+    {
+      "path": "COCKTAIL_CODEX_NEEDS.md",
+      "accessCount": 4,
+      "lastAccessed": 1777145605124,
+      "type": "file"
+    },
+    {
+      "path": "proDataset\\scripts\\run-all.js",
+      "accessCount": 4,
+      "lastAccessed": 1777146515651,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\CocktailDetailPanel.jsx",
+      "accessCount": 4,
+      "lastAccessed": 1777150973792,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\cocktailCodex.js",
+      "accessCount": 4,
+      "lastAccessed": 1777151656247,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\SearchBar.jsx",
+      "accessCount": 3,
+      "lastAccessed": 1777124285347,
+      "type": "directory"
+    },
+    {
+      "path": "src\\data\\labClusterBlend.js",
+      "accessCount": 3,
+      "lastAccessed": 1777137039265,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\sauceCodex.js",
+      "accessCount": 3,
+      "lastAccessed": 1777153558053,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\recipeSuggestionEngine.js",
+      "accessCount": 2,
+      "lastAccessed": 1777123374530,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\recipeScoring.js",
+      "accessCount": 2,
+      "lastAccessed": 1777125575685,
+      "type": "file"
+    },
+    {
+      "path": "src\\components",
+      "accessCount": 2,
+      "lastAccessed": 1777126586589,
+      "type": "directory"
+    },
+    {
+      "path": "src\\three\\AxisLabels.js",
+      "accessCount": 2,
+      "lastAccessed": 1777134901632,
+      "type": "file"
+    },
+    {
+      "path": "src\\three\\NodeMesh.js",
+      "accessCount": 2,
+      "lastAccessed": 1777136820914,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\NetworkScene.jsx",
+      "accessCount": 2,
+      "lastAccessed": 1777148565803,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\RecipeLab.jsx",
+      "accessCount": 2,
+      "lastAccessed": 1777152408712,
+      "type": "file"
+    },
+    {
+      "path": "proDataset\\scripts\\05-blend.js",
+      "accessCount": 1,
+      "lastAccessed": 1777123011583,
+      "type": "file"
+    },
+    {
+      "path": "proDataset\\config.js",
+      "accessCount": 1,
+      "lastAccessed": 1777123017472,
+      "type": "file"
+    },
+    {
+      "path": "proDataset\\utils.js",
+      "accessCount": 1,
+      "lastAccessed": 1777123017823,
+      "type": "file"
+    },
+    {
+      "path": "proDataset\\scripts\\08-derive-recipe-pairs.js",
+      "accessCount": 1,
+      "lastAccessed": 1777123064837,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\TasteWheel.jsx",
+      "accessCount": 1,
+      "lastAccessed": 1777126592044,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\saucePositioning.js",
+      "accessCount": 1,
+      "lastAccessed": 1777129137526,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\sauceData.js",
+      "accessCount": 1,
+      "lastAccessed": 1777129137539,
+      "type": "file"
+    },
+    {
+      "path": "proDataset",
+      "accessCount": 1,
+      "lastAccessed": 1777134629748,
+      "type": "directory"
+    },
+    {
+      "path": "src\\hooks\\useCocktailDB.js",
+      "accessCount": 1,
+      "lastAccessed": 1777134638656,
+      "type": "file"
+    },
+    {
+      "path": "proDataset\\scripts\\04-fetch-cocktaildb.js",
+      "accessCount": 1,
+      "lastAccessed": 1777134639134,
+      "type": "file"
+    },
+    {
+      "path": "proDataset\\scripts\\09-derive-cocktail-clusters.js",
+      "accessCount": 1,
+      "lastAccessed": 1777134770547,
+      "type": "file"
+    },
+    {
+      "path": "proDataset\\scripts\\10-derive-sauce-clusters.js",
+      "accessCount": 1,
+      "lastAccessed": 1777134795208,
+      "type": "file"
+    },
+    {
+      "path": "public\\data\\sauce_clusters.json",
+      "accessCount": 1,
+      "lastAccessed": 1777136985196,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\scher\\Downloads\\image0.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1777139887959,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\scher\\Downloads\\image1.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1777139904390,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\scher\\Downloads\\image2.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1777139908415,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\scher\\Downloads\\image3.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1777139911832,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\scher\\Downloads\\image4.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1777139917190,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\scher\\Downloads\\image5.jpeg",
+      "accessCount": 1,
+      "lastAccessed": 1777139923681,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\cocktailGraph.js",
+      "accessCount": 1,
+      "lastAccessed": 1777146521115,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\LivingArchView.jsx",
+      "accessCount": 1,
+      "lastAccessed": 1777148501336,
+      "type": "directory"
+    },
+    {
+      "path": "public\\data\\cocktail_codex.json",
+      "accessCount": 1,
+      "lastAccessed": 1777151424631,
+      "type": "directory"
+    },
+    {
+      "path": "src\\components\\RecipeLabTemplates.jsx",
+      "accessCount": 1,
+      "lastAccessed": 1777152932411,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\sauceScoring.js",
+      "accessCount": 1,
+      "lastAccessed": 1777152939393,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\SaucePanel.jsx",
+      "accessCount": 1,
+      "lastAccessed": 1777152959839,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\SauceDetailPanel.jsx",
+      "accessCount": 1,
+      "lastAccessed": 1777153369740,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

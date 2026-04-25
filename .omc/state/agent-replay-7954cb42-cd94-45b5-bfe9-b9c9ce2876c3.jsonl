@@ -1,0 +1,10 @@
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"ralph"}
+{"t":0,"agent":"system","event":"mode_change","mode_from":"none","mode_to":"ralph"}
+{"t":0,"agent":"system","event":"skill_invoked","skill_name":"oh-my-claudecode:cancel"}
+{"t":0,"agent":"a69fad0","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"a7bf762","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"a792934","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"a944a57","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"ab8f08a","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"ada25be","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"aa8ee75","agent_type":"unknown","event":"agent_stop","success":true}
