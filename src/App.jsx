@@ -97,17 +97,19 @@ export default function App() {
   const handleModeSelect = useCallback((mode) => {
     writeStartPageFlag();
     setStartPageComplete(true);
-    if (mode === 'discover') {
+    if (mode === 'pairing') {
+      // Pairing model — the 3,913-ingredient network with chemistry-
+      // based clustering. Lands on the Network tab.
       setActiveTab('network');
-    } else if (mode === 'build') {
-      setActiveTab('recipe');
-      setRecipeMounted(true);
-    } else if (mode === 'learn') {
-      // Learn mode: land on the Network tab with HowItWorks pre-opened.
-      // MoleculeOfTheDay and MoleculeLab are being consolidated into the
-      // IngredientPanel per user feedback.
-      setActiveTab('network');
-      setHowItWorksInitialOpen(true);
+    } else if (mode === 'cocktail') {
+      // Cocktail model — the Cocktail Codex view with cocktails as
+      // nodes and 7 super-cluster families. Lazy-mount the lab.
+      setCocktailMounted(true);
+      setActiveTab('cocktail');
+    } else if (mode === 'sauce') {
+      // Sauce model — the 10-mother-family codex with sauces as nodes.
+      setSauceMounted(true);
+      setActiveTab('sauce');
     }
   }, []);
 
