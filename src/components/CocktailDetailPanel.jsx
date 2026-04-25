@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { normalizeIngredient } from '../data/cocktailCodex.js';
 
 /**
  * CocktailDetailPanel — opens when a cocktail node is clicked in the
@@ -27,16 +28,15 @@ export default function CocktailDetailPanel({
 
   function handleOpenInRecipeLab() {
     if (!onOpenRecipeLab) return;
-    // Strip measurements/qualifiers to bare ingredient names, dedupe.
+    // normalizeIngredient strips measurements ("0.75 oz") AND qualifier
+    // words ("Fresh", "Cold", "Dry") so the bowl sees canonical names
+    // that match the ProData pairings index. The inline regex used to
+    // miss qualifier-only forms ("Fresh lemon juice") and stranded the
+    // bowl with strings that had zero pairings.
     const seen = new Set();
     const out = [];
     for (const raw of ingredients) {
-      const cleaned = String(raw)
-        .replace(/^[¼½¾⅓⅔⅛⅜⅝⅞0-9][¼½¾⅓⅔⅛⅜⅝⅞0-9.\s/()-]*\s*(oz|ounce|ounces|cl|ml|dash|dashes|drop|drops|tsp|tbsp|teaspoons?|tablespoons?|parts?|cubes?|splash|sprays?|to taste|pinch|jiggers?|cups?)?\s*/i, '')
-        .replace(/\([^)]*\)/g, '')
-        .replace(/[,;].*$/, '')
-        .trim()
-        .toLowerCase();
+      const cleaned = normalizeIngredient(raw);
       if (cleaned && !seen.has(cleaned)) {
         seen.add(cleaned);
         out.push(cleaned);
