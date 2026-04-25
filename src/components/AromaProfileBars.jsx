@@ -74,7 +74,13 @@ export default function AromaProfileBars({ ingredients = [], nodes, onTapAroma }
                 key={e.key}
                 {...(tappable ? {
                   type: 'button',
-                  onClick: () => onTapAroma(e.key),
+                  // Strip the `odor_` prefix so callers receive the
+                  // short suffix ('fruity', 'woody', ...) — matches
+                  // the SuggestionDrawer's `aroma:<suffix>` tab key
+                  // convention. Without this strip you get a double
+                  // prefix on lookup (`odor_odor_fruity`) and zero
+                  // chips ever match.
+                  onClick: () => onTapAroma(e.key.replace('odor_', '')),
                   title: `Show ingredients with strong ${e.label} aroma`,
                 } : {})}
                 className={`w-full flex items-center gap-2 ${tappable ? 'rounded-sm hover:bg-[#f0e8d0]/60 active:bg-[#f0e8d0] transition-colors px-1 py-0.5 -mx-1' : ''}`}
