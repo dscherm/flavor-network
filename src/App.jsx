@@ -52,6 +52,7 @@ export default function App() {
   const [cocktailMounted, setCocktailMounted] = useState(false);
   const [sauceMounted, setSauceMounted] = useState(false);
   const [recipeMounted, setRecipeMounted] = useState(false);
+  const [recipeInitialMode, setRecipeInitialMode] = useState(null);
   // trainingMounted removed
   const [moleculeLabOpen, setMoleculeLabOpen] = useState(false);
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
@@ -750,8 +751,9 @@ export default function App() {
             fullData={data}
             userProfile={userProfile}
             onSelectionChange={handleLabSelectionChange}
-            onOpenRecipeLab={(_mode, initialIngredients) => {
+            onOpenRecipeLab={(mode, initialIngredients) => {
               setSelectedNodes(Array.isArray(initialIngredients) ? [...initialIngredients] : []);
+              setRecipeInitialMode(mode || null);
               setRecipeMounted(true);
               setActiveTab('recipe');
             }}
@@ -792,6 +794,7 @@ export default function App() {
             fullData={data}
             initialIngredient={selectedNode}
             initialIngredients={selectedNodes}
+            initialMode={recipeInitialMode}
             userProfile={userProfile}
             isMobile={isMobile}
           />

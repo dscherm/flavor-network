@@ -282,14 +282,18 @@ function NetworkScene({
 
     // Animate camera to focus on the centroid of filtered nodes
     if (data && sceneRef.current && treeFilterIngredients.length > 0) {
+      // The Network view stamps node.position3D on each node; lab views
+      // (Cocktail Codex, Sauce Lab) instead carry positions in
+      // data.positions.positions[name]. Read whichever is present so
+      // family-chip clicks land the camera in both places.
+      const posMap = data?.positions?.positions || data?.positions || null;
       let cx = 0, cy = 0, cz = 0, count = 0;
       for (const [name, node] of data.graph.nodes) {
-        if (activeNames.has(name) && node.position3D) {
-          cx += node.position3D[0];
-          cy += node.position3D[1];
-          cz += node.position3D[2];
-          count++;
-        }
+        if (!activeNames.has(name)) continue;
+        const p = node.position3D || (posMap && posMap[name]);
+        if (!p) continue;
+        cx += p[0]; cy += p[1]; cz += p[2];
+        count++;
       }
       if (count > 0) {
         cx /= count; cy /= count; cz /= count;

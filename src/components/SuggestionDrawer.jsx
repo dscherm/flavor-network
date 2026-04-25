@@ -161,6 +161,7 @@ export default function SuggestionDrawer({
   nodes,
   edges,
   onAddIngredient,
+  onSwapIngredient = null,
   activeTab = 'all',
   onTabChange,
   snapState = 'peek',
@@ -170,6 +171,7 @@ export default function SuggestionDrawer({
   bridgeCompounds,
   recipePairs = null,
   globalCount = null,
+  defaultFilterMode = null,   // 'taste' | 'aroma' | 'cuisine' | 'replace'
 }) {
   const sheetRef = useRef(null);
   const dragRef = useRef({ startY: 0, startHeight: 0, dragging: false });
@@ -177,7 +179,16 @@ export default function SuggestionDrawer({
   const [suggestion, setSuggestion] = useState(null);
   // Scaffolded filter surface: show ONE filter class at a time (taste OR
   // cuisine) rather than both in one long strip — avoids overwhelming.
-  const [filterMode, setFilterMode] = useState('taste');
+  // defaultFilterMode lets the entry point (e.g. cocktail → "Open in
+  // Recipe Lab") drop the user straight into Replace mode.
+  const [filterMode, setFilterMode] = useState(defaultFilterMode || 'taste');
+
+  // When the entry point changes the requested initial mode (e.g. user
+  // navigates from a different cocktail), honor it once.
+  useEffect(() => {
+    if (defaultFilterMode) setFilterMode(defaultFilterMode);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultFilterMode]);
 
   // If the user switches modes, drop them back to "all" so stale taste
   // selection doesn't hide cuisine-filtered results, and vice versa.
@@ -401,6 +412,26 @@ export default function SuggestionDrawer({
     }
   }, [recipeIngredients, nodes, edges, labMode, selectedStructure]);
 
+  // Replace-mode sections: for each bowl ingredient, top pairings that
+  // aren't already in the bowl. Each section is one "box" showing what
+  // could substitute for that ingredient. Click → swap.
+  const replaceSections = useMemo(() => {
+    if (!edges || recipeIngredients.length === 0) return [];
+    const bowlSet = new Set(recipeIngredients);
+    return recipeIngredients.map(ing => {
+      const neighbors = getNeighbors(ing, edges)
+        .filter(n => !bowlSet.has(n.name))
+        .slice(0, 8)
+        .map(n => {
+          const node = nodes?.get(n.name);
+          const taste = getDominantTaste(n.name, node);
+          const tasteLabels = getTasteLabels(n.name, node);
+          return { name: n.name, strength: n.strength, taste, tasteLabels, inRecipe: false, matchPct: Math.round(n.strength * 100) };
+        });
+      return { ingredient: ing, alternatives: neighbors };
+    });
+  }, [recipeIngredients, edges, nodes]);
+
   // Cuisines that any pairing chip actually has — avoids empty tabs.
   const cuisineOptions = useMemo(() => {
     if (!nodes || chipData.length === 0) return [];
@@ -479,9 +510,11 @@ export default function SuggestionDrawer({
         </div>
       </div>
 
-      {/* Filter-mode toggle (Taste / Aroma / Cuisine) — show one
+      {/* Filter-mode toggle (Taste / Aroma / Cuisine / Replace) — show one
           flavor-axis class at a time. Cuisine mode is hidden when
-          no chip carries a cuisine tag (most ingredients). */}
+          no chip carries a cuisine tag (most ingredients). Replace
+          mode shows per-bowl-ingredient swap candidates and only
+          appears when there's something in the bowl. */}
       {snapState !== 'peek' && (
         <div className="flex-shrink-0 px-2 pb-1 flex items-center gap-1.5">
           <span className="text-[10px] uppercase tracking-wider" style={{ color: '#a09070', fontFamily: FONT_FAMILY }}>Filter by</span>
@@ -489,6 +522,7 @@ export default function SuggestionDrawer({
             { k: 'taste', label: 'Taste' },
             { k: 'aroma', label: 'Aroma' },
             ...(cuisineOptions.length > 0 ? [{ k: 'cuisine', label: 'Cuisine' }] : []),
+            ...(recipeIngredients.length > 0 ? [{ k: 'replace', label: 'Replace' }] : []),
           ].map(({ k, label }) => (
             <button
               key={k}
@@ -505,8 +539,9 @@ export default function SuggestionDrawer({
         </div>
       )}
 
-      {/* Active-mode tab strip */}
-      {snapState !== 'peek' && (
+      {/* Active-mode tab strip — hidden in Replace mode (sections are
+          grouped by ingredient instead of by filter). */}
+      {snapState !== 'peek' && filterMode !== 'replace' && (
         <div className="flex-shrink-0 overflow-x-auto px-2 pb-1" style={{ scrollbarWidth: 'none' }}>
           <div className="flex gap-1 min-w-max">
             {tabs.map(t => {
@@ -541,20 +576,65 @@ export default function SuggestionDrawer({
       {/* Ingredient chips grid */}
       {snapState !== 'peek' && (
         <div className="flex-1 overflow-y-auto px-2 pb-2">
-          {!centerIngredient && (
+          {!centerIngredient && filterMode !== 'replace' && (
             <p className="text-center text-sm py-4" style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}>
               Search to get started
             </p>
           )}
 
-          <div className="grid grid-cols-2 gap-1.5">
-            {filteredChips.map(chip => (
-              <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} centerIngredient={centerIngredient} bridgeCompounds={bridgeCompounds} />
-            ))}
-          </div>
+          {filterMode === 'replace' ? (
+            <div className="space-y-3">
+              {replaceSections.length === 0 && (
+                <p className="text-center text-sm py-4" style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}>
+                  Add ingredients to the bowl to see replacement options.
+                </p>
+              )}
+              {replaceSections.map(section => (
+                <div
+                  key={section.ingredient}
+                  className="rounded-lg border-2 border-[#d8cca8] bg-[#f8f1d6] p-2"
+                >
+                  <div className="flex items-center justify-between mb-1.5 px-1">
+                    <span className="text-xs uppercase tracking-wider" style={{ color: '#7a6a4a', fontFamily: FONT_FAMILY }}>
+                      Replace
+                    </span>
+                    <span className="text-sm font-medium truncate ml-2" style={{ color: '#3a3428', fontFamily: FONT_FAMILY }}>
+                      {section.ingredient}
+                    </span>
+                  </div>
+                  {section.alternatives.length === 0 ? (
+                    <p className="text-xs px-1 py-2" style={{ color: '#a09070', fontFamily: FONT_FAMILY }}>
+                      No alternatives found.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {section.alternatives.map(chip => (
+                        <ChipButton
+                          key={chip.name}
+                          chip={chip}
+                          onAdd={(name) => {
+                            if (onSwapIngredient) onSwapIngredient(section.ingredient, name);
+                            else onAddIngredient(name);
+                          }}
+                          centerIngredient={section.ingredient}
+                          bridgeCompounds={bridgeCompounds}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-1.5">
+              {filteredChips.map(chip => (
+                <ChipButton key={chip.name} chip={chip} onAdd={onAddIngredient} centerIngredient={centerIngredient} bridgeCompounds={bridgeCompounds} />
+              ))}
+            </div>
+          )}
 
           {/* Complements section — cross-taste high-strength pairings */}
-          {complementChips.length > 0 && (
+          {filterMode !== 'replace' && complementChips.length > 0 && (
             <>
               <div className="flex items-center gap-2 mt-3 mb-1.5 px-1">
                 <div className="flex-1 h-px" style={{ backgroundColor: '#d8cca8' }} />
