@@ -232,28 +232,30 @@ export async function loadSauceCodex(basePath = '/data') {
 
 /**
  * Position sauces in 3D: family centroids ride a circle in the X-Z
- * plane, individual sauces scatter in a small ball around their
- * family centroid (root sauces sit AT the centroid).
+ * plane; within each family, sauces are sub-grouped by cuisine and
+ * each cuisine sits at its own offset around the family centroid.
+ * Roots (eponymous mother sauces) sit AT the family centroid.
  *
- * Mirrors `computeCodexPositions` from cocktailCodex.js — same radii
- * as the cocktail scene so the two labs feel consistent.
+ * Mirrors `computeCodexPositions` from cocktailCodex.js but uses
+ * cuisine instead of explicit subcluster_id since sauce_augment.json
+ * doesn't ship a subcluster taxonomy.
  *
  * @param {Map} nodes - sauce nodes
  * @param {Array} clusters - codex.clusters [{id, name, color}]
  * @returns {Object} { positions: { [name]: [x, y, z] } }
  */
 export function computeSauceCodexPositions(nodes, clusters) {
-  const FAMILY_RADIUS = 60;
-  // Scatter scales with family size — 4-sauce families stay tight, 13-sauce
-  // families (Salsa, Stir-fry) fan out so individual nodes stay legible.
-  const BASE_SCATTER = 6;
-  const sizes = new Map();
-  for (const n of nodes.values()) {
-    sizes.set(n.family_id, (sizes.get(n.family_id) || 0) + 1);
-  }
-  function scatterFor(famId) {
-    const k = sizes.get(famId) || 1;
-    return BASE_SCATTER + Math.max(0, Math.sqrt(k - 4)) * 2.5; // ~6 at k=4, ~13.5 at k=13
+  // Tightened layout — was 60/6, families read as too far apart with
+  // no useful detail in between. New numbers cluster the families
+  // closer together so the codex reads as one body, not 10 islands.
+  const FAMILY_RADIUS = 36;
+  const SUBCLUSTER_RADIUS = 7;  // distance from family centroid to cuisine sub-centroid
+  const BASE_SCATTER = 3.5;     // jitter inside each cuisine pod
+
+  // Scatter scales with cuisine size — a single-sauce cuisine sits
+  // exactly on its sub-centroid; an 8-sauce cuisine fans out a bit.
+  function scatterFor(k) {
+    return BASE_SCATTER + Math.max(0, Math.sqrt(k - 1)) * 1.5;
   }
 
   // Family centroids on a circle, evenly spaced.
@@ -267,6 +269,39 @@ export function computeSauceCodexPositions(nodes, clusters) {
     ]);
   }
 
+  // Group sauces by family → cuisine. Build cuisine sub-centroids
+  // for each family — they ring the family centroid in the X-Z
+  // plane with a slight Y wobble so the cuisines feel layered.
+  const cuisineGroups = new Map(); // famId → Map<cuisine, sauceNames[]>
+  for (const [name, n] of nodes) {
+    const cuisine = n.cuisine || 'Other';
+    if (!cuisineGroups.has(n.family_id)) cuisineGroups.set(n.family_id, new Map());
+    const fam = cuisineGroups.get(n.family_id);
+    if (!fam.has(cuisine)) fam.set(cuisine, []);
+    fam.get(cuisine).push(name);
+  }
+
+  // Compute sub-centroids: { famId, cuisine } → [x, y, z].
+  const subCenter = new Map();
+  for (const [famId, cuisineMap] of cuisineGroups) {
+    const fc = familyCenter.get(famId);
+    if (!fc) continue;
+    const cuisines = [...cuisineMap.keys()];
+    if (cuisines.length === 1) {
+      // Single cuisine — sub-centroid IS the family centroid (no offset).
+      subCenter.set(`${famId}|${cuisines[0]}`, [...fc]);
+      continue;
+    }
+    for (let i = 0; i < cuisines.length; i++) {
+      const angle = (i / cuisines.length) * Math.PI * 2;
+      subCenter.set(`${famId}|${cuisines[i]}`, [
+        fc[0] + Math.cos(angle) * SUBCLUSTER_RADIUS,
+        fc[1] + Math.sin(i * 1.7) * 2.5,  // gentle Y wobble per cuisine
+        fc[2] + Math.sin(angle) * SUBCLUSTER_RADIUS,
+      ]);
+    }
+  }
+
   function hash(s) {
     let h = 2166136261;
     for (const c of s) h = (h ^ c.charCodeAt(0)) * 16777619;
@@ -277,17 +312,21 @@ export function computeSauceCodexPositions(nodes, clusters) {
   for (const [name, n] of nodes) {
     const fc = familyCenter.get(n.family_id) || [0, 0, 0];
     if (n.isRoot) {
+      // Mother sauce sits AT the family centroid regardless of cuisine.
       positions[name] = [...fc];
       continue;
     }
-    const s = scatterFor(n.family_id);
+    const cuisine = n.cuisine || 'Other';
+    const sc = subCenter.get(`${n.family_id}|${cuisine}`) || fc;
+    const k = cuisineGroups.get(n.family_id)?.get(cuisine)?.length || 1;
+    const s = scatterFor(k);
     const h1 = hash(name);
     const h2 = hash(name + 'y');
     const h3 = hash(name + 'z');
     positions[name] = [
-      fc[0] + (h1 - 0.5) * s * 2,
-      fc[1] + (h2 - 0.5) * s * 2,
-      fc[2] + (h3 - 0.5) * s * 2,
+      sc[0] + (h1 - 0.5) * s * 2,
+      sc[1] + (h2 - 0.5) * s * 2,
+      sc[2] + (h3 - 0.5) * s * 2,
     ];
   }
 

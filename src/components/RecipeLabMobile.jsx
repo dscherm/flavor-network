@@ -37,6 +37,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   // suggestion chips (with inline swap targets) right away.
   const [drawerSnap, setDrawerSnap] = useState(initialMode === 'cocktail' ? 'half' : 'peek');
   const [activeTab, setActiveTab] = useState('all');
+  // Transient handoff confirmation — fires when an explicit handoff
+  // replaces the bowl, so the user understands their previous recipe
+  // was cleared on purpose (and isn't lost to a bug).
+  const [handoffToast, setHandoffToast] = useState(null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,7 +70,19 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       ? [...new Set(handoff.ingredients)]
       : [];
     if (incoming.length === 0) return;
-    setRecipeIngredients(incoming);
+    // Capture the previous bowl size BEFORE we replace, so the toast
+    // can tell the user how many ingredients were cleared.
+    setRecipeIngredients(prev => {
+      const cleared = prev.length;
+      const sourceLabel = handoff.mode === 'cocktail' ? 'cocktail'
+                        : handoff.mode === 'sauce' ? 'sauce'
+                        : 'recipe';
+      const msg = cleared > 0
+        ? `Loaded ${incoming.length} ingredients from ${sourceLabel} — previous ${cleared} cleared`
+        : `Loaded ${incoming.length} ingredients from ${sourceLabel}`;
+      setHandoffToast(msg);
+      return incoming;
+    });
     setCenterIngredient(incoming[0]);
     setRecipeTitle('');
     setSelectedStructure(null);
@@ -75,6 +91,13 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     if (handoff.mode === 'cocktail') setLabMode('cocktail');
     else if (handoff.mode === 'sauce') setLabMode('sauce');
   }, [handoff?.ts]);
+
+  // Auto-clear the handoff toast after 2.5s.
+  useEffect(() => {
+    if (!handoffToast) return;
+    const t = setTimeout(() => setHandoffToast(null), 2500);
+    return () => clearTimeout(t);
+  }, [handoffToast]);
 
   // Scope sets (cocktail / sauce) — lazy-loaded once, cached across mode switches.
   const [cocktailScope, setCocktailScope] = useState(null);
@@ -236,6 +259,26 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       className="fixed inset-0 pt-10 flex flex-col"
       style={{ backgroundColor: '#fefae0' }}
     >
+      {/* Handoff confirmation toast — fades in/out top-center after
+          a Cocktail / Sauce / Build-Recipe handoff replaces the bowl. */}
+      {handoffToast && (
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-[70] px-3 py-1.5 text-sm rounded-full shadow-lg pointer-events-none"
+          style={{
+            top: 'calc(var(--nav-h, 40px) + 12px)',
+            backgroundColor: '#3a3428',
+            color: '#fefae0',
+            fontFamily: FONT_FAMILY,
+            animation: 'fn-toast-in 240ms ease-out',
+            maxWidth: '90vw',
+          }}
+          role="status"
+          aria-live="polite"
+        >
+          {handoffToast}
+        </div>
+      )}
+      <style>{`@keyframes fn-toast-in { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }`}</style>
       {/* Mode tabs — full-width strip under the top nav so they're obvious
           on mobile. User previously missed the corner-tucked tabs. */}
       <div className="relative z-20 mx-2 mt-1 mb-2 flex items-center gap-1 p-1 rounded-lg border border-[#c9b99a] bg-[#f5edd0]">
