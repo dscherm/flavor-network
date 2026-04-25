@@ -199,9 +199,13 @@ export async function loadCocktailCodex(basePath = '/data') {
  * @returns {Object} { positions: { [name]: [x, y, z] } }
  */
 export function computeCodexPositions(nodes, clusters) {
-  const FAMILY_RADIUS = 60;     // distance from origin to family centroid
-  const SUBCLUSTER_RADIUS = 14; // distance from family to subcluster
-  const SCATTER = 4;            // jitter around subcluster center
+  // Tightened layout — was 60/14/4. The previous radii spread the
+  // 7 families so far apart that the camera framed mostly empty
+  // space between them. New numbers cluster the codex into a single
+  // readable body.
+  const FAMILY_RADIUS = 36;
+  const SUBCLUSTER_RADIUS = 8;
+  const SCATTER = 3;
 
   // Family centroids on a circle. Syrups (family 6) tucked at the top.
   const nonSyrup = clusters.filter(c => c.id !== 6);

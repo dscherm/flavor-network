@@ -572,20 +572,26 @@
     },
     {
       "path": "src\\components\\RecipeLabMobile.jsx",
-      "accessCount": 37,
-      "lastAccessed": 1777152430980,
+      "accessCount": 40,
+      "lastAccessed": 1777154948044,
       "type": "directory"
     },
     {
       "path": "src\\App.jsx",
-      "accessCount": 18,
-      "lastAccessed": 1777152402412,
+      "accessCount": 19,
+      "lastAccessed": 1777153960685,
       "type": "directory"
     },
     {
       "path": "src\\components\\CocktailLab.jsx",
       "accessCount": 14,
       "lastAccessed": 1777152932187,
+      "type": "directory"
+    },
+    {
+      "path": "src",
+      "accessCount": 13,
+      "lastAccessed": 1777154822457,
       "type": "directory"
     },
     {
@@ -601,15 +607,15 @@
       "type": "directory"
     },
     {
-      "path": "src",
-      "accessCount": 10,
-      "lastAccessed": 1777153422331,
-      "type": "directory"
-    },
-    {
       "path": "src\\components\\IngredientPanel.jsx",
       "accessCount": 9,
       "lastAccessed": 1777125636322,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\cocktailCodex.js",
+      "accessCount": 5,
+      "lastAccessed": 1777154868280,
       "type": "file"
     },
     {
@@ -643,9 +649,9 @@
       "type": "file"
     },
     {
-      "path": "src\\data\\cocktailCodex.js",
+      "path": "src\\data\\sauceCodex.js",
       "accessCount": 4,
-      "lastAccessed": 1777151656247,
+      "lastAccessed": 1777154860072,
       "type": "file"
     },
     {
@@ -658,12 +664,6 @@
       "path": "src\\data\\labClusterBlend.js",
       "accessCount": 3,
       "lastAccessed": 1777137039265,
-      "type": "file"
-    },
-    {
-      "path": "src\\data\\sauceCodex.js",
-      "accessCount": 3,
-      "lastAccessed": 1777153558053,
       "type": "file"
     },
     {
@@ -706,6 +706,12 @@
       "path": "src\\components\\RecipeLab.jsx",
       "accessCount": 2,
       "lastAccessed": 1777152408712,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\sauceScoring.js",
+      "accessCount": 2,
+      "lastAccessed": 1777154913979,
       "type": "file"
     },
     {
@@ -844,12 +850,6 @@
       "path": "src\\components\\RecipeLabTemplates.jsx",
       "accessCount": 1,
       "lastAccessed": 1777152932411,
-      "type": "file"
-    },
-    {
-      "path": "src\\data\\sauceScoring.js",
-      "accessCount": 1,
-      "lastAccessed": 1777152939393,
       "type": "file"
     },
     {
