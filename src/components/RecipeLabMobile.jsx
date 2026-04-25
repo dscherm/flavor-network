@@ -18,7 +18,7 @@ const FONT_FAMILY = 'Caveat, cursive';
  *   2. Recipe Notebook (middle) — scrollable ingredient list
  *   3. Suggestion Drawer (bottom) — pull-up sheet with taste tabs + chips
  */
-export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, userProfile }) {
+export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, userProfile }) {
   const [labMode, setLabMode] = useState('taste');
   // Seed with the full set of selected ingredients when present — fixes
   // the "Build Recipe" button previously losing all but the first.
@@ -29,7 +29,9 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [recipeIngredients, setRecipeIngredients] = useState(initialSeed);
   const [recipeTitle, setRecipeTitle] = useState('');
   const [selectedStructure, setSelectedStructure] = useState(null);
-  const [drawerSnap, setDrawerSnap] = useState('peek');
+  // Replace-mode entry from a cocktail should pop the drawer open; the
+  // default 'peek' state would hide every replacement section.
+  const [drawerSnap, setDrawerSnap] = useState(initialMode === 'replace' ? 'half' : 'peek');
   const [activeTab, setActiveTab] = useState('all');
 
   // Search state
@@ -184,6 +186,23 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       if (remaining.length === 0) setDrawerSnap('peek');
     }
   }, [centerIngredient, recipeIngredients]);
+
+  // Swap one bowl ingredient for another in a single edit. Used by the
+  // SuggestionDrawer's Replace mode (entered from a cocktail's "Open in
+  // Recipe Lab" button) so the user can experiment with substitutions
+  // without manually removing the original.
+  const handleSwapIngredient = useCallback((oldName, newName) => {
+    if (!oldName || !newName) return;
+    setRecipeIngredients(prev => {
+      const idx = prev.indexOf(oldName);
+      if (idx === -1) return prev.includes(newName) ? prev : [...prev, newName];
+      const next = [...prev];
+      if (prev.includes(newName)) next.splice(idx, 1);
+      else next[idx] = newName;
+      return next;
+    });
+    if (oldName === centerIngredient) setCenterIngredient(newName);
+  }, [centerIngredient]);
 
   const handleRecenter = useCallback((name) => {
     setCenterIngredient(name);
@@ -350,6 +369,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         nodes={fullData?.graph?.nodes}
         edges={fullData?.graph?.edges}
         onAddIngredient={handleAddIngredient}
+        onSwapIngredient={handleSwapIngredient}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         snapState={drawerSnap}
@@ -359,6 +379,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         bridgeCompounds={fullData?.bridgeCompounds}
         recipePairs={fullData?.recipePairs}
         globalCount={fullData?.globalCount}
+        defaultFilterMode={initialMode === 'replace' ? 'replace' : null}
       />
     </div>
   );

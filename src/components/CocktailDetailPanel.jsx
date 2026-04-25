@@ -1,45 +1,49 @@
-import { useState, useMemo } from 'react';
-import { normalizeIngredient } from '../data/cocktailCodex.js';
+import { useState } from 'react';
 
 /**
  * CocktailDetailPanel — opens when a cocktail node is clicked in the
- * Cocktail Lab. Three tabs:
- *   - Ingredients:   the recipe text + garnishes
- *   - Cocktails like this: top Jaccard-similar cocktails (within family + cross-family)
- *   - Swap an ingredient: for each ingredient, top ProData pairings to
- *     suggest substitutions for experimentation
+ * Cocktail Lab. Two tabs:
+ *   - Ingredients: the recipe text + garnishes, plus a "Recipe Lab"
+ *     button that hands the cocktail's ingredients off to the Recipe
+ *     Lab where per-ingredient replacement suggestions live.
+ *   - Similar: top Jaccard-similar cocktails within the codex.
  */
 export default function CocktailDetailPanel({
-  cocktail,                  // codex node {name, ingredients, garnishes, family_id, subcluster_id, isRoot, ...}
-  family,                    // {id, name, color}
-  subclusterLabel,           // string
-  similarCocktails,          // [{ name, similarity, family_id, color }]
-  ingredientPairings,        // Map<normalizedIngredient, Array<{name, strength}>> — top neighbors from ProData
-  onSelectCocktail,          // (name) => void
+  cocktail,
+  family,
+  subclusterLabel,
+  similarCocktails,
+  onSelectCocktail,
+  onOpenRecipeLab,        // (ingredients[]) => void
   onClose,
 }) {
   const [tab, setTab] = useState('ingredients');
   const [collapsed, setCollapsed] = useState(false);
 
-  const ingredients = cocktail?.ingredients || [];
-  const garnishes = cocktail?.garnishes || [];
-
-  const swapEntries = useMemo(() => {
-    if (!ingredientPairings) return [];
-    return ingredients
-      .map(raw => ({
-        original: raw,
-        normalized: normalizeIngredient(raw),
-      }))
-      .filter(e => e.normalized && ingredientPairings.has(e.normalized))
-      .map(e => ({
-        ...e,
-        pairings: (ingredientPairings.get(e.normalized) || []).slice(0, 5),
-      }))
-      .filter(e => e.pairings.length > 0);
-  }, [ingredients, ingredientPairings]);
-
   if (!cocktail) return null;
+
+  const ingredients = cocktail.ingredients || [];
+  const garnishes = cocktail.garnishes || [];
+
+  function handleOpenInRecipeLab() {
+    if (!onOpenRecipeLab) return;
+    // Strip measurements/qualifiers to bare ingredient names, dedupe.
+    const seen = new Set();
+    const out = [];
+    for (const raw of ingredients) {
+      const cleaned = String(raw)
+        .replace(/^[¼½¾⅓⅔⅛⅜⅝⅞0-9][¼½¾⅓⅔⅛⅜⅝⅞0-9.\s/()-]*\s*(oz|ounce|ounces|cl|ml|dash|dashes|drop|drops|tsp|tbsp|teaspoons?|tablespoons?|parts?|cubes?|splash|sprays?|to taste|pinch|jiggers?|cups?)?\s*/i, '')
+        .replace(/\([^)]*\)/g, '')
+        .replace(/[,;].*$/, '')
+        .trim()
+        .toLowerCase();
+      if (cleaned && !seen.has(cleaned)) {
+        seen.add(cleaned);
+        out.push(cleaned);
+      }
+    }
+    onOpenRecipeLab('replace', out);
+  }
 
   return (
     <div
@@ -49,7 +53,6 @@ export default function CocktailDetailPanel({
         transition: 'transform 240ms ease',
       }}
     >
-      {/* Snap tab on the left edge so the panel docks like the existing IngredientPanel */}
       <button
         onClick={() => setCollapsed(c => !c)}
         className="self-center bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-r-0 rounded-l-lg px-1.5 py-3 pointer-events-auto"
@@ -95,7 +98,6 @@ export default function CocktailDetailPanel({
             {[
               { id: 'ingredients', label: 'Ingredients' },
               { id: 'similar',     label: 'Similar' },
-              { id: 'swap',        label: 'Swap' },
             ].map(t => (
               <button
                 key={t.id}
@@ -131,6 +133,7 @@ export default function CocktailDetailPanel({
                   ))}
                 </ul>
               </section>
+
               {garnishes.length > 0 && (
                 <section className="pt-2 border-t border-[#1e1e2e]">
                   <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-1.5">
@@ -144,6 +147,21 @@ export default function CocktailDetailPanel({
                     ))}
                   </ul>
                 </section>
+              )}
+
+              {/* Hand-off to Recipe Lab — that's where per-ingredient
+                  replacement suggestions live now. */}
+              {ingredients.length > 0 && onOpenRecipeLab && (
+                <button
+                  onClick={handleOpenInRecipeLab}
+                  className="w-full mt-2 px-3 py-2 text-[12px] font-medium text-purple-100 bg-purple-500/20 hover:bg-purple-500/30 ring-1 ring-purple-500/40 hover:ring-purple-400/60 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  title="Load this cocktail's ingredients into the Recipe Lab and explore replacements per ingredient"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  Open in Recipe Lab
+                </button>
               )}
             </div>
           )}
@@ -173,37 +191,6 @@ export default function CocktailDetailPanel({
                     {Math.round(sim.similarity * 100)}%
                   </span>
                 </button>
-              ))}
-            </div>
-          )}
-
-          {tab === 'swap' && (
-            <div className="space-y-3">
-              <p className="text-[10px] text-gray-500 leading-snug">
-                For each ingredient, top ProData pairings — swap one in to
-                experiment with a new flavor profile.
-              </p>
-              {swapEntries.length === 0 && (
-                <p className="text-[12px] text-gray-500 italic">
-                  No pairings found for this recipe's ingredients in the dataset.
-                </p>
-              )}
-              {swapEntries.map(entry => (
-                <section key={entry.normalized}>
-                  <p className="text-[11px] text-gray-300 mb-1">
-                    <span className="text-gray-500">Replace:</span> {entry.original}
-                  </p>
-                  <ul className="pl-3 space-y-0.5 border-l border-[#1e1e2e]">
-                    {entry.pairings.map(p => (
-                      <li key={p.name} className="text-[11px] text-gray-400 flex items-center justify-between">
-                        <span className="truncate">{p.name}</span>
-                        <span className="text-[9px] text-gray-600 ml-2">
-                          {p.strength.toFixed(2)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
               ))}
             </div>
           )}

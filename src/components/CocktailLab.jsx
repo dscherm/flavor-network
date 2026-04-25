@@ -5,10 +5,8 @@ import CocktailDetailPanel from './CocktailDetailPanel.jsx';
 import {
   loadCocktailCodex,
   computeCodexPositions,
-  normalizeIngredient,
 } from '../data/cocktailCodex.js';
 import { createClusterLabels } from '../three/AxisLabels.js';
-import { getNeighbors } from '../data/graph.js';
 
 /**
  * CocktailLab — Codex view. Each NODE is a cocktail, grouped into the
@@ -19,7 +17,7 @@ import { getNeighbors } from '../data/graph.js';
  * Click a cocktail → detail panel with three tabs (Ingredients,
  * Cocktails like this, Swap an ingredient) for experimentation.
  */
-export default function CocktailLab({ fullData, onSelectionChange }) {
+export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeLab }) {
   const [codexData, setCodexData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -81,27 +79,6 @@ export default function CocktailLab({ fullData, onSelectionChange }) {
   useEffect(() => {
     if (onSelectionChange) onSelectionChange(selectedCocktail ? [selectedCocktail] : []);
   }, [selectedCocktail, onSelectionChange]);
-
-  // Build pairing lookup once, per-cocktail demand: for each ingredient
-  // in the selected cocktail, fetch top ProData neighbors so the Swap
-  // tab can suggest substitutions. Reuses the full ingredient pairings
-  // graph passed in via fullData.
-  const ingredientPairings = useMemo(() => {
-    if (!selectedCocktail || !codexData || !fullData?.graph?.edges) return new Map();
-    const cocktail = codexData.graph.nodes.get(selectedCocktail);
-    if (!cocktail) return new Map();
-    const map = new Map();
-    for (const ing of cocktail.ingredients || []) {
-      const key = normalizeIngredient(ing);
-      if (!key || map.has(key)) continue;
-      // pairings.json keys are lowercase, this matches
-      const neighbors = getNeighbors(key, fullData.graph.edges);
-      if (neighbors.length > 0) {
-        map.set(key, neighbors.slice(0, 8));
-      }
-    }
-    return map;
-  }, [selectedCocktail, codexData, fullData]);
 
   // Similar cocktails by Jaccard edge weight.
   const similarCocktails = useMemo(() => {
@@ -215,8 +192,8 @@ export default function CocktailLab({ fullData, onSelectionChange }) {
           family={familyForSelected}
           subclusterLabel={subclusterLabelForSelected}
           similarCocktails={similarCocktails}
-          ingredientPairings={ingredientPairings}
           onSelectCocktail={(name) => setSelectedCocktail(name)}
+          onOpenRecipeLab={onOpenRecipeLab}
           onClose={() => setSelectedCocktail(null)}
         />
       )}
