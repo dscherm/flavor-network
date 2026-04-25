@@ -13,6 +13,8 @@ import {
   computeClusterCentroids,
   applyClusterBlend,
   spreadCentroidsOnCircle,
+  propagateClustersFromNeighbors,
+  attachClusterColors,
 } from '../data/labClusterBlend.js';
 
 /**
@@ -72,20 +74,22 @@ export default function SauceLab({ fullData, userProfile, onSelectionChange, onO
         let clusterMeta = null;
         if (clusterRes && clusterRes.ok) {
           const clData = await clusterRes.json();
-          const ingredientClusters = clData.ingredient_clusters || {};
+          const ingredientClusters = { ...(clData.ingredient_clusters || {}) };
+          const clusters = clData.clusters || [];
+          // Fill in unclustered ingredients via neighbor majority vote.
+          // The build-time classifier only sees ingredients in the 25
+          // classified mother-sauce recipes; everything else (most of the
+          // sauce graph) needs to inherit a family from its strongest
+          // neighbors so the cloud is contiguous, not spotty.
+          propagateClustersFromNeighbors(ingredientClusters, graph.edges, clusters);
           const rawCentroids = computeClusterCentroids(posMap, ingredientClusters);
-          const spread = spreadCentroidsOnCircle(rawCentroids, clData.clusters || [], 38);
+          const spread = spreadCentroidsOnCircle(rawCentroids, clusters, 38);
           applyClusterBlend(posMap, ingredientClusters, spread, 0.7);
-          clusterMeta = { clusters: clData.clusters || [], centroids: spread };
-          // Attach cluster id/label to each node so panels + filters
-          // can read it the same way "Cooks With" does.
-          for (const [name, node] of graph.nodes) {
-            const cl = ingredientClusters[name];
-            if (cl) {
-              node.clusterId = cl.cluster_id;
-              node.clusterLabel = cl.cluster_label;
-            }
-          }
+          // Attach cluster id/label/color to each node. clusterColor is
+          // what NodeMesh.getColorForNode uses to override the default
+          // taste palette so the family cloud is visually obvious.
+          attachClusterColors(graph.nodes, ingredientClusters, clusters);
+          clusterMeta = { clusters, centroids: spread };
         }
 
         const positions = { positions: posMap };

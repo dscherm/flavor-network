@@ -86,6 +86,13 @@ function _applyUncertainty(baseColor, node) {
 
 function getColorForNode(node) {
   let base;
+  // Highest priority: explicit cluster color set by the lab views (Cocktail
+  // Codex family, Mother Sauce family). When present, this overrides
+  // taste/cuisine so the cluster cloud is visually obvious.
+  if (node?.clusterColor) {
+    base = new Color(node.clusterColor);
+    return _applyUncertainty(base, node);
+  }
   // Primary: color by taste profile — supports multi-taste blending
   const taste = (node.taste || '').toLowerCase().trim();
   if (taste) {
