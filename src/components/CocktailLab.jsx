@@ -13,6 +13,8 @@ import {
   computeClusterCentroids,
   applyClusterBlend,
   spreadCentroidsOnCircle,
+  propagateClustersFromNeighbors,
+  attachClusterColors,
 } from '../data/labClusterBlend.js';
 
 /**
@@ -67,18 +69,18 @@ export default function CocktailLab({ fullData, userProfile, onSelectionChange, 
         let clusterMeta = null;
         if (clusterRes && clusterRes.ok) {
           const clData = await clusterRes.json();
-          const ingredientClusters = clData.ingredient_clusters || {};
+          const ingredientClusters = { ...(clData.ingredient_clusters || {}) };
+          const clusters = clData.clusters || [];
+          // Build-time classifier only labels ingredients that show up in
+          // the 426 cached CocktailDB recipes. Everything else inherits
+          // its codex family from its strongest neighbors so the cloud
+          // is contiguous instead of spotty.
+          propagateClustersFromNeighbors(ingredientClusters, graph.edges, clusters);
           const rawCentroids = computeClusterCentroids(posMap, ingredientClusters);
-          const spread = spreadCentroidsOnCircle(rawCentroids, clData.clusters || [], 38);
+          const spread = spreadCentroidsOnCircle(rawCentroids, clusters, 38);
           applyClusterBlend(posMap, ingredientClusters, spread, 0.7);
-          clusterMeta = { clusters: clData.clusters || [], centroids: spread };
-          for (const [name, node] of graph.nodes) {
-            const cl = ingredientClusters[name];
-            if (cl) {
-              node.clusterId = cl.cluster_id;
-              node.clusterLabel = cl.cluster_label;
-            }
-          }
+          attachClusterColors(graph.nodes, ingredientClusters, clusters);
+          clusterMeta = { clusters, centroids: spread };
         }
 
         const positions = { positions: posMap };

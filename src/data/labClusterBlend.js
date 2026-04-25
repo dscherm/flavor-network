@@ -57,6 +57,87 @@ export function applyClusterBlend(positions, ingredientClusters, centroids, alph
 }
 
 /**
+ * Fill in cluster assignments for ingredients the build-time classifier
+ * missed (e.g. an ingredient that didn't appear in any of the 426 cached
+ * CocktailDB recipes). For each unclustered ingredient, look at its
+ * highest-strength neighbors in the lab graph and inherit the most
+ * common cluster among them, weighted by edge strength. Mutates
+ * `ingredientClusters` in place.
+ *
+ * Two-pass: first pass uses only neighbors that already have a cluster
+ * (anchored). Second pass picks up nodes whose neighbors only got
+ * cluster_id from the first pass — keeps propagation deterministic
+ * without runaway chaining.
+ *
+ * @param {Object<string, { cluster_id: number, cluster_label: string }>} ingredientClusters
+ * @param {Array<{ source: string, target: string, strength: number }>} edges
+ * @param {Array<{ id: number, label: string }>} clusters
+ * @returns {number} count of newly assigned ingredients
+ */
+export function propagateClustersFromNeighbors(ingredientClusters, edges, clusters) {
+  const labelById = new Map(clusters.map(c => [c.id, c.label]));
+  const adj = new Map();
+  for (const e of edges) {
+    if (!adj.has(e.source)) adj.set(e.source, []);
+    if (!adj.has(e.target)) adj.set(e.target, []);
+    adj.get(e.source).push({ name: e.target, strength: e.strength });
+    adj.get(e.target).push({ name: e.source, strength: e.strength });
+  }
+
+  let assigned = 0;
+  for (let pass = 0; pass < 2; pass++) {
+    const additions = new Map();
+    for (const [name, neighbors] of adj) {
+      if (ingredientClusters[name]) continue;
+      const votes = new Map();
+      for (const nb of neighbors) {
+        const cl = ingredientClusters[nb.name];
+        if (!cl) continue;
+        votes.set(cl.cluster_id, (votes.get(cl.cluster_id) || 0) + nb.strength);
+      }
+      if (votes.size === 0) continue;
+      let bestId = -1, bestScore = -Infinity;
+      for (const [id, score] of votes) {
+        if (score > bestScore) { bestScore = score; bestId = id; }
+      }
+      additions.set(name, {
+        cluster_id: bestId,
+        cluster_label: labelById.get(bestId) || `Cluster ${bestId}`,
+      });
+    }
+    for (const [name, cl] of additions) {
+      ingredientClusters[name] = cl;
+      assigned++;
+    }
+    if (additions.size === 0) break;
+  }
+  return assigned;
+}
+
+/**
+ * Attach `clusterColor` (and id/label) to each node in a graph nodes
+ * Map so NodeMesh can color spheres by their cluster family. Without
+ * this, the cluster assignment is invisible — nodes still inherit the
+ * default taste/cuisine palette.
+ *
+ * @param {Map<string, object>} nodes - graph.nodes
+ * @param {Object<string, { cluster_id: number, cluster_label: string }>} ingredientClusters
+ * @param {Array<{ id: number, label: string, color: string }>} clusters
+ */
+export function attachClusterColors(nodes, ingredientClusters, clusters) {
+  const meta = new Map(clusters.map(c => [c.id, c]));
+  for (const [name, node] of nodes) {
+    const cl = ingredientClusters[name];
+    if (!cl) continue;
+    const m = meta.get(cl.cluster_id);
+    if (!m) continue;
+    node.clusterId = cl.cluster_id;
+    node.clusterLabel = cl.cluster_label;
+    node.clusterColor = m.color;
+  }
+}
+
+/**
  * Spread cluster centroids on a circle around the origin so clusters
  * don't overlap when blend alpha is high. Useful when the underlying
  * positions don't already separate clusters spatially (e.g. cocktail
