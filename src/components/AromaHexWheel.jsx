@@ -61,7 +61,10 @@ function generatePencilStrokes(cx, cy, radius, angleStart, angleEnd, intensity, 
 export default function AromaHexWheel({ ingredients = [], nodes, onTapAroma, width = 300 }) {
   const canvasRef = useRef(null);
 
-  const size = Math.min(width - 32, 320);
+  // Compact size — was 320 max → 220 max so the wheel takes less
+  // vertical space in the Recipe Lab and leaves more room for the
+  // notebook + suggestion drawer.
+  const size = Math.min(width - 32, 220);
   const radius = size * 0.36;
   const cx = size / 2;
   const cy = size / 2;
@@ -243,7 +246,7 @@ export default function AromaHexWheel({ ingredients = [], nodes, onTapAroma, wid
         touchAction: 'none',
       }}
     >
-      <div className="flex items-baseline justify-between w-full max-w-[320px] px-2 mb-1">
+      <div className="flex items-baseline justify-between w-full max-w-[240px] px-2 mb-1">
         <h3 className="text-lg sm:text-base" style={{ fontFamily: FONT_FAMILY, color: '#5a4a2a' }}>
           Aroma Profile
         </h3>
