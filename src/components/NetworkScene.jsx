@@ -300,9 +300,32 @@ function NetworkScene({
         const camera = sceneRef.current.getCamera();
         if (camera) {
           const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
-          // Position camera slightly offset from centroid
           const dist = Math.max(30, Math.sqrt(count) * 5);
-          const targetPos = { x: cx + dist * 0.3, y: cy + dist * 0.2, z: cz + dist };
+          // Position the camera along the radial-OUTWARD direction
+          // from the scene origin to the cluster centroid. The cluster
+          // label sprite sits AT the centroid; landing radially outward
+          // puts the label between the camera and the origin so it
+          // reads as "in front of" the cluster every time. The previous
+          // fixed `(+0.3x, +0.2y, +1z)` offset worked for centroids on
+          // the +Z hemisphere but parked the camera between the cluster
+          // and origin (i.e. behind the label) for clusters on the -Z
+          // side of the Fibonacci sphere.
+          const radialLen = Math.hypot(cx, cy, cz);
+          let dirX, dirY, dirZ;
+          if (radialLen > 0.001) {
+            dirX = cx / radialLen;
+            dirY = cy / radialLen;
+            dirZ = cz / radialLen;
+          } else {
+            // Cluster sits at origin — fall back to the old offset.
+            const fb = Math.hypot(0.3, 0.2, 1);
+            dirX = 0.3 / fb; dirY = 0.2 / fb; dirZ = 1 / fb;
+          }
+          const targetPos = {
+            x: cx + dirX * dist,
+            y: cy + dirY * dist,
+            z: cz + dirZ * dist,
+          };
           const duration = 1200;
           const startTime = performance.now();
           function animateFly(now) {
