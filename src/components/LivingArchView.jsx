@@ -1486,7 +1486,40 @@ export default function LivingArchView({
   return (
     <div className="absolute inset-0 pt-10">
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
-      {/* PCA axis labels removed — cluster labels provide enough context */}
+
+      {/* PCA axis labels — only meaningful in flat top-down 2D mode.
+          Each end shows the 3 most-extreme ingredients on that axis,
+          which is the only thing PCA actually optimizes for: directions
+          of maximum variance in the Node2Vec recipe-co-occurrence
+          embedding. Hidden in 3D / taste modes since the camera is
+          orbiting and there's no fixed "left vs right" semantics. */}
+      {mode === 'ml2d' && pcaAxes && (
+        <div className="pointer-events-none absolute inset-0 z-[55]" aria-hidden="true">
+          {/* X axis (low) — left edge, centered vertically */}
+          <div className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 max-w-[35%]">
+            <p className="text-[9px] uppercase tracking-widest text-cyan-400/70 mb-0.5">← X axis</p>
+            <p className="text-xs text-gray-300 leading-tight">{pcaAxes.x.low}</p>
+          </div>
+          {/* X axis (high) — right edge, centered vertically */}
+          <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 max-w-[35%] text-right">
+            <p className="text-[9px] uppercase tracking-widest text-cyan-400/70 mb-0.5">X axis →</p>
+            <p className="text-xs text-gray-300 leading-tight">{pcaAxes.x.high}</p>
+          </div>
+          {/* Y axis (low) — top, centered horizontally. Y in PCA space
+              maps to Z in 3D (camera looks down +Y), so "Y low" sits at
+              top of the screen. */}
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 max-w-[60%] text-center">
+            <p className="text-[9px] uppercase tracking-widest text-cyan-400/70 mb-0.5">↑ Y axis</p>
+            <p className="text-xs text-gray-300 leading-tight">{pcaAxes.y.low}</p>
+          </div>
+          {/* Y axis (high) — bottom, centered. Sits above the mode
+              selector, so we offset by enough to clear it on mobile. */}
+          <div className="absolute bottom-36 sm:bottom-20 left-1/2 -translate-x-1/2 max-w-[60%] text-center">
+            <p className="text-xs text-gray-300 leading-tight">{pcaAxes.y.high}</p>
+            <p className="text-[9px] uppercase tracking-widest text-cyan-400/70 mt-0.5">Y axis ↓</p>
+          </div>
+        </div>
+      )}
 
       {/* 4-way mode selector — bottom center */}
       <div className="absolute bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1 px-2 py-1.5 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
