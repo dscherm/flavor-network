@@ -891,7 +891,18 @@ export default function App() {
       {isMobile && (
         <BottomSheet
           isOpen={activePanel != null}
-          onClose={() => setActivePanel(null)}
+          onClose={() => {
+            // Closing the sheet on mobile must also clear the selection
+            // — without this, the selected ingredient stays "open" in
+            // state and re-tapping the same node is a no-op (it's
+            // already in selectedNodes, so the next tap removes rather
+            // than re-opens). Mirrors handlePanelClose on desktop.
+            if (activePanel === 'ingredient') {
+              setSelectedNodes([]);
+              setHighlightPairings(null);
+            }
+            setActivePanel(null);
+          }}
           title={
             activePanel === 'ingredient' ? (selectedNodeData?.name || 'Details') :
             activePanel === 'global-insights' ? 'Network Analysis' :
@@ -902,7 +913,7 @@ export default function App() {
             <IngredientPanel
               node={selectedNodeData}
               neighbors={neighbors}
-              onClose={() => setActivePanel(null)}
+              onClose={handlePanelClose}
               onSelectIngredient={handleSearchSelect}
               onHighlightPairings={(names) => setHighlightPairings(
                 highlightPairings ? null : names
