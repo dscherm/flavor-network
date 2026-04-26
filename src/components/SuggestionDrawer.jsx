@@ -728,8 +728,31 @@ export default function SuggestionDrawer({
         </div>
       )}
 
-      {/* Active-mode tab strip */}
-      {snapState !== 'peek' && (
+      {/* Active-mode tab strip — taste/aroma render as chip pills.
+          Cuisine collapses to a single dropdown so the drawer header
+          doesn't need to scroll horizontally through 15+ cuisine
+          names. Choosing a cuisine populates the chips below with
+          replacements scoped to that cuisine. */}
+      {snapState !== 'peek' && filterMode === 'cuisine' && (
+        <div className="flex-shrink-0 px-2 pb-1">
+          <select
+            value={activeTab}
+            onChange={(e) => onTabChange(e.target.value)}
+            className="w-full text-sm rounded-md border px-2 py-1.5"
+            style={{
+              fontFamily: FONT_FAMILY,
+              color: '#3a3428',
+              backgroundColor: '#fff8e1',
+              borderColor: '#c9b99a',
+            }}
+          >
+            {tabs.map(t => (
+              <option key={t.key} value={t.key}>{t.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      {snapState !== 'peek' && filterMode !== 'cuisine' && (
         <div className="flex-shrink-0 overflow-x-auto px-2 pb-1" style={{ scrollbarWidth: 'none' }}>
           <div className="flex gap-1 min-w-max">
             {tabs.map(t => {
