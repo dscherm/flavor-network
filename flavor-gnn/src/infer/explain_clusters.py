@@ -26,11 +26,38 @@ def _norm(s):
     return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
 
 
+def _build_compound_prevalence(foodb: dict) -> dict[str, int]:
+    """Count how many foods each compound appears in across all of FooDB.
+
+    Used to rank "shared" compounds by specificity — ubiquitous compounds
+    like ethanol appear in nearly every food and aren't useful bridges
+    between two clusters; rare compounds shared between exactly these
+    clusters are the real story.
+    """
+    counts: dict[str, int] = {}
+    for info in foodb.get("foods", {}).values():
+        for cid in info.get("compounds", [])[:50]:
+            cid = str(cid)
+            counts[cid] = counts.get(cid, 0) + 1
+    return counts
+
+
 def find_shared_compounds(foods_a: list[str], foods_b: list[str],
-                          foodb: dict, flavordb_mols: dict, max_shared: int = 5) -> list[dict]:
-    """Find flavor compounds shared between two sets of ingredients."""
+                          foodb: dict, flavordb_mols: dict,
+                          prevalence: dict[str, int] | None = None,
+                          n_foods_total: int = 0,
+                          max_shared: int = 5) -> list[dict]:
+    """Find flavor compounds shared between two sets of ingredients,
+    ranked by specificity (rarer = more discriminating).
+
+    Compounds that appear in >50% of all foods (e.g. ethanol, glucose)
+    are filtered out — they're baseline noise, not cluster bridges.
+    """
     foodb_foods = foodb.get("foods", {})
     foodb_compounds = foodb.get("compounds", {})
+    if prevalence is None:
+        prevalence = _build_compound_prevalence(foodb)
+        n_foods_total = max(1, len(foodb_foods))
 
     def get_compounds(food_names):
         cids = set()
@@ -47,14 +74,27 @@ def find_shared_compounds(foods_a: list[str], foods_b: list[str],
     cids_b = get_compounds(foods_b)
     shared = cids_a & cids_b
 
-    results = []
-    for cid in list(shared)[:max_shared * 3]:
+    # Rank shared compounds by rarity. Compound in >50% of foods is too
+    # common to be informative — drop it. Otherwise sort by ascending
+    # prevalence so rarer (more discriminating) compounds come first.
+    UBIQUITY_FLOOR = 0.5
+    candidates = []
+    for cid in shared:
         c = foodb_compounds.get(cid)
         if not c:
             continue
         name = c.get("name", "")
         if not name or len(name) < 3:
             continue
+        prev = prevalence.get(cid, 0)
+        if n_foods_total and prev / n_foods_total > UBIQUITY_FLOOR:
+            continue
+        candidates.append((prev, cid, c, name))
+
+    candidates.sort(key=lambda t: t[0])  # ascending prevalence
+
+    results = []
+    for prev, cid, c, name in candidates:
         # Find flavor tags from FlavorDB
         tags = []
         for pid, mol in flavordb_mols.items():
@@ -133,7 +173,11 @@ def main() -> int:
         }
         print(f"  [{cl['id']}] {cl['label']}: {cluster_explanations[cl['id']]['explanation'][:80]}...")
 
-    # Pair explanations — find adjacent clusters (closest centroids)
+    # Pair explanations — find adjacent clusters (closest centroids).
+    # Pre-compute compound prevalence once so each pair gets a specificity-
+    # ranked shared list without recomputing the global histogram.
+    prevalence = _build_compound_prevalence(foodb)
+    n_foods_total = max(1, len(foodb.get("foods", {})))
     pair_explanations = []
     centroids = np.array([cl["centroid_3d"] for cl in clusters])
     for i, cl_a in enumerate(clusters):
@@ -146,6 +190,7 @@ def main() -> int:
             cl_a.get("top_ingredients", []),
             cl_b.get("top_ingredients", []),
             foodb, flavordb_mols,
+            prevalence=prevalence, n_foods_total=n_foods_total,
         )
         explanation = explain_pair(cl_a, cl_b, shared)
         pair_explanations.append({
