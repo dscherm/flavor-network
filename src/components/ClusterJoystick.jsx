@@ -7,7 +7,7 @@
  *   neural / taste2d (Taste views) → 8 taste pills (sweet / sour / …)
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const TASTE_COLORS = {
   sweet: '#ff4fb8',
@@ -41,6 +41,11 @@ const TASTE_TARGETS = {
 
 export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedClusterId = null, onClusterFocus }) {
   const [active, setActive] = useState(null);
+  // iOS dispatches a synthesized click ~300ms after touchstart. Without
+  // this debounce, each tap on a cluster pill toggles focus twice (on
+  // then back off), leaving the user unable to enter cluster-focus
+  // mode at all. Coalesce both events into a single handleTap.
+  const lastFireRef = useRef(0);
   const isTasteMode = mode === 'neural' || mode === 'taste2d';
 
   const items = isTasteMode
@@ -63,6 +68,9 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
   if (items.length === 0) return null;
 
   const handleTap = (item) => {
+    const now = Date.now();
+    if (now - lastFireRef.current < 500) return;
+    lastFireRef.current = now;
     setActive(item.id);
     setTimeout(() => setActive(null), 500);
     if (item.cluster) {
