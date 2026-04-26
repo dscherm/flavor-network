@@ -113,7 +113,7 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
         }}
       >
         <div className="flex items-center gap-1 flex-nowrap">
-          <span className="text-[9px] uppercase tracking-wider text-gray-500 pr-1 whitespace-nowrap flex-shrink-0">Fly to</span>
+          <span className="text-[10px] sm:text-[9px] uppercase tracking-wider text-gray-500 pr-1 whitespace-nowrap flex-shrink-0">Fly to</span>
           {items.map(item => {
             const isActive = active === item.id;
             const isFocused = item.cluster && focusedClusterId === item.cluster.id;
@@ -126,12 +126,14 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
                 onClick={() => handleTap(item)}
                 onTouchStart={(e) => { e.preventDefault(); handleTap(item); }}
                 title={isFocused ? `Exit ${item.label} focus` : `Focus on ${item.label}`}
-                className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] whitespace-nowrap transition-colors flex-shrink-0 capitalize"
+                className="flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 rounded-full text-[11px] sm:text-[10px] whitespace-nowrap transition-colors flex-shrink-0 capitalize"
                 style={{
                   color: c,
                   background: `${c}${bgAlpha}`,
                   border: `1px solid ${c}${borderAlpha}`,
-                  minHeight: 26,
+                  // 32px tall on mobile for comfortable touch targets,
+                  // 26px on desktop to keep the bar compact.
+                  minHeight: 32,
                   boxShadow: isFocused ? `0 0 6px ${c}88` : undefined,
                 }}
               >

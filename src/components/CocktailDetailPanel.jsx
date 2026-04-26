@@ -63,7 +63,7 @@ export default function CocktailDetailPanel({
         </span>
       </button>
 
-      <div className="w-80 h-full bg-[#0c0c14]/95 backdrop-blur-md border-l border-[#1e1e2e] overflow-y-auto pointer-events-auto">
+      <div className="w-[88vw] max-w-[360px] sm:w-80 sm:max-w-none h-full bg-[#0c0c14]/95 backdrop-blur-md border-l border-[#1e1e2e] overflow-y-auto pointer-events-auto">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-[#0c0c14]/95 backdrop-blur-md border-b border-[#1e1e2e] p-4">
           <div className="flex items-start justify-between gap-2">
