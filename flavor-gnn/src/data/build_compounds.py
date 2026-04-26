@@ -54,6 +54,26 @@ ODOR_CATEGORIES = {
 }
 
 
+TASTE_TASKS = ("sweet", "bitter", "umami", "salty", "sour")
+ODOR_TASKS = ("odor_fruity", "odor_floral", "odor_green", "odor_woody",
+              "odor_spicy", "odor_fatty")
+ALL_TASKS = TASTE_TASKS + ODOR_TASKS
+
+
+def _obs(r: dict, tasks) -> None:
+    """Mark these tasks as observed (informed) for this row.
+
+    A task is "observed" iff some source provided either a positive or a
+    negative signal for it. Unobserved tasks are masked out of the loss
+    in train_multitask.py so the model isn't trained on default-zero
+    labels from sources that don't measure that modality (e.g. FartDB
+    has zero odor signal — its rows must not poison odor heads with
+    forced negatives).
+    """
+    for t in tasks:
+        r[f"mask_{t}"] = 1
+
+
 def _odor_flags(flavor_tags: list[str]) -> dict[str, int]:
     tags_str = " ".join(t.lower() for t in flavor_tags)
     return {
@@ -96,6 +116,7 @@ def build() -> pd.DataFrame:
     supersweetdb = _load("supersweetdb")
     flavornet = _load_optional("flavornet")
     pubchem_smiles = _load_optional("pubchem_smiles")
+    fartdb = _load_optional("fartdb")
 
     compounds: dict[str, dict] = {}
 
@@ -124,6 +145,10 @@ def build() -> pd.DataFrame:
                 "has_profile": 0,
                 "odor_fruity": 0, "odor_floral": 0, "odor_green": 0,
                 "odor_woody": 0, "odor_spicy": 0, "odor_fatty": 0,
+                # mask=0 means "label is unknown for this row" — task is
+                # excluded from the loss. Each source block flips relevant
+                # masks to 1 when it contributes evidence.
+                **{f"mask_{t}": 0 for t in ALL_TASKS},
             }
         else:
             r = compounds[k]
@@ -141,8 +166,11 @@ def build() -> pd.DataFrame:
         r = _row(pid, m.get("smiles"), cas=m.get("cas_id"))
         if r is None:
             continue
-        # Merge from the taste field
-        _merge_labels(r, _taste_flags(m.get("taste")))
+        # Merge from the taste field — only when present, so absent rows
+        # don't pretend to be informed negatives.
+        if m.get("taste"):
+            _merge_labels(r, _taste_flags(m.get("taste")))
+            _obs(r, TASTE_TASKS)
         # Also derive taste labels from flavor_profile tokens
         flavor_tags = m.get("flavor_profile") or []
         if flavor_tags:
@@ -159,8 +187,10 @@ def build() -> pd.DataFrame:
             odor = _odor_flags(flavor_tags)
             for k, v in odor.items():
                 r[k] = r.get(k, 0) | v
-            # Mark that this compound has an informed profile — the 0s are
-            # real negatives, not missing data. Downstream can use this.
+            # FlavorDB profile is comprehensive — both taste and odor tokens
+            # are present in flavor_tags, so a compound with a profile is
+            # informed for every taste AND every odor head.
+            _obs(r, ALL_TASKS)
             r["has_profile"] = 1
         r["flavor_tags"] = sorted(set(r["flavor_tags"]) | set(flavor_tags))
         if m.get("odor") and not r["odor_class"]:
@@ -169,14 +199,19 @@ def build() -> pd.DataFrame:
             r["odor_class"] = flavor_tags[0]
         r["functional_groups"] = sorted(set(r["functional_groups"]) | set(m.get("functional_groups") or []))
 
-    # ChemTasteDB — multi-label taste (string)
+    # ChemTasteDB — multi-label taste (string). Every row is taste-informed
+    # across all 5 taste heads (the database explicitly assigns a Class taste,
+    # so absence of e.g. "umami" in the row is a real negative).
     for _, c in chemtastedb.get("compounds", {}).items():
         r = _row(None, c.get("smiles"), inchi_key=c.get("inchikey"), cas=c.get("cas"))
         if r is None:
             continue
         _merge_labels(r, _taste_flags(c.get("taste")))
+        _obs(r, TASTE_TASKS)
 
-    # BitterDB — every compound is bitter=1 by membership
+    # BitterDB — every compound is bitter=1 by membership. BitterDB ONLY
+    # measures TAS2R agonism, so we observe bitter but learn nothing about
+    # the other tastes/odors from this source.
     for _, c in bitterdb.get("compounds", {}).items():
         pid = c.get("pubchem_id")
         smiles = c.get("smiles") or c.get("isomeric_smiles")
@@ -184,15 +219,54 @@ def build() -> pd.DataFrame:
         if r is None:
             continue
         r["bitter"] = 1
+        r["mask_bitter"] = 1
 
-    # SuperSweetDB (ChemTasteDB sweet fallback) — sweet=1 by membership
+    # SuperSweetDB — sweet=1 by membership. Same as BitterDB: this source
+    # only measures sweet, so we don't claim to observe other heads.
     for _, c in supersweetdb.get("compounds", {}).items():
         r = _row(None, c.get("smiles"))
         if r is None:
             continue
         r["sweet"] = 1
+        r["mask_sweet"] = 1
         if c.get("intensity") is not None and r["intensity"] is None:
             r["intensity"] = c["intensity"]
+
+    # FartDB (NPJ Sci. Food 2025) — 14.5k SMILES with single canonical taste.
+    # Headline contribution: ~1,513 sour positives sourced from IUPAC pKa data
+    # (~30x expansion vs ChemTasteDB v2.1's 49 sour rows). FART measures only
+    # taste — its rows MUST NOT mask in odor heads or the model learns
+    # "FART-like compounds have no odor", which is wrong.
+    #
+    # Each FART row has ONE canonical taste label. We only mask the specific
+    # task that label informs. A row labeled "sweet" doesn't mean the
+    # compound was tested for bitter and found negative — FART's classifier
+    # picks a single taste; bitter=0 for that row is missing data, not
+    # evidence. Masking all 5 tastes on every FART row caused the v2
+    # bitter regression (-0.20 calibrated F1): FART's 9.5k artificial-
+    # sweetener rows acted as confident bitter-negatives and pulled the
+    # decision boundary off-distribution from food chemistry. "undefined"
+    # rows are the exception: confirmed-not-tasty across the four GPCR-
+    # mediated tastes; salty stays unobserved (FART excludes salty by
+    # design — its negative signal is unreliable).
+    FART_LABEL_TO_OBS = {
+        "sweet":     ("sweet",),
+        "bitter":    ("bitter",),
+        "sour":      ("sour",),
+        "umami":     ("umami",),
+        "undefined": ("sweet", "bitter", "sour", "umami"),
+    }
+    for _, c in fartdb.get("compounds", {}).items():
+        r = _row(None, c.get("smiles"))
+        if r is None:
+            continue
+        _merge_labels(r, _taste_flags(c.get("taste")))
+        label = (c.get("class_taste") or c.get("taste") or "").strip().lower()
+        # Multi-merged rows ("sweet; bitter") observe both — split & dispatch.
+        for tok in (label.split(";") if label else []):
+            tok = tok.strip()
+            if tok in FART_LABEL_TO_OBS:
+                _obs(r, FART_LABEL_TO_OBS[tok])
 
     # FlavorNet — CAS-keyed aroma compounds. No taste labels, but odor
     # descriptors populate the odor_* category flags via the same keyword
@@ -216,14 +290,21 @@ def build() -> pd.DataFrame:
             odor = _odor_flags([descriptor])
             for k, v in odor.items():
                 r[k] = r.get(k, 0) | v
-            # FlavorNet contributes real negatives for tastes — if a row has an
-            # odor descriptor but no taste tokens, the taste=0 values are
-            # informed. Mark the profile as present so masking can use it.
+            # FlavorNet is pure aroma — Arn & Acree's compendium only catalogs
+            # odor descriptors, not taste. Earlier code marked these rows as
+            # taste-informed; that was wrong (a compound with no taste data
+            # is unknown for taste, not negative-for-every-taste). Mask in
+            # only the odor heads.
+            _obs(r, ODOR_TASKS)
             r["has_profile"] = 1
 
     df = pd.DataFrame(list(compounds.values()))
     df = df.dropna(subset=["smiles"])
     df = df.drop_duplicates(subset=["smiles"])
+    # CAS arrives as a mix of strings ("517-28-2"), placeholders ("*"), and
+    # occasional ints (some upstream rows store the leading digits as numeric).
+    # Coerce to nullable string so pyarrow can serialize the column.
+    df["cas"] = df["cas"].apply(lambda x: None if x is None or x == "*" else str(x))
     return df
 
 

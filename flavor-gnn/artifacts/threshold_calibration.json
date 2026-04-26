@@ -1,7 +1,7 @@
 {
   "model_ckpt": "m3_multitask.pt",
   "test_split": {
-    "n": 836,
+    "n": 3981,
     "seed": 42,
     "stratify": "bitter"
   },
@@ -29,113 +29,124 @@
   "per_task": [
     {
       "task": "sweet",
-      "n_test_positives": 185,
-      "f1_at_0.5": 0.557,
-      "calibrated_threshold": 0.5,
-      "calibrated_f1": 0.557,
-      "calibrated_precision": 0.426,
-      "calibrated_recall": 0.805,
-      "lift": 0.0
+      "n_test_observed": 3246,
+      "n_test_positives": 2316,
+      "f1_at_0.5": 0.876,
+      "calibrated_threshold": 0.2,
+      "calibrated_f1": 0.904,
+      "calibrated_precision": 0.907,
+      "calibrated_recall": 0.902,
+      "lift": 0.029
     },
     {
       "task": "bitter",
-      "n_test_positives": 421,
-      "f1_at_0.5": 0.802,
-      "calibrated_threshold": 0.45,
-      "calibrated_f1": 0.806,
-      "calibrated_precision": 0.779,
-      "calibrated_recall": 0.836,
-      "lift": 0.004
+      "n_test_observed": 1786,
+      "n_test_positives": 835,
+      "f1_at_0.5": 0.793,
+      "calibrated_threshold": 0.6,
+      "calibrated_f1": 0.799,
+      "calibrated_precision": 0.781,
+      "calibrated_recall": 0.818,
+      "lift": 0.006
     },
     {
       "task": "umami",
-      "n_test_positives": 18,
-      "f1_at_0.5": 0.235,
-      "calibrated_threshold": 0.95,
-      "calibrated_f1": 0.611,
-      "calibrated_precision": 0.611,
-      "calibrated_recall": 0.611,
-      "lift": 0.376
+      "n_test_observed": 1371,
+      "n_test_positives": 75,
+      "f1_at_0.5": 0.511,
+      "calibrated_threshold": 0.8,
+      "calibrated_f1": 0.731,
+      "calibrated_precision": 0.704,
+      "calibrated_recall": 0.76,
+      "lift": 0.219
     },
     {
       "task": "salty",
-      "n_test_positives": 5,
-      "f1_at_0.5": 0.2,
+      "n_test_observed": 1028,
+      "n_test_positives": 10,
+      "f1_at_0.5": 0.139,
       "calibrated_threshold": 0.9,
-      "calibrated_f1": 0.4,
+      "calibrated_f1": 0.333,
       "calibrated_precision": 0.25,
-      "calibrated_recall": 1.0,
-      "lift": 0.2
+      "calibrated_recall": 0.5,
+      "lift": 0.195
     },
     {
       "task": "sour",
-      "n_test_positives": 15,
-      "f1_at_0.5": 0.215,
-      "calibrated_threshold": 0.95,
-      "calibrated_f1": 0.485,
-      "calibrated_precision": 0.444,
-      "calibrated_recall": 0.533,
-      "lift": 0.27
+      "n_test_observed": 1668,
+      "n_test_positives": 347,
+      "f1_at_0.5": 0.786,
+      "calibrated_threshold": 0.9,
+      "calibrated_f1": 0.819,
+      "calibrated_precision": 0.875,
+      "calibrated_recall": 0.769,
+      "lift": 0.033
     },
     {
       "task": "odor_fruity",
-      "n_test_positives": 104,
-      "f1_at_0.5": 0.596,
-      "calibrated_threshold": 0.6,
-      "calibrated_f1": 0.62,
-      "calibrated_precision": 0.5,
-      "calibrated_recall": 0.817,
-      "lift": 0.024
+      "n_test_observed": 278,
+      "n_test_positives": 100,
+      "f1_at_0.5": 0.709,
+      "calibrated_threshold": 0.55,
+      "calibrated_f1": 0.722,
+      "calibrated_precision": 0.672,
+      "calibrated_recall": 0.78,
+      "lift": 0.014
     },
     {
       "task": "odor_floral",
-      "n_test_positives": 46,
-      "f1_at_0.5": 0.358,
-      "calibrated_threshold": 0.75,
-      "calibrated_f1": 0.46,
-      "calibrated_precision": 0.362,
-      "calibrated_recall": 0.63,
-      "lift": 0.103
-    },
-    {
-      "task": "odor_green",
-      "n_test_positives": 93,
-      "f1_at_0.5": 0.485,
-      "calibrated_threshold": 0.7,
-      "calibrated_f1": 0.557,
-      "calibrated_precision": 0.405,
-      "calibrated_recall": 0.892,
-      "lift": 0.072
-    },
-    {
-      "task": "odor_woody",
-      "n_test_positives": 94,
-      "f1_at_0.5": 0.501,
-      "calibrated_threshold": 0.6,
-      "calibrated_f1": 0.523,
-      "calibrated_precision": 0.368,
-      "calibrated_recall": 0.904,
+      "n_test_observed": 278,
+      "n_test_positives": 43,
+      "f1_at_0.5": 0.493,
+      "calibrated_threshold": 0.55,
+      "calibrated_f1": 0.515,
+      "calibrated_precision": 0.382,
+      "calibrated_recall": 0.791,
       "lift": 0.022
     },
     {
+      "task": "odor_green",
+      "n_test_observed": 278,
+      "n_test_positives": 93,
+      "f1_at_0.5": 0.606,
+      "calibrated_threshold": 0.5,
+      "calibrated_f1": 0.606,
+      "calibrated_precision": 0.459,
+      "calibrated_recall": 0.892,
+      "lift": 0.0
+    },
+    {
+      "task": "odor_woody",
+      "n_test_observed": 278,
+      "n_test_positives": 89,
+      "f1_at_0.5": 0.528,
+      "calibrated_threshold": 0.45,
+      "calibrated_f1": 0.541,
+      "calibrated_precision": 0.389,
+      "calibrated_recall": 0.888,
+      "lift": 0.013
+    },
+    {
       "task": "odor_spicy",
-      "n_test_positives": 31,
-      "f1_at_0.5": 0.207,
-      "calibrated_threshold": 0.75,
-      "calibrated_f1": 0.299,
-      "calibrated_precision": 0.194,
-      "calibrated_recall": 0.645,
-      "lift": 0.092
+      "n_test_observed": 278,
+      "n_test_positives": 37,
+      "f1_at_0.5": 0.292,
+      "calibrated_threshold": 0.65,
+      "calibrated_f1": 0.329,
+      "calibrated_precision": 0.333,
+      "calibrated_recall": 0.324,
+      "lift": 0.036
     },
     {
       "task": "odor_fatty",
-      "n_test_positives": 49,
-      "f1_at_0.5": 0.34,
-      "calibrated_threshold": 0.8,
-      "calibrated_f1": 0.517,
-      "calibrated_precision": 0.448,
-      "calibrated_recall": 0.612,
-      "lift": 0.177
+      "n_test_observed": 278,
+      "n_test_positives": 54,
+      "f1_at_0.5": 0.49,
+      "calibrated_threshold": 0.7,
+      "calibrated_f1": 0.617,
+      "calibrated_precision": 0.623,
+      "calibrated_recall": 0.611,
+      "lift": 0.127
     }
   ]
 }

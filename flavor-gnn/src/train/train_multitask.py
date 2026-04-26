@@ -34,7 +34,8 @@ SEED = 42
 
 
 def focal_loss(logits: torch.Tensor, y: torch.Tensor,
-               pos_weight: torch.Tensor, gamma: float = 2.0) -> torch.Tensor:
+               pos_weight: torch.Tensor, gamma: float = 2.0,
+               mask: torch.Tensor | None = None) -> torch.Tensor:
     """Focal BCE — downweights easy examples, upweights hard ones.
 
     FL(p,y) = -[α y (1-p)^γ log(p) + (1-y) p^γ log(1-p)]
@@ -44,13 +45,33 @@ def focal_loss(logits: torch.Tensor, y: torch.Tensor,
     modulation. Designed to lift tasks where standard BCE + pos_weight
     underfits because the model predicts low-confidence positives that
     get swallowed by the "easy negative" gradient mass.
+
+    `mask` (B, T) gates which (sample, task) pairs contribute. Use this
+    to exclude unobserved labels (e.g. odor heads on FartDB rows that
+    never measured odor).
     """
     p = torch.sigmoid(logits)
     # Clamp for numerical stability when computing logs.
     p_clamp = p.clamp(min=1e-7, max=1 - 1e-7)
     pos_term = pos_weight * y * ((1 - p_clamp) ** gamma) * torch.log(p_clamp)
     neg_term = (1 - y) * (p_clamp ** gamma) * torch.log(1 - p_clamp)
-    return -(pos_term + neg_term).mean()
+    elem = -(pos_term + neg_term)
+    if mask is not None:
+        denom = mask.sum().clamp(min=1.0)
+        return (elem * mask).sum() / denom
+    return elem.mean()
+
+
+def _masked_bce(logits: torch.Tensor, y: torch.Tensor,
+                pos_weight: torch.Tensor, mask: torch.Tensor | None) -> torch.Tensor:
+    """BCE-with-logits + per-task pos_weight, masked over unobserved labels."""
+    if mask is None:
+        return F.binary_cross_entropy_with_logits(logits, y, pos_weight=pos_weight)
+    elem = F.binary_cross_entropy_with_logits(
+        logits, y, pos_weight=pos_weight, reduction="none"
+    )
+    denom = mask.sum().clamp(min=1.0)
+    return (elem * mask).sum() / denom
 
 
 def _project_root() -> Path:
@@ -62,15 +83,34 @@ def _set_seed(s: int) -> None:
 
 
 def _featurize_all(df: pd.DataFrame):
-    data_list, y_mat = [], []
+    """Featurize SMILES -> PyG Data with y and mask attributes.
+
+    `mask[t]=1` means the row's label for task t was observed by some
+    source (informed positive or informed negative). `mask[t]=0` means
+    the label is missing — that (row, task) pair is excluded from loss
+    and from F1 evaluation.
+
+    Backwards-compat: parquets without mask_<t> columns get all-ones
+    masks so legacy data behaves identically to the pre-masking pipeline.
+    """
+    data_list, y_mat, m_mat = [], [], []
+    has_mask = all(f"mask_{t}" in df.columns for t in TASKS)
     for _, row in df.iterrows():
         y = torch.tensor([[float(row[t]) for t in TASKS]], dtype=torch.float32)
+        if has_mask:
+            mvec = torch.tensor(
+                [[float(row[f"mask_{t}"]) for t in TASKS]], dtype=torch.float32,
+            )
+        else:
+            mvec = torch.ones((1, len(TASKS)), dtype=torch.float32)
         d = smiles_to_data(row["smiles"], y=y)
         if d is None:
             continue
+        d.mask = mvec
         data_list.append(d)
         y_mat.append([int(row[t]) for t in TASKS])
-    return data_list, np.array(y_mat, dtype=np.int64)
+        m_mat.append([int(mvec[0, i].item()) for i in range(len(TASKS))])
+    return data_list, np.array(y_mat, dtype=np.int64), np.array(m_mat, dtype=np.int64)
 
 
 def _pick_trace_compounds(df: pd.DataFrame, per_task: int = 6) -> list[int]:
@@ -98,7 +138,7 @@ def train(df: pd.DataFrame, epochs: int, batch_size: int, device: str,
           trace_path: Path | None = None,
           loss_type: str = "bce", gamma: float = 2.0) -> tuple[dict, dict | None]:
     from torch_geometric.loader import DataLoader
-    data_list, Y = _featurize_all(df)
+    data_list, Y, M = _featurize_all(df)
 
     # Stratify by bitter (the most balanced dense label)
     strat = Y[:, TASKS.index("bitter")]
@@ -110,9 +150,15 @@ def train(df: pd.DataFrame, epochs: int, batch_size: int, device: str,
     tr_loader = DataLoader(tr, batch_size=batch_size, shuffle=True)
     te_loader = DataLoader(te, batch_size=batch_size, shuffle=False)
 
-    Y_tr = Y[tr_idx]
+    # pos_weight uses observed-only positive rate per task. An unobserved
+    # 0 inflates the negative count and would push pos_weight too high.
+    Y_tr, M_tr = Y[tr_idx], M[tr_idx]
     pos_weight = torch.tensor(
-        [(len(Y_tr) - Y_tr[:, i].sum()) / max(1, Y_tr[:, i].sum()) for i in range(len(TASKS))],
+        [
+            (M_tr[:, i].sum() - (Y_tr[:, i] * M_tr[:, i]).sum())
+            / max(1, (Y_tr[:, i] * M_tr[:, i]).sum())
+            for i in range(len(TASKS))
+        ],
         dtype=torch.float32, device=device,
     )
 
@@ -165,35 +211,44 @@ def train(df: pd.DataFrame, epochs: int, batch_size: int, device: str,
             opt.zero_grad()
             logits = model(batch)  # (B, T)
             y = batch.y.view(-1, len(TASKS))
+            mask = batch.mask.view(-1, len(TASKS))
             if loss_type == "focal":
-                loss = focal_loss(logits, y, pos_weight=pos_weight, gamma=gamma)
+                loss = focal_loss(logits, y, pos_weight=pos_weight, gamma=gamma, mask=mask)
             else:
-                loss = F.binary_cross_entropy_with_logits(logits, y, pos_weight=pos_weight)
+                loss = _masked_bce(logits, y, pos_weight=pos_weight, mask=mask)
             loss.backward()
             opt.step()
             tot += float(loss.detach()) * batch.num_graphs
         tr_loss = tot / len(tr)
 
         model.eval()
-        all_y, all_p = [], []
+        all_y, all_p, all_m = [], [], []
         with torch.no_grad():
             for batch in te_loader:
                 batch = batch.to(device)
                 logits = model(batch)
                 y = batch.y.view(-1, len(TASKS))
+                m = batch.mask.view(-1, len(TASKS))
                 all_y.append(y.cpu().numpy())
                 all_p.append((torch.sigmoid(logits) > 0.5).cpu().numpy())
+                all_m.append(m.cpu().numpy())
         y_arr = np.concatenate(all_y, 0)
         p_arr = np.concatenate(all_p, 0)
+        m_arr = np.concatenate(all_m, 0)
         per_task_f1 = {}
         for i, t in enumerate(TASKS):
-            f1 = f1_score(y_arr[:, i], p_arr[:, i], zero_division=0)
+            sel = m_arr[:, i].astype(bool)
+            if sel.sum() == 0:
+                per_task_f1[t] = 0.0
+                continue
+            ys, ps = y_arr[sel, i], p_arr[sel, i]
+            f1 = f1_score(ys, ps, zero_division=0)
             per_task_f1[t] = float(f1)
             if f1 > best_per_task[t]["f1"]:
                 best_per_task[t] = {
                     "f1": float(f1),
-                    "precision": float(precision_score(y_arr[:, i], p_arr[:, i], zero_division=0)),
-                    "recall": float(recall_score(y_arr[:, i], p_arr[:, i], zero_division=0)),
+                    "precision": float(precision_score(ys, ps, zero_division=0)),
+                    "recall": float(recall_score(ys, ps, zero_division=0)),
                     "epoch": epoch,
                 }
 
@@ -230,24 +285,36 @@ def train(df: pd.DataFrame, epochs: int, batch_size: int, device: str,
         "best_per_task": best_per_task,
         "train_n": int(len(tr_idx)),
         "test_n": int(len(te_idx)),
-        "test_positives": {t: int(Y[te_idx][:, i].sum()) for i, t in enumerate(TASKS)},
+        "test_positives": {
+            t: int((Y[te_idx][:, i] * M[te_idx][:, i]).sum()) for i, t in enumerate(TASKS)
+        },
+        "test_observed": {t: int(M[te_idx][:, i].sum()) for i, t in enumerate(TASKS)},
     }, best_ckpt
 
 
 def _train_one_fold(df: pd.DataFrame, tr_idx, te_idx, epochs: int,
                     batch_size: int, device: str, loss_type: str = "bce",
                     gamma: float = 2.0) -> dict:
-    """Train on a pre-split fold; return per-task best F1 dict."""
+    """Train on a pre-split fold; return per-task best F1 dict.
+
+    Loss and F1 use per-task masks: only (sample, task) pairs with mask=1
+    contribute. This is what keeps FartDB's odor-unobserved rows from
+    poisoning the odor heads with forced zeros.
+    """
     from torch_geometric.loader import DataLoader
-    data_list, Y = _featurize_all(df)
+    data_list, Y, M = _featurize_all(df)
     tr = [data_list[i] for i in tr_idx]
     te = [data_list[i] for i in te_idx]
     tr_loader = DataLoader(tr, batch_size=batch_size, shuffle=True)
     te_loader = DataLoader(te, batch_size=batch_size, shuffle=False)
 
-    Y_tr = Y[tr_idx]
+    Y_tr, M_tr = Y[tr_idx], M[tr_idx]
     pos_weight = torch.tensor(
-        [(len(Y_tr) - Y_tr[:, i].sum()) / max(1, Y_tr[:, i].sum()) for i in range(len(TASKS))],
+        [
+            (M_tr[:, i].sum() - (Y_tr[:, i] * M_tr[:, i]).sum())
+            / max(1, (Y_tr[:, i] * M_tr[:, i]).sum())
+            for i in range(len(TASKS))
+        ],
         dtype=torch.float32, device=device,
     )
 
@@ -262,25 +329,32 @@ def _train_one_fold(df: pd.DataFrame, tr_idx, te_idx, epochs: int,
             opt.zero_grad()
             logits = model(batch)
             y = batch.y.view(-1, len(TASKS))
+            mask = batch.mask.view(-1, len(TASKS))
             if loss_type == "focal":
-                loss = focal_loss(logits, y, pos_weight=pos_weight, gamma=gamma)
+                loss = focal_loss(logits, y, pos_weight=pos_weight, gamma=gamma, mask=mask)
             else:
-                loss = F.binary_cross_entropy_with_logits(logits, y, pos_weight=pos_weight)
+                loss = _masked_bce(logits, y, pos_weight=pos_weight, mask=mask)
             loss.backward()
             opt.step()
         model.eval()
-        ys, ps = [], []
+        ys, ps, ms = [], [], []
         with torch.no_grad():
             for batch in te_loader:
                 batch = batch.to(device)
                 logits = model(batch)
                 y = batch.y.view(-1, len(TASKS))
+                m = batch.mask.view(-1, len(TASKS))
                 ys.append(y.cpu().numpy())
                 ps.append((torch.sigmoid(logits) > 0.5).cpu().numpy())
+                ms.append(m.cpu().numpy())
         y_arr = np.concatenate(ys, 0)
         p_arr = np.concatenate(ps, 0)
+        m_arr = np.concatenate(ms, 0)
         for i, t in enumerate(TASKS):
-            f1 = f1_score(y_arr[:, i], p_arr[:, i], zero_division=0)
+            sel = m_arr[:, i].astype(bool)
+            if sel.sum() == 0:
+                continue
+            f1 = f1_score(y_arr[sel, i], p_arr[sel, i], zero_division=0)
             if f1 > best[t]:
                 best[t] = float(f1)
     return best
@@ -290,7 +364,7 @@ def cross_validate(df: pd.DataFrame, folds: int, epochs: int, batch_size: int, d
                    loss_type: str = "bce", gamma: float = 2.0) -> dict:
     """Stratified K-fold CV. Stratifies on the bitter label (dense + balanced).
     Returns per-task mean/std F1 across folds."""
-    data_list, Y = _featurize_all(df)
+    data_list, Y, _M = _featurize_all(df)
     strat = Y[:, TASKS.index("bitter")]
     idx = np.arange(len(data_list))
     skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=SEED)

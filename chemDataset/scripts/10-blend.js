@@ -39,16 +39,17 @@ function compoundsByIngredient(foodb) {
   return out;
 }
 
-// Map ChemTasteDB's fine-grained tastes onto the 7 Flavor-Bible channels
-// used by tastePositioning.js. "tasteless"/"undefined" → null.
+// Map ChemTasteDB's fine-grained tastes onto the taste channels used by
+// tastePositioning.js (sweet, sour, bitter, salty, umami, spicy, pungent,
+// astringent — see TASTE_AXES). "tasteless"/"undefined" → null.
 function normalizeTaste(raw) {
   if (!raw) return null;
   const t = String(raw).toLowerCase().trim();
   if (/sweet/.test(t)) return 'sweet';
   if (/bitter/.test(t)) return 'bitter';
   if (/sour|acid/.test(t)) return 'sour';
+  if (/umami|savory/.test(t)) return 'umami';
   if (/salty|salt/.test(t)) return 'salty';
-  if (/umami|savory/.test(t)) return 'salty';
   if (/astringent/.test(t)) return 'astringent';
   if (/pungent/.test(t)) return 'pungent';
   if (/hot|spicy|pungent-hot|burning/.test(t)) return 'hot';
