@@ -245,33 +245,53 @@ export async function loadSauceCodex(basePath = '/data') {
  * @returns {Object} { positions: { [name]: [x, y, z] } }
  */
 export function computeSauceCodexPositions(nodes, clusters) {
-  // Tightened layout — was 60/6, families read as too far apart with
-  // no useful detail in between. New numbers cluster the families
-  // closer together so the codex reads as one body, not 10 islands.
+  // Family centroids distributed on a sphere via a Fibonacci-spiral
+  // lattice (≈evenly spaced surface points → polyhedron feel rather
+  // than a flat 10-cluster ring on the X-Z plane).
   const FAMILY_RADIUS = 36;
   const SUBCLUSTER_RADIUS = 7;  // distance from family centroid to cuisine sub-centroid
   const BASE_SCATTER = 3.5;     // jitter inside each cuisine pod
 
-  // Scatter scales with cuisine size — a single-sauce cuisine sits
-  // exactly on its sub-centroid; an 8-sauce cuisine fans out a bit.
   function scatterFor(k) {
     return BASE_SCATTER + Math.max(0, Math.sqrt(k - 1)) * 1.5;
   }
 
-  // Family centroids on a circle, evenly spaced.
   const familyCenter = new Map();
-  for (let i = 0; i < clusters.length; i++) {
-    const angle = (i / clusters.length) * Math.PI * 2 - Math.PI / 2;
+  const N = clusters.length;
+  const phi = Math.PI * (Math.sqrt(5) - 1); // golden angle
+  for (let i = 0; i < N; i++) {
+    const y = N === 1 ? 0 : 1 - (i / (N - 1)) * 2;
+    const r = Math.sqrt(Math.max(0, 1 - y * y));
+    const theta = phi * i;
     familyCenter.set(clusters[i].id, [
-      Math.cos(angle) * FAMILY_RADIUS,
-      0,
-      Math.sin(angle) * FAMILY_RADIUS,
+      Math.cos(theta) * r * FAMILY_RADIUS,
+      y * FAMILY_RADIUS,
+      Math.sin(theta) * r * FAMILY_RADIUS,
     ]);
   }
 
-  // Group sauces by family → cuisine. Build cuisine sub-centroids
-  // for each family — they ring the family centroid in the X-Z
-  // plane with a slight Y wobble so the cuisines feel layered.
+  // Build a basis (u, v) perpendicular to each family's radial vector
+  // so the cuisine sub-discs face outward rather than stacking on Y.
+  function radialBasis(center) {
+    const len = Math.hypot(center[0], center[1], center[2]) || 1;
+    const radial = [center[0] / len, center[1] / len, center[2] / len];
+    const upRef = Math.abs(radial[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+    let u = [
+      upRef[1] * radial[2] - upRef[2] * radial[1],
+      upRef[2] * radial[0] - upRef[0] * radial[2],
+      upRef[0] * radial[1] - upRef[1] * radial[0],
+    ];
+    const ul = Math.hypot(u[0], u[1], u[2]) || 1;
+    u = [u[0] / ul, u[1] / ul, u[2] / ul];
+    const v = [
+      radial[1] * u[2] - radial[2] * u[1],
+      radial[2] * u[0] - radial[0] * u[2],
+      radial[0] * u[1] - radial[1] * u[0],
+    ];
+    return { u, v };
+  }
+
+  // Group sauces by family → cuisine.
   const cuisineGroups = new Map(); // famId → Map<cuisine, sauceNames[]>
   for (const [name, n] of nodes) {
     const cuisine = n.cuisine || 'Other';
@@ -281,23 +301,26 @@ export function computeSauceCodexPositions(nodes, clusters) {
     fam.get(cuisine).push(name);
   }
 
-  // Compute sub-centroids: { famId, cuisine } → [x, y, z].
+  // Cuisine sub-centroids ride a small disc in the family's radial-
+  // perpendicular plane.
   const subCenter = new Map();
   for (const [famId, cuisineMap] of cuisineGroups) {
     const fc = familyCenter.get(famId);
     if (!fc) continue;
     const cuisines = [...cuisineMap.keys()];
     if (cuisines.length === 1) {
-      // Single cuisine — sub-centroid IS the family centroid (no offset).
       subCenter.set(`${famId}|${cuisines[0]}`, [...fc]);
       continue;
     }
+    const { u, v } = radialBasis(fc);
     for (let i = 0; i < cuisines.length; i++) {
       const angle = (i / cuisines.length) * Math.PI * 2;
+      const ca = Math.cos(angle) * SUBCLUSTER_RADIUS;
+      const sa = Math.sin(angle) * SUBCLUSTER_RADIUS;
       subCenter.set(`${famId}|${cuisines[i]}`, [
-        fc[0] + Math.cos(angle) * SUBCLUSTER_RADIUS,
-        fc[1] + Math.sin(i * 1.7) * 2.5,  // gentle Y wobble per cuisine
-        fc[2] + Math.sin(angle) * SUBCLUSTER_RADIUS,
+        fc[0] + u[0] * ca + v[0] * sa,
+        fc[1] + u[1] * ca + v[1] * sa,
+        fc[2] + u[2] * ca + v[2] * sa,
       ]);
     }
   }

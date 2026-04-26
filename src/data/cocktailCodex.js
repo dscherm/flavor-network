@@ -188,9 +188,12 @@ export async function loadCocktailCodex(basePath = '/data') {
 }
 
 /**
- * Position cocktails in 3D: each family centroid lives on a circle,
- * subclusters are placed in a small ring around the family centroid,
- * individual cocktails scatter around their subcluster centroid.
+ * Position cocktails in 3D: family centroids are distributed on a
+ * sphere via a Fibonacci-spiral lattice (≈evenly-spaced points on a
+ * sphere — gives a polyhedron-feeling layout instead of a flat ring).
+ * Subclusters splay around their family in a small disc PERPENDICULAR
+ * to the radial direction, so each family reads as its own little
+ * planet rather than a stack of rings on the X-Z plane.
  *
  * Roots are placed AT the family centroid so they read as the hub.
  *
@@ -199,29 +202,50 @@ export async function loadCocktailCodex(basePath = '/data') {
  * @returns {Object} { positions: { [name]: [x, y, z] } }
  */
 export function computeCodexPositions(nodes, clusters) {
-  // Tightened layout — was 60/14/4. The previous radii spread the
-  // 7 families so far apart that the camera framed mostly empty
-  // space between them. New numbers cluster the codex into a single
-  // readable body.
   const FAMILY_RADIUS = 36;
   const SUBCLUSTER_RADIUS = 8;
   const SCATTER = 3;
 
-  // Family centroids on a circle. Syrups (family 6) tucked at the top.
-  const nonSyrup = clusters.filter(c => c.id !== 6);
+  // Fibonacci-sphere distribution for family centroids. Gives the
+  // visual feel of a polyhedron — points are roughly evenly-spaced
+  // across the sphere surface, with no obvious axis bias.
   const familyCenter = new Map();
-  for (let i = 0; i < nonSyrup.length; i++) {
-    const angle = (i / nonSyrup.length) * Math.PI * 2 - Math.PI / 2;
-    familyCenter.set(nonSyrup[i].id, [
-      Math.cos(angle) * FAMILY_RADIUS,
-      0,
-      Math.sin(angle) * FAMILY_RADIUS,
+  const N = clusters.length;
+  const phi = Math.PI * (Math.sqrt(5) - 1); // golden angle
+  for (let i = 0; i < N; i++) {
+    const y = N === 1 ? 0 : 1 - (i / (N - 1)) * 2;
+    const r = Math.sqrt(Math.max(0, 1 - y * y));
+    const theta = phi * i;
+    familyCenter.set(clusters[i].id, [
+      Math.cos(theta) * r * FAMILY_RADIUS,
+      y * FAMILY_RADIUS,
+      Math.sin(theta) * r * FAMILY_RADIUS,
     ]);
   }
-  const syrups = clusters.find(c => c.id === 6);
-  if (syrups) familyCenter.set(6, [0, FAMILY_RADIUS * 0.9, 0]);
 
-  // Subcluster centers ring each family centroid.
+  // Build a basis (u, v) perpendicular to the radial vector from the
+  // origin to the family centroid. Subclusters ride in this u,v plane
+  // so each family's "disc" of variations faces outward, not stacked
+  // along the global Y axis.
+  function radialBasis(center) {
+    const len = Math.hypot(center[0], center[1], center[2]) || 1;
+    const radial = [center[0] / len, center[1] / len, center[2] / len];
+    const upRef = Math.abs(radial[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+    let u = [
+      upRef[1] * radial[2] - upRef[2] * radial[1],
+      upRef[2] * radial[0] - upRef[0] * radial[2],
+      upRef[0] * radial[1] - upRef[1] * radial[0],
+    ];
+    const ul = Math.hypot(u[0], u[1], u[2]) || 1;
+    u = [u[0] / ul, u[1] / ul, u[2] / ul];
+    const v = [
+      radial[1] * u[2] - radial[2] * u[1],
+      radial[2] * u[0] - radial[0] * u[2],
+      radial[0] * u[1] - radial[1] * u[0],
+    ];
+    return { u, v };
+  }
+
   // Group cocktails by subcluster_id.
   const subGroups = new Map();
   for (const [name, n] of nodes) {
@@ -230,7 +254,8 @@ export function computeCodexPositions(nodes, clusters) {
     subGroups.get(key).names.push(name);
   }
 
-  // For each family, find its subclusters and place them on a ring.
+  // Per family, splay its subclusters around the centroid in the
+  // radial-perpendicular disc.
   const familySubs = new Map();
   for (const [subId, group] of subGroups) {
     if (!familySubs.has(group.family_id)) familySubs.set(group.family_id, []);
@@ -240,12 +265,15 @@ export function computeCodexPositions(nodes, clusters) {
   for (const [famId, list] of familySubs) {
     const fc = familyCenter.get(famId);
     if (!fc) continue;
+    const { u, v } = radialBasis(fc);
     for (let i = 0; i < list.length; i++) {
-      const angle = (i / list.length) * Math.PI * 2;
+      const angle = (i / Math.max(1, list.length)) * Math.PI * 2;
+      const ca = Math.cos(angle) * SUBCLUSTER_RADIUS;
+      const sa = Math.sin(angle) * SUBCLUSTER_RADIUS;
       subCenter.set(list[i].subId, [
-        fc[0] + Math.cos(angle) * SUBCLUSTER_RADIUS,
-        fc[1] + (Math.sin(i * 1.7) * 4), // slight vertical jitter
-        fc[2] + Math.sin(angle) * SUBCLUSTER_RADIUS,
+        fc[0] + u[0] * ca + v[0] * sa,
+        fc[1] + u[1] * ca + v[1] * sa,
+        fc[2] + u[2] * ca + v[2] * sa,
       ]);
     }
   }
