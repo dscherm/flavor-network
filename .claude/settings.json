@@ -40,6 +40,14 @@
             "command": "python \"D:/Projects/ralph-universal/tools/compact_memories.py\" --check-only"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/unpossible-ralph/tools/compact_memories.py\" --check-only"
+          }
+        ]
       }
     ],
     "PreToolUse": [

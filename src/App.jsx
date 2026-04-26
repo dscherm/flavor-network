@@ -2,8 +2,9 @@ import { useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react
 import useProData from './hooks/useProData.js';
 // TrainingProgress removed — served as dev demo, not production feature
 const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
-const DiscoverPatterns = lazy(() => import('./components/DiscoverPatterns.jsx'));
-import DiscoverCTA from './components/DiscoverCTA.jsx';
+// DiscoverPatterns + DiscoverCTA + FlavorBridge removed from the
+// shipping surface per polish pass; GlobalInsights is kept in the
+// codebase but no longer reachable from the UI.
 import ClusterJoystick from './components/ClusterJoystick.jsx';
 import HowItWorks from './components/HowItWorks.jsx';
 import StartPage from './components/StartPage.jsx';
@@ -25,7 +26,6 @@ import ProfilePanel from './components/ProfilePanel.jsx';
 import ProfileToggle from './components/ProfileToggle.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
-import FlavorBridge from './components/FlavorBridge.jsx';
 import LivingArchView from './components/LivingArchView.jsx';
 import CocktailLab from './components/CocktailLab.jsx';
 import SauceLab from './components/SauceLab.jsx';
@@ -77,12 +77,14 @@ export default function App() {
   );
   const [showProfile, setShowProfile] = useState(false);
   const [profileMode, setProfileMode] = useState(false);
+  // GlobalInsights kept in the codebase (component file + this state)
+  // but no longer reachable from the UI per the polish pass — no
+  // toggle is wired up after this change. Re-expose by adding a
+  // setShowGlobalInsights(true) trigger when ready to ship.
   const [showGlobalInsights, setShowGlobalInsights] = useState(false);
   const [showTreeExplorer, setShowTreeExplorer] = useState(false);
-  const [showBridge, setShowBridge] = useState(false);
   const [treeFilterIngredients, setTreeFilterIngredients] = useState(null);
   const [treeFilterLabel, setTreeFilterLabel] = useState(null);
-  const [bridgePathIngredients, setBridgePathIngredients] = useState(null);
   const [showFilteredList, setShowFilteredList] = useState(false);
   const [hoveredNode, setHoveredNode] = useState(null);
   const [hoverPos, setHoverPos] = useState(null);
@@ -450,7 +452,7 @@ export default function App() {
             <button
               onClick={() => { setExploreDropdownOpen(v => !v); setLabDropdownOpen(false); }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                showTreeExplorer || showBridge || showGlobalInsights
+                showTreeExplorer
                   ? 'text-purple-300 bg-purple-500/10 border border-purple-500/20'
                   : 'text-gray-500 hover:text-gray-300 border border-transparent'
               }`}
@@ -520,7 +522,6 @@ export default function App() {
         particleBrightness={particleBrightness}
         filterTaste={selectedTaste}
         treeFilterIngredients={treeFilterIngredients}
-        bridgePathIngredients={bridgePathIngredients}
         mode={livingMode}
         onModeChange={setLivingMode}
         onDoubleTap={handleCanvasDoubleTap}
@@ -744,17 +745,6 @@ export default function App() {
           if (ingredients) setShowTreeExplorer(false);
         }}
       />
-      <FlavorBridge
-        nodes={data ? data.graph.nodes : null}
-        edges={data ? data.graph.edges : null}
-        ingredientList={ingredientList}
-        isOpen={showBridge}
-        onClose={() => { setShowBridge(false); setBridgePathIngredients(null); }}
-        onSelectIngredient={handleSearchSelect}
-        onPathChange={setBridgePathIngredients}
-        bridgeCompounds={data?.bridgeCompounds}
-        bridgeMolecules3D={data?.bridgeMolecules3D}
-      />
       <HelpButton onClick={() => setShowTour(true)} />
       <HowItWorks initialOpen={howItWorksInitialOpen} />
       </div>
@@ -836,32 +826,6 @@ export default function App() {
             isMobile={isMobile}
           />
         </div>
-      )}
-
-      {/* Discover Patterns — shows shared molecular patterns between clusters */}
-      {activeTab === 'network' && data?.clusterExplanations && (
-        <Suspense fallback={null}>
-          <DiscoverPatterns
-            clusterExplanations={data.clusterExplanations}
-            onSelectIngredient={handleSearchSelect}
-          />
-        </Suspense>
-      )}
-
-      {/* Discover CTA — user-seeded pairing finder on the network tab.
-          Replaces the old MoleculeOfTheDay floating card per user feedback
-          ("doesn't provide important info"). MoleculeLab preset cards are
-          folded into the pairing panel context instead. */}
-      {activeTab === 'network' && data && (
-        <DiscoverCTA
-          edges={data.graph.edges}
-          nodes={data.graph.nodes}
-          ingredientList={ingredientList}
-          onPickPair={(names) => {
-            setSelectedNodes(names);
-            setActivePanel('ingredient');
-          }}
-        />
       )}
 
       {/* ClusterJoystick — pinned bottom-center pill strip. In Network
@@ -983,11 +947,6 @@ export default function App() {
           }}
           onOpenProfile={() => setShowProfile(v => !v)}
           onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
-          onOpenBridge={() => setShowBridge(v => !v)}
-          onOpenGlobalInsights={() => {
-            setActivePanel(activePanel === 'global-insights' ? null : 'global-insights');
-            setShowGlobalInsights(v => !v);
-          }}
         />
       )}
 

@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import NetworkScene from './NetworkScene.jsx';
-import SearchBar from './SearchBar.jsx';
 import SauceDetailPanel from './SauceDetailPanel.jsx';
 import {
   loadSauceCodex,
@@ -134,10 +133,6 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
     setSelectedSauce(node.name);
   }, []);
 
-  const handleSearchSelect = useCallback((name) => {
-    setSelectedSauce(name);
-  }, []);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
@@ -163,8 +158,6 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
     );
   }
 
-  const ingredientList = codexData?.graph?.ingredientList || [];
-
   return (
     <>
       <NetworkScene
@@ -182,11 +175,6 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
         sceneExtras={sceneExtras}
         showNodeLabels={true}
         labelNodeNames={familyFilteredNames}
-      />
-
-      <SearchBar
-        ingredients={ingredientList}
-        onSelect={handleSearchSelect}
       />
 
       {selectedSauce && (

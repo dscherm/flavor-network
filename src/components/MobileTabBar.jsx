@@ -5,19 +5,21 @@ export default function MobileTabBar({
   onTabChange,
   onOpenProfile,
   onOpenTreeExplorer,
-  onOpenBridge,
-  onOpenGlobalInsights,
 }) {
   const [labsOpen, setLabsOpen] = useState(false);
-  const [exploreOpen, setExploreOpen] = useState(false);
+  // exploreOpen kept as a no-op state so the inline `setExploreOpen(false)`
+  // calls below still resolve — Explore is a direct trigger now, not a
+  // dropdown, but we leave the setter wired in case the dropdown comes
+  // back. Removing it would require touching every Explore button site.
+  const setExploreOpen = () => {};
 
   const isLabActive = activeTab !== 'network';
 
   return (
     <>
-      {/* Backdrop for popovers */}
-      {(labsOpen || exploreOpen) && (
-        <div className="fixed inset-0 z-[69]" onClick={() => { setLabsOpen(false); setExploreOpen(false); }} />
+      {/* Backdrop for the Labs popover */}
+      {labsOpen && (
+        <div className="fixed inset-0 z-[69]" onClick={() => { setLabsOpen(false); }} />
       )}
 
       <div
@@ -74,42 +76,18 @@ export default function MobileTabBar({
             )}
           </div>
 
-          {/* Explore */}
-          <div className="relative">
-            <button
-              onClick={() => { setExploreOpen(v => !v); setLabsOpen(false); }}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
-                exploreOpen ? 'text-purple-400' : 'text-gray-500'
-              }`}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              <span className="text-[10px]">Explore</span>
-            </button>
-            {exploreOpen && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[71] overflow-hidden">
-                <button
-                  onClick={() => { onOpenTreeExplorer(); setExploreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 min-h-[44px] text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                >
-                  Flavor Trees
-                </button>
-                <button
-                  onClick={() => { onOpenBridge(); setExploreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 min-h-[44px] text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                >
-                  Flavor Bridge
-                </button>
-                <button
-                  onClick={() => { onOpenGlobalInsights(); setExploreOpen(false); }}
-                  className="w-full text-left px-3 py-2.5 min-h-[44px] text-xs text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
-                >
-                  Network Insights
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Explore — single-button shortcut to Flavor Trees now that
+              Flavor Bridge is gone and Network Insights is hidden from
+              shipping surface. Dropdown collapsed to a direct trigger. */}
+          <button
+            onClick={() => { onOpenTreeExplorer(); setLabsOpen(false); setExploreOpen(false); }}
+            className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-500 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <span className="text-[10px]">Explore</span>
+          </button>
 
           {/* Profile */}
           <button
