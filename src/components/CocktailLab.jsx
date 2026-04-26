@@ -6,6 +6,7 @@ import {
   computeCodexPositions,
 } from '../data/cocktailCodex.js';
 import { createClusterLabels } from '../three/AxisLabels.js';
+import ClusterJoystick from './ClusterJoystick.jsx';
 
 /**
  * CocktailLab — Codex view. Each NODE is a cocktail, grouped into the
@@ -186,38 +187,16 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
         />
       )}
 
-      {/* Family filter chips — replaces the old codex-template legend */}
-      <div className="fixed bottom-4 left-4 z-30 select-none bg-[#12121a]/85 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2">
-        <p className="text-[8px] text-gray-500 uppercase tracking-wider mb-1.5">Codex Families</p>
-        <div className="flex flex-wrap gap-1 max-w-[300px]">
-          {codexData.codex.clusters.map(c => {
-            const active = filterFamily === c.id;
-            return (
-              <button
-                key={c.id}
-                onClick={() => setFilterFamily(active ? null : c.id)}
-                className={`flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded transition-colors ${
-                  active ? 'bg-white/15 text-white ring-1 ring-white/20' : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <span
-                  className="w-1.5 h-1.5 rounded-full inline-block flex-shrink-0"
-                  style={{ backgroundColor: c.color }}
-                />
-                {c.name}
-              </button>
-            );
-          })}
-          {filterFamily != null && (
-            <button
-              onClick={() => setFilterFamily(null)}
-              className="text-[9px] text-gray-500 hover:text-blue-400 transition-colors px-1"
-            >
-              clear
-            </button>
-          )}
-        </div>
-      </div>
+      {/* Family fly-wheel — bottom-center pill strip. Tap a family to
+          filter the codex to it AND fly the camera to its centroid
+          (NetworkScene auto-flies on treeFilterIngredients change). */}
+      <ClusterJoystick
+        clusters={codexData.codex.clusters}
+        mode="ml"
+        focusedClusterId={filterFamily}
+        onClusterFocus={(id) => setFilterFamily(id)}
+        onFlyTo={() => {}}
+      />
     </>
   );
 }

@@ -60,8 +60,14 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
       }))
     : (clusters || []).map(cl => ({
         id: `cluster:${cl.id}`,
-        label: cl.label,
-        color: CLUSTER_HEX[cl.id] || '#aaaaaa',
+        // Codex labs pass `name`; Network passes `label`. Accept both
+        // so this joystick can be reused across surfaces.
+        label: cl.label || cl.name || `cluster ${cl.id}`,
+        // Prefer cluster.color when the caller provides one (the
+        // Cocktail / Sauce codex families ship their own palette);
+        // fall back to the Network's CLUSTER_HEX index for the
+        // 10-cluster ML view.
+        color: cl.color || CLUSTER_HEX[cl.id] || '#aaaaaa',
         cluster: cl,
       }));
 
