@@ -419,25 +419,33 @@ export default function App() {
                     { key: 'recipe', label: 'Recipe Lab' },
                     { key: 'cocktail', label: 'Cocktail Lab' },
                     { key: 'sauce', label: 'Sauce Lab' },
+                    { key: 'molecule', label: 'Molecule Lab' },
                   ].map((lab) => (
                     <button
                       key={lab.key}
                       onClick={() => {
+                        // Molecule Lab is a slide-out panel, not a full tab —
+                        // keep activeTab untouched so the network scene stays
+                        // mounted underneath.
+                        if (lab.key === 'molecule') {
+                          setMoleculeLabOpen(v => !v);
+                          setLabDropdownOpen(false);
+                          return;
+                        }
                         setActiveTab(lab.key);
                         if (lab.key === 'cocktail') setCocktailMounted(true);
                         if (lab.key === 'sauce') setSauceMounted(true);
                         if (lab.key === 'recipe') setRecipeMounted(true);
-                        if (lab.key === 'molecule') { setMoleculeLabOpen(v => !v); setLabDropdownOpen(false); return; }
                         setLabDropdownOpen(false);
                       }}
                       className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                        activeTab === lab.key
+                        (lab.key === 'molecule' ? moleculeLabOpen : activeTab === lab.key)
                           ? 'text-cyan-300 bg-cyan-500/10'
                           : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
                       }`}
                     >
                       {lab.label}
-                      {activeTab === lab.key && (
+                      {(lab.key === 'molecule' ? moleculeLabOpen : activeTab === lab.key) && (
                         <svg className="w-3 h-3 ml-auto text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                         </svg>
