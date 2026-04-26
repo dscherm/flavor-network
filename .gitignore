@@ -34,3 +34,4 @@ __pycache__/
 # chemDataset local data (scraped sources)
 chemDataset/raw/
 chemDataset/processed/
+/public/wasm/

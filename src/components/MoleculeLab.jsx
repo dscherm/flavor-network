@@ -60,6 +60,10 @@ function TasteBars({ probs, label }) {
 export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selectedNodesData = [], graphNodes, onSelectIngredient }) {
   const [moleculeData, setMoleculeData] = useState(null);
   const [presetData, setPresetData] = useState(null);
+  // Live in-browser SMILES → GNN inference (count === 0 mode only).
+  const [smilesInput, setSmilesInput] = useState('');
+  const [livePrediction, setLivePrediction] = useState(null);
+  const [predictStatus, setPredictStatus] = useState('idle'); // idle | loading | ok | invalid | error
 
   useEffect(() => {
     Promise.all([
@@ -70,6 +74,30 @@ export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selec
       setPresetData(predictions);
     }).catch(() => {});
   }, []);
+
+  // Debounced live prediction. Lazy-loads ~18MB of WASM (rdkit + ort)
+  // on first call only; subsequent predictions reuse the open session.
+  useEffect(() => {
+    const trimmed = smilesInput.trim();
+    if (!trimmed) { setLivePrediction(null); setPredictStatus('idle'); return; }
+    let cancelled = false;
+    const handle = setTimeout(async () => {
+      setPredictStatus('loading');
+      try {
+        const { predict } = await import('../ml/flavorGnnRuntime.js');
+        const result = await predict(trimmed);
+        if (cancelled) return;
+        if (!result) { setLivePrediction(null); setPredictStatus('invalid'); return; }
+        setLivePrediction(result);
+        setPredictStatus('ok');
+      } catch (err) {
+        if (cancelled) return;
+        console.error('[molecule-lab] predict failed:', err);
+        setPredictStatus('error');
+      }
+    }, 350);
+    return () => { cancelled = true; clearTimeout(handle); };
+  }, [smilesInput]);
 
   // Find shared compounds between 2 selected ingredients
   const sharedCompounds = useMemo(() => {
@@ -261,22 +289,58 @@ export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selec
           </>
         )}
 
-        {/* 0 ingredients: Compound Explorer with presets */}
+        {/* 0 ingredients: Compound Explorer with live SMILES + presets */}
         {count === 0 && presetData && (
           <>
-            <p className="text-xs text-gray-400 mb-3">
-              Select an ingredient on the network to see its flavor chemistry,
-              or explore these well-known molecules:
-            </p>
-            <div className="space-y-1.5">
-              {presetData.presets.slice(0, 6).map((p) => (
-                <div key={p.name} className="p-2 bg-[#13131a] rounded border border-[#2a2a3a]">
-                  <div className="text-xs font-medium text-gray-200">{p.name}</div>
-                  <div className="text-[10px] text-gray-500">{p.intuition}</div>
-                  <TasteBars probs={p.predictions} />
-                </div>
-              ))}
-            </div>
+            <section className="mb-4">
+              <h3 className="text-sm text-gray-300 font-medium mb-2">Live SMILES prediction</h3>
+              <p className="text-[10px] text-gray-500 mb-2">
+                Paste a SMILES string — the v3 GNN runs in your browser and predicts taste + odor.
+              </p>
+              <input
+                type="text"
+                value={smilesInput}
+                onChange={(e) => setSmilesInput(e.target.value)}
+                placeholder="e.g. CN1C=NC2=C1C(=O)N(C(=O)N2C)C"
+                className="w-full px-2 py-1.5 bg-[#13131a] border border-[#2a2a3a] rounded text-xs text-gray-200 font-mono placeholder-gray-600 focus:outline-none focus:border-cyan-500/50"
+                spellCheck={false}
+                autoCapitalize="off"
+              />
+              <div className="text-[10px] text-gray-500 mt-1.5 mb-2">
+                {predictStatus === 'idle' && 'Type a SMILES or click a preset below.'}
+                {predictStatus === 'loading' && 'Predicting...'}
+                {predictStatus === 'invalid' && (
+                  <span className="text-amber-400">Could not parse SMILES — check syntax.</span>
+                )}
+                {predictStatus === 'error' && (
+                  <span className="text-red-400">Inference failed — see console.</span>
+                )}
+                {predictStatus === 'ok' && livePrediction && (
+                  <span>{livePrediction.nAtoms} atoms · {livePrediction.nBonds} bonds · calibrated probabilities</span>
+                )}
+              </div>
+              {predictStatus === 'ok' && livePrediction && (
+                <TasteBars probs={livePrediction.calibrated} />
+              )}
+            </section>
+
+            <section className="mb-2">
+              <h3 className="text-sm text-gray-300 font-medium mb-2">Preset molecules</h3>
+              <div className="space-y-1.5">
+                {presetData.presets.slice(0, 6).map((p) => (
+                  <button
+                    key={p.name}
+                    type="button"
+                    onClick={() => setSmilesInput(p.smiles)}
+                    className="w-full text-left p-2 bg-[#13131a] rounded border border-[#2a2a3a] hover:border-cyan-500/40 transition-colors"
+                  >
+                    <div className="text-xs font-medium text-gray-200">{p.name}</div>
+                    <div className="text-[10px] text-gray-500">{p.intuition}</div>
+                    <TasteBars probs={p.predictions} />
+                  </button>
+                ))}
+              </div>
+            </section>
           </>
         )}
 
