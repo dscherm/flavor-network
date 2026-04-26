@@ -5,10 +5,10 @@ import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import AromaProfileBars from './AromaProfileBars.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import SuggestionDrawer from './SuggestionDrawer.jsx';
-import RecipeLabTemplates from './RecipeLabTemplates.jsx';
-import ClassicalMatchCard from './ClassicalMatchCard.jsx';
-import ClassicalMatchToast from './ClassicalMatchToast.jsx';
-import { matchClassical } from '../data/classicalMatcher.js';
+// "Start from" template strip + "This looks like" classical match
+// card/toast removed in the polish pass — they were redundant against
+// the Cocktail/Sauce Lab handoff that already pre-loads the canonical
+// recipe and made the Recipe Lab feel busy.
 
 const FONT_FAMILY = 'Caveat, cursive';
 
@@ -301,33 +301,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           </button>
         ))}
       </div>
-
-      {/* Mode-specific template starters — "Start from" row of canonical
-          cocktails / mother sauces. Tapping one sets selectedStructure,
-          which SuggestionDrawer uses to bias recommendations toward the
-          template's unfilled roles. */}
-      <RecipeLabTemplates
-        labMode={labMode}
-        selected={selectedStructure}
-        onSelect={setSelectedStructure}
-        onClear={() => setSelectedStructure(null)}
-      />
-
-      {/* Classical taxonomy match — on-demand "where does this fit?"
-          card. Shows only when the recipe at least partially matches a
-          Mother Sauce / Cocktail Codex entry. */}
-      <ClassicalMatchCard
-        labMode={labMode}
-        ingredients={recipeIngredients}
-      />
-
-      {/* Celebratory toast when the recipe completes a classical entry. */}
-      <ClassicalMatchToast
-        match={useMemo(
-          () => matchClassical(labMode, recipeIngredients).complete,
-          [labMode, recipeIngredients],
-        )}
-      />
 
       {/* Search bar */}
       <div

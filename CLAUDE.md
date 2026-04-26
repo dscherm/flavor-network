@@ -13,3 +13,7 @@
 <!-- unpossible-ralph: auto-injected context -->
 @.claude/.ralph-handoff.md
 @.claude/.ralph-bridge-resume.md
+
+
+<!-- unpossible-ralph: auto-injected context -->
+@.claude/.ralph-bootstrap-needed.md

@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import NetworkScene from './NetworkScene.jsx';
-import SearchBar from './SearchBar.jsx';
 import CocktailDetailPanel from './CocktailDetailPanel.jsx';
 import {
   loadCocktailCodex,
@@ -131,10 +130,6 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
     setSelectedCocktail(node.name);
   }, []);
 
-  const handleSearchSelect = useCallback((name) => {
-    setSelectedCocktail(name);
-  }, []);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
@@ -160,8 +155,6 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
     );
   }
 
-  const ingredientList = codexData?.graph?.ingredientList || [];
-
   return (
     <>
       <NetworkScene
@@ -179,11 +172,6 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
         sceneExtras={sceneExtras}
         showNodeLabels={true}
         labelNodeNames={familyFilteredNames}
-      />
-
-      <SearchBar
-        ingredients={ingredientList}
-        onSelect={handleSearchSelect}
       />
 
       {selectedCocktail && (

@@ -30,12 +30,7 @@
       "Glob",
       "Grep",
       "Read",
-      "Write",
-      "Bash(python *)",
-      "Bash(tasklist)",
-      "Bash(wait)",
-      "mcp__plugin_oh-my-claudecode_t__state_list_active",
-      "mcp__plugin_oh-my-claudecode_t__state_clear"
+      "Write"
     ]
   }
 }
