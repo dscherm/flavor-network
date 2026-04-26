@@ -1,0 +1,103 @@
+{
+  "model": "MPNN multi-task (GINEConv, 3 layers, hidden=128)",
+  "tasks": [
+    "sweet",
+    "bitter",
+    "umami",
+    "salty",
+    "sour",
+    "odor_fruity",
+    "odor_floral",
+    "odor_green",
+    "odor_woody",
+    "odor_spicy",
+    "odor_fatty"
+  ],
+  "seed": 42,
+  "epochs": 15,
+  "batch_size": 64,
+  "device": "cpu",
+  "best_per_task": {
+    "sweet": {
+      "f1": 0.5355648535564853,
+      "precision": 0.43686006825938567,
+      "recall": 0.6918918918918919,
+      "epoch": 11
+    },
+    "bitter": {
+      "f1": 0.7759433962264151,
+      "precision": 0.7704918032786885,
+      "recall": 0.7814726840855107,
+      "epoch": 15
+    },
+    "umami": {
+      "f1": 0.23703703703703705,
+      "precision": 0.13675213675213677,
+      "recall": 0.8888888888888888,
+      "epoch": 12
+    },
+    "salty": {
+      "f1": 0.19230769230769232,
+      "precision": 0.10638297872340426,
+      "recall": 1.0,
+      "epoch": 14
+    },
+    "sour": {
+      "f1": 0.24719101123595505,
+      "precision": 0.14864864864864866,
+      "recall": 0.7333333333333333,
+      "epoch": 13
+    },
+    "odor_fruity": {
+      "f1": 0.5901639344262295,
+      "precision": 0.5142857142857142,
+      "recall": 0.6923076923076923,
+      "epoch": 11
+    },
+    "odor_floral": {
+      "f1": 0.3567567567567568,
+      "precision": 0.23741007194244604,
+      "recall": 0.717391304347826,
+      "epoch": 4
+    },
+    "odor_green": {
+      "f1": 0.5,
+      "precision": 0.3645320197044335,
+      "recall": 0.7956989247311828,
+      "epoch": 4
+    },
+    "odor_woody": {
+      "f1": 0.5047318611987381,
+      "precision": 0.35874439461883406,
+      "recall": 0.851063829787234,
+      "epoch": 11
+    },
+    "odor_spicy": {
+      "f1": 0.2909090909090909,
+      "precision": 0.1791044776119403,
+      "recall": 0.7741935483870968,
+      "epoch": 6
+    },
+    "odor_fatty": {
+      "f1": 0.3617021276595745,
+      "precision": 0.2446043165467626,
+      "recall": 0.6938775510204082,
+      "epoch": 4
+    }
+  },
+  "train_n": 3340,
+  "test_n": 836,
+  "test_positives": {
+    "sweet": 185,
+    "bitter": 421,
+    "umami": 18,
+    "salty": 5,
+    "sour": 15,
+    "odor_fruity": 104,
+    "odor_floral": 46,
+    "odor_green": 93,
+    "odor_woody": 94,
+    "odor_spicy": 31,
+    "odor_fatty": 49
+  }
+}

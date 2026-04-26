@@ -95,7 +95,8 @@ def _pick_trace_compounds(df: pd.DataFrame, per_task: int = 6) -> list[int]:
 
 
 def train(df: pd.DataFrame, epochs: int, batch_size: int, device: str,
-          trace_path: Path | None = None) -> tuple[dict, dict | None]:
+          trace_path: Path | None = None,
+          loss_type: str = "bce", gamma: float = 2.0) -> tuple[dict, dict | None]:
     from torch_geometric.loader import DataLoader
     data_list, Y = _featurize_all(df)
 
@@ -164,7 +165,10 @@ def train(df: pd.DataFrame, epochs: int, batch_size: int, device: str,
             opt.zero_grad()
             logits = model(batch)  # (B, T)
             y = batch.y.view(-1, len(TASKS))
-            loss = F.binary_cross_entropy_with_logits(logits, y, pos_weight=pos_weight)
+            if loss_type == "focal":
+                loss = focal_loss(logits, y, pos_weight=pos_weight, gamma=gamma)
+            else:
+                loss = F.binary_cross_entropy_with_logits(logits, y, pos_weight=pos_weight)
             loss.backward()
             opt.step()
             tot += float(loss.detach()) * batch.num_graphs
@@ -360,7 +364,8 @@ def main() -> int:
         return 0
 
     trace_path = Path(args.trace) if args.trace else None
-    results, ckpt = train(df, args.epochs, args.batch_size, device, trace_path=trace_path)
+    results, ckpt = train(df, args.epochs, args.batch_size, device, trace_path=trace_path,
+                          loss_type=args.loss, gamma=args.gamma)
 
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
