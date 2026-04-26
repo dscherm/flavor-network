@@ -4,27 +4,51 @@
     "bitter",
     "umami",
     "salty",
-    "sour"
+    "sour",
+    "odor_fruity",
+    "odor_floral",
+    "odor_green",
+    "odor_woody",
+    "odor_spicy",
+    "odor_fatty"
   ],
   "train_priors": {
-    "sweet": 0.228,
-    "bitter": 0.504,
-    "umami": 0.023,
-    "salty": 0.004,
-    "sour": 0.019
+    "sweet": 0.088,
+    "bitter": 0.415,
+    "umami": 0.042,
+    "salty": 0.017,
+    "sour": 0.057,
+    "odor_fruity": 0.601,
+    "odor_floral": 0.628,
+    "odor_green": 0.458,
+    "odor_woody": 0.218,
+    "odor_spicy": 0.109,
+    "odor_fatty": 0.798
   },
   "target_priors": {
     "sweet": 0.06,
     "bitter": 0.1,
     "umami": 0.005,
     "salty": 0.005,
-    "sour": 0.01
+    "sour": 0.01,
+    "odor_fruity": 0.1,
+    "odor_floral": 0.04,
+    "odor_green": 0.1,
+    "odor_woody": 0.08,
+    "odor_spicy": 0.03,
+    "odor_fatty": 0.05
   },
   "shift": [
-    -1.5318963527679443,
-    -2.2132248878479004,
-    -1.5443123579025269,
-    0.22414806485176086,
-    -0.65098637342453
+    -0.41323214769363403,
+    -1.8538912534713745,
+    -2.1661267280578613,
+    -1.235909104347229,
+    -1.7891048192977905,
+    -2.606858015060425,
+    -3.701700210571289,
+    -2.028827667236328,
+    -1.164987325668335,
+    -1.375102162361145,
+    -4.31827974319458
   ]
 }
