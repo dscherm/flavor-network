@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import MoleculeViewer3D from './MoleculeViewer3D.jsx';
+import MessagePassingDiagram from './MessagePassingDiagram.jsx';
 
 /**
  * MoleculeLab — Pairing Chemistry card.
@@ -123,6 +124,24 @@ export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selec
     }
     return Object.values(moleculeData)[0] || null;
   }, [moleculeData, count, node1, sharedCompounds]);
+
+  // Predictions to feed the message-passing diagram — prefer the matching
+  // preset's pre-baked predictions (these line up with the same molecule
+  // the activations were traced from), fall back to the selected
+  // ingredient's gnnProbs so the diagram still shows something useful when
+  // the user is hovering an ingredient instead of a preset.
+  const diagramData = useMemo(() => {
+    if (!viewerMolecule) return null;
+    const target = viewerMolecule.name?.toLowerCase();
+    if (presetData?.presets && target) {
+      const match = presetData.presets.find((p) => p.name.toLowerCase() === target);
+      if (match) return { predictions: match.predictions, name: match.name };
+    }
+    if (count === 1 && node1?.gnnProbs) {
+      return { predictions: node1.gnnProbs, name: viewerMolecule.name };
+    }
+    return null;
+  }, [viewerMolecule, presetData, count, node1]);
 
   if (!isOpen) return null;
 
@@ -269,6 +288,17 @@ export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selec
             </h3>
             <MoleculeViewer3D moleculeData={viewerMolecule} />
           </section>
+        )}
+
+        {/* Message-passing animation — only renders real activations when
+            viewerMolecule matches a preset that was traced through the GNN
+            offline (see flavor-gnn/src/infer/preset_activations.py). */}
+        {diagramData && (
+          <MessagePassingDiagram
+            predictions={diagramData.predictions}
+            tasks={TASTE_TASKS}
+            moleculeName={diagramData.name}
+          />
         )}
       </div>
     </div>
