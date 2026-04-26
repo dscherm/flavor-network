@@ -248,7 +248,11 @@ export function computeSauceCodexPositions(nodes, clusters) {
   // Family centroids distributed on a sphere via a Fibonacci-spiral
   // lattice (≈evenly spaced surface points → polyhedron feel rather
   // than a flat 10-cluster ring on the X-Z plane).
-  const FAMILY_RADIUS = 36;
+  // Tightened from 36 → 26. With 10 families on a Fibonacci sphere of
+  // R=26, nearest-neighbor distance ≈ 23; family extent (cuisine ring
+  // + scatter) ≈ 10.5, so the ~12-unit gap keeps families distinct
+  // without empty space between them.
+  const FAMILY_RADIUS = 26;
   const SUBCLUSTER_RADIUS = 7;  // distance from family centroid to cuisine sub-centroid
   const BASE_SCATTER = 3.5;     // jitter inside each cuisine pod
 
