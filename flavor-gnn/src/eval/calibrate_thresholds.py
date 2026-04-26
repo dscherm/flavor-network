@@ -67,8 +67,12 @@ def main() -> int:
     df = pd.read_parquet(data_path)
     print(f"[calib] loaded {len(df)} compounds")
 
-    # Mirror train_multitask._featurize_all → featurize + build Y matrix.
-    data_list, y_mat = [], []
+    # Mirror train_multitask._featurize_all → featurize + build Y, M matrices.
+    # Mask is required: rows from sources that don't measure a task (e.g. FART
+    # for odor heads) must not contribute to threshold sweeping for that task,
+    # otherwise we calibrate against forced zeros.
+    has_mask = all(f"mask_{t}" in df.columns for t in TASKS)
+    data_list, y_mat, m_mat = [], [], []
     for _, row in df.iterrows():
         y = torch.tensor([[float(row[t]) for t in TASKS]], dtype=torch.float32)
         d = smiles_to_data(row["smiles"], y=y)
@@ -76,7 +80,12 @@ def main() -> int:
             continue
         data_list.append(d)
         y_mat.append([int(row[t]) for t in TASKS])
+        if has_mask:
+            m_mat.append([int(row[f"mask_{t}"]) for t in TASKS])
+        else:
+            m_mat.append([1] * len(TASKS))
     Y = np.array(y_mat, dtype=np.int64)
+    M = np.array(m_mat, dtype=np.int64)
 
     # Same split as train_multitask.train()
     strat = Y[:, TASKS.index("bitter")]
@@ -84,6 +93,7 @@ def main() -> int:
     tr_idx, te_idx = train_test_split(idx, test_size=0.2, stratify=strat, random_state=SEED)
     te = [data_list[i] for i in te_idx]
     Y_te = Y[te_idx]
+    M_te = M[te_idx]
 
     from torch_geometric.loader import DataLoader
     loader = DataLoader(te, batch_size=128, shuffle=False)
@@ -98,12 +108,24 @@ def main() -> int:
     P = np.concatenate(probs, 0)  # shape (N_test, num_tasks)
     assert P.shape == (len(te_idx), len(TASKS))
 
-    # Sweep thresholds per task.
+    # Sweep thresholds per task. Restrict each task's eval to rows where its
+    # label was observed — calibrating against unobserved zeros would push
+    # every threshold to 0.95 trivially.
     THRESHOLDS = np.linspace(0.05, 0.95, 19)
     rows = []
     for i, t in enumerate(TASKS):
-        y = Y_te[:, i]
-        p = P[:, i]
+        sel = M_te[:, i].astype(bool)
+        n_obs = int(sel.sum())
+        if n_obs == 0:
+            rows.append({
+                "task": t, "n_test_observed": 0, "n_test_positives": 0,
+                "f1_at_0.5": 0.0, "calibrated_threshold": 0.5,
+                "calibrated_f1": 0.0, "calibrated_precision": 0.0,
+                "calibrated_recall": 0.0, "lift": 0.0,
+            })
+            continue
+        y = Y_te[sel, i]
+        p = P[sel, i]
         n_pos = int(y.sum())
 
         default_pred = (p > 0.5).astype(int)
@@ -126,6 +148,7 @@ def main() -> int:
         lift = best_f1 - f1_default
         rows.append({
             "task": t,
+            "n_test_observed": n_obs,
             "n_test_positives": n_pos,
             "f1_at_0.5": round(float(f1_default), 3),
             "calibrated_threshold": round(best_thr, 2),
@@ -144,9 +167,10 @@ def main() -> int:
     }, indent=2))
 
     print(f"[calib] wrote {out_path}")
-    print(f"{'task':<14} {'npos':>5} {'F1@0.5':>7} {'calib_thr':>10} {'calib_F1':>9} {'lift':>6}")
+    print(f"{'task':<14} {'nobs':>5} {'npos':>5} {'F1@0.5':>7} {'calib_thr':>10} {'calib_F1':>9} {'lift':>6}")
     for r in rows:
-        print(f"{r['task']:<14} {r['n_test_positives']:>5} "
+        print(f"{r['task']:<14} {r.get('n_test_observed', '-'):>5} "
+              f"{r['n_test_positives']:>5} "
               f"{r['f1_at_0.5']:>7.3f} {r['calibrated_threshold']:>10.2f} "
               f"{r['calibrated_f1']:>9.3f} {r['lift']:>+6.3f}")
     return 0
