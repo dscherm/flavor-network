@@ -36,10 +36,23 @@ def _project_root() -> Path:
 
 
 def main() -> int:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ckpt", default=None,
+                        help="Checkpoint to calibrate. Defaults to artifacts/m3_multitask.pt.")
+    parser.add_argument("--out", default=None,
+                        help="Output JSON path. Defaults to artifacts/threshold_calibration.json (or _focal suffix when --ckpt is the focal ckpt).")
+    args = parser.parse_args()
+
     root = _project_root()
-    ckpt_path = root / "flavor-gnn" / "artifacts" / "m3_multitask.pt"
+    ckpt_path = Path(args.ckpt) if args.ckpt else (root / "flavor-gnn" / "artifacts" / "m3_multitask.pt")
     data_path = root / "flavor-gnn" / "data" / "compounds.parquet"
-    out_path = root / "flavor-gnn" / "artifacts" / "threshold_calibration.json"
+    if args.out:
+        out_path = Path(args.out)
+    elif "focal" in ckpt_path.name:
+        out_path = root / "flavor-gnn" / "artifacts" / "threshold_calibration_focal.json"
+    else:
+        out_path = root / "flavor-gnn" / "artifacts" / "threshold_calibration.json"
 
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     assert tuple(ckpt["tasks"]) == TASKS, "task list mismatch"
