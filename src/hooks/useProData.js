@@ -223,6 +223,20 @@ export default function useProData({ enabled = true } = {}) {
           // optional
         }
 
+        // Compound-food synthesis. Runs AFTER the direct GNN load so the
+        // model's predictions (when present) win over our synthesized
+        // ones. Targets ingredients like mayonnaise / garam masala /
+        // ranch dressing that the GNN has no prediction for AND can't
+        // reasonably get one (they're recipes-of-other-ingredients,
+        // not single molecules). The synthesized profile is tagged
+        // `gnnProbsSource = 'compound'` so the UI can badge it.
+        try {
+          const { applyCompoundSynthesis } = await import('../data/compoundFoods.js');
+          applyCompoundSynthesis(graph.nodes);
+        } catch {
+          // optional — never block the data hook on this
+        }
+
         // Per-ingredient compound info (names + flavor tags for the UI)
         try {
           const cmpRes = await fetch('/proDataset/gnn_compounds.json');

@@ -316,6 +316,19 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
         )}
         {node.gnnProbs && (
           <CollapsibleSection title="Why it tastes this way">
+            {node.gnnProbsSource === 'compound' && (
+              <div className="mb-2 px-2 py-1.5 rounded border border-amber-500/30 bg-amber-500/5">
+                <p className="text-[10px] text-amber-300/90 font-medium mb-0.5">
+                  Predicted from components
+                </p>
+                <p className="text-[10px] text-gray-400 leading-snug">
+                  {node.gnnConstituentsDescription
+                    ? `${node.gnnConstituentsDescription} — `
+                    : ''}
+                  blended from {(node.gnnConstituents || []).join(', ')}.
+                </p>
+              </div>
+            )}
             {node.gnnCompounds && (
               <div className="mb-2">
                 <p className="text-[11px] text-gray-400 mb-1.5">
@@ -339,7 +352,11 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 </div>
               </div>
             )}
-            <p className="text-[10px] text-gray-500 mb-1">Our AI analyzed these molecular structures and predicts:</p>
+            <p className="text-[10px] text-gray-500 mb-1">
+              {node.gnnProbsSource === 'compound'
+                ? 'Aggregated taste + aroma profile of the constituents:'
+                : 'Our AI analyzed these molecular structures and predicts:'}
+            </p>
             <div className="space-y-1">
               {Object.entries(node.gnnProbs).filter(([t]) => !t.startsWith('odor_')).map(([t, p]) => (
                 <div key={t} className="flex items-center gap-2">
