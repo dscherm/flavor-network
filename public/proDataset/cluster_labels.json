@@ -3,12 +3,12 @@
   "clusters": [
     {
       "id": 0,
-      "label": "Fruit & Nut Desserts",
+      "label": "Baked",
       "size": 273,
       "centroid_3d": [
-        -6.07,
-        -5.47,
-        -2.55
+        -30.66,
+        10.93,
+        -1.93
       ],
       "centroid_2d": [
         -37.03,
@@ -21,26 +21,16 @@
         "nut",
         "pineapple",
         "banana"
-      ],
-      "anchor_ingredient": "cream cheese",
-      "label_anchor_3d": [
-        -23.651,
-        57.011,
-        7.973
-      ],
-      "label_anchor_2d": [
-        -55.578,
-        9.048
       ]
     },
     {
       "id": 1,
-      "label": "Savory American",
+      "label": "Protein",
       "size": 853,
       "centroid_3d": [
-        -2.6,
-        -1.58,
-        -4.22
+        17.55,
+        6.35,
+        7.05
       ],
       "centroid_2d": [
         13.09,
@@ -53,26 +43,16 @@
         "milk",
         "tomato",
         "brown sugar"
-      ],
-      "anchor_ingredient": "sugar",
-      "label_anchor_3d": [
-        -24.871,
-        -9.875,
-        45.682
-      ],
-      "label_anchor_2d": [
-        35.033,
-        42.575
       ]
     },
     {
       "id": 2,
-      "label": "Italian",
+      "label": "Condiment",
       "size": 378,
       "centroid_3d": [
-        2.65,
-        1.97,
-        1.98
+        15.04,
+        13.41,
+        -6.64
       ],
       "centroid_2d": [
         18.41,
@@ -85,26 +65,16 @@
         "oregano",
         "red pepper",
         "mozzarella"
-      ],
-      "anchor_ingredient": "basil",
-      "label_anchor_3d": [
-        22.847,
-        -31.866,
-        30.227
-      ],
-      "label_anchor_2d": [
-        44.6,
-        32.354
       ]
     },
     {
       "id": 3,
-      "label": "Mexican & Latin",
+      "label": "Chili",
       "size": 328,
       "centroid_3d": [
-        -0.2,
-        0.42,
-        -0.59
+        10.09,
+        -15.31,
+        -10.13
       ],
       "centroid_2d": [
         17.01,
@@ -117,26 +87,16 @@
         "lime juice",
         "lime",
         "coriander"
-      ],
-      "anchor_ingredient": "cumin",
-      "label_anchor_3d": [
-        20.724,
-        41.745,
-        38.168
-      ],
-      "label_anchor_2d": [
-        37.719,
-        -40.028
       ]
     },
     {
       "id": 4,
-      "label": "East Asian",
+      "label": "Chili",
       "size": 314,
       "centroid_3d": [
-        0.73,
-        3.86,
-        -0.64
+        10.53,
+        -25.75,
+        1.73
       ],
       "centroid_2d": [
         18.22,
@@ -149,30 +109,20 @@
         "cornstarch",
         "sesame oil",
         "sesame"
-      ],
-      "anchor_ingredient": "ginger",
-      "label_anchor_3d": [
-        27.595,
-        -32.926,
-        -24.261
-      ],
-      "label_anchor_2d": [
-        26.096,
-        -48.415
       ]
     },
     {
       "id": 5,
-      "label": "Cocktails & Drinks",
+      "label": "Spirit",
       "size": 198,
       "centroid_3d": [
-        7.37,
-        2.2,
-        5.09
+        -29.35,
+        -0.96,
+        -13.71
       ],
       "centroid_2d": [
         -26.8,
-        -11
+        -11.0
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
@@ -181,26 +131,16 @@
         "mint",
         "pineapple juice",
         "rum"
-      ],
-      "anchor_ingredient": "orange",
-      "label_anchor_3d": [
-        32.52,
-        47.201,
-        -20.755
-      ],
-      "label_anchor_2d": [
-        -52.022,
-        -18.496
       ]
     },
     {
       "id": 6,
-      "label": "French & Herbs",
+      "label": "Vegetable",
       "size": 531,
       "centroid_3d": [
-        0.83,
-        0.73,
-        0.41
+        17.76,
+        -3.76,
+        -8.26
       ],
       "centroid_2d": [
         18.07,
@@ -213,26 +153,16 @@
         "thyme",
         "bay leaf",
         "white wine"
-      ],
-      "anchor_ingredient": "olive oil",
-      "label_anchor_3d": [
-        53.951,
-        8.656,
-        10.668
-      ],
-      "label_anchor_2d": [
-        54.996,
-        0.643
       ]
     },
     {
       "id": 7,
-      "label": "Whole Grain",
+      "label": "Thickener",
       "size": 174,
       "centroid_3d": [
-        -3.63,
-        4.38,
-        3.04
+        -20.33,
+        -6.96,
+        15.32
       ],
       "centroid_2d": [
         -19.87,
@@ -245,26 +175,16 @@
         "wheat flour",
         "date",
         "rolled oat"
-      ],
-      "anchor_ingredient": "oat",
-      "label_anchor_3d": [
-        -20.227,
-        -16.385,
-        -44.958
-      ],
-      "label_anchor_2d": [
-        -45.6,
-        -30.915
       ]
     },
     {
       "id": 8,
-      "label": "Chocolate & Vanilla",
+      "label": "Sweetener",
       "size": 334,
       "centroid_3d": [
-        1.37,
-        -1.19,
-        1.99
+        -33.93,
+        5.44,
+        9.34
       ],
       "centroid_2d": [
         -41.62,
@@ -277,26 +197,16 @@
         "cream",
         "chocolate",
         "powdered sugar"
-      ],
-      "anchor_ingredient": "vanilla",
-      "label_anchor_3d": [
-        -52.297,
-        -8.829,
-        -2.602
-      ],
-      "label_anchor_2d": [
-        -55.296,
-        -4.917
       ]
     },
     {
       "id": 9,
-      "label": "Kitchen Staples",
+      "label": "Fruit",
       "size": 530,
       "centroid_3d": [
-        2.55,
-        -0.34,
-        2.61
+        -13.44,
+        1.46,
+        1.9
       ],
       "centroid_2d": [
         -11.78,
@@ -309,16 +219,6 @@
         "flour",
         "garlic",
         "cinnamon"
-      ],
-      "anchor_ingredient": "onion",
-      "label_anchor_3d": [
-        -18.698,
-        38.706,
-        -41.623
-      ],
-      "label_anchor_2d": [
-        -50.761,
-        22.175
       ]
     }
   ]

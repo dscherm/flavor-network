@@ -25,20 +25,26 @@ from pathlib import Path
 import numpy as np
 
 
-# Training label rates from compounds.parquet (2026-04-15 run):
-#   bitter 49.5% | sweet 14.3% | umami 1.2% | salty 0.4% | sour 1.2%
+# Effective emission priors — mean sigmoid probability the v3 multi-task
+# model produces on the 70,477-compound FooDB inference set. Measured by
+# `score_all.py` on 2026-04-26. These are the right numbers to use for
+# logit-shift calibration: they reflect what the model ACTUALLY emits on
+# unlabeled food compounds, not the curated training-set positive rates.
+# The odor heads in particular emit very high mean probabilities (~60-80%)
+# because the small odor-observed training pool was heavily positive-skewed
+# under masking; logit-shift pulls them back toward food-base rates.
 TRAIN_PRIORS = {
-    "sweet":  0.228,
-    "bitter": 0.504,
-    "umami":  0.023,
-    "salty":  0.004,
-    "sour":   0.019,
-    "odor_fruity": 0.123,
-    "odor_floral": 0.056,
-    "odor_green":  0.119,
-    "odor_woody":  0.103,
-    "odor_spicy":  0.047,
-    "odor_fatty":  0.071,
+    "sweet":  0.088,
+    "bitter": 0.415,
+    "umami":  0.042,
+    "salty":  0.017,
+    "sour":   0.057,
+    "odor_fruity": 0.601,
+    "odor_floral": 0.628,
+    "odor_green":  0.458,
+    "odor_woody":  0.218,
+    "odor_spicy":  0.109,
+    "odor_fatty":  0.798,
 }
 
 # Target priors — best-guess base rates in a random food compound.
@@ -97,11 +103,11 @@ def main() -> int:
         print(f"  {t:7s} train={TRAIN_PRIORS[t]:.3f} -> target={TARGET_PRIORS[t]:.3f}   shift={s:+.3f}")
 
     # Example: raw 0.5 (uncertain) gets pulled toward each target prior.
-    example_raw = np.array([[0.5, 0.5, 0.5, 0.5, 0.5]])
+    example_raw = np.full((1, len(tasks)), 0.5, dtype=np.float32)
     calibrated = apply_shift(example_raw, tasks)
     print("\nExample: raw probs all 0.5 (max-entropy) calibrate to:")
     for t, p in zip(tasks, calibrated[0]):
-        print(f"  {t:7s} {p:.3f}")
+        print(f"  {t:12s} {p:.3f}")
 
     # Dump to disk so other languages can read the shift
     out = _project_root() / "flavor-gnn" / "artifacts" / "calibration.json"
