@@ -202,7 +202,12 @@ export async function loadCocktailCodex(basePath = '/data') {
  * @returns {Object} { positions: { [name]: [x, y, z] } }
  */
 export function computeCodexPositions(nodes, clusters) {
-  const FAMILY_RADIUS = 36;
+  // Tightened from 36 → 26 so the codex feels like one body rather
+  // than 7 distant islands. With 7 families on a Fibonacci sphere of
+  // R=26 the nearest-neighbor distance ≈ 28; family extent (subcluster
+  // radius + scatter) is ≈ 11, so the 17-unit gap leaves clear space
+  // between families and no recipe overlap.
+  const FAMILY_RADIUS = 26;
   const SUBCLUSTER_RADIUS = 8;
   const SCATTER = 3;
 
