@@ -168,8 +168,10 @@ export default function AromaHexWheel({ ingredients = [], nodes, onTapAroma, wid
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Axis labels with colored dot
-    ctx.font = `13px ${FONT_FAMILY}`;
+    // Axis labels with colored dot — 15px on touch viewports for
+    // iOS readability, 13px on wider screens to stay compact.
+    const labelFontPx = window.innerWidth < 640 ? 15 : 13;
+    ctx.font = `${labelFontPx}px ${FONT_FAMILY}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     for (const v of vertices) {
@@ -242,11 +244,11 @@ export default function AromaHexWheel({ ingredients = [], nodes, onTapAroma, wid
       }}
     >
       <div className="flex items-baseline justify-between w-full max-w-[320px] px-2 mb-1">
-        <h3 className="text-base" style={{ fontFamily: FONT_FAMILY, color: '#5a4a2a' }}>
+        <h3 className="text-lg sm:text-base" style={{ fontFamily: FONT_FAMILY, color: '#5a4a2a' }}>
           Aroma Profile
         </h3>
         {aroma?.hasSignal && aroma.confidence < 1 && (
-          <span className="text-[10px]" style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}>
+          <span className="text-xs sm:text-[10px]" style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}>
             {Math.round(aroma.confidence * 100)}% covered
           </span>
         )}
