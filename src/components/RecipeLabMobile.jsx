@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import { getNeighbors } from '../data/graph.js';
 import { getCocktailScope, getSauceScope } from '../data/labScope.js';
-import AromaProfileBars from './AromaProfileBars.jsx';
+import AromaHexWheel from './AromaHexWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import SuggestionDrawer from './SuggestionDrawer.jsx';
 // "Start from" template strip + "This looks like" classical match
@@ -344,7 +344,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
 
       {/* Zone 1: Aroma Profile */}
       <div className="flex-shrink-0">
-        <AromaProfileBars
+        <AromaHexWheel
           ingredients={recipeIngredients}
           nodes={fullData?.graph?.nodes}
           onTapAroma={(key) => {
