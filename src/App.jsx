@@ -38,11 +38,13 @@ import useAuth from './hooks/useAuth.js';
 import { computeProfileWeights } from './data/profileWeights.js';
 
 export default function App() {
-  // StartPage gate — persisted via localStorage key `fn-start-seen`. Returning
-  // users with the flag set skip the picker entirely. `?reset=start` clears
-  // the flag on mount (for testing). While false, useProData is disabled so
-  // the 27MB pairings payload does not download until the user clicks a card.
-  const [startPageComplete, setStartPageComplete] = useState(readStartPageFlag);
+  // StartPage gate — ALWAYS shown on launch. Users explicitly pick a
+  // model entry (Pairing / Cocktail / Sauce) every time the app opens
+  // so the experience reads as "pick what you want to explore" rather
+  // than dropping the user into wherever they were last. While false,
+  // useProData is disabled so the 27MB pairings payload does not
+  // download until the user clicks a card.
+  const [startPageComplete, setStartPageComplete] = useState(false);
   const [howItWorksInitialOpen, setHowItWorksInitialOpen] = useState(false);
 
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
