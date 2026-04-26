@@ -39,8 +39,13 @@ def auto_label(ingredients: list[dict], all_ingredients: dict, max_words: int = 
     """Generate a short descriptive label from ingredient names, categories, and cuisines.
 
     Strategy: find the most distinctive category or cuisine for this cluster
-    relative to the overall distribution. Fall back to describing the top
-    ingredients if no category/cuisine is dominant.
+    relative to the overall distribution, BUT only accept it if the cluster's
+    top-pairing ingredients actually have that category. A label that doesn't
+    match the top items users see ("Protein" cluster topped by sugar/butter/milk)
+    is worse than no label.
+
+    Falls back to a "<TopIngredient> & friends"-style label when no
+    category/cuisine survives the top-ingredient sanity check.
     """
     n = len(ingredients)
     if n == 0:
@@ -57,6 +62,16 @@ def auto_label(ingredients: list[dict], all_ingredients: dict, max_words: int = 
             if cn:
                 cuisines[cn] += 1
 
+    # Top ingredients (by pairing count) — these are what the UI surfaces.
+    # Any label MUST match what's visibly shown.
+    top = sorted(ingredients, key=lambda x: x.get("totalCount", 0) or 0, reverse=True)
+    top_5 = top[:5]
+    top_5_cats = {(t.get("category") or "").lower().strip() for t in top_5}
+    top_5_cuisines = set()
+    for t in top_5:
+        for c in t.get("cuisines", []) or []:
+            top_5_cuisines.add(c.replace(" cuisine", "").strip().lower())
+
     # Find the most over-represented category vs global rate
     global_cats = Counter()
     for v in all_ingredients.values():
@@ -72,7 +87,9 @@ def auto_label(ingredients: list[dict], all_ingredients: dict, max_words: int = 
         cluster_rate = count / n
         global_rate = global_cats.get(cat, 1) / total_global
         lift = cluster_rate / max(global_rate, 0.001)
-        if lift > best_lift and count >= 5:
+        # Sanity check: the cluster top-5 must include this category, or
+        # the lift is coming from long-tail items and the label will mislead.
+        if lift > best_lift and count >= 5 and cat in top_5_cats:
             best_lift = lift
             best_cat = cat
 
@@ -90,7 +107,7 @@ def auto_label(ingredients: list[dict], all_ingredients: dict, max_words: int = 
         cluster_rate = count / n
         global_rate = global_cuisines.get(cuis, 1) / total_gc
         lift = cluster_rate / max(global_rate, 0.001)
-        if lift > best_cuisine_lift and count >= 3:
+        if lift > best_cuisine_lift and count >= 3 and cuis in top_5_cuisines:
             best_cuisine_lift = lift
             best_cuisine = cuis
 
@@ -103,9 +120,13 @@ def auto_label(ingredients: list[dict], all_ingredients: dict, max_words: int = 
             parts.append(cat_label)
 
     if not parts:
-        # Fall back to top 2 ingredient names
-        top = sorted(ingredients, key=lambda x: x.get("totalCount", 0) or 0, reverse=True)
-        parts = [top[0]["name"].split()[0].title(), top[1]["name"].split()[0].title()] if len(top) >= 2 else ["Mixed"]
+        # Fall back to "<TopIngredient> & friends" so the label echoes the
+        # top item the UI actually shows. Avoids the v3 mismatch where a
+        # category label was attached to a cluster with unrelated top items.
+        if top:
+            parts = [top[0]["name"].split()[0].title()]
+        else:
+            parts = ["Mixed"]
 
     return " & ".join(parts[:max_words])
 
@@ -151,6 +172,7 @@ def main() -> int:
 
     # Build clusters
     clusters = []
+    label_counts: Counter = Counter()  # for collision detection
     for k in range(K):
         members = [names[i] for i in range(len(names)) if labels[i] == k]
         member_data = [
@@ -159,6 +181,15 @@ def main() -> int:
         ]
 
         label_text = auto_label(member_data, ingredients_data)
+        # If another cluster already claimed this label, disambiguate by
+        # appending the top-paired ingredient that uniquely belongs to
+        # this cluster's pool (e.g. "Chili (cumin)" vs "Chili (ginger)").
+        if label_counts[label_text] >= 1:
+            top = sorted(member_data, key=lambda x: x.get("totalCount", 0) or 0, reverse=True)
+            differentiator = next((t["name"].split()[0] for t in top if t.get("name")), None)
+            if differentiator:
+                label_text = f"{label_text} ({differentiator.lower()})"
+        label_counts[label_text.split(" (")[0]] += 1
 
         # Compute centroid in 3D and 2D
         positions_3d = [pos3d_data[n] for n in members if n in pos3d_data and isinstance(pos3d_data[n], list)]
