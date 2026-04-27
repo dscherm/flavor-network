@@ -1233,3 +1233,26 @@ Six interactive-mode tasks added by the user. Ordered by surface-area risk: the 
   ]
 }
 ```
+
+### Task 66: R10-66 — Joystick flywheel labels fly camera to cluster front
+
+```json
+{
+  "id": "R10-66",
+  "title": "Clicking a flywheel cluster label flies the camera to the cluster's front face",
+  "category": "ux",
+  "priority": 5,
+  "description": "When the user clicks a cluster label on the joystick flywheel (ClusterJoystick), the camera should fly to a position in front of that cluster's centroid so the cluster reads as the focal point. Today the click sets a filter / focus but the camera doesn't reframe — users have to manually orbit to find what they just selected. Apply this in three places: (1) Network tab (LivingArchView), (2) Cocktail Lab, (3) Sauce Lab. The 'front' of a cluster is defined as: position the camera along the radial-outward direction from the scene origin to the cluster centroid, at a distance scaled by sqrt(member_count) so denser clusters get more camera pull-back. Reuse the easing curve from the tree-filter fly-to in NetworkScene.jsx (lines ~329-342) to keep motion language consistent.",
+  "steps": [
+    "Audit ClusterJoystick.jsx to confirm where label clicks dispatch — likely an onClusterSelect callback wired into App.jsx",
+    "Network: LivingArchView already has a flyToTarget prop; thread the centroid+distance through it on cluster-label click",
+    "Cocktail Lab: find its scene-manager equivalent (CocktailLab.jsx); add a flyToCluster method that mirrors the Network easing",
+    "Sauce Lab: same as Cocktail Lab — use SauceLab.jsx's scene wrapper",
+    "Centroid math: read each cluster's member positions from the active layout (gnn_positions / cluster centroids) and average; cache per layout transition",
+    "Place the camera at centroid + radial_unit * dist where dist = max(30, sqrt(memberCount) * 5) — same formula as NetworkScene.jsx tree-filter (line 303)",
+    "Edge case: cluster centered at origin → fall back to a fixed offset (0.3, 0.2, 1.0) normalized to dist",
+    "Visual confirm in all three labs: clicking a label snaps the cluster to the camera's front-center, with a 1200ms eased flight",
+    "Acceptance: arrow keys (after fly-to) still work; OrbitControls target is updated to the new centroid so subsequent rotation orbits the cluster, not the origin"
+  ]
+}
+```
