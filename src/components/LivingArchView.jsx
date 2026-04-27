@@ -611,14 +611,78 @@ export default function LivingArchView({
       });
     }
     renderer.domElement.addEventListener('click', onClick);
-    // Double-tap detection for clearing filters
+    // Double-tap detection for clearing filters, plus long-press tooltip
+    // (R7-40): hold finger ≥ 500ms with < 10px drift to surface the
+    // ingredient name without selecting it. Selection still requires a
+    // tap; if a long-press fires, the subsequent click is suppressed.
     let lastTap = 0;
+    let pressTimer = null;
+    let pressStart = null;
+    let suppressNextClick = false;
+    const PRESS_HOLD_MS = 500;
+    const PRESS_DRIFT_PX = 10;
+
+    function clearPress() {
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+      pressStart = null;
+    }
+
+    function fireHoverFromTouch(touch) {
+      if (!onNodeHover) return;
+      // Reuse the mouse-move ray path by faking an event with clientX/Y.
+      const fake = { clientX: touch.clientX, clientY: touch.clientY };
+      handleSceneMove(fake, camera, renderer, tasteLabelSprites, mesh, raycaster, hoverState, {
+        mode: modeRef.current,
+        onNodeHover: (instanceId, mousePos) => {
+          const node = instanceId !== null ? nodeArray[instanceId] : null;
+          onNodeHover(node, mousePos);
+        },
+      });
+    }
+
+    function onTouchStart(event) {
+      const t = event.touches[0];
+      if (!t) return;
+      pressStart = { x: t.clientX, y: t.clientY, t: performance.now() };
+      clearTimeout(pressTimer);
+      pressTimer = setTimeout(() => {
+        if (!pressStart) return;
+        suppressNextClick = true;
+        fireHoverFromTouch({ clientX: pressStart.x, clientY: pressStart.y });
+      }, PRESS_HOLD_MS);
+    }
+    function onTouchMove(event) {
+      if (!pressStart) return;
+      const t = event.touches[0];
+      if (!t) return;
+      if (Math.hypot(t.clientX - pressStart.x, t.clientY - pressStart.y) > PRESS_DRIFT_PX) {
+        clearPress();
+      }
+    }
     function onTouchEnd() {
       const now = Date.now();
       if (now - lastTap < 400 && onDoubleTap) onDoubleTap();
       lastTap = now;
+      clearPress();
+      // If a long-press surfaced a tooltip, dismiss it on lift.
+      if (suppressNextClick && onNodeHover) onNodeHover(null, null);
     }
+    function onClickGuard(event) {
+      if (suppressNextClick) {
+        event.stopPropagation();
+        event.preventDefault();
+        suppressNextClick = false;
+        return;
+      }
+      onClick(event);
+    }
+    renderer.domElement.addEventListener('touchstart', onTouchStart, { passive: true });
+    renderer.domElement.addEventListener('touchmove', onTouchMove, { passive: true });
     renderer.domElement.addEventListener('touchend', onTouchEnd);
+    // Replace the plain click listener with the guarded one so a
+    // long-press doesn't also fire a selection click on lift.
+    renderer.domElement.removeEventListener('click', onClick);
+    renderer.domElement.addEventListener('click', onClickGuard);
     renderer.domElement.style.cursor = 'default';
 
     function onMove(event) {
@@ -1064,9 +1128,12 @@ export default function LivingArchView({
     return () => {
       running = false;
       window.removeEventListener('resize', onResize);
-      renderer.domElement.removeEventListener('click', onClick);
+      renderer.domElement.removeEventListener('click', onClickGuard);
+      renderer.domElement.removeEventListener('touchstart', onTouchStart);
+      renderer.domElement.removeEventListener('touchmove', onTouchMove);
       renderer.domElement.removeEventListener('touchend', onTouchEnd);
       renderer.domElement.removeEventListener('mousemove', onMove);
+      clearPress();
       controls.dispose();
       composer.dispose();
       renderer.dispose();
