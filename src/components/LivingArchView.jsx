@@ -748,6 +748,19 @@ export default function LivingArchView({
       }
       mesh.instanceMatrix.needsUpdate = true;
 
+      // R7-41: keep selected-node labels glued to their nodes through
+      // the mode transition. Each label sprite carries `userData.nodeIdx`
+      // (set when the labels effect builds the group) so we can read
+      // the current per-frame interpolated position out of curPos.
+      const nodeLabelGroup = stateRef.current?._nodeLabelGroup;
+      if (nodeLabelGroup) {
+        nodeLabelGroup.children.forEach((sprite) => {
+          const idx = sprite.userData?.nodeIdx;
+          if (idx == null) return;
+          sprite.position.set(curPos[idx*3], curPos[idx*3+1] + 2.5, curPos[idx*3+2]);
+        });
+      }
+
       // Update edge positions
       updateEdgePositions();
       edgeGeo.getAttribute('position').array.set(edgeVerts);
@@ -1189,10 +1202,16 @@ export default function LivingArchView({
   }, [selectedNode, selectedNodes, data]);
 
   // ---- Per-node name labels for selected + highlighted pairings ----
+  // R7-41: labels persist across all selectedNodes (the Set below
+  // unions every selection, so adding a 2nd / 3rd ingredient does NOT
+  // remove the earlier labels). Label positions read from
+  // posForMode[mode] — the live mode-specific buffer — so a mode swap
+  // (ml ↔ ml2d ↔ neural ↔ taste2d) re-anchors labels to where the
+  // nodes actually are, not where they used to be in ML mode.
   useEffect(() => {
     const st = stateRef.current;
     if (!st) return;
-    const { scene, tastePos, nameIdx } = st;
+    const { scene, posForMode, nameIdx } = st;
 
     // Remove previous node labels
     if (st._nodeLabelGroup) {
@@ -1207,20 +1226,27 @@ export default function LivingArchView({
     ]);
     if (labelNames.size === 0) return;
 
+    const positions = posForMode?.[mode] || st.curPos;
+    if (!positions) return;
+
     const group = new THREE.Group();
     for (const name of labelNames) {
-      if (!nameIdx.has(name)) continue;
-      const pos = tastePos[name];
-      if (!pos) continue;
+      const idx = nameIdx.get(name);
+      if (idx == null) continue;
+      const x = positions[idx * 3];
+      const y = positions[idx * 3 + 1];
+      const z = positions[idx * 3 + 2];
+      if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) continue;
       const sprite = makeLabel(name, '#ffffff', 14);
-      sprite.position.set(pos[0], pos[1] + 2.5, pos[2]);
+      sprite.position.set(x, y + 2.5, z);
       sprite.scale.set(12, 3, 1);
-      sprite.material.opacity = 0.5;
+      sprite.material.opacity = 0.85;
+      sprite.userData = { nodeIdx: idx };
       group.add(sprite);
     }
     scene.add(group);
     st._nodeLabelGroup = group;
-  }, [selectedNode, selectedNodes, highlightPairings, data]);
+  }, [selectedNode, selectedNodes, highlightPairings, mode, data]);
 
   // ClusterJoystick fly-to. Each time flyToTarget changes, animate the
   // camera. When a clusterId is provided, resolve the LIVE label sprite
