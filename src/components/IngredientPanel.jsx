@@ -6,7 +6,7 @@ import SharedMoleculesCard from './SharedMoleculesCard.jsx';
 import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
 import FlavorPathCard from './FlavorPathCard.jsx';
 import MoleculeTasteMap from './MoleculeTasteMap.jsx';
-import { scoreRecipeAroma, AROMA_LABELS, AROMA_COLORS } from '../data/recipeScoring.js';
+import { scoreRecipeAroma, AROMA_LABELS, AROMA_COLORS, scoreRecipe } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
   sweet: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
@@ -215,6 +215,56 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     return scoreRecipeAroma(selectedNodesData);
   }, [selectedNodesData, selectedCount]);
 
+  // R8-45: taste-gap suggestion. We deprecated the single-number
+  // "balance score" (see aromaProfile comment above), but a concrete
+  // gap callout — "your selection has no umami; parmesan would round
+  // it out" — is still useful when 2+ ingredients are selected.
+  // Picks the least-represented taste from scoreRecipe's profile, then
+  // searches commonPairings for an ingredient whose GNN probs fill it.
+  const tasteGap = useMemo(() => {
+    if (selectedCount < 2 || !commonPairings || commonPairings.length === 0) return null;
+    if (!graphNodes) return null;
+    const score = scoreRecipe(selectedNodesData);
+    if (!score || score.confidence < 0.5) return null;
+    const TASTE_AXES = ['sweet', 'bitter', 'umami', 'salty', 'sour'];
+    // Concentration: dominant taste's share. Only suggest a gap fill
+    // when one taste clearly dominates (≥ 0.45) AND another is mostly
+    // absent (≤ 0.05). Borderline mixes don't need a suggestion.
+    const dom = score.profile.indexOf(Math.max(...score.profile));
+    const dominantShare = score.profile[dom];
+    if (dominantShare < 0.45) return null;
+    let weakIdx = -1;
+    let weakShare = 1;
+    for (let i = 0; i < TASTE_AXES.length; i++) {
+      if (score.profile[i] < weakShare) { weakShare = score.profile[i]; weakIdx = i; }
+    }
+    if (weakIdx === -1 || weakShare > 0.05) return null;
+    const want = TASTE_AXES[weakIdx];
+    // Find best filler from commonPairings: highest GNN prob on the
+    // missing taste, falling back to taste-string match.
+    let best = null;
+    for (const cp of commonPairings) {
+      const node = graphNodes.get(cp.name);
+      if (!node) continue;
+      let signal = 0;
+      if (node.gnnProbs && typeof node.gnnProbs[want] === 'number') {
+        signal = node.gnnProbs[want];
+      } else if (node.taste && node.taste.toLowerCase().includes(want)) {
+        signal = 0.5;
+      }
+      if (signal >= 0.3 && (!best || signal > best.signal)) {
+        best = { name: cp.name, signal, taste: want };
+      }
+    }
+    if (!best) return null;
+    return {
+      dominant: TASTE_AXES[dom],
+      dominantPct: Math.round(dominantShare * 100),
+      missing: want,
+      suggestion: best.name,
+    };
+  }, [selectedNodesData, commonPairings, graphNodes, selectedCount]);
+
   if (!node) return null;
 
   const { name, cuisines, taste, weight, volume, season, tips, pairingCount, affinities } = node;
@@ -419,6 +469,19 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               ))}
             </div>
           </CollapsibleSection>
+        )}
+        {tasteGap && (
+          <section className="mt-5">
+            <div className="rounded-md border border-amber-400/30 bg-amber-400/5 px-3 py-2 text-[11px] text-amber-200/95">
+              <span className="font-medium">Taste gap:</span>{' '}
+              your selection skews <span className="capitalize">{tasteGap.dominant}</span> ({tasteGap.dominantPct}%). Try adding{' '}
+              <button
+                type="button"
+                onClick={() => onSelectIngredient?.(tasteGap.suggestion)}
+                className="underline hover:text-amber-100"
+              >{tasteGap.suggestion}</button>{' '}for some <span className="capitalize">{tasteGap.missing}</span>.
+            </div>
+          </section>
         )}
         {selectedCount >= 2 && commonPairings.length > 0 && (
           <section>
@@ -710,6 +773,23 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               b={selectedNodes[1]}
               bridgeCompounds={bridgeCompounds}
             />
+          </section>
+        )}
+
+        {/* Taste gap callout (R8-45) — only when one taste dominates
+            ≥45% AND another is ~absent AND a fixer exists in
+            commonPairings. Otherwise hidden so we don't nag. */}
+        {tasteGap && (
+          <section className="mt-5">
+            <div className="rounded-md border border-amber-400/30 bg-amber-400/5 px-3 py-2 text-[11px] text-amber-200/95">
+              <span className="font-medium">Taste gap:</span>{' '}
+              your selection skews <span className="capitalize">{tasteGap.dominant}</span> ({tasteGap.dominantPct}%). Try adding{' '}
+              <button
+                type="button"
+                onClick={() => onSelectIngredient?.(tasteGap.suggestion)}
+                className="underline hover:text-amber-100"
+              >{tasteGap.suggestion}</button>{' '}for some <span className="capitalize">{tasteGap.missing}</span>.
+            </div>
           </section>
         )}
 
