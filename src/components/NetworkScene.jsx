@@ -363,6 +363,9 @@ function NetworkScene({
   return (
     <div
       ref={containerRef}
+      tabIndex={0}
+      role="application"
+      aria-label="Flavor network — 3D ingredient pairing graph. Use arrow keys to walk through pairings, Escape to clear selection, slash to search."
       style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
     />
   );
