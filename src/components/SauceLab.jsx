@@ -27,6 +27,8 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
   const [error, setError] = useState(null);
   const [selectedSauce, setSelectedSauce] = useState(null);
   const [filterFamily, setFilterFamily] = useState(null);
+  // Camera fly-to target for the family fly-wheel (R10-66).
+  const [flyToTarget, setFlyToTarget] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,9 +59,10 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
     return () => { cancelled = true; };
   }, []);
 
-  // 3D cluster labels — one per family at its centroid (root sauce
-  // for families that have an eponymous root; first sauce otherwise).
-  const sceneExtras = useMemo(() => {
+  // Per-family centroid — used by both the 3D label sprites and the
+  // fly-wheel onFlyTo handler. Pulled out of sceneExtras so the
+  // joystick can resolve a target position without rebuilding labels.
+  const familyCentroids = useMemo(() => {
     if (!codexData) return null;
     const centroids = new Map();
     for (const fam of codexData.codex.clusters) {
@@ -72,13 +75,28 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
         if (first) centroids.set(fam.id, codexData.positions.positions[first.name]);
       }
     }
+    return centroids;
+  }, [codexData]);
+
+  const familyMemberCount = useMemo(() => {
+    if (!codexData) return null;
+    const counts = new Map();
+    for (const n of codexData.graph.nodes.values()) {
+      counts.set(n.family_id, (counts.get(n.family_id) || 0) + 1);
+    }
+    return counts;
+  }, [codexData]);
+
+  // 3D cluster labels — one per family at its centroid.
+  const sceneExtras = useMemo(() => {
+    if (!codexData || !familyCentroids) return null;
     const clusters = codexData.codex.clusters.map(c => ({
       id: c.id,
       label: c.name,
       color: c.color,
     }));
-    return createClusterLabels(clusters, centroids);
-  }, [codexData]);
+    return createClusterLabels(clusters, familyCentroids);
+  }, [codexData, familyCentroids]);
 
   // Selection → parent (kept for parity with CocktailLab; App.jsx no
   // longer uses this for the Recipe Lab handoff, but ingredient
@@ -176,6 +194,7 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
         sceneExtras={sceneExtras}
         showNodeLabels={true}
         labelNodeNames={familyFilteredNames}
+        flyToTarget={flyToTarget}
       />
 
       {selectedSauce && (
@@ -197,7 +216,15 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
         mode="ml"
         focusedClusterId={filterFamily}
         onClusterFocus={(id) => setFilterFamily(id)}
-        onFlyTo={() => {}}
+        onFlyTo={(family) => {
+          const pos = familyCentroids?.get(family.id);
+          if (!pos) return;
+          setFlyToTarget({
+            position: pos,
+            memberCount: familyMemberCount?.get(family.id) || 1,
+            ts: Date.now(),
+          });
+        }}
       />
     </>
   );

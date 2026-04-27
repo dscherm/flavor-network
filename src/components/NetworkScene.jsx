@@ -32,6 +32,7 @@ function NetworkScene({
   sceneExtras = null, // Additional Three.js objects to add to the scene
   showNodeLabels = false, // Show name labels on selected nodes
   labelNodeNames = null, // Additional node names to show labels for (e.g., filtered category)
+  flyToTarget = null, // { position: [x,y,z], ts: number } — camera flies to that point, label-front
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -359,6 +360,45 @@ function NetworkScene({
       edges.resetHighlights();
     }
   }, [profileWeights]);
+
+  // Explicit fly-to-front-of-label (R10-66). The camera lands radially
+  // outward from the scene origin past the label position so the label
+  // sits between the viewer and the cluster body. Reuses the same
+  // sqrt(memberCount) scaling as the tree-filter fly so distance
+  // matches when both fire (e.g., CocktailLab tapping a family).
+  useEffect(() => {
+    const manager = sceneRef.current;
+    if (!manager || !flyToTarget || !flyToTarget.position) return;
+    const camera = manager.getCamera();
+    if (!camera) return;
+    const [cx, cy, cz] = flyToTarget.position;
+    const memberCount = flyToTarget.memberCount || 1;
+    const dist = Math.max(30, Math.sqrt(memberCount) * 5);
+    const radialLen = Math.hypot(cx, cy, cz);
+    let dirX, dirY, dirZ;
+    if (radialLen > 0.001) {
+      dirX = cx / radialLen; dirY = cy / radialLen; dirZ = cz / radialLen;
+    } else {
+      const fb = Math.hypot(0.3, 0.2, 1);
+      dirX = 0.3 / fb; dirY = 0.2 / fb; dirZ = 1 / fb;
+    }
+    const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+    const targetPos = { x: cx + dirX * dist, y: cy + dirY * dist, z: cz + dirZ * dist };
+    const duration = 1200;
+    const startTime = performance.now();
+    function animateFly(now) {
+      const t = Math.min((now - startTime) / duration, 1);
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      camera.position.set(
+        startPos.x + (targetPos.x - startPos.x) * ease,
+        startPos.y + (targetPos.y - startPos.y) * ease,
+        startPos.z + (targetPos.z - startPos.z) * ease,
+      );
+      camera.lookAt(cx, cy, cz);
+      if (t < 1) requestAnimationFrame(animateFly);
+    }
+    requestAnimationFrame(animateFly);
+  }, [flyToTarget]);
 
   return (
     <div
