@@ -912,21 +912,25 @@ export default function App() {
             }
           }}
           onFlyTo={(target) => {
-            // Cluster object or raw {position, ts} target.
-            if (target && target.label_anchor_3d) {
-              // Pass clusterId so LivingArchView can orbit-center the camera
-              // on the runtime cluster centroid (label in foreground, cluster
-              // body behind). Static centroid_3d in cluster_labels.json is
-              // stale vs the GNN-blended runtime positions, so we let
-              // LivingArchView resolve it from its live centroid map.
+            // Cluster object (has typeof id === 'number' + centroid_3d
+            // from cluster_labels.json) OR raw {position, ts} target
+            // for taste pills. Earlier code checked for `label_anchor_3d`,
+            // a field added by an offline R11 script that never made it
+            // into the shipped cluster_labels.json, so the cluster
+            // branch was silently dead in 'Cooks With · 3D / 2D' modes.
+            const isCluster = target && typeof target.id === 'number' && Array.isArray(target.centroid_3d);
+            if (isCluster) {
+              // Pass clusterId so LivingArchView resolves the live label
+              // sprite + runtime centroid (post-GNN-blend, mode-aware).
+              // The static centroid_3d we pass as `position` is just a
+              // fallback when the sprite isn't found.
               setFlyToTarget({
-                position: target.label_anchor_3d,
+                position: target.centroid_3d,
                 clusterId: target.id,
                 ts: Date.now(),
               });
               // Surface top-5 cluster members so the user sees "what's
-              // actually here" after the camera lands. Use an array ref
-              // so repeated taps of the same cluster re-spawn labels.
+              // actually here" after the camera lands.
               const names = (target.top_ingredients || []).slice(0, 5);
               setClusterHighlights(names.length > 0 ? [...names] : null);
             } else if (target && target.position) {
