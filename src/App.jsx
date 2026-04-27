@@ -1,7 +1,8 @@
-import { useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import useProData from './hooks/useProData.js';
 // TrainingProgress removed — served as dev demo, not production feature
 const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
+const MoleculeOfTheDay = lazy(() => import('./components/MoleculeOfTheDay.jsx'));
 // DiscoverPatterns + DiscoverCTA + FlavorBridge removed from the
 // shipping surface per polish pass; GlobalInsights is kept in the
 // codebase but no longer reachable from the UI.
@@ -64,6 +65,9 @@ export default function App() {
   const [recipeHandoff, setRecipeHandoff] = useState(null);
   // trainingMounted removed
   const [moleculeLabOpen, setMoleculeLabOpen] = useState(false);
+  // SMILES to seed the Molecule Lab with on open (set when user clicks
+  // "Open in Molecule Lab" on the Molecule of the Day card).
+  const [moleculeLabPreset, setMoleculeLabPreset] = useState('');
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [exploreDropdownOpen, setExploreDropdownOpen] = useState(false);
   const [livingMode, setLivingMode] = useState('ml');
@@ -288,21 +292,62 @@ export default function App() {
     }
   }, [shareUrl]);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts. The arrow keys "walk" the graph: when an
+  // ingredient is selected, ArrowDown/Right steps to its strongest
+  // pairing (pushing the current node onto a history stack) and
+  // ArrowUp/Left rewinds. Escape clears selection. `/` jumps to search.
+  // Skipped when the user is typing in an input/textarea.
+  const keyNavHistoryRef = useRef([]);
   useEffect(() => {
+    function isTyping(target) {
+      if (!target) return false;
+      const tag = target.tagName;
+      return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable;
+    }
     function handleKeyDown(e) {
+      if (isTyping(e.target)) return;
       if (e.key === 'Escape') {
         setSelectedNodes([]);
+        setHighlightPairings(null);
+        setActivePanel(null);
+        keyNavHistoryRef.current = [];
+        return;
       }
-      if (e.key === '/' && e.target.tagName !== 'INPUT') {
+      if (e.key === '/') {
         e.preventDefault();
         const searchInput = document.querySelector('input[placeholder*="Search"]');
         if (searchInput) searchInput.focus();
+        return;
+      }
+      if (!data) return;
+      const current = selectedNodes.length > 0 ? selectedNodes[0] : null;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        if (!current) return;
+        const nbrs = getNeighbors(current, data.graph.edges);
+        if (nbrs.length === 0) return;
+        // Step to the strongest neighbor not already in the recent
+        // history slice, so repeated presses keep walking forward
+        // instead of bouncing between two strongest partners.
+        const recent = new Set(keyNavHistoryRef.current.slice(-5));
+        recent.add(current);
+        const next = nbrs.find((n) => !recent.has(n.name)) || nbrs[0];
+        keyNavHistoryRef.current.push(current);
+        setSelectedNodes([next.name]);
+        setActivePanel('ingredient');
+        e.preventDefault();
+        return;
+      }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        const prev = keyNavHistoryRef.current.pop();
+        if (!prev) return;
+        setSelectedNodes([prev]);
+        setActivePanel('ingredient');
+        e.preventDefault();
       }
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [data, selectedNodes]);
 
   // Double-tap on canvas to clear tree filter
   const handleCanvasDoubleTap = useCallback(() => {
@@ -365,7 +410,10 @@ export default function App() {
       >
         {selectedNodeData
           ? `Selected ${selectedNodeData.name}. ${selectedNodeData.pairingCount || 0} pairings. `
-            + `Taste: ${selectedNodeData.taste || 'unknown'}.`
+            + `Taste: ${selectedNodeData.taste || 'unknown'}. `
+            + (neighbors.length > 0
+              ? `Top pairings: ${neighbors.slice(0, 3).map((n) => n.name).join(', ')}.`
+              : '')
           : selectedNodes.length > 1
             ? `${selectedNodes.length} ingredients selected.`
             : 'No ingredient selected.'}
@@ -397,6 +445,9 @@ export default function App() {
           <div className="relative">
             <button
               onClick={() => { setLabDropdownOpen(v => !v); setExploreDropdownOpen(false); }}
+              aria-haspopup="menu"
+              aria-expanded={labDropdownOpen}
+              aria-label="Open Labs menu"
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                 activeTab !== 'network'
                   ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
@@ -414,7 +465,7 @@ export default function App() {
             {labDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-[59]" onClick={() => setLabDropdownOpen(false)} />
-                <div className="absolute top-full left-0 mt-1 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
+                <div role="menu" aria-label="Labs" className="absolute top-full left-0 mt-1 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
                   {[
                     { key: 'recipe', label: 'Recipe Lab' },
                     { key: 'cocktail', label: 'Cocktail Lab' },
@@ -423,6 +474,7 @@ export default function App() {
                   ].map((lab) => (
                     <button
                       key={lab.key}
+                      role="menuitem"
                       onClick={() => {
                         // Molecule Lab is a slide-out panel, not a full tab —
                         // keep activeTab untouched so the network scene stays
@@ -461,6 +513,9 @@ export default function App() {
           <div className="relative">
             <button
               onClick={() => { setExploreDropdownOpen(v => !v); setLabDropdownOpen(false); }}
+              aria-haspopup="menu"
+              aria-expanded={exploreDropdownOpen}
+              aria-label="Open Explore menu"
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                 showTreeExplorer
                   ? 'text-purple-300 bg-purple-500/10 border border-purple-500/20'
@@ -478,8 +533,9 @@ export default function App() {
             {exploreDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-[59]" onClick={() => setExploreDropdownOpen(false)} />
-                <div className="absolute top-full left-0 mt-1 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
+                <div role="menu" aria-label="Explore" className="absolute top-full left-0 mt-1 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
                   <button
+                    role="menuitem"
                     onClick={() => { setShowTreeExplorer(v => !v); setExploreDropdownOpen(false); setActiveTab('network'); }}
                     className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
                       showTreeExplorer ? 'text-purple-300 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
@@ -889,13 +945,28 @@ export default function App() {
       <Suspense fallback={null}>
         <MoleculeLab
           isOpen={moleculeLabOpen}
-          onClose={() => setMoleculeLabOpen(false)}
+          onClose={() => { setMoleculeLabOpen(false); setMoleculeLabPreset(''); }}
           selectedNodes={selectedNodes}
           selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
           graphNodes={data?.graph?.nodes}
           onSelectIngredient={handleSearchSelect}
+          initialSmiles={moleculeLabPreset}
         />
       </Suspense>
+
+      {/* Molecule of the Day — only on Network tab + after start page,
+          and not when the Molecule Lab itself is already open. Lazy-
+          loaded so the fetch + render only fire when actually visible. */}
+      {startPageComplete && activeTab === 'network' && !moleculeLabOpen && !isMobile && (
+        <Suspense fallback={null}>
+          <MoleculeOfTheDay
+            onOpen={(preset) => {
+              if (preset?.smiles) setMoleculeLabPreset(preset.smiles);
+              setMoleculeLabOpen(true);
+            }}
+          />
+        </Suspense>
+      )}
 
       {/* Mobile bottom sheet for panels */}
       {isMobile && (
