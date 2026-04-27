@@ -58,11 +58,17 @@ function TasteBars({ probs, label }) {
   );
 }
 
-export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selectedNodesData = [], graphNodes, onSelectIngredient }) {
+export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selectedNodesData = [], graphNodes, onSelectIngredient, initialSmiles = '' }) {
   const [moleculeData, setMoleculeData] = useState(null);
   const [presetData, setPresetData] = useState(null);
   // Live in-browser SMILES → GNN inference (count === 0 mode only).
   const [smilesInput, setSmilesInput] = useState('');
+  // When opened with an `initialSmiles` (e.g. from Molecule of the Day),
+  // seed the SMILES input on each open transition so re-opening with a
+  // new preset re-fires inference.
+  useEffect(() => {
+    if (isOpen && initialSmiles) setSmilesInput(initialSmiles);
+  }, [isOpen, initialSmiles]);
   const [livePrediction, setLivePrediction] = useState(null);
   const [predictStatus, setPredictStatus] = useState('idle'); // idle | loading | ok | invalid | error
   // Collapsible "watch the model train" section. Off by default so the
