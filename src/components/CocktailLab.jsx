@@ -23,6 +23,9 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
   const [error, setError] = useState(null);
   const [selectedCocktail, setSelectedCocktail] = useState(null);
   const [filterFamily, setFilterFamily] = useState(null);
+  // Camera fly-to target for the family fly-wheel (R10-66). Set on
+  // joystick onFlyTo; consumed by NetworkScene's flyToTarget effect.
+  const [flyToTarget, setFlyToTarget] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,8 +56,10 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
     return () => { cancelled = true; };
   }, []);
 
-  // 3D cluster labels — one per family (and Syrups) at its centroid.
-  const sceneExtras = useMemo(() => {
+  // Per-family centroid — used by both the 3D label sprites and the
+  // fly-wheel onFlyTo handler. Pulled out of sceneExtras so the
+  // joystick can resolve a target position without rebuilding labels.
+  const familyCentroids = useMemo(() => {
     if (!codexData) return null;
     const centroids = new Map();
     for (const fam of codexData.codex.clusters) {
@@ -67,13 +72,29 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
         if (first) centroids.set(fam.id, codexData.positions.positions[first.name]);
       }
     }
+    return centroids;
+  }, [codexData]);
+
+  // Member count per family for the fly-to distance scale.
+  const familyMemberCount = useMemo(() => {
+    if (!codexData) return null;
+    const counts = new Map();
+    for (const n of codexData.graph.nodes.values()) {
+      counts.set(n.family_id, (counts.get(n.family_id) || 0) + 1);
+    }
+    return counts;
+  }, [codexData]);
+
+  // 3D cluster labels — one per family (and Syrups) at its centroid.
+  const sceneExtras = useMemo(() => {
+    if (!codexData || !familyCentroids) return null;
     const clusters = codexData.codex.clusters.map(c => ({
       id: c.id,
       label: c.name,
       color: c.color,
     }));
-    return createClusterLabels(clusters, centroids);
-  }, [codexData]);
+    return createClusterLabels(clusters, familyCentroids);
+  }, [codexData, familyCentroids]);
 
   // Selection → parent
   useEffect(() => {
@@ -173,6 +194,7 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
         sceneExtras={sceneExtras}
         showNodeLabels={true}
         labelNodeNames={familyFilteredNames}
+        flyToTarget={flyToTarget}
       />
 
       {selectedCocktail && (
@@ -195,7 +217,15 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
         mode="ml"
         focusedClusterId={filterFamily}
         onClusterFocus={(id) => setFilterFamily(id)}
-        onFlyTo={() => {}}
+        onFlyTo={(family) => {
+          const pos = familyCentroids?.get(family.id);
+          if (!pos) return;
+          setFlyToTarget({
+            position: pos,
+            memberCount: familyMemberCount?.get(family.id) || 1,
+            ts: Date.now(),
+          });
+        }}
       />
     </>
   );
