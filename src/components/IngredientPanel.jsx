@@ -67,13 +67,19 @@ function SectionHeading({ children }) {
  * the user with long panels; they opt in per section. Essentials (Name,
  * Properties, Profile Radar) stay un-collapsed and use plain <section>.
  */
-function CollapsibleSection({ title, badge, children, defaultOpen = false }) {
+function CollapsibleSection({ title, badge, children, defaultOpen = false, onHeaderClick }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <section className="mt-5 first:mt-0">
       <button
         type="button"
-        onClick={() => setOpen(v => !v)}
+        onClick={() => {
+          setOpen(v => !v);
+          // Optional side-effect on header click (e.g., R7-42: clicking
+          // "Top Pairings" toggles network highlight + labels in addition
+          // to expanding/collapsing the section).
+          onHeaderClick?.();
+        }}
         className="w-full flex items-center gap-2 text-[11px] uppercase tracking-widest text-gray-500 font-semibold mb-2 hover:text-gray-300 transition-colors"
       >
         <span className="opacity-60 text-[10px] leading-none w-3">
@@ -441,12 +447,12 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
         {selectedCount < 2 && sortedNeighbors.length > 0 && (
-          <CollapsibleSection title="Top Pairings" badge={`(${sortedNeighbors.length})`}>
-            <button
-              onClick={(e) => { e.stopPropagation(); onHighlightPairings && onHighlightPairings(sortedNeighbors.map(n => n.name)); }}
-              className="text-[10px] text-cyan-400 hover:text-cyan-300 mb-1.5"
-              title="Highlight all top pairings on the network"
-            >Highlight all on network ↗</button>
+          <CollapsibleSection
+            title="Top Pairings"
+            badge={`(${sortedNeighbors.length})`}
+            onHeaderClick={() => onHighlightPairings?.(sortedNeighbors.map(n => n.name))}
+          >
+            <p className="text-[10px] text-gray-500 mb-1.5">Click any pairing to add it to your selection. Tap the header again to clear network highlight.</p>
             <ul className="space-y-1.5">
               {sortedNeighbors.map((neighbor) => (
                 <li key={neighbor.name}>
@@ -735,12 +741,12 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
         {selectedCount < 2 && sortedNeighbors.length > 0 && (
-          <CollapsibleSection title="Top Pairings" badge={`(${sortedNeighbors.length})`}>
-            <button
-              onClick={(e) => { e.stopPropagation(); onHighlightPairings && onHighlightPairings(sortedNeighbors.map(n => n.name)); }}
-              className="text-[10px] text-cyan-400 hover:text-cyan-300 mb-1.5"
-              title="Highlight all top pairings on the network"
-            >Highlight all on network ↗</button>
+          <CollapsibleSection
+            title="Top Pairings"
+            badge={`(${sortedNeighbors.length})`}
+            onHeaderClick={() => onHighlightPairings?.(sortedNeighbors.map(n => n.name))}
+          >
+            <p className="text-[10px] text-gray-500 mb-1.5">Tap any pairing to add it to your selection. Tap the header again to clear network highlight.</p>
             <ul className="space-y-1.5">
               {sortedNeighbors.map((neighbor) => (
                 <li key={neighbor.name}>
