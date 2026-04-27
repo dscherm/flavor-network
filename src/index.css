@@ -39,6 +39,22 @@
   ::-webkit-scrollbar-thumb:hover {
     background: theme('colors.neural.muted');
   }
+
+  /* Keyboard-only focus ring. `:focus-visible` skips mouse clicks but
+     fires for tab navigation, so sighted keyboard users always see
+     where focus lives. Cyan matches the network-glow palette. */
+  :focus-visible {
+    outline: 2px solid #4f9eff;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Avoid stacking on top of native button styles where focus-visible
+     is already handled (e.g., the search combobox). */
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #4f9eff;
+    outline-offset: 0;
+  }
 }
 
 @layer components {
