@@ -143,13 +143,29 @@ export const AROMA_COLORS = {
 
 export function scoreRecipeAroma(ingredients) {
   if (!ingredients || ingredients.length === 0) {
-    return { profile: AROMAS.map(() => 0), dominantAromas: [], confidence: 0, hasSignal: false };
+    return {
+      profile: AROMAS.map(() => 0),
+      dominantAromas: [],
+      confidence: 0,
+      hasSignal: false,
+      compoundCount: 0,
+      compoundNames: [],
+    };
   }
   const agg = AROMAS.map(() => 0);
   let gnnCount = 0;
+  // Track ingredients whose GNN probabilities were synthesized from
+  // their constituent ingredients (compound foods like mayonnaise,
+  // vinaigrette, garam masala). The wheel surfaces a "Predicted from
+  // components" badge when at least one is present so the user knows
+  // part of the aroma signal isn't a direct molecular prediction.
+  const compoundNames = [];
   for (const ing of ingredients) {
     if (!ing?.gnnProbs) continue;
     gnnCount++;
+    if (ing.gnnProbsSource === 'compound' && ing.name) {
+      compoundNames.push(ing.name);
+    }
     for (let i = 0; i < AROMAS.length; i++) {
       agg[i] += ing.gnnProbs[AROMAS[i]] || 0;
     }
@@ -166,5 +182,7 @@ export function scoreRecipeAroma(ingredients) {
     dominantAromas,
     confidence: gnnCount / ingredients.length,
     hasSignal: total > 0,
+    compoundCount: compoundNames.length,
+    compoundNames,
   };
 }
