@@ -50,3 +50,35 @@ export function disposeShapeGeometries(geos) {
     if (g && typeof g.dispose === 'function') g.dispose();
   }
 }
+
+/**
+ * Build EdgesGeometry for each shape — used by NodeMesh to render
+ * structural-edge overlays (glow lines that follow the polyhedron's
+ * actual ridges) so users can distinguish a cube from an octahedron
+ * at a glance even when both render at small size.
+ *
+ * Threshold angles are tuned per-shape: low for polyhedra (1°, every
+ * structural edge counts), high for smooth shapes (30°, suppresses
+ * triangulation edges so sphere/torus/cylinder don't look like
+ * disco balls).
+ *
+ * @param {Object} baseGeos - the result of buildShapeGeometries()
+ * @returns {Object} same keys, each value is a THREE.EdgesGeometry
+ */
+export function buildShapeEdgeGeometries(baseGeos) {
+  const angles = {
+    sphere: 30,
+    torus: 30,
+    cylinder: 30,
+    cube: 1,
+    tetrahedron: 1,
+    octahedron: 1,
+    dodecahedron: 1,
+    icosahedron: 1,
+  };
+  const result = {};
+  for (const [k, g] of Object.entries(baseGeos)) {
+    if (g) result[k] = new THREE.EdgesGeometry(g, angles[k] ?? 30);
+  }
+  return result;
+}
