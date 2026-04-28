@@ -211,6 +211,7 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
         labelNodeNames={familyFilteredNames}
         flyToTarget={flyToTarget}
         shapeAssignments={shapeAssignments}
+        scaleMultiplier={3.0}
       />
 
       {selectedCocktail && (
