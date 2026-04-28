@@ -23,7 +23,6 @@ import {
 } from './utils/startPageFlag.js';
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
-import AffinityPanel from './components/AffinityPanel.jsx';
 import Legend from './components/Legend.jsx';
 import Controls from './components/Controls.jsx';
 import { getNeighbors, findStrongestPath } from './data/graph.js';
@@ -113,17 +112,6 @@ export default function App() {
     return new URLSearchParams(window.location.search).get('affinity') !== 'v0';
   }, []);
 
-  // R13-9 β-mode: compute the same 30 tier-coded affinities the desktop
-  // α-mode would draw as rings, but only on mobile (where α-mode is
-  // gated off because the touch raycast on small spheres is unreliable
-  // and the rings cramp under 640px). The result feeds the embedded
-  // AffinityPanel inside the mobile BottomSheet IngredientPanel.
-  const mobileAffinities = useMemo(() => {
-    if (!isMobile || !affinityEnabled) return [];
-    if (selectedNodes.length !== 1) return [];
-    if (!data?.pairingStrength) return [];
-    return topAffinities(selectedNodes[0], data);
-  }, [isMobile, affinityEnabled, data, selectedNodes]);
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
 
@@ -350,12 +338,12 @@ export default function App() {
         if (!current) return;
         const recent = new Set(keyNavHistoryRef.current.slice(-5));
         recent.add(current);
-        // R13-7: When α-mode is engaged (single ingredient selected on
-        // desktop and not killed via ?affinity=v0), step to strongest
-        // unvisited NATIVE ★★★ affinity. Falls back to ★★, then ★, then
-        // any neighbor — so the pivot never stalls when the focal has no
-        // ★★★ candidates. Outside α-mode, behavior is unchanged.
-        const alphaEngaged = affinityEnabled && !isMobile && selectedNodes.length === 1;
+        // R13-7: When α-mode is engaged (single ingredient selected and
+        // not killed via ?affinity=v0), step to strongest unvisited
+        // NATIVE ★★★ affinity. Falls back to ★★, then ★, then any
+        // neighbor — so the pivot never stalls when the focal has no
+        // ★★★ candidates. Identical on desktop and iOS.
+        const alphaEngaged = affinityEnabled && selectedNodes.length === 1;
         let next = null;
         if (alphaEngaged && data.pairingStrength) {
           const aff = topAffinities(current, data);
@@ -385,7 +373,7 @@ export default function App() {
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [data, selectedNodes, affinityEnabled, isMobile]);
+  }, [data, selectedNodes, affinityEnabled]);
 
   // Double-tap on canvas to clear tree filter
   const handleCanvasDoubleTap = useCallback(() => {
@@ -1039,16 +1027,6 @@ export default function App() {
           }
         >
           {activePanel === 'ingredient' && selectedNodeData && (
-            <>
-              {mobileAffinities.length > 0 && (
-                <div className="mb-3 pb-3 border-b border-gray-700/40">
-                  <AffinityPanel
-                    focal={selectedNodeData.name}
-                    affinities={mobileAffinities}
-                    onPivot={handleSearchSelect}
-                  />
-                </div>
-              )}
             <IngredientPanel
               node={selectedNodeData}
               neighbors={neighbors}
@@ -1066,7 +1044,6 @@ export default function App() {
               graphNodes={data?.graph?.nodes}
               embedded
             />
-            </>
           )}
           {activePanel === 'global-insights' && (
             <GlobalInsights
