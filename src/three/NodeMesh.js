@@ -6,6 +6,7 @@ import {
 } from 'three';
 import {
   buildShapeGeometries,
+  buildShapeEdgeGeometries,
   SHAPE_KEYS,
 } from './Geometries.js';
 
@@ -142,7 +143,13 @@ export { getColorForNode };
  * 0..count-1 index space the rest of the app expects.
  */
 class NodeMesh {
-  constructor({ nodes, positions, shapeAssignments = null, scaleMultiplier = 1.0 }) {
+  constructor({
+    nodes,
+    positions,
+    shapeAssignments = null,
+    scaleMultiplier = 1.0,
+    showOutlines = null, // null → auto: on in multi-shape mode, off otherwise
+  }) {
     this._scaleMultiplier = scaleMultiplier;
     const posMap = positions.positions || positions;
     const nodeArray = Array.from(nodes.values());
@@ -230,6 +237,18 @@ class NodeMesh {
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     }
 
+    // Edge-outline overlay: structural ridges per shape, baked into one
+    // merged LineSegments per shape so flat-faced polyhedra (cube,
+    // octahedron, etc.) read distinctly even at small viewing scale.
+    // Auto-enabled in multi-shape mode; off by default for the main
+    // single-sphere Network view (where wireframe noise hurts).
+    const enableOutlines = (showOutlines === null || showOutlines === undefined)
+      ? (this._meshByShape.size > 1)
+      : Boolean(showOutlines);
+    this._edgeGeometries = null;
+    this._edgeMeshByShape = null;
+    if (enableOutlines) this._buildOutlines(indicesByShape, nodeArray);
+
     // Always expose the Group as the scene-graph node. Avoids a double-
     // parent warning in single-shape mode where the lone InstancedMesh
     // would otherwise be both a child of `_group` AND added directly to
@@ -237,6 +256,77 @@ class NodeMesh {
     // by intersecting children and translating local→global indices via
     // `userData.globalIndices`.
     this._mesh = this._group;
+  }
+
+  /**
+   * Bake one merged THREE.LineSegments per shape, transforming the
+   * shape's EdgesGeometry vertices by each instance's matrix. The
+   * result reads as crisp glow-edges over the filled mesh, making
+   * silhouettes (cube vs. octahedron, dodecahedron vs. icosahedron)
+   * legible at small node sizes.
+   *
+   * Edges are STATIC after construction — fine for the cocktail/sauce
+   * codex (positions don't move). If a future caller starts mutating
+   * instance matrices (e.g. profile-weight scaling on a multi-shape
+   * mesh), call `_rebuildOutlines()` after the matrix changes.
+   */
+  _buildOutlines(indicesByShape, nodeArray) {
+    void nodeArray; // reserved for future per-instance edge styling
+    this._edgeGeometries = buildShapeEdgeGeometries(this._geometries);
+    this._edgeMeshByShape = new Map();
+
+    const edgeMaterial = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+    });
+    this._edgeMaterial = edgeMaterial;
+
+    const tmp = new THREE.Vector3();
+    const m4 = new THREE.Matrix4();
+
+    for (const [shapeKey, indices] of indicesByShape) {
+      const edgeGeo = this._edgeGeometries[shapeKey];
+      if (!edgeGeo) continue;
+      const baseEdges = edgeGeo.attributes.position.array;
+      const segVerts = baseEdges.length / 3; // total vertex count (pairs of two per segment)
+      if (segVerts === 0) {
+        // Smooth shape with no surviving edges (e.g. sphere). Skip.
+        continue;
+      }
+      const totalVerts = segVerts * indices.length;
+      const out = new Float32Array(totalVerts * 3);
+
+      const instMesh = this._meshByShape.get(shapeKey);
+      const instArray = instMesh.instanceMatrix.array;
+
+      let outIdx = 0;
+      for (let i = 0; i < indices.length; i++) {
+        m4.fromArray(instArray, i * 16);
+        for (let v = 0; v < segVerts; v++) {
+          tmp.set(
+            baseEdges[v * 3],
+            baseEdges[v * 3 + 1],
+            baseEdges[v * 3 + 2],
+          );
+          tmp.applyMatrix4(m4);
+          out[outIdx++] = tmp.x;
+          out[outIdx++] = tmp.y;
+          out[outIdx++] = tmp.z;
+        }
+      }
+
+      const merged = new THREE.BufferGeometry();
+      merged.setAttribute('position', new THREE.Float32BufferAttribute(out, 3));
+      const lines = new THREE.LineSegments(merged, edgeMaterial);
+      lines.frustumCulled = true;
+      // Outlines are visual-only — don't intercept raycasts that should
+      // hit the filled mesh underneath.
+      lines.userData.skipRaycast = true;
+      this._edgeMeshByShape.set(shapeKey, lines);
+      this._group.add(lines);
+    }
   }
 
   /**
@@ -268,7 +358,8 @@ class NodeMesh {
    */
   _baseScaleFor(node) {
     const pc = node.pairingCount || 0;
-    return Math.max(0.3, Math.min(2.0, Math.sqrt(pc) * 0.15)) * this._scaleMultiplier;
+    const boost = (typeof node.scaleBoost === 'number' && node.scaleBoost > 0) ? node.scaleBoost : 1.0;
+    return Math.max(0.3, Math.min(2.0, Math.sqrt(pc) * 0.15)) * this._scaleMultiplier * boost;
   }
 
   // ─── internal mesh routing ──────────────────────────────────
@@ -431,6 +522,24 @@ class NodeMesh {
         if (g && typeof g.dispose === 'function') g.dispose();
       }
       this._geometries = null;
+    }
+    if (this._edgeGeometries) {
+      for (const g of Object.values(this._edgeGeometries)) {
+        if (g && typeof g.dispose === 'function') g.dispose();
+      }
+      this._edgeGeometries = null;
+    }
+    if (this._edgeMeshByShape) {
+      for (const lines of this._edgeMeshByShape.values()) {
+        if (lines.geometry && typeof lines.geometry.dispose === 'function') {
+          lines.geometry.dispose();
+        }
+      }
+      this._edgeMeshByShape = null;
+    }
+    if (this._edgeMaterial) {
+      this._edgeMaterial.dispose();
+      this._edgeMaterial = null;
     }
     if (this._material) {
       this._material.dispose();

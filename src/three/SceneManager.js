@@ -283,8 +283,14 @@ class SceneManager {
     // map then translates the local instanceId back into the global
     // 0..N-1 index space the rest of the app expects.
     const isGroup = target.isGroup === true || target.type === 'Group';
+    // Skip pure-visual children (e.g. NodeMesh outline LineSegments)
+    // marked with userData.skipRaycast so the filled InstancedMeshes
+    // underneath get the click.
+    const candidates = isGroup
+      ? target.children.filter((c) => !(c.userData && c.userData.skipRaycast))
+      : [target];
     const hits = isGroup
-      ? this._raycaster.intersectObjects(target.children, false)
+      ? this._raycaster.intersectObjects(candidates, false)
       : this._raycaster.intersectObject(target);
     if (hits.length === 0) return -1;
     const hit = hits[0];

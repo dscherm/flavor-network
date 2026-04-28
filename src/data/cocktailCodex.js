@@ -122,10 +122,16 @@ export async function loadCocktailCodex(basePath = '/data') {
       clusterLabel: fam ? fam.name : 'Unclustered',
       subclusterLabel: sub ? sub.name : null,
       // R14 multi-shape: master-kit shape key derived from the
-      // subcluster category (Root → cube, Core → sphere, etc.).
+      // subcluster category (Root → sphere, Core → cube, etc.).
       // CocktailLab passes a Map<name, shapeKey> into NodeMesh so
       // each subcluster category renders with a distinct geometry.
       shapeKey: cocktailShapeKey(sub ? sub.name : null),
+      // Root cocktails are family hubs (Old Fashioned, Martini, etc.)
+      // — they should read as the dominant landmark in their cluster.
+      // 2× the base size cleanly separates them from satellite cocktails
+      // without making them comically large vs. heavily-ingredient'd
+      // recipes (whose pairingCount alone already pushes them larger).
+      scaleBoost: c.isRoot ? 2.0 : 1.0,
       // taste/cuisines empty so the existing color/legend logic doesn't
       // try to override our cluster color
       taste: '',
@@ -210,12 +216,13 @@ export async function loadCocktailCodex(basePath = '/data') {
  * @returns {Object} { positions: { [name]: [x, y, z] } }
  */
 export function computeCodexPositions(nodes, clusters) {
-  // Tightened from 36 → 26 so the codex feels like one body rather
-  // than 7 distant islands. With 7 families on a Fibonacci sphere of
-  // R=26 the nearest-neighbor distance ≈ 28; family extent (subcluster
-  // radius + scatter) is ≈ 11, so the 17-unit gap leaves clear space
-  // between families and no recipe overlap.
-  const FAMILY_RADIUS = 26;
+  // R14: Tightened further from 26 → 20 per user pass-2 feedback —
+  // with the multi-shape geometry kit + 3× scale multiplier, the
+  // codex was reading as 7 distant islands rather than one cohesive
+  // body. At R=20, nearest-neighbor distance ≈ 22; family extent
+  // (subcluster radius + scatter + root scaleBoost ≈ 12) leaves a
+  // ~10-unit visual gap — tight but no overlap.
+  const FAMILY_RADIUS = 20;
   const SUBCLUSTER_RADIUS = 8;
   const SCATTER = 3;
 
