@@ -6,26 +6,26 @@ describe('cocktailShapeKey', () => {
   it('maps each canonical subcluster category to its shape', () => {
     expect(cocktailShapeKey('Root')).toBe('sphere');
     expect(cocktailShapeKey('Core')).toBe('cube');
-    expect(cocktailShapeKey('Balance')).toBe('octahedron');
+    expect(cocktailShapeKey('Balance')).toBe('torus');
     expect(cocktailShapeKey('Seasoning')).toBe('cylinder');
-    expect(cocktailShapeKey('Variations')).toBe('dodecahedron');
-    expect(cocktailShapeKey('Extended Family')).toBe('icosahedron');
-    expect(cocktailShapeKey('Recipes')).toBe('torus');
+    expect(cocktailShapeKey('Variations')).toBe('cone');
+    expect(cocktailShapeKey('Extended Family')).toBe('torusKnot');
+    expect(cocktailShapeKey('Recipes')).toBe('bipyramid');
   });
 
   it('folds the two "Experimenting with [the] Balance" variants', () => {
-    expect(cocktailShapeKey('Experimenting with Balance')).toBe('octahedron');
-    expect(cocktailShapeKey('Experimenting with the Balance')).toBe('octahedron');
+    expect(cocktailShapeKey('Experimenting with Balance')).toBe('torus');
+    expect(cocktailShapeKey('Experimenting with the Balance')).toBe('torus');
   });
 
   it('folds "Variations & Extended Family" into Extended Family', () => {
-    expect(cocktailShapeKey('Variations & Extended Family')).toBe('icosahedron');
+    expect(cocktailShapeKey('Variations & Extended Family')).toBe('torusKnot');
   });
 
   it('is case-insensitive', () => {
     expect(cocktailShapeKey('ROOT')).toBe('sphere');
     expect(cocktailShapeKey('core')).toBe('cube');
-    expect(cocktailShapeKey('  Balance  ')).toBe('octahedron');
+    expect(cocktailShapeKey('  Balance  ')).toBe('torus');
   });
 
   it('falls back to sphere for null/undefined/empty/unknown', () => {
