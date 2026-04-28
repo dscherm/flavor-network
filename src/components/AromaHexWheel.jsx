@@ -257,6 +257,27 @@ export default function AromaHexWheel({ ingredients = [], nodes, onTapAroma, wid
         )}
       </div>
 
+      {/* Compound-food provenance badge — appears when ≥1 ingredient
+          (mayonnaise, vinaigrette, garam masala, …) had its aroma
+          synthesized from constituents rather than predicted directly
+          from a single molecule. Mirrors the badge IngredientPanel
+          shows when the user opens an individual compound food. */}
+      {aroma?.compoundCount > 0 && (
+        <div
+          className="w-full max-w-[240px] px-2 mb-1 -mt-0.5"
+          title={`Aroma for ${aroma.compoundNames.join(', ')} synthesized from constituent ingredients.`}
+        >
+          <p
+            className="text-[11px] sm:text-[10px] leading-tight text-center"
+            style={{ fontFamily: FONT_FAMILY, color: '#a86c2a' }}
+          >
+            {aroma.compoundCount === 1
+              ? `${aroma.compoundNames[0]} predicted from components`
+              : `${aroma.compoundCount} ingredients predicted from components`}
+          </p>
+        </div>
+      )}
+
       <div className="relative">
         <canvas
           ref={canvasRef}
