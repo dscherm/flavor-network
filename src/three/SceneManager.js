@@ -276,8 +276,24 @@ class SceneManager {
   _raycast() {
     if (!this._raycastTarget) return -1;
     this._raycaster.setFromCamera(this._mouse, this._camera);
-    const hits = this._raycaster.intersectObject(this._raycastTarget);
-    return hits.length > 0 ? hits[0].instanceId : -1;
+    const target = this._raycastTarget;
+    // Multi-shape NodeMesh wraps several InstancedMeshes in a Group.
+    // intersectObjects(target.children) tests each per-shape mesh and
+    // returns the closest hit; the per-mesh `userData.globalIndices`
+    // map then translates the local instanceId back into the global
+    // 0..N-1 index space the rest of the app expects.
+    const isGroup = target.isGroup === true || target.type === 'Group';
+    const hits = isGroup
+      ? this._raycaster.intersectObjects(target.children, false)
+      : this._raycaster.intersectObject(target);
+    if (hits.length === 0) return -1;
+    const hit = hits[0];
+    const map = hit.object.userData && hit.object.userData.globalIndices;
+    if (map) {
+      const g = map[hit.instanceId];
+      return g != null ? g : -1;
+    }
+    return hit.instanceId;
   }
 
   _onPointerDown(event) {
