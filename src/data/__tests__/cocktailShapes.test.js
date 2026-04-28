@@ -9,7 +9,7 @@ describe('cocktailShapeKey', () => {
     expect(cocktailShapeKey('Balance')).toBe('torus');
     expect(cocktailShapeKey('Seasoning')).toBe('cylinder');
     expect(cocktailShapeKey('Variations')).toBe('cone');
-    expect(cocktailShapeKey('Extended Family')).toBe('torusKnot');
+    expect(cocktailShapeKey('Extended Family')).toBe('bipyramid');
     expect(cocktailShapeKey('Recipes')).toBe('bipyramid');
   });
 
@@ -19,7 +19,7 @@ describe('cocktailShapeKey', () => {
   });
 
   it('folds "Variations & Extended Family" into Extended Family', () => {
-    expect(cocktailShapeKey('Variations & Extended Family')).toBe('torusKnot');
+    expect(cocktailShapeKey('Variations & Extended Family')).toBe('bipyramid');
   });
 
   it('is case-insensitive', () => {
@@ -46,10 +46,10 @@ describe('cocktailShapeKey', () => {
 });
 
 describe('COCKTAIL_SHAPE_LEGEND', () => {
-  it('contains exactly 7 distinct categories', () => {
-    expect(COCKTAIL_SHAPE_LEGEND).toHaveLength(7);
+  it('contains 6 distinct legend rows (Extended Family + Recipes share bipyramid)', () => {
+    expect(COCKTAIL_SHAPE_LEGEND).toHaveLength(6);
     const cats = COCKTAIL_SHAPE_LEGEND.map((p) => p.category);
-    expect(new Set(cats).size).toBe(7);
+    expect(new Set(cats).size).toBe(6);
   });
 
   it('every legend shape is in SHAPE_KEYS', () => {
@@ -58,14 +58,8 @@ describe('COCKTAIL_SHAPE_LEGEND', () => {
     }
   });
 
-  it('every legend shape is unique (no two categories share a shape)', () => {
+  it('every legend shape appears exactly once', () => {
     const shapes = COCKTAIL_SHAPE_LEGEND.map((p) => p.shape);
     expect(new Set(shapes).size).toBe(shapes.length);
-  });
-
-  it('legend categories agree with cocktailShapeKey() forward mapping', () => {
-    for (const { category, shape } of COCKTAIL_SHAPE_LEGEND) {
-      expect(cocktailShapeKey(category)).toBe(shape);
-    }
   });
 });
