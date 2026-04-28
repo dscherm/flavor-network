@@ -3,7 +3,7 @@
   "clusters": [
     {
       "id": 0,
-      "label": "Fruit",
+      "label": "American",
       "size": 273,
       "centroid_3d": [
         -30.66,
@@ -25,7 +25,7 @@
     },
     {
       "id": 1,
-      "label": "Sugar",
+      "label": "Onion & Tomato",
       "size": 853,
       "centroid_3d": [
         17.55,
@@ -47,7 +47,7 @@
     },
     {
       "id": 2,
-      "label": "Dairy",
+      "label": "Italian",
       "size": 378,
       "centroid_3d": [
         15.04,
@@ -69,7 +69,7 @@
     },
     {
       "id": 3,
-      "label": "Spice",
+      "label": "Mexican",
       "size": 328,
       "centroid_3d": [
         10.09,
@@ -91,7 +91,7 @@
     },
     {
       "id": 4,
-      "label": "Aromatic",
+      "label": "Chinese",
       "size": 314,
       "centroid_3d": [
         10.53,
@@ -113,7 +113,7 @@
     },
     {
       "id": 5,
-      "label": "Spirit",
+      "label": "Moroccan",
       "size": 198,
       "centroid_3d": [
         -29.35,
@@ -135,7 +135,7 @@
     },
     {
       "id": 6,
-      "label": "Fat",
+      "label": "Italian (olive)",
       "size": 531,
       "centroid_3d": [
         17.76,
@@ -157,7 +157,7 @@
     },
     {
       "id": 7,
-      "label": "Thickener",
+      "label": "Honey & Buttermilk",
       "size": 174,
       "centroid_3d": [
         -20.33,
@@ -179,7 +179,7 @@
     },
     {
       "id": 8,
-      "label": "Sweetener",
+      "label": "American (baking)",
       "size": 334,
       "centroid_3d": [
         -33.93,
@@ -201,7 +201,7 @@
     },
     {
       "id": 9,
-      "label": "Egg",
+      "label": "American (sugar)",
       "size": 530,
       "centroid_3d": [
         -13.44,

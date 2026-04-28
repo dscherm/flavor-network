@@ -17,11 +17,9 @@ import re
 from collections import Counter
 from pathlib import Path
 
-import networkx as nx
-import numpy as np
-from node2vec import Node2Vec
-from sklearn.cluster import KMeans
-
+# ML deps (networkx, node2vec, gensim, sklearn) are imported lazily inside
+# main() so the pure-Python auto_label() helper can be imported on its own
+# (e.g. from preview / verification scripts) without the heavy stack.
 
 K = 10
 SEED = 42
@@ -35,31 +33,51 @@ def _norm(s):
     return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
 
 
-def auto_label(ingredients: list[dict], all_ingredients: dict, max_words: int = 3) -> str:
-    """Generate a short descriptive label from ingredient names, categories, and cuisines.
+# Single-word categories that don't capture cluster identity by themselves.
+# When the only signal is one of these, prefer cuisine or top-ingredient pair.
+# A cluster of basil/parmesan/oregano labeled "Dairy" or "Umami" loses what
+# it actually means (Italian aromatics).
+_GENERIC_CATEGORIES = frozenset({
+    "sugar", "fat", "egg", "sweetener", "thickener", "spice",
+    "aromatic", "dairy", "spirit", "fruit", "vegetable", "grain",
+    "protein", "herb", "nut", "umami", "citrus", "chili",
+})
 
-    Strategy: find the most distinctive category or cuisine for this cluster
-    relative to the overall distribution, BUT only accept it if the cluster's
-    top-pairing ingredients actually have that category. A label that doesn't
-    match the top items users see ("Protein" cluster topped by sugar/butter/milk)
-    is worse than no label.
 
-    Falls back to a "<TopIngredient> & friends"-style label when no
-    category/cuisine survives the top-ingredient sanity check.
+def auto_label(ingredients: list[dict], all_ingredients: dict,
+               cuisine_map: dict[str, list[str]] | None = None,
+               max_words: int = 3) -> str:
+    """Generate a short descriptive cluster label.
+
+    Cuisine-first strategy:
+      1. If a cuisine has strong over-representation in the cluster
+         (lift ≥ 1.5, count ≥ 3, present in top-5 ingredients), use
+         that cuisine alone — it's what the cluster cooks-with.
+      2. Otherwise prefer a non-generic ingredient category that
+         survives the top-5 sanity check (e.g. "Wine", "Berry", "Noodle").
+      3. Fall back to top-2 ingredient names ("Egg & Onion") — the pair
+         captures the cluster's identity better than a single name.
+
+    Cuisine signal is read from `cuisine_map` (public/data/cuisine_map.json),
+    not from ingredients.json (which has empty cuisines arrays). "Global"
+    is filtered — it's noise (sugar, butter, olive oil, milk are all Global).
     """
     n = len(ingredients)
     if n == 0:
         return "Mixed"
 
-    cats = Counter()
-    cuisines = Counter()
+    cuisine_map = cuisine_map or {}
+
+    cats: Counter[str] = Counter()
+    cuisines: Counter[str] = Counter()
     for ing in ingredients:
         cat = (ing.get("category") or "").lower().strip()
         if cat:
             cats[cat] += 1
-        for c in ing.get("cuisines", []):
-            cn = c.replace(" cuisine", "").strip().lower()
-            if cn:
+        name = ing.get("name", "")
+        for c in cuisine_map.get(name, []) or []:
+            cn = c.strip()
+            if cn and cn.lower() != "global":
                 cuisines[cn] += 1
 
     # Top ingredients (by pairing count) — these are what the UI surfaces.
@@ -67,13 +85,62 @@ def auto_label(ingredients: list[dict], all_ingredients: dict, max_words: int = 
     top = sorted(ingredients, key=lambda x: x.get("totalCount", 0) or 0, reverse=True)
     top_5 = top[:5]
     top_5_cats = {(t.get("category") or "").lower().strip() for t in top_5}
-    top_5_cuisines = set()
+    top_5_cuisines: set[str] = set()
     for t in top_5:
-        for c in t.get("cuisines", []) or []:
-            top_5_cuisines.add(c.replace(" cuisine", "").strip().lower())
+        for c in cuisine_map.get(t.get("name", ""), []) or []:
+            cn = c.strip()
+            if cn and cn.lower() != "global":
+                top_5_cuisines.add(cn)
 
-    # Find the most over-represented category vs global rate
-    global_cats = Counter()
+    # Cuisine lift over global frequency
+    global_cuisines: Counter[str] = Counter()
+    for cms in cuisine_map.values():
+        for c in cms or []:
+            cn = c.strip()
+            if cn and cn.lower() != "global":
+                global_cuisines[cn] += 1
+    total_gc = sum(global_cuisines.values()) or 1
+
+    # Cuisine selection: rank by raw COUNT (not lift). Lift acts only as
+    # a relevance floor — globally rare cuisines like Peruvian/Australian
+    # produce huge lift spikes for any modest co-occurrence, drowning out
+    # canonical Italian/Mexican/Chinese identities. Adding a 15%-of-cluster
+    # presence floor ensures we only label a cluster by cuisine when that
+    # cuisine truly dominates, not when it's just one of several near-ties.
+    CLUSTER_PRESENCE_FLOOR = 0.15
+    LIFT_FLOOR = 1.5
+    presence_min = max(3, int(n * CLUSTER_PRESENCE_FLOOR))
+
+    # The top_5_cuisines set (built above) is too strict to use as a hard
+    # filter: top ingredients like "vanilla" / "pecan" / "olive oil" have
+    # empty or Global-only cuisine tags, which pre-excludes legitimate
+    # dominant cuisines. We rely instead on the presence + lift floors
+    # below — those keep noise out without depending on cuisine being
+    # tagged on top-5 ingredients.
+    _ = top_5_cuisines  # retained for diagnostics; not used in decision
+
+    best_cuisine: str | None = None
+    best_cuisine_count = 0
+    best_cuisine_lift = 0.0
+    for cuis, count in cuisines.most_common(20):
+        if count < presence_min:
+            continue
+        cluster_rate = count / n
+        global_rate = global_cuisines.get(cuis, 1) / total_gc
+        lift = cluster_rate / max(global_rate, 0.001)
+        if lift < LIFT_FLOOR:
+            continue
+        # Primary score: count. Tiebreaker: lift.
+        if count > best_cuisine_count or (count == best_cuisine_count and lift > best_cuisine_lift):
+            best_cuisine = cuis
+            best_cuisine_count = count
+            best_cuisine_lift = lift
+
+    if best_cuisine:
+        return best_cuisine
+
+    # Otherwise look for a non-generic category.
+    global_cats: Counter[str] = Counter()
     for v in all_ingredients.values():
         if isinstance(v, dict):
             gc = (v.get("category") or "").lower().strip()
@@ -81,57 +148,43 @@ def auto_label(ingredients: list[dict], all_ingredients: dict, max_words: int = 
                 global_cats[gc] += 1
     total_global = sum(global_cats.values()) or 1
 
-    best_cat = None
-    best_lift = 0
+    best_cat: str | None = None
+    best_lift = 0.0
     for cat, count in cats.most_common(5):
+        if cat in _GENERIC_CATEGORIES:
+            continue
         cluster_rate = count / n
         global_rate = global_cats.get(cat, 1) / total_global
         lift = cluster_rate / max(global_rate, 0.001)
-        # Sanity check: the cluster top-5 must include this category, or
-        # the lift is coming from long-tail items and the label will mislead.
         if lift > best_lift and count >= 5 and cat in top_5_cats:
             best_lift = lift
             best_cat = cat
 
-    # Find the most over-represented cuisine
-    global_cuisines = Counter()
-    for v in all_ingredients.values():
-        if isinstance(v, dict):
-            for c in v.get("cuisines", []) or []:
-                global_cuisines[c.replace(" cuisine", "").strip().lower()] += 1
-    total_gc = sum(global_cuisines.values()) or 1
-
-    best_cuisine = None
-    best_cuisine_lift = 0
-    for cuis, count in cuisines.most_common(5):
-        cluster_rate = count / n
-        global_rate = global_cuisines.get(cuis, 1) / total_gc
-        lift = cluster_rate / max(global_rate, 0.001)
-        if lift > best_cuisine_lift and count >= 3 and cuis in top_5_cuisines:
-            best_cuisine_lift = lift
-            best_cuisine = cuis
-
-    parts = []
-    if best_cuisine and best_cuisine_lift > 1.5:
-        parts.append(best_cuisine.title())
     if best_cat and best_lift > 1.3:
-        cat_label = best_cat.title()
-        if cat_label not in parts:
-            parts.append(cat_label)
+        return best_cat.title()
 
-    if not parts:
-        # Fall back to "<TopIngredient> & friends" so the label echoes the
-        # top item the UI actually shows. Avoids the v3 mismatch where a
-        # category label was attached to a cluster with unrelated top items.
-        if top:
-            parts = [top[0]["name"].split()[0].title()]
-        else:
-            parts = ["Mixed"]
-
-    return " & ".join(parts[:max_words])
+    # Fallback: top-2 ingredient pair. "Egg & Onion" reads better than
+    # "Protein" or "Egg & friends" — the pair captures the cluster's
+    # cooking-with-what gestalt for clusters without a cuisine identity.
+    # Use full ingredient names (title-cased) so multi-word names like
+    # "vegetable oil" stay intact rather than collapsing to "Vegetable".
+    if len(top) >= 2:
+        a = top[0]["name"].title()
+        b = top[1]["name"].title()
+        if a.lower() != b.lower():
+            return f"{a} & {b}"
+        return a
+    if top:
+        return top[0]["name"].title()
+    return "Mixed"
 
 
 def main() -> int:
+    import networkx as nx  # noqa: PLC0415
+    import numpy as np  # noqa: PLC0415
+    from node2vec import Node2Vec  # noqa: PLC0415
+    from sklearn.cluster import KMeans  # noqa: PLC0415
+
     root = _project_root()
 
     # Load pairings and build graph
@@ -161,6 +214,19 @@ def main() -> int:
     with (root / "public" / "proDataset" / "ingredients.json").open("r", encoding="utf-8") as fh:
         ingredients_data = json.load(fh)
 
+    # Cuisine signal lives in public/data/cuisine_map.json — ingredients.json
+    # ships with empty cuisines arrays. Without this map auto_label cannot
+    # find the cuisine identity of a cluster (the original cause of the
+    # "Dairy" mislabel for what is really an Italian aromatics cluster).
+    cuisine_map: dict[str, list[str]] = {}
+    cuisine_path = root / "public" / "data" / "cuisine_map.json"
+    if cuisine_path.exists():
+        with cuisine_path.open("r", encoding="utf-8") as fh:
+            cuisine_map = json.load(fh)
+        print(f"[clusters] cuisine_map: {len(cuisine_map)} ingredients")
+    else:
+        print(f"[clusters] WARNING: {cuisine_path} not found — cuisine signal disabled")
+
     # Load 3D + 2D positions for centroids
     with (root / "public" / "proDataset" / "gnn_positions.json").open("r", encoding="utf-8") as fh:
         pos3d_data = json.load(fh)
@@ -180,7 +246,7 @@ def main() -> int:
             for n in members
         ]
 
-        label_text = auto_label(member_data, ingredients_data)
+        label_text = auto_label(member_data, ingredients_data, cuisine_map=cuisine_map)
         # If another cluster already claimed this label, disambiguate by
         # appending the top-paired ingredient that uniquely belongs to
         # this cluster's pool (e.g. "Chili (cumin)" vs "Chili (ginger)").
