@@ -10,8 +10,18 @@
  *   Balance         → torus      (closed loop = balanced)
  *   Seasoning       → cylinder   (column = "added on top")
  *   Variations      → cone       (open-ended, expanding silhouette)
- *   Extended Family → torus knot (twisted = complex cousin linkage)
+ *   Extended Family → bipyramid  (diamond = full cousin set)
  *   Recipes         → bipyramid  (diamond = a complete recipe, top + bottom)
+ *
+ * Note: Extended Family and Recipes intentionally share the bipyramid
+ * shape per pass-4 user feedback ("get rid of the torus knot and make
+ * them bipyramid"). They're conceptually adjacent — both represent the
+ * expanded / complete form of a family member — so collapsing them to
+ * one silhouette reads as deliberate rather than ambiguous.
+ *
+ * Syrups (family_id=6) have no subcluster and fall through to sphere
+ * via DEFAULT_SHAPE — same shape as Root cocktails, which is fine
+ * because Syrups are color-coded distinctly (gold #fbbf24).
  *
  * Pass-3 redesign rationale (per user feedback): the prior mapping
  * relied on three regular polyhedra (octahedron, dodecahedron,
@@ -38,8 +48,8 @@ const SUBCLUSTER_TO_SHAPE = Object.freeze({
   'experimenting with the balance': 'torus',
   'seasoning': 'cylinder',
   'variations': 'cone',
-  'extended family': 'torusKnot',
-  'variations & extended family': 'torusKnot',
+  'extended family': 'bipyramid',
+  'variations & extended family': 'bipyramid',
   'recipes': 'bipyramid',
 });
 
@@ -65,6 +75,8 @@ export const COCKTAIL_SHAPE_LEGEND = Object.freeze([
   { category: 'Balance', shape: 'torus' },
   { category: 'Seasoning', shape: 'cylinder' },
   { category: 'Variations', shape: 'cone' },
-  { category: 'Extended Family', shape: 'torusKnot' },
-  { category: 'Recipes', shape: 'bipyramid' },
+  // Extended Family + Recipes deliberately share the bipyramid silhouette
+  // (per user feedback). Single legend row reads cleaner than two rows
+  // with the same icon.
+  { category: 'Extended Family / Recipes', shape: 'bipyramid' },
 ]);
