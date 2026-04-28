@@ -7,6 +7,8 @@ import {
 } from '../data/cocktailCodex.js';
 import { createClusterLabels } from '../three/AxisLabels.js';
 import ClusterJoystick from './ClusterJoystick.jsx';
+import ShapeLegend from './ShapeLegend.jsx';
+import { COCKTAIL_SHAPE_LEGEND } from '../data/cocktailShapes.js';
 
 /**
  * CocktailLab — Codex view. Each NODE is a cocktail, grouped into the
@@ -83,6 +85,19 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
       counts.set(n.family_id, (counts.get(n.family_id) || 0) + 1);
     }
     return counts;
+  }, [codexData]);
+
+  // R14 multi-shape: extract `shapeKey` per cocktail from the codex
+  // nodes (set in cocktailCodex.js → cocktailShapeKey() based on the
+  // subcluster category). Memoized so the NetworkScene's init effect
+  // doesn't tear down + rebuild on every render.
+  const shapeAssignments = useMemo(() => {
+    if (!codexData?.graph?.nodes) return null;
+    const m = new Map();
+    for (const [name, node] of codexData.graph.nodes) {
+      if (node.shapeKey) m.set(name, node.shapeKey);
+    }
+    return m.size > 0 ? m : null;
   }, [codexData]);
 
   // 3D cluster labels — one per family (and Syrups) at its centroid.
@@ -195,6 +210,7 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
         showNodeLabels={true}
         labelNodeNames={familyFilteredNames}
         flyToTarget={flyToTarget}
+        shapeAssignments={shapeAssignments}
       />
 
       {selectedCocktail && (
@@ -227,6 +243,10 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
           });
         }}
       />
+
+      {/* Shape legend — collapsible, top-right. Maps the 7 subcluster
+          categories to their geometries so users can read the 3D scene. */}
+      <ShapeLegend title="Subcluster shapes" legend={COCKTAIL_SHAPE_LEGEND} />
     </>
   );
 }

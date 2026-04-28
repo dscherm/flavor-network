@@ -1,10 +1,13 @@
 import * as THREE from 'three';
 import {
   InstancedMesh,
-  SphereGeometry,
   Color,
   Object3D,
 } from 'three';
+import {
+  buildShapeGeometries,
+  SHAPE_KEYS,
+} from './Geometries.js';
 
 const CUISINE_COLORS = {
   'french cuisine': '#e63946',
@@ -69,11 +72,6 @@ export function tasteMatches(nodeTaste, filterKey) {
   return tasteLower.includes(filterKey.toLowerCase());
 }
 
-// Uncertainty tint: desaturated warm pink. When the GNN is maximally
-// unsure about a compound's taste (entropy_norm=1), the node color is
-// pulled halfway toward this tone. Confident predictions (entropy_norm≈0)
-// keep their original taste color. See flavor-gnn/src/infer/embed_ingredients.py
-// for how entropy is computed.
 const UNCERTAINTY_TINT = new Color(0xcc8899);
 const UNCERTAINTY_MAX_BLEND = 0.5;
 
@@ -86,14 +84,10 @@ function _applyUncertainty(baseColor, node) {
 
 function getColorForNode(node) {
   let base;
-  // Highest priority: explicit cluster color set by the lab views (Cocktail
-  // Codex family, Mother Sauce family). When present, this overrides
-  // taste/cuisine so the cluster cloud is visually obvious.
   if (node?.clusterColor) {
     base = new Color(node.clusterColor);
     return _applyUncertainty(base, node);
   }
-  // Primary: color by taste profile — supports multi-taste blending
   const taste = (node.taste || '').toLowerCase().trim();
   if (taste) {
     const matchedColors = [];
@@ -105,7 +99,6 @@ function getColorForNode(node) {
     if (matchedColors.length === 1) {
       base = matchedColors[0];
     } else if (matchedColors.length >= 2) {
-      // Blend all matched colors equally
       const blended = matchedColors[0].clone();
       for (let i = 1; i < matchedColors.length; i++) {
         blended.lerp(matchedColors[i], 1 / (i + 1));
@@ -115,7 +108,6 @@ function getColorForNode(node) {
   }
 
   if (!base) {
-    // Fallback: color by first cuisine
     if (node.cuisines && node.cuisines.length > 0) {
       for (const cuisine of node.cuisines) {
         const hex = CUISINE_COLORS[cuisine.toLowerCase()];
@@ -135,72 +127,130 @@ function getColorForNode(node) {
 
 export { getColorForNode };
 
+/**
+ * NodeMesh manages the GPU representation of every ingredient/cocktail
+ * /sauce node in a 3D view.
+ *
+ * Default mode (no `shapeAssignments`): one InstancedMesh of spheres.
+ * Identical to the original single-shape behavior — every consumer that
+ * was working before this multi-shape refactor still works unchanged.
+ *
+ * Multi-shape mode (`shapeAssignments` provided as Map<name,shapeKey>
+ * or plain object): one InstancedMesh per shape, all wrapped in a
+ * THREE.Group. Per-mesh `userData.globalIndices` lets the SceneManager
+ * raycaster translate (mesh, instanceId) hits back into the global
+ * 0..count-1 index space the rest of the app expects.
+ */
 class NodeMesh {
-  constructor({ nodes, positions }) {
-    this._nameToIndex = new Map();
-    this._nodeList = [];
-    this._defaultColors = [];
-
+  constructor({ nodes, positions, shapeAssignments = null }) {
     const posMap = positions.positions || positions;
     const nodeArray = Array.from(nodes.values());
     const count = nodeArray.length;
 
-    const geometry = new SphereGeometry(1, 16, 16);
+    // Identity tables, parallel to global index 0..count-1.
+    this._nodeList = nodeArray;
+    this._nameToIndex = new Map();
+    for (let i = 0; i < count; i++) this._nameToIndex.set(nodeArray[i].name, i);
+    this._defaultColors = new Array(count);
 
-    // Use MeshBasicMaterial so instance colors show directly without lighting dependency
-    // Combined with bloom post-processing, this gives the glowing neural look
-    const material = new THREE.MeshBasicMaterial({
+    // Resolve a shape key for each node. Unknown / missing → 'sphere'.
+    const shapeOf = new Array(count);
+    if (shapeAssignments) {
+      const has = typeof shapeAssignments.get === 'function';
+      for (let i = 0; i < count; i++) {
+        const name = nodeArray[i].name;
+        const k = has ? shapeAssignments.get(name) : shapeAssignments[name];
+        shapeOf[i] = (k && SHAPE_KEYS.includes(k)) ? k : 'sphere';
+      }
+    } else {
+      shapeOf.fill('sphere');
+    }
+    this._shapeByGlobal = shapeOf;
+
+    // Group global indices by shape.
+    const indicesByShape = new Map();
+    for (let i = 0; i < count; i++) {
+      const k = shapeOf[i];
+      let arr = indicesByShape.get(k);
+      if (!arr) { arr = []; indicesByShape.set(k, arr); }
+      arr.push(i);
+    }
+
+    // Allocate only the geometries we actually use; release the rest.
+    const allGeos = buildShapeGeometries();
+    this._geometries = {};
+    for (const k of indicesByShape.keys()) this._geometries[k] = allGeos[k];
+    for (const [k, g] of Object.entries(allGeos)) {
+      if (!indicesByShape.has(k)) g.dispose();
+    }
+
+    this._material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
       opacity: 0.9,
     });
 
-    this._mesh = new InstancedMesh(geometry, material, count);
-    this._mesh.frustumCulled = true;
-    this._geometry = geometry;
-    this._material = material;
+    // Build one InstancedMesh per used shape, wrapped in a Group.
+    this._group = new THREE.Group();
+    this._meshByShape = new Map();
+    this._localIdxByGlobal = new Array(count);
 
     const dummy = new Object3D();
+    for (const [shapeKey, indices] of indicesByShape) {
+      const geo = this._geometries[shapeKey];
+      const mesh = new InstancedMesh(geo, this._material, indices.length);
+      mesh.frustumCulled = true;
+      // SceneManager._raycast uses these to translate localIdx → globalIdx
+      // when the raycast target is a Group of multiple meshes.
+      mesh.userData.globalIndices = indices.slice();
+      mesh.userData.shapeKey = shapeKey;
+      this._meshByShape.set(shapeKey, mesh);
+      this._group.add(mesh);
 
-    for (let i = 0; i < count; i++) {
-      const node = nodeArray[i];
-      const name = node.name;
+      for (let local = 0; local < indices.length; local++) {
+        const global = indices[local];
+        const node = nodeArray[global];
+        this._localIdxByGlobal[global] = local;
 
-      this._nameToIndex.set(name, i);
-      this._nodeList.push(node);
+        const pos = posMap[node.name];
+        if (pos) dummy.position.set(pos[0], pos[1], pos[2]);
+        else dummy.position.set(0, 0, 0);
+        const pairingCount = node.pairingCount || 0;
+        const s = Math.max(0.3, Math.min(2.0, Math.sqrt(pairingCount) * 0.15));
+        dummy.scale.set(s, s, s);
+        dummy.quaternion.identity();
+        dummy.updateMatrix();
+        mesh.setMatrixAt(local, dummy.matrix);
 
-      const pos = posMap[name];
-      if (pos) {
-        dummy.position.set(pos[0], pos[1], pos[2]);
-      } else {
-        dummy.position.set(0, 0, 0);
+        const c = getColorForNode(node);
+        this._defaultColors[global] = c.clone();
+        mesh.setColorAt(local, c);
       }
-
-      const pairingCount = node.pairingCount || 0;
-      const s = Math.max(0.3, Math.min(2.0, Math.sqrt(pairingCount) * 0.15));
-      dummy.scale.set(s, s, s);
-
-      dummy.updateMatrix();
-      this._mesh.setMatrixAt(i, dummy.matrix);
-
-      const nodeColor = getColorForNode(node);
-      this._defaultColors.push(nodeColor.clone());
-      this._mesh.setColorAt(i, nodeColor);
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     }
 
-    this._mesh.instanceMatrix.needsUpdate = true;
-    if (this._mesh.instanceColor) {
-      this._mesh.instanceColor.needsUpdate = true;
-    }
+    // Always expose the Group as the scene-graph node. Avoids a double-
+    // parent warning in single-shape mode where the lone InstancedMesh
+    // would otherwise be both a child of `_group` AND added directly to
+    // the scene by the consumer. SceneManager._raycast handles Groups
+    // by intersecting children and translating local→global indices via
+    // `userData.globalIndices`.
+    this._mesh = this._group;
   }
 
+  /**
+   * The renderable Object3D for `manager.addToScene()` and
+   * `manager.setRaycastTarget()`. Always a THREE.Group — single-shape
+   * mode wraps a single InstancedMesh; multi-shape mode wraps several.
+   */
   getMesh() {
-    return this._mesh;
+    return this._group;
   }
 
-  getNodeAtIndex(index) {
-    if (index < 0 || index >= this._nodeList.length) return null;
-    return this._nodeList[index];
+  getNodeAtIndex(global) {
+    if (global < 0 || global >= this._nodeList.length) return null;
+    return this._nodeList[global];
   }
 
   getIndexForName(name) {
@@ -208,55 +258,82 @@ class NodeMesh {
     return idx !== undefined ? idx : -1;
   }
 
-  /**
-   * Dim all nodes to near-invisible. Call before setActivation to make selected network pop.
-   */
-  dimAll() {
-    for (let i = 0; i < this._nodeList.length; i++) {
-      const base = this._defaultColors[i];
-      const dimmed = base.clone().multiplyScalar(0.15);
-      this._mesh.setColorAt(i, dimmed);
-    }
-    if (this._mesh.instanceColor) {
-      this._mesh.instanceColor.needsUpdate = true;
+  // ─── internal mesh routing ──────────────────────────────────
+
+  _meshAndLocalFor(global) {
+    const k = this._shapeByGlobal[global];
+    const mesh = this._meshByShape.get(k);
+    const local = this._localIdxByGlobal[global];
+    return { mesh, local };
+  }
+
+  _markColorsDirty() {
+    for (const mesh of this._meshByShape.values()) {
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     }
   }
 
-  setActivation(name, intensity) {
-    const index = this._nameToIndex.get(name);
-    if (index === undefined) return;
-
-    // Restore original color and brighten based on intensity
-    const base = this._defaultColors[index];
-    const activated = base.clone().lerp(new Color('#ffffff'), intensity * 0.6);
-    this._mesh.setColorAt(index, activated);
-
-    if (this._mesh.instanceColor) {
-      this._mesh.instanceColor.needsUpdate = true;
+  _markMatricesDirty() {
+    for (const mesh of this._meshByShape.values()) {
+      mesh.instanceMatrix.needsUpdate = true;
     }
+  }
+
+  _setColorAtGlobal(global, color) {
+    const { mesh, local } = this._meshAndLocalFor(global);
+    if (mesh) mesh.setColorAt(local, color);
+  }
+
+  _setMatrixAtGlobal(global, matrix) {
+    const { mesh, local } = this._meshAndLocalFor(global);
+    if (mesh) mesh.setMatrixAt(local, matrix);
+  }
+
+  _getMatrixAtGlobal(global, target) {
+    const { mesh, local } = this._meshAndLocalFor(global);
+    if (mesh) mesh.getMatrixAt(local, target);
+    return target;
+  }
+
+  // ─── public mutators ────────────────────────────────────────
+
+  /**
+   * Dim all nodes to near-invisible. Call before setActivation to make
+   * a selected sub-network pop.
+   */
+  dimAll() {
+    for (let i = 0; i < this._nodeList.length; i++) {
+      const dimmed = this._defaultColors[i].clone().multiplyScalar(0.15);
+      this._setColorAtGlobal(i, dimmed);
+    }
+    this._markColorsDirty();
+  }
+
+  setActivation(name, intensity) {
+    const i = this._nameToIndex.get(name);
+    if (i === undefined) return;
+    const base = this._defaultColors[i];
+    const activated = base.clone().lerp(new Color('#ffffff'), intensity * 0.6);
+    this._setColorAtGlobal(i, activated);
+    this._markColorsDirty();
   }
 
   resetActivations() {
     for (let i = 0; i < this._defaultColors.length; i++) {
-      this._mesh.setColorAt(i, this._defaultColors[i]);
+      this._setColorAtGlobal(i, this._defaultColors[i]);
     }
-    if (this._mesh.instanceColor) {
-      this._mesh.instanceColor.needsUpdate = true;
-    }
+    this._markColorsDirty();
   }
 
   /**
-   * Filter nodes by cuisine/taste or by explicit name set. Non-matching nodes get dimmed.
-   * @param {{ cuisine?: string, taste?: string }|null} filter - Cuisine/taste filter object
-   * @param {Set<string>} [activeNames] - If provided, only these ingredient names pass the filter
+   * Filter nodes by cuisine/taste or by explicit name set. Non-matching
+   * nodes get dimmed.
    */
   applyFilter(filter, activeNames) {
     const dimColor = new Color('#111118');
-
     for (let i = 0; i < this._nodeList.length; i++) {
       const node = this._nodeList[i];
       let matches;
-
       if (activeNames) {
         matches = activeNames.has(node.name);
       } else {
@@ -272,23 +349,15 @@ class NodeMesh {
           matches = matches && tasteMatches(node.taste, taste);
         }
       }
-
-      if (matches) {
-        this._mesh.setColorAt(i, this._defaultColors[i]);
-      } else {
-        this._mesh.setColorAt(i, dimColor);
-      }
+      this._setColorAtGlobal(i, matches ? this._defaultColors[i] : dimColor);
     }
-
-    if (this._mesh.instanceColor) {
-      this._mesh.instanceColor.needsUpdate = true;
-    }
+    this._markColorsDirty();
   }
 
   /**
-   * Apply profile weights — scale node size and brightness by personal weight.
-   * Nodes with weight 0 get dimmed; higher weight = larger + brighter.
-   * @param {Map<string, number>} weights - ingredient name → normalized weight (0–1)
+   * Apply profile weights — scale node size and brightness by personal
+   * weight. Nodes with weight 0 get dimmed; higher weight = larger +
+   * brighter.
    */
   applyProfileWeights(weights) {
     const dummy = new Object3D();
@@ -298,17 +367,14 @@ class NodeMesh {
       const node = this._nodeList[i];
       const w = weights.get(node.name) || 0;
 
-      // Update color: dim unweighted, brighten weighted
       if (w > 0) {
-        const base = this._defaultColors[i];
-        const brightened = base.clone().lerp(new Color('#ffffff'), w * 0.35);
-        this._mesh.setColorAt(i, brightened);
+        const brightened = this._defaultColors[i].clone().lerp(new Color('#ffffff'), w * 0.35);
+        this._setColorAtGlobal(i, brightened);
       } else {
-        this._mesh.setColorAt(i, dimColor);
+        this._setColorAtGlobal(i, dimColor);
       }
 
-      // Update scale: base scale from pairing count, boosted by weight
-      this._mesh.getMatrixAt(i, dummy.matrix);
+      this._getMatrixAtGlobal(i, dummy.matrix);
       dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
 
       const pairingCount = node.pairingCount || 0;
@@ -318,25 +384,20 @@ class NodeMesh {
       dummy.scale.set(s, s, s);
 
       dummy.updateMatrix();
-      this._mesh.setMatrixAt(i, dummy.matrix);
+      this._setMatrixAtGlobal(i, dummy.matrix);
     }
 
-    this._mesh.instanceMatrix.needsUpdate = true;
-    if (this._mesh.instanceColor) {
-      this._mesh.instanceColor.needsUpdate = true;
-    }
+    this._markMatricesDirty();
+    this._markColorsDirty();
   }
 
-  /**
-   * Reset node sizes back to defaults (undo profile weight scaling).
-   */
   resetProfileWeights() {
     const dummy = new Object3D();
 
     for (let i = 0; i < this._nodeList.length; i++) {
       const node = this._nodeList[i];
 
-      this._mesh.getMatrixAt(i, dummy.matrix);
+      this._getMatrixAtGlobal(i, dummy.matrix);
       dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
 
       const pairingCount = node.pairingCount || 0;
@@ -344,30 +405,39 @@ class NodeMesh {
       dummy.scale.set(s, s, s);
 
       dummy.updateMatrix();
-      this._mesh.setMatrixAt(i, dummy.matrix);
+      this._setMatrixAtGlobal(i, dummy.matrix);
 
-      this._mesh.setColorAt(i, this._defaultColors[i]);
+      this._setColorAtGlobal(i, this._defaultColors[i]);
     }
 
-    this._mesh.instanceMatrix.needsUpdate = true;
-    if (this._mesh.instanceColor) {
-      this._mesh.instanceColor.needsUpdate = true;
-    }
+    this._markMatricesDirty();
+    this._markColorsDirty();
   }
 
   dispose() {
-    if (this._geometry) {
-      this._geometry.dispose();
-      this._geometry = null;
+    if (this._geometries) {
+      for (const g of Object.values(this._geometries)) {
+        if (g && typeof g.dispose === 'function') g.dispose();
+      }
+      this._geometries = null;
     }
     if (this._material) {
       this._material.dispose();
       this._material = null;
     }
+    if (this._group) {
+      while (this._group.children.length > 0) {
+        this._group.remove(this._group.children[0]);
+      }
+      this._group = null;
+    }
+    this._meshByShape = null;
     this._mesh = null;
     this._nameToIndex.clear();
     this._nodeList = [];
     this._defaultColors = [];
+    this._localIdxByGlobal = null;
+    this._shapeByGlobal = null;
   }
 }
 

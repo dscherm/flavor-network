@@ -7,7 +7,8 @@
  *   {
  *     nodes: Map<name, {
  *       name, id, family_id, subcluster_id, isRoot,
- *       clusterColor, clusterLabel, ingredients[], garnishes[],
+ *       clusterColor, clusterLabel, subclusterLabel, shapeKey,
+ *       ingredients[], garnishes[],
  *       pairingCount, taste, cuisines, ...
  *     }>,
  *     edges: Array<{ source, target, strength, kind }>,
@@ -16,6 +17,8 @@
  *     codex: <raw codex JSON>,
  *   }
  */
+
+import { cocktailShapeKey } from './cocktailShapes.js';
 
 // STOP only strips MEASUREMENT, GLUE, and METHOD words — never ingredient
 // nouns. "Simple syrup", "Egg white", "Heavy cream", "Sweet vermouth"
@@ -118,6 +121,11 @@ export async function loadCocktailCodex(basePath = '/data') {
       clusterId: c.family_id,
       clusterLabel: fam ? fam.name : 'Unclustered',
       subclusterLabel: sub ? sub.name : null,
+      // R14 multi-shape: master-kit shape key derived from the
+      // subcluster category (Root → cube, Core → sphere, etc.).
+      // CocktailLab passes a Map<name, shapeKey> into NodeMesh so
+      // each subcluster category renders with a distinct geometry.
+      shapeKey: cocktailShapeKey(sub ? sub.name : null),
       // taste/cuisines empty so the existing color/legend logic doesn't
       // try to override our cluster color
       taste: '',
