@@ -34,6 +34,7 @@ function NetworkScene({
   labelNodeNames = null, // Additional node names to show labels for (e.g., filtered category)
   flyToTarget = null, // { position: [x,y,z], ts: number } — camera flies to that point, label-front
   shapeAssignments = null, // R14: Map<name, shapeKey> for multi-shape NodeMesh (Cocktail/Sauce labs)
+  scaleMultiplier = 1.0, // R14: per-view node scale boost; Cocktail/Sauce use ~3 to make shapes legible
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -60,7 +61,7 @@ function NetworkScene({
     sceneRef.current = manager;
 
     // Create meshes
-    const nodes = new NodeMesh({ nodes: graph.nodes, positions, shapeAssignments });
+    const nodes = new NodeMesh({ nodes: graph.nodes, positions, shapeAssignments, scaleMultiplier });
     const edges = new EdgeMesh({ edges: graph.edges, positions });
     const particles = new ParticleSystem({ edges: graph.edges, positions, nodes: graph.nodes });
 
@@ -105,7 +106,7 @@ function NetworkScene({
       edges.dispose();
       particles.dispose();
     };
-  }, [data, shapeAssignments]);
+  }, [data, shapeAssignments, scaleMultiplier]);
 
   // Wire up click/hover callbacks
   useEffect(() => {

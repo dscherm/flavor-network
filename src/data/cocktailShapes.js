@@ -5,8 +5,8 @@
  * The codex has 32 subclusters across 7 cocktail families, but the
  * subcluster names cluster into 7 semantic categories that repeat:
  *
- *   Root           → cube         (the structural hub of each family)
- *   Core           → sphere       (the canonical default form)
+ *   Root           → sphere       (the family hub — round/whole)
+ *   Core           → cube         (the canonical members — solid)
  *   Balance        → octahedron   (symmetric across two axes)
  *   Seasoning      → cylinder     (column = "added on top")
  *   Variations     → dodecahedron (many-faceted = many variations)
@@ -23,8 +23,8 @@
  */
 
 const SUBCLUSTER_TO_SHAPE = Object.freeze({
-  'root': 'cube',
-  'core': 'sphere',
+  'root': 'sphere',
+  'core': 'cube',
   'balance': 'octahedron',
   'experimenting with balance': 'octahedron',
   'experimenting with the balance': 'octahedron',
@@ -52,8 +52,8 @@ export function cocktailShapeKey(subclusterLabel) {
  * excluded.
  */
 export const COCKTAIL_SHAPE_LEGEND = Object.freeze([
-  { category: 'Root', shape: 'cube' },
-  { category: 'Core', shape: 'sphere' },
+  { category: 'Root', shape: 'sphere' },
+  { category: 'Core', shape: 'cube' },
   { category: 'Balance', shape: 'octahedron' },
   { category: 'Seasoning', shape: 'cylinder' },
   { category: 'Variations', shape: 'dodecahedron' },

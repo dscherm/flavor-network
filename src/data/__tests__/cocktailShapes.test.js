@@ -4,8 +4,8 @@ import { SHAPE_KEYS } from '../../three/Geometries.js';
 
 describe('cocktailShapeKey', () => {
   it('maps each canonical subcluster category to its shape', () => {
-    expect(cocktailShapeKey('Root')).toBe('cube');
-    expect(cocktailShapeKey('Core')).toBe('sphere');
+    expect(cocktailShapeKey('Root')).toBe('sphere');
+    expect(cocktailShapeKey('Core')).toBe('cube');
     expect(cocktailShapeKey('Balance')).toBe('octahedron');
     expect(cocktailShapeKey('Seasoning')).toBe('cylinder');
     expect(cocktailShapeKey('Variations')).toBe('dodecahedron');
@@ -23,8 +23,8 @@ describe('cocktailShapeKey', () => {
   });
 
   it('is case-insensitive', () => {
-    expect(cocktailShapeKey('ROOT')).toBe('cube');
-    expect(cocktailShapeKey('core')).toBe('sphere');
+    expect(cocktailShapeKey('ROOT')).toBe('sphere');
+    expect(cocktailShapeKey('core')).toBe('cube');
     expect(cocktailShapeKey('  Balance  ')).toBe('octahedron');
   });
 

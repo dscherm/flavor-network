@@ -142,7 +142,8 @@ export { getColorForNode };
  * 0..count-1 index space the rest of the app expects.
  */
 class NodeMesh {
-  constructor({ nodes, positions, shapeAssignments = null }) {
+  constructor({ nodes, positions, shapeAssignments = null, scaleMultiplier = 1.0 }) {
+    this._scaleMultiplier = scaleMultiplier;
     const posMap = positions.positions || positions;
     const nodeArray = Array.from(nodes.values());
     const count = nodeArray.length;
@@ -215,8 +216,7 @@ class NodeMesh {
         const pos = posMap[node.name];
         if (pos) dummy.position.set(pos[0], pos[1], pos[2]);
         else dummy.position.set(0, 0, 0);
-        const pairingCount = node.pairingCount || 0;
-        const s = Math.max(0.3, Math.min(2.0, Math.sqrt(pairingCount) * 0.15));
+        const s = this._baseScaleFor(node);
         dummy.scale.set(s, s, s);
         dummy.quaternion.identity();
         dummy.updateMatrix();
@@ -256,6 +256,19 @@ class NodeMesh {
   getIndexForName(name) {
     const idx = this._nameToIndex.get(name);
     return idx !== undefined ? idx : -1;
+  }
+
+  // ─── internal helpers ───────────────────────────────────────
+
+  /**
+   * Compute the base instance scale for a node from its pairing count,
+   * clamped to [0.3, 2.0] then multiplied by the per-view scale
+   * multiplier (default 1.0). The Cocktail/Sauce labs pass a higher
+   * multiplier so the per-shape geometry is large enough to read.
+   */
+  _baseScaleFor(node) {
+    const pc = node.pairingCount || 0;
+    return Math.max(0.3, Math.min(2.0, Math.sqrt(pc) * 0.15)) * this._scaleMultiplier;
   }
 
   // ─── internal mesh routing ──────────────────────────────────
@@ -377,8 +390,7 @@ class NodeMesh {
       this._getMatrixAtGlobal(i, dummy.matrix);
       dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
 
-      const pairingCount = node.pairingCount || 0;
-      const baseScale = Math.max(0.3, Math.min(2.0, Math.sqrt(pairingCount) * 0.15));
+      const baseScale = this._baseScaleFor(node);
       const scaleMult = w > 0 ? 1.0 + w * 0.8 : 0.6;
       const s = baseScale * scaleMult;
       dummy.scale.set(s, s, s);
@@ -400,8 +412,7 @@ class NodeMesh {
       this._getMatrixAtGlobal(i, dummy.matrix);
       dummy.matrix.decompose(dummy.position, dummy.quaternion, dummy.scale);
 
-      const pairingCount = node.pairingCount || 0;
-      const s = Math.max(0.3, Math.min(2.0, Math.sqrt(pairingCount) * 0.15));
+      const s = this._baseScaleFor(node);
       dummy.scale.set(s, s, s);
 
       dummy.updateMatrix();
