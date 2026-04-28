@@ -8,6 +8,11 @@ import { useEffect, useState } from 'react';
  * day). Dismissal is remembered in localStorage for 24 hours.
  *
  * Onclick, jumps the user into the Molecule Lab with that preset selected.
+ *
+ * STATUS: shelved. Mount points in src/App.jsx are commented out — the
+ * component is intentionally retained so we can resurface it later (e.g.
+ * as a landing-page tile or inside Molecule Lab). Re-enable by un-commenting
+ * the lazy import + the JSX block in App.jsx.
  */
 
 const TASTE_COLORS = {

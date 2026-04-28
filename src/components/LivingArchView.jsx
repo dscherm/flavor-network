@@ -10,6 +10,7 @@ import { createLivingEdgeMaterial, createLivingParticleMaterial } from '../three
 import { easeInOutCubic, hashStr, seededRng, makeLabel, computeWheelPositions, ingredientHasTaste } from './livingArchUtils.js';
 import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DURATION, POPOUT_HEIGHT } from './livingArchConstants.js';
 import { handleSceneClick, handleSceneMove } from './livingArchInteraction.js';
+import { AffinityMode } from '../three/AffinityMode.js';
 import {
   createTasteSelection,
   getIndicesForTaste as _getIndicesForTaste,
@@ -43,9 +44,12 @@ export default function LivingArchView({
   flyToTarget = null,
   highlightIngredients = null,
   focusedClusterId = null,
+  affinityEnabled = true,
+  isMobile = false,
 }) {
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
+  const affinityModeRef = useRef(null); // α-mode controller (R13-5)
   const [pcaAxes, setPcaAxes] = useState(null);
   // Use lifted state if provided, otherwise local state
   const [localMode, setLocalMode] = useState('ml');
@@ -1030,13 +1034,21 @@ export default function LivingArchView({
       }
     }
 
+    let lastFrameTime = performance.now();
     function animate() {
       if (!running) return;
       requestAnimationFrame(animate);
 
+      const now = performance.now();
+      const deltaSec = Math.min(0.1, (now - lastFrameTime) / 1000);
+      lastFrameTime = now;
+
       updateModeTransition();
       updateTasteAnimation();
       updateParticles();
+      // R13-5: AffinityMode per-frame tick (currently a no-op
+      // placeholder; reserved for future fade animations).
+      affinityModeRef.current?.tickAnimation(deltaSec);
       controls.update();
       composer.render();
     }
@@ -1136,10 +1148,35 @@ export default function LivingArchView({
       // fly-to useEffect can orbit-center on a cluster's actual centroid
       // rather than the outward label anchor.
       centroidByCluster3d, centroidByCluster2d,
+      // R13-5: AffinityMode reads `mode` to pick the right palette
+      // (clusterColors in ml/ml2d, defaultColors otherwise) on exit.
+      // Read live via getter so a mode switch propagates without
+      // rebuilding stateRef.
+      get mode() { return modeRef.current; },
     };
+
+    // R13-5: Instantiate AffinityMode controller after stateRef is
+    // built. Lifecycle bound to the scene's useEffect — disposed in
+    // cleanup below before existing teardown so GPU resources don't
+    // outlive the scene.
+    if (data.pairingStrength && data.top5 && data.bridgeCompoundIndex && data.affinityThresholds) {
+      affinityModeRef.current = new AffinityMode(stateRef.current, {
+        pairingStrength: data.pairingStrength,
+        top5: data.top5,
+        bridgeCompoundIndex: data.bridgeCompoundIndex,
+        affinityThresholds: data.affinityThresholds,
+        graph: data.graph,
+      });
+    }
 
     return () => {
       running = false;
+      // R13-5: Dispose AffinityMode FIRST so its GPU resources are
+      // released before the scene/renderer teardown.
+      if (affinityModeRef.current) {
+        affinityModeRef.current.dispose();
+        affinityModeRef.current = null;
+      }
       window.removeEventListener('resize', onResize);
       renderer.domElement.removeEventListener('click', onClickGuard);
       renderer.domElement.removeEventListener('touchstart', onTouchStart);
@@ -1169,6 +1206,12 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st) return;
+    // R13-5 engage-guard: AffinityMode owns mesh.instanceColor while
+    // engaged; this effect would clobber the dim writes. Early-return
+    // when engaged. AffinityMode.exit() re-stamps default colors
+    // explicitly because this effect's deps don't include `engaged`
+    // (it's a ref, not React state) and won't re-fire on exit.
+    if (affinityModeRef.current?.engaged) return;
     const { mesh, defaultColors, nodeArray, nameIdx, edgeMesh: em, tasteSelection } = st;
     const count = nodeArray.length;
     const activeNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
@@ -1220,6 +1263,13 @@ export default function LivingArchView({
       st._nodeLabelGroup = null;
     }
 
+    // Engage-guard: AffinityMode owns labels for focal + 30 affinities while
+    // engaged. Letting this effect also draw labels for selectedNodes /
+    // highlightPairings produces duplicate sprites at slightly different
+    // positions (mode-buffer vs. ring positions), which the user reads as
+    // "highlighted ingredients on a different plane."
+    if (affinityModeRef.current?.engaged) return;
+
     const labelNames = new Set([
       ...(selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : [])),
       ...(highlightPairings || []),
@@ -1254,6 +1304,15 @@ export default function LivingArchView({
   // static label_anchor_3d in cluster_labels.json is computed from
   // pre-blend centroids and does not match where the label actually
   // renders after gnn_positions cluster blending.
+  //
+  // R13-5: If α-mode engaged when user taps a cluster pill, exit
+  // α-mode first so the pill's fly-to wins (existing behavior).
+  useEffect(() => {
+    if (flyToTarget && affinityModeRef.current?.engaged) {
+      affinityModeRef.current.exit({ immediate: true });
+    }
+  }, [flyToTarget]);
+
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !flyToTarget) return;
@@ -1371,6 +1430,7 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !data) return;
+    if (affinityModeRef.current?.engaged) return; // R13-5 engage-guard
     const { mesh, defaultColors, nodeArray } = st;
     const dimColor = new THREE.Color('#111118');
 
@@ -1390,6 +1450,7 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !data) return;
+    if (affinityModeRef.current?.engaged) return; // R13-5 engage-guard
     const { mesh, defaultColors, nodeArray, edgeGeo, edgeColors, edgeOpacities, validEdges, updateEdgePositions: updateEdges } = st;
     const dimColor = new THREE.Color('#111118');
 
@@ -1441,6 +1502,7 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !data) return;
+    if (affinityModeRef.current?.engaged) return; // R13-5 engage-guard
     const { mesh, defaultColors, nodeArray, edgeGeo, edgeColors, edgeOpacities, validEdges, updateEdgePositions: updateEdges } = st;
     const dimColor = new THREE.Color('#111118');
     const pathColor = new THREE.Color('#22d3ee');
@@ -1503,6 +1565,7 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh || !st.defaultColors || !st.clusterColors) return;
+    if (affinityModeRef.current?.engaged) return; // R13-5 engage-guard
     const { mesh, defaultColors, clusterColors, nodeArray } = st;
     const source = (mode === 'ml' || mode === 'ml2d') ? clusterColors : defaultColors;
     // Always re-stamp on mode change. Previous guard left taste-selection
@@ -1526,6 +1589,7 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh || !st.clusterColors || !st.defaultColors) return;
+    if (affinityModeRef.current?.engaged) return; // R13-5 engage-guard
     const { mesh, clusterColors, defaultColors, nodeArray, clusterLabelGroup } = st;
     const inClusterMode = mode === 'ml' || mode === 'ml2d';
     const source = inClusterMode ? clusterColors : defaultColors;
@@ -1562,6 +1626,35 @@ export default function LivingArchView({
     }
   }, [focusedClusterId, mode]);
 
+  // ---- R13-5: AffinityMode selection driver ----
+  // Watches selectedNodes + isMobile + affinityEnabled and dispatches
+  // engage / pivot / suspend / exit on the AffinityMode controller.
+  // Mobile / kill-switched: never engages — α-mode is desktop-only;
+  // β-mode mobile panel ships in R13-9.
+  useEffect(() => {
+    const ctrl = affinityModeRef.current;
+    if (!ctrl) return;
+    if (!affinityEnabled || isMobile) {
+      // Kill-switch or mobile: ensure controller is never engaged.
+      if (ctrl.engaged) ctrl.exit({ immediate: true });
+      return;
+    }
+    if (selectedNodes.length === 0) {
+      if (ctrl.engaged) ctrl.exit();
+    } else if (selectedNodes.length === 1) {
+      const focal = selectedNodes[0];
+      if (ctrl.engaged) {
+        ctrl.pivot(focal);
+      } else {
+        ctrl.engage(focal);
+      }
+    } else {
+      // Multi-select: suspend ring visuals; existing common-pairings
+      // UX takes over. Resume on collapse back to length 1.
+      ctrl.suspend();
+    }
+  }, [selectedNodes, isMobile, affinityEnabled]);
+
   // ---- Toggle handler (3-way: ml → neural → wheel → ml) ----
   const MODE_CYCLE = ['ml', 'ml2d', 'neural', 'taste2d'];
   const MODE_LABELS = {
@@ -1572,6 +1665,12 @@ export default function LivingArchView({
   };
   const handleModeSwitch = useCallback((target) => {
     if (target === mode) return;
+    // R13-5: Exit α-mode BEFORE the transition tween starts. Tween
+    // writes clusterLabelGroup.visible per-frame and would clobber
+    // α-mode's ghost-mode visibility.
+    if (affinityModeRef.current?.engaged) {
+      affinityModeRef.current.exit({ immediate: true });
+    }
     setMode(target);
     if (stateRef.current) stateRef.current.triggerTransition(target);
   }, [mode, setMode]);

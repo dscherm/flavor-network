@@ -1,8 +1,14 @@
 import { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import useProData from './hooks/useProData.js';
+import { topAffinities } from './data/affinityTiers.js';
 // TrainingProgress removed — served as dev demo, not production feature
 const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
-const MoleculeOfTheDay = lazy(() => import('./components/MoleculeOfTheDay.jsx'));
+// MoleculeOfTheDay shelved — the floating card is no longer mounted, but
+// the component + fetch logic stay in src/components/MoleculeOfTheDay.jsx
+// so we can re-surface it as a feature later (e.g. as a card on the
+// landing page or inside Molecule Lab). Re-enable: uncomment this lazy
+// import and the JSX block further down.
+// const MoleculeOfTheDay = lazy(() => import('./components/MoleculeOfTheDay.jsx'));
 // DiscoverPatterns + DiscoverCTA + FlavorBridge removed from the
 // shipping surface per polish pass; GlobalInsights is kept in the
 // codebase but no longer reachable from the UI.
@@ -17,6 +23,7 @@ import {
 } from './utils/startPageFlag.js';
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
+import AffinityPanel from './components/AffinityPanel.jsx';
 import Legend from './components/Legend.jsx';
 import Controls from './components/Controls.jsx';
 import { getNeighbors, findStrongestPath } from './data/graph.js';
@@ -99,6 +106,24 @@ export default function App() {
   const [clusterHighlights, setClusterHighlights] = useState(null);
   const [focusedCluster, setFocusedCluster] = useState(null);
   const isMobile = useIsMobile();
+  // R13-6: kill-switch URL param ?affinity=v0 disables α-mode + β-mode.
+  // Phase 1 (cluster relabel) ships unconditionally — not gated.
+  const affinityEnabled = useMemo(() => {
+    if (typeof window === 'undefined') return true;
+    return new URLSearchParams(window.location.search).get('affinity') !== 'v0';
+  }, []);
+
+  // R13-9 β-mode: compute the same 30 tier-coded affinities the desktop
+  // α-mode would draw as rings, but only on mobile (where α-mode is
+  // gated off because the touch raycast on small spheres is unreliable
+  // and the rings cramp under 640px). The result feeds the embedded
+  // AffinityPanel inside the mobile BottomSheet IngredientPanel.
+  const mobileAffinities = useMemo(() => {
+    if (!isMobile || !affinityEnabled) return [];
+    if (selectedNodes.length !== 1) return [];
+    if (!data?.pairingStrength) return [];
+    return topAffinities(selectedNodes[0], data);
+  }, [isMobile, affinityEnabled, data, selectedNodes]);
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
 
@@ -323,14 +348,27 @@ export default function App() {
       const current = selectedNodes.length > 0 ? selectedNodes[0] : null;
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         if (!current) return;
-        const nbrs = getNeighbors(current, data.graph.edges);
-        if (nbrs.length === 0) return;
-        // Step to the strongest neighbor not already in the recent
-        // history slice, so repeated presses keep walking forward
-        // instead of bouncing between two strongest partners.
         const recent = new Set(keyNavHistoryRef.current.slice(-5));
         recent.add(current);
-        const next = nbrs.find((n) => !recent.has(n.name)) || nbrs[0];
+        // R13-7: When α-mode is engaged (single ingredient selected on
+        // desktop and not killed via ?affinity=v0), step to strongest
+        // unvisited NATIVE ★★★ affinity. Falls back to ★★, then ★, then
+        // any neighbor — so the pivot never stalls when the focal has no
+        // ★★★ candidates. Outside α-mode, behavior is unchanged.
+        const alphaEngaged = affinityEnabled && !isMobile && selectedNodes.length === 1;
+        let next = null;
+        if (alphaEngaged && data.pairingStrength) {
+          const aff = topAffinities(current, data);
+          const tryTier = (t) =>
+            aff.find((a) => a.tier === t && !recent.has(a.name));
+          next = tryTier(3) || tryTier(2) || tryTier(1) || aff.find((a) => !recent.has(a.name));
+          if (next) next = { name: next.name };
+        }
+        if (!next) {
+          const nbrs = getNeighbors(current, data.graph.edges);
+          if (nbrs.length === 0) return;
+          next = nbrs.find((n) => !recent.has(n.name)) || nbrs[0];
+        }
         keyNavHistoryRef.current.push(current);
         setSelectedNodes([next.name]);
         setActivePanel('ingredient');
@@ -347,7 +385,7 @@ export default function App() {
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [data, selectedNodes]);
+  }, [data, selectedNodes, affinityEnabled, isMobile]);
 
   // Double-tap on canvas to clear tree filter
   const handleCanvasDoubleTap = useCallback(() => {
@@ -595,6 +633,8 @@ export default function App() {
         flyToTarget={flyToTarget}
         highlightIngredients={clusterHighlights}
         focusedClusterId={focusedCluster}
+        affinityEnabled={affinityEnabled}
+        isMobile={isMobile}
       />
       {/* Hover tooltip — shows ingredient name at cursor position */}
       {hoveredNode && hoverPos && (
@@ -958,9 +998,12 @@ export default function App() {
         />
       </Suspense>
 
-      {/* Molecule of the Day — only on Network tab + after start page,
-          and not when the Molecule Lab itself is already open. Lazy-
-          loaded so the fetch + render only fire when actually visible. */}
+      {/* Molecule of the Day — shelved. The component, fetch logic, and
+          card rendering live in src/components/MoleculeOfTheDay.jsx and
+          can be re-enabled by uncommenting the lazy import at the top of
+          this file and the JSX block below. We may want to use it as a
+          feature another day — e.g. a tile on the landing page or a
+          rotating spotlight inside Molecule Lab.
       {startPageComplete && activeTab === 'network' && !moleculeLabOpen && !isMobile && (
         <Suspense fallback={null}>
           <MoleculeOfTheDay
@@ -971,6 +1014,7 @@ export default function App() {
           />
         </Suspense>
       )}
+      */}
 
       {/* Mobile bottom sheet for panels */}
       {isMobile && (
@@ -995,6 +1039,16 @@ export default function App() {
           }
         >
           {activePanel === 'ingredient' && selectedNodeData && (
+            <>
+              {mobileAffinities.length > 0 && (
+                <div className="mb-3 pb-3 border-b border-gray-700/40">
+                  <AffinityPanel
+                    focal={selectedNodeData.name}
+                    affinities={mobileAffinities}
+                    onPivot={handleSearchSelect}
+                  />
+                </div>
+              )}
             <IngredientPanel
               node={selectedNodeData}
               neighbors={neighbors}
@@ -1012,6 +1066,7 @@ export default function App() {
               graphNodes={data?.graph?.nodes}
               embedded
             />
+            </>
           )}
           {activePanel === 'global-insights' && (
             <GlobalInsights

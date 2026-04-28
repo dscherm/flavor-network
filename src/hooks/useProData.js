@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { computeTastePositions } from '../data/tastePositioning.js';
+import { computeAffinityThresholds } from '../data/affinityThresholds.js';
 
 // Map proDataset categories to taste strings that NodeMesh can color.
 // NodeMesh checks node.taste for: pungent, astringent, salty, sour, bitter, hot, spicy, sweet
@@ -396,6 +397,34 @@ export default function useProData({ enabled = true } = {}) {
           if (ctRes.ok) compoundTastes = await ctRes.json();
         } catch { /* optional */ }
 
+        // Affinity Mode (α-mode) lookup maps. Built once at session
+        // start so AffinityMode.engage() / .pivot() / topAffinities()
+        // can compute tier scoring in O(1) per candidate. See
+        // src/data/affinityTiers.js + .omc/plans/ralplan-flavor-affinity-mode.md.
+        const pairingStrength = new Map();
+        for (const e of graph.edges) {
+          // Both directions so tierFor() can look up either way.
+          pairingStrength.set(`${e.source}|${e.target}`, e.strength);
+          pairingStrength.set(`${e.target}|${e.source}`, e.strength);
+        }
+        const top5 = new Map();
+        for (const [name, node] of graph.nodes) {
+          const compounds = node.gnnCompounds?.top_compounds;
+          if (Array.isArray(compounds) && compounds.length > 0) {
+            top5.set(name, compounds.slice(0, 5).map(c => c.name));
+          }
+        }
+        const bridgeCompoundIndex = new Map();
+        if (bridgeCompounds && typeof bridgeCompounds === 'object') {
+          for (const [key, val] of Object.entries(bridgeCompounds)) {
+            if (key.startsWith('_')) continue; // skip _meta
+            if (val && Array.isArray(val.bridges)) {
+              bridgeCompoundIndex.set(key, val);
+            }
+          }
+        }
+        const affinityThresholds = computeAffinityThresholds(graph.edges);
+
         setData({
           graph,
           positions,
@@ -409,6 +438,11 @@ export default function useProData({ enabled = true } = {}) {
           compoundTastes,
           recipePairs,
           globalCount,
+          // α-mode context (R13-3)
+          pairingStrength,
+          top5,
+          bridgeCompoundIndex,
+          affinityThresholds,
           embeddings: null,
           raw: {
             ingredientsData,
