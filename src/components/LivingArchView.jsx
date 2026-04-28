@@ -1627,15 +1627,16 @@ export default function LivingArchView({
   }, [focusedClusterId, mode]);
 
   // ---- R13-5: AffinityMode selection driver ----
-  // Watches selectedNodes + isMobile + affinityEnabled and dispatches
+  // Watches selectedNodes + affinityEnabled and dispatches
   // engage / pivot / suspend / exit on the AffinityMode controller.
-  // Mobile / kill-switched: never engages — α-mode is desktop-only;
-  // β-mode mobile panel ships in R13-9.
+  // α-mode runs on BOTH desktop and iOS so the ingredient flyto +
+  // ring experience is identical across platforms. Only the
+  // ?affinity=v0 kill-switch URL param disables it.
   useEffect(() => {
     const ctrl = affinityModeRef.current;
     if (!ctrl) return;
-    if (!affinityEnabled || isMobile) {
-      // Kill-switch or mobile: ensure controller is never engaged.
+    if (!affinityEnabled) {
+      // Kill-switch: ensure controller is never engaged.
       if (ctrl.engaged) ctrl.exit({ immediate: true });
       return;
     }
