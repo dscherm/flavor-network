@@ -83,6 +83,35 @@ function ShapeIcon({ shape, color = 'currentColor' }) {
           <ellipse cx={c} cy={s - 3} rx={s * 0.2} ry="1.2" fill="none" stroke={color} strokeWidth="1.2" />
         </svg>
       );
+    case 'cone':
+      return (
+        <svg width={s} height={s} aria-hidden="true">
+          <polygon points={`${c},2 ${s - 2},${s - 3} 2,${s - 3}`} fill="none" stroke={color} strokeWidth="1.4" />
+          <ellipse cx={c} cy={s - 3} rx={s * 0.45} ry="1.4" fill="none" stroke={color} strokeWidth="1.2" />
+        </svg>
+      );
+    case 'torusKnot':
+      // Stylized trefoil — three lobes around a center (suggests the
+      // twisted-ring silhouette without trying to render the real knot).
+      return (
+        <svg width={s} height={s} aria-hidden="true">
+          <path
+            d={`M ${c} 2 Q ${s - 2} ${c} ${c} ${s - 2} Q 2 ${c} ${c} 2 Z`}
+            fill="none"
+            stroke={color}
+            strokeWidth="1.2"
+          />
+          <circle cx={c} cy={c} r={s * 0.18} fill="none" stroke={color} strokeWidth="1.2" />
+        </svg>
+      );
+    case 'bipyramid':
+      // Vertical diamond — two triangles base-to-base.
+      return (
+        <svg width={s} height={s} aria-hidden="true">
+          <polygon points={`${c},2 ${s - 3},${c} ${c},${s - 2} 3,${c}`} fill="none" stroke={color} strokeWidth="1.4" />
+          <line x1="3" y1={c} x2={s - 3} y2={c} stroke={color} strokeWidth="0.8" strokeDasharray="2 2" />
+        </svg>
+      );
     default:
       return null;
   }

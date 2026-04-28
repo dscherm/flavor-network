@@ -15,6 +15,14 @@ import * as THREE from 'three';
 
 const SEG = 12;
 
+// Master shape kit — biased toward visually-distinctive silhouettes.
+// The original kit included three regular polyhedra (octahedron,
+// dodecahedron, icosahedron) which all read as "ball with facets" at
+// small viewing scale and were hard to distinguish from each other.
+// They're kept in the registry so AffinityMode α-mode can still
+// reference them, but the lab-view assignments now favor curved /
+// open-ended shapes (cone, torusKnot, bipyramid) that have very
+// different silhouettes.
 export const SHAPE_KEYS = Object.freeze([
   'sphere',
   'cube',
@@ -24,14 +32,21 @@ export const SHAPE_KEYS = Object.freeze([
   'icosahedron',
   'torus',
   'cylinder',
+  'cone',
+  'torusKnot',
+  'bipyramid',
 ]);
 
 export function buildShapeGeometries() {
+  // Vertical bipyramid — an octahedron with the Y axis stretched 2×,
+  // giving a "diamond / spindle" silhouette that doesn't read as a
+  // regular polyhedron from any angle.
+  const bipyramidGeo = new THREE.OctahedronGeometry(0.7, 0);
+  bipyramidGeo.scale(1, 2, 1);
+
   return {
     sphere: new THREE.SphereGeometry(1, SEG, SEG),
     // Cube edge length 1.27 → bounding-sphere radius √3/2 · 1.27 ≈ 1.10.
-    // Slightly larger than r=1 so flat faces don't read smaller than
-    // curved siblings under bloom.
     cube: new THREE.BoxGeometry(1.27, 1.27, 1.27),
     tetrahedron: new THREE.TetrahedronGeometry(1, 0),
     octahedron: new THREE.OctahedronGeometry(1, 0),
@@ -41,6 +56,14 @@ export function buildShapeGeometries() {
     torus: new THREE.TorusGeometry(0.7, 0.3, 8, 16),
     // Cylinder: radius 0.7, height 1.4 → bounding sphere radius ≈ 0.99.
     cylinder: new THREE.CylinderGeometry(0.7, 0.7, 1.4, 12),
+    // Cone: radius 0.7, height 1.4 — same envelope as cylinder but
+    // pointed silhouette. Reads instantly as "cone".
+    cone: new THREE.ConeGeometry(0.7, 1.4, 16),
+    // Torus knot (trefoil, p=2 q=3): a twisted ring. Unmistakable
+    // silhouette, never confusable with the simple torus.
+    torusKnot: new THREE.TorusKnotGeometry(0.55, 0.18, 64, 8),
+    // Bipyramid (vertical diamond) — see geometry construction above.
+    bipyramid: bipyramidGeo,
   };
 }
 
@@ -70,11 +93,14 @@ export function buildShapeEdgeGeometries(baseGeos) {
     sphere: 30,
     torus: 30,
     cylinder: 30,
+    cone: 30,         // smooth side surface — only base ring + tip edge survive
+    torusKnot: 30,    // continuous tube — keep outline minimal
     cube: 1,
     tetrahedron: 1,
     octahedron: 1,
     dodecahedron: 1,
     icosahedron: 1,
+    bipyramid: 1,     // 8 hard ridges — render every edge
   };
   const result = {};
   for (const [k, g] of Object.entries(baseGeos)) {
