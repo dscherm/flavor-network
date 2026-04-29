@@ -227,9 +227,11 @@ export default function App() {
       const next = prev.includes(name)
         ? prev.filter((n) => n !== name)
         : [...prev, name];
-      if (next.length >= 1) {
-        setActivePanel('ingredient');
-      } else {
+      // Per user request 2026-04-29: don't auto-open the ingredient
+      // panel/sheet on tap. Selection just engages α-mode rings; the
+      // user opens the Details panel explicitly via the Details tab
+      // (desktop) or the floating Details button (mobile).
+      if (next.length === 0) {
         setActivePanel(null);
       }
       return next;
@@ -239,9 +241,9 @@ export default function App() {
   const handleSearchSelect = useCallback((name) => {
     setSelectedNodes((prev) => {
       if (prev.includes(name)) return prev;
-      const next = [...prev, name];
-      setActivePanel('ingredient');
-      return next;
+      // Don't auto-open on search either; same explicit-button rule
+      // as tap-on-canvas (see handleNodeClick).
+      return [...prev, name];
     });
   }, []);
 
@@ -359,7 +361,8 @@ export default function App() {
         }
         keyNavHistoryRef.current.push(current);
         setSelectedNodes([next.name]);
-        setActivePanel('ingredient');
+        // No auto-open: keyboard nav engages α-mode rings only; user
+        // taps Details tab/button to view info.
         e.preventDefault();
         return;
       }
@@ -367,7 +370,6 @@ export default function App() {
         const prev = keyNavHistoryRef.current.pop();
         if (!prev) return;
         setSelectedNodes([prev]);
-        setActivePanel('ingredient');
         e.preventDefault();
       }
     }
@@ -681,6 +683,21 @@ export default function App() {
       {/* Clear Selection + Share buttons */}
       {selectedNodes.length > 0 && (
         <div className="fixed top-[100px] left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
+          {/* Mobile-only Details button — desktop has the right-edge
+              "Details" tab on IngredientPanel. Per user request
+              2026-04-29 we no longer auto-open the panel on tap, so
+              this button is the explicit entry point on mobile. */}
+          {isMobile && activePanel !== 'ingredient' && (
+            <button
+              onClick={() => setActivePanel('ingredient')}
+              className="px-3 py-1.5 min-h-[44px] text-xs text-cyan-300 hover:text-cyan-200 bg-[#12121a]/90 backdrop-blur-md border border-cyan-500/30 rounded-lg transition-colors select-none flex items-center gap-1.5"
+            >
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Details
+            </button>
+          )}
           <button
             onClick={handleClearSelection}
             className="px-3 py-1.5 min-h-[44px] text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
