@@ -1,3 +1,5 @@
+import { sauceShapeKey } from './sauceShapes.js';
+
 /**
  * sauceCodex.js — Sauce Lab data layer that mirrors the Cocktail Codex
  * pattern: each NODE in the 3D scene is a sauce, grouped into 10
@@ -164,6 +166,12 @@ export async function loadSauceCodex(basePath = '/data') {
       taste: '',
       cuisines: [],
       pairingCount: ingredients.length,
+      // R14 multi-shape — cuisine-driven silhouette (top-7 cuisines get
+      // dedicated shapes; everything else folds into "Other"). Mother
+      // sauces keep the same shape as the rest of their cuisine — the
+      // scaleBoost below makes them stand out.
+      shapeKey: sauceShapeKey(sauce.cuisine),
+      scaleBoost: isRoot ? 2.0 : 1.0,
       _kws: sauceKeywordSet(ingredients),
     });
   }

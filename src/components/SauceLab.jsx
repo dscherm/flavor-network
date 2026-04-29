@@ -7,6 +7,8 @@ import {
 } from '../data/sauceCodex.js';
 import { createClusterLabels } from '../three/AxisLabels.js';
 import ClusterJoystick from './ClusterJoystick.jsx';
+import ShapeLegend from './ShapeLegend.jsx';
+import { SAUCE_SHAPE_LEGEND } from '../data/sauceShapes.js';
 
 /**
  * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
@@ -85,6 +87,19 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
       counts.set(n.family_id, (counts.get(n.family_id) || 0) + 1);
     }
     return counts;
+  }, [codexData]);
+
+  // R14 multi-shape: extract `shapeKey` per sauce from the codex nodes
+  // (set in sauceCodex.js → sauceShapeKey() based on the cuisine field).
+  // Memoized so the NetworkScene's init effect doesn't tear down + rebuild
+  // on every render.
+  const shapeAssignments = useMemo(() => {
+    if (!codexData?.graph?.nodes) return null;
+    const m = new Map();
+    for (const [name, node] of codexData.graph.nodes) {
+      if (node.shapeKey) m.set(name, node.shapeKey);
+    }
+    return m.size > 0 ? m : null;
   }, [codexData]);
 
   // 3D cluster labels — one per family at its centroid.
@@ -195,6 +210,8 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
         showNodeLabels={true}
         labelNodeNames={familyFilteredNames}
         flyToTarget={flyToTarget}
+        shapeAssignments={shapeAssignments}
+        scaleMultiplier={3.0}
       />
 
       {selectedSauce && (
@@ -226,6 +243,10 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
           });
         }}
       />
+
+      {/* Shape legend — collapsible, top-right. Maps the 8 cuisine
+          buckets to their geometries so users can read the 3D scene. */}
+      <ShapeLegend title="Cuisine shapes" legend={SAUCE_SHAPE_LEGEND} />
     </>
   );
 }
