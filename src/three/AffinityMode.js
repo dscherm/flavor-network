@@ -29,6 +29,8 @@
 import * as THREE from 'three';
 import { topAffinities } from '../data/affinityTiers.js';
 import { makeLabel } from '../components/livingArchUtils.js';
+import { affinityShape } from '../data/affinityShapes.js';
+import { buildShapeGeometries } from './Geometries.js';
 
 // Ring radii in 3D scene units. Spec § α-mode visual layout.
 const RADII = { 3: 12, 2: 22, 1: 35 };
@@ -54,9 +56,17 @@ const DIM_COLOR = new THREE.Color(0x111118);
 // rule: α-mode (0.45) > focused-cluster (0.95/0.22) > default (0.95).
 const GHOST_OPACITY = 0.45;
 
-// Affinity sphere visual properties.
+// Affinity sphere visual properties — also the per-instance scale for
+// every shape (master geometries are normalized to bounding-sphere
+// radius ≈ 1, so this scales them all to the same visual envelope).
 const AFFINITY_SPHERE_RADIUS = 1.2;
-const AFFINITY_SPHERE_SEGMENTS = 12;
+// The focal (dodecahedron) renders larger so the user always knows
+// which node is the active pivot point.
+const FOCAL_SCALE_BOOST = 1.6;
+
+// Per-role slot capacity, must sum to 30 affinities (+1 focal).
+const RING_CAPACITY = { 3: 5, 2: 10, 1: 15 };
+const FOCAL_CAPACITY = 1;
 
 // Performance budget — warn if engage / pivot exceed.
 const PERF_BUDGET_MS = 200;
@@ -83,31 +93,67 @@ export class AffinityMode {
     this._currentFocal = null;
     this._currentAffinities = []; // last-computed result of topAffinities
 
-    // Build affinity-sphere InstancedMesh — 30 slots reused across
-    // pivots. Hidden via instanceMatrix scale=0 when fewer than 30
-    // affinities exist.
-    const sphereGeo = new THREE.SphereGeometry(
-      AFFINITY_SPHERE_RADIUS,
-      AFFINITY_SPHERE_SEGMENTS,
-      AFFINITY_SPHERE_SEGMENTS,
-    );
-    const sphereMat = new THREE.MeshBasicMaterial({
+    // R14 Phase 5 — per-role shape meshes. Replaces the single
+    // 30-instance sphere mesh with four InstancedMeshes (focal + 3
+    // rings) so the user can read tier rank from silhouette as well
+    // as edge color.
+    //
+    // Master geometries are normalized to bounding-sphere radius ≈ 1;
+    // we scale every instance by AFFINITY_SPHERE_RADIUS (focal also
+    // gets FOCAL_SCALE_BOOST so it stays distinct).
+    const baseGeos = buildShapeGeometries();
+    const usedKeys = new Set([
+      affinityShape('focal'),
+      affinityShape(3),
+      affinityShape(2),
+      affinityShape(1),
+    ]);
+    // Dispose unused master geometries — we own clones below.
+    for (const [k, g] of Object.entries(baseGeos)) {
+      if (!usedKeys.has(k) && typeof g.dispose === 'function') g.dispose();
+    }
+
+    const mat = new THREE.MeshBasicMaterial({
       vertexColors: false,
       transparent: true,
       opacity: 0.9,
     });
-    this.affinityMesh = new THREE.InstancedMesh(sphereGeo, sphereMat, 30);
-    this.affinityMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    this.affinityMesh.count = 30;
-    this.affinityMesh.frustumCulled = false;
-    this.affinityMesh.visible = false; // shown on engage
-    // Per-instance color so each ring's tier color is independent.
-    const colorArr = new Float32Array(30 * 3);
-    this.affinityMesh.instanceColor = new THREE.InstancedBufferAttribute(
-      colorArr,
-      3,
-    );
-    stateRef.scene.add(this.affinityMesh);
+    this._sharedMaterial = mat;
+
+    function makeMesh(geo, count) {
+      const m = new THREE.InstancedMesh(geo, mat, count);
+      m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      m.count = count;
+      m.frustumCulled = false;
+      m.visible = false;
+      const colorArr = new Float32Array(count * 3);
+      m.instanceColor = new THREE.InstancedBufferAttribute(colorArr, 3);
+      return m;
+    }
+
+    this.focalMesh = makeMesh(baseGeos[affinityShape('focal')], FOCAL_CAPACITY);
+    this.ring3Mesh = makeMesh(baseGeos[affinityShape(3)], RING_CAPACITY[3]);
+    this.ring2Mesh = makeMesh(baseGeos[affinityShape(2)], RING_CAPACITY[2]);
+    this.ring1Mesh = makeMesh(baseGeos[affinityShape(1)], RING_CAPACITY[1]);
+
+    // Map ringIdx → { mesh, capacity } for the per-frame writer.
+    this._ringMeshes = {
+      3: this.ring3Mesh,
+      2: this.ring2Mesh,
+      1: this.ring1Mesh,
+    };
+
+    // Back-compat: the perf test inspects `affinityMesh.count`; alias
+    // to the largest ring mesh so the existing assertion still has
+    // something to check (the meaning shifted from "30 affinity slots"
+    // to "the canonical ring's slot count" but the per-pivot reuse
+    // invariant still holds).
+    this.affinityMesh = this.ring1Mesh;
+
+    stateRef.scene.add(this.focalMesh);
+    stateRef.scene.add(this.ring3Mesh);
+    stateRef.scene.add(this.ring2Mesh);
+    stateRef.scene.add(this.ring1Mesh);
 
     // Edge BufferGeometry — 30 line segments from focal (origin) to
     // each affinity sphere. 60 vertices × 3 floats each. Per-vertex
@@ -266,8 +312,11 @@ export class AffinityMode {
       }
     }
 
-    // 2. Hide α-mode visuals (affinity spheres, edges, labels).
-    this.affinityMesh.visible = false;
+    // 2. Hide α-mode visuals (focal + 3 ring meshes, edges, labels).
+    if (this.focalMesh) this.focalMesh.visible = false;
+    if (this.ring3Mesh) this.ring3Mesh.visible = false;
+    if (this.ring2Mesh) this.ring2Mesh.visible = false;
+    if (this.ring1Mesh) this.ring1Mesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
     // Clear label sprites to release canvas textures.
@@ -317,7 +366,10 @@ export class AffinityMode {
    */
   suspend() {
     if (!this._engaged) return;
-    this.affinityMesh.visible = false;
+    if (this.focalMesh) this.focalMesh.visible = false;
+    if (this.ring3Mesh) this.ring3Mesh.visible = false;
+    if (this.ring2Mesh) this.ring2Mesh.visible = false;
+    if (this.ring1Mesh) this.ring1Mesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
     const st = this.stateRef;
@@ -381,15 +433,20 @@ export class AffinityMode {
    */
   dispose() {
     const st = this.stateRef;
+    const meshes = [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh];
     if (st && st.scene) {
-      if (this.affinityMesh) st.scene.remove(this.affinityMesh);
+      for (const m of meshes) {
+        if (m) st.scene.remove(m);
+      }
       if (this.edgeLines) st.scene.remove(this.edgeLines);
       if (this.labelGroup) st.scene.remove(this.labelGroup);
     }
-    if (this.affinityMesh) {
-      this.affinityMesh.geometry.dispose();
-      this.affinityMesh.material.dispose();
+    // Each per-role mesh owns its master geometry; the shared material
+    // is disposed once below.
+    for (const m of meshes) {
+      if (m && m.geometry) m.geometry.dispose();
     }
+    if (this._sharedMaterial) this._sharedMaterial.dispose();
     if (this.edgeGeo) this.edgeGeo.dispose();
     if (this.edgeMat) this.edgeMat.dispose();
     if (this.labelGroup) {
@@ -398,7 +455,13 @@ export class AffinityMode {
         if (s.material) s.material.dispose();
       });
     }
+    this.focalMesh = null;
+    this.ring3Mesh = null;
+    this.ring2Mesh = null;
+    this.ring1Mesh = null;
+    this._ringMeshes = null;
     this.affinityMesh = null;
+    this._sharedMaterial = null;
     this.edgeLines = null;
     this.edgeGeo = null;
     this.edgeMat = null;
@@ -431,12 +494,11 @@ export class AffinityMode {
     const affinities = topAffinities(focal, this.ctx);
     this._currentAffinities = affinities;
 
-    // Only the focal stays visible in the SHARED default mesh while
-    // engaged. Affinity ingredients each get their own sphere at their
-    // ring position via the affinity InstancedMesh, so leaving them
-    // visible in the shared mesh produces duplicate spheres at the
-    // OLD graph positions ("stray nodes not fading").
-    const affinityIdxSet = new Set([focalIdx]);
+    // R14 Phase 5: focal is now drawn by `focalMesh` (a dodecahedron
+    // at the same world position), so it's hidden in the shared mesh
+    // along with everything else. The shared mesh shows nothing while
+    // α-mode is engaged.
+    const affinityIdxSet = new Set();
 
     // Anchor at focal's CURRENT 3D position. curPos animates during
     // mode transitions; using it keeps rings aligned.
@@ -444,35 +506,69 @@ export class AffinityMode {
     const cy = st.curPos[focalIdx * 3 + 1];
     const cz = st.curPos[focalIdx * 3 + 2];
 
-    // ─── 1. Affinity sphere placement on rings ───
+    // ─── 1a. Focal placement (focalMesh) ───
     const m = new THREE.Matrix4();
     const tmpV = new THREE.Vector3();
     const tmpQ = new THREE.Quaternion();
-    const tmpS = new THREE.Vector3(1, 1, 1);
+    const focalScale = AFFINITY_SPHERE_RADIUS * FOCAL_SCALE_BOOST;
+    const focalScaleVec = new THREE.Vector3(focalScale, focalScale, focalScale);
+    tmpV.set(cx, cy, cz);
+    m.compose(tmpV, tmpQ, focalScaleVec);
+    this.focalMesh.setMatrixAt(0, m);
+    // Focal is drawn neutral white — no tier; its identity is "the
+    // chosen pivot," distinct from every affinity color.
+    this.focalMesh.instanceColor.setXYZ(0, 1, 1, 1);
+    this.focalMesh.instanceMatrix.needsUpdate = true;
+    this.focalMesh.instanceColor.needsUpdate = true;
+    this.focalMesh.visible = true;
+
+    // ─── 1b. Affinity placement on rings (per-tier meshes) ───
+    const tmpS = new THREE.Vector3(
+      AFFINITY_SPHERE_RADIUS,
+      AFFINITY_SPHERE_RADIUS,
+      AFFINITY_SPHERE_RADIUS,
+    );
     const zeroS = new THREE.Vector3(0, 0, 0);
     const slotCounter = { 3: 0, 2: 0, 1: 0 };
-    const sphereWorldPos = []; // for label/edge alignment
-    for (let i = 0; i < 30; i++) {
-      if (i < affinities.length) {
-        const aff = affinities[i];
-        const ringPos = placeOnRing(aff.ringIdx, slotCounter[aff.ringIdx]++);
-        tmpV.set(cx + ringPos.x, cy + ringPos.y, cz + ringPos.z);
-        sphereWorldPos.push([tmpV.x, tmpV.y, tmpV.z]);
-        m.compose(tmpV, tmpQ, tmpS);
-        this.affinityMesh.setMatrixAt(i, m);
-        const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
-        this.affinityMesh.instanceColor.setXYZ(i, c.r, c.g, c.b);
-      } else {
+    // Pre-fill ALL ring slots as collapsed (scale=0); the loop below
+    // overwrites occupied slots. This guarantees no stale matrices
+    // survive a pivot when an affinity count drops below capacity.
+    for (const ringIdx of [3, 2, 1]) {
+      const mesh = this._ringMeshes[ringIdx];
+      const cap = RING_CAPACITY[ringIdx];
+      for (let s = 0; s < cap; s++) {
         m.compose(tmpV.set(0, 0, 0), tmpQ, zeroS);
-        this.affinityMesh.setMatrixAt(i, m);
-        sphereWorldPos.push(null);
+        mesh.setMatrixAt(s, m);
       }
     }
-    this.affinityMesh.instanceMatrix.needsUpdate = true;
-    if (this.affinityMesh.instanceColor) {
-      this.affinityMesh.instanceColor.needsUpdate = true;
+    const sphereWorldPos = []; // for label/edge alignment, in affinity order
+    for (let i = 0; i < affinities.length; i++) {
+      const aff = affinities[i];
+      const ringIdx = aff.ringIdx;
+      const mesh = this._ringMeshes[ringIdx];
+      const cap = RING_CAPACITY[ringIdx];
+      const slot = slotCounter[ringIdx]++;
+      if (slot >= cap) {
+        // Defensive — topAffinities slices to (5,10,15) so this should
+        // never trip, but if a future caller passes larger N, we drop
+        // overflow rather than scribbling past the buffer.
+        sphereWorldPos.push(null);
+        continue;
+      }
+      const ringPos = placeOnRing(ringIdx, slot);
+      tmpV.set(cx + ringPos.x, cy + ringPos.y, cz + ringPos.z);
+      sphereWorldPos.push([tmpV.x, tmpV.y, tmpV.z]);
+      m.compose(tmpV, tmpQ, tmpS);
+      mesh.setMatrixAt(slot, m);
+      const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
+      mesh.instanceColor.setXYZ(slot, c.r, c.g, c.b);
     }
-    this.affinityMesh.visible = true;
+    for (const ringIdx of [3, 2, 1]) {
+      const mesh = this._ringMeshes[ringIdx];
+      mesh.instanceMatrix.needsUpdate = true;
+      mesh.instanceColor.needsUpdate = true;
+      mesh.visible = true;
+    }
 
     // ─── 2. Edge buffer (focal → each affinity) ───
     const posAttr = this.edgeGeo.attributes.position;

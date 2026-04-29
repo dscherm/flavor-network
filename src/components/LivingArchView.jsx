@@ -11,6 +11,8 @@ import { easeInOutCubic, hashStr, seededRng, makeLabel, computeWheelPositions, i
 import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DURATION, POPOUT_HEIGHT } from './livingArchConstants.js';
 import { handleSceneClick, handleSceneMove } from './livingArchInteraction.js';
 import { AffinityMode } from '../three/AffinityMode.js';
+import ShapeLegend from './ShapeLegend.jsx';
+import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
 import {
   createTasteSelection,
   getIndicesForTaste as _getIndicesForTaste,
@@ -1732,6 +1734,14 @@ export default function LivingArchView({
           </button>
         ))}
       </div>
+
+      {/* α-mode shape legend — only shown while a single ingredient is
+          selected (which is the same gate that engages AffinityMode).
+          Explains the four silhouettes the user sees in the rings:
+          dodecahedron focal + bipyramid/cylinder/sphere tier rings. */}
+      {affinityEnabled && selectedNodes.length === 1 && (
+        <ShapeLegend title="Affinity shapes" legend={AFFINITY_SHAPE_LEGEND} />
+      )}
     </div>
   );
 }

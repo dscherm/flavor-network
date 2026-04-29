@@ -128,19 +128,27 @@ describe('AffinityMode — engage performance budget', () => {
 });
 
 describe('AffinityMode — GPU resource reuse across pivots', () => {
-  it('100 pivots do not add scene children (mesh + edges + labels reused)', () => {
+  it('100 pivots do not add scene children (4 meshes + edges + labels reused)', () => {
     const { stateRef, ctx } = buildSyntheticState({ nodeCount: 1500, neighborsPerNode: 25 });
     const ctrl = new AffinityMode(stateRef, ctx);
     ctrl.engage('ing-100');
     const childrenAfterEngage = stateRef.scene.children.length;
-    // AffinityMode added: affinityMesh, edgeLines, labelGroup → +3
-    // (relative to the +1 from the synthetic shared mesh seeded in scene).
+    // R14 Phase 5: AffinityMode now adds 6 children (focalMesh,
+    // ring3Mesh, ring2Mesh, ring1Mesh, edgeLines, labelGroup) on top
+    // of the synthetic shared mesh.
     for (let i = 0; i < 100; i++) {
       ctrl.pivot(`ing-${(i + 200) % 1500}`);
     }
     expect(stateRef.scene.children.length).toBe(childrenAfterEngage);
-    // The affinity InstancedMesh keeps its 30-instance allocation.
-    expect(ctrl.affinityMesh.count).toBe(30);
+    // Per-role InstancedMesh capacities are preserved across pivots.
+    expect(ctrl.focalMesh.count).toBe(1);
+    expect(ctrl.ring3Mesh.count).toBe(5);
+    expect(ctrl.ring2Mesh.count).toBe(10);
+    expect(ctrl.ring1Mesh.count).toBe(15);
+    // Total affinity-side capacity still equals 30 — the canonical
+    // invariant the original test guarded.
+    const total = ctrl.ring3Mesh.count + ctrl.ring2Mesh.count + ctrl.ring1Mesh.count;
+    expect(total).toBe(30);
     // Labels are rebuilt per pivot but never exceed 31 (1 focal + 30 affinities).
     expect(ctrl.labelGroup.children.length).toBeLessThanOrEqual(31);
     ctrl.dispose();
