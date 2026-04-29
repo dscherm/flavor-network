@@ -28,11 +28,26 @@
 // gnn_entropy.json. Substitutions are applied BEFORE the coverage gate
 // so a compound food with an obvious alternative still synthesizes.
 const SUBSTITUTES = {
-  'vegetable oil': 'sunflower oil',  // both neutral, fat-dominant
-  'egg': 'egg yolk',                  // yolk carries the flavor signal
-  'black pepper': 'peppercorn',       // same ingredient, different name
+  'vegetable oil': 'sunflower oil',   // both neutral, fat-dominant
+  'egg': 'egg yolk',                   // yolk carries the flavor signal
+  'black pepper': 'peppercorn',        // same ingredient, different name
   'whole milk': 'milk',
   'heavy cream': 'cream',
+  // R14 Phase 3 additions — constituents we use in spice blends and
+  // sauces below that don't themselves have GNN predictions. Each
+  // alias picks the closest GNN-having neighbor in flavor space.
+  'cilantro': 'coriander',             // same plant, leaf vs. seed
+  'cloves': 'allspice',                // both warm pungent baking spices
+  'clove': 'allspice',
+  'paprika': 'red chili pepper',       // dried mild chile
+  'smoked paprika': 'red chili pepper',
+  'mirin': 'sake',                     // both rice wines
+  'galangal': 'ginger',                // botanical cousin
+  'chipotle': 'red chili pepper',      // smoked jalapeño
+  'molasses': 'brown sugar',           // brown sugar is sugar + molasses
+  'sumac': 'lemon juice',              // sour/citrusy stand-in
+  'bay leaf': 'allspice',              // warm aromatic — closest available
+  'caraway': 'caraway seed',
 };
 
 export const COMPOUND_FOODS = {
@@ -74,6 +89,118 @@ export const COMPOUND_FOODS = {
   tahini: {
     constituents: { 'sesame oil': 0.7, 'sesame seed': 0.3 },
     description: 'sesame seed paste',
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // R14 Phase 3 — extended coverage. All target ingredients verified
+  // present in the catalog and confirmed to lack a direct GNN
+  // prediction (`gnn_entropy.json`). Constituents picked from the
+  // 64-name pool that DOES have GNN predictions, with substitutions
+  // declared above for cilantro/cloves/paprika/etc.
+  // ─────────────────────────────────────────────────────────────
+
+  // ---- More dressings ----
+  'french dressing': {
+    constituents: {
+      'olive oil': 0.4, 'apple cider vinegar': 0.2, 'tomato': 0.1,
+      'sugar': 0.1, 'paprika': 0.1, 'mustard': 0.05, 'garlic': 0.05,
+    },
+    description: 'sweet-tangy oil + vinegar with paprika',
+  },
+
+  // ---- Spice blends ----
+  'cajun spice': {
+    constituents: {
+      'paprika': 0.25, 'red chili pepper': 0.15, 'peppercorn': 0.15,
+      'thyme': 0.15, 'oregano': 0.1, 'onion': 0.1, 'garlic': 0.1,
+    },
+    description: 'paprika, cayenne, garlic, thyme — Louisiana style',
+  },
+  'cajun spice mix': { aliasOf: 'cajun spice' },
+
+  'chinese five-spice': {
+    constituents: {
+      'star anise': 0.25, 'cloves': 0.2, 'cinnamon': 0.2,
+      'sichuan peppercorn': 0.2, 'fennel seed': 0.15,
+    },
+    description: 'star anise, cloves, cinnamon, Sichuan peppercorn, fennel',
+  },
+  'chinese five spice powder': { aliasOf: 'chinese five-spice' },
+  'five-spice powder': { aliasOf: 'chinese five-spice' },
+
+  'jerk spice': {
+    constituents: {
+      'allspice': 0.25, 'thyme': 0.15, 'red chili pepper': 0.15,
+      'peppercorn': 0.1, 'cinnamon': 0.1, 'nutmeg': 0.1,
+      'ginger': 0.1, 'garlic': 0.05,
+    },
+    description: 'Jamaican allspice, thyme, scotch bonnet, warm spice',
+  },
+
+  "za'atar spice mix": {
+    constituents: {
+      'thyme': 0.3, 'sesame seed': 0.25, 'oregano': 0.15,
+      'marjoram': 0.1, 'sumac': 0.1, 'olive oil': 0.1,
+    },
+    description: 'thyme, sesame, sumac, oregano — Levantine',
+  },
+
+  // ---- Curry pastes ----
+  'curry paste': {
+    constituents: {
+      'cumin': 0.2, 'coriander': 0.2, 'red chili pepper': 0.15,
+      'turmeric': 0.1, 'ginger': 0.1, 'garlic': 0.1,
+      'cardamom': 0.1, 'cinnamon': 0.05,
+    },
+    description: 'cumin, coriander, chili, turmeric, ginger',
+  },
+  'thai green curry paste': {
+    constituents: {
+      'red chili pepper': 0.25, 'lemongrass': 0.2, 'cilantro': 0.1,
+      'kaffir lime': 0.1, 'fish sauce': 0.1, 'garlic': 0.1,
+      'shallot': 0.1, 'lime juice': 0.05,
+    },
+    description: 'green chile, lemongrass, kaffir lime, cilantro, fish sauce',
+  },
+  'thai red curry paste': {
+    constituents: {
+      'red chili pepper': 0.35, 'lemongrass': 0.15, 'kaffir lime': 0.1,
+      'fish sauce': 0.1, 'cumin': 0.1, 'coriander': 0.1,
+      'garlic': 0.05, 'shallot': 0.05,
+    },
+    description: 'red chile, lemongrass, kaffir lime, fish sauce',
+  },
+
+  // ---- Salsas + chili pastes ----
+  'green chile salsa': {
+    constituents: {
+      'red chili pepper': 0.5, 'onion': 0.2,
+      'cilantro': 0.1, 'lime juice': 0.1, 'garlic': 0.1,
+    },
+    description: 'green chile, onion, cilantro, lime',
+  },
+  'harissa paste': {
+    constituents: {
+      'red chili pepper': 0.45, 'cumin': 0.15, 'coriander': 0.1,
+      'caraway': 0.1, 'garlic': 0.1, 'olive oil': 0.05,
+      'lemon juice': 0.05,
+    },
+    description: 'North African chili paste with cumin + coriander + caraway',
+  },
+  'harissa spice': { aliasOf: 'harissa paste' },
+
+  'gochujang': {
+    constituents: {
+      'red chili pepper': 0.4, 'miso': 0.3, 'sugar': 0.15, 'rice vinegar': 0.15,
+    },
+    description: 'fermented Korean chili paste',
+  },
+  'hoisin': {
+    constituents: {
+      'soybean': 0.35, 'sugar': 0.2, 'sesame oil': 0.15,
+      'rice vinegar': 0.1, 'garlic': 0.1, 'red chili pepper': 0.1,
+    },
+    description: 'sweet-savory soybean paste with sesame',
   },
 };
 
