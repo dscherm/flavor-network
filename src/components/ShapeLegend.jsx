@@ -1,21 +1,25 @@
-import { useState } from 'react';
-
 /**
- * ShapeLegend — discreet collapsible card explaining the per-category
- * shape mapping in the Cocktail / Sauce labs. Top-right anchored to
- * stay out of the joystick's way at the bottom and the search bar's
- * way at the top.
+ * ShapeLegend — always-expanded vertical rail anchored to the LEFT
+ * edge of the viewport, listing each shape silhouette with its
+ * category. Used by:
+ *
+ *   - Cocktail Lab (subcluster category → shape)
+ *   - Sauce Lab    (cuisine → shape)
+ *   - LivingArchView α-mode (focal + affinity tier → shape)
+ *
+ * Design rationale (per user request 2026-04-29): the prior top-right
+ * collapsible button was easy to miss and overlapped the search bar
+ * on narrow viewports. A persistent side rail trades a small slice of
+ * left-edge real estate for instant discoverability, which matters
+ * because the shapes ARE the legend's whole job — once you know what
+ * they mean, the legend is reference; before then, it's invisible UI.
  *
  * Props:
- *   - title:   string ("Subcluster shapes" / "Cuisine shapes")
+ *   - title:   string ("Subcluster shapes" / "Cuisine shapes" / …)
  *   - legend:  Array<{ category: string, shape: string }>
- *
- * The shape strings come from the master kit in src/three/Geometries.js;
- * each renders as a small inline SVG so users can quickly map what
- * they see in 3D to a category.
  */
 
-const ICON_SIZE = 14;
+const ICON_SIZE = 16;
 
 function ShapeIcon({ shape, color = 'currentColor' }) {
   const s = ICON_SIZE;
@@ -91,8 +95,6 @@ function ShapeIcon({ shape, color = 'currentColor' }) {
         </svg>
       );
     case 'torusKnot':
-      // Stylized trefoil — three lobes around a center (suggests the
-      // twisted-ring silhouette without trying to render the real knot).
       return (
         <svg width={s} height={s} aria-hidden="true">
           <path
@@ -105,7 +107,6 @@ function ShapeIcon({ shape, color = 'currentColor' }) {
         </svg>
       );
     case 'bipyramid':
-      // Vertical diamond — two triangles base-to-base.
       return (
         <svg width={s} height={s} aria-hidden="true">
           <polygon points={`${c},2 ${s - 3},${c} ${c},${s - 2} 3,${c}`} fill="none" stroke={color} strokeWidth="1.4" />
@@ -118,31 +119,24 @@ function ShapeIcon({ shape, color = 'currentColor' }) {
 }
 
 export default function ShapeLegend({ title = 'Shapes', legend }) {
-  const [open, setOpen] = useState(false);
-
   if (!legend?.length) return null;
 
   return (
-    <div className="fixed top-12 right-2 z-30 select-none">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0d0d16]/85 border border-[#2a2a3a] text-[10px] uppercase tracking-wider text-gray-400 hover:text-gray-200 backdrop-blur-sm transition-colors"
-        aria-expanded={open}
-      >
-        <ShapeIcon shape="dodecahedron" />
+    <div
+      className="fixed left-2 z-30 select-none px-2.5 py-2 rounded-md bg-[#0d0d16]/85 border border-[#2a2a3a] backdrop-blur-sm"
+      style={{ top: 'calc(var(--nav-h, 40px) + 24px)' }}
+    >
+      <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1.5 pb-1 border-b border-[#2a2a3a]">
         {title}
-        <span className={`text-[8px] transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
-      </button>
-      {open && (
-        <div className="mt-1 px-3 py-2 rounded-md bg-[#0d0d16]/90 border border-[#2a2a3a] backdrop-blur-sm text-[10px] text-gray-300 space-y-1 min-w-[140px]">
-          {legend.map(({ category, shape }) => (
-            <div key={category} className="flex items-center gap-2">
-              <ShapeIcon shape={shape} />
-              <span>{category}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      </div>
+      <div className="space-y-1">
+        {legend.map(({ category, shape }) => (
+          <div key={category} className="flex items-center gap-2 text-[10px] text-gray-300">
+            <ShapeIcon shape={shape} />
+            <span>{category}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

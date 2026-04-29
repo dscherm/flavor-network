@@ -174,7 +174,13 @@ function getDiscoveryFact(node, neighbors) {
 
 export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes }) {
   const panelRef = useRef(null);
-  const [collapsed, setCollapsed] = useState(false);
+  // Per user request 2026-04-29: panel starts COLLAPSED on each new
+  // selection. Clicking an ingredient should not pop a window open;
+  // instead the side "Details" tab acts as a discoverable button the
+  // user taps to open the ingredient info. Once expanded, the panel
+  // stays open across pivots until the user closes it (X) or taps
+  // the tab again.
+  const [collapsed, setCollapsed] = useState(true);
 
   const handleKeyDown = useCallback(
     (e) => {
@@ -185,11 +191,15 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     [onClose],
   );
 
-  // Auto-expand when a new node is selected
+  // Re-collapse the panel each time a new node is selected so the
+  // "click ingredient → tap Details to open" UX is consistent. If the
+  // user wants to keep the panel open across pivots, they can: it
+  // will reopen on the next pivot ONLY if they re-tap the tab — which
+  // matches the user's intent ("rather than a pop out window when
+  // the user clicks on the ingredient").
   useEffect(() => {
     if (node) {
-      setCollapsed(false);
-      if (panelRef.current) panelRef.current.focus();
+      setCollapsed(true);
     }
   }, [node]);
 
