@@ -1,16 +1,20 @@
 /**
  * R14: CameraAnimator unit tests.
  *
- * Covers acceptance criteria from `.omc/plans/ralplan-camera-animations.md`:
- *   AC-CT-1..CT-8 (cluster tour), AC-FO-1..FO-7 (focal orbit),
- *   AC-MA-2 (prefers-reduced-motion), plus the dt-clamp invariant
- *   and the `nearestClusterIdx` pure helper.
+ * Covers acceptance criteria from `.omc/plans/ralplan-camera-animations.md`,
+ * adapted to the v2 cluster-tour model (continuous orbit around the
+ * current `controls.target`, replacing the original glide-and-dwell
+ * pattern after live-test feedback).
+ *
+ *   AC-CT-1..CT-8  (cluster tour, v2 continuous orbit)
+ *   AC-FO-1..FO-7  (focal orbit, unchanged)
+ *   AC-MA-2        (prefers-reduced-motion)
  *
  * Test env: vitest default (`node`). No DOM or canvas needed —
  * CameraAnimator is pure CPU math against THREE.Vector3 / Camera /
  * Sprite objects, all of which work outside a renderer.
  */
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import * as THREE from 'three';
 import {
   CameraAnimator,
@@ -39,13 +43,6 @@ function makeControlsStub(target = new THREE.Vector3(0, 0, 0)) {
   };
 }
 
-function makeLabelStub() {
-  // Minimal sprite-like object — we only touch `scale` (a Vector3).
-  return {
-    scale: new THREE.Vector3(10, 10, 1),
-  };
-}
-
 function makeAnimator({
   centroids = [
     { id: 0, position: [10, 0, 0] },
@@ -56,17 +53,13 @@ function makeAnimator({
   reducedMotion = false,
   visibility = 'visible',
   isMobile = false,
-  withLabels = false,
 } = {}) {
   const camera = makeCamera();
   const controls = makeControlsStub();
   const scene = new THREE.Scene();
-  const adapterCentroids = withLabels
-    ? centroids.map((c) => ({ ...c, labelSprite: makeLabelStub() }))
-    : centroids;
   const animator = new CameraAnimator(
     { camera, controls, scene },
-    () => adapterCentroids,
+    () => centroids,
     {
       isMobile,
       reducedMotion,
@@ -75,7 +68,7 @@ function makeAnimator({
       ...opts,
     },
   );
-  return { animator, camera, controls, scene, adapterCentroids };
+  return { animator, camera, controls, scene };
 }
 
 // ─── Pure-math helpers ────────────────────────────────────────
@@ -106,7 +99,6 @@ describe('pure math helpers', () => {
     const lapSec = 25;
     for (let n = 1; n <= 100; n++) {
       const totalMs = n * lapSec * 1000;
-      // Angle at a lap boundary should be 0 (exact, no float drift).
       expect(Math.abs(orbitAngle(totalMs, lapSec))).toBeLessThan(1e-9);
     }
   });
@@ -119,8 +111,7 @@ describe('pure math helpers', () => {
     expect(orbitAngle((3 * lapMs) / 4, lapSec)).toBeCloseTo((3 * Math.PI) / 2, 6);
   });
 
-  it('labelPopScale matches AC-CT-3 four sample points (1, 1.5, 1.5, 1)', () => {
-    // Default ramp 0.25s, dwell 4s, peak 1.5.
+  it('labelPopScale (legacy pure helper) keeps its anchors', () => {
     expect(labelPopScale(0, 4)).toBe(1);
     expect(labelPopScale(0.25, 4)).toBeCloseTo(1.5, 6);
     expect(labelPopScale(3.75, 4)).toBeCloseTo(1.5, 6);
@@ -139,126 +130,138 @@ describe('pure math helpers', () => {
   });
 });
 
-// ─── Cluster tour acceptance criteria ────────────────────────
+// ─── Cluster tour (v2: continuous orbit) ─────────────────────
 
-describe('Cluster tour', () => {
-  it('AC-CT-1: engageClusterTour + first tick → state is tour-gliding', () => {
-    const { animator } = makeAnimator();
+describe('Cluster tour (continuous orbit)', () => {
+  it('engageClusterTour transitions to TOUR_ORBITING and disables controls', () => {
+    const { animator, controls } = makeAnimator();
     expect(animator.state).toBe(STATES.IDLE);
     animator.engageClusterTour();
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
-    animator.tickAnimation(0.016);
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
+    expect(controls.enabled).toBe(false);
   });
 
-  it('AC-CT-2: dwell-end fires at 4 ± 0.05s', () => {
-    const { animator } = makeAnimator({ withLabels: false });
-    animator.engageClusterTour();
-    // dt clamp truncates each tick to ≤ 100ms, so we walk the
-    // 2s glide in 20 ticks of 0.1s each.
-    for (let i = 0; i < 20; i++) animator.tickAnimation(0.1);
-    expect(animator.state).toBe(STATES.TOUR_DWELLING);
-    // Tick toward 3.9s of dwell — still dwelling.
-    for (let i = 0; i < 39; i++) animator.tickAnimation(0.1);
-    expect(animator.state).toBe(STATES.TOUR_DWELLING);
-    // 4.0s — dwell exits, glide begins.
-    animator.tickAnimation(0.1);
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
-  });
-
-  it('AC-CT-3: label sprite scale lerps 1 → 1.5 → 1 across dwell', () => {
-    const { animator, adapterCentroids } = makeAnimator({ withLabels: true });
-    const sprite = adapterCentroids[0].labelSprite;
-    const orig = sprite.scale.clone();
-    animator.engageClusterTour();
-    // Glide: 2s (10 ticks of 0.1, plus 1 final 0.1 to roll over to dwell).
-    for (let i = 0; i < 21; i++) animator.tickAnimation(0.1);
-    // We are now in dwell phase (elapsed dwell ≈ 0.1s into dwell).
-    expect(animator.state).toBe(STATES.TOUR_DWELLING);
-    // Walk dwell forward to t=0.25s — scale should be at peak.
-    for (let i = 0; i < 2; i++) animator.tickAnimation(0.1);
-    expect(sprite.scale.x).toBeCloseTo(orig.x * 1.5, 1);
-  });
-
-  it('AC-CT-5: tourOrder is deterministic — sorted by id', () => {
-    const centroids = [
-      { id: 7, position: [1, 0, 0] },
-      { id: 2, position: [0, 1, 0] },
-      { id: 5, position: [0, 0, 1] },
-      { id: 1, position: [1, 1, 0] },
-    ];
-    const { animator } = makeAnimator({ centroids });
-    animator.engageClusterTour();
-    expect(animator.tourOrder).toEqual([1, 2, 5, 7]);
-    // Re-engage → identical order.
-    animator.recordInput();
-    animator.engageClusterTour();
-    expect(animator.tourOrder).toEqual([1, 2, 5, 7]);
-  });
-
-  it('AC-CT-6: recordInput → cancelled-awaiting-resume; same-tick is camera-write-free', () => {
+  it('first tick does not move the camera off its initial radius', () => {
     const { animator, camera } = makeAnimator();
     animator.engageClusterTour();
-    animator.tickAnimation(0.1); // advance glide a bit
+    const r0 = camera.position.clone();
+    animator.tickAnimation(0.016);
+    // Camera position changes, but radius from pivot is preserved.
+    const dx = camera.position.x - 0; // pivot is centroid mean (≈ origin here)
+    const dy = camera.position.y - 0;
+    const dz = camera.position.z - 0;
+    const radius = Math.hypot(dx, dy, dz);
+    const r0Hypot = Math.hypot(r0.x, r0.y, r0.z);
+    // mean of [10,0,0],[0,10,0],[0,0,10] = (10/3, 10/3, 10/3) — not zero.
+    // Recompute precisely.
+    const px = 10 / 3, py = 10 / 3, pz = 10 / 3;
+    const r1 = Math.hypot(camera.position.x - px, camera.position.y - py, camera.position.z - pz);
+    const r0p = Math.hypot(r0.x - px, r0.y - py, r0.z - pz);
+    expect(r1).toBeCloseTo(r0p, 3);
+  });
+
+  it('tour orbit uses controls.target as pivot when adapter returns []', () => {
+    const camera = makeCamera();
+    const target = new THREE.Vector3(50, 60, 70);
+    const controls = { target: target.clone(), enabled: true, update: () => {} };
+    const animator = new CameraAnimator(
+      { camera, controls, scene: new THREE.Scene() },
+      () => [], // empty adapter — mode-agnostic path
+      { mediaMatcher: () => ({ matches: false }) },
+    );
+    animator.engageClusterTour();
+    // Tour engages successfully even with no centroids — orbits target.
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
+    // Walk a quarter lap. Camera should still be equidistant from target.
+    const r0 = camera.position.distanceTo(target);
+    const lapSec = animator.tourLapSec;
+    const ticksPerQuarterLap = Math.round((lapSec / 4) / 0.1);
+    for (let i = 0; i < ticksPerQuarterLap; i++) animator.tickAnimation(0.1);
+    expect(camera.position.distanceTo(target)).toBeCloseTo(r0, 2);
+    // controls.target stays fixed at the pivot.
+    expect(controls.target.distanceTo(target)).toBeLessThan(1e-6);
+  });
+
+  it('camera azimuth advances around the pivot (full lap returns to start)', () => {
+    const { animator, camera } = makeAnimator();
+    animator.engageClusterTour();
+    const start = camera.position.clone();
+    const lapSec = animator.tourLapSec;
+    const lapMs = lapSec * 1000;
+    // Walk the full lap in 100ms ticks (dt clamped, so we burn lapMs/100 ticks).
+    const ticks = Math.round(lapMs / 100);
+    for (let i = 0; i < ticks; i++) animator.tickAnimation(0.1);
+    // After exactly one lap, position should be back to start (mod float).
+    expect(camera.position.distanceTo(start)).toBeLessThan(0.5);
+  });
+
+  it('mid-lap camera position is azimuth-rotated from start', () => {
+    const { animator, camera } = makeAnimator();
+    animator.engageClusterTour();
+    const start = camera.position.clone();
+    const lapSec = animator.tourLapSec;
+    // Walk a quarter lap.
+    const quarter = Math.round((lapSec / 4) * 10);
+    for (let i = 0; i < quarter; i++) animator.tickAnimation(0.1);
+    // After 1/4 lap the camera should be ~90° around the pivot —
+    // not equal to start.
+    expect(camera.position.distanceTo(start)).toBeGreaterThan(1);
+  });
+
+  it('AC-CT-6 (v2): recordInput → cancelled-awaiting-resume; same-tick is camera-write-free', () => {
+    const { animator, camera } = makeAnimator();
+    animator.engageClusterTour();
+    animator.tickAnimation(0.1);
     const beforeCancel = camera.position.clone();
     animator.recordInput();
     expect(animator.state).toBe(STATES.CANCELLED_AWAITING_RESUME);
-    // Subsequent tick should NOT move the camera.
     animator.tickAnimation(0.5);
     expect(camera.position.distanceTo(beforeCancel)).toBeLessThan(1e-9);
   });
 
-  it('AC-CT-7: _resumeFromIdle picks nearest cluster and transitions to tour-gliding', () => {
-    const { animator, camera } = makeAnimator({
-      centroids: [
-        { id: 0, position: [100, 0, 0] },
-        { id: 1, position: [0, 100, 0] },
-        { id: 2, position: [0, 0, 100] },
-      ],
-    });
-    // Move camera near cluster 2.
-    camera.position.set(1, 1, 99);
-    animator.recordInput.bind(animator); // sanity: method exists
-    // Start cancelled-awaiting-resume by simulating a prior tour.
-    animator.engageClusterTour();
-    animator.recordInput();
-    expect(animator.state).toBe(STATES.CANCELLED_AWAITING_RESUME);
-    animator._resumeFromIdle();
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
-    expect(animator.currentClusterIdx).toBe(2);
-  });
-
-  it('AC-CT-7 via tick: 30s of CANCELLED_AWAITING_RESUME triggers idle resume', () => {
+  it('AC-CT-7 (v2): _resumeFromIdle re-engages TOUR_ORBITING', () => {
     const { animator } = makeAnimator();
     animator.engageClusterTour();
     animator.recordInput();
     expect(animator.state).toBe(STATES.CANCELLED_AWAITING_RESUME);
-    // Advance 30s in 100ms ticks (300 calls).
-    for (let i = 0; i < 300; i++) animator.tickAnimation(0.1);
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
+    animator._resumeFromIdle();
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
   });
 
-  it('AC-CT-8: visibility hidden → tickAnimation does not advance dwell timer', () => {
+  it('AC-CT-7 (v2): 60s of CANCELLED_AWAITING_RESUME triggers idle resume', () => {
+    const { animator } = makeAnimator();
+    animator.engageClusterTour();
+    animator.recordInput();
+    expect(animator.state).toBe(STATES.CANCELLED_AWAITING_RESUME);
+    // Default idleResumeMs is 60_000 — advance 60s in 100ms ticks (600 calls).
+    for (let i = 0; i < 600; i++) animator.tickAnimation(0.1);
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
+  });
+
+  it('AC-CT-7 (v2): less than idleResumeMs of CANCELLED_AWAITING_RESUME stays cancelled', () => {
+    const { animator } = makeAnimator();
+    animator.engageClusterTour();
+    animator.recordInput();
+    // 30s < 60s default — should still be cancelled-awaiting-resume.
+    for (let i = 0; i < 300; i++) animator.tickAnimation(0.1);
+    expect(animator.state).toBe(STATES.CANCELLED_AWAITING_RESUME);
+  });
+
+  it('AC-CT-8 (v2): visibility hidden → camera does not move during tour', () => {
     let visibility = 'visible';
-    const { animator } = makeAnimator({
+    const { animator, camera } = makeAnimator({
       opts: { getVisibilityState: () => visibility },
     });
     animator.engageClusterTour();
-    // Burn the 2s glide via 20 dt-clamped ticks.
-    for (let i = 0; i < 20; i++) animator.tickAnimation(0.1);
-    expect(animator.state).toBe(STATES.TOUR_DWELLING);
-    // Hide tab — 1000 ticks of 0.1s (100s wall-time worth) should
-    // not advance dwell or transition state.
+    animator.tickAnimation(0.1);
+    const frozen = camera.position.clone();
     visibility = 'hidden';
     for (let i = 0; i < 1000; i++) animator.tickAnimation(0.1);
-    expect(animator.state).toBe(STATES.TOUR_DWELLING);
-    // Restore — dwell completes after 4s.
-    visibility = 'visible';
-    for (let i = 0; i < 41; i++) animator.tickAnimation(0.1);
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
+    expect(camera.position.distanceTo(frozen)).toBeLessThan(1e-9);
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
   });
 
-  it('cluster tour pause + resume cleanly restarts from current slot', () => {
+  it('cluster tour pause + resume cleanly restarts orbit', () => {
     const { animator, controls } = makeAnimator();
     animator.engageClusterTour();
     expect(controls.enabled).toBe(false);
@@ -266,20 +269,15 @@ describe('Cluster tour', () => {
     expect(animator.state).toBe(STATES.IDLE);
     expect(controls.enabled).toBe(true);
     animator.resumeClusterTour();
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
     expect(controls.enabled).toBe(false);
   });
 
-  it('adapter returning [] keeps animator idle', () => {
-    const camera = makeCamera();
-    const controls = makeControlsStub();
-    const animator = new CameraAnimator(
-      { camera, controls, scene: new THREE.Scene() },
-      () => [], // empty adapter
-      { mediaMatcher: () => ({ matches: false }) },
-    );
-    animator.engageClusterTour();
-    expect(animator.state).toBe(STATES.IDLE);
+  it('lap rate: 60s desktop / 90s mobile', () => {
+    const desktop = makeAnimator({ isMobile: false });
+    const mobile = makeAnimator({ isMobile: true });
+    expect(desktop.animator.tourLapSec).toBe(60);
+    expect(mobile.animator.tourLapSec).toBe(90);
   });
 });
 
@@ -290,7 +288,6 @@ describe('Focal orbit', () => {
     const { animator } = makeAnimator();
     animator.engageFocalOrbit(0, [10, 0, 0]);
     expect(animator.state).toBe(STATES.FOCAL_FLYING);
-    // Burn ~1.2s of flight time in chunks ≤ dt clamp.
     for (let i = 0; i < 13; i++) animator.tickAnimation(0.1);
     expect(animator.state).toBe(STATES.FOCAL_ORBITING);
   });
@@ -299,10 +296,8 @@ describe('Focal orbit', () => {
     const { animator, camera } = makeAnimator();
     const focal = [50, 50, 50];
     animator.engageFocalOrbit(0, focal);
-    // Burn flight.
     for (let i = 0; i < 13; i++) animator.tickAnimation(0.1);
     expect(animator.state).toBe(STATES.FOCAL_ORBITING);
-    // Sample every 100ms for 25s (one lap on desktop).
     const lapMs = 25_000;
     const samples = lapMs / 100;
     let maxDevDeg = 0;
@@ -317,7 +312,7 @@ describe('Focal orbit', () => {
     expect(maxDevDeg).toBeLessThan(1);
   });
 
-  it('AC-FO-3: lap time is 25s desktop / 30s mobile', () => {
+  it('AC-FO-3: focal lap time is 25s desktop / 30s mobile', () => {
     const desktop = makeAnimator({ isMobile: false });
     const mobile = makeAnimator({ isMobile: true });
     expect(desktop.animator.lapSec).toBe(25);
@@ -345,11 +340,9 @@ describe('Focal orbit', () => {
   it('repivot preserves orbit angle accumulator (continuity)', () => {
     const { animator } = makeAnimator();
     animator.engageFocalOrbit(0, [10, 0, 0]);
-    // Burn flight, then 5s of orbit.
     for (let i = 0; i < 13 + 50; i++) animator.tickAnimation(0.1);
     const angleBefore = orbitAngle(animator.orbitElapsedMs, animator.lapSec);
     animator.repivot(1, [20, 0, 0]);
-    // Repivot must NOT zero the elapsed accumulator.
     const angleAfter = orbitAngle(animator.orbitElapsedMs, animator.lapSec);
     expect(angleAfter).toBeCloseTo(angleBefore, 6);
   });
@@ -397,22 +390,22 @@ describe('dt clamp', () => {
   it('orbit advances by at most dtClampSec of angle per tick (Capacitor resume)', () => {
     const { animator } = makeAnimator();
     animator.engageFocalOrbit(0, [0, 0, 0]);
-    // Burn flight.
     for (let i = 0; i < 13; i++) animator.tickAnimation(0.1);
     const beforeElapsed = animator.orbitElapsedMs;
-    // Pass 5s of "background suspension" — clamp should treat as 100ms.
     animator.tickAnimation(5.0);
     const delta = animator.orbitElapsedMs - beforeElapsed;
-    expect(delta).toBeCloseTo(100, 0); // clamp is 100ms, not 5000ms
+    expect(delta).toBeCloseTo(100, 0);
   });
 
-  it('dt clamp prevents glide segment from skipping past completion', () => {
+  it('dt clamp prevents tour orbit from skipping past completion', () => {
     const { animator } = makeAnimator();
     animator.engageClusterTour();
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
-    // A 10s tick (clamped to 0.1s) should NOT instantly complete the 2s glide.
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
+    // A 10s tick (clamped to 0.1s) advances tourElapsedMs by exactly 100ms,
+    // not 10000. Stays in TOUR_ORBITING (lap is 60s, so well short of full lap).
     animator.tickAnimation(10.0);
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
+    expect(animator.tourElapsedMs).toBeCloseTo(100, 0);
   });
 });
 
@@ -421,9 +414,14 @@ describe('dt clamp', () => {
 describe('construction', () => {
   it('uses DEFAULTS for unset opts', () => {
     const { animator } = makeAnimator();
-    expect(animator._opts.dwellSec).toBe(DEFAULTS.dwellSec);
-    expect(animator._opts.glideSec).toBe(DEFAULTS.glideSec);
+    expect(animator._opts.tourLapSecDesktop).toBe(DEFAULTS.tourLapSecDesktop);
+    expect(animator._opts.tourLapSecMobile).toBe(DEFAULTS.tourLapSecMobile);
+    expect(animator._opts.idleResumeMs).toBe(DEFAULTS.idleResumeMs);
     expect(animator._opts.orbitDistance).toBe(DEFAULTS.orbitDistance);
+  });
+
+  it('idleResumeMs default is 60_000ms (bumped from 30s on user feedback)', () => {
+    expect(DEFAULTS.idleResumeMs).toBe(60_000);
   });
 
   it('dispose returns animator to idle and zeroes references', () => {
@@ -431,7 +429,6 @@ describe('construction', () => {
     animator.engageClusterTour();
     animator.dispose();
     expect(animator.state).toBe(STATES.IDLE);
-    // Subsequent ticks must be safe (no-op, no throw).
     expect(() => animator.tickAnimation(0.1)).not.toThrow();
     expect(controls.enabled).toBe(true);
   });

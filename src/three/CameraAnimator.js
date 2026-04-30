@@ -6,17 +6,27 @@
  * lets the same class handle Network's mode-aware centroids and the
  * static family centroids used by the Lab views.
  *
- * State machine (6 states):
- *   idle | tour-gliding | tour-dwelling | focal-flying | focal-orbiting
+ * State machine (5 states):
+ *   idle | tour-orbiting | focal-flying | focal-orbiting
  *   | cancelled-awaiting-resume
+ *
+ * Cluster tour model (v2 — user feedback driven):
+ *   The tour is a CONTINUOUS ORBIT around the current `controls.target`,
+ *   captured at engage time. The camera keeps its current radius and
+ *   elevation and walks azimuth around the pivot at a fixed lap rate
+ *   (60s desktop / 90s mobile). This works mode-agnostically — neural,
+ *   ml, ml2d, taste2d, Cocktail Lab, Sauce Lab — without needing any
+ *   per-mode centroid input. The previous glide-and-dwell pattern was
+ *   replaced because it "just shifts the camera a little bit" rather
+ *   than rotating around the model.
  *
  * Per-frame contract (tickAnimation):
  *   - dt is clamped to 100ms (handles Capacitor iOS resume from
  *     background — without the clamp, an 8s background suspension
  *     would advance the orbit angle by 8s × orbit-rate in one frame).
  *   - Visibility-gated. When document.visibilityState !== 'visible'
- *     we skip the tick entirely so dwell/glide/orbit timers don't
- *     accumulate while the tab is backgrounded.
+ *     we skip the tick entirely so orbit timers don't accumulate
+ *     while the tab is backgrounded.
  *   - Reduced-motion-respecting. When the user has
  *     prefers-reduced-motion: reduce, the animator is permanently
  *     disabled at construction (engageX returns early; tickAnimation
@@ -41,14 +51,13 @@
  *   alternative `angle += dt * (2π / lapSec)` accumulates rounding
  *   error and drifts visibly over an 8h session.
  *
- * Adapter contract:
- *   centroidAdapter() => Array<{id: number, position: [x,y,z], labelSprite?: THREE.Sprite}>
- *   - id: stable cluster identifier; used for deterministic tour ordering.
+ * Adapter contract (legacy — retained for centroid-mean pivot override):
+ *   centroidAdapter() => Array<{id: number, position: [x,y,z]}>
+ *   - id: stable cluster identifier (unused in v2 — was used for tour ordering).
  *   - position: scene-space coordinate of the cluster centroid.
- *   - labelSprite (optional): reference to the sprite used for label-pop
- *     scale-lerp during dwell. May be omitted; pop animation no-ops.
- *   - Returning [] is the canonical "no clusters in this mode → pause
- *     the tour" signal. Network's adapter returns [] for neural/taste2d.
+ *   - Optional. When non-empty, the orbit pivot defaults to the mean
+ *     of all centroid positions instead of `controls.target`. When
+ *     empty (or omitted), the orbit pivots around `controls.target`.
  *
  * Lifecycle ordering (LivingArchView cleanup):
  *   AffinityMode holds an injected reference to this instance once
@@ -64,24 +73,32 @@ import * as THREE from 'three';
 
 export const STATES = Object.freeze({
   IDLE: 'idle',
-  TOUR_GLIDING: 'tour-gliding',
-  TOUR_DWELLING: 'tour-dwelling',
+  // v2 (user feedback): the cluster tour is now a continuous orbit
+  // around `controls.target` at the camera's current radius and
+  // elevation. The previous glide-and-dwell pattern only "shifted
+  // the camera a little bit" rather than rotating around the model.
+  TOUR_ORBITING: 'tour-orbiting',
   FOCAL_FLYING: 'focal-flying',
   FOCAL_ORBITING: 'focal-orbiting',
   CANCELLED_AWAITING_RESUME: 'cancelled-awaiting-resume',
 });
 
 export const DEFAULTS = Object.freeze({
-  dwellSec: 4,
-  glideSec: 2,
+  // Tour lap (continuous orbit around controls.target). Slow enough
+  // to feel ambient, not aggressive — the user reads labels while it
+  // rotates underneath. Mobile gets a longer lap for battery.
+  tourLapSecDesktop: 60,
+  tourLapSecMobile: 90,
+  // Focal orbit lap (orbiting around a clicked ingredient).
   lapSecDesktop: 25,
   lapSecMobile: 30,
-  idleResumeMs: 30000,
+  // After user input cancels the tour, how long before it resumes.
+  // Bumped from 30s → 60s on user feedback ("wait time is not enough
+  // after selecting one of the labels").
+  idleResumeMs: 60000,
   flyToFocalMs: 1200,
-  orbitElevationRad: Math.PI / 3, // 60°
-  orbitDistance: 75,
-  labelScalePeak: 1.5,
-  labelPopRampSec: 0.25,
+  orbitElevationRad: Math.PI / 3, // 60° — focal-orbit only
+  orbitDistance: 75,             // focal-orbit only
   dtClampSec: 0.1,
   mobileViewportPx: 640,
 });
@@ -200,19 +217,24 @@ export class CameraAnimator {
 
     this._isMobile = detectIsMobile(this._opts);
     this._lapSec = this._isMobile ? this._opts.lapSecMobile : this._opts.lapSecDesktop;
+    this._tourLapSec = this._isMobile ? this._opts.tourLapSecMobile : this._opts.tourLapSecDesktop;
     this._reducedMotion = detectReducedMotion(this._opts);
     this._disabled = this._reducedMotion;
 
     this._state = STATES.IDLE;
-    this._tourCentroids = [];
-    this._tourOrder = [];
-    this._currentClusterIdx = -1;
     this._tourPaused = false;
 
-    this._dwellAccumMs = 0;
     this._idleAccumMs = 0;
 
-    // Glide / focal-flying tween segment.
+    // Tour orbit state — captured at engage time so the camera keeps
+    // its current radius / elevation / starting azimuth while orbiting.
+    this._tourPivot = new THREE.Vector3();
+    this._tourRadius = 0;
+    this._tourElevationRad = 0;
+    this._tourAzimuthOffset = 0;
+    this._tourElapsedMs = 0;
+
+    // Focal-flying tween segment.
     this._segment = null;
 
     // Focal orbit state.
@@ -221,10 +243,6 @@ export class CameraAnimator {
     this._orbitTotalElapsedMs = 0;
     this._flightCounter = 0;
     this._currentFlightId = 0;
-
-    // Label-pop bookkeeping — store original scale so dwell exit can restore.
-    this._activeLabelSprite = null;
-    this._labelOriginalScale = null;
 
     // Phase 5 polish: live media-query listener handle.
     this._mediaQueryList = null;
@@ -238,35 +256,23 @@ export class CameraAnimator {
   // ─── Inspectors (used by tests + LivingArchView guards) ─────
 
   get state() { return this._state; }
-  get currentClusterIdx() { return this._currentClusterIdx; }
   get focalIdx() { return this._focalIdx; }
   get isMobile() { return this._isMobile; }
   get lapSec() { return this._lapSec; }
+  get tourLapSec() { return this._tourLapSec; }
   get isDisabled() { return this._disabled; }
-  get tourOrder() { return this._tourOrder.slice(); }
   get orbitElapsedMs() { return this._orbitTotalElapsedMs; }
+  get tourElapsedMs() { return this._tourElapsedMs; }
 
   // ─── Public API ─────────────────────────────────────────────
 
   engageClusterTour() {
     if (this._disabled) { this._state = STATES.IDLE; return; }
     if (!this._camera || !this._controls) return;
-    const centroids = this._readCentroids();
-    if (centroids.length === 0) {
-      this._state = STATES.IDLE;
-      return;
-    }
-    this._tourCentroids = centroids;
-    this._tourOrder = centroids
-      .slice()
-      .sort((a, b) => a.id - b.id)
-      .map((c) => c.id);
-    // currentClusterIdx indexes into _tourCentroids (still in adapter
-    // order). Map through tourOrder so iteration is id-sorted.
-    this._currentClusterIdx = 0;
     this._idleAccumMs = 0;
     this._tourPaused = false;
-    this._beginGlideToTourSlot(this._currentClusterIdx);
+    this._captureTourOrbit();
+    this._state = STATES.TOUR_ORBITING;
     this._takeOwnership();
   }
 
@@ -274,7 +280,6 @@ export class CameraAnimator {
     if (this._disabled) { this._state = STATES.IDLE; return; }
     if (!this._camera || !this._controls) return;
     if (!Array.isArray(focalPosition) || focalPosition.length < 3) return;
-    this._restoreLabelScale();
     this._focalIdx = focalIdx;
     this._focalPos.set(focalPosition[0], focalPosition[1], focalPosition[2]);
     this._idleAccumMs = 0;
@@ -314,7 +319,6 @@ export class CameraAnimator {
    */
   recordInput() {
     if (this._state === STATES.IDLE) return;
-    this._restoreLabelScale();
     if (this._controls && this._camera) {
       const t = this._currentTargetPos();
       if (t) this._controls.target.copy(t);
@@ -337,8 +341,7 @@ export class CameraAnimator {
    */
   pauseClusterTour() {
     this._tourPaused = true;
-    if (this._state === STATES.TOUR_GLIDING || this._state === STATES.TOUR_DWELLING) {
-      this._restoreLabelScale();
+    if (this._state === STATES.TOUR_ORBITING) {
       this._segment = null;
       this._releaseOwnership();
       this._state = STATES.IDLE;
@@ -348,14 +351,10 @@ export class CameraAnimator {
   resumeClusterTour() {
     this._tourPaused = false;
     if (this._state !== STATES.IDLE && this._state !== STATES.CANCELLED_AWAITING_RESUME) return;
-    const centroids = this._readCentroids();
-    if (centroids.length === 0) return;
-    this._tourCentroids = centroids;
-    this._tourOrder = centroids.slice().sort((a, b) => a.id - b.id).map((c) => c.id);
-    if (this._currentClusterIdx < 0 || this._currentClusterIdx >= centroids.length) {
-      this._currentClusterIdx = 0;
-    }
-    this._beginGlideToTourSlot(this._currentClusterIdx);
+    if (!this._camera || !this._controls) return;
+    this._idleAccumMs = 0;
+    this._captureTourOrbit();
+    this._state = STATES.TOUR_ORBITING;
     this._takeOwnership();
   }
 
@@ -373,11 +372,8 @@ export class CameraAnimator {
           this._resumeFromIdle();
         }
         break;
-      case STATES.TOUR_GLIDING:
-        this._tickSegment(dt, () => this._beginDwellAtTourSlot(this._currentClusterIdx));
-        break;
-      case STATES.TOUR_DWELLING:
-        this._tickDwell(dt);
+      case STATES.TOUR_ORBITING:
+        this._tickTourOrbit(dt);
         break;
       case STATES.FOCAL_FLYING:
         this._tickSegment(dt, () => { this._state = STATES.FOCAL_ORBITING; });
@@ -395,7 +391,6 @@ export class CameraAnimator {
     this._reducedMotion = reduced === true;
     this._disabled = this._reducedMotion;
     if (this._disabled && !wasDisabled) {
-      this._restoreLabelScale();
       this._segment = null;
       if (this._state !== STATES.IDLE) this._releaseOwnership();
       this._state = STATES.IDLE;
@@ -427,7 +422,6 @@ export class CameraAnimator {
   }
 
   dispose() {
-    this._restoreLabelScale();
     if (this._mediaQueryList && this._mediaListener) {
       try {
         if (typeof this._mediaQueryList.removeEventListener === 'function') {
@@ -442,10 +436,6 @@ export class CameraAnimator {
     if (this._state !== STATES.IDLE) this._releaseOwnership();
     this._state = STATES.IDLE;
     this._segment = null;
-    this._tourCentroids = [];
-    this._tourOrder = [];
-    this._activeLabelSprite = null;
-    this._labelOriginalScale = null;
     this._scene = null;
     this._camera = null;
     this._controls = null;
@@ -454,20 +444,13 @@ export class CameraAnimator {
 
   // ─── Test-only hooks ────────────────────────────────────────
 
-  /** Test-only. Triggers the idle-resume flow as if 30s elapsed. */
+  /** Test-only. Triggers the idle-resume flow as if idleResumeMs elapsed. */
   _resumeFromIdle() {
-    const centroids = this._readCentroids();
-    if (centroids.length === 0) {
-      this._state = STATES.IDLE;
-      return;
-    }
-    this._tourCentroids = centroids;
-    this._tourOrder = centroids.slice().sort((a, b) => a.id - b.id).map((c) => c.id);
-    const cam = [this._camera.position.x, this._camera.position.y, this._camera.position.z];
-    const idx = nearestClusterIdx(centroids, cam);
-    this._currentClusterIdx = idx >= 0 ? idx : 0;
+    if (!this._camera || !this._controls) return;
+    if (this._tourPaused) { this._state = STATES.IDLE; return; }
     this._idleAccumMs = 0;
-    this._beginGlideToTourSlot(this._currentClusterIdx);
+    this._captureTourOrbit();
+    this._state = STATES.TOUR_ORBITING;
     this._takeOwnership();
   }
 
@@ -504,49 +487,74 @@ export class CameraAnimator {
     if (this._state === STATES.FOCAL_FLYING || this._state === STATES.FOCAL_ORBITING) {
       return this._focalPos;
     }
-    if (this._state === STATES.TOUR_GLIDING || this._state === STATES.TOUR_DWELLING) {
-      const c = this._tourCentroids[this._currentClusterIdx];
-      if (c) return new THREE.Vector3(c.position[0], c.position[1], c.position[2]);
+    if (this._state === STATES.TOUR_ORBITING) {
+      return this._tourPivot;
     }
     return null;
   }
 
-  _beginGlideToTourSlot(idx) {
-    if (this._tourPaused) { this._state = STATES.IDLE; return; }
-    const next = this._tourCentroids[idx];
-    if (!next) { this._state = STATES.IDLE; return; }
-    const startPos = this._camera.position.clone();
-    const startTarget = this._controls.target.clone();
-    const targetPos = new THREE.Vector3(next.position[0], next.position[1], next.position[2]);
-    // Maintain the camera's relative offset to its current target
-    // so the tour preserves view angle / distance as it moves between
-    // clusters. Falls back to a sensible default if the camera-target
-    // delta is degenerate.
-    const offset = startPos.clone().sub(startTarget);
-    if (offset.length() < 1e-3) offset.set(0, 60, 60);
-    const endPos = targetPos.clone().add(offset);
-    this._segment = {
-      startPos,
-      endPos,
-      startTarget,
-      endTarget: targetPos,
-      durationMs: this._opts.glideSec * 1000,
-      accumMs: 0,
-      kind: 'glide',
-    };
-    this._state = STATES.TOUR_GLIDING;
+  /**
+   * Capture the current camera→pivot relationship so the orbit walks
+   * azimuth from where the camera already is. The pivot defaults to
+   * `controls.target`; if the centroid adapter returns clusters, the
+   * mean of all centroid positions overrides it (legacy callers can
+   * still hint where to orbit). Radius and elevation are derived from
+   * the camera position so the tour begins with no visible jump.
+   */
+  _captureTourOrbit() {
+    const cam = this._camera.position;
+    const tgt = this._controls.target;
+
+    // Pivot resolution: prefer caller-provided centroid mean over
+    // the current target. Both are valid; centroid-mean tends to
+    // sit at the cluster cloud center even when the user has
+    // panned the camera off to one side.
+    const centroids = this._readCentroids();
+    if (centroids.length > 0) {
+      let sx = 0, sy = 0, sz = 0;
+      for (const c of centroids) {
+        sx += c.position[0];
+        sy += c.position[1];
+        sz += c.position[2];
+      }
+      this._tourPivot.set(sx / centroids.length, sy / centroids.length, sz / centroids.length);
+    } else {
+      this._tourPivot.copy(tgt);
+    }
+
+    // Camera vector relative to pivot, in spherical (radius, elevation, azimuth).
+    const dx = cam.x - this._tourPivot.x;
+    const dy = cam.y - this._tourPivot.y;
+    const dz = cam.z - this._tourPivot.z;
+    const radius = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    if (radius < 1e-3) {
+      // Camera sitting on top of pivot — pick a sensible default
+      // so the orbit isn't degenerate.
+      this._tourRadius = 80;
+      this._tourElevationRad = Math.PI / 4; // 45°
+      this._tourAzimuthOffset = 0;
+    } else {
+      const horiz = Math.sqrt(dx * dx + dz * dz);
+      this._tourRadius = radius;
+      this._tourElevationRad = Math.atan2(dy, horiz);
+      this._tourAzimuthOffset = Math.atan2(dz, dx);
+    }
+    this._tourElapsedMs = 0;
   }
 
-  _beginDwellAtTourSlot(idx) {
-    if (this._tourPaused) { this._state = STATES.IDLE; return; }
-    const next = this._tourCentroids[idx];
-    if (!next) { this._state = STATES.IDLE; return; }
-    this._dwellAccumMs = 0;
-    this._activeLabelSprite = next.labelSprite || null;
-    if (this._activeLabelSprite && this._activeLabelSprite.scale) {
-      this._labelOriginalScale = this._activeLabelSprite.scale.clone();
-    }
-    this._state = STATES.TOUR_DWELLING;
+  _tickTourOrbit(dt) {
+    if (!this._camera || !this._controls) { this._state = STATES.IDLE; return; }
+    this._tourElapsedMs += dt * 1000;
+    const advance = orbitAngle(this._tourElapsedMs, this._tourLapSec);
+    const angle = this._tourAzimuthOffset + advance;
+    const horiz = this._tourRadius * Math.cos(this._tourElevationRad);
+    const vert = this._tourRadius * Math.sin(this._tourElevationRad);
+    this._camera.position.set(
+      this._tourPivot.x + horiz * Math.cos(angle),
+      this._tourPivot.y + vert,
+      this._tourPivot.z + horiz * Math.sin(angle),
+    );
+    this._controls.target.copy(this._tourPivot);
   }
 
   _beginFocalFlight() {
@@ -592,28 +600,6 @@ export class CameraAnimator {
     }
   }
 
-  _tickDwell(dt) {
-    this._dwellAccumMs += dt * 1000;
-    if (this._activeLabelSprite && this._labelOriginalScale && this._activeLabelSprite.scale) {
-      const factor = labelPopScale(
-        this._dwellAccumMs / 1000,
-        this._opts.dwellSec,
-        this._opts.labelPopRampSec,
-        this._opts.labelScalePeak,
-      );
-      this._activeLabelSprite.scale.set(
-        this._labelOriginalScale.x * factor,
-        this._labelOriginalScale.y * factor,
-        this._labelOriginalScale.z * factor,
-      );
-    }
-    if (this._dwellAccumMs >= this._opts.dwellSec * 1000) {
-      this._restoreLabelScale();
-      this._currentClusterIdx = (this._currentClusterIdx + 1) % this._tourCentroids.length;
-      this._beginGlideToTourSlot(this._currentClusterIdx);
-    }
-  }
-
   _tickOrbit(dt) {
     this._orbitTotalElapsedMs += dt * 1000;
     const angle = orbitAngle(this._orbitTotalElapsedMs, this._lapSec);
@@ -627,13 +613,6 @@ export class CameraAnimator {
     this._controls.target.copy(this._focalPos);
   }
 
-  _restoreLabelScale() {
-    if (this._activeLabelSprite && this._labelOriginalScale && this._activeLabelSprite.scale) {
-      this._activeLabelSprite.scale.copy(this._labelOriginalScale);
-    }
-    this._activeLabelSprite = null;
-    this._labelOriginalScale = null;
-  }
 }
 
 export default CameraAnimator;

@@ -90,8 +90,10 @@ function NetworkScene({
     manager.setRaycastTarget(nodes.getMesh());
 
     // R14 CameraAnimator — gated behind URL flag + default constant.
-    // Adapter is supplied by the parent (CocktailLab / SauceLab); when
-    // omitted the animator is not instantiated at all.
+    // v2: tour is mode-agnostic — when `centroidAdapter` is omitted
+    // the animator falls back to orbiting `controls.target`, so we
+    // instantiate the animator unconditionally (subject to the URL
+    // flag and the reduced-motion media query).
     let cameraAnimEnabled = CAMERA_ANIMATOR_DEFAULT_ON;
     try {
       const params = new URLSearchParams(window.location.search);
@@ -100,18 +102,19 @@ function NetworkScene({
       else if (v === 'off') cameraAnimEnabled = false;
     } catch { /* SSR / private mode — keep default */ }
 
-    if (cameraAnimEnabled && typeof centroidAdapter === 'function') {
+    if (cameraAnimEnabled) {
       const ctrls = manager.getControls();
       const cam = manager.getCamera();
       const scn = manager.getScene();
+      const adapter = typeof centroidAdapter === 'function' ? centroidAdapter : () => [];
       cameraAnimatorRef.current = new CameraAnimator(
         { camera: cam, controls: ctrls, scene: scn },
-        centroidAdapter,
+        adapter,
         { isMobile },
       );
       cameraAnimatorRef.current.attachMediaQueryListener();
       cameraAnimatorRef.current.engageClusterTour();
-      // First user-input frame cancels the tour; 30s idle resumes.
+      // First user-input frame cancels the tour; idle (60s) resumes.
       if (ctrls && typeof ctrls.addEventListener === 'function') {
         ctrls.addEventListener('start', () => {
           cameraAnimatorRef.current?.recordInput();
