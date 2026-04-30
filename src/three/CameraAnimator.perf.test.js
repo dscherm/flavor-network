@@ -84,7 +84,7 @@ describe('CameraAnimator — engage budget', () => {
     const t0 = performance.now();
     animator.engageClusterTour();
     const elapsed = performance.now() - t0;
-    expect(animator.state).toBe(STATES.TOUR_GLIDING);
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
     // Plan budget is <200ms for engage. Cluster-tour engage is far
     // simpler than focal-orbit engage; 50ms is a generous bound that
     // would catch any accidental O(N²) regression.

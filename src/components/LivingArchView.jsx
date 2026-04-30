@@ -869,13 +869,9 @@ export default function LivingArchView({
         clusterLabelGroup.visible = transition.toMode === 'ml' || transition.toMode === 'ml2d';
         clusterConnectorGroup.visible = clusterLabelGroup.visible;
         if (clusterConnectorGroup.visible) updateClusterConnectors();
-        // R14 AC-NR-3: resume cluster tour iff entering a cluster mode.
-        // For neural/taste2d the adapter returns [] anyway, but keeping
-        // the animator IDLE (rather than re-reading and falling back)
-        // avoids one redundant adapter call per transition.
-        if (transition.toMode === 'ml' || transition.toMode === 'ml2d') {
-          cameraAnimatorRef.current?.resumeClusterTour();
-        }
+        // R14 AC-NR-3 (v2): tour is mode-agnostic (orbits controls.target
+        // when no centroids), so resume unconditionally on every transition.
+        cameraAnimatorRef.current?.resumeClusterTour();
       }
     }
 
@@ -1175,10 +1171,13 @@ export default function LivingArchView({
 
     // R14 CameraAnimator — cluster tour + focal orbit. Gated behind
     // a URL param (?cameraAnim=v1 / =off) and the
-    // CAMERA_ANIMATOR_DEFAULT_ON constant; defaults off until Phase 4
-    // verifies the AffinityMode integration. Adapter consults
-    // modeRef.current and returns [] for non-cluster modes so the
-    // tour pauses naturally during neural / taste2d.
+    // CAMERA_ANIMATOR_DEFAULT_ON constant.
+    //
+    // v2 (continuous-orbit) tour is mode-agnostic: it works in
+    // neural / taste2d / ml / ml2d. The adapter still emits cluster
+    // centroids in ml / ml2d so the orbit pivot lands on the cluster
+    // cloud center; for neural / taste2d it returns [] and the
+    // animator orbits the current `controls.target` instead.
     //
     // Order matters (Phase 4): the animator is constructed BEFORE
     // AffinityMode so the latter can receive it via constructor
@@ -1194,23 +1193,17 @@ export default function LivingArchView({
     if (cameraAnimEnabled) {
       const networkCentroidAdapter = () => {
         const m = modeRef.current;
-        if (m !== 'ml' && m !== 'ml2d') return [];
         const out = [];
         if (m === 'ml') {
           for (const [id, pos] of centroidByCluster3d) {
-            const sprite = clusterLabelGroup.children.find(
-              (s) => s.userData?.clusterId === id,
-            );
-            out.push({ id, position: pos, labelSprite: sprite });
+            out.push({ id, position: pos });
           }
-        } else {
+        } else if (m === 'ml2d') {
           for (const [id, c2] of centroidByCluster2d) {
-            const sprite = clusterLabelGroup.children.find(
-              (s) => s.userData?.clusterId === id,
-            );
-            out.push({ id, position: [c2[0], 0, c2[1]], labelSprite: sprite });
+            out.push({ id, position: [c2[0], 0, c2[1]] });
           }
         }
+        // neural / taste2d → [] → animator orbits controls.target.
         return out;
       };
       cameraAnimatorRef.current = new CameraAnimator(
@@ -1241,11 +1234,11 @@ export default function LivingArchView({
     // the animator and AffinityMode are constructed. Otherwise an
     // OrbitControls 'start' event mid-construction could call
     // recordInput before AffinityMode is ready to coexist.
+    //
+    // v2: tour is mode-agnostic (orbits controls.target when no
+    // centroids), so engage unconditionally on mount.
     if (cameraAnimEnabled && cameraAnimatorRef.current) {
-      const startMode = modeRef.current;
-      if (startMode === 'ml' || startMode === 'ml2d') {
-        cameraAnimatorRef.current.engageClusterTour();
-      }
+      cameraAnimatorRef.current.engageClusterTour();
       controls.addEventListener('start', () => {
         cameraAnimatorRef.current?.recordInput();
       });
