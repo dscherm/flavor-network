@@ -1241,11 +1241,24 @@ export default function LivingArchView({
     //
     // v2: tour is mode-agnostic (orbits controls.target when no
     // centroids), so engage unconditionally on mount.
+    //
+    // v3: bind cancel listeners DIRECTLY on the canvas (not via
+    // OrbitControls' 'start' event). While the animator owns the
+    // camera, controls.enabled is false — and a disabled OrbitControls
+    // never fires 'start', so the previous wiring left the user unable
+    // to break out of focal-orbit / cluster-tour. Pointerdown / wheel /
+    // touchstart fire regardless of controls.enabled, so they land
+    // recordInput → IDLE first; OrbitControls' own listener then sees
+    // enabled=true on the same gesture and picks up the drag/pinch/
+    // zoom cleanly.
     if (cameraAnimEnabled && cameraAnimatorRef.current) {
       cameraAnimatorRef.current.engageClusterTour();
-      controls.addEventListener('start', () => {
-        cameraAnimatorRef.current?.recordInput();
-      });
+    }
+    const onAnimCancelPointer = () => cameraAnimatorRef.current?.recordInput();
+    if (cameraAnimEnabled) {
+      renderer.domElement.addEventListener('pointerdown', onAnimCancelPointer, { passive: true });
+      renderer.domElement.addEventListener('wheel', onAnimCancelPointer, { passive: true });
+      renderer.domElement.addEventListener('touchstart', onAnimCancelPointer, { passive: true });
     }
 
     return () => {
@@ -1275,6 +1288,11 @@ export default function LivingArchView({
       renderer.domElement.removeEventListener('touchmove', onTouchMove);
       renderer.domElement.removeEventListener('touchend', onTouchEnd);
       renderer.domElement.removeEventListener('mousemove', onMove);
+      if (cameraAnimEnabled) {
+        renderer.domElement.removeEventListener('pointerdown', onAnimCancelPointer);
+        renderer.domElement.removeEventListener('wheel', onAnimCancelPointer);
+        renderer.domElement.removeEventListener('touchstart', onAnimCancelPointer);
+      }
       clearPress();
       controls.dispose();
       composer.dispose();
