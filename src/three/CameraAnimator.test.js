@@ -208,43 +208,36 @@ describe('Cluster tour (continuous orbit)', () => {
     expect(camera.position.distanceTo(start)).toBeGreaterThan(1);
   });
 
-  it('AC-CT-6 (v2): recordInput → cancelled-awaiting-resume; same-tick is camera-write-free', () => {
-    const { animator, camera } = makeAnimator();
+  it('AC-CT-6 (v3): recordInput → IDLE permanently; subsequent ticks are camera-write-free', () => {
+    const { animator, camera, controls } = makeAnimator();
     animator.engageClusterTour();
     animator.tickAnimation(0.1);
     const beforeCancel = camera.position.clone();
     animator.recordInput();
-    expect(animator.state).toBe(STATES.CANCELLED_AWAITING_RESUME);
+    expect(animator.state).toBe(STATES.IDLE);
+    expect(controls.enabled).toBe(true); // user can keep zooming/dragging
     animator.tickAnimation(0.5);
     expect(camera.position.distanceTo(beforeCancel)).toBeLessThan(1e-9);
   });
 
-  it('AC-CT-7 (v2): _resumeFromIdle re-engages TOUR_ORBITING', () => {
+  it('AC-CT-7 (v3): user input does NOT auto-resume even after long idle', () => {
     const { animator } = makeAnimator();
     animator.engageClusterTour();
     animator.recordInput();
-    expect(animator.state).toBe(STATES.CANCELLED_AWAITING_RESUME);
-    animator._resumeFromIdle();
-    expect(animator.state).toBe(STATES.TOUR_ORBITING);
-  });
-
-  it('AC-CT-7 (v2): 60s of CANCELLED_AWAITING_RESUME triggers idle resume', () => {
-    const { animator } = makeAnimator();
-    animator.engageClusterTour();
-    animator.recordInput();
-    expect(animator.state).toBe(STATES.CANCELLED_AWAITING_RESUME);
-    // Default idleResumeMs is 60_000 — advance 60s in 100ms ticks (600 calls).
+    expect(animator.state).toBe(STATES.IDLE);
+    // Walk 60s — animator should stay IDLE because v3 only restarts
+    // on explicit view/mode change, not on idle timer.
     for (let i = 0; i < 600; i++) animator.tickAnimation(0.1);
-    expect(animator.state).toBe(STATES.TOUR_ORBITING);
+    expect(animator.state).toBe(STATES.IDLE);
   });
 
-  it('AC-CT-7 (v2): less than idleResumeMs of CANCELLED_AWAITING_RESUME stays cancelled', () => {
+  it('AC-CT-7 (v3): explicit resumeClusterTour after recordInput re-engages orbit', () => {
     const { animator } = makeAnimator();
     animator.engageClusterTour();
     animator.recordInput();
-    // 30s < 60s default — should still be cancelled-awaiting-resume.
-    for (let i = 0; i < 300; i++) animator.tickAnimation(0.1);
-    expect(animator.state).toBe(STATES.CANCELLED_AWAITING_RESUME);
+    expect(animator.state).toBe(STATES.IDLE);
+    animator.resumeClusterTour();
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
   });
 
   it('AC-CT-8 (v2): visibility hidden → camera does not move during tour', () => {

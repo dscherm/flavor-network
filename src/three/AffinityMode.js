@@ -699,9 +699,12 @@ export class AffinityMode {
       if (s.material?.map) s.material.map.dispose();
       if (s.material) s.material.dispose();
     }
-    // Focal label — largest, white.
-    const focalSprite = makeLabel(focal, '#ffffff', 9, { glow: false });
-    focalSprite.position.set(focalWorld[0], focalWorld[1] + 3.5, focalWorld[2]);
+    // Focal label — largest, white. Sizes bumped on user feedback
+    // ("labels are too hard to read"): focal 9→14, affinities 7→11.
+    // Y-offsets nudged up to keep the sprites clear of the larger
+    // tier shapes.
+    const focalSprite = makeLabel(focal, '#ffffff', 14, { glow: false });
+    focalSprite.position.set(focalWorld[0], focalWorld[1] + 4.5, focalWorld[2]);
     this.labelGroup.add(focalSprite);
     // Affinity labels — colored by tier (matches edge color so user
     // associates label tone with chemistry signal).
@@ -712,8 +715,8 @@ export class AffinityMode {
       const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
       // CSS-friendly hex string for canvas fillStyle.
       const hex = '#' + c.getHexString();
-      const sprite = makeLabel(aff.name, hex, 7, { glow: false });
-      sprite.position.set(pos[0], pos[1] + 3, pos[2]);
+      const sprite = makeLabel(aff.name, hex, 11, { glow: false });
+      sprite.position.set(pos[0], pos[1] + 4, pos[2]);
       this.labelGroup.add(sprite);
     }
     this.labelGroup.visible = true;
