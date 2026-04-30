@@ -214,6 +214,31 @@ export class AffinityMode {
   }
 
   /**
+   * Raycast targets for affinity-aware click handling. The visible
+   * focal + ring meshes sit at orbit positions far from the
+   * underlying ingredients' real layout coordinates, so the parent
+   * raycaster needs to test these meshes directly to let the user
+   * click on a ring sphere and re-pivot to the corresponding
+   * ingredient. Returns [] when not engaged.
+   */
+  getRaycastMeshes() {
+    if (!this._engaged) return [];
+    return [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh];
+  }
+
+  /**
+   * Map a ring-mesh hit (mesh + instanceId) back to a global node
+   * index. Returns -1 if the slot is unoccupied or the mesh is not
+   * one of ours.
+   */
+  resolveRingHit(mesh, instanceId) {
+    if (!mesh || typeof instanceId !== 'number') return -1;
+    const map = mesh.userData?.slotToGlobalIdx;
+    if (!map || instanceId < 0 || instanceId >= map.length) return -1;
+    return map[instanceId];
+  }
+
+  /**
    * Engage α-mode for `focal`. Computes affinities, writes ring sphere
    * matrices + colors, builds edge buffer, dims shared default mesh,
    * adjusts cluster-label opacity, dispatches camera flight.
@@ -550,6 +575,10 @@ export class AffinityMode {
     // Pre-fill ALL ring slots as collapsed (scale=0); the loop below
     // overwrites occupied slots. This guarantees no stale matrices
     // survive a pivot when an affinity count drops below capacity.
+    //
+    // Also reset the per-mesh slot→global-idx map so click resolution
+    // (livingArchView's affinity-aware raycaster) sees -1 for any
+    // unoccupied slot rather than a stale ingredient from a prior pivot.
     for (const ringIdx of [3, 2, 1]) {
       const mesh = this._ringMeshes[ringIdx];
       const cap = RING_CAPACITY[ringIdx];
@@ -557,7 +586,14 @@ export class AffinityMode {
         m.compose(tmpV.set(0, 0, 0), tmpQ, zeroS);
         mesh.setMatrixAt(s, m);
       }
+      const slotMap = mesh.userData.slotToGlobalIdx
+        ?? (mesh.userData.slotToGlobalIdx = new Int32Array(cap));
+      slotMap.fill(-1);
     }
+    const focalSlotMap = this.focalMesh.userData.slotToGlobalIdx
+      ?? (this.focalMesh.userData.slotToGlobalIdx = new Int32Array(FOCAL_CAPACITY));
+    focalSlotMap.fill(-1);
+    focalSlotMap[0] = focalIdx;
     const sphereWorldPos = []; // for label/edge alignment, in affinity order
     for (let i = 0; i < affinities.length; i++) {
       const aff = affinities[i];
@@ -579,6 +615,10 @@ export class AffinityMode {
       mesh.setMatrixAt(slot, m);
       const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
       mesh.instanceColor.setXYZ(slot, c.r, c.g, c.b);
+      const affGlobalIdx = st.nameIdx?.get(aff.name);
+      if (typeof affGlobalIdx === 'number') {
+        mesh.userData.slotToGlobalIdx[slot] = affGlobalIdx;
+      }
     }
     for (const ringIdx of [3, 2, 1]) {
       const mesh = this._ringMeshes[ringIdx];

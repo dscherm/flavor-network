@@ -602,6 +602,33 @@ export default function LivingArchView({
     const hoverState = { lastHover: -1, lastHoverType: 'none' };
 
     function onClick(event) {
+      // R14 v3: when AffinityMode is engaged, the visible focal + ring
+      // shapes sit at orbit positions far from the underlying
+      // ingredients' real layout coordinates. The default raycast
+      // against the main mesh would miss every ring (or hit some
+      // unrelated node behind it), leaving the user unable to repivot
+      // by clicking a visible affinity sphere. Test ring meshes first;
+      // on hit, map (mesh, instanceId) → global ingredient index.
+      const aff = affinityModeRef.current;
+      const ringMeshes = aff?.engaged ? aff.getRaycastMeshes() : [];
+      if (ringMeshes.length > 0) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        const mx = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        const my = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera({ x: mx, y: my }, camera);
+        const hits = raycaster.intersectObjects(ringMeshes, false);
+        if (hits.length > 0) {
+          const idx = aff.resolveRingHit(hits[0].object, hits[0].instanceId);
+          if (idx >= 0 && idx < nodeArray.length) {
+            const node = nodeArray[idx];
+            // Cluster gate doesn't apply here — affinities deliberately
+            // span clusters by chemistry, and the user just clicked an
+            // explicit ring sphere asking for that ingredient.
+            onNodeClickRef.current?.(node);
+            return;
+          }
+        }
+      }
       handleSceneClick(event, camera, renderer, tasteLabelSprites, mesh, nodeArray, raycaster, {
         // Gate clicks by the current cluster focus (read via ref so we
         // always see the latest value — the scene-setup useEffect runs
