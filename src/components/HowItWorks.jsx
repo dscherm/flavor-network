@@ -7,8 +7,8 @@ import { useState } from 'react';
  */
 
 const TASTE_COLORS = {
-  sweet: '#ff4fb8', bitter: '#9d4edd', umami: '#ffd700',
-  salty: '#4f9eff', sour: '#00ffd0',
+  sweet: '#fb92b4', bitter: '#a78bfa', umami: '#f9a870',
+  salty: '#93c5fd', sour: '#c9a330',
 };
 
 export default function HowItWorks({ initialOpen = false } = {}) {

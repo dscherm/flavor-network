@@ -2,7 +2,7 @@
 
 export const TASTE_ORDER = ['sweet','sour','bitter','salty','umami','spicy','pungent','astringent'];
 export const TASTE_HEX = {
-  sweet:'#fb92b4', sour:'#fde047', bitter:'#a78bfa', salty:'#93c5fd',
+  sweet:'#fb92b4', sour:'#c9a330', bitter:'#a78bfa', salty:'#93c5fd',
   umami:'#f9a870', spicy:'#f87171', pungent:'#b48c64', astringent:'#4ade80',
 };
 export const CATEGORY_RADII = {
