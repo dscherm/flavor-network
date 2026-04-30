@@ -142,21 +142,16 @@ describe('Cluster tour (continuous orbit)', () => {
   });
 
   it('first tick does not move the camera off its initial radius', () => {
-    const { animator, camera } = makeAnimator();
+    const { animator, camera, controls } = makeAnimator();
     animator.engageClusterTour();
-    const r0 = camera.position.clone();
+    // v3: pivot is always controls.target. The default makeAnimator
+    // sets target to origin, so radius is measured from (0,0,0).
+    const px = controls.target.x;
+    const py = controls.target.y;
+    const pz = controls.target.z;
+    const r0p = Math.hypot(camera.position.x - px, camera.position.y - py, camera.position.z - pz);
     animator.tickAnimation(0.016);
-    // Camera position changes, but radius from pivot is preserved.
-    const dx = camera.position.x - 0; // pivot is centroid mean (≈ origin here)
-    const dy = camera.position.y - 0;
-    const dz = camera.position.z - 0;
-    const radius = Math.hypot(dx, dy, dz);
-    const r0Hypot = Math.hypot(r0.x, r0.y, r0.z);
-    // mean of [10,0,0],[0,10,0],[0,0,10] = (10/3, 10/3, 10/3) — not zero.
-    // Recompute precisely.
-    const px = 10 / 3, py = 10 / 3, pz = 10 / 3;
     const r1 = Math.hypot(camera.position.x - px, camera.position.y - py, camera.position.z - pz);
-    const r0p = Math.hypot(r0.x - px, r0.y - py, r0.z - pz);
     expect(r1).toBeCloseTo(r0p, 3);
   });
 

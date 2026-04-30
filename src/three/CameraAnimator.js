@@ -501,32 +501,17 @@ export class CameraAnimator {
 
   /**
    * Capture the current camera→pivot relationship so the orbit walks
-   * azimuth from where the camera already is. The pivot defaults to
-   * `controls.target`; if the centroid adapter returns clusters, the
-   * mean of all centroid positions overrides it (legacy callers can
-   * still hint where to orbit). Radius and elevation are derived from
-   * the camera position so the tour begins with no visible jump.
+   * azimuth from where the camera already is. The pivot is always
+   * `controls.target` — whatever the user is currently focused on.
+   * After a cluster-pill fly the target lands at the cluster centroid,
+   * so resumeClusterTour orbits around that cluster (not the graph
+   * mean). Radius and elevation are derived from camera position so
+   * the tour begins with no visible jump.
    */
   _captureTourOrbit() {
     const cam = this._camera.position;
     const tgt = this._controls.target;
-
-    // Pivot resolution: prefer caller-provided centroid mean over
-    // the current target. Both are valid; centroid-mean tends to
-    // sit at the cluster cloud center even when the user has
-    // panned the camera off to one side.
-    const centroids = this._readCentroids();
-    if (centroids.length > 0) {
-      let sx = 0, sy = 0, sz = 0;
-      for (const c of centroids) {
-        sx += c.position[0];
-        sy += c.position[1];
-        sz += c.position[2];
-      }
-      this._tourPivot.set(sx / centroids.length, sy / centroids.length, sz / centroids.length);
-    } else {
-      this._tourPivot.copy(tgt);
-    }
+    this._tourPivot.copy(tgt);
 
     // Camera vector relative to pivot, in spherical (radius, elevation, azimuth).
     const dx = cam.x - this._tourPivot.x;

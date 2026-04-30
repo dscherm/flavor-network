@@ -102,6 +102,8 @@ function NetworkScene({
       else if (v === 'off') cameraAnimEnabled = false;
     } catch { /* SSR / private mode — keep default */ }
 
+    let onAnimCancelPointer = null;
+    let cancelDom = null;
     if (cameraAnimEnabled) {
       const ctrls = manager.getControls();
       const cam = manager.getCamera();
@@ -114,11 +116,19 @@ function NetworkScene({
       );
       cameraAnimatorRef.current.attachMediaQueryListener();
       cameraAnimatorRef.current.engageClusterTour();
-      // First user-input frame cancels the tour; idle (60s) resumes.
-      if (ctrls && typeof ctrls.addEventListener === 'function') {
-        ctrls.addEventListener('start', () => {
-          cameraAnimatorRef.current?.recordInput();
-        });
+      // v3: bind cancel listeners directly on the canvas. While the
+      // animator owns the camera, controls.enabled is false — and a
+      // disabled OrbitControls never fires its 'start' event, so the
+      // user could not break out of focal-orbit. pointerdown / wheel /
+      // touchstart fire regardless of OrbitControls state, land
+      // recordInput → IDLE first, and OrbitControls picks up the
+      // gesture cleanly on the same event.
+      cancelDom = manager.getRenderer()?.domElement || null;
+      if (cancelDom) {
+        onAnimCancelPointer = () => cameraAnimatorRef.current?.recordInput();
+        cancelDom.addEventListener('pointerdown', onAnimCancelPointer, { passive: true });
+        cancelDom.addEventListener('wheel', onAnimCancelPointer, { passive: true });
+        cancelDom.addEventListener('touchstart', onAnimCancelPointer, { passive: true });
       }
     }
 
@@ -145,6 +155,11 @@ function NetworkScene({
       // _releaseOwnership writes against a still-valid controls
       // object. (NetworkScene has no AffinityMode dependency, so the
       // ordering is simpler than LivingArchView's.)
+      if (cancelDom && onAnimCancelPointer) {
+        cancelDom.removeEventListener('pointerdown', onAnimCancelPointer);
+        cancelDom.removeEventListener('wheel', onAnimCancelPointer);
+        cancelDom.removeEventListener('touchstart', onAnimCancelPointer);
+      }
       if (cameraAnimatorRef.current) {
         cameraAnimatorRef.current.dispose();
         cameraAnimatorRef.current = null;
