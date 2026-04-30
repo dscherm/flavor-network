@@ -1090,7 +1090,7 @@ export default function LivingArchView({
     // labelPos: [x,y,z] of the label (where the user clicked)
     // centroidPos: [x,y,z] of the cluster centroid; if null, falls back to
     //              outward-from-origin direction (legacy behavior).
-    const flyToPoint = (labelPos, centroidPos = null) => {
+    const flyToPoint = (labelPos, centroidPos = null, onComplete = null) => {
       if (!labelPos) return;
       const labelVec = new THREE.Vector3(labelPos[0], labelPos[1], labelPos[2]);
       const centroidVec = centroidPos
@@ -1146,7 +1146,11 @@ export default function LivingArchView({
         camera.position.lerpVectors(startPos, camEnd, e);
         controls.target.lerpVectors(startTarget, lookAt, e);
         controls.update();
-        if (dt < 1 && stateRef.current) requestAnimationFrame(tween);
+        if (dt < 1 && stateRef.current) {
+          requestAnimationFrame(tween);
+        } else if (onComplete) {
+          onComplete();
+        }
       }
       tween();
     };
@@ -1404,12 +1408,15 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !flyToTarget) return;
-    // R14: external fly-to (joystick / search-select) cancels the
-    // cluster tour. recordInput() releases ownership and starts the
-    // 30s idle timer so the tour resumes after a quiet period.
-    cameraAnimatorRef.current?.recordInput();
+    // R14 v3: external fly-to (cluster-pill / search-select) pauses
+    // the tour for the duration of the fly, then re-engages it
+    // around the now-updated controls.target so the cluster the
+    // user clicked stays in frame and rotates slowly.
+    const animator = cameraAnimatorRef.current;
+    animator?.pauseClusterTour();
+    const resumeAfterFly = () => animator?.resumeClusterTour();
     if (Array.isArray(flyToTarget)) {
-      st.flyToPoint?.(flyToTarget);
+      st.flyToPoint?.(flyToTarget, null, resumeAfterFly);
       return;
     }
     let labelPos = flyToTarget.position;
@@ -1457,7 +1464,7 @@ export default function LivingArchView({
       }
     }
     if (!labelPos) return;
-    st.flyToPoint?.(labelPos, centroid);
+    st.flyToPoint?.(labelPos, centroid, resumeAfterFly);
   }, [flyToTarget]);
 
   // Cluster highlight labels — spawn ingredient-name sprites at the

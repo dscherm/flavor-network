@@ -312,10 +312,16 @@ export class CameraAnimator {
   }
 
   /**
-   * User-input cancel. Synchronously transitions to
-   * cancelled-awaiting-resume. The same tick's tickAnimation call
-   * will see CANCELLED_AWAITING_RESUME and skip camera writes
-   * (AC-CT-6, AC-FO-6).
+   * User-input cancel. v3 (live-feedback): permanently transitions
+   * to IDLE so the user can drag, pinch, zoom, and click affinity
+   * nodes without the tour stomping on them. Restart only happens
+   * on explicit view/mode change via `resumeClusterTour()` or a
+   * fresh mount.
+   *
+   * Hands controls back cleanly: target syncs to the current focal /
+   * pivot, then enabled=true. controls.update() re-engages against
+   * the current camera.position so OrbitControls orbits smoothly
+   * around the right pivot.
    */
   recordInput() {
     if (this._state === STATES.IDLE) return;
@@ -329,7 +335,7 @@ export class CameraAnimator {
     }
     this._segment = null;
     this._idleAccumMs = 0;
-    this._state = STATES.CANCELLED_AWAITING_RESUME;
+    this._state = STATES.IDLE;
   }
 
   /**

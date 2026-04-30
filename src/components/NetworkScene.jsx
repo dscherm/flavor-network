@@ -438,10 +438,18 @@ function NetworkScene({
   // sits between the viewer and the cluster body. Reuses the same
   // sqrt(memberCount) scaling as the tree-filter fly so distance
   // matches when both fire (e.g., CocktailLab tapping a family).
+  //
+  // R14 v3: while the camera is flying, the CameraAnimator must NOT
+  // also try to drive the camera (the previous version produced a
+  // visible fight where the orbit-tick wrote one position and the
+  // fly-tick wrote another). Pause the animator on entry, then
+  // re-engage the cluster tour around the new pivot on completion
+  // so the camera continues orbiting the cluster the user just clicked.
   useEffect(() => {
     const manager = sceneRef.current;
     if (!manager || !flyToTarget || !flyToTarget.position) return;
     const camera = manager.getCamera();
+    const controls = manager.getControls?.();
     if (!camera) return;
     const [cx, cy, cz] = flyToTarget.position;
     const memberCount = flyToTarget.memberCount || 1;
@@ -455,9 +463,20 @@ function NetworkScene({
       dirX = 0.3 / fb; dirY = 0.2 / fb; dirZ = 1 / fb;
     }
     const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+    const startTarget = controls?.target
+      ? { x: controls.target.x, y: controls.target.y, z: controls.target.z }
+      : { x: 0, y: 0, z: 0 };
     const targetPos = { x: cx + dirX * dist, y: cy + dirY * dist, z: cz + dirZ * dist };
     const duration = 1200;
     const startTime = performance.now();
+
+    // Pause the animator for the duration of the fly. pauseClusterTour
+    // releases ownership cleanly (controls.enabled stays true throughout
+    // the fly so OrbitControls.update() inside _tickOrbit doesn't fight
+    // our manual writes).
+    const animator = cameraAnimatorRef.current;
+    animator?.pauseClusterTour();
+
     function animateFly(now) {
       const t = Math.min((now - startTime) / duration, 1);
       const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -466,8 +485,27 @@ function NetworkScene({
         startPos.y + (targetPos.y - startPos.y) * ease,
         startPos.z + (targetPos.z - startPos.z) * ease,
       );
-      camera.lookAt(cx, cy, cz);
-      if (t < 1) requestAnimationFrame(animateFly);
+      // Lerp controls.target along with the camera so OrbitControls
+      // (and the animator on resume) orbits around the cluster, not
+      // the previous origin.
+      if (controls?.target) {
+        controls.target.set(
+          startTarget.x + (cx - startTarget.x) * ease,
+          startTarget.y + (cy - startTarget.y) * ease,
+          startTarget.z + (cz - startTarget.z) * ease,
+        );
+        if (typeof controls.update === 'function') controls.update();
+      } else {
+        camera.lookAt(cx, cy, cz);
+      }
+      if (t < 1) {
+        requestAnimationFrame(animateFly);
+      } else {
+        // Fly complete — engage cluster tour around the now-updated
+        // controls.target so the cluster the user clicked stays in
+        // frame and slowly rotates.
+        animator?.resumeClusterTour();
+      }
     }
     requestAnimationFrame(animateFly);
   }, [flyToTarget]);
