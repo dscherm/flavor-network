@@ -86,9 +86,20 @@ export function placeOnRing(ringIdx, slotIdx) {
 }
 
 export class AffinityMode {
-  constructor(stateRef, affinityCtx) {
+  /**
+   * @param {object} stateRef  shared scene state from LivingArchView
+   * @param {object} affinityCtx  pairing/top5/bridge/threshold maps
+   * @param {object} [cameraAnimator]  optional R14 CameraAnimator. When
+   *   present, _flyToFocal delegates to its engageFocalOrbit / repivot
+   *   so the user gets the angled bird's-eye orbit instead of the
+   *   legacy top-down fly. exit() also notifies the animator so the
+   *   tour-resume timer starts ticking. Null in tests + when the
+   *   feature flag is off.
+   */
+  constructor(stateRef, affinityCtx, cameraAnimator = null) {
     this.stateRef = stateRef;
     this.ctx = affinityCtx;
+    this._cameraAnimator = cameraAnimator;
     this._engaged = false;
     this._currentFocal = null;
     this._currentAffinities = []; // last-computed result of topAffinities
@@ -356,6 +367,12 @@ export class AffinityMode {
         st.edgeGeo.attributes.aColor.needsUpdate = true;
         st.edgeGeo.attributes.aOpacity.needsUpdate = true;
       }
+    }
+
+    // 6. R14 Phase 4: notify the animator the orbit is over so the
+    //    cluster tour can resume after the idle timer.
+    if (this._cameraAnimator) {
+      this._cameraAnimator.exitFocalOrbit();
     }
   }
 
@@ -703,15 +720,21 @@ export class AffinityMode {
   }
 
   /**
-   * Custom bird's-eye camera flight to frame the affinity rings.
+   * Camera flight to frame the focal ingredient.
    *
-   * The existing flyToPoint() is designed for cluster-label framing
-   * (camera lands BEYOND a label looking at the cluster centroid),
-   * which is wrong for α-mode where we want the rings centered and
-   * fully visible. Instead, this places the camera directly above the
-   * focal at a distance that fits the ★ ring (radius 35) with ~10%
-   * padding, looking straight down. 1200ms eased flight matches
-   * spec § α-mode visual layout.
+   * R14 Phase 4: when a CameraAnimator was injected, delegate to it.
+   *   - If the animator is already focal-flying / focal-orbiting,
+   *     call repivot() so the orbit angle accumulator continues
+   *     from its current value (AC-FO-7 continuity contract).
+   *   - Otherwise, engageFocalOrbit() resets the angle and starts
+   *     a fresh angled-orbit cycle.
+   * The user sees a 60°-elevation orbit instead of the legacy
+   * top-down fly; rings stay visible throughout.
+   *
+   * Legacy path (no animator): top-down camera placement at
+   * y = focal.y + 75, looking straight down. Used when Phase 1's
+   * feature flag is off, or in tests that construct AffinityMode
+   * with two args.
    */
   _flyToFocal(focal) {
     const st = this.stateRef;
@@ -722,10 +745,21 @@ export class AffinityMode {
     const fy = st.curPos[idx * 3 + 1];
     const fz = st.curPos[idx * 3 + 2];
 
-    // Ring 1 radius is 35; +10% padding → 38.5. With a 50° FOV camera
-    // (Three.js default ≈ 50°), the half-angle is 25°. Required
-    // distance = 38.5 / tan(25°) ≈ 82 units. Use 75 — slightly closer
-    // for a fuller frame.
+    // R14 Phase 4: delegate to injected animator when available.
+    if (this._cameraAnimator && !this._cameraAnimator.isDisabled) {
+      const animState = this._cameraAnimator.state;
+      if (animState === 'focal-flying' || animState === 'focal-orbiting') {
+        this._cameraAnimator.repivot(idx, [fx, fy, fz]);
+      } else {
+        this._cameraAnimator.engageFocalOrbit(idx, [fx, fy, fz]);
+      }
+      return;
+    }
+
+    // Legacy top-down path. Ring 1 radius is 35; +10% padding → 38.5.
+    // With a 50° FOV camera the half-angle is 25°. Required distance
+    // = 38.5 / tan(25°) ≈ 82 units. Use 75 — slightly closer for a
+    // fuller frame.
     const dist = 75;
     const startPos = st.camera.position.clone();
     const startTarget = st.controls.target.clone();

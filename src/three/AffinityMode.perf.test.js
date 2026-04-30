@@ -20,6 +20,7 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import * as THREE from 'three';
 import { computeAffinityThresholds } from '../data/affinityThresholds.js';
+import { CameraAnimator } from './CameraAnimator.js';
 
 // Stub makeLabel so we don't need canvas in node test env. Sprite
 // material has the same .opacity / .map fields so AffinityMode's
@@ -152,5 +153,72 @@ describe('AffinityMode — GPU resource reuse across pivots', () => {
     // Labels are rebuilt per pivot but never exceed 31 (1 focal + 30 affinities).
     expect(ctrl.labelGroup.children.length).toBeLessThanOrEqual(31);
     ctrl.dispose();
+  });
+});
+
+describe('AffinityMode — AC-FO-5: ring instance scales survive one orbit lap', () => {
+  it('after one full orbit lap, ring instance scales remain non-zero', () => {
+    const { stateRef, ctx } = buildSyntheticState({ nodeCount: 1500, neighborsPerNode: 25 });
+    const animator = new CameraAnimator(
+      { camera: stateRef.camera, controls: stateRef.controls, scene: stateRef.scene },
+      () => [],
+      { mediaMatcher: () => ({ matches: false }) },
+    );
+    const ctrl = new AffinityMode(stateRef, ctx, animator);
+    ctrl.engage('ing-100');
+    expect(animator.state).toBe('focal-flying');
+
+    // Burn the 1.2s flight (13 dt-clamped ticks of 0.1s).
+    for (let i = 0; i < 13; i++) animator.tickAnimation(0.1);
+    expect(animator.state).toBe('focal-orbiting');
+
+    // Run one full lap (25s desktop) at 60Hz-ish.
+    const lapTicks = Math.ceil((25 * 1000) / 100);
+    for (let i = 0; i < lapTicks; i++) animator.tickAnimation(0.1);
+
+    // Sample every ring InstancedMesh: each instance scale must be > 0.5
+    // (i.e. NOT scale-zeroed by anything during orbit).
+    const m = new THREE.Matrix4();
+    const _pos = new THREE.Vector3();
+    const _quat = new THREE.Quaternion();
+    const scale = new THREE.Vector3();
+    for (const mesh of [ctrl.ring3Mesh, ctrl.ring2Mesh, ctrl.ring1Mesh]) {
+      expect(mesh.visible).toBe(true);
+      for (let i = 0; i < mesh.count; i++) {
+        mesh.getMatrixAt(i, m);
+        m.decompose(_pos, _quat, scale);
+        // Slot may be unoccupied (collapsed via scale=0 in _writeRingsAndDim
+        // when affinities < capacity), so we only assert "either zero
+        // (collapsed) OR > 0.5 (non-degenerate)" — never some tiny
+        // epsilon that would indicate scale corruption.
+        const isCollapsed = scale.x === 0 && scale.y === 0 && scale.z === 0;
+        const isFull = scale.x > 0.5 && scale.y > 0.5 && scale.z > 0.5;
+        expect(isCollapsed || isFull).toBe(true);
+      }
+    }
+
+    // At least the focal mesh has a non-zero scale.
+    ctrl.focalMesh.getMatrixAt(0, m);
+    m.decompose(_pos, _quat, scale);
+    expect(scale.x).toBeGreaterThan(0.5);
+
+    ctrl.dispose();
+    animator.dispose();
+  });
+
+  it('exit() notifies the animator and returns it to idle', () => {
+    const { stateRef, ctx } = buildSyntheticState({ nodeCount: 500, neighborsPerNode: 15 });
+    const animator = new CameraAnimator(
+      { camera: stateRef.camera, controls: stateRef.controls, scene: stateRef.scene },
+      () => [],
+      { mediaMatcher: () => ({ matches: false }) },
+    );
+    const ctrl = new AffinityMode(stateRef, ctx, animator);
+    ctrl.engage('ing-50');
+    expect(['focal-flying', 'focal-orbiting']).toContain(animator.state);
+    ctrl.exit();
+    expect(animator.state).toBe('idle');
+    ctrl.dispose();
+    animator.dispose();
   });
 });

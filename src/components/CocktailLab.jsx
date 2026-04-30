@@ -77,6 +77,22 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
     return centroids;
   }, [codexData]);
 
+  // R14 camera-animations adapter — a stable closure over
+  // familyCentroids. Memoized so NetworkScene's mount effect doesn't
+  // re-run on every render (centroidAdapter is in its dep array).
+  const cocktailCentroidAdapter = useMemo(() => {
+    if (!familyCentroids) return null;
+    return () => {
+      const out = [];
+      for (const [id, position] of familyCentroids) {
+        if (Array.isArray(position) && position.length >= 3) {
+          out.push({ id, position });
+        }
+      }
+      return out;
+    };
+  }, [familyCentroids]);
+
   // Member count per family for the fly-to distance scale.
   const familyMemberCount = useMemo(() => {
     if (!codexData) return null;
@@ -212,6 +228,7 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
         flyToTarget={flyToTarget}
         shapeAssignments={shapeAssignments}
         scaleMultiplier={3.0}
+        centroidAdapter={cocktailCentroidAdapter}
       />
 
       {selectedCocktail && (

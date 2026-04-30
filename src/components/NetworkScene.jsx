@@ -6,6 +6,8 @@ import ParticleSystem from '../three/ParticleSystem.js';
 import * as THREE from 'three';
 import { computeTastePositions } from '../data/tastePositioning.js';
 import { createNodeLabel } from '../three/AxisLabels.js';
+import { CameraAnimator } from '../three/CameraAnimator.js';
+import { CAMERA_ANIMATOR_DEFAULT_ON } from './livingArchConstants.js';
 
 /**
  * React wrapper for the Three.js scene. Manages SceneManager lifecycle via refs.
@@ -35,6 +37,8 @@ function NetworkScene({
   flyToTarget = null, // { position: [x,y,z], ts: number } — camera flies to that point, label-front
   shapeAssignments = null, // R14: Map<name, shapeKey> for multi-shape NodeMesh (Cocktail/Sauce labs)
   scaleMultiplier = 1.0, // R14: per-view node scale boost; Cocktail/Sauce use ~3 to make shapes legible
+  centroidAdapter = null, // R14 camera-animations: () => Array<{id, position, labelSprite?}>; opting in instantiates CameraAnimator
+  isMobile = false, // R14: drives 30s mobile orbit lap and viewport-based defaults
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -43,6 +47,7 @@ function NetworkScene({
   const nodeLabelGroupRef = useRef(null);
   const particleRef = useRef(null);
   const frameRef = useRef(null);
+  const cameraAnimatorRef = useRef(null); // R14 cluster-tour + focal-orbit
 
   // Initialize scene
   useEffect(() => {
@@ -84,6 +89,36 @@ function NetworkScene({
     // Set up raycasting
     manager.setRaycastTarget(nodes.getMesh());
 
+    // R14 CameraAnimator — gated behind URL flag + default constant.
+    // Adapter is supplied by the parent (CocktailLab / SauceLab); when
+    // omitted the animator is not instantiated at all.
+    let cameraAnimEnabled = CAMERA_ANIMATOR_DEFAULT_ON;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get('cameraAnim');
+      if (v === 'v1') cameraAnimEnabled = true;
+      else if (v === 'off') cameraAnimEnabled = false;
+    } catch { /* SSR / private mode — keep default */ }
+
+    if (cameraAnimEnabled && typeof centroidAdapter === 'function') {
+      const ctrls = manager.getControls();
+      const cam = manager.getCamera();
+      const scn = manager.getScene();
+      cameraAnimatorRef.current = new CameraAnimator(
+        { camera: cam, controls: ctrls, scene: scn },
+        centroidAdapter,
+        { isMobile },
+      );
+      cameraAnimatorRef.current.attachMediaQueryListener();
+      cameraAnimatorRef.current.engageClusterTour();
+      // First user-input frame cancels the tour; 30s idle resumes.
+      if (ctrls && typeof ctrls.addEventListener === 'function') {
+        ctrls.addEventListener('start', () => {
+          cameraAnimatorRef.current?.recordInput();
+        });
+      }
+    }
+
     // Start render loop with particle updates
     const clock = { last: performance.now() };
     function animate() {
@@ -94,6 +129,7 @@ function NetworkScene({
       if (particleRef.current) {
         particleRef.current.update(dt);
       }
+      cameraAnimatorRef.current?.tickAnimation(dt);
     }
 
     manager.start();
@@ -101,12 +137,21 @@ function NetworkScene({
 
     return () => {
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      // R14 dispose-order contract: animator outlives the scene
+      // manager. Dispose animator BEFORE scene teardown so its final
+      // _releaseOwnership writes against a still-valid controls
+      // object. (NetworkScene has no AffinityMode dependency, so the
+      // ordering is simpler than LivingArchView's.)
+      if (cameraAnimatorRef.current) {
+        cameraAnimatorRef.current.dispose();
+        cameraAnimatorRef.current = null;
+      }
       manager.dispose();
       nodes.dispose();
       edges.dispose();
       particles.dispose();
     };
-  }, [data, shapeAssignments, scaleMultiplier]);
+  }, [data, shapeAssignments, scaleMultiplier, centroidAdapter, isMobile]);
 
   // Wire up click/hover callbacks
   useEffect(() => {
@@ -221,6 +266,28 @@ function NetworkScene({
     const hasSelection = selectedNodes.length > 0 || !!selectedNode;
     edgeMeshRef.current.setVisible(showEdges || hasSelection);
   }, [showEdges, selectedNode, selectedNodes]);
+
+  // R14 Phase 3 — focal orbit on selection. When selectedNode goes
+  // null → name, engage. name → name, repivot (orbit angle continues).
+  // name → null, no-op (per spec: deselect doesn't auto-exit; the
+  // animator stays in focal-orbiting until the next user input cancels
+  // and the 30s idle timer resumes the cluster tour).
+  useEffect(() => {
+    const animator = cameraAnimatorRef.current;
+    if (!animator || !selectedNode || !data) return;
+    const posMap = data?.positions?.positions || data?.positions || {};
+    const pos = posMap[selectedNode];
+    if (!pos) return;
+    // focalIdx is informational only; we don't have a stable numeric
+    // index for cocktails/sauces, so 0 is fine — repivot's continuity
+    // contract is keyed on _orbitTotalElapsedMs, not focalIdx.
+    const focalIdx = 0;
+    if (animator.state === 'focal-orbiting' || animator.state === 'focal-flying') {
+      animator.repivot(focalIdx, pos);
+    } else {
+      animator.engageFocalOrbit(focalIdx, pos);
+    }
+  }, [selectedNode, data]);
 
   useEffect(() => {
     if (particleRef.current) particleRef.current.setVisible(showParticles);
