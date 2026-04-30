@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const TASTE_COLORS = [
   { label: 'Sweet', key: 'sweet', color: '#fb92b4' },
-  { label: 'Sour', key: 'sour', color: '#fde047' },
+  { label: 'Sour', key: 'sour', color: '#c9a330' },
   { label: 'Bitter', key: 'bitter', color: '#a78bfa' },
   { label: 'Salty', key: 'salty', color: '#93c5fd' },
   { label: 'Umami', key: 'umami', color: '#f9a870' },
