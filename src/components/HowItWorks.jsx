@@ -36,8 +36,10 @@ export default function HowItWorks({ initialOpen = false } = {}) {
               <section>
                 <h3 className="text-cyan-300 font-semibold mb-1">The Network</h3>
                 <p>Each dot is an ingredient. Ingredients that appear together in recipes
-                   are placed near each other — we analyzed <strong>2.2 million recipes</strong> to
-                   learn these patterns. Colors show taste profiles:</p>
+                   are placed near each other — we analyzed <strong>2.2 million recipes</strong> from
+                   RecipeNLG, plus TheMealDB and TheCocktailDB, to position
+                   <strong> 3,913 ingredients</strong> with <strong>48,588 pairings</strong> between
+                   them. Colors show taste profiles:</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {Object.entries(TASTE_COLORS).map(([t, c]) => (
                     <span key={t} className="flex items-center gap-1 text-xs">
@@ -50,12 +52,15 @@ export default function HowItWorks({ initialOpen = false } = {}) {
 
               <section>
                 <h3 className="text-cyan-300 font-semibold mb-1">The AI Behind It</h3>
-                <p>A <strong>graph neural network</strong> (GNN) reads the molecular structure of
-                   flavor compounds — the actual atoms and bonds — and predicts what they
-                   taste and smell like. It learned from 4,000+ real molecules across
-                   5 taste databases.</p>
+                <p>A <strong>graph neural network</strong> (GINEConv, 3 layers) reads the
+                   molecular structure of flavor compounds — the actual atoms and bonds —
+                   and predicts taste and aroma. It learned from
+                   <strong> 19,902 unique molecules</strong> drawn from FooDB, FlavorDB,
+                   ChemTastesDB v2.1, BitterDB, SuperSweetDB, FlavorNet, and FartDB,
+                   trained with per-task label masking so each source only contributes
+                   signal where it actually has measurements.</p>
                 <p className="mt-1 text-gray-400 text-xs">Think of it as teaching a computer to
-                   "taste" a molecule by looking at its shape, just like your tongue's
+                   "taste" a molecule by looking at its shape, the way your tongue's
                    receptors do.</p>
               </section>
 
@@ -64,23 +69,58 @@ export default function HowItWorks({ initialOpen = false } = {}) {
                 <p>Ingredients naturally group into clusters — baking staples, Asian
                    aromatics, Mediterranean herbs, etc. These clusters emerge from
                    how ingredients are actually used together, not from arbitrary
-                   categories.</p>
+                   categories. Use the bottom fly-wheel to fly the camera to a
+                   cluster and orbit it.</p>
+              </section>
+
+              <section>
+                <h3 className="text-cyan-300 font-semibold mb-1">Affinity Rings</h3>
+                <p>Click any ingredient and the camera flies in to orbit a 60° angled
+                   bird's-eye view. Around the focal you'll see 30 chemistry-matched
+                   ingredients laid out in three tiers, ranked by paired-recipe strength
+                   and shared flavor compounds:</p>
+                <div className="text-xs text-gray-400 space-y-0.5 mt-1">
+                  <p>★★★ — top 5, strongest pairings (closest ring)</p>
+                  <p>★★ — next 10 (middle ring)</p>
+                  <p>★ — next 15 (outer ring)</p>
+                </div>
+                <p className="mt-1 text-xs text-gray-400">Each tier has its own silhouette
+                   shape so rank reads at a glance. Click any ring sphere to repivot.</p>
+              </section>
+
+              <section>
+                <h3 className="text-cyan-300 font-semibold mb-1">Cocktail &amp; Sauce Labs</h3>
+                <p>The Labs dropdown opens specialized 3D networks for
+                   <strong> 426 cocktails</strong> and <strong>69 sauces</strong>, organized
+                   by family (mother sauces, cocktail families). Each dot is shaped by
+                   its family / cuisine — clusters of similar drinks or sauces emerge
+                   directly from their ingredient overlaps.</p>
               </section>
 
               <section>
                 <h3 className="text-cyan-300 font-semibold mb-1">Molecular Profile</h3>
-                <p>When you select an ingredient, the "Why it tastes this way" section
-                   shows which flavor compounds it contains and what the AI predicts
-                   about their taste and aroma. In the Molecule Lab, you can see 3D
-                   molecular structures and tap atoms to learn about functional groups.</p>
+                <p>The Details panel shows the flavor compounds an ingredient contains
+                   and the AI's calibrated taste/aroma predictions. For
+                   <strong> compound foods</strong> like mayonnaise or BBQ sauce — which aren't
+                   single molecules — the profile is synthesized from constituent
+                   ingredients and surfaced with a "Predicted from components" badge.</p>
               </section>
 
               <section>
                 <h3 className="text-cyan-300 font-semibold mb-1">What's Reliable</h3>
+                <p className="text-xs text-gray-400 mb-1">v3 calibrated F1 (5-fold CV,
+                   per-task threshold tuned). 9 of 11 heads beat the prior baseline.</p>
                 <div className="text-xs text-gray-400 space-y-0.5">
-                  <p><strong className="text-green-400">Strong:</strong> Bitter (F1: 0.74), Sweet (F1: 0.53), Fruity aroma (F1: 0.52)</p>
-                  <p><strong className="text-yellow-400">Moderate:</strong> Green, Woody, Fatty aromas (F1: 0.36-0.45)</p>
-                  <p><strong className="text-red-400">Limited data:</strong> Umami, Salty, Sour (need more training examples)</p>
+                  <p><strong className="text-green-400">Excellent:</strong> Sweet (0.90),
+                     Sour (0.82), Bitter (0.80), Umami (0.73)</p>
+                  <p><strong className="text-green-400">Strong:</strong> Fruity (0.72),
+                     Fatty (0.62), Green (0.61)</p>
+                  <p><strong className="text-yellow-400">Moderate:</strong> Woody (0.54),
+                     Floral (0.52)</p>
+                  <p><strong className="text-red-400">Not surfaced:</strong> Salty (0.33)
+                     and Spicy (0.33) — these depend on ionic / TRPV1 mechanisms that
+                     aren't fully captured by molecular structure alone, so we hide
+                     them rather than show low-confidence guesses.</p>
                 </div>
               </section>
             </div>
