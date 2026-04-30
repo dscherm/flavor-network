@@ -243,6 +243,21 @@ export default function CocktailLab({ fullData, onSelectionChange, onOpenRecipeL
         />
       )}
 
+      {/* Clear Selection — upper-right, parity with Network's button. */}
+      {selectedCocktail && (
+        <div className="fixed top-[100px] right-2 z-50 flex flex-col items-end gap-2">
+          <button
+            onClick={() => setSelectedCocktail(null)}
+            className="px-3 py-1.5 min-h-[44px] text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
+          >
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Clear Selection
+          </button>
+        </div>
+      )}
+
       {/* Family fly-wheel — bottom-center pill strip. Tap a family to
           filter the codex to it AND fly the camera to its centroid
           (NetworkScene auto-flies on treeFilterIngredients change). */}

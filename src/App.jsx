@@ -278,35 +278,6 @@ export default function App() {
     }
   }, [data]);
 
-  // Generate shareable recipe URL from current selection
-  const shareUrl = useMemo(() => {
-    if (selectedNodes.length === 0) return '';
-    const params = new URLSearchParams();
-    params.set('ingredients', selectedNodes.join(','));
-    return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-  }, [selectedNodes]);
-
-  const [copied, setCopied] = useState(false);
-  const handleCopyShareLink = useCallback(async () => {
-    if (!shareUrl) return;
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      const textarea = document.createElement('textarea');
-      textarea.value = shareUrl;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }, [shareUrl]);
-
   // Keyboard shortcuts. The arrow keys "walk" the graph: when an
   // ingredient is selected, ArrowDown/Right steps to its strongest
   // pairing (pushing the current node onto a history stack) and
@@ -680,9 +651,11 @@ export default function App() {
         />
       )}
 
-      {/* Clear Selection + Share buttons */}
+      {/* Details + Clear Selection — upper-right, stacked vertically
+          below the centered SearchBar. Share button removed per user
+          feedback (it was rarely used and crowded the focal-orbit UI). */}
       {selectedNodes.length > 0 && (
-        <div className="fixed top-[100px] left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
+        <div className="fixed top-[100px] right-2 z-50 flex flex-col items-end gap-2">
           {/* Mobile-only Details button — desktop has the right-edge
               "Details" tab on IngredientPanel. Per user request
               2026-04-29 we no longer auto-open the panel on tap, so
@@ -707,28 +680,6 @@ export default function App() {
             </svg>
             Clear Selection
             <span className="text-gray-600">({selectedNodes.length})</span>
-          </button>
-          <button
-            onClick={handleCopyShareLink}
-            className={`px-3 py-1.5 min-h-[44px] text-xs bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5 ${
-              copied ? 'text-green-400 border-green-400/30' : 'text-gray-400 hover:text-neural-glow'
-            }`}
-          >
-            {copied ? (
-              <>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                Copied!
-              </>
-            ) : (
-              <>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-                Share
-              </>
-            )}
           </button>
         </div>
       )}
