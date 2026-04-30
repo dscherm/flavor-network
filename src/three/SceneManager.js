@@ -236,6 +236,10 @@ class SceneManager {
     return this._renderer;
   }
 
+  getControls() {
+    return this._controls;
+  }
+
   addToScene(object3d) {
     if (this._scene && object3d) {
       this._scene.add(object3d);

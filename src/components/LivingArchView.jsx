@@ -8,9 +8,10 @@ import { computeTastePositions, TASTE_AXES, scoreIngredient } from '../data/tast
 import { getColorForNode } from '../three/NodeMesh.js';
 import { createLivingEdgeMaterial, createLivingParticleMaterial } from '../three/ShaderMaterials.js';
 import { easeInOutCubic, hashStr, seededRng, makeLabel, computeWheelPositions, ingredientHasTaste } from './livingArchUtils.js';
-import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DURATION, POPOUT_HEIGHT } from './livingArchConstants.js';
+import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DURATION, POPOUT_HEIGHT, CAMERA_ANIMATOR_DEFAULT_ON } from './livingArchConstants.js';
 import { handleSceneClick, handleSceneMove } from './livingArchInteraction.js';
 import { AffinityMode } from '../three/AffinityMode.js';
+import { CameraAnimator } from '../three/CameraAnimator.js';
 import ShapeLegend from './ShapeLegend.jsx';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
 import {
@@ -52,6 +53,7 @@ export default function LivingArchView({
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
   const affinityModeRef = useRef(null); // α-mode controller (R13-5)
+  const cameraAnimatorRef = useRef(null); // R14 cluster-tour + focal-orbit
   const [pcaAxes, setPcaAxes] = useState(null);
   // Use lifted state if provided, otherwise local state
   const [localMode, setLocalMode] = useState('ml');
@@ -867,6 +869,13 @@ export default function LivingArchView({
         clusterLabelGroup.visible = transition.toMode === 'ml' || transition.toMode === 'ml2d';
         clusterConnectorGroup.visible = clusterLabelGroup.visible;
         if (clusterConnectorGroup.visible) updateClusterConnectors();
+        // R14 AC-NR-3: resume cluster tour iff entering a cluster mode.
+        // For neural/taste2d the adapter returns [] anyway, but keeping
+        // the animator IDLE (rather than re-reading and falling back)
+        // avoids one redundant adapter call per transition.
+        if (transition.toMode === 'ml' || transition.toMode === 'ml2d') {
+          cameraAnimatorRef.current?.resumeClusterTour();
+        }
       }
     }
 
@@ -1051,6 +1060,9 @@ export default function LivingArchView({
       // R13-5: AffinityMode per-frame tick (currently a no-op
       // placeholder; reserved for future fade animations).
       affinityModeRef.current?.tickAnimation(deltaSec);
+      // R14 CameraAnimator — drives cluster tour glide/dwell + focal
+      // orbit (when engaged). Skips entirely while idle.
+      cameraAnimatorRef.current?.tickAnimation(deltaSec);
       controls.update();
       composer.render();
     }
@@ -1066,6 +1078,10 @@ export default function LivingArchView({
       transition.startTime = performance.now();
       transition.fromMode = fromMode;
       transition.toMode = toMode;
+      // R14 AC-NR-3: pause cluster tour for the duration of the
+      // mode transition. Re-engagement happens at completion below
+      // (only when toMode is a cluster mode).
+      cameraAnimatorRef.current?.pauseClusterTour();
     };
 
     // Camera fly-to a label position with optional cluster centroid.
@@ -1157,10 +1173,60 @@ export default function LivingArchView({
       get mode() { return modeRef.current; },
     };
 
-    // R13-5: Instantiate AffinityMode controller after stateRef is
-    // built. Lifecycle bound to the scene's useEffect — disposed in
-    // cleanup below before existing teardown so GPU resources don't
-    // outlive the scene.
+    // R14 CameraAnimator — cluster tour + focal orbit. Gated behind
+    // a URL param (?cameraAnim=v1 / =off) and the
+    // CAMERA_ANIMATOR_DEFAULT_ON constant; defaults off until Phase 4
+    // verifies the AffinityMode integration. Adapter consults
+    // modeRef.current and returns [] for non-cluster modes so the
+    // tour pauses naturally during neural / taste2d.
+    //
+    // Order matters (Phase 4): the animator is constructed BEFORE
+    // AffinityMode so the latter can receive it via constructor
+    // injection. Dispose runs in reverse order in cleanup below.
+    let cameraAnimEnabled = CAMERA_ANIMATOR_DEFAULT_ON;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get('cameraAnim');
+      if (v === 'v1') cameraAnimEnabled = true;
+      else if (v === 'off') cameraAnimEnabled = false;
+    } catch { /* SSR / private mode — keep default */ }
+
+    if (cameraAnimEnabled) {
+      const networkCentroidAdapter = () => {
+        const m = modeRef.current;
+        if (m !== 'ml' && m !== 'ml2d') return [];
+        const out = [];
+        if (m === 'ml') {
+          for (const [id, pos] of centroidByCluster3d) {
+            const sprite = clusterLabelGroup.children.find(
+              (s) => s.userData?.clusterId === id,
+            );
+            out.push({ id, position: pos, labelSprite: sprite });
+          }
+        } else {
+          for (const [id, c2] of centroidByCluster2d) {
+            const sprite = clusterLabelGroup.children.find(
+              (s) => s.userData?.clusterId === id,
+            );
+            out.push({ id, position: [c2[0], 0, c2[1]], labelSprite: sprite });
+          }
+        }
+        return out;
+      };
+      cameraAnimatorRef.current = new CameraAnimator(
+        { camera, controls, scene },
+        networkCentroidAdapter,
+        { isMobile },
+      );
+      cameraAnimatorRef.current.attachMediaQueryListener();
+    }
+
+    // R13-5 + R14: Instantiate AffinityMode controller after the
+    // animator is constructed (Phase 4 wires AffinityMode through the
+    // animator). Lifecycle bound to the scene's useEffect — disposed
+    // in cleanup below in reverse order (AffinityMode first, then
+    // animator) so the animator outlives any AffinityMode method
+    // calls during teardown.
     if (data.pairingStrength && data.top5 && data.bridgeCompoundIndex && data.affinityThresholds) {
       affinityModeRef.current = new AffinityMode(stateRef.current, {
         pairingStrength: data.pairingStrength,
@@ -1168,16 +1234,43 @@ export default function LivingArchView({
         bridgeCompoundIndex: data.bridgeCompoundIndex,
         affinityThresholds: data.affinityThresholds,
         graph: data.graph,
+      }, cameraAnimatorRef.current);
+    }
+
+    // Engage cluster tour + wire user-input cancel only after BOTH
+    // the animator and AffinityMode are constructed. Otherwise an
+    // OrbitControls 'start' event mid-construction could call
+    // recordInput before AffinityMode is ready to coexist.
+    if (cameraAnimEnabled && cameraAnimatorRef.current) {
+      const startMode = modeRef.current;
+      if (startMode === 'ml' || startMode === 'ml2d') {
+        cameraAnimatorRef.current.engageClusterTour();
+      }
+      controls.addEventListener('start', () => {
+        cameraAnimatorRef.current?.recordInput();
       });
     }
 
     return () => {
       running = false;
-      // R13-5: Dispose AffinityMode FIRST so its GPU resources are
-      // released before the scene/renderer teardown.
+      // R14 dispose-order contract (load-bearing):
+      //   1. AffinityMode disposes FIRST. Once Phase 4 wires
+      //      AffinityMode → CameraAnimator, AffinityMode holds an
+      //      injected reference and may invoke animator methods from
+      //      inside its own exit() / dispose(). The animator MUST
+      //      still be alive at that point.
+      //   2. CameraAnimator disposes SECOND, after AffinityMode is
+      //      fully torn down.
+      // Reverse order produces a use-after-free on the animator that
+      // silently no-ops (post-dispose methods short-circuit) instead
+      // of throwing, making the leak invisible to AC-MA-3.
       if (affinityModeRef.current) {
         affinityModeRef.current.dispose();
         affinityModeRef.current = null;
+      }
+      if (cameraAnimatorRef.current) {
+        cameraAnimatorRef.current.dispose();
+        cameraAnimatorRef.current = null;
       }
       window.removeEventListener('resize', onResize);
       renderer.domElement.removeEventListener('click', onClickGuard);
@@ -1318,6 +1411,10 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !flyToTarget) return;
+    // R14: external fly-to (joystick / search-select) cancels the
+    // cluster tour. recordInput() releases ownership and starts the
+    // 30s idle timer so the tour resumes after a quiet period.
+    cameraAnimatorRef.current?.recordInput();
     if (Array.isArray(flyToTarget)) {
       st.flyToPoint?.(flyToTarget);
       return;

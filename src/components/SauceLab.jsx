@@ -89,6 +89,22 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
     return counts;
   }, [codexData]);
 
+  // R14 camera-animations adapter — a stable closure over
+  // familyCentroids. Memoized so NetworkScene's mount effect doesn't
+  // re-run on every render.
+  const sauceCentroidAdapter = useMemo(() => {
+    if (!familyCentroids) return null;
+    return () => {
+      const out = [];
+      for (const [id, position] of familyCentroids) {
+        if (Array.isArray(position) && position.length >= 3) {
+          out.push({ id, position });
+        }
+      }
+      return out;
+    };
+  }, [familyCentroids]);
+
   // R14 multi-shape: extract `shapeKey` per sauce from the codex nodes
   // (set in sauceCodex.js → sauceShapeKey() based on the cuisine field).
   // Memoized so the NetworkScene's init effect doesn't tear down + rebuild
@@ -212,6 +228,7 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
         flyToTarget={flyToTarget}
         shapeAssignments={shapeAssignments}
         scaleMultiplier={3.0}
+        centroidAdapter={sauceCentroidAdapter}
       />
 
       {selectedSauce && (

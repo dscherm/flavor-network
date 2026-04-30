@@ -12,3 +12,10 @@ export const CATEGORY_RADII = {
 export const TRANSITION_DURATION = 1500; // ms
 export const POPOUT_DURATION = 800; // ms for taste pop-out animation
 export const POPOUT_HEIGHT = 15; // units above/below wheel
+
+// CameraAnimator (R14 camera-animations plan) — Phase 1 ships the
+// animator wired in but kept off by default until Phase 4 verifies
+// no regression in α-mode lifecycle. Toggle via URL: `?cameraAnim=v1`
+// (force on) or `?cameraAnim=off` (force off). Phase 4 flips this
+// constant to true.
+export const CAMERA_ANIMATOR_DEFAULT_ON = false;
