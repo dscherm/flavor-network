@@ -5,9 +5,11 @@ import { scoreIngredient } from '../data/tastePositioning.js';
 import { findWeakestAxis, aggregateRecipeTastes } from '../data/tasteScoring.js';
 import { analyzeRecipe } from '../data/recipeAnalysis.js';
 import { rankByRecipeCooccurrence } from '../data/recipeSuggestionEngine.js';
+import { rankAddByTaste, TASTE_COLUMNS, computeDominantTaste, EMPTY_ADD_COLUMNS } from '../data/addModeBucketing.js';
 import useIsMobile from '../hooks/useIsMobile.js';
 import { AROMA_LABELS, AROMA_COLORS } from '../data/recipeScoring.js';
 import OdorBadge from './OdorBadge.jsx';
+import SuggestionDrawerToggle from './SuggestionDrawerToggle.jsx';
 
 // `?engine=v1` forces the legacy avg-NPMI ranking even when the new
 // engine has data. Default = v2 (recipe-level co-occurrence). Read once
@@ -122,16 +124,6 @@ function nearestSnap(y, viewportHeight) {
   return dists[0].state;
 }
 
-function getDominantTaste(name, node) {
-  if (!node) return 'default';
-  const { channels } = scoreIngredient(name, node);
-  let best = 'default', bestVal = 0;
-  for (const [ch, val] of Object.entries(channels)) {
-    if (val > bestVal) { bestVal = val; best = ch; }
-  }
-  return bestVal > 0 ? best : 'default';
-}
-
 function getTasteLabels(name, node) {
   if (!node) return [];
   const { channels } = scoreIngredient(name, node);
@@ -210,6 +202,23 @@ export default function SuggestionDrawer({
   // Scaffolded filter surface: show ONE filter class at a time (taste OR
   // cuisine) rather than both in one long strip — avoids overwhelming.
   const [filterMode, setFilterMode] = useState('taste');
+
+  // ADD / REPLACE toggle state.
+  // effectiveBowlSize counts recipeIngredients + centerIngredient (if any)
+  // so a single focal ingredient still enables REPLACE.
+  const effectiveBowlSize = (recipeIngredients?.length || 0) + (centerIngredient ? 1 : 0);
+  // manualMode is null (auto) or an explicit user override.
+  const [manualMode, setManualMode] = useState(null);
+  // Derived mode: auto-rule is REPLACE when effectiveBowlSize≥1, else ADD.
+  // manualMode overrides, but resets to null when bowl drains to 0.
+  const mode = (() => {
+    if (manualMode && effectiveBowlSize > 0) return manualMode;
+    return effectiveBowlSize >= 1 ? 'REPLACE' : 'ADD';
+  })();
+  // Reset manualMode when bowl drains so the auto-rule reactivates.
+  useEffect(() => {
+    if (effectiveBowlSize === 0) setManualMode(null);
+  }, [effectiveBowlSize]);
 
   // If the user switches modes, drop them back to "all" so stale taste
   // selection doesn't hide cuisine-filtered results, and vice versa.
@@ -331,7 +340,7 @@ export default function SuggestionDrawer({
 
     return pairings.filter(({ name }) => scopeOk(name)).map(({ name, strength }) => {
       const node = nodes.get(name);
-      const taste = getDominantTaste(name, node);
+      const taste = computeDominantTaste(name, node) ?? 'default';
       const tasteLabels = getTasteLabels(name, node);
       const inRecipe = recipeSet.has(name);
 
@@ -608,7 +617,7 @@ export default function SuggestionDrawer({
         .slice(0, COLUMN_LIMIT)
         .map(n => {
           const node = nodes?.get(n.name);
-          const taste = getDominantTaste(n.name, node);
+          const taste = computeDominantTaste(n.name, node) ?? 'default';
           const tasteLabels = getTasteLabels(n.name, node);
           return {
             name: n.name,
@@ -622,6 +631,16 @@ export default function SuggestionDrawer({
       return { ingredient: bi, candidates };
     });
   }, [recipeIngredients, edges, nodes, scopeFilter]);
+
+  // ADD-mode columns: 8 buckets (one per taste) of recipe-cooccurrence
+  // candidates partitioned by dominant taste. Always returns 8 entries
+  // (empty buckets included) so the UI keeps its 8-column rhythm.
+  // rankAddByTaste now returns chip-ready candidates directly.
+  const addColumns = useMemo(() => {
+    if (mode !== 'ADD' || !nodes || !recipePairs || !globalCount) return EMPTY_ADD_COLUMNS;
+    const bowl = [...new Set([...(recipeIngredients || []), ...(centerIngredient ? [centerIngredient] : [])])];
+    return rankAddByTaste(bowl, recipePairs, globalCount, nodes, scopeFilter, { topK: 12 }, recipeIngredients || []);
+  }, [mode, nodes, recipePairs, globalCount, recipeIngredients, centerIngredient, scopeFilter]);
 
   // Cuisines that any pairing chip actually has — avoids empty tabs.
   const cuisineOptions = useMemo(() => {
@@ -700,6 +719,16 @@ export default function SuggestionDrawer({
           )}
         </div>
       </div>
+
+      {/* ADD / REPLACE mode toggle pill */}
+      {snapState !== 'peek' && (
+        <SuggestionDrawerToggle
+          mode={mode}
+          onChange={setManualMode}
+          effectiveBowlSize={effectiveBowlSize}
+          panelId="suggestion-panel"
+        />
+      )}
 
       {/* Filter-mode toggle (Taste / Aroma / Cuisine) — show one
           flavor-axis class at a time. Cuisine mode is hidden in
@@ -793,8 +822,68 @@ export default function SuggestionDrawer({
             </p>
           )}
 
-          {recipeIngredients.length > 0 ? (
-            // Column layout — one column per bowl ingredient. Header IS
+          {mode === 'ADD' ? (
+            // ADD mode — 8 taste-partitioned columns from recipe co-occurrence ranking.
+            <div
+              id="suggestion-panel"
+              className="grid gap-2 pb-1"
+              style={{
+                gridTemplateColumns: isMobile
+                  ? 'repeat(2, minmax(0, 1fr))'
+                  : 'repeat(auto-fit, minmax(140px, 1fr))',
+              }}
+            >
+              {addColumns.map(col => {
+                const filtered = applyChipFilter(col.candidates, activeTab, nodes);
+                const emptyPlaceholder = labMode === 'cocktail'
+                  ? `No options in cocktail scope`
+                  : `No ${col.taste} candidates`;
+                return (
+                  <div key={col.taste} data-testid="add-column" data-taste={col.taste} className="flex flex-col min-w-0">
+                    <div
+                      className="px-2 py-1.5 rounded-t-lg border-2 border-b-0"
+                      style={{
+                        backgroundColor: '#e8dcc0',
+                        borderColor: '#c9b99a',
+                        fontFamily: FONT_FAMILY,
+                      }}
+                    >
+                      <p
+                        className="font-medium truncate leading-tight"
+                        style={{ color: '#3a3428', fontSize: '13px' }}
+                      >
+                        {col.taste.charAt(0).toUpperCase() + col.taste.slice(1)}
+                      </p>
+                    </div>
+                    <div
+                      className="flex-1 flex flex-col gap-1.5 p-1.5 rounded-b-lg border-2 border-t-0"
+                      style={{ borderColor: '#c9b99a', backgroundColor: '#fff8e1' }}
+                    >
+                      {filtered.length === 0 && (
+                        <p
+                          data-testid="add-column-empty"
+                          className="text-xs px-1 py-2 text-center"
+                          style={{ color: '#a09070', fontFamily: FONT_FAMILY }}
+                        >
+                          {emptyPlaceholder}
+                        </p>
+                      )}
+                      {filtered.slice(0, 8).map(chip => (
+                        <ChipButton
+                          key={chip.name}
+                          chip={chip}
+                          onAdd={onAddIngredient}
+                          centerIngredient={centerIngredient}
+                          bridgeCompounds={bridgeCompounds}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : mode === 'REPLACE' ? (
+            // REPLACE mode — one column per bowl ingredient. Header IS
             // the replacement target, so chip click swaps that
             // ingredient with the chip.
             //   • Desktop: CSS grid auto-fits as many ~180px columns as
@@ -802,6 +891,7 @@ export default function SuggestionDrawer({
             //   • Mobile (≤640px / iOS Capacitor): 2 columns max,
             //     stacked into more rows when bowl size > 2.
             <div
+              id="suggestion-panel"
               className="grid gap-2 pb-1"
               style={{
                 gridTemplateColumns: isMobile
