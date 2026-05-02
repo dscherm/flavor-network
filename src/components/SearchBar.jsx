@@ -92,13 +92,16 @@ function SearchBar({ ingredients, onSelect }) {
         }
         case 'Enter': {
           e.preventDefault();
-          // If user navigated with arrows, take their pick. Otherwise
-          // default to the top result so a plain type-and-press-enter
-          // selects the best match without forcing arrow-down first.
-          const idx = highlightIndex >= 0 && highlightIndex < results.length
-            ? highlightIndex
-            : 0;
-          selectItem(results[idx].name);
+          // Arrow-pick wins. Otherwise prefer an exact case-insensitive
+          // name match over the fuzzy top result so typing the full name
+          // never lands on a near-miss that ranked higher in fuse.
+          if (highlightIndex >= 0 && highlightIndex < results.length) {
+            selectItem(results[highlightIndex].name);
+          } else {
+            const q = query.trim().toLowerCase();
+            const exact = results.find((r) => r.name.toLowerCase() === q);
+            selectItem((exact || results[0]).name);
+          }
           break;
         }
         case 'Escape': {
@@ -111,7 +114,7 @@ function SearchBar({ ingredients, onSelect }) {
           break;
       }
     },
-    [isOpen, results, highlightIndex, selectItem],
+    [isOpen, results, highlightIndex, selectItem, query],
   );
 
   useEffect(() => {
