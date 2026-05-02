@@ -97,7 +97,7 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
 
   return (
     <div
-      className="fixed left-1/2 -translate-x-1/2 z-30 select-none pointer-events-none bottom-[calc(var(--mobile-nav-h,3.5rem)+env(safe-area-inset-bottom,0px)+4.5rem+5vh)] sm:bottom-20"
+      className="fixed left-1/2 -translate-x-1/2 z-30 select-none pointer-events-none top-[calc(var(--nav-h)+3.5rem)] sm:top-auto sm:bottom-20"
       style={{ maxWidth: 'calc(100vw - 1rem)' }}
       aria-label={isTasteMode ? 'Fly to taste region' : 'Fly to cluster'}
     >

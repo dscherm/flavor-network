@@ -18,7 +18,7 @@ export default function HowItWorks({ initialOpen = false } = {}) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-24 sm:bottom-6 right-4 z-[55] w-8 h-8 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#2a2a3a] text-gray-500 hover:text-cyan-300 text-sm font-bold transition-colors"
+        className="fixed top-[calc(var(--nav-h)+0.5rem)] right-4 sm:top-auto sm:bottom-6 sm:right-4 z-[55] w-8 h-8 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#2a2a3a] text-gray-500 hover:text-cyan-300 text-sm font-bold transition-colors"
         title="How does this work?"
         aria-label="How does the AI work"
       >
