@@ -1859,7 +1859,7 @@ export default function LivingArchView({
       )}
 
       {/* 4-way mode selector — bottom center */}
-      <div className="absolute bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1 px-2 py-1.5 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
+      <div className="absolute bottom-[calc(var(--tab-bar-h)+0.75rem)] sm:bottom-6 left-1/2 -translate-x-1/2 z-[71] flex items-center gap-1 px-2 py-1.5 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
         style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))' }}
       >
         {MODE_CYCLE.map((m) => (
