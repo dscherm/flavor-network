@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy Policy — Flavor Network</title>
+  <meta name="description" content="What Flavor Network collects, where it lives, how long we keep it, and how to delete your data." />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card: #12121a;
+      --border: #1e1e2e;
+      --text: #e6e6ea;
+      --muted: #9a9aac;
+      --accent: #4f9eff;
+      --rule: #2a2a3a;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f5f0dc;
+        --card: #ffffff;
+        --border: #e0d8b8;
+        --text: #1a1a2e;
+        --muted: #5a5a6a;
+        --accent: #2a6dd0;
+        --rule: #d8d0b0;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 4rem;
+    }
+    .meta-back {
+      display: inline-block; margin-bottom: 2rem;
+      color: var(--muted); text-decoration: none; font-size: 0.875rem;
+    }
+    .meta-back:hover { color: var(--accent); }
+    h1 { font-size: 2rem; font-weight: 300; margin: 0 0 0.25rem; letter-spacing: 0.01em; }
+    .updated { color: var(--muted); font-size: 0.875rem; margin: 0 0 2rem; }
+    h2 { font-size: 1.125rem; font-weight: 600; margin: 2.5rem 0 0.75rem; }
+    h3 { font-size: 1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+    p, ul, ol { margin: 0 0 1rem; }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin-bottom: 0.25rem; }
+    a { color: var(--accent); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.875em; background: var(--card); padding: 0.05em 0.35em; border-radius: 3px; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.9375rem; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+    th { font-weight: 600; color: var(--muted); }
+    hr { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+    footer { color: var(--muted); font-size: 0.875rem; margin-top: 3rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="meta-back" href="../">&larr; Flavor Network</a>
+
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: 2026-05-03</p>
+
+    <p>This policy describes what information Flavor Network ("the app", "we", "our") collects, why, where it's stored, how long we keep it, and how you can have it deleted. The policy applies to the iOS app distributed on the App Store under bundle ID <code>com.neuralflavor.app</code>.</p>
+
+    <p>If anything here is unclear or you'd like a copy of your data, contact <a href="mailto:schermele@gmail.com">schermele@gmail.com</a>.</p>
+
+    <h2>What we collect</h2>
+    <p>Flavor Network is designed to work without an account. You can browse the entire flavor network, build recipes, and explore the Cocktail and Sauce models with no data collection at all.</p>
+    <p>When you choose to <strong>sign in</strong> (optional, with Apple ID or Google), we collect the minimum needed to sync your saved recipes across your devices:</p>
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Source</th><th>Linked?</th><th>Used for</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Email address</td><td>Apple ID or Google account</td><td>Yes</td><td>Authentication; nothing else</td></tr>
+        <tr><td>Display name</td><td>Apple ID or Google account</td><td>Yes</td><td>Showing "you" in the profile panel</td></tr>
+        <tr><td>Account ID</td><td>Apple / Google → Firebase Auth</td><td>Yes</td><td>Internal key for your saved data</td></tr>
+        <tr><td>Saved recipes</td><td>What you save in the app</td><td>Yes</td><td>Cross-device sync of your library</td></tr>
+        <tr><td>Saved ingredients</td><td>What you favorite</td><td>Yes</td><td>Personalized weight in pairing scoring</td></tr>
+        <tr><td>Saved cuisines</td><td>What you bookmark</td><td>Yes</td><td>Personalized scoring + insights</td></tr>
+      </tbody>
+    </table>
+    <p>We <strong>do not</strong> collect:</p>
+    <ul>
+      <li>Location, contacts, photos, microphone, camera input, or device IDs</li>
+      <li>Browsing or interaction analytics</li>
+      <li>Crash logs or performance telemetry</li>
+      <li>Any third-party advertising or tracking signals</li>
+    </ul>
+    <p>We <strong>do not</strong> track you across other apps or websites and we run <strong>no advertising</strong>. The <code>NSPrivacyTracking</code> flag in our App Privacy Manifest is set to <code>false</code>.</p>
+
+    <h2>Where data is stored</h2>
+    <ul>
+      <li><strong>Authentication</strong> — Firebase Authentication (Google Cloud, US region). Apple/Google handle the sign-in itself; Firebase only sees the resulting account ID, email, and display name.</li>
+      <li><strong>Saved recipes / ingredients / cuisines</strong> — Cloud Firestore (Google Cloud, US region), under a document keyed to your account ID. Only your account can read or write your document.</li>
+      <li><strong>On-device cache</strong> — A copy lives in your iPhone's local storage (Capacitor / WKWebView Preferences). Removed when you delete the app.</li>
+    </ul>
+
+    <h2>How long we keep it</h2>
+    <p>We keep your data only as long as your account is active.</p>
+    <ul>
+      <li><strong>Sign out</strong> keeps your data on the server so you can return.</li>
+      <li><strong>Delete account</strong> (in the app's Profile screen, or by emailing the address above) permanently erases the Firestore document and removes the auth record within 30 days.</li>
+      <li><strong>Backups</strong>: Firestore retains automatic backups for up to 7 days after deletion as a disaster-recovery measure. After that, your data is gone.</li>
+    </ul>
+
+    <h2>Your rights</h2>
+    <p>Wherever you live, you can:</p>
+    <ul>
+      <li><strong>Access</strong> — Email us and we'll send you a JSON dump of everything we hold about you within 30 days.</li>
+      <li><strong>Correct</strong> — Edit anything wrong directly in the app.</li>
+      <li><strong>Delete</strong> — Use the "Delete account" action in the Profile panel, or email us. We'll erase your data and confirm within 30 days.</li>
+      <li><strong>Object / restrict</strong> — Stop using the app, or sign out. We'll never share your data with third parties for their own purposes.</li>
+    </ul>
+    <p>If you're in the EU/UK (GDPR) or California (CCPA), the rights above satisfy your statutory access, deletion, and portability rights. We don't sell personal information and never have.</p>
+
+    <h2>Children</h2>
+    <p>Flavor Network is rated <strong>17+</strong> because the Cocktail Model surfaces alcoholic-drink content. The app is not directed at children under 13 (or 16 in the EU). If you believe a child has signed in, contact us and we'll delete the account.</p>
+
+    <h2>Required-reason API use</h2>
+    <p>The iOS app calls a small set of Apple-designated "required reason" APIs for ordinary app functionality. The full declaration lives in <code>PrivacyInfo.xcprivacy</code> shipped with the binary.</p>
+    <table>
+      <thead>
+        <tr><th>Category</th><th>Reason</th><th>What it's for</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>File timestamp</td><td>C617.1</td><td>WKWebView reads bundled asset files</td></tr>
+        <tr><td>User defaults</td><td>CA92.1</td><td>Capacitor's preferences plugin</td></tr>
+        <tr><td>Disk space</td><td>E174.1</td><td>WebView cache management</td></tr>
+        <tr><td>System boot time</td><td>35F9.1</td><td>Performance timing on cold start</td></tr>
+      </tbody>
+    </table>
+    <p>None of these access user content or personal data.</p>
+
+    <h2>Third-party services</h2>
+    <p>We use exactly two services, both from Google Cloud:</p>
+    <ul>
+      <li><strong>Firebase Authentication</strong> — handles sign-in. <a href="https://firebase.google.com/support/privacy">Privacy policy</a></li>
+      <li><strong>Cloud Firestore</strong> — stores your saved recipes/ingredients. <a href="https://firebase.google.com/support/privacy">Privacy policy</a></li>
+    </ul>
+    <p>You may also sign in with <strong>Apple ID</strong> or <strong>Google</strong>. Their respective privacy policies govern the sign-in itself:</p>
+    <ul>
+      <li><a href="https://www.apple.com/legal/privacy/">Apple privacy policy</a></li>
+      <li><a href="https://policies.google.com/privacy">Google privacy policy</a></li>
+    </ul>
+    <p>We do not share data with any other party. We do not run advertising, analytics, or third-party SDKs.</p>
+
+    <h2>Updates</h2>
+    <p>If this policy changes materially, the "Last updated" date at the top changes and the in-app Profile panel will show a one-time notice. Continuing to use the app after the change means you accept the new version. The previous version is recoverable from the Git history at <a href="https://github.com/dscherm/flavor-network">github.com/dscherm/flavor-network</a>.</p>
+
+    <h2>Contact</h2>
+    <p>Questions, deletion requests, or data exports:</p>
+    <p><a href="mailto:schermele@gmail.com">schermele@gmail.com</a></p>
+
+    <hr />
+    <footer>
+      &copy; 2026 Neural Flavor
+    </footer>
+  </main>
+</body>
+</html>

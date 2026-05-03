@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Support — Flavor Network</title>
+  <meta name="description" content="Get help with Flavor Network: contact, account deletion, feedback, and bug reports." />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card: #12121a;
+      --border: #1e1e2e;
+      --text: #e6e6ea;
+      --muted: #9a9aac;
+      --accent: #4f9eff;
+      --rule: #2a2a3a;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f5f0dc;
+        --card: #ffffff;
+        --border: #e0d8b8;
+        --text: #1a1a2e;
+        --muted: #5a5a6a;
+        --accent: #2a6dd0;
+        --rule: #d8d0b0;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem 4rem;
+    }
+    .meta-back {
+      display: inline-block; margin-bottom: 2rem;
+      color: var(--muted); text-decoration: none; font-size: 0.875rem;
+    }
+    .meta-back:hover { color: var(--accent); }
+    h1 { font-size: 2rem; font-weight: 300; margin: 0 0 0.5rem; letter-spacing: 0.01em; }
+    h2 { font-size: 1.125rem; font-weight: 600; margin: 2.5rem 0 0.75rem; }
+    p { margin: 0 0 1rem; }
+    a { color: var(--accent); }
+    .contact-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem; margin: 1rem 0 2rem;
+    }
+    .email { font-size: 1.25rem; font-weight: 500; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; background: var(--card); padding: 0.05em 0.35em; border-radius: 3px; }
+    ul { padding-left: 1.25rem; }
+    li { margin-bottom: 0.5rem; }
+    hr { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+    footer { color: var(--muted); font-size: 0.875rem; margin-top: 3rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="meta-back" href="../">&larr; Flavor Network</a>
+
+    <h1>Support</h1>
+    <p>Email is the fastest way to reach us. We read every message.</p>
+
+    <div class="contact-card">
+      <p class="email"><a href="mailto:schermele@gmail.com?subject=Flavor%20Network%20support">schermele@gmail.com</a></p>
+      <p style="margin: 0; color: var(--muted); font-size: 0.875rem;">Typical response time: 1–3 days.</p>
+    </div>
+
+    <h2>Common requests</h2>
+    <ul>
+      <li><strong>Delete my account / data</strong> — Email us with the subject line "Delete account" from the address you signed in with. We confirm within 30 days; backups are wiped after a further 7-day Firestore retention window.</li>
+      <li><strong>Export my data</strong> — Email us asking for an export. We send back a JSON dump of everything we hold about you within 30 days.</li>
+      <li><strong>Bug or crash</strong> — Email us with a screenshot, what you tapped, and your iPhone model + iOS version. Or open an issue on GitHub.</li>
+      <li><strong>Feature request / feedback</strong> — Tell us what you'd want to see. Especially: missing ingredients, wrong pairings, classical dishes/cocktails/sauces we should add.</li>
+    </ul>
+
+    <h2>What's in the app?</h2>
+    <ul>
+      <li><strong>Pairing Model</strong> — 3,913 ingredients × 48,588 pairings, scored from 2.2M real recipes.</li>
+      <li><strong>Cocktail Model</strong> — 172 cocktails, seven super-families.</li>
+      <li><strong>Sauce Model</strong> — 77 sauces, ten mother families.</li>
+      <li><strong>Recipe Lab</strong> — build a bowl, get next-ingredient suggestions ranked by how reliably they cook with what you've already added.</li>
+    </ul>
+
+    <h2>Other resources</h2>
+    <ul>
+      <li><a href="../privacy/">Privacy policy</a></li>
+      <li><a href="https://github.com/dscherm/flavor-network">Source code on GitHub</a> — issues welcome</li>
+      <li><a href="https://github.com/dscherm/flavor-network/issues">Open an issue</a></li>
+    </ul>
+
+    <hr />
+    <footer>
+      &copy; 2026 Neural Flavor
+    </footer>
+  </main>
+</body>
+</html>
