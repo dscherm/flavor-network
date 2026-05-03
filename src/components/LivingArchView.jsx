@@ -12,6 +12,7 @@ import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DUR
 import { handleSceneClick, handleSceneMove } from './livingArchInteraction.js';
 import { AffinityMode } from '../three/AffinityMode.js';
 import { CameraAnimator } from '../three/CameraAnimator.js';
+import { computeBloomStrength } from '../three/bloomQuality.js';
 import ShapeLegend from './ShapeLegend.jsx';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
 import {
@@ -198,7 +199,8 @@ export default function LivingArchView({
     // Post-processing
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(el.clientWidth, el.clientHeight), 1.5, 0.4, 0.85));
+    const bloomStrength = computeBloomStrength(1.5, typeof window !== 'undefined' ? window.innerWidth : null);
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(el.clientWidth, el.clientHeight), bloomStrength, 0.4, 0.85));
 
     // Lights
     scene.add(new THREE.AmbientLight(0x404060, 1.0));

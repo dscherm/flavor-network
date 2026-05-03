@@ -370,6 +370,86 @@ describe('Mobile / accessibility', () => {
     expect(animator.state).toBe(STATES.IDLE);
     expect(controls.enabled).toBe(true);
   });
+
+  it('Phase 5: attachMediaQueryListener flips animator state when MQL emits change', () => {
+    // Controllable MQL stub — captures the listener so the test can
+    // trigger change events and assert the animator reacts.
+    let listener = null;
+    let removed = false;
+    const mql = {
+      matches: false,
+      addEventListener: (kind, cb) => { if (kind === 'change') listener = cb; },
+      removeEventListener: (kind, cb) => { if (kind === 'change' && cb === listener) { removed = true; listener = null; } },
+    };
+    const camera = makeCamera();
+    const controls = makeControlsStub();
+    const animator = new CameraAnimator(
+      { camera, controls, scene: new THREE.Scene() },
+      () => [],
+      {
+        reducedMotion: false,
+        mediaMatcher: () => mql,
+      },
+    );
+    animator.attachMediaQueryListener();
+    animator.engageClusterTour();
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
+
+    // Simulate the user toggling Reduce Motion ON in the OS panel.
+    listener({ matches: true });
+    expect(animator.isDisabled).toBe(true);
+    expect(animator.state).toBe(STATES.IDLE);
+
+    // Toggle OFF again — animator becomes engageable. (Doesn't auto-resume.)
+    listener({ matches: false });
+    expect(animator.isDisabled).toBe(false);
+    animator.engageClusterTour();
+    expect(animator.state).toBe(STATES.TOUR_ORBITING);
+
+    // dispose detaches the listener — the captured handler is removed.
+    animator.dispose();
+    expect(removed).toBe(true);
+  });
+
+  it('Phase 5: attachMediaQueryListener is idempotent — second call is a no-op', () => {
+    let attachCount = 0;
+    const mql = {
+      matches: false,
+      addEventListener: () => { attachCount++; },
+      removeEventListener: () => {},
+    };
+    const camera = makeCamera();
+    const controls = makeControlsStub();
+    const animator = new CameraAnimator(
+      { camera, controls, scene: new THREE.Scene() },
+      () => [],
+      { reducedMotion: false, mediaMatcher: () => mql },
+    );
+    animator.attachMediaQueryListener();
+    animator.attachMediaQueryListener();
+    animator.attachMediaQueryListener();
+    expect(attachCount).toBe(1);
+  });
+
+  it('Phase 5: attachMediaQueryListener falls back to legacy addListener API', () => {
+    let legacyListener = null;
+    const mql = {
+      matches: false,
+      addListener: (cb) => { legacyListener = cb; },
+      removeListener: () => {},
+    };
+    const camera = makeCamera();
+    const controls = makeControlsStub();
+    const animator = new CameraAnimator(
+      { camera, controls, scene: new THREE.Scene() },
+      () => [],
+      { reducedMotion: false, mediaMatcher: () => mql },
+    );
+    animator.attachMediaQueryListener();
+    expect(typeof legacyListener).toBe('function');
+    legacyListener({ matches: true });
+    expect(animator.isDisabled).toBe(true);
+  });
 });
 
 // ─── dt clamp invariant ───────────────────────────────────────

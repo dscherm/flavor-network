@@ -407,17 +407,29 @@ export class CameraAnimator {
    * Phase 5: subscribe to live media-query changes so users who
    * toggle "Reduce Motion" mid-session see immediate effect.
    * Idempotent — safe to call multiple times.
+   *
+   * Uses `opts.mediaMatcher` when provided (test-friendly), else
+   * `window.matchMedia`. The matcher must return an object with at
+   * minimum `addEventListener` (or legacy `addListener`) and the
+   * paired removal method.
    */
   attachMediaQueryListener() {
     if (this._mediaQueryList) return;
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const matcher = this._opts.mediaMatcher
+      ?? (typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+          ? (q) => window.matchMedia(q)
+          : null);
+    if (!matcher) return;
     try {
-      const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const mql = matcher('(prefers-reduced-motion: reduce)');
+      if (!mql) return;
       const listener = (e) => this.setReducedMotion(e.matches === true);
       if (typeof mql.addEventListener === 'function') {
         mql.addEventListener('change', listener);
       } else if (typeof mql.addListener === 'function') {
         mql.addListener(listener);
+      } else {
+        return;
       }
       this._mediaQueryList = mql;
       this._mediaListener = listener;
