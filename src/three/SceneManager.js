@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { computeBloomStrength } from './bloomQuality.js';
 
 /**
  * Device-capability check: returns true for devices where bloom
@@ -112,9 +113,10 @@ class SceneManager {
     // cost on iPhone 13 (FPS drops to ~1.2 with bloom on per simulation).
     this._bloomEnabled = !isLowEndForBloom();
     if (this._bloomEnabled) {
+      const strength = computeBloomStrength(1.5, typeof window !== 'undefined' ? window.innerWidth : null);
       this._bloomPass = new UnrealBloomPass(
         new THREE.Vector2(width, height),
-        1.5,
+        strength,
         0.4,
         0.85
       );
