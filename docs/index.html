@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flavor Network</title>
+  <meta name="description" content="Find flavors that work together. A 3D map of 3,913 ingredients and 48,588 pairings, built on real recipes and molecular chemistry." />
+  <link rel="icon" type="image/png" href="icon.png" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card: #12121a;
+      --border: #1e1e2e;
+      --text: #e6e6ea;
+      --muted: #9a9aac;
+      --accent: #4f9eff;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f5f0dc;
+        --card: #ffffff;
+        --border: #e0d8b8;
+        --text: #1a1a2e;
+        --muted: #6a6a7a;
+        --accent: #2a6dd0;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--text);
+      font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      max-width: 720px; margin: 0 auto; padding: 4rem 1.25rem;
+    }
+    header { text-align: center; margin-bottom: 3rem; }
+    h1 { font-size: 2rem; font-weight: 300; letter-spacing: 0.02em; margin: 0 0 0.5rem; }
+    .tagline { color: var(--muted); font-size: 1rem; }
+    .links { display: grid; gap: 1rem; max-width: 480px; margin: 0 auto; }
+    .link-card {
+      display: block; padding: 1.25rem 1.5rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); text-decoration: none;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .link-card:hover, .link-card:focus-visible {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      outline: none;
+    }
+    .link-card h2 { margin: 0 0 0.25rem; font-size: 1rem; font-weight: 500; }
+    .link-card p { margin: 0; color: var(--muted); font-size: 0.875rem; }
+    footer { text-align: center; margin-top: 3rem; color: var(--muted); font-size: 0.875rem; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Flavor Network</h1>
+      <p class="tagline">Find flavors that work together.</p>
+    </header>
+
+    <nav class="links" aria-label="App information">
+      <a class="link-card" href="privacy/">
+        <h2>Privacy Policy</h2>
+        <p>What we collect, why, and how to delete your data.</p>
+      </a>
+      <a class="link-card" href="support/">
+        <h2>Support</h2>
+        <p>Help, feedback, account deletion, and contact.</p>
+      </a>
+      <a class="link-card" href="https://github.com/dscherm/flavor-network">
+        <h2>Source on GitHub</h2>
+        <p>The code, the data pipeline, the open-source acknowledgements.</p>
+      </a>
+    </nav>
+
+    <footer>
+      &copy; 2026 Neural Flavor &middot; <a href="mailto:schermele@gmail.com">schermele@gmail.com</a>
+    </footer>
+  </main>
+</body>
+</html>
