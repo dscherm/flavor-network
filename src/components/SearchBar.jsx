@@ -144,7 +144,8 @@ function SearchBar({ ingredients, onSelect }) {
     <div className="search-container fixed left-1/2 -translate-x-1/2 z-[55] w-[calc(100%-5rem)] sm:w-72 md:w-88" style={{ top: 'var(--nav-h)' }}>
       <input
         ref={inputRef}
-        type="text"
+        id="ingredient-search-input"
+        type="search"
         value={query}
         onChange={handleQueryChange}
         onKeyDown={handleKeyDown}

@@ -87,7 +87,6 @@ export default function App() {
   const [showTour, setShowTour] = useState(
     () => !localStorage.getItem('flavor-tour-complete')
   );
-  const [showProfile, setShowProfile] = useState(false);
   const [profileMode, setProfileMode] = useState(false);
   // GlobalInsights kept in the codebase (component file + this state)
   // but no longer reachable from the UI per the polish pass — no
@@ -251,6 +250,16 @@ export default function App() {
     setSelectedNodes([]);
     setHighlightPairings(null);
     setActivePanel(null);
+  }, []);
+
+  // R6-37 a11y: Escape on the network canvas. Clears selection AND
+  // exits cluster focus so the keyboard escape hatch always reaches
+  // the empty network state.
+  const handleClearSelection = useCallback(() => {
+    setSelectedNodes([]);
+    setHighlightPairings(null);
+    setActivePanel(null);
+    setFocusedCluster(null);
   }, []);
 
   const handleClearSelection = useCallback(() => {
@@ -550,11 +559,11 @@ export default function App() {
             )}
           </div>
 
-          {/* Profile button */}
+          {/* Profile button — opens dedicated Profile screen (full-tab) */}
           <button
-            onClick={() => setShowProfile(v => !v)}
+            onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-              showProfile
+              activeTab === 'profile'
                 ? 'text-blue-300 bg-blue-500/10 border border-blue-500/20'
                 : 'text-gray-500 hover:text-gray-300 border border-transparent'
             }`}
@@ -596,6 +605,7 @@ export default function App() {
         focusedClusterId={focusedCluster}
         affinityEnabled={affinityEnabled}
         isMobile={isMobile}
+        onClearSelection={handleClearSelection}
       />
       {/* Hover tooltip — shows ingredient name at cursor position */}
       {hoveredNode && hoverPos && (
@@ -766,39 +776,42 @@ export default function App() {
         onComplete={() => setShowTour(false)}
         onSkip={() => setShowTour(false)}
       />
-      <ProfilePanel
-        profile={userProfile.profile}
-        actions={userProfile}
-        ingredientList={ingredientList}
-        cuisines={cuisines}
-        isOpen={showProfile}
-        onClose={() => setShowProfile(false)}
-        graphNodes={data?.graph?.nodes}
-        onSelectIngredient={handleSearchSelect}
-        onLoadRecipe={(recipe) => {
-          // Saved-recipe handoff into the Recipe Lab. Mirrors the
-          // cocktail/sauce path: REPLACE the bowl + bump `ts` so the
-          // mounted lab picks the change up.
-          const ingredients = (recipe?.ingredients || [])
-            .map((i) => (typeof i === 'string' ? i : i?.name))
-            .filter(Boolean);
-          setRecipeHandoff({
-            ingredients,
-            mode: 'recipe',
-            ts: Date.now(),
-            title: recipe?.name || '',
-          });
-          setRecipeInitialMode(null);
-          setRecipeMounted(true);
-          setActiveTab('recipe');
-          setShowProfile(false);
-        }}
-        user={user}
-        onLogin={loginWithGoogle}
-        onLoginWithApple={loginWithApple}
-        onLogout={logout}
-        onReplayTour={() => { setShowProfile(false); setShowTour(true); }}
-      />
+      {/* Profile tab — full screen, mounted only when active */}
+      <div className={`transition-opacity duration-300 ${activeTab === 'profile' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'}`}>
+        {activeTab === 'profile' && (
+          <ProfilePanel
+            profile={userProfile.profile}
+            actions={userProfile}
+            ingredientList={ingredientList}
+            cuisines={cuisines}
+            onClose={() => setActiveTab('network')}
+            graphNodes={data?.graph?.nodes}
+            onSelectIngredient={(name) => {
+              handleSearchSelect(name);
+              setActiveTab('network');
+            }}
+            onLoadRecipe={(recipe) => {
+              const ingredients = (recipe?.ingredients || [])
+                .map((i) => (typeof i === 'string' ? i : i?.name))
+                .filter(Boolean);
+              setRecipeHandoff({
+                ingredients,
+                mode: 'recipe',
+                ts: Date.now(),
+                title: recipe?.name || '',
+              });
+              setRecipeInitialMode(null);
+              setRecipeMounted(true);
+              setActiveTab('recipe');
+            }}
+            user={user}
+            onLogin={loginWithGoogle}
+            onLoginWithApple={loginWithApple}
+            onLogout={logout}
+            onReplayTour={() => { setActiveTab('network'); setShowTour(true); }}
+          />
+        )}
+      </div>
       <ProfileToggle
         profileMode={profileMode}
         onToggleMode={() => setProfileMode(v => !v)}
@@ -1060,7 +1073,7 @@ export default function App() {
             if (tab === 'recipe') setRecipeMounted(true);
             setLabDropdownOpen(false);
           }}
-          onOpenProfile={() => setShowProfile(v => !v)}
+          onOpenProfile={() => setActiveTab('profile')}
           onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
         />
       )}

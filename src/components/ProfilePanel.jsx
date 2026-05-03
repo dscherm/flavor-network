@@ -14,7 +14,7 @@ import {
 } from '../data/frequencyWeights.js';
 import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
 
-function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, onLogin, onLoginWithApple, onLogout, onReplayTour }) {
+function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, onLogin, onLoginWithApple, onLogout, onReplayTour }) {
   const [tab, setTab] = useState('ingredients');
   const [searchQuery, setSearchQuery] = useState('');
   const [importError, setImportError] = useState('');
@@ -121,11 +121,9 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
         : null;
 
   return (
-    <div className={`fixed top-24 left-0 bottom-4 z-40 flex items-stretch select-none ${isOpen ? '' : 'pointer-events-none'}`}>
-      {/* Panel */}
-      <div className={`w-72 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-r-lg flex flex-col overflow-hidden transition-transform duration-300 ease-in-out ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
+    <div className="absolute inset-0 pt-10 select-none">
+      {/* Profile screen — full-width on mobile, capped width on desktop */}
+      <div className="h-full mx-auto max-w-2xl bg-[#12121a]/95 backdrop-blur-md border-x border-[#1e1e2e] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-[#1e1e2e]">
         <h2 className="text-sm font-medium text-gray-200 tracking-wide">My Profile</h2>
@@ -494,20 +492,6 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
         )}
       </div>
       </div>
-
-      {/* Tab */}
-      <button
-        onClick={isOpen ? onClose : onClose}
-        className={`self-start mt-4 min-w-[44px] min-h-[44px] flex items-center justify-center bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-l-0 rounded-r-lg px-1.5 py-3 transition-all duration-300 ${
-          isOpen ? 'text-blue-400 translate-x-0' : 'text-gray-500 hover:text-gray-300 -translate-x-full pointer-events-none opacity-0'
-        }`}
-        aria-label="Hide profile"
-        title="My Profile"
-      >
-        <span className="text-[10px] uppercase tracking-widest font-medium" style={{ writingMode: 'vertical-rl' }}>
-          Profile
-        </span>
-      </button>
     </div>
   );
 }
