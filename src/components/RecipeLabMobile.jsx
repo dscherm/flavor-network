@@ -285,6 +285,44 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         </div>
       )}
       <style>{`@keyframes fn-toast-in { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }`}</style>
+      {/* Top action bar — prominent Save button so users can save the
+          recipe they're building from the top of the screen. */}
+      <div className="relative z-20 mx-2 mt-1 mb-1 flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg border border-[#c9b99a] bg-[#fefae0]/90">
+        <div className="text-xs text-[#7a6a4a]" style={{ fontFamily: FONT_FAMILY }}>
+          {recipeIngredients.length === 0
+            ? 'Build a recipe…'
+            : `${recipeIngredients.length} ingredient${recipeIngredients.length === 1 ? '' : 's'}`}
+        </div>
+        <div className="flex gap-1">
+          <button
+            onClick={() => {
+              if (recipeIngredients.length < 2) return;
+              userProfile?.addRecipe?.(recipeTitle || 'Untitled Recipe', recipeIngredients);
+              setHandoffToast(`Saved "${recipeTitle || 'Untitled Recipe'}" to profile`);
+              hapticMedium();
+            }}
+            disabled={recipeIngredients.length < 2}
+            className={`min-h-[40px] px-4 text-sm font-medium rounded-md border transition-colors ${
+              recipeIngredients.length >= 2
+                ? 'bg-[#5a4a2a] text-[#fefae0] border-[#5a4a2a] hover:bg-[#3a3428]'
+                : 'bg-[#e8dcc0]/50 text-[#a09070] border-[#d8cca8] cursor-not-allowed'
+            }`}
+            style={{ fontFamily: FONT_FAMILY }}
+            aria-label="Save recipe to profile"
+          >
+            Save Recipe
+          </button>
+          <button
+            onClick={handleClear}
+            disabled={recipeIngredients.length === 0}
+            className="min-h-[40px] px-3 text-sm rounded-md border border-[#d8cca8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:bg-[#f0e8d0]"
+            style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
       {/* Mode tabs — full-width strip under the top nav so they're obvious
           on mobile. User previously missed the corner-tucked tabs. */}
       <div className="relative z-20 mx-2 mt-1 mb-2 flex items-center gap-1 p-1 rounded-lg border border-[#c9b99a] bg-[#f5edd0]">
@@ -374,29 +412,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           compatibility={null}
         />
 
-        {/* Save / Clear buttons */}
-        {recipeIngredients.length >= 2 && (
-          <div className="absolute bottom-1 right-2 flex gap-1 z-10">
-            <button
-              onClick={() => {
-                userProfile?.addRecipe?.(recipeTitle || 'Untitled Recipe', recipeIngredients);
-                setHandoffToast(`Saved "${recipeTitle || 'Untitled Recipe'}" to profile`);
-                hapticMedium();
-              }}
-              className="px-3 py-1 text-xs rounded-md border border-[#c9b99a] bg-[#e8dcc0] transition-colors"
-              style={{ fontFamily: FONT_FAMILY, color: '#5a4a2a' }}
-            >
-              Save
-            </button>
-            <button
-              onClick={handleClear}
-              className="px-3 py-1 text-xs rounded-md border border-[#d8cca8] transition-colors"
-              style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}
-            >
-              Clear
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Zone 3: Suggestion Drawer */}

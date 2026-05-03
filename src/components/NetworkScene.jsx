@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 import SceneManager from '../three/SceneManager.js';
+import NetworkA11yShim from './NetworkA11yShim.jsx';
 import NodeMesh, { tasteMatches } from '../three/NodeMesh.js';
 import EdgeMesh from '../three/EdgeMesh.js';
 import ParticleSystem from '../three/ParticleSystem.js';
@@ -39,6 +40,7 @@ function NetworkScene({
   scaleMultiplier = 1.0, // R14: per-view node scale boost; Cocktail/Sauce use ~3 to make shapes legible
   centroidAdapter = null, // R14 camera-animations: () => Array<{id, position, labelSprite?}>; opting in instantiates CameraAnimator
   isMobile = false, // R14: drives 30s mobile orbit lap and viewport-based defaults
+  onClearSelection = null, // R6-37: Escape on canvas clears selection
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -525,14 +527,44 @@ function NetworkScene({
     requestAnimationFrame(animateFly);
   }, [flyToTarget]);
 
+  const handleWrapperKeyDown = useCallback(
+    (e) => {
+      if (e.key === 'Escape' && onClearSelection) {
+        e.preventDefault();
+        onClearSelection();
+        return;
+      }
+      if (e.key === '/') {
+        const input = document.getElementById('ingredient-search-input');
+        if (input) {
+          e.preventDefault();
+          input.focus();
+        }
+      }
+    },
+    [onClearSelection],
+  );
+
   return (
     <div
-      ref={containerRef}
-      tabIndex={0}
-      role="application"
-      aria-label="Flavor network — 3D ingredient pairing graph. Use arrow keys to walk through pairings, Escape to clear selection, slash to search."
+      role="region"
+      aria-label="Flavor network"
       style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
-    />
+    >
+      <div
+        ref={containerRef}
+        tabIndex={0}
+        role="application"
+        aria-label="Flavor network — 3D ingredient pairing graph. Use Tab to traverse top ingredients, Enter to select, Escape to clear selection, slash to focus search."
+        onKeyDown={handleWrapperKeyDown}
+        style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
+      />
+      <NetworkA11yShim
+        data={data}
+        selectedNode={selectedNode}
+        onNodeClick={onNodeClick}
+      />
+    </div>
   );
 }
 

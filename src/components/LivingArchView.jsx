@@ -13,6 +13,7 @@ import { handleSceneClick, handleSceneMove } from './livingArchInteraction.js';
 import { AffinityMode } from '../three/AffinityMode.js';
 import { CameraAnimator } from '../three/CameraAnimator.js';
 import { computeBloomStrength } from '../three/bloomQuality.js';
+import NetworkA11yShim from './NetworkA11yShim.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
 import {
@@ -50,6 +51,7 @@ export default function LivingArchView({
   focusedClusterId = null,
   affinityEnabled = true,
   isMobile = false,
+  onClearSelection = null,
 }) {
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
@@ -1822,9 +1824,44 @@ export default function LivingArchView({
     if (stateRef.current) stateRef.current.triggerTransition(target);
   }, [mode, setMode]);
 
+  // R6-37 a11y: keyboard shortcuts on the canvas wrapper.
+  // Escape clears the current selection; slash focuses the search bar
+  // (id "ingredient-search-input" is owned by SearchBar.jsx).
+  const handleCanvasKeyDown = useCallback(
+    (e) => {
+      if (e.key === 'Escape' && onClearSelection) {
+        e.preventDefault();
+        onClearSelection();
+        return;
+      }
+      if (e.key === '/') {
+        const input = document.getElementById('ingredient-search-input');
+        if (input) {
+          e.preventDefault();
+          input.focus();
+        }
+      }
+    },
+    [onClearSelection],
+  );
+
+  const a11ySelected = selectedNode || (selectedNodes.length > 0 ? selectedNodes[selectedNodes.length - 1] : null);
+
   return (
-    <div className="absolute inset-0 pt-10">
-      <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+    <div className="absolute inset-0 pt-10" role="region" aria-label="Flavor network">
+      <div
+        ref={containerRef}
+        tabIndex={0}
+        role="application"
+        aria-label="Flavor network — 3D ingredient pairing graph. Use Tab to traverse top ingredients, Enter to select, Escape to clear selection, slash to focus search."
+        onKeyDown={handleCanvasKeyDown}
+        style={{ width: '100%', height: '100%' }}
+      />
+      <NetworkA11yShim
+        data={data}
+        selectedNode={a11ySelected}
+        onNodeClick={onNodeClick}
+      />
 
       {/* PCA axis labels — only meaningful in flat top-down 2D mode.
           Each end shows the 3 most-extreme ingredients on that axis,
