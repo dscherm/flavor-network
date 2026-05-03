@@ -77,19 +77,21 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       const sourceLabel = handoff.mode === 'cocktail' ? 'cocktail'
                         : handoff.mode === 'sauce' ? 'sauce'
                         : 'recipe';
+      const titleSuffix = handoff.title ? ` "${handoff.title}"` : '';
       const msg = cleared > 0
-        ? `Loaded ${incoming.length} ingredients from ${sourceLabel} — previous ${cleared} cleared`
-        : `Loaded ${incoming.length} ingredients from ${sourceLabel}`;
+        ? `Loaded ${incoming.length} ingredients from ${sourceLabel}${titleSuffix} — previous ${cleared} cleared`
+        : `Loaded ${incoming.length} ingredients from ${sourceLabel}${titleSuffix}`;
       setHandoffToast(msg);
       return incoming;
     });
     setCenterIngredient(incoming[0]);
-    setRecipeTitle('');
+    setRecipeTitle(handoff.title || '');
     setSelectedStructure(null);
     setActiveTab('all');
     setDrawerSnap('half');
     if (handoff.mode === 'cocktail') setLabMode('cocktail');
     else if (handoff.mode === 'sauce') setLabMode('sauce');
+    else setLabMode('taste');
   }, [handoff?.ts]);
 
   // Auto-clear the handoff toast after 2.5s.
@@ -373,8 +375,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           <div className="absolute bottom-1 right-2 flex gap-1 z-10">
             <button
               onClick={() => {
-                const recipe = { name: recipeTitle || 'Untitled Recipe', ingredients: recipeIngredients, createdAt: Date.now() };
-                userProfile?.addRecipe?.(recipe);
+                userProfile?.addRecipe?.(recipeTitle || 'Untitled Recipe', recipeIngredients);
+                setHandoffToast(`Saved "${recipeTitle || 'Untitled Recipe'}" to profile`);
               }}
               className="px-3 py-1 text-xs rounded-md border border-[#c9b99a] bg-[#e8dcc0] transition-colors"
               style={{ fontFamily: FONT_FAMILY, color: '#5a4a2a' }}

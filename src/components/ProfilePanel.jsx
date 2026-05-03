@@ -14,7 +14,7 @@ import {
 } from '../data/frequencyWeights.js';
 import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
 
-function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onClose, graphNodes, onSelectIngredient, user, onLogin, onLogout, onReplayTour }) {
+function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, onLogin, onLogout, onReplayTour }) {
   const [tab, setTab] = useState('ingredients');
   const [searchQuery, setSearchQuery] = useState('');
   const [importError, setImportError] = useState('');
@@ -239,6 +239,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, isOpen, onCl
           <RecipeList
             recipes={profile.recipes}
             onRemove={actions.removeRecipe}
+            onLoad={onLoadRecipe}
           />
         )}
 
@@ -514,7 +515,7 @@ function FrequencyStat({ label, value, color }) {
   );
 }
 
-function RecipeList({ recipes, onRemove }) {
+function RecipeList({ recipes, onRemove, onLoad }) {
   if (recipes.length === 0) {
     return (
       <p className="text-[11px] text-gray-600 text-center mt-6">
@@ -525,6 +526,8 @@ function RecipeList({ recipes, onRemove }) {
     );
   }
 
+  const loadable = typeof onLoad === 'function';
+
   return (
     <ul className="space-y-2">
       {recipes.map((recipe, index) => (
@@ -532,10 +535,20 @@ function RecipeList({ recipes, onRemove }) {
           key={index}
           className="px-2 py-1.5 rounded bg-[#1a1a2e]/50 group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-200 font-medium truncate">
-              {recipe.name}
-            </span>
+          <div className="flex items-center justify-between gap-2">
+            {loadable ? (
+              <button
+                onClick={() => onLoad(recipe)}
+                className="text-xs text-gray-200 font-medium truncate text-left flex-1 hover:text-blue-300 transition-colors"
+                aria-label={`Load recipe ${recipe.name} into Recipe Lab`}
+              >
+                {recipe.name}
+              </button>
+            ) : (
+              <span className="text-xs text-gray-200 font-medium truncate">
+                {recipe.name}
+              </span>
+            )}
             <button
               onClick={() => onRemove(index)}
               className="text-gray-600 hover:text-red-400 transition-colors text-xs opacity-0 group-hover:opacity-100"
