@@ -72,6 +72,13 @@ describe('SuggestionDrawerToggle (AC-1, AC-2, AC-3a, AC-4, AC-5, AC-20, AC-21)',
     expect(tabs[1]).toHaveAttribute('aria-controls', 'suggestion-panel');
   });
 
+  it('Phase-3 a11y: each tab has a stable id derived from panelId so aria-labelledby on the panel can target it', () => {
+    setup();
+    const [add, replace] = screen.getAllByRole('tab');
+    expect(add).toHaveAttribute('id', 'suggestion-panel-tab-add');
+    expect(replace).toHaveAttribute('id', 'suggestion-panel-tab-replace');
+  });
+
   it('AC-20: single click flips mode (when not disabled)', () => {
     const handler = vi.fn();
     setup({ mode: 'ADD', effectiveBowlSize: 2, onChange: handler });
