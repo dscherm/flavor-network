@@ -14,9 +14,9 @@
     "api": "node src/api/server.js",
     "gate": "node scripts/gate.cjs",
     "gate:quick": "node scripts/gate.cjs --no-build",
-    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:sync": "npm run build && npx cap sync ios && node scripts/strip-ios-bundle.mjs",
     "ios:open": "npx cap open ios",
-    "ios:build": "npm run build && npx cap sync ios && cd ios/App && xcodebuild build -workspace App.xcworkspace -scheme App -configuration Debug -destination 'generic/platform=iOS Simulator'"
+    "ios:build": "npm run build && npx cap sync ios && node scripts/strip-ios-bundle.mjs && cd ios/App && xcodebuild build -workspace App.xcworkspace -scheme App -configuration Debug -destination 'generic/platform=iOS Simulator'"
   },
   "dependencies": {
     "@capacitor/cli": "^8.0.1",
