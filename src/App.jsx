@@ -56,7 +56,7 @@ export default function App() {
 
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
   const { loading, error, data, retry } = useProData({ enabled: startPageComplete });
-  const { user, loginWithGoogle, logout } = useAuth();
+  const { user, loginWithGoogle, loginWithApple, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe'
   const [cocktailMounted, setCocktailMounted] = useState(false);
   const [sauceMounted, setSauceMounted] = useState(false);
@@ -795,6 +795,7 @@ export default function App() {
         }}
         user={user}
         onLogin={loginWithGoogle}
+        onLoginWithApple={loginWithApple}
         onLogout={logout}
         onReplayTour={() => { setShowProfile(false); setShowTour(true); }}
       />
