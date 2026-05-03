@@ -5,6 +5,7 @@ import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import AromaHexWheel from './AromaHexWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import SuggestionDrawer from './SuggestionDrawer.jsx';
+import { hapticLight, hapticMedium } from '../utils/native.js';
 // "Start from" template strip + "This looks like" classical match
 // card/toast removed in the polish pass — they were redundant against
 // the Cocktail/Sauce Lab handoff that already pre-loads the canonical
@@ -215,6 +216,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     if (!name || recipeIngredients.includes(name)) return;
     if (!centerIngredient) setCenterIngredient(name);
     setRecipeIngredients(prev => [...prev, name]);
+    hapticLight();
   }, [centerIngredient, recipeIngredients]);
 
   const handleRemoveIngredient = useCallback((name) => {
@@ -224,6 +226,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       setCenterIngredient(remaining.length > 0 ? remaining[0] : null);
       if (remaining.length === 0) setDrawerSnap('peek');
     }
+    hapticLight();
   }, [centerIngredient, recipeIngredients]);
 
   // Swap one bowl ingredient for another in a single edit. Used by the
@@ -241,6 +244,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       return next;
     });
     if (oldName === centerIngredient) setCenterIngredient(newName);
+    hapticLight();
   }, [centerIngredient]);
 
   const handleRecenter = useCallback((name) => {
@@ -377,6 +381,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
               onClick={() => {
                 userProfile?.addRecipe?.(recipeTitle || 'Untitled Recipe', recipeIngredients);
                 setHandoffToast(`Saved "${recipeTitle || 'Untitled Recipe'}" to profile`);
+                hapticMedium();
               }}
               className="px-3 py-1 text-xs rounded-md border border-[#c9b99a] bg-[#e8dcc0] transition-colors"
               style={{ fontFamily: FONT_FAMILY, color: '#5a4a2a' }}
