@@ -30,31 +30,31 @@ describe('startPageFlag', () => {
   });
 
   it('readStartPageFlag returns true when key === "1"', () => {
-    localStorage.setItem('fn-start-seen', '1');
+    localStorage.setItem('fn-start-seen-v2', '1');
     expect(readStartPageFlag()).toBe(true);
   });
 
   it('readStartPageFlag returns false for any other stored value', () => {
-    localStorage.setItem('fn-start-seen', 'yes');
+    localStorage.setItem('fn-start-seen-v2', 'yes');
     expect(readStartPageFlag()).toBe(false);
   });
 
   it('writeStartPageFlag persists "1"', () => {
     writeStartPageFlag();
-    expect(localStorage.getItem('fn-start-seen')).toBe('1');
+    expect(localStorage.getItem('fn-start-seen-v2')).toBe('1');
   });
 
   it('clearStartPageFlag removes the key', () => {
-    localStorage.setItem('fn-start-seen', '1');
+    localStorage.setItem('fn-start-seen-v2', '1');
     clearStartPageFlag();
-    expect(localStorage.getItem('fn-start-seen')).toBeNull();
+    expect(localStorage.getItem('fn-start-seen-v2')).toBeNull();
   });
 
   it('?reset=start clears the key and returns false even if previously set', () => {
-    localStorage.setItem('fn-start-seen', '1');
+    localStorage.setItem('fn-start-seen-v2', '1');
     setSearch('?reset=start');
     expect(readStartPageFlag()).toBe(false);
-    expect(localStorage.getItem('fn-start-seen')).toBeNull();
+    expect(localStorage.getItem('fn-start-seen-v2')).toBeNull();
   });
 
   it('write does not throw when localStorage.setItem throws (private-mode Safari)', () => {

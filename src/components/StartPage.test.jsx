@@ -13,9 +13,9 @@ describe('StartPage', () => {
   it('renders the title and the 3 mode cards', () => {
     render(<StartPage onModeSelect={() => {}} />);
     expect(screen.getByText(/Find flavors that work together/i)).toBeTruthy();
-    expect(screen.getByText(/Discover ingredients/i)).toBeTruthy();
-    expect(screen.getByText(/Build a recipe/i)).toBeTruthy();
-    expect(screen.getByText(/Learn the science/i)).toBeTruthy();
+    expect(screen.getByText(/Explore Pairing Model/i)).toBeTruthy();
+    expect(screen.getByText(/Explore Cocktail Model/i)).toBeTruthy();
+    expect(screen.getByText(/Explore Sauce Model/i)).toBeTruthy();
   });
 
   it('subtitle mentions credibility anchors (2.2M recipes + molecular chemistry)', () => {
@@ -25,62 +25,59 @@ describe('StartPage', () => {
     expect(subtitle.textContent).toMatch(/molecular chemistry/i);
   });
 
-  it('clicking Discover fires onModeSelect("discover")', () => {
+  it('clicking the Pairing card fires onModeSelect("pairing")', () => {
     const onModeSelect = vi.fn();
     const { container } = render(<StartPage onModeSelect={onModeSelect} />);
-    fireEvent.click(container.querySelector('[data-mode="discover"]'));
-    expect(onModeSelect).toHaveBeenCalledWith('discover');
+    fireEvent.click(container.querySelector('[data-mode="pairing"]'));
+    expect(onModeSelect).toHaveBeenCalledWith('pairing');
   });
 
-  it('clicking Build fires onModeSelect("build")', () => {
+  it('clicking the Cocktail card fires onModeSelect("cocktail")', () => {
     const onModeSelect = vi.fn();
     const { container } = render(<StartPage onModeSelect={onModeSelect} />);
-    fireEvent.click(container.querySelector('[data-mode="build"]'));
-    expect(onModeSelect).toHaveBeenCalledWith('build');
+    fireEvent.click(container.querySelector('[data-mode="cocktail"]'));
+    expect(onModeSelect).toHaveBeenCalledWith('cocktail');
   });
 
-  it('clicking Learn fires onModeSelect("learn")', () => {
+  it('clicking the Sauce card fires onModeSelect("sauce")', () => {
     const onModeSelect = vi.fn();
     const { container } = render(<StartPage onModeSelect={onModeSelect} />);
-    fireEvent.click(container.querySelector('[data-mode="learn"]'));
-    expect(onModeSelect).toHaveBeenCalledWith('learn');
+    fireEvent.click(container.querySelector('[data-mode="sauce"]'));
+    expect(onModeSelect).toHaveBeenCalledWith('sauce');
   });
 
   it('renders 3 button elements so Tab reaches each card', () => {
     const { container } = render(<StartPage onModeSelect={() => {}} />);
     const buttons = container.querySelectorAll('button[data-mode]');
     expect(buttons.length).toBe(3);
-    expect(buttons[0].getAttribute('data-mode')).toBe('discover');
-    expect(buttons[1].getAttribute('data-mode')).toBe('build');
-    expect(buttons[2].getAttribute('data-mode')).toBe('learn');
+    expect(buttons[0].getAttribute('data-mode')).toBe('pairing');
+    expect(buttons[1].getAttribute('data-mode')).toBe('cocktail');
+    expect(buttons[2].getAttribute('data-mode')).toBe('sauce');
   });
 
   it('auto-focuses the first card on mount', () => {
     const { container } = render(<StartPage onModeSelect={() => {}} />);
-    const firstBtn = container.querySelector('[data-mode="discover"]');
+    const firstBtn = container.querySelector('[data-mode="pairing"]');
     expect(document.activeElement).toBe(firstBtn);
   });
 
   it('Enter key on focused card activates it (native <button> keyboard semantics)', () => {
     const onModeSelect = vi.fn();
     const { container } = render(<StartPage onModeSelect={onModeSelect} />);
-    const buildBtn = container.querySelector('[data-mode="build"]');
-    buildBtn.focus();
-    expect(document.activeElement).toBe(buildBtn);
+    const cocktailBtn = container.querySelector('[data-mode="cocktail"]');
+    cocktailBtn.focus();
+    expect(document.activeElement).toBe(cocktailBtn);
     // HTMLButtonElement.click() dispatches the same click event that browsers
     // synthesize natively when Enter is pressed on a focused <button>.
-    buildBtn.click();
-    expect(onModeSelect).toHaveBeenCalledWith('build');
+    cocktailBtn.click();
+    expect(onModeSelect).toHaveBeenCalledWith('cocktail');
   });
 
   it('applies motion-safe class to animated elements (reduced-motion opt-out)', () => {
     const { container } = render(<StartPage onModeSelect={() => {}} />);
-    // Discover card: pulsing dots opt out of animation via motion-safe:animate-pulse
-    const pulsingDots = container.querySelectorAll('.motion-safe\\:animate-pulse');
-    expect(pulsingDots.length).toBeGreaterThan(0);
-    // Learn card: rotating molecule opts out via motion-safe:[animation:...]
-    const rotating = container.querySelector('[class*="motion-safe"][class*="fn-spin"]');
-    expect(rotating).toBeTruthy();
+    // Pairing dots + Sauce steam pulses opt out via motion-safe:animate-pulse.
+    const pulsing = container.querySelectorAll('.motion-safe\\:animate-pulse');
+    expect(pulsing.length).toBeGreaterThan(0);
   });
 });
 
@@ -171,18 +168,18 @@ describe('App-level flow integration', () => {
 
   it('happy path: mode click → loading → app ready', async () => {
     const { container, getByTestId } = render(<FlowHarness fetchShouldFail={false} />);
-    expect(container.querySelector('[data-mode="discover"]')).toBeTruthy();
+    expect(container.querySelector('[data-mode="pairing"]')).toBeTruthy();
     await act(async () => {
-      fireEvent.click(container.querySelector('[data-mode="discover"]'));
+      fireEvent.click(container.querySelector('[data-mode="pairing"]'));
     });
     await waitFor(() => expect(getByTestId('app-ready')).toBeTruthy());
-    expect(window.__selectedMode).toBe('discover');
+    expect(window.__selectedMode).toBe('pairing');
   });
 
   it('error path: fetch fails → ErrorCard renders with spec copy', async () => {
     const { container } = render(<FlowHarness fetchShouldFail={true} />);
     await act(async () => {
-      fireEvent.click(container.querySelector('[data-mode="build"]'));
+      fireEvent.click(container.querySelector('[data-mode="cocktail"]'));
     });
     await waitFor(() => {
       expect(screen.getByText("Couldn't load the flavor network.")).toBeTruthy();
@@ -194,7 +191,7 @@ describe('App-level flow integration', () => {
   it('Retry re-invokes fetch (error persists if fetch still fails)', async () => {
     const { container } = render(<FlowHarness fetchShouldFail={true} />);
     await act(async () => {
-      fireEvent.click(container.querySelector('[data-mode="learn"]'));
+      fireEvent.click(container.querySelector('[data-mode="sauce"]'));
     });
     await waitFor(() => screen.getByText("Couldn't load the flavor network."));
     await act(async () => {
@@ -206,29 +203,29 @@ describe('App-level flow integration', () => {
   it('500 → Error Card → Retry succeeds → routes to selected mode', async () => {
     const { container, getByTestId } = render(<FlowHarness failUntilAttempt={1} />);
     await act(async () => {
-      fireEvent.click(container.querySelector('[data-mode="discover"]'));
+      fireEvent.click(container.querySelector('[data-mode="pairing"]'));
     });
     await waitFor(() => screen.getByText("Couldn't load the flavor network."));
     await act(async () => {
       fireEvent.click(screen.getByText('Retry'));
     });
     await waitFor(() => expect(getByTestId('app-ready')).toBeTruthy());
-    expect(window.__selectedMode).toBe('discover');
+    expect(window.__selectedMode).toBe('pairing');
   });
 
   it('Start over returns to StartPage', async () => {
     const { container } = render(<FlowHarness fetchShouldFail={true} />);
     await act(async () => {
-      fireEvent.click(container.querySelector('[data-mode="discover"]'));
+      fireEvent.click(container.querySelector('[data-mode="pairing"]'));
     });
     await waitFor(() => screen.getByText("Couldn't load the flavor network."));
     await act(async () => {
       fireEvent.click(screen.getByText('Start over'));
     });
     await waitFor(() => {
-      expect(container.querySelector('[data-mode="discover"]')).toBeTruthy();
-      expect(container.querySelector('[data-mode="build"]')).toBeTruthy();
-      expect(container.querySelector('[data-mode="learn"]')).toBeTruthy();
+      expect(container.querySelector('[data-mode="pairing"]')).toBeTruthy();
+      expect(container.querySelector('[data-mode="cocktail"]')).toBeTruthy();
+      expect(container.querySelector('[data-mode="sauce"]')).toBeTruthy();
     });
   });
 });
