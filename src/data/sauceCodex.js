@@ -115,6 +115,14 @@ function jaccard(a, b) {
   return union === 0 ? 0 : inter / union;
 }
 
+// R15-5: intra-cuisine-pod scatter — bumped 3.5 → 5.25 (1.5×) so
+// members are easier to see and pick. The per-member growth
+// coefficient was reduced 1.5 → 1.25 to keep large pods (k≥6, rare)
+// within the inter-pod gap budget. Exported so a unit test can pin
+// these without re-deriving from rendered positions.
+export const SAUCE_BASE_SCATTER = 5.25;
+export const SAUCE_SCATTER_K_COEFF = 1.25;
+
 /**
  * Load the sauce codex JSON and shape it into the graph contract.
  *
@@ -262,10 +270,11 @@ export function computeSauceCodexPositions(nodes, clusters) {
   // without empty space between them.
   const FAMILY_RADIUS = 26;
   const SUBCLUSTER_RADIUS = 7;  // distance from family centroid to cuisine sub-centroid
-  const BASE_SCATTER = 3.5;     // jitter inside each cuisine pod
+  const BASE_SCATTER = SAUCE_BASE_SCATTER;
+  const SCATTER_K_COEFF = SAUCE_SCATTER_K_COEFF;
 
   function scatterFor(k) {
-    return BASE_SCATTER + Math.max(0, Math.sqrt(k - 1)) * 1.5;
+    return BASE_SCATTER + Math.max(0, Math.sqrt(k - 1)) * SCATTER_K_COEFF;
   }
 
   const familyCenter = new Map();

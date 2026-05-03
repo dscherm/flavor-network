@@ -44,6 +44,13 @@ const STOP = new Set([
   'discarded','served','rim','garnish','blended','reserve',
 ]);
 
+// R15-5: intra-subcluster scatter — bumped 3 → 4.5 (1.5×) so members
+// are easier to see and pick. Exported so a unit test can pin the
+// constant without re-deriving it from rendered positions (the FNV1a
+// hash used downstream loses precision for short, similar-prefix
+// strings, which makes bbox-based assertions flaky).
+export const COCKTAIL_SCATTER = 4.5;
+
 // Ingredient-name normalization: strip leading measurement, parenthetical
 // asides, and trailing qualifier words to get a canonical lower-case
 // ingredient label that we can match against the ProData pairings graph.
@@ -224,7 +231,7 @@ export function computeCodexPositions(nodes, clusters) {
   // ~10-unit visual gap — tight but no overlap.
   const FAMILY_RADIUS = 20;
   const SUBCLUSTER_RADIUS = 8;
-  const SCATTER = 3;
+  const SCATTER = COCKTAIL_SCATTER;
 
   // Fibonacci-sphere distribution for family centroids. Gives the
   // visual feel of a polyhedron — points are roughly evenly-spaced
