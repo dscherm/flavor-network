@@ -68,6 +68,7 @@ export default function SuggestionDrawerToggle({ mode, onChange, effectiveBowlSi
       </span>
       <button
         ref={addRef}
+        id={`${panelId}-tab-add`}
         role="tab"
         type="button"
         aria-selected={mode === 'ADD'}
@@ -82,6 +83,7 @@ export default function SuggestionDrawerToggle({ mode, onChange, effectiveBowlSi
       </button>
       <button
         ref={replaceRef}
+        id={`${panelId}-tab-replace`}
         role="tab"
         type="button"
         aria-selected={mode === 'REPLACE'}

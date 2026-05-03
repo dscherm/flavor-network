@@ -826,6 +826,8 @@ export default function SuggestionDrawer({
             // ADD mode — 8 taste-partitioned columns from recipe co-occurrence ranking.
             <div
               id="suggestion-panel"
+              role="tabpanel"
+              aria-labelledby="suggestion-panel-tab-add"
               className="grid gap-2 pb-1"
               style={{
                 gridTemplateColumns: isMobile
@@ -892,6 +894,8 @@ export default function SuggestionDrawer({
             //     stacked into more rows when bowl size > 2.
             <div
               id="suggestion-panel"
+              role="tabpanel"
+              aria-labelledby="suggestion-panel-tab-replace"
               className="grid gap-2 pb-1"
               style={{
                 gridTemplateColumns: isMobile

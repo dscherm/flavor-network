@@ -243,6 +243,62 @@ describe('SuggestionDrawer ADD-mode rendering (AC-9, AC-11, AC-13, AC-15..AC-19,
     expect(screen.getByText('lime')).toBeInTheDocument();
   });
 
+  it('Phase-3 a11y: ADD panel exposes role=tabpanel with aria-labelledby pointing at the ADD tab id', () => {
+    renderDrawer({ recipeIngredients: [] });
+    const panel = document.getElementById('suggestion-panel');
+    expect(panel).not.toBeNull();
+    expect(panel).toHaveAttribute('role', 'tabpanel');
+    expect(panel).toHaveAttribute('aria-labelledby', 'suggestion-panel-tab-add');
+    const labelTab = document.getElementById('suggestion-panel-tab-add');
+    expect(labelTab).not.toBeNull();
+    expect(labelTab).toHaveAttribute('role', 'tab');
+  });
+
+  it('Phase-3 a11y: REPLACE panel exposes role=tabpanel with aria-labelledby pointing at the REPLACE tab id', () => {
+    renderDrawer({ recipeIngredients: ['onion'] });
+    const panel = document.getElementById('suggestion-panel');
+    expect(panel).not.toBeNull();
+    expect(panel).toHaveAttribute('role', 'tabpanel');
+    expect(panel).toHaveAttribute('aria-labelledby', 'suggestion-panel-tab-replace');
+    const labelTab = document.getElementById('suggestion-panel-tab-replace');
+    expect(labelTab).not.toBeNull();
+    expect(labelTab).toHaveAttribute('role', 'tab');
+  });
+
+  it('Phase-3 stability: 100 ADD↔REPLACE flips on a 5-ingredient bowl keep DOM column count stable', () => {
+    const fix = makeFixture();
+    fix.edges.push({ source: 'onion', target: 'sugar', strength: 0.7 });
+    fix.edges.push({ source: 'onion', target: 'butter', strength: 0.6 });
+    fix.edges.push({ source: 'garlic', target: 'salt', strength: 0.7 });
+    render(
+      <SuggestionDrawer
+        centerIngredient={null}
+        recipeIngredients={['onion', 'garlic', 'sugar', 'butter', 'salt']}
+        nodes={fix.nodes}
+        edges={fix.edges}
+        onAddIngredient={vi.fn()}
+        onSwapIngredient={vi.fn()}
+        activeTab="all"
+        onTabChange={vi.fn()}
+        snapState="full"
+        onSnapChange={vi.fn()}
+        labMode="taste"
+        recipePairs={fix.recipePairs}
+        globalCount={fix.globalCount}
+      />
+    );
+    const [addTab, replaceTab] = screen.getAllByRole('tab');
+    const initialReplaceCols = screen.queryAllByText('Replace').length;
+    for (let i = 0; i < 50; i++) {
+      fireEvent.click(addTab);
+      const addCols = screen.getAllByTestId('add-column');
+      expect(addCols).toHaveLength(8);
+      fireEvent.click(replaceTab);
+      const replaceCols = screen.queryAllByText('Replace');
+      expect(replaceCols.length).toBe(initialReplaceCols);
+    }
+  });
+
   it('AC-25: filter persistence — flipping ADD↔REPLACE does not reset activeTab; sweet filter sticks', () => {
     const onTabChange = vi.fn();
     const fix = makeFixture();
