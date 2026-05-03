@@ -1,4 +1,5 @@
 import { useRef, useCallback } from 'react';
+import { hapticSelection } from '../utils/native.js';
 
 const FONT_FAMILY = 'Caveat, cursive';
 
@@ -22,14 +23,20 @@ export default function SuggestionDrawerToggle({ mode, onChange, effectiveBowlSi
   const replaceDisabled = effectiveBowlSize === 0;
 
   const handleAddClick = useCallback(() => {
-    if (mode !== 'ADD') onChange('ADD');
+    if (mode !== 'ADD') {
+      hapticSelection();
+      onChange('ADD');
+    }
   }, [mode, onChange]);
 
   const handleReplaceClick = useCallback(() => {
     if (replaceDisabled) {
       return;
     }
-    if (mode !== 'REPLACE') onChange('REPLACE');
+    if (mode !== 'REPLACE') {
+      hapticSelection();
+      onChange('REPLACE');
+    }
   }, [mode, onChange, replaceDisabled]);
 
   // ←/→ flip the focused tab AND move DOM focus to the other tab.
@@ -37,9 +44,11 @@ export default function SuggestionDrawerToggle({ mode, onChange, effectiveBowlSi
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
     if (mode === 'ADD' && !replaceDisabled) {
+      hapticSelection();
       onChange('REPLACE');
       replaceRef.current?.focus();
     } else if (mode === 'REPLACE') {
+      hapticSelection();
       onChange('ADD');
       addRef.current?.focus();
     }

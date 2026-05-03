@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { hapticMedium } from '../utils/native.js';
 
 const MODES = [
   {
@@ -123,6 +124,7 @@ export default function StartPage({ onModeSelect }) {
   }, []);
 
   const handleSelect = (id) => {
+    hapticMedium();
     onModeSelect?.(id);
   };
 
