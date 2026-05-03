@@ -775,6 +775,24 @@ export default function App() {
         onClose={() => setShowProfile(false)}
         graphNodes={data?.graph?.nodes}
         onSelectIngredient={handleSearchSelect}
+        onLoadRecipe={(recipe) => {
+          // Saved-recipe handoff into the Recipe Lab. Mirrors the
+          // cocktail/sauce path: REPLACE the bowl + bump `ts` so the
+          // mounted lab picks the change up.
+          const ingredients = (recipe?.ingredients || [])
+            .map((i) => (typeof i === 'string' ? i : i?.name))
+            .filter(Boolean);
+          setRecipeHandoff({
+            ingredients,
+            mode: 'recipe',
+            ts: Date.now(),
+            title: recipe?.name || '',
+          });
+          setRecipeInitialMode(null);
+          setRecipeMounted(true);
+          setActiveTab('recipe');
+          setShowProfile(false);
+        }}
         user={user}
         onLogin={loginWithGoogle}
         onLogout={logout}
