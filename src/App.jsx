@@ -262,12 +262,6 @@ export default function App() {
     setFocusedCluster(null);
   }, []);
 
-  const handleClearSelection = useCallback(() => {
-    setSelectedNodes([]);
-    setHighlightPairings(null);
-    setActivePanel(null);
-  }, []);
-
   const handleLabSelectionChange = useCallback((nodes) => {
     setSelectedNodes(nodes);
   }, []);
