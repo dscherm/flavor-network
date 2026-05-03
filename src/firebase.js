@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -15,3 +15,14 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// App Store Review Guideline 4.8 requires Sign-in-with-Apple as an
+// alternative whenever any third-party sign-in is offered (we offer
+// Google). OAuthProvider('apple.com') uses Firebase's Apple OAuth
+// flow, which works on web (popup) and inside the iOS WebView (popup
+// → Apple ID web sheet). Native ASAuthorization on iOS would be a
+// nicer UX but isn't required for App Review compliance — the web
+// flow is.
+export const appleProvider = new OAuthProvider('apple.com');
+appleProvider.addScope('email');
+appleProvider.addScope('name');
