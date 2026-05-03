@@ -35,3 +35,8 @@ __pycache__/
 chemDataset/raw/
 chemDataset/processed/
 /public/wasm/
+
+# Logo iteration artifacts. Source-of-truth lives in assets/. The chosen
+# logo's source PNG is committed there; the throwaway iterations and the
+# vtracer SVGs are reproducible from scripts/generate-logos.py.
+resources/logo-options/
