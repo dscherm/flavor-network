@@ -17,13 +17,15 @@ export default function MobileTabBar({
 
   return (
     <>
-      {/* Backdrop for the Labs popover */}
+      {/* Backdrop for the Labs popover. z-[79] sits above the network
+          mode selector at z-[71] so taps outside the popover dismiss it
+          rather than landing on the mode pill row. */}
       {labsOpen && (
-        <div className="fixed inset-0 z-[69]" onClick={() => { setLabsOpen(false); }} />
+        <div className="fixed inset-0 z-[79]" onClick={() => { setLabsOpen(false); }} />
       )}
 
       <div
-        className="fixed bottom-0 inset-x-0 z-[70] sm:hidden bg-[#0a0a12]/95 backdrop-blur-md border-t border-[#1e1e2e]"
+        className="fixed bottom-0 inset-x-0 z-[80] sm:hidden bg-[#0a0a12]/95 backdrop-blur-md border-t border-[#1e1e2e]"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="flex items-center justify-around h-14">
@@ -54,7 +56,7 @@ export default function MobileTabBar({
               <span className="text-[10px]">Labs</span>
             </button>
             {labsOpen && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[71] overflow-hidden">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[81] overflow-hidden">
                 {[
                   { key: 'recipe', label: 'Recipe Lab' },
                   { key: 'cocktail', label: 'Cocktail Lab' },
