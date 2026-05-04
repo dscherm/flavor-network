@@ -17,10 +17,16 @@ import { useMemo, useCallback } from 'react';
  */
 function NetworkA11yShim({ data, selectedNode, onNodeClick, listLabel = 'Network ingredients' }) {
   const a11yNodes = useMemo(() => {
-    const all = data?.graph?.nodes;
-    if (!all || all.length === 0) return [];
+    const raw = data?.graph?.nodes;
+    if (!raw) return [];
+    // useProData stores nodes as Map<name, node>; tests pass an Array.
+    // Coerce both to a flat array + a name->node lookup so downstream
+    // code is uniform.
+    const allArray = raw instanceof Map ? [...raw.values()] : raw;
+    if (allArray.length === 0) return [];
+    const byName = raw instanceof Map ? raw : new Map(allArray.map((n) => [n.name, n]));
     if (selectedNode) {
-      const selectedObj = all.find((n) => n.name === selectedNode);
+      const selectedObj = byName.get(selectedNode);
       const edges = data?.graph?.edges || [];
       const pairs = edges
         .filter((e) => e.source === selectedNode || e.target === selectedNode)
@@ -30,7 +36,6 @@ function NetworkA11yShim({ data, selectedNode, onNodeClick, listLabel = 'Network
         }))
         .sort((a, b) => b.strength - a.strength)
         .slice(0, 49);
-      const byName = new Map(all.map((n) => [n.name, n]));
       const out = selectedObj ? [selectedObj] : [];
       for (const p of pairs) {
         const node = byName.get(p.name);
@@ -38,7 +43,7 @@ function NetworkA11yShim({ data, selectedNode, onNodeClick, listLabel = 'Network
       }
       return out;
     }
-    return [...all]
+    return [...allArray]
       .sort((a, b) => (b.pairingCount || 0) - (a.pairingCount || 0))
       .slice(0, 50);
   }, [data, selectedNode]);

@@ -121,9 +121,9 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
         : null;
 
   return (
-    <div className="absolute inset-0 pt-10 select-none">
+    <div className="fixed inset-0 pt-10 z-[80] select-none bg-[#0a0a0f]">
       {/* Profile screen — full-width on mobile, capped width on desktop */}
-      <div className="h-full mx-auto max-w-2xl bg-[#12121a]/95 backdrop-blur-md border-x border-[#1e1e2e] flex flex-col overflow-hidden">
+      <div className="h-full mx-auto max-w-2xl bg-[#12121a] border-x border-[#1e1e2e] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-[#1e1e2e]">
         <h2 className="text-sm font-medium text-gray-200 tracking-wide">My Profile</h2>
