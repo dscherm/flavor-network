@@ -48,6 +48,17 @@ workflows:
       - name: Set up code signing
         script: |
           keychain initialize
+          # Mint a fresh iOS Distribution certificate on the Codemagic
+          # build server. Existing certificates on App Store Connect
+          # can be listed via the API but their private keys live on
+          # whichever Mac generated them — so they're unusable here.
+          # --save persists the new private key to this build's keychain.
+          app-store-connect certificates create \
+            --type IOS_DISTRIBUTION \
+            --save || true
+          # Fetch (or create) a matching App Store provisioning profile
+          # for this bundle ID. Requires the bundle ID to be registered
+          # at developer.apple.com → Identifiers first.
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --create
