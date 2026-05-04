@@ -30,6 +30,12 @@ workflows:
         script: |
           npx cap sync ios
           node scripts/strip-ios-bundle.mjs
+          # Belt + suspenders: if cap sync was last run on Windows it
+          # would write backslash path separators (Swift treats \ as
+          # escape chars). Restore forward slashes on lines containing
+          # path: "..." entries so SPM can resolve the local plugin
+          # packages.
+          python3 -c "import re,sys; p='ios/App/CapApp-SPM/Package.swift'; c=open(p).read(); c=re.sub(r'path:\s*\"([^\"]*)\"', lambda m: 'path: \"'+m.group(1).replace('\\\\','/')+'\"', c); open(p,'w').write(c)"
       - name: Resolve SPM packages
         script: |
           # Capacitor 8 SPM-only project: xcodebuild can't read build
