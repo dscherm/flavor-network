@@ -90,6 +90,38 @@ describe('NetworkA11yShim', () => {
     expect(container.querySelectorAll('button')).toHaveLength(0);
   });
 
+  it('accepts a Map<name, node> for nodes (matches useProData runtime shape)', () => {
+    const map = new Map(fixtureNodes.map((n) => [n.name, n]));
+    render(
+      <NetworkA11yShim
+        data={{ graph: { nodes: map, edges: [] } }}
+        selectedNode={null}
+        onNodeClick={vi.fn()}
+      />,
+    );
+    const labels = screen.getAllByRole('button').map((b) => b.textContent);
+    expect(labels).toEqual(['garlic', 'onion', 'tomato', 'butter', 'salt']);
+  });
+
+  it('Map input + selectedNode resolves selection via Map.get()', () => {
+    const map = new Map(fixtureNodes.map((n) => [n.name, n]));
+    const edges = [
+      { source: 'garlic', target: 'onion', strength: 0.9 },
+      { source: 'tomato', target: 'garlic', strength: 0.6 },
+    ];
+    render(
+      <NetworkA11yShim
+        data={{ graph: { nodes: map, edges } }}
+        selectedNode="garlic"
+        onNodeClick={vi.fn()}
+      />,
+    );
+    const labels = screen.getAllByRole('button').map((b) => b.textContent);
+    expect(labels[0]).toBe('garlic');
+    expect(labels).toContain('onion');
+    expect(labels).toContain('tomato');
+  });
+
   it('orders pairings by strength when a node is selected', () => {
     const edges = [
       { source: 'garlic', target: 'butter', strength: 0.3 },

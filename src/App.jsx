@@ -770,7 +770,40 @@ export default function App() {
         onComplete={() => setShowTour(false)}
         onSkip={() => setShowTour(false)}
       />
-      {/* Profile tab — full screen, mounted only when active */}
+      <ProfileToggle
+        profileMode={profileMode}
+        onToggleMode={() => setProfileMode(v => !v)}
+        profileStats={userProfile.stats}
+      />
+      <GlobalInsights
+        nodes={data ? data.graph.nodes : null}
+        edges={data ? data.graph.edges : null}
+        filterCuisine={selectedCuisine}
+        filterTaste={selectedTaste}
+        treeFilterIngredients={treeFilterIngredients}
+        treeFilterLabel={treeFilterLabel}
+        selectedNodes={selectedNodes}
+        isOpen={showGlobalInsights}
+        onClose={() => setShowGlobalInsights(false)}
+      />
+      <FlavorTreeExplorer
+        nodes={data ? data.graph.nodes : null}
+        isOpen={showTreeExplorer}
+        onClose={() => { setShowTreeExplorer(false); }}
+        onFilterIngredients={(ingredients, label) => {
+          setTreeFilterIngredients(ingredients);
+          setTreeFilterLabel(label || null);
+          // Auto-close the tree panel when a filter is selected
+          if (ingredients) setShowTreeExplorer(false);
+        }}
+      />
+      <HelpButton onClick={() => setShowTour(true)} />
+      <HowItWorks initialOpen={howItWorksInitialOpen} />
+      </div>
+
+      {/* Profile tab — full screen, mounted only when active. MUST be a
+          sibling of the Network wrapper (not nested inside it), otherwise
+          the Network wrapper's opacity-0 cascades to ProfilePanel. */}
       <div className={`transition-opacity duration-300 ${activeTab === 'profile' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'}`}>
         {activeTab === 'profile' && (
           <ProfilePanel
@@ -805,36 +838,6 @@ export default function App() {
             onReplayTour={() => { setActiveTab('network'); setShowTour(true); }}
           />
         )}
-      </div>
-      <ProfileToggle
-        profileMode={profileMode}
-        onToggleMode={() => setProfileMode(v => !v)}
-        profileStats={userProfile.stats}
-      />
-      <GlobalInsights
-        nodes={data ? data.graph.nodes : null}
-        edges={data ? data.graph.edges : null}
-        filterCuisine={selectedCuisine}
-        filterTaste={selectedTaste}
-        treeFilterIngredients={treeFilterIngredients}
-        treeFilterLabel={treeFilterLabel}
-        selectedNodes={selectedNodes}
-        isOpen={showGlobalInsights}
-        onClose={() => setShowGlobalInsights(false)}
-      />
-      <FlavorTreeExplorer
-        nodes={data ? data.graph.nodes : null}
-        isOpen={showTreeExplorer}
-        onClose={() => { setShowTreeExplorer(false); }}
-        onFilterIngredients={(ingredients, label) => {
-          setTreeFilterIngredients(ingredients);
-          setTreeFilterLabel(label || null);
-          // Auto-close the tree panel when a filter is selected
-          if (ingredients) setShowTreeExplorer(false);
-        }}
-      />
-      <HelpButton onClick={() => setShowTour(true)} />
-      <HowItWorks initialOpen={howItWorksInitialOpen} />
       </div>
 
       {/* Cocktail Lab tab — lazy-mounted */}
