@@ -30,6 +30,15 @@ workflows:
         script: |
           npx cap sync ios
           node scripts/strip-ios-bundle.mjs
+      - name: Resolve SPM packages
+        script: |
+          # Capacitor 8 SPM-only project: xcodebuild can't read build
+          # settings until the local CapApp-SPM package is resolved.
+          xcodebuild \
+            -project "$CM_BUILD_DIR/$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -resolvePackageDependencies \
+            -skipPackagePluginValidation
       - name: Set up code signing
         script: |
           keychain initialize
