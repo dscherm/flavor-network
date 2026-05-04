@@ -30,7 +30,6 @@ import { getAllCuisines, getAllTastes } from './data/metadata.js';
 import Walkthrough from './components/Walkthrough.jsx';
 import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
-import ProfileToggle from './components/ProfileToggle.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 import LivingArchView from './components/LivingArchView.jsx';
@@ -42,7 +41,6 @@ import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
-import { computeProfileWeights } from './data/profileWeights.js';
 
 export default function App() {
   // StartPage gate — ALWAYS shown on launch. Users explicitly pick a
@@ -87,7 +85,6 @@ export default function App() {
   const [showTour, setShowTour] = useState(
     () => !localStorage.getItem('flavor-tour-complete')
   );
-  const [profileMode, setProfileMode] = useState(false);
   // GlobalInsights kept in the codebase (component file + this state)
   // but no longer reachable from the UI per the polish pass — no
   // toggle is wired up after this change. Re-expose by adding a
@@ -198,12 +195,6 @@ export default function App() {
     if (path.length <= 2) return null; // Direct connection, no interesting path
     return path;
   }, [data, selectedNodes]);
-
-  const profileWeights = useMemo(() => {
-    if (!profileMode || !data) return null;
-    return computeProfileWeights(userProfile.profile, data.graph.nodes);
-  }, [profileMode, data, userProfile.profile]);
-
 
   const handleNodeClick = useCallback((node) => {
     // Cluster-focus gate: when a cluster is focused, an empty-space
@@ -769,11 +760,6 @@ export default function App() {
         active={showTour}
         onComplete={() => setShowTour(false)}
         onSkip={() => setShowTour(false)}
-      />
-      <ProfileToggle
-        profileMode={profileMode}
-        onToggleMode={() => setProfileMode(v => !v)}
-        profileStats={userProfile.stats}
       />
       <GlobalInsights
         nodes={data ? data.graph.nodes : null}
