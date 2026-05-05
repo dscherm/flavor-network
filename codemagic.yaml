@@ -6,9 +6,6 @@ workflows:
     integrations:
       app_store_connect: app_store_connect_key
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.neuralflavor.app
       vars:
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
@@ -48,6 +45,25 @@ workflows:
             -scheme "$XCODE_SCHEME" \
             -resolvePackageDependencies \
             -skipPackagePluginValidation
+      - name: Set up code signing
+        script: |
+          set -e
+          keychain initialize
+          # Create cert + profile from scratch, save private key locally.
+          # --create handles both: makes a fresh distribution cert if
+          # none usable exists, AND a fresh App Store provisioning profile
+          # bound to the bundle ID. Bundle ID must already be registered
+          # at developer.apple.com → Identifiers.
+          app-store-connect fetch-signing-files \
+            "$BUNDLE_ID" \
+            --platform IOS \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          # Inject the freshly-fetched profile into the .xcodeproj's
+          # signing settings so Manual signing can find it.
+          xcode-project use-profiles \
+            --warn-only=false
       - name: Increment build number
         script: |
           cd $CM_BUILD_DIR/ios/App
