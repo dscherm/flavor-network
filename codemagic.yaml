@@ -28,6 +28,7 @@ workflows:
           npm run build
       - name: Sync Capacitor + strip iOS bundle
         script: |
+          set -e
           npx cap sync ios
           node scripts/strip-ios-bundle.mjs
           # Belt + suspenders: if cap sync was last run on Windows it
@@ -36,6 +37,18 @@ workflows:
           # path: "..." entries so SPM can resolve the local plugin
           # packages.
           python3 -c "import re,sys; p='ios/App/CapApp-SPM/Package.swift'; c=open(p).read(); c=re.sub(r'path:\s*\"([^\"]*)\"', lambda m: 'path: \"'+m.group(1).replace('\\\\','/')+'\"', c); open(p,'w').write(c)"
+          # Verify cap sync actually produced the resources xcodebuild
+          # expects. These three are referenced from project.pbxproj as
+          # bundle resources; if any is missing the archive step fails
+          # silently with "couldn't be opened because there is no such
+          # file" only after a 5-min compile cycle. Fail fast here
+          # instead.
+          echo "--- ios/App/App/ contents ---"
+          ls -la ios/App/App/
+          test -d ios/App/App/public || (echo "MISSING: ios/App/App/public" && exit 1)
+          test -f ios/App/App/capacitor.config.json || (echo "MISSING: ios/App/App/capacitor.config.json" && exit 1)
+          test -f ios/App/App/config.xml || (echo "MISSING: ios/App/App/config.xml" && exit 1)
+          echo "Cap sync output verified."
       - name: Resolve SPM packages
         script: |
           # Capacitor 8 SPM-only project: xcodebuild can't read build
