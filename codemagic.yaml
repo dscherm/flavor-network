@@ -49,19 +49,25 @@ workflows:
         script: |
           set -e
           keychain initialize
-          # Create cert + profile from scratch, save private key locally.
-          # --create handles both: makes a fresh distribution cert if
-          # none usable exists, AND a fresh App Store provisioning profile
-          # bound to the bundle ID. Bundle ID must already be registered
-          # at developer.apple.com → Identifiers.
+          # Step 1: explicitly mint a fresh iOS Distribution cert AND
+          # save the .p12 (with private key) into the build keychain.
+          # fetch-signing-files --create alone has been observed to
+          # download cert public key without retaining the private key
+          # — a non-recoverable state. Doing this explicitly first
+          # guarantees we end up with a usable cert in the keychain.
+          app-store-connect certificates create \
+            --type IOS_DISTRIBUTION \
+            --save
+          # Step 2: now fetch (or create) the App Store provisioning
+          # profile for the bundle ID. With the cert already in the
+          # local keychain, fetch-signing-files binds the profile to
+          # it instead of trying to download a separate cert.
           app-store-connect fetch-signing-files \
             "$BUNDLE_ID" \
             --platform IOS \
             --type IOS_APP_STORE \
             --create
           keychain add-certificates
-          # Inject the freshly-fetched profile into the .xcodeproj's
-          # signing settings so Manual signing can find it.
           xcode-project use-profiles \
             --warn-only=false
       - name: Increment build number
