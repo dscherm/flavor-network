@@ -91,8 +91,13 @@ workflows:
       - name: Increment build number
         script: |
           cd $CM_BUILD_DIR/ios/App
-          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APPLE_ID" || echo 0)
+          # Use get-latest-build-number (checks BOTH App Store + TestFlight)
+          # — get-latest-app-store-build-number only checks released
+          # versions and returns 0 for unreleased apps, even when
+          # TestFlight builds exist.
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-build-number "$APP_STORE_APPLE_ID" || echo 0)
           NEW_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
+          echo "Latest build on Apple's side: $LATEST_BUILD_NUMBER -> uploading as $NEW_BUILD_NUMBER"
           agvtool new-version -all $NEW_BUILD_NUMBER
       - name: Build ipa
         script: |
