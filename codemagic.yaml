@@ -49,23 +49,29 @@ workflows:
         script: |
           set -e
           keychain initialize
-          # Step 1: explicitly mint a fresh iOS Distribution cert AND
-          # save the .p12 (with private key) into the build keychain.
-          # fetch-signing-files --create alone has been observed to
-          # download cert public key without retaining the private key
-          # — a non-recoverable state. Doing this explicitly first
-          # guarantees we end up with a usable cert in the keychain.
+          # codemagic-cli-tools requires an OpenSSL private key on disk
+          # to bind a freshly-issued distribution cert to. Without it,
+          # `certificates create` errors with "Cannot create resource
+          # without certificate private key". Generate a fresh 2048-bit
+          # RSA key (this is what Apple's CSR flow expects).
+          openssl genrsa -out /tmp/cert_private_key.pem 2048
+          # Mint a fresh iOS Distribution cert via App Store Connect
+          # API. --save persists the .p12 (cert + private key) to the
+          # build keychain so xcodebuild can use it. --certificate-key
+          # binds the API-issued cert to the local private key.
           app-store-connect certificates create \
             --type IOS_DISTRIBUTION \
+            --certificate-key=/tmp/cert_private_key.pem \
             --save
-          # Step 2: now fetch (or create) the App Store provisioning
-          # profile for the bundle ID. With the cert already in the
-          # local keychain, fetch-signing-files binds the profile to
-          # it instead of trying to download a separate cert.
+          # Fetch (or create) the App Store provisioning profile bound
+          # to this bundle ID. Reusing --certificate-key tells
+          # fetch-signing-files to pair the profile with the cert we
+          # just minted instead of trying to download a separate cert.
           app-store-connect fetch-signing-files \
             "$BUNDLE_ID" \
             --platform IOS \
             --type IOS_APP_STORE \
+            --certificate-key=/tmp/cert_private_key.pem \
             --create
           keychain add-certificates
           xcode-project use-profiles \
