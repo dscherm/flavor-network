@@ -33,7 +33,6 @@ import ProfilePanel from './components/ProfilePanel.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 import LivingArchView from './components/LivingArchView.jsx';
-import CocktailLab from './components/CocktailLab.jsx';
 import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
@@ -107,17 +106,6 @@ export default function App() {
   const affinityEnabled = useMemo(() => {
     if (typeof window === 'undefined') return true;
     return new URLSearchParams(window.location.search).get('affinity') !== 'v0';
-  }, []);
-
-  // Feature flag: Cocktail Lab v2 (data-driven 6-family taxonomy).
-  // ?cocktail-v2=1 (or localStorage `cocktail-v2`=1) → render v2.
-  // Default off until v2 is fully validated; flip default after sign-off.
-  const cocktailV2Enabled = useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    const param = new URLSearchParams(window.location.search).get('cocktail-v2');
-    if (param === '1') return true;
-    if (param === '0') return false;
-    return localStorage.getItem('cocktail-v2') === '1';
   }, []);
 
   const [activePanel, setActivePanel] = useState(null);
@@ -838,10 +826,9 @@ export default function App() {
         )}
       </div>
 
-      {/* Cocktail Lab tab — lazy-mounted. v2 path gated on
-          ?cocktail-v2=1 query param OR localStorage flag (per
-          docs/cocktail-codex-v2/v2.5-impl-spec.md §6.2). */}
-      {cocktailMounted && cocktailV2Enabled && (
+      {/* Cocktail Lab tab — lazy-mounted. v2 (6-family taxonomy)
+          fully replaces the legacy 7-archetype lab as of this commit. */}
+      {cocktailMounted && (
         <div
           className={`transition-opacity duration-300 ${
             activeTab === 'cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
@@ -850,34 +837,6 @@ export default function App() {
           <CocktailLabV2
             onSelectionChange={handleLabSelectionChange}
             onOpenRecipeLab={(_mode, initialIngredients) => {
-              setRecipeHandoff({
-                ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
-                mode: 'cocktail',
-                ts: Date.now(),
-              });
-              setRecipeInitialMode('cocktail');
-              setRecipeMounted(true);
-              setActiveTab('recipe');
-            }}
-          />
-        </div>
-      )}
-      {cocktailMounted && !cocktailV2Enabled && (
-        <div
-          className={`transition-opacity duration-300 ${
-            activeTab === 'cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
-          }`}
-        >
-          <CocktailLab
-            fullData={data}
-            userProfile={userProfile}
-            onSelectionChange={handleLabSelectionChange}
-            onOpenRecipeLab={(_mode, initialIngredients) => {
-              // Explicit cocktail handoff — REPLACE the bowl (don't
-              // mix this cocktail's ingredients with whatever food
-              // recipe was already in progress) and route through the
-              // one-shot handoff so the Recipe Lab actually picks up
-              // the change even when already mounted.
               setRecipeHandoff({
                 ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
                 mode: 'cocktail',

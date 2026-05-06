@@ -123,8 +123,14 @@ export default function ShapeLegend({ title = 'Shapes', legend }) {
 
   return (
     <div
-      className="fixed left-2 z-30 select-none px-2.5 py-2 rounded-md bg-[#0d0d16]/85 border border-[#2a2a3a] backdrop-blur-sm"
-      style={{ top: 'calc(var(--nav-h, 40px) + 24px)' }}
+      className="fixed left-2 z-20 select-none px-2.5 py-2 rounded-md bg-[#0d0d16]/85 border border-[#2a2a3a] backdrop-blur-sm sm:top-[calc(var(--nav-h,40px)+24px)]"
+      style={{
+        // Mobile: sit above the iOS bottom tab bar AND clear of the
+        // ClusterJoystick (which is at safe-area + 64). The shape rail
+        // is short so anchoring above the joystick keeps the bottom
+        // half of the screen scannable.
+        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 132px)',
+      }}
     >
       <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1.5 pb-1 border-b border-[#2a2a3a]">
         {title}

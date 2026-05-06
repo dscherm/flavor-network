@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { normalizeIngredient } from '../data/cocktailCodex.js';
+import { normalizeIngredient } from '../data/normalizeIngredient.js';
 
 /**
  * CocktailDetailPanel — opens when a cocktail node is clicked in the

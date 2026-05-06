@@ -97,7 +97,14 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
 
   return (
     <div
-      className="fixed left-1/2 -translate-x-1/2 z-30 select-none pointer-events-none top-[calc(var(--nav-h)+3.5rem)] sm:top-auto sm:bottom-20"
+      className="fixed left-1/2 -translate-x-1/2 z-20 select-none pointer-events-none sm:bottom-20"
+      style={{
+        // On mobile the iOS Tab Bar sits at the bottom (h-14 ≈ 56px +
+        // safe-area). Park the joystick directly above it so the family
+        // pills double as a colour legend at thumb-reach. On desktop
+        // sm:bottom-20 wins from the className.
+        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)',
+      }}
       style={{ maxWidth: 'calc(100vw - 1rem)' }}
       aria-label={isTasteMode ? 'Fly to taste region' : 'Fly to cluster'}
     >
