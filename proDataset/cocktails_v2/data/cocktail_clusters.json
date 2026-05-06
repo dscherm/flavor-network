@@ -1,0 +1,3598 @@
+{
+  "_meta": {
+    "model": "kmeans-k6",
+    "k": 6,
+    "silhouette": 0.1833312538842219,
+    "near_hit_rate": 0.9,
+    "far_hit_rate": 1.0,
+    "composite": 0.6333325015536888,
+    "feature_dim": 31,
+    "n_cocktails": 441
+  },
+  "clusters": {
+    "0": {
+      "size": 23,
+      "slot_means": {
+        "spirit": 0.35126210134932273,
+        "sweet": 0.16041716395611333,
+        "sour": 0.1622536598955789,
+        "bitter": 1.4570755735559435e-05,
+        "vermouth": 0.0,
+        "amaro_liqueur": 0.08814229191335357,
+        "aromatic": 0.05054330345958837,
+        "modifier": 0.18736690867030753
+      },
+      "layer_means": {
+        "top": 0.33941769172151487,
+        "middle": 0.3824516253128034,
+        "bass": 0.27813068296568166
+      },
+      "dominant_slots": [
+        [
+          "spirit",
+          0.35126210134932273
+        ],
+        [
+          "modifier",
+          0.18736690867030753
+        ],
+        [
+          "sour",
+          0.1622536598955789
+        ]
+      ],
+      "exemplars": [
+        "Pi\u00f1a Colada",
+        "New York Sour",
+        "Penicillin",
+        "Pina Colada",
+        "Vampiro"
+      ]
+    },
+    "1": {
+      "size": 78,
+      "slot_means": {
+        "spirit": 0.21076634605407,
+        "sweet": 0.06343470659198623,
+        "sour": 0.23227750121364024,
+        "bitter": 0.000864395375598776,
+        "vermouth": 0.005485784057212628,
+        "amaro_liqueur": 0.04052582908224062,
+        "aromatic": 0.05087057360331838,
+        "modifier": 0.3957748640219331
+      },
+      "layer_means": {
+        "top": 0.6409556176072176,
+        "middle": 0.18740601846013716,
+        "bass": 0.1716383639326453
+      },
+      "dominant_slots": [
+        [
+          "modifier",
+          0.3957748640219331
+        ],
+        [
+          "sour",
+          0.23227750121364024
+        ],
+        [
+          "spirit",
+          0.21076634605407
+        ]
+      ],
+      "exemplars": [
+        "Ramos Gin Fizz",
+        "Irish Coffee",
+        "Gin Fizz",
+        "Horse's Neck",
+        "John Collins"
+      ]
+    },
+    "2": {
+      "size": 149,
+      "slot_means": {
+        "spirit": 0.30749819353880536,
+        "sweet": 0.12291917440901397,
+        "sour": 0.1931136610920941,
+        "bitter": 0.013615798443619221,
+        "vermouth": 0.014385176748221321,
+        "amaro_liqueur": 0.1853859847956987,
+        "aromatic": 0.032197374377521674,
+        "modifier": 0.13088463659502564
+      },
+      "layer_means": {
+        "top": 0.34026797642823964,
+        "middle": 0.39797275641316365,
+        "bass": 0.2617592671585967
+      },
+      "dominant_slots": [
+        [
+          "spirit",
+          0.30749819353880536
+        ],
+        [
+          "sour",
+          0.1931136610920941
+        ],
+        [
+          "amaro_liqueur",
+          0.1853859847956987
+        ]
+      ],
+      "exemplars": [
+        "Pisco Sour",
+        "Bee\u2019s Knees",
+        "Whiskey Sour",
+        "Mai Tai",
+        "French 75"
+      ]
+    },
+    "3": {
+      "size": 66,
+      "slot_means": {
+        "spirit": 0.356642617754931,
+        "sweet": 0.1419641544431116,
+        "sour": 0.03351130969982794,
+        "bitter": 0.11618836226286265,
+        "vermouth": 0.014514714570359272,
+        "amaro_liqueur": 0.222720796870866,
+        "aromatic": 0.04140182784660329,
+        "modifier": 0.07305621655143815
+      },
+      "layer_means": {
+        "top": 0.2585500190664482,
+        "middle": 0.33068436462622713,
+        "bass": 0.4107656163073247
+      },
+      "dominant_slots": [
+        [
+          "spirit",
+          0.356642617754931
+        ],
+        [
+          "amaro_liqueur",
+          0.222720796870866
+        ],
+        [
+          "sweet",
+          0.1419641544431116
+        ]
+      ],
+      "exemplars": [
+        "Stinger",
+        "Champagne Cocktail",
+        "Sazerac",
+        "Caipirinha",
+        "B-52"
+      ]
+    },
+    "4": {
+      "size": 80,
+      "slot_means": {
+        "spirit": 0.4329983226502315,
+        "sweet": 0.025598500943635333,
+        "sour": 0.02400618918122213,
+        "bitter": 0.02294591072047849,
+        "vermouth": 0.23884433123438384,
+        "amaro_liqueur": 0.14930640865613287,
+        "aromatic": 0.07850532031736611,
+        "modifier": 0.027795016296549714
+      },
+      "layer_means": {
+        "top": 0.14979688740377503,
+        "middle": 0.7786899384412911,
+        "bass": 0.071513174154934
+      },
+      "dominant_slots": [
+        [
+          "spirit",
+          0.4329983226502315
+        ],
+        [
+          "vermouth",
+          0.23884433123438384
+        ],
+        [
+          "amaro_liqueur",
+          0.14930640865613287
+        ]
+      ],
+      "exemplars": [
+        "Mint Julep",
+        "Vesper",
+        "Martinez",
+        "Negroni",
+        "Boulevardier"
+      ]
+    },
+    "5": {
+      "size": 45,
+      "slot_means": {
+        "spirit": 0.23361863164350521,
+        "sweet": 0.03457111833055917,
+        "sour": 0.1688101008974803,
+        "bitter": 0.0024691358024691358,
+        "vermouth": 0.03333333333333333,
+        "amaro_liqueur": 0.24798131075444468,
+        "aromatic": 0.022578467284349635,
+        "modifier": 0.2566379019538585
+      },
+      "layer_means": {
+        "top": 0.49911180455435616,
+        "middle": 0.2466509665238514,
+        "bass": 0.2542372289217924
+      },
+      "dominant_slots": [
+        [
+          "modifier",
+          0.2566379019538585
+        ],
+        [
+          "amaro_liqueur",
+          0.24798131075444468
+        ],
+        [
+          "spirit",
+          0.23361863164350521
+        ]
+      ],
+      "exemplars": [
+        "Americano",
+        "Paloma",
+        "Cuba Libre",
+        "Screwdriver",
+        "Tequila Sunrise"
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "name": "Golden Boy",
+      "canonical": "golden boy",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Vermouth Cocktail",
+      "canonical": "vermouth cocktail",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Exit Strategy",
+      "canonical": "exit strategy",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Ti\u2019 Punch",
+      "canonical": "ti punch",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Fancy-Free",
+      "canonical": "fancy-free",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Chrysanthemum",
+      "canonical": "chrysanthemum",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Stinger",
+      "canonical": "stinger",
+      "cluster": 3,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Monte Carlo",
+      "canonical": "monte carlo",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Improved Whiskey Cocktail",
+      "canonical": "improved whiskey cocktail",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Pop Quiz",
+      "canonical": "pop quiz",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Night Owl",
+      "canonical": "night owl",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Normandie Club Old-Fashioned",
+      "canonical": "normandie club old-fashioned",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Snowbird",
+      "canonical": "snowbird",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Cold Girl Fever",
+      "canonical": "cold girl fever",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Ned Ryerson",
+      "canonical": "ned ryerson",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Deadpan",
+      "canonical": "deadpan",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Autumn Old-Fashioned",
+      "canonical": "autumn old-fashioned",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Bad Santa",
+      "canonical": "bad santa",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Beach Bonfire",
+      "canonical": "beach bonfire",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Champagne Cocktail",
+      "canonical": "champagne cocktail",
+      "cluster": 3,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "The Field Marshall",
+      "canonical": "the field marshall",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Pretty Wings",
+      "canonical": "pretty wings",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Celebrate",
+      "canonical": "celebrate",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Mint Julep",
+      "canonical": "mint julep",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Last One Standing",
+      "canonical": "last one standing",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Heritage Julep",
+      "canonical": "heritage julep",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Camellia Julep",
+      "canonical": "camellia julep",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Sazerac",
+      "canonical": "sazerac",
+      "cluster": 3,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Cut and Paste",
+      "canonical": "cut and paste",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Save Tonight",
+      "canonical": "save tonight",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Bananarac",
+      "canonical": "bananarac",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Vesper",
+      "canonical": "vesper",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Dean Martin",
+      "canonical": "dean martin",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Martini (Very Dry)",
+      "canonical": "martini very dry",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Martini (Our Root Recipe)",
+      "canonical": "martini our root recipe",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Martini (Wet)",
+      "canonical": "martini wet",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Normandie Club Martini #1",
+      "canonical": "normandie club martini 1",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Little Victory",
+      "canonical": "little victory",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Martinez",
+      "canonical": "martinez",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Perfect Manhattan",
+      "canonical": "perfect manhattan",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Blood Orange",
+      "canonical": "blood orange",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Mea Culpa",
+      "canonical": "mea culpa",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Beth's Going to Town",
+      "canonical": "beths going to town",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Brooklyn",
+      "canonical": "brooklyn",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Poet\u2019s Dream",
+      "canonical": "poets dream",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "European Union",
+      "canonical": "european union",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Watercress",
+      "canonical": "watercress",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Negroni",
+      "canonical": "negroni",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Strawberry Negroni",
+      "canonical": "strawberry negroni",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "White Negroni",
+      "canonical": "white negroni",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "La Rosita",
+      "canonical": "la rosita",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Boulevardier",
+      "canonical": "boulevardier",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Old Pal",
+      "canonical": "old pal",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Abbot Kinney",
+      "canonical": "abbot kinney",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Bamboo",
+      "canonical": "bamboo",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Sonoma",
+      "canonical": "sonoma",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Meyer Lemon Aperitif",
+      "canonical": "meyer lemon aperitif",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Amaretto Sour",
+      "canonical": "amaretto sour",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Fresh Gimlet",
+      "canonical": "fresh gimlet",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Pisco Sour",
+      "canonical": "pisco sour",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Hemingway Daiquiri",
+      "canonical": "hemingway daiquiri",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Cat Video",
+      "canonical": "cat video",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "High Five",
+      "canonical": "high five",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Bee\u2019s Knees",
+      "canonical": "bees knees",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Brown Derby",
+      "canonical": "brown derby",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Whiskey Sour",
+      "canonical": "whiskey sour",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Pink Lady",
+      "canonical": "pink lady",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Smoke and Mirrors",
+      "canonical": "smoke and mirrors",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Kentucky Maid",
+      "canonical": "kentucky maid",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Southside",
+      "canonical": "southside",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Pompadour",
+      "canonical": "pompadour",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Smokescreen",
+      "canonical": "smokescreen",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Mai Tai",
+      "canonical": "mai tai",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Jack Frost",
+      "canonical": "jack frost",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Touch and Go",
+      "canonical": "touch and go",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Caipirinha",
+      "canonical": "caipirinha",
+      "cluster": 3,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "French 75",
+      "canonical": "french 75",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Old Cuban",
+      "canonical": "old cuban",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Ramos Gin Fizz",
+      "canonical": "ramos gin fizz",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Moscow Mule",
+      "canonical": "moscow mule",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Grapefruit Collins",
+      "canonical": "grapefruit collins",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Silver Fizz",
+      "canonical": "silver fizz",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Accidental Guru",
+      "canonical": "accidental guru",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Sidecar (Our Ideal Recipe)",
+      "canonical": "sidecar our ideal recipe",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Margarita",
+      "canonical": "margarita",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Margarita (Dry)",
+      "canonical": "margarita dry",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Margarita (Sweet)",
+      "canonical": "margarita sweet",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Between the Sheets (Classic)",
+      "canonical": "between the sheets classic",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Between the Sheets (Our Ideal Recipe)",
+      "canonical": "between the sheets our ideal recipe",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "20th Century",
+      "canonical": "20th century",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Crop Top",
+      "canonical": "crop top",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Peaches and Smoke",
+      "canonical": "peaches and smoke",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Rational Thought",
+      "canonical": "rational thought",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Beausoleil",
+      "canonical": "beausoleil",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Corpse Reviver #2",
+      "canonical": "corpse reviver 2",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "La Valencia",
+      "canonical": "la valencia",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Fish House Punch",
+      "canonical": "fish house punch",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Chatham Cocktail",
+      "canonical": "chatham cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Twist of Menton",
+      "canonical": "twist of menton",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Americano",
+      "canonical": "americano",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Paloma",
+      "canonical": "paloma",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Cuba Libre",
+      "canonical": "cuba libre",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Negroni Sbagliato",
+      "canonical": "negroni sbagliato",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Screwdriver",
+      "canonical": "screwdriver",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Gin and Tonic",
+      "canonical": "gin and tonic",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Tequila Sunrise",
+      "canonical": "tequila sunrise",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Harvey Wallbanger",
+      "canonical": "harvey wallbanger",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Bloody Mary (Classic Variation)",
+      "canonical": "bloody mary classic variation",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Bloody Mary Verde",
+      "canonical": "bloody mary verde",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Nobody\u2019s Robots",
+      "canonical": "nobodys robots",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Normandie Club Bloody Mary",
+      "canonical": "normandie club bloody mary",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Mimosa",
+      "canonical": "mimosa",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Bellini",
+      "canonical": "bellini",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Apple Pop",
+      "canonical": "apple pop",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Kir Royale",
+      "canonical": "kir royale",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "St-Germain Cocktail",
+      "canonical": "st-germain cocktail",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Aperol Spritz",
+      "canonical": "aperol spritz",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Daisy Chain",
+      "canonical": "daisy chain",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Wine Spritz / Improved Wine Spritz",
+      "canonical": "wine spritz improved wine spritz",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "King\u2019s Landing",
+      "canonical": "kings landing",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Normandie Club Spritz #1 & #3",
+      "canonical": "normandie club spritz 1 3",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Brandy Flip",
+      "canonical": "brandy flip",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Coffee Cocktail",
+      "canonical": "coffee cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Eggnog",
+      "canonical": "eggnog",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Brandy Alexander",
+      "canonical": "brandy alexander",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "New York Flip",
+      "canonical": "new york flip",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Almond Orchard",
+      "canonical": "almond orchard",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Barnaby Jones",
+      "canonical": "barnaby jones",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Jump in the Line",
+      "canonical": "jump in the line",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "White Russian",
+      "canonical": "white russian",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Irish Coffee",
+      "canonical": "irish coffee",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Grasshopper",
+      "canonical": "grasshopper",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Tom and Jerry",
+      "canonical": "tom and jerry",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Golden Cadillac",
+      "canonical": "golden cadillac",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Pi\u00f1a Colada",
+      "canonical": "pina colada",
+      "cluster": 0,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Frozen Mudslide",
+      "canonical": "frozen mudslide",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Hans Gruber",
+      "canonical": "hans gruber",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Indulge",
+      "canonical": "indulge",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Saturday Morning Cartoons",
+      "canonical": "saturday morning cartoons",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Hurricane",
+      "canonical": "hurricane",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Singapore Sling",
+      "canonical": "singapore sling",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Pimm's Cup",
+      "canonical": "pimms cup",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Dirty Martini",
+      "canonical": "dirty martini",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Old-Fashioned",
+      "canonical": "old-fashioned",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Martini",
+      "canonical": "martini",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Daiquiri",
+      "canonical": "daiquiri",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Sidecar",
+      "canonical": "sidecar",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Whisky Highball",
+      "canonical": "whisky highball",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Flip",
+      "canonical": "flip",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "A1",
+      "canonical": "a1",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "ABC",
+      "canonical": "abc",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Ace",
+      "canonical": "ace",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "AT&T",
+      "canonical": "att",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Adam",
+      "canonical": "adam",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "A. J.",
+      "canonical": "a j",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Affair",
+      "canonical": "affair",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Avalon",
+      "canonical": "avalon",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Almeria",
+      "canonical": "almeria",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Abilene",
+      "canonical": "abilene",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Addison",
+      "canonical": "addison",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Aviation",
+      "canonical": "aviation",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Applecar",
+      "canonical": "applecar",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Affinity",
+      "canonical": "affinity",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Acapulco",
+      "canonical": "acapulco",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Alexander",
+      "canonical": "alexander",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Avalanche",
+      "canonical": "avalanche",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Allegheny",
+      "canonical": "allegheny",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Algonquin",
+      "canonical": "algonquin",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Artillery",
+      "canonical": "artillery",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Addington",
+      "canonical": "addington",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "B-52",
+      "canonical": "b-52",
+      "cluster": 3,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Bijou",
+      "canonical": "bijou",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Boxcar",
+      "canonical": "boxcar",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Bramble",
+      "canonical": "bramble",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Balmoral",
+      "canonical": "balmoral",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Bluebird",
+      "canonical": "bluebird",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Boomerang",
+      "canonical": "boomerang",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Barracuda",
+      "canonical": "barracuda",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Broadside",
+      "canonical": "broadside",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Buccaneer",
+      "canonical": "buccaneer",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Brain Fart",
+      "canonical": "brain fart",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Blackthorn",
+      "canonical": "blackthorn",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Bubble Gum",
+      "canonical": "bubble gum",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Boston Sour",
+      "canonical": "boston sour",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Bahama Mama",
+      "canonical": "bahama mama",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Casino",
+      "canonical": "casino",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Cafe Savoy",
+      "canonical": "cafe savoy",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Cream Soda",
+      "canonical": "cream soda",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Cuba Libra",
+      "canonical": "cuba libra",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Cherry Rum",
+      "canonical": "cherry rum",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Corn n Oil",
+      "canonical": "corn n oil",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Citrus Coke",
+      "canonical": "citrus coke",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Casa Blanca",
+      "canonical": "casa blanca",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Clover Club",
+      "canonical": "clover club",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Caipirissima",
+      "canonical": "caipirissima",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "City Slicker",
+      "canonical": "city slicker",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Chicago Fizz",
+      "canonical": "chicago fizz",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Cosmopolitan",
+      "canonical": "cosmopolitan",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Coffee-Vodka",
+      "canonical": "coffee-vodka",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Casino Royale",
+      "canonical": "casino royale",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Corpse Reviver",
+      "canonical": "corpse reviver",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Clove Cocktail",
+      "canonical": "clove cocktail",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Derby",
+      "canonical": "derby",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Dragonfly",
+      "canonical": "dragonfly",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Dry Martini",
+      "canonical": "dry martini",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Dry Rob Roy",
+      "canonical": "dry rob roy",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Dark and Stormy",
+      "canonical": "dark and stormy",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Dark Caipirinha",
+      "canonical": "dark caipirinha",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Duchamp's Punch",
+      "canonical": "duchamps punch",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Damned if you do",
+      "canonical": "damned if you do",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Dubonnet Cocktail",
+      "canonical": "dubonnet cocktail",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Death in the Afternoon",
+      "canonical": "death in the afternoon",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "English Highball",
+      "canonical": "english highball",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "English Rose Cocktail",
+      "canonical": "english rose cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Elderflower Caipirinha",
+      "canonical": "elderflower caipirinha",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Empell\u00f3n Cocina's Fat-Washed Mezcal",
+      "canonical": "empellon cocinas fat-washed mezcal",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Figgy Thyme",
+      "canonical": "figgy thyme",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Frisco Sour",
+      "canonical": "frisco sour",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Freddy Kruger",
+      "canonical": "freddy kruger",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Funk and Soul",
+      "canonical": "funk and soul",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Fuzzy Asshole",
+      "canonical": "fuzzy asshole",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "French Negroni",
+      "canonical": "french negroni",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Flying Dutchman",
+      "canonical": "flying dutchman",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Frozen Daiquiri",
+      "canonical": "frozen daiquiri",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Flying Scotchman",
+      "canonical": "flying scotchman",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "French Connection",
+      "canonical": "french connection",
+      "cluster": 3,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Flaming Dr. Pepper",
+      "canonical": "flaming dr pepper",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Frozen Mint Daiquiri",
+      "canonical": "frozen mint daiquiri",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Frozen Pineapple Daiquiri",
+      "canonical": "frozen pineapple daiquiri",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Gimlet",
+      "canonical": "gimlet",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Godchild",
+      "canonical": "godchild",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Gin Fizz",
+      "canonical": "gin fizz",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Gin Sour",
+      "canonical": "gin sour",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Gagliardo",
+      "canonical": "gagliardo",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Godmother",
+      "canonical": "godmother",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Godfather",
+      "canonical": "godfather",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Gin Tonic",
+      "canonical": "gin tonic",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Gin Toddy",
+      "canonical": "gin toddy",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Gin Smash",
+      "canonical": "gin smash",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Gin Daisy",
+      "canonical": "gin daisy",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Gin Lemon",
+      "canonical": "gin lemon",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Gin Sling",
+      "canonical": "gin sling",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Greyhound",
+      "canonical": "greyhound",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Gin Rickey",
+      "canonical": "gin rickey",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Grand Blue",
+      "canonical": "grand blue",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Gin Cooler",
+      "canonical": "gin cooler",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Gin Swizzle",
+      "canonical": "gin swizzle",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Grass Skirt",
+      "canonical": "grass skirt",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Grim Reaper",
+      "canonical": "grim reaper",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Gin and Soda",
+      "canonical": "gin and soda",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "H.D.",
+      "canonical": "hd",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Honey Bee",
+      "canonical": "honey bee",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Hot Toddy",
+      "canonical": "hot toddy",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Horse's Neck",
+      "canonical": "horses neck",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Happy Skipper",
+      "canonical": "happy skipper",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Havana Cocktail",
+      "canonical": "havana cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Hot Creamy Bush",
+      "canonical": "hot creamy bush",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Hawaiian Cocktail",
+      "canonical": "hawaiian cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Hemingway Special",
+      "canonical": "hemingway special",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Highland Fling Cocktail",
+      "canonical": "highland fling cocktail",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Ice Pick",
+      "canonical": "ice pick",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Irish Spring",
+      "canonical": "irish spring",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Imperial Fizz",
+      "canonical": "imperial fizz",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Irish Russian",
+      "canonical": "irish russian",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Imperial Cocktail",
+      "canonical": "imperial cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Irish Curdling Cow",
+      "canonical": "irish curdling cow",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Jackhammer",
+      "canonical": "jackhammer",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Jamaica Kiss",
+      "canonical": "jamaica kiss",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "John Collins",
+      "canonical": "john collins",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Japanese Fizz",
+      "canonical": "japanese fizz",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Jamaican Coffee",
+      "canonical": "jamaican coffee",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Jewel Of The Nile",
+      "canonical": "jewel of the nile",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Jack Rose Cocktail",
+      "canonical": "jack rose cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Jack's Vanilla Coke",
+      "canonical": "jacks vanilla coke",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Kir",
+      "canonical": "kir",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Kamikaze",
+      "canonical": "kamikaze",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Kioki Coffee",
+      "canonical": "kioki coffee",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Kiss me Quick",
+      "canonical": "kiss me quick",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Kentucky B And B",
+      "canonical": "kentucky b and b",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Kentucky Colonel",
+      "canonical": "kentucky colonel",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Lemon Drop",
+      "canonical": "lemon drop",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Long vodka",
+      "canonical": "long vodka",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Loch Lomond",
+      "canonical": "loch lomond",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "London Town",
+      "canonical": "london town",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Lord And Lady",
+      "canonical": "lord and lady",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Lady Love Fizz",
+      "canonical": "lady love fizz",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Long Island Tea",
+      "canonical": "long island tea",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Lone Tree Cooler",
+      "canonical": "lone tree cooler",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Lone Tree Cocktail",
+      "canonical": "lone tree cocktail",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Lemon Elderflower Spritzer",
+      "canonical": "lemon elderflower spritzer",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Mojito",
+      "canonical": "mojito",
+      "cluster": 3,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Michelada",
+      "canonical": "michelada",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Manhattan",
+      "canonical": "manhattan",
+      "cluster": 3,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Martinez 2",
+      "canonical": "martinez 2",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Mulled Wine",
+      "canonical": "mulled wine",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Munich Mule",
+      "canonical": "munich mule",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Mango Mojito",
+      "canonical": "mango mojito",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Mojito Extra",
+      "canonical": "mojito extra",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Monkey Gland",
+      "canonical": "monkey gland",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Mary Pickford",
+      "canonical": "mary pickford",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Monkey Wrench",
+      "canonical": "monkey wrench",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "New York Sour",
+      "canonical": "new york sour",
+      "cluster": 0,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "National Aquarium",
+      "canonical": "national aquarium",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "New York Lemonade",
+      "canonical": "new york lemonade",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Orgasm",
+      "canonical": "orgasm",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Orange Whip",
+      "canonical": "orange whip",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Orange Crush",
+      "canonical": "orange crush",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Orange Oasis",
+      "canonical": "orange oasis",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Old Fashioned",
+      "canonical": "old fashioned",
+      "cluster": 3,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Oreo Mudslide",
+      "canonical": "oreo mudslide",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Orange Push-up",
+      "canonical": "orange push-up",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Orange Rosemary Collins",
+      "canonical": "orange rosemary collins",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Owen's Grandmother's Revenge",
+      "canonical": "owens grandmothers revenge",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Paradise",
+      "canonical": "paradise",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Pink Gin",
+      "canonical": "pink gin",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Pegu Club",
+      "canonical": "pegu club",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Pink Moon",
+      "canonical": "pink moon",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Penicillin",
+      "canonical": "penicillin",
+      "cluster": 0,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Porto flip",
+      "canonical": "porto flip",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Pina Colada",
+      "canonical": "pina colada",
+      "cluster": 0,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Pink Penocha",
+      "canonical": "pink penocha",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Pure Passion",
+      "canonical": "pure passion",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Popped cherry",
+      "canonical": "popped cherry",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Poppy Cocktail",
+      "canonical": "poppy cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Planter's Punch",
+      "canonical": "planters punch",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Pineapple Paloma",
+      "canonical": "pineapple paloma",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Port Wine Cocktail",
+      "canonical": "port wine cocktail",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Pink Panty Pulldowns",
+      "canonical": "pink panty pulldowns",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Quentin",
+      "canonical": "quentin",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Queen Bee",
+      "canonical": "queen bee",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Queen Elizabeth",
+      "canonical": "queen elizabeth",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Quaker's Cocktail",
+      "canonical": "quakers cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Quarter Deck Cocktail",
+      "canonical": "quarter deck cocktail",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Rose",
+      "canonical": "rose",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Rum Sour",
+      "canonical": "rum sour",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Rum Punch",
+      "canonical": "rum punch",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Rum Toddy",
+      "canonical": "rum toddy",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Royal Fizz",
+      "canonical": "royal fizz",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Rum Cooler",
+      "canonical": "rum cooler",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Rum Runner",
+      "canonical": "rum runner",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Rusty Nail",
+      "canonical": "rusty nail",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Red Snapper",
+      "canonical": "red snapper",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Royal Bitch",
+      "canonical": "royal bitch",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Royal Flush",
+      "canonical": "royal flush",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Rum Cobbler",
+      "canonical": "rum cobbler",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Ruby Tuesday",
+      "canonical": "ruby tuesday",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Rosemary Blue",
+      "canonical": "rosemary blue",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Royal Gin Fizz",
+      "canonical": "royal gin fizz",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Rum Milk Punch",
+      "canonical": "rum milk punch",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Raspberry Julep",
+      "canonical": "raspberry julep",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Rum Screwdriver",
+      "canonical": "rum screwdriver",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Raspberry Cooler",
+      "canonical": "raspberry cooler",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Rum Old-fashioned",
+      "canonical": "rum old-fashioned",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Russian Spring Punch",
+      "canonical": "russian spring punch",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Radioactive Long Island Iced Tea",
+      "canonical": "radioactive long island iced tea",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Spritz",
+      "canonical": "spritz",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Scooter",
+      "canonical": "scooter",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Snowday",
+      "canonical": "snowday",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Spice 75",
+      "canonical": "spice 75",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Salty Dog",
+      "canonical": "salty dog",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Stone Sour",
+      "canonical": "stone sour",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Sea breeze",
+      "canonical": "sea breeze",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Scotch Sour",
+      "canonical": "scotch sour",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Sherry Flip",
+      "canonical": "sherry flip",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Sol Y Sombra",
+      "canonical": "sol y sombra",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "San Francisco",
+      "canonical": "san francisco",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Space Odyssey",
+      "canonical": "space odyssey",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Sherry Eggnog",
+      "canonical": "sherry eggnog",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Thriller",
+      "canonical": "thriller",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "The Galah",
+      "canonical": "the galah",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Tipperary",
+      "canonical": "tipperary",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Texas Sling",
+      "canonical": "texas sling",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Tom Collins",
+      "canonical": "tom collins",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Tennesee Mud",
+      "canonical": "tennesee mud",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Tequila Fizz",
+      "canonical": "tequila fizz",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Tequila Sour",
+      "canonical": "tequila sour",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "The Last Word",
+      "canonical": "the last word",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Turf Cocktail",
+      "canonical": "turf cocktail",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "The Laverstoke",
+      "canonical": "the laverstoke",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "The Philosopher",
+      "canonical": "the philosopher",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Tuxedo Cocktail",
+      "canonical": "tuxedo cocktail",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "The Jimmy Conway",
+      "canonical": "the jimmy conway",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Texas Rattlesnake",
+      "canonical": "texas rattlesnake",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Victor",
+      "canonical": "victor",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Vampiro",
+      "canonical": "vampiro",
+      "cluster": 0,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Vesuvio",
+      "canonical": "vesuvio",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Veteran",
+      "canonical": "veteran",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Van Vleet",
+      "canonical": "van vleet",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Vodka Fizz",
+      "canonical": "vodka fizz",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Vodka Lemon",
+      "canonical": "vodka lemon",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Vodka Slime",
+      "canonical": "vodka slime",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Vodka Tonic",
+      "canonical": "vodka tonic",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Vodka Martini",
+      "canonical": "vodka martini",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Victory Collins",
+      "canonical": "victory collins",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Vodka And Tonic",
+      "canonical": "vodka and tonic",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Valencia Cocktail",
+      "canonical": "valencia cocktail",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Whisky Mac",
+      "canonical": "whisky mac",
+      "cluster": 3,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "White Lady",
+      "canonical": "white lady",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Winter Rita",
+      "canonical": "winter rita",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Winter Paloma",
+      "canonical": "winter paloma",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "sour"
+    },
+    {
+      "name": "White Wine Sangria",
+      "canonical": "white wine sangria",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Whitecap Margarita",
+      "canonical": "whitecap margarita",
+      "cluster": 0,
+      "iba_official": false,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Waikiki Beachcomber",
+      "canonical": "waikiki beachcomber",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Yellow Bird",
+      "canonical": "yellow bird",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Zombie",
+      "canonical": "zombie",
+      "cluster": 0,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Zipperhead",
+      "canonical": "zipperhead",
+      "cluster": 5,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Zippy's Revenge",
+      "canonical": "zippys revenge",
+      "cluster": 2,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Ziemes Martini Apfelsaft",
+      "canonical": "ziemes martini apfelsaft",
+      "cluster": 1,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Angel Face",
+      "canonical": "angel face",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Between the Sheets",
+      "canonical": "between the sheets",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Brandy Crusta",
+      "canonical": "brandy crusta",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Hanky Panky",
+      "canonical": "hanky panky",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Last Word",
+      "canonical": "last word",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Remember the Maine",
+      "canonical": "remember the maine",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Tuxedo",
+      "canonical": "tuxedo",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Vieux Carr\u00e9",
+      "canonical": "vieux carre",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Black Russian",
+      "canonical": "black russian",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Bloody Mary",
+      "canonical": "bloody mary",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Cardinale",
+      "canonical": "cardinale",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Corpse Reviver #2",
+      "canonical": "corpse reviver 2",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Garibaldi",
+      "canonical": "garibaldi",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Rabo de Galo",
+      "canonical": "rabo de galo",
+      "cluster": 4,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Canchanchara",
+      "canonical": "canchanchara",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Chartreuse Swizzle",
+      "canonical": "chartreuse swizzle",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Dark 'n' Stormy",
+      "canonical": "dark n stormy",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Fernandito",
+      "canonical": "fernandito",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Gin Basil Smash",
+      "canonical": "gin basil smash",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Illegal",
+      "canonical": "illegal",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Jungle Bird",
+      "canonical": "jungle bird",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Naked and Famous",
+      "canonical": "naked and famous",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Paper Plane",
+      "canonical": "paper plane",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Pisco Punch",
+      "canonical": "pisco punch",
+      "cluster": 5,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Sherry Cobbler",
+      "canonical": "sherry cobbler",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "South Side",
+      "canonical": "south side",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Spicy Fifty",
+      "canonical": "spicy fifty",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Suffering Bastard",
+      "canonical": "suffering bastard",
+      "cluster": 1,
+      "iba_official": true,
+      "megacategory": "unclassified"
+    },
+    {
+      "name": "Tommy's Margarita",
+      "canonical": "tommys margarita",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Trinidad Sour",
+      "canonical": "trinidad sour",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Ve.n.to",
+      "canonical": "vento",
+      "cluster": 2,
+      "iba_official": true,
+      "megacategory": "sour"
+    },
+    {
+      "name": "Rob Roy",
+      "canonical": "rob roy",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    },
+    {
+      "name": "Gibson",
+      "canonical": "gibson",
+      "cluster": 4,
+      "iba_official": false,
+      "megacategory": "bitter"
+    }
+  ],
+  "all_models": [
+    {
+      "model": "kmeans-k6",
+      "k": 6,
+      "silhouette": 0.1833312538842219,
+      "near_hit_rate": 0.9,
+      "far_hit_rate": 1.0,
+      "composite": 0.6333325015536888,
+      "near_misses": [
+        [
+          "manhattan",
+          "rob roy",
+          3,
+          4
+        ]
+      ],
+      "far_misses": []
+    },
+    {
+      "model": "kmeans-k4",
+      "k": 4,
+      "silhouette": 0.17339046111184342,
+      "near_hit_rate": 0.8,
+      "far_hit_rate": 1.0,
+      "composite": 0.5893561844447375,
+      "near_misses": [
+        [
+          "manhattan",
+          "rob roy",
+          3,
+          0
+        ],
+        [
+          "old fashioned",
+          "sazerac",
+          1,
+          3
+        ]
+      ],
+      "far_misses": []
+    },
+    {
+      "model": "kmeans-k5",
+      "k": 5,
+      "silhouette": 0.17662105770593373,
+      "near_hit_rate": 0.9,
+      "far_hit_rate": 0.75,
+      "composite": 0.5806484230823736,
+      "near_misses": [
+        [
+          "old fashioned",
+          "sazerac",
+          0,
+          1
+        ]
+      ],
+      "far_misses": [
+        [
+          "bloody mary",
+          "old fashioned",
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "model": "hierarchical-ward-k4",
+      "k": 4,
+      "silhouette": 0.1825721277313487,
+      "near_hit_rate": 0.8,
+      "far_hit_rate": 0.75,
+      "composite": 0.5430288510925396,
+      "near_misses": [
+        [
+          "whiskey sour",
+          "daiquiri",
+          0,
+          1
+        ],
+        [
+          "mai tai",
+          "jungle bird",
+          1,
+          0
+        ]
+      ],
+      "far_misses": [
+        [
+          "bloody mary",
+          "old fashioned",
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "model": "hierarchical-ward-k7",
+      "k": 7,
+      "silhouette": 0.18963039779973817,
+      "near_hit_rate": 0.5,
+      "far_hit_rate": 1.0,
+      "composite": 0.4758521591198953,
+      "near_misses": [
+        [
+          "negroni",
+          "boulevardier",
+          0,
+          4
+        ],
+        [
+          "manhattan",
+          "rob roy",
+          0,
+          4
+        ],
+        [
+          "whiskey sour",
+          "daiquiri",
+          0,
+          1
+        ],
+        [
+          "old fashioned",
+          "sazerac",
+          5,
+          0
+        ],
+        [
+          "mai tai",
+          "jungle bird",
+          1,
+          0
+        ]
+      ],
+      "far_misses": []
+    },
+    {
+      "model": "hierarchical-ward-k6",
+      "k": 6,
+      "silhouette": 0.18681188376040034,
+      "near_hit_rate": 0.5,
+      "far_hit_rate": 1.0,
+      "composite": 0.47472475350416016,
+      "near_misses": [
+        [
+          "negroni",
+          "boulevardier",
+          2,
+          4
+        ],
+        [
+          "manhattan",
+          "rob roy",
+          2,
+          4
+        ],
+        [
+          "whiskey sour",
+          "daiquiri",
+          2,
+          1
+        ],
+        [
+          "old fashioned",
+          "sazerac",
+          5,
+          2
+        ],
+        [
+          "mai tai",
+          "jungle bird",
+          1,
+          2
+        ]
+      ],
+      "far_misses": []
+    },
+    {
+      "model": "kmeans-k7",
+      "k": 7,
+      "silhouette": 0.17579328400466462,
+      "near_hit_rate": 0.5,
+      "far_hit_rate": 1.0,
+      "composite": 0.47031731360186585,
+      "near_misses": [
+        [
+          "negroni",
+          "boulevardier",
+          3,
+          6
+        ],
+        [
+          "manhattan",
+          "rob roy",
+          2,
+          6
+        ],
+        [
+          "whiskey sour",
+          "daiquiri",
+          3,
+          4
+        ],
+        [
+          "old fashioned",
+          "sazerac",
+          3,
+          2
+        ],
+        [
+          "mai tai",
+          "jungle bird",
+          4,
+          3
+        ]
+      ],
+      "far_misses": []
+    },
+    {
+      "model": "hierarchical-ward-k5",
+      "k": 5,
+      "silhouette": 0.18014613553156608,
+      "near_hit_rate": 0.6,
+      "far_hit_rate": 0.75,
+      "composite": 0.4620584542126265,
+      "near_misses": [
+        [
+          "negroni",
+          "boulevardier",
+          0,
+          4
+        ],
+        [
+          "manhattan",
+          "rob roy",
+          0,
+          4
+        ],
+        [
+          "whiskey sour",
+          "daiquiri",
+          0,
+          1
+        ],
+        [
+          "mai tai",
+          "jungle bird",
+          1,
+          0
+        ]
+      ],
+      "far_misses": [
+        [
+          "bloody mary",
+          "old fashioned",
+          0,
+          0
+        ]
+      ]
+    }
+  ]
+}
