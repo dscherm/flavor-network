@@ -77,6 +77,13 @@ workflows:
           NEW_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
           echo "Latest build on Apple's side: $LATEST_BUILD_NUMBER -> uploading as $NEW_BUILD_NUMBER"
           agvtool new-version -all $NEW_BUILD_NUMBER
+      - name: Apply provisioning profiles
+        script: |
+          # ios_signing imports the cert + profile into the keychain,
+          # but the export_options.plist that build-ipa needs is only
+          # written by `use-profiles` — the auto-flow doesn't run it
+          # because it leaves room for custom signing strategies.
+          xcode-project use-profiles
       - name: Build ipa
         script: |
           xcode-project build-ipa \
