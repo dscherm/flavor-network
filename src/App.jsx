@@ -34,6 +34,7 @@ import GlobalInsights from './components/GlobalInsights.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 import LivingArchView from './components/LivingArchView.jsx';
 import CocktailLab from './components/CocktailLab.jsx';
+import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
@@ -106,6 +107,17 @@ export default function App() {
   const affinityEnabled = useMemo(() => {
     if (typeof window === 'undefined') return true;
     return new URLSearchParams(window.location.search).get('affinity') !== 'v0';
+  }, []);
+
+  // Feature flag: Cocktail Lab v2 (data-driven 6-family taxonomy).
+  // ?cocktail-v2=1 (or localStorage `cocktail-v2`=1) → render v2.
+  // Default off until v2 is fully validated; flip default after sign-off.
+  const cocktailV2Enabled = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const param = new URLSearchParams(window.location.search).get('cocktail-v2');
+    if (param === '1') return true;
+    if (param === '0') return false;
+    return localStorage.getItem('cocktail-v2') === '1';
   }, []);
 
   const [activePanel, setActivePanel] = useState(null);
@@ -826,8 +838,31 @@ export default function App() {
         )}
       </div>
 
-      {/* Cocktail Lab tab — lazy-mounted */}
-      {cocktailMounted && (
+      {/* Cocktail Lab tab — lazy-mounted. v2 path gated on
+          ?cocktail-v2=1 query param OR localStorage flag (per
+          docs/cocktail-codex-v2/v2.5-impl-spec.md §6.2). */}
+      {cocktailMounted && cocktailV2Enabled && (
+        <div
+          className={`transition-opacity duration-300 ${
+            activeTab === 'cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+          }`}
+        >
+          <CocktailLabV2
+            onSelectionChange={handleLabSelectionChange}
+            onOpenRecipeLab={(_mode, initialIngredients) => {
+              setRecipeHandoff({
+                ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
+                mode: 'cocktail',
+                ts: Date.now(),
+              });
+              setRecipeInitialMode('cocktail');
+              setRecipeMounted(true);
+              setActiveTab('recipe');
+            }}
+          />
+        </div>
+      )}
+      {cocktailMounted && !cocktailV2Enabled && (
         <div
           className={`transition-opacity duration-300 ${
             activeTab === 'cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
