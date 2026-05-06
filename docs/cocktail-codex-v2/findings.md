@@ -334,6 +334,7 @@ Before I draft the Phase 7 spec, three decisions:
    C4 → Negroni      (vs math: Tipperary)
    C5 → Americano    (vs math: Paloma — already fine)
    ```
+YES. THE ONLY ONE I WOULD CHANGE IS POLAMA CAN STAY, DON'T USE AMERICANO.  
 
 2. **Family names** — drop-in proposals (you'll want to bikeshed):
    - C0 — *Tropical Sours*
@@ -343,8 +344,11 @@ Before I draft the Phase 7 spec, three decisions:
    - C4 — *Stirred & Spirit-Forward*
    - C5 — *Aperitivos*
 
+THESE ARE GOOD.  GO WITH THESE
+
 3. **Manhattan ↔ Rob Roy** — accept the data-driven split, or override
    to keep them together?
+YES ACCEPT DATA-DRIVEN SPLIT.  IT MAKES IT MORE INTERESTING, UNIQUE WHILE STAYING TRUE TO THE INTENT OF THIS APP.
 
 Reply with answers and I'll draft the v2.5 implementation spec.
 
