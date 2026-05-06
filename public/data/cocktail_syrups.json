@@ -1,0 +1,283 @@
+{
+  "_meta": {
+    "generatedAt": "2026-05-06T01:02:37.405Z",
+    "script": "09-emit-codex-v2.cjs",
+    "count": 24,
+    "note": "Non-cocktail utility entries. Used as ingredients in cocktails, not as cocktails themselves."
+  },
+  "syrups": [
+    {
+      "name": "Simple Syrup",
+      "canonical": "simple syrup",
+      "ingredients_raw": [
+        {
+          "raw": "1:1 ratio of white sugar to water."
+        }
+      ],
+      "recipe_text": "1:1 ratio of white sugar to water.",
+      "garnishes": []
+    },
+    {
+      "name": "Cane Sugar Syrup",
+      "canonical": "cane sugar syrup",
+      "ingredients_raw": [
+        {
+          "raw": "1:1 ratio of raw cane sugar to water."
+        }
+      ],
+      "recipe_text": "1:1 ratio of raw cane sugar to water.",
+      "garnishes": []
+    },
+    {
+      "name": "Demerara Gum Syrup",
+      "canonical": "demerara gum syrup",
+      "ingredients_raw": [
+        {
+          "raw": "2 parts Demerara sugar, 1 part water, and gum arabic for texture."
+        }
+      ],
+      "recipe_text": "2 parts Demerara sugar, 1 part water, and gum arabic for texture.",
+      "garnishes": []
+    },
+    {
+      "name": "Spiced Almond Demerara Gum Syrup",
+      "canonical": "spiced almond demerara gum syrup",
+      "ingredients_raw": [
+        {
+          "raw": "Demerara gum syrup infused with cinnamon, cardamom, cloves, and sliced almonds."
+        }
+      ],
+      "recipe_text": "Demerara gum syrup infused with cinnamon, cardamom, cloves, and sliced almonds.",
+      "garnishes": []
+    },
+    {
+      "name": "Pineapple Gum Syrup",
+      "canonical": "pineapple gum syrup",
+      "ingredients_raw": [
+        {
+          "raw": "Demerara gum syrup infused with fresh pineapple."
+        }
+      ],
+      "recipe_text": "Demerara gum syrup infused with fresh pineapple.",
+      "garnishes": []
+    },
+    {
+      "name": "Raisin Honey Syrup",
+      "canonical": "raisin honey syrup",
+      "ingredients_raw": [
+        {
+          "raw": "Honey syrup infused with raisins."
+        }
+      ],
+      "recipe_text": "Honey syrup infused with raisins.",
+      "garnishes": []
+    },
+    {
+      "name": "Salt Solution",
+      "canonical": "salt solution",
+      "ingredients_raw": [
+        {
+          "raw": "1 part salt to 4 parts water."
+        }
+      ],
+      "recipe_text": "1 part salt to 4 parts water.",
+      "garnishes": []
+    },
+    {
+      "name": "Champagne Acid",
+      "canonical": "champagne acid",
+      "ingredients_raw": [
+        {
+          "raw": "A blend of tartaric and lactic acids."
+        }
+      ],
+      "recipe_text": "A blend of tartaric and lactic acids.",
+      "garnishes": []
+    },
+    {
+      "name": "White Honey Syrup",
+      "canonical": "white honey syrup",
+      "ingredients_raw": [
+        {
+          "raw": "1:1 ratio of mild white honey to water."
+        }
+      ],
+      "recipe_text": "1:1 ratio of mild white honey to water.",
+      "garnishes": []
+    },
+    {
+      "name": "Clarified Strawberry Syrup",
+      "canonical": "clarified strawberry syrup",
+      "ingredients_raw": [
+        {
+          "raw": "Strawberry syrup filtered for clarity (typically using agar-agar)."
+        }
+      ],
+      "recipe_text": "Strawberry syrup filtered for clarity (typically using agar-agar).",
+      "garnishes": []
+    },
+    {
+      "name": "Sel Gris Solution",
+      "canonical": "sel gris solution",
+      "ingredients_raw": [
+        {
+          "raw": "Saline solution made with grey sea salt."
+        }
+      ],
+      "recipe_text": "Saline solution made with grey sea salt.",
+      "garnishes": []
+    },
+    {
+      "name": "Après-Ski Tincture",
+      "canonical": "aprs-ski tincture",
+      "ingredients_raw": [
+        {
+          "raw": "Alpine botanical infusion (page 297)."
+        }
+      ],
+      "recipe_text": "Alpine botanical infusion (page 297).",
+      "garnishes": []
+    },
+    {
+      "name": "White Pepper-Infused Vodka",
+      "canonical": "white pepper-infused vodka",
+      "ingredients_raw": [
+        {
+          "raw": "High-proof vodka steeped with white peppercorns."
+        }
+      ],
+      "recipe_text": "High-proof vodka steeped with white peppercorns.",
+      "garnishes": []
+    },
+    {
+      "name": "Honey Syrup",
+      "canonical": "honey syrup",
+      "ingredients_raw": [
+        {
+          "raw": "1:1 ratio of honey to water."
+        }
+      ],
+      "recipe_text": "1:1 ratio of honey to water.",
+      "garnishes": []
+    },
+    {
+      "name": "Ginger Syrup",
+      "canonical": "ginger syrup",
+      "ingredients_raw": [
+        {
+          "raw": "(House recipe, page 48) Fresh ginger juice blended with sugar."
+        }
+      ],
+      "recipe_text": "(House recipe, page 48) Fresh ginger juice blended with sugar.",
+      "garnishes": []
+    },
+    {
+      "name": "Orgeat",
+      "canonical": "orgeat",
+      "ingredients_raw": [
+        {
+          "raw": "Almond-based syrup with sugar and a hint of orange flower water."
+        }
+      ],
+      "recipe_text": "Almond-based syrup with sugar and a hint of orange flower water.",
+      "garnishes": []
+    },
+    {
+      "name": "Basil Stem Syrup",
+      "canonical": "basil stem syrup",
+      "ingredients_raw": [
+        {
+          "raw": "Simple syrup infused with fresh basil stems."
+        }
+      ],
+      "recipe_text": "Simple syrup infused with fresh basil stems.",
+      "garnishes": []
+    },
+    {
+      "name": "Vanilla Lactic Syrup",
+      "canonical": "vanilla lactic syrup",
+      "ingredients_raw": [
+        {
+          "raw": "Syrup with vanilla and lactic acid for creamy tartness."
+        }
+      ],
+      "recipe_text": "Syrup with vanilla and lactic acid for creamy tartness.",
+      "garnishes": []
+    },
+    {
+      "name": "Cinnamon Syrup",
+      "canonical": "cinnamon syrup",
+      "ingredients_raw": [
+        {
+          "raw": "Simple syrup infused with crushed cinnamon sticks."
+        }
+      ],
+      "recipe_text": "Simple syrup infused with crushed cinnamon sticks.",
+      "garnishes": []
+    },
+    {
+      "name": "Strawberry Cream Syrup",
+      "canonical": "strawberry cream syrup",
+      "ingredients_raw": [
+        {
+          "raw": "A rich strawberry syrup typically made with sugar, fresh berries, and a touch of cream or dairy-free alternative for body (page 286)."
+        }
+      ],
+      "recipe_text": "A rich strawberry syrup typically made with sugar, fresh berries, and a touch of cream or dairy-free alternative for body (page 286).",
+      "garnishes": []
+    },
+    {
+      "name": "House Grenadine",
+      "canonical": "house grenadine",
+      "ingredients_raw": [
+        {
+          "raw": "Homemade pomegranate syrup (page 47)."
+        }
+      ],
+      "recipe_text": "Homemade pomegranate syrup (page 47).",
+      "garnishes": []
+    },
+    {
+      "name": "Citric Acid Solution",
+      "canonical": "citric acid solution",
+      "ingredients_raw": [
+        {
+          "raw": "Citric acid powder and water for a \"bite\" (page 298)."
+        }
+      ],
+      "recipe_text": "Citric acid powder and water for a \"bite\" (page 298).",
+      "garnishes": []
+    },
+    {
+      "name": "Verde Mix",
+      "canonical": "verde mix",
+      "ingredients_raw": [
+        {
+          "raw": "Tomatillo, cucumber, and honey-based savory mix (page 296)."
+        }
+      ],
+      "recipe_text": "Tomatillo, cucumber, and honey-based savory mix (page 296).",
+      "garnishes": []
+    },
+    {
+      "name": "ACID",
+      "canonical": "acid",
+      "ingredients_raw": [
+        {
+          "raw": "1 oz Bacardi 151 proof rum",
+          "name": "151 proof rum",
+          "measure": "1 oz Bacardi",
+          "amount_ml": 29.5735
+        },
+        {
+          "raw": "1 oz Wild Turkey",
+          "name": "wild turkey",
+          "measure": "1 oz",
+          "amount_ml": 29.5735
+        }
+      ],
+      "recipe_text": "Poor in the 151 first followed by the 101 served with a Coke or Dr Pepper chaser.",
+      "garnishes": []
+    }
+  ]
+}

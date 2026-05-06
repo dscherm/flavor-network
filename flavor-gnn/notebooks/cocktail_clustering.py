@@ -645,6 +645,7 @@ def main():
                 "is_root": bool(is_root[i]),
                 "iba_official": bool(row.iba_official),
                 "megacategory": row.megacategory,
+                "feature_vector": [round(float(v), 4) for v in X[i]],
             }
             for i, row in enumerate(df.itertuples())
         ],
