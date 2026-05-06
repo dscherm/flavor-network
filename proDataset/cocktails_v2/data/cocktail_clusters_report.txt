@@ -16,35 +16,59 @@ Winner: kmeans-k6 (composite=0.633)
 
 --- Cluster signatures ---
 
-Cluster 0 (n=23)
+Cluster 0 (n=23)  Root: Zombie
   Dominant slots: spirit:0.35, modifier:0.19, sour:0.16
   Layer mix:      top=0.34 mid=0.38 bass=0.28
   Exemplars:      Piña Colada, New York Sour, Penicillin, Pina Colada, Vampiro
+    └─ 0.0 (n=9): spirit:0.42, modifier:0.37, amaro_liqueur:0.11
+        Exemplars: Piña Colada, Jamaica Kiss, Mango Mojito, Oreo Mudslide, Owen's Grandmother's Revenge
+    └─ 0.1 (n=14): spirit:0.31, sour:0.25, sweet:0.24
+        Exemplars: New York Sour, Penicillin, Vampiro, Zombie
 
-Cluster 1 (n=78)
+Cluster 1 (n=78)  Root: John Collins
   Dominant slots: modifier:0.40, sour:0.23, spirit:0.21
   Layer mix:      top=0.64 mid=0.19 bass=0.17
   Exemplars:      Ramos Gin Fizz, Irish Coffee, Gin Fizz, Horse's Neck, John Collins
+    └─ 1.0 (n=78): modifier:0.40, sour:0.23, spirit:0.21
+        Exemplars: Ramos Gin Fizz, Irish Coffee, Gin Fizz, Horse's Neck, John Collins
 
-Cluster 2 (n=149)
+Cluster 2 (n=149)  Root: Casino
   Dominant slots: spirit:0.31, sour:0.19, amaro_liqueur:0.19
   Layer mix:      top=0.34 mid=0.40 bass=0.26
   Exemplars:      Pisco Sour, Bee’s Knees, Whiskey Sour, Mai Tai, French 75
+    └─ 2.0 (n=14): spirit:0.29, sweet:0.17, modifier:0.17
+        Exemplars: Whiskey Sour, Jungle Bird, Tommy's Margarita, Ve.n.to
+    └─ 2.1 (n=41): spirit:0.40, sour:0.22, amaro_liqueur:0.22
+        Exemplars: Sidecar, Aviation, Casino, Hemingway Special, Kamikaze
+    └─ 2.2 (n=36): modifier:0.32, amaro_liqueur:0.29, spirit:0.26
+        Exemplars: Grasshopper, Alexander, Barracuda, Cosmopolitan, Mary Pickford
+    └─ 2.3 (n=58): spirit:0.27, sour:0.26, sweet:0.24
+        Exemplars: Pisco Sour, Bee’s Knees, Mai Tai, French 75, Old Cuban
 
-Cluster 3 (n=66)
+Cluster 3 (n=66)  Root: Stinger
   Dominant slots: spirit:0.36, amaro_liqueur:0.22, sweet:0.14
   Layer mix:      top=0.26 mid=0.33 bass=0.41
   Exemplars:      Stinger, Champagne Cocktail, Sazerac, Caipirinha, B-52
+    └─ 3.0 (n=66): spirit:0.36, amaro_liqueur:0.22, sweet:0.14
+        Exemplars: Stinger, Champagne Cocktail, Sazerac, Caipirinha, B-52
 
-Cluster 4 (n=80)
+Cluster 4 (n=80)  Root: Tipperary
   Dominant slots: spirit:0.43, vermouth:0.24, amaro_liqueur:0.15
   Layer mix:      top=0.15 mid=0.78 bass=0.07
   Exemplars:      Mint Julep, Vesper, Martinez, Negroni, Boulevardier
+    └─ 4.0 (n=16): aromatic:0.36, spirit:0.30, vermouth:0.19
+        Exemplars: Dirty Martini, Derby, Dry Martini, Rusty Nail, Tuxedo Cocktail
+    └─ 4.1 (n=64): spirit:0.47, vermouth:0.25, amaro_liqueur:0.16
+        Exemplars: Mint Julep, Vesper, Martinez, Negroni, Boulevardier
 
-Cluster 5 (n=45)
+Cluster 5 (n=45)  Root: Paloma
   Dominant slots: modifier:0.26, amaro_liqueur:0.25, spirit:0.23
   Layer mix:      top=0.50 mid=0.25 bass=0.25
   Exemplars:      Americano, Paloma, Cuba Libre, Screwdriver, Tequila Sunrise
+    └─ 5.0 (n=14): amaro_liqueur:0.58, spirit:0.14, modifier:0.14
+        Exemplars: Americano, Bellini, Kir, Spritz, Black Russian
+    └─ 5.1 (n=31): modifier:0.31, spirit:0.27, sour:0.24
+        Exemplars: Paloma, Cuba Libre, Screwdriver, Tequila Sunrise, Harvey Wallbanger
 
 --- Validation harness ---
 Near pairs that landed in DIFFERENT clusters (FAILURES):
