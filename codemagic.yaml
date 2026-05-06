@@ -6,6 +6,14 @@ workflows:
     integrations:
       app_store_connect: app_store_connect_key
     environment:
+      ios_signing:
+        # Codemagic-managed cert + profile (set up once in the UI under
+        # Code signing identities). Replaces the manual openssl genrsa
+        # + certificates create + fetch-signing-files dance, which kept
+        # tripping Apple's "1 active iOS Distribution cert per team"
+        # limit on every build.
+        distribution_type: app_store
+        bundle_identifier: com.neuralflavor.app
       vars:
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
@@ -58,36 +66,6 @@ workflows:
             -scheme "$XCODE_SCHEME" \
             -resolvePackageDependencies \
             -skipPackagePluginValidation
-      - name: Set up code signing
-        script: |
-          set -e
-          keychain initialize
-          # codemagic-cli-tools requires an OpenSSL private key on disk
-          # to bind a freshly-issued distribution cert to. Without it,
-          # `certificates create` errors with "Cannot create resource
-          # without certificate private key". Generate a fresh 2048-bit
-          # RSA key (this is what Apple's CSR flow expects).
-          openssl genrsa -out /tmp/cert_private_key.pem 2048
-          # Mint a fresh iOS Distribution cert via App Store Connect
-          # API. --save persists the .p12 (cert + private key) to the
-          # build keychain so xcodebuild can use it. --certificate-key
-          # binds the API-issued cert to the local private key.
-          app-store-connect certificates create \
-            --type IOS_DISTRIBUTION \
-            --certificate-key=@file:/tmp/cert_private_key.pem \
-            --save
-          # Fetch (or create) the App Store provisioning profile bound
-          # to this bundle ID. Reusing --certificate-key tells
-          # fetch-signing-files to pair the profile with the cert we
-          # just minted instead of trying to download a separate cert.
-          app-store-connect fetch-signing-files \
-            "$BUNDLE_ID" \
-            --platform IOS \
-            --type IOS_APP_STORE \
-            --certificate-key=@file:/tmp/cert_private_key.pem \
-            --create
-          keychain add-certificates
-          xcode-project use-profiles
       - name: Increment build number
         script: |
           cd $CM_BUILD_DIR/ios/App
