@@ -1,0 +1,61 @@
+Cocktail v2 Phase 2 — engineering report
+Generated: 2026-05-06T00:12:27.206Z
+Cocktails: 515
+
+--- Build method distribution ---
+  shake      232
+  stir       186
+  build      46
+  blend      23
+  muddle     4
+  throw      1
+  swizzle    1
+Confidence: high=255 medium=238 unknown=22
+
+--- Glass type distribution ---
+  highball     129
+  coupe        125
+  rocks        48
+  wine         24
+  mug          12
+  hurricane    6
+  punch        5
+Confidence: high=332 medium=17 unknown=166
+
+--- Ice format distribution ---
+  rocks      134
+  up         106
+  tall       71
+  crushed    18
+  block      1
+Confidence: high=152 medium=178 unknown=185
+
+--- Aeration distribution ---
+  low        237
+  medium     177
+  high       79
+Confidence: high=442 medium=51 unknown=22
+
+--- Cocktails with no build_method detected (need recipe text or manual tag) ---
+  Coffee Liqueur
+  Diesel
+  Danbooka
+  Downshift
+  Fahrenheit 5000
+  Halloween Punch
+  Homemade Kahlua
+  Irish Cream
+  Jelly Bean
+  Karsk
+  Kurant Tea
+  Kool First Aid
+  Kool-Aid Slammer
+  Limona Corona
+  Moranguito
+  Miami Vice
+  Radler
+  Shark Attack
+  Tia-Maria
+  Tequila Slammer
+  Tequila Surprise
+  Vodka Russian

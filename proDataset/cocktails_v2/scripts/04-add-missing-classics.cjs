@@ -30,7 +30,12 @@ const OUT_PATH = path.join(ROOT, 'proDataset/cocktails_v2/raw/corpus_v2.json');
 function canonicalName(name) {
   return name
     .toLowerCase()
-    .replace(/[‘’'`]/g, '') // strip ALL apostrophe variants
+    // NFD-decompose accented chars (é → e + combining mark) before
+    // stripping non-word chars, otherwise [^\w] eats the é entirely
+    // and "Vieux Carré" → "vieux carr" instead of "vieux carre".
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[‘’'`]/g, '')
     .replace(/[^\w\s-]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
