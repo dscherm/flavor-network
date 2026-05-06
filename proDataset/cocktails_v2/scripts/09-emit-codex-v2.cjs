@@ -49,13 +49,21 @@ const FAMILY_NAMES = {
   5: 'Aperitivos',
 };
 
+// Distinct-hue palette across the spectrum — chosen so each pair is
+// easily told apart at a glance. Mapped semantically:
+//   0 Tropical → emerald-teal (tropical foliage)
+//   1 Highballs → sky blue (fizz/long drink)
+//   2 Sour → bright yellow (citrus)
+//   3 Spirit-forward built → indigo-purple (oak/whiskey depth)
+//   4 Stirred & spirit-forward → crimson red (Negroni/Campari)
+//   5 Aperitivos → magenta-pink (Campari/Aperol orange-pink)
 const FAMILY_COLORS = {
-  0: '#f59e0b', // amber — tropical
-  1: '#22c55e', // green — fizzes
-  2: '#facc15', // yellow — sour
-  3: '#b45309', // brown — spirit-forward built
-  4: '#dc2626', // red — stirred bitter family
-  5: '#f97316', // orange — aperitivos
+  0: '#10b981', // emerald — tropical
+  1: '#0ea5e9', // sky blue — highballs/fizzes
+  2: '#facc15', // bright yellow — sour family
+  3: '#7c3aed', // indigo — spirit-forward built
+  4: '#dc2626', // crimson — stirred & spirit-forward
+  5: '#ec4899', // pink — aperitivos
 };
 
 // ── Load inputs ────────────────────────────────────────────────────

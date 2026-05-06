@@ -13,7 +13,7 @@
  *   - placeFamilyOnSphere(idx, total=6) → 3D coords on a Fibonacci lattice
  */
 
-const FAMILY_RADIUS = 20;
+const FAMILY_RADIUS = 90; // sphere shell — sized so 6 family discs sit ~100+ units apart center-to-center, with discRadius=25 below leaving ~50-unit visible gaps between adjacent clusters
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 // ── Loader ─────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ export function placeFamilyOnSphere(idx, total = 6, radius = FAMILY_RADIUS) {
  * but ride concentric rings at different radii.
  */
 export function placeCocktailInFamily(member, family, members, opts = {}) {
-  const { discRadius = 6, ringSpacing = 1.6 } = opts;
+  const { discRadius = 25, ringSpacing = 6 } = opts;
   // Group members by sub-cluster id; each sub gets its own ring radius
   const subGroups = new Map();
   for (const m of members) {

@@ -52,17 +52,6 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
     return () => { cancelled = true; };
   }, []);
 
-  // Family centroid lookup (3D position) for camera fly-to + 3D labels.
-  const familyCentroids = useMemo(() => {
-    if (!graph) return null;
-    const m = new Map();
-    for (const f of graph.families) {
-      const p = f.position;
-      m.set(f.id, [p.x, p.y, p.z]);
-    }
-    return m;
-  }, [graph]);
-
   // NetworkScene-compatible data shape: Map<name, node> + positions
   // dictionary keyed by name. Each cocktail's 3D position is computed
   // by `placeCocktailInFamily` (Fibonacci sphere shell + inner-orbit
@@ -73,35 +62,84 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
     const positionDict = {};
     for (const fam of graph.families) {
       const members = graph.byFamily.get(fam.id) || [];
+      // Index sub-clusters within this family so each gets a distinct
+      // color tint (lightness shift). Even-indexed subs darken, odd
+      // lighten — keeps the family hue but separates the rings.
+      const subIds = [...new Set(members.map((m) => m.subcluster_id))].sort();
+      const subShade = new Map();
+      subIds.forEach((sid, i) => {
+        const lightness = i === 0 ? 0 : (i % 2 === 1 ? -18 : 14);
+        subShade.set(sid, shiftColorLightness(fam.color, lightness));
+      });
       for (const m of members) {
         const pos = placeCocktailInFamily(m, fam, members);
         positionDict[m.name] = [pos.x, pos.y, pos.z];
+        const tinted = subShade.get(m.subcluster_id) || fam.color;
         nodes.set(m.name, {
           name: m.name,
           family_id: m.family_id,
           subcluster_id: m.subcluster_id,
           isRoot: m.is_root,
           iba_official: m.iba_official,
-          color: fam.color,
-          // NetworkScene reads `taste` for legacy taste-blend coloring;
-          // we inject a per-family hue here so the existing renderer
-          // colors nodes by family without further changes.
-          taste: m.iba_official ? 'sweet' : 'sweet',
+          // NodeMesh.getColorForNode short-circuits on `clusterColor`
+          // — that's how the cocktail/sauce labs paint per-cluster
+          // hues. `color` alone was being ignored and every node fell
+          // through to the taste path, which was hard-coded to 'sweet'
+          // (= pink) for all 441 cocktails.
+          clusterColor: tinted,
+          color: tinted,
+          taste: '',
           pairingCount: 1,
           cuisines: [],
         });
       }
     }
+    // No edges in v2: NetworkScene's selection effect dims everything
+    // and re-brightens the selected node + every edge-connected
+    // neighbor. With ~8-12 cosine ≥ 0.85 neighbors per cocktail in our
+    // within-family graph, a single click would light up most of the
+    // surrounding cluster, making it impossible to tell what was
+    // actually selected. Cluster identity is already conveyed by the
+    // family color; "similar cocktails" lives in the detail panel.
+    const edges = [];
     return {
       graph: {
         nodes,
-        edges: [], // Phase 7d: re-introduce cosine-similarity edges
+        edges,
         ingredientList: [],
       },
       positions: { positions: positionDict },
       codex: { clusters: graph.families.map((f) => ({ id: f.id, name: f.name, color: f.color })) },
     };
   }, [graph]);
+
+  // Family centroid lookup (3D position) for camera fly-to + 3D labels.
+  // Built from the actual rendered cocktail positions — the abstract
+  // sphere-shell point from `placeFamilyOnSphere` is not where any
+  // cocktail actually sits, so flying there lands the camera in empty
+  // space. We use the Root cocktail's placed position instead.
+  const familyCentroids = useMemo(() => {
+    if (!graph || !networkData) return null;
+    const m = new Map();
+    const positions = networkData.positions.positions;
+    for (const f of graph.families) {
+      const root = graph.rootByFamily.get(f.id);
+      const pos = root ? positions[root.name] : null;
+      if (pos) {
+        m.set(f.id, pos);
+      } else {
+        const members = graph.byFamily.get(f.id) || [];
+        let sx = 0, sy = 0, sz = 0, n = 0;
+        for (const c of members) {
+          const p = positions[c.name];
+          if (!p) continue;
+          sx += p[0]; sy += p[1]; sz += p[2]; n++;
+        }
+        if (n > 0) m.set(f.id, [sx / n, sy / n, sz / n]);
+      }
+    }
+    return m;
+  }, [graph, networkData]);
 
   const familyCentroidAdapter = useMemo(() => {
     if (!familyCentroids) return null;
@@ -220,7 +258,7 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
         onNodeHover={() => {}}
         selectedNode={selectedCocktail}
         selectedNodes={selectedCocktail ? [selectedCocktail] : []}
-        showEdges={false}
+        showEdges={true}
         showParticles={true}
         filterCuisine=""
         filterTaste=""
@@ -317,4 +355,42 @@ function canonicalize(s) {
     .replace(/[^\w\s-]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+// Shift the lightness of a hex color by ±N percentage points so each
+// sub-cluster within a family reads as a distinct ring (visually) without
+// breaking the family hue identity. Positive = lighter, negative = darker.
+function shiftColorLightness(hex, deltaPct) {
+  if (!hex || !hex.startsWith('#') || hex.length !== 7) return hex;
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l0 = (max + min) / 2;
+  const d = max - min;
+  let s = 0;
+  let h = 0;
+  if (d !== 0) {
+    s = d / (1 - Math.abs(2 * l0 - 1));
+    if (max === r) h = ((g - b) / d) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+  const l = Math.max(0, Math.min(100, l0 * 100 + deltaPct)) / 100;
+  // HSL → RGB
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  let rp = 0, gp = 0, bp = 0;
+  if (h < 60) [rp, gp, bp] = [c, x, 0];
+  else if (h < 120) [rp, gp, bp] = [x, c, 0];
+  else if (h < 180) [rp, gp, bp] = [0, c, x];
+  else if (h < 240) [rp, gp, bp] = [0, x, c];
+  else if (h < 300) [rp, gp, bp] = [x, 0, c];
+  else [rp, gp, bp] = [c, 0, x];
+  const to2 = (n) => Math.round((n + m) * 255).toString(16).padStart(2, '0');
+  return `#${to2(rp)}${to2(gp)}${to2(bp)}`;
 }
