@@ -1,0 +1,68 @@
+Cocktail v2 Phase 3 — slot dictionary report
+Generated: 2026-05-06T00:08:15.007Z
+
+Unique ingredients across 515 cocktails: 540
+
+Confidence distribution:
+  high     304
+  medium   192
+  low      28
+  unknown  16
+
+Slot distribution:
+  spirit          132
+  amaro_liqueur   122
+  modifier        100
+  sweet           66
+  aromatic        44
+  sour            34
+  bitter          15
+  vermouth        11
+
+--- UNKNOWN ingredients (need manual review) ---
+     1× chamomile-infused americano aperitif (e.g. Pretty Wings)
+     1× fresh grapefruitlemon juices        (e.g. Grapefruit Collins)
+     1× white lady classic variation        (e.g. Between the Sheets (Our Ideal Recipe))
+     1× last word classic                   (e.g. 20th Century)
+     1× verde mix tomatillo-based           (e.g. Bloody Mary Verde)
+     1× 1 ounces tawny port                 (e.g. Coffee Cocktail)
+     1× ounce tawny port                    (e.g. New York Flip)
+     1× 1 ounces amontillado sherry         (e.g. Jump in the Line)
+     1× ounce rhum agricole                 (e.g. Jump in the Line)
+     1× 2 ounces tom and jerry batter       (e.g. Tom and Jerry)
+     1× 1 teaspoon amaretto                 (e.g. Indulge)
+     1× wild turkey                         (e.g. Turkeyball)
+     1× yukon jack                          (e.g. Texas Rattlesnake)
+     1× limeade                             (e.g. Vodka Fizz)
+     1× gum arabic                          (e.g. Pisco Punch)
+     1× palo cortado sherry                 (e.g. Sherry Cobbler)
+
+--- LOW confidence (verify) ---
+    10× cherry                              -> sweet  (e.g. Boston Sour)
+     6× peach schnapps                      -> sweet  (e.g. Bubble Gum)
+     5× pineapple                           -> sweet  (e.g. Frozen Pineapple Daiquiri)
+     3× verjus blanc                        -> sour  (e.g. Abbot Kinney)
+     3× strawberries                        -> sweet  (e.g. Frosé)
+     3× orange spiral                       -> sour  (e.g. Gin Cooler)
+     2× blackberries                        -> sweet  (e.g. Hunter's Moon)
+     2× mango                               -> sweet  (e.g. Mango Mojito)
+     2× apple                               -> sweet  (e.g. Sweet Sangria)
+     1× orange marmalade                    -> sour  (e.g. Little Victory)
+     1× dry unoaked chardonnay              -> amaro_liqueur  (e.g. Sonoma)
+     1× 12 mandarin orange                  -> sour  (e.g. Touch and Go)
+     1× 1 whole lime muddled                -> sour  (e.g. Caipirinha)
+     1× lillet rose                         -> sweet  (e.g. Peaches and Smoke)
+     1× 1 muddled peach wedge               -> sweet  (e.g. Peaches and Smoke)
+     1× fresh peach puree                   -> sweet  (e.g. Bellini)
+     1× clarified juices cucumber lime or grapefruit -> sour  (e.g. Normandie Club Spritz #1 & #3)
+     1× 1 orange half wheel                 -> sour  (e.g. Jump in the Line)
+     1× strawberry                          -> sweet  (e.g. Jump in the Line)
+     1× 2 oz passion fruit puree            -> sour  (e.g. Hurricane)
+     1× 05 oz cherry heering                -> sweet  (e.g. Singapore Sling)
+     1× 1 wedge lemon                       -> sour  (e.g. Dirty Martini)
+     1× strawberry schnapps                 -> sweet  (e.g. Affair)
+     1× rose                                -> sweet  (e.g. Frosé)
+     1× figs                                -> sweet  (e.g. Figgy Thyme)
+     1× bitter lemon                        -> sour  (e.g. Kiwi Lemon)
+     1× blood orange                        -> sour  (e.g. Snowday)
+     1× cherries                            -> sweet  (e.g. Space Odyssey)
