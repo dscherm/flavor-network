@@ -265,13 +265,23 @@ export default function useProData({ enabled = true } = {}) {
           const ceRes = await fetch('/proDataset/cluster_explanations.json');
           if (ceRes.ok) {
             clusterExplanations = await ceRes.json();
-            // Attach cluster info to each node
+            // Attach cluster info to each node + the cluster's
+            // multi-cuisine explanation so IngredientPanel can show
+            // *why* an ingredient sits in this cluster (e.g. why
+            // pita bread is in "Mexican" — because the cluster spans
+            // Turkish/Lebanese/Middle-Eastern co-occurrence too).
             const ic = clusterExplanations.ingredient_clusters || {};
+            const cls = clusterExplanations.clusters || {};
             for (const [name, info] of Object.entries(ic)) {
               const node = graph.nodes.get(name);
-              if (node) {
-                node.clusterLabel = info.cluster_label;
-                node.clusterId = info.cluster_id;
+              if (!node) continue;
+              node.clusterLabel = info.cluster_label;
+              node.clusterId = info.cluster_id;
+              const c = cls[String(info.cluster_id)];
+              if (c) {
+                node.clusterExplanation = c.explanation;
+                node.clusterTopCuisines = c.top_cuisines || [];
+                node.clusterTopIngredients = c.top_ingredients || [];
               }
             }
           }

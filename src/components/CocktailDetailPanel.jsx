@@ -93,6 +93,7 @@ export default function CocktailDetailPanel({
                 />
                 <span className="text-[10px] uppercase tracking-wider text-gray-400 truncate">
                   {family?.name}{subclusterLabel ? ` · ${subclusterLabel}` : ''}
+                  {engineering?.build ? ` · ${engineering.build}` : ''}
                   {cocktail.isRoot ? ' · ROOT' : ''}
                 </span>
               </div>

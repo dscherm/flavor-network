@@ -40,12 +40,22 @@ const CULTURAL_ROOT_OVERRIDE = {
   // 5: keep math Root (Paloma) — user choice
 };
 
+// Family names — second pass (2026-05-06). The critic audit revealed
+// the original "Built" name was wrong about all 66 fam-3 members
+// (zero have build_method='build'; OF itself is muddle). And
+// "Stirred & Spirit-Forward" mis-labels the 8 shake variants
+// in fam 4 (Vodka Martini, French Negroni, etc.). New names lead
+// with the *structural* signal (amaro/aromatic) so method outliers
+// don't break the label, and avoid the "Spirit-Forward" prefix
+// collision that was clipping in mobile chips.
+//   3: amaro_liqueur 0.22 + bass-layer 0.41 dominant → boozy sipper
+//   4: aromatic 0.36 + vermouth 0.24 dominant → aromatic stirred
 const FAMILY_NAMES = {
   0: 'Tropical Sours',
   1: 'Highballs & Fizzes',
   2: 'Sour Family',
-  3: 'Spirit-Forward Built',
-  4: 'Stirred & Spirit-Forward',
+  3: 'Boozy Sippers',
+  4: 'Aromatic Stirred',
   5: 'Aperitivos',
 };
 
