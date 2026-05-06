@@ -373,10 +373,18 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
         {node.clusterLabel && (
           <CollapsibleSection title="Flavor Cluster" badge={node.clusterLabel}>
             <p className="text-xs text-gray-300 mb-1">
-              This ingredient is in the <span className="text-cyan-300 font-medium">{node.clusterLabel}</span> cluster
+              In the <span className="text-cyan-300 font-medium">{node.clusterLabel}</span> cluster
+              {Array.isArray(node.clusterTopIngredients) && node.clusterTopIngredients.length > 0 && (
+                <span className="text-gray-500"> · alongside {node.clusterTopIngredients.slice(0, 3).join(', ')}</span>
+              )}
             </p>
+            {Array.isArray(node.clusterTopCuisines) && node.clusterTopCuisines.length > 0 && (
+              <p className="text-[10px] text-gray-400 mb-1">
+                Spans <span className="text-gray-200">{node.clusterTopCuisines.join(', ')}</span> cooking — co-occurs across these cuisines, not just one.
+              </p>
+            )}
             <p className="text-[10px] text-gray-500">
-              Ingredients cluster by how often they appear together in recipes and how similar their molecular structures are.
+              Cluster name reflects the dominant cuisine of the cluster's center, but membership comes from recipe co-occurrence — ingredients from many cuisines can land here.
             </p>
           </CollapsibleSection>
         )}
