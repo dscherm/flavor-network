@@ -1,0 +1,33 @@
+Cocktail v2 Phase 4 — aroma layer dictionary report
+Generated: 2026-05-06T00:19:42.463Z
+Ingredients: 540
+
+Layer distribution:
+  bass     191
+  top      181
+  middle   153
+
+Confidence distribution:
+  high     127
+  medium   398
+  unknown  15
+
+Slot × Layer crosstab:
+  amaro_liqueur/bass             95
+  amaro_liqueur/middle           18
+  amaro_liqueur/top              9
+  aromatic/bass                  3
+  aromatic/top                   41
+  bitter/top                     15
+  modifier/bass                  15
+  modifier/middle                4
+  modifier/top                   81
+  none/bass                      1
+  none/none                      15
+  sour/top                       34
+  spirit/bass                    15
+  spirit/middle                  116
+  spirit/top                     1
+  sweet/bass                     62
+  sweet/middle                   4
+  vermouth/middle                11
