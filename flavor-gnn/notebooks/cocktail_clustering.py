@@ -401,6 +401,113 @@ def run_hierarchical_sweep(X: np.ndarray, df: pd.DataFrame) -> list[dict]:
 # ── Cluster naming + reporting ────────────────────────────────────────
 
 
+# ── Sub-clustering ────────────────────────────────────────────────────
+
+
+MIN_SUB_SIZE = 5  # any sub-cluster smaller than this is merged back
+
+
+def subcluster(X: np.ndarray, parent_labels: np.ndarray, df: pd.DataFrame, max_sub_k: int = 4) -> tuple[np.ndarray, dict]:
+    """For each parent cluster, run a 2nd-level K-means with K chosen
+    by silhouette. Sub-clusters with fewer than MIN_SUB_SIZE members
+    are merged back into the largest sibling.
+    Returns:
+      - sub_labels: same length as parent_labels, integer encoding
+        within each parent cluster (0..sub_k-1)
+      - hierarchy: dict[parent_id -> dict[sub_id -> { size, exemplars }]]
+    """
+    sub_labels = np.full_like(parent_labels, -1)
+    hierarchy: dict[int, dict] = {}
+    for pid in sorted(set(parent_labels.tolist())):
+        mask = parent_labels == pid
+        n = int(mask.sum())
+        # Floor: need ≥ MIN_SUB_SIZE per sub, ≥ 2 sub-clusters total.
+        # Ceiling: per spec 4-7 top-level + max ~5 sub gives ~30 combos.
+        # Cap sub_k by cluster size so smallest sub still ≥ MIN_SUB_SIZE
+        # in expectation.
+        upper = max(2, min(max_sub_k, n // (MIN_SUB_SIZE * 2)))
+        if n < MIN_SUB_SIZE * 2 or upper < 2:
+            # Tiny cluster — single sub-bucket.
+            sub_labels[mask] = 0
+            hierarchy[int(pid)] = {0: {"size": n, "exemplars": list(df[mask]["name"].head(5))}}
+            continue
+        Xp = X[mask]
+        best_sub_k = 2
+        best_sil = -1.0
+        best_labels = None
+        for sk in range(2, upper + 1):
+            try:
+                km = KMeans(n_clusters=sk, random_state=42, n_init=10).fit(Xp)
+                sil = silhouette_score(Xp, km.labels_)
+                if sil > best_sil:
+                    best_sil = sil
+                    best_sub_k = sk
+                    best_labels = km.labels_
+            except Exception:
+                continue
+        if best_labels is None:
+            sub_labels[mask] = 0
+            hierarchy[int(pid)] = {0: {"size": n, "exemplars": list(df[mask]["name"].head(5))}}
+            continue
+        # Merge sub-clusters smaller than MIN_SUB_SIZE into the nearest
+        # surviving sibling (centroid distance). Avoids 77 vs 1 splits.
+        best_labels = best_labels.copy()
+        while True:
+            sizes = Counter(best_labels.tolist())
+            tiny = [sid for sid, sz in sizes.items() if sz < MIN_SUB_SIZE]
+            if not tiny or len(sizes) <= 1:
+                break
+            # Compute centroids of each surviving (non-tiny) cluster
+            survivors = [s for s, sz in sizes.items() if sz >= MIN_SUB_SIZE]
+            if not survivors:
+                # All tiny — collapse everything to a single sub
+                best_labels[:] = 0
+                break
+            centroids = {s: Xp[best_labels == s].mean(axis=0) for s in survivors}
+            # Reassign every member of every tiny sub to the nearest survivor
+            for ts in tiny:
+                ts_idx = np.where(best_labels == ts)[0]
+                for i in ts_idx:
+                    nearest = min(
+                        survivors,
+                        key=lambda s: float(np.linalg.norm(Xp[i] - centroids[s])),
+                    )
+                    best_labels[i] = nearest
+        # Renumber sub-cluster IDs to be 0..k-1 contiguous
+        unique = sorted(set(best_labels.tolist()))
+        remap = {old: new for new, old in enumerate(unique)}
+        best_labels = np.array([remap[s] for s in best_labels])
+        sub_labels[mask] = best_labels
+        # Build hierarchy entry
+        sub_dict: dict[int, dict] = {}
+        sub_df = df[mask].reset_index(drop=True)
+        for sid in sorted(set(best_labels.tolist())):
+            sub_mask = best_labels == sid
+            sub_members = sub_df[sub_mask]
+            iba_first = list(sub_members[sub_members["iba_official"] == True]["name"].head(5))
+            exemplars = iba_first if len(iba_first) >= 3 else list(sub_members["name"].head(5))
+            # Sub-cluster signature: which slot/layer dominates within
+            # this sub-cluster vs. the parent's overall mean.
+            slot_means = {
+                c.replace("slot_", ""): float(sub_members[c].mean())
+                for c in df.columns if c.startswith("slot_")
+            }
+            layer_means = {
+                c.replace("layer_", ""): float(sub_members[c].mean())
+                for c in df.columns if c.startswith("layer_")
+            }
+            dom_slots = sorted(slot_means.items(), key=lambda x: -x[1])[:3]
+            sub_dict[int(sid)] = {
+                "size": int(sub_mask.sum()),
+                "silhouette": float(best_sil),
+                "dominant_slots": dom_slots,
+                "layer_means": layer_means,
+                "exemplars": exemplars,
+            }
+        hierarchy[int(pid)] = sub_dict
+    return sub_labels, hierarchy
+
+
 def cluster_signatures(df: pd.DataFrame, labels: np.ndarray) -> dict[int, dict]:
     """For each cluster: compute mean slot ratios and pick exemplars."""
     df_lbl = df.copy()
@@ -468,6 +575,44 @@ def main():
     winner_labels = np.array(winner["labels"])
     sigs = cluster_signatures(df, winner_labels)
 
+    # Sub-clustering: within each top-level cluster, run a 2nd-level
+    # K-means and pick sub-K by silhouette (capped at 4).
+    print("\nRunning sub-clustering...")
+    sub_labels, hierarchy = subcluster(X, winner_labels, df, max_sub_k=4)
+    sub_count = sum(len(v) for v in hierarchy.values())
+    print(f"  Sub-clusters: {sub_count} across {len(hierarchy)} parents")
+
+    # Tag the "Root" of each top-level cluster: the centroid-nearest
+    # IBA-blessed cocktail (or Codex-tagged if no IBA member). Per spec
+    # ship-decision question, this gives each family a single canonical
+    # narrative anchor — Negroni for the bitter-stirred family, Daiquiri
+    # for the sour family, etc. — without forcing the rest of the
+    # taxonomy into Codex narrative buckets.
+    print("Tagging cluster Roots...")
+    is_root = np.zeros(len(df), dtype=bool)
+    cluster_roots: dict[int, str] = {}
+    canonical_to_codex_id = {c["name_canonical"]: c.get("cocktail_codex_family_id") for c in corpus}
+    for pid in sorted(set(winner_labels.tolist())):
+        mask = winner_labels == pid
+        idxs = np.where(mask)[0]
+        centroid = X[mask].mean(axis=0)
+        # Score: prefer IBA-blessed, then Codex-tagged, then anything;
+        # within tier, take centroid-nearest by Euclidean distance.
+        best_idx = None
+        best_score = (-1, float("inf"))  # (-tier, distance) — minimize
+        for i in idxs:
+            row = df.iloc[i]
+            tier = 2 if row.iba_official else (1 if canonical_to_codex_id.get(row.canonical) is not None else 0)
+            dist = float(np.linalg.norm(X[i] - centroid))
+            score = (-tier, dist)
+            if score < best_score:
+                best_score = score
+                best_idx = i
+        if best_idx is not None:
+            is_root[best_idx] = True
+            cluster_roots[int(pid)] = str(df.iloc[best_idx]["name"])
+            print(f"  Cluster {pid} Root: {cluster_roots[int(pid)]}")
+
     # Output cluster assignments
     out = {
         "_meta": {
@@ -479,13 +624,25 @@ def main():
             "composite": winner["composite"],
             "feature_dim": X.shape[1],
             "n_cocktails": len(corpus),
+            "sub_cluster_total": sub_count,
         },
-        "clusters": {str(k): v for k, v in sigs.items()},
+        "clusters": {
+            str(k): {**v, "root_cocktail": cluster_roots.get(k)}
+            for k, v in sigs.items()
+        },
+        "subclusters": {
+            str(pid): {str(sid): sdata for sid, sdata in subs.items()}
+            for pid, subs in hierarchy.items()
+        },
+        "cluster_roots": cluster_roots,
         "assignments": [
             {
                 "name": row.name,
                 "canonical": row.canonical,
                 "cluster": int(winner_labels[i]),
+                "subcluster": int(sub_labels[i]),
+                "hierarchy_id": f"{int(winner_labels[i])}.{int(sub_labels[i])}",
+                "is_root": bool(is_root[i]),
                 "iba_official": bool(row.iba_official),
                 "megacategory": row.megacategory,
             }
@@ -529,10 +686,17 @@ def main():
     lines.append("--- Cluster signatures ---")
     for cid, sig in sigs.items():
         slots_str = ", ".join(f"{k}:{v:.2f}" for k, v in sig["dominant_slots"] if v > 0.05)
-        lines.append(f"\nCluster {cid} (n={sig['size']})")
+        root = cluster_roots.get(int(cid), "—")
+        lines.append(f"\nCluster {cid} (n={sig['size']})  Root: {root}")
         lines.append(f"  Dominant slots: {slots_str}")
         lines.append(f"  Layer mix:      top={sig['layer_means']['top']:.2f} mid={sig['layer_means']['middle']:.2f} bass={sig['layer_means']['bass']:.2f}")
         lines.append(f"  Exemplars:      {', '.join(sig['exemplars'])}")
+        # Sub-clusters under this parent
+        subs = hierarchy.get(int(cid), {})
+        for sid, sd in subs.items():
+            sub_slots = ", ".join(f"{k}:{v:.2f}" for k, v in sd.get("dominant_slots", []) if v > 0.05)
+            lines.append(f"    └─ {cid}.{sid} (n={sd['size']}): {sub_slots}")
+            lines.append(f"        Exemplars: {', '.join(sd['exemplars'])}")
     lines.append("")
     lines.append("--- Validation harness ---")
     lines.append(f"Near pairs that landed in DIFFERENT clusters (FAILURES):")
