@@ -1,0 +1,516 @@
+cocktail,canonical,build_method,build_confidence,glass_type,glass_confidence,ice_format,ice_confidence,aeration,aer_confidence
+"Golden Boy","golden boy",stir,medium,,unknown,,unknown,low,high
+"Vermouth Cocktail","vermouth cocktail",stir,medium,,unknown,,unknown,low,high
+"Exit Strategy","exit strategy",stir,medium,,unknown,,unknown,low,high
+"Ti’ Punch","ti punch",stir,medium,,unknown,,unknown,low,high
+"Fancy-Free","fancy-free",stir,medium,,unknown,,unknown,low,high
+"Chrysanthemum","chrysanthemum",stir,medium,,unknown,,unknown,low,high
+"Stinger","stinger",stir,medium,coupe,high,up,medium,low,high
+"Monte Carlo","monte carlo",stir,medium,,unknown,,unknown,low,high
+"Improved Whiskey Cocktail","improved whiskey cocktail",stir,medium,,unknown,,unknown,low,high
+"Pop Quiz","pop quiz",stir,medium,,unknown,,unknown,low,high
+"Night Owl","night owl",stir,medium,,unknown,,unknown,low,high
+"Normandie Club Old-Fashioned","normandie club old-fashioned",stir,medium,,unknown,,unknown,low,high
+"Snowbird","snowbird",stir,medium,,unknown,,unknown,low,high
+"Cold Girl Fever","cold girl fever",stir,medium,,unknown,,unknown,low,high
+"Ned Ryerson","ned ryerson",stir,medium,,unknown,,unknown,low,high
+"Deadpan","deadpan",stir,medium,,unknown,,unknown,low,high
+"Autumn Old-Fashioned","autumn old-fashioned",stir,medium,,unknown,,unknown,low,high
+"Bad Santa","bad santa",stir,medium,,unknown,,unknown,low,high
+"Beach Bonfire","beach bonfire",stir,medium,,unknown,,unknown,low,high
+"Champagne Cocktail","champagne cocktail",stir,medium,wine,medium,,unknown,low,high
+"The Field Marshall","the field marshall",stir,medium,wine,medium,,unknown,low,high
+"Pretty Wings","pretty wings",stir,medium,wine,medium,,unknown,low,high
+"Celebrate","celebrate",stir,medium,wine,medium,,unknown,low,high
+"Mint Julep","mint julep",stir,medium,highball,high,tall,medium,low,high
+"Last One Standing","last one standing",stir,medium,,unknown,,unknown,low,high
+"Heritage Julep","heritage julep",stir,medium,,unknown,,unknown,low,high
+"Camellia Julep","camellia julep",stir,medium,,unknown,,unknown,low,high
+"Sazerac","sazerac",stir,medium,rocks,high,rocks,medium,low,high
+"Cut and Paste","cut and paste",stir,medium,,unknown,,unknown,low,high
+"Save Tonight","save tonight",stir,medium,,unknown,,unknown,low,high
+"Bananarac","bananarac",stir,medium,,unknown,,unknown,low,high
+"Vesper","vesper",stir,medium,coupe,high,up,medium,low,high
+"Dean Martin","dean martin",stir,medium,,unknown,,unknown,low,high
+"Martini (Very Dry)","martini very dry",stir,medium,,unknown,,unknown,low,high
+"Martini (Our Root Recipe)","martini our root recipe",stir,medium,,unknown,,unknown,low,high
+"Martini (Wet)","martini wet",stir,medium,,unknown,,unknown,low,high
+"Normandie Club Martini #1","normandie club martini 1",stir,medium,,unknown,,unknown,low,high
+"Little Victory","little victory",stir,medium,,unknown,,unknown,low,high
+"Martinez","martinez",stir,medium,,unknown,,unknown,low,high
+"Perfect Manhattan","perfect manhattan",stir,medium,,unknown,,unknown,low,high
+"Blood Orange","blood orange",stir,medium,,unknown,,unknown,low,high
+"Mea Culpa","mea culpa",stir,medium,,unknown,,unknown,low,high
+"Beth's Going to Town","beths going to town",stir,medium,,unknown,,unknown,low,high
+"Brooklyn","brooklyn",stir,medium,coupe,high,up,medium,low,high
+"Poet’s Dream","poets dream",stir,medium,,unknown,,unknown,low,high
+"European Union","european union",stir,medium,,unknown,,unknown,low,high
+"Watercress","watercress",stir,medium,,unknown,,unknown,low,high
+"Negroni","negroni",stir,medium,rocks,high,rocks,medium,low,high
+"Strawberry Negroni","strawberry negroni",stir,medium,,unknown,,unknown,low,high
+"White Negroni","white negroni",stir,medium,,unknown,,unknown,low,high
+"La Rosita","la rosita",stir,medium,,unknown,,unknown,low,high
+"Boulevardier","boulevardier",stir,medium,,unknown,,unknown,low,high
+"Old Pal","old pal",stir,medium,coupe,high,up,medium,low,high
+"Abbot Kinney","abbot kinney",stir,medium,,unknown,,unknown,low,high
+"Bamboo","bamboo",stir,medium,,unknown,,unknown,low,high
+"Sonoma","sonoma",stir,medium,,unknown,,unknown,low,high
+"Meyer Lemon Aperitif","meyer lemon aperitif",stir,medium,,unknown,,unknown,low,high
+"Amaretto Sour","amaretto sour",shake,medium,,unknown,,unknown,medium,high
+"Fresh Gimlet","fresh gimlet",shake,medium,,unknown,,unknown,medium,high
+"Pisco Sour","pisco sour",shake,medium,coupe,high,up,medium,high,high
+"Hemingway Daiquiri","hemingway daiquiri",shake,medium,,unknown,,unknown,medium,high
+"Cat Video","cat video",shake,medium,,unknown,,unknown,high,high
+"High Five","high five",shake,medium,,unknown,,unknown,medium,high
+"Bee’s Knees","bees knees",shake,medium,,unknown,,unknown,medium,high
+"Brown Derby","brown derby",shake,medium,,unknown,,unknown,medium,high
+"Whiskey Sour","whiskey sour",shake,medium,rocks,high,rocks,medium,medium,high
+"Pink Lady","pink lady",shake,medium,coupe,high,up,medium,high,high
+"Smoke and Mirrors","smoke and mirrors",blend,high,,unknown,,unknown,high,high
+"Kentucky Maid","kentucky maid",shake,medium,,unknown,,unknown,medium,high
+"Southside","southside",shake,medium,,unknown,,unknown,medium,high
+"Pompadour","pompadour",shake,medium,,unknown,,unknown,medium,high
+"Smokescreen","smokescreen",blend,high,,unknown,,unknown,high,high
+"Mai Tai","mai tai",shake,medium,highball,high,tall,medium,medium,high
+"Jack Frost","jack frost",shake,medium,,unknown,,unknown,medium,high
+"Touch and Go","touch and go",shake,medium,,unknown,,unknown,medium,high
+"Caipirinha","caipirinha",muddle,medium,rocks,high,rocks,medium,low,medium
+"French 75","french 75",shake,medium,highball,high,tall,medium,medium,high
+"Old Cuban","old cuban",shake,medium,coupe,high,up,medium,medium,high
+"Ramos Gin Fizz","ramos gin fizz",shake,high,highball,high,tall,medium,high,high
+"Moscow Mule","moscow mule",shake,medium,mug,high,rocks,medium,medium,high
+"Grapefruit Collins","grapefruit collins",shake,medium,,unknown,,unknown,medium,high
+"Silver Fizz","silver fizz",shake,medium,,unknown,,unknown,high,high
+"Accidental Guru","accidental guru",shake,medium,,unknown,,unknown,medium,high
+"Sidecar (Our Ideal Recipe)","sidecar our ideal recipe",shake,medium,,unknown,,unknown,medium,high
+"Margarita","margarita",shake,medium,coupe,high,up,medium,medium,high
+"Margarita (Dry)","margarita dry",shake,medium,,unknown,,unknown,medium,high
+"Margarita (Sweet)","margarita sweet",shake,medium,,unknown,,unknown,medium,high
+"Between the Sheets (Classic)","between the sheets classic",shake,medium,,unknown,,unknown,medium,high
+"Between the Sheets (Our Ideal Recipe)","between the sheets our ideal recipe",blend,high,,unknown,,unknown,high,high
+"20th Century","20th century",shake,medium,,unknown,,unknown,medium,high
+"Crop Top","crop top",shake,medium,,unknown,,unknown,medium,high
+"Peaches and Smoke","peaches and smoke",muddle,medium,,unknown,,unknown,low,medium
+"Rational Thought","rational thought",shake,medium,,unknown,,unknown,medium,high
+"Beausoleil","beausoleil",shake,medium,,unknown,,unknown,medium,high
+"Corpse Reviver #2","corpse reviver 2",shake,medium,,unknown,,unknown,medium,high
+"La Valencia","la valencia",shake,medium,,unknown,,unknown,medium,high
+"Fish House Punch","fish house punch",blend,high,,unknown,,unknown,high,high
+"Chatham Cocktail","chatham cocktail",shake,medium,wine,medium,,unknown,medium,high
+"Twist of Menton","twist of menton",shake,medium,,unknown,,unknown,high,high
+"Americano","americano",build,medium,highball,high,tall,medium,low,medium
+"Paloma","paloma",build,medium,highball,high,tall,medium,low,medium
+"Cuba Libre","cuba libre",build,medium,highball,high,tall,medium,low,medium
+"Negroni Sbagliato","negroni sbagliato",build,medium,,unknown,,unknown,low,medium
+"Screwdriver","screwdriver",build,medium,highball,high,tall,medium,low,medium
+"Gin and Tonic","gin and tonic",build,medium,,unknown,,unknown,low,medium
+"Tequila Sunrise","tequila sunrise",build,medium,highball,high,tall,medium,low,medium
+"Harvey Wallbanger","harvey wallbanger",build,medium,highball,high,tall,medium,low,medium
+"Bloody Mary (Classic Variation)","bloody mary classic variation",build,medium,,unknown,,unknown,low,medium
+"Bloody Mary Verde","bloody mary verde",build,medium,,unknown,,unknown,low,medium
+"Nobody’s Robots","nobodys robots",build,medium,,unknown,,unknown,low,medium
+"Normandie Club Bloody Mary","normandie club bloody mary",build,medium,,unknown,,unknown,low,medium
+"Mimosa","mimosa",build,medium,wine,high,,unknown,low,medium
+"Bellini","bellini",build,medium,wine,high,,unknown,low,medium
+"Apple Pop","apple pop",build,medium,,unknown,,unknown,low,medium
+"Kir Royale","kir royale",build,medium,wine,high,,unknown,low,medium
+"St-Germain Cocktail","st-germain cocktail",build,medium,wine,medium,,unknown,low,medium
+"Aperol Spritz","aperol spritz",build,medium,,unknown,,unknown,low,medium
+"Daisy Chain","daisy chain",build,medium,,unknown,,unknown,low,medium
+"Wine Spritz / Improved Wine Spritz","wine spritz improved wine spritz",build,medium,wine,medium,,unknown,low,medium
+"King’s Landing","kings landing",build,medium,,unknown,,unknown,low,medium
+"Normandie Club Spritz #1 & #3","normandie club spritz 1 3",build,medium,,unknown,,unknown,low,medium
+"Brandy Flip","brandy flip",shake,medium,,unknown,,unknown,medium,high
+"Coffee Cocktail","coffee cocktail",shake,medium,,unknown,,unknown,medium,high
+"Eggnog","eggnog",shake,medium,,unknown,,unknown,high,high
+"Brandy Alexander","brandy alexander",shake,medium,,unknown,,unknown,high,high
+"New York Flip","new york flip",shake,medium,,unknown,,unknown,high,high
+"Almond Orchard","almond orchard",shake,medium,,unknown,,unknown,medium,high
+"Barnaby Jones","barnaby jones",shake,medium,,unknown,,unknown,high,high
+"Jump in the Line","jump in the line",shake,medium,,unknown,,unknown,high,high
+"White Russian","white russian",shake,medium,rocks,high,rocks,medium,medium,high
+"Irish Coffee","irish coffee",shake,medium,,unknown,,unknown,high,high
+"Grasshopper","grasshopper",shake,medium,coupe,high,up,medium,high,high
+"Tom and Jerry","tom and jerry",shake,medium,,unknown,,unknown,medium,high
+"Golden Cadillac","golden cadillac",shake,medium,,unknown,,unknown,high,high
+"Piña Colada","pia colada",shake,medium,,unknown,,unknown,high,high
+"Frozen Mudslide","frozen mudslide",shake,medium,,unknown,,unknown,high,high
+"Hans Gruber","hans gruber",shake,medium,,unknown,,unknown,high,high
+"Indulge","indulge",shake,medium,,unknown,,unknown,medium,high
+"Saturday Morning Cartoons","saturday morning cartoons",shake,medium,,unknown,,unknown,medium,high
+"Hurricane","hurricane",shake,medium,,unknown,,unknown,medium,high
+"Singapore Sling","singapore sling",build,medium,,unknown,,unknown,low,medium
+"Pimm's Cup","pimms cup",build,medium,,unknown,,unknown,low,medium
+"Dirty Martini","dirty martini",stir,medium,coupe,high,up,medium,low,high
+"Old-Fashioned","old-fashioned",stir,medium,,unknown,,unknown,low,high
+"Martini","martini",stir,medium,coupe,high,up,medium,low,high
+"Daiquiri","daiquiri",shake,medium,coupe,high,up,medium,medium,high
+"Sidecar","sidecar",shake,medium,coupe,high,up,medium,medium,high
+"Whisky Highball","whisky highball",build,medium,,unknown,,unknown,low,medium
+"Flip","flip",shake,medium,,unknown,,unknown,medium,high
+"A1","a1",shake,high,coupe,high,up,high,medium,high
+"ABC","abc",shake,medium,,unknown,,unknown,high,high
+"Ace","ace",shake,high,coupe,high,up,medium,high,high
+"AT&T","att",stir,high,highball,high,rocks,high,low,high
+"Adam","adam",shake,high,coupe,high,rocks,high,medium,high
+"A. J.","a j",shake,high,coupe,high,up,medium,medium,high
+"Affair","affair",shake,medium,highball,high,rocks,high,medium,high
+"Avalon","avalon",stir,high,highball,high,rocks,high,low,high
+"Almeria","almeria",shake,high,coupe,high,rocks,high,high,high
+"Abilene","abilene",stir,high,highball,high,rocks,high,low,high
+"Addison","addison",shake,high,coupe,high,up,medium,medium,high
+"Aviation","aviation",shake,high,coupe,high,rocks,high,medium,high
+"Applecar","applecar",shake,high,coupe,high,up,medium,medium,high
+"Affinity","affinity",stir,high,coupe,high,rocks,high,low,high
+"Acapulco","acapulco",shake,high,rocks,high,rocks,high,high,high
+"Alexander","alexander",shake,high,coupe,high,up,medium,high,high
+"Avalanche","avalanche",shake,high,highball,high,rocks,high,high,high
+"Allegheny","allegheny",shake,high,coupe,high,up,medium,medium,high
+"Algonquin","algonquin",shake,high,coupe,high,up,medium,medium,high
+"Artillery","artillery",stir,high,coupe,high,up,medium,low,high
+"Addington","addington",shake,high,coupe,high,up,medium,medium,high
+"B-52","b-52",stir,high,,unknown,,unknown,low,high
+"B-53","b-53",stir,medium,highball,high,tall,medium,low,high
+"Bijou","bijou",stir,high,coupe,high,up,medium,low,high
+"Boxcar","boxcar",shake,high,,unknown,rocks,high,high,high
+"Big Red","big red",build,medium,,unknown,,unknown,low,medium
+"Bramble","bramble",stir,high,rocks,high,crushed,high,low,high
+"Balmoral","balmoral",stir,high,coupe,high,rocks,high,low,high
+"Bluebird","bluebird",stir,high,coupe,high,crushed,high,low,high
+"Boomerang","boomerang",stir,high,coupe,high,rocks,high,low,high
+"Barracuda","barracuda",shake,high,wine,medium,,unknown,medium,high
+"Brigadier","brigadier",stir,high,coupe,high,up,medium,low,high
+"Broadside","broadside",stir,medium,highball,high,rocks,high,low,high
+"Buccaneer","buccaneer",stir,high,,unknown,,unknown,low,high
+"Brain Fart","brain fart",shake,medium,punch,high,,unknown,medium,high
+"Blackthorn","blackthorn",stir,high,coupe,high,up,medium,low,high
+"Bob Marley","bob marley",stir,medium,,unknown,,unknown,low,high
+"Bible Belt","bible belt",shake,medium,highball,high,rocks,high,medium,high
+"Bubble Gum","bubble gum",shake,medium,,unknown,,unknown,medium,high
+"Bumble Bee","bumble bee",shake,medium,,unknown,,unknown,high,high
+"Baby Eskimo","baby eskimo",stir,high,highball,high,tall,medium,low,high
+"Boston Sour","boston sour",blend,high,,unknown,,unknown,high,high
+"Bahama Mama","bahama mama",shake,medium,highball,high,tall,medium,medium,high
+"Casino","casino",shake,high,coupe,high,up,high,medium,high
+"Cafe Savoy","cafe savoy",stir,high,mug,high,rocks,medium,low,high
+"Cream Soda","cream soda",build,medium,highball,high,tall,medium,low,medium
+"Cuba Libra","cuba libra",shake,medium,highball,high,rocks,high,medium,high
+"Cherry Rum","cherry rum",shake,high,coupe,high,up,medium,high,high
+"Corn n Oil","corn n oil",stir,high,rocks,high,rocks,medium,low,high
+"Citrus Coke","citrus coke",stir,high,highball,high,tall,medium,low,high
+"Casa Blanca","casa blanca",shake,high,coupe,high,up,medium,medium,high
+"Clover Club","clover club",shake,high,coupe,high,up,high,high,high
+"Caipirissima","caipirissima",shake,medium,highball,high,tall,medium,medium,high
+"City Slicker","city slicker",shake,high,coupe,high,rocks,high,medium,high
+"Campari Beer","campari beer",stir,medium,mug,high,rocks,medium,low,high
+"Chicago Fizz","chicago fizz",shake,high,highball,high,tall,medium,high,high
+"Cosmopolitan","cosmopolitan",shake,high,coupe,high,rocks,high,medium,high
+"Coffee-Vodka","coffee-vodka",shake,high,highball,high,tall,medium,medium,high
+"Casino Royale","casino royale",shake,high,,unknown,rocks,high,medium,high
+"Corpse Reviver","corpse reviver",shake,high,coupe,high,up,medium,medium,high
+"Chocolate Milk","chocolate milk",stir,medium,,unknown,,unknown,low,high
+"Clove Cocktail","clove cocktail",stir,high,coupe,high,up,medium,low,high
+"Coffee Liqueur","coffee liqueur",,unknown,highball,high,tall,medium,,unknown
+"Derby","derby",stir,high,coupe,high,up,medium,low,high
+"Diesel","diesel",,unknown,,unknown,,unknown,,unknown
+"Danbooka","danbooka",,unknown,mug,high,rocks,medium,,unknown
+"Downshift","downshift",,unknown,hurricane,high,crushed,medium,,unknown
+"Dragonfly","dragonfly",stir,high,highball,high,rocks,high,low,high
+"Dry Martini","dry martini",stir,high,coupe,high,up,medium,low,high
+"Dry Rob Roy","dry rob roy",stir,high,coupe,high,rocks,high,low,high
+"Dirty Nipple","dirty nipple",shake,medium,,unknown,,unknown,high,high
+"Darkwood Sling","darkwood sling",shake,medium,coupe,high,up,medium,medium,high
+"Dark and Stormy","dark and stormy",build,medium,highball,high,rocks,high,low,medium
+"Dark Caipirinha","dark caipirinha",stir,high,highball,high,rocks,high,low,high
+"Duchamp's Punch","duchamps punch",shake,high,rocks,high,rocks,medium,medium,high
+"Damned if you do","damned if you do",stir,medium,,unknown,,unknown,low,high
+"Dubonnet Cocktail","dubonnet cocktail",stir,high,coupe,high,up,medium,low,high
+"Death in the Afternoon","death in the afternoon",build,medium,wine,medium,up,high,low,medium
+"English Highball","english highball",stir,high,highball,high,rocks,high,low,high
+"English Rose Cocktail","english rose cocktail",shake,high,coupe,high,up,medium,medium,high
+"Elderflower Caipirinha","elderflower caipirinha",stir,high,highball,high,crushed,high,low,high
+"Empellón Cocina's Fat-Washed Mezcal","empelln cocinas fat-washed mezcal",shake,high,coupe,medium,up,high,medium,high
+"Frosé","fros",blend,high,coupe,high,crushed,high,high,high
+"Foxy Lady","foxy lady",shake,high,coupe,high,up,high,high,high
+"Figgy Thyme","figgy thyme",shake,high,highball,high,tall,medium,medium,high
+"Frisco Sour","frisco sour",shake,high,,unknown,,unknown,medium,high
+"Freddy Kruger","freddy kruger",stir,medium,,unknown,,unknown,low,high
+"Funk and Soul","funk and soul",shake,medium,highball,high,tall,medium,medium,high
+"Fuzzy Asshole","fuzzy asshole",stir,high,mug,high,rocks,medium,low,high
+"French Negroni","french negroni",shake,high,coupe,high,rocks,high,medium,high
+"Fahrenheit 5000","fahrenheit 5000",,unknown,,unknown,,unknown,,unknown
+"Flying Dutchman","flying dutchman",stir,high,rocks,high,rocks,high,low,high
+"Frozen Daiquiri","frozen daiquiri",blend,high,wine,high,,unknown,high,high
+"Flying Scotchman","flying scotchman",shake,high,coupe,high,up,medium,medium,high
+"French Connection","french connection",stir,high,rocks,high,rocks,high,low,high
+"Flaming Dr. Pepper","flaming dr pepper",stir,medium,highball,high,tall,medium,low,high
+"Flaming Lamborghini","flaming lamborghini",shake,medium,coupe,high,up,medium,high,high
+"Flander's Flake-Out","flanders flake-out",stir,medium,highball,high,tall,medium,low,high
+"Frozen Mint Daiquiri","frozen mint daiquiri",blend,high,rocks,high,crushed,high,high,high
+"Frozen Pineapple Daiquiri","frozen pineapple daiquiri",blend,high,coupe,high,crushed,high,high,high
+"Gimlet","gimlet",shake,high,coupe,high,up,high,medium,high
+"Godchild","godchild",shake,high,wine,high,,unknown,high,high
+"Gin Fizz","gin fizz",shake,high,highball,high,tall,medium,medium,high
+"Gin Sour","gin sour",shake,high,,unknown,rocks,high,medium,high
+"Gagliardo","gagliardo",shake,high,coupe,high,up,medium,medium,high
+"Godmother","godmother",stir,medium,rocks,high,rocks,high,low,high
+"Godfather","godfather",stir,high,rocks,high,rocks,high,low,high
+"Gin Tonic","gin tonic",build,medium,highball,high,rocks,high,low,medium
+"Gin Toddy","gin toddy",stir,high,rocks,high,rocks,medium,low,high
+"Gin Smash","gin smash",stir,high,rocks,high,rocks,medium,low,high
+"Gin Daisy","gin daisy",shake,high,rocks,high,rocks,high,medium,high
+"Gin Lemon","gin lemon",shake,high,highball,high,rocks,high,medium,high
+"Gin Sling","gin sling",stir,high,rocks,high,rocks,high,low,high
+"Greyhound","greyhound",stir,high,highball,high,rocks,high,low,high
+"Gin Rickey","gin rickey",shake,medium,highball,high,rocks,high,medium,high
+"Gin Squirt","gin squirt",stir,high,highball,high,rocks,high,low,high
+"Grand Blue","grand blue",stir,medium,rocks,high,rocks,medium,low,high
+"Gin Cooler","gin cooler",stir,high,highball,high,rocks,high,low,high
+"Gin Swizzle","gin swizzle",shake,high,highball,high,rocks,high,medium,high
+"Grass Skirt","grass skirt",shake,high,rocks,high,rocks,high,medium,high
+"Grim Reaper","grim reaper",stir,medium,rocks,high,rocks,high,low,high
+"Gin and Soda","gin and soda",stir,high,highball,high,rocks,high,low,high
+"H.D.","hd",shake,medium,mug,high,rocks,medium,high,high
+"Honey Bee","honey bee",shake,high,,unknown,crushed,high,medium,high
+"Hot Toddy","hot toddy",shake,medium,,unknown,,unknown,medium,high
+"Herbal flame","herbal flame",stir,high,,unknown,,unknown,low,high
+"Horse's Neck","horses neck",stir,high,highball,high,tall,medium,low,high
+"Happy Skipper","happy skipper",shake,medium,highball,high,rocks,high,medium,high
+"Hunter's Moon","hunters moon",shake,high,,unknown,,unknown,medium,high
+"Halloween Punch","halloween punch",,unknown,punch,high,,unknown,,unknown
+"Havana Cocktail","havana cocktail",shake,high,coupe,high,rocks,high,medium,high
+"Homemade Kahlua","homemade kahlua",,unknown,highball,high,tall,medium,,unknown
+"Hot Creamy Bush","hot creamy bush",shake,medium,,unknown,,unknown,high,high
+"Hawaiian Cocktail","hawaiian cocktail",shake,high,coupe,high,up,medium,medium,high
+"Hemingway Special","hemingway special",shake,high,coupe,high,up,medium,medium,high
+"Highland Fling Cocktail","highland fling cocktail",stir,high,coupe,high,up,medium,low,high
+"Ice Pick","ice pick",stir,high,highball,high,tall,medium,low,high
+"Irish Cream","irish cream",,unknown,,unknown,,unknown,,unknown
+"Irish Spring","irish spring",build,medium,highball,high,rocks,high,low,medium
+"Imperial Fizz","imperial fizz",shake,high,highball,high,tall,medium,medium,high
+"Irish Russian","irish russian",build,medium,highball,high,tall,medium,low,medium
+"Imperial Cocktail","imperial cocktail",shake,high,coupe,high,up,medium,medium,high
+"Iced Coffee Fillip","iced coffee fillip",stir,medium,mug,high,rocks,medium,low,high
+"Irish Curdling Cow","irish curdling cow",shake,medium,highball,high,tall,medium,high,high
+"Jam Donut","jam donut",shake,medium,,unknown,,unknown,high,high
+"Jitterbug","jitterbug",shake,medium,coupe,high,up,medium,medium,high
+"Jackhammer","jackhammer",stir,medium,highball,high,rocks,high,low,high
+"Jelly Bean","jelly bean",,unknown,,unknown,,unknown,,unknown
+"Jamaica Kiss","jamaica kiss",blend,high,hurricane,high,rocks,high,high,high
+"John Collins","john collins",stir,high,highball,high,rocks,high,low,high
+"Japanese Fizz","japanese fizz",shake,high,highball,high,tall,medium,high,high
+"Jamaican Coffee","jamaican coffee",stir,high,wine,high,,unknown,low,high
+"Jewel Of The Nile","jewel of the nile",stir,high,coupe,high,rocks,high,low,high
+"Jack Rose Cocktail","jack rose cocktail",shake,high,coupe,high,up,medium,medium,high
+"Jack's Vanilla Coke","jacks vanilla coke",stir,high,rocks,high,rocks,medium,low,high
+"Kir","kir",build,medium,wine,high,,unknown,low,medium
+"Karsk","karsk",,unknown,highball,high,tall,medium,,unknown
+"Kamikaze","kamikaze",shake,high,coupe,high,up,medium,medium,high
+"Kiwi Lemon","kiwi lemon",stir,high,highball,high,tall,medium,low,high
+"Kurant Tea","kurant tea",,unknown,wine,high,,unknown,,unknown
+"Kioki Coffee","kioki coffee",stir,high,mug,high,rocks,medium,low,high
+"Kiss me Quick","kiss me quick",stir,medium,highball,high,tall,medium,low,high
+"Kool First Aid","kool first aid",,unknown,,unknown,,unknown,,unknown
+"Kentucky B And B","kentucky b and b",stir,medium,,unknown,,unknown,low,high
+"Kentucky Colonel","kentucky colonel",shake,high,coupe,high,rocks,high,medium,high
+"Kool-Aid Slammer","kool-aid slammer",,unknown,,unknown,,unknown,,unknown
+"Lunch Box","lunch box",shake,medium,,unknown,,unknown,medium,high
+"Lemon Drop","lemon drop",shake,high,coupe,high,up,high,medium,high
+"Long vodka","long vodka",shake,high,highball,high,tall,medium,medium,high
+"Loch Lomond","loch lomond",stir,high,coupe,high,rocks,high,low,high
+"London Town","london town",stir,high,coupe,high,rocks,high,low,high
+"Limona Corona","limona corona",,unknown,,unknown,,unknown,,unknown
+"Lord And Lady","lord and lady",stir,high,rocks,high,rocks,high,low,high
+"Lady Love Fizz","lady love fizz",shake,high,coupe,high,up,medium,high,high
+"Long Island Tea","long island tea",shake,medium,highball,high,rocks,high,medium,high
+"Lone Tree Cooler","lone tree cooler",stir,high,highball,high,rocks,high,low,high
+"Lone Tree Cocktail","lone tree cocktail",stir,high,coupe,high,up,medium,low,high
+"Lazy Coconut Paloma","lazy coconut paloma",shake,medium,highball,high,tall,medium,medium,high
+"Lemon Elderflower Spritzer","lemon elderflower spritzer",stir,high,highball,high,rocks,high,low,high
+"Mojito","mojito",muddle,medium,highball,high,tall,medium,low,medium
+"Michelada","michelada",shake,medium,,unknown,,unknown,medium,high
+"Manhattan","manhattan",stir,high,coupe,high,up,high,low,high
+"Mauresque","mauresque",stir,medium,highball,high,tall,medium,low,high
+"Mudslinger","mudslinger",stir,high,punch,high,,unknown,low,high
+"Martinez 2","martinez 2",stir,high,coupe,high,up,high,low,high
+"Moranguito","moranguito",,unknown,,unknown,,unknown,,unknown
+"Miami Vice","miami vice",,unknown,coupe,high,up,medium,,unknown
+"Mulled Wine","mulled wine",stir,medium,highball,high,tall,medium,low,high
+"Munich Mule","munich mule",shake,medium,highball,high,rocks,high,medium,high
+"Mocha-Berry","mocha-berry",shake,medium,mug,medium,rocks,medium,high,high
+"Mango Mojito","mango mojito",blend,high,highball,medium,crushed,high,high,high
+"Mojito Extra","mojito extra",shake,medium,highball,high,tall,medium,medium,high
+"Monkey Gland","monkey gland",shake,high,coupe,high,up,high,medium,high
+"Midnight Mint","midnight mint",shake,high,coupe,high,up,medium,high,high
+"Mary Pickford","mary pickford",shake,high,coupe,high,up,medium,medium,high
+"Monkey Wrench","monkey wrench",stir,high,rocks,high,rocks,high,low,high
+"New York Sour","new york sour",blend,high,,unknown,,unknown,high,high
+"Nutty Irishman","nutty irishman",shake,medium,highball,high,rocks,high,high,high
+"National Aquarium","national aquarium",shake,high,highball,high,rocks,high,medium,high
+"New York Lemonade","new york lemonade",stir,high,coupe,high,up,high,low,high
+"Orgasm","orgasm",shake,high,coupe,high,up,high,high,high
+"Orange Whip","orange whip",stir,high,highball,high,rocks,high,low,high
+"Orange Crush","orange crush",shake,medium,rocks,medium,rocks,medium,medium,high
+"Orange Oasis","orange oasis",shake,high,highball,high,rocks,high,medium,high
+"Old Fashioned","old fashioned",muddle,medium,rocks,high,rocks,high,low,medium
+"Oreo Mudslide","oreo mudslide",blend,high,highball,high,tall,medium,high,high
+"Oatmeal Cookie","oatmeal cookie",shake,medium,,unknown,,unknown,high,high
+"Orange Push-up","orange push-up",blend,high,hurricane,high,crushed,medium,high,high
+"Orange Rosemary Collins","orange rosemary collins",shake,medium,highball,high,tall,medium,medium,high
+"Owen's Grandmother's Revenge","owens grandmothers revenge",blend,high,highball,high,tall,medium,high,high
+"Paradise","paradise",shake,high,coupe,high,rocks,high,medium,high
+"Pink Gin","pink gin",shake,high,wine,high,,unknown,medium,high
+"Pegu Club","pegu club",shake,high,coupe,high,up,medium,medium,high
+"Pink Moon","pink moon",shake,high,,unknown,,unknown,medium,high
+"Penicillin","penicillin",blend,high,rocks,high,rocks,medium,high,high
+"Porto flip","porto flip",shake,high,coupe,high,up,medium,medium,high
+"Pina Colada","pina colada",blend,high,highball,high,up,high,high,high
+"Pink Penocha","pink penocha",stir,high,punch,high,,unknown,low,high
+"Pure Passion","pure passion",stir,high,,unknown,crushed,high,low,high
+"Popped cherry","popped cherry",shake,medium,highball,high,rocks,high,medium,high
+"Poppy Cocktail","poppy cocktail",shake,high,coupe,high,up,medium,medium,high
+"Port Wine Flip","port wine flip",shake,high,,unknown,,unknown,high,high
+"Planter's Punch","planters punch",shake,high,highball,high,rocks,high,medium,high
+"Pineapple Paloma","pineapple paloma",stir,high,highball,high,tall,medium,low,high
+"Port And Starboard","port and starboard",stir,medium,,unknown,,unknown,low,high
+"Port Wine Cocktail","port wine cocktail",stir,high,coupe,high,up,medium,low,high
+"Pink Panty Pulldowns","pink panty pulldowns",shake,high,highball,high,tall,medium,medium,high
+"Quentin","quentin",shake,high,coupe,high,rocks,high,high,high
+"Queen Bee","queen bee",shake,high,coupe,high,up,medium,medium,high
+"Quick F**K","quick fk",shake,medium,,unknown,,unknown,high,high
+"Quick-sand","quick-sand",shake,medium,highball,high,tall,medium,medium,high
+"Queen Charlotte","queen charlotte",stir,high,highball,high,rocks,high,low,high
+"Queen Elizabeth","queen elizabeth",stir,high,coupe,high,up,medium,low,high
+"Quaker's Cocktail","quakers cocktail",shake,high,coupe,high,up,medium,medium,high
+"Quarter Deck Cocktail","quarter deck cocktail",stir,high,coupe,high,up,medium,low,high
+"Rose","rose",shake,high,coupe,high,up,high,medium,high
+"Radler","radler",,unknown,highball,high,tall,medium,,unknown
+"Rum Sour","rum sour",shake,high,,unknown,rocks,high,medium,high
+"Rum Punch","rum punch",shake,medium,punch,high,,unknown,medium,high
+"Rum Toddy","rum toddy",stir,high,rocks,high,rocks,medium,low,high
+"Royal Fizz","royal fizz",shake,high,highball,high,tall,medium,medium,high
+"Rum Cooler","rum cooler",stir,high,highball,high,rocks,high,low,high
+"Rum Runner","rum runner",shake,medium,coupe,high,up,medium,medium,high
+"Rusty Nail","rusty nail",stir,high,rocks,high,rocks,high,low,high
+"Red Snapper","red snapper",shake,high,rocks,high,rocks,medium,medium,high
+"Royal Bitch","royal bitch",stir,medium,,unknown,,unknown,low,high
+"Royal Flush","royal flush",stir,medium,rocks,high,rocks,high,low,high
+"Rum Cobbler","rum cobbler",stir,high,rocks,high,crushed,high,low,high
+"Ruby Tuesday","ruby tuesday",stir,high,highball,high,rocks,high,low,high
+"Rosemary Blue","rosemary blue",build,medium,,unknown,,unknown,low,medium
+"Royal Gin Fizz","royal gin fizz",shake,high,highball,high,tall,medium,medium,high
+"Rum Milk Punch","rum milk punch",shake,high,highball,high,tall,medium,medium,high
+"Raspberry Julep","raspberry julep",stir,high,,unknown,crushed,high,low,high
+"Rum Screwdriver","rum screwdriver",stir,high,highball,high,rocks,high,low,high
+"Raspberry Cooler","raspberry cooler",stir,high,highball,high,rocks,high,low,high
+"Rum Old-fashioned","rum old-fashioned",stir,high,rocks,high,rocks,medium,low,high
+"Russian Spring Punch","russian spring punch",shake,medium,highball,high,tall,medium,medium,high
+"Radioactive Long Island Iced Tea","radioactive long island iced tea",build,medium,highball,high,rocks,high,low,medium
+"Smut","smut",throw,high,mug,high,rocks,medium,high,high
+"Spritz","spritz",build,high,rocks,high,rocks,high,low,medium
+"Scooter","scooter",shake,high,coupe,high,up,medium,high,high
+"Sangria","sangria",shake,medium,wine,medium,,unknown,medium,high
+"Snowday","snowday",stir,high,highball,high,tall,medium,low,high
+"Spice 75","spice 75",shake,high,wine,high,,unknown,medium,high
+"Snowball","snowball",shake,medium,highball,high,tall,medium,medium,high
+"Salty Dog","salty dog",stir,high,highball,high,rocks,high,low,high
+"Stone Sour","stone sour",shake,high,,unknown,,unknown,medium,high
+"Sea breeze","sea breeze",build,high,highball,high,rocks,high,low,medium
+"Scotch Sour","scotch sour",shake,high,,unknown,,unknown,medium,high
+"Sweet Tooth","sweet tooth",stir,medium,highball,high,tall,medium,low,high
+"Sherry Flip","sherry flip",shake,high,coupe,high,up,medium,high,high
+"Sol Y Sombra","sol y sombra",shake,high,,unknown,,unknown,medium,high
+"Shark Attack","shark attack",,unknown,,unknown,crushed,high,,unknown
+"San Francisco","san francisco",shake,medium,highball,high,tall,medium,medium,high
+"Space Odyssey","space odyssey",shake,medium,highball,high,rocks,high,medium,high
+"Sherry Eggnog","sherry eggnog",shake,high,highball,high,tall,medium,medium,high
+"Sweet Sangria","sweet sangria",shake,medium,wine,medium,,unknown,medium,high
+"Thriller","thriller",shake,high,coupe,high,rocks,high,medium,high
+"The Galah","the galah",shake,medium,highball,high,tall,medium,medium,high
+"Tia-Maria","tia-maria",,unknown,highball,high,tall,medium,,unknown
+"Tipperary","tipperary",stir,high,coupe,high,up,high,low,high
+"Turkeyball","turkeyball",shake,high,,unknown,,unknown,medium,high
+"Texas Sling","texas sling",blend,high,wine,high,,unknown,high,high
+"Tom Collins","tom collins",shake,high,highball,high,rocks,high,medium,high
+"Talos Coffee","talos coffee",stir,medium,,unknown,,unknown,low,high
+"Tennesee Mud","tennesee mud",shake,medium,mug,high,rocks,medium,high,high
+"Tequila Fizz","tequila fizz",shake,high,highball,high,rocks,high,high,high
+"Tequila Sour","tequila sour",shake,high,,unknown,,unknown,medium,high
+"The Last Word","the last word",shake,high,coupe,high,up,medium,medium,high
+"Turf Cocktail","turf cocktail",stir,high,coupe,high,up,medium,low,high
+"The Laverstoke","the laverstoke",stir,high,,unknown,,unknown,low,high
+"Tequila Slammer","tequila slammer",,unknown,hurricane,high,crushed,medium,,unknown
+"The Philosopher","the philosopher",shake,high,,unknown,,unknown,medium,high
+"Tuxedo Cocktail","tuxedo cocktail",stir,high,coupe,high,up,medium,low,high
+"Tequila Surprise","tequila surprise",,unknown,,unknown,,unknown,,unknown
+"The Jimmy Conway","the jimmy conway",stir,medium,,unknown,rocks,high,low,high
+"Texas Rattlesnake","texas rattlesnake",shake,high,highball,high,tall,medium,medium,high
+"Victor","victor",shake,high,coupe,high,up,medium,medium,high
+"Vampiro","vampiro",blend,high,rocks,high,rocks,high,high,high
+"Vesuvio","vesuvio",shake,high,rocks,high,rocks,high,high,high
+"Veteran","veteran",stir,high,rocks,high,rocks,high,low,high
+"Van Vleet","van vleet",shake,high,rocks,high,rocks,high,medium,high
+"Vodka Fizz","vodka fizz",blend,high,wine,high,,unknown,high,high
+"Vodka Lemon","vodka lemon",shake,medium,highball,high,tall,medium,medium,high
+"Vodka Slime","vodka slime",shake,medium,highball,high,rocks,high,medium,high
+"Vodka Tonic","vodka tonic",build,medium,highball,high,tall,medium,low,medium
+"Vodka Martini","vodka martini",shake,high,coupe,high,up,medium,medium,high
+"Vodka Russian","vodka russian",,unknown,highball,high,tall,medium,,unknown
+"Vermouth Cassis","vermouth cassis",stir,high,highball,high,tall,medium,low,high
+"Victory Collins","victory collins",shake,high,highball,high,rocks,high,medium,high
+"Vodka And Tonic","vodka and tonic",stir,high,highball,high,rocks,high,low,high
+"Valencia Cocktail","valencia cocktail",shake,high,coupe,high,up,medium,medium,high
+"Whisky Mac","whisky mac",stir,medium,highball,high,tall,medium,low,high
+"White Lady","white lady",shake,high,coupe,high,rocks,high,medium,high
+"Wine Punch","wine punch",shake,medium,highball,high,block,high,medium,high
+"Winter Rita","winter rita",shake,high,highball,high,tall,medium,medium,high
+"Winter Paloma","winter paloma",blend,high,highball,high,tall,medium,high,high
+"White Wine Sangria","white wine sangria",shake,medium,wine,medium,,unknown,medium,high
+"Whitecap Margarita","whitecap margarita",blend,high,coupe,high,up,medium,high,high
+"Waikiki Beachcomber","waikiki beachcomber",shake,high,coupe,high,up,medium,medium,high
+"Yellow Bird","yellow bird",shake,high,coupe,high,up,high,medium,high
+"Zorro","zorro",shake,medium,mug,high,rocks,medium,high,high
+"Zinger","zinger",stir,medium,highball,high,tall,medium,low,high
+"Zoksel","zoksel",shake,medium,,unknown,,unknown,medium,high
+"Zombie","zombie",blend,high,hurricane,high,crushed,medium,high,high
+"Zambeer","zambeer",stir,high,highball,high,tall,medium,low,high
+"Zenmeister","zenmeister",stir,medium,highball,high,tall,medium,low,high
+"Zipperhead","zipperhead",build,medium,rocks,medium,rocks,medium,low,medium
+"Zima Blaster","zima blaster",stir,medium,hurricane,high,rocks,high,low,high
+"Zizi Coin-coin","zizi coin-coin",stir,high,coupe,high,up,medium,low,high
+"Zimadori Zinger","zimadori zinger",stir,high,highball,high,rocks,high,low,high
+"Zippy's Revenge","zippys revenge",shake,high,rocks,high,rocks,medium,medium,high
+"Ziemes Martini Apfelsaft","ziemes martini apfelsaft",stir,medium,highball,high,up,high,low,high
+"Angel Face","angel face",shake,high,coupe,high,up,high,medium,high
+"Between the Sheets","between the sheets",shake,high,coupe,high,up,high,medium,high
+"Brandy Crusta","brandy crusta",stir,high,coupe,high,up,high,low,high
+"Hanky Panky","hanky panky",stir,high,coupe,high,up,high,low,high
+"Last Word","last word",shake,high,coupe,high,up,high,medium,high
+"Remember the Maine","remember the maine",stir,high,coupe,high,up,high,low,high
+"Tuxedo","tuxedo",stir,high,coupe,high,up,medium,low,high
+"Vieux Carré","vieux carr",stir,high,coupe,high,up,high,low,high
+"Black Russian","black russian",build,high,rocks,high,rocks,high,low,medium
+"Bloody Mary","bloody mary",stir,high,highball,high,tall,medium,low,high
+"Cardinale","cardinale",build,high,rocks,high,rocks,high,low,medium
+"Corpse Reviver #2","corpse reviver 2",shake,high,coupe,high,up,high,medium,high
+"Garibaldi","garibaldi",build,high,highball,high,rocks,high,low,medium
+"Rabo de Galo","rabo de galo",stir,high,rocks,high,rocks,medium,low,high
+"Canchanchara","canchanchara",build,high,rocks,high,rocks,medium,low,medium
+"Chartreuse Swizzle","chartreuse swizzle",swizzle,high,highball,high,crushed,high,low,medium
+"Dark 'n' Stormy","dark n stormy",build,high,highball,high,rocks,high,low,medium
+"Fernandito","fernandito",build,high,rocks,high,rocks,high,low,medium
+"Gin Basil Smash","gin basil smash",shake,high,coupe,high,up,high,medium,high
+"Illegal","illegal",shake,high,coupe,high,up,high,high,high
+"Jungle Bird","jungle bird",shake,high,rocks,high,rocks,high,medium,high
+"Naked and Famous","naked and famous",shake,high,coupe,high,up,high,medium,high
+"Paper Plane","paper plane",shake,high,coupe,high,up,high,medium,high
+"Pisco Punch","pisco punch",build,high,coupe,high,up,medium,low,medium
+"Sherry Cobbler","sherry cobbler",shake,high,highball,high,crushed,high,medium,high
+"South Side","south side",shake,high,coupe,high,up,high,high,high
+"Spicy Fifty","spicy fifty",shake,high,coupe,high,up,high,medium,high
+"Suffering Bastard","suffering bastard",shake,high,highball,high,tall,medium,medium,high
+"Tommy's Margarita","tommys margarita",shake,high,rocks,high,rocks,high,medium,high
+"Trinidad Sour","trinidad sour",shake,high,coupe,high,up,high,medium,high
+"Ve.n.to","vento",shake,high,rocks,high,rocks,high,high,high
+"Rob Roy","rob roy",stir,high,coupe,high,up,high,low,high
+"Gibson","gibson",stir,high,coupe,high,up,high,low,high
