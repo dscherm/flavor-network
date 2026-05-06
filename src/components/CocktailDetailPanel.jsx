@@ -14,6 +14,13 @@ export default function CocktailDetailPanel({
   family,
   subclusterLabel,
   similarCocktails,
+  // v2-only (optional): engineering metadata, cross-family bridges,
+  // explicit ingredient + recipe overrides. Pre-v2 callers pass none
+  // of these and the panel renders identically to its prior shape.
+  crossFamilyCousins,
+  engineering,
+  ingredients: ingredientsProp,
+  recipe,
   onSelectCocktail,
   onOpenRecipeLab,        // (ingredients[]) => void
   onClose,
@@ -23,8 +30,19 @@ export default function CocktailDetailPanel({
 
   if (!cocktail) return null;
 
-  const ingredients = cocktail.ingredients || [];
+  // v2 may pass ingredients_raw objects [{raw, name, amount_ml, ...}]
+  // or raw strings. Normalize to displayable strings.
+  const rawIngredients = ingredientsProp || cocktail.ingredients || [];
+  const ingredients = rawIngredients.map((line) => {
+    if (typeof line === 'string') return line;
+    if (line && typeof line === 'object') {
+      return line.raw || `${line.measure || ''} ${line.name || ''}`.trim();
+    }
+    return '';
+  }).filter(Boolean);
   const garnishes = cocktail.garnishes || [];
+  const hasEngineering = engineering && (engineering.build || engineering.glass || engineering.ice || engineering.aeration);
+  const hasBridges = Array.isArray(crossFamilyCousins) && crossFamilyCousins.length > 0;
 
   function handleOpenInRecipeLab() {
     if (!onOpenRecipeLab) return;
@@ -81,6 +99,12 @@ export default function CocktailDetailPanel({
               <h2 className="text-lg font-semibold text-white truncate" title={cocktail.name}>
                 {cocktail.name}
               </h2>
+              {/* v2 only: family Root narrative line */}
+              {family?.root && family.root !== cocktail.name && (
+                <p className="text-[10px] text-gray-500 mt-1 truncate">
+                  Root of {family.name}: <span className="text-gray-300">{family.root}</span>
+                </p>
+              )}
             </div>
             <button
               onClick={onClose}
@@ -98,6 +122,7 @@ export default function CocktailDetailPanel({
             {[
               { id: 'ingredients', label: 'Ingredients' },
               { id: 'similar',     label: 'Similar' },
+              ...(hasEngineering ? [{ id: 'engineering', label: 'Method' }] : []),
             ].map(t => (
               <button
                 key={t.id}
@@ -167,31 +192,108 @@ export default function CocktailDetailPanel({
           )}
 
           {tab === 'similar' && (
-            <div className="space-y-2">
-              <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-1">
-                Cocktails like this
-              </p>
-              {similarCocktails.length === 0 && (
-                <p className="text-[12px] text-gray-500 italic">No close matches in the codex.</p>
+            <div className="space-y-3">
+              <section>
+                <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-1">
+                  Cocktails like this
+                </p>
+                {similarCocktails.length === 0 && (
+                  <p className="text-[12px] text-gray-500 italic">No close matches in the codex.</p>
+                )}
+                {similarCocktails.map(sim => (
+                  <button
+                    key={sim.name}
+                    onClick={() => onSelectCocktail(sim.name)}
+                    className="w-full text-left flex items-center justify-between gap-2 px-2 py-1.5 rounded hover:bg-white/5 transition-colors"
+                  >
+                    <span className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: sim.color }}
+                      />
+                      <span className="text-[12px] text-gray-200 truncate">{sim.name}</span>
+                    </span>
+                    <span className="text-[10px] text-gray-500 flex-shrink-0">
+                      {Math.round(sim.similarity * 100)}%
+                    </span>
+                  </button>
+                ))}
+              </section>
+
+              {/* v2 only: cross-family bridges */}
+              {hasBridges && (
+                <section className="pt-2 border-t border-[#1e1e2e]">
+                  <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-1.5">
+                    Bridges to other families
+                  </p>
+                  <p className="text-[10px] text-gray-500 italic mb-1.5">
+                    Outside this family but chemically close.
+                  </p>
+                  {crossFamilyCousins.map(b => (
+                    <button
+                      key={b.name}
+                      onClick={() => onSelectCocktail(b.name)}
+                      className="w-full text-left flex items-center justify-between gap-2 px-2 py-1.5 rounded hover:bg-white/5 transition-colors"
+                    >
+                      <span className="flex items-center gap-2 min-w-0">
+                        <span
+                          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: b.color }}
+                        />
+                        <span className="text-[12px] text-gray-200 truncate">{b.name}</span>
+                        <span className="text-[9px] text-gray-500 truncate">{b.family_name}</span>
+                      </span>
+                      <span className="text-[10px] text-gray-500 flex-shrink-0">
+                        {Math.round(b.similarity * 100)}%
+                      </span>
+                    </button>
+                  ))}
+                </section>
               )}
-              {similarCocktails.map(sim => (
-                <button
-                  key={sim.name}
-                  onClick={() => onSelectCocktail(sim.name)}
-                  className="w-full text-left flex items-center justify-between gap-2 px-2 py-1.5 rounded hover:bg-white/5 transition-colors"
-                >
-                  <span className="flex items-center gap-2 min-w-0">
-                    <span
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: sim.color }}
-                    />
-                    <span className="text-[12px] text-gray-200 truncate">{sim.name}</span>
-                  </span>
-                  <span className="text-[10px] text-gray-500 flex-shrink-0">
-                    {Math.round(sim.similarity * 100)}%
-                  </span>
-                </button>
-              ))}
+            </div>
+          )}
+
+          {tab === 'engineering' && hasEngineering && (
+            <div className="space-y-3">
+              <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-1">
+                Method
+              </p>
+              <dl className="grid grid-cols-2 gap-2 text-[12px]">
+                {engineering.build && (
+                  <>
+                    <dt className="text-gray-500">Build</dt>
+                    <dd className="text-gray-200 capitalize">{engineering.build}</dd>
+                  </>
+                )}
+                {engineering.glass && (
+                  <>
+                    <dt className="text-gray-500">Glass</dt>
+                    <dd className="text-gray-200 capitalize">{engineering.glass}</dd>
+                  </>
+                )}
+                {engineering.ice && (
+                  <>
+                    <dt className="text-gray-500">Ice</dt>
+                    <dd className="text-gray-200 capitalize">{engineering.ice}</dd>
+                  </>
+                )}
+                {engineering.aeration && (
+                  <>
+                    <dt className="text-gray-500">Aeration</dt>
+                    <dd className="text-gray-200 capitalize">{engineering.aeration}</dd>
+                  </>
+                )}
+              </dl>
+              {recipe && (
+                <section className="pt-2 border-t border-[#1e1e2e]">
+                  <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-1.5">
+                    Instructions
+                  </p>
+                  <p className="text-[12px] text-gray-300 leading-relaxed whitespace-pre-line">
+                    {recipe}
+                  </p>
+                </section>
+              )}
             </div>
           )}
         </div>
