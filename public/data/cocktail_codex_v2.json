@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generatedAt": "2026-05-06T01:02:37.400Z",
+    "generatedAt": "2026-05-06T01:48:06.853Z",
     "script": "09-emit-codex-v2.cjs",
     "model": "kmeans-k6",
     "silhouette": 0.1833312538842219,
@@ -24,7 +24,7 @@
       "name": "Tropical Sours",
       "cultural_root": "Zombie",
       "math_root": "Zombie",
-      "color": "#f59e0b",
+      "color": "#10b981",
       "signature": {
         "dominant_slots": [
           {
@@ -60,7 +60,7 @@
       "name": "Highballs & Fizzes",
       "cultural_root": "Tom Collins",
       "math_root": "John Collins",
-      "color": "#22c55e",
+      "color": "#0ea5e9",
       "signature": {
         "dominant_slots": [
           {
@@ -132,7 +132,7 @@
       "name": "Spirit-Forward Built",
       "cultural_root": "Old Fashioned",
       "math_root": "Stinger",
-      "color": "#b45309",
+      "color": "#7c3aed",
       "signature": {
         "dominant_slots": [
           {
@@ -204,7 +204,7 @@
       "name": "Aperitivos",
       "cultural_root": "Paloma",
       "math_root": "Paloma",
-      "color": "#f97316",
+      "color": "#ec4899",
       "signature": {
         "dominant_slots": [
           {
