@@ -1,0 +1,541 @@
+ingredient,slot,layer,confidence,source,occurrences
+"gin",spirit,middle,medium,"slot-default-spirit",109
+"vodka",spirit,middle,medium,"slot-default-spirit",61
+"lemon juice",sour,top,medium,"slot-default-sour",49
+"lime juice",sour,top,medium,"slot-default-sour",40
+"simple syrup",sweet,middle,high,"override-middle",35
+"dry vermouth",vermouth,middle,medium,"slot-default-vermouth",35
+"angostura bitters",bitter,top,medium,"slot-default-bitter",34
+"orange juice",sour,top,medium,"slot-default-sour",34
+"lemon",sour,top,medium,"slot-default-sour",34
+"sweet vermouth",vermouth,middle,medium,"slot-default-vermouth",33
+"fresh lemon juice",sour,top,medium,"slot-default-sour",32
+"sugar",sweet,bass,medium,"slot-default-sweet",29
+"grenadine",sweet,bass,high,"override-bass",27
+"ice",modifier,top,medium,"slot-default-modifier",25
+"fresh lime juice",sour,top,medium,"slot-default-sour",24
+"light rum",spirit,middle,medium,"slot-default-spirit",23
+"lime",sour,top,medium,"slot-default-sour",23
+"powdered sugar",sweet,bass,medium,"slot-default-sweet",23
+"maraschino liqueur",amaro_liqueur,middle,high,"override-middle",21
+"triple sec",amaro_liqueur,middle,high,"override-middle",21
+"amaretto",amaro_liqueur,middle,high,"override-middle",19
+"lemon peel",aromatic,top,medium,"slot-default-aromatic",19
+"rum",spirit,bass,high,"override-bass",18
+"orange bitters",bitter,top,medium,"slot-default-bitter",17
+"bourbon",spirit,middle,medium,"slot-default-spirit",17
+"kahlua",amaro_liqueur,bass,high,"override-bass",17
+"pineapple juice",modifier,top,medium,"slot-default-modifier",17
+"cognac",spirit,bass,high,"override-bass",16
+"coffee",modifier,bass,high,"override-bass",16
+"water",modifier,top,medium,"slot-default-modifier",16
+"scotch",spirit,middle,medium,"slot-default-spirit",15
+"egg white",modifier,bass,high,"override-bass",15
+"soda water",modifier,top,high,"override-top",15
+"baileys irish cream",modifier,top,medium,"slot-default-modifier",15
+"dark rum",spirit,bass,high,"override-bass",15
+"brandy",spirit,middle,medium,"slot-default-spirit",14
+"tequila",spirit,middle,medium,"slot-default-spirit",14
+"bitters",bitter,top,medium,"slot-default-bitter",13
+"campari",amaro_liqueur,bass,high,"override-bass",12
+"carbonated water",modifier,top,high,"override-top",12
+"orange",sour,top,medium,"slot-default-sour",12
+"rye",spirit,middle,medium,"slot-default-spirit",11
+"maraschino cherry",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",11
+"benedictine",amaro_liqueur,middle,high,"override-middle",10
+"cranberry juice",modifier,top,medium,"slot-default-modifier",10
+"mint",aromatic,top,medium,"slot-default-aromatic",10
+"151 proof rum",spirit,middle,medium,"slot-default-spirit",10
+"cherry",sweet,bass,medium,"slot-default-sweet",10
+"absinthe",spirit,top,high,"override-top",9
+"apple brandy",spirit,middle,medium,"slot-default-spirit",9
+"orange liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",9
+"green chartreuse",amaro_liqueur,middle,high,"override-middle",9
+"milk",modifier,bass,high,"override-bass",9
+"grapefruit juice",sour,top,medium,"slot-default-sour",9
+"light cream",modifier,top,medium,"slot-default-modifier",9
+"peychauds bitters",bitter,top,medium,"slot-default-bitter",8
+"demerara gum syrup",sweet,bass,medium,"slot-default-sweet",8
+"white rum",spirit,middle,medium,"slot-default-spirit",8
+"blanco tequila",spirit,middle,medium,"slot-default-spirit",8
+"tonic water",modifier,top,high,"override-top",8
+"sambuca",amaro_liqueur,top,high,"override-top",8
+"sugar syrup",sweet,middle,high,"override-middle",8
+"salt solution",aromatic,top,medium,"slot-default-aromatic",7
+"blanc vermouth",vermouth,middle,medium,"slot-default-vermouth",7
+"club soda",modifier,top,high,"override-top",7
+"nutmeg",aromatic,top,medium,"slot-default-aromatic",7
+"ginger ale",modifier,top,high,"override-top",7
+"coca-cola",modifier,top,high,"override-top",7
+"orange peel",aromatic,top,medium,"slot-default-aromatic",7
+"red wine",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",7
+"irish whiskey",spirit,middle,medium,"slot-default-spirit",6
+"honey syrup",sweet,bass,high,"override-bass",6
+"aperol",amaro_liqueur,bass,high,"override-bass",6
+"cold seltzer",modifier,top,high,"override-top",6
+"lemonade",modifier,top,medium,"slot-default-modifier",6
+"blended whiskey",spirit,middle,medium,"slot-default-spirit",6
+"peach schnapps",sweet,bass,medium,"slot-default-sweet",6
+"sweet and sour",modifier,top,medium,"slot-default-modifier",6
+"apricot brandy",spirit,middle,high,"override-middle",6
+"beer",modifier,middle,high,"override-middle",6
+"chambord raspberry liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",6
+"calvados",spirit,middle,medium,"slot-default-spirit",5
+"champagne",amaro_liqueur,top,high,"override-top",5
+"pear brandy",spirit,middle,medium,"slot-default-spirit",5
+"peach liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",5
+"lillet blanc",vermouth,middle,high,"override-middle",5
+"pisco",spirit,middle,medium,"slot-default-spirit",5
+"1 egg white",modifier,top,medium,"slot-default-modifier",5
+"cream",modifier,bass,high,"override-bass",5
+"vanilla extract",aromatic,top,medium,"slot-default-aromatic",5
+"creme de cassis",amaro_liqueur,middle,high,"override-middle",5
+"1 whole egg",modifier,top,medium,"slot-default-modifier",5
+"grand marnier",amaro_liqueur,middle,high,"override-middle",5
+"blue curacao",amaro_liqueur,middle,high,"override-middle",5
+"cherry brandy",spirit,middle,high,"override-middle",5
+"port",amaro_liqueur,bass,high,"override-bass",5
+"elderflower cordial",sweet,bass,medium,"slot-default-sweet",5
+"honey",sweet,bass,medium,"slot-default-sweet",5
+"pineapple",sweet,bass,medium,"slot-default-sweet",5
+"egg",modifier,bass,high,"override-bass",5
+"aromatic bitters",bitter,top,medium,"slot-default-bitter",4
+"dry champagne",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",4
+"fino sherry",spirit,bass,high,"override-bass",4
+"mezcal",spirit,bass,high,"override-bass",4
+"cachaca",spirit,middle,medium,"slot-default-spirit",4
+"fresh orange juice",sour,top,medium,"slot-default-sour",4
+"ounce demerara gum syrup",sweet,bass,medium,"slot-default-sweet",4
+"1 ounce heavy cream",modifier,top,medium,"slot-default-modifier",4
+"creme de cacao",amaro_liqueur,bass,high,"override-bass",4
+"crown royal",spirit,middle,medium,"slot-default-spirit",4
+"midori melon liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",4
+"jagermeister",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",4
+"cointreau",amaro_liqueur,middle,high,"override-middle",4
+"ginger beer",modifier,top,high,"override-top",4
+"malibu rum",spirit,middle,medium,"slot-default-spirit",4
+"cloves",aromatic,top,medium,"slot-default-aromatic",4
+"lemon-lime soda",modifier,top,medium,"slot-default-modifier",4
+"sherry",spirit,bass,high,"override-bass",4
+"cane sugar syrup",sweet,middle,high,"override-middle",3
+"white creme de menthe",amaro_liqueur,bass,high,"override-bass",3
+"amaro",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",3
+"mole bitters",bitter,top,medium,"slot-default-bitter",3
+"peated islay scotch",spirit,middle,medium,"slot-default-spirit",3
+"1 sugar cube",sweet,bass,medium,"slot-default-sweet",3
+"cinnamon syrup",sweet,bass,high,"override-bass",3
+"amontillado sherry",spirit,bass,high,"override-bass",3
+"absinthe for rinse",spirit,middle,medium,"slot-default-spirit",3
+"banana liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",3
+"old tom gin",spirit,middle,medium,"slot-default-spirit",3
+"elderflower liqueur",amaro_liqueur,top,high,"override-top",3
+"verjus blanc",sour,top,medium,"slot-default-sour",3
+"fresh grapefruit juice",sour,top,medium,"slot-default-sour",3
+"blended scotch",spirit,middle,medium,"slot-default-spirit",3
+"ginger syrup",sweet,bass,high,"override-bass",3
+"seltzer",modifier,top,high,"override-top",3
+"dry curacao orange liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",3
+"yellow chartreuse",amaro_liqueur,middle,high,"override-middle",3
+"cold prosecco",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",3
+"london dry gin",spirit,middle,medium,"slot-default-spirit",3
+"1 ounce white creme de cacao",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",3
+"4 ounces almond milk",modifier,top,medium,"slot-default-modifier",3
+"apple juice",modifier,top,medium,"slot-default-modifier",3
+"vermouth",vermouth,middle,medium,"slot-default-vermouth",3
+"blackberry brandy",spirit,middle,medium,"slot-default-spirit",3
+"goldschlager",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",3
+"galliano",amaro_liqueur,middle,high,"override-middle",3
+"prosecco",amaro_liqueur,top,high,"override-top",3
+"bacardi limon",spirit,middle,medium,"slot-default-spirit",3
+"everclear",spirit,middle,medium,"slot-default-spirit",3
+"southern comfort",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",3
+"sour mix",modifier,top,medium,"slot-default-modifier",3
+"spiced rum",spirit,bass,high,"override-bass",3
+"falernum",amaro_liqueur,middle,high,"override-middle",3
+"wine",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",3
+"sprite",modifier,top,high,"override-top",3
+"olive",aromatic,top,medium,"slot-default-aromatic",3
+"pepper",aromatic,top,medium,"slot-default-aromatic",3
+"whiskey",spirit,middle,medium,"slot-default-spirit",3
+"coffee liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",3
+"strawberries",sweet,bass,medium,"slot-default-sweet",3
+"tabasco sauce",aromatic,bass,high,"override-bass",3
+"orange spiral",sour,top,medium,"slot-default-sour",3
+"cinnamon",aromatic,top,medium,"slot-default-aromatic",3
+"anis",aromatic,top,medium,"slot-default-aromatic",3
+"whipped cream",modifier,top,medium,"slot-default-modifier",3
+"kool-aid",modifier,top,medium,"slot-default-modifier",3
+"tomato juice",modifier,bass,high,"override-bass",3
+"orgeat syrup",sweet,bass,medium,"slot-default-sweet",3
+"7-up",modifier,top,high,"override-top",3
+"salt",aromatic,top,medium,"slot-default-aromatic",3
+"root beer",modifier,top,medium,"slot-default-modifier",3
+"rye whiskey",spirit,middle,medium,"slot-default-spirit",3
+"amaro nonino",amaro_liqueur,bass,high,"override-bass",2
+"rhum agricole blanc",spirit,middle,medium,"slot-default-spirit",2
+"celery bitters",bitter,top,medium,"slot-default-bitter",2
+"vanilla liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"white creme de cacao",amaro_liqueur,bass,high,"override-bass",2
+"white mint liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"reposado tequila",spirit,middle,medium,"slot-default-spirit",2
+"pear liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"dry sack sherry",spirit,bass,high,"override-bass",2
+"apricot liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"china-china amer bittersweet liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"suze gentian liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"4 mint leaves",aromatic,top,medium,"slot-default-aromatic",2
+"5 mint leaves",aromatic,top,medium,"slot-default-aromatic",2
+"vanilla lactic syrup",sweet,bass,medium,"slot-default-sweet",2
+"manzanilla sherry",spirit,bass,high,"override-bass",2
+"cold cola",modifier,top,high,"override-top",2
+"bitter red aperitif",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"citric acid solution",sour,top,medium,"slot-default-sour",2
+"cold dry sparkling wine",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"1 ounces cognac",spirit,middle,medium,"slot-default-spirit",2
+"1 ounce cognac",spirit,middle,medium,"slot-default-spirit",2
+"ounce simple syrup",sweet,bass,medium,"slot-default-sweet",2
+"1 teaspoon vanilla liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"ounce cane sugar syrup",sweet,bass,medium,"slot-default-sweet",2
+"ounce heavy cream",modifier,top,medium,"slot-default-modifier",2
+"2 drops lactic acid solution",sour,top,medium,"slot-default-sour",2
+"1 drop salt solution",aromatic,top,medium,"slot-default-aromatic",2
+"ounce dark robust maple syrup",sweet,bass,medium,"slot-default-sweet",2
+"1 ounce coffee liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"2 ounces heavy cream",modifier,top,medium,"slot-default-modifier",2
+"ounce brown butter-infused apple brandy",spirit,middle,medium,"slot-default-spirit",2
+"05 oz simple syrup",sweet,bass,medium,"slot-default-sweet",2
+"heavy cream",modifier,bass,high,"override-bass",2
+"applejack",spirit,middle,medium,"slot-default-spirit",2
+"irish cream",amaro_liqueur,bass,high,"override-bass",2
+"cherry heering",amaro_liqueur,middle,high,"override-middle",2
+"corona",modifier,middle,high,"override-middle",2
+"surge",modifier,top,medium,"slot-default-modifier",2
+"sloe gin",spirit,middle,high,"override-middle",2
+"vanilla ice-cream",modifier,top,medium,"slot-default-modifier",2
+"lager",modifier,middle,high,"override-middle",2
+"egg yolk",modifier,bass,high,"override-bass",2
+"chocolate liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"peach bitters",bitter,top,medium,"slot-default-bitter",2
+"fruit punch",modifier,top,medium,"slot-default-modifier",2
+"hot damn",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"tea",modifier,bass,high,"override-bass",2
+"blackberries",sweet,bass,medium,"slot-default-sweet",2
+"ginger",aromatic,top,medium,"slot-default-aromatic",2
+"half-and-half",modifier,bass,high,"override-bass",2
+"jack daniels",spirit,middle,medium,"slot-default-spirit",2
+"schweppes russchian",modifier,top,medium,"slot-default-modifier",2
+"drambuie",amaro_liqueur,middle,high,"override-middle",2
+"coconut liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"worcestershire sauce",aromatic,bass,high,"override-bass",2
+"pepsi cola",modifier,top,high,"override-top",2
+"mango",sweet,bass,medium,"slot-default-sweet",2
+"frangelico",amaro_liqueur,bass,high,"override-bass",2
+"rosemary syrup",sweet,bass,medium,"slot-default-sweet",2
+"rosemary",aromatic,top,medium,"slot-default-aromatic",2
+"raspberry syrup",sweet,bass,medium,"slot-default-sweet",2
+"creme de banane",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",2
+"apple",sweet,bass,medium,"slot-default-sweet",2
+"agave syrup",sweet,bass,high,"override-bass",2
+"zima",modifier,top,medium,"slot-default-modifier",2
+"fernet-branca",amaro_liqueur,bass,high,"override-bass",2
+"bourbon whiskey",spirit,middle,medium,"slot-default-spirit",2
+"raisin-infused scotch",spirit,middle,medium,"slot-default-spirit",1
+"rainwater madeira",spirit,bass,high,"override-bass",1
+"amaro meletti",amaro_liqueur,bass,high,"override-bass",1
+"cacao nib-infused amaro",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"toasted pecan bitters",bitter,top,medium,"slot-default-bitter",1
+"coconut-infused bourbon",spirit,middle,medium,"slot-default-spirit",1
+"spiced almond demerara gum syrup",sweet,bass,high,"override-bass",1
+"cardamom-infused elderflower liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"raisin honey syrup",sweet,bass,high,"override-bass",1
+"castillian bitters",bitter,top,medium,"slot-default-bitter",1
+"sesame-infused rum",spirit,middle,medium,"slot-default-spirit",1
+"solera sherry",spirit,bass,high,"override-bass",1
+"bonded apple brandy",spirit,middle,medium,"slot-default-spirit",1
+"bas-armagnac",spirit,middle,medium,"slot-default-spirit",1
+"peated scotch",spirit,bass,high,"override-bass",1
+"dark maple syrup",sweet,bass,medium,"slot-default-sweet",1
+"cocoa butter-infused vodka",spirit,middle,medium,"slot-default-spirit",1
+"amburana cachaca",spirit,middle,medium,"slot-default-spirit",1
+"pineapple gum syrup",sweet,bass,high,"override-bass",1
+"armagnac",spirit,middle,medium,"slot-default-spirit",1
+"chamomile-infused americano aperitif",,,unknown,"no-rule",1
+"gentian liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"grapefruit bitters",bitter,top,medium,"slot-default-bitter",1
+"champagne acid solution",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"jamaican pot still gold rum",spirit,middle,medium,"slot-default-spirit",1
+"phosphoric acid solution",sour,top,medium,"slot-default-sour",1
+"cacao nib-infused pear brandy",spirit,middle,medium,"slot-default-spirit",1
+"absinthe for rinsing the glass",spirit,middle,medium,"slot-default-spirit",1
+"sour cherry-infused rye",spirit,middle,medium,"slot-default-spirit",1
+"absinthe as seasoning",spirit,middle,medium,"slot-default-spirit",1
+"douglas fir brandy",spirit,middle,medium,"slot-default-spirit",1
+"white honey syrup",sweet,bass,high,"override-bass",1
+"root beer-infused americano aperitif",modifier,top,medium,"slot-default-modifier",1
+"orange marmalade",sour,top,medium,"slot-default-sour",1
+"house orange bitters",bitter,top,medium,"slot-default-bitter",1
+"blood orange-infused sweet vermouth",vermouth,middle,medium,"slot-default-vermouth",1
+"aviation gin or a spicy contemporary gin",spirit,middle,medium,"slot-default-spirit",1
+"amaro ramazzotti",amaro_liqueur,bass,high,"override-bass",1
+"strega liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"watercress-infused gin",spirit,middle,medium,"slot-default-spirit",1
+"clarified strawberry syrup",sweet,bass,medium,"slot-default-sweet",1
+"cacao nib tincture",aromatic,top,medium,"slot-default-aromatic",1
+"dry unoaked chardonnay",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"meyer lemon zest",aromatic,top,medium,"slot-default-aromatic",1
+"berry liqueur creme yvette",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"singani",spirit,middle,medium,"slot-default-spirit",1
+"3 slices cucumber",aromatic,top,medium,"slot-default-aromatic",1
+"aged rhum agricole",spirit,middle,medium,"slot-default-spirit",1
+"pineau des charentes",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"jamaican rum",spirit,bass,high,"override-bass",1
+"orgeat",sweet,bass,high,"override-bass",1
+"basil stem syrup",sweet,bass,medium,"slot-default-sweet",1
+"12 mandarin orange",sour,top,medium,"slot-default-sour",1
+"1 whole lime muddled",sour,top,medium,"slot-default-sour",1
+"dry sparkling wine",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"aged rum",spirit,bass,high,"override-bass",1
+"6 mint leaves",aromatic,top,medium,"slot-default-aromatic",1
+"orange flower water",aromatic,top,medium,"slot-default-aromatic",1
+"fresh grapefruitlemon juices",,,unknown,"no-rule",1
+"wheat beer",modifier,top,medium,"slot-default-modifier",1
+"simple syrup increased amount",sweet,bass,medium,"slot-default-sweet",1
+"jamaican reserve blend rum",spirit,middle,medium,"slot-default-spirit",1
+"white lady classic variation",,,unknown,"no-rule",1
+"last word classic",,,unknown,"no-rule",1
+"amaro specifically montenegro",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"grapefruit liqueur creme de pamplemousse",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"lillet rose",sweet,middle,high,"override-middle",1
+"peated islay scotch used as seasoning",spirit,middle,medium,"slot-default-spirit",1
+"1 muddled peach wedge",sweet,bass,medium,"slot-default-sweet",1
+"pinot noir grappa",spirit,middle,medium,"slot-default-spirit",1
+"limoncello",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"absinthe 2 dashes",spirit,middle,medium,"slot-default-spirit",1
+"chamomile-infused rye whiskey",spirit,middle,medium,"slot-default-spirit",1
+"reserve blend rum",spirit,middle,medium,"slot-default-spirit",1
+"americano bianco",amaro_liqueur,middle,high,"override-middle",1
+"puerto fino sherry",amaro_liqueur,bass,high,"override-bass",1
+"grand marnier orange liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"pinch of salt",aromatic,top,medium,"slot-default-aromatic",1
+"amaro specifically nonino",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"strawberry cream syrup",sweet,bass,medium,"slot-default-sweet",1
+"long island iced tea",modifier,top,medium,"slot-default-modifier",1
+"grapefruit liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"cold grapefruit soda",modifier,top,medium,"slot-default-modifier",1
+"citric acid solution if needed",sour,top,medium,"slot-default-sour",1
+"cold tonic water",modifier,top,medium,"slot-default-modifier",1
+"house grenadine",modifier,bass,high,"override-bass",1
+"herbal liqueur galliano",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"basic bloody mary mix",modifier,top,medium,"slot-default-modifier",1
+"jalapeno-infused vodka",spirit,middle,medium,"slot-default-spirit",1
+"verde mix tomatillo-based",,,unknown,"no-rule",1
+"clarified orange juice",sour,top,medium,"slot-default-sour",1
+"orange extract",aromatic,top,medium,"slot-default-aromatic",1
+"aquavit",spirit,middle,medium,"slot-default-spirit",1
+"normandie club bloody mary mix",modifier,top,medium,"slot-default-modifier",1
+"fresh peach puree",sweet,bass,medium,"slot-default-sweet",1
+"apple celery soda",modifier,top,medium,"slot-default-modifier",1
+"cold dry champagne",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"gentian liqueur suze",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"normandy sparkling apple cider",modifier,top,medium,"slot-default-modifier",1
+"crisp white or rose wine",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"optional fresh lemon juice simple syrup",sour,top,medium,"slot-default-sour",1
+"birch-infused sweet vermouth",vermouth,middle,medium,"slot-default-vermouth",1
+"cold cava",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"spirit base vermouth brandy or tequilapisco",spirit,middle,medium,"slot-default-spirit",1
+"clarified juices cucumber lime or grapefruit",sour,top,medium,"slot-default-sour",1
+"co2",modifier,top,high,"override-top",1
+"co2 bottle",modifier,top,high,"override-top",1
+"1 ounces tawny port",,,unknown,"no-rule",1
+"ounce rum",spirit,middle,medium,"slot-default-spirit",1
+"ounce cognac",spirit,middle,medium,"slot-default-spirit",1
+"1 ounce bourbon",spirit,middle,medium,"slot-default-spirit",1
+"ounce tawny port",,,unknown,"no-rule",1
+"1 egg yolk",modifier,top,medium,"slot-default-modifier",1
+"1 ounces tea-infused apple brandy",spirit,middle,medium,"slot-default-spirit",1
+"teaspoon maraschino liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"1 ounces scotch",spirit,middle,medium,"slot-default-spirit",1
+"ounce artichoke-based amaro",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"12 coffee beans",modifier,top,medium,"slot-default-modifier",1
+"1 orange half wheel",sour,top,medium,"slot-default-sour",1
+"strawberry",sweet,bass,medium,"slot-default-sweet",1
+"1 ounces amontillado sherry",,,unknown,"no-rule",1
+"ounce amaro",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"ounce rhum agricole",,,unknown,"no-rule",1
+"1 teaspoon dry curacao",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"ounce coconut cream",modifier,top,medium,"slot-default-modifier",1
+"1 dash bitters",bitter,top,medium,"slot-default-bitter",1
+"1 ounces vodka",spirit,middle,medium,"slot-default-spirit",1
+"1 ounce half-and-half",modifier,top,medium,"slot-default-modifier",1
+"1 ounces irish whiskey",spirit,middle,medium,"slot-default-spirit",1
+"3 ounces hot brewed coffee",modifier,top,medium,"slot-default-modifier",1
+"1 ounce white creme de menthe",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"8 mint leaves",aromatic,top,medium,"slot-default-aromatic",1
+"1 ounce rum",spirit,middle,medium,"slot-default-spirit",1
+"2 ounces tom and jerry batter",,,unknown,"no-rule",1
+"2 ounces hot milk",modifier,top,medium,"slot-default-modifier",1
+"1 ounce herbal liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"2 ounces white rum",spirit,middle,medium,"slot-default-spirit",1
+"ounce black strap rum",spirit,middle,medium,"slot-default-spirit",1
+"1 ounces fresh pineapple juice",modifier,top,medium,"slot-default-modifier",1
+"1 ounces coconut cream",modifier,top,medium,"slot-default-modifier",1
+"1 ounce vodka",spirit,middle,medium,"slot-default-spirit",1
+"1 ounces irish cream",modifier,top,medium,"slot-default-modifier",1
+"3 scoops vanilla or coffee ice cream",modifier,top,medium,"slot-default-modifier",1
+"1 ounce toasted pecan-infused rum",spirit,middle,medium,"slot-default-spirit",1
+"1 ounce pedro ximenez sherry",spirit,middle,medium,"slot-default-spirit",1
+"3 drops salt solution",aromatic,top,medium,"slot-default-aromatic",1
+"ounce 7-year rum",spirit,middle,medium,"slot-default-spirit",1
+"1 teaspoon amaretto",,,unknown,"no-rule",1
+"ounce spiced almond demerara gum syrup",sweet,bass,medium,"slot-default-sweet",1
+"1 ounce cachaca",spirit,middle,medium,"slot-default-spirit",1
+"ounce cacao nib tincture",aromatic,top,medium,"slot-default-aromatic",1
+"ounce vanilla liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"2 oz dark rum",spirit,middle,medium,"slot-default-spirit",1
+"2 oz light rum",spirit,middle,medium,"slot-default-spirit",1
+"2 oz passion fruit puree",sour,top,medium,"slot-default-sour",1
+"1 oz orange juice",sour,top,medium,"slot-default-sour",1
+"1 oz lime juice",sour,top,medium,"slot-default-sour",1
+"05 oz grenadine",sweet,bass,medium,"slot-default-sweet",1
+"15 oz gin",spirit,middle,medium,"slot-default-spirit",1
+"05 oz cherry heering",sweet,bass,medium,"slot-default-sweet",1
+"025 oz benedictine",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"025 oz cointreau",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"4 oz pineapple juice",modifier,top,medium,"slot-default-modifier",1
+"05 oz lime juice",sour,top,medium,"slot-default-sour",1
+"033 oz grenadine",sweet,bass,medium,"slot-default-sweet",1
+"1 dash angostura bitters",bitter,top,medium,"slot-default-bitter",1
+"soda water top",modifier,top,medium,"slot-default-modifier",1
+"2 oz pimms no 1",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"4 oz ginger ale or lemonade",modifier,top,medium,"slot-default-modifier",1
+"1 lemon wedge",sour,top,medium,"slot-default-sour",1
+"1 cucumber spear",aromatic,top,medium,"slot-default-aromatic",1
+"70ml2fl oz vodka",spirit,middle,medium,"slot-default-spirit",1
+"1 tbsp dry vermouth",vermouth,middle,medium,"slot-default-vermouth",1
+"2 tbsp olive brine",aromatic,top,medium,"slot-default-aromatic",1
+"1 wedge lemon",sour,top,medium,"slot-default-sour",1
+"2 oz bourbon",spirit,middle,medium,"slot-default-spirit",1
+"2 dashes angostura bitters",bitter,top,medium,"slot-default-bitter",1
+"splash of water",modifier,top,medium,"slot-default-modifier",1
+"2 oz gin",spirit,middle,medium,"slot-default-spirit",1
+"05 oz dry vermouth",vermouth,middle,medium,"slot-default-vermouth",1
+"2 oz white rum",spirit,middle,medium,"slot-default-spirit",1
+"075 oz lime juice",sour,top,medium,"slot-default-sour",1
+"2 oz cognac",spirit,middle,medium,"slot-default-spirit",1
+"075 oz orange liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"075 oz lemon juice",sour,top,medium,"slot-default-sour",1
+"2 oz hakushu 12-yr japanese whisky",spirit,middle,medium,"slot-default-spirit",1
+"4 oz cold seltzer",modifier,top,medium,"slot-default-modifier",1
+"2 oz sherry",spirit,middle,medium,"slot-default-spirit",1
+"025 oz gum syrup",sweet,bass,medium,"slot-default-sweet",1
+"absolut vodka",spirit,middle,medium,"slot-default-spirit",1
+"strawberry schnapps",sweet,bass,medium,"slot-default-sweet",1
+"pisang ambon",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"peach nectar",sweet,bass,medium,"slot-default-sweet",1
+"creme de mure",amaro_liqueur,middle,high,"override-middle",1
+"hot chocolate",modifier,bass,high,"override-bass",1
+"wormwood",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"mountain dew",modifier,top,high,"override-top",1
+"anejo rum",spirit,middle,medium,"slot-default-spirit",1
+"blackstrap rum",spirit,middle,medium,"slot-default-spirit",1
+"vanilla",aromatic,top,medium,"slot-default-aromatic",1
+"caramel coloring",modifier,top,medium,"slot-default-modifier",1
+"cider",modifier,middle,high,"override-middle",1
+"blackcurrant cordial",sweet,bass,medium,"slot-default-sweet",1
+"demerara sugar",sweet,bass,medium,"slot-default-sweet",1
+"pineapple syrup",sweet,bass,medium,"slot-default-sweet",1
+"st germain",amaro_liqueur,top,high,"override-top",1
+"lavender",aromatic,top,medium,"slot-default-aromatic",1
+"dubonnet rouge",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"rose",sweet,bass,medium,"slot-default-sweet",1
+"figs",sweet,bass,medium,"slot-default-sweet",1
+"thyme",aromatic,top,medium,"slot-default-aromatic",1
+"apricot nectar",sweet,bass,medium,"slot-default-sweet",1
+"pomegranate juice",modifier,top,medium,"slot-default-modifier",1
+"lillet",vermouth,middle,high,"override-middle",1
+"firewater",spirit,middle,medium,"slot-default-spirit",1
+"absolut peppar",spirit,middle,medium,"slot-default-spirit",1
+"dr pepper",modifier,top,high,"override-top",1
+"sarsaparilla",modifier,top,high,"override-top",1
+"peach vodka",spirit,middle,medium,"slot-default-spirit",1
+"sirup of roses",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"whisky",spirit,middle,medium,"slot-default-spirit",1
+"cherry juice",modifier,top,medium,"slot-default-modifier",1
+"red chili flakes",aromatic,top,medium,"slot-default-aromatic",1
+"corn syrup",sweet,bass,medium,"slot-default-sweet",1
+"iced tea",modifier,top,medium,"slot-default-modifier",1
+"condensed milk",modifier,top,medium,"slot-default-modifier",1
+"coconut syrup",sweet,bass,medium,"slot-default-sweet",1
+"chocolate syrup",sweet,bass,medium,"slot-default-sweet",1
+"peach brandy",spirit,middle,high,"override-middle",1
+"guinness stout",modifier,top,medium,"slot-default-modifier",1
+"tennessee whiskey",spirit,middle,medium,"slot-default-spirit",1
+"grain alcohol",spirit,middle,medium,"slot-default-spirit",1
+"kiwi liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"bitter lemon",sour,top,medium,"slot-default-sour",1
+"absolut kurant",spirit,middle,medium,"slot-default-spirit",1
+"cranberry vodka",spirit,middle,medium,"slot-default-spirit",1
+"apfelkorn",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"tia maria",amaro_liqueur,bass,high,"override-bass",1
+"hot sauce",aromatic,bass,high,"override-bass",1
+"soy sauce",modifier,bass,high,"override-bass",1
+"ricard",amaro_liqueur,top,high,"override-top",1
+"pina colada mix",modifier,top,medium,"slot-default-modifier",1
+"daiquiri mix",modifier,top,medium,"slot-default-modifier",1
+"cucumber",aromatic,top,medium,"slot-default-aromatic",1
+"cocoa powder",modifier,bass,high,"override-bass",1
+"absolut citron",spirit,middle,medium,"slot-default-spirit",1
+"oreo cookie",modifier,top,medium,"slot-default-modifier",1
+"butterscotch schnapps",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"orange curacao",amaro_liqueur,middle,high,"override-middle",1
+"islay single malt scotch",spirit,middle,medium,"slot-default-spirit",1
+"coconut milk",modifier,bass,high,"override-bass",1
+"passoa",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"passion fruit syrup",sweet,bass,medium,"slot-default-sweet",1
+"cherry liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"green creme de menthe",amaro_liqueur,bass,high,"override-bass",1
+"pink lemonade",modifier,top,medium,"slot-default-modifier",1
+"coffee brandy",spirit,middle,medium,"slot-default-spirit",1
+"lime vodka",spirit,middle,medium,"slot-default-spirit",1
+"black sambuca",amaro_liqueur,top,high,"override-top",1
+"raspberry vodka",spirit,middle,medium,"slot-default-spirit",1
+"lime peel",aromatic,top,medium,"slot-default-aromatic",1
+"amaro montenegro",amaro_liqueur,bass,high,"override-bass",1
+"ruby port",amaro_liqueur,bass,high,"override-bass",1
+"blood orange",sour,top,medium,"slot-default-sour",1
+"allspice",aromatic,top,medium,"slot-default-aromatic",1
+"advocaat",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"godiva liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"anisette",amaro_liqueur,top,high,"override-top",1
+"cherries",sweet,bass,medium,"slot-default-sweet",1
+"fresca",modifier,top,high,"override-top",1
+"brown sugar",sweet,bass,medium,"slot-default-sweet",1
+"wild turkey",,,unknown,"no-rule",1
+"rosso vermouth",vermouth,middle,medium,"slot-default-vermouth",1
+"melon liqueur",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"yukon jack",,,unknown,"no-rule",1
+"maple syrup",sweet,bass,high,"override-bass",1
+"limeade",,,unknown,"no-rule",1
+"grape juice",modifier,top,medium,"slot-default-modifier",1
+"white wine",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"cream of coconut",modifier,top,medium,"slot-default-modifier",1
+"peachtree schnapps",amaro_liqueur,bass,medium,"slot-default-amaro_liqueur",1
+"gold rum",spirit,middle,medium,"slot-default-spirit",1
+"pernod",amaro_liqueur,top,high,"override-top",1
+"curacao",amaro_liqueur,middle,high,"override-middle",1
+"celery salt",aromatic,top,medium,"slot-default-aromatic",1
+"black pepper",aromatic,top,medium,"slot-default-aromatic",1
+"cynar",amaro_liqueur,bass,high,"override-bass",1
+"aguardiente",spirit,middle,medium,"slot-default-spirit",1
+"cola",modifier,top,high,"override-top",1
+"basil leaves",aromatic,top,medium,"slot-default-aromatic",1
+"overproof white rum",spirit,middle,medium,"slot-default-spirit",1
+"demerara syrup",sweet,bass,high,"override-bass",1
+"gum arabic",,,unknown,"no-rule",1
+"palo cortado sherry",,bass,high,"override-bass",1
+"mint leaves",aromatic,top,medium,"slot-default-aromatic",1
+"vanilla vodka",spirit,middle,medium,"slot-default-spirit",1
+"red chili pepper",aromatic,top,medium,"slot-default-aromatic",1
+"grappa",spirit,middle,medium,"slot-default-spirit",1
+"chamomile cordial",sweet,bass,medium,"slot-default-sweet",1
+"scotch whisky",spirit,middle,medium,"slot-default-spirit",1
