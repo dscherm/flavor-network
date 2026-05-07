@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generatedAt": "2026-05-07T00:20:46.266Z",
+    "generatedAt": "2026-05-07T01:11:00.284Z",
     "script": "09-emit-codex-v2.cjs",
     "model": "kmeans-k6",
     "silhouette": 0.1833312538842219,
@@ -11,7 +11,7 @@
     "n_families": 6,
     "n_subclusters": 15,
     "cultural_root_overrides": {
-      "0": "Mai Tai",
+      "0": "Pina Colada",
       "1": "Tom Collins",
       "2": "Daiquiri",
       "3": "Old Fashioned",
@@ -22,9 +22,9 @@
     {
       "id": 0,
       "name": "Tropical Sours",
-      "cultural_root": "Zombie",
+      "cultural_root": "Piña Colada",
       "math_root": "Zombie",
-      "color": "#10b981",
+      "color": "#047857",
       "signature": {
         "dominant_slots": [
           {
@@ -60,7 +60,7 @@
       "name": "Highballs & Fizzes",
       "cultural_root": "Tom Collins",
       "math_root": "John Collins",
-      "color": "#0ea5e9",
+      "color": "#0369a1",
       "signature": {
         "dominant_slots": [
           {
@@ -96,7 +96,7 @@
       "name": "Sour Family",
       "cultural_root": "Daiquiri",
       "math_root": "Casino",
-      "color": "#facc15",
+      "color": "#a16207",
       "signature": {
         "dominant_slots": [
           {
@@ -132,7 +132,7 @@
       "name": "Boozy Sippers",
       "cultural_root": "Old Fashioned",
       "math_root": "Stinger",
-      "color": "#7c3aed",
+      "color": "#5b21b6",
       "signature": {
         "dominant_slots": [
           {
@@ -168,7 +168,7 @@
       "name": "Aromatic Stirred",
       "cultural_root": "Negroni",
       "math_root": "Tipperary",
-      "color": "#dc2626",
+      "color": "#991b1b",
       "signature": {
         "dominant_slots": [
           {
@@ -204,7 +204,7 @@
       "name": "Aperitivos",
       "cultural_root": "Paloma",
       "math_root": "Paloma",
-      "color": "#ec4899",
+      "color": "#be185d",
       "signature": {
         "dominant_slots": [
           {
@@ -9425,7 +9425,7 @@
       "canonical": "pina colada",
       "family_id": 0,
       "subcluster_id": "0.0",
-      "is_root": false,
+      "is_root": true,
       "iba_official": true,
       "iba_category": null,
       "ingredients_raw": [
@@ -23045,7 +23045,7 @@
       "canonical": "pina colada",
       "family_id": 0,
       "subcluster_id": "0.0",
-      "is_root": false,
+      "is_root": true,
       "iba_official": true,
       "iba_category": null,
       "ingredients_raw": [
@@ -29389,7 +29389,7 @@
       "canonical": "zombie",
       "family_id": 0,
       "subcluster_id": "0.1",
-      "is_root": true,
+      "is_root": false,
       "iba_official": true,
       "iba_category": "contemporary",
       "ingredients_raw": [

@@ -32,7 +32,7 @@ const OUT_SYRUPS = path.join(ROOT, 'public/data/cocktail_syrups.json');
 // ── User-locked decisions (per impl spec §1.1) ─────────────────────
 
 const CULTURAL_ROOT_OVERRIDE = {
-  0: 'Mai Tai',
+  0: 'Pina Colada',     // user override 2026-05-06: Mai Tai sits in fam 2 by structure; Pina Colada is in fam 0 and reads as the canonical Tropical Sour
   1: 'Tom Collins',
   2: 'Daiquiri',
   3: 'Old Fashioned',
@@ -67,13 +67,18 @@ const FAMILY_NAMES = {
 //   3 Spirit-forward built → indigo-purple (oak/whiskey depth)
 //   4 Stirred & spirit-forward → crimson red (Negroni/Campari)
 //   5 Aperitivos → magenta-pink (Campari/Aperol orange-pink)
+// Tailwind ~700 equivalents — 30% darker than the original 500-level
+// hues. User reported the Sour-Family yellow (#facc15) was too bright
+// on selection (NodeMesh brightens the base color when active, so a
+// vivid base goes blinding). Selection brighten then reads as a +10%
+// nudge instead of a flashbang.
 const FAMILY_COLORS = {
-  0: '#10b981', // emerald — tropical
-  1: '#0ea5e9', // sky blue — highballs/fizzes
-  2: '#facc15', // bright yellow — sour family
-  3: '#7c3aed', // indigo — spirit-forward built
-  4: '#dc2626', // crimson — stirred & spirit-forward
-  5: '#ec4899', // pink — aperitivos
+  0: '#047857', // emerald 700 — tropical
+  1: '#0369a1', // sky 700 — highballs/fizzes
+  2: '#a16207', // amber 700 — sour family (was facc15 yellow 400)
+  3: '#5b21b6', // violet 700 — spirit-forward built
+  4: '#991b1b', // red 700 — stirred & spirit-forward
+  5: '#be185d', // pink 700 — aperitivos
 };
 
 // ── Load inputs ────────────────────────────────────────────────────

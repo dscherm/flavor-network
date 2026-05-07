@@ -30,7 +30,15 @@ function createTextSprite(text, color = '#ffffff', fontSize = 48) {
   ctx.roundRect(2, 2, canvas.width - 4, canvas.height - 4, canvas.height / 3);
   ctx.fill();
 
-  // Text
+  // Text — dark stroke first (outline) then the colored fill on top.
+  // The outline gives the label readable contrast against any glow
+  // halo behind it (otherwise sub-cluster labels disappear into the
+  // family color).
+  ctx.lineWidth = Math.max(2, fontSize * 0.06);
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.9)';
+  ctx.lineJoin = 'round';
+  ctx.miterLimit = 2;
+  ctx.strokeText(text, rx, ry);
   ctx.fillStyle = color;
   ctx.fillText(text, rx, ry);
 
