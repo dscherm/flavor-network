@@ -65,8 +65,9 @@ export default function CocktailDetailPanel({
 
   return (
     <div
-      className="fixed top-0 right-0 h-full z-40 flex pointer-events-none"
+      className="fixed top-0 h-full z-40 flex pointer-events-none"
       style={{
+        right: 'env(safe-area-inset-right, 0px)',
         transform: collapsed ? 'translateX(calc(100% - 32px))' : 'translateX(0)',
         transition: 'transform 240ms ease',
       }}
@@ -81,7 +82,7 @@ export default function CocktailDetailPanel({
         </span>
       </button>
 
-      <div className="w-[88vw] max-w-[360px] sm:w-80 sm:max-w-none h-full bg-[#0c0c14]/95 backdrop-blur-md border-l border-[#1e1e2e] overflow-y-auto pointer-events-auto">
+      <div className="w-[78vw] max-w-[340px] sm:w-80 sm:max-w-none h-full bg-[#0c0c14]/95 backdrop-blur-md border-l border-[#1e1e2e] overflow-y-auto pointer-events-auto">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-[#0c0c14]/95 backdrop-blur-md border-b border-[#1e1e2e] p-4">
           <div className="flex items-start justify-between gap-2">
