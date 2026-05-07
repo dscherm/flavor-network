@@ -189,10 +189,22 @@ export default function useProData({ enabled = true } = {}) {
             const gnnRaw = await gnnRes.json();
             const posMap = {};
             let count = 0;
+            // Scale positions ~1.5× so adjacent ingredient nodes have
+            // visible breathing room between them. The raw GNN coords
+            // pack 3,913 nodes into a ~50-unit bounding box, which on
+            // mobile reads as a single dense cloud rather than
+            // distinguishable nodes. 1.5× expands the bbox without
+            // distorting topology — every cluster, edge, and centroid
+            // scales together.
+            const POSITION_SPREAD = 1.5;
             for (const [name, xyz] of Object.entries(gnnRaw)) {
               if (name.startsWith('_')) continue;
               if (!Array.isArray(xyz) || xyz.length !== 3) continue;
-              posMap[name] = xyz;
+              posMap[name] = [
+                xyz[0] * POSITION_SPREAD,
+                xyz[1] * POSITION_SPREAD,
+                xyz[2] * POSITION_SPREAD,
+              ];
               count++;
             }
             if (count > graph.nodes.size * 0.5) {

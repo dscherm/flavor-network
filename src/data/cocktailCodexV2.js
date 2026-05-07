@@ -13,7 +13,7 @@
  *   - placeFamilyOnSphere(idx, total=6) → 3D coords on a Fibonacci lattice
  */
 
-const FAMILY_RADIUS = 90; // sphere shell — sized so 6 family discs sit ~100+ units apart center-to-center, with discRadius=25 below leaving ~50-unit visible gaps between adjacent clusters
+const FAMILY_RADIUS = 70; // sphere shell — pulled in from 90 so adjacent clusters read as a single galaxy rather than scattered satellites; per-family discRadius below scales by sqrt(N) so the larger families (Sour 149, Aromatic 80) still get room without ballooning the empty Tropical disc
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 // ── Loader ─────────────────────────────────────────────────────────
@@ -90,7 +90,13 @@ export function placeFamilyOnSphere(idx, total = 6, radius = FAMILY_RADIUS) {
  * but ride concentric rings at different radii.
  */
 export function placeCocktailInFamily(member, family, members, opts = {}) {
-  const { discRadius = 25, ringSpacing = 6 } = opts;
+  // discRadius scales by sqrt(N/30): tropical (N=23) gets a tight 22
+  // unit disc; sour (N=149) gets ~56 units. Keeps cocktails-per-area
+  // roughly constant so the densest clusters don't overlap each other.
+  const N = members.length;
+  const baseDisc = opts.discRadius ?? Math.max(20, 25 * Math.sqrt(N / 30));
+  const ringSpacing = opts.ringSpacing ?? 5;
+  const discRadius = baseDisc;
   // Cultural Root sits at the family centroid so it reads as the
   // anchor of the cluster (every cocktail in the family is "near"
   // the Root, both visually and conceptually). All other members
