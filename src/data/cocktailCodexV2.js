@@ -121,6 +121,14 @@ export function placeCocktailInFamily(member, family, members, opts = {}) {
   // Ring radius: outer rings for higher sub-cluster index
   const ringR = discRadius - subIdx * ringSpacing;
   const angle = (memberIdx / subMembers.length) * Math.PI * 2;
+  // Depth jitter along the family radial axis — breaks the "all on
+  // one plane" disc into a 3D shell so the user can rotate through
+  // the cluster without nodes overlapping at every angle. Hash-based
+  // so the same cocktail always lands at the same depth across
+  // re-renders.
+  const depthHash = simpleStringHash(member.canonical || member.name || '') % 1000;
+  const depthFrac = depthHash / 1000 - 0.5;        // [-0.5, 0.5]
+  const depthOffset = depthFrac * discRadius * 0.55; // ±27.5% of disc radius
   // Disc plane: orthogonal to family centroid direction (radial)
   const fx = family.position.x;
   const fy = family.position.y;
@@ -139,10 +147,16 @@ export function placeCocktailInFamily(member, family, members, opts = {}) {
   const ulen = Math.hypot(ux, uy, uz) || 1;
   const ub = [ux / ulen, uy / ulen, uz / ulen];
   const vb = [ny * ub[2] - nz * ub[1], nz * ub[0] - nx * ub[2], nx * ub[1] - ny * ub[0]];
-  const dx = ub[0] * Math.cos(angle) * ringR + vb[0] * Math.sin(angle) * ringR;
-  const dy = ub[1] * Math.cos(angle) * ringR + vb[1] * Math.sin(angle) * ringR;
-  const dz = ub[2] * Math.cos(angle) * ringR + vb[2] * Math.sin(angle) * ringR;
+  const dx = ub[0] * Math.cos(angle) * ringR + vb[0] * Math.sin(angle) * ringR + nx * depthOffset;
+  const dy = ub[1] * Math.cos(angle) * ringR + vb[1] * Math.sin(angle) * ringR + ny * depthOffset;
+  const dz = ub[2] * Math.cos(angle) * ringR + vb[2] * Math.sin(angle) * ringR + nz * depthOffset;
   return { x: fx + dx, y: fy + dy, z: fz + dz };
+}
+
+function simpleStringHash(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return h;
 }
 
 // ── Similarity ────────────────────────────────────────────────────
