@@ -10,6 +10,8 @@ import {
 } from '../data/cocktailCodexV2.js';
 import { createClusterLabels } from '../three/AxisLabels.js';
 import ClusterJoystick from './ClusterJoystick.jsx';
+import ShapeLegend from './ShapeLegend.jsx';
+import { cocktailBaseSpiritShape, COCKTAIL_SPIRIT_LEGEND } from '../data/cocktailBaseSpirit.js';
 
 /**
  * CocktailLabV2 — data-driven taxonomy view.
@@ -161,6 +163,18 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
     return m;
   }, [graph]);
 
+  // Map<name, shapeKey> — base spirit drives shape (gin=cube, whiskey=
+  // cylinder, rum=torus, etc.). Built once when the graph loads;
+  // NetworkScene's NodeMesh uses this to render multi-shape instances.
+  const shapeAssignments = useMemo(() => {
+    if (!graph) return null;
+    const m = new Map();
+    for (const c of graph.cocktails) {
+      m.set(c.name, cocktailBaseSpiritShape(c.ingredients_raw));
+    }
+    return m.size > 0 ? m : null;
+  }, [graph]);
+
   const sceneExtras = useMemo(() => {
     if (!graph || !familyCentroids) return null;
     const clusters = graph.families.map((f) => ({
@@ -270,6 +284,7 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
         flyToTarget={flyToTarget}
         scaleMultiplier={3.0}
         centroidAdapter={familyCentroidAdapter}
+        shapeAssignments={shapeAssignments}
       />
 
       {/* Top-of-screen family banner when a family is filtered */}
@@ -342,6 +357,8 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
           });
         }}
       />
+
+      <ShapeLegend title="Base spirit shapes" legend={COCKTAIL_SPIRIT_LEGEND} />
     </>
   );
 }
