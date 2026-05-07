@@ -91,9 +91,19 @@ export function placeFamilyOnSphere(idx, total = 6, radius = FAMILY_RADIUS) {
  */
 export function placeCocktailInFamily(member, family, members, opts = {}) {
   const { discRadius = 25, ringSpacing = 6 } = opts;
-  // Group members by sub-cluster id; each sub gets its own ring radius
+  // Cultural Root sits at the family centroid so it reads as the
+  // anchor of the cluster (every cocktail in the family is "near"
+  // the Root, both visually and conceptually). All other members
+  // place around it on the disc.
+  if (member.is_root || member.isRoot) {
+    return { x: family.position.x, y: family.position.y, z: family.position.z };
+  }
+  // Group non-root members by sub-cluster id; each sub gets its own
+  // ring radius. Root is excluded so its withdrawal doesn't leave a
+  // gap in the angular distribution of the ring it would have been on.
   const subGroups = new Map();
   for (const m of members) {
+    if (m.is_root || m.isRoot) continue;
     const arr = subGroups.get(m.subcluster_id) || [];
     arr.push(m);
     subGroups.set(m.subcluster_id, arr);

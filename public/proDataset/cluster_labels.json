@@ -3,7 +3,7 @@
   "clusters": [
     {
       "id": 0,
-      "label": "American",
+      "label": "Sweet Nuts & Cream",
       "size": 273,
       "centroid_3d": [
         -30.66,
@@ -25,7 +25,7 @@
     },
     {
       "id": 1,
-      "label": "Onion & Tomato",
+      "label": "Pantry Staples",
       "size": 853,
       "centroid_3d": [
         17.55,
@@ -47,7 +47,7 @@
     },
     {
       "id": 2,
-      "label": "Italian",
+      "label": "Mediterranean Herbs",
       "size": 378,
       "centroid_3d": [
         15.04,
@@ -69,7 +69,7 @@
     },
     {
       "id": 3,
-      "label": "Mexican",
+      "label": "Citrus & Spice",
       "size": 328,
       "centroid_3d": [
         10.09,
@@ -91,7 +91,7 @@
     },
     {
       "id": 4,
-      "label": "Chinese",
+      "label": "Soy & Ginger",
       "size": 314,
       "centroid_3d": [
         10.53,
@@ -113,7 +113,7 @@
     },
     {
       "id": 5,
-      "label": "Moroccan",
+      "label": "Citrus & Mint",
       "size": 198,
       "centroid_3d": [
         -29.35,
@@ -122,7 +122,7 @@
       ],
       "centroid_2d": [
         -26.8,
-        -11.0
+        -11
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
@@ -135,7 +135,7 @@
     },
     {
       "id": 6,
-      "label": "Italian (olive)",
+      "label": "Olive & Wine Herbs",
       "size": 531,
       "centroid_3d": [
         17.76,
@@ -157,7 +157,7 @@
     },
     {
       "id": 7,
-      "label": "Honey & Buttermilk",
+      "label": "Grains & Sweet",
       "size": 174,
       "centroid_3d": [
         -20.33,
@@ -179,7 +179,7 @@
     },
     {
       "id": 8,
-      "label": "American (baking)",
+      "label": "Baking & Vanilla",
       "size": 334,
       "centroid_3d": [
         -33.93,
@@ -201,7 +201,7 @@
     },
     {
       "id": 9,
-      "label": "American (sugar)",
+      "label": "Savory Aromatics",
       "size": 530,
       "centroid_3d": [
         -13.44,
