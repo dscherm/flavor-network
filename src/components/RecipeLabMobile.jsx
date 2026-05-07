@@ -5,6 +5,7 @@ import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import AromaHexWheel from './AromaHexWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import SuggestionDrawer from './SuggestionDrawer.jsx';
+import IngredientSuggestionsPopout from './IngredientSuggestionsPopout.jsx';
 import { hapticLight, hapticMedium } from '../utils/native.js';
 // "Start from" template strip + "This looks like" classical match
 // card/toast removed in the polish pass — they were redundant against
@@ -38,6 +39,11 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   // suggestion chips (with inline swap targets) right away.
   const [drawerSnap, setDrawerSnap] = useState(initialMode === 'cocktail' ? 'half' : 'peek');
   const [activeTab, setActiveTab] = useState('all');
+  // When the user taps the "R" pill on an ingredient row, the hex
+  // graphic is replaced by IngredientSuggestionsPopout for that
+  // ingredient. Single-ingredient REPLACE flow without the bottom
+  // drawer's add/replace toggle.
+  const [focusedIngredient, setFocusedIngredient] = useState(null);
   // Transient handoff confirmation — fires when an explicit handoff
   // replaces the bowl, so the user understands their previous recipe
   // was cleared on purpose (and isn't lost to a bug).
@@ -386,20 +392,46 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         )}
       </div>
 
-      {/* Zone 1: Aroma Profile */}
+      {/* Zone 1: Aroma Profile (sticky at top) — replaced by the
+          single-ingredient suggestions popout when an "R" pill is
+          tapped (per user redesign 2026-05-07). */}
       <div className="flex-shrink-0">
-        <AromaHexWheel
-          ingredients={recipeIngredients}
-          nodes={fullData?.graph?.nodes}
-          onTapAroma={(key) => {
-            setActiveTab(`aroma:${key}`);
-            if (drawerSnap === 'peek') setDrawerSnap('half');
-          }}
-        />
+        {focusedIngredient ? (
+          <IngredientSuggestionsPopout
+            ingredient={focusedIngredient}
+            recipeIngredients={recipeIngredients.filter((n) => n !== focusedIngredient)}
+            nodes={fullData?.graph?.nodes}
+            recipePairs={fullData?.recipePairs}
+            globalCount={fullData?.globalCount}
+            scopeFilter={
+              labMode === 'cocktail' ? cocktailScope :
+              labMode === 'sauce' ? sauceScope :
+              null
+            }
+            labMode={labMode}
+            onSwap={(target, newName) => {
+              handleSwapIngredient(target, newName);
+              setFocusedIngredient(null);
+            }}
+            onClose={() => setFocusedIngredient(null)}
+          />
+        ) : (
+          <AromaHexWheel
+            ingredients={recipeIngredients}
+            nodes={fullData?.graph?.nodes}
+            onTapAroma={(key) => {
+              setActiveTab(`aroma:${key}`);
+              if (drawerSnap === 'peek') setDrawerSnap('half');
+            }}
+          />
+        )}
       </div>
 
-      {/* Zone 2: Recipe Notebook */}
-      <div className="flex-1 relative overflow-hidden" style={{ minHeight: 80 }}>
+      {/* Zone 2: Recipe Notebook — scrolls under the sticky hex /
+          popout above. Each row gets an "R" pill that fires
+          setFocusedIngredient(name); a "+" row at the bottom focuses
+          the search input. */}
+      <div className="flex-1 relative overflow-y-auto" style={{ minHeight: 80 }}>
         <RecipeNotebook
           ingredients={recipeIngredients}
           centerIngredient={centerIngredient}
@@ -407,6 +439,16 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           edges={fullData?.graph?.edges}
           onRemove={handleRemoveIngredient}
           onRecenter={handleRecenter}
+          onFocusIngredient={(name) => {
+            setFocusedIngredient(name);
+            // Collapse the bottom drawer so the user's attention is
+            // entirely on the popout above.
+            setDrawerSnap('peek');
+          }}
+          onRequestAdd={() => {
+            searchInputRef.current?.focus();
+            setSearchOpen(true);
+          }}
           recipeTitle={recipeTitle}
           onTitleChange={setRecipeTitle}
           compatibility={null}
@@ -414,8 +456,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
 
       </div>
 
-      {/* Zone 3: Suggestion Drawer */}
-      <SuggestionDrawer
+      {/* Zone 3: Suggestion Drawer — hidden while the per-ingredient
+          popout is active so the user only sees one suggestion
+          surface at a time. */}
+      {!focusedIngredient && <SuggestionDrawer
         centerIngredient={centerIngredient}
         recipeIngredients={recipeIngredients}
         nodes={fullData?.graph?.nodes}
@@ -436,7 +480,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           labMode === 'sauce' ? sauceScope :
           null
         }
-      />
+      />}
     </div>
   );
 }

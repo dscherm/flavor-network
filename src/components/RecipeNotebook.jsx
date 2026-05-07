@@ -44,6 +44,8 @@ export default function RecipeNotebook({
   edges,
   onRemove,
   onRecenter,
+  onFocusIngredient,    // (name) => void — opens suggestions popout for that ingredient
+  onRequestAdd,         // () => void — fires when user taps the "+ Add ingredient" row
   recipeTitle,
   onTitleChange,
   compatibility,
@@ -136,6 +138,26 @@ export default function RecipeNotebook({
               onTouchStart={(e) => handleTouchStart(e, name)}
               onTouchEnd={handleTouchEnd}
             >
+              {/* R pill — opens the ingredient-specific suggestions
+                  popout (replaces the hex graphic). User redesign
+                  2026-05-07. */}
+              {onFocusIngredient && (
+                <button
+                  onClick={() => onFocusIngredient(name)}
+                  title={`Replace ${name} — see suggestions`}
+                  className="flex-shrink-0 inline-flex items-center justify-center rounded-full bg-[#e8dcc0] hover:bg-[#dccaa6] active:bg-[#c9b99a] transition-colors"
+                  style={{
+                    width: 22, height: 22, minWidth: 22,
+                    fontFamily: FONT_FAMILY,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: '#7a6a4a',
+                    border: '1.5px solid #c9b99a',
+                  }}
+                >
+                  R
+                </button>
+              )}
               {/* Taste color accent */}
               <div
                 className="w-[3px] self-stretch rounded-full flex-shrink-0"
@@ -212,6 +234,31 @@ export default function RecipeNotebook({
             </div>
           );
         })}
+        {/* + Add ingredient row — focuses the search input above the
+            notebook so the user can type a new ingredient. Sits at the
+            end of the list per the redesign sketch. */}
+        {onRequestAdd && (
+          <button
+            onClick={onRequestAdd}
+            className="w-full flex items-center gap-2 pr-2 hover:bg-[#f0e8d0] active:bg-[#e8dcc0] transition-colors rounded"
+            style={{ height: LINE_HEIGHT, fontFamily: FONT_FAMILY }}
+            title="Add an ingredient"
+          >
+            <span
+              className="flex-shrink-0 inline-flex items-center justify-center rounded-full"
+              style={{
+                width: 22, height: 22,
+                fontSize: 16, fontWeight: 700,
+                color: '#7a6a4a',
+                background: '#fefae0',
+                border: '1.5px dashed #c9b99a',
+              }}
+            >
+              +
+            </span>
+            <span style={{ color: '#a09070', fontSize: 16 }}>Add ingredient…</span>
+          </button>
+        )}
       </div>
 
       {/* Compatibility score */}
