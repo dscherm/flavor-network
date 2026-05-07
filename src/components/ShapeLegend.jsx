@@ -1,22 +1,22 @@
 /**
- * ShapeLegend — always-expanded vertical rail anchored to the LEFT
- * edge of the viewport, listing each shape silhouette with its
- * category. Used by:
+ * ShapeLegend — dual-mode legend / fly-to wheel for the cocktail and
+ * sauce labs.
  *
- *   - Cocktail Lab (subcluster category → shape)
- *   - Sauce Lab    (cuisine → shape)
- *   - LivingArchView α-mode (focal + affinity tier → shape)
- *
- * Design rationale (per user request 2026-04-29): the prior top-right
- * collapsible button was easy to miss and overlapped the search bar
- * on narrow viewports. A persistent side rail trades a small slice of
- * left-edge real estate for instant discoverability, which matters
- * because the shapes ARE the legend's whole job — once you know what
- * they mean, the legend is reference; before then, it's invisible UI.
+ *  - **Desktop**: vertical rail anchored to the LEFT edge of the
+ *    viewport (the original design — discoverable, doesn't crowd the
+ *    canvas).
+ *  - **Mobile**: horizontal pill strip 10px above the ClusterJoystick,
+ *    same visual language as the family fly-to wheel. When `onSelect`
+ *    is wired, tapping a shape filters the scene to nodes matching
+ *    that category — non-matching nodes dim and only matching nodes
+ *    accept clicks (mirroring the network ClusterJoystick filter
+ *    behavior). Tapping an active pill clears the filter.
  *
  * Props:
- *   - title:   string ("Subcluster shapes" / "Cuisine shapes" / …)
- *   - legend:  Array<{ category: string, shape: string }>
+ *   - title:       string ("Subcluster shapes" / "Cuisine shapes" / …)
+ *   - legend:      Array<{ category: string, shape: string }>
+ *   - selectedKey: string | null   (active filter; provided by parent)
+ *   - onSelect:    (key|null) => void   (parent stores filter state)
  */
 
 const ICON_SIZE = 16;
@@ -118,31 +118,101 @@ function ShapeIcon({ shape, color = 'currentColor' }) {
   }
 }
 
-export default function ShapeLegend({ title = 'Shapes', legend }) {
+export default function ShapeLegend({ title = 'Shapes', legend, selectedKey = null, onSelect = null }) {
   if (!legend?.length) return null;
 
+  const interactive = typeof onSelect === 'function';
+
+  // Tap behavior — toggle off on second press of the active pill.
+  function handleTap(category) {
+    if (!interactive) return;
+    onSelect(selectedKey === category ? null : category);
+  }
+
   return (
-    <div
-      className="fixed left-2 z-[60] select-none px-2.5 py-2 rounded-md bg-[#0d0d16]/85 border border-[#2a2a3a] backdrop-blur-sm sm:top-[calc(var(--nav-h,40px)+24px)]"
-      style={{
-        // Mobile: clear the bottom-stack (tab bar + joystick + mode
-        // pill) so the legend never overlaps interactive controls.
-        // Joystick now at tab-bar-h + 10px; mode pill at +80px.
-        // Legend starts above the mode pill with breath.
-        bottom: 'calc(var(--tab-bar-h) + 140px)',
-      }}
-    >
-      <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1.5 pb-1 border-b border-[#2a2a3a]">
-        {title}
-      </div>
-      <div className="space-y-1">
-        {legend.map(({ category, shape }) => (
-          <div key={category} className="flex items-center gap-2 text-[10px] text-gray-300">
-            <ShapeIcon shape={shape} />
-            <span>{category}</span>
+    <>
+      {/* Mobile horizontal fly-to wheel — sits 10px above the
+          ClusterJoystick (which is at tab-bar-h + 10) so the bottom
+          stack reads, edge up: tab bar → joystick → legend wheel. */}
+      <div
+        className="fixed left-1/2 -translate-x-1/2 z-[68] select-none pointer-events-none sm:hidden"
+        style={{
+          bottom: 'calc(var(--tab-bar-h) + 70px)',
+          maxWidth: 'calc(100vw - 1rem)',
+        }}
+        aria-label={`Filter by ${title.toLowerCase()}`}
+      >
+        <div
+          className="bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] px-2 py-1 shadow-lg pointer-events-auto overflow-x-auto"
+          style={{ scrollbarWidth: 'none', borderRadius: 18 }}
+        >
+          <div className="flex items-center gap-1 flex-nowrap">
+            <span className="text-[10px] uppercase tracking-wider text-gray-500 pr-1 whitespace-nowrap flex-shrink-0">
+              {title.replace(/ shapes$/i, '')}
+            </span>
+            {legend.map(({ category, shape }) => {
+              const isActive = selectedKey === category;
+              return (
+                <button
+                  key={category}
+                  onClick={() => handleTap(category)}
+                  onTouchStart={(e) => { e.preventDefault(); handleTap(category); }}
+                  title={interactive
+                    ? (isActive ? `Clear ${category} filter` : `Show only ${category}`)
+                    : category}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 rounded-full text-[11px] sm:text-[10px] whitespace-nowrap transition-colors flex-shrink-0 capitalize ${
+                    interactive ? 'cursor-pointer' : 'cursor-default'
+                  }`}
+                  style={{
+                    background: isActive ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.06)',
+                    border: `1px solid ${isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.18)'}`,
+                    color: isActive ? '#fff' : '#cbd5e1',
+                  }}
+                  disabled={!interactive}
+                >
+                  <ShapeIcon shape={shape} color={isActive ? '#fff' : '#cbd5e1'} />
+                  <span>{category}</span>
+                </button>
+              );
+            })}
           </div>
-        ))}
+        </div>
       </div>
-    </div>
+
+      {/* Desktop vertical rail — anchored top-left, original design. */}
+      <div
+        className="hidden sm:block fixed left-2 z-[60] select-none px-2.5 py-2 rounded-md bg-[#0d0d16]/85 border border-[#2a2a3a] backdrop-blur-sm"
+        style={{ top: 'calc(var(--nav-h, 40px) + 24px)' }}
+      >
+        <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1.5 pb-1 border-b border-[#2a2a3a]">
+          {title}
+        </div>
+        <div className="space-y-1">
+          {legend.map(({ category, shape }) => {
+            const isActive = selectedKey === category;
+            const node = (
+              <div
+                className="flex items-center gap-2 text-[10px] transition-colors"
+                style={{ color: isActive ? '#fff' : '#d1d5db' }}
+              >
+                <ShapeIcon shape={shape} color={isActive ? '#fff' : 'currentColor'} />
+                <span className={isActive ? 'font-medium' : ''}>{category}</span>
+              </div>
+            );
+            if (!interactive) return <div key={category}>{node}</div>;
+            return (
+              <button
+                key={category}
+                onClick={() => handleTap(category)}
+                className="w-full text-left px-1 py-0.5 rounded hover:bg-white/5 transition-colors"
+                title={isActive ? `Clear ${category} filter` : `Show only ${category}`}
+              >
+                {node}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </>
   );
 }
