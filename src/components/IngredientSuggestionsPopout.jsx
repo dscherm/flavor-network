@@ -1,10 +1,71 @@
 import { useMemo, useState } from 'react';
-import { rankByRecipeCooccurrence } from '../data/recipeSuggestionEngine.js';
+import { getNeighbors } from '../data/graph.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { TASTE_COLORS } from '../utils/color.js';
 import { AROMA_COLORS } from '../data/recipeScoring.js';
 
 const ODOR_KEYS = ['fruity', 'floral', 'green', 'woody', 'fatty'];
+
+// Mirrors SuggestionDrawer's lookupNeighbors stripping logic for
+// cocktail / sauce ingredients with no direct edge. Kept in sync —
+// any new alias should land in BOTH this map and SuggestionDrawer's.
+const QUALIFIER_RE = /^(fresh|cold|hot|chilled|sweet|dry|aged|blanc|blanco|reposado|añejo|anejo|green|yellow|white|black|dark|light|red|rosé|rose|classic|whole|half|heavy|spiced|smoked|toasted|infused|house|extra|virgin|raw|organic|unsalted|salted)\s+/i;
+const TRAILING_TOKENS = new Set([
+  'leaves','leaf','peel','peels','zest','wedge','wedges','slice','slices',
+  'sprig','sprigs','twist','twists','wheel','wheels','ribbon','ribbons',
+]);
+const ALIAS = new Map([
+  ['seltzer','soda water'], ['club soda','soda water'], ['sparkling water','soda water'],
+  ['whisky','whiskey'], ['rye','whiskey'], ['rye whiskey','whiskey'], ['scotch','whiskey'], ['scotch whisky','whiskey'],
+  ['crème de menthe','mint'], ['creme de menthe','mint'],
+  ['crème de cacao','chocolate'], ['creme de cacao','chocolate'],
+  ['sugar cube','sugar'], ['demerara','sugar'], ['simple syrup','sugar'], ['rich syrup','sugar'],
+  ['agave','honey'], ['agave nectar','honey'], ['agave syrup','honey'],
+  ['maraschino','cherry'], ['maraschino liqueur','cherry'],
+  ['aperol','campari'], ['pisco','brandy'], ['mezcal','tequila'],
+  ['cachaça','rum'], ['cachaca','rum'], ['rhum','rum'], ['rhum agricole','rum'],
+  ['armagnac','cognac'], ['calvados','brandy'], ['absinthe','anise'], ['pastis','anise'],
+  ['orgeat','almond'], ['allspice dram','allspice'],
+  ['st-germain','elderflower'], ['st germain','elderflower'],
+  ['lillet','wine'], ['lillet blanc','wine'], ['cocchi americano','wine'],
+  ['dolin','vermouth'], ['punt e mes','vermouth'], ['carpano antica','vermouth'],
+  ['angostura','bitters'], ['angostura bitters','bitters'],
+]);
+
+function lookupNeighborsFlexible(ing, edges) {
+  if (!ing || !edges) return [];
+  const lc = ing.toLowerCase();
+  let n = getNeighbors(ing, edges);
+  if (n.length > 0) return n;
+  if (ALIAS.has(lc)) {
+    n = getNeighbors(ALIAS.get(lc), edges);
+    if (n.length > 0) return n;
+  }
+  let stripped = ing;
+  while (QUALIFIER_RE.test(stripped)) {
+    stripped = stripped.replace(QUALIFIER_RE, '');
+    n = getNeighbors(stripped, edges);
+    if (n.length > 0) return n;
+    if (ALIAS.has(stripped.toLowerCase())) {
+      n = getNeighbors(ALIAS.get(stripped.toLowerCase()), edges);
+      if (n.length > 0) return n;
+    }
+  }
+  let tokens = stripped.split(/\s+/).filter(Boolean);
+  while (tokens.length > 1 && TRAILING_TOKENS.has(tokens[tokens.length - 1].toLowerCase())) {
+    tokens.pop();
+    n = getNeighbors(tokens.join(' '), edges);
+    if (n.length > 0) return n;
+  }
+  return [];
+}
+
+function pairStrength(a, b, edges) {
+  if (!a || !b || !edges) return 0;
+  const ns = getNeighbors(a, edges);
+  const hit = ns.find((x) => x.name === b);
+  return hit ? hit.strength : 0;
+}
 
 /**
  * IngredientSuggestionsPopout — replaces the hex graphic in the Recipe
@@ -27,8 +88,7 @@ export default function IngredientSuggestionsPopout({
   ingredient,
   recipeIngredients = [],
   nodes,
-  recipePairs,
-  globalCount,
+  edges,
   scopeFilter,
   labMode,
   onSwap,
@@ -36,39 +96,72 @@ export default function IngredientSuggestionsPopout({
 }) {
   const [activeFilter, setActiveFilter] = useState('all');
 
+  // Two-signal swap-candidate ranking (audit response, 2026-05-07):
+  //
+  //   primary signal — strength of the candidate's pairing with the
+  //                    focused ingredient (substitute fit)
+  //   secondary signal — average strength of the candidate's pairings
+  //                      with the OTHER bowl ingredients (recipe fit)
+  //
+  // Combined score = 0.55 * primary + 0.45 * secondary
+  //
+  // High weight on primary so true substitutes win; secondary is heavy
+  // enough to break ties in favor of candidates that integrate with
+  // the rest of the recipe. If the bowl has only the focused
+  // ingredient, secondary defaults to 0 and primary alone ranks.
   const candidates = useMemo(() => {
-    if (!nodes) return [];
-    const allNames = [];
-    for (const name of nodes.keys()) {
-      if (name === ingredient) continue;
-      if (recipeIngredients.includes(name)) continue;
-      if (scopeFilter && !scopeFilter.has(name.toLowerCase())) continue;
-      allNames.push(name);
-    }
-    const ranked = rankByRecipeCooccurrence(
-      [ingredient, ...recipeIngredients],
-      recipePairs,
-      globalCount,
-      120,
-    );
-    const rankSet = new Map(ranked.map((r) => [r.name, r.strength]));
+    if (!nodes || !edges) return [];
+    const bowlSet = new Set(recipeIngredients);
+    bowlSet.add(ingredient);
+    const others = recipeIngredients.filter((n) => n !== ingredient);
+
+    const focusedNeighbors = lookupNeighborsFlexible(ingredient, edges);
+    if (focusedNeighbors.length === 0) return [];
+
     const out = [];
-    for (const name of allNames) {
-      const strength = rankSet.get(name);
-      if (strength === undefined) continue;
-      const node = nodes.get(name);
+    for (const cand of focusedNeighbors) {
+      if (bowlSet.has(cand.name)) continue;
+      if (scopeFilter && !scopeFilter.has(cand.name.toLowerCase())) continue;
+      const node = nodes.get(cand.name);
       if (!node) continue;
-      const { channels } = scoreIngredient(name, node);
+
+      // Secondary: average pair strength to the rest of the bowl
+      let bowlAffinity = 0;
+      let bowlHits = 0;
+      for (const other of others) {
+        const s = pairStrength(other, cand.name, edges);
+        if (s > 0) {
+          bowlAffinity += s;
+          bowlHits += 1;
+        }
+      }
+      const avgBowl = others.length > 0
+        ? (bowlAffinity / others.length)   // 0 if no edges; keeps the magnitude comparable
+        : 0;
+
+      const primary = cand.strength;
+      const secondary = avgBowl;
+      const score = 0.55 * primary + 0.45 * secondary;
+
+      const { channels } = scoreIngredient(cand.name, node);
       let dominantTaste = 'default';
       let bestVal = 0;
       for (const [ch, v] of Object.entries(channels)) {
         if (v > bestVal) { bestVal = v; dominantTaste = ch; }
       }
-      out.push({ name, strength, dominantTaste, node });
+      out.push({
+        name: cand.name,
+        strength: cand.strength,
+        bowlFit: avgBowl,
+        bowlHitCount: bowlHits,
+        score,
+        dominantTaste,
+        node,
+      });
     }
-    out.sort((a, b) => b.strength - a.strength);
+    out.sort((a, b) => b.score - a.score);
     return out;
-  }, [ingredient, recipeIngredients, nodes, recipePairs, globalCount, scopeFilter]);
+  }, [ingredient, recipeIngredients, nodes, edges, scopeFilter]);
 
   const filtered = useMemo(() => {
     if (activeFilter === 'all') return candidates.slice(0, 40);
