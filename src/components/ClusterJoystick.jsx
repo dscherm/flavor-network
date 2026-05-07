@@ -97,13 +97,17 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
 
   return (
     <div
-      className="fixed left-1/2 -translate-x-1/2 z-[60] select-none pointer-events-none sm:bottom-20"
+      className="fixed left-1/2 -translate-x-1/2 z-[72] select-none pointer-events-none sm:bottom-20"
       style={{
-        // On mobile the iOS Tab Bar sits at the bottom (h-14 ≈ 56px +
-        // safe-area). Park the joystick directly above it so the family
-        // pills double as a colour legend at thumb-reach. On desktop
-        // sm:bottom-20 wins from the className.
-        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)',
+        // Stack on mobile from the bottom up:
+        //   MobileTabBar  (~56px + safe-area)
+        //   3D/2D mode pill  (~50px tall, sits at tab-bar-h + 0.75rem)
+        //   ClusterJoystick  (this — needs to clear both above)
+        // Mode pill bottom edge ≈ tab-bar-h + 0.75rem; height ≈ 50px;
+        // add an 8px breath so the joystick doesn't kiss the pill.
+        // Desktop sm:bottom-20 wins from the className (no tab-bar/
+        // mode-pill stack at sm+).
+        bottom: 'calc(var(--tab-bar-h) + 0.75rem + 58px)',
       }}
       style={{ maxWidth: 'calc(100vw - 1rem)' }}
       aria-label={isTasteMode ? 'Fly to taste region' : 'Fly to cluster'}
