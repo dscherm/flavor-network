@@ -17,9 +17,21 @@
   }
 
   #root {
-    width: 100vw;
+    /* width: 100vw on iOS measures the full device width INCLUDING the
+       safe-area insets (rounded corners + notch + dynamic island), so
+       fixed/absolute children at left:0 / right:0 land under those zones
+       and look like they overflow the visible viewport by ~5%. width: 100%
+       inherits from body which already respects the safe area. */
+    width: 100%;
     height: 100vh;
     position: relative;
+  }
+
+  html, body {
+    /* Belt + suspenders against rogue overflow from libraries that set
+       inline width: 100vw (Three.js renderer was the historical culprit). */
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   /* Scrollbar styling for panels */
