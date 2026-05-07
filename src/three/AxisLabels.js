@@ -14,8 +14,17 @@ function createTextSprite(text, color = '#ffffff', fontSize = 48) {
   const metrics = ctx.measureText(text);
   const textWidth = metrics.width;
 
-  canvas.width = Math.ceil(textWidth) + 24;
-  canvas.height = fontSize + 16;
+  // ctx.measureText doesn't include the dark stroke we draw under the
+  // fill, so canvas needs extra padding (stroke width on each side)
+  // OR the right edge of long labels (Aromatic Stirred, Mediterranean
+  // Herbs, Sweet Nuts & Cream) gets clipped. Use 20px base + 2× stroke
+  // width as the horizontal padding, plus a small ascender/descender
+  // buffer vertically.
+  const strokeWidth = Math.max(2, fontSize * 0.06);
+  const horizPad = 28 + strokeWidth * 2;
+  const vertPad = 20 + strokeWidth * 2;
+  canvas.width = Math.ceil(textWidth) + horizPad;
+  canvas.height = fontSize + vertPad;
 
   // Re-set font after resize
   ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;

@@ -97,7 +97,7 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
 
   return (
     <div
-      className="fixed left-1/2 -translate-x-1/2 z-20 select-none pointer-events-none sm:bottom-20"
+      className="fixed left-1/2 -translate-x-1/2 z-[60] select-none pointer-events-none sm:bottom-20"
       style={{
         // On mobile the iOS Tab Bar sits at the bottom (h-14 ≈ 56px +
         // safe-area). Park the joystick directly above it so the family
