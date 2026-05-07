@@ -282,7 +282,7 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
         showNodeLabels={true}
         labelNodeNames={familyFilteredNames}
         flyToTarget={flyToTarget}
-        scaleMultiplier={2.0}
+        scaleMultiplier={1.6}
         centroidAdapter={familyCentroidAdapter}
         shapeAssignments={shapeAssignments}
       />
