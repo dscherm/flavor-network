@@ -5,7 +5,7 @@ import {
   loadSauceCodex,
   computeSauceCodexPositions,
 } from '../data/sauceCodex.js';
-import { createClusterLabels } from '../three/AxisLabels.js';
+import { createClusterLabels, createGlowSprite } from '../three/AxisLabels.js';
 import ClusterJoystick from './ClusterJoystick.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
 import { SAUCE_SHAPE_LEGEND } from '../data/sauceShapes.js';
@@ -29,6 +29,7 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
   const [error, setError] = useState(null);
   const [selectedSauce, setSelectedSauce] = useState(null);
   const [filterFamily, setFilterFamily] = useState(null);
+  const [filterCuisine, setFilterCuisine] = useState(null);
   // Camera fly-to target for the family fly-wheel (R10-66).
   const [flyToTarget, setFlyToTarget] = useState(null);
 
@@ -118,7 +119,9 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
     return m.size > 0 ? m : null;
   }, [codexData]);
 
-  // 3D cluster labels — one per family at its centroid.
+  // 3D cluster labels + Cultural Root glow halos. Mother sauces sit
+  // at each family's centroid; the glow makes them obvious as the
+  // anchor of their cluster at any zoom level.
   const sceneExtras = useMemo(() => {
     if (!codexData || !familyCentroids) return null;
     const clusters = codexData.codex.clusters.map(c => ({
@@ -126,7 +129,19 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
       label: c.name,
       color: c.color,
     }));
-    return createClusterLabels(clusters, familyCentroids);
+    const labels = createClusterLabels(clusters, familyCentroids);
+    const positions = codexData.positions?.positions || {};
+    for (const c of clusters) {
+      const cid = c.id;
+      // Find this family's root sauce (mother sauce / cluster anchor)
+      let rootName = null;
+      for (const [name, n] of codexData.graph.nodes) {
+        if (n.family_id === cid && n.isRoot) { rootName = name; break; }
+      }
+      const pos = rootName ? positions[rootName] : null;
+      if (pos) labels.add(createGlowSprite(pos, c.color, 14));
+    }
+    return labels;
   }, [codexData, familyCentroids]);
 
   // Selection → parent (kept for parity with CocktailLab; App.jsx no
@@ -178,6 +193,29 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
     return names.length > 0 ? names : null;
   }, [filterFamily, codexData]);
 
+  // Cuisine-shape filter (ShapeLegend now acts as a fly-to wheel).
+  // Maps selected cuisine ('French') → its shape ('cube') → all sauces
+  // whose cuisine-shape matches.
+  const cuisineFilteredNames = useMemo(() => {
+    if (!filterCuisine || !codexData) return null;
+    const target = SAUCE_SHAPE_LEGEND.find((l) => l.category === filterCuisine)?.shape;
+    if (!target) return null;
+    const names = [];
+    for (const [name, n] of codexData.graph.nodes) {
+      if (n.shapeKey === target) names.push(name);
+    }
+    return names.length > 0 ? names : null;
+  }, [filterCuisine, codexData]);
+
+  const combinedFilterNames = useMemo(() => {
+    if (familyFilteredNames && cuisineFilteredNames) {
+      const set = new Set(cuisineFilteredNames);
+      const inter = familyFilteredNames.filter((n) => set.has(n));
+      return inter.length > 0 ? inter : null;
+    }
+    return familyFilteredNames || cuisineFilteredNames;
+  }, [familyFilteredNames, cuisineFilteredNames]);
+
   const handleNodeClick = useCallback((node) => {
     if (!node) return; // empty-space click no longer dismisses
     setSelectedSauce(node.name);
@@ -221,7 +259,7 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
         filterCuisine=""
         filterTaste=""
         profileWeights={null}
-        treeFilterIngredients={familyFilteredNames}
+        treeFilterIngredients={combinedFilterNames}
         sceneExtras={sceneExtras}
         showNodeLabels={true}
         labelNodeNames={familyFilteredNames}
@@ -278,7 +316,12 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
 
       {/* Shape legend — collapsible, top-right. Maps the 8 cuisine
           buckets to their geometries so users can read the 3D scene. */}
-      <ShapeLegend title="Cuisine shapes" legend={SAUCE_SHAPE_LEGEND} />
+      <ShapeLegend
+        title="Cuisine shapes"
+        legend={SAUCE_SHAPE_LEGEND}
+        selectedKey={filterCuisine}
+        onSelect={setFilterCuisine}
+      />
     </>
   );
 }

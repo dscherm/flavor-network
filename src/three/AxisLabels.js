@@ -89,6 +89,46 @@ export function createNodeLabel(text, position) {
 }
 
 /**
+ * Soft additive glow halo around a node. Used to mark Cultural Root
+ * cocktails (and mother sauces) so they read as the anchor of their
+ * cluster at any zoom level. Sprite-based so it auto-faces the camera
+ * and survives any post-processing pipeline.
+ *
+ * @param {[number,number,number]} position
+ * @param {string} color  hex color (e.g. family color)
+ * @param {number} scale  world-space size of the glow disc (default 12)
+ */
+export function createGlowSprite(position, color = '#ffffff', scale = 12) {
+  const canvas = document.createElement('canvas');
+  const SIZE = 256;
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+  const c = SIZE / 2;
+  const grad = ctx.createRadialGradient(c, c, 0, c, c, c);
+  grad.addColorStop(0.0, color);
+  grad.addColorStop(0.25, color);
+  grad.addColorStop(0.55, 'rgba(255,255,255,0.18)');
+  grad.addColorStop(1.0, 'rgba(0,0,0,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, SIZE, SIZE);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    depthTest: true,
+    opacity: 0.85,
+  });
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(scale, scale, 1);
+  sprite.position.set(position[0], position[1], position[2]);
+  return sprite;
+}
+
+/**
  * Build axis label sprites for the Cocktail Lab Codex axes.
  * @param {number} spread - Spatial spread used in positioning (default 45)
  * @returns {THREE.Group} Group containing all axis label sprites

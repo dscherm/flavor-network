@@ -179,7 +179,10 @@ export async function loadSauceCodex(basePath = '/data') {
       // sauces keep the same shape as the rest of their cuisine — the
       // scaleBoost below makes them stand out.
       shapeKey: sauceShapeKey(sauce.cuisine),
-      scaleBoost: isRoot ? 2.0 : 1.0,
+      // Sauce nodes 50% larger (1.0 → 1.5); mother sauces (root)
+      // doubled on top of that (4.0 = 2× the new regular). Mirrors
+      // CocktailLabV2's centroid-vs-regular ratio.
+      scaleBoost: isRoot ? 4.0 : 1.5,
       _kws: sauceKeywordSet(ingredients),
     });
   }

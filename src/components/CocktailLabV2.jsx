@@ -8,7 +8,7 @@ import {
   crossFamilySimilar,
   cocktailSimilarity,
 } from '../data/cocktailCodexV2.js';
-import { createClusterLabels } from '../three/AxisLabels.js';
+import { createClusterLabels, createGlowSprite } from '../three/AxisLabels.js';
 import ClusterJoystick from './ClusterJoystick.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
 import { cocktailBaseSpiritShape, COCKTAIL_SPIRIT_LEGEND } from '../data/cocktailBaseSpirit.js';
@@ -29,6 +29,7 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
   const [error, setError] = useState(null);
   const [selectedCocktail, setSelectedCocktail] = useState(null);
   const [filterFamily, setFilterFamily] = useState(null);
+  const [filterSpirit, setFilterSpirit] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
 
   useEffect(() => {
@@ -93,11 +94,11 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
           taste: '',
           pairingCount: 1,
           cuisines: [],
-          // Cultural Root renders 2× the size of regular cocktails so
-          // it reads as the anchor of the cluster at any zoom level.
-          // NodeMesh applies scaleBoost as a multiplier on the base
-          // sphere radius (see NodeMesh.js _computeRadius).
-          scaleBoost: m.is_root ? 2.0 : 1.0,
+          // Cocktail nodes 50% larger (1.0 → 1.5); cultural Root
+          // doubled on top of that (4.0 = 2× the new regular). Root
+          // also gets a permanent activation in CocktailLabV2 so it
+          // glows continuously, not just on selection.
+          scaleBoost: m.is_root ? 4.0 : 1.5,
         });
       }
     }
@@ -181,14 +182,27 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
   }, [graph]);
 
   const sceneExtras = useMemo(() => {
-    if (!graph || !familyCentroids) return null;
+    if (!graph || !familyCentroids || !networkData) return null;
     const clusters = graph.families.map((f) => ({
       id: f.id,
       label: f.name,
       color: f.color,
     }));
-    return createClusterLabels(clusters, familyCentroids);
-  }, [graph, familyCentroids]);
+    const labels = createClusterLabels(clusters, familyCentroids);
+    // Add a permanent glow halo around each Cultural Root cocktail
+    // — colored by its family hue so the centroid pulses with cluster
+    // identity without us having to fight NodeMesh's activation reset
+    // on every selection / filter change.
+    const positions = networkData.positions.positions;
+    for (const f of graph.families) {
+      const root = graph.rootByFamily.get(f.id);
+      if (!root) continue;
+      const pos = positions[root.name];
+      if (!pos) continue;
+      labels.add(createGlowSprite(pos, f.color, 14));
+    }
+    return labels;
+  }, [graph, familyCentroids, networkData]);
 
   useEffect(() => {
     if (onSelectionChange) onSelectionChange(selectedCocktail ? [selectedCocktail] : []);
@@ -239,6 +253,31 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
     return names.length > 0 ? names : null;
   }, [filterFamily, graph]);
 
+  // Spirit-shape filter: ShapeLegend now acts as a fly-to wheel.
+  // Maps selected category ('Gin') → its shape ('cube') → all cocktails
+  // whose base-spirit shape matches. Combines with familyFilteredNames
+  // when both filters are active (intersection — show only family X
+  // cocktails that also use spirit Y).
+  const spiritFilteredNames = useMemo(() => {
+    if (!filterSpirit || !shapeAssignments) return null;
+    const targetShape = COCKTAIL_SPIRIT_LEGEND.find((l) => l.category === filterSpirit)?.shape;
+    if (!targetShape) return null;
+    const names = [];
+    for (const [name, shape] of shapeAssignments) {
+      if (shape === targetShape) names.push(name);
+    }
+    return names.length > 0 ? names : null;
+  }, [filterSpirit, shapeAssignments]);
+
+  const combinedFilterNames = useMemo(() => {
+    if (familyFilteredNames && spiritFilteredNames) {
+      const set = new Set(spiritFilteredNames);
+      const inter = familyFilteredNames.filter((n) => set.has(n));
+      return inter.length > 0 ? inter : null;
+    }
+    return familyFilteredNames || spiritFilteredNames;
+  }, [familyFilteredNames, spiritFilteredNames]);
+
   const handleNodeClick = useCallback((node) => {
     if (!node) return;
     setSelectedCocktail(node.name);
@@ -282,10 +321,10 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
         filterCuisine=""
         filterTaste=""
         profileWeights={null}
-        treeFilterIngredients={familyFilteredNames}
+        treeFilterIngredients={combinedFilterNames}
         sceneExtras={sceneExtras}
         showNodeLabels={true}
-        labelNodeNames={familyFilteredNames}
+        labelNodeNames={combinedFilterNames}
         flyToTarget={flyToTarget}
         scaleMultiplier={2.5}
         centroidAdapter={familyCentroidAdapter}
@@ -363,7 +402,12 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
         }}
       />
 
-      <ShapeLegend title="Base spirit shapes" legend={COCKTAIL_SPIRIT_LEGEND} />
+      <ShapeLegend
+        title="Base spirit shapes"
+        legend={COCKTAIL_SPIRIT_LEGEND}
+        selectedKey={filterSpirit}
+        onSelect={setFilterSpirit}
+      />
     </>
   );
 }
