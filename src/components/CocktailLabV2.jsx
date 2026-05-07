@@ -93,6 +93,11 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
           taste: '',
           pairingCount: 1,
           cuisines: [],
+          // Cultural Root renders 2× the size of regular cocktails so
+          // it reads as the anchor of the cluster at any zoom level.
+          // NodeMesh applies scaleBoost as a multiplier on the base
+          // sphere radius (see NodeMesh.js _computeRadius).
+          scaleBoost: m.is_root ? 2.0 : 1.0,
         });
       }
     }
@@ -282,7 +287,7 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
         showNodeLabels={true}
         labelNodeNames={familyFilteredNames}
         flyToTarget={flyToTarget}
-        scaleMultiplier={1.6}
+        scaleMultiplier={2.5}
         centroidAdapter={familyCentroidAdapter}
         shapeAssignments={shapeAssignments}
       />

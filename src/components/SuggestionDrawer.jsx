@@ -149,7 +149,12 @@ function applyChipFilter(chips, activeTab, nodes) {
   }
   if (activeTab.startsWith('aroma:')) {
     const odorKey = activeTab.slice(6);
-    const AROMA_THRESHOLD = 0.2;
+    // Lowered from 0.2 → 0.15 so the calibrated GNN's softer odor
+    // probabilities (odor_woody, odor_floral) surface enough chips
+    // to feel like the filter is doing something. 0.2 was too strict
+    // and many ingredients with a real-but-modest aroma signal were
+    // getting filtered out, giving users an empty drawer.
+    const AROMA_THRESHOLD = 0.15;
     return chips.filter(c => {
       const node = nodes?.get(c.name);
       const p = node?.gnnProbs?.[`odor_${odorKey}`] || 0;
@@ -390,7 +395,12 @@ export default function SuggestionDrawer({
     // BOTH high-pairing AND strongly <aroma> bubble up.
     if (activeTab.startsWith('aroma:')) {
       const odorKey = activeTab.slice(6);
-      const AROMA_THRESHOLD = 0.2;
+      // Lowered from 0.2 → 0.15 so the calibrated GNN's softer odor
+    // probabilities (odor_woody, odor_floral) surface enough chips
+    // to feel like the filter is doing something. 0.2 was too strict
+    // and many ingredients with a real-but-modest aroma signal were
+    // getting filtered out, giving users an empty drawer.
+    const AROMA_THRESHOLD = 0.15;
       const matches = chipData
         .map(c => {
           const node = nodes?.get(c.name);

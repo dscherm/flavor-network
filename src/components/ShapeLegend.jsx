@@ -125,13 +125,11 @@ export default function ShapeLegend({ title = 'Shapes', legend }) {
     <div
       className="fixed left-2 z-[60] select-none px-2.5 py-2 rounded-md bg-[#0d0d16]/85 border border-[#2a2a3a] backdrop-blur-sm sm:top-[calc(var(--nav-h,40px)+24px)]"
       style={{
-        // Mobile: clear the entire bottom-stack (tab bar + mode pill
-        // + ClusterJoystick) so the legend never overlaps interactive
-        // controls. ClusterJoystick now sits at tab-bar-h + 0.75rem +
-        // 58px ≈ tab-bar-h + 4.4rem; legend goes another joystick-
-        // height above so the rail starts ~70px above the joystick
-        // pill.
-        bottom: 'calc(var(--tab-bar-h) + 8rem)',
+        // Mobile: clear the bottom-stack (tab bar + joystick + mode
+        // pill) so the legend never overlaps interactive controls.
+        // Joystick now at tab-bar-h + 10px; mode pill at +80px.
+        // Legend starts above the mode pill with breath.
+        bottom: 'calc(var(--tab-bar-h) + 140px)',
       }}
     >
       <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1.5 pb-1 border-b border-[#2a2a3a]">

@@ -90,23 +90,23 @@ export function placeFamilyOnSphere(idx, total = 6, radius = FAMILY_RADIUS) {
  * but ride concentric rings at different radii.
  */
 export function placeCocktailInFamily(member, family, members, opts = {}) {
-  // discRadius scales by sqrt(N/30): tropical (N=23) gets a tight 22
-  // unit disc; sour (N=149) gets ~56 units. Keeps cocktails-per-area
-  // roughly constant so the densest clusters don't overlap each other.
+  // discRadius scales by sqrt(N/30) — keeps cocktails-per-volume
+  // roughly constant so densest clusters don't overlap each other.
+  // Pulled inward by 0.65 so the ring sits well inside the disc and
+  // leaves the centroid (where the 2× cultural Root lives) breathing
+  // room. User feedback 2026-05-07: rings were too wide, nodes too
+  // small relative to ring; pulled tighter so the ROOT reads as the
+  // anchor and the cluster reads as a 3D structure not a Saturn ring.
   const N = members.length;
-  const baseDisc = opts.discRadius ?? Math.max(20, 25 * Math.sqrt(N / 30));
-  const ringSpacing = opts.ringSpacing ?? 5;
-  const discRadius = baseDisc;
-  // Cultural Root sits at the family centroid so it reads as the
-  // anchor of the cluster (every cocktail in the family is "near"
-  // the Root, both visually and conceptually). All other members
-  // place around it on the disc.
+  const baseDisc = opts.discRadius ?? Math.max(18, 22 * Math.sqrt(N / 30));
+  const RING_PULL = 0.65;          // 0–1: how far IN from disc edge the rings sit
+  const discRadius = baseDisc * RING_PULL;
+  // Cultural Root sits at the family centroid (rendered 2× larger
+  // via scaleBoost — see CocktailLabV2.jsx).
   if (member.is_root || member.isRoot) {
     return { x: family.position.x, y: family.position.y, z: family.position.z };
   }
-  // Group non-root members by sub-cluster id; each sub gets its own
-  // ring radius. Root is excluded so its withdrawal doesn't leave a
-  // gap in the angular distribution of the ring it would have been on.
+  // Group non-root members by sub-cluster id.
   const subGroups = new Map();
   for (const m of members) {
     if (m.is_root || m.isRoot) continue;
@@ -118,38 +118,41 @@ export function placeCocktailInFamily(member, family, members, opts = {}) {
   const subIdx = subIds.indexOf(member.subcluster_id);
   const subMembers = subGroups.get(member.subcluster_id) || [member];
   const memberIdx = subMembers.findIndex((m) => m.canonical === member.canonical);
-  // Ring radius: outer rings for higher sub-cluster index
-  const ringR = discRadius - subIdx * ringSpacing;
+  // Ring radius decays slightly per sub so inner rings sit closer to
+  // root, outer further — keeps the 3D structure legible at a glance.
+  const ringR = Math.max(discRadius * 0.55, discRadius - subIdx * 4);
   const angle = (memberIdx / subMembers.length) * Math.PI * 2;
-  // Depth jitter along the family radial axis — breaks the "all on
-  // one plane" disc into a 3D shell so the user can rotate through
-  // the cluster without nodes overlapping at every angle. Hash-based
-  // so the same cocktail always lands at the same depth across
-  // re-renders.
-  const depthHash = simpleStringHash(member.canonical || member.name || '') % 1000;
-  const depthFrac = depthHash / 1000 - 0.5;        // [-0.5, 0.5]
-  const depthOffset = depthFrac * discRadius * 0.55; // ±27.5% of disc radius
-  // Disc plane: orthogonal to family centroid direction (radial)
+  // Family radial basis.
   const fx = family.position.x;
   const fy = family.position.y;
   const fz = family.position.z;
   const len = Math.hypot(fx, fy, fz) || 1;
-  const nx = fx / len;
-  const ny = fy / len;
-  const nz = fz / len;
-  // Build a tangent basis (u, v) perpendicular to (nx, ny, nz)
+  const nx = fx / len, ny = fy / len, nz = fz / len;
+  // Tangent basis (u, v) perpendicular to (n).
   const ax = Math.abs(nx) < 0.9 ? 1 : 0;
   const ay = Math.abs(nx) < 0.9 ? 0 : 1;
-  const az = 0;
-  const ux = ny * az - nz * ay;
-  const uy = nz * ax - nx * az;
+  const ux = ny * 0 - nz * ay;
+  const uy = nz * ax - nx * 0;
   const uz = nx * ay - ny * ax;
   const ulen = Math.hypot(ux, uy, uz) || 1;
   const ub = [ux / ulen, uy / ulen, uz / ulen];
   const vb = [ny * ub[2] - nz * ub[1], nz * ub[0] - nx * ub[2], nx * ub[1] - ny * ub[0]];
-  const dx = ub[0] * Math.cos(angle) * ringR + vb[0] * Math.sin(angle) * ringR + nx * depthOffset;
-  const dy = ub[1] * Math.cos(angle) * ringR + vb[1] * Math.sin(angle) * ringR + ny * depthOffset;
-  const dz = ub[2] * Math.cos(angle) * ringR + vb[2] * Math.sin(angle) * ringR + nz * depthOffset;
+  // Multi-plane rings: each sub-cluster sits on a plane PERPENDICULAR
+  // to its sibling sub-clusters' planes, so a family with 3 subs reads
+  // as 3 interlocking rings (think armillary sphere, not a single
+  // Saturn disc). Cycle through 3 plane orientations as subIdx grows.
+  //   0 → tangent disc (u, v)              — equator
+  //   1 → meridian containing u + n        — vertical ring through poles
+  //   2 → meridian containing v + n        — perpendicular vertical ring
+  const planeIdx = subIdx % 3;
+  let aBasis, bBasis;
+  if (planeIdx === 0) { aBasis = ub; bBasis = vb; }
+  else if (planeIdx === 1) { aBasis = ub; bBasis = [nx, ny, nz]; }
+  else { aBasis = vb; bBasis = [nx, ny, nz]; }
+  const cos = Math.cos(angle), sin = Math.sin(angle);
+  const dx = aBasis[0] * cos * ringR + bBasis[0] * sin * ringR;
+  const dy = aBasis[1] * cos * ringR + bBasis[1] * sin * ringR;
+  const dz = aBasis[2] * cos * ringR + bBasis[2] * sin * ringR;
   return { x: fx + dx, y: fy + dy, z: fz + dz };
 }
 
