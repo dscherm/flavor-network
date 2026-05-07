@@ -4,7 +4,6 @@ import { getNeighbors } from '../data/graph.js';
 import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import AromaHexWheel from './AromaHexWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
-import SuggestionDrawer from './SuggestionDrawer.jsx';
 import IngredientSuggestionsPopout from './IngredientSuggestionsPopout.jsx';
 import { hapticLight, hapticMedium } from '../utils/native.js';
 // "Start from" template strip + "This looks like" classical match
@@ -401,8 +400,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             ingredient={focusedIngredient}
             recipeIngredients={recipeIngredients.filter((n) => n !== focusedIngredient)}
             nodes={fullData?.graph?.nodes}
-            recipePairs={fullData?.recipePairs}
-            globalCount={fullData?.globalCount}
+            edges={fullData?.graph?.edges}
             scopeFilter={
               labMode === 'cocktail' ? cocktailScope :
               labMode === 'sauce' ? sauceScope :
@@ -456,31 +454,12 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
 
       </div>
 
-      {/* Zone 3: Suggestion Drawer — hidden while the per-ingredient
-          popout is active so the user only sees one suggestion
-          surface at a time. */}
-      {!focusedIngredient && <SuggestionDrawer
-        centerIngredient={centerIngredient}
-        recipeIngredients={recipeIngredients}
-        nodes={fullData?.graph?.nodes}
-        edges={fullData?.graph?.edges}
-        onAddIngredient={handleAddIngredient}
-        onSwapIngredient={handleSwapIngredient}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        snapState={drawerSnap}
-        onSnapChange={setDrawerSnap}
-        labMode={labMode}
-        selectedStructure={selectedStructure}
-        bridgeCompounds={fullData?.bridgeCompounds}
-        recipePairs={fullData?.recipePairs}
-        globalCount={fullData?.globalCount}
-        scopeFilter={
-          labMode === 'cocktail' ? cocktailScope :
-          labMode === 'sauce' ? sauceScope :
-          null
-        }
-      />}
+      {/* The legacy bottom-up SuggestionDrawer was eliminated per
+          user request 2026-05-07 — the per-ingredient
+          IngredientSuggestionsPopout is now the only suggestion
+          surface in the Recipe Lab, opened via the "R" pill on each
+          row. Eliminates the dual-suggestion-surface ambiguity that
+          made the Recipe Lab feel busy. */}
     </div>
   );
 }

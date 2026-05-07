@@ -1807,10 +1807,10 @@ export default function LivingArchView({
   // ---- Toggle handler (3-way: ml → neural → wheel → ml) ----
   const MODE_CYCLE = ['ml', 'ml2d', 'neural', 'taste2d'];
   const MODE_LABELS = {
-    ml: 'Cooks With · 3D',
-    ml2d: 'Cooks With · 2D',
-    neural: 'Tastes Like · 3D',
-    taste2d: 'Tastes Like · Wheel',
+    ml: '3D Pairings',
+    ml2d: '2D Pairings',
+    neural: '3D Flavors',
+    taste2d: '2D Flavors',
   };
   const handleModeSwitch = useCallback((target) => {
     if (target === mode) return;
@@ -1897,15 +1897,18 @@ export default function LivingArchView({
         </div>
       )}
 
-      {/* 4-way mode selector — bottom center */}
-      <div className="absolute bottom-[calc(var(--tab-bar-h)+70px)] sm:bottom-6 left-1/2 -translate-x-1/2 z-[71] flex items-center gap-1 px-2 py-1.5 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#1e1e2e] select-none"
-        style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0px))' }}
+      {/* 4-way mode selector — vertical pill rail anchored to the
+          left edge below the nav. Smaller text + thinner border than
+          the prior bottom-center pill so the canvas reads as the
+          primary surface and the mode selector is reference UI. */}
+      <div className="absolute left-1.5 z-[71] flex flex-col gap-0.5 p-1 rounded-xl bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e]/80 select-none"
+        style={{ top: 'calc(var(--nav-h, 40px) + 16px)' }}
       >
         {MODE_CYCLE.map((m) => (
           <button
             key={m}
             onClick={() => handleModeSwitch(m)}
-            className={`px-3 py-1.5 min-h-[44px] text-[11px] font-medium rounded-full transition-all ${
+            className={`px-2 py-1 text-[9px] font-medium rounded-md transition-all whitespace-nowrap ${
               mode === m
                 ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                 : 'text-gray-500 hover:text-gray-300 border border-transparent'
