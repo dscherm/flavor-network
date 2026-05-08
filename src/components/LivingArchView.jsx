@@ -15,6 +15,7 @@ import { CameraAnimator } from '../three/CameraAnimator.js';
 import { computeBloomStrength } from '../three/bloomQuality.js';
 import NetworkA11yShim from './NetworkA11yShim.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
+import { MODE_CYCLE, MODE_LABELS } from '../data/networkModes.js';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
 import {
   createTasteSelection,
@@ -1804,14 +1805,9 @@ export default function LivingArchView({
     }
   }, [selectedNodes, isMobile, affinityEnabled]);
 
-  // ---- Toggle handler (3-way: ml → neural → wheel → ml) ----
-  const MODE_CYCLE = ['ml', 'ml2d', 'neural', 'taste2d'];
-  const MODE_LABELS = {
-    ml: '3D Pairings',
-    ml2d: '2D Pairings',
-    neural: '3D Flavors',
-    taste2d: '2D Flavors',
-  };
+  // ---- Toggle handler — MODE_CYCLE / MODE_LABELS now imported
+  // from `data/networkModes.js` so MobileTabBar's Network-button
+  // dropdown can render the same set without duplication.
   const handleModeSwitch = useCallback((target) => {
     if (target === mode) return;
     // R13-5: Exit α-mode BEFORE the transition tween starts. Tween
@@ -1897,27 +1893,10 @@ export default function LivingArchView({
         </div>
       )}
 
-      {/* 4-way mode selector — vertical pill rail anchored to the
-          left edge below the nav. Smaller text + thinner border than
-          the prior bottom-center pill so the canvas reads as the
-          primary surface and the mode selector is reference UI. */}
-      <div className="absolute left-1.5 z-[71] flex flex-col gap-0.5 p-1 rounded-xl bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e]/80 select-none"
-        style={{ top: 'calc(var(--nav-h, 40px) + 16px)' }}
-      >
-        {MODE_CYCLE.map((m) => (
-          <button
-            key={m}
-            onClick={() => handleModeSwitch(m)}
-            className={`px-2 py-1 text-[9px] font-medium rounded-md transition-all whitespace-nowrap ${
-              mode === m
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                : 'text-gray-500 hover:text-gray-300 border border-transparent'
-            }`}
-          >
-            {MODE_LABELS[m]}
-          </button>
-        ))}
-      </div>
+      {/* 4-way mode selector now lives on the bottom-bar Network
+          button (MobileTabBar). LivingArchView renders no on-canvas
+          mode pill — taps on the Network tab open a popover with the
+          4 modes. Per user feedback 2026-05-08. */}
 
       {/* α-mode shape legend — only shown while a single ingredient is
           selected (which is the same gate that engages AffinityMode).
@@ -1926,6 +1905,12 @@ export default function LivingArchView({
       {affinityEnabled && selectedNodes.length === 1 && (
         <ShapeLegend title="Affinity shapes" legend={AFFINITY_SHAPE_LEGEND} />
       )}
+
+      {/* Surprising tier now renders as a 5th 3D ring (star shapes,
+          fuchsia edges) inside AffinityMode — see ring0Mesh in
+          src/three/AffinityMode.js. The dedicated text panel that
+          briefly lived here was removed once the 3D ring was wired
+          (2026-05-08). */}
     </div>
   );
 }

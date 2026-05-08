@@ -28,13 +28,21 @@ export function makeLabel(text, color, size, opts = {}) {
   const canvas = document.createElement('canvas');
   // Higher-resolution texture for sharper rendering on mobile.
   const fontSize = 72;
-  canvas.width = 768; canvas.height = 144;
+  const canvasH = 144;
+  // Measure text first so long cluster labels ("MEDITERRANEAN HERBS")
+  // don't get clipped by a fixed canvas width. Pad for the stroke +
+  // glow so the text doesn't sit flush against the texture edge.
+  const measureCtx = canvas.getContext('2d');
+  measureCtx.font = `bold ${fontSize}px "Inter", "Segoe UI", sans-serif`;
+  const textW = measureCtx.measureText(text).width;
+  const padding = 64;
+  canvas.width = Math.max(256, Math.ceil(textW + padding));
+  canvas.height = canvasH;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Re-set font after canvas resize (resize wipes ctx state).
   ctx.font = `bold ${fontSize}px "Inter", "Segoe UI", sans-serif`;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  // Dark outline underneath the fill so labels stay readable over
-  // bright nodes and the bloom pass.
   ctx.lineJoin = 'round';
   ctx.lineWidth = 10;
   ctx.strokeStyle = 'rgba(0,0,0,0.85)';
@@ -46,7 +54,11 @@ export function makeLabel(text, color, size, opts = {}) {
   tex.needsUpdate = true;
   const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.95 });
   const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(size, size * 144/768, 1);
+  // Keep the original world-Y so existing call sites' `size` values
+  // still match visually; grow world-X proportional to canvas-pixel
+  // width vs the legacy 768px so long labels render wider rather
+  // than squished. Each character keeps the same world-space size.
+  sprite.scale.set(size * canvas.width / 768, size * canvasH / 768, 1);
   return sprite;
 }
 

@@ -24,10 +24,11 @@ const ROLE_TO_SHAPE = Object.freeze({
   3: 'bipyramid',
   2: 'cylinder',
   1: 'sphere',
+  0: 'star',
 });
 
 /**
- * @param {'focal'|3|2|1} role
+ * @param {'focal'|3|2|1|0} role
  * @returns {string} a shape key from SHAPE_KEYS (defaults to 'sphere'
  *                   for unknown roles)
  */
@@ -43,4 +44,5 @@ export const AFFINITY_SHAPE_LEGEND = Object.freeze([
   { category: '★★★ (chemistry)', shape: 'bipyramid' },
   { category: '★★ (strong)',     shape: 'cylinder' },
   { category: '★ (good)',         shape: 'sphere' },
+  { category: 'Surprising',      shape: 'star' },
 ]);

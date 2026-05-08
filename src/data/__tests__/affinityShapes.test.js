@@ -8,23 +8,23 @@ describe('affinityShape', () => {
     expect(affinityShape(3)).toBe('bipyramid');
     expect(affinityShape(2)).toBe('cylinder');
     expect(affinityShape(1)).toBe('sphere');
+    expect(affinityShape(0)).toBe('star');
   });
 
-  it('returns 4 distinct shapes (focal + 3 tiers all unique)', () => {
-    const shapes = ['focal', 3, 2, 1].map(affinityShape);
-    expect(new Set(shapes).size).toBe(4);
+  it('returns 5 distinct shapes (focal + 4 tiers all unique)', () => {
+    const shapes = ['focal', 3, 2, 1, 0].map(affinityShape);
+    expect(new Set(shapes).size).toBe(5);
   });
 
   it('falls back to sphere for unknown roles', () => {
     expect(affinityShape(null)).toBe('sphere');
     expect(affinityShape(undefined)).toBe('sphere');
-    expect(affinityShape(0)).toBe('sphere');
     expect(affinityShape(4)).toBe('sphere');
     expect(affinityShape('untiered')).toBe('sphere');
   });
 
   it('only emits values from the master shape kit', () => {
-    for (const role of ['focal', 3, 2, 1, null]) {
+    for (const role of ['focal', 3, 2, 1, 0, null]) {
       expect(SHAPE_KEYS).toContain(affinityShape(role));
     }
   });
@@ -33,17 +33,17 @@ describe('affinityShape', () => {
     const polyhedra = new Set([
       'tetrahedron', 'octahedron', 'dodecahedron', 'icosahedron', 'bipyramid',
     ]);
-    const all = ['focal', 3, 2, 1].map(affinityShape);
+    const all = ['focal', 3, 2, 1, 0].map(affinityShape);
     const polyCount = all.filter((s) => polyhedra.has(s)).length;
     expect(polyCount).toBeLessThanOrEqual(2);
   });
 });
 
 describe('AFFINITY_SHAPE_LEGEND', () => {
-  it('contains 4 distinct rows (focal + 3 tiers)', () => {
-    expect(AFFINITY_SHAPE_LEGEND).toHaveLength(4);
+  it('contains 5 distinct rows (focal + 4 tiers)', () => {
+    expect(AFFINITY_SHAPE_LEGEND).toHaveLength(5);
     const cats = AFFINITY_SHAPE_LEGEND.map((p) => p.category);
-    expect(new Set(cats).size).toBe(4);
+    expect(new Set(cats).size).toBe(5);
   });
 
   it('every legend shape is in SHAPE_KEYS and unique', () => {

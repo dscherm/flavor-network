@@ -3,6 +3,7 @@ import { getNeighbors } from '../data/graph.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { TASTE_COLORS } from '../utils/color.js';
 import { AROMA_COLORS } from '../data/recipeScoring.js';
+import { roleOf, rolesCompatible } from '../data/ingredientRoles.js';
 
 const ODOR_KEYS = ['fruity', 'floral', 'green', 'woody', 'fatty'];
 
@@ -69,19 +70,26 @@ function pairStrength(a, b, edges) {
 
 /**
  * IngredientSuggestionsPopout — replaces the hex graphic in the Recipe
- * Lab when the user taps an "R" pill on an ingredient row. Shows
- * filter pills (taste / aroma / cuisine) and a single column of swap
- * candidates ranked for that ingredient against the rest of the bowl.
+ * Lab when the user taps an "R" pill on an ingredient row OR taps the
+ * "Suggestions" button below the ingredient list.
+ *
+ * Two modes:
+ *   - replace mode (`ingredient` set): single column of swap candidates
+ *     ranked for that ingredient against the rest of the bowl. Tap →
+ *     onSwap(ingredient, newName).
+ *   - add mode (`ingredient` null/empty): bowl-wide suggestions ranked
+ *     by average pair strength to every ingredient in the bowl. Tap →
+ *     onAdd(newName).
  *
  * Props:
- *   ingredient:        string  (the ingredient being replaced)
- *   recipeIngredients: string[] (the rest of the bowl)
+ *   ingredient:        string|null  (replace mode if set, add mode if null)
+ *   recipeIngredients: string[] (replace mode: rest of bowl; add mode: full bowl)
  *   nodes:             Map<string, node>
- *   recipePairs:       Map (recipe co-occurrence pairs)
- *   globalCount:       Map (global ingredient frequency)
+ *   edges:             Array (graph edges)
  *   scopeFilter:       Set<lower-case name> | null   (cocktail/sauce scope)
  *   labMode:           'taste' | 'cocktail' | 'sauce' | 'general'
- *   onSwap:            (target, newName) => void
+ *   onSwap:            (target, newName) => void   (replace mode)
+ *   onAdd:             (newName) => void           (add mode)
  *   onClose:           () => void
  */
 export default function IngredientSuggestionsPopout({
@@ -90,11 +98,28 @@ export default function IngredientSuggestionsPopout({
   nodes,
   edges,
   scopeFilter,
+  cocktailRoles,
+  sauceRoles,
   labMode,
   onSwap,
+  onAdd,
   onClose,
 }) {
   const [activeFilter, setActiveFilter] = useState('all');
+  // Role purity is on by default in replace-mode (Path C). User can
+  // toggle off when no same-role candidates exist or they want
+  // broader exploration. Add-mode never enforces (we want any
+  // ingredient that fits the bowl, regardless of role).
+  const [enforceRole, setEnforceRole] = useState(true);
+  const isAddMode = !ingredient;
+  const roleCtx = useMemo(
+    () => ({ cocktailRoles, sauceRoles, node: ingredient ? nodes?.get(ingredient) : null }),
+    [cocktailRoles, sauceRoles, ingredient, nodes]
+  );
+  const focalRole = useMemo(
+    () => (isAddMode ? null : roleOf(ingredient, labMode, roleCtx)),
+    [isAddMode, ingredient, labMode, roleCtx]
+  );
 
   // Two-signal swap-candidate ranking (audit response, 2026-05-07):
   //
@@ -109,49 +134,152 @@ export default function IngredientSuggestionsPopout({
   // enough to break ties in favor of candidates that integrate with
   // the rest of the recipe. If the bowl has only the focused
   // ingredient, secondary defaults to 0 and primary alone ranks.
+  //
+  // Add mode (no focal ingredient): each bowl ingredient contributes
+  // its neighbors to a combined candidate map; score is the average
+  // pair strength across the whole bowl, so candidates that pair with
+  // EVERY bowl ingredient out-rank ones bonded to a single member.
   const candidates = useMemo(() => {
     if (!nodes || !edges) return [];
+
+    if (isAddMode) {
+      const bowl = recipeIngredients;
+      if (bowl.length === 0) return [];
+      const bowlSet = new Set(bowl);
+      // Aggregate neighbors across the whole bowl. score = sum / bowl.length
+      // so a candidate paired with every bowl ingredient gets a higher
+      // score than one bonded to a single member.
+      const agg = new Map(); // name -> { sum, hits }
+      for (const ing of bowl) {
+        const neighbors = lookupNeighborsFlexible(ing, edges);
+        for (const n of neighbors) {
+          if (bowlSet.has(n.name)) continue;
+          if (scopeFilter && !scopeFilter.has(n.name.toLowerCase())) continue;
+          const cur = agg.get(n.name);
+          if (cur) {
+            cur.sum += n.strength;
+            cur.hits += 1;
+          } else {
+            agg.set(n.name, { sum: n.strength, hits: 1 });
+          }
+        }
+      }
+      const out = [];
+      for (const [name, { sum, hits }] of agg.entries()) {
+        const node = nodes.get(name);
+        if (!node) continue;
+        const score = sum / bowl.length;
+        const { channels } = scoreIngredient(name, node);
+        let dominantTaste = 'default';
+        let bestVal = 0;
+        for (const [ch, v] of Object.entries(channels)) {
+          if (v > bestVal) { bestVal = v; dominantTaste = ch; }
+        }
+        out.push({
+          name,
+          strength: score,
+          bowlFit: score,
+          bowlHitCount: hits,
+          score,
+          dominantTaste,
+          node,
+        });
+      }
+      out.sort((a, b) => b.score - a.score);
+      return out;
+    }
+
     const bowlSet = new Set(recipeIngredients);
     bowlSet.add(ingredient);
     const others = recipeIngredients.filter((n) => n !== ingredient);
 
+    // Build the candidate name set. Two sources, deduped:
+    //
+    //   (a) Direct neighbors of the focal — their pairing-strength to
+    //       focal seeds primary score.
+    //   (b) ROLE EXPANSION (replace-mode-only, when enforceRole + role
+    //       dict are available) — every same-role ingredient from the
+    //       lab's role dictionary, even if they aren't direct
+    //       neighbors. Critical for base spirits like bourbon whose
+    //       graph neighbors are bitters/citrus/syrups (used WITH it
+    //       in cocktails) rather than other spirits (rarely mixed
+    //       with it). Without this, the slot filter empties the list
+    //       because there ARE no spirit-role neighbors of bourbon
+    //       in the recipe corpus.
+    const candidateStrengths = new Map(); // name → primary pair-strength to focal
     const focusedNeighbors = lookupNeighborsFlexible(ingredient, edges);
-    if (focusedNeighbors.length === 0) return [];
+    for (const n of focusedNeighbors) candidateStrengths.set(n.name, n.strength);
+
+    const useRoleExpansion =
+      enforceRole && focalRole && focalRole !== 'other';
+    const focalLc = ingredient.toLowerCase();
+    if (useRoleExpansion) {
+      const dict =
+        labMode === 'cocktail' ? cocktailRoles :
+        labMode === 'sauce' ? sauceRoles :
+        null;
+      if (dict) {
+        for (const [lcName, info] of Object.entries(dict)) {
+          if (info.role !== focalRole) continue;
+          if (lcName === focalLc) continue;
+          if (candidateStrengths.has(lcName)) continue;
+          candidateStrengths.set(lcName, 0);
+        }
+      }
+    }
 
     const out = [];
-    for (const cand of focusedNeighbors) {
-      if (bowlSet.has(cand.name)) continue;
-      if (scopeFilter && !scopeFilter.has(cand.name.toLowerCase())) continue;
-      const node = nodes.get(cand.name);
+    for (const [candName, primaryFromNeighbor] of candidateStrengths.entries()) {
+      if (bowlSet.has(candName)) continue;
+      if (scopeFilter && !scopeFilter.has(candName.toLowerCase())) continue;
+      const node = nodes.get(candName);
       if (!node) continue;
 
-      // Secondary: average pair strength to the rest of the bowl
+      // Slot-aware role gate. `rolesCompatible` treats unknown roles
+      // ('other' or null) as wildcards so the gate doesn't drop role-
+      // expanded candidates whose role-dict entry didn't classify them.
+      if (useRoleExpansion) {
+        const candRole = roleOf(candName, labMode, { cocktailRoles, sauceRoles, node });
+        if (!rolesCompatible(focalRole, candRole)) continue;
+      }
+
+      // Primary: pair strength to focal. From neighbor lookup (>0) or
+      // direct edge probe for role-expanded candidates (0 when no edge).
+      const primary = primaryFromNeighbor > 0
+        ? primaryFromNeighbor
+        : pairStrength(ingredient, candName, edges);
+
+      // Secondary: average pair strength to the rest of the bowl.
       let bowlAffinity = 0;
       let bowlHits = 0;
       for (const other of others) {
-        const s = pairStrength(other, cand.name, edges);
+        const s = pairStrength(other, candName, edges);
         if (s > 0) {
           bowlAffinity += s;
           bowlHits += 1;
         }
       }
       const avgBowl = others.length > 0
-        ? (bowlAffinity / others.length)   // 0 if no edges; keeps the magnitude comparable
+        ? (bowlAffinity / others.length)
         : 0;
 
-      const primary = cand.strength;
-      const secondary = avgBowl;
-      const score = 0.55 * primary + 0.45 * secondary;
+      // Score: when role-expansion injected a candidate with no direct
+      // edge to focal (primary=0), bowl-fit is the only signal, so it
+      // takes full weight. Otherwise blend 0.55 primary / 0.45 bowl
+      // like the existing substitute-fit ranker.
+      const score = primary > 0
+        ? 0.55 * primary + 0.45 * avgBowl
+        : avgBowl;
 
-      const { channels } = scoreIngredient(cand.name, node);
+      const { channels } = scoreIngredient(candName, node);
       let dominantTaste = 'default';
       let bestVal = 0;
       for (const [ch, v] of Object.entries(channels)) {
         if (v > bestVal) { bestVal = v; dominantTaste = ch; }
       }
       out.push({
-        name: cand.name,
-        strength: cand.strength,
+        name: candName,
+        strength: primary,
         bowlFit: avgBowl,
         bowlHitCount: bowlHits,
         score,
@@ -161,7 +289,7 @@ export default function IngredientSuggestionsPopout({
     }
     out.sort((a, b) => b.score - a.score);
     return out;
-  }, [ingredient, recipeIngredients, nodes, edges, scopeFilter]);
+  }, [ingredient, recipeIngredients, nodes, edges, scopeFilter, isAddMode, enforceRole, focalRole, labMode, cocktailRoles, sauceRoles]);
 
   const filtered = useMemo(() => {
     if (activeFilter === 'all') return candidates.slice(0, 40);
@@ -206,9 +334,34 @@ export default function IngredientSuggestionsPopout({
           </svg>
         </button>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] uppercase tracking-wider text-[#a09070] leading-none">Suggestions for</p>
+          <p className="text-[10px] uppercase tracking-wider text-[#a09070] leading-none flex items-center gap-1">
+            {isAddMode ? 'Add to recipe' : 'Suggestions for'}
+            {!isAddMode && focalRole && (
+              <button
+                type="button"
+                onClick={() => setEnforceRole((v) => !v)}
+                title={
+                  enforceRole
+                    ? `Showing only ${focalRole.replace(/_/g, ' ')} candidates — tap to widen`
+                    : 'Showing all roles — tap to lock to same role'
+                }
+                className={`text-[9px] px-1.5 py-[1px] rounded-full border transition-colors ${
+                  enforceRole
+                    ? 'bg-[#7a6a4a] text-white border-[#7a6a4a]'
+                    : 'bg-transparent text-[#a09070] border-[#c9b99a]'
+                }`}
+                style={{ textTransform: 'lowercase' }}
+              >
+                {focalRole.replace(/_/g, ' ')}
+              </button>
+            )}
+          </p>
           <h3 className="text-base font-medium text-[#3a3428] truncate" style={{ fontFamily: 'Caveat, cursive' }}>
-            {ingredient}
+            {isAddMode
+              ? (recipeIngredients.length > 0
+                  ? `${recipeIngredients.length} ingredient${recipeIngredients.length === 1 ? '' : 's'} in bowl`
+                  : 'Empty bowl')
+              : ingredient}
           </h3>
         </div>
         <span title="Match strength" className="text-[#a09070]">★</span>
@@ -251,10 +404,17 @@ export default function IngredientSuggestionsPopout({
               return (
                 <button
                   key={c.name}
-                  onClick={() => onSwap(ingredient, c.name)}
+                  onClick={() => {
+                    if (isAddMode) onAdd?.(c.name);
+                    else onSwap?.(ingredient, c.name);
+                  }}
                   className="px-2.5 py-1.5 min-h-[36px] rounded-full bg-white hover:bg-[#fff5e0] active:bg-[#fef0d0] border border-[#c9b99a] transition-colors flex items-center gap-1.5"
                   style={{ fontFamily: 'Caveat, cursive', color: '#3a3428' }}
-                  title={`Replace ${ingredient} with ${c.name} (${Math.round(c.strength * 100)}%)`}
+                  title={
+                    isAddMode
+                      ? `Add ${c.name} to recipe (${Math.round(c.strength * 100)}%)`
+                      : `Replace ${ingredient} with ${c.name} (${Math.round(c.strength * 100)}%)`
+                  }
                 >
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: tasteColor }} />
                   <span className="text-[14px]">{c.name}</span>
