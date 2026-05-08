@@ -13,7 +13,7 @@
  *   - placeFamilyOnSphere(idx, total=6) → 3D coords on a Fibonacci lattice
  */
 
-const FAMILY_RADIUS = 70; // sphere shell — pulled in from 90 so adjacent clusters read as a single galaxy rather than scattered satellites; per-family discRadius below scales by sqrt(N) so the larger families (Sour 149, Aromatic 80) still get room without ballooning the empty Tropical disc
+const FAMILY_RADIUS = 55; // sphere shell — pulled in from 70 (2026-05-08) so the cocktail families read as a tight constellation; further reductions risk Sour (N=149, baseDisc≈49) overlapping its neighbors so 55 is the floor without also tightening discRadius
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 // ── Loader ─────────────────────────────────────────────────────────

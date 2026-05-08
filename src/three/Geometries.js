@@ -35,6 +35,7 @@ export const SHAPE_KEYS = Object.freeze([
   'cone',
   'torusKnot',
   'bipyramid',
+  'star',
 ]);
 
 export function buildShapeGeometries() {
@@ -43,6 +44,27 @@ export function buildShapeGeometries() {
   // regular polyhedron from any angle.
   const bipyramidGeo = new THREE.OctahedronGeometry(0.7, 0);
   bipyramidGeo.scale(1, 2, 1);
+
+  // 5-pointed extruded star — used for the α-mode "Surprising" tier
+  // (ringIdx=0). Built once at module load: a 2D star shape with 5
+  // outer points (radius 1.0) and 5 inner valleys (radius 0.4),
+  // extruded 0.3 along Z so it has depth at any camera angle.
+  const STAR_POINTS = 5;
+  const STAR_OUTER = 1.0;
+  const STAR_INNER = 0.4;
+  const starShape = new THREE.Shape();
+  for (let i = 0; i < STAR_POINTS * 2; i++) {
+    const r = i % 2 === 0 ? STAR_OUTER : STAR_INNER;
+    const a = (i / (STAR_POINTS * 2)) * Math.PI * 2 - Math.PI / 2;
+    const x = Math.cos(a) * r;
+    const y = Math.sin(a) * r;
+    if (i === 0) starShape.moveTo(x, y);
+    else starShape.lineTo(x, y);
+  }
+  starShape.closePath();
+  const starGeo = new THREE.ExtrudeGeometry(starShape, { depth: 0.3, bevelEnabled: false });
+  starGeo.translate(0, 0, -0.15);
+  starGeo.computeBoundingSphere();
 
   return {
     sphere: new THREE.SphereGeometry(1, SEG, SEG),
@@ -64,6 +86,8 @@ export function buildShapeGeometries() {
     torusKnot: new THREE.TorusKnotGeometry(0.55, 0.18, 64, 8),
     // Bipyramid (vertical diamond) — see geometry construction above.
     bipyramid: bipyramidGeo,
+    // 5-pointed extruded star — α-mode "Surprising" tier (ringIdx=0).
+    star: starGeo,
   };
 }
 
@@ -101,6 +125,7 @@ export function buildShapeEdgeGeometries(baseGeos) {
     dodecahedron: 1,
     icosahedron: 1,
     bipyramid: 1,     // 8 hard ridges — render every edge
+    star: 1,          // 10 outer + 10 inner edges — read as a star outline
   };
   const result = {};
   for (const [k, g] of Object.entries(baseGeos)) {

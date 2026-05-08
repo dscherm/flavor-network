@@ -14,19 +14,25 @@
  */
 import { useEffect, useRef } from 'react';
 
-const TIER_LABEL = { 3: '★★★', 2: '★★', 1: '★' };
+const TIER_LABEL = { 3: '★★★', 2: '★★', 1: '★', 0: 'Surprising' };
 const TIER_TONE = {
   3: 'border-yellow-400/40 text-yellow-200/95 bg-yellow-400/5 hover:bg-yellow-400/15',
   2: 'border-zinc-300/40 text-zinc-200/95 bg-zinc-300/5 hover:bg-zinc-300/15',
   1: 'border-amber-700/40 text-amber-200/85 bg-amber-700/5 hover:bg-amber-700/15',
+  0: 'border-fuchsia-500/40 text-fuchsia-200/95 bg-fuchsia-500/5 hover:bg-fuchsia-500/15',
 };
 const TIER_HEADER_TONE = {
   3: 'text-yellow-300',
   2: 'text-zinc-300',
   1: 'text-amber-500',
+  0: 'text-fuchsia-300',
 };
 
 function TierColumn({ tier, items, onPivot }) {
+  const titleFor = (aff) =>
+    tier === 0 && aff.bridge
+      ? `${aff.name} — bridged by ${aff.bridge}`
+      : `${aff.name} — strength ${aff.strength.toFixed(2)}`;
   return (
     <div className="flex-1 min-w-0">
       <div className={`text-[10px] uppercase tracking-widest font-semibold mb-2 flex items-baseline gap-1 ${TIER_HEADER_TONE[tier]}`}>
@@ -40,7 +46,7 @@ function TierColumn({ tier, items, onPivot }) {
             type="button"
             onClick={() => onPivot?.(aff.name)}
             className={`text-left px-2 py-1 rounded border text-xs font-medium transition truncate ${TIER_TONE[tier]}`}
-            title={`${aff.name} — strength ${aff.strength.toFixed(2)}`}
+            title={titleFor(aff)}
           >
             {aff.name}
           </button>
@@ -78,6 +84,7 @@ export default function AffinityPanel({ focal, affinities = [], onPivot, onClose
   const ring3 = affinities.filter((a) => a.ringIdx === 3);
   const ring2 = affinities.filter((a) => a.ringIdx === 2);
   const ring1 = affinities.filter((a) => a.ringIdx === 1);
+  const ring0 = affinities.filter((a) => a.ringIdx === 0);
 
   if (!affinities.length) return null;
 
@@ -102,6 +109,9 @@ export default function AffinityPanel({ focal, affinities = [], onPivot, onClose
         <TierColumn tier={3} items={ring3} onPivot={onPivot} />
         <TierColumn tier={2} items={ring2} onPivot={onPivot} />
         <TierColumn tier={1} items={ring1} onPivot={onPivot} />
+        {ring0.length > 0 && (
+          <TierColumn tier={0} items={ring0} onPivot={onPivot} />
+        )}
       </div>
     </div>
   );

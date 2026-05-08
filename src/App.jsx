@@ -37,6 +37,7 @@ import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
+import { MODE_CYCLE as NETWORK_MODE_CYCLE, MODE_LABELS as NETWORK_MODE_LABELS } from './data/networkModes.js';
 import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
@@ -74,6 +75,10 @@ export default function App() {
   const [moleculeLabPreset, setMoleculeLabPreset] = useState('');
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [exploreDropdownOpen, setExploreDropdownOpen] = useState(false);
+  // Desktop Network-button dropdown — same dual-role behavior as
+  // MobileTabBar's Network button: tap to switch tabs, tap when
+  // already on Network to open the 4-way mode selector.
+  const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false);
   const [livingMode, setLivingMode] = useState('ml');
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
@@ -419,20 +424,68 @@ export default function App() {
           Flavor Network
         </span>
         <div className="hidden sm:flex items-center gap-0.5 px-3 h-full">
-          {/* Network tab */}
-          <button
-            onClick={() => { setActiveTab('network'); setLabDropdownOpen(false); setExploreDropdownOpen(false); }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'network'
-                ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
-                : 'text-gray-500 hover:text-gray-300 border border-transparent'
-            }`}
-          >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-            </svg>
-            Network
-          </button>
+          {/* Network tab — also acts as the 3D/2D mode dropdown when
+              already on Network. Tap once to switch tabs; tap again
+              to open the 4-way mode list. */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                if (activeTab === 'network') {
+                  setNetworkDropdownOpen(v => !v);
+                  setLabDropdownOpen(false);
+                  setExploreDropdownOpen(false);
+                } else {
+                  setActiveTab('network');
+                  setNetworkDropdownOpen(false);
+                  setLabDropdownOpen(false);
+                  setExploreDropdownOpen(false);
+                }
+              }}
+              aria-haspopup="menu"
+              aria-expanded={networkDropdownOpen}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                activeTab === 'network'
+                  ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
+                  : 'text-gray-500 hover:text-gray-300 border border-transparent'
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+              </svg>
+              {activeTab === 'network' ? NETWORK_MODE_LABELS[livingMode] : 'Network'}
+              {activeTab === 'network' && (
+                <svg className={`w-3 h-3 transition-transform ${networkDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              )}
+            </button>
+            {networkDropdownOpen && activeTab === 'network' && (
+              <>
+                <div className="fixed inset-0 z-[59]" onClick={() => setNetworkDropdownOpen(false)} />
+                <div role="menu" aria-label="Network mode" className="absolute top-full left-0 mt-1 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
+                  {NETWORK_MODE_CYCLE.map((m) => (
+                    <button
+                      key={m}
+                      role="menuitem"
+                      onClick={() => { setLivingMode(m); setNetworkDropdownOpen(false); }}
+                      className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
+                        livingMode === m
+                          ? 'text-cyan-300 bg-cyan-500/10'
+                          : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                      }`}
+                    >
+                      {NETWORK_MODE_LABELS[m]}
+                      {livingMode === m && (
+                        <svg className="w-3 h-3 ml-auto text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
 
           {/* Labs dropdown */}
           <div className="relative">
@@ -1050,6 +1103,8 @@ export default function App() {
             if (tab === 'recipe') setRecipeMounted(true);
             setLabDropdownOpen(false);
           }}
+          networkMode={livingMode}
+          onNetworkModeChange={setLivingMode}
           onOpenProfile={() => setActiveTab('profile')}
           onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
         />

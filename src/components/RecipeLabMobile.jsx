@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import { getNeighbors } from '../data/graph.js';
 import { getCocktailScope, getSauceScope } from '../data/labScope.js';
+import { getCocktailRoles, getSauceRoles } from '../data/ingredientRoles.js';
 import AromaHexWheel from './AromaHexWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import IngredientSuggestionsPopout from './IngredientSuggestionsPopout.jsx';
@@ -43,6 +44,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   // ingredient. Single-ingredient REPLACE flow without the bottom
   // drawer's add/replace toggle.
   const [focusedIngredient, setFocusedIngredient] = useState(null);
+  // When the user taps the "Suggestions" row at the end of the
+  // notebook, the same popout opens in add-mode (no focal ingredient,
+  // ranks candidates by avg pair strength to the whole bowl).
+  const [suggestionsMode, setSuggestionsMode] = useState(false);
   // Transient handoff confirmation — fires when an explicit handoff
   // replaces the bowl, so the user understands their previous recipe
   // was cleared on purpose (and isn't lost to a bug).
@@ -110,13 +115,21 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   // Scope sets (cocktail / sauce) — lazy-loaded once, cached across mode switches.
   const [cocktailScope, setCocktailScope] = useState(null);
   const [sauceScope, setSauceScope] = useState(null);
+  // Role maps for slot-aware replace suggestions (Path C, 2026-05-08).
+  // Cocktail: 553 ingredients keyed to cocktails_v2 slot vocabulary.
+  // Sauce: 175 ingredients keyed to sauce_augment.codexRole vocabulary.
+  // General: computed at lookup time via ingredientRoles.getGeneralRole.
+  const [cocktailRoles, setCocktailRoles] = useState(null);
+  const [sauceRoles, setSauceRoles] = useState(null);
   useEffect(() => {
-    if (labMode === 'cocktail' && !cocktailScope) {
-      getCocktailScope().then(setCocktailScope).catch(() => setCocktailScope(new Set()));
-    } else if (labMode === 'sauce' && !sauceScope) {
-      getSauceScope().then(setSauceScope).catch(() => setSauceScope(new Set()));
+    if (labMode === 'cocktail') {
+      if (!cocktailScope) getCocktailScope().then(setCocktailScope).catch(() => setCocktailScope(new Set()));
+      if (!cocktailRoles) getCocktailRoles().then(setCocktailRoles).catch(() => setCocktailRoles({}));
+    } else if (labMode === 'sauce') {
+      if (!sauceScope) getSauceScope().then(setSauceScope).catch(() => setSauceScope(new Set()));
+      if (!sauceRoles) getSauceRoles().then(setSauceRoles).catch(() => setSauceRoles({}));
     }
-  }, [labMode, cocktailScope, sauceScope]);
+  }, [labMode, cocktailScope, sauceScope, cocktailRoles, sauceRoles]);
 
   // Ingredient list filtered by the current lab mode.
   // General mode → full proDataset. Cocktail/Sauce → only scope-appropriate ingredients.
@@ -406,12 +419,33 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
               labMode === 'sauce' ? sauceScope :
               null
             }
+            cocktailRoles={cocktailRoles}
+            sauceRoles={sauceRoles}
             labMode={labMode}
             onSwap={(target, newName) => {
               handleSwapIngredient(target, newName);
               setFocusedIngredient(null);
             }}
             onClose={() => setFocusedIngredient(null)}
+          />
+        ) : suggestionsMode ? (
+          <IngredientSuggestionsPopout
+            ingredient={null}
+            recipeIngredients={recipeIngredients}
+            nodes={fullData?.graph?.nodes}
+            edges={fullData?.graph?.edges}
+            scopeFilter={
+              labMode === 'cocktail' ? cocktailScope :
+              labMode === 'sauce' ? sauceScope :
+              null
+            }
+            cocktailRoles={cocktailRoles}
+            sauceRoles={sauceRoles}
+            labMode={labMode}
+            onAdd={(newName) => {
+              handleAddIngredient(newName);
+            }}
+            onClose={() => setSuggestionsMode(false)}
           />
         ) : (
           <AromaHexWheel
@@ -439,6 +473,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           onRecenter={handleRecenter}
           onFocusIngredient={(name) => {
             setFocusedIngredient(name);
+            setSuggestionsMode(false);
             // Collapse the bottom drawer so the user's attention is
             // entirely on the popout above.
             setDrawerSnap('peek');
@@ -446,6 +481,11 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           onRequestAdd={() => {
             searchInputRef.current?.focus();
             setSearchOpen(true);
+          }}
+          onRequestSuggestions={() => {
+            setSuggestionsMode(true);
+            setFocusedIngredient(null);
+            setDrawerSnap('peek');
           }}
           recipeTitle={recipeTitle}
           onTitleChange={setRecipeTitle}

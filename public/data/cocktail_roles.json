@@ -1,0 +1,2780 @@
+{
+  "description": "Slot/role lookup for cocktail ingredients. Used by Recipe Lab replace-mode to keep substitutions within the same structural slot.",
+  "vocabulary": [
+    "spirit",
+    "sour",
+    "sweet",
+    "vermouth",
+    "bitter",
+    "modifier",
+    "amaro_liqueur",
+    "aromatic"
+  ],
+  "byIngredient": {
+    "gin": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lemon juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lime juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "simple syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "dry vermouth": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "angostura bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "orange juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lemon": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "sweet vermouth": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "fresh lemon juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "sugar": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "grenadine": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ice": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "fresh lime juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "light rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lime": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "powdered sugar": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "maraschino liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "triple sec": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "amaretto": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lemon peel": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "orange bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "bourbon": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "kahlua": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "pineapple juice": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cognac": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "coffee": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "water": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "scotch": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "egg white": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "soda water": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "baileys irish cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "dark rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "tequila": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "campari": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "carbonated water": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "orange": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "rye": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "maraschino cherry": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "benedictine": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cranberry juice": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "mint": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "151 proof rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cherry": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "absinthe": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "apple brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "orange liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "green chartreuse": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "milk": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "grapefruit juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "light cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "peychauds bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "demerara gum syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "white rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blanco tequila": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "tonic water": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "sambuca": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "sugar syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "salt solution": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blanc vermouth": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "club soda": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "nutmeg": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ginger ale": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "coca-cola": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "orange peel": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "red wine": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "irish whiskey": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "honey syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "aperol": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cold seltzer": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lemonade": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blended whiskey": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "peach schnapps": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "sweet and sour": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "apricot brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "beer": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "chambord raspberry liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "calvados": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "champagne": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "pear brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "peach liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "lillet blanc": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "pisco": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 egg white": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cream": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "vanilla extract": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "creme de cassis": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 whole egg": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "grand marnier": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blue curacao": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cherry brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "port": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "elderflower cordial": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "honey": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "pineapple": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "egg": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "aromatic bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "dry champagne": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "fino sherry": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "mezcal": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cachaca": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "fresh orange juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ounce demerara gum syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounce heavy cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "creme de cacao": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "crown royal": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "midori melon liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "jagermeister": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cointreau": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ginger beer": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "malibu rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cloves": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lemon-lime soda": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "sherry": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cane sugar syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "white creme de menthe": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "amaro": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "mole bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "peated islay scotch": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 sugar cube": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cinnamon syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "amontillado sherry": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "absinthe for rinse": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "banana liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "old tom gin": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "elderflower liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "verjus blanc": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "fresh grapefruit juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blended scotch": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ginger syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "seltzer": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "dry curacao orange liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "yellow chartreuse": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cold prosecco": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "london dry gin": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 ounce white creme de cacao": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "4 ounces almond milk": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "apple juice": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "vermouth": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blackberry brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "goldschlager": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "galliano": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "prosecco": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "bacardi limon": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "everclear": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "southern comfort": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "sour mix": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "spiced rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "falernum": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "wine": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "sprite": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "olive": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "pepper": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "whiskey": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "coffee liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "strawberries": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "tabasco sauce": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "orange spiral": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "cinnamon": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "anis": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "whipped cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "kool-aid": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "tomato juice": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "orgeat syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "7-up": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "salt": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "root beer": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "rye whiskey": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "amaro nonino": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "rhum agricole blanc": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "celery bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "vanilla liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "white creme de cacao": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "white mint liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "reposado tequila": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "pear liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "dry sack sherry": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "apricot liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "china-china amer bittersweet liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "suze gentian liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "4 mint leaves": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "5 mint leaves": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "vanilla lactic syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "manzanilla sherry": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cold cola": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "bitter red aperitif": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "citric acid solution": {
+      "role": "sour",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cold dry sparkling wine": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounces cognac": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 ounce cognac": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ounce simple syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 teaspoon vanilla liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "ounce cane sugar syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "ounce heavy cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "2 drops lactic acid solution": {
+      "role": "sour",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 drop salt solution": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "ounce dark robust maple syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounce coffee liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "2 ounces heavy cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "ounce brown butter-infused apple brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "05 oz simple syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "heavy cream": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "applejack": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "irish cream": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cherry heering": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "corona": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "surge": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "sloe gin": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "vanilla ice-cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "lager": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "egg yolk": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "chocolate liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "peach bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "fruit punch": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "hot damn": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "tea": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blackberries": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "ginger": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "half-and-half": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "jack daniels": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "schweppes russchian": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "drambuie": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "coconut liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "worcestershire sauce": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "pepsi cola": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "mango": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "frangelico": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "rosemary syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "rosemary": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "raspberry syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "creme de banane": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "apple": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "agave syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "zima": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "fernet-branca": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "bourbon whiskey": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "raisin-infused scotch": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "rainwater madeira": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "amaro meletti": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cacao nib-infused amaro": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "toasted pecan bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "coconut-infused bourbon": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "spiced almond demerara gum syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cardamom-infused elderflower liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "raisin honey syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "castillian bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "sesame-infused rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "solera sherry": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "bonded apple brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "bas-armagnac": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "peated scotch": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "dark maple syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cocoa butter-infused vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "amburana cachaca": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "pineapple gum syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "armagnac": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "gentian liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "grapefruit bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "champagne acid solution": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "jamaican pot still gold rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "phosphoric acid solution": {
+      "role": "sour",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cacao nib-infused pear brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "absinthe for rinsing the glass": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "sour cherry-infused rye": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "absinthe as seasoning": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "douglas fir brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "white honey syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "root beer-infused americano aperitif": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "orange marmalade": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "house orange bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blood orange-infused sweet vermouth": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "aviation gin or a spicy contemporary gin": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "amaro ramazzotti": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "strega liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "watercress-infused gin": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "clarified strawberry syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cacao nib tincture": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "dry unoaked chardonnay": {
+      "role": "amaro_liqueur",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "meyer lemon zest": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "berry liqueur creme yvette": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "singani": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "3 slices cucumber": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "aged rhum agricole": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "pineau des charentes": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "jamaican rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "orgeat": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "basil stem syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "12 mandarin orange": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "1 whole lime muddled": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "dry sparkling wine": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "aged rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "6 mint leaves": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "orange flower water": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "wheat beer": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "simple syrup increased amount": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "jamaican reserve blend rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "amaro specifically montenegro": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "grapefruit liqueur creme de pamplemousse": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "lillet rose": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "peated islay scotch used as seasoning": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 muddled peach wedge": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "pinot noir grappa": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "limoncello": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "absinthe 2 dashes": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "chamomile-infused rye whiskey": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "reserve blend rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "americano bianco": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "puerto fino sherry": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "grand marnier orange liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "pinch of salt": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "amaro specifically nonino": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "strawberry cream syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "long island iced tea": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "grapefruit liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cold grapefruit soda": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "citric acid solution if needed": {
+      "role": "sour",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cold tonic water": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "house grenadine": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "herbal liqueur galliano": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "basic bloody mary mix": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "jalapeno-infused vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "clarified orange juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "orange extract": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "aquavit": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "normandie club bloody mary mix": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "fresh peach puree": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "apple celery soda": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cold dry champagne": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "gentian liqueur suze": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "normandy sparkling apple cider": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "crisp white or rose wine": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "optional fresh lemon juice simple syrup": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "birch-infused sweet vermouth": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cold cava": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "spirit base vermouth brandy or tequilapisco": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "clarified juices cucumber lime or grapefruit": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "co2": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "co2 bottle": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "ounce rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ounce cognac": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 ounce bourbon": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 egg yolk": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounces tea-infused apple brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "teaspoon maraschino liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounces scotch": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ounce artichoke-based amaro": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "12 coffee beans": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 orange half wheel": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "strawberry": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "ounce amaro": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 teaspoon dry curacao": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "ounce coconut cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 dash bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 ounces vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 ounce half-and-half": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 ounces irish whiskey": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "3 ounces hot brewed coffee": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounce white creme de menthe": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "8 mint leaves": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounce rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "2 ounces hot milk": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounce herbal liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "2 ounces white rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ounce black strap rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 ounces fresh pineapple juice": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounces coconut cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounce vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 ounces irish cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "3 scoops vanilla or coffee ice cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounce toasted pecan-infused rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 ounce pedro ximenez sherry": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "3 drops salt solution": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "ounce 7-year rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ounce spiced almond demerara gum syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 ounce cachaca": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ounce cacao nib tincture": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "ounce vanilla liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "2 oz dark rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "2 oz light rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "2 oz passion fruit puree": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "1 oz orange juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 oz lime juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "05 oz grenadine": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "15 oz gin": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "05 oz cherry heering": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "025 oz benedictine": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "025 oz cointreau": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "4 oz pineapple juice": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "05 oz lime juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "033 oz grenadine": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 dash angostura bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "soda water top": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "2 oz pimms no 1": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "4 oz ginger ale or lemonade": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 lemon wedge": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 cucumber spear": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "70ml2fl oz vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "1 tbsp dry vermouth": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "2 tbsp olive brine": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "1 wedge lemon": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "2 oz bourbon": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "2 dashes angostura bitters": {
+      "role": "bitter",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "splash of water": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "2 oz gin": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "05 oz dry vermouth": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "2 oz white rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "075 oz lime juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "2 oz cognac": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "075 oz orange liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "075 oz lemon juice": {
+      "role": "sour",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "2 oz hakushu 12-yr japanese whisky": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "4 oz cold seltzer": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "2 oz sherry": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "025 oz gum syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "absolut vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "strawberry schnapps": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "pisang ambon": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "peach nectar": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "creme de mure": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "hot chocolate": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "wormwood": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "mountain dew": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "anejo rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blackstrap rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "vanilla": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "caramel coloring": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cider": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "blackcurrant cordial": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "demerara sugar": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "pineapple syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "st germain": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lavender": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "dubonnet rouge": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "rose": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "figs": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "thyme": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "apricot nectar": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "pomegranate juice": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lillet": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "firewater": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "absolut peppar": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "dr pepper": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "sarsaparilla": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "peach vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "sirup of roses": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "whisky": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cherry juice": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "red chili flakes": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "corn syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "iced tea": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "condensed milk": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "coconut syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "chocolate syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "peach brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "guinness stout": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "tennessee whiskey": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "grain alcohol": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "kiwi liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "bitter lemon": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "absolut kurant": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cranberry vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "apfelkorn": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "tia maria": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "hot sauce": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "soy sauce": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "ricard": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "pina colada mix": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "daiquiri mix": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cucumber": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cocoa powder": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "absolut citron": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "oreo cookie": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "butterscotch schnapps": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "orange curacao": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "islay single malt scotch": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "coconut milk": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "passoa": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "passion fruit syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cherry liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "green creme de menthe": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "pink lemonade": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "coffee brandy": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lime vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "black sambuca": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "raspberry vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "lime peel": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "amaro montenegro": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "ruby port": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "blood orange": {
+      "role": "sour",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "allspice": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "advocaat": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "godiva liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "anisette": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cherries": {
+      "role": "sweet",
+      "confidence": "low",
+      "source": "slot-csv"
+    },
+    "fresca": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "brown sugar": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "rosso vermouth": {
+      "role": "vermouth",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "melon liqueur": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "maple syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "grape juice": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "white wine": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "cream of coconut": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "peachtree schnapps": {
+      "role": "amaro_liqueur",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "gold rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "pernod": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "curacao": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "celery salt": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "black pepper": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cynar": {
+      "role": "amaro_liqueur",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "aguardiente": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "cola": {
+      "role": "modifier",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "basil leaves": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "overproof white rum": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "demerara syrup": {
+      "role": "sweet",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "mint leaves": {
+      "role": "aromatic",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "vanilla vodka": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "red chili pepper": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "grappa": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "chamomile cordial": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "slot-csv"
+    },
+    "scotch whisky": {
+      "role": "spirit",
+      "confidence": "high",
+      "source": "slot-csv"
+    },
+    "chartreuse": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "st-germain": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "peychaud's bitters": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "chocolate bitters": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "coconut cream": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "creme de menthe": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "ouzo": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "vanilla syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "mint syrup": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "espresso": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "passion fruit juice": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "rhum agricole": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "genever": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "shochu": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "baijiu": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "sotol": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "eau de vie": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "soju": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "arrack": {
+      "role": "spirit",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "velvet falernum": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "allspice dram": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "creme de violette": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "suze": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "fernet branca": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "licor 43": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "pimm's": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "coconut water": {
+      "role": "modifier",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "oleo saccharum": {
+      "role": "sweet",
+      "confidence": "medium",
+      "source": "augment"
+    },
+    "saline solution": {
+      "role": "aromatic",
+      "confidence": "medium",
+      "source": "augment"
+    }
+  }
+}

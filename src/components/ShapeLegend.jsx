@@ -113,6 +113,23 @@ function ShapeIcon({ shape, color = 'currentColor' }) {
           <line x1="3" y1={c} x2={s - 3} y2={c} stroke={color} strokeWidth="0.8" strokeDasharray="2 2" />
         </svg>
       );
+    case 'star': {
+      // 5-point star matching the 3D extruded star geometry. Outer
+      // points at radius (s/2 - 1), inner valleys at 40% of that.
+      const outer = s / 2 - 1;
+      const inner = outer * 0.4;
+      const pts = [];
+      for (let i = 0; i < 10; i++) {
+        const r = i % 2 === 0 ? outer : inner;
+        const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+        pts.push(`${(c + Math.cos(a) * r).toFixed(2)},${(c + Math.sin(a) * r).toFixed(2)}`);
+      }
+      return (
+        <svg width={s} height={s} aria-hidden="true">
+          <polygon points={pts.join(' ')} fill="none" stroke={color} strokeWidth="1.4" strokeLinejoin="round" />
+        </svg>
+      );
+    }
     default:
       return null;
   }

@@ -27,13 +27,15 @@
  */
 
 import * as THREE from 'three';
-import { topAffinities } from '../data/affinityTiers.js';
+import { topAffinities, surprisingAffinities } from '../data/affinityTiers.js';
 import { makeLabel } from '../components/livingArchUtils.js';
 import { affinityShape } from '../data/affinityShapes.js';
 import { buildShapeGeometries } from './Geometries.js';
 
 // Ring radii in 3D scene units. Spec § α-mode visual layout.
-const RADII = { 3: 12, 2: 22, 1: 35 };
+// Ring 0 (Surprising) sits OUTSIDE ring 1 — molecularly-bridged but
+// corpus-untiered candidates orbit at the periphery.
+const RADII = { 3: 12, 2: 22, 1: 35, 0: 48 };
 
 // Golden angle (φ ≈ 137.5°) — distributes ring slots so adjacent
 // positions aren't cluster-correlated.
@@ -44,8 +46,9 @@ const TIER_COLOR = {
   3: new THREE.Color(0xfacc15), // gold
   2: new THREE.Color(0xa3a3a3), // silver
   1: new THREE.Color(0xa16207), // bronze
+  0: new THREE.Color(0xe879f9), // fuchsia — Surprising
 };
-const TIER_OPACITY = { 3: 0.9, 2: 0.7, 1: 0.5 };
+const TIER_OPACITY = { 3: 0.9, 2: 0.7, 1: 0.5, 0: 0.55 };
 
 // Dim color applied to non-affinity instances of the shared default
 // mesh. Matches the existing `dimColor` used by cluster-focus mode
@@ -64,8 +67,11 @@ const AFFINITY_SPHERE_RADIUS = 1.2;
 // which node is the active pivot point.
 const FOCAL_SCALE_BOOST = 1.6;
 
-// Per-role slot capacity, must sum to 30 affinities (+1 focal).
-const RING_CAPACITY = { 3: 5, 2: 10, 1: 15 };
+// Per-role slot capacity. ★★★/★★/★ sum to 30; Surprising adds up
+// to 8 outer-ring slots so the total raycast budget is 38 affinities
+// (+1 focal). Edge buffer below sized for TOTAL_RING_CAPACITY.
+const RING_CAPACITY = { 3: 5, 2: 10, 1: 15, 0: 8 };
+const TOTAL_RING_CAPACITY = RING_CAPACITY[3] + RING_CAPACITY[2] + RING_CAPACITY[1] + RING_CAPACITY[0];
 const FOCAL_CAPACITY = 1;
 
 // Performance budget — warn if engage / pivot exceed.
@@ -118,6 +124,7 @@ export class AffinityMode {
       affinityShape(3),
       affinityShape(2),
       affinityShape(1),
+      affinityShape(0),
     ]);
     // Dispose unused master geometries — we own clones below.
     for (const [k, g] of Object.entries(baseGeos)) {
@@ -146,12 +153,14 @@ export class AffinityMode {
     this.ring3Mesh = makeMesh(baseGeos[affinityShape(3)], RING_CAPACITY[3]);
     this.ring2Mesh = makeMesh(baseGeos[affinityShape(2)], RING_CAPACITY[2]);
     this.ring1Mesh = makeMesh(baseGeos[affinityShape(1)], RING_CAPACITY[1]);
+    this.ring0Mesh = makeMesh(baseGeos[affinityShape(0)], RING_CAPACITY[0]);
 
-    // Map ringIdx → { mesh, capacity } for the per-frame writer.
+    // Map ringIdx → mesh for the per-frame writer.
     this._ringMeshes = {
       3: this.ring3Mesh,
       2: this.ring2Mesh,
       1: this.ring1Mesh,
+      0: this.ring0Mesh,
     };
 
     // Back-compat: the perf test inspects `affinityMesh.count`; alias
@@ -165,12 +174,14 @@ export class AffinityMode {
     stateRef.scene.add(this.ring3Mesh);
     stateRef.scene.add(this.ring2Mesh);
     stateRef.scene.add(this.ring1Mesh);
+    stateRef.scene.add(this.ring0Mesh);
 
-    // Edge BufferGeometry — 30 line segments from focal (origin) to
-    // each affinity sphere. 60 vertices × 3 floats each. Per-vertex
-    // color so each segment gets its tier color.
-    const edgePositions = new Float32Array(60 * 3);
-    const edgeColors = new Float32Array(60 * 3);
+    // Edge BufferGeometry — TOTAL_RING_CAPACITY line segments from
+    // focal (origin) to each affinity sphere. 2*TOTAL vertices × 3
+    // floats each. Per-vertex color so each segment gets its tier
+    // color.
+    const edgePositions = new Float32Array(TOTAL_RING_CAPACITY * 2 * 3);
+    const edgeColors = new Float32Array(TOTAL_RING_CAPACITY * 2 * 3);
     this.edgeGeo = new THREE.BufferGeometry();
     this.edgeGeo.setAttribute(
       'position',
@@ -223,7 +234,7 @@ export class AffinityMode {
    */
   getRaycastMeshes() {
     if (!this._engaged) return [];
-    return [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh];
+    return [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh, this.ring0Mesh];
   }
 
   /**
@@ -353,6 +364,7 @@ export class AffinityMode {
     if (this.ring3Mesh) this.ring3Mesh.visible = false;
     if (this.ring2Mesh) this.ring2Mesh.visible = false;
     if (this.ring1Mesh) this.ring1Mesh.visible = false;
+    if (this.ring0Mesh) this.ring0Mesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
     // Clear label sprites to release canvas textures.
@@ -412,6 +424,7 @@ export class AffinityMode {
     if (this.ring3Mesh) this.ring3Mesh.visible = false;
     if (this.ring2Mesh) this.ring2Mesh.visible = false;
     if (this.ring1Mesh) this.ring1Mesh.visible = false;
+    if (this.ring0Mesh) this.ring0Mesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
     const st = this.stateRef;
@@ -475,7 +488,7 @@ export class AffinityMode {
    */
   dispose() {
     const st = this.stateRef;
-    const meshes = [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh];
+    const meshes = [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh, this.ring0Mesh];
     if (st && st.scene) {
       for (const m of meshes) {
         if (m) st.scene.remove(m);
@@ -501,6 +514,7 @@ export class AffinityMode {
     this.ring3Mesh = null;
     this.ring2Mesh = null;
     this.ring1Mesh = null;
+    this.ring0Mesh = null;
     this._ringMeshes = null;
     this.affinityMesh = null;
     this._sharedMaterial = null;
@@ -533,7 +547,17 @@ export class AffinityMode {
       return;
     }
 
-    const affinities = topAffinities(focal, this.ctx);
+    const tiered = topAffinities(focal, this.ctx);
+    // Append surprising candidates as ring 0. The Surprising tier is
+    // bridged-but-corpus-untiered (strength below ★) so the
+    // surprisingAffinities helper applies its own filtering — we just
+    // tack the result onto the same list the renderer iterates.
+    const surprising = surprisingAffinities(focal, this.ctx, { N: RING_CAPACITY[0] });
+    // Drop dupes that already appeared as a tiered affinity (cheap;
+    // surprising lists are ≤ 8).
+    const tieredNames = new Set(tiered.map((a) => a.name));
+    const dedupedSurprising = surprising.filter((a) => !tieredNames.has(a.name));
+    const affinities = [...tiered, ...dedupedSurprising];
     this._currentAffinities = affinities;
 
     // R14 Phase 5: focal is now drawn by `focalMesh` (a dodecahedron
@@ -571,7 +595,7 @@ export class AffinityMode {
       AFFINITY_SPHERE_RADIUS,
     );
     const zeroS = new THREE.Vector3(0, 0, 0);
-    const slotCounter = { 3: 0, 2: 0, 1: 0 };
+    const slotCounter = { 3: 0, 2: 0, 1: 0, 0: 0 };
     // Pre-fill ALL ring slots as collapsed (scale=0); the loop below
     // overwrites occupied slots. This guarantees no stale matrices
     // survive a pivot when an affinity count drops below capacity.
@@ -579,7 +603,7 @@ export class AffinityMode {
     // Also reset the per-mesh slot→global-idx map so click resolution
     // (livingArchView's affinity-aware raycaster) sees -1 for any
     // unoccupied slot rather than a stale ingredient from a prior pivot.
-    for (const ringIdx of [3, 2, 1]) {
+    for (const ringIdx of [3, 2, 1, 0]) {
       const mesh = this._ringMeshes[ringIdx];
       const cap = RING_CAPACITY[ringIdx];
       for (let s = 0; s < cap; s++) {
@@ -620,7 +644,7 @@ export class AffinityMode {
         mesh.userData.slotToGlobalIdx[slot] = affGlobalIdx;
       }
     }
-    for (const ringIdx of [3, 2, 1]) {
+    for (const ringIdx of [3, 2, 1, 0]) {
       const mesh = this._ringMeshes[ringIdx];
       mesh.instanceMatrix.needsUpdate = true;
       mesh.instanceColor.needsUpdate = true;
@@ -630,7 +654,7 @@ export class AffinityMode {
     // ─── 2. Edge buffer (focal → each affinity) ───
     const posAttr = this.edgeGeo.attributes.position;
     const colAttr = this.edgeGeo.attributes.color;
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < TOTAL_RING_CAPACITY; i++) {
       const o = i * 6;
       // Source vertex = focal position (always).
       posAttr.array[o]     = cx;

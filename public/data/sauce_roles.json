@@ -1,0 +1,894 @@
+{
+  "description": "Role lookup for sauce ingredients. Used by Recipe Lab replace-mode to keep substitutions within the same structural role (fat, acid, dairy, thickener, etc).",
+  "vocabulary": [
+    "base",
+    "liquid",
+    "thickener",
+    "aromatic",
+    "acid",
+    "seasoning",
+    "accent",
+    "umami",
+    "heat",
+    "other",
+    "spice",
+    "protein"
+  ],
+  "byIngredient": {
+    "butter": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "clarified butter": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "ghee": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "olive oil": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "sesame oil": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "peanut oil": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "vegetable oil": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "coconut oil": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "lard": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "palm oil": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "chicken stock": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "veal stock": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "beef stock": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "fish stock": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "dashi": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "milk": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "cream": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "coconut milk": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "white wine": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "red wine": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "madeira wine": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "water": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "sake": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "mirin": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "shaoxing wine": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "yogurt": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "flour": {
+      "role": "thickener",
+      "category": "Thickener",
+      "source": "augment"
+    },
+    "cornstarch": {
+      "role": "thickener",
+      "category": "Thickener",
+      "source": "augment"
+    },
+    "egg yolk": {
+      "role": "thickener",
+      "category": "Thickener",
+      "source": "augment"
+    },
+    "tapioca starch": {
+      "role": "thickener",
+      "category": "Thickener",
+      "source": "augment"
+    },
+    "arrowroot": {
+      "role": "thickener",
+      "category": "Thickener",
+      "source": "augment"
+    },
+    "onion": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "garlic": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "shallot": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "ginger": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "lemongrass": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "galangal": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "celery": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "carrot": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "scallion": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "leek": {
+      "role": "aromatic",
+      "category": "Aromatic",
+      "source": "augment"
+    },
+    "lemon juice": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "lime juice": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "white wine vinegar": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "red wine vinegar": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "rice vinegar": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "balsamic vinegar": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "tamarind": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "tomato": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "yuzu": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "tomatillo": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "salt": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "black pepper": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "white pepper": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "nutmeg": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "cumin": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "coriander": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "turmeric": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "paprika": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "smoked paprika": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "cayenne": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "cinnamon": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "clove": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "star anise": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "fenugreek": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "cardamom": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "allspice": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "sichuan peppercorn": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "five-spice powder": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "garam masala": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "mustard seed": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "parsley": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "thyme": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "bay leaf": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "tarragon": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "basil": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "oregano": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "cilantro": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "mint": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "chervil": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "rosemary": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "sage": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "dill": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "kaffir lime leaf": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "curry leaf": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "epazote": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "thai basil": {
+      "role": "accent",
+      "category": "Herb",
+      "source": "augment"
+    },
+    "anchovy": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "fish sauce": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "soy sauce": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "oyster sauce": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "miso": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "bonito flakes": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "shrimp paste": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "meat glaze": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "parmesan": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "gruyere": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "cheddar": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "dried shrimp": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "doubanjiang": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "gochujang": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "ground beef": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "pancetta": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "guanciale": {
+      "role": "umami",
+      "category": "Protein",
+      "source": "augment"
+    },
+    "dried red chili": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "gochugaru": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "chipotle": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "ancho chili": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "guajillo chili": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "habanero": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "jalapeno": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "thai chili": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "scotch bonnet": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "chili flake": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "aji amarillo": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "pasilla chili": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "tomato paste": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "tomato puree": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "mango": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "peanut": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "tahini": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "dijon mustard": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "honey": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "brown sugar": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "palm sugar": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "jaggery": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "capers": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "olives": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "cornichons": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "chocolate": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "plantain": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "roasted red pepper": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "almond": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "sesame seed": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "hoisin sauce": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "black bean paste": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "curry paste green": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "curry paste red": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "curry powder": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "berbere spice": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "suya spice": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "worcestershire sauce": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "ketchup": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "cucumber": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "sour cream": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "mayonnaise": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "buttermilk": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "crayfish": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "poppy seed": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "sugar": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "demi-glace": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "beurre blanc": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "aioli": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "sriracha": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "sambal oelek": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "harissa": {
+      "role": "heat",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "pesto": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "chimichurri": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "beurre monte": {
+      "role": "base",
+      "category": "Fat",
+      "source": "augment"
+    },
+    "veloute": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "roux": {
+      "role": "thickener",
+      "category": "Thickener",
+      "source": "augment"
+    },
+    "fumet": {
+      "role": "liquid",
+      "category": "Liquid",
+      "source": "augment"
+    },
+    "remoulade": {
+      "role": "other",
+      "category": "Other",
+      "source": "augment"
+    },
+    "ponzu": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "nuoc cham": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "nam jim": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "caraway": {
+      "role": "spice",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "doenjang": {
+      "role": "seasoning",
+      "category": "Other",
+      "source": "augment"
+    },
+    "shito": {
+      "role": "seasoning",
+      "category": "Chili",
+      "source": "augment"
+    },
+    "berbere": {
+      "role": "seasoning",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "toum": {
+      "role": "base",
+      "category": "Other",
+      "source": "augment"
+    },
+    "sumac": {
+      "role": "acid",
+      "category": "Seasoning",
+      "source": "augment"
+    },
+    "pomegranate molasses": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "preserved lemon": {
+      "role": "acid",
+      "category": "Acid",
+      "source": "augment"
+    },
+    "kombu": {
+      "role": "protein",
+      "category": "Other",
+      "source": "augment"
+    }
+  }
+}
