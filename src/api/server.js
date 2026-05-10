@@ -7,13 +7,16 @@
  * Run: node src/api/server.js
  */
 
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import Fuse from 'fuse.js';
+import multer from 'multer';
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { scrapeRecipe } from '../data/recipeScraper.js';
+import { extractRecipe } from './recipeImport.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -536,6 +539,40 @@ app.post('/api/recipe/scrape', async (req, res) => {
     const message = err.message || 'Failed to scrape recipe.';
     const status = message.includes('HTTP') ? 502 : 500;
     res.status(status).json({ error: message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/recipe/import
+// Multipart upload of a single image or PDF → Gemini 2.5 Flash → returns
+// a StructuredRecipe { title, ingredients[], instructions[], time?, ... }.
+// Heuristic partial draft is returned (status 200 + partial:true) when
+// Gemini fails, so the client can still show an editable form.
+// ---------------------------------------------------------------------------
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+});
+
+app.post('/api/recipe/import', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Missing "file" field' });
+    }
+    const { buffer, mimetype, size } = req.file;
+    if (size === 0) {
+      return res.status(400).json({ error: 'Empty file' });
+    }
+    const recipe = await extractRecipe(buffer, mimetype);
+    res.json(recipe);
+  } catch (err) {
+    if (err.code === 'NO_API_KEY') {
+      return res.status(503).json({
+        error: 'Recipe import is not configured. Set GEMINI_API_KEY in .env (see .env.example) and restart the API server.',
+      });
+    }
+    const status = err.message?.includes('limit') ? 413 : 500;
+    res.status(status).json({ error: err.message || 'Recipe import failed.' });
   }
 });
 

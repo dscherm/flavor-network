@@ -38,6 +38,30 @@ const SPIRIT_PATTERNS = [
 ];
 
 const DEFAULT_SHAPE = 'torusKnot';
+const DEFAULT_SPIRIT = 'other';
+
+/**
+ * Returns the dominant base spirit string (e.g. 'gin', 'whiskey') so
+ * it can drive filter chips in the Browse view. Mirrors
+ * cocktailBaseSpiritShape but returns the spirit name instead of the
+ * shape token.
+ * @param {Array<string|{name?:string, raw?:string}>} ingredientsRaw
+ * @returns {string} one of: tequila, gin, rum, vodka, whiskey,
+ *                   liqueur, vermouth, wine, other
+ */
+export function cocktailBaseSpirit(ingredientsRaw) {
+  if (!Array.isArray(ingredientsRaw) || ingredientsRaw.length === 0) {
+    return DEFAULT_SPIRIT;
+  }
+  const text = ingredientsRaw
+    .map((i) => (typeof i === 'string' ? i : (i?.name || i?.raw || '')))
+    .join(' | ')
+    .toLowerCase();
+  for (const { rx, spirit } of SPIRIT_PATTERNS) {
+    if (rx.test(text)) return spirit;
+  }
+  return DEFAULT_SPIRIT;
+}
 
 /**
  * @param {Array<string|{name?:string, raw?:string}>} ingredientsRaw

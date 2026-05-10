@@ -13,6 +13,7 @@ import {
   getTopByFrequency,
 } from '../data/frequencyWeights.js';
 import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
+import RecipeImport from './RecipeImport.jsx';
 
 function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, onLogin, onLoginWithApple, onLogout, onReplayTour }) {
   const [tab, setTab] = useState('ingredients');
@@ -232,13 +233,18 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
           )
         )}
 
-        {/* Recipes list */}
+        {/* Recipes list — with PDF / photo importer above */}
         {tab === 'recipes' && (
-          <RecipeList
-            recipes={profile.recipes}
-            onRemove={actions.removeRecipe}
-            onLoad={onLoadRecipe}
-          />
+          <>
+            <RecipeImport
+              onSave={(name, ingredients) => actions.addRecipe(name, ingredients)}
+            />
+            <RecipeList
+              recipes={profile.recipes}
+              onRemove={actions.removeRecipe}
+              onLoad={onLoadRecipe}
+            />
+          </>
         )}
 
         {/* Insights tab */}

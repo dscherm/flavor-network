@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import NetworkScene from './NetworkScene.jsx';
 import SauceDetailPanel from './SauceDetailPanel.jsx';
+import SauceBrowse from './SauceBrowse.jsx';
 import {
   loadSauceCodex,
   computeSauceCodexPositions,
@@ -32,6 +33,9 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
   const [filterCuisine, setFilterCuisine] = useState(null);
   // Camera fly-to target for the family fly-wheel (R10-66).
   const [flyToTarget, setFlyToTarget] = useState(null);
+  // Explore = the 3D NetworkScene (existing). Browse = 2D mini-map +
+  // sectioned list. Detail panel + selection state are shared.
+  const [viewMode, setViewMode] = useState('explore');
 
   useEffect(() => {
     let cancelled = false;
@@ -248,26 +252,60 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
 
   return (
     <>
-      <NetworkScene
-        data={codexData}
-        onNodeClick={handleNodeClick}
-        onNodeHover={() => {}}
-        selectedNode={selectedSauce}
-        selectedNodes={selectedSauce ? [selectedSauce] : []}
-        showEdges={true}
-        showParticles={true}
-        filterCuisine=""
-        filterTaste=""
-        profileWeights={null}
-        treeFilterIngredients={combinedFilterNames}
-        sceneExtras={sceneExtras}
-        showNodeLabels={true}
-        labelNodeNames={familyFilteredNames}
-        flyToTarget={flyToTarget}
-        shapeAssignments={shapeAssignments}
-        scaleMultiplier={3.0}
-        centroidAdapter={sauceCentroidAdapter}
-      />
+      {/* Explore (3D) ↔ Browse (2D) toggle. Same pattern as
+          CocktailLabV2; lab-local state. */}
+      <div className="fixed top-10 left-1/2 -translate-x-1/2 z-40 flex items-center gap-0.5 p-0.5 rounded-lg bg-[#12121a]/95 backdrop-blur-md border border-[#1e1e2e]">
+        {[
+          { id: 'explore', label: 'Explore (3D)' },
+          { id: 'browse',  label: 'Browse (2D)' },
+        ].map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            onClick={() => setViewMode(m.id)}
+            className={`px-3 py-1 text-[11px] font-medium rounded-md transition-colors ${
+              viewMode === m.id
+                ? 'bg-cyan-500/15 text-cyan-200 border border-cyan-400/40'
+                : 'text-gray-400 hover:text-gray-200 border border-transparent'
+            }`}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+
+      {viewMode === 'explore' ? (
+        <NetworkScene
+          data={codexData}
+          onNodeClick={handleNodeClick}
+          onNodeHover={() => {}}
+          selectedNode={selectedSauce}
+          selectedNodes={selectedSauce ? [selectedSauce] : []}
+          showEdges={true}
+          showParticles={true}
+          filterCuisine=""
+          filterTaste=""
+          profileWeights={null}
+          treeFilterIngredients={combinedFilterNames}
+          sceneExtras={sceneExtras}
+          showNodeLabels={true}
+          labelNodeNames={familyFilteredNames}
+          flyToTarget={flyToTarget}
+          shapeAssignments={shapeAssignments}
+          scaleMultiplier={3.0}
+          centroidAdapter={sauceCentroidAdapter}
+        />
+      ) : (
+        <SauceBrowse
+          codexData={codexData}
+          selectedSauce={selectedSauce}
+          onSelectSauce={(name) => setSelectedSauce(name)}
+          filterFamily={filterFamily}
+          onFilterFamily={setFilterFamily}
+          filterCuisine={filterCuisine}
+          onFilterCuisine={setFilterCuisine}
+        />
+      )}
 
       {selectedSauce && (
         <SauceDetailPanel
@@ -295,33 +333,34 @@ export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
         </div>
       )}
 
-      {/* Mother-sauce fly-wheel — bottom-center pill strip. Tap a
-          family to filter the codex AND fly the camera to its
-          centroid (NetworkScene auto-flies on treeFilterIngredients). */}
-      <ClusterJoystick
-        clusters={codexData.codex.clusters}
-        mode="ml"
-        focusedClusterId={filterFamily}
-        onClusterFocus={(id) => setFilterFamily(id)}
-        onFlyTo={(family) => {
-          const pos = familyCentroids?.get(family.id);
-          if (!pos) return;
-          setFlyToTarget({
-            position: pos,
-            memberCount: familyMemberCount?.get(family.id) || 1,
-            ts: Date.now(),
-          });
-        }}
-      />
+      {/* ClusterJoystick + ShapeLegend are 3D-scene affordances —
+          Browse view has its own family bubbles + cuisine chips. */}
+      {viewMode === 'explore' && (
+        <ClusterJoystick
+          clusters={codexData.codex.clusters}
+          mode="ml"
+          focusedClusterId={filterFamily}
+          onClusterFocus={(id) => setFilterFamily(id)}
+          onFlyTo={(family) => {
+            const pos = familyCentroids?.get(family.id);
+            if (!pos) return;
+            setFlyToTarget({
+              position: pos,
+              memberCount: familyMemberCount?.get(family.id) || 1,
+              ts: Date.now(),
+            });
+          }}
+        />
+      )}
 
-      {/* Shape legend — collapsible, top-right. Maps the 8 cuisine
-          buckets to their geometries so users can read the 3D scene. */}
-      <ShapeLegend
-        title="Cuisine shapes"
-        legend={SAUCE_SHAPE_LEGEND}
-        selectedKey={filterCuisine}
-        onSelect={setFilterCuisine}
-      />
+      {viewMode === 'explore' && (
+        <ShapeLegend
+          title="Cuisine shapes"
+          legend={SAUCE_SHAPE_LEGEND}
+          selectedKey={filterCuisine}
+          onSelect={setFilterCuisine}
+        />
+      )}
     </>
   );
 }

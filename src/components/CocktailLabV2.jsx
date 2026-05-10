@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import NetworkScene from './NetworkScene.jsx';
 import CocktailDetailPanel from './CocktailDetailPanel.jsx';
+import CocktailBrowse from './CocktailBrowse.jsx';
 import {
   loadCodexV2,
   placeCocktailInFamily,
@@ -31,6 +32,10 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
   const [filterFamily, setFilterFamily] = useState(null);
   const [filterSpirit, setFilterSpirit] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
+  // Explore = the 3D NetworkScene cluster view (existing behavior).
+  // Browse = the 2D mini-map + filterable list view (new). Detail
+  // panel + cocktail selection state are shared across both modes.
+  const [viewMode, setViewMode] = useState('explore');
 
   useEffect(() => {
     let cancelled = false;
@@ -310,30 +315,66 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
 
   return (
     <>
-      <NetworkScene
-        data={networkData}
-        onNodeClick={handleNodeClick}
-        onNodeHover={() => {}}
-        selectedNode={selectedCocktail}
-        selectedNodes={selectedCocktail ? [selectedCocktail] : []}
-        showEdges={true}
-        showParticles={true}
-        filterCuisine=""
-        filterTaste=""
-        profileWeights={null}
-        treeFilterIngredients={combinedFilterNames}
-        sceneExtras={sceneExtras}
-        showNodeLabels={true}
-        labelNodeNames={combinedFilterNames}
-        flyToTarget={flyToTarget}
-        scaleMultiplier={2.5}
-        centroidAdapter={familyCentroidAdapter}
-        shapeAssignments={shapeAssignments}
-      />
+      {/* Explore (3D) ↔ Browse (2D) toggle. Sits just below the
+          global nav (top-10) and is the entry point for the new
+          selection-friendly view. State is lab-local. */}
+      <div className="fixed top-10 left-1/2 -translate-x-1/2 z-40 flex items-center gap-0.5 p-0.5 rounded-lg bg-[#12121a]/95 backdrop-blur-md border border-[#1e1e2e]">
+        {[
+          { id: 'explore', label: 'Explore (3D)' },
+          { id: 'browse',  label: 'Browse (2D)' },
+        ].map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            onClick={() => setViewMode(m.id)}
+            className={`px-3 py-1 text-[11px] font-medium rounded-md transition-colors ${
+              viewMode === m.id
+                ? 'bg-cyan-500/15 text-cyan-200 border border-cyan-400/40'
+                : 'text-gray-400 hover:text-gray-200 border border-transparent'
+            }`}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
 
-      {/* Top-of-screen family banner when a family is filtered */}
-      {familyForSelected && selectedCocktail && (
-        <div className="fixed top-12 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-lg bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] text-xs text-gray-300 select-none">
+      {viewMode === 'explore' ? (
+        <NetworkScene
+          data={networkData}
+          onNodeClick={handleNodeClick}
+          onNodeHover={() => {}}
+          selectedNode={selectedCocktail}
+          selectedNodes={selectedCocktail ? [selectedCocktail] : []}
+          showEdges={true}
+          showParticles={true}
+          filterCuisine=""
+          filterTaste=""
+          profileWeights={null}
+          treeFilterIngredients={combinedFilterNames}
+          sceneExtras={sceneExtras}
+          showNodeLabels={true}
+          labelNodeNames={combinedFilterNames}
+          flyToTarget={flyToTarget}
+          scaleMultiplier={2.5}
+          centroidAdapter={familyCentroidAdapter}
+          shapeAssignments={shapeAssignments}
+        />
+      ) : (
+        <CocktailBrowse
+          graph={graph}
+          selectedCocktail={selectedCocktail}
+          onSelectCocktail={(name) => setSelectedCocktail(name)}
+          filterFamily={filterFamily}
+          onFilterFamily={setFilterFamily}
+          filterSpirit={filterSpirit}
+          onFilterSpirit={setFilterSpirit}
+        />
+      )}
+
+      {/* Top-of-screen family banner when a family is filtered. Only
+          in Explore mode — Browse view shows family context inline. */}
+      {viewMode === 'explore' && familyForSelected && selectedCocktail && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-lg bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] text-xs text-gray-300 select-none">
           <span className="font-medium" style={{ color: familyForSelected.color }}>
             {familyForSelected.name}
           </span>
@@ -386,28 +427,35 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
         </div>
       )}
 
-      <ClusterJoystick
-        clusters={graph.families.map((f) => ({ id: f.id, name: f.name, color: f.color }))}
-        mode="ml"
-        focusedClusterId={filterFamily}
-        onClusterFocus={(id) => setFilterFamily(id)}
-        onFlyTo={(family) => {
-          const pos = familyCentroids?.get(family.id);
-          if (!pos) return;
-          setFlyToTarget({
-            position: pos,
-            memberCount: familyMemberCount?.get(family.id) || 1,
-            ts: Date.now(),
-          });
-        }}
-      />
+      {/* ClusterJoystick + ShapeLegend are 3D-scene affordances — the
+          Browse view has its own family bubbles and spirit chips, so
+          we hide both overlays in Browse mode to avoid duplicate UI. */}
+      {viewMode === 'explore' && (
+        <ClusterJoystick
+          clusters={graph.families.map((f) => ({ id: f.id, name: f.name, color: f.color }))}
+          mode="ml"
+          focusedClusterId={filterFamily}
+          onClusterFocus={(id) => setFilterFamily(id)}
+          onFlyTo={(family) => {
+            const pos = familyCentroids?.get(family.id);
+            if (!pos) return;
+            setFlyToTarget({
+              position: pos,
+              memberCount: familyMemberCount?.get(family.id) || 1,
+              ts: Date.now(),
+            });
+          }}
+        />
+      )}
 
-      <ShapeLegend
-        title="Base spirit shapes"
-        legend={COCKTAIL_SPIRIT_LEGEND}
-        selectedKey={filterSpirit}
-        onSelect={setFilterSpirit}
-      />
+      {viewMode === 'explore' && (
+        <ShapeLegend
+          title="Base spirit shapes"
+          legend={COCKTAIL_SPIRIT_LEGEND}
+          selectedKey={filterSpirit}
+          onSelect={setFilterSpirit}
+        />
+      )}
     </>
   );
 }
