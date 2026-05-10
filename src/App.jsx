@@ -14,7 +14,11 @@ const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
 // codebase but no longer reachable from the UI.
 import ClusterJoystick from './components/ClusterJoystick.jsx';
 import HowItWorks from './components/HowItWorks.jsx';
-import StartPage from './components/StartPage.jsx';
+// StartPage left in the codebase as a fallback — superseded by
+// LandingScreen as of the brand-mark refresh. Re-enable by swapping
+// the import back if LandingScreen needs to be reverted.
+// import StartPage from './components/StartPage.jsx';
+import LandingScreen from './components/LandingScreen.jsx';
 import ErrorCard from './components/ErrorCard.jsx';
 import {
   readStartPageFlag,
@@ -52,6 +56,10 @@ export default function App() {
   // download until the user clicks a card.
   const [startPageComplete, setStartPageComplete] = useState(false);
   const [howItWorksInitialOpen, setHowItWorksInitialOpen] = useState(false);
+  // Tracks which landing tile the user just tapped, so the loading
+  // surface (LandingScreen with isLoading=true) can shimmer the picked
+  // tile rather than the whole row. Reset on handleStartOver.
+  const [landingPick, setLandingPick] = useState(null);
 
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
   const { loading, error, data, retry } = useProData({ enabled: startPageComplete });
@@ -119,6 +127,7 @@ export default function App() {
   const handleModeSelect = useCallback((mode) => {
     writeStartPageFlag();
     setStartPageComplete(true);
+    setLandingPick(mode);
     if (mode === 'pairing') {
       // Pairing model — the 3,913-ingredient network with chemistry-
       // based clustering. Lands on the Network tab.
@@ -141,6 +150,23 @@ export default function App() {
     setHowItWorksInitialOpen(false);
     setMoleculeLabOpen(false);
     setActiveTab('network');
+    setLandingPick(null);
+  }, []);
+
+  // LandingScreen "More labs" handler — bypasses the 3 primary tiles.
+  // Recipe Lab opens as a tab; Molecule Lab opens as a slide-out card
+  // over a freshly-loaded Network so the user has somewhere to land.
+  const handleLandingSecondary = useCallback((id) => {
+    writeStartPageFlag();
+    setStartPageComplete(true);
+    setLandingPick('pairing');
+    if (id === 'recipe') {
+      setRecipeMounted(true);
+      setActiveTab('recipe');
+    } else if (id === 'molecule') {
+      setMoleculeLabOpen(true);
+      setActiveTab('network');
+    }
   }, []);
 
   // Derived state
@@ -368,30 +394,22 @@ export default function App() {
     setShowFilteredList(false);
   }, []);
 
-  if (!startPageComplete) {
-    return <StartPage onModeSelect={handleModeSelect} />;
-  }
-
   if (error) {
     return <ErrorCard onRetry={retry} onStartOver={handleStartOver} />;
   }
 
-  if (loading) {
+  // LandingScreen is the entry surface AND the loading surface. Pre-pick
+  // it shows the three tiles; post-pick (loading=true) it dims the
+  // unpicked tiles and shimmers the picked one. This replaces both the
+  // legacy StartPage and the standalone spinner.
+  if (!startPageComplete || loading) {
     return (
-      <div className="flex items-center justify-center w-full h-full bg-neural-bg">
-        <div className="text-center">
-          <div className="relative w-24 h-24 mx-auto mb-6">
-            <div className="absolute inset-0 border-2 border-neural-glow/30 rounded-full animate-ping" />
-            <div className="absolute inset-2 border-2 border-neural-glow/50 rounded-full animate-spin" style={{ animationDuration: '3s' }} />
-            <div className="absolute inset-4 border-2 border-neural-glow border-t-transparent rounded-full animate-spin" style={{ animationDuration: '1.5s' }} />
-            <div className="absolute inset-[38%] bg-neural-glow/80 rounded-full animate-pulse" />
-          </div>
-          <p className="text-neural-text text-lg font-light tracking-wider mb-1" style={{ textShadow: '0 0 10px rgba(79,143,255,0.5)' }}>
-            Flavor Network
-          </p>
-          <p className="text-neural-muted text-sm">Initializing neural pathways...</p>
-        </div>
-      </div>
+      <LandingScreen
+        onModeSelect={handleModeSelect}
+        onSecondarySelect={handleLandingSecondary}
+        isLoading={loading}
+        picked={landingPick}
+      />
     );
   }
 
