@@ -15,7 +15,9 @@ import { CameraAnimator } from '../three/CameraAnimator.js';
 import { computeBloomStrength } from '../three/bloomQuality.js';
 import NetworkA11yShim from './NetworkA11yShim.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
-import { MODE_CYCLE, MODE_LABELS } from '../data/networkModes.js';
+import { MODE_CYCLE, MODE_LABELS, MODE_IS_2D, MODE_IS_CATEGORICAL, MODE_TO_AXIS } from '../data/networkModes.js';
+import { computeCategoricalWheelPositions } from '../data/categoricalWheelPositions.js';
+import { CATEGORICAL_AXES } from '../data/categoricalAxes.js';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
 import {
   createTasteSelection,
@@ -65,7 +67,32 @@ export default function LivingArchView({
   const setMode = onModeChange || setLocalMode;
   const modeRef = useRef(mode);
 
-  // Keep modeRef in sync for use inside animation loop
+  // External mode change (App.jsx's dropdown calls setLivingMode):
+  // fire the position + camera transition. MUST run BEFORE the
+  // modeRef sync below — triggerTransition() reads modeRef.current
+  // as `fromMode`, and if modeRef has already been updated to the
+  // new value, fromMode === toMode and the trigger bails.
+  const lastTriggeredModeRef = useRef(mode);
+  useEffect(() => {
+    if (lastTriggeredModeRef.current === mode) return;
+    const prevMode = lastTriggeredModeRef.current;
+    lastTriggeredModeRef.current = mode;
+    // triggerTransition reads modeRef.current as the "from" mode —
+    // ensure it's still the previous value here (the modeRef sync
+    // useEffect below runs AFTER this one in declaration order).
+    stateRef.current?.triggerTransition?.(mode);
+    // Defensive: if the modeRef sync has already executed (e.g. on
+    // a fast re-render), re-fire with the captured prevMode so we
+    // don't silently no-op.
+    if (modeRef.current === mode && prevMode !== mode) {
+      modeRef.current = prevMode;
+      stateRef.current?.triggerTransition?.(mode);
+      modeRef.current = mode;
+    }
+  }, [mode]);
+
+  // Keep modeRef in sync for use inside animation loop. Declared
+  // after the trigger useEffect so it runs AFTER it.
   useEffect(() => { modeRef.current = mode; }, [mode]);
 
   // Refs for callbacks/props consumed inside the scene-setup useEffect
@@ -99,28 +126,76 @@ export default function LivingArchView({
     // PCA 2D positions loaded async below; start with empty
     let pca2dPos = {};
 
+    // Categorical wheel positions (Phase 2 MVP). Computed once at
+    // mount time — each is an O(N) phyllotaxis layout per axis. The
+    // gnnEntropy / cuisineMap / seasonMap inputs are read off `data`
+    // when present, otherwise the bucketer falls back to per-node
+    // fields (e.g. node.cuisines for cuisine).
+    const categoricalCtx = {
+      gnnEntropy: data.gnnEntropy || null,
+      cuisineMap: data.cuisineMap || null,
+      seasonMap:  data.seasonMap  || null,
+    };
+    const tasteOut   = computeCategoricalWheelPositions('taste',   graph.nodes, categoricalCtx);
+    const aromasOut  = computeCategoricalWheelPositions('aromas',  graph.nodes, categoricalCtx);
+    const cuisineOut = computeCategoricalWheelPositions('cuisine', graph.nodes, categoricalCtx);
+    const seasonOut  = computeCategoricalWheelPositions('season',  graph.nodes, categoricalCtx);
+    const familyOut  = computeCategoricalWheelPositions('family',  graph.nodes, categoricalCtx);
+    const tasteWheel   = tasteOut.positions;
+    const aromasWheel  = aromasOut.positions;
+    const cuisineWheel = cuisineOut.positions;
+    const seasonWheel  = seasonOut.positions;
+    const familyWheel  = familyOut.positions;
+    // Lookup table for resolving (mode → axis output) without
+    // string comparisons inside hot paths.
+    const categoricalOutByMode = {
+      taste2d:   tasteOut,
+      aromas2d:  aromasOut,
+      cuisine2d: cuisineOut,
+      season2d:  seasonOut,
+      family2d:  familyOut,
+    };
+
     // Name index map
     const nameIdx = new Map();
     nodeArray.forEach((n, i) => nameIdx.set(n.name, i));
 
-    // Float32Arrays for four position sets
+    // Float32Arrays for eight position sets (4 original + 4 categorical wheels)
     const posA = new Float32Array(count * 3); // ML 3D
     const posB = new Float32Array(count * 3); // ML 2D (PCA) — Y=0 flat plane
     const posC = new Float32Array(count * 3); // Taste axis 3D
     const posD = new Float32Array(count * 3); // Taste axis 2D (wheel)
+    const posE = new Float32Array(count * 3); // Aromas 2D wheel
+    const posF = new Float32Array(count * 3); // Cuisine 2D wheel
+    const posG = new Float32Array(count * 3); // Season 2D wheel
+    const posH = new Float32Array(count * 3); // Family 2D wheel
     const curPos = new Float32Array(count * 3);
 
-    const posForMode = { ml: posA, ml2d: posB, neural: posC, taste2d: posD };
+    const posForMode = {
+      ml: posA, ml2d: posB, neural: posC, taste2d: posD,
+      aromas2d: posE, cuisine2d: posF, season2d: posG, family2d: posH,
+    };
 
     for (let i = 0; i < count; i++) {
       const name = nodeArray[i].name;
       const ml = (mlPos && mlPos[name]) || tasteAxisPos[name] || [0, 0, 0];
       const ta = tasteAxisPos[name] || [0, 0, 0];
-      const wh = pos2D[name] || [0, 0, 0];
+      // taste2d now uses the categorical wheel layout (8 sub-discs,
+      // one per dominant taste). Falls back to the legacy octagonal
+      // pos2D positioner only if the bucket assignment failed.
+      const wh = tasteWheel[name] || pos2D[name] || [0, 0, 0];
+      const aro = aromasWheel[name]  || [0, 0, 0];
+      const cui = cuisineWheel[name] || [0, 0, 0];
+      const sea = seasonWheel[name]  || [0, 0, 0];
+      const fam = familyWheel[name]  || [0, 0, 0];
       posA[i*3] = ml[0]; posA[i*3+1] = ml[1]; posA[i*3+2] = ml[2];
       posB[i*3] = 0; posB[i*3+1] = 0; posB[i*3+2] = 0;
       posC[i*3] = ta[0]; posC[i*3+1] = ta[1]; posC[i*3+2] = ta[2];
       posD[i*3] = wh[0]; posD[i*3+1] = wh[1]; posD[i*3+2] = wh[2];
+      posE[i*3] = aro[0]; posE[i*3+1] = aro[1]; posE[i*3+2] = aro[2];
+      posF[i*3] = cui[0]; posF[i*3+1] = cui[1]; posF[i*3+2] = cui[2];
+      posG[i*3] = sea[0]; posG[i*3+1] = sea[1]; posG[i*3+2] = sea[2];
+      posH[i*3] = fam[0]; posH[i*3+1] = fam[1]; posH[i*3+2] = fam[2];
       const start = posForMode[modeRef.current] || posA;
       curPos[i*3] = start[i*3]; curPos[i*3+1] = start[i*3+1]; curPos[i*3+2] = start[i*3+2];
     }
@@ -187,8 +262,11 @@ export default function LivingArchView({
     scene.background = new THREE.Color(0x0a0a0f);
 
     const camera = new THREE.PerspectiveCamera(60, el.clientWidth/el.clientHeight, 0.1, 2000);
-    if (modeRef.current === 'ml2d' || modeRef.current === 'taste2d') {
-      camera.position.set(0, modeRef.current === 'taste2d' ? 120 : 100, 0.1);
+    if (MODE_IS_2D.has(modeRef.current)) {
+      // Wheel modes (taste2d + the categorical wheels) want a slightly
+      // higher camera so the full ring is visible. ml2d (PCA scatter)
+      // can sit closer.
+      camera.position.set(0, modeRef.current === 'ml2d' ? 100 : 120, 0.1);
     } else {
       camera.position.set(0, 40, 120);
     }
@@ -223,6 +301,22 @@ export default function LivingArchView({
     const dummy = new THREE.Object3D();
     const defaultColors = [];       // taste-based (used in neural/taste2d)
     const clusterColors = [];       // cluster-id-based (used in ml/ml2d)
+    // Per-axis bucket-color arrays (used in the 4 categorical wheel
+    // modes). Each is a parallel array of THREE.Color objects, indexed
+    // by the same `nameIdx` as defaultColors / clusterColors. Built
+    // below in the main color-population loop.
+    const tasteColors   = new Array(count);
+    const aromaColors   = new Array(count);
+    const cuisineColors = new Array(count);
+    const seasonColors  = new Array(count);
+    const familyColors  = new Array(count);
+    const categoricalColorByMode = {
+      taste2d:   tasteColors,
+      aromas2d:  aromaColors,
+      cuisine2d: cuisineColors,
+      season2d:  seasonColors,
+      family2d:  familyColors,
+    };
 
     // 10-hue cluster palette — semantically tuned:
     //   0 Fruit&Nut Desserts — pink   5 Cocktails&Drinks — purple
@@ -234,6 +328,28 @@ export default function LivingArchView({
                          '#a855f7', '#84cc16', '#b45309', '#78350f', '#64748b'];
     const fallbackHex = '#808080';
     const clusterColorByID = CLUSTER_HEX.map(h => new THREE.Color(h));
+
+    // Cache THREE.Color instances per bucket-label per axis so we
+    // don't allocate one Color per node — there are only ~5-11 buckets
+    // per axis but ~3,913 nodes.
+    const bucketColorCache = {
+      taste:   new Map(),
+      aromas:  new Map(),
+      cuisine: new Map(),
+      season:  new Map(),
+      family:  new Map(),
+    };
+    function colorForBucket(axisKey, label, hexMap) {
+      if (!label) return new THREE.Color('#3a3a4a'); // muted grey for unbucketed
+      const cache = bucketColorCache[axisKey];
+      let c = cache.get(label);
+      if (!c) {
+        const hex = hexMap.get(label) || '#3a3a4a';
+        c = new THREE.Color(hex);
+        cache.set(label, c);
+      }
+      return c;
+    }
 
     for (let i = 0; i < count; i++) {
       const node = nodeArray[i];
@@ -251,10 +367,25 @@ export default function LivingArchView({
           ? clusterColorByID[cid].clone()
           : new THREE.Color(fallbackHex),
       );
-      // Initial color set by mode — Network modes use cluster, taste modes use taste.
+      // Categorical-axis colors — one bucket-color per node per axis.
+      // Each axis's bucketOf Map<name, label> gives the bucket; the
+      // bucketColor Map<label, hex> gives the color.
+      const tasLbl = tasteOut.bucketOf.get(node.name);
+      const aroLbl = aromasOut.bucketOf.get(node.name);
+      const cuiLbl = cuisineOut.bucketOf.get(node.name);
+      const seaLbl = seasonOut.bucketOf.get(node.name);
+      const famLbl = familyOut.bucketOf.get(node.name);
+      tasteColors[i]   = colorForBucket('taste',   tasLbl, tasteOut.bucketColor).clone();
+      aromaColors[i]   = colorForBucket('aromas',  aroLbl, aromasOut.bucketColor).clone();
+      cuisineColors[i] = colorForBucket('cuisine', cuiLbl, cuisineOut.bucketColor).clone();
+      seasonColors[i]  = colorForBucket('season',  seaLbl, seasonOut.bucketColor).clone();
+      familyColors[i]  = colorForBucket('family',  famLbl, familyOut.bucketColor).clone();
+      // Initial color set by mode — Network modes use cluster, taste
+      // modes use taste, categorical modes use the axis bucket color.
+      const catArr = categoricalColorByMode[modeRef.current];
       const initColor = (modeRef.current === 'ml' || modeRef.current === 'ml2d')
         ? clusterColors[i]
-        : c;
+        : (catArr ? catArr[i] : c);
       mesh.setColorAt(i, initColor);
     }
     mesh.instanceMatrix.needsUpdate = true;
@@ -539,12 +670,56 @@ export default function LivingArchView({
       tasteLabelSprites.push(sprite);
     }
     // Show taste labels in taste modes, hide in ML modes
-    labelGroup.visible = modeRef.current === 'neural' || modeRef.current === 'taste2d';
+    // taste2d now uses the categorical wheel labels (sub-disc centroids
+    // via categoricalLabelGroupByMode['taste2d']), so the legacy 8-axis
+    // sprite ring is restricted to the 3D `neural` mode only.
+    labelGroup.visible = modeRef.current === 'neural';
     scene.add(labelGroup);
 
+    // --- Categorical-axis bucket labels (Phase 2 wheel modes) ---
+    // One label sprite per bucket per axis, positioned just outside
+    // the bucket's centroid on the wheel ring. Each axis has its own
+    // group so visibility can flip per-mode without rebuilding.
+    function buildCategoricalLabels(out) {
+      const group = new THREE.Group();
+      // Position labels at radius slightly larger than the wheel
+      // ring, outward from origin, so they sit OUTSIDE the petal.
+      const LABEL_RADIUS = 110;
+      for (const [label, centroid] of out.bucketCentroids) {
+        const hex = out.bucketColor.get(label) || '#ffffff';
+        const sprite = makeLabel(label.toUpperCase(), hex, 18);
+        const ang = Math.atan2(centroid[2], centroid[0]);
+        sprite.position.set(
+          Math.cos(ang) * LABEL_RADIUS,
+          0.5,
+          Math.sin(ang) * LABEL_RADIUS,
+        );
+        sprite.userData = { axisLabel: label, isLabel: true };
+        group.add(sprite);
+      }
+      group.visible = false;
+      scene.add(group);
+      return group;
+    }
+    const categoricalLabelGroupByMode = {
+      taste2d:   buildCategoricalLabels(tasteOut),
+      aromas2d:  buildCategoricalLabels(aromasOut),
+      cuisine2d: buildCategoricalLabels(cuisineOut),
+      season2d:  buildCategoricalLabels(seasonOut),
+      family2d:  buildCategoricalLabels(familyOut),
+    };
+    // Show the right one initially if we mounted in a categorical mode.
+    if (categoricalLabelGroupByMode[modeRef.current]) {
+      categoricalLabelGroupByMode[modeRef.current].visible = true;
+    }
+
     // --- Octagonal sector lines + concentric rings for wheel mode ---
+    // Legacy from the original octagonal taste2d wheel. With taste2d
+    // now rendered as a categorical sub-disc wheel, these sector
+    // dividers no longer line up with anything, so we keep the geometry
+    // around but never show it. Could be deleted in a future cleanup.
     const sectorGroup = new THREE.Group();
-    sectorGroup.visible = modeRef.current === 'taste2d';
+    sectorGroup.visible = false;
     const N_TASTES = TASTE_ORDER.length;
     const sectorAngle = (Math.PI * 2) / N_TASTES;
     const lineMat = new THREE.LineBasicMaterial({ color: 0x333355, transparent: true, opacity: 0.4 });
@@ -642,7 +817,23 @@ export default function LivingArchView({
         // focus on null).
         onNodeClick: (node) => {
           const focused = focusedClusterIdRef.current;
-          if (focused != null && node && node.clusterId !== focused) return;
+          if (focused != null && node) {
+            // Categorical-wheel modes use pseudo-cluster IDs (negative,
+            // -100 - i) that don't map to node.clusterId. Resolve the
+            // bucket label and compare via the axis's bucketOf instead.
+            const m = modeRef.current;
+            if (MODE_IS_CATEGORICAL.has(m) && focused <= -100) {
+              const axisKey = MODE_TO_AXIS[m];
+              const axis = axisKey ? CATEGORICAL_AXES[axisKey] : null;
+              const idx = -100 - focused;
+              const bucketLabel = axis?.labels?.[idx];
+              const out = stateRef.current?.categoricalOutByMode?.[m];
+              const nodeBucket = out?.bucketOf?.get(node.name);
+              if (bucketLabel && nodeBucket !== bucketLabel) return;
+            } else if (node.clusterId !== focused) {
+              return;
+            }
+          }
           onNodeClickRef.current?.(node);
         },
         mode: modeRef.current,
@@ -739,12 +930,18 @@ export default function LivingArchView({
     // --- Transition state ---
     const transition = { active: false, startTime: 0, fromMode: 'ml', toMode: 'neural' };
 
-    // Camera targets per mode
+    // Camera targets per mode. All 5 categorical wheels (taste2d
+    // included) share the same top-down camera — they're laid out on
+    // the same y=0 plane at RING_RADIUS=90.
     const camTargets = {
-      ml:      { pos: [0, 40, 120], lookAt: [0, 0, 0] },
-      ml2d:    { pos: [0, 100, 0.1], lookAt: [0, 0, 0] },
-      neural:  { pos: [0, 40, 120], lookAt: [0, 0, 0] },
-      taste2d: { pos: [0, 120, 0.1], lookAt: [0, 0, 0] },
+      ml:        { pos: [0, 40, 120], lookAt: [0, 0, 0] },
+      ml2d:      { pos: [0, 100, 0.1], lookAt: [0, 0, 0] },
+      neural:    { pos: [0, 40, 120], lookAt: [0, 0, 0] },
+      taste2d:   { pos: [0, 200, 0.1], lookAt: [0, 0, 0] },
+      aromas2d:  { pos: [0, 200, 0.1], lookAt: [0, 0, 0] },
+      cuisine2d: { pos: [0, 200, 0.1], lookAt: [0, 0, 0] },
+      season2d:  { pos: [0, 200, 0.1], lookAt: [0, 0, 0] },
+      family2d:  { pos: [0, 200, 0.1], lookAt: [0, 0, 0] },
     };
 
     // Store starting camera for transition
@@ -814,9 +1011,11 @@ export default function LivingArchView({
         const a3 = sprite.userData.axis3D;
         const angle = idx * sA - Math.PI / 2;
         const w2 = [Math.cos(angle) * 55, 2, Math.sin(angle) * 55];
-        // Show/hide taste labels — visible in taste modes
-        const toTaste = transition.toMode === 'neural' || transition.toMode === 'taste2d';
-        const fromTaste = transition.fromMode === 'neural' || transition.fromMode === 'taste2d';
+        // Show/hide legacy 8-axis taste labels — restricted to 3D
+        // `neural` only now that taste2d uses categorical sub-disc
+        // labels mounted via categoricalLabelGroupByMode['taste2d'].
+        const toTaste = transition.toMode === 'neural';
+        const fromTaste = transition.fromMode === 'neural';
         if (toTaste && !fromTaste) {
           labelGroup.visible = et > 0.3;
         } else if (fromTaste && !toTaste) {
@@ -877,30 +1076,43 @@ export default function LivingArchView({
       );
       camera.lookAt(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
 
-      // Sector lines for taste2d mode
-      const toTaste2d = transition.toMode === 'taste2d';
-      const fromTaste2d = transition.fromMode === 'taste2d';
-      if (toTaste2d) {
-        sectorGroup.visible = et > 0.3;
-        lineMat.opacity = Math.max(0, (et - 0.3) / 0.7) * 0.4;
-      } else if (fromTaste2d) {
-        sectorGroup.visible = et < 0.7;
-        lineMat.opacity = 0.4 * (1 - et);
-      } else {
-        sectorGroup.visible = false;
-        lineMat.opacity = 0;
-      }
+      // Legacy octagonal sector lines — taste2d no longer uses them.
+      sectorGroup.visible = false;
+      lineMat.opacity = 0;
 
       if (t >= 1) {
         transition.active = false;
         // Reset controls target
         controls.target.set(camEnd.lookAt[0], camEnd.lookAt[1], camEnd.lookAt[2]);
         controls.update();
-        sectorGroup.visible = transition.toMode === 'taste2d';
-        labelGroup.visible = transition.toMode === 'neural' || transition.toMode === 'taste2d';
+        sectorGroup.visible = false;
+        labelGroup.visible = transition.toMode === 'neural';
         clusterLabelGroup.visible = transition.toMode === 'ml' || transition.toMode === 'ml2d';
         clusterConnectorGroup.visible = clusterLabelGroup.visible;
         if (clusterConnectorGroup.visible) updateClusterConnectors();
+        // Categorical-axis label visibility — show the matching axis,
+        // hide the rest.
+        for (const [m, g] of Object.entries(categoricalLabelGroupByMode)) {
+          g.visible = (m === transition.toMode);
+        }
+        // Push the per-mode color array into the instanced mesh so
+        // categorical wheels render with bucket colors and the other
+        // modes restore their respective default/cluster colors.
+        const catArr = categoricalColorByMode[transition.toMode];
+        const colorSrc = (transition.toMode === 'ml' || transition.toMode === 'ml2d')
+          ? clusterColors
+          : (catArr || defaultColors);
+        for (let i = 0; i < count; i++) {
+          mesh.setColorAt(i, colorSrc[i]);
+        }
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+        // Hide edges + particles in categorical wheel modes — every
+        // cross-petal pairing produces a long line through the wheel
+        // center, creating a dense pink haze that drowns out the
+        // bucket structure. Restore on exit.
+        const isCat = MODE_IS_CATEGORICAL.has(transition.toMode);
+        edgeMesh.visible = isCat ? false : showEdges;
+        particleMesh.visible = isCat ? false : showParticles;
         // R14 AC-NR-3 (v2): tour is mode-agnostic (orbits controls.target
         // when no centroids), so resume unconditionally on every transition.
         cameraAnimatorRef.current?.resumeClusterTour();
@@ -1128,7 +1340,7 @@ export default function LivingArchView({
       const centroidVec = centroidPos
         ? new THREE.Vector3(centroidPos[0], centroidPos[1], centroidPos[2])
         : null;
-      const is2D = modeRef.current === 'ml2d' || modeRef.current === 'taste2d';
+      const is2D = MODE_IS_2D.has(modeRef.current);
       // Camera-to-label distance. Was 70 — too far in 3D: the label sprite
       // (world-scale ~22 wide) shrinks and gets washed out by the cluster's
       // bloom glow behind it. 30 gives the label real visual weight in the
@@ -1192,6 +1404,11 @@ export default function LivingArchView({
       edgeColors, edgeOpacities, validEdges,
       particleMesh, particleMat,
       nodeArray, nameIdx, defaultColors, clusterColors, curPos, posA, posB, posC, posD, posForMode,
+      // categoricalOutByMode + categoricalColorByMode let the
+      // focused-cluster effect derive bucket membership for the 5
+      // wheel modes (taste/aromas/cuisine/season/family). bucketOf
+      // is a Map<ingredientName, bucketLabel> per axis.
+      categoricalOutByMode, categoricalColorByMode,
       triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
       // Expose runtime cluster centroids (3D from posA, 2D from PCA) so the
@@ -1473,7 +1690,7 @@ export default function LivingArchView({
     let centroid = null;
     if (typeof flyToTarget.clusterId === 'number') {
       const cid = flyToTarget.clusterId;
-      const is2D = modeRef.current === 'ml2d' || modeRef.current === 'taste2d';
+      const is2D = MODE_IS_2D.has(modeRef.current);
       const sprite = st.clusterLabelGroup?.children?.find(s => s.userData?.clusterId === cid);
       if (sprite) {
         // In 2D mode the sprite's userData carries the [x, z] target the
@@ -1739,15 +1956,50 @@ export default function LivingArchView({
     const st = stateRef.current;
     if (!st || !st.mesh || !st.clusterColors || !st.defaultColors) return;
     if (affinityModeRef.current?.engaged) return; // R13-5 engage-guard
-    const { mesh, clusterColors, defaultColors, nodeArray, clusterLabelGroup } = st;
+    const { mesh, clusterColors, defaultColors, nodeArray, clusterLabelGroup,
+            categoricalOutByMode, categoricalColorByMode } = st;
     const inClusterMode = mode === 'ml' || mode === 'ml2d';
-    const source = inClusterMode ? clusterColors : defaultColors;
+    const isCategorical = MODE_IS_CATEGORICAL.has(mode);
+    // Source palette: ML clusters → cluster colors, categorical wheels →
+    // bucket colors, otherwise the taste-based default colors.
+    const source = inClusterMode
+      ? clusterColors
+      : (isCategorical && categoricalColorByMode?.[mode]) || defaultColors;
+    // Resolve the focused-bucket label for categorical modes. The
+    // ClusterJoystick assigns pseudo-cluster IDs `-100 - i` where `i`
+    // indexes into CATEGORICAL_AXES[axisKey].labels. A null focusedClusterId
+    // means "no focus — render every node normally".
+    let focusedBucket = null;
+    let bucketOf = null;
+    if (isCategorical && focusedClusterId != null && focusedClusterId <= -100) {
+      const axisKey = MODE_TO_AXIS[mode];
+      const axis = axisKey ? CATEGORICAL_AXES[axisKey] : null;
+      const idx = -100 - focusedClusterId;
+      if (axis && idx >= 0 && idx < axis.labels.length) {
+        focusedBucket = axis.labels[idx];
+        bucketOf = categoricalOutByMode?.[mode]?.bucketOf || null;
+      }
+    }
     const DIM = 0.12;
     const GLOW = 1.5;
     const tmp = new THREE.Color();
     for (let i = 0; i < nodeArray.length; i++) {
-      const match = nodeArray[i].clusterId === focusedClusterId;
-      if (focusedClusterId == null) {
+      // Membership check varies by mode:
+      //   ml/ml2d           → numeric clusterId match
+      //   categorical wheel → bucket label match via axis bucketOf
+      //   anything else     → no concept of cluster membership, leave
+      //                       color at source (focusedClusterId path
+      //                       below short-circuits when focusedBucket
+      //                       resolution failed for the active mode).
+      let match;
+      if (isCategorical) {
+        match = focusedBucket != null && bucketOf?.get(nodeArray[i].name) === focusedBucket;
+      } else {
+        match = nodeArray[i].clusterId === focusedClusterId;
+      }
+      const noFocus = focusedClusterId == null
+        || (isCategorical && focusedBucket == null);
+      if (noFocus) {
         mesh.setColorAt(i, source[i]);
       } else if (match) {
         tmp.copy(source[i]).multiplyScalar(GLOW);

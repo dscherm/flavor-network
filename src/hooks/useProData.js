@@ -465,6 +465,11 @@ export default function useProData({ enabled = true } = {}) {
           top5,
           bridgeCompoundIndex,
           affinityThresholds,
+          // Phase-2 categorical wheel inputs — LivingArchView consumes
+          // these to bucket nodes for the Aromas / Cuisine / Season /
+          // Family modes.
+          cuisineMap: cuisineMapData || {},
+          seasonMap: seasonRegionData || {},
           embeddings: null,
           raw: {
             ingredientsData,

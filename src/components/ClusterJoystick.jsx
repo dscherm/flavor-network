@@ -46,7 +46,11 @@ export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedCluste
   // then back off), leaving the user unable to enter cluster-focus
   // mode at all. Coalesce both events into a single handleTap.
   const lastFireRef = useRef(0);
-  const isTasteMode = mode === 'neural' || mode === 'taste2d';
+  // taste2d now uses the wheel-of-sub-discs layout driven by
+  // CATEGORICAL_AXES.taste, so its pills are supplied via `clusters`
+  // (App.jsx builds them as pseudo-cluster objects). Only the 3D
+  // neural view still uses the hard-coded TASTE_TARGETS pills here.
+  const isTasteMode = mode === 'neural';
 
   const items = isTasteMode
     ? TASTE_ORDER.map(t => ({

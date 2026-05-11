@@ -49,8 +49,8 @@ console.log(`Screenshots:       ${SHOT_DIR}/landing-desktop.png, ${SHOT_DIR}/lan
 const ok =
   consoleErrors.length === 0 &&
   logo &&
-  tileModes.length === 3 &&
-  ['pairing', 'cocktail', 'sauce'].every((m) => tileModes.includes(m));
+  tileModes.length === 4 &&
+  ['pairing', 'cocktail', 'sauce', 'recipe'].every((m) => tileModes.includes(m));
 
 if (!ok) {
   console.error('VERIFY FAILED');
