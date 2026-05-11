@@ -4,7 +4,7 @@ import { MODE_CYCLE, MODE_LABELS } from '../data/networkModes.js';
 export default function MobileTabBar({
   activeTab,
   onTabChange,
-  networkMode = 'ml',
+  networkMode = '3D',
   onNetworkModeChange,
   onOpenProfile,
   onOpenTreeExplorer,

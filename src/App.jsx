@@ -41,8 +41,15 @@ import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
-import { MODE_CYCLE as NETWORK_MODE_CYCLE, MODE_LABELS as NETWORK_MODE_LABELS, MODE_TO_AXIS as NETWORK_MODE_TO_AXIS } from './data/networkModes.js';
+import {
+  MODE_CYCLE as NETWORK_MODE_CYCLE,
+  MODE_LABELS as NETWORK_MODE_LABELS,
+  MODE_TO_AXIS as NETWORK_MODE_TO_AXIS,
+  FILTER_TO_AXIS,
+  morphAxisForStack,
+} from './data/networkModes.js';
 import { CATEGORICAL_AXES } from './data/categoricalAxes.js';
+import FilterPillRow from './components/FilterPillRow.jsx';
 import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
@@ -88,7 +95,14 @@ export default function App() {
   // MobileTabBar's Network button: tap to switch tabs, tap when
   // already on Network to open the 4-way mode selector.
   const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false);
-  const [livingMode, setLivingMode] = useState('ml');
+  // R16 Phase 1: split the old single `livingMode` into two orthogonal
+  // controls — `mode` (3D/2D geometry) and `filterStack` (ordered
+  // categorical filters that drive the morph axis + visibility
+  // predicate). Legacy mode keys (ml/ml2d/neural/taste2d/aromas2d/
+  // cuisine2d/season2d/family2d) are no longer reachable from the
+  // dropdown but are still understood by the renderer as fallbacks.
+  const [mode, setMode] = useState('3D');
+  const [filterStack, setFilterStack] = useState([]);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
   const [edgeBrightness] = useState(0.3);
@@ -125,26 +139,69 @@ export default function App() {
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
 
-  // Reset focused cluster on mode change. Pseudo-cluster IDs assigned
-  // by the categorical-wheel joystick are mode-specific (-100 - i for
-  // each mode's axis labels), so a Sweet focus carried into the Cuisine
-  // wheel would highlight nothing — clearer to drop the focus on
-  // mode change and let the user re-pick.
+  // R16 Phase 1: derived values from the (mode, filterStack) tuple.
+  //   activeFilter — the tail of the stack (most-recently-toggled filter)
+  //   morphAxis    — the axis that drives the wheel layout. Walks the
+  //                  stack tail-first, skipping scope filters whose
+  //                  FILTER_TO_AXIS entry is null. `null` = cooccurrence.
+  const activeFilter = filterStack.length > 0 ? filterStack[filterStack.length - 1] : null;
+  const morphAxis = morphAxisForStack(filterStack);
+
+  // R16 Phase 1 translation shim — the renderer still expects legacy
+  // mode keys (`ml` / `ml2d` / `neural` / `taste2d` / `aromas2d` /
+  // `cuisine2d` / `season2d` / `family2d`). Until the renderer is
+  // fully refactored, derive a legacy key from (mode, morphAxis):
+  //   3D + no filter           → 'ml'
+  //   2D + no filter           → 'ml2d'
+  //   3D + taste filter        → 'neural' (3D taste axes)
+  //   2D + taste filter        → 'taste2d'
+  //   * + aromas/cuisine/...   → '<axis>2d' (only 2D wheel data exists)
+  const effectiveLegacyMode = useMemo(() => {
+    if (morphAxis === null) return mode === '3D' ? 'ml' : 'ml2d';
+    if (morphAxis === 'taste') return mode === '3D' ? 'neural' : 'taste2d';
+    return `${morphAxis}2d`;
+  }, [mode, morphAxis]);
+
+  const toggleFilter = useCallback((key) => {
+    setFilterStack((prev) => {
+      const idx = prev.indexOf(key);
+      if (idx >= 0) {
+        // Already in stack — remove it (preserves order of the rest).
+        // C2: removing a non-tail filter preserves the tail and thus
+        // preserves morphAxis, so no morph dispatches.
+        return prev.filter((f) => f !== key);
+      }
+      // Append to tail. Active filter becomes this key; morph axis
+      // updates if FILTER_TO_AXIS[key] !== null.
+      return [...prev, key];
+    });
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilterStack([]);
+  }, []);
+
+  // Reset focused cluster when the morph axis changes. Pseudo-cluster
+  // IDs assigned by the categorical-wheel joystick are axis-specific
+  // (-100 - i for each axis's bucket labels), so a Sweet focus carried
+  // into the Cuisine wheel would highlight nothing — clearer to drop
+  // the focus on axis change and let the user re-pick. Keyed on
+  // `morphAxis` (not raw filter key) so toggling a scope filter on/off
+  // does NOT clear the focus (scope filters don't change the axis).
   useEffect(() => {
     setFocusedCluster(null);
-  }, [livingMode]);
+  }, [morphAxis]);
 
-  // ClusterJoystick pills depend on the active Network mode:
-  //   - ml / ml2d           → real cluster taxonomy from cluster_labels.json
-  //   - aromas2d / cuisine2d / season2d / family2d → categorical buckets
-  //     synthesized from CATEGORICAL_AXES (one pill per bucket, fly-to
-  //     centroid computed on the same RING_RADIUS=90 wheel layout).
-  //   - neural / taste2d    → joystick switches to taste pills internally,
-  //                           so this list is unused there.
+  // ClusterJoystick pills depend on the resolved morph axis:
+  //   - morphAxis === null  → real cluster taxonomy from cluster_labels.json
+  //                           (no filter active OR only scope filters)
+  //   - morphAxis === 'taste' | 'aromas' | 'cuisine' | 'season' | 'family'
+  //     → categorical buckets synthesized from CATEGORICAL_AXES (one
+  //       pill per bucket, fly-to centroid computed on the same
+  //       RING_RADIUS=90 wheel layout).
   const joystickClusters = useMemo(() => {
-    const axisKey = NETWORK_MODE_TO_AXIS[livingMode];
-    if (axisKey && CATEGORICAL_AXES[axisKey]) {
-      const axis = CATEGORICAL_AXES[axisKey];
+    if (morphAxis && CATEGORICAL_AXES[morphAxis]) {
+      const axis = CATEGORICAL_AXES[morphAxis];
       const RING_RADIUS = 90;
       const N = axis.labels.length;
       return axis.labels.map((label, i) => {
@@ -161,7 +218,7 @@ export default function App() {
       });
     }
     return data?.clusterLabels?.clusters;
-  }, [livingMode, data]);
+  }, [morphAxis, data]);
 
   const handleModeSelect = useCallback((mode) => {
     writeStartPageFlag();
@@ -270,9 +327,9 @@ export default function App() {
       // (-100 - bucketIndex) and node.clusterId never matches. The
       // upstream click gate in LivingArchView already enforced bucket
       // membership before we got here, so we just trust the click and
-      // skip the clusterId comparison.
-      const axisKey = NETWORK_MODE_TO_AXIS[livingMode];
-      const isCategoricalFocus = axisKey && focusedCluster <= -100;
+      // skip the clusterId comparison. `morphAxis` resolved to non-null
+      // means a categorical wheel is currently driving the layout.
+      const isCategoricalFocus = morphAxis && focusedCluster <= -100;
       if (!isCategoricalFocus && node.clusterId !== focusedCluster) return;
     }
     // Empty-space click is a no-op so OrbitControls drags / camera
@@ -293,7 +350,7 @@ export default function App() {
       }
       return next;
     });
-  }, [focusedCluster, livingMode]);
+  }, [focusedCluster, morphAxis]);
 
   const handleSearchSelect = useCallback((name) => {
     setSelectedNodes((prev) => {
@@ -505,13 +562,16 @@ export default function App() {
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
               </svg>
-              {activeTab === 'network' ? NETWORK_MODE_LABELS[livingMode] : 'Network'}
+              {activeTab === 'network' ? NETWORK_MODE_LABELS[mode] : 'Network'}
               {activeTab === 'network' && (
                 <svg className={`w-3 h-3 transition-transform ${networkDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
                   <path d="M7 10l5 5 5-5z" />
                 </svg>
               )}
             </button>
+            {/* R16 Phase 1: dropdown now shows ONLY 3D / 2D. The 6
+                categorical mode entries are gone — categorical layout
+                is driven by the FilterPillRow instead. */}
             {networkDropdownOpen && activeTab === 'network' && (
               <>
                 <div className="fixed inset-0 z-[59]" onClick={() => setNetworkDropdownOpen(false)} />
@@ -520,15 +580,15 @@ export default function App() {
                     <button
                       key={m}
                       role="menuitem"
-                      onClick={() => { setLivingMode(m); setNetworkDropdownOpen(false); }}
+                      onClick={() => { setMode(m); setNetworkDropdownOpen(false); }}
                       className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                        livingMode === m
+                        mode === m
                           ? 'text-cyan-300 bg-cyan-500/10'
                           : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
                       }`}
                     >
                       {NETWORK_MODE_LABELS[m]}
-                      {livingMode === m && (
+                      {mode === m && (
                         <svg className="w-3 h-3 ml-auto text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                         </svg>
@@ -687,8 +747,10 @@ export default function App() {
         particleBrightness={particleBrightness}
         filterTaste={selectedTaste}
         treeFilterIngredients={treeFilterIngredients}
-        mode={livingMode}
-        onModeChange={setLivingMode}
+        mode={effectiveLegacyMode}
+        onModeChange={setMode}
+        filterStack={filterStack}
+        morphAxis={morphAxis}
         onDoubleTap={handleCanvasDoubleTap}
         highlightPairings={highlightPairings}
         flyToTarget={flyToTarget}
@@ -1007,12 +1069,29 @@ export default function App() {
         </div>
       )}
 
+      {/* R16 Phase 1: FilterPillRow — pinned to the top-center, just below
+          the main nav. Tapping a filter pill morphs the wheel layout to
+          that axis. Multi-select pills compose AND-intersection on
+          node visibility. */}
+      {activeTab === 'network' && (
+        <div className="fixed left-1/2 -translate-x-1/2 top-12 z-[68] pointer-events-none">
+          <div className="bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full shadow-lg pointer-events-auto">
+            <FilterPillRow
+              filterStack={filterStack}
+              onToggle={toggleFilter}
+              onClear={clearFilters}
+              mode={mode}
+            />
+          </div>
+        </div>
+      )}
+
       {/* ClusterJoystick — pinned bottom-center pill strip. In Network
           modes the pills are clusters; in Taste modes they're tastes. */}
       {activeTab === 'network' && joystickClusters && (
         <ClusterJoystick
           clusters={joystickClusters}
-          mode={livingMode}
+          morphAxis={morphAxis}
           focusedClusterId={focusedCluster}
           onClusterFocus={(id) => {
             setFocusedCluster(id);
@@ -1160,8 +1239,8 @@ export default function App() {
             if (tab === 'recipe') setRecipeMounted(true);
             setLabDropdownOpen(false);
           }}
-          networkMode={livingMode}
-          onNetworkModeChange={setLivingMode}
+          networkMode={mode}
+          onNetworkModeChange={setMode}
           onOpenProfile={() => setActiveTab('profile')}
           onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
         />

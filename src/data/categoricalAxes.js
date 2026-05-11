@@ -197,6 +197,38 @@ export const CATEGORICAL_AXES = {
 };
 
 /**
+ * R16 Phase 1 — visibility predicate used by LivingArchView.
+ *
+ * Resolves a (filterKey, node) pair into either a bucket label
+ * (string) or `null` if the node does not belong to any bucket of
+ * the given filter. Used by the AND-intersection visibility loop
+ * inside LivingArchView: a node is rendered iff bucketOf(f, node)
+ * !== null for every filter `f` in the stack.
+ *
+ * Filter-key→axis mapping mirrors `FILTER_TO_AXIS` in
+ * `networkModes.js`. Scope filters (`cocktail-scope`, `sauce-scope`)
+ * return `null` for every node in Phase 1 — the full scope detection
+ * ships in Phase 2; for now toggling a scope filter hides the whole
+ * graph, which is an acceptable Phase 1 stub.
+ */
+export function bucketOf(filterKey, node, ctx) {
+  if (!node) return null;
+  if (filterKey === 'cocktail-scope' || filterKey === 'sauce-scope') {
+    // Phase 1 stub — full scope detection is a Phase 2 deliverable.
+    // Returning a sentinel bucket label (not null) makes the pill a
+    // no-op for visibility: it counts as "matches all nodes". Phase 2
+    // will replace this with actual cocktail-ingredient / sauce-
+    // ingredient set membership.
+    return '_scope-stub';
+  }
+  // Singular filter key → plural axis key (mirrors FILTER_TO_AXIS).
+  const axisKey = filterKey === 'aroma' ? 'aromas' : filterKey;
+  const axis = CATEGORICAL_AXES[axisKey];
+  if (!axis) return null;
+  return axis.bucketOf(node, ctx || {}) || null;
+}
+
+/**
  * Bucket every node under a given axis. Returns a Map<name, label>
  * plus the per-bucket member arrays for layout.
  */

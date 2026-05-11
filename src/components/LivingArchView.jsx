@@ -17,7 +17,7 @@ import NetworkA11yShim from './NetworkA11yShim.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
 import { MODE_CYCLE, MODE_LABELS, MODE_IS_2D, MODE_IS_CATEGORICAL, MODE_TO_AXIS } from '../data/networkModes.js';
 import { computeCategoricalWheelPositions } from '../data/categoricalWheelPositions.js';
-import { CATEGORICAL_AXES } from '../data/categoricalAxes.js';
+import { CATEGORICAL_AXES, bucketOf } from '../data/categoricalAxes.js';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
 import {
   createTasteSelection,
@@ -46,6 +46,14 @@ export default function LivingArchView({
   bridgePathIngredients = null,
   mode: externalMode,
   onModeChange,
+  // R16 Phase 1 — orthogonal filter stack. When non-empty, hidden
+  // nodes (those that don't match every active filter's bucketOf) get
+  // their instance matrix scaled to 0. The `mode` prop already carries
+  // the effective legacy mode key (e.g., 'aromas2d') so the existing
+  // morph + bucket-coloring machinery from commit 8749a3f still drives
+  // the layout; this prop just adds AND-intersection on visibility.
+  filterStack = [],
+  morphAxis = null,
   onDoubleTap,
   onNodeHover,
   highlightPairings = null,
@@ -1409,6 +1417,9 @@ export default function LivingArchView({
       // wheel modes (taste/aromas/cuisine/season/family). bucketOf
       // is a Map<ingredientName, bucketLabel> per axis.
       categoricalOutByMode, categoricalColorByMode,
+      // R16 Phase 1: the data context passed into every per-axis
+      // bucketOf call (gnnEntropy + cuisineMap + seasonMap).
+      categoricalCtx,
       triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
       // Expose runtime cluster centroids (3D from posA, 2D from PCA) so the
@@ -2026,6 +2037,42 @@ export default function LivingArchView({
       });
     }
   }, [focusedClusterId, mode]);
+
+  // ---- R16 Phase 1: filter-stack visibility predicate ----
+  // When `filterStack` is non-empty, hide any node that doesn't match
+  // every active filter's bucketOf. Hidden nodes get their instance
+  // matrix scaled to 0 (effectively invisible without removing them
+  // from the BufferGeometry). Visible nodes have their scale restored
+  // to the original pairing-count-derived value.
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st || !st.mesh || !st.nodeArray) return;
+    const { mesh, nodeArray, curPos } = st;
+    const ctx = st.categoricalCtx || {};
+    const dummy = new THREE.Object3D();
+    let visibleCount = 0;
+    for (let i = 0; i < nodeArray.length; i++) {
+      const node = nodeArray[i];
+      const isVisible = filterStack.length === 0
+        ? true
+        : filterStack.every((f) => bucketOf(f, node, ctx) != null);
+      const pc = node.pairingCount || 0;
+      const baseScale = Math.max(0.3, Math.min(2.0, Math.sqrt(pc) * 0.15));
+      const finalScale = isVisible ? baseScale : 0;
+      dummy.position.set(curPos[i*3], curPos[i*3+1], curPos[i*3+2]);
+      dummy.scale.set(finalScale, finalScale, finalScale);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+      if (isVisible) visibleCount++;
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    // Phase 2 will render an empty-intersection overlay; Phase 1 just
+    // warns so the empty case is observable in dev.
+    if (filterStack.length > 0 && visibleCount === 0) {
+      // eslint-disable-next-line no-console
+      console.warn('R16 Phase 1: empty intersection — overlay UI ships in Phase 2');
+    }
+  }, [filterStack, mode]);
 
   // ---- R13-5: AffinityMode selection driver ----
   // Watches selectedNodes + affinityEnabled and dispatches
