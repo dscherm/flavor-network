@@ -1,6 +1,6 @@
-// Headless verify: the Network mode dropdown lists all 8 modes
-// (4 original + 4 new categorical wheels), and each new mode renders
-// without console errors when activated.
+// Headless verify (R16 Phase 1): Network mode dropdown collapsed to
+// exactly 2 entries (3D Pairings, 2D Pairings), and the FilterPillRow
+// renders 8 pills (None + 7 filters).
 
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
@@ -23,49 +23,37 @@ await page.addInitScript(() => {
 
 await page.goto(URL, { waitUntil: 'networkidle' });
 await page.click('[data-mode="pairing"]');
-// Wait for ProData to load and the network nav button to appear
 await page.waitForSelector('button:has-text("3D Pairings")', { timeout: 30000 });
 
-// Click the Network nav button to open the mode dropdown.
+// Open the Network mode dropdown.
 await page.click('button:has-text("3D Pairings")');
-await page.waitForTimeout(200);
+await page.waitForTimeout(300);
 await page.screenshot({ path: `${SHOT_DIR}/network-mode-dropdown.png` });
 
-// Read every menuitem in the dropdown
+// Read every menuitem in the dropdown — should be exactly 2.
 const items = await page.$$eval(
   '[role="menu"] button',
   (btns) => btns.map((b) => b.textContent?.trim() || '')
 );
 
-await page.screenshot({ path: `${SHOT_DIR}/network-mode-dropdown.png` });
+// Close dropdown by clicking elsewhere
+await page.keyboard.press('Escape');
+await page.waitForTimeout(150);
 
-// Now click "2D Family" to confirm the new mode actually loads.
-const family = await page.$('button:has-text("2D Family")');
-if (family) {
-  await family.click();
-  await page.waitForTimeout(2000);  // let nodes settle (transition is ~1.6s)
-  await page.screenshot({ path: `${SHOT_DIR}/network-2d-family.png` });
-}
+// FilterPillRow: should have None + 7 filter pills = 8 checkbox buttons.
+const pillCount = await page.$$eval(
+  'div[role="group"][aria-label="Filter by"] button[role="checkbox"]',
+  (btns) => btns.length
+);
 
-// Click "2D Aromas"
-const open = await page.$('button:has-text("2D Family")');
-if (open) {
-  await open.click();
-  await page.waitForTimeout(150);
-}
-const aromas = await page.$('button:has-text("2D Aromas")');
-if (aromas) {
-  await aromas.click();
-  await page.waitForTimeout(2000);
-  await page.screenshot({ path: `${SHOT_DIR}/network-2d-aromas.png` });
+await page.screenshot({ path: `${SHOT_DIR}/network-filter-pill-row.png` });
 
-  // Bucket-focus check on a non-taste categorical wheel.
-  const fruity = await page.$('div[aria-label="Fly to cluster"] button:has-text("Fruity")');
-  if (fruity) {
-    await fruity.click();
-    await page.waitForTimeout(1500);
-    await page.screenshot({ path: `${SHOT_DIR}/network-2d-aromas-fruity-focus.png` });
-  }
+// Click the Aroma pill to confirm morph + visibility still work.
+const aromaPill = await page.$('div[role="group"][aria-label="Filter by"] button:has-text("Aroma")');
+if (aromaPill) {
+  await aromaPill.click();
+  await page.waitForTimeout(2200);
+  await page.screenshot({ path: `${SHOT_DIR}/network-filter-aroma-active.png` });
 }
 
 await browser.close();
@@ -74,10 +62,11 @@ console.log(`Console errors: ${consoleErrors.length}`);
 consoleErrors.forEach((e) => console.log(`  - ${e}`));
 console.log(`Mode menuitems found (${items.length}):`);
 items.forEach((t) => console.log(`  - ${t}`));
+console.log(`Filter pill count: ${pillCount}`);
 
-const expected = ['3D Pairings', '2D Pairings', '3D Flavors', '2D Flavors', '2D Aromas', '2D Cuisine', '2D Season', '2D Family'];
-const ok =
-  consoleErrors.length === 0 &&
-  expected.every((label) => items.some((t) => t.includes(label)));
+const expectedDropdown = ['3D Pairings', '2D Pairings'];
+const dropdownOk = items.length === 2 && expectedDropdown.every((label) => items.some((t) => t.includes(label)));
+const pillOk = pillCount === 8;
+const ok = consoleErrors.length === 0 && dropdownOk && pillOk;
 console.log(ok ? 'VERIFY PASSED' : 'VERIFY FAILED');
 process.exit(ok ? 0 : 1);

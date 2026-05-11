@@ -1,61 +1,119 @@
 /**
  * networkModes.js — shared mode taxonomy for the Network tab.
  *
- * Original cycle (4 modes — geometry-driven):
- *   ml      → 3D Pairings  (recipe co-occurrence graph in 3D)
- *   ml2d    → 2D Pairings  (PCA-projected layout)
- *   neural  → 3D Flavors   (taste-channel positioning in 3D)
- *   taste2d → 2D Flavors   (taste-wheel layout)
+ * R16 Phase 1 collapse: the previous 8-entry `MODE_CYCLE` (ml / ml2d /
+ * neural / taste2d + the 4 categorical wheels) has been reduced to two
+ * geometry modes only — `3D` and `2D`. The categorical wheel layouts
+ * (aromas / cuisine / season / family / taste) survive as *morph
+ * overlays* driven by an orthogonal `filterStack` rather than as
+ * dropdown entries. See `.omc/plans/r16-network-filter-consolidation-plan.md`
+ * for the full rationale.
  *
- * Categorical wheel modes (added Phase 2 — categorical bucketing):
- *   aromas2d  → Aromas  (6 dominant odor families: fruity/floral/green/woody/spicy/fatty)
- *   cuisine2d → Cuisine (8 regional buckets: European, Americas, East Asian, …)
- *   season2d  → Season  (5 buckets: Spring/Summer/Autumn/Winter/All Year)
- *   family2d  → Family  (~11 culinary categories: Protein/Dairy/Veg/…)
- *
- * Each new mode is a flat-plane wheel laid out by
- * src/data/categoricalWheelPositions.js — bucket centroids on a
- * circle of radius 60, members on a phyllotaxis sub-disc per bucket.
- *
- * Lifted to a separate module so LivingArchView (renderer) and
- * MobileTabBar (Network button dropdown) stay in lockstep on which
- * keys exist + how they label.
+ * The legacy mode keys + axis mappings stay defined internally
+ * (`LEGACY_MODE_TO_FILTER`, `MODE_TO_AXIS`, `MODE_IS_2D`,
+ * `MODE_IS_CATEGORICAL`) so the renderer's existing `posForMode`
+ * dispatch + cluster-color paths can be migrated incrementally
+ * across Phase 2/3 without a single-commit rip-out.
  */
-export const MODE_CYCLE = [
-  'ml', 'ml2d', 'neural', 'taste2d',
-  'aromas2d', 'cuisine2d', 'season2d', 'family2d',
-];
+
+// ===== Mode picker (collapsed) ===========================================
+export const MODE_CYCLE = ['3D', '2D'];
 
 export const MODE_LABELS = {
-  ml: '3D Pairings',
-  ml2d: '2D Pairings',
-  neural: '3D Flavors',
-  taste2d: '2D Flavors',
-  aromas2d: '2D Aromas',
-  cuisine2d: '2D Cuisine',
-  season2d: '2D Season',
-  family2d: '2D Family',
+  '3D': '3D Pairings',
+  '2D': '2D Pairings',
 };
 
-// Set of mode keys whose layout is a flat 2D plane (camera looks
-// straight down). Used by LivingArchView for camera positioning,
-// orbit constraints, and wheel-style label sprites.
+// ===== Filter pill row (new in R16 Phase 1) ==============================
+// Ordered list of filter keys rendered in the FilterPillRow. The "None"
+// pill is presentational (active when filterStack.length === 0) and is
+// NOT listed here — it's rendered separately.
+export const FILTER_KEYS = [
+  'aroma',
+  'cuisine',
+  'season',
+  'family',
+  'taste',
+  'cocktail-scope',
+  'sauce-scope',
+];
+
+export const FILTER_LABELS = {
+  'aroma':          'Aroma',
+  'cuisine':        'Cuisine',
+  'season':         'Season',
+  'family':         'Family',
+  'taste':          'Taste',
+  'cocktail-scope': 'Cocktail Scope',
+  'sauce-scope':    'Sauce Scope',
+};
+
+// Singular filter key → plural axis key consumed by
+// `categoricalWheelPositions.js`. Scope filters resolve to `null`
+// because they have no wheel data — they are visibility-only and
+// must NOT drive the morph layout.
+export const FILTER_TO_AXIS = {
+  'aroma':          'aromas',     // singular → plural
+  'cuisine':        'cuisine',
+  'season':         'season',
+  'family':         'family',
+  'taste':          'taste',
+  'cocktail-scope': null,
+  'sauce-scope':    null,
+};
+
+/**
+ * Resolve the morph-driver axis for a given filter stack.
+ *
+ * Walks the stack tail-first and returns the most-recent filter whose
+ * `FILTER_TO_AXIS` entry is non-null. Scope filters (axis === null) are
+ * skipped — they restrict visibility but never drive the layout.
+ *
+ * Returns `null` when the stack is empty OR contains only scope
+ * filters — in which case the renderer should fall back to the
+ * cooccurrence layout (posA for 3D, posB for 2D).
+ */
+export function morphAxisForStack(filterStack) {
+  if (!Array.isArray(filterStack)) return null;
+  for (let i = filterStack.length - 1; i >= 0; i--) {
+    const axis = FILTER_TO_AXIS[filterStack[i]];
+    if (axis !== null && axis !== undefined) return axis;
+  }
+  return null;
+}
+
+/**
+ * Replaces the legacy `MODE_IS_CATEGORICAL` set. Returns true when the
+ * filter stack has at least one entry — i.e. the renderer should hide
+ * edges + particles and treat the layout as "categorical view."
+ */
+export function HAS_ACTIVE_FILTER(filterStack) {
+  return Array.isArray(filterStack) && filterStack.length > 0;
+}
+
+// ===== Legacy mappings (kept internal for renderer migration) ============
+// Pre-Phase-1 the renderer indexed `posForMode` by these mode keys.
+// During the Phase 1 collapse the renderer is being migrated to a
+// (geometryMode, morphAxis) tuple, but the wheel-position cache itself
+// is still keyed by axis name — these tables let us look up the right
+// Float32Array without touching `categoricalWheelPositions.js` internals.
+
+// Mode keys whose layout is a flat 2D plane (camera looks straight
+// down). Used by LivingArchView for camera positioning, orbit
+// constraints, and wheel-style label sprites.
 export const MODE_IS_2D = new Set([
   'ml2d', 'taste2d', 'aromas2d', 'cuisine2d', 'season2d', 'family2d',
 ]);
 
 // Set of categorical-wheel mode keys (those served by
-// categoricalWheelPositions.js). taste2d is included here as of
-// the "tastes-as-clusters" layout swap — it now renders the same
-// 8-bucket wheel-of-sub-discs as the other categorical modes
-// (one sub-disc per dominant taste), replacing the legacy
-// octagonal sector wheel.
+// categoricalWheelPositions.js). Kept for code paths that haven't
+// migrated to `HAS_ACTIVE_FILTER(filterStack)` yet.
 export const MODE_IS_CATEGORICAL = new Set([
   'taste2d', 'aromas2d', 'cuisine2d', 'season2d', 'family2d',
 ]);
 
-// Convenience: mode key → categorical axis key (for looking up
-// positions from categoricalWheelPositions.js).
+// Convenience: legacy mode key → categorical axis key (for looking
+// up positions from categoricalWheelPositions.js).
 export const MODE_TO_AXIS = {
   taste2d:  'taste',
   aromas2d: 'aromas',
@@ -63,3 +121,45 @@ export const MODE_TO_AXIS = {
   season2d: 'season',
   family2d: 'family',
 };
+
+// Legacy mode key → filter key mapping. Reserved for migration logic
+// that needs to translate "what categorical mode was the user in?" to
+// "what filter would represent that state?". Not used in Phase 1.
+export const LEGACY_MODE_TO_FILTER = {
+  taste2d:   'taste',
+  aromas2d:  'aroma',
+  cuisine2d: 'cuisine',
+  season2d:  'season',
+  family2d:  'family',
+};
+
+/**
+ * Axis-key (plural — `taste` / `aromas` / `cuisine` / `season` /
+ * `family`) → legacy mode key the renderer's `posForMode` and
+ * `categoricalOutByMode` tables use. Phase 1 derives an effective
+ * legacy mode from `(mode, morphAxis)` so the existing rendering
+ * pipeline (transition lerps, bucket colors, label visibility) does
+ * not need a single-commit rewrite.
+ */
+export const AXIS_TO_LEGACY_MODE = {
+  taste:   'taste2d',
+  aromas:  'aromas2d',
+  cuisine: 'cuisine2d',
+  season:  'season2d',
+  family:  'family2d',
+};
+
+/**
+ * Derive the legacy mode key (`ml` / `ml2d` / `taste2d` / `aromas2d`
+ * / `cuisine2d` / `season2d` / `family2d`) from the (geometryMode,
+ * morphAxis) tuple. Used as the bridge between R16 Phase 1's new
+ * (mode, filterStack) state and the renderer's existing
+ * mode-keyed position / color / label tables.
+ *
+ *   morphAxis === null  → ml (3D) | ml2d (2D)
+ *   morphAxis !== null  → `${axis}2d` (always a wheel layout)
+ */
+export function effectiveLegacyMode(mode, morphAxis) {
+  if (!morphAxis) return mode === '3D' ? 'ml' : 'ml2d';
+  return AXIS_TO_LEGACY_MODE[morphAxis] || (mode === '3D' ? 'ml' : 'ml2d');
+}

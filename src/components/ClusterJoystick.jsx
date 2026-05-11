@@ -39,18 +39,22 @@ const TASTE_TARGETS = {
   astringent: [0, -60, 0],
 };
 
-export default function ClusterJoystick({ clusters, mode, onFlyTo, focusedClusterId = null, onClusterFocus }) {
+export default function ClusterJoystick({ clusters, morphAxis = null, onFlyTo, focusedClusterId = null, onClusterFocus }) {
   const [active, setActive] = useState(null);
   // iOS dispatches a synthesized click ~300ms after touchstart. Without
   // this debounce, each tap on a cluster pill toggles focus twice (on
   // then back off), leaving the user unable to enter cluster-focus
   // mode at all. Coalesce both events into a single handleTap.
   const lastFireRef = useRef(0);
-  // taste2d now uses the wheel-of-sub-discs layout driven by
-  // CATEGORICAL_AXES.taste, so its pills are supplied via `clusters`
-  // (App.jsx builds them as pseudo-cluster objects). Only the 3D
-  // neural view still uses the hard-coded TASTE_TARGETS pills here.
-  const isTasteMode = mode === 'neural';
+  // R16 Phase 1: with the mode dropdown collapsed to 3D/2D, the
+  // joystick's pill source is driven by `morphAxis` — when it's set,
+  // App.jsx supplies categorical-bucket pseudo-clusters; when null,
+  // App.jsx supplies the real 10-cluster taxonomy. Either way we just
+  // render `clusters`. The hard-coded TASTE_TARGETS taste-pill branch
+  // is retired since the neural-3D mode has no current invocation
+  // surface (it would re-enter through `morphAxis === 'taste'`, which
+  // hits the wheel-bucket pill branch via the synthesized clusters).
+  const isTasteMode = false;
 
   const items = isTasteMode
     ? TASTE_ORDER.map(t => ({
