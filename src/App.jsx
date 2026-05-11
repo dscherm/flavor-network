@@ -41,7 +41,8 @@ import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
-import { MODE_CYCLE as NETWORK_MODE_CYCLE, MODE_LABELS as NETWORK_MODE_LABELS } from './data/networkModes.js';
+import { MODE_CYCLE as NETWORK_MODE_CYCLE, MODE_LABELS as NETWORK_MODE_LABELS, MODE_TO_AXIS as NETWORK_MODE_TO_AXIS } from './data/networkModes.js';
+import { CATEGORICAL_AXES } from './data/categoricalAxes.js';
 import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
@@ -124,6 +125,44 @@ export default function App() {
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
 
+  // Reset focused cluster on mode change. Pseudo-cluster IDs assigned
+  // by the categorical-wheel joystick are mode-specific (-100 - i for
+  // each mode's axis labels), so a Sweet focus carried into the Cuisine
+  // wheel would highlight nothing — clearer to drop the focus on
+  // mode change and let the user re-pick.
+  useEffect(() => {
+    setFocusedCluster(null);
+  }, [livingMode]);
+
+  // ClusterJoystick pills depend on the active Network mode:
+  //   - ml / ml2d           → real cluster taxonomy from cluster_labels.json
+  //   - aromas2d / cuisine2d / season2d / family2d → categorical buckets
+  //     synthesized from CATEGORICAL_AXES (one pill per bucket, fly-to
+  //     centroid computed on the same RING_RADIUS=90 wheel layout).
+  //   - neural / taste2d    → joystick switches to taste pills internally,
+  //                           so this list is unused there.
+  const joystickClusters = useMemo(() => {
+    const axisKey = NETWORK_MODE_TO_AXIS[livingMode];
+    if (axisKey && CATEGORICAL_AXES[axisKey]) {
+      const axis = CATEGORICAL_AXES[axisKey];
+      const RING_RADIUS = 90;
+      const N = axis.labels.length;
+      return axis.labels.map((label, i) => {
+        const angle = (2 * Math.PI * i) / N - Math.PI / 2;
+        const cx = Math.cos(angle) * RING_RADIUS;
+        const cz = Math.sin(angle) * RING_RADIUS;
+        return {
+          id: -100 - i,
+          name: label,
+          color: axis.colors[i],
+          centroid_3d: [cx, 0, cz],
+          top_ingredients: [],
+        };
+      });
+    }
+    return data?.clusterLabels?.clusters;
+  }, [livingMode, data]);
+
   const handleModeSelect = useCallback((mode) => {
     writeStartPageFlag();
     setStartPageComplete(true);
@@ -133,14 +172,18 @@ export default function App() {
       // based clustering. Lands on the Network tab.
       setActiveTab('network');
     } else if (mode === 'cocktail') {
-      // Cocktail model — the Cocktail Codex view with cocktails as
-      // nodes and 7 super-cluster families. Lazy-mount the lab.
+      // Cocktail model — 6 family taxonomy with cocktails as nodes.
       setCocktailMounted(true);
       setActiveTab('cocktail');
     } else if (mode === 'sauce') {
       // Sauce model — the 10-mother-family codex with sauces as nodes.
       setSauceMounted(true);
       setActiveTab('sauce');
+    } else if (mode === 'recipe') {
+      // Recipe Lab — notebook-style recipe builder with live pairing
+      // strength + GNN aroma scoring.
+      setRecipeMounted(true);
+      setActiveTab('recipe');
     }
   }, []);
 
@@ -153,21 +196,6 @@ export default function App() {
     setLandingPick(null);
   }, []);
 
-  // LandingScreen "More labs" handler — bypasses the 3 primary tiles.
-  // Recipe Lab opens as a tab; Molecule Lab opens as a slide-out card
-  // over a freshly-loaded Network so the user has somewhere to land.
-  const handleLandingSecondary = useCallback((id) => {
-    writeStartPageFlag();
-    setStartPageComplete(true);
-    setLandingPick('pairing');
-    if (id === 'recipe') {
-      setRecipeMounted(true);
-      setActiveTab('recipe');
-    } else if (id === 'molecule') {
-      setMoleculeLabOpen(true);
-      setActiveTab('network');
-    }
-  }, []);
 
   // Derived state
   const selectedNode = selectedNodes.length > 0 ? selectedNodes[0] : null;
@@ -237,7 +265,15 @@ export default function App() {
         setFocusedCluster(null);
         return;
       }
-      if (node.clusterId !== focusedCluster) return;
+      // For categorical wheel modes (taste / aromas / cuisine / season /
+      // family) the focused-cluster id is a synthetic negative
+      // (-100 - bucketIndex) and node.clusterId never matches. The
+      // upstream click gate in LivingArchView already enforced bucket
+      // membership before we got here, so we just trust the click and
+      // skip the clusterId comparison.
+      const axisKey = NETWORK_MODE_TO_AXIS[livingMode];
+      const isCategoricalFocus = axisKey && focusedCluster <= -100;
+      if (!isCategoricalFocus && node.clusterId !== focusedCluster) return;
     }
     // Empty-space click is a no-op so OrbitControls drags / camera
     // moves don't dismiss the open panel and selected ingredients.
@@ -257,7 +293,7 @@ export default function App() {
       }
       return next;
     });
-  }, [focusedCluster]);
+  }, [focusedCluster, livingMode]);
 
   const handleSearchSelect = useCallback((name) => {
     setSelectedNodes((prev) => {
@@ -406,7 +442,6 @@ export default function App() {
     return (
       <LandingScreen
         onModeSelect={handleModeSelect}
-        onSecondarySelect={handleLandingSecondary}
         isLoading={loading}
         picked={landingPick}
       />
@@ -708,6 +743,8 @@ export default function App() {
           }}
           isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
           onToggleFavorite={userProfile.toggleIngredient}
+          onTogglePairing={userProfile.togglePairing}
+          hasPairing={userProfile.hasPairing}
           graphNodes={data?.graph?.nodes}
           bridgeCompounds={data?.bridgeCompounds}
           gnnEntropy={data?.gnnEntropy}
@@ -972,9 +1009,9 @@ export default function App() {
 
       {/* ClusterJoystick — pinned bottom-center pill strip. In Network
           modes the pills are clusters; in Taste modes they're tastes. */}
-      {activeTab === 'network' && data?.clusterLabels?.clusters && (
+      {activeTab === 'network' && joystickClusters && (
         <ClusterJoystick
-          clusters={data.clusterLabels.clusters}
+          clusters={joystickClusters}
           mode={livingMode}
           focusedClusterId={focusedCluster}
           onClusterFocus={(id) => {
@@ -1089,6 +1126,8 @@ export default function App() {
               selectedCount={selectedNodes.length}
               isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
               onToggleFavorite={userProfile.toggleIngredient}
+          onTogglePairing={userProfile.togglePairing}
+          hasPairing={userProfile.hasPairing}
               graphNodes={data?.graph?.nodes}
               embedded
             />

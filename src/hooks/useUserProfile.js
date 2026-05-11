@@ -10,8 +10,24 @@ const DEFAULT_PROFILE = {
   recipes: [],
   cocktails: [],
   sauces: [],
+  pairings: [], // { a, b } where a < b alphabetically (canonical key)
   quizAnswers: null,
 };
+
+/**
+ * Canonicalize a pairing so { a:'butter', b:'sage' } and
+ * { a:'sage', b:'butter' } collapse to one entry. Lowercased + sorted.
+ */
+function canonicalPairing(a, b) {
+  const lo = String(a || '').toLowerCase().trim();
+  const hi = String(b || '').toLowerCase().trim();
+  if (!lo || !hi || lo === hi) return null;
+  return lo < hi ? { a: lo, b: hi } : { a: hi, b: lo };
+}
+
+function pairingKey(p) {
+  return p ? `${p.a}${p.b}` : '';
+}
 
 /**
  * Normalize a recipe ingredient to structured form.
@@ -54,6 +70,9 @@ function loadLocalProfile() {
       recipes: Array.isArray(parsed.recipes) ? parsed.recipes.map(normalizeRecipe) : [],
       cocktails: Array.isArray(parsed.cocktails) ? parsed.cocktails : [],
       sauces: Array.isArray(parsed.sauces) ? parsed.sauces : [],
+      pairings: Array.isArray(parsed.pairings)
+        ? parsed.pairings.map((p) => canonicalPairing(p?.a, p?.b)).filter(Boolean)
+        : [],
       quizAnswers: parsed.quizAnswers || null,
     };
   } catch {
@@ -300,6 +319,49 @@ export default function useUserProfile(user) {
     }));
   }, [update]);
 
+  // --- Favorite Pairings ---
+  const addPairing = useCallback((a, b) => {
+    const p = canonicalPairing(a, b);
+    if (!p) return;
+    update((prev) => {
+      const list = Array.isArray(prev.pairings) ? prev.pairings : [];
+      const key = pairingKey(p);
+      if (list.some((x) => pairingKey(x) === key)) return prev;
+      return { ...prev, pairings: [...list, p] };
+    });
+  }, [update]);
+
+  const removePairing = useCallback((a, b) => {
+    const p = canonicalPairing(a, b);
+    if (!p) return;
+    update((prev) => {
+      const list = Array.isArray(prev.pairings) ? prev.pairings : [];
+      const key = pairingKey(p);
+      return { ...prev, pairings: list.filter((x) => pairingKey(x) !== key) };
+    });
+  }, [update]);
+
+  const togglePairing = useCallback((a, b) => {
+    const p = canonicalPairing(a, b);
+    if (!p) return;
+    update((prev) => {
+      const list = Array.isArray(prev.pairings) ? prev.pairings : [];
+      const key = pairingKey(p);
+      if (list.some((x) => pairingKey(x) === key)) {
+        return { ...prev, pairings: list.filter((x) => pairingKey(x) !== key) };
+      }
+      return { ...prev, pairings: [...list, p] };
+    });
+  }, [update]);
+
+  const hasPairing = useCallback((a, b) => {
+    const p = canonicalPairing(a, b);
+    if (!p) return false;
+    const list = Array.isArray(profile.pairings) ? profile.pairings : [];
+    const key = pairingKey(p);
+    return list.some((x) => pairingKey(x) === key);
+  }, [profile.pairings]);
+
   // --- Bulk ---
   const clearProfile = useCallback(() => {
     update(DEFAULT_PROFILE);
@@ -328,6 +390,9 @@ export default function useUserProfile(user) {
         sauces: Array.isArray(parsed.sauces)
           ? parsed.sauces
           : [],
+        pairings: Array.isArray(parsed.pairings)
+          ? parsed.pairings.map((p) => canonicalPairing(p?.a, p?.b)).filter(Boolean)
+          : [],
         quizAnswers: parsed.quizAnswers || null,
       };
       update(validated);
@@ -350,14 +415,24 @@ export default function useUserProfile(user) {
     return profile.cuisines.includes(name.toLowerCase());
   }, [profile.cuisines]);
 
-  const stats = useMemo(() => ({
-    cuisineCount: profile.cuisines.length,
-    ingredientCount: profile.ingredients.length,
-    recipeCount: profile.recipes.length,
-    cocktailCount: (profile.cocktails || []).length,
-    sauceCount: (profile.sauces || []).length,
-    totalItems: profile.cuisines.length + profile.ingredients.length + profile.recipes.length + (profile.cocktails || []).length + (profile.sauces || []).length,
-  }), [profile]);
+  const stats = useMemo(() => {
+    const pairingCount = (profile.pairings || []).length;
+    return {
+      cuisineCount: profile.cuisines.length,
+      ingredientCount: profile.ingredients.length,
+      recipeCount: profile.recipes.length,
+      cocktailCount: (profile.cocktails || []).length,
+      sauceCount: (profile.sauces || []).length,
+      pairingCount,
+      totalItems:
+        profile.cuisines.length
+        + profile.ingredients.length
+        + profile.recipes.length
+        + (profile.cocktails || []).length
+        + (profile.sauces || []).length
+        + pairingCount,
+    };
+  }, [profile]);
 
   return {
     profile,
@@ -374,6 +449,10 @@ export default function useUserProfile(user) {
     addSauce,
     removeSauce,
     updateSauce,
+    addPairing,
+    removePairing,
+    togglePairing,
+    hasPairing,
     clearProfile,
     exportProfile,
     importProfile,

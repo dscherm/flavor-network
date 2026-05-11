@@ -172,7 +172,35 @@ function getDiscoveryFact(node, neighbors) {
   return null;
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes }) {
+/**
+ * PairingStar — span (not button) so it can sit inside the existing
+ * neighbor-row <button>. role/tabIndex/keyboard handler give it
+ * button semantics. stopPropagation prevents the row's onClick
+ * (open the neighbor) from firing when the user toggles the star.
+ */
+function PairingStar({ a, b, isFavorite, onToggle }) {
+  if (!a || !b || !onToggle) return null;
+  const handle = (e) => { e.stopPropagation(); onToggle(a, b); };
+  return (
+    <span
+      role="button"
+      tabIndex={0}
+      onClick={handle}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handle(e); }
+      }}
+      className={`flex-shrink-0 inline-flex items-center justify-center w-6 h-6 text-sm transition-colors cursor-pointer ${
+        isFavorite ? 'text-amber-400 hover:text-amber-300' : 'text-gray-600 hover:text-amber-400'
+      }`}
+      aria-label={isFavorite ? `Unfavorite pairing ${a} and ${b}` : `Favorite pairing ${a} and ${b}`}
+      title={isFavorite ? 'Remove from Favorite Pairings' : 'Add to Favorite Pairings'}
+    >
+      {isFavorite ? '★' : '☆'}
+    </span>
+  );
+}
+
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes }) {
   const panelRef = useRef(null);
   // Per user request 2026-04-29: panel starts COLLAPSED on each new
   // selection. Clicking an ingredient should not pop a window open;
@@ -545,6 +573,12 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                     <StrengthBar strength={neighbor.strength} />
                     <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
                     <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
+                    <PairingStar
+                      a={node?.name}
+                      b={neighbor.name}
+                      isFavorite={hasPairing?.(node?.name, neighbor.name)}
+                      onToggle={onTogglePairing}
+                    />
                   </button>
                 </li>
               ))}

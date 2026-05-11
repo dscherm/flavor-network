@@ -16,7 +16,7 @@ import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
 import RecipeImport from './RecipeImport.jsx';
 
 function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, onLogin, onLoginWithApple, onLogout, onReplayTour }) {
-  const [tab, setTab] = useState('ingredients');
+  const [tab, setTab] = useState('recipes');
   const [searchQuery, setSearchQuery] = useState('');
   const [importError, setImportError] = useState('');
   const fileInputRef = useRef(null);
@@ -108,10 +108,8 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
   const hasInsightsData = profile && (profile.ingredients.length > 0 || profile.cuisines.length > 0 || profile.recipes.length > 0);
 
   const tabs = [
-    { key: 'ingredients', label: 'Ingredients', count: profile.ingredients.length },
-    { key: 'cuisines', label: 'Cuisines', count: profile.cuisines.length },
     { key: 'recipes', label: 'Recipes', count: profile.recipes.length },
-    { key: 'insights', label: 'Insights', count: null },
+    { key: 'pairings', label: 'Favorite Pairings', count: (profile.pairings || []).length },
   ];
 
   const currentItems =
@@ -245,6 +243,15 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
               onLoad={onLoadRecipe}
             />
           </>
+        )}
+
+        {/* Favorite Pairings — list of starred ingredient pairs */}
+        {tab === 'pairings' && (
+          <PairingsList
+            pairings={profile.pairings || []}
+            onRemove={(p) => actions.removePairing(p.a, p.b)}
+            onSelect={onSelectIngredient}
+          />
         )}
 
         {/* Insights tab */}
@@ -519,6 +526,52 @@ function FrequencyStat({ label, value, color }) {
       </div>
       <div className="text-[8px] text-neural-muted uppercase tracking-wide">{label}</div>
     </div>
+  );
+}
+
+function PairingsList({ pairings, onRemove, onSelect }) {
+  if (!pairings || pairings.length === 0) {
+    return (
+      <p className="text-[11px] text-gray-600 text-center mt-6">
+        No favorite pairings yet.
+        <br />
+        Tap the ☆ next to any ingredient pairing in the network to save it.
+      </p>
+    );
+  }
+  return (
+    <ul className="space-y-1">
+      {pairings.map((p) => (
+        <li
+          key={`${p.a}|${p.b}`}
+          className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#1a1a2e]/50 group"
+        >
+          <button
+            onClick={() => onSelect?.(p.a)}
+            className="text-xs text-gray-200 hover:text-blue-300 capitalize transition-colors"
+            aria-label={`Open ${p.a} in network`}
+          >
+            {p.a}
+          </button>
+          <span className="text-[10px] text-gray-600">+</span>
+          <button
+            onClick={() => onSelect?.(p.b)}
+            className="text-xs text-gray-200 hover:text-blue-300 capitalize transition-colors"
+            aria-label={`Open ${p.b} in network`}
+          >
+            {p.b}
+          </button>
+          <span className="text-amber-400 ml-1" aria-hidden="true">★</span>
+          <button
+            onClick={() => onRemove?.(p)}
+            className="ml-auto text-gray-600 hover:text-red-400 transition-colors text-xs opacity-0 group-hover:opacity-100"
+            aria-label={`Remove pairing ${p.a} + ${p.b}`}
+          >
+            &times;
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
 
