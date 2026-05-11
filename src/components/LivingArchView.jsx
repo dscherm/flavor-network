@@ -54,6 +54,12 @@ export default function LivingArchView({
   // the layout; this prop just adds AND-intersection on visibility.
   filterStack = [],
   morphAxis = null,
+  // R16 Phase 2 — cocktail / sauce scope sets (Set<string>) loaded by
+  // App.jsx via labScope.js. When passed through, bucketOf for the
+  // cocktail-scope and sauce-scope filter keys checks set membership
+  // instead of returning the Phase 1 no-op sentinel.
+  cocktailScope = null,
+  sauceScope = null,
   onDoubleTap,
   onNodeHover,
   highlightPairings = null,
@@ -2038,17 +2044,21 @@ export default function LivingArchView({
     }
   }, [focusedClusterId, mode]);
 
-  // ---- R16 Phase 1: filter-stack visibility predicate ----
+  // ---- R16 Phase 1/2: filter-stack visibility predicate ----
   // When `filterStack` is non-empty, hide any node that doesn't match
   // every active filter's bucketOf. Hidden nodes get their instance
-  // matrix scaled to 0 (effectively invisible without removing them
-  // from the BufferGeometry). Visible nodes have their scale restored
-  // to the original pairing-count-derived value.
+  // matrix scaled to 0. Visible nodes have their scale restored to the
+  // original pairing-count-derived value. Phase 2 also tracks the
+  // empty-intersection state so React can render an overlay.
+  const [emptyIntersection, setEmptyIntersection] = useState(false);
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh || !st.nodeArray) return;
     const { mesh, nodeArray, curPos } = st;
-    const ctx = st.categoricalCtx || {};
+    // Extend ctx with the cocktail/sauce scope sets so bucketOf can
+    // honor them. The Phase 1 sentinel is bypassed when ctx has the
+    // matching scope set.
+    const ctx = { ...(st.categoricalCtx || {}), cocktailScope, sauceScope };
     const dummy = new THREE.Object3D();
     let visibleCount = 0;
     for (let i = 0; i < nodeArray.length; i++) {
@@ -2066,13 +2076,8 @@ export default function LivingArchView({
       if (isVisible) visibleCount++;
     }
     mesh.instanceMatrix.needsUpdate = true;
-    // Phase 2 will render an empty-intersection overlay; Phase 1 just
-    // warns so the empty case is observable in dev.
-    if (filterStack.length > 0 && visibleCount === 0) {
-      // eslint-disable-next-line no-console
-      console.warn('R16 Phase 1: empty intersection — overlay UI ships in Phase 2');
-    }
-  }, [filterStack, mode]);
+    setEmptyIntersection(filterStack.length > 0 && visibleCount === 0);
+  }, [filterStack, mode, cocktailScope, sauceScope]);
 
   // ---- R13-5: AffinityMode selection driver ----
   // Watches selectedNodes + affinityEnabled and dispatches
@@ -2157,6 +2162,23 @@ export default function LivingArchView({
         selectedNode={a11ySelected}
         onNodeClick={onNodeClick}
       />
+
+      {/* R16 Phase 2: empty-intersection overlay. Shown when the filter
+          stack reduces the visible set to 0 nodes (the layout itself
+          is frozen — see Spec Amendment 1 in the plan). Click "Clear
+          filters" to escape the dead-end without losing the camera. */}
+      {emptyIntersection && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center pointer-events-none">
+          <div className="bg-[#0a0a12]/90 backdrop-blur-md border border-red-500/40 rounded-lg shadow-lg px-5 py-4 pointer-events-auto max-w-xs text-center">
+            <p className="text-sm font-medium text-gray-200 mb-2">
+              No ingredients match these filters
+            </p>
+            <p className="text-xs text-gray-500 mb-3">
+              Try removing one of the active filters.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* PCA axis labels — only meaningful in flat top-down 2D mode.
           Each end shows the 3 most-extreme ingredients on that axis,

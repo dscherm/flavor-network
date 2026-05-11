@@ -50,6 +50,8 @@ import {
 } from './data/networkModes.js';
 import { CATEGORICAL_AXES } from './data/categoricalAxes.js';
 import FilterPillRow from './components/FilterPillRow.jsx';
+import FilterBreadcrumb from './components/FilterBreadcrumb.jsx';
+import { getCocktailScope, getSauceScope } from './data/labScope.js';
 import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
@@ -180,6 +182,32 @@ export default function App() {
   const clearFilters = useCallback(() => {
     setFilterStack([]);
   }, []);
+
+  // Pop breadcrumb to length N. Length 0 = clear all; length 1 keeps
+  // only the first filter; etc. Used by FilterBreadcrumb segment clicks.
+  const popBreadcrumb = useCallback((n) => {
+    setFilterStack((prev) => (n <= 0 ? [] : prev.slice(0, n)));
+  }, []);
+
+  // R16 Phase 2 — load cocktail + sauce scope ingredient sets once.
+  // These power the cocktail-scope / sauce-scope filter pills' real
+  // bucketOf detection (Phase 1 shipped them as no-op stubs).
+  const [cocktailScope, setCocktailScope] = useState(null);
+  const [sauceScope, setSauceScope] = useState(null);
+  useEffect(() => {
+    if (!startPageComplete) return;
+    getCocktailScope().then(setCocktailScope).catch(() => {});
+    getSauceScope().then(setSauceScope).catch(() => {});
+  }, [startPageComplete]);
+
+  // Resolve the joystick-picked bucket label from focusedCluster + morphAxis
+  // (pseudo-cluster IDs are -100 - i where i indexes axis.labels).
+  const focusedBucketLabel = useMemo(() => {
+    if (focusedCluster == null || focusedCluster > -100 || !morphAxis) return null;
+    const axis = CATEGORICAL_AXES[morphAxis];
+    const idx = -100 - focusedCluster;
+    return axis?.labels?.[idx] ?? null;
+  }, [focusedCluster, morphAxis]);
 
   // Reset focused cluster when the morph axis changes. Pseudo-cluster
   // IDs assigned by the categorical-wheel joystick are axis-specific
@@ -751,6 +779,8 @@ export default function App() {
         onModeChange={setMode}
         filterStack={filterStack}
         morphAxis={morphAxis}
+        cocktailScope={cocktailScope}
+        sauceScope={sauceScope}
         onDoubleTap={handleCanvasDoubleTap}
         highlightPairings={highlightPairings}
         flyToTarget={flyToTarget}
@@ -1074,16 +1104,31 @@ export default function App() {
           that axis. Multi-select pills compose AND-intersection on
           node visibility. */}
       {activeTab === 'network' && (
-        <div className="fixed left-1/2 -translate-x-1/2 top-12 z-[68] pointer-events-none">
-          <div className="bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full shadow-lg pointer-events-auto">
-            <FilterPillRow
-              filterStack={filterStack}
-              onToggle={toggleFilter}
-              onClear={clearFilters}
-              mode={mode}
-            />
+        <>
+          <div className="fixed left-1/2 -translate-x-1/2 top-12 z-[68] pointer-events-none">
+            <div className="bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full shadow-lg pointer-events-auto">
+              <FilterPillRow
+                filterStack={filterStack}
+                onToggle={toggleFilter}
+                onClear={clearFilters}
+                mode={mode}
+              />
+            </div>
           </div>
-        </div>
+          {/* R16 Phase 2: FilterBreadcrumb — sits just below the pill
+              row, derived from filterStack + focusedBucketLabel. Click
+              a segment to pop the stack back to that depth. */}
+          {filterStack.length > 0 && (
+            <div className="fixed left-1/2 -translate-x-1/2 top-[5.25rem] z-[68] pointer-events-auto">
+              <FilterBreadcrumb
+                filterStack={filterStack}
+                focusedBucketLabel={focusedBucketLabel}
+                onPop={popBreadcrumb}
+                isMobile={isMobile}
+              />
+            </div>
+          )}
+        </>
       )}
 
       {/* ClusterJoystick — pinned bottom-center pill strip. In Network

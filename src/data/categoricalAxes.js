@@ -213,13 +213,20 @@ export const CATEGORICAL_AXES = {
  */
 export function bucketOf(filterKey, node, ctx) {
   if (!node) return null;
-  if (filterKey === 'cocktail-scope' || filterKey === 'sauce-scope') {
-    // Phase 1 stub — full scope detection is a Phase 2 deliverable.
-    // Returning a sentinel bucket label (not null) makes the pill a
-    // no-op for visibility: it counts as "matches all nodes". Phase 2
-    // will replace this with actual cocktail-ingredient / sauce-
-    // ingredient set membership.
-    return '_scope-stub';
+  if (filterKey === 'cocktail-scope') {
+    // Phase 2: real scope detection via the cocktail ingredient set
+    // loaded from cocktail_augment.json (via labScope.js). When the
+    // set isn't passed in (e.g. early in app load), fall back to the
+    // Phase 1 sentinel so the pill stays a no-op rather than hiding
+    // everything.
+    const scope = ctx?.cocktailScope;
+    if (!(scope instanceof Set)) return '_scope-stub';
+    return scope.has(String(node.name).toLowerCase()) ? 'in-cocktail' : null;
+  }
+  if (filterKey === 'sauce-scope') {
+    const scope = ctx?.sauceScope;
+    if (!(scope instanceof Set)) return '_scope-stub';
+    return scope.has(String(node.name).toLowerCase()) ? 'in-sauce' : null;
   }
   // Singular filter key → plural axis key (mirrors FILTER_TO_AXIS).
   const axisKey = filterKey === 'aroma' ? 'aromas' : filterKey;
