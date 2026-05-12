@@ -269,7 +269,7 @@ wiring investigation).
     "Vitest: pullLabel returns the correct anchor string for each of (0.0, 0.12, 0.24, 0.5, 0.74, 1.0).",
     "Manual QA: drag slider end-to-end — label transitions feel smooth, no overlap with the % readout to the right."
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
