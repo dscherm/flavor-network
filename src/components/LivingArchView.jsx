@@ -17,7 +17,9 @@ import NetworkA11yShim from './NetworkA11yShim.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
 import { MODE_CYCLE, MODE_LABELS, MODE_IS_2D, MODE_IS_CATEGORICAL, MODE_TO_AXIS } from '../data/networkModes.js';
 import { computeCategoricalWheelPositions } from '../data/categoricalWheelPositions.js';
+import { computeBucketPoles2D, computeBucketPoles3D } from '../data/bucketPoles.js';
 import { CATEGORICAL_AXES, bucketOf } from '../data/categoricalAxes.js';
+import { FILTER_TO_AXIS } from '../data/networkModes.js';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
 import {
   createTasteSelection,
@@ -54,6 +56,13 @@ export default function LivingArchView({
   // the layout; this prop just adds AND-intersection on visibility.
   filterStack = [],
   morphAxis = null,
+  // R17 — continuous pull strength. When 0, nodes sit at cooccurrence
+  // positions (posA for 'ml' / posB for 'ml2d'). When 1, nodes snap
+  // to their bucket pole (per the active axis filters). Intermediate
+  // values lerp between the two. Defaults to 1.0 so component callers
+  // that don't pass it preserve the legacy "wheel-snap when filtered"
+  // behavior.
+  pullStrength = 1.0,
   // R16 Phase 2 — cocktail / sauce scope sets (Set<string>) loaded by
   // App.jsx via labScope.js. When passed through, bucketOf for the
   // cocktail-scope and sauce-scope filter keys checks set membership
@@ -158,6 +167,24 @@ export default function LivingArchView({
     const cuisineOut = computeCategoricalWheelPositions('cuisine', graph.nodes, categoricalCtx);
     const seasonOut  = computeCategoricalWheelPositions('season',  graph.nodes, categoricalCtx);
     const familyOut  = computeCategoricalWheelPositions('family',  graph.nodes, categoricalCtx);
+    // R17 — bucket-pole position tables. 2D variants put poles on a
+    // flat ring (matches the existing wheel layout when pull===1).
+    // 3D variants distribute poles on a Fibonacci sphere so the user
+    // can rotate the camera and inspect bucket structure spatially.
+    const polesByAxis2D = {
+      taste:   computeBucketPoles2D('taste',   graph.nodes, categoricalCtx),
+      aromas:  computeBucketPoles2D('aromas',  graph.nodes, categoricalCtx),
+      cuisine: computeBucketPoles2D('cuisine', graph.nodes, categoricalCtx),
+      season:  computeBucketPoles2D('season',  graph.nodes, categoricalCtx),
+      family:  computeBucketPoles2D('family',  graph.nodes, categoricalCtx),
+    };
+    const polesByAxis3D = {
+      taste:   computeBucketPoles3D('taste',   graph.nodes, categoricalCtx),
+      aromas:  computeBucketPoles3D('aromas',  graph.nodes, categoricalCtx),
+      cuisine: computeBucketPoles3D('cuisine', graph.nodes, categoricalCtx),
+      season:  computeBucketPoles3D('season',  graph.nodes, categoricalCtx),
+      family:  computeBucketPoles3D('family',  graph.nodes, categoricalCtx),
+    };
     const tasteWheel   = tasteOut.positions;
     const aromasWheel  = aromasOut.positions;
     const cuisineWheel = cuisineOut.positions;
@@ -1429,6 +1456,10 @@ export default function LivingArchView({
       // R16 Phase 1: the data context passed into every per-axis
       // bucketOf call (gnnEntropy + cuisineMap + seasonMap).
       categoricalCtx,
+      // R17 — per-axis pole tables. The visibility-predicate effect
+      // reads these to lerp position toward the bucket pole(s) for
+      // each active axis filter under the current geometry mode.
+      polesByAxis2D, polesByAxis3D,
       triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
       // Expose runtime cluster centroids (3D from posA, 2D from PCA) so the
@@ -2047,23 +2078,90 @@ export default function LivingArchView({
     }
   }, [focusedClusterId, mode]);
 
-  // ---- R16 Phase 1/2: filter-stack visibility predicate ----
-  // When `filterStack` is non-empty, hide any node that doesn't match
-  // every active filter's bucketOf. Hidden nodes get their instance
-  // matrix scaled to 0. Visible nodes have their scale restored to the
-  // original pairing-count-derived value. Phase 2 also tracks the
-  // empty-intersection state so React can render an overlay.
+  // ---- R17: visual treatment switch when filterStack toggles ----
+  // The R16 visual machinery (bucket colors, hidden edges/particles,
+  // hidden ML cluster labels) was driven by `mode` ∈ {aromas2d, ...}.
+  // Under R17, mode is just '3D'/'2D' (mapped to ml/ml2d in App.jsx)
+  // and filterStack carries the categorical-active signal. This
+  // effect re-applies the visual treatment so colors/edges/labels
+  // respond to filter pills regardless of geometry mode.
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st || !st.mesh) return;
+    const {
+      mesh, nodeArray, defaultColors, clusterColors,
+      categoricalColorByMode, edgeMesh, particleMesh, clusterLabelGroup,
+      clusterConnectorGroup, labelGroup,
+    } = st;
+    const filterActive = filterStack.length > 0;
+
+    // Pick the color source:
+    //   filterActive + axis filter → axis bucket colors keyed off
+    //     the legacy mode-key the existing palette table understands
+    //     (aromas → 'aromas2d', cuisine → 'cuisine2d', etc.).
+    //   filterActive + scope-only → cluster colors (no axis pull, so
+    //     keep the cluster palette — fine since visibility narrows
+    //     but layout stays cooccurrence).
+    //   no filter → default colors in 3D (ml), cluster colors in 2D
+    //     (ml2d) — preserve R16 default behavior.
+    let colorSrc;
+    if (filterActive && morphAxis) {
+      const palKey = `${morphAxis === 'aromas' ? 'aromas' : morphAxis}2d`;
+      colorSrc = categoricalColorByMode?.[palKey] || defaultColors;
+    } else if (filterActive) {
+      colorSrc = clusterColors;
+    } else {
+      colorSrc = mode === 'ml' || mode === 'ml2d' ? clusterColors : defaultColors;
+    }
+    if (colorSrc) {
+      for (let i = 0; i < nodeArray.length; i++) mesh.setColorAt(i, colorSrc[i]);
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    }
+
+    // Edges + particles hide whenever any filter is active — pulling
+    // nodes toward poles leaves the long edges spanning the wheel
+    // center, which produces the haze we already saw in R16 P1.
+    if (edgeMesh) edgeMesh.visible = !filterActive && showEdges;
+    if (particleMesh) particleMesh.visible = !filterActive && showParticles;
+
+    // ML cluster labels + connectors only show in the unfiltered
+    // network views — filter overlays replace them with axis pills
+    // on the joystick.
+    if (clusterLabelGroup) clusterLabelGroup.visible = !filterActive && (mode === 'ml' || mode === 'ml2d');
+    if (clusterConnectorGroup) clusterConnectorGroup.visible = clusterLabelGroup?.visible || false;
+    // Legacy taste-axis labels (3D neural mode only) — gone under R17
+    // unless someone explicitly enters the legacy taste mode.
+    if (labelGroup) labelGroup.visible = false;
+  }, [filterStack, morphAxis, mode, showEdges, showParticles]);
+
+  // ---- R16 Phase 1/2 + R17: filter-stack visibility + pull-lerp ----
+  // Three concerns share this effect because they all walk the node
+  // array once per (filterStack, mode, pullStrength) change:
+  //   1. Visibility predicate — AND-intersection over active filters.
+  //   2. Position lerp — each visible node's matrix interpolates from
+  //      the cooccurrence base (mode = 'ml' / 'ml2d') toward the
+  //      bucket pole of its active axis filter(s), weighted by
+  //      pullStrength. Multi-filter composition is mean-of-poles
+  //      across axis filters (scope filters contribute visibility
+  //      only — no pole, no pull contribution).
+  //   3. Empty-intersection state — surfaces the overlay UX.
   const [emptyIntersection, setEmptyIntersection] = useState(false);
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh || !st.nodeArray) return;
-    const { mesh, nodeArray, curPos } = st;
-    // Extend ctx with the cocktail/sauce scope sets so bucketOf can
-    // honor them. The Phase 1 sentinel is bypassed when ctx has the
-    // matching scope set.
+    const { mesh, nodeArray, curPos, polesByAxis2D, polesByAxis3D } = st;
     const ctx = { ...(st.categoricalCtx || {}), cocktailScope, sauceScope };
+    const polesByAxis = mode === 'ml' ? polesByAxis3D : polesByAxis2D;
+
+    // Resolve which filters in the stack actually contribute a pole.
+    // Scope filters map to null axis and are excluded from the
+    // mean-of-poles computation but still gate visibility.
+    const axisFilters = filterStack.filter((f) => FILTER_TO_AXIS[f]);
+
     const dummy = new THREE.Object3D();
     let visibleCount = 0;
+    const pull = Math.max(0, Math.min(1, pullStrength));
+
     for (let i = 0; i < nodeArray.length; i++) {
       const node = nodeArray[i];
       const isVisible = filterStack.length === 0
@@ -2072,7 +2170,31 @@ export default function LivingArchView({
       const pc = node.pairingCount || 0;
       const baseScale = Math.max(0.3, Math.min(2.0, Math.sqrt(pc) * 0.15));
       const finalScale = isVisible ? baseScale : 0;
-      dummy.position.set(curPos[i*3], curPos[i*3+1], curPos[i*3+2]);
+
+      // Position: lerp(cooccurrenceBase, meanPole, pullStrength).
+      // No axis filters → no pole contribution → position stays at
+      // cooccurrence base. pullStrength 0 also stays at base.
+      let px = curPos[i*3];
+      let py = curPos[i*3+1];
+      let pz = curPos[i*3+2];
+      if (isVisible && pull > 0 && axisFilters.length > 0) {
+        // Mean-of-poles across active axis filters.
+        let sx = 0, sy = 0, sz = 0, n = 0;
+        for (let f = 0; f < axisFilters.length; f++) {
+          const axisKey = FILTER_TO_AXIS[axisFilters[f]];
+          const tbl = polesByAxis?.[axisKey];
+          const p = tbl?.positions?.[node.name];
+          if (p) { sx += p[0]; sy += p[1]; sz += p[2]; n++; }
+        }
+        if (n > 0) {
+          const mx = sx / n, my = sy / n, mz = sz / n;
+          px = px + (mx - px) * pull;
+          py = py + (my - py) * pull;
+          pz = pz + (mz - pz) * pull;
+        }
+      }
+
+      dummy.position.set(px, py, pz);
       dummy.scale.set(finalScale, finalScale, finalScale);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
@@ -2081,7 +2203,7 @@ export default function LivingArchView({
     mesh.instanceMatrix.needsUpdate = true;
     setEmptyIntersection(filterStack.length > 0 && visibleCount === 0);
     onVisibleCountChange?.(visibleCount);
-  }, [filterStack, mode, cocktailScope, sauceScope, onVisibleCountChange]);
+  }, [filterStack, mode, pullStrength, cocktailScope, sauceScope, onVisibleCountChange]);
 
   // ---- R13-5: AffinityMode selection driver ----
   // Watches selectedNodes + affinityEnabled and dispatches

@@ -52,6 +52,8 @@ import { CATEGORICAL_AXES } from './data/categoricalAxes.js';
 import FilterPillRow from './components/FilterPillRow.jsx';
 import FilterBreadcrumb from './components/FilterBreadcrumb.jsx';
 import HUDAnnouncer from './components/HUDAnnouncer.jsx';
+import FilterPullSlider from './components/FilterPullSlider.jsx';
+import { computeBucketPoles2D, computeBucketPoles3D } from './data/bucketPoles.js';
 import { getCocktailScope, getSauceScope } from './data/labScope.js';
 import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
@@ -106,6 +108,11 @@ export default function App() {
   // dropdown but are still understood by the renderer as fallbacks.
   const [mode, setMode] = useState('3D');
   const [filterStack, setFilterStack] = useState([]);
+  // R17 — continuous pull strength. 0 = pure cooccurrence, 1 = full
+  // bucket-pole snap. Default 70% lands in the "exploratory midpoint"
+  // zone where cluster structure and bucket stratification both read.
+  // Persists across mode flips and stack changes.
+  const [pullStrength, setPullStrength] = useState(0.7);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
   const [edgeBrightness] = useState(0.3);
@@ -150,20 +157,17 @@ export default function App() {
   const activeFilter = filterStack.length > 0 ? filterStack[filterStack.length - 1] : null;
   const morphAxis = morphAxisForStack(filterStack);
 
-  // R16 Phase 1 translation shim — the renderer still expects legacy
-  // mode keys (`ml` / `ml2d` / `neural` / `taste2d` / `aromas2d` /
-  // `cuisine2d` / `season2d` / `family2d`). Until the renderer is
-  // fully refactored, derive a legacy key from (mode, morphAxis):
-  //   3D + no filter           → 'ml'
-  //   2D + no filter           → 'ml2d'
-  //   3D + taste filter        → 'neural' (3D taste axes)
-  //   2D + taste filter        → 'taste2d'
-  //   * + aromas/cuisine/...   → '<axis>2d' (only 2D wheel data exists)
-  const effectiveLegacyMode = useMemo(() => {
-    if (morphAxis === null) return mode === '3D' ? 'ml' : 'ml2d';
-    if (morphAxis === 'taste') return mode === '3D' ? 'neural' : 'taste2d';
-    return `${morphAxis}2d`;
-  }, [mode, morphAxis]);
+  // R17 — the effectiveLegacyMode translation shim from R16 P1 is
+  // gone. Position is now a continuous lerp between cooccurrence base
+  // (mode-dependent: posA / posB) and the bucket pole (axis-dependent)
+  // weighted by pullStrength. The renderer reads (mode, filterStack,
+  // morphAxis, pullStrength) and does the lerp per-instance.
+  const handlePullChange = useCallback((v) => {
+    if (typeof performance !== 'undefined' && performance.mark) {
+      performance.mark('r17-pull-change');
+    }
+    setPullStrength(v);
+  }, []);
 
   const toggleFilter = useCallback((key) => {
     // R16 Phase 4: perf instrumentation. Plan budget: pill toggle
@@ -785,10 +789,11 @@ export default function App() {
         particleBrightness={particleBrightness}
         filterTaste={selectedTaste}
         treeFilterIngredients={treeFilterIngredients}
-        mode={effectiveLegacyMode}
+        mode={mode === '3D' ? 'ml' : 'ml2d'}
         onModeChange={setMode}
         filterStack={filterStack}
         morphAxis={morphAxis}
+        pullStrength={pullStrength}
         cocktailScope={cocktailScope}
         sauceScope={sauceScope}
         onVisibleCountChange={setVisibleNodeCount}
@@ -1157,6 +1162,18 @@ export default function App() {
                 focusedBucketLabel={focusedBucketLabel}
                 onPop={popBreadcrumb}
                 isMobile={isMobile}
+              />
+            </div>
+          )}
+          {/* R17 — FilterPullSlider: continuous pull strength between
+              cooccurrence base (left) and bucket-pole snap (right).
+              Hidden when no filter is active (nothing to pull toward). */}
+          {filterStack.length > 0 && (
+            <div className="fixed left-1/2 -translate-x-1/2 top-[7.5rem] z-[68] pointer-events-auto">
+              <FilterPullSlider
+                pullStrength={pullStrength}
+                onPullChange={handlePullChange}
+                disabled={false}
               />
             </div>
           )}
