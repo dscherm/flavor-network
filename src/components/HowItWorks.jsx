@@ -39,7 +39,13 @@ export default function HowItWorks({ initialOpen = false } = {}) {
                    are placed near each other — we analyzed <strong>2.2 million recipes</strong> from
                    RecipeNLG, plus TheMealDB and TheCocktailDB, to position
                    <strong> 3,913 ingredients</strong> with <strong>48,588 pairings</strong> between
-                   them. Colors show taste profiles:</p>
+                   them.</p>
+                <p className="mt-2"><strong>What the colors mean depends on what you're looking at.</strong> With
+                   no filter active, color shows the recipe cluster an ingredient lives in
+                   (Baking, Italian, East Asian, etc.). When you tap a filter pill — Aroma,
+                   Cuisine, Season, Family, or Taste — colors switch to that filter's buckets.
+                   The chip at the top-left of the scene tells you which is active.</p>
+                <p className="mt-2 text-xs text-gray-400">Taste palette (visible when the Taste filter is active):</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {Object.entries(TASTE_COLORS).map(([t, c]) => (
                     <span key={t} className="flex items-center gap-1 text-xs">
