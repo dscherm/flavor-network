@@ -27,7 +27,7 @@
     "shared_files": [],
     "secrets_scan": true,
     "denylist": [
-      "\\.env",
+      "\\.env(rc|\\.local|\\.production|\\.development|\\.test|\\.staging)?$",
       ".*\\.pem$",
       ".*\\.key$",
       "credentials\\.",
