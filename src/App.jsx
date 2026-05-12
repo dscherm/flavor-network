@@ -1151,7 +1151,7 @@ export default function App() {
           </div>
           {/* R16 Phase 4: screen-reader announcer for filter changes
               + visible-node-count updates. Visually hidden via sr-only. */}
-          <HUDAnnouncer filterStack={filterStack} visibleCount={visibleNodeCount} />
+          <HUDAnnouncer filterStack={filterStack} visibleCount={visibleNodeCount} pullStrength={pullStrength} />
           {/* R16 Phase 2: FilterBreadcrumb — sits just below the pill
               row, derived from filterStack + focusedBucketLabel. Click
               a segment to pop the stack back to that depth. */}

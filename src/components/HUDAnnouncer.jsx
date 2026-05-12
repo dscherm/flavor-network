@@ -18,9 +18,13 @@
 import { useEffect, useState } from 'react';
 import { FILTER_LABELS } from '../data/networkModes.js';
 
-export default function HUDAnnouncer({ filterStack = [], visibleCount = null }) {
+export default function HUDAnnouncer({ filterStack = [], visibleCount = null, pullStrength = null }) {
   const [message, setMessage] = useState('');
 
+  // Filter-stack and visibleCount changes announce immediately —
+  // they're discrete events. Pull-strength changes are continuous and
+  // would spam the screen reader during slider drag, so the pull
+  // branch debounces by 200ms (R17 US-05 acceptance criterion).
   useEffect(() => {
     if (filterStack.length === 0) {
       setMessage('All filters cleared. Showing every ingredient.');
@@ -33,6 +37,13 @@ export default function HUDAnnouncer({ filterStack = [], visibleCount = null }) 
       : '';
     setMessage(`${label} filter applied.${countPart}`);
   }, [filterStack, visibleCount]);
+
+  useEffect(() => {
+    if (pullStrength == null || filterStack.length === 0) return;
+    const pct = Math.round(pullStrength * 100);
+    const t = setTimeout(() => setMessage(`Pull set to ${pct}%`), 200);
+    return () => clearTimeout(t);
+  }, [pullStrength, filterStack.length]);
 
   return (
     <div

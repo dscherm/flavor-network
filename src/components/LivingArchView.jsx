@@ -2134,51 +2134,61 @@ export default function LivingArchView({
     if (labelGroup) labelGroup.visible = false;
   }, [filterStack, morphAxis, mode, showEdges, showParticles]);
 
-  // ---- R16 Phase 1/2 + R17: filter-stack visibility + pull-lerp ----
-  // Three concerns share this effect because they all walk the node
-  // array once per (filterStack, mode, pullStrength) change:
-  //   1. Visibility predicate — AND-intersection over active filters.
-  //   2. Position lerp — each visible node's matrix interpolates from
-  //      the cooccurrence base (mode = 'ml' / 'ml2d') toward the
-  //      bucket pole of its active axis filter(s), weighted by
-  //      pullStrength. Multi-filter composition is mean-of-poles
-  //      across axis filters (scope filters contribute visibility
-  //      only — no pole, no pull contribution).
-  //   3. Empty-intersection state — surfaces the overlay UX.
+  // ---- R16 Phase 1/2 + R17: filter-stack visibility predicate ----
+  // Runs only when membership-defining inputs change (filterStack +
+  // scope sets). The expensive part — per-node bucketOf calls — does
+  // NOT re-run on slider drag, which would burn CPU at 5-15Hz
+  // continuously. Stored visibility is then consumed by the
+  // position-lerp effect below.
   const [emptyIntersection, setEmptyIntersection] = useState(false);
+  const visibilityRef = useRef(null); // Uint8Array, one byte per node
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh || !st.nodeArray) return;
-    const { mesh, nodeArray, curPos, polesByAxis2D, polesByAxis3D } = st;
+    const { nodeArray } = st;
     const ctx = { ...(st.categoricalCtx || {}), cocktailScope, sauceScope };
-    const polesByAxis = mode === 'ml' ? polesByAxis3D : polesByAxis2D;
-
-    // Resolve which filters in the stack actually contribute a pole.
-    // Scope filters map to null axis and are excluded from the
-    // mean-of-poles computation but still gate visibility.
-    const axisFilters = filterStack.filter((f) => FILTER_TO_AXIS[f]);
-
-    const dummy = new THREE.Object3D();
+    if (!visibilityRef.current || visibilityRef.current.length !== nodeArray.length) {
+      visibilityRef.current = new Uint8Array(nodeArray.length);
+    }
+    const vis = visibilityRef.current;
     let visibleCount = 0;
-    const pull = Math.max(0, Math.min(1, pullStrength));
-
     for (let i = 0; i < nodeArray.length; i++) {
       const node = nodeArray[i];
       const isVisible = filterStack.length === 0
         ? true
         : filterStack.every((f) => bucketOf(f, node, ctx) != null);
+      vis[i] = isVisible ? 1 : 0;
+      if (isVisible) visibleCount++;
+    }
+    setEmptyIntersection(filterStack.length > 0 && visibleCount === 0);
+    onVisibleCountChange?.(visibleCount);
+  }, [filterStack, cocktailScope, sauceScope, onVisibleCountChange]);
+
+  // ---- R17: position lerp + scale write ----
+  // Runs on every pullStrength tick during slider drag, but does NOT
+  // recompute visibility — it just reads the precomputed Uint8Array
+  // and writes scale-0 for hidden nodes plus the lerp'd position for
+  // visible nodes. Order in this loop: lerp cooccurrence base toward
+  // the mean pole across active axis filters, weighted by pull.
+  useEffect(() => {
+    const st = stateRef.current;
+    if (!st || !st.mesh || !st.nodeArray) return;
+    const { mesh, nodeArray, curPos, polesByAxis2D, polesByAxis3D } = st;
+    const polesByAxis = mode === 'ml' ? polesByAxis3D : polesByAxis2D;
+    const vis = visibilityRef.current;
+    const axisFilters = filterStack.filter((f) => FILTER_TO_AXIS[f]);
+    const dummy = new THREE.Object3D();
+    const pull = Math.max(0, Math.min(1, pullStrength));
+    for (let i = 0; i < nodeArray.length; i++) {
+      const node = nodeArray[i];
+      const isVisible = vis ? vis[i] === 1 : true;
       const pc = node.pairingCount || 0;
       const baseScale = Math.max(0.3, Math.min(2.0, Math.sqrt(pc) * 0.15));
       const finalScale = isVisible ? baseScale : 0;
-
-      // Position: lerp(cooccurrenceBase, meanPole, pullStrength).
-      // No axis filters → no pole contribution → position stays at
-      // cooccurrence base. pullStrength 0 also stays at base.
       let px = curPos[i*3];
       let py = curPos[i*3+1];
       let pz = curPos[i*3+2];
       if (isVisible && pull > 0 && axisFilters.length > 0) {
-        // Mean-of-poles across active axis filters.
         let sx = 0, sy = 0, sz = 0, n = 0;
         for (let f = 0; f < axisFilters.length; f++) {
           const axisKey = FILTER_TO_AXIS[axisFilters[f]];
@@ -2193,17 +2203,13 @@ export default function LivingArchView({
           pz = pz + (mz - pz) * pull;
         }
       }
-
       dummy.position.set(px, py, pz);
       dummy.scale.set(finalScale, finalScale, finalScale);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
-      if (isVisible) visibleCount++;
     }
     mesh.instanceMatrix.needsUpdate = true;
-    setEmptyIntersection(filterStack.length > 0 && visibleCount === 0);
-    onVisibleCountChange?.(visibleCount);
-  }, [filterStack, mode, pullStrength, cocktailScope, sauceScope, onVisibleCountChange]);
+  }, [filterStack, mode, pullStrength, emptyIntersection]);
 
   // ---- R13-5: AffinityMode selection driver ----
   // Watches selectedNodes + affinityEnabled and dispatches
