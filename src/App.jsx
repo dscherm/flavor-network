@@ -870,22 +870,43 @@ export default function App() {
         </div>
       )}
       {/* R18 — pole-label tooltip. Mirrors the node tooltip's styling but
-          uses the bucket's color as the border + shows the member count. */}
+          uses the bucket's color as the border + shows the member count.
+          R19 Phase 2 enriches the body with the top 3 bucket members and
+          one cross-bucket bridge ingredient. */}
       {hoveredPole && (
         <div
-          className="fixed z-[70] px-2 py-1 rounded bg-[#0d0d16]/95 text-xs text-white pointer-events-none whitespace-nowrap"
+          className="fixed z-[70] px-2 py-1.5 rounded bg-[#0d0d16]/95 text-xs text-white pointer-events-none shadow-lg"
           style={{
             left: hoveredPole.x + 12,
             top: hoveredPole.y - 8,
             borderWidth: 1,
             borderStyle: 'solid',
             borderColor: hoveredPole.color,
+            maxWidth: 320,
           }}
         >
-          <span className="font-medium uppercase tracking-wider" style={{ color: hoveredPole.color }}>
-            {hoveredPole.label}
-          </span>
-          <span className="ml-2 text-gray-400">{hoveredPole.memberCount} ingredients</span>
+          <div className="whitespace-nowrap">
+            <span className="font-medium uppercase tracking-wider" style={{ color: hoveredPole.color }}>
+              {hoveredPole.label}
+            </span>
+            <span className="ml-2 text-gray-400">· {hoveredPole.memberCount} ingredients</span>
+          </div>
+          {Array.isArray(hoveredPole.topMembers) && hoveredPole.topMembers.length > 0 && (
+            <div className="mt-1 text-[11px] text-gray-300 truncate">
+              <span className="text-gray-500">Top:</span> {hoveredPole.topMembers.join(' · ')}
+            </div>
+          )}
+          {hoveredPole.bridge && (
+            <div className="mt-0.5 text-[11px] text-gray-300 truncate">
+              <span className="text-gray-500">Bridge:</span> {hoveredPole.bridge.name}
+              {hoveredPole.bridge.topPeer && (
+                <span className="text-gray-400"> → {hoveredPole.bridge.topPeer}</span>
+              )}
+              {hoveredPole.bridge.otherBucket && (
+                <span className="text-gray-500"> ({hoveredPole.bridge.otherBucket})</span>
+              )}
+            </div>
+          )}
         </div>
       )}
       <SearchBar

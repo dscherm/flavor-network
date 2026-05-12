@@ -273,6 +273,25 @@ wiring investigation).
 }
 ```
 
+### Task 13: R19 Phase 2 — Pole tooltip enrichment
+
+```json
+{
+  "id": "R19-3",
+  "title": "Phase 2 — Pole tooltip enrichment (top members + bridge)",
+  "category": "feature",
+  "priority": 13,
+  "description": "Enrich the R18 pole hover tooltip with the top 3 bucket members (by pairingCount) and one cross-bucket bridge ingredient (bucket member with the highest cumulative cross-bucket cooccurrence weight). Computed once at scene-setup per categorical axis. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier B).",
+  "steps": [
+    "Create src/data/bucketStats.js. Pure `computeBucketStats(axisKey, { nodes, edges, bucketOf }, opts?) → Map<label, { count, topMembers, bridge | null }>` where bridge = { name, otherBucket, topPeer, strength }.",
+    "In LivingArchView.jsx: call computeBucketStats per axis at scene-setup using existing *Out.bucketOf maps + graph.edges. Pass the per-axis stats map into buildPoleLabels and attach { topMembers, bridge } to sprite.userData.",
+    "Extend the onPoleHover payload + App.jsx hoveredPole tooltip to render `Top: a · b · c` and `Bridge: name → peer (otherBucket)` lines when present.",
+    "Vitest: src/data/__tests__/bucketStats.test.js covers top-N selection, bridge cross-bucket scoring, deterministic tie-breaking, empty bucket, no-edges fallback (bridge=null)."
+  ],
+  "passes": true
+}
+```
+
 ---
 
 ## Verification Strategy

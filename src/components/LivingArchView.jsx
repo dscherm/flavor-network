@@ -18,6 +18,7 @@ import ShapeLegend from './ShapeLegend.jsx';
 import { MODE_CYCLE, MODE_LABELS, MODE_IS_2D, MODE_IS_CATEGORICAL, MODE_TO_AXIS } from '../data/networkModes.js';
 import { computeCategoricalWheelPositions } from '../data/categoricalWheelPositions.js';
 import { computeBucketPoles2D, computeBucketPoles3D } from '../data/bucketPoles.js';
+import { computeBucketStats } from '../data/bucketStats.js';
 import { CATEGORICAL_AXES, bucketOf } from '../data/categoricalAxes.js';
 import { FILTER_TO_AXIS } from '../data/networkModes.js';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
@@ -189,6 +190,23 @@ export default function LivingArchView({
       cuisine: computeBucketPoles3D('cuisine', graph.nodes, categoricalCtx),
       season:  computeBucketPoles3D('season',  graph.nodes, categoricalCtx),
       family:  computeBucketPoles3D('family',  graph.nodes, categoricalCtx),
+    };
+    // R19 Phase 2 — per-axis bucket stats (top-N members + one cross-
+    // bucket bridge). One-shot O(N+E) per axis; the result feeds the
+    // enriched pole-hover tooltip via sprite.userData.
+    function statsFor(axisKey, out) {
+      return computeBucketStats(axisKey, {
+        nodes: graph.nodes,
+        edges: graph.edges,
+        bucketOf: out.bucketOf,
+      });
+    }
+    const statsByAxis = {
+      taste:   statsFor('taste',   tasteOut),
+      aromas:  statsFor('aromas',  aromasOut),
+      cuisine: statsFor('cuisine', cuisineOut),
+      season:  statsFor('season',  seasonOut),
+      family:  statsFor('family',  familyOut),
     };
     const tasteWheel   = tasteOut.positions;
     const aromasWheel  = aromasOut.positions;
@@ -765,19 +783,30 @@ export default function LivingArchView({
     // on filterStack + morphAxis + geometry mode. Tooltip-on-hover
     // surfaces bucket size; hit detection is via raycaster against
     // sprite.userData.isPole.
-    function buildPoleLabels(polesByAxis, out, scale = 1.18) {
+    function buildPoleLabels(polesByAxis, out, statsForAxis, scale = 1.18) {
       const group = new THREE.Group();
       for (const [label, pole] of polesByAxis.polePositions) {
         const hex = out.bucketColor.get(label) || '#ffffff';
-        const memberCount = out.bucketOf
+        const stat = statsForAxis?.get(label) || null;
+        const memberCount = stat?.count ?? (out.bucketOf
           ? Array.from(out.bucketOf.values()).filter((v) => v === label).length
-          : 0;
+          : 0);
         const sprite = makeLabel(label.toUpperCase(), hex, 22);
         // Push label outward from origin so it doesn't collide with
         // the bucket of nodes pulled to the pole — scale > 1 nudges
         // it past the pole position along the same radial direction.
         sprite.position.set(pole[0] * scale, pole[1] * scale + 0.5, pole[2] * scale);
-        sprite.userData = { isPole: true, axisLabel: label, memberCount, color: hex };
+        sprite.userData = {
+          isPole: true,
+          axisLabel: label,
+          memberCount,
+          color: hex,
+          // R19 Phase 2 — enriched tooltip payload. topMembers + bridge
+          // come from the one-shot statsByAxis computed above; null/empty
+          // when the bucket is empty or has no cross-bucket edges.
+          topMembers: stat?.topMembers || [],
+          bridge: stat?.bridge || null,
+        };
         group.add(sprite);
       }
       group.visible = false;
@@ -785,18 +814,18 @@ export default function LivingArchView({
       return group;
     }
     const poleLabelGroup3DByAxis = {
-      taste:   buildPoleLabels(polesByAxis3D.taste,   tasteOut),
-      aromas:  buildPoleLabels(polesByAxis3D.aromas,  aromasOut),
-      cuisine: buildPoleLabels(polesByAxis3D.cuisine, cuisineOut),
-      season:  buildPoleLabels(polesByAxis3D.season,  seasonOut),
-      family:  buildPoleLabels(polesByAxis3D.family,  familyOut),
+      taste:   buildPoleLabels(polesByAxis3D.taste,   tasteOut,   statsByAxis.taste),
+      aromas:  buildPoleLabels(polesByAxis3D.aromas,  aromasOut,  statsByAxis.aromas),
+      cuisine: buildPoleLabels(polesByAxis3D.cuisine, cuisineOut, statsByAxis.cuisine),
+      season:  buildPoleLabels(polesByAxis3D.season,  seasonOut,  statsByAxis.season),
+      family:  buildPoleLabels(polesByAxis3D.family,  familyOut,  statsByAxis.family),
     };
     const poleLabelGroup2DByAxis = {
-      taste:   buildPoleLabels(polesByAxis2D.taste,   tasteOut),
-      aromas:  buildPoleLabels(polesByAxis2D.aromas,  aromasOut),
-      cuisine: buildPoleLabels(polesByAxis2D.cuisine, cuisineOut),
-      season:  buildPoleLabels(polesByAxis2D.season,  seasonOut),
-      family:  buildPoleLabels(polesByAxis2D.family,  familyOut),
+      taste:   buildPoleLabels(polesByAxis2D.taste,   tasteOut,   statsByAxis.taste),
+      aromas:  buildPoleLabels(polesByAxis2D.aromas,  aromasOut,  statsByAxis.aromas),
+      cuisine: buildPoleLabels(polesByAxis2D.cuisine, cuisineOut, statsByAxis.cuisine),
+      season:  buildPoleLabels(polesByAxis2D.season,  seasonOut,  statsByAxis.season),
+      family:  buildPoleLabels(polesByAxis2D.family,  familyOut,  statsByAxis.family),
     };
     // Show the right one initially if we mounted in a categorical mode.
     if (categoricalLabelGroupByMode[modeRef.current]) {
@@ -1035,6 +1064,8 @@ export default function LivingArchView({
                 label: ud.axisLabel,
                 memberCount: ud.memberCount || 0,
                 color: ud.color || '#ffffff',
+                topMembers: Array.isArray(ud.topMembers) ? ud.topMembers : [],
+                bridge: ud.bridge || null,
                 x: event.clientX,
                 y: event.clientY,
               });
