@@ -31,13 +31,16 @@ const results = {};
 const sliderHidden = await page.$('input[aria-label="Filter pull strength"]') === null;
 results.slider_hidden_default = sliderHidden;
 
-// Activate Aroma — slider should appear with default 70%.
+// R18: Activate Aroma — slider should appear with default 0% (was 70%).
+// Reset-to-zero on filter-stack 0→non-empty transition lets the user dial
+// in pull strength themselves rather than starting at a layout that hides
+// most nodes.
 await page.click('div[role="group"][aria-label="Filter by"] button:has-text("Aroma")');
 await page.waitForTimeout(1500);
 const slider = page.locator('input[aria-label="Filter pull strength"]');
 const initialValue = await slider.getAttribute('aria-valuenow');
 results.slider_default_pct = Number(initialValue);
-await page.screenshot({ path: `${SHOT_DIR}/r17-3d-aroma-pull70.png` });
+await page.screenshot({ path: `${SHOT_DIR}/r18-3d-aroma-pull0.png` });
 
 // Pull to 0 via Home key — should snap to 0.
 await slider.focus();
@@ -101,7 +104,7 @@ console.log('Results:', JSON.stringify(results, null, 2));
 
 const ok = consoleErrors.length === 0
   && results.slider_hidden_default === true
-  && results.slider_default_pct === 70
+  && results.slider_default_pct === 0
   && results.home_key_value === 0
   && results.end_key_value === 100
   && results.arrow_left_value === 95
