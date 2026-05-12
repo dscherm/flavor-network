@@ -23,7 +23,8 @@
 
 import { bucketAllNodes } from './categoricalAxes.js';
 
-const RADIUS = 90;            // Same scale as categoricalWheelPositions
+export const POLE_RADIUS = 90;   // Same scale as categoricalWheelPositions
+const RADIUS = POLE_RADIUS;
 const Y_PLANE = 0;             // 2D ring lives on y=0
 const PHI = Math.PI * (3 - Math.sqrt(5)); // Golden angle for Fibonacci sphere
 
@@ -32,7 +33,7 @@ const PHI = Math.PI * (3 - Math.sqrt(5)); // Golden angle for Fibonacci sphere
  * Returns an array of [x, y, z] unit vectors. Angularly uniform for
  * any N >= 1.
  */
-function fibonacciSphere(n) {
+export function fibonacciSphere(n) {
   const out = [];
   if (n <= 0) return out;
   if (n === 1) return [[0, 1, 0]]; // single bucket sits on top pole

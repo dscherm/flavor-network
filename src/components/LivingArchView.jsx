@@ -74,6 +74,9 @@ export default function LivingArchView({
   onVisibleCountChange = null,
   onDoubleTap,
   onNodeHover,
+  // R18 — pole-label hover. Fires with { label, memberCount, color, x, y }
+  // when the cursor lands on a bucket-pole sprite (or null on leave).
+  onPoleHover = null,
   highlightPairings = null,
   flyToTarget = null,
   highlightIngredients = null,
@@ -129,6 +132,8 @@ export default function LivingArchView({
   useEffect(() => { onNodeClickRef.current = onNodeClick; }, [onNodeClick]);
   const focusedClusterIdRef = useRef(focusedClusterId);
   useEffect(() => { focusedClusterIdRef.current = focusedClusterId; }, [focusedClusterId]);
+  const onPoleHoverRef = useRef(onPoleHover);
+  useEffect(() => { onPoleHoverRef.current = onPoleHover; }, [onPoleHover]);
 
   // ---- Build scene ----
   useEffect(() => {
@@ -752,6 +757,47 @@ export default function LivingArchView({
       season2d:  buildCategoricalLabels(seasonOut),
       family2d:  buildCategoricalLabels(familyOut),
     };
+
+    // R18 — bucket-pole labels keyed by axis (rather than by legacy
+    // mode key). Render one label per bucket positioned ON the actual
+    // pole position (Fibonacci sphere in 3D, flat ring in 2D). Used
+    // by the visibility-toggle effect that shows / hides them based
+    // on filterStack + morphAxis + geometry mode. Tooltip-on-hover
+    // surfaces bucket size; hit detection is via raycaster against
+    // sprite.userData.isPole.
+    function buildPoleLabels(polesByAxis, out, scale = 1.18) {
+      const group = new THREE.Group();
+      for (const [label, pole] of polesByAxis.polePositions) {
+        const hex = out.bucketColor.get(label) || '#ffffff';
+        const memberCount = out.bucketOf
+          ? Array.from(out.bucketOf.values()).filter((v) => v === label).length
+          : 0;
+        const sprite = makeLabel(label.toUpperCase(), hex, 22);
+        // Push label outward from origin so it doesn't collide with
+        // the bucket of nodes pulled to the pole — scale > 1 nudges
+        // it past the pole position along the same radial direction.
+        sprite.position.set(pole[0] * scale, pole[1] * scale + 0.5, pole[2] * scale);
+        sprite.userData = { isPole: true, axisLabel: label, memberCount, color: hex };
+        group.add(sprite);
+      }
+      group.visible = false;
+      scene.add(group);
+      return group;
+    }
+    const poleLabelGroup3DByAxis = {
+      taste:   buildPoleLabels(polesByAxis3D.taste,   tasteOut),
+      aromas:  buildPoleLabels(polesByAxis3D.aromas,  aromasOut),
+      cuisine: buildPoleLabels(polesByAxis3D.cuisine, cuisineOut),
+      season:  buildPoleLabels(polesByAxis3D.season,  seasonOut),
+      family:  buildPoleLabels(polesByAxis3D.family,  familyOut),
+    };
+    const poleLabelGroup2DByAxis = {
+      taste:   buildPoleLabels(polesByAxis2D.taste,   tasteOut),
+      aromas:  buildPoleLabels(polesByAxis2D.aromas,  aromasOut),
+      cuisine: buildPoleLabels(polesByAxis2D.cuisine, cuisineOut),
+      season:  buildPoleLabels(polesByAxis2D.season,  seasonOut),
+      family:  buildPoleLabels(polesByAxis2D.family,  familyOut),
+    };
     // Show the right one initially if we mounted in a categorical mode.
     if (categoricalLabelGroupByMode[modeRef.current]) {
       categoricalLabelGroupByMode[modeRef.current].visible = true;
@@ -960,7 +1006,48 @@ export default function LivingArchView({
     renderer.domElement.addEventListener('click', onClickGuard);
     renderer.domElement.style.cursor = 'default';
 
+    // Track the last pole sprite reported so we only fire onPoleHover
+    // on transitions (avoids spamming React state every mousemove tick).
+    let lastPoleLabel = null;
     function onMove(event) {
+      // R18 — pole-sprite raycast runs first. Only one pole group is
+      // visible at a time (the one for the active axis filter under the
+      // current geometry mode). Hit any sprite in it and we skip the
+      // node-hover path entirely.
+      const phCb = onPoleHoverRef.current;
+      if (phCb) {
+        const groupSet = modeRef.current === 'ml'
+          ? poleLabelGroup3DByAxis
+          : poleLabelGroup2DByAxis;
+        const visibleGroup = Object.values(groupSet || {}).find((g) => g.visible);
+        if (visibleGroup && visibleGroup.children.length > 0) {
+          const rect = renderer.domElement.getBoundingClientRect();
+          const mx = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          const my = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+          raycaster.setFromCamera({ x: mx, y: my }, camera);
+          const hits = raycaster.intersectObjects(visibleGroup.children, false);
+          if (hits.length > 0) {
+            const sprite = hits[0].object;
+            const ud = sprite.userData || {};
+            if (ud.isPole) {
+              lastPoleLabel = ud.axisLabel;
+              phCb({
+                label: ud.axisLabel,
+                memberCount: ud.memberCount || 0,
+                color: ud.color || '#ffffff',
+                x: event.clientX,
+                y: event.clientY,
+              });
+              if (onNodeHover) onNodeHover(null, null);
+              return;
+            }
+          }
+        }
+        if (lastPoleLabel !== null) {
+          lastPoleLabel = null;
+          phCb(null);
+        }
+      }
       handleSceneMove(event, camera, renderer, tasteLabelSprites, mesh, raycaster, hoverState, {
         mode: modeRef.current,
         onNodeHover: onNodeHover ? (instanceId, mousePos) => {
@@ -1460,6 +1547,10 @@ export default function LivingArchView({
       // reads these to lerp position toward the bucket pole(s) for
       // each active axis filter under the current geometry mode.
       polesByAxis2D, polesByAxis3D,
+      // R18 — pole label groups (Sprite groups, one per axis) for
+      // both 2D ring + 3D Fibonacci layouts. Visibility flipped by
+      // the new pole-label effect on (filterStack, morphAxis, mode).
+      poleLabelGroup2DByAxis, poleLabelGroup3DByAxis,
       triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, sectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
       // Expose runtime cluster centroids (3D from posA, 2D from PCA) so the
@@ -1622,12 +1713,24 @@ export default function LivingArchView({
     // explicitly because this effect's deps don't include `engaged`
     // (it's a ref, not React state) and won't re-fire on exit.
     if (affinityModeRef.current?.engaged) return;
-    const { mesh, defaultColors, nodeArray, nameIdx, edgeMesh: em, tasteSelection } = st;
+    const { mesh, defaultColors, clusterColors, categoricalColorByMode, nodeArray, tasteSelection } = st;
     const count = nodeArray.length;
     const activeNodes = selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : []);
 
     // Skip color override if taste selection is active
     if (tasteSelection && (tasteSelection.taste1 !== null || tasteSelection.taste2 !== null)) return;
+
+    // R18 item 4 — clicking an ingredient while a filter is active
+    // preserves the filter palette instead of falling back to
+    // defaultColors. Mirrors the palette-selection rule in the
+    // visual-state effect: axis filter → bucket palette; scope-only
+    // → cluster palette; no filter → default.
+    let palette = defaultColors;
+    if (filterStack.length > 0 && morphAxis) {
+      palette = categoricalColorByMode?.[`${morphAxis}2d`] || defaultColors;
+    } else if (filterStack.length > 0) {
+      palette = clusterColors;
+    }
 
     if (activeNodes.length > 0 && data) {
       const connMap = new Map();
@@ -1642,17 +1745,17 @@ export default function LivingArchView({
         const name = nodeArray[i].name;
         const str = connMap.get(name);
         if (str !== undefined) {
-          const c = defaultColors[i].clone().lerp(new THREE.Color('#ffffff'), str * 0.6);
+          const c = palette[i].clone().lerp(new THREE.Color('#ffffff'), str * 0.6);
           mesh.setColorAt(i, c);
         } else {
-          mesh.setColorAt(i, defaultColors[i].clone().multiplyScalar(0.15));
+          mesh.setColorAt(i, palette[i].clone().multiplyScalar(0.15));
         }
       }
     } else {
-      for (let i = 0; i < count; i++) mesh.setColorAt(i, defaultColors[i]);
+      for (let i = 0; i < count; i++) mesh.setColorAt(i, palette[i]);
     }
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  }, [selectedNode, selectedNodes, data]);
+  }, [selectedNode, selectedNodes, data, filterStack, morphAxis]);
 
   // ---- Per-node name labels for selected + highlighted pairings ----
   // R7-41: labels persist across all selectedNodes (the Set below
@@ -2132,6 +2235,16 @@ export default function LivingArchView({
     // Legacy taste-axis labels (3D neural mode only) — gone under R17
     // unless someone explicitly enters the legacy taste mode.
     if (labelGroup) labelGroup.visible = false;
+
+    // R18 — pole labels: show ONE group (the one matching morphAxis +
+    // geometry mode) when an axis filter is active; hide every other
+    // group. With no filter or scope-only stack, all pole labels off.
+    const groupSetActive = mode === 'ml' ? st.poleLabelGroup3DByAxis : st.poleLabelGroup2DByAxis;
+    const groupSetInactive = mode === 'ml' ? st.poleLabelGroup2DByAxis : st.poleLabelGroup3DByAxis;
+    for (const g of Object.values(groupSetInactive || {})) g.visible = false;
+    for (const [axisKey, g] of Object.entries(groupSetActive || {})) {
+      g.visible = filterActive && morphAxis === axisKey;
+    }
   }, [filterStack, morphAxis, mode, showEdges, showParticles]);
 
   // ---- R16 Phase 1/2 + R17: filter-stack visibility predicate ----
@@ -2178,7 +2291,12 @@ export default function LivingArchView({
     const vis = visibilityRef.current;
     const axisFilters = filterStack.filter((f) => FILTER_TO_AXIS[f]);
     const dummy = new THREE.Object3D();
-    const pull = Math.max(0, Math.min(1, pullStrength));
+    // R18 — sqrt curve: dramatic onset at low slider values, gentle
+    // finish near 100%. Slider semantics stay linear (the user sees
+    // 0..100), but the visual lerp uses sqrt(t) so 25% slider already
+    // reveals 50% of the bucket structure, while 75% slider lands at
+    // 87%. Avoids the "all nodes collapse to 6 points" cliff at 100.
+    const pull = Math.sqrt(Math.max(0, Math.min(1, pullStrength)));
     for (let i = 0; i < nodeArray.length; i++) {
       const node = nodeArray[i];
       const isVisible = vis ? vis[i] === 1 : true;
@@ -2312,39 +2430,11 @@ export default function LivingArchView({
         </div>
       )}
 
-      {/* PCA axis labels — only meaningful in flat top-down 2D mode.
-          Each end shows the 3 most-extreme ingredients on that axis,
-          which is the only thing PCA actually optimizes for: directions
-          of maximum variance in the Node2Vec recipe-co-occurrence
-          embedding. Hidden in 3D / taste modes since the camera is
-          orbiting and there's no fixed "left vs right" semantics. */}
-      {mode === 'ml2d' && pcaAxes && (
-        <div className="pointer-events-none absolute inset-0 z-[55]" aria-hidden="true">
-          {/* X axis (low) — left edge, centered vertically */}
-          <div className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 max-w-[35%]">
-            <p className="text-[9px] uppercase tracking-widest text-cyan-400/70 mb-0.5">← X axis</p>
-            <p className="text-xs text-gray-300 leading-tight">{pcaAxes.x.low}</p>
-          </div>
-          {/* X axis (high) — right edge, centered vertically */}
-          <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 max-w-[35%] text-right">
-            <p className="text-[9px] uppercase tracking-widest text-cyan-400/70 mb-0.5">X axis →</p>
-            <p className="text-xs text-gray-300 leading-tight">{pcaAxes.x.high}</p>
-          </div>
-          {/* Y axis (low) — top, centered horizontally. Y in PCA space
-              maps to Z in 3D (camera looks down +Y), so "Y low" sits at
-              top of the screen. */}
-          <div className="absolute top-12 left-1/2 -translate-x-1/2 max-w-[60%] text-center">
-            <p className="text-[9px] uppercase tracking-widest text-cyan-400/70 mb-0.5">↑ Y axis</p>
-            <p className="text-xs text-gray-300 leading-tight">{pcaAxes.y.low}</p>
-          </div>
-          {/* Y axis (high) — bottom, centered. Sits above the mode
-              selector, so we offset by enough to clear it on mobile. */}
-          <div className="absolute bottom-36 sm:bottom-20 left-1/2 -translate-x-1/2 max-w-[60%] text-center">
-            <p className="text-xs text-gray-300 leading-tight">{pcaAxes.y.high}</p>
-            <p className="text-[9px] uppercase tracking-widest text-cyan-400/70 mt-0.5">Y axis ↓</p>
-          </div>
-        </div>
-      )}
+      {/* PCA X/Y axis labels were removed in R18 per user feedback —
+          they clashed visually with the filter pill row + breadcrumb
+          and the variance-direction story wasn't reading at a glance.
+          The pcaAxes state + load effect are kept around in case the
+          insight ships back as a tooltip-on-pole feature later. */}
 
       {/* 4-way mode selector now lives on the bottom-bar Network
           button (MobileTabBar). LivingArchView renders no on-canvas

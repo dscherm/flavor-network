@@ -53,7 +53,7 @@ import FilterPillRow from './components/FilterPillRow.jsx';
 import FilterBreadcrumb from './components/FilterBreadcrumb.jsx';
 import HUDAnnouncer from './components/HUDAnnouncer.jsx';
 import FilterPullSlider from './components/FilterPullSlider.jsx';
-import { computeBucketPoles2D, computeBucketPoles3D } from './data/bucketPoles.js';
+import { computeBucketPoles2D, computeBucketPoles3D, fibonacciSphere, POLE_RADIUS } from './data/bucketPoles.js';
 import { getCocktailScope, getSauceScope } from './data/labScope.js';
 import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
@@ -108,11 +108,19 @@ export default function App() {
   // dropdown but are still understood by the renderer as fallbacks.
   const [mode, setMode] = useState('3D');
   const [filterStack, setFilterStack] = useState([]);
-  // R17 — continuous pull strength. 0 = pure cooccurrence, 1 = full
-  // bucket-pole snap. Default 70% lands in the "exploratory midpoint"
-  // zone where cluster structure and bucket stratification both read.
-  // Persists across mode flips and stack changes.
-  const [pullStrength, setPullStrength] = useState(0.7);
+  // R17/R18 — continuous pull strength. 0 = pure cooccurrence, 1 =
+  // full bucket-pole snap. Starts at 0 on every fresh activation
+  // (filterStack going from empty → non-empty resets it via the
+  // useEffect below) so the user is shown the unaltered network
+  // first, then drags the slider to reveal the morph.
+  const [pullStrength, setPullStrength] = useState(0);
+  const prevFilterStackLenRef = useRef(0);
+  useEffect(() => {
+    if (prevFilterStackLenRef.current === 0 && filterStack.length > 0) {
+      setPullStrength(0);
+    }
+    prevFilterStackLenRef.current = filterStack.length;
+  }, [filterStack.length]);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
   const [edgeBrightness] = useState(0.3);
@@ -134,6 +142,7 @@ export default function App() {
   const [showFilteredList, setShowFilteredList] = useState(false);
   const [hoveredNode, setHoveredNode] = useState(null);
   const [hoverPos, setHoverPos] = useState(null);
+  const [hoveredPole, setHoveredPole] = useState(null);
   const [highlightPairings, setHighlightPairings] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
   const [clusterHighlights, setClusterHighlights] = useState(null);
@@ -244,23 +253,33 @@ export default function App() {
   const joystickClusters = useMemo(() => {
     if (morphAxis && CATEGORICAL_AXES[morphAxis]) {
       const axis = CATEGORICAL_AXES[morphAxis];
-      const RING_RADIUS = 90;
       const N = axis.labels.length;
+      // R18 — pole positions match what the renderer uses for the
+      // pull-lerp targets, so the fly-to-wheel handler in onFlyTo()
+      // lands the camera ON the actual pole the user sees:
+      //   3D mode → Fibonacci sphere from bucketPoles.js
+      //   2D mode → flat ring at y=0 (legacy R17 layout)
+      const fibDirs = mode === '3D' ? fibonacciSphere(N) : null;
       return axis.labels.map((label, i) => {
-        const angle = (2 * Math.PI * i) / N - Math.PI / 2;
-        const cx = Math.cos(angle) * RING_RADIUS;
-        const cz = Math.sin(angle) * RING_RADIUS;
+        let centroid;
+        if (fibDirs) {
+          const [x, y, z] = fibDirs[i];
+          centroid = [x * POLE_RADIUS, y * POLE_RADIUS, z * POLE_RADIUS];
+        } else {
+          const angle = (2 * Math.PI * i) / N - Math.PI / 2;
+          centroid = [Math.cos(angle) * POLE_RADIUS, 0, Math.sin(angle) * POLE_RADIUS];
+        }
         return {
           id: -100 - i,
           name: label,
           color: axis.colors[i],
-          centroid_3d: [cx, 0, cz],
+          centroid_3d: centroid,
           top_ingredients: [],
         };
       });
     }
     return data?.clusterLabels?.clusters;
-  }, [morphAxis, data]);
+  }, [morphAxis, mode, data]);
 
   const handleModeSelect = useCallback((mode) => {
     writeStartPageFlag();
@@ -781,6 +800,7 @@ export default function App() {
           setHoveredNode(node);
           setHoverPos(pos);
         }}
+        onPoleHover={setHoveredPole}
         selectedNode={selectedNode}
         selectedNodes={selectedNodes}
         showEdges={showEdges}
@@ -816,6 +836,25 @@ export default function App() {
           {hoveredNode.taste && (
             <span className="ml-2 text-gray-400">{hoveredNode.taste}</span>
           )}
+        </div>
+      )}
+      {/* R18 — pole-label tooltip. Mirrors the node tooltip's styling but
+          uses the bucket's color as the border + shows the member count. */}
+      {hoveredPole && (
+        <div
+          className="fixed z-[70] px-2 py-1 rounded bg-[#0d0d16]/95 text-xs text-white pointer-events-none whitespace-nowrap"
+          style={{
+            left: hoveredPole.x + 12,
+            top: hoveredPole.y - 8,
+            borderWidth: 1,
+            borderStyle: 'solid',
+            borderColor: hoveredPole.color,
+          }}
+        >
+          <span className="font-medium uppercase tracking-wider" style={{ color: hoveredPole.color }}>
+            {hoveredPole.label}
+          </span>
+          <span className="ml-2 text-gray-400">{hoveredPole.memberCount} ingredients</span>
         </div>
       )}
       <SearchBar
