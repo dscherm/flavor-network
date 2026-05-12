@@ -19,6 +19,7 @@ import { MODE_CYCLE, MODE_LABELS, MODE_IS_2D, MODE_IS_CATEGORICAL, MODE_TO_AXIS 
 import { computeCategoricalWheelPositions } from '../data/categoricalWheelPositions.js';
 import { computeBucketPoles2D, computeBucketPoles3D } from '../data/bucketPoles.js';
 import { computeBucketStats } from '../data/bucketStats.js';
+import { rankBridges } from '../data/bridgeRanker.js';
 import { CATEGORICAL_AXES, bucketOf } from '../data/categoricalAxes.js';
 import { FILTER_TO_AXIS } from '../data/networkModes.js';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
@@ -78,6 +79,11 @@ export default function LivingArchView({
   // R18 — pole-label hover. Fires with { label, memberCount, color, x, y }
   // when the cursor lands on a bucket-pole sprite (or null on leave).
   onPoleHover = null,
+  // R19 Phase 3 — bridge-pulse trigger. Fires once when pullStrength
+  // crosses 0.5 in either direction (cooccurrence ↔ bucket dominance)
+  // with a screen-projected snapshot of the top-20 cross-bucket
+  // bridge ingredients of the active morph axis.
+  onBridgePulse = null,
   highlightPairings = null,
   flyToTarget = null,
   highlightIngredients = null,
@@ -135,6 +141,8 @@ export default function LivingArchView({
   useEffect(() => { focusedClusterIdRef.current = focusedClusterId; }, [focusedClusterId]);
   const onPoleHoverRef = useRef(onPoleHover);
   useEffect(() => { onPoleHoverRef.current = onPoleHover; }, [onPoleHover]);
+  const onBridgePulseRef = useRef(onBridgePulse);
+  useEffect(() => { onBridgePulseRef.current = onBridgePulse; }, [onBridgePulse]);
 
   // ---- Build scene ----
   useEffect(() => {
@@ -207,6 +215,31 @@ export default function LivingArchView({
       cuisine: statsFor('cuisine', cuisineOut),
       season:  statsFor('season',  seasonOut),
       family:  statsFor('family',  familyOut),
+    };
+    // R19 Phase 3 — top-20 bridge ingredients per axis, ranked globally
+    // by cross-bucket cooccurrence strength. The threshold-crossing
+    // effect reads bridgesByAxis[morphAxis] to fire the pulse overlay
+    // without recomputing on every slider tick.
+    function bridgesFor(axisKey, out) {
+      return rankBridges(axisKey, {
+        nodes: graph.nodes,
+        edges: graph.edges,
+        bucketOf: out.bucketOf,
+      }, { topN: 20 });
+    }
+    const bridgesByAxis = {
+      taste:   bridgesFor('taste',   tasteOut),
+      aromas:  bridgesFor('aromas',  aromasOut),
+      cuisine: bridgesFor('cuisine', cuisineOut),
+      season:  bridgesFor('season',  seasonOut),
+      family:  bridgesFor('family',  familyOut),
+    };
+    const bucketColorByAxis = {
+      taste:   tasteOut.bucketColor,
+      aromas:  aromasOut.bucketColor,
+      cuisine: cuisineOut.bucketColor,
+      season:  seasonOut.bucketColor,
+      family:  familyOut.bucketColor,
     };
     const tasteWheel   = tasteOut.positions;
     const aromasWheel  = aromasOut.positions;
@@ -1578,6 +1611,10 @@ export default function LivingArchView({
       // reads these to lerp position toward the bucket pole(s) for
       // each active axis filter under the current geometry mode.
       polesByAxis2D, polesByAxis3D,
+      // R19 Phase 3 — top-20 cross-bucket bridge rankings per axis +
+      // per-axis bucket→hex color maps. Consumed by the threshold-
+      // crossing effect that fires the BridgePulseOverlay snapshot.
+      bridgesByAxis, bucketColorByAxis,
       // R18 — pole label groups (Sprite groups, one per axis) for
       // both 2D ring + 3D Fibonacci layouts. Visibility flipped by
       // the new pole-label effect on (filterStack, morphAxis, mode).
@@ -2359,6 +2396,73 @@ export default function LivingArchView({
     }
     mesh.instanceMatrix.needsUpdate = true;
   }, [filterStack, mode, pullStrength, emptyIntersection]);
+
+  // ---- R19 Phase 3: bridge-pulse trigger on pull-strength 0.5 crossing ----
+  // When the slider crosses the half-way mark in either direction, fire a
+  // one-shot snapshot of the active morph axis's top-20 cross-bucket
+  // bridge ingredients (screen-projected positions + bucket colors) so the
+  // App-side BridgePulseOverlay can flash them. Re-uses the same sqrt-pull
+  // curve as the position lerp so the projected positions match what the
+  // user actually sees on screen at the moment of crossing.
+  const prevPullRef = useRef(pullStrength);
+  useEffect(() => {
+    const prev = prevPullRef.current;
+    const curr = pullStrength;
+    prevPullRef.current = curr;
+    const crossed = (prev < 0.5 && curr >= 0.5) || (prev >= 0.5 && curr < 0.5);
+    if (!crossed) return;
+    if (!morphAxis) return;
+    if (!filterStack || filterStack.length === 0) return;
+    const cb = onBridgePulseRef.current;
+    if (typeof cb !== 'function') return;
+    const st = stateRef.current;
+    if (!st || !st.camera || !st.renderer || !st.curPos || !st.nameIdx) return;
+    const ranked = st.bridgesByAxis?.[morphAxis];
+    if (!Array.isArray(ranked) || ranked.length === 0) return;
+    const colorMap = st.bucketColorByAxis?.[morphAxis] || null;
+    const polesByAxis = mode === 'ml' ? st.polesByAxis3D : st.polesByAxis2D;
+    const axisFilters = filterStack.filter((f) => FILTER_TO_AXIS[f]);
+    const pullEff = Math.sqrt(Math.max(0, Math.min(1, curr)));
+    const rect = st.renderer.domElement.getBoundingClientRect();
+    const v = new THREE.Vector3();
+    const screenBridges = [];
+    for (const r of ranked) {
+      const i = st.nameIdx.get(r.name);
+      if (i == null) continue;
+      let px = st.curPos[i * 3];
+      let py = st.curPos[i * 3 + 1];
+      let pz = st.curPos[i * 3 + 2];
+      if (pullEff > 0 && axisFilters.length > 0) {
+        let sx = 0, sy = 0, sz = 0, n = 0;
+        for (let f = 0; f < axisFilters.length; f++) {
+          const axisKey = FILTER_TO_AXIS[axisFilters[f]];
+          const tbl = polesByAxis?.[axisKey];
+          const p = tbl?.positions?.[r.name];
+          if (p) { sx += p[0]; sy += p[1]; sz += p[2]; n++; }
+        }
+        if (n > 0) {
+          const mx = sx / n, my = sy / n, mz = sz / n;
+          px = px + (mx - px) * pullEff;
+          py = py + (my - py) * pullEff;
+          pz = pz + (mz - pz) * pullEff;
+        }
+      }
+      v.set(px, py, pz).project(st.camera);
+      // .project returns NDC ([-1,1] for x/y, z in front-of-camera range).
+      // Skip points clipped behind the camera so we don't flash phantoms.
+      if (v.z > 1 || v.z < -1) continue;
+      const sxPx = ((v.x + 1) / 2) * rect.width + rect.left;
+      const syPx = ((1 - v.y) / 2) * rect.height + rect.top;
+      screenBridges.push({
+        name: r.name,
+        x: sxPx,
+        y: syPx,
+        color: colorMap?.get?.(r.bucket) || '#7dd3fc',
+      });
+    }
+    if (screenBridges.length === 0) return;
+    cb({ bridges: screenBridges, ts: typeof performance !== 'undefined' ? performance.now() : Date.now() });
+  }, [pullStrength, morphAxis, filterStack, mode]);
 
   // ---- R13-5: AffinityMode selection driver ----
   // Watches selectedNodes + affinityEnabled and dispatches

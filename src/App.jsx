@@ -54,6 +54,7 @@ import FilterBreadcrumb from './components/FilterBreadcrumb.jsx';
 import HUDAnnouncer from './components/HUDAnnouncer.jsx';
 import FilterPullSlider from './components/FilterPullSlider.jsx';
 import InsightChip from './components/InsightChip.jsx';
+import BridgePulseOverlay from './components/BridgePulseOverlay.jsx';
 import { computeBucketPoles2D, computeBucketPoles3D, fibonacciSphere, POLE_RADIUS } from './data/bucketPoles.js';
 import { getCocktailScope, getSauceScope } from './data/labScope.js';
 import BottomSheet from './components/BottomSheet.jsx';
@@ -144,6 +145,10 @@ export default function App() {
   const [hoveredNode, setHoveredNode] = useState(null);
   const [hoverPos, setHoverPos] = useState(null);
   const [hoveredPole, setHoveredPole] = useState(null);
+  // R19 Phase 3 — one-shot bridge pulse snapshot. LivingArchView fires
+  // this when pullStrength crosses 0.5; the BridgePulseOverlay below
+  // self-clears after the 1.5s animation completes.
+  const [bridgePulse, setBridgePulse] = useState(null);
   const [highlightPairings, setHighlightPairings] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
   const [clusterHighlights, setClusterHighlights] = useState(null);
@@ -832,6 +837,7 @@ export default function App() {
           setHoverPos(pos);
         }}
         onPoleHover={setHoveredPole}
+        onBridgePulse={setBridgePulse}
         selectedNode={selectedNode}
         selectedNodes={selectedNodes}
         showEdges={showEdges}
@@ -857,6 +863,8 @@ export default function App() {
         isMobile={isMobile}
         onClearSelection={handleClearSelection}
       />
+      {/* R19 Phase 3 — bridge-pulse rings on pull crossing 0.5. */}
+      <BridgePulseOverlay pulse={bridgePulse} />
       {/* Hover tooltip — shows ingredient name at cursor position */}
       {hoveredNode && hoverPos && (
         <div
