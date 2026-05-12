@@ -83,7 +83,6 @@ export default function FilterPullSlider({
         aria-valuetext={`${percent} percent`}
         disabled={disabled}
         className="w-32 h-1 accent-cyan-400"
-        style={{ accentColor: '#22d3ee' }}
       />
       <span className="text-cyan-300 font-medium tabular-nums w-9 text-right">{percent}%</span>
     </div>
