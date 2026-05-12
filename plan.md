@@ -231,6 +231,48 @@ wiring investigation).
 }
 ```
 
+### Task 11: R19 Phase 1A — Insight chip (filter + pull narrative)
+
+```json
+{
+  "id": "R19-1",
+  "title": "Phase 1A — Insight chip below breadcrumb",
+  "category": "feature",
+  "priority": 11,
+  "description": "Single-line floating chip surfaced below the FilterBreadcrumb, narrating what the current (filterStack, pullStrength, visibleCount) layout means. Pure derived state — no LLM, no new data. Sentence templates rotate by pull range: 0-30% (cooccurrence-dominant), 30-70% (tension), 70-100% (bucket-dominant). Multi-filter case surfaces intersection cardinality + densest bucket. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier A).",
+  "steps": [
+    "Create src/components/InsightChip.jsx (~80 lines). Props: {filterStack, pullStrength, visibleCount, morphAxis, bucketCounts}.",
+    "Sentence templates: (a) filter on + pull<0.30 → 'Layout shows cooccurrence pairings within {axis} buckets. {bucketCount} buckets, {visibleCount} ingredients.' (b) filter on + 0.30≤pull≤0.70 → 'Tension layout — strong pairings resist the pull.' (c) filter on + pull>0.70 → 'Layout shows {axis} bucket structure. Largest: {topBucket} ({topCount}).' (d) multi-filter → '{visibleCount} ingredients match {f1} × {f2} × ...'.",
+    "Compute bucketCounts in App.jsx via useMemo on (morphAxis, bucketOfMap). Pass to InsightChip.",
+    "Mount InsightChip below FilterBreadcrumb in App.jsx. Hidden when filterStack is empty.",
+    "Tailwind styling matches existing FilterBreadcrumb chip aesthetic — small, semi-transparent, cyan accent.",
+    "Vitest in src/components/__tests__/InsightChip.test.jsx: render with each template branch and snapshot the rendered text."
+  ],
+  "passes": true
+}
+```
+
+### Task 12: R19 Phase 1B — Pull-thumb annotation
+
+```json
+{
+  "id": "R19-2",
+  "title": "Phase 1B — Pull-slider thumb annotation",
+  "category": "feature",
+  "priority": 12,
+  "description": "Static label above the pull slider thumb that maps the current percentage to plain-language meaning. Five anchor labels at 0/25/50/75/100% (Pairings only / Pairings, gently grouped / Balanced / Buckets, gently bridged / Buckets only). Reads the existing pullStrength state — no new data. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier C).",
+  "steps": [
+    "Modify src/components/FilterPullSlider.jsx: derive a label from pullStrength via a pure function pullLabel(pull) that returns one of 5 strings based on the nearest anchor.",
+    "Render the label as a small absolute-positioned span above the slider thumb. Use the slider's percent value to compute left offset.",
+    "Anchor labels: 0% 'Pairings only', 25% 'Pairings, gently grouped', 50% 'Balanced', 75% 'Buckets, gently bridged', 100% 'Buckets only'.",
+    "Hidden when slider is disabled (filterStack empty).",
+    "Vitest: pullLabel returns the correct anchor string for each of (0.0, 0.12, 0.24, 0.5, 0.74, 1.0).",
+    "Manual QA: drag slider end-to-end — label transitions feel smooth, no overlap with the % readout to the right."
+  ],
+  "passes": false
+}
+```
+
 ---
 
 ## Verification Strategy
