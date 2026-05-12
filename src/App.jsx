@@ -48,11 +48,12 @@ import {
   FILTER_TO_AXIS,
   morphAxisForStack,
 } from './data/networkModes.js';
-import { CATEGORICAL_AXES } from './data/categoricalAxes.js';
+import { CATEGORICAL_AXES, bucketOf } from './data/categoricalAxes.js';
 import FilterPillRow from './components/FilterPillRow.jsx';
 import FilterBreadcrumb from './components/FilterBreadcrumb.jsx';
 import HUDAnnouncer from './components/HUDAnnouncer.jsx';
 import FilterPullSlider from './components/FilterPullSlider.jsx';
+import InsightChip from './components/InsightChip.jsx';
 import { computeBucketPoles2D, computeBucketPoles3D, fibonacciSphere, POLE_RADIUS } from './data/bucketPoles.js';
 import { getCocktailScope, getSauceScope } from './data/labScope.js';
 import BottomSheet from './components/BottomSheet.jsx';
@@ -231,6 +232,36 @@ export default function App() {
     const idx = -100 - focusedCluster;
     return axis?.labels?.[idx] ?? null;
   }, [focusedCluster, morphAxis]);
+
+  // R19 Phase 1A — per-bucket member counts on the active morph axis,
+  // restricted to nodes that pass every filter in filterStack (matches
+  // the AND-intersection visibility predicate in LivingArchView). Feeds
+  // InsightChip's "Largest: <bucket> (N)" / "Densest: …" templates.
+  // Null when there is no morphAxis (empty stack OR scope-only stack).
+  const bucketCounts = useMemo(() => {
+    if (!data?.graph?.nodes || !morphAxis) return null;
+    const axis = CATEGORICAL_AXES[morphAxis];
+    if (!axis) return null;
+    const ctx = {
+      gnnEntropy: data.gnnEntropy || null,
+      cuisineMap: data.cuisineMap || null,
+      seasonMap: data.seasonMap || null,
+      cocktailScope,
+      sauceScope,
+    };
+    const counts = {};
+    for (const label of axis.labels) counts[label] = 0;
+    for (const node of data.graph.nodes.values()) {
+      let visible = true;
+      for (const f of filterStack) {
+        if (bucketOf(f, node, ctx) === null) { visible = false; break; }
+      }
+      if (!visible) continue;
+      const label = axis.bucketOf(node, ctx);
+      if (label && counts[label] !== undefined) counts[label] += 1;
+    }
+    return counts;
+  }, [data, morphAxis, filterStack, cocktailScope, sauceScope]);
 
   // Reset focused cluster when the morph axis changes. Pseudo-cluster
   // IDs assigned by the categorical-wheel joystick are axis-specific
@@ -1213,6 +1244,21 @@ export default function App() {
                 pullStrength={pullStrength}
                 onPullChange={handlePullChange}
                 disabled={false}
+              />
+            </div>
+          )}
+          {/* R19 Phase 1A — InsightChip: derived narrative of what the
+              current (filterStack × pullStrength) layout is doing. Sits
+              below the breadcrumb + slider stack; hidden when no filter
+              is active. */}
+          {filterStack.length > 0 && (
+            <div className="fixed left-1/2 -translate-x-1/2 top-[9.5rem] z-[68] pointer-events-auto">
+              <InsightChip
+                filterStack={filterStack}
+                pullStrength={pullStrength}
+                visibleCount={visibleNodeCount}
+                morphAxis={morphAxis}
+                bucketCounts={bucketCounts}
               />
             </div>
           )}
