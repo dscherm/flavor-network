@@ -44,7 +44,12 @@ function aromaCorpusMeans(gnnEntropy) {
 }
 
 function aromaBucket(node, ctx) {
-  const probs = ctx?.gnnEntropy?.[node.name]?.probs;
+  // R16 Phase 3: prefer node.gnnProbs (which includes the synthesized
+  // compound-food profiles via applyCompoundSynthesis) before falling
+  // back to gnnEntropy. Without this fallback, compound foods like
+  // mayonnaise / garam masala never appear in any aroma bucket even
+  // though their synthesized profile is present on the node.
+  const probs = node?.gnnProbs || ctx?.gnnEntropy?.[node.name]?.probs;
   if (!probs) return null;
   const means = ctx._aromaMeans || (ctx._aromaMeans = aromaCorpusMeans(ctx.gnnEntropy));
   let bestIdx = -1;

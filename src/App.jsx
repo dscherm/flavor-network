@@ -1115,6 +1115,24 @@ export default function App() {
               />
             </div>
           </div>
+          {/* R16 Phase 3: contextual "Colors: …" chip explaining what the
+              node colors encode under the active filter. Updates reactively
+              to morphAxis (null → clusters, axis name → bucket palette). */}
+          <div
+            className="fixed left-4 top-14 z-[68] px-2.5 py-1 text-[10px] uppercase tracking-wider text-gray-400 bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full pointer-events-none"
+            aria-live="polite"
+            aria-label="Color encoding"
+          >
+            Colors: {
+              morphAxis === null ? 'clusters' :
+              morphAxis === 'aromas' ? 'aroma buckets' :
+              morphAxis === 'cuisine' ? 'cuisine regions' :
+              morphAxis === 'season' ? 'seasonality' :
+              morphAxis === 'family' ? 'ingredient family' :
+              morphAxis === 'taste' ? 'taste classes' :
+              'clusters'
+            }
+          </div>
           {/* R16 Phase 2: FilterBreadcrumb — sits just below the pill
               row, derived from filterStack + focusedBucketLabel. Click
               a segment to pop the stack back to that depth. */}
