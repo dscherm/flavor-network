@@ -53,5 +53,13 @@ export default defineConfig({
         ...devices.iPhone13,
       },
     },
+    {
+      name: 'r19-insight-drawer',
+      testMatch: 'r19-insight-drawer.spec.js',
+      // Desktop viewport — the drawer is intentionally desktop-only.
+      use: {
+        viewport: { width: 1280, height: 800 },
+      },
+    },
   ],
 });
