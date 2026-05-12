@@ -56,29 +56,23 @@ function fibonacciSphere(n) {
  * @param {object} ctx  data context for bucketing (gnnEntropy, cuisineMap, seasonMap, cocktailScope, sauceScope)
  */
 export function computeBucketPoles3D(axisKey, nodes, ctx = {}) {
-  const { bucketOf, byBucket, axis } = bucketAllNodes(axisKey, nodes, ctx);
+  const { bucketOf, axis } = bucketAllNodes(axisKey, nodes, ctx);
   if (!axis) return { positions: {}, polePositions: new Map(), bucketOf: new Map() };
 
-  const labels = axis.labels;
-  const dirs = fibonacciSphere(labels.length);
+  const dirs = fibonacciSphere(axis.labels.length);
   const polePositions = new Map();
-  for (let k = 0; k < labels.length; k++) {
+  for (let k = 0; k < axis.labels.length; k++) {
     const [x, y, z] = dirs[k];
-    polePositions.set(labels[k], [x * RADIUS, y * RADIUS, z * RADIUS]);
+    polePositions.set(axis.labels[k], [x * RADIUS, y * RADIUS, z * RADIUS]);
   }
 
+  // Unbucketed nodes are intentionally absent from `positions` — the
+  // renderer falls back to cooccurrence (no pull) for those.
   const positions = {};
   for (const node of nodes.values()) {
     const label = bucketOf.get(node.name);
-    if (label && polePositions.has(label)) {
-      positions[node.name] = polePositions.get(label);
-    }
-    // Unbucketed nodes are left out of `positions` — the renderer
-    // falls back to cooccurrence (no pull) for those.
+    if (label && polePositions.has(label)) positions[node.name] = polePositions.get(label);
   }
-  // byBucket is unused downstream in Phase A but returned for
-  // potential v2 use (per-bucket phyllotaxis re-spread).
-  void byBucket;
   return { positions, polePositions, bucketOf };
 }
 
@@ -90,31 +84,23 @@ export function computeBucketPoles3D(axisKey, nodes, ctx = {}) {
  * geometric anchor when pullStrength === 1.
  */
 export function computeBucketPoles2D(axisKey, nodes, ctx = {}) {
-  const { bucketOf, byBucket, axis } = bucketAllNodes(axisKey, nodes, ctx);
+  const { bucketOf, axis } = bucketAllNodes(axisKey, nodes, ctx);
   if (!axis) return { positions: {}, polePositions: new Map(), bucketOf: new Map() };
 
-  const labels = axis.labels;
-  const N = labels.length;
+  const N = axis.labels.length;
   const polePositions = new Map();
+  // Start at top of the ring, sweep clockwise — matches the angle
+  // convention used by categoricalWheelPositions.js so 2D pull=100%
+  // visually reproduces the R16 wheel.
   for (let k = 0; k < N; k++) {
-    // Start at top of the ring, sweep clockwise (matching
-    // categoricalWheelPositions.js so 2D pull-100% visually matches
-    // the existing R16 wheel positions).
     const angle = (2 * Math.PI * k) / N - Math.PI / 2;
-    polePositions.set(labels[k], [
-      Math.cos(angle) * RADIUS,
-      Y_PLANE,
-      Math.sin(angle) * RADIUS,
-    ]);
+    polePositions.set(axis.labels[k], [Math.cos(angle) * RADIUS, Y_PLANE, Math.sin(angle) * RADIUS]);
   }
 
   const positions = {};
   for (const node of nodes.values()) {
     const label = bucketOf.get(node.name);
-    if (label && polePositions.has(label)) {
-      positions[node.name] = polePositions.get(label);
-    }
+    if (label && polePositions.has(label)) positions[node.name] = polePositions.get(label);
   }
-  void byBucket;
   return { positions, polePositions, bucketOf };
 }
