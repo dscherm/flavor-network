@@ -51,6 +51,7 @@ import {
 import { CATEGORICAL_AXES } from './data/categoricalAxes.js';
 import FilterPillRow from './components/FilterPillRow.jsx';
 import FilterBreadcrumb from './components/FilterBreadcrumb.jsx';
+import HUDAnnouncer from './components/HUDAnnouncer.jsx';
 import { getCocktailScope, getSauceScope } from './data/labScope.js';
 import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
@@ -165,6 +166,12 @@ export default function App() {
   }, [mode, morphAxis]);
 
   const toggleFilter = useCallback((key) => {
+    // R16 Phase 4: perf instrumentation. Plan budget: pill toggle
+    // ≤16ms. Mark the start; the visibility-predicate effect inside
+    // LivingArchView marks the end via `r16-filter-applied`.
+    if (typeof performance !== 'undefined' && performance.mark) {
+      performance.mark(`r16-filter-toggle:${key}`);
+    }
     setFilterStack((prev) => {
       const idx = prev.indexOf(key);
       if (idx >= 0) {
@@ -194,6 +201,9 @@ export default function App() {
   // bucketOf detection (Phase 1 shipped them as no-op stubs).
   const [cocktailScope, setCocktailScope] = useState(null);
   const [sauceScope, setSauceScope] = useState(null);
+  // Visible-node count lifted from LivingArchView so HUDAnnouncer can
+  // surface it to screen readers. Null until the scene has computed it.
+  const [visibleNodeCount, setVisibleNodeCount] = useState(null);
   useEffect(() => {
     if (!startPageComplete) return;
     getCocktailScope().then(setCocktailScope).catch(() => {});
@@ -781,6 +791,7 @@ export default function App() {
         morphAxis={morphAxis}
         cocktailScope={cocktailScope}
         sauceScope={sauceScope}
+        onVisibleCountChange={setVisibleNodeCount}
         onDoubleTap={handleCanvasDoubleTap}
         highlightPairings={highlightPairings}
         flyToTarget={flyToTarget}
@@ -1133,6 +1144,9 @@ export default function App() {
               'clusters'
             }
           </div>
+          {/* R16 Phase 4: screen-reader announcer for filter changes
+              + visible-node-count updates. Visually hidden via sr-only. */}
+          <HUDAnnouncer filterStack={filterStack} visibleCount={visibleNodeCount} />
           {/* R16 Phase 2: FilterBreadcrumb — sits just below the pill
               row, derived from filterStack + focusedBucketLabel. Click
               a segment to pop the stack back to that depth. */}
