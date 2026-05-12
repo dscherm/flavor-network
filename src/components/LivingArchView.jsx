@@ -60,6 +60,9 @@ export default function LivingArchView({
   // instead of returning the Phase 1 no-op sentinel.
   cocktailScope = null,
   sauceScope = null,
+  // R16 Phase 4: notify App.jsx when the visible count changes so
+  // HUDAnnouncer can surface it to screen readers.
+  onVisibleCountChange = null,
   onDoubleTap,
   onNodeHover,
   highlightPairings = null,
@@ -2077,7 +2080,8 @@ export default function LivingArchView({
     }
     mesh.instanceMatrix.needsUpdate = true;
     setEmptyIntersection(filterStack.length > 0 && visibleCount === 0);
-  }, [filterStack, mode, cocktailScope, sauceScope]);
+    onVisibleCountChange?.(visibleCount);
+  }, [filterStack, mode, cocktailScope, sauceScope, onVisibleCountChange]);
 
   // ---- R13-5: AffinityMode selection driver ----
   // Watches selectedNodes + affinityEnabled and dispatches
