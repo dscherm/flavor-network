@@ -312,6 +312,26 @@ wiring investigation).
 }
 ```
 
+### Task 15: R19 Phase 4 — Narrative drawer (Tier E)
+
+```json
+{
+  "id": "R19-5",
+  "title": "Phase 4 — Narrative drawer (opt-in)",
+  "category": "feature",
+  "priority": 15,
+  "description": "Right-side opt-in drawer summarizing the current filter × pull state for chefs who want the full narrative. Sections: composition (filter chain + visible count), bucket distribution sparkline, cluster × bucket overlap matrix, pull explanation with top bridges, and a heuristic 'suggested next move'. Toggled via a small `?` button near the FilterPillRow. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier E).",
+  "steps": [
+    "Create src/data/clusterBucketOverlap.js. Pure `computeClusterBucketOverlap({ nodes, bucketOf, clusterIdField }) → { clusters[], buckets[], counts: Record<clusterId, Record<bucketLabel, count>> }`. Used by the matrix view.",
+    "Create src/components/InsightDrawer.jsx (~250 lines). Sections: Composition (filter chain + visible count), BucketSparkline (inline SVG bars per bucket), ClusterMatrix (small table, scroll on overflow), PullExplanation (sentence keyed off pull range + bridges array, top 3 bridges), SuggestedMove (heuristic).",
+    "Mount the drawer in App.jsx with bridgePanelOpen state + `?` toggle button next to the FilterPillRow. Pass bucketCounts (existing), bridges (rankBridges on active axis via useMemo), clusterOverlap (computed via useMemo on morphAxis), filterStack, pullStrength, visibleCount.",
+    "Vitest src/data/__tests__/clusterBucketOverlap.test.js — basic shape, empty/missing inputs, cluster ordering.",
+    "Vitest src/components/__tests__/InsightDrawer.test.jsx — sections render with sample state; null when filterStack empty; toggle button aria-pressed reflects bridgePanelOpen."
+  ],
+  "passes": true
+}
+```
+
 ---
 
 ## Verification Strategy

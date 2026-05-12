@@ -55,6 +55,9 @@ import HUDAnnouncer from './components/HUDAnnouncer.jsx';
 import FilterPullSlider from './components/FilterPullSlider.jsx';
 import InsightChip from './components/InsightChip.jsx';
 import BridgePulseOverlay from './components/BridgePulseOverlay.jsx';
+import InsightDrawer from './components/InsightDrawer.jsx';
+import { rankBridges } from './data/bridgeRanker.js';
+import { computeClusterBucketOverlap } from './data/clusterBucketOverlap.js';
 import { computeBucketPoles2D, computeBucketPoles3D, fibonacciSphere, POLE_RADIUS } from './data/bucketPoles.js';
 import { getCocktailScope, getSauceScope } from './data/labScope.js';
 import BottomSheet from './components/BottomSheet.jsx';
@@ -149,6 +152,9 @@ export default function App() {
   // this when pullStrength crosses 0.5; the BridgePulseOverlay below
   // self-clears after the 1.5s animation completes.
   const [bridgePulse, setBridgePulse] = useState(null);
+  // R19 Phase 4 — opt-in InsightDrawer toggle. Closed by default;
+  // user clicks the `?` button next to the FilterPillRow to open.
+  const [insightDrawerOpen, setInsightDrawerOpen] = useState(false);
   const [highlightPairings, setHighlightPairings] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
   const [clusterHighlights, setClusterHighlights] = useState(null);
@@ -267,6 +273,58 @@ export default function App() {
     }
     return counts;
   }, [data, morphAxis, filterStack, cocktailScope, sauceScope]);
+
+  // R19 Phase 4 — drawer-side derivations. Computed lazily here (only
+  // when the drawer is open) so the cost is paid on a user toggle, not
+  // on every filter / pull change. All three useMemos return null when
+  // there's no active morph axis (scope-only stack) so the drawer can
+  // gracefully render only the sections it has data for.
+  const insightAxisBucketOf = useMemo(() => {
+    if (!data?.graph?.nodes || !morphAxis) return null;
+    const axis = CATEGORICAL_AXES[morphAxis];
+    if (!axis) return null;
+    const ctx = {
+      gnnEntropy: data.gnnEntropy || null,
+      cuisineMap: data.cuisineMap || null,
+      seasonMap: data.seasonMap || null,
+    };
+    const m = new Map();
+    for (const [name, node] of data.graph.nodes) {
+      const label = axis.bucketOf(node, ctx);
+      if (label) m.set(name, label);
+    }
+    return m;
+  }, [data, morphAxis]);
+
+  const insightBridges = useMemo(() => {
+    if (!insightDrawerOpen) return null;
+    if (!data?.graph?.nodes || !morphAxis || !insightAxisBucketOf) return null;
+    return rankBridges(morphAxis, {
+      nodes: data.graph.nodes,
+      edges: data.graph.edges,
+      bucketOf: insightAxisBucketOf,
+    }, { topN: 12 });
+  }, [insightDrawerOpen, data, morphAxis, insightAxisBucketOf]);
+
+  const insightClusterOverlap = useMemo(() => {
+    if (!insightDrawerOpen) return null;
+    if (!data?.graph?.nodes || !insightAxisBucketOf) return null;
+    const axis = morphAxis ? CATEGORICAL_AXES[morphAxis] : null;
+    return computeClusterBucketOverlap({
+      nodes: data.graph.nodes,
+      bucketOf: insightAxisBucketOf,
+      bucketOrder: axis?.labels,
+    });
+  }, [insightDrawerOpen, data, morphAxis, insightAxisBucketOf]);
+
+  const insightBucketColorMap = useMemo(() => {
+    if (!morphAxis) return null;
+    const axis = CATEGORICAL_AXES[morphAxis];
+    if (!axis) return null;
+    const m = {};
+    axis.labels.forEach((label, i) => { m[label] = axis.colors[i]; });
+    return m;
+  }, [morphAxis]);
 
   // Reset focused cluster when the morph axis changes. Pseudo-cluster
   // IDs assigned by the categorical-wheel joystick are axis-specific
@@ -1220,7 +1278,7 @@ export default function App() {
           node visibility. */}
       {activeTab === 'network' && (
         <>
-          <div className="fixed left-1/2 -translate-x-1/2 top-12 z-[68] pointer-events-none">
+          <div className="fixed left-1/2 -translate-x-1/2 top-12 z-[68] pointer-events-none flex items-center gap-2">
             <div className="bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full shadow-lg pointer-events-auto">
               <FilterPillRow
                 filterStack={filterStack}
@@ -1229,6 +1287,23 @@ export default function App() {
                 mode={mode}
               />
             </div>
+            {/* R19 Phase 4 — opt-in InsightDrawer toggle. Sits to the
+                right of the pill row so it never obscures the active
+                filter pills. */}
+            <button
+              type="button"
+              onClick={() => setInsightDrawerOpen((v) => !v)}
+              aria-label={insightDrawerOpen ? 'Close layout insight drawer' : 'Open layout insight drawer'}
+              aria-pressed={insightDrawerOpen}
+              data-testid="insight-drawer-toggle"
+              className={`pointer-events-auto w-7 h-7 rounded-full border text-[11px] font-medium leading-none flex items-center justify-center transition-colors shadow-lg ${
+                insightDrawerOpen
+                  ? 'bg-cyan-500/30 border-cyan-300 text-cyan-100'
+                  : 'bg-[#0a0a12]/85 border-[#1e1e2e] text-gray-400 hover:text-cyan-200 hover:border-cyan-500/40'
+              }`}
+            >
+              ?
+            </button>
           </div>
           {/* R16 Phase 3: contextual "Colors: …" chip explaining what the
               node colors encode under the active filter. Updates reactively
@@ -1291,6 +1366,19 @@ export default function App() {
               />
             </div>
           )}
+          {/* R19 Phase 4 — full narrative drawer, opt-in. */}
+          <InsightDrawer
+            isOpen={insightDrawerOpen}
+            onClose={() => setInsightDrawerOpen(false)}
+            filterStack={filterStack}
+            pullStrength={pullStrength}
+            visibleCount={visibleNodeCount}
+            morphAxis={morphAxis}
+            bucketCounts={bucketCounts}
+            bucketColorMap={insightBucketColorMap}
+            bridges={insightBridges}
+            clusterOverlap={insightClusterOverlap}
+          />
         </>
       )}
 
