@@ -292,6 +292,26 @@ wiring investigation).
 }
 ```
 
+### Task 14: R19 Phase 3 — Bridge ranker + glow pulse on 50% crossing
+
+```json
+{
+  "id": "R19-4",
+  "title": "Phase 3 — Bridge ranker + glow pulse on pull crossing 50%",
+  "category": "feature",
+  "priority": 14,
+  "description": "When pullStrength crosses 0.5 in either direction (cooccurrence → bucket-dominance or back), the top-20 bridge ingredients of the active morph axis pulse briefly to surface 'which ingredients resist the layout you just dialed in'. Bridge ranking reuses the same cross-bucket cooccurrence score as Tier B's bucketStats but ranks all axis nodes globally rather than one per bucket. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier D).",
+  "steps": [
+    "Create src/data/bridgeRanker.js. Pure `rankBridges(axisKey, { nodes, edges, bucketOf }, opts?) → Array<{ name, score, bucket, otherBucket, topPeer, topPeerStrength }>` sorted desc + alpha-tiebreak, capped at opts.topN ?? 20.",
+    "Vitest src/data/__tests__/bridgeRanker.test.js — top-N cap, ordering, alphabetical ties, no-edges fallback (empty array), orphan-node skip.",
+    "In LivingArchView.jsx: track previous pullStrength via ref; on a 0.5 crossing (either direction) AND morphAxis is non-null, run rankBridges + project positions to screen via the camera, then fire `onBridgePulse({ bridges: [{ name, x, y, color }], ts })`.",
+    "Create src/components/BridgePulseOverlay.jsx. Renders up to 20 expanding rings at the provided positions; fades in 200ms, holds 1s, fades out 300ms (1.5s total). 2D DOM overlay — no Three.js. aria-hidden because the InsightChip + HUDAnnouncer carry the semantic info.",
+    "Mount BridgePulseOverlay in App.jsx; wire a setBridgePulse state hook from LivingArchView's onBridgePulse callback."
+  ],
+  "passes": true
+}
+```
+
 ---
 
 ## Verification Strategy
