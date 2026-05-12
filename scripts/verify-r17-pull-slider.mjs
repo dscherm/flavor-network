@@ -78,6 +78,15 @@ const after2D = await slider.getAttribute('aria-valuenow');
 results.pull_persists_across_mode_flip = Number(after2D) === Number(afterShiftArrow);
 await page.screenshot({ path: `${SHOT_DIR}/r17-2d-aroma-pull${after2D}.png` });
 
+// HUDAnnouncer fires "Pull set to N%" after debounce.
+// Pull slider should still be at 70 here (from shift-arrow earlier).
+await slider.focus();
+await page.keyboard.press('ArrowRight'); // 70 → 75
+await page.waitForTimeout(400); // wait past 200ms debounce
+const pullAnnouncement = await page.locator('[role="status"][aria-atomic="true"]').filter({ hasText: /Pull set/i }).first().textContent().catch(() => null);
+results.pull_announcement = pullAnnouncement;
+results.pull_announcement_pass = pullAnnouncement != null && /Pull set to 75%/i.test(pullAnnouncement);
+
 // Clear all filters — slider should disappear.
 await page.click('div[role="group"][aria-label="Filter by"] button:has-text("None")');
 await page.waitForTimeout(800);
@@ -98,6 +107,7 @@ const ok = consoleErrors.length === 0
   && results.arrow_left_value === 95
   && results.shift_arrow_value === 70
   && results.pull_persists_across_mode_flip === true
+  && results.pull_announcement_pass === true
   && results.slider_hidden_after_clear === true;
 console.log(ok ? 'VERIFY PASSED' : 'VERIFY FAILED');
 process.exit(ok ? 0 : 1);
