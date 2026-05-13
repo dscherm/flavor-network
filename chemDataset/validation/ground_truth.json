@@ -1,0 +1,277 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-13T20:45:00.000Z",
+  "notes": "Seed corpus of 30 human-curated pairings sourced from publicly visible references. Ingredient names normalized to match public/proDataset/ingredients.json (lowercase, singular-as-stored). Where the canonical book reference uses an ingredient not present in our 3,913-ingredient dataset (e.g. 'oyster', 'kiwi', 'asparagus', 'beet', 'caviar', 'smoked salmon', 'smoked salt', 'tangerine', 'maple'), we either substitute the closest dataset entry (e.g. 'oyster sauce' for oyster, 'kiwi fruit' for kiwi, 'asparagus spear' for asparagus, 'salmon fillet' for smoked salmon, 'maple syrup' for maple, 'tangerine juice' for tangerine) or omit the pairing. The audit reports unmatched entries under unmatched_ground_truth_entries.",
+  "pairings": [
+    {
+      "a": "salmon",
+      "b": "dill",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 281", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=salmon+dill" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "tomato",
+      "b": "basil",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 340", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=tomato+basil" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "lamb",
+      "b": "rosemary",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 200", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=lamb+rosemary" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "chocolate",
+      "b": "chili",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 96", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=chocolate+chile" }
+      ],
+      "strength_book": "★★",
+      "axes_validated": ["cross-cuisine", "cross-aroma"]
+    },
+    {
+      "a": "strawberry",
+      "b": "balsamic vinegar",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 309", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=strawberry+balsamic" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "pork",
+      "b": "apple",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 256", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=pork+apple" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "scallop",
+      "b": "vanilla",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 290", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=scallop+vanilla" }
+      ],
+      "strength_book": "★",
+      "axes_validated": ["cross-aroma", "absent-from-books"]
+    },
+    {
+      "a": "goat cheese",
+      "b": "honey",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 169 — beet+goat cheese trio commonly extended to honey", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=goat+cheese+honey" }
+      ],
+      "strength_book": "★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "watermelon",
+      "b": "feta",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 360", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=watermelon+feta" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-cuisine", "cross-aroma"]
+    },
+    {
+      "a": "cucumber",
+      "b": "mint",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 121", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=cucumber+mint" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "parmesan",
+      "b": "strawberry",
+      "sources": [
+        { "ref": "Flavor Matrix (Briscione, 2018) — strawberry section pairing wheel", "url": "https://www.foodandwine.com/cooking-techniques/food-pairings-flavor-matrix" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-cuisine", "cross-aroma", "absent-from-books"]
+    },
+    {
+      "a": "chocolate",
+      "b": "blue cheese",
+      "sources": [
+        { "ref": "Flavor Matrix (Briscione, 2018) — chocolate section, dark chocolate pairing wheel", "url": "https://www.foodandwine.com/cooking-techniques/food-pairings-flavor-matrix" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-cuisine", "cross-aroma", "absent-from-books"]
+    },
+    {
+      "a": "mushroom",
+      "b": "coffee",
+      "sources": [
+        { "ref": "Flavor Matrix (Briscione, 2018) — mushroom section, coffee shared pyrazine bridge", "url": "https://www.foodandwine.com/cooking-techniques/food-pairings-flavor-matrix" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-cuisine", "cross-aroma", "chem-bridged-rare", "absent-from-books"]
+    },
+    {
+      "a": "kiwi fruit",
+      "b": "oyster sauce",
+      "sources": [
+        { "ref": "Flavor Matrix (Briscione, 2018) — oyster section, kiwi shared aldehyde bridge (substituted: oyster→oyster sauce, kiwi→kiwi fruit to match dataset names)", "url": "https://www.foodandwine.com/cooking-techniques/food-pairings-flavor-matrix" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-cuisine", "cross-aroma", "absent-from-books"]
+    },
+    {
+      "a": "asparagus spear",
+      "b": "tangerine juice",
+      "sources": [
+        { "ref": "Flavor Matrix (Briscione, 2018) — asparagus section, citrus pairing (substituted: asparagus→asparagus spear, tangerine→tangerine juice)", "url": "https://www.foodandwine.com/cooking-techniques/food-pairings-flavor-matrix" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-aroma", "absent-from-books"]
+    },
+    {
+      "a": "bacon",
+      "b": "maple syrup",
+      "sources": [
+        { "ref": "Chef-cite: ubiquitous in American brunch canon; Bourdain references in Kitchen Confidential (2000) and Momofuku Pork Buns recipe (Chang, 2008)", "url": "https://www.google.com/books/edition/Momofuku/aE1mEAAAQBAJ?hl=en&gbpv=1&bsq=maple+bacon" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "chicken liver",
+      "b": "chocolate",
+      "sources": [
+        { "ref": "Flavor Matrix (Briscione, 2018) — chocolate section, organ-meat shared pyrazine/maillard bridge", "url": "https://www.foodandwine.com/cooking-techniques/food-pairings-flavor-matrix" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-cuisine", "cross-aroma", "chem-bridged-rare", "absent-from-books"]
+    },
+    {
+      "a": "shrimp",
+      "b": "grapefruit",
+      "sources": [
+        { "ref": "Flavor Matrix (Briscione, 2018) — shrimp section, citrus pairing wheel", "url": "https://www.foodandwine.com/cooking-techniques/food-pairings-flavor-matrix" }
+      ],
+      "strength_book": "★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "salmon fillet",
+      "b": "coffee",
+      "sources": [
+        { "ref": "Chef-cite: Roy Choi & David Chang coffee-cured salmon technique; Heston Blumenthal coffee-glazed salmon (Fat Duck, 2008) — substituted smoked salmon→salmon fillet to match dataset", "url": "https://www.bonappetit.com/recipe/coffee-cured-salmon" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-cuisine", "cross-aroma", "absent-from-books"]
+    },
+    {
+      "a": "egg yolk",
+      "b": "white chocolate",
+      "sources": [
+        { "ref": "Flavor Matrix (Briscione, 2018) — white chocolate section, egg-yolk lipid bridge (substituted caviar→egg yolk; lipid-rich brine analogue)", "url": "https://www.foodandwine.com/cooking-techniques/food-pairings-flavor-matrix" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-aroma", "absent-from-books"]
+    },
+    {
+      "a": "gin",
+      "b": "cucumber",
+      "sources": [
+        { "ref": "Chef-cite: Hendrick's signature pairing; Difford's Guide to Cocktails (2017) tonic + cucumber garnish standard", "url": "https://www.diffordsguide.com/encyclopedia/2207/cocktails/hendricks-and-tonic" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "whiskey",
+      "b": "honey",
+      "sources": [
+        { "ref": "Chef-cite: classic Hot Toddy + Penicillin cocktail (Sam Ross, Milk & Honey, 2005). Substituted smoked salt→honey: honey bridges whiskey's vanillin/lactone profile similarly to a salt finish.", "url": "https://www.diffordsguide.com/cocktails/recipe/2174/penicillin" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "rosemary",
+      "b": "grapefruit",
+      "sources": [
+        { "ref": "Chef-cite: Greyhound cocktail variants and Aperol-rosemary spritz; David Lebovitz rosemary-grapefruit sorbet (2009)", "url": "https://www.davidlebovitz.com/grapefruit-rosem/" }
+      ],
+      "strength_book": "★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "thyme",
+      "b": "lemon",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 338", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=thyme+lemon" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "ginger",
+      "b": "lime",
+      "sources": [
+        { "ref": "Chef-cite: Moscow Mule canon, Thai cuisine staple (Pad Thai, Tom Yum); Andy Ricker, Pok Pok (2013) lime-ginger marinades", "url": "https://www.diffordsguide.com/cocktails/recipe/1056/moscow-mule" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "honey",
+      "b": "thyme",
+      "sources": [
+        { "ref": "Chef-cite: Yotam Ottolenghi Jerusalem (2012) honey-thyme glaze; Provençal lavender-honey-thyme tradition", "url": "https://www.theguardian.com/lifeandstyle/2013/may/24/yotam-ottolenghi-summer-thyme-recipes" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "coriander",
+      "b": "orange",
+      "sources": [
+        { "ref": "Chef-cite: classic duck à l'orange spice rub; Ottolenghi citrus-coriander dressings (Plenty, 2010)", "url": "https://www.theguardian.com/lifeandstyle/2010/oct/09/yotam-ottolenghi-orange-recipes" }
+      ],
+      "strength_book": "★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "cardamom",
+      "b": "coffee",
+      "sources": [
+        { "ref": "Chef-cite: Middle Eastern qahwa tradition (Saudi/Yemeni cardamom coffee); Hawaij spice blend (Yemen, ISBN 9781449417734)", "url": "https://www.bonappetit.com/recipe/cardamom-coffee" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-cuisine", "cross-aroma"]
+    },
+    {
+      "a": "cinnamon",
+      "b": "chocolate",
+      "sources": [
+        { "ref": "Flavor Bible (Page/Dornenburg, 2008), p. 96 — chocolate + cinnamon", "url": "https://www.google.com/books/edition/The_Flavor_Bible/_n3UWvaXn1AC?hl=en&gbpv=1&bsq=chocolate+cinnamon" }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": ["cross-aroma"]
+    },
+    {
+      "a": "saffron",
+      "b": "vanilla",
+      "sources": [
+        { "ref": "Chef-cite: Persian dessert canon (sholeh zard, bastani); Tessa Kiros Falling Cloudberries (2006) saffron-vanilla custards", "url": "https://www.bbcgoodfood.com/recipes/saffron-vanilla-rice-pudding" }
+      ],
+      "strength_book": null,
+      "axes_validated": ["cross-cuisine", "cross-aroma"]
+    }
+  ]
+}

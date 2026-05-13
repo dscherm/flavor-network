@@ -14,6 +14,9 @@
     "api": "node src/api/server.js",
     "gate": "node scripts/gate.cjs",
     "gate:quick": "node scripts/gate.cjs --no-build",
+    "validate:pairings": "node chemDataset/validation/score_pairings.js",
+    "test": "vitest run",
+    "test:audit": "vitest run chemDataset/validation",
     "ios:sync": "npm run build && npx cap sync ios && node scripts/strip-ios-bundle.mjs",
     "ios:open": "npx cap open ios",
     "ios:build": "npm run build && npx cap sync ios && node scripts/strip-ios-bundle.mjs && cd ios/App && xcodebuild build -workspace App.xcworkspace -scheme App -configuration Debug -destination 'generic/platform=iOS Simulator'"
