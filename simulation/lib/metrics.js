@@ -175,15 +175,48 @@ export async function installFetchInterceptor(page) {
 }
 
 /**
- * Pre-seed localStorage so the StartPage picker (R10-64) doesn't block the
- * 3D canvas. Personas are power-user simulations; they'd only see the
- * picker on the very first visit. Must be called BEFORE page.goto().
+ * Pre-seed localStorage so overlays (start-page tour + walkthrough)
+ * don't block the canvas under test.
+ *
+ * Must be called BEFORE page.goto() — addInitScript only takes effect
+ * on subsequent navigations.
+ *
+ * Note: App.jsx (`src/App.jsx`) intentionally shows the StartPage on
+ * every launch (see the comment at the top of the component). The
+ * `fn-start-seen-v2` flag is therefore only used to skip the picker
+ * if a future change wires `readStartPageFlag()` into a mount-time
+ * useEffect — call `advancePastLanding(page)` if you need the
+ * picker dismissed today. The tour-complete flag IS honored at mount
+ * time and stops Walkthrough from drawing its `bg-black/60` backdrop.
+ *
  * @param {import('@playwright/test').Page} page
  */
 export async function bypassStartPage(page) {
   await page.addInitScript(() => {
-    try { localStorage.setItem('fn-start-seen', '1'); } catch { /* private mode */ }
+    try { localStorage.setItem('fn-start-seen-v2', '1'); } catch { /* private mode */ }
+    try { localStorage.setItem('flavor-tour-complete', 'true'); } catch { /* private mode */ }
   });
+}
+
+const LANDING_PICK_LABELS = {
+  pairing:  /^Network\.\s/i,
+  network:  /^Network\.\s/i,
+  cocktail: /^Cocktail Lab\.\s/i,
+  sauce:    /^Sauce Lab\.\s/i,
+  recipe:   /^Recipe Lab\.\s/i,
+};
+
+/**
+ * Click the landing-screen card for a given model so the test can reach
+ * the underlying tab. Must be called AFTER page.goto().
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {'pairing'|'network'|'cocktail'|'sauce'|'recipe'} [mode='pairing']
+ * @param {{ timeout?: number }} [opts]
+ */
+export async function advancePastLanding(page, mode = 'pairing', opts = {}) {
+  const re = LANDING_PICK_LABELS[mode] || LANDING_PICK_LABELS.pairing;
+  await page.getByRole('button', { name: re }).click({ timeout: opts.timeout ?? 30_000 });
 }
 
 /**
