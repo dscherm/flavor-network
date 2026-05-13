@@ -31,6 +31,9 @@ import { topAffinities, surprisingAffinities } from '../data/affinityTiers.js';
 import { makeLabel } from '../components/livingArchUtils.js';
 import { affinityShape } from '../data/affinityShapes.js';
 import { buildShapeGeometries } from './Geometries.js';
+import { computeWheelLayout } from '../components/RadialAffinityWheelGeometry.jsx';
+import { CATEGORICAL_AXES, bucketOf as resolveBucket } from '../data/categoricalAxes.js';
+import { FILTER_TO_AXIS, morphAxisForStack } from '../data/networkModes.js';
 
 // Ring radii in 3D scene units. Spec § α-mode visual layout.
 // Ring 0 (Surprising) sits OUTSIDE ring 1 — molecularly-bridged but
@@ -39,7 +42,35 @@ const RADII = { 3: 12, 2: 22, 1: 35, 0: 48 };
 
 // Golden angle (φ ≈ 137.5°) — distributes ring slots so adjacent
 // positions aren't cluster-correlated.
+//
+// LEGACY_STAR_RADIATION reference: prior to 2026-05-13 this constant
+// drove a star-radiating placement (golden-angle slots on concentric
+// rings). The new wedge layout (computed via computeWheelLayout from
+// RadialAffinityWheelGeometry.jsx) groups neighbors angularly by
+// bucket instead. PHI is preserved for `placeOnRing()`, which is
+// retained as an exported helper for tests + debug A/B.
 const PHI = Math.PI * (3 - Math.sqrt(5));
+
+// Wedge layout — outer ring radius for the bucket arc outlines.
+// Sized to sit just outside ring 0 (RADII[0]=48) so the arcs frame
+// the affinity spheres without overlapping them.
+const WEDGE_RADIUS = 52;
+// Bucket-label radius — slightly outside the arc so the text floats
+// past the outline rather than sitting on it.
+const WEDGE_LABEL_RADIUS = WEDGE_RADIUS * 1.12;
+// Number of points sampled per wedge arc. 24 segments per π is plenty
+// for a smooth read at the camera distance the focal-orbit uses.
+const WEDGE_ARC_SEGMENTS_PER_PI = 24;
+// Default morph axis when no filter is active (matches the SVG wheel's
+// default in IngredientPanel/FullWheel).
+const DEFAULT_WEDGE_AXIS = 'aromas';
+// Fallback bucket key for neighbors with no axis-specific bucket
+// (compound-foods + hub ingredients with no GNN aroma classification,
+// or cuisine-less / season-less nodes when those filters are active).
+// Without this, those neighbors get dropped from the layout entirely.
+const FALLBACK_BUCKET_KEY = '_other';
+const FALLBACK_BUCKET_LABEL = 'Other';
+const FALLBACK_BUCKET_COLOR = '#475569';
 
 // Tier → edge color (spec § α-mode visual layout).
 const TIER_COLOR = {
@@ -102,13 +133,27 @@ export class AffinityMode {
    *   tour-resume timer starts ticking. Null in tests + when the
    *   feature flag is off.
    */
-  constructor(stateRef, affinityCtx, cameraAnimator = null) {
+  constructor(stateRef, affinityCtx, cameraAnimator = null, options = {}) {
     this.stateRef = stateRef;
     this.ctx = affinityCtx;
     this._cameraAnimator = cameraAnimator;
+    // Wedge-layout inputs (additional context only used by the bucket
+    // grouping; absence falls back to single-bucket layout):
+    //   categoricalCtx — { gnnEntropy, cuisineMap, seasonMap, ... }
+    //     same shape App.jsx passes to LivingArchView's other bucketers.
+    //   getFilterStack — () => string[]  (live filter stack from
+    //     LivingArchView / App.jsx). Used to pick the wedge axis.
+    this._categoricalCtx = options.categoricalCtx || {};
+    this._getFilterStack = typeof options.getFilterStack === 'function'
+      ? options.getFilterStack
+      : () => [];
     this._engaged = false;
     this._currentFocal = null;
     this._currentAffinities = []; // last-computed result of topAffinities
+    // Per-engage cache populated by _writeRingsAndDim so _buildLabels
+    // can render bucket labels without recomputing wedge geometry.
+    this._currentWedges = [];
+    this._currentBucketColors = {};
 
     // R14 Phase 5 — per-role shape meshes. Replaces the single
     // 30-instance sphere mesh with four InstancedMeshes (focal + 3
@@ -207,6 +252,17 @@ export class AffinityMode {
     this.labelGroup = new THREE.Group();
     this.labelGroup.visible = false;
     stateRef.scene.add(this.labelGroup);
+
+    // Wedge-arc Line group + bucket-label sprite group. Both rebuilt
+    // on each engage/pivot (bucket count + bucket axis can change with
+    // filterStack). Geometry/material allocations live inside the
+    // builder so we can dispose cleanly between rebuilds.
+    this.wedgeArcGroup = new THREE.Group();
+    this.wedgeArcGroup.visible = false;
+    stateRef.scene.add(this.wedgeArcGroup);
+    this.wedgeLabelGroup = new THREE.Group();
+    this.wedgeLabelGroup.visible = false;
+    stateRef.scene.add(this.wedgeLabelGroup);
 
     // Snapshot of mesh.instanceMatrix scales pre-engage, used to
     // restore visibility on exit. We hide non-affinity instances by
@@ -367,6 +423,8 @@ export class AffinityMode {
     if (this.ring0Mesh) this.ring0Mesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
+    if (this.wedgeArcGroup) this.wedgeArcGroup.visible = false;
+    if (this.wedgeLabelGroup) this.wedgeLabelGroup.visible = false;
     // Clear label sprites to release canvas textures.
     while (this.labelGroup.children.length > 0) {
       const s = this.labelGroup.children[0];
@@ -374,7 +432,11 @@ export class AffinityMode {
       if (s.material?.map) s.material.map.dispose();
       if (s.material) s.material.dispose();
     }
+    this._disposeWedgeArcs();
+    this._disposeWedgeLabels();
     this._currentAffinities = [];
+    this._currentWedges = [];
+    this._currentBucketColors = {};
 
     // 3. Restore shared edgeMesh + particles.
     if (st.edgeMesh) st.edgeMesh.visible = true;
@@ -427,6 +489,8 @@ export class AffinityMode {
     if (this.ring0Mesh) this.ring0Mesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
+    if (this.wedgeArcGroup) this.wedgeArcGroup.visible = false;
+    if (this.wedgeLabelGroup) this.wedgeLabelGroup.visible = false;
     const st = this.stateRef;
     if (!st) return;
     // Restore matrix scales + colors + shared edge/particle visibility
@@ -495,6 +559,8 @@ export class AffinityMode {
       }
       if (this.edgeLines) st.scene.remove(this.edgeLines);
       if (this.labelGroup) st.scene.remove(this.labelGroup);
+      if (this.wedgeArcGroup) st.scene.remove(this.wedgeArcGroup);
+      if (this.wedgeLabelGroup) st.scene.remove(this.wedgeLabelGroup);
     }
     // Each per-role mesh owns its master geometry; the shared material
     // is disposed once below.
@@ -510,6 +576,8 @@ export class AffinityMode {
         if (s.material) s.material.dispose();
       });
     }
+    this._disposeWedgeArcs();
+    this._disposeWedgeLabels();
     this.focalMesh = null;
     this.ring3Mesh = null;
     this.ring2Mesh = null;
@@ -522,10 +590,14 @@ export class AffinityMode {
     this.edgeGeo = null;
     this.edgeMat = null;
     this.labelGroup = null;
+    this.wedgeArcGroup = null;
+    this.wedgeLabelGroup = null;
     this._matrixSnapshot = null;
     this._engaged = false;
     this._currentFocal = null;
     this._currentAffinities = [];
+    this._currentWedges = [];
+    this._currentBucketColors = {};
     this.stateRef = null;
   }
 
@@ -588,7 +660,18 @@ export class AffinityMode {
     this.focalMesh.instanceColor.needsUpdate = true;
     this.focalMesh.visible = true;
 
-    // ─── 1b. Affinity placement on rings (per-tier meshes) ───
+    // ─── 1b. Affinity placement — WEDGE LAYOUT ───
+    // Replaces the legacy star-radiating placeOnRing math. We bucket
+    // each neighbor under the active filter axis (or DEFAULT_WEDGE_AXIS
+    // when no filter is active) and drop them into bucket-grouped
+    // angular sectors via computeWheelLayout. The 2D layout's (x, y)
+    // is mapped to scene-space (x, 0, z) — XZ plane, Y up — matching
+    // the ring meshes' existing convention (placeOnRing returns y=0
+    // points on the +x axis).
+    //
+    // ringIdx (3/2/1/0) is preserved on each affinity so we can still
+    // pick the right per-tier InstancedMesh for shape + color and so
+    // the slot→global-idx map keeps click-to-pivot working.
     const tmpS = new THREE.Vector3(
       AFFINITY_SPHERE_RADIUS,
       AFFINITY_SPHERE_RADIUS,
@@ -618,6 +701,38 @@ export class AffinityMode {
       ?? (this.focalMesh.userData.slotToGlobalIdx = new Int32Array(FOCAL_CAPACITY));
     focalSlotMap.fill(-1);
     focalSlotMap[0] = focalIdx;
+
+    // Resolve wedge-layout inputs from the live filter stack + nodes
+    // map. The wedge axis follows the most-recent active filter (per
+    // the r16-1 spec); falls back to 'aromas' when no filter is active.
+    const wedgeContext = this._resolveWedgeContext(affinities);
+    const { axisKey, palette, bucketColors, neighborWithBucket } = wedgeContext;
+    // Match the SVG-wheel viewport so the layout's `radius` lands at
+    // WEDGE_RADIUS / 0.42 ≈ 124 viewport units, which then scales to
+    // WEDGE_RADIUS in world space below.
+    const layoutViewport = { width: WEDGE_RADIUS / 0.42, height: WEDGE_RADIUS / 0.42 };
+    const layout = computeWheelLayout({
+      focal: { name: focal },
+      neighbors: neighborWithBucket,
+      axis: axisKey,
+      viewport: layoutViewport,
+      bucketColors,
+      bucketOrder: palette?.labels ? [...palette.labels, FALLBACK_BUCKET_KEY] : null,
+    });
+    const layoutScale = layout.radius > 0 ? (WEDGE_RADIUS / layout.radius) : 1;
+
+    // Map every dot back to its affinity entry by name so we know
+    // which per-tier mesh + slot it belongs to. computeWheelLayout
+    // preserves the neighbor object reference inside `dot.neighbor`.
+    const dotByName = new Map();
+    for (const dot of layout.dots) {
+      const n = dot.neighbor;
+      if (n && n.name) dotByName.set(n.name, dot);
+    }
+    this._currentWedges = layout.wedges;
+    this._currentBucketColors = bucketColors;
+    this._currentWedgeAxis = axisKey;
+
     const sphereWorldPos = []; // for label/edge alignment, in affinity order
     for (let i = 0; i < affinities.length; i++) {
       const aff = affinities[i];
@@ -632,8 +747,21 @@ export class AffinityMode {
         sphereWorldPos.push(null);
         continue;
       }
-      const ringPos = placeOnRing(ringIdx, slot);
-      tmpV.set(cx + ringPos.x, cy + ringPos.y, cz + ringPos.z);
+      // Wedge-layout 2D position → 3D scene coords. Layout's Y maps to
+      // scene Z (XZ plane, Y up). If the dot is missing (shouldn't
+      // happen because every neighbor gets a fallback bucket), fall
+      // back to the legacy ring placement so we never lose a node.
+      const dot = dotByName.get(aff.name);
+      let px, pz;
+      if (dot) {
+        px = dot.x * layoutScale;
+        pz = dot.y * layoutScale;
+      } else {
+        const fallback = placeOnRing(ringIdx, slot);
+        px = fallback.x;
+        pz = fallback.z;
+      }
+      tmpV.set(cx + px, cy, cz + pz);
       sphereWorldPos.push([tmpV.x, tmpV.y, tmpV.z]);
       m.compose(tmpV, tmpQ, tmpS);
       mesh.setMatrixAt(slot, m);
@@ -650,6 +778,9 @@ export class AffinityMode {
       mesh.instanceColor.needsUpdate = true;
       mesh.visible = true;
     }
+
+    // ─── 1c. Wedge arc outlines (bucket-colored Line objects) ───
+    this._buildWedgeArcs(layout, layoutScale, [cx, cy, cz]);
 
     // ─── 2. Edge buffer (focal → each affinity) ───
     const posAttr = this.edgeGeo.attributes.position;
@@ -753,10 +884,11 @@ export class AffinityMode {
 
   /**
    * Build / rebuild the 31-sprite label group: focal at origin + 30
-   * affinities at their ring positions.
+   * affinities at their ring positions. Also rebuilds the bucket-name
+   * sprites (one per wedge) sitting at the outer label radius.
    */
   _buildLabels(focal, sphereWorldPos, focalWorld) {
-    // Clear previous sprites.
+    // Clear previous affinity-name sprites.
     while (this.labelGroup.children.length > 0) {
       const s = this.labelGroup.children[0];
       this.labelGroup.remove(s);
@@ -784,6 +916,169 @@ export class AffinityMode {
       this.labelGroup.add(sprite);
     }
     this.labelGroup.visible = true;
+
+    // Bucket-name labels — one per wedge, sitting at the outer label
+    // radius in the same XZ plane as the wedge arcs. Re-uses makeLabel
+    // for visual consistency with the affinity-name sprites.
+    this._buildWedgeLabels(focalWorld);
+  }
+
+  /**
+   * Resolve the wedge axis + per-neighbor bucket assignment from the
+   * live filter stack. Pure inputs → pure output (besides the affinity
+   * list mutation that adds a `bucketKey` field).
+   *
+   * Returns:
+   *   axisKey            — plural axis key ('aromas' / 'cuisine' / …)
+   *   palette            — { labels, colors } from CATEGORICAL_AXES
+   *   bucketColors       — { [bucketLabel]: hexColor } including fallback
+   *   neighborWithBucket — affinities[] with `bucketKey` filled in
+   */
+  _resolveWedgeContext(affinities) {
+    const filterStack = (this._getFilterStack && this._getFilterStack()) || [];
+    const morphAxis = morphAxisForStack(filterStack);
+    const axisKey = morphAxis || DEFAULT_WEDGE_AXIS;
+    const filterKey = axisKey === 'aromas' ? 'aroma' : axisKey;
+    const palette = CATEGORICAL_AXES[axisKey] || null;
+    const bucketColors = {};
+    if (palette && Array.isArray(palette.labels)) {
+      for (let i = 0; i < palette.labels.length; i++) {
+        bucketColors[palette.labels[i]] = palette.colors[i];
+      }
+    }
+    bucketColors[FALLBACK_BUCKET_KEY] = FALLBACK_BUCKET_COLOR;
+
+    // Look up each neighbor's bucket via the same path the SVG wheel +
+    // LivingArchView visibility predicate use, so compound-foods +
+    // hub ingredients land in the same bucket as elsewhere in the app.
+    const ctx = this._categoricalCtx || {};
+    const nodes = this.ctx?.graph?.nodes;
+    const neighborWithBucket = affinities.map((aff) => {
+      const node = (nodes && typeof nodes.get === 'function')
+        ? (nodes.get(aff.name) || { name: aff.name })
+        : { name: aff.name };
+      let bucketKey = resolveBucket(filterKey, node, ctx) || null;
+      // Fallback bucket — never drop a neighbor from the layout. The
+      // SVG wheel filters by bucket, but here we MUST place every
+      // affinity on a sphere or the user loses information.
+      if (!bucketKey) bucketKey = FALLBACK_BUCKET_KEY;
+      return { ...aff, bucketKey };
+    });
+    return { axisKey, palette, bucketColors, neighborWithBucket };
+  }
+
+  /**
+   * Rebuild bucket-colored arc outlines, one Line per wedge. Disposes
+   * any previous arc geometry/materials before allocating new ones so
+   * we don't leak across pivots.
+   */
+  _buildWedgeArcs(layout, layoutScale, focalWorld) {
+    if (!this.wedgeArcGroup) return;
+    this._disposeWedgeArcs();
+    const wedges = layout?.wedges || [];
+    if (wedges.length === 0) {
+      this.wedgeArcGroup.visible = false;
+      return;
+    }
+    const [fx, fy, fz] = focalWorld;
+    for (const w of wedges) {
+      // Skip the empty-anchor sentinel wedge that computeWheelLayout
+      // emits when there are no buckets at all (defensive — we always
+      // pass at least the fallback bucket, so this should be unreachable).
+      if (w.key === '_empty') continue;
+      const startAngle = w.midAngle - w.span / 2;
+      const segCount = Math.max(
+        4,
+        Math.ceil((Math.abs(w.span) * WEDGE_ARC_SEGMENTS_PER_PI) / Math.PI),
+      );
+      const points = new Float32Array((segCount + 1) * 3);
+      for (let i = 0; i <= segCount; i++) {
+        const t = i / segCount;
+        const angle = startAngle + t * w.span;
+        const x = Math.cos(angle) * WEDGE_RADIUS;
+        const z = Math.sin(angle) * WEDGE_RADIUS;
+        points[i * 3]     = fx + x;
+        points[i * 3 + 1] = fy;
+        points[i * 3 + 2] = fz + z;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+      const color = new THREE.Color(w.color || FALLBACK_BUCKET_COLOR);
+      const mat = new THREE.LineBasicMaterial({
+        color,
+        transparent: true,
+        opacity: 0.85,
+        linewidth: 1, // most WebGL backends ignore >1; bloom carries the visual weight
+      });
+      const line = new THREE.Line(geo, mat);
+      line.frustumCulled = false;
+      line.userData = { bucketKey: w.key };
+      this.wedgeArcGroup.add(line);
+    }
+    // Suppress the noop reference for the unused layoutScale param —
+    // arcs sit at the world-space WEDGE_RADIUS regardless of layout
+    // scale; the param is kept on the signature for symmetry with
+    // future enhancements (e.g. radius-tier-aware arcs).
+    void layoutScale;
+    this.wedgeArcGroup.visible = true;
+  }
+
+  /**
+   * Build bucket-name label sprites — one per wedge, at the outer
+   * label radius. Shared with _buildLabels via the affinity sprite
+   * builder so visual treatment matches the rest of α-mode.
+   */
+  _buildWedgeLabels(focalWorld) {
+    if (!this.wedgeLabelGroup) return;
+    this._disposeWedgeLabels();
+    const wedges = this._currentWedges || [];
+    if (wedges.length === 0) {
+      this.wedgeLabelGroup.visible = false;
+      return;
+    }
+    const [fx, fy, fz] = focalWorld;
+    for (const w of wedges) {
+      if (w.key === '_empty' || !w.label) continue;
+      const x = Math.cos(w.midAngle) * WEDGE_LABEL_RADIUS;
+      const z = Math.sin(w.midAngle) * WEDGE_LABEL_RADIUS;
+      const color = w.color || FALLBACK_BUCKET_COLOR;
+      const sprite = makeLabel(String(w.label), color, 12, { glow: false });
+      sprite.position.set(fx + x, fy + 1, fz + z);
+      sprite.userData = { wedgeKey: w.key };
+      this.wedgeLabelGroup.add(sprite);
+    }
+    this.wedgeLabelGroup.visible = true;
+  }
+
+  _disposeWedgeArcs() {
+    if (!this.wedgeArcGroup) return;
+    while (this.wedgeArcGroup.children.length > 0) {
+      const line = this.wedgeArcGroup.children[0];
+      this.wedgeArcGroup.remove(line);
+      if (line.geometry) line.geometry.dispose();
+      if (line.material) line.material.dispose();
+    }
+  }
+
+  _disposeWedgeLabels() {
+    if (!this.wedgeLabelGroup) return;
+    while (this.wedgeLabelGroup.children.length > 0) {
+      const s = this.wedgeLabelGroup.children[0];
+      this.wedgeLabelGroup.remove(s);
+      if (s.material?.map) s.material.map.dispose();
+      if (s.material) s.material.dispose();
+    }
+  }
+
+  /**
+   * Public-API: re-render the wedge layout for the currently engaged
+   * focal. Call this after the filter stack changes so the wedge axis
+   * + bucket assignment update without a full pivot. No-op when not
+   * engaged.
+   */
+  refreshWedgeLayout() {
+    if (!this._engaged || !this._currentFocal) return;
+    this._writeRingsAndDim(this._currentFocal);
   }
 
   /**

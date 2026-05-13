@@ -143,6 +143,17 @@ export default function LivingArchView({
   useEffect(() => { onPoleHoverRef.current = onPoleHover; }, [onPoleHover]);
   const onBridgePulseRef = useRef(onBridgePulse);
   useEffect(() => { onBridgePulseRef.current = onBridgePulse; }, [onBridgePulse]);
+  // Live filter stack ref — read by AffinityMode (constructor-injected
+  // getFilterStack closure) so the wedge axis follows the most-recent
+  // active filter without rebuilding stateRef. Sync effect below also
+  // re-renders the wedge layout in-place after the ref updates.
+  const filterStackRef = useRef(filterStack);
+  useEffect(() => {
+    filterStackRef.current = filterStack;
+    // Refresh the wedge axis on filter change while engaged. No-op
+    // when no focal is selected.
+    affinityModeRef.current?.refreshWedgeLayout?.();
+  }, [filterStack]);
 
   // ---- Build scene ----
   useEffect(() => {
@@ -1703,7 +1714,17 @@ export default function LivingArchView({
         bridgeCompoundIndex: data.bridgeCompoundIndex,
         affinityThresholds: data.affinityThresholds,
         graph: data.graph,
-      }, cameraAnimatorRef.current);
+      }, cameraAnimatorRef.current, {
+        // Wedge-layout inputs (2026-05-13 user feedback): the focal
+        // fly-to view groups neighbors into bucket-wedge angular
+        // sectors instead of the legacy star-radiating placement.
+        // categoricalCtx feeds bucketOf() the same gnnEntropy /
+        // cuisineMap / seasonMap the SVG wheel + visibility
+        // predicate consume. getFilterStack returns the live filter
+        // stack so the wedge axis follows the most-recent filter.
+        categoricalCtx,
+        getFilterStack: () => filterStackRef.current,
+      });
     }
 
     // Engage cluster tour + wire user-input cancel only after BOTH

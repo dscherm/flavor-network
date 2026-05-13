@@ -223,6 +223,17 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     window.localStorage.setItem('ingredient-panel-view', pairingsView);
   }, [pairingsView]);
 
+  // User feedback 2026-05-13: the radial-wheel UX lives in the 3D fly-to
+  // (AffinityMode.js) instead of this side-panel toggle. Keeping the
+  // toggle code for debug A/B comparison; enable via ?debugWheel=1 URL
+  // param or localStorage `debug:wheel`='1'.
+  const isDebugWheel = (
+    typeof window !== 'undefined' && (
+      window.location?.search?.includes?.('debugWheel=1') === true
+      || window.localStorage?.getItem?.('debug:wheel') === '1'
+    )
+  );
+
   const handleKeyDown = useCallback(
     (e) => {
       if (e.key === 'Escape' && onClose) {
@@ -576,16 +587,18 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           >
             <div className="flex items-center justify-between mb-1.5">
               <p className="text-[10px] text-gray-500">Click any pairing to add it to your selection. Tap the header again to clear network highlight.</p>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setPairingsView(v => v === 'list' ? 'wheel' : 'list'); }}
-                className="text-[10px] underline opacity-70 hover:opacity-100 ml-2 flex-shrink-0"
-                aria-label={`Switch to ${pairingsView === 'list' ? 'wheel' : 'list'} view`}
-              >
-                {pairingsView === 'list' ? 'View as wheel' : 'View as list'}
-              </button>
+              {isDebugWheel && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setPairingsView(v => v === 'list' ? 'wheel' : 'list'); }}
+                  className="text-[10px] underline opacity-70 hover:opacity-100 ml-2 flex-shrink-0"
+                  aria-label={`Switch to ${pairingsView === 'list' ? 'wheel' : 'list'} view`}
+                >
+                  {pairingsView === 'list' ? 'View as wheel' : 'View as list'}
+                </button>
+              )}
             </div>
-            {pairingsView === 'wheel' && affinityCtx ? (
+            {isDebugWheel && pairingsView === 'wheel' && affinityCtx ? (
               <FullWheel
                 focal={node}
                 ctx={affinityCtx}
@@ -913,16 +926,18 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           >
             <div className="flex items-center justify-between mb-1.5">
               <p className="text-[10px] text-gray-500">Tap any pairing to add it to your selection. Tap the header again to clear network highlight.</p>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setPairingsView(v => v === 'list' ? 'wheel' : 'list'); }}
-                className="text-[10px] underline opacity-70 hover:opacity-100 ml-2 flex-shrink-0"
-                aria-label={`Switch to ${pairingsView === 'list' ? 'wheel' : 'list'} view`}
-              >
-                {pairingsView === 'list' ? 'View as wheel' : 'View as list'}
-              </button>
+              {isDebugWheel && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setPairingsView(v => v === 'list' ? 'wheel' : 'list'); }}
+                  className="text-[10px] underline opacity-70 hover:opacity-100 ml-2 flex-shrink-0"
+                  aria-label={`Switch to ${pairingsView === 'list' ? 'wheel' : 'list'} view`}
+                >
+                  {pairingsView === 'list' ? 'View as wheel' : 'View as list'}
+                </button>
+              )}
             </div>
-            {pairingsView === 'wheel' && affinityCtx ? (
+            {isDebugWheel && pairingsView === 'wheel' && affinityCtx ? (
               <FullWheel
                 focal={node}
                 ctx={affinityCtx}
