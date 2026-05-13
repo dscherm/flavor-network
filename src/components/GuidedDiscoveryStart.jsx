@@ -401,8 +401,9 @@ export default function GuidedDiscoveryStart({
 
         {/* Bubble grid — 1 col on mobile, 2 on tablet+. */}
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"
+          role="group"
           aria-labelledby="guided-sentence-starter"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"
         >
           {BUBBLE_REGISTRY.map((bubble) => {
             const selectedItem = bubbleStack.find((b) => b.key === bubble.key);
@@ -435,6 +436,7 @@ export default function GuidedDiscoveryStart({
               onShowPairings?.(bubbleStack);
             }}
             disabled={ctaDisabled}
+            aria-disabled={ctaDisabled}
             data-testid="guided-cta-show-pairings"
             className={`px-5 py-2.5 min-h-[44px] rounded-lg font-medium transition-colors ${
               ctaDisabled

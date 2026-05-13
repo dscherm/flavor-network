@@ -17,11 +17,19 @@ const STEPS = [
     waitFor: 'drag',
   },
   {
-    id: 'search',
-    title: 'Search & Discover',
+    id: 'network',
+    title: 'Explore the NeuFlavor Network',
     content:
       'Use the search bar to find any ingredient. Select multiple ingredients to see how they connect. ' +
       'Use the Controls panel to filter by cuisine or taste.',
+  },
+  {
+    id: 'guided',
+    title: 'Guided Discovery',
+    content:
+      "Tell us what you're cooking and we'll find pairings that fit. " +
+      'Pick from thought bubbles like "goes with a season" or "is for a cocktail" — ' +
+      'stack as many as you want.',
   },
   {
     id: 'explore',
