@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * HowItWorks — modal explaining how the AI flavor network works.
- * Replaces the Training Trace tab with an accessible "?" button
- * that opens a brief, visual explanation.
+ *
+ * Hybrid uncontrolled/controlled: pass `isOpen` + `onClose` for full
+ * control (R20.1 — App.jsx hoists the state so the Network-tab
+ * dropdown can open the modal without duplicating the floating "?"
+ * button). When `isOpen` is undefined the legacy uncontrolled mode
+ * stays — the floating button toggles internal state. `showButton`
+ * (default true) hides the floating "?" when the parent renders its
+ * own trigger (e.g. inside the Network dropdown).
  */
 
 const TASTE_COLORS = {
@@ -11,26 +17,52 @@ const TASTE_COLORS = {
   salty: '#93c5fd', sour: '#c9a330',
 };
 
-export default function HowItWorks({ initialOpen = false } = {}) {
-  const [open, setOpen] = useState(initialOpen);
+export default function HowItWorks({
+  initialOpen = false,
+  isOpen,
+  onRequestOpen,
+  onClose,
+  showButton = true,
+} = {}) {
+  const [internalOpen, setInternalOpen] = useState(initialOpen);
+  const controlled = typeof isOpen === 'boolean';
+  const open = controlled ? isOpen : internalOpen;
+
+  // Allow late initialOpen toggles to reopen the dialog when running
+  // uncontrolled (App.jsx flips the flag from a menu click).
+  useEffect(() => {
+    if (controlled) return;
+    if (initialOpen) setInternalOpen(true);
+  }, [controlled, initialOpen]);
+
+  const close = () => {
+    if (controlled) onClose?.();
+    else setInternalOpen(false);
+  };
+  const requestOpen = () => {
+    if (controlled) onRequestOpen?.();
+    else setInternalOpen(true);
+  };
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed top-[calc(var(--nav-h)+0.5rem)] right-4 sm:top-auto sm:bottom-6 sm:right-4 z-[55] w-8 h-8 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#2a2a3a] text-gray-500 hover:text-cyan-300 text-sm font-bold transition-colors"
-        title="How does this work?"
-        aria-label="How does the AI work"
-      >
-        ?
-      </button>
+      {showButton && (
+        <button
+          onClick={requestOpen}
+          className="fixed top-[calc(var(--nav-h)+0.5rem)] right-4 sm:top-auto sm:bottom-6 sm:right-4 z-[55] w-8 h-8 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#2a2a3a] text-gray-500 hover:text-cyan-300 text-sm font-bold transition-colors"
+          title="How does this work?"
+          aria-label="How does the AI work"
+        >
+          ?
+        </button>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="bg-[#0d0d16] border border-[#2a2a3a] rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center p-4 border-b border-[#2a2a3a]">
               <h2 className="text-lg font-bold text-white">How the Flavor Network Works</h2>
-              <button onClick={() => setOpen(false)} className="text-gray-500 hover:text-gray-300 text-xl">×</button>
+              <button onClick={close} className="text-gray-500 hover:text-gray-300 text-xl">×</button>
             </div>
             <div className="p-4 space-y-4 text-sm text-gray-300">
               <section>

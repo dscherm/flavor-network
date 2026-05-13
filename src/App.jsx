@@ -73,6 +73,11 @@ export default function App() {
   // download until the user clicks a card.
   const [startPageComplete, setStartPageComplete] = useState(false);
   const [howItWorksInitialOpen, setHowItWorksInitialOpen] = useState(false);
+  // R20.1 — lift HowItWorks open state so the Network-tab dropdown can
+  // trigger the modal alongside the legacy floating "?" button on other
+  // tabs. Floating button is hidden on the Network tab to avoid two
+  // simultaneous question icons fighting for top-right real-estate.
+  const [howItWorksOpen, setHowItWorksOpen] = useState(false);
   // Tracks which landing tile the user just tapped, so the loading
   // surface (LandingScreen with isLoading=true) can shimmer the picked
   // tile rather than the whole row. Reset on handleStartOver.
@@ -749,6 +754,18 @@ export default function App() {
                       )}
                     </button>
                   ))}
+                  <div className="border-t border-[#2a2a3a]" />
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setHowItWorksOpen(true);
+                      setNetworkDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-gray-400 hover:text-cyan-300 hover:bg-[#1a1a2a] transition-colors"
+                  >
+                    <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px] font-bold leading-none">?</span>
+                    How it works
+                  </button>
                 </div>
               </>
             )}
@@ -1154,7 +1171,13 @@ export default function App() {
         }}
       />
       <HelpButton onClick={() => setShowTour(true)} />
-      <HowItWorks initialOpen={howItWorksInitialOpen} />
+      <HowItWorks
+        initialOpen={howItWorksInitialOpen}
+        isOpen={howItWorksOpen}
+        onRequestOpen={() => setHowItWorksOpen(true)}
+        onClose={() => setHowItWorksOpen(false)}
+        showButton={activeTab !== 'network'}
+      />
       </div>
 
       {/* Profile tab — full screen, mounted only when active. MUST be a
@@ -1275,15 +1298,20 @@ export default function App() {
           node visibility. */}
       {activeTab === 'network' && (
         <>
-          {/* SearchBar at top: var(--nav-h) (~40px). Stack sits BELOW
-              it with a 10px gap, then breadcrumb/slider/chip cascade
-              underneath. Heights tuned so the row never collides with
-              SearchBar on iOS:
-                pill row    top-[5.5rem]  (88px ≈ nav 40 + search ~38 + 10)
-                breadcrumb  top-[9rem]    (144px)
-                slider      top-[11.25rem](180px)
-                insight chip top-[13.25rem](212px)                                                     */}
-          <div className="fixed left-1/2 -translate-x-1/2 top-[5.5rem] z-[68] pointer-events-none flex items-center gap-2 max-w-[calc(100vw-1rem)]">
+          {/* R20.1 — SearchBar sits at var(--nav-h). The filter stack
+              below uses calc against the same CSS variable so iOS safe-
+              area insets push everything down correctly:
+                pill row    nav + 3.5rem  (above SearchBar's bottom + 10px gap)
+                breadcrumb  nav + 7rem
+                slider      nav + 9.5rem
+                insight chip nav + 12rem
+              The InsightDrawer `?` toggle lives in a separate top-right
+              slot so a long filter chain can scroll without squeezing
+              the button off-screen on iOS. */}
+          <div
+            className="fixed left-1/2 -translate-x-1/2 z-[68] pointer-events-none flex items-center gap-2 max-w-[calc(100vw-4rem)]"
+            style={{ top: 'calc(var(--nav-h) + 3.5rem)' }}
+          >
             <div className="bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full shadow-lg pointer-events-auto min-w-0">
               <FilterPillRow
                 filterStack={filterStack}
@@ -1292,24 +1320,26 @@ export default function App() {
                 mode={mode}
               />
             </div>
-            {/* R19 Phase 4 — opt-in InsightDrawer toggle. Sits to the
-                right of the pill row so it never obscures the active
-                filter pills. */}
-            <button
-              type="button"
-              onClick={() => setInsightDrawerOpen((v) => !v)}
-              aria-label={insightDrawerOpen ? 'Close layout insight drawer' : 'Open layout insight drawer'}
-              aria-pressed={insightDrawerOpen}
-              data-testid="insight-drawer-toggle"
-              className={`pointer-events-auto w-7 h-7 rounded-full border text-[11px] font-medium leading-none flex items-center justify-center transition-colors shadow-lg ${
-                insightDrawerOpen
-                  ? 'bg-cyan-500/30 border-cyan-300 text-cyan-100'
-                  : 'bg-[#0a0a12]/85 border-[#1e1e2e] text-gray-400 hover:text-cyan-200 hover:border-cyan-500/40'
-              }`}
-            >
-              ?
-            </button>
           </div>
+          {/* R20.1 — InsightDrawer `?` toggle: top-right of the network
+              tab, replacing the spot the HowItWorks `?` used to occupy.
+              HowItWorks is now reachable from the Network mode dropdown
+              so the corner stays uncluttered. */}
+          <button
+            type="button"
+            onClick={() => setInsightDrawerOpen((v) => !v)}
+            aria-label={insightDrawerOpen ? 'Close layout insight drawer' : 'Open layout insight drawer'}
+            aria-pressed={insightDrawerOpen}
+            data-testid="insight-drawer-toggle"
+            className={`fixed right-4 z-[68] pointer-events-auto w-9 h-9 rounded-full border text-sm font-bold leading-none flex items-center justify-center transition-colors shadow-lg ${
+              insightDrawerOpen
+                ? 'bg-cyan-500/30 border-cyan-300 text-cyan-100'
+                : 'bg-[#0a0a12]/85 border-[#2a2a3a] text-gray-400 hover:text-cyan-200 hover:border-cyan-500/40'
+            }`}
+            style={{ top: 'calc(var(--nav-h) + 0.5rem)' }}
+          >
+            ?
+          </button>
           {/* R16 Phase 3: contextual "Colors: …" chip explaining what the
               node colors encode under the active filter. Updates reactively
               to morphAxis (null → clusters, axis name → bucket palette). */}
@@ -1335,7 +1365,10 @@ export default function App() {
               row, derived from filterStack + focusedBucketLabel. Click
               a segment to pop the stack back to that depth. */}
           {filterStack.length > 0 && (
-            <div className="fixed left-1/2 -translate-x-1/2 top-[9rem] z-[68] pointer-events-auto">
+            <div
+              className="fixed left-1/2 -translate-x-1/2 z-[68] pointer-events-auto"
+              style={{ top: 'calc(var(--nav-h) + 7rem)' }}
+            >
               <FilterBreadcrumb
                 filterStack={filterStack}
                 focusedBucketLabel={focusedBucketLabel}
@@ -1348,7 +1381,10 @@ export default function App() {
               cooccurrence base (left) and bucket-pole snap (right).
               Hidden when no filter is active (nothing to pull toward). */}
           {filterStack.length > 0 && (
-            <div className="fixed left-1/2 -translate-x-1/2 top-[11.25rem] z-[68] pointer-events-auto">
+            <div
+              className="fixed left-1/2 -translate-x-1/2 z-[68] pointer-events-auto"
+              style={{ top: 'calc(var(--nav-h) + 9.5rem)' }}
+            >
               <FilterPullSlider
                 pullStrength={pullStrength}
                 onPullChange={handlePullChange}
@@ -1361,7 +1397,10 @@ export default function App() {
               below the breadcrumb + slider stack; hidden when no filter
               is active. */}
           {filterStack.length > 0 && (
-            <div className="fixed left-1/2 -translate-x-1/2 top-[13.25rem] z-[68] pointer-events-auto">
+            <div
+              className="fixed left-1/2 -translate-x-1/2 z-[68] pointer-events-auto"
+              style={{ top: 'calc(var(--nav-h) + 12rem)' }}
+            >
               <InsightChip
                 filterStack={filterStack}
                 pullStrength={pullStrength}
