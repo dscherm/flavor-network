@@ -98,6 +98,35 @@ function SauceVisual() {
   );
 }
 
+function GuidedVisual() {
+  // Stylised thought bubble with a small spark inside — visual cue
+  // for the Guided Discovery flow (you tell us what you're cooking,
+  // we surface the matching pairings).
+  return (
+    <svg viewBox="0 0 100 100" className="w-16 h-16" aria-hidden="true">
+      {/* Main thought bubble */}
+      <path
+        d="M 26 28 Q 26 18 38 18 L 70 18 Q 82 18 82 30 Q 82 42 70 42 L 50 42 L 38 56 L 38 42 Q 26 42 26 30 Z"
+        fill="rgba(52,211,153,0.18)" stroke="rgb(52,211,153)" strokeWidth="2"
+      />
+      {/* Trailing dots leading to the thought */}
+      <circle cx="32" cy="68" r="3" fill="rgba(52,211,153,0.6)" />
+      <circle cx="22" cy="78" r="2" fill="rgba(52,211,153,0.45)" />
+      <circle cx="14" cy="86" r="1.4" fill="rgba(52,211,153,0.3)" />
+      {/* Spark / question inside the bubble */}
+      <circle cx="46" cy="30" r="2.2" fill="rgb(125,186,94)"
+        style={{ filter: 'drop-shadow(0 0 4px rgba(125,186,94,0.8))' }}
+      />
+      <circle cx="56" cy="30" r="2.2" fill="rgb(125,186,94)"
+        style={{ filter: 'drop-shadow(0 0 4px rgba(125,186,94,0.8))' }}
+      />
+      <circle cx="66" cy="30" r="2.2" fill="rgb(125,186,94)"
+        style={{ filter: 'drop-shadow(0 0 4px rgba(125,186,94,0.8))' }}
+      />
+    </svg>
+  );
+}
+
 function RecipeVisual() {
   // Open notebook: two-page spread, three lines on each page
   // suggesting recipe text + a small pencil overlay.
@@ -135,8 +164,15 @@ function RecipeVisual() {
 
 const TILES = [
   {
+    id: 'guided',
+    label: 'Guided Discovery',
+    description: 'Tell us what you’re cooking; we’ll find the pairings.',
+    accent: '#34d399',
+    Visual: GuidedVisual,
+  },
+  {
     id: 'pairing',
-    label: 'Network',
+    label: 'Explore the NeuFlavor Network',
     description: '3,913 ingredients · 48,588 pairings, clustered by chemistry.',
     accent: '#4f8fff',
     Visual: PairingVisual,
@@ -193,8 +229,10 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
         Built on 2.2M recipes, 48,588 pairings, and real molecular chemistry.
       </p>
 
-      {/* Four primary tiles in the bottom half */}
-      <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* Five primary tiles in the bottom half. Grid columns scale
+          1 → 2 → 3 → 5 across breakpoints so the new Guided Discovery
+          card fits without forcing a partial bottom row on desktop. */}
+      <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
         {TILES.map((tile) => {
           const isPicked = picked === tile.id;
           const dimmed = isLoading && !isPicked;
