@@ -6,6 +6,7 @@ import SharedMoleculesCard from './SharedMoleculesCard.jsx';
 import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
 import FlavorPathCard from './FlavorPathCard.jsx';
 import MoleculeTasteMap from './MoleculeTasteMap.jsx';
+import FullWheel from './FullWheel.jsx';
 import { scoreRecipeAroma, AROMA_LABELS, AROMA_COLORS, scoreRecipe } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
@@ -200,7 +201,7 @@ function PairingStar({ a, b, isFavorite, onToggle }) {
   );
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes, affinityCtx }) {
   const panelRef = useRef(null);
   // Per user request 2026-04-29: panel starts COLLAPSED on each new
   // selection. Clicking an ingredient should not pop a window open;
@@ -209,6 +210,18 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
   // stays open across pivots until the user closes it (X) or taps
   // the tab again.
   const [collapsed, setCollapsed] = useState(true);
+
+  // Phase 2: "View as wheel" toggle for the Top Pairings section. The
+  // default is the legacy ranked list. Choice persists in localStorage
+  // so a returning user keeps their preferred surface.
+  const [pairingsView, setPairingsView] = useState(() => {
+    if (typeof window === 'undefined') return 'list';
+    return window.localStorage.getItem('ingredient-panel-view') || 'list';
+  });
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('ingredient-panel-view', pairingsView);
+  }, [pairingsView]);
 
   const handleKeyDown = useCallback(
     (e) => {
@@ -561,28 +574,48 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             badge={`(${sortedNeighbors.length})`}
             onHeaderClick={() => onHighlightPairings?.(sortedNeighbors.map(n => n.name))}
           >
-            <p className="text-[10px] text-gray-500 mb-1.5">Click any pairing to add it to your selection. Tap the header again to clear network highlight.</p>
-            <ul className="space-y-1.5">
-              {sortedNeighbors.map((neighbor) => (
-                <li key={neighbor.name}>
-                  <button
-                    onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
-                    className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors group"
-                  >
-                    <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
-                    <StrengthBar strength={neighbor.strength} />
-                    <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
-                    <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
-                    <PairingStar
-                      a={node?.name}
-                      b={neighbor.name}
-                      isFavorite={hasPairing?.(node?.name, neighbor.name)}
-                      onToggle={onTogglePairing}
-                    />
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-[10px] text-gray-500">Click any pairing to add it to your selection. Tap the header again to clear network highlight.</p>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setPairingsView(v => v === 'list' ? 'wheel' : 'list'); }}
+                className="text-[10px] underline opacity-70 hover:opacity-100 ml-2 flex-shrink-0"
+                aria-label={`Switch to ${pairingsView === 'list' ? 'wheel' : 'list'} view`}
+              >
+                {pairingsView === 'list' ? 'View as wheel' : 'View as list'}
+              </button>
+            </div>
+            {pairingsView === 'wheel' && affinityCtx ? (
+              <FullWheel
+                focal={node}
+                ctx={affinityCtx}
+                axis="aroma"
+                viewport={{ width: 280, height: 280 }}
+                onIngredientClick={(name) => onSelectIngredient && onSelectIngredient(name)}
+              />
+            ) : (
+              <ul className="space-y-1.5">
+                {sortedNeighbors.map((neighbor) => (
+                  <li key={neighbor.name}>
+                    <button
+                      onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
+                      className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors group"
+                    >
+                      <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
+                      <StrengthBar strength={neighbor.strength} />
+                      <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                      <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
+                      <PairingStar
+                        a={node?.name}
+                        b={neighbor.name}
+                        isFavorite={hasPairing?.(node?.name, neighbor.name)}
+                        onToggle={onTogglePairing}
+                      />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CollapsibleSection>
         )}
         {affinities && affinities.length > 0 && (
@@ -878,22 +911,42 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             badge={`(${sortedNeighbors.length})`}
             onHeaderClick={() => onHighlightPairings?.(sortedNeighbors.map(n => n.name))}
           >
-            <p className="text-[10px] text-gray-500 mb-1.5">Tap any pairing to add it to your selection. Tap the header again to clear network highlight.</p>
-            <ul className="space-y-1.5">
-              {sortedNeighbors.map((neighbor) => (
-                <li key={neighbor.name}>
-                  <button
-                    onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
-                    className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
-                  >
-                    <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
-                    <StrengthBar strength={neighbor.strength} />
-                    <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
-                    <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-[10px] text-gray-500">Tap any pairing to add it to your selection. Tap the header again to clear network highlight.</p>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setPairingsView(v => v === 'list' ? 'wheel' : 'list'); }}
+                className="text-[10px] underline opacity-70 hover:opacity-100 ml-2 flex-shrink-0"
+                aria-label={`Switch to ${pairingsView === 'list' ? 'wheel' : 'list'} view`}
+              >
+                {pairingsView === 'list' ? 'View as wheel' : 'View as list'}
+              </button>
+            </div>
+            {pairingsView === 'wheel' && affinityCtx ? (
+              <FullWheel
+                focal={node}
+                ctx={affinityCtx}
+                axis="aroma"
+                viewport={{ width: 280, height: 280 }}
+                onIngredientClick={(name) => onSelectIngredient && onSelectIngredient(name)}
+              />
+            ) : (
+              <ul className="space-y-1.5">
+                {sortedNeighbors.map((neighbor) => (
+                  <li key={neighbor.name}>
+                    <button
+                      onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
+                      className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
+                    >
+                      <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
+                      <StrengthBar strength={neighbor.strength} />
+                      <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                      <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CollapsibleSection>
         )}
 
