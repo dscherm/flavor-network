@@ -111,7 +111,22 @@ describe('InsightDrawer', () => {
   it('fires onClose when the × button is clicked', () => {
     const onClose = vi.fn();
     render(<InsightDrawer {...baseProps} onClose={onClose} />);
-    fireEvent.click(screen.getByLabelText('Close insight drawer'));
+    fireEvent.click(screen.getAllByLabelText('Close insight drawer')[0]);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders a full-screen dialog with grab-handle on mobile', () => {
+    render(<InsightDrawer {...baseProps} isMobile />);
+    const drawer = screen.getByTestId('insight-drawer');
+    expect(drawer).toHaveAttribute('role', 'dialog');
+    expect(drawer).toHaveAttribute('aria-modal', 'true');
+    expect(screen.getByTestId('insight-drawer-handle')).toBeInTheDocument();
+  });
+
+  it('mobile grab-handle closes the drawer when tapped', () => {
+    const onClose = vi.fn();
+    render(<InsightDrawer {...baseProps} isMobile onClose={onClose} />);
+    fireEvent.click(screen.getByTestId('insight-drawer-handle'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

@@ -260,6 +260,14 @@ export default function LivingArchView({
     const nameIdx = new Map();
     nodeArray.forEach((n, i) => nameIdx.set(n.name, i));
 
+    // R20 — corpus max pairingCount, used to normalize per-node
+    // stickiness so a single mega-hub doesn't pin every other node.
+    let maxPairingCount = 0;
+    for (const n of nodeArray) {
+      const pc = n.pairingCount || 0;
+      if (pc > maxPairingCount) maxPairingCount = pc;
+    }
+
     // Float32Arrays for eight position sets (4 original + 4 categorical wheels)
     const posA = new Float32Array(count * 3); // ML 3D
     const posB = new Float32Array(count * 3); // ML 2D (PCA) — Y=0 flat plane
@@ -1540,7 +1548,12 @@ export default function LivingArchView({
       // (world-scale ~22 wide) shrinks and gets washed out by the cluster's
       // bloom glow behind it. 30 gives the label real visual weight in the
       // foreground while keeping the whole cluster body visible behind.
-      const distance = is2D ? 70 : 30;
+      // iOS detail: phone viewports zoomed too tight at 30/70, so pull the
+      // camera back 1.6× on mobile (≤640px) to widen the framing.
+      const isMobileVp = typeof window !== 'undefined'
+        && window.matchMedia('(max-width: 640px)').matches;
+      const mobileScale = isMobileVp ? 1.6 : 1;
+      const distance = (is2D ? 70 : 30) * mobileScale;
       let camEnd;
       let lookAt;
       if (is2D) {
@@ -1598,7 +1611,7 @@ export default function LivingArchView({
       scene, camera, renderer, composer, controls, mesh, edgeMesh, edgeMat, edgeGeo,
       edgeColors, edgeOpacities, validEdges,
       particleMesh, particleMat,
-      nodeArray, nameIdx, defaultColors, clusterColors, curPos, posA, posB, posC, posD, posForMode,
+      nodeArray, nameIdx, maxPairingCount, defaultColors, clusterColors, curPos, posA, posB, posC, posD, posForMode,
       // categoricalOutByMode + categoricalColorByMode let the
       // focused-cluster effect derive bucket membership for the 5
       // wheel modes (taste/aromas/cuisine/season/family). bucketOf
@@ -2363,8 +2376,21 @@ export default function LivingArchView({
     // finish near 100%. Slider semantics stay linear (the user sees
     // 0..100), but the visual lerp uses sqrt(t) so 25% slider already
     // reveals 50% of the bucket structure, while 75% slider lands at
-    // 87%. Avoids the "all nodes collapse to 6 points" cliff at 100.
-    const pull = Math.sqrt(Math.max(0, Math.min(1, pullStrength)));
+    // 87%.
+    // R20 — dampen the overall pull so 100% slider no longer collapses
+    // nodes onto a tiny pole. PULL_CAP scales the post-sqrt pull
+    // (0.65 keeps a clear bucket structure but leaves ~35% of the
+    // cooccurrence spread intact, so chefs can still SEE the pairings).
+    const PULL_CAP = 0.65;
+    const pullBase = Math.sqrt(Math.max(0, Math.min(1, pullStrength))) * PULL_CAP;
+    // R20 — per-node stickiness: high-pairing-count ingredients resist
+    // the pull, so "strong" ingredients hover near their cooccurrence
+    // home while "weak" ingredients yield more to the bucket pole.
+    // Log-normalized against the corpus max so a single mega-hub
+    // doesn't push every other node to maximum resistance.
+    const STICKINESS_MAX = 0.4;
+    const maxPc = stateRef.current?.maxPairingCount || 1;
+    const logMax = Math.log(1 + maxPc) || 1;
     for (let i = 0; i < nodeArray.length; i++) {
       const node = nodeArray[i];
       const isVisible = vis ? vis[i] === 1 : true;
@@ -2374,7 +2400,9 @@ export default function LivingArchView({
       let px = curPos[i*3];
       let py = curPos[i*3+1];
       let pz = curPos[i*3+2];
-      if (isVisible && pull > 0 && axisFilters.length > 0) {
+      if (isVisible && pullBase > 0 && axisFilters.length > 0) {
+        const stickiness = Math.log(1 + pc) / logMax; // 0..1
+        const pull = pullBase * (1 - stickiness * STICKINESS_MAX);
         let sx = 0, sy = 0, sz = 0, n = 0;
         for (let f = 0; f < axisFilters.length; f++) {
           const axisKey = FILTER_TO_AXIS[axisFilters[f]];
@@ -2422,17 +2450,28 @@ export default function LivingArchView({
     const colorMap = st.bucketColorByAxis?.[morphAxis] || null;
     const polesByAxis = mode === 'ml' ? st.polesByAxis3D : st.polesByAxis2D;
     const axisFilters = filterStack.filter((f) => FILTER_TO_AXIS[f]);
-    const pullEff = Math.sqrt(Math.max(0, Math.min(1, curr)));
+    // R20 — use the same dampened + sticky pull formula as the position
+    // lerp effect so the pulse's projected positions match what the user
+    // sees on screen.
+    const PULL_CAP = 0.65;
+    const STICKINESS_MAX = 0.4;
+    const pullBase = Math.sqrt(Math.max(0, Math.min(1, curr))) * PULL_CAP;
+    const maxPc = st.maxPairingCount || 1;
+    const logMax = Math.log(1 + maxPc) || 1;
     const rect = st.renderer.domElement.getBoundingClientRect();
     const v = new THREE.Vector3();
     const screenBridges = [];
     for (const r of ranked) {
       const i = st.nameIdx.get(r.name);
       if (i == null) continue;
+      const node = st.nodeArray[i];
       let px = st.curPos[i * 3];
       let py = st.curPos[i * 3 + 1];
       let pz = st.curPos[i * 3 + 2];
-      if (pullEff > 0 && axisFilters.length > 0) {
+      if (pullBase > 0 && axisFilters.length > 0) {
+        const pc = node?.pairingCount || 0;
+        const stickiness = Math.log(1 + pc) / logMax;
+        const pullEff = pullBase * (1 - stickiness * STICKINESS_MAX);
         let sx = 0, sy = 0, sz = 0, n = 0;
         for (let f = 0; f < axisFilters.length; f++) {
           const axisKey = FILTER_TO_AXIS[axisFilters[f]];
