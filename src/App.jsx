@@ -40,6 +40,9 @@ import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
+import GuidedDiscoveryStart from './components/GuidedDiscoveryStart.jsx';
+import GuidedDiscoveryResults from './components/GuidedDiscoveryResults.jsx';
+import { deriveFilterStackFromBubbles } from './data/guidedDiscovery.js';
 import {
   MODE_CYCLE as NETWORK_MODE_CYCLE,
   MODE_LABELS as NETWORK_MODE_LABELS,
@@ -111,7 +114,13 @@ export default function App() {
       }
     } catch {}
   }, [loading, data, startPageComplete]);
-  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe'
+  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'guided' | 'guided-results' | 'profile'
+  // Phase 3 Guided Discovery — bubbleStack is plumbed at the App level
+  // so GuidedDiscoveryStart can hand off to GuidedDiscoveryResults
+  // without losing state on tab flip. Per Constraint #4, the only
+  // place setFilterStack is called from a Guided context is
+  // onExploreInNetwork below (the canonical bridge).
+  const [bubbleStack, setBubbleStack] = useState([]);
   const [cocktailMounted, setCocktailMounted] = useState(false);
   const [sauceMounted, setSauceMounted] = useState(false);
   const [recipeMounted, setRecipeMounted] = useState(false);
@@ -424,6 +433,9 @@ export default function App() {
       // strength + GNN aroma scoring.
       setRecipeMounted(true);
       setActiveTab('recipe');
+    } else if (mode === 'guided') {
+      // Phase 3 Guided Discovery — Screen 1 (thought bubbles).
+      setActiveTab('guided');
     }
   }, []);
 
@@ -1207,6 +1219,40 @@ export default function App() {
         onClose={handleTrainingTraceClose}
       />
       </div>
+
+      {/* Phase 3 Guided Discovery — Screen 1 (bubbles). Mounted as a
+          sibling of the Network wrapper so its opacity-0 cascade
+          doesn't suppress the bubble grid. */}
+      {activeTab === 'guided' && (
+        <div className="fixed inset-0 z-[40] overflow-y-auto">
+          <GuidedDiscoveryStart
+            ingredients={ingredientList}
+            onShowPairings={(stack) => {
+              setBubbleStack(stack);
+              setActiveTab('guided-results');
+            }}
+          />
+        </div>
+      )}
+
+      {/* Phase 3 Guided Discovery — Screen 2 (results stub; Phase 4
+          replaces with curated wheel + StoryPanel). The
+          onExploreInNetwork handler is the canonical bridge into
+          App.jsx's network filterStack per Constraint #4. */}
+      {activeTab === 'guided-results' && (
+        <div className="fixed inset-0 z-[40] overflow-y-auto">
+          <GuidedDiscoveryResults
+            bubbleStack={bubbleStack}
+            onBackToBubbles={() => setActiveTab('guided')}
+            onExploreInNetwork={() => {
+              // Constraint #4: this is the ONLY place setFilterStack
+              // is called from a Guided Discovery context.
+              setFilterStack(deriveFilterStackFromBubbles(bubbleStack));
+              setActiveTab('network');
+            }}
+          />
+        </div>
+      )}
 
       {/* Profile tab — full screen, mounted only when active. MUST be a
           sibling of the Network wrapper (not nested inside it), otherwise
