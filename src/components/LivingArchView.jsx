@@ -2377,18 +2377,18 @@ export default function LivingArchView({
     // 0..100), but the visual lerp uses sqrt(t) so 25% slider already
     // reveals 50% of the bucket structure, while 75% slider lands at
     // 87%.
-    // R20 — dampen the overall pull so 100% slider no longer collapses
-    // nodes onto a tiny pole. PULL_CAP scales the post-sqrt pull
-    // (0.65 keeps a clear bucket structure but leaves ~35% of the
-    // cooccurrence spread intact, so chefs can still SEE the pairings).
-    const PULL_CAP = 0.65;
+    // R20.1 — pull-cap retuned. 0.65 read as flat (the morph barely
+    // moved nodes), 1.0 collapsed everything to a pinhead. 0.82
+    // lands ~85% of the bucket pole at slider 100% — the chef sees a
+    // clear bucket structure but the long tail still has visible
+    // breathing room from the pole, so the cooccurrence story isn't
+    // erased.
+    const PULL_CAP = 0.82;
     const pullBase = Math.sqrt(Math.max(0, Math.min(1, pullStrength))) * PULL_CAP;
-    // R20 — per-node stickiness: high-pairing-count ingredients resist
-    // the pull, so "strong" ingredients hover near their cooccurrence
-    // home while "weak" ingredients yield more to the bucket pole.
-    // Log-normalized against the corpus max so a single mega-hub
-    // doesn't push every other node to maximum resistance.
-    const STICKINESS_MAX = 0.4;
+    // R20.1 — stickiness lowered from 0.4 to 0.3 in the same vein:
+    // hubs still resist, but not by so much that the layout feels
+    // un-responsive at 100% pull.
+    const STICKINESS_MAX = 0.3;
     const maxPc = stateRef.current?.maxPairingCount || 1;
     const logMax = Math.log(1 + maxPc) || 1;
     for (let i = 0; i < nodeArray.length; i++) {
@@ -2452,9 +2452,10 @@ export default function LivingArchView({
     const axisFilters = filterStack.filter((f) => FILTER_TO_AXIS[f]);
     // R20 — use the same dampened + sticky pull formula as the position
     // lerp effect so the pulse's projected positions match what the user
-    // sees on screen.
-    const PULL_CAP = 0.65;
-    const STICKINESS_MAX = 0.4;
+    // sees on screen. Constants kept in sync with the position-lerp
+    // effect's R20.1 retune (PULL_CAP 0.82, STICKINESS_MAX 0.3).
+    const PULL_CAP = 0.82;
+    const STICKINESS_MAX = 0.3;
     const pullBase = Math.sqrt(Math.max(0, Math.min(1, curr))) * PULL_CAP;
     const maxPc = st.maxPairingCount || 1;
     const logMax = Math.log(1 + maxPc) || 1;
