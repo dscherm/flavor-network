@@ -1,3 +1,4 @@
 reports/*.md
 !reports/audit-FIRST.md
-ablation/*.json
+ablation/run-*.json
+reports/ablation-*.md
