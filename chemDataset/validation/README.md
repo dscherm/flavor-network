@@ -125,10 +125,96 @@ Each report has:
 - Verdict paragraph (one bullet per axis).
 - `curatedStoryCompoundOverlapRate` (N/A until Phase 4 fixture lands).
 
-## Phase 1.5 (deferred — separate executor invocation)
+## Phase 1.5: Perceptron Ablation
 
-Phase 1.5 will train the perceptron and update `trained_weights.json`. When
-that lands, the next audit run will trip the weight-hash gate and the
-executor must re-grade with `--allow-weight-change`. The audit harness has
-no role in the training itself — it only certifies what the trained model
-produces against ground truth.
+SGD-based perceptron weight ablation against `ground_truth.json` labels.
+Implemented in `ablate_perceptron.js`. READ-ONLY against shipped weights —
+it never modifies any file under `proDataset/`.
+
+### The gate (n >= 15 per axis)
+
+The ablation tool refuses to run unless every axis present in
+`ground_truth.json` has at least 15 labeled entries. With the current
+30-entry seed corpus the per-axis breakdown is:
+
+- `cross-aroma`: 30 entries — **ready**
+- `cross-cuisine`: 10 entries — **insufficient**
+- `absent-from-books`: 9 entries — **insufficient**
+- `chem-bridged-rare`: 2 entries — **insufficient**
+
+The tool exits with code 2 and a clear per-axis message. Growing
+`ground_truth.json` to n >= 15 on the three weak axes is the path forward.
+Adding entries follows the same rules as the audit corpus (publicly visible
+references, names matching `ingredients.json` exactly).
+
+### Write-protection guarantee
+
+`safeWrite(targetPath, content)` is a thin wrapper around `fs.writeFileSync`
+that resolves the target path and asserts it is under
+`chemDataset/validation/`. Any attempt to write to `proDataset/**`,
+`public/proDataset/**`, or any other directory throws immediately with a
+`Write-protection violation` error. The CLI itself only ever calls
+`safeWrite`, so production weight files are unreachable from this script.
+
+### CLI flags
+
+```bash
+# default run (exits with gate-fail until ground_truth grows)
+npm run validate:ablate
+
+# bypass gnnTrainedAt staleness check
+npm run validate:ablate -- --allow-stale
+
+# override hyperparameters
+npm run validate:ablate -- --lr 0.05 --epochs 200 --l2 0.0001
+
+# skip writing output files; print summary only
+npm run validate:ablate -- --dry-run
+```
+
+All flags may be combined: `--allow-stale --dry-run --lr 0.05`.
+
+### Output schema (`ablation/run-{YYYY-MM-DD}.json`)
+
+```jsonc
+{
+  "runDate": "<ISO timestamp>",
+  "scoredAgainst": "<metadata.gnnTrainedAt>",
+  "weightsHash": "<sha256 of {weights, bias}>",
+  "groundTruthCount": 30,
+  "perAxisCounts": { "cross-aroma": 30, "cross-cuisine": 10, ... },
+  "matchedPairCount": 12,       // GT entries that joined to pair-features.json
+  "preWeights": [2.0, 0.5, 2.5, 1.5, 1.0, 0.8, 0.3, 1.2],
+  "preBias": -3.0,
+  "postWeights": [...],         // weights after SGD
+  "postBias": ...,
+  "deltaWeights": [...],        // postWeights - preWeights element-wise
+  "topFiveDeltaFeatures": [
+    { "index": 2, "name": "x3_chemical_overlap", "delta": 0.42 },
+    ...
+  ],
+  "lossCurve": [
+    { "epoch": 0, "loss": 1.23 },
+    ...
+  ],
+  "finalLoss": 0.45,
+  "recommendation": "raise x3_chemical_overlap weight; current 2.500 -> suggested 2.920"
+}
+```
+
+A markdown summary is emitted alongside at
+`chemDataset/validation/reports/ablation-{YYYY-MM-DD}.md`.
+Both outputs are gitignored (see `.gitignore`).
+
+### Prerequisite: `proDataset/processed/pair-features.json`
+
+`ablate_perceptron.js` reads feature vectors from
+`proDataset/processed/pair-features.json`. This file is produced by the
+proDataset pipeline (`proDataset/scripts/07-blend-v2.js`) and is not
+committed. If it is absent the CLI reports:
+
+```
+feature file not found at <path>; ablation requires the proDataset pipeline to have run
+```
+
+and exits with code 2 (no unhandled exception).
