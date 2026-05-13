@@ -11,25 +11,16 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { bypassStartPage, advancePastLanding } from '../lib/metrics.js';
 
 test.use({ viewport: { width: 1280, height: 800 } });
 
 test('R19 — InsightChip + InsightDrawer surface with an active filter', async ({ page }) => {
-  // Pre-seed the tour-complete flag so Walkthrough.jsx does not
-  // overlay the scene and intercept the FilterPillRow clicks.
-  await page.addInitScript(() => {
-    try { localStorage.setItem('flavor-tour-complete', 'true'); } catch { /* private mode */ }
-  });
-
+  // Pre-seed flags (incl. flavor-tour-complete) so the Walkthrough
+  // backdrop doesn't intercept the FilterPillRow clicks.
+  await bypassStartPage(page);
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-
-  // Landing screen — App.jsx imports readStartPageFlag but never calls
-  // it (the flag is only written, never read), so every page load shows
-  // the picker. Click the Network entry to land on the Network tab and
-  // trigger the 27MB useProData payload load.
-  await page
-    .getByRole('button', { name: /^Network\.\s/i })
-    .click({ timeout: 30_000 });
+  await advancePastLanding(page, 'pairing');
 
   // Wait for the FilterPillRow to mount once the data finishes loading.
   const aromaPill = page.getByRole('checkbox', { name: /^Aroma$/i }).first();
