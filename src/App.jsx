@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import useProData from './hooks/useProData.js';
 import { topAffinities } from './data/affinityTiers.js';
-// TrainingProgress removed — served as dev demo, not production feature
 const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
 // MoleculeOfTheDay shelved — the floating card is no longer mounted, but
 // the component + fetch logic stay in src/components/MoleculeOfTheDay.jsx
@@ -14,6 +13,7 @@ const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
 // codebase but no longer reachable from the UI.
 import ClusterJoystick from './components/ClusterJoystick.jsx';
 import HowItWorks from './components/HowItWorks.jsx';
+import TrainingTraceModal from './components/TrainingTraceModal.jsx';
 // StartPage left in the codebase as a fallback — superseded by
 // LandingScreen as of the brand-mark refresh. Re-enable by swapping
 // the import back if LandingScreen needs to be reverted.
@@ -78,6 +78,14 @@ export default function App() {
   // tabs. Floating button is hidden on the Network tab to avoid two
   // simultaneous question icons fighting for top-right real-estate.
   const [howItWorksOpen, setHowItWorksOpen] = useState(false);
+  // R8-49 — first-launch training-trace modal. Triggered once per user
+  // via localStorage['fn-training-trace-seen']; ?reset=trace clears it.
+  const [trainingTraceOpen, setTrainingTraceOpen] = useState(false);
+  const trainingTraceCheckedRef = useRef(false);
+  const handleTrainingTraceClose = useCallback(() => {
+    setTrainingTraceOpen(false);
+    try { localStorage.setItem('fn-training-trace-seen', '1'); } catch {}
+  }, []);
   // Tracks which landing tile the user just tapped, so the loading
   // surface (LandingScreen with isLoading=true) can shimmer the picked
   // tile rather than the whole row. Reset on handleStartOver.
@@ -86,6 +94,23 @@ export default function App() {
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
   const { loading, error, data, retry } = useProData({ enabled: startPageComplete });
   const { user, loginWithGoogle, loginWithApple, logout } = useAuth();
+  // R8-49 — auto-open the Training Trace modal once after data is ready
+  // and the user has cleared the landing screen. ?reset=trace lets a
+  // user replay the onboarding by clearing the localStorage flag.
+  useEffect(() => {
+    if (trainingTraceCheckedRef.current) return;
+    if (loading || !data || !startPageComplete) return;
+    trainingTraceCheckedRef.current = true;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('reset') === 'trace') {
+        localStorage.removeItem('fn-training-trace-seen');
+      }
+      if (localStorage.getItem('fn-training-trace-seen') !== '1') {
+        setTrainingTraceOpen(true);
+      }
+    } catch {}
+  }, [loading, data, startPageComplete]);
   const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe'
   const [cocktailMounted, setCocktailMounted] = useState(false);
   const [sauceMounted, setSauceMounted] = useState(false);
@@ -98,7 +123,6 @@ export default function App() {
   // `selectedNodes` updates, so clicking around in the Network /
   // Cocktail / Sauce tabs no longer silently pollutes the recipe.
   const [recipeHandoff, setRecipeHandoff] = useState(null);
-  // trainingMounted removed
   const [moleculeLabOpen, setMoleculeLabOpen] = useState(false);
   // SMILES to seed the Molecule Lab with on open (set when user clicks
   // "Open in Molecule Lab" on the Molecule of the Day card).
@@ -1177,6 +1201,10 @@ export default function App() {
         onRequestOpen={() => setHowItWorksOpen(true)}
         onClose={() => setHowItWorksOpen(false)}
         showButton={activeTab !== 'network'}
+      />
+      <TrainingTraceModal
+        isOpen={trainingTraceOpen}
+        onClose={handleTrainingTraceClose}
       />
       </div>
 

@@ -1,7 +1,6 @@
-import { useEffect, useState, useMemo, lazy, Suspense } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import MoleculeViewer3D from './MoleculeViewer3D.jsx';
 import MessagePassingDiagram from './MessagePassingDiagram.jsx';
-const TrainingProgress = lazy(() => import('./TrainingProgress.jsx'));
 
 /**
  * MoleculeLab — Pairing Chemistry card.
@@ -131,10 +130,6 @@ export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selec
   const [smilesInput2, setSmilesInput2] = useState('');
   const [livePrediction2, setLivePrediction2] = useState(null);
   const [predictStatus2, setPredictStatus2] = useState('idle');
-  // Collapsible "watch the model train" section. Off by default so the
-  // training_trace.json fetch (~30 KB) only fires on user demand.
-  const [showTraining, setShowTraining] = useState(false);
-
   // Read ?compareA & ?compareB on mount → enable compare mode and seed
   // both SMILES inputs. URL-decoded so reserved chars (=, #, +) survive.
   useEffect(() => {
@@ -567,25 +562,6 @@ export default function MoleculeLab({ isOpen, onClose, selectedNodes = [], selec
               </div>
             </section>
 
-            {/* Training trajectory replay — fetches ~30 KB of trace JSON
-                only when the user opens the section. */}
-            <section className="mb-2">
-              <button
-                type="button"
-                onClick={() => setShowTraining((v) => !v)}
-                className="w-full flex items-center justify-between text-sm text-gray-300 font-medium py-1.5 hover:text-gray-100"
-              >
-                <span>Watch the model train</span>
-                <span className="text-xs text-gray-500">{showTraining ? 'hide' : 'show'}</span>
-              </button>
-              {showTraining && (
-                <Suspense fallback={
-                  <div className="p-3 text-[10px] text-gray-500">Loading training trace...</div>
-                }>
-                  <TrainingProgress />
-                </Suspense>
-              )}
-            </section>
           </>
         )}
 
