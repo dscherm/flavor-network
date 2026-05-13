@@ -146,9 +146,82 @@ function ClusterMatrix({ clusterOverlap, bucketColorMap }) {
   );
 }
 
+function DrawerBody({
+  filterStack,
+  pullStrength,
+  visibleCount,
+  morphAxis,
+  bucketCounts,
+  bucketColorMap,
+  bridges,
+  clusterOverlap,
+}) {
+  const empty = !filterStack || filterStack.length === 0;
+  if (empty) {
+    return (
+      <p className="text-gray-400" data-testid="insight-empty">
+        Apply a filter to see the narrative.
+      </p>
+    );
+  }
+  return (
+    <>
+      <section data-testid="section-composition">
+        <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
+          Composition
+        </h3>
+        <p className="text-gray-200">
+          {visibleCount != null ? visibleCount : '?'} ingredient
+          {visibleCount === 1 ? '' : 's'} matching{' '}
+          <span className="text-cyan-200">
+            {filterStack.map((f) => FILTER_LABELS[f] || f).join(' × ')}
+          </span>
+          .
+        </p>
+      </section>
+
+      {bucketCounts && morphAxis && (
+        <section data-testid="section-bucket-dist">
+          <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
+            Bucket distribution
+          </h3>
+          <BucketSparkline bucketCounts={bucketCounts} bucketColorMap={bucketColorMap} />
+        </section>
+      )}
+
+      <section data-testid="section-pull">
+        <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
+          Pull · {Math.round((pullStrength || 0) * 100)}%
+        </h3>
+        <p className="text-gray-300">{pullExplanation(pullStrength)}</p>
+        <BridgeList bridges={bridges} />
+      </section>
+
+      {clusterOverlap && (
+        <section data-testid="section-cluster-matrix">
+          <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
+            Cluster × bucket overlap
+          </h3>
+          <ClusterMatrix clusterOverlap={clusterOverlap} bucketColorMap={bucketColorMap} />
+        </section>
+      )}
+
+      <section data-testid="section-suggested">
+        <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
+          Suggested next
+        </h3>
+        <p className="text-gray-300">
+          {suggestedMove({ filterStack, visibleCount }) || 'Layout looks well-explored.'}
+        </p>
+      </section>
+    </>
+  );
+}
+
 export default function InsightDrawer({
   isOpen = false,
   onClose,
+  isMobile = false,
   filterStack = [],
   pullStrength = 0,
   visibleCount = null,
@@ -159,8 +232,66 @@ export default function InsightDrawer({
   clusterOverlap = null,
 }) {
   if (!isOpen) return null;
-  const empty = !filterStack || filterStack.length === 0;
 
+  const bodyProps = {
+    filterStack,
+    pullStrength,
+    visibleCount,
+    morphAxis,
+    bucketCounts,
+    bucketColorMap,
+    bridges,
+    clusterOverlap,
+  };
+
+  // iOS / mobile — full-screen overlay with grab-handle close affordance.
+  // Tapping the handle (button) OR the backdrop OR the × in the header
+  // dismisses the drawer. No swipe-down gesture yet; the explicit
+  // close targets are big enough (≥44px) to be discoverable.
+  if (isMobile) {
+    return (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Layout insight drawer"
+        data-testid="insight-drawer"
+        className="fixed inset-0 z-[80] bg-[#0a0a12]/97 backdrop-blur-lg flex flex-col text-xs pointer-events-auto"
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}
+      >
+        <div className="flex flex-col items-center pt-2">
+          <button
+            type="button"
+            onClick={() => onClose?.()}
+            aria-label="Close insight drawer"
+            data-testid="insight-drawer-handle"
+            className="w-14 h-1.5 rounded-full bg-gray-500 active:bg-gray-300 transition-colors my-2"
+          />
+        </div>
+        <header className="flex items-center justify-between px-4 pb-2">
+          <span className="font-medium text-cyan-200 uppercase tracking-wider text-[11px]">
+            Layout insight
+          </span>
+          <button
+            type="button"
+            onClick={() => onClose?.()}
+            aria-label="Close insight drawer"
+            className="text-gray-400 hover:text-gray-200 text-xl leading-none min-w-[44px] min-h-[44px] flex items-center justify-center"
+          >
+            ×
+          </button>
+        </header>
+        <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-4">
+          <DrawerBody {...bodyProps} />
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop — right-anchored card. Compact + non-modal so the user can
+  // still drag the slider or hover bridges underneath.
   return (
     <aside
       role="region"
@@ -182,68 +313,7 @@ export default function InsightDrawer({
         </button>
       </header>
       <div className="px-3 py-3 overflow-y-auto space-y-4">
-        {empty ? (
-          <p className="text-gray-400" data-testid="insight-empty">
-            Apply a filter to see the narrative.
-          </p>
-        ) : (
-          <>
-            <section data-testid="section-composition">
-              <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
-                Composition
-              </h3>
-              <p className="text-gray-200">
-                {visibleCount != null ? visibleCount : '?'} ingredient
-                {visibleCount === 1 ? '' : 's'} matching{' '}
-                <span className="text-cyan-200">
-                  {filterStack.map((f) => FILTER_LABELS[f] || f).join(' × ')}
-                </span>
-                .
-              </p>
-            </section>
-
-            {bucketCounts && morphAxis && (
-              <section data-testid="section-bucket-dist">
-                <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
-                  Bucket distribution
-                </h3>
-                <BucketSparkline
-                  bucketCounts={bucketCounts}
-                  bucketColorMap={bucketColorMap}
-                />
-              </section>
-            )}
-
-            <section data-testid="section-pull">
-              <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
-                Pull · {Math.round((pullStrength || 0) * 100)}%
-              </h3>
-              <p className="text-gray-300">{pullExplanation(pullStrength)}</p>
-              <BridgeList bridges={bridges} />
-            </section>
-
-            {clusterOverlap && (
-              <section data-testid="section-cluster-matrix">
-                <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
-                  Cluster × bucket overlap
-                </h3>
-                <ClusterMatrix
-                  clusterOverlap={clusterOverlap}
-                  bucketColorMap={bucketColorMap}
-                />
-              </section>
-            )}
-
-            <section data-testid="section-suggested">
-              <h3 className="text-gray-500 uppercase tracking-wider text-[9px] mb-1">
-                Suggested next
-              </h3>
-              <p className="text-gray-300">
-                {suggestedMove({ filterStack, visibleCount }) || 'Layout looks well-explored.'}
-              </p>
-            </section>
-          </>
-        )}
+        <DrawerBody {...bodyProps} />
       </div>
     </aside>
   );

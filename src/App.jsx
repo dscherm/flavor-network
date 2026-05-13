@@ -27,7 +27,6 @@ import {
 } from './utils/startPageFlag.js';
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
-import Legend from './components/Legend.jsx';
 import Controls from './components/Controls.jsx';
 import { getNeighbors, findStrongestPath } from './data/graph.js';
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
@@ -1124,10 +1123,8 @@ export default function App() {
         </button>
       )}
 
-      <Legend
-        selectedTaste={selectedTaste}
-        onTasteFilter={setSelectedTaste}
-      />
+      {/* Taste-color Legend slide-out removed per UX cleanup — the
+          filter row in the Network tab covers the same intent. */}
       {/* Controls panel removed — brightness fixed at 30% */}
       <Walkthrough
         active={showTour}
@@ -1278,8 +1275,16 @@ export default function App() {
           node visibility. */}
       {activeTab === 'network' && (
         <>
-          <div className="fixed left-1/2 -translate-x-1/2 top-12 z-[68] pointer-events-none flex items-center gap-2">
-            <div className="bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full shadow-lg pointer-events-auto">
+          {/* SearchBar at top: var(--nav-h) (~40px). Stack sits BELOW
+              it with a 10px gap, then breadcrumb/slider/chip cascade
+              underneath. Heights tuned so the row never collides with
+              SearchBar on iOS:
+                pill row    top-[5.5rem]  (88px ≈ nav 40 + search ~38 + 10)
+                breadcrumb  top-[9rem]    (144px)
+                slider      top-[11.25rem](180px)
+                insight chip top-[13.25rem](212px)                                                     */}
+          <div className="fixed left-1/2 -translate-x-1/2 top-[5.5rem] z-[68] pointer-events-none flex items-center gap-2 max-w-[calc(100vw-1rem)]">
+            <div className="bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full shadow-lg pointer-events-auto min-w-0">
               <FilterPillRow
                 filterStack={filterStack}
                 onToggle={toggleFilter}
@@ -1330,7 +1335,7 @@ export default function App() {
               row, derived from filterStack + focusedBucketLabel. Click
               a segment to pop the stack back to that depth. */}
           {filterStack.length > 0 && (
-            <div className="fixed left-1/2 -translate-x-1/2 top-[5.25rem] z-[68] pointer-events-auto">
+            <div className="fixed left-1/2 -translate-x-1/2 top-[9rem] z-[68] pointer-events-auto">
               <FilterBreadcrumb
                 filterStack={filterStack}
                 focusedBucketLabel={focusedBucketLabel}
@@ -1343,7 +1348,7 @@ export default function App() {
               cooccurrence base (left) and bucket-pole snap (right).
               Hidden when no filter is active (nothing to pull toward). */}
           {filterStack.length > 0 && (
-            <div className="fixed left-1/2 -translate-x-1/2 top-[7.5rem] z-[68] pointer-events-auto">
+            <div className="fixed left-1/2 -translate-x-1/2 top-[11.25rem] z-[68] pointer-events-auto">
               <FilterPullSlider
                 pullStrength={pullStrength}
                 onPullChange={handlePullChange}
@@ -1356,7 +1361,7 @@ export default function App() {
               below the breadcrumb + slider stack; hidden when no filter
               is active. */}
           {filterStack.length > 0 && (
-            <div className="fixed left-1/2 -translate-x-1/2 top-[9.5rem] z-[68] pointer-events-auto">
+            <div className="fixed left-1/2 -translate-x-1/2 top-[13.25rem] z-[68] pointer-events-auto">
               <InsightChip
                 filterStack={filterStack}
                 pullStrength={pullStrength}
@@ -1370,6 +1375,7 @@ export default function App() {
           <InsightDrawer
             isOpen={insightDrawerOpen}
             onClose={() => setInsightDrawerOpen(false)}
+            isMobile={isMobile}
             filterStack={filterStack}
             pullStrength={pullStrength}
             visibleCount={visibleNodeCount}
