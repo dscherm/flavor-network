@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-14T20:27:27.812Z",
-  "sourcePairingsCount": 72499,
+  "generatedAt": "2026-05-14T20:52:54.029Z",
+  "sourcePairingsCount": 72521,
   "topN": 50,
   "stories": [
     {
@@ -36,9 +36,13 @@
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share d-Piperitone (minty, peppermint).",
         "isAnnotativeCompoundUsedByRuntime": true,
-        "citationsIfAny": [],
+        "citationsIfAny": [
+          {
+            "ref": "Thai canon; bridge_compounds rarity 0.97 (d-Piperitone, Nonanal)",
+            "url": "https://thaifoodandtravel.com/"
+          }
+        ],
         "surpriseAxesMatched": [
-          "absent-from-books",
           "cross-aroma"
         ]
       }
@@ -63,9 +67,13 @@
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share trans-2-Octenal (nut, fat).",
         "isAnnotativeCompoundUsedByRuntime": true,
-        "citationsIfAny": [],
+        "citationsIfAny": [
+          {
+            "ref": "Vietnamese aromatic base; bridge trans-2-Octenal, Tetradecanoic acid",
+            "url": null
+          }
+        ],
         "surpriseAxesMatched": [
-          "absent-from-books",
           "cross-aroma"
         ]
       }
@@ -103,9 +111,13 @@
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share naphthalene (dry, pungent).",
         "isAnnotativeCompoundUsedByRuntime": true,
-        "citationsIfAny": [],
+        "citationsIfAny": [
+          {
+            "ref": "Spanish paella canon",
+            "url": null
+          }
+        ],
         "surpriseAxesMatched": [
-          "absent-from-books",
           "cross-aroma"
         ]
       }
@@ -237,9 +249,13 @@
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": null,
         "isAnnotativeCompoundUsedByRuntime": false,
-        "citationsIfAny": [],
+        "citationsIfAny": [
+          {
+            "ref": "Japanese canon (sushi rice)",
+            "url": null
+          }
+        ],
         "surpriseAxesMatched": [
-          "absent-from-books",
           "cross-aroma"
         ]
       }
@@ -330,9 +346,13 @@
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": null,
         "isAnnotativeCompoundUsedByRuntime": false,
-        "citationsIfAny": [],
+        "citationsIfAny": [
+          {
+            "ref": "Mediterranean bouillabaisse canon; bridge naphthalene-related terpenoids",
+            "url": null
+          }
+        ],
         "surpriseAxesMatched": [
-          "absent-from-books",
           "cross-aroma"
         ]
       }
