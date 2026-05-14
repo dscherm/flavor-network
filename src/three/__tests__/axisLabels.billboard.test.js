@@ -32,11 +32,18 @@ beforeAll(() => {
       textAlign: 'center',
       textBaseline: 'middle',
       fillStyle: '#fff',
+      strokeStyle: '#000',
+      lineWidth: 1,
+      lineJoin: 'round',
+      miterLimit: 2,
       measureText: () => ({ width: 100 }),
       fillText: () => {},
+      strokeText: () => {},
       beginPath: () => {},
       roundRect: () => {},
       fill: () => {},
+      fillRect: () => {},
+      createRadialGradient: () => ({ addColorStop: () => {} }),
     };
   };
 });
