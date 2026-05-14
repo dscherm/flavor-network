@@ -16,6 +16,8 @@ const SOURCE_FILES = {
 };
 
 const FOODB_FILE       = path.join(PROCESSED_DIR, 'foodb-compounds.json');
+const FLAVORDB_COMPOUNDS_FILE = path.join(PROCESSED_DIR, 'flavordb-compounds.json');
+const GNN_COMPOUNDS_FILE = path.join(PROCESSED_DIR, '..', '..', 'public', 'proDataset', 'gnn_compounds.json');
 const BUILTIN_DB_FILE  = path.join(DATA_DIR, 'compound_database.json');
 const TASTE_COMPAT_FILE = path.join(DATA_DIR, 'taste_compatibility.json');
 const CAT_DIST_FILE    = path.join(DATA_DIR, 'category_distances.json');
@@ -135,6 +137,61 @@ async function run() {
       foodbCompounds = null;
       log(`  No compound data available -- using fallbacks for x3, x8`);
     }
+  }
+
+  // Augment with FlavorDB2 per-ingredient compound dicts (~1,000 ingredients,
+  // 60+ compounds each). Highest-density source after FooDB.
+  const flavordbCompounds = readJson(FLAVORDB_COMPOUNDS_FILE);
+  if (flavordbCompounds) {
+    if (!foodbCompounds) foodbCompounds = {};
+    const before = Object.keys(foodbCompounds).filter(k => k !== '_meta').length;
+    let added = 0;
+    for (const [name, entry] of Object.entries(flavordbCompounds)) {
+      if (name === '_meta') continue;
+      if (foodbCompounds[name]) continue; // foodb (concentration data) wins
+      const compounds = entry?.compounds;
+      if (!compounds || Object.keys(compounds).length === 0) continue;
+      foodbCompounds[name] = { compounds, _source: 'flavordb2' };
+      added++;
+    }
+    const after = Object.keys(foodbCompounds).filter(k => k !== '_meta').length;
+    log(`  Augmented from flavordb-compounds.json: ${before} -> ${after} ingredients (+${added})`);
+    compoundSource = compoundSource ? `${compoundSource}+flavordb2` : 'flavordb2';
+  } else {
+    log(`  WARNING: flavordb-compounds.json not found at ${FLAVORDB_COMPOUNDS_FILE}`);
+  }
+
+  // Augment with chemDataset GNN compound predictions (3,319 ingredients).
+  // Sparse (3-5 top compounds each) but covers ingredients beyond FlavorDB.
+  // FooDB (concentration data) and FlavorDB (full molecule lists) win over GNN.
+  const gnnCompounds = readJson(GNN_COMPOUNDS_FILE);
+  if (gnnCompounds) {
+    if (!foodbCompounds) foodbCompounds = {};
+    const before = Object.keys(foodbCompounds).filter(k => k !== '_meta').length;
+    let added = 0;
+    for (const [name, entry] of Object.entries(gnnCompounds)) {
+      if (foodbCompounds[name]) continue; // foodb (concentration data) wins
+      const topCompounds = entry?.top_compounds || [];
+      if (topCompounds.length === 0) continue;
+      const compounds = {};
+      for (const c of topCompounds) {
+        if (!c?.name) continue;
+        compounds[c.name] = {
+          concentration_mg: 0,
+          class: Array.isArray(c.tags) && c.tags.length > 0 ? c.tags[0] : null,
+        };
+      }
+      if (Object.keys(compounds).length === 0) continue;
+      foodbCompounds[name] = { compounds, _source: 'gnn' };
+      added++;
+    }
+    const after = Object.keys(foodbCompounds).filter(k => k !== '_meta').length;
+    log(`  Augmented from gnn_compounds.json: ${before} -> ${after} ingredients (+${added})`);
+    // With most entries lacking concentration data, fall back to simple Jaccard.
+    useJaccard = true;
+    compoundSource = compoundSource ? `${compoundSource}+gnn` : 'gnn';
+  } else {
+    log(`  WARNING: gnn_compounds.json not found at ${GNN_COMPOUNDS_FILE}`);
   }
 
   const tasteMatrix = readJson(TASTE_COMPAT_FILE);

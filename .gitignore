@@ -34,6 +34,10 @@ __pycache__/
 # chemDataset local data (scraped sources)
 chemDataset/raw/
 chemDataset/processed/
+
+# proDataset local cache (FlavorDB2 per-entity JSON, regenerable via npm run flavordb)
+proDataset/raw/flavordb/
+proDataset/scripts/*.log
 /public/wasm/
 
 # Logo iteration artifacts. Source-of-truth lives in assets/. The chosen
