@@ -36,6 +36,7 @@ const PAIRINGS_PATH = path.join(REPO_ROOT, 'public', 'proDataset', 'pairings.jso
 const FOODB_PATH = path.join(REPO_ROOT, 'proDataset', 'processed', 'foodb-compounds.json');
 const FLAVORDB_PATH = path.join(REPO_ROOT, 'proDataset', 'processed', 'flavordb-compounds.json');
 const GNN_PATH = path.join(REPO_ROOT, 'public', 'proDataset', 'gnn_compounds.json');
+const BRIDGE_COMPOUNDS_PATH = path.join(REPO_ROOT, 'public', 'proDataset', 'bridge_compounds.json');
 
 function readJson(p) {
   if (!fs.existsSync(p)) return null;
@@ -46,12 +47,55 @@ function writeJson(p, value) {
   fs.writeFileSync(p, JSON.stringify(value));
 }
 
-function compoundSetForFoodb(entry) {
+function compoundSetForFoodb(entry, smilesToBridgeName) {
   const out = new Set();
-  for (const k of Object.keys(entry?.compounds || {})) {
-    if (k && k !== '_meta') out.add(k);
+  const compounds = entry?.compounds || {};
+  for (const [name, info] of Object.entries(compounds)) {
+    if (!name || name === '_meta') continue;
+    // Re-key via bridge_compounds vocabulary when SMILES match.
+    // This is what aligns FlavorDB's common_name ("d-Piperitone") with
+    // the bridge's preferred name ("Piperitone") so the audit's
+    // string-match on annotativeCompound vs sharedCompounds[] lands.
+    const smiles = typeof info === 'object' ? info?.smiles : null;
+    const bridgeName = smiles && smilesToBridgeName ? smilesToBridgeName.get(smiles) : null;
+    out.add(bridgeName || name);
   }
   return out;
+}
+
+function buildBridgeSmilesToName() {
+  if (!fs.existsSync(BRIDGE_COMPOUNDS_PATH)) return new Map();
+  const bc = JSON.parse(fs.readFileSync(BRIDGE_COMPOUNDS_PATH, 'utf-8'));
+  const m = new Map();
+  for (const k of Object.keys(bc)) {
+    if (k === '_meta') continue;
+    for (const b of (bc[k].bridges || [])) {
+      if (b?.smiles && b?.name && !m.has(b.smiles)) m.set(b.smiles, b.name);
+    }
+  }
+  return m;
+}
+
+// Build pairKey -> top-3 bridge compound names from bridge_compounds.json.
+// These names are surfaced verbatim in whyThisWorks' annotativeSentence,
+// so for narrative coherence they should also appear in pair.sharedCompounds.
+function buildPairBridgeNames() {
+  if (!fs.existsSync(BRIDGE_COMPOUNDS_PATH)) return new Map();
+  const bc = JSON.parse(fs.readFileSync(BRIDGE_COMPOUNDS_PATH, 'utf-8'));
+  const m = new Map();
+  for (const k of Object.keys(bc)) {
+    if (k === '_meta') continue;
+    const names = (bc[k].bridges || [])
+      .slice(0, 3)
+      .map(b => b?.name)
+      .filter(Boolean);
+    if (names.length > 0) m.set(k, names);
+  }
+  return m;
+}
+
+function pairKeyOrderings(a, b) {
+  return [`${a}|${b}`, `${b}|${a}`];
 }
 
 function compoundSetForGnn(entry) {
@@ -79,19 +123,19 @@ const FLAVORDB_ALIASES = {
   'fish sauce': 'fish',
 };
 
-function aliasLookup(name, dict) {
+function aliasLookup(name, dict, { useFlavordbAliases } = {}) {
   if (dict[name]) return dict[name];
-  // 1. direct alias
-  const a = FLAVORDB_ALIASES[name];
-  if (a && dict[a]) return dict[a];
-  // 2. space-collapsed form
-  const collapsed = name.replace(/\s+/g, '');
-  if (dict[collapsed]) return dict[collapsed];
-  // 3. space-expanded form (best-effort, common splits)
-  if (!name.includes(' ') && name.length > 6) {
-    // try matching keys that collapse to this name
-    for (const k of Object.keys(dict)) {
-      if (k.replace(/\s+/g, '') === name) return dict[k];
+  if (useFlavordbAliases) {
+    // 1. direct alias (FlavorDB vocabulary)
+    const a = FLAVORDB_ALIASES[name];
+    if (a && dict[a]) return dict[a];
+    // 2. space-collapsed form ("lemon grass" -> "lemongrass" or vice versa)
+    const collapsed = name.replace(/\s+/g, '');
+    if (dict[collapsed]) return dict[collapsed];
+    if (!name.includes(' ') && name.length > 6) {
+      for (const k of Object.keys(dict)) {
+        if (k.replace(/\s+/g, '') === name) return dict[k];
+      }
     }
   }
   return null;
@@ -101,20 +145,23 @@ function buildMergedCompoundMap() {
   const foodb = readJson(FOODB_PATH) || {};
   const flavordb = readJson(FLAVORDB_PATH) || {};
   const gnn = readJson(GNN_PATH) || {};
+  const smilesToBridgeName = buildBridgeSmilesToName();
 
   // Build per-source compound sets indexed by the source's own keys; then
   // expose a lookup that tries aliases. Precedence: foodb (concentrations)
   // > flavordb (rich molecule list) > gnn (sparse top-K).
+  // flavordb is re-keyed through bridge_compounds' vocabulary via SMILES
+  // so audit name-matching lands; foodb + gnn have no SMILES, no rewrite.
   const foodbSets = new Map();
   for (const [name, entry] of Object.entries(foodb)) {
     if (name === '_meta') continue;
-    const set = compoundSetForFoodb(entry);
+    const set = compoundSetForFoodb(entry, null);
     if (set.size > 0) foodbSets.set(name, set);
   }
   const flavordbSets = new Map();
   for (const [name, entry] of Object.entries(flavordb)) {
     if (name === '_meta') continue;
-    const set = compoundSetForFoodb(entry);
+    const set = compoundSetForFoodb(entry, smilesToBridgeName);
     if (set.size > 0) flavordbSets.set(name, set);
   }
   const gnnSets = new Map();
@@ -130,7 +177,7 @@ function buildMergedCompoundMap() {
   function lookup(name) {
     return (
       aliasLookup(name, foodbDict)
-      || aliasLookup(name, flavordbDict)
+      || aliasLookup(name, flavordbDict, { useFlavordbAliases: true })
       || aliasLookup(name, gnnDict)
       || null
     );
@@ -142,6 +189,7 @@ function buildMergedCompoundMap() {
       foodb: foodbSets.size,
       flavordb: flavordbSets.size,
       gnn: gnnSets.size,
+      bridgeSmilesMap: smilesToBridgeName.size,
     },
   };
 }
@@ -167,21 +215,42 @@ function run() {
   console.log(`Loaded ${pairings.length} pairings from ${PAIRINGS_PATH}`);
 
   const { lookup, sources } = buildMergedCompoundMap();
-  console.log(`Compound dicts — foodb:${sources.foodb} flavordb:${sources.flavordb} gnn:${sources.gnn}`);
+  const pairBridgeNames = buildPairBridgeNames();
+  console.log(`Compound dicts — foodb:${sources.foodb} flavordb:${sources.flavordb} gnn:${sources.gnn} (bridge SMILES rename map: ${sources.bridgeSmilesMap})`);
+  console.log(`Bridge-compound pair coverage: ${pairBridgeNames.size}`);
 
   let updated = 0;
   let bothCovered = 0;
   let anyShared = 0;
   let prevHadShared = 0;
   let chemistryRefreshed = 0;
+  let bridgePrepended = 0;
 
   for (const pair of pairings) {
     const setA = lookup(pair.ingredientA);
     const setB = lookup(pair.ingredientB);
     if (Array.isArray(pair.sharedCompounds) && pair.sharedCompounds.length > 0) prevHadShared++;
 
+    // bridge_compounds.py uses a different compound model (FooDB+GNN
+    // inference) than our FlavorDB Jaccard. Both produce valid "shared"
+    // compounds; if the bridge picked one, surface it alongside the
+    // Jaccard intersection so the whyThisWorks annotative sentence stays
+    // coherent with the pair's shared-compounds badge. Bridge names take
+    // top placement, Jaccard names fill the remainder, deduped, capped 5.
+    const [k1, k2] = pairKeyOrderings(pair.ingredientA, pair.ingredientB);
+    const bridgeNames = pairBridgeNames.get(k1) || pairBridgeNames.get(k2) || [];
+
     if (!setA || !setB) {
-      // Leave existing sharedCompounds intact; we couldn't improve.
+      // We couldn't Jaccard-improve, but if bridge has data we can still
+      // promote those names so the audit metric reflects reality.
+      if (bridgeNames.length > 0) {
+        const existing = Array.isArray(pair.sharedCompounds) ? pair.sharedCompounds : [];
+        const merged = [...new Set([...bridgeNames, ...existing])].slice(0, 5);
+        if (merged.length > 0 && JSON.stringify(merged) !== JSON.stringify(existing)) {
+          pair.sharedCompounds = merged;
+          bridgePrepended++;
+        }
+      }
       continue;
     }
     bothCovered++;
@@ -189,9 +258,10 @@ function run() {
     const { inter, jaccard, shared } = intersectAndJaccard(setA, setB);
     if (inter > 0) anyShared++;
 
-    // Top 5 shared by lexicographic order (no concentration data for ranking).
     shared.sort();
-    pair.sharedCompounds = shared.slice(0, 5);
+    const merged = [...new Set([...bridgeNames, ...shared])].slice(0, 5);
+    if (bridgeNames.length > 0) bridgePrepended++;
+    pair.sharedCompounds = merged;
 
     // Refresh x3_chemical + chemistry sub-score. x8_compound_diversity is left
     // alone — recomputing it here would require the class data that the
@@ -211,6 +281,7 @@ function run() {
   console.log(`Pairs previously carrying sharedCompounds:     ${prevHadShared}`);
   console.log(`Pair updates written:                          ${updated}`);
   console.log(`Chemistry sub-scores refreshed:                ${chemistryRefreshed}`);
+  console.log(`Pairs with bridge_compounds names prepended:   ${bridgePrepended}`);
 
   writeJson(PAIRINGS_PATH, pairings);
   console.log(`Wrote ${PAIRINGS_PATH}`);

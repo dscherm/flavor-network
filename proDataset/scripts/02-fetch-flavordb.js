@@ -97,6 +97,7 @@ async function run() {
       compoundMap.set(compoundName, {
         pubchem_id: molId ? String(molId) : null,
         class: cls,
+        smiles: mol.smile || null,
       });
     }
     if (molecules.size === 0) continue;
@@ -180,6 +181,7 @@ async function run() {
         concentration_mg: 0,
         class: info.class,
         pubchem_id: info.pubchem_id,
+        smiles: info.smiles,
       };
     }
     compoundsOut[name] = { compounds };

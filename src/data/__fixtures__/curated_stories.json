@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-14T02:20:38.962Z",
+  "generatedAt": "2026-05-14T05:19:16.261Z",
   "sourcePairingsCount": 48588,
   "topN": 50,
   "stories": [
@@ -35,7 +35,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share d-Piperitone (minty, peppermint).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -62,7 +62,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share trans-2-Octenal (nut, fat).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -102,7 +102,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share naphthalene (dry, pungent).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -143,7 +143,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share 2-Butanol (oily, sweet).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books"
@@ -169,7 +169,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share Tetradecanal (citrus peel, incense).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -183,7 +183,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share 2-Acetylpyridine (tobacco, oily).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -263,7 +263,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share Hexanoic Acid (fatty, sour).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books"
@@ -302,7 +302,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share Linalyl Acetate (citrus, fruit).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books"
@@ -315,7 +315,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share Acetal (cream, nut).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -343,7 +343,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share 2-Methylfuran (ethereal, acetone).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -383,7 +383,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share Cinchonidine (bitter).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books"
@@ -409,7 +409,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share Dodecanal (citrus, fat).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books"
@@ -461,7 +461,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share (1Z,4Z)-germacrene B (spice, earthy).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -529,7 +529,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share 2,5-Diethyl-3-Methylpyrazine (hazelnut, toasted).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -569,7 +569,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share Nonyl octanoate (rose, floral).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books"
@@ -595,7 +595,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share 4-Methyl-2-pentanone (solvent, spice).",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books",
@@ -663,7 +663,7 @@
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
         "annotativeSentence": "Both share 6-Methylhepta-3,5-dien-2-one.",
-        "isAnnotativeCompoundUsedByRuntime": false,
+        "isAnnotativeCompoundUsedByRuntime": true,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
           "absent-from-books"
