@@ -172,18 +172,43 @@ export function runAudit(opts = {}) {
   const weightsHash = hashWeights(weights, bias, 'untrained');
   const scoredAgainst = metadata.gnnTrainedAt;
 
-  // ── Optional fixture staleness ──
+  // ── Optional fixture staleness + Phase 4 curatedStoryCompoundOverlapRate ──
+  // Constraint #5(a) + #6: when the curated_stories fixture is present,
+  // emit `fixture_staleness_seconds` AND compute the overlap rate
+  // (|stories whose annotative compound ∈ runtime.sharedCompounds| /
+  // |stories with an annotative sentence|). Audit flags the rate red
+  // when < 30%.
   const fixturePath = repoPath('src', 'data', '__fixtures__', 'curated_stories.json');
   let fixtureStalenessSeconds = null;
+  let curatedStoryOverlap = null; // { rate, withAnnotation, usedRuntime }
+  let curatedStoriesParsed = null;
   if (existsSync(fixturePath)) {
     try {
       const stat = readFileSync(fixturePath); // touch to surface I/O errors
       const parsed = JSON.parse(stat.toString());
+      curatedStoriesParsed = parsed;
       if (parsed?.generatedAt) {
         fixtureStalenessSeconds = Math.max(
           0,
           Math.round((Date.now() - new Date(parsed.generatedAt).getTime()) / 1000),
         );
+      }
+      // Compute overlap rate from the embedded story.isAnnotativeCompoundUsedByRuntime
+      // booleans. The snapshot script already ran whyThisWorks against
+      // every top-50 pair, so this is a pure tally over the embedded
+      // payload — the audit does NOT recompute (Constraint #1).
+      if (Array.isArray(parsed?.stories) && parsed.stories.length > 0) {
+        let withAnnotation = 0;
+        let usedRuntime = 0;
+        for (const s of parsed.stories) {
+          if (s?.story?.annotativeSentence) withAnnotation++;
+          if (s?.story?.isAnnotativeCompoundUsedByRuntime) usedRuntime++;
+        }
+        curatedStoryOverlap = {
+          withAnnotation,
+          usedRuntime,
+          rate: withAnnotation > 0 ? usedRuntime / withAnnotation : 0,
+        };
       }
     } catch {
       // ignore: optional artifact
@@ -296,6 +321,7 @@ export function runAudit(opts = {}) {
     x3HalfRate,
     fixtureStalenessSeconds,
     fixturePresent: fixtureStalenessSeconds !== null,
+    curatedStoryOverlap,
     prevHeader,
     gnnEntropyAvailable: gnnEntropy != null,
     cuisineMetaAvailable: Object.keys(ingredientsMeta).length > 0,
@@ -320,6 +346,7 @@ export function runAudit(opts = {}) {
     sourceJaccard,
     sourceCounts,
     fixtureStalenessSeconds,
+    curatedStoryOverlap,
   };
 }
 
@@ -352,7 +379,7 @@ function renderReport(ctx) {
     today, scoredAgainst, weightsHash, pairings, gtEntries, perAxis,
     axisIllustrative, axisCounts, sourceCounts, sourceJaccard,
     unmatchedGroundTruth, x3HalfRate, fixtureStalenessSeconds, fixturePresent,
-    prevHeader, gnnEntropyAvailable, cuisineMetaAvailable,
+    curatedStoryOverlap, prevHeader, gnnEntropyAvailable, cuisineMetaAvailable,
   } = ctx;
 
   const lines = [];
@@ -457,7 +484,25 @@ function renderReport(ctx) {
   }
   lines.push('');
 
-  lines.push(`curatedStoryCompoundOverlapRate: ${fixturePresent ? 'TODO (Phase 4 fixture present but metric not yet computed)' : 'N/A (no curated_stories.json fixture present)'}`);
+  // Phase 4 honesty metric — Constraint #5(a) + #6.
+  if (!fixturePresent) {
+    lines.push('curatedStoryCompoundOverlapRate: N/A (no curated_stories.json fixture present)');
+  } else if (!curatedStoryOverlap || curatedStoryOverlap.withAnnotation === 0) {
+    lines.push('curatedStoryCompoundOverlapRate: N/A (fixture present but no annotated stories)');
+  } else {
+    const ratePct = (curatedStoryOverlap.rate * 100).toFixed(1);
+    const flag = curatedStoryOverlap.rate < 0.30
+      ? '  **🔴 FLAG:** rate < 30% — annotative-vs-ranking divergence above tolerance. Bridge compounds cited in stories are NOT being used by the runtime to rank these pairs (root cause: x3==0.5 globally; FlavorDB API down).'
+      : '';
+    lines.push(
+      `curatedStoryCompoundOverlapRate: ${ratePct}% ` +
+      `(${curatedStoryOverlap.usedRuntime}/${curatedStoryOverlap.withAnnotation} stories whose annotative compound also appears in pair.sharedCompounds)`,
+    );
+    if (flag) {
+      lines.push('');
+      lines.push(flag);
+    }
+  }
   lines.push('');
   return lines.join('\n');
 }
