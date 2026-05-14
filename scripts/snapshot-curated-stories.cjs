@@ -46,18 +46,32 @@ function computeStoriesViaChild(topPairs) {
   const whyUrl = pathToFileURL(
     path.join(REPO_ROOT, 'src', 'data', 'whyThisWorks.js'),
   ).href;
-  const metaPath = path
-    .join(REPO_ROOT, 'public', 'proDataset', 'metadata.json')
-    .replace(/\\/g, '/');
+  // whyThisWorks.js loads bridge_compounds / gnn_entropy / ground_truth
+  // lazily via its internal Node-side fs helpers. Those helpers use a
+  // dynamic `new Function('m', 'return require(m)')` trick that throws in
+  // pure ESM (no global `require`). The child runs as .mjs, so we
+  // pre-load those artifacts here in the CJS parent and pass them through
+  // the ctx argument — short-circuits the broken loader.
+  const fsx = require('node:fs');
+  const META = loadJson(path.join(REPO_ROOT, 'public', 'proDataset', 'metadata.json'));
+  const bridgeCompoundsPath = path.join(REPO_ROOT, 'public', 'proDataset', 'bridge_compounds.json');
+  const gnnEntropyPath = path.join(REPO_ROOT, 'public', 'proDataset', 'gnn_entropy.json');
+  const groundTruthPath = path.join(REPO_ROOT, 'chemDataset', 'validation', 'ground_truth.json');
+  const bridgeCompounds = fsx.existsSync(bridgeCompoundsPath) ? loadJson(bridgeCompoundsPath) : {};
+  const gnnEntropy = fsx.existsSync(gnnEntropyPath) ? loadJson(gnnEntropyPath) : null;
+  const groundTruth = fsx.existsSync(groundTruthPath) ? loadJson(groundTruthPath) : { pairings: [] };
   const childScript = `
     import { whyThisWorks } from '${whyUrl}';
-    import { readFileSync } from 'node:fs';
     const PAIRS = ${JSON.stringify(topPairs)};
-    const META = JSON.parse(readFileSync('${metaPath}', 'utf-8'));
-    const pairingCount = META.pairingCount || 50312;
+    const CTX = {
+      bridgeCompounds: ${JSON.stringify(bridgeCompounds)},
+      gnnEntropy: ${JSON.stringify(gnnEntropy)},
+      groundTruth: ${JSON.stringify(groundTruth)},
+    };
+    const pairingCount = ${JSON.stringify(META?.pairingCount || 50312)};
     const out = [];
     for (const p of PAIRS) {
-      const story = whyThisWorks(p, { pairingCount });
+      const story = whyThisWorks(p, { pairingCount }, CTX);
       out.push({ a: p.ingredientA, b: p.ingredientB, story });
     }
     process.stdout.write(JSON.stringify(out));

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-14T00:01:36.864Z",
+  "generatedAt": "2026-05-14T02:20:38.962Z",
   "sourcePairingsCount": 48588,
   "topN": 50,
   "stories": [
@@ -38,7 +38,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -47,7 +48,7 @@
       "b": "lite salt",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -64,7 +65,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -86,7 +88,7 @@
       "b": "celtic sea salt",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -103,7 +105,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -116,7 +119,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -125,7 +129,7 @@
       "b": "powdered sugar",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -151,7 +155,7 @@
       "b": "pizza sauce",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -168,7 +172,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -181,7 +186,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -233,7 +239,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -242,7 +249,7 @@
       "b": "soy sauce",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -268,7 +275,7 @@
       "b": "chocolate bit",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -311,7 +318,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -324,7 +332,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -337,7 +346,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -424,7 +434,7 @@
       "b": "mixed nut",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -437,7 +447,7 @@
       "b": "fluid vodka",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -454,7 +464,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -467,7 +478,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -476,7 +488,7 @@
       "b": "grape jelly",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -493,7 +505,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -519,7 +532,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -541,7 +555,7 @@
       "b": "palm sugar",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -584,7 +598,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -597,7 +612,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },
@@ -606,7 +622,7 @@
       "b": "mango powder",
       "story": {
         "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
-        "annotativeSentence": null,
+        "annotativeSentence": "Both lean toward the sweet class in our aroma model.",
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
@@ -623,7 +639,8 @@
         "isAnnotativeCompoundUsedByRuntime": false,
         "citationsIfAny": [],
         "surpriseAxesMatched": [
-          "absent-from-books"
+          "absent-from-books",
+          "cross-aroma"
         ]
       }
     },

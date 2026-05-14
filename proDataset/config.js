@@ -11,7 +11,7 @@ export const OUTPUT_DIR = path.join(__dirname, 'output');
 export const DATA_DIR = path.join(__dirname, 'data');
 
 // API endpoints
-export const FLAVORDB_BASE = 'https://cosylab.iiitd.edu.in/flavordb';
+export const FLAVORDB_BASE = 'https://cosylab.iiitd.edu.in/flavordb2';
 export const MEALDB_BASE = 'https://www.themealdb.com/api/json/v1/1';
 export const COCKTAILDB_BASE = 'https://www.thecocktaildb.com/api/json/v1/1';
 
@@ -26,7 +26,7 @@ export const WEIGHTS = {
 
 // Rate limits (ms between requests)
 export const RATE_LIMITS = {
-  flavordb: 1200,  // ~1 req/sec, conservative
+  flavordb: 400,  // ~2.5 req/sec; server is happy at 1.2s, leave headroom for 429s
   mealdb: 600,     // ~2 req/sec
   cocktaildb: 600, // ~2 req/sec
 };
