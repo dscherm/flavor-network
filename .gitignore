@@ -38,6 +38,14 @@ chemDataset/processed/
 # proDataset local cache (FlavorDB2 per-entity JSON, regenerable via npm run flavordb)
 proDataset/raw/flavordb/
 proDataset/scripts/*.log
+
+# pair-features.json is a regenerable 100MB+ intermediate (built from
+# {recipenlg,mealdb,cocktaildb}-cooccurrence.json + foodb-compounds.json
+# via `node proDataset/scripts/06-compute-features.js`). Exceeds
+# GitHub's 100MB file size limit after the full-FooDB extract grew the
+# x3_chemical signal coverage. Regenerate locally before running
+# 07-blend-v2.js or scripts/rescue-classic-pairings.cjs.
+proDataset/processed/pair-features.json
 /public/wasm/
 
 # Logo iteration artifacts. Source-of-truth lives in assets/. The chosen
