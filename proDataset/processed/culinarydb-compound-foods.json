@@ -1,0 +1,1113 @@
+{
+  "_meta": {
+    "source": "culinarydb-03-compound-ingredients",
+    "generatedAt": "2026-05-14T20:19:01.932Z",
+    "count": 103
+  },
+  "garam masala": {
+    "constituents": {
+      "black pepper": 0.1667,
+      "mace": 0.1667,
+      "cinnamon": 0.1667,
+      "clove": 0.1667,
+      "cardamom": 0.1667,
+      "nutmeg": 0.1667
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "ginger garlic paste": {
+    "constituents": {
+      "ginger": 0.5,
+      "garlic": 0.5
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "coriander cumin seed powder": {
+    "constituents": {
+      "coriander": 0.5,
+      "cumin": 0.5
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "chaat masala": {
+    "constituents": {
+      "asafoetida": 0.0769,
+      "mango": 0.0769,
+      "black salt": 0.0769,
+      "cayenne": 0.0769,
+      "garlic": 0.0769,
+      "ginger": 0.0769,
+      "sesame seed": 0.0769,
+      "black mustard seed oil": 0.0769,
+      "turmeric": 0.0769,
+      "coriander": 0.0769,
+      "bay laurel": 0.0769,
+      "anise": 0.0769,
+      "fennel": 0.0769
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "sambar powder": {
+    "constituents": {
+      "pigeon pea": 0.1111,
+      "coriander": 0.1111,
+      "chickpea": 0.1111,
+      "cumin": 0.1111,
+      "black pepper": 0.1111,
+      "cayenne": 0.1111,
+      "ginger": 0.1111,
+      "fenugreek": 0.1111,
+      "turmeric": 0.1111
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "chole masala": {
+    "constituents": {
+      "cayenne": 0.1111,
+      "garlic": 0.1111,
+      "ginger": 0.1111,
+      "roasted sesame seed": 0.1111,
+      "black mustard seed oil": 0.1111,
+      "turmeric": 0.1111,
+      "coriander bay laurel": 0.1111,
+      "anise": 0.1111,
+      "fennel": 0.1111
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "rasam powder": {
+    "constituents": {
+      "cayenne": 0.1667,
+      "pigeon pea": 0.1667,
+      "cumin": 0.1667,
+      "coriander": 0.1667,
+      "black pepper": 0.1667,
+      "curry leaf": 0.1667
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "tandoori masala": {
+    "constituents": {
+      "garlic": 0.0909,
+      "ginger": 0.0909,
+      "clove": 0.0909,
+      "nutmeg": 0.0909,
+      "mace": 0.0909,
+      "cumin": 0.0909,
+      "coriander": 0.0909,
+      "fenugreek": 0.0909,
+      "cinnamon": 0.0909,
+      "cardamom": 0.0909,
+      "black pepper": 0.0909
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "curry powder": {
+    "constituents": {
+      "cardamom": 0.0625,
+      "cayenne": 0.0625,
+      "cinnamon": 0.0625,
+      "clove": 0.0625,
+      "coriander": 0.0625,
+      "cumin": 0.0625,
+      "fennel": 0.0625,
+      "fenugreek": 0.0625,
+      "mace": 0.0625,
+      "nutmeg": 0.0625,
+      "black pepper": 0.0625,
+      "poppy seed": 0.0625,
+      "sesame seed": 0.0625,
+      "saffron": 0.0625,
+      "tamarind": 0.0625,
+      "turmeric": 0.0625
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "panch pharon seed": {
+    "constituents": {
+      "fenugreek": 0.25,
+      "nigella seed": 0.25,
+      "cumin": 0.25,
+      "black mustard seed oil": 0.25
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "chicken masala powder": {
+    "constituents": {
+      "bay laurel": 0.125,
+      "ginger": 0.125,
+      "cinnamon": 0.125,
+      "clove": 0.125,
+      "black pepper": 0.125,
+      "coriander": 0.125,
+      "fennel": 0.125,
+      "cayenne": 0.125
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "goda masala": {
+    "constituents": {
+      "cardamom": 0.1,
+      "cinnamon": 0.1,
+      "clove": 0.1,
+      "bay laurel": 0.1,
+      "sesame seed": 0.1,
+      "coriander": 0.1,
+      "coconut": 0.1,
+      "cassia": 0.1,
+      "white pepper": 0.1,
+      "black pepper": 0.1
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "jal jeera powder": {
+    "constituents": {
+      "black salt": 0.125,
+      "mango": 0.125,
+      "cumin": 0.125,
+      "citric acid": 0.125,
+      "mint": 0.125,
+      "black pepper": 0.125,
+      "ginger": 0.125,
+      "asafoetida": 0.125
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "ginger garlic coriander leaves": {
+    "constituents": {
+      "ginger": 0.3333,
+      "garlic": 0.3333,
+      "coriander": 0.3333
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "pulao masala": {
+    "constituents": {
+      "black pepper": 0.1429,
+      "white pepper": 0.1429,
+      "clove": 0.1429,
+      "cumin": 0.1429,
+      "cinnamon": 0.1429,
+      "cardamom": 0.1429,
+      "coriander": 0.1429
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "dabeli masala": {
+    "constituents": {
+      "cayenne": 0.2,
+      "coriander": 0.2,
+      "cinnamon": 0.2,
+      "clove": 0.2,
+      "cumin": 0.2
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "cake mix": {
+    "constituents": {
+      "flour": 0.2,
+      "wheat": 0.2,
+      "sugar": 0.2,
+      "baking powder": 0.2,
+      "salt": 0.2
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "half half": {
+    "constituents": {
+      "milk": 0.5,
+      "cream": 0.5
+    },
+    "description": "dairy from CulinaryDB",
+    "category": "Dairy"
+  },
+  "ale": {
+    "constituents": {
+      "beer": 0.5,
+      "hops beer": 0.5
+    },
+    "description": "beverage alcoholic from CulinaryDB",
+    "category": "Beverage Alcoholic"
+  },
+  "vermicelli": {
+    "constituents": {
+      "flour": 0.25,
+      "wheat": 0.25,
+      "water": 0.25,
+      "salt": 0.25
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "self rising flour": {
+    "constituents": {
+      "flour": 0.3333,
+      "salt": 0.3333,
+      "baking powder": 0.3333
+    },
+    "description": "cereal from CulinaryDB",
+    "category": "Cereal"
+  },
+  "mayonnaise": {
+    "constituents": {
+      "oil": 0.3333,
+      "egg": 0.3333,
+      "lemon juice": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "salt pepper": {
+    "constituents": {
+      "salt": 0.5,
+      "pepper": 0.5
+    },
+    "description": "additive from CulinaryDB",
+    "category": "Additive"
+  },
+  "croissant": {
+    "constituents": {
+      "flour": 0.25,
+      "wheat": 0.25,
+      "butter": 0.25,
+      "yeast": 0.25
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "puff pastry": {
+    "constituents": {
+      "flour": 0.3333,
+      "wheat": 0.3333,
+      "butter": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "green chutney": {
+    "constituents": {
+      "corriander": 0.25,
+      "cumin": 0.25,
+      "lemon juice": 0.25,
+      "cayenne": 0.25
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "cajun seasoning": {
+    "constituents": {
+      "salt": 0.125,
+      "cayenne": 0.125,
+      "garlic": 0.125,
+      "oregano": 0.125,
+      "paprika": 0.125,
+      "thyme": 0.125,
+      "pepper": 0.125,
+      "onion": 0.125
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "vegetable broth": {
+    "constituents": {
+      "onion": 0.1667,
+      "carrot": 0.1667,
+      "celery": 0.1667,
+      "shallot": 0.1667,
+      "sage": 0.1667,
+      "mushroom": 0.1667
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "tandoori paste": {
+    "constituents": {
+      "garlic": 0.0769,
+      "ginger": 0.0769,
+      "clove": 0.0769,
+      "nutmeg": 0.0769,
+      "mace": 0.0769,
+      "cumin": 0.0769,
+      "coriander": 0.0769,
+      "fenugreek": 0.0769,
+      "cinnamon": 0.0769,
+      "cardamom": 0.0769,
+      "black pepper": 0.0769,
+      "yogurt": 0.0769,
+      "lime juice": 0.0769
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "mixed vegetables": {
+    "constituents": {
+      "carrot": 0.2,
+      "cauliflower": 0.2,
+      "corn": 0.2,
+      "pea": 0.2,
+      "capsicum": 0.2
+    },
+    "description": "vegetable from CulinaryDB",
+    "category": "Vegetable"
+  },
+  "salad creme": {
+    "constituents": {
+      "oil": 0.25,
+      "egg": 0.25,
+      "vinegar": 0.25,
+      "water": 0.25
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "worcestershite sauce": {
+    "constituents": {
+      "cider vinegar": 0.1,
+      "soy sauce": 0.1,
+      "water": 0.1,
+      "sugar": 0.1,
+      "ginger": 0.1,
+      "mustard": 0.1,
+      "onion": 0.1,
+      "garlic": 0.1,
+      "cinnamon": 0.1,
+      "pepper black": 0.1
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "coleslaw": {
+    "constituents": {
+      "cabbage": 0.1429,
+      "vinegar": 0.1429,
+      "oil": 0.1429,
+      "salt": 0.1429,
+      "mayonnaise": 0.1429,
+      "egg": 0.1429,
+      "water": 0.1429
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "vegetable stock": {
+    "constituents": {
+      "onion": 0.125,
+      "carrot": 0.125,
+      "celery": 0.125,
+      "thyme": 0.125,
+      "bayleaf": 0.125,
+      "pepper": 0.125,
+      "tomato": 0.125,
+      "garlic": 0.125
+    },
+    "description": "vegetable from CulinaryDB",
+    "category": "Vegetable"
+  },
+  "mascarpone": {
+    "constituents": {
+      "cheese cream": 0.3333,
+      "lemon juice": 0.3333,
+      "vinegar": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "fettuccine": {
+    "constituents": {
+      "flour": 0.3333,
+      "wheat": 0.3333,
+      "eggs": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "italian seasoning": {
+    "constituents": {
+      "basil": 0.25,
+      "oregano": 0.25,
+      "rosemary": 0.25,
+      "thyme": 0.25
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "ketchup": {
+    "constituents": {
+      "ketchup": 0.0833,
+      "tomato": 0.0833,
+      "sugar": 0.0833,
+      "vinegar": 0.0833,
+      "salt": 0.0833,
+      "onion": 0.0833,
+      "allspice": 0.0833,
+      "coriander": 0.0833,
+      "clove": 0.0833,
+      "cumin": 0.0833,
+      "garlic": 0.0833,
+      "mustard": 0.0833
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "spinach fettuccine": {
+    "constituents": {
+      "spinach": 0.25,
+      "flour": 0.25,
+      "wheat": 0.25,
+      "eggs": 0.25
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "hoisin sauce": {
+    "constituents": {
+      "soybean": 0.3333,
+      "cayenne": 0.3333,
+      "garlic": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "barbeque sauce": {
+    "constituents": {
+      "vinegar": 0.1,
+      "tomato": 0.1,
+      "tomato paste": 0.1,
+      "tomato puree": 0.1,
+      "mayonnaise": 0.1,
+      "liquid smoke": 0.1,
+      "onion": 0.1,
+      "mustard": 0.1,
+      "pepper": 0.1,
+      "sugar": 0.1
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "sponge cake": {
+    "constituents": {
+      "flour": 0.1667,
+      "wheat": 0.1667,
+      "butter": 0.1667,
+      "sugar": 0.1667,
+      "egg": 0.1667,
+      "baking powder": 0.1667
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "baking mix": {
+    "constituents": {
+      "flour": 0.1667,
+      "wheat": 0.1667,
+      "baking powder": 0.1667,
+      "yeast": 0.1667,
+      "sugar": 0.1667,
+      "salt": 0.1667
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "hot sauce": {
+    "constituents": {
+      "cayenne": 0.3333,
+      "salt": 0.3333,
+      "vinegar": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "dried mixed fruit": {
+    "constituents": {
+      "raisin": 0.2,
+      "apricot": 0.2,
+      "date": 0.2,
+      "currant": 0.2,
+      "fig": 0.2
+    },
+    "description": "fruit from CulinaryDB",
+    "category": "Fruit"
+  },
+  "candied mixed fruit": {
+    "constituents": {
+      "raisin": 0.1667,
+      "apricot": 0.1667,
+      "date": 0.1667,
+      "currant": 0.1667,
+      "fig": 0.1667,
+      "sugar": 0.1667
+    },
+    "description": "fruit from CulinaryDB",
+    "category": "Fruit"
+  },
+  "gulkand": {
+    "constituents": {
+      "rose": 0.5,
+      "sugar": 0.5
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "pancetta": {
+    "constituents": {
+      "pork": 0.3333,
+      "pepper": 0.3333,
+      "salt": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "phyllo": {
+    "constituents": {
+      "phyllo": 0.3333,
+      "flour": 0.3333,
+      "wheat": 0.3333
+    },
+    "description": "cereal from CulinaryDB",
+    "category": "Cereal"
+  },
+  "pie crust": {
+    "constituents": {
+      "pie crust": 0.3333,
+      "flour": 0.3333,
+      "wheat": 0.3333
+    },
+    "description": "cereal from CulinaryDB",
+    "category": "Cereal"
+  },
+  "prosciutto": {
+    "constituents": {
+      "ham": 0.5,
+      "ham cured": 0.5
+    },
+    "description": "meat from CulinaryDB",
+    "category": "Meat"
+  },
+  "creole seasoning": {
+    "constituents": {
+      "onion": 0.1,
+      "pepper": 0.1,
+      "garlic": 0.1,
+      "pepper white": 0.1,
+      "oregano": 0.1,
+      "cayenne": 0.1,
+      "basil": 0.1,
+      "capsicum": 0.1,
+      "thyme": 0.1,
+      "salt": 0.1
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "chinese five spice powder": {
+    "constituents": {
+      "cinnamon": 0.2,
+      "anise star": 0.2,
+      "fennel": 0.2,
+      "pepper": 0.2,
+      "clove": 0.2
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "old bay seasoning": {
+    "constituents": {
+      "bay laurel": 0.0667,
+      "celery": 0.0667,
+      "salt": 0.0667,
+      "mustard": 0.0667,
+      "pepper": 0.0667,
+      "ginger": 0.0667,
+      "capsicum": 0.0667,
+      "pepper white": 0.0667,
+      "nutmeg": 0.0667,
+      "clove": 0.0667,
+      "allspice": 0.0667,
+      "cayenne": 0.0667,
+      "mace": 0.0667,
+      "cardamom": 0.0667,
+      "cinnamon": 0.0667
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "adobo sauce": {
+    "constituents": {
+      "cayenne": 0.1667,
+      "garlic": 0.1667,
+      "cider vinegar": 0.1667,
+      "salt": 0.1667,
+      "sugar": 0.1667,
+      "cumin": 0.1667
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "cracker crumb": {
+    "constituents": {
+      "wheat": 0.3333,
+      "sugar": 0.3333,
+      "honey": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "flour": {
+    "constituents": {
+      "flour": 0.5,
+      "wheat": 0.5
+    },
+    "description": "cereal from CulinaryDB",
+    "category": "Cereal"
+  },
+  "ranch dressing": {
+    "constituents": {
+      "mayonnaise": 0.1111,
+      "garlic": 0.1111,
+      "cream": 0.1111,
+      "onion": 0.1111,
+      "chive": 0.1111,
+      "salt": 0.1111,
+      "parsley": 0.1111,
+      "pepper": 0.1111,
+      "dill": 0.1111
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "poultry seasoning": {
+    "constituents": {
+      "sage": 0.1667,
+      "thyme": 0.1667,
+      "marjoram": 0.1667,
+      "rosemary": 0.1667,
+      "nutmeg": 0.1667,
+      "pepper": 0.1667
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "tahini": {
+    "constituents": {
+      "sesame": 0.5,
+      "olive": 0.5
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "herbe de provence": {
+    "constituents": {
+      "rosemary": 0.0909,
+      "lavendar": 0.0909,
+      "fennel": 0.0909,
+      "parsley": 0.0909,
+      "savory winter": 0.0909,
+      "oregano": 0.0909,
+      "thyme": 0.0909,
+      "tarragon": 0.0909,
+      "basil": 0.0909,
+      "bay laurel": 0.0909,
+      "marjoram": 0.0909
+    },
+    "description": "spice from CulinaryDB",
+    "category": "Spice"
+  },
+  "tart shell": {
+    "constituents": {
+      "flour": 0.1429,
+      "wheat": 0.1429,
+      "sugar": 0.1429,
+      "salt": 0.1429,
+      "butter": 0.1429,
+      "shortening": 0.1429,
+      "water": 0.1429
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "adobo": {
+    "constituents": {
+      "cayenne": 0.125,
+      "garlic": 0.125,
+      "cider vinegar": 0.125,
+      "salt": 0.125,
+      "sugar": 0.125,
+      "cumin": 0.125,
+      "chicken": 0.125,
+      "adobo": 0.125
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "tomato puree": {
+    "constituents": {
+      "tomato": 0.5,
+      "tomato puree": 0.5
+    },
+    "description": "vegetable from CulinaryDB",
+    "category": "Vegetable"
+  },
+  "tomato paste": {
+    "constituents": {
+      "tomato": 0.5,
+      "tomato paste": 0.5
+    },
+    "description": "vegetable from CulinaryDB",
+    "category": "Vegetable"
+  },
+  "bear": {
+    "constituents": {
+      "bear black": 0.3333,
+      "bear brown": 0.3333,
+      "bear polar": 0.3333
+    },
+    "description": "meat from CulinaryDB",
+    "category": "Meat"
+  },
+  "whale": {
+    "constituents": {
+      "whale beluga": 0.5,
+      "whale bowhead": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "whitefish": {
+    "constituents": {
+      "whitefish broad": 0.5,
+      "whitefish": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "seal": {
+    "constituents": {
+      "seal": 0.25,
+      "seal ringed": 0.25,
+      "seal spotted": 0.25,
+      "seal bearded": 0.25
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "tuna": {
+    "constituents": {
+      "tuna albacore": 0.25,
+      "tuna bluefin": 0.25,
+      "tuna yellowfin": 0.25,
+      "tuna": 0.25
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "croaker": {
+    "constituents": {
+      "croaker atlantic": 0.5,
+      "croaker spot": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "mackerel": {
+    "constituents": {
+      "mackerel atlantic": 0.25,
+      "mackerel pacific": 0.25,
+      "mackerel king": 0.25,
+      "mackerel spanish": 0.25
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "pollock": {
+    "constituents": {
+      "pollock atlantic": 0.3333,
+      "pollock alaska": 0.3333,
+      "pollock": 0.3333
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "anchovy": {
+    "constituents": {
+      "anchovy european": 0.5,
+      "anchovy": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "perch": {
+    "constituents": {
+      "perch pacific": 0.5,
+      "perch pike": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "frybread": {
+    "constituents": {
+      "frybread": 0.3333,
+      "flour": 0.3333,
+      "wheat": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "sturgeon": {
+    "constituents": {
+      "sturgeon greater": 0.5,
+      "sturgeon": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "hibiscus tea": {
+    "constituents": {
+      "tea hibiscus": 0.3333,
+      "water": 0.3333,
+      "sugar": 0.3333
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "deer": {
+    "constituents": {
+      "mule deer": 0.25,
+      "deer": 0.25,
+      "elk": 0.25,
+      "meat": 0.25
+    },
+    "description": "meat from CulinaryDB",
+    "category": "Meat"
+  },
+  "octopus": {
+    "constituents": {
+      "octopus": 0.5,
+      "octopus pacific": 0.5
+    },
+    "description": "seafood from CulinaryDB",
+    "category": "Seafood"
+  },
+  "oat bread": {
+    "constituents": {
+      "bread oat": 0.3333,
+      "oat": 0.3333,
+      "bread": 0.3333
+    },
+    "description": "bakery from CulinaryDB",
+    "category": "Bakery"
+  },
+  "pita bread": {
+    "constituents": {
+      "bread pita": 0.5,
+      "bread": 0.5
+    },
+    "description": "bakery from CulinaryDB",
+    "category": "Bakery"
+  },
+  "raisin bread": {
+    "constituents": {
+      "bread raisin": 0.3333,
+      "bread": 0.3333,
+      "raisin": 0.3333
+    },
+    "description": "bakery from CulinaryDB",
+    "category": "Bakery"
+  },
+  "multigrain bread": {
+    "constituents": {
+      "bread multigrain": 0.25,
+      "flax seed": 0.25,
+      "bread": 0.25,
+      "oat": 0.25
+    },
+    "description": "bakery from CulinaryDB",
+    "category": "Bakery"
+  },
+  "cornbread": {
+    "constituents": {
+      "cornbread": 0.3333,
+      "corn": 0.3333,
+      "bread": 0.3333
+    },
+    "description": "bakery from CulinaryDB",
+    "category": "Bakery"
+  },
+  "pout": {
+    "constituents": {
+      "pout ocean": 0.5,
+      "pout norway": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "herring": {
+    "constituents": {
+      "herring pacific": 0.5,
+      "herring atlantic": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "smelt": {
+    "constituents": {
+      "smelt rainbow": 0.5,
+      "smelt": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "crab": {
+    "constituents": {
+      "crab": 0.5,
+      "red king crab": 0.5
+    },
+    "description": "seafood from CulinaryDB",
+    "category": "Seafood"
+  },
+  "cooking oil": {
+    "constituents": {
+      "cooking oil": 0.5,
+      "sunflower": 0.5
+    },
+    "description": "additive from CulinaryDB",
+    "category": "Additive"
+  },
+  "rice cake": {
+    "constituents": {
+      "rice cake": 0.2,
+      "rice": 0.2,
+      "flour": 0.2,
+      "wheat": 0.2,
+      "???vegetable oil???": 0.2
+    },
+    "description": "bakery from CulinaryDB",
+    "category": "Bakery"
+  },
+  "trout": {
+    "constituents": {
+      "trout sea": 0.3333,
+      "trout lake": 0.3333,
+      "trout rainbow": 0.3333
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "lobster": {
+    "constituents": {
+      "lobster": 0.5,
+      "lobster spiny": 0.5
+    },
+    "description": "seafood from CulinaryDB",
+    "category": "Seafood"
+  },
+  "halibut": {
+    "constituents": {
+      "halibut atlantic": 0.5,
+      "halibut greenland": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "whiting": {
+    "constituents": {
+      "whiting": 0.5,
+      "whiting blue": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "buffalo": {
+    "constituents": {
+      "buffalo": 0.5,
+      "meat": 0.5
+    },
+    "description": "meat from CulinaryDB",
+    "category": "Meat"
+  },
+  "catfish": {
+    "constituents": {
+      "catfish channel": 0.5,
+      "catfish": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "salmon": {
+    "constituents": {
+      "salmon coho": 0.1111,
+      "salmon atlantic": 0.1111,
+      "salmon chinook": 0.1111,
+      "salmon chun": 0.1111,
+      "salmon pink": 0.1111,
+      "salmon sockeye": 0.1111,
+      "salmon": 0.1111,
+      "salmonidae": 0.1111,
+      "cisco": 0.1111
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "rabbit": {
+    "constituents": {
+      "rabbit": 0.3333,
+      "rabbit european": 0.3333,
+      "meat": 0.3333
+    },
+    "description": "meat from CulinaryDB",
+    "category": "Meat"
+  },
+  "haddock": {
+    "constituents": {
+      "haddock": 0.5,
+      "haddock norway": 0.5
+    },
+    "description": "fish from CulinaryDB",
+    "category": "Fish"
+  },
+  "persimmon": {
+    "constituents": {
+      "persimmon": 0.5,
+      "persimmon common": 0.5
+    },
+    "description": "fruit from CulinaryDB",
+    "category": "Fruit"
+  },
+  "apple sauce": {
+    "constituents": {
+      "apple sauce": 0.25,
+      "apple": 0.25,
+      "lemon juice": 0.25,
+      "sugar": 0.25
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  },
+  "cider vinegar": {
+    "constituents": {
+      "soy cream": 0.2,
+      "soy milk": 0.2,
+      "cooking oil": 0.2,
+      "agave": 0.2,
+      "cider vinegar": 0.2
+    },
+    "description": "dish from CulinaryDB",
+    "category": "Dish"
+  }
+}
