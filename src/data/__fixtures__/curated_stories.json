@@ -1,0 +1,657 @@
+{
+  "generatedAt": "2026-05-14T00:01:36.864Z",
+  "sourcePairingsCount": 48588,
+  "topN": 50,
+  "stories": [
+    {
+      "a": "galangal",
+      "b": "makrut lime leave",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "all-purpose seasoning",
+      "b": "scotch bonnet",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "lemongrass",
+      "b": "makrut lime leave",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share d-Piperitone (minty, peppermint).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "liquid butter",
+      "b": "lite salt",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "fish sauce",
+      "b": "lemongrass",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share trans-2-Octenal (nut, fat).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "mirin",
+      "b": "sake",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "blanched almond flour",
+      "b": "celtic sea salt",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "paella rice",
+      "b": "saffron",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share naphthalene (dry, pungent).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "anchovy",
+      "b": "capers",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "carbonated water",
+      "b": "powdered sugar",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "ginger ale",
+      "b": "pineapple juice",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share 2-Butanol (oily, sweet).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "pepperoni",
+      "b": "pizza sauce",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "brown chicken",
+      "b": "parsley stem",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share Tetradecanal (citrus peel, incense).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "lamb leg",
+      "b": "pita bread",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share 2-Acetylpyridine (tobacco, oily).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "birds-eye chillie",
+      "b": "fish sauce",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "galangal",
+      "b": "shrimp paste",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "chickpea",
+      "b": "harissa spice",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "rice vinegar",
+      "b": "soy sauce",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "sesame oil",
+      "b": "soy sauce",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "fish sauce",
+      "b": "makrut lime leave",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share Hexanoic Acid (fatty, sour).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "butterscotch bit",
+      "b": "chocolate bit",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "sauerkraut",
+      "b": "sour cream",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "blackberry jello",
+      "b": "blackberry wine",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share Linalyl Acetate (citrus, fruit).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "fluid orange juice",
+      "b": "fluid pineapple juice",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share Acetal (cream, nut).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "mussel",
+      "b": "saffron",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "crusty bread",
+      "b": "tinned tomato",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share 2-Methylfuran (ethereal, acetone).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "cholesterol-free egg",
+      "b": "creamy wheat",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "galangal",
+      "b": "lime leave",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "olive juice",
+      "b": "salad olive",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share Cinchonidine (bitter).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "candlenut",
+      "b": "galangal",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "fluid cranberry juice",
+      "b": "fluid orange juice",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share Dodecanal (citrus, fat).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "coconut milk",
+      "b": "thai green curry paste",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "box wheat chex",
+      "b": "mixed nut",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "fluid simple syrup",
+      "b": "fluid vodka",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "brunoise red pepper",
+      "b": "leaf oregano",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share (1Z,4Z)-germacrene B (spice, earthy).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "bread pudding",
+      "b": "whiskey sauce",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "chili sauce",
+      "b": "grape jelly",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "ginger-garlic",
+      "b": "red chili powder",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "cream",
+      "b": "creme de cacao",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "rice vinegar",
+      "b": "sesame oil",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share 2,5-Diethyl-3-Methylpyrazine (hazelnut, toasted).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "thin ham",
+      "b": "thin swiss cheese",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "fish sauce",
+      "b": "palm sugar",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "orange bitters",
+      "b": "orange twist",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share Nonyl octanoate (rose, floral).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "tequila",
+      "b": "triple sec",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "lemon flavoring",
+      "b": "vanilla flavoring",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share 4-Methyl-2-pentanone (solvent, spice).",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "chinese soup stock",
+      "b": "sake",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "black salt",
+      "b": "mango powder",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "cardamom powder",
+      "b": "ghee",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "coconut milk",
+      "b": "red curry",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": null,
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    },
+    {
+      "a": "mexicorn",
+      "b": "yellow rice",
+      "story": {
+        "causalSentence": "Our pairing engine ranked this from recipe co-occurrence in 50,312 pairings.",
+        "annotativeSentence": "Both share 6-Methylhepta-3,5-dien-2-one.",
+        "isAnnotativeCompoundUsedByRuntime": false,
+        "citationsIfAny": [],
+        "surpriseAxesMatched": [
+          "absent-from-books"
+        ]
+      }
+    }
+  ]
+}

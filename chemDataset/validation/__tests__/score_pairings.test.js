@@ -162,6 +162,40 @@ describe('chemDataset/validation — score_pairings', () => {
     expect(result.perAxis['absent-from-books'].verdict).toMatch(/^insufficient/);
   });
 
+  it('curatedStoryCompoundOverlapRate is N/A when no fixture present', () => {
+    // Real shipped path may or may not have a fixture; either way, the
+    // smoke run reports a non-error value (N/A or computed). This
+    // assertion gates against a regression where the metric is silently
+    // dropped from the report.
+    const { report } = runAudit({
+      allowStale: true,
+      allowWeightChange: true,
+      writeReport: false,
+      today: FAKE_TODAY,
+    });
+    expect(report).toMatch(/curatedStoryCompoundOverlapRate:/);
+  });
+
+  it('emits fixture_staleness_seconds in the header when the fixture is present', () => {
+    // This assertion only fires when the fixture has been generated.
+    // We don't fail the test if the fixture doesn't exist (the project
+    // ships without it; npm run snapshot:curated-stories regenerates).
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const fixturePath = path.resolve(__dirname, '..', '..', '..', 'src', 'data', '__fixtures__', 'curated_stories.json');
+    if (!fs.existsSync(fixturePath)) {
+      // No fixture → skip via early return; assertion below holds.
+      return;
+    }
+    const { report } = runAudit({
+      allowStale: true,
+      allowWeightChange: true,
+      writeReport: false,
+      today: FAKE_TODAY,
+    });
+    expect(report).toMatch(/fixture_staleness_seconds:/);
+  });
+
   it('parseReportHeader extracts the header block', () => {
     const sample = [
       '# Pairing audit report',

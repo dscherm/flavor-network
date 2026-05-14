@@ -16,6 +16,7 @@
     "gate:quick": "node scripts/gate.cjs --no-build",
     "validate:pairings": "node chemDataset/validation/score_pairings.js",
     "validate:ablate": "node chemDataset/validation/ablate_perceptron.js",
+    "snapshot:curated-stories": "node scripts/snapshot-curated-stories.cjs",
     "test": "vitest run",
     "test:audit": "vitest run chemDataset/validation",
     "ios:sync": "npm run build && npx cap sync ios && node scripts/strip-ios-bundle.mjs",
