@@ -82,14 +82,14 @@ function hashWeightsAblation(weights, bias) {
 // ─────────── Feature names (matching 07-blend-v2.js x1..x8 convention) ───────────
 
 const FEATURE_NAMES = [
-  'x1_recipe_cooccurrence',
-  'x2_mealdb_cooccurrence',
-  'x3_chemical_overlap',
-  'x4_cocktaildb_cooccurrence',
-  'x5_log_count',
-  'x6_npmi',
-  'x7_season_region',
-  'x8_cuisine_overlap',
+  'x1_npmi',
+  'x2_freq',
+  'x3_chemical',
+  'x4_taste',
+  'x5_bridge',
+  'x6_cuisine',
+  'x7_hub_asymmetry',
+  'x8_compound_diversity',
 ];
 
 // ─────────── Core ablation logic ───────────
@@ -193,28 +193,69 @@ export function runAblation(opts = {}) {
   }
 
   // ── Build feature matrix joined to ground truth ──
-  // pair-features.json: array of { a, b, features: [x1..x8] }
-  // Join on canonical pair key (case-insensitive, both orderings).
+  // pair-features.json: { pairs: { "a|b": { x1_npmi, x2_freq, ... } }, ... }
+  // Pair keys are already canonical lowercase "a|b" with a <= b.
+  // Also supports legacy array form { a, b, features: [x1..x8] }.
   const featureMap = new Map();
   if (Array.isArray(pairFeatures)) {
     for (const row of pairFeatures) {
       if (!row?.a || !row?.b) continue;
       const key = canonicalPairKey(row.a, row.b);
-      featureMap.set(key, row.features || row.breakdown ? extractFeatureVector(row) : null);
+      const vec = extractFeatureVector(row);
+      if (vec) featureMap.set(key, vec);
+    }
+  } else if (pairFeatures && typeof pairFeatures === 'object' && pairFeatures.pairs) {
+    for (const [key, row] of Object.entries(pairFeatures.pairs)) {
+      const vec = extractFeatureVector(row);
+      if (vec) featureMap.set(key, vec);
     }
   }
 
   const featureRows = [];
   const labels = [];
   const matched = [];
+  const positiveKeys = new Set();
   for (const entry of gtEntries) {
     const key = canonicalPairKey(entry.a, entry.b);
     const vec = featureMap.get(key);
     if (!vec || vec.length !== 8) continue;
     featureRows.push(vec);
-    labels.push(1); // all ground-truth entries are positive examples
+    labels.push(1);
     matched.push(key);
+    positiveKeys.add(key);
   }
+
+  // Negative sampling: random pair-features rows not in ground truth.
+  // Without negatives, logistic regression on positives-only pushes z → +∞
+  // and produces meaningless weight deltas. We sample `negativeRatio`
+  // negatives per positive (default 3:1) using a deterministic seed.
+  const negativeRatio = opts.negativeRatio ?? 3;
+  const seed = opts.seed ?? 42;
+  const negTargetCount = matched.length * negativeRatio;
+  const allKeys = Array.from(featureMap.keys());
+  let rng = seed;
+  function nextRand() {
+    // mulberry32 — deterministic pseudo-random
+    rng |= 0; rng = (rng + 0x6D2B79F5) | 0;
+    let t = Math.imul(rng ^ (rng >>> 15), 1 | rng);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  const negKeysPicked = new Set();
+  let attempts = 0;
+  const maxAttempts = negTargetCount * 20;
+  while (negKeysPicked.size < negTargetCount && attempts < maxAttempts && allKeys.length > 0) {
+    attempts++;
+    const k = allKeys[Math.floor(nextRand() * allKeys.length)];
+    if (positiveKeys.has(k) || negKeysPicked.has(k)) continue;
+    negKeysPicked.add(k);
+    const vec = featureMap.get(k);
+    if (vec && vec.length === 8) {
+      featureRows.push(vec);
+      labels.push(0);
+    }
+  }
+  const negativeCount = negKeysPicked.size;
 
   // ── SGD training ──
   const { weights: postWeights, bias: postBias, lossCurve, finalLoss } = train(
@@ -254,6 +295,8 @@ export function runAblation(opts = {}) {
     groundTruthCount: gtEntries.length,
     perAxisCounts: counts,
     matchedPairCount: matched.length,
+    negativeSampleCount: negativeCount,
+    trainingRowCount: featureRows.length,
     preWeights,
     preBias,
     postWeights,
@@ -296,13 +339,28 @@ export function runAblation(opts = {}) {
 // ─────────── Feature vector extraction ───────────
 
 function extractFeatureVector(row) {
-  // Support both { features: [...] } and { breakdown: { x1, x2, ... } } shapes.
+  if (!row || typeof row !== 'object') return null;
+  // Support { features: [...] } legacy array shape.
   if (Array.isArray(row.features) && row.features.length === 8) return row.features;
+  // Support { breakdown: { x1, x2, ... } } legacy nested shape.
   if (row.breakdown && typeof row.breakdown === 'object') {
     const bd = row.breakdown;
     return [
       bd.x1 ?? 0, bd.x2 ?? 0, bd.x3 ?? 0, bd.x4 ?? 0,
       bd.x5 ?? 0, bd.x6 ?? 0, bd.x7 ?? 0, bd.x8 ?? 0,
+    ];
+  }
+  // Current pair-features.json shape — named keys matching 07-blend-v2.js.
+  if ('x1_npmi' in row) {
+    return [
+      row.x1_npmi ?? 0,
+      row.x2_freq ?? 0,
+      row.x3_chemical ?? 0,
+      row.x4_taste ?? 0,
+      row.x5_bridge ?? 0,
+      row.x6_cuisine ?? 0,
+      row.x7_hub_asymmetry ?? 0,
+      row.x8_compound_diversity ?? 0,
     ];
   }
   return null;
@@ -319,6 +377,10 @@ function renderMarkdown(r, today) {
   lines.push(`**weightsHash:** ${r.weightsHash}`);
   lines.push(`**groundTruthCount:** ${r.groundTruthCount}`);
   lines.push(`**matchedPairCount (joined to pair-features):** ${r.matchedPairCount}`);
+  if (typeof r.negativeSampleCount === 'number') {
+    lines.push(`**negativeSampleCount:** ${r.negativeSampleCount}`);
+    lines.push(`**trainingRowCount:** ${r.trainingRowCount}`);
+  }
   lines.push(`**finalLoss:** ${r.finalLoss.toFixed(6)}`);
   lines.push('');
   lines.push('## Per-axis counts');

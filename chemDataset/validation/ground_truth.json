@@ -1,7 +1,7 @@
 {
   "version": 1,
   "generatedAt": "2026-05-13T20:45:00.000Z",
-  "notes": "Seed corpus of 30 human-curated pairings sourced from publicly visible references. Ingredient names normalized to match public/proDataset/ingredients.json (lowercase, singular-as-stored). Where the canonical book reference uses an ingredient not present in our 3,913-ingredient dataset (e.g. 'oyster', 'kiwi', 'asparagus', 'beet', 'caviar', 'smoked salmon', 'smoked salt', 'tangerine', 'maple'), we either substitute the closest dataset entry (e.g. 'oyster sauce' for oyster, 'kiwi fruit' for kiwi, 'asparagus spear' for asparagus, 'salmon fillet' for smoked salmon, 'maple syrup' for maple, 'tangerine juice' for tangerine) or omit the pairing. The audit reports unmatched entries under unmatched_ground_truth_entries. // Extended 2026-05-14T20:45:56.478Z with 21 axis-balanced entries from chef-citations and bridge-compound rarity. // Extended 2026-05-14T20:46:29.864Z with 1 axis-balanced entries from chef-citations and bridge-compound rarity.",
+  "notes": "Seed corpus of 30 human-curated pairings sourced from publicly visible references. Ingredient names normalized to match public/proDataset/ingredients.json (lowercase, singular-as-stored). Where the canonical book reference uses an ingredient not present in our 3,913-ingredient dataset (e.g. 'oyster', 'kiwi', 'asparagus', 'beet', 'caviar', 'smoked salmon', 'smoked salt', 'tangerine', 'maple'), we either substitute the closest dataset entry (e.g. 'oyster sauce' for oyster, 'kiwi fruit' for kiwi, 'asparagus spear' for asparagus, 'salmon fillet' for smoked salmon, 'maple syrup' for maple, 'tangerine juice' for tangerine) or omit the pairing. The audit reports unmatched entries under unmatched_ground_truth_entries. // Extended 2026-05-14T20:45:56.478Z with 21 axis-balanced entries from chef-citations and bridge-compound rarity. // Extended 2026-05-14T20:46:29.864Z with 1 axis-balanced entries from chef-citations and bridge-compound rarity. // Extended v2 2026-05-14T21:29:36.486Z with 11 canonical non-Western pairings surfaced by tightened axis predicates.",
   "pairings": [
     {
       "a": "salmon",
@@ -774,6 +774,168 @@
       "axes_validated": [
         "absent-from-books",
         "cross-aroma"
+      ]
+    },
+    {
+      "a": "galangal",
+      "b": "makrut lime leave",
+      "sources": [
+        {
+          "ref": "Thai green/red curry canon (Thompson, Thai Food)",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": [
+        "absent-from-books",
+        "cross-aroma"
+      ]
+    },
+    {
+      "a": "mirin",
+      "b": "sake",
+      "sources": [
+        {
+          "ref": "Japanese teriyaki / nimono canon (Tsuji, Japanese Cooking: A Simple Art)",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": [
+        "absent-from-books",
+        "chem-bridged-rare"
+      ]
+    },
+    {
+      "a": "birds-eye chillie",
+      "b": "fish sauce",
+      "sources": [
+        {
+          "ref": "Thai / Vietnamese / Lao street-food canon (David Thompson)",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": [
+        "absent-from-books",
+        "cross-aroma"
+      ]
+    },
+    {
+      "a": "galangal",
+      "b": "shrimp paste",
+      "sources": [
+        {
+          "ref": "SE Asian curry-paste canon (kapi, gapi)",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": [
+        "absent-from-books",
+        "cross-aroma"
+      ]
+    },
+    {
+      "a": "chickpea",
+      "b": "harissa spice",
+      "sources": [
+        {
+          "ref": "North African / Tunisian canon (Wolfert, The Food of Morocco)",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": [
+        "absent-from-books",
+        "cross-cuisine"
+      ]
+    },
+    {
+      "a": "sesame oil",
+      "b": "soy sauce",
+      "sources": [
+        {
+          "ref": "East Asian universal canon — every Korean / Chinese / Japanese dressing",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": [
+        "absent-from-books"
+      ]
+    },
+    {
+      "a": "lamb leg",
+      "b": "pita bread",
+      "sources": [
+        {
+          "ref": "Greek gyro / Levantine canon (Ottolenghi, Jerusalem)",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": [
+        "absent-from-books",
+        "cross-cuisine"
+      ]
+    },
+    {
+      "a": "camembert cheese",
+      "b": "tomato",
+      "sources": [
+        {
+          "ref": "French dairy × Italian/Mediterranean — cross-cuisine modernist (Adria, Bottura)",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★",
+      "axes_validated": [
+        "cross-cuisine",
+        "cross-aroma"
+      ]
+    },
+    {
+      "a": "ghee",
+      "b": "nutmeg powder",
+      "sources": [
+        {
+          "ref": "Indian × global baking — Ottolenghi Sweet, Madhur Jaffrey",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★",
+      "axes_validated": [
+        "cross-cuisine"
+      ]
+    },
+    {
+      "a": "olive",
+      "b": "pigeon pea",
+      "sources": [
+        {
+          "ref": "Mediterranean × Caribbean — rice & peas adaptations",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★",
+      "axes_validated": [
+        "cross-cuisine",
+        "absent-from-books"
+      ]
+    },
+    {
+      "a": "cayenne pepper",
+      "b": "crayfish",
+      "sources": [
+        {
+          "ref": "Cajun / Creole canon (Prudhomme, Louisiana Kitchen)",
+          "url": ""
+        }
+      ],
+      "strength_book": "★★★",
+      "axes_validated": [
+        "cross-cuisine"
       ]
     }
   ]
