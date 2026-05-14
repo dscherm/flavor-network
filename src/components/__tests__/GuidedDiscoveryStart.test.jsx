@@ -111,6 +111,57 @@ describe('GuidedDiscoveryStart', () => {
     await flush();
     expect(cta).not.toBeDisabled();
   });
+
+  // Bug 1 (cuisine half) — when the cuisine bubble is open, the
+  // disclosure must render INLINE BUCKET CHIPS (Italian / European /
+  // …) sourced from CATEGORICAL_AXES.cuisine, not the FilterPillRow
+  // axis picker. Clicking a chip must add the actual bucket label to
+  // the stack (NOT 'any').
+  it('cuisine bubble renders inline bucket chips, click adds the actual cuisine label', async () => {
+    const onShow = vi.fn();
+    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={onShow} />);
+    fireEvent.click(document.querySelector('details[data-bubble-key="cuisine"] summary'));
+    // At least 5 cuisine bucket chips visible — categoricalAxes ships 8.
+    const cuisineBubble = document.querySelector('details[data-bubble-key="cuisine"]');
+    const chips = cuisineBubble.querySelectorAll('button[aria-pressed]');
+    expect(chips.length).toBeGreaterThanOrEqual(5);
+    // Pick "European" (or whichever bucket appears first matching).
+    const europeanBtn = screen.getByRole('button', { name: 'European' });
+    fireEvent.click(europeanBtn);
+    await flush();
+    // Stack chip carries the actual cuisine name, not 'any'.
+    const stackChip = screen.getByTestId('guided-stack-chip-cuisine');
+    expect(stackChip.textContent).toMatch(/European/);
+    expect(stackChip.textContent).not.toMatch(/any/);
+    // The forwarded payload uses {cuisineBucket: 'European'}.
+    fireEvent.click(screen.getByTestId('guided-cta-show-pairings'));
+    expect(onShow).toHaveBeenCalledTimes(1);
+    const passed = onShow.mock.calls[0][0];
+    expect(passed[0].key).toBe('cuisine');
+    expect(passed[0].value).toEqual({ cuisineBucket: 'European' });
+  });
+
+  // Bug 1 (aroma half) — same architectural rule for aroma. Bucket
+  // chips come from CATEGORICAL_AXES.aromas (Fruity / Floral / …).
+  it('aroma bubble renders inline bucket chips, click adds the actual aroma label', async () => {
+    const onShow = vi.fn();
+    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={onShow} />);
+    fireEvent.click(document.querySelector('details[data-bubble-key="aroma"] summary'));
+    const aromaBubble = document.querySelector('details[data-bubble-key="aroma"]');
+    const chips = aromaBubble.querySelectorAll('button[aria-pressed]');
+    expect(chips.length).toBeGreaterThanOrEqual(5);
+    const fruityBtn = screen.getByRole('button', { name: 'Fruity' });
+    fireEvent.click(fruityBtn);
+    await flush();
+    const stackChip = screen.getByTestId('guided-stack-chip-aroma');
+    expect(stackChip.textContent).toMatch(/Fruity/);
+    expect(stackChip.textContent).not.toMatch(/any/);
+    fireEvent.click(screen.getByTestId('guided-cta-show-pairings'));
+    expect(onShow).toHaveBeenCalledTimes(1);
+    const passed = onShow.mock.calls[0][0];
+    expect(passed[0].key).toBe('aroma');
+    expect(passed[0].value).toEqual({ aromaBucket: 'Fruity' });
+  });
 });
 
 describe('Constraint #4 — GuidedDiscoveryStart purity', () => {
@@ -148,5 +199,15 @@ describe('Constraint #4 — GuidedDiscoveryStart purity', () => {
     );
     const src = fs.readFileSync(file, 'utf8');
     expect(src).toMatch(/Constraint #4/);
+  });
+
+  // Bug 1 follow-up — once cuisine/aroma bubbles render inline bucket
+  // chips, the FilterPillRow import + renderFilterPillRowForAxis helper
+  // are dead code. Leaving them in invites the bug to regress.
+  it('FilterPillRow import + renderFilterPillRowForAxis are removed', () => {
+    const file = path.resolve(__dirname, '..', 'GuidedDiscoveryStart.jsx');
+    const src = fs.readFileSync(file, 'utf8');
+    expect(src).not.toMatch(/import\s+FilterPillRow/);
+    expect(src).not.toMatch(/renderFilterPillRowForAxis/);
   });
 });

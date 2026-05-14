@@ -139,6 +139,43 @@ describe('GuidedDiscoveryResults', () => {
     expect(screen.getByTestId('guided-results-empty-state')).toBeInTheDocument();
   });
 
+  // Bug 2 — when an ingredient IS picked AND ctx is plumbed, the wheel
+  // must render and the empty-state must NOT appear. This is the test
+  // that would have caught the App.jsx wiring regression.
+  it('renders the curated wheel when bubbleStack has an ingredient AND ctx is plumbed', () => {
+    const { container } = render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        ctx={buildCtx()}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    // Wheel SVG present; empty-state ABSENT.
+    expect(container.querySelector('svg')).toBeTruthy();
+    expect(screen.queryByTestId('guided-results-empty-state')).toBeNull();
+    expect(screen.queryByTestId('guided-results-loading-state')).toBeNull();
+  });
+
+  // Bug 2 — distinguish the wiring-failure case from the empty-state.
+  // When focal IS set but ctx is null, render a loading-state, NOT
+  // the "pick an ingredient" empty-state (which would mis-signal the
+  // user to do something they already did).
+  it('renders loading-state when focal is set but ctx is missing', () => {
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        ctx={null}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    expect(screen.getByTestId('guided-results-loading-state')).toBeInTheDocument();
+    // Crucially: the empty-state (which tells the user to "pick an
+    // ingredient bubble") must NOT appear when one is already picked.
+    expect(screen.queryByTestId('guided-results-empty-state')).toBeNull();
+  });
+
   it('selecting a hero pairing opens StoryPanel', () => {
     const { container } = render(
       <GuidedDiscoveryResults
