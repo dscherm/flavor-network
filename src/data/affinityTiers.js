@@ -228,7 +228,15 @@ export function surprisingAffinities(focal, ctx, opts = {}) {
 
   const consider = (other, bridge, strength, source) => {
     if (!other || seen.has(other) || other === focal) return;
-    if (strength >= star1) return; // not "surprising" — corpus already validates this
+    // Curated bridge_compounds entries (source='strict' or 'curated') keep
+    // canonical high-strength non-Western pairings — lemongrass+makrut lime
+    // leave, fish sauce+lemongrass, mirin+sake, paella rice+saffron. These
+    // are corpus-frequent within their cuisine but absent from classical
+    // Anglo-French books, so they ARE surprising to a Western user even
+    // though strength saturates. The strength gate only applies to the
+    // weaker gnn-overlap heuristic pass.
+    const isCurated = source === 'strict' || source === 'curated';
+    if (!isCurated && strength >= star1) return;
     if (isCommonCompound(bridge)) return; // hub-noise compound; useless as surprise signal
     seen.add(other);
     const oc = otherCluster(other);
