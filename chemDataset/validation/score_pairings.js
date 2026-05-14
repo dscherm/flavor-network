@@ -148,6 +148,8 @@ export function runAudit(opts = {}) {
     ?? safeLoadJson(repoPath('public', 'proDataset', 'ingredients.json')) ?? {};
   const gnnEntropy = gnnEntropyOverride
     ?? safeLoadJson(repoPath('public', 'proDataset', 'gnn_entropy.json'));
+  const bridgeCompounds = opts.bridgeCompounds
+    ?? safeLoadJson(repoPath('public', 'proDataset', 'bridge_compounds.json'));
   const groundTruth = groundTruthOverride
     ?? loadJson(join(__dirname, 'ground_truth.json'));
   const blendSource = blendSourceOverride
@@ -236,6 +238,18 @@ export function runAudit(opts = {}) {
   // ── Build ground-truth set + axis distribution ──
   const gtEntries = groundTruth.pairings;
   const gtSet = new Set(gtEntries.map((e) => canonicalPairKey(e.a, e.b)));
+  // classicalGtSet: only pairs sourced from the classical Anglo-French canon
+  // (Flavor Bible, Flavor Matrix). The absent-from-books axis filters against
+  // THIS subset, not all GT — a GT pair with a non-classical source (e.g.
+  // "Thai canon", "Persian dessert canon") should still be eligible for the
+  // axis precisely because it IS absent from the classical books.
+  const classicalGtSet = new Set();
+  for (const e of gtEntries) {
+    const refs = (e.sources || []).map((s) => (s?.ref || '').toLowerCase());
+    if (refs.some((r) => r.includes('flavor bible') || r.includes('flavor matrix'))) {
+      classicalGtSet.add(canonicalPairKey(e.a, e.b));
+    }
+  }
   const axisCounts = axisDistribution(gtEntries);
   const verdictGateMap = verdictGate(axisCounts, VERDICT_THRESHOLD_N);
   const sourceJaccard = crossSourceAgreement(gtEntries);
@@ -271,7 +285,7 @@ export function runAudit(opts = {}) {
   // ── Per-axis grading ──
   // Walk pairings ONCE per axis, compute the top-K window restricted to pairs
   // that match the axis classifier. Then evaluate precision/recall against gt.
-  const axisCtx = { gtSet, ingredientMeta: ingredientsMeta, gnnEntropy };
+  const axisCtx = { gtSet, classicalGtSet, ingredientMeta: ingredientsMeta, gnnEntropy, bridgeCompounds };
   const perAxis = {};
   const axisIllustrative = {};
   for (const axis of AXIS_LIST) {
@@ -352,8 +366,8 @@ export function runAudit(opts = {}) {
 
 function axisMatches(axis, pair, ctx) {
   switch (axis) {
-    case 'chem-bridged-rare': return chemBridgedRare(pair);
-    case 'absent-from-books': return absentFromBooks(pair, ctx.gtSet);
+    case 'chem-bridged-rare': return chemBridgedRare(pair, ctx);
+    case 'absent-from-books': return absentFromBooks(pair, ctx.gtSet, ctx);
     case 'cross-cuisine': return crossCuisine(pair, ctx.ingredientMeta);
     case 'cross-aroma': return crossAroma(pair, ctx.gnnEntropy);
     default: return false;

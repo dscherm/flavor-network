@@ -3,5 +3,13 @@
   "bias": -3.0,
   "feature_names": ["x1_npmi", "x2_freq", "x3_chemical", "x4_taste", "x5_bridge", "x6_cuisine", "x7_hub_asymmetry", "x8_compound_diversity"],
   "note": "Initial weights from food science literature. Will be fine-tuned with supervised training.",
-  "training_status": "untrained — using proposed initial weights"
+  "training_status": "untrained — using proposed initial weights",
+  "ablation_history": [
+    {
+      "date": "2026-05-14",
+      "result": "REJECTED — single-perceptron global tuning with 50 positives + 150 random negatives caused ALL axes to drop to P@10=0%. Random negatives don't represent the audit's ranking task (which compares the entire candidate set, not GT-vs-random). The ablation's suggested rebalance (x3_chemical 2.5 → -1.17, x8_compound_diversity 1.2 → -2.20) trashed cross-aroma (was passing at 40%) without lifting the 3 failing axes. Per-axis weight tuning would be a better architecture but is out of scope here.",
+      "trained_weights": [1.2640690563461556, 4.115340267200195, -1.1664059791396832, 1.1914969124202, 2.2280466649310227, 0.44803140476396625, 0.8750533180094114, -2.201423616860967],
+      "trained_bias": -3.3558768364831364
+    }
+  ]
 }
