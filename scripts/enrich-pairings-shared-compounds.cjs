@@ -98,10 +98,23 @@ function pairKeyOrderings(a, b) {
   return [`${a}|${b}`, `${b}|${a}`];
 }
 
+// Generic compounds the GNN's top_compounds emits for nearly every
+// sugar/grain-class ingredient (matched_food='sugar' etc). When both
+// ingredients only have GNN-sparse data, these collide trivially and
+// produce misleading "Caffeine, Ethanol, L-Histidine, Theobromine"
+// sharedCompounds across hundreds of unrelated pairs. Suppress them.
+const GNN_GENERIC_BLOCKLIST = new Set([
+  'Caffeine',
+  'Ethanol',
+  'L-Histidine',
+  'Theobromine',
+  'Succinic acid',
+]);
+
 function compoundSetForGnn(entry) {
   const out = new Set();
   for (const c of entry?.top_compounds || []) {
-    if (c?.name) out.add(c.name);
+    if (c?.name && !GNN_GENERIC_BLOCKLIST.has(c.name)) out.add(c.name);
   }
   return out;
 }
@@ -175,12 +188,21 @@ function buildMergedCompoundMap() {
   const gnnDict = Object.fromEntries(gnnSets);
 
   function lookup(name) {
-    return (
-      aliasLookup(name, foodbDict)
-      || aliasLookup(name, flavordbDict, { useFlavordbAliases: true })
-      || aliasLookup(name, gnnDict)
-      || null
-    );
+    // Union the three sources rather than picking by precedence: foodb's
+    // 78-ingredient extract has 4-compound entries for ingredients like
+    // 'basil' / 'tomato' that flavordb covers with 200+ compounds. Letting
+    // foodb win on direct hit collapses the intersection to ~0. Union
+    // keeps every compound from every source.
+    const sets = [
+      aliasLookup(name, foodbDict),
+      aliasLookup(name, flavordbDict, { useFlavordbAliases: true }),
+      aliasLookup(name, gnnDict),
+    ].filter(Boolean);
+    if (sets.length === 0) return null;
+    if (sets.length === 1) return sets[0];
+    const union = new Set();
+    for (const s of sets) for (const c of s) union.add(c);
+    return union;
   }
 
   return {
