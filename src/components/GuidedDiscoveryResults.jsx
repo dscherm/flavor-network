@@ -257,6 +257,23 @@ export default function GuidedDiscoveryResults({
                 onSelectPairing={handleSelectNeighbor}
                 className="w-full h-auto max-h-[520px]"
               />
+            ) : focal && !ctx ? (
+              // Wiring-failure case: the bubble stack DOES have an
+              // ingredient but the parent has not plumbed the affinity
+              // ctx yet (still loading, or a regression). Distinguish
+              // from the genuine "no ingredient" empty-state so the
+              // UI doesn't tell the user to "pick an ingredient" when
+              // they already have.
+              <div
+                className="text-center text-sm text-gray-400 px-6 py-12 max-w-sm"
+                data-testid="guided-results-loading-state"
+              >
+                <p className="text-gray-300 mb-2">Loading affinity data…</p>
+                <p className="text-xs text-gray-500">
+                  Fetching pairing strengths for {focal.name}. If this
+                  persists, the dataset failed to load — try refreshing.
+                </p>
+              </div>
             ) : (
               <div
                 className="text-center text-sm text-gray-400 px-6 py-12 max-w-sm"

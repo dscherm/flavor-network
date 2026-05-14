@@ -1243,6 +1243,14 @@ export default function App() {
         <div className="fixed inset-0 z-[40] overflow-y-auto">
           <GuidedDiscoveryResults
             bubbleStack={bubbleStack}
+            // `data` from useProData IS the affinityCtx contract:
+            // it carries pairingStrength, top5, bridgeCompoundIndex,
+            // affinityThresholds, graph.{nodes,edges}, gnnEntropy,
+            // bridgeCompounds — exactly what surprisingAffinities /
+            // topAffinities / CuratedWheel consume. Without this prop
+            // GuidedDiscoveryResults stays in the empty-state and the
+            // user never sees the curated wheel for their focal pick.
+            ctx={data}
             onBackToBubbles={() => setActiveTab('guided')}
             onExploreInNetwork={() => {
               // Constraint #4: this is the ONLY place setFilterStack

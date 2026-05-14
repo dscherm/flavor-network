@@ -26,7 +26,17 @@ import {
 } from '../data/guidedDiscovery.js';
 import ThoughtBubbleCard from './ThoughtBubbleCard.jsx';
 import SearchBar from './SearchBar.jsx';
-import FilterPillRow from './FilterPillRow.jsx';
+import { CATEGORICAL_AXES } from '../data/categoricalAxes.js';
+
+// Inline bucket chips for the cuisine/aroma bubbles. The cuisine and
+// aroma "axis" filters in the Network tab toggle which dimension is
+// active; inside a bubble that has already declared the axis, the user
+// needs to pick a SPECIFIC bucket value (e.g. "European", "Fruity"),
+// not toggle the axis itself. Bucket labels come from
+// CATEGORICAL_AXES so the cuisine/aroma chip palettes match the wheel
+// + ClusterJoystick exactly.
+const CUISINE_BUCKET_LABELS = CATEGORICAL_AXES.cuisine.labels;
+const AROMA_BUCKET_LABELS = CATEGORICAL_AXES.aromas.labels;
 
 // Pretty-print a bubbleStack entry's `value` for the chip strip + the
 // closed-state summary chip on the disclosure card.
@@ -206,39 +216,81 @@ export default function GuidedDiscoveryStart({
     [bubbleStack, addBubble],
   );
 
-  // Render the existing FilterPillRow but scope it to a single axis
-  // (cuisine OR aroma) — drives the local bubbleStack rather than
-  // App.jsx's network filterStack (Constraint #4).
-  const renderFilterPillRowForAxis = useCallback(
-    (bubbleConfig, axisFilterKey) => {
-      // Build a pseudo filterStack for the row to render: the row's
-      // visual "selected" pill is the one matching this bubble's
-      // current value. We hand-roll a tiny wrapper instead of mutating
-      // App.jsx-wide state.
-      const current = bubbleStack.find((b) => b.key === bubbleConfig.key);
-      const localStack = current?.value?.cuisineBucket || current?.value?.aromaBucket
-        ? [axisFilterKey]
-        : [];
-      const labelKey = bubbleConfig.key === 'cuisine' ? 'cuisineBucket' : 'aromaBucket';
-      const summaryLabel = current?.value?.[labelKey];
+  // Render inline bucket chips for the cuisine bubble. The user picks
+  // a specific cuisine bucket (Italian / European / East Asian / …);
+  // the resulting bubble carries `{cuisineBucket: '<label>'}` so the
+  // results screen + the network-filter bridge can read it back.
+  const renderCuisineChips = useCallback(
+    (bubbleConfig) => {
+      const current = bubbleStack.find((b) => b.key === bubbleConfig.key)?.value?.cuisineBucket || null;
       return (
         <div className="pt-2">
-          <p className="text-[11px] text-gray-400 mb-2">
-            Tap the <span className="text-cyan-300">{bubbleConfig.key === 'cuisine' ? 'Cuisine' : 'Aroma'}</span> pill to add this filter.
-            {summaryLabel ? ` (current: ${summaryLabel})` : ''}
-          </p>
-          <FilterPillRow
-            filterStack={localStack}
-            onToggle={() => {
-              addBubble(bubbleConfig, { [labelKey]: bubbleConfig.key === 'cuisine' ? 'any' : 'any' });
-              setOpenBubble(null);
-            }}
-            onClear={() => removeBubbleByKey(bubbleConfig.key)}
-          />
+          <p className="text-[11px] text-gray-400 mb-2">Pick a cuisine:</p>
+          <div className="flex flex-wrap gap-2">
+            {CUISINE_BUCKET_LABELS.map((label) => {
+              const active = current === label;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => {
+                    addBubble(bubbleConfig, { cuisineBucket: label });
+                    setOpenBubble(null);
+                  }}
+                  aria-pressed={active}
+                  className={`px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-full border transition-colors ${
+                    active
+                      ? 'bg-emerald-500 text-white border-emerald-400'
+                      : 'bg-[#0a1428]/60 text-gray-300 border-[#2a2a3a] hover:bg-[#16284a]'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       );
     },
-    [bubbleStack, addBubble, removeBubbleByKey],
+    [bubbleStack, addBubble],
+  );
+
+  // Render inline bucket chips for the aroma bubble. Bucket labels come
+  // from CATEGORICAL_AXES.aromas so the chip set matches the wheel
+  // exactly (Fruity / Floral / Green / Woody / Spicy / Fatty).
+  const renderAromaChips = useCallback(
+    (bubbleConfig) => {
+      const current = bubbleStack.find((b) => b.key === bubbleConfig.key)?.value?.aromaBucket || null;
+      return (
+        <div className="pt-2">
+          <p className="text-[11px] text-gray-400 mb-2">Pick an aroma family:</p>
+          <div className="flex flex-wrap gap-2">
+            {AROMA_BUCKET_LABELS.map((label) => {
+              const active = current === label;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => {
+                    addBubble(bubbleConfig, { aromaBucket: label });
+                    setOpenBubble(null);
+                  }}
+                  aria-pressed={active}
+                  className={`px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-full border transition-colors ${
+                    active
+                      ? 'bg-emerald-500 text-white border-emerald-400'
+                      : 'bg-[#0a1428]/60 text-gray-300 border-[#2a2a3a] hover:bg-[#16284a]'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    },
+    [bubbleStack, addBubble],
   );
 
   const renderScopeToggle = useCallback(
@@ -312,9 +364,9 @@ export default function GuidedDiscoveryStart({
         case 'meat-chips':
           return renderMeatChips(bubbleConfig);
         case 'cuisine-pills':
-          return renderFilterPillRowForAxis(bubbleConfig, 'cuisine');
+          return renderCuisineChips(bubbleConfig);
         case 'aroma-pills':
-          return renderFilterPillRowForAxis(bubbleConfig, 'aroma');
+          return renderAromaChips(bubbleConfig);
         case 'scope-toggle':
           return renderScopeToggle(bubbleConfig);
         case 'flag-toggle':
@@ -327,7 +379,8 @@ export default function GuidedDiscoveryStart({
       renderIngredientSearch,
       renderSeasonChips,
       renderMeatChips,
-      renderFilterPillRowForAxis,
+      renderCuisineChips,
+      renderAromaChips,
       renderScopeToggle,
       renderFlagToggle,
     ],
