@@ -13,6 +13,14 @@ const SOURCE_FILES = {
   recipenlg:  path.join(PROCESSED_DIR, 'recipenlg-cooccurrence.json'),
   mealdb:     path.join(PROCESSED_DIR, 'mealdb-cooccurrence.json'),
   cocktaildb: path.join(PROCESSED_DIR, 'cocktaildb-cooccurrence.json'),
+  // Synthetic cookbook-citation source. Brings chef-validated pairs
+  // (coffee|mushroom, blue cheese|chocolate, cucumber|gin, etc.) into
+  // pair-features.json so the rescue and audit can score them.
+  // See proDataset/scripts/13-build-chef-citations.js for the curated
+  // pair list. Per-source x1_npmi falls back to 0 because pmi field is
+  // unset; pairs gain x2_freq from the count and bridge_compounds
+  // matches still drive sharedCompounds.
+  chefcite:   path.join(PROCESSED_DIR, 'chef-citations-cooccurrence.json'),
 };
 
 const FOODB_FILE       = path.join(PROCESSED_DIR, 'foodb-compounds.json');

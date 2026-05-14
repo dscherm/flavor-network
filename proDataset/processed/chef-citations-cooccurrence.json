@@ -1,0 +1,258 @@
+{
+  "pairs": {
+    "coffee|mushroom": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "blue cheese|chocolate": {
+      "count": 5,
+      "pmi": 0,
+      "strength": 0.006172839506172839
+    },
+    "kiwi fruit|oyster sauce": {
+      "count": 5,
+      "pmi": 0,
+      "strength": 0.006172839506172839
+    },
+    "asparagus spear|tangerine juice": {
+      "count": 5,
+      "pmi": 0,
+      "strength": 0.006172839506172839
+    },
+    "chicken liver|chocolate": {
+      "count": 5,
+      "pmi": 0,
+      "strength": 0.006172839506172839
+    },
+    "coffee|salmon fillet": {
+      "count": 5,
+      "pmi": 0,
+      "strength": 0.006172839506172839
+    },
+    "cucumber|gin": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "cardamom|coffee": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "saffron|vanilla": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "lemongrass|makrut lime leave": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "fish sauce|lemongrass": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "paella rice|saffron": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "ginger ale|pineapple juice": {
+      "count": 5,
+      "pmi": 0,
+      "strength": 0.006172839506172839
+    },
+    "rice vinegar|soy sauce": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "mussel|saffron": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "mirin|sake": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "pasta|truffle": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "duck breast|orange": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "apple|pork belly": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "lamb leg|mint": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "beef|mustard": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "fig|foie gras": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "maple syrup|soy sauce": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "gochujang|pomegranate": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "caramel|miso": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "chocolate|tahini": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "avocado|wasabi": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "mayonnaise|sriracha": {
+      "count": 15,
+      "pmi": 0,
+      "strength": 0.018518518518518517
+    },
+    "chipotle|lime": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "coconut milk|lemongrass": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "cilantro|lime": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "mint|yogurt": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "pistachio|rose water": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "jelly|peanut butter": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "chocolate|mint": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "cinnamon|orange": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    },
+    "butter|lemon": {
+      "count": 30,
+      "pmi": 0,
+      "strength": 0.037037037037037035
+    }
+  },
+  "ingredients": {
+    "coffee": 50,
+    "mushroom": 15,
+    "blue cheese": 5,
+    "chocolate": 55,
+    "kiwi fruit": 5,
+    "oyster sauce": 5,
+    "asparagus spear": 5,
+    "tangerine juice": 5,
+    "chicken liver": 5,
+    "salmon fillet": 5,
+    "cucumber": 30,
+    "gin": 30,
+    "cardamom": 30,
+    "saffron": 60,
+    "vanilla": 15,
+    "lemongrass": 90,
+    "makrut lime leave": 30,
+    "fish sauce": 30,
+    "paella rice": 30,
+    "ginger ale": 5,
+    "pineapple juice": 5,
+    "rice vinegar": 30,
+    "soy sauce": 45,
+    "mussel": 15,
+    "mirin": 30,
+    "sake": 30,
+    "truffle": 30,
+    "pasta": 30,
+    "duck breast": 30,
+    "orange": 60,
+    "pork belly": 30,
+    "apple": 30,
+    "lamb leg": 30,
+    "mint": 90,
+    "beef": 30,
+    "mustard": 30,
+    "foie gras": 15,
+    "fig": 15,
+    "maple syrup": 15,
+    "gochujang": 15,
+    "pomegranate": 15,
+    "miso": 15,
+    "caramel": 15,
+    "tahini": 15,
+    "wasabi": 15,
+    "avocado": 15,
+    "sriracha": 15,
+    "mayonnaise": 15,
+    "chipotle": 30,
+    "lime": 60,
+    "coconut milk": 30,
+    "cilantro": 30,
+    "yogurt": 30,
+    "rose water": 30,
+    "pistachio": 30,
+    "peanut butter": 30,
+    "jelly": 30,
+    "cinnamon": 30,
+    "lemon": 30,
+    "butter": 30
+  },
+  "totalRecipes": 810,
+  "_meta": {
+    "source": "chef-citations",
+    "generatedAt": "2026-05-14T20:44:46.835Z",
+    "note": "Synthetic cooccurrence source for cookbook-cited pairings. Star ratings drive synthetic recipe counts (3★=30, 2★=15, 1★=5). NOT real co-occurrence — used only to bring chef-validated pairs into pair-features.json so 07-blend-v2 can score them.",
+    "citationCount": 37
+  }
+}

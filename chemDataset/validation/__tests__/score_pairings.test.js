@@ -49,11 +49,17 @@ describe('chemDataset/validation — score_pairings', () => {
     expect(weightsHash).toHaveLength(64);
     // At least one axis should be reported.
     expect(Object.keys(perAxis).length).toBeGreaterThan(0);
-    // With only 30 seed entries, at least one axis should fire the insufficient gate.
-    const someInsufficient = Object.values(perAxis).some(
-      (a) => typeof a.verdict === 'string' && a.verdict.startsWith('insufficient'),
+    // Each axis emits a verdict string (insufficient | pass | warn | fail).
+    // The GT corpus was extended past n>=15 per axis (commit growing
+    // ground_truth.json from 30 to 52 entries) so the "insufficient"
+    // gate no longer fires; the relaxed invariant is that every axis
+    // yields a recognized verdict.
+    const KNOWN_VERDICT_PREFIXES = ['insufficient', 'pass', 'warn', 'fail'];
+    const allRecognized = Object.values(perAxis).every(
+      (a) => typeof a.verdict === 'string'
+        && KNOWN_VERDICT_PREFIXES.some((p) => a.verdict.startsWith(p)),
     );
-    expect(someInsufficient).toBe(true);
+    expect(allRecognized).toBe(true);
   });
 
   it('hash gate: synthetic metadata mismatch throws without --allow-stale', () => {
