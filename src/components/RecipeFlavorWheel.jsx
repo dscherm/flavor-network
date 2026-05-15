@@ -99,7 +99,7 @@ export default function RecipeFlavorWheel({
 
       // Ring 1 = blend of the OTHER ingredients only (the accents),
       // so the user reads "focal core + accenting halo".
-      const otherNodes = names.filter((n) => n !== focus.focal).map((n) => nodes.get(n)).filter(Boolean);
+      const otherNodes = ns.filter((n) => n !== focus.focal).map((n) => nodes.get(n)).filter(Boolean);
       const accentValues = blendedAromaValues(otherNodes);
       // Dim the accent ring slightly so the focal reads as the center.
       for (const k of BRISCIONE_AROMA_KEYS) accentValues[k] = (accentValues[k] || 0) * 0.7;
@@ -116,7 +116,7 @@ export default function RecipeFlavorWheel({
         r.push({ values: v, label: name });
         rl.push(name);
       }
-      const allNodes = names.map((n) => nodes.get(n)).filter(Boolean);
+      const allNodes = ns.map((n) => nodes.get(n)).filter(Boolean);
       const blend = blendedAromaValues(allNodes);
       r.push({ values: blend, label: 'blend' });
       rl.push('blend');
