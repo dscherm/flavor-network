@@ -3,7 +3,7 @@ import Fuse from 'fuse.js';
 import { getNeighbors } from '../data/graph.js';
 import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import { getCocktailRoles, getSauceRoles } from '../data/ingredientRoles.js';
-import AromaHexWheel from './AromaHexWheel.jsx';
+import RecipeFlavorWheel from './RecipeFlavorWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import IngredientSuggestionsPopout from './IngredientSuggestionsPopout.jsx';
 import { hapticLight, hapticMedium } from '../utils/native.js';
@@ -448,7 +448,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             onClose={() => setSuggestionsMode(false)}
           />
         ) : (
-          <AromaHexWheel
+          <RecipeFlavorWheel
             ingredients={recipeIngredients}
             nodes={fullData?.graph?.nodes}
             onTapAroma={(key) => {

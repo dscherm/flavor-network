@@ -729,9 +729,14 @@ export default function App() {
           Flavor Network
         </span>
         <div className="hidden sm:flex items-center gap-0.5 px-3 h-full">
-          {/* Network tab — also acts as the 3D/2D mode dropdown when
-              already on Network. Tap once to switch tabs; tap again
-              to open the 4-way mode list. */}
+          {/* R8-50: simplified top nav — 4 actions (Explore · Guided ·
+              Cocktail · Recipe) + profile icon. Sauce Lab and Molecule
+              Lab live inside the Explore overflow so deep-links + power
+              users still reach them but the primary nav stays at 4. */}
+
+          {/* Explore — renamed from "Network". Same Network surface
+              underneath. Tap once to switch tabs; tap again to open the
+              3D/2D mode + ingredient-tree + sauce/molecule overflow. */}
           <div className="relative">
             <button
               onClick={() => {
@@ -754,23 +759,22 @@ export default function App() {
                   : 'text-gray-500 hover:text-gray-300 border border-transparent'
               }`}
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
               </svg>
-              {activeTab === 'network' ? NETWORK_MODE_LABELS[mode] : 'Network'}
+              {activeTab === 'network' && NETWORK_MODE_LABELS[mode] !== 'Network'
+                ? `Explore · ${NETWORK_MODE_LABELS[mode]}`
+                : 'Explore'}
               {activeTab === 'network' && (
                 <svg className={`w-3 h-3 transition-transform ${networkDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
                   <path d="M7 10l5 5 5-5z" />
                 </svg>
               )}
             </button>
-            {/* R16 Phase 1: dropdown now shows ONLY 3D / 2D. The 6
-                categorical mode entries are gone — categorical layout
-                is driven by the FilterPillRow instead. */}
             {networkDropdownOpen && activeTab === 'network' && (
               <>
                 <div className="fixed inset-0 z-[59]" onClick={() => setNetworkDropdownOpen(false)} />
-                <div role="menu" aria-label="Network mode" className="absolute top-full left-0 mt-1 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
+                <div role="menu" aria-label="Explore" className="absolute top-full left-0 mt-1 w-52 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
                   {NETWORK_MODE_CYCLE.map((m) => (
                     <button
                       key={m}
@@ -793,6 +797,53 @@ export default function App() {
                   <div className="border-t border-[#2a2a3a]" />
                   <button
                     role="menuitem"
+                    onClick={() => { setShowTreeExplorer(v => !v); setNetworkDropdownOpen(false); }}
+                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
+                      showTreeExplorer ? 'text-purple-300 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                    </svg>
+                    Ingredient Tree
+                  </button>
+                  <button
+                    role="menuitem"
+                    onClick={() => {
+                      setActiveTab('sauce');
+                      setSauceMounted(true);
+                      setNetworkDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a] transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M13 11.33L18 2l-1.73-1-5.27 9.33L5.73 1 4 2l5 9.33V19H6v2h12v-2h-3v-7.67z" />
+                    </svg>
+                    Sauce Lab
+                  </button>
+                  <button
+                    role="menuitem"
+                    onClick={() => { setMoleculeLabOpen(v => !v); setNetworkDropdownOpen(false); }}
+                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
+                      moleculeLabOpen ? 'text-cyan-300 bg-cyan-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <circle cx="12" cy="12" r="2" />
+                      <circle cx="5" cy="6" r="1.5" />
+                      <circle cx="19" cy="6" r="1.5" />
+                      <circle cx="5" cy="18" r="1.5" />
+                      <circle cx="19" cy="18" r="1.5" />
+                      <line x1="6.2" y1="7" x2="10.8" y2="11" />
+                      <line x1="17.8" y1="7" x2="13.2" y2="11" />
+                      <line x1="6.2" y1="17" x2="10.8" y2="13" />
+                      <line x1="17.8" y1="17" x2="13.2" y2="13" />
+                    </svg>
+                    Molecule Lab
+                  </button>
+                  <div className="border-t border-[#2a2a3a]" />
+                  <button
+                    role="menuitem"
                     onClick={() => {
                       setHowItWorksOpen(true);
                       setNetworkDropdownOpen(false);
@@ -807,129 +858,77 @@ export default function App() {
             )}
           </div>
 
-          {/* Labs dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => { setLabDropdownOpen(v => !v); setExploreDropdownOpen(false); }}
-              aria-haspopup="menu"
-              aria-expanded={labDropdownOpen}
-              aria-label="Open Labs menu"
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                activeTab !== 'network'
-                  ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
-                  : 'text-gray-500 hover:text-gray-300 border border-transparent'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M13 11.33L18 2l-1.73-1-5.27 9.33L5.73 1 4 2l5 9.33V19H6v2h12v-2h-3v-7.67z" />
-              </svg>
-              {activeTab === 'cocktail' ? 'Cocktail Lab' : activeTab === 'sauce' ? 'Sauce Lab' : activeTab === 'recipe' ? 'Recipe Lab' : 'Labs'}
-              <svg className={`w-3 h-3 transition-transform ${labDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7 10l5 5 5-5z" />
-              </svg>
-            </button>
-            {labDropdownOpen && (
-              <>
-                <div className="fixed inset-0 z-[59]" onClick={() => setLabDropdownOpen(false)} />
-                <div role="menu" aria-label="Labs" className="absolute top-full left-0 mt-1 w-44 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
-                  {[
-                    { key: 'recipe', label: 'Recipe Lab' },
-                    { key: 'cocktail', label: 'Cocktail Lab' },
-                    { key: 'sauce', label: 'Sauce Lab' },
-                    { key: 'molecule', label: 'Molecule Lab' },
-                  ].map((lab) => (
-                    <button
-                      key={lab.key}
-                      role="menuitem"
-                      onClick={() => {
-                        // Molecule Lab is a slide-out panel, not a full tab —
-                        // keep activeTab untouched so the network scene stays
-                        // mounted underneath.
-                        if (lab.key === 'molecule') {
-                          setMoleculeLabOpen(v => !v);
-                          setLabDropdownOpen(false);
-                          return;
-                        }
-                        setActiveTab(lab.key);
-                        if (lab.key === 'cocktail') setCocktailMounted(true);
-                        if (lab.key === 'sauce') setSauceMounted(true);
-                        if (lab.key === 'recipe') setRecipeMounted(true);
-                        setLabDropdownOpen(false);
-                      }}
-                      className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                        (lab.key === 'molecule' ? moleculeLabOpen : activeTab === lab.key)
-                          ? 'text-cyan-300 bg-cyan-500/10'
-                          : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
-                      }`}
-                    >
-                      {lab.label}
-                      {(lab.key === 'molecule' ? moleculeLabOpen : activeTab === lab.key) && (
-                        <svg className="w-3 h-3 ml-auto text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                        </svg>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+          {/* Guided — promoted to top-level. Routes to GuidedDiscoveryStart. */}
+          <button
+            onClick={() => {
+              setActiveTab('guided');
+              setNetworkDropdownOpen(false);
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              activeTab === 'guided' || activeTab === 'guided-results'
+                ? 'text-pink-300 bg-pink-500/10 border border-pink-500/20'
+                : 'text-gray-500 hover:text-gray-300 border border-transparent'
+            }`}
+            aria-label="Guided Discovery"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Guided
+          </button>
 
-          {/* Explore dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => { setExploreDropdownOpen(v => !v); setLabDropdownOpen(false); }}
-              aria-haspopup="menu"
-              aria-expanded={exploreDropdownOpen}
-              aria-label="Open Explore menu"
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                showTreeExplorer
-                  ? 'text-purple-300 bg-purple-500/10 border border-purple-500/20'
-                  : 'text-gray-500 hover:text-gray-300 border border-transparent'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              Explore
-              <svg className={`w-3 h-3 transition-transform ${exploreDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7 10l5 5 5-5z" />
-              </svg>
-            </button>
-            {exploreDropdownOpen && (
-              <>
-                <div className="fixed inset-0 z-[59]" onClick={() => setExploreDropdownOpen(false)} />
-                <div role="menu" aria-label="Explore" className="absolute top-full left-0 mt-1 w-48 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[61] overflow-hidden">
-                  <button
-                    role="menuitem"
-                    onClick={() => { setShowTreeExplorer(v => !v); setExploreDropdownOpen(false); setActiveTab('network'); }}
-                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                      showTreeExplorer ? 'text-purple-300 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
-                    }`}
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-                    </svg>
-                    Ingredient Tree
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+          {/* Cocktail — promoted to top-level. */}
+          <button
+            onClick={() => {
+              setActiveTab('cocktail');
+              setCocktailMounted(true);
+              setNetworkDropdownOpen(false);
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              activeTab === 'cocktail'
+                ? 'text-amber-300 bg-amber-500/10 border border-amber-500/20'
+                : 'text-gray-500 hover:text-gray-300 border border-transparent'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 5V3H3v2l8 9v5H6v2h12v-2h-5v-5l8-9zM7.43 7L5.66 5h12.69l-1.78 2H7.43z" />
+            </svg>
+            Cocktail
+          </button>
 
-          {/* Profile button — opens dedicated Profile screen (full-tab) */}
+          {/* Recipe — promoted to top-level. */}
+          <button
+            onClick={() => {
+              setActiveTab('recipe');
+              setRecipeMounted(true);
+              setNetworkDropdownOpen(false);
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              activeTab === 'recipe'
+                ? 'text-emerald-300 bg-emerald-500/10 border border-emerald-500/20'
+                : 'text-gray-500 hover:text-gray-300 border border-transparent'
+            }`}
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM9 7h6M9 11h6M9 15h4" />
+            </svg>
+            Recipe
+          </button>
+
+          {/* Profile — icon-only, sits at the right edge of the nav block. */}
           <button
             onClick={() => setActiveTab('profile')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+            className={`ml-1 flex items-center justify-center w-8 h-8 rounded-md transition-all ${
               activeTab === 'profile'
                 ? 'text-blue-300 bg-blue-500/10 border border-blue-500/20'
                 : 'text-gray-500 hover:text-gray-300 border border-transparent'
             }`}
+            aria-label="Profile"
+            title="Profile"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            Profile
           </button>
         </div>
         <div className="ml-auto px-3 text-[9px] text-gray-600 tracking-wider uppercase">
