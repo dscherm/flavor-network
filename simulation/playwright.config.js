@@ -7,7 +7,11 @@ export default defineConfig({
   forbidOnly: true,
   retries: 0,
   workers: 4,
-  timeout: 300_000, // 5 min — Slow 4G persona needs 144s+ for 27MB fetch
+  // Global per-test budget. 5 min was insufficient for the chef power-user
+  // journey on the SwiftShader baseline (5 searches + tab switch + FPS +
+  // memory + tap-target audit + WebGL stats all serialised). Bumped to 10 min;
+  // individual fast personas finish well under this.
+  timeout: 600_000,
   reporter: [
     ['list'],
     ['json', { outputFile: './output/test-results.json' }],
