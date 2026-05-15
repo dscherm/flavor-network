@@ -7,6 +7,7 @@ import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
 import FlavorPathCard from './FlavorPathCard.jsx';
 import MoleculeTasteMap from './MoleculeTasteMap.jsx';
 import FullWheel from './FullWheel.jsx';
+import AffinityFlavorWheel from './AffinityFlavorWheel.jsx';
 import { scoreRecipeAroma, AROMA_LABELS, AROMA_COLORS, scoreRecipe } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
@@ -585,6 +586,19 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             badge={`(${sortedNeighbors.length})`}
             onHeaderClick={() => onHighlightPairings?.(sortedNeighbors.map(n => n.name))}
           >
+            {/* Phase 2 — Briscione flavor wheel summarizing the focal's
+                bucket distribution. Inner ring = focal's own profile;
+                outer ring = neighbors aggregated by strength. Filter
+                pills above re-axis the wheel (Aroma / Taste / Season /
+                Method). Lives alongside (not instead of) the list. */}
+            <div className="mb-3 flex justify-center">
+              <AffinityFlavorWheel
+                focalNode={node}
+                neighbors={sortedNeighbors}
+                graphNodes={graphNodes}
+                size={260}
+              />
+            </div>
             <div className="flex items-center justify-between mb-1.5">
               <p className="text-[10px] text-gray-500">Click any pairing to add it to your selection. Tap the header again to clear network highlight.</p>
               {isDebugWheel && (
