@@ -91,7 +91,11 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         </filter>
       </defs>
 
-      {/* Pass 1 — slim cones (filled) drawn weakest-first. */}
+      {/* Pass 1 — slim cones (filled) drawn weakest-first. Iter
+          (2026-05-16 'audit'): cone base width is inversely tied to
+          affinity strength, so the cone's spread angle encodes
+          strength visually — strong affinity = narrow focused beam,
+          weak affinity = wider, more diffuse spread. */}
       {accents.map((a) => {
         if (!Number.isFinite(a.x) || !Number.isFinite(a.y)) return null;
         const dx = a.x - fx;
@@ -102,7 +106,15 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         const uy = dy / len;
         const px = -uy;
         const py = ux;
-        const halfBase = Math.min(BASE_HALF_WIDTH_MAX, Math.max(BASE_HALF_WIDTH_MIN, len * BASE_HALF_WIDTH_FACTOR));
+        // Strength is in roughly [0, 1] from pairing scores; clamp to
+        // [0, 1] then invert so strong → narrow. Multiply by the
+        // length-derived base so cones still scale with distance.
+        const strengthClamp = Math.max(0, Math.min(1, Number.isFinite(a.strength) ? a.strength : 0.5));
+        const inverse = 1 - 0.6 * strengthClamp; // strong 0.4 ··· weak 1.0
+        const halfBase = Math.min(
+          BASE_HALF_WIDTH_MAX,
+          Math.max(BASE_HALF_WIDTH_MIN, len * BASE_HALF_WIDTH_FACTOR * inverse),
+        );
         const b1x = fx + px * halfBase;
         const b1y = fy + py * halfBase;
         const b2x = fx - px * halfBase;
