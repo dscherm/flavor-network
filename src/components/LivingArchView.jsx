@@ -2412,13 +2412,12 @@ export default function LivingArchView({
     for (const [axisKey, g] of Object.entries(groupSetActive || {})) {
       g.visible = filterActive && morphAxis === axisKey;
     }
-    // Track 4 iter 2026-05-16 — aroma sector pie disc visibility.
-    // Show when the aroma axis is the active morph OR the user is in
-    // the aromas2d categorical mode. Both surfaces visually benefit
-    // from the colored backdrop hinting at the 6 aroma sectors.
+    // Aroma sector pie disc — kept off (user removed the wedge wheel
+    // from the aroma filter 2026-05-16). Geometry stays allocated for
+    // back-compat but never surfaces visually. Delete the group
+    // outright once we're sure nothing downstream reads it.
     if (st.aromaSectorGroup) {
-      const aromaActive = (filterActive && morphAxis === 'aromas') || mode === 'aromas2d';
-      st.aromaSectorGroup.visible = aromaActive;
+      st.aromaSectorGroup.visible = false;
     }
   }, [filterStack, morphAxis, mode, showEdges, showParticles]);
 

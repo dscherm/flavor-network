@@ -99,9 +99,9 @@ describe('§1 — Landing page', () => {
     expect(block.includes('Cocktail Lab')).toBe(true);
     expect(block.includes('Sauce Lab')).toBe(true);
     expect(block.includes('Recipes')).toBe(true);
-    // Notebook button text gone (the word still appears in the
-    // comment explaining the spec, so check rendered tag only).
-    expect(/>\s*Notebook\s*</.test(block)).toBe(false);
+    // Notebook surface is back at user request — it's the authoring
+    // counterpart to the curated 3D Recipes browse view.
+    expect(/>\s*Notebook\s*</.test(block)).toBe(true);
     // "Network" button (jump-back) is gone per spec.
     expect(/>\s*Network\s*</.test(block)).toBe(false);
   });
@@ -417,21 +417,36 @@ describe('§2.K — Popup polish', () => {
 // ──────────────────────── §3 — Build path ────────────────────────
 
 describe('§3 — Build path', () => {
-  it('3.A.1 BuildRecipeStart renders SwipeDeck (one card at a time)', () => {
+  it('3.A.1 BuildRecipeStart renders SwipeDeck with the category card first', () => {
     render(<BuildRecipeStart ingredients={SAMPLE_INGREDIENTS} />);
     expect(screen.getByTestId('build-recipe-start')).toBeInTheDocument();
-    // First card title is the ingredient card (rewritten to "Which ingredients?")
-    expect(screen.getByText('Which ingredients?')).toBeInTheDocument();
+    // First card asks the meal/dessert/sauce/cocktail question.
+    expect(screen.getByText('Are you thinking about making a…')).toBeInTheDocument();
+    expect(screen.getByText('Meal')).toBeInTheDocument();
+    expect(screen.getByText('Dessert')).toBeInTheDocument();
+    expect(screen.getByText('Sauce')).toBeInTheDocument();
+    expect(screen.getByText('Cocktail')).toBeInTheDocument();
   });
 
-  it('3.A.2 ingredient card supports multi-select (chips accumulate)', () => {
+  it('3.A.1 category=Meal lets the user advance to next filter card', () => {
     render(<BuildRecipeStart ingredients={SAMPLE_INGREDIENTS} />);
-    // We can't easily simulate the SearchBar internals in jsdom; the
-    // test surface is the contract: clicking "✓" while ingredient
-    // list is empty must NOT advance (canAdvance=false). Check the
-    // button disabled state.
-    const yesBtn = screen.getByTestId('swipe-deck-yes-ingredient');
-    expect(yesBtn).toBeDisabled();
+    // Pick Meal then ✓ — category becomes required so ✓ should advance.
+    fireEvent.click(screen.getByText('Meal'));
+    const yesBtn = screen.getByTestId('swipe-deck-yes-category');
+    expect(yesBtn).not.toBeDisabled();
+  });
+
+  it('3.A.2 ingredient card sits LAST in the deck', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/components/BuildRecipeStart.jsx'),
+      'utf8',
+    );
+    // FILTER_ORDER reflects the spec order — ingredient is appended
+    // AFTER the filters, not before them.
+    expect(/ingredientBubble.*ordered\.push/s.test(src)).toBe(true);
+    expect(/Spec-driven card order: category first.*ingredient picker LAST/s.test(src)).toBe(true);
   });
 
   it('3.A.3 BuildRecipeResults renders MultiAxisRadarStack when no lab card picked', () => {
@@ -505,7 +520,7 @@ describe('§3 — Build path', () => {
     );
     expect(screen.getByText('Open in Cocktail Lab →')).toBeInTheDocument();
     expect(screen.getByText('Open in Sauce Lab →')).toBeInTheDocument();
-    expect(screen.getByText('Open in Recipes →')).toBeInTheDocument();
+    expect(screen.getByText('Open in Recipe Notebook →')).toBeInTheDocument();
   });
 
   it('3.A.4 CocktailLabV2 + SauceLab accept externalFilter prop', async () => {

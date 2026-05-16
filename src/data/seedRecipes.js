@@ -232,6 +232,7 @@ const CUISINE_ORDER = [
 export function buildRecipesScene() {
   const nodes = new Map();
   const positions = {};
+  const shapeAssignments = new Map();
   for (const r of SEED_RECIPES) {
     const cuisineIdx = CUISINE_ORDER.indexOf(r.cuisine);
     const cuisineColor = CUISINE_COLOR[r.cuisine] || '#94a3b8';
@@ -242,7 +243,7 @@ export function buildRecipesScene() {
       cluster: r.cluster,
       family_id: cuisineIdx >= 0 ? cuisineIdx : 0,
       // NodeMesh short-circuits color when clusterColor is set, so
-      // cuisine becomes the visual key for each sphere.
+      // cuisine becomes the visual key for each book.
       clusterColor: cuisineColor,
       color: cuisineColor,
       ingredients: r.ingredients,
@@ -250,10 +251,12 @@ export function buildRecipesScene() {
       taste: '',
       pairingCount: 1,
       cuisines: [r.cuisine.toLowerCase()],
-      // 3× scale so 15 spheres feel substantial on a sparse scene.
-      scaleBoost: 3.0,
+      // 3.5× scale — cookbook geometry is flatter than a sphere so
+      // we go a touch larger to maintain visual weight.
+      scaleBoost: 3.5,
     });
     positions[r.name] = r.position3D;
+    shapeAssignments.set(r.name, 'cookbook');
   }
   const clusters = CUISINE_ORDER.map((cuisine, idx) => ({
     id: idx,
@@ -269,5 +272,6 @@ export function buildRecipesScene() {
     },
     positions: { positions },
     codex: { clusters },
+    shapeAssignments,
   };
 }

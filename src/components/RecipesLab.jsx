@@ -14,6 +14,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import NetworkScene from './NetworkScene.jsx';
+import MultiAxisRadarStack from './MultiAxisRadarStack.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, buildRecipesScene } from '../data/seedRecipes.js';
 
 function RecipeCard({ recipe, onClick }) {
@@ -58,8 +59,29 @@ function RecipeCard({ recipe, onClick }) {
   );
 }
 
-function RecipeDetail({ recipe, onClose, onOpenInNetwork }) {
+function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
+  const nodes = ctx?.graph?.nodes;
+  // Match recipe ingredient strings to actual nodes in the ingredient
+  // graph so the radar has real taste/aroma/season/etc. data to plot.
+  // Only ingredients that resolve get a chip in the "matched" row;
+  // unmatched ones fall to the "raw" row so the user still sees them.
+  const { matched, unmatched } = useMemo(() => {
+    if (!nodes) return { matched: [], unmatched: recipe.ingredients };
+    const ok = [];
+    const miss = [];
+    for (const ing of recipe.ingredients) {
+      const key = ing.toLowerCase();
+      if (nodes.get(key) || nodes.get(ing)) ok.push(ing);
+      else miss.push(ing);
+    }
+    return { matched: ok, unmatched: miss };
+  }, [recipe.ingredients, nodes]);
+
+  // Focal = first matched ingredient. The radar averages across all
+  // matched ingredients so the chart reflects the whole recipe.
+  const focalName = matched[0] || null;
+
   return (
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
@@ -68,7 +90,7 @@ function RecipeDetail({ recipe, onClose, onOpenInNetwork }) {
       aria-label={`${recipe.name} details`}
     >
       <div
-        className="w-full max-w-md rounded-xl border bg-[#0d1f38] shadow-2xl max-h-[80vh] overflow-y-auto"
+        className="w-full max-w-2xl rounded-xl border bg-[#0d1f38] shadow-2xl max-h-[85vh] overflow-y-auto"
         style={{ borderColor: `${color}66` }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -92,28 +114,73 @@ function RecipeDetail({ recipe, onClose, onOpenInNetwork }) {
         </div>
         <div className="p-4 space-y-4">
           <p className="text-sm text-[#bfd5f0] leading-relaxed">{recipe.description}</p>
+
           <div>
-            <h3 className="text-[11px] uppercase tracking-widest text-gray-500 mb-2">Ingredients</h3>
+            <h3 className="text-[11px] uppercase tracking-widest text-gray-500 mb-2">
+              Ingredients ({recipe.ingredients.length})
+            </h3>
             <div className="flex flex-wrap gap-1.5">
-              {recipe.ingredients.map((ing) => (
+              {matched.map((ing) => (
                 <span
                   key={ing}
-                  className="text-xs px-2 py-1 rounded-full bg-[#12203b] text-gray-200 border border-[#1d3158]"
+                  className="text-xs px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-100 border border-emerald-400/30"
+                  title="matched in the ingredient graph"
+                >
+                  {ing}
+                </span>
+              ))}
+              {unmatched.map((ing) => (
+                <span
+                  key={ing}
+                  className="text-xs px-2 py-1 rounded-full bg-[#12203b] text-gray-400 border border-[#1d3158]"
+                  title="not found in the ingredient graph"
                 >
                   {ing}
                 </span>
               ))}
             </div>
           </div>
-          {onOpenInNetwork && (
-            <button
-              type="button"
-              onClick={() => onOpenInNetwork(recipe.ingredients[0])}
-              className="w-full px-4 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-white font-medium border border-cyan-300 transition-colors"
-            >
-              Open first ingredient in network →
-            </button>
+
+          {/* Flavor / taste / aroma / season / cuisine / method radar.
+              Averaged across all matched ingredients so the chart
+              reads as the recipe's profile, not just one ingredient. */}
+          {focalName && nodes ? (
+            <div>
+              <h3 className="text-[11px] uppercase tracking-widest text-gray-500 mb-2">
+                Flavor profile
+              </h3>
+              <MultiAxisRadarStack
+                ingredients={matched}
+                nodes={nodes}
+                focalName={focalName}
+              />
+            </div>
+          ) : (
+            <p className="text-[11px] text-gray-500 italic">
+              No matched ingredients — radar unavailable.
+            </p>
           )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+            {onOpenRecipeLab && (
+              <button
+                type="button"
+                onClick={() => onOpenRecipeLab('recipe', recipe.ingredients)}
+                className="px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white font-medium border border-emerald-300 transition-colors"
+              >
+                Open in Recipe Notebook →
+              </button>
+            )}
+            {onOpenInNetwork && (
+              <button
+                type="button"
+                onClick={() => onOpenInNetwork(matched[0] || recipe.ingredients[0])}
+                className="px-4 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-white font-medium border border-cyan-300 transition-colors"
+              >
+                Explore in Network →
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -126,12 +193,24 @@ function RecipeDetail({ recipe, onClose, onOpenInNetwork }) {
 // view, not an undifferentiated grid. "savory" wins by recipe count.
 const DEFAULT_CLUSTER_FILTER = 'savory';
 
-export default function RecipesLab({ externalFilter = null, onOpenInNetwork }) {
+export default function RecipesLab({
+  externalFilter = null,
+  onOpenInNetwork,
+  // Recipe-notebook handoff — same callback shape as CocktailLabV2 /
+  // SauceLab so App.jsx can wire all three through one handler.
+  onOpenRecipeLab,
+  // ctx = useProData result. Provides graph.nodes so the detail
+  // panel can render real radar charts from the recipe's ingredients.
+  ctx = null,
+}) {
   const [cuisineFilter, setCuisineFilter] = useState(null);
   const [clusterFilter, setClusterFilter] = useState(DEFAULT_CLUSTER_FILTER);
   const [selected, setSelected] = useState(null);
   // 'explore' = 3D NetworkScene; 'browse' = 2D card grid.
   const [viewMode, setViewMode] = useState('explore');
+  // Camera fly-to target for the 3D scene. Stamped with ts so
+  // re-clicking the same recipe re-triggers the fly-in.
+  const [flyToTarget, setFlyToTarget] = useState(null);
 
   // Apply external filter on mount (Phase 5 Build → Recipes bridge).
   // When the user arrived via Build, their explicit cuisine pick is a
@@ -297,7 +376,19 @@ export default function RecipesLab({ externalFilter = null, onOpenInNetwork }) {
               data={sceneData}
               onNodeClick={(name) => {
                 const r = SEED_RECIPES.find((x) => x.name === name);
-                if (r) setSelected(r);
+                if (r) {
+                  setSelected(r);
+                  // Camera fly-to the picked cookbook. Distance is
+                  // explicit (8 units from the node) because the 15-
+                  // recipe cloud spans only ~22 units across — the
+                  // default 30-unit floor would put the camera past
+                  // the far edge of the scene.
+                  setFlyToTarget({
+                    position: r.position3D,
+                    distance: 8,
+                    ts: Date.now(),
+                  });
+                }
               }}
               onNodeHover={() => {}}
               selectedNode={selected?.name || null}
@@ -311,6 +402,8 @@ export default function RecipesLab({ externalFilter = null, onOpenInNetwork }) {
               showNodeLabels={true}
               labelNodeNames={filteredNames}
               scaleMultiplier={2.5}
+              shapeAssignments={sceneData.shapeAssignments}
+              flyToTarget={flyToTarget}
             />
             {filtered.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -344,8 +437,10 @@ export default function RecipesLab({ externalFilter = null, onOpenInNetwork }) {
       {selected && (
         <RecipeDetail
           recipe={selected}
+          ctx={ctx}
           onClose={() => setSelected(null)}
           onOpenInNetwork={onOpenInNetwork}
+          onOpenRecipeLab={onOpenRecipeLab}
         />
       )}
     </div>
