@@ -293,6 +293,17 @@ export class AffinityMode {
   }
 
   /**
+   * World-space [x, y, z] of the focal hub mesh, captured at engage /
+   * pivot time. Lets AffinityTriangleOverlay anchor its cone bases at
+   * the actual focal-mesh position rather than the underlying network
+   * curPos of the focal ingredient (which may differ slightly during
+   * mode transitions).
+   */
+  get focalWorldPos() {
+    return this._engaged ? this._focalWorldPos : null;
+  }
+
+  /**
    * Raycast targets for affinity-aware click handling. The visible
    * focal + ring meshes sit at orbit positions far from the
    * underlying ingredients' real layout coordinates, so the parent
@@ -774,7 +785,13 @@ export class AffinityMode {
         pz = fallback.z;
       }
       tmpV.set(cx + px, cy, cz + pz);
-      sphereWorldPos.push([tmpV.x, tmpV.y, tmpV.z]);
+      const worldXyz = [tmpV.x, tmpV.y, tmpV.z];
+      sphereWorldPos.push(worldXyz);
+      // Track 2 (2026-05-16): AffinityTriangleOverlay reads `worldPos`
+      // off each affinity so its cones land on the actual ring-rendered
+      // position, not on the network-layout curPos. Without this the
+      // SVG cones miss every accent that's wedge-placed by AffinityMode.
+      aff.worldPos = worldXyz;
       m.compose(tmpV, tmpQ, tmpS);
       mesh.setMatrixAt(slot, m);
       const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
@@ -827,7 +844,15 @@ export class AffinityMode {
     }
     posAttr.needsUpdate = true;
     colAttr.needsUpdate = true;
-    this.edgeLines.visible = true;
+    // Track 2 (2026-05-16) — 3D edge lines are now superseded by the
+    // AffinityTriangleOverlay's SVG cones. The cones carry color +
+    // tier semantics and the user reported the in-scene edges felt
+    // duplicative ("the previous lines and icons still exist").
+    this.edgeLines.visible = false;
+    // Surface focal world position so the SVG overlay can project the
+    // hub anchor without needing st.curPos (which doesn't account for
+    // any per-frame tween the focal mesh might do during engage).
+    this._focalWorldPos = [cx, cy, cz];
 
     // ─── 3. Hide non-affinity nodes via scale-0 instanceMatrix ───
     // Color-dim alone wasn't enough: bloom amplified the dim values
