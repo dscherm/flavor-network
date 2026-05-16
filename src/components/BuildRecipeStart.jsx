@@ -16,7 +16,7 @@
  *   - { key: 'sauce', value: true }       (routing hint)
  *   - plus the usual season/cuisine/aroma/meat/dessert/dietary bubbles
  */
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BUBBLE_REGISTRY, SEASON_VALUES, MEAT_VALUES } from '../data/guidedDiscovery.js';
 import { DIETARY_RESTRICTIONS } from '../data/dietaryFilters.js';
 import { CATEGORICAL_AXES } from '../data/categoricalAxes.js';
@@ -40,6 +40,16 @@ import SwipeDeckCard from './SwipeDeckCard.jsx';
 const CUISINE_BUCKET_LABELS = CATEGORICAL_AXES.cuisine.labels;
 const AROMA_BUCKET_LABELS = CATEGORICAL_AXES.aromas.labels;
 
+// First-card category options. 'sauce' and 'cocktail' short-circuit
+// the rest of the deck and route the user directly into the matching
+// lab. 'meal' and 'dessert' continue through the deck.
+const CATEGORY_OPTIONS = [
+  { key: 'meal',     label: 'Meal',     color: '#22c55e' },
+  { key: 'dessert',  label: 'Dessert',  color: '#ec4899' },
+  { key: 'sauce',    label: 'Sauce',    color: '#fbbf24' },
+  { key: 'cocktail', label: 'Cocktail', color: '#a78bfa' },
+];
+
 function ChipButton({ label, active, color, Icon, onClick, capitalize = true }) {
   return (
     <button
@@ -61,6 +71,8 @@ function ChipButton({ label, active, color, Icon, onClick, capitalize = true }) 
 
 export default function BuildRecipeStart({ ingredients = [], onComplete }) {
   const [bubbleStack, setBubbleStack] = useState([]);
+  // Latch so the sauce/cocktail short-circuit effect only fires once.
+  const shortCircuitedRef = useRef(false);
 
   const setBubbleValue = useCallback((key, value, label, axisHint) => {
     setBubbleStack((prev) => {
@@ -75,6 +87,49 @@ export default function BuildRecipeStart({ ingredients = [], onComplete }) {
   const removeBubble = useCallback((key) => {
     setBubbleStack((prev) => prev.filter((b) => b.key !== key));
   }, []);
+
+  // Set the category bubble — if sauce/cocktail, also set the
+  // matching routing bubble so BuildRecipeResults short-circuits to
+  // the right lab.
+  const pickCategory = useCallback((catKey) => {
+    setBubbleStack((prev) => {
+      // Drop any prior category + routing bubbles so re-picking
+      // doesn't accumulate stale state.
+      const cleaned = prev.filter((b) => !['category', 'cocktail', 'sauce', 'dessert'].includes(b.key));
+      const next = [...cleaned, {
+        key: 'category',
+        label: 'Making',
+        value: catKey,
+        axisHint: null,
+      }];
+      if (catKey === 'sauce') {
+        next.push({ key: 'sauce', label: 'Is for a sauce', value: true, axisHint: 'sauce-scope' });
+      } else if (catKey === 'cocktail') {
+        next.push({ key: 'cocktail', label: 'Is for a cocktail', value: true, axisHint: 'cocktail-scope' });
+      } else if (catKey === 'dessert') {
+        next.push({ key: 'dessert', label: 'Is for a dessert', value: true, axisHint: null });
+      }
+      return next;
+    });
+  }, []);
+
+  const categoryPick = useMemo(
+    () => bubbleStack.find((b) => b.key === 'category')?.value || null,
+    [bubbleStack],
+  );
+
+  // Sauce or cocktail picks short-circuit straight to the results
+  // page (which then routes to the right lab). One-shot via ref.
+  useEffect(() => {
+    if (shortCircuitedRef.current) return;
+    if (categoryPick === 'sauce' || categoryPick === 'cocktail') {
+      shortCircuitedRef.current = true;
+      // Defer to the next tick so the bubble-set commit lands first.
+      const t = setTimeout(() => onComplete?.(bubbleStack), 0);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [categoryPick, bubbleStack, onComplete]);
 
   const ingredientList = useMemo(
     () => bubbleStack.find((b) => b.key === 'ingredient')?.value?.ingredients || [],
@@ -109,7 +164,56 @@ export default function BuildRecipeStart({ ingredients = [], onComplete }) {
   }, []);
 
   const cards = useMemo(() => {
-    return BUBBLE_REGISTRY.map((bubble) => {
+    // Spec-driven card order: category first (with sauce/cocktail
+    // short-circuit), then optional shape-the-recipe filters, then
+    // ingredient picker LAST. cocktail+sauce bubbles are excluded
+    // because the category card handles their routing.
+    const SKIP_KEYS = new Set(['cocktail', 'sauce']);
+    const FILTER_ORDER = ['season', 'cuisine', 'meat', 'aroma', 'dessert', 'dietary'];
+    const byKey = new Map(BUBBLE_REGISTRY.filter((b) => !SKIP_KEYS.has(b.key)).map((b) => [b.key, b]));
+    const ordered = [];
+    // 1. Category card (synthetic — not in BUBBLE_REGISTRY).
+    ordered.push({
+      key: 'category',
+      title: "Are you thinking about making a…",
+      required: true,
+      canAdvance: !!categoryPick,
+      onYes: () => {},
+      onNo: () => {},
+      body: (
+        <div>
+          <p className="text-xs text-gray-400 mb-3 text-center">
+            Pick one. Sauce or Cocktail jumps straight to its lab.
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {CATEGORY_OPTIONS.map((opt) => (
+              <ChipButton
+                key={opt.key}
+                label={opt.label}
+                active={categoryPick === opt.key}
+                color={opt.color}
+                Icon={null}
+                onClick={() => pickCategory(opt.key)}
+                capitalize={false}
+              />
+            ))}
+          </div>
+        </div>
+      ),
+    });
+    // 2. Shape-the-recipe filters in spec order (dessert flag is
+    // already set if category=dessert; user can still toggle others).
+    for (const key of FILTER_ORDER) {
+      const bubble = byKey.get(key);
+      if (!bubble) continue;
+      ordered.push(buildBubbleCard(bubble));
+    }
+    // 3. Ingredient picker LAST.
+    const ingredientBubble = byKey.get('ingredient');
+    if (ingredientBubble) ordered.push(buildBubbleCard(ingredientBubble));
+    return ordered;
+
+    function buildBubbleCard(bubble) {
       const item = bubbleStack.find((b) => b.key === bubble.key);
       const card = {
         key: bubble.key,
@@ -120,8 +224,6 @@ export default function BuildRecipeStart({ ingredients = [], onComplete }) {
         onNo: () => removeBubble(bubble.key),
         body: null,
       };
-      if (bubble.key === 'cocktail') card.title = 'Building a cocktail?';
-      if (bubble.key === 'sauce') card.title = 'Building a sauce?';
 
       switch (bubble.subUI) {
         case 'ingredient-search':
@@ -325,8 +427,8 @@ export default function BuildRecipeStart({ ingredients = [], onComplete }) {
           card.body = <p className="text-xs text-gray-500 text-center">No sub-view.</p>;
       }
       return card;
-    });
-  }, [bubbleStack, ingredients, ingredientList, addIngredient, removeIngredient, setBubbleValue, removeBubble]);
+    }
+  }, [bubbleStack, ingredients, ingredientList, categoryPick, pickCategory, addIngredient, removeIngredient, setBubbleValue, removeBubble]);
 
   return (
     <div

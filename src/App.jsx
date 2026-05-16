@@ -1170,10 +1170,12 @@ export default function App() {
             className="hidden sm:flex items-center h-8 px-3 gap-0.5 border-t border-[#1e1e2e] bg-[#0a0a12]/80"
           >
             <span className="text-[9px] uppercase tracking-widest text-gray-600 mr-2">Explore →</span>
-            {/* Spec §1.F: secondary nav under Explore = exactly 3 entries
-                (Cocktail Lab / Sauce Lab / Recipes). Network is reached
-                by tapping the primary Explore tab. Notebook surface is
-                reachable via the Build path. */}
+            {/* Secondary nav: 3 spec-mandated labs + the notebook
+                Recipe Lab. The notebook is the working surface for
+                composing a recipe (canvas-driven, pen-and-paper feel);
+                Recipes (3D) is the browseable curated set. Both live
+                here so users can switch between exploring and
+                authoring without leaving the Explore context. */}
             <button
               onClick={() => { setActiveTab('cocktail'); setCocktailMounted(true); }}
               className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
@@ -1198,6 +1200,15 @@ export default function App() {
               title="Recipe browser — 15 hand-curated dishes"
             >
               Recipes
+            </button>
+            <button
+              onClick={() => { setActiveTab('recipe'); setRecipeMounted(true); }}
+              className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
+                activeTab === 'recipe' ? 'text-emerald-300 bg-emerald-500/10' : 'text-gray-500 hover:text-gray-300'
+              }`}
+              title="Notebook-style recipe builder — compose your own"
+            >
+              Notebook
             </button>
           </div>
         )}
@@ -1598,8 +1609,19 @@ export default function App() {
               } else if (labKey === 'sauce') {
                 setSauceMounted(true);
                 setActiveTab('sauce');
-              } else if (labKey === 'recipes-3d') {
-                setActiveTab('recipes-3d');
+              } else if (labKey === 'notebook') {
+                // Build → Recipe Notebook hand-off. The user's
+                // selected ingredients land in the notebook's bowl
+                // so they can start composing immediately.
+                const ings = externalFilter?.ingredients || [];
+                setRecipeHandoff({
+                  ingredients: [...ings],
+                  mode: 'recipe',
+                  ts: Date.now(),
+                });
+                setRecipeInitialMode('recipe');
+                setRecipeMounted(true);
+                setActiveTab('recipe');
               }
             }}
             onAxisSelect={(axis) => {
@@ -1739,12 +1761,26 @@ export default function App() {
         <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
           <RecipesLab
             externalFilter={externalLabFilter}
+            ctx={data}
             onOpenInNetwork={(ingredientName) => {
               if (ingredientName) {
                 setSelectedNode(ingredientName);
                 setSelectedNodes([ingredientName]);
               }
               setActiveTab('network');
+            }}
+            onOpenRecipeLab={(_mode, initialIngredients) => {
+              // Same one-shot handoff pattern Cocktail/Sauce labs use:
+              // stamp the bowl-reset key so RecipeLab swaps to these
+              // ingredients on mount.
+              setRecipeHandoff({
+                ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
+                mode: 'recipe',
+                ts: Date.now(),
+              });
+              setRecipeInitialMode('recipe');
+              setRecipeMounted(true);
+              setActiveTab('recipe');
             }}
           />
         </div>

@@ -149,10 +149,10 @@ export default function BuildRecipeResults({
           </button>
           <button
             type="button"
-            onClick={() => onOpenLab?.('recipes-3d', externalFilter)}
-            className="px-4 py-3 rounded-lg bg-[#12203b] hover:bg-[#16284a] border border-pink-400/40 text-pink-200 text-sm font-medium transition-colors"
+            onClick={() => onOpenLab?.('notebook', externalFilter)}
+            className="px-4 py-3 rounded-lg bg-[#12203b] hover:bg-[#16284a] border border-emerald-400/40 text-emerald-200 text-sm font-medium transition-colors"
           >
-            Open in Recipes →
+            Open in Recipe Notebook →
           </button>
         </div>
 

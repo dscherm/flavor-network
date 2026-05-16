@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 /**
  * Master shape vocabulary for the multi-shape NodeMesh. All geometries
@@ -36,6 +37,10 @@ export const SHAPE_KEYS = Object.freeze([
   'torusKnot',
   'bipyramid',
   'star',
+  // 'cookbook' — two flat page-rectangles meeting at a slight V
+  // spine, like an open book. Used by RecipesLab so each recipe
+  // node reads as a cookbook entry instead of a sphere.
+  'cookbook',
 ]);
 
 export function buildShapeGeometries() {
@@ -66,6 +71,25 @@ export function buildShapeGeometries() {
   starGeo.translate(0, 0, -0.15);
   starGeo.computeBoundingSphere();
 
+  // Open-cookbook: two thin page-rectangles tilted toward each other
+  // at the spine. Each page = 0.9 wide × 1.1 tall × 0.08 thick, then
+  // rotated ±15° around Y so they meet at a V. Scaled to bounding
+  // radius ≈ 1 by a final uniform scale of 0.95.
+  const pageW = 0.9, pageH = 1.1, pageT = 0.08;
+  const pageA = new THREE.BoxGeometry(pageW, pageH, pageT);
+  // Translate the page so its inner edge sits at x=0 (spine), then tilt.
+  pageA.translate(pageW / 2, 0, 0);
+  pageA.rotateY(-Math.PI / 12);   // -15°
+  const pageB = new THREE.BoxGeometry(pageW, pageH, pageT);
+  pageB.translate(-pageW / 2, 0, 0);
+  pageB.rotateY(Math.PI / 12);    // +15°
+  // Spine — a thin vertical bar at x=0 connecting the two pages.
+  const spine = new THREE.BoxGeometry(0.06, pageH * 1.02, 0.18);
+  const cookbookGeo = mergeGeometries([pageA, pageB, spine], false);
+  cookbookGeo.scale(0.95, 0.95, 0.95);
+  cookbookGeo.computeBoundingSphere();
+  pageA.dispose(); pageB.dispose(); spine.dispose();
+
   return {
     sphere: new THREE.SphereGeometry(1, SEG, SEG),
     // Cube edge length 1.27 → bounding-sphere radius √3/2 · 1.27 ≈ 1.10.
@@ -88,6 +112,8 @@ export function buildShapeGeometries() {
     bipyramid: bipyramidGeo,
     // 5-pointed extruded star — α-mode "Surprising" tier (ringIdx=0).
     star: starGeo,
+    // Open-cookbook — used by RecipesLab.
+    cookbook: cookbookGeo,
   };
 }
 
@@ -126,6 +152,7 @@ export function buildShapeEdgeGeometries(baseGeos) {
     icosahedron: 1,
     bipyramid: 1,     // 8 hard ridges — render every edge
     star: 1,          // 10 outer + 10 inner edges — read as a star outline
+    cookbook: 1,      // hard page + spine edges — render every edge
   };
   const result = {};
   for (const [k, g] of Object.entries(baseGeos)) {

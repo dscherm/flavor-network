@@ -470,7 +470,13 @@ function NetworkScene({
     if (!camera) return;
     const [cx, cy, cz] = flyToTarget.position;
     const memberCount = flyToTarget.memberCount || 1;
-    const dist = Math.max(30, Math.sqrt(memberCount) * 5);
+    // Optional `distance` override lets small-scene labs (RecipesLab's
+    // 15-node ~12-unit cloud) pick a tighter framing than the cluster-
+    // tour default floor of 30 units, which puts the camera off the
+    // edge of the scene for small geometries.
+    const dist = typeof flyToTarget.distance === 'number'
+      ? flyToTarget.distance
+      : Math.max(30, Math.sqrt(memberCount) * 5);
     const radialLen = Math.hypot(cx, cy, cz);
     let dirX, dirY, dirZ;
     if (radialLen > 0.001) {

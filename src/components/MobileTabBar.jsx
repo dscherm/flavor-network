@@ -102,6 +102,16 @@ export default function MobileTabBar({
                 >
                   Recipes
                 </button>
+                <button
+                  onClick={() => { onTabChange('recipe'); closeAll(); }}
+                  className={`w-full text-left px-3 py-2.5 min-h-[44px] text-xs font-medium transition-colors ${
+                    activeTab === 'recipe'
+                      ? 'text-emerald-300 bg-emerald-500/10'
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
+                  }`}
+                >
+                  Notebook
+                </button>
                 {/* Mode switcher — only when currently on network. */}
                 {activeTab === 'network' && (
                   <>
