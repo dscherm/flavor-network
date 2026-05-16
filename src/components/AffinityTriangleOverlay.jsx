@@ -37,7 +37,6 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { affinityShape } from '../data/affinityShapes.js';
 
 const TRIANGLE_OPACITY = 0.22;
 const HYPOTENUSE_OPACITY = 0.6;
@@ -45,65 +44,9 @@ const HYPOTENUSE_WIDTH = 1.6;
 const BASE_HALF_WIDTH_FACTOR = 0.05; // base width = length * factor
 const BASE_HALF_WIDTH_MIN = 5;
 const BASE_HALF_WIDTH_MAX = 16;
-// User feedback (2026-05-16): icons + text bumped 2x so the tier
-// silhouette is identifiable at a glance.
-const APEX_ICON_SIZE = 28;
 const APEX_LABEL_DX = 18;
 const APEX_LABEL_FONT_SIZE = 16;
 const POLL_INTERVAL_MS = 50; // ~20Hz
-
-// Mini SVG icon set mirroring ShapeLegend's silhouettes so the apex
-// marker matches the in-scene affinity legend at-a-glance. Drawn
-// inside a [-7, 7] box; caller translates to (apex.x, apex.y).
-function ApexIcon({ shape, color, opacity = 1 }) {
-  const s = APEX_ICON_SIZE;
-  const c = s / 2;
-  const r = s / 2 - 1;
-  const stroke = color;
-  const fill = color;
-  const fillOpacity = 0.55 * opacity;
-  const strokeOpacity = 0.95 * opacity;
-  const common = { stroke, strokeOpacity, fill, fillOpacity, strokeWidth: 2.0 };
-  switch (shape) {
-    case 'bipyramid':
-      return (
-        <g aria-hidden="true">
-          <polygon points={`${c},1 ${s - 2},${c} ${c},${s - 1} 2,${c}`} {...common} />
-          <line x1={2} y1={c} x2={s - 2} y2={c} stroke={stroke} strokeOpacity={strokeOpacity * 0.7} strokeWidth={0.7} strokeDasharray="2 2" />
-        </g>
-      );
-    case 'cylinder':
-      return (
-        <g aria-hidden="true">
-          <rect x={s * 0.3} y={1.5} width={s * 0.4} height={s - 3} {...common} />
-          <ellipse cx={c} cy={2.5} rx={s * 0.2} ry={1.2} stroke={stroke} strokeOpacity={strokeOpacity * 0.7} fill={fill} fillOpacity={fillOpacity} strokeWidth={1.2} />
-          <ellipse cx={c} cy={s - 2.5} rx={s * 0.2} ry={1.2} stroke={stroke} strokeOpacity={strokeOpacity * 0.7} fill="none" strokeWidth={1.2} />
-        </g>
-      );
-    case 'sphere':
-      return <circle cx={c} cy={c} r={r} {...common} />;
-    case 'star': {
-      const outer = r;
-      const inner = outer * 0.4;
-      const pts = [];
-      for (let i = 0; i < 10; i++) {
-        const rr = i % 2 === 0 ? outer : inner;
-        const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
-        pts.push(`${(c + Math.cos(a) * rr).toFixed(2)},${(c + Math.sin(a) * rr).toFixed(2)}`);
-      }
-      return <polygon points={pts.join(' ')} {...common} strokeLinejoin="round" />;
-    }
-    case 'dodecahedron':
-      return <polygon points={`${c},1 ${s - 1},${s * 0.4} ${s - 2},${s - 1} 2,${s - 1} 1,${s * 0.4}`} {...common} />;
-    default:
-      return <circle cx={c} cy={c} r={r} {...common} />;
-  }
-}
-
-function tierToShape(tier) {
-  if (tier == null) return 'sphere';
-  return affinityShape(tier);
-}
 
 export default function AffinityTriangleOverlay({ projectionRef = null }) {
   const [snapshot, setSnapshot] = useState(null);
@@ -189,21 +132,19 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         );
       })}
 
-      {/* Pass 2 — apex shape icon + ingredient label, drawn after fills
-          so the chrome doesn't get washed out. Tier shape mirrors the
-          AFFINITY_SHAPE_LEGEND silhouette in the desktop rail. */}
+      {/* Pass 2 — ingredient label only. The 3D ring meshes (bipyramid /
+          cylinder / sphere / star — same silhouettes as the affinity
+          legend in the upper-left rail) already render at each apex
+          position, so the SVG no longer paints a redundant icon over
+          them. The label sits beside the apex with a slight offset so
+          it doesn't overlap the 3D shape. */}
       {accents.map((a) => {
         if (!Number.isFinite(a.x) || !Number.isFinite(a.y)) return null;
-        const color = a.color || '#7dd3fc';
         const fade = Number.isFinite(a.opacity) ? a.opacity : 1;
         const anchor = a.x >= fx ? 'start' : 'end';
         const dx = a.x >= fx ? APEX_LABEL_DX : -APEX_LABEL_DX;
-        const shape = tierToShape(a.tier);
         return (
           <g key={`apex-${a.name}`} opacity={fade}>
-            <g transform={`translate(${(a.x - APEX_ICON_SIZE / 2).toFixed(1)}, ${(a.y - APEX_ICON_SIZE / 2).toFixed(1)})`}>
-              <ApexIcon shape={shape} color={color} opacity={fade} />
-            </g>
             <text
               x={a.x + dx}
               y={a.y - 2}
