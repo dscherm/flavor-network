@@ -2556,22 +2556,22 @@ export default function LivingArchView({
   }, [selectedNodes, isMobile, affinityEnabled]);
 
   // ---- Task-6 Phase 4b — focal-screen-tracked affinity wheel overlay ----
-  // Flag-gated. Per-frame RAF projects the focal 3D position to screen
-  // coordinates and writes `--affinity-wheel-x` / `--affinity-wheel-y`
-  // CSS vars on the document root. The App-level overlay reads those
-  // vars (with corner fallback) so the wheel anchors near the focal
-  // sphere instead of pinning to bottom-right.
+  // Default-on per user feedback (Image #1 review): per-frame RAF projects
+  // the focal 3D position to screen coordinates and writes
+  // `--affinity-wheel-x` / `--affinity-wheel-y` CSS vars on the document
+  // root. The App-level overlay reads those vars (with corner fallback)
+  // so the wheel anchors near the focal sphere instead of pinning to
+  // bottom-right.
   //
-  // Gate: window.__omc?.affinityWheelTracking === true (opt-in).
+  // Opt-out: window.__omc?.affinityWheelTracking === false (defensive
+  // escape hatch — kept in case the per-frame projection regresses on
+  // a specific device).
   // Clamps: focal behind camera, NDC outside [-1.2, 1.2], or no focal
   //         → vars cleared, overlay falls back to corner.
-  // Promotion criteria for default-on: see plan F2 (≥1 release soak +
-  // iOS Safari + Chrome QA + AffinityMode.perf.test.js framePerfBudget
-  // no regression).
   const trackedFocalName = selectedNodes.length === 1 ? selectedNodes[0] : null;
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
-    if (!window.__omc?.affinityWheelTracking) return undefined;
+    if (window.__omc?.affinityWheelTracking === false) return undefined;
     if (isMobile) return undefined;
     if (!trackedFocalName) return undefined;
     const root = document.documentElement;
@@ -2580,9 +2580,9 @@ export default function LivingArchView({
       root.style.removeProperty('--affinity-wheel-y');
     };
     const v = new THREE.Vector3();
-    const wheelSize = 240;
+    const wheelSize = 340;
     const margin = 16;
-    const anchorOffset = 28; // px right + down from focal to avoid occluding sphere
+    const anchorOffset = 36; // px right + down from focal to avoid occluding sphere
     let raf = 0;
     const tick = () => {
       const st = stateRef.current;
