@@ -801,6 +801,21 @@ export class AffinityMode {
         px = fallback.x;
         pz = fallback.z;
       }
+      // Iter (2026-05-16 'stagger same-tier'): within-tier radial
+      // stagger. Walk each tier from slot 0 (closest to focal) to
+      // slot N-1 (furthest) linearly, scaling the radial vector by
+      // [1 - STAGGER_RANGE/2 .. 1 + STAGGER_RANGE/2]. Same-tier
+      // accents that previously shared a screen line now sit at
+      // visibly different distances. Range stays inside the
+      // inter-tier gap so ★★ doesn't bleed into ★★★ territory.
+      const tierCap = RING_CAPACITY[ringIdx] || 1;
+      const radialStaggerRange = 0.18; // ±9% of tier radius
+      const radialOffset = tierCap > 1
+        ? (slot / (tierCap - 1) - 0.5) * radialStaggerRange
+        : 0;
+      const radialScale = 1 + radialOffset;
+      px *= radialScale;
+      pz *= radialScale;
       // Tier-stratified pyramid (2026-05-16 user feedback): lift each
       // accent off the focal's Y plane based on its ring tier so the
       // 3D layout reads as a low pyramid around the focal. Strong
