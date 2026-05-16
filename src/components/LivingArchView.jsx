@@ -84,6 +84,12 @@ export default function LivingArchView({
   // with a screen-projected snapshot of the top-20 cross-bucket
   // bridge ingredients of the active morph axis.
   onBridgePulse = null,
+  // Track 2 (2026-05-16) — top-K affinity neighbors of the focal,
+  // projected to screen pixels per-frame and written to
+  // `affinityProjectionRef.current` for AffinityTriangleOverlay to
+  // consume via its own ~20Hz polling RAF.
+  neighbors = null,
+  affinityProjectionRef = null,
   highlightPairings = null,
   flyToTarget = null,
   highlightIngredients = null,
@@ -2568,76 +2574,108 @@ export default function LivingArchView({
     }
   }, [selectedNodes, isMobile, affinityEnabled]);
 
-  // ---- Task-6 Phase 4b — focal-screen-tracked affinity wheel overlay ----
-  // Default-on per user feedback (Image #1 review): per-frame RAF projects
-  // the focal 3D position to screen coordinates and writes
-  // `--affinity-wheel-x` / `--affinity-wheel-y` CSS vars on the document
-  // root. The App-level overlay reads those vars (with corner fallback)
-  // so the wheel anchors near the focal sphere instead of pinning to
-  // bottom-right.
+  // ---- Track 2 (2026-05-16) — per-frame affinity projection ----
+  // While a single ingredient is focal, project the focal + each
+  // top-K neighbor's 3D position to viewport pixels and write the
+  // snapshot to `affinityProjectionRef.current`. AffinityTriangleOverlay
+  // polls the ref at ~20Hz and renders right-triangle wedges from focal
+  // to each accent. Color per accent matches the network surface:
+  // cluster color by default, bucket color when a categorical filter
+  // is active (mirrors the R17 visual-treatment logic at line 2313).
   //
-  // Opt-out: window.__omc?.affinityWheelTracking === false (defensive
-  // escape hatch — kept in case the per-frame projection regresses on
-  // a specific device).
-  // Clamps: focal behind camera, NDC outside [-1.2, 1.2], or no focal
-  //         → vars cleared, overlay falls back to corner.
+  // Clamps: focal/accent NDC outside [-1.2, 1.2] OR z out of [-1,1] →
+  // the affected entry is omitted (focal omitted → snapshot=null).
   const trackedFocalName = selectedNodes.length === 1 ? selectedNodes[0] : null;
+  // Mirror `neighbors` into a ref so the per-frame loop reads the
+  // latest list without restarting the RAF when the parent re-renders
+  // (and `neighbors` gets a new array identity each time).
+  const neighborsRef = useRef(neighbors);
+  useEffect(() => { neighborsRef.current = neighbors; }, [neighbors]);
   useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    if (window.__omc?.affinityWheelTracking === false) return undefined;
+    if (!affinityProjectionRef) return undefined;
     if (isMobile) return undefined;
-    if (!trackedFocalName) return undefined;
-    const root = document.documentElement;
-    const clearVars = () => {
-      root.style.removeProperty('--affinity-wheel-x');
-      root.style.removeProperty('--affinity-wheel-y');
-    };
+    if (!trackedFocalName) {
+      affinityProjectionRef.current = null;
+      return undefined;
+    }
     const v = new THREE.Vector3();
-    const wheelSize = 340;
-    const margin = 16;
-    const anchorOffset = 36; // px right + down from focal to avoid occluding sphere
     let raf = 0;
     const tick = () => {
+      raf = requestAnimationFrame(tick);
       const st = stateRef.current;
       if (!st || !st.camera || !st.renderer || !st.curPos || !st.nameIdx) {
-        clearVars();
-        raf = requestAnimationFrame(tick);
+        affinityProjectionRef.current = null;
         return;
       }
-      const i = st.nameIdx.get(trackedFocalName);
-      if (i == null) {
-        clearVars();
-        raf = requestAnimationFrame(tick);
-        return;
-      }
-      const px = st.curPos[i * 3];
-      const py = st.curPos[i * 3 + 1];
-      const pz = st.curPos[i * 3 + 2];
-      v.set(px, py, pz).project(st.camera);
-      if (
-        v.z > 1 || v.z < -1 ||
-        v.x < -1.2 || v.x > 1.2 ||
-        v.y < -1.2 || v.y > 1.2
-      ) {
-        clearVars();
-        raf = requestAnimationFrame(tick);
+      const fi = st.nameIdx.get(trackedFocalName);
+      if (fi == null) {
+        affinityProjectionRef.current = null;
         return;
       }
       const rect = st.renderer.domElement.getBoundingClientRect();
-      let sxPx = ((v.x + 1) / 2) * rect.width + rect.left + anchorOffset;
-      let syPx = ((1 - v.y) / 2) * rect.height + rect.top + anchorOffset;
-      sxPx = Math.max(margin, Math.min(window.innerWidth - wheelSize - margin, sxPx));
-      syPx = Math.max(margin, Math.min(window.innerHeight - wheelSize - margin, syPx));
-      root.style.setProperty('--affinity-wheel-x', `${Math.round(sxPx)}px`);
-      root.style.setProperty('--affinity-wheel-y', `${Math.round(syPx)}px`);
-      raf = requestAnimationFrame(tick);
+      // Color source — same logic as R17 visual-treatment effect.
+      const filterActive = filterStackRef.current?.length > 0;
+      const morphActive = filterActive && !!morphAxis;
+      let colorArr;
+      if (morphActive) {
+        const palKey = `${morphAxis === 'aromas' ? 'aromas' : morphAxis}2d`;
+        colorArr = st.categoricalColorByMode?.[palKey] || st.defaultColors;
+      } else if (filterActive) {
+        colorArr = st.clusterColors || st.defaultColors;
+      } else {
+        colorArr = (mode === 'ml' || mode === 'ml2d') ? (st.clusterColors || st.defaultColors) : st.defaultColors;
+      }
+      // Project a 3D node index → { x, y } viewport pixels, or null
+      // when clipped behind/outside the camera frustum (with a small
+      // NDC tolerance band so a wedge edge doesn't disappear the
+      // instant the focal grazes the edge).
+      const projectIdx = (idx) => {
+        const px = st.curPos[idx * 3];
+        const py = st.curPos[idx * 3 + 1];
+        const pz = st.curPos[idx * 3 + 2];
+        v.set(px, py, pz).project(st.camera);
+        if (v.z > 1 || v.z < -1 || v.x < -1.4 || v.x > 1.4 || v.y < -1.4 || v.y > 1.4) {
+          return null;
+        }
+        return {
+          x: ((v.x + 1) / 2) * rect.width + rect.left,
+          y: ((1 - v.y) / 2) * rect.height + rect.top,
+        };
+      };
+      const colorHex = (c) => `#${c.getHexString()}`;
+      const focalProj = projectIdx(fi);
+      if (!focalProj) {
+        affinityProjectionRef.current = null;
+        return;
+      }
+      const focalColor = colorArr?.[fi] ? colorHex(colorArr[fi]) : '#ffffff';
+      const accents = [];
+      const nbs = neighborsRef.current || [];
+      for (const n of nbs) {
+        const idx = st.nameIdx.get(n.name);
+        if (idx == null) continue;
+        const proj = projectIdx(idx);
+        if (!proj) continue;
+        accents.push({
+          name: n.name,
+          x: proj.x,
+          y: proj.y,
+          color: colorArr?.[idx] ? colorHex(colorArr[idx]) : '#7dd3fc',
+          strength: n.strength,
+        });
+      }
+      affinityProjectionRef.current = {
+        focal: { name: trackedFocalName, x: focalProj.x, y: focalProj.y, color: focalColor },
+        accents,
+        ts: typeof performance !== 'undefined' ? performance.now() : Date.now(),
+      };
     };
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
-      clearVars();
+      affinityProjectionRef.current = null;
     };
-  }, [trackedFocalName, isMobile, mode]);
+  }, [trackedFocalName, isMobile, mode, morphAxis, affinityProjectionRef]);
 
   // ---- Toggle handler — MODE_CYCLE / MODE_LABELS now imported
   // from `data/networkModes.js` so MobileTabBar's Network-button
