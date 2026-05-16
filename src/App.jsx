@@ -987,11 +987,22 @@ export default function App() {
       <BridgePulseOverlay pulse={bridgePulse} />
       {/* Task-6 Phase-2 — compact wedge-grid wheel as a corner overlay
           when a single ingredient is focal. Selection-only (no filter
-          callback) — IngredientPanel is the filter-drive surface. */}
+          callback) — IngredientPanel is the filter-drive surface.
+          Phase 4b — when `window.__omc.affinityWheelTracking === true`,
+          LivingArchView's RAF loop writes `--affinity-wheel-x/y` CSS
+          vars; this overlay reads them via fixed positioning, falling
+          back to the bottom-right corner when the vars are unset. */}
       {selectedNodeData && selectedNodes.length === 1 && !isMobile && (
         <div
-          className="absolute bottom-4 right-4 z-30 pointer-events-auto bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2"
-          style={{ width: 240 }}
+          className="z-30 pointer-events-auto bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2"
+          style={{
+            position: 'fixed',
+            width: 240,
+            left: 'var(--affinity-wheel-x, auto)',
+            top: 'var(--affinity-wheel-y, auto)',
+            right: '1rem',
+            bottom: '1rem',
+          }}
         >
           <WedgeGridFlavorWheel
             focalNode={selectedNodeData}
