@@ -808,18 +808,6 @@ export default function App() {
                   <div className="border-t border-[#2a2a3a]" />
                   <button
                     role="menuitem"
-                    onClick={() => { setShowTreeExplorer(v => !v); setNetworkDropdownOpen(false); }}
-                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                      showTreeExplorer ? 'text-purple-300 bg-purple-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
-                    }`}
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-                    </svg>
-                    Ingredient Tree
-                  </button>
-                  <button
-                    role="menuitem"
                     onClick={() => {
                       setActiveTab('sauce');
                       setSauceMounted(true);
@@ -1504,8 +1492,13 @@ export default function App() {
           )}
           {/* R17 — FilterPullSlider: continuous pull strength between
               cooccurrence base (left) and bucket-pole snap (right).
-              Hidden when no filter is active (nothing to pull toward). */}
-          {filterStack.length > 0 && (
+              Hidden when no filter is active (nothing to pull toward).
+              Also hidden when only scope filters (cocktail-scope /
+              sauce-scope) are active — those are visibility-only and
+              have no morph axis to pull toward, so a slider would be
+              inert. Gate on `morphAxis` (non-null only when a
+              non-scope filter is present). */}
+          {filterStack.length > 0 && morphAxis && (
             <div
               className="fixed left-1/2 -translate-x-1/2 z-[68] pointer-events-auto"
               style={{ top: 'calc(var(--nav-h) + 9.5rem)' }}
@@ -1521,7 +1514,7 @@ export default function App() {
               current (filterStack × pullStrength) layout is doing. Sits
               below the breadcrumb + slider stack; hidden when no filter
               is active. */}
-          {filterStack.length > 0 && (
+          {filterStack.length > 0 && morphAxis && (
             <div
               className="fixed left-1/2 -translate-x-1/2 z-[68] pointer-events-auto"
               style={{ top: 'calc(var(--nav-h) + 12rem)' }}

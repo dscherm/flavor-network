@@ -196,20 +196,22 @@ export default function ShapeLegend({ title = 'Shapes', legend, selectedKey = nu
         </div>
       </div>
 
-      {/* Desktop vertical rail — anchored top-left, original design. */}
+      {/* Desktop vertical rail — anchored top-left. Width shrinks to
+          fit content; title strips trailing " shapes" so the chrome
+          doesn't dominate over the actual category names. */}
       <div
-        className="hidden sm:block fixed left-2 z-[60] select-none px-2.5 py-2 rounded-md bg-[#0d0d16]/85 border border-[#2a2a3a] backdrop-blur-sm"
+        className="hidden sm:block fixed left-2 z-[60] select-none px-1.5 py-1.5 rounded-md bg-[#0d0d16]/85 border border-[#2a2a3a] backdrop-blur-sm w-fit"
         style={{ top: 'calc(var(--nav-h, 40px) + 24px)' }}
       >
-        <div className="text-[9px] uppercase tracking-wider text-gray-500 mb-1.5 pb-1 border-b border-[#2a2a3a]">
-          {title}
+        <div className="text-[9px] uppercase text-gray-500 mb-1 pb-0.5 border-b border-[#2a2a3a]">
+          {title.replace(/\s*shapes$/i, '')}
         </div>
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           {legend.map(({ category, shape }) => {
             const isActive = selectedKey === category;
             const node = (
               <div
-                className="flex items-center gap-2 text-[10px] transition-colors"
+                className="flex items-center gap-1.5 text-[10px] transition-colors whitespace-nowrap"
                 style={{ color: isActive ? '#fff' : '#d1d5db' }}
               >
                 <ShapeIcon shape={shape} color={isActive ? '#fff' : 'currentColor'} />
@@ -221,7 +223,7 @@ export default function ShapeLegend({ title = 'Shapes', legend, selectedKey = nu
               <button
                 key={category}
                 onClick={() => handleTap(category)}
-                className="w-full text-left px-1 py-0.5 rounded hover:bg-white/5 transition-colors"
+                className="block text-left px-1 py-0.5 rounded hover:bg-white/5 transition-colors"
                 title={isActive ? `Clear ${category} filter` : `Show only ${category}`}
               >
                 {node}
