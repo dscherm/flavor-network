@@ -1433,24 +1433,11 @@ export default function App() {
           >
             ?
           </button>
-          {/* R16 Phase 3: contextual "Colors: …" chip explaining what the
-              node colors encode under the active filter. Updates reactively
-              to morphAxis (null → clusters, axis name → bucket palette). */}
-          <div
-            className="fixed left-4 top-14 z-[68] px-2.5 py-1 text-[10px] uppercase tracking-wider text-gray-400 bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full pointer-events-none"
-            aria-live="polite"
-            aria-label="Color encoding"
-          >
-            Colors: {
-              morphAxis === null ? 'clusters' :
-              morphAxis === 'aromas' ? 'aroma buckets' :
-              morphAxis === 'cuisine' ? 'cuisine regions' :
-              morphAxis === 'season' ? 'seasonality' :
-              morphAxis === 'family' ? 'ingredient family' :
-              morphAxis === 'taste' ? 'taste classes' :
-              'clusters'
-            }
-          </div>
+          {/* R16 Phase 3 "Colors: …" chip removed per user feedback
+              (2026-05-16) — bucket pills + the ShapeLegend already
+              carry the color/shape semantics; the chip just crowded
+              the screen. The same a11y signal is still available via
+              HUDAnnouncer when the filter changes. */}
           {/* R16 Phase 4: screen-reader announcer for filter changes
               + visible-node-count updates. Visually hidden via sr-only. */}
           <HUDAnnouncer filterStack={filterStack} visibleCount={visibleNodeCount} pullStrength={pullStrength} />

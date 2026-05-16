@@ -952,7 +952,12 @@ export class AffinityMode {
       sprite.position.set(pos[0], pos[1] + 4, pos[2]);
       this.labelGroup.add(sprite);
     }
-    this.labelGroup.visible = true;
+    // Track 2 (2026-05-16) — accent name labels are now carried by
+    // AffinityTriangleOverlay in SVG. Keeping the 3D sprites visible
+    // produced doubled labels ("cheese cheese", "flour flour" in the
+    // user's screenshot). The sprite buffer is still populated so any
+    // future code path can flip this back on, but the default is off.
+    this.labelGroup.visible = false;
 
     // Bucket-name labels — one per wedge, sitting at the outer label
     // radius in the same XZ plane as the wedge arcs. Re-uses makeLabel
