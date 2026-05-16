@@ -57,6 +57,7 @@ import HUDAnnouncer from './components/HUDAnnouncer.jsx';
 import FilterPullSlider from './components/FilterPullSlider.jsx';
 import InsightChip from './components/InsightChip.jsx';
 import BridgePulseOverlay from './components/BridgePulseOverlay.jsx';
+import WedgeGridFlavorWheel from './components/WedgeGridFlavorWheel.jsx';
 import InsightDrawer from './components/InsightDrawer.jsx';
 import { rankBridges } from './data/bridgeRanker.js';
 import { computeClusterBucketOverlap } from './data/clusterBucketOverlap.js';
@@ -251,6 +252,16 @@ export default function App() {
   const clearFilters = useCallback(() => {
     setFilterStack([]);
   }, []);
+
+  // Task-6 Phase-2 wiring: thin adapter so the wedge-grid wheel can drive
+  // the same filterStack reducer FilterPillRow uses. The `axis` argument
+  // is documentation-only — `toggleFilter` already takes a single bucket
+  // key (e.g. 'sweet', 'fruity', 'french'). Reserved for future per-axis
+  // routing if filter-pill state ever splits per axis.
+  const onFilterBucketFromWheel = useCallback((axis, bucketKey) => {
+    if (!bucketKey) return;
+    toggleFilter(bucketKey);
+  }, [toggleFilter]);
 
   // Pop breadcrumb to length N. Length 0 = clear all; length 1 keeps
   // only the first filter; etc. Used by FilterBreadcrumb segment clicks.
@@ -974,6 +985,26 @@ export default function App() {
       />
       {/* R19 Phase 3 — bridge-pulse rings on pull crossing 0.5. */}
       <BridgePulseOverlay pulse={bridgePulse} />
+      {/* Task-6 Phase-2 — compact wedge-grid wheel as a corner overlay
+          when a single ingredient is focal. Selection-only (no filter
+          callback) — IngredientPanel is the filter-drive surface. */}
+      {selectedNodeData && selectedNodes.length === 1 && !isMobile && (
+        <div
+          className="absolute bottom-4 right-4 z-30 pointer-events-auto bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2"
+          style={{ width: 240 }}
+        >
+          <WedgeGridFlavorWheel
+            focalNode={selectedNodeData}
+            neighbors={neighbors}
+            graphNodes={data?.graph?.nodes}
+            odorThresholds={data?.odorThresholds}
+            size={220}
+            compact
+            onSelectIngredient={handleSearchSelect}
+            onFilterBucket={null}
+          />
+        </div>
+      )}
       {/* Hover tooltip — shows ingredient name at cursor position */}
       {hoveredNode && hoverPos && (
         <div
@@ -1038,6 +1069,7 @@ export default function App() {
           neighbors={neighbors}
           onClose={handlePanelClose}
           onSelectIngredient={handleSearchSelect}
+          onFilterBucket={onFilterBucketFromWheel}
           onHighlightPairings={(names) => setHighlightPairings(
             highlightPairings ? null : names
           )}
@@ -1618,6 +1650,7 @@ export default function App() {
               neighbors={neighbors}
               onClose={handlePanelClose}
               onSelectIngredient={handleSearchSelect}
+              onFilterBucket={onFilterBucketFromWheel}
               onHighlightPairings={(names) => setHighlightPairings(
                 highlightPairings ? null : names
               )}

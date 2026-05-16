@@ -7,7 +7,8 @@ import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
 import FlavorPathCard from './FlavorPathCard.jsx';
 import MoleculeTasteMap from './MoleculeTasteMap.jsx';
 import FullWheel from './FullWheel.jsx';
-import AffinityFlavorWheel from './AffinityFlavorWheel.jsx';
+import AffinityFlavorWheel from './AffinityFlavorWheel.jsx'; // @deprecated — kept for one-release rollback safety
+import WedgeGridFlavorWheel from './WedgeGridFlavorWheel.jsx';
 import { scoreRecipeAroma, AROMA_LABELS, AROMA_COLORS, scoreRecipe } from '../data/recipeScoring.js';
 
 const TASTE_COLORS = {
@@ -202,7 +203,7 @@ function PairingStar({ a, b, isFavorite, onToggle }) {
   );
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes, affinityCtx }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes, affinityCtx, onFilterBucket = null }) {
   const panelRef = useRef(null);
   // Per user request 2026-04-29: panel starts COLLAPSED on each new
   // selection. Clicking an ingredient should not pop a window open;
@@ -586,17 +587,20 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             badge={`(${sortedNeighbors.length})`}
             onHeaderClick={() => onHighlightPairings?.(sortedNeighbors.map(n => n.name))}
           >
-            {/* Phase 2 — Briscione flavor wheel summarizing the focal's
-                bucket distribution. Inner ring = focal's own profile;
-                outer ring = neighbors aggregated by strength. Filter
-                pills above re-axis the wheel (Aroma / Taste / Season /
-                Method). Lives alongside (not instead of) the list. */}
+            {/* Task-6 wedge-grid wheel — replaces the prior 2-ring pie.
+                Briscione-pure 6×4 cell grid (3 rings on mobile). Lines
+                from focal hub to cells with thickness = number of OTHER
+                filter categories the accent ingredient also adds. */}
             <div className="mb-3 flex justify-center">
-              <AffinityFlavorWheel
+              <WedgeGridFlavorWheel
                 focalNode={node}
                 neighbors={sortedNeighbors}
                 graphNodes={graphNodes}
+                odorThresholds={odorThresholds}
                 size={260}
+                compact={false}
+                onSelectIngredient={onSelectIngredient}
+                onFilterBucket={onFilterBucket}
               />
             </div>
             <div className="flex items-center justify-between mb-1.5">
