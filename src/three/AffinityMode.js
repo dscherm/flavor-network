@@ -281,6 +281,18 @@ export class AffinityMode {
   }
 
   /**
+   * Read-only access to the affinity list computed at the last engage
+   * or pivot — used by AffinityTriangleOverlay so the overlay can
+   * render apex shape icons (bipyramid / cylinder / sphere / star)
+   * that match the 3D affinity legend. Empty array when not engaged.
+   * Each entry: { name, ringIdx, strength, tier, bridge } per
+   * topAffinities() + surprisingAffinities() output.
+   */
+  get currentAffinities() {
+    return this._engaged ? this._currentAffinities : [];
+  }
+
+  /**
    * Raycast targets for affinity-aware click handling. The visible
    * focal + ring meshes sit at orbit positions far from the
    * underlying ingredients' real layout coordinates, so the parent

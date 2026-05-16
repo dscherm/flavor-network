@@ -2654,9 +2654,16 @@ export default function LivingArchView({
         return;
       }
       const focalColor = colorArr?.[fi] ? colorHex(colorArr[fi]) : '#ffffff';
-      const ACCENT_CAP = 8; // top-K strongest only — see iter feedback
+      // Prefer AffinityMode's authoritative accent list (covers all
+      // tiers including Surprising; carries per-accent tier + ringIdx
+      // for shape selection). Falls back to the plain getNeighbors()
+      // list when α-mode isn't engaged yet (first paint).
+      const ctrl = affinityModeRef.current;
+      const affList = ctrl?.engaged ? (ctrl.currentAffinities || []) : null;
+      const nbs = affList && affList.length > 0
+        ? affList
+        : (neighborsRef.current || []);
       const candidates = [];
-      const nbs = neighborsRef.current || [];
       for (const n of nbs) {
         const idx = st.nameIdx.get(n.name);
         if (idx == null) continue;
@@ -2668,17 +2675,17 @@ export default function LivingArchView({
           y: proj.y,
           color: colorArr?.[idx] ? colorHex(colorArr[idx]) : '#7dd3fc',
           strength: n.strength,
+          // tier: 3 ★★★ chemistry / 2 ★★ strong / 1 ★ good / 0 surprising / null untiered
+          tier: n.tier ?? null,
           opacity: proj.opacity,
         });
       }
-      // Sort by strength descending, keep top-K, then reverse so
-      // weakest paints first and strongest end up visually on top.
-      candidates.sort((p, q) => (q.strength || 0) - (p.strength || 0));
-      const top = candidates.slice(0, ACCENT_CAP);
-      top.reverse();
+      // Sort weakest-first so strongest paint visually on top (no cap
+      // — slim cones below are narrow enough that 30+ stay readable).
+      candidates.sort((p, q) => (p.strength || 0) - (q.strength || 0));
       affinityProjectionRef.current = {
         focal: { name: trackedFocalName, x: focalProj.x, y: focalProj.y, color: focalColor },
-        accents: top,
+        accents: candidates,
         ts: typeof performance !== 'undefined' ? performance.now() : Date.now(),
       };
     };
