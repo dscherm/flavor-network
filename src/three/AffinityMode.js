@@ -809,8 +809,21 @@ export class AffinityMode {
       aff.bucketKey = dot?.neighbor?.bucketKey ?? null;
       m.compose(tmpV, tmpQ, tmpS);
       mesh.setMatrixAt(slot, m);
-      const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
-      mesh.instanceColor.setXYZ(slot, c.r, c.g, c.b);
+      // Iter (2026-05-16 'audit'): color 3D ring mesh instances by
+      // bucket so the in-scene shapes share the affinity-cone palette.
+      // Tier identification is still carried by the SHAPE silhouette
+      // (bipyramid / cylinder / sphere / star). Falls back to the tier
+      // color when the bucket is unknown.
+      const bucketHex = aff.bucketKey ? bucketColors[aff.bucketKey] : null;
+      let cr, cg, cb;
+      if (bucketHex) {
+        const bc = new THREE.Color(bucketHex);
+        cr = bc.r; cg = bc.g; cb = bc.b;
+      } else {
+        const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
+        cr = c.r; cg = c.g; cb = c.b;
+      }
+      mesh.instanceColor.setXYZ(slot, cr, cg, cb);
       const affGlobalIdx = st.nameIdx?.get(aff.name);
       if (typeof affGlobalIdx === 'number') {
         mesh.userData.slotToGlobalIdx[slot] = affGlobalIdx;
