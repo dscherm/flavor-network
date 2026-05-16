@@ -46,11 +46,14 @@ const BASE_HALF_WIDTH_MIN = 5;
 const BASE_HALF_WIDTH_MAX = 16;
 // Iter (2026-05-16 'tilt the line'): the hypotenuse from focal to
 // apex is a quadratic Bezier whose control point sits perpendicular
-// to the midpoint. Offset magnitude = (1 - strength) * length * this
-// factor — strong affinities are straight lines, weak ones bow off
-// to the side. Direction (which sector the line points at) stays
-// anchored; tilt adds a secondary visual signal for confidence.
-const HYPOTENUSE_TILT_FACTOR = 0.18;
+// to the midpoint. Offset magnitude = sqrt(1 - strength) * length *
+// this factor — strong affinities are nearly straight, weak ones
+// bow visibly. Sqrt curve compresses the strong end so the visual
+// difference between adjacent tiers reads at a glance (the raw
+// strengths cluster in [0.5, 0.95], so linear `(1-strength)` gives
+// only 2-9 px tilt on a typical line — too subtle to see).
+const HYPOTENUSE_TILT_FACTOR = 0.42;
+const HYPOTENUSE_TILT_FLOOR = 0.08; // strong affinities still get a tiny visible curve
 const APEX_LABEL_DX = 18;
 const APEX_LABEL_FONT_SIZE = 16;
 const POLL_INTERVAL_MS = 50; // ~20Hz
@@ -130,9 +133,14 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         const color = a.color || '#7dd3fc';
         const fade = Number.isFinite(a.opacity) ? a.opacity : 1;
         // Hypotenuse tilt — Bezier control point sits perpendicular to
-        // the midpoint, offset by (1 - strength) so weak affinities bow
-        // visibly and strong ones stay straight.
-        const tiltMag = (1 - strengthClamp) * HYPOTENUSE_TILT_FACTOR * len;
+        // the midpoint. Sqrt curve over (1 - strength) so the visual
+        // contrast between strong/weak is legible even when raw
+        // strengths cluster near 1. FLOOR keeps the strongest cones
+        // visibly curved so the rendering reads as "Bezier" rather
+        // than "straight line" across the board.
+        const inverseStrength = 1 - strengthClamp;
+        const tiltScale = Math.max(HYPOTENUSE_TILT_FLOOR, Math.sqrt(inverseStrength));
+        const tiltMag = tiltScale * HYPOTENUSE_TILT_FACTOR * len;
         const midX = (fx + a.x) / 2;
         const midY = (fy + a.y) / 2;
         const ctrlX = midX + px * tiltMag;
