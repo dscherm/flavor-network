@@ -123,6 +123,72 @@ unavailable message).
 
 ## Follow-up backlog (carried forward)
 
+### 🚨 HIGH PRIORITY — GNN compound-food aroma synthesis quality
+
+**F0** (NEW 2026-05-16) — **Compound-food aroma profiles produce
+counter-intuitive bucket assignments.** Audit triggered by user
+flagging `raspberry sherbet → woody` when the user expected fruity.
+
+Findings:
+- The bucketing logic is **mathematically correct** — `aromaBucket()`
+  in `src/data/categoricalAxes.js` picks the channel with the
+  largest positive delta from corpus mean (the deliberate
+  normalization that prevents 92% of ingredients from landing in
+  Woody). For raspberry sherbet specifically:
+  - woody delta +0.065 ← wins
+  - spicy delta +0.061
+  - green delta +0.032
+  - fruity delta +0.025
+  - floral delta +0.005
+  - fatty delta +0.003
+- The model is genuinely predicting woody/spicy dominance for
+  raspberry sherbet because compound-food synthesis rolls up
+  molecular profiles of the constituent ingredients (vanillin,
+  ionones, sugar derivatives, dairy fats) that lean woody-spicy
+  rather than raspberry-ketone-dominated.
+- **This will reproduce for any compound food whose constituents
+  include classical "woody" molecular families** (vanilla, almond,
+  caramel, cooked dairy, baked goods). Likely culprits: ice cream
+  variants, sherbets, sorbets, custards, baked desserts, anything
+  with "vanilla" in the synthesis chain.
+
+Why this is high-priority:
+- The aroma sector is the **primary user-facing classification** in
+  the Briscione visual layer (affinity cones, recipe radar, the
+  3D bucket-pole layout). Counter-intuitive sector assignments
+  undermine trust in the whole surface.
+- The user's example (`raspberry sherbet → woody`) is exactly the
+  kind of result they'd point to and say "this is wrong, fix it."
+  Trust-eroding even if technically correct.
+
+Investigation paths (not yet started):
+1. **Audit `applyCompoundSynthesis()`** in the data pipeline. Is the
+   weighting of constituent ingredients producing too much woody
+   amplification? Are raspberry-ketone-bearing compounds being
+   diluted in the average?
+2. **Name-tilt heuristic** at bucketing time — if the ingredient
+   name contains a strong cue word (`raspberry`, `strawberry`,
+   `lemon`, `apple`, …) and the corresponding aroma channel is in
+   the top-3 deltas, prefer the name-cued aroma. Documented as a
+   "trust override," not a model fix.
+3. **Per-ingredient aroma profile overrides** — small curated table
+   of compound foods whose synthesized profile is known to be
+   misleading. Lookup-first, model-second. The "Maillard fixes"
+   approach from earlier corpus work.
+4. **Mean-subtraction recalibration** — recompute corpus means
+   excluding compound foods so the synthesized profiles aren't
+   pulling the woody mean upward, biasing all desserts to land
+   in non-woody buckets after normalization.
+
+**Next step**: dedicated investigation session — pull a sample of
+20 compound foods that produce surprising buckets, document the
+constituents driving the prediction, and pick the lightest-touch
+fix (likely #2 + #3 in combination).
+
+---
+
+### Other follow-ups
+
 - **F1**: Delete `AffinityFlavorWheel.jsx` after one-release soak (from original Briscione plan)
 - **F2**: Phase 4b focal-screen-tracking — retired (no overlay to anchor)
 - **F3**: Animation polish for cell transitions (spec §Non-Goals — deferred)

@@ -44,6 +44,13 @@ const HYPOTENUSE_WIDTH = 1.6;
 const BASE_HALF_WIDTH_FACTOR = 0.05; // base width = length * factor
 const BASE_HALF_WIDTH_MIN = 5;
 const BASE_HALF_WIDTH_MAX = 16;
+// Iter (2026-05-16 'tilt the line'): the hypotenuse from focal to
+// apex is a quadratic Bezier whose control point sits perpendicular
+// to the midpoint. Offset magnitude = (1 - strength) * length * this
+// factor — strong affinities are straight lines, weak ones bow off
+// to the side. Direction (which sector the line points at) stays
+// anchored; tilt adds a secondary visual signal for confidence.
+const HYPOTENUSE_TILT_FACTOR = 0.18;
 const APEX_LABEL_DX = 18;
 const APEX_LABEL_FONT_SIZE = 16;
 const POLL_INTERVAL_MS = 50; // ~20Hz
@@ -122,6 +129,15 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         const points = `${b1x.toFixed(1)},${b1y.toFixed(1)} ${a.x.toFixed(1)},${a.y.toFixed(1)} ${b2x.toFixed(1)},${b2y.toFixed(1)}`;
         const color = a.color || '#7dd3fc';
         const fade = Number.isFinite(a.opacity) ? a.opacity : 1;
+        // Hypotenuse tilt — Bezier control point sits perpendicular to
+        // the midpoint, offset by (1 - strength) so weak affinities bow
+        // visibly and strong ones stay straight.
+        const tiltMag = (1 - strengthClamp) * HYPOTENUSE_TILT_FACTOR * len;
+        const midX = (fx + a.x) / 2;
+        const midY = (fy + a.y) / 2;
+        const ctrlX = midX + px * tiltMag;
+        const ctrlY = midY + py * tiltMag;
+        const hypotenuseD = `M ${fx.toFixed(1)} ${fy.toFixed(1)} Q ${ctrlX.toFixed(1)} ${ctrlY.toFixed(1)} ${a.x.toFixed(1)} ${a.y.toFixed(1)}`;
         return (
           <g key={`cone-${a.name}`}>
             <polygon
@@ -130,11 +146,9 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
               fillOpacity={TRIANGLE_OPACITY * fade}
               stroke="none"
             />
-            <line
-              x1={fx}
-              y1={fy}
-              x2={a.x}
-              y2={a.y}
+            <path
+              d={hypotenuseD}
+              fill="none"
               stroke={color}
               strokeOpacity={HYPOTENUSE_OPACITY * fade}
               strokeWidth={HYPOTENUSE_WIDTH}
