@@ -276,7 +276,7 @@ export class CameraAnimator {
     this._takeOwnership();
   }
 
-  engageFocalOrbit(focalIdx, focalPosition) {
+  engageFocalOrbit(focalIdx, focalPosition, frameRadius = null) {
     if (this._disabled) { this._state = STATES.IDLE; return; }
     if (!this._camera || !this._controls) return;
     if (!Array.isArray(focalPosition) || focalPosition.length < 3) return;
@@ -286,21 +286,50 @@ export class CameraAnimator {
     // Reset orbit angle accumulator on a fresh engage. repivot()
     // intentionally does NOT reset (preserves angle continuity).
     this._orbitTotalElapsedMs = 0;
+    // Iter (2026-05-16 user feedback): the affinity-mode camera was
+    // too tight — the outer wedge labels clipped on narrow viewports
+    // and the iOS portrait viewport cut off most of the wheel. When
+    // the caller passes a `frameRadius`, recompute the orbit distance
+    // from the live camera FOV + viewport aspect so the wheel fits
+    // with a small margin. Otherwise fall back to the hardcoded default.
+    if (Number.isFinite(frameRadius) && frameRadius > 0) {
+      this._opts.orbitDistance = this._computeFrameDistance(frameRadius);
+    }
     this._beginFocalFlight();
     this._takeOwnership();
   }
 
-  repivot(newIdx, newPosition) {
+  repivot(newIdx, newPosition, frameRadius = null) {
     if (this._disabled) return;
     if (!this._camera || !this._controls) return;
     if (!Array.isArray(newPosition) || newPosition.length < 3) return;
     this._abortFlight();
     this._focalIdx = newIdx;
     this._focalPos.set(newPosition[0], newPosition[1], newPosition[2]);
+    if (Number.isFinite(frameRadius) && frameRadius > 0) {
+      this._opts.orbitDistance = this._computeFrameDistance(frameRadius);
+    }
     // Preserve _orbitTotalElapsedMs so angle continuity is maintained
     // across the pivot. This is the AC-FO-7 invariant.
     this._beginFocalFlight();
     this._takeOwnership();
+  }
+
+  /**
+   * Compute the orbit distance needed to frame a sphere of `radius`
+   * inside the camera's viewport with a small margin. Adapts to both
+   * vertical and horizontal FOV so portrait phone viewports get
+   * pushed further back than landscape desktop.
+   */
+  _computeFrameDistance(radius) {
+    const cam = this._camera;
+    if (!cam || !cam.fov || !cam.aspect) return this._opts.orbitDistance;
+    const vFovRad = (cam.fov * Math.PI) / 180;
+    const vHalf = vFovRad / 2;
+    const hHalf = Math.atan(Math.tan(vHalf) * cam.aspect);
+    const limiting = Math.min(vHalf, hHalf);
+    const margin = 1.18;
+    return (radius * margin) / Math.sin(limiting);
   }
 
   exitFocalOrbit() {
