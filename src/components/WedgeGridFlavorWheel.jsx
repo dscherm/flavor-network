@@ -33,6 +33,43 @@ const RING_AXES_MOBILE = ['taste', 'season', 'cuisine'];
 // once and consulted by cellElements sort below.
 const RING_RANK = { taste: 0, season: 1, cuisine: 2, method: 3, compact: 0 };
 
+// Theme palettes — dark = 3D affinity overlay + IngredientPanel mount;
+// light = Recipe Lab mount on cream/notebook background. Activated
+// sector fills (BRISCIONE_AROMA at 0.55) stay constant across themes;
+// only the chrome (text, borders, hub, halos) flips.
+const THEMES = {
+  dark: {
+    stroke: 'rgba(10,10,18,0.55)',
+    cellText: '#e5e7eb',
+    hubFill: 'rgba(10,10,18,0.85)',
+    hubStroke: 'rgba(255,255,255,0.3)',
+    hubText: '#e5e7eb',
+    labelInactive: 'rgba(255,255,255,0.45)',
+    ringAxisLabel: 'rgba(255,255,255,0.45)',
+    faintSector: 'rgba(255,255,255,0.04)',
+    haloFill: 'rgba(10,10,18,0.55)',
+    haloStroke: 'rgba(255,255,255,0.8)',
+    chipFill: 'rgba(10,10,18,0.7)',
+    chipStroke: 'rgba(255,255,255,0.18)',
+    chipText: 'rgba(255,255,255,0.75)',
+  },
+  light: {
+    stroke: 'rgba(10,10,18,0.45)',
+    cellText: '#1f2937',
+    hubFill: 'rgba(255,255,255,0.92)',
+    hubStroke: 'rgba(10,10,18,0.45)',
+    hubText: '#1f2937',
+    labelInactive: 'rgba(10,10,18,0.55)',
+    ringAxisLabel: 'rgba(10,10,18,0.55)',
+    faintSector: 'rgba(10,10,18,0.04)',
+    haloFill: 'rgba(255,255,255,0.85)',
+    haloStroke: 'rgba(10,10,18,0.55)',
+    chipFill: 'rgba(255,255,255,0.85)',
+    chipStroke: 'rgba(10,10,18,0.25)',
+    chipText: 'rgba(10,10,18,0.7)',
+  },
+};
+
 function polar(cx, cy, r, theta) {
   return { x: cx + r * Math.cos(theta), y: cy + r * Math.sin(theta) };
 }
@@ -64,9 +101,11 @@ export default function WedgeGridFlavorWheel({
   onSelectIngredient = null,
   onFilterBucket = null,
   className = '',
+  theme = 'dark',
 }) {
   const isMobile = useIsMobile();
   const ringAxes = compact ? ['compact'] : (isMobile ? RING_AXES_MOBILE : RING_AXES_FULL);
+  const T = THEMES[theme] || THEMES.dark;
 
   // Phase 5 — cell hover state. One cellKey at a time; null = no hover.
   const [hoveredCellKey, setHoveredCellKey] = useState(null);
@@ -115,7 +154,7 @@ export default function WedgeGridFlavorWheel({
     return {
       key: sector,
       d: arcPath(cx, cy, hubR + ringInsetPx, outerR, t0, t1),
-      fill: activated ? bucketColor('aroma', sector) : 'rgba(255,255,255,0.04)',
+      fill: activated ? bucketColor('aroma', sector) : T.faintSector,
       opacity: activated ? 0.55 : 1,
     };
   });
@@ -179,7 +218,7 @@ export default function WedgeGridFlavorWheel({
       x: cx + labelR * Math.cos(mid),
       y: cy + labelR * Math.sin(mid),
       anchor: Math.cos(mid) > 0.3 ? 'start' : Math.cos(mid) < -0.3 ? 'end' : 'middle',
-      color: placement.activatedAromas.has(sector) ? bucketColor('aroma', sector) : 'rgba(255,255,255,0.45)',
+      color: placement.activatedAromas.has(sector) ? bucketColor('aroma', sector) : T.labelInactive,
     };
   });
 
@@ -259,7 +298,7 @@ export default function WedgeGridFlavorWheel({
               cy={cy}
               r={r.rOuter}
               fill="none"
-              stroke="rgba(10,10,18,0.55)"
+              stroke={T.stroke}
               strokeWidth={0.6}
               aria-hidden="true"
             />
@@ -280,7 +319,7 @@ export default function WedgeGridFlavorWheel({
               y1={y1}
               x2={x2}
               y2={y2}
-              stroke="rgba(10,10,18,0.55)"
+              stroke={T.stroke}
               strokeWidth={0.8}
               aria-hidden="true"
             />
@@ -344,8 +383,8 @@ export default function WedgeGridFlavorWheel({
                   width={halfW * 2}
                   height={halfH * 2}
                   rx={3}
-                  fill="rgba(10,10,18,0.55)"
-                  stroke="rgba(255,255,255,0.8)"
+                  fill={T.haloFill}
+                  stroke={T.haloStroke}
                   strokeWidth={1.2}
                   aria-hidden="true"
                 />
@@ -355,7 +394,7 @@ export default function WedgeGridFlavorWheel({
                 y={centroid.y}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fill="#e5e7eb"
+                fill={T.cellText}
                 fontSize={cellFontSize}
                 style={{ pointerEvents: 'none', userSelect: 'none' }}
               >
@@ -374,8 +413,8 @@ export default function WedgeGridFlavorWheel({
                       width={chipHalfW * 2}
                       height={chipHalfH * 2}
                       rx={4}
-                      fill="rgba(10,10,18,0.7)"
-                      stroke="rgba(255,255,255,0.18)"
+                      fill={T.chipFill}
+                      stroke={T.chipStroke}
                       strokeWidth={0.5}
                     />
                     <text
@@ -383,7 +422,7 @@ export default function WedgeGridFlavorWheel({
                       y={chipY}
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fill="rgba(255,255,255,0.75)"
+                      fill={T.chipText}
                       fontSize={cellFontSize * 0.8}
                       style={{ pointerEvents: 'none' }}
                     >
@@ -402,7 +441,7 @@ export default function WedgeGridFlavorWheel({
             key={`axis-${l.key}`}
             x={l.x}
             y={l.y}
-            fill="rgba(255,255,255,0.45)"
+            fill={T.ringAxisLabel}
             fontSize={Math.max(7, size * 0.022)}
             fontFamily="Georgia, serif"
             style={{ pointerEvents: 'none', letterSpacing: '0.08em', userSelect: 'none' }}
@@ -430,13 +469,13 @@ export default function WedgeGridFlavorWheel({
         ))}
 
         {/* Hub + focal name */}
-        <circle cx={cx} cy={cy} r={hubR} fill="rgba(10,10,18,0.85)" stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+        <circle cx={cx} cy={cy} r={hubR} fill={T.hubFill} stroke={T.hubStroke} strokeWidth={1} />
         <text
           x={cx}
           y={cy}
           textAnchor="middle"
           dominantBaseline="central"
-          fill="#e5e7eb"
+          fill={T.hubText}
           fontSize={Math.max(9, size * 0.04)}
           style={{ pointerEvents: 'none', userSelect: 'none' }}
         >

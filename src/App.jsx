@@ -985,19 +985,19 @@ export default function App() {
       />
       {/* R19 Phase 3 — bridge-pulse rings on pull crossing 0.5. */}
       <BridgePulseOverlay pulse={bridgePulse} />
-      {/* Task-6 Phase-2 — compact wedge-grid wheel as a corner overlay
+      {/* Task-6 Phase-2 — wedge-grid wheel as a focal-tracked overlay
           when a single ingredient is focal. Selection-only (no filter
           callback) — IngredientPanel is the filter-drive surface.
-          Phase 4b — when `window.__omc.affinityWheelTracking === true`,
-          LivingArchView's RAF loop writes `--affinity-wheel-x/y` CSS
-          vars; this overlay reads them via fixed positioning, falling
-          back to the bottom-right corner when the vars are unset. */}
+          LivingArchView writes `--affinity-wheel-x/y` CSS vars from
+          its per-frame RAF; this overlay reads them via fixed
+          positioning, falling back to bottom-right when off-screen or
+          behind the camera. */}
       {selectedNodeData && selectedNodes.length === 1 && !isMobile && (
         <div
           className="z-30 pointer-events-auto bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-lg p-2"
           style={{
             position: 'fixed',
-            width: 240,
+            width: 340,
             left: 'var(--affinity-wheel-x, auto)',
             top: 'var(--affinity-wheel-y, auto)',
             right: '1rem',
@@ -1009,10 +1009,11 @@ export default function App() {
             neighbors={neighbors}
             graphNodes={data?.graph?.nodes}
             odorThresholds={data?.odorThresholds}
-            size={220}
+            size={320}
             compact
             onSelectIngredient={handleSearchSelect}
             onFilterBucket={null}
+            theme="dark"
           />
         </div>
       )}
