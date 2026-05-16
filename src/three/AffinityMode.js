@@ -304,6 +304,15 @@ export class AffinityMode {
   }
 
   /**
+   * Live wedge axis ('aromas' | 'cuisine' | 'season' | …) used by the
+   * affinity layout. Lets AffinityTriangleOverlay paint each cone in
+   * the bucket color for the same axis that drives its direction.
+   */
+  get currentWedgeAxis() {
+    return this._engaged ? this._currentWedgeAxis : null;
+  }
+
+  /**
    * Raycast targets for affinity-aware click handling. The visible
    * focal + ring meshes sit at orbit positions far from the
    * underlying ingredients' real layout coordinates, so the parent
@@ -792,6 +801,12 @@ export class AffinityMode {
       // position, not on the network-layout curPos. Without this the
       // SVG cones miss every accent that's wedge-placed by AffinityMode.
       aff.worldPos = worldXyz;
+      // Iter (2026-05-16 'audit'): also attach the wedge bucket key so
+      // the SVG overlay can color the cone by the same axis that drives
+      // its direction (aroma by default). Without this the cone points
+      // toward an aroma sector but is painted in the unrelated cluster
+      // color — visually contradictory.
+      aff.bucketKey = dot?.neighbor?.bucketKey ?? null;
       m.compose(tmpV, tmpQ, tmpS);
       mesh.setMatrixAt(slot, m);
       const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];

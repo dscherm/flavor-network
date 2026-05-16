@@ -2613,11 +2613,22 @@ export default function LivingArchView({
         return;
       }
       const rect = st.renderer.domElement.getBoundingClientRect();
-      // Color source — same logic as R17 visual-treatment effect.
+      const ctrl = affinityModeRef.current;
+      const wedgeAxis = ctrl?.engaged ? ctrl.currentWedgeAxis : null;
+      const ctrlEngaged = ctrl?.engaged;
+      // Color source. Iter (2026-05-16 'audit'): when α-mode is engaged,
+      // ALWAYS color by the wedge axis bucket palette so cone direction
+      // (driven by the wedge layout) and cone color match. Without this
+      // override, no-filter affinity view paints cones with cluster
+      // colors that have nothing to do with the aroma sector the cone
+      // points to — purple cones pointing at the floral sector etc.
       const filterActive = filterStackRef.current?.length > 0;
       const morphActive = filterActive && !!morphAxis;
       let colorArr;
-      if (morphActive) {
+      if (ctrlEngaged && wedgeAxis) {
+        const palKey = `${wedgeAxis === 'aromas' ? 'aromas' : wedgeAxis}2d`;
+        colorArr = st.categoricalColorByMode?.[palKey] || st.defaultColors;
+      } else if (morphActive) {
         const palKey = `${morphAxis === 'aromas' ? 'aromas' : morphAxis}2d`;
         colorArr = st.categoricalColorByMode?.[palKey] || st.defaultColors;
       } else if (filterActive) {
@@ -2644,12 +2655,11 @@ export default function LivingArchView({
         };
       };
       const colorHex = (c) => `#${c.getHexString()}`;
-      const ctrl = affinityModeRef.current;
       // Prefer AffinityMode's authoritative accent list (covers all
       // tiers including Surprising; carries per-accent worldPos so the
       // SVG cone lands on the actual ring-rendered position, not the
       // ingredient's curPos out in the network layout).
-      const affList = ctrl?.engaged ? (ctrl.currentAffinities || []) : null;
+      const affList = ctrlEngaged ? (ctrl.currentAffinities || []) : null;
       // Focal: when α-mode is engaged, use AffinityMode's tracked focal
       // world position. Otherwise fall back to the focal's curPos.
       const focalWp = ctrl?.engaged && ctrl.focalWorldPos
