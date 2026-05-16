@@ -88,6 +88,34 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
   const fy = focal.y;
   if (!Number.isFinite(fx) || !Number.isFinite(fy)) return null;
 
+  // Iter (2026-05-16 'overlap'): fan same-bucket accents apart with
+  // alternating tilt direction + slot-amplified magnitude so the
+  // Bezier midpoint (where the label sits) splays around the focal
+  // rather than stacking in one screen region.
+  //
+  // Group by bucketKey, sort each group by strength desc, then walk
+  // the group to assign:
+  //   tiltSign  = ±1 alternating (even/odd within bucket)
+  //   slotIdx   = position in the group (0, 1, 2, ...)
+  //
+  // Higher slotIdx → larger tilt magnitude (further bow), so the
+  // weakest entries in each sector get pushed out the most.
+  const bucketSlotByName = new Map();
+  const bucketSignByName = new Map();
+  const byBucket = new Map();
+  for (const a of accents) {
+    const k = a.bucketKey || '_unbucketed';
+    if (!byBucket.has(k)) byBucket.set(k, []);
+    byBucket.get(k).push(a);
+  }
+  for (const [, group] of byBucket) {
+    group.sort((p, q) => (q.strength || 0) - (p.strength || 0));
+    group.forEach((a, idx) => {
+      bucketSlotByName.set(a.name, idx);
+      bucketSignByName.set(a.name, idx % 2 === 0 ? 1 : -1);
+    });
+  }
+
   return (
     <svg
       className="pointer-events-none fixed inset-0 z-[25]"
@@ -132,15 +160,22 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         const points = `${b1x.toFixed(1)},${b1y.toFixed(1)} ${a.x.toFixed(1)},${a.y.toFixed(1)} ${b2x.toFixed(1)},${b2y.toFixed(1)}`;
         const color = a.color || '#7dd3fc';
         const fade = Number.isFinite(a.opacity) ? a.opacity : 1;
-        // Hypotenuse tilt — Bezier control point sits perpendicular to
-        // the midpoint. Sqrt curve over (1 - strength) so the visual
-        // contrast between strong/weak is legible even when raw
-        // strengths cluster near 1. FLOOR keeps the strongest cones
-        // visibly curved so the rendering reads as "Bezier" rather
-        // than "straight line" across the board.
+        // Hypotenuse tilt — Bezier control sits perpendicular to the
+        // midpoint, with three signals layered:
+        //   tiltSign: alternates ±1 per slot within a bucket, so
+        //             adjacent same-sector accents bow in opposite
+        //             perpendiculars (labels fan apart).
+        //   slotBoost: scales with slot index so the deeper an accent
+        //             sits in its sector list, the further its bow
+        //             extends (relieves stacking in dense sectors).
+        //   strengthScale: sqrt(1 - strength) preserves the legacy
+        //             "strong = straight, weak = curved" semantic.
+        const tiltSign = bucketSignByName.get(a.name) ?? 1;
+        const slotIdx = bucketSlotByName.get(a.name) ?? 0;
+        const slotBoost = 1 + Math.min(2.2, slotIdx * 0.55);
         const inverseStrength = 1 - strengthClamp;
-        const tiltScale = Math.max(HYPOTENUSE_TILT_FLOOR, Math.sqrt(inverseStrength));
-        const tiltMag = tiltScale * HYPOTENUSE_TILT_FACTOR * len;
+        const strengthScale = Math.max(HYPOTENUSE_TILT_FLOOR, Math.sqrt(inverseStrength));
+        const tiltMag = strengthScale * slotBoost * HYPOTENUSE_TILT_FACTOR * len * tiltSign;
         const midX = (fx + a.x) / 2;
         const midY = (fy + a.y) / 2;
         const ctrlX = midX + px * tiltMag;
@@ -179,14 +214,41 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
       {accents.map((a) => {
         if (!Number.isFinite(a.x) || !Number.isFinite(a.y)) return null;
         const fade = Number.isFinite(a.opacity) ? a.opacity : 1;
-        const anchor = a.x >= fx ? 'start' : 'end';
-        const dx = a.x >= fx ? APEX_LABEL_DX : -APEX_LABEL_DX;
         const labelColor = a.color || '#f3f4f6';
+        // Place the label at the Bezier midpoint (B(0.5) = 0.25*P0 +
+        // 0.5*P1 + 0.25*P2) so the tilted curve physically drags the
+        // label off to the side. With alternating tilt signs by slot,
+        // adjacent same-sector labels fan into opposite perpendiculars
+        // and stop overlapping.
+        const dx = a.x - fx;
+        const dy = a.y - fy;
+        const len = Math.hypot(dx, dy);
+        const ux = len > 0 ? dx / len : 0;
+        const uy = len > 0 ? dy / len : 0;
+        const px = -uy;
+        const py = ux;
+        const tiltSign = bucketSignByName.get(a.name) ?? 1;
+        const slotIdx = bucketSlotByName.get(a.name) ?? 0;
+        const slotBoost = 1 + Math.min(2.2, slotIdx * 0.55);
+        const strengthClamp = Math.max(0, Math.min(1, Number.isFinite(a.strength) ? a.strength : 0.5));
+        const inverseStrength = 1 - strengthClamp;
+        const strengthScale = Math.max(HYPOTENUSE_TILT_FLOOR, Math.sqrt(inverseStrength));
+        const tiltMag = strengthScale * slotBoost * HYPOTENUSE_TILT_FACTOR * len * tiltSign;
+        const midX = (fx + a.x) / 2;
+        const midY = (fy + a.y) / 2;
+        const ctrlX = midX + px * tiltMag;
+        const ctrlY = midY + py * tiltMag;
+        // Quadratic-Bezier midpoint
+        const labelX = 0.25 * fx + 0.5 * ctrlX + 0.25 * a.x;
+        const labelY = 0.25 * fy + 0.5 * ctrlY + 0.25 * a.y;
+        // Anchor side picked by which side of focal the LABEL ends up
+        const anchor = labelX >= fx ? 'start' : 'end';
+        const labelDx = labelX >= fx ? APEX_LABEL_DX : -APEX_LABEL_DX;
         return (
           <g key={`apex-${a.name}`} opacity={fade}>
             <text
-              x={a.x + dx}
-              y={a.y - 2}
+              x={labelX + labelDx}
+              y={labelY - 2}
               textAnchor={anchor}
               dominantBaseline="middle"
               fill={labelColor}
