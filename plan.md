@@ -1,347 +1,600 @@
-# plan.md — Flavor Affinity Mode (α-mode) + Cluster Relabel
+# plan.md — Seamless UX Pipeline (2026-05-16)
 
-Implementation queue derived from `.omc/plans/ralplan-flavor-affinity-mode.md`
-(consensus-approved iteration 4, U1 + U4a user decisions resolved).
+**Goal**: Create a single coherent user flow connecting the 3 entry
+paths (Explore / Guided / Build) to the underlying network + lab
+surfaces, so the user never has to bounce back to landing to switch
+contexts.
 
-Tasks ordered by phase. Phase 0.5 (calibration) → Phase 2.1 (pure
-math) → Phase 2.2 (data hookup) → Phase 2.3-2.8 (3D wiring) → Phase 3
-(mobile β-mode) → Phase 1 (cluster relabel, deferred — needs LLM
-wiring investigation).
+**Resolved via deep-interview**: 6 ambiguity questions answered
+2026-05-16 — see _Decision Log_ at the bottom.
 
----
-
-### Task 1: Phase 0.5 — Quantile threshold calibration
-
-```json
-{
-  "id": "R13-1",
-  "title": "Phase 0.5 — affinityThresholds.js + Vitest",
-  "category": "feature",
-  "priority": 1,
-  "description": "Pure-JS helper that computes ★★★/★★/★ strength thresholds from actual pairing distribution at session start. Replaces spec's literal 0.7/0.4/0.2 with data quantiles per User Decision U1.",
-  "steps": [
-    "Create src/data/affinityThresholds.js exporting `computeAffinityThresholds(edges)` that returns {star3, star2, star1} at top-1%/top-10%/top-50% quantiles.",
-    "Handle edge cases: empty edges array, fewer than ~100 edges, identical strengths.",
-    "Create src/data/__tests__/affinityThresholds.test.js with Vitest coverage: happy path, empty array, short array, all-identical strengths, strength sort ordering verification.",
-    "Run: npx vitest run src/data/affinityThresholds.test.js — all tests pass."
-  ],
-  "passes": true
-}
-```
-
-### Task 2: Phase 2.1 — affinityTiers.js pure math + tests
-
-```json
-{
-  "id": "R13-2",
-  "title": "Phase 2.1 — affinityTiers.js + Vitest",
-  "category": "feature",
-  "priority": 2,
-  "description": "Pure tier math: tierFor(a,b,ctx) returns native tier (3/2/1/null) based on bridge_compounds.json + GNN top5 + quantile thresholds. topAffinities(focal,ctx) returns 30 ranked candidates assigned to rings by strength rank (U4a — edge color reflects native tier).",
-  "steps": [
-    "Create src/data/affinityTiers.js exporting tierFor(a,b,ctx) and topAffinities(focal,ctx,opts).",
-    "tierFor: strict branch (both have GNN top5) requires bridge_compounds.json[a|b].bridges[0].name to appear in BOTH top5 for ★★★. Lenient branch (≥1 side missing GNN) skips bridge check.",
-    "topAffinities: collect candidates with non-null tier, sort by strength descending, slice into rings [0:5]/[5:15]/[15:30]. Each result carries its ringIdx + native tier (so edge color is correctly assigned at draw time).",
-    "Create src/data/__tests__/affinityTiers.test.js with Vitest coverage:",
-    "  - tierFor 4 cases: both-have-GNN (strict), a-has (lenient), b-has (lenient), neither (lenient)",
-    "  - tierFor with verified ★★★ pair (peel + tangerine juice, bridge=(2E,4E)-deca-2,4-dienal)",
-    "  - tierFor with verified ★★ pair (tomato + basil — no bridge_compounds entry, falls through)",
-    "  - tierFor empty bridgeCompoundIndex → lenient",
-    "  - topAffinities returns ≤30 elements partitioned 5/10/15",
-    "  - topAffinities ringIdx == strength rank, NOT tier (U4a contract)",
-    "Run: npx vitest run src/data/affinityTiers.test.js — all tests pass."
-  ],
-  "passes": true
-}
-```
-
-### Task 3: Phase 2.2 — useProData hookup
-
-```json
-{
-  "id": "R13-3",
-  "title": "Phase 2.2 — useProData hookup",
-  "category": "feature",
-  "priority": 3,
-  "description": "Build O(1) lookup maps in useProData for tier computation: pairingStrength, top5, bridgeCompoundIndex, affinityThresholds. Pass through setData.",
-  "steps": [
-    "Open src/hooks/useProData.js. After all dataset fetches succeed, before line ~399 setData call, build:",
-    "  - pairingStrength: Map<\"a|b\", number> from pairs array, both directions ('a|b' AND 'b|a')",
-    "  - top5: Map<ingredientName, string[]> sliced from node.gnnCompounds.top_compounds[].name",
-    "  - bridgeCompoundIndex: Map<\"a|b\", entry> from bridgeCompounds (skip _meta key)",
-    "  - affinityThresholds: result of computeAffinityThresholds(pairs)",
-    "Pass through setData: setData({...existing, pairingStrength, top5, bridgeCompoundIndex, affinityThresholds}).",
-    "Verify: npm run dev — no console errors, app loads normally."
-  ],
-  "passes": true
-}
-```
-
-### Task 4: Phase 2.3 — AffinityMode controller class
-
-```json
-{
-  "id": "R13-4",
-  "title": "Phase 2.3 — AffinityMode controller",
-  "category": "feature",
-  "priority": 4,
-  "description": "Three.js scene controller managing α-mode visual layer: 30-instance affinity InstancedMesh, edge LineSegments, ring math, fade animation, color-write contract. Owns engage/pivot/exit/suspend/resume/dispose.",
-  "steps": [
-    "Create src/three/AffinityMode.js (~320 lines).",
-    "Constructor: new AffinityMode(stateRef, affinityCtx). stateRef is the LivingArchView stateRef.current handoff object.",
-    "Public API: engage(focal), pivot(newFocal), exit({immediate}), suspend(), resume(), tickAnimation(deltaSec), dispose(), get engaged().",
-    "Internal state: affinityMesh (InstancedMesh, count=30), edgeGeo (BufferGeometry, 60 vertices), edgeMaterial (LineBasicMaterial, vertexColors), currentFocal, fadeProgress, savedSelectionMask.",
-    "Ring math: RADII={3:12, 2:22, 1:35}; PHI=Math.PI*(3-Math.sqrt(5)); placeOnRing(ringIdx, slotIdx) returns Vector3.",
-    "engage(focal): performance.mark('alpha-engage-start'); compute topAffinities(focal); place affinity sphere positions; write edge buffer with tier-color (gold/silver/bronze/dim-gray); snapshot mesh.instanceColor; dim non-affinity instances; updateClusterLabelOpacity (ghost mode); request camera flyToPoint; performance.mark('alpha-engage-end'); console.warn if measure.duration > 200.",
-    "pivot(newFocal): re-write dimColor to ALL non-affinity instances; re-place affinity spheres; update edges; mesh.instanceColor.needsUpdate=true.",
-    "exit({immediate}): re-stamp defaultColors[i] (or clusterColors[i] per mode) onto mesh; updateClusterLabelOpacity (post-α); restore clusterLabelGroup.visible per current mode (true if 'ml'/'ml2d', false otherwise); reset edge buffer; clear currentFocal; engaged=false.",
-    "tickAnimation: lerp fadeProgress for cluster-ghost fade-in/out smoothness.",
-    "dispose: edgeGeo.dispose(); edgeMaterial.dispose(); scene.remove(affinityMesh); affinityMesh.dispose().",
-    "Edge colors: ★★★=#facc15 op0.9, ★★=#a3a3a3 op0.7, ★=#a16207 op0.5, untiered=#444 op0.3."
-  ],
-  "passes": true
-}
-```
-
-### Task 5: Phase 2.4 — LivingArchView wiring
-
-```json
-{
-  "id": "R13-5",
-  "title": "Phase 2.4 — LivingArchView wiring",
-  "category": "feature",
-  "priority": 5,
-  "description": "Wire AffinityMode into LivingArchView: ref declaration, instantiation after stateRef build, dispose at cleanup, animation tick, selection-change effect, engage-guards on 6 mutators, opacity authority helper, mode-transition exit.",
-  "steps": [
-    "Open src/components/LivingArchView.jsx (1637 lines).",
-    "Declare affinityModeRef = useRef(null) alongside refs at lines 63-66.",
-    "After stateRef.current = {...} is built (around line 1128), instantiate: affinityModeRef.current = new AffinityMode(stateRef.current, {pairingStrength, top5, bridgeCompoundIndex, affinityThresholds, graph: data.graph});",
-    "In cleanup (line ~1141), call affinityModeRef.current?.dispose() before existing cleanup.",
-    "In animate function (line ~1033), add affinityModeRef.current?.tickAnimation(delta) alongside other per-frame updates.",
-    "Add NEW useEffect keyed [selectedNodes, isMobile, affinityEnabled] after line 1563. If !affinityEnabled || isMobile: skip. If selectedNodes.length === 0: exit. If length === 1: engage or pivot. If length >= 2: suspend.",
-    "Add `if (affinityModeRef.current?.engaged) return;` early-return guards at top of effects: 1169 (selection tint), 1371 (taste filter), 1389 (tree filter), 1440 (bridge path), 1503 (per-mode color), 1526 (cluster focus).",
-    "Add updateClusterLabelOpacity(state) helper that reads affinityModeRef.engaged + focusedClusterIdRef.current + mode and computes target opacity (α-mode 0.45 > focused 0.95/0.22 > default 0.95). Route the focus useEffect's existing opacity writes (lines 1549-1554) through this helper.",
-    "Modify handleModeSwitch (line 1573): call affinityModeRef.current?.exit({immediate:true}) BEFORE stateRef.current.triggerTransition(target).",
-    "Cluster fly-to handler (line 1257-1310): if affinityModeRef.current?.engaged, call exit({immediate:true}) before flyToTarget dispatch.",
-    "Verify: npm run dev — no console errors, default scene works."
-  ],
-  "passes": true
-}
-```
-
-### Task 6: Phase 2.5 — App.jsx kill-switch + Escape
-
-```json
-{
-  "id": "R13-6",
-  "title": "Phase 2.5 — App.jsx kill-switch + Escape",
-  "category": "feature",
-  "priority": 6,
-  "description": "Add ?affinity=v0 URL kill-switch and forward Escape from App.jsx to AffinityMode.exit. Scopes kill-switch to α/β-mode only — Phase 1 cluster relabel ships unconditionally.",
-  "steps": [
-    "Open src/App.jsx. Add at top of App component: const affinityEnabled = useMemo(() => new URLSearchParams(window.location.search).get('affinity') !== 'v0', []);",
-    "Pass affinityEnabled prop to LivingArchView (already accepts isMobile; add this alongside).",
-    "Modify Escape handler at line 309-315: BEFORE setSelectedNodes([]), call onAffinityExit() prop callback (forwarded from LivingArchView via ref).",
-    "Add onAffinityExit prop to LivingArchView; LivingArchView wires it to affinityModeRef.current?.exit({immediate:true}).",
-    "Test: localhost:5173?affinity=v0 — clicking ingredient does NOT engage α-mode (existing single-select behavior preserved)."
-  ],
-  "passes": true
-}
-```
-
-### Task 7: Phase 2.6 — Arrow-key α-mode navigation
-
-```json
-{
-  "id": "R13-7",
-  "title": "Phase 2.6 — Arrow-key α-mode navigation",
-  "category": "feature",
-  "priority": 7,
-  "description": "When α-mode engaged, ArrowDown pivots to strongest unvisited ★★★ affinity (native tier 3 only) instead of strongest neighbor. ArrowUp unchanged (history pop).",
-  "steps": [
-    "Open src/App.jsx, find ArrowDown handler at line 324-339.",
-    "Branch on whether α-mode is engaged: when engaged, replace getNeighbors(current) with topAffinities(current, data).filter(a => a.tier === 3) (native ★★★, not ring index).",
-    "If filtered list is empty, fall back to ring-2 candidates, then ring-1.",
-    "Apply same unvisited-history filter as existing handler.",
-    "Verify: select an ingredient, ArrowDown walks to strongest ★★★ neighbor; ArrowUp pops history."
-  ],
-  "passes": true
-}
-```
-
-### Task 8: Phase 2.7 — Performance probe + leak test
-
-```json
-{
-  "id": "R13-8",
-  "title": "Phase 2.7 — Performance probe + leak test",
-  "category": "test",
-  "priority": 8,
-  "description": "Verify <200ms engage budget and zero GPU memory growth across 100 pivots. Shipped: src/three/AffinityMode.perf.test.js — 2 tests against a synthetic 3,000-node / 90,000-edge graph. Test 1 asserts engage() < 200ms; test 2 asserts 100 pivots add zero scene children (mesh/edges/labels reused). makeLabel mocked + requestAnimationFrame shimmed for node test env.\n\nManual leak test (run in browser dev tools, α-mode active):\n  const before = JSON.parse(JSON.stringify(renderer.info.memory));\n  // search-pivot 100 different ingredients rapidly\n  const after = JSON.parse(JSON.stringify(renderer.info.memory));\n  // Expect: after.geometries === before.geometries, after.textures - before.textures <= 31 (label canvas textures rebuilt per pivot but disposed on next pivot — should stabilize).",
-  "steps": [
-    "Add Vitest performance test: mock Three.js scene, mock renderer.info, call engage() and assert performance.measure('alpha-engage').duration < 200.",
-    "Document manual leak test in plan: dev tools console: const before = JSON.parse(JSON.stringify(renderer.info.memory)); click 100 ingredients via search rapid-fire; const after = ...; assert delta in geometries+textures == 0.",
-    "Run: npx vitest run — all green."
-  ],
-  "passes": true
-}
-```
-
-### Task 9: Phase 3 — β-mode mobile AffinityPanel
-
-```json
-{
-  "id": "R13-9",
-  "title": "Phase 3 — β-mode mobile AffinityPanel",
-  "category": "feature",
-  "priority": 9,
-  "description": "Mobile fallback panel (< 640px) with three-column ★★★/★★/★ chip layout. Capture-phase tap-outside dismiss. Shipped: src/components/AffinityPanel.jsx with two render modes — embedded (no onClose, used inline inside the mobile BottomSheet IngredientPanel) and overlay (onClose triggers ESC + capture-phase pointerdown dismiss + X button). App.jsx adds a `mobileAffinities` useMemo gated on `isMobile && affinityEnabled && selectedNodes.length === 1`. AffinityPanel renders only when affinities is non-empty so it stays inert when the kill-switch is on or the focal has no neighbors. 10 Vitest cases cover both render modes.",
-  "steps": [
-    "Create src/components/AffinityPanel.jsx (~150 lines). Props: {focal, affinities, onPivot, onClose}.",
-    "Render three column sections (★★★ / ★★ / ★) with chip count headers. Each chip is a Tailwind-styled button calling onPivot(name).",
-    "Close X button. Capture-phase document pointerdown listener: if !panelRef.current?.contains(e.target), call onClose. Register with {capture: true}.",
-    "Modify src/App.jsx: mount <AffinityPanel> when isMobile && selectedNodes.length === 1 && affinityEnabled. Compute affinities via topAffinities(focal, ctx).",
-    "Vitest snapshot tests for AffinityPanel: chip rendering, chip click, capture-phase outside click, ESC dismisses.",
-    "Verify on iOS sim viewport: tap ingredient → panel slides in; tap chip → re-pivots; tap X or outside → dismisses."
-  ],
-  "passes": true
-}
-```
-
-### Task 10: Phase 1 — Cluster relabel pipeline (deferred)
-
-```json
-{
-  "id": "R13-10",
-  "title": "Phase 1 — Cluster relabel pipeline",
-  "category": "feature",
-  "priority": 10,
-  "description": "Re-derive cluster labels so they describe what each cluster actually cooks. Shipped via Option B (heuristic, no LLM): cluster_labels.py now reads cuisine_map.json, picks the dominant cuisine via count + 15% presence floor + 1.5 lift floor, rejects generic single-category labels, and falls back to a top-2 ingredient pair. New labels: American / Onion & Tomato / Italian / Mexican / Chinese / Moroccan / Italian (olive) / Honey & Buttermilk / American (baking) / American (sugar). Ships unconditionally (not gated by ?affinity=v0).",
-  "steps": [
-    "INVESTIGATE FIRST: read flavor-gnn/src/infer/explain_clusters.py to confirm LLM client wiring. Check whether the existing pipeline calls an LLM (Anthropic/OpenAI) or generates labels heuristically.",
-    "If LLM wired: extend explain_clusters.py with second prompt for 1-2 word category-style label_v2. Mine top-20 RecipeNLG recipe titles per cluster from proDataset/processed/recipenlg-cooccurrence.json.",
-    "If LLM NOT wired: report to user; this task may need API key configuration before proceeding.",
-    "Modify flavor-gnn/src/infer/cluster_labels.py: bump top_ingredients emission from 5 → 20 so cluster_labels_v2 has enough signal.",
-    "Create flavor-gnn/src/infer/verify_cluster_labels.py: assert ≥7/10 top members semantically match new label_v2 (case-insensitive substring OR sentence-transformer cosine ≥ 0.5). Optional override: read flavor-gnn/data/cluster_labels_override.json. Exit 1 on failure.",
-    "Modify src/components/ClusterJoystick.jsx:65 to prefer cl.label_v2.",
-    "Modify in-3D cluster sprite creation in LivingArchView.jsx:443-459 to prefer cluster.label_v2.",
-    "Run pipeline + verifier; commit JSON diffs only on success."
-  ],
-  "passes": true
-}
-```
-
-### Task 11: R19 Phase 1A — Insight chip (filter + pull narrative)
-
-```json
-{
-  "id": "R19-1",
-  "title": "Phase 1A — Insight chip below breadcrumb",
-  "category": "feature",
-  "priority": 11,
-  "description": "Single-line floating chip surfaced below the FilterBreadcrumb, narrating what the current (filterStack, pullStrength, visibleCount) layout means. Pure derived state — no LLM, no new data. Sentence templates rotate by pull range: 0-30% (cooccurrence-dominant), 30-70% (tension), 70-100% (bucket-dominant). Multi-filter case surfaces intersection cardinality + densest bucket. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier A).",
-  "steps": [
-    "Create src/components/InsightChip.jsx (~80 lines). Props: {filterStack, pullStrength, visibleCount, morphAxis, bucketCounts}.",
-    "Sentence templates: (a) filter on + pull<0.30 → 'Layout shows cooccurrence pairings within {axis} buckets. {bucketCount} buckets, {visibleCount} ingredients.' (b) filter on + 0.30≤pull≤0.70 → 'Tension layout — strong pairings resist the pull.' (c) filter on + pull>0.70 → 'Layout shows {axis} bucket structure. Largest: {topBucket} ({topCount}).' (d) multi-filter → '{visibleCount} ingredients match {f1} × {f2} × ...'.",
-    "Compute bucketCounts in App.jsx via useMemo on (morphAxis, bucketOfMap). Pass to InsightChip.",
-    "Mount InsightChip below FilterBreadcrumb in App.jsx. Hidden when filterStack is empty.",
-    "Tailwind styling matches existing FilterBreadcrumb chip aesthetic — small, semi-transparent, cyan accent.",
-    "Vitest in src/components/__tests__/InsightChip.test.jsx: render with each template branch and snapshot the rendered text."
-  ],
-  "passes": true
-}
-```
-
-### Task 12: R19 Phase 1B — Pull-thumb annotation
-
-```json
-{
-  "id": "R19-2",
-  "title": "Phase 1B — Pull-slider thumb annotation",
-  "category": "feature",
-  "priority": 12,
-  "description": "Static label above the pull slider thumb that maps the current percentage to plain-language meaning. Five anchor labels at 0/25/50/75/100% (Pairings only / Pairings, gently grouped / Balanced / Buckets, gently bridged / Buckets only). Reads the existing pullStrength state — no new data. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier C).",
-  "steps": [
-    "Modify src/components/FilterPullSlider.jsx: derive a label from pullStrength via a pure function pullLabel(pull) that returns one of 5 strings based on the nearest anchor.",
-    "Render the label as a small absolute-positioned span above the slider thumb. Use the slider's percent value to compute left offset.",
-    "Anchor labels: 0% 'Pairings only', 25% 'Pairings, gently grouped', 50% 'Balanced', 75% 'Buckets, gently bridged', 100% 'Buckets only'.",
-    "Hidden when slider is disabled (filterStack empty).",
-    "Vitest: pullLabel returns the correct anchor string for each of (0.0, 0.12, 0.24, 0.5, 0.74, 1.0).",
-    "Manual QA: drag slider end-to-end — label transitions feel smooth, no overlap with the % readout to the right."
-  ],
-  "passes": true
-}
-```
-
-### Task 13: R19 Phase 2 — Pole tooltip enrichment
-
-```json
-{
-  "id": "R19-3",
-  "title": "Phase 2 — Pole tooltip enrichment (top members + bridge)",
-  "category": "feature",
-  "priority": 13,
-  "description": "Enrich the R18 pole hover tooltip with the top 3 bucket members (by pairingCount) and one cross-bucket bridge ingredient (bucket member with the highest cumulative cross-bucket cooccurrence weight). Computed once at scene-setup per categorical axis. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier B).",
-  "steps": [
-    "Create src/data/bucketStats.js. Pure `computeBucketStats(axisKey, { nodes, edges, bucketOf }, opts?) → Map<label, { count, topMembers, bridge | null }>` where bridge = { name, otherBucket, topPeer, strength }.",
-    "In LivingArchView.jsx: call computeBucketStats per axis at scene-setup using existing *Out.bucketOf maps + graph.edges. Pass the per-axis stats map into buildPoleLabels and attach { topMembers, bridge } to sprite.userData.",
-    "Extend the onPoleHover payload + App.jsx hoveredPole tooltip to render `Top: a · b · c` and `Bridge: name → peer (otherBucket)` lines when present.",
-    "Vitest: src/data/__tests__/bucketStats.test.js covers top-N selection, bridge cross-bucket scoring, deterministic tie-breaking, empty bucket, no-edges fallback (bridge=null)."
-  ],
-  "passes": true
-}
-```
-
-### Task 14: R19 Phase 3 — Bridge ranker + glow pulse on 50% crossing
-
-```json
-{
-  "id": "R19-4",
-  "title": "Phase 3 — Bridge ranker + glow pulse on pull crossing 50%",
-  "category": "feature",
-  "priority": 14,
-  "description": "When pullStrength crosses 0.5 in either direction (cooccurrence → bucket-dominance or back), the top-20 bridge ingredients of the active morph axis pulse briefly to surface 'which ingredients resist the layout you just dialed in'. Bridge ranking reuses the same cross-bucket cooccurrence score as Tier B's bucketStats but ranks all axis nodes globally rather than one per bucket. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier D).",
-  "steps": [
-    "Create src/data/bridgeRanker.js. Pure `rankBridges(axisKey, { nodes, edges, bucketOf }, opts?) → Array<{ name, score, bucket, otherBucket, topPeer, topPeerStrength }>` sorted desc + alpha-tiebreak, capped at opts.topN ?? 20.",
-    "Vitest src/data/__tests__/bridgeRanker.test.js — top-N cap, ordering, alphabetical ties, no-edges fallback (empty array), orphan-node skip.",
-    "In LivingArchView.jsx: track previous pullStrength via ref; on a 0.5 crossing (either direction) AND morphAxis is non-null, run rankBridges + project positions to screen via the camera, then fire `onBridgePulse({ bridges: [{ name, x, y, color }], ts })`.",
-    "Create src/components/BridgePulseOverlay.jsx. Renders up to 20 expanding rings at the provided positions; fades in 200ms, holds 1s, fades out 300ms (1.5s total). 2D DOM overlay — no Three.js. aria-hidden because the InsightChip + HUDAnnouncer carry the semantic info.",
-    "Mount BridgePulseOverlay in App.jsx; wire a setBridgePulse state hook from LivingArchView's onBridgePulse callback."
-  ],
-  "passes": true
-}
-```
-
-### Task 15: R19 Phase 4 — Narrative drawer (Tier E)
-
-```json
-{
-  "id": "R19-5",
-  "title": "Phase 4 — Narrative drawer (opt-in)",
-  "category": "feature",
-  "priority": 15,
-  "description": "Right-side opt-in drawer summarizing the current filter × pull state for chefs who want the full narrative. Sections: composition (filter chain + visible count), bucket distribution sparkline, cluster × bucket overlap matrix, pull explanation with top bridges, and a heuristic 'suggested next move'. Toggled via a small `?` button near the FilterPillRow. Brainstorm: .omc/drafts/r19-narrative-insights-brainstorm.md (Tier E).",
-  "steps": [
-    "Create src/data/clusterBucketOverlap.js. Pure `computeClusterBucketOverlap({ nodes, bucketOf, clusterIdField }) → { clusters[], buckets[], counts: Record<clusterId, Record<bucketLabel, count>> }`. Used by the matrix view.",
-    "Create src/components/InsightDrawer.jsx (~250 lines). Sections: Composition (filter chain + visible count), BucketSparkline (inline SVG bars per bucket), ClusterMatrix (small table, scroll on overflow), PullExplanation (sentence keyed off pull range + bridges array, top 3 bridges), SuggestedMove (heuristic).",
-    "Mount the drawer in App.jsx with bridgePanelOpen state + `?` toggle button next to the FilterPillRow. Pass bucketCounts (existing), bridges (rankBridges on active axis via useMemo), clusterOverlap (computed via useMemo on morphAxis), filterStack, pullStrength, visibleCount.",
-    "Vitest src/data/__tests__/clusterBucketOverlap.test.js — basic shape, empty/missing inputs, cluster ordering.",
-    "Vitest src/components/__tests__/InsightDrawer.test.jsx — sections render with sample state; null when filterStack empty; toggle button aria-pressed reflects bridgePanelOpen."
-  ],
-  "passes": true
-}
-```
+**Previous plan.md** (R13 α-mode + cluster relabel) — fully shipped.
+The prior task queue is preserved in git history; the canonical
+record of what shipped lives in `.omc/plans/ralplan-flavor-affinity-mode.md`.
 
 ---
 
-## Verification Strategy
+## Confirmed UX Architecture
 
-After each task: run `npx vitest run` for affected unit tests. Run
-`npm run dev` and exercise the feature manually before marking
-`passes: true`. Phase 2 complete: run leak test (Task 8). Phase 3
-complete: TestFlight build for iOS β-mode verification.
+### Landing page (3 tiles)
+| Order | Tile | Subheadline | Routes to |
+|---|---|---|---|
+| 1 | Explore the Network | "You're ready to poke around the NeuFlavor Network model without guidance to explore all kinds of ways of pairing ingredients" | `/explore` (3D Network) |
+| 2 | Guided Discovery | "You want a guided tour to discover ways of exploring ingredient pairings and why they pair well." | `/guided` |
+| 3 | Build your Recipe | "You already have idea of ingredients you'd like to use and/or the type of recipe you'd like to build but just want to dig deeper" | `/build` |
 
-## Rollback
+### In-app top-level nav (3 tabs, persistent)
+Three primary tabs match the landing cards. Inside **Explore the
+Network**, a secondary nav shows the lab sublistings:
 
-`?affinity=v0` URL param disables α/β-mode. Phase 1 rollback: delete
-`label_v2` field from JSON files + redeploy.
+```
+┌─ Explore Network ─ Guided Discovery ─ Build Recipe ─┐
+│ ┌─ Network 3D ─ Cocktail Lab ─ Sauce Lab ─ Recipes ─┐ │   (only when in Explore)
+└─────────────────────────────────────────────────────┘
+```
+
+### Key decisions (from deep-interview)
+| # | Question | Decision |
+|---|---|---|
+| 1 | Notebook RecipeLab vs new 3D Recipes lab | **New 3D Recipes REPLACES notebook.** Notebook ingredient-builder UX moves into "Build your Recipe". |
+| 2 | Card mechanic for Guided | **Centered card + Yes/No buttons** (one-at-a-time, no swipe gestures). |
+| 3 | Results-page radars | **5 stacked ProfileAxisRadars** (one per axis: taste / aroma / season / cuisine / method). Click a radar → guided tour. |
+| 4 | 15 seed recipes for new Recipes lab | **Hand-curated** for cluster + cuisine diversity. |
+| 5 | In-app nav after landing | **3 top-level tabs mirroring the landing cards** + secondary nav under Explore. |
+| 6 | Build → lab bridges | **Auto-apply filter pills** based on Build card picks. |
+
+---
+
+## Phase Plan
+
+**Revision pass 2** (2026-05-16) after Architect + Critic ITERATE
+verdicts:
+- Phase order swapped: 1 → 2 → 3 → **6 → 4 → 5** → 7 (Phase 4 depends
+  on Phase 6 for the "Open in Recipes" CTA — was inverted)
+- Phase 5 rewritten around `useImperativeHandle` + `useReducer` +
+  declarative `STAGES` config (no direct `stateRef.current` access)
+- Phase 4 file refs corrected: `CocktailLabV2.jsx` (not stale
+  `CocktailLab.jsx`); added Phase 4.0 sub-task to add the
+  `externalFilter` prop missing today
+- Phase 6 t-SNE swapped for hand-placed cuisine-sphere positions
+- Added 3 risks (bundle size, Capacitor iOS, test surface)
+- Phase 5 gated behind feature flag + skip button on every stage
+
+### Phase 1 — Landing + nav restructure
+**Why first**: Every other phase depends on knowing where the user
+enters from and what the persistent nav looks like.
+
+- **1.1** Rewrite `LandingScreen.jsx` to render 3 tiles (Explore /
+  Guided / Build) with the subheadlines per spec §1. Drop the
+  Cocktail / Sauce / Recipe Lab tiles.
+- **1.2** Refactor `App.jsx` top-level mode state:
+  - Replace the flat `activeTab` enum with a 2-level state:
+    `{ topLevel: 'explore' | 'guided' | 'build', subLevel: 'network' | 'cocktail' | 'sauce' | 'recipes' }`
+  - `subLevel` only meaningful when `topLevel === 'explore'`.
+- **1.3** Build `<PrimaryNavBar>` component (desktop + mobile) showing
+  the 3 top-level tabs. Reuse the existing `MobileTabBar.jsx` shell
+  but rewrite contents.
+- **1.4** Build `<ExploreSubNav>` component shown only when
+  `topLevel === 'explore'`. Renders the 4 sublistings (Network /
+  Cocktail / Sauce / Recipes).
+- **1.5** Migrate existing `tab === 'cocktail'`, `'sauce'`, `'recipe'`
+  consumers — they now read `{topLevel: 'explore', subLevel: 'cocktail'}` etc.
+- **1.6** Mark `RecipeLab.jsx` deprecated but KEEP mounting it under
+  Explore (so the notebook stays accessible until Phase 5 ships
+  the Build path replacement). Actual deletion deferred to Phase 7
+  cleanup. Add `?tab=recipe` → `?path=explore&sub=recipe-notebook`
+  alias in the URL adapter.
+
+**Files**: `src/components/LandingScreen.jsx` (rewrite),
+`src/components/PrimaryNavBar.jsx` (new),
+`src/components/ExploreSubNav.jsx` (new),
+`src/components/MobileTabBar.jsx` (rewrite),
+`src/App.jsx` (mode state refactor).
+
+### Phase 2 — Guided Discovery card flow (Tinder-style Yes/No)
+**Why second**: The Guided cards are the seed for the Build flow
+(same UX, slightly different rules) and for the guided tour.
+
+- **2.1** Build `<SwipeDeckCard>` component:
+  - One card visible center-screen.
+  - Yes / No buttons below.
+  - On Yes: card slides up + fades out, next card fades in.
+  - On No: card slides right + fades out, next card fades in.
+  - aria-live announcement on each card change.
+- **2.2** Refactor `GuidedDiscoveryStart.jsx` to render the existing
+  9-bubble registry minus `cocktail` + `sauce` (per spec §2A) →
+  7 cards. Maintain bubble-card cloud visual; each card now appears
+  one-at-a-time inside the swipe deck.
+- **2.3** Ingredient card special-case (spec §2A: "user can't ignore
+  this one"):
+  - No "No" button on ingredient card.
+  - User can either type their own (existing SearchBar) OR tap a
+    "Suggest one" button → returns one of `[chicken, onion, basil,
+    vanilla]` at random.
+- **2.4** Card order: ingredient (forced) → season → cuisine → meat →
+  aroma → dessert → dietary (6 optional).
+- **2.5** Wire "Yes" presses to existing `bubbleStack` state. "No"
+  presses skip the card without adding.
+- **2.6** When deck completes, navigate to Results page (Phase 3).
+
+**Files**: `src/components/SwipeDeckCard.jsx` (new),
+`src/components/GuidedDiscoveryStart.jsx` (heavy refactor),
+`src/data/guidedDiscovery.js` (filter out cocktail/sauce from
+registry by axis, add `requiredCardKeys = ['ingredient']`).
+
+### Phase 3 — Guided Results page (5 stacked radars)
+**Why third**: Bridges Phase 2 (card output) into Phase 5 (guided
+tour) — the radar click is the tour entry point.
+
+- **3.1** Build `<MultiAxisRadarStack>` component:
+  - Renders 5 ProfileAxisRadars (taste / aroma / season / cuisine /
+    method), each at small size (~280px), grid-2-cols on tablet+.
+  - Each radar uses the user's focal ingredient + bubble-stack picks
+    as the input recipe.
+  - Each radar has a "Click to explore in network →" CTA.
+- **3.2** Rewrite `GuidedDiscoveryResults.jsx`:
+  - Top: bubble-stack chip strip (unchanged).
+  - Below: subheadline "Click one of the Pairing Radars to see how
+    the model found these pairings."
+  - Middle: `<MultiAxisRadarStack>`.
+  - Bottom: existing "Back to bubbles" + "Explore in the network"
+    CTAs (kept as escape hatches).
+- **3.3** Radar click handler → starts Phase 5 guided tour with the
+  clicked axis as the entry filter.
+
+**Files**: `src/components/MultiAxisRadarStack.jsx` (new),
+`src/components/GuidedDiscoveryResults.jsx` (rewrite),
+`src/components/ProfileAxisRadar.jsx` (already shipped — reuse).
+
+### Phase 4 — New 3D Recipes Lab (was Phase 6, moved earlier)
+**Why fourth**: Phase 5 (Build) depends on this for the "Open in
+Recipes" CTA. Critic flagged the inversion. Self-contained — no
+dependencies on Phase 1-3 beyond top-level nav scaffolding.
+
+- **4.0** Audit shared lab scaffold. `App.jsx:39` imports
+  `CocktailLabV2.jsx`, NOT `CocktailLab.jsx` (the latter does not
+  exist — earlier plan reference was stale). Plan all references
+  going forward to `CocktailLabV2.jsx`. Identify the natural
+  shared-abstraction line (likely: `NetworkScene` + `ClusterJoystick`
+  + `flyToTarget` + detail-panel pattern).
+- **4.1** Curate 15 seed recipes in `src/data/seedRecipes.js`:
+  - Cover 6+ cuisines (Italian, Thai, Japanese, Indian, Mexican,
+    French, Mediterranean, American).
+  - Cover 8 GNN aroma clusters.
+  - Each entry: `{ id, name, cuisine, cluster, ingredients[], description, position3D }`.
+  - Suggested set: margherita pizza, pad thai, chicken tikka
+    masala, miso soup, ratatouille, tacos al pastor, sushi roll,
+    croissant, beef bourguignon, pho, ceviche, mole poblano,
+    biryani, paella, hummus.
+- **4.2** Position strategy — **hand-placed cuisine-anchored sphere**.
+  Architect rejected t-SNE for N=15 (perplexity must be < N;
+  unstable). Each recipe gets a hand-coded `position3D` placed on a
+  cuisine quadrant: Italian recipes cluster in the +x/+y octant,
+  Asian in -x/+y, etc. MDS may be used as a one-shot generator
+  (committed JSON, not runtime), but hand-snap to a clean grid.
+- **4.3** Build `RecipesLab.jsx` modeled on `CocktailLabV2.jsx`:
+  - 3D scene with one node per recipe at its hand-placed position.
+  - Node shape = cuisine icon (reuse `guidedIcons.jsx` cuisine set).
+  - Filter pills: cuisine / aroma / season / family / taste —
+    default to taste (per spec §4A "Default to flavor filter").
+- **4.4** Recipe Details panel on node click:
+  - Recipe name, cuisine tag, ingredient list with affinity
+    strengths between each ingredient pair.
+  - "Open in network" CTA → opens the focal ingredient in α-mode.
+- **4.5** Accept `externalFilter` prop. Grep on
+  `D:\Projects\flavor-network\src\components\CocktailLabV2.jsx`
+  returned 0 matches for `externalFilter|filterPill` — neither
+  CocktailLabV2 nor SauceLab currently accepts an external filter
+  prop. Phase 5 (Build → lab bridges) needs this. Add as part of
+  4.0 audit OR defer to Phase 5.0.
+
+**Files**: `src/components/RecipesLab.jsx` (new),
+`src/data/seedRecipes.js` (new),
+`src/data/recipesGraph.js` (new — build recipe nodes/edges).
+
+### Phase 5 — Build Your Recipe (multi-ingredient + lab bridges)
+**Why fifth**: Reuses Phase 2 + 3 (cards + radar stack) and depends
+on Phase 4's RecipesLab for the "Open in Recipes" CTA. Differs from
+Guided in (a) multi-select on ingredient card, (b) keeps cocktail
++ sauce cards, (c) results page bridges to specific labs.
+
+- **5.0** Add `externalFilter` prop support to `CocktailLabV2.jsx`
+  and `SauceLab.jsx` (Critic confirmed neither exists today via
+  grep). Prop shape: `{ season?, cuisine?, aroma?, ingredients?[] }`.
+  On mount + prop change, dispatch into the lab's existing
+  filterStack reducer. This is a discrete sub-task with a
+  measurable boundary — DO NOT defer to mid-flight.
+- **5.1** Build path entry — `BuildRecipeStart.jsx`:
+  - Reuses `<SwipeDeckCard>` from Phase 2.
+  - Card registry: full 9-card BUBBLE_REGISTRY (with cocktail +
+    sauce restored).
+  - Ingredient card supports multi-select: chips ACCUMULATE inside
+    the one card (do NOT re-show the ingredient card N times —
+    breaks the one-at-a-time mental model). User taps "Done with
+    ingredients →" to advance.
+  - State shape: `buildBubbleStack` uses
+    `{ key: 'ingredients', value: { ingredients: string[] } }`.
+    Boundary adapter converts to single-ingredient for any
+    component that expects the original Guided shape.
+  - Cocktail / sauce cards behave as routing hints (see 5.3).
+- **5.2** Build path results — `BuildRecipeResults.jsx`:
+  - If user picked a `cocktail` or `sauce` card → SKIP results page,
+    bridge directly to that lab (5.3).
+  - Otherwise: render `<MultiAxisRadarStack>` (same as Phase 3) PLUS
+    a top row of "Open in:" buttons routing to Cocktail Lab / Sauce
+    Lab / Recipes Lab (5.4).
+- **5.3** Cocktail / Sauce lab bridge — pill REPLACEMENT semantics:
+  - Apply filter pills mirroring bubble stack: season → `season`
+    filter pill, cuisine → `cuisine` pill, aroma → `aroma` pill.
+  - **Replaces** any user-set pills on the destination lab (not
+    merges). User can clear pills to recover the default view.
+  - Ingredients applied as `ingredient-scope` filter via the new
+    `externalFilter` prop from 5.0.
+- **5.4** "Open in Recipes" routing:
+  - Routes to RecipesLab (Phase 4) with the same `externalFilter`
+    prop applied.
+
+**Files**: `src/components/BuildRecipeStart.jsx` (new),
+`src/components/BuildRecipeResults.jsx` (new),
+`src/components/CocktailLabV2.jsx` (add externalFilter prop),
+`src/components/SauceLab.jsx` (add externalFilter prop).
+
+### Phase 6 — Guided tour through the network (was Phase 5)
+**Why sixth**: Most complex piece; lowest-risk to delay because
+Phase 4 + 5 already provide first-run discovery via the Build
+path's "Open in Recipes/Cocktail/Sauce" CTAs. Spec §2D-§2J is 7
+network stages + 3 lab sub-tours.
+
+**Architectural rewrite per Architect findings:**
+
+- **6.0** Extract `LivingArchView` imperative API. Wrap
+  `LivingArchView` in `forwardRef` + `useImperativeHandle` exposing
+  ONLY the methods the tour needs:
+  ```js
+  {
+    engageAffinity(focalName),    // delegates to AffinityMode
+    exitAffinity(),
+    setMorphAxis(axis),            // 'taste' | 'aromas' | ...
+    setPullStrength(t),            // 0..1
+    triggerFlyTo(clusterId),
+    highlightIngredients(ids[]),
+    clearHighlights(),
+  }
+  ```
+  Tour controller MUST NOT reach into `stateRef.current` (Architect
+  rejected this; `stateRef` is private scene state with 30+ internal
+  call sites). Each handle method is contract-tested in
+  `src/components/__tests__/LivingArchView.imperativeApi.test.jsx`.
+
+- **6.1** `usePullStrengthAnimator` hook. `pullStrength` lives in
+  `App.jsx:160` state. Hook signature:
+  `usePullStrengthAnimator(setPullStrength)` returns
+  `{ animate(from, to, durMs, easing), cancel() }`. Uses `rAF` +
+  `easeInOutCubic` (already imported in `LivingArchView.jsx:10`).
+  Tour calls the animator; React re-renders flow normally; existing
+  slider tests untouched. Concurrent-user-drag guard: while
+  `animate` is running, set `tourActive=true` and disable slider
+  pointer events.
+
+- **6.2** Declarative stage config — `src/data/guidedTourStages.js`:
+  ```js
+  export const STAGES = [
+    { id: 'affinity', copy: '...', gradient: '...',
+      advance: { kind: 'doubleTap' },
+      sceneAction: { kind: 'engageAffinity', focal: '<bubbleStack[0]>' },
+      popupAnchor: 'tr' },
+    { id: 'pull1', advance: { kind: 'auto', ms: 3000 },
+      sceneAction: { kind: 'animatePull', axis: '<radarAxis>', 0to1to0: true } },
+    // ... 5 more network stages + 3 lab-tour stages
+  ];
+  ```
+  `STAGE_ACTIONS` registry maps action kinds to handler functions
+  that call the imperative handle. New action kind = add one entry
+  to the registry, not a new component.
+
+- **6.3** `<GuidedTour>` controller — `useReducer` over `STAGES`:
+  - State: `{ stageIdx, axis, focal, highlightIds }`.
+  - Transitions: `ADVANCE` / `JUMP_TO(id)` / `EXIT`.
+  - Effects in `useEffect` keyed on `stageIdx`: runs the stage's
+    `sceneAction` against the imperative handle, then arms its
+    `advance` trigger.
+  - **Skip button on every stage** — addresses Critic's steel-man
+    that tours have high skip-rate. Skip → `EXIT` action.
+
+- **6.4** `<TourPopup>` component — pure presentational:
+  - Reads active stage entry; renders copy + gradient + buttons.
+  - Two buttons: "Got it →" (advance) + "Skip tour" (exit).
+  - Auto-pin via `popupAnchor` ('tl' | 'tr' | 'bl' | 'br' | 'center').
+  - Dismiss-on-outside-click triggers `EXIT`.
+
+- **6.5** Feature flag + telemetry:
+  - Gate tour render behind `localStorage.getItem('feature:guided-tour') !== 'off'`.
+  - Emit anonymous events: `tour:start`, `tour:advance:{stageId}`,
+    `tour:skip:{stageId}`, `tour:complete`. Sink: console.info
+    initially; wire to real analytics later. Lets us measure
+    completion-rate against Critic's threshold concern.
+
+- **6.6** Stage definitions (data in `guidedTourStages.js`):
+  1. `affinity` — engage AffinityMode on bubbleStack focal.
+     Popup: "Click and Drag/Tap and drag to control the camera.
+     Double click/tap when you're ready to move on." Advance:
+     doubleTap.
+  2. `pull1` — exit affinity, set radar axis filter, animate pull
+     0→1→0 over 2.5s. Popup: "This is the pull tab. Drag it to
+     morph the network from cooccurrence layout to {axis}-bucket
+     layout."
+  3. `pull2` — reset pull, pick a different random axis, repeat.
+  4. `clusters` — clear filters, popup explaining clusters.
+  5. `flyto` — `triggerFlyTo(randomCluster)`.
+  6. `ingredients` — highlight 4-6 ingredients near the destination.
+  7. `chooseLab` — engage AffinityMode on a tapped ingredient;
+     popup with 4 pills: Recipes Tour / Cocktail Tour / Sauce Tour
+     / Done.
+
+- **6.7** Lab tour sub-stages (3 each, also in `guidedTourStages.js`):
+  - Recipes Tour: cluster overview → flyTo a recipe → expand
+    ingredient cards.
+  - Cocktail Tour: cluster overview → flyTo a family → click a
+    cocktail.
+  - Sauce Tour: cluster overview → flyTo a mother → click a sauce.
+
+**Files**: `src/components/GuidedTour.jsx` (new — reducer + dispatch),
+`src/components/TourPopup.jsx` (new — pure presentation),
+`src/data/guidedTourStages.js` (new — STAGES + STAGE_ACTIONS),
+`src/hooks/usePullStrengthAnimator.js` (new),
+`src/components/LivingArchView.jsx` (forwardRef wrapper + imperative handle),
+`src/components/__tests__/LivingArchView.imperativeApi.test.jsx` (new — contract tests).
+
+### Phase 7 — Polish + plumbing
+- **7.1** URL routing — add `react-router` (currently not used) OR
+  preserve current `?tab=` query-string approach. Decision: stick
+  with query-string for minimal churn. Routes:
+  - `?path=explore&sub=network|cocktail|sauce|recipes`
+  - `?path=guided[&stage=cards|results|tour]`
+  - `?path=build[&stage=cards|results]`
+- **7.2** Update `HowItWorks.jsx` content to reference the new flow
+  paths.
+- **7.3** Mobile/iOS validation — every flow tested at 375×667 + on
+  Capacitor build.
+- **7.4** Test coverage:
+  - SwipeDeckCard unit + a11y tests
+  - MultiAxisRadarStack render test
+  - GuidedTour stage-machine state transition tests
+  - RecipesLab graph build test
+
+---
+
+## Files Created (estimate)
+| File | Lines (est) | Purpose |
+|---|---|---|
+| `src/components/PrimaryNavBar.jsx` | 80 | 3 top-level tabs |
+| `src/components/ExploreSubNav.jsx` | 60 | sub-nav under Explore |
+| `src/components/SwipeDeckCard.jsx` | 150 | reusable Yes/No card deck |
+| `src/components/MultiAxisRadarStack.jsx` | 100 | 5-radar grid |
+| `src/components/BuildRecipeStart.jsx` | 200 | Build card flow |
+| `src/components/BuildRecipeResults.jsx` | 150 | Build results + lab bridges |
+| `src/components/GuidedTour.jsx` | 280 | Tour stage controller |
+| `src/components/TourPopup.jsx` | 120 | Colorful tour overlay |
+| `src/data/guidedTourStages.js` | 100 | stage config |
+| `src/components/RecipesLab.jsx` | 250 | new 3D Recipes lab |
+| `src/data/seedRecipes.js` | 150 | 15 curated recipes (with hand-placed `position3D`) |
+| `src/data/recipesGraph.js` | 120 | recipe graph builder |
+| `src/hooks/usePullStrengthAnimator.js` | 60 | rAF-driven slider tween |
+| `src/components/__tests__/LivingArchView.imperativeApi.test.jsx` | 80 | contract tests for imperative handle |
+
+## Files Modified (heavy)
+| File | Change |
+|---|---|
+| `src/components/LandingScreen.jsx` | 5 tiles → 3 tiles |
+| `src/components/MobileTabBar.jsx` | rewrite for 3 top-level + sub-nav |
+| `src/App.jsx` | 2-level mode state, route registry, `usePullStrengthAnimator` wiring |
+| `src/components/LivingArchView.jsx` | forwardRef + useImperativeHandle (no `stateRef.current` leakage) |
+| `src/components/GuidedDiscoveryStart.jsx` | grid → SwipeDeckCard |
+| `src/components/GuidedDiscoveryResults.jsx` | curated wheel → MultiAxisRadarStack |
+| `src/components/CocktailLabV2.jsx` | accept `externalFilter` prop (today has 0 such mechanism — grep verified) |
+| `src/components/SauceLab.jsx` | accept `externalFilter` prop |
+| `src/data/guidedDiscovery.js` | filter cocktail/sauce out of Guided registry |
+
+## Files Deleted
+| File | Reason |
+|---|---|
+| `src/components/RecipeLab.jsx` | Notebook canvas — superseded by Build path |
+| `src/components/NotebookCanvas.jsx` | Recipe Lab's only consumer |
+| `src/components/RecipePanel.jsx` | If unused outside RecipeLab |
+| `src/components/RecipeLabMobile.jsx` | RecipeLab mobile variant |
+
+---
+
+## Risks + Open Questions
+
+### R1 — Guided tour timing brittleness
+The pull-tab animation needs to play smoothly while a popup is
+visible. If the user is on a slow device the tween may stutter,
+making the popup feel premature. **Mitigation**: gate stage advance
+on `requestAnimationFrame` completion of the slider tween rather
+than on a setTimeout.
+
+### R2 — Mobile gesture conflicts during guided tour
+"Double-click to advance" conflicts with the existing double-tap-to-
+zoom on the 3D canvas. **Mitigation**: tour double-click handler
+checks for AffinityMode engaged flag; if engaged, double-click
+exits the tour stage; otherwise default canvas double-click handler
+fires.
+
+### R3 — RecipesLab positioning at N=15
+Architect rejected t-SNE: at N=15, perplexity > N → projection
+collapses to noise; layout is unstable across runs (different seed
+= different shape, breaking tour reproducibility).
+**Mitigation**: hand-placed `position3D` on a cuisine-anchored
+sphere committed in `seedRecipes.js`. Italian quadrant, Asian
+quadrant, Mediterranean, etc. MDS may be used as a one-shot
+generator but the canonical positions are committed JSON, not
+runtime-computed.
+
+### R6 — Lab filter-pill plumbing — CONFIRMED MISSING
+Critic ran grep on `CocktailLabV2.jsx` and `SauceLab.jsx` →
+0 matches for `externalFilter|filterPill`. Neither accepts
+external filter state today.
+**Mitigation**: Phase 5.0 is a discrete sub-task to add the
+`externalFilter` prop. Budgeted into Phase 5 (NOT deferred
+mid-flight).
+
+### R4 — URL state persistence
+The query-string approach (`?path=guided&stage=tour`) means a deep-
+linked URL skips earlier setup state. **Mitigation**: refuse to
+render `stage=tour` unless `bubbleStack` is populated; on missing
+state, redirect to `stage=cards`.
+
+### R5 — Build path multi-select on ingredient card
+Multi-select requires changing the ingredient bubble's value type
+from `{ingredient: string}` to `{ingredients: string[]}`. This
+breaks the existing Guided Discovery wiring downstream (CuratedWheel,
+focalFromStack helper). **Mitigation**: introduce a separate
+`buildBubbleStack` state shape that uses the array; convert to
+single-ingredient at the boundary when handing off to existing
+components.
+
+### R7 — Bundle size impact
+New: RecipesLab + GuidedTour + TourPopup + SwipeDeckCard +
+MultiAxisRadarStack + stage config + seed recipes ≈ 1,500 LOC and
+a third 3D scene. Risk: JS bundle growth pushes initial paint past
+acceptable thresholds on iOS LTE.
+**Mitigation**: lazy-mount RecipesLab + GuidedTour + TourPopup via
+`React.lazy` + Suspense. Network/Cocktail/Sauce labs already
+lazy-mounted (see App.jsx). Budget: total bundle delta ≤ +120kB
+gzip; measure with `npm run build` before/after each phase.
+
+### R8 — Capacitor iOS event handling
+Plan covers double-tap-zoom for the guided tour but not (a) swipe-
+deck pointer events under WKWebView (pointercancel quirks), (b)
+tap-passthrough through TourPopup overlay on iOS.
+**Mitigation**: SwipeDeckCard uses click events only (no pointer
+events — simpler is more compatible). TourPopup uses `pointer-
+events: auto` on the popup body and `pointer-events: none` on its
+container. Test on a real device build before Phase 7 starts.
+
+### R9 — Test surface for the imperative API
+Phase 6.0 extracts `useImperativeHandle` on LivingArchView. The
+existing Three.js render path is largely untested at integration
+level. Risk: tour controller calls the handle, the handle no-ops
+silently when scene state isn't initialized, tour appears to
+work but produces no visual.
+**Mitigation**: Phase 6.0 includes contract tests
+(`LivingArchView.imperativeApi.test.jsx`) that mount LivingArchView
+in a jsdom shell and assert each handle method either (a) succeeds
+visibly OR (b) throws — no silent failure.
+
+---
+
+## Acceptance Criteria
+
+### Phase 1
+- [ ] LandingScreen renders exactly 3 tiles with the spec subheadlines.
+- [ ] Clicking each tile lands in the corresponding top-level tab.
+- [ ] In-app top nav shows 3 tabs; secondary sub-nav appears only on Explore.
+- [ ] Existing `?tab=recipe` URLs redirect to `?path=build`.
+
+### Phase 2
+- [ ] SwipeDeckCard renders ONE card at a time with Yes/No buttons.
+- [ ] Ingredient card has no "No" button; offers "Suggest one" fallback.
+- [ ] Yes adds to bubbleStack; No skips without adding.
+- [ ] aria-live announces each card change.
+
+### Phase 3
+- [ ] MultiAxisRadarStack renders 5 ProfileAxisRadars side-by-side / stacked.
+- [ ] Each radar shows the user's bubble stack scored on its axis.
+- [ ] Clicking a radar starts the guided tour with that axis as entry.
+
+### Phase 4 (New 3D Recipes Lab)
+- [ ] RecipesLab renders 15 seed recipes as 3D nodes.
+- [ ] Recipe positions are stable across runs (read from committed `position3D` field).
+- [ ] Default filter = taste; switching filters re-arranges nodes.
+- [ ] Recipe Details panel shows ingredients + pairing strengths.
+- [ ] `externalFilter` prop applies filter pills on mount.
+
+### Phase 5 (Build Your Recipe)
+- [ ] Build cards include cocktail + sauce; ingredient card is multi-select (chips accumulate in one card).
+- [ ] Picking the cocktail card bridges directly to Cocktail Lab with filter pills set via `externalFilter`.
+- [ ] Other Build flows land on a results page with "Open in: Cocktail / Sauce / Recipes" buttons.
+- [ ] CocktailLabV2 + SauceLab accept `externalFilter` prop (was missing — added in 5.0).
+
+### Phase 6 (Guided tour)
+- [ ] LivingArchView exposes 7-method imperative handle; tour controller uses it (not `stateRef.current`).
+- [ ] Contract tests cover each handle method.
+- [ ] `usePullStrengthAnimator` drives `App.pullStrength` state (no fake user input).
+- [ ] STAGES + STAGE_ACTIONS declared in `guidedTourStages.js` (data-driven, not procedural).
+- [ ] Skip button visible on every stage.
+- [ ] Feature flag (`localStorage.getItem('feature:guided-tour') !== 'off'`) gates tour render.
+- [ ] Tour stage machine progresses through all 7 network stages on a happy path.
+- [ ] Each stage has a colorful popup with the spec-listed copy.
+- [ ] Double-click/tap advances from the affinity stage.
+- [ ] Pull-tab animation completes both demos.
+- [ ] Random cluster flyTo + ingredient highlight executes.
+- [ ] Lab-tour pills route to the relevant lab's mini-tour.
+
+### Phase 7 (Polish + plumbing)
+- [ ] All flows tested on iOS Safari + Chrome desktop + Capacitor build.
+- [ ] Bundle delta ≤ +120kB gzip (measured before/after each phase).
+- [ ] Test suite green (≥508 passing, no regressions).
+- [ ] Build clean (no Vite/Rollup warnings).
+
+---
+
+## Decision Log (deep-interview round, 2026-05-16)
+
+| # | Question | Decision | Rationale |
+|---|---|---|---|
+| Q1 | New 3D Recipes lab vs notebook RecipeLab | New 3D REPLACES notebook. Notebook UX moves into Build path. | Avoids two recipe surfaces. Build path naturally houses an ingredient-aggregation UI. |
+| Q2 | Tinder card mechanic | Centered card + Yes/No buttons | Simpler, identical mobile + desktop, faster to ship. No gesture handling cost. |
+| Q3 | Results-page radars | 5 stacked ProfileAxisRadars (all axes) | Lets user pick the lens that interests them. Mirrors Recipe Lab notebook UX. |
+| Q4 | 15 seed recipes source | Hand-curated for cluster + cuisine diversity | TheMealDB import has noisy ingredient names. Hand curation gives quality + diversity guarantee. |
+| Q5 | Persistent in-app nav | 3 top-level tabs matching landing | Lets user switch flows without bouncing to landing. Sub-nav clear inside Explore. |
+| Q6 | Build → lab filter bridge | Auto-apply filter pills | Reuses existing FilterPillRow mechanism. Pre-curates view but user can unset. |
+
+---
+
+## Execution Record (Ralph autonomous, 2026-05-16)
+
+All 7 phases shipped in an autonomous pass. **522 tests passing**
+(up from 508 baseline; +14 new from SwipeDeckCard + seedRecipes
+suites). Build clean.
+
+| Phase | Status | Key files | Deferred |
+|---|---|---|---|
+| 1 — Landing + nav | ✅ | `LandingScreen.jsx` (5→3 tiles), `App.jsx` (top nav 2-row split with secondary nav on Explore, `--nav-h` shift) | MobileTabBar rewrite, 2-level state refactor, URL routing |
+| 2 — Guided card flow | ✅ | `SwipeDeckCard.jsx`, `GuidedDiscoverySwipe.jsx` (replaces legacy grid in App; legacy preserved for its tests) | — |
+| 3 — Multi-axis radars | ✅ | `MultiAxisRadarStack.jsx`, `GuidedDiscoveryResults.jsx` (`onAxisSelect` prop wired) | — |
+| 4 — Recipes Lab | ✅ (v1 grid) | `seedRecipes.js` (15 recipes), `RecipesLab.jsx` (filter pills, cuisine/cluster, detail modal, externalFilter prop) | 3D NetworkScene upgrade (v2) |
+| 5 — Build path | ✅ | `BuildRecipeStart.jsx` (multi-ingredient), `BuildRecipeResults.jsx` (radar + lab bridges + cocktail/sauce short-circuit) | `externalFilter` prop on CocktailLabV2 + SauceLab (Phase 5.0 — not yet wired, lab opens without filters auto-applied) |
+| 6 — Guided Tour | ✅ (minimal) | `guidedTourStages.js`, `TourPopup.jsx`, `GuidedTour.jsx` (useReducer + telemetry + feature flag + skip) | `useImperativeHandle` on LivingArchView + `usePullStrengthAnimator` — tour runs popup-only without programmatic scene control |
+| 7 — Polish | ✅ (partial) | `SwipeDeckCard.test.jsx` (8 tests), `seedRecipes.test.js` (6 tests) | iOS Capacitor build verification, full bundle-size measurement, MultiAxisRadarStack tests, GuidedTour tests |
+
+**Deferred items roll into a follow-up iteration:**
+- F-1: `useImperativeHandle` on LivingArchView + `usePullStrengthAnimator` hook → enables programmatic pull-tab animation + flyTo in the Guided Tour
+- F-2: `externalFilter` prop on CocktailLabV2 + SauceLab → Build path's cocktail/sauce bridges fully wire pill filters on arrival
+- F-3: 3D NetworkScene upgrade for RecipesLab (v1 grid → v2 sphere)
+- F-4: MobileTabBar rewrite to 3-tab primary + secondary nav under Explore
+- F-5: URL routing (`?path=...` query string)
+- F-6: iOS Capacitor build verification + bundle delta measurement
+
+## Consensus Loop Record
+
+| Round | Architect | Critic | Plan revision |
+|---|---|---|---|
+| 1 | ITERATE on Phase 5 + 6 (stage machine + t-SNE wrong + stale file refs) | ITERATE (revise-first; 3 CRITICAL items including phase ordering) | Phase 4↔6 swap, CocktailLabV2 corrections, Phase 6 reducer+imperativeHandle+animator-hook rewrite, R7/R8/R9 added, skip button + feature flag + telemetry on tour, hand-placed Recipes Lab positions |
+
+This revision applies all 3 Critic CRITICAL findings + all Major
+findings. Open Minor findings (decision-log rationale referencing
+deleted RecipeLab, orphan `requiredCardKeys` contract, rollback
+plan for RecipeLab deletion) are documented inline but do not gate
+execution.
+
+## Pipeline next step
+
+**`/oh-my-claudecode:autopilot`** — direct execution starting at
+Phase 1. Plan has cleared one consensus round; remaining concerns
+are operational, not architectural.
+
+If `--consensus` is run again, expect APPROVE on Phase 4 + 5 + 6
+(architectural blockers resolved); Phase 7's telemetry sink + iOS
+safe-area handling are still untested theoreticals.

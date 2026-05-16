@@ -70,13 +70,17 @@ export default function HowItWorks({
                 <p>Each dot is an ingredient. Ingredients that appear together in recipes
                    are placed near each other — we analyzed <strong>2.2 million recipes</strong> from
                    RecipeNLG, plus TheMealDB and TheCocktailDB, to position
-                   <strong> 3,913 ingredients</strong> with <strong>48,588 pairings</strong> between
+                   <strong> 3,913 ingredients</strong> with <strong>72,521 pairings</strong> between
                    them.</p>
                 <p className="mt-2"><strong>What the colors mean depends on what you're looking at.</strong> With
                    no filter active, color shows the recipe cluster an ingredient lives in
                    (Baking, Italian, East Asian, etc.). When you tap a filter pill — Aroma,
                    Cuisine, Season, Family, or Taste — colors switch to that filter's buckets.
-                   The chip at the top-left of the scene tells you which is active.</p>
+                   The chip at the top-left of the scene tells you which is active. The
+                   3D scene morphs into wedge-shaped flavor poles when an axis is engaged —
+                   each pole groups its bucket's ingredients into a vertical wedge so you
+                   can fly to "all fruity ingredients" or "all spring ingredients" as one
+                   spatial cluster.</p>
                 <p className="mt-2 text-xs text-gray-400">Taste palette (visible when the Taste filter is active):</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {Object.entries(TASTE_COLORS).map(([t, c]) => (
@@ -114,16 +118,31 @@ export default function HowItWorks({
               <section>
                 <h3 className="text-cyan-300 font-semibold mb-1">Affinity Rings</h3>
                 <p>Click any ingredient and the camera flies in to orbit a 60° angled
-                   bird's-eye view. Around the focal you'll see 30 chemistry-matched
-                   ingredients laid out in three tiers, ranked by paired-recipe strength
-                   and shared flavor compounds:</p>
+                   bird's-eye view. Around the focal you'll see 30+ chemistry-matched
+                   ingredients laid out in a tier-stratified pyramid, ranked by
+                   paired-recipe strength and shared flavor compounds:</p>
                 <div className="text-xs text-gray-400 space-y-0.5 mt-1">
-                  <p>★★★ — top 5, strongest pairings (closest ring)</p>
-                  <p>★★ — next 10 (middle ring)</p>
-                  <p>★ — next 15 (outer ring)</p>
+                  <p>★★★ — top 5, strongest pairings (closest tier)</p>
+                  <p>★★ — next 10 (middle tier)</p>
+                  <p>★ — next 15 (outer tier)</p>
+                  <p>Surprising — chem-bridged pairings absent from cookbooks</p>
                 </div>
                 <p className="mt-1 text-xs text-gray-400">Each tier has its own silhouette
-                   shape so rank reads at a glance. Click any ring sphere to repivot.</p>
+                   shape (bipyramid / cylinder / sphere / star) so rank reads at a glance.
+                   Cones radiate from the focal to each affinity, color-coded by the active
+                   aroma / cuisine / taste bucket, with a small fan offset for same-bucket
+                   accents so they don't sit on the same plane. Click any apex to repivot.</p>
+              </section>
+
+              <section>
+                <h3 className="text-cyan-300 font-semibold mb-1">Recipe Lab</h3>
+                <p>The Labs dropdown opens a notebook-style recipe builder. Build a
+                   dish from the selected ingredients and a dynamic profile radar
+                   visualizes the dish across one of five axes — taste, aroma, season,
+                   cuisine, or method — switchable from chips at the top. Lets you
+                   answer "is this dish leaning summery, woody, or umami-heavy?" at a
+                   glance. Tap "Build a recipe" from the Details panel to hand off
+                   your selection.</p>
               </section>
 
               <section>
@@ -133,6 +152,16 @@ export default function HowItWorks({
                    by family (mother sauces, cocktail families). Each dot is shaped by
                    its family / cuisine — clusters of similar drinks or sauces emerge
                    directly from their ingredient overlaps.</p>
+              </section>
+
+              <section>
+                <h3 className="text-cyan-300 font-semibold mb-1">Guided Discovery</h3>
+                <p>Don't know where to start? The Guided tab walks you through a
+                   thought-bubble grid — "I'm thinking about pairing that…" — where you
+                   stack what you know (an ingredient, a season, a cuisine, dietary
+                   restrictions). It then surfaces 5–10 hero pairings on a curated wheel
+                   with a per-pair story explaining whether the engine ranked it from
+                   recipe co-occurrence, shared compounds, or both.</p>
               </section>
 
               <section>

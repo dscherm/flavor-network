@@ -23,6 +23,7 @@ import { rankBridges } from '../data/bridgeRanker.js';
 import { CATEGORICAL_AXES, bucketOf } from '../data/categoricalAxes.js';
 import { FILTER_TO_AXIS } from '../data/networkModes.js';
 import { AFFINITY_SHAPE_LEGEND } from '../data/affinityShapes.js';
+import { BRISCIONE_AROMA } from '../data/briscionePalette.js';
 import {
   createTasteSelection,
   getIndicesForTaste as _getIndicesForTaste,
@@ -924,6 +925,52 @@ export default function LivingArchView({
 
     scene.add(sectorGroup);
 
+    // --- Aroma sector pie disc (Track 4, iter 2026-05-16) --------------
+    // 25%-opacity flat disc on y=0, divided into 6 60° pie segments
+    // matching the 6 GNN aroma buckets (fruity/floral/green/woody/
+    // spicy/fatty). Sits BEHIND the network nodes so the colored
+    // sectors hint at which aroma each pole anchors as the camera
+    // rotates. Toggled by the morphAxis effect (line ~2362) — only
+    // visible when the aroma axis filter is active OR mode='aromas2d'.
+    //
+    // Geometry: each segment is a CircleGeometry sector (thetaStart +
+    // thetaLength = π/3). Built in the XY plane then rotated -π/2
+    // around X so it lays flat on y=0. Outer radius slightly larger
+    // than POLE_RADIUS (90) so it extends past the bucket poles. The
+    // 2D bucket-pole layout starts at angle -π/2 (top) and sweeps
+    // clockwise — pie segments are centered on those pole angles so
+    // each pole sits in the middle of its colored wedge.
+    const AROMA_DISC_RADIUS = 130;
+    const AROMA_DISC_OPACITY = 0.25;
+    const AROMA_ORDER = ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'];
+    const aromaSectorGroup = new THREE.Group();
+    aromaSectorGroup.visible = false;
+    // renderOrder < 0 nudges this behind everything else that uses the
+    // default renderOrder=0. depthWrite=false ensures particles + edges
+    // overlay correctly without z-fighting.
+    aromaSectorGroup.renderOrder = -10;
+    const SEG_ANGLE = (Math.PI * 2) / AROMA_ORDER.length;
+    for (let i = 0; i < AROMA_ORDER.length; i++) {
+      // Center the segment on pole angle (-π/2 + i * SEG_ANGLE).
+      // CircleGeometry uses thetaStart counterclockwise from +x; offset
+      // by -π/2 - SEG_ANGLE/2 so segment 0 (fruity) spans the top.
+      const thetaStart = -Math.PI / 2 - SEG_ANGLE / 2 + i * SEG_ANGLE;
+      const geo = new THREE.CircleGeometry(AROMA_DISC_RADIUS, 32, thetaStart, SEG_ANGLE);
+      const mat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(BRISCIONE_AROMA[AROMA_ORDER[i]]),
+        transparent: true,
+        opacity: AROMA_DISC_OPACITY,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+      const seg = new THREE.Mesh(geo, mat);
+      seg.rotation.x = -Math.PI / 2; // lay flat on y=0 plane
+      seg.position.y = -0.5; // slightly below the nodes' y=0 plane
+      seg.userData.aromaBucket = AROMA_ORDER[i];
+      aromaSectorGroup.add(seg);
+    }
+    scene.add(aromaSectorGroup);
+
     // --- Taste pop-out state ---
     const tasteSelection = createTasteSelection(count);
     tasteSelectionRef = tasteSelection;
@@ -1655,7 +1702,7 @@ export default function LivingArchView({
       // both 2D ring + 3D Fibonacci layouts. Visibility flipped by
       // the new pole-label effect on (filterStack, morphAxis, mode).
       poleLabelGroup2DByAxis, poleLabelGroup3DByAxis,
-      triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, sectorGroup, tasteSelection,
+      triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, sectorGroup, aromaSectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
       // Expose runtime cluster centroids (3D from posA, 2D from PCA) so the
       // fly-to useEffect can orbit-center on a cluster's actual centroid
@@ -2364,6 +2411,14 @@ export default function LivingArchView({
     for (const g of Object.values(groupSetInactive || {})) g.visible = false;
     for (const [axisKey, g] of Object.entries(groupSetActive || {})) {
       g.visible = filterActive && morphAxis === axisKey;
+    }
+    // Track 4 iter 2026-05-16 — aroma sector pie disc visibility.
+    // Show when the aroma axis is the active morph OR the user is in
+    // the aromas2d categorical mode. Both surfaces visually benefit
+    // from the colored backdrop hinting at the 6 aroma sectors.
+    if (st.aromaSectorGroup) {
+      const aromaActive = (filterActive && morphAxis === 'aromas') || mode === 'aromas2d';
+      st.aromaSectorGroup.visible = aromaActive;
     }
   }, [filterStack, morphAxis, mode, showEdges, showParticles]);
 

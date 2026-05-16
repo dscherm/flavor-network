@@ -67,6 +67,14 @@ export const BUBBLE_REGISTRY = [
     subUI: 'flag-toggle',
     axisHint: null,
   },
+  {
+    key: 'dietary',
+    label: 'Has dietary restrictions',
+    subUI: 'dietary-chips',
+    // No axis hint — dietary restrictions filter the candidate pool
+    // before scoring; they don't shape the network morph.
+    axisHint: null,
+  },
 ];
 
 // Inline season values rendered as chips by the season bubble.

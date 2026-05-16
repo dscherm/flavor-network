@@ -20,10 +20,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import CuratedWheel, { selectCuratedPairings } from './CuratedWheel.jsx';
 import StoryPanel from './StoryPanel.jsx';
+import MultiAxisRadarStack from './MultiAxisRadarStack.jsx';
 import { whyThisWorks } from '../data/whyThisWorks.js';
 
+// User audit 2026-05-16: the prior copy blamed "FlavorDB API down" which
+// is misleading — the pipeline is ProData (RecipeNLG + TheMealDB +
+// TheCocktailDB co-occurrence), not a live FlavorDB call. An x3 === 0.5
+// breakdown means the chem-bridge pass found no shared compounds for
+// that specific pair, not that an upstream API is offline. We also
+// tightened the predicate (in showChemistryBanner below) to fire only
+// when the MAJORITY of hero pairs lack chemistry signal — previously
+// `any pair at 0.5` was tripping it almost universally (18% of all
+// 72,521 pairings in the live corpus have x3 === 0.5).
 const CHEMISTRY_BANNER_COPY =
-  'Chemistry data partially unavailable (FlavorDB API down); chem-bridge scores fall back to a constant. See validation/reports/LATEST.md.';
+  'Several pairings on this wheel rank on recipe co-occurrence alone — our chemistry bridge found no shared aroma compounds for those specific pairs. The story for each pair will say which signal it leans on.';
 
 function summarizeBubble(b) {
   if (!b) return '';
@@ -33,6 +43,7 @@ function summarizeBubble(b) {
     if (v.ingredient) return v.ingredient;
     if (v.cuisineBucket) return v.cuisineBucket;
     if (v.aromaBucket) return v.aromaBucket;
+    if (Array.isArray(v.dietary) && v.dietary.length > 0) return v.dietary.join(', ');
   }
   return v === true ? 'on' : '';
 }
@@ -46,6 +57,17 @@ function focalFromStack(bubbleStack) {
     }
   }
   return null;
+}
+
+/** Pull dietary restrictions out of the bubbleStack (added 2026-05-16). */
+function dietaryFromStack(bubbleStack) {
+  if (!Array.isArray(bubbleStack)) return [];
+  for (const b of bubbleStack) {
+    if (b?.key === 'dietary' && Array.isArray(b?.value?.dietary)) {
+      return b.value.dietary;
+    }
+  }
+  return [];
 }
 
 /** Decide which axis the curated wheel should bucket against.
@@ -134,6 +156,7 @@ export default function GuidedDiscoveryResults({
   bubbleStack = [],
   onBackToBubbles,
   onExploreInNetwork,
+  onAxisSelect,                  // Phase 3 (2026-05-16) — radar-click → tour entry
   // Optional injection points (used by tests + the App.jsx wrapper):
   ctx = null,
   runtimeData = null,
@@ -144,32 +167,38 @@ export default function GuidedDiscoveryResults({
 
   const focalName = useMemo(() => focalFromStack(bubbleStack), [bubbleStack]);
   const axis = useMemo(() => axisFromStack(bubbleStack), [bubbleStack]);
+  const dietary = useMemo(() => dietaryFromStack(bubbleStack), [bubbleStack]);
   const focal = useMemo(
     () => (focalName ? { name: focalName } : null),
     [focalName],
   );
 
   // Hero pairings — derived from CuratedWheel's selector when ctx is
-  // available. Used for the chemistry-banner predicate (any pair with
-  // x3 === 0.5 → banner).
+  // available. Used for the chemistry-banner predicate (majority of
+  // pairs with x3 === 0.5 → banner). Dietary filter is threaded in so
+  // both the banner predicate and the wheel see the SAME hero set.
   const heroPairings = useMemo(() => {
     if (!focal || !ctx) return [];
     try {
-      return selectCuratedPairings({ focal, ctx }) || [];
+      return selectCuratedPairings({ focal, ctx, dietary }) || [];
     } catch {
       return [];
     }
-  }, [focal, ctx]);
+  }, [focal, ctx, dietary]);
 
   // Chemistry banner predicate — Constraint #5b: single banner not
-  // per-pair chips. ANY hero with x3 === 0.5 trips the banner.
+  // per-pair chips. Iter 2026-05-16: fires only when ≥50% of hero
+  // pairs lack chemistry signal. The prior "any pair at 0.5" rule
+  // tripped almost universally (~18% of all pairings in the live
+  // corpus carry x3 === 0.5), making the banner permanent noise.
   const showChemistryBanner = useMemo(() => {
     if (heroPairings.length === 0) return false;
+    let missing = 0;
     for (const n of heroPairings) {
       const pair = normalizePair(focal, n, ctx);
-      if (pair?.breakdown?.x3 === 0.5) return true;
+      if (pair?.breakdown?.x3 === 0.5) missing += 1;
     }
-    return false;
+    return missing / heroPairings.length >= 0.5;
   }, [heroPairings, focal, ctx]);
 
   // Reset the selected pair when the focal changes (otherwise a stale
@@ -245,6 +274,21 @@ export default function GuidedDiscoveryResults({
           </div>
         )}
 
+        {/* Phase 3 — Multi-axis radar stack. Five ProfileAxisRadars
+            (taste / aroma / season / cuisine / method). Click any
+            radar to start the Phase 6 guided tour. The CuratedWheel
+            section below remains as a secondary view. */}
+        {focal && ctx?.graph?.nodes && (
+          <div className="mb-6">
+            <MultiAxisRadarStack
+              ingredients={[focal.name]}
+              nodes={ctx.graph.nodes}
+              focalName={focal.name}
+              onAxisSelect={(axis) => onAxisSelect?.(axis)}
+            />
+          </div>
+        )}
+
         {/* Curated wheel + StoryPanel layout. */}
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 mb-6">
           <div className="bg-[#0a1428] border border-[#1d3158] rounded-xl p-3 min-h-[420px] flex items-center justify-center">
@@ -254,6 +298,7 @@ export default function GuidedDiscoveryResults({
                 ctx={ctx}
                 axis={axis}
                 viewport={viewport}
+                dietary={dietary}
                 onSelectPairing={handleSelectNeighbor}
                 className="w-full h-auto max-h-[520px]"
               />

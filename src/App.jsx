@@ -40,7 +40,12 @@ import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
-import GuidedDiscoveryStart from './components/GuidedDiscoveryStart.jsx';
+import GuidedDiscoverySwipe from './components/GuidedDiscoverySwipe.jsx';
+import BuildRecipeStart from './components/BuildRecipeStart.jsx';
+import BuildRecipeResults from './components/BuildRecipeResults.jsx';
+import RecipesLab from './components/RecipesLab.jsx';
+import GuidedTour from './components/GuidedTour.jsx';
+import LabTour from './components/LabTour.jsx';
 import GuidedDiscoveryResults from './components/GuidedDiscoveryResults.jsx';
 import { deriveFilterStackFromBubbles } from './data/guidedDiscovery.js';
 import {
@@ -68,6 +73,32 @@ import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
+
+// Spec §1.H — URL deep-link routing. `?path=<slug>` ↔ activeTab.
+const TAB_TO_PATH = {
+  network: 'explore',
+  cocktail: 'cocktail',
+  sauce: 'sauce',
+  recipe: 'notebook',
+  'recipes-3d': 'recipes',
+  guided: 'guided',
+  'guided-results': 'guided',         // ephemeral; collapse to entry
+  build: 'build',
+  'build-results': 'build',           // ephemeral; collapse to entry
+  profile: 'profile',
+};
+const PATH_TO_TAB = Object.fromEntries(
+  Object.entries({
+    explore: 'network',
+    cocktail: 'cocktail',
+    sauce: 'sauce',
+    notebook: 'recipe',
+    recipes: 'recipes-3d',
+    guided: 'guided',
+    build: 'build',
+    profile: 'profile',
+  }),
+);
 
 export default function App() {
   // StartPage gate — ALWAYS shown on launch. Users explicitly pick a
@@ -116,13 +147,87 @@ export default function App() {
       }
     } catch {}
   }, [loading, data, startPageComplete]);
-  const [activeTab, setActiveTab] = useState('network'); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'guided' | 'guided-results' | 'profile'
+  // Spec §1.H — URL deep-link routing. `?path=…` lets users share a
+  // link to any top-level surface. Only stable surfaces are routable;
+  // ephemeral states (guided-results, build-results) fall back to
+  // their entry tab. The reverse mapping is in PATH_TO_TAB below.
+  const initialTab = (() => {
+    if (typeof window === 'undefined') return 'network';
+    const path = new URLSearchParams(window.location.search).get('path');
+    return PATH_TO_TAB[path] || 'network';
+  })();
+  const [activeTab, setActiveTab] = useState(initialTab); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'guided' | 'guided-results' | 'build' | 'profile' | 'recipes-3d'
+
+  // Write the current tab back to the URL so reload + share both work.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const target = TAB_TO_PATH[activeTab];
+    const params = new URLSearchParams(window.location.search);
+    if (target) params.set('path', target);
+    else params.delete('path');
+    const next = params.toString();
+    const url = `${window.location.pathname}${next ? `?${next}` : ''}${window.location.hash}`;
+    if (url !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
+      window.history.replaceState(null, '', url);
+    }
+  }, [activeTab]);
+
+  // UX pipeline Phase 1 (2026-05-16) — when the Explore sub-nav is
+  // visible (network / cocktail / sauce / recipe), bump `--nav-h` so
+  // SearchBar + IngredientPanel + the cluster joystick + every other
+  // consumer of `var(--nav-h)` clears the secondary row instead of
+  // sitting under it. Primary row = 2.5rem; secondary row = 2rem.
+  useEffect(() => {
+    const isExplore = ['network', 'cocktail', 'sauce', 'recipe'].includes(activeTab);
+    const baseRem = isExplore ? 4.5 : 2.5;
+    document.documentElement.style.setProperty(
+      '--nav-h',
+      `calc(${baseRem}rem + env(safe-area-inset-top, 0px))`,
+    );
+  }, [activeTab]);
   // Phase 3 Guided Discovery — bubbleStack is plumbed at the App level
   // so GuidedDiscoveryStart can hand off to GuidedDiscoveryResults
   // without losing state on tab flip. Per Constraint #4, the only
   // place setFilterStack is called from a Guided context is
   // onExploreInNetwork below (the canonical bridge).
   const [bubbleStack, setBubbleStack] = useState([]);
+  // Phase 5 (2026-05-16) — Build path mirrors bubbleStack but the
+  // ingredient bubble's value carries a `{ingredients: string[]}`
+  // array instead of `{ingredient: string}`. Kept separate from the
+  // Guided bubbleStack so the two flows don't cross-contaminate
+  // state if the user bounces between them.
+  const [buildStack, setBuildStack] = useState([]);
+  // externalLabFilter is passed to Cocktail/Sauce/Recipes labs when
+  // bridging from the Build flow. Pill state in the destination lab
+  // reads this prop on mount.
+  const [externalLabFilter, setExternalLabFilter] = useState(null);
+  // Phase 6 (2026-05-16) — Guided Tour controller state. Set by a
+  // radar click on the Guided/Build results pages; consumed by the
+  // GuidedTour overlay mounted on the network tab.
+  const [tourActive, setTourActive] = useState(false);
+  const [tourAxis, setTourAxis] = useState('taste');
+  const [tourFocal, setTourFocal] = useState(null);
+  // §2.J — per-lab follow-on tour. Set when user picks a lab from the
+  // main tour's chooseLab stage. Cleared when the lab tour ends.
+  const [labTourKey, setLabTourKey] = useState(null);
+  // rAF handle for the tour's pullStrength animation. Held in a ref so
+  // sceneHandle methods can cancel an in-flight animation when the
+  // user advances stages or skips the tour.
+  const tourAnimRef = useRef(null);
+  // §2.G.3 — pill-pulse highlight. ClusterJoystick reads this prop and
+  // adds a pulse animation to the matching pill.
+  const [tourHighlightedCluster, setTourHighlightedCluster] = useState(null);
+  // §2.H.1 — programmatically glow N ingredient nodes. LivingArchView
+  // already overlays glow on selectedNodes; we reuse that channel for
+  // tour-time multi-selection.
+  const [tourGlowNodes, setTourGlowNodes] = useState(null);
+  // joystickClusters snapshot for sceneHandle.flyToCluster — the
+  // sceneHandle useMemo runs before joystickClusters, so we mirror
+  // it into a ref the handle methods can read at call time.
+  const joystickClustersRef = useRef(null);
+  // Holds the cluster picked by runClusterDemo so subsequent stages
+  // (glow, final affinity) can read it without re-rolling the dice.
+  const tourClusterRef = useRef(null);
   const [cocktailMounted, setCocktailMounted] = useState(false);
   const [sauceMounted, setSauceMounted] = useState(false);
   const [recipeMounted, setRecipeMounted] = useState(false);
@@ -233,6 +338,119 @@ export default function App() {
     }
     setPullStrength(v);
   }, []);
+
+  // Imperative scene handle for GuidedTour (F-1). Wraps the App-level
+  // setters that drive the live scene so the tour controller can
+  // engage AffinityMode, animate the pull tab from 0→1 on an axis, and
+  // clear filters between stages — without LivingArchView needing its
+  // own forwardRef. Animation is plain rAF over ~2.5s, cancelable via
+  // tourAnimRef so stage advance / skip don't leave a stuck animator.
+  const sceneHandle = useMemo(() => ({
+    engageAffinity(name) {
+      if (!name) return;
+      setSelectedNodes([name]);
+    },
+    animatePull(axis) {
+      const axisFilter = axis === 'aroma' ? 'aromas' : axis;
+      // 2.E.1 — disengage AffinityMode before morphing the network;
+      // affinity rings would float over the bucket-pole layout and
+      // confuse the pull-tab demo. Selection clears = α-mode exits.
+      setSelectedNodes([]);
+      setFilterStack((prev) => (prev.length === 1 && prev[0] === axisFilter ? prev : [axisFilter]));
+      setPullStrength(0);
+      if (tourAnimRef.current) {
+        cancelAnimationFrame(tourAnimRef.current);
+        tourAnimRef.current = null;
+      }
+      const startTime = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+      const duration = 2500;
+      const tick = (now) => {
+        const elapsed = now - startTime;
+        const t = Math.min(1, elapsed / duration);
+        const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        setPullStrength(eased);
+        if (t < 1) {
+          tourAnimRef.current = requestAnimationFrame(tick);
+        } else {
+          tourAnimRef.current = null;
+        }
+      };
+      tourAnimRef.current = requestAnimationFrame(tick);
+    },
+    clearFilters() {
+      if (tourAnimRef.current) {
+        cancelAnimationFrame(tourAnimRef.current);
+        tourAnimRef.current = null;
+      }
+      setFilterStack([]);
+      setPullStrength(0);
+    },
+    // §2.G.3 — pulse a cluster pill in ClusterJoystick.
+    highlightCluster(clusterId) {
+      setTourHighlightedCluster(clusterId);
+    },
+    // §2.G.4 — programmatic camera fly-to a cluster. Resolves the
+    // cluster object from joystickClustersRef so LivingArchView's
+    // flyToTarget useEffect picks it up the same way a user pill-tap
+    // would. Falls back to a no-op if the cluster isn't found.
+    flyToCluster(clusterId) {
+      const list = joystickClustersRef.current || [];
+      const cluster = list.find((c) => c && c.id === clusterId);
+      if (!cluster) return;
+      setFlyToTarget({ ...cluster, ts: Date.now() });
+    },
+    // §2.H.1 — multi-select ingredient nodes so LivingArchView's
+    // glow shader paints them. Names must exist in the current
+    // graph. Pass null/[] to clear.
+    highlightNodes(names) {
+      if (!Array.isArray(names) || names.length === 0) {
+        setTourGlowNodes(null);
+        setSelectedNodes([]);
+        return;
+      }
+      setTourGlowNodes(names);
+      setSelectedNodes(names);
+    },
+    // §2.G.3 + §2.G.4 composite: highlight a random cluster pill,
+    // then fly the camera to it 1.5s later. Stores the picked cluster
+    // on tourClusterRef so the next stage can read it for the
+    // ingredient glow.
+    runClusterDemo() {
+      const list = joystickClustersRef.current || [];
+      // Filter out morphAxis pseudo-clusters (id <= -100) — those are
+      // bucket poles, not real recipe clusters. Spec asks for an
+      // actual recipe-cluster destination.
+      const real = list.filter((c) => c && typeof c.id === 'number' && c.id >= 0);
+      if (real.length === 0) return;
+      const pick = real[Math.floor(Math.random() * real.length)];
+      setTourHighlightedCluster(pick.id);
+      tourClusterRef.current = pick;
+      window.setTimeout(() => {
+        setFlyToTarget({ ...pick, ts: Date.now() });
+      }, 1500);
+    },
+    // §2.H.1 composite: glow 4-6 ingredients from the cluster picked
+    // in runClusterDemo. Uses cluster.top_ingredients when available.
+    runIngredientGlow() {
+      const pick = tourClusterRef.current;
+      if (!pick) return;
+      const pool = Array.isArray(pick.top_ingredients) ? pick.top_ingredients : [];
+      const names = pool.slice(0, 6);
+      if (names.length === 0) return;
+      setTourGlowNodes(names);
+      setSelectedNodes(names);
+    },
+    // §2.I.1: clean up the multi-glow and pivot to single-ingredient
+    // affinity engagement on the first glowed ingredient.
+    engageFinalAffinity() {
+      const pick = tourClusterRef.current;
+      const pool = Array.isArray(pick?.top_ingredients) ? pick.top_ingredients : [];
+      const lead = pool[0];
+      setTourGlowNodes(null);
+      setTourHighlightedCluster(null);
+      if (lead) setSelectedNodes([lead]);
+    },
+  }), []);
 
   const toggleFilter = useCallback((key) => {
     // R16 Phase 4: perf instrumentation. Plan budget: pill toggle
@@ -429,6 +647,13 @@ export default function App() {
     return data?.clusterLabels?.clusters;
   }, [morphAxis, mode, data]);
 
+  // Mirror joystickClusters into the sceneHandle's ref so its
+  // flyToCluster(id) method can resolve a cluster by id without a
+  // forward dep on the joystickClusters useMemo.
+  useEffect(() => {
+    joystickClustersRef.current = joystickClusters;
+  }, [joystickClusters]);
+
   const handleModeSelect = useCallback((mode) => {
     writeStartPageFlag();
     setStartPageComplete(true);
@@ -453,6 +678,12 @@ export default function App() {
     } else if (mode === 'guided') {
       // Phase 3 Guided Discovery — Screen 1 (thought bubbles).
       setActiveTab('guided');
+    } else if (mode === 'build') {
+      // UX pipeline Phase 1 stub — Build Your Recipe lands here.
+      // Actual SwipeDeckCard + multi-select ingredient UI ships in
+      // pipeline Phase 5; for now render a placeholder so the
+      // landing tile is wired end-to-end.
+      setActiveTab('build');
     }
   }, []);
 
@@ -739,17 +970,24 @@ export default function App() {
             : 'No ingredient selected.'}
       </div>
 
-      {/* Top-level tab navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-[60] flex items-center h-10 bg-[#0a0a12]/95 backdrop-blur-md border-b border-[#1e1e2e] safe-top">
+      {/* Top-level tab navigation — UX pipeline Phase 1 (2026-05-16):
+          Primary row = 3 tabs matching the 3 landing cards (Explore /
+          Guided / Build). Secondary row appears only when Explore is
+          active, showing the 4 sublistings (Network / Cocktail /
+          Sauce / Recipes-notebook). The notebook RecipeLab is kept
+          accessible until Phase 5 ships the Build path replacement —
+          marked "Recipe (notebook)" so users know it's the older
+          surface. */}
+      <nav className="fixed top-0 left-0 right-0 z-[60] flex flex-col bg-[#0a0a12]/95 backdrop-blur-md border-b border-[#1e1e2e] safe-top">
+        {/* Primary row — always visible. */}
+        <div className="flex items-center h-10">
         {/* Mobile: show app name */}
         <span className="sm:hidden px-3 text-xs text-cyan-300/80 font-medium tracking-wide" style={{ textShadow: '0 0 10px rgba(79,143,255,0.3)' }}>
           Flavor Network
         </span>
         <div className="hidden sm:flex items-center gap-0.5 px-3 h-full">
-          {/* R8-50: simplified top nav — 4 actions (Explore · Guided ·
-              Cocktail · Recipe) + profile icon. Sauce Lab and Molecule
-              Lab live inside the Explore overflow so deep-links + power
-              users still reach them but the primary nav stays at 4. */}
+          {/* Primary 3-tab nav (Phase 1). Each tab maps to one of the
+              landing-card paths. "Build" placeholder ships in Phase 5. */}
 
           {/* Explore — renamed from "Network". Same Network surface
               underneath. Tap once to switch tabs; tap again to open the
@@ -882,42 +1120,23 @@ export default function App() {
             Guided
           </button>
 
-          {/* Cocktail — promoted to top-level. */}
+          {/* Build — primary 3rd tab (Phase 1 stub). */}
           <button
             onClick={() => {
-              setActiveTab('cocktail');
-              setCocktailMounted(true);
+              setActiveTab('build');
               setNetworkDropdownOpen(false);
             }}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'cocktail'
-                ? 'text-amber-300 bg-amber-500/10 border border-amber-500/20'
+              activeTab === 'build'
+                ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
                 : 'text-gray-500 hover:text-gray-300 border border-transparent'
             }`}
+            aria-label="Build your Recipe"
           >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M21 5V3H3v2l8 9v5H6v2h12v-2h-5v-5l8-9zM7.43 7L5.66 5h12.69l-1.78 2H7.43z" />
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4" />
             </svg>
-            Cocktail
-          </button>
-
-          {/* Recipe — promoted to top-level. */}
-          <button
-            onClick={() => {
-              setActiveTab('recipe');
-              setRecipeMounted(true);
-              setNetworkDropdownOpen(false);
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'recipe'
-                ? 'text-emerald-300 bg-emerald-500/10 border border-emerald-500/20'
-                : 'text-gray-500 hover:text-gray-300 border border-transparent'
-            }`}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM9 7h6M9 11h6M9 15h4" />
-            </svg>
-            Recipe
+            Build
           </button>
 
           {/* Profile — icon-only, sits at the right edge of the nav block. */}
@@ -939,6 +1158,49 @@ export default function App() {
         <div className="ml-auto px-3 text-[9px] text-gray-600 tracking-wider uppercase">
           Powered by the Flavor Network
         </div>
+        </div>{/* end primary row */}
+
+        {/* Secondary sub-nav — Phase 1. Visible only when the user is
+            inside Explore (network OR one of its lab sublistings).
+            Mounted with !hidden on sm+ to mirror the desktop primary
+            row's responsive behaviour. */}
+        {(activeTab === 'network' || activeTab === 'cocktail' || activeTab === 'sauce' || activeTab === 'recipe' || activeTab === 'recipes-3d') && (
+          <div
+            data-testid="explore-secondary-nav"
+            className="hidden sm:flex items-center h-8 px-3 gap-0.5 border-t border-[#1e1e2e] bg-[#0a0a12]/80"
+          >
+            <span className="text-[9px] uppercase tracking-widest text-gray-600 mr-2">Explore →</span>
+            {/* Spec §1.F: secondary nav under Explore = exactly 3 entries
+                (Cocktail Lab / Sauce Lab / Recipes). Network is reached
+                by tapping the primary Explore tab. Notebook surface is
+                reachable via the Build path. */}
+            <button
+              onClick={() => { setActiveTab('cocktail'); setCocktailMounted(true); }}
+              className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
+                activeTab === 'cocktail' ? 'text-amber-300 bg-amber-500/10' : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              Cocktail Lab
+            </button>
+            <button
+              onClick={() => { setActiveTab('sauce'); setSauceMounted(true); }}
+              className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
+                activeTab === 'sauce' ? 'text-orange-300 bg-orange-500/10' : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              Sauce Lab
+            </button>
+            <button
+              onClick={() => setActiveTab('recipes-3d')}
+              className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
+                activeTab === 'recipes-3d' ? 'text-pink-300 bg-pink-500/10' : 'text-gray-500 hover:text-gray-300'
+              }`}
+              title="Recipe browser — 15 hand-curated dishes"
+            >
+              Recipes
+            </button>
+          </div>
+        )}
       </nav>
 
       {/* Network tab */}
@@ -1090,16 +1352,25 @@ export default function App() {
           {/* Mobile-only Details button — desktop has the right-edge
               "Details" tab on IngredientPanel. Per user request
               2026-04-29 we no longer auto-open the panel on tap, so
-              this button is the explicit entry point on mobile. */}
+              this button is the explicit entry point on mobile. Iter
+              2026-05-16: matches desktop tab's attention-pulse styling
+              (user audit: Details was hidden behind other features). */}
           {isMobile && activePanel !== 'ingredient' && (
             <button
               onClick={() => setActivePanel('ingredient')}
-              className="px-3 py-1.5 min-h-[44px] text-xs text-cyan-300 hover:text-cyan-200 bg-[#12121a]/90 backdrop-blur-md border border-cyan-500/30 rounded-lg transition-colors select-none flex items-center gap-1.5"
+              className="details-tab-mobile px-3 py-1.5 min-h-[44px] text-xs text-cyan-300 hover:text-cyan-200 bg-[#12121a]/95 backdrop-blur-md border border-cyan-400/60 rounded-lg transition-colors select-none flex items-center gap-1.5 font-medium"
             >
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Details
+              <style>{`
+                @keyframes detailsTabMobilePulse {
+                  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.0); }
+                  50%      { box-shadow: 0 0 14px -2px rgba(34, 211, 238, 0.6); }
+                }
+                .details-tab-mobile { animation: detailsTabMobilePulse 2.4s ease-in-out infinite; }
+              `}</style>
             </button>
           )}
           <button
@@ -1236,9 +1507,13 @@ export default function App() {
           doesn't suppress the bubble grid. */}
       {activeTab === 'guided' && (
         <div className="fixed inset-0 z-[40] overflow-y-auto">
-          <GuidedDiscoveryStart
+          {/* Phase 2 — swap from legacy bubble-grid (GuidedDiscoveryStart)
+              to Tinder-style centered-card deck (GuidedDiscoverySwipe).
+              Legacy component preserved for its existing test suite
+              but no longer rendered. */}
+          <GuidedDiscoverySwipe
             ingredients={ingredientList}
-            onShowPairings={(stack) => {
+            onComplete={(stack) => {
               setBubbleStack(stack);
               setActiveTab('guided-results');
             }}
@@ -1263,10 +1538,78 @@ export default function App() {
             // user never sees the curated wheel for their focal pick.
             ctx={data}
             onBackToBubbles={() => setActiveTab('guided')}
+            onAxisSelect={(axis) => {
+              // Phase 6 — radar click sets filter pills + activates
+              // the GuidedTour overlay on the network tab.
+              // selectedNodes=[focal] is what makes AffinityMode engage
+              // (see line 689 — alphaEngaged = affinityEnabled && len===1).
+              const axisFilter = axis === 'aroma' ? 'aromas' : axis;
+              setFilterStack([
+                axisFilter,
+                ...deriveFilterStackFromBubbles(bubbleStack).filter((f) => f !== axisFilter),
+              ]);
+              const focal = bubbleStack.find((b) => b.key === 'ingredient')?.value?.ingredient || null;
+              if (focal) setSelectedNodes([focal]);
+              setTourAxis(axis);
+              setTourFocal(focal);
+              setTourActive(true);
+              setActiveTab('network');
+            }}
             onExploreInNetwork={() => {
               // Constraint #4: this is the ONLY place setFilterStack
               // is called from a Guided Discovery context.
               setFilterStack(deriveFilterStackFromBubbles(bubbleStack));
+              setActiveTab('network');
+            }}
+          />
+        </div>
+      )}
+
+      {/* Build Your Recipe — Phase 5 (pipeline 2026-05-16). Same
+          SwipeDeckCard mechanic as Guided, but the ingredient card
+          accumulates multiple chips and cocktail/sauce cards short-
+          circuit straight into their labs with filter pills set. */}
+      {activeTab === 'build' && (
+        <div className="fixed inset-0 z-[40] overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
+          <BuildRecipeStart
+            ingredients={ingredientList}
+            onComplete={(stack) => {
+              setBuildStack(stack);
+              setActiveTab('build-results');
+            }}
+          />
+        </div>
+      )}
+
+      {/* Build path — Results page. Shows MultiAxisRadarStack + lab
+          routing buttons. Cocktail/Sauce card picks short-circuit to
+          a direct lab bridge. */}
+      {activeTab === 'build-results' && (
+        <div className="fixed inset-0 z-[40] overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
+          <BuildRecipeResults
+            bubbleStack={buildStack}
+            ctx={data}
+            onBackToCards={() => setActiveTab('build')}
+            onOpenLab={(labKey, externalFilter) => {
+              setExternalLabFilter(externalFilter || null);
+              if (labKey === 'cocktail') {
+                setCocktailMounted(true);
+                setActiveTab('cocktail');
+              } else if (labKey === 'sauce') {
+                setSauceMounted(true);
+                setActiveTab('sauce');
+              } else if (labKey === 'recipes-3d') {
+                setActiveTab('recipes-3d');
+              }
+            }}
+            onAxisSelect={(axis) => {
+              const axisFilter = axis === 'aroma' ? 'aromas' : axis;
+              setFilterStack([axisFilter]);
+              const focal = buildStack.find((b) => b.key === 'ingredient')?.value?.ingredients?.[0] || null;
+              if (focal) setSelectedNodes([focal]);
+              setTourAxis(axis);
+              setTourFocal(focal);
+              setTourActive(true);
               setActiveTab('network');
             }}
           />
@@ -1322,6 +1665,7 @@ export default function App() {
         >
           <CocktailLabV2
             onSelectionChange={handleLabSelectionChange}
+            externalFilter={externalLabFilter}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               setRecipeHandoff({
                 ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
@@ -1346,6 +1690,7 @@ export default function App() {
           <SauceLab
             fullData={data}
             userProfile={userProfile}
+            externalFilter={externalLabFilter}
             onSelectionChange={handleLabSelectionChange}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               // Same one-shot handoff pattern as Cocktail Lab —
@@ -1381,6 +1726,26 @@ export default function App() {
             handoff={recipeHandoff}
             userProfile={userProfile}
             isMobile={isMobile}
+          />
+        </div>
+      )}
+
+      {/* RecipesLab — Phase 4 (pipeline 2026-05-16). New 3D-aesthetic
+          recipe browser with 15 hand-curated dishes. Replaces the
+          old notebook RecipeLab as the primary recipe-browse surface
+          per the UX pipeline (notebook stays as a sub-tab marked
+          "Notebook"). */}
+      {activeTab === 'recipes-3d' && (
+        <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
+          <RecipesLab
+            externalFilter={externalLabFilter}
+            onOpenInNetwork={(ingredientName) => {
+              if (ingredientName) {
+                setSelectedNode(ingredientName);
+                setSelectedNodes([ingredientName]);
+              }
+              setActiveTab('network');
+            }}
           />
         </div>
       )}
@@ -1519,6 +1884,7 @@ export default function App() {
           clusters={joystickClusters}
           morphAxis={morphAxis}
           focusedClusterId={focusedCluster}
+          highlightedClusterId={tourHighlightedCluster}
           onClusterFocus={(id) => {
             setFocusedCluster(id);
             // Exiting focus also clears any stale selection so the user
@@ -1655,6 +2021,51 @@ export default function App() {
         </BottomSheet>
       )}
 
+      {/* GuidedTour overlay — Phase 6 (2026-05-16). Activated by a
+          radar click from Guided/Build results. Pops up over the
+          network canvas, walks the user through 6 stages with copy +
+          accent gradients. Honors localStorage feature flag. */}
+      {tourActive && activeTab === 'network' && (
+        <GuidedTour
+          axis={tourAxis}
+          focalName={tourFocal}
+          sceneHandle={sceneHandle}
+          onExit={() => {
+            setTourActive(false);
+            // Cancel any in-flight pull animation when the user exits.
+            if (tourAnimRef.current) {
+              cancelAnimationFrame(tourAnimRef.current);
+              tourAnimRef.current = null;
+            }
+          }}
+          onPickLab={(labKey) => {
+            setTourActive(false);
+            if (tourAnimRef.current) {
+              cancelAnimationFrame(tourAnimRef.current);
+              tourAnimRef.current = null;
+            }
+            if (labKey === 'recipes') { setActiveTab('recipes-3d'); setLabTourKey('recipes'); }
+            else if (labKey === 'cocktail') { setCocktailMounted(true); setActiveTab('cocktail'); setLabTourKey('cocktail'); }
+            else if (labKey === 'sauce') { setSauceMounted(true); setActiveTab('sauce'); setLabTourKey('sauce'); }
+            // labKey === 'done' → leave user on network tab
+          }}
+        />
+      )}
+
+      {/* Per-lab tour overlay — Spec §2.J. Activated when the main
+          GuidedTour's chooseLab stage picks a lab. Mounts on top of
+          the active lab and walks through that lab's mechanics. */}
+      {labTourKey && (
+        ((labTourKey === 'recipes' && activeTab === 'recipes-3d') ||
+          (labTourKey === 'cocktail' && activeTab === 'cocktail') ||
+          (labTourKey === 'sauce' && activeTab === 'sauce')) && (
+          <LabTour
+            labKey={labTourKey}
+            onExit={() => setLabTourKey(null)}
+          />
+        )
+      )}
+
       {/* Mobile tab bar */}
       {isMobile && (
         <MobileTabBar
@@ -1669,7 +2080,6 @@ export default function App() {
           networkMode={mode}
           onNetworkModeChange={setMode}
           onOpenProfile={() => setActiveTab('profile')}
-          onOpenTreeExplorer={() => setShowTreeExplorer(v => !v)}
         />
       )}
 

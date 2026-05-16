@@ -24,6 +24,19 @@ import {
   SEASON_VALUES,
   MEAT_VALUES,
 } from '../data/guidedDiscovery.js';
+import { DIETARY_RESTRICTIONS } from '../data/dietaryFilters.js';
+import {
+  SEASON_ICON_BY_KEY,
+  MEAT_ICON_BY_KEY,
+  CUISINE_ICON_BY_LABEL,
+  AROMA_ICON_BY_LABEL,
+  DIETARY_ICON_BY_KEY,
+  SEASON_CHIP_COLOR,
+  MEAT_CHIP_COLOR,
+  AROMA_CHIP_COLOR,
+  CUISINE_CHIP_COLOR,
+  DIETARY_CHIP_COLOR,
+} from './guidedIcons.jsx';
 import ThoughtBubbleCard from './ThoughtBubbleCard.jsx';
 import SearchBar from './SearchBar.jsx';
 import { CATEGORICAL_AXES } from '../data/categoricalAxes.js';
@@ -48,6 +61,7 @@ function summarizeBubble(b) {
     if (v.ingredient) return v.ingredient;
     if (v.cuisineBucket) return v.cuisineBucket;
     if (v.aromaBucket) return v.aromaBucket;
+    if (Array.isArray(v.dietary) && v.dietary.length > 0) return v.dietary.join(', ');
   }
   return v === true ? 'on' : '';
 }
@@ -120,7 +134,7 @@ export default function GuidedDiscoveryStart({
   const renderIngredientSearch = useCallback(
     (bubbleConfig) => (
       <div className="pt-2">
-        <p className="text-[11px] text-gray-400 mb-2">
+        <p className="text-[11px] text-gray-400 mb-2 text-center">
           Pick one — we'll start the wheel from here.
         </p>
         <div className="relative">
@@ -156,9 +170,11 @@ export default function GuidedDiscoveryStart({
     (bubbleConfig) => {
       const current = bubbleStack.find((b) => b.key === bubbleConfig.key)?.value || null;
       return (
-        <div className="flex flex-wrap gap-2 pt-2">
+        <div className="flex flex-wrap justify-center gap-2 pt-2">
           {SEASON_VALUES.map((s) => {
             const active = current === s;
+            const Icon = SEASON_ICON_BY_KEY[s];
+            const color = SEASON_CHIP_COLOR[s];
             return (
               <button
                 key={s}
@@ -168,12 +184,14 @@ export default function GuidedDiscoveryStart({
                   setOpenBubble(null);
                 }}
                 aria-pressed={active}
-                className={`px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-full border capitalize transition-colors ${
-                  active
-                    ? 'bg-emerald-500 text-white border-emerald-400'
-                    : 'bg-[#0a1428]/60 text-gray-300 border-[#2a2a3a] hover:bg-[#16284a]'
-                }`}
+                className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border capitalize transition-colors"
+                style={{
+                  background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
+                  borderColor: active ? color : 'rgba(42, 42, 58, 1)',
+                  color: active ? '#fff' : '#d1d5db',
+                }}
               >
+                {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
                 {s}
               </button>
             );
@@ -188,9 +206,11 @@ export default function GuidedDiscoveryStart({
     (bubbleConfig) => {
       const current = bubbleStack.find((b) => b.key === bubbleConfig.key)?.value || null;
       return (
-        <div className="flex flex-wrap gap-2 pt-2">
+        <div className="flex flex-wrap justify-center gap-2 pt-2">
           {MEAT_VALUES.map((m) => {
             const active = current === m;
+            const Icon = MEAT_ICON_BY_KEY[m];
+            const color = MEAT_CHIP_COLOR[m];
             return (
               <button
                 key={m}
@@ -200,12 +220,14 @@ export default function GuidedDiscoveryStart({
                   setOpenBubble(null);
                 }}
                 aria-pressed={active}
-                className={`px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-full border capitalize transition-colors ${
-                  active
-                    ? 'bg-emerald-500 text-white border-emerald-400'
-                    : 'bg-[#0a1428]/60 text-gray-300 border-[#2a2a3a] hover:bg-[#16284a]'
-                }`}
+                className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border capitalize transition-colors"
+                style={{
+                  background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
+                  borderColor: active ? color : 'rgba(42, 42, 58, 1)',
+                  color: active ? '#fff' : '#d1d5db',
+                }}
               >
+                {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
                 {m}
               </button>
             );
@@ -225,10 +247,12 @@ export default function GuidedDiscoveryStart({
       const current = bubbleStack.find((b) => b.key === bubbleConfig.key)?.value?.cuisineBucket || null;
       return (
         <div className="pt-2">
-          <p className="text-[11px] text-gray-400 mb-2">Pick a cuisine:</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="text-[11px] text-gray-400 mb-2 text-center">Pick a cuisine:</p>
+          <div className="flex flex-wrap justify-center gap-2">
             {CUISINE_BUCKET_LABELS.map((label) => {
               const active = current === label;
+              const Icon = CUISINE_ICON_BY_LABEL[label];
+              const color = CUISINE_CHIP_COLOR[label];
               return (
                 <button
                   key={label}
@@ -238,12 +262,14 @@ export default function GuidedDiscoveryStart({
                     setOpenBubble(null);
                   }}
                   aria-pressed={active}
-                  className={`px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-full border transition-colors ${
-                    active
-                      ? 'bg-emerald-500 text-white border-emerald-400'
-                      : 'bg-[#0a1428]/60 text-gray-300 border-[#2a2a3a] hover:bg-[#16284a]'
-                  }`}
+                  className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border transition-colors"
+                  style={{
+                    background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
+                    borderColor: active ? color : 'rgba(42, 42, 58, 1)',
+                    color: active ? '#fff' : '#d1d5db',
+                  }}
                 >
+                  {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
                   {label}
                 </button>
               );
@@ -263,10 +289,12 @@ export default function GuidedDiscoveryStart({
       const current = bubbleStack.find((b) => b.key === bubbleConfig.key)?.value?.aromaBucket || null;
       return (
         <div className="pt-2">
-          <p className="text-[11px] text-gray-400 mb-2">Pick an aroma family:</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="text-[11px] text-gray-400 mb-2 text-center">Pick an aroma family:</p>
+          <div className="flex flex-wrap justify-center gap-2">
             {AROMA_BUCKET_LABELS.map((label) => {
               const active = current === label;
+              const Icon = AROMA_ICON_BY_LABEL[label];
+              const color = AROMA_CHIP_COLOR[label];
               return (
                 <button
                   key={label}
@@ -276,12 +304,14 @@ export default function GuidedDiscoveryStart({
                     setOpenBubble(null);
                   }}
                   aria-pressed={active}
-                  className={`px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-full border transition-colors ${
-                    active
-                      ? 'bg-emerald-500 text-white border-emerald-400'
-                      : 'bg-[#0a1428]/60 text-gray-300 border-[#2a2a3a] hover:bg-[#16284a]'
-                  }`}
+                  className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border transition-colors"
+                  style={{
+                    background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
+                    borderColor: active ? color : 'rgba(42, 42, 58, 1)',
+                    color: active ? '#fff' : '#d1d5db',
+                  }}
                 >
+                  {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
                   {label}
                 </button>
               );
@@ -297,7 +327,7 @@ export default function GuidedDiscoveryStart({
     (bubbleConfig) => {
       const isOn = bubbleStack.some((b) => b.key === bubbleConfig.key);
       return (
-        <div className="pt-2">
+        <div className="pt-2 flex justify-center">
           <button
             type="button"
             onClick={() => {
@@ -323,11 +353,60 @@ export default function GuidedDiscoveryStart({
     [bubbleStack, addBubble, removeBubbleByKey],
   );
 
+  // Multi-select dietary chips — value is stored as { dietary: string[] }
+  // so the user can stack multiple restrictions ("vegetarian +
+  // gluten-free"). Empty array → bubble auto-removes from the stack.
+  const renderDietaryChips = useCallback(
+    (bubbleConfig) => {
+      const current = bubbleStack.find((b) => b.key === bubbleConfig.key)?.value?.dietary || [];
+      const toggle = (label) => {
+        const next = current.includes(label)
+          ? current.filter((r) => r !== label)
+          : [...current, label];
+        if (next.length === 0) {
+          removeBubbleByKey(bubbleConfig.key);
+        } else {
+          addBubble(bubbleConfig, { dietary: next });
+        }
+      };
+      return (
+        <div className="pt-2">
+          <p className="text-[11px] text-gray-400 mb-2 text-center">Pick one or more — combines with everything else.</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {DIETARY_RESTRICTIONS.map((label) => {
+              const active = current.includes(label);
+              const Icon = DIETARY_ICON_BY_KEY[label];
+              const color = DIETARY_CHIP_COLOR[label];
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => toggle(label)}
+                  aria-pressed={active}
+                  className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border capitalize transition-colors"
+                  style={{
+                    background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
+                    borderColor: active ? color : 'rgba(42, 42, 58, 1)',
+                    color: active ? '#fff' : '#d1d5db',
+                  }}
+                >
+                  {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    },
+    [bubbleStack, addBubble, removeBubbleByKey],
+  );
+
   const renderFlagToggle = useCallback(
     (bubbleConfig) => {
       const isOn = bubbleStack.some((b) => b.key === bubbleConfig.key);
       return (
-        <div className="pt-2">
+        <div className="pt-2 flex justify-center">
           <button
             type="button"
             onClick={() => {
@@ -371,6 +450,8 @@ export default function GuidedDiscoveryStart({
           return renderScopeToggle(bubbleConfig);
         case 'flag-toggle':
           return renderFlagToggle(bubbleConfig);
+        case 'dietary-chips':
+          return renderDietaryChips(bubbleConfig);
         default:
           return null;
       }
@@ -383,6 +464,7 @@ export default function GuidedDiscoveryStart({
       renderAromaChips,
       renderScopeToggle,
       renderFlagToggle,
+      renderDietaryChips,
     ],
   );
 
@@ -416,13 +498,86 @@ export default function GuidedDiscoveryStart({
         {announcement}
       </div>
 
-      <div className="w-full max-w-3xl">
-        <h1
-          id="guided-sentence-starter"
-          className="text-xl sm:text-2xl text-white text-center font-light mb-4"
-        >
-          I'm thinking about pairing that…
-        </h1>
+      <div className="w-full max-w-4xl">
+        {/* Thought-bubble outline for the sentence starter — iter
+            2026-05-16 v2. Bolder + bigger so the screen has a clear
+            "this is the question" anchor at any viewport. Tail
+            circles descend toward the grid. */}
+        <div className="flex flex-col items-center mb-8">
+          <h1
+            id="guided-sentence-starter"
+            className="thought-bubble-heading text-2xl sm:text-4xl text-white text-center font-bold tracking-tight"
+          >
+            I'm thinking about pairing that…
+          </h1>
+          <span
+            aria-hidden="true"
+            className="thought-bubble-tail thought-bubble-tail-large"
+          />
+          <span
+            aria-hidden="true"
+            className="thought-bubble-tail thought-bubble-tail-small"
+          />
+        </div>
+        <style>{`
+          .thought-bubble-heading {
+            position: relative;
+            display: inline-block;
+            padding: 1.15rem 2.2rem;
+            border: 2px dashed rgba(125, 211, 252, 0.6);
+            border-radius: 9999px;
+            background: linear-gradient(180deg, rgba(18,32,59,0.9), rgba(13,31,56,0.75));
+            box-shadow:
+              0 0 0 1px rgba(125, 211, 252, 0.08),
+              0 12px 40px -10px rgba(56, 189, 248, 0.3);
+            backdrop-filter: blur(4px);
+          }
+          .thought-bubble-tail {
+            display: block;
+            border-radius: 9999px;
+            border: 2px dashed rgba(125, 211, 252, 0.6);
+            background: rgba(13,31,56,0.7);
+          }
+          .thought-bubble-tail-large {
+            width: 18px;
+            height: 18px;
+            margin-top: 10px;
+          }
+          .thought-bubble-tail-small {
+            width: 10px;
+            height: 10px;
+            margin-top: 6px;
+          }
+          /* Per-card tail dots — colored by the parent card's
+             --card-color CSS var so each card's tail matches its
+             cloud outline. */
+          .thought-bubble-card { overflow: visible; }
+          .thought-bubble-card-tail {
+            position: absolute;
+            display: block;
+            border-radius: 9999px;
+            border: 1.5px solid var(--card-color, rgba(125, 211, 252, 0.6));
+            background: rgba(13,31,56,0.7);
+            pointer-events: none;
+            opacity: 0.7;
+          }
+          .thought-bubble-card[data-tail="bl"] .thought-bubble-card-tail-1 {
+            width: 10px; height: 10px; bottom: -14px; left: 18px;
+          }
+          .thought-bubble-card[data-tail="bl"] .thought-bubble-card-tail-2 {
+            width: 6px; height: 6px; bottom: -26px; left: 10px;
+          }
+          .thought-bubble-card[data-tail="br"] .thought-bubble-card-tail-1 {
+            width: 10px; height: 10px; bottom: -14px; right: 18px;
+          }
+          .thought-bubble-card[data-tail="br"] .thought-bubble-card-tail-2 {
+            width: 6px; height: 6px; bottom: -26px; right: 10px;
+          }
+          .thought-bubble-card[data-selected="true"] .thought-bubble-card-tail {
+            border-color: rgba(52, 211, 153, 0.7);
+            background: rgba(20, 53, 36, 0.8);
+          }
+        `}</style>
 
         {/* Stack chips — tap to remove */}
         <div
@@ -452,11 +607,14 @@ export default function GuidedDiscoveryStart({
           )}
         </div>
 
-        {/* Bubble grid — 1 col on mobile, 2 on tablet+. */}
+        {/* Bubble grid — 1 col on mobile, 2 on tablet+. Cards are
+            taller now (min-h-[180px] sm:min-h-[210px]) so each is a
+            proper tile rather than a row. Extra gap-y accommodates
+            the 26px-tall tail dots dangling below each card. */}
         <div
           role="group"
           aria-labelledby="guided-sentence-starter"
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-5 gap-y-10 mb-10"
         >
           {BUBBLE_REGISTRY.map((bubble) => {
             const selectedItem = bubbleStack.find((b) => b.key === bubble.key);
