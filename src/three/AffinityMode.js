@@ -39,6 +39,14 @@ import { FILTER_TO_AXIS, morphAxisForStack } from '../data/networkModes.js';
 // Ring 0 (Surprising) sits OUTSIDE ring 1 — molecularly-bridged but
 // corpus-untiered candidates orbit at the periphery.
 const RADII = { 3: 12, 2: 22, 1: 35, 0: 48 };
+// Tier-stratified pyramid elevation (2026-05-16 user feedback): lift
+// each ring off the wheel's XZ plane so same-bucket accents at
+// different tiers no longer collapse to the same screen-y band. ★★★
+// chemistry sits at the wheel plane (Y=0); ★★ strong, ★ good, and
+// Surprising step up so the overall accent cloud reads as a low
+// pyramid around the focal. Heights chosen to scale with the radial
+// steps (≈ 45° cone) so the pyramid feels visually proportional.
+const RING_ELEVATION = { 3: 0, 2: 10, 1: 20, 0: 30 };
 
 // Golden angle (φ ≈ 137.5°) — distributes ring slots so adjacent
 // positions aren't cluster-correlated.
@@ -793,7 +801,15 @@ export class AffinityMode {
         px = fallback.x;
         pz = fallback.z;
       }
-      tmpV.set(cx + px, cy, cz + pz);
+      // Tier-stratified pyramid (2026-05-16 user feedback): lift each
+      // accent off the focal's Y plane based on its ring tier so the
+      // 3D layout reads as a low pyramid around the focal. Strong
+      // tiers stay near the wheel plane; weaker tiers + Surprising
+      // rise. Combined with the existing radial position this maps
+      // the affinity list to a cone shape, defeating screen-stack
+      // collisions when the camera looks at it from a shallow angle.
+      const yLift = RING_ELEVATION[ringIdx] ?? 0;
+      tmpV.set(cx + px, cy + yLift, cz + pz);
       const worldXyz = [tmpV.x, tmpV.y, tmpV.z];
       sphereWorldPos.push(worldXyz);
       // Track 2 (2026-05-16): AffinityTriangleOverlay reads `worldPos`
