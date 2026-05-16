@@ -374,8 +374,12 @@ export default function RecipesLab({
           >
             <NetworkScene
               data={sceneData}
-              onNodeClick={(name) => {
-                const r = SEED_RECIPES.find((x) => x.name === name);
+              onNodeClick={(node) => {
+                // NetworkScene passes the full node object (not just
+                // the name string). Resolve back to the seed recipe by
+                // node.name → recipe.name.
+                if (!node) return;
+                const r = SEED_RECIPES.find((x) => x.name === node.name);
                 if (r) {
                   setSelected(r);
                   // Camera fly-to the picked cookbook. Distance is

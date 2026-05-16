@@ -333,7 +333,10 @@ export default function CocktailLabV2({
       {/* Explore (3D) ↔ Browse (2D) toggle. Sits just below the
           global nav (top-10) and is the entry point for the new
           selection-friendly view. State is lab-local. */}
-      <div className="fixed top-10 left-1/2 -translate-x-1/2 z-40 flex items-center gap-0.5 p-0.5 rounded-lg bg-[#12121a]/95 backdrop-blur-md border border-[#1e1e2e]">
+      <div
+        className="fixed left-1/2 -translate-x-1/2 z-40 flex items-center gap-0.5 p-0.5 rounded-lg bg-[#12121a]/95 backdrop-blur-md border border-[#1e1e2e]"
+        style={{ top: 'calc(var(--nav-h, 4.5rem) + 0.5rem)' }}
+      >
         {[
           { id: 'explore', label: 'Explore (3D)' },
           { id: 'browse',  label: 'Browse (2D)' },
