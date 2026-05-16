@@ -2293,6 +2293,12 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh) return;
+    // Affinity-engage guard — while a single-ingredient affinity view
+    // is engaged, AffinityMode owns the mesh colors / edge + label
+    // visibility. Letting this effect run would clobber the affinity
+    // rings and re-show the full network the moment the user toggles
+    // a filter pill (user-reported regression 2026-05-16).
+    if (affinityModeRef.current?.engaged) return;
     const {
       mesh, nodeArray, defaultColors, clusterColors,
       categoricalColorByMode, edgeMesh, particleMesh, clusterLabelGroup,
@@ -2388,6 +2394,13 @@ export default function LivingArchView({
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh || !st.nodeArray) return;
+    // Affinity-engage guard — while engaged, AffinityMode owns node
+    // scales + positions (rings + dimming). Letting the position lerp
+    // run would re-show the bucket-pole network the moment the user
+    // clicks any filter pill from inside the affinity view
+    // (user-reported regression 2026-05-16). AffinityMode.exit() does
+    // the restore when the user clears selection.
+    if (affinityModeRef.current?.engaged) return;
     const { mesh, nodeArray, curPos, polesByAxis2D, polesByAxis3D } = st;
     const polesByAxis = mode === 'ml' ? polesByAxis3D : polesByAxis2D;
     const vis = visibilityRef.current;

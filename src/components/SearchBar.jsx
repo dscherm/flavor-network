@@ -67,12 +67,22 @@ function SearchBar({ ingredients, onSelect }) {
 
   const handleKeyDown = useCallback(
     (e) => {
-      if (!isOpen || results.length === 0) {
+      // Enter must work the instant results exist, even if the dropdown's
+      // `isOpen` flag hasn't flushed yet (state batching) — otherwise
+      // typing fast and hitting Enter no-ops. Only guard on the actual
+      // result list.
+      if (results.length === 0) {
         if (e.key === 'Escape') {
           setIsOpen(false);
           inputRef.current?.blur();
         }
         return;
+      }
+      // Make sure the dropdown is open the moment the user starts
+      // arrow-navigating or committing — covers the case where blur
+      // suppressed it but results are still valid.
+      if (!isOpen && (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+        setIsOpen(true);
       }
 
       switch (e.key) {
