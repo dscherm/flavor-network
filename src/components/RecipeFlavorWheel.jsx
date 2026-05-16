@@ -1,24 +1,24 @@
 /**
- * RecipeFlavorWheel — Recipe Lab wedge-grid wheel (light theme).
+ * RecipeFlavorWheel — Recipe Lab profile radar (per user 2026-05-16).
  *
- * Per user feedback (Image #2 review, 2026-05-16): the Recipe Lab now
- * uses the same WedgeGridFlavorWheel as the IngredientPanel / 3D
- * affinity overlay, but with `theme='light'` for the cream/notebook
- * surface. detectFocus() still picks the centered ingredient; the
- * other recipe ingredients become the "neighbors" rendered as cells.
+ * Single dynamic radar with switchable axis (taste / aroma / season /
+ * cuisine / method) — answers "how is this dish leaning?" at a glance.
+ * Replaces the prior wedge-grid (which clustered every accent in one
+ * cell when the focal had sparse metadata).
  *
  * Drop-in compatible with the previous mount in RecipeLabMobile:
  *   <RecipeFlavorWheel ingredients={recipe} nodes={graphNodes} onTapAroma={cb} />
  *
- * `onTapAroma` is adapted to WedgeGridFlavorWheel's `onFilterBucket`
- * by intercepting `(axis, key)` and firing `onTapAroma(key)` only when
- * `axis === 'aroma'`.
+ * `onTapAroma` is preserved — clicking the active axis chip when it
+ * already equals 'aroma' fires `onTapAroma('<dominantKey>')`.
+ *
+ * Anchor / "Centered on" UI is retained from the prior implementation
+ * so the user can still force a focal ingredient.
  */
+
 import React, { useMemo, useState } from 'react';
 import { detectFocus } from '../data/recipeFocus.js';
-import WedgeGridFlavorWheel from './WedgeGridFlavorWheel.jsx';
-
-const NEIGHBOR_STRENGTH = 0.8; // uniform; recipe ingredients aren't ranked
+import ProfileAxisRadar from './ProfileAxisRadar.jsx';
 
 export default function RecipeFlavorWheel({
   ingredients = [],
@@ -26,85 +26,64 @@ export default function RecipeFlavorWheel({
   onTapAroma,
   width = 320,
 }) {
-  // Anchor override — when set, force CENTERED mode with this name as
-  // the focal. null/undefined = let detectFocus decide.
+  const [axis, setAxis] = useState('aroma');
   const [anchorOverride, setAnchorOverride] = useState(null);
   const [showAnchorPicker, setShowAnchorPicker] = useState(false);
 
-  const { focusMode, focusFocal, names, focalNode, neighbors } = useMemo(() => {
+  const { focusMode, focusFocal, names } = useMemo(() => {
     const ns = (ingredients || []).map((i) => (typeof i === 'string' ? i : i.name)).filter(Boolean);
     if (ns.length === 0 || !nodes) {
-      return { focusMode: 'empty', focusFocal: null, names: [], focalNode: null, neighbors: [] };
+      return { focusMode: 'empty', focusFocal: null, names: [] };
     }
-
     let focus = detectFocus(ns, { nodes });
     if (anchorOverride && ns.includes(anchorOverride)) {
       focus = { ...focus, mode: 'centered', focal: anchorOverride };
     }
-    // Balanced mode → pick the highest-mass ingredient as the visual focal
-    // (the wheel still needs a center; the "balanced" verbal hint shows below).
-    const focal = focus.focal || ns[0];
-    const focalNodeObj = nodes.get(focal) || { name: focal };
-    const neighborList = ns
-      .filter((n) => n !== focal)
-      .map((n) => ({ name: n, strength: NEIGHBOR_STRENGTH }));
-    return {
-      focusMode: focus.mode,
-      focusFocal: focus.focal,
-      names: ns,
-      focalNode: focalNodeObj,
-      neighbors: neighborList,
-    };
+    return { focusMode: focus.mode, focusFocal: focus.focal, names: ns };
   }, [ingredients, nodes, anchorOverride]);
 
-  const handleFilterBucket = (axis, key) => {
-    if (axis === 'aroma' && typeof onTapAroma === 'function') {
-      onTapAroma(key);
-    }
-  };
+  const focalName = focusMode === 'centered' ? focusFocal : null;
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <div className="relative inline-flex items-center justify-center" style={{ width, height: width }}>
-        <WedgeGridFlavorWheel
-          focalNode={focalNode}
-          neighbors={neighbors}
-          graphNodes={nodes}
-          size={width}
-          theme="light"
-          onFilterBucket={handleFilterBucket}
-        />
-      </div>
+    <div className="flex flex-col items-center gap-1.5" style={{ width }}>
+      <ProfileAxisRadar
+        ingredients={names}
+        nodes={nodes}
+        axis={axis}
+        focalName={focalName}
+        onAxisChange={(next) => {
+          // If the user re-taps the active axis when it's aroma,
+          // forward to the legacy onTapAroma so the suggestion drawer
+          // re-opens (preserves the prior interaction contract).
+          if (next === axis && next === 'aroma' && typeof onTapAroma === 'function') {
+            onTapAroma('aroma');
+          }
+          setAxis(next);
+        }}
+        width={width}
+        theme="light"
+      />
 
-      {/* Phase 4 — gentle prompt to add quantities. Surfaces only when
-          the focus decision was Balanced AND there are ≥3 ingredients
-          (so the heuristic is meaningful). Quantity input lives in
-          RecipeNotebook as a follow-up; for now we just hint. */}
-      {focusMode === 'balanced' && names.length >= 3 && (
-        <div className="text-[9px] text-gray-600 italic">
-          Add weights in the notebook for more accurate centering.
-        </div>
-      )}
-
-      {/* Phase 5 — anchor override. Only shown when there are multiple
-          ingredients to choose between. */}
-      {names.length > 1 && (
+      {/* "Centered on" status row + anchor picker */}
+      {names.length > 0 && (
         <div className="flex items-center gap-1.5 text-[10px]">
-          <span className="uppercase tracking-wider text-gray-600">
+          <span className="uppercase tracking-wider text-stone-600">
             {focusMode === 'centered' ? 'Centered on' : 'Balanced'}
           </span>
           {focusMode === 'centered' && focusFocal && (
-            <span className="text-cyan-700">{focusFocal}</span>
+            <span className="text-cyan-800 font-semibold">{focusFocal}</span>
           )}
-          <button
-            type="button"
-            onClick={() => setShowAnchorPicker((v) => !v)}
-            className="underline opacity-70 hover:opacity-100"
-            aria-expanded={showAnchorPicker}
-            aria-haspopup="menu"
-          >
-            Re-anchor
-          </button>
+          {names.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setShowAnchorPicker((v) => !v)}
+              className="underline opacity-70 hover:opacity-100"
+              aria-expanded={showAnchorPicker}
+              aria-haspopup="menu"
+            >
+              Re-anchor
+            </button>
+          )}
           {anchorOverride && (
             <button
               type="button"
@@ -114,6 +93,13 @@ export default function RecipeFlavorWheel({
               clear
             </button>
           )}
+        </div>
+      )}
+
+      {/* Gentle prompt for balanced multi-ingredient recipes. */}
+      {focusMode === 'balanced' && names.length >= 3 && (
+        <div className="text-[9px] text-stone-600 italic">
+          Add weights in the notebook for more accurate centering.
         </div>
       )}
 
