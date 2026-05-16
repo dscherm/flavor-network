@@ -2555,6 +2555,77 @@ export default function LivingArchView({
     }
   }, [selectedNodes, isMobile, affinityEnabled]);
 
+  // ---- Task-6 Phase 4b — focal-screen-tracked affinity wheel overlay ----
+  // Flag-gated. Per-frame RAF projects the focal 3D position to screen
+  // coordinates and writes `--affinity-wheel-x` / `--affinity-wheel-y`
+  // CSS vars on the document root. The App-level overlay reads those
+  // vars (with corner fallback) so the wheel anchors near the focal
+  // sphere instead of pinning to bottom-right.
+  //
+  // Gate: window.__omc?.affinityWheelTracking === true (opt-in).
+  // Clamps: focal behind camera, NDC outside [-1.2, 1.2], or no focal
+  //         → vars cleared, overlay falls back to corner.
+  // Promotion criteria for default-on: see plan F2 (≥1 release soak +
+  // iOS Safari + Chrome QA + AffinityMode.perf.test.js framePerfBudget
+  // no regression).
+  const trackedFocalName = selectedNodes.length === 1 ? selectedNodes[0] : null;
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    if (!window.__omc?.affinityWheelTracking) return undefined;
+    if (isMobile) return undefined;
+    if (!trackedFocalName) return undefined;
+    const root = document.documentElement;
+    const clearVars = () => {
+      root.style.removeProperty('--affinity-wheel-x');
+      root.style.removeProperty('--affinity-wheel-y');
+    };
+    const v = new THREE.Vector3();
+    const wheelSize = 240;
+    const margin = 16;
+    const anchorOffset = 28; // px right + down from focal to avoid occluding sphere
+    let raf = 0;
+    const tick = () => {
+      const st = stateRef.current;
+      if (!st || !st.camera || !st.renderer || !st.curPos || !st.nameIdx) {
+        clearVars();
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      const i = st.nameIdx.get(trackedFocalName);
+      if (i == null) {
+        clearVars();
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      const px = st.curPos[i * 3];
+      const py = st.curPos[i * 3 + 1];
+      const pz = st.curPos[i * 3 + 2];
+      v.set(px, py, pz).project(st.camera);
+      if (
+        v.z > 1 || v.z < -1 ||
+        v.x < -1.2 || v.x > 1.2 ||
+        v.y < -1.2 || v.y > 1.2
+      ) {
+        clearVars();
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      const rect = st.renderer.domElement.getBoundingClientRect();
+      let sxPx = ((v.x + 1) / 2) * rect.width + rect.left + anchorOffset;
+      let syPx = ((1 - v.y) / 2) * rect.height + rect.top + anchorOffset;
+      sxPx = Math.max(margin, Math.min(window.innerWidth - wheelSize - margin, sxPx));
+      syPx = Math.max(margin, Math.min(window.innerHeight - wheelSize - margin, syPx));
+      root.style.setProperty('--affinity-wheel-x', `${Math.round(sxPx)}px`);
+      root.style.setProperty('--affinity-wheel-y', `${Math.round(syPx)}px`);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearVars();
+    };
+  }, [trackedFocalName, isMobile, mode]);
+
   // ---- Toggle handler — MODE_CYCLE / MODE_LABELS now imported
   // from `data/networkModes.js` so MobileTabBar's Network-button
   // dropdown can render the same set without duplication.
