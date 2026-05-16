@@ -1174,6 +1174,12 @@ export default function LivingArchView({
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
       composer.setSize(w, h);
+      // Iter (2026-05-16): re-frame the affinity orbit when the
+      // viewport changes so the wheel keeps fitting on window resize
+      // / iOS rotation. AffinityMode.refreshFrame re-pivots in place
+      // at the new camera aspect → orbit distance is recomputed
+      // from the live FOV.
+      affinityModeRef.current?.refreshFrame?.();
     }
     window.addEventListener('resize', onResize);
 

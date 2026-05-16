@@ -63,6 +63,15 @@ const PHI = Math.PI * (3 - Math.sqrt(5));
 // Sized to sit just outside ring 0 (RADII[0]=48) so the arcs frame
 // the affinity spheres without overlapping them.
 const WEDGE_RADIUS = 52;
+// Iter (2026-05-16 user feedback): camera framing radius for the
+// focal-orbit. Covers the radial-stagger max (WEDGE_RADIUS × 1.20 =
+// 62.4), the bucket labels (WEDGE_LABEL_RADIUS = 58.24), and the
+// accent mesh radius (AFFINITY_SPHERE_RADIUS = 1.2) with a small
+// breathing buffer. Passed to CameraAnimator.engageFocalOrbit /
+// repivot so the orbit distance fits the wheel on any window size
+// or device — the animator computes the actual distance from the
+// live FOV + viewport aspect.
+const WHEEL_FRAME_RADIUS = 66;
 // Bucket-label radius — slightly outside the arc so the text floats
 // past the outline rather than sitting on it.
 const WEDGE_LABEL_RADIUS = WEDGE_RADIUS * 1.12;
@@ -318,6 +327,25 @@ export class AffinityMode {
    */
   get currentWedgeAxis() {
     return this._engaged ? this._currentWedgeAxis : null;
+  }
+
+  /**
+   * Re-pivot in place to recompute the camera orbit distance from the
+   * live camera FOV + viewport aspect. Called on window resize / iOS
+   * rotation so the wheel stays framed when the viewport changes.
+   * No-op when α-mode is not engaged.
+   */
+  refreshFrame() {
+    if (!this._engaged) return;
+    if (!this._cameraAnimator || this._cameraAnimator.isDisabled) return;
+    const st = this.stateRef;
+    if (!st || !st.curPos || !st.nameIdx) return;
+    const idx = st.nameIdx.get(this._currentFocal);
+    if (idx == null) return;
+    const fx = st.curPos[idx * 3];
+    const fy = st.curPos[idx * 3 + 1];
+    const fz = st.curPos[idx * 3 + 2];
+    this._cameraAnimator.repivot(idx, [fx, fy, fz], WHEEL_FRAME_RADIUS);
   }
 
   /**
@@ -1211,9 +1239,9 @@ export class AffinityMode {
     if (this._cameraAnimator && !this._cameraAnimator.isDisabled) {
       const animState = this._cameraAnimator.state;
       if (animState === 'focal-flying' || animState === 'focal-orbiting') {
-        this._cameraAnimator.repivot(idx, [fx, fy, fz]);
+        this._cameraAnimator.repivot(idx, [fx, fy, fz], WHEEL_FRAME_RADIUS);
       } else {
-        this._cameraAnimator.engageFocalOrbit(idx, [fx, fy, fz]);
+        this._cameraAnimator.engageFocalOrbit(idx, [fx, fy, fz], WHEEL_FRAME_RADIUS);
       }
       return;
     }
