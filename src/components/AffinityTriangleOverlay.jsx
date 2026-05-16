@@ -39,21 +39,18 @@
 import { useEffect, useRef, useState } from 'react';
 
 const TRIANGLE_OPACITY = 0.22;
-const HYPOTENUSE_OPACITY = 0.6;
-const HYPOTENUSE_WIDTH = 1.6;
-const BASE_HALF_WIDTH_FACTOR = 0.05; // base width = length * factor
-const BASE_HALF_WIDTH_MIN = 5;
-const BASE_HALF_WIDTH_MAX = 16;
-// Iter (2026-05-16 'tilt the line'): the hypotenuse from focal to
-// apex is a quadratic Bezier whose control point sits perpendicular
-// to the midpoint. Offset magnitude = sqrt(1 - strength) * length *
-// this factor — strong affinities are nearly straight, weak ones
-// bow visibly. Sqrt curve compresses the strong end so the visual
-// difference between adjacent tiers reads at a glance (the raw
-// strengths cluster in [0.5, 0.95], so linear `(1-strength)` gives
-// only 2-9 px tilt on a typical line — too subtle to see).
-const HYPOTENUSE_TILT_FACTOR = 0.42;
-const HYPOTENUSE_TILT_FLOOR = 0.08; // strong affinities still get a tiny visible curve
+// User iter (2026-05-16 'view tweeks'): hypotenuse line removed in
+// favor of the shaded cone alone. Cone narrowed (less "angle
+// intensity"), and same-bucket same-tier accents pick up a SLIGHT
+// asymmetric base offset so they don't sit on the exact same plane
+// in screen space — a subtle fan, not the prior aggressive one.
+const BASE_HALF_WIDTH_FACTOR = 0.025; // narrower cones — halved from prior 0.05
+const BASE_HALF_WIDTH_MIN = 3;
+const BASE_HALF_WIDTH_MAX = 10;
+// Per-slot perpendicular shift at the base, capped small so the
+// effect is "easier to read" rather than disruptive.
+const BASE_SLOT_SHIFT_FACTOR = 0.018; // base mid moves up to ~2% of len per slot
+const BASE_SLOT_SHIFT_MAX = 14;       // hard pixel cap on the shift
 const APEX_LABEL_DX = 18;
 const APEX_LABEL_FONT_SIZE = 16;
 const POLL_INTERVAL_MS = 50; // ~20Hz
@@ -88,12 +85,26 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
   const fy = focal.y;
   if (!Number.isFinite(fx) || !Number.isFinite(fy)) return null;
 
-  // Iter (2026-05-16 'pyramid'): the heavy fan-out logic was rolled
-  // back here once AffinityMode adopted a tier-stratified pyramid
-  // (★★★ at the wheel plane, ★★/★/Surprising lifted in Y). The 3D
-  // elevation gives natural screen-Y separation, so the overlay no
-  // longer needs alternating tilt signs or label-on-Bezier-midpoint
-  // tricks. Per-accent tilt stays strength-only.
+  // Iter (2026-05-16 'view tweeks'): re-introduce a SUBTLE per-slot
+  // shift so same-bucket same-tier accents don't sit on the exact
+  // same screen plane. The 3D pyramid already separates tiers, so
+  // this only addresses within-tier within-bucket stacking — keep
+  // the magnitude small (BASE_SLOT_SHIFT_FACTOR ~2%).
+  const bucketSlotByName = new Map();
+  const bucketSignByName = new Map();
+  const byBucket = new Map();
+  for (const a of accents) {
+    const k = a.bucketKey || '_unbucketed';
+    if (!byBucket.has(k)) byBucket.set(k, []);
+    byBucket.get(k).push(a);
+  }
+  for (const [, group] of byBucket) {
+    group.sort((p, q) => (q.strength || 0) - (p.strength || 0));
+    group.forEach((a, idx) => {
+      bucketSlotByName.set(a.name, idx);
+      bucketSignByName.set(a.name, idx % 2 === 0 ? 1 : -1);
+    });
+  }
 
   return (
     <svg
@@ -108,11 +119,13 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         </filter>
       </defs>
 
-      {/* Pass 1 — slim cones (filled) drawn weakest-first. Iter
-          (2026-05-16 'audit'): cone base width is inversely tied to
-          affinity strength, so the cone's spread angle encodes
-          strength visually — strong affinity = narrow focused beam,
-          weak affinity = wider, more diffuse spread. */}
+      {/* Cones only — no hypotenuse line. Each cone is a slim
+          isosceles triangle with apex at the accent and base
+          perpendicular at (or near) the focal. Cone width inversely
+          tied to strength (strong = narrow, weak = wider). Same-
+          bucket same-tier accents pick up a subtle per-slot
+          perpendicular shift at the base so they don't all sit on
+          the exact same screen plane. */}
       {accents.map((a) => {
         if (!Number.isFinite(a.x) || !Number.isFinite(a.y)) return null;
         const dx = a.x - fx;
@@ -123,51 +136,36 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         const uy = dy / len;
         const px = -uy;
         const py = ux;
-        // Strength is in roughly [0, 1] from pairing scores; clamp to
-        // [0, 1] then invert so strong → narrow. Multiply by the
-        // length-derived base so cones still scale with distance.
         const strengthClamp = Math.max(0, Math.min(1, Number.isFinite(a.strength) ? a.strength : 0.5));
         const inverse = 1 - 0.6 * strengthClamp; // strong 0.4 ··· weak 1.0
         const halfBase = Math.min(
           BASE_HALF_WIDTH_MAX,
           Math.max(BASE_HALF_WIDTH_MIN, len * BASE_HALF_WIDTH_FACTOR * inverse),
         );
-        const b1x = fx + px * halfBase;
-        const b1y = fy + py * halfBase;
-        const b2x = fx - px * halfBase;
-        const b2y = fy - py * halfBase;
+        // Subtle base-mid perpendicular shift per slot within bucket.
+        const slotIdx = bucketSlotByName.get(a.name) ?? 0;
+        const slotSign = bucketSignByName.get(a.name) ?? 1;
+        const slotMag = Math.min(
+          BASE_SLOT_SHIFT_MAX,
+          len * BASE_SLOT_SHIFT_FACTOR * Math.ceil(slotIdx / 2),
+        ) * slotSign;
+        const bMidX = fx + px * slotMag;
+        const bMidY = fy + py * slotMag;
+        const b1x = bMidX + px * halfBase;
+        const b1y = bMidY + py * halfBase;
+        const b2x = bMidX - px * halfBase;
+        const b2y = bMidY - py * halfBase;
         const points = `${b1x.toFixed(1)},${b1y.toFixed(1)} ${a.x.toFixed(1)},${a.y.toFixed(1)} ${b2x.toFixed(1)},${b2y.toFixed(1)}`;
         const color = a.color || '#7dd3fc';
         const fade = Number.isFinite(a.opacity) ? a.opacity : 1;
-        // Hypotenuse tilt (post-pyramid simplification): strength-only
-        // curve. Bezier control sits perpendicular to the midpoint,
-        // magnitude = sqrt(1 - strength) * factor * length, plus a
-        // small floor so the strongest cones still read as Bezier.
-        const inverseStrength = 1 - strengthClamp;
-        const strengthScale = Math.max(HYPOTENUSE_TILT_FLOOR, Math.sqrt(inverseStrength));
-        const tiltMag = strengthScale * HYPOTENUSE_TILT_FACTOR * len;
-        const midX = (fx + a.x) / 2;
-        const midY = (fy + a.y) / 2;
-        const ctrlX = midX + px * tiltMag;
-        const ctrlY = midY + py * tiltMag;
-        const hypotenuseD = `M ${fx.toFixed(1)} ${fy.toFixed(1)} Q ${ctrlX.toFixed(1)} ${ctrlY.toFixed(1)} ${a.x.toFixed(1)} ${a.y.toFixed(1)}`;
         return (
-          <g key={`cone-${a.name}`}>
-            <polygon
-              points={points}
-              fill={color}
-              fillOpacity={TRIANGLE_OPACITY * fade}
-              stroke="none"
-            />
-            <path
-              d={hypotenuseD}
-              fill="none"
-              stroke={color}
-              strokeOpacity={HYPOTENUSE_OPACITY * fade}
-              strokeWidth={HYPOTENUSE_WIDTH}
-              strokeLinecap="round"
-            />
-          </g>
+          <polygon
+            key={`cone-${a.name}`}
+            points={points}
+            fill={color}
+            fillOpacity={TRIANGLE_OPACITY * fade}
+            stroke="none"
+          />
         );
       })}
 
