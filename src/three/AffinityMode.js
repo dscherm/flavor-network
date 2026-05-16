@@ -801,15 +801,14 @@ export class AffinityMode {
         px = fallback.x;
         pz = fallback.z;
       }
-      // Iter (2026-05-16 'stagger same-tier'): within-tier radial
-      // stagger. Walk each tier from slot 0 (closest to focal) to
-      // slot N-1 (furthest) linearly, scaling the radial vector by
-      // [1 - STAGGER_RANGE/2 .. 1 + STAGGER_RANGE/2]. Same-tier
-      // accents that previously shared a screen line now sit at
-      // visibly different distances. Range stays inside the
-      // inter-tier gap so ★★ doesn't bleed into ★★★ territory.
+      // Iter (2026-05-16 'more dramatic'): within-tier radial stagger
+      // bumped 0.18 → 0.4 (±20%). User feedback: prior ±9% wasn't
+      // visible enough — same-tier accents were still clustering.
+      // Tier 3 max (14.4) vs tier 2 min (17.6) still clears the gap,
+      // and the Y-lift difference (RING_ELEVATION step of 10) keeps
+      // any close-call radii reading as visually separate tiers.
       const tierCap = RING_CAPACITY[ringIdx] || 1;
-      const radialStaggerRange = 0.18; // ±9% of tier radius
+      const radialStaggerRange = 0.40; // ±20% of tier radius
       const radialOffset = tierCap > 1
         ? (slot / (tierCap - 1) - 0.5) * radialStaggerRange
         : 0;
