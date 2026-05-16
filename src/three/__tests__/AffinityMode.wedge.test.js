@@ -252,7 +252,13 @@ describe('AffinityMode — wedge layout (2026-05-13 user feedback)', () => {
       getFilterStack: () => ['family'],
     });
     ctrl.engage('ing-100');
-    expect(ctrl.edgeLines.visible).toBe(true);
+    // Track 2 (2026-05-16): 3D edge lines are now hidden because the
+    // AffinityTriangleOverlay's SVG cones carry the same focal→accent
+    // semantics with tier color + apex shape. The edge BUFFER is still
+    // populated (so the buffer-content assertions below still pass) —
+    // we just don't draw the lines. Restoring requires nothing more
+    // than flipping `edgeLines.visible = true`.
+    expect(ctrl.edgeLines.visible).toBe(false);
     // Edge buffer holds TOTAL_RING_CAPACITY=38 segments. Count
     // non-collapsed segments — those whose endpoint differs from the
     // focal world position.

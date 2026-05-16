@@ -2625,18 +2625,14 @@ export default function LivingArchView({
       } else {
         colorArr = (mode === 'ml' || mode === 'ml2d') ? (st.clusterColors || st.defaultColors) : st.defaultColors;
       }
-      // Project a 3D node index → { x, y, opacity } viewport pixels.
+      // Project world-space [x, y, z] → { x, y, opacity } viewport pixels.
       // Behind-camera (z out of [-1,1]) → null (skip entirely).
       // Otherwise opacity ramps from 1 inside |NDC|<=1 to 0 at the
       // hard cutoff |NDC|=1.6 so the wedge fades out as the accent
       // exits the viewport instead of popping (user feedback iter
-      // 2026-05-16, "triangles don't track the camera and become a
-      // mess").
-      const projectIdx = (idx) => {
-        const px = st.curPos[idx * 3];
-        const py = st.curPos[idx * 3 + 1];
-        const pz = st.curPos[idx * 3 + 2];
-        v.set(px, py, pz).project(st.camera);
+      // 2026-05-16).
+      const projectXYZ = (wx, wy, wz) => {
+        v.set(wx, wy, wz).project(st.camera);
         if (v.z > 1 || v.z < -1) return null;
         const ax = Math.max(Math.abs(v.x), Math.abs(v.y));
         if (ax > 1.6) return null;
@@ -2648,18 +2644,23 @@ export default function LivingArchView({
         };
       };
       const colorHex = (c) => `#${c.getHexString()}`;
-      const focalProj = projectIdx(fi);
+      const ctrl = affinityModeRef.current;
+      // Prefer AffinityMode's authoritative accent list (covers all
+      // tiers including Surprising; carries per-accent worldPos so the
+      // SVG cone lands on the actual ring-rendered position, not the
+      // ingredient's curPos out in the network layout).
+      const affList = ctrl?.engaged ? (ctrl.currentAffinities || []) : null;
+      // Focal: when α-mode is engaged, use AffinityMode's tracked focal
+      // world position. Otherwise fall back to the focal's curPos.
+      const focalWp = ctrl?.engaged && ctrl.focalWorldPos
+        ? ctrl.focalWorldPos
+        : [st.curPos[fi * 3], st.curPos[fi * 3 + 1], st.curPos[fi * 3 + 2]];
+      const focalProj = projectXYZ(focalWp[0], focalWp[1], focalWp[2]);
       if (!focalProj) {
         affinityProjectionRef.current = null;
         return;
       }
       const focalColor = colorArr?.[fi] ? colorHex(colorArr[fi]) : '#ffffff';
-      // Prefer AffinityMode's authoritative accent list (covers all
-      // tiers including Surprising; carries per-accent tier + ringIdx
-      // for shape selection). Falls back to the plain getNeighbors()
-      // list when α-mode isn't engaged yet (first paint).
-      const ctrl = affinityModeRef.current;
-      const affList = ctrl?.engaged ? (ctrl.currentAffinities || []) : null;
       const nbs = affList && affList.length > 0
         ? affList
         : (neighborsRef.current || []);
@@ -2667,7 +2668,12 @@ export default function LivingArchView({
       for (const n of nbs) {
         const idx = st.nameIdx.get(n.name);
         if (idx == null) continue;
-        const proj = projectIdx(idx);
+        // Position source priority: AffinityMode's wedge-placed worldPos
+        // (matches the visible 3D shape) → fallback to network curPos.
+        const wp = Array.isArray(n.worldPos) && n.worldPos.length === 3
+          ? n.worldPos
+          : [st.curPos[idx * 3], st.curPos[idx * 3 + 1], st.curPos[idx * 3 + 2]];
+        const proj = projectXYZ(wp[0], wp[1], wp[2]);
         if (!proj) continue;
         candidates.push({
           name: n.name,

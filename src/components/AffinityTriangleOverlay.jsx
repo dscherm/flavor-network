@@ -41,12 +41,15 @@ import { affinityShape } from '../data/affinityShapes.js';
 
 const TRIANGLE_OPACITY = 0.22;
 const HYPOTENUSE_OPACITY = 0.6;
-const HYPOTENUSE_WIDTH = 1.3;
-const BASE_HALF_WIDTH_FACTOR = 0.04; // base width = length * factor
-const BASE_HALF_WIDTH_MIN = 4;
-const BASE_HALF_WIDTH_MAX = 12;
-const APEX_ICON_SIZE = 14;
-const APEX_LABEL_DX = 9;
+const HYPOTENUSE_WIDTH = 1.6;
+const BASE_HALF_WIDTH_FACTOR = 0.05; // base width = length * factor
+const BASE_HALF_WIDTH_MIN = 5;
+const BASE_HALF_WIDTH_MAX = 16;
+// User feedback (2026-05-16): icons + text bumped 2x so the tier
+// silhouette is identifiable at a glance.
+const APEX_ICON_SIZE = 28;
+const APEX_LABEL_DX = 18;
+const APEX_LABEL_FONT_SIZE = 16;
 const POLL_INTERVAL_MS = 50; // ~20Hz
 
 // Mini SVG icon set mirroring ShapeLegend's silhouettes so the apex
@@ -60,7 +63,7 @@ function ApexIcon({ shape, color, opacity = 1 }) {
   const fill = color;
   const fillOpacity = 0.55 * opacity;
   const strokeOpacity = 0.95 * opacity;
-  const common = { stroke, strokeOpacity, fill, fillOpacity, strokeWidth: 1.4 };
+  const common = { stroke, strokeOpacity, fill, fillOpacity, strokeWidth: 2.0 };
   switch (shape) {
     case 'bipyramid':
       return (
@@ -203,12 +206,12 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
             </g>
             <text
               x={a.x + dx}
-              y={a.y - 1}
+              y={a.y - 2}
               textAnchor={anchor}
               dominantBaseline="middle"
               fill="#f3f4f6"
-              fontSize={11}
-              fontWeight={500}
+              fontSize={APEX_LABEL_FONT_SIZE}
+              fontWeight={600}
               filter="url(#affinity-label-shadow)"
               style={{ pointerEvents: 'none', userSelect: 'none' }}
             >
