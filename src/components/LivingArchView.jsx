@@ -2625,21 +2625,26 @@ export default function LivingArchView({
       } else {
         colorArr = (mode === 'ml' || mode === 'ml2d') ? (st.clusterColors || st.defaultColors) : st.defaultColors;
       }
-      // Project a 3D node index → { x, y } viewport pixels, or null
-      // when clipped behind/outside the camera frustum (with a small
-      // NDC tolerance band so a wedge edge doesn't disappear the
-      // instant the focal grazes the edge).
+      // Project a 3D node index → { x, y, opacity } viewport pixels.
+      // Behind-camera (z out of [-1,1]) → null (skip entirely).
+      // Otherwise opacity ramps from 1 inside |NDC|<=1 to 0 at the
+      // hard cutoff |NDC|=1.6 so the wedge fades out as the accent
+      // exits the viewport instead of popping (user feedback iter
+      // 2026-05-16, "triangles don't track the camera and become a
+      // mess").
       const projectIdx = (idx) => {
         const px = st.curPos[idx * 3];
         const py = st.curPos[idx * 3 + 1];
         const pz = st.curPos[idx * 3 + 2];
         v.set(px, py, pz).project(st.camera);
-        if (v.z > 1 || v.z < -1 || v.x < -1.4 || v.x > 1.4 || v.y < -1.4 || v.y > 1.4) {
-          return null;
-        }
+        if (v.z > 1 || v.z < -1) return null;
+        const ax = Math.max(Math.abs(v.x), Math.abs(v.y));
+        if (ax > 1.6) return null;
+        const opacity = ax <= 1 ? 1 : Math.max(0, 1 - (ax - 1) / 0.6);
         return {
           x: ((v.x + 1) / 2) * rect.width + rect.left,
           y: ((1 - v.y) / 2) * rect.height + rect.top,
+          opacity,
         };
       };
       const colorHex = (c) => `#${c.getHexString()}`;
@@ -2649,24 +2654,31 @@ export default function LivingArchView({
         return;
       }
       const focalColor = colorArr?.[fi] ? colorHex(colorArr[fi]) : '#ffffff';
-      const accents = [];
+      const ACCENT_CAP = 8; // top-K strongest only — see iter feedback
+      const candidates = [];
       const nbs = neighborsRef.current || [];
       for (const n of nbs) {
         const idx = st.nameIdx.get(n.name);
         if (idx == null) continue;
         const proj = projectIdx(idx);
         if (!proj) continue;
-        accents.push({
+        candidates.push({
           name: n.name,
           x: proj.x,
           y: proj.y,
           color: colorArr?.[idx] ? colorHex(colorArr[idx]) : '#7dd3fc',
           strength: n.strength,
+          opacity: proj.opacity,
         });
       }
+      // Sort by strength descending, keep top-K, then reverse so
+      // weakest paints first and strongest end up visually on top.
+      candidates.sort((p, q) => (q.strength || 0) - (p.strength || 0));
+      const top = candidates.slice(0, ACCENT_CAP);
+      top.reverse();
       affinityProjectionRef.current = {
         focal: { name: trackedFocalName, x: focalProj.x, y: focalProj.y, color: focalColor },
-        accents,
+        accents: top,
         ts: typeof performance !== 'undefined' ? performance.now() : Date.now(),
       };
     };
