@@ -149,12 +149,17 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
           legend in the upper-left rail) already render at each apex
           position, so the SVG no longer paints a redundant icon over
           them. The label sits beside the apex with a slight offset so
-          it doesn't overlap the 3D shape. */}
+          it doesn't overlap the 3D shape.
+          Iter (2026-05-16 'audit'): label text picks up the bucket
+          color so direction + cone + apex shape + label all share one
+          palette — a floral-direction cone reads in floral colors top
+          to bottom. */}
       {accents.map((a) => {
         if (!Number.isFinite(a.x) || !Number.isFinite(a.y)) return null;
         const fade = Number.isFinite(a.opacity) ? a.opacity : 1;
         const anchor = a.x >= fx ? 'start' : 'end';
         const dx = a.x >= fx ? APEX_LABEL_DX : -APEX_LABEL_DX;
+        const labelColor = a.color || '#f3f4f6';
         return (
           <g key={`apex-${a.name}`} opacity={fade}>
             <text
@@ -162,7 +167,7 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
               y={a.y - 2}
               textAnchor={anchor}
               dominantBaseline="middle"
-              fill="#f3f4f6"
+              fill={labelColor}
               fontSize={APEX_LABEL_FONT_SIZE}
               fontWeight={600}
               filter="url(#affinity-label-shadow)"
