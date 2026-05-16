@@ -18,6 +18,80 @@ const AROMA_KEYS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'o
 const AROMA_LABELS = ['Fruity', 'Floral', 'Green', 'Woody', 'Spicy', 'Fatty'];
 const AROMA_COLORS = ['#fb923c', '#f0abfc', '#84cc16', '#a16207', '#dc2626', '#fbbf24'];
 
+// F0 trust override (2026-05-16) — when an ingredient name contains a
+// strong cue word that maps to a specific aroma family AND the GNN's
+// own delta for that family is positive (above corpus mean), prefer
+// the name-cued aroma over the molecular argmax. Fixes a class of
+// compound-food failures where the GNN synthesizes a profile from
+// constituents that drag the dominant signal away from the obvious
+// expectation — e.g. raspberry sherbet → woody (vanillin / ionones
+// from the sherbet base outscore raspberry ketones).
+//
+// Cues are matched as whole-word substrings (with non-letter
+// boundaries) so 'orangery' or 'cinematography' don't false-positive
+// on 'orange' / 'cinnamon'. The cue→aroma mapping is intentionally
+// conservative: only names where the cue word IS the dominant
+// flavor identifier of the ingredient (raspberry, cinnamon, mint,
+// chile) — not weaker associations.
+const AROMA_NAME_CUES = [
+  // Fruity
+  { aroma: 'Fruity', words: [
+    'raspberry', 'strawberry', 'blueberry', 'blackberry', 'cranberry',
+    'cherry', 'apple', 'pear', 'peach', 'apricot', 'plum', 'nectarine',
+    'grape', 'mango', 'pineapple', 'banana', 'melon', 'watermelon',
+    'kiwi', 'fig', 'date', 'persimmon', 'pomegranate', 'passionfruit',
+    'passion fruit', 'lychee', 'guava', 'papaya', 'currant', 'cantaloupe',
+    'tangerine', 'mandarin', 'clementine', 'kumquat',
+  ] },
+  // Citrus reads as fruity per Briscione palette
+  { aroma: 'Fruity', words: ['lemon', 'lime', 'orange', 'grapefruit', 'yuzu', 'bergamot'] },
+  // Floral
+  { aroma: 'Floral', words: [
+    'rose', 'jasmine', 'lavender', 'orchid', 'lilac', 'violet',
+    'chamomile', 'elderflower', 'hibiscus', 'orange blossom',
+  ] },
+  // Green
+  { aroma: 'Green', words: [
+    'mint', 'spearmint', 'peppermint', 'basil', 'parsley', 'cilantro',
+    'dill', 'arugula', 'spinach', 'kale', 'chive', 'tarragon', 'shiso',
+    'sorrel', 'watercress', 'lettuce',
+  ] },
+  // Woody
+  { aroma: 'Woody', words: [
+    'cedar', 'oak', 'pine', 'cinnamon', 'cassia', 'sandalwood', 'mesquite',
+  ] },
+  // Spicy
+  { aroma: 'Spicy', words: [
+    'chile', 'chili', 'cayenne', 'jalapeno', 'habanero', 'serrano',
+    'poblano', 'chipotle', 'paprika', 'sriracha', 'tabasco',
+    'horseradish', 'wasabi', 'mustard seed',
+  ] },
+  // Fatty
+  { aroma: 'Fatty', words: [
+    'butter', 'cream', 'lard', 'tallow', 'suet', 'ghee', 'mascarpone',
+    'crème fraîche', 'creme fraiche',
+  ] },
+];
+
+function aromaNameTilt(name) {
+  if (typeof name !== 'string') return null;
+  const n = name.toLowerCase();
+  for (const cue of AROMA_NAME_CUES) {
+    for (const w of cue.words) {
+      // Whole-word check via non-letter boundary on both sides so
+      // 'orangery' doesn't match 'orange'.
+      const idx = n.indexOf(w);
+      if (idx === -1) continue;
+      const before = idx === 0 ? ' ' : n[idx - 1];
+      const after = idx + w.length >= n.length ? ' ' : n[idx + w.length];
+      const isLetterBefore = /[a-z]/.test(before);
+      const isLetterAfter = /[a-z]/.test(after);
+      if (!isLetterBefore && !isLetterAfter) return cue.aroma;
+    }
+  }
+  return null;
+}
+
 /**
  * Compute corpus mean for each aroma channel. The GNN entropy
  * model is systematically biased — without normalizing against
@@ -54,15 +128,33 @@ function aromaBucket(node, ctx) {
   const means = ctx._aromaMeans || (ctx._aromaMeans = aromaCorpusMeans(ctx.gnnEntropy));
   let bestIdx = -1;
   let bestDelta = -Infinity;
+  const deltaByLabel = {};
   for (let i = 0; i < AROMA_KEYS.length; i++) {
     const v = probs[AROMA_KEYS[i]];
     if (typeof v !== 'number') continue;
     const delta = v - means[i];
+    deltaByLabel[AROMA_LABELS[i]] = delta;
     if (delta > bestDelta) { bestDelta = delta; bestIdx = i; }
   }
   // Drop ingredients that are below-average across every channel —
   // these are genuinely uninformative and shouldn't be force-bucketed.
   if (bestIdx < 0 || bestDelta <= 0) return null;
+
+  // F0 trust override (2026-05-16) — name-tilt. If the ingredient
+  // name carries a strong aroma-family cue AND the model's own delta
+  // for that family is positive (above corpus mean), prefer the
+  // cued family over the molecular argmax. Documented in
+  // .omc/plans/network-recipe-iter-2026-05-16.md §F0. Without this,
+  // raspberry sherbet lands in Woody because vanillin/ionones from
+  // the sherbet base outscore raspberry ketones in the synthesized
+  // profile. The override only fires when the cued channel has a
+  // positive delta (i.e., the model itself sees some signal for
+  // that channel — we're breaking a near-tie in favor of the
+  // human-obvious answer, not fabricating signal).
+  const tilt = aromaNameTilt(node?.name);
+  if (tilt && deltaByLabel[tilt] > 0) {
+    return tilt;
+  }
   return AROMA_LABELS[bestIdx];
 }
 

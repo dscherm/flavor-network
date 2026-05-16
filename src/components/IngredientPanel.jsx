@@ -691,19 +691,46 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     >
       {/* Tab — when the container slides right by w-80 (panel width),
           the panel goes off-screen and this button lands flush with
-          the viewport's right edge. */}
+          the viewport's right edge. Iter 2026-05-16: added info icon +
+          pulse animation when collapsed so the tab is discoverable to
+          first-time users (prior audit: the vertical-text-only tab was
+          easy to miss, especially with the Clear Selection button
+          sitting just above it). */}
       <button
         onClick={() => setCollapsed((v) => !v)}
-        className={`self-start mt-8 min-w-[44px] min-h-[44px] flex items-center justify-center bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-r-0 rounded-l-lg px-1.5 py-3 transition-colors ${
-          collapsed ? 'text-cyan-400' : 'text-gray-500 hover:text-gray-300'
+        className={`details-tab self-center min-w-[44px] min-h-[60px] flex flex-col items-center justify-center gap-1.5 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] border-r-0 rounded-l-lg px-1.5 py-3 transition-colors ${
+          collapsed
+            ? 'text-cyan-300 details-tab-attention'
+            : 'text-gray-500 hover:text-gray-300'
         }`}
         aria-label={collapsed ? 'Show details' : 'Hide details'}
-        title={name}
+        title={collapsed ? `Show details for ${name}` : `Hide details for ${name}`}
+        data-collapsed={collapsed ? 'true' : 'false'}
       >
+        <svg
+          aria-hidden="true"
+          className="w-4 h-4 flex-shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
         <span className="text-[10px] uppercase tracking-widest font-medium" style={{ writingMode: 'vertical-rl' }}>
           Details
         </span>
       </button>
+      <style>{`
+        @keyframes detailsTabPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.0); }
+          50%      { box-shadow: -4px 0 16px -2px rgba(34, 211, 238, 0.55); }
+        }
+        .details-tab-attention {
+          animation: detailsTabPulse 2.4s ease-in-out infinite;
+          border-color: rgba(34, 211, 238, 0.45);
+        }
+      `}</style>
 
       {/* Panel */}
       <div

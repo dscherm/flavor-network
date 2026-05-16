@@ -78,7 +78,8 @@ const ingredientStack = [
 ];
 
 describe('GuidedDiscoveryResults', () => {
-  it('renders chemistry banner when ANY pairing has breakdown.x3 === 0.5', () => {
+  it('renders chemistry banner when ≥50% of hero pairings have breakdown.x3 === 0.5', () => {
+    // Default ctx has every edge at x3=0.5 → 100% missing chemistry → banner fires.
     render(
       <GuidedDiscoveryResults
         bubbleStack={ingredientStack}
@@ -89,10 +90,10 @@ describe('GuidedDiscoveryResults', () => {
     );
     const banner = screen.queryByTestId('guided-results-chemistry-banner');
     expect(banner).toBeInTheDocument();
-    expect(banner.textContent).toMatch(/Chemistry data partially unavailable/);
+    expect(banner.textContent).toMatch(/recipe co-occurrence alone/);
   });
 
-  it('does NOT render the banner when ALL hero pairings have breakdown.x3 !== 0.5', () => {
+  it('does NOT render the banner when most hero pairings have breakdown.x3 !== 0.5', () => {
     // Build a ctx whose every edge has x3 != 0.5. The CuratedWheel will
     // still pick ginger as a hero (surprising path), but we override
     // ginger's x3 to 1.0 so the banner predicate is never satisfied.

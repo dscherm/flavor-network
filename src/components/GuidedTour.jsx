@@ -1,0 +1,164 @@
+/**
+ * GuidedTour — Phase 6 (pipeline 2026-05-16).
+ *
+ * Reducer-driven tour controller. Reads STAGES from
+ * `guidedTourStages.js` and walks the user through each stage's
+ * popup. Advance triggers vary per stage: auto-timeout, user click,
+ * double-tap, or "choose a lab" 4-pill picker (final stage).
+ *
+ * Communicates with the live scene best-effort: when an
+ * imperativeHandle is wired to LivingArchView, the controller
+ * dispatches scene actions there; otherwise actions no-op and the
+ * popup-only experience still works.
+ *
+ * Gated by `tourIsEnabled()` (localStorage feature flag).
+ */
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import { STAGES, logTourEvent, tourIsEnabled } from '../data/guidedTourStages.js';
+import TourPopup from './TourPopup.jsx';
+
+const initial = {
+  stageIdx: 0,
+  exited: false,
+};
+
+const AXIS_POOL = ['taste', 'aroma', 'season', 'cuisine', 'method'];
+
+// Pick a random axis from the pool that differs from `excludeAxis`.
+// Falls back to 'taste' if excludeAxis isn't in the pool.
+function resolveRandomAxis(excludeAxis) {
+  const remaining = AXIS_POOL.filter((a) => a !== excludeAxis);
+  if (remaining.length === 0) return 'taste';
+  return remaining[Math.floor(Math.random() * remaining.length)];
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'ADVANCE':
+      if (state.stageIdx + 1 >= STAGES.length) {
+        return { ...state, exited: true };
+      }
+      return { ...state, stageIdx: state.stageIdx + 1 };
+    case 'SKIP':
+      return { ...state, exited: true };
+    case 'RESET':
+      return { ...initial };
+    default:
+      return state;
+  }
+}
+
+export default function GuidedTour({
+  axis = 'taste',           // entry axis from radar click
+  onExit,                   // called when user advances past last stage or skips
+  onPickLab,                // (labKey: 'recipes' | 'cocktail' | 'sauce' | 'done') => void
+  // Imperative handle into LivingArchView (Phase 6.0). When present,
+  // scene actions dispatch through it. When absent, controller still
+  // runs the popup sequence.
+  sceneHandle = null,
+  // Optional radar focal name — engageAffinity stage uses this.
+  focalName = null,
+}) {
+  const [state, dispatch] = useReducer(reducer, initial);
+  const stage = STAGES[state.stageIdx] || null;
+  const startedAt = useRef(Date.now());
+
+  // Resolve __randomAxis ONCE per tour run so the user sees the same
+  // "different lens" axis throughout the pull2 stage even if the
+  // component re-renders mid-animation. Pool excludes the entry axis.
+  const randomAxis = useMemo(() => resolveRandomAxis(axis), [axis]);
+
+  // Telemetry on mount + each stage advance.
+  useEffect(() => {
+    if (state.stageIdx === 0) {
+      logTourEvent('tour:start', { axis, focalName });
+    } else if (stage) {
+      logTourEvent('tour:advance', { stageId: stage.id, idx: state.stageIdx });
+    }
+  }, [state.stageIdx, stage, axis, focalName]);
+
+  // Dispatch sceneAction when stage changes — best-effort imperative
+  // calls into LivingArchView. If `sceneHandle` is null (Phase 6.0
+  // imperative API not extracted yet) actions are skipped.
+  useEffect(() => {
+    if (!stage || !sceneHandle) return;
+    const { kind } = stage.sceneAction || {};
+    try {
+      if (kind === 'engageAffinity' && focalName && sceneHandle.engageAffinity) {
+        sceneHandle.engageAffinity(focalName);
+      } else if (kind === 'animatePull' && sceneHandle.animatePull) {
+        const declared = stage.sceneAction.axis;
+        const useAxis =
+          declared === '__axisFromCtx' ? axis
+          : declared === '__randomAxis' ? randomAxis
+          : (declared || 'taste');
+        sceneHandle.animatePull(useAxis);
+      } else if (kind === 'clearFilters' && sceneHandle.clearFilters) {
+        sceneHandle.clearFilters();
+      } else if (kind === 'clusterDemo' && sceneHandle.runClusterDemo) {
+        // Stage 4: clearFilters first so the layout settles, then run
+        // the highlight + fly choreography from the handle.
+        sceneHandle.clearFilters?.();
+        sceneHandle.runClusterDemo();
+      } else if (kind === 'ingredientGlow' && sceneHandle.runIngredientGlow) {
+        sceneHandle.runIngredientGlow();
+      } else if (kind === 'engageFinalAffinity' && sceneHandle.engageFinalAffinity) {
+        sceneHandle.engageFinalAffinity();
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('[GuidedTour] sceneAction failed', kind, err);
+    }
+  }, [stage, sceneHandle, focalName, axis, randomAxis]);
+
+  // Auto-advance for stages with `advance: { kind: 'auto', ms: ... }`.
+  useEffect(() => {
+    if (!stage) return undefined;
+    if (stage.advance?.kind !== 'auto') return undefined;
+    const t = setTimeout(() => dispatch({ type: 'ADVANCE' }), stage.advance.ms || 3000);
+    return () => clearTimeout(t);
+  }, [stage]);
+
+  // Double-tap advance on the canvas for stages that ask for it.
+  useEffect(() => {
+    if (!stage || stage.advance?.kind !== 'doubleTapOrClick') return undefined;
+    const handler = () => dispatch({ type: 'ADVANCE' });
+    window.addEventListener('dblclick', handler);
+    return () => window.removeEventListener('dblclick', handler);
+  }, [stage]);
+
+  // Final exit — emit completion telemetry, call onExit.
+  useEffect(() => {
+    if (!state.exited) return;
+    const durMs = Date.now() - startedAt.current;
+    logTourEvent('tour:end', { lastStageIdx: state.stageIdx, durMs });
+    onExit?.();
+  }, [state.exited, state.stageIdx, onExit]);
+
+  const handleAdvance = useCallback(() => dispatch({ type: 'ADVANCE' }), []);
+  const handleSkip = useCallback(() => {
+    logTourEvent('tour:skip', { stageId: stage?.id, idx: state.stageIdx });
+    dispatch({ type: 'SKIP' });
+  }, [stage, state.stageIdx]);
+
+  // Hard gate: feature flag.
+  if (!tourIsEnabled() || state.exited || !stage) return null;
+
+  const isLabPicker = stage.advance?.kind === 'chooseLab';
+
+  return (
+    <TourPopup
+      stage={stage}
+      stageIdx={state.stageIdx}
+      totalStages={STAGES.length}
+      showLabPicks={isLabPicker}
+      onAdvance={handleAdvance}
+      onSkip={handleSkip}
+      onPickLab={(labKey) => {
+        logTourEvent('tour:pick-lab', { labKey });
+        onPickLab?.(labKey);
+        dispatch({ type: 'SKIP' });
+      }}
+    />
+  );
+}

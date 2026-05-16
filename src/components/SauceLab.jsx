@@ -24,13 +24,27 @@ import { SAUCE_SHAPE_LEGEND } from '../data/sauceShapes.js';
  * Mirror of CocktailLab.jsx — replaces the previous ingredient-graph
  * + Sauce Builder + Browse/Saved/Lookup panel that lived here.
  */
-export default function SauceLab({ onSelectionChange, onOpenRecipeLab }) {
+export default function SauceLab({
+  onSelectionChange,
+  onOpenRecipeLab,
+  // Phase 5 bridge: Build path → Sauce Lab. Shape:
+  //   { family?: string, cuisine?: string }
+  // Pre-selects filter pills on mount. Optional; null = no pre-filter.
+  externalFilter = null,
+}) {
   const [codexData, setCodexData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSauce, setSelectedSauce] = useState(null);
   const [filterFamily, setFilterFamily] = useState(null);
   const [filterCuisine, setFilterCuisine] = useState(null);
+
+  // Apply Build → Lab pre-filter on mount.
+  useEffect(() => {
+    if (!externalFilter) return;
+    if (externalFilter.family) setFilterFamily(externalFilter.family);
+    if (externalFilter.cuisine) setFilterCuisine(externalFilter.cuisine);
+  }, [externalFilter]);
   // Camera fly-to target for the family fly-wheel (R10-66).
   const [flyToTarget, setFlyToTarget] = useState(null);
   // Explore = the 3D NetworkScene (existing). Browse = 2D mini-map +

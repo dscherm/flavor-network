@@ -22,6 +22,7 @@ import {
 import { CATEGORICAL_AXES, bucketOf as resolveBucket } from '../data/categoricalAxes.js';
 import { FILTER_TO_AXIS } from '../data/networkModes.js';
 import { whyThisWorks, groundTruthHas } from '../data/whyThisWorks.js';
+import { passesDietaryFilters } from '../data/dietaryFilters.js';
 
 const SURPRISING_STROKE = '#d946ef';
 
@@ -36,19 +37,32 @@ function uniqueByName(list) {
   return out;
 }
 
-function selectCuratedPairings({ focal, ctx }) {
+function selectCuratedPairings({ focal, ctx, dietary = [] }) {
   if (!focal || !ctx) return [];
-  const surprising = surprisingAffinities(focal.name || focal, ctx, { N: 3 }) || [];
-  const top = topAffinities(focal.name || focal, ctx, { N3: 4, N2: 0, N1: 0 }) || [];
-  const cited = (topAffinities(focal.name || focal, ctx, { N3: 10, N2: 0, N1: 0 }) || [])
+  // Over-pull when dietary restrictions are active so post-filter we
+  // still land 5-10 heroes. Vegan / vegetarian can prune up to ~30%
+  // of a meat-heavy wheel.
+  const dietaryActive = Array.isArray(dietary) && dietary.length > 0;
+  const mult = dietaryActive ? 2 : 1;
+  const surprising = surprisingAffinities(focal.name || focal, ctx, { N: 3 * mult }) || [];
+  const top = topAffinities(focal.name || focal, ctx, { N3: 4 * mult, N2: 0, N1: 0 }) || [];
+  const cited = (topAffinities(focal.name || focal, ctx, { N3: 10 * mult, N2: 0, N1: 0 }) || [])
     .filter((n) => groundTruthHas(focal.name || focal, n.name))
-    .slice(0, 3);
+    .slice(0, 3 * mult);
   // Tag origin so the renderer can swap stroke + chip per source.
-  const tagged = [
+  let tagged = [
     ...surprising.map((n) => ({ ...n, _source: 'surprising' })),
     ...top.map((n) => ({ ...n, _source: 'top' })),
     ...cited.map((n) => ({ ...n, _source: 'cited' })),
   ];
+  // Dietary filter — applied before dedup + slice so a vegan filter
+  // on a chicken focal pulls in 5+ plant-based heroes rather than 1.
+  if (dietaryActive) {
+    tagged = tagged.filter((n) => {
+      const node = ctx?.graph?.nodes?.get?.(n.name) || { name: n.name };
+      return passesDietaryFilters(n.name, node, dietary);
+    });
+  }
   return uniqueByName(tagged).slice(0, 10);
 }
 
@@ -68,6 +82,7 @@ export default function CuratedWheel({
   viewport = { width: 600, height: 600 },
   onSelectPairing,
   className,
+  dietary = [],
 }) {
   if (!focal || !ctx) return null;
 
@@ -77,7 +92,7 @@ export default function CuratedWheel({
     ? Object.fromEntries(palette.labels.map((l, i) => [l, palette.colors[i]]))
     : {};
 
-  const heroPairings = selectCuratedPairings({ focal, ctx });
+  const heroPairings = selectCuratedPairings({ focal, ctx, dietary });
   const neighbors = heroPairings
     .map((n) => ({
       ...n,
@@ -127,20 +142,25 @@ export default function CuratedWheel({
       y={l.y}
       textAnchor="middle"
       dominantBaseline="middle"
-      fontSize={11}
+      fontSize={15}
+      fontWeight={600}
       fill="#cbd5e1"
       data-bucket={l.key}
+      style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}
     >
       {l.label}
     </text>
   );
 
+  // Iter 2026-05-16: nodes + labels enlarged so ingredient names read
+  // at glance. The prior 32-char causalSentence slice was unreadable
+  // ("Our pairing engine ranked th…") and added no signal beyond the
+  // StoryPanel — show the ingredient name only.
   const renderDot = (d, i) => {
     const isSurprising = d.neighbor?._source === 'surprising';
-    const r = isSurprising ? 8 : 4;
+    const r = isSurprising ? 11 : 7;
     const fill = isSurprising ? SURPRISING_STROKE : '#e2e8f0';
     const stroke = isSurprising ? SURPRISING_STROKE : 'none';
-    const story = whyThisWorks(focal?.name || focal, d.neighbor.name);
     const cited = groundTruthHas(focal?.name || focal, d.neighbor.name);
     return (
       <g
@@ -155,22 +175,24 @@ export default function CuratedWheel({
           r={r}
           fill={fill}
           stroke={stroke}
-          strokeWidth={isSurprising ? 2 : 0}
-          fillOpacity={isSurprising ? 0.9 : 0.85}
+          strokeWidth={isSurprising ? 2.5 : 0}
+          fillOpacity={isSurprising ? 0.9 : 0.9}
         />
         <text
-          x={r + 4}
-          y={3}
-          fontSize={9}
-          fill="#94a3b8"
+          x={r + 5}
+          y={4}
+          fontSize={13}
+          fontWeight={500}
+          fill="#e2e8f0"
           textAnchor="start"
           data-role="story-headline"
+          style={{ paintOrder: 'stroke', stroke: '#0a1428', strokeWidth: 3, strokeLinejoin: 'round' }}
         >
-          {(story?.causalSentence || d.neighbor.name).slice(0, 32)}
+          {d.neighbor.name}
         </text>
         {cited && (
-          <foreignObject x={r + 4} y={6} width={60} height={14}>
-            <span className="citation-chip text-[8px] text-amber-300/80">cite</span>
+          <foreignObject x={r + 5} y={r + 4} width={60} height={16}>
+            <span className="citation-chip text-[10px] text-amber-300/80">cite</span>
           </foreignObject>
         )}
       </g>
@@ -179,14 +201,15 @@ export default function CuratedWheel({
 
   const renderFocal = (f) => (
     <g data-role="focal">
-      <circle r={6} fill="#fbbf24" />
+      <circle r={9} fill="#fbbf24" />
       <text
         x={0}
-        y={-12}
+        y={-16}
         textAnchor="middle"
-        fontSize={12}
+        fontSize={16}
         fontWeight={700}
         fill="#fbbf24"
+        style={{ paintOrder: 'stroke', stroke: '#0a1428', strokeWidth: 3, strokeLinejoin: 'round' }}
       >
         {f?.name || ''}
       </text>

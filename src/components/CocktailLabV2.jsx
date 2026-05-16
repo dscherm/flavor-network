@@ -24,7 +24,15 @@ import { cocktailBaseSpiritShape, COCKTAIL_SPIRIT_LEGEND } from '../data/cocktai
  * Click a cocktail → detail panel with engineering metadata + closest
  * cousins (within-family) + cross-family bridges.
  */
-export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
+export default function CocktailLabV2({
+  onSelectionChange,
+  onOpenRecipeLab,
+  // Phase 5 bridge: Build path → Cocktail Lab. Shape:
+  //   { family?: string, spirit?: string }
+  // Pre-selects filter pills on mount so the user lands in the slice
+  // matching their Build picks. Optional; null = no pre-filter.
+  externalFilter = null,
+}) {
   const [graph, setGraph] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,6 +40,13 @@ export default function CocktailLabV2({ onSelectionChange, onOpenRecipeLab }) {
   const [filterFamily, setFilterFamily] = useState(null);
   const [filterSpirit, setFilterSpirit] = useState(null);
   const [flyToTarget, setFlyToTarget] = useState(null);
+
+  // Apply Build → Lab pre-filter on mount.
+  useEffect(() => {
+    if (!externalFilter) return;
+    if (externalFilter.family) setFilterFamily(externalFilter.family);
+    if (externalFilter.spirit) setFilterSpirit(externalFilter.spirit);
+  }, [externalFilter]);
   // Explore = the 3D NetworkScene cluster view (existing behavior).
   // Browse = the 2D mini-map + filterable list view (new). Detail
   // panel + cocktail selection state are shared across both modes.

@@ -16,11 +16,11 @@ function flush() {
 }
 
 describe('GuidedDiscoveryStart', () => {
-  it('renders the sentence starter, the 8 bubbles, and a disabled CTA', () => {
+  it('renders the sentence starter, the 9 bubbles, and a disabled CTA', () => {
     render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={() => {}} />);
     expect(screen.getByText("I'm thinking about pairing that…")).toBeInTheDocument();
-    // 8 bubbles in the registry
-    expect(BUBBLE_REGISTRY).toHaveLength(8);
+    // 9 bubbles in the registry (dietary added 2026-05-16)
+    expect(BUBBLE_REGISTRY).toHaveLength(9);
     for (const b of BUBBLE_REGISTRY) {
       expect(screen.getByText(b.label)).toBeInTheDocument();
     }

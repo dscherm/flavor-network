@@ -39,7 +39,18 @@ const TASTE_TARGETS = {
   astringent: [0, -60, 0],
 };
 
-export default function ClusterJoystick({ clusters, morphAxis = null, onFlyTo, focusedClusterId = null, onClusterFocus }) {
+export default function ClusterJoystick({
+  clusters,
+  morphAxis = null,
+  onFlyTo,
+  focusedClusterId = null,
+  onClusterFocus,
+  // Spec §2.G.3 — when the guided tour highlights a cluster pill, the
+  // matching pill pulses to draw attention before the camera fly-to.
+  // Null when nothing is highlighted. Accepts the same id shape as
+  // `focusedClusterId` (a cluster.id from the joystick's items).
+  highlightedClusterId = null,
+}) {
   const [active, setActive] = useState(null);
   // iOS dispatches a synthesized click ~300ms after touchstart. Without
   // this debounce, each tap on a cluster pill toggles focus twice (on
@@ -104,6 +115,14 @@ export default function ClusterJoystick({ clusters, morphAxis = null, onFlyTo, f
   };
 
   return (
+    <>
+      <style>{`
+        @keyframes tour-pulse-anim {
+          0%, 100% { transform: scale(1); filter: brightness(1); }
+          50%      { transform: scale(1.08); filter: brightness(1.35); }
+        }
+        .tour-pulse { animation: tour-pulse-anim 0.9s ease-in-out infinite; }
+      `}</style>
     <div
       className="fixed left-1/2 -translate-x-1/2 z-[72] select-none pointer-events-none sm:bottom-20"
       style={{
@@ -134,16 +153,20 @@ export default function ClusterJoystick({ clusters, morphAxis = null, onFlyTo, f
           {items.map(item => {
             const isActive = active === item.id;
             const isFocused = item.cluster && focusedClusterId === item.cluster.id;
+            const isHighlighted = item.cluster && highlightedClusterId === item.cluster.id;
             const c = item.color;
-            const bgAlpha = isFocused ? '55' : isActive ? '40' : '14';
-            const borderAlpha = isFocused ? 'ff' : isActive ? 'aa' : '44';
+            const bgAlpha = isHighlighted ? '66' : isFocused ? '55' : isActive ? '40' : '14';
+            const borderAlpha = isHighlighted ? 'ff' : isFocused ? 'ff' : isActive ? 'aa' : '44';
             return (
               <button
                 key={item.id}
                 onClick={() => handleTap(item)}
                 onTouchStart={(e) => { e.preventDefault(); handleTap(item); }}
                 title={isFocused ? `Exit ${item.label} focus` : `Focus on ${item.label}`}
-                className="flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 rounded-full text-[11px] sm:text-[10px] whitespace-nowrap transition-colors flex-shrink-0 capitalize"
+                className={`flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 rounded-full text-[11px] sm:text-[10px] whitespace-nowrap transition-colors flex-shrink-0 capitalize ${
+                  isHighlighted ? 'tour-pulse' : ''
+                }`}
+                data-cluster-id={item.cluster ? item.cluster.id : undefined}
                 style={{
                   color: c,
                   background: `${c}${bgAlpha}`,
@@ -151,7 +174,9 @@ export default function ClusterJoystick({ clusters, morphAxis = null, onFlyTo, f
                   // 32px tall on mobile for comfortable touch targets,
                   // 26px on desktop to keep the bar compact.
                   minHeight: 32,
-                  boxShadow: isFocused ? `0 0 6px ${c}88` : undefined,
+                  boxShadow: isHighlighted
+                    ? `0 0 12px ${c}, 0 0 24px ${c}88`
+                    : isFocused ? `0 0 6px ${c}88` : undefined,
                 }}
               >
                 <span
@@ -165,5 +190,6 @@ export default function ClusterJoystick({ clusters, morphAxis = null, onFlyTo, f
         </div>
       </div>
     </div>
+    </>
   );
 }
