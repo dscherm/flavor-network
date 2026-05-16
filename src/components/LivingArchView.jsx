@@ -2693,6 +2693,10 @@ export default function LivingArchView({
           strength: n.strength,
           // tier: 3 ★★★ chemistry / 2 ★★ strong / 1 ★ good / 0 surprising / null untiered
           tier: n.tier ?? null,
+          // bucketKey lets the overlay fan same-bucket accents apart
+          // (alternating tilt directions) so labels don't overlap when
+          // many accents share the same aroma sector.
+          bucketKey: n.bucketKey ?? null,
           opacity: proj.opacity,
         });
       }
