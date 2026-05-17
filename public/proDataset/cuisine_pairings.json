@@ -1,85 +1,4 @@
 {
-  "_meta": {
-    "generatedAt": "2026-05-17T15:09:16.562Z",
-    "corpus": "recipenlg=514713 + mealdb=514",
-    "cuisinesTagged": 23,
-    "totalRecipesTagged": 515227,
-    "taggingStrategy": "cascade: title-keyword → url-hint → confident-signature",
-    "taggingPrecisionEstimate": 0.75,
-    "minPairCount": 5,
-    "sigConfidenceGap": 2,
-    "stapleExclusion": [
-      "sugar",
-      "egg",
-      "onion",
-      "butter",
-      "flour",
-      "garlic",
-      "milk",
-      "vanilla",
-      "olive oil",
-      "tomato",
-      "brown sugar",
-      "cinnamon",
-      "chicken",
-      "baking powder",
-      "lemon juice",
-      "vegetable oil",
-      "celery",
-      "parsley",
-      "sour cream",
-      "cream cheese",
-      "baking soda",
-      "scallion",
-      "carrot",
-      "cream",
-      "cheddar",
-      "parmesan",
-      "mustard",
-      "mayonnaise",
-      "lemon",
-      "potato",
-      "water",
-      "salt",
-      "pepper",
-      "black pepper",
-      "ice",
-      "oil",
-      "warm water"
-    ],
-    "pairCount": 121844,
-    "newPairCount": 118387,
-    "perCuisineRecipeCount": {
-      "Middle East": 7491,
-      "China": 21629,
-      "Spain": 8584,
-      "Australia & NZ": 19,
-      "British Isles": 8268,
-      "DACH Countries": 14131,
-      "Scandinavia": 635,
-      "South East Asia": 2642,
-      "Indian Subcontinent": 24450,
-      "USA": 181177,
-      "France": 34120,
-      "Eastern Europe": 457,
-      "Mexico": 47300,
-      "Canada": 295,
-      "Caribbean": 5034,
-      "Italy": 118363,
-      "Africa": 7565,
-      "Japan": 11838,
-      "Greece": 12552,
-      "Thailand": 6384,
-      "Korea": 2286,
-      "Misc.: Portugal": 4,
-      "South America": 3
-    },
-    "tagSourceCounts": {
-      "title": 235550,
-      "url": 3426,
-      "signature": 275737
-    }
-  },
   "pairs": {
     "almond|greek yogurt": {
       "evidence": [
@@ -1867173,6 +1867092,1075 @@
       "primary": "Korea",
       "novelty": 1,
       "modelStrength": null
+    },
+    "doenjang|garlic": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|scallion": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|ginger": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|sesame seed": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|gochujang": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|gochugaru": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|tofu": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "anchovy|doenjang": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "dashi|doenjang": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|kombu": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|shiitake mushroom": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|zucchini": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|potato": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "beef|doenjang": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|pork": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|rice vinegar": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|soy sauce": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|mirin": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|sake": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cilantro|crema mexicana": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|lime juice": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chipotle|crema mexicana": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cotija|crema mexicana": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|queso fresco": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|jalapeño": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "avocado|crema mexicana": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|tortilla": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chili powder|crema mexicana": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|cumin": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|garlic": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|onion": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|tomato": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "corn|crema mexicana": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black bean|crema mexicana": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chicken|crema mexicana": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|shrimp": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|epazote": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|masa harina": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "corn|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "epazote|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "garlic|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|onion": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|jalapeño": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chili|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|shiitake mushroom": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|masa harina": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|tortilla": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|queso fresco": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cotija|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|tomato": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "butter|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "broth|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|zucchini": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|oaxaca cheese": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|poblano pepper": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "recaito|rice": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "pigeon pea|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "pork|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chicken|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "recaito|tomato": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "annatto|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "recaito|sofrito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cilantro|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "onion|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "garlic|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "olive oil|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "bay leaf|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "oregano|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black bean|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ham|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "recaito|tomato sauce": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "recaito|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cotija|epazote": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "epazote|masa harina": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    }
+  },
+  "_meta": {
+    "generatedAt": "2026-05-17T15:09:16.562Z",
+    "corpus": "recipenlg=514713 + mealdb=514",
+    "cuisinesTagged": 23,
+    "totalRecipesTagged": 515227,
+    "taggingStrategy": "cascade: title-keyword → url-hint → confident-signature",
+    "taggingPrecisionEstimate": 0.75,
+    "minPairCount": 5,
+    "sigConfidenceGap": 2,
+    "stapleExclusion": [
+      "sugar",
+      "egg",
+      "onion",
+      "butter",
+      "flour",
+      "garlic",
+      "milk",
+      "vanilla",
+      "olive oil",
+      "tomato",
+      "brown sugar",
+      "cinnamon",
+      "chicken",
+      "baking powder",
+      "lemon juice",
+      "vegetable oil",
+      "celery",
+      "parsley",
+      "sour cream",
+      "cream cheese",
+      "baking soda",
+      "scallion",
+      "carrot",
+      "cream",
+      "cheddar",
+      "parmesan",
+      "mustard",
+      "mayonnaise",
+      "lemon",
+      "potato",
+      "water",
+      "salt",
+      "pepper",
+      "black pepper",
+      "ice",
+      "oil",
+      "warm water"
+    ],
+    "pairCount": 121844,
+    "newPairCount": 118387,
+    "perCuisineRecipeCount": {
+      "Middle East": 7491,
+      "China": 21629,
+      "Spain": 8584,
+      "Australia & NZ": 19,
+      "British Isles": 8268,
+      "DACH Countries": 14131,
+      "Scandinavia": 635,
+      "South East Asia": 2642,
+      "Indian Subcontinent": 24450,
+      "USA": 181177,
+      "France": 34120,
+      "Eastern Europe": 457,
+      "Mexico": 47300,
+      "Canada": 295,
+      "Caribbean": 5034,
+      "Italy": 118363,
+      "Africa": 7565,
+      "Japan": 11838,
+      "Greece": 12552,
+      "Thailand": 6384,
+      "Korea": 2286,
+      "Misc.: Portugal": 4,
+      "South America": 3
+    },
+    "tagSourceCounts": {
+      "title": 235550,
+      "url": 3426,
+      "signature": 275737
     }
   }
 }

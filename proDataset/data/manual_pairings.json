@@ -1,0 +1,57 @@
+{
+  "_meta": {
+    "purpose": "Curated pairings for ingredients RecipeNLG doesn't carry (or carries under spellings that don't normalize). These hand-bootstrapped edges are merged into cuisine_pairings.json by scripts/17-merge-manual-pairings.js so they flow through getNeighborsEnriched alongside the corpus-derived pairs.",
+    "schemaVersion": 1,
+    "generated": "2026-05-17",
+    "fabricatedCounts": "Each entry gets count=25 + recipePct=0.10 = the smallest evidence shape that passes the displayableCuisine dominance gate without overclaiming. cuisineBoost() resolves these to strength ≈ 0.54.",
+    "provenanceFlag": "Each synthesized pair record carries source='manual-bootstrap' so future audits can distinguish hand-edges from corpus-derived ones."
+  },
+  "bootstraps": {
+    "doenjang": {
+      "cuisine": "Korea",
+      "partners": [
+        "garlic", "scallion", "ginger", "sesame oil", "sesame seed", "gochujang",
+        "gochugaru", "tofu", "anchovy", "dashi", "kombu", "shiitake mushroom",
+        "zucchini", "potato", "beef", "pork", "rice vinegar", "soy sauce",
+        "mirin", "sake", "kimchi"
+      ]
+    },
+    "crema mexicana": {
+      "cuisine": "Mexico",
+      "partners": [
+        "cilantro", "lime juice", "chipotle", "cotija", "queso fresco", "jalapeño",
+        "avocado", "tortilla", "chili powder", "cumin", "garlic", "onion",
+        "tomato", "corn", "black bean", "chicken", "shrimp", "epazote",
+        "masa harina", "huitlacoche"
+      ]
+    },
+    "huitlacoche": {
+      "cuisine": "Mexico",
+      "partners": [
+        "corn", "epazote", "garlic", "onion", "jalapeño", "chili",
+        "shiitake mushroom", "masa harina", "tortilla", "queso fresco",
+        "crema mexicana", "cotija", "tomato", "butter", "broth",
+        "zucchini", "oaxaca cheese", "poblano pepper"
+      ]
+    },
+    "recaito": {
+      "cuisine": "Caribbean",
+      "partners": [
+        "rice", "pigeon pea", "pork", "chicken", "tomato", "annatto",
+        "sofrito", "cilantro", "onion", "garlic",
+        "green plantain", "olive oil", "bay leaf", "oregano", "black bean",
+        "ham", "tomato sauce", "scotch bonnet"
+      ]
+    },
+    "doenjang_extra": {
+      "cuisine": "Korea",
+      "comment": "Extra pairs for doenjang that didn't fit the partners list — broader Korean stew/banchan companions.",
+      "partners": []
+    },
+    "epazote_extra": {
+      "cuisine": "Mexico",
+      "comment": "epazote already has 51 corpus pairs but lacks the queso-trio + huitlacoche signal that defines Mexican cooking with it.",
+      "partners": ["queso fresco", "huitlacoche", "crema mexicana", "cotija", "masa harina"]
+    }
+  }
+}
