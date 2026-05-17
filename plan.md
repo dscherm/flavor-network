@@ -653,3 +653,74 @@ Tag commit messages with the relevant lesson stem.
 - **GNN re-run when auto_label is tuned** — augmentation script
   (`19-augment-pairings-for-gnn.js`) and `cluster_labels.py --k`
   flag are ready; just rerun once the labeler is fixed.
+
+### Followups added 2026-05-17 PM (C₁′ Flavor Space prototype session)
+
+- **Umami compound data ingestion from umamiinfo.com** — the
+  flavor-UMAP prototype (C₁′) revealed that the umami pantry (soy
+  sauce, miso, fish sauce, oyster sauce, gochujang) lands at
+  near-random positions in flavor space because the GNN has weak
+  umami signal for those compound foods. Calibrated umami F1 is
+  0.731 — decent but the weakest of the GPCR-mediated tastes.
+  `umamiinfo.com/umamidb/` has the right data structure (Free
+  amino acid + Nucleic acid + Food group per compound) but is
+  JS-rendered, not statically scrapable.
+  Workstream sketch (~1.5-2 days end-to-end):
+  1. **Phase A** — browser DevTools inspection of umamiinfo.com to
+     find the actual JSON endpoint backing the search UI (~30 min).
+  2. **Phase B** — node/python scraper that fetches the JSON endpoint
+     and normalizes per-compound data with SMILES + amino acid
+     identity + food sources (~2 hrs).
+  3. **Phase C** — merge into `chemDataset/processed/`, add to
+     `flavor-gnn` training data, retrain M3 multi-task with the
+     enlarged umami corpus (~1 day).
+  4. **Phase D** — recompute `gnn_entropy.json` +
+     `flavor_positions.json` + redeploy (~30 min).
+  - Alternative: contact `bagler+cosylab@iiitd.ac.in` for their
+    UmamiDB (CoSyLab/IIIT-Delhi) which may have similar data and
+    explicit download terms. Email pending.
+  - Don't bundle with C₁′ ship — the prototype is the philosophy
+    bet (position = flavor, edges = pairing). Umami coverage is
+    a quality lift that lands later.
+
+- **Compound-food flavor predictor** — already in-progress at
+  `src/data/compoundFoods.js` (per chemDataset-status). The C₁′
+  prototype confirms this is the bigger gap: mayonnaise, soy sauce,
+  miso, oyster sauce, BBQ sauce — all sit at random in flavor space
+  because the GNN never trained on compound foods (they're recipes,
+  not molecules). Once `compoundFoods.js` ships, the synthesized
+  profiles will give those 300-500 compound foods real flavor
+  vectors, closing a big chunk of the 1,123-ingredient hub gap.
+  No new work needed here — just complete the in-flight item.
+
+- **TGSC odor taxonomy adoption** — the Good Scents Company has
+  the gold-standard odor descriptor taxonomy (dozens of descriptors
+  vs our 6 GNN axes). Adopting it would give us richer cluster
+  *labels* but only after the GNN can predict at that granularity.
+  Bottleneck is model+training data, not vocabulary. Skip until the
+  underlying ML model is expanded.
+
+- **Adopt hierarchical flavor-wheel taxonomy (Level 2/3 descriptors)**
+  — industry flavor wheels (SCAA coffee wheel is the gold standard,
+  similar wheels for wine, honey, beer, chocolate) are hierarchical:
+  Level 1 = 8-9 broad categories (Fruity / Floral / Sour-Fermented /
+  Green-Vegetative / Roasted / Spices / Nutty-Cocoa / Sweet), Level
+  2 = ~20 subcategories (Fruity → Berry, Citrus, Stone Fruit), Level
+  3 = ~100 specific descriptors (Berry → Raspberry, Blackberry, etc.).
+  Our 6 GNN aroma axes (`fruity, floral, green, woody, spicy, fatty`)
+  are essentially Level 1 — that's why current flavor3D labels read
+  "Sour Fruity" / "Bitter Peanut" / "Pungent Spicy Aromatic" at the
+  right altitude. To go deeper:
+  1. Retrain GNN on Level-2 descriptors using FlavorDB / FlavorNet
+     compound-level data already in chemDataset/processed/.
+  2. Build a hand-curated Level-1 → Level-2 mapping for clusters that
+     are clearly anchored on a specific Level-2 (e.g. our citrus
+     cluster surfaces "Bright Citrus" via fruity-axis + citrus
+     category, but with Level-2 we could split it into "Sweet Citrus"
+     vs "Sour Citrus" vs "Bitter Citrus" pockets).
+  3. Eventually adopt TGSC-style Level-3 vocabulary once the model
+     can predict that granularly.
+  Same shape of work as the umami workstream — different signal
+  source. Bottlenecked on training-data label granularity, not on
+  vocabulary curation. Pursue after flavor3D ships and we know what
+  level of label depth users actually want.

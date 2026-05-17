@@ -1868548,6 +1868548,3009 @@
       "novelty": 1,
       "modelStrength": null,
       "source": "manual-bootstrap"
+    },
+    "ackee|breadfruit": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|callaloo": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|thyme": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|garlic": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|onion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|scallion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|tomato": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|black pepper": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|butter": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|salt": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|cilantro": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|lime": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|coconut milk": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|allspice": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|bay leaf": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|oxtail": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|goat": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|chicken": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|pork": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|kidney bean": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|rice": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|okra": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|yellow pepper": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|green pepper": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|cod": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|codfish": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ackee|pumpkin": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|coconut milk": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|garlic": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|onion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|thyme": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|okra": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|salt": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|scallion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|crab": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|callaloo": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|chayote": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "butter|callaloo": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|cilantro": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "allspice|callaloo": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "bay leaf|callaloo": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black pepper|callaloo": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|lime": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|pork": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|chicken": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|kidney bean": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|pigeon pea": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|rice": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|green plantain": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|tomato": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|cod": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "callaloo|shrimp": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|coconut milk": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|garlic": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|onion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|butter": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|salt": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|chicken": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|pork": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|thyme": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|scallion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "allspice|breadfruit": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|lime": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "bay leaf|breadfruit": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black pepper|breadfruit": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|cod": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|tomato": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|rice": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|kidney bean": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|pigeon pea": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|green plantain": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|okra": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|pumpkin": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|oxtail": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "breadfruit|goat": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|garlic": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "butter|cassava": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|salt": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|pork": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "beef|cassava": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|lime": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|scallion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|thyme": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|cilantro": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "allspice|cassava": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|onion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|tomato": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|kidney bean": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|pigeon pea": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|okra": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|green plantain": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black pepper|cassava": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "bay leaf|cassava": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "annatto|cassava": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|sofrito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|rice": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|goat": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|oxtail": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cassava|chicken": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cream cheese|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|lime": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|sugar": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|rum": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cinnamon|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ginger|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|vanilla": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "almond|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|walnut": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "butter|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|lemon juice": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|lemon": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|puff pastry": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|pastry": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|white wine": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|honey": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "egg|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|milk": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "flour|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|salt": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|orange juice": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|orange": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "coconut milk|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "coconut|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "guava paste|powdered sugar": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "brown sugar|guava paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "scotch bonnet|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "garlic|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "brown sugar|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "scallion|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "rum|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "onion|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "tamarind paste|thyme": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "allspice|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "salt|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black pepper|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chicken|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "fish|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|sofrito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "annatto|green plantain": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "garlic|green plantain": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|onion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|scallion": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|salt": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black pepper|green plantain": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|kidney bean": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|pigeon pea": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|rice": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "coconut milk|green plantain": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|okra": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chicken|green plantain": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|pork": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|oxtail": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "goat|green plantain": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "green plantain|olive oil": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "egg|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "mayonnaise|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|pork": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chicken|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|shrimp": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "fish|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "butter|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "garlic|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|parmesan": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|vegetable oil": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "olive oil|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|parsley": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|salt": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black pepper|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "flour|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "milk|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|soy sauce": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "mirin|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "dashi|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|sesame oil": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|scallion": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "ginger|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|sake": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "miso|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|rice": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|rice vinegar": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|sushi rice": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "nori|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|wasabi": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|tonkatsu sauce": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cabbage|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cod|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "panko|shaoxing wine": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "oyster sauce|panko": {
+      "evidence": [
+        {
+          "cuisine": "Japan",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Japan",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "garlic|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "onion|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "scallion|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "brown sugar|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chicken|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "pork|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "fish|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "scotch bonnet|tomato": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "scotch bonnet|vegetable oil": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "salt|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black pepper|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "oregano|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "papaya|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "scotch bonnet|sofrito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "parsley|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "kidney bean|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "pigeon pea|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "goat|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "oxtail|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "pumpkin|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "rum|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "annatto|scotch bonnet": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "garlic|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "sriracha|sugar": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chili|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "lemongrass|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "sriracha|thai basil": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "mayonnaise|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "scallion|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "noodle|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chicken|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "pork|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "egg|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "gochujang|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "sriracha|tamarind paste": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "brown sugar|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "red chili|sriracha": {
+      "evidence": [
+        {
+          "cuisine": "Thailand",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Thailand",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
     }
   },
   "_meta": {
