@@ -447,6 +447,24 @@ export default function useProData({ enabled = true } = {}) {
         }
         const affinityThresholds = computeAffinityThresholds(graph.edges);
 
+        // Cuisine-anchored pairings (Stage 1 artifact from
+        // proDataset/scripts/14-build-cuisine-pairings.js). Optional —
+        // affinity tier promotion + cuisine chip rely on it but fall
+        // back to the chemistry-only ranking when absent.
+        let cuisinePairings = null;
+        const cuisinePairLookup = new Map();   // pairKey → record
+        try {
+          const cpRes = await fetch('/proDataset/cuisine_pairings.json');
+          if (cpRes.ok) {
+            cuisinePairings = await cpRes.json();
+            if (cuisinePairings?.pairs) {
+              for (const [k, v] of Object.entries(cuisinePairings.pairs)) {
+                cuisinePairLookup.set(k, v);
+              }
+            }
+          }
+        } catch { /* optional */ }
+
         setData({
           graph,
           positions,
@@ -465,6 +483,8 @@ export default function useProData({ enabled = true } = {}) {
           top5,
           bridgeCompoundIndex,
           affinityThresholds,
+          cuisinePairings,
+          cuisinePairLookup,
           // Phase-2 categorical wheel inputs — LivingArchView consumes
           // these to bucket nodes for the Aromas / Cuisine / Season /
           // Family modes.

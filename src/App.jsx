@@ -1352,6 +1352,7 @@ export default function App() {
           odorThresholds={data?.odorThresholds}
           ingredientThresholds={data?.ingredientThresholds}
           compoundTastes={data?.compoundTastes}
+          cuisinePairLookup={data?.cuisinePairLookup}
         />
       )}
 
@@ -2037,6 +2038,8 @@ export default function App() {
           onTogglePairing={userProfile.togglePairing}
           hasPairing={userProfile.hasPairing}
               graphNodes={data?.graph?.nodes}
+              cuisinePairLookup={data?.cuisinePairLookup}
+              bridgeCompounds={data?.bridgeCompounds}
               embedded
             />
           )}

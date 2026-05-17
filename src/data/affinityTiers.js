@@ -349,10 +349,65 @@ export function surprisingAffinities(focal, ctx, opts = {}) {
     }
   }
 
+  // Pass 4: cuisine-anchored pairings (Stage 4 ingestion). Pulls in
+  // pairs from cuisine_pairings.json where the focal appears and the
+  // cuisine signal is dominant (primary >= 1.5× secondary recipePct).
+  // These are real chef-validated combos the chemistry model missed —
+  // they belong in "Surprising" because the model under-weighted them
+  // even though a specific tradition uses them routinely.
+  const cuiLookup = ctx?.cuisinePairLookup;
+  if (cuiLookup) {
+    // Match keys of the form "focal|other" or "other|focal". The
+    // lookup keys are already canonical-sorted-lowercase so we test
+    // both shapes by iterating the focal's two-prefix slice. Without
+    // a secondary index, iterate the entire map once — it's ~120k
+    // entries, fine for a one-shot lookup.
+    const focalLower = String(focal).toLowerCase();
+    for (const [key, rec] of cuiLookup.entries()) {
+      const sep = key.indexOf('|');
+      if (sep < 0) continue;
+      const a = key.slice(0, sep);
+      const b = key.slice(sep + 1);
+      const other = a === focalLower ? b : (b === focalLower ? a : null);
+      if (!other || seen.has(other) || other === focal) continue;
+      const ev = rec?.evidence;
+      if (!Array.isArray(ev) || ev.length === 0) continue;
+      const primary = ev[0];
+      if (primary.count < 5) continue;
+      // Same dominance test as displayableCuisine — keep the boost
+      // for clearly-attributable pairs.
+      if (ev.length > 1 && primary.recipePct < 1.5 * ev[1].recipePct) continue;
+      // Skip if already in candidates from earlier passes.
+      seen.add(other);
+      const oc = otherCluster(other);
+      const crossCluster =
+        focalCluster !== undefined && oc !== undefined && focalCluster !== oc;
+      const strength =
+        (ps && (ps.get(`${focal}|${other}`) ?? ps.get(`${other}|${focal}`))) ?? 0;
+      candidates.push({
+        name: other,
+        tier: null,
+        strength,
+        bridge: null,
+        bridgeDF: 0,            // cuisine-anchored: top-rank slot
+        crossCluster,
+        source: 'cuisine',
+        cuisineAnchor: {
+          primary: primary.cuisine,
+          primaryCount: primary.count,
+          primaryPct: primary.recipePct,
+          secondary: ev.slice(1).map((e) => e.cuisine),
+          totalEvidence: ev.reduce((s, e) => s + e.count, 0),
+        },
+        ringIdx: 0,
+      });
+    }
+  }
+
   // Final ranking: cross-cluster first (different flavor neighbor-
   // hoods = genuinely surprising), then by inverse-DF (rarer
-  // bridge = higher rank). Strict-pass entries don't get an
-  // automatic prefix — quality wins.
+  // bridge = higher rank). Cuisine-anchored entries land at DF=0 so
+  // they outrank GNN-bridge candidates of equal cluster-distance.
   candidates.sort((a, b) => {
     if (a.crossCluster !== b.crossCluster) return a.crossCluster ? -1 : 1;
     return a.bridgeDF - b.bridgeDF;
@@ -364,5 +419,7 @@ export function surprisingAffinities(focal, ctx, opts = {}) {
     strength: c.strength,
     bridge: c.bridge,
     ringIdx: c.ringIdx,
+    cuisineAnchor: c.cuisineAnchor || null,
+    source: c.source,
   }));
 }
