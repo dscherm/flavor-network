@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Fuse from 'fuse.js';
-import { getNeighbors } from '../data/graph.js';
 import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import { getCocktailRoles, getSauceRoles } from '../data/ingredientRoles.js';
 import RecipeFlavorWheel from './RecipeFlavorWheel.jsx';
@@ -414,6 +413,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             recipeIngredients={recipeIngredients.filter((n) => n !== focusedIngredient)}
             nodes={fullData?.graph?.nodes}
             edges={fullData?.graph?.edges}
+            cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
             scopeFilter={
               labMode === 'cocktail' ? cocktailScope :
               labMode === 'sauce' ? sauceScope :
@@ -434,6 +434,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             recipeIngredients={recipeIngredients}
             nodes={fullData?.graph?.nodes}
             edges={fullData?.graph?.edges}
+            cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
             scopeFilter={
               labMode === 'cocktail' ? cocktailScope :
               labMode === 'sauce' ? sauceScope :
@@ -469,6 +470,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           centerIngredient={centerIngredient}
           nodes={fullData?.graph?.nodes}
           edges={fullData?.graph?.edges}
+          cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
           onRemove={handleRemoveIngredient}
           onRecenter={handleRecenter}
           onFocusIngredient={(name) => {

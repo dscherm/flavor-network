@@ -41,6 +41,10 @@ export const SHAPE_KEYS = Object.freeze([
   // spine, like an open book. Used by RecipesLab so each recipe
   // node reads as a cookbook entry instead of a sphere.
   'cookbook',
+  // 'pennant' — small triangular flag on a thin stick. Used by
+  // AffinityMode to mark cuisine-anchored neighbors. Cuisine =
+  // origin/identity, so a flag is the right semantic.
+  'pennant',
 ]);
 
 export function buildShapeGeometries() {
@@ -90,6 +94,20 @@ export function buildShapeGeometries() {
   cookbookGeo.computeBoundingSphere();
   pageA.dispose(); pageB.dispose(); spine.dispose();
 
+  // Pennant — thin square pole + rectangular flag attached at the top
+  // pointing in +X. Used by AffinityMode to mark cuisine-anchored
+  // neighbors (the flag's color carries the cuisine identity).
+  // Stick height 1.5, flag 0.55 × 0.4. After merge + 1.1× scale the
+  // bounding-sphere radius lands near 1, matching the kit convention.
+  const stickH = 1.5;
+  const stick = new THREE.BoxGeometry(0.06, stickH, 0.06);
+  const flag = new THREE.BoxGeometry(0.55, 0.4, 0.02);
+  flag.translate(0.31, stickH / 2 - 0.25, 0);
+  const pennantGeo = mergeGeometries([stick, flag], false);
+  pennantGeo.scale(1.1, 1.1, 1.1);
+  pennantGeo.computeBoundingSphere();
+  stick.dispose(); flag.dispose();
+
   return {
     sphere: new THREE.SphereGeometry(1, SEG, SEG),
     // Cube edge length 1.27 → bounding-sphere radius √3/2 · 1.27 ≈ 1.10.
@@ -114,6 +132,8 @@ export function buildShapeGeometries() {
     star: starGeo,
     // Open-cookbook — used by RecipesLab.
     cookbook: cookbookGeo,
+    // Pennant flag — AffinityMode cuisine-anchor marker.
+    pennant: pennantGeo,
   };
 }
 
@@ -153,6 +173,7 @@ export function buildShapeEdgeGeometries(baseGeos) {
     bipyramid: 1,     // 8 hard ridges — render every edge
     star: 1,          // 10 outer + 10 inner edges — read as a star outline
     cookbook: 1,      // hard page + spine edges — render every edge
+    pennant: 1,       // hard stick + flag edges — render every edge
   };
   const result = {};
   for (const [k, g] of Object.entries(baseGeos)) {

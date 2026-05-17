@@ -116,3 +116,50 @@ export function cuisineColor(cuisine) {
   if (bucket && BUCKET_COLOR[bucket]) return BUCKET_COLOR[bucket];
   return '#94a3b8';
 }
+
+/**
+ * Build a per-ingredient inverted index of cuisine-anchored neighbors.
+ * Single-source-of-truth helper: every downstream consumer that wants
+ * cuisine pairs alongside chemistry pairs goes through this index
+ * (via `getNeighborsEnriched` in graph.js) rather than scanning the
+ * raw lookup themselves.
+ *
+ * Only pairs that pass the `displayableCuisine` dominance gate are
+ * included — multi-cuisine pairs would over-claim a single origin.
+ *
+ * @param {Map<string, object>} cuisinePairLookup   pairKey → record
+ * @param {Iterable<string>} knownIngredients       set of ingredients
+ *   present in the chemistry graph (used to filter out cuisine pairs
+ *   that reference an ingredient we don't render)
+ * @returns {Map<string, Array<{name: string, cuisineStrength: number,
+ *   cuisineAnchor: {cuisine: string, record: object}}>>}
+ */
+export function buildCuisineNeighborIndex(cuisinePairLookup, knownIngredients) {
+  const index = new Map();
+  if (!cuisinePairLookup || cuisinePairLookup.size === 0) return index;
+  const known = knownIngredients instanceof Set
+    ? knownIngredients
+    : new Set(knownIngredients);
+
+  for (const [key, record] of cuisinePairLookup) {
+    const cui = displayableCuisine(record);
+    if (!cui) continue;
+    const sep = key.indexOf('|');
+    if (sep < 0) continue;
+    const a = key.slice(0, sep);
+    const b = key.slice(sep + 1);
+    if (!known.has(a) || !known.has(b)) continue;
+    const strength = cuisineBoost(record);
+    if (strength <= 0) continue;
+    const anchor = { cuisine: cui, record };
+    if (!index.has(a)) index.set(a, []);
+    if (!index.has(b)) index.set(b, []);
+    index.get(a).push({ name: b, cuisineStrength: strength, cuisineAnchor: anchor });
+    index.get(b).push({ name: a, cuisineStrength: strength, cuisineAnchor: anchor });
+  }
+
+  for (const list of index.values()) {
+    list.sort((x, y) => y.cuisineStrength - x.cuisineStrength);
+  }
+  return index;
+}

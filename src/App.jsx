@@ -28,7 +28,7 @@ import {
 import SearchBar from './components/SearchBar.jsx';
 import IngredientPanel from './components/IngredientPanel.jsx';
 import Controls from './components/Controls.jsx';
-import { getNeighbors, findStrongestPath } from './data/graph.js';
+import { getNeighbors, getNeighborsEnriched, findStrongestPath } from './data/graph.js';
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
 import Walkthrough from './components/Walkthrough.jsx';
 import HelpButton from './components/HelpButton.jsx';
@@ -717,13 +717,13 @@ export default function App() {
 
   const neighbors = useMemo(() => {
     if (!data || !selectedNode) return [];
-    return getNeighbors(selectedNode, data.graph.edges);
+    return getNeighborsEnriched(selectedNode, data.graph.edges, data.cuisineNeighborIndex);
   }, [data, selectedNode]);
 
   const commonPairings = useMemo(() => {
     if (!data || selectedNodes.length < 2) return [];
     const pairingsByNode = selectedNodes.map((name) => {
-      const nbrs = getNeighbors(name, data.graph.edges);
+      const nbrs = getNeighborsEnriched(name, data.graph.edges, data.cuisineNeighborIndex);
       return new Map(nbrs.map((n) => [n.name, n.strength]));
     });
     const allNames = new Set();
@@ -887,7 +887,7 @@ export default function App() {
           if (next) next = { name: next.name };
         }
         if (!next) {
-          const nbrs = getNeighbors(current, data.graph.edges);
+          const nbrs = getNeighborsEnriched(current, data.graph.edges, data.cuisineNeighborIndex);
           if (nbrs.length === 0) return;
           next = nbrs.find((n) => !recent.has(n.name)) || nbrs[0];
         }

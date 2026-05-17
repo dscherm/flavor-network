@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
-import { getNeighbors } from '../data/graph.js';
+import { getNeighborsEnriched } from '../data/graph.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { findWeakestAxis, aggregateRecipeTastes } from '../data/tasteScoring.js';
 import { analyzeRecipe } from '../data/recipeAnalysis.js';
@@ -186,6 +186,7 @@ export default function SuggestionDrawer({
   recipeIngredients = [],
   nodes,
   edges,
+  cuisineNeighborIndex = null,
   onAddIngredient,
   onSwapIngredient = null,
   activeTab = 'all',
@@ -323,7 +324,7 @@ export default function SuggestionDrawer({
       ? recipeIngredients
       : (seed ? [seed] : []);
     for (const s of seeds) {
-      for (const n of getNeighbors(s, edges)) {
+      for (const n of getNeighborsEnriched(s, edges, cuisineNeighborIndex)) {
         const prev = seen.get(n.name);
         if (!prev || n.strength > prev.strength) seen.set(n.name, n);
       }
@@ -354,7 +355,7 @@ export default function SuggestionDrawer({
         let total = 0, count = 0;
         for (const ri of recipeIngredients) {
           if (ri === name) continue;
-          const riNeighbors = getNeighbors(ri, edges);
+          const riNeighbors = getNeighborsEnriched(ri, edges, cuisineNeighborIndex);
           const found = riNeighbors.find(n => n.name === name);
           if (found) { total += found.strength; count++; }
         }
@@ -431,7 +432,7 @@ export default function SuggestionDrawer({
   // "Give me a suggestion" handler
   const handleSuggest = useCallback(() => {
     if (!nodes || !edges || recipeIngredients.length < 2) return;
-    const analysis = analyzeRecipe(recipeIngredients, nodes, edges, labMode, selectedStructure);
+    const analysis = analyzeRecipe(recipeIngredients, nodes, edges, labMode, selectedStructure, cuisineNeighborIndex);
     if (!analysis?.suggestions?.add?.length) {
       setSuggestion({ name: null, reason: 'No suggestions available — try adding more ingredients.' });
       return;
@@ -579,21 +580,21 @@ export default function SuggestionDrawer({
     function lookupNeighbors(ing) {
       const ingLc = ing.toLowerCase();
       // 1. Literal hit
-      let neighbors = getNeighbors(ing, edges);
+      let neighbors = getNeighborsEnriched(ing, edges, cuisineNeighborIndex);
       if (neighbors.length > 0) return neighbors;
       // 2. Alias table — covers brand-name spirits and non-indexed terms
       if (ALIASES.has(ingLc)) {
-        neighbors = getNeighbors(ALIASES.get(ingLc), edges);
+        neighbors = getNeighborsEnriched(ALIASES.get(ingLc), edges, cuisineNeighborIndex);
         if (neighbors.length > 0) return neighbors;
       }
       // 3. Strip leading qualifier(s): "fresh lemon juice" → "lemon juice"
       let stripped = ing;
       while (QUALIFIER_RE.test(stripped)) {
         stripped = stripped.replace(QUALIFIER_RE, '');
-        neighbors = getNeighbors(stripped, edges);
+        neighbors = getNeighborsEnriched(stripped, edges, cuisineNeighborIndex);
         if (neighbors.length > 0) return neighbors;
         if (ALIASES.has(stripped.toLowerCase())) {
-          neighbors = getNeighbors(ALIASES.get(stripped.toLowerCase()), edges);
+          neighbors = getNeighborsEnriched(ALIASES.get(stripped.toLowerCase()), edges, cuisineNeighborIndex);
           if (neighbors.length > 0) return neighbors;
         }
       }
@@ -602,7 +603,7 @@ export default function SuggestionDrawer({
       let tokens = stripped.split(/\s+/).filter(Boolean);
       while (tokens.length > 1 && TRAILING_TOKENS.has(tokens[tokens.length - 1].toLowerCase())) {
         tokens.pop();
-        neighbors = getNeighbors(tokens.join(' '), edges);
+        neighbors = getNeighborsEnriched(tokens.join(' '), edges, cuisineNeighborIndex);
         if (neighbors.length > 0) return neighbors;
       }
       // 5. Last-ditch head-noun fallback (drop leading words):
@@ -611,10 +612,10 @@ export default function SuggestionDrawer({
       while (tokens.length > 1) {
         tokens.shift();
         const candidate = tokens.join(' ');
-        neighbors = getNeighbors(candidate, edges);
+        neighbors = getNeighborsEnriched(candidate, edges, cuisineNeighborIndex);
         if (neighbors.length > 0) return neighbors;
         if (ALIASES.has(candidate.toLowerCase())) {
-          neighbors = getNeighbors(ALIASES.get(candidate.toLowerCase()), edges);
+          neighbors = getNeighborsEnriched(ALIASES.get(candidate.toLowerCase()), edges, cuisineNeighborIndex);
           if (neighbors.length > 0) return neighbors;
         }
       }
