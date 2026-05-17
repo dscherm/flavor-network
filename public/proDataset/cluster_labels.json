@@ -1,62 +1,128 @@
 {
-  "k": 10,
+  "k": 11,
   "clusters": [
     {
       "id": 0,
-      "label": "Sweet Nuts & Cream",
-      "size": 273,
+      "label": "Lemon & Thyme",
+      "size": 493,
       "centroid_3d": [
-        -30.66,
-        10.93,
-        -1.93
+        14.58,
+        3.29,
+        5.75
       ],
       "centroid_2d": [
-        -37.03,
-        7.47
+        18.91,
+        -0.56
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
-        "cream cheese",
-        "pecan",
-        "nut",
-        "pineapple",
-        "banana"
+        "lemon",
+        "thyme",
+        "white wine",
+        "shallot",
+        "extra-virgin olive oil"
       ]
     },
     {
       "id": 1,
-      "label": "Pantry Staples",
-      "size": 853,
+      "label": "Indian & Mexican",
+      "size": 365,
       "centroid_3d": [
-        17.55,
-        6.35,
-        7.05
+        23.71,
+        -7.37,
+        10.77
       ],
       "centroid_2d": [
-        13.09,
-        16.67
+        16.9,
+        -23.85
+      ],
+      "dominant_taste": "pungent",
+      "top_ingredients": [
+        "sweet pepper",
+        "rice",
+        "cumin",
+        "cilantro",
+        "paprika"
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Sugar & Butter",
+      "size": 644,
+      "centroid_3d": [
+        17.39,
+        4.0,
+        -2.31
+      ],
+      "centroid_2d": [
+        12.23,
+        8.59
       ],
       "dominant_taste": "pungent",
       "top_ingredients": [
         "sugar",
         "butter",
         "milk",
-        "tomato",
-        "brown sugar"
+        "brown sugar",
+        "lemon juice"
       ]
     },
     {
-      "id": 2,
-      "label": "Mediterranean Herbs",
-      "size": 378,
+      "id": 3,
+      "label": "Baking Soda & Honey",
+      "size": 198,
       "centroid_3d": [
-        15.04,
-        13.41,
-        -6.64
+        -20.43,
+        -13.14,
+        -11.84
       ],
       "centroid_2d": [
-        18.41,
-        11.72
+        -20.46,
+        -15.86
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "baking soda",
+        "honey",
+        "oat",
+        "maple syrup",
+        "wheat flour"
+      ]
+    },
+    {
+      "id": 4,
+      "label": "American",
+      "size": 376,
+      "centroid_3d": [
+        -39.36,
+        -8.58,
+        -4.4
+      ],
+      "centroid_2d": [
+        -41.82,
+        -2.25
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "vanilla",
+        "cream cheese",
+        "chocolate",
+        "powdered sugar",
+        "cocoa"
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Italian & Greek",
+      "size": 389,
+      "centroid_3d": [
+        13.23,
+        17.62,
+        4.86
+      ],
+      "centroid_2d": [
+        18.53,
+        12.29
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
@@ -68,149 +134,105 @@
       ]
     },
     {
-      "id": 3,
-      "label": "Citrus & Spice",
-      "size": 328,
+      "id": 6,
+      "label": "Liquid",
+      "size": 211,
       "centroid_3d": [
-        10.09,
-        -15.31,
-        -10.13
+        -36.67,
+        -5.59,
+        5.02
       ],
       "centroid_2d": [
-        17.01,
-        -19.57
-      ],
-      "dominant_taste": "pungent",
-      "top_ingredients": [
-        "cumin",
-        "cilantro",
-        "lime juice",
-        "lime",
-        "coriander"
-      ]
-    },
-    {
-      "id": 4,
-      "label": "Soy & Ginger",
-      "size": 314,
-      "centroid_3d": [
-        10.53,
-        -25.75,
-        1.73
-      ],
-      "centroid_2d": [
-        18.22,
-        -34.23
-      ],
-      "dominant_taste": "sweet",
-      "top_ingredients": [
-        "ginger",
-        "soy sauce",
-        "cornstarch",
-        "sesame oil",
-        "sesame"
-      ]
-    },
-    {
-      "id": 5,
-      "label": "Citrus & Mint",
-      "size": 198,
-      "centroid_3d": [
-        -29.35,
-        -0.96,
-        -13.71
-      ],
-      "centroid_2d": [
-        -26.8,
-        -11
+        -25.81,
+        -11.13
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
         "orange juice",
         "orange",
-        "mint",
         "pineapple juice",
-        "rum"
-      ]
-    },
-    {
-      "id": 6,
-      "label": "Olive & Wine Herbs",
-      "size": 531,
-      "centroid_3d": [
-        17.76,
-        -3.76,
-        -8.26
-      ],
-      "centroid_2d": [
-        18.07,
-        -0.05
-      ],
-      "dominant_taste": "sweet",
-      "top_ingredients": [
-        "olive oil",
-        "parsley",
-        "thyme",
-        "bay leaf",
-        "white wine"
+        "rum",
+        "syrup"
       ]
     },
     {
       "id": 7,
-      "label": "Grains & Sweet",
-      "size": 174,
+      "label": "Pecan & Nut",
+      "size": 300,
       "centroid_3d": [
-        -20.33,
-        -6.96,
-        15.32
+        -40.86,
+        2.06,
+        -3.68
       ],
       "centroid_2d": [
-        -19.87,
-        -17.24
+        -35.57,
+        7.24
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
-        "oat",
-        "maple syrup",
-        "wheat flour",
-        "date",
-        "rolled oat"
+        "pecan",
+        "nut",
+        "pineapple",
+        "walnut",
+        "banana"
       ]
     },
     {
       "id": 8,
-      "label": "Baking & Vanilla",
-      "size": 334,
+      "label": "Chinese",
+      "size": 339,
       "centroid_3d": [
-        -33.93,
-        5.44,
-        9.34
+        22.91,
+        -24.36,
+        3.94
       ],
       "centroid_2d": [
-        -41.62,
-        -2.34
+        18.35,
+        -33.03
       ],
-      "dominant_taste": "sweet",
+      "dominant_taste": "pungent",
       "top_ingredients": [
-        "vanilla",
-        "baking soda",
-        "cream",
-        "chocolate",
-        "powdered sugar"
+        "scallion",
+        "ginger",
+        "soy sauce",
+        "cabbage",
+        "sesame oil"
       ]
     },
     {
       "id": 9,
-      "label": "Savory Aromatics",
-      "size": 530,
+      "label": "Celery & Sour Cream",
+      "size": 420,
       "centroid_3d": [
-        -13.44,
-        1.46,
-        1.9
+        19.14,
+        15.25,
+        -5.9
       ],
       "centroid_2d": [
-        -11.78,
-        4.65
+        14.05,
+        21.65
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "celery",
+        "sour cream",
+        "cheddar",
+        "mayonnaise",
+        "beef"
+      ]
+    },
+    {
+      "id": 10,
+      "label": "Egg & Onion",
+      "size": 531,
+      "centroid_3d": [
+        -15.19,
+        -0.44,
+        -2.41
+      ],
+      "centroid_2d": [
+        -9.06,
+        5.75
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
@@ -218,7 +240,7 @@
         "onion",
         "flour",
         "garlic",
-        "cinnamon"
+        "olive oil"
       ]
     }
   ]

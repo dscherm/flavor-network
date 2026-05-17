@@ -1868080,6 +1868080,474 @@
       "novelty": 1,
       "modelStrength": null,
       "source": "manual-bootstrap"
+    },
+    "doenjang|napa cabbage": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chicken stock|doenjang": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "beef stock|doenjang": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|white pepper": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cabbage|doenjang": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|oyster sauce": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "black bean sauce|doenjang": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|mung bean": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|sweet potato": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|rice cake": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|rice noodle": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|sesame": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|spinach": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|egg": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|enoki mushroom": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "doenjang|pork belly": {
+      "evidence": [
+        {
+          "cuisine": "Korea",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Korea",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|poblano pepper": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|serrano pepper": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|sour cream": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|salsa": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|lime": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|sazon": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|red pepper": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chili paste|crema mexicana": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "crema mexicana|green pepper": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|serrano pepper": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|sour cream": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cilantro|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|lime": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "huitlacoche|sazon": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "chili paste|huitlacoche": {
+      "evidence": [
+        {
+          "cuisine": "Mexico",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Mexico",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "lime|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "coconut|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "allspice|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "cumin|recaito": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
+    },
+    "recaito|sazon": {
+      "evidence": [
+        {
+          "cuisine": "Caribbean",
+          "count": 25,
+          "recipePct": 0.1
+        }
+      ],
+      "primary": "Caribbean",
+      "novelty": 1,
+      "modelStrength": null,
+      "source": "manual-bootstrap"
     }
   },
   "_meta": {
