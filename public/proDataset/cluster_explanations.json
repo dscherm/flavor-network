@@ -4,7 +4,9 @@
     "n_ingredients": 3913,
     "regeneratedAt": "2026-05-07T00:12:28.613Z",
     "script": "scripts/regen-cluster-explanations.cjs",
-    "note": "Labels taken from cluster_labels.json so the IngredientPanel agrees with the 3D scene. Explanations rewritten as flat multi-cuisine statements."
+    "note": "Labels taken from cluster_labels.json so the IngredientPanel agrees with the 3D scene. Explanations rewritten as flat multi-cuisine statements.",
+    "heuristic_assignments_applied": "2026-05-17T15:48:37.433Z",
+    "heuristic_assignments_count": 368
   },
   "clusters": {
     "0": {
@@ -16230,6 +16232,2214 @@
     "yoghurt": {
       "cluster_id": 9,
       "cluster_label": "Savory Aromatics"
+    },
+    "semi-sweet chocolate chip": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.753
+    },
+    "corn bread": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.878
+    },
+    "nut meat": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "cornflake": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "vegetable cooking spray": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.502
+    },
+    "campbell's cream": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.697
+    },
+    "cornflake crumb": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.819
+    },
+    "corn meal": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.792
+    },
+    "flax seed": {
+      "cluster_id": 7,
+      "cluster_label": "Grains & Sweet",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.859
+    },
+    "lemon jell-o": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.682
+    },
+    "breadcrumb": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.554
+    },
+    "nonstick vegetable cooking spray": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.746
+    },
+    "strawberry jell-o": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.821
+    },
+    "italian breadcrumb": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.828
+    },
+    "crab meat": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.709
+    },
+    "lime jell-o": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.719
+    },
+    "cinnamon-sugar": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.589
+    },
+    "lemon lime soda": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.504
+    },
+    "cornflakes cereal": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.502
+    },
+    "bisquick baking mix": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.639
+    },
+    "italian style tomatoe": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.554
+    },
+    "whitefish": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.625
+    },
+    "orange jell-o": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.68
+    },
+    "corn bread stuffing": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.78
+    },
+    "double acting baking powder": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.603
+    },
+    "yellow corn meal": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.812
+    },
+    ".salt": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.576
+    },
+    "semi sweet chocolate chip": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.719
+    },
+    "bayleaf": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.572
+    },
+    "long grain white rice": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.515
+    },
+    "your favorite barbecue sauce": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.634
+    },
+    "chick pea": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.558
+    },
+    "chicken flavored ramen noodle": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.529
+    },
+    "italian-seasoned breadcrumb": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.505
+    },
+    "vanilla low-fat yogurt": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.565
+    },
+    "campbell's tomato soup": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.678
+    },
+    "white corn meal": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.652
+    },
+    "corn bread crumb": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.76
+    },
+    "bisquick original baking mix": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.808
+    },
+    "campbell's golden mushroom soup": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.637
+    },
+    "corn starch": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.759
+    },
+    "campbell's mushroom soup": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.624
+    },
+    "'s sauce": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.554
+    },
+    "cream style corn": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.68
+    },
+    "white crab meat": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.749
+    },
+    "campbell's condensed cream": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.608
+    },
+    "campbell's pork": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.709
+    },
+    "white bread crumb": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.564
+    },
+    "italian-seasoned bread crumb": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.643
+    },
+    "egg nog": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.539
+    },
+    "cherry jell-o": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.797
+    },
+    "baking spray": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.761
+    },
+    "extra-lean beef": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.757
+    },
+    "italian style bread crumb": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.706
+    },
+    "aluminum foil": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.503
+    },
+    "white shoe peg corn": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.801
+    },
+    "corn flour": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.633
+    },
+    "'s cheese": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.604
+    },
+    "italian seasoned breadcrumb": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.758
+    },
+    "cream of mushroom soup or cream of chicken soup": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.762
+    },
+    "lump crab meat": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.595
+    },
+    "campbell's beef": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.716
+    },
+    "campbell's cheddar cheese soup": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.599
+    },
+    "five spice powder": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.755
+    },
+    "corn bread stuffing mix": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.769
+    },
+    "corn-": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.623
+    },
+    "apple sauce": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.574
+    },
+    "backfin crab meat": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.754
+    },
+    "drizzle of olive oil": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.603
+    },
+    "chicken-flavor": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.816
+    },
+    "flour +": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.665
+    },
+    "red-wine vinegar": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.685
+    },
+    "short grain rice": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.696
+    },
+    "italian-style bread crumb": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.807
+    },
+    "campbell's beef broth": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.901
+    },
+    "four-cheese": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.516
+    },
+    "soy milk": {
+      "cluster_id": 7,
+      "cluster_label": "Grains & Sweet",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.741
+    },
+    "nonstick spray coating": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.552
+    },
+    "grape seed oil": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.573
+    },
+    "rubbing alcohol": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.523
+    },
+    "country style pork rib": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.65
+    },
+    "beef-flavor": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.569
+    },
+    "lemon grass": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.691
+    },
+    "black eyed pea": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.601
+    },
+    "butter +": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.567
+    },
+    "-wheat flour": {
+      "cluster_id": 7,
+      "cluster_label": "Grains & Sweet",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.67
+    },
+    "-grain mustard": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.729
+    },
+    "sugar +": {
+      "cluster_id": 7,
+      "cluster_label": "Grains & Sweet",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.602
+    },
+    "butter milk": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.504
+    },
+    "ginger snap": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.783
+    },
+    "short grain brown rice": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.803
+    },
+    "orange flavored liqueur": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.604
+    },
+    "pork spare rib": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.506
+    },
+    "wheat breadcrumb": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.575
+    },
+    "non-fat yogurt": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.506
+    },
+    "all spice": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.669
+    },
+    "-berry": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.602
+    },
+    "-kernel corn": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.61
+    },
+    "no salt": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.558
+    },
+    "bisquick baking": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.668
+    },
+    "grape nut": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.688
+    },
+    "pinenut": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.577
+    },
+    "cake pan": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.752
+    },
+    "stone mustard": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.626
+    },
+    "semi sweet chocolate": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.748
+    },
+    "vegetable spray": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.572
+    },
+    "'s sweet chocolate": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.569
+    },
+    "egg +": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.678
+    },
+    "lemon-flavored gelatin": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.698
+    },
+    "baking dish": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.633
+    },
+    "eggs +": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.629
+    },
+    "soy bean": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.61
+    },
+    "jumbo lump crab meat": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.781
+    },
+    "low fat milk": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.781
+    },
+    "non-fat milk": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.627
+    },
+    "chinese five spice": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.818
+    },
+    "chick-pea": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.545
+    },
+    "baking pan": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.553
+    },
+    "salt +": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.537
+    },
+    "foil": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.572
+    },
+    "cinnamon raisin bread": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.617
+    },
+    "kiwifruit": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.528
+    },
+    "'s sugar": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.86
+    },
+    "stone cornmeal": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.58
+    },
+    "poppyseed": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.624
+    },
+    "water +": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.574
+    },
+    "-squeezed lemon juice": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.722
+    },
+    "olive oil +": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.542
+    },
+    "orange-flower water": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.513
+    },
+    "vegetable-oil cooking spray": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.563
+    },
+    "white-wine vinegar": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.773
+    },
+    "non-fat vanilla yogurt": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.619
+    },
+    "long-grain brown rice": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.636
+    },
+    "beansprout": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.846
+    },
+    "freshly- black pepper": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.71
+    },
+    "ginger garlic": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.64
+    },
+    "coarse-grain mustard": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.501
+    },
+    "baking spray with": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.604
+    },
+    "piecrust": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.605
+    },
+    "vanilla fat-": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.61
+    },
+    "scallions including green top": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.626
+    },
+    "apple-cider vinegar": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.535
+    },
+    "chocolate-hazelnut spread": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.738
+    },
+    "vanilla low-fat": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.554
+    },
+    "vanilla low-": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.506
+    },
+    "no sugar": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.514
+    },
+    "milk +": {
+      "cluster_id": 7,
+      "cluster_label": "Grains & Sweet",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.513
+    },
+    "roasting pan": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.572
+    },
+    "red-pepper": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.649
+    },
+    "apple -": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.575
+    },
+    "philadelphia original cream cheese": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.646
+    },
+    "- black pepper": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.686
+    },
+    "'s milk": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.635
+    },
+    "'s white chocolate": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.732
+    },
+    "-milk yogurt": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.567
+    },
+    "-milk": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.554
+    },
+    "philadelphia light cream cheese": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.503
+    },
+    "-milk ricotta cheese": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.509
+    },
+    "- pepper": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.555
+    },
+    "vanilla soymilk": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.622
+    },
+    "full fat coconut milk": {
+      "cluster_id": 7,
+      "cluster_label": "Grains & Sweet",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.812
+    },
+    "pork loin chops with bone": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.603
+    },
+    "chili-garlic": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.791
+    },
+    "sweetcorn": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.562
+    },
+    "extra lean turkey": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.697
+    },
+    "semisweet chocolate morsel": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.721
+    },
+    "chocolate hazelnut": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.765
+    },
+    "boiling- water": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.552
+    },
+    "-squeezed orange juice": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.568
+    },
+    "passionfruit pulp": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.701
+    },
+    "philadelphia neufchatel cheese": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.666
+    },
+    "passionfruit": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.77
+    },
+    "-milk ricotta": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.629
+    },
+    "extravirgin olive oil": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.608
+    },
+    "grill pan": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.612
+    },
+    "vegetable or chicken": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.58
+    },
+    "low fat sour cream": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.558
+    },
+    "'s bittersweet chocolate": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.621
+    },
+    "tightly baby spinach leave": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.569
+    },
+    "polly-o original ricotta cheese": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.709
+    },
+    "extra virgin extra virgin olive oil": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.554
+    },
+    "freshly-grnd black pepper": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.512
+    },
+    "kraft lite raspberry vinaigrette dressing": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.757
+    },
+    "extra-virgin extra virgin olive oil": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.622
+    },
+    "kraft classic ranch dressing": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.642
+    },
+    "kraft classic caesar dressing": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.694
+    },
+    "kraft classic mayonnaise": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.528
+    },
+    "cider": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.727
+    },
+    "sherry": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.526
+    },
+    "black tea": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "green tea": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.714
+    },
+    "malt": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "kelp": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.778
+    },
+    "oyster": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "bonito": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "fish oil": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "jasmine": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.714
+    },
+    "red currant": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "papaya": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.538
+    },
+    "tangerine": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "truffle": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "chervil": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.679
+    },
+    "rhubarb": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.556
+    },
+    "meat": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "mutton": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "chicory": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "tea": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.714
+    },
+    "watercress": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.522
+    },
+    "anise": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.548
+    },
+    "caraway": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "cassia": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "mace": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.591
+    },
+    "endive": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.542
+    },
+    "okra": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.656
+    },
+    "horseradish": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.61
+    },
+    "radish": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.692
+    },
+    "wasabi": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "chayote": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "parsnip": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.563
+    },
+    "cassava": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "asafoetida": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.556
+    },
+    "chard": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.524
+    },
+    "pomegranate": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.636
+    },
+    "paneer": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.655
+    },
+    "sunflower": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "millet": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "purslane": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "dandelion": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "komatsuna": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "biscuit": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "sourdough": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "alfalfa": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "amaranth": {
+      "cluster_id": 7,
+      "cluster_label": "Grains & Sweet",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "bamboo shoot": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.72
+    },
+    "rapini": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "buffalo": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "cuttlefish": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "grouper": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "haddock": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.636
+    },
+    "snapper": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "walleye": {
+      "cluster_id": 7,
+      "cluster_label": "Grains & Sweet",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "yam": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.8
+    },
+    "jicama": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.524
+    },
+    "rabbit": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.769
+    },
+    "quail": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "wakame": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "epazote": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.611
+    },
+    "agave": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "persimmon": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "kombu": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "conch": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "toffee": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "pizza": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.552
+    },
+    "pastry": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.519
+    },
+    "pate": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.75
+    },
+    "marshmallow": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.591
+    },
+    "soup": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "remoulade": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "meringue": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "icing": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "taco": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "tortilla": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.719
+    },
+    "salad": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.534
+    },
+    "topping": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.506
+    },
+    "falafel": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "lasagna": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "pectin": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "meatloaf": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "cocktail": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "semolina": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "tostada": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "enchilada": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "relish": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.85
+    },
+    "phyllo dough": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "shortening": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.653
+    },
+    "ravioli": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "focaccia": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "wonton wrapper": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.833
+    },
+    "stuffing": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.775
+    },
+    "margarine": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.655
+    },
+    "mascarpone": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.55
+    },
+    "natural yoghurt": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.643
+    },
+    "egg plant": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.707
+    },
+    "stout": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.733
+    },
+    "goose fat": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "bouquet garni": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.692
+    },
+    "celeriac": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "kielbasa": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.606
+    },
+    "sultana": {
+      "cluster_id": 7,
+      "cluster_label": "Grains & Sweet",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "brie": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "prosciutto": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.727
+    },
+    "cajun": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "salsa": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.636
+    },
+    "fajita seasoning": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "cacao": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "rose water": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "custard": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.571
+    },
+    "green salsa": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "toor dal": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.571
+    },
+    "red snapper": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.652
+    },
+    "sumac": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.517
+    },
+    "fettuccine": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.529
+    },
+    "manchego": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.833
+    },
+    "ras el hanout": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.714
+    },
+    "biryani masala": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "doubanjiang": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.875
+    },
+    "farfalle": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.615
+    },
+    "mincemeat": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "veal": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.552
+    },
+    "oxtail": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "ciabatta": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "bouillon cube": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.636
+    },
+    "mackerel": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.714
+    },
+    "rigatoni": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.531
+    },
+    "caramel": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.679
+    },
+    "baby squid": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "penne rigate": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.556
+    },
+    "italian seasoning": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.523
+    },
+    "trout": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.611
+    },
+    "sweet sherry": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "seasoning": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.692
+    },
+    "sazon": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "galliano": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "southern comfort": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "sour mix": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "lager": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "sprite": {
+      "cluster_id": 5,
+      "cluster_label": "Citrus & Mint",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "olive brine": {
+      "cluster_id": 2,
+      "cluster_label": "Mediterranean Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "lavender": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "espresso": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.688
+    },
+    "jello": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.714
+    },
+    "kiwi": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "tia maria": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "frangelico": {
+      "cluster_id": 8,
+      "cluster_label": "Baking & Vanilla",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "up": {
+      "cluster_id": 0,
+      "cluster_label": "Sweet Nuts & Cream",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 1
+    },
+    "pernod": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.833
+    },
+    "ouzo": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.714
+    },
+    "berbere": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "harissa": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.577
+    },
+    "chaat masala": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "raita": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.615
+    },
+    "kasuri methi": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.714
+    },
+    "dashi": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.769
+    },
+    "bonito flakes": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.688
+    },
+    "nori": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.789
+    },
+    "shichimi togarashi": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.9
+    },
+    "panko": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "hand-override",
+      "cluster_confidence": 1
+    },
+    "udon noodles": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.636
+    },
+    "pomegranate molasses": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.692
+    },
+    "rosewater": {
+      "cluster_id": 9,
+      "cluster_label": "Savory Aromatics",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "za'atar": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "queso fresco": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.621
+    },
+    "masa harina": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.65
+    },
+    "crema mexicana": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "hominy": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "huitlacoche": {
+      "cluster_id": 3,
+      "cluster_label": "Citrus & Spice",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.556
+    },
+    "cotija": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.556
+    },
+    "candlenuts": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "ketjap manis": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.692
+    },
+    "sambal": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.72
+    },
+    "green plantain": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.545
+    },
+    "sofrito": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.636
+    },
+    "recaito": {
+      "cluster_id": 1,
+      "cluster_label": "Pantry Staples",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.667
+    },
+    "doenjang": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.714
+    },
+    "piquillo peppers": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.6
+    },
+    "bomba rice": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.5
+    },
+    "spanish chorizo": {
+      "cluster_id": 6,
+      "cluster_label": "Olive & Wine Herbs",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.688
+    },
+    "sriracha": {
+      "cluster_id": 4,
+      "cluster_label": "Soy & Ginger",
+      "cluster_source": "heuristic-neighbor-vote",
+      "cluster_confidence": 0.511
     }
   }
 }
