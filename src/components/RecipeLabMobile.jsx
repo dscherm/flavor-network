@@ -6,6 +6,7 @@ import RecipeFlavorWheel from './RecipeFlavorWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import IngredientSuggestionsPopout from './IngredientSuggestionsPopout.jsx';
 import { hapticLight, hapticMedium } from '../utils/native.js';
+import { computeRecipeAroma } from '../data/recipeAromaSimilarity.js';
 // "Start from" template strip + "This looks like" classical match
 // card/toast removed in the polish pass — they were redundant against
 // the Cocktail/Sauce Lab handoff that already pre-loads the canonical
@@ -19,7 +20,7 @@ const FONT_FAMILY = 'Caveat, cursive';
  *   2. Recipe Notebook (middle) — scrollable ingredient list
  *   3. Suggestion Drawer (bottom) — pull-up sheet with taste tabs + chips
  */
-export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, handoff = null, userProfile }) {
+export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, handoff = null, userProfile, onFindCocktail, onFindSauce }) {
   // initialMode === 'cocktail' arrives when the user taps "Open in
   // Recipe Lab" from a cocktail card; default the lab into cocktail
   // mode so the suggestion drawer scopes to cocktail-relevant
@@ -110,6 +111,15 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     const t = setTimeout(() => setHandoffToast(null), 2500);
     return () => clearTimeout(t);
   }, [handoffToast]);
+
+  // P8: Compute whether the current bowl has any GNN aroma coverage.
+  // If not, the aroma-match pills render disabled so users understand
+  // why the feature isn't available without hiding it entirely.
+  const aromaDisabled = useMemo(() => {
+    if (!fullData?.graph?.nodes || recipeIngredients.length === 0) return true;
+    const nodesObj = Object.fromEntries(fullData.graph.nodes);
+    return computeRecipeAroma(recipeIngredients, nodesObj) === null;
+  }, [recipeIngredients, fullData?.graph?.nodes]);
 
   // Scope sets (cocktail / sauce) — lazy-loaded once, cached across mode switches.
   const [cocktailScope, setCocktailScope] = useState(null);
@@ -406,7 +416,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       {/* Zone 1: Aroma Profile (sticky at top) — replaced by the
           single-ingredient suggestions popout when an "R" pill is
           tapped (per user redesign 2026-05-07). */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 flex justify-center">
         {focusedIngredient ? (
           <IngredientSuggestionsPopout
             ingredient={focusedIngredient}
@@ -492,6 +502,13 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           recipeTitle={recipeTitle}
           onTitleChange={setRecipeTitle}
           compatibility={null}
+          onFindCocktail={onFindCocktail
+            ? () => onFindCocktail(recipeIngredients, recipeTitle)
+            : undefined}
+          onFindSauce={onFindSauce
+            ? () => onFindSauce(recipeIngredients, recipeTitle)
+            : undefined}
+          aromaDisabled={aromaDisabled}
         />
 
       </div>

@@ -48,6 +48,14 @@ export default function RecipeNotebook({
   onFocusIngredient,    // (name) => void — opens suggestions popout for that ingredient
   onRequestAdd,         // () => void — fires when user taps the "+ Add ingredient" row
   onRequestSuggestions, // () => void — fires when user taps the "Suggestions" row
+  // P8: aroma-match pill callbacks. When provided, two pill buttons appear
+  // below the Suggestions row so the user can route the current recipe to
+  // Cocktail Lab or Sauce Lab for aroma-matched browsing.
+  onFindCocktail,   // () => void | undefined
+  onFindSauce,      // () => void | undefined
+  // true when computeRecipeAroma returned null (zero GNN coverage) —
+  // pills render disabled with a tooltip rather than hidden.
+  aromaDisabled = false,
   recipeTitle,
   onTitleChange,
   compatibility,
@@ -286,6 +294,82 @@ export default function RecipeNotebook({
             </span>
             <span style={{ color: '#a09070', fontSize: 16 }}>Suggestions…</span>
           </button>
+        )}
+        {/* P8: Aroma-match pills — route this recipe to Cocktail Lab or
+            Sauce Lab pre-populated with matched items. Disabled (not
+            hidden) when zero ingredients have GNN aroma data so the
+            feature is still discoverable. */}
+        {(onFindCocktail || onFindSauce) && ingredients.length > 0 && (
+          <div className="flex flex-col gap-1 pt-1 pb-1">
+            {onFindCocktail && (
+              <button
+                onClick={aromaDisabled ? undefined : onFindCocktail}
+                disabled={aromaDisabled}
+                aria-label={`Find a cocktail to pair with ${recipeTitle || 'this recipe'}`}
+                title={aromaDisabled ? 'Need at least one ingredient with flavor data' : 'Find cocktails that share aroma notes with this recipe'}
+                className="w-full flex items-center gap-2 pr-2 rounded transition-colors"
+                style={{
+                  height: LINE_HEIGHT,
+                  fontFamily: FONT_FAMILY,
+                  opacity: aromaDisabled ? 0.45 : 1,
+                  cursor: aromaDisabled ? 'not-allowed' : 'pointer',
+                  background: aromaDisabled ? 'transparent' : undefined,
+                }}
+                onMouseEnter={e => { if (!aromaDisabled) e.currentTarget.style.background = '#f0e8d0'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = ''; }}
+              >
+                <span
+                  className="flex-shrink-0 inline-flex items-center justify-center rounded-full"
+                  style={{
+                    width: 22, height: 22,
+                    fontSize: 13, fontWeight: 700,
+                    color: aromaDisabled ? '#b8a88a' : '#7a5a2a',
+                    background: aromaDisabled ? '#f0e8d0' : '#fde8a0',
+                    border: '1.5px solid #c9b99a',
+                  }}
+                >
+                  🍸
+                </span>
+                <span style={{ color: aromaDisabled ? '#b8a88a' : '#7a5a2a', fontSize: 15 }}>
+                  Find a Cocktail to serve with this recipe
+                </span>
+              </button>
+            )}
+            {onFindSauce && (
+              <button
+                onClick={aromaDisabled ? undefined : onFindSauce}
+                disabled={aromaDisabled}
+                aria-label={`Find a sauce to pair with ${recipeTitle || 'this recipe'}`}
+                title={aromaDisabled ? 'Need at least one ingredient with flavor data' : 'Find sauces that share aroma notes with this recipe'}
+                className="w-full flex items-center gap-2 pr-2 rounded transition-colors"
+                style={{
+                  height: LINE_HEIGHT,
+                  fontFamily: FONT_FAMILY,
+                  opacity: aromaDisabled ? 0.45 : 1,
+                  cursor: aromaDisabled ? 'not-allowed' : 'pointer',
+                  background: aromaDisabled ? 'transparent' : undefined,
+                }}
+                onMouseEnter={e => { if (!aromaDisabled) e.currentTarget.style.background = '#f0e8d0'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = ''; }}
+              >
+                <span
+                  className="flex-shrink-0 inline-flex items-center justify-center rounded-full"
+                  style={{
+                    width: 22, height: 22,
+                    fontSize: 13, fontWeight: 700,
+                    color: aromaDisabled ? '#b8a88a' : '#7a5a2a',
+                    background: aromaDisabled ? '#f0e8d0' : '#ffd0a0',
+                    border: '1.5px solid #c9b99a',
+                  }}
+                >
+                  🥣
+                </span>
+                <span style={{ color: aromaDisabled ? '#b8a88a' : '#7a5a2a', fontSize: 15 }}>
+                  Need a sauce for this recipe?
+                </span>
+              </button>
+            )}
+          </div>
         )}
       </div>
 

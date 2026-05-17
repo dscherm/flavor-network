@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   MODE_CYCLE,
+  DEFAULT_MODE,
+  MODE_LABELS,
   FILTER_KEYS,
   FILTER_TO_AXIS,
   morphAxisForStack,
@@ -8,8 +10,18 @@ import {
 } from '../networkModes.js';
 
 describe('R16 Phase 1 — networkModes', () => {
-  it('MODE_CYCLE has 3 entries including flavor3D beta', () => {
-    expect(MODE_CYCLE).toEqual(['3D', '2D', 'flavor3D']);
+  it('MODE_CYCLE has 3 entries with flavor3D first (default)', () => {
+    expect(MODE_CYCLE).toEqual(['flavor3D', '3D', '2D']);
+    expect(MODE_CYCLE[0]).toBe('flavor3D');
+  });
+
+  it('DEFAULT_MODE is flavor3D', () => {
+    expect(DEFAULT_MODE).toBe('flavor3D');
+  });
+
+  it('MODE_LABELS reflect the primary/legacy naming', () => {
+    expect(MODE_LABELS['flavor3D']).toBe('Flavor Network');
+    expect(MODE_LABELS['3D']).toBe('Recipe Network (legacy)');
   });
 
   it('FILTER_KEYS has 7 entries', () => {
