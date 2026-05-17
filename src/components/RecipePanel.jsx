@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
-import { getNeighbors } from '../data/graph.js';
+import { getNeighborsEnriched } from '../data/graph.js';
 import { scoreStructures } from '../data/structureScoring.js';
 import { analyzeRecipe } from '../data/recipeAnalysis.js';
 import RecipeAnalysis from './RecipeAnalysis.jsx';
@@ -11,6 +11,7 @@ export default function RecipePanel({
   ingredients,
   nodes,
   edges,
+  cuisineNeighborIndex = null,
   onRemove,
   onRecenter,
   onClear,
@@ -48,8 +49,8 @@ export default function RecipePanel({
 
   const analysis = useMemo(() => {
     if (!showAnalysis || ingredients.length < 3) return null;
-    return analyzeRecipe(ingredients, nodes, edges, labMode, selectedStructure);
-  }, [showAnalysis, ingredients, nodes, edges, labMode, selectedStructure]);
+    return analyzeRecipe(ingredients, nodes, edges, labMode, selectedStructure, cuisineNeighborIndex);
+  }, [showAnalysis, ingredients, nodes, edges, labMode, selectedStructure, cuisineNeighborIndex]);
 
   // Compute compatibility score (avg pairwise strength)
   const compatibility = useMemo(() => {
@@ -57,7 +58,7 @@ export default function RecipePanel({
     let total = 0;
     let count = 0;
     for (let i = 0; i < ingredients.length; i++) {
-      const neighbors = getNeighbors(ingredients[i], edges);
+      const neighbors = getNeighborsEnriched(ingredients[i], edges, cuisineNeighborIndex);
       const neighborMap = new Map(neighbors.map(n => [n.name, n.strength]));
       for (let j = i + 1; j < ingredients.length; j++) {
         const strength = neighborMap.get(ingredients[j]) || 0;
@@ -66,7 +67,7 @@ export default function RecipePanel({
       }
     }
     return count > 0 ? Math.round((total / count) * 100) : 0;
-  }, [ingredients, edges]);
+  }, [ingredients, edges, cuisineNeighborIndex]);
 
   return (
     <div className="flex flex-col h-full" style={{ fontFamily: 'Caveat, cursive' }}>

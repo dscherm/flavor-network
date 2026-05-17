@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
-import { getNeighbors } from '../data/graph.js';
+import { getNeighborsEnriched } from '../data/graph.js';
 
 const FONT_FAMILY = 'Caveat, cursive';
 const LINE_HEIGHT = 28;
@@ -16,9 +16,9 @@ function getDominantTaste(name, node) {
   return bestVal > 0 ? best : 'default';
 }
 
-function getMatchPercent(name, centerIngredient, edges) {
+function getMatchPercent(name, centerIngredient, edges, cuisineNeighborIndex) {
   if (!centerIngredient || name === centerIngredient) return null;
-  const neighbors = getNeighbors(centerIngredient, edges);
+  const neighbors = getNeighborsEnriched(centerIngredient, edges, cuisineNeighborIndex);
   const found = neighbors.find(n => n.name === name);
   return found ? Math.round(found.strength * 100) : null;
 }
@@ -42,6 +42,7 @@ export default function RecipeNotebook({
   centerIngredient,
   nodes,
   edges,
+  cuisineNeighborIndex = null,
   onRemove,
   onRecenter,
   onFocusIngredient,    // (name) => void — opens suggestions popout for that ingredient
@@ -124,7 +125,7 @@ export default function RecipeNotebook({
           const isCenter = name === centerIngredient;
           const taste = getDominantTaste(name, nodes?.get(name));
           const tasteColor = TASTE_COLORS[taste] || TASTE_COLORS.default;
-          const matchPct = getMatchPercent(name, centerIngredient, edges);
+          const matchPct = getMatchPercent(name, centerIngredient, edges, cuisineNeighborIndex);
           const isSwiped = swipedItem === name;
 
           return (

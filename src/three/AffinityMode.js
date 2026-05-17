@@ -34,6 +34,7 @@ import { buildShapeGeometries } from './Geometries.js';
 import { computeWheelLayout } from '../components/RadialAffinityWheelGeometry.jsx';
 import { CATEGORICAL_AXES, bucketOf as resolveBucket } from '../data/categoricalAxes.js';
 import { FILTER_TO_AXIS, morphAxisForStack } from '../data/networkModes.js';
+import { cuisineColor } from '../data/cuisinePairings.js';
 
 // Ring radii in 3D scene units. Spec § α-mode visual layout.
 // Ring 0 (Surprising) sits OUTSIDE ring 1 — molecularly-bridged but
@@ -187,6 +188,7 @@ export class AffinityMode {
       affinityShape(2),
       affinityShape(1),
       affinityShape(0),
+      'pennant',  // cuisine-anchored neighbor flag (see cuisineFlagMesh below)
     ]);
     // Dispose unused master geometries — we own clones below.
     for (const [k, g] of Object.entries(baseGeos)) {
@@ -217,6 +219,14 @@ export class AffinityMode {
     this.ring1Mesh = makeMesh(baseGeos[affinityShape(1)], RING_CAPACITY[1]);
     this.ring0Mesh = makeMesh(baseGeos[affinityShape(0)], RING_CAPACITY[0]);
 
+    // Cuisine-anchor flag mesh — one pennant per neighbor whose pair
+    // carries a `cuisineAnchor` payload. Lives in its own mesh so the
+    // flag color (cuisine identity) doesn't conflict with the per-tier
+    // sphere coloring. Capacity = TOTAL_RING_CAPACITY so every ring slot
+    // can fly a flag; instances scale to 0 when the slot's neighbor
+    // isn't cuisine-anchored.
+    this.cuisineFlagMesh = makeMesh(baseGeos.pennant, TOTAL_RING_CAPACITY);
+
     // Map ringIdx → mesh for the per-frame writer.
     this._ringMeshes = {
       3: this.ring3Mesh,
@@ -237,6 +247,7 @@ export class AffinityMode {
     stateRef.scene.add(this.ring2Mesh);
     stateRef.scene.add(this.ring1Mesh);
     stateRef.scene.add(this.ring0Mesh);
+    stateRef.scene.add(this.cuisineFlagMesh);
 
     // Edge BufferGeometry — TOTAL_RING_CAPACITY line segments from
     // focal (origin) to each affinity sphere. 2*TOTAL vertices × 3
@@ -269,6 +280,16 @@ export class AffinityMode {
     this.labelGroup = new THREE.Group();
     this.labelGroup.visible = false;
     stateRef.scene.add(this.labelGroup);
+
+    // Focal-name label group — one sprite, the focal ingredient's name
+    // floating above the dodecahedron hub. Lives in its own Group so it
+    // can stay visible while `labelGroup` (the accent name sprites) is
+    // hidden to avoid doubled labels with the SVG overlay. User feedback
+    // 2026-05-17: focal name had vanished from α-mode after Track 2
+    // (SVG accent labels) hid the entire 3D label group.
+    this.focalLabelGroup = new THREE.Group();
+    this.focalLabelGroup.visible = false;
+    stateRef.scene.add(this.focalLabelGroup);
 
     // Wedge-arc Line group + bucket-label sprite group. Both rebuilt
     // on each engage/pivot (bucket count + bucket axis can change with
@@ -489,8 +510,10 @@ export class AffinityMode {
     if (this.ring2Mesh) this.ring2Mesh.visible = false;
     if (this.ring1Mesh) this.ring1Mesh.visible = false;
     if (this.ring0Mesh) this.ring0Mesh.visible = false;
+    if (this.cuisineFlagMesh) this.cuisineFlagMesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
+    if (this.focalLabelGroup) this.focalLabelGroup.visible = false;
     if (this.wedgeArcGroup) this.wedgeArcGroup.visible = false;
     if (this.wedgeLabelGroup) this.wedgeLabelGroup.visible = false;
     // Clear label sprites to release canvas textures.
@@ -499,6 +522,14 @@ export class AffinityMode {
       this.labelGroup.remove(s);
       if (s.material?.map) s.material.map.dispose();
       if (s.material) s.material.dispose();
+    }
+    if (this.focalLabelGroup) {
+      while (this.focalLabelGroup.children.length > 0) {
+        const s = this.focalLabelGroup.children[0];
+        this.focalLabelGroup.remove(s);
+        if (s.material?.map) s.material.map.dispose();
+        if (s.material) s.material.dispose();
+      }
     }
     this._disposeWedgeArcs();
     this._disposeWedgeLabels();
@@ -555,8 +586,10 @@ export class AffinityMode {
     if (this.ring2Mesh) this.ring2Mesh.visible = false;
     if (this.ring1Mesh) this.ring1Mesh.visible = false;
     if (this.ring0Mesh) this.ring0Mesh.visible = false;
+    if (this.cuisineFlagMesh) this.cuisineFlagMesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
+    if (this.focalLabelGroup) this.focalLabelGroup.visible = false;
     if (this.wedgeArcGroup) this.wedgeArcGroup.visible = false;
     if (this.wedgeLabelGroup) this.wedgeLabelGroup.visible = false;
     const st = this.stateRef;
@@ -620,13 +653,14 @@ export class AffinityMode {
    */
   dispose() {
     const st = this.stateRef;
-    const meshes = [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh, this.ring0Mesh];
+    const meshes = [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh, this.ring0Mesh, this.cuisineFlagMesh];
     if (st && st.scene) {
       for (const m of meshes) {
         if (m) st.scene.remove(m);
       }
       if (this.edgeLines) st.scene.remove(this.edgeLines);
       if (this.labelGroup) st.scene.remove(this.labelGroup);
+      if (this.focalLabelGroup) st.scene.remove(this.focalLabelGroup);
       if (this.wedgeArcGroup) st.scene.remove(this.wedgeArcGroup);
       if (this.wedgeLabelGroup) st.scene.remove(this.wedgeLabelGroup);
     }
@@ -644,6 +678,12 @@ export class AffinityMode {
         if (s.material) s.material.dispose();
       });
     }
+    if (this.focalLabelGroup) {
+      this.focalLabelGroup.children.forEach((s) => {
+        if (s.material?.map) s.material.map.dispose();
+        if (s.material) s.material.dispose();
+      });
+    }
     this._disposeWedgeArcs();
     this._disposeWedgeLabels();
     this.focalMesh = null;
@@ -651,6 +691,7 @@ export class AffinityMode {
     this.ring2Mesh = null;
     this.ring1Mesh = null;
     this.ring0Mesh = null;
+    this.cuisineFlagMesh = null;
     this._ringMeshes = null;
     this.affinityMesh = null;
     this._sharedMaterial = null;
@@ -658,6 +699,7 @@ export class AffinityMode {
     this.edgeGeo = null;
     this.edgeMat = null;
     this.labelGroup = null;
+    this.focalLabelGroup = null;
     this.wedgeArcGroup = null;
     this.wedgeLabelGroup = null;
     this._matrixSnapshot = null;
@@ -935,6 +977,47 @@ export class AffinityMode {
     // tier semantics and the user reported the in-scene edges felt
     // duplicative ("the previous lines and icons still exist").
     this.edgeLines.visible = false;
+
+    // ─── 2b. Cuisine-anchor flags ───
+    // For each neighbor whose pair carries a cuisineAnchor (provenance =
+    // 'both' or 'cuisine' from the enriched neighbor index, OR a Pass-4
+    // promotion in surprisingAffinities), place a tiny pennant above the
+    // sphere with the cuisine's color. Slots without cuisine-anchored
+    // pairs collapse to scale 0.
+    let anyCuisineFlag = false;
+    for (let i = 0; i < TOTAL_RING_CAPACITY; i++) {
+      const aff = i < affinities.length ? affinities[i] : null;
+      const pos = sphereWorldPos[i];
+      const cuiName = aff?.cuisineAnchor?.cuisine || aff?.cuisineAnchor?.primary || null;
+      if (aff && pos && cuiName) {
+        const [tx, ty, tz] = pos;
+        this._matrixScratch.compose(
+          new THREE.Vector3(tx, ty + 3.2, tz),
+          this._tmpQuat.identity(),
+          new THREE.Vector3(1.2, 1.2, 1.2),
+        );
+        this.cuisineFlagMesh.setMatrixAt(i, this._matrixScratch);
+        const hex = cuisineColor(cuiName) || '#94a3b8';
+        const c = new THREE.Color(hex);
+        this.cuisineFlagMesh.instanceColor.array[i * 3]     = c.r;
+        this.cuisineFlagMesh.instanceColor.array[i * 3 + 1] = c.g;
+        this.cuisineFlagMesh.instanceColor.array[i * 3 + 2] = c.b;
+        anyCuisineFlag = true;
+      } else {
+        // Collapse to zero scale — instance lives but is invisible.
+        this._matrixScratch.compose(
+          this._tmpPos.set(0, 0, 0),
+          this._tmpQuat.identity(),
+          this._scaleZero,
+        );
+        this.cuisineFlagMesh.setMatrixAt(i, this._matrixScratch);
+      }
+    }
+    this.cuisineFlagMesh.instanceMatrix.needsUpdate = true;
+    if (this.cuisineFlagMesh.instanceColor) {
+      this.cuisineFlagMesh.instanceColor.needsUpdate = true;
+    }
+    this.cuisineFlagMesh.visible = anyCuisineFlag;
     // Surface focal world position so the SVG overlay can project the
     // hub anchor without needing st.curPos (which doesn't account for
     // any per-frame tween the focal mesh might do during engage).
@@ -1022,9 +1105,17 @@ export class AffinityMode {
     // ("labels are too hard to read"): focal 9→14, affinities 7→11.
     // Y-offsets nudged up to keep the sprites clear of the larger
     // tier shapes.
+    // Clear previous focal sprite from its dedicated group.
+    while (this.focalLabelGroup.children.length > 0) {
+      const s = this.focalLabelGroup.children[0];
+      this.focalLabelGroup.remove(s);
+      if (s.material?.map) s.material.map.dispose();
+      if (s.material) s.material.dispose();
+    }
     const focalSprite = makeLabel(focal, '#ffffff', 14, { glow: false });
     focalSprite.position.set(focalWorld[0], focalWorld[1] + 4.5, focalWorld[2]);
-    this.labelGroup.add(focalSprite);
+    this.focalLabelGroup.add(focalSprite);
+    this.focalLabelGroup.visible = true;
     // Affinity labels — colored by tier (matches edge color so user
     // associates label tone with chemistry signal).
     for (let i = 0; i < this._currentAffinities.length; i++) {

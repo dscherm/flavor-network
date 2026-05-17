@@ -290,8 +290,12 @@ describe('AffinityMode — wedge layout (2026-05-13 user feedback)', () => {
       getFilterStack: () => ['family'],
     });
     ctrl.engage('ing-100');
-    // labelGroup = focal sprite + 1 sprite per affinity.
-    expect(ctrl.labelGroup.children.length).toBe(1 + ctrl._currentAffinities.length);
+    // 2026-05-17: focal sprite split into focalLabelGroup so it can stay
+    // visible while labelGroup (accent labels) is hidden to avoid doubled
+    // labels with the SVG overlay.
+    expect(ctrl.labelGroup.children.length).toBe(ctrl._currentAffinities.length);
+    expect(ctrl.focalLabelGroup.children.length).toBe(1);
+    expect(ctrl.focalLabelGroup.visible).toBe(true);
     ctrl.dispose();
   });
 

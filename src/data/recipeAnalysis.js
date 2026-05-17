@@ -1,14 +1,25 @@
-import { getNeighbors, buildAdjacencyList } from './graph.js';
+import { buildAdjacencyList } from './graph.js';
 import { scoreStructures } from './structureScoring.js';
 
-function getPairStrength(ingA, ingB, adjMap) {
+function getPairStrength(ingA, ingB, adjMap, cuisineNeighborIndex) {
+  let s = 0;
   const neighbors = adjMap.get(ingA);
-  if (!neighbors) return 0;
-  const found = neighbors.find(n => n.name === ingB);
-  return found ? found.strength : 0;
+  if (neighbors) {
+    const found = neighbors.find(n => n.name === ingB);
+    if (found) s = found.strength;
+  }
+  // Cuisine-anchored pairs (Stage 4 single-source-of-truth pass-through):
+  // when a pair has no chemistry strength but is foundational in a
+  // cuisine, surface the cuisineBoost so recipe analysis treats it as
+  // a real connection rather than a zero-strength pairing.
+  if (cuisineNeighborIndex && cuisineNeighborIndex.has(ingA)) {
+    const cuiHit = cuisineNeighborIndex.get(ingA).find(n => n.name === ingB);
+    if (cuiHit && cuiHit.cuisineStrength > s) s = cuiHit.cuisineStrength;
+  }
+  return s;
 }
 
-export function analyzeRecipe(ingredients, nodes, edges, labMode, selectedStructure) {
+export function analyzeRecipe(ingredients, nodes, edges, labMode, selectedStructure, cuisineNeighborIndex = null) {
   if (!ingredients || ingredients.length < 3 || !nodes || !edges) {
     return null;
   }
@@ -19,7 +30,7 @@ export function analyzeRecipe(ingredients, nodes, edges, labMode, selectedStruct
   const pairData = [];
   for (let i = 0; i < ingredients.length; i++) {
     for (let j = i + 1; j < ingredients.length; j++) {
-      const s = getPairStrength(ingredients[i], ingredients[j], adjMap);
+      const s = getPairStrength(ingredients[i], ingredients[j], adjMap, cuisineNeighborIndex);
       allStrengths.push(s);
       pairData.push({ a: ingredients[i], b: ingredients[j], strength: s });
     }
@@ -53,7 +64,7 @@ export function analyzeRecipe(ingredients, nodes, edges, labMode, selectedStruct
     let weakestStr = Infinity;
     let weakestPair = null;
     for (const other of others) {
-      const s = getPairStrength(name, other, adjMap);
+      const s = getPairStrength(name, other, adjMap, cuisineNeighborIndex);
       total += s;
       if (s < weakestStr) {
         weakestStr = s;
@@ -112,7 +123,7 @@ export function analyzeRecipe(ingredients, nodes, edges, labMode, selectedStruct
       if (count < 1) continue;
       let swapTotal = 0;
       for (const r of remaining) {
-        swapTotal += getPairStrength(name, r, adjMap);
+        swapTotal += getPairStrength(name, r, adjMap, cuisineNeighborIndex);
       }
       const swapAvg = remaining.length > 0 ? swapTotal / remaining.length : 0;
       const improvement = swapAvg - currentAvg;

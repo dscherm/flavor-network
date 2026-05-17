@@ -465,6 +465,21 @@ export default function useProData({ enabled = true } = {}) {
           }
         } catch { /* optional */ }
 
+        // Per-ingredient inverted index of cuisine-anchored neighbors.
+        // Built once at load time so downstream suggestion / recipe-
+        // scoring code paths can do O(1) per-ingredient lookups via
+        // `getNeighborsEnriched`. This is the single source of truth
+        // for cuisine pairs across notebook suggestions, recipe scoring,
+        // ingredient picker, and the affinity 3D view.
+        let cuisineNeighborIndex = null;
+        if (cuisinePairLookup.size > 0) {
+          const { buildCuisineNeighborIndex } = await import('../data/cuisinePairings.js');
+          cuisineNeighborIndex = buildCuisineNeighborIndex(
+            cuisinePairLookup,
+            new Set(graph.nodes.keys()),
+          );
+        }
+
         setData({
           graph,
           positions,
@@ -485,6 +500,7 @@ export default function useProData({ enabled = true } = {}) {
           affinityThresholds,
           cuisinePairings,
           cuisinePairLookup,
+          cuisineNeighborIndex,
           // Phase-2 categorical wheel inputs — LivingArchView consumes
           // these to bucket nodes for the Aromas / Cuisine / Season /
           // Family modes.

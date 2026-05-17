@@ -89,6 +89,57 @@ export function getNeighbors(ingredient, edges) {
 }
 
 /**
+ * Enriched neighbor lookup — chemistry pairs + cuisine-anchored pairs
+ * from the same ingredient. This is the single-source-of-truth API
+ * for every suggestion / recipe-scoring / notebook code path that
+ * wants culinary-tradition pairings alongside chemistry pairings.
+ *
+ * Behavior:
+ *  - Chemistry neighbors from `edges` come first (provenance='chemistry').
+ *  - For each chemistry neighbor that's also cuisine-anchored, the
+ *    cuisineAnchor + cuisineStrength fields are attached and provenance
+ *    flips to 'both' — the chemistry strength is preserved so existing
+ *    rank logic doesn't change.
+ *  - Cuisine-only pairs (no chemistry edge) are appended with
+ *    `strength = cuisineStrength` so they sort into the list at a
+ *    meaningful position rather than landing at 0.
+ *
+ * @param {string} ingredient
+ * @param {Array} edges
+ * @param {Map<string, Array>} [cuisineNeighborIndex]
+ * @returns {Array<{name, strength, provenance?, cuisineStrength?, cuisineAnchor?}>}
+ */
+export function getNeighborsEnriched(ingredient, edges, cuisineNeighborIndex) {
+  const base = getNeighbors(ingredient, edges);
+  if (!cuisineNeighborIndex || !cuisineNeighborIndex.has(ingredient)) {
+    for (const n of base) n.provenance = 'chemistry';
+    return base;
+  }
+  const seen = new Map();
+  for (const n of base) {
+    n.provenance = 'chemistry';
+    seen.set(n.name, n);
+  }
+  for (const cn of cuisineNeighborIndex.get(ingredient)) {
+    const existing = seen.get(cn.name);
+    if (existing) {
+      existing.cuisineAnchor = cn.cuisineAnchor;
+      existing.cuisineStrength = cn.cuisineStrength;
+      existing.provenance = 'both';
+    } else {
+      seen.set(cn.name, {
+        name: cn.name,
+        strength: cn.cuisineStrength,
+        cuisineStrength: cn.cuisineStrength,
+        cuisineAnchor: cn.cuisineAnchor,
+        provenance: 'cuisine',
+      });
+    }
+  }
+  return [...seen.values()].sort((a, b) => b.strength - a.strength);
+}
+
+/**
  * Get shared pairings between two ingredients.
  */
 export function getSharedPairings(ing1, ing2, edges) {

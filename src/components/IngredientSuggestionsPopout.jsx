@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { getNeighbors } from '../data/graph.js';
+import { getNeighborsEnriched } from '../data/graph.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { TASTE_COLORS } from '../utils/color.js';
 import { AROMA_COLORS } from '../data/recipeScoring.js';
@@ -33,37 +33,37 @@ const ALIAS = new Map([
   ['angostura','bitters'], ['angostura bitters','bitters'],
 ]);
 
-function lookupNeighborsFlexible(ing, edges) {
+function lookupNeighborsFlexible(ing, edges, cuisineNeighborIndex) {
   if (!ing || !edges) return [];
   const lc = ing.toLowerCase();
-  let n = getNeighbors(ing, edges);
+  let n = getNeighborsEnriched(ing, edges, cuisineNeighborIndex);
   if (n.length > 0) return n;
   if (ALIAS.has(lc)) {
-    n = getNeighbors(ALIAS.get(lc), edges);
+    n = getNeighborsEnriched(ALIAS.get(lc), edges, cuisineNeighborIndex);
     if (n.length > 0) return n;
   }
   let stripped = ing;
   while (QUALIFIER_RE.test(stripped)) {
     stripped = stripped.replace(QUALIFIER_RE, '');
-    n = getNeighbors(stripped, edges);
+    n = getNeighborsEnriched(stripped, edges, cuisineNeighborIndex);
     if (n.length > 0) return n;
     if (ALIAS.has(stripped.toLowerCase())) {
-      n = getNeighbors(ALIAS.get(stripped.toLowerCase()), edges);
+      n = getNeighborsEnriched(ALIAS.get(stripped.toLowerCase()), edges, cuisineNeighborIndex);
       if (n.length > 0) return n;
     }
   }
   let tokens = stripped.split(/\s+/).filter(Boolean);
   while (tokens.length > 1 && TRAILING_TOKENS.has(tokens[tokens.length - 1].toLowerCase())) {
     tokens.pop();
-    n = getNeighbors(tokens.join(' '), edges);
+    n = getNeighborsEnriched(tokens.join(' '), edges, cuisineNeighborIndex);
     if (n.length > 0) return n;
   }
   return [];
 }
 
-function pairStrength(a, b, edges) {
+function pairStrength(a, b, edges, cuisineNeighborIndex) {
   if (!a || !b || !edges) return 0;
-  const ns = getNeighbors(a, edges);
+  const ns = getNeighborsEnriched(a, edges, cuisineNeighborIndex);
   const hit = ns.find((x) => x.name === b);
   return hit ? hit.strength : 0;
 }
@@ -97,6 +97,7 @@ export default function IngredientSuggestionsPopout({
   recipeIngredients = [],
   nodes,
   edges,
+  cuisineNeighborIndex = null,
   scopeFilter,
   cocktailRoles,
   sauceRoles,
@@ -151,7 +152,7 @@ export default function IngredientSuggestionsPopout({
       // score than one bonded to a single member.
       const agg = new Map(); // name -> { sum, hits }
       for (const ing of bowl) {
-        const neighbors = lookupNeighborsFlexible(ing, edges);
+        const neighbors = lookupNeighborsFlexible(ing, edges, cuisineNeighborIndex);
         for (const n of neighbors) {
           if (bowlSet.has(n.name)) continue;
           if (scopeFilter && !scopeFilter.has(n.name.toLowerCase())) continue;
@@ -207,7 +208,7 @@ export default function IngredientSuggestionsPopout({
     //       because there ARE no spirit-role neighbors of bourbon
     //       in the recipe corpus.
     const candidateStrengths = new Map(); // name → primary pair-strength to focal
-    const focusedNeighbors = lookupNeighborsFlexible(ingredient, edges);
+    const focusedNeighbors = lookupNeighborsFlexible(ingredient, edges, cuisineNeighborIndex);
     for (const n of focusedNeighbors) candidateStrengths.set(n.name, n.strength);
 
     const useRoleExpansion =
@@ -247,13 +248,13 @@ export default function IngredientSuggestionsPopout({
       // direct edge probe for role-expanded candidates (0 when no edge).
       const primary = primaryFromNeighbor > 0
         ? primaryFromNeighbor
-        : pairStrength(ingredient, candName, edges);
+        : pairStrength(ingredient, candName, edges, cuisineNeighborIndex);
 
       // Secondary: average pair strength to the rest of the bowl.
       let bowlAffinity = 0;
       let bowlHits = 0;
       for (const other of others) {
-        const s = pairStrength(other, candName, edges);
+        const s = pairStrength(other, candName, edges, cuisineNeighborIndex);
         if (s > 0) {
           bowlAffinity += s;
           bowlHits += 1;
