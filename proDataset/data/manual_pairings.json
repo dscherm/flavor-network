@@ -4,7 +4,8 @@
     "schemaVersion": 1,
     "generated": "2026-05-17",
     "fabricatedCounts": "Each entry gets count=25 + recipePct=0.10 = the smallest evidence shape that passes the displayableCuisine dominance gate without overclaiming. cuisineBoost() resolves these to strength ≈ 0.54.",
-    "provenanceFlag": "Each synthesized pair record carries source='manual-bootstrap' so future audits can distinguish hand-edges from corpus-derived ones."
+    "provenanceFlag": "Each synthesized pair record carries source='manual-bootstrap' so future audits can distinguish hand-edges from corpus-derived ones.",
+    "expansion_2026_05_17_pm": "Partner lists expanded for the 4 sparse-pair targets (doenjang/huitlacoche/recaito/crema mexicana) to lift their cuisine-pair counts toward 30-40 edges each. Only canonical names confirmed present in ingredients.json were used."
   },
   "bootstraps": {
     "doenjang": {
@@ -13,7 +14,10 @@
         "garlic", "scallion", "ginger", "sesame oil", "sesame seed", "gochujang",
         "gochugaru", "tofu", "anchovy", "dashi", "kombu", "shiitake mushroom",
         "zucchini", "potato", "beef", "pork", "rice vinegar", "soy sauce",
-        "mirin", "sake", "kimchi"
+        "mirin", "sake", "kimchi", "napa cabbage", "chicken stock", "beef stock",
+        "white pepper", "cabbage", "oyster sauce", "black bean sauce",
+        "mung bean", "sweet potato", "rice cake", "rice noodle", "sesame",
+        "spinach", "egg", "enoki mushroom", "pork belly"
       ]
     },
     "crema mexicana": {
@@ -22,7 +26,9 @@
         "cilantro", "lime juice", "chipotle", "cotija", "queso fresco", "jalapeño",
         "avocado", "tortilla", "chili powder", "cumin", "garlic", "onion",
         "tomato", "corn", "black bean", "chicken", "shrimp", "epazote",
-        "masa harina", "huitlacoche"
+        "masa harina", "huitlacoche", "poblano pepper", "serrano pepper",
+        "sour cream", "salsa", "lime", "sazon", "red pepper", "chili paste",
+        "green pepper"
       ]
     },
     "huitlacoche": {
@@ -31,7 +37,8 @@
         "corn", "epazote", "garlic", "onion", "jalapeño", "chili",
         "shiitake mushroom", "masa harina", "tortilla", "queso fresco",
         "crema mexicana", "cotija", "tomato", "butter", "broth",
-        "zucchini", "oaxaca cheese", "poblano pepper"
+        "zucchini", "oaxaca cheese", "poblano pepper", "serrano pepper",
+        "sour cream", "cilantro", "lime", "sazon", "chili paste"
       ]
     },
     "recaito": {
@@ -40,13 +47,9 @@
         "rice", "pigeon pea", "pork", "chicken", "tomato", "annatto",
         "sofrito", "cilantro", "onion", "garlic",
         "green plantain", "olive oil", "bay leaf", "oregano", "black bean",
-        "ham", "tomato sauce", "scotch bonnet"
+        "ham", "tomato sauce", "scotch bonnet", "lime", "coconut",
+        "allspice", "cumin", "sazon"
       ]
-    },
-    "doenjang_extra": {
-      "cuisine": "Korea",
-      "comment": "Extra pairs for doenjang that didn't fit the partners list — broader Korean stew/banchan companions.",
-      "partners": []
     },
     "epazote_extra": {
       "cuisine": "Mexico",

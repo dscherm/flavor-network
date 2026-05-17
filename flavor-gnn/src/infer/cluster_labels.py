@@ -101,43 +101,75 @@ def auto_label(ingredients: list[dict], all_ingredients: dict,
                 global_cuisines[cn] += 1
     total_gc = sum(global_cuisines.values()) or 1
 
-    # Cuisine selection: rank by raw COUNT (not lift). Lift acts only as
-    # a relevance floor — globally rare cuisines like Peruvian/Australian
-    # produce huge lift spikes for any modest co-occurrence, drowning out
-    # canonical Italian/Mexican/Chinese identities. Adding a 15%-of-cluster
-    # presence floor ensures we only label a cluster by cuisine when that
-    # cuisine truly dominates, not when it's just one of several near-ties.
-    CLUSTER_PRESENCE_FLOOR = 0.15
-    LIFT_FLOOR = 1.5
-    presence_min = max(3, int(n * CLUSTER_PRESENCE_FLOOR))
+    # Cuisine selection: tuned 2026-05-17 after a k=11 run produced
+    # misleading single-cuisine labels. Previously a 15% cluster-presence
+    # floor + 1.5× lift was too lenient — c1 with 50/330 Indian-tagged
+    # ingredients (15.1%) got labeled "Indian" even though 85% of the
+    # cluster wasn't Indian (it was a global spice/chili pantry that
+    # included achiote/adobo/ancho).
+    #
+    # New strategy:
+    #   - Single-cuisine label requires ≥30% cluster presence AND ≥2.5×
+    #     lift (a dominant cuisine, not just over-represented).
+    #   - Multi-cuisine label: if top-2 cuisines BOTH pass ≥18% presence
+    #     and ≥1.5× lift, return "Cuisine A & Cuisine B" — captures
+    #     fusion clusters (e.g. Caribbean+Mexican spice belt).
+    #   - Otherwise fall through to category-based labeling, which is
+    #     more honest for mixed clusters.
+    # First-pass threshold (30%) still allowed c1 "Indian" to fire when
+    # the cluster was 28% Indian + 24% Mexican + 15% Peruvian — a global
+    # spice/chili belt, not Indian-specific. Bumped to 40% so genuine
+    # fusion clusters fall through to the dual-cuisine label.
+    SINGLE_PRESENCE_FLOOR = 0.40
+    SINGLE_LIFT_FLOOR = 2.5
+    DUAL_PRESENCE_FLOOR = 0.18
+    DUAL_LIFT_FLOOR = 1.5
 
-    # The top_5_cuisines set (built above) is too strict to use as a hard
-    # filter: top ingredients like "vanilla" / "pecan" / "olive oil" have
-    # empty or Global-only cuisine tags, which pre-excludes legitimate
-    # dominant cuisines. We rely instead on the presence + lift floors
-    # below — those keep noise out without depending on cuisine being
-    # tagged on top-5 ingredients.
-    _ = top_5_cuisines  # retained for diagnostics; not used in decision
-
-    best_cuisine: str | None = None
-    best_cuisine_count = 0
-    best_cuisine_lift = 0.0
+    # Compute (cuisine, count, lift) tuples for every cuisine with any
+    # presence — we'll pick the best single or top-2 dual from here.
+    cuisine_stats: list[tuple[str, int, float]] = []
     for cuis, count in cuisines.most_common(20):
-        if count < presence_min:
+        if count < 3:
             continue
         cluster_rate = count / n
         global_rate = global_cuisines.get(cuis, 1) / total_gc
         lift = cluster_rate / max(global_rate, 0.001)
-        if lift < LIFT_FLOOR:
+        cuisine_stats.append((cuis, count, lift))
+
+    # The top_5_cuisines set is too strict to use as a hard filter (top
+    # ingredients like "vanilla"/"pecan" have empty or Global-only tags);
+    # the presence+lift floors keep noise out without it.
+    _ = top_5_cuisines
+
+    # Try single-cuisine label first (strict floors).
+    best_cuisine: str | None = None
+    best_cuisine_count = 0
+    for cuis, count, lift in cuisine_stats:
+        presence = count / n
+        if presence < SINGLE_PRESENCE_FLOOR:
             continue
-        # Primary score: count. Tiebreaker: lift.
-        if count > best_cuisine_count or (count == best_cuisine_count and lift > best_cuisine_lift):
+        if lift < SINGLE_LIFT_FLOOR:
+            continue
+        if count > best_cuisine_count:
             best_cuisine = cuis
             best_cuisine_count = count
-            best_cuisine_lift = lift
 
     if best_cuisine:
         return best_cuisine
+
+    # Multi-cuisine fallback — captures fusion/regional belts that no
+    # single cuisine dominates (Caribbean+Mexican spice, North African
+    # +Middle Eastern, etc.).
+    dual_candidates = [
+        (cuis, count, lift) for (cuis, count, lift) in cuisine_stats
+        if (count / n) >= DUAL_PRESENCE_FLOOR and lift >= DUAL_LIFT_FLOOR
+    ]
+    dual_candidates.sort(key=lambda x: x[1], reverse=True)
+    if len(dual_candidates) >= 2:
+        a = dual_candidates[0][0]
+        b = dual_candidates[1][0]
+        if a != b:
+            return f"{a} & {b}"
 
     # Otherwise look for a non-generic category.
     global_cats: Counter[str] = Counter()
