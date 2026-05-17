@@ -1,150 +1,194 @@
 {
-  "k": 11,
+  "k": 16,
   "clusters": [
     {
       "id": 0,
-      "label": "Lemon & Thyme",
-      "size": 493,
+      "label": "Vanilla & Cinnamon",
+      "size": 287,
       "centroid_3d": [
-        14.58,
-        3.29,
-        5.75
+        -25.6,
+        -5.63,
+        -3.57
       ],
       "centroid_2d": [
-        18.91,
-        -0.56
-      ],
-      "dominant_taste": "sweet",
-      "top_ingredients": [
-        "lemon",
-        "thyme",
-        "white wine",
-        "shallot",
-        "extra-virgin olive oil"
-      ]
-    },
-    {
-      "id": 1,
-      "label": "Indian & Mexican",
-      "size": 365,
-      "centroid_3d": [
-        23.71,
-        -7.37,
-        10.77
-      ],
-      "centroid_2d": [
-        16.9,
-        -23.85
-      ],
-      "dominant_taste": "pungent",
-      "top_ingredients": [
-        "sweet pepper",
-        "rice",
-        "cumin",
-        "cilantro",
-        "paprika"
-      ]
-    },
-    {
-      "id": 2,
-      "label": "Sugar & Butter",
-      "size": 644,
-      "centroid_3d": [
-        17.39,
-        4.0,
-        -2.31
-      ],
-      "centroid_2d": [
-        12.23,
-        8.59
-      ],
-      "dominant_taste": "pungent",
-      "top_ingredients": [
-        "sugar",
-        "butter",
-        "milk",
-        "brown sugar",
-        "lemon juice"
-      ]
-    },
-    {
-      "id": 3,
-      "label": "Baking Soda & Honey",
-      "size": 198,
-      "centroid_3d": [
-        -20.43,
-        -13.14,
-        -11.84
-      ],
-      "centroid_2d": [
-        -20.46,
-        -15.86
-      ],
-      "dominant_taste": "sweet",
-      "top_ingredients": [
-        "baking soda",
-        "honey",
-        "oat",
-        "maple syrup",
-        "wheat flour"
-      ]
-    },
-    {
-      "id": 4,
-      "label": "American",
-      "size": 376,
-      "centroid_3d": [
-        -39.36,
-        -8.58,
-        -4.4
-      ],
-      "centroid_2d": [
-        -41.82,
-        -2.25
+        -24.0,
+        2.1
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
         "vanilla",
-        "cream cheese",
-        "chocolate",
-        "powdered sugar",
-        "cocoa"
+        "cinnamon",
+        "baking powder",
+        "vegetable oil",
+        "baking soda"
       ]
     },
     {
-      "id": 5,
-      "label": "Italian & Greek",
-      "size": 389,
+      "id": 1,
+      "label": "Italian & Turkish",
+      "size": 372,
       "centroid_3d": [
-        13.23,
-        17.62,
-        4.86
+        14.31,
+        4.36,
+        7.01
       ],
       "centroid_2d": [
-        18.53,
+        18.43,
+        -0.75
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "olive oil",
+        "parsley",
+        "thyme",
+        "white wine",
+        "shallot"
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Mexican",
+      "size": 80,
+      "centroid_3d": [
+        29.25,
+        7.42,
+        -6.63
+      ],
+      "centroid_2d": [
+        22.17,
         12.29
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
-        "parmesan",
-        "basil",
-        "oregano",
+        "pea",
+        "bean",
+        "kidney bean",
+        "lean beef",
+        "pinto bean"
+      ]
+    },
+    {
+      "id": 3,
+      "label": "Mexican (cumin)",
+      "size": 177,
+      "centroid_3d": [
+        30.41,
+        0.85,
+        2.02
+      ],
+      "centroid_2d": [
+        18.99,
+        -11.63
+      ],
+      "dominant_taste": "pungent",
+      "top_ingredients": [
+        "cumin",
+        "cilantro",
+        "lime juice",
+        "corn",
+        "lime"
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Sweet Pepper & Red Pepper",
+      "size": 286,
+      "centroid_3d": [
+        20.88,
+        7.3,
+        1.64
+      ],
+      "centroid_2d": [
+        14.28,
+        6.9
+      ],
+      "dominant_taste": "pungent",
+      "top_ingredients": [
+        "sweet pepper",
         "red pepper",
-        "mozzarella"
+        "green pepper",
+        "bacon",
+        "rice"
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Sugar & Egg",
+      "size": 388,
+      "centroid_3d": [
+        10.67,
+        4.86,
+        -2.14
+      ],
+      "centroid_2d": [
+        7.36,
+        10.13
+      ],
+      "dominant_taste": "pungent",
+      "top_ingredients": [
+        "sugar",
+        "egg",
+        "butter",
+        "flour",
+        "milk"
       ]
     },
     {
       "id": 6,
-      "label": "Liquid",
-      "size": 211,
+      "label": "Korean & British",
+      "size": 187,
       "centroid_3d": [
-        -36.67,
-        -5.59,
-        5.02
+        17.25,
+        -2.26,
+        -3.01
       ],
       "centroid_2d": [
-        -25.81,
-        -11.13
+        19.77,
+        5.17
+      ],
+      "dominant_taste": "pungent",
+      "top_ingredients": [
+        "carrot",
+        "potato",
+        "mushroom",
+        "bay leaf",
+        "tomato paste"
+      ]
+    },
+    {
+      "id": 7,
+      "label": "American",
+      "size": 322,
+      "centroid_3d": [
+        -40.79,
+        -8.57,
+        -4.65
+      ],
+      "centroid_2d": [
+        -42.88,
+        -2.19
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "cream cheese",
+        "chocolate",
+        "powdered sugar",
+        "cocoa",
+        "peanut butter"
+      ]
+    },
+    {
+      "id": 8,
+      "label": "Liquid",
+      "size": 198,
+      "centroid_3d": [
+        -37.4,
+        -5.86,
+        5.13
+      ],
+      "centroid_2d": [
+        -27.6,
+        -10.74
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
@@ -156,91 +200,157 @@
       ]
     },
     {
-      "id": 7,
-      "label": "Pecan & Nut",
-      "size": 300,
+      "id": 9,
+      "label": "Indian",
+      "size": 200,
       "centroid_3d": [
-        -40.86,
-        2.06,
-        -3.68
+        18.01,
+        -12.11,
+        16.7
       ],
       "centroid_2d": [
-        -35.57,
-        7.24
+        14.49,
+        -31.27
+      ],
+      "dominant_taste": "pungent",
+      "top_ingredients": [
+        "mint",
+        "coriander",
+        "turmeric",
+        "curry powder",
+        "yogurt"
+      ]
+    },
+    {
+      "id": 10,
+      "label": "Chinese",
+      "size": 329,
+      "centroid_3d": [
+        22.97,
+        -25.16,
+        4.13
+      ],
+      "centroid_2d": [
+        18.46,
+        -33.9
+      ],
+      "dominant_taste": "pungent",
+      "top_ingredients": [
+        "ginger",
+        "soy sauce",
+        "cabbage",
+        "sesame oil",
+        "peanut"
+      ]
+    },
+    {
+      "id": 11,
+      "label": "Oat & Maple Syrup",
+      "size": 175,
+      "centroid_3d": [
+        -20.28,
+        -13.64,
+        -12.48
+      ],
+      "centroid_2d": [
+        -20.09,
+        -17.76
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "oat",
+        "maple syrup",
+        "wheat flour",
+        "date",
+        "rolled oat"
+      ]
+    },
+    {
+      "id": 12,
+      "label": "Onion & Garlic",
+      "size": 388,
+      "centroid_3d": [
+        -8.5,
+        3.14,
+        -1.46
+      ],
+      "centroid_2d": [
+        -0.6,
+        6.9
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "onion",
+        "garlic",
+        "tomato",
+        "chicken",
+        "celery"
+      ]
+    },
+    {
+      "id": 13,
+      "label": "Cheddar & Mayonnaise",
+      "size": 282,
+      "centroid_3d": [
+        18.6,
+        16.65,
+        -7.14
+      ],
+      "centroid_2d": [
+        13.89,
+        22.74
+      ],
+      "dominant_taste": "sweet",
+      "top_ingredients": [
+        "cheddar",
+        "mayonnaise",
+        "beef",
+        "cheese",
+        "cream of mushroom soup"
+      ]
+    },
+    {
+      "id": 14,
+      "label": "Pecan & Nut",
+      "size": 271,
+      "centroid_3d": [
+        -42.05,
+        2.18,
+        -3.67
+      ],
+      "centroid_2d": [
+        -36.58,
+        7.36
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
         "pecan",
         "nut",
         "pineapple",
-        "walnut",
-        "banana"
+        "banana",
+        "coconut"
       ]
     },
     {
-      "id": 8,
-      "label": "Chinese",
-      "size": 339,
+      "id": 15,
+      "label": "Italian",
+      "size": 324,
       "centroid_3d": [
-        22.91,
-        -24.36,
-        3.94
+        13.67,
+        18.82,
+        5.42
       ],
       "centroid_2d": [
-        18.35,
-        -33.03
-      ],
-      "dominant_taste": "pungent",
-      "top_ingredients": [
-        "scallion",
-        "ginger",
-        "soy sauce",
-        "cabbage",
-        "sesame oil"
-      ]
-    },
-    {
-      "id": 9,
-      "label": "Celery & Sour Cream",
-      "size": 420,
-      "centroid_3d": [
-        19.14,
-        15.25,
-        -5.9
-      ],
-      "centroid_2d": [
-        14.05,
-        21.65
+        19.31,
+        13.36
       ],
       "dominant_taste": "sweet",
       "top_ingredients": [
-        "celery",
-        "sour cream",
-        "cheddar",
-        "mayonnaise",
-        "beef"
-      ]
-    },
-    {
-      "id": 10,
-      "label": "Egg & Onion",
-      "size": 531,
-      "centroid_3d": [
-        -15.19,
-        -0.44,
-        -2.41
-      ],
-      "centroid_2d": [
-        -9.06,
-        5.75
-      ],
-      "dominant_taste": "sweet",
-      "top_ingredients": [
-        "egg",
-        "onion",
-        "flour",
-        "garlic",
-        "olive oil"
+        "parmesan",
+        "basil",
+        "oregano",
+        "mozzarella",
+        "bread"
       ]
     }
   ]
