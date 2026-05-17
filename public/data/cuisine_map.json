@@ -17375,7 +17375,8 @@
   "dashi": [
     "Japanese",
     "Korean",
-    "Vietnamese"
+    "Vietnamese",
+    "japanese"
   ],
   "water": [
     "Global"
@@ -17449,12 +17450,14 @@
   ],
   "epazote": [
     "Mexican",
-    "Peruvian"
+    "Peruvian",
+    "mexican"
   ],
   "bonito flakes": [
     "Japanese",
     "Korean",
-    "Vietnamese"
+    "Vietnamese",
+    "japanese"
   ],
   "meat glaze": [
     "Global"
@@ -17561,5 +17564,98 @@
   ],
   "mayonnaise": [
     "American"
+  ],
+  "berbere": [
+    "african"
+  ],
+  "harissa": [
+    "african"
+  ],
+  "chaat masala": [
+    "indian"
+  ],
+  "raita": [
+    "indian"
+  ],
+  "kasuri methi": [
+    "indian"
+  ],
+  "curry leaves": [
+    "indian"
+  ],
+  "kombu": [
+    "japanese"
+  ],
+  "nori": [
+    "japanese"
+  ],
+  "shichimi togarashi": [
+    "japanese"
+  ],
+  "panko": [
+    "japanese"
+  ],
+  "udon noodles": [
+    "japanese"
+  ],
+  "pomegranate molasses": [
+    "middle eastern"
+  ],
+  "rosewater": [
+    "middle eastern"
+  ],
+  "za'atar": [
+    "middle eastern"
+  ],
+  "queso fresco": [
+    "mexican"
+  ],
+  "masa harina": [
+    "mexican"
+  ],
+  "crema mexicana": [
+    "mexican"
+  ],
+  "hominy": [
+    "mexican"
+  ],
+  "huitlacoche": [
+    "mexican"
+  ],
+  "cotija": [
+    "mexican"
+  ],
+  "candlenuts": [
+    "southeast asian"
+  ],
+  "ketjap manis": [
+    "southeast asian"
+  ],
+  "sambal": [
+    "southeast asian"
+  ],
+  "green plantain": [
+    "caribbean"
+  ],
+  "sofrito": [
+    "caribbean"
+  ],
+  "recaito": [
+    "caribbean"
+  ],
+  "doenjang": [
+    "korean"
+  ],
+  "piquillo peppers": [
+    "spanish"
+  ],
+  "bomba rice": [
+    "spanish"
+  ],
+  "spanish chorizo": [
+    "spanish"
+  ],
+  "sriracha": [
+    "thai"
   ]
 }

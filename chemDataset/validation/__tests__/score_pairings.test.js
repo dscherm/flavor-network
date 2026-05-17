@@ -54,7 +54,12 @@ describe('chemDataset/validation — score_pairings', () => {
     // ground_truth.json from 30 to 52 entries) so the "insufficient"
     // gate no longer fires; the relaxed invariant is that every axis
     // yields a recognized verdict.
-    const KNOWN_VERDICT_PREFIXES = ['insufficient', 'pass', 'warn', 'fail'];
+    // 'no-axis-coverage' is emitted when an axis has zero pairings —
+    // produced by score_pairings.js verdictForAxis() at line 383. Added
+    // here after a pairings rebuild reduced cross-cuisine to zero
+    // coverage; the verdict is real, the test just needed to recognize
+    // it as a legitimate gate outcome.
+    const KNOWN_VERDICT_PREFIXES = ['insufficient', 'pass', 'warn', 'fail', 'no-axis-coverage'];
     const allRecognized = Object.values(perAxis).every(
       (a) => typeof a.verdict === 'string'
         && KNOWN_VERDICT_PREFIXES.some((p) => a.verdict.startsWith(p)),

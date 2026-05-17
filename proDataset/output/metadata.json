@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-19T20:40:15.742Z",
+  "generatedAt": "2026-05-17T14:52:39.028Z",
   "pipeline": "blend-v2 (perceptron)",
   "perceptron": {
     "weights": [
@@ -32,7 +32,7 @@
   },
   "featureSource": {
     "file": "processed/pair-features.json",
-    "compoundSource": "builtin",
+    "compoundSource": "foodb-full-2020-04-07+flavordb2+gnn",
     "fallbacksUsed": {
       "x3_chemical": false,
       "x3_jaccard": true,
@@ -41,9 +41,9 @@
       "x8_compound_diversity": false
     }
   },
-  "totalIngredients": 4488,
-  "totalPairings": 50312,
-  "totalFeaturePairsEvaluated": 381845,
+  "totalIngredients": 5120,
+  "totalPairings": 52911,
+  "totalFeaturePairsEvaluated": 381862,
   "pairsBelowThreshold": 0,
   "sources": {
     "recipenlg": {
@@ -52,8 +52,8 @@
       "totalRecipes": 2231142
     },
     "flavordb": {
-      "pairs": 0,
-      "ingredients": 0,
+      "pairs": 354224,
+      "ingredients": 928,
       "totalRecipes": null
     },
     "mealdb": {
