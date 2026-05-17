@@ -21,7 +21,7 @@ from pathlib import Path
 # main() so the pure-Python auto_label() helper can be imported on its own
 # (e.g. from preview / verification scripts) without the heavy stack.
 
-K = 10
+K = 10  # default; overridden by --k CLI flag
 SEED = 42
 
 
@@ -180,10 +180,17 @@ def auto_label(ingredients: list[dict], all_ingredients: dict,
 
 
 def main() -> int:
+    import argparse  # noqa: PLC0415
     import networkx as nx  # noqa: PLC0415
     import numpy as np  # noqa: PLC0415
     from node2vec import Node2Vec  # noqa: PLC0415
     from sklearn.cluster import KMeans  # noqa: PLC0415
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--k", type=int, default=K, help="Number of k-means clusters")
+    args = parser.parse_args()
+    k_clusters = args.k
+    print(f"[clusters] k={k_clusters}")
 
     root = _project_root()
 
@@ -206,9 +213,9 @@ def main() -> int:
     print(f"[clusters] embedded {X.shape[0]} -> {X.shape[1]}-dim")
 
     # K-means
-    km = KMeans(n_clusters=K, random_state=SEED, n_init=10)
+    km = KMeans(n_clusters=k_clusters, random_state=SEED, n_init=10)
     labels = km.fit_predict(X)
-    print(f"[clusters] k-means k={K}, sizes: {sorted(Counter(labels).values(), reverse=True)}")
+    print(f"[clusters] k-means k={k_clusters}, sizes: {sorted(Counter(labels).values(), reverse=True)}")
 
     # Load ingredient metadata
     with (root / "public" / "proDataset" / "ingredients.json").open("r", encoding="utf-8") as fh:
@@ -239,7 +246,7 @@ def main() -> int:
     # Build clusters
     clusters = []
     label_counts: Counter = Counter()  # for collision detection
-    for k in range(K):
+    for k in range(k_clusters):
         members = [names[i] for i in range(len(names)) if labels[i] == k]
         member_data = [
             {**ingredients_data.get(n, {}), "name": n}
@@ -286,7 +293,7 @@ def main() -> int:
         })
         print(f"  [{k}] {label_text:30s} n={len(members):4d}  taste={dominant_taste:10s}  top: {', '.join(t['name'] for t in top[:3])}")
 
-    out = {"k": K, "clusters": clusters}
+    out = {"k": k_clusters, "clusters": clusters}
     out_path = root / "public" / "proDataset" / "cluster_labels.json"
     with out_path.open("w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=2)
