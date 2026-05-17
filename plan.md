@@ -656,32 +656,32 @@ Tag commit messages with the relevant lesson stem.
 
 ### Followups added 2026-05-17 PM (C₁′ Flavor Space prototype session)
 
-- **Umami compound data ingestion from umamiinfo.com** — the
-  flavor-UMAP prototype (C₁′) revealed that the umami pantry (soy
-  sauce, miso, fish sauce, oyster sauce, gochujang) lands at
-  near-random positions in flavor space because the GNN has weak
-  umami signal for those compound foods. Calibrated umami F1 is
-  0.731 — decent but the weakest of the GPCR-mediated tastes.
-  `umamiinfo.com/umamidb/` has the right data structure (Free
-  amino acid + Nucleic acid + Food group per compound) but is
-  JS-rendered, not statically scrapable.
-  Workstream sketch (~1.5-2 days end-to-end):
-  1. **Phase A** — browser DevTools inspection of umamiinfo.com to
-     find the actual JSON endpoint backing the search UI (~30 min).
-  2. **Phase B** — node/python scraper that fetches the JSON endpoint
-     and normalizes per-compound data with SMILES + amino acid
-     identity + food sources (~2 hrs).
-  3. **Phase C** — merge into `chemDataset/processed/`, add to
-     `flavor-gnn` training data, retrain M3 multi-task with the
-     enlarged umami corpus (~1 day).
-  4. **Phase D** — recompute `gnn_entropy.json` +
-     `flavor_positions.json` + redeploy (~30 min).
-  - Alternative: contact `bagler+cosylab@iiitd.ac.in` for their
-    UmamiDB (CoSyLab/IIIT-Delhi) which may have similar data and
-    explicit download terms. Email pending.
-  - Don't bundle with C₁′ ship — the prototype is the philosophy
-    bet (position = flavor, edges = pairing). Umami coverage is
-    a quality lift that lands later.
+- **Umami compound data ingestion — REVISED 2026-05-17 evening.**
+  Investigation revealed that `umamiinfo.com` is the wrong source:
+  it's a consumer content site (regional Japanese recipes, chef
+  videos, food category pages) with 550+ URLs but zero API / JSON /
+  CSV endpoints. The sitemap confirmed no data layer.
+  Existing umami data in our chemDataset:
+  - FartDB: 62 umami compounds (already trained on)
+  - FlavorDB: 33 cheese, 34 mushroom, 7 fermented descriptors at
+    the compound level — but **0 compounds tagged "umami"** in
+    FlavorDB's vocabulary. They use aromatic descriptors, not
+    taste-classifying ones.
+  - Implication: we can't mine more umami from FlavorDB.
+  Realistic paths (none autonomously ralph-able):
+  1. **Email IIIT-Delhi** (`bagler+cosylab@iiitd.ac.in`) requesting
+     their UmamiDB — described in their Nutrients 2021 paper. Async.
+  2. **Hand-curate** from literature: glutamate / IMP / GMP / AMP
+     analogs + kokumi peptides from PubChem. Multi-day, needs
+     domain expert.
+  3. **Accept current umami coverage** — the M3 multi-task with the
+     62 FartDB positives lands at calibrated F1=0.731, shippable
+     per chemDataset-status.
+  - **Until external data lands, the compound-food predictor (C₁′
+    Phase 2, shipped 2026-05-17 PM) lifts soy sauce / miso / fish
+    sauce / oyster sauce / worcestershire / doenjang into the
+    savory cluster via parmesan+mushroom constituent synthesis.
+    This is the best we can do without UmamiDB.**
 
 - **Compound-food flavor predictor** — already in-progress at
   `src/data/compoundFoods.js` (per chemDataset-status). The C₁′
@@ -700,27 +700,32 @@ Tag commit messages with the relevant lesson stem.
   Bottleneck is model+training data, not vocabulary. Skip until the
   underlying ML model is expanded.
 
-- **Adopt hierarchical flavor-wheel taxonomy (Level 2/3 descriptors)**
-  — industry flavor wheels (SCAA coffee wheel is the gold standard,
-  similar wheels for wine, honey, beer, chocolate) are hierarchical:
-  Level 1 = 8-9 broad categories (Fruity / Floral / Sour-Fermented /
-  Green-Vegetative / Roasted / Spices / Nutty-Cocoa / Sweet), Level
-  2 = ~20 subcategories (Fruity → Berry, Citrus, Stone Fruit), Level
-  3 = ~100 specific descriptors (Berry → Raspberry, Blackberry, etc.).
-  Our 6 GNN aroma axes (`fruity, floral, green, woody, spicy, fatty`)
-  are essentially Level 1 — that's why current flavor3D labels read
-  "Sour Fruity" / "Bitter Peanut" / "Pungent Spicy Aromatic" at the
-  right altitude. To go deeper:
-  1. Retrain GNN on Level-2 descriptors using FlavorDB / FlavorNet
-     compound-level data already in chemDataset/processed/.
-  2. Build a hand-curated Level-1 → Level-2 mapping for clusters that
-     are clearly anchored on a specific Level-2 (e.g. our citrus
-     cluster surfaces "Bright Citrus" via fruity-axis + citrus
-     category, but with Level-2 we could split it into "Sweet Citrus"
-     vs "Sour Citrus" vs "Bitter Citrus" pockets).
-  3. Eventually adopt TGSC-style Level-3 vocabulary once the model
-     can predict that granularly.
-  Same shape of work as the umami workstream — different signal
-  source. Bottlenecked on training-data label granularity, not on
-  vocabulary curation. Pursue after flavor3D ships and we know what
-  level of label depth users actually want.
+- **Hierarchical flavor-wheel taxonomy — PARTIALLY SHIPPED 2026-05-17
+  evening.** Investigation revealed that `gnn_compounds.json` already
+  contains per-ingredient Level-3 descriptor tags (`minty, peppermint,
+  menthol, camphor; coconut, wax, waxy, fat; balsamic, gasoline,
+  floral; musty, coffee, cocoa, sulfurous, onion, ripe, meaty,
+  cooked`) aggregated from FlavorDB compound metadata. 3,283 of 3,913
+  ingredients have descriptor tags, 206 unique tags in the corpus.
+  No GNN retraining required.
+  Shipped in flavor_layout_v2.py:
+  - `_build_descriptor_profile()` aggregates per-ingredient tags
+    from gnn_compounds.json top compounds.
+  - Labeler uses descriptor lift (cluster_share / global_share, ≥2.0
+    lift, ≥30% support) as a TERTIARY anchor when category and top
+    token fail. Used only when nothing else fires because descriptor
+    mining surfaces real chemistry but can pick up trace notes that
+    don't match cluster identity (e.g. "mint" winning on an aged-
+    cheese cluster because cheese rinds contain menthone).
+  - Underscore-joined tags normalized for display (`hop_oil` → `Hop Oil`).
+  Still open for future iteration:
+  - **Multi-anchor labels.** Surface descriptor as a *secondary*
+    qualifier alongside the category anchor, e.g. "Sweet Dairy ·
+    Coconut" or "Sour Fruit · Tropical". Currently descriptors only
+    fire when no category wins.
+  - **Cluster splitting.** Use the descriptor space to split large
+    clusters (Sour Fruit n=313, Bitter Sauce n=428) into Level-2
+    pockets via secondary k-means within the cluster.
+  - **TGSC vocabulary mapping.** TGSC's industry-standard
+    descriptor taxonomy could replace our ad-hoc descriptor set.
+    Manual curation; lower priority than cluster splitting.

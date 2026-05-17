@@ -31,6 +31,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ENTROPY = ROOT / "public" / "proDataset" / "gnn_entropy.json"
 INGREDIENTS = ROOT / "public" / "proDataset" / "ingredients.json"
 COMPOUND_FOODS_JSON = ROOT / "public" / "proDataset" / "compound_foods.json"
+GNN_COMPOUNDS = ROOT / "public" / "proDataset" / "gnn_compounds.json"
 OUT_POS = ROOT / "public" / "proDataset" / "flavor_positions.json"
 OUT_CL = ROOT / "public" / "proDataset" / "flavor_cluster_labels.json"
 
@@ -208,6 +209,64 @@ def _root_tokens(name: str):
     return [t for t in tokens if t not in _STOP_WORDS and len(t) > 2]
 
 
+def _build_descriptor_profile(gnn_compounds):
+    """For each ingredient, aggregate FlavorDB-style descriptor tags
+    across its top compounds (from gnn_compounds.json). These tags are
+    Level-2/3 in the SCAA-style flavor wheel (minty, peppermint, menthol,
+    camphor; coconut, waxy, fat; balsamic, gasoline, floral; musty,
+    coffee, cocoa; etc.) — richer than our 6 GNN aroma axes and already
+    aggregated per ingredient.
+
+    Returns (per_ingredient_tags, global_tag_share) where
+    per_ingredient_tags[name] = Counter of tag → count from top compounds.
+    """
+    per_ingredient_tags = {}
+    global_tag_total = Counter()
+    n_with_tags = 0
+    for name, info in gnn_compounds.items():
+        if name.startswith("_"):
+            continue
+        top = (info or {}).get("top_compounds") or []
+        tags = Counter()
+        for cmpd in top:
+            for tag in (cmpd.get("tags") or []):
+                t = tag.strip().lower()
+                if t:
+                    tags[t] += 1
+        if tags:
+            per_ingredient_tags[name] = tags
+            for tag, c in tags.items():
+                global_tag_total[tag] += 1  # presence per ingredient, not raw count
+            n_with_tags += 1
+    global_tag_share = {t: c / max(n_with_tags, 1) for t, c in global_tag_total.items()}
+    return per_ingredient_tags, global_tag_share
+
+
+# Stop list — tags that are too generic, too chemical-sounding, or
+# too narrow to anchor a flavor label. Descriptor tags come from FlavorDB
+# compound chemistry which mixes consumer-facing notes ("minty", "coconut")
+# with chemical-class notes ("hop_oil", "terpentine"). The latter aren't
+# wrong but they read poorly as cluster labels.
+_GENERIC_DESCRIPTORS = frozenset({
+    # Too generic
+    "odorless", "weak", "mild", "strong", "sharp", "fresh", "soft", "deep",
+    "dry", "wet", "cooked", "raw", "warm", "cool", "dusty", "dust", "gas",
+    "ethereal", "alcoholic", "medical", "balsamic", "n",
+    # Too chemical
+    "terpentine", "turpentine", "hop_oil", "hop oil", "tutti frutti",
+    "tutti_frutti", "ester", "ether", "ketone", "aldehyde",
+    "diacetyl", "lactone", "phenol", "indole", "skatole",
+    "mediumal", "rubbery", "dirty",
+    # Too narrow / quirky
+    "gasoline", "mustard", "menthol",  # menthol triggers on many fruits via terpenes
+})
+
+
+def _clean_descriptor(tag: str) -> str:
+    """Normalize a FlavorDB descriptor for display. 'hop_oil' → 'Hop Oil'."""
+    return re.sub(r"[_\s]+", " ", tag).strip().title()
+
+
 def _compute_global_baselines(names, ingredients, entropy):
     """Global taste-share + aroma-mean across all GNN-covered ingredients.
 
@@ -242,7 +301,9 @@ def _compute_global_baselines(names, ingredients, entropy):
 
 
 def auto_label_flavor_cluster(sorted_members, ingredients, entropy,
-                              global_taste_share, global_aroma_mean):
+                              global_taste_share, global_aroma_mean,
+                              per_ingredient_tags=None,
+                              global_tag_share=None):
     """Label a cluster from its 25 centroid-closest members using LIFT
     against global baselines so non-sweet tastes and aroma signal can
     win the label.
@@ -263,6 +324,8 @@ def auto_label_flavor_cluster(sorted_members, ingredients, entropy,
     aroma_n = 0
     cats = Counter()
     tokens = Counter()
+    descriptors = Counter()
+    descriptor_n = 0
 
     for name in closest:
         node = ingredients.get(name) or {}
@@ -280,6 +343,15 @@ def auto_label_flavor_cluster(sorted_members, ingredients, entropy,
             aroma_n += 1
             for a in ODOR_AXES:
                 aromas_sum[a.replace("odor_", "")] += probs.get(a, 0.0)
+        # FlavorDB descriptor tags from this ingredient's top compounds
+        if per_ingredient_tags is not None:
+            ing_tags = per_ingredient_tags.get(name)
+            if ing_tags:
+                descriptor_n += 1
+                # Record presence (not raw count) so a single ingredient with
+                # 5 "minty" tag instances doesn't dominate the cluster score
+                for tag in ing_tags:
+                    descriptors[tag] += 1
 
     # Taste lift
     taste_word = ""
@@ -316,7 +388,36 @@ def auto_label_flavor_cluster(sorted_members, ingredients, entropy,
             aroma_candidates.sort(key=lambda x: x[1], reverse=True)
             aroma_word = aroma_candidates[0][0].title()
 
-    # Anchor
+    # Descriptor (Level-2/3 FlavorDB tag) — preferred anchor because
+    # it carries actual flavor meaning (minty / coconut / cocoa) rather
+    # than just naming the ingredient family. Strict thresholds: tag
+    # must appear in ≥30% of the closest 25 members AND show ≥2× lift
+    # vs global. Underscored multi-word tags are normalized for display.
+    descriptor_word = ""
+    if descriptor_n > 0 and global_tag_share:
+        desc_candidates = []
+        for tag, count in descriptors.items():
+            if tag in _GENERIC_DESCRIPTORS:
+                continue
+            share = count / descriptor_n
+            if share < 0.30:
+                continue
+            gshare = global_tag_share.get(tag, 0.001)
+            if gshare < 0.001:
+                continue
+            lift = share / gshare
+            if lift >= 2.0:
+                desc_candidates.append((tag, lift, share))
+        if desc_candidates:
+            desc_candidates.sort(key=lambda x: x[1], reverse=True)
+            descriptor_word = _clean_descriptor(desc_candidates[0][0])
+
+    # Anchor priority: category (≥40% support) > top token > descriptor
+    # > first-name-token. Descriptors are kept as a tertiary anchor only
+    # because they surface real chemistry but often pick up trace notes
+    # that contradict the cluster's identity (e.g. "mint" winning on an
+    # aged-cheese cluster because cheese rinds contain menthone). The
+    # higher-confidence signals must fail first before descriptors fire.
     anchor = ""
     top_cat = cats.most_common(1)
     if top_cat and top_cat[0][1] / TOP_N >= 0.4:
@@ -325,6 +426,8 @@ def auto_label_flavor_cluster(sorted_members, ingredients, entropy,
         top_tok = tokens.most_common(1)
         if top_tok and top_tok[0][1] >= max(3, TOP_N // 5):
             anchor = top_tok[0][0].title()
+    if not anchor and descriptor_word:
+        anchor = descriptor_word
     if not anchor:
         # Last resort: the first significant root token of the closest
         # ingredient name. Using the full name produces 4-word anchors
@@ -352,11 +455,15 @@ def main(k: int = 12):
     names, X = build_features()
     ingredients = json.loads(INGREDIENTS.read_text(encoding="utf-8"))
     entropy = json.loads(ENTROPY.read_text(encoding="utf-8"))
+    gnn_compounds = json.loads(GNN_COMPOUNDS.read_text(encoding="utf-8"))
     print(f"[v2] features {X.shape} | k={k}")
 
     global_taste_share, global_aroma_mean = _compute_global_baselines(
         names, ingredients, entropy,
     )
+    per_ingredient_tags, global_tag_share = _build_descriptor_profile(gnn_compounds)
+    print(f"[v2] descriptor profile: {len(per_ingredient_tags)} ingredients have FlavorDB tags, "
+          f"{len(global_tag_share)} unique tags across the corpus")
     print("[v2] global taste baseline:", {t: f"{v*100:.0f}%" for t, v in sorted(
         global_taste_share.items(), key=lambda kv: -kv[1])[:6]})
     print("[v2] global aroma baseline:", {a: f"{v*100:.1f}%" for a, v in sorted(
@@ -436,6 +543,8 @@ def main(k: int = 12):
         label = auto_label_flavor_cluster(
             sorted_members, ingredients, entropy,
             global_taste_share, global_aroma_mean,
+            per_ingredient_tags=per_ingredient_tags,
+            global_tag_share=global_tag_share,
         )
 
         clusters.append({
