@@ -1,6 +1,9 @@
 import { useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import TasteRadar from './TasteRadar.jsx';
 import OdorBadge from './OdorBadge.jsx';
+import CuisineChip from './CuisineChip.jsx';
+import CuisineFilterPills from './CuisineFilterPills.jsx';
+import { getCuisinePair, displayableCuisine } from '../data/cuisinePairings.js';
 import PredictedProfile from './PredictedProfile.jsx';
 import SharedMoleculesCard from './SharedMoleculesCard.jsx';
 import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
@@ -203,7 +206,7 @@ function PairingStar({ a, b, isFavorite, onToggle }) {
   );
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes, affinityCtx, onFilterBucket = null }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes, affinityCtx, cuisinePairLookup = null, onFilterBucket = null }) {
   const panelRef = useRef(null);
   // Per user request 2026-04-29: panel starts COLLAPSED on each new
   // selection. Clicking an ingredient should not pop a window open;
@@ -224,6 +227,16 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('ingredient-panel-view', pairingsView);
   }, [pairingsView]);
+
+  // Stage 5 (cuisine-pairings ingestion): per-focal cuisine filter for the
+  // Top Pairings list. Null = show all. When set, only pairings whose
+  // cuisinePair record's displayable cuisine matches will render.
+  // Reset whenever the focal changes so the filter doesn't leak across
+  // ingredient pivots.
+  const [cuisineFilter, setCuisineFilter] = useState(null);
+  useEffect(() => {
+    setCuisineFilter(null);
+  }, [node?.name]);
 
   // User feedback 2026-05-13: the radial-wheel UX lives in the 3D fly-to
   // (AffinityMode.js) instead of this side-panel toggle. Keeping the
@@ -625,27 +638,46 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 onIngredientClick={(name) => onSelectIngredient && onSelectIngredient(name)}
               />
             ) : (
-              <ul className="space-y-1.5">
-                {sortedNeighbors.map((neighbor) => (
-                  <li key={neighbor.name}>
-                    <button
-                      onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
-                      className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors group"
-                    >
-                      <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
-                      <StrengthBar strength={neighbor.strength} />
-                      <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
-                      <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
-                      <PairingStar
-                        a={node?.name}
-                        b={neighbor.name}
-                        isFavorite={hasPairing?.(node?.name, neighbor.name)}
-                        onToggle={onTogglePairing}
-                      />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <>
+                <CuisineFilterPills
+                  neighbors={sortedNeighbors}
+                  focalName={node?.name}
+                  cuisinePairLookup={cuisinePairLookup}
+                  active={cuisineFilter}
+                  onChange={setCuisineFilter}
+                />
+                <ul className="space-y-1.5">
+                  {sortedNeighbors
+                    .filter((neighbor) => {
+                      if (!cuisineFilter) return true;
+                      const rec = getCuisinePair(cuisinePairLookup, node?.name, neighbor.name);
+                      return displayableCuisine(rec) === cuisineFilter;
+                    })
+                    .map((neighbor) => {
+                      const cuisineRec = getCuisinePair(cuisinePairLookup, node?.name, neighbor.name);
+                      return (
+                      <li key={neighbor.name}>
+                        <button
+                          onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
+                          className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors group"
+                        >
+                          <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
+                          <StrengthBar strength={neighbor.strength} />
+                          <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                          <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
+                          <CuisineChip record={cuisineRec} compact />
+                          <PairingStar
+                            a={node?.name}
+                            b={neighbor.name}
+                            isFavorite={hasPairing?.(node?.name, neighbor.name)}
+                            onToggle={onTogglePairing}
+                          />
+                        </button>
+                      </li>
+                      );
+                    })}
+                </ul>
+              </>
             )}
           </CollapsibleSection>
         )}
@@ -991,21 +1023,40 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 onIngredientClick={(name) => onSelectIngredient && onSelectIngredient(name)}
               />
             ) : (
-              <ul className="space-y-1.5">
-                {sortedNeighbors.map((neighbor) => (
-                  <li key={neighbor.name}>
-                    <button
-                      onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
-                      className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
-                    >
-                      <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
-                      <StrengthBar strength={neighbor.strength} />
-                      <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
-                      <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <>
+                <CuisineFilterPills
+                  neighbors={sortedNeighbors}
+                  focalName={node?.name}
+                  cuisinePairLookup={cuisinePairLookup}
+                  active={cuisineFilter}
+                  onChange={setCuisineFilter}
+                />
+                <ul className="space-y-1.5">
+                  {sortedNeighbors
+                    .filter((neighbor) => {
+                      if (!cuisineFilter) return true;
+                      const rec = getCuisinePair(cuisinePairLookup, node?.name, neighbor.name);
+                      return displayableCuisine(rec) === cuisineFilter;
+                    })
+                    .map((neighbor) => {
+                      const cuisineRec = getCuisinePair(cuisinePairLookup, node?.name, neighbor.name);
+                      return (
+                      <li key={neighbor.name}>
+                        <button
+                          onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
+                          className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
+                        >
+                          <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
+                          <StrengthBar strength={neighbor.strength} />
+                          <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
+                          <OdorBadge a={node?.name} b={neighbor.name} bridgeCompounds={bridgeCompounds} compact />
+                          <CuisineChip record={cuisineRec} compact />
+                        </button>
+                      </li>
+                      );
+                    })}
+                </ul>
+              </>
             )}
           </CollapsibleSection>
         )}
