@@ -73,7 +73,6 @@ const SUBSTITUTES = {
   'tomato paste': 'tomato',
   'tomato puree': 'tomato',
   'cheese cream': 'cream cheese',
-  'soybean': 'soy sauce',              // closest GNN entry
   'pork': 'bacon',                     // bacon carries the pork signal
   'ham': 'bacon',
   'eggs': 'egg yolk',
@@ -83,6 +82,11 @@ const SUBSTITUTES = {
   'beer': 'beer',                      // ensure stays mapped
   'hops beer': 'beer',
 };
+
+// REMOVED: 'soybean': 'soy sauce' — soybean has its own GNN prediction
+// now, and that substitution caused a circular reference when synthesizing
+// soy sauce (constituent → substituted to self → uses own bad prediction).
+// Keep this comment as a tombstone so the mapping doesn't get re-added.
 
 export const COMPOUND_FOODS = {
   // ---- Emulsions ----
@@ -517,6 +521,83 @@ export const COMPOUND_FOODS = {
     constituents: { 'tea': 0.85, 'sugar': 0.15 },
     description: 'tart floral tea',
   },
+
+  // ---- Umami pantry (fermented soy + fish + glutamate sauces) ----
+  // These all have direct GNN entries but the predictions are
+  // near-identical garbage (umami=1.8%, sweet=17%, bitter=17%) because
+  // the GNN was trained on FooDB compound chemistry that doesn't
+  // resolve fermentation-derived umami molecules well. The
+  // `forceCompound: true` flag tells applyCompoundSynthesis to OVERRIDE
+  // those bad predictions with constituent-derived ones.
+  //
+  // Constituents weighted toward parmesan + mushroom because those
+  // carry the strongest "savory aged-flavor" signal we can pull from
+  // the existing GNN (high woody/spicy/green odor probs). Soybean +
+  // anchovy contribute their own baseline. This won't reach the actual
+  // umami intensity these condiments have — the GNN can't see free
+  // glutamate, IMP, GMP at the molecular level — but it lifts them
+  // into the savory cluster instead of the sweet/bitter midpoint they
+  // currently sit at.
+  'soy sauce': {
+    constituents: { 'soybean': 0.35, 'mushroom': 0.25, 'parmesan': 0.25, 'shiitake mushroom': 0.1, 'rice vinegar': 0.05 },
+    description: 'fermented soybean liquid — umami pantry',
+    forceCompound: true,
+  },
+  'tamari': { aliasOf: 'soy sauce' },
+  'shoyu': { aliasOf: 'soy sauce' },
+  'dark soy sauce': { aliasOf: 'soy sauce' },
+  'light soy sauce': { aliasOf: 'soy sauce' },
+  'miso': {
+    constituents: { 'soybean': 0.4, 'mushroom': 0.2, 'parmesan': 0.2, 'rice': 0.1, 'shiitake mushroom': 0.1 },
+    description: 'fermented soybean paste',
+    forceCompound: true,
+  },
+  'red miso': { aliasOf: 'miso' },
+  'white miso': { aliasOf: 'miso' },
+  'fish sauce': {
+    constituents: { 'anchovy': 0.4, 'mushroom': 0.25, 'parmesan': 0.25, 'shiitake mushroom': 0.1 },
+    description: 'fermented anchovy liquid',
+    forceCompound: true,
+  },
+  'nuoc cham': { aliasOf: 'fish sauce' },
+  'nam pla': { aliasOf: 'fish sauce' },
+  'oyster sauce': {
+    constituents: { 'mushroom': 0.3, 'soybean': 0.2, 'parmesan': 0.2, 'shiitake mushroom': 0.15, 'sugar': 0.15 },
+    description: 'fermented oyster + soy reduction',
+    forceCompound: true,
+  },
+  'worcestershire sauce': {
+    constituents: { 'anchovy': 0.3, 'mushroom': 0.2, 'parmesan': 0.15, 'molasses': 0.1, 'rice vinegar': 0.1, 'tamarind paste': 0.1, 'garlic': 0.05 },
+    description: 'fermented anchovy + vinegar + sweet',
+    forceCompound: true,
+  },
+  'worcestershire': { aliasOf: 'worcestershire sauce' },
+  'doenjang': {
+    constituents: { 'soybean': 0.4, 'mushroom': 0.25, 'parmesan': 0.25, 'shiitake mushroom': 0.1 },
+    description: 'Korean fermented soybean paste',
+    forceCompound: true,
+  },
+  'sriracha': {
+    constituents: { 'red chili pepper': 0.55, 'garlic': 0.2, 'sugar': 0.15, 'rice vinegar': 0.1 },
+    description: 'fermented chili-garlic paste',
+  },
+  'sambal oelek': {
+    constituents: { 'red chili pepper': 0.7, 'rice vinegar': 0.15, 'salt': 0.15 },
+    description: 'Indonesian raw chili paste',
+  },
+  'teriyaki': {
+    constituents: { 'soybean': 0.3, 'sugar': 0.25, 'mushroom': 0.15, 'parmesan': 0.1, 'sake': 0.1, 'ginger': 0.1 },
+    description: 'sweet-savory soy glaze',
+  },
+  'teriyaki sauce': { aliasOf: 'teriyaki' },
+  'ponzu': {
+    constituents: { 'soybean': 0.3, 'lemon juice': 0.25, 'rice vinegar': 0.2, 'mushroom': 0.15, 'parmesan': 0.1 },
+    description: 'citrus-soy dipping sauce',
+  },
+  'tonkatsu sauce': {
+    constituents: { 'tomato': 0.3, 'sugar': 0.2, 'soybean': 0.15, 'apple': 0.15, 'rice vinegar': 0.1, 'mushroom': 0.1 },
+    description: 'fruity-savory Japanese cutlet sauce',
+  },
 };
 
 /**
@@ -595,7 +676,15 @@ export function applyCompoundSynthesis(nodes) {
       continue;
     }
     const node = nodes.get(name);
-    if (!node || node.gnnProbs) continue;
+    if (!node) continue;
+    // Skip when a direct GNN prediction exists UNLESS the entry is
+    // flagged `forceCompound: true`. The flag is used for fermented
+    // umami pantry items (soy sauce, miso, fish sauce, oyster sauce,
+    // worcestershire) where the GNN's direct prediction is known to
+    // be unreliable — all four cluster at the same near-identical
+    // sweet/bitter midpoint because FooDB-derived chemistry doesn't
+    // resolve fermentation-derived umami molecules.
+    if (node.gnnProbs && !def.forceCompound) continue;
     const synth = synthesizeCompoundProfile(name, nodes);
     if (!synth) continue;
     node.gnnProbs = synth.probs;

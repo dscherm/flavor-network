@@ -30,6 +30,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 ENTROPY = ROOT / "public" / "proDataset" / "gnn_entropy.json"
 INGREDIENTS = ROOT / "public" / "proDataset" / "ingredients.json"
+COMPOUND_FOODS_JSON = ROOT / "public" / "proDataset" / "compound_foods.json"
 OUT_POS = ROOT / "public" / "proDataset" / "flavor_positions.json"
 OUT_CL = ROOT / "public" / "proDataset" / "flavor_cluster_labels.json"
 
@@ -73,17 +74,115 @@ def _jitter_for(name: str):
     )
 
 
+def _synthesize_compound_vector(compound_name, compound_foods, substitutes,
+                                base_vectors):
+    """Resolve a compound food's 11-dim feature vector via weighted mean
+    of its constituent vectors. Returns (vector, coverage) or None if
+    coverage < 50% of declared constituent weight.
+
+    Mirrors the runtime synthesizeCompoundProfile() logic in
+    src/data/compoundFoods.js — same coverage gate, same substitute
+    lookup, same weighted mean — so positions computed offline here
+    match what the UI sees from applyCompoundSynthesis at runtime.
+    """
+    visited = set()
+
+    def resolve(name, weight):
+        if name in visited:
+            return None
+        entry = compound_foods.get(name)
+        if entry and entry.get("aliasOf"):
+            return resolve(entry["aliasOf"], weight)
+        return name
+
+    entry = compound_foods.get(compound_name)
+    if entry is None or entry.get("aliasOf"):
+        return None
+    consts = entry.get("constituents") or {}
+    total_w = sum(consts.values())
+    if total_w <= 0:
+        return None
+
+    avail_w = 0.0
+    sum_vec = np.zeros(len(ALL_AXES))
+    for c_name, weight in consts.items():
+        lookup = substitutes.get(c_name, c_name)
+        # If the constituent is itself a compound food, resolve via alias
+        # chain (handles tamari → soy sauce → constituents).
+        alias_entry = compound_foods.get(lookup)
+        if alias_entry and alias_entry.get("aliasOf"):
+            lookup = alias_entry["aliasOf"]
+        vec = base_vectors.get(lookup)
+        if vec is None:
+            continue
+        avail_w += weight
+        sum_vec += np.array(vec) * weight
+
+    if avail_w / total_w < 0.5:
+        return None
+    return sum_vec / avail_w, avail_w / total_w
+
+
 def build_features():
+    """Build the per-ingredient flavor feature matrix.
+
+    Source priority per ingredient:
+      1. forceCompound compound foods → synthesized vector (overrides GNN)
+      2. Direct GNN prediction from gnn_entropy.json
+      3. Gap-filling compound foods (no GNN entry, has constituent breakdown)
+
+    This mirrors the runtime applyCompoundSynthesis logic in
+    src/data/compoundFoods.js so offline positions match what the UI
+    would synthesize. Without this, compound foods like mayonnaise /
+    pesto / sriracha sit at recipe-coocc fallback in flavor3D, and
+    the umami pantry (soy sauce / miso / fish sauce / oyster sauce /
+    worcestershire) sits at near-identical garbage GNN positions.
+    """
     entropy = json.loads(ENTROPY.read_text(encoding="utf-8"))
-    names, features = [], []
+
+    # Pass 1: collect direct GNN vectors (the "base" each compound food
+    # will synthesize against).
+    base_vectors = {}
     for name, data in entropy.items():
         probs = (data or {}).get("probs")
         if not probs:
             continue
-        vec = [probs.get(ax, 0.0) for ax in ALL_AXES]
-        names.append(name)
-        features.append(vec)
-    return names, np.array(features)
+        base_vectors[name] = [probs.get(ax, 0.0) for ax in ALL_AXES]
+
+    # Load compound-food synthesis table (extracted from compoundFoods.js).
+    compound_payload = json.loads(COMPOUND_FOODS_JSON.read_text(encoding="utf-8"))
+    compound_foods = compound_payload.get("compound_foods", {})
+    substitutes = compound_payload.get("substitutes", {})
+
+    # Pass 2: synthesize compound foods. forceCompound entries overwrite
+    # the base vector; non-forceCompound entries only fill gaps where
+    # no GNN base exists.
+    synthesized = 0
+    overridden = 0
+    for cname, entry in compound_foods.items():
+        if entry.get("aliasOf"):
+            # Aliases resolve at write-out so each canonical entry's
+            # position is reused by its aliases.
+            continue
+        force = bool(entry.get("forceCompound"))
+        if cname in base_vectors and not force:
+            continue
+        result = _synthesize_compound_vector(cname, compound_foods, substitutes, base_vectors)
+        if result is None:
+            continue
+        vec, _coverage = result
+        if cname in base_vectors:
+            overridden += 1
+        else:
+            synthesized += 1
+        base_vectors[cname] = vec.tolist()
+
+    # Pass 3: build feature matrix in deterministic name order
+    names = sorted(base_vectors.keys())
+    features = np.array([base_vectors[n] for n in names])
+    print(f"[v2] synthesized {synthesized} new compound foods, "
+          f"overrode {overridden} bad-GNN compound foods")
+    return names, features
 
 
 # Simple stop words; we want lasting descriptive tokens, not generic ones.
@@ -227,7 +326,13 @@ def auto_label_flavor_cluster(sorted_members, ingredients, entropy,
         if top_tok and top_tok[0][1] >= max(3, TOP_N // 5):
             anchor = top_tok[0][0].title()
     if not anchor:
-        anchor = (closest[0] if closest else "Mix").title()
+        # Last resort: the first significant root token of the closest
+        # ingredient name. Using the full name produces 4-word anchors
+        # like "Lime Juice Freshly Squeezed" when the closest member is
+        # a multi-word variant.
+        first_name = closest[0] if closest else "Mix"
+        first_tokens = _root_tokens(first_name)
+        anchor = (first_tokens[0] if first_tokens else first_name).title()
 
     parts = []
     if taste_word:
@@ -283,11 +388,31 @@ def main(k: int = 12):
           f"y={pos[:,1].min():.2f}..{pos[:,1].max():.2f} "
           f"z={pos[:,2].min():.2f}..{pos[:,2].max():.2f}")
 
-    # Write positions
+    # Write positions, including alias mirrors so tamari/shoyu/etc. land
+    # at their canonical entry's position rather than recipe-coocc fallback.
     out_pos = {name: [float(pos[i,0]), float(pos[i,1]), float(pos[i,2])]
                for i, name in enumerate(names)}
+    compound_payload = json.loads(COMPOUND_FOODS_JSON.read_text(encoding="utf-8"))
+    compound_foods = compound_payload.get("compound_foods", {})
+    alias_mirrored = 0
+    for alias_name, entry in compound_foods.items():
+        target = entry.get("aliasOf")
+        if not target:
+            continue
+        # Follow alias chain to canonical
+        seen = {alias_name}
+        while target in compound_foods and compound_foods[target].get("aliasOf"):
+            if target in seen:
+                target = None
+                break
+            seen.add(target)
+            target = compound_foods[target]["aliasOf"]
+        if target and target in out_pos:
+            out_pos[alias_name] = list(out_pos[target])
+            alias_mirrored += 1
     OUT_POS.write_text(json.dumps(out_pos), encoding="utf-8")
-    print(f"[v2] wrote {OUT_POS.name} ({len(out_pos)} ingredients)")
+    print(f"[v2] wrote {OUT_POS.name} ({len(out_pos)} ingredients, "
+          f"{alias_mirrored} alias mirrors)")
 
     # K-means on 3D positions → cluster labels
     km = KMeans(n_clusters=k, random_state=42, n_init=10)
