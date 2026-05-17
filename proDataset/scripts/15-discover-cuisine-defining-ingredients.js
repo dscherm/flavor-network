@@ -57,10 +57,13 @@ const OUT_PATH = path.join(OUTPUT_DIR, 'missing_cuisine_ingredients.json');
 // Minimum recipe-count threshold for a candidate to be retained.
 // Below this it's noise — even valid ingredients need broad evidence
 // before we recommend adding them to the live graph.
-const MIN_RECIPE_COUNT = 8;
+const MIN_RECIPE_COUNT = 30;
 // Dominance threshold — primary cuisine's recipePct must be at least
-// this multiple of the second-place cuisine's recipePct.
-const MIN_DOMINANCE = 2.5;
+// this multiple of the second-place cuisine's recipePct. Lowered from
+// 2.5 to 1.5 so cross-cuisine ingredients with one clear top home
+// (sriracha → Thai, panko → Japan, okra → various) aren't filtered.
+// MIN_RECIPE_COUNT bumped to 30 to compensate for the looser dominance.
+const MIN_DOMINANCE = 1.5;
 // Confidence floor for the signature classifier to count as a tag.
 const SIG_CONFIDENCE_GAP = 2;
 const MIN_INGS = 2;
