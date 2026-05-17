@@ -21,12 +21,14 @@
 // ingredient GNN taste+aroma vectors (public/proDataset/flavor_positions.json)
 // rather than from the Node2Vec recipe-cooccurrence embedding. Position
 // = flavor identity; edges still encode pairing.
-export const MODE_CYCLE = ['3D', '2D', 'flavor3D'];
+export const MODE_CYCLE = ['flavor3D', '3D', '2D'];
+
+export const DEFAULT_MODE = 'flavor3D';
 
 export const MODE_LABELS = {
-  '3D': '3D Pairings',
+  '3D': 'Recipe Network (legacy)',
   '2D': '2D Pairings',
-  'flavor3D': 'Flavor Space (beta)',
+  'flavor3D': 'Flavor Network',
 };
 
 // ===== Filter pill row (new in R16 Phase 1) ==============================

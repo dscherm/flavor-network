@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import NetworkScene from './NetworkScene.jsx';
 import SauceDetailPanel from './SauceDetailPanel.jsx';
 import SauceBrowse from './SauceBrowse.jsx';
@@ -10,6 +10,7 @@ import { createClusterLabels, createGlowSprite } from '../three/AxisLabels.js';
 import ClusterJoystick from './ClusterJoystick.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
 import { SAUCE_SHAPE_LEGEND } from '../data/sauceShapes.js';
+import { formatSimilarityBadge } from '../data/recipeAromaSimilarity.js';
 
 /**
  * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
@@ -31,6 +32,11 @@ export default function SauceLab({
   //   { family?: string, cuisine?: string }
   // Pre-selects filter pills on mount. Optional; null = no pre-filter.
   externalFilter = null,
+  // P7: aroma-match context from RecipeLab. When non-null, renders
+  // only the matched sauces instead of the full browse view.
+  // Shape: { recipeName: string, items: AromaMatchResult[] }
+  matchesContext = null,
+  onExitMatches = () => {},
 }) {
   const [codexData, setCodexData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -239,6 +245,106 @@ export default function SauceLab({
     setSelectedSauce(node.name);
   }, []);
 
+  // aria-live announcement when matchesContext becomes active.
+  const prevMatchesRef = useRef(null);
+  const [liveMsg, setLiveMsg] = useState('');
+  useEffect(() => {
+    if (matchesContext && prevMatchesRef.current === null) {
+      setLiveMsg(
+        `Showing ${matchesContext.items.length} sauces matched to ${matchesContext.recipeName}`,
+      );
+    } else if (!matchesContext) {
+      setLiveMsg('');
+    }
+    prevMatchesRef.current = matchesContext;
+  }, [matchesContext]);
+
+  // ── Matches mode — replaces the full browse view entirely ──────────
+  // Short-circuit BEFORE loading/error guards: the card list renders
+  // purely from matchesContext.items and needs no codex data.
+  if (matchesContext !== null) {
+    return (
+      <div className="absolute inset-0 overflow-y-auto bg-neural-bg text-neural-text">
+        {/* aria-live region for screen-reader announcements */}
+        <div aria-live="polite" aria-atomic="true" className="sr-only">{liveMsg}</div>
+
+        {/* Header strip */}
+        <div className="sticky top-0 z-30 bg-[#12121a]/95 backdrop-blur-md border-b border-[#1e1e2e] px-4 py-3 flex items-center gap-3">
+          {/* "Matches for …" header chip — reuses same pill style as
+              cuisine chips in the browse filter bar */}
+          <span className="px-2.5 py-1 rounded-full text-[11px] border bg-cyan-500/20 border-cyan-400/60 text-cyan-200 whitespace-nowrap">
+            Matches for {matchesContext.recipeName}
+          </span>
+          <span className="text-[11px] text-gray-500">{matchesContext.items.length} sauces</span>
+          <div className="flex-1" />
+          <button
+            type="button"
+            aria-label="Exit matches and browse all sauces"
+            onClick={onExitMatches}
+            className="px-2.5 py-1 rounded-full text-[11px] border bg-[#12121a] border-[#2a2a3a] text-gray-400 hover:text-gray-200 hover:border-[#3a3a4a] transition-colors whitespace-nowrap"
+          >
+            Show all sauces
+          </button>
+        </div>
+
+        {/* Matched sauce cards */}
+        <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {matchesContext.items.map(({ item, similarity, matchedAromas }, idx) => {
+              const isSelected = selectedSauce === item.name;
+              return (
+                <li key={`${item.name}-${idx}`}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSauce(item.name)}
+                    className={`w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-md text-left text-[12px] transition-colors ${
+                      isSelected
+                        ? 'bg-cyan-500/15 border border-cyan-400/40 text-white'
+                        : 'border border-[#1e1e2e] hover:bg-[#161622] text-gray-200'
+                    }`}
+                  >
+                    {/* Row 1: name + similarity badge */}
+                    <div className="flex items-center gap-2">
+                      <span className="flex-1 truncate font-medium">{item.name}</span>
+                      <span className="text-[10px] px-1.5 py-px rounded border border-cyan-400/40 text-cyan-300 bg-cyan-500/10 flex-shrink-0">
+                        {formatSimilarityBadge(similarity)}
+                      </span>
+                    </div>
+                    {/* Row 2: matched aroma chips */}
+                    {matchedAromas.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {matchedAromas.map((aromaKey) => (
+                          <span
+                            key={aromaKey}
+                            className="text-[9px] px-1.5 py-px rounded-full border border-[#2a2a3a] text-gray-400 bg-[#12121a]"
+                          >
+                            {formatAromaKey(aromaKey)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Detail panel still available in matches mode */}
+        {selectedSauce && codexData && (
+          <SauceDetailPanel
+            sauce={codexData.graph.nodes.get(selectedSauce)}
+            family={familyForSelected}
+            similarSauces={similarSauces}
+            onSelectSauce={(name) => setSelectedSauce(name)}
+            onOpenRecipeLab={onOpenRecipeLab}
+            onClose={() => setSelectedSauce(null)}
+          />
+        )}
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
@@ -380,4 +486,11 @@ export default function SauceLab({
       )}
     </>
   );
+}
+
+// Strip the "odor_" prefix and capitalize the first letter for display.
+// e.g. "odor_fruity" → "Fruity", "fruity" → "Fruity"
+function formatAromaKey(key) {
+  const stripped = (key || '').replace(/^odor_/, '');
+  return stripped.charAt(0).toUpperCase() + stripped.slice(1);
 }

@@ -3,7 +3,7 @@ import RecipeLabMobile from './RecipeLabMobile.jsx';
 // RecipeLab is a thin alias for RecipeLabMobile. Web and iOS share the same
 // 3-zone layout (taste wheel, notebook, suggestion drawer). The `isMobile`
 // prop is accepted for backwards-compatibility but ignored.
-export default function RecipeLab({ fullData, initialIngredient, initialIngredients, initialMode, handoff, userProfile }) {
+export default function RecipeLab({ fullData, initialIngredient, initialIngredients, initialMode, handoff, userProfile, onFindCocktail, onFindSauce }) {
   return (
     <RecipeLabMobile
       fullData={fullData}
@@ -12,6 +12,8 @@ export default function RecipeLab({ fullData, initialIngredient, initialIngredie
       initialMode={initialMode}
       handoff={handoff}
       userProfile={userProfile}
+      onFindCocktail={onFindCocktail}
+      onFindSauce={onFindSauce}
     />
   );
 }

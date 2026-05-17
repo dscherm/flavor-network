@@ -18,3 +18,11 @@ export const POPOUT_HEIGHT = 15; // units above/below wheel
 // feedback ("we need it to rotate around the model"). Toggle via
 // URL: `?cameraAnim=v1` (force on) or `?cameraAnim=off` (force off).
 export const CAMERA_ANIMATOR_DEFAULT_ON = true;
+
+// flavor3D pivot-advance interval. When `pivotAdvanceMs` is set on
+// CameraAnimator and a non-empty `pivotTargets` array is provided, the
+// continuous-orbit tour eases its pivot from one cluster centroid to
+// the next every N milliseconds. `null` disables the advance (legacy
+// byte-identical v2 behavior). Lives here so the tuning value is a
+// single named constant rather than scattered magic numbers.
+export const FLAVOR3D_PIVOT_ADVANCE_MS = 3500;

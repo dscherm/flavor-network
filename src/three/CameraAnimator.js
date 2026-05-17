@@ -234,6 +234,23 @@ export class CameraAnimator {
     this._tourAzimuthOffset = 0;
     this._tourElapsedMs = 0;
 
+    // Pivot-advance config (flavor3D mode, ADR-3). When
+    // `_pivotAdvanceMs` is null, the tour pivot stays on the
+    // captured `controls.target` for the lifetime of the orbit —
+    // this is the byte-identical legacy v2 contract. When it's a
+    // positive number AND `_pivotTargets` contains ≥1 cluster
+    // (each with `centroid_3d: [x,y,z]`), the tour pivot eases
+    // from the current cluster centroid to the next every
+    // `_pivotAdvanceMs` milliseconds. The pivot-from / pivot-to
+    // pair is interpolated by easeInOutCubic so the camera glides
+    // smoothly between clusters rather than snapping.
+    this._pivotAdvanceMs = null;
+    this._pivotTargets = [];
+    this._pivotIdx = 0;
+    this._pivotPhaseElapsedMs = 0;
+    this._pivotFrom = new THREE.Vector3();
+    this._pivotTo = new THREE.Vector3();
+
     // Focal-flying tween segment.
     this._segment = null;
 
@@ -391,6 +408,52 @@ export class CameraAnimator {
     this._captureTourOrbit();
     this._state = STATES.TOUR_ORBITING;
     this._takeOwnership();
+  }
+
+  /**
+   * Update the pivot-advance configuration for the cluster tour.
+   * Called by LivingArchView on mode change so the same animator
+   * instance can switch between legacy byte-identical behavior
+   * (`pivotAdvanceMs: null`) and the flavor3D pivot-advancing
+   * variant (`pivotAdvanceMs: 3500`, `pivotTargets: [...]`).
+   *
+   * Contract:
+   *   - `pivotAdvanceMs: null | <=0` → legacy mode. Pivot stays on
+   *     the captured `controls.target`. Byte-identical to v2.
+   *   - `pivotAdvanceMs: > 0` + non-empty `pivotTargets` → tour
+   *     pivot eases between cluster centroids every
+   *     `pivotAdvanceMs` milliseconds.
+   *
+   * `pivotTargets` items must each carry a `centroid_3d: [x,y,z]`
+   * array. Bare `.centroid` is not consulted (ADR field-name lock).
+   * Items missing a valid `centroid_3d` are dropped silently.
+   */
+  setPivotConfig({ pivotAdvanceMs = null, pivotTargets = [] } = {}) {
+    const ms = (typeof pivotAdvanceMs === 'number' && pivotAdvanceMs > 0)
+      ? pivotAdvanceMs
+      : null;
+    const targets = Array.isArray(pivotTargets)
+      ? pivotTargets.filter(t =>
+          t
+          && Array.isArray(t.centroid_3d)
+          && t.centroid_3d.length >= 3
+          && Number.isFinite(t.centroid_3d[0])
+          && Number.isFinite(t.centroid_3d[1])
+          && Number.isFinite(t.centroid_3d[2])
+        )
+      : [];
+    this._pivotAdvanceMs = ms;
+    this._pivotTargets = targets;
+    this._pivotIdx = 0;
+    this._pivotPhaseElapsedMs = 0;
+    // Seed pivot-from / pivot-to so the first advance has a sensible
+    // origin. If the tour is already engaged, captureTourOrbit will
+    // have set _tourPivot to the current controls.target.
+    if (ms !== null && targets.length > 0) {
+      this._pivotFrom.copy(this._tourPivot);
+      const c = targets[0].centroid_3d;
+      this._pivotTo.set(c[0], c[1], c[2]);
+    }
   }
 
   tickAnimation(dtSec) {
@@ -577,6 +640,13 @@ export class CameraAnimator {
   _tickTourOrbit(dt) {
     if (!this._camera || !this._controls) { this._state = STATES.IDLE; return; }
     this._tourElapsedMs += dt * 1000;
+    // Pivot advance (flavor3D mode). Disabled when _pivotAdvanceMs
+    // is null or no targets are configured — in that path the body
+    // below is byte-identical to the pre-P3 behavior (legacy
+    // regression contract per ADR-3).
+    if (this._pivotAdvanceMs !== null && this._pivotTargets.length > 0) {
+      this._advancePivot(dt);
+    }
     const advance = orbitAngle(this._tourElapsedMs, this._tourLapSec);
     const angle = this._tourAzimuthOffset + advance;
     const horiz = this._tourRadius * Math.cos(this._tourElevationRad);
@@ -587,6 +657,36 @@ export class CameraAnimator {
       this._tourPivot.z + horiz * Math.sin(angle),
     );
     this._controls.target.copy(this._tourPivot);
+  }
+
+  /**
+   * Pivot-advance tick. Eases `_tourPivot` from `_pivotFrom` to
+   * `_pivotTo` over `_pivotAdvanceMs` milliseconds via
+   * easeInOutCubic. When the phase completes, advances to the next
+   * cluster and starts a fresh ease.
+   *
+   * Only invoked from `_tickTourOrbit` when both pivotAdvanceMs > 0
+   * AND pivotTargets.length > 0 — so the legacy code path is
+   * untouched.
+   */
+  _advancePivot(dt) {
+    this._pivotPhaseElapsedMs += dt * 1000;
+    const t = Math.min(this._pivotPhaseElapsedMs / this._pivotAdvanceMs, 1);
+    const e = easeInOutCubic(t);
+    this._tourPivot.set(
+      this._pivotFrom.x + (this._pivotTo.x - this._pivotFrom.x) * e,
+      this._pivotFrom.y + (this._pivotTo.y - this._pivotFrom.y) * e,
+      this._pivotFrom.z + (this._pivotTo.z - this._pivotFrom.z) * e,
+    );
+    if (t >= 1) {
+      // Snap from→to to the current pivot for the next phase, then
+      // pick the next centroid in the rotation.
+      this._pivotFrom.copy(this._pivotTo);
+      this._pivotIdx = (this._pivotIdx + 1) % this._pivotTargets.length;
+      const c = this._pivotTargets[this._pivotIdx].centroid_3d;
+      this._pivotTo.set(c[0], c[1], c[2]);
+      this._pivotPhaseElapsedMs = 0;
+    }
   }
 
   _beginFocalFlight() {

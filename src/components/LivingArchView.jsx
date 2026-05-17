@@ -8,7 +8,7 @@ import { computeTastePositions, TASTE_AXES, scoreIngredient } from '../data/tast
 import { getColorForNode } from '../three/NodeMesh.js';
 import { createLivingEdgeMaterial, createLivingParticleMaterial } from '../three/ShaderMaterials.js';
 import { easeInOutCubic, hashStr, seededRng, makeLabel, computeWheelPositions, ingredientHasTaste } from './livingArchUtils.js';
-import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DURATION, POPOUT_HEIGHT, CAMERA_ANIMATOR_DEFAULT_ON } from './livingArchConstants.js';
+import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DURATION, POPOUT_HEIGHT, CAMERA_ANIMATOR_DEFAULT_ON, FLAVOR3D_PIVOT_ADVANCE_MS } from './livingArchConstants.js';
 import { handleSceneClick, handleSceneMove } from './livingArchInteraction.js';
 import { AffinityMode } from '../three/AffinityMode.js';
 import { CameraAnimator } from '../three/CameraAnimator.js';
@@ -161,6 +161,24 @@ export default function LivingArchView({
     // when no focal is selected.
     affinityModeRef.current?.refreshWedgeLayout?.();
   }, [filterStack]);
+
+  // P4: push pivot-advance config to the live CameraAnimator on
+  // every mode or flavorClusterLabels change. mlflavor (flavor3D)
+  // mode uses the pivot-advancing variant; every other mode passes
+  // `{pivotAdvanceMs: null}` so the orbit stays byte-identical to
+  // the legacy v2 behavior (ADR-3 regression contract).
+  useEffect(() => {
+    const animator = cameraAnimatorRef.current;
+    if (!animator || typeof animator.setPivotConfig !== 'function') return;
+    if (mode === 'mlflavor') {
+      animator.setPivotConfig({
+        pivotAdvanceMs: FLAVOR3D_PIVOT_ADVANCE_MS,
+        pivotTargets: data?.flavorClusterLabels?.clusters || [],
+      });
+    } else {
+      animator.setPivotConfig({ pivotAdvanceMs: null, pivotTargets: [] });
+    }
+  }, [mode, data?.flavorClusterLabels]);
 
   // ---- Build scene ----
   useEffect(() => {
@@ -736,7 +754,12 @@ export default function LivingArchView({
     const flavorClusterData = data.flavorClusterLabels;
     if (flavorClusterData?.clusters) {
       for (const cl of flavorClusterData.clusters) {
-        const hex = CLUSTER_LABEL_HEX[cl.id % CLUSTER_LABEL_HEX.length] || '#cccccc';
+        // P4: per-cluster color comes from the JSON's `color` field
+        // (written in P2). Fall back to the legacy palette for
+        // robustness against older / fixture data without `color`.
+        const hex = (typeof cl.color === 'string' && cl.color)
+          || CLUSTER_LABEL_HEX[cl.id % CLUSTER_LABEL_HEX.length]
+          || '#cccccc';
         const sprite = makeLabel((cl.label || '').toUpperCase(), hex, 22);
         const c3 = cl.centroid_3d || [0, 0, 0];
         sprite.position.set(c3[0], c3[1], c3[2]);
@@ -744,6 +767,11 @@ export default function LivingArchView({
           clusterId: cl.id,
           flavor: true,
         };
+        // Tint the sprite material itself by the cluster color so
+        // the SpriteMaterial color uniform multiplies the texture
+        // (built with the same hex via makeLabel) — keeps the sprite
+        // visibly on-palette regardless of texture-cache reuse.
+        sprite.material.color.set(hex);
         sprite.material.opacity = 0.95;
         sprite.material.depthTest = false;
         sprite.material.depthWrite = false;
@@ -1816,6 +1844,21 @@ export default function LivingArchView({
         { isMobile },
       );
       cameraAnimatorRef.current.attachMediaQueryListener();
+      // P4: seed the pivot-advance config from the mounted mode so
+      // flavor3D's pivot advance kicks in on the very first frame
+      // (the mode-change useEffect only fires on subsequent updates,
+      // not on the initial mount that built this animator).
+      if (modeRef.current === 'mlflavor') {
+        cameraAnimatorRef.current.setPivotConfig({
+          pivotAdvanceMs: FLAVOR3D_PIVOT_ADVANCE_MS,
+          pivotTargets: data?.flavorClusterLabels?.clusters || [],
+        });
+      } else {
+        cameraAnimatorRef.current.setPivotConfig({
+          pivotAdvanceMs: null,
+          pivotTargets: [],
+        });
+      }
     }
 
     // R13-5 + R14: Instantiate AffinityMode controller after the

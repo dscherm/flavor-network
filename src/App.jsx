@@ -52,6 +52,7 @@ import {
   MODE_CYCLE as NETWORK_MODE_CYCLE,
   MODE_LABELS as NETWORK_MODE_LABELS,
   MODE_TO_AXIS as NETWORK_MODE_TO_AXIS,
+  DEFAULT_MODE as NETWORK_DEFAULT_MODE,
   FILTER_TO_AXIS,
   morphAxisForStack,
 } from './data/networkModes.js';
@@ -66,6 +67,7 @@ import AffinityTriangleOverlay from './components/AffinityTriangleOverlay.jsx';
 import WedgeGridFlavorWheel from './components/WedgeGridFlavorWheel.jsx';
 import InsightDrawer from './components/InsightDrawer.jsx';
 import { rankBridges } from './data/bridgeRanker.js';
+import { computeRecipeAroma, rankByAromaSimilarity } from './data/recipeAromaSimilarity.js';
 import { computeClusterBucketOverlap } from './data/clusterBucketOverlap.js';
 import { computeBucketPoles2D, computeBucketPoles3D, fibonacciSphere, POLE_RADIUS } from './data/bucketPoles.js';
 import { getCocktailScope, getSauceScope } from './data/labScope.js';
@@ -185,6 +187,15 @@ export default function App() {
       `calc(${baseRem}rem + env(safe-area-inset-top, 0px))`,
     );
   }, [activeTab]);
+  // P8 ADR-2: Clear aroma-match context when user leaves the target Lab.
+  // Prevents stale match state from persisting if user returns to Cocktail /
+  // Sauce Lab via a different path (e.g. clicking the tab directly).
+  useEffect(() => {
+    if (activeTab !== 'cocktail' && activeTab !== 'sauce') {
+      setMatchesContext(null);
+    }
+  }, [activeTab]);
+
   // Phase 3 Guided Discovery — bubbleStack is plumbed at the App level
   // so GuidedDiscoveryStart can hand off to GuidedDiscoveryResults
   // without losing state on tab flip. Per Constraint #4, the only
@@ -201,6 +212,11 @@ export default function App() {
   // bridging from the Build flow. Pill state in the destination lab
   // reads this prop on mount.
   const [externalLabFilter, setExternalLabFilter] = useState(null);
+  // P8: aroma-match context. Set when user clicks a "Find a Cocktail /
+  // Sauce" pill in the Recipe Notebook. Cleared when the user leaves
+  // the target Lab tab (ADR-2 contract).
+  // Shape: { recipeName: string, items: AromaMatchResult[] } | null
+  const [matchesContext, setMatchesContext] = useState(null);
   // Phase 6 (2026-05-16) — Guided Tour controller state. Set by a
   // radar click on the Guided/Build results pages; consumed by the
   // GuidedTour overlay mounted on the network tab.
@@ -255,7 +271,7 @@ export default function App() {
   // predicate). Legacy mode keys (ml/ml2d/neural/taste2d/aromas2d/
   // cuisine2d/season2d/family2d) are no longer reachable from the
   // dropdown but are still understood by the renderer as fallbacks.
-  const [mode, setMode] = useState('3D');
+  const [mode, setMode] = useState(NETWORK_DEFAULT_MODE);
   const [filterStack, setFilterStack] = useState([]);
   // R17/R18 — continuous pull strength. 0 = pure cooccurrence, 1 =
   // full bucket-pole snap. Starts at 0 on every fresh activation
@@ -644,6 +660,15 @@ export default function App() {
         };
       });
     }
+    // P4: in flavor3D mode the chip sidebar surfaces the flavor-UMAP
+    // k-means clusters from flavor_cluster_labels.json. Each entry
+    // carries its own `color` (written in P2) so the chip strip
+    // shows N distinct per-cluster colors instead of the recipe-
+    // coocc CLUSTER_HEX palette. Recipe-coocc clusters remain the
+    // source for plain 3D / 2D modes.
+    if (mode === 'flavor3D') {
+      return data?.flavorClusterLabels?.clusters;
+    }
     return data?.clusterLabels?.clusters;
   }, [morphAxis, mode, data]);
 
@@ -823,6 +848,60 @@ export default function App() {
   const handleLabSelectionChange = useCallback((nodes) => {
     setSelectedNodes(nodes);
   }, []);
+
+  // P8: Aroma-match handlers. Called from the Recipe Notebook pills.
+  // Each handler:
+  //   1. Computes the recipe's 6-axis aroma vector (returns early if null).
+  //   2. Fetches the target lab's item list from its source JSON.
+  //   3. Ranks by cosine aroma similarity and sets matchesContext.
+  //   4. Navigates to the target lab tab (lazy-mounts if needed).
+  const handleFindCocktail = useCallback(async (recipeIngredients, recipeName) => {
+    if (!data?.graph?.nodes) return;
+    const nodesObj = Object.fromEntries(data.graph.nodes);
+    const recipeVec = computeRecipeAroma(recipeIngredients, nodesObj);
+    if (!recipeVec) return;
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}data/cocktail_codex_v2.json`);
+      if (!res.ok) return;
+      const codex = await res.json();
+      // Normalize cocktails to have a string[] `ingredients` field so
+      // rankByAromaSimilarity can call computeRecipeAroma on each item.
+      const items = (codex.cocktails || []).map(c => ({
+        ...c,
+        ingredients: (c.ingredients_raw || []).map(r =>
+          typeof r === 'string' ? r : (r.raw || r.name || '')
+        ).filter(Boolean),
+      }));
+      const ranked = rankByAromaSimilarity(recipeVec, items, nodesObj, 8);
+      setMatchesContext({ recipeName: recipeName || 'this recipe', items: ranked });
+      setCocktailMounted(true);
+      setActiveTab('cocktail');
+    } catch { /* network failure — fail silently, pills remain active */ }
+  }, [data]);
+
+  const handleFindSauce = useCallback(async (recipeIngredients, recipeName) => {
+    if (!data?.graph?.nodes) return;
+    const nodesObj = Object.fromEntries(data.graph.nodes);
+    const recipeVec = computeRecipeAroma(recipeIngredients, nodesObj);
+    if (!recipeVec) return;
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}data/sauce_augment.json`);
+      if (!res.ok) return;
+      const augment = await res.json();
+      // sauce_augment sauces have ingredients: [{name, measure}] — normalize
+      // to string[] so rankByAromaSimilarity can score each sauce.
+      const items = (augment.sauces || []).map(s => ({
+        ...s,
+        ingredients: (s.ingredients || []).map(i =>
+          typeof i === 'string' ? i : (i.name || '')
+        ).filter(Boolean),
+      }));
+      const ranked = rankByAromaSimilarity(recipeVec, items, nodesObj, 8);
+      setMatchesContext({ recipeName: recipeName || 'this recipe', items: ranked });
+      setSauceMounted(true);
+      setActiveTab('sauce');
+    } catch { /* network failure — fail silently */ }
+  }, [data]);
 
   // Parse URL parameters on mount to pre-load shared recipe ingredients
   useEffect(() => {
@@ -1689,6 +1768,8 @@ export default function App() {
           <CocktailLabV2
             onSelectionChange={handleLabSelectionChange}
             externalFilter={externalLabFilter}
+            matchesContext={matchesContext}
+            onExitMatches={() => setMatchesContext(null)}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               setRecipeHandoff({
                 ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
@@ -1714,6 +1795,8 @@ export default function App() {
             fullData={data}
             userProfile={userProfile}
             externalFilter={externalLabFilter}
+            matchesContext={matchesContext}
+            onExitMatches={() => setMatchesContext(null)}
             onSelectionChange={handleLabSelectionChange}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               // Same one-shot handoff pattern as Cocktail Lab —
@@ -1749,6 +1832,8 @@ export default function App() {
             handoff={recipeHandoff}
             userProfile={userProfile}
             isMobile={isMobile}
+            onFindCocktail={handleFindCocktail}
+            onFindSauce={handleFindSauce}
           />
         </div>
       )}
