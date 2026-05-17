@@ -1,0 +1,198 @@
+{
+  "_meta": {
+    "purpose": "Curated additions to ingredients.json to lift under-represented cuisines. Each entry was selected from the 1,413-candidate output of scripts/15-discover-cuisine-defining-ingredients.js after the MIN_DOMINANCE=1.5 / MIN_RECIPE_COUNT=30 sweep, OR added manually when the corpus undercounted a well-known cuisine-defining ingredient.",
+    "schemaVersion": 1,
+    "generated": "2026-05-17",
+    "category_vocabulary": [
+      "aromatic","fat","dairy","protein","umami","citrus","acid","herb","spice",
+      "seasoning","chili","sweetener","nut","grain","liquid","thickener","mixer",
+      "spirit","liqueur","bitters","vegetable","fruit","other"
+    ],
+    "taste_vocabulary": [
+      "sweet","sour","bitter","salty","umami","spicy","pungent","astringent"
+    ],
+    "notes_on_merge": "scripts/16-merge-cuisine-additions.js reads this file and adds each entry to public/proDataset/ingredients.json. Embedding / cluster / bridgingScore are left null — they get filled by re-running 07-blend-v2 + the GNN pipeline. Pairing back-computation requires re-running 14-build-cuisine-pairings.js so the new ingredients appear in cuisine_pairings.json with their RecipeNLG/MealDB-derived neighbors."
+  },
+  "additions": {
+    "berbere": {
+      "category": "seasoning", "taste": "spicy",
+      "cuisine": "Africa", "evidence": { "totalCount": 34, "dominance": 29.5, "source": "15-discover" }
+    },
+    "harissa": {
+      "category": "chili", "taste": "spicy",
+      "cuisine": "Africa", "evidence": { "totalCount": 224, "dominance": 5.2, "source": "15-discover" }
+    },
+    "ras el hanout": {
+      "category": "seasoning", "taste": "pungent",
+      "cuisine": "Africa", "evidence": { "totalCount": 101, "dominance": 2.4, "source": "15-discover (as 'hanout')" }
+    },
+    "chaat masala": {
+      "category": "seasoning", "taste": "pungent",
+      "cuisine": "Indian Subcontinent", "evidence": { "totalCount": 70, "dominance": 280, "source": "15-discover" }
+    },
+    "raita": {
+      "category": "dairy", "taste": "sour",
+      "cuisine": "Indian Subcontinent", "evidence": { "totalCount": 56, "dominance": 113, "source": "15-discover" }
+    },
+    "kasuri methi": {
+      "category": "herb", "taste": "bitter",
+      "cuisine": "Indian Subcontinent", "evidence": { "totalCount": 30, "dominance": 59.5, "source": "15-discover" }
+    },
+    "asafoetida": {
+      "category": "spice", "taste": "pungent",
+      "cuisine": "Indian Subcontinent", "evidence": { "totalCount": 56, "dominance": 23.3, "source": "15-discover (as 'hing')" }
+    },
+    "paneer": {
+      "category": "dairy", "taste": "salty",
+      "cuisine": "Indian Subcontinent", "evidence": { "totalCount": 108, "dominance": 32.5, "source": "15-discover (as 'panir')" }
+    },
+    "curry leaves": {
+      "category": "herb", "taste": "bitter",
+      "cuisine": "Indian Subcontinent", "evidence": { "totalCount": null, "dominance": null, "source": "manual (well-known canonical)" }
+    },
+    "dashi": {
+      "category": "liquid", "taste": "umami",
+      "cuisine": "Japan", "evidence": { "totalCount": 92, "dominance": 30.9, "source": "15-discover" }
+    },
+    "bonito flakes": {
+      "category": "protein", "taste": "umami",
+      "cuisine": "Japan", "evidence": { "totalCount": 181, "dominance": 16.4, "source": "15-discover" }
+    },
+    "kombu": {
+      "category": "vegetable", "taste": "umami",
+      "cuisine": "Japan", "evidence": { "totalCount": 105, "dominance": 9.4, "source": "15-discover" }
+    },
+    "nori": {
+      "category": "vegetable", "taste": "umami",
+      "cuisine": "Japan", "evidence": { "totalCount": 214, "dominance": 7.0, "source": "15-discover" }
+    },
+    "shichimi togarashi": {
+      "category": "seasoning", "taste": "spicy",
+      "cuisine": "Japan", "evidence": { "totalCount": 50, "dominance": 7.1, "source": "15-discover (as 'shichimi')" }
+    },
+    "panko": {
+      "category": "grain", "taste": "sweet",
+      "cuisine": "Japan", "evidence": { "totalCount": 51, "dominance": 1.7, "source": "15-discover (as 'panko crumbs')" }
+    },
+    "udon noodles": {
+      "category": "grain", "taste": "sweet",
+      "cuisine": "Japan", "evidence": { "totalCount": 213, "dominance": 6.8, "source": "15-discover" }
+    },
+    "sumac": {
+      "category": "spice", "taste": "sour",
+      "cuisine": "Middle East", "evidence": { "totalCount": 155, "dominance": 14.6, "source": "15-discover (as 'ground sumac')" }
+    },
+    "pomegranate molasses": {
+      "category": "sweetener", "taste": "sour",
+      "cuisine": "Middle East", "evidence": { "totalCount": 173, "dominance": 4.8, "source": "15-discover" }
+    },
+    "rosewater": {
+      "category": "aromatic", "taste": "sweet",
+      "cuisine": "Middle East", "evidence": { "totalCount": 59, "dominance": 2.4, "source": "15-discover" }
+    },
+    "za'atar": {
+      "category": "seasoning", "taste": "pungent",
+      "cuisine": "Middle East", "evidence": { "totalCount": null, "dominance": null, "source": "manual (well-known canonical)" }
+    },
+    "epazote": {
+      "category": "herb", "taste": "pungent",
+      "cuisine": "Mexico", "evidence": { "totalCount": 190, "dominance": 32.6, "source": "15-discover" }
+    },
+    "queso fresco": {
+      "category": "dairy", "taste": "salty",
+      "cuisine": "Mexico", "evidence": { "totalCount": 400, "dominance": 3.5, "source": "15-discover" }
+    },
+    "masa harina": {
+      "category": "grain", "taste": "sweet",
+      "cuisine": "Mexico", "evidence": { "totalCount": 172, "dominance": 305.8, "source": "15-discover" }
+    },
+    "crema mexicana": {
+      "category": "dairy", "taste": "sour",
+      "cuisine": "Mexico", "evidence": { "totalCount": 14, "dominance": 3.6, "source": "15-discover" }
+    },
+    "hominy": {
+      "category": "grain", "taste": "sweet",
+      "cuisine": "Mexico", "evidence": { "totalCount": 520, "dominance": 27.7, "source": "15-discover" }
+    },
+    "huitlacoche": {
+      "category": "vegetable", "taste": "umami",
+      "cuisine": "Mexico", "evidence": { "totalCount": null, "dominance": null, "source": "manual (well-known canonical)" }
+    },
+    "cotija": {
+      "category": "dairy", "taste": "salty",
+      "cuisine": "Mexico", "evidence": { "totalCount": null, "dominance": null, "source": "manual (well-known canonical)" }
+    },
+    "candlenuts": {
+      "category": "nut", "taste": "bitter",
+      "cuisine": "South East Asia", "evidence": { "totalCount": 40, "dominance": 5.8, "source": "15-discover" }
+    },
+    "ketjap manis": {
+      "category": "liquid", "taste": "sweet",
+      "cuisine": "South East Asia", "evidence": { "totalCount": 69, "dominance": 3.9, "source": "15-discover" }
+    },
+    "sambal": {
+      "category": "chili", "taste": "spicy",
+      "cuisine": "South East Asia", "evidence": { "totalCount": 78, "dominance": 2.0, "source": "15-discover" }
+    },
+    "scotch bonnet": {
+      "category": "chili", "taste": "spicy",
+      "cuisine": "Caribbean", "evidence": { "totalCount": 59, "dominance": 62.0, "source": "15-discover (as 'scotch bonnet peppers')" }
+    },
+    "green plantain": {
+      "category": "fruit", "taste": "bitter",
+      "cuisine": "Caribbean", "evidence": { "totalCount": 102, "dominance": 128.2, "source": "15-discover" }
+    },
+    "sofrito": {
+      "category": "seasoning", "taste": "pungent",
+      "cuisine": "Caribbean", "evidence": { "totalCount": 51, "dominance": 2.1, "source": "15-discover" }
+    },
+    "recaito": {
+      "category": "seasoning", "taste": "pungent",
+      "cuisine": "Caribbean", "evidence": { "totalCount": 16, "dominance": 5.2, "source": "15-discover" }
+    },
+    "gochugaru": {
+      "category": "chili", "taste": "spicy",
+      "cuisine": "Korea", "evidence": { "totalCount": null, "dominance": null, "source": "manual (well-known canonical)" }
+    },
+    "doenjang": {
+      "category": "umami", "taste": "salty",
+      "cuisine": "Korea", "evidence": { "totalCount": null, "dominance": null, "source": "manual (well-known canonical)" }
+    },
+    "sichuan peppercorn": {
+      "category": "spice", "taste": "pungent",
+      "cuisine": "China", "evidence": { "totalCount": 36, "dominance": 9.6, "source": "15-discover (as 'sichuan')" }
+    },
+    "shaoxing wine": {
+      "category": "spirit", "taste": "umami",
+      "cuisine": "China", "evidence": { "totalCount": null, "dominance": null, "source": "manual (well-known canonical)" }
+    },
+    "piquillo peppers": {
+      "category": "chili", "taste": "sweet",
+      "cuisine": "Spain", "evidence": { "totalCount": 70, "dominance": 9.0, "source": "15-discover" }
+    },
+    "bomba rice": {
+      "category": "grain", "taste": "sweet",
+      "cuisine": "Spain", "evidence": { "totalCount": 14, "dominance": 1630, "source": "15-discover" }
+    },
+    "spanish chorizo": {
+      "category": "protein", "taste": "spicy",
+      "cuisine": "Spain", "evidence": { "totalCount": 136, "dominance": 10.2, "source": "15-discover" }
+    },
+    "carnaroli rice": {
+      "category": "grain", "taste": "sweet",
+      "cuisine": "Italy", "evidence": { "totalCount": 48, "dominance": 410, "source": "15-discover (as 'carnaroli')" }
+    },
+    "dill seed": {
+      "category": "spice", "taste": "pungent",
+      "cuisine": "Eastern Europe", "evidence": { "totalCount": 37, "dominance": 119.8, "source": "15-discover (as 'dill seeds')" }
+    },
+    "sriracha": {
+      "category": "chili", "taste": "spicy",
+      "cuisine": "Thailand", "evidence": { "totalCount": null, "dominance": null, "source": "manual (well-known canonical, cross-cuisine high count)" }
+    },
+    "yuzu": {
+      "category": "citrus", "taste": "sour",
+      "cuisine": "Japan", "evidence": { "totalCount": null, "dominance": null, "source": "manual (well-known canonical — already in graph; included here as a sanity check)" }
+    }
+  }
+}
