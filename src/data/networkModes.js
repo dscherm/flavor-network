@@ -17,11 +17,16 @@
  */
 
 // ===== Mode picker (collapsed) ===========================================
-export const MODE_CYCLE = ['3D', '2D'];
+// `flavor3D` is the C₁′ prototype: positions come from a UMAP of per-
+// ingredient GNN taste+aroma vectors (public/proDataset/flavor_positions.json)
+// rather than from the Node2Vec recipe-cooccurrence embedding. Position
+// = flavor identity; edges still encode pairing.
+export const MODE_CYCLE = ['3D', '2D', 'flavor3D'];
 
 export const MODE_LABELS = {
   '3D': '3D Pairings',
   '2D': '2D Pairings',
+  'flavor3D': 'Flavor Space (beta)',
 };
 
 // ===== Filter pill row (new in R16 Phase 1) ==============================
@@ -150,16 +155,28 @@ export const AXIS_TO_LEGACY_MODE = {
 };
 
 /**
- * Derive the legacy mode key (`ml` / `ml2d` / `taste2d` / `aromas2d`
- * / `cuisine2d` / `season2d` / `family2d`) from the (geometryMode,
- * morphAxis) tuple. Used as the bridge between R16 Phase 1's new
- * (mode, filterStack) state and the renderer's existing
+ * Derive the legacy mode key (`ml` / `ml2d` / `mlflavor` / `taste2d` /
+ * `aromas2d` / `cuisine2d` / `season2d` / `family2d`) from the
+ * (geometryMode, morphAxis) tuple. Used as the bridge between R16
+ * Phase 1's new (mode, filterStack) state and the renderer's existing
  * mode-keyed position / color / label tables.
  *
- *   morphAxis === null  → ml (3D) | ml2d (2D)
+ *   morphAxis === null  → ml (3D) | ml2d (2D) | mlflavor (flavor3D)
  *   morphAxis !== null  → `${axis}2d` (always a wheel layout)
+ *
+ * Filter-stack semantics for flavor3D: the morph axes (taste / aroma /
+ * cuisine / season / family) re-flatten the geometry to their wheels —
+ * those wheels live in their own 2D space and override the flavor 3D
+ * layout, same as they override the recipe-coocc 3D layout. So when a
+ * filter is active, we fall through to the wheel mode regardless of
+ * whether the user picked 3D, 2D, or flavor3D.
  */
 export function effectiveLegacyMode(mode, morphAxis) {
-  if (!morphAxis) return mode === '3D' ? 'ml' : 'ml2d';
+  if (!morphAxis) {
+    if (mode === '3D') return 'ml';
+    if (mode === '2D') return 'ml2d';
+    if (mode === 'flavor3D') return 'mlflavor';
+    return 'ml';
+  }
   return AXIS_TO_LEGACY_MODE[morphAxis] || (mode === '3D' ? 'ml' : 'ml2d');
 }

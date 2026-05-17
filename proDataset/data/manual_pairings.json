@@ -5,7 +5,8 @@
     "generated": "2026-05-17",
     "fabricatedCounts": "Each entry gets count=25 + recipePct=0.10 = the smallest evidence shape that passes the displayableCuisine dominance gate without overclaiming. cuisineBoost() resolves these to strength ≈ 0.54.",
     "provenanceFlag": "Each synthesized pair record carries source='manual-bootstrap' so future audits can distinguish hand-edges from corpus-derived ones.",
-    "expansion_2026_05_17_pm": "Partner lists expanded for the 4 sparse-pair targets (doenjang/huitlacoche/recaito/crema mexicana) to lift their cuisine-pair counts toward 30-40 edges each. Only canonical names confirmed present in ingredients.json were used."
+    "expansion_2026_05_17_pm": "Partner lists expanded for the 4 sparse-pair targets (doenjang/huitlacoche/recaito/crema mexicana) to lift their cuisine-pair counts toward 30-40 edges each. Only canonical names confirmed present in ingredients.json were used.",
+    "expansion_2026_05_17_caribbean_misclusters": "Added 7 Caribbean bootstrap entries (ackee/callaloo/breadfruit/cassava/guava paste/tamarind paste/green plantain) to give Node2Vec enough Caribbean-cuisine density to surface a dedicated Caribbean centroid at next k=16 re-cluster. Also added bootstrap entries for the 3 ingredients that drifted to c1 Italian & Turkish at k=16 (panko → Japan, scotch bonnet → Caribbean, sriracha → Thailand). Verified all partner names are canonical in ingredients.json. Goal: re-run script 17 → 19 → flavor-gnn cluster → expect Caribbean cluster to emerge and panko/scotch bonnet/sriracha to migrate to their cuisine homes."
   },
   "bootstraps": {
     "doenjang": {
@@ -55,6 +56,120 @@
       "cuisine": "Mexico",
       "comment": "epazote already has 51 corpus pairs but lacks the queso-trio + huitlacoche signal that defines Mexican cooking with it.",
       "partners": ["queso fresco", "huitlacoche", "crema mexicana", "cotija", "masa harina"]
+    },
+    "ackee": {
+      "cuisine": "Caribbean",
+      "partners": [
+        "breadfruit", "callaloo", "scotch bonnet", "thyme", "garlic",
+        "onion", "scallion", "tomato", "black pepper", "butter",
+        "salt", "cilantro", "lime", "coconut milk", "allspice",
+        "bay leaf", "oxtail", "goat", "chicken", "pork",
+        "kidney bean", "rice", "okra", "yellow pepper", "green pepper",
+        "cod", "codfish", "pumpkin", "bay leaf"
+      ]
+    },
+    "callaloo": {
+      "cuisine": "Caribbean",
+      "partners": [
+        "coconut milk", "scotch bonnet", "garlic", "onion", "thyme",
+        "okra", "salt", "scallion", "crab", "ackee",
+        "breadfruit", "chayote", "butter", "cilantro", "allspice",
+        "bay leaf", "black pepper", "lime", "pork", "chicken",
+        "kidney bean", "pigeon pea", "rice", "green plantain", "tomato",
+        "cod", "shrimp"
+      ]
+    },
+    "breadfruit": {
+      "cuisine": "Caribbean",
+      "partners": [
+        "coconut milk", "scotch bonnet", "garlic", "onion", "butter",
+        "salt", "chicken", "pork", "thyme", "scallion",
+        "callaloo", "ackee", "allspice", "lime", "bay leaf",
+        "black pepper", "cod", "tomato", "rice", "kidney bean",
+        "pigeon pea", "green plantain", "okra", "pumpkin", "oxtail",
+        "goat"
+      ]
+    },
+    "cassava": {
+      "cuisine": "Caribbean",
+      "partners": [
+        "coconut milk", "garlic", "scotch bonnet", "butter", "salt",
+        "pork", "beef", "lime", "scallion", "thyme",
+        "cilantro", "allspice", "onion", "tomato", "kidney bean",
+        "pigeon pea", "okra", "green plantain", "black pepper", "bay leaf",
+        "annatto", "sofrito", "recaito", "rice", "yuca",
+        "goat", "oxtail", "chicken"
+      ]
+    },
+    "guava paste": {
+      "cuisine": "Caribbean",
+      "partners": [
+        "cream cheese", "lime", "sugar", "rum", "cinnamon",
+        "ginger", "vanilla", "almond", "walnut", "butter",
+        "lemon juice", "lemon", "puff pastry", "pastry", "white wine",
+        "honey", "egg", "milk", "flour", "salt",
+        "orange juice", "orange", "coconut milk", "coconut", "powdered sugar",
+        "brown sugar"
+      ]
+    },
+    "tamarind paste": {
+      "cuisine": "Caribbean",
+      "partners": [
+        "scotch bonnet", "garlic", "ginger", "brown sugar", "soy sauce",
+        "chili", "lime", "fish sauce", "cilantro", "scallion",
+        "lime juice", "rum", "onion", "thyme", "allspice",
+        "salt", "black pepper", "coconut milk", "curry powder", "cumin",
+        "chicken", "pork", "fish", "shrimp", "rice",
+        "molasses", "honey"
+      ]
+    },
+    "green plantain": {
+      "cuisine": "Caribbean",
+      "partners": [
+        "recaito", "sofrito", "annatto", "scotch bonnet", "garlic",
+        "onion", "thyme", "scallion", "allspice", "salt",
+        "black pepper", "lime", "bay leaf", "kidney bean", "pigeon pea",
+        "rice", "coconut milk", "cilantro", "cassava", "yuca",
+        "okra", "callaloo", "breadfruit", "chicken", "pork",
+        "beef", "oxtail", "goat", "olive oil"
+      ]
+    },
+    "panko": {
+      "cuisine": "Japan",
+      "partners": [
+        "egg", "mayonnaise", "pork", "chicken", "shrimp",
+        "fish", "butter", "garlic", "parmesan", "vegetable oil",
+        "olive oil", "parsley", "salt", "black pepper", "flour",
+        "milk", "soy sauce", "mirin", "dashi", "sesame oil",
+        "scallion", "ginger", "sake", "miso", "rice",
+        "rice vinegar", "sushi rice", "nori", "wasabi", "tonkatsu sauce",
+        "cabbage", "cod", "shaoxing wine", "oyster sauce"
+      ]
+    },
+    "scotch bonnet": {
+      "cuisine": "Caribbean",
+      "partners": [
+        "allspice", "thyme", "garlic", "onion", "scallion",
+        "ginger", "lime", "lime juice", "soy sauce", "brown sugar",
+        "vinegar", "chicken", "pork", "fish", "tomato",
+        "vegetable oil", "salt", "black pepper", "oregano", "mango",
+        "papaya", "pineapple", "coconut milk", "recaito", "sofrito",
+        "cilantro", "bay leaf", "parsley", "callaloo", "ackee",
+        "breadfruit", "kidney bean", "pigeon pea", "goat", "oxtail",
+        "curry powder", "pumpkin", "rum", "green plantain", "annatto"
+      ]
+    },
+    "sriracha": {
+      "cuisine": "Thailand",
+      "partners": [
+        "garlic", "sugar", "vinegar", "lime", "lime juice",
+        "fish sauce", "soy sauce", "chili", "ginger", "lemongrass",
+        "thai basil", "mayonnaise", "peanut", "coconut milk", "cilantro",
+        "scallion", "rice", "noodle", "shrimp", "chicken",
+        "pork", "beef", "egg", "sesame oil", "oyster sauce",
+        "gochujang", "rice vinegar", "honey", "lime", "tamarind paste",
+        "brown sugar", "red chili", "chili powder"
+      ]
     }
   }
 }

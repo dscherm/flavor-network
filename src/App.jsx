@@ -1235,7 +1235,7 @@ export default function App() {
         particleBrightness={particleBrightness}
         filterTaste={selectedTaste}
         treeFilterIngredients={treeFilterIngredients}
-        mode={mode === '3D' ? 'ml' : 'ml2d'}
+        mode={mode === '3D' ? 'ml' : mode === 'flavor3D' ? 'mlflavor' : 'ml2d'}
         onModeChange={setMode}
         filterStack={filterStack}
         morphAxis={morphAxis}

@@ -8,8 +8,8 @@ import {
 } from '../networkModes.js';
 
 describe('R16 Phase 1 — networkModes', () => {
-  it('MODE_CYCLE collapsed to exactly 2 entries', () => {
-    expect(MODE_CYCLE).toEqual(['3D', '2D']);
+  it('MODE_CYCLE has 3 entries including flavor3D beta', () => {
+    expect(MODE_CYCLE).toEqual(['3D', '2D', 'flavor3D']);
   });
 
   it('FILTER_KEYS has 7 entries', () => {

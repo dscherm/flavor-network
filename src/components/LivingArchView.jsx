@@ -177,6 +177,12 @@ export default function LivingArchView({
     //   posD = Taste axes 2D (octagonal wheel) — "taste2d" mode
     const mlPosData = data.positions;
     const mlPos = (mlPosData && mlPosData.positions) ? mlPosData.positions : null;
+    // C₁′ — flavor-UMAP positions (per-ingredient GNN taste+aroma vectors
+    // projected to 3D). Covers ~2,790 of 3,913 ingredients. Missing ones
+    // get their recipe-cooccurrence position so the flavor3D layout never
+    // loses nodes mid-flight.
+    const flavorPosData = data.flavorPositions;
+    const flavorPos = (flavorPosData && flavorPosData.positions) ? flavorPosData.positions : null;
     const tasteAxisData = computeTastePositions(graph.nodes, graph.edges, 50);
     const tastePos = mlPos || tasteAxisData.positions || {};
     const tasteAxisPos = tasteAxisData.positions || {};
@@ -295,11 +301,13 @@ export default function LivingArchView({
     const posF = new Float32Array(count * 3); // Cuisine 2D wheel
     const posG = new Float32Array(count * 3); // Season 2D wheel
     const posH = new Float32Array(count * 3); // Family 2D wheel
+    const posI = new Float32Array(count * 3); // Flavor 3D (UMAP of GNN taste+aroma)
     const curPos = new Float32Array(count * 3);
 
     const posForMode = {
       ml: posA, ml2d: posB, neural: posC, taste2d: posD,
       aromas2d: posE, cuisine2d: posF, season2d: posG, family2d: posH,
+      mlflavor: posI,
     };
 
     for (let i = 0; i < count; i++) {
@@ -314,6 +322,13 @@ export default function LivingArchView({
       const cui = cuisineWheel[name] || [0, 0, 0];
       const sea = seasonWheel[name]  || [0, 0, 0];
       const fam = familyWheel[name]  || [0, 0, 0];
+      // Flavor3D: try the GNN flavor-UMAP position; fall back to the
+      // recipe-coocc position so ingredients with no GNN prediction don't
+      // collapse to the origin in the beta layout. This means ~29% of
+      // ingredients (compound foods, hubs) sit in their recipe-coocc
+      // location even in flavor3D mode — documented limitation of the
+      // current GNN coverage.
+      const fla = (flavorPos && flavorPos[name]) || ml;
       posA[i*3] = ml[0]; posA[i*3+1] = ml[1]; posA[i*3+2] = ml[2];
       posB[i*3] = 0; posB[i*3+1] = 0; posB[i*3+2] = 0;
       posC[i*3] = ta[0]; posC[i*3+1] = ta[1]; posC[i*3+2] = ta[2];
@@ -322,6 +337,7 @@ export default function LivingArchView({
       posF[i*3] = cui[0]; posF[i*3+1] = cui[1]; posF[i*3+2] = cui[2];
       posG[i*3] = sea[0]; posG[i*3+1] = sea[1]; posG[i*3+2] = sea[2];
       posH[i*3] = fam[0]; posH[i*3+1] = fam[1]; posH[i*3+2] = fam[2];
+      posI[i*3] = fla[0]; posI[i*3+1] = fla[1]; posI[i*3+2] = fla[2];
       const start = posForMode[modeRef.current] || posA;
       curPos[i*3] = start[i*3]; curPos[i*3+1] = start[i*3+1]; curPos[i*3+2] = start[i*3+2];
     }
@@ -708,6 +724,35 @@ export default function LivingArchView({
     }
     clusterLabelGroup.visible = modeRef.current === 'ml' || modeRef.current === 'ml2d';
     scene.add(clusterLabelGroup);
+
+    // --- Flavor-space cluster labels (C₁′ — mlflavor mode only) ---
+    // Independent label set computed from k-means over the flavor-UMAP
+    // positions. Centroids are already in renderer-space coords (scaled
+    // by FLAVOR_SPREAD in useProData). Outward projection isn't needed
+    // because the flavor UMAP is sparser than the recipe-coocc layout
+    // — labels can sit directly at centroid_3d without overlapping
+    // the node cloud.
+    const flavorClusterLabelGroup = new THREE.Group();
+    const flavorClusterData = data.flavorClusterLabels;
+    if (flavorClusterData?.clusters) {
+      for (const cl of flavorClusterData.clusters) {
+        const hex = CLUSTER_LABEL_HEX[cl.id % CLUSTER_LABEL_HEX.length] || '#cccccc';
+        const sprite = makeLabel((cl.label || '').toUpperCase(), hex, 22);
+        const c3 = cl.centroid_3d || [0, 0, 0];
+        sprite.position.set(c3[0], c3[1], c3[2]);
+        sprite.userData = {
+          clusterId: cl.id,
+          flavor: true,
+        };
+        sprite.material.opacity = 0.95;
+        sprite.material.depthTest = false;
+        sprite.material.depthWrite = false;
+        sprite.renderOrder = 999;
+        flavorClusterLabelGroup.add(sprite);
+      }
+    }
+    flavorClusterLabelGroup.visible = modeRef.current === 'mlflavor';
+    scene.add(flavorClusterLabelGroup);
 
     // --- Connector lines from each cluster label to its actual cluster
     // centroid. Label sits at r=62 outward, centroid at r~30 → line always
@@ -1203,6 +1248,7 @@ export default function LivingArchView({
     const camTargets = {
       ml:        { pos: [0, 40, 120], lookAt: [0, 0, 0] },
       ml2d:      { pos: [0, 100, 0.1], lookAt: [0, 0, 0] },
+      mlflavor:  { pos: [0, 40, 120], lookAt: [0, 0, 0] },
       neural:    { pos: [0, 40, 120], lookAt: [0, 0, 0] },
       taste2d:   { pos: [0, 200, 0.1], lookAt: [0, 0, 0] },
       aromas2d:  { pos: [0, 200, 0.1], lookAt: [0, 0, 0] },
@@ -1307,6 +1353,17 @@ export default function LivingArchView({
           clusterLabelGroup.visible = toML;
         }
         clusterConnectorGroup.visible = clusterLabelGroup.visible;
+        // Mirror visibility logic for the flavor-space cluster labels —
+        // they only show in 'mlflavor' mode and fade in/out symmetrically.
+        const toFlavor = transition.toMode === 'mlflavor';
+        const fromFlavor = transition.fromMode === 'mlflavor';
+        if (toFlavor && !fromFlavor) {
+          flavorClusterLabelGroup.visible = et > 0.3;
+        } else if (fromFlavor && !toFlavor) {
+          flavorClusterLabelGroup.visible = et < 0.7;
+        } else {
+          flavorClusterLabelGroup.visible = toFlavor;
+        }
         // Lerp cluster label positions between 3D and 2D centroids
         if (clusterLabelGroup.visible) {
           clusterLabelGroup.children.forEach((sprite) => {
@@ -1363,6 +1420,7 @@ export default function LivingArchView({
         clusterLabelGroup.visible = transition.toMode === 'ml' || transition.toMode === 'ml2d';
         clusterConnectorGroup.visible = clusterLabelGroup.visible;
         if (clusterConnectorGroup.visible) updateClusterConnectors();
+        flavorClusterLabelGroup.visible = transition.toMode === 'mlflavor';
         // Categorical-axis label visibility — show the matching axis,
         // hide the rest.
         for (const [m, g] of Object.entries(categoricalLabelGroupByMode)) {
@@ -1702,7 +1760,7 @@ export default function LivingArchView({
       // both 2D ring + 3D Fibonacci layouts. Visibility flipped by
       // the new pole-label effect on (filterStack, morphAxis, mode).
       poleLabelGroup2DByAxis, poleLabelGroup3DByAxis,
-      triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, sectorGroup, aromaSectorGroup, tasteSelection,
+      triggerTransition, flyToPoint, labelGroup, clusterLabelGroup, clusterConnectorGroup, flavorClusterLabelGroup, sectorGroup, aromaSectorGroup, tasteSelection,
       updateEdgePositions, tastePos,
       // Expose runtime cluster centroids (3D from posA, 2D from PCA) so the
       // fly-to useEffect can orbit-center on a cluster's actual centroid
@@ -2399,6 +2457,11 @@ export default function LivingArchView({
     // on the joystick.
     if (clusterLabelGroup) clusterLabelGroup.visible = !filterActive && (mode === 'ml' || mode === 'ml2d');
     if (clusterConnectorGroup) clusterConnectorGroup.visible = clusterLabelGroup?.visible || false;
+    // Flavor-space cluster labels only show in mlflavor mode (no
+    // connectors — flavor labels sit directly at centroids, not
+    // outward-projected like the recipe-coocc labels).
+    const flavorGrp = st.flavorClusterLabelGroup;
+    if (flavorGrp) flavorGrp.visible = !filterActive && mode === 'mlflavor';
     // Legacy taste-axis labels (3D neural mode only) — gone under R17
     // unless someone explicitly enters the legacy taste mode.
     if (labelGroup) labelGroup.visible = false;

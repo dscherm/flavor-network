@@ -218,6 +218,63 @@ export default function useProData({ enabled = true } = {}) {
           positions = computeTastePositions(graph.nodes, graph.edges, 50);
         }
 
+        // Flavor-space positions (C₁′ prototype). UMAP over per-ingredient
+        // GNN taste+aroma vectors → 3D coordinate per ingredient. Covers
+        // ~2,790 ingredients (GNN-resolvable). Ingredients without flavor
+        // vectors fall through to the recipe-cooccurrence position so the
+        // toggle never loses nodes mid-flight. Optional — only loaded for
+        // the 'flavor3D' / 'mlflavor' beta mode.
+        let flavorPositions = null;
+        try {
+          const fpRes = await fetch('/proDataset/flavor_positions.json');
+          if (fpRes.ok) {
+            const fpRaw = await fpRes.json();
+            const posMap = {};
+            // Same 1.5× spread scale used for the recipe-coocc layout
+            // so node sizes / camera defaults read consistently across
+            // the toggle.
+            const FLAVOR_SPREAD = 3.0; // raw UMAP range ~30 → bbox ~90
+            for (const [name, xyz] of Object.entries(fpRaw)) {
+              if (name.startsWith('_')) continue;
+              if (!Array.isArray(xyz) || xyz.length !== 3) continue;
+              posMap[name] = [
+                xyz[0] * FLAVOR_SPREAD,
+                xyz[1] * FLAVOR_SPREAD,
+                xyz[2] * FLAVOR_SPREAD,
+              ];
+            }
+            flavorPositions = {
+              positions: posMap,
+              _source: 'gnn-flavor-umap',
+              _count: Object.keys(posMap).length,
+            };
+          }
+        } catch {
+          // optional — flavor3D toggle silently falls back to recipe positions
+        }
+
+        // Flavor-space cluster labels (k-means over flavor positions).
+        // Independent of the Node2Vec cluster_labels.json. The renderer
+        // shows these only in flavor3D / mlflavor mode. Centroid coords
+        // are scaled by the same FLAVOR_SPREAD factor used on positions
+        // so labels line up with the rendered nodes.
+        let flavorClusterLabels = null;
+        try {
+          const fclRes = await fetch('/proDataset/flavor_cluster_labels.json');
+          if (fclRes.ok) {
+            flavorClusterLabels = await fclRes.json();
+            const SPREAD = 3.0;
+            if (Array.isArray(flavorClusterLabels?.clusters)) {
+              flavorClusterLabels.clusters = flavorClusterLabels.clusters.map(c => ({
+                ...c,
+                centroid_3d: Array.isArray(c.centroid_3d)
+                  ? c.centroid_3d.map(v => v * SPREAD)
+                  : c.centroid_3d,
+              }));
+            }
+          }
+        } catch { /* optional */ }
+
         // Same for per-ingredient entropy (used by color shader for uncertainty viz)
         try {
           const entRes = await fetch('/proDataset/gnn_entropy.json');
@@ -483,6 +540,8 @@ export default function useProData({ enabled = true } = {}) {
         setData({
           graph,
           positions,
+          flavorPositions,
+          flavorClusterLabels,
           clusterLabels,
           clusterExplanations,
           bridgeCompounds,
