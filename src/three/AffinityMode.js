@@ -1210,29 +1210,51 @@ export class AffinityMode {
         4,
         Math.ceil((Math.abs(w.span) * WEDGE_ARC_SEGMENTS_PER_PI) / Math.PI),
       );
-      const points = new Float32Array((segCount + 1) * 3);
+      // P6 (ADR-3) — TubeGeometry swap for iOS parity.
+      //
+      // iOS WebGL ignores `LineBasicMaterial.linewidth > 1`, leaving wedge
+      // arcs as 1-pixel hairlines that visually disappear at the camera
+      // distance the affinity view uses. Replacing the Line with a
+      // Mesh(TubeGeometry, MeshBasicMaterial) gives a guaranteed-thick arc
+      // on all backends (iOS + desktop) and stays bloom-compatible because
+      // MeshBasicMaterial is unlit.
+      //
+      // Build a CatmullRomCurve3 (centripetal mode = minimal overshoot,
+      // closely follows the sampled arc points) and extrude a 6-sided tube
+      // along it. The mesh's `raycast` is stubbed to () => {} so click
+      // events pass through to the underlying ingredient nodes — without
+      // this stub, the cone visuals would intercept clicks that the user
+      // intended for the affinity sphere behind them.
+      const arcPoints = new Array(segCount + 1);
       for (let i = 0; i <= segCount; i++) {
         const t = i / segCount;
         const angle = startAngle + t * w.span;
         const x = Math.cos(angle) * WEDGE_RADIUS;
         const z = Math.sin(angle) * WEDGE_RADIUS;
-        points[i * 3]     = fx + x;
-        points[i * 3 + 1] = fy;
-        points[i * 3 + 2] = fz + z;
+        arcPoints[i] = new THREE.Vector3(fx + x, fy, fz + z);
       }
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+      const curve = new THREE.CatmullRomCurve3(arcPoints, false, 'centripetal');
+      const geo = new THREE.TubeGeometry(
+        curve,
+        Math.max(segCount * 2, 12), // tubularSegments — extra subdivision for smoothness
+        0.4,                         // tube radius (px-equivalent at affinity zoom)
+        6,                           // radialSegments — hex cross-section reads as round under bloom
+        false,                       // open-ended (no caps; arcs flow into one another visually)
+      );
       const color = new THREE.Color(w.color || FALLBACK_BUCKET_COLOR);
-      const mat = new THREE.LineBasicMaterial({
+      const mat = new THREE.MeshBasicMaterial({
         color,
         transparent: true,
         opacity: 0.85,
-        linewidth: 1, // most WebGL backends ignore >1; bloom carries the visual weight
       });
-      const line = new THREE.Line(geo, mat);
-      line.frustumCulled = false;
-      line.userData = { bucketKey: w.key };
-      this.wedgeArcGroup.add(line);
+      const tube = new THREE.Mesh(geo, mat);
+      tube.frustumCulled = false;
+      tube.userData = { bucketKey: w.key };
+      // Click-through: cones must not steal pointer events from the
+      // ingredient nodes they visually overlay (Architect ADR-3 hard
+      // requirement).
+      tube.raycast = () => {};
+      this.wedgeArcGroup.add(tube);
     }
     // Suppress the noop reference for the unused layoutScale param —
     // arcs sit at the world-space WEDGE_RADIUS regardless of layout

@@ -206,7 +206,7 @@ function PairingStar({ a, b, isFavorite, onToggle }) {
   );
 }
 
-export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes, affinityCtx, cuisinePairLookup = null, onFilterBucket = null }) {
+export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes, affinityCtx, cuisinePairLookup = null, onFilterBucket = null, affinityEngaged = false }) {
   const panelRef = useRef(null);
   // Per user request 2026-04-29: panel starts COLLAPSED on each new
   // selection. Clicking an ingredient should not pop a window open;
@@ -237,6 +237,26 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
   useEffect(() => {
     setCuisineFilter(null);
   }, [node?.name]);
+
+  // P5 — wedge-wheel primer/pairings state (ADR §2.5 glue).
+  //
+  // When affinity is engaged (the 3D fly-to has zoomed to a focal), the
+  // wedge wheel starts in 'primer' state — focal's category shading only,
+  // no pairing dots / accent lines. The user's first explicit click on
+  // the wheel transitions it to 'pairings'. A new focal resets it.
+  //
+  // When affinity is NOT engaged, the wheel renders 'pairings' directly,
+  // preserving the byte-identical Principle #4 lock at the
+  // WedgeGridFlavorWheel boundary.
+  const [wheelStartingState, setWheelStartingState] = useState(
+    affinityEngaged ? 'primer' : 'pairings'
+  );
+  useEffect(() => {
+    setWheelStartingState(affinityEngaged ? 'primer' : 'pairings');
+  }, [node?.name, affinityEngaged]);
+  const handleWheelClickTransition = () => {
+    if (wheelStartingState === 'primer') setWheelStartingState('pairings');
+  };
 
   // User feedback 2026-05-13: the radial-wheel UX lives in the 3D fly-to
   // (AffinityMode.js) instead of this side-panel toggle. Keeping the
@@ -603,9 +623,15 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             {/* Task-6 wedge-grid wheel — replaces the prior 2-ring pie.
                 Briscione-pure 6×4 cell grid (3 rings on mobile). Lines
                 from focal hub to cells with thickness = number of OTHER
-                filter categories the accent ingredient also adds. */}
-            <div className="mb-3 flex justify-center">
+                filter categories the accent ingredient also adds.
+                P5: key={node.name} forces a fresh component instance on
+                every focal pivot (per plan iteration-2 pin) so the
+                wedge wheel's primer state resets without useEffect
+                indirection. onClick on the wrapper transitions
+                primer → pairings on first user interaction. */}
+            <div className="mb-3 flex justify-center" onClick={handleWheelClickTransition}>
               <WedgeGridFlavorWheel
+                key={node?.name ?? 'noop'}
                 focalNode={node}
                 neighbors={sortedNeighbors}
                 graphNodes={graphNodes}
@@ -614,6 +640,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                 compact={false}
                 onSelectIngredient={onSelectIngredient}
                 onFilterBucket={onFilterBucket}
+                startingState={wheelStartingState}
               />
             </div>
             <div className="flex items-center justify-between mb-1.5">

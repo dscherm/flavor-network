@@ -8,6 +8,25 @@ export function easeInOutCubic(t) {
   return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2;
 }
 
+/**
+ * P3 — Flavor-cluster-label visibility predicate (per-frame).
+ *
+ * The flavor-space cluster labels (mounted at centroid_3d in
+ * `flavorClusterLabelGroup`) are only visible when ALL of:
+ *   - the active network mode is `'mlflavor'` (the Flavor Network),
+ *   - no axis filter is morphing the layout (`filterActive === false`),
+ *   - affinity mode is NOT engaged (the wedge overlay would conflict).
+ *
+ * Inline transition-block writes (during mode lerps) bypass this helper
+ * because they ramp visibility on `et` (transition phase) rather than a
+ * boolean predicate — extracting their ramp logic would obscure the
+ * fade semantics. The per-frame refresh in LivingArchView uses this
+ * helper so the round-trip semantics are testable in isolation.
+ */
+export function flavorLabelsVisibleFor({ mode, filterActive, affinityEngaged }) {
+  return mode === 'mlflavor' && !filterActive && !affinityEngaged;
+}
+
 export function hashStr(s) {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;

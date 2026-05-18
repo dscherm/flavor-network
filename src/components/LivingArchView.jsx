@@ -7,7 +7,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { computeTastePositions, TASTE_AXES, scoreIngredient } from '../data/tastePositioning.js';
 import { getColorForNode } from '../three/NodeMesh.js';
 import { createLivingEdgeMaterial, createLivingParticleMaterial } from '../three/ShaderMaterials.js';
-import { easeInOutCubic, hashStr, seededRng, makeLabel, computeWheelPositions, ingredientHasTaste } from './livingArchUtils.js';
+import { easeInOutCubic, hashStr, seededRng, makeLabel, computeWheelPositions, ingredientHasTaste, flavorLabelsVisibleFor } from './livingArchUtils.js';
 import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DURATION, POPOUT_HEIGHT, CAMERA_ANIMATOR_DEFAULT_ON, FLAVOR3D_PIVOT_ADVANCE_MS } from './livingArchConstants.js';
 import { handleSceneClick, handleSceneMove } from './livingArchInteraction.js';
 import { AffinityMode } from '../three/AffinityMode.js';
@@ -167,17 +167,35 @@ export default function LivingArchView({
   // mode uses the pivot-advancing variant; every other mode passes
   // `{pivotAdvanceMs: null}` so the orbit stays byte-identical to
   // the legacy v2 behavior (ADR-3 regression contract).
+  //
+  // User-feedback addition (2026-05-18): in flavor3D the auto-tour
+  // runs on landing but the FIRST click on the canvas stops it — the
+  // camera settles at whatever pivot it's lerping to and the user can
+  // navigate manually. Mirrors the legacy '3D' model behavior where
+  // there was no continuous orbit at all. One-shot canvas listener;
+  // removed by the cleanup function or after firing.
   useEffect(() => {
     const animator = cameraAnimatorRef.current;
     if (!animator || typeof animator.setPivotConfig !== 'function') return;
     if (mode === 'mlflavor') {
       animator.setPivotConfig({
         pivotAdvanceMs: FLAVOR3D_PIVOT_ADVANCE_MS,
-        pivotTargets: data?.flavorClusterLabels?.clusters || [],
+        pivotTargets: (data?.flavorClusterLabels?.clusters || []).map(c => ({
+          ...c,
+          align_to_pivot: true,
+        })),
       });
-    } else {
-      animator.setPivotConfig({ pivotAdvanceMs: null, pivotTargets: [] });
+      const canvas = containerRef.current?.querySelector('canvas');
+      if (!canvas) return;
+      const stopAutoTour = () => {
+        animator.setPivotConfig({ pivotAdvanceMs: null, pivotTargets: [] });
+      };
+      canvas.addEventListener('click', stopAutoTour, { once: true });
+      return () => {
+        canvas.removeEventListener('click', stopAutoTour);
+      };
     }
+    animator.setPivotConfig({ pivotAdvanceMs: null, pivotTargets: [] });
   }, [mode, data?.flavorClusterLabels]);
 
   // ---- Build scene ----
@@ -779,7 +797,12 @@ export default function LivingArchView({
         flavorClusterLabelGroup.add(sprite);
       }
     }
-    flavorClusterLabelGroup.visible = modeRef.current === 'mlflavor';
+    // P3 (ADR-1 hide-without-delete addendum): flavor cluster labels are
+    // hidden whenever affinity mode is engaged so the wheel overlay reads
+    // cleanly. At init time affinityModeRef.current is null (the
+    // AffinityMode controller is constructed later), so the optional-chain
+    // resolves to undefined → falsy → labels visible per the mode predicate.
+    flavorClusterLabelGroup.visible = modeRef.current === 'mlflavor' && !affinityModeRef.current?.engaged;
     scene.add(flavorClusterLabelGroup);
 
     // --- Connector lines from each cluster label to its actual cluster
@@ -1383,14 +1406,20 @@ export default function LivingArchView({
         clusterConnectorGroup.visible = clusterLabelGroup.visible;
         // Mirror visibility logic for the flavor-space cluster labels —
         // they only show in 'mlflavor' mode and fade in/out symmetrically.
+        // P3 (ADR-1 hide-without-delete addendum): affinity engagement
+        // forces labels off regardless of transition phase. In practice the
+        // mode toggle handler exits affinity before triggering a transition
+        // (LivingArchView.jsx:2899), but the defensive gate covers
+        // programmatic / restoration code paths.
         const toFlavor = transition.toMode === 'mlflavor';
         const fromFlavor = transition.fromMode === 'mlflavor';
+        const affinityEngaged = !!affinityModeRef.current?.engaged;
         if (toFlavor && !fromFlavor) {
-          flavorClusterLabelGroup.visible = et > 0.3;
+          flavorClusterLabelGroup.visible = et > 0.3 && !affinityEngaged;
         } else if (fromFlavor && !toFlavor) {
-          flavorClusterLabelGroup.visible = et < 0.7;
+          flavorClusterLabelGroup.visible = et < 0.7 && !affinityEngaged;
         } else {
-          flavorClusterLabelGroup.visible = toFlavor;
+          flavorClusterLabelGroup.visible = toFlavor && !affinityEngaged;
         }
         // Lerp cluster label positions between 3D and 2D centroids
         if (clusterLabelGroup.visible) {
@@ -1448,7 +1477,7 @@ export default function LivingArchView({
         clusterLabelGroup.visible = transition.toMode === 'ml' || transition.toMode === 'ml2d';
         clusterConnectorGroup.visible = clusterLabelGroup.visible;
         if (clusterConnectorGroup.visible) updateClusterConnectors();
-        flavorClusterLabelGroup.visible = transition.toMode === 'mlflavor';
+        flavorClusterLabelGroup.visible = transition.toMode === 'mlflavor' && !affinityModeRef.current?.engaged;
         // Categorical-axis label visibility — show the matching axis,
         // hide the rest.
         for (const [m, g] of Object.entries(categoricalLabelGroupByMode)) {
@@ -1851,7 +1880,10 @@ export default function LivingArchView({
       if (modeRef.current === 'mlflavor') {
         cameraAnimatorRef.current.setPivotConfig({
           pivotAdvanceMs: FLAVOR3D_PIVOT_ADVANCE_MS,
-          pivotTargets: data?.flavorClusterLabels?.clusters || [],
+          pivotTargets: (data?.flavorClusterLabels?.clusters || []).map(c => ({
+            ...c,
+            align_to_pivot: true,
+          })),
         });
       } else {
         cameraAnimatorRef.current.setPivotConfig({
@@ -2092,12 +2124,19 @@ export default function LivingArchView({
     const st = stateRef.current;
     if (!st || !flyToTarget) return;
     // R14 v3: external fly-to (cluster-pill / search-select) pauses
-    // the tour for the duration of the fly, then re-engages it
-    // around the now-updated controls.target so the cluster the
-    // user clicked stays in frame and rotates slowly.
+    // the tour for the duration of the fly.
+    //
+    // User-feedback addition (2026-05-18): on completion, the tour
+    // does NOT auto-resume — instead the pivot-advance config is
+    // killed so the camera pins at the chosen target. The legacy '3D'
+    // model worked this way: click a cluster, camera flies in front
+    // of its label, camera stops. Reactivate the tour by switching
+    // modes (mode change useEffect at line 170 re-enables it).
     const animator = cameraAnimatorRef.current;
     animator?.pauseClusterTour();
-    const resumeAfterFly = () => animator?.resumeClusterTour();
+    const resumeAfterFly = () => {
+      animator?.setPivotConfig({ pivotAdvanceMs: null, pivotTargets: [] });
+    };
     if (Array.isArray(flyToTarget)) {
       st.flyToPoint?.(flyToTarget, null, resumeAfterFly);
       return;
@@ -2503,8 +2542,16 @@ export default function LivingArchView({
     // Flavor-space cluster labels only show in mlflavor mode (no
     // connectors — flavor labels sit directly at centroids, not
     // outward-projected like the recipe-coocc labels).
+    // P3 (ADR-1 hide-without-delete addendum): affinity engagement also
+    // suppresses the flavor labels so the wheel overlay reads cleanly.
+    // This is the dominant per-frame gate; round-trip semantics are
+    // covered by livingArchUtils.test.js.
     const flavorGrp = st.flavorClusterLabelGroup;
-    if (flavorGrp) flavorGrp.visible = !filterActive && mode === 'mlflavor';
+    if (flavorGrp) flavorGrp.visible = flavorLabelsVisibleFor({
+      mode,
+      filterActive,
+      affinityEngaged: !!affinityModeRef.current?.engaged,
+    });
     // Legacy taste-axis labels (3D neural mode only) — gone under R17
     // unless someone explicitly enters the legacy taste mode.
     if (labelGroup) labelGroup.visible = false;
@@ -2737,6 +2784,19 @@ export default function LivingArchView({
       // Multi-select: suspend ring visuals; existing common-pairings
       // UX takes over. Resume on collapse back to length 1.
       ctrl.suspend();
+    }
+    // P3 (ADR-1 hide-without-delete addendum): the per-frame R17
+    // refresh early-returns when affinity is engaged (the visual
+    // treatment is owned by AffinityMode), so the flavor cluster label
+    // visibility never updates from there. Fire it from THIS effect,
+    // which already runs on every engage/exit/pivot transition.
+    const flavorGrp = stateRef.current?.flavorClusterLabelGroup;
+    if (flavorGrp) {
+      flavorGrp.visible = flavorLabelsVisibleFor({
+        mode: modeRef.current,
+        filterActive: filterStackRef.current.length > 0,
+        affinityEngaged: !!ctrl.engaged,
+      });
     }
   }, [selectedNodes, isMobile, affinityEnabled]);
 
