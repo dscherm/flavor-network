@@ -1410,6 +1410,7 @@ export default function App() {
           selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
           selectedCount={selectedNodes.length}
           flavorPath={flavorPath}
+          affinityEngaged={affinityEnabled && selectedNodes.length === 1}
           onBuildRecipe={() => {
             // Explicit handoff: replace the Recipe Lab bowl with the
             // currently-selected nodes from the Network tab.
@@ -2118,6 +2119,7 @@ export default function App() {
               selectedNodes={selectedNodes}
               selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
               selectedCount={selectedNodes.length}
+              affinityEngaged={affinityEnabled && selectedNodes.length === 1}
               isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
               onToggleFavorite={userProfile.toggleIngredient}
           onTogglePairing={userProfile.togglePairing}

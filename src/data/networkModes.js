@@ -21,10 +21,21 @@
 // ingredient GNN taste+aroma vectors (public/proDataset/flavor_positions.json)
 // rather than from the Node2Vec recipe-cooccurrence embedding. Position
 // = flavor identity; edges still encode pairing.
-export const MODE_CYCLE = ['flavor3D', '3D', '2D'];
+//
+// **Hide-without-delete (ADR-1, 2026-05-18):** `'3D'` (the legacy recipe-
+// cooccurrence Node2Vec embedding) is removed from `MODE_CYCLE` so the
+// UI mode-picker no longer surfaces it. Its renderer code path, label,
+// `effectiveLegacyMode('3D') → 'ml'` mapping, and existing wiring all
+// remain intact — programmatic callers (URL params, bookmarks, tests)
+// still resolve correctly when they pass `mode='3D'`. To re-enable it
+// for users, add `'3D'` back to `MODE_CYCLE` (single-line revert).
+export const MODE_CYCLE = ['flavor3D', '2D'];
 
 export const DEFAULT_MODE = 'flavor3D';
 
+// `MODE_LABELS['3D']` is intentionally kept after the ADR-1 hide so
+// programmatic callers passing `mode='3D'` still resolve to a label.
+// The user-facing mode picker iterates MODE_CYCLE, not MODE_LABELS.
 export const MODE_LABELS = {
   '3D': 'Recipe Network (legacy)',
   '2D': '2D Pairings',

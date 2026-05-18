@@ -7,12 +7,14 @@ import {
   FILTER_TO_AXIS,
   morphAxisForStack,
   HAS_ACTIVE_FILTER,
+  effectiveLegacyMode,
 } from '../networkModes.js';
 
 describe('R16 Phase 1 — networkModes', () => {
-  it('MODE_CYCLE has 3 entries with flavor3D first (default)', () => {
-    expect(MODE_CYCLE).toEqual(['flavor3D', '3D', '2D']);
+  it('MODE_CYCLE has 2 entries with flavor3D first (default) — 3D hidden per ADR-1', () => {
+    expect(MODE_CYCLE).toEqual(['flavor3D', '2D']);
     expect(MODE_CYCLE[0]).toBe('flavor3D');
+    expect(MODE_CYCLE).not.toContain('3D');
   });
 
   it('DEFAULT_MODE is flavor3D', () => {
@@ -22,6 +24,30 @@ describe('R16 Phase 1 — networkModes', () => {
   it('MODE_LABELS reflect the primary/legacy naming', () => {
     expect(MODE_LABELS['flavor3D']).toBe('Flavor Network');
     expect(MODE_LABELS['3D']).toBe('Recipe Network (legacy)');
+  });
+
+  // ===== ADR-1 hide-without-delete preservation gates ====================
+  // The user-facing mode picker iterates MODE_CYCLE, but programmatic
+  // callers (URL params, bookmarks, deep links, legacy regression tests)
+  // still pass `mode='3D'`. These assertions guard against accidental
+  // full-deletion of the '3D' code path in future edits.
+
+  it("R1 preservation — MODE_LABELS['3D'] still exists for programmatic callers", () => {
+    expect(MODE_LABELS).toHaveProperty('3D');
+    expect(typeof MODE_LABELS['3D']).toBe('string');
+    expect(MODE_LABELS['3D'].length).toBeGreaterThan(0);
+  });
+
+  it("R1 preservation — effectiveLegacyMode('3D', null) still resolves to 'ml'", () => {
+    expect(effectiveLegacyMode('3D', null)).toBe('ml');
+  });
+
+  it("R1 preservation — effectiveLegacyMode('flavor3D', null) resolves to 'mlflavor'", () => {
+    expect(effectiveLegacyMode('flavor3D', null)).toBe('mlflavor');
+  });
+
+  it("R1 preservation — effectiveLegacyMode('2D', null) resolves to 'ml2d'", () => {
+    expect(effectiveLegacyMode('2D', null)).toBe('ml2d');
   });
 
   it('FILTER_KEYS has 7 entries', () => {

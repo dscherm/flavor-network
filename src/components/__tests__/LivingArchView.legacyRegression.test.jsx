@@ -217,6 +217,17 @@ describe('LivingArchView P4 — CameraAnimator pivot-advance wiring (legacy regr
     for (const cfg of setPivotConfigCalls) {
       expect(cfg.pivotAdvanceMs === null || cfg.pivotAdvanceMs === undefined).toBe(true);
     }
+    // ADR-2 (post-spike, 2026-05-18) contract item 5: legacy mode must
+    // never carry `align_to_pivot` on any pivotTargets[] item. The
+    // alignment branch in CameraAnimator._tickTourOrbit is structurally
+    // unreachable in legacy because legacy passes pivotTargets: [], but
+    // this assertion closes the schema-leak vector if a future edit
+    // ever wires a non-empty pivotTargets through the legacy branch.
+    for (const cfg of setPivotConfigCalls.filter(c => c.pivotAdvanceMs === null || c.pivotAdvanceMs === undefined)) {
+      for (const t of (cfg.pivotTargets || [])) {
+        expect(t.align_to_pivot).toBeUndefined();
+      }
+    }
   });
 
   it('mode="ml2d" (legacy 2D) → setPivotConfig also passes pivotAdvanceMs: null', async () => {
@@ -224,6 +235,12 @@ describe('LivingArchView P4 — CameraAnimator pivot-advance wiring (legacy regr
     render(<LivingArchView data={makeFixtureData()} mode="ml2d" />);
     for (const cfg of setPivotConfigCalls) {
       expect(cfg.pivotAdvanceMs === null || cfg.pivotAdvanceMs === undefined).toBe(true);
+    }
+    // ADR-2 schema-absence (same rationale as the ml test above).
+    for (const cfg of setPivotConfigCalls.filter(c => c.pivotAdvanceMs === null || c.pivotAdvanceMs === undefined)) {
+      for (const t of (cfg.pivotTargets || [])) {
+        expect(t.align_to_pivot).toBeUndefined();
+      }
     }
   });
 

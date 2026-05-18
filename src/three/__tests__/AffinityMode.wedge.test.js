@@ -215,11 +215,21 @@ describe('AffinityMode — wedge layout (2026-05-13 user feedback)', () => {
     expect(ctrl.wedgeArcGroup.visible).toBe(true);
     const arcCount = ctrl.wedgeArcGroup.children.length;
     expect(arcCount).toBeGreaterThan(0);
-    // Each arc is a THREE.Line backed by a real BufferGeometry.
-    for (const line of ctrl.wedgeArcGroup.children) {
-      expect(line.isLine).toBe(true);
-      expect(line.geometry?.attributes?.position?.count).toBeGreaterThan(1);
-      expect(line.material?.color).toBeTruthy();
+    // P6 (ADR-3): each arc is now a THREE.Mesh(TubeGeometry,
+    // MeshBasicMaterial) instead of a THREE.Line. The TubeGeometry gives
+    // iOS-visible thickness; LineBasicMaterial.linewidth>1 was ignored on
+    // iOS WebGL. Each Mesh must also stub `raycast = () => {}` so click
+    // events fall through to underlying ingredient nodes (Architect's
+    // hard requirement on ADR-3).
+    for (const arc of ctrl.wedgeArcGroup.children) {
+      expect(arc.isMesh).toBe(true);
+      expect(arc.geometry?.attributes?.position?.count).toBeGreaterThan(1);
+      expect(arc.material?.color).toBeTruthy();
+      // Raycast stub — function exists and is a no-op (returns undefined,
+      // does not push anything to the intersects array).
+      const intersects = [];
+      arc.raycast({}, intersects);
+      expect(intersects.length).toBe(0);
     }
     // Arc count tracks active wedges (modulo the empty-anchor sentinel
     // which we always skip).

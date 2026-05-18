@@ -102,6 +102,13 @@ export default function WedgeGridFlavorWheel({
   onFilterBucket = null,
   className = '',
   theme = 'dark',
+  // P4 — primer state. 'pairings' (default) is the existing render path
+  // and is locked byte-identical by snapshot (Principle #4). 'primer'
+  // renders the focal's flavor-category context only: activated aroma
+  // sectors + dominant taste-ring highlight, no cells / no accent lines.
+  // Used by AffinityMode glue (P5) on initial engage, before the user
+  // explicitly transitions to pairings.
+  startingState = 'pairings',
 }) {
   const isMobile = useIsMobile();
   const ringAxes = compact ? ['compact'] : (isMobile ? RING_AXES_MOBILE : RING_AXES_FULL);
@@ -273,6 +280,43 @@ export default function WedgeGridFlavorWheel({
     ? `${focalNode?.name || 'Focal'} activated aromas: ${activeAromasList.join(', ')}`
     : '';
 
+  // ===== P4 — primer-state derived data ==================================
+  // Active when `startingState === 'primer'`. The pairings render path is
+  // unchanged when primer is inactive — Principle #4 byte-identity lock is
+  // asserted by `WedgeGridFlavorWheel.primerState.test.jsx`.
+  const isPrimer = startingState === 'primer';
+  // Pick the focal's first taste token as the dominant. `node.taste` is a
+  // comma/semicolon-separated string of taste keys (the same tokenization
+  // accentPlacement uses for filter-category signals).
+  const focalDominantTaste = useMemo(() => {
+    const t = focalNode?.taste;
+    if (typeof t !== 'string' || !t.length) return null;
+    const first = t.split(/[,;]/).map((s) => s.trim().toLowerCase()).find(Boolean);
+    return first || null;
+  }, [focalNode]);
+  // Taste-ring arc geometry: shade the full taste-ring slab (a full donut
+  // ring across all 6 aroma sectors) at low opacity. The ring axis is
+  // always 'taste' in full mode; absent in compact mode (which has only
+  // one band) and absent in mobile-3-rings layout (where 'taste' is still
+  // present per RING_AXES_MOBILE — so this works there too).
+  const primerTasteRingArc = useMemo(() => {
+    if (!isPrimer) return null;
+    if (compact) return null;
+    if (!focalDominantTaste) return null;
+    const tasteRing = ringRadii.taste;
+    if (!tasteRing) return null;
+    const tasteColor = bucketColor('taste', focalDominantTaste);
+    if (!tasteColor) return null;
+    // Full donut: theta 0 → TAU. arcPath handles wrap via largeArc flag.
+    return {
+      // Build as two half-arcs to avoid the full-circle degenerate case
+      // (theta 0 → TAU collapses in SVG; split at PI is unambiguous).
+      d1: arcPath(cx, cy, tasteRing.rInner, tasteRing.rOuter, 0,         Math.PI),
+      d2: arcPath(cx, cy, tasteRing.rInner, tasteRing.rOuter, Math.PI,   TAU),
+      fill: tasteColor,
+    };
+  }, [isPrimer, compact, focalDominantTaste, ringRadii, cx, cy]);
+
   return (
     <div className={`flex flex-col items-center gap-1.5 ${className}`}>
       <svg
@@ -326,8 +370,22 @@ export default function WedgeGridFlavorWheel({
           );
         })}
 
-        {/* Accent lines from hub to cell centroid */}
-        {cellElements.map(({ cell, centroid, idx }) => {
+        {/* P4 — Primer taste-ring shading. Only renders when
+            startingState='primer' AND focal has a dominant taste AND we're
+            in a multi-ring layout. Drawn as two half-donut arcs to keep
+            arcPath unambiguous across a full revolution. Sits above the
+            sector backgrounds (so the BRISCIONE_TASTE color shows over the
+            faint sector tint) and below cell text + lines (which don't
+            render in primer anyway). */}
+        {primerTasteRingArc && (
+          <>
+            <path d={primerTasteRingArc.d1} fill={primerTasteRingArc.fill} fillOpacity={0.32} aria-hidden="true" />
+            <path d={primerTasteRingArc.d2} fill={primerTasteRingArc.fill} fillOpacity={0.32} aria-hidden="true" />
+          </>
+        )}
+
+        {/* Accent lines from hub to cell centroid — suppressed in primer */}
+        {!isPrimer && cellElements.map(({ cell, centroid, idx }) => {
           const color = bucketColor('aroma', cell.sector);
           return (
             <line
@@ -344,8 +402,9 @@ export default function WedgeGridFlavorWheel({
           );
         })}
 
-        {/* Cell text (clickable). Phase 5: hover + focus stroke ring, overflow chip. */}
-        {cellElements.map(({ cell, centroid, idx }) => {
+        {/* Cell text (clickable). Phase 5: hover + focus stroke ring, overflow chip.
+            P4 — suppressed in primer (no cells / no overflow). */}
+        {!isPrimer && cellElements.map(({ cell, centroid, idx }) => {
           const cellKey = `${cell.sector}|${cell.ring}|${cell.ingredientName}|${idx}`;
           const hovered = hoveredCellKey === cellKey;
           const title = !compact && onFilterBucket && cell.ring
@@ -540,10 +599,34 @@ export default function WedgeGridFlavorWheel({
         })}
       </div>
 
-      {/* Dropped-neighbor footnote */}
-      {placement.dropped > 0 && (
+      {/* Dropped-neighbor footnote — suppressed in primer (no cells rendered). */}
+      {!isPrimer && placement.dropped > 0 && (
         <div className="text-[9px] text-gray-500 italic">
           {placement.dropped} neighbor{placement.dropped === 1 ? '' : 's'} not shown (no aroma data)
+        </div>
+      )}
+
+      {/* P4 — Primer-only aria-live element. Conditionally MOUNTED (not
+          always-rendered with conditional content) so screen readers
+          announce the primer state ONLY when it's active. The pairings
+          render path is byte-identical to before this prop existed
+          (Principle #4 lock). */}
+      {isPrimer && (
+        <div
+          aria-live="polite"
+          style={{
+            position: 'absolute',
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: 'hidden',
+            clip: 'rect(0,0,0,0)',
+            whiteSpace: 'nowrap',
+            border: 0,
+          }}
+        >
+          Showing {focalNode?.name || 'focal'}'s flavor profile
         </div>
       )}
     </div>

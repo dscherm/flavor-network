@@ -427,6 +427,15 @@ export class CameraAnimator {
    * `pivotTargets` items must each carry a `centroid_3d: [x,y,z]`
    * array. Bare `.centroid` is not consulted (ADR field-name lock).
    * Items missing a valid `centroid_3d` are dropped silently.
+   *
+   * Per-target optional fields (ADR-2 post-spike, 2026-05-18):
+   *   - `align_to_pivot?: boolean` — when `true`, `_tickTourOrbit`
+   *     calls `camera.lookAt(_tourPivot)` after writing
+   *     `controls.target` so the projected screen-Y of the pivot
+   *     lands at viewport center (NDC origin). Default
+   *     `false`/omit → no-op (legacy byte-identical). Binary
+   *     semantic only; a numeric alignment fraction is intentionally
+   *     not admitted by this schema.
    */
   setPivotConfig({ pivotAdvanceMs = null, pivotTargets = [] } = {}) {
     const ms = (typeof pivotAdvanceMs === 'number' && pivotAdvanceMs > 0)
@@ -637,6 +646,22 @@ export class CameraAnimator {
     this._tourElapsedMs = 0;
   }
 
+  /**
+   * Per-frame tour orbit tick.
+   *
+   * Stale-quaternion note (ADR-2, 2026-05-18): `controls.enabled =
+   * false` during the tour (see `_takeOwnership` at line 584-586),
+   * so `OrbitControls.update()` never runs and the camera
+   * quaternion is stale-from-engage-time. Writing
+   * `controls.target.copy(_tourPivot)` advances the target without
+   * rotating the camera to look at it — the projected screen-Y of
+   * the pivot then drifts off viewport center (cluster-2 sparse-
+   * outlier harness fixture: 0.645 = 14.5% off). The
+   * `align_to_pivot` branch below calls `camera.lookAt(_tourPivot)`
+   * so the pivot projects to NDC origin by construction. See
+   * `CameraAnimator.labelAlignment.test.js` for the projection
+   * model and the assertion predicate.
+   */
   _tickTourOrbit(dt) {
     if (!this._camera || !this._controls) { this._state = STATES.IDLE; return; }
     this._tourElapsedMs += dt * 1000;
@@ -657,6 +682,16 @@ export class CameraAnimator {
       this._tourPivot.z + horiz * Math.sin(angle),
     );
     this._controls.target.copy(this._tourPivot);
+    // If the active pivotTarget requests alignment, force camera to look at
+    // the target so its projected screen-Y lands at NDC origin (viewport
+    // center). controls.update() never runs during tour (controls.enabled =
+    // false at _takeOwnership), so the camera quaternion is otherwise
+    // stale-from-engage-time. See CameraAnimator.labelAlignment.test.js.
+    const activeTarget = this._pivotTargets[this._pivotIdx];
+    if (activeTarget && activeTarget.align_to_pivot === true) {
+      this._camera.lookAt(this._tourPivot);
+      this._camera.updateMatrixWorld(true);
+    }
   }
 
   /**
