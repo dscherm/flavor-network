@@ -202,6 +202,9 @@ export default function App() {
   // place setFilterStack is called from a Guided context is
   // onExploreInNetwork below (the canonical bridge).
   const [bubbleStack, setBubbleStack] = useState([]);
+  // Track 3 / P5 — GuidedDiscoverySwipe's new `{ ingredient, filterType }`
+  // payload feeds GuidedDiscoveryResults' initial pill via this state.
+  const [guidedInitialFilterType, setGuidedInitialFilterType] = useState(null);
   // Phase 5 (2026-05-16) — Build path mirrors bubbleStack but the
   // ingredient bubble's value carries a `{ingredients: string[]}`
   // array instead of `{ingredient: string}`. Kept separate from the
@@ -1605,22 +1608,41 @@ export default function App() {
               but no longer rendered. */}
           <GuidedDiscoverySwipe
             ingredients={ingredientList}
-            onComplete={(stack) => {
-              setBubbleStack(stack);
+            onComplete={(payload) => {
+              // P5 (Track 3) — payload shape changed from a bubbleStack
+              // array to `{ ingredient, filterType }`. Reconstruct a
+              // minimal bubbleStack so downstream consumers (chip strip,
+              // focalFromStack) still work. Pass filterType through to
+              // GuidedDiscoveryResults as initialFilterType.
+              if (Array.isArray(payload)) {
+                // Legacy array shape (defensive — should not occur post-P5).
+                setBubbleStack(payload);
+                setGuidedInitialFilterType(null);
+              } else if (payload && typeof payload === 'object') {
+                const { ingredient, filterType } = payload;
+                setBubbleStack(ingredient ? [{
+                  key: 'ingredient',
+                  label: 'Starts with a specific ingredient',
+                  value: { ingredient },
+                  axisHint: null,
+                }] : []);
+                setGuidedInitialFilterType(filterType || null);
+              }
               setActiveTab('guided-results');
             }}
           />
         </div>
       )}
 
-      {/* Phase 3 Guided Discovery — Screen 2 (results stub; Phase 4
-          replaces with curated wheel + StoryPanel). The
+      {/* Phase 3 Guided Discovery — Screen 2 (P6: GuidedProfileRadar +
+          GuidedResultsFilterPills + ProvenancePanel). The
           onExploreInNetwork handler is the canonical bridge into
           App.jsx's network filterStack per Constraint #4. */}
       {activeTab === 'guided-results' && (
         <div className="fixed inset-0 z-[40] overflow-y-auto">
           <GuidedDiscoveryResults
             bubbleStack={bubbleStack}
+            initialFilterType={guidedInitialFilterType}
             // `data` from useProData IS the affinityCtx contract:
             // it carries pairingStrength, top5, bridgeCompoundIndex,
             // affinityThresholds, graph.{nodes,edges}, gnnEntropy,

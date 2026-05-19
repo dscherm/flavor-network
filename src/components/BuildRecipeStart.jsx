@@ -23,7 +23,7 @@ import { CATEGORICAL_AXES } from '../data/categoricalAxes.js';
 import {
   SEASON_ICON_BY_KEY,
   MEAT_ICON_BY_KEY,
-  CUISINE_ICON_BY_LABEL,
+  CUISINE_BUCKET_ICON_BY_LABEL,
   AROMA_ICON_BY_LABEL,
   DIETARY_ICON_BY_KEY,
   CocktailHeaderIcon,
@@ -316,7 +316,7 @@ export default function BuildRecipeStart({ ingredients = [], onComplete }) {
                   label={label}
                   active={cur === label}
                   color={CUISINE_CHIP_COLOR[label]}
-                  Icon={CUISINE_ICON_BY_LABEL[label]}
+                  Icon={CUISINE_BUCKET_ICON_BY_LABEL[label]}
                   capitalize={false}
                   onClick={() =>
                     setBubbleValue(bubble.key, { cuisineBucket: label }, bubble.label, bubble.axisHint)

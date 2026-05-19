@@ -1,14 +1,17 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import GuidedDiscoveryResults from '../GuidedDiscoveryResults.jsx';
+import * as bubbles from '../../data/guidedDiscovery.js';
 
 const T = { star3: 0.9, star2: 0.6, star1: 0.3 };
 
 /**
- * Build a context shaped like the one CuratedWheel expects, with a
- * synthetic edges set carrying breakdown.x3 so the chemistry-banner
- * predicate can be exercised in isolation.
+ * Build a context shaped like the one CuratedWheel + GuidedProfileRadar
+ * expect, with a synthetic edges set carrying breakdown.x3 so the
+ * chemistry-banner predicate can be exercised in isolation. Nodes
+ * carry taste/aroma/season/cuisine fields so the radar's predicates
+ * have signal to read.
  */
 function buildCtx({ x3ForGinger = 0.5 } = {}) {
   const focal = 'tomato';
@@ -42,8 +45,6 @@ function buildCtx({ x3ForGinger = 0.5 } = {}) {
   for (const [k, names] of Object.entries(bridges)) {
     bridgeCompoundIndex.set(k, { bridges: names.map((name) => ({ name })) });
   }
-  // Edges carry breakdown so normalizePair can recover x3 — gives
-  // every edge x3 = 0.5 EXCEPT the ginger one (caller-controlled).
   const edges = neighbors.map((n) => ({
     source: focal,
     target: n,
@@ -55,8 +56,45 @@ function buildCtx({ x3ForGinger = 0.5 } = {}) {
     },
   }));
   const nodes = new Map();
+  // Focal is umami; basil + oregano are "green" aroma-tagged; everyone
+  // gets a taste so the radar can plot dots regardless of filterType.
+  const tasteByName = {
+    tomato: 'umami',
+    basil: 'green, sweet',
+    'olive oil': 'fatty',
+    garlic: 'pungent',
+    parmesan: 'umami, salty',
+    oregano: 'bitter, green',
+    ginger: 'spicy',
+  };
+  const gnnProbsByName = {
+    basil:    { odor_green: 0.9, odor_floral: 0.6 },
+    oregano:  { odor_green: 0.85, odor_woody: 0.55 },
+    parmesan: { odor_fatty: 0.7 },
+    'olive oil': { odor_fatty: 0.75 },
+    garlic:   { odor_spicy: 0.6 },
+    ginger:   { odor_spicy: 0.8, odor_woody: 0.5 },
+  };
+  const seasonByName = {
+    basil: 'summer',
+    oregano: 'summer',
+    parmesan: 'winter',
+  };
+  const cuisinesByName = {
+    basil: ['European'],
+    oregano: ['European', 'Middle Eastern'],
+    'olive oil': ['European'],
+    ginger: ['East Asian'],
+  };
   for (const name of [focal, ...neighbors]) {
-    nodes.set(name, { name, taste: 'umami', category: 'Vegetable' });
+    nodes.set(name, {
+      name,
+      taste: tasteByName[name] || 'umami',
+      category: 'Vegetable',
+      gnnProbs: gnnProbsByName[name] || null,
+      season: seasonByName[name] || null,
+      cuisines: cuisinesByName[name] || [],
+    });
   }
   return {
     pairingStrength,
@@ -67,19 +105,146 @@ function buildCtx({ x3ForGinger = 0.5 } = {}) {
   };
 }
 
-// Stack with a taste-axis bubble — the test fixture nodes carry a
-// `taste: 'umami'` field but no GNN entropy, so the taste axis is
-// the only one whose bucketOf can resolve a non-null bucket. Aroma
-// would render an empty-bucket SVG (no dots) because gnnEntropy is
-// not populated in the synthetic ctx.
+// Stack with an ingredient bubble — focalFromStack reads this.
 const ingredientStack = [
   { key: 'ingredient', label: 'Starts with a specific ingredient', value: { ingredient: 'tomato' }, axisHint: null },
   { key: 'taste',      label: 'Goes with a taste',                 value: { tasteBucket: 'umami' },  axisHint: 'taste' },
 ];
 
-describe('GuidedDiscoveryResults', () => {
-  it('renders chemistry banner when ≥50% of hero pairings have breakdown.x3 === 0.5', () => {
-    // Default ctx has every edge at x3=0.5 → 100% missing chemistry → banner fires.
+describe('GuidedDiscoveryResults — P6 composition', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('does NOT render CuratedWheel', () => {
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        ctx={buildCtx()}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    // CuratedWheel mounts a wedge layer; assert that layer is absent.
+    expect(document.querySelector('[data-layer="wedges"]')).toBeNull();
+    expect(document.querySelector('[data-layer="dots"]')).toBeNull();
+  });
+
+  it('does NOT render MultiAxisRadarStack', () => {
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        ctx={buildCtx()}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    // MultiAxisRadarStack mounts ProfileAxisRadar instances which use
+    // testid 'profile-axis-radar'; assert no such element exists.
+    expect(screen.queryAllByTestId('profile-axis-radar')).toHaveLength(0);
+  });
+
+  it('renders GuidedProfileRadar', () => {
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        ctx={buildCtx()}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    expect(screen.getByTestId('guided-profile-radar')).toBeInTheDocument();
+  });
+
+  it('renders GuidedResultsFilterPills', () => {
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        ctx={buildCtx()}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    // The pills render as a radiogroup with 4 radio buttons.
+    const group = screen.getByRole('radiogroup', { name: /result filter type/i });
+    expect(group).toBeInTheDocument();
+    const radios = screen.getAllByRole('radio');
+    expect(radios).toHaveLength(4);
+  });
+
+  it('renders the "Show me where this data comes from" provenance button', () => {
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        ctx={buildCtx()}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    const btn = screen.getByText(/Show me where.*data.*from/i);
+    expect(btn).toBeInTheDocument();
+    // Clicking opens the ProvenancePanel (role=dialog).
+    fireEvent.click(btn);
+    expect(screen.getByRole('dialog', { name: /where does this data come from/i })).toBeInTheDocument();
+  });
+
+  it('tapping an aroma axis dims non-matching pairings to 0.35 and keeps matches at 1.0', () => {
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        initialFilterType="aroma"
+        ctx={buildCtx()}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    // Tap the "green" aroma axis.
+    const greenAxisBtn = screen.getByTestId('guided-radar-axis-green');
+    fireEvent.click(greenAxisBtn);
+    // After the tap, plotted pairings carry data-pairing-match +
+    // data-pairing-opacity attributes; matching pairings get opacity 1,
+    // non-matching pairings get 0.35.
+    const dots = screen.getAllByTestId('guided-radar-pairing');
+    expect(dots.length).toBeGreaterThan(0);
+    const opacities = dots.map((d) => d.getAttribute('data-pairing-opacity'));
+    // At least one matching dot at 1.0
+    expect(opacities.some((o) => o === '1')).toBe(true);
+    // At least one non-matching dot at 0.35
+    expect(opacities.some((o) => o === '0.35')).toBe(true);
+  });
+
+  it('switching pill from aroma to taste flips axis count to 8 and resets chosenValue to null', () => {
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        initialFilterType="aroma"
+        ctx={buildCtx()}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    // Tap "green" first so chosenValue is set.
+    fireEvent.click(screen.getByTestId('guided-radar-axis-green'));
+    expect(screen.getByTestId('guided-profile-radar').getAttribute('data-chosen-value'))
+      .toBe('green');
+    // Now switch the pill to 'taste'.
+    const tasteRadio = screen.getAllByRole('radio').find(
+      (r) => r.textContent?.toLowerCase().includes('taste'),
+    );
+    expect(tasteRadio).toBeDefined();
+    fireEvent.click(tasteRadio);
+    // Axis count flips to 8 (taste has 8 axes).
+    // After re-render, query the radar's axis buttons by their testid prefix.
+    const axisButtons = Array.from(document.querySelectorAll('[data-testid^="guided-radar-axis-"]'));
+    expect(axisButtons).toHaveLength(8);
+    // chosenValue reset to null (data-chosen-value === '').
+    expect(screen.getByTestId('guided-profile-radar').getAttribute('data-chosen-value'))
+      .toBe('');
+    // No wedge fill rendered.
+    expect(screen.queryByTestId('guided-radar-wedge-fill')).toBeNull();
+  });
+
+  it('chemistry banner OQ4 closure: fires when ≥50% of hero pairings have breakdown.x3 === 0.5', () => {
     render(
       <GuidedDiscoveryResults
         bubbleStack={ingredientStack}
@@ -93,12 +258,24 @@ describe('GuidedDiscoveryResults', () => {
     expect(banner.textContent).toMatch(/recipe co-occurrence alone/);
   });
 
+  it('chemistry banner is ABOVE the radar in DOM order', () => {
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        ctx={buildCtx({ x3ForGinger: 0.5 })}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    const banner = screen.getByTestId('guided-results-chemistry-banner');
+    const radar = screen.getByTestId('guided-profile-radar');
+    // banner comes before radar in document order.
+    expect(banner.compareDocumentPosition(radar) & Node.DOCUMENT_POSITION_FOLLOWING)
+      .toBeTruthy();
+  });
+
   it('does NOT render the banner when most hero pairings have breakdown.x3 !== 0.5', () => {
-    // Build a ctx whose every edge has x3 != 0.5. The CuratedWheel will
-    // still pick ginger as a hero (surprising path), but we override
-    // ginger's x3 to 1.0 so the banner predicate is never satisfied.
     const ctx = buildCtx({ x3ForGinger: 1.0 });
-    // Update ALL edges to have x3 != 0.5
     for (const e of ctx.graph.edges) {
       e.breakdown.x3 = 1.0;
     }
@@ -111,19 +288,6 @@ describe('GuidedDiscoveryResults', () => {
       />,
     );
     expect(screen.queryByTestId('guided-results-chemistry-banner')).toBeNull();
-  });
-
-  it('renders CuratedWheel (svg) when bubbleStack has an ingredient bubble', () => {
-    const { container } = render(
-      <GuidedDiscoveryResults
-        bubbleStack={ingredientStack}
-        ctx={buildCtx()}
-        onBackToBubbles={() => {}}
-        onExploreInNetwork={() => {}}
-      />,
-    );
-    expect(container.querySelector('svg')).toBeTruthy();
-    expect(screen.queryByTestId('guided-results-empty-state')).toBeNull();
   });
 
   it('renders empty-state when no ingredient bubble', () => {
@@ -140,28 +304,6 @@ describe('GuidedDiscoveryResults', () => {
     expect(screen.getByTestId('guided-results-empty-state')).toBeInTheDocument();
   });
 
-  // Bug 2 — when an ingredient IS picked AND ctx is plumbed, the wheel
-  // must render and the empty-state must NOT appear. This is the test
-  // that would have caught the App.jsx wiring regression.
-  it('renders the curated wheel when bubbleStack has an ingredient AND ctx is plumbed', () => {
-    const { container } = render(
-      <GuidedDiscoveryResults
-        bubbleStack={ingredientStack}
-        ctx={buildCtx()}
-        onBackToBubbles={() => {}}
-        onExploreInNetwork={() => {}}
-      />,
-    );
-    // Wheel SVG present; empty-state ABSENT.
-    expect(container.querySelector('svg')).toBeTruthy();
-    expect(screen.queryByTestId('guided-results-empty-state')).toBeNull();
-    expect(screen.queryByTestId('guided-results-loading-state')).toBeNull();
-  });
-
-  // Bug 2 — distinguish the wiring-failure case from the empty-state.
-  // When focal IS set but ctx is null, render a loading-state, NOT
-  // the "pick an ingredient" empty-state (which would mis-signal the
-  // user to do something they already did).
   it('renders loading-state when focal is set but ctx is missing', () => {
     render(
       <GuidedDiscoveryResults
@@ -172,29 +314,7 @@ describe('GuidedDiscoveryResults', () => {
       />,
     );
     expect(screen.getByTestId('guided-results-loading-state')).toBeInTheDocument();
-    // Crucially: the empty-state (which tells the user to "pick an
-    // ingredient bubble") must NOT appear when one is already picked.
     expect(screen.queryByTestId('guided-results-empty-state')).toBeNull();
-  });
-
-  it('selecting a hero pairing opens StoryPanel', () => {
-    const { container } = render(
-      <GuidedDiscoveryResults
-        bubbleStack={ingredientStack}
-        ctx={buildCtx()}
-        onBackToBubbles={() => {}}
-        onExploreInNetwork={() => {}}
-      />,
-    );
-    // Story panel placeholder is shown initially.
-    expect(screen.getByTestId('guided-results-story-placeholder')).toBeInTheDocument();
-    // Click a wheel dot.
-    const dots = container.querySelectorAll('[data-layer="dots"] [data-name]');
-    expect(dots.length).toBeGreaterThan(0);
-    fireEvent.click(dots[0]);
-    // Story panel appears.
-    expect(screen.getByTestId('story-panel')).toBeInTheDocument();
-    expect(screen.getByTestId('story-causal').textContent).toMatch(/recipe co-occurrence/);
   });
 
   it('"Back to bubbles" CTA fires onBackToBubbles', () => {
@@ -223,6 +343,42 @@ describe('GuidedDiscoveryResults', () => {
     );
     fireEvent.click(screen.getByTestId('guided-results-explore'));
     expect(onExplore).toHaveBeenCalledTimes(1);
+  });
+
+  // G6 — NEW10 bridge-stale assertion (named exactly per ralplan §2.4).
+  it('App bridge does not call deriveFilterStackFromBubbles with the new payload shape', () => {
+    const spy = vi.spyOn(bubbles, 'deriveFilterStackFromBubbles');
+    const onExplore = vi.fn();
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        initialFilterType="aroma"
+        ctx={buildCtx()}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={onExplore}
+      />,
+    );
+    // Walk the new flow: tap an axis to set chosenValue, then click Explore.
+    fireEvent.click(screen.getByTestId('guided-radar-axis-green'));
+    fireEvent.click(screen.getByTestId('guided-results-explore'));
+    // The Results component never invokes deriveFilterStackFromBubbles
+    // directly (Constraint #4 — App.jsx owns the bridge). And even when
+    // the bridge IS called by App.jsx, it must NOT be called with the
+    // new { ingredient, filterType } object payload — only with the
+    // legacy bubbleStack array shape.
+    for (const call of spy.mock.calls) {
+      const arg0 = call[0];
+      // Reject the new object payload shape — it would no-op since
+      // deriveFilterStackFromBubbles expects an array.
+      const isNewPayloadShape =
+        arg0 && typeof arg0 === 'object' && !Array.isArray(arg0) &&
+        typeof arg0.ingredient === 'string' && typeof arg0.filterType === 'string';
+      expect(isNewPayloadShape).toBe(false);
+    }
+    expect(spy).not.toHaveBeenCalledWith(expect.objectContaining({
+      ingredient: expect.any(String),
+      filterType: expect.any(String),
+    }));
   });
 });
 

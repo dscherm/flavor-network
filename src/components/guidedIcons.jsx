@@ -142,10 +142,11 @@ export const DietaryHeaderIcon = ({ className }) => (
 
 export const SpringIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* sapling: two leaves + stem */}
-    <path d="M12 21v-9" />
-    <path d="M12 12a4 4 0 00-4-4c0 4 4 4 4 4z" />
-    <path d="M12 12a4 4 0 014-4c0 4-4 4-4 4z" />
+    {/* tulip: two petals + stem + leaf — reads clearly at 28px and 48px */}
+    <path d="M12 22V13" />
+    <path d="M12 13c0-4-3-6-3-9 1 0 3 2 3 5" />
+    <path d="M12 13c0-4 3-6 3-9-1 0-3 2-3 5" />
+    <path d="M12 17c-3 0-5-1-5-1" />
   </Wrap>
 );
 
@@ -159,8 +160,14 @@ export const SummerIcon = ({ className }) => (
 
 export const FallIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* maple-style leaf */}
-    <path d="M12 3l2 4 4-1-2 4 4 2-4 2 2 4-4-1-2 4-2-4-4 1 2-4-4-2 4-2-2-4 4 1z" />
+    {/* oak leaf — lobed silhouette reads clearly at 28px and 48px */}
+    <path d="M12 21v-5" />
+    <path d="M12 16c-1 0-3-1-4-3 1 0 3 0 4 2" />
+    <path d="M12 16c1 0 3-1 4-3-1 0-3 0-4 2" />
+    <path d="M12 13c-1-1-2-3-2-5 2 0 3 2 3 5" />
+    <path d="M12 13c1-1 2-3 2-5-2 0-3 2-3 5" />
+    <path d="M12 10c-1-1-1-3-1-5 1 0 2 2 2 4" />
+    <path d="M12 10c1-1 1-3 1-5-1 0-2 2-2 4" />
   </Wrap>
 );
 
@@ -267,9 +274,10 @@ export const WoodyIcon = ({ className }) => (
 
 export const SpicyIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* chili pepper */}
-    <path d="M6 18c0-6 6-10 12-12-1 7-5 13-12 13-1 0-1-1 0-1z" />
-    <path d="M16 5c1-1 2-2 3-1" />
+    {/* chili pepper — curved body + stem + cap reads at 28px and 48px */}
+    <path d="M8 20c-1-3 0-7 3-10s7-5 9-5c0 3-2 7-5 9s-6 7-7 6z" />
+    <path d="M17 5c1-2 3-3 4-2" />
+    <path d="M8 20c0-1 1-1 2 0" />
   </Wrap>
 );
 
@@ -281,61 +289,75 @@ export const FattyIcon = ({ className }) => (
   </Wrap>
 );
 
-// ────────── Cuisine chip icons (8 — generic regional silhouettes) ──────────
+// ────────── Cuisine chip icons (8 — continent/region silhouettes) ──────────
+// ADR-3 C1: hand-curated inline SVGs, continuation of existing 30+ inline SVG
+// pattern. stroke="currentColor" so Briscione palette auto-tints on active state.
+// All viewBox 24x24. Continent outlines are simplified recognizable silhouettes,
+// NOT flag icons (CATEGORICAL_AXES.cuisine.labels are regional buckets, not nations).
 
 export const GlobalCuisineIcon = CuisineHeaderIcon;
 
 export const EuropeanCuisineIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* tiered arches — generic classical architecture */}
-    <path d="M3 21V13a4 4 0 018 0v8M13 21V13a4 4 0 018 0v8" />
-    <path d="M3 21h18" />
+    {/* Europe continent silhouette — Iberian peninsula SW, Scandinavian NE,
+        Mediterranean coast S, British Isles implied by NW indentation */}
+    <path d="M5 5c1-1 2-1 3 0l1-1h2l1 1 2-1 2 1 1 2-1 1 1 2-1 2-2 1-1 2-2 1-1 2-2 1-2-1-2 1-2-1-1-2 1-2-1-2 1-2-1-1z" />
   </Wrap>
 );
 
 export const AmericasCuisineIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* 5-point star (generic celebratory motif, not flag-specific) */}
-    <path d="M12 3l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" />
+    {/* North + South America silhouette — wide top (N America), narrow
+        isthmus, bulge at Brazil (E), tapered Patagonian tip (S) */}
+    <path d="M7 3c2 0 5 1 6 3l2-1 2 2-1 2 1 2-2 2 1 2-1 2-2 1-1 3-1 2-1 1-1-1-1 1-1-1v-3l-1-2 1-2-1-2-2-1 1-2-1-1 1-2-2-2 1-2z" />
   </Wrap>
 );
 
 export const EastAsianCuisineIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* tiered pagoda silhouette */}
-    <path d="M5 8h14l-2 3H7zM7 11h10v3H7zM9 14h6v3H9zM11 17h2v4" />
+    {/* East Asia silhouette — China mainland (large mass center-left),
+        Korean peninsula (SE), Japanese archipelago dots (E) */}
+    <path d="M5 4c1 0 3 1 4 3l3-1 3 1 2 2 1 3-1 3-2 2-3 1-2 2-3 1-3-1-2-2 1-3-1-2 1-3-1-3z" />
+    <circle cx="18" cy="9" r="1" fill="currentColor" stroke="none" />
+    <circle cx="19" cy="12" r="0.8" fill="currentColor" stroke="none" />
+    <path d="M15 14l2 1 1 2" strokeWidth="1.2" />
   </Wrap>
 );
 
 export const SEAsianCuisineIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* noodle bowl with chopsticks */}
-    <path d="M3 12h18l-2 7a2 2 0 01-2 2H7a2 2 0 01-2-2z" />
-    <path d="M14 4l3 7M18 4l1 8" />
+    {/* SE Asia silhouette — Indochina peninsula (top), Malay peninsula
+        (narrow finger S), island arc dots (Indonesia/Philippines) */}
+    <path d="M7 3c2 0 4 1 5 3l2 1 1 3-1 2-2 2-2 4-1 2-1-1-1-3-1-2-2-1-1-2 1-3-1-2z" />
+    <circle cx="16" cy="14" r="0.9" fill="currentColor" stroke="none" />
+    <circle cx="18" cy="16" r="0.8" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="17" r="0.7" fill="currentColor" stroke="none" />
   </Wrap>
 );
 
 export const SouthAsianCuisineIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* steaming bowl */}
-    <path d="M3 13h18l-2 5a3 3 0 01-3 2H8a3 3 0 01-3-2z" />
-    <path d="M9 9c1-1 0-2-1-3M13 9c1-1 0-2-1-3M17 9c1-1 0-2-1-3" />
+    {/* South Asia silhouette — Indian subcontinent triangle pointing S,
+        Sri Lanka dot SE, Himalayan flat top N */}
+    <path d="M6 4h12l1 2-1 2 1 3-1 3-2 3-3 4-2 1-2-1-3-4-2-3 1-3-1-3 1-2z" />
+    <circle cx="16" cy="18" r="0.8" fill="currentColor" stroke="none" />
   </Wrap>
 );
 
 export const MiddleEasternCuisineIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* domed silhouette (generic Levantine arch) */}
-    <path d="M4 21V13a8 8 0 0116 0v8" />
-    <path d="M4 21h16M12 5v-3" />
+    {/* Middle East / West Asia silhouette — Arabian peninsula (large
+        triangular mass S), Anatolian plateau (N), Persian Gulf implied */}
+    <path d="M4 6c1-1 3-1 4 0l2-1 3 0 3 1 2 2 1 3-1 2 1 2-1 3-2 2-2 1-2-1-3 1-2-1-1-3-2-2-2-1-1-3 1-3z" />
+    <path d="M11 13l1 5-1 2-1-2z" strokeWidth="1.2" />
   </Wrap>
 );
 
 export const AfricanCuisineIcon = ({ className }) => (
   <Wrap className={className}>
-    {/* baobab — wide trunk with crown */}
-    <path d="M9 21V12M15 21V12" />
-    <path d="M5 8a7 4 0 0014 0c0-1-1-2-3-2-1-2-3-3-4-3s-3 1-4 3c-2 0-3 1-3 2z" />
+    {/* Africa continent silhouette — wide top (Sahara), Gulf of Guinea
+        bulge W, Horn of Africa NE point, tapered Cape S */}
+    <path d="M7 3h10l2 2 1 3-1 2 1 3-1 3-2 3-2 2-3 2-2-1-3-2-2-3-1-3 1-3-1-3 1-3z" />
   </Wrap>
 );
 
@@ -506,7 +528,10 @@ export const AROMA_ICON_BY_LABEL = {
   Fatty: FattyIcon,
 };
 
-export const CUISINE_ICON_BY_LABEL = {
+// Renamed from CUISINE_ICON_BY_LABEL → CUISINE_BUCKET_ICON_BY_LABEL (P7, 2026-05-18).
+// The rename is intentional: stale imports surface as reference errors rather than
+// silent visual regressions (§2.4 verification gate). Update all callers accordingly.
+export const CUISINE_BUCKET_ICON_BY_LABEL = {
   Global: GlobalCuisineIcon,
   European: EuropeanCuisineIcon,
   Americas: AmericasCuisineIcon,
@@ -516,6 +541,12 @@ export const CUISINE_ICON_BY_LABEL = {
   'Middle Eastern': MiddleEasternCuisineIcon,
   African: AfricanCuisineIcon,
 };
+
+// ────────── Icon size constants ──────────
+// FILTER_PILL_ICON_SIZE: used by GuidedFilterTypeCard pills (48px per P1 contract).
+// CHIP_ICON_SIZE: used by in-Results chip strip (28px, w-7 h-7).
+export const FILTER_PILL_ICON_SIZE = 48;
+export const CHIP_ICON_SIZE = 28;
 
 // ────────── Sub-chip filter palettes ──────────
 // User-requested: chip icons + active-state should pick up the
