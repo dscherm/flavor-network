@@ -22,10 +22,13 @@ export default function AnimatedLogo({ className = '', title = 'Neural Flavor' }
   const o2 = `${uid}-orbit-2`;
   const o3 = `${uid}-orbit-3`;
 
-  // Orbit center is below image-center, roughly aligned with the
-  // chalk-drawn nucleus position (~57% down a square chalk image).
-  // Major radius rx=65, minor ry=22 in a 200x200 viewBox.
-  const ellipsePath = 'M 35 115 a 65 22 0 1 0 130 0 a 65 22 0 1 0 -130 0';
+  // Orbit center is the chalk-drawn nucleus position (~69% down a
+  // square chalk image — well below image-center, since the chef
+  // toque occupies the top half). The chalk rings span ~±77 wide and
+  // stay flat (small minor axis); the three rings are tilted at 0°,
+  // ~+40°, ~-40° to match the hand-drawn chalk angles, not ±60°.
+  // rx=77, ry=20 in a 200x200 viewBox; rotation pivot is (100, 138).
+  const ellipsePath = 'M 23 138 a 77 20 0 1 0 154 0 a 77 20 0 1 0 -154 0';
 
   const electrons = [
     { id: o1, color: '#ffd84a', dur: 6.0, begin: 0.0 },
@@ -38,8 +41,8 @@ export default function AnimatedLogo({ className = '', title = 'Neural Flavor' }
 
   const orbits = [
     { id: o1, rotate: 0 },
-    { id: o2, rotate: 60 },
-    { id: o3, rotate: -60 },
+    { id: o2, rotate: 40 },
+    { id: o3, rotate: -40 },
   ];
 
   return (
@@ -65,7 +68,7 @@ export default function AnimatedLogo({ className = '', title = 'Neural Flavor' }
           d={ellipsePath}
           fill="none"
           stroke="none"
-          transform={`rotate(${rotate} 100 115)`}
+          transform={`rotate(${rotate} 100 138)`}
         />
       ))}
 
