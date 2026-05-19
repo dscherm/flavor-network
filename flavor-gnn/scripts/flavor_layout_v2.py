@@ -12,10 +12,25 @@ Improvements over flavor_layout_prototype.py:
   3. Runs k-means on the 3D positions and writes flavor_cluster_labels.json
      with auto-labels per cluster, so the renderer can drop floating
      labels into flavor space.
+  4. (P1 of Flavor Model Expansion — Delivery N+1) ALSO runs UMAP at
+     n_components=2 on the SAME input vectors with an INDEPENDENT
+     RandomState(42) instance, so the 3D output's seeded reducer is
+     unaffected and stays byte-identical across re-runs. Emits
+     flavor_positions_2d.json alongside the 3D file.
 
 Outputs:
   - public/proDataset/flavor_positions.json
+  - public/proDataset/flavor_positions_2d.json
   - public/proDataset/flavor_cluster_labels.json
+
+Downstream consumer: ``flavor-gnn/scripts/bake_flavor_graph.py`` consumes
+``flavor_positions.json`` indirectly via the ingredient list. Re-running
+``flavor_layout_v2.py`` REQUIRES re-running ``bake_flavor_graph.py``
+afterward to refresh the merged graph artifact. Use
+``npm run bake:flavor-pipeline`` to chain both in correct order. Per
+lesson ``pipeline-rebuild-wipes-manual-data-additions`` how=3, this
+docstring is the contract that protects chef-curated manual entries
+from being silently wiped by a position re-bake.
 
 Run: .venv/Scripts/python.exe scripts/flavor_layout_v2.py [k]
 """
@@ -33,6 +48,7 @@ INGREDIENTS = ROOT / "public" / "proDataset" / "ingredients.json"
 COMPOUND_FOODS_JSON = ROOT / "public" / "proDataset" / "compound_foods.json"
 GNN_COMPOUNDS = ROOT / "public" / "proDataset" / "gnn_compounds.json"
 OUT_POS = ROOT / "public" / "proDataset" / "flavor_positions.json"
+OUT_POS_2D = ROOT / "public" / "proDataset" / "flavor_positions_2d.json"
 OUT_CL = ROOT / "public" / "proDataset" / "flavor_cluster_labels.json"
 
 TASTE_AXES = ["sweet", "bitter", "umami", "salty", "sour"]
@@ -520,6 +536,59 @@ def main(k: int = 12):
     OUT_POS.write_text(json.dumps(out_pos), encoding="utf-8")
     print(f"[v2] wrote {OUT_POS.name} ({len(out_pos)} ingredients, "
           f"{alias_mirrored} alias mirrors)")
+
+    # ── 2D UMAP run (P1 Flavor Model Expansion) ─────────────────────────
+    # Run a SECOND UMAP at n_components=2 on the SAME normalized input
+    # vectors (Xn) with the SAME seed and an INDEPENDENT random_state.
+    # The integer 42 is wrapped by UMAP via numpy's check_random_state
+    # into a fresh RandomState(42) instance, so the 3D reducer above is
+    # not perturbed and `flavor_positions.json` stays byte-identical
+    # across re-runs (per §2.4 P1 byte-equality gate; Critic R1 RNG
+    # isolation requirement).
+    print("[v2] UMAP → 2D (same min_dist=0.45, isolated RandomState)...")
+    reducer_2d = umap.UMAP(
+        n_components=2,
+        n_neighbors=20,
+        min_dist=0.45,
+        metric="cosine",
+        random_state=42,
+    )
+    pos2d = reducer_2d.fit_transform(Xn).astype(float)
+
+    # Per-name jitter for variant separation (2D — drop the z component
+    # of the existing 3D jitter so the same deterministic offset family
+    # is reused; identical-vector siblings get distinct positions).
+    for i, name in enumerate(names):
+        jx, jy, _jz = _jitter_for(name)
+        pos2d[i, 0] += jx
+        pos2d[i, 1] += jy
+
+    print(f"[v2] projected + jittered (2D): "
+          f"x={pos2d[:,0].min():.2f}..{pos2d[:,0].max():.2f} "
+          f"y={pos2d[:,1].min():.2f}..{pos2d[:,1].max():.2f}")
+
+    out_pos_2d = {name: [float(pos2d[i,0]), float(pos2d[i,1])]
+                  for i, name in enumerate(names)}
+    # Same alias-mirror loop so tamari/shoyu/etc. mirror their canonical
+    # entry's 2D position (parity with the 3D alias treatment above).
+    alias_mirrored_2d = 0
+    for alias_name, entry in compound_foods.items():
+        target = entry.get("aliasOf")
+        if not target:
+            continue
+        seen = {alias_name}
+        while target in compound_foods and compound_foods[target].get("aliasOf"):
+            if target in seen:
+                target = None
+                break
+            seen.add(target)
+            target = compound_foods[target]["aliasOf"]
+        if target and target in out_pos_2d:
+            out_pos_2d[alias_name] = list(out_pos_2d[target])
+            alias_mirrored_2d += 1
+    OUT_POS_2D.write_text(json.dumps(out_pos_2d), encoding="utf-8")
+    print(f"[v2] wrote {OUT_POS_2D.name} ({len(out_pos_2d)} ingredients, "
+          f"{alias_mirrored_2d} alias mirrors)")
 
     # K-means on 3D positions → cluster labels
     km = KMeans(n_clusters=k, random_state=42, n_init=10)
