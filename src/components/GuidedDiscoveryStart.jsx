@@ -28,7 +28,7 @@ import { DIETARY_RESTRICTIONS } from '../data/dietaryFilters.js';
 import {
   SEASON_ICON_BY_KEY,
   MEAT_ICON_BY_KEY,
-  CUISINE_ICON_BY_LABEL,
+  CUISINE_BUCKET_ICON_BY_LABEL,
   AROMA_ICON_BY_LABEL,
   DIETARY_ICON_BY_KEY,
   SEASON_CHIP_COLOR,
@@ -251,7 +251,7 @@ export default function GuidedDiscoveryStart({
           <div className="flex flex-wrap justify-center gap-2">
             {CUISINE_BUCKET_LABELS.map((label) => {
               const active = current === label;
-              const Icon = CUISINE_ICON_BY_LABEL[label];
+              const Icon = CUISINE_BUCKET_ICON_BY_LABEL[label];
               const color = CUISINE_CHIP_COLOR[label];
               return (
                 <button

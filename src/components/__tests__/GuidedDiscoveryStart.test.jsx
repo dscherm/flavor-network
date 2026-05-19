@@ -1,213 +1,189 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import fs from 'node:fs';
 import path from 'node:path';
-import GuidedDiscoveryStart from '../GuidedDiscoveryStart.jsx';
-import { BUBBLE_REGISTRY } from '../../data/guidedDiscovery.js';
+import GuidedDiscoverySwipe from '../GuidedDiscoverySwipe.jsx';
 
-const SAMPLE_INGREDIENTS = ['salmon', 'salt', 'sage', 'sumac', 'sour cream'];
+const SAMPLE_INGREDIENTS = ['tomato', 'basil', 'onion', 'garlic', 'chicken'];
 
 function flush() {
-  // setAnnouncement uses setTimeout(…, 0) — flush microtasks/timers so
-  // the live region updates before assertions.
   return act(async () => {
     await new Promise((r) => setTimeout(r, 1));
   });
 }
 
-describe('GuidedDiscoveryStart', () => {
-  it('renders the sentence starter, the 9 bubbles, and a disabled CTA', () => {
-    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={() => {}} />);
-    expect(screen.getByText("I'm thinking about pairing that…")).toBeInTheDocument();
-    // 9 bubbles in the registry (dietary added 2026-05-16)
-    expect(BUBBLE_REGISTRY).toHaveLength(9);
-    for (const b of BUBBLE_REGISTRY) {
-      expect(screen.getByText(b.label)).toBeInTheDocument();
-    }
-    const cta = screen.getByTestId('guided-cta-show-pairings');
-    expect(cta).toBeDisabled();
+// Drive Card 1 (ingredient picker) → land on Card 2 (FilterTypeCard).
+async function pickIngredientAndAdvance(name) {
+  const input = screen.getByRole('combobox', { name: 'Search ingredients' });
+  fireEvent.change(input, { target: { value: name } });
+  const opt = screen.getByText(name);
+  fireEvent.mouseDown(opt);
+  await flush();
+  const gotItBtn = screen.getByRole('button', { name: /got it/i });
+  fireEvent.click(gotItBtn);
+  await flush();
+}
+
+describe('GuidedDiscoverySwipe — Track 3 / Phase 5 (2-card flow)', () => {
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
-  it('expands a bubble when clicked', () => {
-    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={() => {}} />);
-    // Click the season bubble's summary
-    const seasonBubble = document.querySelector('details[data-bubble-key="season"]');
-    expect(seasonBubble.open).toBe(false);
-    const summary = seasonBubble.querySelector('summary');
-    fireEvent.click(summary);
-    expect(seasonBubble.open).toBe(true);
+  it('renders the ingredient picker (SearchBar + Suggest one) on initial render', () => {
+    render(
+      <GuidedDiscoverySwipe
+        ingredients={SAMPLE_INGREDIENTS}
+        onComplete={() => {}}
+      />,
+    );
+    // Sentence-starter heading
+    expect(
+      screen.getByText("I'm thinking about pairing that…"),
+    ).toBeInTheDocument();
+    // Card 1 heading
+    expect(
+      screen.getByText('Starts with a specific ingredient'),
+    ).toBeInTheDocument();
+    // SearchBar combobox
+    expect(
+      screen.getByRole('combobox', { name: 'Search ingredients' }),
+    ).toBeInTheDocument();
+    // Suggest-one fallback
+    expect(screen.getByText('Suggest one for me')).toBeInTheDocument();
+    // FilterTypeCard should NOT be in the DOM yet
+    expect(screen.queryByTestId('guided-filter-type-card')).toBeNull();
   });
 
-  it('selecting a season chip adds it to the stack and enables CTA', async () => {
-    const onShow = vi.fn();
-    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={onShow} />);
-    // Open the season bubble
-    fireEvent.click(document.querySelector('details[data-bubble-key="season"] summary'));
-    // Pick "summer"
-    const summerBtn = screen.getByRole('button', { name: 'summer' });
-    fireEvent.click(summerBtn);
+  it('ingredient pick → Got it transitions to GuidedFilterTypeCard', async () => {
+    render(
+      <GuidedDiscoverySwipe
+        ingredients={SAMPLE_INGREDIENTS}
+        onComplete={() => {}}
+      />,
+    );
+    await pickIngredientAndAdvance('tomato');
+    expect(screen.getByTestId('guided-filter-type-card')).toBeVisible();
+  });
+
+  it('filter-type pick + Got it → onComplete fires once with { ingredient, filterType }', async () => {
+    const onComplete = vi.fn();
+    render(
+      <GuidedDiscoverySwipe
+        ingredients={SAMPLE_INGREDIENTS}
+        onComplete={onComplete}
+      />,
+    );
+    await pickIngredientAndAdvance('basil');
+
+    // Pick a filter pill on Card 2
+    const tastePill = screen.getByRole('radio', { name: /a taste/i });
+    fireEvent.click(tastePill);
+
+    // FilterTypeCard's own Got-it button (now the only "got it" in the DOM)
+    const gotItBtn = screen.getByRole('button', { name: /got it/i });
+    fireEvent.click(gotItBtn);
+
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(onComplete).toHaveBeenCalledWith({
+      ingredient: 'basil',
+      filterType: 'taste',
+    });
+  });
+
+  it('Card 1 Got-it is disabled until an ingredient is picked', () => {
+    render(
+      <GuidedDiscoverySwipe
+        ingredients={SAMPLE_INGREDIENTS}
+        onComplete={() => {}}
+      />,
+    );
+    const gotItBtn = screen.getByRole('button', { name: /got it/i });
+    expect(gotItBtn).toBeDisabled();
+    expect(gotItBtn).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('Suggest one for me populates the picked ingredient', async () => {
+    render(
+      <GuidedDiscoverySwipe
+        ingredients={SAMPLE_INGREDIENTS}
+        onComplete={() => {}}
+      />,
+    );
+    fireEvent.click(screen.getByText('Suggest one for me'));
     await flush();
-    // Stack chip should appear
-    expect(screen.getByTestId('guided-stack-chip-season')).toBeInTheDocument();
-    // CTA should now be enabled
-    const cta = screen.getByTestId('guided-cta-show-pairings');
-    expect(cta).not.toBeDisabled();
-    // Tapping the CTA fires onShowPairings with the local stack
-    fireEvent.click(cta);
-    expect(onShow).toHaveBeenCalledTimes(1);
-    const passed = onShow.mock.calls[0][0];
-    expect(passed).toHaveLength(1);
-    expect(passed[0].key).toBe('season');
-    expect(passed[0].value).toBe('summer');
+    // The picked name lands in <strong className="text-emerald-200">
+    const strong = document.querySelector('strong.text-emerald-200');
+    expect(strong).not.toBeNull();
+    expect(['chicken', 'onion', 'basil', 'vanilla']).toContain(
+      strong.textContent,
+    );
+    // And Card 1's Got-it is now enabled
+    const gotItBtn = screen.getByRole('button', { name: /got it/i });
+    expect(gotItBtn).not.toBeDisabled();
   });
 
-  it('tapping a stack chip removes that bubble from the stack', async () => {
-    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={() => {}} />);
-    fireEvent.click(document.querySelector('details[data-bubble-key="season"] summary'));
-    fireEvent.click(screen.getByRole('button', { name: 'summer' }));
-    await flush();
-    expect(screen.getByTestId('guided-stack-chip-season')).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId('guided-stack-chip-season'));
-    await flush();
-    expect(screen.queryByTestId('guided-stack-chip-season')).toBeNull();
-    expect(screen.getByTestId('guided-cta-show-pairings')).toBeDisabled();
-  });
+  // G2 NEW11 fake-timer spec — explicit "no auto-advance" guarantee.
+  // Per ralplan §2.4: picking an ingredient must NOT auto-render the
+  // FilterTypeCard. Only an explicit Got-it click commits the transition.
+  it('no-auto-advance: ingredient pick does NOT auto-render FilterTypeCard', async () => {
+    vi.useFakeTimers();
+    render(
+      <GuidedDiscoverySwipe
+        ingredients={SAMPLE_INGREDIENTS}
+        onComplete={() => {}}
+      />,
+    );
 
-  it('ingredient bubble keeps user on grid after selection (Round 4 revision)', async () => {
-    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={() => {}} />);
-    const ingredientBubble = document.querySelector('details[data-bubble-key="ingredient"]');
-    fireEvent.click(ingredientBubble.querySelector('summary'));
-    expect(ingredientBubble.open).toBe(true);
-    // Type into the SearchBar combobox + select "salmon"
+    // Pick ingredient via SearchBar (the same gesture used elsewhere).
     const input = screen.getByRole('combobox', { name: 'Search ingredients' });
-    fireEvent.change(input, { target: { value: 'salmon' } });
-    // Click the matched option
-    const opt = screen.getByText('salmon');
+    fireEvent.change(input, { target: { value: 'tomato' } });
+    const opt = screen.getByText('tomato');
     fireEvent.mouseDown(opt);
-    await flush();
-    // Stack chip should appear
-    expect(screen.getByTestId('guided-stack-chip-ingredient')).toBeInTheDocument();
-    // Crucially: the ingredient disclosure remains open — Round 4
-    // revision keeps the user on the grid so they can stack more.
-    expect(ingredientBubble.open).toBe(true);
-  });
 
-  it('aria-live region announces stack mutations', async () => {
-    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={() => {}} />);
-    fireEvent.click(document.querySelector('details[data-bubble-key="season"] summary'));
-    fireEvent.click(screen.getByRole('button', { name: 'summer' }));
-    await flush();
-    const announcer = screen.getByTestId('guided-aria-live');
-    expect(announcer.textContent).toMatch(/Added: Goes with a season/);
-    expect(announcer.textContent).toMatch(/1 selection/);
-  });
+    // Advance any pending timers; the FilterTypeCard must NOT appear.
+    vi.advanceTimersByTime(5000);
+    expect(screen.queryByTestId('guided-filter-type-card')).toBeNull();
 
-  it('CTA is enabled iff stack has at least one entry', async () => {
-    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={() => {}} />);
-    const cta = screen.getByTestId('guided-cta-show-pairings');
-    expect(cta).toBeDisabled();
-    fireEvent.click(document.querySelector('details[data-bubble-key="dessert"] summary'));
-    fireEvent.click(screen.getByRole('button', { name: /Yes, this is for dessert/ }));
+    // Switch back to real timers before driving the explicit user action.
+    vi.useRealTimers();
     await flush();
-    expect(cta).not.toBeDisabled();
-  });
 
-  // Bug 1 (cuisine half) — when the cuisine bubble is open, the
-  // disclosure must render INLINE BUCKET CHIPS (Italian / European /
-  // …) sourced from CATEGORICAL_AXES.cuisine, not the FilterPillRow
-  // axis picker. Clicking a chip must add the actual bucket label to
-  // the stack (NOT 'any').
-  it('cuisine bubble renders inline bucket chips, click adds the actual cuisine label', async () => {
-    const onShow = vi.fn();
-    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={onShow} />);
-    fireEvent.click(document.querySelector('details[data-bubble-key="cuisine"] summary'));
-    // At least 5 cuisine bucket chips visible — categoricalAxes ships 8.
-    const cuisineBubble = document.querySelector('details[data-bubble-key="cuisine"]');
-    const chips = cuisineBubble.querySelectorAll('button[aria-pressed]');
-    expect(chips.length).toBeGreaterThanOrEqual(5);
-    // Pick "European" (or whichever bucket appears first matching).
-    const europeanBtn = screen.getByRole('button', { name: 'European' });
-    fireEvent.click(europeanBtn);
-    await flush();
-    // Stack chip carries the actual cuisine name, not 'any'.
-    const stackChip = screen.getByTestId('guided-stack-chip-cuisine');
-    expect(stackChip.textContent).toMatch(/European/);
-    expect(stackChip.textContent).not.toMatch(/any/);
-    // The forwarded payload uses {cuisineBucket: 'European'}.
-    fireEvent.click(screen.getByTestId('guided-cta-show-pairings'));
-    expect(onShow).toHaveBeenCalledTimes(1);
-    const passed = onShow.mock.calls[0][0];
-    expect(passed[0].key).toBe('cuisine');
-    expect(passed[0].value).toEqual({ cuisineBucket: 'European' });
-  });
-
-  // Bug 1 (aroma half) — same architectural rule for aroma. Bucket
-  // chips come from CATEGORICAL_AXES.aromas (Fruity / Floral / …).
-  it('aroma bubble renders inline bucket chips, click adds the actual aroma label', async () => {
-    const onShow = vi.fn();
-    render(<GuidedDiscoveryStart ingredients={SAMPLE_INGREDIENTS} onShowPairings={onShow} />);
-    fireEvent.click(document.querySelector('details[data-bubble-key="aroma"] summary'));
-    const aromaBubble = document.querySelector('details[data-bubble-key="aroma"]');
-    const chips = aromaBubble.querySelectorAll('button[aria-pressed]');
-    expect(chips.length).toBeGreaterThanOrEqual(5);
-    const fruityBtn = screen.getByRole('button', { name: 'Fruity' });
-    fireEvent.click(fruityBtn);
-    await flush();
-    const stackChip = screen.getByTestId('guided-stack-chip-aroma');
-    expect(stackChip.textContent).toMatch(/Fruity/);
-    expect(stackChip.textContent).not.toMatch(/any/);
-    fireEvent.click(screen.getByTestId('guided-cta-show-pairings'));
-    expect(onShow).toHaveBeenCalledTimes(1);
-    const passed = onShow.mock.calls[0][0];
-    expect(passed[0].key).toBe('aroma');
-    expect(passed[0].value).toEqual({ aromaBucket: 'Fruity' });
+    // Explicit Got-it click flips to Card 2.
+    const gotItBtn = screen.getByRole('button', { name: /got it/i });
+    fireEvent.click(gotItBtn);
+    expect(screen.getByTestId('guided-filter-type-card')).toBeVisible();
   });
 });
 
-describe('Constraint #4 — GuidedDiscoveryStart purity', () => {
-  it('contains zero setFilterStack call sites (mirrors Phase 2 purity check)', () => {
+describe('Constraint #4 — GuidedDiscoverySwipe purity', () => {
+  it('contains zero setFilterStack call sites', () => {
     const file = path.resolve(
       __dirname,
       '..',
-      'GuidedDiscoveryStart.jsx',
+      'GuidedDiscoverySwipe.jsx',
     );
     const src = fs.readFileSync(file, 'utf8');
-    // Per Constraint #4: GuidedDiscoveryStart.jsx must NEVER call
-    // setFilterStack from App.jsx. The handoff lives in App.jsx's
-    // onExploreInNetwork handler (not here, not in the bubble cards).
-    // Strip line comments + block comments before scanning so docstrings
-    // explaining the constraint don't trip the check.
     const stripped = src
       .replace(/\/\*[\s\S]*?\*\//g, '')
       .replace(/\/\/.*$/gm, '');
-    // No actual call expression (matches `setFilterStack(` in any
-    // accessor / member position).
     expect(stripped).not.toMatch(/setFilterStack\s*\(/);
-    // Also no bare identifier reference (assignment, prop pass-through,
-    // import). Since the symbol could legitimately appear inside an
-    // explore-handler name, we further allow it ONLY when preceded by
-    // `exploreInNetwork`, `onExploreInNetwork`, or `handleExplore`.
     const refs = stripped.match(/setFilterStack/g) || [];
     expect(refs).toHaveLength(0);
   });
 
-  it('top-of-file Constraint #4 comment exists', () => {
+  // Track 3 / Phase 5 verification gate: the swipe-deck registry must
+  // no longer be imported here. (BUBBLE_REGISTRY stays alive elsewhere
+  // for Build's flow — verified by a separate src/-wide grep.)
+  it('does NOT import or reference BUBBLE_REGISTRY', () => {
     const file = path.resolve(
       __dirname,
       '..',
-      'GuidedDiscoveryStart.jsx',
+      'GuidedDiscoverySwipe.jsx',
     );
     const src = fs.readFileSync(file, 'utf8');
-    expect(src).toMatch(/Constraint #4/);
-  });
-
-  // Bug 1 follow-up — once cuisine/aroma bubbles render inline bucket
-  // chips, the FilterPillRow import + renderFilterPillRowForAxis helper
-  // are dead code. Leaving them in invites the bug to regress.
-  it('FilterPillRow import + renderFilterPillRowForAxis are removed', () => {
-    const file = path.resolve(__dirname, '..', 'GuidedDiscoveryStart.jsx');
-    const src = fs.readFileSync(file, 'utf8');
-    expect(src).not.toMatch(/import\s+FilterPillRow/);
-    expect(src).not.toMatch(/renderFilterPillRowForAxis/);
+    const stripped = src
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/.*$/gm, '');
+    expect(stripped).not.toMatch(/BUBBLE_REGISTRY/);
   });
 });

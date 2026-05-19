@@ -144,10 +144,13 @@ describe('§2.A — Guided card mechanic', () => {
     expect(screen.queryByText('Goes with a season')).toBeNull();
   });
 
-  it('2.A.2 ingredient card has NO No button (required)', () => {
+  it('2.A.2 ingredient card has NO rejection gesture, has explicit confirm (required)', () => {
+    // Track 3 P5 (2026-05-18): the swipe-deck Yes/No pair was replaced by
+    // a single "Got it" confirm button. The intent — no rejection gesture
+    // on the ingredient card, only an explicit confirm — is preserved.
     render(<GuidedDiscoverySwipe ingredients={SAMPLE_INGREDIENTS} />);
     expect(screen.queryByTestId('swipe-deck-no-ingredient')).toBeNull();
-    expect(screen.getByTestId('swipe-deck-yes-ingredient')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /got it/i })).toBeInTheDocument();
   });
 
   it('2.A.3 ingredient card has "Suggest one for me" fallback', () => {

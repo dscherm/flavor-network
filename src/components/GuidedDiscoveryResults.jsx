@@ -1,16 +1,23 @@
 /**
- * GuidedDiscoveryResults — Phase 4 Screen 2.
+ * GuidedDiscoveryResults — Phase 6 (Track 3 — Guided Overhaul).
  *
- * Replaces the Phase 3 stub. Composition:
+ * Replaces the Phase 4 composition (legacy radial wheel + multi-axis
+ * radar stack) with the new per-pairing GuidedProfileRadar +
+ * GuidedResultsFilterPills row + ProvenancePanel "Where this data
+ * comes from" panel.
+ *
+ * Composition:
  *   - top: bubble-stack chip strip (re-uses the GuidedDiscoveryStart
  *     chip styling; tap-to-remove forwards to the parent so the
  *     bubbleStack can be repaired without bouncing back to Screen 1)
- *   - chemistry banner (Constraint #5b): single banner above the wheel
- *     when ANY about-to-be-displayed pairing has breakdown.x3 === 0.5
- *   - CuratedWheel (Phase 2 component) when an ingredient bubble is
- *     present in the stack (focal = that ingredient)
- *   - empty-state when no ingredient bubble (the wheel needs a focal)
+ *   - chemistry banner (Constraint #5b, OQ4 closure): single banner
+ *     ABOVE the radar (was above the wheel pre-P6) when ≥50% of
+ *     hero pairings have breakdown.x3 === 0.5. selectCuratedPairings
+ *     stays imported as the banner's predicate input ONLY.
+ *   - GuidedResultsFilterPills row (P3 component, single-select)
+ *   - GuidedProfileRadar (P2 component, per-pairing dot scatter)
  *   - StoryPanel (Phase 4) for the user-selected hero pairing
+ *   - "Show me where this data comes from" button → ProvenancePanel
  *   - bottom CTAs: "Back to bubbles" + "Explore in the network →"
  *
  * Constraint #4: this component MUST NOT call setFilterStack itself.
@@ -18,9 +25,11 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import CuratedWheel, { selectCuratedPairings } from './CuratedWheel.jsx';
+import { selectCuratedPairings } from '../data/curatedPairings.js';
 import StoryPanel from './StoryPanel.jsx';
-import MultiAxisRadarStack from './MultiAxisRadarStack.jsx';
+import GuidedProfileRadar from './GuidedProfileRadar.jsx';
+import GuidedResultsFilterPills from './GuidedResultsFilterPills.jsx';
+import ProvenancePanel from './ProvenancePanel.jsx';
 import { whyThisWorks } from '../data/whyThisWorks.js';
 
 // User audit 2026-05-16: the prior copy blamed "FlavorDB API down" which
@@ -70,21 +79,18 @@ function dietaryFromStack(bubbleStack) {
   return [];
 }
 
-/** Decide which axis the curated wheel should bucket against.
- *  Default 'taste' — every node carries a taste field (categoricalAxes
- *  bucketOf reads node.taste directly), whereas 'aroma' depends on
- *  gnnEntropy which is missing for ~30% of ingredients. Taste is the
- *  safest default for the wheel's bucket-membership lookup.
+/** Map the bubbleStack's most-recent axis-hint bubble back to a filter
+ *  type, used to seed the radar's filterType when the parent didn't
+ *  pass an `initialFilterType` prop. Default 'taste' — every node
+ *  carries a taste field; aroma needs gnnEntropy which is sparse.
  */
-function axisFromStack(bubbleStack, fallback = 'taste') {
+function filterTypeFromStack(bubbleStack, fallback = 'taste') {
   if (!Array.isArray(bubbleStack)) return fallback;
-  // Prefer the most-recently-added bubble that maps to a wheel axis.
   for (let i = bubbleStack.length - 1; i >= 0; i--) {
     const b = bubbleStack[i];
     if (!b?.axisHint) continue;
     if (b.axisHint === 'aroma' || b.axisHint === 'cuisine' ||
-        b.axisHint === 'season' || b.axisHint === 'family' ||
-        b.axisHint === 'taste') {
+        b.axisHint === 'season' || b.axisHint === 'taste') {
       return b.axisHint;
     }
   }
@@ -99,9 +105,6 @@ function buildWhyThisWorksInputs({ pair, ctx, runtimeData }) {
   const runtime = {
     pairingCount,
     sharedCompoundsForPair: (a, b) => {
-      // Defensive — pair.sharedCompounds is the live source of truth;
-      // this only fires when sharedCompounds[] is empty AND the caller
-      // supplied a runtime-side overlap probe.
       const fn = runtimeData?.sharedCompoundsForPair;
       if (typeof fn === 'function') {
         try { return fn(a, b) || []; } catch { return []; }
@@ -127,10 +130,6 @@ function buildWhyThisWorksInputs({ pair, ctx, runtimeData }) {
 function normalizePair(focal, neighbor, ctx) {
   const a = typeof focal === 'string' ? focal : focal?.name || '';
   const b = neighbor?.name || '';
-  // Try to recover the original pairing record from ctx for breakdown
-  // + sharedCompounds. We hit this path very rarely (the heroPairings
-  // come straight from surprisingAffinities/topAffinities which don't
-  // carry the full record), so we keep it cheap by scanning edges.
   const edges = ctx?.graph?.edges || [];
   let breakdown = null;
   let sharedCompounds = null;
@@ -152,31 +151,63 @@ function normalizePair(focal, neighbor, ctx) {
   };
 }
 
+/** Hydrate a hero pairing (minimal {name, strength}) into a richer
+ *  node-shape pulled from ctx.graph.nodes so the radar's predicates
+ *  (taste / aroma / season / cuisine) have something to read.
+ */
+function hydratePairing(neighbor, ctx) {
+  if (!neighbor || !neighbor.name) return neighbor;
+  const node = ctx?.graph?.nodes?.get?.(neighbor.name);
+  if (!node) return neighbor;
+  return {
+    ...neighbor,
+    taste: node.taste ?? neighbor.taste,
+    season: node.season ?? neighbor.season,
+    cuisines: node.cuisines ?? neighbor.cuisines,
+    gnnProbs: node.gnnProbs ?? neighbor.gnnProbs,
+  };
+}
+
 export default function GuidedDiscoveryResults({
   bubbleStack = [],
+  initialFilterType = null,         // P6 — new prop from P5 payload
   onBackToBubbles,
   onExploreInNetwork,
-  onAxisSelect,                  // Phase 3 (2026-05-16) — radar-click → tour entry
+  onAxisSelect,                     // legacy hook (now driven by radar tap)
   // Optional injection points (used by tests + the App.jsx wrapper):
   ctx = null,
   runtimeData = null,
-  // CuratedWheel viewport override.
-  viewport = { width: 600, height: 600 },
+  odorThresholds = null,
 }) {
   const [selectedPair, setSelectedPair] = useState(null);
+  const [provenancePanelOpen, setProvenancePanelOpen] = useState(false);
 
   const focalName = useMemo(() => focalFromStack(bubbleStack), [bubbleStack]);
-  const axis = useMemo(() => axisFromStack(bubbleStack), [bubbleStack]);
   const dietary = useMemo(() => dietaryFromStack(bubbleStack), [bubbleStack]);
   const focal = useMemo(
     () => (focalName ? { name: focalName } : null),
     [focalName],
   );
 
-  // Hero pairings — derived from CuratedWheel's selector when ctx is
-  // available. Used for the chemistry-banner predicate (majority of
-  // pairs with x3 === 0.5 → banner). Dietary filter is threaded in so
-  // both the banner predicate and the wheel see the SAME hero set.
+  // P6 — filter type is now local state on the Results page (set by the
+  // pill row). Seeded from initialFilterType (P5 payload) when provided,
+  // else inferred from the bubbleStack's latest axis-hint bubble.
+  const seededFilterType = useMemo(
+    () => initialFilterType || filterTypeFromStack(bubbleStack),
+    [initialFilterType, bubbleStack],
+  );
+  const [filterType, setFilterType] = useState(seededFilterType);
+  const [chosenValue, setChosenValue] = useState(null);
+
+  // If the parent swaps initialFilterType (e.g. new flow), follow.
+  useEffect(() => {
+    setFilterType(seededFilterType);
+    setChosenValue(null);
+  }, [seededFilterType]);
+
+  // Hero pairings — derived from the shared curated selector when ctx
+  // is available. Used for (a) the chemistry-banner predicate, and
+  // (b) the radar dot scatter. The dietary filter is threaded in.
   const heroPairings = useMemo(() => {
     if (!focal || !ctx) return [];
     try {
@@ -186,11 +217,16 @@ export default function GuidedDiscoveryResults({
     }
   }, [focal, ctx, dietary]);
 
+  // Hydrate hero pairings with node fields so the radar's predicates
+  // (taste / aroma / season / cuisine) have something to read off.
+  const radarPairings = useMemo(
+    () => heroPairings.map((n) => hydratePairing(n, ctx)),
+    [heroPairings, ctx],
+  );
+
   // Chemistry banner predicate — Constraint #5b: single banner not
-  // per-pair chips. Iter 2026-05-16: fires only when ≥50% of hero
-  // pairs lack chemistry signal. The prior "any pair at 0.5" rule
-  // tripped almost universally (~18% of all pairings in the live
-  // corpus carry x3 === 0.5), making the banner permanent noise.
+  // per-pair chips. OQ4 closure: predicate input is unchanged
+  // (selectCuratedPairings stays imported solely for this).
   const showChemistryBanner = useMemo(() => {
     if (heroPairings.length === 0) return false;
     let missing = 0;
@@ -201,8 +237,7 @@ export default function GuidedDiscoveryResults({
     return missing / heroPairings.length >= 0.5;
   }, [heroPairings, focal, ctx]);
 
-  // Reset the selected pair when the focal changes (otherwise a stale
-  // selection from a previous focal could linger).
+  // Reset the selected pair when the focal changes.
   useEffect(() => {
     setSelectedPair(null);
   }, [focalName]);
@@ -221,9 +256,20 @@ export default function GuidedDiscoveryResults({
     }
   }, [selectedPair, ctx, runtimeData]);
 
-  const handleSelectNeighbor = (neighbor) => {
-    if (!neighbor || !focal) return;
-    setSelectedPair(normalizePair(focal, neighbor, ctx));
+  const handleAxisTap = (axisKey) => {
+    setChosenValue((prev) => (prev === axisKey ? null : axisKey));
+    // Legacy hook still fires so App.jsx's onAxisSelect bridge (which
+    // maps axis → filterStack + tour entry) keeps working when present.
+    if (typeof onAxisSelect === 'function') {
+      onAxisSelect(filterType);
+    }
+  };
+
+  const handlePillSelect = (next) => {
+    setFilterType(next);
+    // Switching the filter-type pill resets chosenValue to null
+    // (asserted by the P6 integration test "pill switch" spec).
+    setChosenValue(null);
   };
 
   return (
@@ -262,7 +308,8 @@ export default function GuidedDiscoveryResults({
           )}
         </div>
 
-        {/* Chemistry banner (Constraint #5b — single banner, not per-pair chips). */}
+        {/* Chemistry banner (Constraint #5b — OQ4 closure: now ABOVE the
+            radar, not above the wheel; predicate input unchanged). */}
         {showChemistryBanner && (
           <div
             className="flex items-start gap-3 mb-4 px-4 py-3 rounded-lg bg-amber-900/40 text-amber-200 border border-amber-700/40 text-sm"
@@ -274,41 +321,24 @@ export default function GuidedDiscoveryResults({
           </div>
         )}
 
-        {/* Phase 3 — Multi-axis radar stack. Five ProfileAxisRadars
-            (taste / aroma / season / cuisine / method). Click any
-            radar to start the Phase 6 guided tour. The CuratedWheel
-            section below remains as a secondary view. */}
-        {focal && ctx?.graph?.nodes && (
-          <div className="mb-6">
-            <MultiAxisRadarStack
-              ingredients={[focal.name]}
-              nodes={ctx.graph.nodes}
-              focalName={focal.name}
-              onAxisSelect={(axis) => onAxisSelect?.(axis)}
-            />
-          </div>
-        )}
-
-        {/* Curated wheel + StoryPanel layout. */}
+        {/* Filter type pill row + GuidedProfileRadar — P6 mount. */}
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 mb-6">
-          <div className="bg-[#0a1428] border border-[#1d3158] rounded-xl p-3 min-h-[420px] flex items-center justify-center">
+          <div className="bg-[#0a1428] border border-[#1d3158] rounded-xl p-3 min-h-[420px] flex flex-col items-center justify-start gap-3">
+            <GuidedResultsFilterPills
+              current={filterType}
+              onSelect={handlePillSelect}
+            />
             {focal && ctx ? (
-              <CuratedWheel
+              <GuidedProfileRadar
                 focal={focal}
-                ctx={ctx}
-                axis={axis}
-                viewport={viewport}
-                dietary={dietary}
-                onSelectPairing={handleSelectNeighbor}
-                className="w-full h-auto max-h-[520px]"
+                pairings={radarPairings}
+                filterType={filterType}
+                chosenValue={chosenValue}
+                onAxisTap={handleAxisTap}
+                odorThresholds={odorThresholds}
+                size={320}
               />
             ) : focal && !ctx ? (
-              // Wiring-failure case: the bubble stack DOES have an
-              // ingredient but the parent has not plumbed the affinity
-              // ctx yet (still loading, or a regression). Distinguish
-              // from the genuine "no ingredient" empty-state so the
-              // UI doesn't tell the user to "pick an ingredient" when
-              // they already have.
               <div
                 className="text-center text-sm text-gray-400 px-6 py-12 max-w-sm"
                 data-testid="guided-results-loading-state"
@@ -325,15 +355,22 @@ export default function GuidedDiscoveryResults({
                 data-testid="guided-results-empty-state"
               >
                 <p className="text-gray-300 mb-2">
-                  Pick a specific ingredient bubble to see the curated wheel.
+                  Pick a specific ingredient bubble to see the pairing radar.
                 </p>
                 <p className="text-xs text-gray-500">
-                  The wheel needs a focal ingredient to map shared
-                  compounds + tier coloring around. Tap "Back to bubbles" and
-                  expand "Starts with a specific ingredient".
+                  The radar needs a focal ingredient. Tap "Back to bubbles"
+                  and expand "Starts with a specific ingredient".
                 </p>
               </div>
             )}
+            <button
+              type="button"
+              onClick={() => setProvenancePanelOpen(true)}
+              data-testid="guided-results-provenance-button"
+              className="mt-2 text-xs text-cyan-300/80 hover:text-cyan-200 underline underline-offset-2 transition-colors"
+            >
+              Show me where this data comes from
+            </button>
           </div>
           <div className="min-h-[200px]">
             {story ? (
@@ -344,7 +381,7 @@ export default function GuidedDiscoveryResults({
                 data-testid="guided-results-story-placeholder"
               >
                 {focal
-                  ? 'Tap a hero pairing on the wheel to see why our engine ranked it.'
+                  ? 'Tap an axis on the radar to highlight pairings, or tap a dot to read the story.'
                   : 'No story yet — pick an ingredient bubble + a hero pairing.'}
               </div>
             )}
@@ -363,7 +400,7 @@ export default function GuidedDiscoveryResults({
           </button>
           <button
             type="button"
-            onClick={() => onExploreInNetwork?.()}
+            onClick={() => onExploreInNetwork?.({ chosenValue, filterType })}
             data-testid="guided-results-explore"
             className="px-5 py-2.5 min-h-[44px] rounded-lg font-medium bg-cyan-500 hover:bg-cyan-400 text-white border border-cyan-300 shadow-[0_0_20px_rgba(56,189,248,0.35)] transition-colors"
           >
@@ -371,8 +408,13 @@ export default function GuidedDiscoveryResults({
           </button>
         </div>
       </div>
+
+      <ProvenancePanel
+        open={provenancePanelOpen}
+        onClose={() => setProvenancePanelOpen(false)}
+      />
     </div>
   );
 }
 
-export { CHEMISTRY_BANNER_COPY, focalFromStack, axisFromStack, normalizePair };
+export { CHEMISTRY_BANNER_COPY, focalFromStack, filterTypeFromStack, normalizePair };
