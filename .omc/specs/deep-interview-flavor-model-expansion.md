@@ -1,5 +1,19 @@
 # Deep Interview Spec: Flavor Model Expansion (Delivery N+1)
 
+> ⚠ **Schema-pivot amendment (2026-05-19):** While filling the curation CSV the
+> chef-user added 3 columns — `key_pairings` (7 pipe-separated targets per row),
+> `pairing_principles` (7 pipe-separated edge labels, positionally aligned),
+> and `chemistry_notes` (text). The CSV is now an **edge-labeled graph dataset**,
+> not just a per-ingredient flavor tree. The Goal and Deliverables sections
+> below remain valid for the UI surfaces (Path C of v3) but the **data-pipeline
+> deliverables are replaced** by Path A (V1 schema validation classifier) and
+> Path B (GAT refactor end-to-end). See
+> `.omc/plans/ralplan-flavor-model-expansion-v3-pathAB.md` for the current
+> implementation plan. The original §Goal "ship 4-tier hierarchical flavor
+> graph + re-color + 2D-from-3D" still holds in spirit; Path B's
+> `flavor_graph_data.json` (rich embeddings + edge labels) supersedes the
+> originally-planned `flavor_graph.json` (per-ingredient tree only).
+
 ## Metadata
 - Interview ID: `flavor-model-expansion-2026-05-18`
 - Rounds: 6
@@ -8,7 +22,7 @@
 - Generated: 2026-05-18
 - Threshold: 0.20
 - Initial Context Summarized: yes (deferred-from-prior-spec preamble + Mosaic reference link kept as advisory only)
-- Status: **PASSED**
+- Status: **PASSED** — schema-pivot amendment 2026-05-19 (see banner above)
 
 ## Clarity Breakdown
 | Dimension | Score | Weight | Weighted |

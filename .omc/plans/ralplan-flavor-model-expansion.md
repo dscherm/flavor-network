@@ -1,5 +1,15 @@
 # RALPLAN — Flavor Model Expansion (Phase 1, 1 week)
 
+> ⚠ **PARTIALLY SUPERSEDED (2026-05-19):** P0 + P1 of this plan shipped as commit
+> `a04486e`. P2–P6 are **superseded** by `.omc/plans/ralplan-flavor-model-expansion-v3-pathAB.md`
+> because the chef-saved CSV expanded from 6 → 9 columns (added `key_pairings`,
+> `pairing_principles`, `chemistry_notes`) and the row set shrank from 500 → 73
+> chef-verified rows. The richer schema means the next priority is validating
+> the chemistry signal via a small classifier (Path A) before refactoring the
+> GAT (Path B). The UI deliverables (this plan's P3–P6) become Path C of v3,
+> running against new GAT embeddings instead of the original `flavor_graph.json`.
+> Read v3 for the current path forward.
+
 **Mode:** short (consensus / direct)
 **Source spec:** `.omc/specs/deep-interview-flavor-model-expansion.md` (17.9% ambiguity, 6 rounds, PASSED)
 **Downstream of:** commits `03681b0` (Track 3 Guided Overhaul) + `b94779c` (Network Cleanup Tactical Pack)

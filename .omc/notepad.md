@@ -150,3 +150,114 @@ Suggested seed values (executor may refine):
 ---
 
 **Pre-flight complete.** Autopilot may proceed; the 4 decisions above are binding constraints, not suggestions.
+
+---
+
+# Delivery N+1 v3 — Path A + Path B Pivot — Pre-Flight (2026-05-19)
+
+**Active plan:** `.omc/plans/ralplan-flavor-model-expansion-v3-pathAB.md`
+**Triggered by:** chef-saved CSV expanded from 6 → 9 columns + row set shrank from 500 → 73 verified
+
+## What the chef shipped
+
+The CSV at `flavor-gnn/curation/top500_flavor_graph.csv.csv` (filename has Excel double-extension drift — fix in P-A0) now carries 9 columns:
+
+`name, tier1_aroma, tier2_taste, tier3_mouthfeel, leaves, sources, key_pairings, pairing_principles, chemistry_notes`
+
+- 73 chef-verified data rows + 1 header = 74 lines total
+- `key_pairings`: 7 pipe-separated ingredient names per row (518 total)
+- `pairing_principles`: 7 pipe-separated edge labels per row, positionally aligned with key_pairings
+- `chemistry_notes`: free-text rationale
+
+## Principle vocabulary in chef-saved data (frequency-sorted)
+
+| Principle | Count |
+|---|---|
+| shared-volatile | 190 |
+| cut-fat | 115 |
+| sweet-acid | 78 |
+| umami-bridge | 32 |
+| tradition | 28 |
+| maillard-bridge | 27 |
+| cleanse-palate | 20 |
+| texture-contrast | 20 |
+| earthy-bridge | 8 (collapse → shared-volatile) |
+
+After collapse: **8 canonical classes**. Per v3 N1-V3-ADR-1, `maillard-bridge` is **kept separate** for V1.
+
+## Critical edge-count finding
+
+```
+total edges (74 × 7):        518
+after filter (target ∈ names): 171 (33.0% filter rate)
+spec threshold:              ≥40% filter rate, ≥200 retained edges
+```
+
+**V1 will halt-or-fail on `test_filter_rate_reasonable` AND on Open-Q3 minimum.** Mitigations in v3 plan §1 Finding 2:
+
+- **M1 (preferred, ADR-2):** chef backfills ~15 more rows so the filter rate climbs to ≥50%. Pre-pick the highest-value names from existing key_pairings targets. Est. ~3h chef-time.
+- **M2 (fallback):** lower V1 threshold to 30% and document. One-line gate change.
+
+**Decision: M1 — confirmed 2026-05-19.**
+
+### M1 backfill priority list (top 15 names)
+
+Each name below appears as a `key_pairings` target in N existing rows. Adding it as a row unlocks N edges in the V1 filter. Computed against the chef-saved CSV.
+
+| # | Name | Edges unlocked |
+|---|------|----:|
+| 1  | tomato      | 18 |
+| 2  | garlic      | 18 |
+| 3  | chicken     | 17 |
+| 4  | butter      | 16 |
+| 5  | cinnamon    | 13 |
+| 6  | chili       | 13 |
+| 7  | chocolate   | 11 |
+| 8  | olive oil   | 11 |
+| 9  | lime        |  9 |
+| 10 | honey       |  8 |
+| 11 | caramel     |  8 |
+| 12 | salt        |  8 (note: salty is filtered out at tier2_taste per Q6, but the ingredient row itself is fine — only the `tier2_taste: salty` value is dropped) |
+| 13 | lemon       |  7 |
+| 14 | cheese      |  7 |
+| 15 | beef        |  6 |
+
+**Projected filter rate after backfill:**
+
+```
+current:            171 / 518 = 33.0%
++ top 15:           341 / 518 = 65.8%   ← target
++ top 20:           368 / 518 = 71.0%
++ top 25:           388 / 518 = 74.9%
+```
+
+### Fixture-preservation gate adjustment
+
+The chef-saved CSV does NOT contain any of the original 5 P0 fixture seeds (mint, vanilla, soy sauce, lemon, garlic) — chef re-curated from scratch alphabetically (apple → bacon → banana → ...).
+
+The v2 §2.4 P0 "canonical-fixture preservation" gate is therefore **inapplicable** as written. Replacement gate for v3 P-A0:
+
+- Chef-saved row count ≥ 73 (the chef's actual verified count) AND
+- Chef rows survive byte-identical across scaffold re-runs (idempotency proof for `key_pairings`, `pairing_principles`, `chemistry_notes` columns specifically — these are the new chef-edited columns the scaffold must preserve).
+
+Several of the M1 backfill names (`garlic`, `lemon`, `soy sauce`) coincide with the old fixture seeds. If the chef backfills those in the M1 list, the fixture-preservation gate becomes meaningful again for those specific rows. Not a binding requirement — the chef can choose any set of 15 names from the priority list above, including or excluding old-fixture names.
+
+## Binding constraints carried forward from v2 pre-flight
+
+- Q6 — salty + odor_spicy excluded from graph (unchanged). Bake script must NOT emit `tier2_taste: 'salty'`; rows with salty are silent-skipped.
+- Q7 — Tier-1 vocabulary is 5 terms `{fruity, floral, green, woody, fatty}` (`spicy` excluded). The Path B `dataset.py` builds its tier1 multi-hot over these 5 terms only, not 17.
+- 6 forbidden palette-family transitions (carry forward verbatim) — still gate the eventual UI re-color phase (Path C P-C2).
+- Threshold projection (Critic rec #3): unchanged — Path B's `dataset.py` reads `ingredient_profile_thresholds.json`, projects per-task → ingredient_threshold dict.
+- Canonical fixture: mint must still round-trip end-to-end (tier1=green, tier2={bitter, astringent}, tier3={cooling, pungent}, leaves={menthol, fresh, sharp, grassy, herbaceous}).
+
+## New v3 ADRs (recorded in v3 plan §4)
+
+1. **N1-V3-ADR-1** — Keep `maillard-bridge` as 8th class for V1.
+2. **N1-V3-ADR-2** — Choose M1 (backfill rows) over M2 (lower threshold).
+3. **N1-V3-ADR-3** — Loss weighting: 0.7 contrastive + 0.3 classification.
+4. **N1-V3-ADR-4** — Drop `tradition` edges from aux loss only, keep in topology.
+5. **N1-V3-ADR-5** — KMeans random_state=42 (regression fix for v2 P1 jitter).
+
+---
+
+**Pre-flight v3 complete.** P-A0 may proceed once the chef confirms M1 vs M2.
