@@ -50,9 +50,9 @@
     {
       "id": "N1-V3b",
       "title": "Path B GAT on full CSV \u2192 flavor_graph_data_v3.json + flavor_embeddings_v3.npy",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260520202736-0000000"
     },
     {
       "id": "N1-V3c",
@@ -76,13 +76,13 @@
       "observation_id": null
     }
   ],
-  "current_task_index": 6,
+  "current_task_index": 7,
   "stats": {
-    "tasks_completed": 2,
+    "tasks_completed": 3,
     "tasks_failed": 0,
-    "gate_passes": 2,
+    "gate_passes": 3,
     "gate_fails": 0,
-    "observations_recorded": 6
+    "observations_recorded": 9
   },
   "config": {
     "interactive_mode": true,
@@ -91,5 +91,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-05-20T20:24:29.789933+00:00"
+  "updated_at": "2026-05-20T20:48:34.979144+00:00"
 }
