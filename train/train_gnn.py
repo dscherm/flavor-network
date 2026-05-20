@@ -118,13 +118,31 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--include-tradition", action="store_true",
                    help="Include tradition edges in the auxiliary classification loss")
     p.add_argument("--graph-out", type=Path, default=GRAPH_OUT)
+    p.add_argument("--log-out", type=Path, default=LOG_OUT)
+    p.add_argument("--cluster-labels-out", type=Path, default=CLUSTER_LABELS_OUT)
+    p.add_argument("--embeddings-out", type=Path, default=None,
+                   help="If set, np.save the full embedding matrix here (float32)")
+    p.add_argument("--no-require-leaves", dest="require_leaves",
+                   action="store_false", default=True,
+                   help="Keep rows with empty leaves (V3 corpus-wide mode)")
+    p.add_argument("--extra-edges", type=Path, default=None,
+                   help="Optional pairings JSON; topology-only edges supplement chef principles (V3 mode)")
+    p.add_argument("--extra-edges-strength", type=float, default=0.0,
+                   help="Min pairings.strength threshold for --extra-edges (filters dense topology)")
+    p.add_argument("--clf-weight", type=float, default=0.3,
+                   help="Weight of the aux classification loss in the hybrid total (contrastive + clf)")
     args = p.parse_args(argv)
 
     torch.manual_seed(SEED)
     np.random.seed(SEED)
 
     print(f"[train_gnn] loading {args.csv}")
-    data = load_flavor_graph(args.csv)
+    data = load_flavor_graph(
+        args.csv,
+        require_leaves=args.require_leaves,
+        extra_edges_path=args.extra_edges,
+        extra_edges_min_strength=args.extra_edges_strength,
+    )
     n_nodes = data.node_features.shape[0]
     n_edges = data.edge_index.shape[1]
     principles = data.vocabularies["principles"]
@@ -137,13 +155,19 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     class_idx, tradition_mask = derive_edge_labels(data.edge_attr, principles)
-    aux_mask = tradition_mask.clone()
-    aux_mask = ~aux_mask if not args.include_tradition else torch.ones_like(aux_mask)
-    if not args.include_tradition:
-        aux_mask = ~tradition_mask
+    # V3 corpus-wide mode adds topology-only edges (edge_attr all zeros)
+    # via --extra-edges. Those edges must NOT contribute to the aux
+    # classification loss; argmax on a zero vector picks class 0 and
+    # would poison the head with false positives.
+    has_principle_mask = data.edge_attr.sum(dim=1) > 0
+    if args.include_tradition:
+        aux_mask = has_principle_mask.clone()
+    else:
+        aux_mask = has_principle_mask & ~tradition_mask
     n_aux = int(aux_mask.sum().item())
     print(f"[train_gnn] aux-loss edges: {n_aux}/{n_edges} (tradition dropped: "
-          f"{int(tradition_mask.sum().item())})")
+          f"{int(tradition_mask.sum().item())}, topology-only: "
+          f"{int((~has_principle_mask).sum().item())})")
 
     weights = class_weights_from(class_idx, n_classes, aux_mask)
     print(f"[train_gnn] class weights: " + ", ".join(
@@ -156,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
         list(model.parameters()) + list(classifier.parameters()), lr=args.lr,
     )
 
-    clf_weight = 0.3
+    clf_weight = args.clf_weight
     annealed = False
     log: list[dict] = []
 
@@ -307,14 +331,21 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(f"[train_gnn] wrote {args.graph_out}")
 
-    LOG_OUT.write_text(json.dumps(log, indent=2), encoding="utf-8")
-    print(f"[train_gnn] wrote {LOG_OUT}")
+    args.log_out.parent.mkdir(parents=True, exist_ok=True)
+    args.log_out.write_text(json.dumps(log, indent=2), encoding="utf-8")
+    print(f"[train_gnn] wrote {args.log_out}")
 
-    CLUSTER_LABELS_OUT.write_text(
+    args.cluster_labels_out.parent.mkdir(parents=True, exist_ok=True)
+    args.cluster_labels_out.write_text(
         json.dumps({str(k): v for k, v in cluster_labels.items()}, indent=2),
         encoding="utf-8",
     )
-    print(f"[train_gnn] wrote {CLUSTER_LABELS_OUT}")
+    print(f"[train_gnn] wrote {args.cluster_labels_out}")
+
+    if args.embeddings_out is not None:
+        args.embeddings_out.parent.mkdir(parents=True, exist_ok=True)
+        np.save(args.embeddings_out, full_emb.astype(np.float32))
+        print(f"[train_gnn] wrote {args.embeddings_out} (shape={full_emb.shape}, float32)")
     return 0
 
 

@@ -75,14 +75,36 @@ def _load_principle_vocab(vocab_path: Path) -> tuple[list[str], dict[str, str]]:
 def load_flavor_graph(
     csv_path: str | Path,
     vocab_path: str | Path | None = None,
+    *,
+    require_leaves: bool = True,
+    extra_edges_path: str | Path | None = None,
+    extra_edges_min_strength: float = 0.0,
 ) -> FlavorGraphData:
+    """Load a flavor-graph CSV into tensors.
+
+    Parameters
+    ----------
+    require_leaves : bool, default True
+        When True (Path B v1 fixture behavior), drop rows with empty
+        `leaves`. When False (N+1 v3 V3b corpus-wide mode), keep every
+        row — rule-derived and hub-fallback rows with empty leaves
+        still contribute to message passing via their tier columns + topology.
+    extra_edges_path : str | Path | None, default None
+        When provided, supplement the chef `key_pairings` edges with
+        edges from a pairings JSON file (list of {ingredientA, ingredientB}).
+        Supplemental edges carry empty edge_attr (no principle); train_gnn
+        must mask them out of the aux classification loss. Used by V3b to
+        give rule-derived nodes a topology to learn from.
+    """
     csv_path = Path(csv_path)
     vocab_path = Path(vocab_path) if vocab_path else DEFAULT_VOCAB_PATH
 
     df = pd.read_csv(csv_path).fillna("")
     df["name"] = df["name"].astype(str).str.strip()
     df = df[df["name"] != ""]
-    df = df[df["leaves"].astype(str).str.strip() != ""].reset_index(drop=True)
+    if require_leaves:
+        df = df[df["leaves"].astype(str).str.strip() != ""]
+    df = df.reset_index(drop=True)
 
     principle_canonical, collapse = _load_principle_vocab(vocab_path)
     principle_idx = {p: i for i, p in enumerate(principle_canonical)}
@@ -166,6 +188,28 @@ def load_flavor_graph(
                 continue
             edge_multi[(name_to_idx[src], name_to_idx[tgt])].add(p_i)
 
+    extra_edge_count = 0
+    extra_edge_dropped = 0
+    if extra_edges_path is not None:
+        extra_edges_path = Path(extra_edges_path)
+        extra_pairs = json.loads(extra_edges_path.read_text(encoding="utf-8"))
+        for pair in extra_pairs:
+            a = (pair.get("ingredientA") or pair.get("source") or "").strip()
+            b = (pair.get("ingredientB") or pair.get("target") or "").strip()
+            if not a or not b or a == b:
+                continue
+            if a not in name_to_idx or b not in name_to_idx:
+                continue
+            strength = float(pair.get("strength", 1.0))
+            if strength < extra_edges_min_strength:
+                extra_edge_dropped += 1
+                continue
+            key = (name_to_idx[a], name_to_idx[b])
+            if key in edge_multi:
+                continue
+            edge_multi[key] = set()
+            extra_edge_count += 1
+
     if edge_multi:
         edge_index = torch.tensor(
             [[s for (s, _t) in edge_multi.keys()],
@@ -199,6 +243,7 @@ def load_flavor_graph(
         "dropped_tier2_tokens":    int(dropped_counts["tier2"]),
         "dropped_tier2_salty":     int(dropped_counts["tier2_salty"]),
         "node_feature_dim":        node_features.shape[1],
+        "extra_edges_added":       extra_edge_count,
     }
 
     return FlavorGraphData(
