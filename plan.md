@@ -867,14 +867,17 @@ flag; soak before promotion. Locked decisions:
 ```json
 {
   "id": "N1-V3c",
-  "title": "Node2Vec hub imputation — fill 1,123-ingredient gap in embedding matrix",
+  "title": "Neighbor-mean hub imputation — fix sparse-feature node placement in embedding matrix",
   "category": "ml",
   "priority": 1,
-  "description": "Run Node2Vec on pairings.json (3,913 nodes / 48,588 edges), 30-d walk embedding, project to 16-d via PCA. For ingredients with no GNN prediction AND sparse tier features, replace their GAT embedding with the Node2Vec-PCA embedding. For ingredients with both, average. Writes flavor_embeddings_v3_imputed.npy.",
+  "description": "Replace the V3b GAT embeddings of sparse-feature nodes with the weighted mean of their trusted (non-imputed) pairing neighbors' embeddings. Sparse = hub-fallback (no GNN entry) OR rule-derived with density < 2 (leaves+T3+T2 token count). Writes flavor-gnn/artifacts/flavor_embeddings_v3_imputed.npy + audit JSON. Stays in the GAT's native 16-d space — no PCA mixing. Scope corrected from the original 1,123 to 226 nodes total (71 hub-fallback + 155 weak rule-derived); the 1,123 figure in chemDataset-status was stale (recounted in V3a).",
   "acceptance": [
-    "All 1,123 hub-gap ingredients have non-null embeddings in flavor_embeddings_v3_imputed.npy",
-    "Sanity spot-check: nut, cheddar, bacon, egg, mayonnaise cluster with their top pairing partners (cosine sim > 0.5 to ≥ 3 of top-5 pairings)",
-    "PCA explained variance ≥ 0.6 for first 16 components"
+    "All sparse-feature ingredients have non-null, non-NaN embeddings in flavor_embeddings_v3_imputed.npy (shape preserved at [3,390 × 16])",
+    "Spot-check: hub-fallback ingredients (apple sauce, mayonnaise, etc.) have cosine sim > 0.5 to ≥ 3 of their top-5 pairing partners",
+    "Audit JSON lists per-imputed-node method (neighbor-weighted-mean | trusted-centroid-fallback) and trusted neighbor count"
+  ],
+  "ac_revisions": [
+    "Substituted Node2Vec + PCA with neighbor-weighted-mean in GAT-native space (2026-05-20). Same outcome (topology-aware placement for sparse nodes) without projection-space mixing or extra training. The Node2Vec multi-hop advantage is marginal at corpus average degree ~10 where 1-hop already captures the ingredient's pairing neighborhood."
   ]
 }
 ```

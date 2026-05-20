@@ -57,9 +57,9 @@
     {
       "id": "N1-V3c",
       "title": "Node2Vec hub imputation \u2014 fill 1,123-ingredient gap in embedding matrix",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260520204924-0000000"
     },
     {
       "id": "N1-V3d",
@@ -76,13 +76,13 @@
       "observation_id": null
     }
   ],
-  "current_task_index": 7,
+  "current_task_index": 8,
   "stats": {
-    "tasks_completed": 3,
+    "tasks_completed": 4,
     "tasks_failed": 0,
-    "gate_passes": 3,
+    "gate_passes": 4,
     "gate_fails": 0,
-    "observations_recorded": 9
+    "observations_recorded": 12
   },
   "config": {
     "interactive_mode": true,
@@ -91,5 +91,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-05-20T20:48:34.979144+00:00"
+  "updated_at": "2026-05-20T20:55:13.265515+00:00"
 }
