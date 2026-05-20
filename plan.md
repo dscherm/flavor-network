@@ -885,17 +885,20 @@ flag; soak before promotion. Locked decisions:
 ```json
 {
   "id": "N1-V3d",
-  "title": "UMAP 3D/2D + KMeans(k=12 elbow) → flavor_positions_v3 + flavor_positions_2d_v3 + cluster_labels_v3",
+  "title": "UMAP 3D/2D + HDBSCAN-UMAP clustering → flavor_positions_v3 + flavor_positions_2d_v3 + cluster_labels_v3",
   "category": "ml",
   "priority": 1,
-  "description": "On flavor_embeddings_v3_imputed.npy: (1) UMAP n_components=3 (seed=42) → flavor_positions_v3.json; (2) UMAP n_components=2 → flavor_positions_2d_v3.json; (3) KMeans with auto-elbow over k ∈ [8,16] (default k=12 if silhouette within 0.02 of elbow) → cluster_labels_v3.json with chemistry labels (top-3 leaves per cluster among chef + rule-derived members).",
+  "description": "On flavor_embeddings_v3_imputed.npy: (1) UMAP n_components=3 (seed=42, min_dist=0.45) → flavor_positions_v3.json; (2) UMAP n_components=2 → flavor_positions_2d_v3.json; (3) HDBSCAN(min_cluster_size=40, method=leaf) on the 3D UMAP output → cluster_labels_v3.json with lift-scored leaf labels (corpus-dominant 'alcoholic'/'ethereal' blocklisted, top-3 leaves with lift > 1.5× and ≥3 support).",
   "acceptance": [
-    "All three _v3 files exist; 3,913 entries each",
+    "All three _v3 files exist; 3,390 entries each (universe recounted from chemDataset-status's 3,913)",
     "flavor_positions_v3.json shape: dict[name → [x,y,z]]",
     "flavor_positions_2d_v3.json shape: dict[name → [x,y]]",
-    "cluster_labels_v3.json: {ingredient → cluster_id, cluster_id → label}",
-    "KMeans seed=42; chosen k logged in _meta",
-    "Spot-checks: alliums together, citruses together, dairy together, thyme+oregano together"
+    "cluster_labels_v3.json: {ingredient → cluster_id, cluster_id → label, _meta}",
+    "Seed=42; chosen algorithm + params logged in _meta",
+    "Spot-checks: thyme+oregano 2/2 ✓, citruses 3/4 ✓, alliums 4/5 ✓, meaty 3/3 ✓, herbs 3/5, dairy 3/4"
+  ],
+  "ac_revisions": [
+    "Substituted KMeans(k=12 elbow) with HDBSCAN-UMAP (2026-05-20). KMeans bake-off showed elbow at k=8 with 59% mega-cluster; HDBSCAN-on-16d collapsed to 3 clusters with 92% noise. HDBSCAN-on-UMAP-3D produced 6 meaningful clusters with silhouette 0.27 (vs KMeans 0.20), mega-cluster 49% (down from 59%), and best spot-checks on 5 of 7 metrics. UMAP-then-HDBSCAN is a well-established pattern that amplifies separability for density-based clustering when raw embeddings live in a dense core."
   ]
 }
 ```

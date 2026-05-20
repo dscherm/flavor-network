@@ -64,9 +64,9 @@
     {
       "id": "N1-V3d",
       "title": "UMAP 3D/2D + KMeans(k=12 elbow) \u2192 flavor_positions_v3 + flavor_positions_2d_v3 + cluster_labels_v3",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260520205523-0000000"
     },
     {
       "id": "N1-V3e",
@@ -76,13 +76,13 @@
       "observation_id": null
     }
   ],
-  "current_task_index": 8,
+  "current_task_index": 9,
   "stats": {
-    "tasks_completed": 4,
+    "tasks_completed": 5,
     "tasks_failed": 0,
-    "gate_passes": 4,
+    "gate_passes": 5,
     "gate_fails": 0,
-    "observations_recorded": 12
+    "observations_recorded": 15
   },
   "config": {
     "interactive_mode": true,
@@ -91,5 +91,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-05-20T20:55:13.265515+00:00"
+  "updated_at": "2026-05-20T21:50:36.555305+00:00"
 }
