@@ -729,3 +729,207 @@ Tag commit messages with the relevant lesson stem.
   - **TGSC vocabulary mapping.** TGSC's industry-standard
     descriptor taxonomy could replace our ad-hoc descriptor set.
     Manual curation; lower priority than cluster splitting.
+
+---
+
+## Flavor Model Expansion N+1 — Phase 1 (active, 2026-05-20)
+
+Source: `.claude/.ralph-spec.md` (Deep Interview, 17.9% ambiguity).
+Schema-pivot amendment 2026-05-19 noted in the spec: data-pipeline side
+of D1/D2/D3 is partly absorbed by Path A (schema validation) + Path B
+(GAT) — see commits `548ada3` and `c2d3397`. UI surfaces (D4/D5)
+remain as-specified. Mark tasks done as work absorbs them.
+
+### Day 1 — 2D positions + vocabulary kickoff
+
+```json
+{
+  "id": "N1-D1",
+  "title": "Extend flavor_layout_v2.py for 2D positions + kick off chef vocabulary curation",
+  "category": "data",
+  "priority": 1,
+  "description": "Extend (don't fork) flavor-gnn/scripts/flavor_layout_v2.py to emit both flavor_positions.json (3D) and a new flavor_positions_2d.json at n_components=2, same UMAP seed and input vectors. Scaffold the chef vocabulary curation CSV (ingredient + empty T1/T2/T3/leaf columns) and unblock the chef-user on the top-500 manual pass.",
+  "acceptance": [
+    "public/proDataset/flavor_positions_2d.json exists and parses",
+    "Same ingredient set as flavor_positions.json (3D)",
+    "Each entry is a [x, y] array (2 components)",
+    "Single run of flavor_layout_v2.py emits both files",
+    "Vocabulary curation CSV scaffolded and handed to chef-user"
+  ]
+}
+```
+
+### Day 2 — top-500 manual curation + long-tail lookup
+
+```json
+{
+  "id": "N1-D2",
+  "title": "Top-500 manual Tier-3 + leaf curation, long-tail rule-derivation lookup table",
+  "category": "data",
+  "priority": 1,
+  "description": "Chef-user fills top-500 ingredients with Tier-3 mouthfeel + leaves. Implementer drafts the rule-derivation lookup table from gnn_compounds.json Level-2/3 descriptors (project memory project_gnn_compounds_level2_descriptors — 206 tags across 3,283 ingredients) covering the long-tail 3,400+.",
+  "acceptance": [
+    "Top-500 CSV has tier3_mouthfeel + leaves populated for ≥80% of rows",
+    "Long-tail rule-derivation lookup table committed (descriptor → T3/leaf mapping)",
+    "Lookup table covers ≥90% of descriptors appearing ≥10 times in gnn_compounds.json"
+  ]
+}
+```
+
+### Day 3 — bake flavor_graph.json + schema/mint tests + useProData wiring
+
+```json
+{
+  "id": "N1-D3",
+  "title": "Bake flavor_graph.json + schema/mint fixture tests + wire useProData",
+  "category": "data",
+  "priority": 1,
+  "description": "Offline-bake public/proDataset/flavor_graph.json with shape {ingredients, vocabulary, edges}. Land mint canonical fixture tests and vocabulary cross-check tests. Wire src/hooks/useProData.js to load the new file.",
+  "acceptance": [
+    "flavor_graph.json exists, parses, has ingredients + vocabulary keys",
+    "Mint fixture: tier1=['green'], tier2 includes bitter+astringent, tier3 includes cooling+pungent, leaves=[menthol,fresh,sharp,grassy,herbaceous]",
+    "Every leaf/T3/T2/T1 in ingredients.* appears in the matching vocabulary list",
+    "≥80% of top-500 ingredients satisfy 4-of-4 (non-empty T1, T2, T3, ≥1 leaf)",
+    "useProData loads flavor_graph.json"
+  ]
+}
+```
+
+### Day 4 — IngredientPanel tree-view + TierBadge
+
+```json
+{
+  "id": "N1-D4",
+  "title": "IngredientPanel tree-view chip cloud + TierBadge component, mint visual verified",
+  "category": "ui",
+  "priority": 1,
+  "description": "Render the per-ingredient flavor graph as a tree-view / chip cloud in src/components/IngredientPanel.jsx. Add src/components/TierBadge.jsx — required wherever a dual-tier term renders (currently only 'pungent'). Render mint end-to-end with TierBadge disambiguating T2-pungent from T3-pungent.",
+  "acceptance": [
+    "IngredientPanel renders FlavorGraph tree-view",
+    "TierBadge component exists with a11y label (Tier-2 taste / Tier-3 mouthfeel)",
+    "Mint visual: 1 T1 chip + 2 T2 chips + 2 T3 chips + 5 leaf chips with TierBadge on T3-pungent",
+    "BRISCIONE_TASTE literal unchanged (grep gate)"
+  ]
+}
+```
+
+### V3 corpus-wide stage (inserted 2026-05-20) — prerequisites for D3–D5
+
+**Why:** Path B GAT covers only the 89 chef-curated rows. The N+1 spec
+calls for re-color + filter + panel chips across the whole 3,913
+ingredient corpus. This stage produces a unified `flavor_graph_full.csv`
+(chef + rule-derived), retrains Path B on the full corpus, imputes the
+1,123-ingredient hub gap from the pairing graph, and emits v3 layout
++ cluster files. v3 ships alongside v2 with a `FN_FLAVOR_V3` feature
+flag; soak before promotion. Locked decisions:
+- k = 12 (KMeans) with silhouette-based auto-elbow fallback in [8,16]
+- No `is_chef` source feature; instead K-cap features per row (K=5 leaves,
+  K=3 T3, K=3 T2) so the GAT sees comparable density across rows
+- Full Node2Vec rescue for all 1,123 hub ingredients
+- `bake_flavor_graph.py` reads from `flavor_graph_full.csv` (single root)
+
+```json
+{
+  "id": "N1-V3a",
+  "title": "derive_long_tail.py → flavor_graph_full.csv (3,913 rows, K-capped features)",
+  "category": "data",
+  "priority": 1,
+  "description": "Build flavor-gnn/scripts/derive_long_tail.py. Inputs: top500_flavor_graph.csv (chef), gnn_entropy.json (11-head probs), odor_thresholds.json (calibrated), gnn_compounds.json (L2/L3 descriptors), ingredients.json (curated node.aromas / node.taste). Output: flavor-gnn/curation/flavor_graph_full.csv (3,913 rows, 9-col schema). Chef rows pass through verbatim, K-capped at K=5 leaves / K=3 T3 / K=3 T2. Derived rows: tier1 from GNN aroma heads (≥ calibrated threshold), tier2 from GNN taste heads (salty silent-skipped per Q6, tier1 vocab frozen at 5 terms per Q7), tier3/leaves from descriptor lookup table (best-effort v0.1). Hub fallback: curated node.aromas string.",
+  "acceptance": [
+    "flavor_graph_full.csv exists; 3,913 rows; 9-col schema matches chef CSV",
+    "Chef rows preserved verbatim except K-cap (cap is no-op for rows already ≤ K)",
+    "Per-row feature density (leaves+T3+T2) has chef-vs-derived ratio ≤ 1.5× on median",
+    "sources column tags each row: manual-top-500 | rule-derived | hub-fallback",
+    "Script idempotent: re-running produces byte-identical output at fixed seed"
+  ]
+}
+```
+
+```json
+{
+  "id": "N1-V3b",
+  "title": "Path B GAT on full CSV → flavor_graph_data_v3.json + flavor_embeddings_v3.npy",
+  "category": "ml",
+  "priority": 1,
+  "description": "Re-run train/train_gnn.py against flavor_graph_full.csv. Outputs: 3,913 × 16-d embedding matrix (flavor_embeddings_v3.npy), per-ingredient graph data (flavor_graph_data_v3.json). Ablation gate: train once with K-capped features (default), once without; chi-squared chef-vs-derived cluster distribution test; if normalized run has lower chi-squared, ship that.",
+  "acceptance": [
+    "flavor_embeddings_v3.npy exists; shape [3,913 × 16] float32",
+    "flavor_graph_data_v3.json schema matches v1 (nodes/edges/clusters/_meta)",
+    "Aux classification accuracy on chef rows ≥ 0.75 (v1 baseline = 0.859 on 89-row only)",
+    "Chef-vs-derived cluster chi-squared p-value > 0.05 (no significant source bias)",
+    "Contrastive: connected pairs distance / random pairs distance ≤ 0.85"
+  ]
+}
+```
+
+```json
+{
+  "id": "N1-V3c",
+  "title": "Node2Vec hub imputation — fill 1,123-ingredient gap in embedding matrix",
+  "category": "ml",
+  "priority": 1,
+  "description": "Run Node2Vec on pairings.json (3,913 nodes / 48,588 edges), 30-d walk embedding, project to 16-d via PCA. For ingredients with no GNN prediction AND sparse tier features, replace their GAT embedding with the Node2Vec-PCA embedding. For ingredients with both, average. Writes flavor_embeddings_v3_imputed.npy.",
+  "acceptance": [
+    "All 1,123 hub-gap ingredients have non-null embeddings in flavor_embeddings_v3_imputed.npy",
+    "Sanity spot-check: nut, cheddar, bacon, egg, mayonnaise cluster with their top pairing partners (cosine sim > 0.5 to ≥ 3 of top-5 pairings)",
+    "PCA explained variance ≥ 0.6 for first 16 components"
+  ]
+}
+```
+
+```json
+{
+  "id": "N1-V3d",
+  "title": "UMAP 3D/2D + KMeans(k=12 elbow) → flavor_positions_v3 + flavor_positions_2d_v3 + cluster_labels_v3",
+  "category": "ml",
+  "priority": 1,
+  "description": "On flavor_embeddings_v3_imputed.npy: (1) UMAP n_components=3 (seed=42) → flavor_positions_v3.json; (2) UMAP n_components=2 → flavor_positions_2d_v3.json; (3) KMeans with auto-elbow over k ∈ [8,16] (default k=12 if silhouette within 0.02 of elbow) → cluster_labels_v3.json with chemistry labels (top-3 leaves per cluster among chef + rule-derived members).",
+  "acceptance": [
+    "All three _v3 files exist; 3,913 entries each",
+    "flavor_positions_v3.json shape: dict[name → [x,y,z]]",
+    "flavor_positions_2d_v3.json shape: dict[name → [x,y]]",
+    "cluster_labels_v3.json: {ingredient → cluster_id, cluster_id → label}",
+    "KMeans seed=42; chosen k logged in _meta",
+    "Spot-checks: alliums together, citruses together, dairy together, thyme+oregano together"
+  ]
+}
+```
+
+```json
+{
+  "id": "N1-V3e",
+  "title": "Feature flag FN_FLAVOR_V3 in useProData + A/B visual gate",
+  "category": "ui",
+  "priority": 1,
+  "description": "Add FN_FLAVOR_V3 flag (env or localStorage). When on, useProData reads flavor_positions_v3.json / flavor_positions_2d_v3.json / cluster_labels_v3.json instead of v2 files. Defaults off in production. Visual A/B gate: side-by-side screenshot diff of 3D view, plus 6 sanity spot-checks (alliums, citruses, dairy, herbs, sweet baking, meaty).",
+  "acceptance": [
+    "FN_FLAVOR_V3 flag wired in useProData with localStorage + env override",
+    "Default off; toggling on switches all 3 file sources atomically",
+    "A/B screenshot pair captured and stored under .claude/visual-gates/",
+    "6/6 spot-checks pass under v3 (allium cluster cohesion, etc)",
+    "Existing tests pass with flag off (no regression for v2 path)"
+  ]
+}
+```
+
+### Day 5 — Network re-color + flavor2D mode + filter pill + final QA
+
+```json
+{
+  "id": "N1-D5",
+  "title": "Network re-color by primary Tier-1, flavor2D mode, filter pill, final test + visual QA",
+  "category": "ui",
+  "priority": 1,
+  "description": "Implement primary-Tier-1 selector (max GNN aroma-head probability above calibrated threshold; AROMA_AXES order tie-break). Drive 3D network node color from BRISCIONE_AROMA[primaryTier1]. Add flavor2D mode key reading flavor_positions_2d.json. Add new flavor-category filter pill alongside existing pills. Final test pass + visual QA + iOS sync.",
+  "acceptance": [
+    "Network node colors derive from BRISCIONE_AROMA[primaryTier1(ingredient)]",
+    "Tie-break: AROMA_AXES order; defensive fallback to cluster color when no T1 derivable",
+    "Unit test: fixture {tier1_aroma:['woody','fruity'], gnnProbs:{odor_woody:0.5,odor_fruity:0.8}} + odor_thresholds{woody:0.4,fruity:0.5} → primaryTier1==='fruity'",
+    "flavor2D mode key wired to flavor_positions_2d.json",
+    "Filter pill added (flavor category) alongside existing pills",
+    "All existing vitest tests pass",
+    "npm run build succeeds",
+    "npm run ios:sync succeeds"
+  ]
+}
+```
