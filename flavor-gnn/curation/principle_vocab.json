@@ -1,0 +1,32 @@
+{
+  "_meta": {
+    "version": 1,
+    "created": "2026-05-19",
+    "source": "v3 P-A0 of ralplan-flavor-model-expansion-v3-pathAB.md",
+    "purpose": "Single source of truth for the pairing_principles edge-label vocabulary. Read by train/train_v1.py (Path A) and train/dataset.py (Path B). If you change this file, both consumers must re-read it.",
+    "frozen_for": "Path A V1 validation"
+  },
+  "canonical": [
+    "shared-volatile",
+    "cut-fat",
+    "sweet-acid",
+    "umami-bridge",
+    "tradition",
+    "maillard-bridge",
+    "cleanse-palate",
+    "texture-contrast"
+  ],
+  "collapse": {
+    "earthy-bridge": "shared-volatile",
+    "herbal-bridge": "shared-volatile",
+    "allium-bridge": "shared-volatile"
+  },
+  "maillard_collapse_default": false,
+  "notes": {
+    "n_canonical": "8 classes by default. If V1 still underperforms at the MEDIUM threshold and maillard-bridge has weak F1, set maillard_collapse_default=true (collapses maillard-bridge → shared-volatile) to drop to 7 classes. Both 7- and 8-class final vocabularies pass test_gates_v1.py.",
+    "tradition": "Catch-all. In Path B per N1-V3-ADR-4, tradition edges are dropped from the auxiliary classification loss but kept in topology (contrastive). In Path A V1, tradition is included normally — it'll likely be the worst-performing class (this is by design, not a bug).",
+    "earthy_bridge_present_in_v3_data": "yes, 8 occurrences in chef-saved CSV — must be collapsed before training",
+    "herbal_bridge_present_in_v3_data": "no — collapse rule kept for safety / future-proofing",
+    "allium_bridge_present_in_v3_data": "no — collapse rule kept for safety / future-proofing"
+  }
+}
