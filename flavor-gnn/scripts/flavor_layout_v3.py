@@ -275,10 +275,29 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40) -> None:
     OUT_POS_2D.write_text(json.dumps(pos_2d), encoding="utf-8")
     print(f"[v3d] wrote {OUT_POS_2D.relative_to(ROOT)} ({n_nodes} entries)")
 
+    # Cluster centroids in 3D scene space — used by consumers that
+    # render a label sprite at each cluster centroid (LivingArchView,
+    # App.jsx morphAxis path).
+    clusters_array = []
+    for c in sorted(cluster_label_map):
+        member_idxs = [i for i, cid in enumerate(cluster_ids.tolist()) if cid == c]
+        if member_idxs:
+            centroid_3d = coords_3d[member_idxs].mean(axis=0)
+            centroid_3d = [round(float(v), 4) for v in centroid_3d]
+        else:
+            centroid_3d = [0.0, 0.0, 0.0]
+        clusters_array.append({
+            "id": c,
+            "label": cluster_label_map[c],
+            "size": cluster_size_map[c],
+            "centroid_3d": centroid_3d,
+        })
+
     OUT_CLUSTERS.write_text(
         json.dumps({
+            "k": chosen_k,
+            "clusters": clusters_array,
             "ingredients": ingredient_to_cluster,
-            "clusters": {str(c): cluster_label_map[c] for c in cluster_label_map},
             "_meta": {
                 "k": chosen_k,
                 "cluster": cluster_meta,
