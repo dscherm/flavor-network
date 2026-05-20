@@ -71,18 +71,18 @@
     {
       "id": "N1-V3e",
       "title": "Feature flag FN_FLAVOR_V3 in useProData + A/B visual gate",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260520215554-0000000"
     }
   ],
-  "current_task_index": 9,
+  "current_task_index": 10,
   "stats": {
-    "tasks_completed": 5,
+    "tasks_completed": 6,
     "tasks_failed": 0,
-    "gate_passes": 5,
+    "gate_passes": 6,
     "gate_fails": 0,
-    "observations_recorded": 15
+    "observations_recorded": 18
   },
   "config": {
     "interactive_mode": true,
@@ -91,5 +91,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-05-20T21:50:36.555305+00:00"
+  "updated_at": "2026-05-20T22:04:32.857640+00:00"
 }

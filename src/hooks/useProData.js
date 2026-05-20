@@ -6,6 +6,24 @@
 import { useState, useEffect } from 'react';
 import { computeTastePositions } from '../data/tastePositioning.js';
 import { computeAffinityThresholds } from '../data/affinityThresholds.js';
+import { buildTier1Thresholds, gnnPrimaryTier1 } from '../data/primaryTier1.js';
+
+// N+1 v3 feature flag — when enabled, useProData fetches the corpus-wide
+// v3 artifacts (flavor_positions_v3, flavor_positions_2d_v3, cluster_labels_v3)
+// in place of the v2 files. Default OFF in production until soak passes.
+// Toggle in browser DevTools: localStorage.setItem('FN_FLAVOR_V3', 'true').
+// Toggle at build time: VITE_FN_FLAVOR_V3=true npm run build.
+function flavorV3Enabled() {
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('FN_FLAVOR_V3') === 'true') {
+      return true;
+    }
+  } catch { /* localStorage blocked (privacy mode) — fall through */ }
+  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FN_FLAVOR_V3 === 'true') {
+    return true;
+  }
+  return false;
+}
 
 // Map proDataset categories to taste strings that NodeMesh can color.
 // NodeMesh checks node.taste for: pungent, astringent, salty, sour, bitter, hot, spicy, sweet
@@ -226,7 +244,9 @@ export default function useProData({ enabled = true } = {}) {
         // the 'flavor3D' / 'mlflavor' beta mode.
         let flavorPositions = null;
         try {
-          const fpRes = await fetch('/proDataset/flavor_positions.json');
+          const fpRes = await fetch(flavorV3Enabled()
+            ? '/proDataset/flavor_positions_v3.json'
+            : '/proDataset/flavor_positions.json');
           if (fpRes.ok) {
             const fpRaw = await fpRes.json();
             const posMap = {};
@@ -252,6 +272,63 @@ export default function useProData({ enabled = true } = {}) {
         } catch {
           // optional — flavor3D toggle silently falls back to recipe positions
         }
+
+        // v3 P-C4 — 2D-from-3D positions for the `flavor2D` mode key.
+        // Same UMAP seed as flavor_positions.json but n_components=2;
+        // emitted alongside the 3D layout by flavor_layout_v2.py (v2 P1,
+        // shipped commit a04486e). z is filled with 0 so the renderer's
+        // existing [x, y, z] consumer reads it unchanged.
+        let flavorPositions2D = null;
+        try {
+          const fp2dRes = await fetch(flavorV3Enabled()
+            ? '/proDataset/flavor_positions_2d_v3.json'
+            : '/proDataset/flavor_positions_2d.json');
+          if (fp2dRes.ok) {
+            const fp2dRaw = await fp2dRes.json();
+            const posMap = {};
+            const FLAVOR_SPREAD = 3.0;
+            for (const [name, xy] of Object.entries(fp2dRaw)) {
+              if (name.startsWith('_')) continue;
+              if (!Array.isArray(xy) || xy.length !== 2) continue;
+              posMap[name] = [
+                xy[0] * FLAVOR_SPREAD,
+                xy[1] * FLAVOR_SPREAD,
+                0,
+              ];
+            }
+            flavorPositions2D = {
+              positions: posMap,
+              _source: 'gnn-flavor-umap-2d',
+              _count: Object.keys(posMap).length,
+            };
+          }
+        } catch { /* optional — flavor2D mode silently falls back */ }
+
+        // v3 flavor-graph data (Path B output). The 89-node chef-verified
+        // subgraph: per-ingredient {tier1, tier2, tier3, leaves, embedding,
+        // cluster} + edges with principle labels + cluster centroids. Used
+        // by the v3 IngredientPanel tree-view + the network re-color path.
+        // The 3,824 long-tail ingredients have no entry here — they fall
+        // through to the gnn-derived primaryTier1Aroma below.
+        let flavorGraph = null;
+        try {
+          const fgRes = await fetch(flavorV3Enabled()
+            ? '/proDataset/flavor_graph_data_v3.json'
+            : '/proDataset/flavor_graph_data.json');
+          if (fgRes.ok) {
+            const fgRaw = await fgRes.json();
+            const byName = {};
+            for (const node of fgRaw.nodes || []) {
+              if (node?.name) byName[node.name] = node;
+            }
+            flavorGraph = {
+              byName,
+              edges: fgRaw.edges || [],
+              clusters: fgRaw.clusters || [],
+              _meta: fgRaw._meta || {},
+            };
+          }
+        } catch { /* optional — v3 chef data not yet served in dev */ }
 
         // Flavor-space cluster labels (k-means over flavor positions).
         // Independent of the Node2Vec cluster_labels.json. The renderer
@@ -327,7 +404,9 @@ export default function useProData({ enabled = true } = {}) {
         let clusterLabels = null;
         let clusterExplanations = null;
         try {
-          const clRes = await fetch('/proDataset/cluster_labels.json');
+          const clRes = await fetch(flavorV3Enabled()
+            ? '/proDataset/cluster_labels_v3.json'
+            : '/proDataset/cluster_labels.json');
           if (clRes.ok) clusterLabels = await clRes.json();
         } catch { /* optional */ }
         try {
@@ -355,6 +434,29 @@ export default function useProData({ enabled = true } = {}) {
             }
           }
         } catch { /* optional */ }
+
+        // N+1 v3 — when cluster_labels_v3.json was loaded, it exposes
+        // an `ingredients` map (name → cluster_id) and a `clusters`
+        // array with v3 labels. Override the v2 cluster_explanations
+        // assignments so nodes carry v3 cluster ids consistent with
+        // cluster_labels_v3.json. cluster_explanations.json has no v3
+        // equivalent yet — explanation text + top-cuisines remain
+        // v2-shaped (cleared so they don't reference stale v2 ids).
+        if (clusterLabels?.ingredients && Array.isArray(clusterLabels?.clusters)) {
+          const labelById = {};
+          for (const c of clusterLabels.clusters) {
+            labelById[c.id] = c.label;
+          }
+          for (const [name, cid] of Object.entries(clusterLabels.ingredients)) {
+            const node = graph.nodes.get(name);
+            if (!node) continue;
+            node.clusterId = cid;
+            node.clusterLabel = labelById[cid] ?? null;
+            node.clusterExplanation = undefined;
+            node.clusterTopCuisines = undefined;
+            node.clusterTopIngredients = undefined;
+          }
+        }
 
         // Impute 3D positions for ingredients missing from gnn_positions.json.
         // ~594 of 3913 ingredients have a clusterId but no GNN coordinate
@@ -476,6 +578,31 @@ export default function useProData({ enabled = true } = {}) {
           if (ctRes.ok) compoundTastes = await ctRes.json();
         } catch { /* optional */ }
 
+        // v3 P-C1: per-node flavorGraph decoration + primaryTier1Aroma
+        // selector. Chef path for the 89 verified rows in
+        // flavor_graph_data.json; GNN path (gnnProbs × ingredient_profile_
+        // thresholds) for the ~3,824 long-tail ingredients. See
+        // src/data/primaryTier1.js for the selector contract.
+        const tier1Thresholds = buildTier1Thresholds(ingredientThresholds);
+        for (const [name, node] of graph.nodes) {
+          const entry = flavorGraph?.byName?.[name] ?? null;
+          if (entry) {
+            node.flavorGraph = {
+              tier1: entry.tier1 || [],
+              tier2: entry.tier2 || [],
+              tier3: entry.tier3 || [],
+              leaves: entry.leaves || [],
+              embedding: entry.embedding || null,
+              cluster: typeof entry.cluster === 'number' ? entry.cluster : null,
+              source: 'chef',
+            };
+            node.primaryTier1Aroma = entry.tier1?.[0] ?? null;
+          } else {
+            node.flavorGraph = null;
+            node.primaryTier1Aroma = gnnPrimaryTier1(node.gnnProbs, tier1Thresholds);
+          }
+        }
+
         // Affinity Mode (α-mode) lookup maps. Built once at session
         // start so AffinityMode.engage() / .pivot() / topAffinities()
         // can compute tier scoring in O(1) per candidate. See
@@ -541,7 +668,9 @@ export default function useProData({ enabled = true } = {}) {
           graph,
           positions,
           flavorPositions,
+          flavorPositions2D,
           flavorClusterLabels,
+          flavorGraph,
           clusterLabels,
           clusterExplanations,
           bridgeCompounds,
