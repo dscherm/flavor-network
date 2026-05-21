@@ -9,21 +9,22 @@
     {
       "name": "acorn squash",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "sage",
         "browning sauce",
         "pork sausage",
         "tart apple",
-        "chicken"
+        "scallion"
       ]
     },
     {
       "name": "all-purpose unbleached flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 4,
+      "n_trusted_neighbors": 6,
       "top_neighbors": [
         "turbinado sugar",
+        "baking soda",
         "greek yogurt",
         "onion",
         "garlic"
@@ -43,19 +44,19 @@
     {
       "name": "baking flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 5,
+      "n_trusted_neighbors": 6,
       "top_neighbors": [
         "coconut sugar",
         "coconut oil",
         "onion",
         "yogurt",
-        "walnut"
+        "baking soda"
       ]
     },
     {
       "name": "black plum",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "cane sugar",
         "tomato",
@@ -67,7 +68,7 @@
     {
       "name": "black raisin",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 11,
       "top_neighbors": [
         "pistachio",
         "onion",
@@ -79,13 +80,13 @@
     {
       "name": "boiling chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 5,
+      "n_trusted_neighbors": 8,
       "top_neighbors": [
+        "prune",
         "tomato",
         "milk",
-        "flour",
-        "parmesan",
-        "white wine"
+        "baking powder",
+        "flour"
       ]
     },
     {
@@ -115,31 +116,31 @@
     {
       "name": "broiler-fryer chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "apricot preserve",
+        "paprika",
         "butter",
         "milk",
-        "sugar",
-        "lemon juice"
+        "bisquick baking mix"
       ]
     },
     {
       "name": "broth from chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "cream of mushroom",
         "cornbread",
         "cream of celery soup",
-        "celery soup",
-        "chicken"
+        "fryer",
+        "celery soup"
       ]
     },
     {
       "name": "brown chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "parsley stem",
         "black peppercorn",
@@ -154,28 +155,28 @@
       "n_trusted_neighbors": 20,
       "top_neighbors": [
         "potato starch",
+        "cane juice",
+        "brown egg",
         "rice milk",
-        "sorghum flour",
-        "almond flour",
-        "almond meal"
+        "sorghum flour"
       ]
     },
     {
       "name": "buffalo mozzarella",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "parma ham",
         "beefsteak tomatoe",
         "tomato",
         "basil pesto",
-        "basil",
-        "chicken"
+        "basil"
       ]
     },
     {
       "name": "buffalo sauce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 12,
       "top_neighbors": [
         "bleu cheese",
         "blue cheese dressing",
@@ -187,7 +188,7 @@
     {
       "name": "buffalo wing sauce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 11,
       "top_neighbors": [
         "blue cheese salad dressing",
         "blue cheese dressing",
@@ -199,13 +200,13 @@
     {
       "name": "caesar dressing",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 15,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
         "torn romaine lettuce",
         "romaine lettuce",
         "hearts of romaine lettuce",
-        "wheat baguette",
-        "baby romaine lettuce"
+        "fully cooked bacon",
+        "wheat baguette"
       ]
     },
     {
@@ -223,13 +224,13 @@
     {
       "name": "cajun spice mix",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "white fish",
         "butter",
         "milk",
         "cheddar",
-        "oregano"
+        "paprika"
       ]
     },
     {
@@ -238,10 +239,10 @@
       "n_trusted_neighbors": 20,
       "top_neighbors": [
         "cream of tartar",
+        "egg white",
         "buttermilk",
-        "hickory nut",
-        "lemon flavoring",
-        "lemon extract"
+        "baking soda",
+        "hickory nut"
       ]
     },
     {
@@ -255,35 +256,35 @@
       "method": "neighbor-weighted-mean",
       "n_trusted_neighbors": 20,
       "top_neighbors": [
+        "parmesan rind",
         "sweet italian turkey sausage",
         "ditalini pasta",
         "refrigerated cheese tortellini",
-        "rosemary",
-        "garlic"
+        "rosemary"
       ]
     },
     {
       "name": "canola oil cooking spray",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 6,
+      "n_trusted_neighbors": 8,
       "top_neighbors": [
         "firm tofu",
         "onion",
+        "scallion",
         "mustard",
-        "flaxseed",
-        "low-fat buttermilk"
+        "flaxseed"
       ]
     },
     {
       "name": "canola oil spray",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 6,
+      "n_trusted_neighbors": 10,
       "top_neighbors": [
+        "broth",
         "fish sauce",
         "lime",
-        "ginger",
-        "flour",
-        "turmeric"
+        "baking powder",
+        "baking soda"
       ]
     },
     {
@@ -301,25 +302,25 @@
         "chambord raspberry liquor",
         "lemon twist",
         "raspberry liqueur",
-        "cranberry juice"
+        "liqueur"
       ]
     },
     {
       "name": "chicken back",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "knob ginger",
         "peppercorn",
         "black peppercorn",
-        "white peppercorn",
-        "carrot"
+        "bay leaf",
+        "white peppercorn"
       ]
     },
     {
       "name": "chicken base",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "baby red potatoe",
         "white pepper",
@@ -331,7 +332,7 @@
     {
       "name": "chicken bouillon",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 17,
+      "n_trusted_neighbors": 18,
       "top_neighbors": [
         "carrot strip",
         "quick-cooking barley",
@@ -343,7 +344,7 @@
     {
       "name": "chicken bouillon cube",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 18,
+      "n_trusted_neighbors": 20,
       "top_neighbors": [
         "velveeta cheese",
         "celery",
@@ -367,31 +368,31 @@
     {
       "name": "chicken bouillon powder",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "orzo pasta",
+        "cayenne powder",
         "onion flake",
         "beef bouillon powder",
-        "oyster sauce",
-        "sugar"
+        "oyster sauce"
       ]
     },
     {
       "name": "chicken breast cutlet",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
+        "grill seasoning",
         "shiitake",
         "marsala wine",
         "extra-virgin olive oil",
-        "flat-leaf parsley",
-        "freshly black pepper"
+        "flat-leaf parsley"
       ]
     },
     {
       "name": "chicken breast fillet",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "root ginger",
         "baby corn",
@@ -415,37 +416,37 @@
     {
       "name": "chicken breast halve",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 18,
+      "n_trusted_neighbors": 20,
       "top_neighbors": [
         "thin swiss cheese",
         "vegetable oil olive",
+        "drained oil",
         "sweet orange pepper",
-        "lemon-pepper seasoning",
-        "garlic soup"
+        "lemon-pepper seasoning"
       ]
     },
     {
       "name": "chicken breast meat",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "sake",
         "condensed cream",
+        "mirin",
         "soy sauce",
-        "butter",
-        "corn tortilla"
+        "butter"
       ]
     },
     {
       "name": "chicken breast tender",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "light coconut milk",
+        "snow pea",
         "butter",
         "lime wedge",
-        "italian seasoned bread crumb",
-        "fish sauce"
+        "italian seasoned bread crumb"
       ]
     },
     {
@@ -475,31 +476,31 @@
     {
       "name": "chicken bullion",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
         "cornstarch",
         "roma tomatoe",
         "chilie",
-        "butter",
-        "cumin"
+        "corn starch",
+        "butter"
       ]
     },
     {
       "name": "chicken carcass",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "peppercorn",
+        "bay leaf",
         "carrot",
         "black peppercorn",
-        "celery",
-        "shiitake"
+        "celery"
       ]
     },
     {
       "name": "chicken cutlet",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "thin swiss cheese",
         "pasta of choice",
@@ -523,25 +524,25 @@
     {
       "name": "chicken fat",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "seltzer water",
         "cognac",
+        "broth",
         "chicken",
-        "milk",
-        "butter"
+        "milk"
       ]
     },
     {
       "name": "chicken fillet",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "chilli powder",
         "sweet corn",
+        "red lentil",
         "butter",
-        "yellow pepper",
-        "sugar",
-        "milk"
+        "sweetcorn"
       ]
     },
     {
@@ -549,23 +550,23 @@
       "method": "neighbor-weighted-mean",
       "n_trusted_neighbors": 20,
       "top_neighbors": [
+        "mayonnai",
         "pimento stuffed olive",
         "tomato",
         "chicken",
-        "salad oil",
-        "corn husk"
+        "salad oil"
       ]
     },
     {
       "name": "chicken flavored bouillon granule",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "broccoli floweret",
         "mushroom",
         "tomato",
-        "water chestnut",
-        "sugar"
+        "vegetable cooking spray",
+        "egg noodle"
       ]
     },
     {
@@ -583,55 +584,55 @@
     {
       "name": "chicken giblet",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "cooked rice",
         "celery",
         "tomato",
-        "pork",
-        "sugar"
+        "bay leaf",
+        "pork"
       ]
     },
     {
       "name": "chicken gizzard",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 12,
       "top_neighbors": [
         "long-grain rice",
+        "bay leaf",
         "pork",
         "celery",
-        "sweet pepper",
-        "butter"
+        "sweet pepper"
       ]
     },
     {
       "name": "chicken gravy",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "mixed vegetable",
         "broccoli cut",
         "chicken",
-        "tomato",
-        "mushroom",
-        "butter"
+        "sweet pea",
+        "tomato"
       ]
     },
     {
       "name": "chicken gravy mix",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "sweet pea",
         "chicken",
         "tomato",
         "mushroom",
-        "mushroom stem",
-        "baby carrot"
+        "mushroom stem"
       ]
     },
     {
       "name": "chicken gumbo soup",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "ketchup",
         "mustard",
@@ -655,7 +656,7 @@
     {
       "name": "chicken liver",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "cognac",
         "brandy",
@@ -667,19 +668,19 @@
     {
       "name": "chicken marinade",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
+        "liquid smoke flavoring",
         "chicken",
         "oyster sauce",
         "soy sauce",
-        "provolone cheese",
-        "turmeric"
+        "provolone cheese"
       ]
     },
     {
       "name": "chicken meat",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "pimento pepper",
         "blanched slivered almond",
@@ -715,19 +716,19 @@
     {
       "name": "chicken part",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "golden mushroom soup",
         "tomato soup",
+        "campbell's golden mushroom soup",
         "corn flake crumb",
-        "butter",
-        "milk"
+        "butter"
       ]
     },
     {
       "name": "chicken pattie",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 11,
       "top_neighbors": [
         "spaghetti sauce",
         "mozzarella",
@@ -739,25 +740,25 @@
     {
       "name": "chicken quarter",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "mushroom",
         "rosemary",
         "butter",
         "sugar",
-        "milk"
+        "marinade"
       ]
     },
     {
       "name": "chicken ramen noodle",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "broccoli slaw",
         "sesame seed",
         "sunflower seed",
-        "slivered almond",
-        "almond"
+        "ramen noodle",
+        "slivered almond"
       ]
     },
     {
@@ -775,13 +776,13 @@
     {
       "name": "chicken rice soup",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
+        "chinese noodle",
+        "noodle",
         "mushroom soup",
-        "cream of mushroom soup",
-        "potato chip",
-        "mushroom",
-        "celery"
+        "mein noodle",
+        "cream of mushroom soup"
       ]
     },
     {
@@ -811,31 +812,31 @@
     {
       "name": "chicken seasoning",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "tomato",
         "chicken",
+        "nutritional yeast",
         "italian tomatoe",
-        "butter",
-        "milk"
+        "butter"
       ]
     },
     {
       "name": "chicken soup",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 15,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
         "mushroom soup",
         "celery soup",
         "chicken",
         "tomato",
-        "hash brown potatoe"
+        "stove top dressing"
       ]
     },
     {
       "name": "chicken soup base",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "potato flake",
         "cracked pepper",
@@ -847,7 +848,7 @@
     {
       "name": "chicken soup stock",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "sake",
         "oyster sauce",
@@ -859,7 +860,7 @@
     {
       "name": "chicken soup stock granule",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 15,
+      "n_trusted_neighbors": 17,
       "top_neighbors": [
         "sake",
         "oyster sauce",
@@ -892,7 +893,7 @@
     {
       "name": "chicken strip",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "baby spinach leave",
         "butter",
@@ -904,7 +905,7 @@
     {
       "name": "chicken tender",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 12,
       "top_neighbors": [
         "pasta of choice",
         "cheese dressing",
@@ -928,19 +929,19 @@
     {
       "name": "chicken with rice soup",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 9,
+      "n_trusted_neighbors": 12,
       "top_neighbors": [
+        "chinese noodle",
+        "mein noodle",
         "wild rice",
         "cream of mushroom soup",
-        "tomato soup",
-        "taco sauce",
-        "cream-style corn"
+        "noodle"
       ]
     },
     {
       "name": "chicken-flavored ramen noodle",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 18,
+      "n_trusted_neighbors": 20,
       "top_neighbors": [
         "broccoli coleslaw",
         "sunflower seed",
@@ -952,13 +953,13 @@
     {
       "name": "chinese five spice powder",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "soy sauce",
         "sherry wine",
+        "marinade",
         "oyster sauce",
-        "gingerroot",
-        "shiitake"
+        "gingerroot"
       ]
     },
     {
@@ -976,7 +977,7 @@
     {
       "name": "chunk white chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 9,
+      "n_trusted_neighbors": 10,
       "top_neighbors": [
         "slivered almond",
         "sweet red pepper",
@@ -988,7 +989,7 @@
     {
       "name": "chunky applesauce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "apple butter",
         "apricot halve",
@@ -1000,25 +1001,25 @@
     {
       "name": "cinnamon applesauce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
         "flaxseed",
+        "rolled oat",
+        "baking mix",
         "wheat flour",
-        "pumpkin pie spice",
-        "raisin",
-        "maple syrup"
+        "baking soda"
       ]
     },
     {
       "name": "clementine juice",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 6,
+      "n_trusted_neighbors": 7,
       "top_neighbors": [
         "orange liqueur",
         "vodka",
         "onion",
-        "flour",
-        "milk"
+        "egg",
+        "flour"
       ]
     },
     {
@@ -1030,7 +1031,7 @@
     {
       "name": "condensed chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "condensed cream",
         "wild rice",
@@ -1042,13 +1043,13 @@
     {
       "name": "condensed chicken broth",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "white cornmeal",
         "long-grain rice",
         "white kidney bean",
-        "mushroom",
-        "regular rice"
+        "pea",
+        "mushroom"
       ]
     },
     {
@@ -1057,16 +1058,16 @@
       "n_trusted_neighbors": 20,
       "top_neighbors": [
         "sweet biscuit crumb",
+        "green chilli",
         "soya sauce",
-        "vanilla essence",
-        "ginger-garlic",
-        "chilli sauce"
+        "custard powder",
+        "vanilla essence"
       ]
     },
     {
       "name": "cream chicken soup",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "cream mushroom soup",
         "herb seasoned stuffing mix",
@@ -1078,13 +1079,13 @@
     {
       "name": "cream of chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 18,
       "top_neighbors": [
         "chicken",
         "cream of mushroom",
+        "mixed veggie",
         "chicken stuffing mix",
-        "herb stuffing",
-        "cream of celery"
+        "herb stuffing"
       ]
     },
     {
@@ -1114,25 +1115,25 @@
     {
       "name": "cubanelle pepper",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "bucatini pasta",
         "crusty bread",
         "pimento stuffed olive",
-        "sweet italian sausage",
-        "flat-leaf parsley"
+        "grill seasoning",
+        "sweet italian sausage"
       ]
     },
     {
       "name": "curry paste",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
         "coconut milk",
         "baby eggplant",
+        "vermicelli noodle",
         "mango",
-        "fish sauce",
-        "coconut cream"
+        "fish sauce"
       ]
     },
     {
@@ -1150,13 +1151,13 @@
     {
       "name": "deli chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 12,
       "top_neighbors": [
         "flour tortilla",
+        "light mayonnaise",
         "swiss cheese",
         "provolone cheese",
-        "american cheese",
-        "bread"
+        "american cheese"
       ]
     },
     {
@@ -1177,10 +1178,10 @@
       "n_trusted_neighbors": 20,
       "top_neighbors": [
         "garlic",
+        "scallion",
         "ginger",
         "sesame seed",
-        "gochujang",
-        "tofu"
+        "gochujang"
       ]
     },
     {
@@ -1198,7 +1199,7 @@
         "puff pastry",
         "cream",
         "pastry cream",
-        "lemon filling"
+        "egg white"
       ]
     },
     {
@@ -1216,13 +1217,13 @@
     {
       "name": "extra flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 5,
+      "n_trusted_neighbors": 7,
       "top_neighbors": [
         "extra olive oil",
         "onion",
         "garlic",
-        "lemon",
-        "parmesan"
+        "yeast",
+        "lemon"
       ]
     },
     {
@@ -1251,7 +1252,7 @@
     {
       "name": "french dressing",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "lettuce",
         "tomato wedge",
@@ -1263,19 +1264,19 @@
     {
       "name": "fryer chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "paprika",
         "butter",
         "milk",
         "sugar",
-        "brown sugar",
-        "sour cream"
+        "brown sugar"
       ]
     },
     {
       "name": "frying chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "corn flake crumb",
         "celery soup",
@@ -1290,10 +1291,10 @@
       "n_trusted_neighbors": 20,
       "top_neighbors": [
         "turmeric",
+        "green chilli",
         "tomato",
         "ginger",
-        "cumin",
-        "chicken"
+        "cumin"
       ]
     },
     {
@@ -1311,7 +1312,7 @@
     {
       "name": "garbanzo flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "rice milk",
         "almond meal",
@@ -1329,13 +1330,13 @@
     {
       "name": "gluten flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "liquid egg substitute",
+        "yeast",
         "caraway seed",
         "barley malt",
-        "rye flour",
-        "garlic"
+        "nutritional yeast"
       ]
     },
     {
@@ -1347,25 +1348,25 @@
     {
       "name": "gold medal flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
+        "jumbo egg",
         "beef stew meat",
         "onion",
         "garlic",
-        "chicken",
-        "mushroom"
+        "chicken"
       ]
     },
     {
       "name": "graham flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "sour milk",
         "sour lowfat milk",
         "buttermilk",
-        "raisin",
-        "red chili powder"
+        "baking soda",
+        "raisin"
       ]
     },
     {
@@ -1387,15 +1388,15 @@
       "top_neighbors": [
         "celery seed",
         "red cabbage",
+        "coleslaw dressing",
         "apple cider vinegar",
-        "caraway seed",
-        "white corn tortilla"
+        "caraway seed"
       ]
     },
     {
       "name": "green chile salsa",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "corn tortilla",
         "jack cheese",
@@ -1413,7 +1414,7 @@
     {
       "name": "green enchilada sauce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "corn tortilla",
         "green chilie",
@@ -1437,25 +1438,25 @@
     {
       "name": "green jalapeno pepper",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "corn tortilla",
         "lime juice",
         "pinto bean",
-        "sugar",
-        "lime"
+        "cilantro",
+        "sugar"
       ]
     },
     {
       "name": "green lentil",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
+        "vegetable stock cube",
         "white miso paste",
+        "bay leaf",
         "carrot",
-        "brown basmati rice",
-        "turmeric",
-        "cumin"
+        "brown basmati rice"
       ]
     },
     {
@@ -1527,13 +1528,13 @@
         "rice vinegar",
         "plum sauce",
         "chinese chili paste",
-        "asian chili sauce"
+        "spice powder"
       ]
     },
     {
       "name": "iceberg lettuce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
         "beef skirt",
         "gourmet sauce",
@@ -1545,13 +1546,13 @@
     {
       "name": "instant chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
+        "pea pod",
         "instant mashed potatoe",
         "mushroom",
         "mushroom stem",
-        "regular rice",
-        "nonfat dry milk"
+        "regular rice"
       ]
     },
     {
@@ -1583,11 +1584,11 @@
       "method": "neighbor-weighted-mean",
       "n_trusted_neighbors": 20,
       "top_neighbors": [
+        "rotini noodle",
         "fully ripe avocado",
         "tomato",
-        "broccoli floweret",
-        "olive",
-        "rotini pasta"
+        "linguine noodle",
+        "coating mix"
       ]
     },
     {
@@ -1617,7 +1618,7 @@
     {
       "name": "knorr chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "red chili powder",
         "butter",
@@ -1629,7 +1630,7 @@
     {
       "name": "lean chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "wheat hamburger bun",
         "tomato ketchup",
@@ -1641,13 +1642,13 @@
     {
       "name": "linseed",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "runny honey",
         "sunflower seed",
         "rye flour",
         "powdered milk",
-        "pumpkin seed"
+        "rolled oat"
       ]
     },
     {
@@ -1665,31 +1666,31 @@
     {
       "name": "low-fat cream of chicken soup",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 8,
+      "n_trusted_neighbors": 11,
       "top_neighbors": [
         "low-fat cream of mushroom soup",
         "chicken",
         "low-fat sour cream",
-        "corn tortilla",
-        "green chilie"
+        "scallion",
+        "corn tortilla"
       ]
     },
     {
       "name": "low-salt chicken broth",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "coarse kosher salt",
+        "ruby port",
         "sherry wine vinegar",
-        "jalapeno chili",
-        "asian sesame oil",
-        "golden brown sugar"
+        "vegetable oil spray",
+        "jalapeno chili"
       ]
     },
     {
       "name": "macaroni",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 19,
+      "n_trusted_neighbors": 20,
       "top_neighbors": [
         "mozzarella",
         "basil",
@@ -1701,7 +1702,7 @@
     {
       "name": "macaroni noodle",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "mild cheese",
         "velveeta cheese",
@@ -1713,10 +1714,11 @@
     {
       "name": "macaroni pasta",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 3,
+      "n_trusted_neighbors": 4,
       "top_neighbors": [
         "cheddar",
         "cayenne pepper",
+        "egg",
         "parmesan"
       ]
     },
@@ -1726,16 +1728,16 @@
       "n_trusted_neighbors": 20,
       "top_neighbors": [
         "bean dip",
+        "monde spice",
         "crabmeat",
-        "vegetable soup",
-        "jalapeno bean",
-        "vegetable soup mix"
+        "mixed veggie",
+        "vegetable soup"
       ]
     },
     {
       "name": "meal flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 5,
+      "n_trusted_neighbors": 6,
       "top_neighbors": [
         "sunflower seed",
         "golden syrup",
@@ -1747,7 +1749,7 @@
     {
       "name": "monkfish",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "fish stock",
         "fish broth",
@@ -1771,7 +1773,7 @@
     {
       "name": "natural applesauce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "wheat flour",
         "wheat pastry flour",
@@ -1831,19 +1833,19 @@
     {
       "name": "ranch dressing",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 16,
+      "n_trusted_neighbors": 17,
       "top_neighbors": [
         "broccoli slaw mix",
         "kosher dill",
         "blue cheese dressing",
-        "chicken",
-        "deli turkey"
+        "bacon bit",
+        "chicken"
       ]
     },
     {
       "name": "range chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "truffle oil",
         "rosemary",
@@ -1861,7 +1863,7 @@
     {
       "name": "red enchilada sauce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "corn tortilla",
         "blend cheese",
@@ -1873,7 +1875,7 @@
     {
       "name": "red grape",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 17,
+      "n_trusted_neighbors": 19,
       "top_neighbors": [
         "kiwi fruit",
         "spring lettuce mix",
@@ -1897,13 +1899,13 @@
     {
       "name": "red jalapeno pepper",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "broccolini",
         "lemongrass",
         "fish sauce",
-        "butter",
-        "sugar"
+        "cilantro",
+        "butter"
       ]
     },
     {
@@ -1915,13 +1917,13 @@
     {
       "name": "regular flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 8,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
+        "crisco oil",
         "onion",
         "garlic",
         "sour cream",
-        "lemon",
-        "ginger"
+        "lemon"
       ]
     },
     {
@@ -1939,7 +1941,7 @@
     {
       "name": "roasting chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "rosemary",
         "tomato",
@@ -1975,13 +1977,13 @@
     {
       "name": "seedless red grape",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "kiwi fruit",
+        "kiwifruit",
         "onion",
         "slivered almond",
-        "garlic",
-        "walnut"
+        "garlic"
       ]
     },
     {
@@ -1999,43 +2001,43 @@
     {
       "name": "sour orange juice",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "achiote paste",
         "pork butt",
         "pork shoulder",
         "cumin",
-        "oregano",
-        "pork loin"
+        "oregano"
       ]
     },
     {
       "name": "soy flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
         "flaxseed",
         "soymilk",
+        "soy oil",
         "powdered milk",
-        "potato starch",
-        "non-fat powdered milk"
+        "potato starch"
       ]
     },
     {
       "name": "soybean oil",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "edamame",
         "tarragon vinegar",
         "original sauce",
         "white vinegar",
-        "soy sauce",
-        "chicken"
+        "soy sauce"
       ]
     },
     {
       "name": "sriracha",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 15,
+      "n_trusted_neighbors": 18,
       "top_neighbors": [
         "mayonnaise",
         "garlic",
@@ -2047,19 +2049,19 @@
     {
       "name": "stewing chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "parsley root",
         "peppercorn",
         "celery",
-        "carrot",
-        "lima bean"
+        "bay leaf",
+        "carrot"
       ]
     },
     {
       "name": "sweet rice flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 12,
       "top_neighbors": [
         "potato starch",
         "sorghum flour",
@@ -2083,13 +2085,13 @@
     {
       "name": "sweetened applesauce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "blackberry jam",
+        "egg beater",
         "raisin",
         "cake mix",
-        "cinnamon",
-        "celery"
+        "cinnamon"
       ]
     },
     {
@@ -2119,7 +2121,7 @@
     {
       "name": "tandoori paste",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "plain yogurt",
         "low-fat plain yogurt",
@@ -2158,30 +2160,31 @@
     {
       "name": "thai red curry paste",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 4,
+      "n_trusted_neighbors": 5,
       "top_neighbors": [
         "coconut milk",
         "lime",
         "coriander",
-        "brown sugar"
+        "brown sugar",
+        "vegetable oil"
       ]
     },
     {
       "name": "thick applesauce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "raisin",
         "cinnamon",
         "allspice",
         "nutmeg",
-        "walnut"
+        "nut"
       ]
     },
     {
       "name": "torn iceberg lettuce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
         "caulifloweret",
         "orange section",
@@ -2193,25 +2196,25 @@
     {
       "name": "unbleached flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "unsweetened applesauce",
+        "active dry yeast",
         "onion",
         "garlic",
-        "sour cream",
-        "egg substitute"
+        "sour cream"
       ]
     },
     {
       "name": "unbleached white flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
+      "n_trusted_neighbors": 16,
       "top_neighbors": [
+        "cane juice",
+        "seitan",
         "soymilk",
         "rice milk",
-        "flax seed meal",
-        "safflower oil",
-        "flaxseed"
+        "flax seed meal"
       ]
     },
     {
@@ -2225,23 +2228,23 @@
       "method": "neighbor-weighted-mean",
       "n_trusted_neighbors": 20,
       "top_neighbors": [
+        "red lentil",
         "risotto rice",
         "saffron",
         "butternut squash",
-        "quinoa",
-        "lentil"
+        "brown lentil"
       ]
     },
     {
       "name": "vegetarian chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "nutritional yeast",
         "russet potatoe",
         "brown rice",
         "soy sauce",
-        "butter",
-        "milk"
+        "butter"
       ]
     },
     {
@@ -2253,25 +2256,25 @@
     {
       "name": "weight chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
+        "balsamic dressing",
         "sweet bell pepper",
         "greek yogurt",
         "romaine lettuce",
-        "dressing",
-        "milk"
+        "dressing"
       ]
     },
     {
       "name": "wheat elbow macaroni",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "nonfat milk",
         "parmesan",
         "chicken",
-        "cream cheese",
-        "mustard"
+        "scallion",
+        "cream cheese"
       ]
     },
     {
@@ -2289,13 +2292,13 @@
     {
       "name": "white chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 9,
+      "n_trusted_neighbors": 11,
       "top_neighbors": [
+        "nonfat mayonnaise",
         "barbecue pork",
         "condensed cream",
         "barbecue beef",
-        "butter",
-        "lemon juice"
+        "butter"
       ]
     },
     {
@@ -2313,13 +2316,13 @@
     {
       "name": "white flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 9,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "tempura crumb",
+        "yeast",
         "wheat flour",
         "freshly cardamom",
-        "onion",
-        "garlic",
-        "flaxseed"
+        "prune juice"
       ]
     },
     {
@@ -2337,7 +2340,7 @@
     {
       "name": "white meat chicken",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "great northern bean",
         "grape",
@@ -2355,31 +2358,31 @@
     {
       "name": "white rice flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "potato starch",
         "natural vanilla",
         "filtered water",
-        "celtic sea salt",
-        "sorghum flour"
+        "beaten egg",
+        "celtic sea salt"
       ]
     },
     {
       "name": "wholemeal flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 11,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "runny honey",
+        "mixed spice",
         "vanilla essence",
         "onion",
-        "sunflower oil",
-        "sunflower seed"
+        "sunflower oil"
       ]
     },
     {
       "name": "wondra flour",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "turkey dripping",
         "freshly white pepper",
@@ -2397,7 +2400,7 @@
     {
       "name": "za'atar spice mix",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "feta",
         "garbanzo bean",
