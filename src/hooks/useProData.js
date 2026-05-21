@@ -7,21 +7,32 @@ import { useState, useEffect } from 'react';
 import { computeTastePositions } from '../data/tastePositioning.js';
 import { computeAffinityThresholds } from '../data/affinityThresholds.js';
 import { buildTier1Thresholds, gnnPrimaryTier1 } from '../data/primaryTier1.js';
+import { isNative } from '../utils/native.js';
 
 // N+1 v3 feature flag — when enabled, useProData fetches the corpus-wide
 // v3 artifacts (flavor_positions_v3, flavor_positions_2d_v3, cluster_labels_v3)
-// in place of the v2 files. Default OFF in production until soak passes.
-// Toggle in browser DevTools: localStorage.setItem('FN_FLAVOR_V3', 'true').
-// Toggle at build time: VITE_FN_FLAVOR_V3=true npm run build.
+// in place of the v2 files.
+//
+// Defaults:
+//   - Web: OFF (soak gate — toggle via localStorage.setItem('FN_FLAVOR_V3','true'))
+//   - Native iOS (Capacitor WKWebView): ON (production ships v3 as default)
+//
+// Override on either platform:
+//   - localStorage.setItem('FN_FLAVOR_V3', 'true' | 'false')
+//   - Build-time: VITE_FN_FLAVOR_V3=true npm run build
 function flavorV3Enabled() {
   try {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('FN_FLAVOR_V3') === 'true') {
-      return true;
+    if (typeof localStorage !== 'undefined') {
+      const ls = localStorage.getItem('FN_FLAVOR_V3');
+      if (ls === 'true') return true;
+      if (ls === 'false') return false;
     }
   } catch { /* localStorage blocked (privacy mode) — fall through */ }
   if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FN_FLAVOR_V3 === 'true') {
     return true;
   }
+  // Native (iOS) ships v3 as the default; web stays in soak mode.
+  if (isNative()) return true;
   return false;
 }
 
