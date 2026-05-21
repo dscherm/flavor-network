@@ -941,3 +941,151 @@ flag; soak before promotion. Locked decisions:
   ]
 }
 ```
+
+---
+
+## Next concrete actions (added 2026-05-20, post V3e ship)
+
+Three categories: (A) finish the N+1 UI surfaces, (B) close small V3
+cosmetic gaps, (C) GNN data-improvement wave for the weak heads.
+
+### A. Finish N+1 UI surfaces (already pending)
+
+D3, D4, D5 still pending. They consume artifacts the V3 chain already
+produced (`flavor_graph_full.csv` for D3, the v3 cluster data for D5).
+None require new ML work.
+
+### B. V3 cosmetic cleanup
+
+```json
+{
+  "id": "N2-V3-LBL",
+  "title": "Refine V3d cluster-label generator + chef labels for small clusters",
+  "category": "ml",
+  "priority": 3,
+  "description": "When the chef CSV expands, cluster compositions shift and the chef labels in v3_cluster_labels_chef.json need re-curating against new content. Also: the auto-generated chemistry fallback uses `cluster-N` when no leaf clears MIN_LIFT × MIN_LEAF_SUPPORT in a small cluster (n<60). Lower thresholds proportionally to cluster size so small clusters can still find a top-3 label.",
+  "acceptance": [
+    "Every cluster has a chef-curated label (no 'cluster-N' fallback in production)",
+    "When the chef CSV expands by ≥10 rows, the v3_cluster_labels_chef.json is re-curated to match new cluster compositions",
+    "flavor_layout_v3.py re-run is deterministic (seed=42); chef labels apply cleanly"
+  ]
+}
+```
+
+```json
+{
+  "id": "N2-V3-EXP",
+  "title": "Emit cluster_explanations_v3.json — top-cuisines + top-ingredients + narrative per v3 cluster",
+  "category": "data",
+  "priority": 3,
+  "description": "IngredientPanel renders clusterExplanation when present; v3 currently leaves it blank because cluster_explanations.json is v2-shaped. Add a step in flavor_layout_v3.py (or new flavor_explain_v3.py) that, given the v3 clusters and the chef CSV cuisine columns + pairings.json co-occurrence, generates top-3 cuisines per cluster, top-5 ingredients by centrality, and a one-sentence narrative.",
+  "acceptance": [
+    "public/proDataset/cluster_explanations_v3.json exists",
+    "useProData routes v3 mode to read this file when FN_FLAVOR_V3 is set",
+    "IngredientPanel shows non-empty explanation text in v3 mode for chef rows"
+  ]
+}
+```
+
+```json
+{
+  "id": "N2-V3-AB",
+  "title": "Visual A/B gate — capture screenshot pair at v2 vs v3 toggle",
+  "category": "qa",
+  "priority": 3,
+  "description": "Open https://neuralflavor.web.app twice (one with FN_FLAVOR_V3=true, one without). Capture 6 spot-check views per side. Document the v3 quality + go/no-go on flipping the default.",
+  "acceptance": [
+    "12 screenshots captured (6 v2 + 6 v3)",
+    "Per-pair written diff notes (cohesion, cluster identity, color drift)",
+    "Go/no-go: keep v3 default-off (soak) or flip to default-on in useProData"
+  ]
+}
+```
+
+### C. GNN data-improvement wave
+
+```json
+{
+  "id": "N2-V3-CHEF-LIFT",
+  "title": "Chef coverage drive — pair with chef-user to backfill top-500 from 209 → 400+",
+  "category": "data",
+  "priority": 1,
+  "description": "Chef-bound but the binding constraint for v3 quality. Going from 209 → 400 chef rows would shrink the V3d mega-cluster further, give better cluster boundaries, and enable Phase-2 verification on a richer base. Implementer scaffolds nothing — chef-user fills CSV rows in the existing 9-col schema. Each batch of ~50 rows triggers a V3 re-run + chef-labels re-curation per N2-V3-LBL.",
+  "acceptance": [
+    "flavor-gnn/curation/top500_flavor_graph.csv has ≥ 400 rows with full T1/T2/T3/leaves",
+    "V3a-V3d chain re-runs deterministically against the richer CSV",
+    "V3b aux accuracy holds ≥ 0.85 on chef edges (currently 0.928)"
+  ]
+}
+```
+
+```json
+{
+  "id": "N2-GNN-AGG",
+  "title": "Per-ingredient compound aggregation — raise above-threshold coverage from 18% → ~45%",
+  "category": "ml",
+  "priority": 2,
+  "description": "Today gnn_entropy.json uses a single 'representative compound' per ingredient. Most ingredients (2,783 of 3,319) have at least one of their top compounds firing above threshold but the representative pick averages it out. Implement weighted aggregation: for each ingredient, run inference on its top-K (K=10) compounds from gnn_compounds.json, weight by frequency / concentration where known, mean-pool the probabilities. No retraining; pure inference-side change.",
+  "acceptance": [
+    "flavor-gnn/scripts/aggregate_predictions.py exists; reads gnn_compounds.json + the M3 model, emits aggregated gnn_entropy.json",
+    "Above-threshold ingredient count rises from 607 → ≥ 1,200 (target ~1,500)",
+    "Per-task macro-F1 stable or up vs the single-representative baseline"
+  ]
+}
+```
+
+```json
+{
+  "id": "N2-GNN-DREAM",
+  "title": "Ingest DREAM Olfaction Challenge dataset — +0.05 to +0.10 F1 on odor heads",
+  "category": "data",
+  "priority": 2,
+  "description": "Public dataset of 476 molecules × 21 odor descriptors, expert-rated. Adds clean positives to the 5 odor heads currently at F1 0.51-0.72. Write chemDataset/scripts/09-fetch-dream.js + a label-mapping step that maps DREAM's 21 descriptors to our 6-term odor vocabulary. Re-run M3 v3 training. Don't expect movement on salty or odor_spicy.",
+  "acceptance": [
+    "chemDataset/raw/dream/ contains the DREAM TSVs",
+    "compounds.parquet expands by ~400 unique SMILES with odor labels",
+    "≥4 of 5 odor heads (excluding spicy) improve by ≥0.03 vs current v3"
+  ]
+}
+```
+
+```json
+{
+  "id": "N2-GNN-LEFF",
+  "title": "Procure Leffingwell PMP-2001 odor database — ~10× current odor labels (paywalled)",
+  "category": "external",
+  "priority": 4,
+  "description": "Procurement step. Leffingwell PMP-2001 has ~3,500 molecules with expert-rated odor descriptors. Paywalled at ~$2-5k for research license. Blocked on procurement; out of scope for autonomous work.",
+  "acceptance": [
+    "Research license acquired",
+    "TSV/CSV at chemDataset/raw/leffingwell/",
+    "Same retrain + status-doc update flow as DREAM"
+  ]
+}
+```
+
+```json
+{
+  "id": "N2-GNN-ENC",
+  "title": "Foundation-model encoder swap (ChemBERTa or MolFormer) — speculative gain",
+  "category": "ml",
+  "priority": 5,
+  "description": "Replace current GINEConv encoder with frozen ChemBERTa-77M or MolFormer. Add task-head MLP per output. Pre-trained on 10M+ molecules; expected speculative gain ~0.05-0.10 on weak heads. Last lever — only after data side is exhausted.",
+  "acceptance": [
+    "flavor-gnn/src/models/foundation_encoder.py with frozen-encoder + trainable-head architecture",
+    "Per-task F1 vs M3 v3: ≥3 of 11 heads improve by ≥0.03, none regress by more than 0.03",
+    "Document negative finding in chemdataset-status if speculative gain doesn't materialize"
+  ]
+}
+```
+
+### Recommended sequence
+
+1. **A. Finish N+1 UI** (D3 → D4 → D5) — consume v3 artifacts, no new ML work.
+2. **N2-V3-AB** in parallel — visual gate informs whether to flip v3 default-on.
+3. **N2-GNN-AGG** — code-only, no new data, biggest coverage lift.
+4. **N2-V3-EXP** + **N2-V3-LBL** — close v3 cosmetic gaps; touch chef labels when CSV grows.
+5. **N2-GNN-DREAM** — public dataset, lifts odor heads.
+6. **N2-V3-CHEF-LIFT** — chef-paced; high value as the chef fills rows.
+7. **N2-GNN-LEFF**, **N2-GNN-ENC** — external + speculative future levers.
+
