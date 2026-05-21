@@ -484,21 +484,26 @@ export default function useProData({ enabled = true } = {}) {
           for (const c of clusterLabels.clusters) {
             labelById[c.id] = c.label;
           }
+          // First pass: pre-set every graph node to neutral gray so the
+          // 1,762 nodes in ingredients.json that v3 doesn't cover (out
+          // of pairings/positions universe) don't fall through to
+          // taste-based blending. Without this, cyan/magenta/purple/grey
+          // taste colors leak through and visually break the v3 palette.
+          const V3_FALLBACK_HEX = '#5a5a6b';
+          for (const [, node] of graph.nodes) {
+            node.clusterColor = V3_FALLBACK_HEX;
+            node.primaryTier1Aroma = null;
+            node.clusterLabel = null;
+          }
+          // Second pass: override with the actual v3 cluster assignment.
           for (const [name, cid] of Object.entries(clusterLabels.ingredients)) {
             const node = graph.nodes.get(name);
             if (!node) continue;
             node.clusterId = cid;
-            // cid === -1 is HDBSCAN noise (Option B). No cluster color,
-            // no cluster label — node falls through to the taste-based
-            // default tint so it reads visually as "low confidence."
             if (cid >= 0) {
               node.clusterLabel = labelById[cid] ?? null;
               node.clusterColor = V3_CLUSTER_HEX[cid % V3_CLUSTER_HEX.length];
-            } else {
-              node.clusterLabel = null;
-              node.clusterColor = null;
             }
-            node.primaryTier1Aroma = null;
             node.clusterExplanation = undefined;
             node.clusterTopCuisines = undefined;
             node.clusterTopIngredients = undefined;
