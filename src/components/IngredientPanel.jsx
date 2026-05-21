@@ -5,6 +5,7 @@ import CuisineChip from './CuisineChip.jsx';
 import CuisineFilterPills from './CuisineFilterPills.jsx';
 import { getCuisinePair, displayableCuisine } from '../data/cuisinePairings.js';
 import PredictedProfile from './PredictedProfile.jsx';
+import FlavorGraphTree from './FlavorGraphTree.jsx';
 import SharedMoleculesCard from './SharedMoleculesCard.jsx';
 import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
 import FlavorPathCard from './FlavorPathCard.jsx';
@@ -439,11 +440,22 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             <SectionHeading>Properties</SectionHeading>
             <div className="flex flex-wrap gap-1.5">
               <PropertyBadge label="taste" value={taste} isTaste />
+              {node.flavorGraph?.tier1?.length > 0 && (
+                <PropertyBadge
+                  label="aroma"
+                  value={node.flavorGraph.tier1.join(', ')}
+                />
+              )}
               <PropertyBadge label="weight" value={weight} />
               <PropertyBadge label="volume" value={volume} />
               <PropertyBadge label="season" value={season} />
             </div>
           </section>
+        )}
+        {node.flavorGraph && (
+          <CollapsibleSection title="Flavor Graph" defaultOpen={true}>
+            <FlavorGraphTree node={node} />
+          </CollapsibleSection>
         )}
         {node.name && gnnEntropy && ingredientThresholds && (
           <CollapsibleSection title="Predicted profile">
@@ -890,6 +902,12 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             <SectionHeading>Properties</SectionHeading>
             <div className="flex flex-wrap gap-1.5">
               <PropertyBadge label="taste" value={taste} isTaste />
+              {node.flavorGraph?.tier1?.length > 0 && (
+                <PropertyBadge
+                  label="aroma"
+                  value={node.flavorGraph.tier1.join(', ')}
+                />
+              )}
               <PropertyBadge label="weight" value={weight} />
               <PropertyBadge label="volume" value={volume} />
               <PropertyBadge label="season" value={season} />

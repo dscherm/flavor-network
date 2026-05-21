@@ -202,7 +202,13 @@ export default function useProData({ enabled = true } = {}) {
         // if the positions file is missing.
         let positions;
         try {
-          const gnnRes = await fetch('/proDataset/gnn_positions.json');
+          // V3 toggle: swap the default ML-mode 3D layout to the corpus-wide
+          // UMAP from V3d so cluster centroids align with v3 clusters. Without
+          // this swap, the network shows v2 gnn_positions topology painted
+          // with v3 cluster colors → mismatched, nodes appear clustered wrong.
+          const gnnRes = await fetch(flavorV3Enabled()
+            ? '/proDataset/flavor_positions_v3.json'
+            : '/proDataset/gnn_positions.json');
           if (gnnRes.ok) {
             const gnnRaw = await gnnRes.json();
             const posMap = {};
@@ -337,7 +343,14 @@ export default function useProData({ enabled = true } = {}) {
         // so labels line up with the rendered nodes.
         let flavorClusterLabels = null;
         try {
-          const fclRes = await fetch('/proDataset/flavor_cluster_labels.json');
+          // V3 toggle: in flavor3D / mlflavor mode the cluster label
+          // sprites read from `data.flavorClusterLabels`. Point that at
+          // cluster_labels_v3.json (same shape: clusters[{id,label,size,
+          // centroid_3d}]) so v3 cluster labels actually render in the
+          // default flavor3D view.
+          const fclRes = await fetch(flavorV3Enabled()
+            ? '/proDataset/cluster_labels_v3.json'
+            : '/proDataset/flavor_cluster_labels.json');
           if (fclRes.ok) {
             flavorClusterLabels = await fclRes.json();
             const SPREAD = 3.0;
@@ -442,6 +455,19 @@ export default function useProData({ enabled = true } = {}) {
         // cluster_labels_v3.json. cluster_explanations.json has no v3
         // equivalent yet — explanation text + top-cuisines remain
         // v2-shaped (cleared so they don't reference stale v2 ids).
+        // Also: tint nodes by v3 cluster color (palette shared with
+        // LivingArchView's CLUSTER_HEX) so the 6 v3 clusters are
+        // visually distinguishable in flavor3D mode, where the cluster-
+        // palette path isn't otherwise wired. primaryTier1Aroma is
+        // cleared in v3 mode so the cluster color wins over the per-
+        // ingredient aroma color in NodeMesh.getColorForNode (otherwise
+        // chef rows would aroma-color over cluster, breaking the visual
+        // cluster boundary).
+        const V3_CLUSTER_HEX = [
+          '#f472b6', '#ea580c', '#22c55e',
+          '#dc2626', '#facc15', '#a855f7',
+          '#84cc16', '#b45309', '#78350f', '#64748b',
+        ];
         if (clusterLabels?.ingredients && Array.isArray(clusterLabels?.clusters)) {
           const labelById = {};
           for (const c of clusterLabels.clusters) {
@@ -451,7 +477,17 @@ export default function useProData({ enabled = true } = {}) {
             const node = graph.nodes.get(name);
             if (!node) continue;
             node.clusterId = cid;
-            node.clusterLabel = labelById[cid] ?? null;
+            // cid === -1 is HDBSCAN noise (Option B). No cluster color,
+            // no cluster label — node falls through to the taste-based
+            // default tint so it reads visually as "low confidence."
+            if (cid >= 0) {
+              node.clusterLabel = labelById[cid] ?? null;
+              node.clusterColor = V3_CLUSTER_HEX[cid % V3_CLUSTER_HEX.length];
+            } else {
+              node.clusterLabel = null;
+              node.clusterColor = null;
+            }
+            node.primaryTier1Aroma = null;
             node.clusterExplanation = undefined;
             node.clusterTopCuisines = undefined;
             node.clusterTopIngredients = undefined;
@@ -583,7 +619,13 @@ export default function useProData({ enabled = true } = {}) {
         // flavor_graph_data.json; GNN path (gnnProbs × ingredient_profile_
         // thresholds) for the ~3,824 long-tail ingredients. See
         // src/data/primaryTier1.js for the selector contract.
+        // In v3 mode, the cluster-color path drives node tinting (see
+        // the V3_CLUSTER_HEX block above). primaryTier1Aroma is left
+        // null so cluster color wins in NodeMesh.getColorForNode.
+        // flavorGraph decoration still runs because IngredientPanel
+        // chip-cloud rendering depends on it.
         const tier1Thresholds = buildTier1Thresholds(ingredientThresholds);
+        const v3Mode = flavorV3Enabled();
         for (const [name, node] of graph.nodes) {
           const entry = flavorGraph?.byName?.[name] ?? null;
           if (entry) {
@@ -596,10 +638,10 @@ export default function useProData({ enabled = true } = {}) {
               cluster: typeof entry.cluster === 'number' ? entry.cluster : null,
               source: 'chef',
             };
-            node.primaryTier1Aroma = entry.tier1?.[0] ?? null;
+            if (!v3Mode) node.primaryTier1Aroma = entry.tier1?.[0] ?? null;
           } else {
             node.flavorGraph = null;
-            node.primaryTier1Aroma = gnnPrimaryTier1(node.gnnProbs, tier1Thresholds);
+            if (!v3Mode) node.primaryTier1Aroma = gnnPrimaryTier1(node.gnnProbs, tier1Thresholds);
           }
         }
 

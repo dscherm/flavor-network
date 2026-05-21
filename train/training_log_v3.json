@@ -1,2102 +1,2102 @@
 [
   {
     "epoch": 0,
-    "contrastive": 0.08068741858005524,
-    "classification": 2.090116024017334,
-    "total": 0.6835160255432129,
+    "contrastive": 0.06839711219072342,
+    "classification": 2.0814476013183594,
+    "total": 0.6723122596740723,
     "clf_weight": 0.3
   },
   {
     "epoch": 1,
-    "contrastive": 0.021813740953803062,
-    "classification": 2.053696870803833,
-    "total": 0.631378710269928,
+    "contrastive": 0.021931415423750877,
+    "classification": 2.056213855743408,
+    "total": 0.632216215133667,
     "clf_weight": 0.3
   },
   {
     "epoch": 2,
-    "contrastive": 0.027348941192030907,
-    "classification": 2.0187172889709473,
-    "total": 0.6247594356536865,
+    "contrastive": 0.02425197884440422,
+    "classification": 2.036811113357544,
+    "total": 0.6280196905136108,
     "clf_weight": 0.3
   },
   {
     "epoch": 3,
-    "contrastive": 0.02854631282389164,
-    "classification": 1.9852895736694336,
-    "total": 0.6155692934989929,
+    "contrastive": 0.021684488281607628,
+    "classification": 2.016462802886963,
+    "total": 0.6201180219650269,
     "clf_weight": 0.3
   },
   {
     "epoch": 4,
-    "contrastive": 0.023712214082479477,
-    "classification": 1.9598170518875122,
-    "total": 0.6045436859130859,
+    "contrastive": 0.016481205821037292,
+    "classification": 1.993370532989502,
+    "total": 0.609548032283783,
     "clf_weight": 0.3
   },
   {
     "epoch": 5,
-    "contrastive": 0.01852191798388958,
-    "classification": 1.9481524229049683,
-    "total": 0.5974110960960388,
+    "contrastive": 0.013463658280670643,
+    "classification": 1.969499111175537,
+    "total": 0.6002743244171143,
     "clf_weight": 0.3
   },
   {
     "epoch": 6,
-    "contrastive": 0.015994323417544365,
-    "classification": 1.9437047243118286,
-    "total": 0.5943074822425842,
+    "contrastive": 0.013144406490027905,
+    "classification": 1.9487088918685913,
+    "total": 0.5938137769699097,
     "clf_weight": 0.3
   },
   {
     "epoch": 7,
-    "contrastive": 0.015578914433717728,
-    "classification": 1.9371765851974487,
-    "total": 0.5920582413673401,
+    "contrastive": 0.013870268128812313,
+    "classification": 1.934694766998291,
+    "total": 0.5901176333427429,
     "clf_weight": 0.3
   },
   {
     "epoch": 8,
-    "contrastive": 0.01547006145119667,
-    "classification": 1.934550166130066,
-    "total": 0.5911940932273865,
+    "contrastive": 0.014086213894188404,
+    "classification": 1.9242565631866455,
+    "total": 0.5871373414993286,
     "clf_weight": 0.3
   },
   {
     "epoch": 9,
-    "contrastive": 0.014663949608802795,
-    "classification": 1.932579755783081,
-    "total": 0.5900387167930603,
+    "contrastive": 0.013659017160534859,
+    "classification": 1.9150227308273315,
+    "total": 0.5840681195259094,
     "clf_weight": 0.3
   },
   {
     "epoch": 10,
-    "contrastive": 0.013339413329958916,
-    "classification": 1.9261351823806763,
-    "total": 0.5871781706809998,
+    "contrastive": 0.013291172683238983,
+    "classification": 1.9057163000106812,
+    "total": 0.5810187458992004,
     "clf_weight": 0.3
   },
   {
     "epoch": 11,
-    "contrastive": 0.012069877237081528,
-    "classification": 1.921484112739563,
-    "total": 0.5848941802978516,
+    "contrastive": 0.01355154812335968,
+    "classification": 1.8948642015457153,
+    "total": 0.577945351600647,
     "clf_weight": 0.3
   },
   {
     "epoch": 12,
-    "contrastive": 0.011232010088860989,
-    "classification": 1.9152649641036987,
-    "total": 0.5824419260025024,
+    "contrastive": 0.014743121340870857,
+    "classification": 1.8803647756576538,
+    "total": 0.5744296312332153,
     "clf_weight": 0.3
   },
   {
     "epoch": 13,
-    "contrastive": 0.011140923947095871,
-    "classification": 1.90413236618042,
-    "total": 0.5790383815765381,
+    "contrastive": 0.016701506450772285,
+    "classification": 1.861464500427246,
+    "total": 0.5701304078102112,
     "clf_weight": 0.3
   },
   {
     "epoch": 14,
-    "contrastive": 0.012331527657806873,
-    "classification": 1.8901722431182861,
-    "total": 0.5756837725639343,
+    "contrastive": 0.01952175982296467,
+    "classification": 1.8384455442428589,
+    "total": 0.5651989579200745,
     "clf_weight": 0.3
   },
   {
     "epoch": 15,
-    "contrastive": 0.014950756914913654,
-    "classification": 1.8720415830612183,
-    "total": 0.5720779895782471,
+    "contrastive": 0.02314615622162819,
+    "classification": 1.8121753931045532,
+    "total": 0.5598549842834473,
     "clf_weight": 0.3
   },
   {
     "epoch": 16,
-    "contrastive": 0.018169604241847992,
-    "classification": 1.8474857807159424,
-    "total": 0.5669645071029663,
+    "contrastive": 0.02685227058827877,
+    "classification": 1.7801501750946045,
+    "total": 0.5528416633605957,
     "clf_weight": 0.3
   },
   {
     "epoch": 17,
-    "contrastive": 0.021366138011217117,
-    "classification": 1.8210877180099487,
-    "total": 0.5612826347351074,
+    "contrastive": 0.03264253959059715,
+    "classification": 1.7588673830032349,
+    "total": 0.550510048866272,
     "clf_weight": 0.3
   },
   {
     "epoch": 18,
-    "contrastive": 0.025149013847112656,
-    "classification": 1.7872815132141113,
-    "total": 0.5537887811660767,
+    "contrastive": 0.03221716359257698,
+    "classification": 1.7915642261505127,
+    "total": 0.5600212812423706,
     "clf_weight": 0.3
   },
   {
     "epoch": 19,
-    "contrastive": 0.029473166912794113,
-    "classification": 1.7456454038619995,
-    "total": 0.5443248152732849,
+    "contrastive": 0.03361940383911133,
+    "classification": 1.7069553136825562,
+    "total": 0.5356202125549316,
     "clf_weight": 0.3
   },
   {
     "epoch": 20,
-    "contrastive": 0.036081913858652115,
-    "classification": 1.6950687170028687,
-    "total": 0.5337780117988586,
+    "contrastive": 0.03406757488846779,
+    "classification": 1.736372709274292,
+    "total": 0.5447590947151184,
     "clf_weight": 0.3
   },
   {
     "epoch": 21,
-    "contrastive": 0.043647460639476776,
-    "classification": 1.6510789394378662,
-    "total": 0.5258768796920776,
+    "contrastive": 0.029891658574342728,
+    "classification": 1.6839741468429565,
+    "total": 0.5261164307594299,
     "clf_weight": 0.3
   },
   {
     "epoch": 22,
-    "contrastive": 0.044476814568042755,
-    "classification": 1.6184123754501343,
-    "total": 0.5166574716567993,
+    "contrastive": 0.031499799340963364,
+    "classification": 1.6964678764343262,
+    "total": 0.5309902429580688,
     "clf_weight": 0.3
   },
   {
     "epoch": 23,
-    "contrastive": 0.042024824768304825,
-    "classification": 1.5944371223449707,
-    "total": 0.507748544216156,
+    "contrastive": 0.034755583852529526,
+    "classification": 1.6265004873275757,
+    "total": 0.5122790932655334,
     "clf_weight": 0.3
   },
   {
     "epoch": 24,
-    "contrastive": 0.04052840545773506,
-    "classification": 1.5717090368270874,
-    "total": 0.49988260865211487,
+    "contrastive": 0.03915146365761757,
+    "classification": 1.6456995010375977,
+    "total": 0.5211158990859985,
     "clf_weight": 0.3
   },
   {
     "epoch": 25,
-    "contrastive": 0.045507047325372696,
-    "classification": 1.5581870079040527,
-    "total": 0.49931105971336365,
+    "contrastive": 0.037614934146404266,
+    "classification": 1.5858731269836426,
+    "total": 0.5020924210548401,
     "clf_weight": 0.3
   },
   {
     "epoch": 26,
-    "contrastive": 0.04853355884552002,
-    "classification": 1.5761005878448486,
-    "total": 0.5068036913871765,
+    "contrastive": 0.0361032597720623,
+    "classification": 1.608120322227478,
+    "total": 0.5077084302902222,
     "clf_weight": 0.3
   },
   {
     "epoch": 27,
-    "contrastive": 0.053862977772951126,
-    "classification": 1.4555968046188354,
-    "total": 0.474383145570755,
+    "contrastive": 0.035514749586582184,
+    "classification": 1.5643824338912964,
+    "total": 0.4941750764846802,
     "clf_weight": 0.3
   },
   {
     "epoch": 28,
-    "contrastive": 0.0550457239151001,
-    "classification": 1.496424674987793,
-    "total": 0.4874594509601593,
+    "contrastive": 0.038182225078344345,
+    "classification": 1.5649422407150269,
+    "total": 0.4962102472782135,
     "clf_weight": 0.3
   },
   {
     "epoch": 29,
-    "contrastive": 0.05356810986995697,
-    "classification": 1.4256341457366943,
-    "total": 0.4651879370212555,
+    "contrastive": 0.04143502935767174,
+    "classification": 1.5226157903671265,
+    "total": 0.4857892692089081,
     "clf_weight": 0.3
   },
   {
     "epoch": 30,
-    "contrastive": 0.051959242671728134,
-    "classification": 1.427927851676941,
-    "total": 0.46474984288215637,
+    "contrastive": 0.044939327985048294,
+    "classification": 1.514480710029602,
+    "total": 0.4858017563819885,
     "clf_weight": 0.3
   },
   {
     "epoch": 31,
-    "contrastive": 0.05370825529098511,
-    "classification": 1.3676228523254395,
-    "total": 0.44788265228271484,
+    "contrastive": 0.03958924487233162,
+    "classification": 1.496550440788269,
+    "total": 0.47667762637138367,
     "clf_weight": 0.3
   },
   {
     "epoch": 32,
-    "contrastive": 0.05462279170751572,
-    "classification": 1.356284499168396,
-    "total": 0.44512131810188293,
+    "contrastive": 0.036676373332738876,
+    "classification": 1.4954564571380615,
+    "total": 0.47431039810180664,
     "clf_weight": 0.3
   },
   {
     "epoch": 33,
-    "contrastive": 0.056245364248752594,
-    "classification": 1.3035601377487183,
-    "total": 0.430439829826355,
+    "contrastive": 0.03705752268433571,
+    "classification": 1.4752182960510254,
+    "total": 0.46850576996803284,
     "clf_weight": 0.3
   },
   {
     "epoch": 34,
-    "contrastive": 0.05617493763566017,
-    "classification": 1.304205298423767,
-    "total": 0.4305840730667114,
+    "contrastive": 0.03949690982699394,
+    "classification": 1.45323646068573,
+    "total": 0.46361878514289856,
     "clf_weight": 0.3
   },
   {
     "epoch": 35,
-    "contrastive": 0.061721112579107285,
-    "classification": 1.2458535432815552,
-    "total": 0.41696086525917053,
+    "contrastive": 0.044063299894332886,
+    "classification": 1.4244869947433472,
+    "total": 0.4581904113292694,
     "clf_weight": 0.3
   },
   {
     "epoch": 36,
-    "contrastive": 0.05890180543065071,
-    "classification": 1.2915871143341064,
-    "total": 0.42870742082595825,
+    "contrastive": 0.047089554369449615,
+    "classification": 1.3997681140899658,
+    "total": 0.45289313793182373,
     "clf_weight": 0.3
   },
   {
     "epoch": 37,
-    "contrastive": 0.06248224526643753,
-    "classification": 1.1731171607971191,
-    "total": 0.3956727087497711,
+    "contrastive": 0.04763393476605415,
+    "classification": 1.3757201433181763,
+    "total": 0.44605982303619385,
     "clf_weight": 0.3
   },
   {
     "epoch": 38,
-    "contrastive": 0.06340936571359634,
-    "classification": 1.1802481412887573,
-    "total": 0.3984610140323639,
+    "contrastive": 0.048169199377298355,
+    "classification": 1.3575916290283203,
+    "total": 0.4409959316253662,
     "clf_weight": 0.3
   },
   {
     "epoch": 39,
-    "contrastive": 0.062168292701244354,
-    "classification": 1.145466685295105,
-    "total": 0.3871578276157379,
+    "contrastive": 0.049146782606840134,
+    "classification": 1.3285934925079346,
+    "total": 0.43298083543777466,
     "clf_weight": 0.3
   },
   {
     "epoch": 40,
-    "contrastive": 0.0645817443728447,
-    "classification": 1.124671459197998,
-    "total": 0.38260868191719055,
+    "contrastive": 0.05472197383642197,
+    "classification": 1.2978442907333374,
+    "total": 0.42765867710113525,
     "clf_weight": 0.3
   },
   {
     "epoch": 41,
-    "contrastive": 0.06372364610433578,
-    "classification": 1.0691484212875366,
-    "total": 0.3653510808944702,
+    "contrastive": 0.0637352243065834,
+    "classification": 1.2575037479400635,
+    "total": 0.4218658208847046,
     "clf_weight": 0.3
   },
   {
     "epoch": 42,
-    "contrastive": 0.06264329701662064,
-    "classification": 1.0741164684295654,
-    "total": 0.3660852611064911,
+    "contrastive": 0.053308356553316116,
+    "classification": 1.263118028640747,
+    "total": 0.4162512719631195,
     "clf_weight": 0.3
   },
   {
     "epoch": 43,
-    "contrastive": 0.06602275371551514,
-    "classification": 1.0557218790054321,
-    "total": 0.3629325032234192,
+    "contrastive": 0.05358754098415375,
+    "classification": 1.2375876903533936,
+    "total": 0.4087876081466675,
     "clf_weight": 0.3
   },
   {
     "epoch": 44,
-    "contrastive": 0.06632181257009506,
-    "classification": 0.9850138425827026,
-    "total": 0.34192943572998047,
+    "contrastive": 0.06474939733743668,
+    "classification": 1.1973838806152344,
+    "total": 0.4045397639274597,
     "clf_weight": 0.3
   },
   {
     "epoch": 45,
-    "contrastive": 0.06810835748910904,
-    "classification": 0.9841582179069519,
-    "total": 0.3429233133792877,
+    "contrastive": 0.05840487405657768,
+    "classification": 1.2013028860092163,
+    "total": 0.40127429366111755,
     "clf_weight": 0.3
   },
   {
     "epoch": 46,
-    "contrastive": 0.07147608697414398,
-    "classification": 0.9451796412467957,
-    "total": 0.3335871696472168,
+    "contrastive": 0.060337621718645096,
+    "classification": 1.1608847379684448,
+    "total": 0.3905017673969269,
     "clf_weight": 0.3
   },
   {
     "epoch": 47,
-    "contrastive": 0.06928705424070358,
-    "classification": 0.9278416633605957,
-    "total": 0.3268534243106842,
+    "contrastive": 0.057982057332992554,
+    "classification": 1.1479060649871826,
+    "total": 0.38495928049087524,
     "clf_weight": 0.3
   },
   {
     "epoch": 48,
-    "contrastive": 0.06938989460468292,
-    "classification": 0.89112389087677,
-    "total": 0.31591010093688965,
+    "contrastive": 0.057801082730293274,
+    "classification": 1.1383259296417236,
+    "total": 0.381958544254303,
     "clf_weight": 0.3
   },
   {
     "epoch": 49,
-    "contrastive": 0.06979471445083618,
-    "classification": 0.8715827465057373,
-    "total": 0.3103311359882355,
+    "contrastive": 0.07393096387386322,
+    "classification": 1.109269142150879,
+    "total": 0.3845324218273163,
     "clf_weight": 0.3
   },
   {
     "epoch": 50,
-    "contrastive": 0.06880255043506622,
-    "classification": 0.8773846626281738,
-    "total": 0.3113771975040436,
+    "contrastive": 0.05262751504778862,
+    "classification": 1.171626329421997,
+    "total": 0.3883271813392639,
     "clf_weight": 0.3
   },
   {
     "epoch": 51,
-    "contrastive": 0.07166703790426254,
-    "classification": 0.8463721871376038,
-    "total": 0.304078608751297,
+    "contrastive": 0.04911917448043823,
+    "classification": 1.1993876695632935,
+    "total": 0.3941997289657593,
     "clf_weight": 0.3
   },
   {
     "epoch": 52,
-    "contrastive": 0.07190968841314316,
-    "classification": 0.8124337196350098,
-    "total": 0.2940669059753418,
+    "contrastive": 0.053052499890327454,
+    "classification": 1.1188369989395142,
+    "total": 0.37278783321380615,
     "clf_weight": 0.3
   },
   {
     "epoch": 53,
-    "contrastive": 0.07283270359039307,
-    "classification": 0.7866572141647339,
-    "total": 0.2869800627231598,
+    "contrastive": 0.06279877573251724,
+    "classification": 1.0715922117233276,
+    "total": 0.3654368221759796,
     "clf_weight": 0.3
   },
   {
     "epoch": 54,
-    "contrastive": 0.0729898065328598,
-    "classification": 0.8006807565689087,
-    "total": 0.2912970781326294,
+    "contrastive": 0.06737450510263443,
+    "classification": 1.055576205253601,
+    "total": 0.36383500695228577,
     "clf_weight": 0.3
   },
   {
     "epoch": 55,
-    "contrastive": 0.07128839939832687,
-    "classification": 0.7543497681617737,
-    "total": 0.2762068212032318,
+    "contrastive": 0.05318557471036911,
+    "classification": 1.0572311878204346,
+    "total": 0.35439926385879517,
     "clf_weight": 0.3
   },
   {
     "epoch": 56,
-    "contrastive": 0.07045572251081467,
-    "classification": 0.7366654276847839,
-    "total": 0.2703186571598053,
+    "contrastive": 0.05282210186123848,
+    "classification": 1.0540450811386108,
+    "total": 0.35318902134895325,
     "clf_weight": 0.3
   },
   {
     "epoch": 57,
-    "contrastive": 0.06962482631206512,
-    "classification": 0.7474421262741089,
-    "total": 0.2729700207710266,
+    "contrastive": 0.05902474746108055,
+    "classification": 1.0229581594467163,
+    "total": 0.34820476174354553,
     "clf_weight": 0.3
   },
   {
     "epoch": 58,
-    "contrastive": 0.06957782804965973,
-    "classification": 0.7582235932350159,
-    "total": 0.27617156505584717,
+    "contrastive": 0.06239194795489311,
+    "classification": 0.9898989796638489,
+    "total": 0.34064406156539917,
     "clf_weight": 0.3
   },
   {
     "epoch": 59,
-    "contrastive": 0.06945934891700745,
-    "classification": 0.755658745765686,
-    "total": 0.2753191888332367,
+    "contrastive": 0.06001589074730873,
+    "classification": 0.9879913330078125,
+    "total": 0.33840852975845337,
     "clf_weight": 0.3
   },
   {
     "epoch": 60,
-    "contrastive": 0.07039530575275421,
-    "classification": 0.7037803530693054,
-    "total": 0.2604108452796936,
+    "contrastive": 0.0599927194416523,
+    "classification": 0.9868136048316956,
+    "total": 0.33803898096084595,
     "clf_weight": 0.3
   },
   {
     "epoch": 61,
-    "contrastive": 0.06915715336799622,
-    "classification": 0.6934753060340881,
-    "total": 0.25645262002944946,
+    "contrastive": 0.058598607778549194,
+    "classification": 0.9551937580108643,
+    "total": 0.3275771737098694,
     "clf_weight": 0.3
   },
   {
     "epoch": 62,
-    "contrastive": 0.06854654848575592,
-    "classification": 0.6677393317222595,
-    "total": 0.24830439686775208,
+    "contrastive": 0.06135272979736328,
+    "classification": 0.9377480745315552,
+    "total": 0.3242713510990143,
     "clf_weight": 0.3
   },
   {
     "epoch": 63,
-    "contrastive": 0.06786186248064041,
-    "classification": 0.6608361601829529,
-    "total": 0.2457541674375534,
+    "contrastive": 0.06188805773854256,
+    "classification": 0.9305048584938049,
+    "total": 0.32247310876846313,
     "clf_weight": 0.3
   },
   {
     "epoch": 64,
-    "contrastive": 0.06692428886890411,
-    "classification": 0.662414014339447,
-    "total": 0.24557121098041534,
+    "contrastive": 0.05843973904848099,
+    "classification": 0.914945125579834,
+    "total": 0.3153913617134094,
     "clf_weight": 0.3
   },
   {
     "epoch": 65,
-    "contrastive": 0.06751109659671783,
-    "classification": 0.6584477424621582,
-    "total": 0.24479210376739502,
+    "contrastive": 0.05964542552828789,
+    "classification": 0.9170631170272827,
+    "total": 0.3168707489967346,
     "clf_weight": 0.3
   },
   {
     "epoch": 66,
-    "contrastive": 0.06759508699178696,
-    "classification": 0.6145999431610107,
-    "total": 0.23169654607772827,
+    "contrastive": 0.06151019036769867,
+    "classification": 0.9205210208892822,
+    "total": 0.3192134499549866,
     "clf_weight": 0.3
   },
   {
     "epoch": 67,
-    "contrastive": 0.06759513169527054,
-    "classification": 0.6167443990707397,
-    "total": 0.23233991861343384,
+    "contrastive": 0.0704565942287445,
+    "classification": 0.8948656916618347,
+    "total": 0.3177793323993683,
     "clf_weight": 0.3
   },
   {
     "epoch": 68,
-    "contrastive": 0.06743057817220688,
-    "classification": 0.6210784316062927,
-    "total": 0.23352494835853577,
+    "contrastive": 0.06297624856233597,
+    "classification": 0.8578375577926636,
+    "total": 0.30143463611602783,
     "clf_weight": 0.3
   },
   {
     "epoch": 69,
-    "contrastive": 0.06509380042552948,
-    "classification": 0.5835797786712646,
-    "total": 0.22063960134983063,
+    "contrastive": 0.05893953889608383,
+    "classification": 0.8755525350570679,
+    "total": 0.30392345786094666,
     "clf_weight": 0.3
   },
   {
     "epoch": 70,
-    "contrastive": 0.06417640298604965,
-    "classification": 0.5827735066413879,
-    "total": 0.21975554525852203,
+    "contrastive": 0.05918441340327263,
+    "classification": 0.8854817748069763,
+    "total": 0.3070736527442932,
     "clf_weight": 0.3
   },
   {
     "epoch": 71,
-    "contrastive": 0.06509498506784439,
-    "classification": 0.5990274548530579,
-    "total": 0.2252747267484665,
+    "contrastive": 0.06064026802778244,
+    "classification": 0.8342006206512451,
+    "total": 0.2927083969116211,
     "clf_weight": 0.3
   },
   {
     "epoch": 72,
-    "contrastive": 0.06651028245687485,
-    "classification": 0.5992041826248169,
-    "total": 0.22631844878196716,
+    "contrastive": 0.06431803107261658,
+    "classification": 0.8116555213928223,
+    "total": 0.2885192930698395,
     "clf_weight": 0.3
   },
   {
     "epoch": 73,
-    "contrastive": 0.06697849929332733,
-    "classification": 0.5722641944885254,
-    "total": 0.2185642123222351,
+    "contrastive": 0.06357332319021225,
+    "classification": 0.8465024828910828,
+    "total": 0.29845207929611206,
     "clf_weight": 0.3
   },
   {
     "epoch": 74,
-    "contrastive": 0.06754406541585922,
-    "classification": 0.5903728604316711,
-    "total": 0.22439271211624146,
+    "contrastive": 0.06540454179048538,
+    "classification": 0.851426899433136,
+    "total": 0.30121123790740967,
     "clf_weight": 0.3
   },
   {
     "epoch": 75,
-    "contrastive": 0.0664350613951683,
-    "classification": 0.5228223204612732,
-    "total": 0.2033512443304062,
+    "contrastive": 0.06253092736005783,
+    "classification": 0.8588229417800903,
+    "total": 0.3014185428619385,
     "clf_weight": 0.3
   },
   {
     "epoch": 76,
-    "contrastive": 0.06447630375623703,
-    "classification": 0.5253293514251709,
-    "total": 0.20273222029209137,
+    "contrastive": 0.06713317334651947,
+    "classification": 0.8184765577316284,
+    "total": 0.292536199092865,
     "clf_weight": 0.3
   },
   {
     "epoch": 77,
-    "contrastive": 0.06237511336803436,
-    "classification": 0.5456010699272156,
-    "total": 0.20734290778636932,
+    "contrastive": 0.06283672153949738,
+    "classification": 0.7566218376159668,
+    "total": 0.27097225189208984,
     "clf_weight": 0.3
   },
   {
     "epoch": 78,
-    "contrastive": 0.06146184727549553,
-    "classification": 0.532645583152771,
-    "total": 0.20281696319580078,
+    "contrastive": 0.059427402913570404,
+    "classification": 0.8117899298667908,
+    "total": 0.2851361632347107,
     "clf_weight": 0.3
   },
   {
     "epoch": 79,
-    "contrastive": 0.06268829107284546,
-    "classification": 0.5523375868797302,
-    "total": 0.2095830887556076,
+    "contrastive": 0.06307204067707062,
+    "classification": 0.7681970000267029,
+    "total": 0.2746095359325409,
     "clf_weight": 0.3
   },
   {
     "epoch": 80,
-    "contrastive": 0.06426180899143219,
-    "classification": 0.5175222754478455,
-    "total": 0.20023995637893677,
+    "contrastive": 0.06408514082431793,
+    "classification": 0.7353137135505676,
+    "total": 0.2654537260532379,
     "clf_weight": 0.3
   },
   {
     "epoch": 81,
-    "contrastive": 0.06259762495756149,
-    "classification": 0.48012518882751465,
-    "total": 0.18785589933395386,
+    "contrastive": 0.061749182641506195,
+    "classification": 0.7496119737625122,
+    "total": 0.2681080400943756,
     "clf_weight": 0.3
   },
   {
     "epoch": 82,
-    "contrastive": 0.05973400920629501,
-    "classification": 0.508727490901947,
-    "total": 0.1944320648908615,
+    "contrastive": 0.06215926632285118,
+    "classification": 0.722943902015686,
+    "total": 0.2603946626186371,
     "clf_weight": 0.3
   },
   {
     "epoch": 83,
-    "contrastive": 0.05910653993487358,
-    "classification": 0.4984864592552185,
-    "total": 0.19092051684856415,
+    "contrastive": 0.06288681924343109,
+    "classification": 0.7203526496887207,
+    "total": 0.26012659072875977,
     "clf_weight": 0.3
   },
   {
     "epoch": 84,
-    "contrastive": 0.058991938829422,
-    "classification": 0.5094058513641357,
-    "total": 0.19411611557006836,
+    "contrastive": 0.0633162185549736,
+    "classification": 0.6892223954200745,
+    "total": 0.25108808279037476,
     "clf_weight": 0.3
   },
   {
     "epoch": 85,
-    "contrastive": 0.05865895748138428,
-    "classification": 0.4857303202152252,
-    "total": 0.18678036332130432,
+    "contrastive": 0.06329169869422913,
+    "classification": 0.6972754001617432,
+    "total": 0.2534868121147156,
     "clf_weight": 0.3
   },
   {
     "epoch": 86,
-    "contrastive": 0.05977661535143852,
-    "classification": 0.4498729407787323,
-    "total": 0.1768055260181427,
+    "contrastive": 0.0634244754910469,
+    "classification": 0.6704681515693665,
+    "total": 0.24553757905960083,
     "clf_weight": 0.3
   },
   {
     "epoch": 87,
-    "contrastive": 0.060249216854572296,
-    "classification": 0.459847092628479,
-    "total": 0.1801285743713379,
+    "contrastive": 0.06407765299081802,
+    "classification": 0.6646984815597534,
+    "total": 0.2442639172077179,
     "clf_weight": 0.3
   },
   {
     "epoch": 88,
-    "contrastive": 0.058008741587400436,
-    "classification": 0.45091140270233154,
-    "total": 0.17587953805923462,
+    "contrastive": 0.06419467180967331,
+    "classification": 0.6495100259780884,
+    "total": 0.23978929221630096,
     "clf_weight": 0.3
   },
   {
     "epoch": 89,
-    "contrastive": 0.055416278541088104,
-    "classification": 0.46401315927505493,
-    "total": 0.17799535393714905,
+    "contrastive": 0.06334714591503143,
+    "classification": 0.6479977965354919,
+    "total": 0.23874235153198242,
     "clf_weight": 0.3
   },
   {
     "epoch": 90,
-    "contrastive": 0.05568182095885277,
-    "classification": 0.4444856643676758,
-    "total": 0.17232298851013184,
+    "contrastive": 0.06334692984819412,
+    "classification": 0.6448660492897034,
+    "total": 0.2378026694059372,
     "clf_weight": 0.3
   },
   {
     "epoch": 91,
-    "contrastive": 0.05675489827990532,
-    "classification": 0.4385240077972412,
-    "total": 0.17128564417362213,
+    "contrastive": 0.06362733244895935,
+    "classification": 0.6321772336959839,
+    "total": 0.23419231176376343,
     "clf_weight": 0.3
   },
   {
     "epoch": 92,
-    "contrastive": 0.056706752628088,
-    "classification": 0.42203235626220703,
-    "total": 0.16630443930625916,
+    "contrastive": 0.0644276961684227,
+    "classification": 0.6350566148757935,
+    "total": 0.23561638593673706,
     "clf_weight": 0.3
   },
   {
     "epoch": 93,
-    "contrastive": 0.057007335126399994,
-    "classification": 0.4152151644229889,
-    "total": 0.16446968913078308,
+    "contrastive": 0.06582197546958923,
+    "classification": 0.6171438694000244,
+    "total": 0.23121854662895203,
     "clf_weight": 0.3
   },
   {
     "epoch": 94,
-    "contrastive": 0.05745965242385864,
-    "classification": 0.41090336441993713,
-    "total": 0.16349276900291443,
+    "contrastive": 0.06297323852777481,
+    "classification": 0.624682605266571,
+    "total": 0.23148605227470398,
     "clf_weight": 0.3
   },
   {
     "epoch": 95,
-    "contrastive": 0.055826541036367416,
-    "classification": 0.4034191370010376,
-    "total": 0.16010433435440063,
+    "contrastive": 0.060993269085884094,
+    "classification": 0.6114361882209778,
+    "total": 0.22612614929676056,
     "clf_weight": 0.3
   },
   {
     "epoch": 96,
-    "contrastive": 0.05406344681978226,
-    "classification": 0.41385558247566223,
-    "total": 0.1620010882616043,
+    "contrastive": 0.06299407035112381,
+    "classification": 0.6093162298202515,
+    "total": 0.2268907129764557,
     "clf_weight": 0.3
   },
   {
     "epoch": 97,
-    "contrastive": 0.05464237183332443,
-    "classification": 0.41112247109413147,
-    "total": 0.16158640384674072,
+    "contrastive": 0.06380512565374374,
+    "classification": 0.5901070237159729,
+    "total": 0.2216956913471222,
     "clf_weight": 0.3
   },
   {
     "epoch": 98,
-    "contrastive": 0.05546283349394798,
-    "classification": 0.4230485260486603,
-    "total": 0.1657385528087616,
+    "contrastive": 0.06289053708314896,
+    "classification": 0.5748079419136047,
+    "total": 0.2164657711982727,
     "clf_weight": 0.3
   },
   {
     "epoch": 99,
-    "contrastive": 0.05516630783677101,
-    "classification": 0.44445592164993286,
-    "total": 0.1719532012939453,
+    "contrastive": 0.062024958431720734,
+    "classification": 0.5629821419715881,
+    "total": 0.21231211721897125,
     "clf_weight": 0.3
   },
   {
     "epoch": 100,
-    "contrastive": 0.05637882277369499,
-    "classification": 0.5408598184585571,
-    "total": 0.2017231285572052,
+    "contrastive": 0.06308703124523163,
+    "classification": 0.5564945936203003,
+    "total": 0.21110929548740387,
     "clf_weight": 0.3
   },
   {
     "epoch": 101,
-    "contrastive": 0.05780548229813576,
-    "classification": 0.5459173917770386,
-    "total": 0.20423905551433563,
+    "contrastive": 0.06342665106058121,
+    "classification": 0.557731032371521,
+    "total": 0.21171796321868896,
     "clf_weight": 0.3
   },
   {
     "epoch": 102,
-    "contrastive": 0.05911106616258621,
-    "classification": 0.4368830621242523,
-    "total": 0.17244267463684082,
+    "contrastive": 0.059788551181554794,
+    "classification": 0.5700997114181519,
+    "total": 0.2128819078207016,
     "clf_weight": 0.3
   },
   {
     "epoch": 103,
-    "contrastive": 0.05782651528716087,
-    "classification": 0.42735525965690613,
-    "total": 0.16868513822555542,
+    "contrastive": 0.06075840815901756,
+    "classification": 0.5834892988204956,
+    "total": 0.21757769584655762,
     "clf_weight": 0.3
   },
   {
     "epoch": 104,
-    "contrastive": 0.055939994752407074,
-    "classification": 0.4579767882823944,
-    "total": 0.17655104398727417,
+    "contrastive": 0.060366932302713394,
+    "classification": 0.625785231590271,
+    "total": 0.22999241948127747,
     "clf_weight": 0.3
   },
   {
     "epoch": 105,
-    "contrastive": 0.055406711995601654,
-    "classification": 0.4005642235279083,
-    "total": 0.1589539647102356,
+    "contrastive": 0.06252811849117279,
+    "classification": 0.6757997870445251,
+    "total": 0.2465096265077591,
     "clf_weight": 0.3
   },
   {
     "epoch": 106,
-    "contrastive": 0.05468190461397171,
-    "classification": 0.41459450125694275,
-    "total": 0.16265568137168884,
+    "contrastive": 0.061553698033094406,
+    "classification": 0.8071861863136292,
+    "total": 0.2852434515953064,
     "clf_weight": 0.3
   },
   {
     "epoch": 107,
-    "contrastive": 0.05265156924724579,
-    "classification": 0.39401763677597046,
-    "total": 0.15506139397621155,
+    "contrastive": 0.06352736055850983,
+    "classification": 0.573545515537262,
+    "total": 0.21653281152248383,
     "clf_weight": 0.3
   },
   {
     "epoch": 108,
-    "contrastive": 0.0527442991733551,
-    "classification": 0.39713406562805176,
-    "total": 0.15606123208999634,
+    "contrastive": 0.06563567370176315,
+    "classification": 0.7118093371391296,
+    "total": 0.2594877779483795,
     "clf_weight": 0.3
   },
   {
     "epoch": 109,
-    "contrastive": 0.053147707134485245,
-    "classification": 0.4010277986526489,
-    "total": 0.15751174092292786,
+    "contrastive": 0.06706160306930542,
+    "classification": 0.8334858417510986,
+    "total": 0.29698890447616577,
     "clf_weight": 0.3
   },
   {
     "epoch": 110,
-    "contrastive": 0.05118584260344505,
-    "classification": 0.3754192292690277,
-    "total": 0.14845585823059082,
+    "contrastive": 0.06609934568405151,
+    "classification": 0.7184816598892212,
+    "total": 0.26181405782699585,
     "clf_weight": 0.3
   },
   {
     "epoch": 111,
-    "contrastive": 0.04963041841983795,
-    "classification": 0.40234580636024475,
-    "total": 0.15544503927230835,
+    "contrastive": 0.06700257211923599,
+    "classification": 0.6537595391273499,
+    "total": 0.24302968382835388,
     "clf_weight": 0.3
   },
   {
     "epoch": 112,
-    "contrastive": 0.05106914043426514,
-    "classification": 0.35106396675109863,
-    "total": 0.14106759428977966,
+    "contrastive": 0.0668768435716629,
+    "classification": 0.6634489297866821,
+    "total": 0.24584847688674927,
     "clf_weight": 0.3
   },
   {
     "epoch": 113,
-    "contrastive": 0.05248243734240532,
-    "classification": 0.3718488812446594,
-    "total": 0.14829237759113312,
+    "contrastive": 0.06525250524282455,
+    "classification": 0.5637437701225281,
+    "total": 0.2147998958826065,
     "clf_weight": 0.3
   },
   {
     "epoch": 114,
-    "contrastive": 0.05197780951857567,
-    "classification": 0.345515638589859,
-    "total": 0.14003916084766388,
+    "contrastive": 0.06162036955356598,
+    "classification": 0.6747705936431885,
+    "total": 0.24556544423103333,
     "clf_weight": 0.3
   },
   {
     "epoch": 115,
-    "contrastive": 0.051565539091825485,
-    "classification": 0.36806994676589966,
-    "total": 0.1465168595314026,
+    "contrastive": 0.05954885482788086,
+    "classification": 0.5848274827003479,
+    "total": 0.21713244915008545,
     "clf_weight": 0.3
   },
   {
     "epoch": 116,
-    "contrastive": 0.05274856835603714,
-    "classification": 0.3546541631221771,
-    "total": 0.1433202475309372,
+    "contrastive": 0.05802062153816223,
+    "classification": 0.5598704218864441,
+    "total": 0.20857557654380798,
     "clf_weight": 0.3
   },
   {
     "epoch": 117,
-    "contrastive": 0.052203383296728134,
-    "classification": 0.3666229844093323,
-    "total": 0.14652927219867706,
+    "contrastive": 0.05933954194188118,
+    "classification": 0.6301736831665039,
+    "total": 0.23058980703353882,
     "clf_weight": 0.3
   },
   {
     "epoch": 118,
-    "contrastive": 0.050888970494270325,
-    "classification": 0.3518574833869934,
-    "total": 0.14117953181266785,
+    "contrastive": 0.06401645392179489,
+    "classification": 0.5363870859146118,
+    "total": 0.20572765171527863,
     "clf_weight": 0.3
   },
   {
     "epoch": 119,
-    "contrastive": 0.04984870180487633,
-    "classification": 0.3579866588115692,
-    "total": 0.14229008555412292,
+    "contrastive": 0.06138131022453308,
+    "classification": 0.5526408553123474,
+    "total": 0.20875917375087738,
     "clf_weight": 0.3
   },
   {
     "epoch": 120,
-    "contrastive": 0.05078517273068428,
-    "classification": 0.35394781827926636,
-    "total": 0.14173397421836853,
+    "contrastive": 0.0558481365442276,
+    "classification": 0.596668541431427,
+    "total": 0.21809425950050354,
     "clf_weight": 0.3
   },
   {
     "epoch": 121,
-    "contrastive": 0.05095069110393524,
-    "classification": 0.3517049252986908,
-    "total": 0.1411769688129425,
+    "contrastive": 0.05496767535805702,
+    "classification": 0.5332050919532776,
+    "total": 0.19843891263008118,
     "clf_weight": 0.3
   },
   {
     "epoch": 122,
-    "contrastive": 0.050890449434518814,
-    "classification": 0.34179502725601196,
-    "total": 0.1381618231534958,
+    "contrastive": 0.05671008676290512,
+    "classification": 0.52888423204422,
+    "total": 0.1983623206615448,
     "clf_weight": 0.3
   },
   {
     "epoch": 123,
-    "contrastive": 0.0504998154938221,
-    "classification": 0.33328866958618164,
-    "total": 0.1353364735841751,
+    "contrastive": 0.05688118189573288,
+    "classification": 0.5561625361442566,
+    "total": 0.20666559040546417,
     "clf_weight": 0.3
   },
   {
     "epoch": 124,
-    "contrastive": 0.051458630710840225,
-    "classification": 0.3191109597682953,
-    "total": 0.1317543387413025,
+    "contrastive": 0.05612257122993469,
+    "classification": 0.5237870812416077,
+    "total": 0.19642192125320435,
     "clf_weight": 0.3
   },
   {
     "epoch": 125,
-    "contrastive": 0.050950780510902405,
-    "classification": 0.31718775629997253,
-    "total": 0.13082188367843628,
+    "contrastive": 0.05546887591481209,
+    "classification": 0.5084016919136047,
+    "total": 0.19134871661663055,
     "clf_weight": 0.3
   },
   {
     "epoch": 126,
-    "contrastive": 0.049232374876737595,
-    "classification": 0.30514785647392273,
-    "total": 0.12600702047348022,
+    "contrastive": 0.05460551381111145,
+    "classification": 0.5256787538528442,
+    "total": 0.19592750072479248,
     "clf_weight": 0.3
   },
   {
     "epoch": 127,
-    "contrastive": 0.04821491241455078,
-    "classification": 0.3197758197784424,
-    "total": 0.12968319654464722,
+    "contrastive": 0.05428584665060043,
+    "classification": 0.519391655921936,
+    "total": 0.193817600607872,
     "clf_weight": 0.3
   },
   {
     "epoch": 128,
-    "contrastive": 0.04898073896765709,
-    "classification": 0.31160473823547363,
-    "total": 0.12776793539524078,
+    "contrastive": 0.05511154234409332,
+    "classification": 0.49155953526496887,
+    "total": 0.18604594469070435,
     "clf_weight": 0.3
   },
   {
     "epoch": 129,
-    "contrastive": 0.050034571439027786,
-    "classification": 0.3232208490371704,
-    "total": 0.1319904625415802,
+    "contrastive": 0.05611846223473549,
+    "classification": 0.4950750768184662,
+    "total": 0.1878054440021515,
     "clf_weight": 0.3
   },
   {
     "epoch": 130,
-    "contrastive": 0.04925985261797905,
-    "classification": 0.3128322958946228,
-    "total": 0.12833160161972046,
+    "contrastive": 0.056211184710264206,
+    "classification": 0.4996163249015808,
+    "total": 0.189232736825943,
     "clf_weight": 0.3
   },
   {
     "epoch": 131,
-    "contrastive": 0.04861333966255188,
-    "classification": 0.3080756664276123,
-    "total": 0.12645204365253448,
+    "contrastive": 0.05549909919500351,
+    "classification": 0.47821423411369324,
+    "total": 0.18231365084648132,
     "clf_weight": 0.3
   },
   {
     "epoch": 132,
-    "contrastive": 0.04850774258375168,
-    "classification": 0.2968772351741791,
-    "total": 0.12301859259605408,
+    "contrastive": 0.054391976445913315,
+    "classification": 0.47632715106010437,
+    "total": 0.18097254633903503,
     "clf_weight": 0.3
   },
   {
     "epoch": 133,
-    "contrastive": 0.04829944297671318,
-    "classification": 0.291148841381073,
-    "total": 0.12115426361560822,
+    "contrastive": 0.05422092601656914,
+    "classification": 0.48316115140914917,
+    "total": 0.182902991771698,
     "clf_weight": 0.3
   },
   {
     "epoch": 134,
-    "contrastive": 0.04755542799830437,
-    "classification": 0.2824246883392334,
-    "total": 0.11801620572805405,
+    "contrastive": 0.05535408481955528,
+    "classification": 0.468040406703949,
+    "total": 0.1791599839925766,
     "clf_weight": 0.3
   },
   {
     "epoch": 135,
-    "contrastive": 0.04714248701930046,
-    "classification": 0.29236656427383423,
-    "total": 0.12070970982313156,
+    "contrastive": 0.05602555721998215,
+    "classification": 0.4544818699359894,
+    "total": 0.17556245625019073,
     "clf_weight": 0.3
   },
   {
     "epoch": 136,
-    "contrastive": 0.04807308688759804,
-    "classification": 0.29609787464141846,
-    "total": 0.12248052656650543,
+    "contrastive": 0.056177638471126556,
+    "classification": 0.46081092953681946,
+    "total": 0.17756763100624084,
     "clf_weight": 0.3
   },
   {
     "epoch": 137,
-    "contrastive": 0.04844050109386444,
-    "classification": 0.29920417070388794,
-    "total": 0.12366960942745209,
+    "contrastive": 0.056763213127851486,
+    "classification": 0.4502091109752655,
+    "total": 0.17479698359966278,
     "clf_weight": 0.3
   },
   {
     "epoch": 138,
-    "contrastive": 0.048261966556310654,
-    "classification": 0.29693591594696045,
-    "total": 0.12286415696144104,
+    "contrastive": 0.056432005017995834,
+    "classification": 0.4388543665409088,
+    "total": 0.17115873098373413,
     "clf_weight": 0.3
   },
   {
     "epoch": 139,
-    "contrastive": 0.047979652881622314,
-    "classification": 0.2904241681098938,
-    "total": 0.120713010430336,
+    "contrastive": 0.05563023313879967,
+    "classification": 0.44398415088653564,
+    "total": 0.17213641107082367,
     "clf_weight": 0.3
   },
   {
     "epoch": 140,
-    "contrastive": 0.048315275460481644,
-    "classification": 0.27582013607025146,
-    "total": 0.1165667325258255,
+    "contrastive": 0.05582224577665329,
+    "classification": 0.43904048204421997,
+    "total": 0.1707877218723297,
     "clf_weight": 0.3
   },
   {
     "epoch": 141,
-    "contrastive": 0.04746537655591965,
-    "classification": 0.263118714094162,
-    "total": 0.11216138303279877,
+    "contrastive": 0.055780258029699326,
+    "classification": 0.42711299657821655,
+    "total": 0.16718009114265442,
     "clf_weight": 0.3
   },
   {
     "epoch": 142,
-    "contrastive": 0.04623126983642578,
-    "classification": 0.2669961452484131,
-    "total": 0.11246073246002197,
+    "contrastive": 0.05571182817220688,
+    "classification": 0.4262656569480896,
+    "total": 0.16687798500061035,
     "clf_weight": 0.3
   },
   {
     "epoch": 143,
-    "contrastive": 0.04625459760427475,
-    "classification": 0.27718454599380493,
-    "total": 0.11553358286619186,
+    "contrastive": 0.05604492872953415,
+    "classification": 0.4245012700557709,
+    "total": 0.16658183932304382,
     "clf_weight": 0.3
   },
   {
     "epoch": 144,
-    "contrastive": 0.04635433852672577,
-    "classification": 0.287887841463089,
-    "total": 0.1188143938779831,
+    "contrastive": 0.05587182939052582,
+    "classification": 0.41675806045532227,
+    "total": 0.16413769125938416,
     "clf_weight": 0.3
   },
   {
     "epoch": 145,
-    "contrastive": 0.04689941182732582,
-    "classification": 0.28164756298065186,
-    "total": 0.1173238605260849,
+    "contrastive": 0.0555104985833168,
+    "classification": 0.41246679425239563,
+    "total": 0.1625973880290985,
     "clf_weight": 0.3
   },
   {
     "epoch": 146,
-    "contrastive": 0.04670124500989914,
-    "classification": 0.26298707723617554,
-    "total": 0.11158700287342072,
+    "contrastive": 0.05467403680086136,
+    "classification": 0.40976911783218384,
+    "total": 0.1612025648355484,
     "clf_weight": 0.3
   },
   {
     "epoch": 147,
-    "contrastive": 0.04676685482263565,
-    "classification": 0.24856583774089813,
-    "total": 0.10730655491352081,
+    "contrastive": 0.05484994500875473,
+    "classification": 0.4040752947330475,
+    "total": 0.1596175581216812,
     "clf_weight": 0.3
   },
   {
     "epoch": 148,
-    "contrastive": 0.04633304849267006,
-    "classification": 0.25150102376937866,
-    "total": 0.10788343846797943,
+    "contrastive": 0.055915653705596924,
+    "classification": 0.40260782837867737,
+    "total": 0.15992331504821777,
     "clf_weight": 0.3
   },
   {
     "epoch": 149,
-    "contrastive": 0.04538712650537491,
-    "classification": 0.26336801052093506,
-    "total": 0.11078139394521713,
+    "contrastive": 0.05527622997760773,
+    "classification": 0.39943504333496094,
+    "total": 0.15852388739585876,
     "clf_weight": 0.3
   },
   {
     "epoch": 150,
-    "contrastive": 0.04564550518989563,
-    "classification": 0.27063897252082825,
-    "total": 0.11314354836940765,
+    "contrastive": 0.05482973903417587,
+    "classification": 0.3955502212047577,
+    "total": 0.1570458859205246,
     "clf_weight": 0.3
   },
   {
     "epoch": 151,
-    "contrastive": 0.04571971669793129,
-    "classification": 0.2652340233325958,
-    "total": 0.11157400906085968,
+    "contrastive": 0.05431636422872543,
+    "classification": 0.3955226242542267,
+    "total": 0.15667824447155,
     "clf_weight": 0.3
   },
   {
     "epoch": 152,
-    "contrastive": 0.04589557275176048,
-    "classification": 0.24877837300300598,
-    "total": 0.1067604124546051,
+    "contrastive": 0.05483924224972725,
+    "classification": 0.3908691704273224,
+    "total": 0.15564823150634766,
     "clf_weight": 0.3
   },
   {
     "epoch": 153,
-    "contrastive": 0.04547612741589546,
-    "classification": 0.24611400067806244,
-    "total": 0.10566748678684235,
+    "contrastive": 0.05476192757487297,
+    "classification": 0.3921501934528351,
+    "total": 0.15597841143608093,
     "clf_weight": 0.3
   },
   {
     "epoch": 154,
-    "contrastive": 0.04526883363723755,
-    "classification": 0.2602492570877075,
-    "total": 0.10976296663284302,
+    "contrastive": 0.055816296488046646,
+    "classification": 0.394816130399704,
+    "total": 0.1575162559747696,
     "clf_weight": 0.3
   },
   {
     "epoch": 155,
-    "contrastive": 0.045827560126781464,
-    "classification": 0.29010412096977234,
-    "total": 0.11911052465438843,
+    "contrastive": 0.054747868329286575,
+    "classification": 0.4018484055995941,
+    "total": 0.15887802839279175,
     "clf_weight": 0.3
   },
   {
     "epoch": 156,
-    "contrastive": 0.045505546033382416,
-    "classification": 0.2923755943775177,
-    "total": 0.11956655979156494,
+    "contrastive": 0.0551992803812027,
+    "classification": 0.4128926694393158,
+    "total": 0.1625072956085205,
     "clf_weight": 0.3
   },
   {
     "epoch": 157,
-    "contrastive": 0.04644247144460678,
-    "classification": 0.33665359020233154,
-    "total": 0.13350582122802734,
+    "contrastive": 0.055055130273103714,
+    "classification": 0.41676199436187744,
+    "total": 0.1635672003030777,
     "clf_weight": 0.3
   },
   {
     "epoch": 158,
-    "contrastive": 0.04803265631198883,
-    "classification": 0.3785410225391388,
-    "total": 0.14718516170978546,
+    "contrastive": 0.05663600191473961,
+    "classification": 0.39883893728256226,
+    "total": 0.1592968851327896,
     "clf_weight": 0.3
   },
   {
     "epoch": 159,
-    "contrastive": 0.0495540127158165,
-    "classification": 0.5460333228111267,
-    "total": 0.19849780201911926,
+    "contrastive": 0.05539415776729584,
+    "classification": 0.3600347638130188,
+    "total": 0.14678634703159332,
     "clf_weight": 0.3
   },
   {
     "epoch": 160,
-    "contrastive": 0.05185931548476219,
-    "classification": 0.3926599323749542,
-    "total": 0.1540995091199875,
+    "contrastive": 0.054472360759973526,
+    "classification": 0.36183962225914,
+    "total": 0.14668254554271698,
     "clf_weight": 0.3
   },
   {
     "epoch": 161,
-    "contrastive": 0.05241497978568077,
-    "classification": 0.4220288097858429,
-    "total": 0.16329914331436157,
+    "contrastive": 0.05511528626084328,
+    "classification": 0.38754531741142273,
+    "total": 0.15484429895877838,
     "clf_weight": 0.3
   },
   {
     "epoch": 162,
-    "contrastive": 0.05298224464058876,
-    "classification": 0.45302942395210266,
-    "total": 0.1729964017868042,
+    "contrastive": 0.05458492785692215,
+    "classification": 0.3729889690876007,
+    "total": 0.15010614693164825,
     "clf_weight": 0.3
   },
   {
     "epoch": 163,
-    "contrastive": 0.05244423449039459,
-    "classification": 0.323457270860672,
-    "total": 0.1337481439113617,
+    "contrastive": 0.05464354157447815,
+    "classification": 0.3450465202331543,
+    "total": 0.14176444709300995,
     "clf_weight": 0.3
   },
   {
     "epoch": 164,
-    "contrastive": 0.05203928053379059,
-    "classification": 0.39846071600914,
-    "total": 0.15596571564674377,
+    "contrastive": 0.05415794625878334,
+    "classification": 0.3520027697086334,
+    "total": 0.14351139962673187,
     "clf_weight": 0.3
   },
   {
     "epoch": 165,
-    "contrastive": 0.049663420766592026,
-    "classification": 0.30346494913101196,
-    "total": 0.1258038878440857,
+    "contrastive": 0.05316673219203949,
+    "classification": 0.3622146546840668,
+    "total": 0.14588111639022827,
     "clf_weight": 0.3
   },
   {
     "epoch": 166,
-    "contrastive": 0.049837492406368256,
-    "classification": 0.36376380920410156,
-    "total": 0.1440153867006302,
+    "contrastive": 0.053321707993745804,
+    "classification": 0.3427780270576477,
+    "total": 0.14015860855579376,
     "clf_weight": 0.3
   },
   {
     "epoch": 167,
-    "contrastive": 0.048765722662210464,
-    "classification": 0.3026261329650879,
-    "total": 0.12492384761571884,
+    "contrastive": 0.05317381024360657,
+    "classification": 0.3361929655075073,
+    "total": 0.13807955384254456,
     "clf_weight": 0.3
   },
   {
     "epoch": 168,
-    "contrastive": 0.046014562249183655,
-    "classification": 0.3404277265071869,
-    "total": 0.13433851301670074,
+    "contrastive": 0.05307735502719879,
+    "classification": 0.34597042202949524,
+    "total": 0.14094528555870056,
     "clf_weight": 0.3
   },
   {
     "epoch": 169,
-    "contrastive": 0.045067738741636276,
-    "classification": 0.2771638035774231,
-    "total": 0.11469656229019165,
+    "contrastive": 0.053250521421432495,
+    "classification": 0.3372427821159363,
+    "total": 0.13844820857048035,
     "clf_weight": 0.3
   },
   {
     "epoch": 170,
-    "contrastive": 0.044842250645160675,
-    "classification": 0.2827012836933136,
-    "total": 0.11619997024536133,
+    "contrastive": 0.05255653336644173,
+    "classification": 0.32714319229125977,
+    "total": 0.1349325329065323,
     "clf_weight": 0.3
   },
   {
     "epoch": 171,
-    "contrastive": 0.044092271476984024,
-    "classification": 0.305111825466156,
-    "total": 0.12239813804626465,
+    "contrastive": 0.052631840109825134,
+    "classification": 0.33156082034111023,
+    "total": 0.13631054759025574,
     "clf_weight": 0.3
   },
   {
     "epoch": 172,
-    "contrastive": 0.044308099895715714,
-    "classification": 0.24973230063915253,
-    "total": 0.10593536496162415,
+    "contrastive": 0.053075194358825684,
+    "classification": 0.32846325635910034,
+    "total": 0.13569161295890808,
     "clf_weight": 0.3
   },
   {
     "epoch": 173,
-    "contrastive": 0.04481855779886246,
-    "classification": 0.2855012118816376,
-    "total": 0.11702336370944977,
+    "contrastive": 0.052646245807409286,
+    "classification": 0.3192487061023712,
+    "total": 0.1326269805431366,
     "clf_weight": 0.3
   },
   {
     "epoch": 174,
-    "contrastive": 0.04519018903374672,
-    "classification": 0.2491551786661148,
-    "total": 0.1063796877861023,
+    "contrastive": 0.052648548036813736,
+    "classification": 0.3172609210014343,
+    "total": 0.13203227519989014,
     "clf_weight": 0.3
   },
   {
     "epoch": 175,
-    "contrastive": 0.044492583721876144,
-    "classification": 0.26763030886650085,
-    "total": 0.11143390834331512,
+    "contrastive": 0.052498240023851395,
+    "classification": 0.3174112141132355,
+    "total": 0.13197213411331177,
     "clf_weight": 0.3
   },
   {
     "epoch": 176,
-    "contrastive": 0.04277470335364342,
-    "classification": 0.25520625710487366,
-    "total": 0.1065041720867157,
+    "contrastive": 0.052647385746240616,
+    "classification": 0.3121715188026428,
+    "total": 0.13050462305545807,
     "clf_weight": 0.3
   },
   {
     "epoch": 177,
-    "contrastive": 0.04171492159366608,
-    "classification": 0.24441848695278168,
-    "total": 0.102525994181633,
+    "contrastive": 0.053461913019418716,
+    "classification": 0.30627578496932983,
+    "total": 0.12930607795715332,
     "clf_weight": 0.3
   },
   {
     "epoch": 178,
-    "contrastive": 0.04173601046204567,
-    "classification": 0.25855550169944763,
-    "total": 0.10678186267614365,
+    "contrastive": 0.052244484424591064,
+    "classification": 0.30243659019470215,
+    "total": 0.1273021101951599,
     "clf_weight": 0.3
   },
   {
     "epoch": 179,
-    "contrastive": 0.04273322969675064,
-    "classification": 0.2321358621120453,
-    "total": 0.09955402463674545,
+    "contrastive": 0.052076004445552826,
+    "classification": 0.3004987835884094,
+    "total": 0.12660284340381622,
     "clf_weight": 0.3
   },
   {
     "epoch": 180,
-    "contrastive": 0.04387439787387848,
-    "classification": 0.23897209763526917,
-    "total": 0.10240370780229568,
+    "contrastive": 0.05299113318324089,
+    "classification": 0.30124980211257935,
+    "total": 0.12746873497962952,
     "clf_weight": 0.3
   },
   {
     "epoch": 181,
-    "contrastive": 0.044349122792482376,
-    "classification": 0.22893613576889038,
-    "total": 0.09972523152828217,
+    "contrastive": 0.051840655505657196,
+    "classification": 0.29902467131614685,
+    "total": 0.12599585950374603,
     "clf_weight": 0.3
   },
   {
     "epoch": 182,
-    "contrastive": 0.04438462108373642,
-    "classification": 0.22079795598983765,
-    "total": 0.09730862081050873,
+    "contrastive": 0.05239124223589897,
+    "classification": 0.2883955240249634,
+    "total": 0.12319253385066986,
     "clf_weight": 0.3
   },
   {
     "epoch": 183,
-    "contrastive": 0.04403966665267944,
-    "classification": 0.2243661880493164,
-    "total": 0.09813762456178665,
+    "contrastive": 0.051999855786561966,
+    "classification": 0.2859387695789337,
+    "total": 0.12218153476715088,
     "clf_weight": 0.3
   },
   {
     "epoch": 184,
-    "contrastive": 0.04359174147248268,
-    "classification": 0.21470250189304352,
-    "total": 0.09492497146129608,
+    "contrastive": 0.05134517699480057,
+    "classification": 0.28793853521347046,
+    "total": 0.1223231852054596,
     "clf_weight": 0.3
   },
   {
     "epoch": 185,
-    "contrastive": 0.04339694231748581,
-    "classification": 0.21960923075675964,
-    "total": 0.09626062959432602,
+    "contrastive": 0.052550461143255234,
+    "classification": 0.2856241762638092,
+    "total": 0.12247258424758911,
     "clf_weight": 0.3
   },
   {
     "epoch": 186,
-    "contrastive": 0.043548014014959335,
-    "classification": 0.2082548886537552,
-    "total": 0.09296007454395294,
+    "contrastive": 0.051970213651657104,
+    "classification": 0.28461262583732605,
+    "total": 0.12176293134689331,
     "clf_weight": 0.3
   },
   {
     "epoch": 187,
-    "contrastive": 0.04363050311803818,
-    "classification": 0.20862123370170593,
-    "total": 0.09312772750854492,
+    "contrastive": 0.05172649025917053,
+    "classification": 0.28438252210617065,
+    "total": 0.12152330577373505,
     "clf_weight": 0.3
   },
   {
     "epoch": 188,
-    "contrastive": 0.04348454624414444,
-    "classification": 0.2078782320022583,
-    "total": 0.09280265122652054,
+    "contrastive": 0.051345452666282654,
+    "classification": 0.28685060143470764,
+    "total": 0.12199699878692627,
     "clf_weight": 0.3
   },
   {
     "epoch": 189,
-    "contrastive": 0.04327452927827835,
-    "classification": 0.20067358016967773,
-    "total": 0.09049424529075623,
+    "contrastive": 0.05184807628393173,
+    "classification": 0.29023516178131104,
+    "total": 0.12336421012878418,
     "clf_weight": 0.3
   },
   {
     "epoch": 190,
-    "contrastive": 0.042674191296100616,
-    "classification": 0.2041214257478714,
-    "total": 0.09110836684703827,
+    "contrastive": 0.05136939510703087,
+    "classification": 0.2890723943710327,
+    "total": 0.12268029153347015,
     "clf_weight": 0.3
   },
   {
     "epoch": 191,
-    "contrastive": 0.04192448779940605,
-    "classification": 0.19769521057605743,
-    "total": 0.08865571022033691,
+    "contrastive": 0.05187882483005524,
+    "classification": 0.290168821811676,
+    "total": 0.12336581945419312,
     "clf_weight": 0.3
   },
   {
     "epoch": 192,
-    "contrastive": 0.041696932166814804,
-    "classification": 0.2006681114435196,
-    "total": 0.08938828855752945,
+    "contrastive": 0.051046308130025864,
+    "classification": 0.29260456562042236,
+    "total": 0.12351378798484802,
     "clf_weight": 0.3
   },
   {
     "epoch": 193,
-    "contrastive": 0.04178815335035324,
-    "classification": 0.19426777958869934,
-    "total": 0.08753204345703125,
+    "contrastive": 0.052450891584157944,
+    "classification": 0.28777989745140076,
+    "total": 0.12304960191249847,
     "clf_weight": 0.3
   },
   {
     "epoch": 194,
-    "contrastive": 0.04178686812520027,
-    "classification": 0.19239526987075806,
-    "total": 0.08696939051151276,
+    "contrastive": 0.05150550231337547,
+    "classification": 0.27202746272087097,
+    "total": 0.11766209453344345,
     "clf_weight": 0.3
   },
   {
     "epoch": 195,
-    "contrastive": 0.04189327731728554,
-    "classification": 0.19143082201480865,
-    "total": 0.08675454556941986,
+    "contrastive": 0.0510801300406456,
+    "classification": 0.25736725330352783,
+    "total": 0.11296626925468445,
     "clf_weight": 0.3
   },
   {
     "epoch": 196,
-    "contrastive": 0.04210397228598595,
-    "classification": 0.18849682807922363,
-    "total": 0.08602182567119598,
+    "contrastive": 0.05090365186333656,
+    "classification": 0.25996387004852295,
+    "total": 0.11362171173095703,
     "clf_weight": 0.3
   },
   {
     "epoch": 197,
-    "contrastive": 0.041796762496232986,
-    "classification": 0.18523314595222473,
-    "total": 0.08482767641544342,
+    "contrastive": 0.050308678299188614,
+    "classification": 0.26980841159820557,
+    "total": 0.11615860462188721,
     "clf_weight": 0.3
   },
   {
     "epoch": 198,
-    "contrastive": 0.04153459891676903,
-    "classification": 0.18372929096221924,
-    "total": 0.08419300615787506,
+    "contrastive": 0.05132182687520981,
+    "classification": 0.27497240900993347,
+    "total": 0.11841700226068497,
     "clf_weight": 0.3
   },
   {
     "epoch": 199,
-    "contrastive": 0.04173922911286354,
-    "classification": 0.18303251266479492,
-    "total": 0.08412721753120422,
+    "contrastive": 0.049937307834625244,
+    "classification": 0.26563239097595215,
+    "total": 0.11464583873748779,
     "clf_weight": 0.3
   },
   {
     "epoch": 200,
-    "contrastive": 0.042040105909109116,
-    "classification": 0.17808982729911804,
-    "total": 0.08285502344369888,
+    "contrastive": 0.049527522176504135,
+    "classification": 0.26254481077194214,
+    "total": 0.11343271285295486,
     "clf_weight": 0.3
   },
   {
     "epoch": 201,
-    "contrastive": 0.04216655716300011,
-    "classification": 0.17644576728343964,
-    "total": 0.08245032280683517,
+    "contrastive": 0.05023787170648575,
+    "classification": 0.26530689001083374,
+    "total": 0.11475858092308044,
     "clf_weight": 0.3
   },
   {
     "epoch": 202,
-    "contrastive": 0.04205084219574928,
-    "classification": 0.1746988296508789,
-    "total": 0.0818452388048172,
+    "contrastive": 0.049610789865255356,
+    "classification": 0.2685229182243347,
+    "total": 0.11528442800045013,
     "clf_weight": 0.3
   },
   {
     "epoch": 203,
-    "contrastive": 0.041554711759090424,
-    "classification": 0.1748105138540268,
-    "total": 0.08153145760297775,
+    "contrastive": 0.04987558722496033,
+    "classification": 0.26420918107032776,
+    "total": 0.11417566239833832,
     "clf_weight": 0.3
   },
   {
     "epoch": 204,
-    "contrastive": 0.04102896526455879,
-    "classification": 0.17211763560771942,
-    "total": 0.08035556972026825,
+    "contrastive": 0.049366481602191925,
+    "classification": 0.2639743387699127,
+    "total": 0.11374884098768234,
     "clf_weight": 0.3
   },
   {
     "epoch": 205,
-    "contrastive": 0.040523841977119446,
-    "classification": 0.17287760972976685,
-    "total": 0.0802299752831459,
+    "contrastive": 0.04858586937189102,
+    "classification": 0.2963171899318695,
+    "total": 0.12290526926517487,
     "clf_weight": 0.3
   },
   {
     "epoch": 206,
-    "contrastive": 0.04039585217833519,
-    "classification": 0.17084911465644836,
-    "total": 0.07953183352947235,
+    "contrastive": 0.051907721906900406,
+    "classification": 0.3790285289287567,
+    "total": 0.15004396438598633,
     "clf_weight": 0.3
   },
   {
     "epoch": 207,
-    "contrastive": 0.04066750407218933,
-    "classification": 0.16871291399002075,
-    "total": 0.07908113300800323,
+    "contrastive": 0.052607517689466476,
+    "classification": 0.4477563500404358,
+    "total": 0.17115217447280884,
     "clf_weight": 0.3
   },
   {
     "epoch": 208,
-    "contrastive": 0.04092348739504814,
-    "classification": 0.16587214171886444,
-    "total": 0.07840808480978012,
+    "contrastive": 0.051504477858543396,
+    "classification": 0.2932382822036743,
+    "total": 0.12402461469173431,
     "clf_weight": 0.3
   },
   {
     "epoch": 209,
-    "contrastive": 0.04115176945924759,
-    "classification": 0.16383913159370422,
-    "total": 0.07795798033475876,
+    "contrastive": 0.051448069512844086,
+    "classification": 0.3954167664051056,
+    "total": 0.15463867783546448,
     "clf_weight": 0.3
   },
   {
     "epoch": 210,
-    "contrastive": 0.04084502533078194,
-    "classification": 0.1625516712665558,
-    "total": 0.07735702395439148,
+    "contrastive": 0.053235042840242386,
+    "classification": 0.5048993825912476,
+    "total": 0.18873435258865356,
     "clf_weight": 0.3
   },
   {
     "epoch": 211,
-    "contrastive": 0.04034200683236122,
-    "classification": 0.16157592833042145,
-    "total": 0.07671218365430832,
+    "contrastive": 0.059272654354572296,
+    "classification": 0.3672095239162445,
+    "total": 0.1516537219285965,
     "clf_weight": 0.3
   },
   {
     "epoch": 212,
-    "contrastive": 0.040008544921875,
-    "classification": 0.1614093780517578,
-    "total": 0.07642880082130432,
+    "contrastive": 0.05815393105149269,
+    "classification": 0.38408350944519043,
+    "total": 0.15593281388282776,
     "clf_weight": 0.3
   },
   {
     "epoch": 213,
-    "contrastive": 0.03980162367224693,
-    "classification": 0.15961551666259766,
-    "total": 0.07574579119682312,
+    "contrastive": 0.055852558463811874,
+    "classification": 0.30594193935394287,
+    "total": 0.13087937235832214,
     "clf_weight": 0.3
   },
   {
     "epoch": 214,
-    "contrastive": 0.03980351239442825,
-    "classification": 0.15855169296264648,
-    "total": 0.07542796432971954,
+    "contrastive": 0.05522868409752846,
+    "classification": 0.3481898009777069,
+    "total": 0.1431170254945755,
     "clf_weight": 0.3
   },
   {
     "epoch": 215,
-    "contrastive": 0.03990555554628372,
-    "classification": 0.15635769069194794,
-    "total": 0.0748412013053894,
+    "contrastive": 0.05741054564714432,
+    "classification": 0.4581241309642792,
+    "total": 0.17762461304664612,
     "clf_weight": 0.3
   },
   {
     "epoch": 216,
-    "contrastive": 0.039992474019527435,
-    "classification": 0.15525375306606293,
-    "total": 0.07457085698843002,
+    "contrastive": 0.05564570054411888,
+    "classification": 0.3382565677165985,
+    "total": 0.14042896032333374,
     "clf_weight": 0.3
   },
   {
     "epoch": 217,
-    "contrastive": 0.039608608931303024,
-    "classification": 0.15472815930843353,
-    "total": 0.07414447516202927,
+    "contrastive": 0.05243800953030586,
+    "classification": 0.3316988945007324,
+    "total": 0.13621628284454346,
     "clf_weight": 0.3
   },
   {
     "epoch": 218,
-    "contrastive": 0.03953098878264427,
-    "classification": 0.1551719456911087,
-    "total": 0.07422327995300293,
+    "contrastive": 0.05355255678296089,
+    "classification": 0.3866300880908966,
+    "total": 0.153475821018219,
     "clf_weight": 0.3
   },
   {
     "epoch": 219,
-    "contrastive": 0.039224185049533844,
-    "classification": 0.15856629610061646,
-    "total": 0.07502681761980057,
+    "contrastive": 0.0551326759159565,
+    "classification": 0.34173691272735596,
+    "total": 0.14111395180225372,
     "clf_weight": 0.3
   },
   {
     "epoch": 220,
-    "contrastive": 0.03958917036652565,
-    "classification": 0.17174048721790314,
-    "total": 0.07923457026481628,
+    "contrastive": 0.05605524405837059,
+    "classification": 0.2828788757324219,
+    "total": 0.12410233169794083,
     "clf_weight": 0.3
   },
   {
     "epoch": 221,
-    "contrastive": 0.03942112997174263,
-    "classification": 0.20655643939971924,
-    "total": 0.08956172317266464,
+    "contrastive": 0.05471663549542427,
+    "classification": 0.3215198814868927,
+    "total": 0.1347576081752777,
     "clf_weight": 0.3
   },
   {
     "epoch": 222,
-    "contrastive": 0.04123266041278839,
-    "classification": 0.367378294467926,
-    "total": 0.1390763521194458,
+    "contrastive": 0.051653724163770676,
+    "classification": 0.2840792238712311,
+    "total": 0.12138137966394424,
     "clf_weight": 0.3
   },
   {
     "epoch": 223,
-    "contrastive": 0.0423525907099247,
-    "classification": 0.42797666788101196,
-    "total": 0.15803982317447662,
+    "contrastive": 0.049075692892074585,
+    "classification": 0.2871774733066559,
+    "total": 0.12050622701644897,
     "clf_weight": 0.3
   },
   {
     "epoch": 224,
-    "contrastive": 0.04423011466860771,
-    "classification": 0.3755166828632355,
-    "total": 0.14361608028411865,
+    "contrastive": 0.0487244687974453,
+    "classification": 0.2881641387939453,
+    "total": 0.12055636942386627,
     "clf_weight": 0.3
   },
   {
     "epoch": 225,
-    "contrastive": 0.04649301618337631,
-    "classification": 0.2063782960176468,
-    "total": 0.09445860236883163,
+    "contrastive": 0.04883040487766266,
+    "classification": 0.2703103721141815,
+    "total": 0.11527439951896667,
     "clf_weight": 0.3
   },
   {
     "epoch": 226,
-    "contrastive": 0.0467810183763504,
-    "classification": 0.3386439383029938,
-    "total": 0.13433989882469177,
+    "contrastive": 0.04758724942803383,
+    "classification": 0.27472713589668274,
+    "total": 0.11572921276092529,
     "clf_weight": 0.3
   },
   {
     "epoch": 227,
-    "contrastive": 0.04969220235943794,
-    "classification": 0.27509090304374695,
-    "total": 0.11731181293725967,
+    "contrastive": 0.04649992287158966,
+    "classification": 0.2704131007194519,
+    "total": 0.11367388069629669,
     "clf_weight": 0.3
   },
   {
     "epoch": 228,
-    "contrastive": 0.04804350435733795,
-    "classification": 0.31658199429512024,
-    "total": 0.12860505282878876,
+    "contrastive": 0.04740597680211067,
+    "classification": 0.26464831829071045,
+    "total": 0.11257867515087128,
     "clf_weight": 0.3
   },
   {
     "epoch": 229,
-    "contrastive": 0.045423734933137894,
-    "classification": 0.24807046353816986,
-    "total": 0.10621775686740875,
+    "contrastive": 0.04751638323068619,
+    "classification": 0.25640395283699036,
+    "total": 0.11018265783786774,
     "clf_weight": 0.3
   },
   {
     "epoch": 230,
-    "contrastive": 0.04604749754071236,
-    "classification": 0.3003593385219574,
-    "total": 0.12234105169773102,
+    "contrastive": 0.0472145713865757,
+    "classification": 0.26386478543281555,
+    "total": 0.11220963299274445,
     "clf_weight": 0.3
   },
   {
     "epoch": 231,
-    "contrastive": 0.04630220681428909,
-    "classification": 0.22356146574020386,
-    "total": 0.09947998821735382,
+    "contrastive": 0.0472092442214489,
+    "classification": 0.24620646238327026,
+    "total": 0.1069084107875824,
     "clf_weight": 0.3
   },
   {
     "epoch": 232,
-    "contrastive": 0.04590596258640289,
-    "classification": 0.2989044189453125,
-    "total": 0.12180550396442413,
+    "contrastive": 0.046480849385261536,
+    "classification": 0.25222060084342957,
+    "total": 0.10820277035236359,
     "clf_weight": 0.3
   },
   {
     "epoch": 233,
-    "contrastive": 0.047057073563337326,
-    "classification": 0.21566331386566162,
-    "total": 0.09763894975185394,
+    "contrastive": 0.04570990428328514,
+    "classification": 0.2531428933143616,
+    "total": 0.10793980956077576,
     "clf_weight": 0.3
   },
   {
     "epoch": 234,
-    "contrastive": 0.04678251966834068,
-    "classification": 0.25112125277519226,
-    "total": 0.10808414220809937,
+    "contrastive": 0.0464925542473793,
+    "classification": 0.23558256030082703,
+    "total": 0.10321955382823944,
     "clf_weight": 0.3
   },
   {
     "epoch": 235,
-    "contrastive": 0.045304086059331894,
-    "classification": 0.18810254335403442,
-    "total": 0.08814362436532974,
+    "contrastive": 0.04682283475995064,
+    "classification": 0.23999370634555817,
+    "total": 0.1047740951180458,
     "clf_weight": 0.3
   },
   {
     "epoch": 236,
-    "contrastive": 0.04441988095641136,
-    "classification": 0.2210468202829361,
-    "total": 0.09740796685218811,
+    "contrastive": 0.04597381502389908,
+    "classification": 0.2392626702785492,
+    "total": 0.10396046936511993,
     "clf_weight": 0.3
   },
   {
     "epoch": 237,
-    "contrastive": 0.0429532565176487,
-    "classification": 0.21122188866138458,
-    "total": 0.09343384951353073,
+    "contrastive": 0.044980671256780624,
+    "classification": 0.2363564819097519,
+    "total": 0.10239341855049133,
     "clf_weight": 0.3
   },
   {
     "epoch": 238,
-    "contrastive": 0.041167210787534714,
-    "classification": 0.2060202956199646,
-    "total": 0.09062314033508301,
+    "contrastive": 0.044409848749637604,
+    "classification": 0.2312612682580948,
+    "total": 0.10046527534723282,
     "clf_weight": 0.3
   },
   {
     "epoch": 239,
-    "contrastive": 0.03957843780517578,
-    "classification": 0.19542039930820465,
-    "total": 0.08633102476596832,
+    "contrastive": 0.04423266276717186,
+    "classification": 0.23410513997077942,
+    "total": 0.10119440406560898,
     "clf_weight": 0.3
   },
   {
     "epoch": 240,
-    "contrastive": 0.039637282490730286,
-    "classification": 0.18518759310245514,
-    "total": 0.08330237865447998,
+    "contrastive": 0.04492705687880516,
+    "classification": 0.2255108505487442,
+    "total": 0.0991021990776062,
     "clf_weight": 0.3
   },
   {
     "epoch": 241,
-    "contrastive": 0.04038577899336815,
-    "classification": 0.19078375399112701,
-    "total": 0.0855051726102829,
+    "contrastive": 0.045216407626867294,
+    "classification": 0.22571712732315063,
+    "total": 0.09936662018299103,
     "clf_weight": 0.3
   },
   {
     "epoch": 242,
-    "contrastive": 0.040859322994947433,
-    "classification": 0.1776324361562729,
-    "total": 0.0818912610411644,
+    "contrastive": 0.044749706983566284,
+    "classification": 0.22283075749874115,
+    "total": 0.09817402064800262,
     "clf_weight": 0.3
   },
   {
     "epoch": 243,
-    "contrastive": 0.04107845574617386,
-    "classification": 0.17015637457370758,
-    "total": 0.07980183511972427,
+    "contrastive": 0.04437089338898659,
+    "classification": 0.21880663931369781,
+    "total": 0.09670161455869675,
     "clf_weight": 0.3
   },
   {
     "epoch": 244,
-    "contrastive": 0.04085858166217804,
-    "classification": 0.171182319521904,
-    "total": 0.07995570451021194,
+    "contrastive": 0.044602349400520325,
+    "classification": 0.2189650684595108,
+    "total": 0.09691116958856583,
     "clf_weight": 0.3
   },
   {
     "epoch": 245,
-    "contrastive": 0.04015139490365982,
-    "classification": 0.1632901132106781,
-    "total": 0.07709301263093948,
+    "contrastive": 0.044729769229888916,
+    "classification": 0.21320472657680511,
+    "total": 0.0952722579240799,
     "clf_weight": 0.3
   },
   {
     "epoch": 246,
-    "contrastive": 0.03925088047981262,
-    "classification": 0.15786637365818024,
-    "total": 0.07483553141355515,
+    "contrastive": 0.04441462457180023,
+    "classification": 0.21416352689266205,
+    "total": 0.09533929824829102,
     "clf_weight": 0.3
   },
   {
     "epoch": 247,
-    "contrastive": 0.03849498927593231,
-    "classification": 0.1587146520614624,
-    "total": 0.07456089556217194,
+    "contrastive": 0.043973058462142944,
+    "classification": 0.21213221549987793,
+    "total": 0.09442081302404404,
     "clf_weight": 0.3
   },
   {
     "epoch": 248,
-    "contrastive": 0.038141440600156784,
-    "classification": 0.16024534404277802,
-    "total": 0.07477261126041412,
+    "contrastive": 0.04369741678237915,
+    "classification": 0.20941589772701263,
+    "total": 0.09341296553611755,
     "clf_weight": 0.3
   },
   {
     "epoch": 249,
-    "contrastive": 0.03852660953998566,
-    "classification": 0.15444453060626984,
-    "total": 0.07330198585987091,
+    "contrastive": 0.043824926018714905,
+    "classification": 0.20940518379211426,
+    "total": 0.09349900484085083,
     "clf_weight": 0.3
   },
   {
     "epoch": 250,
-    "contrastive": 0.03949838876724243,
-    "classification": 0.14849606156349182,
-    "total": 0.07219769060611725,
+    "contrastive": 0.04421568661928177,
+    "classification": 0.20469799637794495,
+    "total": 0.09236038476228714,
     "clf_weight": 0.3
   },
   {
     "epoch": 251,
-    "contrastive": 0.04039252921938896,
-    "classification": 0.14035063982009888,
-    "total": 0.07037996500730515,
+    "contrastive": 0.04451332241296768,
+    "classification": 0.2023172676563263,
+    "total": 0.0918545052409172,
     "clf_weight": 0.3
   },
   {
     "epoch": 252,
-    "contrastive": 0.04109303653240204,
-    "classification": 0.13755784928798676,
-    "total": 0.07003248482942581,
+    "contrastive": 0.044179100543260574,
+    "classification": 0.201181560754776,
+    "total": 0.09127984195947647,
     "clf_weight": 0.3
   },
   {
     "epoch": 253,
-    "contrastive": 0.041306279599666595,
-    "classification": 0.13685981929302216,
-    "total": 0.06997234374284744,
+    "contrastive": 0.04367714375257492,
+    "classification": 0.20134790241718292,
+    "total": 0.09097836911678314,
     "clf_weight": 0.3
   },
   {
     "epoch": 254,
-    "contrastive": 0.040689803659915924,
-    "classification": 0.13426198065280914,
-    "total": 0.06876145303249359,
+    "contrastive": 0.04346345737576485,
+    "classification": 0.19969652593135834,
+    "total": 0.09033337980508804,
     "clf_weight": 0.3
   },
   {
     "epoch": 255,
-    "contrastive": 0.03956177085638046,
-    "classification": 0.1345221996307373,
-    "total": 0.06804990023374557,
+    "contrastive": 0.04348776116967201,
+    "classification": 0.1982494294643402,
+    "total": 0.08991625905036926,
     "clf_weight": 0.3
   },
   {
     "epoch": 256,
-    "contrastive": 0.038421500474214554,
-    "classification": 0.1340256929397583,
-    "total": 0.06710276007652283,
+    "contrastive": 0.04345087707042694,
+    "classification": 0.19944608211517334,
+    "total": 0.0902494415640831,
     "clf_weight": 0.3
   },
   {
     "epoch": 257,
-    "contrastive": 0.03755738586187363,
-    "classification": 0.1352556198835373,
-    "total": 0.06686685979366302,
+    "contrastive": 0.04365330561995506,
+    "classification": 0.20116069912910461,
+    "total": 0.09090552479028702,
     "clf_weight": 0.3
   },
   {
     "epoch": 258,
-    "contrastive": 0.0372222401201725,
-    "classification": 0.1342201679944992,
-    "total": 0.06632161885499954,
+    "contrastive": 0.04340498894453049,
+    "classification": 0.21077510714530945,
+    "total": 0.09361602365970612,
     "clf_weight": 0.3
   },
   {
     "epoch": 259,
-    "contrastive": 0.03741062432527542,
-    "classification": 0.1317465603351593,
-    "total": 0.06571140885353088,
+    "contrastive": 0.04343884065747261,
+    "classification": 0.23577198386192322,
+    "total": 0.10113878548145294,
     "clf_weight": 0.3
   },
   {
     "epoch": 260,
-    "contrastive": 0.03756370395421982,
-    "classification": 0.12833070755004883,
-    "total": 0.06479381024837494,
+    "contrastive": 0.04372990131378174,
+    "classification": 0.3146635890007019,
+    "total": 0.12501001358032227,
     "clf_weight": 0.3
   },
   {
     "epoch": 261,
-    "contrastive": 0.037584949284791946,
-    "classification": 0.1277320832014084,
-    "total": 0.06462909281253815,
+    "contrastive": 0.04728272929787636,
+    "classification": 0.45410725474357605,
+    "total": 0.16933009028434753,
     "clf_weight": 0.3
   },
   {
     "epoch": 262,
-    "contrastive": 0.03766750916838646,
-    "classification": 0.12535086274147034,
-    "total": 0.06397251784801483,
+    "contrastive": 0.04744314029812813,
+    "classification": 0.38606107234954834,
+    "total": 0.14902852475643158,
     "clf_weight": 0.3
   },
   {
     "epoch": 263,
-    "contrastive": 0.037494976073503494,
-    "classification": 0.12487872689962387,
-    "total": 0.06371010094881058,
+    "contrastive": 0.04893692582845688,
+    "classification": 0.2199465036392212,
+    "total": 0.10023979842662811,
     "clf_weight": 0.3
   },
   {
     "epoch": 264,
-    "contrastive": 0.036990031599998474,
-    "classification": 0.1242133229970932,
-    "total": 0.06315702199935913,
+    "contrastive": 0.0497986264526844,
+    "classification": 0.37449342012405396,
+    "total": 0.14720706641674042,
     "clf_weight": 0.3
   },
   {
     "epoch": 265,
-    "contrastive": 0.036551155149936676,
-    "classification": 0.1231612041592598,
-    "total": 0.06253416836261749,
+    "contrastive": 0.05192447081208229,
+    "classification": 0.30294519662857056,
+    "total": 0.1272306889295578,
     "clf_weight": 0.3
   },
   {
     "epoch": 266,
-    "contrastive": 0.03629935905337334,
-    "classification": 0.12205228209495544,
-    "total": 0.06202523410320282,
+    "contrastive": 0.051351942121982574,
+    "classification": 0.37121662497520447,
+    "total": 0.14731134474277496,
     "clf_weight": 0.3
   },
   {
     "epoch": 267,
-    "contrastive": 0.036104053258895874,
-    "classification": 0.12209408730268478,
-    "total": 0.06190106272697449,
+    "contrastive": 0.05004327371716499,
+    "classification": 0.24414558708667755,
+    "total": 0.10827396810054779,
     "clf_weight": 0.3
   },
   {
     "epoch": 268,
-    "contrastive": 0.03595803305506706,
-    "classification": 0.12113263458013535,
-    "total": 0.06151041388511658,
+    "contrastive": 0.0479821115732193,
+    "classification": 0.3327401280403137,
+    "total": 0.1334095299243927,
     "clf_weight": 0.3
   },
   {
     "epoch": 269,
-    "contrastive": 0.035827040672302246,
-    "classification": 0.11941304057836533,
-    "total": 0.06090284138917923,
+    "contrastive": 0.04653732851147652,
+    "classification": 0.2310829609632492,
+    "total": 0.10190101712942123,
     "clf_weight": 0.3
   },
   {
     "epoch": 270,
-    "contrastive": 0.03581263870000839,
-    "classification": 0.11816352605819702,
-    "total": 0.06051790714263916,
+    "contrastive": 0.04532167688012123,
+    "classification": 0.31359604001045227,
+    "total": 0.12580399215221405,
     "clf_weight": 0.3
   },
   {
     "epoch": 271,
-    "contrastive": 0.0358055979013443,
-    "classification": 0.11691970378160477,
-    "total": 0.06013983488082886,
+    "contrastive": 0.04875573888421059,
+    "classification": 0.23905648291110992,
+    "total": 0.10584596544504166,
     "clf_weight": 0.3
   },
   {
     "epoch": 272,
-    "contrastive": 0.03570521995425224,
-    "classification": 0.11626555770635605,
-    "total": 0.059873323887586594,
+    "contrastive": 0.049537293612957,
+    "classification": 0.2683108448982239,
+    "total": 0.11516936123371124,
     "clf_weight": 0.3
   },
   {
     "epoch": 273,
-    "contrastive": 0.03566094487905502,
-    "classification": 0.1149691641330719,
-    "total": 0.059453412890434265,
+    "contrastive": 0.045733511447906494,
+    "classification": 0.2506290674209595,
+    "total": 0.1072021871805191,
     "clf_weight": 0.3
   },
   {
     "epoch": 274,
-    "contrastive": 0.03560691326856613,
-    "classification": 0.1139356717467308,
-    "total": 0.05910554528236389,
+    "contrastive": 0.04339246824383736,
+    "classification": 0.23572127521038055,
+    "total": 0.10109111666679382,
     "clf_weight": 0.3
   },
   {
     "epoch": 275,
-    "contrastive": 0.03537840023636818,
-    "classification": 0.11312110722064972,
-    "total": 0.05870121344923973,
+    "contrastive": 0.04399023577570915,
+    "classification": 0.2662854492664337,
+    "total": 0.11067880690097809,
     "clf_weight": 0.3
   },
   {
     "epoch": 276,
-    "contrastive": 0.035166528075933456,
-    "classification": 0.11265271157026291,
-    "total": 0.05841238424181938,
+    "contrastive": 0.044375207275152206,
+    "classification": 0.2238575667142868,
+    "total": 0.09821991622447968,
     "clf_weight": 0.3
   },
   {
     "epoch": 277,
-    "contrastive": 0.03500184789299965,
-    "classification": 0.11204536259174347,
-    "total": 0.058114904910326004,
+    "contrastive": 0.0446491464972496,
+    "classification": 0.24466383457183838,
+    "total": 0.10465355962514877,
     "clf_weight": 0.3
   },
   {
     "epoch": 278,
-    "contrastive": 0.03477193042635918,
-    "classification": 0.11125461012125015,
-    "total": 0.0577167347073555,
+    "contrastive": 0.04444076493382454,
+    "classification": 0.22483766078948975,
+    "total": 0.09855983406305313,
     "clf_weight": 0.3
   },
   {
     "epoch": 279,
-    "contrastive": 0.03465151786804199,
-    "classification": 0.1105409562587738,
-    "total": 0.057418350130319595,
+    "contrastive": 0.043298836797475815,
+    "classification": 0.2273123562335968,
+    "total": 0.09850289672613144,
     "clf_weight": 0.3
   },
   {
     "epoch": 280,
-    "contrastive": 0.03463492915034294,
-    "classification": 0.10954710841178894,
-    "total": 0.05710858479142189,
+    "contrastive": 0.042316462844610214,
+    "classification": 0.22765116393566132,
+    "total": 0.0979168713092804,
     "clf_weight": 0.3
   },
   {
     "epoch": 281,
-    "contrastive": 0.03462383523583412,
-    "classification": 0.10853946954011917,
-    "total": 0.05679852515459061,
+    "contrastive": 0.04283123463392258,
+    "classification": 0.20680545270442963,
+    "total": 0.09202349931001663,
     "clf_weight": 0.3
   },
   {
     "epoch": 282,
-    "contrastive": 0.0345151387155056,
-    "classification": 0.1077711209654808,
-    "total": 0.05649193376302719,
+    "contrastive": 0.0440065935254097,
+    "classification": 0.20771171152591705,
+    "total": 0.09311813116073608,
     "clf_weight": 0.3
   },
   {
     "epoch": 283,
-    "contrastive": 0.03428324684500694,
-    "classification": 0.10729994624853134,
-    "total": 0.05618825554847717,
+    "contrastive": 0.04404084011912346,
+    "classification": 0.20846526324748993,
+    "total": 0.09336817264556885,
     "clf_weight": 0.3
   },
   {
     "epoch": 284,
-    "contrastive": 0.03408239781856537,
-    "classification": 0.10677730292081833,
-    "total": 0.055890873074531555,
+    "contrastive": 0.04269561916589737,
+    "classification": 0.20213253796100616,
+    "total": 0.09052670001983643,
     "clf_weight": 0.3
   },
   {
     "epoch": 285,
-    "contrastive": 0.03377348557114601,
-    "classification": 0.10650115460157394,
-    "total": 0.05559178441762924,
+    "contrastive": 0.04210299998521805,
+    "classification": 0.19600810110569,
+    "total": 0.0882745310664177,
     "clf_weight": 0.3
   },
   {
     "epoch": 286,
-    "contrastive": 0.033504098653793335,
-    "classification": 0.10619507730007172,
-    "total": 0.05531139671802521,
+    "contrastive": 0.04258811101317406,
+    "classification": 0.2027946412563324,
+    "total": 0.09065006673336029,
     "clf_weight": 0.3
   },
   {
     "epoch": 287,
-    "contrastive": 0.03340106084942818,
-    "classification": 0.10553794354200363,
-    "total": 0.05504212528467178,
+    "contrastive": 0.04298240318894386,
+    "classification": 0.19539308547973633,
+    "total": 0.08870560675859451,
     "clf_weight": 0.3
   },
   {
     "epoch": 288,
-    "contrastive": 0.03337441384792328,
-    "classification": 0.10471657663583755,
-    "total": 0.05477706342935562,
+    "contrastive": 0.04310353845357895,
+    "classification": 0.18786931037902832,
+    "total": 0.08653327077627182,
     "clf_weight": 0.3
   },
   {
     "epoch": 289,
-    "contrastive": 0.03341316059231758,
-    "classification": 0.1037152037024498,
-    "total": 0.054503776133060455,
+    "contrastive": 0.04299023002386093,
+    "classification": 0.1890868991613388,
+    "total": 0.08681923151016235,
     "clf_weight": 0.3
   },
   {
     "epoch": 290,
-    "contrastive": 0.033360835164785385,
-    "classification": 0.10299226641654968,
-    "total": 0.054250262677669525,
+    "contrastive": 0.04247215762734413,
+    "classification": 0.18569859862327576,
+    "total": 0.08544009178876877,
     "clf_weight": 0.3
   },
   {
     "epoch": 291,
-    "contrastive": 0.03330880030989647,
-    "classification": 0.10229241102933884,
-    "total": 0.05400388687849045,
+    "contrastive": 0.0420219860970974,
+    "classification": 0.18556636571884155,
+    "total": 0.08508530259132385,
     "clf_weight": 0.3
   },
   {
     "epoch": 292,
-    "contrastive": 0.033030666410923004,
-    "classification": 0.10206173360347748,
-    "total": 0.053739987313747406,
+    "contrastive": 0.04161527380347252,
+    "classification": 0.18219995498657227,
+    "total": 0.08379068225622177,
     "clf_weight": 0.3
   },
   {
     "epoch": 293,
-    "contrastive": 0.032850589603185654,
-    "classification": 0.10169581323862076,
-    "total": 0.053504157811403275,
+    "contrastive": 0.041360899806022644,
+    "classification": 0.1832793951034546,
+    "total": 0.08393645286560059,
     "clf_weight": 0.3
   },
   {
     "epoch": 294,
-    "contrastive": 0.03262360021471977,
-    "classification": 0.10154944658279419,
-    "total": 0.053301356732845306,
+    "contrastive": 0.041517358273267746,
+    "classification": 0.1790032982826233,
+    "total": 0.08276314288377762,
     "clf_weight": 0.3
   },
   {
     "epoch": 295,
-    "contrastive": 0.03259344398975372,
-    "classification": 0.10112132877111435,
-    "total": 0.05315180867910385,
+    "contrastive": 0.041398726403713226,
+    "classification": 0.17864613234996796,
+    "total": 0.08257295191287994,
     "clf_weight": 0.3
   },
   {
     "epoch": 296,
-    "contrastive": 0.03240245580673218,
-    "classification": 0.10159993171691895,
-    "total": 0.05316169932484627,
+    "contrastive": 0.040969982743263245,
+    "classification": 0.17636822164058685,
+    "total": 0.0815894603729248,
     "clf_weight": 0.3
   },
   {
     "epoch": 297,
-    "contrastive": 0.03257083520293236,
-    "classification": 0.10260520875453949,
-    "total": 0.05358114838600159,
+    "contrastive": 0.040715474635362625,
+    "classification": 0.17452287673950195,
+    "total": 0.08085769414901733,
     "clf_weight": 0.3
   },
   {
     "epoch": 298,
-    "contrastive": 0.03228529915213585,
-    "classification": 0.10794150084257126,
-    "total": 0.05498215928673744,
+    "contrastive": 0.04068179056048393,
+    "classification": 0.1757708489894867,
+    "total": 0.08120851218700409,
     "clf_weight": 0.3
   },
   {
     "epoch": 299,
-    "contrastive": 0.0327933095395565,
-    "classification": 0.12186380475759506,
-    "total": 0.05951445922255516,
+    "contrastive": 0.04062480106949806,
+    "classification": 0.17257289588451385,
+    "total": 0.08020923286676407,
     "clf_weight": 0.3
   }
 ]
