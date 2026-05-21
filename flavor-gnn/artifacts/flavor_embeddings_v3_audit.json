@@ -1,7 +1,7 @@
 {
-  "impute_set_size": 226,
-  "imputed_via_neighbors": 186,
-  "imputed_via_fallback": 40,
+  "impute_set_size": 220,
+  "imputed_via_neighbors": 182,
+  "imputed_via_fallback": 38,
   "density_threshold": 2,
   "top_n_neighbors": 20,
   "min_strength": 0.3,
@@ -763,7 +763,7 @@
     {
       "name": "chicken rice",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 14,
       "top_neighbors": [
         "jalapeno cheez whiz",
         "mexicorn",
@@ -787,7 +787,7 @@
     {
       "name": "chicken salad",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "rice vinegar",
         "white bread",
@@ -859,7 +859,7 @@
     {
       "name": "chicken soup stock granule",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 14,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
         "sake",
         "oyster sauce",
@@ -1179,8 +1179,8 @@
         "garlic",
         "ginger",
         "sesame seed",
-        "tofu",
-        "anchovy"
+        "gochujang",
+        "tofu"
       ]
     },
     {
@@ -1188,18 +1188,6 @@
       "method": "trusted-centroid-fallback",
       "n_trusted_neighbors": 0,
       "raw_neighbors_count": 0
-    },
-    {
-      "name": "duck",
-      "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 10,
-      "top_neighbors": [
-        "orange sauce",
-        "star anise",
-        "parsley stem",
-        "plum sauce",
-        "tomato"
-      ]
     },
     {
       "name": "egg yolk",
@@ -1256,8 +1244,8 @@
         "chinese wine",
         "soy sauce",
         "bean sauce",
-        "black bean sauce",
-        "chinese mushroom"
+        "duck",
+        "black bean sauce"
       ]
     },
     {
@@ -1348,18 +1336,6 @@
         "barley malt",
         "rye flour",
         "garlic"
-      ]
-    },
-    {
-      "name": "gochujang",
-      "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 20,
-      "top_neighbors": [
-        "sesame oil",
-        "white sesame seed",
-        "sake",
-        "rice cake",
-        "yakiniku sauce"
       ]
     },
     {
@@ -1555,21 +1531,9 @@
       ]
     },
     {
-      "name": "hoisin sauce",
-      "method": "trusted-centroid-fallback",
-      "n_trusted_neighbors": 0,
-      "raw_neighbors_count": 0
-    },
-    {
-      "name": "hot sauce",
-      "method": "trusted-centroid-fallback",
-      "n_trusted_neighbors": 0,
-      "raw_neighbors_count": 0
-    },
-    {
       "name": "iceberg lettuce",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 12,
+      "n_trusted_neighbors": 13,
       "top_neighbors": [
         "beef skirt",
         "gourmet sauce",
@@ -1757,16 +1721,6 @@
       ]
     },
     {
-      "name": "mascarpone",
-      "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 3,
-      "top_neighbors": [
-        "cocoa",
-        "chocolate",
-        "coffee"
-      ]
-    },
-    {
       "name": "mayo",
       "method": "neighbor-weighted-mean",
       "n_trusted_neighbors": 20,
@@ -1776,18 +1730,6 @@
         "vegetable soup",
         "jalapeno bean",
         "vegetable soup mix"
-      ]
-    },
-    {
-      "name": "mayonnaise",
-      "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 20,
-      "top_neighbors": [
-        "dill pickle",
-        "water chestnut",
-        "celery",
-        "crabmeat",
-        "vegetable soup"
       ]
     },
     {
@@ -2093,13 +2035,13 @@
     {
       "name": "sriracha",
       "method": "neighbor-weighted-mean",
-      "n_trusted_neighbors": 13,
+      "n_trusted_neighbors": 15,
       "top_neighbors": [
+        "mayonnaise",
         "garlic",
         "sugar",
         "chili",
-        "lemongrass",
-        "thai basil"
+        "lemongrass"
       ]
     },
     {

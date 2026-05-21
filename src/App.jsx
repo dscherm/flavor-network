@@ -1347,6 +1347,11 @@ export default function App() {
           style={{ left: hoverPos.x + 12, top: hoverPos.y - 8 }}
         >
           <span className="font-medium">{hoveredNode.name}</span>
+          {hoveredNode.flavorGraph?.tier1?.length > 0 && (
+            <span className="ml-2 text-amber-300">
+              {hoveredNode.flavorGraph.tier1.join(', ')}
+            </span>
+          )}
           {hoveredNode.taste && (
             <span className="ml-2 text-gray-400">{hoveredNode.taste}</span>
           )}

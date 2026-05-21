@@ -49,6 +49,7 @@ ROOT = Path(__file__).resolve().parents[2]
 EMB_PATH = ROOT / "flavor-gnn" / "artifacts" / "flavor_embeddings_v3_imputed.npy"
 GRAPH_V3 = ROOT / "public" / "proDataset" / "flavor_graph_data_v3.json"
 CSV_PATH = ROOT / "flavor-gnn" / "curation" / "flavor_graph_full.csv"
+CHEF_LABELS_PATH = ROOT / "flavor-gnn" / "curation" / "v3_cluster_labels_chef.json"
 
 OUT_POS_3D = ROOT / "public" / "proDataset" / "flavor_positions_v3.json"
 OUT_POS_2D = ROOT / "public" / "proDataset" / "flavor_positions_2d_v3.json"
@@ -82,13 +83,19 @@ def _split_pipe(s: object) -> list[str]:
     return [t.strip() for t in s.split("|") if t.strip()]
 
 
-def _cluster_hdbscan(emb: np.ndarray, min_cluster_size: int) -> tuple[np.ndarray, dict]:
-    """HDBSCAN clustering with noise-point reassignment.
+def _cluster_hdbscan(
+    emb: np.ndarray,
+    min_cluster_size: int,
+    reassign_noise: bool = True,
+) -> tuple[np.ndarray, dict]:
+    """HDBSCAN clustering with optional noise-point reassignment.
 
-    HDBSCAN can label outlier points as -1 (noise). For the 3D scene
-    every node needs a cluster, so we assign each noise point to the
-    cluster whose centroid is nearest in the embedding space. The
-    final cluster ids are 0..n_clusters-1.
+    HDBSCAN labels outlier points as -1 (noise). When reassign_noise=True
+    (default) we assign each noise point to its nearest cluster centroid
+    so every node has a numeric cluster id. When False, noise stays -1
+    and the renderer should treat those points as "uncolored / low
+    confidence" (V3e Option B — only the dense cores get cluster color,
+    noise points fall through to the default taste-based tint).
     """
     hdb = HDBSCAN(
         min_cluster_size=min_cluster_size,
@@ -98,28 +105,29 @@ def _cluster_hdbscan(emb: np.ndarray, min_cluster_size: int) -> tuple[np.ndarray
     unique_clusters = sorted(c for c in set(raw_labels.tolist()) if c >= 0)
     n_clusters = len(unique_clusters)
 
-    # Compute centroids of true (non-noise) clusters
     centroids = np.stack([emb[raw_labels == c].mean(axis=0) for c in unique_clusters])
-    # Re-index to dense 0..k-1
     remap = {old: new for new, old in enumerate(unique_clusters)}
     out = np.array([remap[c] if c >= 0 else -1 for c in raw_labels])
 
-    # Reassign noise points (-1) to nearest centroid
     noise_idx = np.where(out == -1)[0]
-    for i in noise_idx:
-        dists = np.linalg.norm(centroids - emb[i], axis=1)
-        out[i] = int(dists.argmin())
+    if reassign_noise:
+        for i in noise_idx:
+            dists = np.linalg.norm(centroids - emb[i], axis=1)
+            out[i] = int(dists.argmin())
 
     meta = {
         "n_clusters": n_clusters,
-        "noise_reassigned": int(len(noise_idx)),
+        "noise_count": int(len(noise_idx)),
+        "noise_reassigned": int(len(noise_idx)) if reassign_noise else 0,
+        "noise_kept_as_minus_one": 0 if reassign_noise else int(len(noise_idx)),
         "min_cluster_size": min_cluster_size,
         "cluster_selection_method": "leaf",
     }
     return out, meta
 
 
-def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40) -> None:
+def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40,
+          reassign_noise: bool = True) -> None:
     # ── Load embeddings + name ordering ─────────────────────────
     emb = np.load(EMB_PATH).astype(np.float32)
     graph = json.loads(GRAPH_V3.read_text(encoding="utf-8"))
@@ -177,15 +185,26 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40) -> None:
         space = "umap3d" if cluster_algo == "hdbscan-umap" else "embedding"
         X = coords_3d if space == "umap3d" else emb
         print(f"[v3d] HDBSCAN on {space} space "
-              f"(min_cluster_size={hdbscan_min_size}, method=leaf)")
-        cluster_ids, hdb_meta = _cluster_hdbscan(X, hdbscan_min_size)
+              f"(min_cluster_size={hdbscan_min_size}, method=leaf, "
+              f"reassign_noise={reassign_noise})")
+        cluster_ids, hdb_meta = _cluster_hdbscan(
+            X, hdbscan_min_size, reassign_noise=reassign_noise,
+        )
         cluster_meta.update(hdb_meta)
         cluster_meta["space"] = space
-        sil = float(silhouette_score(X[sil_idx], cluster_ids[sil_idx]))
+        # Silhouette excludes -1 noise points (sklearn requires ≥2 labels;
+        # a partially-noise label set throws otherwise).
+        sample_labels = cluster_ids[sil_idx]
+        in_cluster = sample_labels >= 0
+        if in_cluster.sum() >= 2 and len(set(sample_labels[in_cluster].tolist())) >= 2:
+            sil = float(silhouette_score(X[sil_idx][in_cluster], sample_labels[in_cluster]))
+        else:
+            sil = float("nan")
         cluster_meta["silhouette"] = sil
         chosen_k = hdb_meta["n_clusters"]
         print(f"[v3d] HDBSCAN found {chosen_k} clusters "
-              f"(silhouette={sil:.4f}, {hdb_meta['noise_reassigned']} noise reassigned)")
+              f"(silhouette={sil:.4f}, noise={hdb_meta['noise_count']}, "
+              f"reassigned={hdb_meta['noise_reassigned']}, kept_as_-1={hdb_meta['noise_kept_as_minus_one']})")
     else:
         silhouettes: dict[int, float] = {}
         km_runs: dict[int, KMeans] = {}
@@ -223,6 +242,12 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40) -> None:
     cluster_label_map: dict[int, str] = {}
     cluster_size_map: dict[int, int] = {}
     for c, members in sorted(cluster_members.items()):
+        if c < 0:
+            # HDBSCAN noise (Option B): don't try to label, don't emit a
+            # cluster sprite. Members keep clusterId=-1 so the renderer
+            # treats them as low-confidence / uncolored.
+            cluster_size_map[c] = len(members)
+            continue
         cluster_size_map[c] = len(members)
         cluster_leaf_counts = Counter()
         for m in members:
@@ -275,6 +300,25 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40) -> None:
     OUT_POS_2D.write_text(json.dumps(pos_2d), encoding="utf-8")
     print(f"[v3d] wrote {OUT_POS_2D.relative_to(ROOT)} ({n_nodes} entries)")
 
+    # Chef-curated label override — apply v3_cluster_labels_chef.json
+    # when present so the rendered cluster sprites + IngredientPanel
+    # show cooking-friendly names ("Apple, Spice & Cider") instead of
+    # the auto-generated chemistry labels ("cider-like-peely-zesty").
+    # Original chemistry label is preserved in each cluster entry's
+    # `chemistry_label` field for debugging.
+    chef_labels: dict[int, str] = {}
+    if CHEF_LABELS_PATH.exists():
+        chef_doc = json.loads(CHEF_LABELS_PATH.read_text(encoding="utf-8"))
+        for cid_str, entry in (chef_doc.get("labels") or {}).items():
+            try:
+                chef_labels[int(cid_str)] = str(entry.get("chef") or "")
+            except (ValueError, AttributeError, TypeError):
+                continue
+        print(f"[v3d] loaded {len(chef_labels)} chef-curated labels from "
+              f"{CHEF_LABELS_PATH.relative_to(ROOT)}")
+    else:
+        print(f"[v3d] no chef labels file at {CHEF_LABELS_PATH.relative_to(ROOT)} — using chemistry labels")
+
     # Cluster centroids in 3D scene space — used by consumers that
     # render a label sprite at each cluster centroid (LivingArchView,
     # App.jsx morphAxis path).
@@ -286,9 +330,12 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40) -> None:
             centroid_3d = [round(float(v), 4) for v in centroid_3d]
         else:
             centroid_3d = [0.0, 0.0, 0.0]
+        chemistry_label = cluster_label_map[c]
+        chef_label = chef_labels.get(c) or chemistry_label
         clusters_array.append({
             "id": c,
-            "label": cluster_label_map[c],
+            "label": chef_label,
+            "chemistry_label": chemistry_label,
             "size": cluster_size_map[c],
             "centroid_3d": centroid_3d,
         })
@@ -346,5 +393,10 @@ if __name__ == "__main__":
                    help="hdbscan clusters on 16-d embedding; hdbscan-umap clusters on the 3D UMAP output")
     p.add_argument("--hdbscan-min-size", type=int, default=40,
                    help="HDBSCAN min_cluster_size (only when --cluster-algo=hdbscan)")
+    p.add_argument("--keep-noise", action="store_true",
+                   help="When HDBSCAN labels a point as noise (-1), keep it -1 instead "
+                        "of reassigning to nearest centroid. Renderer treats -1 as uncolored.")
     args = p.parse_args()
-    build(cluster_algo=args.cluster_algo, hdbscan_min_size=args.hdbscan_min_size)
+    build(cluster_algo=args.cluster_algo,
+          hdbscan_min_size=args.hdbscan_min_size,
+          reassign_noise=not args.keep_noise)

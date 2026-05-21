@@ -1,14 +1,14 @@
 {
-  "0": "alcoholic-ethereal-camphor",
-  "1": "alcoholic-citrus-ethereal",
-  "2": "delicate-floral-powdery",
-  "3": "alcoholic-ethereal-camphor",
+  "0": "ethereal-alcoholic-fatty",
+  "1": "alcoholic-ethereal-citrus",
+  "2": "alcoholic-ethereal-camphor",
+  "3": "ethereal-alcoholic-camphor",
   "4": "balsamic-banana-brown",
-  "5": "camphor-alcoholic-borneol",
-  "6": "alcoholic-ethereal-camphor",
-  "7": "alcoholic-ethereal-floral",
-  "8": "alcoholic-ethereal-ether",
-  "9": "alcoholic-ethereal-fresh",
-  "10": "alcoholic-ethereal-alkane",
-  "11": "alcoholic-ethereal-fatty"
+  "5": "alcoholic-ethereal-floral",
+  "6": "alcoholic-ethereal-mint",
+  "7": "alcoholic-ethereal-pungent",
+  "8": "alcoholic-ethereal-camphor",
+  "9": "ethereal-alcoholic-camphor",
+  "10": "camphor-alcoholic-borneol",
+  "11": "alcoholic-ethereal-camphor"
 }

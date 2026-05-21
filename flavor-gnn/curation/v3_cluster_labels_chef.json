@@ -1,0 +1,39 @@
+{
+  "_comment": "Chef-curated names for the V3 HDBSCAN-UMAP clusters. Keyed by cluster_id (stable at seed=42 with HDBSCAN min_cluster_size=40, method=leaf on the imputed embedding). Cluster IDs and compositions WILL SHIFT when the chef CSV is expanded — these labels were curated against the 209-row chef CSV. If you expand the CSV further, re-inspect cluster compositions and refine the labels here. The chemistry label is preserved in cluster_labels_v3.json[].chemistry_label.",
+  "_param_lock": {
+    "embedding": "flavor_embeddings_v3_imputed.npy",
+    "cluster_algo": "hdbscan-umap",
+    "min_cluster_size": 40,
+    "seed": 42,
+    "method": "leaf",
+    "reassign_noise": true,
+    "chef_csv_row_count": 209
+  },
+  "labels": {
+    "0": {
+      "chef": "Specialty Aromatics",
+      "chemistry": "waxy-ether-cananga",
+      "notes": "Waxes, ethereal volatiles, cananga (ylang-ylang) — specialty floral/waxy chemistry."
+    },
+    "1": {
+      "chef": "Herbs & Spices",
+      "chemistry": "cheesy-anise-phenolic",
+      "notes": "Herbs (thyme + oregano + sage + rosemary), anise-family spices, phenolic compounds."
+    },
+    "2": {
+      "chef": "Savory Foundations",
+      "chemistry": "mustard-savory-cultured",
+      "notes": "Mega-cluster (1,107 / 33% of corpus). Dairy + meaty + savory/cooked staples — the cooking-foundation cluster."
+    },
+    "3": {
+      "chef": "Alliums & Briny Umami",
+      "chemistry": "briny-oriental-toasted",
+      "notes": "Alliums (garlic, onion, shallot, leek), briny/fermented umami, toasted/oriental savory."
+    },
+    "4": {
+      "chef": "Fruits & Florals",
+      "chemistry": "pulpy-orange-flower",
+      "notes": "Pulpy fruits, floral notes, citrus + tropical fruit chemistry."
+    }
+  }
+}
