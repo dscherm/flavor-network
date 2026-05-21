@@ -1,5 +1,6 @@
 {
-  "_comment": "Chef-curated names for the V3 HDBSCAN-UMAP clusters. Keyed by cluster_id (stable at seed=42 with HDBSCAN min_cluster_size=40, method=leaf on the imputed embedding). Cluster IDs and compositions WILL SHIFT when the chef CSV is expanded — these labels were curated against the 209-row chef CSV. If you expand the CSV further, re-inspect cluster compositions and refine the labels here. The chemistry label is preserved in cluster_labels_v3.json[].chemistry_label.",
+  "_comment": "Chef-curated names for the V3 HDBSCAN-UMAP clusters. Keyed by cluster_id (stable at seed=42, HDBSCAN min_cluster_size=40, method=leaf, reassign_noise=true, on the imputed embedding). Labels target the DOMINANT INGREDIENT CONTENT of each cluster — not the auto-generated chemistry tag, which captures volatile-compound overlap but mixes cooking categories.",
+  "_disclaimer": "Chemistry clusters don't map cleanly to chef categories. Many ingredients land in chemistry-coherent but cooking-diverse clusters (e.g. butter-cream sweets share lactonic chemistry with creamed soups). The chemistry_label field on each cluster preserves the auto-generated descriptor for debugging. When refining, sample 20+ members and pick a label that covers ≥60% of the cluster — accept that 40% will be outliers.",
   "_param_lock": {
     "embedding": "flavor_embeddings_v3_imputed.npy",
     "cluster_algo": "hdbscan-umap",
@@ -11,29 +12,29 @@
   },
   "labels": {
     "0": {
-      "chef": "Specialty Aromatics",
+      "chef": "Condiments & Cured",
       "chemistry": "waxy-ether-cananga",
-      "notes": "Waxes, ethereal volatiles, cananga (ylang-ylang) — specialty floral/waxy chemistry."
+      "notes": "Asian sauces (fish, chili paste, oyster), sausages (andouille, kielbasa), coconut products, brown sugar / apple butter / sweet condiments. Waxy-ether chemistry from lipid + aromatic compounds across these. ~157 members."
     },
     "1": {
-      "chef": "Herbs & Spices",
+      "chef": "Baked & Spiced Sweets",
       "chemistry": "cheesy-anise-phenolic",
-      "notes": "Herbs (thyme + oregano + sage + rosemary), anise-family spices, phenolic compounds."
+      "notes": "Baking ingredients (bread roll, rice flour, dough, raisin bread, sweet potato), warm spices (cardamom, cinnamon, allspice, fennel, saffron), flavored alcohols (brandy, whiskey, schnapps), some dairy. Phenolic + anisic chemistry binds them. Note: REAL HERBS (thyme/oregano/parsley/dill) land here too, but they're a minority of the cluster — don't call this 'Herbs & Spices.' ~681 members."
     },
     "2": {
-      "chef": "Savory Foundations",
+      "chef": "Savory Meats & Dairy",
       "chemistry": "mustard-savory-cultured",
-      "notes": "Mega-cluster (1,107 / 33% of corpus). Dairy + meaty + savory/cooked staples — the cooking-foundation cluster."
+      "notes": "Meats (beef, lamb, chicken), cheeses, baking mixes, beer, savory cooked foundations. Mustard-savory-cultured chemistry. This is the mega-cluster at 1,107 members (33% of corpus) — the 'cooking foundation' bucket."
     },
     "3": {
-      "chef": "Alliums & Briny Umami",
+      "chef": "Dairy & Cooked Grains",
       "chemistry": "briny-oriental-toasted",
-      "notes": "Alliums (garlic, onion, shallot, leek), briny/fermented umami, toasted/oriental savory."
+      "notes": "Dairy (evaporated milk, half-and-half, cottage cheese, cream cheese), cooked grains (rye bread, pasta, navy bean), some Asian condiments (sesame oil, tamari, garam masala). Almost NO alliums despite the briny-oriental chemistry tag. ~619 members."
     },
     "4": {
-      "chef": "Fruits & Florals",
+      "chef": "Sweet Sauces & Fruits",
       "chemistry": "pulpy-orange-flower",
-      "notes": "Pulpy fruits, floral notes, citrus + tropical fruit chemistry."
+      "notes": "Sweets (butterscotch, mascarpone, raspberry jam), sauces (BBQ, orange, tamari, sherry vinegar), fruits (lingonberry, grape juice, candied pineapple), some spices (chipotle, crab boil). Pulpy-floral chemistry. ~826 members."
     }
   }
 }
