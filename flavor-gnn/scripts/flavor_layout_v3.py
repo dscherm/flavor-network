@@ -109,6 +109,12 @@ def _cluster_hdbscan(
     remap = {old: new for new, old in enumerate(unique_clusters)}
     out = np.array([remap[c] if c >= 0 else -1 for c in raw_labels])
 
+    # Track which points were dense-core (HDBSCAN-confident) vs reassigned
+    # noise. The renderer uses dense-core members for label position so
+    # cluster sprites sit at the heart of the real chemistry signal,
+    # not at the noise-sink centroid that includes peripheral reassignment.
+    dense_core_mask = (out >= 0).copy()
+
     noise_idx = np.where(out == -1)[0]
     if reassign_noise:
         for i in noise_idx:
@@ -122,6 +128,7 @@ def _cluster_hdbscan(
         "noise_kept_as_minus_one": 0 if reassign_noise else int(len(noise_idx)),
         "min_cluster_size": min_cluster_size,
         "cluster_selection_method": "leaf",
+        "dense_core_mask": dense_core_mask.tolist(),
     }
     return out, meta
 
@@ -320,13 +327,24 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40,
         print(f"[v3d] no chef labels file at {CHEF_LABELS_PATH.relative_to(ROOT)} — using chemistry labels")
 
     # Cluster centroids in 3D scene space — used by consumers that
-    # render a label sprite at each cluster centroid (LivingArchView,
-    # App.jsx morphAxis path).
+    # render a label sprite at each cluster centroid.
+    # For HDBSCAN modes with noise reassignment: prefer the DENSE-CORE
+    # centroid (computed from points HDBSCAN was confident on, before
+    # reassignment) so the label sprite sits at the chemistry signal's
+    # heart, not at the noise-sink center pulled by peripheral
+    # reassignment. Falls back to all-member centroid for KMeans or when
+    # the dense-core mask is missing.
+    dense_core_mask = cluster_meta.pop("dense_core_mask", None)
     clusters_array = []
     for c in sorted(cluster_label_map):
-        member_idxs = [i for i, cid in enumerate(cluster_ids.tolist()) if cid == c]
-        if member_idxs:
-            centroid_3d = coords_3d[member_idxs].mean(axis=0)
+        all_member_idxs = [i for i, cid in enumerate(cluster_ids.tolist()) if cid == c]
+        core_member_idxs = (
+            [i for i in all_member_idxs if dense_core_mask[i]]
+            if dense_core_mask is not None else all_member_idxs
+        )
+        label_idxs = core_member_idxs if core_member_idxs else all_member_idxs
+        if label_idxs:
+            centroid_3d = coords_3d[label_idxs].mean(axis=0)
             centroid_3d = [round(float(v), 4) for v in centroid_3d]
         else:
             centroid_3d = [0.0, 0.0, 0.0]
@@ -337,6 +355,7 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40,
             "label": chef_label,
             "chemistry_label": chemistry_label,
             "size": cluster_size_map[c],
+            "dense_core_size": len(core_member_idxs),
             "centroid_3d": centroid_3d,
         })
 
