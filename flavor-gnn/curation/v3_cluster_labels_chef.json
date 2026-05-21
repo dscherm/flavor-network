@@ -1,40 +1,30 @@
 {
-  "_comment": "Chef-curated names for the V3 HDBSCAN-UMAP clusters. Keyed by cluster_id (stable at seed=42, HDBSCAN min_cluster_size=40, method=leaf, reassign_noise=true, on the imputed embedding). Labels target the DOMINANT INGREDIENT CONTENT of each cluster — not the auto-generated chemistry tag, which captures volatile-compound overlap but mixes cooking categories.",
-  "_disclaimer": "Chemistry clusters don't map cleanly to chef categories. Many ingredients land in chemistry-coherent but cooking-diverse clusters (e.g. butter-cream sweets share lactonic chemistry with creamed soups). The chemistry_label field on each cluster preserves the auto-generated descriptor for debugging. When refining, sample 20+ members and pick a label that covers ≥60% of the cluster — accept that 40% will be outliers.",
+  "_comment": "Chef-curated names for V3 HDBSCAN-UMAP clusters AFTER recursive bisection (max_cluster_size=500). 13 clusters total at the param_lock below. Each label targets the dominant ingredient family; expect ~30-40% off-theme members.",
+  "_disclaimer": "Chemistry clusters don't map cleanly to cooking categories. Bisection broke the GAT's mega-clusters into navigable sub-regions but didn't separate them by cookbook chapter — the chemistry signal mixes herbs/spices/sweets/savories along compound axes.",
   "_param_lock": {
     "embedding": "flavor_embeddings_v3_imputed.npy",
     "cluster_algo": "hdbscan-umap",
-    "min_cluster_size": 40,
+    "min_cluster_size": 70,
+    "max_cluster_size": 500,
     "seed": 42,
     "method": "leaf",
     "reassign_noise": true,
-    "chef_csv_row_count": 209
+    "chef_csv_row_count": 209,
+    "universe_rows": 4814
   },
   "labels": {
-    "0": {
-      "chef": "Condiments & Cured",
-      "chemistry": "waxy-ether-cananga",
-      "notes": "Asian sauces (fish, chili paste, oyster), sausages (andouille, kielbasa), coconut products, brown sugar / apple butter / sweet condiments. Waxy-ether chemistry from lipid + aromatic compounds across these. ~157 members."
-    },
-    "1": {
-      "chef": "Baked & Spiced Sweets",
-      "chemistry": "cheesy-anise-phenolic",
-      "notes": "Baking ingredients (bread roll, rice flour, dough, raisin bread, sweet potato), warm spices (cardamom, cinnamon, allspice, fennel, saffron), flavored alcohols (brandy, whiskey, schnapps), some dairy. Phenolic + anisic chemistry binds them. Note: REAL HERBS (thyme/oregano/parsley/dill) land here too, but they're a minority of the cluster — don't call this 'Herbs & Spices.' ~681 members."
-    },
-    "2": {
-      "chef": "Savory Meats & Dairy",
-      "chemistry": "mustard-savory-cultured",
-      "notes": "Meats (beef, lamb, chicken), cheeses, baking mixes, beer, savory cooked foundations. Mustard-savory-cultured chemistry. This is the mega-cluster at 1,107 members (33% of corpus) — the 'cooking foundation' bucket."
-    },
-    "3": {
-      "chef": "Dairy & Cooked Grains",
-      "chemistry": "briny-oriental-toasted",
-      "notes": "Dairy (evaporated milk, half-and-half, cottage cheese, cream cheese), cooked grains (rye bread, pasta, navy bean), some Asian condiments (sesame oil, tamari, garam masala). Almost NO alliums despite the briny-oriental chemistry tag. ~619 members."
-    },
-    "4": {
-      "chef": "Sweet Sauces & Fruits",
-      "chemistry": "pulpy-orange-flower",
-      "notes": "Sweets (butterscotch, mascarpone, raspberry jam), sauces (BBQ, orange, tamari, sherry vinegar), fruits (lingonberry, grape juice, candied pineapple), some spices (chipotle, crab boil). Pulpy-floral chemistry. ~826 members."
-    }
+    "0":  { "chef": "Vegetables & Greens",         "chemistry": "cluster-0",                "notes": "Brussels sprout, eggplant, peas, watercress, fermented black bean, yams. ~95 members." },
+    "1":  { "chef": "Sweet Desserts & Dairy",       "chemistry": "cluster-1",                "notes": "Gelatin desserts, ice-cream, schnapps, cheese, pudding, persimmon. ~213 members." },
+    "2":  { "chef": "Spiced Beans & Asian",         "chemistry": "camphor-deep-menthol",     "notes": "Bean paste, pork sausage, chipotle, black pepper, Asian beans + spice. ~329 members." },
+    "3":  { "chef": "Pantry & Sweeteners",          "chemistry": "cluster-3",                "notes": "Agave, molasses, bacon, eggs, panko, sapodilla — pantry catch-all. ~303 members." },
+    "4":  { "chef": "Bold Savory & Smoky",          "chemistry": "terpentine-mint-powdery",  "notes": "Bolognese, beef chuck, herbes de Provence, smoke, parsley, tamarind. Bisected sub-cluster. ~455." },
+    "5":  { "chef": "Sweet Bakes & Tropical",       "chemistry": "cheesy-briny-pyrazinic",   "notes": "Cocoa, cardamom, vanilla pudding, lemon cake, pineapple, watermelon. Bisected. ~622 (largest)." },
+    "6":  { "chef": "Cooked Chicken & Herbs",       "chemistry": "borneol-musty-soapy",      "notes": "Chicken breasts, clary sage, coconut milk, thyme, mustard, vinegars. Bisected. ~461." },
+    "7":  { "chef": "Mushrooms & Cooked Meats",     "chemistry": "savory-umami-cucumber",    "notes": "BBQ beef, bouillon, bella/button mushrooms, taleggio, olives. Bisected. ~541." },
+    "8":  { "chef": "Mixed Staples",                "chemistry": "waxy-menthol-ether",       "notes": "Lettuce, oat, walnut, banana, pasta, sage, tomato. ~173 members." },
+    "9":  { "chef": "Curry & Vegetables",           "chemistry": "vegetative-flower-vinegar","notes": "Carrot, curry powder, chili, lemon extract, mushroom, milk. Bisected. ~523." },
+    "10": { "chef": "Sweet & Cured Meats",          "chemistry": "green-pineapple-grape",    "notes": "Banana flavoring, pork chop, cherry jam, cookie dough, sausage, sugar. Bisected. ~489." },
+    "11": { "chef": "Mixed Aromatic Cooking",       "chemistry": "amber-pulpy-zesty",        "notes": "Broccoli, doughnut, yeast, lamb, sesame, vinaigrette, onion, potato. Citrus + thyme/oregano land here. Bisected. ~559." },
+    "12": { "chef": "Concentrated Flavorings",      "chemistry": "mild",                     "notes": "Anchovy, butterscotch pudding, chocolate, cornmeal, gelatin powder, cracker crumb. Smallest cluster. ~51." }
   }
 }

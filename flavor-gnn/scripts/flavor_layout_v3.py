@@ -133,8 +133,44 @@ def _cluster_hdbscan(
     return out, meta
 
 
+def _split_large_clusters(
+    cluster_ids: np.ndarray,
+    coords: np.ndarray,
+    max_size: int,
+    seed: int = SEED,
+) -> tuple[np.ndarray, int]:
+    """Recursively bisect any cluster above max_size into sub-clusters.
+
+    For each oversized cluster, run KMeans with k = ceil(size / max_size)
+    on its members in `coords` space. Assign new ids monotonically. The
+    result is a re-indexed cluster_ids array where no cluster exceeds
+    max_size (within ~10% tolerance).
+    """
+    out = cluster_ids.copy()
+    n_splits = 0
+    next_id = int(out.max()) + 1
+    for cid in sorted(set(out.tolist())):
+        mask = out == cid
+        size = int(mask.sum())
+        if size <= max_size:
+            continue
+        k = int(np.ceil(size / max_size))
+        if k < 2:
+            continue
+        member_idxs = np.where(mask)[0]
+        sub_km = KMeans(n_clusters=k, random_state=seed, n_init=10)
+        sub_labels = sub_km.fit_predict(coords[member_idxs])
+        # Sub-cluster 0 keeps the parent's id; the rest get new ids.
+        for sub_i in range(1, k):
+            sub_mask = sub_labels == sub_i
+            out[member_idxs[sub_mask]] = next_id
+            next_id += 1
+        n_splits += k - 1
+    return out, n_splits
+
+
 def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40,
-          reassign_noise: bool = True) -> None:
+          reassign_noise: bool = True, max_cluster_size: int = 0) -> None:
     # ── Load embeddings + name ordering ─────────────────────────
     emb = np.load(EMB_PATH).astype(np.float32)
     graph = json.loads(GRAPH_V3.read_text(encoding="utf-8"))
@@ -188,7 +224,30 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40,
     sil_idx = rng.choice(n_nodes, sil_sample_size, replace=False)
     cluster_meta: dict = {"algo": cluster_algo}
 
-    if cluster_algo in ("hdbscan", "hdbscan-umap"):
+    if cluster_algo == "kmeans-umap":
+        X = coords_3d
+        print(f"[v3d] KMeans on umap3d space sweep k={KMEANS_K_GRID}")
+        silhouettes: dict[int, float] = {}
+        km_runs: dict[int, KMeans] = {}
+        for k in KMEANS_K_GRID:
+            km = KMeans(n_clusters=k, random_state=SEED, n_init=10)
+            labels = km.fit_predict(X)
+            sil = float(silhouette_score(X[sil_idx], labels[sil_idx]))
+            silhouettes[k] = sil
+            km_runs[k] = km
+            print(f"  k={k:>2}: silhouette={sil:.4f}")
+        best_k = max(silhouettes, key=lambda k: silhouettes[k])
+        best_sil = silhouettes[best_k]
+        if abs(silhouettes[K_PREFERRED] - best_sil) <= K_PREFER_BAND:
+            chosen_k = K_PREFERRED
+        else:
+            chosen_k = best_k
+        cluster_ids = km_runs[chosen_k].fit_predict(X)
+        cluster_meta["space"] = "umap3d"
+        cluster_meta["k_grid_silhouettes"] = silhouettes
+        cluster_meta["silhouette"] = silhouettes[chosen_k]
+        print(f"[v3d] KMeans-UMAP chose k={chosen_k} (silhouette={silhouettes[chosen_k]:.4f})")
+    elif cluster_algo in ("hdbscan", "hdbscan-umap"):
         space = "umap3d" if cluster_algo == "hdbscan-umap" else "embedding"
         X = coords_3d if space == "umap3d" else emb
         print(f"[v3d] HDBSCAN on {space} space "
@@ -235,6 +294,22 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40,
         cluster_ids = km_runs[chosen_k].fit_predict(emb)
         cluster_meta["k_grid_silhouettes"] = silhouettes
         cluster_meta["silhouette"] = silhouettes[chosen_k]
+
+    # ── Optional recursive bisection of mega-clusters ───────────
+    # The V3b GAT compresses most ingredients into a dense embedding
+    # core; HDBSCAN and KMeans both produce 1-2 mega-clusters covering
+    # 70-80% of the corpus. To break these into more navigable sub-
+    # clusters, bisect any cluster above max_cluster_size.
+    if max_cluster_size > 0:
+        before_n = len(set(cluster_ids.tolist()))
+        cluster_ids, splits = _split_large_clusters(
+            cluster_ids, coords_3d, max_cluster_size, seed=SEED,
+        )
+        after_n = len(set(cluster_ids.tolist()))
+        cluster_meta["max_cluster_size"] = max_cluster_size
+        cluster_meta["bisection_splits"] = splits
+        print(f"[v3d] mega-split: {before_n} → {after_n} clusters "
+              f"(+{splits} sub-clusters at max_size={max_cluster_size})")
 
     # ── Cluster labels via lift ─────────────────────────────────
     corpus_leaf_counts = Counter()
@@ -407,15 +482,20 @@ def build(cluster_algo: str = "kmeans", hdbscan_min_size: int = 40,
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--cluster-algo",
-                   choices=["kmeans", "hdbscan", "hdbscan-umap"],
+                   choices=["kmeans", "hdbscan", "hdbscan-umap", "kmeans-umap"],
                    default="kmeans",
-                   help="hdbscan clusters on 16-d embedding; hdbscan-umap clusters on the 3D UMAP output")
+                   help="kmeans = on 16-d embedding; hdbscan = on 16-d; hdbscan-umap = on 3D UMAP; kmeans-umap = on 3D UMAP (even Voronoi cells)")
     p.add_argument("--hdbscan-min-size", type=int, default=40,
                    help="HDBSCAN min_cluster_size (only when --cluster-algo=hdbscan)")
     p.add_argument("--keep-noise", action="store_true",
                    help="When HDBSCAN labels a point as noise (-1), keep it -1 instead "
                         "of reassigning to nearest centroid. Renderer treats -1 as uncolored.")
+    p.add_argument("--max-cluster-size", type=int, default=0,
+                   help="If > 0, recursively bisect any cluster above this size "
+                        "into sub-clusters via KMeans on UMAP-3D coords. Breaks "
+                        "the mega-clusters that the GAT's dense embedding produces.")
     args = p.parse_args()
     build(cluster_algo=args.cluster_algo,
           hdbscan_min_size=args.hdbscan_min_size,
-          reassign_noise=not args.keep_noise)
+          reassign_noise=not args.keep_noise,
+          max_cluster_size=args.max_cluster_size)

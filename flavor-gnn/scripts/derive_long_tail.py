@@ -47,6 +47,7 @@ THRESHOLDS = ROOT / "flavor-gnn" / "artifacts" / "threshold_calibration_v3.json"
 GNN_ENTROPY = ROOT / "public" / "proDataset" / "gnn_entropy.json"
 GNN_COMPOUNDS = ROOT / "public" / "proDataset" / "gnn_compounds.json"
 POSITIONS = ROOT / "public" / "proDataset" / "flavor_positions.json"
+INGREDIENTS = ROOT / "public" / "proDataset" / "ingredients.json"
 
 # ── Output ──────────────────────────────────────────────────────────
 OUT_CSV = ROOT / "flavor-gnn" / "curation" / "flavor_graph_full.csv"
@@ -54,6 +55,40 @@ OUT_CSV = ROOT / "flavor-gnn" / "curation" / "flavor_graph_full.csv"
 # ── Vocabulary / caps ───────────────────────────────────────────────
 TIER1_VOCAB = ("fruity", "floral", "green", "woody", "fatty")
 TIER2_VOCAB = ("sweet", "sour", "bitter", "umami")
+
+# Heuristic mapping for ingredients.json `category` → tier1 aroma when
+# we have no chemistry signal (no GNN entry, no chef row). Conservative —
+# only maps categories with an unambiguous aroma family. Categories
+# without a clear aroma fit (protein, liquid, condiment, etc.) get no
+# tier1; the row still gets tier2 from the curated `taste` field.
+CATEGORY_TO_TIER1: dict[str, str] = {
+    "fruit":      "fruity",
+    "citrus":     "fruity",
+    "berry":      "fruity",
+    "vegetable":  "green",
+    "leafy":      "green",
+    "herb":       "green",
+    "aromatic":   "green",
+    "nut":        "woody",
+    "seed":       "woody",
+    "grain":      "woody",
+    "baked":      "woody",
+    "dairy":      "fatty",
+    "fat":        "fatty",
+    "cheese":     "fatty",
+}
+
+# Heuristic vocab for parsing ingredients.json's `taste` field (space-
+# separated). Includes the 7 v3 tier2 terms (salty dropped per Q6).
+INGREDIENTS_TIER2_VOCAB = frozenset({
+    "sweet", "sour", "bitter", "umami", "pungent", "astringent", "spicy",
+})
+
+# Garbage filter for the heuristic-only ingest: ingredients.json entries
+# with category=='other' AND totalCount below this threshold are dropped.
+# 745 'other' entries exist; ~300-400 with count<10 are typos / one-off
+# anomalies (walru, ymer, roasting pan, etc.).
+GARBAGE_OTHER_COUNT_FLOOR = 10
 K_T1, K_T2, K_T3, K_LEAVES = 1, 3, 3, 5
 
 # Compound-descriptor tags that map to Tier-3 mouthfeel terms. Used to
@@ -211,6 +246,34 @@ def _derive_leaves(compounds_entry: dict | None) -> list[str]:
     return [tag for tag, _ in ranked[:K_LEAVES]]
 
 
+def _derive_heuristic_row(name: str, info: dict) -> dict[str, str]:
+    """Category-heuristic row for ingredients.json entries with no
+    GNN signal and no chef curation. Tier1 from category map, tier2
+    from the curated `taste` string, tier3/leaves empty."""
+    category = (info.get("category") or "").strip().lower()
+    taste = (info.get("taste") or "").strip().lower()
+    tier1 = []
+    t1_match = CATEGORY_TO_TIER1.get(category)
+    if t1_match:
+        tier1 = [t1_match]
+    tier2 = []
+    for tok in taste.split():
+        tok = tok.strip()
+        if tok in INGREDIENTS_TIER2_VOCAB:
+            tier2.append(tok)
+    return {
+        "name": name,
+        "tier1_aroma": "|".join(tier1[:K_T1]),
+        "tier2_taste": "|".join(tier2[:K_T2]),
+        "tier3_mouthfeel": "",
+        "leaves": "",
+        "sources": "category-heuristic",
+        "key_pairings": "",
+        "pairing_principles": "",
+        "chemistry_notes": "",
+    }
+
+
 def _derive_row(
     name: str,
     entropy: dict[str, dict] | None,
@@ -258,20 +321,45 @@ def build() -> None:
     entropy = json.loads(GNN_ENTROPY.read_text(encoding="utf-8"))
     compounds = json.loads(GNN_COMPOUNDS.read_text(encoding="utf-8"))
     universe = json.loads(POSITIONS.read_text(encoding="utf-8"))
+    ingredients = json.loads(INGREDIENTS.read_text(encoding="utf-8"))
 
-    # Universe ordering: lexical for determinism
-    names = sorted(universe.keys())
+    # Universe: union of (a) flavor_positions_v3 names (the chemistry-
+    # backed core, 3,390 nodes) and (b) ingredients.json names with the
+    # garbage filter (drop category='other' with totalCount<floor).
+    chemistry_universe = set(universe.keys())
+    heuristic_candidates: set[str] = set()
+    dropped_garbage = 0
+    for name, info in ingredients.items():
+        if name.startswith("_"):
+            continue
+        if name in chemistry_universe:
+            continue
+        category = (info.get("category") or "").strip().lower()
+        count = int(info.get("totalCount", 0))
+        if category == "other" and count < GARBAGE_OTHER_COUNT_FLOOR:
+            dropped_garbage += 1
+            continue
+        heuristic_candidates.add(name)
+
+    names = sorted(chemistry_universe | heuristic_candidates)
+    print(f"[v3a] universe: {len(chemistry_universe)} chemistry + "
+          f"{len(heuristic_candidates)} heuristic = {len(names)} total "
+          f"(dropped {dropped_garbage} garbage rows)")
 
     out_rows: list[dict[str, str]] = []
-    densities: dict[str, list[int]] = {"manual-top-500": [], "rule-derived": [], "hub-fallback": []}
+    densities: dict[str, list[int]] = {
+        "manual-top-500": [], "rule-derived": [], "hub-fallback": [],
+        "category-heuristic": [],
+    }
 
     for name in names:
         chef = chef_rows.get(name)
-        # Chef row counts as populated when tier1_aroma is non-empty
         if chef and (chef.get("tier1_aroma") or "").strip():
             row = _cap_chef_row(chef)
-        else:
+        elif name in chemistry_universe:
             row = _derive_row(name, entropy.get(name), compounds.get(name), thresholds)
+        else:
+            row = _derive_heuristic_row(name, ingredients.get(name, {}))
         out_rows.append(row)
         densities[row["sources"].split(";")[0]].append(_density(row))
 
