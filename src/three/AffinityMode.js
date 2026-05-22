@@ -37,17 +37,26 @@ import { FILTER_TO_AXIS, morphAxisForStack } from '../data/networkModes.js';
 import { cuisineColor } from '../data/cuisinePairings.js';
 
 // Ring radii in 3D scene units. Spec § α-mode visual layout.
-// Ring 0 (Surprising) sits OUTSIDE ring 1 — molecularly-bridged but
-// corpus-untiered candidates orbit at the periphery.
+// Canonical-spec §6.3 — concentric categorical rings, innermost to
+// outermost. v2.0 ships 4 of the 6 spec'd axes; cuisine + season
+// deferred to N3-ALPHA-V2.1 (would require 2 new ring meshes).
+// Ring index 3 = innermost (cluster), 0 = outermost (family). Index
+// kept 3/2/1/0 (descending) so existing affinityShape() / mesh map
+// stays correct without renaming.
+const RING_AXIS = {
+  3: 'cluster',   // innermost — ring 1 in spec wording
+  2: 'aromas',    // ring 2
+  1: 'taste',     // ring 3
+  0: 'family',    // ring 4
+};
 const RADII = { 3: 12, 2: 22, 1: 35, 0: 48 };
-// Tier-stratified pyramid elevation (2026-05-16 user feedback): lift
-// each ring off the wheel's XZ plane so same-bucket accents at
-// different tiers no longer collapse to the same screen-y band. ★★★
-// chemistry sits at the wheel plane (Y=0); ★★ strong, ★ good, and
-// Surprising step up so the overall accent cloud reads as a low
-// pyramid around the focal. Heights chosen to scale with the radial
-// steps (≈ 45° cone) so the pyramid feels visually proportional.
-const RING_ELEVATION = { 3: 0, 2: 10, 1: 20, 0: 30 };
+// Y-elevation per ring keeps stacked affinities readable when the
+// camera looks down a shallow angle. Inner rings stay near the wheel
+// plane; outer rings step up gently. Bumped from prior tier-pyramid
+// values (0/10/20/30) to a smaller spread because rings are now
+// categorical (no implicit "stronger=lower") and a flatter wheel
+// reads better from the focal-orbit's 60° elevation.
+const RING_ELEVATION = { 3: 0, 2: 4, 1: 8, 0: 12 };
 
 // Golden angle (φ ≈ 137.5°) — distributes ring slots so adjacent
 // positions aren't cluster-correlated.
@@ -116,11 +125,18 @@ const AFFINITY_SPHERE_RADIUS = 1.2;
 // which node is the active pivot point.
 const FOCAL_SCALE_BOOST = 1.6;
 
-// Per-role slot capacity. ★★★/★★/★ sum to 30; Surprising adds up
-// to 8 outer-ring slots so the total raycast budget is 38 affinities
-// (+1 focal). Edge buffer below sized for TOTAL_RING_CAPACITY.
-const RING_CAPACITY = { 3: 5, 2: 10, 1: 15, 0: 8 };
+// Per-ring slot capacity. v2 6-axis design: each ring holds up to N
+// affinities at their bucket on that ring's axis (cross-ring
+// duplication — the same affinity appears on every ring where it
+// has a bucket). Capacity 30 per ring = top-30 strength-ranked
+// affinities × 4 axes = 120 max slots. Edge buffer separately sized
+// (one edge per UNIQUE affinity, not per ring instance).
+const RING_CAPACITY = { 3: 30, 2: 30, 1: 30, 0: 30 };
 const TOTAL_RING_CAPACITY = RING_CAPACITY[3] + RING_CAPACITY[2] + RING_CAPACITY[1] + RING_CAPACITY[0];
+// Unique affinity cap — number of distinct ingredients in the rings
+// (top-N by strength), independent of how many rings each appears on.
+// One edge from focal per UNIQUE affinity, colored by native tier.
+const UNIQUE_AFFINITY_CAP = 30;
 const FOCAL_CAPACITY = 1;
 
 // Performance budget — warn if engage / pivot exceed.
@@ -812,121 +828,161 @@ export class AffinityMode {
     focalSlotMap.fill(-1);
     focalSlotMap[0] = focalIdx;
 
-    // Resolve wedge-layout inputs from the live filter stack + nodes
-    // map. The wedge axis follows the most-recent active filter (per
-    // the r16-1 spec); falls back to 'aromas' when no filter is active.
-    const wedgeContext = this._resolveWedgeContext(affinities);
-    const { axisKey, palette, bucketColors, neighborWithBucket } = wedgeContext;
-    // Match the SVG-wheel viewport so the layout's `radius` lands at
-    // WEDGE_RADIUS / 0.42 ≈ 124 viewport units, which then scales to
-    // WEDGE_RADIUS in world space below.
-    const layoutViewport = { width: WEDGE_RADIUS / 0.42, height: WEDGE_RADIUS / 0.42 };
-    const layout = computeWheelLayout({
-      focal: { name: focal },
-      neighbors: neighborWithBucket,
-      axis: axisKey,
-      viewport: layoutViewport,
-      bucketColors,
-      bucketOrder: palette?.labels ? [...palette.labels, FALLBACK_BUCKET_KEY] : null,
+    // ─── v2 6-axis (4-axis impl ships now) placement ───
+    // Each of the 4 axes (cluster/aromas/taste/family) gets its own
+    // ring mesh. For each axis we run computeWheelLayout to get
+    // bucket angles, then place every affinity that has a bucket on
+    // this axis at the corresponding ring radius + segment angle.
+    // The focal goes on the innermost (cluster) ring at its cluster's
+    // segment angle — NOT at the wheel center (canonical-spec §6.4).
+    const layoutViewportFor = (radius) => ({
+      width: radius / 0.42,
+      height: radius / 0.42,
     });
-    const layoutScale = layout.radius > 0 ? (WEDGE_RADIUS / layout.radius) : 1;
-
-    // Map every dot back to its affinity entry by name so we know
-    // which per-tier mesh + slot it belongs to. computeWheelLayout
-    // preserves the neighbor object reference inside `dot.neighbor`.
-    const dotByName = new Map();
-    for (const dot of layout.dots) {
-      const n = dot.neighbor;
-      if (n && n.name) dotByName.set(n.name, dot);
+    const layoutByRing = {};
+    const bucketColorsByRing = {};
+    for (const ringIdx of [3, 2, 1, 0]) {
+      const axisKey = RING_AXIS[ringIdx];
+      const wedgeContext = this._resolveWedgeContext(affinities, axisKey);
+      const { palette, bucketColors, neighborWithBucket } = wedgeContext;
+      const layout = computeWheelLayout({
+        focal: { name: focal },
+        neighbors: neighborWithBucket,
+        axis: axisKey,
+        viewport: layoutViewportFor(RADII[ringIdx]),
+        bucketColors,
+        bucketOrder: palette?.labels ? [...palette.labels, FALLBACK_BUCKET_KEY] : null,
+      });
+      const layoutScale = layout.radius > 0 ? (RADII[ringIdx] / layout.radius) : 1;
+      const dotByName = new Map();
+      for (const dot of layout.dots) {
+        const n = dot.neighbor;
+        if (n && n.name) dotByName.set(n.name, dot);
+      }
+      // Build a quick wedge-by-key index so focal can look up its
+      // cluster's segment angle below.
+      const wedgeByKey = new Map();
+      for (const w of layout.wedges) wedgeByKey.set(w.key, w);
+      layoutByRing[ringIdx] = { layout, layoutScale, dotByName, bucketColors, wedgeByKey, axisKey };
+      bucketColorsByRing[ringIdx] = bucketColors;
     }
-    this._currentWedges = layout.wedges;
-    this._currentBucketColors = bucketColors;
-    this._currentWedgeAxis = axisKey;
+    // Legacy single-axis surface (preserved for SVG overlay + tests):
+    // _currentWedges + _currentWedgeAxis follow the filter-driven axis
+    // (or DEFAULT_WEDGE_AXIS 'aromas' when no filter). The v2 cluster
+    // ring data is surfaced separately under _clusterRing for new code.
+    const filterStack = (this._getFilterStack && this._getFilterStack()) || [];
+    const filterMorphAxis = morphAxisForStack(filterStack) || DEFAULT_WEDGE_AXIS;
+    const filterRingIdx = filterMorphAxis === 'cluster' ? 3
+      : filterMorphAxis === 'aromas' ? 2
+      : filterMorphAxis === 'taste'  ? 1
+      : filterMorphAxis === 'family' ? 0
+      : 2; // default 'aromas' ring
+    const surfacedRing = layoutByRing[filterRingIdx] || layoutByRing[2];
+    this._currentWedges = surfacedRing.layout.wedges;
+    this._currentBucketColors = surfacedRing.bucketColors;
+    this._currentWedgeAxis = surfacedRing.axisKey;
+    this._clusterRing = layoutByRing[3];
 
-    const sphereWorldPos = []; // for label/edge alignment, in affinity order
-    for (let i = 0; i < affinities.length; i++) {
-      const aff = affinities[i];
-      const ringIdx = aff.ringIdx;
+    // ─── 1a-revised. Focal placement ON cluster ring at cluster segment ───
+    // Override the earlier "focal at wheel center" placement (which
+    // we did at line ~765 above). Move focal to ring 3 at its own
+    // cluster's segment angle. Camera-orbit framing stays at the
+    // wheel center; the focal sphere just sits on the cluster ring.
+    const focalNode = st.nodeArray?.[focalIdx] || null;
+    const focalClusterId = focalNode?.clusterId;
+    const focalWedge = focalClusterId != null
+      ? clusterRing.wedgeByKey.get(String(focalClusterId))
+      : null;
+    let focalRingX = cx;
+    let focalRingZ = cz;
+    if (focalWedge) {
+      const fa = focalWedge.midAngle;
+      focalRingX = cx + RADII[3] * Math.cos(fa);
+      focalRingZ = cz + RADII[3] * Math.sin(fa);
+      const fmS = new THREE.Vector3(focalScale, focalScale, focalScale);
+      const fmM = new THREE.Matrix4();
+      const fmV = new THREE.Vector3(focalRingX, cy + RING_ELEVATION[3], focalRingZ);
+      const fmQ = new THREE.Quaternion();
+      fmM.compose(fmV, fmQ, fmS);
+      this.focalMesh.setMatrixAt(0, fmM);
+      this.focalMesh.instanceMatrix.needsUpdate = true;
+    }
+
+    // ─── 1b-revised. Affinity placement — walk axes, place each
+    //              affinity at its bucket on each ring it has one ───
+    // sphereWorldPos[i] stores the affinity's CLUSTER-RING position
+    // for downstream edge/flag rendering (one edge per unique aff,
+    // not one per ring instance).
+    const sphereWorldPos = []; // for edge alignment, in affinity order
+    for (const aff of affinities) sphereWorldPos.push(null);
+
+    // Track which ring's position should be exposed as the canonical
+    // aff.worldPos (consumed by SVG overlay + cuisine flags + legacy
+    // wedge tests). When a filter pill is active, worldPos points at
+    // the filter-driven ring so the overlay groups affinities by the
+    // user's currently-focused axis. Otherwise default to the cluster
+    // ring (innermost, primary navigation axis).
+    const canonicalRingIdx = filterRingIdx;
+
+    for (const ringIdx of [3, 2, 1, 0]) {
+      const ring = layoutByRing[ringIdx];
       const mesh = this._ringMeshes[ringIdx];
       const cap = RING_CAPACITY[ringIdx];
-      const slot = slotCounter[ringIdx]++;
-      if (slot >= cap) {
-        // Defensive — topAffinities slices to (5,10,15) so this should
-        // never trip, but if a future caller passes larger N, we drop
-        // overflow rather than scribbling past the buffer.
-        sphereWorldPos.push(null);
-        continue;
+      let slot = 0;
+      for (let i = 0; i < affinities.length; i++) {
+        const aff = affinities[i];
+        const dot = ring.dotByName.get(aff.name);
+        if (!dot) continue; // affinity has no bucket on this axis
+        if (slot >= cap) break;
+        const px = dot.x * ring.layoutScale;
+        const pz = dot.y * ring.layoutScale;
+        const yLift = RING_ELEVATION[ringIdx] ?? 0;
+        tmpV.set(cx + px, cy + yLift, cz + pz);
+        const worldXyz = [tmpV.x, tmpV.y, tmpV.z];
+        if (ringIdx === canonicalRingIdx) {
+          sphereWorldPos[i] = worldXyz;
+          aff.worldPos = worldXyz;
+          aff.bucketKey = dot?.neighbor?.bucketKey ?? null;
+        }
+        m.compose(tmpV, tmpQ, tmpS);
+        mesh.setMatrixAt(slot, m);
+        const bucketHex = dot?.neighbor?.bucketKey ? ring.bucketColors[dot.neighbor.bucketKey] : null;
+        let cr, cg, cb;
+        if (bucketHex) {
+          const bc = new THREE.Color(bucketHex);
+          cr = bc.r; cg = bc.g; cb = bc.b;
+        } else {
+          const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
+          cr = c.r; cg = c.g; cb = c.b;
+        }
+        mesh.instanceColor.setXYZ(slot, cr, cg, cb);
+        const affGlobalIdx = st.nameIdx?.get(aff.name);
+        if (typeof affGlobalIdx === 'number') {
+          mesh.userData.slotToGlobalIdx[slot] = affGlobalIdx;
+        }
+        slot++;
       }
-      // Wedge-layout 2D position → 3D scene coords. Layout's Y maps to
-      // scene Z (XZ plane, Y up). If the dot is missing (shouldn't
-      // happen because every neighbor gets a fallback bucket), fall
-      // back to the legacy ring placement so we never lose a node.
-      const dot = dotByName.get(aff.name);
-      let px, pz;
-      if (dot) {
-        px = dot.x * layoutScale;
-        pz = dot.y * layoutScale;
-      } else {
-        const fallback = placeOnRing(ringIdx, slot);
-        px = fallback.x;
-        pz = fallback.z;
-      }
-      // Iter (2026-05-16 'more dramatic'): within-tier radial stagger
-      // bumped 0.18 → 0.4 (±20%). User feedback: prior ±9% wasn't
-      // visible enough — same-tier accents were still clustering.
-      // Tier 3 max (14.4) vs tier 2 min (17.6) still clears the gap,
-      // and the Y-lift difference (RING_ELEVATION step of 10) keeps
-      // any close-call radii reading as visually separate tiers.
-      const tierCap = RING_CAPACITY[ringIdx] || 1;
-      const radialStaggerRange = 0.40; // ±20% of tier radius
-      const radialOffset = tierCap > 1
-        ? (slot / (tierCap - 1) - 0.5) * radialStaggerRange
-        : 0;
-      const radialScale = 1 + radialOffset;
-      px *= radialScale;
-      pz *= radialScale;
-      // Tier-stratified pyramid (2026-05-16 user feedback): lift each
-      // accent off the focal's Y plane based on its ring tier so the
-      // 3D layout reads as a low pyramid around the focal. Strong
-      // tiers stay near the wheel plane; weaker tiers + Surprising
-      // rise. Combined with the existing radial position this maps
-      // the affinity list to a cone shape, defeating screen-stack
-      // collisions when the camera looks at it from a shallow angle.
-      const yLift = RING_ELEVATION[ringIdx] ?? 0;
-      tmpV.set(cx + px, cy + yLift, cz + pz);
-      const worldXyz = [tmpV.x, tmpV.y, tmpV.z];
-      sphereWorldPos.push(worldXyz);
-      // Track 2 (2026-05-16): AffinityTriangleOverlay reads `worldPos`
-      // off each affinity so its cones land on the actual ring-rendered
-      // position, not on the network-layout curPos. Without this the
-      // SVG cones miss every accent that's wedge-placed by AffinityMode.
-      aff.worldPos = worldXyz;
-      // Iter (2026-05-16 'audit'): also attach the wedge bucket key so
-      // the SVG overlay can color the cone by the same axis that drives
-      // its direction (aroma by default). Without this the cone points
-      // toward an aroma sector but is painted in the unrelated cluster
-      // color — visually contradictory.
-      aff.bucketKey = dot?.neighbor?.bucketKey ?? null;
-      m.compose(tmpV, tmpQ, tmpS);
-      mesh.setMatrixAt(slot, m);
-      // Iter (2026-05-16 'audit'): color 3D ring mesh instances by
-      // bucket so the in-scene shapes share the affinity-cone palette.
-      // Tier identification is still carried by the SHAPE silhouette
-      // (bipyramid / cylinder / sphere / star). Falls back to the tier
-      // color when the bucket is unknown.
-      const bucketHex = aff.bucketKey ? bucketColors[aff.bucketKey] : null;
-      let cr, cg, cb;
-      if (bucketHex) {
-        const bc = new THREE.Color(bucketHex);
-        cr = bc.r; cg = bc.g; cb = bc.b;
-      } else {
-        const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
-        cr = c.r; cg = c.g; cb = c.b;
-      }
-      mesh.instanceColor.setXYZ(slot, cr, cg, cb);
-      const affGlobalIdx = st.nameIdx?.get(aff.name);
-      if (typeof affGlobalIdx === 'number') {
-        mesh.userData.slotToGlobalIdx[slot] = affGlobalIdx;
+    }
+    // For any affinity that didn't get placed on the canonical ring
+    // (the affinity has no bucket on that axis), use the first ring
+    // it does have a placement on. Cuisine flags + edges + SVG cones
+    // need a worldPos to anchor against.
+    const tryRings = [canonicalRingIdx, 3, 2, 1, 0];
+    for (let i = 0; i < affinities.length; i++) {
+      if (sphereWorldPos[i] !== null) continue;
+      const aff = affinities[i];
+      for (const ringIdx of tryRings) {
+        const ring = layoutByRing[ringIdx];
+        const dot = ring.dotByName.get(aff.name);
+        if (!dot) continue;
+        const px = dot.x * ring.layoutScale;
+        const pz = dot.y * ring.layoutScale;
+        const yLift = RING_ELEVATION[ringIdx] ?? 0;
+        const worldXyz = [cx + px, cy + yLift, cz + pz];
+        sphereWorldPos[i] = worldXyz;
+        aff.worldPos = worldXyz;
+        aff.bucketKey = dot?.neighbor?.bucketKey ?? null;
+        break;
       }
     }
     for (const ringIdx of [3, 2, 1, 0]) {
@@ -936,8 +992,15 @@ export class AffinityMode {
       mesh.visible = true;
     }
 
-    // ─── 1c. Wedge arc outlines (bucket-colored Line objects) ───
-    this._buildWedgeArcs(layout, layoutScale, [cx, cy, cz]);
+    // ─── 1c. Wedge arc outlines (legacy single-axis arcs) ───
+    // Draw arcs for the filter-driven axis ring (matches legacy SVG
+    // overlay's wedge layout). The 4-ring v2 placement still happens
+    // above; arcs frame the user's currently-active filter axis.
+    this._buildWedgeArcs(
+      surfacedRing.layout,
+      surfacedRing.layoutScale,
+      [cx, cy, cz],
+    );
 
     // ─── 2. Edge buffer (focal → each affinity) ───
     const posAttr = this.edgeGeo.attributes.position;
@@ -1153,11 +1216,45 @@ export class AffinityMode {
    *   bucketColors       — { [bucketLabel]: hexColor } including fallback
    *   neighborWithBucket — affinities[] with `bucketKey` filled in
    */
-  _resolveWedgeContext(affinities) {
-    const filterStack = (this._getFilterStack && this._getFilterStack()) || [];
-    const morphAxis = morphAxisForStack(filterStack);
-    const axisKey = morphAxis || DEFAULT_WEDGE_AXIS;
+  _resolveWedgeContext(affinities, axisOverride = null) {
+    let axisKey = axisOverride;
+    if (!axisKey) {
+      const filterStack = (this._getFilterStack && this._getFilterStack()) || [];
+      const morphAxis = morphAxisForStack(filterStack);
+      axisKey = morphAxis || DEFAULT_WEDGE_AXIS;
+    }
     const filterKey = axisKey === 'aromas' ? 'aroma' : axisKey;
+    const nodes = this.ctx?.graph?.nodes;
+    const ctx = this._categoricalCtx || {};
+
+    // Special path for the cluster axis: buckets are derived from
+    // node.clusterId (the v3 cluster index) + cluster_labels_v3
+    // mappings already attached to nodes by useProData. CATEGORICAL_AXES
+    // doesn't have a 'cluster' entry — synthesize palette + buckets
+    // from the live nodes.
+    if (axisKey === 'cluster') {
+      const labels = new Set();
+      const colors = {};
+      const palette = { labels: [], colors: [] };
+      const neighborWithBucket = affinities.map((aff) => {
+        const node = (nodes && typeof nodes.get === 'function')
+          ? (nodes.get(aff.name) || { name: aff.name })
+          : { name: aff.name };
+        const cid = node.clusterId;
+        const bucketKey = cid != null ? String(cid) : FALLBACK_BUCKET_KEY;
+        if (cid != null && !labels.has(bucketKey)) {
+          labels.add(bucketKey);
+          palette.labels.push(bucketKey);
+          const hex = node.clusterColor || FALLBACK_BUCKET_COLOR;
+          palette.colors.push(hex);
+          colors[bucketKey] = hex;
+        }
+        return { ...aff, bucketKey };
+      });
+      colors[FALLBACK_BUCKET_KEY] = FALLBACK_BUCKET_COLOR;
+      return { axisKey, palette, bucketColors: colors, neighborWithBucket };
+    }
+
     const palette = CATEGORICAL_AXES[axisKey] || null;
     const bucketColors = {};
     if (palette && Array.isArray(palette.labels)) {
@@ -1170,16 +1267,14 @@ export class AffinityMode {
     // Look up each neighbor's bucket via the same path the SVG wheel +
     // LivingArchView visibility predicate use, so compound-foods +
     // hub ingredients land in the same bucket as elsewhere in the app.
-    const ctx = this._categoricalCtx || {};
-    const nodes = this.ctx?.graph?.nodes;
     const neighborWithBucket = affinities.map((aff) => {
       const node = (nodes && typeof nodes.get === 'function')
         ? (nodes.get(aff.name) || { name: aff.name })
         : { name: aff.name };
       let bucketKey = resolveBucket(filterKey, node, ctx) || null;
-      // Fallback bucket — never drop a neighbor from the layout. The
-      // SVG wheel filters by bucket, but here we MUST place every
-      // affinity on a sphere or the user loses information.
+      // Never drop a neighbor from the layout — assign FALLBACK_BUCKET
+      // so the affinity still places on a ring; otherwise the user
+      // loses information about that ingredient.
       if (!bucketKey) bucketKey = FALLBACK_BUCKET_KEY;
       return { ...aff, bucketKey };
     });
