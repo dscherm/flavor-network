@@ -40,6 +40,10 @@ export const MODE_LABELS = {
   '3D': 'Recipe Network (legacy)',
   '2D': '2D Pairings',
   'flavor3D': 'Flavor Network',
+  // v3 P-C4 — programmatic-only mode that pairs `flavor_positions_2d.json`
+  // (n_components=2 UMAP from flavor_layout_v2.py) with the existing 2D
+  // scene. Not in MODE_CYCLE (preserves the ADR-1 length=2 lock).
+  'flavor2D': 'Flavor Network 2D',
 };
 
 // ===== Filter pill row (new in R16 Phase 1) ==============================
@@ -54,16 +58,21 @@ export const FILTER_KEYS = [
   'taste',
   'cocktail-scope',
   'sauce-scope',
+  // v3 P-C4 — scope pill that restricts visibility to the 89 chef-verified
+  // flavor-graph rows (those with `node.flavorGraph !== null`). Behaves
+  // like `cocktail-scope` / `sauce-scope` — axis-null, visibility-only.
+  'flavor-category',
 ];
 
 export const FILTER_LABELS = {
-  'aroma':          'Aroma',
-  'cuisine':        'Cuisine',
-  'season':         'Season',
-  'family':         'Family',
-  'taste':          'Taste',
-  'cocktail-scope': 'Cocktail Scope',
-  'sauce-scope':    'Sauce Scope',
+  'aroma':           'Aroma',
+  'cuisine':         'Cuisine',
+  'season':          'Season',
+  'family':          'Family',
+  'taste':           'Taste',
+  'cocktail-scope':  'Cocktail Scope',
+  'sauce-scope':     'Sauce Scope',
+  'flavor-category': 'Flavor Graph',
 };
 
 // Singular filter key → plural axis key consumed by
@@ -71,13 +80,14 @@ export const FILTER_LABELS = {
 // because they have no wheel data — they are visibility-only and
 // must NOT drive the morph layout.
 export const FILTER_TO_AXIS = {
-  'aroma':          'aromas',     // singular → plural
-  'cuisine':        'cuisine',
-  'season':         'season',
-  'family':         'family',
-  'taste':          'taste',
-  'cocktail-scope': null,
-  'sauce-scope':    null,
+  'aroma':           'aromas',     // singular → plural
+  'cuisine':         'cuisine',
+  'season':          'season',
+  'family':          'family',
+  'taste':           'taste',
+  'cocktail-scope':  null,
+  'sauce-scope':     null,
+  'flavor-category': null,
 };
 
 /**
@@ -189,6 +199,7 @@ export function effectiveLegacyMode(mode, morphAxis) {
     if (mode === '3D') return 'ml';
     if (mode === '2D') return 'ml2d';
     if (mode === 'flavor3D') return 'mlflavor';
+    if (mode === 'flavor2D') return 'mlflavor2d';
     return 'ml';
   }
   return AXIS_TO_LEGACY_MODE[morphAxis] || (mode === '3D' ? 'ml' : 'ml2d');
