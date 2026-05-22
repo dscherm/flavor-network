@@ -141,18 +141,20 @@ describe('AffinityMode — GPU resource reuse across pivots', () => {
       ctrl.pivot(`ing-${(i + 200) % 1500}`);
     }
     expect(stateRef.scene.children.length).toBe(childrenAfterEngage);
-    // v2: each ring is now an axis (cluster/aroma/taste/family),
-    // each sized to hold up to 30 affinities (one slot per top-N).
-    // Canonical invariant: 4 rings × 30 = 120 total slots reused
-    // across pivots; never grows.
+    // v2.1: full 6-axis design (cluster/aroma/taste/family/cuisine/season)
+    // — 6 rings × 30 slots = 180 total. Mesh instances are reused
+    // across pivots; never grow.
     expect(ctrl.focalMesh.count).toBe(1);
     expect(ctrl.ring3Mesh.count).toBe(30);
     expect(ctrl.ring2Mesh.count).toBe(30);
     expect(ctrl.ring1Mesh.count).toBe(30);
     expect(ctrl.ring0Mesh.count).toBe(30);
+    expect(ctrl.ring4Mesh.count).toBe(30);
+    expect(ctrl.ring5Mesh.count).toBe(30);
     const total = ctrl.ring3Mesh.count + ctrl.ring2Mesh.count
-                + ctrl.ring1Mesh.count + ctrl.ring0Mesh.count;
-    expect(total).toBe(120);
+                + ctrl.ring1Mesh.count + ctrl.ring0Mesh.count
+                + ctrl.ring4Mesh.count + ctrl.ring5Mesh.count;
+    expect(total).toBe(180);
     // Labels are rebuilt per pivot but never exceed 31 (1 focal + 30 affinities).
     expect(ctrl.labelGroup.children.length).toBeLessThanOrEqual(31);
     ctrl.dispose();

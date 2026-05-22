@@ -37,26 +37,28 @@ import { FILTER_TO_AXIS, morphAxisForStack } from '../data/networkModes.js';
 import { cuisineColor } from '../data/cuisinePairings.js';
 
 // Ring radii in 3D scene units. Spec § α-mode visual layout.
-// Canonical-spec §6.3 — concentric categorical rings, innermost to
-// outermost. v2.0 ships 4 of the 6 spec'd axes; cuisine + season
-// deferred to N3-ALPHA-V2.1 (would require 2 new ring meshes).
-// Ring index 3 = innermost (cluster), 0 = outermost (family). Index
-// kept 3/2/1/0 (descending) so existing affinityShape() / mesh map
-// stays correct without renaming.
+// Canonical-spec §6.3 — full 6 concentric categorical rings.
+// Ring index legacy 3/2/1/0 retained for cluster/aroma/taste/family
+// (v2.0 set); ring 4 + ring 5 added for cuisine + season at outer
+// radii. RING_AXIS lookup drives placement; raycast & dispose paths
+// updated below.
 const RING_AXIS = {
   3: 'cluster',   // innermost — ring 1 in spec wording
   2: 'aromas',    // ring 2
   1: 'taste',     // ring 3
   0: 'family',    // ring 4
+  4: 'cuisine',   // ring 5
+  5: 'season',    // ring 6 — outermost
 };
-const RADII = { 3: 12, 2: 22, 1: 35, 0: 48 };
+const RADII = { 3: 12, 2: 22, 1: 35, 0: 48, 4: 60, 5: 72 };
 // Y-elevation per ring keeps stacked affinities readable when the
-// camera looks down a shallow angle. Inner rings stay near the wheel
-// plane; outer rings step up gently. Bumped from prior tier-pyramid
-// values (0/10/20/30) to a smaller spread because rings are now
-// categorical (no implicit "stronger=lower") and a flatter wheel
-// reads better from the focal-orbit's 60° elevation.
-const RING_ELEVATION = { 3: 0, 2: 4, 1: 8, 0: 12 };
+// camera looks down a shallow angle. Outer rings step up gently.
+const RING_ELEVATION = { 3: 0, 2: 4, 1: 8, 0: 12, 4: 16, 5: 20 };
+// All ring indices, ordered innermost → outermost (drives the
+// placement loop + dispose + raycast loops). The legacy 3-2-1-0
+// order is preserved for clusters/aroma/taste/family; cuisine and
+// season sit at the periphery (4, 5).
+const RING_INDICES = [3, 2, 1, 0, 4, 5];
 
 // Golden angle (φ ≈ 137.5°) — distributes ring slots so adjacent
 // positions aren't cluster-correlated.
@@ -131,8 +133,8 @@ const FOCAL_SCALE_BOOST = 1.6;
 // has a bucket). Capacity 30 per ring = top-30 strength-ranked
 // affinities × 4 axes = 120 max slots. Edge buffer separately sized
 // (one edge per UNIQUE affinity, not per ring instance).
-const RING_CAPACITY = { 3: 30, 2: 30, 1: 30, 0: 30 };
-const TOTAL_RING_CAPACITY = RING_CAPACITY[3] + RING_CAPACITY[2] + RING_CAPACITY[1] + RING_CAPACITY[0];
+const RING_CAPACITY = { 3: 30, 2: 30, 1: 30, 0: 30, 4: 30, 5: 30 };
+const TOTAL_RING_CAPACITY = RING_INDICES.reduce((sum, i) => sum + RING_CAPACITY[i], 0);
 // Unique affinity cap — number of distinct ingredients in the rings
 // (top-N by strength), independent of how many rings each appears on.
 // One edge from focal per UNIQUE affinity, colored by native tier.
@@ -234,6 +236,12 @@ export class AffinityMode {
     this.ring2Mesh = makeMesh(baseGeos[affinityShape(2)], RING_CAPACITY[2]);
     this.ring1Mesh = makeMesh(baseGeos[affinityShape(1)], RING_CAPACITY[1]);
     this.ring0Mesh = makeMesh(baseGeos[affinityShape(0)], RING_CAPACITY[0]);
+    // v2.1: cuisine + season rings — outermost. Reuse the same sphere
+    // geometry as ring 0 since affinityShape() doesn't have entries
+    // for indices 4/5 (it falls back to the default sphere via the
+    // 'else' branch).
+    this.ring4Mesh = makeMesh(baseGeos[affinityShape(4)] || baseGeos[affinityShape(0)], RING_CAPACITY[4]);
+    this.ring5Mesh = makeMesh(baseGeos[affinityShape(5)] || baseGeos[affinityShape(0)], RING_CAPACITY[5]);
 
     // Cuisine-anchor flag mesh — one pennant per neighbor whose pair
     // carries a `cuisineAnchor` payload. Lives in its own mesh so the
@@ -249,6 +257,8 @@ export class AffinityMode {
       2: this.ring2Mesh,
       1: this.ring1Mesh,
       0: this.ring0Mesh,
+      4: this.ring4Mesh,
+      5: this.ring5Mesh,
     };
 
     // Back-compat: the perf test inspects `affinityMesh.count`; alias
@@ -263,6 +273,8 @@ export class AffinityMode {
     stateRef.scene.add(this.ring2Mesh);
     stateRef.scene.add(this.ring1Mesh);
     stateRef.scene.add(this.ring0Mesh);
+    stateRef.scene.add(this.ring4Mesh);
+    stateRef.scene.add(this.ring5Mesh);
     stateRef.scene.add(this.cuisineFlagMesh);
 
     // Edge BufferGeometry — TOTAL_RING_CAPACITY line segments from
@@ -395,7 +407,7 @@ export class AffinityMode {
    */
   getRaycastMeshes() {
     if (!this._engaged) return [];
-    return [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh, this.ring0Mesh];
+    return [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh, this.ring0Mesh, this.ring4Mesh, this.ring5Mesh];
   }
 
   /**
@@ -526,6 +538,8 @@ export class AffinityMode {
     if (this.ring2Mesh) this.ring2Mesh.visible = false;
     if (this.ring1Mesh) this.ring1Mesh.visible = false;
     if (this.ring0Mesh) this.ring0Mesh.visible = false;
+    if (this.ring4Mesh) this.ring4Mesh.visible = false;
+    if (this.ring5Mesh) this.ring5Mesh.visible = false;
     if (this.cuisineFlagMesh) this.cuisineFlagMesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
@@ -602,6 +616,8 @@ export class AffinityMode {
     if (this.ring2Mesh) this.ring2Mesh.visible = false;
     if (this.ring1Mesh) this.ring1Mesh.visible = false;
     if (this.ring0Mesh) this.ring0Mesh.visible = false;
+    if (this.ring4Mesh) this.ring4Mesh.visible = false;
+    if (this.ring5Mesh) this.ring5Mesh.visible = false;
     if (this.cuisineFlagMesh) this.cuisineFlagMesh.visible = false;
     this.edgeLines.visible = false;
     this.labelGroup.visible = false;
@@ -669,7 +685,7 @@ export class AffinityMode {
    */
   dispose() {
     const st = this.stateRef;
-    const meshes = [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh, this.ring0Mesh, this.cuisineFlagMesh];
+    const meshes = [this.focalMesh, this.ring3Mesh, this.ring2Mesh, this.ring1Mesh, this.ring0Mesh, this.ring4Mesh, this.ring5Mesh, this.cuisineFlagMesh];
     if (st && st.scene) {
       for (const m of meshes) {
         if (m) st.scene.remove(m);
@@ -707,6 +723,8 @@ export class AffinityMode {
     this.ring2Mesh = null;
     this.ring1Mesh = null;
     this.ring0Mesh = null;
+    this.ring4Mesh = null;
+    this.ring5Mesh = null;
     this.cuisineFlagMesh = null;
     this._ringMeshes = null;
     this.affinityMesh = null;
@@ -812,7 +830,7 @@ export class AffinityMode {
     // Also reset the per-mesh slot→global-idx map so click resolution
     // (livingArchView's affinity-aware raycaster) sees -1 for any
     // unoccupied slot rather than a stale ingredient from a prior pivot.
-    for (const ringIdx of [3, 2, 1, 0]) {
+    for (const ringIdx of RING_INDICES) {
       const mesh = this._ringMeshes[ringIdx];
       const cap = RING_CAPACITY[ringIdx];
       for (let s = 0; s < cap; s++) {
@@ -841,7 +859,7 @@ export class AffinityMode {
     });
     const layoutByRing = {};
     const bucketColorsByRing = {};
-    for (const ringIdx of [3, 2, 1, 0]) {
+    for (const ringIdx of RING_INDICES) {
       const axisKey = RING_AXIS[ringIdx];
       const wedgeContext = this._resolveWedgeContext(affinities, axisKey);
       const { palette, bucketColors, neighborWithBucket } = wedgeContext;
@@ -873,9 +891,11 @@ export class AffinityMode {
     const filterStack = (this._getFilterStack && this._getFilterStack()) || [];
     const filterMorphAxis = morphAxisForStack(filterStack) || DEFAULT_WEDGE_AXIS;
     const filterRingIdx = filterMorphAxis === 'cluster' ? 3
-      : filterMorphAxis === 'aromas' ? 2
-      : filterMorphAxis === 'taste'  ? 1
-      : filterMorphAxis === 'family' ? 0
+      : filterMorphAxis === 'aromas'  ? 2
+      : filterMorphAxis === 'taste'   ? 1
+      : filterMorphAxis === 'family'  ? 0
+      : filterMorphAxis === 'cuisine' ? 4
+      : filterMorphAxis === 'season'  ? 5
       : 2; // default 'aromas' ring
     const surfacedRing = layoutByRing[filterRingIdx] || layoutByRing[2];
     this._currentWedges = surfacedRing.layout.wedges;
@@ -924,7 +944,7 @@ export class AffinityMode {
     // ring (innermost, primary navigation axis).
     const canonicalRingIdx = filterRingIdx;
 
-    for (const ringIdx of [3, 2, 1, 0]) {
+    for (const ringIdx of RING_INDICES) {
       const ring = layoutByRing[ringIdx];
       const mesh = this._ringMeshes[ringIdx];
       const cap = RING_CAPACITY[ringIdx];
@@ -967,7 +987,7 @@ export class AffinityMode {
     // (the affinity has no bucket on that axis), use the first ring
     // it does have a placement on. Cuisine flags + edges + SVG cones
     // need a worldPos to anchor against.
-    const tryRings = [canonicalRingIdx, 3, 2, 1, 0];
+    const tryRings = [canonicalRingIdx, ...RING_INDICES];
     for (let i = 0; i < affinities.length; i++) {
       if (sphereWorldPos[i] !== null) continue;
       const aff = affinities[i];
@@ -985,7 +1005,7 @@ export class AffinityMode {
         break;
       }
     }
-    for (const ringIdx of [3, 2, 1, 0]) {
+    for (const ringIdx of RING_INDICES) {
       const mesh = this._ringMeshes[ringIdx];
       mesh.instanceMatrix.needsUpdate = true;
       mesh.instanceColor.needsUpdate = true;
