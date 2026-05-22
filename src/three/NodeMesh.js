@@ -9,6 +9,7 @@ import {
   buildShapeEdgeGeometries,
   SHAPE_KEYS,
 } from './Geometries.js';
+import { BRISCIONE_AROMA } from '../data/briscionePalette.js';
 
 const CUISINE_COLORS = {
   'french cuisine': '#e63946',
@@ -85,8 +86,21 @@ function _applyUncertainty(baseColor, node) {
 
 function getColorForNode(node) {
   let base;
+  // Canonical-spec §3.1 color precedence (lower-priority paths below):
+  //   1. Filter-bucket → handled at LivingArchView's palette layer
+  //      before this function is hit (overrides per-node logic entirely)
+  //   2. node.clusterColor (v3 cluster palette) — this branch
+  //   3. node.primaryTier1Aroma (BRISCIONE_AROMA)
+  //   4. taste blending
+  //   5. neutral gray fallback (set at useProData pre-pass for nodes
+  //      outside the v3 universe)
   if (node?.clusterColor) {
     base = new Color(node.clusterColor);
+    return _applyUncertainty(base, node);
+  }
+  const tier1 = node?.primaryTier1Aroma;
+  if (tier1 && BRISCIONE_AROMA[tier1]) {
+    base = new Color(BRISCIONE_AROMA[tier1]);
     return _applyUncertainty(base, node);
   }
   const taste = (node.taste || '').toLowerCase().trim();
