@@ -294,6 +294,13 @@ export default function App() {
   const [edgeBrightness] = useState(0.3);
   const [particleBrightness] = useState(0.3);
   const [selectedNodes, setSelectedNodes] = useState([]);
+  // Two-stage selection per canonical spec §3.5: single-click → panel
+  // only (selectedNodes set); double-click on the same node within
+  // 350ms → also sets affinityRequested → α-mode engages. Long-press
+  // (touch-hold ≥350ms) also sets affinityRequested. ESC clears only
+  // affinityRequested (keeps the panel open).
+  const [affinityRequested, setAffinityRequested] = useState(false);
+  const lastNodeClickRef = useRef({ name: null, at: 0 });
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
   const [showTour, setShowTour] = useState(
@@ -808,19 +815,35 @@ export default function App() {
     if (!node) return;
     setHighlightPairings(null);
     const name = node.name;
+
+    // Canonical-spec §3.5 two-stage selection:
+    //   single click → panel opens (set selectedNodes), no α-mode
+    //   double click on same node within 350ms → α-mode (set
+    //     affinityRequested=true)
+    // Long-press is handled at the pointer layer in LivingArchView.
+    const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    const last = lastNodeClickRef.current;
+    const isDoubleClick = last.name === name && now - last.at < 350;
+    lastNodeClickRef.current = { name, at: now };
+
     setSelectedNodes((prev) => {
       const next = prev.includes(name)
         ? prev.filter((n) => n !== name)
         : [...prev, name];
-      // Per user request 2026-04-29: don't auto-open the ingredient
-      // panel/sheet on tap. Selection just engages α-mode rings; the
-      // user opens the Details panel explicitly via the Details tab
-      // (desktop) or the floating Details button (mobile).
       if (next.length === 0) {
         setActivePanel(null);
       }
       return next;
     });
+
+    if (isDoubleClick) {
+      setAffinityRequested(true);
+    }
+    // Single-click on a DIFFERENT node while α-mode is already on
+    // counts as a "re-pivot" (spec §6.9); affinityRequested stays
+    // true so the rings move to the new focal. A clear-all click on
+    // empty space resets affinityRequested via the selectedNodes
+    // sync effect below.
   }, [focusedCluster, morphAxis]);
 
   const handleSearchSelect = useCallback((name) => {
@@ -936,6 +959,12 @@ export default function App() {
     function handleKeyDown(e) {
       if (isTyping(e.target)) return;
       if (e.key === 'Escape') {
+        // Canonical-spec §6.8: ESC exits α-mode but keeps the panel open.
+        // Press ESC again to clear the selection fully.
+        if (affinityRequested) {
+          setAffinityRequested(false);
+          return;
+        }
         setSelectedNodes([]);
         setHighlightPairings(null);
         setActivePanel(null);
@@ -959,7 +988,7 @@ export default function App() {
         // NATIVE ★★★ affinity. Falls back to ★★, then ★, then any
         // neighbor — so the pivot never stalls when the focal has no
         // ★★★ candidates. Identical on desktop and iOS.
-        const alphaEngaged = affinityEnabled && selectedNodes.length === 1;
+        const alphaEngaged = affinityEnabled && selectedNodes.length === 1 && affinityRequested;
         let next = null;
         if (alphaEngaged && data.pairingStrength) {
           const aff = topAffinities(current, data);
@@ -989,7 +1018,16 @@ export default function App() {
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [data, selectedNodes, affinityEnabled]);
+  }, [data, selectedNodes, affinityEnabled, affinityRequested]);
+
+  // Canonical-spec sync: when selection clears (background click,
+  // panel close, etc), drop the α-mode request so it doesn't
+  // re-engage on the next selection.
+  useEffect(() => {
+    if (selectedNodes.length === 0 && affinityRequested) {
+      setAffinityRequested(false);
+    }
+  }, [selectedNodes, affinityRequested]);
 
   // Double-tap on canvas to clear tree filter
   const handleCanvasDoubleTap = useCallback(() => {
@@ -1418,7 +1456,7 @@ export default function App() {
           selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
           selectedCount={selectedNodes.length}
           flavorPath={flavorPath}
-          affinityEngaged={affinityEnabled && selectedNodes.length === 1}
+          affinityEngaged={affinityEnabled && selectedNodes.length === 1 && affinityRequested}
           onBuildRecipe={() => {
             // Explicit handoff: replace the Recipe Lab bowl with the
             // currently-selected nodes from the Network tab.
@@ -2146,7 +2184,7 @@ export default function App() {
               selectedNodes={selectedNodes}
               selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
               selectedCount={selectedNodes.length}
-              affinityEngaged={affinityEnabled && selectedNodes.length === 1}
+              affinityEngaged={affinityEnabled && selectedNodes.length === 1 && affinityRequested}
               isFavorite={selectedNode ? userProfile.hasIngredient(selectedNode) : false}
               onToggleFavorite={userProfile.toggleIngredient}
           onTogglePairing={userProfile.togglePairing}

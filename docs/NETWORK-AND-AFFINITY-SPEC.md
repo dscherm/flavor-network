@@ -149,13 +149,28 @@ On node hover:
 - The node itself does NOT change scale on hover (subtle: glow brightness
   only).
 
-### 3.5 Selection state
+### 3.5 Selection state (two-stage)
 
-- Single-click → **selects** the node. Engages α-mode (§6).
-- Click another node → **re-pivots** α-mode to that node.
-- Click background → **deselects**. Exits α-mode.
-- Double-click background → also deselects + recenters camera.
-- ESC → exits α-mode while keeping the selection visible.
+α-mode is no longer engaged on a simple click. The single click is a
+"peek" gesture that opens the IngredientPanel with Tier-1/2/3 info;
+α-mode requires a deliberate second gesture (long-press or
+double-click).
+
+| Gesture | Action |
+|---|---|
+| Single-click / single-tap on node | **Selects** the node. Opens IngredientPanel (Tier-1 aroma, Tier-2 taste, Tier-3 mouthfeel, leaves, predicted profile). Does NOT engage α-mode. |
+| Long-press on node (touch held ≥ 350ms) | Engages α-mode (§6) on this node. |
+| Double-click on node (desktop) | Engages α-mode (§6) on this node. |
+| Single-click on a different node (while α-mode active) | Re-pivots α-mode to the new node. |
+| Single-click on a different node (while panel open, no α-mode) | Re-selects; panel updates. |
+| Click on background | Deselects, closes panel, exits α-mode. |
+| Double-click on background | Also deselects + recenters camera. |
+| ESC | Exits α-mode while keeping the panel open. |
+
+Rationale: the prior single-click→α-mode gesture meant users couldn't
+inspect an ingredient's chemistry without committing to the full
+α-mode rendering. The two-stage flow lets the user **peek** (panel
+only) or **commit** (panel + 3D rings).
 
 ### 3.6 Acceptance
 
@@ -281,22 +296,64 @@ corpus dimmed to ghost dots.
 
 Selection sources: single-click on a 3D node, or search-bar selection.
 
-### 6.3 Ring composition
+### 6.3 Ring composition (6-axis radial)
 
-- **★★★ ring**: top 5 affinities by strength
-- **★★ ring**: next 10 by strength
-- **★ ring**: next 15 by strength
-- **Total**: 30 visible affinity nodes + 1 focal = 31 nodes
-- The remaining corpus collapses to 10 cluster-ghost dots (dimmed).
+α-mode renders **6 concentric rings**, each one a categorical axis
+representing a different lens on the corpus:
 
-**Ring assignment is by strength rank, not by tier.** [supersedes
-earlier "★★★ ring excluding ★★★ matches" wording — see §13]
+| Ring # (innermost → outermost) | Axis | Segments | Source |
+|---|---|---|---|
+| 1 | Network cluster | k segments (currently 13) | `cluster_labels_v3.json` |
+| 2 | Aroma (Tier-1) | 5 segments | `BRISCIONE_AROMA` |
+| 3 | Taste (Tier-2) | 7 segments | `BRISCIONE_TASTE` (salty hidden) |
+| 4 | Family | N segments | `categoricalAxes.js` family axis |
+| 5 | Cuisine | N segments | `categoricalAxes.js` cuisine axis |
+| 6 | Season | 4 segments | `categoricalAxes.js` season axis |
 
-**Edge color reflects native tier**, not ring identity (§4.3). So you
-may see a silver ★★ edge sitting on the ★★★ ring if it ranks top-5
-by strength but only meets ★★ criteria.
+Each ring is divided into angular segments equal to the number of
+buckets on its axis. The angular order of segments is fixed (per axis)
+so the same bucket always sits at the same clock position across
+pivots — important for visual continuity when re-pivoting.
 
-### 6.4 Tier scoring (native tier of each affinity)
+### 6.4 Focal placement
+
+**The focal ingredient sits ON ring 1 (network cluster ring), at the
+angular position of its own cluster's segment.** It does NOT sit at
+the center of the wheel.
+
+This makes the focal's identity discoverable at a glance — you can see
+which cluster owns this ingredient before reading any affinities. The
+center of the wheel stays empty (camera focus point only).
+
+### 6.5 Affinity placement
+
+Each of the focal's top 30 affinities (still top 5/10/15 = 30 total,
+strength-ranked) appears on **multiple rings simultaneously** — once
+per ring on which the affinity has a non-null bucket. So:
+
+- An affinity with cluster=2, aroma="fruity", taste="sweet", cuisine
+  ="Italian" appears on rings 1, 2, 3, and 5 (not on family or season
+  if those aren't set).
+- The same affinity at the same clock position appears as 4 rendered
+  nodes connected by a faint vertical guideline (so the user can read
+  "this is one ingredient seen through 4 lenses").
+
+Ring placement within a segment: affinities within the same segment
+on the same ring stack along a short radial line (closer to ring
+center = higher strength). Segment width caps how many can stack;
+overflow drops below the ring with "+N more" indicator.
+
+### 6.6 Edge tier coloring (unchanged from v1)
+
+Edges from focal to each affinity still color by native tier:
+
+- **★★★ (gold)**: meets strict compound-bridged tier criteria (§6.4)
+- **★★ (silver)**: meets strict ★★ OR lenient ★★★
+- **★ (bronze)**: meets ★ criteria
+
+Edge color is independent of which ring an affinity sits on.
+
+### 6.7 Tier scoring (native tier of each affinity)
 
 Two rule sets, picked per-pair by data availability:
 
@@ -323,7 +380,7 @@ distribution.** Literal numeric thresholds (0.7/0.4/0.2) admitted 51%
 of pairs as ★★★ in practice — useless. Quantile-based admits ~1%/10%/
 50% which gives real discrimination. [§13 U1]
 
-### 6.5 Exit triggers
+### 6.8 Exit triggers
 
 α-mode exits when:
 
@@ -335,37 +392,39 @@ of pairs as ★★★ in practice — useless. Quantile-based admits ~1%/10%/
   shift-click) — α-mode suspends; "Common pairings" UX takes over.
   α-mode resumes when selection collapses back to single.
 
-### 6.6 Re-pivot
+### 6.9 Re-pivot
 
 Single-click a different ingredient → smoothly re-center camera and
 re-spawn affinity rings around the new focal. No mode transition needed.
 
-### 6.7 Mobile β-mode
+### 6.10 Mobile β-mode
 
 On mobile viewport, instead of 3D rings, render a side-panel "Flavor
 Bible page" with 3 column sections (★★★ | ★★ | ★) listing affinity
 names with strength. No 3D ring animation; α-mode's focal-orbit
 camera (§8.3) does not engage on mobile.
 
-### 6.8 Suspension by filter
+### 6.11 Suspension by filter
 
 When a filter pill is active, α-mode **continues to engage on
 selection** but rings only include affinities matching the filter's
 visibility predicate. If an affinity is filtered out, it does not
 appear in the rings.
 
-### 6.9 Kill switch
+### 6.12 Kill switch
 
 URL param `?affinity=v0` disables α-mode (and β-mode) entirely. Used
 for emergency rollback.
 
-### 6.10 Acceptance
+### 6.13 Acceptance
 
-- [ ] Single click → α-mode engages within 200ms
-- [ ] Rings show 5+10+15 = 30 affinity nodes
-- [ ] Edge colors gold/silver/bronze by native tier
+- [ ] Single-click → IngredientPanel opens (no α-mode); long-press OR double-click → α-mode engages within 200ms
+- [ ] 6 concentric rings render in the order: cluster, aroma, taste, family, cuisine, season
+- [ ] Focal sits on ring 1 at its own cluster's segment (NOT at the wheel center)
+- [ ] Affinity ingredients render on every ring where they have a non-null bucket; same ingredient appears at the same clock position across rings (vertical guideline connects them)
+- [ ] Edge colors gold/silver/bronze by native tier (independent of ring)
 - [ ] Re-pivot animates smoothly (no flicker)
-- [ ] ESC exits cleanly; double-click background exits cleanly
+- [ ] ESC keeps panel open; double-click background exits both
 - [ ] Multi-select suspends; collapse-to-1 resumes
 - [ ] Mobile β-mode renders side panel, not 3D rings
 - [ ] `?affinity=v0` disables both α and β
@@ -468,10 +527,12 @@ During each dwell:
 
 ### 8.2 Resume after interrupt
 
-If the user interacts (mouse/touch), the tour pauses. After 30 sec of
-no interaction, the tour resumes from the **cluster nearest the
+If the user interacts (mouse/touch), the tour pauses. After **60 sec**
+of no interaction, the tour resumes from the **cluster nearest the
 current camera position** (not from the cluster it was on when
-interrupted).
+interrupted). (Original camera-animations spec said 30s; user feedback
+during early integration found that too short after picking a cluster
+label; bumped to 60s — `idleResumeMs` in `CameraAnimator.js`.)
 
 ### 8.3 Focal orbit (α-mode camera)
 
