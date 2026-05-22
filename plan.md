@@ -1089,3 +1089,52 @@ None require new ML work.
 6. **N2-V3-CHEF-LIFT** — chef-paced; high value as the chef fills rows.
 7. **N2-GNN-LEFF**, **N2-GNN-ENC** — external + speculative future levers.
 
+---
+
+## N3-ALPHA-V2 — 6-axis α-mode ring rewrite (focused session, 3-5h)
+
+```json
+{
+  "id": "N3-ALPHA-V2",
+  "title": "Replace 3-tier α-mode rings with 6-axis categorical rings (cluster/aroma/taste/family/cuisine/season)",
+  "category": "ml-ui",
+  "priority": 2,
+  "description": "Implement canonical-spec §6.3–§6.5: the α-mode wheel renders 6 concentric rings keyed to categorical axes (cluster, aroma, taste, family, cuisine, season) instead of the current 3-tier strength rings. Focal ingredient sits on the inner cluster ring at its cluster's segment (not at wheel center). Each top-30 affinity appears on every ring where it has a non-null bucket (cross-ring duplication, connected by a vertical guideline so the user can read 'this is one ingredient seen through N lenses'). Edge colors continue to reflect native tier (gold/silver/bronze) independent of which ring an affinity sits on.",
+  "scope_notes": [
+    "AffinityMode.js (~1,391 lines) needs: replace RADII const with 6-axis constants; bump mesh count from 4 (ring0/1/2/3) to 6 (one per axis); add ringMesh4/5 to allocation + dispose + scene-add + click raycast lists; rewrite _writeRingsAndDim's placement loop to walk axes via AXIS_RINGS and place each affinity at its bucket angle on each ring; rewrite _buildWedgeArcs to draw 6 arc sets instead of 1; ringMesh capacity per ring bumps from {5,10,15,8} to ~30 each (1 slot per affinity)",
+    "Cross-ring guideline geometry — new Line set connecting same-affinity positions vertically across the 6 rings. Update on engage/pivot.",
+    "Per-ring bucket labels — extend the wedge-label sprites to render at each ring (currently only 1 set at WEDGE_LABEL_RADIUS). Six axis label sets at staggered radii.",
+    "Within-segment stacking — when multiple affinities land in the same bucket on the same ring, stack them along a radial line (closer to ring center = higher strength). Drop overflow with '+N more' indicator past a per-segment cap.",
+    "Mobile β-mode side panel: extend the 3-column Flavor Bible page to handle 6-axis grouping. Or accept a degraded mobile view (3 strongest tiers like v1)."
+  ],
+  "acceptance": [
+    "α-mode engages on double-click (Phase A already shipped) — no regression",
+    "6 concentric rings render in canonical order (cluster, aroma, taste, family, cuisine, season) at expanding radii",
+    "Focal sits on the cluster ring at its own cluster's segment, not at the wheel center",
+    "Each affinity appears on every ring where it has a bucket on that axis (cross-ring duplication)",
+    "Edges from focal to each affinity colored gold/silver/bronze by native tier (unchanged from v1)",
+    "Cluster sprites hidden during α-mode (unchanged)",
+    "ESC exits α-mode keeping panel open (Phase A already shipped) — no regression",
+    "Re-pivot animates smoothly (no flicker; centroid update under 200ms)",
+    "Perf budget: engage + pivot under 200ms each at the 4,814-node corpus on desktop hardware",
+    "Mobile β-mode renders an equivalent side-panel layout (or degrades gracefully)",
+    "All existing tests pass (772/772) — no regression in adjacent behaviors"
+  ],
+  "implementation_outline": [
+    "1. Audit AffinityMode.js to enumerate every integration point that references ring count or ringIdx (mesh allocation, dispose, dim writing, edge buffer sizing, click raycast, slot-to-global-idx maps, label sprites, wedge arcs, suspend/resume). Estimate: 30 lines of changes per integration point × ~6 points = 180+ lines.",
+    "2. Refactor in place (do NOT create AffinityModeV2.js — duplication adds maintenance burden). Sequence: constants → mesh allocation → placement loop → wedge arcs → cross-ring guidelines → labels → cleanup.",
+    "3. Test each step. Engage on tomato, pivot to basil, exit. Visually verify all 6 rings render. Re-engage with filter pill active. Suspend by selecting a second ingredient; resume.",
+    "4. Update tests in src/three/__tests__/AffinityMode.test.js (or wherever) to assert 6-ring structure.",
+    "5. Build + iOS sync + deploy."
+  ],
+  "risk_register": [
+    "Perf: 30 affinities × 6 rings = 180 rendered nodes vs 38 today. Mobile mid-range may dip below 30fps. Mitigation: cap per-ring capacity at 20 (top 20 by strength per ring instead of all 30) if needed; profile on iPhone SE.",
+    "Visual overload: 180 dots + 30 edges in a small viewport may be illegible. Mitigation: dim non-focal-bucket affinities on each ring; or accept the density and let user interact to inspect.",
+    "Cross-ring guideline geometry could create moiré or flicker. Mitigation: render as faint dashed lines (opacity 0.3) only for the focal's own cross-ring trace, not all affinities."
+  ]
+}
+```
+
+Recommend tackling this in a fresh session with no other work in flight. Best done with the network running locally so visual verification is fast between changes.
+
+
