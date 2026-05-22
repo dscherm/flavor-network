@@ -156,8 +156,12 @@ describe('AffinityMode — wedge layout (2026-05-13 user feedback)', () => {
 
     // Map: bucketKey -> array of angles (radians, [-π, π]) of each
     // neighbor's planar offset from focal in the XZ plane.
+    // v2: each ring is a different axis (cluster/aroma/taste/family).
+    // Family filter active → family ring is ringIdx 0. Read only that
+    // ring; other rings group by their own axis and would scatter
+    // when grouped by family bucket.
     const anglesByBucket = new Map();
-    for (const ringIdx of [3, 2, 1, 0]) {
+    for (const ringIdx of [0]) {
       const mesh = ctrl._ringMeshes[ringIdx];
       const slotMap = mesh.userData.slotToGlobalIdx;
       for (let s = 0; s < mesh.count; s++) {
