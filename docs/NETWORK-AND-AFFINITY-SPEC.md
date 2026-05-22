@@ -298,14 +298,15 @@ Selection sources: single-click on a 3D node, or search-bar selection.
 
 ### 6.3 Ring composition (6-axis radial)
 
-> **Implementation status (2026-05-21)**: §6.3–§6.5 are the shipping
-> target but **not yet implemented**. The current production α-mode in
-> `src/three/AffinityMode.js` renders the legacy 3-tier strength rings
-> (★★★/★★/★/Surprising). The 6-axis rewrite is a focused-session
-> task tracked as `N3-ALPHA-V2` in plan.md — see that task for the
-> implementation outline. Until then, treat §6.3–§6.5 as the
-> *intended* design; readers verifying current behavior should refer to
-> the legacy `_writeRingsAndDim` logic in `AffinityMode.js`.
+> **Implementation status (2026-05-22)**: §6.3–§6.5 shipped in
+> α-mode v2.1 (commits `8360fdd` + `b833390`). All 6 rings render
+> with the focal placed on its cluster's segment on ring 1; edge
+> coloring still reflects native tier per §6.6.
+>
+> Remaining v2 polish (tracked separately in plan.md / N3-ALPHA-V2.2):
+> per-ring bucket labels (currently only the filter-driven ring shows
+> arc labels), cross-ring vertical guidelines connecting same-affinity
+> across rings, "+N more" overflow stacking.
 
 α-mode renders **6 concentric rings**, each one a categorical axis
 representing a different lens on the corpus:
