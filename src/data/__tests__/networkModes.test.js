@@ -50,8 +50,8 @@ describe('R16 Phase 1 — networkModes', () => {
     expect(effectiveLegacyMode('2D', null)).toBe('ml2d');
   });
 
-  it('FILTER_KEYS has 7 entries', () => {
-    expect(FILTER_KEYS).toHaveLength(7);
+  it('FILTER_KEYS has 8 entries (v3 P-C4 adds flavor-category)', () => {
+    expect(FILTER_KEYS).toHaveLength(8);
     expect(FILTER_KEYS).toEqual([
       'aroma',
       'cuisine',
@@ -60,6 +60,7 @@ describe('R16 Phase 1 — networkModes', () => {
       'taste',
       'cocktail-scope',
       'sauce-scope',
+      'flavor-category',
     ]);
   });
 
@@ -74,6 +75,24 @@ describe('R16 Phase 1 — networkModes', () => {
   it('FILTER_TO_AXIS scope filters map to null', () => {
     expect(FILTER_TO_AXIS['cocktail-scope']).toBe(null);
     expect(FILTER_TO_AXIS['sauce-scope']).toBe(null);
+    expect(FILTER_TO_AXIS['flavor-category']).toBe(null);
+  });
+
+  // ===== v3 P-C4 — flavor2D mode + flavor-category scope =================
+
+  it("v3 P-C4 — MODE_LABELS['flavor2D'] resolves but MODE_CYCLE length still 2 (ADR-1)", () => {
+    expect(MODE_LABELS['flavor2D']).toBe('Flavor Network 2D');
+    expect(MODE_CYCLE).toHaveLength(2);
+    expect(MODE_CYCLE).not.toContain('flavor2D');
+  });
+
+  it("v3 P-C4 — effectiveLegacyMode('flavor2D', null) resolves to 'mlflavor2d'", () => {
+    expect(effectiveLegacyMode('flavor2D', null)).toBe('mlflavor2d');
+  });
+
+  it('v3 P-C4 — morphAxisForStack skips flavor-category like other scope filters', () => {
+    expect(morphAxisForStack(['cuisine', 'flavor-category'])).toBe('cuisine');
+    expect(morphAxisForStack(['flavor-category'])).toBe(null);
   });
 
   it('morphAxisForStack empty stack returns null (cooccurrence)', () => {
