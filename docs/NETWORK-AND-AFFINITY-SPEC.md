@@ -158,10 +158,10 @@ double-click).
 
 | Gesture | Action |
 |---|---|
-| Single-click / single-tap on node | **Selects** the node. Opens IngredientPanel (Tier-1 aroma, Tier-2 taste, Tier-3 mouthfeel, leaves, predicted profile). Does NOT engage α-mode. |
+| Single-click / single-tap on node | **Selects** the node. Opens IngredientPanel (Tier-1 aroma, Tier-2 taste, Tier-3 mouthfeel, leaves, predicted profile). **Always exits α-mode** — even if α-mode was engaged on a previous node, single-click forces it off. |
 | Long-press on node (touch held ≥ 350ms) | Engages α-mode (§6) on this node. |
 | Double-click on node (desktop) | Engages α-mode (§6) on this node. |
-| Single-click on a different node (while α-mode active) | Re-pivots α-mode to the new node. |
+| Single-click on a different node (while α-mode active) | **Exits α-mode + re-selects.** Panel updates; no ring re-pivot. To pivot α-mode to a new focal, double-click the new node. |
 | Single-click on a different node (while panel open, no α-mode) | Re-selects; panel updates. |
 | Click on background | Deselects, closes panel, exits α-mode. |
 | Double-click on background | Also deselects + recenters camera. |
@@ -283,9 +283,13 @@ tour" focal flight (see §8.4). Out of scope for current ship.
 ### 6.1 What it is
 
 When a single node is selected, the network collapses to a focal-
-centered view: the selected ingredient pulses at center, surrounded
-by three concentric rings of its top affinities, with the rest of the
-corpus dimmed to ghost dots.
+centered view: the selected ingredient lands on the angular segment
+of the cluster it belongs to on the cluster ring (ring 1 — see §6.3
+for the full 6-ring composition). The focal pulses with its
+designated bucket color (the cluster segment's color), surrounded by
+the 6 concentric rings of its top affinities, with the rest of the
+corpus dimmed to ghost dots. Only the affinity ingredients that have
+edges to the focal render; everything else is ghosted.
 
 ### 6.2 Entry triggers
 
@@ -296,62 +300,72 @@ corpus dimmed to ghost dots.
 
 Selection sources: single-click on a 3D node, or search-bar selection.
 
-### 6.3 Ring composition (6-axis radial)
+### 6.3 Ring composition (single ring)
 
-> **Implementation status (2026-05-22)**: §6.3–§6.5 shipped in
-> α-mode v2.1 (commits `8360fdd` + `b833390`). All 6 rings render
-> with the focal placed on its cluster's segment on ring 1; edge
-> coloring still reflects native tier per §6.6.
->
-> Remaining v2 polish (tracked separately in plan.md / N3-ALPHA-V2.2):
-> per-ring bucket labels (currently only the filter-driven ring shows
-> arc labels), cross-ring vertical guidelines connecting same-affinity
-> across rings, "+N more" overflow stacking.
+> **Implementation status (2026-05-22 revision)**: simplified back to
+> a SINGLE ring after the 6-ring iteration created visual noise. The
+> previous 6-axis design (commits `8360fdd` + `b833390`) is reverted;
+> the other 5 ring meshes remain allocated but hidden, so re-enabling
+> multi-ring would be a one-constant toggle.
 
-α-mode renders **6 concentric rings**, each one a categorical axis
-representing a different lens on the corpus:
+α-mode renders **one ring**. The ring's angular axis matches the
+active filter pill; when no filter is active, the ring divides by
+**network cluster** (the "None" default).
 
-| Ring # (innermost → outermost) | Axis | Segments | Source |
+| Filter state | Ring divided by | Segments | Source |
 |---|---|---|---|
-| 1 | Network cluster | k segments (currently 13) | `cluster_labels_v3.json` |
-| 2 | Aroma (Tier-1) | 5 segments | `BRISCIONE_AROMA` |
-| 3 | Taste (Tier-2) | 7 segments | `BRISCIONE_TASTE` (salty hidden) |
-| 4 | Family | N segments | `categoricalAxes.js` family axis |
-| 5 | Cuisine | N segments | `categoricalAxes.js` cuisine axis |
-| 6 | Season | 4 segments | `categoricalAxes.js` season axis |
+| **None (default)** | Network cluster | ~13 | `cluster_labels_v3.json` |
+| Aroma pill | Aroma (Tier-1) | 5 | `BRISCIONE_AROMA` |
+| Taste pill | Taste (Tier-2) | 7 (salty hidden) | `BRISCIONE_TASTE` |
+| Family pill | Family | N | `categoricalAxes.js` |
+| Cuisine pill | Cuisine | N | `categoricalAxes.js` |
+| Season pill | Season | 4 | `categoricalAxes.js` |
 
-Each ring is divided into angular segments equal to the number of
-buckets on its axis. The angular order of segments is fixed (per axis)
-so the same bucket always sits at the same clock position across
-pivots — important for visual continuity when re-pivoting.
+The ring is divided into angular segments equal to the number of
+buckets on the active axis. **Each segment is drawn as an OUTLINE
+ONLY — two radial lines (center → outer rim) plus the arc connecting
+them, in the bucket color. No fill.** The angular order of segments
+is fixed per axis so the same bucket sits at the same clock position
+across pivots — important for visual continuity when re-pivoting.
 
 ### 6.4 Focal placement
 
-**The focal ingredient sits ON ring 1 (network cluster ring), at the
-angular position of its own cluster's segment.** It does NOT sit at
-the center of the wheel.
+**The focal ingredient sits ON the ring at the angular position of
+its own bucket on the active axis.** With no filter active, that
+means the focal sits in its CLUSTER segment. It does NOT sit at the
+center of the wheel. The focal sphere **pulses** in its bucket
+color (the segment's color) — a 1.4s breathing cycle so the user
+can identify the focal at a glance.
 
 This makes the focal's identity discoverable at a glance — you can see
 which cluster owns this ingredient before reading any affinities. The
 center of the wheel stays empty (camera focus point only).
 
-### 6.5 Affinity placement
+### 6.5 Affinity placement (tier-column layout)
 
-Each of the focal's top 30 affinities (still top 5/10/15 = 30 total,
-strength-ranked) appears on **multiple rings simultaneously** — once
-per ring on which the affinity has a non-null bucket. So:
+The focal's affinities are sampled as the **top 3 per affinity type**
+across the 4 native tiers and rendered as a 4-floor tower above the
+ring plane:
 
-- An affinity with cluster=2, aroma="fruity", taste="sweet", cuisine
-  ="Italian" appears on rings 1, 2, 3, and 5 (not on family or season
-  if those aren't set).
-- The same affinity at the same clock position appears as 4 rendered
-  nodes connected by a faint vertical guideline (so the user can read
-  "this is one ingredient seen through 4 lenses").
+| Tier | Label | Count | Y elevation | Mesh shape |
+|---|---|---|---|---|
+| ♢ | Surprising (compound-bridged, low strength) | 3 | **+32 (top)** | star |
+| ★★★ | Chemistry (compound-bridged or ≥ quantile-0.99) | 3 | +24 | bipyramid |
+| ★★ | Strong (≥ quantile-0.90) | 3 | +16 | cylinder |
+| ★ | Good (≥ quantile-0.50) | 3 | +8 (ring plane) | sphere |
 
-Ring placement within a segment: affinities within the same segment
-on the same ring stack along a short radial line (closer to ring
-center = higher strength). Segment width caps how many can stack;
-overflow drops below the ring with "+N more" indicator.
+That's **12 ingredients total** rendered as a 4-tier tower per bucket.
+The XZ position of each affinity comes from the shared cluster wedge
+layout (or filter axis when a pill is active); the Y position is set
+by its native tier. Each tier uses its own tier-shaped InstancedMesh
+so the user reads tier by SHAPE in addition to elevation. An affinity
+with `bucket=null` falls back to the `_other` segment.
+
+Within a tier+bucket cell, multiple affinities pull radially inward
+so they don't collide (closer to wheel center = subsequent stack
+slot). 3D edges from focal→affinity are HIDDEN in tier-column mode —
+the vertical separation by tier conveys the focal→affinity
+relationship without needing radial lines.
 
 ### 6.6 Edge tier coloring (unchanged from v1)
 
@@ -414,12 +428,25 @@ Bible page" with 3 column sections (★★★ | ★★ | ★) listing affinity
 names with strength. No 3D ring animation; α-mode's focal-orbit
 camera (§8.3) does not engage on mobile.
 
-### 6.11 Suspension by filter
+### 6.11 Filter-aware affinity selection
 
 When a filter pill is active, α-mode **continues to engage on
-selection** but rings only include affinities matching the filter's
-visibility predicate. If an affinity is filtered out, it does not
-appear in the rings.
+selection** and the top-3-per-tier candidate pool is filtered:
+
+1. **Axis membership** — a candidate must have a non-null bucket on
+   each active filter's axis (e.g., aroma filter on → candidate must
+   have at least one Tier-1 aroma).
+2. **Picked bucket** — if the joystick has selected a specific bucket
+   within the most-recent filter axis (e.g., aroma → "fruity"),
+   candidates must be IN that bucket.
+
+The candidate pool from `topAffinities` is expanded (60 per rank
+instead of 30) so the post-filter top-3-per-tier stays populated
+under restrictive filters. If a tier ends up with < 3 matches, that
+tier's column is sparse (no out-of-filter backfill).
+
+When no filter is active, the candidate pool is the full corpus
+ranking (same as v1 behavior).
 
 ### 6.12 Kill switch
 
@@ -429,10 +456,13 @@ for emergency rollback.
 ### 6.13 Acceptance
 
 - [ ] Single-click → IngredientPanel opens (no α-mode); long-press OR double-click → α-mode engages within 200ms
-- [ ] 6 concentric rings render in the order: cluster, aroma, taste, family, cuisine, season
-- [ ] Focal sits on ring 1 at its own cluster's segment (NOT at the wheel center)
-- [ ] Affinity ingredients render on every ring where they have a non-null bucket; same ingredient appears at the same clock position across rings (vertical guideline connects them)
-- [ ] Edge colors gold/silver/bronze by native tier (independent of ring)
+- [ ] One ring renders; with no filter, the ring divides by cluster
+- [ ] Each segment is drawn as an outline only — two radial lines (center → outer rim) + the arc connecting them, in the bucket color (no fill)
+- [ ] Focal sits on the ring at its own bucket-segment (cluster segment when no filter) — NOT at the wheel center
+- [ ] Focal pulses with its bucket color (not white)
+- [ ] Top 3 affinities per native tier (★★★ / ★★ / ★ / ♢) render as a 4-floor tower above each bucket — Y elevation set by tier, mesh shape set by tier (bipyramid / cylinder / sphere / star)
+- [ ] 3D focal→affinity edges are HIDDEN in tier-column mode (the vertical tier separation conveys the relationship)
+- [ ] Cone-overlay (SVG) cone colors gold/silver/bronze by native tier
 - [ ] Re-pivot animates smoothly (no flicker)
 - [ ] ESC keeps panel open; double-click background exits both
 - [ ] Multi-select suspends; collapse-to-1 resumes

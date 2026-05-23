@@ -141,9 +141,13 @@ describe('AffinityMode — GPU resource reuse across pivots', () => {
       ctrl.pivot(`ing-${(i + 200) % 1500}`);
     }
     expect(stateRef.scene.children.length).toBe(childrenAfterEngage);
-    // v2.1: full 6-axis design (cluster/aroma/taste/family/cuisine/season)
-    // — 6 rings × 30 slots = 180 total. Mesh instances are reused
-    // across pivots; never grow.
+    // Canonical-spec (2026-05-22): single-ring α-mode. ring3 is the
+    // sole rendered ring (default axis = cluster). The other ring
+    // meshes remain ALLOCATED at capacity 30 (the constructor builds
+    // them for future multi-ring re-enablement) but are hidden in
+    // `_writeRingsAndDim`. Instance count is the allocated capacity,
+    // not the visible slot count — so the .count assertions still
+    // probe the no-realloc contract.
     expect(ctrl.focalMesh.count).toBe(1);
     expect(ctrl.ring3Mesh.count).toBe(30);
     expect(ctrl.ring2Mesh.count).toBe(30);
@@ -151,10 +155,14 @@ describe('AffinityMode — GPU resource reuse across pivots', () => {
     expect(ctrl.ring0Mesh.count).toBe(30);
     expect(ctrl.ring4Mesh.count).toBe(30);
     expect(ctrl.ring5Mesh.count).toBe(30);
-    const total = ctrl.ring3Mesh.count + ctrl.ring2Mesh.count
-                + ctrl.ring1Mesh.count + ctrl.ring0Mesh.count
-                + ctrl.ring4Mesh.count + ctrl.ring5Mesh.count;
-    expect(total).toBe(180);
+    // Tier-column α-mode: rings 0/1/2/3 all visible (one per tier);
+    // peripheral 4/5 stay hidden.
+    expect(ctrl.ring3Mesh.visible).toBe(true);
+    expect(ctrl.ring2Mesh.visible).toBe(true);
+    expect(ctrl.ring1Mesh.visible).toBe(true);
+    expect(ctrl.ring0Mesh.visible).toBe(true);
+    expect(ctrl.ring4Mesh.visible).toBe(false);
+    expect(ctrl.ring5Mesh.visible).toBe(false);
     // Labels are rebuilt per pivot but never exceed 31 (1 focal + 30 affinities).
     expect(ctrl.labelGroup.children.length).toBeLessThanOrEqual(31);
     ctrl.dispose();
@@ -187,7 +195,9 @@ describe('AffinityMode — AC-FO-5: ring instance scales survive one orbit lap',
     const _pos = new THREE.Vector3();
     const _quat = new THREE.Quaternion();
     const scale = new THREE.Vector3();
-    for (const mesh of [ctrl.ring3Mesh, ctrl.ring2Mesh, ctrl.ring1Mesh]) {
+    // Tier-column α-mode: rings 3/2/1/0 are all visible (one per
+    // tier). Each ring's instance matrices must not be scale-corrupted.
+    for (const mesh of [ctrl.ring3Mesh, ctrl.ring2Mesh, ctrl.ring1Mesh, ctrl.ring0Mesh]) {
       expect(mesh.visible).toBe(true);
       for (let i = 0; i < mesh.count; i++) {
         mesh.getMatrixAt(i, m);

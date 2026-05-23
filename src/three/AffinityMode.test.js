@@ -2,9 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { placeOnRing } from './AffinityMode.js';
 
 describe('placeOnRing — golden-angle distribution', () => {
-  it('places ring-3 slot 0 on the +x axis at radius 12', () => {
+  it('places ring-3 slot 0 on the +x axis at radius 43', () => {
+    // Canonical-spec (2026-05-22 user-iter): wheel radius lands at
+    // 43 after iterations (48 → 28 was too small, +15 → 43 reads
+    // well within the orbit-camera frame).
     const v = placeOnRing(3, 0);
-    expect(v.x).toBeCloseTo(12, 5);
+    expect(v.x).toBeCloseTo(43, 5);
     expect(v.y).toBe(0);
     expect(v.z).toBeCloseTo(0, 5);
   });
@@ -23,7 +26,7 @@ describe('placeOnRing — golden-angle distribution', () => {
 
   it('keeps every slot on its ring (radius preserved)', () => {
     for (const ringIdx of [3, 2, 1]) {
-      const expectedR = { 3: 12, 2: 22, 1: 35 }[ringIdx];
+      const expectedR = { 3: 43, 2: 22, 1: 35 }[ringIdx];
       for (let slot = 0; slot < 15; slot++) {
         const v = placeOnRing(ringIdx, slot);
         const r = Math.hypot(v.x, v.z);

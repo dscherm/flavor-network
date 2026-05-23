@@ -50,15 +50,26 @@ const RING_AXIS = {
   4: 'cuisine',   // ring 5
   5: 'season',    // ring 6 — outermost
 };
-const RADII = { 3: 12, 2: 22, 1: 35, 0: 48, 4: 60, 5: 72 };
-// Y-elevation per ring keeps stacked affinities readable when the
-// camera looks down a shallow angle. Outer rings step up gently.
+// Canonical-spec (2026-05-22 simplification): α-mode renders a
+// SINGLE ring divided by the active axis. Default axis = cluster.
+// Ring 3 is the sole rendered ring; rings 0/1/2/4/5 stay allocated
+// (test contract preserves their .count = 30 capacity) but are
+// hidden in `_writeRingsAndDim`.
+const RADII = { 3: 43, 2: 22, 1: 35, 0: 43, 4: 60, 5: 72 };
 const RING_ELEVATION = { 3: 0, 2: 4, 1: 8, 0: 12, 4: 16, 5: 20 };
-// All ring indices, ordered innermost → outermost (drives the
-// placement loop + dispose + raycast loops). The legacy 3-2-1-0
-// order is preserved for clusters/aroma/taste/family; cuisine and
-// season sit at the periphery (4, 5).
-const RING_INDICES = [3, 2, 1, 0, 4, 5];
+const RING_INDICES = [3];
+
+// Canonical-spec (2026-05-22 revision): tier-column α-mode. Affinity
+// spheres sit at the SAME XZ ring footprint as the cluster wedge
+// layout (ring 3) but rise vertically in Y by native tier so the
+// user reads them as a 4-floor tower:
+//   ♢ surprising — TOP (elevated above chemistry per user iter)
+//   ★★★ chemistry
+//   ★★ strong
+//   ★ good — at the ring plane
+// Each ring mesh keeps its tier-specific shape (bipyramid / cylinder
+// / sphere / star) via `affinityShape(tier)` in the constructor.
+const TIER_Y_ELEVATION = { 0: 32, 3: 24, 2: 16, 1: 8 };
 
 // Golden angle (φ ≈ 137.5°) — distributes ring slots so adjacent
 // positions aren't cluster-correlated.
@@ -72,27 +83,24 @@ const RING_INDICES = [3, 2, 1, 0, 4, 5];
 const PHI = Math.PI * (3 - Math.sqrt(5));
 
 // Wedge layout — outer ring radius for the bucket arc outlines.
-// Sized to sit just outside ring 0 (RADII[0]=48) so the arcs frame
-// the affinity spheres without overlapping them.
-const WEDGE_RADIUS = 52;
-// Iter (2026-05-16 user feedback): camera framing radius for the
-// focal-orbit. Covers the radial-stagger max (WEDGE_RADIUS × 1.20 =
-// 62.4), the bucket labels (WEDGE_LABEL_RADIUS = 58.24), and the
-// accent mesh radius (AFFINITY_SPHERE_RADIUS = 1.2) with a small
-// breathing buffer. Passed to CameraAnimator.engageFocalOrbit /
-// repivot so the orbit distance fits the wheel on any window size
-// or device — the animator computes the actual distance from the
-// live FOV + viewport aspect.
+// Tied to RADII[3] (the canonical ring radius) so a radius change
+// (2026-05-22 user-iter: 48 → 43) keeps the arc + labels aligned
+// with the actual ring.
+const WEDGE_RADIUS = RADII[3] + 8;
+// Camera framing radius for the focal-orbit. Covers the wedge
+// labels + a comfortable buffer past the segment border. Passed
+// to CameraAnimator.engageFocalOrbit / repivot so the orbit fits
+// any window/device — the animator computes the actual distance
+// from live FOV + viewport aspect.
 const WHEEL_FRAME_RADIUS = 66;
-// Bucket-label radius — slightly outside the arc so the text floats
-// past the outline rather than sitting on it.
-const WEDGE_LABEL_RADIUS = WEDGE_RADIUS * 1.12;
+// Bucket-label radius — just outside the wedge arc / segment border.
+const WEDGE_LABEL_RADIUS = WEDGE_RADIUS + 5;
 // Number of points sampled per wedge arc. 24 segments per π is plenty
 // for a smooth read at the camera distance the focal-orbit uses.
 const WEDGE_ARC_SEGMENTS_PER_PI = 24;
-// Default morph axis when no filter is active (matches the SVG wheel's
-// default in IngredientPanel/FullWheel).
-const DEFAULT_WEDGE_AXIS = 'aromas';
+// Default morph axis when no filter is active. Canonical-spec
+// (2026-05-22): the "none" ring divides by clusters.
+const DEFAULT_WEDGE_AXIS = 'cluster';
 // Fallback bucket key for neighbors with no axis-specific bucket
 // (compound-foods + hub ingredients with no GNN aroma classification,
 // or cuisine-less / season-less nodes when those filters are active).
@@ -100,6 +108,16 @@ const DEFAULT_WEDGE_AXIS = 'aromas';
 const FALLBACK_BUCKET_KEY = '_other';
 const FALLBACK_BUCKET_LABEL = 'Other';
 const FALLBACK_BUCKET_COLOR = '#475569';
+
+// Canonical-spec §6.3 — segment fills are FULL pie slices (innerR=0
+// → outerR=ring radius + border). Opacity 0.30 — faintly shaded so
+// the bucket color reads as a background tint, not a solid wash.
+// renderOrder=-1 on the mesh + no depthWrite override keeps the
+// fill visible beneath the affinity spheres without z-fighting.
+const RING_SEGMENT_OPACITY = 0.30;
+// Pad the outer radius beyond the ring so the segment fill reaches
+// past the affinity spheres and forms a visible border.
+const RING_SEGMENT_OUTER_PAD = 8;
 
 // Tier → edge color (spec § α-mode visual layout).
 const TIER_COLOR = {
@@ -183,6 +201,13 @@ export class AffinityMode {
     this._getFilterStack = typeof options.getFilterStack === 'function'
       ? options.getFilterStack
       : () => [];
+    // Canonical-spec §6.11 — when a filter pill is active AND the
+    // joystick has picked a specific bucket within that axis, restrict
+    // the candidate affinities to ingredients in that bucket. Returns
+    // the bucket label (string) when one is picked, null otherwise.
+    this._getPickedBucket = typeof options.getPickedBucket === 'function'
+      ? options.getPickedBucket
+      : () => null;
     this._engaged = false;
     this._currentFocal = null;
     this._currentAffinities = []; // last-computed result of topAffinities
@@ -326,6 +351,12 @@ export class AffinityMode {
     this.wedgeArcGroup = new THREE.Group();
     this.wedgeArcGroup.visible = false;
     stateRef.scene.add(this.wedgeArcGroup);
+    // Canonical-spec §6.3 — bucket-tinted annular sectors at each ring's
+    // R, all 6 rings simultaneously, opacity 0.30. Rebuilt per engage/
+    // pivot so segments track the live filter axis colors.
+    this.ringSegmentGroup = new THREE.Group();
+    this.ringSegmentGroup.visible = false;
+    stateRef.scene.add(this.ringSegmentGroup);
     this.wedgeLabelGroup = new THREE.Group();
     this.wedgeLabelGroup.visible = false;
     stateRef.scene.add(this.wedgeLabelGroup);
@@ -545,6 +576,7 @@ export class AffinityMode {
     this.labelGroup.visible = false;
     if (this.focalLabelGroup) this.focalLabelGroup.visible = false;
     if (this.wedgeArcGroup) this.wedgeArcGroup.visible = false;
+    if (this.ringSegmentGroup) this.ringSegmentGroup.visible = false;
     if (this.wedgeLabelGroup) this.wedgeLabelGroup.visible = false;
     // Clear label sprites to release canvas textures.
     while (this.labelGroup.children.length > 0) {
@@ -623,6 +655,7 @@ export class AffinityMode {
     this.labelGroup.visible = false;
     if (this.focalLabelGroup) this.focalLabelGroup.visible = false;
     if (this.wedgeArcGroup) this.wedgeArcGroup.visible = false;
+    if (this.ringSegmentGroup) this.ringSegmentGroup.visible = false;
     if (this.wedgeLabelGroup) this.wedgeLabelGroup.visible = false;
     const st = this.stateRef;
     if (!st) return;
@@ -673,9 +706,32 @@ export class AffinityMode {
    *
    * @param {number} _deltaSec
    */
-  tickAnimation(_deltaSec) {
-    // Reserved for cluster-ghost fade-in/out animation. v1 ships with
-    // hard-cut visibility; smooth fade is a v1.1 polish.
+  tickAnimation(deltaSec) {
+    if (!this._engaged) return;
+    if (!this.focalMesh || !this._focalAnchorPos) return;
+    // Canonical-spec §6.1 — focal pulses with its designated bucket
+    // color. 1.4s breathing cycle, scale 1.0 → 1.18, color brightness
+    // ×1.0 → ×1.25 (clamped). Cheap: rewrites a single InstancedMesh
+    // matrix + color tuple per frame.
+    this._focalPulseT = (this._focalPulseT || 0) + (deltaSec || 0);
+    const phase = (Math.sin((this._focalPulseT * 2 * Math.PI) / 1.4) + 1) * 0.5; // 0..1
+    const baseScale = this._focalBaseScale || (AFFINITY_SPHERE_RADIUS * FOCAL_SCALE_BOOST);
+    const s = baseScale * (1.0 + 0.18 * phase);
+    const [px, py, pz] = this._focalAnchorPos;
+    const tmpV = this._tmpPos.set(px, py, pz);
+    const tmpQ = this._tmpQuat.identity();
+    const tmpS = this._tmpScale.set(s, s, s);
+    this._matrixScratch.compose(tmpV, tmpQ, tmpS);
+    this.focalMesh.setMatrixAt(0, this._matrixScratch);
+    this.focalMesh.instanceMatrix.needsUpdate = true;
+    if (this._focalBucketColor && this.focalMesh.instanceColor) {
+      const bright = 1.0 + 0.25 * phase;
+      const r = Math.min(1, this._focalBucketColor.r * bright);
+      const g = Math.min(1, this._focalBucketColor.g * bright);
+      const b = Math.min(1, this._focalBucketColor.b * bright);
+      this.focalMesh.instanceColor.setXYZ(0, r, g, b);
+      this.focalMesh.instanceColor.needsUpdate = true;
+    }
   }
 
   /**
@@ -694,6 +750,7 @@ export class AffinityMode {
       if (this.labelGroup) st.scene.remove(this.labelGroup);
       if (this.focalLabelGroup) st.scene.remove(this.focalLabelGroup);
       if (this.wedgeArcGroup) st.scene.remove(this.wedgeArcGroup);
+      if (this.ringSegmentGroup) st.scene.remove(this.ringSegmentGroup);
       if (this.wedgeLabelGroup) st.scene.remove(this.wedgeLabelGroup);
     }
     // Each per-role mesh owns its master geometry; the shared material
@@ -717,6 +774,7 @@ export class AffinityMode {
       });
     }
     this._disposeWedgeArcs();
+    this._disposeRingSegments();
     this._disposeWedgeLabels();
     this.focalMesh = null;
     this.ring3Mesh = null;
@@ -763,12 +821,54 @@ export class AffinityMode {
       return;
     }
 
-    const tiered = topAffinities(focal, this.ctx);
-    // Append surprising candidates as ring 0. The Surprising tier is
-    // bridged-but-corpus-untiered (strength below ★) so the
-    // surprisingAffinities helper applies its own filtering — we just
-    // tack the result onto the same list the renderer iterates.
-    const surprising = surprisingAffinities(focal, this.ctx, { N: RING_CAPACITY[0] });
+    // Canonical-spec (2026-05-22 revision): top 3 affinities per
+    // NATIVE TIER. topAffinities() ranks by strength and assigns ringIdx
+    // by rank — to get top-3-by-tier (chemistry / strong / good) we pull
+    // a generous candidate set and filter by aff.tier ourselves.
+    const allTiered = topAffinities(focal, this.ctx, { N3: 60, N2: 60, N1: 60 });
+
+    // Canonical-spec §6.11 — filter-aware affinity selection. When a
+    // filter pill is active, drop any candidate whose value on the
+    // filter's axis is null (no bucket on this axis), AND if the
+    // joystick has picked a specific bucket within the axis, drop any
+    // candidate not in that bucket. Pool size above is generous (60
+    // per rank) so the post-filter top-3-per-tier stays populated even
+    // when the filter is highly restrictive.
+    const filterStack = (this._getFilterStack && this._getFilterStack()) || [];
+    const pickedBucket = filterStack.length > 0 ? this._getPickedBucket() : null;
+    const nodesMap = this.ctx?.graph?.nodes;
+    const passesFilter = (affName) => {
+      if (filterStack.length === 0) return true;
+      const node = (nodesMap && typeof nodesMap.get === 'function')
+        ? (nodesMap.get(affName) || { name: affName })
+        : { name: affName };
+      for (const f of filterStack) {
+        const filterKey = f === 'aromas' ? 'aroma' : f;
+        const axis = FILTER_TO_AXIS[filterKey] || filterKey;
+        const b = resolveBucket(filterKey, node, this._categoricalCtx);
+        if (!b) return false; // no value on this axis
+        if (pickedBucket && axis === morphAxisForStack(filterStack)) {
+          if (b !== pickedBucket) return false;
+        }
+      }
+      return true;
+    };
+
+    const byTier = { 3: [], 2: [], 1: [] };
+    for (const a of allTiered) {
+      if (!byTier[a.tier]) continue;
+      if (!passesFilter(a.name)) continue;
+      byTier[a.tier].push(a);
+    }
+    // Force ringIdx to mirror native tier so the placement loop routes
+    // each affinity to its tier-shaped mesh.
+    const tiered = [
+      ...byTier[3].slice(0, 3).map((a) => ({ ...a, ringIdx: 3 })),
+      ...byTier[2].slice(0, 3).map((a) => ({ ...a, ringIdx: 2 })),
+      ...byTier[1].slice(0, 3).map((a) => ({ ...a, ringIdx: 1 })),
+    ];
+    const surprisingPool = surprisingAffinities(focal, this.ctx, { N: 12 });
+    const surprising = surprisingPool.filter((a) => passesFilter(a.name)).slice(0, 3);
     // Drop dupes that already appeared as a tiered affinity (cheap;
     // surprising lists are ≤ 8).
     const tieredNames = new Set(tiered.map((a) => a.name));
@@ -823,15 +923,13 @@ export class AffinityMode {
     );
     const zeroS = new THREE.Vector3(0, 0, 0);
     const slotCounter = { 3: 0, 2: 0, 1: 0, 0: 0 };
-    // Pre-fill ALL ring slots as collapsed (scale=0); the loop below
-    // overwrites occupied slots. This guarantees no stale matrices
-    // survive a pivot when an affinity count drops below capacity.
-    //
-    // Also reset the per-mesh slot→global-idx map so click resolution
-    // (livingArchView's affinity-aware raycaster) sees -1 for any
-    // unoccupied slot rather than a stale ingredient from a prior pivot.
-    for (const ringIdx of RING_INDICES) {
+    // Pre-fill ALL 4 tier meshes' slots as collapsed (scale=0); the
+    // placement loop below overwrites occupied slots. Tier-column
+    // layout means rings 0/1/2/3 are ALL visible (each tier has its
+    // own elevation).
+    for (const ringIdx of [3, 2, 1, 0]) {
       const mesh = this._ringMeshes[ringIdx];
+      if (!mesh) continue;
       const cap = RING_CAPACITY[ringIdx];
       for (let s = 0; s < cap; s++) {
         m.compose(tmpV.set(0, 0, 0), tmpQ, zeroS);
@@ -860,9 +958,12 @@ export class AffinityMode {
     const layoutByRing = {};
     const bucketColorsByRing = {};
     for (const ringIdx of RING_INDICES) {
-      const axisKey = RING_AXIS[ringIdx];
-      const wedgeContext = this._resolveWedgeContext(affinities, axisKey);
-      const { palette, bucketColors, neighborWithBucket } = wedgeContext;
+      // Canonical-spec (2026-05-22): single-ring α-mode. The ring's
+      // axis is the filter-driven axis (or DEFAULT_WEDGE_AXIS
+      // 'cluster' when no filter is active). Pass null so
+      // _resolveWedgeContext walks the filter stack itself.
+      const wedgeContext = this._resolveWedgeContext(affinities, null);
+      const { axisKey, palette, bucketColors, neighborWithBucket } = wedgeContext;
       const layout = computeWheelLayout({
         focal: { name: focal },
         neighbors: neighborWithBucket,
@@ -877,56 +978,69 @@ export class AffinityMode {
         const n = dot.neighbor;
         if (n && n.name) dotByName.set(n.name, dot);
       }
-      // Build a quick wedge-by-key index so focal can look up its
-      // cluster's segment angle below.
       const wedgeByKey = new Map();
       for (const w of layout.wedges) wedgeByKey.set(w.key, w);
       layoutByRing[ringIdx] = { layout, layoutScale, dotByName, bucketColors, wedgeByKey, axisKey };
       bucketColorsByRing[ringIdx] = bucketColors;
     }
-    // Legacy single-axis surface (preserved for SVG overlay + tests):
-    // _currentWedges + _currentWedgeAxis follow the filter-driven axis
-    // (or DEFAULT_WEDGE_AXIS 'aromas' when no filter). The v2 cluster
-    // ring data is surfaced separately under _clusterRing for new code.
-    const filterStack = (this._getFilterStack && this._getFilterStack()) || [];
-    const filterMorphAxis = morphAxisForStack(filterStack) || DEFAULT_WEDGE_AXIS;
-    const filterRingIdx = filterMorphAxis === 'cluster' ? 3
-      : filterMorphAxis === 'aromas'  ? 2
-      : filterMorphAxis === 'taste'   ? 1
-      : filterMorphAxis === 'family'  ? 0
-      : filterMorphAxis === 'cuisine' ? 4
-      : filterMorphAxis === 'season'  ? 5
-      : 2; // default 'aromas' ring
-    const surfacedRing = layoutByRing[filterRingIdx] || layoutByRing[2];
+    // Canonical-spec (2026-05-22): single ring → ring 3 is THE ring.
+    // Its axis is the filter-driven axis (or DEFAULT_WEDGE_AXIS
+    // 'cluster' when no filter). All legacy single-axis surfaces
+    // (SVG overlay, wedge tests, focal-bucket lookup) point at the
+    // same ring 3 layout.
+    void morphAxisForStack;
+    const filterRingIdx = 3;
+    const surfacedRing = layoutByRing[3];
     this._currentWedges = surfacedRing.layout.wedges;
     this._currentBucketColors = surfacedRing.bucketColors;
     this._currentWedgeAxis = surfacedRing.axisKey;
-    this._clusterRing = layoutByRing[3];
+    const clusterRing = layoutByRing[3];
+    this._clusterRing = clusterRing;
 
     // ─── 1a-revised. Focal placement ON cluster ring at cluster segment ───
     // Override the earlier "focal at wheel center" placement (which
     // we did at line ~765 above). Move focal to ring 3 at its own
     // cluster's segment angle. Camera-orbit framing stays at the
-    // wheel center; the focal sphere just sits on the cluster ring.
-    const focalNode = st.nodeArray?.[focalIdx] || null;
-    const focalClusterId = focalNode?.clusterId;
-    const focalWedge = focalClusterId != null
-      ? clusterRing.wedgeByKey.get(String(focalClusterId))
+    // wheel center; the focal sphere just sits on the ring.
+    // Canonical-spec §6.4 — focal sits at its own bucket on the ring's
+    // active axis. Resolve the focal's bucketKey via the same path
+    // affinities use so the placement is consistent across axes
+    // (cluster default, aroma when aroma filter, etc.).
+    const focalBucketCtx = this._resolveWedgeContext(
+      [{ name: focal }],
+      clusterRing.axisKey,
+    );
+    const focalBucketKey = focalBucketCtx.neighborWithBucket?.[0]?.bucketKey || null;
+    const focalWedge = focalBucketKey
+      ? clusterRing.wedgeByKey.get(focalBucketKey)
       : null;
     let focalRingX = cx;
     let focalRingZ = cz;
+    let focalRingY = cy;
     if (focalWedge) {
       const fa = focalWedge.midAngle;
       focalRingX = cx + RADII[3] * Math.cos(fa);
       focalRingZ = cz + RADII[3] * Math.sin(fa);
+      focalRingY = cy + RING_ELEVATION[3];
       const fmS = new THREE.Vector3(focalScale, focalScale, focalScale);
       const fmM = new THREE.Matrix4();
-      const fmV = new THREE.Vector3(focalRingX, cy + RING_ELEVATION[3], focalRingZ);
+      const fmV = new THREE.Vector3(focalRingX, focalRingY, focalRingZ);
       const fmQ = new THREE.Quaternion();
       fmM.compose(fmV, fmQ, fmS);
       this.focalMesh.setMatrixAt(0, fmM);
       this.focalMesh.instanceMatrix.needsUpdate = true;
     }
+    // Canonical-spec §6.1 / §6.4 — focal pulses in its CLUSTER bucket
+    // color, not neutral white. Cache the bucket color + anchor pos so
+    // tickAnimation can drive the pulse without recomputing.
+    const focalBucketHex = focalWedge?.color || FALLBACK_BUCKET_COLOR;
+    const focalBucketColor = new THREE.Color(focalBucketHex);
+    this.focalMesh.instanceColor.setXYZ(0, focalBucketColor.r, focalBucketColor.g, focalBucketColor.b);
+    this.focalMesh.instanceColor.needsUpdate = true;
+    this._focalBucketColor = focalBucketColor.clone();
+    this._focalBaseScale = focalScale;
+    this._focalAnchorPos = [focalRingX, focalRingY, focalRingZ];
+    if (typeof this._focalPulseT !== 'number') this._focalPulseT = 0;
 
     // ─── 1b-revised. Affinity placement — walk axes, place each
     //              affinity at its bucket on each ring it has one ───
@@ -944,72 +1058,78 @@ export class AffinityMode {
     // ring (innermost, primary navigation axis).
     const canonicalRingIdx = filterRingIdx;
 
-    for (const ringIdx of RING_INDICES) {
-      const ring = layoutByRing[ringIdx];
-      const mesh = this._ringMeshes[ringIdx];
-      const cap = RING_CAPACITY[ringIdx];
-      let slot = 0;
-      for (let i = 0; i < affinities.length; i++) {
-        const aff = affinities[i];
-        const dot = ring.dotByName.get(aff.name);
-        if (!dot) continue; // affinity has no bucket on this axis
-        if (slot >= cap) break;
-        const px = dot.x * ring.layoutScale;
-        const pz = dot.y * ring.layoutScale;
-        const yLift = RING_ELEVATION[ringIdx] ?? 0;
-        tmpV.set(cx + px, cy + yLift, cz + pz);
-        const worldXyz = [tmpV.x, tmpV.y, tmpV.z];
-        if (ringIdx === canonicalRingIdx) {
-          sphereWorldPos[i] = worldXyz;
-          aff.worldPos = worldXyz;
-          aff.bucketKey = dot?.neighbor?.bucketKey ?? null;
-        }
-        m.compose(tmpV, tmpQ, tmpS);
-        mesh.setMatrixAt(slot, m);
-        const bucketHex = dot?.neighbor?.bucketKey ? ring.bucketColors[dot.neighbor.bucketKey] : null;
-        let cr, cg, cb;
-        if (bucketHex) {
-          const bc = new THREE.Color(bucketHex);
-          cr = bc.r; cg = bc.g; cb = bc.b;
-        } else {
-          const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
-          cr = c.r; cg = c.g; cb = c.b;
-        }
-        mesh.instanceColor.setXYZ(slot, cr, cg, cb);
-        const affGlobalIdx = st.nameIdx?.get(aff.name);
-        if (typeof affGlobalIdx === 'number') {
-          mesh.userData.slotToGlobalIdx[slot] = affGlobalIdx;
-        }
-        slot++;
-      }
-    }
-    // For any affinity that didn't get placed on the canonical ring
-    // (the affinity has no bucket on that axis), use the first ring
-    // it does have a placement on. Cuisine flags + edges + SVG cones
-    // need a worldPos to anchor against.
-    const tryRings = [canonicalRingIdx, ...RING_INDICES];
+    // Canonical-spec (2026-05-22 revision): tier-column placement.
+    // ONE shared XZ layout (the cluster wedge layout on ring 3) gives
+    // every affinity its bucket angle. Each affinity is routed to its
+    // tier-shaped mesh and placed at the tier's Y elevation. Multiple
+    // affinities in the same tier+bucket stack along a short radial
+    // line (closer to center = higher strength).
+    const sharedLayout = layoutByRing[3];
+    const stackCountByCell = new Map(); // `${tier}|${bucketKey}` → count
     for (let i = 0; i < affinities.length; i++) {
-      if (sphereWorldPos[i] !== null) continue;
       const aff = affinities[i];
-      for (const ringIdx of tryRings) {
-        const ring = layoutByRing[ringIdx];
-        const dot = ring.dotByName.get(aff.name);
-        if (!dot) continue;
-        const px = dot.x * ring.layoutScale;
-        const pz = dot.y * ring.layoutScale;
-        const yLift = RING_ELEVATION[ringIdx] ?? 0;
-        const worldXyz = [cx + px, cy + yLift, cz + pz];
-        sphereWorldPos[i] = worldXyz;
-        aff.worldPos = worldXyz;
-        aff.bucketKey = dot?.neighbor?.bucketKey ?? null;
-        break;
+      const tier = aff.ringIdx ?? aff.tier ?? 1;
+      const targetMesh = this._ringMeshes[tier];
+      if (!targetMesh) continue;
+      const cap = RING_CAPACITY[tier];
+      const slot = slotCounter[tier];
+      if (slot >= cap) continue;
+      const dot = sharedLayout.dotByName.get(aff.name);
+      if (!dot) continue;
+      const px = dot.x * sharedLayout.layoutScale;
+      const pz = dot.y * sharedLayout.layoutScale;
+      // Stack: subsequent same-tier+bucket affinities pull radially
+      // inward so they don't collide.
+      const bucketKey = dot?.neighbor?.bucketKey ?? null;
+      const cellKey = `${tier}|${bucketKey ?? '_other'}`;
+      const stackIdx = stackCountByCell.get(cellKey) ?? 0;
+      stackCountByCell.set(cellKey, stackIdx + 1);
+      const radialPullPerStack = 4.0;
+      const radius = Math.hypot(px, pz);
+      const radialScale = radius > 0
+        ? Math.max(0, 1 - (stackIdx * radialPullPerStack) / radius)
+        : 1;
+      const xFinal = px * radialScale;
+      const zFinal = pz * radialScale;
+      const yLift = TIER_Y_ELEVATION[tier] ?? 0;
+      tmpV.set(cx + xFinal, cy + yLift, cz + zFinal);
+      const worldXyz = [tmpV.x, tmpV.y, tmpV.z];
+      sphereWorldPos[i] = worldXyz;
+      aff.worldPos = worldXyz;
+      aff.bucketKey = bucketKey;
+      m.compose(tmpV, tmpQ, tmpS);
+      targetMesh.setMatrixAt(slot, m);
+      const bucketHex = bucketKey ? sharedLayout.bucketColors[bucketKey] : null;
+      let cr, cg, cb;
+      if (bucketHex) {
+        const bc = new THREE.Color(bucketHex);
+        cr = bc.r; cg = bc.g; cb = bc.b;
+      } else {
+        const c = TIER_COLOR[aff.tier] ?? TIER_COLOR[1];
+        cr = c.r; cg = c.g; cb = c.b;
       }
+      targetMesh.instanceColor.setXYZ(slot, cr, cg, cb);
+      const affGlobalIdx = st.nameIdx?.get(aff.name);
+      if (typeof affGlobalIdx === 'number') {
+        targetMesh.userData.slotToGlobalIdx[slot] = affGlobalIdx;
+      }
+      slotCounter[tier] = slot + 1;
     }
-    for (const ringIdx of RING_INDICES) {
+    void canonicalRingIdx;
+    // Tier-column α-mode: all 4 tier meshes (0/1/2/3) visible at
+    // their elevations. The peripheral cuisine/season meshes
+    // (4/5) stay hidden — they were never re-used after the 6-ring
+    // revert.
+    for (const ringIdx of [3, 2, 1, 0]) {
       const mesh = this._ringMeshes[ringIdx];
+      if (!mesh) continue;
       mesh.instanceMatrix.needsUpdate = true;
       mesh.instanceColor.needsUpdate = true;
       mesh.visible = true;
+    }
+    for (const ringIdx of [4, 5]) {
+      const mesh = this._ringMeshes[ringIdx];
+      if (mesh) mesh.visible = false;
     }
 
     // ─── 1c. Wedge arc outlines (legacy single-axis arcs) ───
@@ -1022,7 +1142,16 @@ export class AffinityMode {
       [cx, cy, cz],
     );
 
+    // Canonical-spec §6.3 — tint every ring's segments with their
+    // bucket color at 30% opacity. Renders on ALL 6 rings (not just
+    // the filter-driven one), so the user reads the categorical
+    // segmentation per ring at a glance.
+    this._buildRingSegments(layoutByRing, [cx, cy, cz]);
+
     // ─── 2. Edge buffer (focal → each affinity) ───
+    // Canonical-spec §6.6 — edges colored by native tier (gold/silver/
+    // bronze), independent of which segment an affinity sits on.
+    void bucketColorsByRing;
     const posAttr = this.edgeGeo.attributes.position;
     const colAttr = this.edgeGeo.attributes.color;
     for (let i = 0; i < TOTAL_RING_CAPACITY; i++) {
@@ -1055,10 +1184,10 @@ export class AffinityMode {
     }
     posAttr.needsUpdate = true;
     colAttr.needsUpdate = true;
-    // Track 2 (2026-05-16) — 3D edge lines are now superseded by the
-    // AffinityTriangleOverlay's SVG cones. The cones carry color +
-    // tier semantics and the user reported the in-scene edges felt
-    // duplicative ("the previous lines and icons still exist").
+    // Canonical-spec (2026-05-22 revision): 3D focal→affinity edges
+    // are hidden in tier-column α-mode — the vertical separation by
+    // tier already carries the focal→affinity relationship without
+    // the noise of radial lines. SVG cone overlay still renders.
     this.edgeLines.visible = false;
 
     // ─── 2b. Cuisine-anchor flags ───
@@ -1102,9 +1231,12 @@ export class AffinityMode {
     }
     this.cuisineFlagMesh.visible = anyCuisineFlag;
     // Surface focal world position so the SVG overlay can project the
-    // hub anchor without needing st.curPos (which doesn't account for
-    // any per-frame tween the focal mesh might do during engage).
-    this._focalWorldPos = [cx, cy, cz];
+    // hub anchor without needing st.curPos. Reflects the focal's
+    // ring-anchored position (cluster segment on ring 1), not the
+    // wheel center — see §6.4.
+    this._focalWorldPos = this._focalAnchorPos
+      ? [...this._focalAnchorPos]
+      : [cx, cy, cz];
 
     // ─── 3. Hide non-affinity nodes via scale-0 instanceMatrix ───
     // Color-dim alone wasn't enough: bloom amplified the dim values
@@ -1167,7 +1299,10 @@ export class AffinityMode {
     if (st.clusterConnectorGroup) st.clusterConnectorGroup.visible = false;
 
     // ─── 6. Affinity labels (focal name + each affinity name) ───
-    this._buildLabels(focal, sphereWorldPos, [cx, cy, cz]);
+    // Canonical-spec — focal label anchored to the focal sphere's
+    // actual ring position (above + adjacent), not the wheel center.
+    const focalLabelAnchor = this._focalAnchorPos || [cx, cy, cz];
+    this._buildLabels(focal, sphereWorldPos, focalLabelAnchor);
     void DIM_COLOR; // retained constant for future dim-color path
   }
 
@@ -1196,7 +1331,22 @@ export class AffinityMode {
       if (s.material) s.material.dispose();
     }
     const focalSprite = makeLabel(focal, '#ffffff', 14, { glow: false });
-    focalSprite.position.set(focalWorld[0], focalWorld[1] + 4.5, focalWorld[2]);
+    // Canonical-spec — focal label sits ABOVE and ADJACENT to the
+    // focal sphere, anchored to its ring position. The label leans
+    // radially outward (away from wheel center) so it sits next to
+    // the sphere instead of stacking right on top.
+    const labelDX = focalWorld[0] !== 0 || focalWorld[2] !== 0
+      ? focalWorld[0] / Math.hypot(focalWorld[0], focalWorld[2])
+      : 0;
+    const labelDZ = focalWorld[0] !== 0 || focalWorld[2] !== 0
+      ? focalWorld[2] / Math.hypot(focalWorld[0], focalWorld[2])
+      : 0;
+    const LABEL_RADIAL_OFFSET = 4.0; // world units outward
+    focalSprite.position.set(
+      focalWorld[0] + labelDX * LABEL_RADIAL_OFFSET,
+      focalWorld[1] + 4.5,
+      focalWorld[2] + labelDZ * LABEL_RADIAL_OFFSET,
+    );
     this.focalLabelGroup.add(focalSprite);
     this.focalLabelGroup.visible = true;
     // Affinity labels — colored by tier (matches edge color so user
@@ -1413,6 +1563,97 @@ export class AffinityMode {
       this.wedgeArcGroup.remove(line);
       if (line.geometry) line.geometry.dispose();
       if (line.material) line.material.dispose();
+    }
+  }
+
+  /**
+   * Canonical-spec §6.3 — build bucket-tinted annular sectors at each
+   * of the 6 ring radii. One RingGeometry slice per wedge per ring,
+   * MeshBasicMaterial with opacity = RING_SEGMENT_OPACITY (0.30).
+   * Slices are raycast-inert so click events pass through to the
+   * affinity spheres.
+   *
+   * @param {object} layoutByRing  ringIdx → { layout, bucketColors, ... }
+   * @param {[number,number,number]} focalWorld  wheel-center [x,y,z]
+   */
+  _buildRingSegments(layoutByRing, focalWorld) {
+    if (!this.ringSegmentGroup) return;
+    this._disposeRingSegments();
+    const [fx, fy, fz] = focalWorld;
+    for (const ringIdx of RING_INDICES) {
+      const ring = layoutByRing?.[ringIdx];
+      if (!ring) continue;
+      const R = RADII[ringIdx];
+      const yLift = RING_ELEVATION[ringIdx] ?? 0;
+      const outerR = R + RING_SEGMENT_OUTER_PAD;
+      const wedges = ring.layout?.wedges || [];
+      // Canonical-spec §6.3 — outline-only segments. Each wedge is
+      // traced by 3 line segments: center → outer-start, outer arc,
+      // outer-end → center. No fill — just the perimeter.
+      for (const w of wedges) {
+        if (w.key === '_empty') continue;
+        if (!Number.isFinite(w.span) || w.span <= 0) continue;
+        const startAngle = w.midAngle - w.span / 2;
+        const endAngle = w.midAngle + w.span / 2;
+        const arcSegments = Math.max(
+          12,
+          Math.ceil((Math.abs(w.span) * WEDGE_ARC_SEGMENTS_PER_PI) / Math.PI),
+        );
+        const points = [];
+        // 1) Center → outer-start (radial line)
+        points.push(new THREE.Vector3(0, 0, 0));
+        points.push(new THREE.Vector3(
+          Math.cos(startAngle) * outerR, 0,
+          Math.sin(startAngle) * outerR,
+        ));
+        // 2) Outer arc from startAngle → endAngle
+        for (let i = 0; i <= arcSegments; i++) {
+          const t = i / arcSegments;
+          const a = startAngle + t * w.span;
+          points.push(new THREE.Vector3(
+            Math.cos(a) * outerR, 0,
+            Math.sin(a) * outerR,
+          ));
+          if (i < arcSegments) {
+            // Pair each segment endpoint with its successor.
+            const aNext = startAngle + ((i + 1) / arcSegments) * w.span;
+            points.push(new THREE.Vector3(
+              Math.cos(aNext) * outerR, 0,
+              Math.sin(aNext) * outerR,
+            ));
+          }
+        }
+        // 3) Outer-end → center (radial line)
+        points.push(new THREE.Vector3(
+          Math.cos(endAngle) * outerR, 0,
+          Math.sin(endAngle) * outerR,
+        ));
+        points.push(new THREE.Vector3(0, 0, 0));
+
+        const geo = new THREE.BufferGeometry().setFromPoints(points);
+        const color = new THREE.Color(w.color || FALLBACK_BUCKET_COLOR);
+        const mat = new THREE.LineBasicMaterial({
+          color,
+          transparent: true,
+          opacity: 0.95,
+        });
+        const lines = new THREE.LineSegments(geo, mat);
+        lines.position.set(fx, fy + yLift, fz);
+        lines.userData = { ringIdx, bucketKey: w.key };
+        lines.raycast = () => {};
+        this.ringSegmentGroup.add(lines);
+      }
+    }
+    this.ringSegmentGroup.visible = true;
+  }
+
+  _disposeRingSegments() {
+    if (!this.ringSegmentGroup) return;
+    while (this.ringSegmentGroup.children.length > 0) {
+      const m = this.ringSegmentGroup.children[0];
+      this.ringSegmentGroup.remove(m);
+      if (m.geometry) m.geometry.dispose();
+      if (m.material) m.material.dispose();
     }
   }
 
