@@ -915,6 +915,16 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
           </section>
         )}
 
+        {/* Canonical-spec §3.5 — single-click selection opens the
+            panel with tier 1 (aroma) / tier 2 (taste) / tier 3
+            (mouthfeel) + leaves visible by default. FlavorGraphTree
+            renders all four. */}
+        {node.flavorGraph && (
+          <CollapsibleSection title="Flavor Graph" defaultOpen={true}>
+            <FlavorGraphTree node={node} />
+          </CollapsibleSection>
+        )}
+
         {/* Molecular Profile — collapsed by default; the Profile Radar
             Carousel below shows the same data graphically. Kept for
             users who want numeric probabilities. */}

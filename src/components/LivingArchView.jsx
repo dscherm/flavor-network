@@ -96,8 +96,24 @@ export default function LivingArchView({
   highlightIngredients = null,
   focusedClusterId = null,
   affinityEnabled = true,
+  // Canonical-spec §3.5 — α-mode only engages on the EXPLICIT
+  // commit gesture (double-click or long-press). Single-click sets
+  // selectedNodes but leaves affinityRequested=false; this prop
+  // gates the engage useEffect so a single-click selection does NOT
+  // trigger ctrl.engage(). Defaults to false (panel-only state).
+  affinityRequested = false,
+  // Canonical-spec §6.11 — joystick-picked bucket label within the
+  // active filter axis (e.g., "fruity" when aroma filter is on and
+  // the joystick has selected fruity). When set, α-mode restricts
+  // affinities to ingredients in that bucket. Null when no specific
+  // bucket is picked (filter is on but joystick is at center).
+  pickedBucket = null,
   isMobile = false,
   onClearSelection = null,
+  // Canonical-spec §3.5 — touch long-press engages α-mode on the
+  // node under the touch. Wired from App.jsx to set
+  // affinityRequested=true.
+  onNodeLongPress = null,
 }) {
   const containerRef = useRef(null);
   const stateRef = useRef(null); // holds all Three.js state
@@ -144,6 +160,8 @@ export default function LivingArchView({
   // focus click-gating fails).
   const onNodeClickRef = useRef(onNodeClick);
   useEffect(() => { onNodeClickRef.current = onNodeClick; }, [onNodeClick]);
+  const onNodeLongPressRef = useRef(onNodeLongPress);
+  useEffect(() => { onNodeLongPressRef.current = onNodeLongPress; }, [onNodeLongPress]);
   const focusedClusterIdRef = useRef(focusedClusterId);
   useEffect(() => { focusedClusterIdRef.current = focusedClusterId; }, [focusedClusterId]);
   const onPoleHoverRef = useRef(onPoleHover);
@@ -161,6 +179,14 @@ export default function LivingArchView({
     // when no focal is selected.
     affinityModeRef.current?.refreshWedgeLayout?.();
   }, [filterStack]);
+
+  // Canonical-spec §6.11 — pickedBucket ref. Re-runs affinity ring
+  // layout when the joystick selection changes so the rings refilter.
+  const pickedBucketRef = useRef(pickedBucket);
+  useEffect(() => {
+    pickedBucketRef.current = pickedBucket;
+    affinityModeRef.current?.refreshWedgeLayout?.();
+  }, [pickedBucket]);
 
   // P4: push pivot-advance config to the live CameraAnimator on
   // every mode or flavorClusterLabels change. mlflavor (flavor3D)
@@ -1124,7 +1150,7 @@ export default function LivingArchView({
             // Cluster gate doesn't apply here — affinities deliberately
             // span clusters by chemistry, and the user just clicked an
             // explicit ring sphere asking for that ingredient.
-            onNodeClickRef.current?.(node);
+            onNodeClickRef.current?.(node, { x: event.clientX, y: event.clientY });
             return;
           }
         }
@@ -1135,7 +1161,7 @@ export default function LivingArchView({
         // only on [data] change). Nodes outside the focused cluster
         // are silently ignored; empty clicks propagate (App.jsx exits
         // focus on null).
-        onNodeClick: (node) => {
+        onNodeClick: (node, screenPos) => {
           const focused = focusedClusterIdRef.current;
           if (focused != null && node) {
             // Categorical-wheel modes use pseudo-cluster IDs (negative,
@@ -1154,7 +1180,7 @@ export default function LivingArchView({
               return;
             }
           }
-          onNodeClickRef.current?.(node);
+          onNodeClickRef.current?.(node, screenPos);
         },
         mode: modeRef.current,
         handleTasteClick,
@@ -1170,7 +1196,8 @@ export default function LivingArchView({
     let pressTimer = null;
     let pressStart = null;
     let suppressNextClick = false;
-    const PRESS_HOLD_MS = 500;
+    // Canonical-spec §3.5 — long-press at ≥350ms engages α-mode.
+    const PRESS_HOLD_MS = 350;
     const PRESS_DRIFT_PX = 10;
 
     function clearPress() {
@@ -1200,6 +1227,20 @@ export default function LivingArchView({
         if (!pressStart) return;
         suppressNextClick = true;
         fireHoverFromTouch({ clientX: pressStart.x, clientY: pressStart.y });
+        // Canonical-spec §3.5 — resolve the node under the long-press
+        // and engage α-mode on it (via onNodeLongPress → App.jsx
+        // setAffinityRequested(true)).
+        const longPress = onNodeLongPressRef.current;
+        if (longPress) {
+          const fakeEvent = { clientX: pressStart.x, clientY: pressStart.y };
+          handleSceneClick(
+            fakeEvent, camera, renderer, tasteLabelSprites, mesh, nodeArray, raycaster,
+            {
+              onNodeClick: (node) => { if (node) longPress(node); },
+              mode: modeRef.current,
+            },
+          );
+        }
       }, PRESS_HOLD_MS);
     }
     function onTouchMove(event) {
@@ -1916,6 +1957,7 @@ export default function LivingArchView({
         // stack so the wedge axis follows the most-recent filter.
         categoricalCtx,
         getFilterStack: () => filterStackRef.current,
+        getPickedBucket: () => pickedBucketRef.current,
       });
     }
 
@@ -2775,11 +2817,22 @@ export default function LivingArchView({
       if (ctrl.engaged) ctrl.exit();
     } else if (selectedNodes.length === 1) {
       const focal = selectedNodes[0];
+      // Canonical-spec §3.5 — α-mode requires the explicit commit
+      // gesture (double-click or long-press). Single-click selection
+      // only opens the panel; affinityRequested stays false and we
+      // skip engage. If α-mode was already engaged (re-pivot path),
+      // affinityRequested stays true and we pivot to the new focal.
       if (ctrl.engaged) {
-        ctrl.pivot(focal);
-      } else {
+        if (affinityRequested) {
+          ctrl.pivot(focal);
+        } else {
+          // Selection changed but α-mode no longer requested → exit.
+          ctrl.exit();
+        }
+      } else if (affinityRequested) {
         ctrl.engage(focal);
       }
+      // else: single-click selection, no engage. Panel only.
     } else {
       // Multi-select: suspend ring visuals; existing common-pairings
       // UX takes over. Resume on collapse back to length 1.
@@ -2798,7 +2851,7 @@ export default function LivingArchView({
         affinityEngaged: !!ctrl.engaged,
       });
     }
-  }, [selectedNodes, isMobile, affinityEnabled]);
+  }, [selectedNodes, isMobile, affinityEnabled, affinityRequested]);
 
   // ---- Track 2 (2026-05-16) — per-frame affinity projection ----
   // While a single ingredient is focal, project the focal + each
@@ -2811,7 +2864,13 @@ export default function LivingArchView({
   //
   // Clamps: focal/accent NDC outside [-1.2, 1.2] OR z out of [-1,1] →
   // the affected entry is omitted (focal omitted → snapshot=null).
-  const trackedFocalName = selectedNodes.length === 1 ? selectedNodes[0] : null;
+  // Canonical-spec (2026-05-23 user-iter): the SVG cone overlay only
+  // appears when α-mode is engaged. Single-click selection (no α-mode)
+  // shows the tier popup near the cursor and nothing else — no cones,
+  // no affinity labels in 3D space.
+  const trackedFocalName = (selectedNodes.length === 1 && affinityRequested)
+    ? selectedNodes[0]
+    : null;
   // Mirror `neighbors` into a ref so the per-frame loop reads the
   // latest list without restarting the RAF when the parent re-renders
   // (and `neighbors` gets a new array identity each time).

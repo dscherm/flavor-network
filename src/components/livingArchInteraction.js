@@ -58,7 +58,7 @@ export function handleSceneClick(event, camera, renderer, labelSprites, mesh, no
       tasteSelection.animating = true;
       tasteSelection.animStartTime = performance.now();
     }
-    if (onNodeClick) onNodeClick(nodeArray[hit.instanceId]);
+    if (onNodeClick) onNodeClick(nodeArray[hit.instanceId], { x: event.clientX, y: event.clientY });
     return;
   }
   // Clicked empty space
@@ -67,7 +67,7 @@ export function handleSceneClick(event, camera, renderer, labelSprites, mesh, no
     tasteSelection.animating = true;
     tasteSelection.animStartTime = performance.now();
   }
-  if (onNodeClick) onNodeClick(null);
+  if (onNodeClick) onNodeClick(null, null);
 }
 
 /**

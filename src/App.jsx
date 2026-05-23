@@ -301,6 +301,12 @@ export default function App() {
   // affinityRequested (keeps the panel open).
   const [affinityRequested, setAffinityRequested] = useState(false);
   const lastNodeClickRef = useRef({ name: null, at: 0 });
+  // Canonical-spec (2026-05-23 user-iter): single-click on a network
+  // node spawns a SMALL POPUP near the cursor showing the flavor
+  // graph rows (aroma / taste / mouthfeel / leaves). The full
+  // IngredientPanel still opens in the side drawer with the rest of
+  // the details; the popup is just a quick read of the tier data.
+  const [tierPopup, setTierPopup] = useState(null); // { name, x, y } | null
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
   const [showTour, setShowTour] = useState(
@@ -790,7 +796,7 @@ export default function App() {
     return path;
   }, [data, selectedNodes]);
 
-  const handleNodeClick = useCallback((node) => {
+  const handleNodeClick = useCallback((node, screenPos) => {
     // Cluster-focus gate: when a cluster is focused, an empty-space
     // click exits focus (but no longer clears the IngredientPanel —
     // panel only closes via its X button). Clicking a node outside
@@ -817,34 +823,62 @@ export default function App() {
     const name = node.name;
 
     // Canonical-spec §3.5 two-stage selection:
-    //   single click → panel opens (set selectedNodes), no α-mode
-    //   double click on same node within 350ms → α-mode (set
-    //     affinityRequested=true)
+    //   single click on new node → replace selection (panel opens), no α-mode
+    //   single click on currently-selected node → deselect (close panel)
+    //   double click within 350ms (same node) → α-mode engages
+    //   single click on different node while α-mode active → re-pivot
+    //     (affinityRequested stays true)
     // Long-press is handled at the pointer layer in LivingArchView.
     const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
     const last = lastNodeClickRef.current;
     const isDoubleClick = last.name === name && now - last.at < 350;
     lastNodeClickRef.current = { name, at: now };
 
-    setSelectedNodes((prev) => {
-      const next = prev.includes(name)
-        ? prev.filter((n) => n !== name)
-        : [...prev, name];
-      if (next.length === 0) {
-        setActivePanel(null);
-      }
-      return next;
-    });
-
     if (isDoubleClick) {
+      // Double-click commit → engage α-mode on this node.
+      setSelectedNodes([name]);
       setAffinityRequested(true);
+      setActivePanel('ingredient');
+      setTierPopup(null);
+    } else {
+      // Single-click ALWAYS opens panel only — never α-mode, even if
+      // α-mode was previously engaged. Forces affinityRequested=false
+      // so any in-flight α-mode rings dismiss when the user clicks a
+      // new node. To re-engage α-mode the user must explicitly
+      // double-click or long-press.
+      setAffinityRequested(false);
+      let shouldOpenPopup = true;
+      setSelectedNodes((prev) => {
+        if (prev.length === 1 && prev[0] === name) {
+          // Same node clicked again outside the double-click window →
+          // deselect (close panel + popup).
+          setActivePanel(null);
+          shouldOpenPopup = false;
+          return [];
+        }
+        return [name];
+      });
+      // Open the ingredient panel — mobile drawer gate (activePanel ===
+      // 'ingredient') needs this to show the tier 1/2/3 data. Desktop
+      // panel always renders when selectedNodeData is set; this is the
+      // mobile-specific unlock.
+      setActivePanel('ingredient');
+      if (shouldOpenPopup && screenPos) {
+        setTierPopup({ name, x: screenPos.x, y: screenPos.y });
+      } else if (!shouldOpenPopup) {
+        setTierPopup(null);
+      }
     }
-    // Single-click on a DIFFERENT node while α-mode is already on
-    // counts as a "re-pivot" (spec §6.9); affinityRequested stays
-    // true so the rings move to the new focal. A clear-all click on
-    // empty space resets affinityRequested via the selectedNodes
-    // sync effect below.
   }, [focusedCluster, morphAxis]);
+
+  // Canonical-spec §3.5 — long-press on a node engages α-mode
+  // (same effect as a double-click). Wired into LivingArchView's
+  // touch press timer.
+  const handleNodeLongPress = useCallback((node) => {
+    if (!node) return;
+    setSelectedNodes([node.name]);
+    setAffinityRequested(true);
+  }, []);
 
   const handleSearchSelect = useCallback((name) => {
     setSelectedNodes((prev) => {
@@ -1339,6 +1373,7 @@ export default function App() {
       <LivingArchView
         data={data}
         onNodeClick={handleNodeClick}
+        onNodeLongPress={handleNodeLongPress}
         onNodeHover={(node, pos) => {
           setHoveredNode(node);
           setHoverPos(pos);
@@ -1369,6 +1404,8 @@ export default function App() {
         highlightIngredients={clusterHighlights}
         focusedClusterId={focusedCluster}
         affinityEnabled={affinityEnabled}
+        affinityRequested={affinityRequested}
+        pickedBucket={focusedBucketLabel}
         isMobile={isMobile}
         onClearSelection={handleClearSelection}
       />
@@ -1395,6 +1432,64 @@ export default function App() {
           )}
         </div>
       )}
+      {/* Canonical-spec (2026-05-23): tier popup on single-click of a
+          network node. Reads the flavor-graph rows (aroma / taste /
+          mouthfeel / leaves) at a glance, anchored near the click
+          point. The full IngredientPanel still opens in the side
+          drawer with the rest of the metadata. Click outside / click
+          a new node dismisses it; double-click engages α-mode and
+          dismisses it too. */}
+      {tierPopup && (() => {
+        const popupNode = data?.graph?.nodes?.get?.(tierPopup.name);
+        if (!popupNode) return null;
+        const fg = popupNode.flavorGraph || {};
+        const rows = [
+          { label: 'Aroma',     items: fg.tier1 || [], color: '#fbbf24' }, // amber
+          { label: 'Taste',     items: fg.tier2 || [], color: '#9ca3af' }, // gray
+          { label: 'Mouthfeel', items: fg.tier3 || [], color: '#a78bfa' }, // violet
+          { label: 'Leaves',    items: fg.leaves || [], color: '#86efac' }, // green
+        ];
+        const hasAny = rows.some((r) => r.items.length > 0);
+        // Clamp position so the popup stays on-screen.
+        const px = Math.min(tierPopup.x + 14, (typeof window !== 'undefined' ? window.innerWidth : 1200) - 240);
+        const py = Math.min(tierPopup.y + 14, (typeof window !== 'undefined' ? window.innerHeight : 800) - 200);
+        return (
+          <div
+            className="fixed z-[72] px-3 py-2 rounded-md bg-[#0d0d16]/95 border border-purple-500/50 text-xs text-white shadow-lg"
+            style={{ left: px, top: py, maxWidth: 240 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <span className="font-medium text-sm">{popupNode.name}</span>
+              <button
+                type="button"
+                className="text-gray-500 hover:text-white text-base leading-none -mr-1"
+                onClick={() => setTierPopup(null)}
+                aria-label="Close"
+              >×</button>
+            </div>
+            {hasAny ? (
+              <div className="space-y-1">
+                {rows.map((r) => r.items.length > 0 && (
+                  <div key={r.label} className="flex gap-1.5">
+                    <span
+                      className="text-[10px] uppercase tracking-wider font-medium shrink-0 w-16"
+                      style={{ color: r.color }}
+                    >{r.label}</span>
+                    <span className="text-[11px] text-gray-200 leading-tight">
+                      {r.items.join(', ')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-[11px] text-gray-500 italic">
+                No flavor-graph data for this ingredient.
+              </div>
+            )}
+          </div>
+        );
+      })()}
       {/* R18 — pole-label tooltip. Mirrors the node tooltip's styling but
           uses the bucket's color as the border + shows the member count.
           R19 Phase 2 enriches the body with the top 3 bucket members and

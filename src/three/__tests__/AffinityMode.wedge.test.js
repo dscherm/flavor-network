@@ -161,7 +161,10 @@ describe('AffinityMode — wedge layout (2026-05-13 user feedback)', () => {
     // ring; other rings group by their own axis and would scatter
     // when grouped by family bucket.
     const anglesByBucket = new Map();
-    for (const ringIdx of [0]) {
+    // Canonical-spec (2026-05-22): single-ring α-mode — ring 3 is the
+    // sole rendered ring, regardless of axis. Family-filter active →
+    // ring 3's axis is 'family'.
+    for (const ringIdx of [3]) {
       const mesh = ctrl._ringMeshes[ringIdx];
       const slotMap = mesh.userData.slotToGlobalIdx;
       for (let s = 0; s < mesh.count; s++) {
@@ -184,10 +187,11 @@ describe('AffinityMode — wedge layout (2026-05-13 user feedback)', () => {
     expect(anglesByBucket.size).toBeGreaterThan(0);
 
     // Defining wedge property: angles within a bucket span ≤ that
-    // bucket's wedge span (2π / N_buckets). Allow a small slack
-    // (0.15 rad ≈ 8.6°) for the SVG-wheel `(i + 0.5) / M.length`
-    // slot offset which leaves padding between adjacent dots.
-    const WEDGE_TOLERANCE_RAD = 0.15;
+    // bucket's wedge span (2π / N_buckets). Allow ~12° slack for the
+    // SVG-wheel `(i + 0.5) / M.length` slot offset and the single-
+    // ring α-mode's denser radial stacking within one wedge (2026-
+    // 05-22 revision).
+    const WEDGE_TOLERANCE_RAD = 0.22;
     const wedgeCount = ctrl._currentWedges?.length || anglesByBucket.size;
     const expectedWedgeSpan = (Math.PI * 2) / wedgeCount;
     for (const [bucket, angles] of anglesByBucket) {
@@ -266,12 +270,9 @@ describe('AffinityMode — wedge layout (2026-05-13 user feedback)', () => {
       getFilterStack: () => ['family'],
     });
     ctrl.engage('ing-100');
-    // Track 2 (2026-05-16): 3D edge lines are now hidden because the
-    // AffinityTriangleOverlay's SVG cones carry the same focal→accent
-    // semantics with tier color + apex shape. The edge BUFFER is still
-    // populated (so the buffer-content assertions below still pass) —
-    // we just don't draw the lines. Restoring requires nothing more
-    // than flipping `edgeLines.visible = true`.
+    // Canonical-spec (2026-05-22 revision): tier-column α-mode hides
+    // 3D edge lines — the vertical tier separation already conveys
+    // the focal→affinity relationship without needing radial lines.
     expect(ctrl.edgeLines.visible).toBe(false);
     // Edge buffer holds TOTAL_RING_CAPACITY=38 segments. Count
     // non-collapsed segments — those whose endpoint differs from the
@@ -313,14 +314,15 @@ describe('AffinityMode — wedge layout (2026-05-13 user feedback)', () => {
     ctrl.dispose();
   });
 
-  it('defaults to the aroma axis when no filter is active', () => {
+  it('defaults to the cluster axis when no filter is active', () => {
+    // Canonical-spec (2026-05-22): single-ring α-mode, "None" axis = cluster.
     const { stateRef, ctx } = buildSyntheticState();
     const ctrl = new AffinityMode(stateRef, ctx, null, {
       categoricalCtx: {},
       getFilterStack: () => [],
     });
     ctrl.engage('ing-100');
-    expect(ctrl._currentWedgeAxis).toBe('aromas');
+    expect(ctrl._currentWedgeAxis).toBe('cluster');
     ctrl.dispose();
   });
 
@@ -332,7 +334,7 @@ describe('AffinityMode — wedge layout (2026-05-13 user feedback)', () => {
       getFilterStack: () => stack,
     });
     ctrl.engage('ing-100');
-    expect(ctrl._currentWedgeAxis).toBe('aromas');
+    expect(ctrl._currentWedgeAxis).toBe('cluster');
     stack = ['family'];
     ctrl.refreshWedgeLayout();
     expect(ctrl._currentWedgeAxis).toBe('family');
