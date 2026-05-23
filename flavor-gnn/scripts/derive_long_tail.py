@@ -48,6 +48,7 @@ GNN_ENTROPY = ROOT / "public" / "proDataset" / "gnn_entropy.json"
 GNN_COMPOUNDS = ROOT / "public" / "proDataset" / "gnn_compounds.json"
 POSITIONS = ROOT / "public" / "proDataset" / "flavor_positions.json"
 INGREDIENTS = ROOT / "public" / "proDataset" / "ingredients.json"
+ALIAS_MAP = ROOT / "flavor-gnn" / "curation" / "v3_alias_map.json"
 
 # ── Output ──────────────────────────────────────────────────────────
 OUT_CSV = ROOT / "flavor-gnn" / "curation" / "flavor_graph_full.csv"
@@ -323,16 +324,34 @@ def build() -> None:
     universe = json.loads(POSITIONS.read_text(encoding="utf-8"))
     ingredients = json.loads(INGREDIENTS.read_text(encoding="utf-8"))
 
+    # 2026-05-23: load the v3 alias map so variant spellings ("absolut
+    # citron", "raw shrimp") get folded into their canonical v3 entry
+    # (vodka, shrimp). Aliased outside-v3 names are dropped from the
+    # heuristic-candidates set so they don't produce duplicate rows.
+    alias_map: dict[str, str] = {}
+    if ALIAS_MAP.exists():
+        doc = json.loads(ALIAS_MAP.read_text(encoding="utf-8"))
+        alias_map = dict(doc.get("auto_high_confidence", {}))
+
     # Universe: union of (a) flavor_positions_v3 names (the chemistry-
     # backed core, 3,390 nodes) and (b) ingredients.json names with the
-    # garbage filter (drop category='other' with totalCount<floor).
+    # garbage filter (drop category='other' with totalCount<floor) and
+    # the alias filter (drop names that fold into a canonical v3 entry).
     chemistry_universe = set(universe.keys())
     heuristic_candidates: set[str] = set()
     dropped_garbage = 0
+    dropped_aliased = 0
     for name, info in ingredients.items():
         if name.startswith("_"):
             continue
         if name in chemistry_universe:
+            continue
+        # Skip if this name has an alias into the v3 universe — its
+        # signal already exists under the canonical name. (Aliases
+        # pointing outside v3 are ignored here; canonical absorbs no
+        # signal that isn't already represented.)
+        if name in alias_map and alias_map[name] in chemistry_universe:
+            dropped_aliased += 1
             continue
         category = (info.get("category") or "").strip().lower()
         count = int(info.get("totalCount", 0))
@@ -344,7 +363,7 @@ def build() -> None:
     names = sorted(chemistry_universe | heuristic_candidates)
     print(f"[v3a] universe: {len(chemistry_universe)} chemistry + "
           f"{len(heuristic_candidates)} heuristic = {len(names)} total "
-          f"(dropped {dropped_garbage} garbage rows)")
+          f"(dropped {dropped_garbage} garbage, {dropped_aliased} aliased)")
 
     out_rows: list[dict[str, str]] = []
     densities: dict[str, list[int]] = {

@@ -33,7 +33,7 @@ CHEF_CSV = ROOT / "flavor-gnn" / "curation" / "top500_flavor_graph.csv"
 OUT_JSON = ROOT / "flavor-gnn" / "curation" / "v3_alias_map.json"
 
 HIGH_FUZZ_THRESHOLD = 0.93
-MEDIUM_FUZZ_THRESHOLD = 0.85
+MEDIUM_FUZZ_THRESHOLD = 0.80  # lowered 0.85 → 0.80 (2026-05-23) to widen the flagged-medium pool
 MIN_NAME_LEN = 3  # avoid 1-2 char false matches
 
 # Canonical names too generic to act as alias targets via substring
@@ -99,7 +99,224 @@ HARDCODED_ALIASES: dict[str, str] = {
     "kipper": "smoked herring",
     "swiss chard": "chard",
     "spring onion": "green onion",
+    # 2026-05-23 chef-pass additions: common ground/dried/raw forms
+    "ground beef": "beef",
+    "ground turkey": "turkey",
+    "ground chicken": "chicken",
+    "ground lamb": "lamb",
+    "ground pork": "pork",
+    "active dry yeast": "yeast",
+    "active yeast": "yeast",
+    "instant yeast": "yeast",
+    "dry yeast": "yeast",
+    "raw honey": "honey",
+    "raw sugar": "sugar",
+    "raw shrimp": "shrimp",
+    "raw chicken": "chicken",
+    "fresh ginger": "ginger",
+    "fresh garlic": "garlic",
+    "fresh basil": "basil",
+    "fresh mint": "mint",
+    "fresh parsley": "parsley",
+    "fresh thyme": "thyme",
+    "fresh rosemary": "rosemary",
+    "fresh oregano": "oregano",
+    "fresh cilantro": "cilantro",
+    "fresh dill": "dill",
+    "fresh sage": "sage",
+    "fresh chive": "chive",
+    "fresh chives": "chive",
+    "dried oregano": "oregano",
+    "dried basil": "basil",
+    "dried thyme": "thyme",
+    "dried mint": "mint",
+    "dried parsley": "parsley",
+    "dried rosemary": "rosemary",
+    "dried sage": "sage",
+    "dried dill": "dill",
+    "dried cilantro": "cilantro",
+    "dried tarragon": "tarragon",
+    "dried marjoram": "marjoram",
+    "dried bay leaf": "bay leaf",
+    "dried bay leaves": "bay leaf",
+    "smoked paprika": "paprika",
+    "sweet paprika": "paprika",
+    "hot paprika": "paprika",
+    "kosher salt": "salt",
+    "sea salt": "salt",
+    "table salt": "salt",
+    "fine salt": "salt",
+    "coarse salt": "salt",
+    "rock salt": "salt",
+    "white sugar": "sugar",
+    "granulated sugar": "sugar",
+    "confectioners sugar": "powdered sugar",
+    "confectioner's sugar": "powdered sugar",
+    "extra virgin olive oil": "olive oil",
+    "virgin olive oil": "olive oil",
+    "light olive oil": "olive oil",
+    "vegetable oil": "oil",
+    "canola oil": "oil",
+    "sunflower oil": "oil",
+    "all purpose flour": "flour",
+    "all-purpose flour": "flour",
+    "whole wheat flour": "flour",
+    "whole-wheat flour": "flour",
+    "bread flour": "flour",
+    "cake flour": "flour",
+    "self rising flour": "flour",
+    "self-rising flour": "flour",
+    "italian seasoning": "herb",
+    "italian herbs": "herb",
+    "italian herb": "herb",
+    "mixed herbs": "herb",
+    "herbes de provence": "herb",
+    "non fat milk": "milk",
+    "non-fat milk": "milk",
+    "skim milk": "milk",
+    "whole milk": "milk",
+    "low fat milk": "milk",
+    "low-fat milk": "milk",
+    "two percent milk": "milk",
+    "2% milk": "milk",
+    "1% milk": "milk",
+    "evaporated milk": "milk",
+    "powdered milk": "milk",
+    "dry milk": "milk",
+    "condensed milk": "milk",
+    "sweetened condensed milk": "milk",
+    "buttermilk": "milk",
+    "almond milk": "milk",
+    "soy milk": "milk",
+    "oat milk": "milk",
+    "coconut milk": "milk",
+    "rice milk": "milk",
+    "kefir": "milk",
+    "low fat yogurt": "yogurt",
+    "low-fat yogurt": "yogurt",
+    "non fat yogurt": "yogurt",
+    "non-fat yogurt": "yogurt",
+    "greek yogurt": "yogurt",
+    "plain yogurt": "yogurt",
+    "vanilla yogurt": "yogurt",
+    "frozen yogurt": "yogurt",
+    "low sodium soy sauce": "soy sauce",
+    "low-sodium soy sauce": "soy sauce",
+    "dark soy sauce": "soy sauce",
+    "light soy sauce": "soy sauce",
+    "tamari": "soy sauce",
+    "shoyu": "soy sauce",
+    "rice vinegar": "vinegar",
+    "white vinegar": "vinegar",
+    "red wine vinegar": "vinegar",
+    "white wine vinegar": "vinegar",
+    "apple cider vinegar": "vinegar",
+    "cider vinegar": "vinegar",
+    "balsamic vinegar": "vinegar",
+    "white wine": "wine",
+    "red wine": "wine",
+    "dry white wine": "wine",
+    "dry red wine": "wine",
+    "rice wine": "wine",
+    "cooking wine": "wine",
+    "sherry": "wine",
+    "marsala": "wine",
+    "vermouth": "wine",
+    "port wine": "wine",
+    "absolut citron": "vodka",
+    "absolut kurant": "vodka",
+    "absolut peppar": "vodka",
+    "absolut vanilla": "vodka",
+    "absolut": "vodka",
+    "stoli": "vodka",
+    "smirnoff": "vodka",
+    "grey goose": "vodka",
+    "jack daniels": "whiskey",
+    "jack daniel's": "whiskey",
+    "jim beam": "whiskey",
+    "maker's mark": "whiskey",
+    "bourbon": "whiskey",
+    "rye whiskey": "whiskey",
+    "scotch": "whiskey",
+    "scotch whisky": "whiskey",
+    "irish whiskey": "whiskey",
+    "tabasco": "hot sauce",
+    "tabasco sauce": "hot sauce",
+    "sriracha": "hot sauce",
+    "sriracha sauce": "hot sauce",
+    "frank's red hot": "hot sauce",
+    "frank's hot sauce": "hot sauce",
+    "louisiana hot sauce": "hot sauce",
+    "chili sauce": "hot sauce",
+    "chile sauce": "hot sauce",
+    "ketchup": "tomato ketchup",
+    "tomato ketchup": "ketchup",
+    "mayo": "mayonnaise",
+    "mayonaise": "mayonnaise",
+    "miracle whip": "mayonnaise",
+    "italian dressing": "salad dressing",
+    "ranch dressing": "salad dressing",
+    "blue cheese dressing": "salad dressing",
+    "caesar dressing": "salad dressing",
+    "thousand island dressing": "salad dressing",
+    "honey mustard dressing": "salad dressing",
+    "vinaigrette": "salad dressing",
+    "active dry": "yeast",
+    "additional oil": "oil",
+    "cooking oil": "oil",
+    "frying oil": "oil",
+    "salad oil": "oil",
+    "olive": "olive",
+    "kalamata olive": "olive",
+    "black olive": "olive",
+    "green olive": "olive",
+    "stuffed olive": "olive",
+    "pitted olive": "olive",
+    "ripe olive": "olive",
+    "fresh ground pepper": "black pepper",
+    "freshly ground pepper": "black pepper",
+    "freshly ground black pepper": "black pepper",
+    "cracked pepper": "black pepper",
+    "cracked black pepper": "black pepper",
+    "ground black pepper": "black pepper",
+    "ground pepper": "black pepper",
+    "white pepper": "pepper",
+    "cayenne": "cayenne pepper",
+    "cayenne powder": "cayenne pepper",
 }
+
+# Strippable prefixes/suffixes that, when removed, often reveal the
+# canonical name (e.g. "fresh basil" → "basil", "ground beef" → "beef",
+# "minced garlic" → "garlic"). Applied ONLY when the stripped form is
+# in v3 — never invents new mappings.
+STRIP_PREFIXES = (
+    "fresh ", "dried ", "ground ", "minced ", "chopped ", "diced ",
+    "sliced ", "grated ", "crushed ", "shredded ", "frozen ", "raw ",
+    "cooked ", "roasted ", "toasted ", "baked ", "boiled ", "steamed ",
+    "smoked ", "cured ", "pickled ", "fermented ", "aged ",
+    "whole ", "fine ", "coarse ", "rough ", "thin ", "thick ",
+    "extra ", "large ", "small ", "medium ", "baby ",
+    "premium ", "organic ", "natural ", "pure ", "plain ", "unsalted ",
+    "salted ", "lightly salted ", "low sodium ", "low-sodium ", "low fat ",
+    "low-fat ", "fat free ", "fat-free ", "non fat ", "non-fat ", "reduced fat ",
+    "reduced-fat ", "sugar free ", "sugar-free ", "unsweetened ", "sweetened ",
+    "sour ", "sweet ", "hot ", "mild ", "spicy ", "savory ", "salty ",
+    "young ", "old ", "ripe ", "unripe ", "green ", "yellow ", "red ",
+    "white ", "black ", "dark ", "light ",
+    "italian ", "mexican ", "french ", "asian ", "thai ", "indian ",
+    "chinese ", "japanese ", "spanish ", "greek ", "mediterranean ",
+    "american ", "southern ", "californian ", "kentucky ",
+)
+
+STRIP_SUFFIXES = (
+    " pieces", " piece", " chunks", " chunk", " bits", " bit",
+    " strips", " strip", " slices", " slice", " wedges", " wedge",
+    " cubes", " cube", " halves", " half", " quarters", " quarter",
+    " powder", " flakes", " flake", " granules",
+    " (raw)", " (cooked)", " (fresh)", " (dried)", " (frozen)",
+    ", chopped", ", diced", ", sliced", ", minced", ", grated",
+    ", fresh", ", dried", ", ground", ", whole", ", cooked",
+)
 
 
 def normalize(s: str) -> str:
@@ -138,6 +355,30 @@ def fuzzy_ratio(a: str, b: str) -> float:
     return SequenceMatcher(None, a, b).ratio()
 
 
+def strip_modifiers(name: str) -> str:
+    """Aggressively strip cooking-modifier prefixes and suffixes.
+
+    "fresh basil" → "basil", "ground beef" → "beef", "minced garlic,
+    chopped" → "garlic". Returns the stripped form; if no
+    modifications applied, returns the original. Repeats until stable
+    so chained modifiers ("fresh ground black pepper, cracked") fold.
+    """
+    s = name
+    for _ in range(4):  # bound recursion; ~3 chained modifiers max
+        before = s
+        for suf in STRIP_SUFFIXES:
+            if s.endswith(suf):
+                s = s[: -len(suf)].strip()
+                break
+        for pre in STRIP_PREFIXES:
+            if s.startswith(pre):
+                s = s[len(pre):].strip()
+                break
+        if s == before:
+            break
+    return s
+
+
 def find_best_canonical(
     name: str, v3_names: list[str], v3_set: set[str]
 ) -> tuple[str | None, float, str]:
@@ -149,6 +390,15 @@ def find_best_canonical(
         c = HARDCODED_ALIASES[name]
         if c in v3_set:
             return c, 1.0, "hardcoded"
+    # Modifier strip — "fresh basil" → "basil", "active dry yeast" → "yeast"
+    stripped = strip_modifiers(name)
+    if stripped != name and stripped in v3_set and len(stripped) >= MIN_NAME_LEN:
+        return stripped, 0.97, "modifier-strip"
+    # Modifier strip + hardcoded lookup on the stripped form
+    if stripped != name and stripped in HARDCODED_ALIASES:
+        c = HARDCODED_ALIASES[stripped]
+        if c in v3_set:
+            return c, 0.97, "modifier-strip+hardcoded"
     # Plural / typo fixes
     for c in v3_names:
         if is_plural_typo(name, c):
