@@ -261,6 +261,11 @@ export default function LivingArchView({
       gnnEntropy: data.gnnEntropy || null,
       cuisineMap: data.cuisineMap || null,
       seasonMap:  data.seasonMap  || null,
+      // Canonical-spec §6.3 — cluster axis wedge labels use the v3
+      // chef-curated cluster names ("Vegetables & Greens", "Sweet
+      // Confections", …) instead of raw numeric IDs. Pulled from
+      // cluster_labels_v3.json's clusters[] array.
+      clusterLabels: data.clusterLabels?.clusters || null,
     };
     const tasteOut   = computeCategoricalWheelPositions('taste',   graph.nodes, categoricalCtx);
     const aromasOut  = computeCategoricalWheelPositions('aromas',  graph.nodes, categoricalCtx);
@@ -2963,11 +2968,14 @@ export default function LivingArchView({
       for (const n of nbs) {
         const idx = st.nameIdx.get(n.name);
         if (idx == null) continue;
-        // Position source priority: AffinityMode's wedge-placed worldPos
-        // (matches the visible 3D shape) → fallback to network curPos.
-        const wp = Array.isArray(n.worldPos) && n.worldPos.length === 3
-          ? n.worldPos
-          : [st.curPos[idx * 3], st.curPos[idx * 3 + 1], st.curPos[idx * 3 + 2]];
+        // Position source: AffinityMode's wedge-placed worldPos
+        // (matches the visible 3D shape). Edge-case fix (2026-05-23):
+        // skip affinities that DIDN'T get a wedge placement —
+        // falling back to st.curPos would draw a cone reaching out
+        // to the ingredient's network position, which for outer-edge
+        // focals creates a "labels and edges across the corpus" mess.
+        if (!Array.isArray(n.worldPos) || n.worldPos.length !== 3) continue;
+        const wp = n.worldPos;
         const proj = projectXYZ(wp[0], wp[1], wp[2]);
         if (!proj) continue;
         candidates.push({

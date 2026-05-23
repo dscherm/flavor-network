@@ -93,7 +93,10 @@ const WEDGE_RADIUS = RADII[3] + 8;
 // any window/device — the animator computes the actual distance
 // from live FOV + viewport aspect.
 const WHEEL_FRAME_RADIUS = 66;
-// Bucket-label radius — just outside the wedge arc / segment border.
+// Bucket-label radius — labels sit just outside the wedge rim. The
+// circle is "expanded" past the segment outline so each label floats
+// at its segment's midAngle without colliding with the affinity
+// spheres inside the ring.
 const WEDGE_LABEL_RADIUS = WEDGE_RADIUS + 5;
 // Number of points sampled per wedge arc. 24 segments per π is plenty
 // for a smooth read at the camera distance the focal-orbit uses.
@@ -972,6 +975,43 @@ export class AffinityMode {
         bucketColors,
         bucketOrder: palette?.labels ? [...palette.labels, FALLBACK_BUCKET_KEY] : null,
       });
+      // Canonical-spec §6.3 — substitute the wedge label with the
+      // human-readable bucket name (matches the filter-pill label the
+      // user sees in the network UI). For cluster axis, the bucket key
+      // is a numeric cluster id; look up the chef-curated name from
+      // cluster_labels_v3.json. Other axes already use word labels.
+      if (axisKey === 'cluster') {
+        const clusterList = this._categoricalCtx?.clusterLabels || [];
+        const idToLabel = new Map();
+        for (const c of clusterList) {
+          if (c && c.id != null && c.label) idToLabel.set(String(c.id), c.label);
+        }
+        for (const w of layout.wedges) {
+          if (w.key === FALLBACK_BUCKET_KEY) {
+            w.label = FALLBACK_BUCKET_LABEL;
+            continue;
+          }
+          const named = idToLabel.get(w.key);
+          if (named) w.label = named;
+        }
+        for (const lbl of layout.labels || []) {
+          if (lbl.key === FALLBACK_BUCKET_KEY) {
+            lbl.label = FALLBACK_BUCKET_LABEL;
+            continue;
+          }
+          const named = idToLabel.get(lbl.key);
+          if (named) lbl.label = named;
+        }
+      } else {
+        // Non-cluster axes: ensure FALLBACK_BUCKET_KEY renders as
+        // "Other" rather than "_other".
+        for (const w of layout.wedges) {
+          if (w.key === FALLBACK_BUCKET_KEY) w.label = FALLBACK_BUCKET_LABEL;
+        }
+        for (const lbl of layout.labels || []) {
+          if (lbl.key === FALLBACK_BUCKET_KEY) lbl.label = FALLBACK_BUCKET_LABEL;
+        }
+      }
       const layoutScale = layout.radius > 0 ? (RADII[ringIdx] / layout.radius) : 1;
       const dotByName = new Map();
       for (const dot of layout.dots) {
@@ -1297,12 +1337,40 @@ export class AffinityMode {
     // exit() restores them based on inClusterMode.
     if (st.clusterLabelGroup) st.clusterLabelGroup.visible = false;
     if (st.clusterConnectorGroup) st.clusterConnectorGroup.visible = false;
+    // Edge-case fix (2026-05-23): outer-edge ingredients with sparse
+    // affinity rings were still seeing the per-mode pole-label sprites
+    // and the legacy neural-mode taste labels because none of them
+    // were getting hidden when α-mode engaged. Hide every label group
+    // attached to stateRef during α-mode; exit() restores them via
+    // the per-mode visibility rules.
+    if (st.labelGroup) st.labelGroup.visible = false;
+    if (st.categoricalLabelGroupByMode) {
+      for (const g of Object.values(st.categoricalLabelGroupByMode)) {
+        if (g) g.visible = false;
+      }
+    }
+    if (st.poleLabelGroup2DByAxis) {
+      for (const g of Object.values(st.poleLabelGroup2DByAxis)) {
+        if (g) g.visible = false;
+      }
+    }
+    if (st.poleLabelGroup3DByAxis) {
+      for (const g of Object.values(st.poleLabelGroup3DByAxis)) {
+        if (g) g.visible = false;
+      }
+    }
 
     // ─── 6. Affinity labels (focal name + each affinity name) ───
-    // Canonical-spec — focal label anchored to the focal sphere's
-    // actual ring position (above + adjacent), not the wheel center.
+    // Two anchors at play:
+    //   focalLabelAnchor — the focal sphere's ring-anchored position
+    //     (above + adjacent rendering for the focal NAME label)
+    //   wheelCenter — the focal NODE's underlying scene position
+    //     (origin for segment outlines AND wedge bucket labels, so
+    //     the labels stay aligned with their pie slices instead of
+    //     floating off toward the focal sphere)
     const focalLabelAnchor = this._focalAnchorPos || [cx, cy, cz];
-    this._buildLabels(focal, sphereWorldPos, focalLabelAnchor);
+    const wheelCenter = [cx, cy, cz];
+    this._buildLabels(focal, sphereWorldPos, focalLabelAnchor, wheelCenter);
     void DIM_COLOR; // retained constant for future dim-color path
   }
 
@@ -1311,7 +1379,7 @@ export class AffinityMode {
    * affinities at their ring positions. Also rebuilds the bucket-name
    * sprites (one per wedge) sitting at the outer label radius.
    */
-  _buildLabels(focal, sphereWorldPos, focalWorld) {
+  _buildLabels(focal, sphereWorldPos, focalWorld, wheelCenter = focalWorld) {
     // Clear previous affinity-name sprites.
     while (this.labelGroup.children.length > 0) {
       const s = this.labelGroup.children[0];
@@ -1372,7 +1440,11 @@ export class AffinityMode {
     // Bucket-name labels — one per wedge, sitting at the outer label
     // radius in the same XZ plane as the wedge arcs. Re-uses makeLabel
     // for visual consistency with the affinity-name sprites.
-    this._buildWedgeLabels(focalWorld);
+    // Wedge bucket labels anchor to the wheel center (same origin
+    // segment outlines use), NOT the focal-sphere position. Mixing
+    // anchors caused labels to drift past the segments toward the
+    // focal sphere when the focal was offset on the cluster ring.
+    this._buildWedgeLabels(wheelCenter);
   }
 
   /**
@@ -1594,41 +1666,31 @@ export class AffinityMode {
         if (w.key === '_empty') continue;
         if (!Number.isFinite(w.span) || w.span <= 0) continue;
         const startAngle = w.midAngle - w.span / 2;
-        const endAngle = w.midAngle + w.span / 2;
         const arcSegments = Math.max(
           12,
           Math.ceil((Math.abs(w.span) * WEDGE_ARC_SEGMENTS_PER_PI) / Math.PI),
         );
-        const points = [];
-        // 1) Center → outer-start (radial line)
-        points.push(new THREE.Vector3(0, 0, 0));
-        points.push(new THREE.Vector3(
-          Math.cos(startAngle) * outerR, 0,
-          Math.sin(startAngle) * outerR,
-        ));
-        // 2) Outer arc from startAngle → endAngle
+        // Precompute the arc-rim points (one per sample, inclusive at
+        // both ends). Then pair them up into LineSegments vertex pairs:
+        //   1. center → arc[0]                (start radial line)
+        //   2. arc[i] → arc[i+1] (for each i) (rim arc)
+        //   3. arc[N] → center                (end radial line)
+        // Even point count = closed wedge outline with no missing edge.
+        const arcPts = new Array(arcSegments + 1);
         for (let i = 0; i <= arcSegments; i++) {
-          const t = i / arcSegments;
-          const a = startAngle + t * w.span;
-          points.push(new THREE.Vector3(
+          const a = startAngle + (i / arcSegments) * w.span;
+          arcPts[i] = new THREE.Vector3(
             Math.cos(a) * outerR, 0,
             Math.sin(a) * outerR,
-          ));
-          if (i < arcSegments) {
-            // Pair each segment endpoint with its successor.
-            const aNext = startAngle + ((i + 1) / arcSegments) * w.span;
-            points.push(new THREE.Vector3(
-              Math.cos(aNext) * outerR, 0,
-              Math.sin(aNext) * outerR,
-            ));
-          }
+          );
         }
-        // 3) Outer-end → center (radial line)
-        points.push(new THREE.Vector3(
-          Math.cos(endAngle) * outerR, 0,
-          Math.sin(endAngle) * outerR,
-        ));
-        points.push(new THREE.Vector3(0, 0, 0));
+        const center = new THREE.Vector3(0, 0, 0);
+        const points = [];
+        points.push(center.clone(), arcPts[0].clone());
+        for (let i = 0; i < arcSegments; i++) {
+          points.push(arcPts[i].clone(), arcPts[i + 1].clone());
+        }
+        points.push(arcPts[arcSegments].clone(), center.clone());
 
         const geo = new THREE.BufferGeometry().setFromPoints(points);
         const color = new THREE.Color(w.color || FALLBACK_BUCKET_COLOR);
