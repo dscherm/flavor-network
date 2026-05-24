@@ -537,7 +537,9 @@ export default function LivingArchView({
                          '#a855f7', '#84cc16', '#b45309', '#78350f', '#64748b',
                          // Extended for k=17 v3 bisection (2026-05-24)
                          '#06b6d4', '#fb7185', '#10b981', '#eab308', '#7c3aed',
-                         '#15803d', '#9333ea', '#0284c7'];
+                         '#15803d', '#9333ea', '#0284c7',
+                         // Further extended for k=20 GNN bisection (cluster ids 18-19)
+                         '#ef4444', '#14b8a6'];
     const fallbackHex = '#808080';
     const clusterColorByID = CLUSTER_HEX.map(h => new THREE.Color(h));
 

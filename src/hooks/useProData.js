@@ -492,6 +492,8 @@ export default function useProData({ enabled = true } = {}) {
           '#06b6d4', '#fb7185', '#10b981',
           '#eab308', '#7c3aed', '#15803d',
           '#9333ea', '#0284c7',
+          // Further extended for k=20 GNN bisection (cluster ids 18-19)
+          '#ef4444', '#14b8a6',
         ];
         if (clusterLabels?.ingredients && Array.isArray(clusterLabels?.clusters)) {
           const labelById = {};
