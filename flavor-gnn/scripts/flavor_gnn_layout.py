@@ -56,9 +56,11 @@ OUT_CLUSTERS = ROOT / "public" / "proDataset" / "cluster_labels_v3_gnn.json"
 OUT_EMB = ROOT / "flavor-gnn" / "artifacts" / "flavor_embeddings_v3_gnn.npy"
 
 SEED = 42
-UMAP_MIN_DIST = 0.55
+UMAP_MIN_DIST = 0.1   # was 0.55 — tighter packing within clusters
 UMAP_N_NEIGHBORS = 12
 SCENE_SCALE = 10.0
+SUPERVISED_UMAP = True  # pass cluster_ids as target_metric so same-cluster
+                        # points are pulled together in 3D/2D layouts
 
 EMB_DIM = 32
 HIDDEN_DIM = 64
@@ -290,22 +292,27 @@ def main(k_clusters: int, epochs: int, top_k_edges: int) -> None:
     np.save(OUT_EMB, emb)
     print(f"[gnn-layout] wrote {OUT_EMB.relative_to(ROOT)} shape={emb.shape}")
 
-    # ── UMAP + KMeans ──────────────────────────────────────────────
-    print(f"[gnn-layout] UMAP → 3D + 2D")
+    # ── KMeans first (so UMAP can use the labels as supervision) ───
+    print(f"[gnn-layout] KMeans k={k_clusters} on 32-dim embeddings (before UMAP)")
+    km = KMeans(n_clusters=k_clusters, random_state=SEED, n_init=10)
+    cluster_ids = km.fit_predict(emb)
+
+    # ── Supervised UMAP — pulls same-cluster points together ───────
+    umap_y = cluster_ids if SUPERVISED_UMAP else None
+    print(f"[gnn-layout] UMAP → 3D + 2D  "
+          f"(min_dist={UMAP_MIN_DIST}, supervised={SUPERVISED_UMAP})")
     reducer_3d = umap.UMAP(n_components=3, n_neighbors=UMAP_N_NEIGHBORS,
-                           min_dist=UMAP_MIN_DIST, metric="cosine", random_state=SEED)
-    coords_3d = reducer_3d.fit_transform(emb)
+                           min_dist=UMAP_MIN_DIST, metric="cosine",
+                           target_metric="categorical", random_state=SEED)
+    coords_3d = reducer_3d.fit_transform(emb, y=umap_y)
     coords_3d = (coords_3d - coords_3d.mean(0)) / (coords_3d.std(0) + 1e-8)
     coords_3d *= SCENE_SCALE
     reducer_2d = umap.UMAP(n_components=2, n_neighbors=UMAP_N_NEIGHBORS,
-                           min_dist=UMAP_MIN_DIST, metric="cosine", random_state=SEED)
-    coords_2d = reducer_2d.fit_transform(emb)
+                           min_dist=UMAP_MIN_DIST, metric="cosine",
+                           target_metric="categorical", random_state=SEED)
+    coords_2d = reducer_2d.fit_transform(emb, y=umap_y)
     coords_2d = (coords_2d - coords_2d.mean(0)) / (coords_2d.std(0) + 1e-8)
     coords_2d *= SCENE_SCALE
-
-    print(f"[gnn-layout] KMeans k={k_clusters}")
-    km = KMeans(n_clusters=k_clusters, random_state=SEED, n_init=10)
-    cluster_ids = km.fit_predict(emb)
 
     # ── Cluster labels (lift on tier + category tokens) ────────────
     cluster_members = defaultdict(list)
