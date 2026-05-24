@@ -20,6 +20,12 @@
         ]
       },
       {
+        "source": "/proDataset/**/*_v3_gnn*.json",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+        ]
+      },
+      {
         "source": "/proDataset/cluster_labels_v3.json",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
