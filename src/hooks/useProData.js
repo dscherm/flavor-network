@@ -31,9 +31,12 @@ function flavorV3Enabled() {
   if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_FN_FLAVOR_V3 === 'true') {
     return true;
   }
-  // Native (iOS) ships v3 as the default; web stays in soak mode.
+  // V3 is now the default everywhere (web + native). The chef-approved
+  // research pass (2026-05-24) added 25 cluster-classified ingredients and
+  // 44 aliases to the v3 corpus; flipping web makes that work visible to
+  // all users. V2 still reachable via localStorage.FN_FLAVOR_V3='false'.
   if (isNative()) return true;
-  return false;
+  return true;
 }
 
 // Map proDataset categories to taste strings that NodeMesh can color.
@@ -722,6 +725,7 @@ export default function useProData({ enabled = true } = {}) {
           );
         }
 
+        if (typeof window !== 'undefined') window.__proDataGraph = graph;
         setData({
           graph,
           positions,
