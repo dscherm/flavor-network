@@ -31,6 +31,7 @@ import Controls from './components/Controls.jsx';
 import { getNeighbors, getNeighborsEnriched, findStrongestPath } from './data/graph.js';
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
 import Walkthrough from './components/Walkthrough.jsx';
+import FlavorLayoutToggle from './components/FlavorLayoutToggle.jsx';
 import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
@@ -1722,6 +1723,7 @@ export default function App() {
         }}
       />
       <HelpButton onClick={() => setShowTour(true)} />
+      <FlavorLayoutToggle />
       <HowItWorks
         initialOpen={howItWorksInitialOpen}
         isOpen={howItWorksOpen}
