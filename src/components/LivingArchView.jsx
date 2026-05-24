@@ -534,7 +534,10 @@ export default function LivingArchView({
     //   3 Mexican & Latin    — red    8 Choc & Vanilla   — brown
     //   4 East Asian         — gold   9 Kitchen Staples  — slate
     const CLUSTER_HEX = ['#f472b6', '#ea580c', '#22c55e', '#dc2626', '#facc15',
-                         '#a855f7', '#84cc16', '#b45309', '#78350f', '#64748b'];
+                         '#a855f7', '#84cc16', '#b45309', '#78350f', '#64748b',
+                         // Extended for k=17 v3 bisection (2026-05-24)
+                         '#06b6d4', '#fb7185', '#10b981', '#eab308', '#7c3aed',
+                         '#15803d', '#9333ea', '#0284c7'];
     const fallbackHex = '#808080';
     const clusterColorByID = CLUSTER_HEX.map(h => new THREE.Color(h));
 

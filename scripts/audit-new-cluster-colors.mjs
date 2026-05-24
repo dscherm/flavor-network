@@ -145,6 +145,51 @@ try {
   console.log(`[audit] search probe failed: ${e.message}`);
 }
 
+// ─── Global cluster-distribution audit ───────────────────────────
+const globalAudit = await page.evaluate(({ palette }) => {
+  const graph = window.__proDataGraph;
+  if (!graph?.nodes) return null;
+  const counts = {};
+  const grayHex = '#5a5a6b'.toLowerCase();
+  let total = 0;
+  let gray = 0;
+  let nullId = 0;
+  let hasPos = 0;
+  let noPos = 0;
+  for (const [, node] of graph.nodes) {
+    total++;
+    const c = (node.clusterColor || '').toLowerCase();
+    if (c === grayHex) gray++;
+    const id = node.clusterId;
+    if (id === null || id === undefined || id < 0) nullId++;
+    counts[id] = (counts[id] || 0) + 1;
+    if (node.position && Number.isFinite(node.position.x)) hasPos++; else noPos++;
+  }
+  return { total, gray, nullId, hasPos, noPos, counts, palette };
+}, { palette: V3_CLUSTER_HEX });
+
+if (globalAudit) {
+  console.log('\n[audit] global node distribution:');
+  console.log(`  total nodes in graph: ${globalAudit.total}`);
+  console.log(`  with valid position:  ${globalAudit.hasPos}`);
+  console.log(`  without position:     ${globalAudit.noPos}`);
+  console.log(`  gray-fallback color:  ${globalAudit.gray}`);
+  console.log(`  null/negative cluster id: ${globalAudit.nullId}`);
+  console.log('\n  per-cluster node counts:');
+  const keys = Object.keys(globalAudit.counts).sort((a, b) => {
+    if (a === 'null' || a === 'undefined') return 1;
+    if (b === 'null' || b === 'undefined') return -1;
+    return Number(a) - Number(b);
+  });
+  for (const k of keys) {
+    const c = globalAudit.counts[k];
+    const hex = (k !== 'null' && k !== 'undefined' && Number(k) >= 0)
+      ? V3_CLUSTER_HEX[Number(k) % V3_CLUSTER_HEX.length]
+      : '(gray fallback)';
+    console.log(`    cluster ${k}: ${c} nodes  color=${hex}`);
+  }
+}
+
 if (consoleErrors.length) {
   console.log('\n[audit] CONSOLE ERRORS:');
   for (const e of consoleErrors) console.log(`  ${e}`);

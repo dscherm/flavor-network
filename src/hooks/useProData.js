@@ -481,6 +481,11 @@ export default function useProData({ enabled = true } = {}) {
           '#f472b6', '#ea580c', '#22c55e',
           '#dc2626', '#facc15', '#a855f7',
           '#84cc16', '#b45309', '#78350f', '#64748b',
+          // Extended palette (cluster ids 10-17) — distinct from 0-9 above.
+          // Added 2026-05-24 after layout-v3 bisection grew clusters from 8 to 17.
+          '#06b6d4', '#fb7185', '#10b981',
+          '#eab308', '#7c3aed', '#15803d',
+          '#9333ea', '#0284c7',
         ];
         if (clusterLabels?.ingredients && Array.isArray(clusterLabels?.clusters)) {
           const labelById = {};
