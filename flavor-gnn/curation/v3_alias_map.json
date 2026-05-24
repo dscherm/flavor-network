@@ -3,9 +3,16 @@
   "_stats": {
     "v3_universe": 3438,
     "outside_v3": 1771,
-    "auto_high": 704,
-    "flagged_medium": 131,
-    "unmatched": 936
+    "auto_high": 782,
+    "flagged_medium": 0,
+    "unmatched": 989,
+    "chef_corrections_applied_2026_05_23": {
+      "fixed": 18,
+      "removed": 6,
+      "promoted": 42,
+      "remapped": 42,
+      "rejected": 47
+    }
   },
   "auto_high_confidence": {
     "'s bittersweet chocolate": "sweet chocolate",
@@ -15,12 +22,14 @@
     "-berry": "berry",
     "-grain mustard": "grain mustard",
     "-kernel corn": "kernel corn",
+    "-milk": "milk",
     "-milk ricotta": "milk ricotta",
     "-milk ricotta cheese": "milk ricotta cheese",
     "-milk yogurt": "milk yogurt",
     "-squeezed lemon juice": "squeezed lemon juice",
     "-squeezed orange juice": "squeezed orange juice",
     "-wheat flour": "wheat flour",
+    ".salt": "salt",
     "a spice mill": "spice",
     "absolut citron": "vodka",
     "absolut kurant": "vodka",
@@ -31,6 +40,7 @@
     "anaheim chile": "anaheim chilie",
     "ancho chile powder": "ancho chili powder",
     "ancho chillie": "ancho chilie",
+    "anise": "aniseed",
     "anise brandy": "brandy",
     "annual wild rice": "wild rice",
     "apple -": "apple",
@@ -73,20 +83,27 @@
     "beef-flavor": "beef",
     "beet juice": "beet",
     "berry wine": "berry",
-    "bitter cherry": "bitter",
-    "bitter lemon": "bitter",
-    "bitter orange": "bitter",
+    "bilberry": "blueberry",
+    "bird chile": "chilie",
+    "bitter cherry": "cherry",
+    "bitter lemon": "lemon",
+    "bitter orange": "orange",
+    "black crowberry": "berry",
     "black currant": "currant",
+    "black eyed pea": "black-eyed pea",
     "black fig": "fig",
     "black forest ham": "ham",
     "black lentil": "lentil",
+    "black mulberry": "berry",
     "black mussel": "mussel",
     "black treacle": "molasses",
+    "blackberrie": "blackberry",
     "blackberry brandy": "blackberry",
     "blackstrap rum": "rum",
     "blended oatmeal": "oatmeal",
     "blended scotch": "scotch",
     "blood orange": "orange",
+    "blueberrie": "blueberry",
     "boiled ham": "ham",
     "boiling- water": "boiling water",
     "bomba rice": "rice",
@@ -98,8 +115,10 @@
     "brown rice noodle": "rice noodle",
     "brussels sprout": "brussels sprouts",
     "buffalo currant": "currant",
+    "butter +": "butter",
     "butter milk": "buttermilk",
     "cabbage leave": "cabbage",
+    "cacao powder": "cocoa",
     "cake pan": "cake",
     "campbell's beef": "beef",
     "campbell's beef broth": "beef",
@@ -115,6 +134,8 @@
     "candied pecan": "pecan",
     "candied peel": "peel",
     "caramel coloring": "caramel",
+    "cardamon seed": "cardamom seed",
+    "cardomom": "cardamom",
     "cashew apple": "cashew",
     "cashew halve": "cashew",
     "cayenne powder": "cayenne pepper",
@@ -123,17 +144,24 @@
     "channel catfish": "catfish",
     "cherry heering": "cherry",
     "cherry jell-o": "cherry",
-    "cherry tomato": "cherry",
+    "cherry tomato": "tomatoe",
     "chick pea": "chickpea",
     "chick-pea": "chickpea",
     "chicken flavored ramen noodle": "chicken flavor",
     "chicken wing": "chicken",
     "chicken-flavor": "chicken",
+    "chile": "chilie",
+    "chile flake": "chili flake",
+    "chile oil": "chili oil",
+    "chile paste": "chili paste",
+    "chile powder": "chili powder",
     "chili-garlic": "garlic",
+    "chilli": "chili",
     "chilli bean paste": "bean paste",
     "chilli flake": "chili flake",
     "chilli paste": "chili paste",
     "chilli powder": "chili powder",
+    "chillie": "chilie",
     "chinese chestnut": "chestnut",
     "chinese egg noodle": "egg",
     "chinese five spice": "spice",
@@ -143,6 +171,7 @@
     "chinese vegetable": "vegetable",
     "chinook salmon": "salmon",
     "chipotle chile": "chipotle chilie",
+    "chipotle powder": "chili powder",
     "chocolate hazelnut": "chocolate",
     "chocolate spread": "chocolate",
     "chocolate-hazelnut spread": "chocolate",
@@ -162,6 +191,7 @@
     "climbing bean": "bean",
     "cluster bean": "bean",
     "coarse-grain mustard": "grain mustard",
+    "coco sugar": "coconut sugar",
     "codfish": "cod fish",
     "coffee brandy": "brandy",
     "coffee mocha": "coffee",
@@ -170,11 +200,13 @@
     "colby jack cheese": "jack cheese",
     "coleslaw dressing": "coleslaw",
     "common tuna": "tuna",
+    "comte cheese": "cheese",
     "cook oat": "oat",
     "cooked beetroot": "beetroot",
     "cooked chestnut": "chestnut",
     "cooked ham": "ham",
     "cooked lentil": "lentil",
+    "cookie crust": "cookie pie crust",
     "cooking oat": "oat",
     "corn arepa filled with mozarella cheese": "mozarella cheese",
     "corn bread": "bread",
@@ -190,10 +222,12 @@
     "cornflake": "corn flake",
     "cornflake crumb": "corn flake crumb",
     "cornflakes cereal": "corn flakes cereal",
+    "corona": "beer",
     "country ham": "ham",
     "country style pork rib": "pork rib",
     "courgette": "zucchini",
     "crab meat": "crab",
+    "cranberrie": "cranberry",
     "cranberry vodka": "cranberry",
     "cream of mushroom soup or cream of chicken soup": "cream of mushroom soup",
     "cream style corn": "corn",
@@ -209,12 +243,14 @@
     "curry leaves": "curry",
     "curry pwdr": "curry",
     "custard powder": "custard",
-    "dark brown soft sugar": "t sugar",
+    "dark brown soft sugar": "brown sugar",
     "dark chocolate chip": "chocolate chip",
     "dark soft brown sugar": "brown sugar",
     "deli ham": "ham",
     "dish pie shell": "pie",
     "dolphin fish": "fish",
+    "domiati cheese": "cheese",
+    "dressing mix": "dressing",
     "drizzle of olive oil": "olive oil",
     "dry lentil": "lentil",
     "duck breast": "duck",
@@ -226,20 +262,20 @@
     "egg mayonnaise": "mayonnaise",
     "egg nog": "egg",
     "egg noodle": "egg",
-    "egg plant": "egg",
+    "egg plant": "eggplant",
     "egg wash": "egg",
     "egg white": "egg",
     "elliott's blueberry": "blueberry",
     "emmental cheese": "emmentaler cheese",
-    "european anchovy": "european",
+    "european anchovy": "anchovy",
     "european chestnut": "chestnut",
-    "european rabbit": "european",
+    "european rabbit": "rabbit",
     "extra lean turkey": "lean turkey",
-    "extra virgin extra virgin olive oil": "virgin extra virgin olive oil",
+    "extra virgin extra virgin olive oil": "olive oil",
     "extra wide egg noodle": "egg",
     "extra-lean beef": "lean beef",
-    "extra-virgin extra virgin olive oil": "virgin extra virgin olive oil",
-    "extravirgin olive oil": "virgin olive oil",
+    "extra-virgin extra virgin olive oil": "olive oil",
+    "extravirgin olive oil": "olive oil",
     "fatty fish": "fish",
     "favorite fruit": "fruit",
     "feather blade beef": "beef",
@@ -251,11 +287,13 @@
     "five spice powder": "spice",
     "flaked almond": "almond",
     "flat rice noodle": "rice noodle",
+    "flatfish": "fish",
     "flax egg": "egg",
     "flax seed": "flaxseed",
     "flour +": "flour",
     "fluid bourbon": "bourbon",
     "fluid gin": "gin",
+    "four-cheese": "four cheese",
     "frankfurter sausage": "sausage",
     "free-range egg beaten": "egg",
     "french lentil": "lentil",
@@ -271,6 +309,7 @@
     "fruit jam": "fruit",
     "fruit mix": "fruit",
     "fruit punch": "fruit",
+    "frybread": "bread",
     "full fat coconut milk": "coconut milk",
     "full fat sour cream": "sour cream",
     "full fat yogurt": "yogurt",
@@ -281,7 +320,6 @@
     "gelatin dessert": "gelatin",
     "gelatine leaf": "gelatine",
     "german sausage": "sausage",
-    "giant butterbur": "t butter",
     "ginger cordial": "ginger",
     "ginger garlic": "garlic",
     "ginger snap": "ginger",
@@ -289,17 +327,20 @@
     "goat milk": "goat",
     "golden italian dressing": "italian dressing",
     "golden rum": "rum",
-    "grape nut": "grape",
-    "grape nut cereal": "grape",
-    "grape seed oil": "grape",
+    "graham crust": "graham pie crust",
+    "graham wafer crumb": "graham cracker crumb",
+    "grape seed oil": "vegetable",
     "grape soda": "grape",
     "grapefruit peel oil": "grapefruit",
     "green chile": "green chilie",
     "green chilli": "green chili",
     "green curry": "curry",
     "green leaf": "leaf",
+    "green pea": "peas",
     "green red lentil": "lentil",
     "green scallion": "scallion",
+    "gruy\u00e8re": "gruyere",
+    "half-and-half": "half and half",
     "ham bone": "ham",
     "ham cooked": "ham",
     "ham cube": "ham",
@@ -309,6 +350,7 @@
     "ham stock": "ham",
     "hanout spice mix": "spice",
     "hard wheat": "wheat",
+    "hazlenut": "hazelnut",
     "hedge mustard": "mustard",
     "herb dressing": "herb",
     "herb dressing mix": "herb",
@@ -340,8 +382,10 @@
     "jamaican curry powder": "curry powder",
     "japanese chestnut": "chestnut",
     "japanese pumpkin": "pumpkin",
-    "jerusalem artichoke": "artichoke",
+    "jeera powder": "cumin",
+    "jello": "jelly",
     "jim beam": "whiskey",
+    "jostaberry": "berry",
     "jumbo egg": "egg",
     "jumbo lump crab meat": "lump crab",
     "kabanos sausage": "sausage",
@@ -355,23 +399,25 @@
     "kraft classic ranch dressing": "ranch dressing",
     "kraft lite raspberry vinaigrette dressing": "raspberry vinaigrette",
     "lamb kidney": "lamb",
+    "lasagne noodle": "lasagna noodle",
+    "lavendar": "lavender",
     "lavender oil": "lavender",
     "lean bacon": "bacon",
     "lean fish": "fish",
     "lean ham": "ham",
     "lean hamburg": "hamburg",
     "leftover ham": "ham",
-    "lemon grass": "lemon",
+    "lemon grass": "lemongrass",
     "lemon jell-o": "lemon",
     "lemon lime soda": "lime soda",
     "lemon peel oil": "lemon",
-    "lemon sole": "lemon",
+    "lemon sole": "fish",
     "lemon-flavored gelatin": "flavored gelatin",
     "light chunk tuna": "tuna",
     "light italian dressing": "dressing",
     "light mayo": "mayo",
     "light mayonnaise": "mayonnaise",
-    "light oil": "t oil",
+    "light oil": "vegetable",
     "light tuna": "tuna",
     "light vegetable oil": "vegetable",
     "lime jell-o": "lime",
@@ -401,14 +447,18 @@
     "massaman curry paste": "curry paste",
     "mature cheddar": "cheddar",
     "mayonaise": "mayonnaise",
+    "mayonaisse": "mayonnaise",
+    "mayonnai": "mayonnaise",
     "mayonnaise dressing": "mayonnaise",
     "mein vegetable": "vegetable",
     "mexican oregano": "oregano",
     "midori melon liqueur": "melon liqueur",
+    "milk +": "milk",
     "mint syrup": "mint",
     "miracle whip": "mayonnaise",
     "mission fig": "fig",
     "mixed beef cut": "beef",
+    "mixed berrie": "mixed berry",
     "mixed candied fruit": "fruit",
     "mixed fruit": "fruit",
     "mixed herb": "herb",
@@ -432,6 +482,8 @@
     "natal plum": "plum",
     "natural yoghurt": "natural yogurt",
     "new zealand spinach": "spinach",
+    "no salt": "no-salt",
+    "no sugar": "no-sugar",
     "non-fat milk": "milk",
     "non-fat vanilla yogurt": "vanilla yogurt",
     "non-fat yogurt": "yogurt",
@@ -451,19 +503,23 @@
     "orange jell-o": "orange",
     "orange spiral": "orange",
     "orange-flower water": "orange",
+    "orgeat syrup": "almond",
     "oriental wheat": "wheat",
     "oscar mayer bacon": "bacon",
     "other bread product": "bread",
+    "other cheese": "cheese",
     "other fish product": "fish",
     "other pasta dish": "pasta",
     "paccheri pasta": "pasta",
     "pacific rockfish": "rockfish",
+    "packets yeast": "yeast",
     "panang curry paste": "curry paste",
     "papaya brandy": "brandy",
     "paprika powder": "paprika",
     "parma ham": "ham",
     "parmesan rind": "parmesan",
     "parmesan shaving": "parmesan",
+    "passata": "tomato sauce",
     "passion fruit syrup": "passion fruit",
     "passionfruit": "passion fruit",
     "passionfruit pulp": "passion fruit pulp",
@@ -472,6 +528,7 @@
     "peach brandy": "brandy",
     "peach nectar": "peach",
     "peach vodka": "peach",
+    "peachtree schnapp": "peach schnapp",
     "peanut cookie": "peanut",
     "pecan chip": "pecan",
     "pecan halve": "pecan",
@@ -507,10 +564,10 @@
     "pork spare rib": "pork",
     "porridge oat": "oat",
     "pot pie": "pie",
+    "pot roast": "beef",
     "potato bread": "potato",
     "potato gratin": "potato",
     "potato puff": "potato",
-    "prickly pear": "pear",
     "proof rum": "rum",
     "purple sprouting broccoli": "broccoli",
     "puy lentil": "lentil",
@@ -519,6 +576,7 @@
     "ranch dressing mix": "ranch dressing",
     "range egg": "egg",
     "rashers bacon": "bacon",
+    "raspberrie": "raspberry",
     "raspberry brandy": "raspberry",
     "ready rolled shortcrust pastry": "shortcrust pastry",
     "red chile": "red chilie",
@@ -536,8 +594,11 @@
     "red pepper paste": "red pepper",
     "red rice": "rice",
     "red sage": "sage",
+    "red snapper": "fish",
     "red wine jelly": "red wine",
+    "red-pepper": "red pepper",
     "red-wine vinegar": "wine vinegar",
+    "redcurrant": "currant",
     "redskin onion": "onion",
     "refried bean": "bean",
     "regular mayonnaise": "mayonnaise",
@@ -553,18 +614,23 @@
     "rolled oat": "oat",
     "rosemary syrup": "rosemary",
     "rosso vermouth": "vermouth",
+    "rowanberry": "berry",
     "ruby port": "port",
     "rum flavoring": "rum",
+    "russian cheese": "cheese",
+    "sablefish": "fish",
+    "safflower": "safflower oil",
+    "salt +": "salt",
     "saskatoon berry": "berry",
     "satsuma orange": "orange",
     "scallion green": "scallion",
     "scarlet bean": "bean",
-    "scotch bonnet": "scotch",
-    "scotch spearmint": "scotch",
+    "scotch bonnet": "chilie",
+    "scotch spearmint": "mint",
     "scotch whiskey": "whiskey",
-    "sea cucumber": "cucumber",
     "seasoned rice vinegar": "rice vinegar",
     "seasons italian dressing": "italian dressing",
+    "seedless red": "grape",
     "semi sweet chocolate": "sweet chocolate",
     "semi sweet chocolate chip": "sweet chocolate chip",
     "semi-sweet chocolate chip": "semi-sweet chocolate",
@@ -574,11 +640,15 @@
     "serrano ham": "ham",
     "sesame seed burger bun": "sesame seed",
     "shaved ham": "ham",
+    "sheefish": "fish",
+    "sheep cheese": "cheese",
+    "sheep milk": "milk",
     "shelled edamame": "edamame",
     "shelled hazelnut": "hazelnut",
     "sherry": "wine",
     "short grain brown rice": "brown rice",
     "short grain rice": "grain rice",
+    "sirloin steak": "beef",
     "skunk currant": "currant",
     "sloe gin": "gin",
     "smoked fish": "fish",
@@ -609,19 +679,24 @@
     "stone cornmeal": "cornmeal",
     "stone mustard": "mustard",
     "stoned date": "date",
+    "strawberrie": "strawberry",
     "strawberry jell-o": "strawberry",
     "strawberry schnapp": "strawberry",
     "strawberry wine": "strawberry",
     "streaky bacon": "bacon",
     "strong white flour": "white flour",
     "strong wholemeal flour": "wholemeal flour",
+    "sugar +": "sugar",
     "sultana": "raisin",
     "summer squash": "squash",
     "sun- tomatoe": "tomatoe",
+    "sunflower": "sunflower seed",
     "swamp cabbage": "cabbage",
     "sweet curry": "curry",
     "sweet custard": "custard",
+    "sweet green pea": "peas",
     "sweet hungarian paprika": "paprika",
+    "sweet pea": "peas",
     "sweet peppadew pepper": "peppadew pepper",
     "sweet sherry": "wine",
     "sweet smoked paprika": "paprika",
@@ -638,11 +713,15 @@
     "thin deli ham": "ham",
     "thin egg noodle": "egg",
     "thin ham": "ham",
+    "thin noodle": "noodles",
     "tightly baby spinach leave": "baby spinach leave",
+    "tilsit cheese": "cheese",
+    "toffee": "caramel",
     "toffee popcorn": "popcorn",
     "tortilla chip": "tortilla",
     "tropical fruit": "fruit",
-    "turkey berry": "turkey",
+    "tumeric powder": "turmeric",
+    "turkey berry": "berry",
     "turkey mince": "turkey",
     "udon noodles": "noodles",
     "unbaked pie shell": "pie",
@@ -685,6 +764,7 @@
     "welsh onion": "onion",
     "wheat breadcrumb": "wheat bread",
     "wheaten bread": "bread",
+    "whisky": "whiskey",
     "white bread crumb": "bread crumb",
     "white bread mix": "bread mix",
     "white cheddar": "cheddar",
@@ -693,12 +773,14 @@
     "white currant": "currant",
     "white fish fillet": "fish fillet",
     "white shoe peg corn": "shoe peg corn",
+    "white sucker": "fish",
     "white tuna": "tuna",
     "white-wine vinegar": "wine vinegar",
     "whitefish": "white fish",
     "wholegrain bread": "grain bread",
     "wholewheat bread": "wheat bread",
     "wide egg noodle": "egg",
+    "wide noodle": "noodles",
     "wild cherry": "cherry",
     "wild garlic leave": "garlic",
     "wild turkey": "turkey",
@@ -707,671 +789,21 @@
     "wish-bone italian dressing": "italian dressing",
     "wood ear mushroom": "mushroom",
     "yardlong bean": "long bean",
+    "yeast roll": "bread",
     "yellow corn meal": "yellow corn",
     "yellow curry": "curry",
     "yellow lentil": "lentil",
+    "yellow pea": "peas",
     "yellow squash": "squash",
+    "yoghurt": "yogurt",
     "your favorite barbecue sauce": "barbecue sauce"
   },
-  "flagged_medium": {
-    "'s cheese": {
-      "suggested": "soy cheese",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "'s sauce": {
-      "suggested": "soy sauce",
-      "confidence": 0.824,
-      "reason": "fuzzy"
-    },
-    "'s sugar": {
-      "suggested": "t sugar",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "-milk": {
-      "suggested": "milk",
-      "confidence": 0.889,
-      "reason": "fuzzy"
-    },
-    ".salt": {
-      "suggested": "salt",
-      "confidence": 0.889,
-      "reason": "fuzzy"
-    },
-    "achiote powder": {
-      "suggested": "chocolate powder",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "anise": {
-      "suggested": "aniseed",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "anisette": {
-      "suggested": "aniseed",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "baking pan": {
-      "suggested": "king prawn",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "baking powder": {
-      "suggested": "mango powder",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "beaver": {
-      "suggested": "beer",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "bilberry": {
-      "suggested": "blueberry",
-      "confidence": 0.824,
-      "reason": "fuzzy"
-    },
-    "bilberry wine": {
-      "suggested": "blackberry wine",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "bird chile": {
-      "suggested": "red chilie",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "bisquick baking": {
-      "suggested": "biscuit baking",
-      "confidence": 0.828,
-      "reason": "fuzzy"
-    },
-    "bisquick baking mix": {
-      "suggested": "biscuit baking mix",
-      "confidence": 0.865,
-      "reason": "fuzzy"
-    },
-    "black bear": {
-      "suggested": "blackberry",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "black crowberry": {
-      "suggested": "black cherry",
-      "confidence": 0.815,
-      "reason": "fuzzy"
-    },
-    "black eyed pea": {
-      "suggested": "black-eyed pea",
-      "confidence": 0.929,
-      "reason": "fuzzy"
-    },
-    "black mulberry": {
-      "suggested": "blackberry",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "black tea": {
-      "suggested": "black bean",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "blackberrie": {
-      "suggested": "blackberry",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "blueberrie": {
-      "suggested": "blueberry",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "bonito flakes": {
-      "suggested": "onion flake",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "borage": {
-      "suggested": "orange",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "bouillon powder": {
-      "suggested": "onion powder",
-      "confidence": 0.815,
-      "reason": "fuzzy"
-    },
-    "brown bear": {
-      "suggested": "brown bread",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "butter +": {
-      "suggested": "butter",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "cacao powder": {
-      "suggested": "carob powder",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "calamu": {
-      "suggested": "clam",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "cane juice": {
-      "suggested": "orange juice",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "cardamon seed": {
-      "suggested": "cardamom seed",
-      "confidence": 0.923,
-      "reason": "fuzzy"
-    },
-    "cardomom": {
-      "suggested": "cardamom",
-      "confidence": 0.875,
-      "reason": "fuzzy"
-    },
-    "carom seed": {
-      "suggested": "cardamom seed",
-      "confidence": 0.87,
-      "reason": "fuzzy"
-    },
-    "cedar": {
-      "suggested": "cheddar",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "chile": {
-      "suggested": "chilie",
-      "confidence": 0.909,
-      "reason": "fuzzy"
-    },
-    "chile flake": {
-      "suggested": "chili flake",
-      "confidence": 0.909,
-      "reason": "fuzzy"
-    },
-    "chile oil": {
-      "suggested": "chili oil",
-      "confidence": 0.889,
-      "reason": "fuzzy"
-    },
-    "chile paste": {
-      "suggested": "chili paste",
-      "confidence": 0.909,
-      "reason": "fuzzy"
-    },
-    "chile powder": {
-      "suggested": "chili powder",
-      "confidence": 0.917,
-      "reason": "fuzzy"
-    },
-    "chilli": {
-      "suggested": "chili",
-      "confidence": 0.909,
-      "reason": "fuzzy"
-    },
-    "chillie": {
-      "suggested": "chilie",
-      "confidence": 0.923,
-      "reason": "fuzzy"
-    },
-    "chinese quince": {
-      "suggested": "chinese rice",
-      "confidence": 0.846,
-      "reason": "fuzzy"
-    },
-    "chipotle powder": {
-      "suggested": "chili powder",
-      "confidence": 0.815,
-      "reason": "fuzzy"
-    },
-    "coco sugar": {
-      "suggested": "coconut sugar",
-      "confidence": 0.87,
-      "reason": "fuzzy"
-    },
-    "common verbena": {
-      "suggested": "lemon verbena",
-      "confidence": 0.815,
-      "reason": "fuzzy"
-    },
-    "comte cheese": {
-      "suggested": "cottage cheese",
-      "confidence": 0.846,
-      "reason": "fuzzy"
-    },
-    "cookie crumb": {
-      "suggested": "cake crumb",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "cookie crust": {
-      "suggested": "cookie pie crust",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "corona": {
-      "suggested": "corn",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "cranberrie": {
-      "suggested": "cranberry",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "curly leaf": {
-      "suggested": "curry leaf",
-      "confidence": 0.9,
-      "reason": "fuzzy"
-    },
-    "domiati cheese": {
-      "suggested": "goat cheese",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "dressing mix": {
-      "suggested": "dressing",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "file powder": {
-      "suggested": "milk powder",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "flatfish": {
-      "suggested": "catfish",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "four-cheese": {
-      "suggested": "four cheese",
-      "confidence": 0.909,
-      "reason": "fuzzy"
-    },
-    "freshly squeezed juice": {
-      "suggested": "freshly squeezed lemon",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "frybread": {
-      "suggested": "rye bread",
-      "confidence": 0.824,
-      "reason": "fuzzy"
-    },
-    "graham crust": {
-      "suggested": "graham pie crust",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "graham wafer crumb": {
-      "suggested": "graham cracker crumb",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "green pea": {
-      "suggested": "green bean",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "green tea": {
-      "suggested": "green bean",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "grill seasoning": {
-      "suggested": "chili seasoning",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "gruy\u00e8re": {
-      "suggested": "gruyere",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "half-and-half": {
-      "suggested": "half and half",
-      "confidence": 0.846,
-      "reason": "fuzzy"
-    },
-    "hazlenut": {
-      "suggested": "hazelnut",
-      "confidence": 0.875,
-      "reason": "fuzzy"
-    },
-    "jeera powder": {
-      "suggested": "celery powder",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "jello": {
-      "suggested": "jelly",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "jostaberry": {
-      "suggested": "strawberry",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "lasagne noodle": {
-      "suggested": "lasagna noodle",
-      "confidence": 0.929,
-      "reason": "fuzzy"
-    },
-    "lavendar": {
-      "suggested": "lavender",
-      "confidence": 0.875,
-      "reason": "fuzzy"
-    },
-    "longan": {
-      "suggested": "long bean",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "margarine": {
-      "suggested": "soy margarine",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "mayonaisse": {
-      "suggested": "mayonnaise",
-      "confidence": 0.9,
-      "reason": "fuzzy"
-    },
-    "mayonnai": {
-      "suggested": "mayonnaise",
-      "confidence": 0.889,
-      "reason": "fuzzy"
-    },
-    "milk +": {
-      "suggested": "milk",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "minute": {
-      "suggested": "mint",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "mixed berrie": {
-      "suggested": "mixed berry",
-      "confidence": 0.87,
-      "reason": "fuzzy"
-    },
-    "no salt": {
-      "suggested": "no-salt",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "no sugar": {
-      "suggested": "no-sugar",
-      "confidence": 0.875,
-      "reason": "fuzzy"
-    },
-    "orgeat syrup": {
-      "suggested": "orange syrup",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "other cheese": {
-      "suggested": "three cheese",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "packets yeast": {
-      "suggested": "cakes yeast",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "passata": {
-      "suggested": "pasta",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "pate": {
-      "suggested": "paste",
-      "confidence": 0.889,
-      "reason": "fuzzy"
-    },
-    "peachtree schnapp": {
-      "suggested": "peach schnapp",
-      "confidence": 0.867,
-      "reason": "fuzzy"
-    },
-    "pot roast": {
-      "suggested": "pork roast",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "powdered": {
-      "suggested": "powder",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "powdered alum": {
-      "suggested": "powdered cumin",
-      "confidence": 0.815,
-      "reason": "fuzzy"
-    },
-    "raspberrie": {
-      "suggested": "raspberry",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "red snapper": {
-      "suggested": "red apple",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "red-pepper": {
-      "suggested": "red pepper",
-      "confidence": 0.9,
-      "reason": "fuzzy"
-    },
-    "redcurrant": {
-      "suggested": "currant",
-      "confidence": 0.824,
-      "reason": "fuzzy"
-    },
-    "romano pepper": {
-      "suggested": "poblano pepper",
-      "confidence": 0.815,
-      "reason": "fuzzy"
-    },
-    "rowanberry": {
-      "suggested": "cranberry",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "russian cheese": {
-      "suggested": "parmesian cheese",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "sablefish": {
-      "suggested": "bluefish",
-      "confidence": 0.824,
-      "reason": "fuzzy"
-    },
-    "safflower": {
-      "suggested": "safflower oil",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "salt +": {
-      "suggested": "salt",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "seedless red": {
-      "suggested": "seedless grape",
-      "confidence": 0.846,
-      "reason": "fuzzy"
-    },
-    "sheefish": {
-      "suggested": "shellfish",
-      "confidence": 0.824,
-      "reason": "fuzzy"
-    },
-    "sheep cheese": {
-      "suggested": "sharp cheese",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "sheep milk": {
-      "suggested": "sweet milk",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "sherbet": {
-      "suggested": "herbe",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "sirloin steak": {
-      "suggested": "salmon steak",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "sour mix": {
-      "suggested": "sour milk",
-      "confidence": 0.824,
-      "reason": "fuzzy"
-    },
-    "soy cream": {
-      "suggested": "sour cream",
-      "confidence": 0.842,
-      "reason": "fuzzy"
-    },
-    "strawberrie": {
-      "suggested": "strawberry",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "sugar +": {
-      "suggested": "sugar",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "sunflower": {
-      "suggested": "sunflower nut",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "sweet green pea": {
-      "suggested": "sweet green pepper",
-      "confidence": 0.848,
-      "reason": "fuzzy"
-    },
-    "sweet pea": {
-      "suggested": "sweet apple",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "thin noodle": {
-      "suggested": "chicken noodle",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "tia maria": {
-      "suggested": "tamari",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "tilsit cheese": {
-      "suggested": "stilton cheese",
-      "confidence": 0.815,
-      "reason": "fuzzy"
-    },
-    "toffee": {
-      "suggested": "coffee",
-      "confidence": 0.833,
-      "reason": "fuzzy"
-    },
-    "tumeric powder": {
-      "suggested": "rice powder",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "vegan butter": {
-      "suggested": "peanut butter",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "vegetarian food": {
-      "suggested": "vegetarian beef",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "vine leave": {
-      "suggested": "lime leave",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "whisky": {
-      "suggested": "whiskey",
-      "confidence": 0.923,
-      "reason": "fuzzy"
-    },
-    "white baking": {
-      "suggested": "white bean",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "white lupine": {
-      "suggested": "white wine",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "white sucker": {
-      "suggested": "white cake",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "white tequila": {
-      "suggested": "white quinoa",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "wide noodle": {
-      "suggested": "rice noodle",
-      "confidence": 0.818,
-      "reason": "fuzzy"
-    },
-    "yeast roll": {
-      "suggested": "wheat roll",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "yellow chartreuse": {
-      "suggested": "yellow cheese",
-      "confidence": 0.8,
-      "reason": "fuzzy"
-    },
-    "yellow pea": {
-      "suggested": "yellow bean",
-      "confidence": 0.857,
-      "reason": "fuzzy"
-    },
-    "yoghurt": {
-      "suggested": "yogurt",
-      "confidence": 0.923,
-      "reason": "fuzzy"
-    }
-  },
+  "flagged_medium": {},
   "unmatched": [
+    "'s cheese",
     "'s milk",
+    "'s sauce",
+    "'s sugar",
     "- pepper",
     "abalone",
     "abiyuch",
@@ -1379,6 +811,7 @@
     "acerola",
     "achillea",
     "achiote paste",
+    "achiote powder",
     "ackee",
     "active dry yeast",
     "active yeast",
@@ -1411,6 +844,7 @@
     "anguilliforme",
     "ani",
     "anise hyssop",
+    "anisette",
     "annatto",
     "aperol",
     "apfelkorn",
@@ -1445,6 +879,8 @@
     "baking dish",
     "baking hen",
     "baking mix",
+    "baking pan",
+    "baking powder",
     "baking power",
     "baking pwdr",
     "baking sheet",
@@ -1461,6 +897,7 @@
     "bayberry",
     "bayleaf",
     "bearded seal",
+    "beaver",
     "bechamel",
     "beech nut",
     "beefalo",
@@ -1471,18 +908,23 @@
     "bergamot",
     "beverage alcolohic other",
     "bicarbonate of soda",
+    "bilberry wine",
     "birds-eye chillie",
     "biryani masala",
     "biscuit",
     "bison",
+    "bisquick baking",
+    "bisquick baking mix",
     "bisquick original baking mix",
     "bittergourd",
     "bittersweet",
     "bivalvia",
+    "black bear",
     "black cod",
     "black huckleberry",
     "black salsify",
     "black sambuca",
+    "black tea",
     "blackcurrant cordial",
     "blackcurrant jam",
     "blue curacao",
@@ -1491,10 +933,13 @@
     "boiling",
     "bok choi",
     "bonito",
+    "bonito flakes",
+    "borage",
     "botrytized wine",
     "bottled smoke",
     "bottlegourd",
     "bouillon cube",
+    "bouillon powder",
     "bouquet garni",
     "bowhead whale",
     "boysenberry",
@@ -1508,6 +953,7 @@
     "broil",
     "broiler-fryer",
     "broth",
+    "brown bear",
     "brown stock",
     "bryndza cheese",
     "buchu",
@@ -1521,6 +967,7 @@
     "cachaca",
     "cajeput",
     "cajun",
+    "calamu",
     "callaloo",
     "campari",
     "campbell's cream",
@@ -1529,12 +976,14 @@
     "candlenut",
     "candlenuts",
     "candy bar",
+    "cane juice",
     "caperberrie",
     "caramelized sugar sauce",
     "carbonated soft drink",
     "cardoon",
     "caribou",
     "carob",
+    "carom seed",
     "carp bream",
     "casabe",
     "cascarilla",
@@ -1544,6 +993,7 @@
     "cassia",
     "catjang pea",
     "caviar",
+    "cedar",
     "celeriac",
     "ceriman",
     "cetacea",
@@ -1563,6 +1013,7 @@
     "chinese bayberry",
     "chinese noodle",
     "chinese pea pod",
+    "chinese quince",
     "chipotle",
     "chipotle puree",
     "christmas pudding",
@@ -1592,8 +1043,10 @@
     "common octopu",
     "common persimmon",
     "common salsify",
+    "common verbena",
     "conch",
     "cookie",
+    "cookie crumb",
     "cookie cutter",
     "cookie dough",
     "cookie sheet",
@@ -1620,6 +1073,7 @@
     "cubes ice",
     "cucurbita",
     "cupua\u008du",
+    "curly leaf",
     "curly noodle",
     "cusk",
     "cut",
@@ -1684,6 +1138,7 @@
     "fettucine noodle",
     "fettucini noodle",
     "filbert",
+    "file powder",
     "fillet of steak",
     "filo pastry",
     "finnish whisky",
@@ -1708,6 +1163,7 @@
     "freshly parmigiano-reggiano",
     "freshly pecorino",
     "freshly pecorino romano",
+    "freshly squeezed juice",
     "freshwater drum",
     "freshwater eel",
     "frie",
@@ -1727,6 +1183,7 @@
     "garfish",
     "garland chrysanthemum",
     "geranium",
+    "giant butterbur",
     "ginkgo nut",
     "ginseng",
     "glass noodle",
@@ -1742,6 +1199,8 @@
     "graham wafer",
     "grain alcohol",
     "grand marnier",
+    "grape nut",
+    "grape nut cereal",
     "grass",
     "grass pea",
     "great horned owl",
@@ -1751,6 +1210,7 @@
     "green plantain",
     "green salsa",
     "green split pea",
+    "green tea",
     "green turtle",
     "greenland halibut",
     "greenthread tea",
@@ -1758,6 +1218,7 @@
     "greylag goose",
     "grill",
     "grill pan",
+    "grill seasoning",
     "groundcherry",
     "grouper",
     "guava",
@@ -1810,6 +1271,7 @@
     "jasmine",
     "jellyfish",
     "jersey royal potatoe",
+    "jerusalem artichoke",
     "jew's ear",
     "jicama",
     "juice from",
@@ -1866,6 +1328,7 @@
     "litchi",
     "loganberry",
     "loin roast",
+    "longan",
     "loquat",
     "lotu",
     "lovage",
@@ -1883,6 +1346,7 @@
     "manchego",
     "mandarin juice",
     "maraschino liqueur",
+    "margarine",
     "margarine like spread",
     "marinade",
     "mars bar",
@@ -1911,6 +1375,7 @@
     "millet",
     "mincemeat",
     "miniature marshmallow",
+    "minute",
     "miracle whip dressing",
     "miracle whip dressing family",
     "miracle whip light dressing",
@@ -1994,6 +1459,7 @@
     "parsnip",
     "passoa",
     "pastry",
+    "pate",
     "pawpaw",
     "pea pod",
     "pecorino",
@@ -2033,9 +1499,12 @@
     "pollock",
     "porcini",
     "portobello",
+    "powdered",
+    "powdered alum",
     "prairie turnip",
     "pretzel",
     "pretzel crumb",
+    "prickly pear",
     "protein powder",
     "prune",
     "prune juice",
@@ -2083,6 +1552,7 @@
     "rock ptarmigan",
     "roe",
     "roibos tea",
+    "romano pepper",
     "rose",
     "rose hip",
     "rose water",
@@ -2124,6 +1594,7 @@
     "scup",
     "sea bass fillet",
     "sea buckthorn",
+    "sea cucumber",
     "sea trout",
     "seafood mix",
     "seafood stock",
@@ -2138,6 +1609,7 @@
     "sheepshead",
     "shell noodle",
     "shelled pea",
+    "sherbet",
     "shichimi togarashi",
     "shortening",
     "silver linden",
@@ -2160,11 +1632,13 @@
     "sorghum",
     "sorrel",
     "soup",
+    "sour mix",
     "sourdock",
     "sourdough",
     "soursop",
     "southern comfort",
     "soy",
+    "soy cream",
     "soy crumble",
     "soy oil",
     "spaghetti",
@@ -2221,6 +1695,7 @@
     "thai chile",
     "thai chilli jam",
     "thistle",
+    "tia maria",
     "tilefish",
     "tinda",
     "tiny pea",
@@ -2251,6 +1726,8 @@
     "veal reduction",
     "veal stock",
     "veg oil",
+    "vegan butter",
+    "vegetarian food",
     "veggie",
     "veggie broth",
     "veggie burger",
@@ -2259,6 +1736,7 @@
     "veggie stock",
     "venison roast",
     "vinaigrette dressing",
+    "vine leave",
     "v\u00e4sterbottensost cheese",
     "waffle",
     "wakame",
@@ -2273,9 +1751,12 @@
     "whey",
     "whipping",
     "white asparagu",
+    "white baking",
     "white baking chip",
     "white creme de menthe",
+    "white lupine",
     "white sauerkraut",
+    "white tequila",
     "white yam",
     "whiting",
     "wild boar",
@@ -2290,6 +1771,7 @@
     "yarrow",
     "yautia",
     "yeast",
+    "yellow chartreuse",
     "yellow food colouring",
     "yellow masarepa",
     "yellow passionfruit",
