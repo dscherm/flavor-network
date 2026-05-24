@@ -57,27 +57,36 @@ const flagState = await page.evaluate(() => {
       clusterColor: node?.clusterColor ?? null,
     };
   });
-  // Count V3 vs V2 distribution
-  const counts = { cluster_0to7: 0, cluster_8plus: 0, null: 0, total: 0 };
+  // Per-cluster count + null tally. V3 with bisection now runs k=17, so
+  // any cluster id < 17 is valid; id >= 17 would be a real leak.
+  const V3_MAX_K = 17;
+  const counts = { perCluster: {}, in_v3_range: 0, out_of_range: 0, null: 0, total: 0 };
   if (graph?.nodes) {
     for (const [, n] of graph.nodes) {
       counts.total++;
       const cid = n.clusterId;
       if (cid === null || cid === undefined) counts.null++;
-      else if (cid >= 0 && cid < 8) counts.cluster_0to7++;
-      else counts.cluster_8plus++;
+      else if (cid >= 0 && cid < V3_MAX_K) {
+        counts.in_v3_range++;
+        counts.perCluster[cid] = (counts.perCluster[cid] || 0) + 1;
+      } else counts.out_of_range++;
     }
   }
   return { localStorage_flag: ls, sample_nodes: states, counts };
 });
 
 console.log(`\n[chef-view] localStorage.FN_FLAVOR_V3: ${flagState.localStorage_flag}`);
-console.log(`[chef-view] cluster distribution:`);
-console.log(`  V3 range (0-7):  ${flagState.counts.cluster_0to7}`);
-console.log(`  V2 leftover (>=8): ${flagState.counts.cluster_8plus}`);
-console.log(`  null cluster:     ${flagState.counts.null}`);
-console.log(`  total:            ${flagState.counts.total}`);
-console.log(`\n[chef-view] verdict: ${flagState.counts.cluster_8plus === 0 ? 'CLEAN V3' : 'V2 LEAK'}`);
+console.log(`[chef-view] cluster distribution (k=17 valid range):`);
+console.log(`  in V3 range (0-16): ${flagState.counts.in_v3_range}`);
+console.log(`  out-of-range (>=17): ${flagState.counts.out_of_range}`);
+console.log(`  null/gray:          ${flagState.counts.null}`);
+console.log(`  total:              ${flagState.counts.total}`);
+console.log(`\n  per-cluster nodes (top 10):`);
+const sorted = Object.entries(flagState.counts.perCluster)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 10);
+for (const [cid, n] of sorted) console.log(`    c${cid.padStart(2)}: ${n}`);
+console.log(`\n[chef-view] verdict: ${flagState.counts.out_of_range === 0 ? 'CLEAN V3 (k=17)' : 'OUT-OF-RANGE CLUSTER IDS'}`);
 console.log(`\n[chef-view] sample nodes:`);
 for (const n of flagState.sample_nodes) {
   console.log(`  ${n.name.padEnd(20)} cid=${String(n.clusterId).padEnd(6)} color=${n.clusterColor || '-'}`);
