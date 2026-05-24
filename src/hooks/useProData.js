@@ -39,28 +39,11 @@ function flavorV3Enabled() {
   return true;
 }
 
-// Flavor-layout A/B toggle (2026-05-24). 'encoded' is the deterministic
-// one-hot-encoding pass (flavor_profile_layout.py). 'gnn' is the learned
-// GAT embeddings (flavor_gnn_layout.py). When 'gnn' is chosen, the three
-// V3 artifacts (positions 3D, positions 2D, cluster_labels) are fetched
-// from the *_v3_gnn.json variants. Default = 'encoded' until chef sign-off.
-function flavorLayoutMode() {
-  try {
-    if (typeof localStorage !== 'undefined') {
-      const ls = localStorage.getItem('FN_FLAVOR_LAYOUT');
-      if (ls === 'gnn') return 'gnn';
-      if (ls === 'encoded') return 'encoded';
-    }
-  } catch { /* localStorage blocked */ }
-  return 'encoded';
-}
-
-function v3PathFor(basename) {
-  // Returns '/proDataset/<basename>_v3_gnn.json' or '/proDataset/<basename>_v3.json'
-  // depending on the FN_FLAVOR_LAYOUT toggle.
-  const suffix = flavorLayoutMode() === 'gnn' ? '_v3_gnn.json' : '_v3.json';
-  return `/proDataset/${basename}${suffix}`;
-}
+// Flavor-layout A/B was promoted on 2026-05-24: chef picked the GNN
+// variant, so the canonical _v3 files now contain GNN data. The A/B
+// scaffolding (flavorLayoutMode, v3PathFor, FlavorLayoutToggle) was
+// removed; pre-promotion encoded snapshots are preserved as
+// public/proDataset/*_v3.json.pre-gnn-promote.bak.
 
 // Map proDataset categories to taste strings that NodeMesh can color.
 // NodeMesh checks node.taste for: pungent, astringent, salty, sour, bitter, hot, spicy, sweet
@@ -244,7 +227,7 @@ export default function useProData({ enabled = true } = {}) {
           // this swap, the network shows v2 gnn_positions topology painted
           // with v3 cluster colors → mismatched, nodes appear clustered wrong.
           const gnnRes = await fetch(flavorV3Enabled()
-            ? v3PathFor('flavor_positions')
+            ? '/proDataset/flavor_positions_v3.json'
             : '/proDataset/gnn_positions.json');
           if (gnnRes.ok) {
             const gnnRaw = await gnnRes.json();
@@ -288,7 +271,7 @@ export default function useProData({ enabled = true } = {}) {
         let flavorPositions = null;
         try {
           const fpRes = await fetch(flavorV3Enabled()
-            ? v3PathFor('flavor_positions')
+            ? '/proDataset/flavor_positions_v3.json'
             : '/proDataset/flavor_positions.json');
           if (fpRes.ok) {
             const fpRaw = await fpRes.json();
@@ -324,7 +307,7 @@ export default function useProData({ enabled = true } = {}) {
         let flavorPositions2D = null;
         try {
           const fp2dRes = await fetch(flavorV3Enabled()
-            ? v3PathFor('flavor_positions_2d')
+            ? '/proDataset/flavor_positions_2d_v3.json'
             : '/proDataset/flavor_positions_2d.json');
           if (fp2dRes.ok) {
             const fp2dRaw = await fp2dRes.json();
@@ -386,7 +369,7 @@ export default function useProData({ enabled = true } = {}) {
           // centroid_3d}]) so v3 cluster labels actually render in the
           // default flavor3D view.
           const fclRes = await fetch(flavorV3Enabled()
-            ? v3PathFor('cluster_labels')
+            ? '/proDataset/cluster_labels_v3.json'
             : '/proDataset/flavor_cluster_labels.json');
           if (fclRes.ok) {
             flavorClusterLabels = await fclRes.json();
@@ -455,7 +438,7 @@ export default function useProData({ enabled = true } = {}) {
         let clusterExplanations = null;
         try {
           const clRes = await fetch(flavorV3Enabled()
-            ? v3PathFor('cluster_labels')
+            ? '/proDataset/cluster_labels_v3.json'
             : '/proDataset/cluster_labels.json');
           if (clRes.ok) clusterLabels = await clRes.json();
         } catch { /* optional */ }
