@@ -332,13 +332,15 @@ def main(k_clusters: int, epochs: int, top_k_edges: int,
           f"(min_dist={UMAP_MIN_DIST}, supervised={SUPERVISED_UMAP})")
     reducer_3d = umap.UMAP(n_components=3, n_neighbors=UMAP_N_NEIGHBORS,
                            min_dist=UMAP_MIN_DIST, metric="cosine",
-                           target_metric="categorical", random_state=SEED)
+                           target_metric="categorical", target_weight=0.95,
+                           random_state=SEED)
     coords_3d = reducer_3d.fit_transform(emb, y=umap_y)
     coords_3d = (coords_3d - coords_3d.mean(0)) / (coords_3d.std(0) + 1e-8)
     coords_3d *= SCENE_SCALE
     reducer_2d = umap.UMAP(n_components=2, n_neighbors=UMAP_N_NEIGHBORS,
                            min_dist=UMAP_MIN_DIST, metric="cosine",
-                           target_metric="categorical", random_state=SEED)
+                           target_metric="categorical", target_weight=0.95,
+                           random_state=SEED)
     coords_2d = reducer_2d.fit_transform(emb, y=umap_y)
     coords_2d = (coords_2d - coords_2d.mean(0)) / (coords_2d.std(0) + 1e-8)
     coords_2d *= SCENE_SCALE
