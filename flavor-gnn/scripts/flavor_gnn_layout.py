@@ -122,7 +122,8 @@ class FlavorGAT(nn.Module):
         return z, logits
 
 
-def main(k_clusters: int, epochs: int, top_k_edges: int) -> None:
+def main(k_clusters: int, epochs: int, top_k_edges: int,
+         max_cluster_size: int = 0) -> None:
     torch.manual_seed(SEED)
     np.random.seed(SEED)
 
@@ -297,6 +298,34 @@ def main(k_clusters: int, epochs: int, top_k_edges: int) -> None:
     km = KMeans(n_clusters=k_clusters, random_state=SEED, n_init=10)
     cluster_ids = km.fit_predict(emb)
 
+    # ── Bisect mega-clusters via per-cluster KMeans on the embeddings ─
+    # Same idea as flavor_layout_v3._split_large_clusters: any cluster
+    # above max_cluster_size gets recursively k-mean'd into chunks of
+    # ~max_size each. Sub-clusters get new monotonically-increasing IDs.
+    # Must run BEFORE supervised UMAP so the final cluster_ids feed in.
+    if max_cluster_size > 0:
+        before_n = len(set(cluster_ids.tolist()))
+        next_id = int(cluster_ids.max()) + 1
+        splits = 0
+        for cid in sorted(set(cluster_ids.tolist())):
+            mask = cluster_ids == cid
+            size = int(mask.sum())
+            if size <= max_cluster_size:
+                continue
+            k_sub = int(np.ceil(size / max_cluster_size))
+            if k_sub < 2:
+                continue
+            member_idxs = np.where(mask)[0]
+            sub_km = KMeans(n_clusters=k_sub, random_state=SEED, n_init=10)
+            sub_labels = sub_km.fit_predict(emb[member_idxs])
+            for sub_i in range(1, k_sub):
+                cluster_ids[member_idxs[sub_labels == sub_i]] = next_id
+                next_id += 1
+            splits += k_sub - 1
+        after_n = len(set(cluster_ids.tolist()))
+        print(f"[gnn-layout] mega-split: {before_n} -> {after_n} clusters "
+              f"(+{splits} sub-clusters at max_size={max_cluster_size})")
+
     # ── Supervised UMAP — pulls same-cluster points together ───────
     umap_y = cluster_ids if SUPERVISED_UMAP else None
     print(f"[gnn-layout] UMAP → 3D + 2D  "
@@ -408,5 +437,8 @@ if __name__ == "__main__":
     p.add_argument("--k", type=int, default=16)
     p.add_argument("--epochs", type=int, default=200)
     p.add_argument("--top-k-edges", type=int, default=15)
+    p.add_argument("--max-cluster-size", type=int, default=0,
+                   help="If > 0, bisect any cluster above this size via per-cluster KMeans.")
     args = p.parse_args()
-    main(k_clusters=args.k, epochs=args.epochs, top_k_edges=args.top_k_edges)
+    main(k_clusters=args.k, epochs=args.epochs, top_k_edges=args.top_k_edges,
+         max_cluster_size=args.max_cluster_size)
