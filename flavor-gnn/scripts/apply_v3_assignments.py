@@ -258,8 +258,17 @@ def main(dry_run: bool) -> None:
     print(f"[write] {POS_2D.relative_to(ROOT)} (+{len(classify_added)} entries)")
 
     if chem_count:
-        CHEM_FOLLOWUP.write_text("\n".join(chem_lines) + "\n", encoding="utf-8")
-        print(f"[write] {CHEM_FOLLOWUP.relative_to(ROOT)} ({chem_count} entries)")
+        # Only write the template stub if no existing doc — preserves any
+        # hand-expanded version (signature compounds, SMILES, etc.) the
+        # chef has invested in. If the file exists and is larger than the
+        # template, leave it alone.
+        existing_len = CHEM_FOLLOWUP.stat().st_size if CHEM_FOLLOWUP.exists() else 0
+        template_len = sum(len(line) + 1 for line in chem_lines)
+        if existing_len <= template_len + 100:
+            CHEM_FOLLOWUP.write_text("\n".join(chem_lines) + "\n", encoding="utf-8")
+            print(f"[write] {CHEM_FOLLOWUP.relative_to(ROOT)} ({chem_count} entries — stub)")
+        else:
+            print(f"[skip] {CHEM_FOLLOWUP.relative_to(ROOT)} ({existing_len}B existing > template; preserved)")
 
     if remove_names:
         snapshot(INGREDIENTS)
