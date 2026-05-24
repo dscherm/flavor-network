@@ -56,11 +56,14 @@ OUT_CLUSTERS = ROOT / "public" / "proDataset" / "cluster_labels_v3_gnn.json"
 OUT_EMB = ROOT / "flavor-gnn" / "artifacts" / "flavor_embeddings_v3_gnn.npy"
 
 SEED = 42
-UMAP_MIN_DIST = 0.1   # was 0.55 — tighter packing within clusters
+UMAP_MIN_DIST = 0.25  # 0.55 too spread, 0.1 piled up — middle keeps within-cluster breathing room
 UMAP_N_NEIGHBORS = 12
 SCENE_SCALE = 10.0
-SUPERVISED_UMAP = True  # pass cluster_ids as target_metric so same-cluster
-                        # points are pulled together in 3D/2D layouts
+SUPERVISED_UMAP = True
+TARGET_WEIGHT = 0.5   # 0.95 collapsed clusters to single points (92% overlap)
+                      # 0.5 (default) preserves within-cluster structure while
+                      # still pulling same-cluster points together
+POST_JITTER = 0.4     # final per-name deterministic offset to break exact overlaps
 
 EMB_DIM = 32
 HIDDEN_DIM = 64
@@ -332,18 +335,30 @@ def main(k_clusters: int, epochs: int, top_k_edges: int,
           f"(min_dist={UMAP_MIN_DIST}, supervised={SUPERVISED_UMAP})")
     reducer_3d = umap.UMAP(n_components=3, n_neighbors=UMAP_N_NEIGHBORS,
                            min_dist=UMAP_MIN_DIST, metric="cosine",
-                           target_metric="categorical", target_weight=0.95,
+                           target_metric="categorical", target_weight=TARGET_WEIGHT,
                            random_state=SEED)
     coords_3d = reducer_3d.fit_transform(emb, y=umap_y)
     coords_3d = (coords_3d - coords_3d.mean(0)) / (coords_3d.std(0) + 1e-8)
     coords_3d *= SCENE_SCALE
     reducer_2d = umap.UMAP(n_components=2, n_neighbors=UMAP_N_NEIGHBORS,
                            min_dist=UMAP_MIN_DIST, metric="cosine",
-                           target_metric="categorical", target_weight=0.95,
+                           target_metric="categorical", target_weight=TARGET_WEIGHT,
                            random_state=SEED)
     coords_2d = reducer_2d.fit_transform(emb, y=umap_y)
     coords_2d = (coords_2d - coords_2d.mean(0)) / (coords_2d.std(0) + 1e-8)
     coords_2d *= SCENE_SCALE
+
+    # ── Post-jitter — break exact-position overlaps via deterministic offsets ──
+    # Even with min_dist=0.25 + target_weight=0.5, some same-cluster points
+    # collapse to identical coordinates. Apply a stable per-name offset so
+    # every node has a unique location (within visible tolerance).
+    import hashlib as _hashlib
+    for i, n in enumerate(names):
+        h = _hashlib.sha1(n.encode('utf-8')).digest()
+        off3 = [(h[k] - 128) / 128.0 * POST_JITTER for k in range(3)]
+        off2 = [(h[k] - 128) / 128.0 * POST_JITTER for k in range(2)]
+        coords_3d[i] += off3
+        coords_2d[i] += off2
 
     # ── Cluster labels (lift on tier + category tokens) ────────────
     cluster_members = defaultdict(list)
