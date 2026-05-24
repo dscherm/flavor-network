@@ -1,0 +1,32 @@
+[
+  {
+    "name": "yarrow",
+    "count": 1,
+    "cat": "other",
+    "taste": "pungent"
+  },
+  {
+    "name": "muskmallow",
+    "count": 1,
+    "cat": "other",
+    "taste": "pungent"
+  },
+  {
+    "name": "sevaiiya",
+    "count": 1,
+    "cat": "other",
+    "taste": "pungent"
+  },
+  {
+    "name": "wormwood",
+    "count": 1,
+    "cat": "other",
+    "taste": "pungent"
+  },
+  {
+    "name": "sarsaparilla",
+    "count": 1,
+    "cat": "other",
+    "taste": "pungent"
+  }
+]
