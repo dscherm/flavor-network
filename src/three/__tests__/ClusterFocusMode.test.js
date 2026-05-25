@@ -14,8 +14,11 @@ import {
   minNearestNeighborDistance,
   computeSpreadFactor,
   computeSpreadRadius,
+  selectIntraClusterEdges,
   SPREAD_MIN_RADIUS_MULT,
   MAX_SPREAD_FACTOR,
+  TIER_COLOR,
+  TIER_OPACITY,
 } from '../ClusterFocusMode.js';
 
 describe('ClusterFocusMode.computeCentroid', () => {
@@ -140,5 +143,91 @@ describe('ClusterFocusMode.MAX_SPREAD_FACTOR', () => {
     // members to radius 500+ (past camera frustum). 5× is the
     // empirically-derived ceiling.
     expect(MAX_SPREAD_FACTOR).toBe(5.0);
+  });
+});
+
+describe('ClusterFocusMode.TIER_COLOR / TIER_OPACITY', () => {
+  it('matches canon §4.3 hex values', () => {
+    expect(TIER_COLOR[3].getHex()).toBe(0xfacc15);
+    expect(TIER_COLOR[2].getHex()).toBe(0xa3a3a3);
+    expect(TIER_COLOR[1].getHex()).toBe(0xa16207);
+    expect(TIER_COLOR[0].getHex()).toBe(0xe879f9);
+  });
+  it('matches canon §4.3 opacities', () => {
+    expect(TIER_OPACITY[3]).toBe(0.9);
+    expect(TIER_OPACITY[2]).toBe(0.7);
+    expect(TIER_OPACITY[1]).toBe(0.5);
+    expect(TIER_OPACITY[0]).toBe(0.55);
+  });
+});
+
+describe('ClusterFocusMode.selectIntraClusterEdges', () => {
+  // Test fixture: 5 nodes split 3 into cluster 7 and 2 into cluster 8.
+  // 4 edges total: 2 intra-cluster-7, 1 intra-cluster-8, 1 cross-cluster.
+  const nodeArray = [
+    { name: 'alpha',   clusterId: 7 },
+    { name: 'bravo',   clusterId: 7 },
+    { name: 'charlie', clusterId: 7 },
+    { name: 'delta',   clusterId: 8 },
+    { name: 'echo',    clusterId: 8 },
+  ];
+  const nameToIdx = new Map(nodeArray.map((n, i) => [n.name, i]));
+  const graphEdges = [
+    { source: 'alpha',   target: 'bravo',   strength: 0.9 }, // intra 7 — strong
+    { source: 'bravo',   target: 'charlie', strength: 0.6 }, // intra 7 — good
+    { source: 'delta',   target: 'echo',    strength: 0.4 }, // intra 8 — untiered
+    { source: 'alpha',   target: 'delta',   strength: 0.95 },// cross — must drop
+  ];
+  const ctx = {
+    pairingStrength: new Map([
+      ['alpha|bravo',   0.9],
+      ['bravo|charlie', 0.6],
+      ['delta|echo',    0.4],
+      ['alpha|delta',   0.95],
+    ]),
+    top5: new Map(), // empty → lenient branch
+    bridgeCompoundIndex: new Map(),
+    affinityThresholds: { star3: 0.85, star2: 0.55, star1: 0.5 },
+  };
+
+  it('returns only intra-cluster edges (cross-cluster dropped)', () => {
+    const out = selectIntraClusterEdges(graphEdges, nodeArray, 7, nameToIdx, ctx);
+    const pairs = out.map((e) => `${nodeArray[e.srcIdx].name}|${nodeArray[e.tgtIdx].name}`).sort();
+    expect(pairs).toEqual(['alpha|bravo', 'bravo|charlie']);
+  });
+
+  it('drops edges whose tier is null (strength below star1)', () => {
+    const out = selectIntraClusterEdges(graphEdges, nodeArray, 8, nameToIdx, ctx);
+    expect(out).toEqual([]);
+  });
+
+  it('resolves the native tier on each surviving edge', () => {
+    const out = selectIntraClusterEdges(graphEdges, nodeArray, 7, nameToIdx, ctx);
+    const byPair = new Map(out.map((e) => [
+      `${nodeArray[e.srcIdx].name}|${nodeArray[e.tgtIdx].name}`,
+      e.tier,
+    ]));
+    expect(byPair.get('alpha|bravo')).toBe(3);   // strength 0.9 ≥ star3 (0.85)
+    expect(byPair.get('bravo|charlie')).toBe(2); // strength 0.6 ≥ star2 (0.55)
+  });
+
+  it('returns [] when inputs are missing', () => {
+    expect(selectIntraClusterEdges(null, nodeArray, 7, nameToIdx, ctx)).toEqual([]);
+    expect(selectIntraClusterEdges([], nodeArray, 7, nameToIdx, ctx)).toEqual([]);
+    expect(selectIntraClusterEdges(graphEdges, null, 7, nameToIdx, ctx)).toEqual([]);
+    expect(selectIntraClusterEdges(graphEdges, nodeArray, 7, null, ctx)).toEqual([]);
+    expect(selectIntraClusterEdges(graphEdges, nodeArray, 7, nameToIdx, null)).toEqual([]);
+  });
+
+  it('skips edges whose endpoints are not in nodeArray', () => {
+    const edges = [
+      { source: 'alpha', target: 'bravo', strength: 0.9 },
+      { source: 'ghost', target: 'bravo', strength: 0.9 },
+      { source: 'alpha', target: 'ghost', strength: 0.9 },
+    ];
+    const out = selectIntraClusterEdges(edges, nodeArray, 7, nameToIdx, ctx);
+    expect(out).toHaveLength(1);
+    expect(nodeArray[out[0].srcIdx].name).toBe('alpha');
+    expect(nodeArray[out[0].tgtIdx].name).toBe('bravo');
   });
 });

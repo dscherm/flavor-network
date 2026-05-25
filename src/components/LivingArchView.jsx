@@ -1915,9 +1915,21 @@ export default function LivingArchView({
         _setMatrixAtGlobal: (i, m) => mesh.setMatrixAt(i, m),
         _markMatricesDirty: () => { mesh.instanceMatrix.needsUpdate = true; },
       };
+      const intraEdgeCtx = (data.pairingStrength && data.top5
+        && data.bridgeCompoundIndex && data.affinityThresholds)
+        ? {
+            pairingStrength: data.pairingStrength,
+            top5: data.top5,
+            bridgeCompoundIndex: data.bridgeCompoundIndex,
+            affinityThresholds: data.affinityThresholds,
+          }
+        : null;
       clusterFocusModeRef.current = new ClusterFocusMode({
         nodeMesh: meshAdapter,
         nodeArray,
+        scene,
+        graphEdges: graph?.edges || null,
+        affinityCtx: intraEdgeCtx,
       });
     }
 
@@ -2705,12 +2717,12 @@ export default function LivingArchView({
       if (st.flavorClusterLabelGroup) {
         st.flavorClusterLabelGroup.visible = false;
       }
-      // Hide all edges + particles while cluster-focus is engaged
-      // (canon §5.6.1: no edges from non-focused clusters render).
-      // Phase 1 hides ALL edges, including intra-focused-cluster edges
-      // — the intra-cluster edge exception in §4.2 is a deferred
-      // enhancement. The visibility-effect on [showEdges, …] will
-      // re-fire on exit and restore.
+      // Hide the main edge + particle layers (canon §5.6.1: no edges
+      // from non-focused clusters render). Intra-focused-cluster edges
+      // (§4.2 exception) are rendered by ClusterFocusMode as a
+      // secondary LineSegments mesh — see _buildFocusedEdges. The
+      // visibility-effect on [showEdges, …] will re-fire on exit and
+      // restore the main layers.
       if (st.edgeMesh) st.edgeMesh.visible = false;
       if (st.particleMesh) st.particleMesh.visible = false;
     } else if (!shouldEngage && ctrl.isEngaged()) {
