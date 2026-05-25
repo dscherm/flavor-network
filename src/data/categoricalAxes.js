@@ -325,6 +325,12 @@ export function bucketOf(filterKey, node, ctx) {
     if (!(scope instanceof Set)) return '_scope-stub';
     return scope.has(String(node.name).toLowerCase()) ? 'in-sauce' : null;
   }
+  if (filterKey === 'flavor-category') {
+    // N1-D5 (2026-05-25): restricts visibility to the 89 chef-verified
+    // flavor-graph ingredients (node.flavorGraph !== null after
+    // useProData decoration). Axis-null, visibility-only — no morph.
+    return node?.flavorGraph ? 'in-flavor-graph' : null;
+  }
   // Singular filter key → plural axis key (mirrors FILTER_TO_AXIS).
   const axisKey = filterKey === 'aroma' ? 'aromas' : filterKey;
   const axis = CATEGORICAL_AXES[axisKey];

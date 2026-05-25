@@ -120,12 +120,17 @@ in order of priority (top wins):
    the active filter's bucket palette (aroma family color, taste color,
    etc.). See §7. *Applied via `mesh.setColorAt` in the filter useEffect,
    not in `getColorForNode`.*
-2. **v3 cluster color** — when `node.clusterColor` is set (default in v3
-   mode for all 4,814 covered nodes), `getColorForNode` returns it.
-   Palette = `V3_CLUSTER_HEX` (20 entries, wraps modulo for k > 20).
-3. **Primary Tier-1 aroma** — `BRISCIONE_AROMA[node.primaryTier1Aroma]`
-   when set. *In v3 mode this is null by default (cluster color wins);
-   left for v2-compatibility paths.*
+2. **Primary Tier-1 aroma** — `BRISCIONE_AROMA[node.primaryTier1Aroma]`
+   when set (N1-D5, 2026-05-25). Chef T1[0] for the 89 verified
+   ingredients; `gnnPrimaryTier1()` for the long-tail (highest aroma
+   head above its calibrated `ingredient_profile_thresholds`
+   threshold, with `AROMA_AXES` order tie-break). Palette =
+   `BRISCIONE_AROMA` (5 entries: fruity, floral, green, woody, fatty).
+3. **v3 cluster color** — defensive fallback when no Tier-1 is
+   derivable (long-tail without GNN coverage, or compound foods with
+   no Tier-1 entry). `getColorForNode` returns `node.clusterColor`
+   from the `V3_CLUSTER_HEX` palette (20 entries, wraps modulo for
+   k > 20).
 4. **Taste blending** — multi-taste blend from `node.taste` (sweet=pink,
    sour=cyan, bitter=purple, salty=blue, spicy=red, pungent=orange,
    astringent=teal, umami=gold). Fallback only.
@@ -1071,10 +1076,21 @@ are listed inline with [§13] markers in the body above.
     for sparse buckets `< 5` members). The morph TARGET traces back to
     v3 chemistry space rather than a fixed synthetic ring at radius 90.
     Member placement around each centroid remains phyllotaxis.
-    Phase-2 (full purge of 8 legacy mode keys + per-axis position
-    files + cluster-tour adapter rewire) deferred to a separate
-    session. [§7.3. Source:
-    `.omc/specs/deep-interview-v3-derived-morph-targets.md`]
+    Phase-2 cluster-tour adapter rewire shipped 2026-05-25 (canon §8.1
+    — adapter reads `cluster_labels_v3.json` centroid_3d directly,
+    mode-agnostic). Remaining Phase-2 work (8 legacy mode keys +
+    `posForMode` purge + per-axis position files) deferred. [§7.3.
+    Source: `.omc/specs/deep-interview-v3-derived-morph-targets.md`]
+12. **Primary Tier-1 aroma drives node color (N1-D5, 2026-05-25)**:
+    §3.1 precedence inverted — `BRISCIONE_AROMA[primaryTier1]` now
+    wins over `clusterColor`. Chef T1[0] for 89 verified ingredients;
+    `gnnPrimaryTier1()` with calibrated `ingredient_profile_thresholds`
+    for the long-tail. Cluster color falls through as defensive
+    fallback when no T1 is derivable. New `flavor-category` filter
+    pill restricts visibility to the 89 chef-verified ingredients
+    via `matchesFlavorCategory()` (axis-null scope filter, parallel
+    to `cocktail-scope` / `sauce-scope`).
+    [§3.1, src/data/primaryTier1.js, src/data/flavorCategoryFilter.js]
 
 ### 13.3 Affinity examples cleanup
 

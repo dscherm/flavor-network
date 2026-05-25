@@ -662,7 +662,12 @@ export default function useProData({ enabled = true } = {}) {
         // flavorGraph decoration still runs because IngredientPanel
         // chip-cloud rendering depends on it.
         const tier1Thresholds = buildTier1Thresholds(ingredientThresholds);
-        const v3Mode = flavorV3Enabled();
+        // N1-D5 (2026-05-25): primaryTier1Aroma is always computed — chef
+        // T1[0] for the 89 verified ingredients, GNN-derived T1 with
+        // calibrated thresholds for the long-tail. Drives the
+        // BRISCIONE_AROMA palette in NodeMesh.getColorForNode; cluster
+        // color falls through as a defensive fallback when no T1 is
+        // derivable (canon §3.1 precedence).
         for (const [name, node] of graph.nodes) {
           const entry = flavorGraph?.byName?.[name] ?? null;
           if (entry) {
@@ -675,10 +680,10 @@ export default function useProData({ enabled = true } = {}) {
               cluster: typeof entry.cluster === 'number' ? entry.cluster : null,
               source: 'chef',
             };
-            if (!v3Mode) node.primaryTier1Aroma = entry.tier1?.[0] ?? null;
+            node.primaryTier1Aroma = entry.tier1?.[0] ?? null;
           } else {
             node.flavorGraph = null;
-            if (!v3Mode) node.primaryTier1Aroma = gnnPrimaryTier1(node.gnnProbs, tier1Thresholds);
+            node.primaryTier1Aroma = gnnPrimaryTier1(node.gnnProbs, tier1Thresholds);
           }
         }
 

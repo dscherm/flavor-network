@@ -86,21 +86,25 @@ function _applyUncertainty(baseColor, node) {
 
 function getColorForNode(node) {
   let base;
-  // Canonical-spec §3.1 color precedence (lower-priority paths below):
+  // Canonical-spec §3.1 color precedence (post N1-D5 swap, 2026-05-25):
   //   1. Filter-bucket → handled at LivingArchView's palette layer
   //      before this function is hit (overrides per-node logic entirely)
-  //   2. node.clusterColor (v3 cluster palette) — this branch
-  //   3. node.primaryTier1Aroma (BRISCIONE_AROMA)
+  //   2. node.primaryTier1Aroma (BRISCIONE_AROMA) — chef T1[0] OR
+  //      GNN-derived above calibrated threshold. Wins over cluster so
+  //      the 5-aroma palette reads as the primary color semantic.
+  //   3. node.clusterColor (v3 cluster palette) — defensive fallback
+  //      when no T1 is derivable (long-tail without GNN coverage or
+  //      compound foods with no Tier1).
   //   4. taste blending
   //   5. neutral gray fallback (set at useProData pre-pass for nodes
   //      outside the v3 universe)
-  if (node?.clusterColor) {
-    base = new Color(node.clusterColor);
-    return _applyUncertainty(base, node);
-  }
   const tier1 = node?.primaryTier1Aroma;
   if (tier1 && BRISCIONE_AROMA[tier1]) {
     base = new Color(BRISCIONE_AROMA[tier1]);
+    return _applyUncertainty(base, node);
+  }
+  if (node?.clusterColor) {
+    base = new Color(node.clusterColor);
     return _applyUncertainty(base, node);
   }
   const taste = (node.taste || '').toLowerCase().trim();

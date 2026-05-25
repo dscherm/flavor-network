@@ -7,17 +7,20 @@ function hex(color) {
 }
 
 describe('getColorForNode — canonical-spec §3.1 color precedence', () => {
-  it('uses clusterColor when set (wins over tier1 + taste, per spec §3.1)', () => {
+  it('uses primaryTier1Aroma when set (wins over clusterColor + taste, post-N1-D5 spec §3.1)', () => {
+    // N1-D5 (2026-05-25) inverted the precedence: Tier-1 aroma palette
+    // now drives the primary semantic, with cluster as defensive
+    // fallback when no T1 is derivable.
     const node = {
       primaryTier1Aroma: 'green',
       clusterColor: '#ff0000',
       taste: 'sweet',
       gnnEntropy: 0,
     };
-    expect(hex(getColorForNode(node))).toBe('#ff0000');
+    expect(hex(getColorForNode(node))).toBe(BRISCIONE_AROMA.green);
   });
 
-  it('falls through to tier1 when clusterColor is null', () => {
+  it('falls through to all 5 BRISCIONE_AROMA hexes for each Tier-1', () => {
     for (const aroma of ['fruity', 'floral', 'green', 'woody', 'fatty']) {
       const c = getColorForNode({
         primaryTier1Aroma: aroma,
@@ -28,7 +31,7 @@ describe('getColorForNode — canonical-spec §3.1 color precedence', () => {
     }
   });
 
-  it('uses clusterColor when primaryTier1Aroma is null', () => {
+  it('falls through to clusterColor when primaryTier1Aroma is null', () => {
     const node = { primaryTier1Aroma: null, clusterColor: '#abcdef', gnnEntropy: 0 };
     expect(hex(getColorForNode(node))).toBe('#abcdef');
   });
