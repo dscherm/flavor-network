@@ -17,6 +17,10 @@
         "targeted_flags": [],
         "full_flags": [],
         "ignore": []
+      },
+      "python": {
+        "_comment": "Disabled. Auto-detection sees .py files in flavor-gnn/ + chemDataset/ (training scripts only, no pytest tests) and runs pytest, which fails with 'no tests ran' and breaks smart_gate. Empty command short-circuits the runner loop in tools/smart_gate.py run_tests().",
+        "command": ""
       }
     },
     "type_checker": null,
