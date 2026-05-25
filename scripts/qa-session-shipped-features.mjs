@@ -139,33 +139,28 @@ if (pills.length === 0) {
     }
   }
 
-  // ─── A2b. Re-engage + try ESC after focusing the canvas ─────────
-  log('re-engaging cluster-focus to test ESC path');
+  // ─── A2b. Re-engage + try ESC with focus STILL on the pill ──────
+  // This is the realistic user gesture — they tapped a pill and now
+  // press ESC. Pre-2026-05-25 the document-level ESC listener did not
+  // exist; ESC only worked when the canvas was focused. After the
+  // doc-level listener landed (App.jsx), ESC exits regardless.
+  log('re-engaging cluster-focus to test ESC path (focus on pill, not canvas)');
   if (stillFocusedPill) {
     await stillFocusedPill.click();
     await page.waitForTimeout(1500);
   }
-  // Focus the canvas wrapper before ESC — the canvas onKeyDown handler
-  // only fires when the wrapper is focused. Clicking a joystick pill
-  // leaves focus on the pill button, so a raw ESC press goes to the
-  // button (no handler).
-  log('focusing canvas wrapper, then pressing ESC');
-  await page.evaluate(() => {
-    const canvasWrapper = document.querySelector('[role="application"][aria-label*="Flavor network"]');
-    if (canvasWrapper) canvasWrapper.focus();
-  });
+  log('pressing ESC with focus still on the joystick pill button');
   await page.keyboard.press('Escape');
   await page.waitForTimeout(1500);
-  await page.screenshot({ path: `${SHOT_DIR}/qa-03b-after-canvas-esc.png` });
-  const afterCanvasEsc = await page.evaluate(() => ({
+  await page.screenshot({ path: `${SHOT_DIR}/qa-03b-after-pill-esc.png` });
+  const afterPillEsc = await page.evaluate(() => ({
     pillCount: document.querySelectorAll('[data-cluster-id]').length,
   }));
-  log(`after canvas-focused ESC: visible-pills=${afterCanvasEsc.pillCount}`);
-  if (afterCanvasEsc.pillCount === pills.length) {
-    log(`  ✓ ESC exits cluster-focus when canvas has focus`);
+  log(`after pill-focused ESC: visible-pills=${afterPillEsc.pillCount}`);
+  if (afterPillEsc.pillCount === pills.length) {
+    log(`  ✓ ESC exits cluster-focus regardless of which element has focus (doc-level listener works)`);
   } else {
-    log(`  ! ESC did not restore pills even with canvas focus`);
-    log(`     → likely UX gap: joystick-pill focus state isolates user from canvas ESC handler`);
+    log(`  ✗ ESC did NOT restore pills with focus on pill — doc-level listener regression`);
   }
 }
 

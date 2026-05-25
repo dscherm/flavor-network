@@ -905,6 +905,24 @@ export default function App() {
     setFocusedCluster(null);
   }, []);
 
+  // Canon §5.6.4 — ESC must exit cluster-focus regardless of which
+  // element has focus. The canvas wrapper's onKeyDown only fires when
+  // the wrapper itself is focused; after tapping a joystick pill,
+  // focus stays on the pill button and ESC never reaches the canvas.
+  // A document-level listener, gated on focusedCluster being set,
+  // closes that gap without firing ESC handlers in unrelated contexts.
+  useEffect(() => {
+    if (focusedCluster === null) return undefined;
+    const onDocKey = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClearSelection();
+      }
+    };
+    document.addEventListener('keydown', onDocKey);
+    return () => document.removeEventListener('keydown', onDocKey);
+  }, [focusedCluster, handleClearSelection]);
+
   const handleLabSelectionChange = useCallback((nodes) => {
     setSelectedNodes(nodes);
   }, []);
