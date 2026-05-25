@@ -12,6 +12,8 @@ import { TASTE_ORDER, TASTE_HEX, CATEGORY_RADII, TRANSITION_DURATION, POPOUT_DUR
 import { handleSceneClick, handleSceneMove } from './livingArchInteraction.js';
 import { AffinityMode } from '../three/AffinityMode.js';
 import { CameraAnimator } from '../three/CameraAnimator.js';
+// Cluster-focus mode: isolate + spread (canonical spec §5.6).
+import ClusterFocusMode from '../three/ClusterFocusMode.js';
 import { computeBloomStrength } from '../three/bloomQuality.js';
 import NetworkA11yShim from './NetworkA11yShim.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
@@ -119,6 +121,8 @@ export default function LivingArchView({
   const stateRef = useRef(null); // holds all Three.js state
   const affinityModeRef = useRef(null); // α-mode controller (R13-5)
   const cameraAnimatorRef = useRef(null); // R14 cluster-tour + focal-orbit
+  const clusterFocusModeRef = useRef(null); // §5.6 isolate + spread on cluster pill tap
+  const clusterFocusCameraSnapshotRef = useRef(null); // pre-engage camera pose for reversal
   const [pcaAxes, setPcaAxes] = useState(null);
   // Use lifted state if provided, otherwise local state
   const [localMode, setLocalMode] = useState('ml');
@@ -266,6 +270,14 @@ export default function LivingArchView({
       // Confections", …) instead of raw numeric IDs. Pulled from
       // cluster_labels_v3.json's clusters[] array.
       clusterLabels: data.clusterLabels?.clusters || null,
+      // Interpretation B Phase 1 (2026-05-24) — v3 UMAP positions
+      // drive bucket centroid placement in computeCategoricalWheelPositions.
+      // Each filter-axis morph target is now derived from where the
+      // bucket's members physically sit in v3 chemistry space, not from
+      // a hand-tuned synthetic ring. Sparse buckets (< MIN_BUCKET_MEMBERS
+      // members) fall through to a synthetic pole at the v3 spatial scale.
+      // See morphTargets.resolveBucketCentroid + spec §7.3.
+      v3Positions: data.flavorPositions?.positions || null,
     };
     const tasteOut   = computeCategoricalWheelPositions('taste',   graph.nodes, categoricalCtx);
     const aromasOut  = computeCategoricalWheelPositions('aromas',  graph.nodes, categoricalCtx);
@@ -1739,6 +1751,10 @@ export default function LivingArchView({
       // R13-5: AffinityMode per-frame tick (currently a no-op
       // placeholder; reserved for future fade animations).
       affinityModeRef.current?.tickAnimation(deltaSec);
+      // §5.6 ClusterFocusMode per-frame tick — drives isolate (scale→0
+      // for non-focused) + spread (radial fan-out for focused) over
+      // 600ms eased. No-op when not engaged and progress already 0.
+      clusterFocusModeRef.current?.tickAnimation(deltaSec);
       // R14 CameraAnimator — drives cluster tour glide/dwell + focal
       // orbit (when engaged). Skips entirely while idle.
       cameraAnimatorRef.current?.tickAnimation(deltaSec);
@@ -1881,6 +1897,88 @@ export default function LivingArchView({
       get mode() { return modeRef.current; },
     };
 
+    // §5.6 ClusterFocusMode — isolate + spread on joystick cluster
+    // pill tap. Construct AFTER stateRef so it can access nodeArray.
+    // Mutates per-instance matrices on the InstancedMesh; the
+    // animate() loop ticks it each frame.
+    //
+    // The Network view's `mesh` is a raw THREE.InstancedMesh (not a
+    // NodeMesh wrapper — that abstraction is used in Cocktail/Sauce
+    // labs for multi-shape rendering). Wrap the InstancedMesh in a
+    // tiny adapter that exposes the trio of methods ClusterFocusMode
+    // expects (_getMatrixAtGlobal / _setMatrixAtGlobal /
+    // _markMatricesDirty). Single-shape sphere instancing → local
+    // index === global index, so the routing is a direct passthrough.
+    if (mesh && mesh.isInstancedMesh && nodeArray && nodeArray.length > 0) {
+      const meshAdapter = {
+        _getMatrixAtGlobal: (i, m) => mesh.getMatrixAt(i, m),
+        _setMatrixAtGlobal: (i, m) => mesh.setMatrixAt(i, m),
+        _markMatricesDirty: () => { mesh.instanceMatrix.needsUpdate = true; },
+      };
+      clusterFocusModeRef.current = new ClusterFocusMode({
+        nodeMesh: meshAdapter,
+        nodeArray,
+      });
+    }
+
+    // Camera fit for cluster-focus engage: fly camera to centroid and
+    // land at a distance computed so the post-spread bounding sphere
+    // fills ~60% of viewport height. Reused on exit to reverse to the
+    // snapshotted pose. Reuses the local `camera` + `controls` closure
+    // refs so we don't pierce CameraAnimator's state machine.
+    const flyToClusterFit = (centroidPos, spreadRadius) => {
+      if (!centroidPos || !Array.isArray(centroidPos)) return;
+      const centroid = new THREE.Vector3(centroidPos[0], centroidPos[1], centroidPos[2]);
+      // fov is in degrees; target viewport_fill = 0.60 (60% of half-height).
+      const fovRad = (camera.fov || 60) * Math.PI / 180;
+      const fitDistance = Math.max(
+        20,
+        (spreadRadius || 10) / Math.tan((fovRad / 2) * 0.60),
+      );
+      // Outward = current camera→centroid direction (flipped). Preserves
+      // the user's current viewpoint angle so the cluster doesn't jump.
+      let outward = camera.position.clone().sub(centroid);
+      if (outward.length() < 0.01) outward = new THREE.Vector3(0, 0, 1);
+      outward.normalize();
+      const camEnd = centroid.clone().add(outward.multiplyScalar(fitDistance));
+      const startPos = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const t0 = performance.now();
+      const DURATION = 1200; // §8.4 cluster-fit fly duration
+      function tween() {
+        const dt = Math.min(1, (performance.now() - t0) / DURATION);
+        const e = dt < 0.5 ? 4 * dt ** 3 : 1 - Math.pow(-2 * dt + 2, 3) / 2;
+        camera.position.lerpVectors(startPos, camEnd, e);
+        controls.target.lerpVectors(startTarget, centroid, e);
+        controls.update();
+        if (dt < 1 && stateRef.current) requestAnimationFrame(tween);
+      }
+      tween();
+    };
+
+    // Camera revert: tween back to a snapshotted (position, target).
+    const flyToCameraSnapshot = (snapshot) => {
+      if (!snapshot) return;
+      const camEnd = new THREE.Vector3(snapshot.pos[0], snapshot.pos[1], snapshot.pos[2]);
+      const tgtEnd = new THREE.Vector3(snapshot.target[0], snapshot.target[1], snapshot.target[2]);
+      const startPos = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const t0 = performance.now();
+      const DURATION = 1200;
+      function tween() {
+        const dt = Math.min(1, (performance.now() - t0) / DURATION);
+        const e = dt < 0.5 ? 4 * dt ** 3 : 1 - Math.pow(-2 * dt + 2, 3) / 2;
+        camera.position.lerpVectors(startPos, camEnd, e);
+        controls.target.lerpVectors(startTarget, tgtEnd, e);
+        controls.update();
+        if (dt < 1 && stateRef.current) requestAnimationFrame(tween);
+      }
+      tween();
+    };
+
+    stateRef.current.flyToClusterFit = flyToClusterFit;
+    stateRef.current.flyToCameraSnapshot = flyToCameraSnapshot;
+
     // R14 CameraAnimator — cluster tour + focal orbit. Gated behind
     // a URL param (?cameraAnim=v1 / =off) and the
     // CAMERA_ANIMATOR_DEFAULT_ON constant.
@@ -2019,6 +2117,11 @@ export default function LivingArchView({
         cameraAnimatorRef.current.dispose();
         cameraAnimatorRef.current = null;
       }
+      if (clusterFocusModeRef.current) {
+        clusterFocusModeRef.current.dispose();
+        clusterFocusModeRef.current = null;
+      }
+      clusterFocusCameraSnapshotRef.current = null;
       window.removeEventListener('resize', onResize);
       renderer.domElement.removeEventListener('click', onClickGuard);
       renderer.domElement.removeEventListener('touchstart', onTouchStart);
@@ -2459,10 +2562,18 @@ export default function LivingArchView({
   // to 12% intensity and boost focused nodes to 150% (bloom post-process
   // amplifies this into a visible glow). Also dim non-focused cluster
   // labels to 25% opacity so the visual hierarchy matches.
+  //
+  // §5.6 cluster-focus-mode guard: when ClusterFocusMode is engaged
+  // (joystick pill in 3D ml-mode) it owns per-instance matrices for
+  // the true hide+spread path. The dim-color path below would fight
+  // those writes by re-stamping colors on hidden nodes. Skip when
+  // engaged — color updates are unnecessary because non-focused nodes
+  // collapse to scale-0 and are invisible regardless of color.
   useEffect(() => {
     const st = stateRef.current;
     if (!st || !st.mesh || !st.clusterColors || !st.defaultColors) return;
     if (affinityModeRef.current?.engaged) return; // R13-5 engage-guard
+    if (clusterFocusModeRef.current?.isEngaged()) return; // §5.6 engage-guard
     const { mesh, clusterColors, defaultColors, nodeArray, clusterLabelGroup,
             categoricalOutByMode, categoricalColorByMode } = st;
     const inClusterMode = mode === 'ml' || mode === 'ml2d';
@@ -2531,6 +2642,100 @@ export default function LivingArchView({
         const isFocused = focusedClusterId == null || cid === focusedClusterId;
         line.material.opacity = isFocused ? 0.55 : 0.1;
       });
+    }
+  }, [focusedClusterId, mode]);
+
+  // ---- §5.6 Cluster-focus: isolate (hide) + spread ----
+  // Engages ClusterFocusMode when a real cluster pill is tapped in
+  // 3D ml-mode. Drives:
+  //   1. Per-instance matrix isolate+spread on the NodeMesh
+  //   2. Camera fly-to-centroid + re-fit to spread bounding sphere
+  //   3. Hide non-focused cluster label sprites + connectors (opacity 0,
+  //      not the 0.22 dim the legacy path writes)
+  // Exits cleanly when focusedClusterId flips to null or when the mode
+  // leaves 3D. Pseudo-cluster bucket focus (focusedClusterId <= -100)
+  // for the categorical-wheel modes is handled by the legacy dim-path
+  // useEffect above (not this one — that case never engages spread).
+  useEffect(() => {
+    const ctrl = clusterFocusModeRef.current;
+    const st = stateRef.current;
+    if (!ctrl || !st) return;
+    // Only real cluster IDs in 3D modes engage isolate+spread.
+    // 2D / 2D-internal modes, categorical-wheel pseudo-cluster ids
+    // (-100-i), and null focus → ensure we're exited. We accept any
+    // recognized 3D mode key:
+    //   'flavor3D' / 'mlflavor' — current shipping defaults per spec §2.1
+    //   'ml' / '3D'             — legacy + user-facing aliases
+    const is3DMode = mode === 'flavor3D' || mode === 'mlflavor'
+                  || mode === 'ml' || mode === '3D';
+    const isRealCluster = typeof focusedClusterId === 'number' && focusedClusterId >= 0;
+    const shouldEngage = is3DMode && isRealCluster;
+    if (shouldEngage && !ctrl.isEngaged()) {
+      // Snapshot camera pose for clean reversal on exit.
+      const cam = st.camera;
+      const tgt = st.controls.target;
+      clusterFocusCameraSnapshotRef.current = {
+        pos: [cam.position.x, cam.position.y, cam.position.z],
+        target: [tgt.x, tgt.y, tgt.z],
+      };
+      const fit = ctrl.engage(focusedClusterId);
+      if (fit && st.flyToClusterFit) {
+        st.flyToClusterFit(fit.centroid, fit.spreadRadius);
+      }
+      // Hide other clusters' label sprites + connectors fully (§5.6.1).
+      // The legacy dim-path useEffect early-returns when engaged, so
+      // we set the opacities here. Restored on exit below.
+      if (st.clusterLabelGroup) {
+        st.clusterLabelGroup.children.forEach((sprite) => {
+          const cid = sprite.userData?.clusterId;
+          sprite.material.opacity = (cid === focusedClusterId) ? 0.95 : 0;
+        });
+      }
+      if (st.clusterConnectorGroup) {
+        st.clusterConnectorGroup.children.forEach((line) => {
+          const cid = line.userData?.clusterId;
+          line.material.opacity = (cid === focusedClusterId) ? 0.55 : 0;
+        });
+      }
+      // Hide flavor cluster label sprites entirely while focused.
+      // These render the chef-curated cluster names (Citrus-Fruit-Juicy,
+      // Other-Pungent, …) as large floating sprites at each centroid.
+      // Leaving them visible during cluster-focus produces a cluttered
+      // "Where's Waldo of labels" effect surfaced by the 2026-05-24 QA.
+      if (st.flavorClusterLabelGroup) {
+        st.flavorClusterLabelGroup.visible = false;
+      }
+    } else if (!shouldEngage && ctrl.isEngaged()) {
+      ctrl.exit();
+      // Only fly back to the snapshotted camera pose when we're STILL
+      // in the same mode (focus toggled off via pill / ESC / α-mode).
+      // When mode changed (3D → 2D), the mode-transition tween owns
+      // the camera — racing it would produce a visible camera fight.
+      if (is3DMode && st.flyToCameraSnapshot && clusterFocusCameraSnapshotRef.current) {
+        st.flyToCameraSnapshot(clusterFocusCameraSnapshotRef.current);
+      }
+      clusterFocusCameraSnapshotRef.current = null;
+      // Restore the flavor cluster label group — the legacy
+      // flavorLabelsVisibleFor() helper will re-fire on the next
+      // mode/filter change, but setting visible=true here keeps the
+      // labels rendered immediately on exit instead of waiting.
+      if (st.flavorClusterLabelGroup) {
+        st.flavorClusterLabelGroup.visible = true;
+      }
+      // Restore label sprite + connector opacities to canonical
+      // (the legacy dim-path useEffect re-runs on focusedClusterId
+      // change AFTER this exit and will re-write opacities anyway,
+      // but explicit restore here keeps the visual transition clean).
+      if (st.clusterLabelGroup) {
+        st.clusterLabelGroup.children.forEach((sprite) => {
+          sprite.material.opacity = 0.95;
+        });
+      }
+      if (st.clusterConnectorGroup) {
+        st.clusterConnectorGroup.children.forEach((line) => {
+          line.material.opacity = 0.55;
+        });
+      }
     }
   }, [focusedClusterId, mode]);
 
@@ -2840,6 +3045,18 @@ export default function LivingArchView({
           ctrl.exit();
         }
       } else if (affinityRequested) {
+        // §5.6 mutex: cluster-focus and α-mode are mutually exclusive.
+        // Exit cluster-focus FIRST so the camera/matrix reversal
+        // animation runs before α-mode reframes onto the focal.
+        const cf = clusterFocusModeRef.current;
+        const stCf = stateRef.current;
+        if (cf?.isEngaged()) {
+          cf.exit();
+          if (stCf?.flyToCameraSnapshot && clusterFocusCameraSnapshotRef.current) {
+            stCf.flyToCameraSnapshot(clusterFocusCameraSnapshotRef.current);
+          }
+          clusterFocusCameraSnapshotRef.current = null;
+        }
         ctrl.engage(focal);
       }
       // else: single-click selection, no engage. Panel only.

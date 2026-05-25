@@ -13,13 +13,18 @@ import { isNative } from '../utils/native.js';
 // v3 artifacts (flavor_positions_v3, flavor_positions_2d_v3, cluster_labels_v3)
 // in place of the v2 files.
 //
-// Defaults:
-//   - Web: OFF (soak gate — toggle via localStorage.setItem('FN_FLAVOR_V3','true'))
-//   - Native iOS (Capacitor WKWebView): ON (production ships v3 as default)
+// Defaults (as of 2026-05-24):
+//   - Web: ON (flipped from OFF after the chef-approved research pass)
+//   - Native iOS (Capacitor WKWebView): ON
 //
-// Override on either platform:
-//   - localStorage.setItem('FN_FLAVOR_V3', 'true' | 'false')
+// Opt out (v2 fallback) — primary escape hatch:
+//   - localStorage.setItem('FN_FLAVOR_V3', 'false')
+//
+// Force-on overrides (no-op vs default but kept for parity):
+//   - localStorage.setItem('FN_FLAVOR_V3', 'true')
 //   - Build-time: VITE_FN_FLAVOR_V3=true npm run build
+//
+// Canonical spec: docs/NETWORK-AND-AFFINITY-SPEC.md §10.1.
 function flavorV3Enabled() {
   try {
     if (typeof localStorage !== 'undefined') {
