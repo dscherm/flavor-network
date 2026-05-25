@@ -2705,6 +2705,14 @@ export default function LivingArchView({
       if (st.flavorClusterLabelGroup) {
         st.flavorClusterLabelGroup.visible = false;
       }
+      // Hide all edges + particles while cluster-focus is engaged
+      // (canon §5.6.1: no edges from non-focused clusters render).
+      // Phase 1 hides ALL edges, including intra-focused-cluster edges
+      // — the intra-cluster edge exception in §4.2 is a deferred
+      // enhancement. The visibility-effect on [showEdges, …] will
+      // re-fire on exit and restore.
+      if (st.edgeMesh) st.edgeMesh.visible = false;
+      if (st.particleMesh) st.particleMesh.visible = false;
     } else if (!shouldEngage && ctrl.isEngaged()) {
       ctrl.exit();
       // Only fly back to the snapshotted camera pose when we're STILL
@@ -2722,6 +2730,12 @@ export default function LivingArchView({
       if (st.flavorClusterLabelGroup) {
         st.flavorClusterLabelGroup.visible = true;
       }
+      // Restore edges + particles to whatever the prop layer wants.
+      // The visibility-effect at [showEdges, showParticles, …] won't
+      // re-fire on cluster-focus exit (none of its deps changed), so
+      // do the restore explicitly.
+      if (st.edgeMesh) st.edgeMesh.visible = showEdges;
+      if (st.particleMesh) st.particleMesh.visible = showParticles;
       // Restore label sprite + connector opacities to canonical
       // (the legacy dim-path useEffect re-runs on focusedClusterId
       // change AFTER this exit and will re-write opacities anyway,
