@@ -3,12 +3,21 @@
  * categorical Network modes (aromas2d / cuisine2d / season2d /
  * family2d).
  *
- * Layout:
- *   - N buckets evenly spaced on a circle of radius R around the
- *     origin (each bucket's "centroid" angle).
- *   - Members of each bucket arranged on a phyllotaxis (sunflower)
- *     spiral inside a sub-disc centered at that centroid. Phyllotaxis
- *     packs uneven counts neatly without overlap.
+ * Phase 1 of Interpretation B (2026-05-24): bucket centroids are now
+ * **v3-derived** — each bucket's centroid is the mean of its members'
+ * v3 UMAP positions (via `morphTargets.resolveBucketCentroid`).
+ * Sparse buckets (< MIN_BUCKET_MEMBERS contributors) fall through to
+ * a synthetic pole at the v3 spatial scale.
+ *
+ * Member placement around each centroid is unchanged — still
+ * phyllotaxis (sunflower) packing.
+ *
+ * `ctx.v3Positions` is required. Callers without v3 positions get
+ * empty output (no morph) — there is no longer a legacy synthetic-ring
+ * fallback at the wheel level.
+ *
+ * Spec: docs/NETWORK-AND-AFFINITY-SPEC.md §7.3 (Phase-1 amendment).
+ * Source: .omc/specs/deep-interview-v3-derived-morph-targets.md.
  *
  * Returns positions in the SAME [x, y, z] shape that the existing
  * `taste2d` mode uses (Y=0 flat plane), so the renderer can drop
@@ -16,11 +25,12 @@
  */
 
 import { bucketAllNodes } from './categoricalAxes.js';
+import {
+  resolveBucketCentroid,
+  v3BoundingRadius,
+  SYNTHETIC_POLE_RADIUS_RATIO,
+} from './morphTargets.js';
 
-// Tuned so the largest bucket (Family/"Other" ≈ 1,365 ingredients)
-// stays inside its slot at radius 90 from origin without bleeding
-// into adjacent buckets (~50-unit gap on the centroid ring).
-const RING_RADIUS = 90;
 const SUB_DISC_BASE = 4;
 const SUB_DISC_SCALE = 0.6;
 const GOLDEN = Math.PI * (3 - Math.sqrt(5)); // ≈ 137.5° (sunflower angle)
@@ -37,6 +47,11 @@ export function computeCategoricalWheelPositions(axisKey, nodes, ctx = {}) {
   const { bucketOf, byBucket, axis } = bucketAllNodes(axisKey, nodes, ctx);
   if (!axis) return { positions: {}, bucketCentroids: new Map(), bucketColor: new Map(), bucketOf: new Map() };
 
+  const v3Positions = ctx?.v3Positions;
+  if (!v3Positions) {
+    return { positions: {}, bucketCentroids: new Map(), bucketColor: new Map(), bucketOf };
+  }
+
   const labels = axis.labels;
   const colors = axis.colors;
   const N = labels.length;
@@ -44,16 +59,29 @@ export function computeCategoricalWheelPositions(axisKey, nodes, ctx = {}) {
   const bucketCentroids = new Map();
   const bucketColor = new Map();
 
+  const sparseBucketFallbackRadius =
+    v3BoundingRadius(v3Positions) * SYNTHETIC_POLE_RADIUS_RATIO;
+
   for (let k = 0; k < N; k++) {
     const label = labels[k];
     const color = colors[k];
-    const angle = (2 * Math.PI * k) / N - Math.PI / 2;   // start at top
-    const cx = Math.cos(angle) * RING_RADIUS;
-    const cz = Math.sin(angle) * RING_RADIUS;
+    const members = byBucket.get(label) || [];
+
+    // v3-derived bucket centroid (member-mean over v3 positions;
+    // synthetic-pole when the bucket has < MIN_BUCKET_MEMBERS).
+    const [cx, cy, cz] = resolveBucketCentroid({
+      bucketLabel: label,
+      bucketIdx: k,
+      bucketCount: N,
+      probKey: null,            // Phase 1: member-mean regime only
+      memberNames: members,
+      v3Positions,
+      fallbackRadius: sparseBucketFallbackRadius,
+    });
+    void cy;                     // Y dropped — wheel layout is Y=0 flat
     bucketCentroids.set(label, [cx, 0, cz]);
     bucketColor.set(label, color);
 
-    const members = byBucket.get(label) || [];
     if (members.length === 0) continue;
     const subDiscR = SUB_DISC_BASE + Math.sqrt(members.length) * SUB_DISC_SCALE;
     // Phyllotaxis radius scaling: r_i = subDiscR * sqrt((i + 0.5) / count)

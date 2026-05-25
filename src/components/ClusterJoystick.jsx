@@ -154,6 +154,18 @@ export default function ClusterJoystick({
             const isActive = active === item.id;
             const isFocused = item.cluster && focusedClusterId === item.cluster.id;
             const isHighlighted = item.cluster && highlightedClusterId === item.cluster.id;
+            // §5.6 isolate: when ANY cluster is focused, hide all
+            // non-focused cluster pills. Re-tapping the focused pill is
+            // still the canonical exit; ESC / background / a different
+            // cluster pill (via the search-bar or by exiting first) also
+            // work per §5.6.4. Categorical pseudo-cluster pills
+            // (focusedClusterId <= -100) are not affected.
+            const isClusterPill = !!item.cluster;
+            const someClusterFocused = focusedClusterId != null
+              && typeof focusedClusterId === 'number'
+              && focusedClusterId >= 0;
+            const hiddenByFocus = isClusterPill && someClusterFocused && !isFocused;
+            if (hiddenByFocus) return null;
             const c = item.color;
             const bgAlpha = isHighlighted ? '66' : isFocused ? '55' : isActive ? '40' : '14';
             const borderAlpha = isHighlighted ? 'ff' : isFocused ? 'ff' : isActive ? 'aa' : '44';

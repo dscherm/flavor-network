@@ -2,7 +2,7 @@
 
 > **Status**: Authoritative. Supersedes all prior specs, ralplans, and amendments listed in
 > [§13 Source spec lineage](#13-source-spec-lineage). When this file disagrees with any other file
-> in the repo, **this file wins**. Last revised 2026-05-21.
+> in the repo, **this file wins**. Last revised 2026-05-24.
 
 > **Scope**: The 3D Flavor Network, Affinity Mode (α-mode), filter pills, camera animator,
 > IngredientPanel, and adjacent UI in the Explore tab. Cocktail Lab / Sauce Lab / Recipes Lab
@@ -59,13 +59,22 @@ described in §3.3.
 ### 2.1 User-facing modes (locked at 2 entries)
 
 ```
-MODE_CYCLE = ['3D', '2D']
+MODE_CYCLE = ['flavor3D', '2D']
 ```
 
-- **3D** = `flavor3D` internal key — the v3 UMAP layout (4,814 ingredients)
-  with chemistry-grounded clusters.
-- **2D** = `flavor2D` internal key — the parallel `n_components=2` UMAP from
-  the same V3b embedding (4,814 ingredients).
+- **`flavor3D`** (position 0) — the v3 UMAP layout (4,814 ingredients) with
+  chemistry-grounded clusters. The UI displays this entry as "3D" via
+  `MODE_LABELS`.
+- **`2D`** (position 1) — the parallel `n_components=2` UMAP from the same
+  V3b embedding (4,814 ingredients). Resolves internally to `flavor2D`
+  via `effectiveLegacyMode('2D')`.
+
+The asymmetry (position 0 is the internal key, position 1 is the human
+label) is intentional. Per ADR-1 the legacy human label `'3D'` was hidden
+from the cycle while keeping `effectiveLegacyMode('3D') → 'ml'` intact
+so programmatic callers (URL params, bookmarks, tests) continue to work.
+To re-enable the legacy `'3D'` entry, add `'3D'` back to `MODE_CYCLE`
+(single-line revert in `src/data/networkModes.js`).
 
 **Legacy modes (`ml`, `ml2d`, `neural`, `taste2d`, `aromas2d`, `cuisine2d`,
 `season2d`, `family2d`) are not reachable via the user-facing picker.**
@@ -80,11 +89,12 @@ the current `flavor3D` / `flavor2D` layout to a categorical axis layout
 indexed by the filter (taste, aroma, cuisine, season, family). The
 morph is computed at `posForMode[axis]` and interpolated by the filter
 joystick. The morph is **internal animation only** — the visible mode
-picker stays at `[3D, 2D]`.
+picker stays at the two cycle entries.
 
 ### 2.3 Acceptance
 
 - [ ] `MODE_CYCLE.length === 2`
+- [ ] `MODE_CYCLE[0] === 'flavor3D'` and `MODE_CYCLE[1] === '2D'`
 - [ ] User can switch 3D ↔ 2D with a single tap
 - [ ] Switching modes does NOT clear an active filter
 - [ ] Switching modes does NOT exit α-mode
@@ -95,14 +105,24 @@ picker stays at `[3D, 2D]`.
 
 ### 3.1 Color precedence
 
-The renderer's `getColorForNode(node)` resolves color in this order:
+A node's rendered color is determined by a multi-layer pipeline that
+spans **three places in the codebase**, not a single function. Reading
+in order of priority (top wins):
 
-1. **Filter-bucket color** — if a non-scope filter pill is active, color
-   shows the node's bucket for that filter (e.g., aroma family color).
-   See §7. *This is the highest-priority signal.*
-2. **v3 cluster color** — if `node.clusterColor` is set (default in v3
-   mode for all 4,814 covered nodes), use it. Palette = `V3_CLUSTER_HEX`
-   (10 entries, wraps modulo for k > 10 clusters).
+0. **Cluster-focus visibility (§5.6)** — when cluster-focus is engaged
+   and `node.clusterId !== focusedClusterId`, the node is HIDDEN via a
+   scale-0 matrix write in `ClusterFocusMode.tickAnimation`. Cluster-focus
+   owns exclusive write authority over visibility for non-focused nodes
+   while engaged. *This short-circuits everything below — applied in
+   `ClusterFocusMode.js`, not in `getColorForNode`.*
+1. **Filter-bucket color** — if a non-scope filter pill is active, the
+   filter effect in `LivingArchView.jsx` writes per-instance color from
+   the active filter's bucket palette (aroma family color, taste color,
+   etc.). See §7. *Applied via `mesh.setColorAt` in the filter useEffect,
+   not in `getColorForNode`.*
+2. **v3 cluster color** — when `node.clusterColor` is set (default in v3
+   mode for all 4,814 covered nodes), `getColorForNode` returns it.
+   Palette = `V3_CLUSTER_HEX` (20 entries, wraps modulo for k > 20).
 3. **Primary Tier-1 aroma** — `BRISCIONE_AROMA[node.primaryTier1Aroma]`
    when set. *In v3 mode this is null by default (cluster color wins);
    left for v2-compatibility paths.*
@@ -112,7 +132,12 @@ The renderer's `getColorForNode(node)` resolves color in this order:
 5. **Neutral gray `#5a5a6b`** — applied as a pre-pass to every node in
    v3 mode so any node outside the v3 universe doesn't bleed taste
    colors. The v3 ingredients pass overwrites this with their cluster
-   color.
+   color. *Applied in the v3 initializer in `useProData.js`, not in
+   `getColorForNode`.*
+
+`getColorForNode(node)` itself only implements priorities **2–4**
+(cluster / Tier-1 / taste). Priorities 0, 1, and 5 are written by
+their respective owners before or after `getColorForNode` runs.
 
 **Color is mutually-exclusive per node at any given moment.** When a
 filter pill is active, the cluster palette is suppressed; when no
@@ -165,7 +190,7 @@ double-click).
 | Single-click on a different node (while panel open, no α-mode) | Re-selects; panel updates. |
 | Click on background | Deselects, closes panel, exits α-mode. |
 | Double-click on background | Also deselects + recenters camera. |
-| ESC | Exits α-mode while keeping the panel open. |
+| ESC | Full clear: closes IngredientPanel, deselects, exits α-mode, exits cluster-focus. (Routes through `handleClearSelection` in `App.jsx`, which clears `selectedNodes` + `activePanel` + `focusedCluster` in one shot.) |
 
 Rationale: the prior single-click→α-mode gesture meant users couldn't
 inspect an ingredient's chemistry without committing to the full
@@ -193,15 +218,27 @@ By default the 3D scene renders edges only for the currently-selected
 node (α-mode renders rings — see §6). When no node is selected, **no
 edges render** (otherwise the corpus is illegible: 100k+ edges).
 
+**Cluster-focus exception (§5.6):** when cluster-focus is engaged, edges
+render only where BOTH endpoints share `focusedClusterId` (intra-cluster
+edges only). Cross-cluster edges stay hidden. Edge colors follow §4.3
+tier coloring rules unchanged.
+
 ### 4.3 Edge color (α-mode only)
 
-- ★★★ (top-5 by strength) — **gold** `#facc15`
-- ★★ (next 10) — **silver** `#cbd5e1`
-- ★ (next 15) — **bronze** `#b45309`
+From `TIER_COLOR` in `src/three/AffinityMode.js:126-131`:
+
+- ★★★ (Chemistry) — **gold** `#facc15` (`0xfacc15`)
+- ★★  (Strong)    — **silver** `#a3a3a3` (`0xa3a3a3`)
+- ★   (Good)      — **bronze** `#a16207` (`0xa16207`)
+- ♢   (Surprising) — **fuchsia** `#e879f9` (`0xe879f9`)
+
+Edge opacity from `TIER_OPACITY`:
+- ★★★ 0.9, ★★ 0.7, ★ 0.5, ♢ 0.55.
 
 Edge color reflects the **native tier** of the pairing (its scoring
-under strict/lenient rules per §6.4), NOT the ring it sits in. A pair
-ranked top-5 by strength but only matching ★★ rules still gets silver.
+under strict/lenient rules per §6.7), NOT the ring/floor it sits in.
+A pair that ranks high by raw strength but only matches ★★ rules
+still gets silver.
 
 ### 4.4 Particle flow
 
@@ -225,29 +262,38 @@ speed scaled by strength. Particle density is throttled on mobile (see
 
 ```json
 {
-  "k": 13,
+  "k": 14,
   "clusters": [
     { "id": 0, "label": "Vegetables & Greens", "chemistry_label": "cluster-0",
       "size": 95, "dense_core_size": 74, "centroid_3d": [x, y, z] },
     ...
   ],
   "ingredients": { "<name>": <cluster_id>, ... },
-  "_meta": { "cluster": {...}, "k": 13, ... }
+  "_meta": { "cluster": {...}, "k": 14, ... }
 }
 ```
+
+Note: after the 2026-05-24 bisection + merge passes, cluster ids in use
+are non-contiguous (`[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 17]` —
+ids 12/13/14/16/18/19 are unused gaps from merges). `k=14` is the count
+of populated clusters, not the max id + 1.
 
 ### 5.2 Label sprites
 
 In flavor3D / mlflavor mode, a floating text sprite renders at each
-cluster's `centroid_3d` position. The label text comes from `label`
-(chef-curated when present, else auto-chemistry tag). Sprite color
-matches the cluster's palette color so the label is legible against
-its members.
+cluster's `centroid_3d` position (the **all-member mean**). The label
+text comes from `label` (chef-curated when present, else auto-chemistry
+tag). Sprite color matches the cluster's palette color so the label is
+legible against its members.
 
-**Label position uses dense-core centroid, not all-member centroid.**
-When HDBSCAN reassigns noise to nearest cluster, the all-member mean
-gets pulled away from the real chemistry signal; the dense-core mean
-keeps the label at the heart of the actual cluster.
+**Known limitation: label uses all-member centroid, not dense-core
+centroid.** An earlier spec revision required a dense-core centroid to
+avoid HDBSCAN noise-reassignment pulling the label off the actual
+cluster heart. The current `cluster_labels_v3.json` schema only stores
+`dense_core_size` (a count) and `centroid_3d` (all-member position) —
+there is no `dense_core_centroid` field, so the dense-core-position
+contract is not enforced today. Reinstating it would require an
+offline bake step that emits per-cluster `dense_core_centroid_3d`.
 
 Sprites are hidden when α-mode is engaged so the affinity wheel reads
 cleanly.
@@ -256,25 +302,130 @@ cleanly.
 
 ```
 V3_CLUSTER_HEX = [
+  // Base palette — cluster ids 0..9
   '#f472b6', '#ea580c', '#22c55e', '#dc2626', '#facc15',
-  '#a855f7', '#84cc16', '#b45309', '#78350f', '#64748b'
+  '#a855f7', '#84cc16', '#b45309', '#78350f', '#64748b',
+  // Extended for cluster ids 10..17 (added 2026-05-24 after the
+  // layout-v3 bisection grew cluster count from 8 → 17 before merges).
+  '#06b6d4', '#fb7185', '#10b981', '#eab308', '#7c3aed',
+  '#15803d', '#9333ea', '#0284c7',
+  // Further extended for k=20 GNN bisection (cluster ids 18..19).
+  '#ef4444', '#14b8a6'
 ]
 ```
 
-10 entries; v3 may have k > 10 clusters (currently 13). Indexing wraps
-modulo 10. **Accepted compromise** — color collision among 3-of-13
-clusters is tolerable given spatial separation.
+20 entries. Indexing wraps modulo `V3_CLUSTER_HEX.length` (i.e., 20).
+With the current `k=14` and the bisection-then-merge ID gaps, **no two
+shipped clusters share a color** today. The previous "accepted
+compromise" wording (color collision among 3-of-13 clusters under a
+10-entry palette) is superseded.
 
 ### 5.4 Click behavior on cluster sprite
 
 Currently inert (sprite is decorative). Future: may engage a "cluster
-tour" focal flight (see §8.4). Out of scope for current ship.
+tour" focal flight. Out of scope for current ship — note that the
+**joystick pill** click (§5.6) is the canonical cluster-focus
+entry-point, NOT the sprite.
 
 ### 5.5 Acceptance
 
-- [ ] Label sprite renders at dense-core centroid
+- [ ] Label sprite renders at `centroid_3d` (all-member centroid; dense-core variant is a follow-up — see §5.2)
 - [ ] Label hidden when α-mode engaged
-- [ ] Palette wraparound is consistent across renders
+- [ ] Palette wraparound is consistent across renders (mod `V3_CLUSTER_HEX.length` = 20)
+
+### 5.6 Cluster focus: Isolate + Spread
+
+Tapping a **joystick cluster pill** (`ClusterJoystick.jsx`) engages
+cluster-focus on that cluster. The mode does two things together:
+
+#### 5.6.1 Isolate (hide everything else)
+
+While a cluster is focused:
+
+- Every node whose `clusterId !== focusedClusterId` is **HIDDEN**
+  (priority-0 visibility per §3.1, item 0). This is a true hide, not
+  a dim — non-focused nodes do not render at all.
+- Every cluster label sprite except the focused cluster's hides
+  (parallel to §5.2's α-mode hide).
+- Every joystick pill except the focused pill hides.
+- Every edge except intra-focused-cluster edges hides (§4.2 exception).
+- Intra-focused-cluster edges render with §4.3 tier colors.
+
+#### 5.6.2 Spread (fan focused-cluster members apart)
+
+Focused-cluster members are repositioned via radial fan-out from the
+cluster centroid:
+
+```
+node_radius          = NodeMesh sphere radius at default size
+target_min_spacing   = 1.5 × (2 × node_radius)
+current_min_spacing  = min nearest-neighbor distance in the cluster
+spread_factor        = max(1.0, target_min_spacing / current_min_spacing)
+
+new_pos = centroid + (canonical_pos - centroid) * spread_factor
+```
+
+Properties:
+
+- **Adaptive per cluster** — small dense clusters spread aggressively;
+  already-loose clusters barely spread. Each cluster reaches the same
+  identifiability floor.
+- **Centroid is invariant** — only members move; centroid stays put.
+- **Relative topology preserved** — nearby ingredients stay near each
+  other; just farther apart in absolute distance.
+- **Aliased members travel with their canonical** — the existing SHA1
+  post-jitter keeps aliases visually distinguishable from canonicals.
+- **Reversible** — canonical positions are snapshotted at focus-enter
+  and restored exactly on exit.
+
+#### 5.6.3 Camera
+
+Camera flies to the focused cluster's centroid and re-fits its distance
+so the now-spread cluster fills ~60% of viewport height:
+
+```
+spread_radius = max(|new_pos - centroid|) for all focused members
+fov_rad       = camera.fov * PI / 180
+fit_distance  = spread_radius / tan(fov_rad / 2 * 0.60)
+```
+
+Animation: 1200ms in parallel with the 600ms spread (see §8.4). On
+exit, camera reverses to the pre-focus position + target.
+
+#### 5.6.4 Exit triggers (any one exits)
+
+- Re-tap the focused cluster's pill (current toggle behavior preserved)
+- Tap a **different** cluster pill (exit + immediate re-enter on the new one)
+- **ESC** key
+- Click / double-click on background (empty 3D scene space)
+- Engaging α-mode (double-click / long-press a member, or a search-bar
+  selection): cluster-focus exits **first**, then α-mode engages
+- Switching mode picker from 3D → 2D
+
+#### 5.6.5 Interaction matrix
+
+| Other feature | Behavior under cluster-focus |
+|---|---|
+| α-mode (§6) | **Mutually exclusive.** Engaging α-mode exits cluster-focus first. |
+| Filter pills (§7) | Compose. Focused-cluster members must also pass active-filter intersection to render. |
+| Cluster tour (§8.1) | Pauses on pill tap (per §8.5). Resumes after `idleResumeMs` idle. |
+| IngredientPanel (§9) | Single-click on a focused-cluster member opens panel WITHOUT exiting cluster-focus. |
+| Mode picker (§2) | 3D only. 2D mode click → fly-to-centroid as today, no isolate/spread. |
+| `prefers-reduced-motion` | Both transforms snap (no animation). |
+
+#### 5.6.6 Acceptance
+
+- [ ] Tapping a joystick cluster pill hides every non-focused cluster's
+      nodes, sprites, edges, and pills within one animation cycle.
+- [ ] Min nearest-neighbor distance among focused-cluster members after
+      spread is ≥ `1.5 × (2 × node_radius)`.
+- [ ] Cluster centroid stays fixed across enter/exit.
+- [ ] All 4+ exit triggers (re-tap, different-pill, ESC, background)
+      land the user back at canonical positions + framing.
+- [ ] α-mode engage forces cluster-focus exit before α-mode rings spawn.
+- [ ] 2D mode pill click does NOT trigger isolate/spread.
+- [ ] `prefers-reduced-motion: reduce` snaps both transforms.
+- [ ] No regression in α-mode, filter morph, or cluster tour.
 
 ---
 
@@ -302,19 +453,24 @@ Selection sources: single-click on a 3D node, or search-bar selection.
 
 ### 6.3 Ring composition (single ring)
 
-> **Implementation status (2026-05-22 revision)**: simplified back to
-> a SINGLE ring after the 6-ring iteration created visual noise. The
-> previous 6-axis design (commits `8360fdd` + `b833390`) is reverted;
-> the other 5 ring meshes remain allocated but hidden, so re-enabling
-> multi-ring would be a one-constant toggle.
+> **Implementation status (2026-05-24 revision)**: The 2026-05-22
+> "single ring" simplification was superseded by the tier-column tower
+> (§6.5). Ring meshes 0/1/2/3 are now all populated as **vertical
+> floors** at different Y elevations (one per native tier + Surprising).
+> They share a single XZ angular footprint, so the user still reads ONE
+> angular ring at the ground plane. Ring meshes 4 and 5 (cuisine, season)
+> remain allocated but unused. Re-enabling the original 6-axis radial
+> layout would still be a one-constant toggle but is no longer the
+> default lever — the tier-column design replaced it.
 
-α-mode renders **one ring**. The ring's angular axis matches the
-active filter pill; when no filter is active, the ring divides by
-**network cluster** (the "None" default).
+α-mode renders **one angular ring** at the XZ plane, with affinities
+stacked vertically above it as 4 floors (§6.5). The ring's angular
+axis matches the active filter pill; when no filter is active, the
+ring divides by **network cluster** (the "None" default).
 
-| Filter state | Ring divided by | Segments | Source |
+| Filter state | Angular axis | Segments | Source |
 |---|---|---|---|
-| **None (default)** | Network cluster | ~13 | `cluster_labels_v3.json` |
+| **None (default)** | Network cluster | 14 (gapped ids) | `cluster_labels_v3.json` |
 | Aroma pill | Aroma (Tier-1) | 5 | `BRISCIONE_AROMA` |
 | Taste pill | Taste (Tier-2) | 7 (salty hidden) | `BRISCIONE_TASTE` |
 | Family pill | Family | N | `categoricalAxes.js` |
@@ -322,11 +478,14 @@ active filter pill; when no filter is active, the ring divides by
 | Season pill | Season | 4 | `categoricalAxes.js` |
 
 The ring is divided into angular segments equal to the number of
-buckets on the active axis. **Each segment is drawn as an OUTLINE
-ONLY — two radial lines (center → outer rim) plus the arc connecting
-them, in the bucket color. No fill.** The angular order of segments
-is fixed per axis so the same bucket sits at the same clock position
-across pivots — important for visual continuity when re-pivoting.
+buckets on the active axis. **Each segment is drawn as a filled
+annular sector** (innerR=0 → outerR=ring radius + 8u border) at
+opacity 0.30, in the bucket color — read as a faint background tint
+behind the affinity spheres, not a solid wash. `renderOrder=-1` on
+the segment mesh prevents z-fighting with the affinity spheres above.
+The angular order of segments is fixed per axis so the same bucket
+sits at the same clock position across pivots — important for visual
+continuity when re-pivoting.
 
 ### 6.4 Focal placement
 
@@ -343,23 +502,39 @@ center of the wheel stays empty (camera focus point only).
 
 ### 6.5 Affinity placement (tier-column layout)
 
-The focal's affinities are sampled as the **top 3 per affinity type**
-across the 4 native tiers and rendered as a 4-floor tower above the
-ring plane:
+The focal's affinities are sampled from **two separate ranking
+pipelines** and rendered as a 4-floor tower above the ring plane.
+**Three native tiers** (★★★ / ★★ / ★) come from the tier-scoring
+function in `affinityTiers.js`; the **fourth floor (♢ Surprising)**
+comes from a separate `surprisingAffinities()` query, deduplicated
+against the three native-tier entries.
 
-| Tier | Label | Count | Y elevation | Mesh shape |
-|---|---|---|---|---|
-| ♢ | Surprising (compound-bridged, low strength) | 3 | **+32 (top)** | star |
-| ★★★ | Chemistry (compound-bridged or ≥ quantile-0.99) | 3 | +24 | bipyramid |
-| ★★ | Strong (≥ quantile-0.90) | 3 | +16 | cylinder |
-| ★ | Good (≥ quantile-0.50) | 3 | +8 (ring plane) | sphere |
+**Native tiers** (top 3 per tier from `topAffinities()`):
 
-That's **12 ingredients total** rendered as a 4-tier tower per bucket.
+| Tier | Label | Count | Y elevation | Mesh shape | Source |
+|---|---|---|---|---|---|
+| ★★★ | Chemistry (compound-bridged or ≥ quantile-0.99) | 3 | +24 | bipyramid | `byTier[3]` |
+| ★★ | Strong (≥ quantile-0.90) | 3 | +16 | cylinder | `byTier[2]` |
+| ★ | Good (≥ quantile-0.50) | 3 | +8 (ring plane) | sphere | `byTier[1]` |
+
+**Surprising floor** (computed independently):
+
+| Tier | Label | Count | Y elevation | Mesh shape | Source |
+|---|---|---|---|---|---|
+| ♢ | Surprising (compound-bridged, low strength) | up to 3 | **+32 (top)** | star | `surprisingAffinities(focal, ctx, { N: 12 }).slice(0, 3)` after dedup against tiered names |
+
+That's **up to 12 ingredients total** — 9 from native tiers + up to 3
+deduped Surprising entries. The Surprising count can fall short of 3
+when the bridge-compound pool is small for this focal, OR when ♢
+candidates collide by name with native-tier picks (the dedup keeps the
+native-tier entry and drops the Surprising one).
+
 The XZ position of each affinity comes from the shared cluster wedge
 layout (or filter axis when a pill is active); the Y position is set
-by its native tier. Each tier uses its own tier-shaped InstancedMesh
-so the user reads tier by SHAPE in addition to elevation. An affinity
-with `bucket=null` falls back to the `_other` segment.
+by its native tier (or +32 for Surprising). Each tier uses its own
+tier-shaped InstancedMesh so the user reads tier by SHAPE in addition
+to elevation. An affinity with `bucket=null` falls back to the
+`_other` segment.
 
 Within a tier+bucket cell, multiple affinities pull radially inward
 so they don't collide (closer to wheel center = subsequent stack
@@ -456,15 +631,16 @@ for emergency rollback.
 ### 6.13 Acceptance
 
 - [ ] Single-click → IngredientPanel opens (no α-mode); long-press OR double-click → α-mode engages within 200ms
-- [ ] One ring renders; with no filter, the ring divides by cluster
-- [ ] Each segment is drawn as an outline only — two radial lines (center → outer rim) + the arc connecting them, in the bucket color (no fill)
+- [ ] One angular ring renders at the XZ plane; with no filter, the ring divides by cluster
+- [ ] Each segment is drawn as a filled annular sector (innerR=0 → outerR=ring radius + 8u) at opacity 0.30 in the bucket color
 - [ ] Focal sits on the ring at its own bucket-segment (cluster segment when no filter) — NOT at the wheel center
 - [ ] Focal pulses with its bucket color (not white)
-- [ ] Top 3 affinities per native tier (★★★ / ★★ / ★ / ♢) render as a 4-floor tower above each bucket — Y elevation set by tier, mesh shape set by tier (bipyramid / cylinder / sphere / star)
+- [ ] Top 3 affinities per native tier (★★★ / ★★ / ★) render as a 3-floor sub-tower above each bucket — Y elevations 24 / 16 / 8, shapes bipyramid / cylinder / sphere
+- [ ] Up to 3 Surprising (♢) affinities render at Y=+32 as stars, sourced from `surprisingAffinities()` and deduplicated against native-tier names (may be < 3 when the bridge-compound pool is small or all ♢ candidates collide by name with native picks)
 - [ ] 3D focal→affinity edges are HIDDEN in tier-column mode (the vertical tier separation conveys the relationship)
-- [ ] Cone-overlay (SVG) cone colors gold/silver/bronze by native tier
+- [ ] Cone-overlay (SVG) cone colors gold (★★★) / silver (★★) / bronze (★) / fuchsia (♢) by native tier
 - [ ] Re-pivot animates smoothly (no flicker)
-- [ ] ESC keeps panel open; double-click background exits both
+- [ ] ESC closes the IngredientPanel and exits α-mode together (single ESC = full clear); double-click background also exits both
 - [ ] Multi-select suspends; collapse-to-1 resumes
 - [ ] Mobile β-mode renders side panel, not 3D rings
 - [ ] `?affinity=v0` disables both α and β
@@ -476,10 +652,16 @@ for emergency rollback.
 ### 7.1 Pill row
 
 ```
-[None] [Aroma] [Cuisine] [Season] [Family] [Taste] [Cocktail Scope] [Sauce Scope]
+[None] [Aroma] [Cuisine] [Season] [Family] [Taste]
+       [Cocktail Scope] [Sauce Scope] [Flavor Graph]
 ```
 
-7 filters + None. Each pill toggles a filter on the **filter stack**.
+8 filters + None. Each pill toggles a filter on the **filter stack**.
+The three scope filters — `cocktail-scope`, `sauce-scope`,
+`flavor-category` (labelled "Flavor Graph") — are axis-null
+visibility-only filters that do NOT drive position morph (§7.3); the
+first five filters (aroma / cuisine / season / family / taste) are
+layout-driving.
 
 ### 7.2 Visibility predicate
 
@@ -498,10 +680,21 @@ Multi-select (2+ pills active) AND-intersects.
 - When activated, the 3D scene morphs node positions from the current
   layout to a categorical axis layout indexed by the filter (via
   `posForMode[axis]`).
+- **Bucket centroids are v3-derived (Phase-1 of Interpretation B,
+  2026-05-24).** Each bucket's centroid is the mean of its members'
+  v3 UMAP positions (via `morphTargets.resolveBucketCentroid`); sparse
+  buckets (< 5 members) fall through to a synthetic pole at
+  `v3BoundingRadius × 0.65`. Members are placed in a phyllotaxis disc
+  around the centroid (unchanged). The morph TARGET now traces back
+  to v3 chemistry space rather than a hand-tuned synthetic ring at
+  radius 90. Phase-2 (Spec
+  `.omc/specs/deep-interview-v3-derived-morph-targets.md`, still
+  pending approval) will replace the 8 legacy mode keys + per-axis
+  position files and rewire the cluster-tour adapter.
 - The joystick lets the user pick a specific bucket within the filter
   (e.g., "Fruity" within Aroma).
 
-**Scope filters** (`cocktail-scope`, `sauce-scope`):
+**Scope filters** (`cocktail-scope`, `sauce-scope`, `flavor-category`):
 - Do NOT drive morph. Layout stays at `flavor3D` / `flavor2D` (the v3
   layout).
 - If both a scope filter AND a layout-driving filter are active, the
@@ -539,7 +732,7 @@ visibility predicate.
 
 ### 7.7 Acceptance
 
-- [ ] All 7 pills + None render correctly
+- [ ] All 8 pills + None render correctly (5 layout-driving + 3 scope)
 - [ ] AND-intersection visibility correct on multi-select
 - [ ] Layout morphs only for non-scope filters
 - [ ] Scope filters compose visibility without morph
@@ -555,15 +748,31 @@ visibility predicate.
 Engages automatically on first arrival at Explore → Network 3D, after
 the data load resolves and the splash screen dismisses.
 
-- 4 sec dwell + 2 sec glide per cluster × k clusters
-- Network lap duration: 60 sec (for k=10), proportional for other k
-- Cocktail Lab: 42 sec lap (7 families)
-- Sauce Lab: 60 sec lap
+The v2 tour (current implementation) is a **continuous orbit** around
+`controls.target` at the camera's existing radius and elevation. The
+camera walks azimuth at a fixed lap rate; it does not glide-and-dwell
+on individual clusters. The previous v1 dwell-and-glide pattern only
+shifted the camera marginally per cluster — user feedback drove the
+switch to a true rotation around the model. (See `CameraAnimator.js`
+lines 13-21 for the migration note.)
 
-During each dwell:
-- Camera tilts to the cluster centroid
-- Cluster label sprite scales 1.0 → 1.5 (250ms ease) for emphasis
-- Cluster's members brighten subtly; others dim subtly
+Lap durations (from `CameraAnimator.DEFAULTS`):
+
+- **Network desktop**: `tourLapSecDesktop = 60` (sec/lap)
+- **Network mobile**: `tourLapSecMobile = 90` (sec/lap, slower for battery)
+- **Cocktail Lab**: 42 sec lap (7 families)
+- **Sauce Lab**: 60 sec lap
+
+The tour is mode-agnostic: it works in `flavor3D` / `flavor2D` /
+`neural` / `taste2d` / Cocktail / Sauce, because the orbit pivot is
+`controls.target` rather than a per-mode centroid array. When ML-mode
+centroids are available (ml / ml2d) the network adapter still returns
+them and the pivot defaults to the centroid-mean; otherwise the
+adapter returns `[]` and the orbit pivots around `controls.target`.
+
+Per-cluster dwell/brighten/label-pop effects from the v1 tour are
+**no longer fired** — the tour reads as ambient rotation, not a
+guided per-cluster spotlight.
 
 ### 8.2 Resume after interrupt
 
@@ -587,12 +796,23 @@ distance 75** around the focal node:
 Focal orbit **replaces** any prior α-mode static top-down flight. The
 orbit is the canonical α-mode camera behavior. [§13]
 
-### 8.4 Cluster click → focal flight (future)
+### 8.4 Cluster focus camera (joystick pill → isolate + spread)
 
-Currently inert. Future spec: clicking a cluster label sprite engages
-a focal flight to the cluster centroid + auto-select of the cluster's
-top-pairing-count member, kicking off α-mode there. Out of scope for
-the current ship.
+When the user taps a **joystick cluster pill** (§5.6 entry), CameraAnimator
+engages a `engageClusterFit(centroid, spreadRadius)` flight:
+
+- Eased fly to `centroid` over **1200ms** (matches `flyToFocalMs`).
+- Final distance computed from the post-spread bounding sphere so the
+  cluster fills ~60% of viewport height (§5.6.3 formula).
+- Runs in parallel with the 600ms member-spread transform (§5.6.2).
+- The pre-focus camera position + target are snapshotted into
+  `cameraSnapshot` so exit can reverse exactly.
+
+On any exit trigger (§5.6.4), CameraAnimator reverses the flight over
+1200ms back to `cameraSnapshot`.
+
+*Note: clicking the cluster's label sprite (§5.4) is still inert; only
+the joystick pill triggers cluster-focus.*
 
 ### 8.5 Cancellation semantics
 
@@ -615,7 +835,7 @@ Static camera behavior only.
 
 - [ ] Cluster tour engages on first load
 - [ ] Tour pauses on interaction
-- [ ] Tour resumes from nearest cluster after 30s idle
+- [ ] Tour resumes from nearest cluster after 60s idle (`idleResumeMs`)
 - [ ] Focal orbit engages on α-mode
 - [ ] Focal orbit cancels on user input via `controls.enabled` toggle
 - [ ] `prefers-reduced-motion` honored across all animation paths
@@ -631,12 +851,17 @@ when α-mode exits.
 
 ### 9.2 Content sections (in order)
 
-1. **Header**: ingredient name + pairing count badge.
-2. **Properties** (chips):
-   - `taste` (color-coded by taste blending)
-   - `aroma` (when `node.flavorGraph?.tier1` is non-empty) — joins tier1
-     tokens with comma
-   - `weight`, `volume`, `season` (when available)
+IngredientPanel ships in **two render paths** in `IngredientPanel.jsx`:
+the **embedded** path (used inline within other surfaces) and the
+**desktop side-panel** path (used when rendered as the main drilldown
+panel). They differ in section ordering and which sections appear.
+
+**Desktop side-panel path** (`IngredientPanel.jsx` line 815+):
+
+1. **Header**: close button + ingredient name + favorite toggle.
+2. **Properties** (chips): `taste` (color-coded by taste blending),
+   `aroma` (when `node.flavorGraph?.tier1` is non-empty, joined with
+   commas), `weight`, `volume`, `season` (when available).
 3. **Flavor Graph** (collapsible, default open):
    - 4 rows: Aroma / Taste / Mouthfeel / Leaves
    - Each row shows chips for the tier's tokens
@@ -646,31 +871,53 @@ when α-mode exits.
      "Tier-3 mouthfeel".
    - For chef-curated rows, footer text: "Chef-curated — verified
      flavor graph from the top-209 corpus."
-4. **Predicted Profile** (collapsible, default closed): per-ingredient
+4. **Molecular Profile** (collapsible, default closed): per-ingredient
    GNN entropy probabilities thresholded against
-   `ingredient_profile_thresholds.json`. Top ~15% per trait.
-5. **Predicted from Components** badge (when applicable): for compound
-   foods that synthesize their profile from constituent ingredients
-   (e.g., apple sauce, mayonnaise). Tooltip lists the constituents.
-   See §9.4.
-6. **Flavor Cluster** section: cluster label + brief explanation when
-   `clusterExplanation` data is available. In v3 mode, only the cluster
-   label renders (no explanation text yet — Phase-2 follow-up).
-7. **Cuisines** (when set).
-8. **Tips** (when set).
+   `ingredient_profile_thresholds.json`. Top ~15% per trait. Includes
+   the **Predicted from Components** styled card when the ingredient
+   is a compound food synthesizing its profile from constituents (apple
+   sauce, mayonnaise) — the badge is rendered inside this section, not
+   as a separate top-level section.
+5. **Profile Radar** (swipeable): Taste / Aroma / Combined radar charts.
+6. **Cuisines** (collapsible, when set).
+7. **Shared Molecules** (conditional, when exactly 2 ingredients are
+   selected): chemistry explanation of the molecular overlap.
+8. **Taste Gap** (conditional callout, when one taste dominates the
+   pairing imbalance).
+9. **Common Pairings** (multi-select) OR **Top Pairings** (single-select):
+   the larger of the two interaction lists depending on selection state.
+10. **Affinities** (collapsible, when set): α-mode tier list.
+11. **Tips** (collapsible, when set).
+12. **Build a recipe CTA**: CTA button to Build tab pre-loaded with
+    this ingredient.
+
+**Embedded path** (`IngredientPanel.jsx` line 380-740): same Flavor
+Graph + a **Flavor Cluster** section (cluster label + brief
+explanation when `clusterExplanation` is available; in v3 mode only
+the cluster label renders) + Cuisines + Top Pairings + Affinities +
+Tips. The Molecular Profile / Profile Radar / Shared Molecules / Taste
+Gap sections are not part of the embedded path.
 
 ### 9.3 Compound-food predictions
 
-Build-time pipeline (`chemDataset/scripts/09-predict-compound-foods.mjs`)
-produces `public/proDataset/compound_food_predictions.json`. `useProData`
-merges this sidecar into the data store before
-`categoricalWheelPositions` is computed.
+The compound-food gap-fill logic lives at **`src/data/compoundFoods.js`**
+(constituent map + aggregation). `useProData` merges synthesized aroma
+profiles into the data store for compound foods (apple sauce, mayonnaise,
+vinaigrette) before `categoricalWheelPositions` is computed. The merge
+applies a **"Predicted from Components"** badge inside the Molecular
+Profile section (§9.2 item 4) so users can distinguish synthesized
+profiles from native GNN predictions.
+
+> A previously-planned build-time pipeline at
+> `chemDataset/scripts/09-predict-compound-foods.mjs` was not shipped;
+> the in-app `compoundFoods.js` path replaced it.
 
 Coverage target: ≥ 800 of the 1,123 hub-gap ingredients should have a
 synthesized profile.
 
-[supersedes spec wording "Runs once per ingredient at data-load time" —
-build-time is the canonical timing — §13]
+[history: a build-time pipeline was originally specced as the canonical
+timing, but the as-shipped path is the in-app `compoundFoods.js` merge
+at data-load. See §13.2 amendment #9.]
 
 ### 9.4 Acceptance
 
@@ -686,10 +933,17 @@ build-time is the canonical timing — §13]
 
 ### 10.1 `FN_FLAVOR_V3`
 
-**Default**: OFF on web, **ON on iOS** (via Capacitor `isNative()`).
+**Default**: **ON everywhere** (web + iOS) as of 2026-05-24. Web was
+previously OFF (soak gate) and was flipped after the chef-approved
+research pass landed 25 cluster-classified ingredients + 44 aliases
+into the v3 corpus. iOS has been ON since v3 first shipped.
 
-**Overrides**:
-- `localStorage.setItem('FN_FLAVOR_V3', 'true' | 'false')` (per-browser)
+**Opt out (v2 fallback)** — primary escape hatch now that v3 is the
+default:
+- `localStorage.setItem('FN_FLAVOR_V3', 'false')` (per-browser)
+
+**Force on explicitly** (no-op vs default but kept for parity):
+- `localStorage.setItem('FN_FLAVOR_V3', 'true')` (per-browser)
 - `VITE_FN_FLAVOR_V3=true npm run build` (build-time)
 
 **When ON**: useProData fetches v3 artifacts
@@ -727,7 +981,7 @@ runtime config via `prefers-reduced-motion` only.
 
 - `prefers-reduced-motion: reduce` → all animation off (cluster tour,
   focal orbit, particle flow, bloom pulsing)
-- Keyboard navigation: ESC exits α-mode; arrow keys cycle modes
+- Keyboard navigation: ESC fully clears selection (closes panel + exits α-mode + exits cluster-focus); slash focuses the search bar; arrow keys cycle modes
 - Screen-reader: TierBadge has a11y label per §9.2
 - Color: minimum 3:1 contrast for cluster colors against background
   `#0a0a0f`
@@ -793,8 +1047,30 @@ are listed inline with [§13] markers in the body above.
 7. **Empty intersection**: freeze + overlay, not "morph to empty wheel".
    [§7.4]
 8. **Focal orbit replaces α-mode static flight**. [§8.3]
-9. **Compound-food predictor: build-time sidecar**, not data-load.
-   [§9.3]
+9. **Compound-food predictor: data-load merge via `src/data/compoundFoods.js`**,
+   NOT a build-time sidecar. (The previously-planned build-time pipeline
+   at `chemDataset/scripts/09-predict-compound-foods.mjs` was not shipped.
+   The runtime merge replaced it.) [§9.3]
+10. **Cluster focus (joystick pill → isolate + spread)**: tapping a
+    joystick cluster pill hides every non-focused cluster's nodes /
+    sprites / edges / pills and radially fans the focused cluster's
+    members outward via adaptive per-cluster spread factor (target
+    nearest-neighbor distance ≥ `1.5 × node diameter`). Camera flies +
+    re-fits over 1200ms; spread eases 600ms. Mutually exclusive with
+    α-mode. 3D only Phase 1. [§3.1 priority 0, §4.2 exception, §5.6
+    full spec, §8.4 camera. Source:
+    `.omc/specs/deep-interview-cluster-focus-isolate-spread.md`]
+11. **v3-derived bucket centroids (Interpretation B Phase 1, 2026-05-24)**:
+    bucket centroid placement in `computeCategoricalWheelPositions` is
+    now derived from v3 UMAP positions (mean of bucket members' v3
+    positions; synthetic-pole fallback at `v3BoundingRadius × 0.65`
+    for sparse buckets `< 5` members). The morph TARGET traces back to
+    v3 chemistry space rather than a fixed synthetic ring at radius 90.
+    Member placement around each centroid remains phyllotaxis.
+    Phase-2 (full purge of 8 legacy mode keys + per-axis position
+    files + cluster-tour adapter rewire) deferred to a separate
+    session. [§7.3. Source:
+    `.omc/specs/deep-interview-v3-derived-morph-targets.md`]
 
 ### 13.3 Affinity examples cleanup
 
