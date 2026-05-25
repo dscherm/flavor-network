@@ -69,9 +69,14 @@ function backup(path) {
 }
 
 function loadJSON(path) { return JSON.parse(readFileSync(path, 'utf-8')); }
-function writeJSON(path, data) {
-  // Compact JSON with newlines after top-level keys for readability.
-  writeFileSync(path, JSON.stringify(data, null, 0));
+// ingredients.json is checked in as indent=2 for git-diff readability;
+// the other three files (pairings / cluster_labels / positions) were
+// already compact in HEAD before this cleanup. Preserve that split so
+// future cleanups don't trash diff history.
+const INDENTED_FILES = new Set(['ingredients']);
+function writeJSON(path, data, key) {
+  const indent = INDENTED_FILES.has(key) ? 2 : 0;
+  writeFileSync(path, JSON.stringify(data, null, indent));
 }
 
 console.log('=== data cleanup 2026-05-25 ===');
@@ -166,10 +171,10 @@ clusterDoc._meta.cleanups.push({
   alcohol_reassigned_17_to_1: reassigned,
 });
 
-writeJSON(FILES.ingredients, ingredients);
-writeJSON(FILES.pairings, survivingPairings);
-writeJSON(FILES.clusters, clusterDoc);
-writeJSON(FILES.positions, positions);
+writeJSON(FILES.ingredients, ingredients, 'ingredients');
+writeJSON(FILES.pairings, survivingPairings, 'pairings');
+writeJSON(FILES.clusters, clusterDoc, 'clusters');
+writeJSON(FILES.positions, positions, 'positions');
 
 console.log('\nAFTER:');
 console.log(`  ingredients.json keys:    ${Object.keys(ingredients).length}  (removed ${ingredientsDropped})`);
