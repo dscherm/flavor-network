@@ -1056,9 +1056,13 @@ are listed inline with [§13] markers in the body above.
     sprites / edges / pills and radially fans the focused cluster's
     members outward via adaptive per-cluster spread factor (target
     nearest-neighbor distance ≥ `1.5 × node diameter`). Camera flies +
-    re-fits over 1200ms; spread eases 600ms. Mutually exclusive with
-    α-mode. 3D only Phase 1. [§3.1 priority 0, §4.2 exception, §5.6
-    full spec, §8.4 camera. Source:
+    re-fits over 1200ms; spread eases 600ms. **Intra-focused-cluster
+    edges (§4.2 exception) render with §4.3 tier colors via a secondary
+    LineSegments mesh owned by `ClusterFocusMode`; vertex positions
+    track the spread animation in real time and opacity fades in/out
+    with the same easing.** Mutually exclusive with α-mode. 3D only
+    Phase 1. [§3.1 priority 0, §4.2 exception, §5.6 full spec, §8.4
+    camera. Source:
     `.omc/specs/deep-interview-cluster-focus-isolate-spread.md`]
 11. **v3-derived bucket centroids (Interpretation B Phase 1, 2026-05-24)**:
     bucket centroid placement in `computeCategoricalWheelPositions` is

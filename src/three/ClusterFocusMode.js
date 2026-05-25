@@ -42,12 +42,27 @@
  *   orchestrator (LivingArchView) calls exit() before engaging α-mode.
  *
  * Edge handling:
- *   This class does not touch EdgeMesh. By default the network renders
- *   no edges when no node is selected (§4.2), so cluster-focus inherits
- *   that empty edge state. The §4.2 intra-cluster edge exception is a
- *   follow-up enhancement, not Phase 1.
+ *   The main `edgeMesh` is hidden by the orchestrator while focus is
+ *   engaged (canon §4.2 baseline). This class additionally renders a
+ *   secondary LineSegments mesh for intra-focused-cluster edges (§4.2
+ *   exception): every pairing whose BOTH endpoints share the focused
+ *   `clusterId` and whose `tierFor()` resolves to a non-null tier.
+ *   Colors / opacities follow §4.3 (gold / silver / bronze / fuchsia).
+ *   Vertex positions track the spread animation in real time.
  */
 import * as THREE from 'three';
+import { tierFor } from '../data/affinityTiers.js';
+
+// §4.3 tier color + opacity. Duplicated from AffinityMode.js to keep
+// the two modes free of cross-imports — both treat these as the
+// canonical tier visual contract.
+export const TIER_COLOR = {
+  3: new THREE.Color(0xfacc15), // gold     — Chemistry
+  2: new THREE.Color(0xa3a3a3), // silver   — Strong
+  1: new THREE.Color(0xa16207), // bronze   — Good
+  0: new THREE.Color(0xe879f9), // fuchsia  — Surprising
+};
+export const TIER_OPACITY = { 3: 0.9, 2: 0.7, 1: 0.5, 0: 0.55 };
 
 export const SPREAD_DURATION_MS = 600;
 // Target minimum nearest-neighbor distance after spread = MULT × node diameter.
@@ -175,18 +190,60 @@ export function computeSpreadRadius(positions, centroid, factor) {
   return maxR;
 }
 
+/**
+ * Pure: select intra-focused-cluster edges that resolve to a non-null
+ * tier (§4.2 exception, §4.3 colors). Returns one entry per edge with
+ * pre-resolved source/target global indices and the native tier so the
+ * caller can build a LineSegments mesh without re-doing the lookup
+ * each frame.
+ *
+ * - `graphEdges`     : Array<{source: string, target: string, strength?: number}>
+ * - `nodeArray`      : Array<{name: string, clusterId: number}> indexed by global idx
+ * - `focusedId`      : numeric cluster id
+ * - `nameToIdx`      : Map<string, number> built from nodeArray
+ * - `affinityCtx`    : AffinityCtx for tierFor() (may be null → returns empty)
+ *
+ * Untiered pairings (tier === null) are dropped — those connections
+ * aren't worth surfacing during a chef-focused isolate view.
+ */
+export function selectIntraClusterEdges(graphEdges, nodeArray, focusedId, nameToIdx, affinityCtx) {
+  if (!Array.isArray(graphEdges) || graphEdges.length === 0) return [];
+  if (!nodeArray || !nameToIdx || !affinityCtx) return [];
+  const out = [];
+  for (let e = 0; e < graphEdges.length; e++) {
+    const edge = graphEdges[e];
+    const si = nameToIdx.get(edge.source);
+    const ti = nameToIdx.get(edge.target);
+    if (si === undefined || ti === undefined) continue;
+    const sNode = nodeArray[si];
+    const tNode = nodeArray[ti];
+    if (!sNode || !tNode) continue;
+    if (sNode.clusterId !== focusedId || tNode.clusterId !== focusedId) continue;
+    const r = tierFor(edge.source, edge.target, affinityCtx);
+    if (r.tier == null) continue;
+    out.push({ srcIdx: si, tgtIdx: ti, tier: r.tier, strength: r.strength });
+  }
+  return out;
+}
+
 class ClusterFocusMode {
   /**
    * @param {object} opts
-   * @param {object} opts.nodeMesh - NodeMesh instance
-   * @param {Array} opts.nodeArray - parallel array of node objects (indexed by global idx)
+   * @param {object} opts.nodeMesh    - NodeMesh instance
+   * @param {Array}  opts.nodeArray   - parallel array of node objects (indexed by global idx)
+   * @param {object} [opts.scene]     - THREE.Scene; required to render intra-cluster edges
+   * @param {Array}  [opts.graphEdges]   - graph.edges; required to render intra-cluster edges
+   * @param {object} [opts.affinityCtx] - { pairingStrength, top5, bridgeCompoundIndex, affinityThresholds }; required to compute edge tiers
    * @param {boolean} [opts.reducedMotion] - test override; auto-detected from matchMedia otherwise
    */
-  constructor({ nodeMesh, nodeArray, ...opts }) {
+  constructor({ nodeMesh, nodeArray, scene, graphEdges, affinityCtx, ...opts }) {
     if (!nodeMesh) throw new Error('ClusterFocusMode: nodeMesh is required');
     if (!nodeArray) throw new Error('ClusterFocusMode: nodeArray is required');
     this._nodeMesh = nodeMesh;
     this._nodeArray = nodeArray;
+    this._scene = scene || null;
+    this._graphEdges = Array.isArray(graphEdges) ? graphEdges : null;
+    this._affinityCtx = affinityCtx || null;
     this._reducedMotion = detectReducedMotion(opts);
 
     this._engaged = false;
@@ -194,16 +251,26 @@ class ClusterFocusMode {
     this._progress = 0;
     this._targetProgress = 0;
 
-    // Lazily-allocated work buffers. Populated on engage; cleared on exit.
-    this._canonicalMatrices = null; // Map<global, Float32Array of 16>
-    this._spreadTargets = null;     // Map<global, [x,y,z]> (focused members only)
-    this._focusedGlobals = null;    // number[]
-    this._hiddenGlobals = null;     // number[]
+    this._canonicalMatrices = null;
+    this._spreadTargets = null;
+    this._focusedGlobals = null;
+    this._hiddenGlobals = null;
     this._tmpMatrix = new THREE.Matrix4();
     this._tmpPos = new THREE.Vector3();
     this._tmpQuat = new THREE.Quaternion();
     this._tmpScale = new THREE.Vector3();
     this._tmpDummy = new THREE.Object3D();
+
+    this._nameToIdx = new Map();
+    for (let i = 0; i < nodeArray.length; i++) {
+      const n = nodeArray[i];
+      if (n && n.name) this._nameToIdx.set(n.name, i);
+    }
+
+    this._focusedEdgeMesh = null;
+    this._focusedEdgeGeo = null;
+    this._focusedEdgeMat = null;
+    this._focusedEdgeIndex = null; // [{srcIdx, tgtIdx, tier, baseOpacity}]
   }
 
   isEngaged() { return this._engaged; }
@@ -279,12 +346,90 @@ class ClusterFocusMode {
       spreadFactor: factor,
     };
 
+    this._buildFocusedEdges(focusedClusterId);
+
     if (this._reducedMotion) {
       this._progress = 1;
       this._applyMatrices(1);
     }
 
     return this._fitInfo;
+  }
+
+  /**
+   * Build the intra-cluster edge LineSegments mesh for the currently
+   * focused cluster (§4.2 exception). Skipped silently when scene /
+   * graphEdges / affinityCtx are missing — the rest of cluster-focus
+   * still works without edges.
+   */
+  _buildFocusedEdges(focusedId) {
+    if (!this._scene || !this._graphEdges || !this._affinityCtx) return;
+    const edges = selectIntraClusterEdges(
+      this._graphEdges,
+      this._nodeArray,
+      focusedId,
+      this._nameToIdx,
+      this._affinityCtx,
+    );
+    if (edges.length === 0) return;
+
+    const positions = new Float32Array(edges.length * 6);
+    const colors = new Float32Array(edges.length * 6);
+    const opacities = new Float32Array(edges.length * 2);
+
+    for (let i = 0; i < edges.length; i++) {
+      const { tier } = edges[i];
+      const color = TIER_COLOR[tier] || TIER_COLOR[1];
+      const op = TIER_OPACITY[tier] ?? 0.5;
+      colors[i * 6]     = color.r;
+      colors[i * 6 + 1] = color.g;
+      colors[i * 6 + 2] = color.b;
+      colors[i * 6 + 3] = color.r;
+      colors[i * 6 + 4] = color.g;
+      colors[i * 6 + 5] = color.b;
+      opacities[i * 2]     = op;
+      opacities[i * 2 + 1] = op;
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute('aColor', new THREE.Float32BufferAttribute(colors, 3));
+    geo.setAttribute('aOpacity', new THREE.Float32BufferAttribute(opacities, 1));
+
+    const mat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      vertexShader: `
+        attribute vec3 aColor;
+        attribute float aOpacity;
+        varying vec3 vColor;
+        varying float vOpacity;
+        void main() {
+          vColor = aColor;
+          vOpacity = aOpacity;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        varying float vOpacity;
+        void main() {
+          gl_FragColor = vec4(vColor, vOpacity);
+        }
+      `,
+    });
+
+    const mesh = new THREE.LineSegments(geo, mat);
+    mesh.frustumCulled = false;
+    mesh.renderOrder = 1;
+    this._scene.add(mesh);
+
+    this._focusedEdgeMesh = mesh;
+    this._focusedEdgeGeo = geo;
+    this._focusedEdgeMat = mat;
+    this._focusedEdgeIndex = edges;
+
+    this._updateFocusedEdgePositions(0);
   }
 
   /**
@@ -377,6 +522,61 @@ class ClusterFocusMode {
     }
 
     this._nodeMesh._markMatricesDirty();
+    this._updateFocusedEdgePositions(eased);
+  }
+
+  /**
+   * Update intra-cluster edge vertex positions to match the current
+   * eased spread state. Edge endpoints lerp from canonical → spread
+   * target with the same easing curve as the node matrices. Also fades
+   * edge opacity in/out with the animation so the edges don't pop in
+   * before the nodes have settled.
+   */
+  _updateFocusedEdgePositions(eased) {
+    if (!this._focusedEdgeMesh || !this._focusedEdgeIndex) return;
+    const posAttr = this._focusedEdgeGeo.getAttribute('position');
+    const opAttr = this._focusedEdgeGeo.getAttribute('aOpacity');
+    const arr = posAttr.array;
+    const opArr = opAttr.array;
+    const tmpA = this._tmpPos;
+    const tmpQ = this._tmpQuat;
+    const tmpS = this._tmpScale;
+    const m = this._tmpMatrix;
+    for (let i = 0; i < this._focusedEdgeIndex.length; i++) {
+      const { srcIdx, tgtIdx, tier } = this._focusedEdgeIndex[i];
+      const canonS = this._canonicalMatrices.get(srcIdx);
+      const canonT = this._canonicalMatrices.get(tgtIdx);
+      const sTarget = this._spreadTargets.get(srcIdx);
+      const tTarget = this._spreadTargets.get(tgtIdx);
+      m.copy(canonS); m.decompose(tmpA, tmpQ, tmpS);
+      const sx = tmpA.x + (sTarget[0] - tmpA.x) * eased;
+      const sy = tmpA.y + (sTarget[1] - tmpA.y) * eased;
+      const sz = tmpA.z + (sTarget[2] - tmpA.z) * eased;
+      m.copy(canonT); m.decompose(tmpA, tmpQ, tmpS);
+      const tx = tmpA.x + (tTarget[0] - tmpA.x) * eased;
+      const ty = tmpA.y + (tTarget[1] - tmpA.y) * eased;
+      const tz = tmpA.z + (tTarget[2] - tmpA.z) * eased;
+      const o = i * 6;
+      arr[o] = sx; arr[o + 1] = sy; arr[o + 2] = sz;
+      arr[o + 3] = tx; arr[o + 4] = ty; arr[o + 5] = tz;
+      const baseOp = TIER_OPACITY[tier] ?? 0.5;
+      opArr[i * 2]     = baseOp * eased;
+      opArr[i * 2 + 1] = baseOp * eased;
+    }
+    posAttr.needsUpdate = true;
+    opAttr.needsUpdate = true;
+  }
+
+  _disposeFocusedEdges() {
+    if (this._focusedEdgeMesh) {
+      if (this._scene) this._scene.remove(this._focusedEdgeMesh);
+      this._focusedEdgeGeo?.dispose();
+      this._focusedEdgeMat?.dispose();
+    }
+    this._focusedEdgeMesh = null;
+    this._focusedEdgeGeo = null;
+    this._focusedEdgeMat = null;
+    this._focusedEdgeIndex = null;
   }
 
   /**
@@ -390,6 +590,7 @@ class ClusterFocusMode {
       this._nodeMesh._setMatrixAtGlobal(i, m);
     }
     this._nodeMesh._markMatricesDirty();
+    this._disposeFocusedEdges();
     this._canonicalMatrices = null;
     this._spreadTargets = null;
     this._focusedGlobals = null;
@@ -403,8 +604,13 @@ class ClusterFocusMode {
 
   dispose() {
     if (this._engaged) this._restoreCanonical();
+    this._disposeFocusedEdges();
     this._nodeMesh = null;
     this._nodeArray = null;
+    this._scene = null;
+    this._graphEdges = null;
+    this._affinityCtx = null;
+    this._nameToIdx = null;
   }
 }
 
