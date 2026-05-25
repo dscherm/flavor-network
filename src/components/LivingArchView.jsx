@@ -2013,19 +2013,18 @@ export default function LivingArchView({
     } catch { /* SSR / private mode — keep default */ }
 
     if (cameraAnimEnabled) {
+      // Interpretation B Phase 2 (2026-05-25): mode-agnostic centroid
+      // adapter. Reads `cluster_labels_v3.json` `clusters[].centroid_3d`
+      // directly instead of branching on legacy `ml` / `ml2d` mode keys
+      // (which are deleted in Phase 2). Canon §8.1 adapter note.
       const networkCentroidAdapter = () => {
-        const m = modeRef.current;
+        const clusters = data?.flavorClusterLabels?.clusters || [];
         const out = [];
-        if (m === 'ml') {
-          for (const [id, pos] of centroidByCluster3d) {
-            out.push({ id, position: pos });
-          }
-        } else if (m === 'ml2d') {
-          for (const [id, c2] of centroidByCluster2d) {
-            out.push({ id, position: [c2[0], 0, c2[1]] });
+        for (const c of clusters) {
+          if (Array.isArray(c?.centroid_3d) && c.centroid_3d.length === 3) {
+            out.push({ id: c.id, position: c.centroid_3d });
           }
         }
-        // neural / taste2d → [] → animator orbits controls.target.
         return out;
       };
       cameraAnimatorRef.current = new CameraAnimator(
