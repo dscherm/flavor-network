@@ -1,0 +1,149 @@
+{
+  "thresholds": {
+    "sweet": 0.2,
+    "bitter": 0.6,
+    "umami": 0.8,
+    "salty": 0.9,
+    "sour": 0.9,
+    "odor_fruity": 0.55,
+    "odor_floral": 0.55,
+    "odor_green": 0.5,
+    "odor_woody": 0.45,
+    "odor_spicy": 0.65,
+    "odor_fatty": 0.7
+  },
+  "rows": [
+    {
+      "strategy": "mean",
+      "k": null,
+      "matched": 3735,
+      "above_any": 2548,
+      "per_task_above": {
+        "sweet": 2544,
+        "bitter": 2,
+        "umami": 0,
+        "salty": 0,
+        "sour": 0,
+        "odor_fruity": 0,
+        "odor_floral": 0,
+        "odor_green": 0,
+        "odor_woody": 3,
+        "odor_spicy": 0,
+        "odor_fatty": 0
+      },
+      "macro_f1_chef": 0.066,
+      "per_task_f1": {
+        "sweet": 0.721,
+        "bitter": 0.0,
+        "umami": 0.0,
+        "salty": 0.0,
+        "sour": 0.0,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0
+      }
+    },
+    {
+      "strategy": "topk_mean",
+      "k": 3,
+      "matched": 3735,
+      "above_any": 3367,
+      "per_task_above": {
+        "sweet": 3302,
+        "bitter": 806,
+        "umami": 97,
+        "salty": 61,
+        "sour": 7,
+        "odor_fruity": 0,
+        "odor_floral": 0,
+        "odor_green": 0,
+        "odor_woody": 68,
+        "odor_spicy": 0,
+        "odor_fatty": 0
+      },
+      "macro_f1_chef": 0.101,
+      "per_task_f1": {
+        "sweet": 0.78,
+        "bitter": 0.212,
+        "umami": 0.121,
+        "salty": 0.0,
+        "sour": 0.0,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0
+      }
+    },
+    {
+      "strategy": "max",
+      "k": null,
+      "matched": 3735,
+      "above_any": 3585,
+      "per_task_above": {
+        "sweet": 3474,
+        "bitter": 2821,
+        "umami": 197,
+        "salty": 76,
+        "sour": 274,
+        "odor_fruity": 0,
+        "odor_floral": 0,
+        "odor_green": 0,
+        "odor_woody": 225,
+        "odor_spicy": 0,
+        "odor_fatty": 2
+      },
+      "macro_f1_chef": 0.134,
+      "per_task_f1": {
+        "sweet": 0.783,
+        "bitter": 0.314,
+        "umami": 0.098,
+        "salty": 0.0,
+        "sour": 0.281,
+        "odor_fruity": 0.0,
+        "odor_floral": 0.0,
+        "odor_green": 0.0,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.0,
+        "odor_fatty": 0.0
+      }
+    },
+    {
+      "strategy": "noisy_or",
+      "k": null,
+      "matched": 3735,
+      "above_any": 3707,
+      "per_task_above": {
+        "sweet": 3680,
+        "bitter": 3337,
+        "umami": 198,
+        "salty": 174,
+        "sour": 3072,
+        "odor_fruity": 382,
+        "odor_floral": 20,
+        "odor_green": 1004,
+        "odor_woody": 1156,
+        "odor_spicy": 976,
+        "odor_fatty": 130
+      },
+      "macro_f1_chef": 0.192,
+      "per_task_f1": {
+        "sweet": 0.775,
+        "bitter": 0.309,
+        "umami": 0.098,
+        "salty": 0.0,
+        "sour": 0.35,
+        "odor_fruity": 0.208,
+        "odor_floral": 0.0,
+        "odor_green": 0.09,
+        "odor_woody": 0.0,
+        "odor_spicy": 0.278,
+        "odor_fatty": 0.0
+      }
+    }
+  ]
+}
