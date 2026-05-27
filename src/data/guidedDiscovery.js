@@ -104,13 +104,26 @@ export function getBubble(key) {
  * Order is preserved: the most-recent bubble becomes the most-recent
  * filter, which determines the morph axis in LivingArchView.
  */
+// Remap BUBBLE_REGISTRY axisHints (filterType-style keys, also consumed
+// by GuidedDiscoveryResults' radar) into the canonical network-filterStack
+// axis keys expected by LivingArchView's CATEGORICAL_AXES table. Today
+// only aroma diverges: registry uses 'aroma' (user-facing), the 3D scene
+// uses 'aromas' (plural). Resolves Guided Discovery spec §11 O-1 (DOCS-
+// GD-DM-RL, 2026-05-27). The App.jsx onAxisSelect handlers do an
+// equivalent inline remap for the radar-tap code path; this function is
+// the source of truth for the "Explore in the Network" CTA path.
+const REGISTRY_AXIS_TO_FILTER_AXIS = {
+  aroma: 'aromas',
+};
+
 export function deriveFilterStackFromBubbles(bubbleStack) {
   if (!Array.isArray(bubbleStack)) return [];
   const out = [];
   const seen = new Set();
   for (const item of bubbleStack) {
-    const axis = item?.axisHint;
-    if (!axis) continue;
+    const raw = item?.axisHint;
+    if (!raw) continue;
+    const axis = REGISTRY_AXIS_TO_FILTER_AXIS[raw] ?? raw;
     if (seen.has(axis)) continue;
     seen.add(axis);
     out.push(axis);
