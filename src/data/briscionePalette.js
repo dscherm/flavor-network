@@ -21,12 +21,13 @@
  */
 
 export const BRISCIONE_AROMA = {
-  fruity: '#dc2626',  // red — bright stone-fruit / berry
-  floral: '#ec4899',  // pink — rose / jasmine
-  green:  '#22c55e',  // emerald — herb / leaf
-  woody:  '#92400e',  // umber — cedar / oak / smoke
-  spicy:  '#ea580c',  // burnt orange — pepper / capsicum
-  fatty:  '#fbbf24',  // amber — butter / nut / lipid
+  fruity:           '#dc2626',  // red — bright stone-fruit / berry
+  floral:           '#ec4899',  // pink — rose / jasmine
+  green:            '#22c55e',  // emerald — herb / leaf
+  alliaceous_green: '#a3e635',  // lime — onion / garlic / leek (sulfur-green)
+  woody:            '#92400e',  // umber — cedar / oak / smoke
+  spicy:            '#ea580c',  // burnt orange — pepper / capsicum
+  fatty:            '#fbbf24',  // amber — butter / nut / lipid
 };
 
 export const BRISCIONE_TASTE = {
@@ -89,7 +90,7 @@ export function bucketColor(axis, bucketKey) {
  * stable across re-renders and across ingredients.
  */
 export const BRISCIONE_AXIS_ORDER = {
-  aroma:   ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'],
+  aroma:   ['fruity', 'floral', 'green', 'alliaceous_green', 'woody', 'spicy', 'fatty'],
   taste:   ['sweet', 'sour', 'bitter', 'salty', 'spicy', 'pungent', 'astringent', 'umami'],
   season:  ['spring', 'summer', 'fall', 'winter'],
   method:  ['grill', 'roast', 'sear', 'braise', 'saute', 'fry', 'poach', 'boil', 'steam', 'bake', 'smoke', 'raw', 'confit'],

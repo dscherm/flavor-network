@@ -6,7 +6,8 @@
 import { useState, useEffect } from 'react';
 import { computeTastePositions } from '../data/tastePositioning.js';
 import { computeAffinityThresholds } from '../data/affinityThresholds.js';
-import { buildTier1Thresholds, gnnPrimaryTier1 } from '../data/primaryTier1.js';
+import { buildTier1Thresholds } from '../data/primaryTier1.js';
+import { resolvePrimaryTier1 } from '../data/tier1Overrides.js';
 import { isNative } from '../utils/native.js';
 
 // N+1 v3 feature flag — when enabled, useProData fetches the corpus-wide
@@ -683,7 +684,7 @@ export default function useProData({ enabled = true } = {}) {
             node.primaryTier1Aroma = entry.tier1?.[0] ?? null;
           } else {
             node.flavorGraph = null;
-            node.primaryTier1Aroma = gnnPrimaryTier1(node.gnnProbs, tier1Thresholds);
+            node.primaryTier1Aroma = resolvePrimaryTier1(name, node.gnnProbs, tier1Thresholds);
           }
         }
 
