@@ -1036,6 +1036,108 @@ None require new ML work.
 
 ```json
 {
+  "id": "DOCS-GD-DM-RL",
+  "title": "Canonical specs for Guided Mode + Discovery Mode + Recipe Lab — audit + de-dup + lock",
+  "category": "docs",
+  "priority": 1,
+  "description": "We have a canonical NETWORK-AND-AFFINITY-SPEC.md that consolidates contradictions and supersedes prior specs/ralplans for the Explore tab. The remaining three top-level features — Guided Mode, Discovery Mode, Recipe Lab — have specs/plans scattered across .omc/plans, .omc/specs, docs/, and CLAUDE.md. Audit all references, root out contradictions and stale planning, treat current implementation as canonical (with chef-user gating before pulling in any unfinished plans), produce three new docs under docs/ in the same self-contained-contract format.",
+  "acceptance": [
+    "docs/GUIDED-DISCOVERY-SPEC.md exists, mirrors NETWORK-AND-AFFINITY-SPEC.md format, supersedes prior planning (Guided + Discovery merged per 2026-05-27 chef decision: codebase treats them as one feature called 'Guided Discovery')",
+    "docs/RECIPE-LAB-SPEC.md exists, same shape; includes Phase 5 Build-path migration as canonical per 2026-05-27 chef decision",
+    "Each spec ends with a §Source spec lineage section listing the .omc/plans + .omc/specs files it supersedes",
+    "No contradictions left unresolved — each contradiction resolved by 'current implementation wins' or escalated to chef-user with a §Open questions block",
+    "Smart_gate + 846 tests still pass after committing the docs"
+  ]
+}
+```
+
+```json
+{
+  "id": "DOCS-MAKE-MODE",
+  "title": "New Make mode spec + Recipe Lab spec extension (portions, focal-weighted suggestions, food-category filter, seasonings, recipe-type)",
+  "category": "docs",
+  "priority": 1,
+  "description": "Write docs/MAKE-MODE-SPEC.md for a new third entry surface (Make mode — less-guided than Guided Discovery, for experienced users). Three picker cards bridge into Recipe Lab: existing baked-in recipe, start from scratch, upload/photo recipe. Each pre-populates ingredients. Extend docs/RECIPE-LAB-SPEC.md to cover: per-ingredient portions/amounts with auto-fill fallback; suggestion ranking primary-on-focal + secondary-proportional-to-amount; food-category filter on suggestions; sauce + seasoning recommendations (introduces new seasonings dataset under chemDataset); recipe-type classification (main / side / appetizer / dessert / …). Deep-interview clarifies the data model + UX boundaries before authoring.",
+  "acceptance": [
+    "docs/MAKE-MODE-SPEC.md exists, mirrors NETWORK-AND-AFFINITY-SPEC.md format",
+    "docs/RECIPE-LAB-SPEC.md extended with §Portions + §Focal-weighted suggestions + §Food-category filter + §Sauces+seasonings + §Recipe-type sections; updated TOC",
+    "Spec lineage in both docs cites the deep-interview that produced them",
+    "Open questions captured in each doc's §Open questions block — none invented",
+    "Smart_gate + 846 tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "DOCS-GD-TWO-TAP",
+  "title": "Guided Discovery — two-step commit gesture for axis tap on Results radar",
+  "category": "ui",
+  "priority": 3,
+  "description": "Resolves GUIDED-DISCOVERY-SPEC §11 O-2. Today every axis tap in GuidedDiscoveryResults kicks the user out of the Results page to the network tab + GuidedTour overlay. Target behavior: first tap toggles local chosenValue (visual wedge fill + matching highlight) only; second tap on same axis commits → fires onAxisSelect(filterType) and jumps to network. Eliminates surface-bounce on incidental taps. Spec §11 O-2 already documents the target contract.",
+  "acceptance": [
+    "First tap on a Results-radar axis toggles wedge fill only; no surface change",
+    "Second tap on same axis fires onAxisSelect(filterType) + activates GuidedTour",
+    "Tap on different axis resets first-tap state to that axis",
+    "Test in GuidedDiscoveryResults.test.jsx covers both first-tap and commit-tap paths",
+    "Smart_gate + 846 tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "DOCS-RL-NOTEBOOK-WIRE",
+  "title": "Recipe Lab — wire NotebookCanvas + RecipePanel as the canonical renderer",
+  "category": "ui",
+  "priority": 3,
+  "description": "Resolves RECIPE-LAB-SPEC §14.1. The Canvas-2D hand-drawn aesthetic (NotebookCanvas.jsx + recipeLayout.js + RecipePanel.jsx sidebar) is canonical to Recipe Lab per chef decision 2026-05-27. Wire them back into the Recipe Lab mount (replacing or augmenting RecipeLabMobile's stripped-down mobile-first surface). Spec §3 + §5 + §6.4 describe the target contract.",
+  "acceptance": [
+    "Recipe Lab mounts the Canvas-2D renderer + RecipePanel sidebar by default (desktop + mobile-friendly responsive)",
+    "All handoff entry points (Build, Network Build Recipe, Cocktail Lab, Sauce Lab, Profile) work with the new render path",
+    "Aroma-match bridge unchanged (handlers still in App.jsx; matchesContext still set on sister labs)",
+    "Visual A/B against pre-wire screenshots passes chef sign-off",
+    "Smart_gate + 846 tests pass + new tests covering canvas mount + handoff replace-not-append on the new surface"
+  ]
+}
+```
+
+```json
+{
+  "id": "DOCS-RL-COOKBOOK-RENAME",
+  "title": "Recipe Lab — rename RecipesLab.jsx (plural) to CookbookLab",
+  "category": "ui",
+  "priority": 3,
+  "description": "Resolves RECIPE-LAB-SPEC §14 Cookbook Lab rename intent. The current RecipesLab.jsx (plural) surface — the 15-curated-seed-recipe browser with 3D NetworkScene mode + filterable card grid — is renamed to CookbookLab. Disambiguates from Recipe Lab (the recipe-building notebook surface). Rename includes file rename, import updates everywhere, UI labels (landing tile, nav, tab keys), test names.",
+  "acceptance": [
+    "src/components/RecipesLab.jsx → src/components/CookbookLab.jsx",
+    "All imports of RecipesLab updated to CookbookLab",
+    "Landing tile + nav + tab labels read 'Cookbook Lab' (or 'Cookbook')",
+    "labKey / activeTab strings updated from 'recipes' to 'cookbook' (with one-release back-compat alias if needed)",
+    "Tests covering Recipes Lab rename pass",
+    "Smart_gate + 846 tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "DOCS-RL-DRAWERSNAP-CLEANUP",
+  "title": "Recipe Lab — delete vestigial drawerSnap state",
+  "category": "ui",
+  "priority": 4,
+  "description": "Resolves RECIPE-LAB-SPEC §14.5. The <SuggestionDrawer> was removed 2026-05-07 but drawerSnap state ('peek' | 'half') still exists in RecipeLabMobile and is set by handoff payloads. State has no observable effect. Delete the state + any code that reads/writes it.",
+  "acceptance": [
+    "drawerSnap state removed from RecipeLabMobile.jsx",
+    "All references to drawerSnap in the codebase deleted",
+    "Handoff payloads no longer include a drawerSnap field (or it's silently ignored)",
+    "Smart_gate + 846 tests pass"
+  ]
+}
+```
+
+```json
+{
   "id": "N2-AGG-RECAL",
   "title": "Recalibrate ingredient_profile_thresholds.json against top-K-mean gnn_entropy.json — fix Woody-heavy Tier-1 bias",
   "category": "ml",
