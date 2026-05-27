@@ -71,11 +71,14 @@ describe('resolvePrimaryTier1', () => {
     expect(resolvePrimaryTier1('beetroot', probs, T)).toBe('woody');
   });
 
-  it('alliaceous_green wins when name has allium token AND green fires', () => {
-    const probs = { odor_green: 0.25, odor_fatty: 0.10 };  // green above threshold
-    expect(resolvePrimaryTier1('onion powder', probs, T)).toBe('alliaceous_green');
-    expect(resolvePrimaryTier1('vidalia onion', probs, T)).toBe('alliaceous_green');
-    expect(resolvePrimaryTier1('garlic clove', probs, T)).toBe('alliaceous_green');
+  it('allium override forces green when name has allium token AND green fires', () => {
+    // Even if another head would win the surplus tie-break, the allium
+    // detection pins this to plain green so the visual stays the BRISCIONE
+    // emerald — chef intuition keeps onions in the green family.
+    const probs = { odor_green: 0.25, odor_fatty: 0.40 };  // fatty surplus higher
+    expect(resolvePrimaryTier1('onion powder', probs, T)).toBe('green');
+    expect(resolvePrimaryTier1('vidalia onion', probs, T)).toBe('green');
+    expect(resolvePrimaryTier1('garlic clove', probs, T)).toBe('green');
   });
 
   it('allium name without green firing falls through to GNN', () => {
