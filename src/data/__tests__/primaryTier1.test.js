@@ -40,7 +40,8 @@ describe('buildTier1Thresholds', () => {
 describe('gnnPrimaryTier1', () => {
   const thresholds = { fruity: 0.269, floral: 0.192, green: 0.285, woody: 0.252, fatty: 0.20 };
 
-  it('returns the aroma head with the highest above-threshold prob', () => {
+  it('returns the aroma head with the highest threshold-surplus ratio', () => {
+    // woody at 0.50 (t=0.252) → surplus 0.984; fruity at 0.30 (t=0.269) → 0.115.
     const probs = {
       odor_fruity: 0.30, odor_floral: 0.05, odor_green: 0.10, odor_woody: 0.50, odor_fatty: 0.18,
     };
@@ -54,16 +55,44 @@ describe('gnnPrimaryTier1', () => {
     expect(gnnPrimaryTier1(probs, thresholds)).toBe(null);
   });
 
-  it('tie-breaks within ε=0.01 by AROMA_AXES order (fruity first)', () => {
+  it('surplus-ratio normalization beats raw-argmax across heads (N2-AGG-RECAL)', () => {
+    // Five heads firing equally at raw 0.40. Under the old argmax tie-break
+    // green would have won (raw 0.50 — but here we make them equal at 0.40).
+    // Under surplus normalization, floral has the lowest threshold (0.192),
+    // so its surplus ratio is highest: (0.40-0.192)/0.192 = 1.083, beating
+    // fatty (1.000), green (0.754), woody (0.587), fruity (0.487).
     const probs = {
-      odor_fruity: 0.40, odor_floral: 0.40, odor_green: 0.50, odor_woody: 0.40, odor_fatty: 0.40,
+      odor_fruity: 0.40, odor_floral: 0.40, odor_green: 0.40, odor_woody: 0.40, odor_fatty: 0.40,
     };
-    expect(gnnPrimaryTier1(probs, thresholds)).toBe('green');
+    expect(gnnPrimaryTier1(probs, thresholds)).toBe('floral');
+  });
+
+  it('tie-breaks within ε=1e-4 on surplus by AROMA_AXES order', () => {
+    // Hand-craft probs so all 5 heads have identical surplus = 0.10:
+    // p = threshold * 1.10 for each. AROMA_AXES order is fruity first.
+    const probs = {
+      odor_fruity: thresholds.fruity * 1.10,
+      odor_floral: thresholds.floral * 1.10,
+      odor_green:  thresholds.green  * 1.10,
+      odor_woody:  thresholds.woody  * 1.10,
+      odor_fatty:  thresholds.fatty  * 1.10,
+    };
+    expect(gnnPrimaryTier1(probs, thresholds)).toBe('fruity');
   });
 
   it('canonical fixture from v2 N1-ADR-3 spec — woody+fruity, picks fruity', () => {
+    // fruity at 0.8 (t=0.269) → surplus 1.974; woody at 0.5 (t=0.252) → 0.984.
     const probs = { odor_woody: 0.5, odor_fruity: 0.8, odor_floral: 0.0, odor_green: 0.0, odor_fatty: 0.0 };
     expect(gnnPrimaryTier1(probs, { fruity: 0.269, woody: 0.252 })).toBe('fruity');
+  });
+
+  it('treats zero or negative threshold as disabled (avoids divide-by-zero)', () => {
+    // After N2-AGG-RECAL, low-F1 heads get threshold = 1.01 (sentinel).
+    // Even if a head had a stray threshold=0, the picker must skip it.
+    const probs = { odor_fruity: 0.5, odor_floral: 0.5, odor_green: 0, odor_woody: 0, odor_fatty: 0 };
+    const t = { fruity: 0.269, floral: 0, green: 0.285, woody: 0.252, fatty: 0.20 };
+    // floral threshold=0 is treated as disabled; fruity at 0.5 (t=0.269) wins.
+    expect(gnnPrimaryTier1(probs, t)).toBe('fruity');
   });
 
   it('ignores odor_spicy even when above threshold (Q7)', () => {

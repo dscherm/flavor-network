@@ -1,61 +1,62 @@
 {
-  "generated_by": "top-15% of ingredient-level GNN probabilities; molecule_f1 from v3 calibrated test split",
+  "generated_by": "85th percentile of per-ingredient GNN probabilities under top-3 mean aggregation (N2-AGG-RECAL); molecule_f1 from v3 calibrated test split",
   "percentile": 0.85,
   "min_molecule_level_f1": 0.4,
+  "disabled_threshold": 1.01,
   "per_task": [
     {
       "task": "sweet",
-      "ingredient_threshold": 0.213,
+      "ingredient_threshold": 0.6094,
       "molecule_f1": 0.904
     },
     {
       "task": "bitter",
-      "ingredient_threshold": 0.074,
+      "ingredient_threshold": 0.8122,
       "molecule_f1": 0.799
     },
     {
       "task": "umami",
-      "ingredient_threshold": 0.183,
+      "ingredient_threshold": 0.1351,
       "molecule_f1": 0.731
     },
     {
       "task": "salty",
-      "ingredient_threshold": 0.357,
+      "ingredient_threshold": 1.01,
       "molecule_f1": 0.333
     },
     {
       "task": "sour",
-      "ingredient_threshold": 0.209,
+      "ingredient_threshold": 0.6218,
       "molecule_f1": 0.819
     },
     {
       "task": "odor_fruity",
-      "ingredient_threshold": 0.269,
+      "ingredient_threshold": 0.1325,
       "molecule_f1": 0.722
     },
     {
       "task": "odor_floral",
-      "ingredient_threshold": 0.192,
+      "ingredient_threshold": 0.0536,
       "molecule_f1": 0.515
     },
     {
       "task": "odor_green",
-      "ingredient_threshold": 0.285,
+      "ingredient_threshold": 0.1935,
       "molecule_f1": 0.606
     },
     {
       "task": "odor_woody",
-      "ingredient_threshold": 0.252,
+      "ingredient_threshold": 0.3335,
       "molecule_f1": 0.541
     },
     {
       "task": "odor_spicy",
-      "ingredient_threshold": 0.22,
+      "ingredient_threshold": 1.01,
       "molecule_f1": 0.329
     },
     {
       "task": "odor_fatty",
-      "ingredient_threshold": 0.211,
+      "ingredient_threshold": 0.1252,
       "molecule_f1": 0.617
     }
   ]

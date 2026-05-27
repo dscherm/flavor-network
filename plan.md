@@ -1036,6 +1036,22 @@ None require new ML work.
 
 ```json
 {
+  "id": "N2-AGG-RECAL",
+  "title": "Recalibrate ingredient_profile_thresholds.json against top-K-mean gnn_entropy.json — fix Woody-heavy Tier-1 bias",
+  "category": "ml",
+  "priority": 1,
+  "description": "Follow-up to N2-GNN-AGG. The top-3-mean aggregation shifted per-ingredient prob distributions upward, but ingredient_profile_thresholds.json was calibrated against the OLD mean-pool gnn_entropy.json. The stale thresholds now produce a severe Tier-1 imbalance: 829/1010 GNN-scored long-tail ingredients (82%) pick `woody` as their primary Tier-1 aroma, vs 0 for green/floral. Write a small calibrator (flavor-gnn/scripts/recalibrate_ingredient_thresholds.py) that emits ingredient_threshold per task as the 85th percentile of post-aggregation per-ingredient probs (matches the existing artifact's stated convention) and preserves the molecule_f1 cell from threshold_calibration_v3.json. Drop heads with molecule_f1 < 0.4 from production by setting their threshold to 1.01 (effectively disables them).",
+  "acceptance": [
+    "flavor-gnn/scripts/recalibrate_ingredient_thresholds.py exists; emits public/proDataset/ingredient_profile_thresholds.json",
+    "Each aroma head fires on 10-25% of GNN-scored long-tail ingredients (no single head over 40%)",
+    "0 < {fruity, floral, green, woody, fatty} primary-tier1 picks ≤ 1.5× the median across the 5 heads",
+    "All 831 vitest tests pass + smart_gate PASS"
+  ]
+}
+```
+
+```json
+{
   "id": "N2-GNN-DREAM",
   "title": "Ingest DREAM Olfaction Challenge dataset — +0.05 to +0.10 F1 on odor heads",
   "category": "data",
