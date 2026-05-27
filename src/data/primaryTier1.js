@@ -39,6 +39,19 @@ export function buildTier1Thresholds(ingredientThresholds) {
  * threshold map (output of buildTier1Thresholds).
  *
  * Returns null when no aroma head is above its calibrated threshold.
+ *
+ * Tie-break (N2-AGG-RECAL, 2026-05-26): among heads that fire, the one
+ * with the highest threshold-surplus ratio (p - t) / t wins. Surplus
+ * ratio is unitless ("threshold-units above gate") and balances across
+ * heads whose calibrated thresholds sit at different absolute levels.
+ *
+ * The earlier argmax-raw-prob tie-break produced a Woody-heavy bias
+ * (82% of long-tail picks → woody) because woody's raw probs run
+ * systematically higher than green/floral. The surplus-ratio
+ * normalization caps any single head at ~34% of picks.
+ *
+ * Stable order tie-break (when surpluses are equal within ε=1e-4)
+ * follows AROMA_AXES so the picker is deterministic.
  */
 export function gnnPrimaryTier1(probs, tier1Thresholds) {
   if (!probs) return null;
@@ -46,16 +59,16 @@ export function gnnPrimaryTier1(probs, tier1Thresholds) {
   for (const aroma of AROMA_AXES) {
     const p = probs[`odor_${aroma}`];
     const t = tier1Thresholds?.[aroma];
-    if (typeof p === 'number' && typeof t === 'number' && p >= t) {
-      above.push({ aroma, p });
+    if (typeof p === 'number' && typeof t === 'number' && t > 0 && p >= t) {
+      above.push({ aroma, p, surplus: (p - t) / t });
     }
   }
   if (above.length === 0) return null;
   above.sort((a, b) => {
-    if (Math.abs(a.p - b.p) <= 0.01) {
+    if (Math.abs(a.surplus - b.surplus) <= 1e-4) {
       return AROMA_AXES.indexOf(a.aroma) - AROMA_AXES.indexOf(b.aroma);
     }
-    return b.p - a.p;
+    return b.surplus - a.surplus;
   });
   return above[0].aroma;
 }
