@@ -366,10 +366,13 @@ def build() -> None:
           f"(dropped {dropped_garbage} garbage, {dropped_aliased} aliased)")
 
     out_rows: list[dict[str, str]] = []
-    densities: dict[str, list[int]] = {
-        "manual-top-500": [], "rule-derived": [], "hub-fallback": [],
-        "category-heuristic": [],
-    }
+    # Use defaultdict so chef-introduced source provenance tokens (e.g.
+    # "curated-2026" from the N2-V3-CHEF-LIFT batch) don't KeyError. The
+    # downstream median checks against "manual-top-500" / "rule-derived"
+    # still work because defaultdict returns an empty list for missing
+    # keys.
+    from collections import defaultdict
+    densities: dict[str, list[int]] = defaultdict(list)
 
     for name in names:
         chef = chef_rows.get(name)
