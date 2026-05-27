@@ -13,10 +13,12 @@
  * resulting wheel layouts stay readable.
  */
 
-// ----- Aromas (6 odor families from gnn_entropy.json) -----------
-const AROMA_KEYS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
-const AROMA_LABELS = ['Fruity', 'Floral', 'Green', 'Woody', 'Spicy', 'Fatty'];
-const AROMA_COLORS = ['#fb923c', '#f0abfc', '#84cc16', '#a16207', '#dc2626', '#fbbf24'];
+// ----- Aromas (5 BRISCIONE odor families exposed in the UI) -----
+// odor_spicy is intentionally omitted: Q7 vocab lock + N2-AGG-RECAL
+// disabled its calibrated threshold (mol-F1 0.329 < 0.4 production gate).
+const AROMA_KEYS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_fatty'];
+const AROMA_LABELS = ['Fruity', 'Floral', 'Green', 'Woody', 'Fatty'];
+const AROMA_COLORS = ['#fb923c', '#f0abfc', '#84cc16', '#a16207', '#fbbf24'];
 
 // F0 trust override (2026-05-16) — when an ingredient name contains a
 // strong cue word that maps to a specific aroma family AND the GNN's
