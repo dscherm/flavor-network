@@ -118,6 +118,16 @@ def build() -> pd.DataFrame:
     pubchem_smiles = _load_optional("pubchem_smiles")
     fartdb = _load_optional("fartdb")
 
+    # DREAM (Keller & Vosshall 2016) is gated OFF by default — N2-GNN-DREAM
+    # 2026-05-26 retrain produced net-neutral results (only odor_spicy
+    # lifted; AC required ≥4 of 5 mapped odor heads). See chemDataset-
+    # status.md negative-finding entry. The fetcher + processed JSON
+    # remain in the repo so a future revisit can flip this flag and
+    # iterate on threshold / mapping. To re-enable, set INCLUDE_DREAM=True
+    # and re-run training (cv_results_dream.json holds the prior attempt).
+    INCLUDE_DREAM = False
+    dreamdb = _load_optional("dream") if INCLUDE_DREAM else {}
+
     compounds: dict[str, dict] = {}
 
     def _key(pubchem_id, smiles) -> str | None:
@@ -297,6 +307,36 @@ def build() -> pd.DataFrame:
             # only the odor heads.
             _obs(r, ODOR_TASKS)
             r["has_profile"] = 1
+
+    # DREAM Olfaction Challenge (Keller & Vosshall 2016) — 417 compounds
+    # rated 0-100 on 21 olfactory descriptors by 55 subjects. Only the
+    # five aroma descriptors map to our odor heads: FRUIT, FLOWER, GRASS,
+    # WOOD, SPICES → odor_fruity, odor_floral, odor_green, odor_woody,
+    # odor_spicy. Each compound's mean rating ≥ POSITIVE_THRESHOLD
+    # (set in 09-fetch-dream.js, default 30) becomes a positive;
+    # sub-threshold means a real negative because every DREAM compound
+    # was rated on every descriptor by the full subject pool.
+    #
+    # SWEET/SOUR/ACID descriptors are intentionally NOT used — they're
+    # olfactory perception ratings ("smells sweet/sour/acidic"), not
+    # taste signals. Mapping them to our taste heads in v1 regressed
+    # sweet/bitter/sour calibrated F1 (see chemDataset-status.md
+    # negative-finding entry). odor_fatty has no DREAM analogue and
+    # stays unmasked. bitter, umami, salty get no signal from DREAM.
+    DREAM_OBS = ("odor_fruity", "odor_floral", "odor_green",
+                 "odor_woody", "odor_spicy")
+    for _, c in (dreamdb.get("compounds", {}) if dreamdb else {}).items():
+        smiles = c.get("smiles")
+        if not smiles:
+            continue
+        r = _row(c.get("cid"), smiles)
+        if r is None:
+            continue
+        labels = c.get("labels") or {}
+        for head in DREAM_OBS:
+            if head in labels:
+                r[head] = r.get(head, 0) | int(labels[head])
+        _obs(r, DREAM_OBS)
 
     df = pd.DataFrame(list(compounds.values()))
     df = df.dropna(subset=["smiles"])
