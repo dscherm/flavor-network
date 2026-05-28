@@ -20,7 +20,7 @@ const TASK_LABELS = {
   odor_green: 'green',
   odor_woody: 'woody',
   odor_spicy: 'spicy',
-  odor_fatty: 'fatty',
+  odor_fatty: 'creamy',  // 2026-05-27 (batch 6 chef-vocab): renamed
 };
 
 export default function PredictedProfile({ name, gnnEntropy, ingredientThresholds }) {

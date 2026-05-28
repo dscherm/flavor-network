@@ -28,11 +28,28 @@ import {
 import { CUISINE_CHIP_COLOR } from '../components/guidedIcons.jsx';
 
 // Exact-reference: getAxesFor('cuisine') === CATEGORICAL_AXES.cuisine.labels
+// Aroma axis expanded 2026-05-27 (batch 6) from the 6-head GNN set to
+// the full 13-category chef vocab. The 8 chef-only categories (citrus,
+// herbal, earthy, roasted, caramel, aged, marine, pungent) have no GNN
+// odor head — pairingMatchesAxis falls back to checking the pairing's
+// chef flavorGraph tier1 for those.
 const AXIS_BY_FILTER = {
   taste:   ['sweet', 'sour', 'bitter', 'salty', 'umami', 'pungent', 'astringent', 'spicy'], // 8
-  aroma:   ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'],                          // 6
+  aroma:   ['citrus', 'fruity', 'floral', 'herbal', 'green', 'creamy', 'woody', 'earthy', 'roasted', 'caramel', 'fermented', 'marine', 'pungent'], // 13
   season:  ['spring', 'summer', 'fall', 'winter'],                                            // 4
   cuisine: CATEGORICAL_AXES.cuisine.labels,                                                   // 8 (ADR-2)
+};
+
+// GNN-pickable aroma keys (display key → GNN column name). Mirror of
+// the GNN_KEY_FOR map in primaryTier1.js; kept here so pairingMatchesAxis
+// can resolve display-key axes back to their model column without
+// pulling the whole primaryTier1 module into the radar's import graph.
+const AROMA_GNN_KEY = {
+  fruity: 'odor_fruity',
+  floral: 'odor_floral',
+  green:  'odor_green',
+  woody:  'odor_woody',
+  creamy: 'odor_fatty',
 };
 
 const COLOR_BY_FILTER = {
@@ -72,13 +89,34 @@ export function pairingMatchesAxis(pairing, filterType, axisKey, odorThresholds 
     return tokenize(pairing.season).includes(String(axisKey).toLowerCase());
   }
   if (filterType === 'aroma') {
+    const key = String(axisKey).toLowerCase();
+
+    // Chef-only categories (citrus / herbal / earthy / roasted / caramel
+    // / aged / marine / pungent) have no GNN head — they only match
+    // when the pairing's chef-curated flavorGraph tier1 carries the
+    // label. The exact-reference contract treats chef-tier1 as the
+    // single source of truth for chef-only categories.
+    const gnnColumn = AROMA_GNN_KEY[key];
+    if (!gnnColumn) {
+      const tier1 = pairing.flavorGraph?.tier1;
+      if (!Array.isArray(tier1)) return false;
+      return tier1.some((t) => String(t).toLowerCase() === key);
+    }
+
+    // GNN-pickable categories (fruity / floral / green / woody / creamy)
+    // — fall back to chef tier1 first when present (chef beats model),
+    // then check the model column against its threshold.
+    const tier1 = pairing.flavorGraph?.tier1;
+    if (Array.isArray(tier1) && tier1.some((t) => String(t).toLowerCase() === key)) {
+      return true;
+    }
     const probs = pairing.gnnProbs;
     if (!probs) return false;
-    const p = probs[`odor_${axisKey}`];
+    const p = probs[gnnColumn];
     if (typeof p !== 'number') return false;
     const thr =
-      odorThresholds && typeof odorThresholds[`odor_${axisKey}`] === 'number'
-        ? odorThresholds[`odor_${axisKey}`]
+      odorThresholds && typeof odorThresholds[gnnColumn] === 'number'
+        ? odorThresholds[gnnColumn]
         : 0.5;
     return p >= thr;
   }
@@ -111,8 +149,12 @@ export function pairingMatchesAxis(pairing, filterType, axisKey, odorThresholds 
  */
 export function coordsForPairing(pairing, filterType, axes, radius, odorThresholds = null) {
   if (!pairing || !Array.isArray(axes) || axes.length === 0) return null;
-  // Aroma honesty: no gnnProbs → drop (never fabricate a position).
-  if (filterType === 'aroma' && !pairing.gnnProbs) return null;
+  // Aroma honesty: drop only when the pairing has neither gnnProbs nor
+  // chef-tier1 — either signal is enough to plot. Chef-only categories
+  // (citrus / herbal / etc.) match exclusively through flavorGraph.tier1.
+  if (filterType === 'aroma' && !pairing.gnnProbs && !pairing.flavorGraph?.tier1?.length) {
+    return null;
+  }
 
   const matchedIndices = [];
   for (let i = 0; i < axes.length; i++) {

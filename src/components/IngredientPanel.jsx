@@ -14,6 +14,7 @@ import FullWheel from './FullWheel.jsx';
 import AffinityFlavorWheel from './AffinityFlavorWheel.jsx'; // @deprecated — kept for one-release rollback safety
 import WedgeGridFlavorWheel from './WedgeGridFlavorWheel.jsx';
 import { scoreRecipeAroma, AROMA_LABELS, AROMA_COLORS, scoreRecipe } from '../data/recipeScoring.js';
+import { BRISCIONE_AROMA } from '../data/briscionePalette.js';
 
 const TASTE_COLORS = {
   sweet: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
@@ -45,6 +46,46 @@ function PropertyBadge({ label, value, isTaste }) {
     >
       <span className="text-gray-500 uppercase tracking-wider text-[10px]">{label}</span>
       {value}
+    </span>
+  );
+}
+
+/**
+ * AromaChipRow — render every chef tier1 aroma as a colored chip.
+ * 2026-05-28 v8: 39% of chef-curated ingredients carry 2-3 aromas
+ * (e.g. blood orange juice = citrus|fermented|pungent). Primary
+ * (tier1[0]) renders at full saturation; secondaries dim slightly.
+ */
+function AromaChipRow({ tier1 }) {
+  if (!Array.isArray(tier1) || tier1.length === 0) return null;
+  return (
+    <span className="inline-flex flex-wrap items-center gap-1">
+      <span className="text-gray-500 uppercase tracking-wider text-[10px]">aroma</span>
+      {tier1.map((aroma, i) => {
+        const key = String(aroma).toLowerCase();
+        const color = BRISCIONE_AROMA[key] || '#64748b';
+        const isPrimary = i === 0;
+        return (
+          <span
+            key={`${key}-${i}`}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded border text-xs font-medium"
+            style={{
+              backgroundColor: `${color}${isPrimary ? '33' : '1f'}`,
+              borderColor: `${color}${isPrimary ? '88' : '55'}`,
+              color: '#e5e7eb',
+              opacity: isPrimary ? 1 : 0.85,
+            }}
+            title={isPrimary ? 'primary aroma' : 'secondary aroma'}
+          >
+            <span
+              className="inline-block w-2 h-2 rounded-full"
+              style={{ backgroundColor: color }}
+              aria-hidden="true"
+            />
+            {aroma}
+          </span>
+        );
+      })}
     </span>
   );
 }
@@ -441,10 +482,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             <div className="flex flex-wrap gap-1.5">
               <PropertyBadge label="taste" value={taste} isTaste />
               {node.flavorGraph?.tier1?.length > 0 && (
-                <PropertyBadge
-                  label="aroma"
-                  value={node.flavorGraph.tier1.join(', ')}
-                />
+                <AromaChipRow tier1={node.flavorGraph.tier1} />
               )}
               <PropertyBadge label="weight" value={weight} />
               <PropertyBadge label="volume" value={volume} />
@@ -903,10 +941,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             <div className="flex flex-wrap gap-1.5">
               <PropertyBadge label="taste" value={taste} isTaste />
               {node.flavorGraph?.tier1?.length > 0 && (
-                <PropertyBadge
-                  label="aroma"
-                  value={node.flavorGraph.tier1.join(', ')}
-                />
+                <AromaChipRow tier1={node.flavorGraph.tier1} />
               )}
               <PropertyBadge label="weight" value={weight} />
               <PropertyBadge label="volume" value={volume} />

@@ -66,12 +66,12 @@ describe('GuidedProfileRadar — P2 component', () => {
     expect(axisButtons.length).toBe(8);
   });
 
-  it("renders 6 axis labels when filterType='aroma'", () => {
+  it("renders 13 axis labels when filterType='aroma' (chef-vocab expansion 2026-05-27)", () => {
     const { container } = render(
       <GuidedProfileRadar focal={focal} pairings={[]} filterType="aroma" />,
     );
     const axisButtons = container.querySelectorAll('[data-testid^="guided-radar-axis-"]');
-    expect(axisButtons.length).toBe(6);
+    expect(axisButtons.length).toBe(13);
   });
 
   it("renders 4 axis labels when filterType='season'", () => {

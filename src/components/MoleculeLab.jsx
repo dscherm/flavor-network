@@ -19,7 +19,8 @@ const BAR_COLORS = {
 };
 const TASTE_TASKS = ['sweet', 'bitter', 'umami', 'salty', 'sour'];
 const ODOR_TASKS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
-const ODOR_LABEL = { odor_fruity: 'fruity', odor_floral: 'floral', odor_green: 'green', odor_woody: 'woody', odor_spicy: 'spicy', odor_fatty: 'fatty' };
+// 2026-05-27 (batch 6 chef-vocab): odor_fatty display renamed 'fatty' → 'creamy'.
+const ODOR_LABEL = { odor_fruity: 'fruity', odor_floral: 'floral', odor_green: 'green', odor_woody: 'woody', odor_spicy: 'spicy', odor_fatty: 'creamy' };
 const ODOR_COLORS = { odor_fruity: '#ff8c42', odor_floral: '#e879a8', odor_green: '#6bcb77', odor_woody: '#a67c52', odor_spicy: '#ff4444', odor_fatty: '#d4aa70' };
 
 // Curated "interesting contrast" pairs for compare mode. Each

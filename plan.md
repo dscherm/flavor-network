@@ -1255,4 +1255,370 @@ None require new ML work.
 
 Recommend tackling this in a fresh session with no other work in flight. Best done with the network running locally so visual verification is fast between changes.
 
+---
+
+## DOCS-MAKE-MODE → app fidelity (added 2026-05-27)
+
+The canonical specs (`docs/MAKE-MODE-SPEC.md`, `docs/GUIDED-DISCOVERY-SPEC.md`,
+`docs/RECIPE-LAB-SPEC.md`) describe surfaces and contracts that aren't all in
+the shipped app yet. This section is the implementation task graph that
+brings the app to spec fidelity, layered in 5 waves so the substrate lands
+before the consumers.
+
+**Sequencing** — within a wave, tasks may run in any order; across waves,
+respect the dependency order (Wave 1 → Wave 2 → …). N2-V3-CHEF-LIFT
+remains the bridge-active chef-paced task; new work queues behind it.
+
+### Wave 1 — Foundations (substrate, no end-user surface)
+
+```json
+{
+  "id": "RL-PORTIONS-DATA",
+  "title": "Per-ingredient portion data model + free-text amount parser",
+  "category": "data",
+  "priority": 1,
+  "description": "Implements RECIPE-LAB-SPEC.md §11. Creates src/data/portionParser.js exporting parseAmount(raw) → {qty, unit} | null per §11.2 spec contract. Recognizes integer/decimal/fraction/mixed numbers + the unit vocabulary in §11.2 (tsp, tbsp, cup, g, oz, lb, ml, l, pinch, dash, sprig, clove, each, medium, large, small, handful) and the 'to taste' sentinel → { qty: null, unit: 'to_taste' }. Also exports UNIT_DENSITY table per §13.2 for downstream §13 focal-weighted ranking. No UI changes — pure data layer.",
+  "acceptance": [
+    "src/data/portionParser.js exports parseAmount + UNIT_DENSITY",
+    "parseAmount('1 tbsp') → {qty: 1, unit: 'tbsp'}",
+    "parseAmount('1/2 cup') → {qty: 0.5, unit: 'cup'}",
+    "parseAmount('1 1/2 cups') → {qty: 1.5, unit: 'cup'}",
+    "parseAmount('a pinch') → {qty: null, unit: 'pinch'}",
+    "parseAmount('to taste') → {qty: null, unit: 'to_taste'}",
+    "parseAmount('nonsense') → null",
+    "UNIT_DENSITY covers every unit token §11.2 lists",
+    "src/data/__tests__/portionParser.test.js covers all §11.4 acceptance rows",
+    "Smart_gate + existing tests pass (no consumers yet)"
+  ]
+}
+```
+
+```json
+{
+  "id": "RL-PORTIONS-UI",
+  "title": "Bowl shape migration string[] → BowlEntry[] + amount input on notebook rows",
+  "category": "ui",
+  "priority": 1,
+  "description": "Implements RECIPE-LAB-SPEC.md §11.3 (UI) and the bowl-shape migration. Migrates RecipeLabMobile's recipeIngredients from string[] to BowlEntry[] with shape { ingredient, amount: { raw, qty, unit, inferred } }. Adapter at every read site (scoreRecipe, scoreRecipeAroma, computeRecipeAroma, suggestion ranker, aroma-match handlers, Save flow, search results) keeps consumers working unchanged where they only need the name list. RecipeNotebook renders inline 80px amount input per row; on commit (blur / Enter) runs parseAmount and shows a structured chip beside parsed values. Raw text preserved verbatim on parse failure — no error toast.",
+  "acceptance": [
+    "recipeIngredients state shape migrated to BowlEntry[]",
+    "Every existing read site adapts via a `bowlNames(bowl)` helper or in-place .map",
+    "RecipeNotebook renders an amount input per ingredient row (≥44px touch target)",
+    "Parsed amounts show a structured chip; unparsed text stays as raw display",
+    "Handoff watcher accepts both string[] payloads (existing entry points) and BowlEntry[] payloads — string[] gets coerced to BowlEntry[] with empty amount field",
+    "Save flow round-trips: { title, ingredients: BowlEntry[] } persists and re-loads correctly",
+    "Aroma-match handlers (handleFindCocktail/Sauce) unchanged in shape — they read bowl names, not amounts",
+    "All 846+ existing vitest tests pass; new bowl-shape tests added"
+  ]
+}
+```
+
+```json
+{
+  "id": "RL-RECIPETYPE",
+  "title": "Recipe-type radio pill row + bowl.recipeType state",
+  "category": "ui",
+  "priority": 1,
+  "description": "Implements RECIPE-LAB-SPEC.md §16. Adds a horizontal 7-pill radio row above the notebook in RecipeLabMobile (below the Mode tab strip from §2.4). Pills: Main / Side / Appetizer / Dessert / Drink / Sauce / Other. Single-select; tap to set, tap same to clear. State key bowl.recipeType ∈ {'main' | 'side' | 'appetizer' | 'dessert' | 'drink' | 'sauce' | 'other' | null}, default null. Persists across handoff payloads (read handoff.recipeType per RECIPE-LAB-SPEC.md §9.1 extension). No auto-classification this round.",
+  "acceptance": [
+    "src/components/RecipeTypePills.jsx renders 7 pills with role='radiogroup' / role='radio'",
+    "bowl.recipeType lives in RecipeLabMobile state",
+    "Handoff watcher reads handoff.recipeType when present",
+    "Tapping a pill sets recipeType; tapping same pill clears to null",
+    "Single-select semantics (different pill replaces previous)",
+    "Min 44px touch targets; visible focus rings; aria-checked tracks selection",
+    "Test covers tap → set → re-tap-same → clear → tap-different → switch",
+    "Smart_gate + 846+ tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "MAKE-HANDOFF-SOURCE",
+  "title": "Add `source` field to every recipeHandoff emission site",
+  "category": "ui",
+  "priority": 1,
+  "description": "Implements MAKE-MODE-SPEC.md §6.1. Currently App.jsx emits recipeHandoff payloads without a source field; MAKE-PICKER needs to discriminate make-* paths from existing handoff sources to bypass the empty-bowl guard at RECIPE-LAB-SPEC.md §9.2. Update all 6 existing emission sites in App.jsx (Build / Network Build Recipe / Cocktail Lab / Sauce Lab / Profile Load / Cookbook Open in Notebook) to set source: 'build' | 'cocktail' | 'sauce' | 'network' | 'profile' | 'cookbook'. Also amend RECIPE-LAB-SPEC.md §9.2: the watcher early-return `if (incoming.length === 0) return;` becomes `if (incoming.length === 0 && !handoff.source?.startsWith('make-')) return;`.",
+  "acceptance": [
+    "Every setRecipeHandoff call in src/App.jsx sets a `source` field",
+    "Sources used today: 'build', 'cocktail', 'sauce', 'network', 'profile', 'cookbook'",
+    "RecipeLabMobile handoff watcher passes empty-bowl handoffs through when source starts with 'make-'",
+    "Grep gate: `setRecipeHandoff\\(\\{\\s*source:` returns ≥6 hits in src/App.jsx",
+    "RECIPE-LAB-SPEC.md §9.2 amended with the make-* bypass clause",
+    "Smart_gate + 846+ tests pass; one new test covers empty-bowl + source='make-scratch' executes the watcher"
+  ]
+}
+```
+
+### Wave 2 — Make Mode primary surfaces
+
+```json
+{
+  "id": "MAKE-PICKER",
+  "title": "MakeRecipeStart.jsx — 3-card picker screen (scratch + photo + existing)",
+  "category": "ui",
+  "priority": 1,
+  "description": "Implements MAKE-MODE-SPEC.md §2 (the screen itself) and §4 + §5 (scratch + photo handoffs). Cookbook-existing path is handled in MAKE-COOKBOOK-PICKER. Creates src/components/MakeRecipeStart.jsx with 3 vertical cards stacked center-of-screen, copy locked per §2.3, icons emoji-placeholder per §11 O-3. App.jsx routes activeTab === 'make' to mount the component. Scratch card emits { source: 'make-scratch', ingredients: [], image: null, recipeType: null, title: '', mode: null, ts: Date.now() } and sets activeTab='recipe'. Photo card mounts a hidden <input type='file' accept='image/*' capture='environment'>; on image pick emits { source: 'make-photo', image: <File>, ... } and routes to Recipe Lab. Existing card sets cookbookPickerMode='make' + activeTab='cookbook' (consumed by MAKE-COOKBOOK-PICKER). Cancelling the file picker is a no-op.",
+  "acceptance": [
+    "src/components/MakeRecipeStart.jsx exists, renders 3 cards in order: existing, scratch, photo",
+    "Card copy matches MAKE-MODE-SPEC.md §2.3 exactly",
+    "Card tap targets ≥44px; aria-labels match §9.2",
+    "activeTab === 'make' mounts the picker; TAB_TO_PATH['make']='make'; PATH_TO_TAB['make']='make' in App.jsx",
+    "Scratch card emits recipeHandoff with source='make-scratch' + empty ingredients",
+    "Photo card opens file picker; image selection emits source='make-photo' with image=<File>",
+    "Cancelling file picker leaves Make mounted, no state change, no error toast",
+    "Picking a non-image (forced via dev tools) is a no-op",
+    "Existing card sets cookbookPickerMode='make' and activeTab='cookbook' (consumed by MAKE-COOKBOOK-PICKER)",
+    "Grep gate: MakeRecipeStart.jsx contains no setFilterStack/setBubbleStack/setBuildStack/setMode/setSelectedNodes calls (§7.2)",
+    "src/components/__tests__/MakeRecipeStart.test.jsx covers §10 listed tests",
+    "Smart_gate + 846+ tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "MAKE-LANDING-TILE",
+  "title": "Add Make landing tile + hand-drawn MakeVisual SVG (4-tile shipping order)",
+  "category": "ui",
+  "priority": 1,
+  "description": "Implements MAKE-MODE-SPEC.md §1.6. Adds a 'Make' tile to LandingScreen.jsx between 'Guided Discovery' and 'Build your Recipe' (one-release back-compat — Build tile stays until MAKE-BUILD-DEPRECATE ships). New tile id='make' routes to onModeSelect('make') → setActiveTab('make'). Hand-drawn MakeVisual SVG matches the PairingVisual / GuidedVisual / BuildVisual aesthetic (cycles through emoji-style icons: 📖 / ✏️ / 📷 as inline SVG glyphs). Mobile tab bar gains a 'Make' tab. Tile copy: label 'Make', subheadline per §1.6 'Pick your starting point and jump into the Recipe Lab.'",
+  "acceptance": [
+    "LandingScreen.jsx TILES array includes a 'make' entry at order index 2 (between Guided and Build)",
+    "MakeVisual SVG renders a hand-drawn glyph consistent with PairingVisual / GuidedVisual / BuildVisual style",
+    "MobileTabBar adds a Make tab",
+    "Tapping the Make tile fires onModeSelect('make') and routes to activeTab='make'",
+    "Grid layout adjusts from sm:grid-cols-3 → sm:grid-cols-4 to fit the new tile",
+    "Smart_gate + 846+ tests pass; new LandingScreen.makeTile test covers tile presence + click → handler"
+  ]
+}
+```
+
+```json
+{
+  "id": "MAKE-PHOTO-PREVIEW",
+  "title": "Recipe Lab image preview (zone-2 header) + URL.createObjectURL lifecycle",
+  "category": "ui",
+  "priority": 2,
+  "description": "Implements MAKE-MODE-SPEC.md §5.3 (Recipe Lab side of the photo handoff) and resolves §11 O-4. RecipeLabMobile reads handoff.image when present; if a File is attached, renders an <img> at ≥80px tall above the title input via URL.createObjectURL(file). User can remove via an X button; removal revokes the object URL. Object URL is also revoked on bowl-clear and on Recipe Lab unmount. Attached image does NOT change labMode or scoring.",
+  "acceptance": [
+    "RecipeLabMobile stores attached File in local state when handoff.image present",
+    "Image renders at ≥80px tall with alt='Recipe photo' near the top of zone 2 (above the title input)",
+    "Remove-image button (X) revokes URL.createObjectURL and clears the image",
+    "Object URL is revoked on Recipe Lab unmount + on bowl-clear",
+    "Image attachment does NOT alter labMode (still resolves to 'taste' from handoff.mode = null)",
+    "Smart_gate + 846+ tests pass; new test covers image-attached handoff + remove flow"
+  ]
+}
+```
+
+```json
+{
+  "id": "MAKE-COOKBOOK-PICKER",
+  "title": "Cookbook Lab pickerMode='make' — card-tap emits recipeHandoff (no modal)",
+  "category": "ui",
+  "priority": 2,
+  "description": "Implements MAKE-MODE-SPEC.md §3. Depends on DOCS-RL-COOKBOOK-RENAME (so the surface is CookbookLab.jsx, not RecipesLab.jsx). Adds pickerMode?: 'make' | null prop. When pickerMode === 'make': card click fires setRecipeHandoff({ source: 'make-cookbook', ingredients: [...recipe.ingredients], image: null, recipeType: recipe.cluster, title: recipe.name, mode: 'recipe', ts: Date.now() }) + setActiveTab('recipe') instead of opening RecipeDetail modal. 3D NetworkScene sphere click does the same. RecipeDetail is bypassed entirely in picker mode. UI affordances: breadcrumb chip top-of-screen 'Make → Pick a recipe' (tap returns to Make + clears pickerMode); card grid header copy changes to 'Pick one to start cooking'.",
+  "acceptance": [
+    "CookbookLab.jsx accepts pickerMode prop",
+    "pickerMode='make': card click emits recipeHandoff per §3.2 (does NOT open RecipeDetail)",
+    "3D scene sphere click in pickerMode emits handoff (same shape)",
+    "Breadcrumb 'Make → Pick a recipe' renders; tap returns to activeTab='make' + clears cookbookPickerMode to null",
+    "recipeHandoff.recipeType === seed.cluster (verbatim)",
+    "recipeHandoff.title === seed.name (verbatim)",
+    "externalFilter prop ignored while pickerMode === 'make'",
+    "Grep gate: CookbookLab.jsx contains pickerMode === 'make' ≥1 hit",
+    "Smart_gate + 846+ tests pass; new test src/components/__tests__/CookbookLab.pickerMode.test.jsx"
+  ]
+}
+```
+
+### Wave 3 — Recipe Lab suggestion engine upgrade
+
+```json
+{
+  "id": "RL-FOCAL-FLAG",
+  "title": "bowl.focalKey state + tap-and-hold 'Set as focal' menu on notebook rows",
+  "category": "ui",
+  "priority": 2,
+  "description": "Implements RECIPE-LAB-SPEC.md §13.3. Adds bowl.focalKey: string | null state in RecipeLabMobile, set via tap-and-hold (mobile) or right-click (desktop) → 'Set as focal' menu item. Tap-and-hold uses a 500ms long-press detector; right-click suppresses the native context menu. The flagged row renders with a visible 'focal' badge so the user can see which ingredient is currently focal. Tap-and-hold the same row a second time clears focalKey to null.",
+  "acceptance": [
+    "bowl.focalKey lives in RecipeLabMobile state, default null",
+    "Tap-and-hold (500ms) on a notebook row opens a small popover with 'Set as focal' option",
+    "Right-click on a notebook row (desktop) opens the same popover; native context menu suppressed",
+    "Selecting 'Set as focal' sets focalKey to that row's ingredient",
+    "Selecting 'Clear focal' on a row that's already focal clears focalKey to null",
+    "Focal row renders a visible 'focal' badge (color matches taste accent)",
+    "Smart_gate + 846+ tests pass; new test src/components/__tests__/RecipeNotebook.focal.test.jsx"
+  ]
+}
+```
+
+```json
+{
+  "id": "RL-FOCAL-RANKER",
+  "title": "Focal-weighted suggestion ranking (W_FOCAL=0.6 + W_SECONDARY proportional-mass)",
+  "category": "ml",
+  "priority": 2,
+  "description": "Implements RECIPE-LAB-SPEC.md §13.1. Depends on RL-PORTIONS-DATA (UNIT_DENSITY) + RL-FOCAL-FLAG (bowl.focalKey). Refactors recipeSuggestionEngine.js to accept a bowl shape with focal flag and per-row amounts. Score per candidate c: score(c) = base_npmi(c, focal) * 0.6 + Σ_{i ∈ bowl \\ focal} base_npmi(c, i) * (0.4 / N_non_focal) * proportional_weight(i). proportional_weight(i) = mass(i) / Σ mass(j), where mass(i) = amount.qty × UNIT_DENSITY[amount.unit]. Equal-weight fallback when mass(i) is null. Auto-focal at ranking time: when focalKey is null, the highest-mass ingredient is treated as focal (not persisted).",
+  "acceptance": [
+    "recipeSuggestionEngine.js exports a rankSuggestions(bowl, focalKey, candidates, ctx) that applies §13.1 formula",
+    "When focalKey is set: focal contributes 60% of score; non-focal contributes 40% proportionally weighted",
+    "When focalKey is null + bowl has masses: highest-mass ingredient acts as auto-focal at ranking time",
+    "When bowl has no amounts: equal-weight fallback (uniform proportional_weight)",
+    "Existing global-popularity empty-bowl branch (§8.2) preserved unchanged",
+    "Existing FAMILIARITY_FLOOR = 50 gate preserved",
+    "src/data/__tests__/recipeSuggestionEngine.test.js covers: focal-set ranking, focal-null + masses ranking, no-amounts equal-weight, empty-bowl global fallback",
+    "Smart_gate + 846+ tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "RL-CATEGORY-FILTER",
+  "title": "Food-category pill row above suggestion list",
+  "category": "ui",
+  "priority": 2,
+  "description": "Implements RECIPE-LAB-SPEC.md §14. Adds a sticky horizontal scrollable pill row above the IngredientSuggestionsPopout result list. Pills derive from distinct values of ingredients.json.category at load time (Produce / Meat & Seafood / Dairy / Grains / Herbs & Spices / Pantry / Beverage / Dessert / Sweetener / Fat & Oil / Condiment / Other). Single-select; tap to filter, tap same pill again to deactivate. Filter is local to the popout — doesn't persist across mounts or bowl mutations. Filter runs AFTER ranking (no change to score formula). Active pill: filled background with BRISCIONE category color (fallback #94a3b8). Inactive: outlined.",
+  "acceptance": [
+    "IngredientSuggestionsPopout renders a sticky pill row above results",
+    "Pills derive from distinct ingredients.json.category values at load time",
+    "Single-select semantics (no multi-pill state)",
+    "Tap same active pill again deactivates back to 'all'",
+    "Filter runs after §13 ranking — pill state changes do NOT re-rank, only filter the result set",
+    "Tap targets ≥44×44px",
+    "Active pill colored via BRISCIONE category palette (or fallback slate)",
+    "Smart_gate + 846+ tests pass; new test src/components/__tests__/IngredientSuggestionsPopout.categoryFilter.test.jsx"
+  ]
+}
+```
+
+### Wave 4 — Seasonings dataset + sauce/seasoning recommendations
+
+```json
+{
+  "id": "RL-SEASONINGS-DATA",
+  "title": "Seasonings chemDataset pipeline (chef-blocked: pick upstream)",
+  "category": "data",
+  "priority": 3,
+  "description": "Implements RECIPE-LAB-SPEC.md §15.2. Adds chemDataset/scripts/11-fetch-seasonings.js producing chemDataset/processed/seasonings.json with schema { name, category: 'herb' | 'spice' | 'aromatic' | 'pungent' | 'salt' | 'pepper' | 'finishing', flavor_profile: string[], pairing_score_function: 'NPMI from recipe_pairs.json' }. **BLOCKED on chef-user pick of upstream source.** Spec §15.2 parks the question; options on the table: (a) scrape The Good Scents Company seasoning catalog, (b) extract from FlavorDB by category filter, (c) hand-curate a starter list of ~50 entries chef expands, (d) FlavorNet + curated category overlay. Implementer waits for chef call before writing the fetcher.",
+  "blocked_on": "chef-user pick of upstream source",
+  "acceptance": [
+    "Chef-user has named the upstream source",
+    "chemDataset/scripts/11-fetch-seasonings.js exists and produces seasonings.json",
+    "Schema matches §15.2 contract",
+    "Pipeline integrates with the existing chemDataset blend (10-blend.js) if appropriate, or stands alone",
+    "Output covers ≥50 seasonings spanning all 7 category buckets",
+    "Smart_gate + 846+ tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "RL-SAUCE-SUGGEST",
+  "title": "Sauce recommendation chip row in IngredientSuggestionsPopout",
+  "category": "ui",
+  "priority": 2,
+  "description": "Implements RECIPE-LAB-SPEC.md §15.1. Adds a sticky 'Suggested sauces' chip row below the suggestion result list, sourcing from existing public/data/sauce_augment.json (69 curated sauces). Ranking: (1) ingredient overlap count (primary tie-break), (2) recipeAromaSimilarity cosine sim between bowl + sauce aroma vectors, (3) recipe-type compatibility gate (Main/Side → savory; Dessert → sweet; Drink → cocktail mixers). Top 5 chips, ordered by score desc. Tap a chip → opens the sauce in Sauce Lab via existing handoff. No new dataset needed.",
+  "acceptance": [
+    "IngredientSuggestionsPopout renders 'Suggested sauces' chip row when bowl has ≥1 ingredient",
+    "Sauce ranking applies §15.1 three-stage scoring",
+    "Recipe-type compatibility gate: bowl.recipeType='dessert' suppresses savory sauces; 'main'/'side' suppresses sweet",
+    "Top 5 chips render, sorted by score desc",
+    "Tap chip → opens that sauce in Sauce Lab (re-uses existing aroma-match bridge handoff or a direct sauce navigation)",
+    "Smart_gate + 846+ tests pass; new test covers ranking + recipe-type gate"
+  ]
+}
+```
+
+```json
+{
+  "id": "RL-SEASONING-SUGGEST",
+  "title": "Seasoning recommendation chip row in IngredientSuggestionsPopout",
+  "category": "ui",
+  "priority": 2,
+  "description": "Implements RECIPE-LAB-SPEC.md §15.3. Depends on RL-SEASONINGS-DATA. Adds a 'Suggested seasonings' sticky chip row beside the sauce row (§15.1). Ranking: NPMI to bowl.focalKey from recipe_pairs.json (§13 math), restricted to the seasoning subset (rows in seasonings.json). Filtered by §16 recipe-type compatibility: Main/Side/Appetizer → savory; Dessert → sweet finishing (cinnamon, cardamom, anise); Drink → cocktail-bitters/aromatic; Sauce → all enabled. Top 5 chips. Tap chip → adds to bowl as an ingredient row.",
+  "acceptance": [
+    "IngredientSuggestionsPopout renders 'Suggested seasonings' chip row when bowl has ≥1 ingredient AND seasonings.json loaded",
+    "Seasoning ranking applies §13 NPMI math against the seasoning subset only",
+    "Recipe-type gate filters seasonings per §15.3",
+    "Top 5 chips render, sorted by score desc",
+    "Tap chip → adds seasoning as new bowl row (with empty amount field; user can fill or accept §12 inferred placeholder)",
+    "Smart_gate + 846+ tests pass; new test covers ranking + recipe-type gate"
+  ]
+}
+```
+
+### Wave 5 — Cleanup + back-compat removal
+
+Wave 5 absorbs the previously-queued follow-up tasks (`DOCS-GD-TWO-TAP`,
+`DOCS-RL-NOTEBOOK-WIRE`, `DOCS-RL-COOKBOOK-RENAME`,
+`DOCS-RL-DRAWERSNAP-CLEANUP` — already in this file above) plus the
+one new back-compat removal below. They run independently and in any
+order once the surfaces they touch have stabilized.
+
+```json
+{
+  "id": "MAKE-BUILD-DEPRECATE",
+  "title": "Remove Build tile + `?path=build` → `?path=make` redirect (one release after MAKE-LANDING-TILE)",
+  "category": "ui",
+  "priority": 3,
+  "description": "Implements MAKE-MODE-SPEC.md §11 O-1. After one release window with both Make and Build tiles co-existing on the landing screen, removes the Build tile entirely and rewrites the legacy `?path=build` URL alias to redirect to `?path=make`. Build path components (BuildRecipeStart.jsx + BuildRecipeResults.jsx) are deleted. Users that bookmarked `?path=build` continue to land on Make. Cocktail/Sauce auto-filter behavior previously triggered by Build's cocktail/sauce cards is dropped — users wanting Cocktail/Sauce labs reach them via Explore → secondary nav.",
+  "blocked_on": "MAKE-LANDING-TILE shipped + one release of co-existence",
+  "acceptance": [
+    "LandingScreen.jsx 'Build your Recipe' tile removed",
+    "src/components/BuildRecipeStart.jsx and src/components/BuildRecipeResults.jsx deleted",
+    "App.jsx PATH_TO_TAB['build'] redirects to PATH_TO_TAB['make']",
+    "TAB_TO_PATH no longer references 'build' or 'build-results'",
+    "Legacy `?path=build` URL renders Make (verified in test)",
+    "Smart_gate + 846+ tests pass; BuildRecipeStart/Results test files deleted alongside the components"
+  ]
+}
+```
+
+### Cross-cutting risks
+
+**R-S1 — Bowl-shape migration (RL-PORTIONS-UI)** — moving
+`recipeIngredients: string[]` to `BowlEntry[]` touches ~12 callsites in
+RecipeLabMobile plus the handoff watcher plus the Save flow. Mitigation:
+adapter helper `bowlNames(bowl: BowlEntry[]) → string[]` at every read
+site so consumers stay name-only where they don't need amounts.
+
+**R-S2 — Seasonings upstream parked (RL-SEASONINGS-DATA)** — Wave 4
+seasoning suggestion depends on a dataset that doesn't have an
+agreed-upon source. The task is marked `blocked_on: chef-user pick`
+and the bridge advances past it to RL-SAUCE-SUGGEST (which has no such
+gate) in the meantime.
+
+**R-S3 — Build deprecation window (MAKE-BUILD-DEPRECATE)** — premature
+removal of the Build tile breaks shared URLs in active circulation.
+Mitigation: ship MAKE-LANDING-TILE with both tiles co-existing, observe
+analytics for one release, then ship MAKE-BUILD-DEPRECATE only after
+Build traffic drops to < 5% of landing taps.
+
+**R-S4 — Focal-weighted ranking quality regression (RL-FOCAL-RANKER)** —
+the new W_FOCAL=0.6 score formula changes what suggestions surface for
+existing bowls. Mitigation: feature-flag the ranker (`localStorage
+'feature:focal-ranker'`) for the first release window; A/B against the
+existing recipe-level co-occurrence ranker; flip default after chef
+spot-check.
+
+### Recommended sequence
+
+1. **Wave 1** in any order, all four tasks in parallel — they don't
+   collide.
+2. **Wave 2** after Wave 1 lands; MAKE-PICKER + MAKE-LANDING-TILE first
+   (the Make surface is visible at that point — chef can demo); then
+   MAKE-PHOTO-PREVIEW + MAKE-COOKBOOK-PICKER (the latter after
+   DOCS-RL-COOKBOOK-RENAME).
+3. **Wave 3** in parallel with Wave 4 (no shared files).
+4. **Wave 4** — answer the chef-user upstream question for
+   RL-SEASONINGS-DATA before starting it. RL-SAUCE-SUGGEST can ship
+   first (no data dependency).
+5. **Wave 5** is bridge-paced cleanup; run any time after the surfaces
+   stabilize.
+
 

@@ -71,7 +71,7 @@ describe('aromaBucket — F0 name-tilt override', () => {
     expect(bucketOfAroma({ name: 'cinnamon' }, ctx)).toBe('Woody');
   });
 
-  it('lemon meringue flips from Woody → Fruity even when fruity delta is small but positive', () => {
+  it('lemon meringue flips from Woody → Citrus (chef-vocab expansion 2026-05-27: lemon is now a Citrus cue, not Fruity)', () => {
     const probsByName = {
       'lemon meringue': odorProbs({
         woody: 0.18, fruity: 0.12, floral: 0.08, green: 0.05, spicy: 0.04, fatty: 0.04,
@@ -80,7 +80,10 @@ describe('aromaBucket — F0 name-tilt override', () => {
       'baseline_b': odorProbs(),
     };
     const ctx = buildCtx(probsByName);
-    expect(bucketOfAroma({ name: 'lemon meringue' }, ctx)).toBe('Fruity');
+    // Citrus is a chef-only category (no GNN head), so the name-tilt
+    // path bypasses the delta-gate that protects the 5 GNN-pickable
+    // labels — Citrus wins outright once the name cue fires.
+    expect(bucketOfAroma({ name: 'lemon meringue' }, ctx)).toBe('Citrus');
   });
 
   it('does NOT misfire on substring collisions (orangery ≠ orange)', () => {

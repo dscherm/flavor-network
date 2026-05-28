@@ -20,8 +20,8 @@ describe('getColorForNode — canonical-spec §3.1 color precedence', () => {
     expect(hex(getColorForNode(node))).toBe(BRISCIONE_AROMA.green);
   });
 
-  it('falls through to all 5 BRISCIONE_AROMA hexes for each Tier-1', () => {
-    for (const aroma of ['fruity', 'floral', 'green', 'woody', 'fatty']) {
+  it('falls through to all 5 GNN-pickable BRISCIONE_AROMA hexes for each Tier-1 (2026-05-27: fatty→creamy)', () => {
+    for (const aroma of ['fruity', 'floral', 'green', 'woody', 'creamy']) {
       const c = getColorForNode({
         primaryTier1Aroma: aroma,
         clusterColor: null,

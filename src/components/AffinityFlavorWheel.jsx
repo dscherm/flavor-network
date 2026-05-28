@@ -23,7 +23,10 @@ import FlavorPieWheel from './FlavorPieWheel.jsx';
 import { axisOrder } from '../data/briscionePalette.js';
 import { dominantMethodFor } from '../data/cookingMethods.js';
 
-const BRISCIONE_AROMA_KEYS = ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'];
+// 2026-05-27 (batch 6 chef-vocab): renamed 'fatty' → 'creamy'. Kept at
+// 6 keys for visual surface parity (spicy wedge stays but its underlying
+// odor_spicy is calibration-disabled, so the wedge reads empty).
+const BRISCIONE_AROMA_KEYS = ['fruity', 'floral', 'green', 'woody', 'spicy', 'creamy'];
 const FILTER_AXES = [
   { key: 'aroma',  label: 'Aroma' },
   { key: 'taste',  label: 'Taste' },

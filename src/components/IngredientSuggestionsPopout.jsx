@@ -5,7 +5,8 @@ import { TASTE_COLORS } from '../utils/color.js';
 import { AROMA_COLORS } from '../data/recipeScoring.js';
 import { roleOf, rolesCompatible } from '../data/ingredientRoles.js';
 
-const ODOR_KEYS = ['fruity', 'floral', 'green', 'woody', 'fatty'];
+// 2026-05-27 (batch 6 chef-vocab): renamed 'fatty' → 'creamy'.
+const ODOR_KEYS = ['fruity', 'floral', 'green', 'woody', 'creamy'];
 
 // Mirrors SuggestionDrawer's lookupNeighbors stripping logic for
 // cocktail / sauce ingredients with no direct edge. Kept in sync —

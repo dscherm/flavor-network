@@ -519,13 +519,31 @@ export const MEAT_ICON_BY_KEY = {
   game: GameIcon,
 };
 
+// 2026-05-27 (batch 6) — chef-vocab expansion. The 5 GNN-pickable
+// labels (Fruity / Floral / Green / Woody / Creamy) keep their
+// hand-drawn icons; the 8 chef-only labels (Citrus / Herbal / Earthy
+// / Roasted / Caramel / Aged / Marine / Pungent) alias to the
+// thematically-closest existing icon until dedicated SVGs are drawn.
+// The Spicy slot was dropped (mol-F1 below production gate) — its
+// closest match (Pungent) reuses SpicyIcon since the visual cue
+// (chili-shape with stem) reads correctly for allium-sulfur / mustard
+// pungency too.
 export const AROMA_ICON_BY_LABEL = {
+  // GNN-pickable (5)
   Fruity: FruityIcon,
   Floral: FloralIcon,
-  Green: GreenIcon,
-  Woody: WoodyIcon,
-  Spicy: SpicyIcon,
-  Fatty: FattyIcon,
+  Green:  GreenIcon,
+  Woody:  WoodyIcon,
+  Creamy: FattyIcon,   // renamed from Fatty
+  // Chef-only (8) — TODO: dedicated icons
+  Citrus:    FruityIcon,
+  Herbal:    GreenIcon,
+  Earthy:    WoodyIcon,
+  Roasted:   WoodyIcon,
+  Caramel:   WoodyIcon,
+  Fermented: WoodyIcon,
+  Marine:    GreenIcon,
+  Pungent:   SpicyIcon,
 };
 
 // Renamed from CUISINE_ICON_BY_LABEL → CUISINE_BUCKET_ICON_BY_LABEL (P7, 2026-05-18).
@@ -567,13 +585,24 @@ export const SEASON_CHIP_COLOR = {
   winter: '#94a3b8', // slate
 };
 
+// 13-entry chef-vocab palette; mirrors BRISCIONE_AROMA in briscionePalette.js.
+// Capitalized keys match AROMA_LABELS_FULL in categoricalAxes.js.
 export const AROMA_CHIP_COLOR = {
-  Fruity: '#dc2626',  // BRISCIONE_AROMA.fruity
-  Floral: '#ec4899',
-  Green:  '#22c55e',
-  Woody:  '#92400e',
-  Spicy:  '#ea580c',
-  Fatty:  '#fbbf24',
+  // GNN-pickable (5)
+  Fruity:  '#dc2626',  // BRISCIONE_AROMA.fruity
+  Floral:  '#ec4899',
+  Green:   '#22c55e',
+  Woody:   '#92400e',
+  Creamy:  '#fde68a',  // renamed from Fatty; warmer cream tone
+  // Chef-only (8)
+  Citrus:  '#f59e0b',
+  Herbal:  '#84cc16',
+  Earthy:  '#57534e',
+  Roasted: '#713f12',
+  Caramel:   '#c2410c',
+  Fermented: '#78350f',
+  Marine:    '#0891b2',
+  Pungent: '#be123c',
 };
 
 export const CUISINE_CHIP_COLOR = {

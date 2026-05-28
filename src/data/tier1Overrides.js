@@ -71,8 +71,9 @@ export const TIER1_OVERRIDES = {
   'cranberry bean':                 'fruity',  // legume but mapped to fruity over green per chef
   'chardonnay wine':       'fruity',
 
-  // Lactic/fatty
-  "goat's milk": 'fatty',
+  // Lactic / dairy — was 'fatty' before the 2026-05-27 chef-vocab
+  // expansion renamed the display key to 'creamy'.
+  "goat's milk": 'creamy',
 };
 
 /**
@@ -115,8 +116,10 @@ export function isAlliaceous(name) {
  * @param {string} name — normalized ingredient name
  * @param {object|null} probs — gnnProbs object with odor_<head> keys
  * @param {object} tier1Thresholds — output of buildTier1Thresholds
- * @returns {string|null} one of fruity, floral, green, woody, fatty,
- *   or null when no head can be resolved
+ * @returns {string|null} one of the 5 GNN-pickable chef-vocab labels
+ *   (fruity, floral, green, woody, creamy) — or one of the 13 chef
+ *   labels when TIER1_OVERRIDES pins a chef-only category — or null
+ *   when no head can be resolved.
  */
 export function resolvePrimaryTier1(name, probs, tier1Thresholds) {
   const norm = (name || '').toLowerCase().replace(/\s+/g, ' ').trim();

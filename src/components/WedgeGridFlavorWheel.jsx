@@ -25,7 +25,7 @@ import { bucketColor } from '../data/briscionePalette.js';
 import useIsMobile from '../hooks/useIsMobile.js';
 
 const TAU = Math.PI * 2;
-const AROMA_AXES = ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'];
+const AROMA_AXES = ['fruity', 'floral', 'green', 'woody', 'spicy', 'creamy'];
 const RING_AXES_FULL = ['taste', 'season', 'cuisine', 'method'];
 const RING_AXES_MOBILE = ['taste', 'season', 'cuisine'];
 // Phase 6 — tab traversal: sectors clockwise from 12 (AROMA_AXES order),
