@@ -488,9 +488,15 @@ export default function SauceLab({
   );
 }
 
-// Strip the "odor_" prefix and capitalize the first letter for display.
-// e.g. "odor_fruity" → "Fruity", "fruity" → "Fruity"
+// Strip the "odor_" prefix and capitalize for display. 2026-05-27
+// (batch 6 chef-vocab): odor_fatty → "Creamy" (renamed). Other odor
+// columns keep their lowercase-suffix→Capitalized mapping.
+const AROMA_DISPLAY_OVERRIDES = {
+  odor_fatty: 'Creamy',
+  fatty:      'Creamy',
+};
 function formatAromaKey(key) {
+  if (AROMA_DISPLAY_OVERRIDES[key]) return AROMA_DISPLAY_OVERRIDES[key];
   const stripped = (key || '').replace(/^odor_/, '');
   return stripped.charAt(0).toUpperCase() + stripped.slice(1);
 }

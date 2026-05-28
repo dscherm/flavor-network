@@ -61,7 +61,7 @@ function buildCtx({ x3ForGinger = 0.5 } = {}) {
   const tasteByName = {
     tomato: 'umami',
     basil: 'green, sweet',
-    'olive oil': 'fatty',
+    'olive oil': 'creamy',
     garlic: 'pungent',
     parmesan: 'umami, salty',
     oregano: 'bitter, green',

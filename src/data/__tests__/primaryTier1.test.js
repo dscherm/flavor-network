@@ -2,9 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { AROMA_AXES, buildTier1Thresholds, gnnPrimaryTier1 } from '../primaryTier1.js';
 
 describe('AROMA_AXES (Q7)', () => {
-  it('locks tier-1 vocabulary at 5 terms; spicy excluded', () => {
-    expect(AROMA_AXES).toEqual(['fruity', 'floral', 'green', 'woody', 'fatty']);
+  it('locks tier-1 vocabulary at 5 GNN-pickable terms; spicy excluded (2026-05-27: fatty renamed to creamy)', () => {
+    expect(AROMA_AXES).toEqual(['fruity', 'floral', 'green', 'woody', 'creamy']);
     expect(AROMA_AXES).not.toContain('spicy');
+    expect(AROMA_AXES).not.toContain('fatty');
   });
 });
 
@@ -38,7 +39,7 @@ describe('buildTier1Thresholds', () => {
 });
 
 describe('gnnPrimaryTier1', () => {
-  const thresholds = { fruity: 0.269, floral: 0.192, green: 0.285, woody: 0.252, fatty: 0.20 };
+  const thresholds = { fruity: 0.269, floral: 0.192, green: 0.285, woody: 0.252, creamy: 0.20 };
 
   it('returns the aroma head with the highest threshold-surplus ratio', () => {
     // woody at 0.50 (t=0.252) → surplus 0.984; fruity at 0.30 (t=0.269) → 0.115.
@@ -60,7 +61,7 @@ describe('gnnPrimaryTier1', () => {
     // green would have won (raw 0.50 — but here we make them equal at 0.40).
     // Under surplus normalization, floral has the lowest threshold (0.192),
     // so its surplus ratio is highest: (0.40-0.192)/0.192 = 1.083, beating
-    // fatty (1.000), green (0.754), woody (0.587), fruity (0.487).
+    // creamy (1.000), green (0.754), woody (0.587), fruity (0.487).
     const probs = {
       odor_fruity: 0.40, odor_floral: 0.40, odor_green: 0.40, odor_woody: 0.40, odor_fatty: 0.40,
     };
@@ -75,7 +76,7 @@ describe('gnnPrimaryTier1', () => {
       odor_floral: thresholds.floral * 1.10,
       odor_green:  thresholds.green  * 1.10,
       odor_woody:  thresholds.woody  * 1.10,
-      odor_fatty:  thresholds.fatty  * 1.10,
+      odor_fatty:  thresholds.creamy * 1.10,
     };
     expect(gnnPrimaryTier1(probs, thresholds)).toBe('fruity');
   });
@@ -90,7 +91,7 @@ describe('gnnPrimaryTier1', () => {
     // After N2-AGG-RECAL, low-F1 heads get threshold = 1.01 (sentinel).
     // Even if a head had a stray threshold=0, the picker must skip it.
     const probs = { odor_fruity: 0.5, odor_floral: 0.5, odor_green: 0, odor_woody: 0, odor_fatty: 0 };
-    const t = { fruity: 0.269, floral: 0, green: 0.285, woody: 0.252, fatty: 0.20 };
+    const t = { fruity: 0.269, floral: 0, green: 0.285, woody: 0.252, creamy: 0.20 };
     // floral threshold=0 is treated as disabled; fruity at 0.5 (t=0.269) wins.
     expect(gnnPrimaryTier1(probs, t)).toBe('fruity');
   });

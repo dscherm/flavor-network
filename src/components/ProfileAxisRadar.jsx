@@ -34,7 +34,7 @@ const AXIS_CONFIG = {
   },
   aroma: {
     label: 'Aroma',
-    keys: ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'],
+    keys: ['fruity', 'floral', 'green', 'woody', 'spicy', 'creamy'],
     colorFor: (k) => bucketColor('aroma', k) || '#888',
   },
   season: {

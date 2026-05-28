@@ -181,7 +181,7 @@ export default function HowItWorks({
                   <p><strong className="text-green-400">Excellent:</strong> Sweet (0.90),
                      Sour (0.82), Bitter (0.80), Umami (0.73)</p>
                   <p><strong className="text-green-400">Strong:</strong> Fruity (0.72),
-                     Fatty (0.62), Green (0.61)</p>
+                     Creamy (0.62), Green (0.61)</p>
                   <p><strong className="text-yellow-400">Moderate:</strong> Woody (0.54),
                      Floral (0.52)</p>
                   <p><strong className="text-red-400">Not surfaced:</strong> Salty (0.33)

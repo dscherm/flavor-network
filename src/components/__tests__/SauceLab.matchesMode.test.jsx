@@ -142,7 +142,7 @@ describe('SauceLab — matchesContext non-null', () => {
     expect(screen.getByText('Hollandaise')).toBeTruthy();
     // Similarity badge
     expect(screen.getByText('83% match')).toBeTruthy();
-    // Aroma chip — "odor_fatty" → "Fatty"
-    expect(screen.getByText('Fatty')).toBeTruthy();
+    // Aroma chip — "odor_fatty" → "Creamy" (2026-05-27 chef-vocab rename)
+    expect(screen.getByText('Creamy')).toBeTruthy();
   });
 });

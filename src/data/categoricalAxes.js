@@ -13,12 +13,49 @@
  * resulting wheel layouts stay readable.
  */
 
-// ----- Aromas (5 BRISCIONE odor families exposed in the UI) -----
-// odor_spicy is intentionally omitted: Q7 vocab lock + N2-AGG-RECAL
-// disabled its calibrated threshold (mol-F1 0.329 < 0.4 production gate).
-const AROMA_KEYS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_fatty'];
-const AROMA_LABELS = ['Fruity', 'Floral', 'Green', 'Woody', 'Fatty'];
-const AROMA_COLORS = ['#fb923c', '#f0abfc', '#84cc16', '#a16207', '#fbbf24'];
+// ----- Aromas — 2026-05-27 chef-vocab expansion (batch 6) -----
+//
+// Two layers:
+//
+//   GNN-pickable (5 categories) — what the model can actually predict
+//   ─────────────────────────────────────────────────────────────────
+//   AROMA_KEYS_GNN holds the 5 GNN odor-head columns:
+//     odor_fruity → 'Fruity', odor_floral → 'Floral',
+//     odor_green  → 'Green',  odor_woody  → 'Woody',
+//     odor_fatty  → 'Creamy'.
+//   Note 'fatty' was renamed to 'creamy' to match chef vocab; the GNN
+//   FEATURE column stays as odor_fatty (data file unchanged), only the
+//   display label changes. odor_spicy stayed dropped (mol-F1 below
+//   F1=0.4 production gate) and is not surfaced anywhere.
+//
+//   Chef-vocab (13 categories) — the full filter pill row + radar axis
+//   ───────────────────────────────────────────────────────────────────
+//   AROMA_LABELS_FULL adds 8 chef-only categories beyond the GNN set:
+//     citrus, herbal, earthy, roasted, caramel, aged, marine, pungent.
+//   These have no GNN prediction — they only surface for ingredients
+//   whose chef-curated flavor_graph.tier1 carries the label.
+//
+//   The bucket function tries chef-tier1 first (full vocab), then falls
+//   back to the GNN argmax-delta path (5-category subset).
+const AROMA_KEYS_GNN = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_fatty'];
+const AROMA_LABELS_GNN = ['Fruity', 'Floral', 'Green', 'Woody', 'Creamy'];
+
+// Full 13-category chef vocab — order matches BRISCIONE_AXIS_ORDER.aroma
+// (briscionePalette.js). Used for filter pill row + radar axis labels.
+const AROMA_LABELS_FULL = [
+  'Citrus', 'Fruity', 'Floral', 'Herbal', 'Green', 'Creamy',
+  'Woody', 'Earthy', 'Roasted', 'Caramel', 'Fermented', 'Marine', 'Pungent',
+];
+const AROMA_COLORS_FULL = [
+  '#f59e0b', '#dc2626', '#ec4899', '#84cc16', '#22c55e', '#fde68a',
+  '#92400e', '#57534e', '#713f12', '#c2410c', '#78350f', '#0891b2', '#be123c',
+];
+
+// Lookup: capitalized label → lowercase chef vocab key (matches
+// flavor_graph.tier1 string values).
+const LABEL_FROM_TIER1 = Object.fromEntries(
+  AROMA_LABELS_FULL.map((l) => [l.toLowerCase(), l]),
+);
 
 // F0 trust override (2026-05-16) — when an ingredient name contains a
 // strong cue word that maps to a specific aroma family AND the GNN's
@@ -35,43 +72,85 @@ const AROMA_COLORS = ['#fb923c', '#f0abfc', '#84cc16', '#a16207', '#fbbf24'];
 // conservative: only names where the cue word IS the dominant
 // flavor identifier of the ingredient (raspberry, cinnamon, mint,
 // chile) — not weaker associations.
+// Chef-vocab expansion (2026-05-27, batch 6): citrus is now its own
+// category (was lumped into Fruity); Fatty was renamed to Creamy;
+// Spicy was dropped (mol-F1 below production gate). Chef-only cues
+// added for marine / aged / caramel / earthy / roasted / herbal /
+// pungent based on `audit_wrong_cases.py` corrections — these tilt
+// the chef tier1 selection at the bucketer level so name-obvious
+// ingredients land in their chemistry-correct bucket regardless of
+// whether they have GNN signal.
 const AROMA_NAME_CUES = [
-  // Fruity
+  // Citrus (NEW chef vocab; was Fruity in 5-axis era)
+  { aroma: 'Citrus', words: [
+    'lemon', 'lime', 'orange', 'grapefruit', 'yuzu', 'bergamot',
+    'tangerine', 'mandarin', 'clementine', 'kumquat',
+  ] },
+  // Fruity (non-citrus stone-fruits + berries)
   { aroma: 'Fruity', words: [
     'raspberry', 'strawberry', 'blueberry', 'blackberry', 'cranberry',
     'cherry', 'apple', 'pear', 'peach', 'apricot', 'plum', 'nectarine',
     'grape', 'mango', 'pineapple', 'banana', 'melon', 'watermelon',
     'kiwi', 'fig', 'date', 'persimmon', 'pomegranate', 'passionfruit',
     'passion fruit', 'lychee', 'guava', 'papaya', 'currant', 'cantaloupe',
-    'tangerine', 'mandarin', 'clementine', 'kumquat',
   ] },
-  // Citrus reads as fruity per Briscione palette
-  { aroma: 'Fruity', words: ['lemon', 'lime', 'orange', 'grapefruit', 'yuzu', 'bergamot'] },
   // Floral
   { aroma: 'Floral', words: [
     'rose', 'jasmine', 'lavender', 'orchid', 'lilac', 'violet',
     'chamomile', 'elderflower', 'hibiscus', 'orange blossom',
   ] },
-  // Green
+  // Herbal (NEW chef vocab; terpene-driven, distinct from leafy green)
+  { aroma: 'Herbal', words: [
+    'cardamom', 'coriander', 'cumin', 'marjoram', 'oregano', 'thyme',
+    'rosemary', 'sage', 'fennel', 'anise', 'caraway', 'star anise',
+  ] },
+  // Green (leafy / herbaceous; allium handled via tier1Overrides)
   { aroma: 'Green', words: [
     'mint', 'spearmint', 'peppermint', 'basil', 'parsley', 'cilantro',
     'dill', 'arugula', 'spinach', 'kale', 'chive', 'tarragon', 'shiso',
     'sorrel', 'watercress', 'lettuce',
   ] },
+  // Creamy (renamed from Fatty; lactic / dairy / nut oils)
+  { aroma: 'Creamy', words: [
+    'butter', 'cream', 'lard', 'tallow', 'suet', 'ghee', 'mascarpone',
+    'crème fraîche', 'creme fraiche',
+  ] },
   // Woody
   { aroma: 'Woody', words: [
     'cedar', 'oak', 'pine', 'cinnamon', 'cassia', 'sandalwood', 'mesquite',
   ] },
-  // Spicy
-  { aroma: 'Spicy', words: [
-    'chile', 'chili', 'cayenne', 'jalapeno', 'habanero', 'serrano',
-    'poblano', 'chipotle', 'paprika', 'sriracha', 'tabasco',
-    'horseradish', 'wasabi', 'mustard seed',
+  // Earthy (NEW chef vocab; geosmin-driven)
+  { aroma: 'Earthy', words: [
+    'mushroom', 'porcini', 'shiitake', 'morel', 'truffle', 'potato',
+    'beet', 'beetroot',
   ] },
-  // Fatty
-  { aroma: 'Fatty', words: [
-    'butter', 'cream', 'lard', 'tallow', 'suet', 'ghee', 'mascarpone',
-    'crème fraîche', 'creme fraiche',
+  // Roasted (NEW chef vocab; Maillard / pyrazines)
+  { aroma: 'Roasted', words: [
+    'cocoa', 'coffee', 'hazelnut', 'walnut', 'chestnut', 'pecan',
+    'roasted',
+  ] },
+  // Caramel (NEW chef vocab; furaneol / maltol / HMF)
+  { aroma: 'Caramel', words: [
+    'caramel', 'molasses', 'maple', 'fenugreek', 'sotolone',
+    'brown sugar',
+  ] },
+  // Fermented (NEW chef vocab; fermented / cured / aged)
+  { aroma: 'Fermented', words: [
+    'parmesan', 'gruyere', 'miso', 'soy sauce', 'fish sauce',
+    'hoisin', 'worcestershire', 'asiago', 'pecorino', 'manchego',
+  ] },
+  // Marine (NEW chef vocab; bromophenols / TMA / DMS)
+  { aroma: 'Marine', words: [
+    'anchovy', 'oyster', 'shrimp', 'kombu', 'nori', 'seaweed',
+    'kelp', 'scallop', 'mussel', 'clam', 'crab', 'lobster',
+  ] },
+  // Pungent (allium / brassica isothiocyanates / sulfur thiols)
+  { aroma: 'Pungent', words: [
+    'horseradish', 'wasabi', 'mustard seed', 'mustard powder',
+    'radish', 'cabbage',
+    // Note: bare 'mustard' deliberately excluded — Dijon-style mustard
+    // is condiment-aged; mustard SEED + mustard POWDER are the raw
+    // isothiocyanate signal.
   ] },
 ];
 
@@ -103,23 +182,51 @@ function aromaNameTilt(name) {
  * baseline, which yields a balanced distribution.
  */
 function aromaCorpusMeans(gnnEntropy) {
-  const sums = new Array(AROMA_KEYS.length).fill(0);
+  const sums = new Array(AROMA_KEYS_GNN.length).fill(0);
   let n = 0;
   for (const name of Object.keys(gnnEntropy || {})) {
     const probs = gnnEntropy[name]?.probs;
     if (!probs) continue;
     let any = false;
-    for (let i = 0; i < AROMA_KEYS.length; i++) {
-      const v = probs[AROMA_KEYS[i]];
+    for (let i = 0; i < AROMA_KEYS_GNN.length; i++) {
+      const v = probs[AROMA_KEYS_GNN[i]];
       if (typeof v === 'number') { sums[i] += v; any = true; }
     }
     if (any) n++;
   }
-  if (n === 0) return new Array(AROMA_KEYS.length).fill(0);
+  if (n === 0) return new Array(AROMA_KEYS_GNN.length).fill(0);
   return sums.map((s) => s / n);
 }
 
+// Multi-aroma helper (2026-05-28 v8): collect every chef tier1 entry
+// as a capitalized display label, dropping unrecognized terms. Returns
+// [] when no tier1 is present.
+export function aromaBucketsAll(node) {
+  const tier1 = node?.flavorGraph?.tier1;
+  if (!Array.isArray(tier1)) return [];
+  const out = [];
+  for (const t of tier1) {
+    if (typeof t !== 'string') continue;
+    const label = LABEL_FROM_TIER1[t.toLowerCase()];
+    if (label && !out.includes(label)) out.push(label);
+  }
+  return out;
+}
+
 function aromaBucket(node, ctx) {
+  // Chef-tier1 wins when present (2026-05-27 batch 6 expansion). The
+  // 8 chef-only categories (citrus/marine/fermented/caramel/earthy/
+  // roasted/herbal/pungent) have no GNN signal — they only surface
+  // when the chef-curated flavor_graph carries the tier1 label. Falls
+  // through to the GNN argmax-delta path for ingredients with no chef
+  // tier1. Returns the PRIMARY (tier1[0]) for single-label consumers;
+  // multi-aroma surfaces should use aromaBucketsAll() instead.
+  const chefTier1 = node?.flavorGraph?.tier1?.[0];
+  if (typeof chefTier1 === 'string') {
+    const label = LABEL_FROM_TIER1[chefTier1.toLowerCase()];
+    if (label) return label;
+  }
+
   // R16 Phase 3: prefer node.gnnProbs (which includes the synthesized
   // compound-food profiles via applyCompoundSynthesis) before falling
   // back to gnnEntropy. Without this fallback, compound foods like
@@ -131,11 +238,11 @@ function aromaBucket(node, ctx) {
   let bestIdx = -1;
   let bestDelta = -Infinity;
   const deltaByLabel = {};
-  for (let i = 0; i < AROMA_KEYS.length; i++) {
-    const v = probs[AROMA_KEYS[i]];
+  for (let i = 0; i < AROMA_KEYS_GNN.length; i++) {
+    const v = probs[AROMA_KEYS_GNN[i]];
     if (typeof v !== 'number') continue;
     const delta = v - means[i];
-    deltaByLabel[AROMA_LABELS[i]] = delta;
+    deltaByLabel[AROMA_LABELS_GNN[i]] = delta;
     if (delta > bestDelta) { bestDelta = delta; bestIdx = i; }
   }
   // Drop ingredients that are below-average across every channel —
@@ -153,11 +260,20 @@ function aromaBucket(node, ctx) {
   // positive delta (i.e., the model itself sees some signal for
   // that channel — we're breaking a near-tie in favor of the
   // human-obvious answer, not fabricating signal).
+  // Name-tilt fires across the full 13-category vocab now. Chef-only
+  // categories (e.g. Citrus, Herbal, Roasted, Aged, Marine, Pungent)
+  // have no GNN signal so they bypass the `deltaByLabel[tilt] > 0`
+  // delta gate that only protects the 5 GNN-pickable labels. For
+  // GNN-pickable tilts (Fruity / Floral / Green / Woody / Creamy)
+  // the delta gate still applies; for chef-only tilts the tilt
+  // wins outright as long as it's name-evidenced.
   const tilt = aromaNameTilt(node?.name);
-  if (tilt && deltaByLabel[tilt] > 0) {
-    return tilt;
+  if (tilt) {
+    const isGnnPickable = AROMA_LABELS_GNN.includes(tilt);
+    if (!isGnnPickable) return tilt;
+    if (deltaByLabel[tilt] > 0) return tilt;
   }
-  return AROMA_LABELS[bestIdx];
+  return AROMA_LABELS_GNN[bestIdx];
 }
 
 // ----- Cuisine ---------------------------------------------------
@@ -288,7 +404,7 @@ function tasteBucket(node) {
 
 // ---------- Public registry --------------------------------------
 export const CATEGORICAL_AXES = {
-  aromas:  { labels: AROMA_LABELS,   colors: AROMA_COLORS,   bucketOf: aromaBucket },
+  aromas:  { labels: AROMA_LABELS_FULL,   colors: AROMA_COLORS_FULL,   bucketOf: aromaBucket },
   cuisine: { labels: CUISINE_LABELS, colors: CUISINE_COLORS, bucketOf: cuisineBucket },
   season:  { labels: SEASON_LABELS,  colors: SEASON_COLORS,  bucketOf: seasonBucket },
   family:  { labels: FAMILY_LABELS,  colors: FAMILY_COLORS,  bucketOf: familyBucket },
@@ -337,6 +453,25 @@ export function bucketOf(filterKey, node, ctx) {
   const axisKey = filterKey === 'aroma' ? 'aromas' : filterKey;
   const axis = CATEGORICAL_AXES[axisKey];
   if (!axis) return null;
+
+  // Multi-aroma OR-match (2026-05-28 v8): 39% of chef-curated
+  // ingredients carry 2-3 tier1 aromas. For the aroma axis only, an
+  // ingredient is considered "in bucket X" if X appears anywhere in
+  // its tier1 list — not just at index 0. The returned label still
+  // resolves to a single value (the matched bucket) so AND-intersect
+  // visibility math upstream stays unchanged. The ctx.activeAromaBucket
+  // hint lets the caller specify which bucket to test for; without
+  // it we fall back to primary-tier1 semantics for backward compat.
+  if (axisKey === 'aromas') {
+    const allLabels = aromaBucketsAll(node);
+    if (allLabels.length === 0) {
+      return axis.bucketOf(node, ctx || {}) || null;
+    }
+    const hint = ctx?.activeAromaBucket;
+    if (typeof hint === 'string' && allLabels.includes(hint)) return hint;
+    return allLabels[0];
+  }
+
   return axis.bucketOf(node, ctx || {}) || null;
 }
 

@@ -20,16 +20,32 @@
  * categoricalAxes).
  */
 
+// Chef-vocab expansion (2026-05-27, batch 6) — palette expanded from
+// the 5-head GNN set to the 13-category chef-curated vocabulary. New
+// categories don't have GNN heads (only chef-CSV labels surface them);
+// the 5 GNN-pickable categories (citrus excluded → chef-only) stay at
+// fruity/floral/green/woody/creamy. `fatty` was renamed to `creamy`
+// to match chef vocab; `spicy` was dropped (mol-F1 0.329 < 0.4 gate).
 export const BRISCIONE_AROMA = {
-  // Allium ingredients (onion/garlic/leek/etc.) are tier1='green' too;
-  // chef-curated layer keeps a distinct "alliaceous green" semantic but
-  // the visual palette collapses both to emerald.
-  fruity: '#dc2626',  // red — bright stone-fruit / berry
-  floral: '#ec4899',  // pink — rose / jasmine
-  green:  '#22c55e',  // emerald — herb / leaf / allium
-  woody:  '#92400e',  // umber — cedar / oak / smoke
-  spicy:  '#ea580c',  // burnt orange — pepper / capsicum
-  fatty:  '#fbbf24',  // amber — butter / nut / lipid
+  // Fresh & bright (3) — citrus is chef-only; fruity/floral are GNN-pickable
+  citrus:  '#f59e0b',  // saturated amber — lemon zest / limonene
+  fruity:  '#dc2626',  // red — bright stone-fruit / berry
+  floral:  '#ec4899',  // pink — rose / jasmine
+  // Vegetative (2) — herbal is chef-only; green is GNN-pickable + allium
+  herbal:  '#84cc16',  // bright lime — terpenes / cardamom / coriander
+  green:   '#22c55e',  // emerald — herb / leaf / allium
+  // Dairy & fat (1) — creamy is GNN-pickable (maps to odor_fatty column)
+  creamy:  '#fde68a',  // pale cream — butter / lactones / dairy
+  // Earth & wood (2) — woody is GNN-pickable; earthy chef-only
+  woody:   '#92400e',  // umber — cedar / oak / smoke
+  earthy:  '#57534e',  // slate brown — geosmin / mushroom / potato
+  // Fermentation & heat (3) — chef-only
+  roasted: '#713f12',  // deep roast brown — pyrazines / coffee / cocoa
+  caramel: '#c2410c',  // burnt amber — Maillard sugars / molasses
+  fermented: '#78350f',  // dark mahogany — parmesan / miso / soy / aged cheeses
+  // Other (2) — chef-only
+  marine:  '#0891b2',  // deep teal — kelp / anchovy / TMA / DMS
+  pungent: '#be123c',  // crimson — allium-sulfur / mustard / horseradish
 };
 
 export const BRISCIONE_TASTE = {
@@ -92,7 +108,7 @@ export function bucketColor(axis, bucketKey) {
  * stable across re-renders and across ingredients.
  */
 export const BRISCIONE_AXIS_ORDER = {
-  aroma:   ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'],
+  aroma:   ['citrus', 'fruity', 'floral', 'herbal', 'green', 'creamy', 'woody', 'earthy', 'roasted', 'caramel', 'fermented', 'marine', 'pungent'],
   taste:   ['sweet', 'sour', 'bitter', 'salty', 'spicy', 'pungent', 'astringent', 'umami'],
   season:  ['spring', 'summer', 'fall', 'winter'],
   method:  ['grill', 'roast', 'sear', 'braise', 'saute', 'fry', 'poach', 'boil', 'steam', 'bake', 'smoke', 'raw', 'confit'],

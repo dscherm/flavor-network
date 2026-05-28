@@ -6,7 +6,7 @@ import {
   resolvePrimaryTier1,
 } from '../tier1Overrides.js';
 
-const T = { fruity: 0.133, floral: 0.054, green: 0.194, woody: 0.334, fatty: 0.125 };
+const T = { fruity: 0.133, floral: 0.054, green: 0.194, woody: 0.334, creamy: 0.125 };
 
 describe('TIER1_OVERRIDES', () => {
   it('pins the chef-audited false positives to non-green Tier-1', () => {
@@ -14,7 +14,7 @@ describe('TIER1_OVERRIDES', () => {
     expect(TIER1_OVERRIDES['beetroot']).toBe('woody');
     expect(TIER1_OVERRIDES['cranberry']).toBe('fruity');
     expect(TIER1_OVERRIDES['chardonnay wine']).toBe('fruity');
-    expect(TIER1_OVERRIDES["goat's milk"]).toBe('fatty');
+    expect(TIER1_OVERRIDES["goat's milk"]).toBe('creamy');
   });
 
   it('covers every cranberry variant we found in the audit', () => {
@@ -75,7 +75,7 @@ describe('resolvePrimaryTier1', () => {
     // Even if another head would win the surplus tie-break, the allium
     // detection pins this to plain green so the visual stays the BRISCIONE
     // emerald — chef intuition keeps onions in the green family.
-    const probs = { odor_green: 0.25, odor_fatty: 0.40 };  // fatty surplus higher
+    const probs = { odor_green: 0.25, odor_fatty: 0.40 };  // creamy surplus higher
     expect(resolvePrimaryTier1('onion powder', probs, T)).toBe('green');
     expect(resolvePrimaryTier1('vidalia onion', probs, T)).toBe('green');
     expect(resolvePrimaryTier1('garlic clove', probs, T)).toBe('green');

@@ -1086,7 +1086,8 @@ export default function LivingArchView({
     // each pole sits in the middle of its colored wedge.
     const AROMA_DISC_RADIUS = 130;
     const AROMA_DISC_OPACITY = 0.25;
-    const AROMA_ORDER = ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'];
+    // 2026-05-27 (batch 6 chef-vocab): renamed 'fatty' → 'creamy'.
+    const AROMA_ORDER = ['fruity', 'floral', 'green', 'woody', 'spicy', 'creamy'];
     const aromaSectorGroup = new THREE.Group();
     aromaSectorGroup.visible = false;
     // renderOrder < 0 nudges this behind everything else that uses the

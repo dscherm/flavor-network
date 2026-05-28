@@ -35,8 +35,8 @@ describe('guidedRadarAxes — P2 helper module', () => {
     expect(getAxesFor('taste')).toHaveLength(8);
   });
 
-  it("getAxesFor('aroma').length === 6", () => {
-    expect(getAxesFor('aroma')).toHaveLength(6);
+  it("getAxesFor('aroma').length === 13 (chef-vocab expansion 2026-05-27)", () => {
+    expect(getAxesFor('aroma')).toHaveLength(13);
   });
 
   it("getAxesFor('season').length === 4", () => {

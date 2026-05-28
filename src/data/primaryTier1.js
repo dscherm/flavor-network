@@ -9,26 +9,51 @@
 //           (per-ingredient p85 calibration), NOT molecule-level
 //           odor_thresholds.
 //
-// Q7 (.omc/notepad.md) freezes the Tier-1 vocabulary at 5 terms; `spicy`
-// stays excluded so chili-style ingredients fall through to their existing
-// cluster color via the defensive fallback path in NodeMesh.
+// GNN-pickable subset of the 13-category chef vocab. These 5 keys map
+// 1:1 to the model's odor heads; the other 8 chef-vocab categories
+// (citrus / marine / aged / caramel / earthy / roasted / herbal /
+// pungent) have no GNN prediction and surface only via chef-curated
+// flavor_graph tier1 — see categoricalAxes.js aromaBucket.
+//
+// 2026-05-27 (batch 6): renamed display key 'fatty' → 'creamy' to
+// match chef vocab. The GNN feature column stays `odor_fatty` (data
+// file unchanged); GNN_KEY_FOR translates display key → GNN column.
+// `spicy` stays excluded (mol-F1 0.329 < 0.4 production gate).
+export const AROMA_AXES = ['fruity', 'floral', 'green', 'woody', 'creamy'];
 
-export const AROMA_AXES = ['fruity', 'floral', 'green', 'woody', 'fatty'];
+// Display-key → GNN feature-column lookup. Only `creamy` diverges from
+// the `odor_<key>` convention (its GNN column is the legacy
+// `odor_fatty`); the other 4 keys map by simple prefix.
+const GNN_KEY_FOR = {
+  fruity: 'odor_fruity',
+  floral: 'odor_floral',
+  green:  'odor_green',
+  woody:  'odor_woody',
+  creamy: 'odor_fatty',
+};
 
 /**
  * Build a tier1 threshold map from the raw ingredient_profile_thresholds.json
  * structure: { per_task: [{task: 'odor_fruity', ingredient_threshold: 0.269}, ...] }.
  * Filters to the 5 canonical aroma heads.
+ *
+ * Returns keys in the display-vocab namespace (creamy, not fatty) so
+ * the rest of the codebase can stay in chef-vocab terms even though
+ * the source JSON uses the legacy odor_fatty column.
  */
 export function buildTier1Thresholds(ingredientThresholds) {
   const out = {};
   const tasks = ingredientThresholds?.per_task;
   if (!Array.isArray(tasks)) return out;
+  // Build the inverse: GNN column → display key
+  const DISPLAY_FOR = Object.fromEntries(
+    Object.entries(GNN_KEY_FOR).map(([disp, gnn]) => [gnn, disp]),
+  );
   for (const entry of tasks) {
     if (!entry?.task?.startsWith('odor_')) continue;
-    const aroma = entry.task.slice('odor_'.length);
-    if (AROMA_AXES.includes(aroma)) {
-      out[aroma] = entry.ingredient_threshold;
+    const displayKey = DISPLAY_FOR[entry.task];
+    if (displayKey && AROMA_AXES.includes(displayKey)) {
+      out[displayKey] = entry.ingredient_threshold;
     }
   }
   return out;
@@ -57,7 +82,9 @@ export function gnnPrimaryTier1(probs, tier1Thresholds) {
   if (!probs) return null;
   const above = [];
   for (const aroma of AROMA_AXES) {
-    const p = probs[`odor_${aroma}`];
+    // GNN_KEY_FOR translates display key → GNN column name; only
+    // creamy diverges (column = odor_fatty), the others map by prefix.
+    const p = probs[GNN_KEY_FOR[aroma]];
     const t = tier1Thresholds?.[aroma];
     if (typeof p === 'number' && typeof t === 'number' && t > 0 && p >= t) {
       above.push({ aroma, p, surplus: (p - t) / t });

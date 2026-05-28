@@ -148,11 +148,11 @@ describe('accentPlacement', () => {
       const focal = mkNode({
         gnnProbs: gnnAroma({ fruity: 0.8, floral: 0.1, green: 0.6, woody: 0.3, spicy: 0.05, fatty: 0.9 }),
       });
-      const thresholds = { fruity: 0.55, floral: 0.55, green: 0.50, woody: 0.45, spicy: 0.65, fatty: 0.70 };
+      const thresholds = { fruity: 0.55, floral: 0.55, green: 0.50, woody: 0.45, spicy: 0.65, creamy: 0.70 };
       const set = activatedAromas(focal, thresholds);
       expect(set.has('fruity')).toBe(true);
       expect(set.has('green')).toBe(true);
-      expect(set.has('fatty')).toBe(true);
+      expect(set.has('creamy')).toBe(true);
       expect(set.has('floral')).toBe(false);
       expect(set.has('spicy')).toBe(false);
     });

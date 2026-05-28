@@ -12,7 +12,7 @@
  *     { cells: Cell[], dropped: number, activatedAromas: Set, ineligibleRings: Set }
  *
  *   where Cell = {
- *     sector: 'fruity'|'floral'|'green'|'woody'|'spicy'|'fatty',
+ *     sector: 'fruity'|'floral'|'green'|'woody'|'spicy'|'creamy',
  *     ring:   'taste'|'season'|'cuisine'|'method'|'compact'|null,
  *     ingredientName: string,
  *     strength: number,             // pair strength 0..1
@@ -26,7 +26,19 @@
 import { axisOrder } from './briscionePalette.js';
 import { dominantMethodFor } from './cookingMethods.js';
 
-const AROMA_AXES = ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'];
+// 2026-05-27 (batch 6 chef-vocab): renamed 'fatty' → 'creamy'.
+const AROMA_AXES = ['fruity', 'floral', 'green', 'woody', 'spicy', 'creamy'];
+
+// Display-key → GNN column name. Only 'creamy' diverges (column is
+// the legacy `odor_fatty`); others map by `odor_<key>` prefix.
+const GNN_COLUMN = {
+  fruity: 'odor_fruity',
+  floral: 'odor_floral',
+  green:  'odor_green',
+  woody:  'odor_woody',
+  spicy:  'odor_spicy',
+  creamy: 'odor_fatty',
+};
 // Tiebreaker order for distinctiveRing argmax — spec §Defined Variables.
 const RING_TIEBREAKER_ORDER = ['taste', 'cuisine', 'season', 'method'];
 
@@ -205,7 +217,7 @@ export function activatedAromas(focalNode, odorThresholds) {
   const probs = focalNode?.gnnProbs;
   if (!probs) return out;
   for (const axis of AROMA_AXES) {
-    const p = probs[`odor_${axis}`] || 0;
+    const p = probs[GNN_COLUMN[axis]] || 0;
     const thr = (odorThresholds && odorThresholds[axis]) ?? 0.30;
     if (p >= thr) out.add(axis);
   }
@@ -219,7 +231,7 @@ function dominantAroma(node) {
   let best = null;
   let bestV = -Infinity;
   for (const axis of AROMA_AXES) {
-    const v = node.gnnProbs[`odor_${axis}`] || 0;
+    const v = node.gnnProbs[GNN_COLUMN[axis]] || 0;
     if (v > bestV) { bestV = v; best = axis; }
   }
   return best;
