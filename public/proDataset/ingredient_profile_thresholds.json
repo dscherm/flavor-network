@@ -31,7 +31,7 @@
     },
     {
       "task": "odor_fruity",
-      "ingredient_threshold": 0.1325,
+      "ingredient_threshold": 0.1359,
       "molecule_f1": 0.722
     },
     {

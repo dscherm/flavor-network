@@ -1197,6 +1197,55 @@ None require new ML work.
 }
 ```
 
+```json
+{
+  "id": "N2-V8-MINE",
+  "title": "Mine RecipeNLG for ~60 v8-only ingredients missing pairings",
+  "category": "data",
+  "priority": 2,
+  "description": "After the 2026-05-28 v8 prune (commit 5a02d65), 75 chef-curated v8 ingredients still have no edges in pairings.json — they exist in flavor_graph_data_v3.json with tier1 labels but were never in the original RecipeNLG-derived corpus. Of those 75: 7 are name-variants already aliased, 6 are augment-referenced, leaving ~60 real ingredients (creole seasoning, tamari, shoyu, nam pla, garam masalas, hibiscus, pandan, matcha, juniper berry, fennel pollen, etc.) needing pairings mined from the local 2.2GB proDataset/raw/recipenlg.csv. Stream-scan the corpus, count co-occurrences with all existing app ingredients, compute NPMI scores per the existing pipeline, merge into public/proDataset/pairings.json.",
+  "acceptance": [
+    "chemDataset/scripts/mine_v8_only_pairings.js exists; reads proDataset/raw/recipenlg.csv via streaming",
+    "Output: NPMI-scored edges for each of the ~60 v8-only ingredients with ≥5 RecipeNLG matches",
+    "Merged pairings.json: ≥40 of the 60 now have at least 3 connecting edges",
+    "Network: previously-orphan v8-only ingredients render with edges to known partners",
+    "Smart_gate + 846+ tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "N2-V8-LBL-REFRESH",
+  "title": "Refresh v3_cluster_labels_chef.json after v8 prune shifted compositions",
+  "category": "ml",
+  "priority": 3,
+  "description": "The v8 prune dropped 290 ingredients from cluster_labels_v3.json (4152 → 3862). Cluster compositions shifted — the chef-curated cluster labels (e.g. 'Sweet Baking', 'Aged Cheese') may no longer reflect the new contents. Re-run flavor_layout_v3.py against the pruned data and have chef re-curate any labels that drifted.",
+  "acceptance": [
+    "flavor_layout_v3.py re-runs against post-prune flavor_embeddings_v3_imputed.npy",
+    "Every cluster has a chef-curated label (no auto cluster-N fallback in production)",
+    "Sample cluster member lists shown to chef for sign-off",
+    "Smart_gate + 846+ tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "N2-V8-RECAL",
+  "title": "Recheck per-ingredient calibration after v8 prune",
+  "category": "ml",
+  "priority": 3,
+  "description": "N2-AGG-RECAL emitted ingredient_profile_thresholds.json against the pre-prune 3,736-entry gnn_entropy corpus. Post-v8 prune the corpus is 3,432 entries — the 85th percentile may have shifted enough to under/over-fire some heads. Re-run flavor-gnn/scripts/recalibrate_ingredient_thresholds.py against the pruned gnn_entropy.json. Verify the Tier-1 distribution stays balanced (no single head >40% of GNN-scored long-tail picks per prior N2-AGG-RECAL contract).",
+  "acceptance": [
+    "recalibrate_ingredient_thresholds.py re-run against post-prune gnn_entropy.json",
+    "Each aroma head still fires on 10-25% of GNN-scored long-tail ingredients",
+    "0 < {fruity, floral, green, woody, creamy} primary-tier1 picks ≤ 1.5× the median",
+    "Smart_gate + 846+ tests pass"
+  ]
+}
+```
+
 ### Recommended sequence
 
 1. **A. Finish N+1 UI** (D3 → D4 → D5) — consume v3 artifacts, no new ML work.

@@ -1,0 +1,145 @@
+{
+  "clusters": {
+    "0": {
+      "label": "Vegetables & Greens",
+      "chemistry_label": "cultured-cured-lactic",
+      "top_ingredients": [
+        "butter",
+        "milk",
+        "flour",
+        "coconut oil",
+        "sour cream"
+      ],
+      "top_cuisines": [
+        "mexican",
+        "caribbean",
+        "middle eastern"
+      ],
+      "dominant_taste": "sweet",
+      "dominant_aroma": "fruity",
+      "size": 976,
+      "explanation": "Ingredients like butter, milk, flour cluster here most common in mexican, caribbean cuisine with a dominant fruity aroma."
+    },
+    "1": {
+      "label": "Sweet Desserts & Dairy",
+      "chemistry_label": "seedy-aromatic-vanilla",
+      "top_ingredients": [
+        "cumin",
+        "celery",
+        "garlic",
+        "onion",
+        "tomato paste"
+      ],
+      "top_cuisines": [
+        "mexican",
+        "japanese",
+        "southeast asian"
+      ],
+      "dominant_taste": "sweet",
+      "dominant_aroma": "roasted",
+      "size": 431,
+      "explanation": "Ingredients like cumin, celery, garlic cluster here most common in mexican, japanese cuisine with a dominant roasted aroma."
+    },
+    "2": {
+      "label": "Spiced Beans & Asian",
+      "chemistry_label": "sweet-fruity-floral",
+      "top_ingredients": [
+        "chamomile",
+        "lavender oil",
+        "blackberry",
+        "blackberry wine",
+        "fennel bulb"
+      ],
+      "top_cuisines": [],
+      "dominant_taste": "sweet",
+      "dominant_aroma": "fruity",
+      "size": 22,
+      "explanation": "Ingredients like chamomile, lavender oil, blackberry cluster here with a dominant fruity aroma."
+    },
+    "3": {
+      "label": "Pantry & Sweeteners",
+      "chemistry_label": "cluster-3",
+      "top_ingredients": [
+        "bonito",
+        "chervil"
+      ],
+      "top_cuisines": [],
+      "dominant_taste": "bitter",
+      "dominant_aroma": "fermented",
+      "size": 2,
+      "explanation": "Ingredients like bonito, chervil cluster here with a dominant fermented aroma and a bitter taste profile."
+    },
+    "4": {
+      "label": "Bold Savory & Smoky",
+      "chemistry_label": "fishy-alliaceous-cotton",
+      "top_ingredients": [
+        "brown sugar",
+        "worcestershire sauce",
+        "tomato",
+        "lemon juice",
+        "chili powder"
+      ],
+      "top_cuisines": [
+        "japanese",
+        "indian",
+        "korean"
+      ],
+      "dominant_taste": "sweet",
+      "dominant_aroma": "roasted",
+      "size": 2425,
+      "explanation": "Ingredients like brown sugar, worcestershire sauce, tomato cluster here most common in japanese, indian cuisine with a dominant roasted aroma."
+    },
+    "5": {
+      "label": "Sweet Bakes & Tropical",
+      "chemistry_label": "cluster-5",
+      "top_ingredients": [
+        "black tea",
+        "mace"
+      ],
+      "top_cuisines": [],
+      "dominant_taste": "sour",
+      "dominant_aroma": "woody",
+      "size": 2,
+      "explanation": "Ingredients like black tea, mace cluster here with a dominant woody aroma and a sour taste profile."
+    },
+    "6": {
+      "label": "Cooked Chicken & Herbs",
+      "chemistry_label": "cluster-6",
+      "top_ingredients": [
+        "annatto",
+        "sumac"
+      ],
+      "top_cuisines": [],
+      "dominant_taste": "pungent",
+      "dominant_aroma": "woody",
+      "size": 2,
+      "explanation": "Ingredients like annatto, sumac cluster here with a dominant woody aroma and a pungent taste profile."
+    },
+    "7": {
+      "label": "Mushrooms & Cooked Meats",
+      "chemistry_label": "cluster-7",
+      "top_ingredients": [
+        "kombu",
+        "nori"
+      ],
+      "top_cuisines": [
+        "japanese"
+      ],
+      "dominant_taste": "salty",
+      "dominant_aroma": "marine",
+      "size": 2,
+      "explanation": "Ingredients like kombu, nori cluster here most common in japanese cuisine with a dominant marine aroma and a salty taste profile."
+    }
+  },
+  "_meta": {
+    "generated_by": "flavor-gnn/scripts/emit_cluster_explanations_v3.py (N2-V3-EXP, 2026-05-28)",
+    "source_files": [
+      "cluster_labels_v3.json",
+      "pairings.json",
+      "ingredients.json",
+      "flavor_graph_data_v3.json"
+    ],
+    "k": 8,
+    "cluster_count": 8
+  }
+}
