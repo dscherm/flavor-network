@@ -31803,5 +31803,1092 @@
     "cuisines": [
       "thai"
     ]
+  },
+  "beet": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 855,
+    "flavorGraph": {
+      "tier1": [
+        "woody"
+      ],
+      "tier2": [
+        "sweet",
+        "umami"
+      ],
+      "tier3": [],
+      "leaves": [
+        "earthy",
+        "sweet",
+        "root",
+        "mineral",
+        "woody",
+        "musty"
+      ]
+    }
+  },
+  "blackcurrant": {
+    "category": "other",
+    "taste": "sour",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 20,
+    "flavorGraph": {
+      "tier1": [
+        "fruity"
+      ],
+      "tier2": [
+        "sour",
+        "sweet"
+      ],
+      "tier3": [],
+      "leaves": [
+        "fruity",
+        "blackcurrant",
+        "tart",
+        "musky",
+        "sulfury",
+        "jammy"
+      ]
+    }
+  },
+  "candied mixed fruit": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 65,
+    "flavorGraph": {
+      "tier1": [
+        "fruity"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "cantaloupe": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 945,
+    "flavorGraph": {
+      "tier1": [
+        "fruity"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [
+        "juicy"
+      ],
+      "leaves": [
+        "fruity",
+        "melon",
+        "sweet",
+        "musky",
+        "fresh",
+        "floral"
+      ]
+    }
+  },
+  "coleslaw": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 695,
+    "flavorGraph": {
+      "tier1": [
+        "pungent",
+        "green"
+      ],
+      "tier2": [
+        "bitter"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "creole seasoning": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 890,
+    "flavorGraph": {
+      "tier1": [
+        "pungent"
+      ],
+      "tier2": [
+        "umami"
+      ],
+      "tier3": [
+        "pungent"
+      ],
+      "leaves": []
+    }
+  },
+  "croissant": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 135,
+    "flavorGraph": {
+      "tier1": [
+        "roasted",
+        "creamy"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "dark chocolate": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 640,
+    "flavorGraph": {
+      "tier1": [
+        "woody"
+      ],
+      "tier2": [
+        "bitter",
+        "sweet"
+      ],
+      "tier3": [
+        "smooth"
+      ],
+      "leaves": [
+        "cocoa",
+        "roasted",
+        "bitter",
+        "fruity",
+        "woody",
+        "rich"
+      ]
+    }
+  },
+  "elderflower": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 220,
+    "flavorGraph": {
+      "tier1": [
+        "floral"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [],
+      "leaves": [
+        "floral",
+        "elderflower",
+        "muscat",
+        "sweet",
+        "fresh",
+        "honey"
+      ]
+    }
+  },
+  "fennel pollen": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 165,
+    "flavorGraph": {
+      "tier1": [
+        "floral"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [
+        "powdery"
+      ],
+      "leaves": [
+        "anise",
+        "sweet",
+        "honey",
+        "floral",
+        "fennel",
+        "warm"
+      ]
+    }
+  },
+  "gentian": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 10,
+    "flavorGraph": {
+      "tier1": [
+        "woody"
+      ],
+      "tier2": [
+        "bitter"
+      ],
+      "tier3": [],
+      "leaves": [
+        "bitter",
+        "earthy",
+        "root",
+        "woody",
+        "medicinal",
+        "floral"
+      ]
+    }
+  },
+  "grains of paradise": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 55,
+    "flavorGraph": {
+      "tier1": [
+        "woody"
+      ],
+      "tier2": [
+        "bitter"
+      ],
+      "tier3": [
+        "spicy",
+        "pungent"
+      ],
+      "leaves": [
+        "peppery",
+        "warm",
+        "citrus",
+        "cardamom",
+        "woody",
+        "hot"
+      ]
+    }
+  },
+  "green chutney": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 50,
+    "flavorGraph": {
+      "tier1": [
+        "fruity",
+        "pungent"
+      ],
+      "tier2": [
+        "sweet",
+        "sour"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "half and half": {
+    "category": "other",
+    "taste": "fatty",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 35,
+    "flavorGraph": {
+      "tier1": [
+        "creamy"
+      ],
+      "tier2": [
+        "fatty"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "hibiscus": {
+    "category": "other",
+    "taste": "sour",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 95,
+    "flavorGraph": {
+      "tier1": [
+        "fruity"
+      ],
+      "tier2": [
+        "sour"
+      ],
+      "tier3": [
+        "astringent"
+      ],
+      "leaves": [
+        "floral",
+        "tart",
+        "cranberry",
+        "fruity",
+        "red",
+        "fresh"
+      ]
+    }
+  },
+  "hot sauce": {
+    "category": "other",
+    "taste": "sour",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 3030,
+    "flavorGraph": {
+      "tier1": [
+        "pungent"
+      ],
+      "tier2": [
+        "sour"
+      ],
+      "tier3": [
+        "viscous",
+        "pungent"
+      ],
+      "leaves": [
+        "capsaicinoid",
+        "tangy",
+        "garlicky",
+        "fermented",
+        "sharp"
+      ]
+    }
+  },
+  "long pepper": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 5,
+    "flavorGraph": {
+      "tier1": [
+        "woody"
+      ],
+      "tier2": [
+        "bitter"
+      ],
+      "tier3": [
+        "spicy",
+        "pungent"
+      ],
+      "leaves": [
+        "peppery",
+        "warm",
+        "sweet",
+        "woody",
+        "numbing",
+        "spicy"
+      ]
+    }
+  },
+  "lychee": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 70,
+    "flavorGraph": {
+      "tier1": [
+        "fruity"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [
+        "juicy"
+      ],
+      "leaves": [
+        "fruity",
+        "lychee",
+        "floral",
+        "rose",
+        "sweet",
+        "tropical"
+      ]
+    }
+  },
+  "macadamia": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 175,
+    "flavorGraph": {
+      "tier1": [
+        "creamy"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [
+        "crunchy"
+      ],
+      "leaves": [
+        "nutty",
+        "macadamia",
+        "buttery",
+        "rich",
+        "sweet",
+        "coconut"
+      ]
+    }
+  },
+  "mahleb": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 35,
+    "flavorGraph": {
+      "tier1": [
+        "woody"
+      ],
+      "tier2": [
+        "sweet",
+        "bitter"
+      ],
+      "tier3": [
+        "powdery"
+      ],
+      "leaves": [
+        "cherry",
+        "almond",
+        "nutty",
+        "woody",
+        "marzipan",
+        "sweet"
+      ]
+    }
+  },
+  "mandarin": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 1640,
+    "flavorGraph": {
+      "tier1": [
+        "citrus"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [
+        "juicy"
+      ],
+      "leaves": [
+        "citrus",
+        "mandarin",
+        "sweet",
+        "fresh",
+        "peel",
+        "candy"
+      ]
+    }
+  },
+  "mastic": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 25,
+    "flavorGraph": {
+      "tier1": [
+        "woody"
+      ],
+      "tier2": [
+        "bitter",
+        "sweet"
+      ],
+      "tier3": [],
+      "leaves": [
+        "pine",
+        "resinous",
+        "woody",
+        "sweet",
+        "herbal",
+        "cedar"
+      ]
+    }
+  },
+  "matcha": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 270,
+    "flavorGraph": {
+      "tier1": [
+        "green"
+      ],
+      "tier2": [
+        "bitter",
+        "umami"
+      ],
+      "tier3": [
+        "powdery"
+      ],
+      "leaves": [
+        "green",
+        "grassy",
+        "umami",
+        "vegetal",
+        "bitter",
+        "marine"
+      ]
+    }
+  },
+  "nectarine": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 340,
+    "flavorGraph": {
+      "tier1": [
+        "fruity"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [
+        "juicy"
+      ],
+      "leaves": [
+        "fruity",
+        "nectarine",
+        "sweet",
+        "floral",
+        "juicy",
+        "peach"
+      ]
+    }
+  },
+  "orange blossom": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 410,
+    "flavorGraph": {
+      "tier1": [
+        "floral"
+      ],
+      "tier2": [
+        "sweet",
+        "bitter"
+      ],
+      "tier3": [],
+      "leaves": [
+        "floral",
+        "orange blossom",
+        "citrus",
+        "sweet",
+        "honey",
+        "neroli"
+      ]
+    }
+  },
+  "pandan": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 70,
+    "flavorGraph": {
+      "tier1": [
+        "green"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [],
+      "leaves": [
+        "grassy",
+        "sweet",
+        "nutty",
+        "green",
+        "vanilla",
+        "jasmine"
+      ]
+    }
+  },
+  "pepper": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 11825,
+    "flavorGraph": {
+      "tier1": [
+        "woody",
+        "pungent"
+      ],
+      "tier2": [
+        "bitter"
+      ],
+      "tier3": [
+        "pungent"
+      ],
+      "leaves": []
+    }
+  },
+  "poultry seasoning": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 1455,
+    "flavorGraph": {
+      "tier1": [
+        "herbal"
+      ],
+      "tier2": [
+        "umami"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "red bell pepper": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 4475,
+    "flavorGraph": {
+      "tier1": [
+        "green",
+        "fruity"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [
+        "crunchy"
+      ],
+      "leaves": [
+        "green",
+        "pepper",
+        "sweet",
+        "fresh",
+        "vegetal",
+        "grassy"
+      ]
+    }
+  },
+  "red miso": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 270,
+    "flavorGraph": {
+      "tier1": [
+        "fermented",
+        "roasted"
+      ],
+      "tier2": [
+        "umami",
+        "salty"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "roasted garlic": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 40,
+    "flavorGraph": {
+      "tier1": [
+        "pungent",
+        "roasted",
+        "caramel"
+      ],
+      "tier2": [
+        "sweet",
+        "umami"
+      ],
+      "tier3": [
+        "smooth"
+      ],
+      "leaves": [
+        "sweet",
+        "nutty",
+        "caramel",
+        "garlic",
+        "mellow",
+        "roasted"
+      ]
+    }
+  },
+  "sambar powder": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 5,
+    "flavorGraph": {
+      "tier1": [
+        "pungent",
+        "herbal"
+      ],
+      "tier2": [
+        "umami"
+      ],
+      "tier3": [
+        "pungent"
+      ],
+      "leaves": []
+    }
+  },
+  "savory": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 440,
+    "flavorGraph": {
+      "tier1": [
+        "woody"
+      ],
+      "tier2": [
+        "bitter"
+      ],
+      "tier3": [],
+      "leaves": [
+        "herbal",
+        "peppery",
+        "thyme",
+        "warm",
+        "woody",
+        "green"
+      ]
+    }
+  },
+  "self rising flour": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 5,
+    "flavorGraph": {
+      "tier1": [
+        "earthy"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "shiso": {
+    "category": "other",
+    "taste": "bitter",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 205,
+    "flavorGraph": {
+      "tier1": [
+        "green"
+      ],
+      "tier2": [
+        "bitter"
+      ],
+      "tier3": [],
+      "leaves": [
+        "herbal",
+        "minty",
+        "basil",
+        "cumin",
+        "green",
+        "anise"
+      ]
+    }
+  },
+  "shoyu": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 550,
+    "flavorGraph": {
+      "tier1": [
+        "fermented",
+        "roasted"
+      ],
+      "tier2": [
+        "umami",
+        "salty"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "sun-dried tomato": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 25,
+    "flavorGraph": {
+      "tier1": [
+        "fruity"
+      ],
+      "tier2": [
+        "umami",
+        "sweet"
+      ],
+      "tier3": [],
+      "leaves": [
+        "umami",
+        "tomato",
+        "sweet",
+        "tangy",
+        "concentrated",
+        "fruity"
+      ]
+    }
+  },
+  "tamari": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 1010,
+    "flavorGraph": {
+      "tier1": [
+        "fermented",
+        "roasted"
+      ],
+      "tier2": [
+        "umami",
+        "salty"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "tandoori masala": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 120,
+    "flavorGraph": {
+      "tier1": [
+        "pungent",
+        "earthy"
+      ],
+      "tier2": [
+        "umami"
+      ],
+      "tier3": [
+        "pungent"
+      ],
+      "leaves": []
+    }
+  },
+  "vegetable broth": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 2080,
+    "flavorGraph": {
+      "tier1": [
+        "roasted"
+      ],
+      "tier2": [
+        "umami"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "vermicelli": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 1110,
+    "flavorGraph": {
+      "tier1": [
+        "earthy"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "white miso": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 685,
+    "flavorGraph": {
+      "tier1": [
+        "fermented",
+        "roasted"
+      ],
+      "tier2": [
+        "umami",
+        "salty"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
+  },
+  "wintergreen": {
+    "category": "other",
+    "taste": "sweet",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 20,
+    "flavorGraph": {
+      "tier1": [
+        "green"
+      ],
+      "tier2": [
+        "sweet"
+      ],
+      "tier3": [
+        "astringent"
+      ],
+      "leaves": [
+        "minty",
+        "medicinal",
+        "sweet",
+        "cooling",
+        "wintergreen",
+        "sharp"
+      ]
+    }
+  },
+  "worcestershire": {
+    "category": "other",
+    "taste": "umami",
+    "sources": [
+      "recipenlg",
+      "n2-v8-mine"
+    ],
+    "totalCount": 5340,
+    "flavorGraph": {
+      "tier1": [
+        "fermented"
+      ],
+      "tier2": [
+        "umami"
+      ],
+      "tier3": [],
+      "leaves": []
+    }
   }
 }

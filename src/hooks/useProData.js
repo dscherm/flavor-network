@@ -474,6 +474,20 @@ export default function useProData({ enabled = true } = {}) {
           }
         } catch { /* optional */ }
 
+        // N2-V3-EXP (2026-05-28): v3-shaped explanations layer.
+        // cluster_explanations_v3.json mirrors the v2 schema but is
+        // keyed to v3 cluster ids (8 clusters from cluster_labels_v3.json).
+        // Loaded only in v3 mode; populated AFTER the v3 cluster-id
+        // pass below so nodes have the right cluster_id when we look
+        // up their explanation.
+        let clusterExplanationsV3 = null;
+        if (flavorV3Enabled()) {
+          try {
+            const ceV3Res = await fetch('/proDataset/cluster_explanations_v3.json');
+            if (ceV3Res.ok) clusterExplanationsV3 = await ceV3Res.json();
+          } catch { /* optional */ }
+        }
+
         // N+1 v3 — when cluster_labels_v3.json was loaded, it exposes
         // an `ingredients` map (name → cluster_id) and a `clusters`
         // array with v3 labels. Override the v2 cluster_explanations
@@ -518,6 +532,7 @@ export default function useProData({ enabled = true } = {}) {
             node.clusterLabel = null;
           }
           // Second pass: override with the actual v3 cluster assignment.
+          const v3ExplanationByCid = clusterExplanationsV3?.clusters || {};
           for (const [name, cid] of Object.entries(clusterLabels.ingredients)) {
             const node = graph.nodes.get(name);
             if (!node) continue;
@@ -526,9 +541,18 @@ export default function useProData({ enabled = true } = {}) {
               node.clusterLabel = labelById[cid] ?? null;
               node.clusterColor = V3_CLUSTER_HEX[cid % V3_CLUSTER_HEX.length];
             }
-            node.clusterExplanation = undefined;
-            node.clusterTopCuisines = undefined;
-            node.clusterTopIngredients = undefined;
+            // N2-V3-EXP: attach v3 explanation when present (replaces
+            // the cleared v2 fields above).
+            const v3c = v3ExplanationByCid[String(cid)];
+            if (v3c) {
+              node.clusterExplanation = v3c.explanation;
+              node.clusterTopCuisines = v3c.top_cuisines || [];
+              node.clusterTopIngredients = v3c.top_ingredients || [];
+            } else {
+              node.clusterExplanation = undefined;
+              node.clusterTopCuisines = undefined;
+              node.clusterTopIngredients = undefined;
+            }
           }
         }
 
