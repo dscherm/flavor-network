@@ -4,6 +4,7 @@ import { scoreIngredient } from '../data/tastePositioning.js';
 import { TASTE_COLORS } from '../utils/color.js';
 import { AROMA_COLORS } from '../data/recipeScoring.js';
 import { roleOf, rolesCompatible } from '../data/ingredientRoles.js';
+import { rankSuggestions } from '../data/recipeSuggestionEngine.js';
 
 // 2026-05-27 (batch 6 chef-vocab): renamed 'fatty' → 'creamy'.
 const ODOR_KEYS = ['fruity', 'floral', 'green', 'woody', 'creamy'];
@@ -106,6 +107,14 @@ export default function IngredientSuggestionsPopout({
   onSwap,
   onAdd,
   onClose,
+  // RL-FOCAL-WIRE: add-mode focal-weighted ranker inputs. When all
+  // three are present, the popout uses rankSuggestions(bowl, focalKey,
+  // ...) so the focal flag actually influences what's suggested.
+  // Missing any → falls back to the existing edge-aggregator below.
+  bowl = null,
+  focalKey = null,
+  recipePairs = null,
+  globalCount = null,
 }) {
   const [activeFilter, setActiveFilter] = useState('all');
   // Role purity is on by default in replace-mode (Path C). User can
@@ -145,14 +154,47 @@ export default function IngredientSuggestionsPopout({
     if (!nodes || !edges) return [];
 
     if (isAddMode) {
-      const bowl = recipeIngredients;
-      if (bowl.length === 0) return [];
-      const bowlSet = new Set(bowl);
+      // RL-FOCAL-WIRE: focal-weighted recipe-level co-occurrence ranker.
+      // Engaged only when the upstream supplied bowl (BowlEntry[]) +
+      // recipePairs + globalCount. Otherwise the legacy edge-aggregator
+      // below runs unchanged.
+      if (Array.isArray(bowl) && bowl.length > 0 && recipePairs && globalCount) {
+        const ranked = rankSuggestions(bowl, focalKey, null, {
+          recipePairs,
+          globalCount,
+          K: 200,
+        });
+        const out = [];
+        for (const { name, strength } of ranked) {
+          if (scopeFilter && !scopeFilter.has(name.toLowerCase())) continue;
+          const node = nodes.get(name);
+          if (!node) continue;
+          const { channels } = scoreIngredient(name, node);
+          let dominantTaste = 'default';
+          let bestVal = 0;
+          for (const [ch, v] of Object.entries(channels)) {
+            if (v > bestVal) { bestVal = v; dominantTaste = ch; }
+          }
+          out.push({
+            name,
+            strength,
+            bowlFit: strength,
+            bowlHitCount: bowl.length,
+            score: strength,
+            dominantTaste,
+            node,
+          });
+        }
+        return out;
+      }
+      const legacyBowl = recipeIngredients;
+      if (legacyBowl.length === 0) return [];
+      const bowlSet = new Set(legacyBowl);
       // Aggregate neighbors across the whole bowl. score = sum / bowl.length
       // so a candidate paired with every bowl ingredient gets a higher
       // score than one bonded to a single member.
       const agg = new Map(); // name -> { sum, hits }
-      for (const ing of bowl) {
+      for (const ing of legacyBowl) {
         const neighbors = lookupNeighborsFlexible(ing, edges, cuisineNeighborIndex);
         for (const n of neighbors) {
           if (bowlSet.has(n.name)) continue;
@@ -170,7 +212,7 @@ export default function IngredientSuggestionsPopout({
       for (const [name, { sum, hits }] of agg.entries()) {
         const node = nodes.get(name);
         if (!node) continue;
-        const score = sum / bowl.length;
+        const score = sum / legacyBowl.length;
         const { channels } = scoreIngredient(name, node);
         let dominantTaste = 'default';
         let bestVal = 0;
@@ -291,7 +333,7 @@ export default function IngredientSuggestionsPopout({
     }
     out.sort((a, b) => b.score - a.score);
     return out;
-  }, [ingredient, recipeIngredients, nodes, edges, scopeFilter, isAddMode, enforceRole, focalRole, labMode, cocktailRoles, sauceRoles]);
+  }, [ingredient, recipeIngredients, nodes, edges, scopeFilter, isAddMode, enforceRole, focalRole, labMode, cocktailRoles, sauceRoles, bowl, focalKey, recipePairs, globalCount, cuisineNeighborIndex]);
 
   const filtered = useMemo(() => {
     if (activeFilter === 'all') return candidates.slice(0, 40);

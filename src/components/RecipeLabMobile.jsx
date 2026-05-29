@@ -429,6 +429,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           <IngredientSuggestionsPopout
             ingredient={null}
             recipeIngredients={recipeNames}
+            bowl={recipeIngredients}
+            focalKey={focalKey}
+            recipePairs={fullData?.recipePairs || null}
+            globalCount={fullData?.globalCount || null}
             nodes={fullData?.graph?.nodes}
             edges={fullData?.graph?.edges}
             cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
