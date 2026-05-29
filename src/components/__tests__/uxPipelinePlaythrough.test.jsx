@@ -66,12 +66,12 @@ describe('§1 — Landing page', () => {
     ).toBeInTheDocument();
   });
 
-  it('1.D landing has exactly 3 tiles (no cocktail/sauce/recipes on landing)', () => {
+  it('1.D landing has 4 tiles (pairing/guided/make/build); no cocktail/sauce/recipes on landing', () => {
     const { container } = render(<LandingScreen onModeSelect={() => {}} />);
     const tiles = container.querySelectorAll('button[data-mode]');
-    expect(tiles).toHaveLength(3);
+    expect(tiles).toHaveLength(4);
     const ids = Array.from(tiles).map((b) => b.getAttribute('data-mode'));
-    expect(ids).toEqual(expect.arrayContaining(['pairing', 'guided', 'build']));
+    expect(ids).toEqual(expect.arrayContaining(['pairing', 'guided', 'make', 'build']));
     expect(ids).not.toContain('cocktail');
     expect(ids).not.toContain('sauce');
     expect(ids).not.toContain('recipe');

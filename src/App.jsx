@@ -740,6 +740,8 @@ export default function App() {
       // pipeline Phase 5; for now render a placeholder so the
       // landing tile is wired end-to-end.
       setActiveTab('build');
+    } else if (mode === 'make') {
+      setActiveTab('make');
     }
   }, []);
 
