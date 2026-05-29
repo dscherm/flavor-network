@@ -1243,12 +1243,25 @@ None require new ML work.
 
 ---
 
-## N3-ALPHA-V2 — 6-axis α-mode ring rewrite (focused session, 3-5h)
+## N3-ALPHA-V2 — RECONCILED 2026-05-28 (superseded by prior 2026-05-22/24 tier-column refactor)
+
+> **Status:** **DONE BY PRIOR WORK.** When activated 2026-05-28, recon
+> surfaced that the canonical-spec §6.3–§6.5 was REVISED on 2026-05-24
+> to a different α-mode design — "single angular ring + 4 vertical
+> floors (★/★★/★★★/♢ Surprising) + up to 12 affinities total" — which
+> the live `src/three/AffinityMode.js` already implements
+> (`RING_INDICES = [3]`, `TIER_Y_ELEVATION = { 0: 32, 3: 24, 2: 16, 1: 8 }`,
+> spec text §6.3 explicitly notes ring meshes 4/5 stay allocated but
+> unused). The N3-ALPHA-V2 description below was written against the
+> OLDER "6 concentric radial rings + 180 nodes + cross-ring guidelines"
+> design intent that the spec since superseded. Executing this task as
+> originally written would un-do the shipped tier-column UX. Marked
+> done in bridge; no code changes shipped.
 
 ```json
 {
   "id": "N3-ALPHA-V2",
-  "title": "Replace 3-tier α-mode rings with 6-axis categorical rings (cluster/aroma/taste/family/cuisine/season)",
+  "title": "Replace 3-tier α-mode rings with 6-axis categorical rings (cluster/aroma/taste/family/cuisine/season) — RECONCILED 2026-05-28: superseded by tier-column refactor",
   "category": "ml-ui",
   "priority": 2,
   "description": "Implement canonical-spec §6.3–§6.5: the α-mode wheel renders 6 concentric rings keyed to categorical axes (cluster, aroma, taste, family, cuisine, season) instead of the current 3-tier strength rings. Focal ingredient sits on the inner cluster ring at its cluster's segment (not at wheel center). Each top-30 affinity appears on every ring where it has a non-null bucket (cross-ring duplication, connected by a vertical guideline so the user can read 'this is one ingredient seen through N lenses'). Edge colors continue to reflect native tier (gold/silver/bronze) independent of which ring an affinity sits on.",
