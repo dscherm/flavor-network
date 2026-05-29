@@ -48,7 +48,7 @@ export default function BuildRecipeResults({
   bubbleStack = [],
   ctx = null,
   onBackToCards,
-  onOpenLab,        // (labKey: 'cocktail' | 'sauce' | 'recipes-3d', externalFilter) => void
+  onOpenLab,        // (labKey: 'cocktail' | 'sauce' | 'recipes', externalFilter) => void  — caller maps labKey to activeTab ('recipes' → 'cookbook' after the 2026-05-29 rename)
   onAxisSelect,     // (axis) => void — tour entry like Guided
 }) {
   const hasCocktail = bubbleStack.some((b) => b.key === 'cocktail');

@@ -280,7 +280,7 @@ state that survives the handoff.
 
 ### 3.1 Cookbook Lab in picker mode
 
-`CookbookLab.jsx` (current `RecipesLab.jsx`, renamed under
+`CookbookLab.jsx` (renamed from `RecipesLab.jsx` 2026-05-29 under
 `DOCS-RL-COOKBOOK-RENAME`) accepts a new prop:
 
 ```ts
@@ -587,11 +587,10 @@ Lab. The relationship is a pass-through: Make sets
 emits the eventual `recipeHandoff` itself (Cookbook Lab knows the
 seed recipe schema; Make does not).
 
-The Cookbook Lab rename is tracked under bridge task
-`DOCS-RL-COOKBOOK-RENAME`. Until that task ships, the component is
-`RecipesLab.jsx` and `activeTab === 'recipes-3d'`. The Make spec
-uses the post-rename names (`CookbookLab.jsx`, `activeTab === 'cookbook'`)
-for forward compatibility — see §11 O-5.
+The Cookbook Lab rename landed 2026-05-29 under bridge task
+`DOCS-RL-COOKBOOK-RENAME`. The component is now `CookbookLab.jsx`
+with `activeTab === 'cookbook'`; the legacy URL slug
+`?path=recipes` keeps a back-compat alias to the new tab key.
 
 ### 8.3 Guided Discovery (sibling)
 
@@ -750,14 +749,13 @@ that the image render at ≥ 80px tall with alt text and a remove
 affordance (§5.3). Exact placement, sizing, and styling are owed
 to the Recipe Lab spec extension under `DOCS-MAKE-MODE`.
 
-### O-5 — Cookbook Lab rename ordering
+### O-5 — Cookbook Lab rename ordering — RESOLVED (2026-05-29)
 
-The Cookbook Lab rename (`DOCS-RL-COOKBOOK-RENAME`) and the Make
-spec (`DOCS-MAKE-MODE`) can ship independently. Make uses the
-post-rename names internally; if the rename slips, Make ships
-against `RecipesLab.jsx` + `activeTab === 'recipes-3d'` and adds a
-small adapter shim during the migration window. Decision deferred
-to bridge sequencing.
+The Cookbook Lab rename (`DOCS-RL-COOKBOOK-RENAME`) shipped before
+the Make spec implementation, so Make uses the post-rename names
+(`CookbookLab.jsx`, `activeTab === 'cookbook'`) directly with no
+shim. Legacy URL `?path=recipes` aliases to the new tab key for
+back-compat.
 
 ### O-6 — Hamburger / in-app menu entry
 

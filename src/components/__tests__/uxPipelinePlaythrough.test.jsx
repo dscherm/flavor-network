@@ -16,7 +16,7 @@ import { describe, it, expect, vi } from 'vitest';
 // jsdom doesn't provide WebGL — NetworkScene's three.js init would
 // crash on mount and abort the entire render. Mock it with a stub
 // that just renders a marker div so we can still exercise the
-// surrounding RecipesLab UI (filter pills, view toggle, detail modal).
+// surrounding CookbookLab UI (filter pills, view toggle, detail modal).
 vi.mock('../NetworkScene.jsx', () => ({
   default: ({ data, selectedNode }) => (
     <div data-testid="mock-network-scene" data-selected={selectedNode || ''}>
@@ -31,7 +31,7 @@ import GuidedDiscoverySwipe from '../GuidedDiscoverySwipe.jsx';
 import BuildRecipeStart from '../BuildRecipeStart.jsx';
 import BuildRecipeResults from '../BuildRecipeResults.jsx';
 import MultiAxisRadarStack from '../MultiAxisRadarStack.jsx';
-import RecipesLab from '../RecipesLab.jsx';
+import CookbookLab from '../CookbookLab.jsx';
 import TourPopup from '../TourPopup.jsx';
 import { BUBBLE_REGISTRY } from '../../data/guidedDiscovery.js';
 import { STAGES } from '../../data/guidedTourStages.js';
@@ -556,7 +556,7 @@ describe('§4 — Recipes Lab', () => {
   });
 
   it('4.A.2 filter pills are present (cuisine + cluster + All)', () => {
-    render(<RecipesLab />);
+    render(<CookbookLab />);
     // Switch to Grid mode so NetworkScene doesn't mount (jsdom has no
     // WebGL); the cuisine names then render in recipe card badges too.
     fireEvent.click(screen.getByText('Grid'));
@@ -566,8 +566,8 @@ describe('§4 — Recipes Lab', () => {
     expect(screen.getAllByText('All').length).toBe(2);
   });
 
-  it('4.A.3 RecipesLab defaults to a flavor (cluster) filter on mount', () => {
-    render(<RecipesLab />);
+  it('4.A.3 CookbookLab defaults to a flavor (cluster) filter on mount', () => {
+    render(<CookbookLab />);
     fireEvent.click(screen.getByText('Grid'));
     // Spec §4A: "Default to flavor filter". The cluster axis IS the
     // flavor axis (savory/baking/seafood/vegetable). On mount, the
@@ -577,11 +577,11 @@ describe('§4 — Recipes Lab', () => {
     expect(savoryPill.className).toMatch(/bg-emerald-500\/20/);
   });
 
-  it('4.A.1 RecipesLab ships a 3D NetworkScene explore mode', async () => {
+  it('4.A.1 CookbookLab ships a 3D NetworkScene explore mode', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/components/RecipesLab.jsx'),
+      path.resolve(process.cwd(), 'src/components/CookbookLab.jsx'),
       'utf8',
     );
     // 3D explore mode imports NetworkScene + uses buildRecipesScene
@@ -617,7 +617,7 @@ describe('Pipeline fidelity audit summary', () => {
     // This is a live count by spec section. Cross-checks the
     // playthrough markdown doc isn't drifting from the test file.
     // Post-fix tally (2026-05-16 — full sweep + F-1 + F-2 + F-6).
-    // F-6 shipped: 3D NetworkScene explore mode in RecipesLab via
+    // F-6 shipped: 3D NetworkScene explore mode in CookbookLab via
     // buildRecipesScene + cuisine-quadrant positions.
     //
     // Still PARTIAL:

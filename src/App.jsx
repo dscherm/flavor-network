@@ -43,7 +43,7 @@ import MobileTabBar from './components/MobileTabBar.jsx';
 import GuidedDiscoverySwipe from './components/GuidedDiscoverySwipe.jsx';
 import BuildRecipeStart from './components/BuildRecipeStart.jsx';
 import BuildRecipeResults from './components/BuildRecipeResults.jsx';
-import RecipesLab from './components/RecipesLab.jsx';
+import CookbookLab from './components/CookbookLab.jsx';
 import GuidedTour from './components/GuidedTour.jsx';
 import LabTour from './components/LabTour.jsx';
 import GuidedDiscoveryResults from './components/GuidedDiscoveryResults.jsx';
@@ -77,12 +77,16 @@ import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 
 // Spec §1.H — URL deep-link routing. `?path=<slug>` ↔ activeTab.
+// 2026-05-29 DOCS-RL-COOKBOOK-RENAME: 'cookbook' tab key renamed to
+// 'cookbook'. Legacy URL slug `?path=recipes` still resolves to the
+// new cookbook tab via the PATH_TO_TAB back-compat alias so any
+// previously-shared links keep working.
 const TAB_TO_PATH = {
   network: 'explore',
   cocktail: 'cocktail',
   sauce: 'sauce',
   recipe: 'notebook',
-  'recipes-3d': 'recipes',
+  cookbook: 'cookbook',
   guided: 'guided',
   'guided-results': 'guided',         // ephemeral; collapse to entry
   build: 'build',
@@ -95,7 +99,8 @@ const PATH_TO_TAB = Object.fromEntries(
     cocktail: 'cocktail',
     sauce: 'sauce',
     notebook: 'recipe',
-    recipes: 'recipes-3d',
+    cookbook: 'cookbook',
+    recipes: 'cookbook',  // back-compat alias for pre-rename shared URLs
     guided: 'guided',
     build: 'build',
     profile: 'profile',
@@ -158,7 +163,7 @@ export default function App() {
     const path = new URLSearchParams(window.location.search).get('path');
     return PATH_TO_TAB[path] || 'network';
   })();
-  const [activeTab, setActiveTab] = useState(initialTab); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'guided' | 'guided-results' | 'build' | 'profile' | 'recipes-3d'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'guided' | 'guided-results' | 'build' | 'profile' | 'cookbook'
 
   // Write the current tab back to the URL so reload + share both work.
   useEffect(() => {
@@ -1336,7 +1341,7 @@ export default function App() {
             inside Explore (network OR one of its lab sublistings).
             Mounted with !hidden on sm+ to mirror the desktop primary
             row's responsive behaviour. */}
-        {(activeTab === 'network' || activeTab === 'cocktail' || activeTab === 'sauce' || activeTab === 'recipe' || activeTab === 'recipes-3d') && (
+        {(activeTab === 'network' || activeTab === 'cocktail' || activeTab === 'sauce' || activeTab === 'recipe' || activeTab === 'cookbook') && (
           <div
             data-testid="explore-secondary-nav"
             className="hidden sm:flex items-center h-8 px-3 gap-0.5 border-t border-[#1e1e2e] bg-[#0a0a12]/80"
@@ -1365,9 +1370,9 @@ export default function App() {
               Sauce Lab
             </button>
             <button
-              onClick={() => setActiveTab('recipes-3d')}
+              onClick={() => setActiveTab('cookbook')}
               className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
-                activeTab === 'recipes-3d' ? 'text-pink-300 bg-pink-500/10' : 'text-gray-500 hover:text-gray-300'
+                activeTab === 'cookbook' ? 'text-pink-300 bg-pink-500/10' : 'text-gray-500 hover:text-gray-300'
               }`}
               title="Recipe browser — 15 hand-curated dishes"
             >
@@ -2017,14 +2022,14 @@ export default function App() {
         </div>
       )}
 
-      {/* RecipesLab — Phase 4 (pipeline 2026-05-16). New 3D-aesthetic
-          recipe browser with 15 hand-curated dishes. Replaces the
-          old notebook RecipeLab as the primary recipe-browse surface
-          per the UX pipeline (notebook stays as a sub-tab marked
-          "Notebook"). */}
-      {activeTab === 'recipes-3d' && (
+      {/* CookbookLab — Phase 4 (pipeline 2026-05-16; renamed from
+          RecipesLab 2026-05-29 via DOCS-RL-COOKBOOK-RENAME). 3D
+          aesthetic recipe browser with 15 hand-curated dishes. Lives
+          alongside the Recipes Notebook authoring surface as a
+          sub-tab under Explore. */}
+      {activeTab === 'cookbook' && (
         <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
-          <RecipesLab
+          <CookbookLab
             externalFilter={externalLabFilter}
             ctx={data}
             onOpenInNetwork={(ingredientName) => {
@@ -2348,7 +2353,7 @@ export default function App() {
               cancelAnimationFrame(tourAnimRef.current);
               tourAnimRef.current = null;
             }
-            if (labKey === 'recipes') { setActiveTab('recipes-3d'); setLabTourKey('recipes'); }
+            if (labKey === 'recipes') { setActiveTab('cookbook'); setLabTourKey('recipes'); }
             else if (labKey === 'cocktail') { setCocktailMounted(true); setActiveTab('cocktail'); setLabTourKey('cocktail'); }
             else if (labKey === 'sauce') { setSauceMounted(true); setActiveTab('sauce'); setLabTourKey('sauce'); }
             // labKey === 'done' → leave user on network tab
@@ -2360,7 +2365,7 @@ export default function App() {
           GuidedTour's chooseLab stage picks a lab. Mounts on top of
           the active lab and walks through that lab's mechanics. */}
       {labTourKey && (
-        ((labTourKey === 'recipes' && activeTab === 'recipes-3d') ||
+        ((labTourKey === 'recipes' && activeTab === 'cookbook') ||
           (labTourKey === 'cocktail' && activeTab === 'cocktail') ||
           (labTourKey === 'sauce' && activeTab === 'sauce')) && (
           <LabTour

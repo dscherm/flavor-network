@@ -53,7 +53,7 @@ vi.mock('../components/InsightDrawer.jsx',    () => ({ default: () => null }));
 vi.mock('../components/GuidedDiscoverySwipe.jsx', () => ({ default: () => null }));
 vi.mock('../components/BuildRecipeStart.jsx', () => ({ default: () => null }));
 vi.mock('../components/BuildRecipeResults.jsx',() => ({ default: () => null }));
-vi.mock('../components/RecipesLab.jsx',       () => ({ default: () => null }));
+vi.mock('../components/CookbookLab.jsx',      () => ({ default: () => null }));
 vi.mock('../components/GuidedTour.jsx',       () => ({ default: () => null }));
 vi.mock('../components/LabTour.jsx',          () => ({ default: () => null }));
 vi.mock('../components/GuidedDiscoveryResults.jsx', () => ({ default: () => null }));
