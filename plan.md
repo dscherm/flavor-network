@@ -1169,21 +1169,6 @@ None require new ML work.
 
 ```json
 {
-  "id": "N2-GNN-LEFF",
-  "title": "Procure Leffingwell PMP-2001 odor database — ~10× current odor labels (paywalled)",
-  "category": "external",
-  "priority": 4,
-  "description": "Procurement step. Leffingwell PMP-2001 has ~3,500 molecules with expert-rated odor descriptors. Paywalled at ~$2-5k for research license. Blocked on procurement; out of scope for autonomous work.",
-  "acceptance": [
-    "Research license acquired",
-    "TSV/CSV at chemDataset/raw/leffingwell/",
-    "Same retrain + status-doc update flow as DREAM"
-  ]
-}
-```
-
-```json
-{
   "id": "N2-GNN-ENC",
   "title": "Foundation-model encoder swap (ChemBERTa or MolFormer) — speculative gain",
   "category": "ml",
@@ -1254,7 +1239,7 @@ None require new ML work.
 4. **N2-V3-EXP** + **N2-V3-LBL** — close v3 cosmetic gaps; touch chef labels when CSV grows.
 5. **N2-GNN-DREAM** — public dataset, lifts odor heads.
 6. **N2-V3-CHEF-LIFT** — chef-paced; high value as the chef fills rows.
-7. **N2-GNN-LEFF**, **N2-GNN-ENC** — external + speculative future levers.
+7. **N2-GNN-ENC** — speculative encoder swap, last lever after data side is exhausted.
 
 ---
 
@@ -1303,6 +1288,77 @@ None require new ML work.
 ```
 
 Recommend tackling this in a fresh session with no other work in flight. Best done with the network running locally so visual verification is fast between changes.
+
+---
+
+## N3-GAT-CLUSTERS — GAT link-prediction node embeddings + Leiden clusters (added 2026-05-28)
+
+Spec: `.omc/specs/deep-interview-gat-link-prediction-clusters-2026-05-28.md`
+(deep-interview, 3 rounds + Round 0 topology gate, final ambiguity ~10%).
+
+Replaces the current KMeans-on-11d-prob-vectors clustering (1×2618-blob
++ 4×2-node-stubs degenerate partition in `cluster_labels_v3.json`) with
+node embeddings learned by a 2-layer GAT on the chef-curated v8 pairing
+graph (link-prediction objective), then Leiden community detection on
+cosine-kNN of the embeddings, gated by stability across 10 seeds
+(Jaccard ≥ 0.85). Schema is preserved → zero JS changes; rollback is
+`git revert`.
+
+```json
+{
+  "id": "N3-GAT-CLUSTERS",
+  "title": "Replace KMeans-on-11d-probs clustering with GAT link-prediction embeddings + Leiden (stability-gated, in-place v3 replacement)",
+  "category": "ml-data",
+  "priority": 2,
+  "spec_ref": ".omc/specs/deep-interview-gat-link-prediction-clusters-2026-05-28.md",
+  "description": "Build PyG Data from pairings.json + flavor_graph_data_v3.json (13-aroma + 6-taste + mouthfeel-top-10 multi-hot features, NPMI strength as edge_attr, stratified 80/10/10 edge split). Train 2-layer GATConv (hidden=64, heads=4, embed=32, dropout=0.5, ELU) with link-prediction dot-product head + BCE on positives vs 1:1 sampled negatives (resampled per epoch). Cluster 32d embeddings via Leiden on cosine-kNN (k=15) with 10-seed consensus matrix; reject if pairwise Jaccard < 0.85. Regenerate cluster_labels_v3.json + cluster_explanations_v3.json in place with new partition + recomputed centroid_3d from flavor_positions_v3.json. Chef visual A/B (5×3=15 cluster cards) before commit.",
+  "scope_notes": [
+    "ALL new code in flavor-gnn/ — no src/**/*.js or src/**/*.jsx changes (schema preserved)",
+    "New: flavor-gnn/src/data/build_pyg_data.py, stratified_split.py + tests",
+    "New: flavor-gnn/src/models/gat_link.py (GATLinkPredictor class)",
+    "New: flavor-gnn/src/train/train_gat_link.py",
+    "New: flavor-gnn/scripts/leiden_consensus.py (Leiden ×10 + consensus + stability gate)",
+    "New: flavor-gnn/scripts/gat_link_clusters.py (orchestrator: data→train→cluster→emit)",
+    "New: flavor-gnn/artifacts/gat_link_v1.pt + gat_cluster_quality_report.json",
+    "Regenerated: public/proDataset/cluster_labels_v3.json + cluster_explanations_v3.json (re-run emit_cluster_explanations_v3.py — unchanged script)",
+    "Dependencies: torch-geometric, python-igraph, leidenalg — add to requirements.txt if absent",
+    "v2 follow-up (separate spec): hybrid loss α·L_link + (1-α)·L_tier1_classification + hard-negative mining"
+  ],
+  "acceptance": [
+    "Link-prediction val AUC ≥ 0.80 on held-out 10% edges (gate)",
+    "Hits@10 ≥ 0.50 on val set (gate)",
+    "Stability: pairwise Jaccard ≥ 0.85 across 10 Leiden seeds (gate — fail loudly if not)",
+    "Auto-discovered k logged + reported (expected 10–18)",
+    "cluster_labels_v3.json schema preserved (k, clusters[] with centroid_3d, ingredients{}, _meta)",
+    "centroid_3d recomputed from flavor_positions_v3.json member positions per cluster",
+    "cluster_explanations_v3.json regenerated via existing emit_cluster_explanations_v3.py (no script changes)",
+    "All 788+ existing tests pass — no regression",
+    "useProData.js loads new cluster_labels_v3.json without errors",
+    "npm run build succeeds",
+    "Cluster-tour adapter at LivingArchView.jsx:1906-1919 orbits new cluster cloud centers (manual visual)",
+    "Chef visual A/B: 5×3=15 cluster cards (new vs prior) reviewed in PR; chef sign-off explicit before merge",
+    "gat_cluster_quality_report.json written with stability Jaccard, val AUC, Hits@10, size distribution, tier1 purity per cluster"
+  ],
+  "implementation_outline": [
+    "D1: flavor-gnn/src/data/build_pyg_data.py (Data object from v8 graph + features) + stratified_split.py (per-node ≤30% loss to val+test). Unit tests for feature shape + split degree preservation.",
+    "D2: flavor-gnn/src/models/gat_link.py (GATLinkPredictor) + train/train_gat_link.py (link-pred BCE, Adam lr=5e-3, early-stop patience=20). Train v1 baseline; log val AUC + Hits@10. Save flavor-gnn/artifacts/gat_link_v1.pt.",
+    "D3: scripts/leiden_consensus.py (Leiden ×10 → consensus matrix → final Leiden; Jaccard gate). Recompute centroid_3d from flavor_positions_v3.json. Emit cluster_labels_v3.json.",
+    "D4: Re-run scripts/emit_cluster_explanations_v3.py against new clusters. Generate Playwright 15-cluster-card A/B fixture (.playwright-shots/gat-clusters-ab/). Chef sign-off + commit."
+  ],
+  "risk_register": [
+    "Cold-start nodes (53 with empty tier1) — aroma slice all-zero; verify embeddings cluster sensibly post-train; fallback = impute tier1 from gnn_entropy.json",
+    "Hub gap (71 compound foods like mayonnaise have no GNN entry but DO have pairings) — GAT embeds via neighbors; check they land in dairy/oil/condiment neighborhood",
+    "NPMI weight saturation — strengths 0.5-1.0 must be min-max normalized to [0,1] before edge_attr or attention saturates",
+    "Stability gate tight at Jaccard ≥ 0.85 — if v1 lands 0.70-0.80, diagnose (under-train, over-fit, Leiden γ wrong, kNN k too small) before loosening; do NOT loosen",
+    "Schema preservation invariant — validate new JSON loads through useProData.js parsing in test fixture before write; silent break of cluster-tour adapter otherwise"
+  ]
+}
+```
+
+Activate via:
+```
+python $RALPH_HOME/tools/bridge_state.py activate N3-GAT-CLUSTERS
+```
 
 ---
 
