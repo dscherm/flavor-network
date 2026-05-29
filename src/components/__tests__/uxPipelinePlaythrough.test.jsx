@@ -98,10 +98,11 @@ describe('§1 — Landing page', () => {
     const block = src.slice(start, end);
     expect(block.includes('Cocktail Lab')).toBe(true);
     expect(block.includes('Sauce Lab')).toBe(true);
-    expect(block.includes('Recipes')).toBe(true);
-    // Notebook surface is back at user request — it's the authoring
-    // counterpart to the curated 3D Recipes browse view.
-    expect(/>\s*Notebook\s*</.test(block)).toBe(true);
+    // 2026-05-29 chef-user label rename: "Recipes" → "Cookbook",
+    // "Notebook" → "Recipes Notebook" (the authoring counterpart to
+    // the curated 3D Cookbook browse view).
+    expect(/>\s*Cookbook\s*</.test(block)).toBe(true);
+    expect(/>\s*Recipes Notebook\s*</.test(block)).toBe(true);
     // "Network" button (jump-back) is gone per spec.
     expect(/>\s*Network\s*</.test(block)).toBe(false);
   });
