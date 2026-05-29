@@ -1354,21 +1354,30 @@ code rename + UI label changes tracked under follow-up bridge task
 in the repo (`RecipesLab.jsx` plural = the future Cookbook Lab;
 `RecipeLab.jsx` singular = this spec's Recipe Lab).
 
-### 1. NotebookCanvas (Canvas 2D radial) fate — RESOLVED (follow-up task)
+### 1. NotebookCanvas (Canvas 2D radial) fate — REVERSED 2026-05-29
 
-**Resolution (2026-05-27):** `NotebookCanvas.jsx`, `recipeLayout.js`,
-and `<RecipePanel>` are **canonical to Recipe Lab** — the
-Canvas-2D hand-drawn aesthetic is the target rendering surface.
-`RecipeLabMobile` was a Phase 1 stripped-down mobile-first
+**Reversal (2026-05-29):** chef-user smoke-tested the canvas surface
+wired behind feature flag `feature:canvas-notebook` and rejected it.
+The mobile-first `RecipeLabMobile` surface is now **canonical**;
+`NotebookCanvas.jsx`, `recipeLayout.js`, and `<RecipePanel>` revert
+to their pre-2026-05-27 status (legacy, retained in repo as the
+glyph-rules spec of record at §3.2–§3.3 only). The single signal
+salvaged from the canvas exploration — the 7-pill recipe-type row
+from §16 — lands directly on `RecipeLabMobile` via `RL-RECIPETYPE`.
+
+The DOCS-RL-NOTEBOOK-WIRE umbrella task and its 3 short-lived
+sub-tasks (DOCS-RL-CANVAS-MOUNT / -HANDOFF / -FLIP) are obsoleted by
+this reversal. The 2026-05-27 resolution below is preserved for
+historical context.
+
+**Prior resolution (2026-05-27, SUPERSEDED):** `NotebookCanvas.jsx`,
+`recipeLayout.js`, and `<RecipePanel>` are **canonical to Recipe
+Lab** — the Canvas-2D hand-drawn aesthetic is the target rendering
+surface. `RecipeLabMobile` was a Phase 1 stripped-down mobile-first
 intermediate; the canonical state wires the Canvas renderer +
-`<RecipePanel>` sidebar back into the Recipe Lab mount.
-
-The audit commit does NOT wire the Canvas surface back — that's
-tracked as follow-up bridge task `DOCS-RL-NOTEBOOK-WIRE`. Until the
-follow-up lands, the in-flight legacy mobile-first surface is what
-renders. This spec describes the target (§3, §5, §6.4 are
-the contract); the mobile-first interim surface is documented in §19
-as in-flight legacy.
+`<RecipePanel>` sidebar back into the Recipe Lab mount. This
+resolution stood for two days before being reversed by chef-user
+smoke-test feedback on 2026-05-29.
 
 ### 2. `<RecipeLab>` alias removal — PARKED
 
