@@ -49,6 +49,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [handoffToast, setHandoffToast] = useState(null);
   const [recipeType, setRecipeType] = useState(handoff?.recipeType || null);
   const [recipeImageUrl, setRecipeImageUrl] = useState(null);
+  const [focalKey, setFocalKey] = useState(null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -91,6 +92,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     else if (handoff.mode === 'sauce') setLabMode('sauce');
     else setLabMode('taste');
     setRecipeType(handoff.recipeType || null);
+    setFocalKey(null);
     if (handoff.image instanceof File && handoff.image.type?.startsWith('image/')) {
       setRecipeImageUrl(URL.createObjectURL(handoff.image));
     } else {
@@ -242,6 +244,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       const remaining = bowlNames(bowlRemoveIngredient(recipeIngredients, name));
       return remaining[0] || null;
     });
+    setFocalKey(prev => (prev === name ? null : prev));
     hapticLight();
   }, [recipeIngredients]);
 
@@ -262,6 +265,14 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     setCenterIngredient(null);
     setActiveTab('all');
     setRecipeImageUrl(null);
+    setFocalKey(null);
+  }, []);
+
+  // §13.3 focal toggle. Tap-and-hold (mobile) and right-click (desktop)
+  // on a row both route here through RecipeNotebook's popover. Passing
+  // the same name a second time clears the flag.
+  const handleSetFocal = useCallback((name) => {
+    setFocalKey((prev) => (prev === name ? null : name));
   }, []);
 
   // §11.3 — per-row amount input commit callback.
@@ -491,6 +502,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           recipeTitle={recipeTitle}
           onTitleChange={setRecipeTitle}
           compatibility={null}
+          focalKey={focalKey}
+          onSetFocal={handleSetFocal}
           onFindCocktail={onFindCocktail
             ? () => onFindCocktail(recipeNames, recipeTitle)
             : undefined}
