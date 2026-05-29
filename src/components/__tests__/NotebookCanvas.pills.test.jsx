@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import RecipeNotebook from '../RecipeNotebook.jsx';
+import { bowlFromIngredients } from '../../data/bowlEntry.js';
 
 // ── Module mocks ──────────────────────────────────────────────────────────────
 // RecipeNotebook uses getNeighborsEnriched from graph.js and scoreIngredient
@@ -48,7 +49,7 @@ function renderNotebook({
 } = {}) {
   return render(
     <RecipeNotebook
-      ingredients={ingredients}
+      bowl={bowlFromIngredients(ingredients)}
       centerIngredient={ingredients[0] || null}
       nodes={nodes}
       edges={[]}

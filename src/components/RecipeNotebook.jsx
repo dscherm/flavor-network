@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { getNeighborsEnriched } from '../data/graph.js';
+import { bowlGetAmount } from '../data/bowlEntry.js';
 
 const FONT_FAMILY = 'Caveat, cursive';
 const LINE_HEIGHT = 28;
@@ -23,43 +24,107 @@ function getMatchPercent(name, centerIngredient, edges, cuisineNeighborIndex) {
   return found ? Math.round(found.strength * 100) : null;
 }
 
+// Display-form for unit tokens. Canonical 'to_taste' surfaces as
+// "to taste" (the underscore is a data-layer sentinel, not user copy).
+function displayUnit(unit) {
+  if (!unit) return '';
+  if (unit === 'to_taste') return 'to taste';
+  return unit;
+}
+
+// Build the chip label. Qty-less amounts (pinch / dash / to_taste /
+// "an ounce"-style article forms) show just the unit; numeric amounts
+// show "qty unit"; everything else returns null (no chip rendered).
+function chipLabel(amount) {
+  if (!amount?.unit) return null;
+  const u = displayUnit(amount.unit);
+  if (amount.qty == null) return u;
+  return `${amount.qty} ${u}`;
+}
+
+// AmountInput — single-row 64px monospaced input that commits on blur
+// or Enter. Shows the structured chip (e.g. "1 tbsp", "pinch",
+// "to taste") inline once parseAmount has resolved a unit; raw text
+// stays in the input even when parsing fails so the user's typing is
+// never discarded.
+function AmountInput({ name, amount, onCommit }) {
+  const [draft, setDraft] = useState(amount?.raw || '');
+  const commit = useCallback(() => {
+    if (draft !== (amount?.raw || '')) onCommit(draft);
+  }, [draft, amount, onCommit]);
+  const chip = chipLabel(amount);
+  return (
+    <span
+      className="flex-shrink-0 inline-flex items-center gap-1"
+      style={{ minHeight: 24 }}
+    >
+      <input
+        type="text"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') { e.preventDefault(); commit(); e.currentTarget.blur(); }
+          if (e.key === 'Escape') { setDraft(amount?.raw || ''); e.currentTarget.blur(); }
+        }}
+        placeholder="amount"
+        aria-label={`Amount for ${name}`}
+        data-testid={`amount-input-${name}`}
+        className="w-[64px] px-1 py-0 text-xs bg-transparent border-b border-[#c9b99a]/60 outline-none focus:border-[#7a6a4a] placeholder-[#c9b99a]"
+        style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', color: '#5a4a2a' }}
+      />
+      {chip && (
+        <span
+          className="text-[10px] px-1 rounded"
+          style={{
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+            backgroundColor: '#e8dcc0',
+            color: '#5a4a2a',
+          }}
+          data-testid={`amount-chip-${name}`}
+        >
+          {chip}
+        </span>
+      )}
+    </span>
+  );
+}
+
 /**
  * RecipeNotebook — Scrollable ingredient list with notebook styling.
  *
- * Props:
- *   ingredients: string[]
+ * Props (RL-PORTIONS-UI 2026-05-29 — bowl shape is BowlEntry[]):
+ *   bowl: BowlEntry[]                       — recipe ingredients
  *   centerIngredient: string | null
  *   nodes: Map<string, Object>
  *   edges: Array
  *   onRemove: (name) => void
  *   onRecenter: (name) => void
+ *   onAmountChange: (name, rawText) => void — §11.3 per-row amount commit
  *   recipeTitle: string
  *   onTitleChange: (title) => void
  *   compatibility: number | null (0-100)
  */
 export default function RecipeNotebook({
-  ingredients = [],
+  bowl = [],
   centerIngredient,
   nodes,
   edges,
   cuisineNeighborIndex = null,
   onRemove,
   onRecenter,
-  onFocusIngredient,    // (name) => void — opens suggestions popout for that ingredient
-  onRequestAdd,         // () => void — fires when user taps the "+ Add ingredient" row
-  onRequestSuggestions, // () => void — fires when user taps the "Suggestions" row
-  // P8: aroma-match pill callbacks. When provided, two pill buttons appear
-  // below the Suggestions row so the user can route the current recipe to
-  // Cocktail Lab or Sauce Lab for aroma-matched browsing.
-  onFindCocktail,   // () => void | undefined
-  onFindSauce,      // () => void | undefined
-  // true when computeRecipeAroma returned null (zero GNN coverage) —
-  // pills render disabled with a tooltip rather than hidden.
+  onAmountChange,
+  onFocusIngredient,
+  onRequestAdd,
+  onRequestSuggestions,
+  onFindCocktail,
+  onFindSauce,
   aromaDisabled = false,
   recipeTitle,
   onTitleChange,
   compatibility,
 }) {
+  const entries = bowl;
   // Track swipe-to-delete state
   const [swipedItem, setSwipedItem] = useState(null);
   const touchStart = useRef({ x: 0, y: 0, name: null });
@@ -82,7 +147,7 @@ export default function RecipeNotebook({
     touchStart.current = { x: 0, y: 0, name: null };
   }, []);
 
-  if (ingredients.length === 0) {
+  if (entries.length === 0) {
     return (
       <div
         className="flex-1 flex items-center justify-center px-6"
@@ -129,7 +194,9 @@ export default function RecipeNotebook({
 
       {/* Ingredient list */}
       <div className="px-2" style={{ paddingLeft: 48 }}>
-        {ingredients.map((name) => {
+        {entries.map((entry) => {
+          const name = entry.ingredient;
+          const amount = bowlGetAmount(entries, name);
           const isCenter = name === centerIngredient;
           const taste = getDominantTaste(name, nodes?.get(name));
           const tasteColor = TASTE_COLORS[taste] || TASTE_COLORS.default;
@@ -187,7 +254,7 @@ export default function RecipeNotebook({
 
               {/* Name */}
               <span
-                className="flex-1 truncate text-base"
+                className="flex-1 truncate text-base min-w-0"
                 style={{
                   fontFamily: FONT_FAMILY,
                   color: '#3a3428',
@@ -196,6 +263,18 @@ export default function RecipeNotebook({
               >
                 {name}
               </span>
+
+              {/* Amount input (RL-PORTIONS-UI §11.3) — inline, ~64px,
+                  monospaced; commits on blur or Enter. Raw text always
+                  persists; parsed chip surfaces when parseAmount
+                  resolved a structured qty+unit. */}
+              {onAmountChange && (
+                <AmountInput
+                  name={name}
+                  amount={amount}
+                  onCommit={(raw) => onAmountChange(name, raw)}
+                />
+              )}
 
               {/* Match % */}
               {matchPct !== null && (
@@ -273,7 +352,7 @@ export default function RecipeNotebook({
             add-mode, ranking candidates by avg pair strength to the
             whole bowl. Mirrors the + Add row's height/style for
             visual rhythm. */}
-        {onRequestSuggestions && ingredients.length > 0 && (
+        {onRequestSuggestions && entries.length > 0 && (
           <button
             onClick={onRequestSuggestions}
             className="w-full flex items-center gap-2 pr-2 hover:bg-[#f0e8d0] active:bg-[#e8dcc0] transition-colors rounded"
@@ -299,7 +378,7 @@ export default function RecipeNotebook({
             Sauce Lab pre-populated with matched items. Disabled (not
             hidden) when zero ingredients have GNN aroma data so the
             feature is still discoverable. */}
-        {(onFindCocktail || onFindSauce) && ingredients.length > 0 && (
+        {(onFindCocktail || onFindSauce) && entries.length > 0 && (
           <div className="flex flex-col gap-1 pt-1 pb-1">
             {onFindCocktail && (
               <button
@@ -374,7 +453,7 @@ export default function RecipeNotebook({
       </div>
 
       {/* Compatibility score */}
-      {compatibility !== null && ingredients.length >= 2 && (
+      {compatibility !== null && entries.length >= 2 && (
         <div className="px-4 pt-3 pb-2" style={{ paddingLeft: 48 }}>
           <span
             className="text-base"
