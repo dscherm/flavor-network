@@ -160,6 +160,31 @@ in zone 1 is now the only suggestion surface in the Recipe Lab. The
 `RecipeLabMobile` because handoff payloads still set it to drive
 post-handoff focus, but no drawer renders.
 
+### 2.3a Axis vocabulary (canonical — 2026-05-29)
+
+`<RecipeFlavorWheel>` (and every other axis-switchable surface in
+the app) pulls its label list from `briscionePalette.axisOrder()`.
+The chef-canonical vocab is:
+
+| Axis | Count | Labels |
+|---|---|---|
+| `taste`  | 8  | sweet, sour, bitter, salty, spicy, pungent, astringent, umami |
+| `aroma`  | 13 | citrus, fruity, floral, herbal, green, creamy, woody, earthy, roasted, caramel, fermented, marine, pungent |
+
+For aroma, only 5 labels have a GNN head (fruity, floral, green,
+woody, creamy) — the mapping lives in `AROMA_LABEL_TO_GNN_KEY` in
+`briscionePalette.js` (note: `creamy` → `odor_fatty` data column
+since the chef-vocab rename 2026-05-27 kept the legacy column
+name). The remaining 8 chef-only aromas (citrus, herbal, earthy,
+roasted, caramel, fermented, marine, pungent) surface only when
+the chef-curated `flavor_graph.tier1` carries the label; on
+GNN-only ingredients these axes appear as zero-value spokes.
+
+Single source of truth: `src/data/briscionePalette.js`. Wheels
+that hardcode their own keysets are tracked under
+`RL-AXIS-VOCAB-WEDGEGRID` (deferred — needs visual A/B for the
+6→13 sector expansion in the Briscione donut).
+
 ### 2.4 Mode tab strip
 
 Below the top action bar, full-width: `General` (taste) / `Cocktail` /
