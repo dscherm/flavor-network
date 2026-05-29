@@ -44,6 +44,7 @@ import GuidedDiscoverySwipe from './components/GuidedDiscoverySwipe.jsx';
 import BuildRecipeStart from './components/BuildRecipeStart.jsx';
 import BuildRecipeResults from './components/BuildRecipeResults.jsx';
 import CookbookLab from './components/CookbookLab.jsx';
+import MakeRecipeStart from './components/MakeRecipeStart.jsx';
 import GuidedTour from './components/GuidedTour.jsx';
 import LabTour from './components/LabTour.jsx';
 import GuidedDiscoveryResults from './components/GuidedDiscoveryResults.jsx';
@@ -91,6 +92,7 @@ const TAB_TO_PATH = {
   'guided-results': 'guided',         // ephemeral; collapse to entry
   build: 'build',
   'build-results': 'build',           // ephemeral; collapse to entry
+  make: 'make',
   profile: 'profile',
 };
 const PATH_TO_TAB = Object.fromEntries(
@@ -103,6 +105,7 @@ const PATH_TO_TAB = Object.fromEntries(
     recipes: 'cookbook',  // back-compat alias for pre-rename shared URLs
     guided: 'guided',
     build: 'build',
+    make: 'make',
     profile: 'profile',
   }),
 );
@@ -256,6 +259,7 @@ export default function App() {
   const [sauceMounted, setSauceMounted] = useState(false);
   const [recipeMounted, setRecipeMounted] = useState(false);
   const [recipeInitialMode, setRecipeInitialMode] = useState(null);
+  const [cookbookPickerMode, setCookbookPickerMode] = useState(null);
   // One-shot handoff payload to the Recipe Lab. ONLY explicit user
   // actions ("Build Recipe" from the IngredientPanel, "Open in Recipe
   // Lab" from a cocktail/sauce card) write to this. The Recipe Lab
@@ -2027,6 +2031,21 @@ export default function App() {
             isMobile={isMobile}
             onFindCocktail={handleFindCocktail}
             onFindSauce={handleFindSauce}
+          />
+        </div>
+      )}
+
+      {/* Make picker — 3-card entry router (existing / scratch / photo)
+          per MAKE-MODE-SPEC §2. Pure router: synthesizes a recipeHandoff
+          (with source='make-*') or delegates to Cookbook Lab in picker
+          mode. Owns no persistent state. */}
+      {activeTab === 'make' && (
+        <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
+          <MakeRecipeStart
+            setRecipeHandoff={setRecipeHandoff}
+            setRecipeMounted={setRecipeMounted}
+            setActiveTab={setActiveTab}
+            setCookbookPickerMode={setCookbookPickerMode}
           />
         </div>
       )}
