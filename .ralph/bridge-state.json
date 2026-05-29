@@ -127,9 +127,9 @@
     {
       "id": "N3-ALPHA-V2",
       "title": "Replace 3-tier \u03b1-mode rings with 6-axis categorical rings (cluster/aroma/taste/family/cuisine/season)",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529020347-0000000"
     },
     {
       "id": "N2-AGG-RECAL",
@@ -309,18 +309,18 @@
     {
       "id": "N3-GAT-CLUSTERS",
       "title": "Replace KMeans-on-11d-probs clustering with GAT link-prediction embeddings + Leiden (stability-gated, in-place v3 replacement)",
-      "status": "gate-pass",
+      "status": "done",
       "gate_result": "pass",
       "observation_id": "obs-20260528221914-0000000"
     }
   ],
-  "current_task_index": 12,
+  "current_task_index": 18,
   "stats": {
-    "tasks_completed": 17,
+    "tasks_completed": 19,
     "tasks_failed": 0,
-    "gate_passes": 12,
+    "gate_passes": 13,
     "gate_fails": 0,
-    "observations_recorded": 46
+    "observations_recorded": 50
   },
   "config": {
     "interactive_mode": true,
@@ -329,5 +329,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-05-29T00:12:40.511691+00:00"
+  "updated_at": "2026-05-29T02:12:56.996511+00:00"
 }
