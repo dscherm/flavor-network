@@ -123,18 +123,69 @@ export default function RecipeNotebook({
   recipeTitle,
   onTitleChange,
   compatibility,
+  focalKey = null,
+  onSetFocal,
 }) {
   const entries = bowl;
   // Track swipe-to-delete state
   const [swipedItem, setSwipedItem] = useState(null);
   const touchStart = useRef({ x: 0, y: 0, name: null });
 
+  // §13.3 focal-flag popover. Open via tap-and-hold (500ms) on mobile
+  // or right-click on desktop. `focalMenuFor` is the ingredient name
+  // whose popover is currently open (null = closed).
+  const [focalMenuFor, setFocalMenuFor] = useState(null);
+  const longPressTimer = useRef(null);
+  const longPressFired = useRef(false);
+
+  const clearLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const startLongPress = useCallback((name) => {
+    clearLongPress();
+    longPressFired.current = false;
+    longPressTimer.current = setTimeout(() => {
+      longPressFired.current = true;
+      setFocalMenuFor(name);
+    }, 500);
+  }, []);
+
+  const cancelLongPress = useCallback(() => {
+    clearLongPress();
+  }, []);
+
+  const handleContextMenu = useCallback((e, name) => {
+    e.preventDefault();
+    setFocalMenuFor(name);
+  }, []);
+
+  const closeFocalMenu = useCallback(() => setFocalMenuFor(null), []);
+
+  const toggleFocal = useCallback((name) => {
+    onSetFocal?.(name);
+    setFocalMenuFor(null);
+  }, [onSetFocal]);
+
   const handleTouchStart = useCallback((e, name) => {
     const touch = e.touches[0];
     touchStart.current = { x: touch.clientX, y: touch.clientY, name };
-  }, []);
+    startLongPress(name);
+  }, [startLongPress]);
+
+  const handleTouchMove = useCallback((e) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    const dx = Math.abs(touch.clientX - touchStart.current.x);
+    const dy = Math.abs(touch.clientY - touchStart.current.y);
+    if (dx > 10 || dy > 10) cancelLongPress();
+  }, [cancelLongPress]);
 
   const handleTouchEnd = useCallback((e) => {
+    cancelLongPress();
     const touch = e.changedTouches[0];
     const dx = touch.clientX - touchStart.current.x;
     const dy = Math.abs(touch.clientY - touchStart.current.y);
@@ -145,7 +196,7 @@ export default function RecipeNotebook({
       setSwipedItem(null); // swipe right to dismiss
     }
     touchStart.current = { x: 0, y: 0, name: null };
-  }, []);
+  }, [cancelLongPress]);
 
   if (entries.length === 0) {
     return (
@@ -203,9 +254,11 @@ export default function RecipeNotebook({
           const matchPct = getMatchPercent(name, centerIngredient, edges, cuisineNeighborIndex);
           const isSwiped = swipedItem === name;
 
+          const isFocal = focalKey === name;
           return (
             <div
               key={name}
+              data-testid={`notebook-row-${name}`}
               className="relative flex items-center gap-2 pr-2 transition-transform"
               style={{
                 height: LINE_HEIGHT,
@@ -213,7 +266,9 @@ export default function RecipeNotebook({
                 transition: 'transform 200ms ease-out',
               }}
               onTouchStart={(e) => handleTouchStart(e, name)}
+              onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
+              onContextMenu={(e) => handleContextMenu(e, name)}
             >
               {/* R pill — opens the ingredient-specific suggestions
                   popout (replaces the hex graphic). User redesign
@@ -264,6 +319,25 @@ export default function RecipeNotebook({
                 {name}
               </span>
 
+              {/* §13.3 focal badge */}
+              {isFocal && (
+                <span
+                  data-testid={`focal-badge-${name}`}
+                  className="flex-shrink-0 inline-flex items-center px-1.5 text-[10px] rounded-full"
+                  style={{
+                    fontFamily: FONT_FAMILY,
+                    color: tasteColor,
+                    borderColor: tasteColor,
+                    borderWidth: 1,
+                    borderStyle: 'solid',
+                    backgroundColor: '#fefae0',
+                    lineHeight: '16px',
+                  }}
+                >
+                  focal
+                </span>
+              )}
+
               {/* Amount input (RL-PORTIONS-UI §11.3) — inline, ~64px,
                   monospaced; commits on blur or Enter. Raw text always
                   persists; parsed chip surfaces when parseAmount
@@ -309,6 +383,34 @@ export default function RecipeNotebook({
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+
+              {/* §13.3 focal popover — opens via tap-and-hold (mobile)
+                  or right-click (desktop). One item: Set/Clear focal. */}
+              {focalMenuFor === name && (
+                <>
+                  <div
+                    className="fixed inset-0 z-[60]"
+                    onClick={closeFocalMenu}
+                    onContextMenu={(e) => { e.preventDefault(); closeFocalMenu(); }}
+                    data-testid={`focal-menu-backdrop-${name}`}
+                  />
+                  <div
+                    className="absolute right-2 top-full mt-1 z-[61] rounded-md border bg-[#fefae0] shadow-lg"
+                    style={{ borderColor: '#c9b99a', minWidth: 140 }}
+                    data-testid={`focal-menu-${name}`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleFocal(name)}
+                      data-testid={`focal-menu-toggle-${name}`}
+                      className="block w-full text-left px-3 py-2 text-sm hover:bg-[#f0e8d0]"
+                      style={{ fontFamily: FONT_FAMILY, color: '#3a3428', minHeight: 40 }}
+                    >
+                      {isFocal ? 'Clear focal' : 'Set as focal'}
+                    </button>
+                  </div>
+                </>
+              )}
 
               {/* Swipe-to-delete reveal */}
               {isSwiped && (
