@@ -256,13 +256,22 @@ export default function GuidedDiscoveryResults({
     }
   }, [selectedPair, ctx, runtimeData]);
 
+  // Two-step commit gesture (DOCS-GD-TWO-TAP, spec §11 O-2):
+  //   1. First tap on axis X   → arm chosenValue = X (wedge fill only).
+  //   2. Second tap on same X  → commit: fire onAxisSelect(filterType)
+  //                              so App.jsx maps axis → filterStack +
+  //                              activates GuidedTour, jumping to network.
+  //   3. Tap on different axis → re-arm to that axis (no commit).
+  // Eliminates surface-bounce on incidental taps and lets the user
+  // compare wedge fills across axes without losing the Results page.
   const handleAxisTap = (axisKey) => {
-    setChosenValue((prev) => (prev === axisKey ? null : axisKey));
-    // Legacy hook still fires so App.jsx's onAxisSelect bridge (which
-    // maps axis → filterStack + tour entry) keeps working when present.
-    if (typeof onAxisSelect === 'function') {
-      onAxisSelect(filterType);
+    if (chosenValue === axisKey) {
+      if (typeof onAxisSelect === 'function') {
+        onAxisSelect(filterType);
+      }
+      return;
     }
+    setChosenValue(axisKey);
   };
 
   const handlePillSelect = (next) => {
