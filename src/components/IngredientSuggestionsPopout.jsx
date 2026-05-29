@@ -9,6 +9,23 @@ import { rankSuggestions } from '../data/recipeSuggestionEngine.js';
 // 2026-05-27 (batch 6 chef-vocab): renamed 'fatty' → 'creamy'.
 const ODOR_KEYS = ['fruity', 'floral', 'green', 'woody', 'creamy'];
 
+// §14 category palette for the food-category filter pills. Per spec,
+// any category not in this map renders with #94a3b8 (slate-400).
+const CATEGORY_COLORS = {
+  Produce: '#65a30d',
+  'Meat & Seafood': '#b91c1c',
+  Dairy: '#fde68a',
+  Grains: '#d4a373',
+  'Herbs & Spices': '#4d7c0f',
+  Pantry: '#854d0e',
+  Beverage: '#0e7490',
+  Dessert: '#e879f9',
+  Sweetener: '#fbbf24',
+  'Fat & Oil': '#f59e0b',
+  Condiment: '#9333ea',
+  Other: '#94a3b8',
+};
+
 // Mirrors SuggestionDrawer's lookupNeighbors stripping logic for
 // cocktail / sauce ingredients with no direct edge. Kept in sync —
 // any new alias should land in BOTH this map and SuggestionDrawer's.
@@ -117,6 +134,9 @@ export default function IngredientSuggestionsPopout({
   globalCount = null,
 }) {
   const [activeFilter, setActiveFilter] = useState('all');
+  // §14 food-category filter (RL-CATEGORY-FILTER). null = all categories.
+  // Single-select; tap active pill again clears.
+  const [categoryFilter, setCategoryFilter] = useState(null);
   // Role purity is on by default in replace-mode (Path C). User can
   // toggle off when no same-role candidates exist or they want
   // broader exploration. Add-mode never enforces (we want any
@@ -336,26 +356,44 @@ export default function IngredientSuggestionsPopout({
   }, [ingredient, recipeIngredients, nodes, edges, scopeFilter, isAddMode, enforceRole, focalRole, labMode, cocktailRoles, sauceRoles, bowl, focalKey, recipePairs, globalCount, cuisineNeighborIndex]);
 
   const filtered = useMemo(() => {
-    if (activeFilter === 'all') return candidates.slice(0, 40);
-    if (activeFilter.startsWith('aroma:')) {
+    // Stage 1: apply the taste/aroma/cuisine filter pill (existing).
+    let result;
+    if (activeFilter === 'all') {
+      result = candidates;
+    } else if (activeFilter.startsWith('aroma:')) {
       const odorKey = activeFilter.slice(6);
       const T = 0.15;
-      return candidates
-        .filter((c) => (c.node?.gnnProbs?.[`odor_${odorKey}`] || 0) >= T)
-        .slice(0, 40);
-    }
-    if (activeFilter.startsWith('taste:')) {
+      result = candidates.filter((c) => (c.node?.gnnProbs?.[`odor_${odorKey}`] || 0) >= T);
+    } else if (activeFilter.startsWith('taste:')) {
       const taste = activeFilter.slice(6);
-      return candidates.filter((c) => c.dominantTaste === taste).slice(0, 40);
-    }
-    if (activeFilter.startsWith('cuisine:')) {
+      result = candidates.filter((c) => c.dominantTaste === taste);
+    } else if (activeFilter.startsWith('cuisine:')) {
       const cuisine = activeFilter.slice(8).toLowerCase();
-      return candidates.filter((c) =>
-        (c.node?.cuisines || []).some((x) => String(x).toLowerCase() === cuisine)
-      ).slice(0, 40);
+      result = candidates.filter((c) =>
+        (c.node?.cuisines || []).some((x) => String(x).toLowerCase() === cuisine),
+      );
+    } else {
+      result = candidates;
     }
-    return candidates.slice(0, 40);
-  }, [candidates, activeFilter]);
+    // Stage 2: §14 food-category filter (RL-CATEGORY-FILTER). Runs AFTER
+    // ranking + the existing pill filter — does not mutate scores.
+    if (categoryFilter) {
+      result = result.filter((c) => c.node?.category === categoryFilter);
+    }
+    return result.slice(0, 40);
+  }, [candidates, activeFilter, categoryFilter]);
+
+  // Distinct categories present in the (pre-filter) candidate pool. Only
+  // surfacing categories with ≥1 candidate keeps the pill row honest —
+  // tapping a pill always returns at least one result.
+  const availableCategories = useMemo(() => {
+    const seen = new Set();
+    for (const c of candidates) {
+      const cat = c.node?.category;
+      if (cat) seen.add(cat);
+    }
+    return Array.from(seen).sort();
+  }, [candidates]);
 
   const tasteOptions = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'spicy', 'pungent', 'astringent'];
   const aromaOptions = ODOR_KEYS;
@@ -410,6 +448,45 @@ export default function IngredientSuggestionsPopout({
         </div>
         <span title="Match strength" className="text-[#a09070]">★</span>
       </div>
+
+      {/* §14 food-category filter pills (RL-CATEGORY-FILTER). Sticky
+          row above the taste/aroma filter row. Single-select; tap same
+          pill again to clear back to all categories. Only surfaces
+          categories present in the current candidate pool. */}
+      {availableCategories.length > 0 && (
+        <div
+          className="flex gap-1 px-2 py-1.5 overflow-x-auto flex-shrink-0 border-b border-[#e8dcc0]"
+          style={{ scrollbarWidth: 'none' }}
+          data-testid="category-filter-row"
+        >
+          {availableCategories.map((cat) => {
+            const isActive = categoryFilter === cat;
+            const color = CATEGORY_COLORS[cat] || '#94a3b8';
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategoryFilter((prev) => (prev === cat ? null : cat))}
+                aria-pressed={isActive}
+                data-testid={`category-pill-${cat}`}
+                className="flex-shrink-0 px-3 rounded-full border text-xs transition-colors whitespace-nowrap"
+                style={{
+                  minHeight: 44,
+                  minWidth: 44,
+                  backgroundColor: isActive ? color : 'transparent',
+                  borderColor: isActive ? color : '#c9b99a',
+                  color: isActive ? '#fefae0' : '#5a4a2a',
+                  fontFamily: 'inherit',
+                  paddingTop: 6,
+                  paddingBottom: 6,
+                }}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Filter pills */}
       <div className="flex gap-1 px-2 py-1.5 overflow-x-auto flex-shrink-0 border-b border-[#e8dcc0]" style={{ scrollbarWidth: 'none' }}>
