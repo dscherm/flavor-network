@@ -130,6 +130,23 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [sauceScope, setSauceScope] = useState(null);
   const [cocktailRoles, setCocktailRoles] = useState(null);
   const [sauceRoles, setSauceRoles] = useState(null);
+  // RL-SAUCE-SUGGEST: sauce_augment.sauces list, lazy-loaded once on
+  // mount so the IngredientSuggestionsPopout can rank a top-5 chip row.
+  const [sauceList, setSauceList] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${import.meta.env.BASE_URL}data/sauce_augment.json`);
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled) setSauceList(json.sauces || []);
+      } catch {
+        if (!cancelled) setSauceList([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
   useEffect(() => {
     if (labMode === 'cocktail') {
       if (!cocktailScope) getCocktailScope().then(setCocktailScope).catch(() => setCocktailScope(new Set()));
@@ -433,6 +450,11 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             focalKey={focalKey}
             recipePairs={fullData?.recipePairs || null}
             globalCount={fullData?.globalCount || null}
+            sauces={sauceList}
+            recipeType={recipeType}
+            onSelectSauce={onFindSauce
+              ? () => onFindSauce(recipeNames, recipeTitle)
+              : undefined}
             nodes={fullData?.graph?.nodes}
             edges={fullData?.graph?.edges}
             cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}

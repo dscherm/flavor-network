@@ -5,6 +5,7 @@ import { TASTE_COLORS } from '../utils/color.js';
 import { AROMA_COLORS } from '../data/recipeScoring.js';
 import { roleOf, rolesCompatible } from '../data/ingredientRoles.js';
 import { rankSuggestions } from '../data/recipeSuggestionEngine.js';
+import { rankSauces } from '../data/sauceRecommendation.js';
 
 // 2026-05-27 (batch 6 chef-vocab): renamed 'fatty' → 'creamy'.
 const ODOR_KEYS = ['fruity', 'floral', 'green', 'woody', 'creamy'];
@@ -132,6 +133,11 @@ export default function IngredientSuggestionsPopout({
   focalKey = null,
   recipePairs = null,
   globalCount = null,
+  // RL-SAUCE-SUGGEST: §15.1 sauce recommendation chip row. Hidden when
+  // sauces is null/empty. recipeType gates the visible class.
+  sauces = null,
+  recipeType = null,
+  onSelectSauce,
 }) {
   const [activeFilter, setActiveFilter] = useState('all');
   // §14 food-category filter (RL-CATEGORY-FILTER). null = all categories.
@@ -395,6 +401,23 @@ export default function IngredientSuggestionsPopout({
     return Array.from(seen).sort();
   }, [candidates]);
 
+  // RL-SAUCE-SUGGEST: top 5 sauce recommendations. Add-mode only —
+  // replace-mode users are mid-ingredient-swap, not looking for sauces.
+  // Source of bowl names: prefer the BowlEntry[] passed via `bowl`
+  // (RL-PORTIONS-UI shape); fall through to recipeIngredients otherwise.
+  const sauceBowlNames = useMemo(() => {
+    if (Array.isArray(bowl) && bowl.length > 0) {
+      return bowl.map((b) => b?.ingredient).filter(Boolean);
+    }
+    return recipeIngredients || [];
+  }, [bowl, recipeIngredients]);
+  const rankedSauces = useMemo(() => {
+    if (!isAddMode) return [];
+    if (!sauces || sauces.length === 0) return [];
+    if (sauceBowlNames.length === 0) return [];
+    return rankSauces(sauceBowlNames, sauces, recipeType, 5);
+  }, [isAddMode, sauces, recipeType, sauceBowlNames]);
+
   const tasteOptions = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'spicy', 'pungent', 'astringent'];
   const aromaOptions = ODOR_KEYS;
   const showCuisine = labMode !== 'cocktail' && labMode !== 'sauce';
@@ -485,6 +508,40 @@ export default function IngredientSuggestionsPopout({
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* §15.1 Suggested sauces chip row (RL-SAUCE-SUGGEST). Add-mode
+          only; renders when ranking found ≥1 sauce that survives the
+          recipe-type gate. Tap chip → onSelectSauce(name) routes to
+          Sauce Lab via the existing aroma-match bridge. */}
+      {rankedSauces.length > 0 && (
+        <div
+          className="flex items-center gap-2 px-2 py-1.5 overflow-x-auto flex-shrink-0 border-b border-[#e8dcc0]"
+          style={{ scrollbarWidth: 'none' }}
+          data-testid="suggested-sauces-row"
+        >
+          <span className="text-[10px] uppercase tracking-wider text-[#a09070] flex-shrink-0">
+            Suggested sauces
+          </span>
+          {rankedSauces.map((r) => (
+            <button
+              key={r.name}
+              type="button"
+              onClick={() => onSelectSauce?.(r.name)}
+              data-testid={`sauce-chip-${r.name}`}
+              className="flex-shrink-0 px-3 rounded-full border text-xs whitespace-nowrap bg-[#fefae0] hover:bg-[#f0e8d0] transition-colors"
+              style={{
+                minHeight: 36,
+                borderColor: '#c9b99a',
+                color: '#5a4a2a',
+                paddingTop: 6,
+                paddingBottom: 6,
+              }}
+            >
+              {r.name}
+            </button>
+          ))}
         </div>
       )}
 
