@@ -66,6 +66,9 @@
     ],
     "pre_commit_gate": true
   },
+  "bridge": {
+    "enforce_gate_coupling": "strict"
+  },
   "context": {
     "recent_activity_count": 5,
     "max_context_lines": 600,
