@@ -36,9 +36,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [recipeIngredients, setRecipeIngredients] = useState(initialSeed);
   const [recipeTitle, setRecipeTitle] = useState('');
   const [selectedStructure, setSelectedStructure] = useState(null);
-  // Cocktail handoff should pop the drawer open so the user sees the
-  // suggestion chips (with inline swap targets) right away.
-  const [drawerSnap, setDrawerSnap] = useState(initialMode === 'cocktail' ? 'half' : 'peek');
   const [activeTab, setActiveTab] = useState('all');
   // When the user taps the "R" pill on an ingredient row, the hex
   // graphic is replaced by IngredientSuggestionsPopout for that
@@ -104,7 +101,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     setRecipeTitle(handoff.title || '');
     setSelectedStructure(null);
     setActiveTab('all');
-    setDrawerSnap('half');
     if (handoff.mode === 'cocktail') setLabMode('cocktail');
     else if (handoff.mode === 'sauce') setLabMode('sauce');
     else setLabMode('taste');
@@ -214,8 +210,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     setSearchResults([]);
     setSearchOpen(false);
     setHighlightIdx(-1);
-    // Auto-expand drawer when first ingredient is picked
-    if (!centerIngredient) setDrawerSnap('half');
   }, [centerIngredient]);
 
   const handleSearchKeyDown = useCallback((e) => {
@@ -260,7 +254,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     if (name === centerIngredient) {
       const remaining = recipeIngredients.filter(n => n !== name);
       setCenterIngredient(remaining.length > 0 ? remaining[0] : null);
-      if (remaining.length === 0) setDrawerSnap('peek');
     }
     hapticLight();
   }, [centerIngredient, recipeIngredients]);
@@ -291,7 +284,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     setRecipeIngredients([]);
     setRecipeTitle('');
     setCenterIngredient(null);
-    setDrawerSnap('peek');
     setActiveTab('all');
   }, []);
 
@@ -477,7 +469,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             nodes={fullData?.graph?.nodes}
             onTapAroma={(key) => {
               setActiveTab(`aroma:${key}`);
-              if (drawerSnap === 'peek') setDrawerSnap('half');
             }}
           />
         )}
@@ -499,9 +490,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           onFocusIngredient={(name) => {
             setFocusedIngredient(name);
             setSuggestionsMode(false);
-            // Collapse the bottom drawer so the user's attention is
-            // entirely on the popout above.
-            setDrawerSnap('peek');
           }}
           onRequestAdd={() => {
             searchInputRef.current?.focus();
@@ -510,7 +498,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           onRequestSuggestions={() => {
             setSuggestionsMode(true);
             setFocusedIngredient(null);
-            setDrawerSnap('peek');
           }}
           recipeTitle={recipeTitle}
           onTitleChange={setRecipeTitle}
