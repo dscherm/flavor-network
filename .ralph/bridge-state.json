@@ -22,23 +22,23 @@
     {
       "id": "N1-D3",
       "title": "Bake flavor_graph.json + schema/mint fixture tests + wire useProData",
-      "status": "pending",
+      "status": "skipped",
       "gate_result": null,
-      "observation_id": null
+      "observation_id": "obs-20260525151500-0000000"
     },
     {
       "id": "N1-D4",
       "title": "IngredientPanel tree-view chip cloud + TierBadge component, mint visual verified",
-      "status": "pending",
+      "status": "done",
       "gate_result": null,
-      "observation_id": null
+      "observation_id": "obs-20260526011253-0000000"
     },
     {
       "id": "N1-D5",
       "title": "Network re-color by primary Tier-1, flavor2D mode, filter pill, final test + visual QA",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260525223358-0000000"
     },
     {
       "id": "N1-V3a",
@@ -56,14 +56,14 @@
     },
     {
       "id": "N1-V3c",
-      "title": "Node2Vec hub imputation \u2014 fill 1,123-ingredient gap in embedding matrix",
+      "title": "Neighbor-mean hub imputation \u2014 fix sparse-feature node placement in embedding matrix",
       "status": "done",
       "gate_result": "pass",
       "observation_id": "obs-20260520204924-0000000"
     },
     {
       "id": "N1-V3d",
-      "title": "UMAP 3D/2D + KMeans(k=12 elbow) \u2192 flavor_positions_v3 + flavor_positions_2d_v3 + cluster_labels_v3",
+      "title": "UMAP 3D/2D + HDBSCAN-UMAP clustering \u2192 flavor_positions_v3 + flavor_positions_2d_v3 + cluster_labels_v3",
       "status": "done",
       "gate_result": "pass",
       "observation_id": "obs-20260520205523-0000000"
@@ -74,15 +74,253 @@
       "status": "done",
       "gate_result": "pass",
       "observation_id": "obs-20260520215554-0000000"
+    },
+    {
+      "id": "N2-V3-LBL",
+      "title": "Refine V3d cluster-label generator + chef labels for small clusters",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "N2-V3-EXP",
+      "title": "Emit cluster_explanations_v3.json \u2014 top-cuisines + top-ingredients + narrative per v3 cluster",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260528212542-0000000"
+    },
+    {
+      "id": "N2-V3-AB",
+      "title": "Visual A/B gate \u2014 capture screenshot pair at v2 vs v3 toggle",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "N2-V3-CHEF-LIFT",
+      "title": "Chef coverage drive \u2014 pair with chef-user to backfill top-500 from 209 \u2192 400+",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260527013020-0000000"
+    },
+    {
+      "id": "N2-GNN-AGG",
+      "title": "Per-ingredient compound aggregation \u2014 raise above-threshold coverage from 18% \u2192 ~45%",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": "obs-20260526011839-0000000"
+    },
+    {
+      "id": "N2-GNN-DREAM",
+      "title": "Ingest DREAM Olfaction Challenge dataset \u2014 +0.05 to +0.10 F1 on odor heads",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": "obs-20260526202240-0000000"
+    },
+    {
+      "id": "N2-GNN-ENC",
+      "title": "Foundation-model encoder swap (ChemBERTa or MolFormer) \u2014 speculative gain",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "N3-ALPHA-V2",
+      "title": "Replace 3-tier \u03b1-mode rings with 6-axis categorical rings (cluster/aroma/taste/family/cuisine/season)",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "N2-AGG-RECAL",
+      "title": "Recalibrate ingredient_profile_thresholds.json against top-K-mean gnn_entropy.json \u2014 fix Woody-heavy Tier-1 bias",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": "obs-20260527001859-0000000"
+    },
+    {
+      "id": "DOCS-GD-DM-RL",
+      "title": "Canonical specs for Guided Mode + Discovery Mode + Recipe Lab \u2014 audit + de-dup + lock",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": "obs-20260527210838-0000000"
+    },
+    {
+      "id": "DOCS-GD-TWO-TAP",
+      "title": "Guided Discovery \u2014 two-step commit gesture for axis tap on Results radar",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "DOCS-RL-NOTEBOOK-WIRE",
+      "title": "Recipe Lab \u2014 wire NotebookCanvas + RecipePanel as the canonical renderer",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "DOCS-RL-COOKBOOK-RENAME",
+      "title": "Recipe Lab \u2014 rename RecipesLab.jsx (plural) to CookbookLab",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "DOCS-RL-DRAWERSNAP-CLEANUP",
+      "title": "Recipe Lab \u2014 delete vestigial drawerSnap state",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "DOCS-MAKE-MODE",
+      "title": "New Make mode spec + Recipe Lab spec extension (portions, focal-weighted suggestions, food-category filter, seasonings, recipe-type)",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": "obs-20260527220030-0000000"
+    },
+    {
+      "id": "N2-V8-MINE",
+      "title": "Mine RecipeNLG for ~60 v8-only ingredients missing pairings",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260528211405-0000000"
+    },
+    {
+      "id": "N2-V8-LBL-REFRESH",
+      "title": "Refresh v3_cluster_labels_chef.json after v8 prune shifted compositions",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "N2-V8-RECAL",
+      "title": "Recheck per-ingredient calibration after v8 prune",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260528211800-0000000"
+    },
+    {
+      "id": "RL-PORTIONS-DATA",
+      "title": "Per-ingredient portion data model + free-text amount parser",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RL-PORTIONS-UI",
+      "title": "Bowl shape migration string[] \u2192 BowlEntry[] + amount input on notebook rows",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RL-RECIPETYPE",
+      "title": "Recipe-type radio pill row + bowl.recipeType state",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MAKE-HANDOFF-SOURCE",
+      "title": "Add `source` field to every recipeHandoff emission site",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MAKE-PICKER",
+      "title": "MakeRecipeStart.jsx \u2014 3-card picker screen (scratch + photo + existing)",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MAKE-LANDING-TILE",
+      "title": "Add Make landing tile + hand-drawn MakeVisual SVG (4-tile shipping order)",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MAKE-PHOTO-PREVIEW",
+      "title": "Recipe Lab image preview (zone-2 header) + URL.createObjectURL lifecycle",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MAKE-COOKBOOK-PICKER",
+      "title": "Cookbook Lab pickerMode='make' \u2014 card-tap emits recipeHandoff (no modal)",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RL-FOCAL-FLAG",
+      "title": "bowl.focalKey state + tap-and-hold 'Set as focal' menu on notebook rows",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RL-FOCAL-RANKER",
+      "title": "Focal-weighted suggestion ranking (W_FOCAL=0.6 + W_SECONDARY proportional-mass)",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RL-CATEGORY-FILTER",
+      "title": "Food-category pill row above suggestion list",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RL-SEASONINGS-DATA",
+      "title": "Seasonings chemDataset pipeline (chef-blocked: pick upstream)",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RL-SAUCE-SUGGEST",
+      "title": "Sauce recommendation chip row in IngredientSuggestionsPopout",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RL-SEASONING-SUGGEST",
+      "title": "Seasoning recommendation chip row in IngredientSuggestionsPopout",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MAKE-BUILD-DEPRECATE",
+      "title": "Remove Build tile + `?path=build` \u2192 `?path=make` redirect (one release after MAKE-LANDING-TILE)",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "N3-GAT-CLUSTERS",
+      "title": "Replace KMeans-on-11d-probs clustering with GAT link-prediction embeddings + Leiden (stability-gated, in-place v3 replacement)",
+      "status": "gate-pass",
+      "gate_result": "pass",
+      "observation_id": "obs-20260528221914-0000000"
     }
   ],
-  "current_task_index": 10,
+  "current_task_index": 12,
   "stats": {
-    "tasks_completed": 6,
+    "tasks_completed": 17,
     "tasks_failed": 0,
-    "gate_passes": 6,
+    "gate_passes": 12,
     "gate_fails": 0,
-    "observations_recorded": 18
+    "observations_recorded": 46
   },
   "config": {
     "interactive_mode": true,
@@ -91,5 +329,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-05-20T22:04:32.857640+00:00"
+  "updated_at": "2026-05-29T00:12:40.511691+00:00"
 }

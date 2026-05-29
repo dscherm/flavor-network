@@ -1,0 +1,67 @@
+{
+  "model": {
+    "val_auc": 0.8801822864638813,
+    "test_auc": 0.885106251232627,
+    "val_hits_at_10": 0.01798330122029544,
+    "test_hits_at_10": 0.017448083922072363,
+    "epochs_trained": 250
+  },
+  "stability": {
+    "jaccard_min": 0.9744986615794881,
+    "jaccard_mean": 0.9857169856791443,
+    "gate_passed": true,
+    "seeds_run": 5
+  },
+  "partition": {
+    "k": 7,
+    "sizes": [
+      758,
+      639,
+      524,
+      450,
+      419,
+      399,
+      398
+    ],
+    "min_size": 398,
+    "max_size": 758,
+    "median_size": 450
+  },
+  "tier1_purity": {
+    "0": {
+      "dominant": "pungent",
+      "purity": 0.274,
+      "size": 758
+    },
+    "1": {
+      "dominant": "fruity",
+      "purity": 0.264,
+      "size": 450
+    },
+    "2": {
+      "dominant": "creamy",
+      "purity": 0.43,
+      "size": 419
+    },
+    "3": {
+      "dominant": "earthy",
+      "purity": 0.221,
+      "size": 524
+    },
+    "4": {
+      "dominant": "roasted",
+      "purity": 0.638,
+      "size": 398
+    },
+    "5": {
+      "dominant": "fruity",
+      "purity": 0.308,
+      "size": 399
+    },
+    "6": {
+      "dominant": "roasted",
+      "purity": 0.235,
+      "size": 639
+    }
+  }
+}
