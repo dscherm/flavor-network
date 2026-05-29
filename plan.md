@@ -1645,6 +1645,24 @@ remains the bridge-active chef-paced task; new work queues behind it.
 
 ```json
 {
+  "id": "RL-FOCAL-WIRE",
+  "title": "Wire focalKey + rankSuggestions through IngredientSuggestionsPopout add-mode",
+  "category": "ui",
+  "priority": 2,
+  "description": "Closes the loop between RL-FOCAL-RANKER (the rankSuggestions data function) and RL-FOCAL-FLAG (the bowl.focalKey UI state). RecipeLabMobile now passes bowl (BowlEntry[]), focalKey, recipePairs, and globalCount into IngredientSuggestionsPopout. In add-mode (no focused ingredient), the popout uses rankSuggestions when recipePairs + globalCount are present; otherwise it falls back to the existing edge-aggregator (the legacy NPMI-pair-strength path) so behavior degrades gracefully if recipe co-occurrence data isn't loaded. Replace-mode (focused ingredient) keeps its existing substitute-fit ranker unchanged — focal weighting only affects bowl-wide add suggestions.",
+  "acceptance": [
+    "RecipeLabMobile passes bowl (BowlEntry[]), focalKey, recipePairs, globalCount to IngredientSuggestionsPopout",
+    "IngredientSuggestionsPopout add-mode calls rankSuggestions(bowl, focalKey, candidates, ctx) when recipePairs + globalCount are present",
+    "When recipePairs/globalCount missing, add-mode falls back to the existing edge-aggregator (no regression)",
+    "Replace-mode candidate ranking is unchanged",
+    "Bowl with focal flag produces a different add-mode ordering than the same bowl with focal=null (verified in test)",
+    "Smart_gate + 996+ tests pass; new tests cover the focal vs no-focal divergence"
+  ]
+}
+```
+
+```json
+{
   "id": "RL-CATEGORY-FILTER",
   "title": "Food-category pill row above suggestion list",
   "category": "ui",
