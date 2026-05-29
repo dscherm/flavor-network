@@ -117,3 +117,23 @@ export const BRISCIONE_AXIS_ORDER = {
 export function axisOrder(axis) {
   return BRISCIONE_AXIS_ORDER[axis] || BRISCIONE_AXIS_ORDER[String(axis).toLowerCase()] || [];
 }
+
+// Chef-canonical aroma label → GNN probs column key. Only 5 of the 13
+// chef-canonical aromas (fruity / floral / green / woody / creamy) have
+// a GNN head; the other 8 (citrus / herbal / earthy / roasted / caramel
+// / fermented / marine / pungent) are chef-tier1-only and surface with
+// value 0 in any GNN-driven wheel. `creamy` maps to `odor_fatty` —
+// the chef vocab renamed the label 2026-05-27 but the data column kept
+// the legacy name.
+export const AROMA_LABEL_TO_GNN_KEY = {
+  fruity: 'odor_fruity',
+  floral: 'odor_floral',
+  green:  'odor_green',
+  woody:  'odor_woody',
+  creamy: 'odor_fatty',
+};
+
+// Inverse lookup for code paths that start with the GNN column key.
+export const GNN_KEY_TO_AROMA_LABEL = Object.fromEntries(
+  Object.entries(AROMA_LABEL_TO_GNN_KEY).map(([label, key]) => [key, label]),
+);

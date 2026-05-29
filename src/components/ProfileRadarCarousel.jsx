@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
 import TasteRadar from './TasteRadar.jsx';
 import ProfileRadar from './ProfileRadar.jsx';
+import { axisOrder, AROMA_LABEL_TO_GNN_KEY } from '../data/briscionePalette.js';
 
 /**
  * ProfileRadarCarousel — swipe/scroll between 3 radar views for the
@@ -9,11 +10,33 @@ import ProfileRadar from './ProfileRadar.jsx';
  *
  * Only renders cards that have data. If gnnEntropy has no entry for
  * the ingredient, only the curated Taste radar is shown.
+ *
+ * Axes use the chef-canonical Briscione vocab (8 tastes, 13 aromas).
+ * Tastes with no GNN signal (Spicy/Pungent/Astringent) and aromas with
+ * no GNN signal (Citrus/Herbal/Earthy/Roasted/Caramel/Fermented/Marine/
+ * Pungent) surface as zero-value axes; the polygon collapses to the
+ * GNN-pickable subset visibly while still showing the full label set.
  */
 
-const TASTE_AXES = ['sweet', 'bitter', 'umami', 'salty', 'sour'];
-const AROMA_AXES = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
+// 8 chef-canonical tastes; only the first 5 have GNN signal (the rest
+// are perceptual / GPCR-mediated and either disabled or not predicted).
+const TASTE_AXES = axisOrder('taste');
+const TASTE_GNN_KEYS = ['sweet', 'sour', 'bitter', 'salty', 'umami'];
+// 13 chef-canonical aromas; 5 map to GNN columns via the label→key map.
+const AROMA_AXES = axisOrder('aroma');
 const COMBINED_AXES = [...TASTE_AXES, ...AROMA_AXES];
+
+function tasteValue(probs, label) {
+  // GNN columns for taste use bare labels (sweet/sour/bitter/salty/umami).
+  if (!TASTE_GNN_KEYS.includes(label)) return 0;
+  return probs[label] ?? 0;
+}
+
+function aromaValue(probs, label) {
+  const gnnKey = AROMA_LABEL_TO_GNN_KEY[label];
+  if (!gnnKey) return 0;
+  return probs[gnnKey] ?? 0;
+}
 
 export default function ProfileRadarCarousel({ ingredientName, ingredients, graphNodes, gnnEntropy }) {
   const scrollRef = useRef(null);
@@ -26,7 +49,7 @@ export default function ProfileRadarCarousel({ ingredientName, ingredients, grap
   const tasteValues = useMemo(() => {
     if (!probs) return null;
     const m = {};
-    for (const ax of TASTE_AXES) m[ax] = probs[ax] ?? 0;
+    for (const ax of TASTE_AXES) m[ax] = tasteValue(probs, ax);
     return m;
   }, [probs]);
 
@@ -35,26 +58,24 @@ export default function ProfileRadarCarousel({ ingredientName, ingredients, grap
     const m = {};
     // Scale aroma axes to [0..1] relative to their own max so the polygon
     // visibly fills when probabilities are small (many aroma probs sit
-    // under 0.4 due to mean-pooling).
+    // under 0.4 due to mean-pooling). 8 chef-only labels stay 0.
     let max = 0;
-    for (const ax of AROMA_AXES) max = Math.max(max, probs[ax] ?? 0);
+    for (const ax of AROMA_AXES) max = Math.max(max, aromaValue(probs, ax));
     const scale = max > 0 ? 1 / max : 1;
-    for (const ax of AROMA_AXES) m[ax] = Math.min(1, (probs[ax] ?? 0) * scale);
+    for (const ax of AROMA_AXES) m[ax] = Math.min(1, aromaValue(probs, ax) * scale);
     return m;
   }, [probs]);
 
   const combinedValues = useMemo(() => {
     if (!probs) return null;
     const m = {};
-    // For combined, normalize tastes and aromas to their own max so both
-    // sides of the chart are visible.
     let tasteMax = 0, aromaMax = 0;
-    for (const ax of TASTE_AXES) tasteMax = Math.max(tasteMax, probs[ax] ?? 0);
-    for (const ax of AROMA_AXES) aromaMax = Math.max(aromaMax, probs[ax] ?? 0);
+    for (const ax of TASTE_AXES) tasteMax = Math.max(tasteMax, tasteValue(probs, ax));
+    for (const ax of AROMA_AXES) aromaMax = Math.max(aromaMax, aromaValue(probs, ax));
     const tasteScale = tasteMax > 0 ? 1 / tasteMax : 1;
     const aromaScale = aromaMax > 0 ? 1 / aromaMax : 1;
-    for (const ax of TASTE_AXES) m[ax] = Math.min(1, (probs[ax] ?? 0) * tasteScale);
-    for (const ax of AROMA_AXES) m[ax] = Math.min(1, (probs[ax] ?? 0) * aromaScale);
+    for (const ax of TASTE_AXES) m[ax] = Math.min(1, tasteValue(probs, ax) * tasteScale);
+    for (const ax of AROMA_AXES) m[ax] = Math.min(1, aromaValue(probs, ax) * aromaScale);
     return m;
   }, [probs]);
 
