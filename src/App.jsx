@@ -280,7 +280,13 @@ export default function App() {
   // cuisine2d/season2d/family2d) are no longer reachable from the
   // dropdown but are still understood by the renderer as fallbacks.
   const [mode, setMode] = useState(NETWORK_DEFAULT_MODE);
-  const [filterStack, setFilterStack] = useState([]);
+  // Default to Flavor Graph (chef-tier1 aroma coloring) so the scene
+  // lands on the semantically-meaningful color axis instead of the
+  // raw multi-tag fallback. Chef-user 2026-05-29: the "Flavor Graph"
+  // pill colors nodes by chef tier1 family; "None" defaults to a
+  // less-readable per-node fallback. Defaulting to Flavor Graph keeps
+  // the visual story consistent with the GAT-positioned clusters.
+  const [filterStack, setFilterStack] = useState(['flavor-category']);
   // R17/R18 — continuous pull strength. 0 = pure cooccurrence, 1 =
   // full bucket-pole snap. Starts at 0 on every fresh activation
   // (filterStack going from empty → non-empty resets it via the

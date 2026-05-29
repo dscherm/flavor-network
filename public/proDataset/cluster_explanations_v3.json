@@ -1,7 +1,7 @@
 {
   "clusters": {
     "0": {
-      "label": "Chili & Heat",
+      "label": "Heats & Sharpens",
       "chemistry_label": null,
       "top_ingredients": [
         "green chilie",
@@ -21,7 +21,7 @@
       "explanation": "Ingredients like green chilie, chili sauce, corn tortilla cluster here most common in mexican, indian cuisine with a dominant pungent aroma and a pungent taste profile."
     },
     "1": {
-      "label": "Sweet Dairy & Chocolate",
+      "label": "Smooths & Sweetens",
       "chemistry_label": null,
       "top_ingredients": [
         "powdered sugar",
@@ -39,7 +39,7 @@
       "explanation": "Ingredients like powdered sugar, chocolate, vanilla ice cream cluster here most common in middle eastern cuisine with a dominant fruity aroma."
     },
     "2": {
-      "label": "Baking & Frosting",
+      "label": "Browns & Glazes",
       "chemistry_label": null,
       "top_ingredients": [
         "whipped topping",
@@ -55,7 +55,7 @@
       "explanation": "Ingredients like whipped topping, chocolate syrup, yellow cake cluster here with a dominant creamy aroma."
     },
     "3": {
-      "label": "Baking Pantry",
+      "label": "Binds & Balances",
       "chemistry_label": null,
       "top_ingredients": [
         "brown sugar",
@@ -75,7 +75,7 @@
       "explanation": "Ingredients like brown sugar, lemon juice, egg cluster here most common in mexican, middle eastern cuisine with a dominant earthy aroma."
     },
     "4": {
-      "label": "Beef Station",
+      "label": "Roasts & Anchors",
       "chemistry_label": null,
       "top_ingredients": [
         "condensed beef broth",
@@ -91,7 +91,7 @@
       "explanation": "Ingredients like condensed beef broth, beef bouillon granule, beef chuck cluster here with a dominant roasted aroma and a pungent taste profile."
     },
     "5": {
-      "label": "Cocktail Bar",
+      "label": "Brightens & Lifts",
       "chemistry_label": null,
       "top_ingredients": [
         "simple syrup",
@@ -107,7 +107,7 @@
       "explanation": "Ingredients like simple syrup, soda water, pineapple juice cluster here with a dominant fruity aroma."
     },
     "6": {
-      "label": "Savory Sauces",
+      "label": "Salts & Ferments",
       "chemistry_label": null,
       "top_ingredients": [
         "pepper",

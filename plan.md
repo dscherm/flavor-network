@@ -1101,6 +1101,42 @@ None require new ML work.
 
 ```json
 {
+  "id": "DOCS-MODEL-CONFIDENCE-NARRATIVE",
+  "title": "Surface the N3-GAT positions/clustering defense narrative in HelpButton + LabTour walkthrough",
+  "category": "ui",
+  "priority": 2,
+  "description": "Follow-up to N3-GAT-POSITIONS (2026-05-29). Once GAT-projected 3D positions + Variant-2 verb-led cluster names shipped (Smooths&Sweetens / Browns&Glazes / Brightens&Lifts / Binds&Balances / Salts&Ferments / Heats&Sharpens / Roasts&Anchors), the chef-user asked: 'how accurate is this model and what is each axis really showing?'. The answer is a 4-claim defense + 1-caveat narrative that should land in the in-app '?' info modal (HelpButton.jsx) and any LabTour walkthrough that hits the Network tab. Surfacing this is what turns the model from 'cool visualization' into 'trustworthy decision tool' for the chef-user. The text is paste-ready in the task body below (verbatim from the 2026-05-29 chat).\n\n4-CLAIM DEFENSE + CAVEAT (paste-ready):\n\n=== Claim 1 — Clearly defined positions ===\nCluster-stability Jaccard ≈ 0.974 across KMeans seeds (essentially deterministic). Centroids sit 30-60 units apart on each axis against a per-axis standard deviation of ~22 — that means cluster centers sit at >1σ from each other (visually well-separated). Each cluster's correlation with its dominant feature is r ≥ 0.50 on at least one axis (e.g., 'Heats & Sharpens' correlates with -Y at r=-0.54; 'Smooths & Sweetens' correlates with +X at r=0.44).\n\n=== Claim 2 — Strong visualization of flavor ===\nThe 3 axes turned out to encode interpretable flavor dimensions: X ≈ savory↔sweet, Y ≈ heavy/hot↔light/bright, Z ≈ rich/cooked↔fresh/pungent. The model never directly optimized for any of these axes — they're emergent from the underlying GAT embedding. The fact that we can NAME these axes post-hoc means UMAP wasn't shuffling things into arbitrary positions; there's real signal in the underlying embedding.\n\n=== Claim 3 — Strong visualization of pairing (strongest claim) ===\nLink prediction was the GAT's primary training objective: predict which ingredient-pairs exist as chef-curated edges. So BY CONSTRUCTION, distance in the GAT embedding encodes pairing similarity. Any two ingredients that pair with the same kinds of other ingredients end up close. Tomato + basil are close because both pair with garlic, olive oil, oregano, parmesan. Tomato + cinnamon are far because they almost never share neighbors.\n\n=== Claim 4 — Strong visualization of purpose (emergent, not designed) ===\nThe model was never told 'this is a dessert ingredient' or 'this is a sauce base'. It only saw raw molecular features + chef-co-occurrence. Yet the resulting clusters map cleanly onto kitchen roles. This is because CO-OCCURRENCE IN REAL RECIPES ENCODES PURPOSE — chefs combine ingredients based on what they're trying to make. The GAT picked up purpose indirectly through pairings, which is stronger than if you'd labeled purposes directly (it shows the chef-curated pairing graph itself contains enough structure to recover kitchen mental models without supervision).\n\n=== CAVEAT (where the model overshoots) ===\nAn ingredient with bimodal use (e.g., cinnamon in both Mexican mole and apple pie) lands at ONE position that compromises between both contexts. The model can't show 'this ingredient lives in two clusters' — it can only show 'this ingredient sits between two clusters'. So edge cases of versatile multi-context ingredients are visualized as positions that may not match any single chef's mental model perfectly. For 95%+ of ingredients with a dominant use, the visualization holds; for ~5% of versatile ones, position is a weighted average of contexts.\n\n=== AXIS ORIENTATION (paste-ready for tooltip) ===\nCamera starts at (0, 0, 120) looking at origin. X = horizontal (right is +X). Y = vertical (up is +Y). Z = depth (toward you is +Z). Cluster centroids:\n- Smooths & Sweetens (cream/cocoa): back-upper-right (+26, +23, -22)\n- Browns & Glazes (sugar/syrup): back-right (+41, +7, -15)\n- Brightens & Lifts (citrus/bar): upper-back-center (+12, +25, -13)\n- Binds & Balances (eggs/pantry): dead center (-3, +8, +6)\n- Salts & Ferments (sauces): front-left (-18, +5, +15)\n- Heats & Sharpens (chili/mustard): front-lower-left (-15, -24, +23)\n- Roasts & Anchors (stock/beef): back-lower-left (-24, -32, -21)",
+  "acceptance": [
+    "HelpButton.jsx '?' modal surfaces the 4-claim defense + caveat as collapsible sections (one per claim)",
+    "LabTour 'Network' stage includes a step explaining what the 3 axes encode (X/Y/Z) and pointing at 1-2 cluster centroids for grounding",
+    "Copy is paraphrased into chef-friendly voice (no jargon like 'Jaccard' or 'Pearson correlation' in user-facing text — promote those to a 'technical notes' expand below the main copy)",
+    "Mobile-friendly: each claim card fits within the existing HelpButton modal width without horizontal scroll",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "N3-GAT-POSITIONS",
+  "title": "Project GAT v5 embeddings to 3D positions so spatial layout matches the 7 chef-cognitive clusters",
+  "category": "ml",
+  "priority": 1,
+  "description": "Follow-up to N3-GAT-CLUSTERS (2026-05-28). The GAT v5 multi-task model produced cluster assignments (cluster_labels_v3.json) AND 32d embeddings (gat_link_v5_embeddings.npy). The cluster file shipped + drives node coloring; the 32d embeddings were never projected to 3D, so flavor_positions_v3.json still uses the pre-GAT layout. Visual symptom: in 3D Network mode, the 7 chef-cognitive clusters get correct colors but spatially pile up near the origin instead of forming 7 visible groups. Fix: UMAP(n_components=3, seed=42) on the 32d embeddings + standardize/scale to match the existing position range, write to flavor_positions_v3.json with .pre-N3-GAT-POS backup.",
+  "acceptance": [
+    "flavor-gnn/scripts/gat_3d_positions.py exists; reads gat_link_v5_embeddings.npy + gat_link_v5.pt name_to_idx",
+    "Output writes to public/proDataset/flavor_positions_v3.json (schema preserved — same {name: [x,y,z]} shape, same key set ± nodes that exist in v5 embeddings)",
+    "Backup created at public/proDataset/flavor_positions_v3.json.pre-N3-GAT-POS before overwrite",
+    "Position spread approximately matches the previous file's range (~[-50, +50] per axis) so the camera framing doesn't need to change",
+    "Chef visual A/B: in 3D Network mode, the 7 chef-cognitive clusters form spatially distinct groups (no longer collapsed near origin)",
+    "Chef sign-off recorded in commit body",
+    "Smart_gate + 879+ tests pass + npm run build clean"
+  ]
+}
+```
+
+```json
+{
   "id": "RL-AXIS-VOCAB-WEDGEGRID",
   "title": "Expand WedgeGridFlavorWheel from 6-sector to 13-sector chef-canonical aroma vocab",
   "category": "ui",
