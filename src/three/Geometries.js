@@ -38,7 +38,7 @@ export const SHAPE_KEYS = Object.freeze([
   'bipyramid',
   'star',
   // 'cookbook' — two flat page-rectangles meeting at a slight V
-  // spine, like an open book. Used by RecipesLab so each recipe
+  // spine, like an open book. Used by CookbookLab so each recipe
   // node reads as a cookbook entry instead of a sphere.
   'cookbook',
   // 'pennant' — small triangular flag on a thin stick. Used by
@@ -130,7 +130,7 @@ export function buildShapeGeometries() {
     bipyramid: bipyramidGeo,
     // 5-pointed extruded star — α-mode "Surprising" tier (ringIdx=0).
     star: starGeo,
-    // Open-cookbook — used by RecipesLab.
+    // Open-cookbook — used by CookbookLab.
     cookbook: cookbookGeo,
     // Pennant flag — AffinityMode cuisine-anchor marker.
     pennant: pennantGeo,

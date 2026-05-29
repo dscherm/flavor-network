@@ -6,7 +6,7 @@ import { MODE_CYCLE, MODE_LABELS } from '../data/networkModes.js';
  *
  * Spec §1.G: 3 primary tabs (Explore / Guided / Build) + Profile.
  * The Explore tab opens a sub-menu when already active so the user
- * can reach Cocktail Lab / Sauce Lab / Recipes / network mode without
+ * can reach Cocktail Lab / Sauce Lab / Cookbook / network mode without
  * needing an on-canvas overlay.
  */
 export default function MobileTabBar({
@@ -19,7 +19,7 @@ export default function MobileTabBar({
   const [exploreOpen, setExploreOpen] = useState(false);
 
   // Explore tab is "active" for the network view + any of its sub-tabs.
-  const isExploreActive = ['network', 'cocktail', 'sauce', 'recipe', 'recipes-3d'].includes(activeTab);
+  const isExploreActive = ['network', 'cocktail', 'sauce', 'recipe', 'cookbook'].includes(activeTab);
   const isGuidedActive = ['guided', 'guided-results'].includes(activeTab);
   const isBuildActive = ['build', 'build-results'].includes(activeTab);
 
@@ -93,14 +93,14 @@ export default function MobileTabBar({
                   Sauce Lab
                 </button>
                 <button
-                  onClick={() => { onTabChange('recipes-3d'); closeAll(); }}
+                  onClick={() => { onTabChange('cookbook'); closeAll(); }}
                   className={`w-full text-left px-3 py-2.5 min-h-[44px] text-xs font-medium transition-colors ${
-                    activeTab === 'recipes-3d'
+                    activeTab === 'cookbook'
                       ? 'text-pink-300 bg-pink-500/10'
                       : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
                   }`}
                 >
-                  Recipes
+                  Cookbook
                 </button>
                 <button
                   onClick={() => { onTabChange('recipe'); closeAll(); }}
@@ -110,7 +110,7 @@ export default function MobileTabBar({
                       : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
                   }`}
                 >
-                  Notebook
+                  Recipes Notebook
                 </button>
                 {/* Mode switcher — only when currently on network. */}
                 {activeTab === 'network' && (

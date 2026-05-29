@@ -218,7 +218,7 @@ const CUISINE_ORDER = [
 ];
 
 /**
- * Build a full NetworkScene contract for the 3D RecipesLab view.
+ * Build a full NetworkScene contract for the 3D CookbookLab view.
  * Returns the same shape Cocktail/Sauce labs feed to NetworkScene:
  *   { graph: { nodes, edges, ingredientList },
  *     positions: { positions: {name→[x,y,z]} },

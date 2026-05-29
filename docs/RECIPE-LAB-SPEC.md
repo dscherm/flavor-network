@@ -1329,7 +1329,7 @@ to change and what to leave alone.
 
 ### 13.1 Current (in-flight legacy) routing
 
-- `App.jsx` carries flat `activeTab` enum: `'network' | 'cocktail' | 'sauce' | 'recipe' | 'recipes-3d' | 'guided' | 'build' | 'profile'`.
+- `App.jsx` carries flat `activeTab` enum: `'network' | 'cocktail' | 'sauce' | 'recipe' | 'cookbook' | 'guided' | 'build' | 'profile'` (2026-05-29: `'recipes-3d'` renamed to `'cookbook'`).
 - Build path's `onOpenLab(labKey, ...)` switches on `labKey === 'notebook'` to dispatch to Recipe Lab.
 - URL alias: `?tab=recipe`.
 - Recipe Lab's `<RecipeLab>` alias accepts `isMobile` for backwards-compat (ignored).
@@ -1367,17 +1367,16 @@ chef-user on 2026-05-27; two parked (downstream dependencies). The
 resolutions are recorded here for lineage; the contract is what's
 specified in §§1–13 and §21.
 
-### Cookbook Lab rename — NEW intent (2026-05-27)
+### Cookbook Lab rename — LANDED (2026-05-29 / DOCS-RL-COOKBOOK-RENAME)
 
-**The current `RecipesLab.jsx` surface — the 15-curated-seed-recipe
-browser (3D NetworkScene mode + filterable card grid) — is renamed
-to "Cookbook Lab" for clarity.** That feature stores/browses saved
-recipes; the surface specced in this document is the
-recipe-building notebook (Recipe Lab). Documenting intent here;
-code rename + UI label changes tracked under follow-up bridge task
-`DOCS-RL-COOKBOOK-RENAME`. Until that task lands, both names co-exist
-in the repo (`RecipesLab.jsx` plural = the future Cookbook Lab;
-`RecipeLab.jsx` singular = this spec's Recipe Lab).
+`src/components/RecipesLab.jsx` was renamed to `CookbookLab.jsx`
+on 2026-05-29. The 15-curated-seed-recipe browser (3D NetworkScene
+mode + filterable card grid) lives there now. The activeTab key
+`'recipes-3d'` was renamed to `'cookbook'`; the URL slug
+`?path=recipes` keeps a back-compat alias to `'cookbook'` so any
+previously-shared links still resolve. The recipe-building notebook
+(this spec's RecipeLabMobile) is unaffected — it remains the
+authoring surface separately from the cookbook browser.
 
 ### 1. NotebookCanvas (Canvas 2D radial) fate — REVERSED 2026-05-29
 

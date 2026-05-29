@@ -1,5 +1,10 @@
 /**
- * RecipesLab — Phase 4 + F-6 (pipeline 2026-05-16).
+ * CookbookLab — Phase 4 + F-6 (pipeline 2026-05-16).
+ *
+ * Renamed from RecipesLab 2026-05-29 (DOCS-RL-COOKBOOK-RENAME) to
+ * disambiguate from Recipes Notebook (the authoring surface in
+ * RecipeLabMobile). The shipped behavior is unchanged — just the
+ * file/export/labKey/URL identity is the new canonical name.
  *
  * Two-mode browseable surface for the 15 hand-curated seed recipes:
  *   - Explore (default): 3D NetworkScene with one sphere per recipe,
@@ -193,7 +198,7 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
 // view, not an undifferentiated grid. "savory" wins by recipe count.
 const DEFAULT_CLUSTER_FILTER = 'savory';
 
-export default function RecipesLab({
+export default function CookbookLab({
   externalFilter = null,
   onOpenInNetwork,
   // Recipe-notebook handoff — same callback shape as CocktailLabV2 /
