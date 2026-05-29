@@ -23,18 +23,24 @@
 
 import { useMemo } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
-import { bucketColor } from '../data/briscionePalette.js';
+import { axisOrder, bucketColor, AROMA_LABEL_TO_GNN_KEY } from '../data/briscionePalette.js';
 import { dominantMethodFor, COOKING_METHODS } from '../data/cookingMethods.js';
 
+// Taste + Aroma keysets pull from the canonical Briscione vocab so the
+// radar shares its label/order with the network filter pill row and
+// the rest of the app. Aroma is the chef-canonical 13 — 5 fill from
+// GNN gnnProbs, the other 8 (citrus/herbal/earthy/roasted/caramel/
+// fermented/marine/pungent) are chef-tier1-only and surface as
+// zero-value axes on most ingredients.
 const AXIS_CONFIG = {
   taste: {
     label: 'Taste',
-    keys: ['sweet', 'sour', 'salty', 'bitter', 'umami', 'spicy', 'pungent', 'astringent'],
-    colorFor: (k) => TASTE_COLORS[k] || '#888',
+    keys: axisOrder('taste'),
+    colorFor: (k) => TASTE_COLORS[k] || bucketColor('taste', k) || '#888',
   },
   aroma: {
     label: 'Aroma',
-    keys: ['fruity', 'floral', 'green', 'woody', 'spicy', 'creamy'],
+    keys: axisOrder('aroma'),
     colorFor: (k) => bucketColor('aroma', k) || '#888',
   },
   season: {
@@ -88,7 +94,12 @@ function signalForAxis(node, axis, keyList) {
   if (axis === 'aroma') {
     const probs = node.gnnProbs || {};
     for (const k of keyList) {
-      const p = probs[`odor_${k}`];
+      // 5 of 13 chef labels map to a GNN column (creamy→odor_fatty).
+      // The other 8 (citrus/herbal/earthy/roasted/caramel/fermented/
+      // marine/pungent) have no GNN signal and stay 0 by omission.
+      const gnnKey = AROMA_LABEL_TO_GNN_KEY[k];
+      if (!gnnKey) continue;
+      const p = probs[gnnKey];
       if (typeof p === 'number') out.set(k, Math.max(0, Math.min(1, p)));
     }
     return out;
