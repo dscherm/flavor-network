@@ -201,13 +201,12 @@ const DEFAULT_CLUSTER_FILTER = 'savory';
 export default function CookbookLab({
   externalFilter = null,
   onOpenInNetwork,
-  // Recipe-notebook handoff — same callback shape as CocktailLabV2 /
-  // SauceLab so App.jsx can wire all three through one handler.
   onOpenRecipeLab,
-  // ctx = useProData result. Provides graph.nodes so the detail
-  // panel can render real radar charts from the recipe's ingredients.
   ctx = null,
+  pickerMode = null,
+  onExitPickerMode,
 }) {
+  const isMakePicker = pickerMode === 'make';
   const [cuisineFilter, setCuisineFilter] = useState(null);
   const [clusterFilter, setClusterFilter] = useState(DEFAULT_CLUSTER_FILTER);
   const [selected, setSelected] = useState(null);
@@ -222,13 +221,14 @@ export default function CookbookLab({
   // stronger signal than the default flavor filter — clear the
   // cluster default so their cuisine pick isn't intersected with it.
   useEffect(() => {
+    if (isMakePicker) return;
     if (!externalFilter) return;
     if (externalFilter.cuisine) {
       setCuisineFilter(externalFilter.cuisine);
       setClusterFilter(null);
     }
     if (externalFilter.cluster) setClusterFilter(externalFilter.cluster);
-  }, [externalFilter]);
+  }, [externalFilter, isMakePicker]);
 
   const cuisines = useMemo(
     () => [...new Set(SEED_RECIPES.map((r) => r.cuisine))].sort(),
@@ -244,14 +244,14 @@ export default function CookbookLab({
       SEED_RECIPES.filter((r) => {
         if (cuisineFilter && r.cuisine !== cuisineFilter) return false;
         if (clusterFilter && r.cluster !== clusterFilter) return false;
-        if (externalFilter?.ingredients?.length) {
+        if (!isMakePicker && externalFilter?.ingredients?.length) {
           const reqs = externalFilter.ingredients.map((s) => s.toLowerCase());
           const has = r.ingredients.map((s) => s.toLowerCase());
           if (!reqs.every((req) => has.some((h) => h.includes(req) || req.includes(h)))) return false;
         }
         return true;
       }),
-    [cuisineFilter, clusterFilter, externalFilter],
+    [cuisineFilter, clusterFilter, externalFilter, isMakePicker],
   );
 
   // 3D scene contract — built once, name-keyed. Filters are applied as
@@ -263,6 +263,22 @@ export default function CookbookLab({
     [filtered],
   );
 
+  // Branch on pickerMode. In Make-picker mode, card / sphere tap emits
+  // a recipeHandoff per MAKE-MODE-SPEC §3.2 instead of opening the
+  // detail modal. Default mode preserves the existing detail-modal flow.
+  const handlePickRecipe = (r) => {
+    if (!r) return;
+    if (isMakePicker) {
+      onOpenRecipeLab?.('recipe', r.ingredients, {
+        source: 'make-cookbook',
+        recipeType: r.cluster,
+        title: r.name,
+      });
+    } else {
+      setSelected(r);
+    }
+  };
+
   return (
     <div
       className="flex flex-col items-center w-full min-h-screen px-4 pt-6 pb-12"
@@ -270,6 +286,17 @@ export default function CookbookLab({
       data-testid="recipes-lab"
     >
       <div className="w-full max-w-5xl">
+        {isMakePicker && (
+          <button
+            type="button"
+            onClick={() => onExitPickerMode?.()}
+            aria-label="Back to Make"
+            data-testid="cookbook-picker-breadcrumb"
+            className="mb-3 inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full border border-[#1d3158] bg-[#0a1428] text-cyan-200 hover:bg-[#16284a] transition-colors"
+          >
+            ← Make → Pick a recipe
+          </button>
+        )}
         <div className="flex items-center justify-between mb-1">
           <h1 className="text-2xl sm:text-3xl text-white font-bold flex-1 text-center">
             Recipes
@@ -301,7 +328,9 @@ export default function CookbookLab({
           </div>
         </div>
         <p className="text-center text-xs text-gray-500 mb-6">
-          15 hand-curated dishes spanning 6 culinary traditions
+          {isMakePicker
+            ? 'Pick one to start cooking'
+            : '15 hand-curated dishes spanning 6 culinary traditions'}
         </p>
 
         {/* Filter pills */}
@@ -380,24 +409,19 @@ export default function CookbookLab({
             <NetworkScene
               data={sceneData}
               onNodeClick={(node) => {
-                // NetworkScene passes the full node object (not just
-                // the name string). Resolve back to the seed recipe by
-                // node.name → recipe.name.
                 if (!node) return;
                 const r = SEED_RECIPES.find((x) => x.name === node.name);
-                if (r) {
-                  setSelected(r);
-                  // Camera fly-to the picked cookbook. Distance is
-                  // explicit (8 units from the node) because the 15-
-                  // recipe cloud spans only ~22 units across — the
-                  // default 30-unit floor would put the camera past
-                  // the far edge of the scene.
-                  setFlyToTarget({
-                    position: r.position3D,
-                    distance: 8,
-                    ts: Date.now(),
-                  });
+                if (!r) return;
+                if (isMakePicker) {
+                  handlePickRecipe(r);
+                  return;
                 }
+                setSelected(r);
+                setFlyToTarget({
+                  position: r.position3D,
+                  distance: 8,
+                  ts: Date.now(),
+                });
               }}
               onNodeHover={() => {}}
               selectedNode={selected?.name || null}
@@ -430,7 +454,7 @@ export default function CookbookLab({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {filtered.map((r) => (
-                <RecipeCard key={r.id} recipe={r} onClick={() => setSelected(r)} />
+                <RecipeCard key={r.id} recipe={r} onClick={() => handlePickRecipe(r)} />
               ))}
             </div>
           )
