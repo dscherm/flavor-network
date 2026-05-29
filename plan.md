@@ -1085,22 +1085,19 @@ None require new ML work.
 }
 ```
 
-```json
-{
-  "id": "DOCS-RL-NOTEBOOK-WIRE",
-  "title": "Recipe Lab — wire NotebookCanvas + RecipePanel as the canonical renderer",
-  "category": "ui",
-  "priority": 3,
-  "description": "Resolves RECIPE-LAB-SPEC §14.1. The Canvas-2D hand-drawn aesthetic (NotebookCanvas.jsx + recipeLayout.js + RecipePanel.jsx sidebar) is canonical to Recipe Lab per chef decision 2026-05-27. Wire them back into the Recipe Lab mount (replacing or augmenting RecipeLabMobile's stripped-down mobile-first surface). Spec §3 + §5 + §6.4 describe the target contract.",
-  "acceptance": [
-    "Recipe Lab mounts the Canvas-2D renderer + RecipePanel sidebar by default (desktop + mobile-friendly responsive)",
-    "All handoff entry points (Build, Network Build Recipe, Cocktail Lab, Sauce Lab, Profile) work with the new render path",
-    "Aroma-match bridge unchanged (handlers still in App.jsx; matchesContext still set on sister labs)",
-    "Visual A/B against pre-wire screenshots passes chef sign-off",
-    "Smart_gate + 846 tests pass + new tests covering canvas mount + handoff replace-not-append on the new surface"
-  ]
-}
-```
+<!--
+  DOCS-RL-NOTEBOOK-WIRE retired 2026-05-29 by chef-user reversal of
+  RECIPE-LAB-SPEC §20.1. The 2026-05-27 decision had declared the
+  Canvas-2D surface canonical; after a smoke-test deploy on 2026-05-29
+  the chef-user rejected the canvas surface entirely and confirmed
+  the mobile-first surface stays canonical. The ONLY signal salvaged
+  from the canvas exploration is the recipe-type pill row, which is
+  already covered by RL-RECIPETYPE (below) and lands directly on
+  RecipeLabMobile. Spec §20.1 reflects the reversal; this umbrella
+  task and its 3 short-lived sub-tasks (DOCS-RL-CANVAS-MOUNT /
+  -HANDOFF / -FLIP) are obsolete.
+-->
+
 
 ```json
 {

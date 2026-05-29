@@ -5,6 +5,7 @@ import { getCocktailRoles, getSauceRoles } from '../data/ingredientRoles.js';
 import RecipeFlavorWheel from './RecipeFlavorWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import IngredientSuggestionsPopout from './IngredientSuggestionsPopout.jsx';
+import RecipeTypePills from './RecipeTypePills.jsx';
 import { hapticLight, hapticMedium } from '../utils/native.js';
 import { computeRecipeAroma } from '../data/recipeAromaSimilarity.js';
 // "Start from" template strip + "This looks like" classical match
@@ -52,6 +53,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   // replaces the bowl, so the user understands their previous recipe
   // was cleared on purpose (and isn't lost to a bug).
   const [handoffToast, setHandoffToast] = useState(null);
+  // §16 — user-set recipe-type classifier (RL-RECIPETYPE).
+  // null = no type chosen. Hydrated from handoff.recipeType when
+  // present so Make picker / Cookbook seed recipes can preserve type.
+  const [recipeType, setRecipeType] = useState(handoff?.recipeType || null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,6 +108,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     if (handoff.mode === 'cocktail') setLabMode('cocktail');
     else if (handoff.mode === 'sauce') setLabMode('sauce');
     else setLabMode('taste');
+    // §16 — preserve recipeType across handoff payloads. null clears
+    // any prior selection so each new bowl starts unclassified unless
+    // the source explicitly carries the type.
+    setRecipeType(handoff.recipeType || null);
   }, [handoff?.ts]);
 
   // Auto-clear the handoff toast after 2.5s.
@@ -372,6 +381,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           </button>
         ))}
       </div>
+
+      {/* §16 recipe-type pill row — single-select, re-tap to clear,
+          renders directly below the mode tab strip per spec §16.2. */}
+      <RecipeTypePills value={recipeType} onChange={setRecipeType} />
 
       {/* Search bar */}
       <div
