@@ -345,6 +345,67 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
     expect(onExplore).toHaveBeenCalledTimes(1);
   });
 
+  // DOCS-GD-TWO-TAP — two-step commit gesture (spec §11 O-2).
+  it('two-tap commit: first tap on axis arms wedge only, does NOT fire onAxisSelect', () => {
+    const onAxisSelect = vi.fn();
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        initialFilterType="aroma"
+        ctx={buildCtx()}
+        onAxisSelect={onAxisSelect}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('guided-radar-axis-green'));
+    expect(screen.getByTestId('guided-profile-radar').getAttribute('data-chosen-value'))
+      .toBe('green');
+    expect(screen.getByTestId('guided-radar-wedge-fill')).toBeInTheDocument();
+    expect(onAxisSelect).not.toHaveBeenCalled();
+  });
+
+  it('two-tap commit: second tap on same axis fires onAxisSelect(filterType)', () => {
+    const onAxisSelect = vi.fn();
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        initialFilterType="aroma"
+        ctx={buildCtx()}
+        onAxisSelect={onAxisSelect}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    const greenAxisBtn = screen.getByTestId('guided-radar-axis-green');
+    fireEvent.click(greenAxisBtn);
+    expect(onAxisSelect).not.toHaveBeenCalled();
+    fireEvent.click(greenAxisBtn);
+    expect(onAxisSelect).toHaveBeenCalledTimes(1);
+    expect(onAxisSelect).toHaveBeenCalledWith('aroma');
+  });
+
+  it('two-tap commit: tap on different axis re-arms (no commit, chosenValue swaps)', () => {
+    const onAxisSelect = vi.fn();
+    render(
+      <GuidedDiscoveryResults
+        bubbleStack={ingredientStack}
+        initialFilterType="aroma"
+        ctx={buildCtx()}
+        onAxisSelect={onAxisSelect}
+        onBackToBubbles={() => {}}
+        onExploreInNetwork={() => {}}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('guided-radar-axis-green'));
+    expect(screen.getByTestId('guided-profile-radar').getAttribute('data-chosen-value'))
+      .toBe('green');
+    fireEvent.click(screen.getByTestId('guided-radar-axis-woody'));
+    expect(screen.getByTestId('guided-profile-radar').getAttribute('data-chosen-value'))
+      .toBe('woody');
+    expect(onAxisSelect).not.toHaveBeenCalled();
+  });
+
   // G6 — NEW10 bridge-stale assertion (named exactly per ralplan §2.4).
   it('App bridge does not call deriveFilterStackFromBubbles with the new payload shape', () => {
     const spy = vi.spyOn(bubbles, 'deriveFilterStackFromBubbles');
