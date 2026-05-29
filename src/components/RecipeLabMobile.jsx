@@ -48,6 +48,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [suggestionsMode, setSuggestionsMode] = useState(false);
   const [handoffToast, setHandoffToast] = useState(null);
   const [recipeType, setRecipeType] = useState(handoff?.recipeType || null);
+  const [recipeImageUrl, setRecipeImageUrl] = useState(null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -90,7 +91,25 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     else if (handoff.mode === 'sauce') setLabMode('sauce');
     else setLabMode('taste');
     setRecipeType(handoff.recipeType || null);
+    if (handoff.image instanceof File && handoff.image.type?.startsWith('image/')) {
+      setRecipeImageUrl(URL.createObjectURL(handoff.image));
+    } else {
+      setRecipeImageUrl(null);
+    }
   }, [handoff?.ts]);
+
+  // Revoke the prior object URL whenever recipeImageUrl changes OR on
+  // unmount. Replacing the URL (via handoff) or clearing it (via remove /
+  // bowl-clear) triggers cleanup for the prior value.
+  useEffect(() => {
+    return () => {
+      if (recipeImageUrl) URL.revokeObjectURL(recipeImageUrl);
+    };
+  }, [recipeImageUrl]);
+
+  const handleRemoveImage = useCallback(() => {
+    setRecipeImageUrl(null);
+  }, []);
 
   useEffect(() => {
     if (!handoffToast) return;
@@ -242,6 +261,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     setRecipeTitle('');
     setCenterIngredient(null);
     setActiveTab('all');
+    setRecipeImageUrl(null);
   }, []);
 
   // §11.3 — per-row amount input commit callback.
@@ -426,6 +446,27 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       </div>
 
       <div className="flex-1 relative overflow-y-auto" style={{ minHeight: 80 }}>
+        {recipeImageUrl && (
+          <div className="relative mx-4 mt-2 mb-1 flex items-start gap-2">
+            <img
+              src={recipeImageUrl}
+              alt="Recipe photo"
+              data-testid="recipe-photo-preview"
+              className="rounded-lg border border-[#c9b99a] object-cover"
+              style={{ height: 96, minHeight: 80, maxWidth: '60%' }}
+            />
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              aria-label="Remove recipe photo"
+              data-testid="recipe-photo-remove"
+              className="min-h-[28px] min-w-[28px] flex items-center justify-center rounded-full border border-[#c9b99a] bg-[#fefae0] text-[#7a6a4a] text-base font-medium hover:bg-[#f0e8d0]"
+              style={{ fontFamily: FONT_FAMILY }}
+            >
+              ×
+            </button>
+          </div>
+        )}
         <RecipeNotebook
           bowl={recipeIngredients}
           centerIngredient={centerIngredient}
