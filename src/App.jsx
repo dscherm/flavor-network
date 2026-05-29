@@ -1371,7 +1371,7 @@ export default function App() {
               }`}
               title="Recipe browser — 15 hand-curated dishes"
             >
-              Recipes
+              Cookbook
             </button>
             <button
               onClick={() => { setActiveTab('recipe'); setRecipeMounted(true); }}
@@ -1380,7 +1380,7 @@ export default function App() {
               }`}
               title="Notebook-style recipe builder — compose your own"
             >
-              Notebook
+              Recipes Notebook
             </button>
           </div>
         )}
