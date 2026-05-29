@@ -121,6 +121,37 @@ function BuildVisual() {
   );
 }
 
+function MakeVisual() {
+  // Chef's hat over a notebook page — "make a recipe" entry point.
+  // Sits between Guided (thought-bubble) and Build (mixing bowl) so the
+  // visual sequence reads as: explore → guided → make → build.
+  return (
+    <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
+      {/* Notebook page (background) */}
+      <rect
+        x="22" y="42" width="56" height="44" rx="2"
+        fill="rgba(167,139,250,0.14)" stroke="rgb(167,139,250)" strokeWidth="2"
+      />
+      {/* Notebook lines */}
+      <line x1="30" y1="56" x2="70" y2="56" stroke="rgba(167,139,250,0.55)" strokeWidth="1.2" />
+      <line x1="30" y1="64" x2="64" y2="64" stroke="rgba(167,139,250,0.45)" strokeWidth="1.2" />
+      <line x1="30" y1="72" x2="68" y2="72" stroke="rgba(167,139,250,0.35)" strokeWidth="1.2" />
+      {/* Chef's hat */}
+      <path
+        d="M 32 36 Q 26 36 26 30 Q 26 22 34 22 Q 36 14 50 14 Q 64 14 66 22 Q 74 22 74 30 Q 74 36 68 36 Z"
+        fill="rgba(244,114,182,0.22)" stroke="rgb(244,114,182)" strokeWidth="2"
+      />
+      {/* Hat band */}
+      <line x1="32" y1="36" x2="68" y2="36" stroke="rgb(244,114,182)" strokeWidth="2" />
+      {/* Spark/star on the hat — "you make it" cue */}
+      <circle cx="50" cy="26" r="2"
+        fill="rgb(244,114,182)"
+        style={{ filter: 'drop-shadow(0 0 4px rgba(244,114,182,0.9))' }}
+      />
+    </svg>
+  );
+}
+
 const TILES = [
   {
     id: 'pairing', // routes to existing 'network' tab — preserves activeTab wiring
@@ -135,6 +166,13 @@ const TILES = [
     subheadline: 'You want a guided tour to discover ways of exploring ingredient pairings and why they pair well.',
     accent: '#34d399',
     Visual: GuidedVisual,
+  },
+  {
+    id: 'make',
+    label: 'Make a recipe',
+    subheadline: 'Start a recipe from scratch, from a photo, or from a saved Cookbook recipe.',
+    accent: '#a78bfa',
+    Visual: MakeVisual,
   },
   {
     id: 'build',
@@ -174,9 +212,9 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
         Built on 2.2M recipes, 48,588 pairings, and real molecular chemistry.
       </p>
 
-      {/* 3 primary tiles in the bottom half. Grid columns scale
-          1 → 3 across breakpoints — at sm+ the three tiles fit one row. */}
-      <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* 4 primary tiles in the bottom half. Grid columns scale
+          1 → 2 → 4 across breakpoints — at sm+ all four tiles fit one row. */}
+      <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {TILES.map((tile) => {
           const isPicked = picked === tile.id;
           const dimmed = isLoading && !isPicked;
