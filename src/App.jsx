@@ -2062,6 +2062,11 @@ export default function App() {
           <CookbookLab
             externalFilter={externalLabFilter}
             ctx={data}
+            pickerMode={cookbookPickerMode}
+            onExitPickerMode={() => {
+              setCookbookPickerMode(null);
+              setActiveTab('make');
+            }}
             onOpenInNetwork={(ingredientName) => {
               if (ingredientName) {
                 setSelectedNode(ingredientName);
@@ -2069,18 +2074,17 @@ export default function App() {
               }
               setActiveTab('network');
             }}
-            onOpenRecipeLab={(_mode, initialIngredients) => {
-              // Same one-shot handoff pattern Cocktail/Sauce labs use:
-              // stamp the bowl-reset key so RecipeLab swaps to these
-              // ingredients on mount.
+            onOpenRecipeLab={(_mode, initialIngredients, extras = {}) => {
               setRecipeHandoff({
                 source: 'cookbook',
                 ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
                 mode: 'recipe',
                 ts: Date.now(),
+                ...extras,
               });
               setRecipeInitialMode('recipe');
               setRecipeMounted(true);
+              setCookbookPickerMode(null);
               setActiveTab('recipe');
             }}
           />
