@@ -61,8 +61,19 @@ export const STAGES = [
     popupAnchor: 'br',
   },
   {
+    id: 'axes',
+    title: 'Step 5 — What the 3 axes mean',
+    copy:
+      "The 3D positions aren't arbitrary — they came from a graph network trained to predict which ingredients pair. After training, each axis roughly tracks a flavor dimension: left↔right runs savory to sweet, up↔down runs heavy to bright, and depth runs cooked to fresh. That's why kitchen-station clusters (Beef Station, Sweet Dairy & Chocolate, Cocktail Bar) land in distinct corners.",
+    gradient: 'linear-gradient(135deg, rgba(167,139,250,0.18), rgba(56,189,248,0.18))',
+    accent: '#a78bfa',
+    advance: { kind: 'auto', ms: 5500 },
+    sceneAction: { kind: 'noop' },
+    popupAnchor: 'tl',
+  },
+  {
     id: 'ingredients',
-    title: 'Step 5 — Pick an ingredient',
+    title: 'Step 6 — Pick an ingredient',
     copy:
       "These are the cluster's headliners — the ingredients that define this region of the network. Tap one to fly in for its Affinity view, or pick a lab tour next.",
     gradient: 'linear-gradient(135deg, rgba(56,189,248,0.18), rgba(251,113,133,0.18))',
@@ -76,7 +87,7 @@ export const STAGES = [
   },
   {
     id: 'chooseLab',
-    title: 'Step 6 — Try a Lab tour?',
+    title: 'Step 7 — Try a Lab tour?',
     copy:
       "Affinity mode is engaged on this ingredient. That's the basics — want to dive into one of the labs next?",
     gradient: 'linear-gradient(135deg, rgba(244,114,182,0.18), rgba(56,189,248,0.18))',

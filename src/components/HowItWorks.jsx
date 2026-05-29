@@ -174,6 +174,61 @@ export default function HowItWorks({
               </section>
 
               <section>
+                <h3 className="text-cyan-300 font-semibold mb-1">What the spatial layout means</h3>
+                <p className="text-xs text-gray-400 mb-2">The 3D positions came from a graph
+                   network trained on the pairing data — they aren't arbitrary, and they aren't
+                   labels we typed in. Four things you can read off the layout:</p>
+                <div className="space-y-2">
+                  <div className="bg-[#12121a]/60 border border-[#2a2a3a] rounded p-2">
+                    <p className="text-xs"><strong className="text-cyan-200">1. Clusters land in distinct neighborhoods.</strong>
+                       {' '}The seven kitchen-station clusters (Beef Station, Sweet Dairy &amp; Chocolate,
+                       Cocktail Bar, Chili &amp; Heat, Baking Pantry, Baking &amp; Frosting, Savory Sauces)
+                       end up in spatially separated corners — not piled at the center like the prior layout.</p>
+                  </div>
+                  <div className="bg-[#12121a]/60 border border-[#2a2a3a] rounded p-2">
+                    <p className="text-xs"><strong className="text-cyan-200">2. The shape encodes flavor.</strong>
+                       {' '}After the fact, the three axes track recognizable taste/aroma gradients:
+                       savory↔sweet, heavy↔bright, cooked↔fresh. The model didn't aim for these;
+                       they emerged because pairing patterns and flavor patterns rhyme.</p>
+                  </div>
+                  <div className="bg-[#12121a]/60 border border-[#2a2a3a] rounded p-2">
+                    <p className="text-xs"><strong className="text-cyan-200">3. The shape encodes pairing.</strong>
+                       {' '}The network's training objective was "predict which ingredients pair." So
+                       ingredients that pair well are placed close together — distance in this space
+                       <em> is</em> a pairing-affinity signal you can read with your eye.</p>
+                  </div>
+                  <div className="bg-[#12121a]/60 border border-[#2a2a3a] rounded p-2">
+                    <p className="text-xs"><strong className="text-cyan-200">4. The shape encodes purpose.</strong>
+                       {' '}Cluster names are verb-led (Smooths &amp; Sweetens, Salts &amp; Ferments,
+                       Roasts &amp; Anchors) because the regions correspond to kitchen <em>actions</em>,
+                       not just ingredient categories.</p>
+                  </div>
+                </div>
+                <details className="mt-2">
+                  <summary className="text-[10px] uppercase tracking-wider text-gray-500 cursor-pointer hover:text-gray-300">
+                    Caveats &amp; technical notes
+                  </summary>
+                  <div className="text-xs text-gray-400 space-y-1 mt-1 pl-2 border-l border-[#2a2a3a]">
+                    <p><strong>Cluster names are post-hoc handles.</strong> The model produced
+                       the partition; the names are human-written labels for what each cluster
+                       contains. They're useful narrative, not ground truth.</p>
+                    <p><strong>Axis labels are post-hoc interpretations.</strong> Pearson
+                       correlations were computed against 64 ingredient features after training
+                       (X≈savory↔sweet r=0.65, Y≈heavy↔bright r=0.54, Z≈cooked↔fresh r=0.50).
+                       The axes weren't axes-of-flavor by design — they happened to align.</p>
+                    <p><strong>Stability is method-specific.</strong> KMeans on these embeddings
+                       is deterministic (Jaccard 0.974 across seeds). Leiden on the same
+                       embeddings caps at ~0.50 Jaccard — the graph has multiple equally-valid
+                       community structures, so a different clustering algorithm would surface
+                       a different (but also reasonable) partition.</p>
+                    <p><strong>Where the model is weakest.</strong> Salty and spicy aren't
+                       surfaced anywhere because their molecular signal is unreliable — see
+                       "What's Reliable" below for the per-task F1 numbers.</p>
+                  </div>
+                </details>
+              </section>
+
+              <section>
                 <h3 className="text-cyan-300 font-semibold mb-1">What's Reliable</h3>
                 <p className="text-xs text-gray-400 mb-1">v3 calibrated F1 (5-fold CV,
                    per-task threshold tuned). 9 of 11 heads beat the prior baseline.</p>
