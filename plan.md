@@ -1101,6 +1101,23 @@ None require new ML work.
 
 ```json
 {
+  "id": "RL-AXIS-VOCAB-WEDGEGRID",
+  "title": "Expand WedgeGridFlavorWheel from 6-sector to 13-sector chef-canonical aroma vocab",
+  "category": "ui",
+  "priority": 3,
+  "description": "Follow-up to RL-AXIS-VOCAB-EXPAND (commit 2026-05-29). ProfileAxisRadar + ProfileRadarCarousel already pull from briscionePalette.axisOrder('aroma') and surface 13 chef-canonical aromas. WedgeGridFlavorWheel still hardcodes the legacy 6-aroma sector list because its Briscione-style donut layout (sector slice angles, hub radius, cell placement inside each sector, accent label collision detection) was calibrated for 6 sectors. Expanding to 13 requires visual A/B sign-off + likely adjustments to: sliceAngle math, sector-bg arc thickness, cellCentroid placement, labelR offset to avoid collisions, font size at narrower slice widths. Out-of-scope for the safe axis-vocab expansion that just landed; tracked here so a future commit can hit it intentionally with a chef-user visual A/B.",
+  "acceptance": [
+    "WedgeGridFlavorWheel.jsx imports axisOrder('aroma') instead of the local 6-key AROMA_AXES",
+    "Visual A/B fixture: WedgeGridFlavorWheel side-by-side {6-sector,13-sector} for 5+ focal ingredients",
+    "Chef-user sign-off in PR before merge",
+    "Accent placement (accentPlacement.js) still passes its existing tests at 13 sectors (no overflow/clobber)",
+    "Smart_gate + 879+ tests pass"
+  ]
+}
+```
+
+```json
+{
   "id": "DOCS-RL-COOKBOOK-RENAME",
   "title": "Recipe Lab — rename RecipesLab.jsx (plural) to CookbookLab",
   "category": "ui",
