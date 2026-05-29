@@ -1582,9 +1582,8 @@ export default function App() {
           flavorPath={flavorPath}
           affinityEngaged={affinityEnabled && selectedNodes.length === 1 && affinityRequested}
           onBuildRecipe={() => {
-            // Explicit handoff: replace the Recipe Lab bowl with the
-            // currently-selected nodes from the Network tab.
             setRecipeHandoff({
+              source: 'network',
               ingredients: [...selectedNodes],
               mode: null,
               ts: Date.now(),
@@ -1885,6 +1884,7 @@ export default function App() {
                 // so they can start composing immediately.
                 const ings = externalFilter?.ingredients || [];
                 setRecipeHandoff({
+                  source: 'build',
                   ingredients: [...ings],
                   mode: 'recipe',
                   ts: Date.now(),
@@ -1929,6 +1929,7 @@ export default function App() {
                 .map((i) => (typeof i === 'string' ? i : i?.name))
                 .filter(Boolean);
               setRecipeHandoff({
+                source: 'profile',
                 ingredients,
                 mode: 'recipe',
                 ts: Date.now(),
@@ -1962,6 +1963,7 @@ export default function App() {
             onExitMatches={() => setMatchesContext(null)}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               setRecipeHandoff({
+                source: 'cocktail',
                 ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
                 mode: 'cocktail',
                 ts: Date.now(),
@@ -1993,6 +1995,7 @@ export default function App() {
               // replaces the bowl rather than appending to whatever
               // was already there.
               setRecipeHandoff({
+                source: 'sauce',
                 ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
                 mode: 'sauce',
                 ts: Date.now(),
@@ -2050,6 +2053,7 @@ export default function App() {
               // stamp the bowl-reset key so RecipeLab swaps to these
               // ingredients on mount.
               setRecipeHandoff({
+                source: 'cookbook',
                 ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
                 mode: 'recipe',
                 ts: Date.now(),

@@ -68,7 +68,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   useEffect(() => {
     if (!handoff || !handoff.ts) return;
     const incoming = bowlFromIngredients(handoff.ingredients);
-    if (incoming.length === 0) return;
+    const isMake = typeof handoff.source === 'string' && handoff.source.startsWith('make-');
+    if (incoming.length === 0 && !isMake) return;
     setRecipeIngredients(prev => {
       const cleared = prev.length;
       const sourceLabel = handoff.mode === 'cocktail' ? 'cocktail'

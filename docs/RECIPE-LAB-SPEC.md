@@ -677,19 +677,24 @@ candidate v3 design; see §20 Open Questions.
 
 ## 9. Handoff pipeline
 
-### 9.1 Five entry points, all REPLACE the bowl
+### 9.1 Six entry points, all REPLACE the bowl
 
-| Source | App.jsx callback | Payload mode |
+Every payload carries a `source` string so downstream consumers (the
+handoff watcher, telemetry, and the upcoming Make mode) can branch on
+origin without inferring it from `mode`. The six current sources are
+`'network' | 'build' | 'cocktail' | 'sauce' | 'profile' | 'cookbook'`.
+Make-mode payloads use the `make-*` prefix (`'make-scratch'`,
+`'make-photo'`, `'make-existing'`) and are governed by the §9.2
+bypass clause below.
+
+| Source value | App.jsx callback | Payload mode |
 |---|---|---|
-| Build → Recipe Notebook (`onOpenLab('notebook' \| 'recipe-notebook', ...)`) | `setRecipeHandoff({ ingredients, mode: 'recipe', ts })` | `'recipe'` |
-| Network "Build Recipe" CTA (IngredientPanel `onBuildRecipe`) | `setRecipeHandoff({ ingredients: [...selectedNodes], mode: null, ts })` | `null` (→ taste mode) |
-| Cocktail Lab "Open in Recipe Lab" (`onOpenRecipeLab(mode, ings)`) | `setRecipeHandoff({ ingredients, mode: 'cocktail', ts })` | `'cocktail'` |
-| Sauce Lab "Open in Recipe Lab" (`onOpenRecipeLab(mode, ings)`) | `setRecipeHandoff({ ingredients, mode: 'sauce', ts })` | `'sauce'` |
-| Profile "Load Recipe" (`onLoadRecipe(recipe)`) | `setRecipeHandoff({ ingredients, mode: 'recipe', ts, title })` | `'recipe'` |
-
-The Phase-4 `<RecipesLab>` "Open in Recipe Notebook" CTA dispatches via
-`App.jsx`'s `setRecipeHandoff` using `onOpenRecipeLab(_mode, ingredients)`
-— same shape, mode = `'recipe'`.
+| `'build'` | Build → Recipe Notebook (`onOpenLab('notebook' \| 'recipe-notebook', ...)`) → `setRecipeHandoff({ source: 'build', ingredients, mode: 'recipe', ts })` | `'recipe'` |
+| `'network'` | Network "Build Recipe" CTA (IngredientPanel `onBuildRecipe`) → `setRecipeHandoff({ source: 'network', ingredients: [...selectedNodes], mode: null, ts })` | `null` (→ taste mode) |
+| `'cocktail'` | Cocktail Lab "Open in Recipe Lab" (`onOpenRecipeLab(mode, ings)`) → `setRecipeHandoff({ source: 'cocktail', ingredients, mode: 'cocktail', ts })` | `'cocktail'` |
+| `'sauce'` | Sauce Lab "Open in Recipe Lab" (`onOpenRecipeLab(mode, ings)`) → `setRecipeHandoff({ source: 'sauce', ingredients, mode: 'sauce', ts })` | `'sauce'` |
+| `'profile'` | Profile "Load Recipe" (`onLoadRecipe(recipe)`) → `setRecipeHandoff({ source: 'profile', ingredients, mode: 'recipe', ts, title })` | `'recipe'` |
+| `'cookbook'` | CookbookLab "Open in Recipe Notebook" (`onOpenRecipeLab(_mode, ingredients)`) → `setRecipeHandoff({ source: 'cookbook', ingredients, mode: 'recipe', ts })` | `'recipe'` |
 
 ### 9.2 Handoff watcher
 
@@ -698,8 +703,14 @@ The Phase-4 `<RecipesLab>` "Open in Recipe Notebook" CTA dispatches via
 ```js
 useEffect(() => {
   if (!handoff || !handoff.ts) return;
-  const incoming = [...new Set(handoff.ingredients || [])];
-  if (incoming.length === 0) return;
+  const incoming = bowlFromIngredients(handoff.ingredients);
+  const isMake = typeof handoff.source === 'string' && handoff.source.startsWith('make-');
+  // Empty-bowl bypass: Make-mode entry points (source: 'make-scratch',
+  // 'make-photo', 'make-existing') intentionally hand off an empty bowl
+  // so the user starts on a blank notebook. All other sources still
+  // early-return on empty payloads — there is no useful "load 0
+  // ingredients from cocktail" state for the existing entry points.
+  if (incoming.length === 0 && !isMake) return;
   setRecipeIngredients(prev => {
     const cleared = prev.length;
     const msg = cleared > 0
