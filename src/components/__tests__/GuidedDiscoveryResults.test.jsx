@@ -369,7 +369,7 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
     expect(onAxisSelect).not.toHaveBeenCalled();
   });
 
-  it('two-tap commit: second tap on same axis fires onAxisSelect(filterType)', () => {
+  it('two-tap commit: second tap on same axis fires onAxisSelect(filterType, axisKey)', () => {
     const onAxisSelect = vi.fn();
     render(
       <GuidedDiscoveryResults
@@ -386,7 +386,11 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
     expect(onAxisSelect).not.toHaveBeenCalled();
     fireEvent.click(greenAxisBtn);
     expect(onAxisSelect).toHaveBeenCalledTimes(1);
-    expect(onAxisSelect).toHaveBeenCalledWith('aroma');
+    // GD-TOUR-AXIS-INTENT-CARRY (2026-05-30): commit now passes both
+    // the filterType (e.g. 'aroma') AND the tapped axisKey (e.g.
+    // 'green') so App.jsx can surface the intent context on the tour
+    // popup.
+    expect(onAxisSelect).toHaveBeenCalledWith('aroma', 'green');
   });
 
   it('two-tap commit: tap on different axis re-arms (no commit, chosenValue swaps)', () => {
