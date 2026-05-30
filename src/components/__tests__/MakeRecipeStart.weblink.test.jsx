@@ -181,6 +181,143 @@ describe('MakeRecipeStart — MAKE-WEBLINK-UI (4th picker option)', () => {
     expect(screen.getByText(/No Recipe schema/)).toBeInTheDocument();
   });
 
+  // ===== MAKE-WEBLINK-MATCH-V2 — editable matched names =====
+
+  it('v2: each matched row renders an editable input prefilled with the auto-match', async () => {
+    scrapeRecipeMock.mockResolvedValueOnce({
+      data: {
+        status: 'ok',
+        title: 'Quick Pasta',
+        ingredients: [
+          { raw: '1 cup tomato', noun: 'tomato' },
+          { raw: '1 cup basil', noun: 'basil' },
+        ],
+        finalUrl: 'https://example.com/pasta',
+      },
+    });
+    mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/pasta' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => {
+      expect(screen.getByTestId('make-weblink-preview')).toBeInTheDocument();
+    });
+    const row0 = screen.getByTestId('make-weblink-row-name-0');
+    const row1 = screen.getByTestId('make-weblink-row-name-1');
+    expect(row0).toHaveValue('tomato');
+    expect(row1).toHaveValue('basil');
+  });
+
+  it('v2: editing a row to a known dictionary name keeps it included; payload uses the edit', async () => {
+    scrapeRecipeMock.mockResolvedValueOnce({
+      data: {
+        status: 'ok',
+        title: 'Test',
+        ingredients: [{ raw: '1 cup tomato', noun: 'tomato' }],
+        finalUrl: 'https://example.com/x',
+      },
+    });
+    const s = mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/x' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-preview')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByTestId('make-weblink-row-name-0'), {
+      target: { value: 'basil' },
+    });
+    expect(screen.getByTestId('make-weblink-row-0')).toBeChecked();
+
+    fireEvent.click(screen.getByTestId('make-weblink-add-btn'));
+    expect(s.setRecipeHandoff).toHaveBeenCalledTimes(1);
+    expect(s.setRecipeHandoff.mock.calls[0][0].ingredients).toEqual(['basil']);
+  });
+
+  it('v2: editing a row to an unknown name auto-unchecks it', async () => {
+    scrapeRecipeMock.mockResolvedValueOnce({
+      data: {
+        status: 'ok',
+        title: 'Test',
+        ingredients: [{ raw: '1 cup tomato', noun: 'tomato' }],
+        finalUrl: 'https://example.com/x',
+      },
+    });
+    mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/x' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-preview')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByTestId('make-weblink-row-name-0'), {
+      target: { value: 'xyzzy-not-real' },
+    });
+    expect(screen.getByTestId('make-weblink-row-0')).not.toBeChecked();
+    // Amber warning hint visible.
+    expect(screen.getByText(/not in dictionary/i)).toBeInTheDocument();
+  });
+
+  it('v2: editing an unmatched row to a known name auto-includes it', async () => {
+    scrapeRecipeMock.mockResolvedValueOnce({
+      data: {
+        status: 'ok',
+        title: 'Test',
+        ingredients: [
+          { raw: 'mystery thing', noun: 'mystery thing' },
+        ],
+        finalUrl: 'https://example.com/x',
+      },
+    });
+    const s = mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/x' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-preview')).toBeInTheDocument());
+
+    // Starts as unmatched + unchecked.
+    expect(screen.getByTestId('make-weblink-row-0')).not.toBeChecked();
+    fireEvent.change(screen.getByTestId('make-weblink-row-name-0'), {
+      target: { value: 'garlic' },
+    });
+    expect(screen.getByTestId('make-weblink-row-0')).toBeChecked();
+    fireEvent.click(screen.getByTestId('make-weblink-add-btn'));
+    expect(s.setRecipeHandoff.mock.calls[0][0].ingredients).toEqual(['garlic']);
+  });
+
+  it('v2: reset-to-auto button restores the original cascade result', async () => {
+    scrapeRecipeMock.mockResolvedValueOnce({
+      data: {
+        status: 'ok',
+        title: 'Test',
+        ingredients: [{ raw: '1 cup tomato', noun: 'tomato' }],
+        finalUrl: 'https://example.com/x',
+      },
+    });
+    mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/x' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-preview')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByTestId('make-weblink-row-name-0'), {
+      target: { value: 'basil' },
+    });
+    expect(screen.getByTestId('make-weblink-row-name-0')).toHaveValue('basil');
+    // Reset button only renders after an edit.
+    fireEvent.click(screen.getByTestId('make-weblink-row-reset-0'));
+    expect(screen.getByTestId('make-weblink-row-name-0')).toHaveValue('tomato');
+    expect(screen.getByTestId('make-weblink-row-0')).toBeChecked();
+  });
+
   it('thrown error (e.g. unauthenticated) → error state with the message', async () => {
     scrapeRecipeMock.mockRejectedValueOnce(new Error('Sign in to import recipes from a URL.'));
     mountPicker();

@@ -25,8 +25,9 @@ describe('parseIngredientLine', () => {
     expect(parseIngredientLine('2 tbsp olive oil')).toEqual({
       raw: '2 tbsp olive oil', noun: 'olive oil', unit: 'tbsp', quantity: 2,
     });
+    // Tail modifier ", minced" is stripped by preprocessLine (v2).
     expect(parseIngredientLine('4 cloves garlic, minced')).toEqual({
-      raw: '4 cloves garlic, minced', noun: 'garlic, minced', unit: 'cloves', quantity: 4,
+      raw: '4 cloves garlic, minced', noun: 'garlic', unit: 'cloves', quantity: 4,
     });
   });
 
@@ -178,6 +179,94 @@ describe('matchRecipeIngredients', () => {
     const out = matchRecipeIngredients([123, undefined, '1 cup flour'], KNOWN_NAMES);
     expect(out).toHaveLength(3);
     expect(out[2].matched).toBe('flour');
+  });
+
+  // ===== MAKE-WEBLINK-MATCH-V2 cases =====
+  // Real-world failing inputs reported after MAKE-WEBLINK-UI shipped.
+  // Each documents a phrasing the v1 matcher missed.
+
+  it('v2: "1 tablespoon light brown sugar, packed" → brown sugar (tail strip + adjective cascade)', () => {
+    const names = ['brown sugar', 'sugar', 'flour', 'salt'];
+    const out = matchRecipeIngredients(['1 tablespoon light brown sugar, packed'], names);
+    expect(out[0].parsed.unit).toBe('tablespoon');
+    expect(out[0].parsed.noun).toBe('light brown sugar');
+    expect(out[0].matched).toBe('brown sugar');
+  });
+
+  it('v2: "1 teaspoon garlic paste (or 1 clove garlic, minced)" → garlic (parenthetical strip + form suffix cascade)', () => {
+    // garlic paste NOT in dict (mirrors real ingredient dict) → cascade to garlic.
+    const names = ['garlic', 'ginger', 'salt', 'pepper'];
+    const out = matchRecipeIngredients(['1 teaspoon garlic paste (or 1 clove garlic, minced)'], names);
+    expect(out[0].parsed.noun).toBe('garlic paste');
+    expect(out[0].matched).toBe('garlic');
+  });
+
+  it('v2: "1 teaspoon ginger paste (or 1-inch knob fresh garlic, peeled)" → ginger paste (canonical compound preserved)', () => {
+    // ginger paste IS in dict → must beat the form-stripped "ginger" candidate.
+    const names = ['ginger paste', 'ginger', 'garlic', 'salt'];
+    const out = matchRecipeIngredients(['1 teaspoon ginger paste (or 1-inch knob fresh garlic, peeled)'], names);
+    expect(out[0].parsed.noun).toBe('ginger paste');
+    expect(out[0].matched).toBe('ginger paste');
+  });
+
+  it('v2: "4 (4-ounce) salmon fillets" → salmon fillet (parenthetical strip + singularize)', () => {
+    const names = ['salmon fillet', 'salmon', 'pink salmon', 'salt'];
+    const out = matchRecipeIngredients(['4 (4-ounce) salmon fillets'], names);
+    expect(out[0].parsed.quantity).toBe(4);
+    expect(out[0].parsed.noun).toBe('salmon fillets');
+    expect(out[0].matched).toBe('salmon fillet');
+  });
+
+  it('v2: "tomato paste" preserved (does NOT collapse to "tomato")', () => {
+    const names = ['tomato paste', 'tomato', 'crushed tomatoes', 'salt'];
+    const m = matchIngredientName('tomato paste', names);
+    expect(m?.name).toBe('tomato paste');
+  });
+
+  it('v2: form-stripped candidate only wins when scoring strictly higher than full noun', () => {
+    // "ginger paste" exact in dict → full noun wins at confidence 1.0.
+    // "garlic paste" NOT in dict → form-strip to "garlic" should win.
+    const names = ['ginger paste', 'garlic'];
+    expect(matchIngredientName('ginger paste', names)?.name).toBe('ginger paste');
+    expect(matchIngredientName('garlic paste', names)?.name).toBe('garlic');
+  });
+
+  it('v2: "1 large yellow onion, diced" → onion (adjective + tail-modifier cascade)', () => {
+    const names = ['yellow onion', 'onion', 'red onion', 'salt'];
+    const out = matchRecipeIngredients(['1 large yellow onion, diced'], names);
+    // "yellow onion" IS in dict — cascade prefers it over "onion" head.
+    expect(out[0].matched).toBe('yellow onion');
+  });
+
+  it('v2: exact dict key short-circuits to confidence=1.0', () => {
+    const m = matchIngredientName('basil', KNOWN_NAMES);
+    expect(m?.confidence).toBe(1);
+  });
+
+  it('v2: parenthetical-only content (qty inside parens) does not break parsing', () => {
+    expect(parseIngredientLine('(optional) 1 tsp vanilla')?.noun).toMatch(/vanilla/);
+  });
+
+  it('v2: typical mix from a real recipe — most lines now match against a small dict', () => {
+    const names = [
+      'brown sugar', 'garlic', 'ginger paste', 'salmon fillet', 'salmon',
+      'onion', 'salt', 'pepper', 'olive oil', 'soy sauce',
+    ];
+    const lines = [
+      '1 tablespoon light brown sugar, packed',
+      '1 teaspoon garlic paste (or 1 clove garlic, minced)',
+      '1 teaspoon ginger paste',
+      '4 (4-ounce) salmon fillets',
+      '1 large yellow onion, diced',
+      'salt and pepper to taste',
+      '2 tbsp olive oil',
+      '1 tbsp soy sauce',
+    ];
+    const out = matchRecipeIngredients(lines, names);
+    const hits = out.filter((e) => e.matched !== null);
+    expect(out).toHaveLength(8);
+    // 6+ of 8 must match (salt-and-pepper line + maybe one other can miss).
+    expect(hits.length).toBeGreaterThanOrEqual(6);
   });
 
   it('typical mix: 8 lines, ≥30% match on a small fixture dictionary', () => {

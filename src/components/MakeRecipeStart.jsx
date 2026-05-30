@@ -62,6 +62,10 @@ export default function MakeRecipeStart({
   const [parsed, setParsed] = useState(null); // { title, ingredients[], finalUrl }
   const [matched, setMatched] = useState([]); // matchRecipeIngredients output
   const [included, setIncluded] = useState(new Set()); // indices kept for bowl handoff
+  // MAKE-WEBLINK-MATCH-V2: per-row user edits. Map<idx, string>. A row
+  // missing from the map uses the auto-match result; a row present uses
+  // the user-typed value (which may be a known ingredient name or not).
+  const [userEdits, setUserEdits] = useState(new Map());
 
   useEffect(() => {
     if (stage === STAGE.CARDS) firstCardRef.current?.focus();
@@ -119,6 +123,59 @@ export default function MakeRecipeStart({
     setParsed(null);
     setMatched([]);
     setIncluded(new Set());
+    setUserEdits(new Map());
+  };
+
+  // MAKE-WEBLINK-MATCH-V2: dictionary membership check, case-insensitive.
+  const knownNameSet = useMemo(
+    () => new Set(knownNames.map((n) => String(n).toLowerCase())),
+    [knownNames],
+  );
+  const isKnownName = (s) => {
+    const t = String(s ?? '').trim().toLowerCase();
+    return !!t && knownNameSet.has(t);
+  };
+
+  const getRowName = (i) => {
+    if (userEdits.has(i)) return userEdits.get(i);
+    return matched[i]?.matched || '';
+  };
+
+  const getRowStatus = (i) => {
+    const edited = userEdits.has(i);
+    const current = getRowName(i);
+    if (!current) return 'empty';
+    if (!edited) return matched[i]?.matched ? 'auto' : 'empty';
+    return isKnownName(current) ? 'user-known' : 'user-unknown';
+  };
+
+  const handleEditRow = (i, value) => {
+    setUserEdits((prev) => {
+      const next = new Map(prev);
+      next.set(i, value);
+      return next;
+    });
+    setIncluded((prev) => {
+      const next = new Set(prev);
+      const trimmed = String(value ?? '').trim();
+      if (trimmed && isKnownName(trimmed)) next.add(i);
+      else next.delete(i);
+      return next;
+    });
+  };
+
+  const handleResetRow = (i) => {
+    setUserEdits((prev) => {
+      const next = new Map(prev);
+      next.delete(i);
+      return next;
+    });
+    setIncluded((prev) => {
+      const next = new Set(prev);
+      if (matched[i]?.matched) next.add(i);
+      else next.delete(i);
+      return next;
+    });
   };
 
   const handleParseUrl = async () => {
@@ -196,8 +253,8 @@ export default function MakeRecipeStart({
 
   const handleAddToBowl = () => {
     const names = matched
-      .map((m, i) => (included.has(i) ? m.matched : null))
-      .filter(Boolean);
+      .map((_m, i) => (included.has(i) ? getRowName(i) : null))
+      .filter((n) => typeof n === 'string' && n.trim().length > 0);
     setRecipeHandoff({
       source: 'make-weblink',
       ingredients: names,
@@ -342,26 +399,77 @@ export default function MakeRecipeStart({
             <p className="text-xs text-cyan-300/60 mb-4">
               We found {hits} known ingredient{hits === 1 ? '' : 's'} out of {matched.length} parsed lines. Tap to include or exclude.
             </p>
+            <datalist id="make-weblink-ingredient-names">
+              {knownNames.slice(0, 2000).map((n) => (
+                <option key={n} value={n} />
+              ))}
+            </datalist>
             <ul className="space-y-1 mb-4 max-h-[40vh] overflow-y-auto">
               {matched.map((m, i) => {
                 const checked = included.has(i);
-                const matchedLabel = m.matched
-                  ? `${m.matched} (${Math.round((m.confidence || 0) * 100)}%)`
-                  : 'no match';
+                const status = getRowStatus(i);
+                const current = getRowName(i);
+                const edited = userEdits.has(i);
+                const checkboxDisabled = status === 'empty';
+                let hint = '';
+                let hintColor = 'text-cyan-300/40';
+                if (status === 'auto') {
+                  const pct = Math.round((m.confidence || 0) * 100);
+                  hint = `auto-matched (${pct}%)`;
+                  hintColor = 'text-emerald-300/80';
+                } else if (status === 'user-known') {
+                  hint = 'edited — known ingredient';
+                  hintColor = 'text-emerald-300/80';
+                } else if (status === 'user-unknown') {
+                  hint = 'edited — not in dictionary (include at your own risk)';
+                  hintColor = 'text-amber-300/80';
+                } else {
+                  hint = 'no match — type one in';
+                  hintColor = 'text-cyan-300/40';
+                }
                 return (
                   <li key={`m-${i}`} className="flex items-start gap-2 text-sm">
                     <input
                       type="checkbox"
                       checked={checked}
-                      disabled={!m.matched}
+                      disabled={checkboxDisabled}
                       onChange={() => handleToggleIncluded(i)}
                       data-testid={`make-weblink-row-${i}`}
                       className="mt-1"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="text-cyan-100 truncate">{m.input}</div>
-                      <div className={`text-xs ${m.matched ? 'text-emerald-300' : 'text-cyan-300/40'}`}>
-                        → {matchedLabel}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-cyan-300/60 text-xs">→</span>
+                        <input
+                          type="text"
+                          list="make-weblink-ingredient-names"
+                          value={current}
+                          onChange={(e) => handleEditRow(i, e.target.value)}
+                          placeholder="ingredient name"
+                          data-testid={`make-weblink-row-name-${i}`}
+                          className={`flex-1 min-w-0 bg-[#0a1830] border rounded px-2 py-1 text-xs focus:outline-none focus:border-cyan-400 ${
+                            status === 'user-unknown'
+                              ? 'border-amber-500/50 text-amber-100'
+                              : status === 'empty'
+                              ? 'border-[#1e1e2e] text-cyan-300/40'
+                              : 'border-[#1e1e2e] text-emerald-100'
+                          }`}
+                        />
+                        {edited && (
+                          <button
+                            type="button"
+                            onClick={() => handleResetRow(i)}
+                            data-testid={`make-weblink-row-reset-${i}`}
+                            title="Reset to auto-match"
+                            className="text-xs text-cyan-300/60 hover:text-cyan-100"
+                          >
+                            ↻
+                          </button>
+                        )}
+                      </div>
+                      <div className={`text-[10px] mt-0.5 ${hintColor}`}>
+                        {hint}
                       </div>
                     </div>
                   </li>
