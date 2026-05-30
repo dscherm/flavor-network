@@ -1891,4 +1891,122 @@ these tasks tighten the implementation to match it.
 }
 ```
 
+---
+
+## Guided Discovery polish — Wave 7 (2026-05-30)
+
+Follow-up polish from chef-user walkthrough of the Wave-6 deploy.
+Two clear bugs (Step 4 silently no-ops, node colors don't follow
+the active filter), two radar-quality issues (top-10 α-neighbors
+go blank on under-represented axes, identical coords stack), and
+two UX-gap items (axis intent doesn't carry from radar to network,
+Step 4 copy doesn't name the ClusterJoystick widget).
+
+```json
+{
+  "id": "GD-TOUR-STEP4-CLUSTER-DEMO-RACE",
+  "title": "Defer runClusterDemo so the cleared filterStack commits first",
+  "category": "ui",
+  "priority": 1,
+  "description": "Step 4 of GuidedTour fires sceneHandle.clearFilters() + sceneHandle.runClusterDemo() in the same synchronous tick at GuidedTour.jsx:106-107. clearFilters sets filterStack=[] which would re-derive joystickClusters (the chef clusters with id >= 0), BUT React hasn't committed yet — so joystickClustersRef.current is still Step 3's morph-axis pseudo-clusters (id = -100, -101, ...). runClusterDemo at App.jsx:462-466 then filters for `id >= 0`, gets zero clusters, and silently returns. Result in production: no pill pulse, no camera flyto — Step 4 does nothing. Fix: defer the body of runClusterDemo via setTimeout(0) so the ref is fresh by the time the work runs. Single-tick deferral matches the existing 1500ms intentional delay before the camera fly.",
+  "blocked_on": null,
+  "acceptance": [
+    "sceneHandle.runClusterDemo wraps its body in setTimeout(() => {...}, 0) so the cleared filterStack commits + joystickClustersRef updates before the cluster pick happens",
+    "Manual verification: walk Steps 1-4 of GuidedTour. Step 4 reliably highlights a real chef cluster pill (Heats & Sharpens / Smooths & Sweetens / etc.) and the camera flies to that cluster 1.5s later",
+    "Regression test: source-grep that runClusterDemo defers via setTimeout(0) before reading joystickClustersRef",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "GD-NODE-COLOR-FOLLOW-FILTER",
+  "title": "Recolor nodes by filterStack[0] palette when a categorical filter is active",
+  "category": "ui",
+  "priority": 2,
+  "description": "When Step 2/3 of GuidedTour pulls the filter to (e.g.) taste, the network morphs the LAYOUT to taste-bucket poles but the node COLORS stay locked on whatever the mode default is (typically aroma). The pre-computed bucket-color arrays already exist at LivingArchView.jsx:529-540 (tasteColors / aromaColors / cuisineColors / seasonColors / familyColors), but the initial mesh.setColorAt loop at L611-615 picks one of them based on `modeRef.current` (the network MODE) and never re-applies when filterStack changes. Fix: add a useEffect that watches filterStack[0] and, when it matches a CATEGORICAL_AXES key, iterates the mesh and calls setColorAt(i, axisColors[i]). When filterStack is empty, restore the mode-default colors.",
+  "blocked_on": null,
+  "acceptance": [
+    "LivingArchView gains a useEffect that watches filterStack[0] + the pre-computed color arrays and recolors mesh.instanceColor when the active filter is a categorical axis (taste / aromas / cuisine / season / family)",
+    "When filterStack empties, colors revert to the mode default (cluster colors in ml/ml2d; mode-specific bucket colors otherwise)",
+    "Manual verification: enter Step 2 of GuidedTour. Confirm the morphed nodes are colored by their TASTE bucket (sweet=pink / sour=cyan / etc.), not by aroma. Same for Step 3 with whatever random axis fires",
+    "No regression on the Network tab's existing color behavior when filterStack is empty or contains non-categorical filters",
+    "Smart_gate + tests pass; existing LivingArchView.legacyRegression.test.jsx coverage updated if needed"
+  ]
+}
+```
+
+```json
+{
+  "id": "GD-RADAR-NEIGHBOR-DIVERSITY",
+  "title": "Widen radar pool with axis-coverage bonus so axis taps don't go blank",
+  "category": "data",
+  "priority": 3,
+  "description": "GD-RADAR-AFFINITY-COHERENCE (Wave 6) replaced the curated heroes (surprising + top + cited) with the top-10 α-mode neighbors. Side effect: α-mode neighbors are picked purely by NPMI strength and cluster around similar profiles. Tapping a low-coverage axis (e.g. salty on a tomato focal) often highlights ZERO dots because none of the top 10 match. The prior curated set deliberately mixed in 'surprising' picks that covered more axes. Fix: keep the α-mode familiarity but pad the pool with axis-coverage picks. Algorithm: (1) take top 10 by strength as baseline. (2) For each filterType axis (taste 8 / aroma 13 / season 4 / cuisine 8), if fewer than 1 neighbor in the top 10 matches it, pull the highest-strength under-N20 neighbor that matches and add it. (3) Cap the final list at 15-20. The user keeps getting their top picks; the radar always has something to highlight on every axis.",
+  "blocked_on": null,
+  "acceptance": [
+    "GuidedDiscoveryResults.jsx heroPairings useMemo: top 10 by strength as base, then top up with axis-coverage picks per filterType, capped at 15-20",
+    "Manual verification: pick 5 different focals. For each, switch filterType and tap each axis — every axis label highlights >= 1 dot",
+    "α-mode familiarity preserved: the top 5-7 dots by strength are unchanged from Wave 6's pure-strength behavior",
+    "Network tab α-mode neighbor display remains untouched (this change is radar-side only)",
+    "Test fixture updated to verify axis-coverage padding fires when the strict top-10 has zero matches on a given axis",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "GD-RADAR-LABEL-DECOLLIDE",
+  "title": "Stop radar dots stacking on identical coords",
+  "category": "ui",
+  "priority": 4,
+  "description": "coordsForPairing in guidedRadarAxes.js returns the centroid of matching axis positions. Two ingredients with identical axis-match patterns land at identical (x,y) — dots overlap, labels stack unreadably. With Wave 6's α-mode neighbor pool (clustered around similar profiles), the collision rate increased. Two viable approaches: (a) jitter colliding (x,y) by a small radius so the dots separate visibly, or (b) detect collisions and render a `+N` count badge with the names available on hover/tap. (a) preserves the read-the-position semantics; (b) is honest about the stacking. Pick one (chef-user preference) and ship.",
+  "blocked_on": "GD-RADAR-NEIGHBOR-DIVERSITY (the diverser pool may already cut down collisions; benchmark before picking the fix)",
+  "acceptance": [
+    "GuidedProfileRadar dots with overlapping (x,y) are visually distinguishable: either jittered with a small offset, or stacked with a +N badge + hover/tap tooltip listing all names at that position",
+    "Existing visual contract (4 grid polygons, focal hub at center, wedge fillOpacity 0.55) preserved",
+    "Manual verification: 5 focal ingredients walked through all 4 filterTypes — no unreadable label overlaps",
+    "Smart_gate + tests pass; GuidedProfileRadar.test.jsx updated if coord-collision contract changes"
+  ]
+}
+```
+
+```json
+{
+  "id": "GD-TOUR-AXIS-INTENT-CARRY",
+  "title": "Bridge 'I picked sweet on radar' intent to 'focal goes to its own taste pole' reality",
+  "category": "ui",
+  "priority": 5,
+  "description": "When user taps 'sweet' on the radar and commits, the network's morph axis becomes taste — but every ingredient pulls to its OWN taste pole. Tomato (umami) goes to the umami pole, not the sweet pole the user just picked. The user's mental model: 'I picked sweet → my focal should be in a sweet context.' Reality: 'sweet' is the LENS, not the destination. Fix: when the tour enters the network with chosenValue=X, render a brief contextual line on the Step 1 popup or as a non-blocking banner: 'Your focal ({focal}) is {focalBucket}. The pairings you tapped sweet for are pulling toward the sweet pole — look there for compatible sweet ingredients.' Makes the lens/bucket distinction explicit.",
+  "blocked_on": "GD-NODE-COLOR-FOLLOW-FILTER (the visual coloring helps the user navigate to the sweet pole, so ship the recolor first)",
+  "acceptance": [
+    "GuidedTour Step 1 (or a new sub-step) surfaces a contextual line referencing both the focal's bucket and the user-tapped axis, e.g. 'Tomato is umami. Sweet pairings are pulling toward the sweet pole over there →'",
+    "The contextual line uses live focal + chosenValue from the tour activation context, not hardcoded copy",
+    "When the user enters the tour without a chosenValue (e.g. 'Explore in the network' CTA), the contextual line stays empty / hidden",
+    "Manual verification: 3 walks (different focal taste + different chosen axis combos) — line reads correctly each time",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "GD-TOUR-STEP4-CLARITY",
+  "title": "Step 4 copy names the ClusterJoystick widget + the specific cluster",
+  "category": "ui",
+  "priority": 6,
+  "description": "Step 4's popup says 'Watch one pill light up and the camera fly to it' but the user doesn't know WHERE the pill is. The widget is the ClusterJoystick — a pill row pinned bottom-center of the network view. After GD-TOUR-STEP4-CLUSTER-DEMO-RACE lands and the pill actually highlights, the copy should still tell the user where to look. Fix: rewrite the Step 4 copy to: 'The pill row at the bottom of the network is the cluster joystick. Watch the [{clusterName}] pill pulse — that's where the camera is flying.' Resolve {clusterName} at render-time from the tourClusterRef so the popup names the specific cluster currently being pulsed.",
+  "blocked_on": "GD-TOUR-STEP4-CLUSTER-DEMO-RACE (pill highlight has to work before this copy makes sense)",
+  "acceptance": [
+    "Step 4 popup copy names the ClusterJoystick widget by location ('at the bottom') and references the currently-picked cluster name",
+    "TourPopup or GuidedTour wiring threads tourClusterRef.current.name (or equivalent) into the stage's copy at render time — not hardcoded into the static STAGES array",
+    "Manual verification: walk Step 4 three times. Each time the popup names the cluster currently being pulsed (different on each walk because the pick is random)",
+    "When tourClusterRef.current is null (Step 4 entered before runClusterDemo runs — race condition guard), the copy gracefully falls back to a generic 'one of the cluster pills'",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
 

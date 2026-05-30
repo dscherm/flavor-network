@@ -458,19 +458,30 @@ export default function App() {
     // then fly the camera to it 1.5s later. Stores the picked cluster
     // on tourClusterRef so the next stage can read it for the
     // ingredient glow.
+    // GD-TOUR-STEP4-CLUSTER-DEMO-RACE (2026-05-30): Step 4 fires
+    // clearFilters() + runClusterDemo() in the same synchronous tick
+    // via GuidedTour.jsx. clearFilters sets filterStack=[] which
+    // re-derives joystickClusters to the real chef clusters (id >= 0),
+    // but React hasn't committed yet — joystickClustersRef.current
+    // is still Step 3's morph-axis pseudo-clusters (id = -100, -101,
+    // ...). The id >= 0 filter then returns empty and the body
+    // silently no-ops. setTimeout(0) defers the body to the next
+    // macrotask, by which time the ref has been updated.
     runClusterDemo() {
-      const list = joystickClustersRef.current || [];
-      // Filter out morphAxis pseudo-clusters (id <= -100) — those are
-      // bucket poles, not real recipe clusters. Spec asks for an
-      // actual recipe-cluster destination.
-      const real = list.filter((c) => c && typeof c.id === 'number' && c.id >= 0);
-      if (real.length === 0) return;
-      const pick = real[Math.floor(Math.random() * real.length)];
-      setTourHighlightedCluster(pick.id);
-      tourClusterRef.current = pick;
       window.setTimeout(() => {
-        setFlyToTarget({ ...pick, ts: Date.now() });
-      }, 1500);
+        const list = joystickClustersRef.current || [];
+        // Filter out morphAxis pseudo-clusters (id <= -100) — those are
+        // bucket poles, not real recipe clusters. Spec asks for an
+        // actual recipe-cluster destination.
+        const real = list.filter((c) => c && typeof c.id === 'number' && c.id >= 0);
+        if (real.length === 0) return;
+        const pick = real[Math.floor(Math.random() * real.length)];
+        setTourHighlightedCluster(pick.id);
+        tourClusterRef.current = pick;
+        window.setTimeout(() => {
+          setFlyToTarget({ ...pick, ts: Date.now() });
+        }, 1500);
+      }, 0);
     },
     // §2.H.1 composite: glow 4-6 ingredients from the cluster picked
     // in runClusterDemo. Uses cluster.top_ingredients when available.
