@@ -85,46 +85,9 @@ function GuidedVisual() {
   );
 }
 
-function BuildVisual() {
-  // Mixing bowl with rising ingredients — "you bring the ingredients,
-  // we dig deeper". Slimmer + bolder than the prior notebook glyph.
-  return (
-    <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
-      {/* Bowl body */}
-      <path
-        d="M 18 50 L 82 50 L 76 84 Q 76 90 70 90 L 30 90 Q 24 90 24 84 Z"
-        fill="rgba(56,189,248,0.16)" stroke="rgb(56,189,248)" strokeWidth="2"
-      />
-      {/* Bowl rim highlight */}
-      <ellipse cx="50" cy="50" rx="32" ry="3" fill="rgba(56,189,248,0.4)" />
-      {/* Ingredients rising from the bowl */}
-      <circle cx="34" cy="40" r="5" fill="rgb(244,114,182)" opacity="0.85"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(244,114,182,0.7))' }} />
-      <circle cx="50" cy="32" r="6" fill="rgb(250,204,21)" opacity="0.85"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(250,204,21,0.7))' }} />
-      <circle cx="66" cy="40" r="5" fill="rgb(34,197,94)" opacity="0.85"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(34,197,94,0.7))' }} />
-      {/* Steam wisps */}
-      <path
-        d="M 38 18 Q 42 14 38 10"
-        fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.4"
-        className="motion-safe:animate-pulse"
-        style={{ animationDuration: '3s' }}
-      />
-      <path
-        d="M 62 18 Q 66 14 62 10"
-        fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.4"
-        className="motion-safe:animate-pulse"
-        style={{ animationDuration: '3s', animationDelay: '0.6s' }}
-      />
-    </svg>
-  );
-}
-
 function MakeVisual() {
   // Chef's hat over a notebook page — "make a recipe" entry point.
-  // Sits between Guided (thought-bubble) and Build (mixing bowl) so the
-  // visual sequence reads as: explore → guided → make → build.
+  // Sequence: explore → guided → make.
   return (
     <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
       {/* Notebook page (background) */}
@@ -174,13 +137,6 @@ const TILES = [
     accent: '#a78bfa',
     Visual: MakeVisual,
   },
-  {
-    id: 'build',
-    label: 'Build your Recipe',
-    subheadline: "You already have idea of ingredients you'd like to use and/or the type of recipe you'd like to build but just want to dig deeper.",
-    accent: '#38bdf8',
-    Visual: BuildVisual,
-  },
 ];
 
 export default function LandingScreen({ onModeSelect, isLoading = false, picked = null }) {
@@ -212,9 +168,9 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
         Built on 2.2M recipes, 48,588 pairings, and real molecular chemistry.
       </p>
 
-      {/* 4 primary tiles in the bottom half. Grid columns scale
-          1 → 2 → 4 across breakpoints — at sm+ all four tiles fit one row. */}
-      <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 3 primary tiles in the bottom half. Grid columns scale
+          1 → 3 across breakpoints — at sm+ all three tiles fit one row. */}
+      <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4">
         {TILES.map((tile) => {
           const isPicked = picked === tile.id;
           const dimmed = isLoading && !isPicked;

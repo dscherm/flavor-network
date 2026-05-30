@@ -4,7 +4,7 @@ import { MODE_CYCLE, MODE_LABELS } from '../data/networkModes.js';
 /**
  * MobileTabBar — bottom-of-viewport nav mirroring desktop primary nav.
  *
- * Spec §1.G: 3 primary tabs (Explore / Guided / Build) + Profile.
+ * Spec §1.G: 3 primary tabs (Explore / Guided / Make) + Profile.
  * The Explore tab opens a sub-menu when already active so the user
  * can reach Cocktail Lab / Sauce Lab / Cookbook / network mode without
  * needing an on-canvas overlay.
@@ -22,7 +22,6 @@ export default function MobileTabBar({
   const isExploreActive = ['network', 'cocktail', 'sauce', 'recipe', 'cookbook'].includes(activeTab);
   const isGuidedActive = ['guided', 'guided-results'].includes(activeTab);
   const isMakeActive = activeTab === 'make';
-  const isBuildActive = ['build', 'build-results'].includes(activeTab);
 
   const closeAll = () => setExploreOpen(false);
 
@@ -166,20 +165,6 @@ export default function MobileTabBar({
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             <span className="text-[10px]">Make</span>
-          </button>
-
-          {/* Build */}
-          <button
-            onClick={() => { onTabChange('build'); closeAll(); }}
-            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
-              isBuildActive ? 'text-emerald-400' : 'text-gray-500'
-            }`}
-            aria-label="Build"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span className="text-[10px]">Build</span>
           </button>
 
           {/* Profile */}

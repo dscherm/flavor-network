@@ -41,8 +41,6 @@ import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
 import GuidedDiscoverySwipe from './components/GuidedDiscoverySwipe.jsx';
-import BuildRecipeStart from './components/BuildRecipeStart.jsx';
-import BuildRecipeResults from './components/BuildRecipeResults.jsx';
 import CookbookLab from './components/CookbookLab.jsx';
 import MakeRecipeStart from './components/MakeRecipeStart.jsx';
 import GuidedTour from './components/GuidedTour.jsx';
@@ -90,8 +88,6 @@ const TAB_TO_PATH = {
   cookbook: 'cookbook',
   guided: 'guided',
   'guided-results': 'guided',         // ephemeral; collapse to entry
-  build: 'build',
-  'build-results': 'build',           // ephemeral; collapse to entry
   make: 'make',
   profile: 'profile',
 };
@@ -104,7 +100,7 @@ const PATH_TO_TAB = Object.fromEntries(
     cookbook: 'cookbook',
     recipes: 'cookbook',  // back-compat alias for pre-rename shared URLs
     guided: 'guided',
-    build: 'build',
+    build: 'make',        // MAKE-BUILD-DEPRECATE: legacy ?path=build → make
     make: 'make',
     profile: 'profile',
   }),
@@ -159,8 +155,8 @@ export default function App() {
   }, [loading, data, startPageComplete]);
   // Spec §1.H — URL deep-link routing. `?path=…` lets users share a
   // link to any top-level surface. Only stable surfaces are routable;
-  // ephemeral states (guided-results, build-results) fall back to
-  // their entry tab. The reverse mapping is in PATH_TO_TAB below.
+  // ephemeral states (guided-results) fall back to their entry tab.
+  // Legacy `?path=build` redirects to make. Reverse mapping in PATH_TO_TAB.
   const initialTab = (() => {
     if (typeof window === 'undefined') return 'network';
     const path = new URLSearchParams(window.location.search).get('path');
@@ -218,7 +214,6 @@ export default function App() {
   // array instead of `{ingredient: string}`. Kept separate from the
   // Guided bubbleStack so the two flows don't cross-contaminate
   // state if the user bounces between them.
-  const [buildStack, setBuildStack] = useState([]);
   // externalLabFilter is passed to Cocktail/Sauce/Recipes labs when
   // bridging from the Build flow. Pill state in the destination lab
   // reads this prop on mount.
@@ -734,12 +729,6 @@ export default function App() {
     } else if (mode === 'guided') {
       // Phase 3 Guided Discovery — Screen 1 (thought bubbles).
       setActiveTab('guided');
-    } else if (mode === 'build') {
-      // UX pipeline Phase 1 stub — Build Your Recipe lands here.
-      // Actual SwipeDeckCard + multi-select ingredient UI ships in
-      // pipeline Phase 5; for now render a placeholder so the
-      // landing tile is wired end-to-end.
-      setActiveTab('build');
     } else if (mode === 'make') {
       setActiveTab('make');
     }
@@ -1309,25 +1298,6 @@ export default function App() {
             Guided
           </button>
 
-          {/* Build — primary 3rd tab (Phase 1 stub). */}
-          <button
-            onClick={() => {
-              setActiveTab('build');
-              setNetworkDropdownOpen(false);
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'build'
-                ? 'text-cyan-300 bg-cyan-500/10 border border-cyan-500/20'
-                : 'text-gray-500 hover:text-gray-300 border border-transparent'
-            }`}
-            aria-label="Build your Recipe"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4" />
-            </svg>
-            Build
-          </button>
-
           {/* Profile — icon-only, sits at the right edge of the nav block. */}
           <button
             onClick={() => setActiveTab('profile')}
@@ -1845,69 +1815,6 @@ export default function App() {
               // Constraint #4: this is the ONLY place setFilterStack
               // is called from a Guided Discovery context.
               setFilterStack(deriveFilterStackFromBubbles(bubbleStack));
-              setActiveTab('network');
-            }}
-          />
-        </div>
-      )}
-
-      {/* Build Your Recipe — Phase 5 (pipeline 2026-05-16). Same
-          SwipeDeckCard mechanic as Guided, but the ingredient card
-          accumulates multiple chips and cocktail/sauce cards short-
-          circuit straight into their labs with filter pills set. */}
-      {activeTab === 'build' && (
-        <div className="fixed inset-0 z-[40] overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
-          <BuildRecipeStart
-            ingredients={ingredientList}
-            onComplete={(stack) => {
-              setBuildStack(stack);
-              setActiveTab('build-results');
-            }}
-          />
-        </div>
-      )}
-
-      {/* Build path — Results page. Shows MultiAxisRadarStack + lab
-          routing buttons. Cocktail/Sauce card picks short-circuit to
-          a direct lab bridge. */}
-      {activeTab === 'build-results' && (
-        <div className="fixed inset-0 z-[40] overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
-          <BuildRecipeResults
-            bubbleStack={buildStack}
-            ctx={data}
-            onBackToCards={() => setActiveTab('build')}
-            onOpenLab={(labKey, externalFilter) => {
-              setExternalLabFilter(externalFilter || null);
-              if (labKey === 'cocktail') {
-                setCocktailMounted(true);
-                setActiveTab('cocktail');
-              } else if (labKey === 'sauce') {
-                setSauceMounted(true);
-                setActiveTab('sauce');
-              } else if (labKey === 'notebook') {
-                // Build → Recipe Notebook hand-off. The user's
-                // selected ingredients land in the notebook's bowl
-                // so they can start composing immediately.
-                const ings = externalFilter?.ingredients || [];
-                setRecipeHandoff({
-                  source: 'build',
-                  ingredients: [...ings],
-                  mode: 'recipe',
-                  ts: Date.now(),
-                });
-                setRecipeInitialMode('recipe');
-                setRecipeMounted(true);
-                setActiveTab('recipe');
-              }
-            }}
-            onAxisSelect={(axis) => {
-              const axisFilter = axis === 'aroma' ? 'aromas' : axis;
-              setFilterStack([axisFilter]);
-              const focal = buildStack.find((b) => b.key === 'ingredient')?.value?.ingredients?.[0] || null;
-              if (focal) setSelectedNodes([focal]);
-              setTourAxis(axis);
-              setTourFocal(focal);
-              setTourActive(true);
               setActiveTab('network');
             }}
           />
