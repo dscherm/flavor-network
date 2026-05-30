@@ -247,6 +247,10 @@ export default function App() {
   // Step 1's popup.
   const [tourChosenAxisKey, setTourChosenAxisKey] = useState(null);
   const [tourFocalBucket, setTourFocalBucket] = useState(null);
+  // GD-TOUR-STEP4-CLARITY (2026-05-30): runClusterDemo picks a random
+  // cluster each tour run; surface its name to GuidedTour so Step 4's
+  // copy can name the specific pill the user should watch for.
+  const [tourPickedClusterName, setTourPickedClusterName] = useState(null);
   // §2.H.1 — programmatically glow N ingredient nodes. LivingArchView
   // already overlays glow on selectedNodes; we reuse that channel for
   // tour-time multi-selection.
@@ -486,6 +490,9 @@ export default function App() {
         const pick = real[Math.floor(Math.random() * real.length)];
         setTourHighlightedCluster(pick.id);
         tourClusterRef.current = pick;
+        // GD-TOUR-STEP4-CLARITY: surface the pick's name so Step 4's
+        // popup can read it. The pick is random per tour run.
+        setTourPickedClusterName(pick.name || pick.label || null);
         window.setTimeout(() => {
           setFlyToTarget({ ...pick, ts: Date.now() });
         }, 1500);
@@ -2335,6 +2342,7 @@ export default function App() {
           focalName={tourFocal}
           chosenAxisKey={tourChosenAxisKey}
           focalBucket={tourFocalBucket}
+          pickedClusterName={tourPickedClusterName}
           sceneHandle={sceneHandle}
           onExit={() => {
             setTourActive(false);

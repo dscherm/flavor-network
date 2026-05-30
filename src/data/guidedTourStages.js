@@ -51,7 +51,7 @@ export const STAGES = [
     id: 'clusters',
     title: 'Step 4 — Recipe clusters',
     copy:
-      "With no filter, you're back to the cooccurrence layout. Each cluster grew from how 2.2M recipes use ingredients together — Asian aromatics here, Italian umami there. Watch one pill light up and the camera fly to it.",
+      "With no filter, you're back to the cooccurrence layout. Each cluster grew from how 2.2M recipes use ingredients together — Asian aromatics here, Italian umami there.",
     gradient: 'linear-gradient(135deg, rgba(132,204,22,0.18), rgba(34,211,238,0.18))',
     accent: '#84cc16',
     advance: { kind: 'userClick' },

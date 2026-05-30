@@ -69,6 +69,10 @@ export default function GuidedTour({
   // without an explicit axis pick (e.g. 'Explore in network' CTA).
   chosenAxisKey = null,
   focalBucket = null,
+  // GD-TOUR-STEP4-CLARITY: name of the cluster runClusterDemo just
+  // pulsed. Used on Step 4's popup so the call-to-action names the
+  // specific pill the user should watch for.
+  pickedClusterName = null,
 }) {
   const [state, dispatch] = useReducer(reducer, initial);
   const stage = STAGES[state.stageIdx] || null;
@@ -146,15 +150,23 @@ export default function GuidedTour({
 
   const isLabPicker = stage.advance?.kind === 'chooseLab';
 
-  // GD-TOUR-AXIS-INTENT-CARRY: synthesize a contextual sentence on
-  // the affinity stage when both focalBucket + chosenAxisKey are
-  // known. Renders below the static copy so the user can connect
-  // "I picked sweet" with "my focal is umami, sweet pairings cluster
-  // at the sweet pole."
-  const extraContext =
-    stage.id === 'affinity' && focalName && focalBucket && chosenAxisKey
-      ? `${focalName} sits in the ${focalBucket} bucket on the ${axis} axis. The ${chosenAxisKey} pairings you tapped will pull toward the ${chosenAxisKey} pole — look there for compatible ${chosenAxisKey} ingredients.`
-      : null;
+  // Per-stage dynamic context line, rendered below the static copy:
+  //  - 'affinity' (GD-TOUR-AXIS-INTENT-CARRY): names the focal's
+  //     bucket on the morph axis AND the user-tapped sub-axis, so
+  //     "I picked sweet" connects with "tomato is umami, sweet
+  //     pairings cluster at the sweet pole."
+  //  - 'clusters' (GD-TOUR-STEP4-CLARITY): names the specific
+  //     cluster pill runClusterDemo just pulsed (or a generic
+  //     fallback before the pick lands).
+  let extraContext = null;
+  if (stage.id === 'affinity' && focalName && focalBucket && chosenAxisKey) {
+    extraContext = `${focalName} sits in the ${focalBucket} bucket on the ${axis} axis. The ${chosenAxisKey} pairings you tapped will pull toward the ${chosenAxisKey} pole — look there for compatible ${chosenAxisKey} ingredients.`;
+  } else if (stage.id === 'clusters') {
+    const target = pickedClusterName
+      ? `the ${pickedClusterName} pill`
+      : 'one of the cluster pills';
+    extraContext = `Watch ${target} in the cluster joystick at the bottom of the network light up — that's where the camera is flying.`;
+  }
 
   return (
     <TourPopup
