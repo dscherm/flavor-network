@@ -343,4 +343,61 @@ describe('GuidedProfileRadar — P2 component', () => {
     const lastCall = onDrop.mock.calls[onDrop.mock.calls.length - 1][0];
     expect(lastCall).toBeGreaterThanOrEqual(5);
   });
+
+  // ----- GD-RADAR-LABEL-DECOLLIDE (2026-05-30) ----------------------
+
+  it('multiple pairings sharing axis-match pattern get decollided radial offsets', () => {
+    // 4 pairings all tagged 'sweet' → coordsForPairing returns the
+    // same canonical (x,y) for each. Decollision should spiral them
+    // around the centroid so every dot has unique (cx, cy).
+    const sweetPairings = [
+      { name: 's-1', taste: 'sweet', strength: 0.9 },
+      { name: 's-2', taste: 'sweet', strength: 0.8 },
+      { name: 's-3', taste: 'sweet', strength: 0.7 },
+      { name: 's-4', taste: 'sweet', strength: 0.6 },
+    ];
+    const { container } = render(
+      <GuidedProfileRadar
+        focal={focal}
+        pairings={sweetPairings}
+        filterType="taste"
+        chosenValue="sweet"
+      />,
+    );
+    const dots = container.querySelectorAll('[data-testid="guided-radar-pairing"] circle');
+    expect(dots.length).toBe(4);
+    const coords = Array.from(dots).map((c) => ({
+      cx: parseFloat(c.getAttribute('cx')),
+      cy: parseFloat(c.getAttribute('cy')),
+    }));
+    const uniqueKeys = new Set(coords.map((c) => `${c.cx.toFixed(2)},${c.cy.toFixed(2)}`));
+    // All 4 dots must land at distinct coords post-decollide.
+    expect(uniqueKeys.size).toBe(4);
+  });
+
+  it('singleton pairings stay at canonical (no decollide offset) when no collision', () => {
+    // 3 pairings on different axes → all distinct canonical coords.
+    const distinctPairings = [
+      { name: 'p-sweet',  taste: 'sweet',  strength: 0.9 },
+      { name: 'p-sour',   taste: 'sour',   strength: 0.8 },
+      { name: 'p-bitter', taste: 'bitter', strength: 0.7 },
+    ];
+    const { container } = render(
+      <GuidedProfileRadar
+        focal={focal}
+        pairings={distinctPairings}
+        filterType="taste"
+        chosenValue={null}
+      />,
+    );
+    const dots = container.querySelectorAll('[data-testid="guided-radar-pairing"] circle');
+    expect(dots.length).toBe(3);
+    const coords = Array.from(dots).map((c) => ({
+      cx: parseFloat(c.getAttribute('cx')),
+      cy: parseFloat(c.getAttribute('cy')),
+    }));
+    // No two dots share coords; spiral-offset doesn't fire for singletons.
+    const uniqueKeys = new Set(coords.map((c) => `${c.cx.toFixed(2)},${c.cy.toFixed(2)}`));
+    expect(uniqueKeys.size).toBe(3);
+  });
 });
