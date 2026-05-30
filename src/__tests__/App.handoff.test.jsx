@@ -375,3 +375,30 @@ describe('GD-TOUR-AFFINITY-ENGAGE — α-mode engagement on Guided handoff', () 
     expect(block).toMatch(/setAffinityRequested\(true\)/);
   });
 });
+
+// ── GD-TOUR-STEP4-CLUSTER-DEMO-RACE (2026-05-30) ──────────────────────────
+// Regression: sceneHandle.runClusterDemo must defer its body via
+// setTimeout(0) so the cleared filterStack commits before the ref read.
+// Without the defer, joystickClustersRef.current still holds Step 3's
+// morph-axis pseudo-clusters (id <= -100) and the id >= 0 filter empties.
+describe('GD-TOUR-STEP4-CLUSTER-DEMO-RACE — runClusterDemo defers past React commit', () => {
+  it('runClusterDemo wraps its body in setTimeout(..., 0) before reading joystickClustersRef', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/App.jsx'),
+      'utf8',
+    );
+    // Match runClusterDemo body up to its closing — should contain
+    // setTimeout(..., 0) wrapping the joystickClustersRef.current read.
+    const block = src.match(/runClusterDemo\(\)\s*\{[\s\S]*?engageFinalAffinity/);
+    expect(block).toBeTruthy();
+    const body = block[0];
+    expect(body).toMatch(/window\.setTimeout\([\s\S]*?,\s*0\)/);
+    // The ref read must appear AFTER the setTimeout opener, not before.
+    const setTimeoutIdx = body.indexOf('window.setTimeout(');
+    const refReadIdx = body.indexOf('joystickClustersRef.current');
+    expect(setTimeoutIdx).toBeGreaterThan(-1);
+    expect(refReadIdx).toBeGreaterThan(setTimeoutIdx);
+  });
+});
