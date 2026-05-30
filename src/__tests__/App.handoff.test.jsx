@@ -334,3 +334,44 @@ describe('App — ADR-2: matchesContext clears on tab leave', () => {
     expect(lastCocktailCtx).toBeNull();
   });
 });
+
+// ── GD-TOUR-AFFINITY-ENGAGE (2026-05-30) ──────────────────────────────────
+// Regression: alphaEngaged = affinityEnabled && selectedNodes.length === 1
+// && affinityRequested. The Guided Discovery → network handoff sets selectedNodes
+// but historically forgot affinityRequested — so Step 1's "We've engaged the
+// Affinity view" popup lied. Source-grep test asserts the fix stays in place.
+describe('GD-TOUR-AFFINITY-ENGAGE — α-mode engagement on Guided handoff', () => {
+  it('sceneHandle.engageAffinity calls both setSelectedNodes and setAffinityRequested(true)', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/App.jsx'),
+      'utf8',
+    );
+    // Match the engageAffinity body: a setSelectedNodes call and a
+    // setAffinityRequested(true) call must both appear before the next
+    // sceneHandle method (animatePull).
+    const engageBlock = src.match(/engageAffinity\(name\)\s*\{[\s\S]*?animatePull/);
+    expect(engageBlock).toBeTruthy();
+    expect(engageBlock[0]).toMatch(/setSelectedNodes\(\[name\]\)/);
+    expect(engageBlock[0]).toMatch(/setAffinityRequested\(true\)/);
+  });
+
+  it('GuidedDiscoveryResults onAxisSelect handler sets affinityRequested=true alongside selectedNodes=[focal]', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/App.jsx'),
+      'utf8',
+    );
+    // Locate the onAxisSelect inline handler from the GuidedDiscoveryResults
+    // mount block by its distinctive tour-activation call.
+    const startIdx = src.indexOf('onAxisSelect={(axis) =>');
+    expect(startIdx).toBeGreaterThan(0);
+    const endIdx = src.indexOf('setTourActive(true)', startIdx);
+    expect(endIdx).toBeGreaterThan(startIdx);
+    const block = src.slice(startIdx, endIdx);
+    expect(block).toMatch(/setSelectedNodes\(\[focal\]\)/);
+    expect(block).toMatch(/setAffinityRequested\(true\)/);
+  });
+});
