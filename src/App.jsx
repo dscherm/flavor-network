@@ -485,13 +485,20 @@ export default function App() {
     },
     // §2.I.1: clean up the multi-glow and pivot to single-ingredient
     // affinity engagement on the first glowed ingredient.
+    // GD-TOUR-COPY-MATCH (2026-05-30): set affinityRequested=true so the
+    // α-rings actually render — Stage 7 popup says "Affinity mode is
+    // engaged on this ingredient" and now that's true (same fix
+    // GD-TOUR-AFFINITY-ENGAGE applied to engageAffinity).
     engageFinalAffinity() {
       const pick = tourClusterRef.current;
       const pool = Array.isArray(pick?.top_ingredients) ? pick.top_ingredients : [];
       const lead = pool[0];
       setTourGlowNodes(null);
       setTourHighlightedCluster(null);
-      if (lead) setSelectedNodes([lead]);
+      if (lead) {
+        setSelectedNodes([lead]);
+        setAffinityRequested(true);
+      }
     },
   }), []);
 
