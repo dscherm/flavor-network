@@ -19,7 +19,7 @@ const CARDS = [
     id: 'photo',
     icon: '📷',
     title: 'Upload a photo',
-    subtitle: "We'll add the image; you fill in ingredients (parsing coming later)",
+    subtitle: "We'll attach the image; you add ingredients by hand",
     accent: '#f472b6',
   },
 ];

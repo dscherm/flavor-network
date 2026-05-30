@@ -64,4 +64,36 @@ describe('RecipeLabMobile — MAKE-HANDOFF-SOURCE empty-bowl bypass for make-*',
     expect(screen.getByTestId('amount-input-tomato')).toBeInTheDocument();
     expect(screen.getByTestId('amount-input-basil')).toBeInTheDocument();
   });
+
+  // MAKE-E2E-AUDIT (2026-05-30): the generic "Loaded 0 ingredients from
+  // recipe" toast was confusing for zero-bowl Make handoffs. Per-subtype
+  // copy now renders, with non-Make handoffs keeping the count format.
+  it('make-photo handoff surfaces a photo-specific toast ("Photo attached")', async () => {
+    const { rerender } = render(
+      <RecipeLabMobile fullData={buildFullData()} initialIngredients={[]} />,
+    );
+    const file = new File(['x'], 'r.jpg', { type: 'image/jpeg' });
+    rerender(
+      <RecipeLabMobile
+        fullData={buildFullData()}
+        initialIngredients={[]}
+        handoff={{ ts: 10, source: 'make-photo', ingredients: [], image: file, mode: null }}
+      />,
+    );
+    expect(await screen.findByText(/Photo attached/i)).toBeInTheDocument();
+  });
+
+  it('make-scratch handoff surfaces a scratch-specific toast ("Empty recipe ready")', async () => {
+    const { rerender } = render(
+      <RecipeLabMobile fullData={buildFullData()} initialIngredients={[]} />,
+    );
+    rerender(
+      <RecipeLabMobile
+        fullData={buildFullData()}
+        initialIngredients={[]}
+        handoff={{ ts: 11, source: 'make-scratch', ingredients: [], mode: null }}
+      />,
+    );
+    expect(await screen.findByText(/Empty recipe ready/i)).toBeInTheDocument();
+  });
 });

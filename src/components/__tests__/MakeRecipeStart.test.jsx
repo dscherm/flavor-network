@@ -42,7 +42,7 @@ describe('MakeRecipeStart — 3-card picker (MAKE-PICKER §2)', () => {
     expect(screen.getByText('Upload a photo')).toBeInTheDocument();
     expect(
       screen.getByText(
-        "We'll add the image; you fill in ingredients (parsing coming later)",
+        "We'll attach the image; you add ingredients by hand",
       ),
     ).toBeInTheDocument();
   });
@@ -53,7 +53,7 @@ describe('MakeRecipeStart — 3-card picker (MAKE-PICKER §2)', () => {
     expect(screen.getByLabelText('Start from scratch. Empty Recipe Lab')).toBeInTheDocument();
     expect(
       screen.getByLabelText(
-        "Upload a photo. We'll add the image; you fill in ingredients (parsing coming later)",
+        "Upload a photo. We'll attach the image; you add ingredients by hand",
       ),
     ).toBeInTheDocument();
   });
