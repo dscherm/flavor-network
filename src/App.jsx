@@ -1736,6 +1736,7 @@ export default function App() {
         active={showTour}
         onComplete={() => setShowTour(false)}
         onSkip={() => setShowTour(false)}
+        suppress={tourActive}
       />
       <GlobalInsights
         nodes={data ? data.graph.nodes : null}
