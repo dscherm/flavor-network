@@ -30,6 +30,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getNeighborsEnriched } from '../data/graph.js';
 import { passesDietaryFilters } from '../data/dietaryFilters.js';
+import { getAxesFor, pairingMatchesAxis } from '../data/guidedRadarAxes.js';
 import StoryPanel from './StoryPanel.jsx';
 import GuidedProfileRadar from './GuidedProfileRadar.jsx';
 import GuidedResultsFilterPills from './GuidedResultsFilterPills.jsx';
@@ -210,14 +211,22 @@ export default function GuidedDiscoveryResults({
   }, [seededFilterType]);
 
   // Hero pairings — GD-RADAR-AFFINITY-COHERENCE (2026-05-30): switched
-  // from selectCuratedPairings (surprising + top + cited heroes) to the
-  // same getNeighborsEnriched the network's α-mode uses. Result: the
-  // dots a user sees on this radar are the SAME ingredients α-mode
-  // arranges around the focal once the tour activates. Used for (a)
-  // the chemistry-banner predicate, and (b) the radar dot scatter.
-  // Dietary filter applied post-fetch (matches the prior contract).
+  // from selectCuratedPairings to getNeighborsEnriched so the dots a
+  // user sees on this radar are the SAME ingredients α-mode arranges
+  // around the focal once the tour activates.
+  //
+  // GD-RADAR-NEIGHBOR-DIVERSITY (2026-05-30): the strict top-10 by
+  // NPMI strength clusters around similar profiles — tapping a
+  // low-coverage axis (e.g. salty on a tomato focal) often highlighted
+  // ZERO dots. Pad the top-10 base with axis-coverage picks: for each
+  // filterType (taste / aroma / season / cuisine), if no top-10
+  // neighbor matches a given axis, pull the highest-strength
+  // sub-MAX_POOL candidate that does. Cap at MAX_POOL.
   const heroPairings = useMemo(() => {
     if (!focalName || !ctx?.graph?.edges) return [];
+    const BASE_TOP = 10;
+    const MAX_POOL = 20;
+    const FILTERTYPES = ['taste', 'aroma', 'season', 'cuisine'];
     try {
       const all = getNeighborsEnriched(
         focalName,
@@ -231,11 +240,34 @@ export default function GuidedDiscoveryResults({
             return passesDietaryFilters(n.name, node, dietary);
           })
         : all;
-      return filtered.slice(0, 10);
+      const base = filtered.slice(0, BASE_TOP);
+      const baseNames = new Set(base.map((n) => n.name));
+      const hydrateLite = (n) => hydratePairing(n, ctx);
+      // Walk each filterType / each of its axes. When the base has
+      // zero matches on (ft, axisKey), scan past BASE_TOP for the
+      // highest-strength candidate that matches and add it once.
+      for (const ft of FILTERTYPES) {
+        const axes = getAxesFor(ft);
+        for (const axisKey of axes) {
+          if (base.length >= MAX_POOL) break;
+          const baseHasMatch = base.some((p) => pairingMatchesAxis(hydrateLite(p), ft, axisKey, odorThresholds));
+          if (baseHasMatch) continue;
+          for (let i = BASE_TOP; i < filtered.length && base.length < MAX_POOL; i += 1) {
+            const cand = filtered[i];
+            if (baseNames.has(cand.name)) continue;
+            if (pairingMatchesAxis(hydrateLite(cand), ft, axisKey, odorThresholds)) {
+              base.push(cand);
+              baseNames.add(cand.name);
+              break;
+            }
+          }
+        }
+      }
+      return base;
     } catch {
       return [];
     }
-  }, [focalName, ctx, dietary]);
+  }, [focalName, ctx, dietary, odorThresholds]);
 
   // Hydrate hero pairings with node fields so the radar's predicates
   // (taste / aroma / season / cuisine) have something to read off.

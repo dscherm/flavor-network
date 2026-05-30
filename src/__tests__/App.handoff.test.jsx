@@ -376,6 +376,44 @@ describe('GD-TOUR-AFFINITY-ENGAGE — α-mode engagement on Guided handoff', () 
   });
 });
 
+// ── GD-RADAR-NEIGHBOR-DIVERSITY (2026-05-30) ──────────────────────────────
+// Regression: heroPairings starts with the strict top-N by strength
+// (preserving α-mode familiarity) then pads with axis-coverage picks so
+// every filterType axis has ≥1 candidate. Strict top-10 alone tended to
+// cluster around similar profiles, leaving some axes (e.g. salty on
+// tomato) with zero matches.
+describe('GD-RADAR-NEIGHBOR-DIVERSITY — heroPairings pads with axis-coverage picks', () => {
+  it('GuidedDiscoveryResults heroPairings imports getAxesFor + pairingMatchesAxis from guidedRadarAxes', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/components/GuidedDiscoveryResults.jsx'),
+      'utf8',
+    );
+    expect(src).toMatch(/import\s*\{[^}]*getAxesFor[^}]*pairingMatchesAxis[^}]*\}\s*from\s*'\.\.\/data\/guidedRadarAxes\.js'/);
+  });
+
+  it('heroPairings body walks filterTypes + axes for coverage padding past the strict top-N base', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/components/GuidedDiscoveryResults.jsx'),
+      'utf8',
+    );
+    // Find the heroPairings useMemo body.
+    const startIdx = src.indexOf('const heroPairings = useMemo');
+    expect(startIdx).toBeGreaterThan(0);
+    const block = src.slice(startIdx, startIdx + 4000);
+    expect(block).toMatch(/BASE_TOP/);
+    expect(block).toMatch(/MAX_POOL/);
+    expect(block).toMatch(/FILTERTYPES\s*=\s*\[[^\]]*'taste'[^\]]*'aroma'[^\]]*'season'[^\]]*'cuisine'/);
+    expect(block).toMatch(/getAxesFor\(ft\)/);
+    expect(block).toMatch(/pairingMatchesAxis/);
+    // Padding loop must guard base.length against MAX_POOL.
+    expect(block).toMatch(/base\.length\s*<\s*MAX_POOL/);
+  });
+});
+
 // ── GD-NODE-COLOR-FOLLOW-FILTER (2026-05-30) ──────────────────────────────
 // Regression: when α-mode disengages while a categorical filter is active,
 // the restored palette must be the filter's bucket palette (taste / aromas
