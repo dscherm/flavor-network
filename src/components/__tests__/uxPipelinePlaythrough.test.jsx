@@ -235,17 +235,40 @@ describe('§2.B–§2.C — Results page', () => {
 });
 
 describe('§2.D–§2.I — Guided tour stage config', () => {
-  it('2.D.2 stage 1 (affinity) has the exact spec popup copy', () => {
+  it('2.D.2 stage 1 (affinity) has the spec popup copy', () => {
     const affinity = STAGES.find((s) => s.id === 'affinity');
     expect(affinity).toBeTruthy();
-    // Spec calls for: click/tap and drag → camera; double-click → advance.
+    // GD-TOUR-MANUAL-ADVANCE: orbit-the-camera hint + Got it CTA.
     expect(affinity.copy).toMatch(/Click and drag.*[Tt]ap and drag.*camera/);
-    expect(affinity.copy).toMatch(/[Dd]ouble[ -]click.*(continue|move on|advance|next)/i);
+    expect(affinity.copy).toMatch(/Got it/i);
   });
 
-  it('2.D.3 affinity stage advances on double-tap/click', () => {
-    const affinity = STAGES.find((s) => s.id === 'affinity');
-    expect(affinity.advance.kind).toBe('doubleTapOrClick');
+  it('2.D.3 every non-final stage advances on user click (GD-TOUR-MANUAL-ADVANCE)', () => {
+    const finalStage = STAGES[STAGES.length - 1];
+    for (const stage of STAGES) {
+      if (stage === finalStage) {
+        // chooseLab uses its 4-pill picker.
+        expect(stage.advance.kind).toBe('chooseLab');
+      } else {
+        expect(stage.advance.kind).toBe('userClick');
+      }
+    }
+    // The retired advance kinds must not reappear anywhere.
+    const kinds = STAGES.map((s) => s.advance.kind);
+    expect(kinds).not.toContain('auto');
+    expect(kinds).not.toContain('doubleTapOrClick');
+  });
+
+  it('2.D.3 GuidedTour controller has no auto-timeout or dblclick listener (GD-TOUR-MANUAL-ADVANCE)', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/components/GuidedTour.jsx'),
+      'utf8',
+    );
+    expect(src).not.toMatch(/addEventListener\('dblclick'/);
+    expect(src).not.toMatch(/stage\.advance\?\.kind === 'auto'/);
+    expect(src).not.toMatch(/stage\.advance\?\.kind === 'doubleTapOrClick'/);
   });
 
   it('2.D.1 [SPEC GAP] stage 1 sceneAction should be engageAffinity (PASS)', () => {

@@ -111,21 +111,10 @@ export default function GuidedTour({
     }
   }, [stage, sceneHandle, focalName, axis, randomAxis]);
 
-  // Auto-advance for stages with `advance: { kind: 'auto', ms: ... }`.
-  useEffect(() => {
-    if (!stage) return undefined;
-    if (stage.advance?.kind !== 'auto') return undefined;
-    const t = setTimeout(() => dispatch({ type: 'ADVANCE' }), stage.advance.ms || 3000);
-    return () => clearTimeout(t);
-  }, [stage]);
-
-  // Double-tap advance on the canvas for stages that ask for it.
-  useEffect(() => {
-    if (!stage || stage.advance?.kind !== 'doubleTapOrClick') return undefined;
-    const handler = () => dispatch({ type: 'ADVANCE' });
-    window.addEventListener('dblclick', handler);
-    return () => window.removeEventListener('dblclick', handler);
-  }, [stage]);
+  // GD-TOUR-MANUAL-ADVANCE (2026-05-30): tour advance is exclusively
+  // user-driven (Got it button on the popup, or the 4-pill lab picker
+  // on the final stage). The prior auto-timeout + dblclick listeners
+  // were removed — every stage waits for explicit user input now.
 
   // Final exit — emit completion telemetry, call onExit.
   useEffect(() => {
