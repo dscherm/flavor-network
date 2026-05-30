@@ -3,6 +3,11 @@ dist/
 .cache/
 *.log
 
+# Firebase Cloud Functions TypeScript build output (MAKE-WEBLINK-FN).
+# Regenerable via `npm --prefix functions run build`. Predeploy hook
+# in firebase.json invokes the build before each deploy.
+functions/lib/
+
 # Ralph runtime files
 .claude/ralph.lock
 .claude/ralph-loop.local.md
