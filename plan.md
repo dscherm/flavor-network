@@ -1807,4 +1807,88 @@ spot-check.
 5. **Wave 5** is bridge-paced cleanup; run any time after the surfaces
    stabilize.
 
+---
+
+## Guided Discovery polish — Wave 6 (2026-05-30)
+
+Polish pass on the Guided Discovery feature, surfaced by chef-user
+walkthrough 2026-05-30. Three real bugs + one audit task. See
+`docs/GUIDED-DISCOVERY-SPEC.md` for the canonical feature contract;
+these tasks tighten the implementation to match it.
+
+```json
+{
+  "id": "GD-TOUR-AFFINITY-ENGAGE",
+  "title": "Make Step 1 actually engage α-mode (set affinityRequested=true)",
+  "category": "ui",
+  "priority": 1,
+  "description": "Step 1 of GuidedTour says \"We've engaged the Affinity view on your focal ingredient\" but the rings + axis projection never render. Root cause: sceneHandle.engageAffinity(name) at App.jsx:391-394 only calls setSelectedNodes([name]). The alphaEngaged formula at App.jsx:1049 = affinityEnabled && selectedNodes.length === 1 && affinityRequested — affinityRequested stays false through the tour entry. The popup copy lies. Fix: engageAffinity must also call setAffinityRequested(true). The same fix applies to the onAxisSelect handler at App.jsx:1797-1812 which sets selectedNodes=[focal] before activating the tour — affinityRequested must flip there too so α-mode is live the instant the network tab paints. No new state, no new prop — just the missing setter call in two places.",
+  "blocked_on": null,
+  "acceptance": [
+    "App.jsx onAxisSelect handler (the one that fires the GuidedTour from GuidedDiscoveryResults) sets affinityRequested=true alongside setSelectedNodes([focal])",
+    "App.jsx sceneHandle.engageAffinity(name) sets affinityRequested=true alongside setSelectedNodes([name])",
+    "Manual verification: pick an ingredient in Guided Discovery → tap a radar axis → land on network tab → α-rings + axis projection visible IMMEDIATELY (before any further click). The Step 1 popup copy is now truthful.",
+    "Regression test in src/__tests__/App.handoff.test.jsx: spy on setAffinityRequested asserts true was passed inside the onAxisSelect flow",
+    "Smart_gate + 1056+ tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "GD-RADAR-AFFINITY-COHERENCE",
+  "title": "Radar dots = α-mode neighbors (unify Screen 2 and network data layer)",
+  "category": "data",
+  "priority": 2,
+  "description": "Screen 2's GuidedProfileRadar plots dots from selectCuratedPairings(focal, ctx, dietary) — a curated mix of 3 surprising + 4 top + 3 cited heroes (max 10). α-mode in the network tab uses getNeighborsEnriched(focal) sorted by NPMI strength (top N). The two sets overlap but aren't identical. When the user picks a focal in Guided, sees the radar, then transitions to the tour, the ingredients on the axes change — breaking the perceived continuity of \"these are X's affinities.\" Per chef-user 2026-05-30 decision: unify. Replace selectCuratedPairings inside GuidedDiscoveryResults.jsx's heroPairings useMemo with the same getNeighborsEnriched output the network uses. Cap at 10 (or whatever α-mode caps at — verify). The curated function survives for any non-Guided caller (audit; may be unused). Chemistry banner predicate (selectCuratedPairings → ≥50% x3=0.5) must continue to work — either restore the curated-pairings predicate as a separate banner-only input or accept that the banner moves to operate on α-mode neighbors (likely simpler and equally accurate, since the chem-bridge fallback rate is corpus-wide).",
+  "blocked_on": null,
+  "acceptance": [
+    "GuidedDiscoveryResults.jsx heroPairings useMemo derives from getNeighborsEnriched(focal, ctx) or equivalent α-mode source, not selectCuratedPairings",
+    "Radar dots in Screen 2 match the α-mode neighbor set 1:1 for a given focal",
+    "After tapping a radar axis, the network's α-mode highlights the same ingredients the radar just showed (manual verification: 5 focal ingredients spot-checked)",
+    "Chemistry banner predicate continues to fire on chem-bridge-heavy corpora (≥50% x3=0.5 over the new neighbor set) — adjust test fixtures",
+    "src/data/__tests__/curatedPairings.test.js + src/components/__tests__/GuidedDiscoveryResults.test.jsx updated for the new data source",
+    "Audit selectCuratedPairings remaining callers: if zero, delete; if banner-only, scope to a leaner helper",
+    "Smart_gate + tests pass; no JS regressions on network tab α-mode behavior"
+  ]
+}
+```
+
+```json
+{
+  "id": "GD-TOUR-MANUAL-ADVANCE",
+  "title": "Kill auto-advance + double-tap; every tour stage gates on 'Got it'",
+  "category": "ui",
+  "priority": 3,
+  "description": "guidedTourStages.js has 4 stages on `advance: { kind: 'auto', ms: 3500–5500 }` (pull1/pull2/clusters/axes) and stage 1 (affinity) on `doubleTapOrClick`. The user reports the tour moves too fast and the double-tap gesture is undiscoverable. Per chef-user 2026-05-30 decision: every stage waits for an explicit \"Got it\" tap on the popup. The final stage (chooseLab) keeps its 4-pill lab picker — that already requires a tap, just on a pill instead of Got it. TourPopup.jsx already renders an advance button — verify it's always shown for non-final stages and remove the auto-advance + dblclick listeners in GuidedTour.jsx. The animation that played during pull1/pull2 still plays the moment the stage activates — the user just gets to watch it as long as they want before tapping Got it.",
+  "blocked_on": null,
+  "acceptance": [
+    "guidedTourStages.js: all 6 non-final stages use `advance: { kind: 'userClick' }`. The 'doubleTapOrClick' kind is removed entirely",
+    "GuidedTour.jsx: the auto-advance setTimeout useEffect is deleted; the dblclick listener useEffect is deleted",
+    "TourPopup.jsx always renders a 'Got it' button on non-final stages; auto-focuses on stage change for keyboard a11y",
+    "Manual verification: complete the full tour. Each step waits for an explicit Got it tap; no popup auto-closes. Scene animations (pull tab morph, cluster fly-to) still play on stage entry — they just don't gate the advance",
+    "src/components/__tests__/GuidedTour.test.jsx: update auto-advance tests → user-click tests; assert no setTimeout in the tour controller's render path",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "GD-TOUR-COPY-MATCH",
+  "title": "Audit each tour stage's copy against what the user actually sees",
+  "category": "ui",
+  "priority": 4,
+  "description": "Now that affinity actually engages (GD-TOUR-AFFINITY-ENGAGE) and the radar matches α-mode (GD-RADAR-AFFINITY-COHERENCE), audit each of the 7 stages' copy in guidedTourStages.js for truthfulness. Walk through the tour against the live deploy and rewrite any line where the popup describes a thing the user isn't actually seeing on screen. Known suspects: Step 2's 'watch the ingredients snap into their bucket groups' — is the bucket snap visually obvious or subtle? Step 3's 'each filter groups around a different signal' — the second pull animation runs on a random axis; does the user see it clearly? Step 4's 'watch one pill light up and the camera fly to it' — does the highlight actually pulse, or just shift color statically? Step 6's 'these are the cluster's headliners' — do the glow effects actually fire on visible nodes? This is an audit task with copy edits as the deliverable, not a feature.",
+  "blocked_on": "GD-TOUR-AFFINITY-ENGAGE + GD-RADAR-AFFINITY-COHERENCE + GD-TOUR-MANUAL-ADVANCE shipped",
+  "acceptance": [
+    "Walk-through document attached to the PR: 7 stages × 1 paragraph each = what the popup says vs what's actually on screen",
+    "Any copy that describes invisible/missing behavior is rewritten OR the underlying behavior is fixed (case-by-case decision)",
+    "guidedTourStages.js: at least 2 stages' copy edited based on audit findings (or document explicitly that all 7 already match)",
+    "Manual verification: 3 fresh tour walkthroughs (different focal + axis combos) — no 'the popup says X but I don't see X' surprises",
+    "Smart_gate + tests pass; no scene-action regressions"
+  ]
+}
+```
+
 

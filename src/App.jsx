@@ -391,6 +391,7 @@ export default function App() {
     engageAffinity(name) {
       if (!name) return;
       setSelectedNodes([name]);
+      setAffinityRequested(true);
     },
     animatePull(axis) {
       const axisFilter = axis === 'aroma' ? 'aromas' : axis;
@@ -1797,15 +1798,21 @@ export default function App() {
             onAxisSelect={(axis) => {
               // Phase 6 — radar click sets filter pills + activates
               // the GuidedTour overlay on the network tab.
-              // selectedNodes=[focal] is what makes AffinityMode engage
-              // (see line 689 — alphaEngaged = affinityEnabled && len===1).
+              // GD-TOUR-AFFINITY-ENGAGE: alphaEngaged requires BOTH
+              // selectedNodes.length === 1 AND affinityRequested. Set
+              // both so the network paints with α-rings live on landing
+              // (matching Step 1's "We've engaged the Affinity view"
+              // popup copy).
               const axisFilter = axis === 'aroma' ? 'aromas' : axis;
               setFilterStack([
                 axisFilter,
                 ...deriveFilterStackFromBubbles(bubbleStack).filter((f) => f !== axisFilter),
               ]);
               const focal = bubbleStack.find((b) => b.key === 'ingredient')?.value?.ingredient || null;
-              if (focal) setSelectedNodes([focal]);
+              if (focal) {
+                setSelectedNodes([focal]);
+                setAffinityRequested(true);
+              }
               setTourAxis(axis);
               setTourFocal(focal);
               setTourActive(true);
