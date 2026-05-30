@@ -2016,6 +2016,7 @@ export default function App() {
             setRecipeMounted={setRecipeMounted}
             setActiveTab={setActiveTab}
             setCookbookPickerMode={setCookbookPickerMode}
+            nodes={data?.graph?.nodes}
           />
         </div>
       )}

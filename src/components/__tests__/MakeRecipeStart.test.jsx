@@ -15,7 +15,7 @@ function mountPicker(overrides = {}) {
   return setters;
 }
 
-describe('MakeRecipeStart — 3-card picker (MAKE-PICKER §2)', () => {
+describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)', () => {
   beforeEach(() => {
     if (typeof globalThis.ResizeObserver === 'undefined') {
       globalThis.ResizeObserver = class {
@@ -24,13 +24,14 @@ describe('MakeRecipeStart — 3-card picker (MAKE-PICKER §2)', () => {
     }
   });
 
-  it('renders 3 cards in spec order: existing, scratch, photo', () => {
+  it('renders 4 cards in spec order: existing, scratch, photo, weblink', () => {
     mountPicker();
     const cards = screen.getAllByRole('button');
-    expect(cards.length).toBeGreaterThanOrEqual(3);
+    expect(cards.length).toBeGreaterThanOrEqual(4);
     expect(cards[0]).toHaveAttribute('data-testid', 'make-card-existing');
     expect(cards[1]).toHaveAttribute('data-testid', 'make-card-scratch');
     expect(cards[2]).toHaveAttribute('data-testid', 'make-card-photo');
+    expect(cards[3]).toHaveAttribute('data-testid', 'make-card-weblink');
   });
 
   it('card copy matches §2.3 exactly', () => {
