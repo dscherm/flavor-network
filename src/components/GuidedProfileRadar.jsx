@@ -85,8 +85,16 @@ export default function GuidedProfileRadar({
   // Per-pairing rendered points: only those with at least one matching
   // axis (or, for aroma, with gnnProbs) get plotted. Everything else
   // is dropped via onDropCount.
+  //
+  // GD-RADAR-LABEL-DECOLLIDE (2026-05-30): pairings with identical
+  // axis-match patterns get identical (x,y) from coordsForPairing,
+  // stacking dots + labels into an unreadable pile. Post-process to
+  // detect colliding canonical coords and spiral the N>1 members in a
+  // small circle around the centroid (DECOLLIDE_RADIUS px) so each dot
+  // keeps its own label visible. Strongest neighbor (highest .strength)
+  // gets the top slot; others fan clockwise.
   const { plotted, droppedCount } = useMemo(() => {
-    const out = [];
+    const raw = [];
     let dropped = 0;
     for (const p of pairings) {
       const coords = coordsForPairing(p, filterType, axes, radius, odorThresholds);
@@ -94,7 +102,37 @@ export default function GuidedProfileRadar({
         dropped += 1;
         continue;
       }
-      out.push({ pairing: p, coords });
+      raw.push({ pairing: p, coords });
+    }
+    // Bucket by canonical coord (0.5px granularity).
+    const buckets = new Map();
+    for (const item of raw) {
+      const key = `${item.coords.x.toFixed(1)},${item.coords.y.toFixed(1)}`;
+      const bucket = buckets.get(key);
+      if (bucket) bucket.push(item);
+      else buckets.set(key, [item]);
+    }
+    const out = [];
+    const DECOLLIDE_RADIUS = 9;
+    for (const bucket of buckets.values()) {
+      if (bucket.length === 1) {
+        out.push(bucket[0]);
+        continue;
+      }
+      // Strongest first so it lands at top (-π/2), others fan clockwise.
+      const sorted = [...bucket].sort((a, b) => (b.pairing?.strength ?? 0) - (a.pairing?.strength ?? 0));
+      for (let i = 0; i < sorted.length; i += 1) {
+        const a = -Math.PI / 2 + (Math.PI * 2 * i) / sorted.length;
+        const cx0 = sorted[i].coords.x;
+        const cy0 = sorted[i].coords.y;
+        out.push({
+          pairing: sorted[i].pairing,
+          coords: {
+            x: cx0 + DECOLLIDE_RADIUS * Math.cos(a),
+            y: cy0 + DECOLLIDE_RADIUS * Math.sin(a),
+          },
+        });
+      }
     }
     return { plotted: out, droppedCount: dropped };
   }, [pairings, filterType, axes, radius, odorThresholds]);
