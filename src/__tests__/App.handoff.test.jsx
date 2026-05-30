@@ -378,6 +378,39 @@ describe('GD-TOUR-AFFINITY-ENGAGE — α-mode engagement on Guided handoff', () 
   });
 });
 
+// ── GD-WALKTHROUGH-TOUR-MUTEX (2026-05-30) ────────────────────────────────
+// Regression: the first-run Walkthrough modal must hide while the
+// GuidedTour overlay is active. App.jsx passes tourActive into
+// Walkthrough as the suppress prop; Walkthrough early-returns null when
+// suppress is true.
+describe('GD-WALKTHROUGH-TOUR-MUTEX — Walkthrough hides during GuidedTour', () => {
+  it('Walkthrough.jsx accepts a suppress prop and returns null when true', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/components/Walkthrough.jsx'),
+      'utf8',
+    );
+    // Function signature accepts suppress (with a default).
+    expect(src).toMatch(/function Walkthrough\(\{[^}]*suppress[^}]*=\s*false[^}]*\}/);
+    // Early return on suppress=true.
+    expect(src).toMatch(/if\s*\(suppress\)\s*return null;/);
+  });
+
+  it('App.jsx passes tourActive into Walkthrough as the suppress prop', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/App.jsx'),
+      'utf8',
+    );
+    // Match the Walkthrough mount block and assert suppress={tourActive}.
+    const mountMatch = src.match(/<Walkthrough[\s\S]*?\/>/);
+    expect(mountMatch).toBeTruthy();
+    expect(mountMatch[0]).toMatch(/suppress=\{tourActive\}/);
+  });
+});
+
 // ── GD-RADAR-NEIGHBOR-DIVERSITY (2026-05-30) ──────────────────────────────
 // Regression: heroPairings starts with the strict top-N by strength
 // (preserving α-mode familiarity) then pads with axis-coverage picks so

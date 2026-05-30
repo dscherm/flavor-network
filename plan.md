@@ -2009,4 +2009,109 @@ Step 4 copy doesn't name the ClusterJoystick widget).
 }
 ```
 
+---
+
+## Wave 8 — Walkthrough mutex + Make Mode audit + Web-link picker (2026-05-30)
+
+Two threads:
+1. **Walkthrough × GuidedTour mutex** — the first-run "Welcome to the Flavor Network" modal currently stacks on top of GuidedTour (visible in the Wave-7 contact sheet frame 4). Suppress one when the other is active.
+2. **Make Mode follow-up** — chef-user audit of the 3 existing Make paths (scratch / photo / cookbook) plus a NEW 4th path: "From a web link" that fetches a recipe URL, parses the ingredients, matches them against the known dictionary, and pre-fills the bowl. Architecture lifted from the working `bookstrapCB` implementation: Firebase Cloud Function does the URL fetch (SSRF-hardened, JSON-LD parser, no LLM fallback for this app); client matches ingredient strings via fuse.js fuzzy lookup.
+
+```json
+{
+  "id": "GD-WALKTHROUGH-TOUR-MUTEX",
+  "title": "Suppress first-run Walkthrough when GuidedTour is active",
+  "category": "ui",
+  "priority": 1,
+  "description": "Wave-7 contact-sheet frame 4 shows the first-run 'Welcome to the Flavor Network' Walkthrough modal stacking on top of the GuidedTour Step 1 popup. They're two separate components: Walkthrough.jsx (first-time network-tab tutorial, gated by localStorage 'walkthrough:complete' or similar) and GuidedTour.jsx (Guided Discovery → network handoff). Both fire on the network tab. They shouldn't stack — the Walkthrough is for users who land on the network without context, the GuidedTour is for users who arrive WITH context from Guided Discovery. Fix: suppress Walkthrough when tourActive is true. Cleanest implementation: pass tourActive (or a derived 'guidedTourActive' boolean) into Walkthrough as a prop, and Walkthrough early-returns null when the flag is set. The Walkthrough's own first-run flag is preserved so first-time users who haven't been through GuidedTour still see it later.",
+  "blocked_on": null,
+  "acceptance": [
+    "Walkthrough.jsx accepts a new prop (e.g. 'suppress') and returns null when it's true",
+    "App.jsx passes tourActive (or equivalent) to Walkthrough so the suppress fires when GuidedTour is mounted",
+    "Manual verification: clear localStorage 'walkthrough:complete' (so Walkthrough WOULD fire), enter Guided Discovery, tap a radar axis twice → land on network tab → GuidedTour Step 1 visible, Walkthrough hidden",
+    "When the user dismisses the tour (Skip / Got it past final stage / pick lab), Walkthrough does NOT then pop up (it should remain suppressed for the session, or never re-fire — chef preference)",
+    "Source-grep regression test confirms Walkthrough.jsx reads the suppress prop and the App.jsx mount passes it",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "MAKE-E2E-AUDIT",
+  "title": "Walk all 3 Make paths end-to-end against the live deploy; fix gaps",
+  "category": "ui",
+  "priority": 2,
+  "description": "Make Mode shipped in Wave 2 as 4 separate tasks (MAKE-HANDOFF-SOURCE / MAKE-PICKER / MAKE-LANDING-TILE / MAKE-PHOTO-PREVIEW / MAKE-COOKBOOK-PICKER), each with focused per-task tests but never an end-to-end chef walkthrough. Audit each path: (1) 'From scratch' → empty bowl handoff into RecipeLabMobile, (2) 'From a photo' → hidden file input → photo preview lifecycle in RecipeLabMobile, (3) 'From a Cookbook recipe' → CookbookLab pickerMode → recipe pick → handoff. For each, observe rough spots and either fix them in this commit OR queue a follow-up task. Likely targets: photo preview overflow on mobile viewports, CookbookLab pickerMode breadcrumb behavior on back/exit, RecipeLabMobile zero-state copy when bowl is empty, focus management on Make tile selection.",
+  "blocked_on": null,
+  "acceptance": [
+    "Audit document attached to PR or commit body: 3 paths × ~3 lines each describing observed behavior + decision (fix-now / follow-up / acceptable)",
+    "Any fix-now item lands in this commit with focused test coverage",
+    "Any follow-up gets a new bridge task drafted in plan.md (Wave 8 or Wave 9)",
+    "Manual verification: 3 successful walks of each path (photo path with both successful + cancelled-picker scenarios)",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "MAKE-WEBLINK-FN",
+  "title": "Firebase Cloud Function: scrapeRecipe (SSRF-hardened, JSON-LD-only)",
+  "category": "infra",
+  "priority": 3,
+  "description": "Add a Firebase Functions project to flavor-network for a single function: scrapeRecipe({url}) → {title, ingredients[], finalUrl, error?}. Architecture lifted from bookstrapCB (D:\\Projects\\bookstrapCB\\functions\\src\\scrape\\) — full SSRF guard (ssrfReason + DNS-pinned undici Agent + redirect-by-redirect validation), JSON-LD parser (extractJsonLdRecipes + jsonLdToStructured). Differences from bookstrapCB: NO LLM fallback (no Anthropic dep added to this app), NO Firestore persistence (function returns parsed draft directly to client), NO family/auth model (function is auth-gated via Firebase Auth uid only). Result schema for client consumption: { title: string, ingredients: string[], finalUrl: string, error?: string }. SSRF + DNS hardening is non-negotiable — the function accepts arbitrary user-supplied URLs and runs inside Google infra where 169.254.169.254 returns the GCP metadata service.",
+  "blocked_on": null,
+  "acceptance": [
+    "functions/ directory created with package.json + tsconfig.json + src/index.ts + src/scrape/{handler.ts, parser.ts, ssrf.ts, types.ts}",
+    "scrapeRecipe is a Firebase callable function (httpsCallable in client); requires Firebase Auth uid (rejects unauthenticated calls)",
+    "SSRF guard: ssrfReason() blocks literal-IP + known-alias hosts + URL credentials; DNS-pinned undici Agent prevents rebinding; redirect-by-redirect re-validation",
+    "JSON-LD parser handles the common shapes: top-level Recipe, @graph nested Recipe, multi-type arrays. recipeIngredient OR ingredients field accepted",
+    "Tests ported from bookstrapCB: ssrf.test.ts (literal IPs, IPv6, credential rejection), parser.test.ts (5+ JSON-LD fixtures from real recipe sites)",
+    "firebase.json updated with functions config; deploy succeeds via 'firebase deploy --only functions'",
+    "Smart_gate + tests pass; functions tests run as a separate vitest project or via functions/package.json's test script"
+  ]
+}
+```
+
+```json
+{
+  "id": "MAKE-WEBLINK-MATCH",
+  "title": "Match parsed ingredient strings to the known ingredient dictionary",
+  "category": "data",
+  "priority": 4,
+  "description": "scrapeRecipe returns raw ingredient strings ('1 cup diced tomato', '2 tablespoons olive oil', 'a pinch of salt'). MakeRecipeStart can't drop those directly into the bowl — RecipeLabMobile expects ingredient names that match nodes in the graph. Add src/data/parseRecipeIngredient.js with two pure functions: (a) parseIngredientLine(line) → {qty, unit, noun} via the QTY_UNIT_RE regex from bookstrapCB's parser.ts, (b) matchIngredientName(noun, nodes) → {name, score, confidence} using fuse.js (already a dep) against the known-ingredient name list. Threshold: confidence > 0.5 → matched; otherwise null. Output: [{input, parsed: {qty, unit, noun}, matched: name|null, score, confidence}].",
+  "blocked_on": null,
+  "acceptance": [
+    "src/data/parseRecipeIngredient.js exports parseIngredientLine + matchIngredientName + a combined matchRecipeIngredients(lines, nodes) helper",
+    "parseIngredientLine handles common formats: '1 cup X', '2 tbsp X', 'X to taste', 'a pinch of X', 'X (chopped)' — at minimum 10 fixture strings ported from real recipe pages",
+    "matchIngredientName uses fuse.js with threshold=0.4, scores by inverse distance; returns null below 0.5 confidence",
+    "src/data/__tests__/parseRecipeIngredient.test.js: 20+ test cases covering parse edge cases + 15+ match cases (exact, fuzzy hit, fuzzy miss, no-noun input)",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "MAKE-WEBLINK-UI",
+  "title": "Make tile 4th option 'From a web link' — URL input + matched ingredient preview + bowl handoff",
+  "category": "ui",
+  "priority": 5,
+  "description": "Add a 4th card to MakeRecipeStart.jsx: 'From a web link'. Tap → reveal URL input field + 'Parse recipe' button. On parse: call scrapeRecipe (MAKE-WEBLINK-FN) → run matchRecipeIngredients (MAKE-WEBLINK-MATCH) on the result → render a preview list showing each parsed ingredient line, the matched ingredient name (if any), and confidence. User can deselect any matched ingredient before committing. 'Add to bowl' button → setRecipeHandoff({ source: 'make-weblink', ingredients: [...names], title, url }) → setActiveTab('recipe'). Error paths: invalid URL, fetch failure, no JSON-LD found, all-ingredients-unmatched — surface a friendly message + 'Try a different URL' affordance.",
+  "blocked_on": "MAKE-WEBLINK-FN (needs the cloud function deployed) + MAKE-WEBLINK-MATCH (needs the matcher)",
+  "acceptance": [
+    "MakeRecipeStart.jsx grows from 3 to 4 cards; the new card has id 'weblink', icon, label 'From a web link', subheadline, and consistent styling with the other 3",
+    "Tapping the weblink card reveals an inline URL input + Parse button (or opens a modal — chef preference)",
+    "Parse calls scrapeRecipe via httpsCallable; loading + error states surfaced",
+    "Successful parse renders a preview list: each line shows (parsed text) → (matched ingredient or 'no match') with a checkbox to include/exclude",
+    "Add-to-bowl handoff source='make-weblink' lands in RecipeLabMobile with the parsed title visible as recipe name",
+    "Error paths covered: invalid URL (client-side check), function rejection (SSRF / HTTP error), zero ingredients matched",
+    "src/components/__tests__/MakeRecipeStart.weblink.test.jsx: 8+ test cases (card renders, URL input shows on click, parse fires httpsCallable, preview renders, partial-match flow, error message)",
+    "Manual verification: paste 5 different recipe URLs from popular sites (NYT Cooking, Serious Eats, Smitten Kitchen, Food Network, AllRecipes) — at least 4/5 successfully parse + match ≥70% of ingredients",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
 

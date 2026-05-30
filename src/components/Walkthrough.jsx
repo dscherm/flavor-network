@@ -82,7 +82,12 @@ function ProgressDots({ current, total }) {
   );
 }
 
-function Walkthrough({ active, onComplete, onSkip }) {
+// GD-WALKTHROUGH-TOUR-MUTEX (2026-05-30): `suppress` lets the parent
+// hide this first-run modal while the GuidedTour overlay (the Guided
+// Discovery → network handoff) is active. The two surfaces are
+// distinct first-impression paths and shouldn't stack — see the Wave-7
+// contact-sheet frame 4 for the bug this gates against.
+function Walkthrough({ active, onComplete, onSkip, suppress = false }) {
   const totalSteps = STEPS.length;
   const [currentStep, setCurrentStep] = useState(0);
   const [visible, setVisible] = useState(false);
@@ -161,6 +166,7 @@ function Walkthrough({ active, onComplete, onSkip }) {
     }, 300);
   }, [onSkip]);
 
+  if (suppress) return null;
   if (!visible) return null;
 
   const step = STEPS[currentStep];
