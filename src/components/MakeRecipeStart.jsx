@@ -161,7 +161,25 @@ export default function MakeRecipeStart({
       setIncluded(initialIncluded);
       setStage(STAGE.PREVIEW);
     } catch (err) {
-      const msg = err?.message || 'Sign in (the URL parser requires an account) or try a different URL.';
+      // Firebase callable SDK surfaces errors as { code, message, details }
+      // where `code` is a gRPC-style string (e.g. 'functions/unauthenticated',
+      // 'functions/internal') and `message` is the HttpsError message we
+      // threw server-side. Some failure modes (network, app-check) collapse
+      // message to the raw code — surface code + message together so the
+      // user can tell auth-failure ("unauthenticated") apart from a real
+      // server crash ("internal").
+      const code = err?.code || '';
+      const rawMsg = err?.message || '';
+      let msg;
+      if (code.includes('unauthenticated') || /sign in/i.test(rawMsg)) {
+        msg = 'Sign in (the URL parser requires an account), then try again.';
+      } else if (code.includes('invalid-argument')) {
+        msg = rawMsg || 'That URL was rejected — only http(s) URLs to public recipe pages are allowed.';
+      } else if (rawMsg && rawMsg !== 'internal') {
+        msg = rawMsg;
+      } else {
+        msg = `The recipe parser failed (${code || 'unknown error'}). Try a different URL or check the page for a recipe-card meta block.`;
+      }
       setErrorMessage(msg);
       setStage(STAGE.ERROR);
     }
