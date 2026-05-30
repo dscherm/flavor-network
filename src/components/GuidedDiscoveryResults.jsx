@@ -12,8 +12,11 @@
  *     bubbleStack can be repaired without bouncing back to Screen 1)
  *   - chemistry banner (Constraint #5b, OQ4 closure): single banner
  *     ABOVE the radar (was above the wheel pre-P6) when ≥50% of
- *     hero pairings have breakdown.x3 === 0.5. selectCuratedPairings
- *     stays imported as the banner's predicate input ONLY.
+ *     hero pairings have breakdown.x3 === 0.5. As of 2026-05-30
+ *     (GD-RADAR-AFFINITY-COHERENCE) hero pairings are sourced from
+ *     getNeighborsEnriched — the same set α-mode uses — so the radar
+ *     dots and the network's α-mode highlights are the same
+ *     ingredients.
  *   - GuidedResultsFilterPills row (P3 component, single-select)
  *   - GuidedProfileRadar (P2 component, per-pairing dot scatter)
  *   - StoryPanel (Phase 4) for the user-selected hero pairing
@@ -25,7 +28,8 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { selectCuratedPairings } from '../data/curatedPairings.js';
+import { getNeighborsEnriched } from '../data/graph.js';
+import { passesDietaryFilters } from '../data/dietaryFilters.js';
 import StoryPanel from './StoryPanel.jsx';
 import GuidedProfileRadar from './GuidedProfileRadar.jsx';
 import GuidedResultsFilterPills from './GuidedResultsFilterPills.jsx';
@@ -205,17 +209,33 @@ export default function GuidedDiscoveryResults({
     setChosenValue(null);
   }, [seededFilterType]);
 
-  // Hero pairings — derived from the shared curated selector when ctx
-  // is available. Used for (a) the chemistry-banner predicate, and
-  // (b) the radar dot scatter. The dietary filter is threaded in.
+  // Hero pairings — GD-RADAR-AFFINITY-COHERENCE (2026-05-30): switched
+  // from selectCuratedPairings (surprising + top + cited heroes) to the
+  // same getNeighborsEnriched the network's α-mode uses. Result: the
+  // dots a user sees on this radar are the SAME ingredients α-mode
+  // arranges around the focal once the tour activates. Used for (a)
+  // the chemistry-banner predicate, and (b) the radar dot scatter.
+  // Dietary filter applied post-fetch (matches the prior contract).
   const heroPairings = useMemo(() => {
-    if (!focal || !ctx) return [];
+    if (!focalName || !ctx?.graph?.edges) return [];
     try {
-      return selectCuratedPairings({ focal, ctx, dietary }) || [];
+      const all = getNeighborsEnriched(
+        focalName,
+        ctx.graph.edges,
+        ctx.cuisineNeighborIndex,
+      );
+      const dietaryActive = Array.isArray(dietary) && dietary.length > 0;
+      const filtered = dietaryActive
+        ? all.filter((n) => {
+            const node = ctx?.graph?.nodes?.get?.(n.name) || { name: n.name };
+            return passesDietaryFilters(n.name, node, dietary);
+          })
+        : all;
+      return filtered.slice(0, 10);
     } catch {
       return [];
     }
-  }, [focal, ctx, dietary]);
+  }, [focalName, ctx, dietary]);
 
   // Hydrate hero pairings with node fields so the radar's predicates
   // (taste / aroma / season / cuisine) have something to read off.

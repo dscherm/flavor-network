@@ -48,6 +48,10 @@ function buildCtx({ x3ForGinger = 0.5 } = {}) {
   const edges = neighbors.map((n) => ({
     source: focal,
     target: n,
+    // GD-RADAR-AFFINITY-COHERENCE (2026-05-30): heroPairings now sources
+    // from getNeighborsEnriched(edges, ...) which reads edge.strength
+    // directly. Mirror the pairingStrength Map values onto edges.
+    strength: strengths[`${focal}|${n}`] ?? 0,
     sharedCompounds: [],
     breakdown: {
       x1: 0, x2: 0,
