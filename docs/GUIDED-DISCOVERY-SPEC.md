@@ -2,7 +2,7 @@
 
 > **Status**: Authoritative. Supersedes all prior specs, ralplans, and amendments listed in
 > [§12 Source spec lineage](#12-source-spec-lineage). When this file disagrees with any other file
-> in the repo, **this file wins**. Last revised 2026-05-27.
+> in the repo, **this file wins**. Last revised 2026-05-30.
 
 > **Scope**: The Guided Discovery feature reachable from the landing tile "Guided Discovery"
 > and the top-level "Guided" tab. Covers the entry flow (`GuidedDiscoverySwipe` —
@@ -378,12 +378,31 @@ not per-recipe lean across five). Implementation in
 | `filterType` | `getAxesFor` | `getColorMapFor` |
 |---|---|---|
 | `taste` | `['sweet','sour','bitter','salty','umami','pungent','astringent','spicy']` (8) | `BRISCIONE_TASTE` |
-| `aroma` | `['fruity','floral','green','woody','spicy','fatty']` (6) | `BRISCIONE_AROMA` |
+| `aroma` | `['citrus','fruity','floral','herbal','green','creamy','woody','earthy','roasted','caramel','fermented','marine','pungent']` (13) | `BRISCIONE_AROMA` |
 | `season` | `['spring','summer','fall','winter']` (4) | `BRISCIONE_SEASON` |
 | `cuisine` | `CATEGORICAL_AXES.cuisine.labels` (8, exact-ref) | `CUISINE_CHIP_COLOR` |
 
 `getAxesFor('cuisine') === CATEGORICAL_AXES.cuisine.labels` is an
 **exact-reference** contract (asserted in §10's helper tests).
+
+**Aroma vocabulary expansion (2026-05-27, batch 6 of N2-V8):** the aroma
+axis was widened from the 6-head GNN set to the full 13-category chef
+vocab. Only 5 axes have a native GNN odor head — the rest are
+chef-only and rely on a flavorGraph tier1 fallback:
+
+| Display key | GNN column | Source of truth |
+|---|---|---|
+| `fruity` | `odor_fruity` | GNN head |
+| `floral` | `odor_floral` | GNN head |
+| `green` | `odor_green` | GNN head |
+| `woody` | `odor_woody` | GNN head |
+| `creamy` | `odor_fatty` | GNN head (display renamed from "fatty") |
+| `citrus`, `herbal`, `earthy`, `roasted`, `caramel`, `fermented`, `marine`, `pungent` | — | `pairingMatchesAxis` falls back to checking the pairing's chef flavorGraph `tier1` |
+
+`pungent` is the aroma-side display key for "spice-like aroma" (capsaicin,
+horseradish, mustard). It is distinct from the `spicy` axis under
+`taste`, which is the taste-side TRPV1/capsaicin signal. Same source
+molecules, two different axes — do not collapse them.
 
 ### 4.8 `pairingMatchesAxis` predicates
 
@@ -761,22 +780,20 @@ inline remaps stay as-is — they translate the radar's
 `filterType` argument directly and don't go through the translator.
 Shipped in the `DOCS-GD-DM-RL` audit commit.
 
-### O-2 — Double-action on axis tap — RESOLVED (follow-up task)
+### O-2 — Double-action on axis tap — RESOLVED + SHIPPED
 
-**Resolution (2026-05-27):** target behavior is **two-step commit
-gesture** — first tap on an axis toggles the local `chosenValue`
-(visual wedge fill + matching highlight on the radar) only; a
-second tap on the same axis fires `onAxisSelect(filterType)` to
-commit and jump to the network tab with `GuidedTour` activated.
-The first-tap-is-visual-only contract eliminates the surface-bounce
-on incidental taps and gives the user a way to compare wedge fills
-across axes without losing context.
+**Resolution (2026-05-27, shipped 2026-05-29 in `c84f893` as
+`DOCS-GD-TWO-TAP`):** **two-step commit gesture** — first tap on
+an axis arms the local `chosenValue` (visual wedge fill + matching
+highlight on the radar) only; a second tap on the same axis fires
+`onAxisSelect(filterType)` to commit and jump to the network tab
+with `GuidedTour` activated. Tapping a different axis re-arms to
+that axis without committing. The first-tap-is-visual-only contract
+eliminates surface-bounce on incidental taps and lets the user
+compare wedge fills across axes without losing the Results page.
 
-The audit commit does NOT implement the two-tap state machine —
-that's tracked as a separate follow-up bridge task
-`DOCS-GD-TWO-TAP`. Until the follow-up lands, the current
-single-tap-jumps-to-network behavior persists (the spec describes
-the target, not the in-flight legacy).
+Implementation: `handleAxisTap` in
+`src/components/GuidedDiscoveryResults.jsx:267-275`.
 
 ### O-3 — Aroma drop-count surfacing — RESOLVED
 
@@ -853,18 +870,21 @@ Notable amendments folded into this canon:
 ### 12.3 Manual QA paths
 
 `.omc/notes/guided-discovery-qa-checklist.md` — 12-path manual
-walkthrough deferred to chef-user sign-off. References the 5-tile
-landing screen (since superseded by the 3-tile landing per
-`plan.md`); paths 1–6 still describe the canonical user journey.
+walkthrough deferred to chef-user sign-off. The landing-tile count
+referenced in the checklist is stale (it has cycled 5 → 3 → 4 → 3
+across MAKE-LANDING-TILE and MAKE-BUILD-DEPRECATE); paths 1–6 still
+describe the canonical user journey because Guided Discovery is
+reachable from any landing layout.
 
 ### 12.4 Architecture context
 
 - `.claude/CLAUDE.md` — top-level architecture overview; Guided
   Discovery is reached via the top-level "Guided" tab + landing tile.
-- `plan.md` (root, lines 1-46) — Seamless UX Pipeline establishing
-  the 3-tile landing (`Explore the Network` / `Guided Discovery` /
-  `Build your Recipe`) and the top-level tab structure that hosts
-  Guided.
+- `LandingScreen.jsx` — currently a 3-tile landing
+  (`Explore the Network` / `Guided Discovery` / `Make a recipe`) per
+  `MAKE-BUILD-DEPRECATE` (2026-05-29). The tile inventory is owned
+  by the Make Mode spec; Guided Discovery only depends on the
+  presence of a `data-mode="guided"` tile, not the total count.
 
 ### 12.5 Two-era reconciliation note
 
