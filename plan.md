@@ -2151,3 +2151,26 @@ Two threads:
 ```
 
 
+
+```json
+{
+  "id": "MAKE-WEBLINK-MATCH-V2",
+  "title": "Improve fuzzy match cascade for common ingredient phrasings + user-editable matched names in preview",
+  "category": "ui",
+  "priority": 9,
+  "description": "Two-part follow-up to MAKE-WEBLINK-MATCH + MAKE-WEBLINK-UI after real-world testing showed common phrasings missing the dictionary. Part 1 (matcher): src/data/parseRecipeIngredient.js — strip parenthetical content '(...)' before regex; strip trailing comma-tail modifiers (packed, minced, peeled, divided, etc.); replace single-shot Fuse query with a cascade — full noun → singularized → adjective-stripped → form-suffix-stripped (paste/fillets/etc., only if it scores higher than the full version to preserve canonical compounds like 'tomato paste') → last-token-only — pick highest confidence. Add exact-key short-circuit (confidence 1.0) when a candidate is an exact dict key. Part 2 (UI): src/components/MakeRecipeStart.jsx weblink preview — each row's matched-name span becomes an editable input with <datalist> autocomplete from the full ingredient dictionary. Three row states: matched (green, included), user-edited-to-known (green, included), user-typed-unknown (amber warning, opt-in only). Reset-to-auto button restores the cascade result. Add-to-bowl uses the row's current name. Real-world failing inputs that must pass after this change: '1 tablespoon light brown sugar, packed' → brown sugar; '1 teaspoon garlic paste (or 1 clove garlic, minced)' → garlic; '1 teaspoon ginger paste (or 1-inch knob fresh garlic, peeled)' → ginger paste; '4 (4-ounce) salmon fillets' → salmon fillet (or salmon).",
+  "blocked_on": null,
+  "acceptance": [
+    "parseRecipeIngredient.js: parseIngredientLine strips parenthetical content before regex match (handles '4 (4-ounce) salmon fillets' end-to-end)",
+    "parseRecipeIngredient.js: matchIngredientName tries a cascade of candidates (full, singularized, adjective-stripped, form-stripped, last-token) and returns the highest confidence; form-stripped candidate only kept if score > full to preserve 'tomato paste'/'ginger paste'",
+    "parseRecipeIngredient.js: exact dict-key match short-circuits to confidence=1.0",
+    "parseRecipeIngredient.test.js: 4 user-reported failing lines now match correctly + regression cases for 'tomato paste' (NOT to 'tomato'), 'ginger paste' (NOT to 'ginger'), '1 large yellow onion, diced' → onion, '2 boneless skinless chicken breasts' → boneless skinless chicken breast or chicken",
+    "MakeRecipeStart.jsx weblink preview: each row's matched-name is an editable input with datalist autocomplete sourced from ingredients dict",
+    "MakeRecipeStart.jsx: row states render distinctly — matched (green check), user-typed-unknown (amber warning + unchecked-by-default), empty (treated as unchecked)",
+    "MakeRecipeStart.jsx: reset-to-auto affordance restores cascade result for an edited row",
+    "MakeRecipeStart.jsx: add-to-bowl payload uses the row's current (possibly-edited) name, not the original cascade result",
+    "MakeRecipeStart.weblink.test.jsx: edit a matched row to a different canonical name → payload uses the edit; edit an unmatched row to a known name → row enables + included; reset-to-auto restores cascade",
+    "All existing tests still pass; Smart_gate + tests pass"
+  ]
+}
+```

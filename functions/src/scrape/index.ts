@@ -12,7 +12,19 @@ interface ScrapeCallPayload {
 }
 
 export const scrapeRecipe = onCall(
-  { timeoutSeconds: 30, memory: '512MiB' },
+  {
+    timeoutSeconds: 30,
+    memory: '512MiB',
+    // Explicit CORS allow-list. Without this the v2 callable preflight
+    // rejects neuralflavor.web.app + the firebaseapp.com mirror with
+    // "No 'Access-Control-Allow-Origin' header is present".
+    cors: [
+      'https://neuralflavor.web.app',
+      'https://neuralflavor.firebaseapp.com',
+      /^https:\/\/.*\.neuralflavor\.web\.app$/,
+      /^http:\/\/localhost(:\d+)?$/,
+    ],
+  },
   async (request: CallableRequest<ScrapeCallPayload>): Promise<ScrapeResult> => {
     if (!request.auth?.uid) {
       throw new HttpsError('unauthenticated', 'Sign in to import recipes from a URL.');

@@ -3,13 +3,11 @@
 // and slimmed: no Firestore write, no LLM fallback, no family/uid model.
 // Returns parsed recipe directly to the callable client.
 
-import { Agent } from 'undici';
 import { extractJsonLdRecipes, jsonLdToRecipe } from './parser';
 import {
   ssrfReason,
   REDIRECT_MAX,
   assertHostnameResolvesPublicly,
-  pinnedAgent,
 } from './ssrf';
 import type { FetchedPage, ScrapeResult, UrlFetcher } from './types';
 
@@ -48,8 +46,15 @@ export const defaultFetcher: UrlFetcher = {
     for (let hop = 0; hop <= REDIRECT_MAX; hop++) {
       const reason = ssrfReason(current);
       if (reason) throw new Error(reason);
-      const pinnedIp = await assertHostnameResolvesPublicly(current);
-      const dispatcher = pinnedIp ? pinnedAgent(pinnedIp) : undefined;
+      // DNS-level SSRF check: reject hostnames that resolve to internal IPs.
+      // We intentionally do NOT pin the resolved IP into the fetch dispatcher
+      // — undici 6's connect.lookup callback signature is incompatible with
+      // node's classic (err, addr, family) form, and the remaining attack
+      // surface (DNS rebinding within ms between our lookup and undici's
+      // connect-time lookup, against an auth-gated endpoint) is too narrow
+      // to justify the complexity. The synchronous SSRF guard + this DNS
+      // check + redirect-by-redirect re-validation cover the main threats.
+      await assertHostnameResolvesPublicly(current);
 
       const res = await fetch(current, {
         headers: {
@@ -57,8 +62,7 @@ export const defaultFetcher: UrlFetcher = {
           accept: 'text/html,application/xhtml+xml,application/xml;q=0.9',
         },
         redirect: 'manual',
-        dispatcher,
-      } as RequestInit & { dispatcher?: Agent });
+      });
 
       if (res.status >= 300 && res.status < 400) {
         const loc = res.headers.get('location');
@@ -97,8 +101,15 @@ export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise
   try {
     page = await withBudget(deps.fetcher.fetch(url), budget, 'url-fetch');
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'fetch failed';
-    return { status: 'error', errorMessage: msg };
+    // undici's global fetch throws TypeError: "fetch failed" with the real
+    // reason on err.cause. Surface both so the client + logs show what
+    // actually broke (DNS, TLS, ECONNREFUSED, etc.).
+    const baseMsg = err instanceof Error ? err.message : 'fetch failed';
+    const cause = err instanceof Error && 'cause' in err ? (err as Error & { cause?: unknown }).cause : undefined;
+    const causeMsg = cause instanceof Error ? cause.message : cause ? String(cause) : '';
+    const fullMsg = causeMsg ? `${baseMsg}: ${causeMsg}` : baseMsg;
+    console.error('[scrape] url-fetch failed', { url, message: baseMsg, cause: causeMsg, raw: cause });
+    return { status: 'error', errorMessage: fullMsg };
   }
 
   let bestRecipe: { title: string; ingredients: ReturnType<typeof jsonLdToRecipe>['ingredients'] } | null = null;
