@@ -74,13 +74,30 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     if (incoming.length === 0 && !isMake) return;
     setRecipeIngredients(prev => {
       const cleared = prev.length;
-      const sourceLabel = handoff.mode === 'cocktail' ? 'cocktail'
-                        : handoff.mode === 'sauce' ? 'sauce'
-                        : 'recipe';
+      // MAKE-E2E-AUDIT (2026-05-30): Make handoffs land with 0 ingredients
+      // (scratch / photo). The generic "Loaded 0 ingredients from recipe"
+      // toast reads as a confusing zero-state. Tailor the message per
+      // Make subtype; non-Make handoffs keep the count-based message.
       const titleSuffix = handoff.title ? ` "${handoff.title}"` : '';
-      const msg = cleared > 0
-        ? `Loaded ${incoming.length} ingredients from ${sourceLabel}${titleSuffix} — previous ${cleared} cleared`
-        : `Loaded ${incoming.length} ingredients from ${sourceLabel}${titleSuffix}`;
+      let msg;
+      if (isMake) {
+        if (handoff.source === 'make-photo') {
+          msg = 'Photo attached. Pick ingredients to build the bowl.';
+        } else if (handoff.source === 'make-scratch') {
+          msg = 'Empty recipe ready. Pick ingredients to build the bowl.';
+        } else if (incoming.length > 0) {
+          msg = `Loaded ${incoming.length} ingredients${titleSuffix}`;
+        } else {
+          msg = 'Recipe ready. Pick ingredients to build the bowl.';
+        }
+      } else {
+        const sourceLabel = handoff.mode === 'cocktail' ? 'cocktail'
+                          : handoff.mode === 'sauce' ? 'sauce'
+                          : 'recipe';
+        msg = cleared > 0
+          ? `Loaded ${incoming.length} ingredients from ${sourceLabel}${titleSuffix} — previous ${cleared} cleared`
+          : `Loaded ${incoming.length} ingredients from ${sourceLabel}${titleSuffix}`;
+      }
       setHandoffToast(msg);
       return incoming;
     });

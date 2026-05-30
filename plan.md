@@ -2056,6 +2056,42 @@ Two threads:
 
 ```json
 {
+  "id": "MAKE-PHOTO-NON-IMAGE-FEEDBACK",
+  "title": "Surface a friendly error when the photo picker returns a non-image file",
+  "category": "ui",
+  "priority": 7,
+  "description": "MakeRecipeStart.handleFileChange silently early-returns when the user picks a non-image file (e.g. a PDF or a Pages document — happens on iOS when 'Browse' is wider than 'Photo Library'). The result is a no-op — no feedback. Add a friendly inline error: 'Pick an image file (jpg/png/heic). [tap to try again]'. Surface via a brief toast or in-page state on the Make picker, not a window.alert. Follow-up from MAKE-E2E-AUDIT.",
+  "blocked_on": null,
+  "acceptance": [
+    "MakeRecipeStart catches the non-image early-return and sets local error state",
+    "Error renders below the Photo card with a 'Try again' affordance that re-opens the file picker",
+    "Test fixture: render the component, fire change with a non-image File → assert the error message renders",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
+  "id": "MAKE-PHOTO-PREVIEW-BEFORE-COMMIT",
+  "title": "Preview-then-confirm step between photo pick and Recipe Lab handoff",
+  "category": "ui",
+  "priority": 8,
+  "description": "Currently the photo path is one-step: tap card → OS file picker → file picked → immediate setRecipeHandoff + setActiveTab('recipe'). The user has no chance to cancel a wrong pick before landing on Recipe Lab — they'd have to back out and re-tap. Add a preview-and-confirm inline UI: file picked → show the image at 200x200 in the Make picker → 'Use this photo' / 'Pick another' buttons. Only after confirm fires the handoff. Follow-up from MAKE-E2E-AUDIT.",
+  "blocked_on": null,
+  "acceptance": [
+    "MakeRecipeStart state: pickedFile + pickedFileUrl (URL.createObjectURL with revoke on unmount)",
+    "Preview UI replaces the 3-card list once a file is picked: img + 'Use this photo' + 'Pick another'",
+    "'Use this photo' fires the existing setRecipeHandoff handoff",
+    "'Pick another' clears pickedFile and re-renders the 3-card list (or directly re-opens the file picker)",
+    "Tests cover: preview renders after pick, 'Use this photo' fires handoff, 'Pick another' clears state",
+    "Smart_gate + tests pass"
+  ]
+}
+```
+
+```json
+{
   "id": "MAKE-WEBLINK-FN",
   "title": "Firebase Cloud Function: scrapeRecipe (SSRF-hardened, JSON-LD-only)",
   "category": "infra",
