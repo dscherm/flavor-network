@@ -11,7 +11,7 @@ vi.mock('../../utils/native.js', () => ({
   hapticMedium: vi.fn(),
 }));
 
-describe('LandingScreen — MAKE-LANDING-TILE (4-tile row)', () => {
+describe('LandingScreen — MAKE-LANDING-TILE (3-tile row, post MAKE-BUILD-DEPRECATE)', () => {
   beforeEach(() => {
     if (typeof globalThis.ResizeObserver === 'undefined') {
       globalThis.ResizeObserver = class {
@@ -20,14 +20,14 @@ describe('LandingScreen — MAKE-LANDING-TILE (4-tile row)', () => {
     }
   });
 
-  it('renders 4 tiles in order: pairing, guided, make, build', () => {
+  it('renders 3 tiles in order: pairing, guided, make', () => {
     render(<LandingScreen onModeSelect={vi.fn()} />);
     const tiles = screen.getAllByRole('button');
-    expect(tiles.length).toBe(4);
+    expect(tiles.length).toBe(3);
     expect(tiles[0]).toHaveAttribute('data-mode', 'pairing');
     expect(tiles[1]).toHaveAttribute('data-mode', 'guided');
     expect(tiles[2]).toHaveAttribute('data-mode', 'make');
-    expect(tiles[3]).toHaveAttribute('data-mode', 'build');
+    expect(screen.queryByText('Build your Recipe')).toBeNull();
   });
 
   it('Make tile shows the spec-locked label + subheadline', () => {
@@ -56,11 +56,11 @@ describe('LandingScreen — MAKE-LANDING-TILE (4-tile row)', () => {
     expect(btn).toBeInTheDocument();
   });
 
-  it('grid layout uses 4-column at lg breakpoint (sm: 2-col fallback)', () => {
+  it('grid layout uses 3-column at sm+ breakpoint (1-col at mobile)', () => {
     const { container } = render(<LandingScreen onModeSelect={vi.fn()} />);
     const grid = container.querySelector('.grid');
     expect(grid).toBeTruthy();
-    expect(grid.className).toMatch(/lg:grid-cols-4/);
-    expect(grid.className).toMatch(/sm:grid-cols-2/);
+    expect(grid.className).toMatch(/grid-cols-1/);
+    expect(grid.className).toMatch(/sm:grid-cols-3/);
   });
 });

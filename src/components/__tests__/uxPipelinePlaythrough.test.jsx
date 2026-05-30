@@ -28,8 +28,6 @@ vi.mock('../NetworkScene.jsx', () => ({
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import LandingScreen from '../LandingScreen.jsx';
 import GuidedDiscoverySwipe from '../GuidedDiscoverySwipe.jsx';
-import BuildRecipeStart from '../BuildRecipeStart.jsx';
-import BuildRecipeResults from '../BuildRecipeResults.jsx';
 import MultiAxisRadarStack from '../MultiAxisRadarStack.jsx';
 import CookbookLab from '../CookbookLab.jsx';
 import TourPopup from '../TourPopup.jsx';
@@ -58,20 +56,13 @@ describe('§1 — Landing page', () => {
     ).toBeInTheDocument();
   });
 
-  it('1.C renders Build your Recipe tile with verbatim subheadline', () => {
-    render(<LandingScreen onModeSelect={() => {}} />);
-    expect(screen.getByText('Build your Recipe')).toBeInTheDocument();
-    expect(
-      screen.getByText(/You already have idea of ingredients/),
-    ).toBeInTheDocument();
-  });
-
-  it('1.D landing has 4 tiles (pairing/guided/make/build); no cocktail/sauce/recipes on landing', () => {
+  it('1.D landing has 3 tiles (pairing/guided/make); no cocktail/sauce/recipes/build on landing', () => {
     const { container } = render(<LandingScreen onModeSelect={() => {}} />);
     const tiles = container.querySelectorAll('button[data-mode]');
-    expect(tiles).toHaveLength(4);
+    expect(tiles).toHaveLength(3);
     const ids = Array.from(tiles).map((b) => b.getAttribute('data-mode'));
-    expect(ids).toEqual(expect.arrayContaining(['pairing', 'guided', 'make', 'build']));
+    expect(ids).toEqual(expect.arrayContaining(['pairing', 'guided', 'make']));
+    expect(ids).not.toContain('build');
     expect(ids).not.toContain('cocktail');
     expect(ids).not.toContain('sauce');
     expect(ids).not.toContain('recipe');
@@ -107,7 +98,7 @@ describe('§1 — Landing page', () => {
     expect(/>\s*Network\s*</.test(block)).toBe(false);
   });
 
-  it('1.G MobileTabBar exposes 3 primary tabs + Profile (Explore/Guided/Build)', async () => {
+  it('1.G MobileTabBar exposes 3 primary tabs + Profile (Explore/Guided/Make)', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
@@ -116,8 +107,9 @@ describe('§1 — Landing page', () => {
     );
     expect(/aria-label="Explore"/.test(src)).toBe(true);
     expect(/aria-label="Guided"/.test(src)).toBe(true);
-    expect(/aria-label="Build"/.test(src)).toBe(true);
+    expect(/aria-label="Make"/.test(src)).toBe(true);
     expect(/aria-label="Profile"/.test(src)).toBe(true);
+    expect(/aria-label="Build"/.test(src)).toBe(false);
   });
 
   it('1.H App.jsx implements URL deep-link routing (?path=...)', async () => {
@@ -131,6 +123,18 @@ describe('§1 — Landing page', () => {
     expect(/const PATH_TO_TAB =/.test(src)).toBe(true);
     expect(/window\.history\.replaceState/.test(src)).toBe(true);
     expect(/URLSearchParams\(window\.location\.search\)\.get\('path'\)/.test(src)).toBe(true);
+  });
+
+  it('1.I MAKE-BUILD-DEPRECATE — legacy ?path=build redirects to make', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/App.jsx'),
+      'utf8',
+    );
+    expect(/build:\s*'make'/.test(src)).toBe(true);
+    expect(/'build-results':/.test(src)).toBe(false);
+    expect(/build:\s*'build'/.test(src)).toBe(false);
   });
 });
 
@@ -418,130 +422,7 @@ describe('§2.K — Popup polish', () => {
   });
 });
 
-// ──────────────────────── §3 — Build path ────────────────────────
-
-describe('§3 — Build path', () => {
-  it('3.A.1 BuildRecipeStart renders SwipeDeck with the category card first', () => {
-    render(<BuildRecipeStart ingredients={SAMPLE_INGREDIENTS} />);
-    expect(screen.getByTestId('build-recipe-start')).toBeInTheDocument();
-    // First card asks the meal/dessert/sauce/cocktail question.
-    expect(screen.getByText('Are you thinking about making a…')).toBeInTheDocument();
-    expect(screen.getByText('Meal')).toBeInTheDocument();
-    expect(screen.getByText('Dessert')).toBeInTheDocument();
-    expect(screen.getByText('Sauce')).toBeInTheDocument();
-    expect(screen.getByText('Cocktail')).toBeInTheDocument();
-  });
-
-  it('3.A.1 category=Meal lets the user advance to next filter card', () => {
-    render(<BuildRecipeStart ingredients={SAMPLE_INGREDIENTS} />);
-    // Pick Meal then ✓ — category becomes required so ✓ should advance.
-    fireEvent.click(screen.getByText('Meal'));
-    const yesBtn = screen.getByTestId('swipe-deck-yes-category');
-    expect(yesBtn).not.toBeDisabled();
-  });
-
-  it('3.A.2 ingredient card sits LAST in the deck', async () => {
-    const fs = await import('node:fs');
-    const path = await import('node:path');
-    const src = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/components/BuildRecipeStart.jsx'),
-      'utf8',
-    );
-    // FILTER_ORDER reflects the spec order — ingredient is appended
-    // AFTER the filters, not before them.
-    expect(/ingredientBubble.*ordered\.push/s.test(src)).toBe(true);
-    expect(/Spec-driven card order: category first.*ingredient picker LAST/s.test(src)).toBe(true);
-  });
-
-  it('3.A.3 BuildRecipeResults renders MultiAxisRadarStack when no lab card picked', () => {
-    const bubbleStack = [
-      { key: 'ingredient', label: 'Ingredients', value: { ingredients: ['tomato'] }, axisHint: null },
-    ];
-    const nodes = new Map();
-    nodes.set('tomato', { name: 'tomato', taste: 'umami' });
-    render(
-      <BuildRecipeResults
-        bubbleStack={bubbleStack}
-        ctx={{ graph: { nodes } }}
-        onOpenLab={() => {}}
-        onBackToCards={() => {}}
-      />,
-    );
-    expect(screen.getByTestId('multi-radar-taste')).toBeInTheDocument();
-  });
-
-  it('3.A.4 picking the cocktail card short-circuits results → Cocktail Lab', () => {
-    const bubbleStack = [
-      { key: 'cocktail', label: 'Is for a cocktail', value: true, axisHint: 'cocktail-scope' },
-    ];
-    const onOpenLab = vi.fn();
-    render(
-      <BuildRecipeResults
-        bubbleStack={bubbleStack}
-        ctx={null}
-        onOpenLab={onOpenLab}
-        onBackToCards={() => {}}
-      />,
-    );
-    // Verbiage hint
-    expect(screen.getByText(/You chose to build a/)).toBeInTheDocument();
-    // CTA button present
-    const cta = screen.getByText('Open the Cocktail Lab →');
-    fireEvent.click(cta);
-    expect(onOpenLab).toHaveBeenCalledWith('cocktail', expect.any(Object));
-  });
-
-  it('3.A.5 picking the sauce card → Sauce Lab', () => {
-    const bubbleStack = [
-      { key: 'sauce', label: 'Is for a sauce', value: true, axisHint: 'sauce-scope' },
-    ];
-    const onOpenLab = vi.fn();
-    render(
-      <BuildRecipeResults
-        bubbleStack={bubbleStack}
-        ctx={null}
-        onOpenLab={onOpenLab}
-        onBackToCards={() => {}}
-      />,
-    );
-    fireEvent.click(screen.getByText('Open the Sauce Lab →'));
-    expect(onOpenLab).toHaveBeenCalledWith('sauce', expect.any(Object));
-  });
-
-  it('3.A.6 results page always shows "Open in: Cocktail / Sauce / Recipes" buttons', () => {
-    const bubbleStack = [
-      { key: 'ingredient', label: 'Ingredients', value: { ingredients: ['tomato'] }, axisHint: null },
-    ];
-    const nodes = new Map();
-    nodes.set('tomato', { name: 'tomato' });
-    render(
-      <BuildRecipeResults
-        bubbleStack={bubbleStack}
-        ctx={{ graph: { nodes } }}
-        onOpenLab={() => {}}
-        onBackToCards={() => {}}
-      />,
-    );
-    expect(screen.getByText('Open in Cocktail Lab →')).toBeInTheDocument();
-    expect(screen.getByText('Open in Sauce Lab →')).toBeInTheDocument();
-    expect(screen.getByText('Open in Recipe Notebook →')).toBeInTheDocument();
-  });
-
-  it('3.A.4 CocktailLabV2 + SauceLab accept externalFilter prop', async () => {
-    const fs = await import('node:fs');
-    const path = await import('node:path');
-    const cocktailSrc = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/components/CocktailLabV2.jsx'),
-      'utf8',
-    );
-    const sauceSrc = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/components/SauceLab.jsx'),
-      'utf8',
-    );
-    expect(/externalFilter/.test(cocktailSrc)).toBe(true);
-    expect(/externalFilter/.test(sauceSrc)).toBe(true);
-  });
-});
+// §3 — Build path removed 2026-05-29 (MAKE-BUILD-DEPRECATE)
 
 // ──────────────────────── §4 — Recipes Lab ────────────────────────
 
