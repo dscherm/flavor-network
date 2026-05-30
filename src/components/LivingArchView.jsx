@@ -1896,6 +1896,12 @@ export default function LivingArchView({
       // Read live via getter so a mode switch propagates without
       // rebuilding stateRef.
       get mode() { return modeRef.current; },
+      // GD-NODE-COLOR-FOLLOW-FILTER (2026-05-30): AffinityMode.exit
+      // needs the active filter to pick a filter-aware palette
+      // (taste/aromas/cuisine/season/family bucket colors), otherwise
+      // the post-disengage re-stamp falls back to defaultColors and
+      // overwrites the tour's Step 2 morph coloring.
+      get filterStack() { return filterStackRef.current; },
     };
 
     // §5.6 ClusterFocusMode — isolate + spread on joystick cluster

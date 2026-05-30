@@ -376,6 +376,46 @@ describe('GD-TOUR-AFFINITY-ENGAGE — α-mode engagement on Guided handoff', () 
   });
 });
 
+// ── GD-NODE-COLOR-FOLLOW-FILTER (2026-05-30) ──────────────────────────────
+// Regression: when α-mode disengages while a categorical filter is active,
+// the restored palette must be the filter's bucket palette (taste / aromas
+// / cuisine / season / family) — not defaultColors. Otherwise the tour's
+// Step 2 morph coloring gets clobbered when Step 2 fires
+// setSelectedNodes([]) which disengages α-mode in the same render.
+describe('GD-NODE-COLOR-FOLLOW-FILTER — α-mode exit honors active filter palette', () => {
+  it('AffinityMode.exit picks filterPalette from categoricalColorByMode when filterStack is active', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/three/AffinityMode.js'),
+      'utf8',
+    );
+    // Capture exit body up to its terminating `\n  }\n` (method
+    // close). Use a coarse upper bound — the body is < 6 KB.
+    const exitStart = src.indexOf('exit(_opts');
+    expect(exitStart).toBeGreaterThan(0);
+    const exitBody = src.slice(exitStart, exitStart + 6000);
+    expect(exitBody).toMatch(/st\.filterStack/);
+    expect(exitBody).toMatch(/categoricalColorByMode/);
+    expect(exitBody).toMatch(/filterPalette/);
+    // Filter palette must take precedence over the clusterMode/default
+    // fallback (filterPalette ?? ... or filterPalette || ...).
+    expect(exitBody).toMatch(/filterPalette\s*(?:\|\||\?\?)/);
+  });
+
+  it('LivingArchView stateRef exposes a filterStack getter so AffinityMode can read it', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const src = fs.readFileSync(
+      path.resolve(process.cwd(), 'src/components/LivingArchView.jsx'),
+      'utf8',
+    );
+    // Within the stateRef.current = { ... } block, a `get filterStack()`
+    // getter must read filterStackRef.current.
+    expect(src).toMatch(/get filterStack\(\)\s*\{\s*return filterStackRef\.current/);
+  });
+});
+
 // ── GD-TOUR-STEP4-CLUSTER-DEMO-RACE (2026-05-30) ──────────────────────────
 // Regression: sceneHandle.runClusterDemo must defer its body via
 // setTimeout(0) so the cleared filterStack commits before the ref read.
