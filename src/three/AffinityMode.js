@@ -551,8 +551,27 @@ export class AffinityMode {
 
     // 1. Restore mesh.instanceMatrix from snapshot (re-show all
     //    hidden nodes) and re-stamp default colors.
+    // GD-NODE-COLOR-FOLLOW-FILTER (2026-05-30): when a categorical
+    // filter is active, the palette must follow that filter's bucket
+    // colors — not defaultColors. Otherwise α-mode exit clobbers the
+    // tour's Step 2 morph coloring with the mode-default palette.
+    // Filter axis takes precedence over cluster mode; both fall back
+    // to defaultColors when nothing applies.
     const inClusterMode = st.mode === 'ml' || st.mode === 'ml2d';
-    const source = inClusterMode && st.clusterColors ? st.clusterColors : st.defaultColors;
+    const filterStack = Array.isArray(st.filterStack) ? st.filterStack : [];
+    let filterPalette = null;
+    if (filterStack.length > 0 && st.categoricalColorByMode) {
+      // Walk the stack tail-first for a categorical (non-scope) filter.
+      // 'aroma' remaps to 'aromas' to match the categoricalColorByMode key.
+      for (let i = filterStack.length - 1; i >= 0; i -= 1) {
+        const f = filterStack[i];
+        const axis = f === 'aroma' ? 'aromas' : f;
+        const arr = st.categoricalColorByMode[`${axis}2d`];
+        if (arr) { filterPalette = arr; break; }
+      }
+    }
+    const source = filterPalette
+      || (inClusterMode && st.clusterColors ? st.clusterColors : st.defaultColors);
     if (st.mesh) {
       if (this._matrixSnapshot) {
         st.mesh.instanceMatrix.array.set(this._matrixSnapshot);
