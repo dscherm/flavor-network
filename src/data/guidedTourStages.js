@@ -64,7 +64,7 @@ export const STAGES = [
     id: 'axes',
     title: 'Step 5 — What the 3 axes mean',
     copy:
-      "The 3D positions aren't arbitrary — they came from a graph network trained to predict which ingredients pair. After training, each axis roughly tracks a flavor dimension: left↔right runs savory to sweet, up↔down runs heavy to bright, and depth runs cooked to fresh. That's why kitchen-station clusters (Beef Station, Sweet Dairy & Chocolate, Cocktail Bar) land in distinct corners.",
+      "The 3D positions aren't arbitrary — they came from a graph network trained to predict which ingredients pair. After training, each axis roughly tracks a flavor dimension: left↔right runs savory to sweet, up↔down runs heavy to bright, and depth runs cooked to fresh. That's why chef-cognitive clusters (Heats & Sharpens, Smooths & Sweetens, Browns & Glazes, Brightens & Lifts) land in distinct corners.",
     gradient: 'linear-gradient(135deg, rgba(167,139,250,0.18), rgba(56,189,248,0.18))',
     accent: '#a78bfa',
     advance: { kind: 'userClick' },

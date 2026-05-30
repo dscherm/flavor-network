@@ -22,7 +22,12 @@ const initial = {
   exited: false,
 };
 
-const AXIS_POOL = ['taste', 'aroma', 'season', 'cuisine', 'method'];
+// GD-TOUR-COPY-MATCH (2026-05-30): the 5 real CATEGORICAL_AXES keys are
+// taste / aromas / season / cuisine / family. 'aroma' here gets remapped
+// to 'aromas' by App.jsx animatePull. The prior pool listed 'method'
+// which has no matching axis — the second pull animation silently
+// no-op'd whenever the random picker landed on it.
+const AXIS_POOL = ['taste', 'aroma', 'season', 'cuisine', 'family'];
 
 // Pick a random axis from the pool that differs from `excludeAxis`.
 // Falls back to 'taste' if excludeAxis isn't in the pool.
