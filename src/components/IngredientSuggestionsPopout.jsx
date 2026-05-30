@@ -6,6 +6,7 @@ import { AROMA_COLORS } from '../data/recipeScoring.js';
 import { roleOf, rolesCompatible } from '../data/ingredientRoles.js';
 import { rankSuggestions } from '../data/recipeSuggestionEngine.js';
 import { rankSauces } from '../data/sauceRecommendation.js';
+import { rankSeasonings } from '../data/seasoningRecommendation.js';
 
 // 2026-05-27 (batch 6 chef-vocab): renamed 'fatty' → 'creamy'.
 const ODOR_KEYS = ['fruity', 'floral', 'green', 'woody', 'creamy'];
@@ -418,6 +419,18 @@ export default function IngredientSuggestionsPopout({
     return rankSauces(sauceBowlNames, sauces, recipeType, 5);
   }, [isAddMode, sauces, recipeType, sauceBowlNames]);
 
+  // RL-SEASONING-SUGGEST: top 5 seasoning recommendations. Add-mode
+  // only. Derives the seasoning subset from node.category at runtime
+  // (no separate dataset) and ranks via §13 NPMI math restricted to
+  // that subset; recipe-type gates the visible tone.
+  const rankedSeasonings = useMemo(() => {
+    if (!isAddMode) return [];
+    if (!Array.isArray(bowl) || bowl.length === 0) return [];
+    return rankSeasonings(bowl, focalKey, {
+      recipePairs, globalCount, nodes, recipeType,
+    }, 5);
+  }, [isAddMode, bowl, focalKey, recipePairs, globalCount, nodes, recipeType]);
+
   const tasteOptions = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'spicy', 'pungent', 'astringent'];
   const aromaOptions = ODOR_KEYS;
   const showCuisine = labMode !== 'cocktail' && labMode !== 'sauce';
@@ -508,6 +521,40 @@ export default function IngredientSuggestionsPopout({
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* §15.3 Suggested seasonings chip row (RL-SEASONING-SUGGEST).
+          Add-mode only; renders when ranking found ≥1 seasoning that
+          survives the recipe-type gate. Tap chip → onAdd(name) adds
+          the seasoning as a new bowl row (per spec). */}
+      {rankedSeasonings.length > 0 && (
+        <div
+          className="flex items-center gap-2 px-2 py-1.5 overflow-x-auto flex-shrink-0 border-b border-[#e8dcc0]"
+          style={{ scrollbarWidth: 'none' }}
+          data-testid="suggested-seasonings-row"
+        >
+          <span className="text-[10px] uppercase tracking-wider text-[#a09070] flex-shrink-0">
+            Suggested seasonings
+          </span>
+          {rankedSeasonings.map((r) => (
+            <button
+              key={r.name}
+              type="button"
+              onClick={() => onAdd?.(r.name)}
+              data-testid={`seasoning-chip-${r.name}`}
+              className="flex-shrink-0 px-3 rounded-full border text-xs whitespace-nowrap bg-[#fefae0] hover:bg-[#f0e8d0] transition-colors"
+              style={{
+                minHeight: 36,
+                borderColor: '#c9b99a',
+                color: '#5a4a2a',
+                paddingTop: 6,
+                paddingBottom: 6,
+              }}
+            >
+              {r.name}
+            </button>
+          ))}
         </div>
       )}
 
