@@ -413,6 +413,39 @@ describe('§2.D–§2.I — Guided tour stage config', () => {
     expect(screen.getByText('Done — explore')).toBeInTheDocument();
   });
 
+  it('GD-TOUR-AXIS-INTENT-CARRY: TourPopup renders extraContext below stage copy when provided', () => {
+    const stage = STAGES.find((s) => s.id === 'affinity');
+    const ctx = 'tomato sits in the umami bucket on the taste axis. The sweet pairings you tapped will pull toward the sweet pole — look there for compatible sweet ingredients.';
+    render(
+      <TourPopup
+        stage={stage}
+        stageIdx={0}
+        totalStages={STAGES.length}
+        extraContext={ctx}
+        onAdvance={() => {}}
+        onSkip={() => {}}
+      />,
+    );
+    const line = screen.getByTestId('tour-extra-context');
+    expect(line).toBeInTheDocument();
+    expect(line.textContent).toMatch(/tomato sits in the umami bucket/);
+    expect(line.textContent).toMatch(/sweet pairings you tapped will pull/);
+  });
+
+  it('GD-TOUR-AXIS-INTENT-CARRY: TourPopup hides extraContext line when prop is null', () => {
+    const stage = STAGES.find((s) => s.id === 'affinity');
+    render(
+      <TourPopup
+        stage={stage}
+        stageIdx={0}
+        totalStages={STAGES.length}
+        onAdvance={() => {}}
+        onSkip={() => {}}
+      />,
+    );
+    expect(screen.queryByTestId('tour-extra-context')).toBeNull();
+  });
+
   it('2.J lab-tour overlay implementation exists (RECIPES/COCKTAIL/SAUCE_LAB_STAGES)', async () => {
     const { LAB_STAGES, RECIPES_LAB_STAGES, COCKTAIL_LAB_STAGES, SAUCE_LAB_STAGES } =
       await import('../../data/labTourStages.js');

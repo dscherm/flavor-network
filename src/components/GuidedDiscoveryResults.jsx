@@ -319,7 +319,10 @@ export default function GuidedDiscoveryResults({
   const handleAxisTap = (axisKey) => {
     if (chosenValue === axisKey) {
       if (typeof onAxisSelect === 'function') {
-        onAxisSelect(filterType);
+        // GD-TOUR-AXIS-INTENT-CARRY (2026-05-30): pass the tapped
+        // axisKey alongside filterType so App.jsx can surface the
+        // intent context on the GuidedTour Step 1 popup.
+        onAxisSelect(filterType, axisKey);
       }
       return;
     }

@@ -365,9 +365,11 @@ describe('GD-TOUR-AFFINITY-ENGAGE — α-mode engagement on Guided handoff', () 
       'utf8',
     );
     // Locate the onAxisSelect inline handler from the GuidedDiscoveryResults
-    // mount block by its distinctive tour-activation call.
-    const startIdx = src.indexOf('onAxisSelect={(axis) =>');
-    expect(startIdx).toBeGreaterThan(0);
+    // mount block by its distinctive tour-activation call. Signature is
+    // (axis) or (axis, chosenAxisKey) per GD-TOUR-AXIS-INTENT-CARRY.
+    const handlerMatch = src.match(/onAxisSelect=\{\(axis[^)]*\)\s*=>/);
+    expect(handlerMatch).toBeTruthy();
+    const startIdx = handlerMatch.index;
     const endIdx = src.indexOf('setTourActive(true)', startIdx);
     expect(endIdx).toBeGreaterThan(startIdx);
     const block = src.slice(startIdx, endIdx);

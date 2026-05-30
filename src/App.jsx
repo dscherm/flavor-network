@@ -239,6 +239,14 @@ export default function App() {
   // §2.G.3 — pill-pulse highlight. ClusterJoystick reads this prop and
   // adds a pulse animation to the matching pill.
   const [tourHighlightedCluster, setTourHighlightedCluster] = useState(null);
+  // GD-TOUR-AXIS-INTENT-CARRY (2026-05-30): the axis label the user
+  // tapped on the radar (e.g. 'sweet') is distinct from the filterType
+  // morph axis (e.g. 'taste'). The focal pulls to its OWN bucket on
+  // the morph axis (umami for tomato) — bridge the mental model by
+  // surfacing both the focal's bucket and the chosen sub-axis on
+  // Step 1's popup.
+  const [tourChosenAxisKey, setTourChosenAxisKey] = useState(null);
+  const [tourFocalBucket, setTourFocalBucket] = useState(null);
   // §2.H.1 — programmatically glow N ingredient nodes. LivingArchView
   // already overlays glow on selectedNodes; we reuse that channel for
   // tour-time multi-selection.
@@ -1813,7 +1821,7 @@ export default function App() {
             // user never sees the curated wheel for their focal pick.
             ctx={data}
             onBackToBubbles={() => setActiveTab('guided')}
-            onAxisSelect={(axis) => {
+            onAxisSelect={(axis, chosenAxisKey = null) => {
               // Phase 6 — radar click sets filter pills + activates
               // the GuidedTour overlay on the network tab.
               // GD-TOUR-AFFINITY-ENGAGE: alphaEngaged requires BOTH
@@ -1833,6 +1841,26 @@ export default function App() {
               }
               setTourAxis(axis);
               setTourFocal(focal);
+              setTourChosenAxisKey(chosenAxisKey);
+              // GD-TOUR-AXIS-INTENT-CARRY: resolve the focal's bucket
+              // on the morph axis so Step 1 can name it (e.g. tomato →
+              // umami). bucketOf returns null when the node lacks the
+              // axis data; the popup hides the context line in that case.
+              const axisDef = CATEGORICAL_AXES[axisFilter];
+              const focalNode = focal && data?.graph?.nodes
+                ? data.graph.nodes.get(focal)
+                : null;
+              if (axisDef && focalNode) {
+                const bucketCtx = {
+                  gnnEntropy: data.gnnEntropy || null,
+                  cuisineMap: data.cuisineMap || null,
+                  seasonMap: data.seasonMap || null,
+                  cocktailScope, sauceScope,
+                };
+                setTourFocalBucket(axisDef.bucketOf(focalNode, bucketCtx) || null);
+              } else {
+                setTourFocalBucket(null);
+              }
               setTourActive(true);
               setActiveTab('network');
             }}
@@ -2305,6 +2333,8 @@ export default function App() {
         <GuidedTour
           axis={tourAxis}
           focalName={tourFocal}
+          chosenAxisKey={tourChosenAxisKey}
+          focalBucket={tourFocalBucket}
           sceneHandle={sceneHandle}
           onExit={() => {
             setTourActive(false);

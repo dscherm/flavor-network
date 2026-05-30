@@ -63,6 +63,12 @@ export default function GuidedTour({
   sceneHandle = null,
   // Optional radar focal name — engageAffinity stage uses this.
   focalName = null,
+  // GD-TOUR-AXIS-INTENT-CARRY: the specific axis label the user
+  // tapped on the radar (e.g. 'sweet') and the focal's bucket on
+  // the morph axis (e.g. 'umami'). Both null when the tour entered
+  // without an explicit axis pick (e.g. 'Explore in network' CTA).
+  chosenAxisKey = null,
+  focalBucket = null,
 }) {
   const [state, dispatch] = useReducer(reducer, initial);
   const stage = STAGES[state.stageIdx] || null;
@@ -140,12 +146,23 @@ export default function GuidedTour({
 
   const isLabPicker = stage.advance?.kind === 'chooseLab';
 
+  // GD-TOUR-AXIS-INTENT-CARRY: synthesize a contextual sentence on
+  // the affinity stage when both focalBucket + chosenAxisKey are
+  // known. Renders below the static copy so the user can connect
+  // "I picked sweet" with "my focal is umami, sweet pairings cluster
+  // at the sweet pole."
+  const extraContext =
+    stage.id === 'affinity' && focalName && focalBucket && chosenAxisKey
+      ? `${focalName} sits in the ${focalBucket} bucket on the ${axis} axis. The ${chosenAxisKey} pairings you tapped will pull toward the ${chosenAxisKey} pole — look there for compatible ${chosenAxisKey} ingredients.`
+      : null;
+
   return (
     <TourPopup
       stage={stage}
       stageIdx={state.stageIdx}
       totalStages={STAGES.length}
       showLabPicks={isLabPicker}
+      extraContext={extraContext}
       onAdvance={handleAdvance}
       onSkip={handleSkip}
       onPickLab={(labKey) => {

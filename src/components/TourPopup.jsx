@@ -27,6 +27,10 @@ export default function TourPopup({
   stageIdx,
   totalStages,
   showLabPicks = false,
+  // GD-TOUR-AXIS-INTENT-CARRY: optional contextual line shown below
+  // the static stage copy when the tour entered with an explicit
+  // axis pick + a resolvable focal bucket.
+  extraContext = null,
   onAdvance,
   onSkip,
   onPickLab,        // (labKey: 'recipes' | 'cocktail' | 'sauce' | 'done') => void
@@ -73,7 +77,16 @@ export default function TourPopup({
           </button>
         </div>
       </div>
-      <p className="text-sm text-[#dbeafe] leading-relaxed mb-4">{stage.copy}</p>
+      <p className="text-sm text-[#dbeafe] leading-relaxed mb-2">{stage.copy}</p>
+      {extraContext && (
+        <p
+          className="text-xs text-[#9bb8d8] italic leading-relaxed mb-3"
+          data-testid="tour-extra-context"
+        >
+          {extraContext}
+        </p>
+      )}
+      <div className="mb-1" />
 
       {showLabPicks ? (
         <div className="grid grid-cols-2 gap-2 mb-2">
