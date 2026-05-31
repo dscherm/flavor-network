@@ -35,24 +35,6 @@ export default function FilterPillRow({
         maxWidth: '100%',
       }}
     >
-      {/* "None" pill — clears the stack. role=checkbox so the same
-          interaction grammar applies as the rest of the row; activated
-          when stack is empty. */}
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={isNoneActive}
-        onClick={() => onClear?.()}
-        className={`flex-shrink-0 px-3 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
-          isNoneActive
-            ? 'text-white bg-cyan-500 border border-cyan-400'
-            : 'text-gray-400 bg-[#12121a] border border-[#2a2a3a] hover:bg-[#1a1a2a]'
-        }`}
-        style={{ minHeight: 44 }}
-      >
-        None
-      </button>
-
       {FILTER_KEYS.map((key) => {
         const active = filterStack.includes(key);
         return (
@@ -73,6 +55,23 @@ export default function FilterPillRow({
           </button>
         );
       })}
+
+      {/* "None" pill — clears the stack. Moved to the END per user
+          feedback 2026-05-31 (was first). */}
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={isNoneActive}
+        onClick={() => onClear?.()}
+        className={`flex-shrink-0 px-3 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
+          isNoneActive
+            ? 'text-white bg-cyan-500 border border-cyan-400'
+            : 'text-gray-400 bg-[#12121a] border border-[#2a2a3a] hover:bg-[#1a1a2a]'
+        }`}
+        style={{ minHeight: 44 }}
+      >
+        None
+      </button>
     </div>
   );
 }

@@ -50,18 +50,18 @@ export const MODE_LABELS = {
 // Ordered list of filter keys rendered in the FilterPillRow. The "None"
 // pill is presentational (active when filterStack.length === 0) and is
 // NOT listed here — it's rendered separately.
+// Order updated 2026-05-31 per user feedback: Flavor Graph first, then
+// the categorical axes (Aroma, Taste, Family, Cuisine, Season). The
+// Cocktail Scope + Sauce Scope pills were removed — those scopes still
+// exist as data but the dedicated pills are dropped from the network
+// filter row. (Scope filtering still works via the labs.)
 export const FILTER_KEYS = [
+  'flavor-category', // Flavor Graph — chef-verified visibility scope
   'aroma',
+  'taste',
+  'family',
   'cuisine',
   'season',
-  'family',
-  'taste',
-  'cocktail-scope',
-  'sauce-scope',
-  // v3 P-C4 — scope pill that restricts visibility to the 89 chef-verified
-  // flavor-graph rows (those with `node.flavorGraph !== null`). Behaves
-  // like `cocktail-scope` / `sauce-scope` — axis-null, visibility-only.
-  'flavor-category',
 ];
 
 export const FILTER_LABELS = {
