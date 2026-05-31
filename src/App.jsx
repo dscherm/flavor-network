@@ -897,12 +897,13 @@ export default function App() {
       setActivePanel('ingredient');
       setTierPopup(null);
     } else {
-      // Single-click ALWAYS opens panel only — never α-mode, even if
-      // α-mode was previously engaged. Forces affinityRequested=false
-      // so any in-flight α-mode rings dismiss when the user clicks a
-      // new node. To re-engage α-mode the user must explicitly
-      // double-click or long-press.
-      setAffinityRequested(false);
+      // V1 reset affinityRequested=false here so any in-flight α-mode
+      // rings dismissed on every single-click. NETWORK-CLICK-POLISH-V2
+      // part C (C4) removes that reset: when α-mode is engaged, a
+      // single-click on a visible ingredient (affinity ring sphere)
+      // ADDS it as another focal — α-mode re-engages with the expanded
+      // focal set. Tap-empty still clears (handled in the !node branch
+      // above). Double-click still explicitly sets affinityRequested=true.
       let shouldOpenPopup = true;
       setSelectedNodes((prev) => {
         // NETWORK-CLICK-POLISH-V2: every click APPENDS to the

@@ -142,4 +142,22 @@ describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', (
   it('App.jsx double-click preserves existing multi-selection when name is already in it', () => {
     expect(appJsx).toMatch(/prev\.includes\(name\) \? prev : \[name\]/);
   });
+
+  // ===== C4 — tap-on-non-focal-in-α-mode adds another focal =====
+
+  it('C4: App.jsx single-click no longer force-resets affinityRequested to false', () => {
+    // V1 had `setAffinityRequested(false);` on every single-click,
+    // dismissing α-mode whenever the user tapped anywhere. V2-C4 must
+    // remove that reset so α-mode re-engages with the appended focal.
+    // The comment explaining the removal must reference C4.
+    const handlerStart = appJsx.indexOf('Single-click ALWAYS opens panel only');
+    expect(handlerStart).toBe(-1); // V1 comment fully replaced
+    expect(appJsx).toMatch(/C4[\s\S]{0,200}ADDS it as another focal/);
+    // The literal `setAffinityRequested(false)` should NOT appear inside
+    // the single-click else branch (sanity: it can still appear in
+    // other contexts like the handleClearSelection-style resets).
+    const elseBlock = appJsx.match(/\} else \{[\s\S]{0,1500}let shouldOpenPopup = true;[\s\S]{0,1500}setActivePanel\('ingredient'\);/);
+    expect(elseBlock).not.toBeNull();
+    expect(elseBlock[0]).not.toMatch(/setAffinityRequested\(false\)/);
+  });
 });
