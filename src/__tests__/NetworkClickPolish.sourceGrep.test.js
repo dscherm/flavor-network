@@ -49,7 +49,36 @@ describe('NETWORK-CLICK-POLISH-V1 — LivingArchView.jsx C2 (isolate + labels)',
 
   it('the labels effect extends labelNames with affinity neighbors of every selection', () => {
     expect(lavJsx).toMatch(/if \(activeSelections\.length > 0 && data\?\.graph\?\.edges\)/);
-    expect(lavJsx).toMatch(/for \(const edge of data\.graph\.edges\)[\s\S]{0,200}labelNames\.add/);
+    // V1 used a simple inline edge iteration; V2 switched to a
+    // perFocalSets pattern that handles the union/intersection split.
+    // Either shape should ultimately call labelNames.add inside the
+    // selection-driven branch.
+    expect(lavJsx).toMatch(/labelNames\.add/);
+  });
+
+  // ===== NETWORK-CLICK-POLISH-V2 — multi-select + intersection =====
+
+  it('V2: handleNodeClick single-click APPENDS to selection (toggle on/off)', () => {
+    // V1 had `return [name];` (replace). V2 must use the prev.includes
+    // toggle pattern.
+    expect(appJsx).toMatch(/NETWORK-CLICK-POLISH-V2[\s\S]{0,300}prev\.includes\(name\)/);
+    expect(appJsx).toMatch(/return \[\.\.\.prev, name\]/);
+  });
+
+  it('V2: empty-space click clears multi-selection', () => {
+    expect(appJsx).toMatch(/NETWORK-CLICK-POLISH-V2[\s\S]{0,600}selectedNodes\.length > 0[\s\S]{0,200}setSelectedNodes\(\[\]\)/);
+  });
+
+  it('V2: isolate effect computes INTERSECTION when N>=2 focals', () => {
+    expect(lavJsx).toMatch(/perFocalNeighbors/);
+    expect(lavJsx).toMatch(/activeNodes\.length === 1/);
+    // The intersection branch checks every focal's map has the name.
+    expect(lavJsx).toMatch(/Intersection: keep only ingredients present in EVERY focal/);
+  });
+
+  it('V2: labels effect uses perFocalSets pattern for intersection-aware labels', () => {
+    expect(lavJsx).toMatch(/perFocalSets/);
+    expect(lavJsx).toMatch(/NETWORK-CLICK-POLISH-V2[\s\S]{0,300}INTERSECTION of neighbor sets/);
   });
 
   it('showEdges is added to the color/dim effect deps so toggling it propagates', () => {
