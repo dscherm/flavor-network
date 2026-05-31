@@ -137,6 +137,11 @@ export default function App() {
 
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
   const { loading, error, data, retry } = useProData({ enabled: startPageComplete });
+  // dataRef tracks the latest `data` so useCallback-memoized handlers
+  // (e.g. handleSearchSelect) can read positions without depending on
+  // `data` directly (avoids re-memoization on every load tick).
+  const dataRef = useRef(data);
+  useEffect(() => { dataRef.current = data; }, [data]);
   const { user, loginWithGoogle, loginWithApple, logout } = useAuth();
   // R8-49 — auto-open the Training Trace modal once after data is ready
   // and the user has cleared the landing screen. ?reset=trace lets a
@@ -960,6 +965,15 @@ export default function App() {
       // as tap-on-canvas (see handleNodeClick).
       return [...prev, name];
     });
+    // 2026-05-31 — fly the camera to the picked ingredient. Picking
+    // an ingredient from the search bar implies "show me where this
+    // is" — keeping the camera at the previous position made the
+    // selection effectively invisible.
+    const positions = dataRef.current?.positions?.positions;
+    const pos = positions?.[name];
+    if (Array.isArray(pos) && pos.length === 3) {
+      setFlyToTarget({ position: pos, ts: Date.now() });
+    }
   }, []);
 
   // QA debug hooks — gated on ?af_debug=1. Lets Playwright scripts
@@ -972,9 +986,15 @@ export default function App() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!/[?&]af_debug=1/.test(window.location.search)) return;
-    window.__qaSelect = (name) => setSelectedNodes((prev) =>
-      prev.includes(name) ? prev : [...prev, name],
-    );
+    window.__qaSelect = (name) => {
+      setSelectedNodes((prev) => (prev.includes(name) ? prev : [...prev, name]));
+      // Mirror handleSearchSelect: fly camera to the ingredient.
+      const positions = dataRef.current?.positions?.positions;
+      const pos = positions?.[name];
+      if (Array.isArray(pos) && pos.length === 3) {
+        setFlyToTarget({ position: pos, ts: Date.now() });
+      }
+    };
     window.__qaClearSelection = () => {
       setSelectedNodes([]);
       setAffinityRequested(false);
