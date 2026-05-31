@@ -397,17 +397,17 @@ describe('GD-WALKTHROUGH-TOUR-MUTEX — Walkthrough hides during GuidedTour', ()
     expect(src).toMatch(/if\s*\(suppress\)\s*return null;/);
   });
 
-  it('App.jsx passes tourActive into Walkthrough as the suppress prop', async () => {
+  it('App.jsx no longer mounts Walkthrough (removed 2026-05-31)', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
       path.resolve(process.cwd(), 'src/App.jsx'),
       'utf8',
     );
-    // Match the Walkthrough mount block and assert suppress={tourActive}.
-    const mountMatch = src.match(/<Walkthrough[\s\S]*?\/>/);
-    expect(mountMatch).toBeTruthy();
-    expect(mountMatch[0]).toMatch(/suppress=\{tourActive\}/);
+    // The Walkthrough overlay was removed per user feedback —
+    // Guided Discovery is the onboarding path. No <Walkthrough/> mount.
+    expect(src).not.toMatch(/<Walkthrough[\s\S]*?\/>/);
+    expect(src).not.toMatch(/^import Walkthrough/m);
   });
 });
 

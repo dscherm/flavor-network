@@ -50,17 +50,15 @@ describe('R16 Phase 1 — networkModes', () => {
     expect(effectiveLegacyMode('2D', null)).toBe('ml2d');
   });
 
-  it('FILTER_KEYS has 8 entries (v3 P-C4 adds flavor-category)', () => {
-    expect(FILTER_KEYS).toHaveLength(8);
+  it('FILTER_KEYS reordered 2026-05-31 — Flavor Graph first, scope pills removed', () => {
+    expect(FILTER_KEYS).toHaveLength(6);
     expect(FILTER_KEYS).toEqual([
+      'flavor-category',
       'aroma',
+      'taste',
+      'family',
       'cuisine',
       'season',
-      'family',
-      'taste',
-      'cocktail-scope',
-      'sauce-scope',
-      'flavor-category',
     ]);
   });
 

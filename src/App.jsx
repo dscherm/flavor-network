@@ -30,7 +30,9 @@ import IngredientPanel from './components/IngredientPanel.jsx';
 import Controls from './components/Controls.jsx';
 import { getNeighbors, getNeighborsEnriched, findStrongestPath } from './data/graph.js';
 import { getAllCuisines, getAllTastes } from './data/metadata.js';
-import Walkthrough from './components/Walkthrough.jsx';
+// Walkthrough removed 2026-05-31 per user feedback: Guided Discovery
+// is the better onboarding path; the Walkthrough overlay was
+// duplicative and intercepted clicks on first load.
 import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
@@ -331,9 +333,7 @@ export default function App() {
   const [tierPopup, setTierPopup] = useState(null); // { name, x, y } | null
   const [selectedCuisine, setSelectedCuisine] = useState('');
   const [selectedTaste, setSelectedTaste] = useState('');
-  const [showTour, setShowTour] = useState(
-    () => !localStorage.getItem('flavor-tour-complete')
-  );
+  // showTour state removed with the Walkthrough overlay (2026-05-31).
   // GlobalInsights kept in the codebase (component file + this state)
   // but no longer reachable from the UI per the polish pass — no
   // toggle is wired up after this change. Re-expose by adding a
@@ -1805,12 +1805,7 @@ export default function App() {
       {/* Taste-color Legend slide-out removed per UX cleanup — the
           filter row in the Network tab covers the same intent. */}
       {/* Controls panel removed — brightness fixed at 30% */}
-      <Walkthrough
-        active={showTour}
-        onComplete={() => setShowTour(false)}
-        onSkip={() => setShowTour(false)}
-        suppress={tourActive}
-      />
+      {/* Walkthrough mount removed 2026-05-31 — Guided Discovery covers onboarding. */}
       <GlobalInsights
         nodes={data ? data.graph.nodes : null}
         edges={data ? data.graph.edges : null}
@@ -1872,7 +1867,10 @@ export default function App() {
                 const { ingredient, filterType } = payload;
                 setBubbleStack(ingredient ? [{
                   key: 'ingredient',
-                  label: 'Starts with a specific ingredient',
+                  // Pill label updated 2026-05-31 per user feedback — was
+                  // "Starts with a specific ingredient", now names the
+                  // focal so the user reads what they're exploring.
+                  label: `Focal Flavor: ${ingredient}`,
                   value: { ingredient },
                   axisHint: null,
                 }] : []);
