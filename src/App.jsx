@@ -862,11 +862,12 @@ export default function App() {
       if (!isCategoricalFocus && node.clusterId !== focusedCluster) return;
     }
     // NETWORK-CLICK-POLISH-V2: empty-space click clears the
-    // selection so the user has an obvious "back to full network"
-    // escape hatch. Use the functional setter form because this
-    // callback is useCallback-memoized with deps that don't include
-    // selectedNodes — closure reads would be stale.
-    // Also fires affinityRequested=false so α-mode exits cleanly.
+    // selection AND restores the default Network state (Flavor Graph
+    // filter, edges visible, no cluster focus). User feedback
+    // 2026-05-31: a residual fly-to-cluster pill click leaves
+    // showEdges=false + clusterHighlights populated; clear must reset
+    // those. Use functional setter form because this callback is
+    // useCallback-memoized with stale closure.
     if (!node) {
       setSelectedNodes((prev) => {
         if (prev.length === 0) return prev;
@@ -874,6 +875,9 @@ export default function App() {
         setActivePanel(null);
         setTierPopup(null);
         setAffinityRequested(false);
+        setFilterStack(['flavor-category']);
+        setShowEdges(true);
+        setClusterHighlights(null);
         return [];
       });
       return;
@@ -916,12 +920,18 @@ export default function App() {
       setSelectedNodes((prev) => {
         // NETWORK-CLICK-POLISH-V2: every click APPENDS to the
         // selection instead of replacing. Clicking an already-selected
-        // node removes it. Empty selection after toggle closes panel.
+        // node removes it. Empty selection after toggle closes panel
+        // AND resets the Network to its default state (Flavor Graph
+        // filter, edges visible, no cluster focus) per user feedback.
         if (prev.includes(name)) {
           const next = prev.filter((n) => n !== name);
           if (next.length === 0) {
             setActivePanel(null);
             shouldOpenPopup = false;
+            setAffinityRequested(false);
+            setFilterStack(['flavor-category']);
+            setShowEdges(true);
+            setClusterHighlights(null);
           }
           return next;
         }
@@ -975,6 +985,10 @@ export default function App() {
       setSelectedNodes([]);
       setAffinityRequested(false);
       setActivePanel(null);
+      setFilterStack(['flavor-category']);
+      setShowEdges(true);
+      setClusterHighlights(null);
+      setFocusedCluster(null);
     };
     window.__qaEngageAffinity = (names) => {
       if (Array.isArray(names) && names.length > 0) setSelectedNodes(names);
@@ -997,6 +1011,17 @@ export default function App() {
     setHighlightPairings(null);
     setActivePanel(null);
     setFocusedCluster(null);
+    setAffinityRequested(false);
+    setTierPopup(null);
+    // NETWORK-CLICK-POLISH-V2 (post-user-feedback): unselecting must
+    // land the user back at the DEFAULT Network state — Flavor Graph
+    // filter pill active (per App.jsx state init at line 300), edges
+    // visible (default), no cluster focus. Without this, a residual
+    // cluster-pill fly-to leaves showEdges=false and any active
+    // filter pill stays on.
+    setFilterStack(['flavor-category']);
+    setShowEdges(true);
+    setClusterHighlights(null);
   }, []);
 
   // Canon §5.6.4 — ESC must exit cluster-focus regardless of which

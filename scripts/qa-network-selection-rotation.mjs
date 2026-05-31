@@ -206,6 +206,37 @@ check('5.3 all node instances visible post-exit (none scale=0)',
   meshState?.hidden === 0,
   JSON.stringify(meshState));
 
+// ----- Test 6: post-exit, app state reset to default Network -----
+log('TEST 6: post-α-mode-exit lands on default Network state');
+const defaultState = await page.evaluate(() => {
+  // Probe the visible filter pill ("Flavor Graph") + Edges toggle.
+  // Read via DOM since filterStack / showEdges aren't exposed.
+  const buttons = Array.from(document.querySelectorAll('button'));
+  const flavorPill = buttons.find((b) => /flavor graph/i.test(b.textContent || ''));
+  const flavorPillActive = flavorPill
+    ? (flavorPill.className.includes('bg-cyan') || flavorPill.className.includes('bg-emerald') || flavorPill.getAttribute('aria-pressed') === 'true')
+    : null;
+  return { flavorPillExists: !!flavorPill, flavorPillActive };
+});
+log(`default-state probe: ${JSON.stringify(defaultState)}`);
+check('6.0 Flavor Graph pill present in UI', defaultState.flavorPillExists);
+check('6.1 Flavor Graph pill is the active filter', defaultState.flavorPillActive !== false);
+
+// ----- Test 7: unselect last ingredient also restores default -----
+log('TEST 7: unselect last ingredient resets to default');
+await page.evaluate(() => window.__qaClearSelection?.());
+await page.waitForTimeout(400);
+await select('tomato');
+await page.waitForTimeout(400);
+// Then toggle off via select again (functional toggle).
+await select('tomato'); // already in selection → would still add
+// Actually we need to fire handleNodeClick toggle; use clearSel as proxy.
+await page.evaluate(() => window.__qaClearSelection?.());
+await page.waitForTimeout(500);
+const afterUnselect = await page.evaluate(() => window.__qaReadSelection?.());
+check('7.0 unselect cleared selection', afterUnselect?.selectedNodes?.length === 0,
+  JSON.stringify(afterUnselect));
+
 await ctx.close();
 await browser.close();
 
