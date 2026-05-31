@@ -577,11 +577,15 @@ export default function LivingArchView({
       return c;
     }
 
+    // NETWORK-CLICK-POLISH-V1: remember each instance's natural scale
+    // so the isolate-neighbors mode can restore it on deselect.
+    const defaultScales = new Float32Array(count);
     for (let i = 0; i < count; i++) {
       const node = nodeArray[i];
       dummy.position.set(curPos[i*3], curPos[i*3+1], curPos[i*3+2]);
       const pc = node.pairingCount || 0;
       const s = Math.max(0.3, Math.min(2.0, Math.sqrt(pc) * 0.15));
+      defaultScales[i] = s;
       dummy.scale.set(s, s, s);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
@@ -1864,7 +1868,7 @@ export default function LivingArchView({
       scene, camera, renderer, composer, controls, mesh, edgeMesh, edgeMat, edgeGeo,
       edgeColors, edgeOpacities, validEdges,
       particleMesh, particleMat,
-      nodeArray, nameIdx, maxPairingCount, defaultColors, clusterColors, curPos, posA, posB, posC, posD, posForMode,
+      nodeArray, nameIdx, maxPairingCount, defaultColors, defaultScales, clusterColors, curPos, posA, posB, posC, posD, posForMode,
       // categoricalOutByMode + categoricalColorByMode let the
       // focused-cluster effect derive bucket membership for the 5
       // wheel modes (taste/aromas/cuisine/season/family). bucketOf
@@ -2199,8 +2203,13 @@ export default function LivingArchView({
       palette = clusterColors;
     }
 
+    // NETWORK-CLICK-POLISH-V1: single-click isolate mode. Track on the
+    // effect-local scope whether we entered isolate this run, and use
+    // the stored defaultScales to restore on deselect.
+    const { defaultScales, edgeMesh } = st;
+    let connMap = null;
     if (activeNodes.length > 0 && data) {
-      const connMap = new Map();
+      connMap = new Map();
       for (const sel of activeNodes) {
         connMap.set(sel, 1.0);
         for (const edge of data.graph.edges) {
@@ -2222,7 +2231,34 @@ export default function LivingArchView({
       for (let i = 0; i < count; i++) mesh.setColorAt(i, palette[i]);
     }
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  }, [selectedNode, selectedNodes, data, filterStack, morphAxis]);
+
+    // Scale pass: hide non-affinity nodes entirely when an ingredient
+    // is selected (instead of just dimming). Restore on deselect from
+    // defaultScales stored at build time.
+    if (defaultScales) {
+      const dummyMatrix = new THREE.Matrix4();
+      const dummyPos = new THREE.Vector3();
+      const dummyQuat = new THREE.Quaternion();
+      const dummyScale = new THREE.Vector3();
+      for (let i = 0; i < count; i++) {
+        const inSet = connMap ? connMap.has(nodeArray[i].name) : true;
+        const target = inSet ? defaultScales[i] : 0;
+        mesh.getMatrixAt(i, dummyMatrix);
+        dummyMatrix.decompose(dummyPos, dummyQuat, dummyScale);
+        dummyScale.set(target, target, target);
+        dummyMatrix.compose(dummyPos, dummyQuat, dummyScale);
+        mesh.setMatrixAt(i, dummyMatrix);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+    }
+
+    // Edge spaghetti is unreadable when most nodes vanish — hide the
+    // edge mesh while isolated, restore on deselect (driven by the
+    // separate showEdges-prop effect at line 2414).
+    if (edgeMesh) {
+      edgeMesh.visible = connMap ? false : showEdges;
+    }
+  }, [selectedNode, selectedNodes, data, filterStack, morphAxis, showEdges]);
 
   // ---- Per-node name labels for selected + highlighted pairings ----
   // R7-41: labels persist across all selectedNodes (the Set below
@@ -2250,10 +2286,25 @@ export default function LivingArchView({
     // "highlighted ingredients on a different plane."
     if (affinityModeRef.current?.engaged) return;
 
+    const activeSelections = selectedNodes.length > 0
+      ? selectedNodes
+      : (selectedNode ? [selectedNode] : []);
     const labelNames = new Set([
-      ...(selectedNodes.length > 0 ? selectedNodes : (selectedNode ? [selectedNode] : [])),
+      ...activeSelections,
       ...(highlightPairings || []),
     ]);
+    // NETWORK-CLICK-POLISH-V1: when an ingredient is selected, also
+    // label every affinity neighbor (the same set the isolate-mode
+    // keeps visible). Skipped while AffinityMode is engaged (it owns
+    // its own focal+30-neighbor labels) and when no selection exists.
+    if (activeSelections.length > 0 && data?.graph?.edges) {
+      for (const sel of activeSelections) {
+        for (const edge of data.graph.edges) {
+          if (edge.source === sel) labelNames.add(edge.target);
+          else if (edge.target === sel) labelNames.add(edge.source);
+        }
+      }
+    }
     if (labelNames.size === 0) return;
 
     const positions = posForMode?.[mode] || st.curPos;
