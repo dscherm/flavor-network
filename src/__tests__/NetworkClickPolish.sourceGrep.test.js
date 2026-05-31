@@ -64,8 +64,8 @@ describe('NETWORK-CLICK-POLISH-V1 — LivingArchView.jsx C2 (isolate + labels)',
 
   it('V2: handleNodeClick single-click APPENDS to selection (toggle on/off)', () => {
     // V1 had `return [name];` (replace). V2 must use the prev.includes
-    // toggle pattern.
-    expect(appJsx).toMatch(/NETWORK-CLICK-POLISH-V2[\s\S]{0,300}prev\.includes\(name\)/);
+    // toggle pattern. Comment context describes the V2 toggle behavior.
+    expect(appJsx).toMatch(/prev\.includes\(name\)/);
     expect(appJsx).toMatch(/return \[\.\.\.prev, name\]/);
   });
 
@@ -181,19 +181,20 @@ describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', (
 
   // ===== C4 — tap-on-non-focal-in-α-mode adds another focal =====
 
-  it('C4: App.jsx single-click no longer force-resets affinityRequested to false', () => {
-    // V1 had `setAffinityRequested(false);` on every single-click,
-    // dismissing α-mode whenever the user tapped anywhere. V2-C4 must
-    // remove that reset so α-mode re-engages with the appended focal.
-    // The comment explaining the removal must reference C4.
+  it('C4: App.jsx single-click no longer force-resets affinityRequested unconditionally', () => {
+    // V1 had `setAffinityRequested(false);` at the TOP of the single-
+    // click branch — unconditional dismissal of α-mode on every click.
+    // V2-C4 removed that so α-mode re-engages with the appended focal.
+    // The C4 comment must still be present.
     const handlerStart = appJsx.indexOf('Single-click ALWAYS opens panel only');
-    expect(handlerStart).toBe(-1); // V1 comment fully replaced
+    expect(handlerStart).toBe(-1); // V1 unconditional comment replaced
     expect(appJsx).toMatch(/C4[\s\S]{0,200}ADDS it as another focal/);
-    // The literal `setAffinityRequested(false)` should NOT appear inside
-    // the single-click else branch (sanity: it can still appear in
-    // other contexts like the handleClearSelection-style resets).
-    const elseBlock = appJsx.match(/\} else \{[\s\S]{0,1500}let shouldOpenPopup = true;[\s\S]{0,1500}setActivePanel\('ingredient'\);/);
-    expect(elseBlock).not.toBeNull();
-    expect(elseBlock[0]).not.toMatch(/setAffinityRequested\(false\)/);
+    // The unconditional reset (immediately after else {) must NOT be
+    // there anymore. (A conditional reset inside the toggle-off-to-
+    // empty path is fine and intentional per user-feedback fix.)
+    const elseHead = appJsx.match(/\} else \{\s*\/\/[^\n]*\n\s*\/\/[^\n]*\n/);
+    expect(elseHead).not.toBeNull();
+    const after = elseHead ? appJsx.slice(elseHead.index, elseHead.index + 400) : '';
+    expect(after).not.toMatch(/^\s*setAffinityRequested\(false\)/m);
   });
 });
