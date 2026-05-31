@@ -67,6 +67,11 @@ export default function MakeRecipeStart({
   // iOS when 'Browse' is wider than the photo library). Was silently
   // early-returning, so the user had no idea anything happened.
   const [photoError, setPhotoError] = useState(null);
+  // MAKE-PHOTO-PREVIEW-BEFORE-COMMIT: hold the picked image so the user
+  // can confirm it before we jump them to Recipe Lab. pickedFileUrl is
+  // an object URL that needs revoking on change/unmount.
+  const [pickedFile, setPickedFile] = useState(null);
+  const [pickedFileUrl, setPickedFileUrl] = useState(null);
   // MAKE-WEBLINK-MATCH-V2: per-row user edits. Map<idx, string>. A row
   // missing from the map uses the auto-match result; a row present uses
   // the user-typed value (which may be a known ingredient name or not).
@@ -122,10 +127,24 @@ export default function MakeRecipeStart({
       return;
     }
     setPhotoError(null);
+    // MAKE-PHOTO-PREVIEW-BEFORE-COMMIT: stage the pick — don't fire the
+    // handoff yet. Show a preview so the user can confirm or swap before
+    // we jump them to Recipe Lab. Revoke any previous URL first so we
+    // don't leak object URLs across re-picks.
+    if (pickedFileUrl) URL.revokeObjectURL(pickedFileUrl);
+    const url = typeof URL.createObjectURL === 'function'
+      ? URL.createObjectURL(file)
+      : null;
+    setPickedFile(file);
+    setPickedFileUrl(url);
+  };
+
+  const handleConfirmPhoto = () => {
+    if (!pickedFile) return;
     setRecipeHandoff({
       source: 'make-photo',
       ingredients: [],
-      image: file,
+      image: pickedFile,
       recipeType: null,
       mode: null,
       ts: Date.now(),
@@ -133,6 +152,26 @@ export default function MakeRecipeStart({
     setRecipeMounted(true);
     setActiveTab('recipe');
   };
+
+  const clearPickedPhoto = () => {
+    if (pickedFileUrl) URL.revokeObjectURL(pickedFileUrl);
+    setPickedFile(null);
+    setPickedFileUrl(null);
+  };
+
+  const handlePickAnother = () => {
+    clearPickedPhoto();
+    fileInputRef.current?.click();
+  };
+
+  // Revoke the object URL on unmount or when it changes — without this
+  // the browser holds the File reference for the page lifetime.
+  useEffect(() => {
+    const current = pickedFileUrl;
+    return () => {
+      if (current) URL.revokeObjectURL(current);
+    };
+  }, [pickedFileUrl]);
 
   const resetWebLink = () => {
     setStage(STAGE.CARDS);
@@ -307,7 +346,48 @@ export default function MakeRecipeStart({
       style={{ minHeight: 'calc(100vh - var(--nav-h))' }}
     >
       <div className="w-full max-w-md flex flex-col gap-4">
-        {stage === STAGE.CARDS && CARDS.map((c) => (
+        {stage === STAGE.CARDS && pickedFile && (
+          <div
+            data-testid="make-photo-preview"
+            className="rounded-xl border border-[#1e1e2e] bg-[#12203b] p-5 sm:p-6"
+          >
+            <h2 className="text-lg font-semibold text-cyan-100 mb-1">
+              Use this photo?
+            </h2>
+            <p className="text-xs text-cyan-300/60 mb-4">
+              We'll attach it to your bowl and open Recipe Lab so you can
+              add ingredients alongside it.
+            </p>
+            {pickedFileUrl && (
+              <img
+                src={pickedFileUrl}
+                alt="Selected recipe photo"
+                data-testid="make-photo-preview-img"
+                className="block w-full max-w-[280px] mx-auto rounded-md object-cover mb-4"
+                style={{ maxHeight: 280 }}
+              />
+            )}
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={handlePickAnother}
+                data-testid="make-photo-preview-pick-another"
+                className="text-sm text-cyan-300/80 hover:text-cyan-100 underline"
+              >
+                Pick another
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmPhoto}
+                data-testid="make-photo-preview-confirm"
+                className="px-4 py-2 rounded-md bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold"
+              >
+                Use this photo →
+              </button>
+            </div>
+          </div>
+        )}
+        {stage === STAGE.CARDS && !pickedFile && CARDS.map((c) => (
           <button
             key={c.id}
             ref={refForCard(c.id)}
@@ -339,7 +419,7 @@ export default function MakeRecipeStart({
             </div>
           </button>
         ))}
-        {stage === STAGE.CARDS && photoError && (
+        {stage === STAGE.CARDS && !pickedFile && photoError && (
           <div
             role="alert"
             data-testid="make-photo-error"
