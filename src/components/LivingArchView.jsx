@@ -98,6 +98,11 @@ export default function LivingArchView({
   highlightIngredients = null,
   focusedClusterId = null,
   affinityEnabled = true,
+  // 2026-05-31 — opt-out of the auto-engaging cluster tour orbit.
+  // Lab embeds (CookbookLab, CocktailLabV2, SauceLab) want a static
+  // initial framing; the cluster-tour orbit feels like a "zoom in
+  // then snap back" in those contexts.
+  disableClusterTour = false,
   // Canonical-spec §3.5 — α-mode only engages on the EXPLICIT
   // commit gesture (double-click or long-press). Single-click sets
   // selectedNodes but leaves affinityRequested=false; this prop
@@ -1934,6 +1939,18 @@ export default function LivingArchView({
       get filterStack() { return filterStackRef.current; },
     };
 
+    // QA debug hook (gated on ?af_debug=1) — expose the CURRENT
+    // LivingArchView's scene/camera on window so Playwright probes
+    // can read the live camera regardless of which lab embedded the
+    // view. window.__af may point at any AffinityMode, but the most-
+    // recently-mounted scene wins here.
+    if (typeof window !== 'undefined'
+        && typeof window.location !== 'undefined'
+        && /[?&]af_debug=1/.test(window.location.search)) {
+      window.__qaActiveScene = stateRef.current;
+      window.__qaSceneLabel = `nodeCount=${nodeArray.length} disableClusterTour=${!!disableClusterTour}`;
+    }
+
     // §5.6 ClusterFocusMode — isolate + spread on joystick cluster
     // pill tap. Construct AFTER stateRef so it can access nodeArray.
     // Mutates per-instance matrices on the InstancedMesh; the
@@ -2049,7 +2066,7 @@ export default function LivingArchView({
       else if (v === 'off') cameraAnimEnabled = false;
     } catch { /* SSR / private mode — keep default */ }
 
-    if (cameraAnimEnabled) {
+    if (cameraAnimEnabled && !disableClusterTour) {
       // Interpretation B Phase 2 (2026-05-25): mode-agnostic centroid
       // adapter. Reads `cluster_labels_v3.json` `clusters[].centroid_3d`
       // directly instead of branching on legacy `ml` / `ml2d` mode keys
@@ -2134,7 +2151,7 @@ export default function LivingArchView({
     // recordInput → IDLE first; OrbitControls' own listener then sees
     // enabled=true on the same gesture and picks up the drag/pinch/
     // zoom cleanly.
-    if (cameraAnimEnabled && cameraAnimatorRef.current) {
+    if (cameraAnimEnabled && !disableClusterTour && cameraAnimatorRef.current) {
       cameraAnimatorRef.current.engageClusterTour();
     }
     const onAnimCancelPointer = () => cameraAnimatorRef.current?.recordInput();

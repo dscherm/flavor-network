@@ -417,6 +417,7 @@ export default function SauceLab({
           shapeAssignments={shapeAssignments}
           scaleMultiplier={3.0}
           centroidAdapter={sauceCentroidAdapter}
+          disableClusterTour={true}
         />
       ) : (
         <SauceBrowse

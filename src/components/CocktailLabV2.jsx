@@ -499,6 +499,7 @@ export default function CocktailLabV2({
           scaleMultiplier={2.5}
           centroidAdapter={familyCentroidAdapter}
           shapeAssignments={shapeAssignments}
+          disableClusterTour={true}
         />
       ) : (
         <CocktailBrowse

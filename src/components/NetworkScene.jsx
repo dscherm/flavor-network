@@ -41,6 +41,11 @@ function NetworkScene({
   centroidAdapter = null, // R14 camera-animations: () => Array<{id, position, labelSprite?}>; opting in instantiates CameraAnimator
   isMobile = false, // R14: drives 30s mobile orbit lap and viewport-based defaults
   onClearSelection = null, // R6-37: Escape on canvas clears selection
+  // 2026-05-31 — opt-out of the auto-engaging cluster tour orbit. Lab
+  // embeds (CookbookLab, CocktailLabV2, SauceLab) want a static
+  // initial framing; the cluster-tour orbit feels like a "zoom in
+  // then snap back" in those contexts.
+  disableClusterTour = false,
 }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
@@ -91,6 +96,21 @@ function NetworkScene({
     // Set up raycasting
     manager.setRaycastTarget(nodes.getMesh());
 
+    // QA debug hook (gated on ?af_debug=1) — expose this scene so
+    // Playwright probes can read the lab's camera (which is a
+    // separate Three.js scene from the main Network LivingArchView).
+    if (typeof window !== 'undefined'
+        && typeof window.location !== 'undefined'
+        && /[?&]af_debug=1/.test(window.location.search)) {
+      window.__qaActiveScene = {
+        scene: manager.getScene(),
+        camera: manager.getCamera(),
+        controls: manager.getControls(),
+        nodeArray: data?.graph?.nodes || [],
+      };
+      window.__qaSceneLabel = `NetworkScene nodeCount=${data?.graph?.nodes?.length || 0} disableClusterTour=${!!disableClusterTour}`;
+    }
+
     // R14 CameraAnimator — gated behind URL flag + default constant.
     // v2: tour is mode-agnostic — when `centroidAdapter` is omitted
     // the animator falls back to orbiting `controls.target`, so we
@@ -106,7 +126,7 @@ function NetworkScene({
 
     let onAnimCancelPointer = null;
     let cancelDom = null;
-    if (cameraAnimEnabled) {
+    if (cameraAnimEnabled && !disableClusterTour) {
       const ctrls = manager.getControls();
       const cam = manager.getCamera();
       const scn = manager.getScene();

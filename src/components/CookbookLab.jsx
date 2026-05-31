@@ -437,6 +437,7 @@ export default function CookbookLab({
               scaleMultiplier={2.5}
               shapeAssignments={sceneData.shapeAssignments}
               flyToTarget={flyToTarget}
+              disableClusterTour={true}
             />
             {filtered.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
