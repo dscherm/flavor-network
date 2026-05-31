@@ -989,6 +989,10 @@ export default function App() {
       setAffinityRequested(true);
     };
     window.__qaReadSelection = () => ({ ...qaStateRef.current });
+    window.__qaSetTab = (tab) => {
+      setStartPageComplete(true);
+      setActiveTab(tab);
+    };
   }, []);
 
   const handlePanelClose = useCallback(() => {
