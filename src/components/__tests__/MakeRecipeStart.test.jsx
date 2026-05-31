@@ -22,6 +22,14 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
         observe() {} unobserve() {} disconnect() {}
       };
     }
+    // jsdom may not provide URL.createObjectURL — stub it so the
+    // preview flow (MAKE-PHOTO-PREVIEW-BEFORE-COMMIT) is exercisable.
+    if (typeof URL.createObjectURL !== 'function') {
+      URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+    }
+    if (typeof URL.revokeObjectURL !== 'function') {
+      URL.revokeObjectURL = vi.fn();
+    }
   });
 
   it('renders 4 cards in spec order: existing, scratch, photo, weblink', () => {
@@ -95,11 +103,23 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
     expect(s.setRecipeHandoff).not.toHaveBeenCalled();
   });
 
-  it('picking an image emits recipeHandoff with image=<File> + source="make-photo"', () => {
+  it('picking an image stages the photo into preview (no handoff yet — MAKE-PHOTO-PREVIEW-BEFORE-COMMIT)', () => {
     const s = mountPicker();
     const input = screen.getByTestId('make-photo-input');
     const file = new File(['x'], 'dish.png', { type: 'image/png' });
     fireEvent.change(input, { target: { files: [file] } });
+    // Preview should render, but NO handoff yet — user must confirm.
+    expect(screen.getByTestId('make-photo-preview')).toBeInTheDocument();
+    expect(s.setRecipeHandoff).not.toHaveBeenCalled();
+    expect(s.setActiveTab).not.toHaveBeenCalled();
+  });
+
+  it('confirming the preview commits the handoff with image=<File> + source="make-photo"', () => {
+    const s = mountPicker();
+    const input = screen.getByTestId('make-photo-input');
+    const file = new File(['x'], 'dish.png', { type: 'image/png' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByTestId('make-photo-preview-confirm'));
     expect(s.setRecipeHandoff).toHaveBeenCalledTimes(1);
     const payload = s.setRecipeHandoff.mock.calls[0][0];
     expect(payload.source).toBe('make-photo');
@@ -173,6 +193,67 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
     // Simulate cancel — onChange fires with files: [].
     fireEvent.change(input, { target: { files: [] } });
     expect(screen.getByTestId('make-photo-error')).toBeInTheDocument();
+  });
+
+  // ===== MAKE-PHOTO-PREVIEW-BEFORE-COMMIT =====
+
+  it('preview replaces the card list once an image is picked', () => {
+    mountPicker();
+    expect(screen.getByTestId('make-card-existing')).toBeInTheDocument();
+    fireEvent.change(screen.getByTestId('make-photo-input'), {
+      target: { files: [new File(['x'], 'dish.png', { type: 'image/png' })] },
+    });
+    expect(screen.getByTestId('make-photo-preview')).toBeInTheDocument();
+    // Cards no longer rendered while preview is up.
+    expect(screen.queryByTestId('make-card-existing')).toBeNull();
+    expect(screen.queryByTestId('make-card-photo')).toBeNull();
+  });
+
+  it('preview renders the chosen image via createObjectURL', () => {
+    const createSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview-url');
+    mountPicker();
+    const file = new File(['x'], 'dish.png', { type: 'image/png' });
+    fireEvent.change(screen.getByTestId('make-photo-input'), { target: { files: [file] } });
+    expect(createSpy).toHaveBeenCalledWith(file);
+    const img = screen.getByTestId('make-photo-preview-img');
+    expect(img).toHaveAttribute('src', 'blob:preview-url');
+    createSpy.mockRestore();
+  });
+
+  it('"Pick another" clears the preview AND re-opens the file picker', () => {
+    const s = mountPicker();
+    const input = screen.getByTestId('make-photo-input');
+    fireEvent.change(input, { target: { files: [new File(['x'], 'dish.png', { type: 'image/png' })] } });
+    expect(screen.getByTestId('make-photo-preview')).toBeInTheDocument();
+    const clickSpy = vi.spyOn(input, 'click');
+    fireEvent.click(screen.getByTestId('make-photo-preview-pick-another'));
+    expect(screen.queryByTestId('make-photo-preview')).toBeNull();
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+    expect(s.setRecipeHandoff).not.toHaveBeenCalled();
+  });
+
+  it('"Pick another" revokes the previous object URL (no leak)', () => {
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL');
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:first');
+    mountPicker();
+    fireEvent.change(screen.getByTestId('make-photo-input'), {
+      target: { files: [new File(['x'], 'dish.png', { type: 'image/png' })] },
+    });
+    fireEvent.click(screen.getByTestId('make-photo-preview-pick-another'));
+    expect(revokeSpy).toHaveBeenCalledWith('blob:first');
+    revokeSpy.mockRestore();
+  });
+
+  it('picking a new image (after Pick another) replaces the preview with the new file', () => {
+    vi.spyOn(URL, 'createObjectURL')
+      .mockReturnValueOnce('blob:first')
+      .mockReturnValueOnce('blob:second');
+    mountPicker();
+    const input = screen.getByTestId('make-photo-input');
+    fireEvent.change(input, { target: { files: [new File(['1'], 'first.png', { type: 'image/png' })] } });
+    expect(screen.getByTestId('make-photo-preview-img')).toHaveAttribute('src', 'blob:first');
+    fireEvent.change(input, { target: { files: [new File(['2'], 'second.png', { type: 'image/png' })] } });
+    expect(screen.getByTestId('make-photo-preview-img')).toHaveAttribute('src', 'blob:second');
   });
 
   it('clicking the Photo card clears any prior non-image error before opening picker', () => {
