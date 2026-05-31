@@ -610,8 +610,26 @@ export class AffinityMode {
     if (st.mesh) {
       if (this._matrixSnapshot) {
         st.mesh.instanceMatrix.array.set(this._matrixSnapshot);
-        st.mesh.instanceMatrix.needsUpdate = true;
       }
+      // SAFETY NET (user feedback 2026-05-31): if the snapshot was
+      // taken when V1 isolate had already zeroed some scales — or any
+      // other code path mangled it — force-restore every instance to
+      // its pristine scale derived from pairingCount. defaultScales
+      // is the single source of truth set at scene build.
+      const defaultScales = st.defaultScales;
+      if (defaultScales) {
+        const arr = st.mesh.instanceMatrix.array;
+        for (let i = 0; i < this._nodeCount; i++) {
+          const base = i * 16;
+          this._matrixScratch.fromArray(arr, base);
+          this._matrixScratch.decompose(this._tmpPos, this._tmpQuat, this._tmpScale);
+          const s = defaultScales[i];
+          this._tmpScale.set(s, s, s);
+          this._matrixScratch.compose(this._tmpPos, this._tmpQuat, this._tmpScale);
+          st.mesh.setMatrixAt(i, this._matrixScratch);
+        }
+      }
+      st.mesh.instanceMatrix.needsUpdate = true;
       if (source) {
         for (let i = 0; i < this._nodeCount; i++) {
           st.mesh.setColorAt(i, source[i]);
@@ -1520,6 +1538,31 @@ export class AffinityMode {
     // on exit().
     if (st.mesh) {
       if (!this._matrixSnapshot) {
+        // BEFORE snapshotting, restore any V1-isolate-hidden scales to
+        // their pristine values. Otherwise α-mode captures the hidden
+        // state and exit() restores TO it, leaving ~95% of nodes
+        // invisible. defaultScales is the pristine per-instance scale
+        // computed at scene build time.
+        const defaultScales = st.defaultScales;
+        if (defaultScales) {
+          const arr = st.mesh.instanceMatrix.array;
+          for (let i = 0; i < this._nodeCount; i++) {
+            const base = i * 16;
+            const sx = Math.hypot(arr[base + 0], arr[base + 1], arr[base + 2]);
+            if (sx < 0.01) {
+              // Hidden — re-stamp to pristine scale (preserve position).
+              this._matrixScratch.fromArray(arr, base);
+              this._matrixScratch.decompose(this._tmpPos, this._tmpQuat, this._tmpScale);
+              const s = defaultScales[i];
+              this._tmpScale.set(s, s, s);
+              this._matrixScratch.compose(this._tmpPos, this._tmpQuat, this._tmpScale);
+              st.mesh.setMatrixAt(i, this._matrixScratch);
+            }
+          }
+          // Don't flag needsUpdate yet — the alpha-mode placement
+          // below also writes setMatrixAt; one needsUpdate flag at the
+          // end of the engage flow covers everything.
+        }
         const arr = st.mesh.instanceMatrix.array;
         this._matrixSnapshot = new Float32Array(arr.length);
         this._matrixSnapshot.set(arr);
