@@ -221,6 +221,14 @@ export class AffinityMode {
     this._engaged = false;
     this._currentFocal = null;
     this._currentAffinities = []; // last-computed result of topAffinities
+    // Debug hook: when the page URL contains ?af_debug=1, expose the
+    // most-recently-constructed AffinityMode instance on window so QA
+    // scripts can inspect _currentFocals, focalMesh.count, etc.
+    if (typeof window !== 'undefined'
+        && typeof window.location !== 'undefined'
+        && /[?&]af_debug=1/.test(window.location.search)) {
+      window.__af = this;
+    }
     // Per-engage cache populated by _writeRingsAndDim so _buildLabels
     // can render bucket labels without recomputing wedge geometry.
     this._currentWedges = [];
@@ -933,23 +941,63 @@ export class AffinityMode {
     const tieredNames = new Set(tiered.map((a) => a.name));
     const dedupedSurprising = surprising.filter((a) => !tieredNames.has(a.name));
     let affinities = [...tiered, ...dedupedSurprising];
-    // NETWORK-CLICK-POLISH-V2: when multi-focal, intersect with each
-    // extra focal's tiered affinity name set. An affinity only stays
-    // visible if it's a tiered affinity (any tier) of EVERY focal —
-    // that's the "overlapping affinities" the user wants to compare.
-    // Empty intersection = focal cubes shown, no ring spheres.
+    // NETWORK-CLICK-POLISH-V2 (revised): when multi-focal, we want
+    // EVERY overlapping affinity — not just the primary's top-12
+    // intersected with each extra's top-180. Build the intersection
+    // from the FULL top-180 of every focal so we don't filter by the
+    // primary's narrow ring-3 slice.
     if (extraFocals.length > 0) {
-      for (const extra of extraFocals) {
-        const extraTiered = topAffinities(extra, this.ctx, { N3: 60, N2: 60, N1: 60 });
-        const extraNames = new Set(extraTiered.map((a) => a.name));
-        // Always keep the primary focal's other selected focals visible
-        // as affinities, even when they don't pair (so user knows what
-        // they selected). Actually — extra focals shouldn't appear as
-        // affinities; they're focals themselves. Filter them out below.
-        affinities = affinities.filter((a) => extraNames.has(a.name));
+      const allFocals = focals;
+      // Collect each focal's wide candidate set (top 60 per tier).
+      const perFocalLists = allFocals.map((f) =>
+        topAffinities(f, this.ctx, { N3: 60, N2: 60, N1: 60 }),
+      );
+      // Index per focal for O(1) name → entry lookup.
+      const perFocalByName = perFocalLists.map((list) => {
+        const m = new Map();
+        for (const a of list) m.set(a.name, a);
+        return m;
+      });
+      // Intersection: name must appear in EVERY focal's list.
+      const first = perFocalByName[0];
+      const intersection = [];
+      for (const [name, primaryEntry] of first) {
+        let inAll = true;
+        let minStrength = primaryEntry.strength;
+        let minTier = primaryEntry.tier;
+        let minRingIdx = primaryEntry.ringIdx;
+        for (let fi = 1; fi < perFocalByName.length; fi++) {
+          const otherEntry = perFocalByName[fi].get(name);
+          if (!otherEntry) { inAll = false; break; }
+          if (otherEntry.strength < minStrength) minStrength = otherEntry.strength;
+          // Take the WEAKEST (highest tier number) so the badge reflects
+          // the most cautious read across focals.
+          if ((otherEntry.tier ?? 1) > (minTier ?? 1)) minTier = otherEntry.tier;
+          if ((otherEntry.ringIdx ?? 1) > (minRingIdx ?? 1)) minRingIdx = otherEntry.ringIdx;
+        }
+        if (!inAll) continue;
+        intersection.push({
+          name,
+          tier: minTier,
+          ringIdx: minRingIdx,
+          strength: minStrength,
+          bridge: primaryEntry.bridge ?? null,
+        });
       }
+      // Strip extra focals — they're rendered as focal cubes.
       const extraSet = new Set(extraFocals);
-      affinities = affinities.filter((a) => !extraSet.has(a.name));
+      affinities = intersection
+        .filter((a) => !extraSet.has(a.name))
+        .filter((a) => passesFilter(a.name))
+        .sort((a, b) => b.strength - a.strength);
+      // Debug — exposed via window.__af for QA probes.
+      this._debugLastIntersection = {
+        focals: allFocals,
+        perFocalSizes: perFocalLists.map((l) => l.length),
+        intersectionSize: intersection.length,
+        finalSize: affinities.length,
+        finalNames: affinities.slice(0, 15).map((a) => a.name),
+      };
     }
     this._currentAffinities = affinities;
 
@@ -1264,16 +1312,47 @@ export class AffinityMode {
       const sharedLayout = layoutByRing[3];
       const axisKey = sharedLayout?.axisKey || DEFAULT_WEDGE_AXIS;
       const focalRingRadius = RADII[3];
-      const focalRadialStack = 4.0;
       const nodesMap = this.ctx?.graph?.nodes;
-      const stackByBucket = new Map();
+      // Debug capture for QA probe.
+      this._debugMultiFocal = {
+        axisKey,
+        wedgeKeys: sharedLayout?.wedgeByKey ? [...sharedLayout.wedgeByKey.keys()] : [],
+        wheelCenter: [cx, cy, cz],
+        primaryFocal: focal,
+        primaryFocalIdx: focalIdx,
+        allFocals: focals,
+        focalBuckets: [],
+      };
+      // Group focals by bucket so we can fan multiple same-bucket
+      // focals angularly within the wedge span (instead of stacking
+      // them at the same angle and overlapping).
+      const focalsByBucket = new Map();
+      const focalBuckets = new Array(focals.length).fill(null);
       for (let fi = 0; fi < focals.length; fi++) {
         const fName = focals[fi];
-        const fNode = (nodesMap && typeof nodesMap.get === 'function')
-          ? (nodesMap.get(fName) || { name: fName })
-          : { name: fName };
-        const bucket = resolveBucket(axisKey, fNode, this._categoricalCtx);
+        // Use the SAME bucket-resolution path the single-focal "block
+        // 1a-revised" uses (line ~1180) — it handles the 'cluster' axis
+        // (which CATEGORICAL_AXES doesn't include) plus all the
+        // categorical axes via one consistent helper.
+        const bucketCtx = this._resolveWedgeContext([{ name: fName }], axisKey);
+        const bucket = bucketCtx?.neighborWithBucket?.[0]?.bucketKey || null;
         const wedge = bucket ? sharedLayout?.wedgeByKey?.get(bucket) : null;
+        focalBuckets[fi] = { wedge, bucket };
+        this._debugMultiFocal.focalBuckets.push({
+          name: fName,
+          bucket,
+          wedgeKey: wedge?.key,
+          wedgeMidAngle: wedge?.midAngle,
+        });
+        if (wedge) {
+          if (!focalsByBucket.has(wedge.key)) focalsByBucket.set(wedge.key, []);
+          focalsByBucket.get(wedge.key).push(fi);
+        }
+      }
+      // Track each focal's final world position so we can label them.
+      const focalWorldPositions = new Array(focals.length).fill(null);
+      for (let fi = 0; fi < focals.length; fi++) {
+        const { wedge } = focalBuckets[fi];
         if (!wedge) {
           // No bucket on this axis — hide the focal cube by collapsing
           // its scale. Keep the slot allocated so the count stays sane.
@@ -1283,16 +1362,24 @@ export class AffinityMode {
           this.focalMesh.setMatrixAt(fi, m);
           continue;
         }
-        const stackIdx = stackByBucket.get(wedge.key) || 0;
-        stackByBucket.set(wedge.key, stackIdx + 1);
-        const r = Math.max(8, focalRingRadius - stackIdx * focalRadialStack);
-        const fx = cx + r * Math.cos(wedge.midAngle);
-        const fz = cz + r * Math.sin(wedge.midAngle);
+        const cohort = focalsByBucket.get(wedge.key) || [fi];
+        const positionInCohort = cohort.indexOf(fi);
+        // Fan cohort across the wedge span centered on midAngle.
+        // cohort.length=1 → exactly midAngle. length=2 → ±span/6.
+        // length=N → equally spaced, never exceeding ±span/2.
+        const fanRange = wedge.span * 0.66;
+        const offset = cohort.length === 1
+          ? 0
+          : ((positionInCohort + 0.5) / cohort.length - 0.5) * fanRange;
+        const angle = wedge.midAngle + offset;
+        const fx = cx + focalRingRadius * Math.cos(angle);
+        const fz = cz + focalRingRadius * Math.sin(angle);
+        focalWorldPositions[fi] = [fx, cy, fz];
         tmpV.set(fx, cy, fz);
         m.compose(tmpV, tmpQ, focalScaleVec);
         this.focalMesh.setMatrixAt(fi, m);
-        // Tint each focal with its bucket color so the wedge identity
-        // reads at a glance (primary stays slightly brighter).
+        // Tint each focal with its bucket color (primary slightly
+        // brighter so it stays distinguishable).
         const bucketHex = sharedLayout?.bucketColors?.[wedge.key];
         if (bucketHex) {
           const bc = new THREE.Color(bucketHex);
@@ -1307,6 +1394,18 @@ export class AffinityMode {
       }
       this.focalMesh.instanceMatrix.needsUpdate = true;
       this.focalMesh.instanceColor.needsUpdate = true;
+      // Stash focal positions so _buildLabels can emit one label per
+      // focal at the correct wedge position (not just the primary).
+      this._multiFocalWorldPositions = focalWorldPositions;
+      // The per-frame pulse (`tickAnimation`) writes setMatrixAt(0, …)
+      // using `_focalAnchorPos`. Override it to point at where we just
+      // placed focal[0] so the pulse animates the right cube. Extra
+      // focals (fi>0) sit static — the pulse doesn't touch them.
+      if (focalWorldPositions[0]) {
+        this._focalAnchorPos = focalWorldPositions[0];
+      }
+    } else {
+      this._multiFocalWorldPositions = null;
     }
 
     // ─── 1c. Wedge arc outlines (legacy single-axis arcs) ───
@@ -1535,24 +1634,30 @@ export class AffinityMode {
       if (s.material?.map) s.material.map.dispose();
       if (s.material) s.material.dispose();
     }
-    const focalSprite = makeLabel(focal, '#ffffff', 14, { glow: false });
-    // Canonical-spec — focal label sits ABOVE and ADJACENT to the
-    // focal sphere, anchored to its ring position. The label leans
-    // radially outward (away from wheel center) so it sits next to
-    // the sphere instead of stacking right on top.
-    const labelDX = focalWorld[0] !== 0 || focalWorld[2] !== 0
-      ? focalWorld[0] / Math.hypot(focalWorld[0], focalWorld[2])
-      : 0;
-    const labelDZ = focalWorld[0] !== 0 || focalWorld[2] !== 0
-      ? focalWorld[2] / Math.hypot(focalWorld[0], focalWorld[2])
-      : 0;
-    const LABEL_RADIAL_OFFSET = 4.0; // world units outward
-    focalSprite.position.set(
-      focalWorld[0] + labelDX * LABEL_RADIAL_OFFSET,
-      focalWorld[1] + 4.5,
-      focalWorld[2] + labelDZ * LABEL_RADIAL_OFFSET,
-    );
-    this.focalLabelGroup.add(focalSprite);
+    // NETWORK-CLICK-POLISH-V2: when multi-focal, emit one label per
+    // focal at its wedge position (instead of just the primary).
+    const multiPositions = this._multiFocalWorldPositions;
+    const focalLabelEntries = (multiPositions && this._currentFocals && this._currentFocals.length > 1)
+      ? this._currentFocals.map((name, i) => ({ name, pos: multiPositions[i] }))
+      : [{ name: focal, pos: focalWorld }];
+    for (const entry of focalLabelEntries) {
+      if (!entry.pos) continue;
+      const sprite = makeLabel(entry.name, '#ffffff', 14, { glow: false });
+      // Label leans radially outward from the wheel center (cx, cy, cz
+      // implied; we use wheelCenter as the origin).
+      const dx = entry.pos[0] - wheelCenter[0];
+      const dz = entry.pos[2] - wheelCenter[2];
+      const norm = Math.hypot(dx, dz);
+      const labelDX = norm > 0 ? dx / norm : 0;
+      const labelDZ = norm > 0 ? dz / norm : 0;
+      const LABEL_RADIAL_OFFSET = 4.0;
+      sprite.position.set(
+        entry.pos[0] + labelDX * LABEL_RADIAL_OFFSET,
+        entry.pos[1] + 4.5,
+        entry.pos[2] + labelDZ * LABEL_RADIAL_OFFSET,
+      );
+      this.focalLabelGroup.add(sprite);
+    }
     this.focalLabelGroup.visible = true;
     // Affinity labels — colored by tier (matches edge color so user
     // associates label tone with chemistry signal).

@@ -114,10 +114,12 @@ describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', (
     expect(affinityJs).toMatch(/pivot\(newFocalOrFocals\)/);
   });
 
-  it('_writeRingsAndDim() accepts array AND filters affinities to intersection of extra focals', () => {
+  it('_writeRingsAndDim() accepts array AND computes intersection across all focals', () => {
     expect(affinityJs).toMatch(/_writeRingsAndDim\(focalOrFocals\)/);
     expect(affinityJs).toMatch(/extraFocals\.length > 0/);
-    expect(affinityJs).toMatch(/extraNames\.has\(a\.name\)/);
+    // Revised intersection logic uses perFocalLists + perFocalByName.
+    expect(affinityJs).toMatch(/perFocalLists/);
+    expect(affinityJs).toMatch(/perFocalByName/);
   });
 
   it('multi-focal cubes placed at their bucket wedge sector (no focal at wheel center)', () => {
@@ -125,10 +127,31 @@ describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', (
     // center; every focal sits in its bucket sector on the innermost
     // tier. resolveBucket + wedgeByKey lookup is the placement signal.
     expect(affinityJs).toMatch(/multi-focal re-placement/);
-    expect(affinityJs).toMatch(/resolveBucket\(axisKey, fNode, this\._categoricalCtx\)/);
+    // Use _resolveWedgeContext (same path the existing single-focal
+    // block 1a-revised uses) — handles the 'cluster' axis correctly
+    // (CATEGORICAL_AXES doesn't have 'cluster' so resolveBucket fails).
+    expect(affinityJs).toMatch(/this\._resolveWedgeContext\(\[\{ name: fName \}\], axisKey\)/);
     expect(affinityJs).toMatch(/sharedLayout\?\.wedgeByKey\?\.get\(bucket\)/);
-    expect(affinityJs).toMatch(/r \* Math\.cos\(wedge\.midAngle\)/);
-    expect(affinityJs).toMatch(/r \* Math\.sin\(wedge\.midAngle\)/);
+    // Angular position = wedge.midAngle + offset (fan within bucket).
+    expect(affinityJs).toMatch(/focalRingRadius \* Math\.cos\(angle\)/);
+    expect(affinityJs).toMatch(/focalRingRadius \* Math\.sin\(angle\)/);
+    expect(affinityJs).toMatch(/wedge\.midAngle \+ offset/);
+  });
+
+  it('multi-focal: same-bucket focals fan angularly across the wedge span (no overlap)', () => {
+    // The fan logic distributes cohort.length focals across the wedge
+    // span centered on midAngle, so 2+ focals in the same cluster
+    // don't visually overlap at the same angle.
+    expect(affinityJs).toMatch(/focalsByBucket/);
+    expect(affinityJs).toMatch(/cohort\.length === 1/);
+    expect(affinityJs).toMatch(/fanRange/);
+  });
+
+  it('multi-focal: labels rendered for EVERY focal at its wedge position (not just primary)', () => {
+    // _buildLabels iterates focalLabelEntries built from
+    // _multiFocalWorldPositions when N > 1.
+    expect(affinityJs).toMatch(/_multiFocalWorldPositions/);
+    expect(affinityJs).toMatch(/focalLabelEntries/);
   });
 
   it('focalMesh.count is set to focals.length so unused slots are not drawn', () => {
