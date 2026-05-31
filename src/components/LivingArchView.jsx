@@ -1154,7 +1154,33 @@ export default function LivingArchView({
     const raycaster = new THREE.Raycaster();
     const hoverState = { lastHover: -1, lastHoverType: 'none' };
 
+    // Track mousedown position so we can distinguish a tap (small or
+    // no movement → fire onClick) from an OrbitControls drag (any
+    // significant move → suppress onClick so selection isn't cleared
+    // by the rotate gesture).
+    const downPos = { x: 0, y: 0, was: false };
+    const DRAG_THRESHOLD_PX = 6;
+    function onMouseDown(event) {
+      downPos.x = event.clientX;
+      downPos.y = event.clientY;
+      downPos.was = true;
+    }
+    renderer.domElement.addEventListener('mousedown', onMouseDown);
+
     function onClick(event) {
+      // Drag-vs-tap gate. If the mouse moved more than DRAG_THRESHOLD_PX
+      // between mousedown and click, treat it as an orbit drag and
+      // skip the node-click logic entirely (preserves selection while
+      // user rotates the camera).
+      if (downPos.was) {
+        const dx = event.clientX - downPos.x;
+        const dy = event.clientY - downPos.y;
+        if (Math.hypot(dx, dy) > DRAG_THRESHOLD_PX) {
+          downPos.was = false;
+          return;
+        }
+        downPos.was = false;
+      }
       // R14 v3: when AffinityMode is engaged, the visible focal + ring
       // shapes sit at orbit positions far from the underlying
       // ingredients' real layout coordinates. The default raycast
