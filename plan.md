@@ -2195,3 +2195,26 @@ Two threads:
   ]
 }
 ```
+
+```json
+{
+  "id": "NETWORK-CLICK-POLISH-V2",
+  "title": "Network mode multi-select intersection + multi-focal AffinityMode entry + α-mode add-focal-on-tap",
+  "category": "ui",
+  "priority": 11,
+  "description": "Follow-up to NETWORK-CLICK-POLISH-V1. (C3) Network-mode single-click already isolates affinity neighbors of one focal. Extend: every click on an ingredient APPENDS to selectedNodes (no shift-key required); tap empty space clears all. When N>=2 selected, the visible affinity set switches from union-of-neighbors to INTERSECTION-of-neighbors (overlapping pairings only). All focals + intersection get labels. Empty intersection cleanly shows just the focal cubes. Double-tap any selected focal to engage α-mode with ALL focals; AffinityMode.engage(name) extends to engage(focals[]) accepting an array. Multi-focal layout: focals placed on a small inner ring (radius ~7u) around scene center when N>1; single focal keeps current center placement. Ring affinity slots populate from the intersection set. (C4) In α-mode, tap a non-focal ingredient to add it as an additional focal; α-mode re-engages with the expanded focal list. Tap empty space in α-mode exits as today. No hard cap on N (practical 3-4 max).",
+  "blocked_on": null,
+  "acceptance": [
+    "Network-mode click handler appends to selectedNodes (each click adds; click on already-selected toggles off; tap empty space clears all)",
+    "When selectedNodes.length >= 2, the isolate effect renders the INTERSECTION of neighbor sets (only ingredients connected to ALL selected focals stay visible) instead of the union",
+    "All focal nodes + every intersection-set ingredient gets a label sprite",
+    "Empty intersection case: only focal cubes visible, no error or visual glitch",
+    "Double-tap any focal node triggers AffinityMode.engage with the full selectedNodes array",
+    "AffinityMode.engage signature accepts either a single name (string) OR an array of names (back-compat preserved)",
+    "Multi-focal α-mode: N focal dodecahedra arranged on a small inner ring at radius ~7u (when N>1); N=1 keeps existing center placement",
+    "α-mode click-on-non-focal-ingredient adds it as another focal + re-engages",
+    "Source-grep regression tests cover: append-on-click, intersection compute, double-tap engages with array, AffinityMode.engage accepts array, multi-focal ring layout, α-mode add-focal path",
+    "All existing tests still pass; npm run build succeeds"
+  ]
+}
+```

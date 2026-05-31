@@ -2206,16 +2206,47 @@ export default function LivingArchView({
     // NETWORK-CLICK-POLISH-V1: single-click isolate mode. Track on the
     // effect-local scope whether we entered isolate this run, and use
     // the stored defaultScales to restore on deselect.
+    // NETWORK-CLICK-POLISH-V2: when N>=2 selected, switch from union
+    // of neighbors (single-focal behavior) to INTERSECTION — only
+    // ingredients connected to ALL selected focals stay visible.
+    // Focals themselves always remain visible regardless.
     const { defaultScales, edgeMesh } = st;
     let connMap = null;
     if (activeNodes.length > 0 && data) {
-      connMap = new Map();
-      for (const sel of activeNodes) {
-        connMap.set(sel, 1.0);
+      const selectedSet = new Set(activeNodes);
+      const perFocalNeighbors = activeNodes.map((sel) => {
+        const m = new Map();
+        m.set(sel, 1.0);
         for (const edge of data.graph.edges) {
-          if (edge.source === sel) connMap.set(edge.target, Math.max(connMap.get(edge.target)||0, edge.strength));
-          else if (edge.target === sel) connMap.set(edge.source, Math.max(connMap.get(edge.source)||0, edge.strength));
+          if (edge.source === sel) m.set(edge.target, Math.max(m.get(edge.target)||0, edge.strength));
+          else if (edge.target === sel) m.set(edge.source, Math.max(m.get(edge.source)||0, edge.strength));
         }
+        return m;
+      });
+      connMap = new Map();
+      if (activeNodes.length === 1) {
+        for (const [k, v] of perFocalNeighbors[0]) connMap.set(k, v);
+      } else {
+        // Intersection: keep only ingredients present in EVERY focal's
+        // neighbor map. Strength = min across focals (the weakest link
+        // is the truthful pairing for "shared affinity"). Focals
+        // themselves always stay (selectedSet preserved below).
+        const [first, ...rest] = perFocalNeighbors;
+        for (const [name, str] of first) {
+          if (selectedSet.has(name)) {
+            connMap.set(name, 1.0);
+            continue;
+          }
+          let minStr = str;
+          let inAll = true;
+          for (const m of rest) {
+            const s = m.get(name);
+            if (s === undefined) { inAll = false; break; }
+            if (s < minStr) minStr = s;
+          }
+          if (inAll) connMap.set(name, minStr);
+        }
+        for (const sel of activeNodes) connMap.set(sel, 1.0);
       }
       for (let i = 0; i < count; i++) {
         const name = nodeArray[i].name;
@@ -2297,11 +2328,26 @@ export default function LivingArchView({
     // label every affinity neighbor (the same set the isolate-mode
     // keeps visible). Skipped while AffinityMode is engaged (it owns
     // its own focal+30-neighbor labels) and when no selection exists.
+    // NETWORK-CLICK-POLISH-V2: for N>=2 selections, label only the
+    // INTERSECTION of neighbor sets — matches what the isolate effect
+    // keeps visible, so labels never reference hidden nodes.
     if (activeSelections.length > 0 && data?.graph?.edges) {
-      for (const sel of activeSelections) {
+      const perFocalSets = activeSelections.map((sel) => {
+        const s = new Set();
         for (const edge of data.graph.edges) {
-          if (edge.source === sel) labelNames.add(edge.target);
-          else if (edge.target === sel) labelNames.add(edge.source);
+          if (edge.source === sel) s.add(edge.target);
+          else if (edge.target === sel) s.add(edge.source);
+        }
+        return s;
+      });
+      if (activeSelections.length === 1) {
+        for (const n of perFocalSets[0]) labelNames.add(n);
+      } else {
+        const [first, ...rest] = perFocalSets;
+        for (const n of first) {
+          let inAll = true;
+          for (const s of rest) { if (!s.has(n)) { inAll = false; break; } }
+          if (inAll) labelNames.add(n);
         }
       }
     }

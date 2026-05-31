@@ -856,9 +856,20 @@ export default function App() {
       const isCategoricalFocus = morphAxis && focusedCluster <= -100;
       if (!isCategoricalFocus && node.clusterId !== focusedCluster) return;
     }
-    // Empty-space click is a no-op so OrbitControls drags / camera
-    // moves don't dismiss the open panel and selected ingredients.
-    if (!node) return;
+    // NETWORK-CLICK-POLISH-V2: empty-space click clears the multi-
+    // selection so the user has an obvious "back to full network"
+    // escape hatch. Only fires when a multi-selection exists; an
+    // empty-click with no selection stays a no-op (so OrbitControls
+    // drags don't accidentally dismiss anything).
+    if (!node) {
+      if (selectedNodes.length > 0) {
+        setSelectedNodes([]);
+        setHighlightPairings(null);
+        setActivePanel(null);
+        setTierPopup(null);
+      }
+      return;
+    }
     setHighlightPairings(null);
     const name = node.name;
 
@@ -889,14 +900,18 @@ export default function App() {
       setAffinityRequested(false);
       let shouldOpenPopup = true;
       setSelectedNodes((prev) => {
-        if (prev.length === 1 && prev[0] === name) {
-          // Same node clicked again outside the double-click window →
-          // deselect (close panel + popup).
-          setActivePanel(null);
-          shouldOpenPopup = false;
-          return [];
+        // NETWORK-CLICK-POLISH-V2: every click APPENDS to the
+        // selection instead of replacing. Clicking an already-selected
+        // node removes it. Empty selection after toggle closes panel.
+        if (prev.includes(name)) {
+          const next = prev.filter((n) => n !== name);
+          if (next.length === 0) {
+            setActivePanel(null);
+            shouldOpenPopup = false;
+          }
+          return next;
         }
-        return [name];
+        return [...prev, name];
       });
       // Open the ingredient panel — mobile drawer gate (activePanel ===
       // 'ingredient') needs this to show the tier 1/2/3 data. Desktop
