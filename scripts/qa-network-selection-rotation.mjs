@@ -87,17 +87,30 @@ async function wheelZoom(deltaY = -400) {
   await page.waitForTimeout(400);
 }
 async function tapEmpty() {
-  // Click at far-right of canvas where no UI overlay sits — the wheel
-  // + nodes are centered, the right edge is reliably empty background.
-  // Avoid (10, 10) — that overlaps the help/menu icons at the top-left.
-  const before = await page.evaluate(() => window.__qaClickCount || 0);
-  await page.mouse.click(box.x + box.width * 0.95, box.y + box.height * 0.5);
-  await page.waitForTimeout(500);
-  const after = await page.evaluate(() => ({
-    count: window.__qaClickCount || 0,
-    lastName: window.__qaLastClickNodeName,
-  }));
-  log(`    tapEmpty click count ${before} -> ${after.count}, lastNodeName=${after.lastName}`);
+  // Try multiple empty positions; retry until we hit empty space
+  // (lastNodeName=null). Some camera angles park nodes near the edges
+  // so a single pixel isn't reliably background.
+  const candidates = [
+    [box.x + box.width * 0.97, box.y + box.height * 0.05], // top-right
+    [box.x + box.width * 0.03, box.y + box.height * 0.97], // bottom-left
+    [box.x + box.width * 0.97, box.y + box.height * 0.97], // bottom-right
+    [box.x + box.width * 0.5, box.y + box.height * 0.97],  // bottom-center
+  ];
+  for (let attempt = 0; attempt < candidates.length; attempt++) {
+    const before = await page.evaluate(() => window.__qaClickCount || 0);
+    const [cx, cy] = candidates[attempt];
+    await page.mouse.click(cx, cy);
+    await page.waitForTimeout(400);
+    const after = await page.evaluate(() => ({
+      count: window.__qaClickCount || 0,
+      lastName: window.__qaLastClickNodeName,
+    }));
+    log(`    tapEmpty(${attempt}) at (${cx.toFixed(0)},${cy.toFixed(0)}): clicks ${before}->${after.count}, lastNodeName=${after.lastName}`);
+    if (after.count > before && after.lastName === null) return; // hit empty
+  }
+  log('    tapEmpty: WARN — every candidate hit a node; falling back to ESC');
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
 }
 
 // ----- Test 1: select 1 + rotate + zoom preserves selection -----
@@ -221,6 +234,100 @@ const defaultState = await page.evaluate(() => {
 log(`default-state probe: ${JSON.stringify(defaultState)}`);
 check('6.0 Flavor Graph pill present in UI', defaultState.flavorPillExists);
 check('6.1 Flavor Graph pill is the active filter', defaultState.flavorPillActive !== false);
+
+// ----- Test 8: multi-focal preservation via double-tap path -----
+log('TEST 8: double-tap on existing focal preserves multi-selection');
+await page.evaluate(() => window.__qaClearSelection?.());
+await page.waitForTimeout(400);
+await select('tomato');
+await page.waitForTimeout(200);
+await select('basil');
+await page.waitForTimeout(200);
+// Simulate "double-tap" via two rapid select() calls (effectively
+// the user tapping basil twice quickly). Click-on-already-selected
+// is now a no-op (V2 revised), so selection stays [tomato, basil].
+await select('basil');
+await page.waitForTimeout(50);
+await select('basil');
+await page.waitForTimeout(400);
+let multiState = await page.evaluate(() => window.__qaReadSelection?.());
+check('8.0 double-tap on existing focal keeps both in selection',
+  multiState?.selectedNodes?.length === 2 && multiState?.selectedNodes?.includes('tomato'),
+  JSON.stringify(multiState));
+
+// Now engage α-mode with both.
+await engageAff(['tomato', 'basil']);
+await page.waitForTimeout(2500);
+const multiAlpha = await page.evaluate(() => {
+  const af = window.__af;
+  if (!af) return { error: 'no __af' };
+  const arr = af.focalMesh?.instanceMatrix?.array;
+  const focalScales = [];
+  for (let i = 0; i < (af.focalMesh?.count || 0); i++) {
+    const base = i * 16;
+    focalScales.push(Math.hypot(arr[base + 0], arr[base + 1], arr[base + 2]));
+  }
+  return {
+    engaged: af._engaged,
+    focals: af._currentFocals,
+    focalCount: af.focalMesh?.count,
+    focalScales,
+    affinityNames: (af._currentAffinities || []).map((a) => a.name),
+    edgeLinesVisible: af.edgeLines?.visible,
+    edgeLineCount: af.edgeLines?.geometry?.drawRange?.count,
+  };
+});
+log(`multi-focal state: ${JSON.stringify(multiAlpha)}`);
+check('8.1 α-mode engaged with 2 focal cubes (both scale > 0)',
+  multiAlpha?.focals?.length === 2 &&
+  multiAlpha?.focalScales?.[0] > 0.01 &&
+  multiAlpha?.focalScales?.[1] > 0.01,
+  JSON.stringify(multiAlpha));
+check('8.2 affinity edge lines visible during α-mode',
+  multiAlpha?.edgeLinesVisible === true,
+  JSON.stringify(multiAlpha));
+
+// ----- Test 9: ingredient audit — visible affinities match the data -----
+log('TEST 9: visible affinity ingredients match the pairings data');
+// Pull tomato + basil edges from the live graph via __af.ctx.graph.edges,
+// compute the expected intersection, and verify _currentAffinities is
+// a subset.
+const audit = await page.evaluate(() => {
+  const af = window.__af;
+  const edges = af?.ctx?.graph?.edges || [];
+  const nbrOf = (name) => {
+    const s = new Set();
+    for (const e of edges) {
+      const a = e.source ?? e.ingredientA;
+      const b = e.target ?? e.ingredientB;
+      if (a === name) s.add(b);
+      else if (b === name) s.add(a);
+    }
+    return s;
+  };
+  const tomatoNb = nbrOf('tomato');
+  const basilNb = nbrOf('basil');
+  const expectedIntersect = [...tomatoNb].filter((n) => basilNb.has(n));
+  const visibleAffinities = (af?._currentAffinities || []).map((a) => a.name);
+  const missingFromData = visibleAffinities.filter((n) => !tomatoNb.has(n) || !basilNb.has(n));
+  return {
+    expectedIntersectionSize: expectedIntersect.length,
+    visibleAffinitySize: visibleAffinities.length,
+    visibleAffinities,
+    missingFromData,
+  };
+});
+log(`audit: ${JSON.stringify(audit)}`);
+check('9.0 every visible affinity exists in BOTH focal neighbor sets',
+  audit?.missingFromData?.length === 0,
+  JSON.stringify(audit));
+check('9.1 visible affinity count is reasonable (intersection capped)',
+  audit?.visibleAffinitySize >= 1 && audit.visibleAffinitySize <= audit.expectedIntersectionSize,
+  JSON.stringify(audit));
+
+// Exit + restore for next tests.
+await tapEmpty();
+await page.waitForTimeout(1500);
 
 // ----- Test 7: unselect last ingredient also restores default -----
 log('TEST 7: unselect last ingredient resets to default');

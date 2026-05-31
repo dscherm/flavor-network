@@ -918,22 +918,16 @@ export default function App() {
       // above). Double-click still explicitly sets affinityRequested=true.
       let shouldOpenPopup = true;
       setSelectedNodes((prev) => {
-        // NETWORK-CLICK-POLISH-V2: every click APPENDS to the
-        // selection instead of replacing. Clicking an already-selected
-        // node removes it. Empty selection after toggle closes panel
-        // AND resets the Network to its default state (Flavor Graph
-        // filter, edges visible, no cluster focus) per user feedback.
+        // NETWORK-CLICK-POLISH-V2 (revised per user feedback): every
+        // click APPENDS to the selection. Single-click on an already-
+        // selected node is a NO-OP (deselection happens ONLY via
+        // Clear Selection affordance or tap-empty). This way a
+        // double-tap on an already-selected node — where the first
+        // tap would otherwise remove it — preserves the multi-
+        // selection so α-mode engages with all focals.
         if (prev.includes(name)) {
-          const next = prev.filter((n) => n !== name);
-          if (next.length === 0) {
-            setActivePanel(null);
-            shouldOpenPopup = false;
-            setAffinityRequested(false);
-            setFilterStack(['flavor-category']);
-            setShowEdges(true);
-            setClusterHighlights(null);
-          }
-          return next;
+          shouldOpenPopup = false;
+          return prev;
         }
         return [...prev, name];
       });

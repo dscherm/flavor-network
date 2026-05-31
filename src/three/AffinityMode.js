@@ -1479,10 +1479,15 @@ export class AffinityMode {
     posAttr.needsUpdate = true;
     colAttr.needsUpdate = true;
     // Canonical-spec (2026-05-22 revision): 3D focal→affinity edges
-    // are hidden in tier-column α-mode — the vertical separation by
-    // tier already carries the focal→affinity relationship without
-    // the noise of radial lines. SVG cone overlay still renders.
-    this.edgeLines.visible = false;
+    // are hidden in single-focal tier-column α-mode — the vertical
+    // separation by tier carries the focal→affinity relationship and
+    // the SVG cone overlay handles the connector lines.
+    // NETWORK-CLICK-POLISH-V2 (user feedback 2026-05-31): the SVG
+    // overlay isn't multi-focal-aware, so flip the 3D edge lines back
+    // on when multi-focal so the user sees focal-to-affinity
+    // connections (matches the labelGroup multi-focal toggle above).
+    const isMultiFocalEdges = this._currentFocals && this._currentFocals.length > 1;
+    this.edgeLines.visible = isMultiFocalEdges;
 
     // ─── 2b. Cuisine-anchor flags ───
     // For each neighbor whose pair carries a cuisineAnchor (provenance =
