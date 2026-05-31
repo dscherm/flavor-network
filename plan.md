@@ -2174,3 +2174,24 @@ Two threads:
   ]
 }
 ```
+
+```json
+{
+  "id": "NETWORK-CLICK-POLISH-V1",
+  "title": "Network mode click polish — pill flight stops auto-showing edges + ingredient click hides non-affinity with labels",
+  "category": "ui",
+  "priority": 10,
+  "description": "Two-part polish to the Network mode click behavior. (1) ClusterJoystick pill buttons currently trigger the progressive-disclosure 'show edges' side-effect via the same click path that selects a node — flying the camera to a cluster centroid should NOT enable the synapse edge mesh. Decouple the camera-fly action from the node-click handler. (2) When the user single-clicks an ingredient in Network mode, the current behavior dims non-affinity (chemistry + cuisine neighbor) nodes and brightens the affinity ones. Replace dim-with-brightens with HIDE-non-affinity (scale=0, fully invisible) + render text-sprite LABELS on the focal node AND on each visible affinity neighbor. 'Affinity neighbors' = the existing connectedMap derived from getNeighborsEnriched (chemistry + cuisine), uncapped per user request. Edge mesh stays hidden in this isolate-state so the visual is purely 'focal + its neighbors with names'. Exit by clicking empty space (deselect) or clicking another ingredient (changes focal). Camera does not auto-move.",
+  "blocked_on": null,
+  "acceptance": [
+    "ClusterJoystick pill click triggers setFlyToTarget WITHOUT enabling progressive-disclosure edges (showEdges flag, or whatever path was setting EdgeMesh visible, is untouched)",
+    "Single-click on an ingredient in Network mode: non-affinity NodeMesh instances are set to scale=0 (or visible=false) instead of just dimmed/recolored",
+    "Label sprites render at each visible neighbor's world position with the ingredient name; focal also gets a label",
+    "EdgeMesh is hidden during the isolate state so the visible scene is just focal + neighbors + their labels",
+    "Clicking empty space restores all NodeMesh scales + clears all label sprites (no leak)",
+    "Clicking a DIFFERENT ingredient swaps the focal and re-derives neighbor set + labels (no stale labels)",
+    "Tests: NetworkScene.flyToPill.test.jsx — pill click does NOT toggle showEdges to true; NetworkScene.isolateNeighbors.test.jsx — single-click sets non-neighbor scale=0 + creates label sprites on focal+neighbors; deselect clears them",
+    "All existing tests still pass; npm run build succeeds"
+  ]
+}
+```

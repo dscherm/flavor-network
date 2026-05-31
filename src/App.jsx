@@ -2214,6 +2214,11 @@ export default function App() {
             // branch was silently dead in 'Cooks With · 3D / 2D' modes.
             const isCluster = target && typeof target.id === 'number' && Array.isArray(target.centroid_3d);
             if (isCluster) {
+              // NETWORK-CLICK-POLISH-V1: when you fly INTO a cluster,
+              // the synapse-edge mesh becomes spaghetti against the
+              // closer camera. Hide edges so the focused view is just
+              // ingredients + labels. Users can re-enable from Controls.
+              setShowEdges(false);
               // Pass clusterId so LivingArchView resolves the live label
               // sprite + runtime centroid (post-GNN-blend, mode-aware).
               // The static centroid_3d we pass as `position` is just a
