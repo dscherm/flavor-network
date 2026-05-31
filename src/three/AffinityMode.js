@@ -978,28 +978,10 @@ export class AffinityMode {
     // chosen pivot," distinct from every affinity color.
     this.focalMesh.instanceColor.setXYZ(0, 1, 1, 1);
 
-    // NETWORK-CLICK-POLISH-V2: extra focals placed on a small inner
-    // ring at radius MULTI_FOCAL_RING_RADIUS around the primary focal.
-    // Angles evenly spaced; first extra at angle PI/2 (north) so the
-    // primary is visually "anchor" + extras orbit around it.
-    if (extraFocals.length > 0) {
-      const stepAngle = (Math.PI * 2) / extraFocals.length;
-      const angleOffset = Math.PI / 2;
-      for (let i = 0; i < extraFocals.length; i++) {
-        const extraName = extraFocals[i];
-        const extraIdx = st.nameIdx?.get(extraName);
-        if (extraIdx === undefined) continue;
-        const a = angleOffset + i * stepAngle;
-        const ex = cx + MULTI_FOCAL_RING_RADIUS * Math.cos(a);
-        const ez = cz + MULTI_FOCAL_RING_RADIUS * Math.sin(a);
-        tmpV.set(ex, cy, ez);
-        m.compose(tmpV, tmpQ, focalScaleVec);
-        this.focalMesh.setMatrixAt(i + 1, m);
-        // Extra focals get a slightly cooler off-white so the primary
-        // (pure white) still reads as "the anchor."
-        this.focalMesh.instanceColor.setXYZ(i + 1, 0.78, 0.86, 0.98);
-      }
-    }
+    // NETWORK-CLICK-POLISH-V2: focal repositioning for multi-focal
+    // happens in block 1b' below (after the wedge layout is computed),
+    // since each focal needs its bucket-sector position. The default
+    // single-instance write above stays the back-compat path for N=1.
     // Cap instance count to actual focals so unused slots aren't drawn.
     this.focalMesh.count = Math.max(1, focals.length);
 
@@ -1270,6 +1252,61 @@ export class AffinityMode {
     for (const ringIdx of [4, 5]) {
       const mesh = this._ringMeshes[ringIdx];
       if (mesh) mesh.visible = false;
+    }
+
+    // ─── 1b'. NETWORK-CLICK-POLISH-V2 — multi-focal re-placement ───
+    // When 2+ focals are engaged, OVERRIDE the simple "primary at
+    // network position + extras in a small ring" layout from 1a with
+    // a wedge-based one: every focal sits in its bucket's wedge sector
+    // on the innermost tier. No focal lands at the wheel center.
+    // Multiple focals in the same bucket stack radially inward.
+    if (extraFocals.length > 0) {
+      const sharedLayout = layoutByRing[3];
+      const axisKey = sharedLayout?.axisKey || DEFAULT_WEDGE_AXIS;
+      const focalRingRadius = RADII[3];
+      const focalRadialStack = 4.0;
+      const nodesMap = this.ctx?.graph?.nodes;
+      const stackByBucket = new Map();
+      for (let fi = 0; fi < focals.length; fi++) {
+        const fName = focals[fi];
+        const fNode = (nodesMap && typeof nodesMap.get === 'function')
+          ? (nodesMap.get(fName) || { name: fName })
+          : { name: fName };
+        const bucket = resolveBucket(axisKey, fNode, this._categoricalCtx);
+        const wedge = bucket ? sharedLayout?.wedgeByKey?.get(bucket) : null;
+        if (!wedge) {
+          // No bucket on this axis — hide the focal cube by collapsing
+          // its scale. Keep the slot allocated so the count stays sane.
+          const zeroVec = new THREE.Vector3(0, 0, 0);
+          tmpV.set(cx, cy, cz);
+          m.compose(tmpV, tmpQ, zeroVec);
+          this.focalMesh.setMatrixAt(fi, m);
+          continue;
+        }
+        const stackIdx = stackByBucket.get(wedge.key) || 0;
+        stackByBucket.set(wedge.key, stackIdx + 1);
+        const r = Math.max(8, focalRingRadius - stackIdx * focalRadialStack);
+        const fx = cx + r * Math.cos(wedge.midAngle);
+        const fz = cz + r * Math.sin(wedge.midAngle);
+        tmpV.set(fx, cy, fz);
+        m.compose(tmpV, tmpQ, focalScaleVec);
+        this.focalMesh.setMatrixAt(fi, m);
+        // Tint each focal with its bucket color so the wedge identity
+        // reads at a glance (primary stays slightly brighter).
+        const bucketHex = sharedLayout?.bucketColors?.[wedge.key];
+        if (bucketHex) {
+          const bc = new THREE.Color(bucketHex);
+          const brighten = fi === 0 ? 0.25 : 0;
+          this.focalMesh.instanceColor.setXYZ(
+            fi,
+            Math.min(1, bc.r + brighten),
+            Math.min(1, bc.g + brighten),
+            Math.min(1, bc.b + brighten),
+          );
+        }
+      }
+      this.focalMesh.instanceMatrix.needsUpdate = true;
+      this.focalMesh.instanceColor.needsUpdate = true;
     }
 
     // ─── 1c. Wedge arc outlines (legacy single-axis arcs) ───

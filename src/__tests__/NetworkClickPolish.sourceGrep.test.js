@@ -120,10 +120,15 @@ describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', (
     expect(affinityJs).toMatch(/extraNames\.has\(a\.name\)/);
   });
 
-  it('extra focal cubes placed on a ring around the primary focal at MULTI_FOCAL_RING_RADIUS', () => {
-    expect(affinityJs).toMatch(/MULTI_FOCAL_RING_RADIUS \* Math\.cos\(a\)/);
-    expect(affinityJs).toMatch(/MULTI_FOCAL_RING_RADIUS \* Math\.sin\(a\)/);
-    expect(affinityJs).toMatch(/this\.focalMesh\.setMatrixAt\(i \+ 1, m\)/);
+  it('multi-focal cubes placed at their bucket wedge sector (no focal at wheel center)', () => {
+    // User feedback (2026-05-30): never place a focal at the wheel
+    // center; every focal sits in its bucket sector on the innermost
+    // tier. resolveBucket + wedgeByKey lookup is the placement signal.
+    expect(affinityJs).toMatch(/multi-focal re-placement/);
+    expect(affinityJs).toMatch(/resolveBucket\(axisKey, fNode, this\._categoricalCtx\)/);
+    expect(affinityJs).toMatch(/sharedLayout\?\.wedgeByKey\?\.get\(bucket\)/);
+    expect(affinityJs).toMatch(/r \* Math\.cos\(wedge\.midAngle\)/);
+    expect(affinityJs).toMatch(/r \* Math\.sin\(wedge\.midAngle\)/);
   });
 
   it('focalMesh.count is set to focals.length so unused slots are not drawn', () => {
