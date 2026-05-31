@@ -96,13 +96,22 @@ export default function GuidedProfileRadar({
   const { plotted, droppedCount } = useMemo(() => {
     const raw = [];
     let dropped = 0;
+    // User feedback 2026-05-31 (a): pull every affinity dot closer to
+    // the focal node by scaling the raw radial position. 0.62 keeps
+    // the dots visually inside the axis spokes (which sit at full
+    // `radius`) but well within the wheel so the focal is still the
+    // visual center of mass.
+    const FOCAL_PULL = 0.62;
     for (const p of pairings) {
       const coords = coordsForPairing(p, filterType, axes, radius, odorThresholds);
       if (!coords) {
         dropped += 1;
         continue;
       }
-      raw.push({ pairing: p, coords });
+      raw.push({
+        pairing: p,
+        coords: { x: coords.x * FOCAL_PULL, y: coords.y * FOCAL_PULL },
+      });
     }
     // Bucket by canonical coord (0.5px granularity).
     const buckets = new Map();
@@ -112,25 +121,32 @@ export default function GuidedProfileRadar({
       if (bucket) bucket.push(item);
       else buckets.set(key, [item]);
     }
+    // User feedback 2026-05-31 (b): for multi-affinity buckets in the
+    // same wedge cluster, push each dot OUTWARD along its radial line
+    // (away from focal) instead of spiraling azimuthally — that way
+    // overlapping dots fan along the spoke direction at increasing
+    // distances from center, never re-overlapping with neighbors.
     const out = [];
-    const DECOLLIDE_RADIUS = 9;
+    const RADIAL_STEP = 10; // px per stacked dot
     for (const bucket of buckets.values()) {
       if (bucket.length === 1) {
         out.push(bucket[0]);
         continue;
       }
-      // Strongest first so it lands at top (-π/2), others fan clockwise.
-      const sorted = [...bucket].sort((a, b) => (b.pairing?.strength ?? 0) - (a.pairing?.strength ?? 0));
+      // Strongest first → keeps its inner slot; weaker ones move out.
+      const sorted = [...bucket].sort(
+        (a, b) => (b.pairing?.strength ?? 0) - (a.pairing?.strength ?? 0),
+      );
+      const cx0 = sorted[0].coords.x;
+      const cy0 = sorted[0].coords.y;
+      const dist = Math.hypot(cx0, cy0) || 1;
+      const ux = cx0 / dist;
+      const uy = cy0 / dist;
       for (let i = 0; i < sorted.length; i += 1) {
-        const a = -Math.PI / 2 + (Math.PI * 2 * i) / sorted.length;
-        const cx0 = sorted[i].coords.x;
-        const cy0 = sorted[i].coords.y;
+        const r = dist + i * RADIAL_STEP;
         out.push({
           pairing: sorted[i].pairing,
-          coords: {
-            x: cx0 + DECOLLIDE_RADIUS * Math.cos(a),
-            y: cy0 + DECOLLIDE_RADIUS * Math.sin(a),
-          },
+          coords: { x: ux * r, y: uy * r },
         });
       }
     }
