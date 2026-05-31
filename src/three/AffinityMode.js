@@ -1672,12 +1672,14 @@ export class AffinityMode {
       sprite.position.set(pos[0], pos[1] + 4, pos[2]);
       this.labelGroup.add(sprite);
     }
-    // Track 2 (2026-05-16) — accent name labels are now carried by
-    // AffinityTriangleOverlay in SVG. Keeping the 3D sprites visible
-    // produced doubled labels ("cheese cheese", "flour flour" in the
-    // user's screenshot). The sprite buffer is still populated so any
-    // future code path can flip this back on, but the default is off.
-    this.labelGroup.visible = false;
+    // Track 2 (2026-05-16) — accent name labels are normally carried
+    // by AffinityTriangleOverlay in SVG. Keeping the 3D sprites visible
+    // alongside the SVG produced doubled labels for single-focal α-mode.
+    // NETWORK-CLICK-POLISH-V2: the SVG overlay isn't multi-focal-aware,
+    // so for multi-focal we flip the 3D sprites back on (no SVG to
+    // double them).
+    const isMultiFocal = this._currentFocals && this._currentFocals.length > 1;
+    this.labelGroup.visible = isMultiFocal;
 
     // Bucket-name labels — one per wedge, sitting at the outer label
     // radius in the same XZ plane as the wedge arcs. Re-uses makeLabel

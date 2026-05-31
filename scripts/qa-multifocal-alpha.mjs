@@ -168,6 +168,13 @@ const alphaState = await page.evaluate(() => {
     focalLabelGroupChildren: af.focalLabelGroup?.children?.length,
     focalLabelGroupVisible: af.focalLabelGroup?.visible,
     focalMeshCapacity: af.focalMesh?.instanceMatrix?.array?.length / 16,
+    labelGroupChildren: af.labelGroup?.children?.length,
+    labelGroupVisible: af.labelGroup?.visible,
+    labelGroupSampleLabels: (af.labelGroup?.children || []).slice(0, 5).map((s) => ({
+      pos: { x: s.position?.x, y: s.position?.y, z: s.position?.z },
+      visible: s.visible,
+      opacity: s.material?.opacity,
+    })),
     liveCurPos,
   };
 });
