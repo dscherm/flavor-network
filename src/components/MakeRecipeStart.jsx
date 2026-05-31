@@ -62,6 +62,11 @@ export default function MakeRecipeStart({
   const [parsed, setParsed] = useState(null); // { title, ingredients[], finalUrl }
   const [matched, setMatched] = useState([]); // matchRecipeIngredients output
   const [included, setIncluded] = useState(new Set()); // indices kept for bowl handoff
+  // MAKE-PHOTO-NON-IMAGE-FEEDBACK: surface a friendly error when the
+  // file picker returns a non-image (PDF, Pages doc, etc. — common on
+  // iOS when 'Browse' is wider than the photo library). Was silently
+  // early-returning, so the user had no idea anything happened.
+  const [photoError, setPhotoError] = useState(null);
   // MAKE-WEBLINK-MATCH-V2: per-row user edits. Map<idx, string>. A row
   // missing from the map uses the auto-match result; a row present uses
   // the user-typed value (which may be a known ingredient name or not).
@@ -97,13 +102,26 @@ export default function MakeRecipeStart({
   };
 
   const handlePhotoCardClick = () => {
+    setPhotoError(null);
     fileInputRef.current?.click();
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (e.target) e.target.value = '';
-    if (!file || !file.type || !file.type.startsWith('image/')) return;
+    if (!file) {
+      // User cancelled the picker — no-op, leave any existing error alone.
+      return;
+    }
+    if (!file.type || !file.type.startsWith('image/')) {
+      // Picked something — but not an image. Surface inline feedback
+      // instead of the previous silent early-return.
+      setPhotoError(
+        `That looks like a "${file.type || 'unknown'}" file. Pick a photo (jpg, png, heic) and try again.`,
+      );
+      return;
+    }
+    setPhotoError(null);
     setRecipeHandoff({
       source: 'make-photo',
       ingredients: [],
@@ -321,6 +339,26 @@ export default function MakeRecipeStart({
             </div>
           </button>
         ))}
+        {stage === STAGE.CARDS && photoError && (
+          <div
+            role="alert"
+            data-testid="make-photo-error"
+            className="rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-100 text-sm px-4 py-3 flex items-start gap-3"
+          >
+            <span aria-hidden="true" className="text-lg leading-none">⚠️</span>
+            <div className="flex-1 min-w-0">
+              <div>{photoError}</div>
+              <button
+                type="button"
+                onClick={handlePhotoCardClick}
+                data-testid="make-photo-error-retry"
+                className="mt-2 text-amber-200 underline hover:text-amber-50"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
+        )}
 
         {stage === STAGE.URL_INPUT && (
           <div data-testid="make-weblink-input" className="rounded-xl border border-[#1e1e2e] bg-[#12203b] p-5 sm:p-6">

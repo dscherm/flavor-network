@@ -117,12 +117,71 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
     expect(s.setRecipeMounted).not.toHaveBeenCalled();
   });
 
-  it('picking a non-image (e.g. text/plain) is a NO-OP', () => {
+  it('picking a non-image (e.g. text/plain) does not commit a handoff', () => {
     const s = mountPicker();
     const input = screen.getByTestId('make-photo-input');
     const txt = new File(['x'], 'notes.txt', { type: 'text/plain' });
     fireEvent.change(input, { target: { files: [txt] } });
     expect(s.setRecipeHandoff).not.toHaveBeenCalled();
+  });
+
+  // ===== MAKE-PHOTO-NON-IMAGE-FEEDBACK =====
+
+  it('picking a non-image surfaces an inline friendly error (was silent no-op)', () => {
+    mountPicker();
+    const input = screen.getByTestId('make-photo-input');
+    const txt = new File(['x'], 'notes.txt', { type: 'text/plain' });
+    fireEvent.change(input, { target: { files: [txt] } });
+    const err = screen.getByTestId('make-photo-error');
+    expect(err).toBeInTheDocument();
+    expect(err.textContent).toMatch(/jpg|png|heic/i);
+    expect(err.getAttribute('role')).toBe('alert');
+  });
+
+  it('error includes the picked file type so the user understands what went wrong', () => {
+    mountPicker();
+    const input = screen.getByTestId('make-photo-input');
+    const pdf = new File(['%PDF'], 'recipe.pdf', { type: 'application/pdf' });
+    fireEvent.change(input, { target: { files: [pdf] } });
+    expect(screen.getByTestId('make-photo-error').textContent).toMatch(/application\/pdf/);
+  });
+
+  it('"Try again" button re-opens the file picker', () => {
+    mountPicker();
+    const input = screen.getByTestId('make-photo-input');
+    const txt = new File(['x'], 'notes.txt', { type: 'text/plain' });
+    fireEvent.change(input, { target: { files: [txt] } });
+    const clickSpy = vi.spyOn(input, 'click');
+    fireEvent.click(screen.getByTestId('make-photo-error-retry'));
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('successful image pick after a non-image pick clears the error', () => {
+    mountPicker();
+    const input = screen.getByTestId('make-photo-input');
+    fireEvent.change(input, { target: { files: [new File(['x'], 'notes.txt', { type: 'text/plain' })] } });
+    expect(screen.getByTestId('make-photo-error')).toBeInTheDocument();
+    fireEvent.change(input, { target: { files: [new File(['x'], 'dish.png', { type: 'image/png' })] } });
+    expect(screen.queryByTestId('make-photo-error')).toBeNull();
+  });
+
+  it('cancelling the picker (no file) does not clear an existing error', () => {
+    mountPicker();
+    const input = screen.getByTestId('make-photo-input');
+    fireEvent.change(input, { target: { files: [new File(['x'], 'notes.txt', { type: 'text/plain' })] } });
+    expect(screen.getByTestId('make-photo-error')).toBeInTheDocument();
+    // Simulate cancel — onChange fires with files: [].
+    fireEvent.change(input, { target: { files: [] } });
+    expect(screen.getByTestId('make-photo-error')).toBeInTheDocument();
+  });
+
+  it('clicking the Photo card clears any prior non-image error before opening picker', () => {
+    mountPicker();
+    const input = screen.getByTestId('make-photo-input');
+    fireEvent.change(input, { target: { files: [new File(['x'], 'notes.txt', { type: 'text/plain' })] } });
+    expect(screen.getByTestId('make-photo-error')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('make-card-photo'));
+    expect(screen.queryByTestId('make-photo-error')).toBeNull();
   });
 
   it('first focus on mount lands on the existing card', () => {
