@@ -181,6 +181,18 @@ describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', (
 
   // ===== C4 — tap-on-non-focal-in-α-mode adds another focal =====
 
+  it('Search-select flies camera to picked ingredient (2026-05-31 UX fix)', () => {
+    // handleSearchSelect must call setFlyToTarget with the
+    // ingredient's position so picking from the search bar moves the
+    // camera to the result (previously: search just selected without
+    // a visual cue).
+    const handlerStart = appJsx.indexOf('handleSearchSelect = useCallback');
+    expect(handlerStart).not.toBe(-1);
+    const handlerSlice = appJsx.slice(handlerStart, handlerStart + 800);
+    expect(handlerSlice).toMatch(/setFlyToTarget\(\{ position: pos, ts: Date\.now\(\) \}\)/);
+    expect(handlerSlice).toMatch(/dataRef\.current\?\.positions\?\.positions/);
+  });
+
   it('C4: App.jsx single-click no longer force-resets affinityRequested unconditionally', () => {
     // V1 had `setAffinityRequested(false);` at the TOP of the single-
     // click branch — unconditional dismissal of α-mode on every click.
