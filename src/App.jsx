@@ -950,6 +950,26 @@ export default function App() {
     });
   }, []);
 
+  // QA debug hooks — gated on ?af_debug=1. Lets Playwright scripts
+  // drive multi-select + α-mode engagement deterministically without
+  // depending on canvas pixel coords or sidebar layout.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!/[?&]af_debug=1/.test(window.location.search)) return;
+    window.__qaSelect = (name) => setSelectedNodes((prev) =>
+      prev.includes(name) ? prev : [...prev, name],
+    );
+    window.__qaClearSelection = () => setSelectedNodes([]);
+    window.__qaEngageAffinity = (names) => {
+      if (Array.isArray(names) && names.length > 0) setSelectedNodes(names);
+      setAffinityRequested(true);
+    };
+    window.__qaReadSelection = () => ({
+      selectedNodes,
+      affinityRequested,
+    });
+  }, [selectedNodes, affinityRequested]);
+
   const handlePanelClose = useCallback(() => {
     setSelectedNodes([]);
     setHighlightPairings(null);
