@@ -887,7 +887,12 @@ export default function App() {
 
     if (isDoubleClick) {
       // Double-click commit → engage α-mode on this node.
-      setSelectedNodes([name]);
+      // NETWORK-CLICK-POLISH-V2: if name is already in the existing
+      // multi-selection, preserve the full set so α-mode engages on
+      // ALL focals (multi-focal). If name is NEW (not currently
+      // selected), replace with just [name] — a fresh double-click on
+      // an unselected node is a strong "focus on this alone" intent.
+      setSelectedNodes((prev) => (prev.includes(name) ? prev : [name]));
       setAffinityRequested(true);
       setActivePanel('ingredient');
       setTierPopup(null);

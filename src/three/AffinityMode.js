@@ -160,7 +160,14 @@ const TOTAL_RING_CAPACITY = RING_INDICES.reduce((sum, i) => sum + RING_CAPACITY[
 // (top-N by strength), independent of how many rings each appears on.
 // One edge from focal per UNIQUE affinity, colored by native tier.
 const UNIQUE_AFFINITY_CAP = 30;
-const FOCAL_CAPACITY = 1;
+// NETWORK-CLICK-POLISH-V2: bumped from 1 → 6 to support multi-focal
+// engage (user selects 2+ ingredients in Network mode, double-taps to
+// see overlapping affinities in α-mode). 6 is a generous practical
+// max — chef use cases hit 2-4.
+const FOCAL_CAPACITY = 6;
+// Radius of the inner focal-cube ring when N>1 focals. Single focal
+// stays at scene center (radius 0). Inner ring sits inside ring 1 (R=35).
+const MULTI_FOCAL_RING_RADIUS = 9;
 
 // Performance budget — warn if engage / pivot exceed.
 const PERF_BUDGET_MS = 200;
@@ -466,23 +473,33 @@ export class AffinityMode {
    *
    * @param {string} focal  ingredient name
    */
-  engage(focal) {
+  engage(focalOrFocals) {
     if (typeof performance !== 'undefined') {
       performance.mark('alpha-engage-start');
     }
-    if (this._engaged && this._currentFocal === focal) {
-      // Idempotent re-engage on the same focal — ignore.
-      return;
+    // NETWORK-CLICK-POLISH-V2: accept either a single focal name (legacy)
+    // or an array of names (multi-focal). Internally normalize to array.
+    const focals = Array.isArray(focalOrFocals)
+      ? focalOrFocals.filter((n) => typeof n === 'string' && n.length > 0).slice(0, FOCAL_CAPACITY)
+      : [focalOrFocals].filter((n) => typeof n === 'string' && n.length > 0);
+    if (focals.length === 0) return;
+    const focal = focals[0]; // primary focal (back-compat for callers that read _currentFocal)
+    const sameSet = this._currentFocals
+      && this._currentFocals.length === focals.length
+      && this._currentFocals.every((n, i) => n === focals[i]);
+    if (this._engaged && sameSet) {
+      return; // idempotent re-engage on same focal set
     }
     if (this._engaged) {
-      // Different focal → pivot path.
-      this.pivot(focal);
+      // Different focal set → re-pivot in place (no re-allocation).
+      this.pivot(focals);
       return;
     }
     this._engaged = true;
     this._currentFocal = focal;
-    this._writeRingsAndDim(focal);
-    this._flyToFocal(focal);
+    this._currentFocals = focals;
+    this._writeRingsAndDim(focals);
+    this._flyToFocal(focals);
     if (typeof performance !== 'undefined') {
       performance.mark('alpha-engage-end');
       try {
@@ -507,18 +524,28 @@ export class AffinityMode {
    *
    * @param {string} newFocal
    */
-  pivot(newFocal) {
+  pivot(newFocalOrFocals) {
     if (!this._engaged) {
-      this.engage(newFocal);
+      this.engage(newFocalOrFocals);
       return;
     }
-    if (this._currentFocal === newFocal) return;
+    // NETWORK-CLICK-POLISH-V2: accept array-or-string just like engage.
+    const focals = Array.isArray(newFocalOrFocals)
+      ? newFocalOrFocals.filter((n) => typeof n === 'string' && n.length > 0).slice(0, FOCAL_CAPACITY)
+      : [newFocalOrFocals].filter((n) => typeof n === 'string' && n.length > 0);
+    if (focals.length === 0) return;
+    const newFocal = focals[0];
+    const sameSet = this._currentFocals
+      && this._currentFocals.length === focals.length
+      && this._currentFocals.every((n, i) => n === focals[i]);
+    if (sameSet) return;
     if (typeof performance !== 'undefined') {
       performance.mark('alpha-pivot-start');
     }
     this._currentFocal = newFocal;
-    this._writeRingsAndDim(newFocal);
-    this._flyToFocal(newFocal);
+    this._currentFocals = focals;
+    this._writeRingsAndDim(focals);
+    this._flyToFocal(focals);
     if (typeof performance !== 'undefined') {
       performance.mark('alpha-pivot-end');
       try {
@@ -832,14 +859,24 @@ export class AffinityMode {
    * affinity instances on the shared default mesh, set cluster-ghost
    * opacity. Used by engage() and pivot().
    */
-  _writeRingsAndDim(focal) {
+  _writeRingsAndDim(focalOrFocals) {
     const st = this.stateRef;
     if (!st) return;
+    // NETWORK-CLICK-POLISH-V2: accept array OR string. focals[0] drives
+    // the existing single-focal ring/dim math (zero behavior change for
+    // legacy single-focal callers); focals[1..] only adds extra focal
+    // cubes at the end + filters affinities to the intersection.
+    const focals = Array.isArray(focalOrFocals)
+      ? focalOrFocals.filter((n) => typeof n === 'string' && n.length > 0)
+      : [focalOrFocals].filter((n) => typeof n === 'string' && n.length > 0);
+    const focal = focals[0];
+    const extraFocals = focals.slice(1);
     const focalIdx = st.nameIdx?.get(focal);
     if (focalIdx === undefined) {
       // Focal not in graph — bail without engaging.
       this._engaged = false;
       this._currentFocal = null;
+      this._currentFocals = null;
       return;
     }
 
@@ -895,7 +932,25 @@ export class AffinityMode {
     // surprising lists are ≤ 8).
     const tieredNames = new Set(tiered.map((a) => a.name));
     const dedupedSurprising = surprising.filter((a) => !tieredNames.has(a.name));
-    const affinities = [...tiered, ...dedupedSurprising];
+    let affinities = [...tiered, ...dedupedSurprising];
+    // NETWORK-CLICK-POLISH-V2: when multi-focal, intersect with each
+    // extra focal's tiered affinity name set. An affinity only stays
+    // visible if it's a tiered affinity (any tier) of EVERY focal —
+    // that's the "overlapping affinities" the user wants to compare.
+    // Empty intersection = focal cubes shown, no ring spheres.
+    if (extraFocals.length > 0) {
+      for (const extra of extraFocals) {
+        const extraTiered = topAffinities(extra, this.ctx, { N3: 60, N2: 60, N1: 60 });
+        const extraNames = new Set(extraTiered.map((a) => a.name));
+        // Always keep the primary focal's other selected focals visible
+        // as affinities, even when they don't pair (so user knows what
+        // they selected). Actually — extra focals shouldn't appear as
+        // affinities; they're focals themselves. Filter them out below.
+        affinities = affinities.filter((a) => extraNames.has(a.name));
+      }
+      const extraSet = new Set(extraFocals);
+      affinities = affinities.filter((a) => !extraSet.has(a.name));
+    }
     this._currentAffinities = affinities;
 
     // R14 Phase 5: focal is now drawn by `focalMesh` (a dodecahedron
@@ -922,6 +977,32 @@ export class AffinityMode {
     // Focal is drawn neutral white — no tier; its identity is "the
     // chosen pivot," distinct from every affinity color.
     this.focalMesh.instanceColor.setXYZ(0, 1, 1, 1);
+
+    // NETWORK-CLICK-POLISH-V2: extra focals placed on a small inner
+    // ring at radius MULTI_FOCAL_RING_RADIUS around the primary focal.
+    // Angles evenly spaced; first extra at angle PI/2 (north) so the
+    // primary is visually "anchor" + extras orbit around it.
+    if (extraFocals.length > 0) {
+      const stepAngle = (Math.PI * 2) / extraFocals.length;
+      const angleOffset = Math.PI / 2;
+      for (let i = 0; i < extraFocals.length; i++) {
+        const extraName = extraFocals[i];
+        const extraIdx = st.nameIdx?.get(extraName);
+        if (extraIdx === undefined) continue;
+        const a = angleOffset + i * stepAngle;
+        const ex = cx + MULTI_FOCAL_RING_RADIUS * Math.cos(a);
+        const ez = cz + MULTI_FOCAL_RING_RADIUS * Math.sin(a);
+        tmpV.set(ex, cy, ez);
+        m.compose(tmpV, tmpQ, focalScaleVec);
+        this.focalMesh.setMatrixAt(i + 1, m);
+        // Extra focals get a slightly cooler off-white so the primary
+        // (pure white) still reads as "the anchor."
+        this.focalMesh.instanceColor.setXYZ(i + 1, 0.78, 0.86, 0.98);
+      }
+    }
+    // Cap instance count to actual focals so unused slots aren't drawn.
+    this.focalMesh.count = Math.max(1, focals.length);
+
     this.focalMesh.instanceMatrix.needsUpdate = true;
     this.focalMesh.instanceColor.needsUpdate = true;
     this.focalMesh.visible = true;
@@ -1756,7 +1837,13 @@ export class AffinityMode {
    */
   refreshWedgeLayout() {
     if (!this._engaged || !this._currentFocal) return;
-    this._writeRingsAndDim(this._currentFocal);
+    // NETWORK-CLICK-POLISH-V2: pass _currentFocals if multi-focal is
+    // active, else fall back to the single _currentFocal (back-compat).
+    this._writeRingsAndDim(
+      this._currentFocals && this._currentFocals.length > 1
+        ? this._currentFocals
+        : this._currentFocal,
+    );
   }
 
   /**
@@ -1776,9 +1863,13 @@ export class AffinityMode {
    * feature flag is off, or in tests that construct AffinityMode
    * with two args.
    */
-  _flyToFocal(focal) {
+  _flyToFocal(focalOrFocals) {
     const st = this.stateRef;
     if (!st || !st.camera || !st.controls) return;
+    // NETWORK-CLICK-POLISH-V2: accept array; fly to the primary focal.
+    // Extra focals sit within MULTI_FOCAL_RING_RADIUS so the primary
+    // anchor is a sufficient framing target.
+    const focal = Array.isArray(focalOrFocals) ? focalOrFocals[0] : focalOrFocals;
     const idx = st.nameIdx?.get(focal);
     if (idx === undefined) return;
     const fx = st.curPos[idx * 3];

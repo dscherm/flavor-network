@@ -3159,21 +3159,16 @@ export default function LivingArchView({
     }
     if (selectedNodes.length === 0) {
       if (ctrl.engaged) ctrl.exit();
-    } else if (selectedNodes.length === 1) {
-      const focal = selectedNodes[0];
+    } else if (affinityRequested) {
       // Canonical-spec §3.5 — α-mode requires the explicit commit
-      // gesture (double-click or long-press). Single-click selection
-      // only opens the panel; affinityRequested stays false and we
-      // skip engage. If α-mode was already engaged (re-pivot path),
-      // affinityRequested stays true and we pivot to the new focal.
+      // gesture (double-click or long-press). NETWORK-CLICK-POLISH-V2:
+      // when 2+ selected, engage in multi-focal mode (focals shown as
+      // extra cubes on a small inner ring + ring spheres restricted to
+      // the intersection of each focal's tiered affinities).
+      const focals = selectedNodes;
       if (ctrl.engaged) {
-        if (affinityRequested) {
-          ctrl.pivot(focal);
-        } else {
-          // Selection changed but α-mode no longer requested → exit.
-          ctrl.exit();
-        }
-      } else if (affinityRequested) {
+        ctrl.pivot(focals);
+      } else {
         // §5.6 mutex: cluster-focus and α-mode are mutually exclusive.
         // Exit cluster-focus FIRST so the camera/matrix reversal
         // animation runs before α-mode reframes onto the focal.
@@ -3186,12 +3181,17 @@ export default function LivingArchView({
           }
           clusterFocusCameraSnapshotRef.current = null;
         }
-        ctrl.engage(focal);
+        ctrl.engage(focals);
       }
-      // else: single-click selection, no engage. Panel only.
+    } else if (selectedNodes.length === 1) {
+      // Single-click selection, no engage. Panel only. Exit α-mode if
+      // we were previously engaged but the user backed off the explicit
+      // double-click intent.
+      if (ctrl.engaged) ctrl.exit();
     } else {
-      // Multi-select: suspend ring visuals; existing common-pairings
-      // UX takes over. Resume on collapse back to length 1.
+      // 2+ selected but no explicit α-mode request → suspend ring
+      // visuals; the Network-mode intersection-isolate view (V2 Part A)
+      // takes over.
       ctrl.suspend();
     }
     // P3 (ADR-1 hide-without-delete addendum): the per-frame R17

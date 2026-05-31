@@ -14,6 +14,10 @@ const lavJsx = readFileSync(
   resolve(__dirname, '../components/LivingArchView.jsx'),
   'utf8',
 );
+const affinityJs = readFileSync(
+  resolve(__dirname, '../three/AffinityMode.js'),
+  'utf8',
+);
 
 describe('NETWORK-CLICK-POLISH-V1 — App.jsx C1 (pill flight hides edges)', () => {
   it('App.jsx onFlyTo isCluster branch calls setShowEdges(false)', () => {
@@ -89,5 +93,53 @@ describe('NETWORK-CLICK-POLISH-V1 — LivingArchView.jsx C2 (isolate + labels)',
     const depsLine = lavJsx.match(/\}, \[selectedNode, selectedNodes, data, filterStack, morphAxis[^\]]*\]\);/);
     expect(depsLine).not.toBeNull();
     expect(depsLine[0]).toContain('showEdges');
+  });
+});
+
+describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', () => {
+  it('FOCAL_CAPACITY bumped from 1 to support multi-focal cubes', () => {
+    expect(affinityJs).toMatch(/const FOCAL_CAPACITY = 6/);
+  });
+
+  it('MULTI_FOCAL_RING_RADIUS defined for extra-cube placement', () => {
+    expect(affinityJs).toMatch(/const MULTI_FOCAL_RING_RADIUS = \d+/);
+  });
+
+  it('engage() accepts array OR string (back-compat)', () => {
+    expect(affinityJs).toMatch(/engage\(focalOrFocals\)/);
+    expect(affinityJs).toMatch(/Array\.isArray\(focalOrFocals\)/);
+  });
+
+  it('pivot() accepts array OR string (back-compat)', () => {
+    expect(affinityJs).toMatch(/pivot\(newFocalOrFocals\)/);
+  });
+
+  it('_writeRingsAndDim() accepts array AND filters affinities to intersection of extra focals', () => {
+    expect(affinityJs).toMatch(/_writeRingsAndDim\(focalOrFocals\)/);
+    expect(affinityJs).toMatch(/extraFocals\.length > 0/);
+    expect(affinityJs).toMatch(/extraNames\.has\(a\.name\)/);
+  });
+
+  it('extra focal cubes placed on a ring around the primary focal at MULTI_FOCAL_RING_RADIUS', () => {
+    expect(affinityJs).toMatch(/MULTI_FOCAL_RING_RADIUS \* Math\.cos\(a\)/);
+    expect(affinityJs).toMatch(/MULTI_FOCAL_RING_RADIUS \* Math\.sin\(a\)/);
+    expect(affinityJs).toMatch(/this\.focalMesh\.setMatrixAt\(i \+ 1, m\)/);
+  });
+
+  it('focalMesh.count is set to focals.length so unused slots are not drawn', () => {
+    expect(affinityJs).toMatch(/this\.focalMesh\.count = Math\.max\(1, focals\.length\)/);
+  });
+
+  it('_currentFocals tracked alongside legacy _currentFocal', () => {
+    expect(affinityJs).toMatch(/this\._currentFocals = focals/);
+  });
+
+  it('LivingArchView α-mode driver engages with the full selectedNodes array (multi-focal path)', () => {
+    expect(lavJsx).toMatch(/ctrl\.engage\(focals\)/);
+    expect(lavJsx).toMatch(/ctrl\.pivot\(focals\)/);
+  });
+
+  it('App.jsx double-click preserves existing multi-selection when name is already in it', () => {
+    expect(appJsx).toMatch(/prev\.includes\(name\) \? prev : \[name\]/);
   });
 });
