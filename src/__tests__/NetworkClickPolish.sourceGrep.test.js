@@ -69,8 +69,16 @@ describe('NETWORK-CLICK-POLISH-V1 — LivingArchView.jsx C2 (isolate + labels)',
     expect(appJsx).toMatch(/return \[\.\.\.prev, name\]/);
   });
 
-  it('V2: empty-space click clears multi-selection', () => {
-    expect(appJsx).toMatch(/NETWORK-CLICK-POLISH-V2[\s\S]{0,600}selectedNodes\.length > 0[\s\S]{0,200}setSelectedNodes\(\[\]\)/);
+  it('V2: empty-space click clears selection via functional setter (avoids stale closure)', () => {
+    // V2 originally used direct read of selectedNodes which was stale
+    // due to useCallback memoization. Fixed to use functional form.
+    expect(appJsx).toMatch(/NETWORK-CLICK-POLISH-V2[\s\S]{0,800}setSelectedNodes\(\(prev\) => \{/);
+    expect(appJsx).toMatch(/if \(prev\.length === 0\) return prev/);
+  });
+
+  it('V2: orbit drag is gated to preserve selection during rotation', () => {
+    expect(lavJsx).toMatch(/DRAG_THRESHOLD_PX/);
+    expect(lavJsx).toMatch(/Math\.hypot\(dx, dy\) > DRAG_THRESHOLD_PX/);
   });
 
   it('V2: isolate effect computes INTERSECTION when N>=2 focals', () => {

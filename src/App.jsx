@@ -837,6 +837,11 @@ export default function App() {
   }, [data, selectedNodes]);
 
   const handleNodeClick = useCallback((node, screenPos) => {
+    // QA tracing — increments each time the click handler fires.
+    if (typeof window !== 'undefined') {
+      window.__qaClickCount = (window.__qaClickCount || 0) + 1;
+      window.__qaLastClickNodeName = node?.name ?? null;
+    }
     // Cluster-focus gate: when a cluster is focused, an empty-space
     // click exits focus (but no longer clears the IngredientPanel —
     // panel only closes via its X button). Clicking a node outside
@@ -856,18 +861,21 @@ export default function App() {
       const isCategoricalFocus = morphAxis && focusedCluster <= -100;
       if (!isCategoricalFocus && node.clusterId !== focusedCluster) return;
     }
-    // NETWORK-CLICK-POLISH-V2: empty-space click clears the multi-
+    // NETWORK-CLICK-POLISH-V2: empty-space click clears the
     // selection so the user has an obvious "back to full network"
-    // escape hatch. Only fires when a multi-selection exists; an
-    // empty-click with no selection stays a no-op (so OrbitControls
-    // drags don't accidentally dismiss anything).
+    // escape hatch. Use the functional setter form because this
+    // callback is useCallback-memoized with deps that don't include
+    // selectedNodes — closure reads would be stale.
+    // Also fires affinityRequested=false so α-mode exits cleanly.
     if (!node) {
-      if (selectedNodes.length > 0) {
-        setSelectedNodes([]);
+      setSelectedNodes((prev) => {
+        if (prev.length === 0) return prev;
         setHighlightPairings(null);
         setActivePanel(null);
         setTierPopup(null);
-      }
+        setAffinityRequested(false);
+        return [];
+      });
       return;
     }
     setHighlightPairings(null);
@@ -953,22 +961,27 @@ export default function App() {
   // QA debug hooks — gated on ?af_debug=1. Lets Playwright scripts
   // drive multi-select + α-mode engagement deterministically without
   // depending on canvas pixel coords or sidebar layout.
+  // __qaReadSelection reads from a live ref (vs closure) so probes
+  // capture the latest committed state, not a stale render snapshot.
+  const qaStateRef = useRef({ selectedNodes: [], affinityRequested: false });
+  qaStateRef.current = { selectedNodes, affinityRequested };
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!/[?&]af_debug=1/.test(window.location.search)) return;
     window.__qaSelect = (name) => setSelectedNodes((prev) =>
       prev.includes(name) ? prev : [...prev, name],
     );
-    window.__qaClearSelection = () => setSelectedNodes([]);
+    window.__qaClearSelection = () => {
+      setSelectedNodes([]);
+      setAffinityRequested(false);
+      setActivePanel(null);
+    };
     window.__qaEngageAffinity = (names) => {
       if (Array.isArray(names) && names.length > 0) setSelectedNodes(names);
       setAffinityRequested(true);
     };
-    window.__qaReadSelection = () => ({
-      selectedNodes,
-      affinityRequested,
-    });
-  }, [selectedNodes, affinityRequested]);
+    window.__qaReadSelection = () => ({ ...qaStateRef.current });
+  }, []);
 
   const handlePanelClose = useCallback(() => {
     setSelectedNodes([]);
