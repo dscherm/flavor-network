@@ -992,6 +992,11 @@ export default function App() {
     window.__qaSetTab = (tab) => {
       setStartPageComplete(true);
       setActiveTab(tab);
+      // Lazy-mounted labs need their mount flag flipped too,
+      // otherwise activeTab='sauce' renders nothing.
+      if (tab === 'sauce') setSauceMounted(true);
+      if (tab === 'cocktail') setCocktailMounted(true);
+      if (tab === 'recipe') setRecipeMounted(true);
     };
   }, []);
 
