@@ -13,13 +13,19 @@ import { FILTER_KEYS, FILTER_LABELS } from '../data/networkModes.js';
 export default function FilterPillRow({
   filterStack = [],
   onToggle,
+  // eslint-disable-next-line no-unused-vars
   onClear,
   // mode prop is accepted for future symmetry with 3D/2D-specific
   // pill behavior but is not consumed in Phase 1.
   // eslint-disable-next-line no-unused-vars
   mode,
+  // 2026-05-31 redesign: "None" pill is now a particles-on toggle that
+  // leaves filterStack (and the current palette) untouched. Active
+  // when particlesOverride === true.
+  particlesOverride = false,
+  onToggleNone,
 }) {
-  const isNoneActive = filterStack.length === 0;
+  const isNoneActive = particlesOverride;
 
   return (
     <div
@@ -56,13 +62,15 @@ export default function FilterPillRow({
         );
       })}
 
-      {/* "None" pill — clears the stack. Moved to the END per user
-          feedback 2026-05-31 (was first). */}
+      {/* "None" pill — 2026-05-31 redesign: toggles particles flowing
+          across the network. Does NOT clear the filter stack, so the
+          current palette stays. Active when particlesOverride === true. */}
       <button
         type="button"
         role="checkbox"
         aria-checked={isNoneActive}
-        onClick={() => onClear?.()}
+        aria-label="Toggle particles flowing across the network"
+        onClick={() => onToggleNone?.()}
         className={`flex-shrink-0 px-3 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
           isNoneActive
             ? 'text-white bg-cyan-500 border border-cyan-400'

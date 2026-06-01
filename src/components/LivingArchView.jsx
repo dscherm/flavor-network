@@ -46,6 +46,10 @@ export default function LivingArchView({
   selectedNodes = [],
   showEdges = true,
   showParticles = true,
+  // 2026-05-31 — "None" pill override. When true, particles flow
+  // across the network regardless of whether a filter is active. The
+  // R17 visual-treatment effect ANDs this in.
+  particlesOverride = false,
   edgeBrightness = 1.0,
   particleBrightness = 1.0,
   filterTaste = '',
@@ -2960,8 +2964,14 @@ export default function LivingArchView({
     // Edges + particles hide whenever any filter is active — pulling
     // nodes toward poles leaves the long edges spanning the wheel
     // center, which produces the haze we already saw in R16 P1.
+    // EXCEPT: particlesOverride (the "None" pill toggle) forces
+    // particles back on regardless of filter — the override lets the
+    // user keep the active filter's color palette while overlaying
+    // the synapse-pulse animation.
     if (edgeMesh) edgeMesh.visible = !filterActive && showEdges;
-    if (particleMesh) particleMesh.visible = !filterActive && showParticles;
+    if (particleMesh) {
+      particleMesh.visible = (particlesOverride || !filterActive) && showParticles;
+    }
 
     // ML cluster labels + connectors only show in the unfiltered
     // network views — filter overlays replace them with axis pills
@@ -3001,7 +3011,7 @@ export default function LivingArchView({
     if (st.aromaSectorGroup) {
       st.aromaSectorGroup.visible = false;
     }
-  }, [filterStack, morphAxis, mode, showEdges, showParticles]);
+  }, [filterStack, morphAxis, mode, showEdges, showParticles, particlesOverride]);
 
   // ---- R16 Phase 1/2 + R17: filter-stack visibility predicate ----
   // Runs only when membership-defining inputs change (filterStack +

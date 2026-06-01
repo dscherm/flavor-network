@@ -210,3 +210,84 @@ describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', (
     expect(after).not.toMatch(/^\s*setAffinityRequested\(false\)/m);
   });
 });
+
+describe('α-EXIT-FULL-RESET (2026-05-31) — ESC from α-mode does a full reset', () => {
+  it('ESC handler calls handleClearSelection() instead of just setAffinityRequested(false)', () => {
+    // The α-mode ESC branch must full-reset to the default Network
+    // state, not leave the user in V1 intersection-isolate. Anchor on
+    // the keydown-handler-specific comment so we don't match the
+    // doc-level ESC listener that fires only on focusedCluster.
+    const anchor = appJsx.indexOf('ESC from α-mode does a full reset');
+    expect(anchor).not.toBe(-1);
+    const slice = appJsx.slice(anchor, anchor + 800);
+    expect(slice).toMatch(/if \(affinityRequested\)/);
+    expect(slice).toMatch(/handleClearSelection\(\)/);
+  });
+
+  it('handleClearSelection resets particlesOverride to false', () => {
+    const handlerStart = appJsx.indexOf('handleClearSelection = useCallback');
+    expect(handlerStart).not.toBe(-1);
+    const handlerSlice = appJsx.slice(handlerStart, handlerStart + 1200);
+    expect(handlerSlice).toMatch(/setParticlesOverride\(false\)/);
+  });
+
+  it('empty-space click also resets particlesOverride to false', () => {
+    // The !node branch should land at the same default as
+    // handleClearSelection so background-tap + Clear button feel
+    // identical. Anchor on the V2 comment that precedes the relevant
+    // block — there are multiple `if (!node)` occurrences in the file
+    // (the cluster-focus exit and a guard return).
+    const anchor = appJsx.indexOf('NETWORK-CLICK-POLISH-V2: empty-space click');
+    expect(anchor).not.toBe(-1);
+    const slice = appJsx.slice(anchor, anchor + 1000);
+    expect(slice).toMatch(/setParticlesOverride\(false\)/);
+  });
+});
+
+describe('NONE-PILL-PARTICLES-OVERRIDE (2026-05-31)', () => {
+  it('App.jsx defines particlesOverride state', () => {
+    expect(appJsx).toMatch(/const \[particlesOverride, setParticlesOverride\] = useState\(false\)/);
+  });
+
+  it('App.jsx defines toggleNoneOverride callback that flips particlesOverride', () => {
+    expect(appJsx).toMatch(/toggleNoneOverride[\s\S]{0,200}setParticlesOverride\(\(p\) => !p\)/);
+  });
+
+  it('FilterPillRow None pill is wired to onToggleNone (not onClear)', () => {
+    const filterPillRow = readFileSync(
+      resolve(__dirname, '../components/FilterPillRow.jsx'),
+      'utf8',
+    );
+    // The None button onClick must call onToggleNone, not onClear.
+    const noneBlock = filterPillRow.match(/"None" pill[\s\S]{0,800}>\s*None\s*</);
+    expect(noneBlock).not.toBeNull();
+    expect(noneBlock[0]).toMatch(/onToggleNone\?\.\(\)/);
+    expect(noneBlock[0]).not.toMatch(/onClear\?\.\(\)/);
+  });
+
+  it('FilterPillRow None pill active state binds to particlesOverride', () => {
+    const filterPillRow = readFileSync(
+      resolve(__dirname, '../components/FilterPillRow.jsx'),
+      'utf8',
+    );
+    // isNoneActive used to be `filterStack.length === 0`; now it
+    // tracks particlesOverride so the pill highlight reflects the
+    // particle-toggle state.
+    expect(filterPillRow).toMatch(/const isNoneActive = particlesOverride/);
+  });
+
+  it('LivingArchView R17 effect ORs particlesOverride into particle visibility', () => {
+    // The rule changed from `!filterActive && showParticles` to
+    // `(particlesOverride || !filterActive) && showParticles` so a
+    // filter-active state can still surface particles via "None".
+    expect(lavJsx).toMatch(/particlesOverride \|\| !filterActive/);
+  });
+
+  it('LivingArchView R17 effect adds particlesOverride to deps', () => {
+    // Effect deps must include particlesOverride so toggling it
+    // re-runs the visibility rule. Without this dep, "None" wouldn't
+    // do anything until another effect (like a filter toggle)
+    // triggered the R17 re-fire.
+    expect(lavJsx).toMatch(/\[filterStack, morphAxis, mode, showEdges, showParticles, particlesOverride\]/);
+  });
+});
