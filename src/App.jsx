@@ -320,6 +320,11 @@ export default function App() {
   }, [filterStack.length]);
   const [showEdges, setShowEdges] = useState(true);
   const [showParticles, setShowParticles] = useState(true);
+  // "None" pill (2026-05-31 redesign): clicking "None" no longer clears
+  // the filter — it toggles particles on across the network while the
+  // active filter's color palette stays. Persists until "None" is
+  // toggled off or handleClearSelection runs (α-mode exit / Clear).
+  const [particlesOverride, setParticlesOverride] = useState(false);
   const [edgeBrightness] = useState(0.3);
   const [particleBrightness] = useState(0.3);
   const [selectedNodes, setSelectedNodes] = useState([]);
@@ -556,6 +561,12 @@ export default function App() {
 
   const clearFilters = useCallback(() => {
     setFilterStack([]);
+  }, []);
+
+  // "None" pill toggle (2026-05-31). Flips particlesOverride, leaves
+  // filterStack alone so the active filter's palette persists.
+  const toggleNoneOverride = useCallback(() => {
+    setParticlesOverride((p) => !p);
   }, []);
 
   // Task-6 Phase-2 wiring: thin adapter so the wedge-grid wheel can drive
@@ -883,6 +894,7 @@ export default function App() {
         setFilterStack(['flavor-category']);
         setShowEdges(true);
         setClusterHighlights(null);
+        setParticlesOverride(false);
         return [];
       });
       return;
@@ -1045,6 +1057,10 @@ export default function App() {
     setFilterStack(['flavor-category']);
     setShowEdges(true);
     setClusterHighlights(null);
+    // Default state has no particles flowing (Flavor Graph filter
+    // active → R17 rule hides them). Clear the None-pill override
+    // too so the post-clear render obeys that default.
+    setParticlesOverride(false);
   }, []);
 
   // Canon §5.6.4 — ESC must exit cluster-focus regardless of which
@@ -1153,10 +1169,14 @@ export default function App() {
     function handleKeyDown(e) {
       if (isTyping(e.target)) return;
       if (e.key === 'Escape') {
-        // Canonical-spec §6.8: ESC exits α-mode but keeps the panel open.
-        // Press ESC again to clear the selection fully.
+        // 2026-05-31: ESC from α-mode does a full reset to the default
+        // Network state (Flavor Graph pill, cluster colors, all nodes
+        // shown, no particles). Previous canonical-spec §6.8 staged
+        // exit (ESC drops α-mode → ESC again clears selection) left
+        // the user in V1 intersection-isolate which felt half-exited.
         if (affinityRequested) {
-          setAffinityRequested(false);
+          handleClearSelection();
+          keyNavHistoryRef.current = [];
           return;
         }
         setSelectedNodes([]);
@@ -1212,7 +1232,7 @@ export default function App() {
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [data, selectedNodes, affinityEnabled, affinityRequested]);
+  }, [data, selectedNodes, affinityEnabled, affinityRequested, handleClearSelection]);
 
   // Canonical-spec sync: when selection clears (background click,
   // panel close, etc), drop the α-mode request so it doesn't
@@ -1527,6 +1547,7 @@ export default function App() {
         selectedNodes={selectedNodes}
         showEdges={showEdges}
         showParticles={showParticles}
+        particlesOverride={particlesOverride}
         edgeBrightness={edgeBrightness}
         particleBrightness={particleBrightness}
         filterTaste={selectedTaste}
@@ -2192,6 +2213,8 @@ export default function App() {
                 onToggle={toggleFilter}
                 onClear={clearFilters}
                 mode={mode}
+                particlesOverride={particlesOverride}
+                onToggleNone={toggleNoneOverride}
               />
             </div>
           </div>
