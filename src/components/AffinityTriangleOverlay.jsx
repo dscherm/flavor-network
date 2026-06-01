@@ -77,13 +77,22 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
     return () => cancelAnimationFrame(raf);
   }, [projectionRef]);
 
-  if (!snapshot || !snapshot.focal || !Array.isArray(snapshot.accents) || snapshot.accents.length === 0) {
+  if (!snapshot || !Array.isArray(snapshot.accents) || snapshot.accents.length === 0) {
     return null;
   }
-  const { focal, accents } = snapshot;
-  const fx = focal.x;
-  const fy = focal.y;
-  if (!Number.isFinite(fx) || !Number.isFinite(fy)) return null;
+  // 2026-06-01 multi-focal: snapshot.focals is an array of {name, x, y,
+  // color}. Fall back to legacy snapshot.focal (single) for older
+  // emissions. Skip rendering when no usable focal projection exists.
+  const focals = Array.isArray(snapshot.focals) && snapshot.focals.length > 0
+    ? snapshot.focals.filter(f => Number.isFinite(f?.x) && Number.isFinite(f?.y))
+    : (snapshot.focal && Number.isFinite(snapshot.focal.x) && Number.isFinite(snapshot.focal.y)
+        ? [snapshot.focal]
+        : []);
+  if (focals.length === 0) return null;
+  const accents = snapshot.accents;
+  // Primary focal anchors per-bucket slot math + label placement.
+  const fx = focals[0].x;
+  const fy = focals[0].y;
 
   // Iter (2026-05-16 'view tweeks'): re-introduce a SUBTLE per-slot
   // shift so same-bucket same-tier accents don't sit on the exact
@@ -126,10 +135,10 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
           bucket same-tier accents pick up a subtle per-slot
           perpendicular shift at the base so they don't all sit on
           the exact same screen plane. */}
-      {accents.map((a) => {
+      {focals.flatMap((f) => accents.map((a) => {
         if (!Number.isFinite(a.x) || !Number.isFinite(a.y)) return null;
-        const dx = a.x - fx;
-        const dy = a.y - fy;
+        const dx = a.x - f.x;
+        const dy = a.y - f.y;
         const len = Math.hypot(dx, dy);
         if (len < 1) return null;
         const ux = dx / len;
@@ -137,20 +146,19 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         const px = -uy;
         const py = ux;
         const strengthClamp = Math.max(0, Math.min(1, Number.isFinite(a.strength) ? a.strength : 0.5));
-        const inverse = 1 - 0.6 * strengthClamp; // strong 0.4 ··· weak 1.0
+        const inverse = 1 - 0.6 * strengthClamp;
         const halfBase = Math.min(
           BASE_HALF_WIDTH_MAX,
           Math.max(BASE_HALF_WIDTH_MIN, len * BASE_HALF_WIDTH_FACTOR * inverse),
         );
-        // Subtle base-mid perpendicular shift per slot within bucket.
         const slotIdx = bucketSlotByName.get(a.name) ?? 0;
         const slotSign = bucketSignByName.get(a.name) ?? 1;
         const slotMag = Math.min(
           BASE_SLOT_SHIFT_MAX,
           len * BASE_SLOT_SHIFT_FACTOR * Math.ceil(slotIdx / 2),
         ) * slotSign;
-        const bMidX = fx + px * slotMag;
-        const bMidY = fy + py * slotMag;
+        const bMidX = f.x + px * slotMag;
+        const bMidY = f.y + py * slotMag;
         const b1x = bMidX + px * halfBase;
         const b1y = bMidY + py * halfBase;
         const b2x = bMidX - px * halfBase;
@@ -158,16 +166,22 @@ export default function AffinityTriangleOverlay({ projectionRef = null }) {
         const points = `${b1x.toFixed(1)},${b1y.toFixed(1)} ${a.x.toFixed(1)},${a.y.toFixed(1)} ${b2x.toFixed(1)},${b2y.toFixed(1)}`;
         const color = a.color || '#7dd3fc';
         const fade = Number.isFinite(a.opacity) ? a.opacity : 1;
+        // 2026-06-01: N focals × M accents → N×M cones. Reduce
+        // per-cone opacity in multi-focal so the overall ink density
+        // stays comparable to single-focal (otherwise 2-3 overlapping
+        // cones per accent compound to fully opaque).
+        const focalCount = focals.length;
+        const opacityScale = focalCount > 1 ? (1 / Math.sqrt(focalCount)) : 1;
         return (
           <polygon
-            key={`cone-${a.name}`}
+            key={`cone-${f.name}-${a.name}`}
             points={points}
             fill={color}
-            fillOpacity={TRIANGLE_OPACITY * fade}
+            fillOpacity={TRIANGLE_OPACITY * fade * opacityScale}
             stroke="none"
           />
         );
-      })}
+      }))}
 
       {/* Pass 2 — ingredient label only. The 3D ring meshes (bipyramid /
           cylinder / sphere / star — same silhouettes as the affinity

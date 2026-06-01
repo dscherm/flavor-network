@@ -363,6 +363,14 @@ class ClusterFocusMode {
    * still works without edges.
    */
   _buildFocusedEdges(focusedId) {
+    // 2026-06-01 user feedback: cluster-focus mode previously drew a
+    // secondary LineSegments mesh connecting every intra-cluster edge.
+    // The visual was noisy when a dense cluster was selected and the
+    // user explicitly asked for it gone. Disable globally — the mesh
+    // is never built. Keep the method body so the rest of the engage
+    // pipeline can continue to call it without conditionalizing.
+    return;
+    // eslint-disable-next-line no-unreachable
     if (!this._scene || !this._graphEdges || !this._affinityCtx) return;
     const edges = selectIntraClusterEdges(
       this._graphEdges,

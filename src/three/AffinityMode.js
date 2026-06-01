@@ -616,16 +616,25 @@ export class AffinityMode {
       // other code path mangled it — force-restore every instance to
       // its pristine scale derived from pairingCount. defaultScales
       // is the single source of truth set at scene build.
+      // 2026-06-01 NaN-quat fix: previously this loop did
+      // decompose→set-scale→compose on the existing matrix. When the
+      // existing matrix already had scale≈0 (from V1 isolate or
+      // earlier engage zero-out), decompose produces NaN quaternions
+      // (divides by zero scale internally), which then propagated
+      // back through compose → NaN matrix → the node disappeared
+      // even though its scale slot in defaultScales was valid.
+      // Solution: rebuild matrix from authoritative sources only
+      // (curPos for position, identity quaternion, defaultScales for
+      // scale). Skips decompose entirely.
       const defaultScales = st.defaultScales;
-      if (defaultScales) {
-        const arr = st.mesh.instanceMatrix.array;
+      const curPos = st.curPos;
+      if (defaultScales && curPos) {
+        const identityQuat = this._tmpQuat.set(0, 0, 0, 1);
         for (let i = 0; i < this._nodeCount; i++) {
-          const base = i * 16;
-          this._matrixScratch.fromArray(arr, base);
-          this._matrixScratch.decompose(this._tmpPos, this._tmpQuat, this._tmpScale);
+          this._tmpPos.set(curPos[i * 3], curPos[i * 3 + 1], curPos[i * 3 + 2]);
           const s = defaultScales[i];
           this._tmpScale.set(s, s, s);
-          this._matrixScratch.compose(this._tmpPos, this._tmpQuat, this._tmpScale);
+          this._matrixScratch.compose(this._tmpPos, identityQuat, this._tmpScale);
           st.mesh.setMatrixAt(i, this._matrixScratch);
         }
       }
@@ -674,7 +683,12 @@ export class AffinityMode {
     this._currentWedges = [];
     this._currentBucketColors = {};
 
-    // 3. Restore shared edgeMesh + particles.
+    // 3. Restore shared edgeMesh + particles to a sensible default.
+    //    LivingArchView's α-mode driver effect re-applies the R17
+    //    visibility rule (filter + particlesOverride aware) AFTER
+    //    ctrl.exit() returns — that overrides the defaults below
+    //    when a filter is active (so e.g., Flavor Graph default
+    //    state stays edges-off + particles-off).
     if (st.edgeMesh) st.edgeMesh.visible = true;
     if (st.particleMesh) st.particleMesh.visible = true;
 
@@ -1199,13 +1213,30 @@ export class AffinityMode {
       clusterRing.axisKey,
     );
     const focalBucketKey = focalBucketCtx.neighborWithBucket?.[0]?.bucketKey || null;
-    const focalWedge = focalBucketKey
+    let focalWedge = focalBucketKey
       ? clusterRing.wedgeByKey.get(focalBucketKey)
       : null;
+    // 2026-06-01 user feedback: ingredients whose bucket isn't in
+    // the visible wedge layout (clusterId=-1, FALLBACK_BUCKET_KEY,
+    // or a cluster not surfaced on this ring) previously placed the
+    // focal at (cx, cy, cz) = wheel center, where it visibly pulsed.
+    // Synthesize a fallback wedge at angle 0 so the focal lands
+    // somewhere on the cluster ring rather than at center.
+    if (!focalWedge) {
+      const wedges = clusterRing.layout?.wedges;
+      if (wedges && wedges.length > 0) {
+        // Use the first defined wedge as fallback so all wedge-aware
+        // downstream paths (color tint, label, cohort math) still work.
+        focalWedge = wedges[0];
+      } else {
+        // No wedge layout at all — synthesize a minimal one at angle 0.
+        focalWedge = { midAngle: 0, span: Math.PI * 2, key: '__unclustered__', color: FALLBACK_BUCKET_COLOR };
+      }
+    }
     let focalRingX = cx;
     let focalRingZ = cz;
     let focalRingY = cy;
-    if (focalWedge) {
+    {
       const fa = focalWedge.midAngle;
       focalRingX = cx + RADII[3] * Math.cos(fa);
       focalRingZ = cz + RADII[3] * Math.sin(fa);
@@ -1346,6 +1377,12 @@ export class AffinityMode {
       // them at the same angle and overlapping).
       const focalsByBucket = new Map();
       const focalBuckets = new Array(focals.length).fill(null);
+      // Fallback wedge for focals whose cluster isn't surfaced (e.g.,
+      // sour cream / clusterId=-1). 2026-06-01 user feedback: without
+      // this every such focal collapsed to scale=0 OR the per-frame
+      // pulse re-drew it at wheel center.
+      const fallbackWedge = (sharedLayout?.layout?.wedges?.[0])
+        || { midAngle: 0, span: Math.PI * 2, key: '__unclustered__', color: FALLBACK_BUCKET_COLOR };
       for (let fi = 0; fi < focals.length; fi++) {
         const fName = focals[fi];
         // Use the SAME bucket-resolution path the single-focal "block
@@ -1354,7 +1391,7 @@ export class AffinityMode {
         // categorical axes via one consistent helper.
         const bucketCtx = this._resolveWedgeContext([{ name: fName }], axisKey);
         const bucket = bucketCtx?.neighborWithBucket?.[0]?.bucketKey || null;
-        const wedge = bucket ? sharedLayout?.wedgeByKey?.get(bucket) : null;
+        const wedge = (bucket ? sharedLayout?.wedgeByKey?.get(bucket) : null) || fallbackWedge;
         focalBuckets[fi] = { wedge, bucket };
         this._debugMultiFocal.focalBuckets.push({
           name: fName,
@@ -1419,8 +1456,16 @@ export class AffinityMode {
       // using `_focalAnchorPos`. Override it to point at where we just
       // placed focal[0] so the pulse animates the right cube. Extra
       // focals (fi>0) sit static — the pulse doesn't touch them.
+      // 2026-06-01 user feedback: when focal[0] has no wedge in this
+      // axis (multi-focal placement scaled it to 0), null the anchor
+      // so tickAnimation early-returns. Otherwise it would re-stamp
+      // focal[0] at the prior single-focal anchor (wheel center if
+      // single-focal block also failed wedge lookup) and the cube
+      // would visibly pulse at the center.
       if (focalWorldPositions[0]) {
         this._focalAnchorPos = focalWorldPositions[0];
+      } else {
+        this._focalAnchorPos = null;
       }
     } else {
       this._multiFocalWorldPositions = null;
@@ -1482,12 +1527,15 @@ export class AffinityMode {
     // are hidden in single-focal tier-column α-mode — the vertical
     // separation by tier carries the focal→affinity relationship and
     // the SVG cone overlay handles the connector lines.
-    // NETWORK-CLICK-POLISH-V2 (user feedback 2026-05-31): the SVG
-    // overlay isn't multi-focal-aware, so flip the 3D edge lines back
-    // on when multi-focal so the user sees focal-to-affinity
-    // connections (matches the labelGroup multi-focal toggle above).
-    const isMultiFocalEdges = this._currentFocals && this._currentFocals.length > 1;
-    this.edgeLines.visible = isMultiFocalEdges;
+    // Canonical-spec (2026-06-01 user feedback): match single-focal
+    // visual exactly — NO 3D edge lines. The earlier "flip edges back
+    // on for multi-focal" workaround drew lines from the WHEEL CENTER
+    // to each affinity (the edge buffer's source vertex is fixed at
+    // (cx, cy, cz) per line 1459-1461 above), which the user reads
+    // as "edges connecting from center, not from the focals." Keep
+    // edges hidden; the focal cube placement + ring sphere placement
+    // already convey the affinity relationships visually.
+    this.edgeLines.visible = false;
 
     // ─── 2b. Cuisine-anchor flags ───
     // For each neighbor whose pair carries a cuisineAnchor (provenance =
@@ -1542,31 +1590,34 @@ export class AffinityMode {
     // to a visible haze. Snapshot is taken on first engage; restored
     // on exit().
     if (st.mesh) {
+      // 2026-06-01 NaN-quat fix: previously this pre-snapshot loop
+      // and the non-affinity zero-out below both did decompose+compose
+      // on the existing matrix. When a node was at scale≈0 already
+      // (from V1 isolate via the position-lerp effect), decompose
+      // produces NaN quaternions; compose then yields a NaN matrix
+      // that the snapshot captures and propagates through exit. The
+      // fix is to rebuild matrices from authoritative sources only
+      // (curPos + identity quat + scale) and never decompose a
+      // potentially-zero scale matrix.
+      const curPos = st.curPos;
+      const identityQuat = this._tmpQuat.set(0, 0, 0, 1);
       if (!this._matrixSnapshot) {
-        // BEFORE snapshotting, restore any V1-isolate-hidden scales to
-        // their pristine values. Otherwise α-mode captures the hidden
-        // state and exit() restores TO it, leaving ~95% of nodes
-        // invisible. defaultScales is the pristine per-instance scale
-        // computed at scene build time.
         const defaultScales = st.defaultScales;
-        if (defaultScales) {
+        if (defaultScales && curPos) {
           const arr = st.mesh.instanceMatrix.array;
           for (let i = 0; i < this._nodeCount; i++) {
             const base = i * 16;
             const sx = Math.hypot(arr[base + 0], arr[base + 1], arr[base + 2]);
-            if (sx < 0.01) {
-              // Hidden — re-stamp to pristine scale (preserve position).
-              this._matrixScratch.fromArray(arr, base);
-              this._matrixScratch.decompose(this._tmpPos, this._tmpQuat, this._tmpScale);
+            // Restore to defaultScales when either scale is collapsed
+            // (V1 isolate hidden) OR the matrix is NaN-corrupted.
+            if (sx < 0.01 || !Number.isFinite(sx)) {
+              this._tmpPos.set(curPos[i * 3], curPos[i * 3 + 1], curPos[i * 3 + 2]);
               const s = defaultScales[i];
               this._tmpScale.set(s, s, s);
-              this._matrixScratch.compose(this._tmpPos, this._tmpQuat, this._tmpScale);
+              this._matrixScratch.compose(this._tmpPos, identityQuat, this._tmpScale);
               st.mesh.setMatrixAt(i, this._matrixScratch);
             }
           }
-          // Don't flag needsUpdate yet — the alpha-mode placement
-          // below also writes setMatrixAt; one needsUpdate flag at the
-          // end of the engage flow covers everything.
         }
         const arr = st.mesh.instanceMatrix.array;
         this._matrixSnapshot = new Float32Array(arr.length);
@@ -1574,11 +1625,13 @@ export class AffinityMode {
       }
       for (let i = 0; i < this._nodeCount; i++) {
         if (!affinityIdxSet.has(i)) {
-          // Decompose existing matrix to keep position; zero scale.
-          this._matrixScratch.fromArray(st.mesh.instanceMatrix.array, i * 16);
-          this._matrixScratch.decompose(this._tmpPos, this._tmpQuat, this._tmpScale);
-          this._matrixScratch.compose(this._tmpPos, this._tmpQuat, this._scaleZero);
-          st.mesh.setMatrixAt(i, this._matrixScratch);
+          // Build scale-0 matrix at the node's authoritative position.
+          // No decompose — avoids NaN propagation.
+          if (curPos) {
+            this._tmpPos.set(curPos[i * 3], curPos[i * 3 + 1], curPos[i * 3 + 2]);
+            this._matrixScratch.compose(this._tmpPos, identityQuat, this._scaleZero);
+            st.mesh.setMatrixAt(i, this._matrixScratch);
+          }
         } else {
           // Restore from snapshot in case earlier pivot scaled it.
           this._matrixScratch.fromArray(this._matrixSnapshot, i * 16);

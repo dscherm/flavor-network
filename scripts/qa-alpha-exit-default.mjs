@@ -31,6 +31,9 @@ if (await pairingTile.isVisible({ timeout: 3000 }).catch(() => false)) {
 }
 await page.waitForTimeout(3000);
 
+log('§0 baseline screenshot (initial Network state)');
+await page.screenshot({ path: '.playwright-shots/alpha-exit/00-baseline.png', fullPage: false });
+
 log('§A select two ingredients + engage α-mode');
 await page.evaluate(() => window.__qaSelect?.('basil'));
 await page.waitForTimeout(500);
@@ -50,24 +53,52 @@ log('§B press ESC to exit α-mode → should land in DEFAULT Network state');
 await page.keyboard.press('Escape');
 await page.waitForTimeout(2500);
 
-const postEsc = await page.evaluate(() => {
+const readDefaultState = () => page.evaluate(() => {
   const sel = window.__qaReadSelection?.();
   const aff = window.__af;
-  // Read filter pill row to check Flavor Graph is active.
+  const st = aff?.stateRef;
   const pills = Array.from(document.querySelectorAll('button[role="checkbox"]'));
   const flavorPill = pills.find(b => /Flavor Graph/i.test(b.textContent || ''));
   const nonePill = pills.find(b => /^None$/i.test((b.textContent || '').trim()));
+  let zeroScaleCount = 0;
+  let totalNodes = 0;
+  let particlesVisible = null;
+  let edgesVisible = null;
+  if (st?.mesh && st?.nodeArray) {
+    const arr = st.mesh.instanceMatrix.array;
+    totalNodes = st.nodeArray.length;
+    for (let i = 0; i < totalNodes; i++) {
+      const base = i * 16;
+      const sx = Math.hypot(arr[base + 0], arr[base + 1], arr[base + 2]);
+      if (sx < 0.01) zeroScaleCount += 1;
+    }
+    particlesVisible = !!st.particleMesh?.visible;
+    edgesVisible = !!st.edgeMesh?.visible;
+  }
   return {
     selection: sel?.selectedNodes ?? null,
     affEngaged: !!aff?._engaged,
     flavorPillActive: flavorPill?.getAttribute('aria-checked') === 'true',
     nonePillActive: nonePill?.getAttribute('aria-checked') === 'true',
+    totalNodes, zeroScaleCount, particlesVisible, edgesVisible,
   };
 });
-ok('selection cleared', postEsc.selection?.length === 0);
-ok('α-mode NOT engaged', !postEsc.affEngaged);
-ok('Flavor Graph pill active', postEsc.flavorPillActive === true);
-ok('None pill NOT active (no particles override)', postEsc.nonePillActive === false);
+
+const verifyDefaultState = (state, label) => {
+  ok(`${label} | selection cleared`, state.selection?.length === 0);
+  ok(`${label} | α-mode NOT engaged`, !state.affEngaged);
+  ok(`${label} | Flavor Graph pill active`, state.flavorPillActive === true);
+  ok(`${label} | None pill NOT active`, state.nonePillActive === false);
+  ok(`${label} | ALL nodes visible (${state.zeroScaleCount}/${state.totalNodes} hidden)`,
+     state.zeroScaleCount === 0);
+  ok(`${label} | particles HIDDEN`, state.particlesVisible === false);
+  ok(`${label} | edges HIDDEN`, state.edgesVisible === false);
+};
+
+const postEsc = await readDefaultState();
+verifyDefaultState(postEsc, 'ESC');
+await page.screenshot({ path: '.playwright-shots/alpha-exit/01-post-esc.png', fullPage: false });
+log(`  [shot] .playwright-shots/alpha-exit/01-post-esc.png`);
 
 log('§C click "None" pill → particles override engages, palette persists');
 await page.evaluate(() => {
@@ -103,6 +134,54 @@ const postNoneOff = await page.evaluate(() => {
   return nonePill?.getAttribute('aria-checked') === 'true';
 });
 ok('None pill toggled off', postNoneOff === false);
+
+// ===== Clear Selection button exits α-mode to default state =====
+log('§E re-engage α-mode then click "Clear Selection" button');
+await page.evaluate(() => window.__qaSelect?.('basil'));
+await page.waitForTimeout(400);
+await page.evaluate(() => window.__qaSelect?.('tomato'));
+await page.waitForTimeout(400);
+await page.evaluate(() => window.__qaEngageAffinity?.(['basil', 'tomato']));
+await page.waitForTimeout(3000);
+
+await page.evaluate(() => {
+  const btn = Array.from(document.querySelectorAll('button')).find(
+    b => /Clear Selection/i.test(b.textContent || '')
+  );
+  btn?.click();
+});
+await page.waitForTimeout(2500);
+
+const postClear = await readDefaultState();
+verifyDefaultState(postClear, 'CLEAR_BTN');
+
+// ===== Empty-space tap exits α-mode to default state =====
+log('§F re-engage α-mode then click empty space on canvas');
+await page.evaluate(() => window.__qaSelect?.('basil'));
+await page.waitForTimeout(400);
+await page.evaluate(() => window.__qaSelect?.('tomato'));
+await page.waitForTimeout(400);
+await page.evaluate(() => window.__qaEngageAffinity?.(['basil', 'tomato']));
+await page.waitForTimeout(3000);
+
+// Click far edge of canvas (an empty region away from any α-mode ring,
+// which sits centered). Bottom strip is below the nav, breadcrumb, and
+// pill row, and the α-mode rings rarely extend to the bottom-corner
+// portion of the canvas.
+const canvasBox = await page.locator('canvas').first().boundingBox();
+if (canvasBox) {
+  // Move first to clear any drag-vs-tap remembered position.
+  await page.mouse.move(canvasBox.x + canvasBox.width * 0.5, canvasBox.y + canvasBox.height * 0.5);
+  await page.waitForTimeout(100);
+  await page.mouse.click(
+    canvasBox.x + canvasBox.width * 0.05,
+    canvasBox.y + canvasBox.height * 0.92,
+  );
+}
+await page.waitForTimeout(2500);
+
+const postEmptyTap = await readDefaultState();
+verifyDefaultState(postEmptyTap, 'EMPTY_TAP');
 
 await browser.close();
 if (fails.length) {

@@ -444,10 +444,16 @@ export function bucketOf(filterKey, node, ctx) {
     return scope.has(String(node.name).toLowerCase()) ? 'in-sauce' : null;
   }
   if (filterKey === 'flavor-category') {
-    // N1-D5 (2026-05-25): restricts visibility to the 89 chef-verified
-    // flavor-graph ingredients (node.flavorGraph !== null after
-    // useProData decoration). Axis-null, visibility-only — no morph.
-    return node?.flavorGraph ? 'in-flavor-graph' : null;
+    // 2026-06-01 (user feedback): Flavor Graph pill is now a visibility
+    // pass-through — it stays highlighted as the default state and
+    // signals "color by cluster", but does NOT restrict the visible
+    // node set. The previous N1-D5 behavior limited the network to
+    // the 89 chef-verified flavor-graph ingredients, which surfaced
+    // as "most nodes are missing" when the user expected the full
+    // network. Return a constant non-null bucket so every node passes
+    // the visibility predicate; coloring is owned by the R17 effect's
+    // clusterColors path.
+    return node?.flavorGraph ? 'in-flavor-graph' : 'unclassified';
   }
   // Singular filter key → plural axis key (mirrors FILTER_TO_AXIS).
   const axisKey = filterKey === 'aroma' ? 'aromas' : filterKey;
