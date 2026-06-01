@@ -132,6 +132,12 @@ export default function LivingArchView({
   const cameraAnimatorRef = useRef(null); // R14 cluster-tour + focal-orbit
   const clusterFocusModeRef = useRef(null); // §5.6 isolate + spread on cluster pill tap
   const clusterFocusCameraSnapshotRef = useRef(null); // pre-engage camera pose for reversal
+  // 2026-06-01: snapshot the camera before α-mode engages so exit()
+  // can fly back to the wide network framing. Without this the camera
+  // stays orbiting around the wheel's tight α-mode framing and the
+  // user reads "most nodes are missing" when in fact they're just
+  // outside the orbited view.
+  const alphaCameraSnapshotRef = useRef(null);
   const [pcaAxes, setPcaAxes] = useState(null);
   // Use lifted state if provided, otherwise local state
   const [localMode, setLocalMode] = useState('ml');
@@ -200,6 +206,18 @@ export default function LivingArchView({
     pickedBucketRef.current = pickedBucket;
     affinityModeRef.current?.refreshWedgeLayout?.();
   }, [pickedBucket]);
+
+  // 2026-06-01: showEdges / showParticles / particlesOverride refs so the
+  // α-mode driver effect can read the live values inside its post-exit
+  // visibility application without adding the props to its dep array
+  // (which would force the effect to re-fire on every toggle and
+  // potentially cause spurious engage/pivot/suspend dispatches).
+  const showEdgesRef = useRef(showEdges);
+  useEffect(() => { showEdgesRef.current = showEdges; }, [showEdges]);
+  const showParticlesRef = useRef(showParticles);
+  useEffect(() => { showParticlesRef.current = showParticles; }, [showParticles]);
+  const particlesOverrideRef = useRef(particlesOverride);
+  useEffect(() => { particlesOverrideRef.current = particlesOverride; }, [particlesOverride]);
 
   // P4: push pivot-advance config to the live CameraAnimator on
   // every mode or flavorClusterLabels change. mlflavor (flavor3D)
@@ -2313,18 +2331,24 @@ export default function LivingArchView({
     // Scale pass: hide non-affinity nodes entirely when an ingredient
     // is selected (instead of just dimming). Restore on deselect from
     // defaultScales stored at build time.
-    if (defaultScales) {
+    // 2026-06-01 NaN-quat fix: this loop used to decompose+compose on
+    // the existing matrix. When a node was already at scale≈0 from a
+    // previous V1 isolate pass, decompose produces NaN quaternions
+    // and compose yields a NaN matrix → the node becomes permanently
+    // invisible. Rebuild from authoritative sources (curPos + identity
+    // quat + target scale) instead — no decompose.
+    const { curPos } = st;
+    if (defaultScales && curPos) {
       const dummyMatrix = new THREE.Matrix4();
       const dummyPos = new THREE.Vector3();
-      const dummyQuat = new THREE.Quaternion();
+      const identityQuat = new THREE.Quaternion(0, 0, 0, 1);
       const dummyScale = new THREE.Vector3();
       for (let i = 0; i < count; i++) {
         const inSet = connMap ? connMap.has(nodeArray[i].name) : true;
         const target = inSet ? defaultScales[i] : 0;
-        mesh.getMatrixAt(i, dummyMatrix);
-        dummyMatrix.decompose(dummyPos, dummyQuat, dummyScale);
+        dummyPos.set(curPos[i * 3], curPos[i * 3 + 1], curPos[i * 3 + 2]);
         dummyScale.set(target, target, target);
-        dummyMatrix.compose(dummyPos, dummyQuat, dummyScale);
+        dummyMatrix.compose(dummyPos, identityQuat, dummyScale);
         mesh.setMatrixAt(i, dummyMatrix);
       }
       mesh.instanceMatrix.needsUpdate = true;
@@ -3205,13 +3229,119 @@ export default function LivingArchView({
   useEffect(() => {
     const ctrl = affinityModeRef.current;
     if (!ctrl) return;
+    // α-EXIT-POST-FIX (2026-06-01): re-apply R17 visibility rules
+    // + force-restore instance scales after ctrl.exit(). The R17
+    // effect and the per-selection palette effect both early-return
+    // while `engaged === true`, so they ran during this commit cycle
+    // BEFORE ctrl.exit() flipped the flag — leaving the mesh in α-
+    // mode state (particles + edges visible per exit()'s default,
+    // some non-affinity nodes still zero-scaled if defaultScales
+    // restore didn't catch a slot). This helper finalizes the
+    // transition back to the post-α-mode state.
+    const finalizeAfterExit = () => {
+      const st = stateRef.current;
+      if (!st) return;
+      const fs = filterStackRef.current;
+      const filterActive = fs.length > 0;
+      const m = modeRef.current;
+      if (st.edgeMesh) st.edgeMesh.visible = !filterActive && showEdgesRef.current;
+      if (st.particleMesh) {
+        st.particleMesh.visible = (particlesOverrideRef.current || !filterActive) && showParticlesRef.current;
+      }
+      // Re-apply R17's palette rule. ctrl.exit() stamps defaultColors
+      // (which in v3 is per-node primaryTier1Aroma OR clusterColor —
+      // NOT necessarily the right palette for the active filter).
+      // Without this re-stamp the user sees aroma tints lingering
+      // instead of cluster colors after a Flavor-Graph-default reset.
+      if (st.mesh && st.nodeArray) {
+        let colorSrc = null;
+        const morphAxisLocal = (() => {
+          // Mirror morphAxisForStack semantics from networkModes.js
+          // (skip null axes / scope-only filters).
+          for (let i = fs.length - 1; i >= 0; i -= 1) {
+            const key = fs[i];
+            const axis = (
+              key === 'aroma' ? 'aromas' :
+              key === 'cuisine' ? 'cuisine' :
+              key === 'season' ? 'season' :
+              key === 'family' ? 'family' :
+              key === 'taste' ? 'taste' :
+              null
+            );
+            if (axis) return axis;
+          }
+          return null;
+        })();
+        if (filterActive && morphAxisLocal && st.categoricalColorByMode) {
+          colorSrc = st.categoricalColorByMode[`${morphAxisLocal}2d`] || st.defaultColors;
+        } else if (filterActive) {
+          colorSrc = st.clusterColors || st.defaultColors;
+        } else {
+          colorSrc = (m === 'ml' || m === 'ml2d') ? (st.clusterColors || st.defaultColors) : st.defaultColors;
+        }
+        if (colorSrc) {
+          for (let i = 0; i < st.nodeArray.length; i += 1) {
+            st.mesh.setColorAt(i, colorSrc[i]);
+          }
+          if (st.mesh.instanceColor) st.mesh.instanceColor.needsUpdate = true;
+        }
+      }
+      // 2026-06-01 NaN-quat-aware restore. The earlier version used
+      // decompose+compose to preserve position, but decomposing a
+      // scale≈0 matrix in three.js divides by zero internally and
+      // produces NaN quaternions; compose then writes a NaN matrix
+      // that the GPU treats as invisible. Rebuild from authoritative
+      // sources only (curPos + identity quat + defaultScales).
+      if (st.mesh && st.defaultScales && st.nodeArray && st.curPos) {
+        const arr = st.mesh.instanceMatrix.array;
+        const m4 = new THREE.Matrix4();
+        const pos = new THREE.Vector3();
+        const identityQuat = new THREE.Quaternion(0, 0, 0, 1);
+        const scale = new THREE.Vector3();
+        let restored = 0;
+        for (let i = 0; i < st.nodeArray.length; i += 1) {
+          const base = i * 16;
+          const sx = Math.hypot(arr[base + 0], arr[base + 1], arr[base + 2]);
+          if (sx < 0.01 || !Number.isFinite(sx)) {
+            pos.set(st.curPos[i * 3], st.curPos[i * 3 + 1], st.curPos[i * 3 + 2]);
+            const s = st.defaultScales[i];
+            scale.set(s, s, s);
+            m4.compose(pos, identityQuat, scale);
+            st.mesh.setMatrixAt(i, m4);
+            restored += 1;
+          }
+        }
+        if (restored > 0) st.mesh.instanceMatrix.needsUpdate = true;
+      }
+      alphaCameraSnapshotRef.current = null;
+      // 2026-06-01: fly the camera to the WIDE default pose (not a
+      // snapshot of whatever it was at engage). The α-mode engage path
+      // orbits the camera close to the focal wheel; on exit the user
+      // needs the full network re-framed so they can see all nodes.
+      // The default poses mirror the scene-build init in the camera
+      // section above (~line 517).
+      if (st.flyToCameraSnapshot) {
+        const m2 = modeRef.current;
+        const isFlatMode = MODE_IS_2D.has(m2);
+        const defaultPose = isFlatMode
+          ? { pos: [0, m2 === 'ml2d' ? 100 : 120, 0.1], target: [0, 0, 0] }
+          : { pos: [0, 40, 120], target: [0, 0, 0] };
+        st.flyToCameraSnapshot(defaultPose);
+      }
+    };
     if (!affinityEnabled) {
       // Kill-switch: ensure controller is never engaged.
-      if (ctrl.engaged) ctrl.exit({ immediate: true });
+      if (ctrl.engaged) {
+        ctrl.exit({ immediate: true });
+        finalizeAfterExit();
+      }
       return;
     }
     if (selectedNodes.length === 0) {
-      if (ctrl.engaged) ctrl.exit();
+      if (ctrl.engaged) {
+        ctrl.exit();
+        finalizeAfterExit();
+      }
     } else if (affinityRequested) {
       // Canonical-spec §3.5 — α-mode requires the explicit commit
       // gesture (double-click or long-press). NETWORK-CLICK-POLISH-V2:
@@ -3240,7 +3370,10 @@ export default function LivingArchView({
       // Single-click selection, no engage. Panel only. Exit α-mode if
       // we were previously engaged but the user backed off the explicit
       // double-click intent.
-      if (ctrl.engaged) ctrl.exit();
+      if (ctrl.engaged) {
+        ctrl.exit();
+        finalizeAfterExit();
+      }
     } else {
       // 2+ selected but no explicit α-mode request → suspend ring
       // visuals; the Network-mode intersection-isolate view (V2 Part A)
@@ -3277,9 +3410,17 @@ export default function LivingArchView({
   // appears when α-mode is engaged. Single-click selection (no α-mode)
   // shows the tier popup near the cursor and nothing else — no cones,
   // no affinity labels in 3D space.
-  const trackedFocalName = (selectedNodes.length === 1 && affinityRequested)
-    ? selectedNodes[0]
-    : null;
+  // 2026-06-01 user feedback: multi-focal needs cones from EVERY focal
+  // to each accent (not just from the primary). Track the FULL focal
+  // list when α-mode is engaged so the projection writer + SVG overlay
+  // can emit N×M cones (N focals × M accents).
+  const trackedFocalNames = (selectedNodes.length >= 1 && affinityRequested)
+    ? selectedNodes
+    : [];
+  const trackedFocalKey = trackedFocalNames.join('|');
+  // Legacy single-focal name (first focal). Kept for back-compat with
+  // any code paths still reading the single-focal API.
+  const trackedFocalName = trackedFocalNames[0] || null;
   // Mirror `neighbors` into a ref so the per-frame loop reads the
   // latest list without restarting the RAF when the parent re-renders
   // (and `neighbors` gets a new array identity each time).
@@ -3301,7 +3442,13 @@ export default function LivingArchView({
         affinityProjectionRef.current = null;
         return;
       }
-      const fi = st.nameIdx.get(trackedFocalName);
+      if (trackedFocalNames.length === 0) {
+        affinityProjectionRef.current = null;
+        return;
+      }
+      // Validate the primary focal index for the color-array indexing
+      // below; if it's missing we abort entirely (snapshot stale).
+      const fi = st.nameIdx.get(trackedFocalNames[0]);
       if (fi == null) {
         affinityProjectionRef.current = null;
         return;
@@ -3354,17 +3501,40 @@ export default function LivingArchView({
       // SVG cone lands on the actual ring-rendered position, not the
       // ingredient's curPos out in the network layout).
       const affList = ctrlEngaged ? (ctrl.currentAffinities || []) : null;
-      // Focal: when α-mode is engaged, use AffinityMode's tracked focal
-      // world position. Otherwise fall back to the focal's curPos.
-      const focalWp = ctrl?.engaged && ctrl.focalWorldPos
-        ? ctrl.focalWorldPos
-        : [st.curPos[fi * 3], st.curPos[fi * 3 + 1], st.curPos[fi * 3 + 2]];
-      const focalProj = projectXYZ(focalWp[0], focalWp[1], focalWp[2]);
-      if (!focalProj) {
+      // 2026-06-01 multi-focal: project EVERY tracked focal. Each
+      // focal's world position comes from AffinityMode's authoritative
+      // placement (multi-focal: per-focal wedge positions; single-
+      // focal: ctrl.focalWorldPos), falling back to the ingredient's
+      // curPos when α-mode isn't engaged.
+      const multiPositions = ctrl?.engaged ? ctrl._multiFocalWorldPositions : null;
+      const focalProjections = [];
+      for (let fIdx = 0; fIdx < trackedFocalNames.length; fIdx += 1) {
+        const fName = trackedFocalNames[fIdx];
+        const fIndex = st.nameIdx.get(fName);
+        if (fIndex == null) continue;
+        let fwp;
+        if (Array.isArray(multiPositions) && multiPositions[fIdx]) {
+          fwp = multiPositions[fIdx];
+        } else if (fIdx === 0 && ctrl?.engaged && ctrl.focalWorldPos) {
+          fwp = ctrl.focalWorldPos;
+        } else {
+          fwp = [st.curPos[fIndex * 3], st.curPos[fIndex * 3 + 1], st.curPos[fIndex * 3 + 2]];
+        }
+        const projF = projectXYZ(fwp[0], fwp[1], fwp[2]);
+        if (!projF) continue;
+        focalProjections.push({
+          name: fName,
+          x: projF.x,
+          y: projF.y,
+          color: colorArr?.[fIndex] ? colorHex(colorArr[fIndex]) : '#ffffff',
+        });
+      }
+      if (focalProjections.length === 0) {
         affinityProjectionRef.current = null;
         return;
       }
-      const focalColor = colorArr?.[fi] ? colorHex(colorArr[fi]) : '#ffffff';
+      const focalProj = focalProjections[0];
+      const focalColor = focalProj.color;
       const nbs = affList && affList.length > 0
         ? affList
         : (neighborsRef.current || []);
@@ -3401,7 +3571,8 @@ export default function LivingArchView({
       // — slim cones below are narrow enough that 30+ stay readable).
       candidates.sort((p, q) => (p.strength || 0) - (q.strength || 0));
       affinityProjectionRef.current = {
-        focal: { name: trackedFocalName, x: focalProj.x, y: focalProj.y, color: focalColor },
+        focal: { name: trackedFocalNames[0], x: focalProj.x, y: focalProj.y, color: focalColor },
+        focals: focalProjections,
         accents: candidates,
         ts: typeof performance !== 'undefined' ? performance.now() : Date.now(),
       };
@@ -3411,7 +3582,7 @@ export default function LivingArchView({
       cancelAnimationFrame(raf);
       affinityProjectionRef.current = null;
     };
-  }, [trackedFocalName, isMobile, mode, morphAxis, affinityProjectionRef]);
+  }, [trackedFocalKey, isMobile, mode, morphAxis, affinityProjectionRef]);
 
   // ---- Toggle handler — MODE_CYCLE / MODE_LABELS now imported
   // from `data/networkModes.js` so MobileTabBar's Network-button
