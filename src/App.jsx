@@ -1721,7 +1721,13 @@ export default function App() {
           below the centered SearchBar. Share button removed per user
           feedback (it was rarely used and crowded the focal-orbit UI). */}
       {selectedNodes.length > 0 && (
-        <div className="fixed top-[100px] right-2 z-50 flex flex-col items-end gap-2">
+        <div
+          className="fixed right-2 z-50 flex flex-col items-end gap-2"
+          // Sits BELOW the FilterPillRow (nav + 3.5rem) + breadcrumb
+          // (nav + 7rem). Was top:100px which caused horizontal overlap
+          // with the pill row on mobile viewports.
+          style={{ top: 'calc(var(--nav-h) + 10rem)' }}
+        >
           {/* Mobile-only Details button — desktop has the right-edge
               "Details" tab on IngredientPanel. Per user request
               2026-04-29 we no longer auto-open the panel on tap, so
@@ -2177,7 +2183,7 @@ export default function App() {
               slot so a long filter chain can scroll without squeezing
               the button off-screen on iOS. */}
           <div
-            className="fixed left-1/2 -translate-x-1/2 z-[68] pointer-events-none flex items-center gap-2 max-w-[calc(100vw-4rem)]"
+            className="fixed left-1/2 -translate-x-1/2 z-[68] pointer-events-none flex items-center gap-2 max-w-[calc(100vw-9rem)]"
             style={{ top: 'calc(var(--nav-h) + 3.5rem)' }}
           >
             <div className="bg-[#0a0a12]/85 backdrop-blur-md border border-[#1e1e2e] rounded-full shadow-lg pointer-events-auto min-w-0">
