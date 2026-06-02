@@ -34,6 +34,7 @@ import { getAxesFor, pairingMatchesAxis } from '../data/guidedRadarAxes.js';
 import StoryPanel from './StoryPanel.jsx';
 import GuidedProfileRadar from './GuidedProfileRadar.jsx';
 import GuidedResultsFilterPills from './GuidedResultsFilterPills.jsx';
+import GuidedAlphaPanel from './GuidedAlphaPanel.jsx';
 import ProvenancePanel from './ProvenancePanel.jsx';
 import { whyThisWorks } from '../data/whyThisWorks.js';
 
@@ -385,26 +386,19 @@ export default function GuidedDiscoveryResults({
           </div>
         )}
 
-        {/* Filter type pill row + GuidedProfileRadar — P6 mount. */}
+        {/* 2026-06-01 user-iter: the prior taste-radar slot is replaced
+            by GuidedAlphaPanel — an embedded α-mode view of the focal
+            inside the Guided panel. Filter pills (Aroma / Taste /
+            Family / Cuisine / Season) live inside the new panel; the
+            forked single-select GuidedResultsFilterPills row is no
+            longer rendered on this screen. */}
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 mb-6">
-          <div className="bg-[#0a1428] border border-[#1d3158] rounded-xl p-3 min-h-[420px] flex flex-col items-center justify-start gap-3">
-            <GuidedResultsFilterPills
-              current={filterType}
-              onSelect={handlePillSelect}
-            />
+          <div className="flex flex-col gap-2">
             {focal && ctx ? (
-              <GuidedProfileRadar
-                focal={focal}
-                pairings={radarPairings}
-                filterType={filterType}
-                chosenValue={chosenValue}
-                onAxisTap={handleAxisTap}
-                odorThresholds={odorThresholds}
-                size={320}
-              />
+              <GuidedAlphaPanel focal={focal?.name} data={ctx} />
             ) : focal && !ctx ? (
               <div
-                className="text-center text-sm text-gray-400 px-6 py-12 max-w-sm"
+                className="bg-[#0a1428] border border-[#1d3158] rounded-xl text-center text-sm text-gray-400 px-6 py-12 max-w-sm"
                 data-testid="guided-results-loading-state"
               >
                 <p className="text-gray-300 mb-2">Loading affinity data…</p>
@@ -415,7 +409,7 @@ export default function GuidedDiscoveryResults({
               </div>
             ) : (
               <div
-                className="text-center text-sm text-gray-400 px-6 py-12 max-w-sm"
+                className="bg-[#0a1428] border border-[#1d3158] rounded-xl text-center text-sm text-gray-400 px-6 py-12 max-w-sm"
                 data-testid="guided-results-empty-state"
               >
                 <p className="text-gray-300 mb-2">
@@ -431,7 +425,7 @@ export default function GuidedDiscoveryResults({
               type="button"
               onClick={() => setProvenancePanelOpen(true)}
               data-testid="guided-results-provenance-button"
-              className="mt-2 text-xs text-cyan-300/80 hover:text-cyan-200 underline underline-offset-2 transition-colors"
+              className="self-start mt-1 text-xs text-cyan-300/80 hover:text-cyan-200 underline underline-offset-2 transition-colors"
             >
               Show me where this data comes from
             </button>
