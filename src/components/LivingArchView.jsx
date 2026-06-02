@@ -107,6 +107,12 @@ export default function LivingArchView({
   // initial framing; the cluster-tour orbit feels like a "zoom in
   // then snap back" in those contexts.
   disableClusterTour = false,
+  // 2026-06-01 — override the default mode-based camera pose at
+  // scene-build time. Shape: { pos: [x, y, z], target: [x, y, z] }.
+  // Used by the Guided Discovery α-view panel to mount with a
+  // bird's-eye framing (0, 200, 0.1) instead of the default
+  // (0, 40, 120) angled view.
+  initialCameraPose = null,
   // Canonical-spec §3.5 — α-mode only engages on the EXPLICIT
   // commit gesture (double-click or long-press). Single-click sets
   // selectedNodes but leaves affinityRequested=false; this prop
@@ -510,15 +516,21 @@ export default function LivingArchView({
     scene.background = new THREE.Color(0x0a0a0f);
 
     const camera = new THREE.PerspectiveCamera(60, el.clientWidth/el.clientHeight, 0.1, 2000);
-    if (MODE_IS_2D.has(modeRef.current)) {
-      // Wheel modes (taste2d + the categorical wheels) want a slightly
-      // higher camera so the full ring is visible. ml2d (PCA scatter)
-      // can sit closer.
+    // 2026-06-01: `initialCameraPose` prop overrides the mode-based
+    // default. Used by the Guided α-view panel to enter bird's-eye on
+    // mount. When unset, fall back to the mode defaults.
+    if (initialCameraPose && Array.isArray(initialCameraPose.pos)) {
+      const [px, py, pz] = initialCameraPose.pos;
+      camera.position.set(px, py, pz);
+      const t = Array.isArray(initialCameraPose.target) ? initialCameraPose.target : [0, 0, 0];
+      camera.lookAt(t[0], t[1], t[2]);
+    } else if (MODE_IS_2D.has(modeRef.current)) {
       camera.position.set(0, modeRef.current === 'ml2d' ? 100 : 120, 0.1);
+      camera.lookAt(0, 0, 0);
     } else {
       camera.position.set(0, 40, 120);
+      camera.lookAt(0, 0, 0);
     }
-    camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
