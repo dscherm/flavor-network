@@ -26,6 +26,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import LivingArchView from './LivingArchView.jsx';
 
 // Axis order matches the main FilterPillRow per user feedback 2026-05-31:
 // Aroma / Taste / Family / Cuisine / Season. (Flavor Graph and None
@@ -89,6 +90,16 @@ export default function GuidedAlphaPanel({
     return String(focal).replace(/_/g, ' ');
   }, [focal]);
 
+  // Memoize prop arrays so LivingArchView's [data]-keyed scene-build
+  // effect doesn't see a "new reference" on each render. Single-focal
+  // by design — Guided α-view always pivots on one ingredient.
+  const focalSelection = useMemo(() => (focal ? [focal] : []), [focal]);
+  // Single-key filter stack drives the embedded α-mode's wedge axis.
+  // The pill row reuses the singular keys (aroma / taste / family /
+  // cuisine / season); LivingArchView's morphAxisForStack walks the
+  // tail and resolves to the matching plural axis.
+  const filterStackForLAV = useMemo(() => [activeFilter], [activeFilter]);
+
   if (!focal) {
     return (
       <div
@@ -138,26 +149,38 @@ export default function GuidedAlphaPanel({
         })}
       </div>
 
-      {/* Embedded α-mode canvas. Phase 1: a placeholder canvas that
-          carries the test contract attribute so the harness can
-          confirm the mount. Phase 2 (next iteration) wires this to a
-          live LivingArchView instance with α-mode pre-engaged on the
-          focal and a bird's-eye camera pose. */}
+      {/* Phase 2 (2026-06-01): live LivingArchView mounted inside the
+          panel. α-mode is engaged on the focal automatically because
+          selectedNodes is non-empty + affinityRequested === true.
+          Bird's-eye camera comes from initialCameraPose. The cluster-
+          tour is disabled so the camera stays put. The filter pills
+          above drive filterStack (single-key), which AffinityMode
+          consumes via refreshWedgeLayout. */}
       <div
         ref={canvasContainerRef}
-        className="relative flex-1 min-h-[300px] rounded-lg bg-[#050912] border border-[#1d3158]/40 flex items-center justify-center overflow-hidden"
+        className="relative flex-1 min-h-[300px] rounded-lg bg-[#050912] border border-[#1d3158]/40 overflow-hidden"
       >
-        <canvas
-          width={400}
-          height={300}
-          className="w-full h-full"
-          aria-label={`Affinity view for ${focalLabel}`}
-        />
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-xs text-gray-500 italic">
-            α-view ({activeFilter}) — focal: {focalLabel}
-          </span>
-        </div>
+        {data ? (
+          <LivingArchView
+            data={data}
+            mode="flavor3D"
+            selectedNodes={focalSelection}
+            affinityEnabled
+            affinityRequested
+            disableClusterTour
+            filterStack={filterStackForLAV}
+            morphAxis={activeAxis}
+            showEdges={false}
+            showParticles={false}
+            initialCameraPose={{ pos: [0, 200, 0.1], target: [0, 0, 0] }}
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-xs text-gray-500 italic">
+              Loading α-view…
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Tour overlay — Step 1 of the per-panel tour. Sits above the
