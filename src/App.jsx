@@ -1030,6 +1030,27 @@ export default function App() {
       if (tab === 'cocktail') setCocktailMounted(true);
       if (tab === 'recipe') setRecipeMounted(true);
     };
+    // Guided Discovery harness — drives the swipe screen to the
+    // results screen for the qa-guided-alpha-view probe.
+    // __qaGuidedPickIngredient(name) jumps the user straight from
+    // Step 1 (swipe) to Step 3 (Affinity View) with the named
+    // ingredient as the focal. Mirrors the production onComplete
+    // path that GuidedDiscoverySwipe invokes when the user picks an
+    // ingredient + filter type.
+    window.__qaGuidedPickIngredient = (name, filterType = 'aroma') => {
+      setBubbleStack([{
+        key: 'ingredient',
+        label: `Focal Flavor: ${name}`,
+        value: { ingredient: name },
+        axisHint: null,
+      }]);
+      setGuidedInitialFilterType(filterType || null);
+      setActiveTab('guided-results');
+    };
+    // No-op shim — the swipe step is bypassed by
+    // __qaGuidedPickIngredient. Kept so the test reads cleanly
+    // ("§B pick → §C skip swipe → §D step 3").
+    window.__qaGuidedSkipSwipe = () => {};
   }, []);
 
   const handlePanelClose = useCallback(() => {
