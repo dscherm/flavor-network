@@ -182,7 +182,36 @@ export const CUISINE_COLOR = {
   'South Asian':    '#a855f7',
   Mexican:          '#ef4444',
   'Middle Eastern': '#ec4899',
+  // B-version (2026-06-03): user-saved recipes use chalk-cream so they
+  // visually read as "yours" against the cuisine-colored seed set.
+  Personal:         '#f5efde',
 };
+
+/**
+ * Normalize a user-saved recipe (profile.recipes shape:
+ * `{ name, ingredients }`) into a SEED_RECIPES-shaped object so it can
+ * be merged into the cookbook scene. Position is placed on a fresh
+ * "Personal" quadrant — a vertical stack at +y radius 12.
+ */
+export function userRecipeToSeed(recipe, idx) {
+  const name = String(recipe?.name || '').trim() || `Saved recipe ${idx + 1}`;
+  const ingredients = Array.isArray(recipe?.ingredients)
+    ? recipe.ingredients.map((it) => (typeof it === 'string' ? it : it?.name)).filter(Boolean)
+    : [];
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || `user-${idx}`;
+  return {
+    id: `user-${slug}`,
+    name,
+    cuisine: 'Personal',
+    cluster: 'personal',
+    description: `Saved recipe (${ingredients.length} ingredient${ingredients.length === 1 ? '' : 's'}).`,
+    ingredients,
+    // Stack vertically above origin so user recipes form a coherent
+    // "shelf" distinct from the cuisine quadrants.
+    position3D: [0, 12 + idx * 0.6, idx * 1.3 - 6],
+    _userSaved: true,
+  };
+}
 
 /**
  * Build a NetworkScene-compatible data object from the seed recipes.
@@ -215,6 +244,7 @@ export function buildRecipesNetworkData() {
 const CUISINE_ORDER = [
   'Italian', 'French', 'East Asian', 'SE Asian',
   'South Asian', 'Mexican', 'Middle Eastern',
+  'Personal',
 ];
 
 /**
@@ -229,11 +259,14 @@ const CUISINE_ORDER = [
  * string. We therefore key by recipe.name (display name) rather
  * than recipe.id.
  */
-export function buildRecipesScene() {
+export function buildRecipesScene(extraRecipes = []) {
   const nodes = new Map();
   const positions = {};
   const shapeAssignments = new Map();
-  for (const r of SEED_RECIPES) {
+  // Merge seed + extras (user-saved). Extras must already be in
+  // SEED_RECIPES shape — use `userRecipeToSeed(...)` on profile data.
+  const allRecipes = [...SEED_RECIPES, ...(Array.isArray(extraRecipes) ? extraRecipes : [])];
+  for (const r of allRecipes) {
     const cuisineIdx = CUISINE_ORDER.indexOf(r.cuisine);
     const cuisineColor = CUISINE_COLOR[r.cuisine] || '#94a3b8';
     nodes.set(r.name, {

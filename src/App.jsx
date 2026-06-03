@@ -2372,6 +2372,7 @@ export default function App() {
           <CookbookLab
             externalFilter={externalLabFilter}
             ctx={data}
+            userRecipes={userProfile?.recipes || []}
             pickerMode={cookbookPickerMode}
             onExitPickerMode={() => {
               setCookbookPickerMode(null);
