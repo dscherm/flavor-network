@@ -20,13 +20,16 @@ describe('LandingScreen — MAKE-LANDING-TILE (3-tile row, post MAKE-BUILD-DEPRE
     }
   });
 
-  it('renders 3 tiles in order: pairing, guided, make', () => {
+  // B-version P5 (2026-06-02): landing tile order is now Guided →
+  // Make → Network per LANDING-CHALKBOARD spec. Old order was
+  // pairing → guided → make; updated here to match.
+  it('renders 3 tiles in order: guided, make, pairing', () => {
     render(<LandingScreen onModeSelect={vi.fn()} />);
     const tiles = screen.getAllByRole('button');
     expect(tiles.length).toBe(3);
-    expect(tiles[0]).toHaveAttribute('data-mode', 'pairing');
-    expect(tiles[1]).toHaveAttribute('data-mode', 'guided');
-    expect(tiles[2]).toHaveAttribute('data-mode', 'make');
+    expect(tiles[0]).toHaveAttribute('data-mode', 'guided');
+    expect(tiles[1]).toHaveAttribute('data-mode', 'make');
+    expect(tiles[2]).toHaveAttribute('data-mode', 'pairing');
     expect(screen.queryByText('Build your Recipe')).toBeNull();
   });
 

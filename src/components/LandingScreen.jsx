@@ -86,18 +86,51 @@ function GuidedVisual() {
 }
 
 function MakeVisual() {
-  // Chef's hat over a notebook page — "make a recipe" entry point.
-  // Sequence: explore → guided → make.
+  // B-version P5 — pot with glowing balls (per spec restore).
+  // Cylindrical pot with rim + handles; 4 luminous balls inside echo
+  // the NeuFlavor ingredient nodes glowing in their broth.
   return (
     <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
-      {/* Notebook page (background) */}
+      {/* Pot body */}
       <rect
-        x="22" y="42" width="56" height="44" rx="2"
-        fill="rgba(167,139,250,0.14)" stroke="rgb(167,139,250)" strokeWidth="2"
+        x="20" y="42" width="60" height="42" rx="4"
+        fill="rgba(167,139,250,0.16)" stroke="rgb(167,139,250)" strokeWidth="2"
       />
-      {/* Notebook lines */}
-      <line x1="30" y1="56" x2="70" y2="56" stroke="rgba(167,139,250,0.55)" strokeWidth="1.2" />
-      <line x1="30" y1="64" x2="64" y2="64" stroke="rgba(167,139,250,0.45)" strokeWidth="1.2" />
+      {/* Rim */}
+      <rect
+        x="16" y="38" width="68" height="8" rx="2"
+        fill="rgba(167,139,250,0.30)" stroke="rgb(167,139,250)" strokeWidth="2"
+      />
+      {/* Handles */}
+      <path d="M 16 50 Q 10 50 10 58 Q 10 64 16 64"
+        fill="none" stroke="rgb(167,139,250)" strokeWidth="2" strokeLinecap="round" />
+      <path d="M 84 50 Q 90 50 90 58 Q 90 64 84 64"
+        fill="none" stroke="rgb(167,139,250)" strokeWidth="2" strokeLinecap="round" />
+      {/* Glowing balls */}
+      <circle cx="34" cy="62" r="4" fill="rgb(125,186,94)"
+        className="motion-safe:animate-pulse"
+        style={{ filter: 'drop-shadow(0 0 6px rgba(125,186,94,0.95))', animationDelay: '0s', animationDuration: '2.4s' }} />
+      <circle cx="50" cy="58" r="4.5" fill="rgb(245,158,11)"
+        className="motion-safe:animate-pulse"
+        style={{ filter: 'drop-shadow(0 0 6px rgba(245,158,11,0.95))', animationDelay: '0.4s', animationDuration: '2.4s' }} />
+      <circle cx="66" cy="64" r="4" fill="rgb(236,72,153)"
+        className="motion-safe:animate-pulse"
+        style={{ filter: 'drop-shadow(0 0 6px rgba(236,72,153,0.95))', animationDelay: '0.8s', animationDuration: '2.4s' }} />
+      <circle cx="44" cy="72" r="3.5" fill="rgb(6,182,212)"
+        className="motion-safe:animate-pulse"
+        style={{ filter: 'drop-shadow(0 0 5px rgba(6,182,212,0.95))', animationDelay: '1.2s', animationDuration: '2.4s' }} />
+      {/* Steam wisps */}
+      <path d="M 36 34 Q 32 28 36 22" fill="none" stroke="rgba(167,139,250,0.55)" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M 50 32 Q 46 26 50 20" fill="none" stroke="rgba(167,139,250,0.55)" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M 64 34 Q 60 28 64 22" fill="none" stroke="rgba(167,139,250,0.55)" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function _RemovedLegacyChefHatVisual() {
+  return (
+    <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
+      {/* (kept only to swallow the dangling chef-hat SVG below — not rendered) */}
       <line x1="30" y1="72" x2="68" y2="72" stroke="rgba(167,139,250,0.35)" strokeWidth="1.2" />
       {/* Chef's hat */}
       <path
@@ -115,14 +148,8 @@ function MakeVisual() {
   );
 }
 
+// B-version P5 — spec'd order: Guided (1) → Make (2) → Network (3).
 const TILES = [
-  {
-    id: 'pairing', // routes to existing 'network' tab — preserves activeTab wiring
-    label: 'Explore the Network',
-    subheadline: "You're ready to poke around the NeuFlavor Network model without guidance to explore all kinds of ways of pairing ingredients.",
-    accent: '#4f8fff',
-    Visual: PairingVisual,
-  },
   {
     id: 'guided',
     label: 'Guided Discovery',
@@ -136,6 +163,13 @@ const TILES = [
     subheadline: 'Start a recipe from scratch, from a photo, or from a saved Cookbook recipe.',
     accent: '#a78bfa',
     Visual: MakeVisual,
+  },
+  {
+    id: 'pairing', // routes to existing 'network' tab — preserves activeTab wiring
+    label: 'Explore the Network',
+    subheadline: "You're ready to poke around the NeuFlavor Network model without guidance to explore all kinds of ways of pairing ingredients.",
+    accent: '#4f8fff',
+    Visual: PairingVisual,
   },
 ];
 
@@ -152,7 +186,11 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
       role="dialog"
       aria-modal="true"
       aria-labelledby="fn-landing-title"
-      style={{ backgroundColor: '#0d1f38' }}
+      style={{
+        // B-version P5 — chalkboard chrome (near-black slate radial wash).
+        background: 'radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%), #0a0a0a',
+      }}
+      data-testid="landing-screen"
     >
       <h1 id="fn-landing-title" className="sr-only">Neural Flavor</h1>
 
@@ -164,7 +202,14 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
       </div>
 
       {/* Tagline directly below the logo */}
-      <p className="text-center text-sm sm:text-base text-[#a8c4e8] max-w-xl mt-2 mb-6 leading-relaxed">
+      <p
+        className="text-center text-lg sm:text-xl max-w-xl mt-2 mb-6 leading-relaxed"
+        style={{
+          color: '#bdb6a3',
+          fontFamily: 'Caveat, cursive',
+          textShadow: '0 0 1px rgba(245,239,222,0.45), 0 0 3px rgba(245,239,222,0.18)',
+        }}
+      >
         Built on 2.2M recipes, 48,588 pairings, and real molecular chemistry.
       </p>
 
@@ -182,23 +227,52 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
               disabled={isLoading}
               data-mode={tile.id}
               aria-label={`${tile.label}. ${tile.subheadline}`}
-              className={`group relative flex flex-col items-center text-center gap-3 rounded-xl border bg-[#12203b] p-5 sm:p-6 min-h-[44px] transition-all overflow-hidden focus:outline-none
-                ${dimmed ? 'opacity-40 cursor-wait' : 'hover:bg-[#16284a]'}
-                ${isPicked ? 'border-cyan-400/80' : 'border-[#1d3158]'}
+              className={`group relative flex flex-col items-center text-center gap-3 rounded-xl p-5 sm:p-6 min-h-[44px] transition-all overflow-hidden focus:outline-none
+                ${dimmed ? 'opacity-40 cursor-wait' : 'hover:brightness-110'}
               `}
-              style={isPicked ? { boxShadow: `0 0 24px ${tile.accent}55` } : undefined}
+              style={{
+                // Chalkboard tile: double chalk-rail border + slate wash.
+                background: 'radial-gradient(ellipse at center, #1c1c1c 0%, #0e0e0e 100%)',
+                border: `2px double ${isPicked ? tile.accent : '#4a4a4a'}`,
+                boxShadow: isPicked
+                  ? `inset 0 0 0 1px #6a6a6a55, 0 0 24px ${tile.accent}55`
+                  : 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
+              }}
+              data-testid={`landing-tile-${tile.id}`}
             >
               <span
                 className="absolute left-0 top-0 bottom-0 w-1"
                 style={{ background: tile.accent }}
                 aria-hidden="true"
               />
-              <div className="flex items-center justify-center w-20 h-20 rounded-lg bg-[#0a1428]/60 border border-[#1d3158]/80">
+              <div
+                className="flex items-center justify-center w-20 h-20 rounded-lg"
+                style={{
+                  background: 'rgba(255,255,255,0.025)',
+                  border: `1px solid #6a6a6a55`,
+                }}
+              >
                 <Visual />
               </div>
               <div>
-                <span className="block text-lg sm:text-xl font-semibold text-white">{tile.label}</span>
-                <span className="block text-xs sm:text-sm text-[#9bb6da] leading-relaxed mt-1.5">
+                <span
+                  className="block text-2xl"
+                  style={{
+                    color: '#f5efde',
+                    fontFamily: 'Caveat, cursive',
+                    textShadow: '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)',
+                  }}
+                >
+                  {tile.label}
+                </span>
+                <span
+                  className="block text-sm leading-relaxed mt-1.5"
+                  style={{
+                    color: '#bdb6a3',
+                    fontFamily: 'Caveat, cursive',
+                    textShadow: '0 0 1px rgba(245,239,222,0.45), 0 0 3px rgba(245,239,222,0.18)',
+                  }}
+                >
                   {tile.subheadline}
                 </span>
               </div>
