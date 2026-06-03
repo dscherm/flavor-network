@@ -221,7 +221,7 @@ export default function MakeRecipeCardsGrid({
   if (resolved.length === 0) {
     return (
       <div
-        className="rounded-xl flex flex-col items-center justify-center px-6 py-12 text-center"
+        className="rounded-xl flex flex-col items-center justify-center px-6 py-12 text-center gap-3"
         style={{
           background: CHALK_BG,
           border: `2px dashed #4a4a4a`,
@@ -230,7 +230,7 @@ export default function MakeRecipeCardsGrid({
         data-testid="make-recipe-empty"
       >
         <p
-          className="text-2xl mb-2"
+          className="text-2xl mb-1"
           style={{ color: CHALK_CREAM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
         >
           Today's specials —
@@ -240,6 +240,18 @@ export default function MakeRecipeCardsGrid({
           style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
         >
           tap "+ Add" above to chalk your first ingredient on the board.
+        </p>
+        <p
+          className="text-sm leading-snug max-w-md mt-3"
+          style={{ color: CHALK_SUB, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          data-testid="make-recipe-brainstorm-note"
+        >
+          Use Make a Recipe as a tool to brainstorm — explore ingredient
+          pairings and start making your recipe or putting your own twist
+          on a favorite. When you are done brainstorming, save it to your
+          Recipe Notebook. Don't worry if you didn't think of everything —
+          you can continue to add, swap, or remove items from the recipe
+          there too.
         </p>
       </div>
     );

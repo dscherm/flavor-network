@@ -20,7 +20,7 @@
  * stub here — wiring it to ClusterFocusMode is a P5 follow-up.
  */
 
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import RecipeTypePills from './RecipeTypePills.jsx';
 import MakeRecipeCardsGrid, { suggestPortion } from './MakeRecipeCardsGrid.jsx';
 import IngredientPicker from './IngredientPicker.jsx';
@@ -45,6 +45,7 @@ export default function MakeRecipeView({
   onCardTap,
   onSaveToNotebook,
   onExamineInNetwork,
+  onBack,
 }) {
   const [title, setTitle] = useState(initialTitle);
   const [dishType, setDishType] = useState(initialDishType);
@@ -80,6 +81,32 @@ export default function MakeRecipeView({
     }
   };
 
+  // Swipe-down at the page level returns to the entry router (per user
+  // 2026-06-03 — iOS users couldn't back out of the cards-grid).
+  // 80px vertical drop ≥ horizontal travel triggers the back action.
+  const touchStartRef = useRef(null);
+  const onTouchStart = (e) => {
+    const t = e.touches?.[0];
+    if (!t) return;
+    touchStartRef.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e) => {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start || !onBack) return;
+    const t = (e.changedTouches?.[0]) || null;
+    if (!t) return;
+    const dy = t.clientY - start.y;
+    const dx = Math.abs(t.clientX - start.x);
+    if (dy > 80 && dy > dx) onBack();
+  };
+  useEffect(() => {
+    if (!onBack) return;
+    const onKey = (e) => { if (e.key === 'Escape') onBack(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onBack]);
+
   const isCocktail = dishType === 'drink' || dishType === 'cocktail';
   const isSauce = dishType === 'sauce';
 
@@ -89,7 +116,35 @@ export default function MakeRecipeView({
       style={{ background: CHALK_BG }}
       data-testid="make-recipe-view"
       data-dish-type={dishType || ''}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
+      {onBack && (
+        <div className="w-full max-w-3xl mx-auto flex items-center justify-between mb-2">
+          <button
+            type="button"
+            onClick={() => onBack()}
+            data-testid="make-recipe-back"
+            className="px-3 py-2 rounded-md"
+            style={{
+              color: CHALK_CREAM,
+              background: 'rgba(255,255,255,0.04)',
+              border: `1px solid #6a6a6a`,
+              fontFamily: FONT_HAND,
+              fontSize: 17,
+              textShadow: CHALK_TEXT_SHADOW,
+            }}
+            aria-label="Back to recipe start"
+          >
+            ← Back
+          </button>
+          <span
+            style={{ color: '#8a8478', fontFamily: FONT_HAND, fontSize: 13, textShadow: CHALK_TEXT_SHADOW }}
+          >
+            ↓ swipe down to go back
+          </span>
+        </div>
+      )}
       <div
         className="w-full max-w-3xl mx-auto rounded-2xl px-4 py-4 mb-4"
         style={{
