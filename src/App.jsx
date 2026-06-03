@@ -48,6 +48,9 @@ import MakeRecipeStart from './components/MakeRecipeStart.jsx';
 import GuidedTour from './components/GuidedTour.jsx';
 import LabTour from './components/LabTour.jsx';
 import GuidedDiscoveryResults from './components/GuidedDiscoveryResults.jsx';
+import IngredientPicker from './components/IngredientPicker.jsx';
+import PairingMode from './components/PairingMode.jsx';
+import MakeRecipeView from './components/MakeRecipeView.jsx';
 import { deriveFilterStackFromBubbles } from './data/guidedDiscovery.js';
 import {
   MODE_CYCLE as NETWORK_MODE_CYCLE,
@@ -333,7 +336,14 @@ export default function App() {
   // 350ms → also sets affinityRequested → α-mode engages. Long-press
   // (touch-hold ≥350ms) also sets affinityRequested. ESC clears only
   // affinityRequested (keeps the panel open).
+  //
+  // B-version P3 (interactive bridge): single-tap on a Network node
+  // NOW opens PairingMode instead of appending to selectedNodes. The
+  // sceneHandle.engageAffinity() / Guided-Tour entry path keeps
+  // affinityRequested for Step 2 of the tour; user single-tap from
+  // Network no longer reaches it.
   const [affinityRequested, setAffinityRequested] = useState(false);
+  const [pairingModeFocal, setPairingModeFocal] = useState(null);
   const lastNodeClickRef = useRef({ name: null, at: 0 });
   // Canonical-spec (2026-05-23 user-iter): single-click on a network
   // node spawns a SMALL POPUP near the cursor showing the flavor
@@ -902,72 +912,27 @@ export default function App() {
     setHighlightPairings(null);
     const name = node.name;
 
-    // Canonical-spec §3.5 two-stage selection:
-    //   single click on new node → replace selection (panel opens), no α-mode
-    //   single click on currently-selected node → deselect (close panel)
-    //   double click within 350ms (same node) → α-mode engages
-    //   single click on different node while α-mode active → re-pivot
-    //     (affinityRequested stays true)
-    // Long-press is handled at the pointer layer in LivingArchView.
-    const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-    const last = lastNodeClickRef.current;
-    const isDoubleClick = last.name === name && now - last.at < 350;
-    lastNodeClickRef.current = { name, at: now };
-
-    if (isDoubleClick) {
-      // Double-click commit → engage α-mode on this node.
-      // NETWORK-CLICK-POLISH-V2: if name is already in the existing
-      // multi-selection, preserve the full set so α-mode engages on
-      // ALL focals (multi-focal). If name is NEW (not currently
-      // selected), replace with just [name] — a fresh double-click on
-      // an unselected node is a strong "focus on this alone" intent.
-      setSelectedNodes((prev) => (prev.includes(name) ? prev : [name]));
-      setAffinityRequested(true);
-      setActivePanel('ingredient');
-      setTierPopup(null);
-    } else {
-      // V1 reset affinityRequested=false here so any in-flight α-mode
-      // rings dismissed on every single-click. NETWORK-CLICK-POLISH-V2
-      // part C (C4) removes that reset: when α-mode is engaged, a
-      // single-click on a visible ingredient (affinity ring sphere)
-      // ADDS it as another focal — α-mode re-engages with the expanded
-      // focal set. Tap-empty still clears (handled in the !node branch
-      // above). Double-click still explicitly sets affinityRequested=true.
-      let shouldOpenPopup = true;
-      setSelectedNodes((prev) => {
-        // NETWORK-CLICK-POLISH-V2 (revised per user feedback): every
-        // click APPENDS to the selection. Single-click on an already-
-        // selected node is a NO-OP (deselection happens ONLY via
-        // Clear Selection affordance or tap-empty). This way a
-        // double-tap on an already-selected node — where the first
-        // tap would otherwise remove it — preserves the multi-
-        // selection so α-mode engages with all focals.
-        if (prev.includes(name)) {
-          shouldOpenPopup = false;
-          return prev;
-        }
-        return [...prev, name];
-      });
-      // Open the ingredient panel — mobile drawer gate (activePanel ===
-      // 'ingredient') needs this to show the tier 1/2/3 data. Desktop
-      // panel always renders when selectedNodeData is set; this is the
-      // mobile-specific unlock.
-      setActivePanel('ingredient');
-      if (shouldOpenPopup && screenPos) {
-        setTierPopup({ name, x: screenPos.x, y: screenPos.y });
-      } else if (!shouldOpenPopup) {
-        setTierPopup(null);
-      }
-    }
+    // B-version P3 (interactive bridge): single-tap on a Network node
+    // opens PairingMode for that ingredient. α-mode entry from
+    // Network is REMOVED (double-click + long-press no longer engage
+    // α — that path is replaced by Pairing Mode's swipe browser).
+    // α-mode itself stays alive for Guided Discovery Step 2 via the
+    // sceneHandle.engageAffinity() API and the tour-entry path.
+    //
+    // Empty-tap clear-selection still flows above. The single-tap
+    // tier-popup and selectedNodes-append behaviors are gone; if a
+    // user wants ingredient details they get them inside the
+    // Pairing Mode card (properties + tier chips + radar dot).
+    lastNodeClickRef.current = { name, at: 0 };
+    setPairingModeFocal(name);
   }, [focusedCluster, morphAxis]);
 
-  // Canonical-spec §3.5 — long-press on a node engages α-mode
-  // (same effect as a double-click). Wired into LivingArchView's
-  // touch press timer.
+  // B-version P3 — long-press now opens PairingMode (was α-mode).
+  // α-mode entry from Network is gone; Guided Discovery Step 2 keeps
+  // the α-mode path via sceneHandle.engageAffinity().
   const handleNodeLongPress = useCallback((node) => {
     if (!node) return;
-    setSelectedNodes([node.name]);
-    setAffinityRequested(true);
+    setPairingModeFocal(node.name);
   }, []);
 
   const handleSearchSelect = useCallback((name) => {
@@ -1303,6 +1268,109 @@ export default function App() {
     );
   }
 
+  // B-version P4 (interactive bridge): standalone MakeRecipeView preview
+  // gated on ?make=1. Lets the user review the chalkboard cards grid +
+  // dish-type joystick + picker + menu BEFORE landing-card rewire
+  // (P6) makes it the third top-level surface. Tapping a card opens
+  // PairingMode for that ingredient via the App-level focal setter.
+  if (typeof window !== 'undefined') {
+    const _mrParams = new URLSearchParams(window.location.search);
+    if (_mrParams.get('make') === '1' && data?.graph?.nodes) {
+      return (
+        <div data-testid="make-recipe-preview-overlay">
+          <MakeRecipeView
+            data={data}
+            onCardTap={(name) => setPairingModeFocal(name)}
+            onSaveToNotebook={(state) => console.log('[make] save', state)}
+            onExamineInNetwork={(state) => console.log('[make] tour', state)}
+          />
+          {pairingModeFocal && (
+            <PairingMode
+              focal={pairingModeFocal}
+              ctx={{
+                graph: data.graph,
+                cuisineNeighborIndex: data.cuisineNeighborIndex || null,
+                bridgeCompoundIndex: data.bridgeCompoundIndex || null,
+              }}
+              odorThresholds={data.odorThresholds || null}
+              onExit={() => setPairingModeFocal(null)}
+            />
+          )}
+        </div>
+      );
+    }
+  }
+
+  // B-version P3 (interactive bridge): standalone PairingMode preview
+  // gated on ?pairing=<focalName>. Mounts the Tinder-stack pairing
+  // browser focused on the given ingredient so the user can review
+  // card visuals + 4-button nav + radar dot positioning before P3
+  // wires it into NetworkScene single-tap handler.
+  if (typeof window !== 'undefined') {
+    const _pmParams = new URLSearchParams(window.location.search);
+    const _pmFocal = _pmParams.get('pairing');
+    if (_pmFocal && data?.graph?.nodes) {
+      return (
+        <div data-testid="pairing-preview-overlay">
+          <PairingMode
+            focal={_pmFocal}
+            ctx={{
+              graph: data.graph,
+              cuisineNeighborIndex: data.cuisineNeighborIndex || null,
+              bridgeCompoundIndex: data.bridgeCompoundIndex || null,
+            }}
+            odorThresholds={data.odorThresholds || null}
+            onExit={() => {
+              const url = new URL(window.location.href);
+              url.searchParams.delete('pairing');
+              window.history.replaceState({}, '', url.toString());
+              window.location.reload();
+            }}
+          />
+        </div>
+      );
+    }
+  }
+
+  // B-version P1 (interactive bridge): standalone IngredientPicker
+  // preview gated on ?picker=1[&mode=notebook|guided]&dish=<type>.
+  // Lets the user review the picker shell + radar + filtered list
+  // before P2 wires it into the Notebook Add/Replace chrome.
+  if (typeof window !== 'undefined') {
+    const _ppParams = new URLSearchParams(window.location.search);
+    if (_ppParams.get('picker') === '1' && data?.graph?.nodes) {
+      const _pmode = _ppParams.get('mode') === 'guided' ? 'guided' : 'notebook';
+      const _pdish = _ppParams.get('dish') || null;
+      const _pCtx = {
+        graph: data.graph,
+        gnnEntropy: data.gnnEntropy || null,
+        cuisineMap: data.cuisineMap || null,
+        seasonMap: data.seasonMap || null,
+      };
+      return (
+        <div
+          className="flex items-start justify-center min-h-screen px-4 py-8"
+          style={{ backgroundColor: '#070a14' }}
+          data-testid="picker-preview-overlay"
+        >
+          <IngredientPicker
+            mode={_pmode}
+            ctx={_pCtx}
+            dishType={_pdish}
+            onSelect={(name) => console.log('[picker] select', name)}
+            onIngredientPick={(name) => console.log('[picker] pick', name)}
+            onClose={() => {
+              const url = new URL(window.location.href);
+              url.searchParams.delete('picker');
+              window.history.replaceState({}, '', url.toString());
+              window.location.reload();
+            }}
+          />
+        </div>
+      );
+    }
+  }
+
   return (
     <>
       {/* Screen-reader-only live region: announces the currently-selected
@@ -1324,6 +1392,23 @@ export default function App() {
             ? `${selectedNodes.length} ingredients selected.`
             : 'No ingredient selected.'}
       </div>
+
+      {/* B-version P3 slice 2: Network single-tap → PairingMode overlay.
+          Mounts when pairingModeFocal is set. Back / Esc clears the
+          focal which dismisses the overlay. α-mode entry from this
+          surface is REMOVED; α-mode survives for Guided Step 2. */}
+      {pairingModeFocal && data?.graph?.nodes && (
+        <PairingMode
+          focal={pairingModeFocal}
+          ctx={{
+            graph: data.graph,
+            cuisineNeighborIndex: data.cuisineNeighborIndex || null,
+            bridgeCompoundIndex: data.bridgeCompoundIndex || null,
+          }}
+          odorThresholds={data.odorThresholds || null}
+          onExit={() => setPairingModeFocal(null)}
+        />
+      )}
 
       {/* Top-level tab navigation — UX pipeline Phase 1 (2026-05-16):
           Primary row = 3 tabs matching the 3 landing cards (Explore /

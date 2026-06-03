@@ -175,8 +175,12 @@ describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', (
     expect(lavJsx).toMatch(/ctrl\.pivot\(focals\)/);
   });
 
-  it('App.jsx double-click preserves existing multi-selection when name is already in it', () => {
-    expect(appJsx).toMatch(/prev\.includes\(name\) \? prev : \[name\]/);
+  // B-version P3 (2026-06-02): α-mode entry from Network is REMOVED.
+  // Single-tap on a Network node now opens PairingMode (the Tinder-
+  // swipe browser). The legacy double-click → α-mode branch is gone.
+  it('App.jsx single-tap opens PairingMode (replaces double-click→α-mode entry)', () => {
+    expect(appJsx).toMatch(/setPairingModeFocal\(name\)/);
+    expect(appJsx).not.toMatch(/prev\.includes\(name\) \? prev : \[name\]/);
   });
 
   // ===== C4 — tap-on-non-focal-in-α-mode adds another focal =====
@@ -193,21 +197,21 @@ describe('NETWORK-CLICK-POLISH-V2 part B — AffinityMode multi-focal engage', (
     expect(handlerSlice).toMatch(/dataRef\.current\?\.positions\?\.positions/);
   });
 
-  it('C4: App.jsx single-click no longer force-resets affinityRequested unconditionally', () => {
-    // V1 had `setAffinityRequested(false);` at the TOP of the single-
-    // click branch — unconditional dismissal of α-mode on every click.
-    // V2-C4 removed that so α-mode re-engages with the appended focal.
-    // The C4 comment must still be present.
-    const handlerStart = appJsx.indexOf('Single-click ALWAYS opens panel only');
-    expect(handlerStart).toBe(-1); // V1 unconditional comment replaced
-    expect(appJsx).toMatch(/C4[\s\S]{0,200}ADDS it as another focal/);
-    // The unconditional reset (immediately after else {) must NOT be
-    // there anymore. (A conditional reset inside the toggle-off-to-
-    // empty path is fine and intentional per user-feedback fix.)
-    const elseHead = appJsx.match(/\} else \{\s*\/\/[^\n]*\n\s*\/\/[^\n]*\n/);
-    expect(elseHead).not.toBeNull();
-    const after = elseHead ? appJsx.slice(elseHead.index, elseHead.index + 400) : '';
-    expect(after).not.toMatch(/^\s*setAffinityRequested\(false\)/m);
+  // B-version P3 (2026-06-02): legacy V1/V2/C4 single-click branch
+  // semantics are gone. The Network click handler no longer manages
+  // α-mode entry at all; it sets pairingModeFocal and returns.
+  // sceneHandle.engageAffinity (used by Guided Discovery Step 2)
+  // still uses setAffinityRequested, so that setter remains in the
+  // file — we just verify it's no longer reached from a user tap.
+  it('B-version: Network click handler no longer touches affinityRequested', () => {
+    // PairingMode focal setter is the ONLY thing the click handler
+    // does on a node tap.
+    expect(appJsx).toMatch(/setPairingModeFocal\(name\)/);
+    // Long-press also routes to PairingMode (was setAffinityRequested).
+    expect(appJsx).toMatch(/handleNodeLongPress[\s\S]{0,200}setPairingModeFocal/);
+    // sceneHandle.engageAffinity keeps its α-mode setter for the
+    // Guided Discovery Step 2 tour entry path.
+    expect(appJsx).toMatch(/engageAffinity\(name\)[\s\S]{0,200}setAffinityRequested\(true\)/);
   });
 });
 

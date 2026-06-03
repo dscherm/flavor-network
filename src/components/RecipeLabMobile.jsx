@@ -2,10 +2,10 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import Fuse from 'fuse.js';
 import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import { getCocktailRoles, getSauceRoles } from '../data/ingredientRoles.js';
-import RecipeFlavorWheel from './RecipeFlavorWheel.jsx';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import IngredientSuggestionsPopout from './IngredientSuggestionsPopout.jsx';
 import RecipeTypePills from './RecipeTypePills.jsx';
+import IngredientPicker from './IngredientPicker.jsx';
 import { hapticLight, hapticMedium } from '../utils/native.js';
 import { computeRecipeAroma } from '../data/recipeAromaSimilarity.js';
 import {
@@ -46,6 +46,11 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [activeTab, setActiveTab] = useState('all');
   const [focusedIngredient, setFocusedIngredient] = useState(null);
   const [suggestionsMode, setSuggestionsMode] = useState(false);
+  // B-version P2: IngredientPicker modal (Add/Replace) — opens via
+  // the "Add ingredient" CTA in the chrome row. Replace-target null
+  // means "add new"; non-null means "replace this ingredient".
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerReplaceTarget, setPickerReplaceTarget] = useState(null);
   const [handoffToast, setHandoffToast] = useState(null);
   const [recipeType, setRecipeType] = useState(handoff?.recipeType || null);
   const [recipeImageUrl, setRecipeImageUrl] = useState(null);
@@ -396,7 +401,23 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         ))}
       </div>
 
-      <RecipeTypePills value={recipeType} onChange={setRecipeType} />
+      {/* B-version P2: dish-type joystick + Add ingredient launcher.
+          Replaces the persistent taste-wheel zone with explicit chrome. */}
+      <div className="flex items-center gap-2 mx-2 mb-1">
+        <div className="flex-1 min-w-0">
+          <RecipeTypePills value={recipeType} onChange={setRecipeType} />
+        </div>
+        <button
+          type="button"
+          data-testid="recipe-chrome-add-ingredient"
+          onClick={() => { setPickerReplaceTarget(null); setPickerOpen(true); }}
+          className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap"
+          style={{ fontFamily: FONT_FAMILY }}
+          aria-label="Add ingredient via picker"
+        >
+          + Add
+        </button>
+      </div>
 
       <div
         ref={searchContainerRef}
@@ -488,15 +509,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             }}
             onClose={() => setSuggestionsMode(false)}
           />
-        ) : (
-          <RecipeFlavorWheel
-            ingredients={recipeNames}
-            nodes={fullData?.graph?.nodes}
-            onTapAroma={(key) => {
-              setActiveTab(`aroma:${key}`);
-            }}
-          />
-        )}
+        ) : null}
       </div>
 
       <div className="flex-1 relative overflow-y-auto" style={{ minHeight: 80 }}>
@@ -535,8 +548,9 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             setSuggestionsMode(false);
           }}
           onRequestAdd={() => {
-            searchInputRef.current?.focus();
-            setSearchOpen(true);
+            // B-version P2: notebook + buttons route to IngredientPicker.
+            setPickerReplaceTarget(null);
+            setPickerOpen(true);
           }}
           onRequestSuggestions={() => {
             setSuggestionsMode(true);
@@ -557,6 +571,41 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         />
 
       </div>
+
+      {/* B-version P2: IngredientPicker modal sheet. Mounted at the
+          root so it overlays the notebook + drawer. Dish-type prop is
+          mapped from recipeType (drink → cocktail for the picker's
+          Layer-1 filter, sauce → sauce, others → null pass-through). */}
+      {pickerOpen && (
+        <div
+          className="fixed inset-0 z-40 flex items-start justify-center px-4 py-8 bg-black/60 backdrop-blur-sm"
+          data-testid="recipe-picker-modal"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setPickerOpen(false);
+          }}
+        >
+          <IngredientPicker
+            mode="notebook"
+            ctx={{
+              graph: fullData?.graph,
+              gnnEntropy: fullData?.gnnEntropy || null,
+              cuisineMap: fullData?.cuisineMap || null,
+              seasonMap: fullData?.seasonMap || null,
+            }}
+            dishType={recipeType === 'drink' ? 'cocktail' : recipeType === 'sauce' ? 'sauce' : null}
+            onSelect={(name) => {
+              if (pickerReplaceTarget) {
+                handleSwapIngredient(pickerReplaceTarget, name);
+              } else {
+                handleAddIngredient(name);
+              }
+              setPickerOpen(false);
+              setPickerReplaceTarget(null);
+            }}
+            onClose={() => { setPickerOpen(false); setPickerReplaceTarget(null); }}
+          />
+        </div>
+      )}
     </div>
   );
 }

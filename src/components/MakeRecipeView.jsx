@@ -1,0 +1,260 @@
+/**
+ * MakeRecipeView — parent surface for the B-version "Make a Recipe"
+ * top-level destination. (Spec §MAKE-RECIPE-CARDS.)
+ *
+ * Body conditional on dish-type joystick:
+ *   - cocktail → renders CocktailLab inside body (preserves curated UI)
+ *   - sauce    → renders SauceLab inside body
+ *   - else     → renders MakeRecipeCardsGrid (chalkboard cards)
+ *
+ * Header chrome (chalkboard menu look):
+ *   - "Recipe Name" content-editable title
+ *   - Dish-type joystick (RecipeTypePills)
+ *   - "+ Add" launcher → opens IngredientPicker as modal
+ *   - Menu overflow: "Save to Notebook" + "Examine in Network" stubs
+ *
+ * Card tap inside grid → opens PairingMode for that ingredient via
+ * the parent (App.jsx setPairingModeFocal).
+ *
+ * B-version note: the "Examine in Network" cluster fly-by tour is a
+ * stub here — wiring it to ClusterFocusMode is a P5 follow-up.
+ */
+
+import React, { useState, lazy, Suspense } from 'react';
+import RecipeTypePills from './RecipeTypePills.jsx';
+import MakeRecipeCardsGrid, { suggestPortion } from './MakeRecipeCardsGrid.jsx';
+import IngredientPicker from './IngredientPicker.jsx';
+
+const CocktailLabV2 = lazy(() => import('./CocktailLabV2.jsx'));
+const SauceLab = lazy(() => import('./SauceLab.jsx'));
+
+const FONT_HAND = 'Caveat, cursive';
+const CHALK_BG = `
+  radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%),
+  #0a0a0a
+`;
+const CHALK_CREAM = '#f5efde';
+const CHALK_DIM = '#bdb6a3';
+const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
+
+export default function MakeRecipeView({
+  data = null,
+  initialIngredients = [],
+  initialDishType = null,
+  initialTitle = '',
+  onCardTap,
+  onSaveToNotebook,
+  onExamineInNetwork,
+}) {
+  const [title, setTitle] = useState(initialTitle);
+  const [dishType, setDishType] = useState(initialDishType);
+  const [ingredients, setIngredients] = useState(initialIngredients);
+  const [portions, setPortions] = useState({});
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleAdd = (name) => {
+    if (!name) return;
+    setIngredients((prev) => (prev.includes(name) ? prev : [...prev, name]));
+    // Picker stays open after a single commit (per spec lifecycle —
+    // user may pin & commit more). The IngredientPicker handles its
+    // own pin/commit state; this onSelect just registers the addition.
+  };
+  const handleRemove = (name) => {
+    setIngredients((prev) => prev.filter((n) => n !== name));
+    setPortions((prev) => {
+      if (!(name in prev)) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+  };
+  const handlePortionChange = (name, value) => {
+    setPortions((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleSuggestPortion = (name) => {
+    const node = data?.graph?.nodes?.get?.(name);
+    const suggestion = suggestPortion(node, ingredients.length);
+    if (suggestion) {
+      setPortions((prev) => ({ ...prev, [name]: suggestion }));
+    }
+  };
+
+  const isCocktail = dishType === 'drink' || dishType === 'cocktail';
+  const isSauce = dishType === 'sauce';
+
+  return (
+    <div
+      className="min-h-screen w-full flex flex-col px-4 py-4 sm:px-6 sm:py-6"
+      style={{ background: CHALK_BG }}
+      data-testid="make-recipe-view"
+      data-dish-type={dishType || ''}
+    >
+      <div
+        className="w-full max-w-3xl mx-auto rounded-2xl px-4 py-4 mb-4"
+        style={{
+          background: 'rgba(255,255,255,0.02)',
+          border: `2px double #4a4a4a`,
+          boxShadow: 'inset 0 0 0 1px #6a6a6a55',
+        }}
+      >
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Recipe name…"
+            data-testid="make-recipe-title"
+            className="flex-1 bg-transparent border-0 outline-none placeholder:opacity-50"
+            style={{
+              color: CHALK_CREAM,
+              fontFamily: FONT_HAND,
+              fontSize: 32,
+              textShadow: CHALK_TEXT_SHADOW,
+            }}
+          />
+          <div className="relative flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              data-testid="make-recipe-menu"
+              className="px-3 py-2 rounded-md"
+              style={{
+                color: CHALK_CREAM,
+                background: 'rgba(255,255,255,0.04)',
+                border: `1px solid #6a6a6a`,
+                fontFamily: FONT_HAND,
+                fontSize: 18,
+                textShadow: CHALK_TEXT_SHADOW,
+              }}
+              aria-label="Recipe menu"
+            >
+              ⋯
+            </button>
+            {menuOpen && (
+              <div
+                className="absolute right-0 top-full mt-1 rounded-md py-1 z-30"
+                style={{
+                  background: '#0a0a0a',
+                  border: `1px solid #6a6a6a`,
+                  minWidth: 220,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.55)',
+                }}
+                data-testid="make-recipe-menu-popover"
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onSaveToNotebook?.({ title, dishType, ingredients, portions });
+                  }}
+                  className="block w-full text-left px-3 py-2 hover:bg-white/5"
+                  style={{
+                    color: CHALK_CREAM,
+                    fontFamily: FONT_HAND,
+                    fontSize: 18,
+                    textShadow: CHALK_TEXT_SHADOW,
+                  }}
+                  data-testid="make-recipe-menu-save"
+                >
+                  Save to Recipe Notebook
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onExamineInNetwork?.({ title, dishType, ingredients, portions });
+                  }}
+                  className="block w-full text-left px-3 py-2 hover:bg-white/5"
+                  style={{
+                    color: CHALK_CREAM,
+                    fontFamily: FONT_HAND,
+                    fontSize: 18,
+                    textShadow: CHALK_TEXT_SHADOW,
+                  }}
+                  data-testid="make-recipe-menu-tour"
+                >
+                  Examine in Network →
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <RecipeTypePills value={dishType} onChange={setDishType} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            data-testid="make-recipe-add"
+            className="flex-shrink-0 px-4 py-2 rounded-md"
+            style={{
+              color: CHALK_CREAM,
+              background: 'rgba(255,255,255,0.04)',
+              border: `1.5px solid #6a6a6a`,
+              fontFamily: FONT_HAND,
+              fontSize: 18,
+              textShadow: CHALK_TEXT_SHADOW,
+              minHeight: 40,
+            }}
+            aria-label="Add ingredient via picker"
+          >
+            + Add
+          </button>
+        </div>
+      </div>
+
+      <div className="w-full max-w-3xl mx-auto flex-1">
+        {isCocktail ? (
+          <div data-testid="make-recipe-cocktail-variant">
+            <Suspense fallback={<div style={{ color: CHALK_DIM, fontFamily: FONT_HAND }} className="text-center py-8">Loading cocktail lab…</div>}>
+              <CocktailLabV2 fullData={data} />
+            </Suspense>
+          </div>
+        ) : isSauce ? (
+          <div data-testid="make-recipe-sauce-variant">
+            <Suspense fallback={<div style={{ color: CHALK_DIM, fontFamily: FONT_HAND }} className="text-center py-8">Loading sauce lab…</div>}>
+              <SauceLab fullData={data} />
+            </Suspense>
+          </div>
+        ) : (
+          <MakeRecipeCardsGrid
+            ingredients={ingredients}
+            nodes={data?.graph?.nodes || null}
+            portions={portions}
+            onCardTap={onCardTap}
+            onRemove={handleRemove}
+            onPortionChange={handlePortionChange}
+            onSuggestPortion={handleSuggestPortion}
+          />
+        )}
+      </div>
+
+      {pickerOpen && (
+        <div
+          className="fixed inset-0 z-40 flex items-start justify-center px-4 py-8 bg-black/70 backdrop-blur-sm"
+          data-testid="make-recipe-picker-modal"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setPickerOpen(false);
+          }}
+        >
+          <IngredientPicker
+            mode="notebook"
+            ctx={{
+              graph: data?.graph,
+              gnnEntropy: data?.gnnEntropy || null,
+              cuisineMap: data?.cuisineMap || null,
+              seasonMap: data?.seasonMap || null,
+              cuisineNeighborIndex: data?.cuisineNeighborIndex || null,
+            }}
+            dishType={isCocktail ? 'cocktail' : isSauce ? 'sauce' : null}
+            onSelect={handleAdd}
+            onClose={() => setPickerOpen(false)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
