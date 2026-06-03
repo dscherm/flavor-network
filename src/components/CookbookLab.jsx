@@ -20,7 +20,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import NetworkScene from './NetworkScene.jsx';
 import MultiAxisRadarStack from './MultiAxisRadarStack.jsx';
-import { SEED_RECIPES, CUISINE_COLOR, buildRecipesScene } from '../data/seedRecipes.js';
+import { SEED_RECIPES, CUISINE_COLOR, buildRecipesScene, userRecipeToSeed } from '../data/seedRecipes.js';
 
 function RecipeCard({ recipe, onClick }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
@@ -205,7 +205,21 @@ export default function CookbookLab({
   ctx = null,
   pickerMode = null,
   onExitPickerMode,
+  userRecipes = [],
 }) {
+  // B-version (2026-06-03): user-saved recipes appear inside the
+  // cookbook as additional 3D books, normalized into SEED_RECIPES
+  // shape via userRecipeToSeed. Cuisine = 'Personal' so they live in
+  // their own quadrant.
+  const userRecipeSeeds = useMemo(
+    () => (Array.isArray(userRecipes) ? userRecipes : [])
+      .map((r, i) => userRecipeToSeed(r, i)),
+    [userRecipes],
+  );
+  const allRecipes = useMemo(
+    () => [...SEED_RECIPES, ...userRecipeSeeds],
+    [userRecipeSeeds],
+  );
   const isMakePicker = pickerMode === 'make';
   const [cuisineFilter, setCuisineFilter] = useState(null);
   const [clusterFilter, setClusterFilter] = useState(DEFAULT_CLUSTER_FILTER);
@@ -231,17 +245,17 @@ export default function CookbookLab({
   }, [externalFilter, isMakePicker]);
 
   const cuisines = useMemo(
-    () => [...new Set(SEED_RECIPES.map((r) => r.cuisine))].sort(),
-    [],
+    () => [...new Set(allRecipes.map((r) => r.cuisine))].sort(),
+    [allRecipes],
   );
   const clusters = useMemo(
-    () => [...new Set(SEED_RECIPES.map((r) => r.cluster))].sort(),
-    [],
+    () => [...new Set(allRecipes.map((r) => r.cluster))].sort(),
+    [allRecipes],
   );
 
   const filtered = useMemo(
     () =>
-      SEED_RECIPES.filter((r) => {
+      allRecipes.filter((r) => {
         if (cuisineFilter && r.cuisine !== cuisineFilter) return false;
         if (clusterFilter && r.cluster !== clusterFilter) return false;
         if (!isMakePicker && externalFilter?.ingredients?.length) {
@@ -251,13 +265,16 @@ export default function CookbookLab({
         }
         return true;
       }),
-    [cuisineFilter, clusterFilter, externalFilter, isMakePicker],
+    [allRecipes, cuisineFilter, clusterFilter, externalFilter, isMakePicker],
   );
 
-  // 3D scene contract — built once, name-keyed. Filters are applied as
-  // a name-allow-list so the scene dims non-matching nodes instead of
-  // re-laying-out the geometry.
-  const sceneData = useMemo(() => buildRecipesScene(), []);
+  // 3D scene contract — built name-keyed. User-saved extras merged
+  // alongside the 15 curated seed books; scene rebuilds when the
+  // user's saved-recipe set changes.
+  const sceneData = useMemo(
+    () => buildRecipesScene(userRecipeSeeds),
+    [userRecipeSeeds],
+  );
   const filteredNames = useMemo(
     () => filtered.map((r) => r.name),
     [filtered],
@@ -410,7 +427,7 @@ export default function CookbookLab({
               data={sceneData}
               onNodeClick={(node) => {
                 if (!node) return;
-                const r = SEED_RECIPES.find((x) => x.name === node.name);
+                const r = allRecipes.find((x) => x.name === node.name);
                 if (!r) return;
                 if (isMakePicker) {
                   handlePickRecipe(r);
