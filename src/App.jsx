@@ -2258,14 +2258,38 @@ export default function App() {
           per MAKE-MODE-SPEC §2. Pure router: synthesizes a recipeHandoff
           (with source='make-*') or delegates to Cookbook Lab in picker
           mode. Owns no persistent state. */}
+      {/* B-version P4 — Make a Recipe top-level surface promoted into
+          the main app routing (was preview-only at ?make=1). The old
+          MakeRecipeStart 3-card entry router is retired in favor of
+          MakeRecipeView (chalkboard cards-grid + dish-type joystick +
+          shared IngredientPicker + portion sub-cards + menu CTAs).
+          Card tap opens PairingMode for that ingredient. Menu items:
+          "Save to Recipe Notebook" hands off to the notebook with
+          ingredients + portions + title; "Examine in Network" jumps
+          to network mode (cluster fly-by tour is a follow-up). */}
       {activeTab === 'make' && (
         <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
-          <MakeRecipeStart
-            setRecipeHandoff={setRecipeHandoff}
-            setRecipeMounted={setRecipeMounted}
-            setActiveTab={setActiveTab}
-            setCookbookPickerMode={setCookbookPickerMode}
-            nodes={data?.graph?.nodes}
+          <MakeRecipeView
+            data={data}
+            onCardTap={(name) => setPairingModeFocal(name)}
+            onSaveToNotebook={({ title, dishType, ingredients, portions }) => {
+              setRecipeHandoff({
+                source: 'make-bridge',
+                ingredients: Array.isArray(ingredients) ? [...ingredients] : [],
+                mode: 'recipe',
+                title: typeof title === 'string' ? title : '',
+                recipeType: dishType || null,
+                portions: portions || {},
+                ts: Date.now(),
+              });
+              setActiveTab('recipe');
+            }}
+            onExamineInNetwork={({ ingredients }) => {
+              if (Array.isArray(ingredients) && ingredients.length > 0) {
+                setSelectedNodes(ingredients);
+              }
+              setActiveTab('network');
+            }}
           />
         </div>
       )}
