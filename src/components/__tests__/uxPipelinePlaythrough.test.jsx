@@ -98,17 +98,22 @@ describe('§1 — Landing page', () => {
     expect(/>\s*Network\s*</.test(block)).toBe(false);
   });
 
-  it('1.G MobileTabBar exposes 3 primary tabs + Profile (Explore/Guided/Make)', async () => {
+  // B-version (2026-06-03): "Explore" tab renamed to "Model" and the
+  // bar reordered to Guided / Make / Model / Profile per user spec.
+  // Cocktail/Sauce/Cookbook/Recipe-Notebook are now reached via the
+  // floating LabsFab, not from inside the Model dropdown.
+  it('1.G MobileTabBar exposes Guided/Make/Model/Profile + no legacy Explore', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
       path.resolve(process.cwd(), 'src/components/MobileTabBar.jsx'),
       'utf8',
     );
-    expect(/aria-label="Explore"/.test(src)).toBe(true);
     expect(/aria-label="Guided"/.test(src)).toBe(true);
     expect(/aria-label="Make"/.test(src)).toBe(true);
+    expect(/aria-label="Model"/.test(src)).toBe(true);
     expect(/aria-label="Profile"/.test(src)).toBe(true);
+    expect(/aria-label="Explore"/.test(src)).toBe(false);
     expect(/aria-label="Build"/.test(src)).toBe(false);
   });
 
