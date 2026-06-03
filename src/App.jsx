@@ -2063,10 +2063,29 @@ export default function App() {
             setActiveTab('guided');
           }}
           onDiscover={() => {
-            // Stay on the same focal but switch surfaces into the
-            // radar / story / α-mode discovery flow.
+            // B-version Guided flow (2026-06-03): skip Page 3
+            // (GuidedDiscoveryResults radar) and go DIRECTLY to
+            // α-mode on the Network tab. The web app was previously
+            // landing the user in Network mode without α-mode
+            // engaged — fixed by setting both selectedNodes AND
+            // affinityRequested in the same tick before the tab
+            // switch so LivingArchView's α-driver picks it up
+            // on the first render after the route change.
+            const focal = pairingModeFocal;
             setPairingModeFocal(null);
-            setActiveTab('guided-results');
+            if (focal) {
+              setSelectedNodes([focal]);
+              setAffinityRequested(true);
+              // Camera fly-to so the focal is on-screen when α
+              // engages (matches the iOS behavior the user already
+              // sees working).
+              const positions = dataRef.current?.positions?.positions;
+              const pos = positions?.[focal];
+              if (Array.isArray(pos) && pos.length === 3) {
+                setFlyToTarget({ position: pos, ts: Date.now() });
+              }
+            }
+            setActiveTab('network');
           }}
         />
       )}
@@ -2368,9 +2387,25 @@ export default function App() {
               setActiveTab('network');
             }}
             onOpenRecipeLab={(_mode, initialIngredients, extras = {}) => {
+              const ingredients = Array.isArray(initialIngredients) ? [...initialIngredients] : [];
+              // B-version (2026-06-03): when the cookbook picker was
+              // opened from MakeRecipeStart (cookbookPickerMode === 'make'),
+              // route the picked recipe into MakeRecipeView's Stage 2
+              // chalkboard cards-grid INSTEAD of dropping the user into
+              // the Recipe Notebook. The Notebook is reached later via
+              // MakeRecipeView's "Save to Notebook" menu CTA.
+              if (cookbookPickerMode === 'make') {
+                setMakeStagedIngredients(ingredients);
+                setMakeStagedTitle(typeof extras?.title === 'string' ? extras.title : '');
+                setMakeStagedDishType(extras?.recipeType || null);
+                setMakeStage('view');
+                setCookbookPickerMode(null);
+                setActiveTab('make');
+                return;
+              }
               setRecipeHandoff({
                 source: 'cookbook',
-                ingredients: Array.isArray(initialIngredients) ? [...initialIngredients] : [],
+                ingredients,
                 mode: 'recipe',
                 ts: Date.now(),
                 ...extras,
