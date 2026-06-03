@@ -2,24 +2,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
-// 2026-06-01: GuidedDiscoveryResults now mounts GuidedAlphaPanel which
-// in turn mounts a live LivingArchView (WebGL Three.js scene). jsdom
-// has no GL context — replace LivingArchView with a stub so the
-// chemistry-banner / story-panel / provenance flow tests stay focused
-// on data behavior, not WebGL rendering.
-vi.mock('../LivingArchView.jsx', () => ({
-  __esModule: true,
-  default: function LivingArchViewStub({ data, selectedNodes }) {
-    return (
-      <div
-        data-testid="living-arch-view-stub"
-        data-focal={Array.isArray(selectedNodes) ? selectedNodes[0] : ''}
-        data-has-data={data ? 'true' : 'false'}
-      />
-    );
-  },
-}));
-
 import GuidedDiscoveryResults from '../GuidedDiscoveryResults.jsx';
 import * as bubbles from '../../data/guidedDiscovery.js';
 
@@ -167,7 +149,7 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
     expect(screen.queryAllByTestId('profile-axis-radar')).toHaveLength(0);
   });
 
-  it('renders GuidedAlphaPanel (replaces GuidedProfileRadar 2026-06-01)', () => {
+  it('renders GuidedProfileRadar (per-pairing dot scatter)', () => {
     render(
       <GuidedDiscoveryResults
         bubbleStack={ingredientStack}
@@ -176,15 +158,10 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
         onExploreInNetwork={() => {}}
       />,
     );
-    // The new α-view panel carries a `data-guided-alpha-view` marker
-    // and mounts the LivingArchView stub (live 3D in production).
-    expect(document.querySelector('[data-guided-alpha-view]')).toBeTruthy();
-    expect(screen.getByTestId('living-arch-view-stub')).toBeInTheDocument();
-    // Legacy GuidedProfileRadar should NO LONGER render here.
-    expect(screen.queryByTestId('guided-profile-radar')).toBeNull();
+    expect(screen.getByTestId('guided-profile-radar')).toBeInTheDocument();
   });
 
-  it('renders α-view filter pills (replaces GuidedResultsFilterPills row)', () => {
+  it('renders GuidedResultsFilterPills row (single-select filter type)', () => {
     render(
       <GuidedDiscoveryResults
         bubbleStack={ingredientStack}
@@ -193,15 +170,10 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
         onExploreInNetwork={() => {}}
       />,
     );
-    // The new panel's pills are a `role="group"` labeled "Affinity
-    // axis filter" with radio buttons for Aroma/Taste/Family/
-    // Cuisine/Season.
-    const group = screen.getByRole('group', { name: /affinity axis filter/i });
+    const group = screen.getByRole('radiogroup', { name: /result filter type/i });
     expect(group).toBeInTheDocument();
-    // Legacy "result filter type" radiogroup should be gone.
-    expect(screen.queryByRole('radiogroup', { name: /result filter type/i })).toBeNull();
     const radios = group.querySelectorAll('[role="radio"]');
-    expect(radios.length).toBeGreaterThanOrEqual(5);
+    expect(radios.length).toBeGreaterThanOrEqual(4);
   });
 
   it('renders the "Show me where this data comes from" provenance button', () => {
@@ -220,7 +192,7 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
     expect(screen.getByRole('dialog', { name: /where does this data come from/i })).toBeInTheDocument();
   });
 
-  it.skip('tapping an aroma axis dims non-matching pairings to 0.35 and keeps matches at 1.0', () => {
+  it('tapping an aroma axis dims non-matching pairings to 0.35 and keeps matches at 1.0', () => {
     render(
       <GuidedDiscoveryResults
         bubbleStack={ingredientStack}
@@ -245,7 +217,7 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
     expect(opacities.some((o) => o === '0.35')).toBe(true);
   });
 
-  it.skip('switching pill from aroma to taste flips axis count to 8 and resets chosenValue to null', () => {
+  it('switching pill from aroma to taste flips axis count to 8 and resets chosenValue to null', () => {
     render(
       <GuidedDiscoveryResults
         bubbleStack={ingredientStack}
@@ -290,7 +262,7 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
     expect(banner.textContent).toMatch(/recipe co-occurrence alone/);
   });
 
-  it.skip('chemistry banner is ABOVE the radar in DOM order', () => {
+  it('chemistry banner is ABOVE the radar in DOM order', () => {
     render(
       <GuidedDiscoveryResults
         bubbleStack={ingredientStack}
@@ -378,7 +350,7 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
   });
 
   // DOCS-GD-TWO-TAP — two-step commit gesture (spec §11 O-2).
-  it.skip('two-tap commit: first tap on axis arms wedge only, does NOT fire onAxisSelect', () => {
+  it('two-tap commit: first tap on axis arms wedge only, does NOT fire onAxisSelect', () => {
     const onAxisSelect = vi.fn();
     render(
       <GuidedDiscoveryResults
@@ -397,7 +369,7 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
     expect(onAxisSelect).not.toHaveBeenCalled();
   });
 
-  it.skip('two-tap commit: second tap on same axis fires onAxisSelect(filterType, axisKey)', () => {
+  it('two-tap commit: second tap on same axis fires onAxisSelect(filterType, axisKey)', () => {
     const onAxisSelect = vi.fn();
     render(
       <GuidedDiscoveryResults
@@ -421,7 +393,7 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
     expect(onAxisSelect).toHaveBeenCalledWith('aroma', 'green');
   });
 
-  it.skip('two-tap commit: tap on different axis re-arms (no commit, chosenValue swaps)', () => {
+  it('two-tap commit: tap on different axis re-arms (no commit, chosenValue swaps)', () => {
     const onAxisSelect = vi.fn();
     render(
       <GuidedDiscoveryResults
@@ -443,7 +415,7 @@ describe('GuidedDiscoveryResults — P6 composition', () => {
   });
 
   // G6 — NEW10 bridge-stale assertion (named exactly per ralplan §2.4).
-  it.skip('App bridge does not call deriveFilterStackFromBubbles with the new payload shape', () => {
+  it('App bridge does not call deriveFilterStackFromBubbles with the new payload shape', () => {
     const spy = vi.spyOn(bubbles, 'deriveFilterStackFromBubbles');
     const onExplore = vi.fn();
     render(
