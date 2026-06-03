@@ -43,6 +43,8 @@ import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
 import GuidedDiscoverySwipe from './components/GuidedDiscoverySwipe.jsx';
+import GuidedDiscoveryFocalPicker from './components/GuidedDiscoveryFocalPicker.jsx';
+import LabsFab from './components/LabsFab.jsx';
 import CookbookLab from './components/CookbookLab.jsx';
 import MakeRecipeStart from './components/MakeRecipeStart.jsx';
 import GuidedTour from './components/GuidedTour.jsx';
@@ -93,6 +95,7 @@ const TAB_TO_PATH = {
   cookbook: 'cookbook',
   guided: 'guided',
   'guided-results': 'guided',         // ephemeral; collapse to entry
+  'guided-pairing': 'guided',         // B-version Screen 2; collapse to entry
   make: 'make',
   profile: 'profile',
 };
@@ -1397,7 +1400,7 @@ export default function App() {
           Mounts when pairingModeFocal is set. Back / Esc clears the
           focal which dismisses the overlay. α-mode entry from this
           surface is REMOVED; α-mode survives for Guided Step 2. */}
-      {pairingModeFocal && data?.graph?.nodes && (
+      {pairingModeFocal && data?.graph?.nodes && activeTab !== 'guided-pairing' && (
         <PairingMode
           focal={pairingModeFocal}
           ctx={{
@@ -1548,7 +1551,7 @@ export default function App() {
               setNetworkDropdownOpen(false);
             }}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'guided' || activeTab === 'guided-results'
+              activeTab === 'guided' || activeTab === 'guided-results' || activeTab === 'guided-pairing'
                 ? 'text-pink-300 bg-pink-500/10 border border-pink-500/20'
                 : 'text-gray-500 hover:text-gray-300 border border-transparent'
             }`}
@@ -2007,41 +2010,54 @@ export default function App() {
       {/* Phase 3 Guided Discovery — Screen 1 (bubbles). Mounted as a
           sibling of the Network wrapper so its opacity-0 cascade
           doesn't suppress the bubble grid. */}
+      {/* B-version Guided Screen 1 — focal picker (search bar + "Pick
+          for me" button). Replaces the prior GuidedDiscoverySwipe deck.
+          Picking a focal hands off to PairingMode (guided-pairing tab). */}
       {activeTab === 'guided' && (
-        <div className="fixed inset-0 z-[40] overflow-y-auto">
-          {/* Phase 2 — swap from legacy bubble-grid (GuidedDiscoveryStart)
-              to Tinder-style centered-card deck (GuidedDiscoverySwipe).
-              Legacy component preserved for its existing test suite
-              but no longer rendered. */}
-          <GuidedDiscoverySwipe
-            ingredients={ingredientList}
-            onComplete={(payload) => {
-              // P5 (Track 3) — payload shape changed from a bubbleStack
-              // array to `{ ingredient, filterType }`. Reconstruct a
-              // minimal bubbleStack so downstream consumers (chip strip,
-              // focalFromStack) still work. Pass filterType through to
-              // GuidedDiscoveryResults as initialFilterType.
-              if (Array.isArray(payload)) {
-                // Legacy array shape (defensive — should not occur post-P5).
-                setBubbleStack(payload);
-                setGuidedInitialFilterType(null);
-              } else if (payload && typeof payload === 'object') {
-                const { ingredient, filterType } = payload;
-                setBubbleStack(ingredient ? [{
-                  key: 'ingredient',
-                  // Pill label updated 2026-05-31 per user feedback — was
-                  // "Starts with a specific ingredient", now names the
-                  // focal so the user reads what they're exploring.
-                  label: `Focal Flavor: ${ingredient}`,
-                  value: { ingredient },
-                  axisHint: null,
-                }] : []);
-                setGuidedInitialFilterType(filterType || null);
-              }
-              setActiveTab('guided-results');
-            }}
-          />
-        </div>
+        <GuidedDiscoveryFocalPicker
+          ingredients={ingredientList}
+          onPickFocal={(name) => {
+            setPairingModeFocal(name);
+            // Stage the focal as a bubbleStack so the "Discover" handoff
+            // into GuidedDiscoveryResults has its expected input shape.
+            setBubbleStack([{
+              key: 'ingredient',
+              label: `Focal Flavor: ${name}`,
+              value: { ingredient: name },
+              axisHint: null,
+            }]);
+            setActiveTab('guided-pairing');
+          }}
+          onClose={() => {
+            setActiveTab('network');
+          }}
+        />
+      )}
+
+      {/* B-version Guided Screen 2 — PairingMode Tinder browser for
+          the picked focal. The "Discover where these flavor pairings
+          come from →" CTA inside PairingMode routes into the original
+          radar + α-mode discovery (guided-results, Screen 3). */}
+      {activeTab === 'guided-pairing' && pairingModeFocal && data?.graph?.nodes && (
+        <PairingMode
+          focal={pairingModeFocal}
+          ctx={{
+            graph: data.graph,
+            cuisineNeighborIndex: data.cuisineNeighborIndex || null,
+            bridgeCompoundIndex: data.bridgeCompoundIndex || null,
+          }}
+          odorThresholds={data.odorThresholds || null}
+          onExit={() => {
+            setPairingModeFocal(null);
+            setActiveTab('guided');
+          }}
+          onDiscover={() => {
+            // Stay on the same focal but switch surfaces into the
+            // radar / story / α-mode discovery flow.
+            setPairingModeFocal(null);
+            setActiveTab('guided-results');
+          }}
+        />
       )}
 
       {/* Phase 3 Guided Discovery — Screen 2 (P6: GuidedProfileRadar +
@@ -2638,6 +2654,24 @@ export default function App() {
           onOpenProfile={() => setActiveTab('profile')}
         />
       )}
+
+      {/* B-version cross-screen labs nav — floating chalkboard FAB.
+          Hidden when PairingMode overlay (z-[80]) is up; PairingMode
+          covers the z-[60] FAB anyway, but hiding explicitly avoids
+          a stray click region. */}
+      <LabsFab
+        hidden={!!pairingModeFocal}
+        onSelectLab={(id) => {
+          if (id === 'molecule') {
+            setMoleculeLabOpen(true);
+            return;
+          }
+          // 'cookbook', 'cocktail', 'sauce', 'recipe' all map directly
+          // to existing top-level activeTab values.
+          setActiveTab(id);
+          setPairingModeFocal(null);
+        }}
+      />
 
     </>
   );

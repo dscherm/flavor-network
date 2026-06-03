@@ -114,6 +114,7 @@ export default function PairingMode({
   ctx,
   odorThresholds = null,
   onExit,
+  onDiscover = null,
 }) {
   const [filterType, setFilterType] = useState('taste');
   const [chosenAxis, setChosenAxis] = useState(null);
@@ -382,6 +383,25 @@ export default function PairingMode({
           </>
         )}
       </div>
+
+      {onDiscover && topCard && (
+        <button
+          type="button"
+          onClick={() => onDiscover(topCard.name)}
+          data-testid="pairing-mode-discover"
+          className="w-full max-w-[min(32rem,92vw)] mt-3 py-2 rounded-lg"
+          style={{
+            color: '#bbf7d0',
+            background: 'rgba(16, 78, 51, 0.45)',
+            border: '1.5px solid rgba(110, 231, 183, 0.45)',
+            fontFamily: 'Caveat, cursive',
+            fontSize: 17,
+            textShadow: '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)',
+          }}
+        >
+          Discover where these flavor pairings come from →
+        </button>
+      )}
 
       <div className="w-full max-w-[min(32rem,92vw)] mt-3 grid grid-cols-4 gap-2">
         <button
