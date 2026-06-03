@@ -191,17 +191,15 @@ export default function App() {
     }
   }, [activeTab]);
 
-  // UX pipeline Phase 1 (2026-05-16) — when the Explore sub-nav is
-  // visible (network / cocktail / sauce / recipe), bump `--nav-h` so
-  // SearchBar + IngredientPanel + the cluster joystick + every other
-  // consumer of `var(--nav-h)` clears the secondary row instead of
-  // sitting under it. Primary row = 2.5rem; secondary row = 2rem.
+  // B-version (2026-06-03) — desktop top nav is retired in favor of
+  // the always-visible MobileTabBar at the bottom. `--nav-h` now
+  // tracks only the iOS safe-area inset so chrome that uses it (top
+  // SearchBar, cluster joystick, etc.) doesn't collide with the
+  // notch. The 2.5/4.5rem allotments are dropped.
   useEffect(() => {
-    const isExplore = ['network', 'cocktail', 'sauce', 'recipe'].includes(activeTab);
-    const baseRem = isExplore ? 4.5 : 2.5;
     document.documentElement.style.setProperty(
       '--nav-h',
-      `calc(${baseRem}rem + env(safe-area-inset-top, 0px))`,
+      'env(safe-area-inset-top, 0px)',
     );
   }, [activeTab]);
   // P8 ADR-2: Clear aroma-match context when user leaves the target Lab.
@@ -1432,7 +1430,7 @@ export default function App() {
           accessible until Phase 5 ships the Build path replacement —
           marked "Recipe (notebook)" so users know it's the older
           surface. */}
-      <nav className="fixed top-0 left-0 right-0 z-[60] flex flex-col bg-[#0a0a12]/95 backdrop-blur-md border-b border-[#1e1e2e] safe-top">
+      <nav className="hidden" aria-hidden="true" data-testid="top-nav-hidden">
         {/* Primary row — always visible. */}
         <div className="flex items-center h-10">
         {/* Mobile: show app name */}
@@ -2748,8 +2746,9 @@ export default function App() {
         )
       )}
 
-      {/* Mobile tab bar */}
-      {isMobile && (
+      {/* Bottom tab bar — primary nav on BOTH mobile and web
+          (2026-06-03; desktop top-nav was retired this rev). */}
+      {true && (
         <MobileTabBar
           activeTab={activeTab}
           onTabChange={(tab) => {
