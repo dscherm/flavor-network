@@ -86,11 +86,14 @@ describe('RecipeLabMobile — recipe-type pill row integration (RL-RECIPETYPE)',
     expect(screen.getByTestId('recipe-type-pill-main').getAttribute('aria-checked')).toBe('false');
   });
 
-  it('pill row is rendered directly below the mode tab strip (spec §16.2)', () => {
+  // B-version (2026-06-03): the General/Cocktail/Sauce mode tab strip
+  // was removed from the Recipe Notebook chrome per user spec — only
+  // the dish-type pill row + "+ Add" launcher remain above the
+  // notebook canvas.
+  it('mode tab strip (General/Cocktail/Sauce) is no longer rendered', () => {
     render(<RecipeLabMobile fullData={buildFullData()} />);
     const modeStrip = document.querySelector('div.flex.items-center.gap-1.p-1.rounded-lg.border.border-\\[\\#c9b99a\\].bg-\\[\\#f5edd0\\]');
-    const pillRow = screen.getByTestId('recipe-type-pills');
-    expect(modeStrip).not.toBeNull();
-    expect(pillRow.compareDocumentPosition(modeStrip) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(modeStrip).toBeNull();
+    expect(screen.getByTestId('recipe-type-pills')).toBeInTheDocument();
   });
 });

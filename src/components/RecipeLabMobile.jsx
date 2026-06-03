@@ -380,26 +380,9 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         </div>
       </div>
 
-      <div className="relative z-20 mx-2 mt-1 mb-2 flex items-center gap-1 p-1 rounded-lg border border-[#c9b99a] bg-[#f5edd0]">
-        {[
-          { key: 'taste', label: 'General' },
-          { key: 'cocktail', label: 'Cocktail' },
-          { key: 'sauce', label: 'Sauce' },
-        ].map(m => (
-          <button
-            key={m.key}
-            onClick={() => setLabMode(m.key)}
-            className={`flex-1 min-h-[40px] px-3 py-1.5 text-base rounded-md border transition-colors ${
-              labMode === m.key
-                ? 'bg-[#e8dcc0] border-[#c9b99a] text-[#5a4a2a] font-medium shadow-sm'
-                : 'border-transparent text-[#a09070] hover:bg-[#f0e8d0]'
-            }`}
-            style={{ fontFamily: FONT_FAMILY }}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
+      {/* B-version (2026-06-03): the General/Cocktail/Sauce mode pills
+          were removed per user spec — only the dish-type joystick +
+          "+ Add" launcher remain in the chrome above the notebook. */}
 
       {/* B-version P2: dish-type joystick + Add ingredient launcher.
           Replaces the persistent taste-wheel zone with explicit chrome. */}
@@ -419,98 +402,9 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         </button>
       </div>
 
-      <div
-        ref={searchContainerRef}
-        className="relative z-20 mx-4 mt-1 mb-2"
-      >
-        <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="rgba(120,100,70,0.6)" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-          </svg>
-          <input
-            ref={searchInputRef}
-            type="text"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onKeyDown={handleSearchKeyDown}
-            onFocus={() => { if (searchResults.length > 0) setSearchOpen(true); }}
-            placeholder="Search ingredients..."
-            className="w-full min-h-[44px] pl-10 pr-4 py-2 rounded-lg border-2 border-[#c9b99a] bg-[#fefae0]/95 text-lg outline-none transition-colors focus:border-[#8a7a5a] placeholder-[#b8a88a]"
-            style={{ fontFamily: FONT_FAMILY, color: '#3a3428' }}
-          />
-        </div>
-        {searchOpen && searchResults.length > 0 && (
-          <ul className="absolute left-0 right-0 mt-1 rounded-lg border-2 border-[#c9b99a] bg-[#fefae0]/98 backdrop-blur-sm max-h-64 overflow-y-auto shadow-lg z-30">
-            {searchResults.map((name, idx) => (
-              <li
-                key={name}
-                onMouseDown={(e) => { e.preventDefault(); selectFromSearch(name); }}
-                onTouchStart={(e) => { e.preventDefault(); selectFromSearch(name); }}
-                className={`px-4 py-3 cursor-pointer text-lg transition-colors ${
-                  idx === highlightIdx ? 'bg-[#e8dcc0]' : ''
-                }`}
-                style={{ fontFamily: FONT_FAMILY, color: '#3a3428', minHeight: '48px', display: 'flex', alignItems: 'center' }}
-              >
-                {name}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <div className="flex-shrink-0 flex justify-center">
-        {focusedIngredient ? (
-          <IngredientSuggestionsPopout
-            ingredient={focusedIngredient}
-            recipeIngredients={recipeNames.filter((n) => n !== focusedIngredient)}
-            nodes={fullData?.graph?.nodes}
-            edges={fullData?.graph?.edges}
-            cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
-            scopeFilter={
-              labMode === 'cocktail' ? cocktailScope :
-              labMode === 'sauce' ? sauceScope :
-              null
-            }
-            cocktailRoles={cocktailRoles}
-            sauceRoles={sauceRoles}
-            labMode={labMode}
-            onSwap={(target, newName) => {
-              handleSwapIngredient(target, newName);
-              setFocusedIngredient(null);
-            }}
-            onClose={() => setFocusedIngredient(null)}
-          />
-        ) : suggestionsMode ? (
-          <IngredientSuggestionsPopout
-            ingredient={null}
-            recipeIngredients={recipeNames}
-            bowl={recipeIngredients}
-            focalKey={focalKey}
-            recipePairs={fullData?.recipePairs || null}
-            globalCount={fullData?.globalCount || null}
-            sauces={sauceList}
-            recipeType={recipeType}
-            onSelectSauce={onFindSauce
-              ? () => onFindSauce(recipeNames, recipeTitle)
-              : undefined}
-            nodes={fullData?.graph?.nodes}
-            edges={fullData?.graph?.edges}
-            cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
-            scopeFilter={
-              labMode === 'cocktail' ? cocktailScope :
-              labMode === 'sauce' ? sauceScope :
-              null
-            }
-            cocktailRoles={cocktailRoles}
-            sauceRoles={sauceRoles}
-            labMode={labMode}
-            onAdd={(newName) => {
-              handleAddIngredient(newName);
-            }}
-            onClose={() => setSuggestionsMode(false)}
-          />
-        ) : null}
-      </div>
+      {/* B-version (2026-06-03): search input + IngredientSuggestionsPopout
+          conditional block REMOVED. Add path is now the IngredientPicker
+          modal launched by the "+ Add" chrome button. */}
 
       <div className="flex-1 relative overflow-y-auto" style={{ minHeight: 80 }}>
         {recipeImageUrl && (
