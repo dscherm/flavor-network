@@ -70,7 +70,7 @@ describe('MakeRecipeCardsGrid', () => {
     expect(onCardTap).toHaveBeenCalledWith('basil');
   });
 
-  it('remove button fires onRemove without triggering onCardTap', () => {
+  it('remove button fires onRemove with the slot index without triggering onCardTap', () => {
     const onCardTap = vi.fn();
     const onRemove = vi.fn();
     render(
@@ -82,7 +82,9 @@ describe('MakeRecipeCardsGrid', () => {
       />,
     );
     fireEvent.click(screen.getByTestId('make-recipe-remove-basil'));
-    expect(onRemove).toHaveBeenCalledWith('basil');
+    // B-version (2026-06-03): remove fires with slot index so
+    // duplicate ingredients each remove independently.
+    expect(onRemove).toHaveBeenCalledWith(0);
     expect(onCardTap).not.toHaveBeenCalled();
   });
 });

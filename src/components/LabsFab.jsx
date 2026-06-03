@@ -25,8 +25,10 @@ const DEFAULT_LABS = [
   { id: 'cookbook', label: 'Cookbook',    desc: 'Browse saved recipes' },
   { id: 'cocktail', label: 'Cocktail Lab',desc: 'Mix a drink' },
   { id: 'sauce',    label: 'Sauce Lab',   desc: 'Build a sauce' },
-  { id: 'recipe',   label: 'Recipe Notebook', desc: 'Handwritten notebook' },
   { id: 'molecule', label: 'Molecule Lab',desc: 'Inspect a compound' },
+  // Profile relocated here per user 2026-06-03 (bottom-bar 4th slot is
+  // now Recipe Notebook).
+  { id: 'profile',  label: 'Profile',     desc: 'Saved recipes & insights' },
 ];
 
 export default function LabsFab({

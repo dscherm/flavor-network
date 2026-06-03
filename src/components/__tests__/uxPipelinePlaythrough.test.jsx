@@ -98,11 +98,11 @@ describe('§1 — Landing page', () => {
     expect(/>\s*Network\s*</.test(block)).toBe(false);
   });
 
-  // B-version (2026-06-03): "Explore" tab renamed to "Model" and the
-  // bar reordered to Guided / Make / Model / Profile per user spec.
-  // Cocktail/Sauce/Cookbook/Recipe-Notebook are now reached via the
-  // floating LabsFab, not from inside the Model dropdown.
-  it('1.G MobileTabBar exposes Guided/Make/Model/Profile + no legacy Explore', async () => {
+  // B-version (2026-06-03): the 4-tab bottom bar is now Guided / Make
+  // / Model / Labs. Profile moved into the Labs popover. Cocktail /
+  // Sauce / Cookbook / Recipe Notebook / Profile / Molecule Lab are
+  // all reachable via the Labs popover.
+  it('1.G MobileTabBar exposes Guided/Make/Model/Labs + no legacy Explore/Profile slot', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
@@ -112,9 +112,12 @@ describe('§1 — Landing page', () => {
     expect(/aria-label="Guided"/.test(src)).toBe(true);
     expect(/aria-label="Make"/.test(src)).toBe(true);
     expect(/aria-label="Model"/.test(src)).toBe(true);
-    expect(/aria-label="Profile"/.test(src)).toBe(true);
+    expect(/aria-label="Labs"/.test(src)).toBe(true);
     expect(/aria-label="Explore"/.test(src)).toBe(false);
     expect(/aria-label="Build"/.test(src)).toBe(false);
+    // Profile is in the LABS popover content, not as a top-level
+    // aria-labeled button.
+    expect(/aria-label="Profile"/.test(src)).toBe(false);
   });
 
   it('1.H App.jsx implements URL deep-link routing (?path=...)', async () => {
