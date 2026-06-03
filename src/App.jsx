@@ -296,6 +296,8 @@ export default function App() {
   const [makeStagedIngredients, setMakeStagedIngredients] = useState([]);
   const [makeStagedTitle, setMakeStagedTitle] = useState('');
   const [makeStagedDishType, setMakeStagedDishType] = useState(null);
+  const [makeStagedImage, setMakeStagedImage] = useState(null);
+  const [makeStagedImageUrl, setMakeStagedImageUrl] = useState(null);
   const [moleculeLabOpen, setMoleculeLabOpen] = useState(false);
   // SMILES to seed the Molecule Lab with on open (set when user clicks
   // "Open in Molecule Lab" on the Molecule of the Day card).
@@ -2304,6 +2306,22 @@ export default function App() {
               setMakeStagedIngredients(Array.isArray(payload.ingredients) ? [...payload.ingredients] : []);
               setMakeStagedTitle(typeof payload.title === 'string' ? payload.title : '');
               setMakeStagedDishType(payload.recipeType || null);
+              // Photo path (payload.image is a File). Stage it +
+              // create an object URL so Stage 2 can display the
+              // thumbnail above the cards grid. Revoke any prior URL.
+              if (makeStagedImageUrl) {
+                try { URL.revokeObjectURL(makeStagedImageUrl); } catch { /* noop */ }
+              }
+              if (payload.image instanceof File) {
+                setMakeStagedImage(payload.image);
+                const u = typeof URL.createObjectURL === 'function'
+                  ? URL.createObjectURL(payload.image)
+                  : null;
+                setMakeStagedImageUrl(u);
+              } else {
+                setMakeStagedImage(null);
+                setMakeStagedImageUrl(null);
+              }
               setMakeStage('view');
             }}
             setRecipeMounted={setRecipeMounted}
@@ -2330,11 +2348,17 @@ export default function App() {
             initialIngredients={makeStagedIngredients}
             initialTitle={makeStagedTitle}
             initialDishType={makeStagedDishType}
+            initialImageUrl={makeStagedImageUrl}
             onBack={() => {
               setMakeStage('start');
               setMakeStagedIngredients([]);
               setMakeStagedTitle('');
               setMakeStagedDishType(null);
+              if (makeStagedImageUrl) {
+                try { URL.revokeObjectURL(makeStagedImageUrl); } catch { /* noop */ }
+              }
+              setMakeStagedImage(null);
+              setMakeStagedImageUrl(null);
             }}
             onCardTap={(name) => setPairingModeFocal(name)}
             onSaveToNotebook={({ title, dishType, ingredients, portions }) => {
@@ -2761,27 +2785,22 @@ export default function App() {
           }}
           networkMode={mode}
           onNetworkModeChange={setMode}
-          onOpenProfile={() => setActiveTab('profile')}
+          onSelectLab={(id) => {
+            // Bottom-bar Labs popover routes the same surfaces the
+            // floating LabsFab used to. 'molecule' opens the modal lab;
+            // every other id is an existing top-level activeTab.
+            if (id === 'molecule') {
+              setMoleculeLabOpen(true);
+              return;
+            }
+            if (id === 'cocktail') setCocktailMounted(true);
+            if (id === 'sauce') setSauceMounted(true);
+            if (id === 'recipe') setRecipeMounted(true);
+            setActiveTab(id);
+            setPairingModeFocal(null);
+          }}
         />
       )}
-
-      {/* B-version cross-screen labs nav — floating chalkboard FAB.
-          Hidden when PairingMode overlay (z-[80]) is up; PairingMode
-          covers the z-[60] FAB anyway, but hiding explicitly avoids
-          a stray click region. */}
-      <LabsFab
-        hidden={!!pairingModeFocal}
-        onSelectLab={(id) => {
-          if (id === 'molecule') {
-            setMoleculeLabOpen(true);
-            return;
-          }
-          // 'cookbook', 'cocktail', 'sauce', 'recipe' all map directly
-          // to existing top-level activeTab values.
-          setActiveTab(id);
-          setPairingModeFocal(null);
-        }}
-      />
 
     </>
   );

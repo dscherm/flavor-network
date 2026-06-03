@@ -42,6 +42,7 @@ export default function MakeRecipeView({
   initialIngredients = [],
   initialDishType = null,
   initialTitle = '',
+  initialImageUrl = null,
   onCardTap,
   onSaveToNotebook,
   onExamineInNetwork,
@@ -56,28 +57,36 @@ export default function MakeRecipeView({
 
   const handleAdd = (name) => {
     if (!name) return;
-    setIngredients((prev) => (prev.includes(name) ? prev : [...prev, name]));
-    // Picker stays open after a single commit (per spec lifecycle —
-    // user may pin & commit more). The IngredientPicker handles its
-    // own pin/commit state; this onSelect just registers the addition.
+    // B-version (2026-06-03): duplicates allowed. Each commit appends,
+    // even if the ingredient is already in the recipe (the picker shows
+    // an "already added" badge so the user knows it's a re-add).
+    setIngredients((prev) => [...prev, name]);
   };
-  const handleRemove = (name) => {
-    setIngredients((prev) => prev.filter((n) => n !== name));
+  const handleRemove = (slotIdx) => {
+    if (typeof slotIdx !== 'number') return;
+    setIngredients((prev) => prev.filter((_, i) => i !== slotIdx));
+    // Drop the portion entry keyed to that slot (composite "name#idx").
     setPortions((prev) => {
-      if (!(name in prev)) return prev;
-      const next = { ...prev };
-      delete next[name];
+      const next = {};
+      for (const [k, v] of Object.entries(prev)) {
+        const m = k.match(/^(.*)#(\d+)$/);
+        if (!m) { next[k] = v; continue; }
+        const idx = Number(m[2]);
+        if (idx === slotIdx) continue;
+        const newIdx = idx > slotIdx ? idx - 1 : idx;
+        next[`${m[1]}#${newIdx}`] = v;
+      }
       return next;
     });
   };
-  const handlePortionChange = (name, value) => {
-    setPortions((prev) => ({ ...prev, [name]: value }));
+  const handlePortionChange = (slotKey, value) => {
+    setPortions((prev) => ({ ...prev, [slotKey]: value }));
   };
-  const handleSuggestPortion = (name) => {
+  const handleSuggestPortion = (slotKey, name) => {
     const node = data?.graph?.nodes?.get?.(name);
     const suggestion = suggestPortion(node, ingredients.length);
     if (suggestion) {
-      setPortions((prev) => ({ ...prev, [name]: suggestion }));
+      setPortions((prev) => ({ ...prev, [slotKey]: suggestion }));
     }
   };
 
@@ -261,6 +270,33 @@ export default function MakeRecipeView({
         </div>
       </div>
 
+      {initialImageUrl && (
+        <div className="w-full max-w-3xl mx-auto mb-3 flex items-center gap-3">
+          <img
+            src={initialImageUrl}
+            alt="Recipe photo"
+            data-testid="make-recipe-image-thumbnail"
+            className="rounded-lg object-cover"
+            style={{
+              height: 96,
+              maxWidth: 160,
+              border: `1.5px solid #6a6a6a`,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.45)',
+            }}
+          />
+          <span
+            style={{
+              color: CHALK_DIM,
+              fontFamily: FONT_HAND,
+              fontSize: 16,
+              textShadow: CHALK_TEXT_SHADOW,
+            }}
+          >
+            Photo attached. Use "+ Add" to chalk in the ingredients.
+          </span>
+        </div>
+      )}
+
       <div className="w-full max-w-3xl mx-auto flex-1">
         {isCocktail ? (
           <div data-testid="make-recipe-cocktail-variant">
@@ -305,6 +341,7 @@ export default function MakeRecipeView({
               cuisineNeighborIndex: data?.cuisineNeighborIndex || null,
             }}
             dishType={isCocktail ? 'cocktail' : isSauce ? 'sauce' : null}
+            alreadyAdded={ingredients}
             onSelect={handleAdd}
             onClose={() => setPickerOpen(false)}
           />

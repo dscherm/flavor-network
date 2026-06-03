@@ -208,13 +208,13 @@ export default function MakeRecipeCardsGrid({
   onSuggestPortion,
 }) {
   const resolved = ingredients
-    .map((name) => {
+    .map((name, idx) => {
       if (!name) return null;
       if (nodes && typeof nodes.get === 'function') {
         const node = nodes.get(name);
-        if (node) return node;
+        if (node) return { ...node, _slotIdx: idx };
       }
-      return { name };
+      return { name, _slotIdx: idx };
     })
     .filter(Boolean);
 
@@ -267,17 +267,17 @@ export default function MakeRecipeCardsGrid({
       data-count={resolved.length}
     >
       {resolved.map((node) => (
-        <div key={node.name} className="flex flex-col gap-1.5">
+        <div key={`${node.name}-${node._slotIdx}`} className="flex flex-col gap-1.5">
           <IngredientCard
             node={node}
             onTap={onCardTap}
-            onRemove={onRemove}
+            onRemove={onRemove ? () => onRemove(node._slotIdx) : undefined}
           />
           <PortionCard
             node={node}
-            portion={portions?.[node.name] || ''}
-            onChange={onPortionChange}
-            onSuggest={onSuggestPortion}
+            portion={portions?.[`${node.name}#${node._slotIdx}`] ?? portions?.[node.name] ?? ''}
+            onChange={(_n, v) => onPortionChange?.(`${node.name}#${node._slotIdx}`, v)}
+            onSuggest={() => onSuggestPortion?.(`${node.name}#${node._slotIdx}`, node.name)}
             recipeCount={resolved.length}
           />
         </div>

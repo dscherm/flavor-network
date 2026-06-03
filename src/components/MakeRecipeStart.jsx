@@ -259,7 +259,17 @@ export default function MakeRecipeStart({
     setErrorMessage(null);
     try {
       const scrapeRecipe = httpsCallable(functions, 'scrapeRecipe');
-      const res = await scrapeRecipe({ url: trimmed });
+      // B-version (2026-06-03): add a 25s timeout so the loading screen
+      // can't hang indefinitely when the Cloud Function call never
+      // resolves (auth-init race, cold-start hang, network drop, etc.).
+      const PARSE_TIMEOUT_MS = 25000;
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('timeout')), PARSE_TIMEOUT_MS);
+      });
+      const res = await Promise.race([
+        scrapeRecipe({ url: trimmed }),
+        timeoutPromise,
+      ]);
       const result = res?.data;
       if (!result || result.status !== 'ok' || !Array.isArray(result.ingredients)) {
         setErrorMessage(result?.errorMessage || 'Could not parse a recipe from that URL.');
@@ -285,7 +295,9 @@ export default function MakeRecipeStart({
       const code = err?.code || '';
       const rawMsg = err?.message || '';
       let msg;
-      if (code.includes('unauthenticated') || /sign in/i.test(rawMsg)) {
+      if (rawMsg === 'timeout') {
+        msg = 'The recipe parser timed out after 25 seconds. The site might be slow to respond — try a different recipe URL or paste the ingredients into the cards-grid directly.';
+      } else if (code.includes('unauthenticated') || /sign in/i.test(rawMsg)) {
         msg = 'Sign in (the URL parser requires an account), then try again.';
       } else if (code.includes('invalid-argument')) {
         msg = rawMsg || 'That URL was rejected — only http(s) URLs to public recipe pages are allowed.';

@@ -269,10 +269,15 @@ function MiniRadar({ node, filterType, chosenAxis, size = 200 }) {
   // 100% width so the parent container drives the actual pixels. Card
   // gets a dynamically-sized radar based on how much vertical room is
   // left after the chip rows + analysis + compounds.
+  // B-version (2026-06-03): label cutoff fix — radius shrunk + label
+  // offset bumped so long aroma/cuisine names ('Fermented', 'Middle
+  // Eastern', 'East Asian') no longer clip the edge. Dynamic
+  // textAnchor (below) puts the anchor at the inner edge so the rest
+  // of the word grows outward, never past the SVG bounds.
   const cx = size / 2;
   const cy = size / 2;
-  const radius = size * 0.32;
-  const labelOffset = size * 0.10;
+  const radius = size * 0.28;
+  const labelOffset = size * 0.075;
   const chosenIdx = chosenAxis != null ? axes.indexOf(chosenAxis) : -1;
   const gridLevels = [0.33, 0.66, 1.0];
 
@@ -401,16 +406,25 @@ function MiniRadar({ node, filterType, chosenAxis, size = 200 }) {
         })}
         {axes.map((label, i) => {
           const a = axisAngle(i, N);
-          const tx = cx + (radius + labelOffset) * Math.cos(a);
-          const ty = cy + (radius + labelOffset) * Math.sin(a);
+          const cosA = Math.cos(a);
+          const sinA = Math.sin(a);
+          const tx = cx + (radius + labelOffset) * cosA;
+          const ty = cy + (radius + labelOffset) * sinA;
           const isChosen = i === chosenIdx;
+          // Dynamic textAnchor: labels grow outward away from the
+          // center so long words never clip the SVG bounds. Left
+          // half (cos < -0.15) anchors 'end', right half (cos > 0.15)
+          // anchors 'start', vertical-axis labels (top/bottom) stay
+          // 'middle'.
+          const textAnchor = cosA > 0.15 ? 'start' : cosA < -0.15 ? 'end' : 'middle';
+          const dominantBaseline = sinA > 0.55 ? 'hanging' : sinA < -0.55 ? 'auto' : 'middle';
           return (
             <text
               key={label}
               x={tx}
               y={ty}
-              textAnchor="middle"
-              dominantBaseline="middle"
+              textAnchor={textAnchor}
+              dominantBaseline={dominantBaseline}
               fontSize={fontSize}
               fontWeight={isChosen ? 700 : 600}
               fill={colorMap[label] || CHALK_DIM}

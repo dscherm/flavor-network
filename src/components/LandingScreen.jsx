@@ -182,7 +182,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
 
   return (
     <div
-      className="flex flex-col items-center w-full min-h-screen px-4 pb-8"
+      className="flex flex-col items-center w-full min-h-screen max-h-screen px-4 pb-4 sm:pb-8 overflow-hidden"
       role="dialog"
       aria-modal="true"
       aria-labelledby="fn-landing-title"
@@ -194,16 +194,16 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
     >
       <h1 id="fn-landing-title" className="sr-only">Neural Flavor</h1>
 
-      {/* Top half — animated logo. Sized to fill 50vh on every viewport
-          per the design ask ("icon SVG label should take up the top
-          half of the screen"). */}
-      <div className="w-full flex items-center justify-center pt-[max(env(safe-area-inset-top),1rem)] h-[50vh]">
+      {/* Top — animated logo. B-version (2026-06-03): shrunk to 32vh
+          on small viewports + flex-shrink so the 3 tile buttons
+          guaranteed-fit beneath the logo on iOS portrait. */}
+      <div className="w-full flex items-center justify-center pt-[max(env(safe-area-inset-top),0.5rem)] h-[32vh] sm:h-[50vh] flex-shrink-0">
         <AnimatedLogo className="h-full w-auto max-w-full" />
       </div>
 
       {/* Tagline directly below the logo */}
       <p
-        className="text-center text-lg sm:text-xl max-w-xl mt-2 mb-6 leading-relaxed"
+        className="text-center text-sm sm:text-xl max-w-xl mt-1 sm:mt-2 mb-2 sm:mb-6 leading-snug flex-shrink-0"
         style={{
           color: '#bdb6a3',
           fontFamily: 'Caveat, cursive',
@@ -213,9 +213,10 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
         Built on 2.2M recipes, 48,588 pairings, and real molecular chemistry.
       </p>
 
-      {/* 3 primary tiles in the bottom half. Grid columns scale
-          1 → 3 across breakpoints — at sm+ all three tiles fit one row. */}
-      <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* 3 primary tiles. iOS portrait shows them stacked at compact
+          height; sm+ goes to 3-up. flex-1 + min-h-0 lets the grid
+          consume the remaining viewport. */}
+      <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 flex-1 min-h-0 pb-[env(safe-area-inset-bottom,0px)]">
         {TILES.map((tile) => {
           const isPicked = picked === tile.id;
           const dimmed = isLoading && !isPicked;
@@ -227,7 +228,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
               disabled={isLoading}
               data-mode={tile.id}
               aria-label={`${tile.label}. ${tile.subheadline}`}
-              className={`group relative flex flex-col items-center text-center gap-3 rounded-xl p-5 sm:p-6 min-h-[44px] transition-all overflow-hidden focus:outline-none
+              className={`group relative flex flex-row sm:flex-col items-center text-left sm:text-center gap-3 sm:gap-3 rounded-xl p-3 sm:p-6 min-h-[64px] transition-all overflow-hidden focus:outline-none
                 ${dimmed ? 'opacity-40 cursor-wait' : 'hover:brightness-110'}
               `}
               style={{
@@ -246,7 +247,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
                 aria-hidden="true"
               />
               <div
-                className="flex items-center justify-center w-20 h-20 rounded-lg"
+                className="flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 rounded-lg flex-shrink-0"
                 style={{
                   background: 'rgba(255,255,255,0.025)',
                   border: `1px solid #6a6a6a55`,
@@ -254,9 +255,9 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
               >
                 <Visual />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <span
-                  className="block text-2xl"
+                  className="block text-xl sm:text-2xl leading-tight"
                   style={{
                     color: '#f5efde',
                     fontFamily: 'Caveat, cursive',
@@ -266,7 +267,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
                   {tile.label}
                 </span>
                 <span
-                  className="block text-sm leading-relaxed mt-1.5"
+                  className="block text-xs sm:text-sm leading-snug mt-0.5 sm:mt-1.5 line-clamp-2 sm:line-clamp-none"
                   style={{
                     color: '#bdb6a3',
                     fontFamily: 'Caveat, cursive',

@@ -267,11 +267,19 @@ export default function IngredientPicker({
   mode = 'notebook',
   ctx = null,
   dishType = null,
+  alreadyAdded = [],
   onSelect,
   onIngredientPick,
   onClose,
   maxRows = MAX_ROWS,
 }) {
+  // B-version (2026-06-03): the picker no longer hides non-matching
+  // rows on search. The search query SORTS matches to the top instead
+  // of filtering out the rest, so a user who types "tomato" still sees
+  // tomato (now at the top) AND every other ingredient below. Already-
+  // added ingredients carry a chalk badge so users know they're already
+  // in the recipe — they can still re-pin/commit them to add again.
+  const alreadyAddedSet = useMemo(() => new Set(alreadyAdded || []), [alreadyAdded]);
   const [filterType, setFilterType] = useState('taste');
   const [chosenAxis, setChosenAxis] = useState(null);
   const [search, setSearch] = useState('');
@@ -307,7 +315,6 @@ export default function IngredientPicker({
     const out = [];
     for (const node of nodes.values()) {
       if (mode === 'notebook' && !dishTypeAllows(node, dishType)) continue;
-      if (q && !node.name.toLowerCase().includes(q)) continue;
       if (primaryPairSet) {
         if (!primaryPairSet.has(node.name)) continue;
       } else {
@@ -315,14 +322,21 @@ export default function IngredientPicker({
         if (!bucket) continue;
         if (chosenAxis != null && bucket !== chosenAxis) continue;
       }
+      const lower = node.name.toLowerCase();
+      const matchesSearch = q && lower.includes(q);
       out.push({
         name: node.name,
         node,
         pairingCount: node.pairingCount || 0,
+        matchesSearch,
       });
       if (out.length >= maxRows * 4) break;
     }
-    out.sort((a, b) => (b.pairingCount || 0) - (a.pairingCount || 0));
+    // Sort: search matches first, then pairingCount desc.
+    out.sort((a, b) => {
+      if (a.matchesSearch !== b.matchesSearch) return a.matchesSearch ? -1 : 1;
+      return (b.pairingCount || 0) - (a.pairingCount || 0);
+    });
     return out.slice(0, maxRows);
   }, [nodes, ctx, activePill.type, chosenAxis, dishType, mode, maxRows, search, primaryPairSet]);
 
@@ -608,12 +622,15 @@ export default function IngredientPicker({
                     </button>
                   );
                 }
+                const isAlready = alreadyAddedSet.has(ing.name);
                 return (
                   <button
                     key={ing.name}
                     type="button"
                     onClick={() => handleRowTap(ing)}
                     data-testid={`picker-row-${ing.name}`}
+                    data-already-added={isAlready ? 'yes' : 'no'}
+                    data-search-match={ing.matchesSearch ? 'yes' : 'no'}
                     className="w-full flex items-center justify-between gap-3 px-3 py-2 text-left transition-colors hover:bg-white/5"
                     style={{
                       color: CHALK_CREAM,
@@ -621,9 +638,24 @@ export default function IngredientPicker({
                       fontFamily: FONT_HAND,
                       fontSize: 18,
                       textShadow: CHALK_TEXT_SHADOW,
+                      background: ing.matchesSearch
+                        ? 'rgba(134, 231, 245, 0.06)'
+                        : 'transparent',
                     }}
                   >
                     <span className="truncate flex-1">{ing.name}</span>
+                    {isAlready && (
+                      <span
+                        className="text-[10px] px-1.5 py-0 rounded-md"
+                        style={{
+                          color: '#fde68a',
+                          background: 'rgba(252, 211, 77, 0.12)',
+                          border: '1px solid rgba(252, 211, 77, 0.30)',
+                        }}
+                      >
+                        already added
+                      </span>
+                    )}
                     <span
                       className="text-[11px] tabular-nums"
                       style={{ color: CHALK_SUB }}
