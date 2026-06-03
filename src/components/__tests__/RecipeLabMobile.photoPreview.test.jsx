@@ -124,7 +124,12 @@ describe('RecipeLabMobile — MAKE-PHOTO-PREVIEW (§5.3 image preview)', () => {
     expect(globalThis.URL.createObjectURL).not.toHaveBeenCalled();
   });
 
-  it('image attachment does NOT change labMode (handoff.mode=null → "taste")', () => {
+  // B-version (2026-06-03): the General/Cocktail/Sauce mode strip
+  // was removed from the Recipe Notebook chrome. labMode is still
+  // tracked in component state but never surfaced in UI, so this
+  // test was rewritten to assert the strip is gone — the prior
+  // 'General' button assertion no longer applies.
+  it('mode strip (General/Cocktail/Sauce) is no longer rendered after photo attach', () => {
     const { rerender } = render(<RecipeLabMobile fullData={buildFullData()} />);
     rerender(
       <RecipeLabMobile
@@ -132,7 +137,10 @@ describe('RecipeLabMobile — MAKE-PHOTO-PREVIEW (§5.3 image preview)', () => {
         handoff={{ ts: 1, source: 'make-photo', ingredients: [], image: makeImageFile(), mode: null }}
       />,
     );
-    const generalBtn = screen.getByText('General');
-    expect(generalBtn.className).toMatch(/bg-\[#e8dcc0\]/);
+    // 'General' is unique to the removed mode strip. 'Sauce' would
+    // collide with the dish-type joystick pill of the same label, so
+    // we only assert 'General' (the unambiguous marker).
+    expect(screen.queryByText('General')).toBeNull();
+    expect(screen.queryByText('Cocktail')).toBeNull();
   });
 });
