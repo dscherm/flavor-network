@@ -206,7 +206,7 @@ function AnalysisBlock({ analysis }) {
       data-testid="pairing-card-analysis"
     >
       <p
-        className="text-[15px] leading-snug"
+        className="text-[19px] leading-snug"
         style={{ color: CHALK_CREAM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
       >
         {analysis}
@@ -259,15 +259,19 @@ function valueForAxis(node, filterType, axisKey) {
   return 0;
 }
 
-function MiniRadar({ node, filterType, chosenAxis, size = 168 }) {
+function MiniRadar({ node, filterType, chosenAxis, size = 200 }) {
   const axes = getAxesFor(filterType) || [];
   const colorMap = getColorMapFor(filterType) || {};
   const N = axes.length;
   if (N === 0) return null;
 
+  // Internal viewBox stays at the nominal `size`; SVG is rendered at
+  // 100% width so the parent container drives the actual pixels. Card
+  // gets a dynamically-sized radar based on how much vertical room is
+  // left after the chip rows + analysis + compounds.
   const cx = size / 2;
   const cy = size / 2;
-  const radius = size * 0.34;
+  const radius = size * 0.32;
   const labelOffset = size * 0.10;
   const chosenIdx = chosenAxis != null ? axes.indexOf(chosenAxis) : -1;
   const gridLevels = [0.33, 0.66, 1.0];
@@ -294,14 +298,16 @@ function MiniRadar({ node, filterType, chosenAxis, size = 168 }) {
     .map((v, i) => ({ v, i }))
     .filter((d) => d.v >= 0.5);
 
-  const fontSize = N > 8 ? 7 : 9;
+  // Label font sizes bumped per user 2026-06-03 (+2-3px).
+  const fontSize = N > 8 ? 11 : 13;
 
   return (
-    <div className="flex flex-col items-center gap-0.5" style={{ width: size + 36 }}>
+    <div className="flex flex-col items-center gap-0.5 w-full" style={{ maxWidth: size + 40 }}>
       <svg
-        width={size}
-        height={size}
+        width="100%"
         viewBox={`0 0 ${size} ${size}`}
+        preserveAspectRatio="xMidYMid meet"
+        style={{ display: 'block', height: 'auto' }}
         role="img"
         aria-label={`${filterType} radar for ${node.name}`}
         data-testid="pairing-card-radar"
@@ -417,8 +423,8 @@ function MiniRadar({ node, filterType, chosenAxis, size = 168 }) {
       </svg>
       {chosenAxis && (
         <div
-          className="text-[12px] italic"
-          style={{ color: CHALK_DIM, fontFamily: FONT_HAND }}
+          className="text-[16px] italic"
+          style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
         >
           Leaning <span style={{ color: colorMap[chosenAxis] || '#86e7f5' }}>{String(chosenAxis).toLowerCase()}</span>
         </div>
@@ -500,7 +506,7 @@ export default function PairingModeCard({
       </h3>
       {typeof strength === 'number' && strength > 0 && (
         <div
-          className="text-[12px] tracking-widest uppercase"
+          className="text-[16px] tracking-widest uppercase"
           style={{ color: '#86e7f5', fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
         >
           pair strength {strength.toFixed(2)}

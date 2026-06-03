@@ -77,12 +77,14 @@ function buildAnalysis(focal, pairingNode, strength, sharedCompounds) {
     return b.filter((c) => setA.has(String(c).toLowerCase()));
   })();
 
+  // Strength banding. "long-tail" surfaces as "weakly pairs with" in
+  // sentence 1 (per user 2026-06-03 — "long-tail" was opaque copy).
   const strengthBand = (() => {
     if (typeof strength !== 'number') return 'modest';
     if (strength >= 0.85) return 'classic';
     if (strength >= 0.65) return 'strong';
     if (strength >= 0.45) return 'workable';
-    return 'long-tail';
+    return 'weak';
   })();
   const hasChem = Array.isArray(sharedCompounds) && sharedCompounds.length > 0;
 
@@ -90,8 +92,21 @@ function buildAnalysis(focal, pairingNode, strength, sharedCompounds) {
   // either name the shared cuisines (preferred) OR drop the anchor
   // clause entirely if even cuisine evidence is missing. We NEVER
   // print "no shared aroma compounds detected" — that's noise.
+  // For weak pairs, replace the "is a X pair" shape with the cleaner
+  // "weakly pairs with" verb so the description matches user
+  // expectation.
   let s1;
-  if (hasChem) {
+  if (strengthBand === 'weak') {
+    if (hasChem) {
+      const noun = `${sharedCompounds.length} shared aroma compound${sharedCompounds.length === 1 ? '' : 's'}`;
+      s1 = `${focalName} weakly pairs with ${pairingNode.name}, anchored by ${noun}.`;
+    } else if (sharedCuisines.length > 0) {
+      const cuisineList = sharedCuisines.slice(0, 3).join(', ');
+      s1 = `${focalName} weakly pairs with ${pairingNode.name} through recipe co-occurrence in ${cuisineList} cooking.`;
+    } else {
+      s1 = `${focalName} weakly pairs with ${pairingNode.name}.`;
+    }
+  } else if (hasChem) {
     const noun = `${sharedCompounds.length} shared aroma compound${sharedCompounds.length === 1 ? '' : 's'}`;
     s1 = `${focalName} + ${pairingNode.name} is a ${strengthBand} pair, anchored by ${noun}.`;
   } else if (sharedCuisines.length > 0) {
@@ -332,7 +347,7 @@ export default function PairingMode({
         className="text-lg sm:text-xl font-medium text-gray-100 text-center mb-2 capitalize"
         data-testid="pairing-mode-title"
       >
-        {focalName ? `${focalName} pairs` : 'Pairs'}
+        {focalName ? `${focalName} pairs well with…` : 'Pairs'}
       </h2>
 
       <div className="relative flex-1 flex items-start justify-center w-full min-h-0">

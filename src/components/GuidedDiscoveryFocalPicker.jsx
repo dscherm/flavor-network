@@ -26,7 +26,11 @@ const CHALK_DIM = '#bdb6a3';
 const CHALK_SUB = '#8a8478';
 const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 
-const RANDOM_POOL_FLOOR = 50; // ingredient needs ≥ this pairingCount to be "pick for me"-eligible
+// "Pick an ingredient for me" only chooses from the top-pairing
+// ingredients (per user 2026-06-03 — random picks were landing on
+// long-tail ingredients where the next-screen PairingMode looked
+// sparse). Top 200 by pairingCount.
+const RANDOM_POOL_TOP_N = 200;
 
 export default function GuidedDiscoveryFocalPicker({
   ingredients = [],
@@ -51,16 +55,20 @@ export default function GuidedDiscoveryFocalPicker({
   }, [query, ingredients]);
 
   const pickRandom = () => {
-    const pool = ingredients.filter((ing) => {
-      const obj = typeof ing === 'string' ? null : ing;
-      if (!obj) return true;
-      return (obj.pairingCount || 0) >= RANDOM_POOL_FLOOR;
-    });
-    const usable = pool.length > 0 ? pool : ingredients;
-    if (usable.length === 0) return;
-    const pick = usable[Math.floor(Math.random() * usable.length)];
-    const name = typeof pick === 'string' ? pick : pick?.name;
-    if (name) onPickFocal?.(name);
+    // Rank by pairingCount desc, take top N, then random-pick from that
+    // set. Ensures "Pick for me" always lands on a well-connected
+    // ingredient with a rich Tinder stack to swipe.
+    const ranked = ingredients
+      .map((ing) => ({
+        name: typeof ing === 'string' ? ing : ing?.name,
+        pc: typeof ing === 'string' ? 0 : (ing?.pairingCount || 0),
+      }))
+      .filter((x) => x.name)
+      .sort((a, b) => b.pc - a.pc)
+      .slice(0, RANDOM_POOL_TOP_N);
+    if (ranked.length === 0) return;
+    const pick = ranked[Math.floor(Math.random() * ranked.length)];
+    if (pick?.name) onPickFocal?.(pick.name);
   };
 
   return (
