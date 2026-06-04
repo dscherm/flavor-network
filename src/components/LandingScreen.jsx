@@ -36,7 +36,7 @@ function PairingVisual() {
     [0, 3], [1, 3], [2, 3], [3, 4], [3, 5], [4, 6], [5, 6], [1, 4], [2, 5],
   ];
   return (
-    <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
+    <svg viewBox="0 0 100 100" className="w-full h-full max-w-20 max-h-20" aria-hidden="true">
       {edges.map(([a, b], i) => (
         <line
           key={i}
@@ -64,7 +64,7 @@ function PairingVisual() {
 function GuidedVisual() {
   // Thought bubble + spark — Guided Discovery's universal cue.
   return (
-    <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
+    <svg viewBox="0 0 100 100" className="w-full h-full max-w-20 max-h-20" aria-hidden="true">
       <path
         d="M 26 28 Q 26 18 38 18 L 70 18 Q 82 18 82 30 Q 82 42 70 42 L 50 42 L 38 56 L 38 42 Q 26 42 26 30 Z"
         fill="rgba(52,211,153,0.18)" stroke="rgb(52,211,153)" strokeWidth="2"
@@ -90,7 +90,7 @@ function MakeVisual() {
   // Cylindrical pot with rim + handles; 4 luminous balls inside echo
   // the NeuFlavor ingredient nodes glowing in their broth.
   return (
-    <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
+    <svg viewBox="0 0 100 100" className="w-full h-full max-w-20 max-h-20" aria-hidden="true">
       {/* Pot body */}
       <rect
         x="20" y="42" width="60" height="42" rx="4"
@@ -129,7 +129,7 @@ function MakeVisual() {
 
 function _RemovedLegacyChefHatVisual() {
   return (
-    <svg viewBox="0 0 100 100" className="w-20 h-20" aria-hidden="true">
+    <svg viewBox="0 0 100 100" className="w-full h-full max-w-20 max-h-20" aria-hidden="true">
       {/* (kept only to swallow the dangling chef-hat SVG below — not rendered) */}
       <line x1="30" y1="72" x2="68" y2="72" stroke="rgba(167,139,250,0.35)" strokeWidth="1.2" />
       {/* Chef's hat */}
@@ -228,7 +228,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
               disabled={isLoading}
               data-mode={tile.id}
               aria-label={`${tile.label}. ${tile.subheadline}`}
-              className={`group relative flex flex-row sm:flex-col items-center text-left sm:text-center gap-3 sm:gap-3 rounded-xl p-3 sm:p-6 min-h-[64px] transition-all overflow-hidden focus:outline-none
+              className={`group relative flex flex-row sm:flex-col items-stretch sm:items-center text-left sm:text-center gap-3 sm:gap-3 rounded-xl p-3 sm:p-6 min-h-[88px] transition-all overflow-hidden focus:outline-none
                 ${dimmed ? 'opacity-40 cursor-wait' : 'hover:brightness-110'}
               `}
               style={{
@@ -247,7 +247,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
                 aria-hidden="true"
               />
               <div
-                className="flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 rounded-lg flex-shrink-0"
+                className="flex items-center justify-center rounded-lg flex-shrink-0 aspect-square h-full sm:h-20 sm:w-20"
                 style={{
                   background: 'rgba(255,255,255,0.025)',
                   border: `1px solid #6a6a6a55`,
@@ -255,9 +255,9 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
               >
                 <Visual />
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <span
-                  className="block text-xl sm:text-2xl leading-tight"
+                  className="block text-2xl sm:text-3xl leading-tight"
                   style={{
                     color: '#f5efde',
                     fontFamily: 'Caveat, cursive',
@@ -267,7 +267,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
                   {tile.label}
                 </span>
                 <span
-                  className="block text-xs sm:text-sm leading-snug mt-0.5 sm:mt-1.5 line-clamp-2 sm:line-clamp-none"
+                  className="block text-sm sm:text-base leading-snug mt-0.5 sm:mt-1.5 line-clamp-2 sm:line-clamp-none"
                   style={{
                     color: '#bdb6a3',
                     fontFamily: 'Caveat, cursive',

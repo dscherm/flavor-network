@@ -31,7 +31,7 @@ export default function MobileTabBar({
   const [modelOpen, setModelOpen] = useState(false);
   const [labsOpen, setLabsOpen] = useState(false);
 
-  const isGuidedActive = ['guided', 'guided-results', 'guided-pairing'].includes(activeTab);
+  const isGuidedActive = ['guided', 'guided-results', 'guided-pairing', 'guided-details'].includes(activeTab);
   const isMakeActive = activeTab === 'make';
   // The Model pillar is the network surface (3D / 2D variants).
   const isModelActive = activeTab === 'network';

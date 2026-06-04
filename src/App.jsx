@@ -44,6 +44,7 @@ import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
 import GuidedDiscoverySwipe from './components/GuidedDiscoverySwipe.jsx';
 import GuidedDiscoveryFocalPicker from './components/GuidedDiscoveryFocalPicker.jsx';
+import AlphaModeDetailsCard from './components/AlphaModeDetailsCard.jsx';
 import LabsFab from './components/LabsFab.jsx';
 import CookbookLab from './components/CookbookLab.jsx';
 import MakeRecipeStart from './components/MakeRecipeStart.jsx';
@@ -95,7 +96,8 @@ const TAB_TO_PATH = {
   cookbook: 'cookbook',
   guided: 'guided',
   'guided-results': 'guided',         // ephemeral; collapse to entry
-  'guided-pairing': 'guided',         // B-version Screen 2; collapse to entry
+  'guided-pairing': 'guided',         // B-version Screen 3; collapse to entry
+  'guided-details': 'guided',         // B-version Screen 2 (α-details); collapse to entry
   make: 'make',
   profile: 'profile',
 };
@@ -1562,7 +1564,7 @@ export default function App() {
               setNetworkDropdownOpen(false);
             }}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'guided' || activeTab === 'guided-results' || activeTab === 'guided-pairing'
+              activeTab === 'guided' || activeTab === 'guided-results' || activeTab === 'guided-pairing' || activeTab === 'guided-details'
                 ? 'text-pink-300 bg-pink-500/10 border border-pink-500/20'
                 : 'text-gray-500 hover:text-gray-300 border border-transparent'
             }`}
@@ -2023,7 +2025,7 @@ export default function App() {
           doesn't suppress the bubble grid. */}
       {/* B-version Guided Screen 1 — focal picker (search bar + "Pick
           for me" button). Replaces the prior GuidedDiscoverySwipe deck.
-          Picking a focal hands off to PairingMode (guided-pairing tab). */}
+          Picking a focal hands off to AlphaModeDetailsCard (Screen 2). */}
       {activeTab === 'guided' && (
         <GuidedDiscoveryFocalPicker
           ingredients={ingredientList}
@@ -2037,10 +2039,32 @@ export default function App() {
               value: { ingredient: name },
               axisHint: null,
             }]);
-            setActiveTab('guided-pairing');
+            setActiveTab('guided-details');
           }}
           onClose={() => {
             setActiveTab('network');
+          }}
+        />
+      )}
+
+      {/* B-version Guided Screen 2 — AlphaModeDetailsCard. Details card
+          for the focal (tier chips + 4 radars + affinity ring with
+          tap-to-name / double-tap-to-inspect interactions) + the
+          "Ingredient pairings →" CTA that routes to PairingMode. */}
+      {activeTab === 'guided-details' && pairingModeFocal && data?.graph?.nodes && (
+        <AlphaModeDetailsCard
+          focal={pairingModeFocal}
+          ctx={{
+            graph: data.graph,
+            cuisineNeighborIndex: data.cuisineNeighborIndex || null,
+          }}
+          onExit={() => setActiveTab('guided')}
+          onIngredientPairings={() => setActiveTab('guided-pairing')}
+          onSelectPairing={(name) => {
+            // Double-tap on an affinity node opens PairingMode focused
+            // on the ORIGINAL focal — user lands in the swipe browser
+            // with the inspected pairing accessible in the stack.
+            setActiveTab('guided-pairing');
           }}
         />
       )}
