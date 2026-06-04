@@ -187,11 +187,8 @@ function topAxes(values, axes, n = 2) {
     .map((x) => x.axis);
 }
 
-function buildAnalysis(ingredients, profiles) {
-  if (ingredients.length === 0) return 'Add ingredients to see the recipe’s profile.';
-  if (ingredients.length === 1) {
-    return `${ingredients[0]} alone — add more ingredients to chart a flavor balance.`;
-  }
+function buildAnalysis(focusedIngredients, profiles, bowlSize, isFocused) {
+  if (focusedIngredients.length === 0) return 'Add ingredients to see the recipe’s profile.';
   const tasteTop = topAxes(profiles.taste, getAxesFor('taste'), 2);
   const aromaTop = topAxes(profiles.aroma, getAxesFor('aroma'), 2);
   const cuisineTop = topAxes(profiles.cuisine, getAxesFor('cuisine'), 1);
@@ -201,8 +198,21 @@ function buildAnalysis(ingredients, profiles) {
   if (aromaTop.length > 0) parts.push(`with ${aromaTop.map((s) => s.toLowerCase()).join(' + ')} aroma`);
   if (cuisineTop.length > 0) parts.push(`reads ${cuisineTop[0].toLowerCase()}`);
   if (seasonTop.length > 0) parts.push(`fits a ${seasonTop[0].toLowerCase()} table`);
+  // Single-ingredient view (iOS focus mode OR a bowl of one) reads as
+  // a per-ingredient profile, not a recipe-aggregate ("X alone").
+  if (focusedIngredients.length === 1) {
+    const name = focusedIngredients[0];
+    if (parts.length === 0) {
+      return isFocused
+        ? `${name} — profile too sparse to read yet.`
+        : `${name} alone — add more ingredients to chart a flavor balance.`;
+    }
+    return isFocused
+      ? `${name} — ${parts.join(', ')}.`
+      : `${name} alone — ${parts.join(', ')}. Add more ingredients to chart a balance.`;
+  }
   if (parts.length === 0) return 'Profile too sparse to read yet — try more chef-curated ingredients.';
-  return `${ingredients.length} ingredients — ${parts.join(', ')}.`;
+  return `${focusedIngredients.length} ingredients — ${parts.join(', ')}.`;
 }
 
 function rankSuggestions(ingredients, edges, ingredientSet) {
@@ -253,17 +263,16 @@ export default function RecipeFlavorProfileCard({
     season: aggregateProfile(focusedNodes, 'season'),
   }), [focusedNodes]);
 
+  const isFocused = typeof selectedIdx === 'number' && Boolean(ingredients[selectedIdx]);
   const analysis = useMemo(
-    () => buildAnalysis(focusedIngredients, profiles),
-    [focusedIngredients, profiles],
+    () => buildAnalysis(focusedIngredients, profiles, ingredients.length, isFocused),
+    [focusedIngredients, profiles, ingredients.length, isFocused],
   );
 
   const suggestions = useMemo(() => {
     const set = new Set(ingredients);
     return rankSuggestions(ingredients, edges, set);
   }, [ingredients, edges]);
-
-  const isFocused = typeof selectedIdx === 'number' && ingredients[selectedIdx];
 
   return (
     <div
