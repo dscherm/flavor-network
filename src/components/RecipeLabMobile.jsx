@@ -3,6 +3,8 @@ import Fuse from 'fuse.js';
 import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import { getCocktailRoles, getSauceRoles } from '../data/ingredientRoles.js';
 import RecipeNotebook from './RecipeNotebook.jsx';
+import RecipeFlavorProfileCard from './RecipeFlavorProfileCard.jsx';
+import useIsMobile from '../hooks/useIsMobile.js';
 import IngredientSuggestionsPopout from './IngredientSuggestionsPopout.jsx';
 import RecipeTypePills from './RecipeTypePills.jsx';
 import IngredientPicker from './IngredientPicker.jsx';
@@ -55,6 +57,12 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [recipeType, setRecipeType] = useState(handoff?.recipeType || null);
   const [recipeImageUrl, setRecipeImageUrl] = useState(null);
   const [focalKey, setFocalKey] = useState(null);
+  // B-version (2026-06-03): per user spec, iOS users see the flavor-
+  // profile radars one ingredient at a time; web users see the
+  // aggregate of every ingredient in the bowl. profileSelectedIdx
+  // controls which ingredient drives the radars (null = aggregate).
+  const isMobile = useIsMobile();
+  const [profileSelectedIdx, setProfileSelectedIdx] = useState(null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,6 +73,21 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const searchContainerRef = useRef(null);
 
   useEffect(() => { setSelectedStructure(null); }, [labMode]);
+
+  // On iOS, default the flavor-profile selection to the first
+  // ingredient (or null when the bowl is empty). On web we always
+  // pass null so the radars show the aggregate of every ingredient.
+  useEffect(() => {
+    if (!isMobile) {
+      setProfileSelectedIdx(null);
+      return;
+    }
+    setProfileSelectedIdx((prev) => {
+      if (recipeIngredients.length === 0) return null;
+      if (prev == null || prev >= recipeIngredients.length) return 0;
+      return prev;
+    });
+  }, [isMobile, recipeIngredients.length]);
 
   // Name-only adapter cached per render for downstream string[] consumers.
   const recipeNames = useMemo(() => bowlNames(recipeIngredients), [recipeIngredients]);
@@ -463,6 +486,19 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             : undefined}
           aromaDisabled={aromaDisabled}
         />
+
+        {/* B-version (2026-06-03): inline flavor-profile card. iOS
+            shows one ingredient at a time (profileSelectedIdx); web
+            shows aggregate. Hidden when bowl is empty. */}
+        {recipeIngredients.length > 0 && (
+          <RecipeFlavorProfileCard
+            ingredients={recipeNames}
+            nodes={fullData?.graph?.nodes}
+            edges={fullData?.graph?.edges}
+            selectedIdx={isMobile ? profileSelectedIdx : null}
+            onSelectIngredient={isMobile ? setProfileSelectedIdx : undefined}
+          />
+        )}
 
       </div>
 
