@@ -360,6 +360,12 @@ export default function App() {
   // Network no longer reaches it.
   const [affinityRequested, setAffinityRequested] = useState(false);
   const [pairingModeFocal, setPairingModeFocal] = useState(null);
+  // B-version (2026-06-04): when a focal is set, we render the
+  // AlphaModeDetailsCard first (details + swipeable affinity carousel)
+  // and only swap to PairingMode when the user taps "Ingredient
+  // pairings →" inside the card. Network single-tap now goes through
+  // this same flow.
+  const [detailsCardMode, setDetailsCardMode] = useState(true);
   const lastNodeClickRef = useRef({ name: null, at: 0 });
   // Canonical-spec (2026-05-23 user-iter): single-click on a network
   // node spawns a SMALL POPUP near the cursor showing the flavor
@@ -940,14 +946,18 @@ export default function App() {
     // user wants ingredient details they get them inside the
     // Pairing Mode card (properties + tier chips + radar dot).
     lastNodeClickRef.current = { name, at: 0 };
+    // Network tap shows AlphaModeDetailsCard first (details card +
+    // affinity carousel); "Ingredient pairings →" inside the card
+    // swaps to PairingMode.
+    setDetailsCardMode(true);
     setPairingModeFocal(name);
   }, [focusedCluster, morphAxis]);
 
-  // B-version P3 — long-press now opens PairingMode (was α-mode).
-  // α-mode entry from Network is gone; Guided Discovery Step 2 keeps
-  // the α-mode path via sceneHandle.engageAffinity().
+  // B-version P3 — long-press routes through the same details-card
+  // path single-tap uses; details card opens first.
   const handleNodeLongPress = useCallback((node) => {
     if (!node) return;
+    setDetailsCardMode(true);
     setPairingModeFocal(node.name);
   }, []);
 
@@ -1413,7 +1423,19 @@ export default function App() {
           Mounts when pairingModeFocal is set. Back / Esc clears the
           focal which dismisses the overlay. α-mode entry from this
           surface is REMOVED; α-mode survives for Guided Step 2. */}
-      {pairingModeFocal && data?.graph?.nodes && activeTab !== 'guided-pairing' && (
+      {pairingModeFocal && data?.graph?.nodes && activeTab !== 'guided-pairing' && activeTab !== 'guided-details' && detailsCardMode && (
+        <AlphaModeDetailsCard
+          focal={pairingModeFocal}
+          ctx={{
+            graph: data.graph,
+            cuisineNeighborIndex: data.cuisineNeighborIndex || null,
+          }}
+          onExit={() => setPairingModeFocal(null)}
+          onIngredientPairings={() => setDetailsCardMode(false)}
+          onSelectPairing={() => setDetailsCardMode(false)}
+        />
+      )}
+      {pairingModeFocal && data?.graph?.nodes && activeTab !== 'guided-pairing' && activeTab !== 'guided-details' && !detailsCardMode && (
         <PairingMode
           focal={pairingModeFocal}
           ctx={{
@@ -1422,7 +1444,7 @@ export default function App() {
             bridgeCompoundIndex: data.bridgeCompoundIndex || null,
           }}
           odorThresholds={data.odorThresholds || null}
-          onExit={() => setPairingModeFocal(null)}
+          onExit={() => { setPairingModeFocal(null); setDetailsCardMode(true); }}
         />
       )}
 
