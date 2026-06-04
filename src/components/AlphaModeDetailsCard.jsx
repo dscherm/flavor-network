@@ -1,26 +1,29 @@
 /**
- * AlphaModeDetailsCard — α-mode Screen 1 (B-version 2026-06-04).
+ * AlphaModeDetailsCard — α-mode Screen 1 / Network details overlay.
+ * (B-version rev 2 per user 2026-06-04.)
  *
- * Per user spec, when the user lands in α-mode (post Guided Discovery
- * focal-pick), the FIRST screen is a rich details card showing:
- *   - Ingredient name
- *   - Tier info (Aroma / Taste / Mouthfeel / Leaves)
- *   - 4 flavor radars (Taste / Aroma / Cuisine / Season)
- *   - Affinity ring: focal in center, top pairings as dots around it
- *     · Single-tap a node → reveal the pairing's name (inline label)
- *     · Double-tap a node → fires onSelectPairing(name) so the parent
- *       can route to a per-pairing card view
- *   - "Ingredient pairings →" CTA → fires onIngredientPairings() so
- *     the parent can route to the existing PairingMode Tinder browser
+ * Shows the focal ingredient's NAME, TIERS, CUISINES, SEASON, and
+ * CHEMISTRY (when GNN top-compound data exists). Replaces the 4
+ * taste radars from rev 1 with a SWIPEABLE AFFINITY CAROUSEL that
+ * groups the focal's pairings by sharing reason:
  *
- * Chalkboard palette to match the rest of the B-version UI.
+ *   View 1 — Tier 1 pairings (shared aroma)
+ *   View 2 — Tier 2 pairings (shared taste)
+ *   View 3 — Tier 3 / Leaves pairings (shared mouthfeel / leaves)
+ *   View 4 — Shared cuisines
+ *
+ * Each view shows the focal at center labeled with the view's name +
+ * up to 12 pairings as cluster-colored dots on a dashed orbit.
+ *   - Single-tap a node → reveals the pairing's name (inline label).
+ *   - Double-tap a node → fires onSelectPairing(name).
+ * Swipe left/right (touch + mouse drag) cycles the 4 views; bottom
+ * buttons mirror the swipe.
+ *
+ * Also used from Network mode as the first screen after a node tap
+ * (before PairingMode).
  */
 
-import React, { useMemo, useState, useRef } from 'react';
-import {
-  getAxesFor,
-  getColorMapFor,
-} from '../data/guidedRadarAxes.js';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { getNeighborsEnriched } from '../data/graph.js';
 
 const FONT = 'Caveat, cursive';
@@ -50,96 +53,64 @@ function tokenize(str) {
   return str.toLowerCase().split(/[\s,/-]+/).filter(Boolean);
 }
 
-function valueForAxis(node, filterType, axisKey) {
-  if (!node) return 0;
-  const key = String(axisKey).toLowerCase();
-  if (filterType === 'taste')   return tokenize(node.taste).includes(key) ? 1 : 0;
-  if (filterType === 'season')  return tokenize(node.season).includes(key) ? 1 : 0;
-  if (filterType === 'cuisine') {
-    const list = Array.isArray(node?.cuisines) ? node.cuisines : [];
-    return list.some((c) => String(c).toLowerCase() === key) ? 1 : 0;
+const RING_SIZE = 300;
+const RING_CENTER = RING_SIZE / 2;
+const RING_RADIUS = RING_CENTER - 36;
+const RING_MAX = 12;
+
+const VIEWS = [
+  { id: 'aroma',     label: 'Tier 1 pairings',   sub: 'shared aroma' },
+  { id: 'taste',     label: 'Tier 2 pairings',   sub: 'shared taste' },
+  { id: 'mouthfeel', label: 'Tier 3 / Leaves',   sub: 'shared mouthfeel + leaves' },
+  { id: 'cuisine',   label: 'Shared cuisines',   sub: 'cooked in the same kitchens' },
+];
+
+function intersectLower(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b) || a.length === 0 || b.length === 0) return [];
+  const setB = new Set(b.map((s) => String(s).toLowerCase()));
+  return a.filter((s) => setB.has(String(s).toLowerCase()));
+}
+
+function pairingScoreForView(focalNode, pairingNode, viewId) {
+  if (!focalNode || !pairingNode) return 0;
+  if (viewId === 'aroma') {
+    return intersectLower(focalNode.flavorGraph?.tier1, pairingNode.flavorGraph?.tier1).length;
   }
-  if (filterType === 'aroma') {
-    const tier1 = node?.flavorGraph?.tier1;
-    if (Array.isArray(tier1) && tier1.some((t) => String(t).toLowerCase() === key)) return 1;
-    const gnnMap = { fruity: 'odor_fruity', floral: 'odor_floral', green: 'odor_green', woody: 'odor_woody', creamy: 'odor_fatty' };
-    const p = node?.gnnProbs?.[gnnMap[key]];
-    return typeof p === 'number' ? Math.max(0, Math.min(1, p)) : 0;
+  if (viewId === 'taste') {
+    // Use focal.flavorGraph.tier2 first, fall back to taste-string tokens.
+    const a = focalNode.flavorGraph?.tier2;
+    const b = pairingNode.flavorGraph?.tier2;
+    if (Array.isArray(a) && Array.isArray(b) && a.length > 0 && b.length > 0) {
+      return intersectLower(a, b).length;
+    }
+    return intersectLower(tokenize(focalNode.taste), tokenize(pairingNode.taste)).length;
+  }
+  if (viewId === 'mouthfeel') {
+    const a = [...(focalNode.flavorGraph?.tier3 || []), ...(focalNode.flavorGraph?.leaves || [])];
+    const b = [...(pairingNode.flavorGraph?.tier3 || []), ...(pairingNode.flavorGraph?.leaves || [])];
+    return intersectLower(a, b).length;
+  }
+  if (viewId === 'cuisine') {
+    const a = Array.isArray(focalNode.cuisines) ? focalNode.cuisines : [];
+    const b = Array.isArray(pairingNode.cuisines) ? pairingNode.cuisines : [];
+    return intersectLower(a, b).length;
   }
   return 0;
-}
-
-function axisAngle(i, n) {
-  return (Math.PI * 2 * i) / n - Math.PI / 2;
-}
-
-function MiniRadar({ node, filterType, label, size = 130 }) {
-  const axes = getAxesFor(filterType) || [];
-  const colors = getColorMapFor(filterType) || {};
-  const N = axes.length;
-  if (N === 0) return null;
-  const cx = size / 2;
-  const cy = size / 2;
-  const radius = size * 0.28;
-  const labelOffset = size * 0.085;
-  const values = axes.map((ax) => valueForAxis(node, filterType, ax));
-  const polyPoints = values.map((v, i) => {
-    const a = axisAngle(i, N);
-    const r = v * radius;
-    return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
-  }).join(' ');
-  const gridPts = (lvl) => axes.map((_, i) => {
-    const a = axisAngle(i, N);
-    const r = lvl * radius;
-    return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
-  }).join(' ');
-  const fontSize = N > 8 ? 8 : 9;
-  return (
-    <div className="flex flex-col items-center gap-0.5" style={{ width: size + 12 }}>
-      <svg width="100%" viewBox={`0 0 ${size} ${size}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={`${label} radar`}>
-        {[0.33, 0.66, 1.0].map((lvl) => (
-          <polygon key={lvl} points={gridPts(lvl)} fill="none" stroke={`${CHALK_BORDER_INNER}88`} strokeWidth={lvl === 1.0 ? 1 : 0.5} />
-        ))}
-        {axes.map((_, i) => {
-          const a = axisAngle(i, N);
-          return <line key={i} x1={cx} y1={cy} x2={cx + radius * Math.cos(a)} y2={cy + radius * Math.sin(a)} stroke={`${CHALK_BORDER_INNER}66`} strokeWidth={0.5} />;
-        })}
-        <polygon points={polyPoints} fill="rgba(134,231,245,0.30)" stroke="#86e7f5" strokeWidth={1.5} />
-        {axes.map((axLbl, i) => {
-          const a = axisAngle(i, N);
-          const cosA = Math.cos(a);
-          const sinA = Math.sin(a);
-          const tx = cx + (radius + labelOffset) * cosA;
-          const ty = cy + (radius + labelOffset) * sinA;
-          const textAnchor = cosA > 0.15 ? 'start' : cosA < -0.15 ? 'end' : 'middle';
-          const dominantBaseline = sinA > 0.55 ? 'hanging' : sinA < -0.55 ? 'auto' : 'middle';
-          return (
-            <text key={axLbl} x={tx} y={ty} textAnchor={textAnchor} dominantBaseline={dominantBaseline}
-              fontSize={fontSize} fontWeight={600} fill={colors[axLbl] || CHALK_DIM}
-              style={{ fontFamily: FONT, letterSpacing: '0.04em' }}
-            >{axLbl}</text>
-          );
-        })}
-      </svg>
-      <span className="text-[10px] uppercase tracking-wider" style={{ color: CHALK_SUB, fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
-        {label}
-      </span>
-    </div>
-  );
 }
 
 function TierRow({ label, items, color }) {
   if (!Array.isArray(items) || items.length === 0) return null;
   return (
     <div className="flex items-center gap-1.5">
-      <span className="text-[10px] uppercase tracking-[0.16em] w-[68px] text-right flex-shrink-0"
-        style={{ color: CHALK_DIM, fontFamily: FONT, letterSpacing: '0.06em', textShadow: CHALK_TEXT_SHADOW }}>
+      <span className="text-[10px] uppercase tracking-[0.16em] w-[78px] text-right flex-shrink-0"
+        style={{ color: CHALK_DIM, fontFamily: FONT, letterSpacing: '0.06em', textShadow: CHALK_TEXT_SHADOW }}
+        data-testid={`alpha-details-row-${label.toLowerCase().replace(/\s+/g, '-')}`}>
         {label}
       </span>
       <div className="flex flex-wrap gap-1">
         {items.map((t, i) => (
-          <span key={`${t}-${i}`} className="px-2 py-0 rounded-full text-[11px] border"
-            style={{ color, borderColor: `${color}66`, backgroundColor: `${color}15` }}>
+          <span key={`${t}-${i}`} className="px-2 py-0 rounded-full text-[12px] border"
+            style={{ color, borderColor: `${color}66`, backgroundColor: `${color}15`, fontFamily: FONT }}>
             {t}
           </span>
         ))}
@@ -148,62 +119,89 @@ function TierRow({ label, items, color }) {
   );
 }
 
-const RING_SIZE = 280;
-const RING_CENTER = RING_SIZE / 2;
-const RING_RADIUS = RING_CENTER - 30;
-const RING_MAX = 12;
+function AffinityCarousel({ focalName, focalNode, viewIdx, allPairings, revealed, onTapNode, onDoubleTapNode }) {
+  const view = VIEWS[viewIdx];
+  const pairings = useMemo(() => {
+    if (!focalNode || !view) return [];
+    return allPairings
+      .map((p) => ({ ...p, score: pairingScoreForView(focalNode, p.node, view.id) }))
+      .filter((p) => p.score > 0)
+      .sort((a, b) => b.score - a.score || (b.strength || 0) - (a.strength || 0))
+      .slice(0, RING_MAX);
+  }, [allPairings, focalNode, view]);
 
-function AffinityRing({ focalName, focalNode, pairings, onTapPairing, onDoubleTapPairing, revealed }) {
-  const visible = pairings.slice(0, RING_MAX);
   const tapTrackRef = useRef({});
   const handleTap = (name) => {
     const now = Date.now();
     const last = tapTrackRef.current[name] || 0;
     if (now - last < 350) {
-      onDoubleTapPairing?.(name);
+      onDoubleTapNode?.(name);
       tapTrackRef.current[name] = 0;
     } else {
-      onTapPairing?.(name);
+      onTapNode?.(name);
       tapTrackRef.current[name] = now;
     }
   };
+
   return (
-    <svg width="100%" viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`} preserveAspectRatio="xMidYMid meet"
-      role="img" aria-label={`Affinity ring for ${focalName}`}
-      data-testid="alpha-affinity-ring" style={{ maxWidth: RING_SIZE }}>
-      <circle cx={RING_CENTER} cy={RING_CENTER} r={RING_RADIUS} fill="none" stroke={`${CHALK_BORDER_INNER}55`} strokeWidth={1} strokeDasharray="3 3" />
-      {visible.map((p, i) => {
-        const angle = (Math.PI * 2 * i) / visible.length - Math.PI / 2;
-        const x = RING_CENTER + RING_RADIUS * Math.cos(angle);
-        const y = RING_CENTER + RING_RADIUS * Math.sin(angle);
-        const fill = clusterColor(p.node);
-        const isRevealed = revealed === p.name;
-        return (
-          <g key={p.name} style={{ cursor: 'pointer' }}
-             onClick={() => handleTap(p.name)}
-             onDoubleClick={() => onDoubleTapPairing?.(p.name)}
-             data-testid={`alpha-affinity-node-${p.name}`}>
-            <line x1={RING_CENTER} y1={RING_CENTER} x2={x} y2={y} stroke={`${fill}44`} strokeWidth={1} />
-            <circle cx={x} cy={y} r={isRevealed ? 9 : 6} fill={fill} stroke={isRevealed ? '#fff' : `${CHALK_BORDER_INNER}55`} strokeWidth={isRevealed ? 2 : 1} />
-            {isRevealed && (
-              <g>
-                <rect x={x - 50} y={y + 12} width={100} height={22} rx={4}
-                  fill="#0a0a0a" stroke={CHALK_BORDER_INNER} strokeWidth={1} />
-                <text x={x} y={y + 26} textAnchor="middle" fontSize={12} fill={CHALK_CREAM}
-                  style={{ fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
-                  {p.name}
-                </text>
-              </g>
-            )}
-          </g>
-        );
-      })}
-      <circle cx={RING_CENTER} cy={RING_CENTER} r={14} fill={clusterColor(focalNode)} stroke="#fff" strokeWidth={2} />
-      <text x={RING_CENTER} y={RING_CENTER + 30} textAnchor="middle" fontSize={14} fontWeight={700}
-        fill={CHALK_CREAM} style={{ fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
-        {focalName}
-      </text>
-    </svg>
+    <div className="flex flex-col items-center w-full" data-testid="alpha-affinity-carousel"
+      data-view-idx={viewIdx} data-view-id={view?.id || ''}>
+      <span className="text-[11px] uppercase tracking-wider mb-1"
+        style={{ color: CHALK_DIM, fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
+        {view?.sub}
+      </span>
+      <svg width="100%" viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`} preserveAspectRatio="xMidYMid meet"
+        role="img" aria-label={`${view?.label} — ${pairings.length} pairings`}
+        style={{ maxWidth: RING_SIZE }}
+        data-testid="alpha-affinity-ring">
+        <circle cx={RING_CENTER} cy={RING_CENTER} r={RING_RADIUS}
+          fill="none" stroke={`${CHALK_BORDER_INNER}55`} strokeWidth={1} strokeDasharray="3 3" />
+        {pairings.length === 0 && (
+          <text x={RING_CENTER} y={RING_CENTER + 40} textAnchor="middle" fontSize={13}
+            fill={CHALK_SUB} style={{ fontFamily: FONT }}>
+            No pairings share this signal.
+          </text>
+        )}
+        {pairings.map((p, i) => {
+          const angle = (Math.PI * 2 * i) / Math.max(1, pairings.length) - Math.PI / 2;
+          const x = RING_CENTER + RING_RADIUS * Math.cos(angle);
+          const y = RING_CENTER + RING_RADIUS * Math.sin(angle);
+          const fill = clusterColor(p.node);
+          const isRevealed = revealed === p.name;
+          return (
+            <g key={p.name} style={{ cursor: 'pointer' }}
+               onClick={() => handleTap(p.name)}
+               onDoubleClick={() => onDoubleTapNode?.(p.name)}
+               data-testid={`alpha-affinity-node-${p.name}`}>
+              <line x1={RING_CENTER} y1={RING_CENTER} x2={x} y2={y} stroke={`${fill}44`} strokeWidth={1} />
+              <circle cx={x} cy={y} r={isRevealed ? 9 : 6}
+                fill={fill} stroke={isRevealed ? '#fff' : `${CHALK_BORDER_INNER}55`}
+                strokeWidth={isRevealed ? 2 : 1} />
+              {isRevealed && (
+                <g>
+                  <rect x={x - 56} y={y + 12} width={112} height={22} rx={4}
+                    fill="#0a0a0a" stroke={CHALK_BORDER_INNER} strokeWidth={1} />
+                  <text x={x} y={y + 26} textAnchor="middle" fontSize={12} fill={CHALK_CREAM}
+                    style={{ fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
+                    {p.name}
+                  </text>
+                </g>
+              )}
+            </g>
+          );
+        })}
+        <circle cx={RING_CENTER} cy={RING_CENTER} r={28}
+          fill={clusterColor(focalNode)} stroke="#fff" strokeWidth={2} />
+        <text x={RING_CENTER} y={RING_CENTER - 4} textAnchor="middle" fontSize={11}
+          fontWeight={700} fill="#0a0a0a" style={{ fontFamily: FONT }}>
+          {focalName}
+        </text>
+        <text x={RING_CENTER} y={RING_CENTER + 10} textAnchor="middle" fontSize={9}
+          fill="#0a0a0a" style={{ fontFamily: FONT }}>
+          {view?.label}
+        </text>
+      </svg>
+    </div>
   );
 }
 
@@ -220,11 +218,11 @@ export default function AlphaModeDetailsCard({
     return ctx.graph.nodes.get(focalName) || { name: focalName };
   }, [focalName, ctx]);
 
-  const pairings = useMemo(() => {
+  const allPairings = useMemo(() => {
     if (!focalName || !ctx?.graph?.edges) return [];
     try {
       const list = getNeighborsEnriched(focalName, ctx.graph.edges, ctx?.cuisineNeighborIndex || null);
-      return list.slice(0, RING_MAX).map((p) => ({
+      return list.slice(0, 60).map((p) => ({
         name: p.name,
         strength: typeof p.strength === 'number' ? p.strength : 0,
         node: ctx.graph.nodes.get?.(p.name) || { name: p.name },
@@ -232,18 +230,84 @@ export default function AlphaModeDetailsCard({
     } catch { return []; }
   }, [focalName, ctx]);
 
+  const [viewIdx, setViewIdx] = useState(0);
   const [revealed, setRevealed] = useState(null);
+
+  // Reset reveal + view on focal change.
+  useEffect(() => { setRevealed(null); setViewIdx(0); }, [focalName]);
+
+  const goNext = useCallback(() => setViewIdx((i) => (i + 1) % VIEWS.length), []);
+  const goPrev = useCallback(() => setViewIdx((i) => (i - 1 + VIEWS.length) % VIEWS.length), []);
+
+  // Touch swipe + mouse drag for the carousel.
+  const dragRef = useRef(null);
+  const SWIPE_THRESHOLD = 50;
+  const onTouchStart = (e) => {
+    const t = e.touches?.[0];
+    if (!t) return;
+    dragRef.current = { x: t.clientX, y: t.clientY, kind: 'touch' };
+  };
+  const onTouchEnd = (e) => {
+    const start = dragRef.current;
+    dragRef.current = null;
+    if (!start || start.kind !== 'touch') return;
+    const t = (e.changedTouches?.[0]) || null;
+    if (!t) return;
+    const dx = t.clientX - start.x;
+    if (Math.abs(dx) > SWIPE_THRESHOLD) (dx < 0 ? goNext : goPrev)();
+  };
+  const onMouseDown = (e) => {
+    if (e.target?.closest?.('button')) return;
+    if (e.target?.closest?.('[data-testid^="alpha-affinity-node-"]')) return;
+    dragRef.current = { x: e.clientX, y: e.clientY, kind: 'mouse' };
+  };
+  const onMouseUp = (e) => {
+    const start = dragRef.current;
+    dragRef.current = null;
+    if (!start || start.kind !== 'mouse') return;
+    const dx = e.clientX - start.x;
+    if (Math.abs(dx) > SWIPE_THRESHOLD) (dx < 0 ? goNext : goPrev)();
+  };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); }
+      else if (e.key === 'Escape') { e.preventDefault(); onExit?.(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [goNext, goPrev, onExit]);
 
   const tier1 = focalNode?.flavorGraph?.tier1;
   const tier2 = focalNode?.flavorGraph?.tier2;
   const tier3 = focalNode?.flavorGraph?.tier3;
   const leaves = focalNode?.flavorGraph?.leaves;
+  const cuisines = Array.isArray(focalNode?.cuisines) ? focalNode.cuisines : [];
+  const season = focalNode?.season;
+  const seasonItems = (() => {
+    if (Array.isArray(season)) return season;
+    if (typeof season === 'string' && season.trim()) {
+      return season.split(/[\s,/-]+/).filter(Boolean);
+    }
+    return [];
+  })();
+  const compounds = focalNode?.gnnCompounds?.top_compounds;
+  const chemistryItems = Array.isArray(compounds)
+    ? compounds.slice(0, 5).map((c) => (typeof c === 'string' ? c : c?.name)).filter(Boolean)
+    : [];
+
+  const view = VIEWS[viewIdx];
 
   return (
     <div className="fixed inset-0 z-[80] flex flex-col items-center px-4 py-4 overflow-y-auto"
       style={{ background: CHALK_BG }}
       data-testid="alpha-details-card"
-      data-focal={focalName || ''}>
+      data-focal={focalName || ''}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}>
       <div className="w-full max-w-3xl flex items-center justify-between mb-3">
         <button type="button" onClick={() => onExit?.()}
           data-testid="alpha-details-back"
@@ -252,7 +316,7 @@ export default function AlphaModeDetailsCard({
           ← Back
         </button>
         <span className="text-xs" style={{ color: CHALK_DIM, fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
-          α-mode · details
+          α-mode · ingredient
         </span>
       </div>
 
@@ -263,39 +327,55 @@ export default function AlphaModeDetailsCard({
           {focalName}
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1.4fr] gap-4">
           <div className="flex flex-col gap-2">
-            <TierRow label="Aroma"     items={tier1}  color="#86e7f5" />
-            <TierRow label="Taste"     items={tier2}  color="#fbbf24" />
-            <TierRow label="Mouthfeel" items={tier3}  color="#a78bfa" />
-            <TierRow label="Leaves"    items={leaves} color="#cbd5e1" />
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              <MiniRadar node={focalNode} filterType="taste"   label="Taste" />
-              <MiniRadar node={focalNode} filterType="aroma"   label="Aroma" />
-              <MiniRadar node={focalNode} filterType="cuisine" label="Cuisine" />
-              <MiniRadar node={focalNode} filterType="season"  label="Season" />
-            </div>
+            <TierRow label="Aroma"     items={tier1}          color="#86e7f5" />
+            <TierRow label="Taste"     items={tier2}          color="#fbbf24" />
+            <TierRow label="Mouthfeel" items={tier3}          color="#a78bfa" />
+            <TierRow label="Leaves"    items={leaves}         color="#cbd5e1" />
+            <TierRow label="Cuisines"  items={cuisines}       color="#fb923c" />
+            <TierRow label="Season"    items={seasonItems}    color="#86efac" />
+            {chemistryItems.length > 0 && (
+              <TierRow label="Chemistry" items={chemistryItems} color="#fde68a" />
+            )}
           </div>
 
           <div className="flex flex-col items-center">
-            <span className="text-[11px] uppercase tracking-wider mb-2"
-              style={{ color: CHALK_DIM, fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
-              Top pairings — tap to name · double-tap to inspect
+            <div className="flex items-center justify-between w-full mb-1">
+              <button type="button" onClick={goPrev}
+                data-testid="alpha-carousel-prev"
+                className="px-2 py-1 rounded-md"
+                style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${CHALK_BORDER_INNER}`, fontFamily: FONT, fontSize: 16, textShadow: CHALK_TEXT_SHADOW }}>
+                ←
+              </button>
+              <div className="flex flex-col items-center">
+                <span className="text-[15px]" style={{ color: CHALK_CREAM, fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
+                  {view?.label}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider" style={{ color: CHALK_SUB, fontFamily: FONT }}>
+                  {viewIdx + 1} / {VIEWS.length} · swipe to change
+                </span>
+              </div>
+              <button type="button" onClick={goNext}
+                data-testid="alpha-carousel-next"
+                className="px-2 py-1 rounded-md"
+                style={{ color: CHALK_CREAM, background: 'rgba(255,255,255,0.04)', border: `1px solid ${CHALK_BORDER_INNER}`, fontFamily: FONT, fontSize: 16, textShadow: CHALK_TEXT_SHADOW }}>
+                →
+              </button>
+            </div>
+            <AffinityCarousel
+              focalName={focalName}
+              focalNode={focalNode}
+              viewIdx={viewIdx}
+              allPairings={allPairings}
+              revealed={revealed}
+              onTapNode={(name) => setRevealed(name)}
+              onDoubleTapNode={(name) => onSelectPairing?.(name)}
+            />
+            <span className="text-[11px] uppercase tracking-wider mt-1"
+              style={{ color: CHALK_SUB, fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}>
+              Tap to name · double-tap to inspect
             </span>
-            {focalNode && pairings.length > 0 ? (
-              <AffinityRing
-                focalName={focalName}
-                focalNode={focalNode}
-                pairings={pairings}
-                revealed={revealed}
-                onTapPairing={(name) => setRevealed(name)}
-                onDoubleTapPairing={(name) => onSelectPairing?.(name)}
-              />
-            ) : (
-              <span className="text-sm" style={{ color: CHALK_SUB, fontFamily: FONT }}>
-                No pairings found for {focalName}.
-              </span>
-            )}
           </div>
         </div>
       </div>
@@ -316,3 +396,5 @@ export default function AlphaModeDetailsCard({
     </div>
   );
 }
+
+export { VIEWS as ALPHA_DETAILS_VIEWS };
