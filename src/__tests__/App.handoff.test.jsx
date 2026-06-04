@@ -52,6 +52,7 @@ vi.mock('../components/WedgeGridFlavorWheel.jsx', () => ({ default: () => null }
 vi.mock('../components/InsightDrawer.jsx',    () => ({ default: () => null }));
 vi.mock('../components/GuidedDiscoverySwipe.jsx', () => ({ default: () => null }));
 vi.mock('../components/GuidedDiscoveryFocalPicker.jsx', () => ({ default: () => null }));
+vi.mock('../components/AlphaModeDetailsCard.jsx', () => ({ default: () => null }));
 vi.mock('../components/LabsFab.jsx', () => ({ default: () => null }));
 vi.mock('../components/CookbookLab.jsx',      () => ({ default: () => null }));
 vi.mock('../components/GuidedTour.jsx',       () => ({ default: () => null }));
