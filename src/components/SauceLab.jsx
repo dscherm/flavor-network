@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import NetworkScene from './NetworkScene.jsx';
-import SauceDetailPanel from './SauceDetailPanel.jsx';
+import LabNodeCard from './LabNodeCard.jsx';
 import SauceBrowse from './SauceBrowse.jsx';
 import {
   loadSauceCodex,
@@ -330,17 +330,26 @@ export default function SauceLab({
           </ul>
         </div>
 
-        {/* Detail panel still available in matches mode */}
-        {selectedSauce && codexData && (
-          <SauceDetailPanel
-            sauce={codexData.graph.nodes.get(selectedSauce)}
-            family={familyForSelected}
-            similarSauces={similarSauces}
-            onSelectSauce={(name) => setSelectedSauce(name)}
-            onOpenRecipeLab={onOpenRecipeLab}
-            onClose={() => setSelectedSauce(null)}
-          />
-        )}
+        {/* Card mode — also available in matches mode */}
+        {selectedSauce && codexData && (() => {
+            const s = codexData.graph.nodes.get(selectedSauce);
+            return (
+              <LabNodeCard
+                kind="sauce"
+                name={s?.name || selectedSauce}
+                clusterName={familyForSelected?.name}
+                clusterColor={familyForSelected?.color || '#9a8f7a'}
+                clusterTag={s?.isRoot ? 'MOTHER' : (s?.cuisine || null)}
+                details={s ? [{ label: 'Cuisine', value: s.cuisine }] : []}
+                ingredients={s?.ingredientsDetailed?.length ? s.ingredientsDetailed : (s?.ingredients || [])}
+                prep={s?.instructions || ''}
+                likeThis={similarSauces}
+                pairsWith={s?.pairsWith || []}
+                onSelect={(name) => setSelectedSauce(name)}
+                onClose={() => setSelectedSauce(null)}
+              />
+            );
+          })()}
       </div>
     );
   }
@@ -431,31 +440,28 @@ export default function SauceLab({
         />
       )}
 
-      {selectedSauce && (
-        <SauceDetailPanel
-          sauce={codexData.graph.nodes.get(selectedSauce)}
-          family={familyForSelected}
-          similarSauces={similarSauces}
-          onSelectSauce={(name) => setSelectedSauce(name)}
-          onOpenRecipeLab={onOpenRecipeLab}
-          onClose={() => setSelectedSauce(null)}
-        />
-      )}
+      {selectedSauce && (() => {
+        const s = codexData.graph.nodes.get(selectedSauce);
+        return (
+          <LabNodeCard
+            kind="sauce"
+            name={s?.name || selectedSauce}
+            clusterName={familyForSelected?.name}
+            clusterColor={familyForSelected?.color || '#9a8f7a'}
+            clusterTag={s?.isRoot ? 'MOTHER' : (s?.cuisine || null)}
+            details={s ? [{ label: 'Cuisine', value: s.cuisine }] : []}
+            ingredients={s?.ingredientsDetailed?.length ? s.ingredientsDetailed : (s?.ingredients || [])}
+            prep={s?.instructions || ''}
+            likeThis={similarSauces}
+            pairsWith={s?.pairsWith || []}
+            onSelect={(name) => setSelectedSauce(name)}
+            onClose={() => setSelectedSauce(null)}
+          />
+        );
+      })()}
 
-      {/* Clear Selection — upper-right, parity with Network's button. */}
-      {selectedSauce && (
-        <div className="fixed top-[100px] right-2 z-50 flex flex-col items-end gap-2">
-          <button
-            onClick={() => setSelectedSauce(null)}
-            className="px-3 py-1.5 min-h-[44px] text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
-          >
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Clear Selection
-          </button>
-        </div>
-      )}
+      {/* Card mode (LabNodeCard) is a full-screen overlay with its own
+          Back button, so the floating Clear-Selection button is gone. */}
 
       {/* ClusterJoystick + ShapeLegend are 3D-scene affordances —
           Browse view has its own family bubbles + cuisine chips. */}

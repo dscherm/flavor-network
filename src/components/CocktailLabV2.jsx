@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import NetworkScene from './NetworkScene.jsx';
-import CocktailDetailPanel from './CocktailDetailPanel.jsx';
+import LabNodeCard from './LabNodeCard.jsx';
 import CocktailBrowse from './CocktailBrowse.jsx';
 import {
   loadCodexV2,
@@ -394,31 +394,25 @@ export default function CocktailLabV2({
           </ul>
         </div>
 
-        {/* Detail panel still available in matches mode */}
+        {/* Card mode — also available in matches mode */}
         {selectedCocktail && graph && networkData && (
-          <CocktailDetailPanel
-            cocktail={networkData.graph.nodes.get(selectedCocktail)}
-            family={familyForSelected ? {
-              id: familyForSelected.id,
-              name: familyForSelected.name,
-              color: familyForSelected.color,
-              root: familyForSelected.cultural_root,
-              mathRoot: familyForSelected.math_root,
-              signature: familyForSelected.signature,
-            } : null}
-            subclusterLabel={selectedNode?.subcluster_id || null}
-            similarCocktails={similarCocktails}
-            crossFamilyCousins={crossFamilyCousins}
-            engineering={selectedNode ? {
-              build: selectedNode.build_method,
-              glass: selectedNode.glass,
-              ice: selectedNode.ice_format,
-              aeration: selectedNode.aeration,
-            } : null}
+          <LabNodeCard
+            kind="cocktail"
+            name={selectedNode?.name || selectedCocktail}
+            clusterName={familyForSelected?.name}
+            clusterColor={familyForSelected?.color || '#9a8f7a'}
+            clusterTag={selectedNode?.subcluster_id || familyForSelected?.signature || null}
+            details={selectedNode ? [
+              { label: 'Glass', value: selectedNode.glass },
+              { label: 'Build', value: selectedNode.build_method },
+              { label: 'Ice', value: selectedNode.ice_format },
+              { label: 'Aeration', value: selectedNode.aeration },
+            ] : []}
             ingredients={selectedNode?.ingredients_raw || []}
-            recipe={selectedNode?.recipe_text || ''}
-            onSelectCocktail={(name) => setSelectedCocktail(name)}
-            onOpenRecipeLab={onOpenRecipeLab}
+            prep={selectedNode?.recipe_text || ''}
+            likeThis={similarCocktails}
+            bridges={crossFamilyCousins}
+            onSelect={(name) => setSelectedCocktail(name)}
             onClose={() => setSelectedCocktail(null)}
           />
         )}
@@ -528,46 +522,29 @@ export default function CocktailLabV2({
       )}
 
       {selectedCocktail && (
-        <CocktailDetailPanel
-          cocktail={networkData.graph.nodes.get(selectedCocktail)}
-          family={familyForSelected ? {
-            id: familyForSelected.id,
-            name: familyForSelected.name,
-            color: familyForSelected.color,
-            root: familyForSelected.cultural_root,
-            mathRoot: familyForSelected.math_root,
-            signature: familyForSelected.signature,
-          } : null}
-          subclusterLabel={selectedNode?.subcluster_id || null}
-          similarCocktails={similarCocktails}
-          crossFamilyCousins={crossFamilyCousins}
-          engineering={selectedNode ? {
-            build: selectedNode.build_method,
-            glass: selectedNode.glass,
-            ice: selectedNode.ice_format,
-            aeration: selectedNode.aeration,
-          } : null}
+        <LabNodeCard
+          kind="cocktail"
+          name={selectedNode?.name || selectedCocktail}
+          clusterName={familyForSelected?.name}
+          clusterColor={familyForSelected?.color || '#9a8f7a'}
+          clusterTag={selectedNode?.subcluster_id || familyForSelected?.signature || null}
+          details={selectedNode ? [
+            { label: 'Glass', value: selectedNode.glass },
+            { label: 'Build', value: selectedNode.build_method },
+            { label: 'Ice', value: selectedNode.ice_format },
+            { label: 'Aeration', value: selectedNode.aeration },
+          ] : []}
           ingredients={selectedNode?.ingredients_raw || []}
-          recipe={selectedNode?.recipe_text || ''}
-          onSelectCocktail={(name) => setSelectedCocktail(name)}
-          onOpenRecipeLab={onOpenRecipeLab}
+          prep={selectedNode?.recipe_text || ''}
+          likeThis={similarCocktails}
+          bridges={crossFamilyCousins}
+          onSelect={(name) => setSelectedCocktail(name)}
           onClose={() => setSelectedCocktail(null)}
         />
       )}
 
-      {selectedCocktail && (
-        <div className="fixed top-[100px] right-2 z-50 flex flex-col items-end gap-2">
-          <button
-            onClick={() => setSelectedCocktail(null)}
-            className="px-3 py-1.5 min-h-[44px] text-xs text-gray-400 hover:text-red-400 bg-[#12121a]/90 backdrop-blur-md border border-[#1e1e2e] rounded-lg transition-colors select-none flex items-center gap-1.5"
-          >
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Clear Selection
-          </button>
-        </div>
-      )}
+      {/* Card mode (LabNodeCard) is a full-screen overlay with its own
+          Back button, so the floating Clear-Selection button is gone. */}
 
       {/* ClusterJoystick + ShapeLegend are 3D-scene affordances — the
           Browse view has its own family bubbles and spirit chips, so

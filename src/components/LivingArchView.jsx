@@ -240,7 +240,7 @@ export default function LivingArchView({
   useEffect(() => {
     const animator = cameraAnimatorRef.current;
     if (!animator || typeof animator.setPivotConfig !== 'function') return;
-    if (mode === 'mlflavor') {
+    if (mode === 'mlflavor' && !disableClusterTour) {
       animator.setPivotConfig({
         pivotAdvanceMs: FLAVOR3D_PIVOT_ADVANCE_MS,
         pivotTargets: (data?.flavorClusterLabels?.clusters || []).map(c => ({
@@ -660,6 +660,40 @@ export default function LivingArchView({
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     scene.add(mesh);
+
+    // CAMERA-FIT-V1: frame the whole point cloud on mount so the model
+    // fills the viewport, instead of the fixed z=120 default (too tight
+    // for the full network — reads as "zoomed in"). Computes the bounding
+    // radius from the live positions and backs the camera off to fit both
+    // viewport dimensions. Skipped when an explicit initialCameraPose is
+    // provided (e.g. the Guided α bird's-eye entry).
+    if (!initialCameraPose) {
+      let maxR2 = 0;
+      for (let i = 0; i < count; i++) {
+        const x = curPos[i * 3], y = curPos[i * 3 + 1], z = curPos[i * 3 + 2];
+        const r2 = x * x + y * y + z * z;
+        if (r2 > maxR2) maxR2 = r2;
+      }
+      const radius = Math.sqrt(maxR2) || 100;
+      const aspect = el.clientWidth / Math.max(1, el.clientHeight);
+      const vFov = (camera.fov || 60) * Math.PI / 180;
+      const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
+      const limitingFov = Math.min(vFov, hFov);     // fit the tighter axis
+      const fitDistance = (radius / Math.sin(limitingFov / 2)) * 1.08; // +8% margin
+      if (MODE_IS_2D.has(modeRef.current)) {
+        camera.position.set(0, fitDistance, 0.1);
+      } else {
+        const dir = new THREE.Vector3(0, 40, 120).normalize(); // keep the angled default
+        camera.position.copy(dir.multiplyScalar(fitDistance));
+      }
+      camera.lookAt(0, 0, 0);
+      camera.updateProjectionMatrix();
+      if (controls) {
+        controls.target.set(0, 0, 0);
+        controls.maxDistance = Math.max(controls.maxDistance, fitDistance * 1.6);
+        controls.update();
+      }
+    }
 
     // --- Edges (BufferGeometry + LineSegments) ---
     const validEdges = [];
