@@ -1714,6 +1714,7 @@ export default function App() {
         pickedBucket={focusedBucketLabel}
         isMobile={isMobile}
         onClearSelection={handleClearSelection}
+        disableClusterTour={true}
       />
       {/* R19 Phase 3 — bridge-pulse rings on pull crossing 0.5. */}
       <BridgePulseOverlay pulse={bridgePulse} />
@@ -2130,6 +2131,17 @@ export default function App() {
               if (Array.isArray(pos) && pos.length === 3) {
                 setFlyToTarget({ position: pos, ts: Date.now() });
               }
+              // RESTORE-GUIDED-TOUR (2026-06-04): re-engage the multi-stage
+              // GuidedTour that was lost when the B-version flow short-cut
+              // straight to the network. It opens on the 3D Affinity view
+              // (Step 1) then walks the network morph → clusters →
+              // ingredient pick. Axis-less entry (no explicit radar pick),
+              // matching the documented "Explore in network" CTA path.
+              setTourFocal(focal);
+              setTourAxis(null);
+              setTourChosenAxisKey(null);
+              setTourFocalBucket(null);
+              setTourActive(true);
             }
             setActiveTab('network');
           }}
