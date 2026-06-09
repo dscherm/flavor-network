@@ -1,0 +1,7 @@
+# FM-P0 / FM-Q1 build-time intermediates — regenerable from
+# proDataset/raw/recipenlg.csv via flavor-gnn/scripts/fm_p0_2_build_corpus.mjs.
+# Too large to track (hundreds of MB). Keep vocab.json + *.md reports tracked.
+recipe_sets.jsonl
+ingredient_quantities.jsonl
+ner_vocab_map.json
+train_tensors.npz

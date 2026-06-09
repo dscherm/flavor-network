@@ -1,0 +1,18 @@
+{
+  "task": "FM-P2",
+  "n_eval_recon": 3000,
+  "reconstruction": {
+    "hit@10": {
+      "model": 0.866,
+      "popularity": 0.7987
+    },
+    "recall@10_model": 0.4844
+  },
+  "profile_fidelity_cos": {
+    "model": 0.9894,
+    "popularity": 0.9638
+  },
+  "steps": 6000,
+  "dim": 128,
+  "runtime_sec": 177.2
+}

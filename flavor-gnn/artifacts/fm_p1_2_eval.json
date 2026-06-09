@@ -1,0 +1,40 @@
+{
+  "task": "FM-P1-2",
+  "seed": 42,
+  "config": {
+    "test_frac": 0.15,
+    "n_eval_focals": 800,
+    "hidden": 32,
+    "epochs": 15,
+    "features": "embeddings-only [u+v,|u-v|,u*v]"
+  },
+  "counts": {
+    "ingredients": 3863,
+    "pos_edges": 93420,
+    "train_edges": 79407,
+    "test_edges": 14013
+  },
+  "results": {
+    "random": {
+      "hit@10": 0.0175,
+      "MRR": 0.0091,
+      "n_focals": 800
+    },
+    "v0_cosine": {
+      "hit@10": 0.115,
+      "MRR": 0.049,
+      "n_focals": 800
+    },
+    "cooccurrence": {
+      "hit@10": 0.84,
+      "MRR": 0.6721,
+      "n_focals": 800
+    },
+    "mlp_embeddings": {
+      "hit@10": 0.1825,
+      "MRR": 0.0795,
+      "n_focals": 800
+    }
+  },
+  "runtime_sec": 7.4
+}

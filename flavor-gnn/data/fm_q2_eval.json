@@ -1,0 +1,13 @@
+{
+  "task": "FM-Q2",
+  "n_eval": 1216578,
+  "unit_top1_accuracy": {
+    "model": 0.4948,
+    "global": 0.3866
+  },
+  "qty_grams_MdAPE": {
+    "model": 0.5833,
+    "global": 0.6
+  },
+  "beats_baseline_on_qty": true
+}
