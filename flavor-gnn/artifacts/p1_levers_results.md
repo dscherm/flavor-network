@@ -107,3 +107,57 @@ ceiling was a DATA-QUANTITY problem, exactly as the failed model-side levers imp
 Next: (a) ~~reconcile woody~~ DONE — woody excluded from the merge (see above);
 re-run the train-only eval to confirm. (b) add goodscents/arctander for more
 positives.
+
+## odor_nutty head + woody reconciliation — measured (5-seed scaffold, mean_max)
+
+Followed through on the woody fix differently than the exclude-from-merge stopgap:
+split the Maillard/roast cluster into a dedicated **odor_nutty** head (7th odor
+head), kept mushroom in woody, re-enabled Leffingwell woody, and fixed the
+descriptor matcher (exact -> substring, so `balsamic` reaches woody). Two 5-seed
+runs: a 12-head FlavorDB-only baseline and a +Leffingwell train-only run.
+Artifacts: `cv_results_scaffold_nutty_baseline.json`,
+`cv_results_scaffold_nutty_p3b_trainonly.json`.
+
+| head | baseline | +Leffingwell | Δ | test pos/seed (base→aug) | trust |
+|---|---|---|---|---|---|
+| sweet | 0.853 | 0.776 | -0.077 | dense | Δ is artifact (seed-3 split collapse 0.378) |
+| bitter | 0.806 | 0.816 | +0.010 | dense | robust |
+| umami | 0.563 | 0.550 | -0.013 | moderate | flat |
+| salty | 0.212 | 0.348 | +0.136 | tiny | noise (known-bad head) |
+| sour | 0.766 | 0.716 | -0.050 | dense | ~test-set noise |
+| odor_fruity | 0.713 | 0.772 | **+0.059** | dense | credible lift |
+| odor_floral | 0.380 | 0.499 | +0.119 | 15→12 | suggestive, noisy |
+| odor_green | 0.593 | 0.599 | +0.006 | moderate | flat |
+| odor_woody | **0.497** | 0.408 | -0.089 | 27→11 | aug side noisy |
+| odor_spicy | 0.286 | 0.327 | +0.041 | small | weak/noisy |
+| odor_fatty | 0.529 | 0.654 | **+0.125** | 25→19 | credible lift |
+| **odor_nutty** | **0.442** | 0.155 | -0.287 | **15→3** | aug side is pure noise |
+
+**The two runs use different test sets** (baseline 1,991; train-only 1,273
+pure-original), so Δ conflates the augment training effect with test composition
+— not a clean paired comparison. Test-positive counts decide what's readable.
+
+### Findings
+- **odor_nutty works: baseline F1 0.442 ± 0.14** from FlavorDB's 194 positives
+  alone — in the band of fatty (0.529) and woody (0.497), above floral (0.380)
+  and spicy (0.286). The 7th head is viable; the model absorbed it with no
+  architecture change. The `nutty 0.155` under +Leffingwell is **not real** —
+  the pure-original test has only 3 nutty positives/seed (one seed had 1 →
+  F1 0.000). Whether Leffingwell helps nutty is **unmeasurable** with this design.
+- **Woody recovered as a head.** Splitting nutty out cost woody nothing (baseline
+  0.497 ≈ its historical ~0.517) and the original -0.157 conflict is gone. But
+  reconciliation did **not** turn Leffingwell into a woody *lift* — the +Leffingwell
+  woody (-0.089) is on a degraded test (11 pos/seed, one seed = 3 → 0.222), so the
+  augment effect on woody is neutral-to-unknown, not a win.
+- **Credible Leffingwell odor lifts: fatty +0.12, fruity +0.06** (enough test
+  positives to trust; fatty matches the earlier P3b +0.142).
+- **Methodological gap:** the train-only design (augment forced to train, test on
+  pure-original) is underpowered for rare heads (nutty/woody) because it shrinks
+  the test set. A trustworthy nutty/woody augment read needs more seeds (15-20) or
+  an eval that doesn't starve the test set.
+
+### Decision
+Keep the 12-head model with the nutty head. Production policy for Leffingwell on
+nutty/woody is still open (merge-all vs exclude-those-two) — unresolved because
+the measurement can't separate them; the dense-head lifts (fatty/fruity) are the
+banked win.
