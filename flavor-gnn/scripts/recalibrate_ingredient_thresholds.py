@@ -41,7 +41,7 @@ DISABLED_THRESHOLD = 1.01
 
 TASKS = ("sweet", "bitter", "umami", "salty", "sour",
          "odor_fruity", "odor_floral", "odor_green", "odor_woody",
-         "odor_spicy", "odor_fatty")
+         "odor_spicy", "odor_fatty", "odor_nutty")
 
 
 def load_molecule_f1() -> dict[str, float]:

@@ -18,7 +18,7 @@ ODOR_NON_SPICY = ("odor_fruity", "odor_floral", "odor_green",
                   "odor_woody", "odor_fatty")
 ALL_TASKS = ("sweet", "bitter", "umami", "salty", "sour",
              "odor_fruity", "odor_floral", "odor_green", "odor_woody",
-             "odor_spicy", "odor_fatty")
+             "odor_spicy", "odor_fatty", "odor_nutty")
 
 
 def _per_task_mean_f1(path: Path) -> dict[str, float]:

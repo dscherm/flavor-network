@@ -35,16 +35,12 @@ ROOT = Path(__file__).resolve().parents[2]
 IN_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds.parquet"
 OUT_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds_p3b.parquet"
 
-# Heads whose Leffingwell labels we do NOT merge, because the two label
-# sources define the head differently and merging hurts.
-#   woody: our FlavorDB labels count nutty + mushroom as woody (~28% of woody
-#   positives; 19% are woody ONLY because of those tags). Leffingwell maps
-#   woody to {earthy, pine, smoky, woody} only — nutty/mushroom are explicitly
-#   NOT woody there. Merging teaches the model "nutty/mushroom != woody" and
-#   also drops the woody prior (31% positive rate in our data vs 11% in
-#   Leffingwell), so recall on our test labels collapses (-0.157 F1). All five
-#   other odor heads agree well enough to merge and improve.
-LEFFINGWELL_EXCLUDE = {"woody"}
+# Heads whose Leffingwell labels we do NOT merge. Now empty: woody used to be
+# excluded because our FlavorDB woody conflated nutty into it while Leffingwell
+# keeps them disjoint. That conflict is resolved upstream — nutty is now its own
+# head (odor_nutty) and woody means resinous/earthy/piney in both sources — so
+# Leffingwell woody is re-enabled and merges cleanly.
+LEFFINGWELL_EXCLUDE: set[str] = set()
 
 
 def canon(s) -> str | None:
@@ -63,12 +59,16 @@ def main() -> int:
     mol = pyrfume.load_data("leffingwell/molecules.csv")
     beh = pyrfume.load_data("leffingwell/behavior.csv")
     descriptors = list(beh.columns)
-    # descriptor -> head via curated keyword sets
+    # descriptor -> head via curated keyword sets. Substring match (keyword is a
+    # substring of the descriptor), first-match-wins in ODOR_CATEGORIES order, so
+    # "balsam" catches Leffingwell's "balsamic" and "grape" catches "grapefruit".
+    # The one collision, "pineapple" (matches woody "pine" AND fruity "apple"),
+    # resolves to fruity because fruity precedes woody in the dict.
     head_for: dict[str, str] = {}
     for d in descriptors:
         dl = d.lower()
         for head, kws in ODOR_CATEGORIES.items():
-            if dl in kws:
+            if any(kw in dl for kw in kws):
                 head_for[d] = head
                 break
     mapped = {h: [d for d in descriptors if head_for.get(d) == h] for h in ODOR_CATEGORIES}

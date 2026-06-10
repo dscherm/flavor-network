@@ -26,10 +26,9 @@ ROOT = Path(__file__).resolve().parents[2]
 IN_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds.parquet"
 OUT_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds_p3b_trainonly.parquet"
 
-# See ingest_leffingwell.py: woody is excluded because our FlavorDB woody
-# (which counts nutty/mushroom) and Leffingwell woody ({earthy,pine,smoky,
-# woody}) disagree, which regressed the head -0.157.
-LEFFINGWELL_EXCLUDE = {"woody"}
+# See ingest_leffingwell.py: empty now that nutty is its own head and woody is
+# reconciled across both sources, so Leffingwell woody is merged.
+LEFFINGWELL_EXCLUDE: set[str] = set()
 
 
 def canon(s):
@@ -48,11 +47,13 @@ def main() -> int:
     mol = pyrfume.load_data("leffingwell/molecules.csv")
     beh = pyrfume.load_data("leffingwell/behavior.csv")
     descriptors = list(beh.columns)
+    # Substring match, first-match-wins (see ingest_leffingwell.py): "balsam"
+    # catches "balsamic"; "pineapple" resolves to fruity (precedes woody).
     head_for = {}
     for d in descriptors:
         dl = d.lower()
         for head, kws in ODOR_CATEGORIES.items():
-            if dl in kws:
+            if any(kw in dl for kw in kws):
                 head_for[d] = head
                 break
     mapped = {h: [d for d in descriptors if head_for.get(d) == h] for h in ODOR_CATEGORIES}

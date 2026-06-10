@@ -20,7 +20,8 @@ from ..models.mpnn import MPNN
 from .calibrate import apply_shift
 
 TASKS = ["sweet", "bitter", "umami", "salty", "sour",
-         "odor_fruity", "odor_floral", "odor_green", "odor_woody", "odor_spicy", "odor_fatty"]
+         "odor_fruity", "odor_floral", "odor_green", "odor_woody", "odor_spicy",
+         "odor_fatty", "odor_nutty"]
 
 
 def _project_root() -> Path:
