@@ -58,9 +58,17 @@ ODOR_CATEGORIES = {
     "fruity": ["fruity", "fruit", "tropical", "apple", "berry", "citrus", "banana", "peach", "pear", "grape", "melon", "cherry", "plum", "lemon", "orange"],
     "floral": ["floral", "rose", "jasmine", "violet", "lavender", "geranium", "lily", "flower"],
     "green": ["green", "herbal", "grassy", "leafy", "vegetable", "cucumber", "minty"],
-    "woody": ["woody", "earthy", "balsam", "mossy", "cedar", "pine", "resinous", "smoky"],
+    # woody = resinous/earthy/piney. nutty was pulled out into its own head
+    # (the Maillard/roast cluster — see "nutty" below) because our FlavorDB
+    # labels conflated it with woody while Leffingwell keeps them ~86% disjoint.
+    # mushroom stays here (earthy-fungal); its Leffingwell descriptor is mapped
+    # into woody on ingestion so both sources agree on the woody boundary.
+    "woody": ["woody", "earthy", "balsam", "mossy", "cedar", "pine", "resinous", "smoky", "mushroom"],
     "spicy": ["spicy", "pungent", "pepper", "clove", "cinnamon", "anise"],
     "fatty": ["fatty", "waxy", "oily", "buttery", "cheesy", "milky"],
+    # nutty = Maillard/roast cluster, kept distinct from woody (Leffingwell
+    # taxonomy treats nutty/roasted as separate from woody). Tight keyword set.
+    "nutty": ["nutty", "almond", "hazelnut", "walnut", "peanut", "cocoa", "coffee", "roasted", "roast"],
 }
 
 # Ambiguous tokens removed from the buckets above, with why. Kept as a record
@@ -68,8 +76,6 @@ ODOR_CATEGORIES = {
 _ODOR_SKIPPED = {
     "fresh": "too generic — appears across many unrelated descriptors (was green)",
     "tea": "more often floral than green (was green)",
-    "nutty": "roasted/Maillard cluster, not woody (was woody)",
-    "mushroom": "earthy-umami, not woody (was woody)",
     "warm": "fires inside warm-sweet/warm-floral, not a spice signal (was spicy)",
     "hot": "too generic / temperature, not reliably spicy (was spicy)",
     "creamy": "dessert-sweet texture, not waxy/fatty (was fatty)",
@@ -79,7 +85,7 @@ _ODOR_SKIPPED = {
 
 TASTE_TASKS = ("sweet", "bitter", "umami", "salty", "sour")
 ODOR_TASKS = ("odor_fruity", "odor_floral", "odor_green", "odor_woody",
-              "odor_spicy", "odor_fatty")
+              "odor_spicy", "odor_fatty", "odor_nutty")
 ALL_TASKS = TASTE_TASKS + ODOR_TASKS
 
 
@@ -184,6 +190,7 @@ def build() -> pd.DataFrame:
                 "has_profile": 0,
                 "odor_fruity": 0, "odor_floral": 0, "odor_green": 0,
                 "odor_woody": 0, "odor_spicy": 0, "odor_fatty": 0,
+                "odor_nutty": 0,
                 # mask=0 means "label is unknown for this row" — task is
                 # excluded from the loss. Each source block flips relevant
                 # masks to 1 when it contributes evidence.

@@ -29,7 +29,8 @@ from ..models.featurize import ATOM_DIM, BOND_DIM, smiles_to_data
 from ..models.mpnn import MPNN
 
 TASKS = ("sweet", "bitter", "umami", "salty", "sour",
-         "odor_fruity", "odor_floral", "odor_green", "odor_woody", "odor_spicy", "odor_fatty")
+         "odor_fruity", "odor_floral", "odor_green", "odor_woody", "odor_spicy",
+         "odor_fatty", "odor_nutty")
 SEED = 42
 
 
