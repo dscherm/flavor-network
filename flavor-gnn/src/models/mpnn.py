@@ -13,10 +13,32 @@ import torch.nn.functional as F
 
 class MPNN(nn.Module):
     def __init__(self, atom_dim: int, bond_dim: int, hidden: int = 128,
-                 num_layers: int = 3, num_tasks: int = 1):
+                 num_layers: int = 3, num_tasks: int = 1, readout: str = "mean"):
         super().__init__()
-        from torch_geometric.nn import GINEConv, global_mean_pool
-        self._pool = global_mean_pool
+        from torch_geometric.nn import (GINEConv, global_add_pool,
+                                        global_max_pool, global_mean_pool)
+
+        # P1a (GNN-LIFT): readout choice. 'mean' (default) preserves the
+        # original architecture and lets existing checkpoints load unchanged.
+        # 'mean_max_sum' concatenates mean+max+sum pools so a single strong
+        # local motif (e.g. one odorant fragment on a large molecule) is not
+        # diluted ~40x by global_mean_pool — the audit's Finding 1.2, and the
+        # set2set-style readout the odor literature finds lifts sparse-graph
+        # odor heads.
+        self.readout = readout
+        if readout == "mean_max_sum":
+            self._pools = (global_mean_pool, global_max_pool, global_add_pool)
+        elif readout == "mean_max":
+            # Drops the molecule-size-sensitive sum pool, which degraded the
+            # dense sweet head in the mean_max_sum experiment while max-pool
+            # kept the odor_spicy motif-preservation win.
+            self._pools = (global_mean_pool, global_max_pool)
+        elif readout == "mean":
+            self._pools = (global_mean_pool,)
+        else:
+            raise ValueError(f"unknown readout {readout!r}")
+        self._pool = global_mean_pool  # back-compat for external callers
+        pool_dim = hidden * len(self._pools)
 
         self.atom_enc = nn.Linear(atom_dim, hidden)
         self.bond_enc = nn.Linear(bond_dim, hidden)
@@ -31,12 +53,17 @@ class MPNN(nn.Module):
             self.bns.append(nn.BatchNorm1d(hidden))
 
         self.head = nn.Sequential(
-            nn.Linear(hidden, hidden), nn.ReLU(), nn.Dropout(0.2),
+            nn.Linear(pool_dim, hidden), nn.ReLU(), nn.Dropout(0.2),
             nn.Linear(hidden, num_tasks),
         )
 
+    def _readout(self, x: torch.Tensor, batch) -> torch.Tensor:
+        """Pool atom embeddings to a graph vector (concatenated when multi-pool)."""
+        return torch.cat([pool(x, batch) for pool in self._pools], dim=1)
+
     def forward_embedding(self, data) -> torch.Tensor:
-        """Return the pooled graph vector before the classifier head (shape: G, hidden)."""
+        """Return the pooled graph vector before the classifier head
+        (shape: G, hidden*len(pools))."""
         x = self.atom_enc(data.x)
         edge_attr = self.bond_enc(data.edge_attr) if data.edge_attr.size(0) else \
                     torch.zeros(0, x.size(1), device=x.device)
@@ -44,7 +71,7 @@ class MPNN(nn.Module):
             x = conv(x, data.edge_index, edge_attr)
             x = bn(x)
             x = F.relu(x)
-        return self._pool(x, data.batch)
+        return self._readout(x, data.batch)
 
     def forward_trace(self, data):
         """Return per-layer atom activations, pooled graph vector, and logits.
@@ -64,7 +91,7 @@ class MPNN(nn.Module):
             x = bn(x)
             x = F.relu(x)
             trace[f'layer_{i + 1}'] = x.detach().clone()
-        g = self._pool(x, data.batch)
+        g = self._readout(x, data.batch)
         trace['pool'] = g.detach().clone()
         trace['logits'] = self.head(g).detach().clone()
         return trace

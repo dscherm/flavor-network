@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -44,13 +45,35 @@ def _load(name: str) -> dict:
         return json.load(fh)
 
 
+# P1c (GNN-LIFT, audit Finding 2.4): curated descriptor->odor-head lookup.
+# Two de-noising changes vs the original substring buckets:
+#   1. Matching is WORD-BOUNDARY (see _odor_flags), not substring — "warm"
+#      no longer fires inside "warmth"/"warm-sweet" etc.
+#   2. Ambiguous tokens that generated cross-head false positives are REMOVED
+#      (mapped to skip). Each removal + reason is listed in _ODOR_SKIPPED below.
+# Rationale: the research found de-noising existing positives is multiplicative
+# for the weak odor heads (floral/spicy/fatty), where ingesting new labels
+# (DREAM) fell below the noise floor.
 ODOR_CATEGORIES = {
     "fruity": ["fruity", "fruit", "tropical", "apple", "berry", "citrus", "banana", "peach", "pear", "grape", "melon", "cherry", "plum", "lemon", "orange"],
     "floral": ["floral", "rose", "jasmine", "violet", "lavender", "geranium", "lily", "flower"],
-    "green": ["green", "fresh", "herbal", "grassy", "leafy", "vegetable", "cucumber", "minty", "tea"],
-    "woody": ["woody", "earthy", "balsam", "nutty", "mossy", "mushroom", "cedar", "pine", "resinous", "smoky"],
-    "spicy": ["spicy", "pungent", "pepper", "clove", "cinnamon", "anise", "warm", "hot"],
-    "fatty": ["fatty", "waxy", "oily", "creamy", "buttery", "cheesy", "milky", "coconut"],
+    "green": ["green", "herbal", "grassy", "leafy", "vegetable", "cucumber", "minty"],
+    "woody": ["woody", "earthy", "balsam", "mossy", "cedar", "pine", "resinous", "smoky"],
+    "spicy": ["spicy", "pungent", "pepper", "clove", "cinnamon", "anise"],
+    "fatty": ["fatty", "waxy", "oily", "buttery", "cheesy", "milky"],
+}
+
+# Ambiguous tokens removed from the buckets above, with why. Kept as a record
+# so the de-noise is auditable / reversible.
+_ODOR_SKIPPED = {
+    "fresh": "too generic — appears across many unrelated descriptors (was green)",
+    "tea": "more often floral than green (was green)",
+    "nutty": "roasted/Maillard cluster, not woody (was woody)",
+    "mushroom": "earthy-umami, not woody (was woody)",
+    "warm": "fires inside warm-sweet/warm-floral, not a spice signal (was spicy)",
+    "hot": "too generic / temperature, not reliably spicy (was spicy)",
+    "creamy": "dessert-sweet texture, not waxy/fatty (was fatty)",
+    "coconut": "tropical-sweet, not waxy/fatty (was fatty)",
 }
 
 
@@ -75,9 +98,15 @@ def _obs(r: dict, tasks) -> None:
 
 
 def _odor_flags(flavor_tags: list[str]) -> dict[str, int]:
+    # Word-boundary match (P1c): a keyword fires only as a whole token, so
+    # "warm" no longer matches inside "warmth" and "pear" no longer matches
+    # inside "appears". Non-alpha separators (space, hyphen, slash) are token
+    # boundaries, so phrase descriptors like "warm-sweet" tokenize cleanly.
     tags_str = " ".join(t.lower() for t in flavor_tags)
     return {
-        f"odor_{cat}": int(any(kw in tags_str for kw in keywords))
+        f"odor_{cat}": int(any(
+            re.search(r"\b" + re.escape(kw) + r"\b", tags_str) for kw in keywords
+        ))
         for cat, keywords in ODOR_CATEGORIES.items()
     }
 

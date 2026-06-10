@@ -42,6 +42,10 @@ def main() -> int:
                         help="Checkpoint to calibrate. Defaults to artifacts/m3_multitask.pt.")
     parser.add_argument("--out", default=None,
                         help="Output JSON path. Defaults to artifacts/threshold_calibration.json (or _focal suffix when --ckpt is the focal ckpt).")
+    parser.add_argument("--heldout", action="store_true",
+                        help="Audit Finding 3.2 fix: split the test set 50/50, sweep thresholds on "
+                             "the calibration half, and report F1 on the held-out report half. "
+                             "Removes calibration-on-test leakage. Writes _heldout artifact.")
     args = parser.parse_args()
 
     root = _project_root()
@@ -49,6 +53,8 @@ def main() -> int:
     data_path = root / "flavor-gnn" / "data" / "compounds.parquet"
     if args.out:
         out_path = Path(args.out)
+    elif args.heldout:
+        out_path = root / "flavor-gnn" / "artifacts" / "threshold_calibration_heldout.json"
     elif "focal" in ckpt_path.name:
         out_path = root / "flavor-gnn" / "artifacts" / "threshold_calibration_focal.json"
     else:
@@ -95,6 +101,23 @@ def main() -> int:
     Y_te = Y[te_idx]
     M_te = M[te_idx]
 
+    # P0b (audit Finding 3.2): when --heldout, split the test set 50/50 into a
+    # calibration half (thresholds chosen here) and a report half (F1 reported
+    # here). `cal_pos` / `rep_pos` are boolean masks over te_idx positions so we
+    # can keep a single inference pass over `te`. Without --heldout, both masks
+    # cover the whole test set (legacy calibration-on-test behavior, unchanged).
+    if args.heldout:
+        strat_te = Y_te[:, TASKS.index("bitter")]
+        cal_sel, rep_sel = train_test_split(
+            np.arange(len(te_idx)), test_size=0.5,
+            stratify=strat_te, random_state=SEED + 1,
+        )
+        cal_pos = np.zeros(len(te_idx), dtype=bool); cal_pos[cal_sel] = True
+        rep_pos = np.zeros(len(te_idx), dtype=bool); rep_pos[rep_sel] = True
+    else:
+        cal_pos = np.ones(len(te_idx), dtype=bool)
+        rep_pos = np.ones(len(te_idx), dtype=bool)
+
     from torch_geometric.loader import DataLoader
     loader = DataLoader(te, batch_size=128, shuffle=False)
 
@@ -114,54 +137,61 @@ def main() -> int:
     THRESHOLDS = np.linspace(0.05, 0.95, 19)
     rows = []
     for i, t in enumerate(TASKS):
-        sel = M_te[:, i].astype(bool)
-        n_obs = int(sel.sum())
-        if n_obs == 0:
+        obs = M_te[:, i].astype(bool)
+        cal = obs & cal_pos   # rows used to CHOOSE the threshold
+        rep = obs & rep_pos   # rows used to REPORT F1 (held out when --heldout)
+        n_obs = int(rep.sum())
+        if cal.sum() == 0 or rep.sum() == 0:
             rows.append({
-                "task": t, "n_test_observed": 0, "n_test_positives": 0,
+                "task": t, "n_test_observed": int(rep.sum()), "n_test_positives": 0,
+                "n_cal_observed": int(cal.sum()),
                 "f1_at_0.5": 0.0, "calibrated_threshold": 0.5,
                 "calibrated_f1": 0.0, "calibrated_precision": 0.0,
                 "calibrated_recall": 0.0, "lift": 0.0,
             })
             continue
-        y = Y_te[sel, i]
-        p = P[sel, i]
-        n_pos = int(y.sum())
+        y_cal, p_cal = Y_te[cal, i], P[cal, i]
+        y_rep, p_rep = Y_te[rep, i], P[rep, i]
+        n_pos = int(y_rep.sum())
 
-        default_pred = (p > 0.5).astype(int)
-        f1_default = f1_score(y, default_pred, zero_division=0)
-
+        # Choose the threshold on the calibration subset only.
         best_thr = 0.5
-        best_f1 = f1_default
-        best_prec = precision_score(y, default_pred, zero_division=0)
-        best_rec = recall_score(y, default_pred, zero_division=0)
-
+        best_cal_f1 = f1_score(y_cal, (p_cal > 0.5).astype(int), zero_division=0)
         for thr in THRESHOLDS:
-            pred = (p > thr).astype(int)
-            f1 = f1_score(y, pred, zero_division=0)
-            if f1 > best_f1:
-                best_f1 = f1
+            f1 = f1_score(y_cal, (p_cal > thr).astype(int), zero_division=0)
+            if f1 > best_cal_f1:
+                best_cal_f1 = f1
                 best_thr = float(thr)
-                best_prec = precision_score(y, pred, zero_division=0)
-                best_rec = recall_score(y, pred, zero_division=0)
 
-        lift = best_f1 - f1_default
+        # Report all metrics on the held-out report subset, at the chosen thr.
+        rep_default = (p_rep > 0.5).astype(int)
+        rep_pred = (p_rep > best_thr).astype(int)
+        f1_default = f1_score(y_rep, rep_default, zero_division=0)
+        rep_f1 = f1_score(y_rep, rep_pred, zero_division=0)
+        rep_prec = precision_score(y_rep, rep_pred, zero_division=0)
+        rep_rec = recall_score(y_rep, rep_pred, zero_division=0)
+
+        lift = rep_f1 - f1_default
         rows.append({
             "task": t,
             "n_test_observed": n_obs,
+            "n_cal_observed": int(cal.sum()),
             "n_test_positives": n_pos,
             "f1_at_0.5": round(float(f1_default), 3),
             "calibrated_threshold": round(best_thr, 2),
-            "calibrated_f1": round(float(best_f1), 3),
-            "calibrated_precision": round(float(best_prec), 3),
-            "calibrated_recall": round(float(best_rec), 3),
+            "calibrated_f1": round(float(rep_f1), 3),
+            "calibrated_precision": round(float(rep_prec), 3),
+            "calibrated_recall": round(float(rep_rec), 3),
             "lift": round(float(lift), 3),
         })
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps({
-        "model_ckpt": "m3_multitask.pt",
-        "test_split": {"n": int(len(te_idx)), "seed": SEED, "stratify": "bitter"},
+        "model_ckpt": ckpt_path.name,
+        "calibration_mode": "heldout" if args.heldout else "on_test",
+        "test_split": {"n": int(len(te_idx)), "seed": SEED, "stratify": "bitter",
+                       "heldout_calibration": bool(args.heldout),
+                       "cal_report_split": "50/50 seed+1" if args.heldout else None},
         "threshold_grid": [round(float(x), 2) for x in THRESHOLDS],
         "per_task": rows,
     }, indent=2))
