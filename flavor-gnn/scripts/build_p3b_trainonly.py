@@ -26,6 +26,11 @@ ROOT = Path(__file__).resolve().parents[2]
 IN_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds.parquet"
 OUT_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds_p3b_trainonly.parquet"
 
+# See ingest_leffingwell.py: woody is excluded because our FlavorDB woody
+# (which counts nutty/mushroom) and Leffingwell woody ({earthy,pine,smoky,
+# woody}) disagree, which regressed the head -0.157.
+LEFFINGWELL_EXCLUDE = {"woody"}
+
 
 def canon(s):
     try:
@@ -68,6 +73,10 @@ def main() -> int:
             row[t] = 0
             row[f"mask_{t}"] = 0
         for h in ODOR_CATEGORIES:
+            if h in LEFFINGWELL_EXCLUDE:
+                row[f"odor_{h}"] = 0
+                row[f"mask_odor_{h}"] = 0   # head excluded -> unobserved on this row
+                continue
             row[f"odor_{h}"] = int(r[f"odor_{h}"])
             row[f"mask_odor_{h}"] = 1
         row["flavor_tags"] = []
