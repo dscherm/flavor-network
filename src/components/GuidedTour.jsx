@@ -112,9 +112,12 @@ export default function GuidedTour({
         sceneHandle.clearFilters();
       } else if (kind === 'clusterDemo' && sceneHandle.runClusterDemo) {
         // Stage 4: clearFilters first so the layout settles, then run
-        // the highlight + fly choreography from the handle.
+        // the highlight + fly choreography from the handle. clearFilters
+        // mutates a ref that runClusterDemo reads; running both in the
+        // same tick reads the stale pre-clear ref and the demo silently
+        // no-ops. Defer the demo a tick so clearFilters lands first.
         sceneHandle.clearFilters?.();
-        sceneHandle.runClusterDemo();
+        setTimeout(() => sceneHandle.runClusterDemo(), 0);
       } else if (kind === 'ingredientGlow' && sceneHandle.runIngredientGlow) {
         sceneHandle.runIngredientGlow();
       } else if (kind === 'engageFinalAffinity' && sceneHandle.engageFinalAffinity) {
