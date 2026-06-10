@@ -35,6 +35,17 @@ ROOT = Path(__file__).resolve().parents[2]
 IN_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds.parquet"
 OUT_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds_p3b.parquet"
 
+# Heads whose Leffingwell labels we do NOT merge, because the two label
+# sources define the head differently and merging hurts.
+#   woody: our FlavorDB labels count nutty + mushroom as woody (~28% of woody
+#   positives; 19% are woody ONLY because of those tags). Leffingwell maps
+#   woody to {earthy, pine, smoky, woody} only — nutty/mushroom are explicitly
+#   NOT woody there. Merging teaches the model "nutty/mushroom != woody" and
+#   also drops the woody prior (31% positive rate in our data vs 11% in
+#   Leffingwell), so recall on our test labels collapses (-0.157 F1). All five
+#   other odor heads agree well enough to merge and improve.
+LEFFINGWELL_EXCLUDE = {"woody"}
+
 
 def canon(s) -> str | None:
     try:
@@ -76,6 +87,8 @@ def main() -> int:
     existing = df["_canon"].isin(leff_by_canon.index)
     n_existing = int(existing.sum())
     for h in ODOR_CATEGORIES:
+        if h in LEFFINGWELL_EXCLUDE:
+            continue  # keep our original label + mask for this head untouched
         col = f"odor_{h}"
         lab = df.loc[existing, "_canon"].map(leff_by_canon[col])
         df.loc[existing, col] = np.maximum(df.loc[existing, col].values, lab.values)
@@ -92,6 +105,10 @@ def main() -> int:
             row[t] = 0
             row[f"mask_{t}"] = 0          # taste unobserved by Leffingwell
         for h in ODOR_CATEGORIES:
+            if h in LEFFINGWELL_EXCLUDE:
+                row[f"odor_{h}"] = 0
+                row[f"mask_odor_{h}"] = 0   # head excluded -> unobserved on this row
+                continue
             row[f"odor_{h}"] = int(r[f"odor_{h}"])
             row[f"mask_odor_{h}"] = 1      # odor observed
         row["flavor_tags"] = []

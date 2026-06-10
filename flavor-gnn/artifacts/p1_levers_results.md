@@ -63,6 +63,35 @@ Leffingwell's woody distribution (earthy/pine/smoky/woody) conflicts with our
 FlavorDB woody (which still includes nutty/mushroom in the ORIGINAL labels).
 Fix: exclude Leffingwell's woody mapping, or reconcile the woody vocab.
 
+### Woody conflict — diagnosed + fixed (exclude woody from the Leffingwell merge)
+
+Root cause, three compounding factors confirmed on the data:
+1. **Vocabulary disagreement.** Leffingwell maps only {earthy, pine, smoky,
+   woody} → odor_woody. Our FlavorDB woody was built with a broader set that
+   counts nutty + mushroom. Of 432 original woody positives, 121 (28%) carry a
+   nutty/mushroom tag and **81 (19%) are woody ONLY because of nutty/mushroom** —
+   labels Leffingwell explicitly calls NOT woody.
+2. **Prior shift.** Woody positive rate is **31% in our data vs 11% in the
+   Leffingwell augment** (224/1980). Mixing in 1,980 low-woody molecules pulls
+   the model's woody prior down → recall collapses on the 31%-prevalence test set.
+3. **Exact-match mapping gap.** Ingest maps descriptors with exact `dl in kws`,
+   so Leffingwell's `balsamic` descriptor never reaches woody (our keyword is
+   `balsam`), making the augment woody set even sparser than intended.
+
+(1) and (2) push the same direction (systematic woody false-negatives) and are
+the dominant cause; (3) worsens (2). De-noising the *original* woody labels was
+already shown not to help (P1c: odor_woody -0.019).
+
+**Fix applied:** `LEFFINGWELL_EXCLUDE = {"woody"}` in both ingest scripts —
+woody keeps its ORIGINAL labels untouched (existing rows) and is left
+*unobserved* (mask=0) on net-new augment rows, so Leffingwell contributes zero
+woody signal. The other 5 odor heads still merge and keep their lifts.
+Regenerated `compounds_p3b.parquet` + `compounds_p3b_trainonly.parquet` confirm:
+augment woody = 0 pos / 0 obs; original woody = 432 / 1383 unchanged.
+Expected effect: odor_woody returns to its ~0.517 baseline while floral/fatty/
+fruity/green/spicy retain their gains. **Pending: re-run the 5-seed train-only
+scaffold eval to confirm the F1 numbers.**
+
 **Caveat:** taste heads wobbled (sweet +0.05, sour -0.11) because the train-only
 test set (1,273 pure-original) differs in size/composition from the baseline split
 (~1,991). Leffingwell adds no taste signal, so that wobble is test-set noise — the
@@ -75,4 +104,6 @@ P1a (readout) and P1c (de-noise) left the weak odor heads flat; Leffingwell lift
 floral +0.12 and fatty +0.14 on rigorous measurement. This confirms the weak-odor
 ceiling was a DATA-QUANTITY problem, exactly as the failed model-side levers implied.
 
-Next: (a) reconcile woody, (b) add goodscents/arctander for more positives.
+Next: (a) ~~reconcile woody~~ DONE — woody excluded from the merge (see above);
+re-run the train-only eval to confirm. (b) add goodscents/arctander for more
+positives.
