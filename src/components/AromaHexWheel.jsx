@@ -265,15 +265,15 @@ export default function AromaHexWheel({ ingredients = [], nodes, onTapAroma, wid
       {aroma?.compoundCount > 0 && (
         <div
           className="w-full max-w-[240px] px-2 mb-1 -mt-0.5"
-          title={`Aroma for ${aroma.compoundNames.join(', ')} synthesized from constituent ingredients.`}
+          title={`Aroma for ${aroma.compoundNames.join(', ')} is a rough estimate blended from constituent ingredients — a mixed dish isn't a single molecule, so this is a hint, not a measured profile.`}
         >
           <p
             className="text-[11px] sm:text-[10px] leading-tight text-center"
             style={{ fontFamily: FONT_FAMILY, color: '#a86c2a' }}
           >
             {aroma.compoundCount === 1
-              ? `${aroma.compoundNames[0]} predicted from components`
-              : `${aroma.compoundCount} ingredients predicted from components`}
+              ? `${aroma.compoundNames[0]} — aroma estimated from components`
+              : `${aroma.compoundCount} ingredients — aroma estimated from components`}
           </p>
         </div>
       )}

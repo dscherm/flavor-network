@@ -2218,3 +2218,300 @@ Two threads:
   ]
 }
 ```
+
+---
+
+# GNN Weak-Head Lift + Measurement Gate (2026-06-09)
+
+**Source specs (interactive bridge design — PENDING APPROVAL, no commits):**
+- `.omc/specs/deep-interview-gnn-weak-head-lift-2026-06-09.md`
+- `.omc/specs/deep-interview-compound-food-aggregation-2026-06-09.md`
+
+**Derived from research artifacts:**
+- `.omc/research/gnn-audit-2026-06-09.md` (code audit, 596 lines)
+- `.omc/research/deep-research-flavor-gnn-2026-06-09.md` (literature, 85 claims)
+
+**Sequencing rule:** P0 (GNN-LIFT-P0*) is a hard gate. No P1+ feature lever may be
+reported as a win until its delta is measured under the scaffold-split + held-out
+calibration baseline. priority field encodes phase order.
+
+```json
+{
+  "id": "GNN-LIFT-P0a",
+  "title": "Scaffold-split CV (GroupKFold on Bemis-Murcko scaffold) — replace random StratifiedKFold",
+  "category": "ml",
+  "priority": 1,
+  "description": "Audit Finding 2.1: every compound split is random (train_multitask.py:370 StratifiedKFold(shuffle=True), train_multitask.py:146 + calibrate_thresholds.py:93 train_test_split, cross_validate.py:155). FartDB contributes ~9,500 artificial-sweetener analogues + 1,513 homologous-series sour acids — random splitting puts near-identical molecules in both train and test, inflating reported CV F1 (sweet 0.898, sour 0.830) relative to the out-of-scaffold generalization deployment actually needs. Replace the CV splitter with GroupKFold(n_splits=5) keyed on MurckoScaffoldSmiles. Emit cv_results_scaffold.json. Report per-head F1 delta vs the random-split baseline so the inflation is quantified.",
+  "blocked_on": null,
+  "acceptance": [
+    "CV loop uses GroupKFold keyed on rdkit MurckoScaffoldSmiles(smiles) (fallback to full SMILES when scaffold is empty)",
+    "New artifact flavor-gnn/artifacts/cv_results_scaffold.json written; random-split cv_results.json preserved for comparison",
+    "Per-head F1 delta (scaffold vs random) reported in a committed table or the artifact",
+    "Mask-aware F1 evaluation preserved (eval only on observed rows, per the Path-A pipeline)",
+    "No production model/threshold artifact overwritten"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P0b",
+  "title": "Held-out threshold calibration — sweep on one test half, report on the other",
+  "category": "ml",
+  "priority": 1,
+  "description": "Audit Finding 3.2: calibrate_thresholds.py:139-159 sweeps 19 thresholds and reports the best F1 on the SAME te_idx it evaluates — threshold selection on the test set. Signature confirmed by inverse n_pos↔lift (umami +0.219, salty +0.195, sweet +0.029). Split te_idx 50/50 (seed+1): sweep thresholds on te_cal, report F1 on te_rep. Emit threshold_calibration_heldout.json. The umami 0.731 figure stacks this leak with P0c — its honest value is unknown until both land.",
+  "blocked_on": null,
+  "acceptance": [
+    "calibrate_thresholds.py splits te_idx into calibration/report halves; thresholds chosen on calibration half only",
+    "Reported calibrated F1 computed on the held-out report half",
+    "New artifact threshold_calibration_heldout.json; v3 threshold_calibration.json preserved",
+    "Shipped odor_thresholds.json / ingredient_profile_thresholds.json NOT overwritten in this task"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P0c",
+  "title": "Validation-based epoch selection — kill best-epoch-on-test",
+  "category": "ml",
+  "priority": 1,
+  "description": "Audit Finding 2.3: _train_one_fold lines 358-359 (and train lines 247-253) report per-task max F1 across all 15 epochs ON the test fold — early-stopping on test. Confirmed by scattered best-epochs in m3_multitask.json (sweet@11, umami@8, spicy@14). Add a 10% validation split inside the fold; select the reporting epoch by validation loss; report test F1 at that epoch. Expected to reduce odor_fatty by ~0.10, odor_floral by ~0.05.",
+  "blocked_on": null,
+  "acceptance": [
+    "10% validation split carved from train inside _train_one_fold (and single-split train path)",
+    "Epoch selected by validation loss, NOT by test F1",
+    "Test F1 reported at the validation-selected epoch only",
+    "Re-baselined numbers written to cv_results_scaffold.json (composes with P0a)"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P0d",
+  "title": "Delete src/eval/cross_validate.py (unmasked CV trap)",
+  "category": "ml",
+  "priority": 1,
+  "description": "Audit Finding 2.2: src/eval/cross_validate.py is a second, DEAD CV path with no label masking (lines 41-51 build raw 0/1 Y; 98-104 compute F1 over all rows incl. unobserved forced-zeros; 64-67 unmasked pos_weight). Its {summary:{...}} schema matches no current artifact — it did not produce the live results. Run today it would falsely suggest masking made things worse. Delete it so no future agent runs the wrong CV. Confirm no import references it first.",
+  "blocked_on": null,
+  "acceptance": [
+    "grep confirms no module imports src/eval/cross_validate.py",
+    "File deleted",
+    "Authoritative CV remains train_multitask.cross_validate (the mask-aware Path A)",
+    "Test suite + any CV entrypoint still run"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P1a",
+  "title": "Readout: concat mean+max+sum pooling (or set2set), head input 128→384",
+  "category": "ml",
+  "priority": 2,
+  "description": "Convergent lever (audit Finding 1.2 + research claim 59: set2set lifts odor on sparse graphs; claim 65: GNNs beat fingerprints by reweighting fragments). global_mean_pool (mpnn.py:19,47) dilutes a single odorant fragment ~40x on large molecules. Concatenate global_mean_pool + global_max_pool + global_add_pool (or use set2set); widen head input from 128 to 384 (mpnn.py:33). Measure odor-head delta under the P0 scaffold-split baseline. NOT SMILES enumeration (acts after the permutation-invariant backbone).",
+  "blocked_on": "GNN-LIFT-P0a",
+  "acceptance": [
+    "Readout concatenates mean+max+sum (or set2set) pooled representations",
+    "Head input dim updated to match (384 for 3-way concat)",
+    "Retrained + evaluated under scaffold-split CV (GNN-LIFT-P0a)",
+    "Per-head F1 delta vs P0 baseline reported; odor heads the primary target"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P1b",
+  "title": "Add 8-dim RDKit physchem descriptor vector before the head",
+  "category": "ml",
+  "priority": 2,
+  "description": "Audit Finding 1.3 + research claims 49,50 (FP+GNN fusion → sweet F1 0.852). featurize.py:25-60 has no global descriptor channel; the model reconstructs pKa/volatility blindly. Concatenate a normalized 8-dim RDKit vector (MolWt, TPSA, NumHDonors, NumHBAcceptors, NumRotatableBonds, MolLogP, FractionCsp3, RingCount) after the readout, before the head. RDKit already imported — no new dependency. logP/MW separate volatile odorants from the hydrophilic FartDB sweeteners that may confound odor.",
+  "blocked_on": "GNN-LIFT-P0a",
+  "acceptance": [
+    "8-dim RDKit descriptor vector computed per molecule, normalized (z-score or min-max over train)",
+    "Concatenated into the head input alongside the graph readout",
+    "No new package dependency added",
+    "Retrained + evaluated under scaffold-split CV; sour/fruity/fatty/bitter deltas reported"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P1c",
+  "title": "De-noise odor labels — curated descriptor→head lookup replaces substring buckets",
+  "category": "ml",
+  "priority": 2,
+  "description": "Audit Finding 2.4 + research claims 31,32 (predictability tracks label frequency; de-noising existing positives is multiplicative where DREAM's trickle was below noise). build_compounds.py:47-82 derives all 6 odor labels by substring matching free-text descriptors; ambiguous tokens generate false positives (warm→spicy inside 'warm-floral', coconut/creamy→fatty, mushroom→woody, tea→green, nutty→woody). Replace ODOR_CATEGORIES substring buckets with an explicit curated descriptor→head lookup table; map ambiguous tokens to 'skip'. Natural vehicle: the skipped N1-D2 curation task. Re-derive labels, retrain.",
+  "blocked_on": "GNN-LIFT-P0a",
+  "acceptance": [
+    "ODOR_CATEGORIES substring matching replaced by an explicit descriptor→head mapping (CSV or dict)",
+    "Ambiguous tokens (warm, coconut, creamy, nutty, tea, mushroom) routed to skip, not a head",
+    "Token (not substring) matching to avoid 'warm' matching inside longer words",
+    "Labels re-derived; model retrained + evaluated under scaffold-split CV; floral/spicy/fatty deltas reported"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P1d",
+  "title": "Drop the salty head (num_tasks 11→10)",
+  "category": "ml",
+  "priority": 2,
+  "description": "Audit Finding 2.5 + research claims 1,2,3,4,36,52: salty is ENaC ion-channel mediated (ion flux, not ligand binding); FART and Dutta 2023 both exclude it by design; 10 test positives make any F1 estimate noise. The salty head contributes a noisy unlearnable gradient to the shared backbone. Remove 'salty' from TASKS (train_multitask.py:31); set num_tasks=10. Run as a clean ablation alongside the P1 retrain. UI already suppresses salty via the 0.4 gate.",
+  "blocked_on": "GNN-LIFT-P0a",
+  "acceptance": [
+    "'salty' removed from TASKS; num_tasks=10 throughout train/eval/calibrate",
+    "Ablation delta on the remaining 10 heads reported (expected small)",
+    "Downstream consumers (gnn_entropy.json schema, thresholds) handle 10 heads without salty",
+    "chemdataset-status.md salty policy unchanged (still do-not-ship)"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P1e",
+  "title": "LR schedule + longer training with validation early-stop on rare heads",
+  "category": "ml",
+  "priority": 3,
+  "description": "Audit Finding 3.4 + research claim 66 (POM trained 150 epochs, lr 5e-4→1e-5). Flat Adam lr=1e-3 for 15 epochs (train_multitask.py:166,322) undertrains rare heads (umami/odors still decreasing at epoch 15 in many folds). Add cosine annealing + more epochs, gated by the validation early-stop from P0c so epoch selection stays honest. Pairs naturally with GNN-LIFT-P0c.",
+  "blocked_on": "GNN-LIFT-P0c",
+  "acceptance": [
+    "Cosine (or step) LR schedule added; max epochs increased",
+    "Validation early-stopping prevents overfit and keeps epoch selection honest",
+    "Rare-head (umami, odor) F1 delta vs P0 baseline reported under scaffold split"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P2a",
+  "title": "Ship noisy_or compound→ingredient aggregation + recalibrate + 0.4-gate decision",
+  "category": "ml",
+  "priority": 4,
+  "description": "Audit Lever 1: aggregation_benchmark.json already shows noisy_or beats the shipped topk_mean by +0.091 chef macro-F1 (1.9x) — sour/fruity/green/spicy go from 0 above-threshold ingredients to hundreds/thousands. Zero model retraining, so independent of the P0 gate. TWO required internal steps before shipping: (step 1) re-run recalibrate_ingredient_thresholds.py on noisy_or outputs FIRST (noisy_or probs run systematically higher; otherwise every head over-fires); (step 2) make an explicit documented decision on the MIN_MOLECULE_LEVEL_F1=0.4 gate (recalibrate_ingredient_thresholds.py:39,93-95) which currently disables spicy+salty — quantify what's gated off so the +0.091 headline isn't over-claimed. Research nuance: noisy_or is correct for compound→ingredient; the linear-mean failure mode is the separate compoundFoods.js mixture problem (sibling spec).",
+  "blocked_on": null,
+  "acceptance": [
+    "aggregate_predictions.py run with --strategy noisy_or; new gnn_entropy.json candidate generated (not yet swapped into public/)",
+    "recalibrate_ingredient_thresholds.py re-run on noisy_or outputs; new ingredient thresholds",
+    "Explicit written decision on the 0.4 head-disable gate + a table of which heads/ingredients it gates off",
+    "Shippable portion (sour/fruity/green/bitter, ≥0.4 cal F1) quantified separately from the gated portion",
+    "A/B visual or chef sign-off captured before any public/proDataset swap"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P3a",
+  "title": "[SPECULATIVE] Auxiliary frozen-MoLFormer embeddings as extra head features",
+  "category": "ml",
+  "priority": 5,
+  "description": "Research claims 20,21,22,24,42: a pretrained MoLFormer with no olfactory fine-tuning only MATCHES the graph POM on odor and stays below it on expert labels; fine-tuning made odor worse. So: do NOT replace the backbone, do NOT fine-tune. Low-risk experiment only — concatenate FROZEN MoLFormer embeddings as auxiliary features next to the GINEConv readout, measure under scaffold split. Expect a small lift; abandon if below the (now wider) noise floor. Explicitly optional.",
+  "blocked_on": "GNN-LIFT-P1a",
+  "acceptance": [
+    "Frozen MoLFormer embeddings (no fine-tune) concatenated as auxiliary head features behind a flag",
+    "Evaluated under scaffold-split CV vs the P1 model",
+    "Decision recorded: ship only if delta clears the scaffold-split fold-std; else document as negative result",
+    "Backbone unchanged; no new heavyweight runtime dependency shipped to the app"
+  ]
+}
+```
+
+```json
+{
+  "id": "GNN-LIFT-P3b",
+  "title": "[SPECULATIVE] Pyrfume odor-label ingestion (research/measurement; license-gated)",
+  "category": "ml",
+  "priority": 5,
+  "description": "Research claims 15-19,71-75: Pyrfume aggregates 40+ datasets / 20,000+ odorants, SMILES+CID standardized, REST/Zenodo. LICENSE: non-commercial FAIR (Decision 2: ingestion allowed for measurement, flagged NEVER-SHIP pending a legal-review gate). Ingest odor labels, join on SMILES, measure odor-head lift under scaffold split. Do NOT bake into the shipped compounds.parquet without the legal gate. Compare against the de-noise lever (P1c) — cleaning existing labels may beat trickle-ingesting new ones (the DREAM lesson).",
+  "blocked_on": "GNN-LIFT-P1c",
+  "acceptance": [
+    "Pyrfume odor labels ingested into a GATED parquet branch (INCLUDE_PYRFUME flag, default off), license recorded as non-commercial",
+    "Odor-head F1 delta measured under scaffold split vs P1c de-noised baseline",
+    "Production compounds.parquet NOT modified; ingestion stays behind the flag pending legal gate",
+    "Decision recorded: does Pyrfume clear the noise floor where DREAM did not?"
+  ]
+}
+```
+
+---
+
+# Compound-Food Aroma Aggregation Fix (2026-06-09)
+
+**Source spec:** `.omc/specs/deep-interview-compound-food-aggregation-2026-06-09.md`
+Current `synthesizeCompoundProfile` (compoundFoods.js:610-648) is a weighted LINEAR
+MEAN — the exact aggregation research claim 78 says fails for mixtures. Option A is
+the honesty floor; B is the real fix; C is a stretch.
+
+```json
+{
+  "id": "CF-AGG-1",
+  "title": "Option A — badge compound-food profiles as heuristic estimates (honesty floor)",
+  "category": "ui",
+  "priority": 1,
+  "description": "Research Angle 4 (claims 27,78): mixture aroma is non-linear/emergent and NOT a linear combination of constituents (r²=0.47 MPNN / 0.021 GIN). The current weighted-mean synthesis over-claims. Lowest-effort fix: the UI badge for source:'compound' profiles must read as an explicit estimate ('estimated from components — not a measured profile') and be visually distinguished from model-predicted profiles. No aggregation-math change. This is the honesty floor regardless of whether B/C ship.",
+  "blocked_on": null,
+  "acceptance": [
+    "UI badge copy for source:'compound' frames the profile as an estimate/heuristic, not a measurement",
+    "Synthesized profiles visually distinct from model-predicted ones in IngredientPanel + AromaHexWheel",
+    "source:'compound' provenance flag preserved end-to-end",
+    "Existing tests pass; npm run build succeeds"
+  ]
+}
+```
+
+```json
+{
+  "id": "CF-AGG-2",
+  "title": "Option B — non-linear constituent aggregation (noisy-OR presence + saturation muting)",
+  "category": "data",
+  "priority": 2,
+  "description": "Replace the pure p*weight/availableWeight linear mean (compoundFoods.js:627-639) with a documented non-linear rule modeling the two empirical mixture effects (claims 27,78): (1) presence/union — a noisy-OR-style per-task boost so a strong single constituent isn't washed out by weak others; (2) muting/saturation — a damping term so co-present competing notes don't sum unbounded. Closed-form heuristic, NO model retraining. Preserve the ≥50% coverage gate (line 633), alias/SUBSTITUTES resolution, and source:'compound' flag. Approval-gated: only if Option B is chosen over staying at A.",
+  "blocked_on": null,
+  "acceptance": [
+    "Linear-mean aggregation replaced by the documented non-linear rule (noisy-OR presence + saturation)",
+    "≥50% constituent-coverage gate, alias/substitute resolution, and provenance flag all preserved",
+    "Behavior documented inline (why non-linear; what each term models)",
+    "Existing tests pass; npm run build succeeds"
+  ]
+}
+```
+
+```json
+{
+  "id": "CF-AGG-3",
+  "title": "Option B validation — chef fixture set proves non-linear beats linear-mean",
+  "category": "data",
+  "priority": 2,
+  "description": "Tune + validate the CF-AGG-2 rule against a chef-validated fixture of ≥6 known compound foods (mayonnaise, BBQ sauce, vinaigrette, tonkatsu sauce, ponzu, +1). The fixture asserts the synthesized top-N tasks match chef expectation better than the linear-mean baseline. This is the gate that makes Option B defensible rather than just different.",
+  "blocked_on": "CF-AGG-2",
+  "acceptance": [
+    "Fixture set of ≥6 compound foods with chef-expected top-N aroma/taste tasks",
+    "Test asserts non-linear rule's top-N matches chef expectation ≥ linear-mean baseline on the fixture",
+    "Tuning parameters (boost/damping constants) recorded with rationale",
+    "Existing tests pass; npm run build succeeds"
+  ]
+}
+```
+
+```json
+{
+  "id": "CF-AGG-4",
+  "title": "[STRETCH] Option C — learned attention/Set2Set constituent aggregator",
+  "category": "ml",
+  "priority": 4,
+  "description": "Research claims 10,11,44,46 (POMMix/AROMMA: learned attention aggregation, permutation-invariant, +up to 19.1% AUROC over fixed pooling). Only if the badge becomes a first-class feature: prototype an attention/Set2Set aggregator over constituent embedding vectors, A/B vs Option B on the CF-AGG-3 fixture, ship only if it beats B by a clear margin. Likely overkill for a gap-fill badge — recorded as a stretch lever, default not pursued.",
+  "blocked_on": "CF-AGG-3",
+  "acceptance": [
+    "Attention/Set2Set aggregator prototyped over constituent vectors",
+    "A/B vs Option B on the chef fixture; ships only on a clear margin",
+    "If not pursued, decision recorded as 'B sufficient for a badge'"
+  ]
+}
+```

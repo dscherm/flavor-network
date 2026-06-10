@@ -530,13 +530,16 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             {node.gnnProbsSource === 'compound' && (
               <div className="mb-2 px-2 py-1.5 rounded border border-amber-500/30 bg-amber-500/5">
                 <p className="text-[10px] text-amber-300/90 font-medium mb-0.5">
-                  Predicted from components
+                  Estimated from components
                 </p>
                 <p className="text-[10px] text-gray-400 leading-snug">
                   {node.gnnConstituentsDescription
                     ? `${node.gnnConstituentsDescription} — `
                     : ''}
-                  blended from {(node.gnnConstituents || []).join(', ')}.
+                  rough estimate blended from {(node.gnnConstituents || []).join(', ')}.
+                  This is a mixed dish, not a single molecule — the real aroma of a
+                  blend isn't a simple average of its parts, so treat this as a hint,
+                  not a measured profile.
                 </p>
               </div>
             )}
@@ -565,7 +568,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             )}
             <p className="text-[10px] text-gray-500 mb-1">
               {node.gnnProbsSource === 'compound'
-                ? 'Aggregated taste + aroma profile of the constituents:'
+                ? 'Rough estimate blended from the constituents (not a measured profile):'
                 : 'Our AI analyzed these molecular structures and predicts:'}
             </p>
             <div className="space-y-1">
