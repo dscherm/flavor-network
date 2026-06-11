@@ -3,9 +3,8 @@ import Fuse from 'fuse.js';
 import { getCocktailScope, getSauceScope } from '../data/labScope.js';
 import { getCocktailRoles, getSauceRoles } from '../data/ingredientRoles.js';
 import RecipeNotebook from './RecipeNotebook.jsx';
-import RecipeFlavorProfileCard from './RecipeFlavorProfileCard.jsx';
-import useIsMobile from '../hooks/useIsMobile.js';
-import IngredientSuggestionsPopout from './IngredientSuggestionsPopout.jsx';
+import SuggestionCardDeck from './SuggestionCardDeck.jsx';
+import RecipeFlavorProfilesCard from './RecipeFlavorProfilesCard.jsx';
 import RecipeTypePills from './RecipeTypePills.jsx';
 import IngredientPicker from './IngredientPicker.jsx';
 import { hapticLight, hapticMedium } from '../utils/native.js';
@@ -50,6 +49,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [activeTab, setActiveTab] = useState('all');
   const [focusedIngredient, setFocusedIngredient] = useState(null);
   const [suggestionsMode, setSuggestionsMode] = useState(false);
+  const [profilesOpen, setProfilesOpen] = useState(false);
   // B-version P2: IngredientPicker modal (Add/Replace) — opens via
   // the "Add ingredient" CTA in the chrome row. Replace-target null
   // means "add new"; non-null means "replace this ingredient".
@@ -59,12 +59,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [recipeType, setRecipeType] = useState(handoff?.recipeType || null);
   const [recipeImageUrl, setRecipeImageUrl] = useState(null);
   const [focalKey, setFocalKey] = useState(null);
-  // B-version (2026-06-03): per user spec, iOS users see the flavor-
-  // profile radars one ingredient at a time; web users see the
-  // aggregate of every ingredient in the bowl. profileSelectedIdx
-  // controls which ingredient drives the radars (null = aggregate).
-  const isMobile = useIsMobile();
-  const [profileSelectedIdx, setProfileSelectedIdx] = useState(null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -75,21 +69,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const searchContainerRef = useRef(null);
 
   useEffect(() => { setSelectedStructure(null); }, [labMode]);
-
-  // On iOS, default the flavor-profile selection to the first
-  // ingredient (or null when the bowl is empty). On web we always
-  // pass null so the radars show the aggregate of every ingredient.
-  useEffect(() => {
-    if (!isMobile) {
-      setProfileSelectedIdx(null);
-      return;
-    }
-    setProfileSelectedIdx((prev) => {
-      if (recipeIngredients.length === 0) return null;
-      if (prev == null || prev >= recipeIngredients.length) return 0;
-      return prev;
-    });
-  }, [isMobile, recipeIngredients.length]);
 
   // Name-only adapter cached per render for downstream string[] consumers.
   const recipeNames = useMemo(() => bowlNames(recipeIngredients), [recipeIngredients]);
@@ -464,6 +443,16 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             >
               {quantityBusy ? '⚖ …' : '⚖ Amounts'}
             </button>
+            <button
+              type="button"
+              data-testid="recipe-chrome-profiles"
+              onClick={() => { setSuggestionsMode(false); setFocusedIngredient(null); setProfilesOpen(true); }}
+              className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap"
+              style={{ fontFamily: FONT_FAMILY }}
+              aria-label="Flavor profiles of the recipe"
+            >
+              ◆ Flavor Profiles
+            </button>
           </>
         )}
         <button
@@ -536,18 +525,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           aromaDisabled={aromaDisabled}
         />
 
-        {/* B-version (2026-06-03): inline flavor-profile card. iOS
-            shows one ingredient at a time (profileSelectedIdx); web
-            shows aggregate. Hidden when bowl is empty. */}
-        {recipeIngredients.length > 0 && (
-          <RecipeFlavorProfileCard
-            ingredients={recipeNames}
-            nodes={fullData?.graph?.nodes}
-            edges={fullData?.graph?.edges}
-            selectedIdx={isMobile ? profileSelectedIdx : null}
-            onSelectIngredient={isMobile ? setProfileSelectedIdx : undefined}
-          />
-        )}
+        {/* Flavor-profile display moved to the "◆ Flavor Profiles" pop-out
+            card (chrome button) — RecipeFlavorProfilesCard. */}
 
       </div>
 
@@ -586,54 +565,48 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         </div>
       )}
 
-      {/* Suggestions overlay — the "Suggestions…" notebook button sets
-          suggestionsMode. Mounts IngredientSuggestionsPopout (add-mode):
-          ✨ Smart completions (FM-P2 set-completion model) above the
-          co-occurrence list. Tapping a suggestion adds it with a
-          quantity-prefilled amount (FM-Q2). */}
+      {/* Suggestions overlay (add) — "✨ Suggest" chrome button. Swipeable
+          card deck: each card shows a candidate + a before→after radar of how
+          it augments the recipe's flavor profile. Add prefills a quantity. */}
       {suggestionsMode && fullData?.graph?.nodes && (
-        <div
-          className="fixed inset-x-0 bottom-0 z-40"
-          data-testid="recipe-suggestions-overlay"
-        >
-          <IngredientSuggestionsPopout
-            ingredient={null}
-            recipeIngredients={recipeNames}
-            bowl={recipeIngredients}
+        <div className="fixed inset-x-0 bottom-0 z-40" data-testid="recipe-suggestions-overlay">
+          <SuggestionCardDeck
+            mode="add"
+            bowlNames={recipeNames}
             nodes={fullData.graph.nodes}
-            edges={fullData.graph.edges}
-            cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
-            labMode="general"
-            recipeType={recipeType}
-            focalKey={focalKey}
             onAdd={(name, amount) => handleAddIngredient(name, amount)}
             onClose={() => setSuggestionsMode(false)}
           />
         </div>
       )}
 
-      {/* Replace overlay — the per-row "R" pill sets focusedIngredient.
-          Mounts the popout in REPLACE-mode: ✨ Smart swaps (set-completion
-          model on the bowl-minus-this-ingredient, filtered to candidates
-          similar to the one being replaced) above the substitute list.
-          Tapping a swap replaces the ingredient in place. */}
+      {/* Replace overlay — the per-row "R" pill sets focusedIngredient. Same
+          card deck in replace-mode: substitutes similar to the focal that fit
+          the recipe, each with its profile delta. Tapping swaps in place. */}
       {focusedIngredient && fullData?.graph?.nodes && (
-        <div
-          className="fixed inset-x-0 bottom-0 z-40"
-          data-testid="recipe-replace-overlay"
-        >
-          <IngredientSuggestionsPopout
+        <div className="fixed inset-x-0 bottom-0 z-40" data-testid="recipe-replace-overlay">
+          <SuggestionCardDeck
+            mode="replace"
             ingredient={focusedIngredient}
-            recipeIngredients={recipeNames}
-            bowl={recipeIngredients}
+            bowlNames={recipeNames}
             nodes={fullData.graph.nodes}
-            edges={fullData.graph.edges}
-            cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
-            labMode="general"
-            recipeType={recipeType}
-            focalKey={focalKey}
             onSwap={(oldName, newName) => { handleSwapIngredient(oldName, newName); setFocusedIngredient(null); }}
             onClose={() => setFocusedIngredient(null)}
+          />
+        </div>
+      )}
+
+      {/* Flavor Profiles overlay — "◆ Flavor Profiles" chrome button. Per-axis
+          carousel with analysis + boost/temper suggestions + a pairings page. */}
+      {profilesOpen && fullData?.graph?.nodes && (
+        <div className="fixed inset-x-0 bottom-0 z-40" data-testid="recipe-profiles-overlay">
+          <RecipeFlavorProfilesCard
+            bowlNames={recipeNames}
+            nodes={fullData.graph.nodes}
+            onAdd={(name, amount) => handleAddIngredient(name, amount)}
+            onFindCocktail={onFindCocktail ? () => onFindCocktail(recipeNames, recipeTitle) : null}
+            onFindSauce={onFindSauce ? () => onFindSauce(recipeNames, recipeTitle) : null}
+            onClose={() => setProfilesOpen(false)}
           />
         </div>
       )}
