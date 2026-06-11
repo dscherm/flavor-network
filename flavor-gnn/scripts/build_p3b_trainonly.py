@@ -26,9 +26,13 @@ ROOT = Path(__file__).resolve().parents[2]
 IN_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds.parquet"
 OUT_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds_p3b_trainonly.parquet"
 
-# See ingest_leffingwell.py: empty now that nutty is its own head and woody is
-# reconciled across both sources, so Leffingwell woody is merged.
-LEFFINGWELL_EXCLUDE: set[str] = set()
+# Heads where Leffingwell's taxonomy CONFLICTS with our FlavorDB labels and
+# adding it HURTS (measured 2026-06-10, 12-task): odor_woody -0.089 and odor_nutty
+# -0.287 on the pure-original test. The earthy/roasted/woody/nutty cluster is drawn
+# differently by the two sources. Excluding these keeps Leffingwell only where the
+# taxonomies agree (floral +0.12, fatty +0.13, fruity, spicy) and lets woody/nutty
+# keep their FlavorDB-only baseline. Keys are bare head names (ODOR_CATEGORIES keys).
+LEFFINGWELL_EXCLUDE: set[str] = {"woody", "nutty"}
 
 
 def canon(s):

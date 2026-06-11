@@ -35,12 +35,13 @@ ROOT = Path(__file__).resolve().parents[2]
 IN_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds.parquet"
 OUT_PARQUET = ROOT / "flavor-gnn" / "data" / "compounds_p3b.parquet"
 
-# Heads whose Leffingwell labels we do NOT merge. Now empty: woody used to be
-# excluded because our FlavorDB woody conflated nutty into it while Leffingwell
-# keeps them disjoint. That conflict is resolved upstream — nutty is now its own
-# head (odor_nutty) and woody means resinous/earthy/piney in both sources — so
-# Leffingwell woody is re-enabled and merges cleanly.
-LEFFINGWELL_EXCLUDE: set[str] = set()
+# Heads whose Leffingwell labels we do NOT merge — the earthy/roasted/woody/nutty
+# cluster, where the two taxonomies conflict. Measured 2026-06-10 (12-task,
+# pure-original test): adding Leffingwell HURT odor_woody -0.089 and odor_nutty
+# -0.287, while the agreeing heads gained (floral +0.12, fatty +0.13). The nutty
+# split alone did not reconcile the boundary, so we keep woody+nutty on FlavorDB
+# labels only. Keys are bare head names (ODOR_CATEGORIES keys).
+LEFFINGWELL_EXCLUDE: set[str] = {"woody", "nutty"}
 
 
 def canon(s) -> str | None:
