@@ -20,14 +20,15 @@
  * stub here — wiring it to ClusterFocusMode is a P5 follow-up.
  */
 
-import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import RecipeTypePills from './RecipeTypePills.jsx';
 import MakeRecipeCardsGrid, { suggestPortion } from './MakeRecipeCardsGrid.jsx';
 import IngredientPicker from './IngredientPicker.jsx';
 import { predictAmount } from '../ml/quantityRuntime.js';
+import { lazyWithRetry } from '../utils/lazyWithRetry.js';
 
-const CocktailLabV2 = lazy(() => import('./CocktailLabV2.jsx'));
-const SauceLab = lazy(() => import('./SauceLab.jsx'));
+const CocktailLabV2 = lazyWithRetry(() => import('./CocktailLabV2.jsx'));
+const SauceLab = lazyWithRetry(() => import('./SauceLab.jsx'));
 
 const FONT_HAND = 'Caveat, cursive';
 const CHALK_BG = `

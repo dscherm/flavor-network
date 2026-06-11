@@ -1,7 +1,8 @@
-import { useState, useCallback, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef, Suspense } from 'react';
 import useProData from './hooks/useProData.js';
 import { topAffinities } from './data/affinityTiers.js';
-const MoleculeLab = lazy(() => import('./components/MoleculeLab.jsx'));
+import { lazyWithRetry } from './utils/lazyWithRetry.js';
+const MoleculeLab = lazyWithRetry(() => import('./components/MoleculeLab.jsx'));
 // MoleculeOfTheDay shelved — the floating card is no longer mounted, but
 // the component + fetch logic stay in src/components/MoleculeOfTheDay.jsx
 // so we can re-surface it as a feature later (e.g. as a card on the
