@@ -516,6 +516,17 @@ neural set-model is unblocked.
 - **Next:** FM-P2-3 (ONNX export + in-browser parity) to make Flow A servable;
   optionally a popularity-discount reranker for Flow B.
 
+- **FM-P2-FLOWB (tested 2026-06-11 — NEGATIVE, do not ship):** the popularity-
+  discount lever (#1 above) was implemented as **contrastive decoding**
+  (`score = logit(P) − α·logit(baseline)`) and measured against profile
+  fidelity. It **monotonically lowers** on-target fidelity (α0=0.594 → α0.5=0.575
+  → α1.0=0.490 → α1.5=0.426); the low-overlap "discriminativeness" it buys is
+  rare-ingredient junk (`dessert → pork shoulder, vinegar`), not on-target
+  recipes. Full write-up: `flavor-gnn/artifacts/fm_p2_flowb_results.md`
+  (+ `fm_p2_flowb_eval.json`, `scripts/fm_p2_flowb_contrastive.mjs`). **Decision:
+  Flow-B stays unshipped; generation stays seeded (Flow A). Levers #2/#3 require a
+  retrain and are not justified by measured value.**
+
 ### FM-P2-3 (done — model servable in-browser, parity proven)
 - **ONNX export** `public/models/recipe-setcompletion.onnx` (**4 MB**, clean
   opset-17 export — plain Embedding/Linear/matmul, no GINEConv issues) +
