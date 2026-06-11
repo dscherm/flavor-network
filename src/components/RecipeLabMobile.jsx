@@ -292,10 +292,10 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
 
   // Ingredient management — all bowl mutations go through helpers so
   // BowlEntry shape stays canonical (incl. amount preservation on swap).
-  const handleAddIngredient = useCallback((name) => {
+  const handleAddIngredient = useCallback((name, amount = null) => {
     if (!name) return;
     setCenterIngredient(prev => prev || name);
-    setRecipeIngredients(prev => bowlAddIngredient(prev, name));
+    setRecipeIngredients(prev => bowlAddIngredient(prev, name, amount));
     hapticLight();
   }, []);
 
@@ -533,6 +533,32 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
               setPickerReplaceTarget(null);
             }}
             onClose={() => { setPickerOpen(false); setPickerReplaceTarget(null); }}
+          />
+        </div>
+      )}
+
+      {/* Suggestions overlay — the "Suggestions…" notebook button sets
+          suggestionsMode. Mounts IngredientSuggestionsPopout (add-mode):
+          ✨ Smart completions (FM-P2 set-completion model) above the
+          co-occurrence list. Tapping a suggestion adds it with a
+          quantity-prefilled amount (FM-Q2). */}
+      {suggestionsMode && fullData?.graph?.nodes && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-40"
+          data-testid="recipe-suggestions-overlay"
+        >
+          <IngredientSuggestionsPopout
+            ingredient={null}
+            recipeIngredients={recipeNames}
+            bowl={recipeIngredients}
+            nodes={fullData.graph.nodes}
+            edges={fullData.graph.edges}
+            cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
+            labMode="general"
+            recipeType={recipeType}
+            focalKey={focalKey}
+            onAdd={(name, amount) => handleAddIngredient(name, amount)}
+            onClose={() => setSuggestionsMode(false)}
           />
         </div>
       )}

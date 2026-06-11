@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { getNeighborsEnriched } from '../data/graph.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { TASTE_COLORS } from '../utils/color.js';
@@ -7,6 +7,31 @@ import { roleOf, rolesCompatible } from '../data/ingredientRoles.js';
 import { rankSuggestions } from '../data/recipeSuggestionEngine.js';
 import { rankSauces } from '../data/sauceRecommendation.js';
 import { rankSeasonings } from '../data/seasoningRecommendation.js';
+import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
+import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
+
+// FM-P2 set-completion model ("✨ Smart completions"). Lazy module-level
+// singleton so the 4MB ONNX + onnxruntime-web load at most once per session,
+// shared across every popout mount.
+let _recipeModelPromise = null;
+function getRecipeModel() {
+  if (!_recipeModelPromise) {
+    _recipeModelPromise = import('../ml/recipeRuntime.js')
+      .then((m) => m.loadRecipeModel().then((model) => ({ ...m, model })))
+      .catch(() => null);
+  }
+  return _recipeModelPromise;
+}
+
+// Flag: default ON; escape via localStorage.FN_RECIPE_MODEL='false'. The smart
+// group is purely additive, so OFF / load-failure just hides it.
+function recipeModelEnabled() {
+  try {
+    if (typeof localStorage !== 'undefined'
+        && localStorage.getItem('FN_RECIPE_MODEL') === 'false') return false;
+  } catch { /* privacy mode — fall through to default ON */ }
+  return true;
+}
 
 // 2026-05-27 (batch 6 chef-vocab): renamed 'fatty' → 'creamy'.
 const ODOR_KEYS = ['fruity', 'floral', 'green', 'woody', 'creamy'];
@@ -431,6 +456,73 @@ export default function IngredientSuggestionsPopout({
     }, 5);
   }, [isAddMode, bowl, focalKey, recipePairs, globalCount, nodes, recipeType]);
 
+  // ✨ Smart completions (FM-P2 set-completion model). Add-mode only,
+  // flag-gated, lazy. Conditions on the bowl's auto-derived cuisine. Purely
+  // additive: flag-off / load-failure / no graph-valid names → empty group,
+  // co-occurrence list below is untouched.
+  const bowlNames = useMemo(() => {
+    if (Array.isArray(bowl) && bowl.length > 0) {
+      return bowl.map((b) => b?.ingredient).filter(Boolean);
+    }
+    return recipeIngredients || [];
+  }, [bowl, recipeIngredients]);
+
+  const [smartSuggestions, setSmartSuggestions] = useState([]);
+  const [smartCuisine, setSmartCuisine] = useState(null);
+  useEffect(() => {
+    if (!isAddMode || !recipeModelEnabled() || bowlNames.length === 0 || !nodes) {
+      setSmartSuggestions([]);
+      setSmartCuisine(null);
+      return undefined;
+    }
+    let cancelled = false;
+    getRecipeModel()
+      .then((rt) => {
+        if (cancelled || !rt || !rt.model) return undefined;
+        const cuisine = deriveBowlCuisine(bowlNames, nodes, rt.model.meta.cuisine_vocab);
+        return rt.suggestIngredients(bowlNames, { cuisine, k: 12 }, rt.model).then((sugg) => {
+          if (cancelled) return;
+          const bowlSet = new Set(bowlNames);
+          const out = [];
+          for (const s of sugg) {
+            if (bowlSet.has(s.name)) continue;
+            if (scopeFilter && !scopeFilter.has(s.name.toLowerCase())) continue;
+            const node = nodes.get(s.name);
+            if (!node) continue;
+            out.push({ name: s.name, node });
+            if (out.length >= 8) break;
+          }
+          setSmartSuggestions(out);
+          setSmartCuisine(cuisine);
+        });
+      })
+      .catch(() => {
+        if (!cancelled) { setSmartSuggestions([]); setSmartCuisine(null); }
+      });
+    return () => { cancelled = true; };
+  }, [isAddMode, bowlNames, nodes, scopeFilter]);
+
+  // Quantity-aware add. Preload the FM-Q2 artifact once so a tapped
+  // suggestion can prefill an editable amount synchronously (no await in the
+  // click path → onAdd fires immediately, preserving the existing add
+  // contract). Until it loads — or for any unknown ingredient — onAdd is
+  // called with just the name (prior behavior, single-arg).
+  const quantityCtxRef = useRef(null);
+  useEffect(() => {
+    let cancelled = false;
+    loadQuantityModel().then((ctx) => { if (!cancelled) quantityCtxRef.current = ctx; });
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleAdd = (name) => {
+    if (!name) return;
+    const amount = quantityCtxRef.current
+      ? predictAmountFromCtx(name, quantityCtxRef.current)
+      : null;
+    if (amount) onAdd?.(name, amount);
+    else onAdd?.(name);
+  };
+
   const tasteOptions = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'spicy', 'pungent', 'astringent'];
   const aromaOptions = ODOR_KEYS;
   const showCuisine = labMode !== 'cocktail' && labMode !== 'sauce';
@@ -484,6 +576,47 @@ export default function IngredientSuggestionsPopout({
         </div>
         <span title="Match strength" className="text-[#a09070]">★</span>
       </div>
+
+      {/* ✨ Smart completions (FM-P2 set-completion model). Add-mode only;
+          a distinct group ABOVE the co-occurrence list. The model learned
+          what completes a recipe (beat the popularity baseline on held-out
+          reconstruction) and is cuisine-aware. Tap → handleAdd (quantity-
+          prefilled). Hidden when the flag is off / model unavailable. */}
+      {isAddMode && smartSuggestions.length > 0 && (
+        <div
+          className="flex flex-col gap-1 px-2 py-1.5 flex-shrink-0 border-b border-[#e8dcc0]"
+          data-testid="smart-completions"
+        >
+          <p className="text-[10px] uppercase tracking-wider text-[#a09070] leading-none px-1">
+            ✨ Smart completions
+            {smartCuisine && (
+              <span className="ml-1 normal-case tracking-normal text-[#b8a070]">· {smartCuisine}</span>
+            )}
+          </p>
+          <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            {smartSuggestions.map((s) => (
+              <button
+                key={`smart-${s.name}`}
+                type="button"
+                onClick={() => handleAdd(s.name)}
+                title={`Add ${s.name} (model suggestion)`}
+                className="flex-shrink-0 px-3 rounded-full border text-xs whitespace-nowrap transition-colors"
+                style={{
+                  minHeight: 44,
+                  paddingTop: 6,
+                  paddingBottom: 6,
+                  backgroundColor: '#fff7d6',
+                  borderColor: '#e0c873',
+                  color: '#6a5a2a',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {s.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* §14 food-category filter pills (RL-CATEGORY-FILTER). Sticky
           row above the taste/aroma filter row. Single-select; tap same
@@ -541,7 +674,7 @@ export default function IngredientSuggestionsPopout({
             <button
               key={r.name}
               type="button"
-              onClick={() => onAdd?.(r.name)}
+              onClick={() => handleAdd(r.name)}
               data-testid={`seasoning-chip-${r.name}`}
               className="flex-shrink-0 px-3 rounded-full border text-xs whitespace-nowrap bg-[#fefae0] hover:bg-[#f0e8d0] transition-colors"
               style={{
@@ -630,7 +763,7 @@ export default function IngredientSuggestionsPopout({
                 <button
                   key={c.name}
                   onClick={() => {
-                    if (isAddMode) onAdd?.(c.name);
+                    if (isAddMode) handleAdd(c.name);
                     else onSwap?.(ingredient, c.name);
                   }}
                   className="px-2.5 py-1.5 min-h-[36px] rounded-full bg-white hover:bg-[#fff5e0] active:bg-[#fef0d0] border border-[#c9b99a] transition-colors flex items-center gap-1.5"
