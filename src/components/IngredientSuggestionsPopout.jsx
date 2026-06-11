@@ -23,6 +23,20 @@ function getRecipeModel() {
   return _recipeModelPromise;
 }
 
+// Cosine similarity between two gnnProbs objects ({head: prob}). Used in
+// replace-mode to keep only swaps whose flavor profile resembles the focal.
+function profileCosine(a, b) {
+  if (!a || !b) return 0;
+  let dot = 0, na = 0, nb = 0;
+  for (const k of Object.keys(a)) {
+    const va = a[k] || 0;
+    na += va * va;
+    if (k in b) dot += va * (b[k] || 0);
+  }
+  for (const k of Object.keys(b)) { const vb = b[k] || 0; nb += vb * vb; }
+  return (na && nb) ? dot / (Math.sqrt(na) * Math.sqrt(nb)) : 0;
+}
+
 // Flag: default ON; escape via localStorage.FN_RECIPE_MODEL='false'. The smart
 // group is purely additive, so OFF / load-failure just hides it.
 function recipeModelEnabled() {
@@ -470,29 +484,48 @@ export default function IngredientSuggestionsPopout({
   const [smartSuggestions, setSmartSuggestions] = useState([]);
   const [smartCuisine, setSmartCuisine] = useState(null);
   useEffect(() => {
-    if (!isAddMode || !recipeModelEnabled() || bowlNames.length === 0 || !nodes) {
+    // Add-mode: complete the whole bowl. Replace-mode: complete the bowl with
+    // the focal REMOVED, then keep only candidates that resemble the focal —
+    // so a swap both fits the recipe and is a plausible substitute.
+    const observed = isAddMode ? bowlNames : bowlNames.filter((n) => n !== ingredient);
+    if (!recipeModelEnabled() || observed.length === 0 || !nodes) {
       setSmartSuggestions([]);
       setSmartCuisine(null);
       return undefined;
     }
+    const focalNode = isAddMode ? null : nodes.get(ingredient);
+    const focalProbs = focalNode?.gnnProbs || null;
+    const focalCat = focalNode?.category || null;
+    const SIM_THRESHOLD = 0.85; // profile-cosine floor for "similar enough to swap"
+
     let cancelled = false;
     getRecipeModel()
       .then((rt) => {
         if (cancelled || !rt || !rt.model) return undefined;
         const cuisine = deriveBowlCuisine(bowlNames, nodes, rt.model.meta.cuisine_vocab);
-        return rt.suggestIngredients(bowlNames, { cuisine, k: 12 }, rt.model).then((sugg) => {
+        // Pull a wider pool in replace-mode since the similarity filter prunes.
+        const k = isAddMode ? 12 : 40;
+        return rt.suggestIngredients(observed, { cuisine, k }, rt.model).then((sugg) => {
           if (cancelled) return;
-          const bowlSet = new Set(bowlNames);
+          const exclude = new Set(bowlNames); // never suggest a bowl member (incl. focal)
           const out = [];
           for (const s of sugg) {
-            if (bowlSet.has(s.name)) continue;
+            if (exclude.has(s.name)) continue;
             if (scopeFilter && !scopeFilter.has(s.name.toLowerCase())) continue;
             const node = nodes.get(s.name);
             if (!node) continue;
-            out.push({ name: s.name, node });
-            if (out.length >= 8) break;
+            if (!isAddMode) {
+              // Similarity gate: same category OR high flavor-profile cosine.
+              const cos = (focalProbs && node.gnnProbs) ? profileCosine(focalProbs, node.gnnProbs) : 0;
+              const sameCat = focalCat && node.category === focalCat;
+              if (!sameCat && cos < SIM_THRESHOLD) continue;
+              out.push({ name: s.name, node, sim: cos });
+            } else {
+              out.push({ name: s.name, node });
+            }
           }
-          setSmartSuggestions(out);
+          if (!isAddMode) out.sort((a, b) => b.sim - a.sim); // most-similar swaps first
+          setSmartSuggestions(out.slice(0, 8));
           setSmartCuisine(cuisine);
         });
       })
@@ -500,7 +533,7 @@ export default function IngredientSuggestionsPopout({
         if (!cancelled) { setSmartSuggestions([]); setSmartCuisine(null); }
       });
     return () => { cancelled = true; };
-  }, [isAddMode, bowlNames, nodes, scopeFilter]);
+  }, [isAddMode, ingredient, bowlNames, nodes, scopeFilter]);
 
   // Quantity-aware add. Preload the FM-Q2 artifact once so a tapped
   // suggestion can prefill an editable amount synchronously (no await in the
@@ -577,18 +610,18 @@ export default function IngredientSuggestionsPopout({
         <span title="Match strength" className="text-[#a09070]">★</span>
       </div>
 
-      {/* ✨ Smart completions (FM-P2 set-completion model). Add-mode only;
-          a distinct group ABOVE the co-occurrence list. The model learned
-          what completes a recipe (beat the popularity baseline on held-out
-          reconstruction) and is cuisine-aware. Tap → handleAdd (quantity-
-          prefilled). Hidden when the flag is off / model unavailable. */}
-      {isAddMode && smartSuggestions.length > 0 && (
+      {/* ✨ Smart group (FM-P2 set-completion model), a distinct group ABOVE
+          the existing list. Add-mode = "Smart completions" (what completes the
+          bowl). Replace-mode = "Smart swaps" (completes the bowl-minus-focal,
+          filtered to candidates similar to the focal → plausible substitutes).
+          Cuisine-aware. Hidden when flag off / model unavailable. */}
+      {smartSuggestions.length > 0 && (
         <div
           className="flex flex-col gap-1 px-2 py-1.5 flex-shrink-0 border-b border-[#e8dcc0]"
-          data-testid="smart-completions"
+          data-testid={isAddMode ? 'smart-completions' : 'smart-swaps'}
         >
           <p className="text-[10px] uppercase tracking-wider text-[#a09070] leading-none px-1">
-            ✨ Smart completions
+            {isAddMode ? '✨ Smart completions' : '✨ Smart swaps'}
             {smartCuisine && (
               <span className="ml-1 normal-case tracking-normal text-[#b8a070]">· {smartCuisine}</span>
             )}
@@ -598,8 +631,8 @@ export default function IngredientSuggestionsPopout({
               <button
                 key={`smart-${s.name}`}
                 type="button"
-                onClick={() => handleAdd(s.name)}
-                title={`Add ${s.name} (model suggestion)`}
+                onClick={() => (isAddMode ? handleAdd(s.name) : onSwap?.(ingredient, s.name))}
+                title={isAddMode ? `Add ${s.name} (model suggestion)` : `Replace ${ingredient} with ${s.name}`}
                 className="flex-shrink-0 px-3 rounded-full border text-xs whitespace-nowrap transition-colors"
                 style={{
                   minHeight: 44,

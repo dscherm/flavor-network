@@ -65,6 +65,17 @@ export async function predictAmount(name, basePath = '') {
   return toAmount(predictQuantity(name, ctx));
 }
 
+/**
+ * Predict editable amounts for a whole bowl of ingredient names. Loads the
+ * model once. Returns [{ name, amount|null }]; amount is the BowlEntry shape.
+ * @returns {Promise<Array<{name:string, amount:object|null}>>}
+ */
+export async function predictBowlAmounts(names, basePath = '') {
+  if (!Array.isArray(names)) return [];
+  const ctx = await loadQuantityModel(basePath);
+  return names.map((name) => ({ name, amount: ctx ? predictAmountFromCtx(name, ctx) : null }));
+}
+
 /** Test seam: reset the singleton so a test can re-stub fetch. */
 export function __resetQuantityRuntime() {
   _ctxPromise = null;

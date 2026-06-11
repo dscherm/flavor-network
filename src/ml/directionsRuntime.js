@@ -142,6 +142,94 @@ export function retrieveDirections(bowlNames, index, vocab, opts = {}) {
   });
 }
 
+// ── Cooking-method extraction ─────────────────────────────────────────────────
+
+/**
+ * Canonical cooking methods + detection regexes, ordered MOST-SPECIFIC FIRST
+ * (stir-fry / deep-fry before plain fry) so the fry family doesn't double-count.
+ */
+export const COOKING_METHODS = [
+  ['stir-fry',   /\bstir[-\s]?fr(?:y|ies|ied|ying)\b/i],
+  ['deep-fry',   /\bdeep[-\s]?fr(?:y|ies|ied|ying)\b/i],
+  ['sauté',      /\bsaut[eé]/i],
+  ['sear',       /\bsear(?:ed|ing|s)?\b/i],
+  ['roast',      /\broast(?:ed|ing|s)?\b/i],
+  ['bake',       /\bbak(?:e|ed|ing)\b/i],
+  ['grill',      /\bgrill(?:ed|ing|s)?\b/i],
+  ['broil',      /\bbroil(?:ed|ing|s)?\b/i],
+  ['braise',     /\bbrais(?:e|ed|ing)\b/i],
+  ['simmer',     /\bsimmer(?:ed|ing|s)?\b/i],
+  ['boil',       /\bboil(?:ed|ing|s)?\b/i],
+  ['steam',      /\bsteam(?:ed|ing|s)?\b/i],
+  ['poach',      /\bpoach(?:ed|ing|es)?\b/i],
+  ['blanch',     /\bblanch(?:ed|ing|es)?\b/i],
+  ['fry',        /\bfr(?:y|ies|ied|ying)\b/i],
+  ['caramelize', /\bcarameli[sz](?:e|ed|ing)\b/i],
+  ['toast',      /\btoast(?:ed|ing|s)?\b/i],
+  ['marinate',   /\bmarinat(?:e|ed|ing)\b|\bmarinade\b/i],
+  ['whisk',      /\bwhisk(?:ed|ing|s)?\b/i],
+  ['blend',      /\bblend(?:ed|ing|s)?\b|\bpur[eé]e/i],
+  ['chill',      /\bchill(?:ed|ing|s)?\b|\brefrigerat|\bfreez/i],
+];
+
+const FRY_FAMILY = new Set(['stir-fry', 'deep-fry', 'fry']);
+
+/**
+ * Detect the set of cooking methods present in a single recipe's steps.
+ * The fry family is collapsed: if a specific fry (stir-fry/deep-fry) matched,
+ * the generic "fry" is not also counted.
+ * @param {string[]} steps
+ * @returns {Set<string>}
+ */
+export function methodsInSteps(steps) {
+  const present = new Set();
+  if (!Array.isArray(steps)) return present;
+  const text = steps.join(' \n ');
+  for (const [name, re] of COOKING_METHODS) {
+    if (re.test(text)) present.add(name);
+  }
+  if (present.has('stir-fry') || present.has('deep-fry')) present.delete('fry');
+  return present;
+}
+
+/**
+ * Rank cooking methods across a set of retrieved recipes by how many of them
+ * use each method (recipe frequency). Returns the top methods — the "likely
+ * cooking methods" for a bowl, grounded in real similar recipes.
+ * @param {Array<{steps:string[]}>} recipes  retrieveDirections() output
+ * @param {{ topN?: number }} opts
+ * @returns {{ methods: Array<{method:string, count:number, frac:number}>, scanned:number }}
+ */
+export function extractCookingMethods(recipes, opts = {}) {
+  const topN = opts.topN ?? 3;
+  const list = Array.isArray(recipes) ? recipes : [];
+  const tally = new Map();
+  for (const rec of list) {
+    for (const m of methodsInSteps(rec?.steps)) {
+      tally.set(m, (tally.get(m) ?? 0) + 1);
+    }
+  }
+  const scanned = list.length;
+  const methods = [...tally.entries()]
+    .map(([method, count]) => ({ method, count, frac: scanned ? count / scanned : 0 }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, topN);
+  return { methods, scanned };
+}
+
+/**
+ * Convenience: retrieve similar recipes for a bowl, then extract the likely
+ * cooking methods. Returns [] when no match.
+ */
+export function retrieveCookingMethods(bowlNames, index, vocab, opts = {}) {
+  const recipes = retrieveDirections(bowlNames, index, vocab, {
+    k: opts.k ?? 8,
+    minOverlap: opts.minOverlap ?? 2,
+  });
+  if (recipes.length === 0) return { methods: [], scanned: 0 };
+  return extractCookingMethods(recipes, { topN: opts.topN ?? 3 });
+}
+
 // ── Adaptation ────────────────────────────────────────────────────────────────
 
 /**

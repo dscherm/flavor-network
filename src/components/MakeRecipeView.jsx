@@ -24,6 +24,7 @@ import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import RecipeTypePills from './RecipeTypePills.jsx';
 import MakeRecipeCardsGrid, { suggestPortion } from './MakeRecipeCardsGrid.jsx';
 import IngredientPicker from './IngredientPicker.jsx';
+import { predictAmount } from '../ml/quantityRuntime.js';
 
 const CocktailLabV2 = lazy(() => import('./CocktailLabV2.jsx'));
 const SauceLab = lazy(() => import('./SauceLab.jsx'));
@@ -83,11 +84,18 @@ export default function MakeRecipeView({
     setPortions((prev) => ({ ...prev, [slotKey]: value }));
   };
   const handleSuggestPortion = (slotKey, name) => {
+    // Instant heuristic fill (synchronous) for immediate feedback, then upgrade
+    // to the data-driven FM-Q2 quantity-model value when it resolves.
     const node = data?.graph?.nodes?.get?.(name);
-    const suggestion = suggestPortion(node, ingredients.length);
-    if (suggestion) {
-      setPortions((prev) => ({ ...prev, [slotKey]: suggestion }));
+    const heuristic = suggestPortion(node, ingredients.length);
+    if (heuristic) {
+      setPortions((prev) => ({ ...prev, [slotKey]: heuristic }));
     }
+    predictAmount(name)
+      .then((amount) => {
+        if (amount?.raw) setPortions((prev) => ({ ...prev, [slotKey]: amount.raw }));
+      })
+      .catch(() => { /* model unavailable → keep heuristic */ });
   };
 
   // Swipe-down at the page level returns to the entry router (per user
