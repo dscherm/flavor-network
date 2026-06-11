@@ -57,7 +57,6 @@ function renderNotebook({
       onRecenter={() => {}}
       onFocusIngredient={() => {}}
       onRequestAdd={() => {}}
-      onRequestSuggestions={() => {}}
       onFindCocktail={onFindCocktail}
       onFindSauce={onFindSauce}
       aromaDisabled={aromaDisabled}

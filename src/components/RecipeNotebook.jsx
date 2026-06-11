@@ -117,7 +117,6 @@ export default function RecipeNotebook({
   onAmountChange,
   onFocusIngredient,
   onRequestAdd,
-  onRequestSuggestions,
   onFindCocktail,
   onFindSauce,
   aromaDisabled = false,
@@ -449,32 +448,6 @@ export default function RecipeNotebook({
               +
             </span>
             <span style={{ color: '#a09070', fontSize: 16 }}>Add ingredient…</span>
-          </button>
-        )}
-        {/* Suggestions row — opens IngredientSuggestionsPopout in
-            add-mode, ranking candidates by avg pair strength to the
-            whole bowl. Mirrors the + Add row's height/style for
-            visual rhythm. */}
-        {onRequestSuggestions && entries.length > 0 && (
-          <button
-            onClick={onRequestSuggestions}
-            className="w-full flex items-center gap-2 pr-2 hover:bg-[#f0e8d0] active:bg-[#e8dcc0] transition-colors rounded"
-            style={{ height: LINE_HEIGHT, fontFamily: FONT_FAMILY }}
-            title="Suggest ingredients that pair with the bowl"
-          >
-            <span
-              className="flex-shrink-0 inline-flex items-center justify-center rounded-full"
-              style={{
-                width: 22, height: 22,
-                fontSize: 14, fontWeight: 700,
-                color: '#7a6a4a',
-                background: '#e8dcc0',
-                border: '1.5px solid #c9b99a',
-              }}
-            >
-              ★
-            </span>
-            <span style={{ color: '#a09070', fontSize: 16 }}>Suggestions…</span>
           </button>
         )}
         {/* P8: Aroma-match pills — route this recipe to Cocktail Lab or
