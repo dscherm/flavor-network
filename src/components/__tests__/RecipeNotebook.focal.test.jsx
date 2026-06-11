@@ -34,7 +34,6 @@ function mount(props = {}) {
       onAmountChange={() => {}}
       onFocusIngredient={() => {}}
       onRequestAdd={() => {}}
-      onRequestSuggestions={() => {}}
       recipeTitle="Test"
       onTitleChange={() => {}}
       compatibility={null}
