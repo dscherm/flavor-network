@@ -190,7 +190,7 @@ export default function PairingMode({
         ctx.graph.edges,
         ctx?.cuisineNeighborIndex || null,
       );
-      return list
+      const corpus = list
         .map((p) => {
           const node = hydrateNode(p.name, ctx);
           const strength = typeof p.strength === 'number' ? p.strength : 0;
@@ -208,6 +208,35 @@ export default function PairingMode({
           };
         })
         .filter((p) => p.node && p.node.name);
+
+      // Append Flavor Bible pairings the recipe corpus never recorded
+      // (~82% of FB pairs have no co-occurrence edge). They carry
+      // strength 0 so they sit at the end of the swipe deck — after every
+      // corpus pair — and ride the 📖 badge via fb:true. Only those that
+      // hydrate to a real graph node are kept. Sorted for deterministic
+      // deck order.
+      const fbNeighbors = ctx?.flavorBibleNeighbors?.get?.(focalName);
+      if (Array.isArray(fbNeighbors) && fbNeighbors.length > 0) {
+        const seen = new Set(corpus.map((p) => p.name));
+        const fbOnly = [];
+        for (const name of [...fbNeighbors].sort()) {
+          if (!name || name === focalName || seen.has(name)) continue;
+          seen.add(name);
+          const node = hydrateNode(name, ctx);
+          if (!node || !node.name) continue;
+          const sharedCompounds = lookupBridges(name, node);
+          fbOnly.push({
+            name,
+            strength: 0,
+            node,
+            sharedCompounds,
+            fb: true,
+            analysis: buildAnalysis(focalNode, node, 0, sharedCompounds),
+          });
+        }
+        return [...corpus, ...fbOnly];
+      }
+      return corpus;
     } catch {
       return [];
     }

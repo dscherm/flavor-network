@@ -248,6 +248,66 @@ function PairingStar({ a, b, isFavorite, onToggle }) {
   );
 }
 
+/** Canonical-keyed Flavor Bible membership test for a single pair. */
+export function isInFlavorBible(a, b, affinityCtx) {
+  const fbset = affinityCtx?.flavorBibleSet;
+  if (!fbset || !a || !b) return false;
+  return fbset.has(a < b ? `${a}|${b}` : `${b}|${a}`);
+}
+
+/**
+ * Flavor Bible pairings for `focalName` that have NO corpus co-occurrence
+ * edge — so they never appear in the strength-ranked Top Pairings list.
+ * Returns deduped, sorted names that resolve to a real graph node (so the
+ * row is clickable). These are the canonical-but-corpus-missed pairings.
+ */
+export function flavorBibleOnlyNeighbors(focalName, sortedNeighbors, affinityCtx, graphNodes) {
+  const adj = affinityCtx?.flavorBibleNeighbors;
+  const fbNeighbors = adj?.get?.(focalName);
+  if (!Array.isArray(fbNeighbors) || fbNeighbors.length === 0) return [];
+  const corpusNames = new Set((sortedNeighbors || []).map((n) => n.name));
+  const seen = new Set();
+  const out = [];
+  for (const name of fbNeighbors) {
+    if (!name || name === focalName || corpusNames.has(name) || seen.has(name)) continue;
+    if (graphNodes?.has && !graphNodes.has(name)) continue;
+    seen.add(name);
+    out.push(name);
+  }
+  out.sort();
+  return out;
+}
+
+/**
+ * "Also in The Flavor Bible" — collapsible list of FB-only pairings
+ * (corpus-edgeless). Rendered as a distinct section so the strength-
+ * ranked Top Pairings list, its wheel, and the "strongest bond" insight
+ * stay purely corpus-driven. Collapsed by default (the tail can be long).
+ */
+function FlavorBibleOnlySection({ names, onSelectIngredient }) {
+  if (!Array.isArray(names) || names.length === 0) return null;
+  return (
+    <CollapsibleSection title="Also in The Flavor Bible" badge={`(${names.length})`}>
+      <p className="text-[10px] text-gray-500 mb-1.5">
+        Curated pairings from The Flavor Bible our recipe corpus hasn&apos;t recorded.
+      </p>
+      <ul className="space-y-1.5">
+        {names.map((name) => (
+          <li key={`fbonly-${name}`}>
+            <button
+              onClick={() => onSelectIngredient && onSelectIngredient(name)}
+              className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
+            >
+              <span aria-label="In The Flavor Bible" className="flex-shrink-0">📖</span>
+              <span className="truncate group-hover:text-cyan-300 transition-colors">{name}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </CollapsibleSection>
+  );
+}
+
 export default function IngredientPanel({ node, neighbors, onClose, onSelectIngredient, onHighlightPairings, onBuildRecipe, flavorPath, commonPairings = [], selectedNodes = [], selectedNodesData = [], selectedCount = 0, isFavorite, onToggleFavorite, onTogglePairing, hasPairing, embedded = false, graphNodes, bridgeCompounds, gnnEntropy, odorThresholds, ingredientThresholds, compoundTastes, affinityCtx, cuisinePairLookup = null, onFilterBucket = null, affinityEngaged = false }) {
   const panelRef = useRef(null);
   // Per user request 2026-04-29: panel starts COLLAPSED on each new
@@ -411,6 +471,10 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
   const sortedNeighbors = neighbors
     ? [...neighbors].sort((a, b) => b.strength - a.strength)
     : [];
+
+  // Flavor Bible pairings with no corpus edge — surfaced as a distinct
+  // section so the corpus-ranked list above stays untouched.
+  const fbOnlyNames = flavorBibleOnlyNeighbors(node?.name, sortedNeighbors, affinityCtx, graphNodes);
 
   const discoveryFact = getDiscoveryFact(node, neighbors);
 
@@ -735,12 +799,7 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                     })
                     .map((neighbor) => {
                       const cuisineRec = getCuisinePair(cuisinePairLookup, node?.name, neighbor.name);
-                      const inFb = (() => {
-                        const fbset = affinityCtx?.flavorBibleSet;
-                        const a = node?.name, b = neighbor.name;
-                        if (!fbset || !a || !b) return false;
-                        return fbset.has(a < b ? `${a}|${b}` : `${b}|${a}`);
-                      })();
+                      const inFb = isInFlavorBible(node?.name, neighbor.name, affinityCtx);
                       return (
                       <li key={neighbor.name}>
                         <button
@@ -767,6 +826,9 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               </>
             )}
           </CollapsibleSection>
+        )}
+        {selectedCount < 2 && (
+          <FlavorBibleOnlySection names={fbOnlyNames} onSelectIngredient={onSelectIngredient} />
         )}
         {affinities && affinities.length > 0 && (
           <CollapsibleSection title="Affinities" badge={`(${affinities.length})`}>
@@ -1140,12 +1202,14 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                     })
                     .map((neighbor) => {
                       const cuisineRec = getCuisinePair(cuisinePairLookup, node?.name, neighbor.name);
+                      const inFb = isInFlavorBible(node?.name, neighbor.name, affinityCtx);
                       return (
                       <li key={neighbor.name}>
                         <button
                           onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
                           className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors focus:outline-none focus:ring-1 focus:ring-cyan-500 group"
                         >
+                          {inFb && <span title="In The Flavor Bible" aria-label="In The Flavor Bible" className="flex-shrink-0">📖</span>}
                           <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
                           <StrengthBar strength={neighbor.strength} />
                           <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
@@ -1159,6 +1223,10 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
               </>
             )}
           </CollapsibleSection>
+        )}
+
+        {selectedCount < 2 && (
+          <FlavorBibleOnlySection names={fbOnlyNames} onSelectIngredient={onSelectIngredient} />
         )}
 
         {/* Affinities */}

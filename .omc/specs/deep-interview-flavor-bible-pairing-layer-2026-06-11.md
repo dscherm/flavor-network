@@ -23,13 +23,19 @@
 >    `flavorBibleNeighbors` adjacency map (built in useProData), so α-mode surfaces
 >    them (verified: thyme +76, basil +55, almond +80 newly-surfaced FB pairs).
 >
-> **Scope note for a follow-up:** the 📖 badge is wired on all three surfaces, but
-> FB-only (corpus-edgeless) pairs are surfaced as new candidates only in **α-mode**
-> (via the topAffinities FB-walk). IngredientPanel's "Top Pairings" list and
-> PairingMode's Tinder stack are built from corpus edges (`neighbors` /
-> `getNeighborsEnriched`), so on those two surfaces the badge currently marks the
-> ~18% of FB pairs that overlap the corpus; surfacing FB-only pairs there too would
-> mean merging `flavorBibleNeighbors` into those list builders — a clean follow-up.
+> **Follow-up DONE (2026-06-11):** FB-only (corpus-edgeless) pairs now surface in all
+> three surfaces, not just α-mode:
+> - **PairingMode** appends FB-only neighbors to the swipe deck (strength 0 → sorted
+>   after every corpus pair), hydrated to real graph nodes, badged via `fb:true`.
+> - **IngredientPanel** gains a distinct, collapsed-by-default **"Also in The Flavor
+>   Bible"** section (`FlavorBibleOnlySection`) listing corpus-edgeless FB pairings —
+>   kept separate so the strength-ranked Top Pairings list, its wheel, and the
+>   "strongest bond" insight stay purely corpus-driven. Both IngredientPanel mounts
+>   now receive `affinityCtx={data}` (previously unset, so the badge was inert there).
+> - Shared helpers `isInFlavorBible` / `flavorBibleOnlyNeighbors` exported + unit-
+>   tested (8 cases). The main-branch Top Pairings row also gained the inline 📖 badge
+>   (the first pass had only badged the embedded branch).
+> All surfaces complete. `npm test` 1264/1264, build clean.
 
 ## Metadata
 - Interview ID: `flavor-bible-pairing-layer-2026-06-11`

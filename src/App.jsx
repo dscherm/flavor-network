@@ -1318,6 +1318,7 @@ export default function App() {
                 cuisineNeighborIndex: data.cuisineNeighborIndex || null,
                 bridgeCompoundIndex: data.bridgeCompoundIndex || null,
                 flavorBibleSet: data.flavorBibleSet || null,
+                flavorBibleNeighbors: data.flavorBibleNeighbors || null,
               }}
               odorThresholds={data.odorThresholds || null}
               onExit={() => setPairingModeFocal(null)}
@@ -1346,6 +1347,7 @@ export default function App() {
               cuisineNeighborIndex: data.cuisineNeighborIndex || null,
               bridgeCompoundIndex: data.bridgeCompoundIndex || null,
               flavorBibleSet: data.flavorBibleSet || null,
+              flavorBibleNeighbors: data.flavorBibleNeighbors || null,
             }}
             odorThresholds={data.odorThresholds || null}
             onExit={() => {
@@ -1445,6 +1447,7 @@ export default function App() {
             cuisineNeighborIndex: data.cuisineNeighborIndex || null,
             bridgeCompoundIndex: data.bridgeCompoundIndex || null,
             flavorBibleSet: data.flavorBibleSet || null,
+            flavorBibleNeighbors: data.flavorBibleNeighbors || null,
           }}
           odorThresholds={data.odorThresholds || null}
           onExit={() => { setPairingModeFocal(null); setDetailsCardMode(true); }}
@@ -1883,6 +1886,7 @@ export default function App() {
           ingredientThresholds={data?.ingredientThresholds}
           compoundTastes={data?.compoundTastes}
           cuisinePairLookup={data?.cuisinePairLookup}
+          affinityCtx={data}
         />
       )}
 
@@ -2107,6 +2111,7 @@ export default function App() {
             cuisineNeighborIndex: data.cuisineNeighborIndex || null,
             bridgeCompoundIndex: data.bridgeCompoundIndex || null,
             flavorBibleSet: data.flavorBibleSet || null,
+            flavorBibleNeighbors: data.flavorBibleNeighbors || null,
           }}
           odorThresholds={data.odorThresholds || null}
           onExit={() => {
@@ -2765,6 +2770,7 @@ export default function App() {
               graphNodes={data?.graph?.nodes}
               cuisinePairLookup={data?.cuisinePairLookup}
               bridgeCompounds={data?.bridgeCompounds}
+              affinityCtx={data}
               embedded
             />
           )}
