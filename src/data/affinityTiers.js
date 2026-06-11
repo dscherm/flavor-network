@@ -43,10 +43,31 @@
 export function tierFor(a, b, ctx) {
   const key = `${a}|${b}`;
   const altKey = `${b}|${a}`;
+
+  // Flavor Bible curated layer (FB-PAIR-3). A pair present in the
+  // curated FB graph is a high-reliability chef endorsement: it floors
+  // the tier at ★★ and rides an `fb:true` provenance flag so all three
+  // surfaces can show the 📖 badge. Membership is canonical-keyed
+  // (min|max) so it's order-independent. Crucially, an FB pair with
+  // zero corpus co-occurrence (strength 0) still surfaces — that's the
+  // core value: canonical pairings the recipe corpus under-weighted are
+  // no longer hidden. When `flavorBibleSet` is absent the flag is false
+  // and behavior is identical to before (purely additive).
+  const fbKey = a < b ? key : altKey;
+  const inFB = ctx.flavorBibleSet?.has(fbKey) ?? false;
+
   const ps = ctx.pairingStrength;
   const strength =
     (ps && (ps.get(key) ?? ps.get(altKey))) ?? 0;
-  if (strength <= 0) return { tier: null, strength: 0, bridge: null };
+
+  // Apply the FB floor (★★) on top of the corpus/chemistry tier, keeping
+  // ★★★ reserved for chemistry-bridged or exceptionally-strong pairs.
+  const finalize = (tier, bridge) => {
+    if (inFB) tier = tier == null ? 2 : Math.max(tier, 2);
+    return { tier, strength, bridge, fb: inFB };
+  };
+
+  if (strength <= 0) return finalize(null, null);
 
   const T = ctx.affinityThresholds;
   const top5A = ctx.top5?.get(a) ?? null;
@@ -68,20 +89,20 @@ export function tierFor(a, b, ctx) {
       top5A.includes(bridge) &&
       top5B.includes(bridge)
     ) {
-      return { tier: 3, strength, bridge };
+      return finalize(3, bridge);
     }
-    if (strength >= T.star2) return { tier: 2, strength, bridge: null };
-    if (strength >= T.star1) return { tier: 1, strength, bridge: null };
-    return { tier: null, strength, bridge: null };
+    if (strength >= T.star2) return finalize(2, null);
+    if (strength >= T.star1) return finalize(1, null);
+    return finalize(null, null);
   }
 
   // Lenient branch: at least one side has no GNN compound data.
   // The 1,123 ingredients without GNN coverage can still earn ★★★
   // when their pairing strength is exceptional (≥ star3 quantile).
-  if (strength >= T.star3) return { tier: 3, strength, bridge: null };
-  if (strength >= T.star2) return { tier: 2, strength, bridge: null };
-  if (strength >= T.star1) return { tier: 1, strength, bridge: null };
-  return { tier: null, strength, bridge: null };
+  if (strength >= T.star3) return finalize(3, null);
+  if (strength >= T.star2) return finalize(2, null);
+  if (strength >= T.star1) return finalize(1, null);
+  return finalize(null, null);
 }
 
 /**
@@ -93,14 +114,18 @@ export function tierFor(a, b, ctx) {
 export function topAffinities(focal, ctx, opts = {}) {
   const { N3 = 5, N2 = 10, N1 = 15 } = opts;
   const edges = ctx?.graph?.edges;
-  if (!Array.isArray(edges) || edges.length === 0) return [];
+  const hasEdges = Array.isArray(edges) && edges.length > 0;
+  const fbNeighbors = ctx.flavorBibleNeighbors?.get(focal);
+  const hasFb = Array.isArray(fbNeighbors) && fbNeighbors.length > 0;
+  // Nothing to walk: no corpus edges AND no Flavor Bible adjacency.
+  if (!hasEdges && !hasFb) return [];
 
   // Collect every neighbor of `focal` whose pair has a non-null tier.
   // Untiered candidates (strength below star1 quantile) are dropped —
   // those connections aren't worth showing.
   const candidates = [];
   const seen = new Set();
-  for (const edge of edges) {
+  for (const edge of (hasEdges ? edges : [])) {
     // Support both shapes: graph-builder's {source,target} and the raw
     // pairings.json {ingredientA, ingredientB}.
     const a = edge.source ?? edge.ingredientA;
@@ -114,6 +139,23 @@ export function topAffinities(focal, ctx, opts = {}) {
     const t = tierFor(focal, other, ctx);
     if (!t.tier) continue;
     candidates.push({ name: other, ...t });
+  }
+
+  // Flavor Bible neighbors that have no corpus co-occurrence edge (~82%
+  // of FB pairs) are never visited by the edge loop above, yet they are
+  // the canonical-but-corpus-missed pairings this layer exists to
+  // surface. Walk FB adjacency directly; tierFor floors them at ★★ with
+  // fb:true. They carry strength 0, so the strength-rank sort below
+  // places them after genuine corpus pairs — filling remaining ring
+  // slots rather than displacing strong pairings.
+  if (hasFb) {
+    for (const other of fbNeighbors) {
+      if (!other || other === focal || seen.has(other)) continue;
+      seen.add(other);
+      const t = tierFor(focal, other, ctx);
+      if (!t.tier) continue;
+      candidates.push({ name: other, ...t });
+    }
   }
 
   // Per U4a: ring assignment is by strength rank, NOT by native tier.

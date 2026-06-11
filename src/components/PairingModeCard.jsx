@@ -456,6 +456,7 @@ export default function PairingModeCard({
   strength = null,
   sharedCompounds = null,
   analysis = null,
+  fb = false,
 }) {
   if (!node || !node.name) {
     return (
@@ -524,6 +525,16 @@ export default function PairingModeCard({
           style={{ color: '#86e7f5', fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
         >
           pair strength {strength.toFixed(2)}
+        </div>
+      )}
+      {fb && (
+        <div
+          className="text-[15px] tracking-wide"
+          style={{ color: CHALK_CREAM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          data-testid="pairing-card-fb"
+          title="Listed as a pairing in The Flavor Bible"
+        >
+          📖 in The Flavor Bible
         </div>
       )}
       <AnalysisBlock analysis={analysis} />

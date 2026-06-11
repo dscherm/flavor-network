@@ -195,11 +195,15 @@ export default function PairingMode({
           const node = hydrateNode(p.name, ctx);
           const strength = typeof p.strength === 'number' ? p.strength : 0;
           const sharedCompounds = lookupBridges(p.name, node);
+          const fb = ctx?.flavorBibleSet?.has(
+            focalName < p.name ? `${focalName}|${p.name}` : `${p.name}|${focalName}`,
+          ) ?? false;
           return {
             name: p.name,
             strength,
             node,
             sharedCompounds,
+            fb,
             analysis: buildAnalysis(focalNode, node, strength, sharedCompounds),
           };
         })
@@ -380,6 +384,7 @@ export default function PairingMode({
                   strength={p.strength}
                   sharedCompounds={p.sharedCompounds}
                   analysis={p.analysis}
+                  fb={p.fb}
                 />
               </div>
             ))}
@@ -392,6 +397,7 @@ export default function PairingMode({
                   strength={topCard.strength}
                   sharedCompounds={topCard.sharedCompounds}
                   analysis={topCard.analysis}
+                  fb={topCard.fb}
                 />
               </div>
             )}
