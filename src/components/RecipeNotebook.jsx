@@ -3,6 +3,7 @@ import { TASTE_COLORS } from '../utils/color.js';
 import { scoreIngredient } from '../data/tastePositioning.js';
 import { getNeighborsEnriched } from '../data/graph.js';
 import { bowlGetAmount } from '../data/bowlEntry.js';
+import RecipeDirections from './RecipeDirections.jsx';
 
 const FONT_FAMILY = 'Caveat, cursive';
 const LINE_HEIGHT = 28;
@@ -565,6 +566,9 @@ export default function RecipeNotebook({
           </span>
         </div>
       )}
+
+      {/* FM-DIR1: grounded directions from the most set-similar real recipe. */}
+      <RecipeDirections bowlNames={entries.map((e) => e?.ingredient).filter(Boolean)} />
     </div>
   );
 }
