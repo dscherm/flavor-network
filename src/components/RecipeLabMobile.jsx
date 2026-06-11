@@ -18,7 +18,9 @@ import {
   bowlRemoveIngredient,
   bowlSwapIngredient,
   bowlSetAmount,
+  bowlGetAmount,
 } from '../data/bowlEntry.js';
+import { predictBowlAmounts } from '../ml/quantityRuntime.js';
 
 const FONT_FAMILY = 'Caveat, cursive';
 
@@ -342,6 +344,32 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     setRecipeIngredients(prev => bowlSetAmount(prev, name, rawText));
   }, []);
 
+  // "Suggest quantities" — fill amounts for bowl ingredients that don't have
+  // one yet, via the FM-Q2 quantity model. Never overwrites a user-entered
+  // amount; model-filled amounts are flagged inferred (editable).
+  const [quantityBusy, setQuantityBusy] = useState(false);
+  const handleSuggestQuantities = useCallback(async () => {
+    const names = bowlNames(recipeIngredients);
+    if (names.length === 0) return;
+    setQuantityBusy(true);
+    try {
+      const preds = await predictBowlAmounts(names);
+      setRecipeIngredients(prev => {
+        let next = prev;
+        for (const { name, amount } of preds) {
+          if (!amount || !amount.raw) continue;
+          const existing = bowlGetAmount(next, name);
+          if (existing && existing.raw && !existing.inferred) continue; // keep user input
+          next = bowlSetAmount(next, name, amount.raw, { inferred: true });
+        }
+        return next;
+      });
+    } finally {
+      setQuantityBusy(false);
+    }
+    hapticLight();
+  }, [recipeIngredients]);
+
   return (
     <div
       data-testid="recipe-lab"
@@ -413,6 +441,31 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         <div className="flex-1 min-w-0">
           <RecipeTypePills value={recipeType} onChange={setRecipeType} />
         </div>
+        {recipeIngredients.length > 0 && (
+          <>
+            <button
+              type="button"
+              data-testid="recipe-chrome-suggestions"
+              onClick={() => { setFocusedIngredient(null); setSuggestionsMode(true); }}
+              className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap"
+              style={{ fontFamily: FONT_FAMILY }}
+              aria-label="Smart ingredient suggestions for the recipe"
+            >
+              ✨ Suggest
+            </button>
+            <button
+              type="button"
+              data-testid="recipe-chrome-quantities"
+              onClick={handleSuggestQuantities}
+              disabled={quantityBusy}
+              className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap disabled:opacity-50"
+              style={{ fontFamily: FONT_FAMILY }}
+              aria-label="Suggest quantities for the recipe"
+            >
+              {quantityBusy ? '⚖ …' : '⚖ Amounts'}
+            </button>
+          </>
+        )}
         <button
           type="button"
           data-testid="recipe-chrome-add-ingredient"
@@ -468,10 +521,6 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             // B-version P2: notebook + buttons route to IngredientPicker.
             setPickerReplaceTarget(null);
             setPickerOpen(true);
-          }}
-          onRequestSuggestions={() => {
-            setSuggestionsMode(true);
-            setFocusedIngredient(null);
           }}
           recipeTitle={recipeTitle}
           onTitleChange={setRecipeTitle}
@@ -559,6 +608,32 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             focalKey={focalKey}
             onAdd={(name, amount) => handleAddIngredient(name, amount)}
             onClose={() => setSuggestionsMode(false)}
+          />
+        </div>
+      )}
+
+      {/* Replace overlay — the per-row "R" pill sets focusedIngredient.
+          Mounts the popout in REPLACE-mode: ✨ Smart swaps (set-completion
+          model on the bowl-minus-this-ingredient, filtered to candidates
+          similar to the one being replaced) above the substitute list.
+          Tapping a swap replaces the ingredient in place. */}
+      {focusedIngredient && fullData?.graph?.nodes && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-40"
+          data-testid="recipe-replace-overlay"
+        >
+          <IngredientSuggestionsPopout
+            ingredient={focusedIngredient}
+            recipeIngredients={recipeNames}
+            bowl={recipeIngredients}
+            nodes={fullData.graph.nodes}
+            edges={fullData.graph.edges}
+            cuisineNeighborIndex={fullData?.cuisineNeighborIndex || null}
+            labMode="general"
+            recipeType={recipeType}
+            focalKey={focalKey}
+            onSwap={(oldName, newName) => { handleSwapIngredient(oldName, newName); setFocusedIngredient(null); }}
+            onClose={() => setFocusedIngredient(null)}
           />
         </div>
       )}
