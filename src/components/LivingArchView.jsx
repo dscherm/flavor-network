@@ -2044,6 +2044,8 @@ export default function LivingArchView({
             top5: data.top5,
             bridgeCompoundIndex: data.bridgeCompoundIndex,
             affinityThresholds: data.affinityThresholds,
+            flavorBibleSet: data.flavorBibleSet,
+            flavorBibleNeighbors: data.flavorBibleNeighbors,
           }
         : null;
       clusterFocusModeRef.current = new ClusterFocusMode({
@@ -2187,6 +2189,8 @@ export default function LivingArchView({
         top5: data.top5,
         bridgeCompoundIndex: data.bridgeCompoundIndex,
         affinityThresholds: data.affinityThresholds,
+        flavorBibleSet: data.flavorBibleSet,
+        flavorBibleNeighbors: data.flavorBibleNeighbors,
         graph: data.graph,
       }, cameraAnimatorRef.current, {
         // Wedge-layout inputs (2026-05-13 user feedback): the focal

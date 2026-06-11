@@ -171,6 +171,89 @@ describe('tierFor — edge cases', () => {
   });
 });
 
+describe('tierFor — Flavor Bible curated layer (FB-PAIR-3)', () => {
+  function withFb(ctxOpts, fbPairs) {
+    const ctx = buildCtx(ctxOpts);
+    ctx.flavorBibleSet = new Set(
+      fbPairs.map(([a, b]) => (a < b ? `${a}|${b}` : `${b}|${a}`)),
+    );
+    return ctx;
+  }
+
+  it('floors an untiered FB pair (strength 0) at ★★ with fb:true', () => {
+    // Canonical pairing the recipe corpus never recorded — the core value.
+    const ctx = withFb({ top5: {} }, [['anise', 'fig']]);
+    const r = tierFor('anise', 'fig', ctx);
+    expect(r.tier).toBe(2);
+    expect(r.fb).toBe(true);
+    expect(r.strength).toBe(0);
+  });
+
+  it('keeps an already-★★★ pair at 3 and adds fb:true', () => {
+    const ctx = withFb(
+      {
+        strengths: { 'peel|tangerine juice': 1.0 },
+        top5: {
+          peel: ['bridge0', 'limonene', 'pinene', 'a', 'b'],
+          'tangerine juice': ['bridge0', 'citral', 'a', 'b', 'c'],
+        },
+        bridges: { 'peel|tangerine juice': ['bridge0'] },
+      },
+      [['peel', 'tangerine juice']],
+    );
+    const r = tierFor('peel', 'tangerine juice', ctx);
+    expect(r.tier).toBe(3);
+    expect(r.fb).toBe(true);
+  });
+
+  it('leaves a non-FB pair unchanged (fb:false)', () => {
+    const ctx = withFb({ strengths: { 'a|b': 0.5 }, top5: {} }, [
+      ['x', 'y'],
+    ]);
+    const r = tierFor('a', 'b', ctx);
+    expect(r.tier).toBe(1); // unchanged corpus tier
+    expect(r.fb).toBe(false);
+  });
+
+  it('is identical to baseline when flavorBibleSet is undefined', () => {
+    const ctx = buildCtx({ strengths: { 'a|b': 0.5 }, top5: {} });
+    const r = tierFor('a', 'b', ctx);
+    expect(r.tier).toBe(1);
+    expect(r.fb).toBe(false);
+  });
+
+  it('membership is order-independent (a|b and b|a both hit)', () => {
+    const ctx = withFb({ top5: {} }, [['fig', 'anise']]); // stored as anise|fig
+    expect(tierFor('anise', 'fig', ctx).fb).toBe(true);
+    expect(tierFor('fig', 'anise', ctx).fb).toBe(true);
+  });
+
+  it('topAffinities surfaces FB neighbors with no corpus edge', () => {
+    const focal = 'thyme';
+    // One strong corpus pair + two FB-only pairs (no edges for them).
+    const ctx = buildCtx({
+      strengths: { 'thyme|lamb': 0.95 },
+      top5: {},
+      edges: [{ source: focal, target: 'lamb' }],
+    });
+    ctx.flavorBibleSet = new Set(['anchovy|thyme', 'thyme|walnut']);
+    ctx.flavorBibleNeighbors = new Map([
+      ['thyme', ['anchovy', 'walnut']],
+    ]);
+    const result = topAffinities(focal, ctx);
+    const names = result.map((r) => r.name);
+    expect(names).toContain('lamb'); // corpus pair
+    expect(names).toContain('anchovy'); // FB-only
+    expect(names).toContain('walnut'); // FB-only
+    // Strong corpus pair ranks ahead of strength-0 FB pairs.
+    expect(names.indexOf('lamb')).toBeLessThan(names.indexOf('anchovy'));
+    // FB-only entries are flagged + floored to ★★.
+    const anchovy = result.find((r) => r.name === 'anchovy');
+    expect(anchovy.fb).toBe(true);
+    expect(anchovy.tier).toBe(2);
+  });
+});
+
 describe('topAffinities — U4a strength-rank ring assignment', () => {
   it('returns up to 30 candidates partitioned 5/10/15 by strength rank', () => {
     // Build a focal with 30 neighbors at descending strengths.

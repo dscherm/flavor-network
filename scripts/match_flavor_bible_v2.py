@@ -9,9 +9,17 @@ from __future__ import annotations
 
 import csv
 import json
+import sys
 import difflib
 from collections import Counter
 from pathlib import Path
+
+# Precision mode: when --precise is passed, disable the two low-precision
+# match stages (head-noun + fuzzy difflib). For a CURATED authoritative
+# pairing layer a false match asserts a Flavor Bible endorsement that
+# doesn't exist, so precision > recall. Safe stages = exact, synonym,
+# singular, token-set (all are equality-based, not heuristic).
+PRECISE = "--precise" in sys.argv
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -89,11 +97,12 @@ def main() -> int:
         joined = " ".join(ct)
         if joined in exact:
             stage["stripped"] += 1; return joined
-        if len(ct) == 1 and ct[0] in head:
+        if not PRECISE and len(ct) == 1 and ct[0] in head:
             stage["head"] += 1; return head[ct[0]]
-        close = difflib.get_close_matches(joined, keys, n=1, cutoff=0.88)
-        if close:
-            stage["fuzzy"] += 1; return close[0]
+        if not PRECISE:
+            close = difflib.get_close_matches(joined, keys, n=1, cutoff=0.88)
+            if close:
+                stage["fuzzy"] += 1; return close[0]
         stage["miss"] += 1; return None
 
     pairs_raw, fb_names = [], set()
@@ -122,6 +131,15 @@ def main() -> int:
             if k not in seen:
                 seen.add(k); mpairs.append((ma, mb))
     print(f"\nmatched unique pairs: {len(mpairs)} (v1 cascade: 5,457; exact-only: 2,330)")
+
+    # Persist the matched graph for the app's pairing layer (FB-PAIR-1).
+    # Pairs are canonical-sorted (line 121 `tuple(sorted(...))`), so the
+    # on-disk order is order-independent. The app builds a Set<"a|b"> from this.
+    out = {"pairs": [list(p) for p in mpairs], "n": len(mpairs),
+           "_generated": "scripts/match_flavor_bible_v2.py"}
+    out_path = ROOT / "public/proDataset/flavor_bible_matched.json"
+    out_path.write_text(json.dumps(out), encoding="utf-8")
+    print(f"wrote {len(mpairs)} pairs -> {out_path.relative_to(ROOT)}")
 
     # re-measure AUROC
     rng = np.random.default_rng(0)

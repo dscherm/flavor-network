@@ -773,6 +773,41 @@ export default function useProData({ enabled = true } = {}) {
           );
         }
 
+        // Flavor Bible curated pairing layer (FB-PAIR-2). Set of canonical
+        // keys `min|max` from flavor_bible_matched.json — a boolean "is this
+        // pair endorsed by The Flavor Bible?" lookup. Consumed by
+        // affinityTiers.tierFor() to floor the tier at ★★ and flag provenance.
+        // Optional + null-safe: absent/failed fetch → empty set → tierFor
+        // behaves exactly as before (purely additive, zero regression risk).
+        const flavorBibleSet = new Set();
+        // Adjacency: focal → [FB neighbors]. ~82% of FB pairs have NO
+        // corpus co-occurrence edge (they're the canonical-but-corpus-
+        // missed pairings that are the whole point of this layer), so
+        // topAffinities() must walk FB adjacency directly — iterating
+        // graph.edges alone would only surface the ~18% that overlap.
+        const flavorBibleNeighbors = new Map();
+        const addFbNeighbor = (x, y) => {
+          let arr = flavorBibleNeighbors.get(x);
+          if (!arr) { arr = []; flavorBibleNeighbors.set(x, arr); }
+          arr.push(y);
+        };
+        try {
+          const fbRes = await fetch('/proDataset/flavor_bible_matched.json');
+          if (fbRes.ok) {
+            const fb = await fbRes.json();
+            if (Array.isArray(fb?.pairs)) {
+              for (const pair of fb.pairs) {
+                if (!Array.isArray(pair) || pair.length < 2) continue;
+                const [a, b] = pair;
+                if (!a || !b) continue;
+                flavorBibleSet.add(a < b ? `${a}|${b}` : `${b}|${a}`);
+                addFbNeighbor(a, b);
+                addFbNeighbor(b, a);
+              }
+            }
+          }
+        } catch { /* optional — curated FB layer is additive */ }
+
         if (typeof window !== 'undefined') window.__proDataGraph = graph;
         setData({
           graph,
@@ -796,6 +831,8 @@ export default function useProData({ enabled = true } = {}) {
           top5,
           bridgeCompoundIndex,
           affinityThresholds,
+          flavorBibleSet,
+          flavorBibleNeighbors,
           cuisinePairings,
           cuisinePairLookup,
           cuisineNeighborIndex,

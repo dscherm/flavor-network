@@ -1014,6 +1014,7 @@ export class AffinityMode {
           ringIdx: minRingIdx,
           strength: minStrength,
           bridge: primaryEntry.bridge ?? null,
+          fb: primaryEntry.fb ?? false,
         });
       }
       // Strip extra focals — they're rendered as focal cubes.

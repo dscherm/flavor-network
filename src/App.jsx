@@ -1317,6 +1317,7 @@ export default function App() {
                 graph: data.graph,
                 cuisineNeighborIndex: data.cuisineNeighborIndex || null,
                 bridgeCompoundIndex: data.bridgeCompoundIndex || null,
+                flavorBibleSet: data.flavorBibleSet || null,
               }}
               odorThresholds={data.odorThresholds || null}
               onExit={() => setPairingModeFocal(null)}
@@ -1344,6 +1345,7 @@ export default function App() {
               graph: data.graph,
               cuisineNeighborIndex: data.cuisineNeighborIndex || null,
               bridgeCompoundIndex: data.bridgeCompoundIndex || null,
+              flavorBibleSet: data.flavorBibleSet || null,
             }}
             odorThresholds={data.odorThresholds || null}
             onExit={() => {
@@ -1442,6 +1444,7 @@ export default function App() {
             graph: data.graph,
             cuisineNeighborIndex: data.cuisineNeighborIndex || null,
             bridgeCompoundIndex: data.bridgeCompoundIndex || null,
+            flavorBibleSet: data.flavorBibleSet || null,
           }}
           odorThresholds={data.odorThresholds || null}
           onExit={() => { setPairingModeFocal(null); setDetailsCardMode(true); }}
@@ -2103,6 +2106,7 @@ export default function App() {
             graph: data.graph,
             cuisineNeighborIndex: data.cuisineNeighborIndex || null,
             bridgeCompoundIndex: data.bridgeCompoundIndex || null,
+            flavorBibleSet: data.flavorBibleSet || null,
           }}
           odorThresholds={data.odorThresholds || null}
           onExit={() => {

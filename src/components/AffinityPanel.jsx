@@ -29,10 +29,12 @@ const TIER_HEADER_TONE = {
 };
 
 function TierColumn({ tier, items, onPivot }) {
-  const titleFor = (aff) =>
-    tier === 0 && aff.bridge
+  const titleFor = (aff) => {
+    const base = tier === 0 && aff.bridge
       ? `${aff.name} — bridged by ${aff.bridge}`
       : `${aff.name} — strength ${aff.strength.toFixed(2)}`;
+    return aff.fb ? `${base} · 📖 in The Flavor Bible` : base;
+  };
   return (
     <div className="flex-1 min-w-0">
       <div className={`text-[10px] uppercase tracking-widest font-semibold mb-2 flex items-baseline gap-1 ${TIER_HEADER_TONE[tier]}`}>
@@ -48,6 +50,7 @@ function TierColumn({ tier, items, onPivot }) {
             className={`text-left px-2 py-1 rounded border text-xs font-medium transition truncate ${TIER_TONE[tier]}`}
             title={titleFor(aff)}
           >
+            {aff.fb && <span aria-label="In The Flavor Bible" className="mr-0.5">📖</span>}
             {aff.name}
           </button>
         ))}

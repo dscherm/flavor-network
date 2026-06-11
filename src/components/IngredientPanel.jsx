@@ -735,12 +735,19 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
                     })
                     .map((neighbor) => {
                       const cuisineRec = getCuisinePair(cuisinePairLookup, node?.name, neighbor.name);
+                      const inFb = (() => {
+                        const fbset = affinityCtx?.flavorBibleSet;
+                        const a = node?.name, b = neighbor.name;
+                        if (!fbset || !a || !b) return false;
+                        return fbset.has(a < b ? `${a}|${b}` : `${b}|${a}`);
+                      })();
                       return (
                       <li key={neighbor.name}>
                         <button
                           onClick={() => onSelectIngredient && onSelectIngredient(neighbor.name)}
                           className="w-full min-h-[44px] flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm text-gray-200 hover:bg-gray-700/40 transition-colors group"
                         >
+                          {inFb && <span title="In The Flavor Bible" aria-label="In The Flavor Bible" className="flex-shrink-0">📖</span>}
                           <span className="truncate flex-shrink-0 min-w-0 max-w-[45%] group-hover:text-cyan-300 transition-colors">{neighbor.name}</span>
                           <StrengthBar strength={neighbor.strength} />
                           <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0 w-8 text-right">{Math.round(neighbor.strength * 100)}%</span>
