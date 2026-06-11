@@ -1,0 +1,1810 @@
+{
+  "note": "Chef-approved compound/recipe-food manifest (2026-06-10). Route these to the compoundFoods.js mixture path; exclude from molecular-aggregation calibration. Single-source seasonings (salt, single spices) deliberately NOT included.",
+  "total_ingredients": 3891,
+  "processed_count": 441,
+  "by_trigger": {
+    "keyword": 264,
+    "seed": 69,
+    "category": 108
+  },
+  "excluded_single_seasonings": [
+    "berbere",
+    "black pepper",
+    "black salt",
+    "canning salt",
+    "celtic sea salt",
+    "coarse kosher salt",
+    "coarse salt",
+    "coarse sea salt",
+    "course salt",
+    "course sea salt",
+    "curing salt",
+    "epsom salt",
+    "flaky sea salt",
+    "freshly salt",
+    "grains of salt",
+    "hawaiian salt",
+    "hickory smoke salt",
+    "hickory smoked salt",
+    "kosher sea salt",
+    "lite salt",
+    "morton tender quick salt",
+    "pickling salt",
+    "pink salt",
+    "recaito",
+    "rock salt",
+    "salt",
+    "salt substitute",
+    "season salt",
+    "shichimi togarashi",
+    "sofrito",
+    "white pepper",
+    "za'atar"
+  ],
+  "processed_foods": {
+    "chicken gravy": {
+      "category": "protein",
+      "trigger": "keyword:gravy"
+    },
+    "worcestershire sauce": {
+      "category": "umami",
+      "trigger": "seed"
+    },
+    "barbecue sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "taco sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "mayonnaise": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "applesauce": {
+      "category": "condiment",
+      "trigger": "seed"
+    },
+    "cake mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "soy sauce": {
+      "category": "umami",
+      "trigger": "seed"
+    },
+    "tomato paste": {
+      "category": "umami",
+      "trigger": "keyword:paste"
+    },
+    "beef stock": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "tomato sauce": {
+      "category": "vegetable",
+      "trigger": "keyword:sauce"
+    },
+    "mustard": {
+      "category": "seasoning",
+      "trigger": "keyword:mustard"
+    },
+    "cherry pie mix": {
+      "category": "fruit",
+      "trigger": "keyword:mix"
+    },
+    "vegetable soup mix": {
+      "category": "liquid",
+      "trigger": "keyword:mix"
+    },
+    "italian dressing": {
+      "category": "condiment",
+      "trigger": "seed"
+    },
+    "yellow cake mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "curry powder": {
+      "category": "spice",
+      "trigger": "seed"
+    },
+    "red pepper sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "chicken stock": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "beef consomme": {
+      "category": "protein",
+      "trigger": "keyword:consomme"
+    },
+    "cranberry sauce": {
+      "category": "fruit",
+      "trigger": "keyword:sauce"
+    },
+    "tabasco sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "ketchup": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "beef bouillon": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "italian salad dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "white cake mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "onion soup mix": {
+      "category": "aromatic",
+      "trigger": "keyword:mix"
+    },
+    "caramel sauce": {
+      "category": "sweetener",
+      "trigger": "keyword:sauce"
+    },
+    "salad dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chili sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "unsweetened applesauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "tamari sauce": {
+      "category": "umami",
+      "trigger": "keyword:sauce"
+    },
+    "chicken bouillon": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "mayo": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "spaghetti sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chocolate cake mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "vanilla instant pudding mix": {
+      "category": "spice",
+      "trigger": "keyword:mix"
+    },
+    "picante sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "cornbread mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "steak sauce": {
+      "category": "protein",
+      "trigger": "keyword:sauce"
+    },
+    "jerk spice": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "buttermilk biscuit mix": {
+      "category": "dairy",
+      "trigger": "keyword:mix"
+    },
+    "chicken bouillon cube": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "strawberry glaze": {
+      "category": "fruit",
+      "trigger": "keyword:glaze"
+    },
+    "cheese sauce": {
+      "category": "dairy",
+      "trigger": "keyword:sauce"
+    },
+    "liquid pepper sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "lemon supreme cake mix": {
+      "category": "citrus",
+      "trigger": "keyword:mix"
+    },
+    "pizza sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chili seasoning": {
+      "category": "chili",
+      "trigger": "keyword:seasoning"
+    },
+    "condensed chicken broth": {
+      "category": "protein",
+      "trigger": "keyword:broth"
+    },
+    "enchilada sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "curry": {
+      "category": "other",
+      "trigger": "keyword:curry"
+    },
+    "english cheese spread": {
+      "category": "dairy",
+      "trigger": "keyword:spread"
+    },
+    "corn mix": {
+      "category": "vegetable",
+      "trigger": "keyword:mix"
+    },
+    "cocktail sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "green chile salsa": {
+      "category": "chili",
+      "trigger": "seed"
+    },
+    "angel food cake mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "cornbread": {
+      "category": "baked",
+      "trigger": "seed"
+    },
+    "dill sauce": {
+      "category": "herb",
+      "trigger": "keyword:sauce"
+    },
+    "prepared mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chicken bouillon powder": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "cayenne pepper sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "cheese dressing": {
+      "category": "dairy",
+      "trigger": "keyword:dressing"
+    },
+    "lemon cake mix": {
+      "category": "citrus",
+      "trigger": "keyword:mix"
+    },
+    "beef bouillon granule": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "fudge sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "pepper sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "green chili salsa": {
+      "category": "chili",
+      "trigger": "keyword:salsa"
+    },
+    "bean soup mix": {
+      "category": "vegetable",
+      "trigger": "keyword:mix"
+    },
+    "seasoning salt": {
+      "category": "seasoning",
+      "trigger": "keyword:seasoning"
+    },
+    "spicy mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "cornmeal mix": {
+      "category": "thickener",
+      "trigger": "keyword:mix"
+    },
+    "french dressing": {
+      "category": "condiment",
+      "trigger": "seed"
+    },
+    "tomato ketchup": {
+      "category": "vegetable",
+      "trigger": "keyword:ketchup"
+    },
+    "teriyaki sauce": {
+      "category": "umami",
+      "trigger": "seed"
+    },
+    "stock": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "chicken flavored bouillon granule": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "worcester sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chocolate mix": {
+      "category": "sweetener",
+      "trigger": "keyword:mix"
+    },
+    "shrimp sauce": {
+      "category": "protein",
+      "trigger": "keyword:sauce"
+    },
+    "buttermilk baking mix": {
+      "category": "dairy",
+      "trigger": "keyword:mix"
+    },
+    "tomato salsa": {
+      "category": "vegetable",
+      "trigger": "keyword:salsa"
+    },
+    "baking mix": {
+      "category": "other",
+      "trigger": "keyword:mix"
+    },
+    "onion gravy mix": {
+      "category": "aromatic",
+      "trigger": "keyword:gravy"
+    },
+    "bean dip": {
+      "category": "vegetable",
+      "trigger": "keyword:dip"
+    },
+    "chili mix": {
+      "category": "chili",
+      "trigger": "keyword:mix"
+    },
+    "biscuit baking mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "dream whip topping mix": {
+      "category": "other",
+      "trigger": "keyword:mix"
+    },
+    "swiss chocolate cake mix": {
+      "category": "dairy",
+      "trigger": "keyword:mix"
+    },
+    "pancake mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "instant vanilla pudding mix": {
+      "category": "spice",
+      "trigger": "keyword:mix"
+    },
+    "broth": {
+      "category": "liquid",
+      "trigger": "keyword:broth"
+    },
+    "italian salad dressing mix": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "red sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "vegetable stock": {
+      "category": "liquid",
+      "trigger": "seed"
+    },
+    "bread stuffing mix": {
+      "category": "grain",
+      "trigger": "keyword:mix"
+    },
+    "dijon style mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "beef gravy": {
+      "category": "protein",
+      "trigger": "keyword:gravy"
+    },
+    "chicken stuffing mix": {
+      "category": "protein",
+      "trigger": "keyword:mix"
+    },
+    "chunky applesauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "tartar sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "bread mix": {
+      "category": "grain",
+      "trigger": "keyword:mix"
+    },
+    "brown mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "ginger paste": {
+      "category": "aromatic",
+      "trigger": "keyword:paste"
+    },
+    "cheese spread": {
+      "category": "dairy",
+      "trigger": "keyword:spread"
+    },
+    "buttermilk salad dressing": {
+      "category": "dairy",
+      "trigger": "keyword:dressing"
+    },
+    "tomatoe sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "tabasco pepper sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "chile sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "vanilla cake mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "instant pistachio pudding mix": {
+      "category": "nut",
+      "trigger": "keyword:mix"
+    },
+    "dill relish": {
+      "category": "herb",
+      "trigger": "keyword:relish"
+    },
+    "chili seasoning mix": {
+      "category": "chili",
+      "trigger": "keyword:seasoning"
+    },
+    "tomato catsup": {
+      "category": "vegetable",
+      "trigger": "keyword:catsup"
+    },
+    "instant beef bouillon granule": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "mustard green": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "butter cake mix": {
+      "category": "fat",
+      "trigger": "keyword:mix"
+    },
+    "beef bouillon cube": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "instant beef bouillon": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "horseradish sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "cornbread stuffing mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "condensed beef broth": {
+      "category": "protein",
+      "trigger": "keyword:broth"
+    },
+    "fish stock": {
+      "category": "protein",
+      "trigger": "keyword:stock"
+    },
+    "stove top dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chicken seasoning": {
+      "category": "protein",
+      "trigger": "keyword:seasoning"
+    },
+    "cranberry-orange relish": {
+      "category": "citrus",
+      "trigger": "keyword:relish"
+    },
+    "pita bread": {
+      "category": "grain",
+      "trigger": "seed"
+    },
+    "turkey broth": {
+      "category": "protein",
+      "trigger": "keyword:broth"
+    },
+    "pickapeppa sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "white sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "mushroom gravy": {
+      "category": "vegetable",
+      "trigger": "keyword:gravy"
+    },
+    "instant chocolate pudding mix": {
+      "category": "sweetener",
+      "trigger": "keyword:mix"
+    },
+    "broth from chicken": {
+      "category": "protein",
+      "trigger": "keyword:broth"
+    },
+    "buttermilk dressing": {
+      "category": "dairy",
+      "trigger": "keyword:dressing"
+    },
+    "thick applesauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "marinara sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "beef bouillon soup": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "chicken bouillon granule": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "lemon instant pudding mix": {
+      "category": "citrus",
+      "trigger": "keyword:mix"
+    },
+    "alfredo sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "oyster sauce": {
+      "category": "umami",
+      "trigger": "seed"
+    },
+    "bbq sauce": {
+      "category": "condiment",
+      "trigger": "seed"
+    },
+    "vanilla pudding mix": {
+      "category": "spice",
+      "trigger": "keyword:mix"
+    },
+    "butterscotch pudding mix": {
+      "category": "dairy",
+      "trigger": "keyword:mix"
+    },
+    "red enchilada sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "white mustard seed": {
+      "category": "spice",
+      "trigger": "keyword:mustard"
+    },
+    "pasta sauce": {
+      "category": "grain",
+      "trigger": "keyword:sauce"
+    },
+    "hollandaise sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "black mustard seed": {
+      "category": "spice",
+      "trigger": "keyword:mustard"
+    },
+    "meat sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "mustard powder": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "buttermilk pancake mix": {
+      "category": "dairy",
+      "trigger": "keyword:mix"
+    },
+    "guava paste": {
+      "category": "fruit",
+      "trigger": "keyword:paste"
+    },
+    "fish sauce": {
+      "category": "umami",
+      "trigger": "seed"
+    },
+    "mushroom sauce": {
+      "category": "vegetable",
+      "trigger": "keyword:sauce"
+    },
+    "jalapeno bean dip": {
+      "category": "chili",
+      "trigger": "keyword:dip"
+    },
+    "horseradish mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "vinaigrette dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "avocado dip": {
+      "category": "other",
+      "trigger": "keyword:dip"
+    },
+    "tomato pasta sauce": {
+      "category": "grain",
+      "trigger": "keyword:sauce"
+    },
+    "perrins sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "stir-fry sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "pistachio pudding mix": {
+      "category": "nut",
+      "trigger": "keyword:mix"
+    },
+    "processed cheese spread": {
+      "category": "dairy",
+      "trigger": "keyword:spread"
+    },
+    "ranch dressing": {
+      "category": "condiment",
+      "trigger": "seed"
+    },
+    "chocolate glaze": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "brown bean sauce": {
+      "category": "vegetable",
+      "trigger": "keyword:sauce"
+    },
+    "chinese chili paste": {
+      "category": "chili",
+      "trigger": "keyword:paste"
+    },
+    "hoisin": {
+      "category": "umami",
+      "trigger": "seed"
+    },
+    "apple sauce": {
+      "category": "fruit",
+      "trigger": "seed"
+    },
+    "caesar dressing": {
+      "category": "condiment",
+      "trigger": "seed"
+    },
+    "clam broth": {
+      "category": "protein",
+      "trigger": "keyword:broth"
+    },
+    "turkey stock": {
+      "category": "protein",
+      "trigger": "keyword:stock"
+    },
+    "orange sauce": {
+      "category": "citrus",
+      "trigger": "keyword:sauce"
+    },
+    "salad dressing mix": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "soya sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "cream sauce": {
+      "category": "dairy",
+      "trigger": "keyword:sauce"
+    },
+    "italian sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chocolate sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "jalapeno relish": {
+      "category": "chili",
+      "trigger": "keyword:relish"
+    },
+    "leek soup mix": {
+      "category": "aromatic",
+      "trigger": "keyword:mix"
+    },
+    "chocolate pudding mix": {
+      "category": "sweetener",
+      "trigger": "keyword:mix"
+    },
+    "veal stock": {
+      "category": "protein",
+      "trigger": "keyword:stock"
+    },
+    "pumpkin pie mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "turkey gravy": {
+      "category": "protein",
+      "trigger": "keyword:gravy"
+    },
+    "seafood sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "creole mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "orange glaze": {
+      "category": "citrus",
+      "trigger": "keyword:glaze"
+    },
+    "cajun spice": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "white wine worcestershire sauce": {
+      "category": "umami",
+      "trigger": "keyword:sauce"
+    },
+    "soup stock": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "chocolate fudge cake mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "raisin bread": {
+      "category": "grain",
+      "trigger": "seed"
+    },
+    "green chili sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "duck sauce": {
+      "category": "protein",
+      "trigger": "keyword:sauce"
+    },
+    "hickory flavored barbecue sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "curry paste": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "almond paste": {
+      "category": "nut",
+      "trigger": "keyword:paste"
+    },
+    "cooking sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "orange cake mix": {
+      "category": "citrus",
+      "trigger": "keyword:mix"
+    },
+    "instant chicken bouillon": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "chili-o mix": {
+      "category": "chili",
+      "trigger": "keyword:mix"
+    },
+    "mushroom gravy mix": {
+      "category": "vegetable",
+      "trigger": "keyword:gravy"
+    },
+    "garlic sauce": {
+      "category": "aromatic",
+      "trigger": "keyword:sauce"
+    },
+    "coating mix": {
+      "category": "other",
+      "trigger": "keyword:mix"
+    },
+    "hollandaise sauce mix": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "basting sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "hidden valley dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "green enchilada sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "fish broth": {
+      "category": "protein",
+      "trigger": "keyword:broth"
+    },
+    "salad mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "sponge cake": {
+      "category": "baked",
+      "trigger": "seed"
+    },
+    "sweetened applesauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "lemon pudding mix": {
+      "category": "citrus",
+      "trigger": "keyword:mix"
+    },
+    "english mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chicken gravy mix": {
+      "category": "protein",
+      "trigger": "keyword:gravy"
+    },
+    "black soy sauce": {
+      "category": "umami",
+      "trigger": "keyword:sauce"
+    },
+    "mustard seed": {
+      "category": "spice",
+      "trigger": "keyword:mustard"
+    },
+    "lemon-pepper seasoning": {
+      "category": "citrus",
+      "trigger": "keyword:seasoning"
+    },
+    "chinese mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "cornbread dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "butter sauce": {
+      "category": "fat",
+      "trigger": "keyword:sauce"
+    },
+    "honey mustard": {
+      "category": "sweetener",
+      "trigger": "keyword:mustard"
+    },
+    "grainy mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chilli sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "spicy sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "seasoning sauce": {
+      "category": "seasoning",
+      "trigger": "keyword:sauce"
+    },
+    "blue cheese dressing": {
+      "category": "dairy",
+      "trigger": "keyword:dressing"
+    },
+    "caesar salad dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "dill pickle relish": {
+      "category": "herb",
+      "trigger": "keyword:relish"
+    },
+    "mustard sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "cucumber dressing": {
+      "category": "vegetable",
+      "trigger": "keyword:dressing"
+    },
+    "bean paste": {
+      "category": "vegetable",
+      "trigger": "keyword:paste"
+    },
+    "worchestershire sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "meat broth": {
+      "category": "liquid",
+      "trigger": "keyword:broth"
+    },
+    "recipe secrets onion soup mix": {
+      "category": "aromatic",
+      "trigger": "keyword:mix"
+    },
+    "red wine vinaigrette": {
+      "category": "liquid",
+      "trigger": "keyword:vinaigrette"
+    },
+    "raspberry sauce": {
+      "category": "fruit",
+      "trigger": "keyword:sauce"
+    },
+    "biscuit/baking mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "italian-style salad dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "paste": {
+      "category": "other",
+      "trigger": "keyword:paste"
+    },
+    "fry sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "sour sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "gelatin mix": {
+      "category": "dairy",
+      "trigger": "keyword:mix"
+    },
+    "whiskey sauce": {
+      "category": "spirit",
+      "trigger": "keyword:sauce"
+    },
+    "brown stock": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "process cheese sauce": {
+      "category": "dairy",
+      "trigger": "keyword:sauce"
+    },
+    "five-spice powder": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "broccoli slaw mix": {
+      "category": "vegetable",
+      "trigger": "keyword:mix"
+    },
+    "lemon vinaigrette": {
+      "category": "citrus",
+      "trigger": "keyword:vinaigrette"
+    },
+    "rice mix": {
+      "category": "grain",
+      "trigger": "keyword:mix"
+    },
+    "yellow mustard seed": {
+      "category": "spice",
+      "trigger": "keyword:mustard"
+    },
+    "sugar cookie mix": {
+      "category": "sweetener",
+      "trigger": "keyword:mix"
+    },
+    "bean sauce": {
+      "category": "vegetable",
+      "trigger": "keyword:sauce"
+    },
+    "dipping sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "jalapeno sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "miso": {
+      "category": "umami",
+      "trigger": "seed"
+    },
+    "lemon glaze": {
+      "category": "citrus",
+      "trigger": "keyword:glaze"
+    },
+    "gingerbread mix": {
+      "category": "baked",
+      "trigger": "keyword:mix"
+    },
+    "peanut sauce": {
+      "category": "nut",
+      "trigger": "keyword:sauce"
+    },
+    "gourmet sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "turkey gravy mix": {
+      "category": "protein",
+      "trigger": "keyword:gravy"
+    },
+    "sweet mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "tahini sauce": {
+      "category": "nut",
+      "trigger": "keyword:sauce"
+    },
+    "beef bouillon powder": {
+      "category": "protein",
+      "trigger": "keyword:bouillon"
+    },
+    "worchester sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chicken soup stock": {
+      "category": "protein",
+      "trigger": "keyword:stock"
+    },
+    "original sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "ranch salad dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "tamarind paste": {
+      "category": "acid",
+      "trigger": "keyword:paste"
+    },
+    "chili paste": {
+      "category": "chili",
+      "trigger": "keyword:paste"
+    },
+    "basil pesto": {
+      "category": "herb",
+      "trigger": "keyword:pesto"
+    },
+    "tobasco sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "tonkatsu sauce": {
+      "category": "condiment",
+      "trigger": "seed"
+    },
+    "plum sauce": {
+      "category": "fruit",
+      "trigger": "keyword:sauce"
+    },
+    "green sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "coarse grain mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "mushroom stock": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "vanilla sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chili paste with garlic": {
+      "category": "chili",
+      "trigger": "keyword:paste"
+    },
+    "mint sauce": {
+      "category": "herb",
+      "trigger": "keyword:sauce"
+    },
+    "lemon sauce": {
+      "category": "citrus",
+      "trigger": "keyword:sauce"
+    },
+    "chipotle sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "chinese five spice powder": {
+      "category": "spice",
+      "trigger": "seed"
+    },
+    "butterscotch sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "bouillon powder": {
+      "category": "other",
+      "trigger": "keyword:bouillon"
+    },
+    "barbeque sauce": {
+      "category": "condiment",
+      "trigger": "seed"
+    },
+    "coarse-grained mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "shrimp stock": {
+      "category": "protein",
+      "trigger": "keyword:stock"
+    },
+    "sweet soy sauce": {
+      "category": "umami",
+      "trigger": "keyword:sauce"
+    },
+    "mushroom soy sauce": {
+      "category": "umami",
+      "trigger": "keyword:sauce"
+    },
+    "cajun spice mix": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "grain mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "red chili sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "lemon dressing": {
+      "category": "citrus",
+      "trigger": "keyword:dressing"
+    },
+    "chinese chili sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "seafood stock": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "blueberry sauce": {
+      "category": "fruit",
+      "trigger": "keyword:sauce"
+    },
+    "chinese five-spice": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "italian cheese blend": {
+      "category": "dairy",
+      "trigger": "keyword:blend"
+    },
+    "sweet chili sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "beef stew seasoning": {
+      "category": "protein",
+      "trigger": "keyword:seasoning"
+    },
+    "bechamel sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "pork stock": {
+      "category": "protein",
+      "trigger": "keyword:stock"
+    },
+    "shrimp paste": {
+      "category": "protein",
+      "trigger": "keyword:paste"
+    },
+    "raspberry vinaigrette": {
+      "category": "fruit",
+      "trigger": "keyword:vinaigrette"
+    },
+    "curry sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "black bean garlic sauce": {
+      "category": "aromatic",
+      "trigger": "keyword:sauce"
+    },
+    "veggie stock": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "black bean sauce": {
+      "category": "vegetable",
+      "trigger": "keyword:sauce"
+    },
+    "pineapple salsa": {
+      "category": "fruit",
+      "trigger": "keyword:salsa"
+    },
+    "crab boil seasoning": {
+      "category": "protein",
+      "trigger": "keyword:seasoning"
+    },
+    "wasabi paste": {
+      "category": "other",
+      "trigger": "keyword:paste"
+    },
+    "caribbean jerk seasoning": {
+      "category": "seasoning",
+      "trigger": "keyword:seasoning"
+    },
+    "sesame dressing": {
+      "category": "nut",
+      "trigger": "keyword:dressing"
+    },
+    "buffalo sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "red chili paste": {
+      "category": "chili",
+      "trigger": "keyword:paste"
+    },
+    "strawberry sauce": {
+      "category": "fruit",
+      "trigger": "keyword:sauce"
+    },
+    "veggie broth": {
+      "category": "liquid",
+      "trigger": "keyword:broth"
+    },
+    "wing sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "spring lettuce mix": {
+      "category": "vegetable",
+      "trigger": "keyword:mix"
+    },
+    "bearnaise sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "yogurt sauce": {
+      "category": "dairy",
+      "trigger": "keyword:sauce"
+    },
+    "grain dijon mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chili-garlic sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "tomato chutney": {
+      "category": "vegetable",
+      "trigger": "keyword:chutney"
+    },
+    "cheese blend": {
+      "category": "dairy",
+      "trigger": "keyword:blend"
+    },
+    "chicken marinade": {
+      "category": "protein",
+      "trigger": "keyword:marinade"
+    },
+    "tomato vinaigrette": {
+      "category": "vegetable",
+      "trigger": "keyword:vinaigrette"
+    },
+    "lamb stock": {
+      "category": "protein",
+      "trigger": "keyword:stock"
+    },
+    "mushroom broth": {
+      "category": "liquid",
+      "trigger": "keyword:broth"
+    },
+    "tomato pesto": {
+      "category": "vegetable",
+      "trigger": "keyword:pesto"
+    },
+    "grill seasoning": {
+      "category": "seasoning",
+      "trigger": "keyword:seasoning"
+    },
+    "cheddar cheese blend": {
+      "category": "dairy",
+      "trigger": "keyword:blend"
+    },
+    "remoulade sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "habanero sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "stone- mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "asian chili paste": {
+      "category": "chili",
+      "trigger": "keyword:paste"
+    },
+    "tandoori paste": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "adobo sauce": {
+      "category": "condiment",
+      "trigger": "seed"
+    },
+    "sriracha sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "mustard oil": {
+      "category": "fat",
+      "trigger": "keyword:mustard"
+    },
+    "blue cheese salad dressing": {
+      "category": "dairy",
+      "trigger": "keyword:dressing"
+    },
+    "vanilla bean paste": {
+      "category": "vegetable",
+      "trigger": "keyword:paste"
+    },
+    "vegetarian worcestershire sauce": {
+      "category": "umami",
+      "trigger": "keyword:sauce"
+    },
+    "white miso paste": {
+      "category": "umami",
+      "trigger": "keyword:paste"
+    },
+    "chile-garlic sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "balsamic glaze": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "ponzu sauce": {
+      "category": "umami",
+      "trigger": "keyword:sauce"
+    },
+    "mango salsa": {
+      "category": "fruit",
+      "trigger": "keyword:salsa"
+    },
+    "chocolate hazelnut spread": {
+      "category": "nut",
+      "trigger": "keyword:spread"
+    },
+    "gochujang": {
+      "category": "chili",
+      "trigger": "seed"
+    },
+    "chimichurri sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "black olive tapenade": {
+      "category": "vegetable",
+      "trigger": "keyword:tapenade"
+    },
+    "brown mustard seed": {
+      "category": "spice",
+      "trigger": "keyword:mustard"
+    },
+    "bolognese sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chili bean sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "achiote paste": {
+      "category": "other",
+      "trigger": "keyword:paste"
+    },
+    "sofrito sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chili bean paste": {
+      "category": "chili",
+      "trigger": "keyword:paste"
+    },
+    "romesco sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "english mustard powder": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "vanilla paste": {
+      "category": "spice",
+      "trigger": "keyword:paste"
+    },
+    "sweet chilli sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "harissa paste": {
+      "category": "chili",
+      "trigger": "seed"
+    },
+    "olive oil mayonnaise": {
+      "category": "fat",
+      "trigger": "keyword:mayonnaise"
+    },
+    "dashi stock": {
+      "category": "umami",
+      "trigger": "keyword:stock"
+    },
+    "sambal oelek chili paste": {
+      "category": "chili",
+      "trigger": "keyword:paste"
+    },
+    "za'atar spice mix": {
+      "category": "spice",
+      "trigger": "keyword:mix"
+    },
+    "for sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "curry leaf": {
+      "category": "other",
+      "trigger": "keyword:curry"
+    },
+    "splenda brown sugar blend": {
+      "category": "sweetener",
+      "trigger": "keyword:blend"
+    },
+    "avocado salsa": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "dressing ingredient": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "asian chili sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "balsamic dressing": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "olive tapenade": {
+      "category": "vegetable",
+      "trigger": "keyword:tapenade"
+    },
+    "asian fish sauce": {
+      "category": "protein",
+      "trigger": "keyword:sauce"
+    },
+    "bleu cheese salad dressing": {
+      "category": "dairy",
+      "trigger": "keyword:dressing"
+    },
+    "sriracha chili sauce": {
+      "category": "chili",
+      "trigger": "keyword:sauce"
+    },
+    "thai chili paste": {
+      "category": "chili",
+      "trigger": "keyword:paste"
+    },
+    "vodka sauce": {
+      "category": "spirit",
+      "trigger": "keyword:sauce"
+    },
+    "japanese mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "wholegrain mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "oregano dressing": {
+      "category": "herb",
+      "trigger": "keyword:dressing"
+    },
+    "seeded mustard": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "stock powder": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "promise buttery spread": {
+      "category": "other",
+      "trigger": "keyword:spread"
+    },
+    "barbq sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "chinese soup stock": {
+      "category": "liquid",
+      "trigger": "keyword:stock"
+    },
+    "chicken soup stock granule": {
+      "category": "protein",
+      "trigger": "keyword:stock"
+    },
+    "yakiniku sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "hibiscus tea": {
+      "category": "liquid",
+      "trigger": "seed"
+    },
+    "relish": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "oat bread": {
+      "category": "grain",
+      "trigger": "seed"
+    },
+    "multigrain bread": {
+      "category": "grain",
+      "trigger": "seed"
+    },
+    "margarine like spread": {
+      "category": "fat",
+      "trigger": "keyword:spread"
+    },
+    "mascarpone": {
+      "category": "dairy",
+      "trigger": "seed"
+    },
+    "pico de gallo sauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "hotsauce": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "puff pastry": {
+      "category": "baked",
+      "trigger": "seed"
+    },
+    "chicken stock cube": {
+      "category": "protein",
+      "trigger": "keyword:stock"
+    },
+    "prosciutto": {
+      "category": "protein",
+      "trigger": "seed"
+    },
+    "salsa": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "harissa spice": {
+      "category": "chili",
+      "trigger": "seed"
+    },
+    "fajita seasoning": {
+      "category": "seasoning",
+      "trigger": "keyword:seasoning"
+    },
+    "garam masala": {
+      "category": "spice",
+      "trigger": "seed"
+    },
+    "green salsa": {
+      "category": "condiment",
+      "trigger": "category:condiment"
+    },
+    "fettuccine": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "all-purpose seasoning": {
+      "category": "seasoning",
+      "trigger": "keyword:seasoning"
+    },
+    "caramelized sugar sauce": {
+      "category": "sweetener",
+      "trigger": "keyword:sauce"
+    },
+    "ras el hanout": {
+      "category": "spice",
+      "trigger": "keyword:ras el hanout"
+    },
+    "thai red curry paste": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "ginger garlic paste": {
+      "category": "aromatic",
+      "trigger": "seed"
+    },
+    "dark soy sauce": {
+      "category": "umami",
+      "trigger": "seed"
+    },
+    "italian seasoning": {
+      "category": "seasoning",
+      "trigger": "seed"
+    },
+    "thai green curry paste": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "galangal paste": {
+      "category": "aromatic",
+      "trigger": "keyword:paste"
+    },
+    "harissa": {
+      "category": "chili",
+      "trigger": "keyword:harissa"
+    },
+    "chaat masala": {
+      "category": "seasoning",
+      "trigger": "seed"
+    },
+    "doenjang": {
+      "category": "umami",
+      "trigger": "seed"
+    },
+    "sriracha": {
+      "category": "chili",
+      "trigger": "seed"
+    },
+    "candied mixed fruit": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "coleslaw": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "creole seasoning": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "croissant": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "green chutney": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "half and half": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "hot sauce": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "poultry seasoning": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "red miso": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "sambar powder": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "self rising flour": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "shoyu": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "tamari": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "tandoori masala": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "vegetable broth": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "vermicelli": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "white miso": {
+      "category": "other",
+      "trigger": "seed"
+    },
+    "worcestershire": {
+      "category": "other",
+      "trigger": "seed"
+    }
+  }
+}

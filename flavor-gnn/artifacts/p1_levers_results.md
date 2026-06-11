@@ -1,5 +1,26 @@
 # P1 Feature Lever Results (measured vs DeepChem scaffold baseline)
 
+> **⚠️ READ THIS FIRST (banner added 2026-06-10). This document contains a
+> resolved internal contradiction — do not stop reading at the optimistic
+> middle sections.**
+>
+> - The **"P3b — external-set odor-data ingestion — WORKS"** section below (and
+>   its "+0.12 floral / +0.14 fatty" claim) is **STALE / WRONG**. It compared runs
+>   on DIFFERENT test sets. The **"DEFINITIVE PAIRED CONTROL"** section near the
+>   bottom overturns it: with an identical fixed test set, external odor data is
+>   **flat-to-negative (mean odor Δ ≈ −0.01)**. The "FINAL VERDICT (corrected)"
+>   section is the authoritative conclusion within this file.
+> - The woody-fix discussion early on references `LEFFINGWELL_EXCLUDE = {"woody"}`.
+>   That was a stopgap; the campaign later split out an `odor_nutty` head and the
+>   final code excludes `{"woody", "nutty"}`. Treat the early single-element form
+>   as superseded.
+> - The single source of truth for the whole campaign (including the downstream
+>   finding that molecular F1 barely reaches the user) is
+>   `flavor-gnn/artifacts/MODEL_INVESTIGATION_SUMMARY_2026-06-10.md`. The net
+>   banked result is: **GAT backbone + mean_max + 12 heads** is the only real
+>   model gain, and it is a profile-quality (visualization) improvement, not a
+>   pairing/recommendation one.
+
 All levers measured by PAIRED per-seed comparison (5 seeds, SEED+s) against the
 canonical baseline `cv_results_scaffold_baseline.json` (readout=mean). Paired
 differencing cancels seed-difficulty variance.
@@ -32,20 +53,20 @@ De-noised odor labels (word-boundary + removed 8 ambiguous tokens; odor_woody
 removed tokens (nutty/mushroom) carried real signal, and shrinking the positive
 set raised variance. Keyword-removal de-noising does not lift the weak heads.
 
-## P3b — Leffingwell odor-data ingestion — **WORKS**
+## P3b — external-set odor-data ingestion — **WORKS**
 
-Ingested the Leffingwell odor set (3,522 molecules, 113 binary odor descriptors
+Ingested the external-set odor set (3,522 molecules, 113 binary odor descriptors
 mapped to our 6 heads). Odor-observed molecules 1,383 → 4,645; weak heads 2.6–4x positives.
 Two measurements, both `mean_max` readout, 5 seeds:
 
-**(1) Combined** (Leffingwell labels OR'd + net-new molecules, augmented test):
+**(1) Combined** (external-odor labels OR'd + net-new molecules, augmented test):
 floral +0.095, fatty +0.106, fruity +0.045, green +0.039, spicy -0.010, woody -0.081.
 Suggestive but the test set changed (confound).
 
-**(2) Train-only confirmation** (Leffingwell forced 100% into TRAIN, test = pure
+**(2) Train-only confirmation** (external odor data forced 100% into TRAIN, test = pure
 ORIGINAL molecules + ORIGINAL labels — verified 0 augment leak):
 
-| odor head | baseline | +Leffingwell(train) | Δ | verdict |
+| odor head | baseline | +external(train) | Δ | verdict |
 |---|---|---|---|---|
 | **odor_fatty** | 0.517 | 0.659 | **+0.142** | real lift |
 | **odor_floral** | 0.382 | 0.504 | **+0.122** | real lift |
@@ -59,23 +80,23 @@ substantially. The lifts are consistent across both measurements (1) and (2), ac
 different test compositions → real training signal, not a test-set artifact.
 
 **EXCEPTION — odor_woody regresses hard (-0.157), consistent across both runs.**
-Leffingwell's woody distribution (earthy/pine/smoky/woody) conflicts with our
+external-set's woody distribution (earthy/pine/smoky/woody) conflicts with our
 FlavorDB woody (which still includes nutty/mushroom in the ORIGINAL labels).
-Fix: exclude Leffingwell's woody mapping, or reconcile the woody vocab.
+Fix: exclude external-set's woody mapping, or reconcile the woody vocab.
 
-### Woody conflict — diagnosed + fixed (exclude woody from the Leffingwell merge)
+### Woody conflict — diagnosed + fixed (exclude woody from the external-set merge)
 
 Root cause, three compounding factors confirmed on the data:
-1. **Vocabulary disagreement.** Leffingwell maps only {earthy, pine, smoky,
+1. **Vocabulary disagreement.** external-set maps only {earthy, pine, smoky,
    woody} → odor_woody. Our FlavorDB woody was built with a broader set that
    counts nutty + mushroom. Of 432 original woody positives, 121 (28%) carry a
    nutty/mushroom tag and **81 (19%) are woody ONLY because of nutty/mushroom** —
-   labels Leffingwell explicitly calls NOT woody.
+   labels external-set explicitly calls NOT woody.
 2. **Prior shift.** Woody positive rate is **31% in our data vs 11% in the
-   Leffingwell augment** (224/1980). Mixing in 1,980 low-woody molecules pulls
+   external-set augment** (224/1980). Mixing in 1,980 low-woody molecules pulls
    the model's woody prior down → recall collapses on the 31%-prevalence test set.
 3. **Exact-match mapping gap.** Ingest maps descriptors with exact `dl in kws`,
-   so Leffingwell's `balsamic` descriptor never reaches woody (our keyword is
+   so external-set's `balsamic` descriptor never reaches woody (our keyword is
    `balsam`), making the augment woody set even sparser than intended.
 
 (1) and (2) push the same direction (systematic woody false-negatives) and are
@@ -84,7 +105,7 @@ already shown not to help (P1c: odor_woody -0.019).
 
 **Fix applied:** `LEFFINGWELL_EXCLUDE = {"woody"}` in both ingest scripts —
 woody keeps its ORIGINAL labels untouched (existing rows) and is left
-*unobserved* (mask=0) on net-new augment rows, so Leffingwell contributes zero
+*unobserved* (mask=0) on net-new augment rows, so external-set contributes zero
 woody signal. The other 5 odor heads still merge and keep their lifts.
 Regenerated `compounds_p3b.parquet` + `compounds_p3b_trainonly.parquet` confirm:
 augment woody = 0 pos / 0 obs; original woody = 432 / 1383 unchanged.
@@ -94,31 +115,27 @@ scaffold eval to confirm the F1 numbers.**
 
 **Caveat:** taste heads wobbled (sweet +0.05, sour -0.11) because the train-only
 test set (1,273 pure-original) differs in size/composition from the baseline split
-(~1,991). Leffingwell adds no taste signal, so that wobble is test-set noise — the
+(~1,991). external-set adds no taste signal, so that wobble is test-set noise — the
 ODOR comparison is the valid one, and even there the consistency across two runs is
 the evidence, not any single number.
 
-### VERDICT
-**Scraping molecular odor data is the lever the model-side experiments weren't.**
-P1a (readout) and P1c (de-noise) left the weak odor heads flat; Leffingwell lifts
-floral +0.12 and fatty +0.14 on rigorous measurement. This confirms the weak-odor
-ceiling was a DATA-QUANTITY problem, exactly as the failed model-side levers implied.
-
-Next: (a) ~~reconcile woody~~ DONE — woody excluded from the merge (see above);
-re-run the train-only eval to confirm. (b) add goodscents/arctander for more
-positives.
+### VERDICT — SUPERSEDED (was an artifact, see PAIRED CONTROL below)
+~~Scraping molecular odor data is the lever the model-side experiments weren't.
+external-set lifts floral +0.12 and fatty +0.14.~~ **WRONG — this compared runs on
+DIFFERENT test sets. The paired control (below) overturns it: external odor data
+does NOT lift the odor heads.**
 
 ## odor_nutty head + woody reconciliation — measured (5-seed scaffold, mean_max)
 
 Followed through on the woody fix differently than the exclude-from-merge stopgap:
 split the Maillard/roast cluster into a dedicated **odor_nutty** head (7th odor
-head), kept mushroom in woody, re-enabled Leffingwell woody, and fixed the
+head), kept mushroom in woody, re-enabled external-set woody, and fixed the
 descriptor matcher (exact -> substring, so `balsamic` reaches woody). Two 5-seed
-runs: a 12-head FlavorDB-only baseline and a +Leffingwell train-only run.
+runs: a 12-head FlavorDB-only baseline and a +external-set train-only run.
 Artifacts: `cv_results_scaffold_nutty_baseline.json`,
 `cv_results_scaffold_nutty_p3b_trainonly.json`.
 
-| head | baseline | +Leffingwell | Δ | test pos/seed (base→aug) | trust |
+| head | baseline | +external-set | Δ | test pos/seed (base→aug) | trust |
 |---|---|---|---|---|---|
 | sweet | 0.853 | 0.776 | -0.077 | dense | Δ is artifact (seed-3 split collapse 0.378) |
 | bitter | 0.806 | 0.816 | +0.010 | dense | robust |
@@ -141,15 +158,15 @@ pure-original), so Δ conflates the augment training effect with test compositio
 - **odor_nutty works: baseline F1 0.442 ± 0.14** from FlavorDB's 194 positives
   alone — in the band of fatty (0.529) and woody (0.497), above floral (0.380)
   and spicy (0.286). The 7th head is viable; the model absorbed it with no
-  architecture change. The `nutty 0.155` under +Leffingwell is **not real** —
+  architecture change. The `nutty 0.155` under +external-set is **not real** —
   the pure-original test has only 3 nutty positives/seed (one seed had 1 →
-  F1 0.000). Whether Leffingwell helps nutty is **unmeasurable** with this design.
+  F1 0.000). Whether external-set helps nutty is **unmeasurable** with this design.
 - **Woody recovered as a head.** Splitting nutty out cost woody nothing (baseline
   0.497 ≈ its historical ~0.517) and the original -0.157 conflict is gone. But
-  reconciliation did **not** turn Leffingwell into a woody *lift* — the +Leffingwell
+  reconciliation did **not** turn external-set into a woody *lift* — the +external-set
   woody (-0.089) is on a degraded test (11 pos/seed, one seed = 3 → 0.222), so the
   augment effect on woody is neutral-to-unknown, not a win.
-- **Credible Leffingwell odor lifts: fatty +0.12, fruity +0.06** (enough test
+- **Credible external-set odor lifts: fatty +0.12, fruity +0.06** (enough test
   positives to trust; fatty matches the earlier P3b +0.142).
 - **Methodological gap:** the train-only design (augment forced to train, test on
   pure-original) is underpowered for rare heads (nutty/woody) because it shrinks
@@ -157,7 +174,84 @@ pure-original), so Δ conflates the augment training effect with test compositio
   an eval that doesn't starve the test set.
 
 ### Decision
-Keep the 12-head model with the nutty head. Production policy for Leffingwell on
-nutty/woody is still open (merge-all vs exclude-those-two) — unresolved because
-the measurement can't separate them; the dense-head lifts (fatty/fruity) are the
-banked win.
+Keep the 12-head model with the nutty head (it's viable: baseline F1 0.442 from
+FlavorDB alone, no architecture cost). But external-set odor data is NOT a win —
+see the definitive paired control below.
+
+---
+
+## DEFINITIVE PAIRED CONTROL — external odor data does NOT lift the odor heads
+
+Every prior P3b comparison compared an augmented run against a baseline on a
+DIFFERENT test set (augment-forced-to-train shrinks the pure-original test from
+~1,991 to ~1,273, and that smaller set is simply easier for floral/fatty). That
+confound produced the phantom "+0.12 floral / +0.14 fatty" wins.
+
+The clean test: SAME parquet, SAME split, SAME seeds, SAME pure-original test set —
+toggle only whether the external molecules are in TRAIN (`--no-augment-train`
+control vs the excl run). Per-seed paired delta = the pure augment effect.
+Artifacts: `cv_results_scaffold_control.json` vs `cv_results_scaffold_p3b12_excl.json`.
+
+| odor head | control (no external) | +external | paired Δ |
+|---|---|---|---|
+| odor_fruity | 0.786 | 0.743 | -0.043 |
+| odor_floral | 0.480 | 0.483 | +0.003 |
+| odor_green | 0.611 | 0.594 | -0.017 |
+| odor_woody | 0.377 | 0.399 | +0.022 |
+| odor_spicy | 0.333 | 0.321 | -0.012 |
+| odor_fatty | 0.648 | 0.624 | -0.023 |
+| odor_nutty | 0.165 | 0.170 | +0.004 |
+| **mean odor** | — | — | **≈ -0.01 (flat-to-negative)** |
+
+**Smoking gun:** the control with ZERO external data already scores floral 0.480 /
+fatty 0.648 on the pure-original test — the same as the +external run. The entire
+apparent gain was the test set, not the data.
+
+**Validity check:** taste heads (zero external signal, identical test) moved +0.021
+mean with sweet swinging +0.122 — so the ±0.02-0.04 odor deltas are inside the noise
+floor and mean nothing.
+
+### FINAL VERDICT (corrected)
+All three odor levers fail under rigorous (paired / fixed-test) measurement:
+- P1a readout — flat on odor
+- P1c de-noise — negative
+- P3b external odor data — flat (the "win" was a test-set artifact)
+
+The weak-odor ceiling is **structural** — it does not move for readout, label
+cleanliness, or data volume. The bottleneck is deeper (the SMILES→odor signal
+itself, or the compound→ingredient aggregation step), not any of these levers.
+
+**Methodological lesson (the important takeaway):** NEVER compare model variants
+across different test sets. Every augment/ablation must be measured paired on an
+identical held-out set (`--no-augment-train` control pattern). Cross-test-set
+comparison conflates intervention effect with test-set difficulty and manufactures
+phantom wins — it fooled this campaign through three runs until the paired control
+exposed it.
+
+---
+
+## Architecture + featurization levers (on the honest paired-control infra)
+
+Measured paired (identical splits/seeds, one variable toggled).
+
+| lever | comparison | mean odor paired Δ | verdict |
+|---|---|---|---|
+| **GAT backbone** (GATv2 attention msg-passing) | vs GINE | **+0.017** (floral +0.058 @4/5, woody/spicy/fruity +; sweet +0.047, sour +0.035) | **WIN — banked** |
+| Descriptors (8-dim physchem, head late-fusion) | vs GAT | -0.022 (sweet -0.074) | rejected |
+| Chirality/stereo features | vs GAT | -0.012 | UNTESTABLE — only 0.5% of our SMILES carry stereo (101/19,902); features ~all-zero |
+
+### Bottom line
+Of every lever this session, **only the GAT backbone moved the weak odor heads** under
+rigorous paired measurement. floral +0.058 (4/5 seeds) is the headline; it also lifts
+sweet/sour. The odor gain came from a better INDUCTIVE BIAS (attention weights the
+salient substructure), not from more input signal or data volume — readout-beyond-
+mean_max, label de-noise, more molecular data, and physchem descriptors all came back
+flat-to-negative.
+
+Chirality is unresolved: the enantiomer-blindness ceiling is real but our upstream
+SMILES (FlavorDB/ChemTastesDB) are non-isomeric, so the feature has nothing to encode.
+Testing it properly needs re-sourcing isomeric SMILES (Leffingwell's WERE isomeric).
+
+### Net banked config
+GAT backbone + mean_max readout + 12 heads (incl. odor_nutty). That is the model
+improvement this campaign produced.

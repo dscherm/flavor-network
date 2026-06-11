@@ -83,8 +83,11 @@ def _set_seed(s: int) -> None:
     random.seed(s); np.random.seed(s); torch.manual_seed(s)
 
 
-def _featurize_all(df: pd.DataFrame):
+def _featurize_all(df: pd.DataFrame, stereo: bool = False, descriptors: bool = False):
     """Featurize SMILES -> PyG Data with y and mask attributes.
+
+    stereo (Lever #2) adds chirality/bond-stereo dims; descriptors (Lever #1)
+    attaches an 8-dim physchem `desc` vector per graph.
 
     `mask[t]=1` means the row's label for task t was observed by some
     source (informed positive or informed negative). `mask[t]=0` means
@@ -104,7 +107,7 @@ def _featurize_all(df: pd.DataFrame):
             )
         else:
             mvec = torch.ones((1, len(TASKS)), dtype=torch.float32)
-        d = smiles_to_data(row["smiles"], y=y)
+        d = smiles_to_data(row["smiles"], y=y, stereo=stereo, descriptors=descriptors)
         if d is None:
             continue
         d.mask = mvec
@@ -298,7 +301,9 @@ def train(df: pd.DataFrame, epochs: int, batch_size: int, device: str,
 def _train_one_fold(df: pd.DataFrame, tr_idx, te_idx, epochs: int,
                     batch_size: int, device: str, loss_type: str = "bce",
                     gamma: float = 2.0, val_frac: float = 0.1,
-                    patience: int = 8, val_idx=None, readout: str = "mean") -> dict:
+                    patience: int = 8, val_idx=None, readout: str = "mean",
+                    backbone: str = "gine", stereo: bool = False,
+                    descriptors: bool = False) -> dict:
     """Train on a pre-split fold; return per-task TEST F1 at the epoch chosen
     by VALIDATION loss (not by test F1).
 
@@ -322,7 +327,10 @@ def _train_one_fold(df: pd.DataFrame, tr_idx, te_idx, epochs: int,
     poisoning the odor heads with forced zeros.
     """
     from torch_geometric.loader import DataLoader
-    data_list, Y, M, _smiles = _featurize_all(df)
+    data_list, Y, M, _smiles = _featurize_all(df, stereo=stereo, descriptors=descriptors)
+    atom_dim = data_list[0].x.size(1)
+    bond_dim = data_list[0].edge_attr.size(1)
+    desc_dim = data_list[0].desc.size(1) if descriptors else 0
 
     # Validation slice: use an explicit val_idx when the caller provides one
     # (balanced-scaffold split already holds out a scaffold-disjoint val set);
@@ -354,8 +362,9 @@ def _train_one_fold(df: pd.DataFrame, tr_idx, te_idx, epochs: int,
         dtype=torch.float32, device=device,
     )
 
-    model = MPNN(ATOM_DIM, BOND_DIM, hidden=128, num_layers=3,
-                 num_tasks=len(TASKS), readout=readout).to(device)
+    model = MPNN(atom_dim, bond_dim, hidden=128, num_layers=3,
+                 num_tasks=len(TASKS), readout=readout, backbone=backbone,
+                 desc_dim=desc_dim).to(device)
     opt = torch.optim.Adam(model.parameters(), lr=1e-3)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs)
 
@@ -514,7 +523,9 @@ def _scaffold_split_indices(smiles_list, frac_train: float = 0.8,
 
 def scaffold_split_eval(df: pd.DataFrame, seeds: int, epochs: int, batch_size: int,
                         device: str, loss_type: str = "bce", gamma: float = 2.0,
-                        readout: str = "mean") -> dict:
+                        readout: str = "mean", augment_in_train: bool = True,
+                        backbone: str = "gine", stereo: bool = False,
+                        descriptors: bool = False) -> dict:
     """Repeated balanced-scaffold-split evaluation → per-task mean/std F1.
 
     Each seed produces a different train/val/test scaffold split (mega-scaffolds
@@ -539,11 +550,18 @@ def scaffold_split_eval(df: pd.DataFrame, seeds: int, epochs: int, batch_size: i
             smiles_list, frac_train=0.8, frac_valid=0.1, seed=SEED + s,
             augment_mask=augment_mask,
         )
+        # Control mode: drop augment rows from TRAIN while keeping the same
+        # augment-aware split (so test/val stay the identical pure-original set).
+        # This is the true paired baseline for "what does adding augment do".
+        if not augment_in_train and augment_mask is not None:
+            am = np.asarray(augment_mask)
+            tr_idx = np.array([i for i in tr_idx if not am[i]])
         print(f"[M3-SCAF] seed {s + 1}/{seeds}  "
               f"n_train={len(tr_idx)} n_val={len(val_idx)} n_test={len(te_idx)}")
         f1 = _train_one_fold(df, tr_idx, te_idx, epochs, batch_size, device,
                              loss_type=loss_type, gamma=gamma, val_idx=val_idx,
-                             readout=readout)
+                             readout=readout, backbone=backbone,
+                             stereo=stereo, descriptors=descriptors)
         for t in TASKS:
             per_task_scores[t].append(f1[t])
         scores = "  ".join(f"{t}={f1[t]:.3f}" for t in TASKS)
@@ -633,6 +651,18 @@ def main() -> int:
                         help="Graph readout (P1a lever). 'mean' = baseline global_mean_pool; "
                              "'mean_max' adds max pool (motif-preserving, no size-sensitive sum); "
                              "'mean_max_sum' also concatenates the sum pool.")
+    parser.add_argument("--no-augment-train", action="store_true",
+                        help="Control: drop is_augment rows from TRAIN but keep the augment-aware "
+                             "split, so test/val are the identical pure-original set. True paired "
+                             "baseline for measuring the augment effect.")
+    parser.add_argument("--backbone", choices=["gine", "gat"], default="gine",
+                        help="Message-passing backbone. 'gine' = GINEConv (default); 'gat' = "
+                             "GATv2Conv attention message passing (POM/Osmo-style inductive bias).")
+    parser.add_argument("--stereo", action="store_true",
+                        help="Lever #2: add chirality + bond-stereo atom/bond features.")
+    parser.add_argument("--descriptors", action="store_true",
+                        help="Lever #1: concatenate an 8-dim RDKit physchem descriptor vector "
+                             "(MolWt/TPSA/logP/HBD/HBA/rot-bonds/FractionCSP3/rings) into the head.")
     args = parser.parse_args()
 
     _set_seed(SEED)
@@ -644,7 +674,10 @@ def main() -> int:
 
     if args.scaffold_split:
         summary = scaffold_split_eval(df, args.seeds, args.epochs, args.batch_size, device,
-                                      loss_type=args.loss, gamma=args.gamma, readout=args.readout)
+                                      loss_type=args.loss, gamma=args.gamma, readout=args.readout,
+                                      augment_in_train=not args.no_augment_train,
+                                      backbone=args.backbone, stereo=args.stereo,
+                                      descriptors=args.descriptors)
         cv_path = Path(args.cv_out) if args.cv_out else (
             _project_root() / "flavor-gnn" / "artifacts" / "cv_results_scaffold.json")
         cv_path.parent.mkdir(parents=True, exist_ok=True)
@@ -654,6 +687,8 @@ def main() -> int:
             "seeds": args.seeds, "epochs": args.epochs, "batch_size": args.batch_size,
             "device": device, "seed": SEED, "loss": args.loss,
             "split": "deepchem_balanced_scaffold", "readout": args.readout,
+            "backbone": args.backbone, "stereo": args.stereo,
+            "descriptors": args.descriptors,
             "per_task": summary,
         }, indent=2))
         print(f"[M3-SCAF] wrote {cv_path}")

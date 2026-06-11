@@ -2223,6 +2223,20 @@ Two threads:
 
 # GNN Weak-Head Lift + Measurement Gate (2026-06-09)
 
+> **⚠️ SUPERSEDED 2026-06-10 — see
+> `flavor-gnn/artifacts/MODEL_INVESTIGATION_SUMMARY_2026-06-10.md`.**
+> The campaign these tasks scoped has concluded. The **P0 measurement-gate tasks
+> (GNN-LIFT-P0a–P0d) were done and are valuable** — scaffold-split CV, held-out
+> calibration, val-epoch selection, and the paired-control pattern are now the
+> standard measurement infra. The **feature/data levers (GNN-LIFT-P1b, P1c, P3a,
+> P3b) should NOT be pursued as user-facing improvements**: all came back
+> flat-to-negative under honest paired measurement, and the investigation showed
+> molecular CV F1 is the wrong objective (it does not survive compound→ingredient
+> aggregation — chef ingredient AUROC ≈ 0.5, odor ingredient F1 ≈ 0; ~0.58 AUROC
+> vs the Flavor Bible). The only real model win was a GAT backbone (modest,
+> visualization-only). The highest-value next lever is the **curated Flavor Bible
+> + RecipeNLG co-occurrence pairing graph**, not the molecular model.
+
 **Source specs (interactive bridge design — PENDING APPROVAL, no commits):**
 - `.omc/specs/deep-interview-gnn-weak-head-lift-2026-06-09.md`
 - `.omc/specs/deep-interview-compound-food-aggregation-2026-06-09.md`

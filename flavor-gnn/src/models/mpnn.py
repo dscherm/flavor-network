@@ -13,9 +13,10 @@ import torch.nn.functional as F
 
 class MPNN(nn.Module):
     def __init__(self, atom_dim: int, bond_dim: int, hidden: int = 128,
-                 num_layers: int = 3, num_tasks: int = 1, readout: str = "mean"):
+                 num_layers: int = 3, num_tasks: int = 1, readout: str = "mean",
+                 backbone: str = "gine", desc_dim: int = 0):
         super().__init__()
-        from torch_geometric.nn import (GINEConv, global_add_pool,
+        from torch_geometric.nn import (GATv2Conv, GINEConv, global_add_pool,
                                         global_max_pool, global_mean_pool)
 
         # P1a (GNN-LIFT): readout choice. 'mean' (default) preserves the
@@ -43,17 +44,38 @@ class MPNN(nn.Module):
         self.atom_enc = nn.Linear(atom_dim, hidden)
         self.bond_enc = nn.Linear(bond_dim, hidden)
 
+        # Backbone choice. 'gine' (default) = GINEConv message passing (sum
+        # aggregation, all neighbours weighted equally). 'gat' = GATv2Conv
+        # attention message passing, which learns per-edge attention weights so
+        # a salient substructure (e.g. an odorant-binding fragment) can dominate
+        # its neighbourhood instead of being averaged in — the inductive bias
+        # behind the POM/Osmo odor results. Both consume the encoded 128-d bond
+        # features (GATv2 via edge_dim) and share the same forward() call shape.
+        self.backbone = backbone
         self.convs = nn.ModuleList()
         self.bns = nn.ModuleList()
+        gat_heads = 4
         for _ in range(num_layers):
-            mlp = nn.Sequential(
-                nn.Linear(hidden, hidden), nn.ReLU(), nn.Linear(hidden, hidden),
-            )
-            self.convs.append(GINEConv(mlp))
+            if backbone == "gat":
+                self.convs.append(GATv2Conv(hidden, hidden // gat_heads,
+                                            heads=gat_heads, concat=True,
+                                            edge_dim=hidden))
+            elif backbone == "gine":
+                mlp = nn.Sequential(
+                    nn.Linear(hidden, hidden), nn.ReLU(), nn.Linear(hidden, hidden),
+                )
+                self.convs.append(GINEConv(mlp))
+            else:
+                raise ValueError(f"unknown backbone {backbone!r}")
             self.bns.append(nn.BatchNorm1d(hidden))
 
+        # Lever #1: 8-dim physchem descriptors concatenated into the head input,
+        # normalized by BatchNorm (raw descriptors have wildly different scales).
+        self.desc_dim = desc_dim
+        self.desc_bn = nn.BatchNorm1d(desc_dim) if desc_dim > 0 else None
+
         self.head = nn.Sequential(
-            nn.Linear(pool_dim, hidden), nn.ReLU(), nn.Dropout(0.2),
+            nn.Linear(pool_dim + desc_dim, hidden), nn.ReLU(), nn.Dropout(0.2),
             nn.Linear(hidden, num_tasks),
         )
 
@@ -97,4 +119,8 @@ class MPNN(nn.Module):
         return trace
 
     def forward(self, data) -> torch.Tensor:
-        return self.head(self.forward_embedding(data))
+        g = self.forward_embedding(data)
+        if self.desc_bn is not None:
+            desc = data.desc.view(g.size(0), -1)
+            g = torch.cat([g, self.desc_bn(desc)], dim=1)
+        return self.head(g)
