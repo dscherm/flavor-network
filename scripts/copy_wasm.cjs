@@ -13,6 +13,13 @@ const SOURCES = [
   ['node_modules/@rdkit/rdkit/dist/RDKit_minimal.wasm', 'public/wasm/RDKit_minimal.wasm'],
   ['node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm', 'public/wasm/ort-wasm-simd-threaded.wasm'],
   ['node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs', 'public/wasm/ort-wasm-simd-threaded.mjs'],
+  // onnxruntime-web 1.24's default backend loads the JSEP (WebGPU/WebNN-capable)
+  // wasm variant. Without these two, the runtime requests
+  // /wasm/ort-wasm-simd-threaded.jsep.{mjs,wasm} → 404 → the Firebase SPA rewrite
+  // serves index.html → "Failed to load module script: MIME type text/html"
+  // (breaks the recipe set-completion model: ✨ Suggest / Smart swaps).
+  ['node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.wasm', 'public/wasm/ort-wasm-simd-threaded.jsep.wasm'],
+  ['node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.mjs', 'public/wasm/ort-wasm-simd-threaded.jsep.mjs'],
 ];
 
 const root = path.resolve(__dirname, '..');
