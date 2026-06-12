@@ -31,9 +31,13 @@ export function deriveBowlCuisine(bowl, nodes, cuisineVocab) {
   if (!Array.isArray(cuisineVocab) || cuisineVocab.length === 0) return null;
 
   // Case-insensitive lookup from normalized cuisine → canonical vocab entry.
+  // Keep the FIRST occurrence: the model's cuisine_vocab contains both a proper
+  // 'Thai' (well-trained, earlier) and a duplicate lowercase 'thai' (rare,
+  // later). Without keep-first, the weak lowercase variant would win and the
+  // suggestions would lose cuisine conditioning (→ staple collapse).
   const canon = new Map();
   for (const c of cuisineVocab) {
-    if (typeof c === 'string') canon.set(c.toLowerCase(), c);
+    if (typeof c === 'string' && !canon.has(c.toLowerCase())) canon.set(c.toLowerCase(), c);
   }
 
   const tally = new Map(); // canonical vocab entry → count

@@ -15,6 +15,7 @@ import {
 } from '../data/recipeProfileAnalysis.js';
 import { loadDirectionsIndex, retrieveDirections } from '../ml/directionsRuntime.js';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
+import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
 
 const FONT = 'Caveat, cursive';
 
@@ -72,8 +73,8 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, onAdd,
     let cancelled = false;
     getModel().then((rt) => {
       if (cancelled || !rt || !rt.model) return undefined;
-      const cuisine = rt.deriveBowlCuisine ? rt.deriveBowlCuisine(bowlNames, nodes, rt.model.meta.cuisine_vocab) : null;
-      return rt.suggestIngredients(bowlNames, { cuisine, k: 60 }, rt.model).then((sugg) => {
+      const cuisine = deriveBowlCuisine(bowlNames, nodes, rt.model.meta.cuisine_vocab);
+      return rt.suggestIngredients(bowlNames, { cuisine, alpha: 0.3, k: 80 }, rt.model).then((sugg) => {
         if (cancelled) return;
         const bowlSet = new Set(bowlNames);
         setCandidates(sugg.map((s) => s.name).filter((nm) => !bowlSet.has(nm) && nodes.get(nm)));

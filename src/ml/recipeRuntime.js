@@ -60,14 +60,43 @@ export function buildRecipeInputs(observedNames, opts, meta, vocabIndex) {
  * @param {string[]} vocab
  * @param {number[]} observedIds ids to exclude
  * @param {number} k
+ * @param {Iterable<number>|null} candidateIds restrict ranking to this pool (e.g.
+ *   same-category substitutes for a replacement); null = whole vocab.
  * @returns {Array<{name:string, score:number}>}
  */
-export function rankLogits(logits, vocab, observedIds, k = 10) {
+export function rankLogits(logits, vocab, observedIds, k = 10, candidateIds = null) {
   const excluded = new Set(observedIds);
   const idx = [];
-  for (let i = 0; i < vocab.length; i++) if (!excluded.has(i)) idx.push(i);
+  if (candidateIds) {
+    for (const i of candidateIds) if (!excluded.has(i) && i >= 0 && i < vocab.length) idx.push(i);
+  } else {
+    for (let i = 0; i < vocab.length; i++) if (!excluded.has(i)) idx.push(i);
+  }
   idx.sort((a, b) => logits[b] - logits[a]);
   return idx.slice(0, k).map((i) => ({ name: vocab[i], score: logits[i] }));
+}
+
+/**
+ * Unconditional baseline logits (empty observed + zero profile + null cuisine)
+ * — the model's "predict for ANY recipe" prior, dominated by staples
+ * (salt/sugar/flour). Cached on the model. Subtracting α·baseline from the
+ * conditioned logits demotes those staples so context-specific ingredients
+ * surface (popularity discount / contrastive decoding).
+ */
+async function baselineLogits(model) {
+  if (model._baseline) return model._baseline;
+  const { ort, session, meta, vocabIndex } = model;
+  const inp = buildRecipeInputs([], {}, meta, vocabIndex);
+  const i64 = (a) => BigInt64Array.from(a.map((x) => BigInt(Math.trunc(x))));
+  const out = await session.run({
+    obs_ids: new ort.Tensor('int64', i64(inp.obsIds), [1, meta.maxlen]),
+    obs_mask: new ort.Tensor('float32', Float32Array.from(inp.obsMask), [1, meta.maxlen]),
+    profile: new ort.Tensor('float32', Float32Array.from(inp.profile), [1, NUM_HEADS]),
+    cuisine: new ort.Tensor('int64', i64([meta.cuisine_null]), [1]),
+    season: new ort.Tensor('int64', i64([meta.season_null]), [1]),
+  });
+  model._baseline = out.logits.data;
+  return model._baseline;
 }
 
 /** Lazily load onnxruntime-web + the model + vocab. */
@@ -100,5 +129,29 @@ export async function suggestIngredients(observedNames, opts, model) {
     season: new ort.Tensor('int64', i64([inp.season]), [1]),
   };
   const out = await session.run(feeds);
-  return rankLogits(out.logits.data, meta.vocab, inp.observedIds, opts?.k ?? 10);
+  let scores = out.logits.data;
+
+  // Popularity discount (contrastive): score = logit(i|recipe) − α·logit(i|∅).
+  // Demotes global staples (salt/sugar/flour) the model predicts for every
+  // recipe, so recipe-specific ingredients rank up. α small (~0.3) — high α
+  // promotes rare junk (validated in fm_p2_suggest_audit / Flow-B).
+  const alpha = opts?.alpha ?? 0;
+  if (alpha > 0) {
+    const base = await baselineLogits(model);
+    const adj = new Float64Array(scores.length);
+    for (let i = 0; i < scores.length; i++) adj[i] = scores[i] - alpha * base[i];
+    scores = adj;
+  }
+
+  // Restrict to a candidate pool (e.g. same-category substitutes for a
+  // replacement) when provided.
+  let candidateIds = null;
+  if (Array.isArray(opts?.candidateNames)) {
+    candidateIds = [];
+    for (const nm of opts.candidateNames) {
+      const id = vocabIndex.get(String(nm).toLowerCase());
+      if (id != null) candidateIds.push(id);
+    }
+  }
+  return rankLogits(scores, meta.vocab, inp.observedIds, opts?.k ?? 10, candidateIds);
 }
