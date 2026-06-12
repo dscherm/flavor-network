@@ -252,7 +252,7 @@
     "totalCount": 478527
   },
   "cream-style corn": {
-    "category": "dairy",
+    "category": "vegetable",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -942,7 +942,7 @@
     "totalCount": 82488
   },
   "cream of celery soup": {
-    "category": "dairy",
+    "category": "vegetable",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -968,7 +968,7 @@
     "totalCount": 12170
   },
   "cream of chicken soup": {
-    "category": "dairy",
+    "category": "protein",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -1737,7 +1737,7 @@
     "totalCount": 44569
   },
   "water chestnut": {
-    "category": "nut",
+    "category": "vegetable",
     "taste": "bitter sweet",
     "sources": [
       "recipenlg",
@@ -1843,7 +1843,7 @@
     "totalCount": 1277
   },
   "cream of chicken": {
-    "category": "dairy",
+    "category": "protein",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -1886,7 +1886,7 @@
     "totalCount": 677
   },
   "flavored gelatin": {
-    "category": "spice",
+    "category": "thickener",
     "taste": "sweet pungent",
     "sources": [
       "recipenlg"
@@ -2387,7 +2387,7 @@
     "totalCount": 37332
   },
   "unflavored gelatin": {
-    "category": "spice",
+    "category": "thickener",
     "taste": "sweet pungent",
     "sources": [
       "recipenlg"
@@ -2917,7 +2917,7 @@
     "totalCount": 18203
   },
   "cream of shrimp soup": {
-    "category": "dairy",
+    "category": "protein",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -3293,7 +3293,7 @@
     ],
     "totalCount": 85
   },
-  "jalape\u00f1o": {
+  "jalapeño": {
     "category": "chili",
     "taste": "spicy",
     "sources": [
@@ -3823,7 +3823,7 @@
     "totalCount": 1821
   },
   "peppercorn": {
-    "category": "other",
+    "category": "spice",
     "taste": "pungent",
     "sources": [
       "recipenlg",
@@ -4228,7 +4228,7 @@
     "totalCount": 380
   },
   "gelatin": {
-    "category": "dairy",
+    "category": "thickener",
     "taste": "sweet sour",
     "sources": [
       "recipenlg",
@@ -4569,7 +4569,7 @@
     "totalCount": 5829
   },
   "cream of celery": {
-    "category": "dairy",
+    "category": "vegetable",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -4585,7 +4585,7 @@
     "totalCount": 574
   },
   "cream chicken soup": {
-    "category": "dairy",
+    "category": "protein",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -4675,7 +4675,7 @@
     "totalCount": 17081
   },
   "avocado": {
-    "category": "other",
+    "category": "fruit",
     "taste": "pungent",
     "sources": [
       "recipenlg",
@@ -4827,7 +4827,7 @@
     "totalCount": 747
   },
   "tofu": {
-    "category": "other",
+    "category": "protein",
     "taste": "pungent",
     "sources": [
       "recipenlg",
@@ -4862,7 +4862,7 @@
     "totalCount": 2588
   },
   "broccoli cheese soup": {
-    "category": "dairy",
+    "category": "vegetable",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -5742,7 +5742,7 @@
     "totalCount": 248
   },
   "roll garlic": {
-    "category": "aromatic",
+    "category": "grain",
     "taste": "pungent sweet",
     "sources": [
       "recipenlg"
@@ -5865,7 +5865,7 @@
     "totalCount": 165
   },
   "cream of asparagus soup": {
-    "category": "dairy",
+    "category": "vegetable",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -6528,7 +6528,7 @@
     "totalCount": 325
   },
   "liquid fruit pectin": {
-    "category": "other",
+    "category": "thickener",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -6619,7 +6619,7 @@
     "totalCount": 147
   },
   "black peppercorn": {
-    "category": "other",
+    "category": "spice",
     "taste": "pungent",
     "sources": [
       "recipenlg",
@@ -7304,7 +7304,7 @@
     "totalCount": 232
   },
   "hamburger bun": {
-    "category": "protein",
+    "category": "grain",
     "taste": "salty pungent",
     "sources": [
       "recipenlg"
@@ -7626,7 +7626,7 @@
     "totalCount": 82
   },
   "white peppercorn": {
-    "category": "other",
+    "category": "spice",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -8122,7 +8122,7 @@
     "totalCount": 1333
   },
   "cream of broccoli soup": {
-    "category": "dairy",
+    "category": "vegetable",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -8703,7 +8703,7 @@
     "totalCount": 494
   },
   "apple butter": {
-    "category": "fat",
+    "category": "condiment",
     "taste": "sweet",
     "sources": [
       "recipenlg"
@@ -9031,7 +9031,7 @@
     "totalCount": 50
   },
   "cheese cracker crumb": {
-    "category": "dairy",
+    "category": "grain",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -9857,7 +9857,7 @@
     "totalCount": 141
   },
   "roll sugar cookie": {
-    "category": "sweetener",
+    "category": "grain",
     "taste": "sweet",
     "sources": [
       "recipenlg"
@@ -10309,7 +10309,7 @@
     "totalCount": 1996
   },
   "cheese cracker": {
-    "category": "dairy",
+    "category": "grain",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -10374,7 +10374,7 @@
     "totalCount": 289
   },
   "honeydew": {
-    "category": "other",
+    "category": "fruit",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -10582,7 +10582,7 @@
     "totalCount": 465
   },
   "cream of wheat": {
-    "category": "dairy",
+    "category": "grain",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -10726,7 +10726,7 @@
     "totalCount": 123
   },
   "pasta sauce": {
-    "category": "grain",
+    "category": "condiment",
     "taste": "sweet",
     "sources": [
       "recipenlg"
@@ -10903,7 +10903,7 @@
     "totalCount": 54
   },
   "pumpkin puree": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -11377,7 +11377,7 @@
     "totalCount": 1190
   },
   "butter cracker": {
-    "category": "fat",
+    "category": "grain",
     "taste": "sweet",
     "sources": [
       "recipenlg"
@@ -11473,7 +11473,7 @@
     "totalCount": 201
   },
   "anchovy filet": {
-    "category": "other",
+    "category": "protein",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -11756,7 +11756,7 @@
     "totalCount": 539
   },
   "anchovy fillet": {
-    "category": "other",
+    "category": "protein",
     "taste": "pungent",
     "sources": [
       "recipenlg",
@@ -11970,7 +11970,7 @@
     "totalCount": 68
   },
   "tomato pasta sauce": {
-    "category": "grain",
+    "category": "condiment",
     "taste": "sweet",
     "sources": [
       "recipenlg"
@@ -12140,7 +12140,7 @@
     "totalCount": 918
   },
   "unflavored gelatin powder": {
-    "category": "spice",
+    "category": "thickener",
     "taste": "sweet pungent",
     "sources": [
       "recipenlg"
@@ -12521,7 +12521,7 @@
     "totalCount": 54
   },
   "garlic crouton": {
-    "category": "aromatic",
+    "category": "grain",
     "taste": "pungent sweet",
     "sources": [
       "recipenlg"
@@ -12701,7 +12701,7 @@
     "totalCount": 60
   },
   "cream corn": {
-    "category": "dairy",
+    "category": "vegetable",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -12869,7 +12869,7 @@
     "totalCount": 134
   },
   "garlic bread": {
-    "category": "aromatic",
+    "category": "grain",
     "taste": "pungent sweet",
     "sources": [
       "recipenlg"
@@ -13289,7 +13289,7 @@
     "totalCount": 1644
   },
   "bluefish fillet": {
-    "category": "other",
+    "category": "protein",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -13508,7 +13508,7 @@
     "totalCount": 106
   },
   "fruit pectin": {
-    "category": "other",
+    "category": "thickener",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -15178,7 +15178,7 @@
     "totalCount": 513
   },
   "green peppercorn": {
-    "category": "other",
+    "category": "spice",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -15275,7 +15275,7 @@
     "totalCount": 1132
   },
   "sugar snap pea": {
-    "category": "sweetener",
+    "category": "vegetable",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -15300,7 +15300,7 @@
     "totalCount": 532
   },
   "ginger syrup": {
-    "category": "aromatic",
+    "category": "sweetener",
     "taste": "pungent sweet",
     "sources": [
       "recipenlg",
@@ -15789,7 +15789,7 @@
     "totalCount": 78
   },
   "jello gelatin": {
-    "category": "dairy",
+    "category": "thickener",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -17354,7 +17354,7 @@
     "totalCount": 879
   },
   "gelatin mix": {
-    "category": "dairy",
+    "category": "thickener",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -17508,7 +17508,7 @@
     "totalCount": 71
   },
   "coconut water": {
-    "category": "nut",
+    "category": "liquid",
     "taste": "bitter sweet",
     "sources": [
       "recipenlg"
@@ -17988,7 +17988,7 @@
     "totalCount": 350
   },
   "o gelatin": {
-    "category": "dairy",
+    "category": "thickener",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -19842,7 +19842,7 @@
     "totalCount": 370
   },
   "pink peppercorn": {
-    "category": "other",
+    "category": "spice",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -19984,7 +19984,7 @@
     "totalCount": 119
   },
   "gelatin powder": {
-    "category": "dairy",
+    "category": "thickener",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -20153,7 +20153,7 @@
     "totalCount": 330
   },
   "rice milk": {
-    "category": "dairy",
+    "category": "liquid",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -20325,7 +20325,7 @@
     "totalCount": 128
   },
   "silken tofu": {
-    "category": "other",
+    "category": "protein",
     "taste": "pungent",
     "sources": [
       "recipenlg",
@@ -20690,7 +20690,7 @@
     "totalCount": 61
   },
   "onion roll": {
-    "category": "aromatic",
+    "category": "grain",
     "taste": "pungent sweet",
     "sources": [
       "recipenlg"
@@ -20779,7 +20779,7 @@
     "totalCount": 61
   },
   "potato roll": {
-    "category": "vegetable",
+    "category": "grain",
     "taste": "astringent sweet",
     "sources": [
       "recipenlg"
@@ -21404,7 +21404,7 @@
     "totalCount": 139
   },
   "butter lettuce": {
-    "category": "fat",
+    "category": "vegetable",
     "taste": "sweet",
     "sources": [
       "recipenlg"
@@ -21640,7 +21640,7 @@
     "totalCount": 94
   },
   "brazil nut": {
-    "category": "other",
+    "category": "nut",
     "taste": "pungent",
     "sources": [
       "recipenlg",
@@ -21861,7 +21861,7 @@
     "totalCount": 68
   },
   "pumpkin butter": {
-    "category": "fat",
+    "category": "condiment",
     "taste": "sweet",
     "sources": [
       "recipenlg"
@@ -22373,7 +22373,7 @@
     "totalCount": 70
   },
   "beetroot": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "recipenlg",
@@ -22942,7 +22942,7 @@
     "totalCount": 120
   },
   "lotus root": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -24184,7 +24184,7 @@
     "totalCount": 53
   },
   "edamame": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -24460,7 +24460,7 @@
     "totalCount": 50
   },
   "seitan": {
-    "category": "other",
+    "category": "protein",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -24785,7 +24785,7 @@
     "totalCount": 437
   },
   "extra-firm tofu": {
-    "category": "other",
+    "category": "protein",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -24825,7 +24825,7 @@
     "totalCount": 67
   },
   "shelled edamame": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -25670,7 +25670,7 @@
     ],
     "totalCount": 56
   },
-  "gruy\u00e8re cheese": {
+  "gruyère cheese": {
     "category": "dairy",
     "taste": "sweet sour",
     "sources": [
@@ -25882,7 +25882,7 @@
     "totalCount": 93
   },
   "butternut pumpkin": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -26310,7 +26310,7 @@
     "totalCount": 55
   },
   "fully ripe avocado": {
-    "category": "other",
+    "category": "fruit",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -26479,7 +26479,7 @@
     "totalCount": 81
   },
   "gelatin sheet": {
-    "category": "dairy",
+    "category": "thickener",
     "taste": "sweet sour",
     "sources": [
       "recipenlg"
@@ -26714,7 +26714,7 @@
     "totalCount": 374
   },
   "sichuan peppercorn": {
-    "category": "other",
+    "category": "spice",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -26722,7 +26722,7 @@
     "totalCount": 78
   },
   "hass avocado": {
-    "category": "other",
+    "category": "fruit",
     "taste": "pungent",
     "sources": [
       "recipenlg"
@@ -26793,7 +26793,7 @@
     ],
     "totalCount": 82
   },
-  "tomato pur\u00e9e": {
+  "tomato purée": {
     "category": "vegetable",
     "taste": "astringent sweet",
     "sources": [
@@ -26820,7 +26820,7 @@
     "totalCount": 98
   },
   "unflavored powdered gelatin": {
-    "category": "spice",
+    "category": "thickener",
     "taste": "sweet pungent",
     "sources": [
       "recipenlg"
@@ -26891,7 +26891,7 @@
     ],
     "totalCount": 58
   },
-  "ni\u00e7oise olive": {
+  "niçoise olive": {
     "category": "vegetable",
     "taste": "sour bitter",
     "sources": [
@@ -27564,7 +27564,7 @@
     "totalCount": 63
   },
   "whisky": {
-    "category": "other",
+    "category": "spirit",
     "taste": "pungent",
     "sources": [
       "flavordb",
@@ -27573,7 +27573,7 @@
     "totalCount": 109
   },
   "canadian whisky": {
-    "category": "other",
+    "category": "spirit",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -27581,7 +27581,7 @@
     "totalCount": 105
   },
   "finnish whisky": {
-    "category": "other",
+    "category": "spirit",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -27589,7 +27589,7 @@
     "totalCount": 112
   },
   "japanese whisky": {
-    "category": "other",
+    "category": "spirit",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -27597,7 +27597,7 @@
     "totalCount": 111
   },
   "malt whisky": {
-    "category": "other",
+    "category": "spirit",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -27998,7 +27998,7 @@
     "totalCount": 166
   },
   "currant": {
-    "category": "other",
+    "category": "fruit",
     "taste": "pungent",
     "sources": [
       "flavordb",
@@ -28007,7 +28007,7 @@
     "totalCount": 40
   },
   "durian": {
-    "category": "other",
+    "category": "fruit",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -28047,7 +28047,7 @@
     "totalCount": 102
   },
   "jackfruit": {
-    "category": "other",
+    "category": "fruit",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -28128,7 +28128,7 @@
     "totalCount": 24
   },
   "pumpkin": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "flavordb",
@@ -28177,7 +28177,7 @@
     "totalCount": 118
   },
   "starfruit": {
-    "category": "other",
+    "category": "fruit",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -28297,7 +28297,7 @@
     "totalCount": 155
   },
   "fennel": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "flavordb",
@@ -28438,7 +28438,7 @@
     "totalCount": 7
   },
   "rye": {
-    "category": "other",
+    "category": "grain",
     "taste": "pungent",
     "sources": [
       "flavordb",
@@ -28463,7 +28463,7 @@
     "totalCount": 145
   },
   "mace": {
-    "category": "other",
+    "category": "spice",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -28480,7 +28480,7 @@
     "totalCount": 186
   },
   "black pepper": {
-    "category": "seasoning",
+    "category": "spice",
     "taste": "spicy",
     "sources": [
       "flavordb"
@@ -28599,7 +28599,7 @@
     "totalCount": 155
   },
   "parsnip": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -28843,7 +28843,7 @@
     "totalCount": 96
   },
   "summer savory": {
-    "category": "other",
+    "category": "herb",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -28851,7 +28851,7 @@
     "totalCount": 122
   },
   "winter savory": {
-    "category": "other",
+    "category": "herb",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -28963,7 +28963,7 @@
     "totalCount": 92
   },
   "rambutan": {
-    "category": "other",
+    "category": "fruit",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -29059,7 +29059,7 @@
     "totalCount": 93
   },
   "agar": {
-    "category": "other",
+    "category": "thickener",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -29535,7 +29535,7 @@
     "totalCount": 2
   },
   "spelt": {
-    "category": "other",
+    "category": "grain",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -29607,7 +29607,7 @@
     "totalCount": 95
   },
   "jicama": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "pungent",
     "sources": [
       "flavordb"
@@ -30036,7 +30036,7 @@
     ],
     "totalCount": 93
   },
-  "cupua\u008du": {
+  "cupuau": {
     "category": "other",
     "taste": "pungent",
     "sources": [
@@ -30576,7 +30576,7 @@
     "totalCount": 1
   },
   "fettuccine": {
-    "category": "other",
+    "category": "grain",
     "taste": "pungent",
     "sources": [
       "mealdb"
@@ -30615,7 +30615,7 @@
     ],
     "totalCount": 1
   },
-  "jam\u00f3n ib\u00e9rico": {
+  "jamón ibérico": {
     "category": "sweetener",
     "taste": "sweet",
     "sources": [
@@ -30735,7 +30735,7 @@
     ],
     "totalCount": 1
   },
-  "v\u00e4sterbottensost cheese": {
+  "västerbottensost cheese": {
     "category": "dairy",
     "taste": "sweet sour",
     "sources": [
@@ -30976,7 +30976,7 @@
     "totalCount": 21
   },
   "creme de cacao": {
-    "category": "other",
+    "category": "liqueur",
     "taste": "pungent",
     "sources": [
       "cocktaildb"
@@ -31280,7 +31280,7 @@
     "totalCount": 1
   },
   "creme de banane": {
-    "category": "other",
+    "category": "liqueur",
     "taste": "pungent",
     "sources": [
       "cocktaildb"
@@ -31805,7 +31805,7 @@
     ]
   },
   "beet": {
-    "category": "other",
+    "category": "vegetable",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -31878,7 +31878,7 @@
     }
   },
   "cantaloupe": {
-    "category": "other",
+    "category": "fruit",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32022,7 +32022,7 @@
     }
   },
   "fennel pollen": {
-    "category": "other",
+    "category": "spice",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32105,7 +32105,7 @@
     }
   },
   "green chutney": {
-    "category": "other",
+    "category": "condiment",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32173,7 +32173,7 @@
     }
   },
   "hot sauce": {
-    "category": "other",
+    "category": "condiment",
     "taste": "sour",
     "sources": [
       "recipenlg",
@@ -32230,7 +32230,7 @@
     }
   },
   "lychee": {
-    "category": "other",
+    "category": "fruit",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32258,7 +32258,7 @@
     }
   },
   "macadamia": {
-    "category": "other",
+    "category": "nut",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32315,7 +32315,7 @@
     }
   },
   "mandarin": {
-    "category": "other",
+    "category": "citrus",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32399,7 +32399,7 @@
     }
   },
   "nectarine": {
-    "category": "other",
+    "category": "fruit",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32427,7 +32427,7 @@
     }
   },
   "orange blossom": {
-    "category": "other",
+    "category": "spice",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32571,7 +32571,7 @@
     }
   },
   "roasted garlic": {
-    "category": "other",
+    "category": "aromatic",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32624,7 +32624,7 @@
     }
   },
   "savory": {
-    "category": "other",
+    "category": "herb",
     "taste": "bitter",
     "sources": [
       "recipenlg",
@@ -32650,7 +32650,7 @@
     }
   },
   "self rising flour": {
-    "category": "other",
+    "category": "grain",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32669,7 +32669,7 @@
     }
   },
   "shiso": {
-    "category": "other",
+    "category": "herb",
     "taste": "bitter",
     "sources": [
       "recipenlg",
@@ -32805,7 +32805,7 @@
     }
   },
   "vermicelli": {
-    "category": "other",
+    "category": "grain",
     "taste": "sweet",
     "sources": [
       "recipenlg",
@@ -32873,7 +32873,7 @@
     }
   },
   "worcestershire": {
-    "category": "other",
+    "category": "condiment",
     "taste": "umami",
     "sources": [
       "recipenlg",

@@ -54,4 +54,17 @@ describe('recipeRuntime — rankLogits', () => {
     expect(out.map((r) => r.name)).toEqual(['onion', 'basil', 'sugar']); // salt excluded despite top logit
     expect(out[0].score).toBe(8);
   });
+
+  it('restricts ranking to a candidate pool (for category-pool replacement)', () => {
+    const logits = [9, 1, 8, 2, 7, 3];
+    // pool = garlic(1), tomato(3), sugar(5) — only these are candidate substitutes
+    const out = rankLogits(logits, meta.vocab, [], 3, [1, 3, 5]);
+    expect(out.map((r) => r.name)).toEqual(['sugar', 'tomato', 'garlic']); // ranked within pool; onion/basil (higher logit) excluded
+  });
+
+  it('candidate pool still excludes observed ids', () => {
+    const logits = [9, 1, 8, 2, 7, 3];
+    const out = rankLogits(logits, meta.vocab, [5 /* sugar */], 5, [1, 3, 5]);
+    expect(out.map((r) => r.name)).toEqual(['tomato', 'garlic']); // sugar excluded though in pool
+  });
 });
