@@ -31,6 +31,35 @@ function getModel() {
   return _modelPromise;
 }
 
+// Coarse cuisine regions — for replace-mode we prioritize substitutes whose
+// PRIMARY cuisine matches the recipe's dominant cuisine (or its region).
+// Using the primary cuisine (not the full, noisily-tagged list) keeps e.g.
+// lasagna (primary Italian) out of an Asian-noodle swap even though the data
+// noisily tags it Thai.
+const CUISINE_REGION = {
+  thai: 'asian', vietnamese: 'asian', chinese: 'asian', japanese: 'asian', korean: 'asian',
+  indonesian: 'asian', malaysian: 'asian', filipino: 'asian', 'pacific islander': 'asian',
+  'southeast asian': 'asian', indian: 'asian', pakistani: 'asian', 'sri lankan': 'asian',
+  italian: 'european', french: 'european', spanish: 'european', greek: 'european', german: 'european',
+  british: 'european', hungarian: 'european', polish: 'european', russian: 'european',
+  portuguese: 'european', scandinavian: 'european',
+  mexican: 'latin', 'tex-mex': 'latin', peruvian: 'latin', argentine: 'latin', brazilian: 'latin',
+  caribbean: 'latin', 'cajun/creole': 'latin',
+  'middle eastern': 'mideast', persian: 'mideast', lebanese: 'mideast', turkish: 'mideast',
+  moroccan: 'mideast', israeli: 'mideast',
+  'west african': 'african', 'south african': 'african', ethiopian: 'african', african: 'african',
+  american: 'american', 'southern us': 'american', australian: 'american',
+};
+const cuisineRegion = (c) => CUISINE_REGION[c] || null;
+function primaryCuisine(node) {
+  const cs = node?.cuisines;
+  if (!Array.isArray(cs) || cs.length === 0) return null;
+  return (cs[0] || '').toLowerCase().replace(/ cuisine$/, '').trim() || null;
+}
+
+// Western pastas that are never sensible swaps for an Asian-style noodle.
+const WRONG_FOR_NOODLE = /lasagn|macaroni|\bziti\b|rigatoni|\bpenne\b|spaghetti/i;
+
 export default function SuggestionCardDeck({
   mode = 'add', ingredient = null, bowlNames = [], nodes, scopeFilter = null,
   onAdd, onSwap, onClose,
@@ -72,8 +101,32 @@ export default function SuggestionCardDeck({
       return rt.suggestIngredients(observed, { cuisine, alpha: ALPHA, k: 60, candidateNames }, rt.model)
         .then((sugg) => {
           if (cancelled) return;
+
+          // Replace re-rank: prioritize substitutes whose primary cuisine
+          // matches the recipe's dominant cuisine / region, and drop Western
+          // pastas (lasagna, …) when swapping a noodle.
+          let ranked = sugg;
+          if (mode === 'replace') {
+            const dom = (cuisine || '').toLowerCase();
+            const domRegion = cuisineRegion(dom);
+            const focalIsNoodle = /noodle/i.test(ingredient || '');
+            ranked = sugg
+              .filter((s) => !(focalIsNoodle && WRONG_FOR_NOODLE.test(s.name)))
+              .map((s, idx) => {
+                const pc = primaryCuisine(nodes.get(s.name));
+                let aff = 0;
+                if (pc && dom) {
+                  if (pc === dom) aff = 2;
+                  else if (domRegion && cuisineRegion(pc) === domRegion) aff = 1;
+                }
+                return { s, idx, aff };
+              })
+              .sort((a, b) => (b.aff - a.aff) || (a.idx - b.idx))
+              .map((x) => x.s);
+          }
+
           const out = [];
-          for (const s of sugg) {
+          for (const s of ranked) {
             if (bowlSet.has(s.name) || s.name === ingredient) continue;
             if (scopeFilter && !scopeFilter.has(s.name.toLowerCase())) continue;
             const node = nodes.get(s.name);
