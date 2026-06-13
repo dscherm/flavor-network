@@ -1,0 +1,47 @@
+{
+  "total_labeled": 3927,
+  "by_source": {
+    "llm-distilled": 3623,
+    "chef": 304
+  },
+  "dropped_no_valid_aroma": 0,
+  "samples": 3,
+  "aroma_head_counts": {
+    "fruity": 855,
+    "earthy": 782,
+    "green": 707,
+    "creamy": 703,
+    "nutty": 643,
+    "fatty": 629,
+    "roasted": 606,
+    "meaty": 558,
+    "fermented": 500,
+    "caramel": 477,
+    "spicy": 467,
+    "woody": 321,
+    "citrusy": 241,
+    "floral": 232,
+    "marine": 163,
+    "alliaceous green": 127,
+    "smoky": 110
+  },
+  "taste_head_counts": {
+    "sweet": 1398,
+    "umami": 947,
+    "salty": 694,
+    "sour": 673,
+    "bitter": 381,
+    "spicy": 241,
+    "pungent": 219,
+    "astringent": 55
+  },
+  "low_confidence_policy": {
+    "tastes": [
+      "salty"
+    ],
+    "aromas": [
+      "spicy"
+    ],
+    "note": "salty + odor_spicy match the molecular model's known-weak axes and the pilot's only sub-0.6 heads; emitted but flagged."
+  }
+}

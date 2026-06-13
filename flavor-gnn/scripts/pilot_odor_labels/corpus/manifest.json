@@ -1,0 +1,10 @@
+{
+  "total_ingredients": 3891,
+  "overlay_chef": 304,
+  "to_label": 3624,
+  "batch_size": 65,
+  "num_batches": 56,
+  "samples": 3,
+  "batch_dir": "D:\\Projects\\flavor-network\\flavor-gnn\\scripts\\pilot_odor_labels\\corpus\\batches",
+  "pred_dir": "D:\\Projects\\flavor-network\\flavor-gnn\\scripts\\pilot_odor_labels\\corpus\\preds"
+}

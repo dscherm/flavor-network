@@ -382,6 +382,23 @@ export default function useProData({ enabled = true } = {}) {
           }
         } catch { /* optional — falls back to flavor_graph_data_v3 byName */ }
 
+        // LLM-distilled ingredient-level flavor profile (2026-06-13). Built by
+        // flavor-gnn/scripts/pilot_odor_labels/merge_corpus_labels.py: a blind
+        // 3-sample-consensus multi-label aroma+taste profile over the full
+        // corpus, with the chef-curated rows overlaid by precedence. This is
+        // the ingredient-level signal (pilot 11-head macro-F1 0.710 vs the
+        // molecular model's 0.101); the molecular gnnProbs stay as a secondary
+        // "Molecular Profile" surface. Shape: {ingredients:{name:{aromas[],
+        // tastes[], source, low_confidence[]}}}.
+        let distilledProfiles = null;
+        try {
+          const dpRes = await fetch('/proDataset/flavor_profiles_distilled.json');
+          if (dpRes.ok) {
+            const raw = await dpRes.json();
+            distilledProfiles = raw.ingredients || null;
+          }
+        } catch { /* optional — panel section simply hides when absent */ }
+
         // Flavor-space cluster labels (k-means over flavor positions).
         // Independent of the Node2Vec cluster_labels.json. The renderer
         // shows these only in flavor3D / mlflavor mode. Centroid coords
@@ -748,6 +765,8 @@ export default function useProData({ enabled = true } = {}) {
           node.primaryTier1Aroma = entry
             ? (entry.tier1?.[0] ?? null)
             : resolvePrimaryTier1(name, node.gnnProbs, tier1Thresholds);
+          // LLM-distilled ingredient-level aroma/taste profile (see fetch above).
+          node.distilledProfile = distilledProfiles?.[name] ?? null;
         }
 
         // Affinity Mode (α-mode) lookup maps. Built once at session

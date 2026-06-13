@@ -1,0 +1,6 @@
+# Bulky regenerable labeling intermediates. The committed scripts + manifest +
+# chef_overlay.json + distill_report.json + the final
+# public/proDataset/flavor_profiles_distilled.json fully reproduce the result;
+# the per-batch name files and raw per-sample LLM outputs are not worth tracking.
+corpus/batches/
+corpus/preds/

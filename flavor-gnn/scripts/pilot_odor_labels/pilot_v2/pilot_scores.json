@@ -1,0 +1,149 @@
+{
+  "scored": 304,
+  "missing": [],
+  "aroma_macro_f1": 0.705,
+  "taste_macro_f1_5": 0.7156,
+  "taste_macro_f1_8": 0.6326,
+  "eleven_head_macro_f1": 0.7098,
+  "molecular_baseline_11head_f1": 0.101,
+  "aroma_per_label": {
+    "fruity": {
+      "precision": 0.84,
+      "recall": 0.863,
+      "f1": 0.851,
+      "support": 73
+    },
+    "floral": {
+      "precision": 0.681,
+      "recall": 0.8,
+      "f1": 0.736,
+      "support": 40
+    },
+    "green": {
+      "precision": 0.779,
+      "recall": 0.892,
+      "f1": 0.831,
+      "support": 83
+    },
+    "woody": {
+      "precision": 0.733,
+      "recall": 0.493,
+      "f1": 0.589,
+      "support": 67
+    },
+    "spicy": {
+      "precision": 0.354,
+      "recall": 0.85,
+      "f1": 0.5,
+      "support": 20
+    },
+    "fatty": {
+      "precision": 0.773,
+      "recall": 0.68,
+      "f1": 0.723,
+      "support": 50
+    }
+  },
+  "taste_per_label": {
+    "sweet": {
+      "precision": 0.946,
+      "recall": 0.599,
+      "f1": 0.733,
+      "support": 147
+    },
+    "sour": {
+      "precision": 0.892,
+      "recall": 0.853,
+      "f1": 0.872,
+      "support": 68
+    },
+    "bitter": {
+      "precision": 0.907,
+      "recall": 0.6,
+      "f1": 0.722,
+      "support": 65
+    },
+    "salty": {
+      "precision": 0.324,
+      "recall": 0.917,
+      "f1": 0.478,
+      "support": 12
+    },
+    "umami": {
+      "precision": 0.864,
+      "recall": 0.699,
+      "f1": 0.773,
+      "support": 73
+    }
+  },
+  "eleven_head_per_label": {
+    "bitter": {
+      "precision": 0.907,
+      "recall": 0.6,
+      "f1": 0.722,
+      "support": 65
+    },
+    "odor_fatty": {
+      "precision": 0.773,
+      "recall": 0.68,
+      "f1": 0.723,
+      "support": 50
+    },
+    "odor_floral": {
+      "precision": 0.681,
+      "recall": 0.8,
+      "f1": 0.736,
+      "support": 40
+    },
+    "odor_fruity": {
+      "precision": 0.84,
+      "recall": 0.863,
+      "f1": 0.851,
+      "support": 73
+    },
+    "odor_green": {
+      "precision": 0.779,
+      "recall": 0.892,
+      "f1": 0.831,
+      "support": 83
+    },
+    "odor_spicy": {
+      "precision": 0.354,
+      "recall": 0.85,
+      "f1": 0.5,
+      "support": 20
+    },
+    "odor_woody": {
+      "precision": 0.733,
+      "recall": 0.493,
+      "f1": 0.589,
+      "support": 67
+    },
+    "salty": {
+      "precision": 0.324,
+      "recall": 0.917,
+      "f1": 0.478,
+      "support": 12
+    },
+    "sour": {
+      "precision": 0.892,
+      "recall": 0.853,
+      "f1": 0.872,
+      "support": 68
+    },
+    "sweet": {
+      "precision": 0.946,
+      "recall": 0.599,
+      "f1": 0.733,
+      "support": 147
+    },
+    "umami": {
+      "precision": 0.864,
+      "recall": 0.699,
+      "f1": 0.773,
+      "support": 73
+    }
+  },
+  "threshold": 0.65,
+  "verdict": "PASS \u2014 distillation is viable; proceed to scale 304 -> 3,913"
+}

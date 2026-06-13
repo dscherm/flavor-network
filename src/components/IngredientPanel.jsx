@@ -5,6 +5,7 @@ import CuisineChip from './CuisineChip.jsx';
 import CuisineFilterPills from './CuisineFilterPills.jsx';
 import { getCuisinePair, displayableCuisine } from '../data/cuisinePairings.js';
 import PredictedProfile from './PredictedProfile.jsx';
+import DistilledProfile from './DistilledProfile.jsx';
 import FlavorGraphTree from './FlavorGraphTree.jsx';
 import SharedMoleculesCard from './SharedMoleculesCard.jsx';
 import ProfileRadarCarousel from './ProfileRadarCarousel.jsx';
@@ -554,6 +555,11 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             </div>
           </section>
         )}
+        {node.distilledProfile && (
+          <CollapsibleSection title="Flavor profile" defaultOpen={true}>
+            <DistilledProfile profile={node.distilledProfile} />
+          </CollapsibleSection>
+        )}
         {node.flavorGraph && (
           <CollapsibleSection title="Flavor Graph" defaultOpen={true}>
             <FlavorGraphTree node={node} />
@@ -1026,6 +1032,11 @@ export default function IngredientPanel({ node, neighbors, onClose, onSelectIngr
             panel with tier 1 (aroma) / tier 2 (taste) / tier 3
             (mouthfeel) + leaves visible by default. FlavorGraphTree
             renders all four. */}
+        {node.distilledProfile && (
+          <CollapsibleSection title="Flavor profile" defaultOpen={true}>
+            <DistilledProfile profile={node.distilledProfile} />
+          </CollapsibleSection>
+        )}
         {node.flavorGraph && (
           <CollapsibleSection title="Flavor Graph" defaultOpen={true}>
             <FlavorGraphTree node={node} />
