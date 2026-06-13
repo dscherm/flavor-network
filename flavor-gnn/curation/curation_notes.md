@@ -110,3 +110,30 @@ like":
 Four other fixtures are also pre-filled (vanilla, soy sauce,
 lemon, garlic) — each at minimum has a non-empty `tier1_aroma` so the
 §2.4 P0 canonical-fixture preservation gate has an anchor.
+
+## N1-D2 — descriptor lookup + Tier-3 backfill (2026-06-13)
+
+**Lookup table.** `descriptor_lookup.json` (built by
+`scripts/build_descriptor_lookup.py`) is the committed, auditable
+mapping from every frequent `gnn_compounds.json` tag → a Tier-3
+mouthfeel term, a normalized leaf note, or an explicit `skip`. It
+covers 100% of the 143 descriptors appearing in ≥10 ingredients and
+replaces the old substring buckets, so ambiguous tokens no longer
+false-map (`warm`→skip, `mushroom`→its own leaf not woody,
+`coconut`→leaf + `creamy`→mouthfeel rather than the fatty bucket).
+`derive_long_tail.py` loads it for both Tier-3 and (now noise-filtered)
+leaf derivation.
+
+**Top-500 Tier-3 backfill.** `scripts/backfill_top500_tier3.py` filled
+the 114 empty `tier3_mouthfeel` cells (tier3 62% → 94%, leaves 94%),
+**touching only empty cells — no chef-authored value was overwritten.**
+Provenance is in the `sources` column:
+- `t3-curated` — hand-assigned mouthfeel for 59 well-known ingredients
+  with no molecular signal (coconut, coffee, garlic, mushroom, …),
+  using the chef's own Tier-3 vocabulary.
+- `t3-derived` — 37 cells rule-derived from compound tags via the lookup.
+
+Both are **chef-overridable** — search the `sources` column for either
+tag to review/replace. 18 genuinely ambiguous rows (aroma-only florals
+like jasmine/lavender, thin sauces like soy/ponzu/worcestershire) were
+left empty rather than guessed.

@@ -1,0 +1,598 @@
+{
+  "_meta": {
+    "purpose": "Curated descriptor (gnn_compounds tag) -> Tier-3 mouthfeel / leaf-note decision. skip = both null.",
+    "schema": "descriptors[tag] = {t3: str|null, leaf: str|null}",
+    "source": "flavor-gnn/scripts/build_descriptor_lookup.py",
+    "task": "N1-D2",
+    "descriptor_count": 146,
+    "frequent_target_count": 143,
+    "frequent_covered": 143,
+    "frequent_coverage_pct": 1.0
+  },
+  "descriptors": {
+    "alcoholic": {
+      "t3": null,
+      "leaf": null
+    },
+    "alkane": {
+      "t3": "waxy",
+      "leaf": null
+    },
+    "ammonia": {
+      "t3": null,
+      "leaf": null
+    },
+    "apple": {
+      "t3": null,
+      "leaf": "apple"
+    },
+    "apple peel": {
+      "t3": null,
+      "leaf": "apple"
+    },
+    "apricot": {
+      "t3": null,
+      "leaf": "apricot"
+    },
+    "astringent": {
+      "t3": "astringent",
+      "leaf": null
+    },
+    "balsam": {
+      "t3": null,
+      "leaf": "balsamic"
+    },
+    "balsamic": {
+      "t3": null,
+      "leaf": "balsamic"
+    },
+    "banana": {
+      "t3": null,
+      "leaf": "banana"
+    },
+    "bean": {
+      "t3": null,
+      "leaf": "bean"
+    },
+    "bell": {
+      "t3": null,
+      "leaf": "green"
+    },
+    "berry": {
+      "t3": null,
+      "leaf": "berry"
+    },
+    "bitter": {
+      "t3": null,
+      "leaf": null
+    },
+    "bland": {
+      "t3": null,
+      "leaf": null
+    },
+    "brandy": {
+      "t3": null,
+      "leaf": "brandy"
+    },
+    "bread": {
+      "t3": null,
+      "leaf": "bready"
+    },
+    "bready": {
+      "t3": null,
+      "leaf": "bready"
+    },
+    "brown": {
+      "t3": null,
+      "leaf": null
+    },
+    "burnt": {
+      "t3": null,
+      "leaf": null
+    },
+    "butter": {
+      "t3": "creamy",
+      "leaf": null
+    },
+    "buttery": {
+      "t3": "creamy",
+      "leaf": null
+    },
+    "cabbage": {
+      "t3": null,
+      "leaf": "cabbage"
+    },
+    "camphor": {
+      "t3": "cooling",
+      "leaf": null
+    },
+    "cananga": {
+      "t3": null,
+      "leaf": "floral"
+    },
+    "caramel": {
+      "t3": null,
+      "leaf": "caramel"
+    },
+    "caramellic": {
+      "t3": null,
+      "leaf": "caramel"
+    },
+    "cheesy": {
+      "t3": null,
+      "leaf": "cheesy"
+    },
+    "cherry": {
+      "t3": null,
+      "leaf": "cherry"
+    },
+    "chocolate": {
+      "t3": null,
+      "leaf": "chocolate"
+    },
+    "cinnamon": {
+      "t3": null,
+      "leaf": "cinnamon"
+    },
+    "citrus": {
+      "t3": null,
+      "leaf": "citrus"
+    },
+    "cocoa": {
+      "t3": null,
+      "leaf": "cocoa"
+    },
+    "coconut": {
+      "t3": null,
+      "leaf": "coconut"
+    },
+    "coffee": {
+      "t3": null,
+      "leaf": "coffee"
+    },
+    "cooked": {
+      "t3": null,
+      "leaf": null
+    },
+    "cream": {
+      "t3": "creamy",
+      "leaf": null
+    },
+    "creamy": {
+      "t3": "creamy",
+      "leaf": null
+    },
+    "cucumber": {
+      "t3": null,
+      "leaf": "cucumber"
+    },
+    "deep": {
+      "t3": null,
+      "leaf": null
+    },
+    "delicate": {
+      "t3": null,
+      "leaf": null
+    },
+    "dry": {
+      "t3": "dry",
+      "leaf": null
+    },
+    "dusty": {
+      "t3": null,
+      "leaf": null
+    },
+    "earthy": {
+      "t3": null,
+      "leaf": "earthy"
+    },
+    "ether": {
+      "t3": null,
+      "leaf": null
+    },
+    "ethereal": {
+      "t3": null,
+      "leaf": null
+    },
+    "fat": {
+      "t3": "oily",
+      "leaf": null
+    },
+    "fatty": {
+      "t3": "oily",
+      "leaf": null
+    },
+    "fermented": {
+      "t3": null,
+      "leaf": "fermented"
+    },
+    "fishy": {
+      "t3": null,
+      "leaf": null
+    },
+    "floral": {
+      "t3": null,
+      "leaf": "floral"
+    },
+    "flower": {
+      "t3": null,
+      "leaf": "floral"
+    },
+    "formyl": {
+      "t3": null,
+      "leaf": null
+    },
+    "fragrant": {
+      "t3": null,
+      "leaf": null
+    },
+    "fresh": {
+      "t3": "cooling",
+      "leaf": "fresh"
+    },
+    "fruit": {
+      "t3": null,
+      "leaf": "fruity"
+    },
+    "fruity": {
+      "t3": null,
+      "leaf": "fruity"
+    },
+    "garlic": {
+      "t3": null,
+      "leaf": "garlic"
+    },
+    "gasoline": {
+      "t3": null,
+      "leaf": null
+    },
+    "grape": {
+      "t3": null,
+      "leaf": "grape"
+    },
+    "grapefruit peel": {
+      "t3": null,
+      "leaf": "grapefruit"
+    },
+    "grass": {
+      "t3": null,
+      "leaf": "grassy"
+    },
+    "green": {
+      "t3": null,
+      "leaf": "green"
+    },
+    "green pepper": {
+      "t3": null,
+      "leaf": "green"
+    },
+    "hazelnut": {
+      "t3": null,
+      "leaf": "hazelnut"
+    },
+    "herb": {
+      "t3": null,
+      "leaf": "herbaceous"
+    },
+    "herbal": {
+      "t3": null,
+      "leaf": "herbaceous"
+    },
+    "honey": {
+      "t3": null,
+      "leaf": "honey"
+    },
+    "hop_oil": {
+      "t3": null,
+      "leaf": "hop"
+    },
+    "lard": {
+      "t3": "oily",
+      "leaf": null
+    },
+    "leafy": {
+      "t3": null,
+      "leaf": "green"
+    },
+    "lemon": {
+      "t3": null,
+      "leaf": "lemon"
+    },
+    "lilac": {
+      "t3": null,
+      "leaf": "lilac"
+    },
+    "lime": {
+      "t3": null,
+      "leaf": "lime"
+    },
+    "malt": {
+      "t3": null,
+      "leaf": "malt"
+    },
+    "medical": {
+      "t3": null,
+      "leaf": null
+    },
+    "medicinal": {
+      "t3": null,
+      "leaf": null
+    },
+    "menthol": {
+      "t3": "cooling",
+      "leaf": "menthol"
+    },
+    "metal": {
+      "t3": null,
+      "leaf": null
+    },
+    "mild": {
+      "t3": null,
+      "leaf": null
+    },
+    "milky": {
+      "t3": "creamy",
+      "leaf": null
+    },
+    "mint": {
+      "t3": "cooling",
+      "leaf": null
+    },
+    "minty": {
+      "t3": "cooling",
+      "leaf": null
+    },
+    "moss": {
+      "t3": null,
+      "leaf": "earthy"
+    },
+    "mushroom": {
+      "t3": null,
+      "leaf": "mushroom"
+    },
+    "must": {
+      "t3": null,
+      "leaf": null
+    },
+    "mustard": {
+      "t3": null,
+      "leaf": "mustard"
+    },
+    "musty": {
+      "t3": null,
+      "leaf": null
+    },
+    "neroli": {
+      "t3": null,
+      "leaf": "floral"
+    },
+    "new mown hay": {
+      "t3": null,
+      "leaf": "hay"
+    },
+    "nut": {
+      "t3": null,
+      "leaf": "nutty"
+    },
+    "nutty": {
+      "t3": null,
+      "leaf": "nutty"
+    },
+    "odorless": {
+      "t3": null,
+      "leaf": null
+    },
+    "oil": {
+      "t3": "oily",
+      "leaf": null
+    },
+    "oily": {
+      "t3": "oily",
+      "leaf": null
+    },
+    "onion": {
+      "t3": null,
+      "leaf": "onion"
+    },
+    "orange": {
+      "t3": null,
+      "leaf": "orange"
+    },
+    "orange blossom": {
+      "t3": null,
+      "leaf": "floral"
+    },
+    "orange peel": {
+      "t3": null,
+      "leaf": "orange"
+    },
+    "overripe fruit": {
+      "t3": null,
+      "leaf": "fruity"
+    },
+    "peach": {
+      "t3": null,
+      "leaf": "peach"
+    },
+    "pear": {
+      "t3": null,
+      "leaf": "pear"
+    },
+    "pepper": {
+      "t3": null,
+      "leaf": "pepper"
+    },
+    "peppermint": {
+      "t3": "cooling",
+      "leaf": null
+    },
+    "phenolic": {
+      "t3": null,
+      "leaf": null
+    },
+    "pineapple": {
+      "t3": null,
+      "leaf": "pineapple"
+    },
+    "popcorn": {
+      "t3": null,
+      "leaf": "popcorn"
+    },
+    "potato": {
+      "t3": null,
+      "leaf": "potato"
+    },
+    "powdery": {
+      "t3": "powdery",
+      "leaf": null
+    },
+    "prune": {
+      "t3": null,
+      "leaf": "prune"
+    },
+    "pungent": {
+      "t3": "pungent",
+      "leaf": null
+    },
+    "raw": {
+      "t3": null,
+      "leaf": null
+    },
+    "resin": {
+      "t3": null,
+      "leaf": "resinous"
+    },
+    "roast": {
+      "t3": null,
+      "leaf": "roasted"
+    },
+    "rose": {
+      "t3": null,
+      "leaf": "rose"
+    },
+    "rose water": {
+      "t3": null,
+      "leaf": "rose"
+    },
+    "sharp": {
+      "t3": null,
+      "leaf": "sharp"
+    },
+    "slightly waxy": {
+      "t3": "waxy",
+      "leaf": null
+    },
+    "soap": {
+      "t3": null,
+      "leaf": null
+    },
+    "soapy": {
+      "t3": null,
+      "leaf": null
+    },
+    "solvent": {
+      "t3": null,
+      "leaf": null
+    },
+    "sour": {
+      "t3": null,
+      "leaf": null
+    },
+    "spice": {
+      "t3": null,
+      "leaf": "spice"
+    },
+    "spicy": {
+      "t3": null,
+      "leaf": "spice"
+    },
+    "sticky": {
+      "t3": "sticky",
+      "leaf": null
+    },
+    "sulfur": {
+      "t3": null,
+      "leaf": "sulfurous"
+    },
+    "sulfurous": {
+      "t3": null,
+      "leaf": "sulfurous"
+    },
+    "sweaty": {
+      "t3": null,
+      "leaf": null
+    },
+    "sweet": {
+      "t3": null,
+      "leaf": null
+    },
+    "tallow": {
+      "t3": "oily",
+      "leaf": null
+    },
+    "tart": {
+      "t3": null,
+      "leaf": null
+    },
+    "terpentine": {
+      "t3": null,
+      "leaf": null
+    },
+    "thyme": {
+      "t3": null,
+      "leaf": "thyme"
+    },
+    "tonka": {
+      "t3": null,
+      "leaf": "tonka"
+    },
+    "tutti frutti": {
+      "t3": null,
+      "leaf": "fruity"
+    },
+    "vanilla": {
+      "t3": null,
+      "leaf": "vanilla"
+    },
+    "vegetable": {
+      "t3": null,
+      "leaf": "vegetal"
+    },
+    "vinegar": {
+      "t3": null,
+      "leaf": "vinegar"
+    },
+    "warm": {
+      "t3": null,
+      "leaf": null
+    },
+    "wax": {
+      "t3": "waxy",
+      "leaf": null
+    },
+    "waxy": {
+      "t3": "waxy",
+      "leaf": null
+    },
+    "whiskey": {
+      "t3": null,
+      "leaf": "whiskey"
+    },
+    "wine": {
+      "t3": null,
+      "leaf": "wine"
+    },
+    "wintergreen": {
+      "t3": "cooling",
+      "leaf": null
+    },
+    "wood": {
+      "t3": null,
+      "leaf": "woody"
+    },
+    "woody": {
+      "t3": null,
+      "leaf": "woody"
+    }
+  }
+}

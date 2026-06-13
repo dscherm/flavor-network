@@ -49,6 +49,10 @@ GNN_COMPOUNDS = ROOT / "public" / "proDataset" / "gnn_compounds.json"
 POSITIONS = ROOT / "public" / "proDataset" / "flavor_positions.json"
 INGREDIENTS = ROOT / "public" / "proDataset" / "ingredients.json"
 ALIAS_MAP = ROOT / "flavor-gnn" / "curation" / "v3_alias_map.json"
+# N1-D2 curated descriptor → Tier-3 / leaf lookup (built by
+# build_descriptor_lookup.py). Replaces the ad-hoc TAG_TO_T3 substring
+# buckets; see that script for the per-token rationale.
+DESCRIPTOR_LOOKUP = ROOT / "flavor-gnn" / "curation" / "descriptor_lookup.json"
 
 # ── Output ──────────────────────────────────────────────────────────
 OUT_CSV = ROOT / "flavor-gnn" / "curation" / "flavor_graph_full.csv"
@@ -92,43 +96,49 @@ INGREDIENTS_TIER2_VOCAB = frozenset({
 GARBAGE_OTHER_COUNT_FLOOR = 10
 K_T1, K_T2, K_T3, K_LEAVES = 1, 3, 3, 5
 
-# Compound-descriptor tags that map to Tier-3 mouthfeel terms. Used to
-# enrich rule-derived rows so their feature density matches chef rows
-# (V3a acceptance gate: chef/derived median ratio ≤ 1.5×).
-TAG_TO_T3: dict[str, str] = {
-    "waxy": "waxy",
-    "wax": "waxy",
-    "fat": "oily",
-    "fatty": "oily",
-    "oily": "oily",
-    "pungent": "pungent",
-    "camphor": "cooling",
-    "menthol": "cooling",
-    "peppermint": "cooling",
-    "wintergreen": "cooling",
-    "mint": "cooling",
-    "fresh": "cooling",
-    "powdery": "powdery",
-    "creamy": "creamy",
-    "buttery": "creamy",
-    "milky": "creamy",
-    "astringent": "astringent",
-    "sticky": "sticky",
-    "alkane": "waxy",
-}
+# Curated descriptor → {t3, leaf} decisions (N1-D2). Loaded from
+# descriptor_lookup.json so the table is committed/auditable data, not
+# code. TAG_TO_T3 maps a tag to its Tier-3 mouthfeel term; TAG_TO_LEAF
+# maps a tag to its normalized leaf note. A tag absent from both (an
+# explicit `skip`, e.g. "warm"/"ethereal"/"sweet") contributes nothing.
+def _load_descriptor_lookup(path: Path) -> tuple[dict[str, str], dict[str, str]]:
+    """Return (tag→t3, tag→leaf) from descriptor_lookup.json.
 
-# Compound-descriptor tags too generic to be leaves; the taste signal
-# is already represented in tier2, so we don't double-count.
-DESCRIPTOR_BLOCKLIST = frozenset({
-    "odorless",
-    "sweet",
-    "bitter",
-    "sour",
-    "salty",
-    "umami",
-    "medical",
-    "tasteless",
-})
+    Falls back to a minimal built-in table if the file is missing so the
+    pipeline never hard-breaks on a fresh checkout.
+    """
+    if not path.exists():
+        fallback_t3 = {
+            "waxy": "waxy", "wax": "waxy", "alkane": "waxy", "fat": "oily",
+            "fatty": "oily", "oily": "oily", "camphor": "cooling",
+            "menthol": "cooling", "peppermint": "cooling", "mint": "cooling",
+            "fresh": "cooling", "powdery": "powdery", "creamy": "creamy",
+            "buttery": "creamy", "milky": "creamy", "pungent": "pungent",
+            "astringent": "astringent", "sticky": "sticky",
+        }
+        return fallback_t3, {}
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    t3: dict[str, str] = {}
+    leaf: dict[str, str] = {}
+    for tag, decision in doc.get("descriptors", {}).items():
+        tag = tag.strip().lower()
+        if decision.get("t3"):
+            t3[tag] = decision["t3"]
+        if decision.get("leaf"):
+            leaf[tag] = decision["leaf"]
+    return t3, leaf
+
+
+TAG_TO_T3, TAG_TO_LEAF = _load_descriptor_lookup(DESCRIPTOR_LOOKUP)
+
+# Tags with an explicit decision in the lookup (t3, leaf, or skip). A tag
+# present here but absent from TAG_TO_T3/TAG_TO_LEAF is a curated `skip`
+# and must never surface as a leaf. Tags NOT present at all are long-tail
+# (<10 ingredients) and fall through to passthrough as raw leaves.
+_LOOKUP_DECIDED: frozenset[str] = frozenset(
+    (t.strip().lower())
+    for t in json.loads(DESCRIPTOR_LOOKUP.read_text(encoding="utf-8")).get("descriptors", {})
+) if DESCRIPTOR_LOOKUP.exists() else frozenset()
 
 COLUMNS = (
     "name",
@@ -233,16 +243,32 @@ def _derive_tier3(compounds_entry: dict | None) -> list[str]:
 
 
 def _derive_leaves(compounds_entry: dict | None) -> list[str]:
-    """Top K_LEAVES descriptor tags by frequency across top_compounds, blocklist-filtered."""
+    """Top K_LEAVES leaf notes from compound tags via the curated lookup.
+
+    Per-tag policy:
+    - tag has a leaf term in the lookup → emit that normalized term
+      (so "fruit"/"fruity"/"apple peel" collapse to "fruity"/"apple");
+    - tag is decided but has no leaf (a curated `skip`, or a mouthfeel-only
+      term like "waxy") → drop it; this is what removes the "ethereal" /
+      "alcoholic" / "sweet" noise that previously flooded the leaves;
+    - tag is not in the lookup at all (long-tail, <10 ingredients) →
+      passthrough the raw tag so rare-but-real notes survive.
+    """
     if not compounds_entry:
         return []
     counter: Counter[str] = Counter()
     for compound in compounds_entry.get("top_compounds", []):
         for tag in compound.get("tags", []):
             tag = (tag or "").strip().lower()
-            if not tag or tag in DESCRIPTOR_BLOCKLIST:
+            if not tag:
                 continue
-            counter[tag] += 1
+            leaf = TAG_TO_LEAF.get(tag)
+            if leaf:
+                counter[leaf] += 1
+            elif tag in _LOOKUP_DECIDED:
+                continue  # curated skip or mouthfeel-only — not a leaf
+            else:
+                counter[tag] += 1  # long-tail passthrough
     ranked = sorted(counter.items(), key=lambda x: (-x[1], x[0]))
     return [tag for tag, _ in ranked[:K_LEAVES]]
 
