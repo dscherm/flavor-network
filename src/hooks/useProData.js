@@ -362,6 +362,26 @@ export default function useProData({ enabled = true } = {}) {
           }
         } catch { /* optional — v3 chef data not yet served in dev */ }
 
+        // N1-D3: per-ingredient flavor graph baked from the curation CSVs
+        // (flavor_graph_full.csv + top500 overlay) by bake_flavor_graph.py.
+        // Shape: {ingredients: {name: {tier1,tier2,tier3,leaves,source}},
+        // vocabulary, edges}. This is the authoritative tier source for the
+        // IngredientPanel chip-cloud — it covers the full curated corpus and
+        // carries the corrected canonical fixtures (e.g. mint). The older
+        // flavor_graph_data_v3.json is still loaded above for the rendered
+        // network edges/clusters + node embeddings.
+        let flavorGraphJson = null;
+        try {
+          const fgjRes = await fetch('/proDataset/flavor_graph.json');
+          if (fgjRes.ok) {
+            const raw = await fgjRes.json();
+            flavorGraphJson = {
+              ingredients: raw.ingredients || {},
+              vocabulary: raw.vocabulary || {},
+            };
+          }
+        } catch { /* optional — falls back to flavor_graph_data_v3 byName */ }
+
         // Flavor-space cluster labels (k-means over flavor positions).
         // Independent of the Node2Vec cluster_labels.json. The renderer
         // shows these only in flavor3D / mlflavor mode. Centroid coords
@@ -695,7 +715,23 @@ export default function useProData({ enabled = true } = {}) {
         // derivable (canon §3.1 precedence).
         for (const [name, node] of graph.nodes) {
           const entry = flavorGraph?.byName?.[name] ?? null;
-          if (entry) {
+          // N1-D3: prefer the baked flavor_graph.json entry for the chip-cloud
+          // tiers (full-corpus coverage + corrected fixtures). Keep embedding/
+          // cluster from the v3 graph node when present. primaryTier1Aroma is
+          // left on its original source so the chef-approved N1-D5 network
+          // coloring is unchanged (baked tiers must not re-tint the network).
+          const baked = flavorGraphJson?.ingredients?.[name] ?? null;
+          if (baked) {
+            node.flavorGraph = {
+              tier1: baked.tier1 || [],
+              tier2: baked.tier2 || [],
+              tier3: baked.tier3 || [],
+              leaves: baked.leaves || [],
+              embedding: entry?.embedding || null,
+              cluster: typeof entry?.cluster === 'number' ? entry.cluster : null,
+              source: baked.source || 'rule-derived',
+            };
+          } else if (entry) {
             node.flavorGraph = {
               tier1: entry.tier1 || [],
               tier2: entry.tier2 || [],
@@ -705,11 +741,13 @@ export default function useProData({ enabled = true } = {}) {
               cluster: typeof entry.cluster === 'number' ? entry.cluster : null,
               source: 'chef',
             };
-            node.primaryTier1Aroma = entry.tier1?.[0] ?? null;
           } else {
             node.flavorGraph = null;
-            node.primaryTier1Aroma = resolvePrimaryTier1(name, node.gnnProbs, tier1Thresholds);
           }
+          // primaryTier1Aroma: unchanged contract (v3 chef T1[0] else GNN).
+          node.primaryTier1Aroma = entry
+            ? (entry.tier1?.[0] ?? null)
+            : resolvePrimaryTier1(name, node.gnnProbs, tier1Thresholds);
         }
 
         // Affinity Mode (α-mode) lookup maps. Built once at session
