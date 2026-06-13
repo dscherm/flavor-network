@@ -1,0 +1,1070 @@
+[
+  {
+    "name": "boneless beef rump roast",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boneless beef short rib",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "Korean",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boneless beef sirloin",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boneless beef sirloin steak",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boneless lamb",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Australian",
+      "Greek",
+      "Turkish",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boneless pork",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Chinese",
+      "German",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boneless pork chop",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boneless pork loin",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "German",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boneless skinless chicken breast",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bonito",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "Japanese",
+      "Spanish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bonito flakes",
+    "category": "umami",
+    "taste": "umami",
+    "cuisines": [
+      "Japanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "borage",
+    "category": "herb",
+    "taste": "astringent bitter",
+    "cuisines": [
+      "Italian",
+      "Spanish",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "borlotti bean",
+    "category": "protein",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bosc pear",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boston lettuce",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boston lettuce leave",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "botrytized wine",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "French",
+      "German",
+      "Hungarian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bouillon powder",
+    "category": "umami",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bourbon",
+    "category": "spirit",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "boursin cheese",
+    "category": "dairy",
+    "taste": "salty pungent",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bowtie pasta",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "box wheat chex",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": true,
+    "junkReason": "Branded cereal product (Wheat Chex by General Mills)"
+  },
+  {
+    "name": "boysenberry",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "braeburn apple",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "British",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bramley apple",
+    "category": "fruit",
+    "taste": "sour",
+    "cuisines": [
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brandy",
+    "category": "spirit",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "French",
+      "Spanish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brandy flavoring",
+    "category": "condiment",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brazil nut",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Brazilian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread baguette",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread crumb",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread crumbs soft",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread crust",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread cube",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread dough",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread machine",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "Appliance reference, not an ingredient"
+  },
+  {
+    "name": "bread machine yeast",
+    "category": "thickener",
+    "taste": "bitter pungent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread mix",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread pudding",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "British",
+      "American",
+      "French"
+    ],
+    "isJunk": true,
+    "junkReason": "Prepared dish, not a single ingredient"
+  },
+  {
+    "name": "bread roll",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread stuffing",
+    "category": "grain",
+    "taste": "sweet salty",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bread stuffing mix",
+    "category": "grain",
+    "taste": "sweet salty",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "breadfruit",
+    "category": "vegetable",
+    "taste": "sweet",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "Filipino"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "breading",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "breadnut tree seed",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Caribbean",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "breadstick",
+    "category": "baked",
+    "taste": "sweet salty",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "breakfast cereal",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brick cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brie",
+    "category": "dairy",
+    "taste": "salty pungent umami",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brie cheese",
+    "category": "dairy",
+    "taste": "salty pungent umami",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brine",
+    "category": "liquid",
+    "taste": "salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brisket of beef",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Jewish",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broad bean",
+    "category": "protein",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Italian",
+      "Spanish",
+      "Lebanese",
+      "Egyptian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broad noodle",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Chinese",
+      "Vietnamese",
+      "Thai"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Italian",
+      "Chinese",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli carrots cauliflower",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli cheese soup",
+    "category": "condiment",
+    "taste": "salty umami",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": true,
+    "junkReason": "Prepared compound soup product, not a single ingredient"
+  },
+  {
+    "name": "broccoli coleslaw",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli crown",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "American",
+      "Italian",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli cut",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli floret",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli floweret",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli flowerette",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli rabe",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli slaw",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli slaw mix",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli spear",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli stem",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccoli top",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broccolini",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Italian",
+      "American",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broiler-fryer",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broiler-fryer chicken",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broken nut meat",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broth",
+    "category": "liquid",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "broth from chicken",
+    "category": "liquid",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown basmati rice",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Indian",
+      "Pakistani"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown bean",
+    "category": "protein",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Dutch",
+      "Swedish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown bean sauce",
+    "category": "condiment",
+    "taste": "umami salty sweet",
+    "cuisines": [
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown bread",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "British",
+      "German",
+      "Irish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown butter",
+    "category": "fat",
+    "taste": "sweet umami",
+    "cuisines": [
+      "French",
+      "Scandinavian",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown button mushroom",
+    "category": "vegetable",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown chicken",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown egg",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown mushroom",
+    "category": "vegetable",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown mustard",
+    "category": "condiment",
+    "taste": "pungent sour",
+    "cuisines": [
+      "American",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown mustard seed",
+    "category": "spice",
+    "taste": "pungent bitter",
+    "cuisines": [
+      "Indian",
+      "Pakistani",
+      "Sri Lankan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown onion",
+    "category": "aromatic",
+    "taste": "pungent sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown potatoe",
+    "category": "vegetable",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown rice",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Japanese",
+      "Korean",
+      "Thai",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown rice flour",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown rice syrup",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "Japanese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown rice vinegar",
+    "category": "acid",
+    "taste": "sour",
+    "cuisines": [
+      "Japanese",
+      "Chinese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown stock",
+    "category": "liquid",
+    "taste": "umami salty",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown sugar",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown sugar substitute",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brown vinegar",
+    "category": "acid",
+    "taste": "sour",
+    "cuisines": [
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brunoise red pepper",
+    "category": "vegetable",
+    "taste": "sweet spicy",
+    "cuisines": [
+      "French",
+      "Spanish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "brussels sprout",
+    "category": "vegetable",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Belgian",
+      "French",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bryndza cheese",
+    "category": "dairy",
+    "taste": "salty sour pungent",
+    "cuisines": [
+      "Polish",
+      "Slovak",
+      "Hungarian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bucatini pasta",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  }
+]

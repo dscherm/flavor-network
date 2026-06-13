@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd D:/Projects/flavor-network/flavor-gnn && ./.venv/Scripts/python.exe -m scripts.compare_dream_lift 2>&1\",\"description\":\"Compare F1 vs baseline\"}",
+  "error": "Exit code 2\ntask             pre-DREAM      +DREAM         Δ\r\n--------------------------------------------------\r\nsweet                0.898       0.892    -0.006   \r\nbitter               0.786       0.766    -0.020   \r\numami                0.563       0.576    +0.013   \r\nsalty                0.235       0.213    -0.022   \r\nsour                 0.830       0.781    -0.049  ▼\r\nodor_fruity          0.722       0.712    -0.011   \r\nodor_floral          0.502       0.488    -0.014   \r\nodor_green     ...",
+  "timestamp": "2026-05-26T23:53:59.828Z",
+  "retry_count": 1
+}

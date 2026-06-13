@@ -1,0 +1,1131 @@
+[
+  {
+    "name": "mango juice",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Indian",
+      "Thai",
+      "Caribbean",
+      "Filipino",
+      "Australian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mango powder",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mango puree",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Indian",
+      "Thai",
+      "Caribbean",
+      "Filipino",
+      "Australian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mango salsa",
+    "category": "condiment",
+    "taste": "sweet sour spicy",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mangoe",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Indian",
+      "Thai",
+      "Caribbean",
+      "Filipino",
+      "Pacific Islander",
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "manila clam",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Japanese",
+      "Italian",
+      "Portuguese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "manzanilla olive",
+    "category": "condiment",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Spanish",
+      "Portuguese",
+      "Italian",
+      "Greek",
+      "Turkish",
+      "Lebanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maple bacon",
+    "category": "protein",
+    "taste": "salty umami sweet",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maple sugar",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maple syrup",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maraschino cherry",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maraschino cherry halve",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maraschino cherry juice",
+    "category": "liquid",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maraschino liqueur",
+    "category": "liqueur",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "Italian",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "marcona almond",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Spanish",
+      "Moroccan",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "margarine",
+    "category": "fat",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "margarine like spread",
+    "category": "fat",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "marinara sauce",
+    "category": "condiment",
+    "taste": "sour sweet umami",
+    "cuisines": [
+      "Italian",
+      "American",
+      "Greek"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "marjoram",
+    "category": "herb",
+    "taste": "astringent pungent",
+    "cuisines": [
+      "Italian",
+      "Greek",
+      "Turkish",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "marsala wine",
+    "category": "spirit",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "marshmallow",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "marshmallow cream",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "marshmallow whip",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "masa harina",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mascarpone",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mascarpone cheese",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mashed banana",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mashed cooked sweet potatoe",
+    "category": "vegetable",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mashed overripe banana",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mashed potatoe",
+    "category": "vegetable",
+    "taste": "sweet umami",
+    "cuisines": [
+      "American",
+      "British",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mashed ripe banana",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mashed sweet potato",
+    "category": "vegetable",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mashed sweet potatoe",
+    "category": "vegetable",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mastic",
+    "category": "spice",
+    "taste": "pungent bitter",
+    "cuisines": [
+      "Greek",
+      "Turkish",
+      "Lebanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mastic gum",
+    "category": "spice",
+    "taste": "pungent bitter",
+    "cuisines": [
+      "Greek",
+      "Turkish",
+      "Lebanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "matcha",
+    "category": "herb",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Japanese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "matcha green tea powder",
+    "category": "herb",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Japanese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "matcha powder",
+    "category": "herb",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Japanese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "matchstick carrot",
+    "category": "vegetable",
+    "taste": "sweet",
+    "cuisines": [
+      "Chinese",
+      "Korean",
+      "Vietnamese",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mate",
+    "category": "liquid",
+    "taste": "bitter astringent",
+    "cuisines": [
+      "Argentine",
+      "Brazilian",
+      "Peruvian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "matzo cake meal",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "Israeli",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maui onion",
+    "category": "aromatic",
+    "taste": "pungent sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mayo",
+    "category": "condiment",
+    "taste": "sour sweet",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mayonnaise",
+    "category": "condiment",
+    "taste": "sour sweet",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mcbutter",
+    "category": "other",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": true,
+    "junkReason": "branded butter-flavored powder product"
+  },
+  {
+    "name": "meal flour",
+    "category": "thickener",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "meat",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "meat broth",
+    "category": "liquid",
+    "taste": "salty umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "meat sauce",
+    "category": "condiment",
+    "taste": "salty umami",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "meatball",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "Italian",
+      "American",
+      "Scandinavian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "meatloaf",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "medjool date",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "Moroccan",
+      "Persian",
+      "Lebanese",
+      "Turkish",
+      "Israeli",
+      "Ethiopian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "medlar",
+    "category": "fruit",
+    "taste": "sweet sour astringent",
+    "cuisines": [
+      "British",
+      "French",
+      "Persian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mein noodle",
+    "category": "grain",
+    "taste": "umami",
+    "cuisines": [
+      "Chinese",
+      "Vietnamese",
+      "Japanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "melon",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "melon liqueur",
+    "category": "liqueur",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "Japanese",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "melting cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Italian",
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mentha oil",
+    "category": "other",
+    "taste": "pungent astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "meringue powder",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mexican cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mexican groundcherry",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Mexican",
+      "Peruvian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mexico chile",
+    "category": "chili",
+    "taste": "spicy pungent",
+    "cuisines": [
+      "Mexican",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mexicorn",
+    "category": "vegetable",
+    "taste": "sweet spicy",
+    "cuisines": [
+      "American",
+      "Mexican",
+      "Tex-Mex"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mezcal",
+    "category": "spirit",
+    "taste": "spicy bitter",
+    "cuisines": [
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mild cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk chocolate",
+    "category": "confection",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk chocolate chip",
+    "category": "confection",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk chocolate frosting",
+    "category": "baked",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk chocolate kisse",
+    "category": "confection",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk chocolate morsel",
+    "category": "confection",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk fat",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk powder",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk ricotta",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk ricotta cheese",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milk yogurt",
+    "category": "dairy",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Indian",
+      "Turkish",
+      "Greek",
+      "Lebanese",
+      "Pakistani",
+      "Persian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milkshake",
+    "category": "liquid",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milky",
+    "category": "other",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "descriptor/adjective, not a culinary ingredient"
+  },
+  {
+    "name": "millet",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Indian",
+      "Ethiopian",
+      "West African",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "millet flour",
+    "category": "thickener",
+    "taste": "sweet",
+    "cuisines": [
+      "Indian",
+      "Ethiopian",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "milliliters milk",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "measurement artifact, not an ingredient name"
+  },
+  {
+    "name": "miniature marshmallow",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mint",
+    "category": "herb",
+    "taste": "astringent pungent",
+    "cuisines": [
+      "Turkish",
+      "Lebanese",
+      "Moroccan",
+      "Vietnamese",
+      "Greek",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mint chocolate chip",
+    "category": "confection",
+    "taste": "sweet bitter pungent",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mint chocolate chip ice cream",
+    "category": "dairy",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mint flake",
+    "category": "herb",
+    "taste": "astringent pungent",
+    "cuisines": [
+      "Turkish",
+      "Lebanese",
+      "Moroccan",
+      "Vietnamese",
+      "Greek",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mint jelly",
+    "category": "condiment",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "British",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mint leaf",
+    "category": "herb",
+    "taste": "astringent pungent",
+    "cuisines": [
+      "Turkish",
+      "Lebanese",
+      "Moroccan",
+      "Vietnamese",
+      "Greek",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mint sauce",
+    "category": "condiment",
+    "taste": "sweet sour pungent",
+    "cuisines": [
+      "British",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mint syrup",
+    "category": "condiment",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "American",
+      "Lebanese",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "minute rice",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mirin",
+    "category": "condiment",
+    "taste": "sweet",
+    "cuisines": [
+      "Japanese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "miso",
+    "category": "umami",
+    "taste": "salty umami",
+    "cuisines": [
+      "Japanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mixed bean",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global",
+      "Mexican",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mixed berry",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mixed cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mixed lettuce",
+    "category": "vegetable",
+    "taste": "astringent sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mixed mushroom",
+    "category": "vegetable",
+    "taste": "umami",
+    "cuisines": [
+      "Chinese",
+      "Japanese",
+      "Korean",
+      "Russian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mixed nut",
+    "category": "nut",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  }
+]

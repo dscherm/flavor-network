@@ -39,3 +39,27 @@ Iterations with test changes pass at 100% vs 53% without
 <!-- type: pattern | last_seen: 0 | tags: positive -->
 Iterations with test changes pass at 100% vs 47% without
 
+### mem-20260518-001
+<!-- type: pattern | last_seen: 0 | tags: positive -->
+Iterations with test changes pass at 100% vs 24% without
+
+### mem-20260519-001
+<!-- type: pattern | last_seen: 0 | tags: positive -->
+Iterations with test changes pass at 100% vs 18% without
+
+### mem-20260520-001
+<!-- type: pattern | last_seen: 0 | tags: positive -->
+Iterations with test changes pass at 100% vs 12% without
+
+### mem-20260520-002
+<!-- type: pattern | last_seen: 0 | tags: positive -->
+Iterations with test changes pass at 75% vs 12% without
+
+### mem-20260520-003
+<!-- type: pattern | last_seen: 0 | tags: positive -->
+Iterations with test changes pass at 80% vs 13% without
+
+### mem-20260523-001
+<!-- type: pattern | last_seen: 0 | tags: positive -->
+Iterations with test changes pass at 25% vs 6% without
+

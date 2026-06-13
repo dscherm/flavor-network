@@ -1,0 +1,15 @@
+{
+  "active": true,
+  "skill_name": "deep-interview",
+  "session_id": "b19454a2-79c6-41bf-8cb4-654602bacb66",
+  "started_at": "2026-06-11T20:04:30.110Z",
+  "last_checked_at": "2026-06-11T20:04:30.110Z",
+  "reinforcement_count": 0,
+  "max_reinforcements": 10,
+  "stale_ttl_ms": 1800000,
+  "_meta": {
+    "written_at": "2026-06-11T20:04:30.110Z",
+    "mode": "skill-active",
+    "sessionId": "b19454a2-79c6-41bf-8cb4-654602bacb66"
+  }
+}

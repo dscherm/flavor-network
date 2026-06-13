@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"python -c \\\"import json; m = json.load(open('flavor-gnn/curation/v3_alias_map.json')); print('Sample unmatched:'); [print(f'  {u}') for u in m.get('unmatched', [])[:60]]\\\"\",\"description\":\"...",
+  "error": "Exit code 1\nTraceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\nFileNotFoundError: [Errno 2] No such file or directory: 'flavor-gnn/curation/v3_alias_map.json'",
+  "timestamp": "2026-05-23T19:56:22.816Z",
+  "retry_count": 1
+}

@@ -1,0 +1,12 @@
+{
+  "active": false,
+  "completed_at": "2026-04-29T21:10:00Z",
+  "cancellation_reason": "user requested switch to interactive bridge mode",
+  "original_prompt": "/oh-my-claudecode:autopilot .omc/plans/ralplan-camera-animations.md",
+  "_meta": {
+    "mode": "autopilot",
+    "sessionId": "fcecc094-b7cc-4c00-acc3-9a03763e6227",
+    "updatedAt": "2026-04-29T21:07:29.905Z",
+    "updatedBy": "state_write_tool"
+  }
+}

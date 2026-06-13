@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<title>WedgeGridFlavorWheel — 6-sector vs 13-sector A/B</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #e5e5e5; padding: 24px; }
+  h1 { margin: 0 0 8px; font-weight: 500; }
+  .meta { color: #888; font-size: 13px; margin-bottom: 24px; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #222; padding: 8px; vertical-align: top; }
+  th { text-align: left; width: 120px; background: #14141a; color: #d4d4aa; }
+  img { width: 100%; max-width: 680px; display: block; border: 1px solid #333; }
+  .missing { color: #555; text-align: center; font-style: italic; }
+  .legend { margin-top: 32px; font-size: 13px; color: #888; line-height: 1.6; }
+  .legend code { background: #1a1a22; padding: 1px 5px; border-radius: 3px; color: #d4d4aa; }
+  .header-row th { color: #d4d4aa; background: #14141a; font-weight: 500; }
+</style>
+</head><body>
+<h1>WedgeGridFlavorWheel — 6-sector vs 13-sector A/B</h1>
+<div class="meta">
+  RL-AXIS-VOCAB-WEDGEGRID • Run any time after both variants captured •
+  <code>2026-05-30T00:10:58.103Z</code>
+</div>
+
+<table>
+  <thead>
+    <tr class="header-row">
+      <th>Focal ingredient</th>
+      <th>6-sector (deployed / pre-change)</th>
+      <th>13-sector (local / post-change)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><th>tomato</th><td><a href="tomato__6sector.png" target="_blank"><img src="tomato__6sector.png" alt="tomato 6-sector" /></a></td><td><a href="tomato__13sector.png" target="_blank"><img src="tomato__13sector.png" alt="tomato 13-sector" /></a></td></tr><tr><th>lemon</th><td><a href="lemon__6sector.png" target="_blank"><img src="lemon__6sector.png" alt="lemon 6-sector" /></a></td><td><a href="lemon__13sector.png" target="_blank"><img src="lemon__13sector.png" alt="lemon 13-sector" /></a></td></tr><tr><th>vanilla</th><td><a href="vanilla__6sector.png" target="_blank"><img src="vanilla__6sector.png" alt="vanilla 6-sector" /></a></td><td><a href="vanilla__13sector.png" target="_blank"><img src="vanilla__13sector.png" alt="vanilla 13-sector" /></a></td></tr><tr><th>saffron</th><td><a href="saffron__6sector.png" target="_blank"><img src="saffron__6sector.png" alt="saffron 6-sector" /></a></td><td><a href="saffron__13sector.png" target="_blank"><img src="saffron__13sector.png" alt="saffron 13-sector" /></a></td></tr><tr><th>black pepper</th><td><a href="black-pepper__6sector.png" target="_blank"><img src="black-pepper__6sector.png" alt="black pepper 6-sector" /></a></td><td><a href="black-pepper__13sector.png" target="_blank"><img src="black-pepper__13sector.png" alt="black pepper 13-sector" /></a></td></tr>
+  </tbody>
+</table>
+
+<div class="legend">
+  <p><strong>Chef sign-off checklist</strong> — per focal:</p>
+  <ul>
+    <li>Does the 13-sector wheel surface the chef-only aromas (citrus / caramel / earthy / pungent / herbal / roasted / fermented / marine) when the focal has chef tier1 data for them? Faint sectors are expected for aromas the focal doesn't hit.</li>
+    <li>Does the focal's GNN-driven activated set (fruity / floral / green / woody / creamy) still look identical between the 6-sector and 13-sector shots? It should — the GNN signal didn't change, just the sector count.</li>
+    <li>Are sector labels readable at 13 sectors? Smaller font, tighter spacing — verify the labels don't overlap or get cropped.</li>
+    <li>Do accent ingredients still place sensibly (no overlap / clobber at the tighter 27.7° slice angle)? The accentPlacement.js algorithm runs unchanged.</li>
+    <li>Does "spicy" no longer appear (it migrated from aroma to taste in chef-canonical vocab)? Check that nothing in the new 13-sector shot still uses it.</li>
+  </ul>
+  <p>If all 5 focals pass: thumbs-up the PR, this commit can merge. If any focal regresses, flag the specific failure mode (font overflow, accent clobber, missing label, etc.) so the fix lands before merge.</p>
+</div>
+
+</body></html>

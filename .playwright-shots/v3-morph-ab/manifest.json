@@ -1,0 +1,117 @@
+{
+  "url": "http://localhost:5173/",
+  "timestamp": "2026-05-25T15:36:50.923Z",
+  "v3BoundingRadius": 66.68699699649099,
+  "axes": [
+    "aroma",
+    "cuisine",
+    "season",
+    "family",
+    "taste"
+  ],
+  "framesCaptured": 20,
+  "framesExpected": 20,
+  "captured": [
+    {
+      "axis": "aroma",
+      "bucket": null,
+      "file": "aroma__overview.png"
+    },
+    {
+      "axis": "aroma",
+      "bucket": "Fruity",
+      "file": "aroma__fruity.png"
+    },
+    {
+      "axis": "aroma",
+      "bucket": "Green",
+      "file": "aroma__green.png"
+    },
+    {
+      "axis": "aroma",
+      "bucket": "Woody",
+      "file": "aroma__woody.png"
+    },
+    {
+      "axis": "cuisine",
+      "bucket": null,
+      "file": "cuisine__overview.png"
+    },
+    {
+      "axis": "cuisine",
+      "bucket": "European",
+      "file": "cuisine__european.png"
+    },
+    {
+      "axis": "cuisine",
+      "bucket": "East Asian",
+      "file": "cuisine__east-asian.png"
+    },
+    {
+      "axis": "cuisine",
+      "bucket": "Americas",
+      "file": "cuisine__americas.png"
+    },
+    {
+      "axis": "season",
+      "bucket": null,
+      "file": "season__overview.png"
+    },
+    {
+      "axis": "season",
+      "bucket": "Spring",
+      "file": "season__spring.png"
+    },
+    {
+      "axis": "season",
+      "bucket": "Summer",
+      "file": "season__summer.png"
+    },
+    {
+      "axis": "season",
+      "bucket": "Autumn",
+      "file": "season__autumn.png"
+    },
+    {
+      "axis": "family",
+      "bucket": null,
+      "file": "family__overview.png"
+    },
+    {
+      "axis": "family",
+      "bucket": "Protein",
+      "file": "family__protein.png"
+    },
+    {
+      "axis": "family",
+      "bucket": "Vegetable",
+      "file": "family__vegetable.png"
+    },
+    {
+      "axis": "family",
+      "bucket": "Fruit",
+      "file": "family__fruit.png"
+    },
+    {
+      "axis": "taste",
+      "bucket": null,
+      "file": "taste__overview.png"
+    },
+    {
+      "axis": "taste",
+      "bucket": "Sweet",
+      "file": "taste__sweet.png"
+    },
+    {
+      "axis": "taste",
+      "bucket": "Sour",
+      "file": "taste__sour.png"
+    },
+    {
+      "axis": "taste",
+      "bucket": "Bitter",
+      "file": "taste__bitter.png"
+    }
+  ],
+  "consoleErrors": []
+}

@@ -1,0 +1,1115 @@
+[
+  {
+    "name": "banana pepper",
+    "category": "chili",
+    "taste": "spicy sweet",
+    "cuisines": [
+      "American",
+      "Italian",
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bananas mashed",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barbecue beef",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barbecue pork",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Chinese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barbecue sauce",
+    "category": "condiment",
+    "taste": "sweet sour spicy",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barbecued pork",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "Chinese",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barbeque sauce",
+    "category": "condiment",
+    "taste": "sweet sour spicy",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barbq sauce",
+    "category": "condiment",
+    "taste": "sweet sour spicy",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barley",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "British",
+      "German",
+      "Middle Eastern"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barley flour",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barley malt",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "British",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barley malt syrup",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "British",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "barrel cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "Polish",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bartlett pear",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "basil",
+    "category": "herb",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "Italian",
+      "Thai",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "basil chiffonade",
+    "category": "herb",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "Italian",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "basil freshly",
+    "category": "herb",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "Italian",
+      "Thai"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "basil leaf",
+    "category": "herb",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "Italian",
+      "Thai",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "basil oil",
+    "category": "fat",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "Italian",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "basil pesto",
+    "category": "condiment",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "basket cherry tomatoe",
+    "category": "vegetable",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Italian",
+      "Spanish",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "basting sauce",
+    "category": "condiment",
+    "taste": "sweet salty umami",
+    "cuisines": [
+      "American",
+      "Chinese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bay leaf",
+    "category": "herb",
+    "taste": "bitter pungent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bay leaf powder",
+    "category": "herb",
+    "taste": "bitter pungent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bay scallop",
+    "category": "protein",
+    "taste": "umami sweet",
+    "cuisines": [
+      "American",
+      "French",
+      "Japanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bay shrimp",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Cajun/Creole"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bayberry",
+    "category": "fruit",
+    "taste": "sour astringent",
+    "cuisines": [
+      "Chinese",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bayleaf",
+    "category": "herb",
+    "taste": "bitter pungent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bbq sauce",
+    "category": "condiment",
+    "taste": "sweet sour spicy",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bean",
+    "category": "protein",
+    "taste": "sweet astringent",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bean curd",
+    "category": "protein",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Chinese",
+      "Japanese",
+      "Korean",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bean dip",
+    "category": "condiment",
+    "taste": "sweet salty",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bean paste",
+    "category": "condiment",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Chinese",
+      "Japanese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bean sauce",
+    "category": "condiment",
+    "taste": "umami salty",
+    "cuisines": [
+      "Chinese",
+      "Korean",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bean soup mix",
+    "category": "protein",
+    "taste": "sweet umami",
+    "cuisines": [
+      "American",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bean sprout",
+    "category": "vegetable",
+    "taste": "sweet astringent",
+    "cuisines": [
+      "Chinese",
+      "Vietnamese",
+      "Thai",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bean thread",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Chinese",
+      "Vietnamese",
+      "Thai",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bean with bacon soup",
+    "category": "condiment",
+    "taste": "umami salty",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": true,
+    "junkReason": "Prepared compound soup product, not a single ingredient"
+  },
+  {
+    "name": "bearnaise sauce",
+    "category": "condiment",
+    "taste": "sour sweet umami",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beaten egg",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bechamel",
+    "category": "condiment",
+    "taste": "sweet salty",
+    "cuisines": [
+      "French",
+      "Italian",
+      "Greek"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "bechamel sauce",
+    "category": "condiment",
+    "taste": "sweet salty",
+    "cuisines": [
+      "French",
+      "Italian",
+      "Greek"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beech nut",
+    "category": "nut",
+    "taste": "sweet astringent",
+    "cuisines": [
+      "German",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef base",
+    "category": "umami",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef bone",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef bouillon",
+    "category": "umami",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef bouillon cube",
+    "category": "umami",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef bouillon granule",
+    "category": "umami",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef bouillon powder",
+    "category": "umami",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef bouillon soup",
+    "category": "liquid",
+    "taste": "umami salty",
+    "cuisines": [
+      "French",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef brisket",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Jewish",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef chuck",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef chuck roast",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef chuck steak",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef consomme",
+    "category": "liquid",
+    "taste": "umami salty",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef cube",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef dripping",
+    "category": "fat",
+    "taste": "umami salty",
+    "cuisines": [
+      "British",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef fillet",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "French",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef flank",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "Korean",
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef flank steak",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "Korean",
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef flavor",
+    "category": "umami",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef gravy",
+    "category": "condiment",
+    "taste": "umami salty",
+    "cuisines": [
+      "British",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef lean",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef liver",
+    "category": "protein",
+    "taste": "umami bitter",
+    "cuisines": [
+      "Argentine",
+      "German",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef mince",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "British",
+      "Argentine",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef pattie",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef pot roast",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": true,
+    "junkReason": "Prepared dish, not a raw ingredient"
+  },
+  {
+    "name": "beef rib",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "American",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef roast",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "British",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef round",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef round steak",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef rump",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "British",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef rump roast",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef sausage",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "German",
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef shank",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "Italian",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef short rib",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "Korean",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef shoulder",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef sirloin",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef sirloin steak",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef sirloin tip roast",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef skirt",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "Mexican",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef skirt steak",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "Mexican",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef soup bone",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef steak",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef stew",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "French",
+      "Irish"
+    ],
+    "isJunk": true,
+    "junkReason": "Prepared dish, not a single ingredient"
+  },
+  {
+    "name": "beef stew meat",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef stew seasoning",
+    "category": "seasoning",
+    "taste": "salty pungent umami",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef stock",
+    "category": "liquid",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef strip",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef suet",
+    "category": "fat",
+    "taste": "umami",
+    "cuisines": [
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef tenderloin",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef tip",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef top sirloin",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Argentine",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beef tri",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beefeater",
+    "category": "spirit",
+    "taste": "bitter pungent",
+    "cuisines": [
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beefsteak tomato",
+    "category": "vegetable",
+    "taste": "sweet sour umami",
+    "cuisines": [
+      "Italian",
+      "American",
+      "Spanish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beefsteak tomatoe",
+    "category": "vegetable",
+    "taste": "sweet sour umami",
+    "cuisines": [
+      "Italian",
+      "American",
+      "Spanish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beer",
+    "category": "liquid",
+    "taste": "bitter",
+    "cuisines": [
+      "German",
+      "British",
+      "Belgian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "beet",
+    "category": "vegetable",
+    "taste": "sweet",
+    "cuisines": [
+      "Russian",
+      "Scandinavian",
+      "Polish",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  }
+]

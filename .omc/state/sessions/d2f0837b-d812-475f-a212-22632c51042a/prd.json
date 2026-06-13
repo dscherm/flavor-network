@@ -1,0 +1,54 @@
+{
+  "task_id": "R20-trio",
+  "title": "Trio: R7-42 (Top Pairings click → highlight/label) + R8-49 (Training Trace onboarding modal) + R9-57 (Remove Training Trace tab/component)",
+  "spec_file": null,
+  "reviewer": "architect",
+  "stories": [
+    {
+      "id": "US-01",
+      "title": "R7-42 — Top Pairings click highlights and labels neighbors on the network",
+      "priority": 1,
+      "passes": true,
+      "acceptanceCriteria": [
+        "Clicking the 'Top Pairings' CollapsibleSection header in IngredientPanel calls onHighlightPairings with the list of all sortedNeighbors' names (existing wiring at src/components/IngredientPanel.jsx:562 and 879).",
+        "Clicking the 'Common Pairings (N) ↗' header when 2+ ingredients are selected calls onHighlightPairings with commonPairings names (existing wiring at src/components/IngredientPanel.jsx:536 and 853).",
+        "App.jsx toggles highlightPairings (null ↔ names) on each call — pressing the header twice clears it (existing wiring at src/App.jsx:1006-1008 and 1540-1542).",
+        "LivingArchView creates a Three.js label sprite (makeLabel) at each highlighted node's mode-position (src/components/LivingArchView.jsx:1865-1890); sprites are torn down + recreated when highlightPairings changes.",
+        "AffinityMode engaged-guard at LivingArchView.jsx:1865 prevents duplicate label sprites when α-mode owns labels; confirm this branch still no-ops correctly.",
+        "New vitest at src/components/__tests__/IngredientPanel.r7-42.test.jsx (or extend existing IngredientPanel test) asserts: rendering the panel for an ingredient with N neighbors, clicking the Top Pairings header invokes onHighlightPairings exactly once with the full neighbor-name array (order preserved by strength desc); clicking it again invokes it again with the same array (toggle is delegated to App.jsx, not the panel).",
+        "The new vitest test passes: `npx vitest run src/components/__tests__/IngredientPanel.r7-42.test.jsx` exits 0."
+      ]
+    },
+    {
+      "id": "US-02",
+      "title": "R8-49 — Training trajectory becomes a one-shot onboarding modal gated on localStorage",
+      "priority": 2,
+      "passes": true,
+      "acceptanceCriteria": [
+        "New component src/components/TrainingTraceModal.jsx exists, default-exports a React modal that inlines the loss-curve + 2D PCA embedding playback logic currently in TrainingProgress.jsx (so TrainingProgress.jsx becomes deletable in US-03 without losing playback functionality).",
+        "Modal accepts props { isOpen, onClose } and renders a centered overlay (z-50, fixed inset-0 backdrop, accessible role='dialog', aria-modal='true', aria-labelledby pointing at the title).",
+        "Modal includes a close button (Escape + click-on-backdrop also dismiss) and a 'Got it' CTA that calls onClose.",
+        "Modal renders the same loss-curve SVG and the same 2D PCA scatter SVG as TrainingProgress.jsx (same trace.frames data shape, same TASTE_COLORS palette).",
+        "Modal fetches /models/training_trace.json on first open only — subsequent re-opens reuse the cached trace.",
+        "App.jsx (or a dedicated hook) triggers the modal once per user via localStorage key 'fn-training-trace-seen': on mount, if localStorage.getItem('fn-training-trace-seen') !== '1' AND useProData has finished loading, open the modal; the close handler sets localStorage['fn-training-trace-seen']='1' wrapped in try/catch for private-mode Safari.",
+        "URL param ?reset=trace clears the localStorage flag before reading it (mirrors the existing fn-start-seen ?reset=start convention from useProData docs).",
+        "New vitest at src/components/__tests__/TrainingTraceModal.test.jsx asserts: (a) modal is hidden when isOpen=false; (b) modal renders title + Got it button when isOpen=true; (c) clicking Got it invokes onClose; (d) Escape keypress invokes onClose. Mocks fetch to return a minimal valid trace ({ frames: [{ epoch: 1, loss: 0.5, embeddings: [[0,0]] }], compound_labels: ['sweet'] }).",
+        "The new vitest test passes: `npx vitest run src/components/__tests__/TrainingTraceModal.test.jsx` exits 0."
+      ]
+    },
+    {
+      "id": "US-03",
+      "title": "R9-57 — Delete TrainingProgress.jsx and remove the MoleculeLab embed",
+      "priority": 3,
+      "passes": true,
+      "acceptanceCriteria": [
+        "src/components/TrainingProgress.jsx is deleted from the repo (file does not exist).",
+        "src/components/MoleculeLab.jsx no longer imports TrainingProgress (lazy import at line 4 removed) and no longer renders the 'Watch the model train' section (current lines ~570-588 removed).",
+        "showTraining state in MoleculeLab.jsx is removed if no other consumer; if shared with other code, that's flagged in the PR/commit message.",
+        "No grep hits for /TrainingProgress|training-trace/ in src/ EXCEPT inside src/components/TrainingTraceModal.jsx (the new modal can reference 'training trace' in copy + the fetch URL '/models/training_trace.json').",
+        "Build succeeds: `npm run build` exits 0 with no errors.",
+        "Bridge state observation: R7-42, R8-49, R9-57 marked done with gate-pass via `python /d/Projects/ralph-universal/tools/bridge_state.py gate-pass <id>` after each task lands."
+      ]
+    }
+  ]
+}
