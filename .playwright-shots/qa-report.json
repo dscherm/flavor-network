@@ -1,0 +1,18 @@
+{
+  "url": "http://localhost:5173/",
+  "baseline": {
+    "nodeCount": 4276,
+    "edgeCount": 98451,
+    "focusedClusterId": null,
+    "clusterCount": 0
+  },
+  "consoleErrors": [],
+  "screenshots": [
+    "qa-01-baseline.png",
+    "qa-02-cluster-focused.png",
+    "qa-03-after-escape.png",
+    "qa-04-aroma-morph.png",
+    "qa-05-aroma-fruity.png",
+    "qa-06-aroma-off.png"
+  ]
+}

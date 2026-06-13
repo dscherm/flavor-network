@@ -1,0 +1,1119 @@
+[
+  {
+    "name": "lasagna noodle",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "laurel",
+    "category": "herb",
+    "taste": "bitter pungent",
+    "cuisines": [
+      "Greek",
+      "Turkish",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lavendar",
+    "category": "herb",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lavender",
+    "category": "herb",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "French",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lavender honey",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "French",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lavender oil",
+    "category": "fat",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leaf",
+    "category": "other",
+    "taste": "bitter",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leaf basil",
+    "category": "herb",
+    "taste": "pungent sweet",
+    "cuisines": [
+      "Italian",
+      "Thai",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leaf lettuce",
+    "category": "vegetable",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leaf lettuce leave",
+    "category": "vegetable",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leaf linden",
+    "category": "herb",
+    "taste": "sweet",
+    "cuisines": [
+      "French",
+      "Polish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leaf oregano",
+    "category": "herb",
+    "taste": "pungent bitter",
+    "cuisines": [
+      "Italian",
+      "Greek",
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leaf spinach",
+    "category": "vegetable",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "Greek",
+      "Turkish",
+      "Indian",
+      "Pakistani"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leaf thyme",
+    "category": "herb",
+    "taste": "pungent bitter",
+    "cuisines": [
+      "French",
+      "British",
+      "Cajun/Creole",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leafy green",
+    "category": "vegetable",
+    "taste": "bitter",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean bacon",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "British",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean beef",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean beef chuck",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean beef stew meat",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean chicken",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean grnd beef",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean hamburger",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean lamb",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Greek",
+      "Turkish",
+      "Moroccan",
+      "Indian",
+      "Persian",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean pork",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Chinese",
+      "German",
+      "Filipino",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean pork chop",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Chinese",
+      "German",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean pork loin",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Chinese",
+      "German",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean sausage",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean steak",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean stew beef",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Argentine",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean stewing beef",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lean turkey",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leaves lettuce",
+    "category": "vegetable",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leek",
+    "category": "aromatic",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "French",
+      "British",
+      "Scandinavian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leek soup mix",
+    "category": "condiment",
+    "taste": "salty pungent",
+    "cuisines": [
+      "British",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leftover mashed potatoe",
+    "category": "vegetable",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "leftover turkey",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Greek",
+      "Italian",
+      "French",
+      "Turkish",
+      "Lebanese",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon balm",
+    "category": "herb",
+    "taste": "sour sweet",
+    "cuisines": [
+      "French",
+      "German",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon basil",
+    "category": "herb",
+    "taste": "pungent sour",
+    "cuisines": [
+      "Italian",
+      "Thai",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon butter",
+    "category": "fat",
+    "taste": "sour sweet",
+    "cuisines": [
+      "French",
+      "British",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon cake",
+    "category": "baked",
+    "taste": "sweet sour",
+    "cuisines": [
+      "British",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon cake mix",
+    "category": "baked",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon concentrate",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon curd",
+    "category": "condiment",
+    "taste": "sour sweet",
+    "cuisines": [
+      "British",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon dressing",
+    "category": "condiment",
+    "taste": "sour",
+    "cuisines": [
+      "Greek",
+      "Italian",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon extract",
+    "category": "spice",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon filling",
+    "category": "confection",
+    "taste": "sour sweet",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon flavor",
+    "category": "spice",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon flavored gelatin",
+    "category": "confection",
+    "taste": "sour sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon flavoring",
+    "category": "spice",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon frosting",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon gelatin",
+    "category": "confection",
+    "taste": "sour sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon glaze",
+    "category": "condiment",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon instant pudding",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon instant pudding mix",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon jello",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon juice",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Greek",
+      "Italian",
+      "French",
+      "Turkish",
+      "Lebanese",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon juice concentrate",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon juice freshly squeezed",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Greek",
+      "Italian",
+      "French",
+      "Turkish",
+      "Lebanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon juice from",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon juice from concentrate",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon juice of",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon juice only",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon juice salt",
+    "category": "acid",
+    "taste": "sour salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon juiced",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Greek",
+      "Italian",
+      "French",
+      "Turkish",
+      "Lebanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon oil",
+    "category": "fat",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Italian",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon pepper",
+    "category": "seasoning",
+    "taste": "sour pungent",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon pie filling",
+    "category": "confection",
+    "taste": "sour sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon pudding",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon pudding mix",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon rind",
+    "category": "citrus",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon rind strip",
+    "category": "citrus",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon sauce",
+    "category": "condiment",
+    "taste": "sour sweet",
+    "cuisines": [
+      "French",
+      "Chinese",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon sherbet",
+    "category": "confection",
+    "taste": "sour sweet",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon soda",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon sorbet",
+    "category": "confection",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Italian",
+      "French",
+      "Greek"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon supreme cake mix",
+    "category": "baked",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon syrup",
+    "category": "sweetener",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon thyme",
+    "category": "herb",
+    "taste": "pungent sour",
+    "cuisines": [
+      "French",
+      "British",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon twist",
+    "category": "citrus",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon verbena",
+    "category": "herb",
+    "taste": "sour sweet",
+    "cuisines": [
+      "French",
+      "Argentine",
+      "Peruvian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon verbena leave",
+    "category": "herb",
+    "taste": "sour sweet",
+    "cuisines": [
+      "French",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon vinaigrette",
+    "category": "condiment",
+    "taste": "sour",
+    "cuisines": [
+      "French",
+      "Italian",
+      "Greek"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon wedge",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Greek",
+      "Italian",
+      "French",
+      "Turkish",
+      "Lebanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon wheel",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon yogurt",
+    "category": "dairy",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Greek",
+      "Turkish",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon zest freshly",
+    "category": "citrus",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon zested",
+    "category": "citrus",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon-lime",
+    "category": "citrus",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon-lime beverage",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon-lime soda",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon-lime soft drink",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemon-pepper seasoning",
+    "category": "seasoning",
+    "taste": "sour pungent salty",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemonade",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemongrass",
+    "category": "aromatic",
+    "taste": "sour pungent",
+    "cuisines": [
+      "Thai",
+      "Vietnamese",
+      "Indonesian",
+      "Malaysian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lemons juice",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lentil",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Indian",
+      "Ethiopian",
+      "Turkish",
+      "Lebanese",
+      "Pakistani",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lesueur pea",
+    "category": "vegetable",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lettuce",
+    "category": "vegetable",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lettuce leaf",
+    "category": "vegetable",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  }
+]

@@ -1,7 +1,7 @@
 {
   "pipeline_id": "623359fa",
   "started_at": "2026-05-20T19:38:47.593681+00:00",
-  "phase": "task-loop",
+  "phase": "learn",
   "spec_path": null,
   "plan_source": "plan.md",
   "tasks": [
@@ -15,16 +15,18 @@
     {
       "id": "N1-D2",
       "title": "Top-500 manual Tier-3 + leaf curation, long-tail rule-derivation lookup table",
-      "status": "skipped",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260613134324-0000000",
+      "activated_at": "2026-06-13T13:43:24.664279+00:00"
     },
     {
       "id": "N1-D3",
       "title": "Bake flavor_graph.json + schema/mint fixture tests + wire useProData",
-      "status": "skipped",
-      "gate_result": null,
-      "observation_id": "obs-20260525151500-0000000"
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260525151500-0000000",
+      "activated_at": "2026-06-13T14:09:34.951021+00:00"
     },
     {
       "id": "N1-D4",
@@ -126,7 +128,7 @@
     },
     {
       "id": "N3-ALPHA-V2",
-      "title": "Replace 3-tier \u03b1-mode rings with 6-axis categorical rings (cluster/aroma/taste/family/cuisine/season)",
+      "title": "Replace 3-tier \u03b1-mode rings with 6-axis categorical rings (cluster/aroma/taste/family/cuisine/season) \u2014 RECONCILED 2026-05-28: superseded by tier-column refactor",
       "status": "done",
       "gate_result": "pass",
       "observation_id": "obs-20260529020347-0000000"
@@ -148,30 +150,30 @@
     {
       "id": "DOCS-GD-TWO-TAP",
       "title": "Guided Discovery \u2014 two-step commit gesture for axis tap on Results radar",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529021908-0000000"
     },
     {
       "id": "DOCS-RL-NOTEBOOK-WIRE",
       "title": "Recipe Lab \u2014 wire NotebookCanvas + RecipePanel as the canonical renderer",
-      "status": "pending",
+      "status": "done",
       "gate_result": null,
-      "observation_id": null
+      "observation_id": "obs-20260529031643-0000000"
     },
     {
       "id": "DOCS-RL-COOKBOOK-RENAME",
       "title": "Recipe Lab \u2014 rename RecipesLab.jsx (plural) to CookbookLab",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529134655-0000000"
     },
     {
       "id": "DOCS-RL-DRAWERSNAP-CLEANUP",
       "title": "Recipe Lab \u2014 delete vestigial drawerSnap state",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529153548-0000000"
     },
     {
       "id": "DOCS-MAKE-MODE",
@@ -204,107 +206,107 @@
     {
       "id": "RL-PORTIONS-DATA",
       "title": "Per-ingredient portion data model + free-text amount parser",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529153843-0000000"
     },
     {
       "id": "RL-PORTIONS-UI",
       "title": "Bowl shape migration string[] \u2192 BowlEntry[] + amount input on notebook rows",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529170512-0000000"
     },
     {
       "id": "RL-RECIPETYPE",
       "title": "Recipe-type radio pill row + bowl.recipeType state",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529130620-0000000"
     },
     {
       "id": "MAKE-HANDOFF-SOURCE",
       "title": "Add `source` field to every recipeHandoff emission site",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529175253-0000000"
     },
     {
       "id": "MAKE-PICKER",
       "title": "MakeRecipeStart.jsx \u2014 3-card picker screen (scratch + photo + existing)",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529180026-0000000"
     },
     {
       "id": "MAKE-LANDING-TILE",
       "title": "Add Make landing tile + hand-drawn MakeVisual SVG (4-tile shipping order)",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529182301-0000000"
     },
     {
       "id": "MAKE-PHOTO-PREVIEW",
       "title": "Recipe Lab image preview (zone-2 header) + URL.createObjectURL lifecycle",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529183224-0000000"
     },
     {
       "id": "MAKE-COOKBOOK-PICKER",
       "title": "Cookbook Lab pickerMode='make' \u2014 card-tap emits recipeHandoff (no modal)",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529184032-0000000"
     },
     {
       "id": "RL-FOCAL-FLAG",
       "title": "bowl.focalKey state + tap-and-hold 'Set as focal' menu on notebook rows",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529185502-0000000"
     },
     {
       "id": "RL-FOCAL-RANKER",
       "title": "Focal-weighted suggestion ranking (W_FOCAL=0.6 + W_SECONDARY proportional-mass)",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529173643-0000000"
     },
     {
       "id": "RL-CATEGORY-FILTER",
       "title": "Food-category pill row above suggestion list",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529191827-0000000"
     },
     {
       "id": "RL-SEASONINGS-DATA",
       "title": "Seasonings chemDataset pipeline (chef-blocked: pick upstream)",
-      "status": "pending",
+      "status": "skipped",
       "gate_result": null,
       "observation_id": null
     },
     {
       "id": "RL-SAUCE-SUGGEST",
       "title": "Sauce recommendation chip row in IngredientSuggestionsPopout",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529192512-0000000"
     },
     {
       "id": "RL-SEASONING-SUGGEST",
       "title": "Seasoning recommendation chip row in IngredientSuggestionsPopout",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530004746-0000000"
     },
     {
       "id": "MAKE-BUILD-DEPRECATE",
       "title": "Remove Build tile + `?path=build` \u2192 `?path=make` redirect (one release after MAKE-LANDING-TILE)",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530010532-0000000"
     },
     {
       "id": "N3-GAT-CLUSTERS",
@@ -312,15 +314,204 @@
       "status": "done",
       "gate_result": "pass",
       "observation_id": "obs-20260528221914-0000000"
+    },
+    {
+      "id": "DOCS-RL-CANVAS-MOUNT",
+      "title": "Recipe Lab \u2014 scaffold NotebookCanvas + RecipePanel surface behind feature flag",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529124241-0000000"
+    },
+    {
+      "id": "DOCS-RL-CANVAS-HANDOFF",
+      "title": "Recipe Lab \u2014 port handoff watcher + aroma-match bridge to canvas surface",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "DOCS-RL-CANVAS-FLIP",
+      "title": "Recipe Lab \u2014 chef visual A/B sign-off, flip default, delete RecipeLabMobile",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RL-AXIS-VOCAB-WEDGEGRID",
+      "title": "Expand WedgeGridFlavorWheel from 6-sector to 13-sector chef-canonical aroma vocab",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": "obs-20260529193923-0000000"
+    },
+    {
+      "id": "N3-GAT-POSITIONS",
+      "title": "Project GAT v5 embeddings to 3D positions so spatial layout matches the 7 chef-cognitive clusters",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": "obs-20260529143157-0000000"
+    },
+    {
+      "id": "DOCS-MODEL-CONFIDENCE-NARRATIVE",
+      "title": "Surface the N3-GAT positions/clustering defense narrative in HelpButton + LabTour walkthrough",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529193447-0000000"
+    },
+    {
+      "id": "RL-FOCAL-WIRE",
+      "title": "Wire focalKey + rankSuggestions through IngredientSuggestionsPopout add-mode",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260529190354-0000000"
+    },
+    {
+      "id": "GD-TOUR-AFFINITY-ENGAGE",
+      "title": "Make Step 1 actually engage \u03b1-mode (set affinityRequested=true)",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530161000-0000000"
+    },
+    {
+      "id": "GD-RADAR-AFFINITY-COHERENCE",
+      "title": "Radar dots = \u03b1-mode neighbors (unify Screen 2 and network data layer)",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530161410-0000000"
+    },
+    {
+      "id": "GD-TOUR-MANUAL-ADVANCE",
+      "title": "Kill auto-advance + double-tap; every tour stage gates on 'Got it'",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530161800-0000000"
+    },
+    {
+      "id": "GD-TOUR-COPY-MATCH",
+      "title": "Audit each tour stage's copy against what the user actually sees",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530162114-0000000"
+    },
+    {
+      "id": "GD-TOUR-STEP4-CLUSTER-DEMO-RACE",
+      "title": "Defer runClusterDemo so the cleared filterStack commits first",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530165125-0000000"
+    },
+    {
+      "id": "GD-NODE-COLOR-FOLLOW-FILTER",
+      "title": "Recolor nodes by filterStack[0] palette when a categorical filter is active",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530165333-0000000"
+    },
+    {
+      "id": "GD-RADAR-NEIGHBOR-DIVERSITY",
+      "title": "Widen radar pool with axis-coverage bonus so axis taps don't go blank",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530170301-0000000"
+    },
+    {
+      "id": "GD-RADAR-LABEL-DECOLLIDE",
+      "title": "Stop radar dots stacking on identical coords",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530170728-0000000"
+    },
+    {
+      "id": "GD-TOUR-AXIS-INTENT-CARRY",
+      "title": "Bridge 'I picked sweet on radar' intent to 'focal goes to its own taste pole' reality",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530171104-0000000"
+    },
+    {
+      "id": "GD-TOUR-STEP4-CLARITY",
+      "title": "Step 4 copy names the ClusterJoystick widget + the specific cluster",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530171828-0000000"
+    },
+    {
+      "id": "GD-WALKTHROUGH-TOUR-MUTEX",
+      "title": "Suppress first-run Walkthrough when GuidedTour is active",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530180140-0000000"
+    },
+    {
+      "id": "MAKE-E2E-AUDIT",
+      "title": "Walk all 3 Make paths end-to-end against the live deploy; fix gaps",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530180441-0000000"
+    },
+    {
+      "id": "MAKE-WEBLINK-FN",
+      "title": "Firebase Cloud Function: scrapeRecipe (SSRF-hardened, JSON-LD-only)",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530180848-0000000"
+    },
+    {
+      "id": "MAKE-WEBLINK-MATCH",
+      "title": "Match parsed ingredient strings to the known ingredient dictionary",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530181702-0000000"
+    },
+    {
+      "id": "MAKE-WEBLINK-UI",
+      "title": "Make tile 4th option 'From a web link' \u2014 URL input + matched ingredient preview + bowl handoff",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530182254-0000000"
+    },
+    {
+      "id": "MAKE-PHOTO-NON-IMAGE-FEEDBACK",
+      "title": "Surface a friendly error when the photo picker returns a non-image file",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260531001953-0000000"
+    },
+    {
+      "id": "MAKE-PHOTO-PREVIEW-BEFORE-COMMIT",
+      "title": "Preview-then-confirm step between photo pick and Recipe Lab handoff",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260531002513-0000000"
+    },
+    {
+      "id": "MAKE-WEBLINK-MATCH-V2",
+      "title": "Improve fuzzy match cascade for common ingredient phrasings + user-editable matched names in preview",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260530233746-0000000"
+    },
+    {
+      "id": "NETWORK-CLICK-POLISH-V1",
+      "title": "Network mode click polish \u2014 pill flight stops auto-showing edges + ingredient click hides non-affinity with labels",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260531005452-0000000"
+    },
+    {
+      "id": "NETWORK-CLICK-POLISH-V2",
+      "title": "Network mode multi-select intersection + multi-focal AffinityMode entry + \u03b1-mode add-focal-on-tap",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260531011032-0000000"
     }
   ],
-  "current_task_index": 18,
+  "current_task_index": 3,
   "stats": {
-    "tasks_completed": 19,
+    "tasks_completed": 66,
     "tasks_failed": 0,
-    "gate_passes": 13,
+    "gate_passes": 55,
     "gate_fails": 0,
-    "observations_recorded": 50
+    "observations_recorded": 184
   },
   "config": {
     "interactive_mode": true,
@@ -329,5 +520,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-05-29T02:12:56.996511+00:00"
+  "updated_at": "2026-06-13T14:30:49.356755+00:00"
 }

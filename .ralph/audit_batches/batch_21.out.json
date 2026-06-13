@@ -1,0 +1,1198 @@
+[
+  {
+    "name": "lettuce leave",
+    "category": "vegetable",
+    "taste": "astringent sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lillet",
+    "category": "liqueur",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "French",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lillet blanc",
+    "category": "liqueur",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "French",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lima bean",
+    "category": "protein",
+    "taste": "sweet umami",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "Mexican",
+      "Peruvian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "limburger cheese",
+    "category": "dairy",
+    "taste": "salty pungent",
+    "cuisines": [
+      "German",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime",
+    "category": "citrus",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Mexican",
+      "Thai",
+      "Vietnamese",
+      "Caribbean",
+      "Australian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime flavored gelatin",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime gelatin",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime jello",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime juice",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Mexican",
+      "Thai",
+      "Vietnamese",
+      "Caribbean",
+      "Australian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime juice freshly squeezed",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Mexican",
+      "Thai",
+      "Vietnamese",
+      "Caribbean",
+      "Australian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime juiced",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Mexican",
+      "Thai",
+      "Vietnamese",
+      "Caribbean",
+      "Australian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime leaf",
+    "category": "herb",
+    "taste": "astringent pungent",
+    "cuisines": [
+      "Thai",
+      "Indonesian",
+      "Malaysian",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime leave",
+    "category": "herb",
+    "taste": "astringent pungent",
+    "cuisines": [
+      "Thai",
+      "Indonesian",
+      "Malaysian",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime rind",
+    "category": "citrus",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Mexican",
+      "Thai",
+      "Vietnamese",
+      "Caribbean",
+      "Australian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime sherbet",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime soda",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime wedge",
+    "category": "citrus",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Mexican",
+      "Thai",
+      "Vietnamese",
+      "Caribbean",
+      "Australian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lime wheel",
+    "category": "citrus",
+    "taste": "sour bitter",
+    "cuisines": [
+      "Mexican",
+      "Thai",
+      "Vietnamese",
+      "Caribbean",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "limeade",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "limeade concentrate",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "linden",
+    "category": "herb",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "French",
+      "German",
+      "Polish",
+      "Russian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lingonberry",
+    "category": "fruit",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Scandinavian",
+      "Russian",
+      "Polish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "linguica sausage",
+    "category": "protein",
+    "taste": "salty umami spicy",
+    "cuisines": [
+      "Portuguese",
+      "Spanish",
+      "Brazilian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "linguine noodle",
+    "category": "grain",
+    "taste": "umami",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "linguine pasta",
+    "category": "grain",
+    "taste": "umami",
+    "cuisines": [
+      "Italian",
+      "American",
+      "Greek"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "linseed",
+    "category": "grain",
+    "taste": "bitter",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liqourice",
+    "category": "confection",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "Scandinavian",
+      "British",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liqueur",
+    "category": "liqueur",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "French",
+      "Italian",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid butter",
+    "category": "fat",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "French",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid crab boil",
+    "category": "condiment",
+    "taste": "salty spicy",
+    "cuisines": [
+      "Cajun/Creole",
+      "Southern US",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid egg",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid egg substitute",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid fruit pectin",
+    "category": "thickener",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid honey",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid oil",
+    "category": "fat",
+    "taste": "bitter",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid pepper sauce",
+    "category": "condiment",
+    "taste": "spicy pungent",
+    "cuisines": [
+      "American",
+      "Mexican",
+      "Cajun/Creole"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid smoke",
+    "category": "condiment",
+    "taste": "salty pungent",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "Cajun/Creole"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "liquid smoke flavoring",
+    "category": "condiment",
+    "taste": "salty pungent",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "litchi",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "Chinese",
+      "Thai",
+      "Vietnamese",
+      "Filipino"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lite coconut milk",
+    "category": "liquid",
+    "taste": "sweet",
+    "cuisines": [
+      "Thai",
+      "Indonesian",
+      "Malaysian",
+      "Filipino",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lite cream cheese",
+    "category": "dairy",
+    "taste": "salty sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lite salt",
+    "category": "seasoning",
+    "taste": "salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "littleneck clam",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Italian",
+      "Portuguese",
+      "Japanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "live lobster",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "French",
+      "Scandinavian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "loaves bread",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "German",
+      "Turkish",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "loaves white bread",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lobster",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "French",
+      "Scandinavian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lobster meat",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "French",
+      "Scandinavian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "locatelli cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "loganberry",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "British",
+      "American",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "loin pork chop",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "German",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "loin roast",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "long bean",
+    "category": "vegetable",
+    "taste": "astringent sweet",
+    "cuisines": [
+      "Chinese",
+      "Vietnamese",
+      "Thai",
+      "Indonesian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "long grain brown rice",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Indian",
+      "Chinese",
+      "Thai"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "long grain wild rice",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "long pepper",
+    "category": "spice",
+    "taste": "spicy pungent",
+    "cuisines": [
+      "Indian",
+      "Indonesian",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "long red chili",
+    "category": "chili",
+    "taste": "spicy pungent",
+    "cuisines": [
+      "Mexican",
+      "Indian",
+      "Thai",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "long red chili pepper",
+    "category": "chili",
+    "taste": "spicy pungent",
+    "cuisines": [
+      "Mexican",
+      "Thai",
+      "Vietnamese",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "long red chilie",
+    "category": "chili",
+    "taste": "spicy pungent",
+    "cuisines": [
+      "Mexican",
+      "Indian",
+      "Thai"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "long-grain rice",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Chinese",
+      "Japanese",
+      "Thai",
+      "Korean",
+      "Indonesian",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "long-grain white rice",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Chinese",
+      "Japanese",
+      "Thai",
+      "Korean",
+      "Indonesian",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "longan",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "Chinese",
+      "Thai",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "longhorn cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "loose sausage",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Italian",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "loquat",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Chinese",
+      "Japanese",
+      "Spanish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lotu",
+    "category": "other",
+    "taste": "pungent",
+    "cuisines": [],
+    "isJunk": true,
+    "junkReason": "truncated or corrupted entry; not a recognizable culinary ingredient"
+  },
+  {
+    "name": "lotus root",
+    "category": "vegetable",
+    "taste": "sweet astringent",
+    "cuisines": [
+      "Chinese",
+      "Japanese",
+      "Korean",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lovage",
+    "category": "herb",
+    "taste": "pungent bitter",
+    "cuisines": [
+      "British",
+      "German",
+      "Polish",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "low-sugar",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "descriptor/qualifier, not a culinary ingredient"
+  },
+  {
+    "name": "lump butter",
+    "category": "fat",
+    "taste": "sweet",
+    "cuisines": [
+      "French",
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lump crab",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Cajun/Creole",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lump crabmeat",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Cajun/Creole",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lump of butter",
+    "category": "fat",
+    "taste": "sweet",
+    "cuisines": [
+      "French",
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lupine",
+    "category": "protein",
+    "taste": "bitter umami",
+    "cuisines": [
+      "Italian",
+      "Spanish",
+      "Portuguese",
+      "Greek"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "lychee",
+    "category": "fruit",
+    "taste": "sweet",
+    "cuisines": [
+      "Chinese",
+      "Thai",
+      "Vietnamese",
+      "Filipino"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maca powder",
+    "category": "other",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "Peruvian",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "macadamia",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Australian",
+      "Pacific Islander",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "macadamia nut",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Australian",
+      "Pacific Islander",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "macaroni",
+    "category": "grain",
+    "taste": "umami",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "macaroni noodle",
+    "category": "grain",
+    "taste": "umami",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "macaroni pasta",
+    "category": "grain",
+    "taste": "umami",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mace",
+    "category": "spice",
+    "taste": "pungent sweet",
+    "cuisines": [
+      "Indian",
+      "Indonesian",
+      "British",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "made pie crust",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "madeira wine",
+    "category": "spirit",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "Portuguese",
+      "French",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mahleb",
+    "category": "spice",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "Turkish",
+      "Lebanese",
+      "Greek",
+      "Persian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maitake",
+    "category": "vegetable",
+    "taste": "umami",
+    "cuisines": [
+      "Japanese",
+      "Chinese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "maitake mushroom",
+    "category": "vegetable",
+    "taste": "umami",
+    "cuisines": [
+      "Japanese",
+      "Chinese",
+      "Korean",
+      "Russian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "makrut lime leave",
+    "category": "herb",
+    "taste": "astringent pungent",
+    "cuisines": [
+      "Thai",
+      "Indonesian",
+      "Malaysian",
+      "Vietnamese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "malibu coconut rum",
+    "category": "spirit",
+    "taste": "sweet",
+    "cuisines": [
+      "Caribbean",
+      "Brazilian",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "malt",
+    "category": "grain",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "British",
+      "German",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "malt vinegar",
+    "category": "acid",
+    "taste": "sour",
+    "cuisines": [
+      "British",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "malt whisky",
+    "category": "spirit",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "manchego cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "Spanish",
+      "Portuguese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mandarin",
+    "category": "citrus",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Chinese",
+      "Spanish",
+      "Japanese",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mandarin juice",
+    "category": "citrus",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Chinese",
+      "Spanish",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mandarin orange",
+    "category": "citrus",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Chinese",
+      "Spanish",
+      "Japanese",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mandarin orange section",
+    "category": "citrus",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Chinese",
+      "Spanish",
+      "Japanese",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "mango",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Indian",
+      "Thai",
+      "Caribbean",
+      "Filipino",
+      "Mexican",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  }
+]

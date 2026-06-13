@@ -1,0 +1,1190 @@
+[
+  {
+    "name": "peppermint schnapp",
+    "category": "liqueur",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "German",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pepperoncini",
+    "category": "chili",
+    "taste": "spicy sour",
+    "cuisines": [
+      "Italian",
+      "Greek",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pepperoncini pepper",
+    "category": "chili",
+    "taste": "spicy sour",
+    "cuisines": [
+      "Italian",
+      "Greek",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pepperoni",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pepperoni sausage",
+    "category": "protein",
+    "taste": "salty umami",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pepsi cola",
+    "category": "mixer",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "Branded beverage product, not a culinary ingredient"
+  },
+  {
+    "name": "percent milk",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "Measurement fragment, not a standalone ingredient"
+  },
+  {
+    "name": "pernod",
+    "category": "spirit",
+    "taste": "spicy sweet",
+    "cuisines": [
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "perrins sauce",
+    "category": "condiment",
+    "taste": "umami sour",
+    "cuisines": [
+      "British",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "persimmon",
+    "category": "fruit",
+    "taste": "sweet astringent",
+    "cuisines": [
+      "Japanese",
+      "Korean",
+      "Chinese",
+      "Italian",
+      "Persian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pet milk",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "petite green pea",
+    "category": "vegetable",
+    "taste": "sweet astringent",
+    "cuisines": [
+      "British",
+      "French",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "petite pea",
+    "category": "vegetable",
+    "taste": "sweet astringent",
+    "cuisines": [
+      "British",
+      "French",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "phyllo dough",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "Greek",
+      "Turkish",
+      "Lebanese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "picante sauce",
+    "category": "condiment",
+    "taste": "spicy sour",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pickapeppa sauce",
+    "category": "condiment",
+    "taste": "umami sour sweet",
+    "cuisines": [
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pickle juice",
+    "category": "liquid",
+    "taste": "sour salty",
+    "cuisines": [
+      "American",
+      "German",
+      "Polish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pickled ginger",
+    "category": "condiment",
+    "taste": "pungent sour",
+    "cuisines": [
+      "Japanese",
+      "Chinese",
+      "Korean",
+      "Indian",
+      "Thai"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pickled jalapeno",
+    "category": "chili",
+    "taste": "spicy sour",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pickling lime",
+    "category": "citrus",
+    "taste": "sour",
+    "cuisines": [
+      "Mexican",
+      "Peruvian",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pickling salt",
+    "category": "seasoning",
+    "taste": "salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pico de gallo sauce",
+    "category": "condiment",
+    "taste": "spicy sour",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pie",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "British",
+      "American",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pie apple",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pie crust",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pie filling",
+    "category": "condiment",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pie pastry",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "British",
+      "French",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pierogie",
+    "category": "grain",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Polish",
+      "Russian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pigeon pea",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Caribbean",
+      "West African",
+      "Indian",
+      "Brazilian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pili nut",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Filipino",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pimento cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pimento pepper",
+    "category": "chili",
+    "taste": "sweet spicy",
+    "cuisines": [
+      "Spanish",
+      "Portuguese",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pimento stuffed green olive",
+    "category": "condiment",
+    "taste": "salty bitter",
+    "cuisines": [
+      "Spanish",
+      "Italian",
+      "Greek",
+      "Turkish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pimento stuffed olive",
+    "category": "condiment",
+    "taste": "salty bitter",
+    "cuisines": [
+      "Spanish",
+      "Italian",
+      "Greek",
+      "Turkish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pimiento cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pinapple",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "Filipino",
+      "Brazilian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pine",
+    "category": "other",
+    "taste": "pungent",
+    "cuisines": [],
+    "isJunk": true,
+    "junkReason": "Incomplete fragment, not a standalone culinary ingredient"
+  },
+  {
+    "name": "pine nut",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Italian",
+      "Lebanese",
+      "Spanish",
+      "Turkish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "Filipino",
+      "Brazilian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple bit",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "Filipino"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple cake",
+    "category": "baked",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Caribbean",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple chunk",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "Filipino"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple juice",
+    "category": "liquid",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "Filipino",
+      "Brazilian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple juice concentrate",
+    "category": "liquid",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "Filipino"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple pie filling",
+    "category": "condiment",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple preserve",
+    "category": "condiment",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Caribbean",
+      "Pacific Islander",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple ring",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "Filipino",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple salsa",
+    "category": "condiment",
+    "taste": "sweet sour spicy",
+    "cuisines": [
+      "Mexican",
+      "Caribbean",
+      "Tex-Mex"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple sherbet",
+    "category": "confection",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple syrup",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple tidbit",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Pacific Islander",
+      "Caribbean",
+      "Filipino"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pineapple yogurt",
+    "category": "dairy",
+    "taste": "sour sweet",
+    "cuisines": [
+      "American",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pink bean",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Mexican",
+      "Caribbean",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pink grapefruit",
+    "category": "citrus",
+    "taste": "sour bitter sweet",
+    "cuisines": [
+      "American",
+      "Israeli",
+      "Spanish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pink grapefruit juice",
+    "category": "citrus",
+    "taste": "sour bitter sweet",
+    "cuisines": [
+      "American",
+      "Israeli",
+      "Spanish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pink lemonade",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pink peppercorn",
+    "category": "spice",
+    "taste": "pungent bitter",
+    "cuisines": [
+      "French",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pink salmon",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Japanese",
+      "Scandinavian",
+      "Russian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pink salt",
+    "category": "seasoning",
+    "taste": "salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pinto bean",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex",
+      "American",
+      "Peruvian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pippin apple",
+    "category": "fruit",
+    "taste": "sour sweet",
+    "cuisines": [
+      "British",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "piquillo pepper",
+    "category": "chili",
+    "taste": "sweet spicy",
+    "cuisines": [
+      "Spanish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pisco",
+    "category": "spirit",
+    "taste": "sweet",
+    "cuisines": [
+      "Peruvian",
+      "Argentine"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pistachio",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Turkish",
+      "Persian",
+      "Lebanese",
+      "Indian",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pistachio instant pudding",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pistachio nut",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Turkish",
+      "Persian",
+      "Lebanese",
+      "Indian",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pistachio pudding",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pistachio pudding mix",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pita bread",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Lebanese",
+      "Turkish",
+      "Greek",
+      "Israeli"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pitanga",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Brazilian",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pitted ripe olive",
+    "category": "condiment",
+    "taste": "salty bitter",
+    "cuisines": [
+      "Italian",
+      "Greek",
+      "Spanish",
+      "Turkish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pizza cheese",
+    "category": "dairy",
+    "taste": "salty umami",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pizza sauce",
+    "category": "condiment",
+    "taste": "umami sour sweet",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "plain yogurt",
+    "category": "dairy",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Indian",
+      "Turkish",
+      "Greek",
+      "Lebanese",
+      "Persian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "plum",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "French",
+      "Chinese",
+      "Japanese",
+      "German",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "plum sauce",
+    "category": "condiment",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Chinese",
+      "Vietnamese",
+      "Thai"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "plum wine",
+    "category": "liquid",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Japanese",
+      "Chinese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "plumcot",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "poblano chilie",
+    "category": "chili",
+    "taste": "spicy pungent",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "poblano pepper",
+    "category": "chili",
+    "taste": "spicy pungent",
+    "cuisines": [
+      "Mexican",
+      "Tex-Mex"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "polenta",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Italian",
+      "Argentine",
+      "Brazilian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pomegranate",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Turkish",
+      "Lebanese",
+      "Persian",
+      "Israeli",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pomegranate juice",
+    "category": "liquid",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Turkish",
+      "Lebanese",
+      "Persian",
+      "Israeli",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pomegranate molasse",
+    "category": "sweetener",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Lebanese",
+      "Turkish",
+      "Persian",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pomegranate molasses",
+    "category": "sweetener",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Lebanese",
+      "Turkish",
+      "Persian",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pomegranate seed",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Turkish",
+      "Lebanese",
+      "Persian",
+      "Israeli",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pomegranate syrup",
+    "category": "sweetener",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Persian",
+      "Turkish",
+      "Lebanese",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "ponzu sauce",
+    "category": "umami",
+    "taste": "umami sour",
+    "cuisines": [
+      "Japanese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "popcorn",
+    "category": "grain",
+    "taste": "sweet salty",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "popcorn kernel",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "popping corn",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "poppy seed",
+    "category": "spice",
+    "taste": "bitter sweet",
+    "cuisines": [
+      "German",
+      "Polish",
+      "Indian",
+      "Turkish"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "porcini",
+    "category": "vegetable",
+    "taste": "umami",
+    "cuisines": [
+      "Italian",
+      "French",
+      "Russian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "porcini mushroom",
+    "category": "vegetable",
+    "taste": "umami",
+    "cuisines": [
+      "Italian",
+      "French",
+      "Russian",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pork",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Chinese",
+      "German",
+      "Filipino",
+      "Vietnamese",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pork baby back rib",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Chinese",
+      "German",
+      "Filipino"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pork back rib",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "Chinese",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pork belly",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Chinese",
+      "Korean",
+      "Filipino",
+      "Vietnamese",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pork blade",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "German",
+      "Filipino",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "pork butt",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "American",
+      "German",
+      "Filipino",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  }
+]

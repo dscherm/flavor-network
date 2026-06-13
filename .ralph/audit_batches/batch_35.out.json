@@ -1,0 +1,1169 @@
+[
+  {
+    "name": "triticale",
+    "category": "grain",
+    "taste": "sweet umami bitter",
+    "cuisines": [
+      "German",
+      "Scandinavian",
+      "Eastern European"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "trout",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Scandinavian",
+      "British",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "truffle",
+    "category": "vegetable",
+    "taste": "umami pungent",
+    "cuisines": [
+      "French",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "truffle oil",
+    "category": "fat",
+    "taste": "umami pungent",
+    "cuisines": [
+      "French",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "tuna",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "Japanese",
+      "Spanish",
+      "Italian",
+      "American",
+      "Mediterranean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "tuna fish",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "Japanese",
+      "Spanish",
+      "Italian",
+      "American",
+      "Portuguese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turbinado sugar",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "British",
+      "Mexican"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey bacon",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey breast",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey breast cutlet",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey breast halve",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey breast tenderloin",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey broth",
+    "category": "liquid",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey carcass",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey cutlet",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "Italian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey dripping",
+    "category": "fat",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey drumstick",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey giblet",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey gravy",
+    "category": "condiment",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey gravy mix",
+    "category": "condiment",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey ham",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey italian sausage",
+    "category": "protein",
+    "taste": "umami salty spicy",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey kielbasa",
+    "category": "protein",
+    "taste": "umami salty spicy",
+    "cuisines": [
+      "Polish",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey leg",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey meat",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey meatball",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey neck",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey pepperoni",
+    "category": "protein",
+    "taste": "umami salty spicy",
+    "cuisines": [
+      "Italian",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey sausage",
+    "category": "protein",
+    "taste": "umami salty spicy",
+    "cuisines": [
+      "American",
+      "Italian",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey stock",
+    "category": "liquid",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "French",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey tenderloin",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turkey thigh",
+    "category": "protein",
+    "taste": "umami salty",
+    "cuisines": [
+      "American",
+      "Southern US"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turmeric",
+    "category": "spice",
+    "taste": "bitter pungent",
+    "cuisines": [
+      "Indian",
+      "Thai",
+      "Indonesian",
+      "Malaysian",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "turnip",
+    "category": "vegetable",
+    "taste": "bitter sweet pungent",
+    "cuisines": [
+      "British",
+      "American",
+      "French",
+      "Scandinavian",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "type cheese",
+    "category": "dairy",
+    "taste": "umami salty",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "Parse artifact — incomplete descriptor, not a specific ingredient"
+  },
+  {
+    "name": "ucuhuba",
+    "category": "fat",
+    "taste": "sweet pungent",
+    "cuisines": [
+      "Brazilian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "udon noodle",
+    "category": "grain",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Japanese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "udon noodles",
+    "category": "grain",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Japanese",
+      "Korean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unbaked pie crust",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unbeaten egg",
+    "category": "protein",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unblanched almond",
+    "category": "nut",
+    "taste": "sweet bitter",
+    "cuisines": [
+      "Moroccan",
+      "Indian",
+      "Spanish",
+      "French",
+      "Middle Eastern"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unbleached bread",
+    "category": "baked",
+    "taste": "sweet umami",
+    "cuisines": [
+      "American",
+      "British",
+      "German"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unbleached flour",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unbleached white flour",
+    "category": "grain",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "uncle ben's rice",
+    "category": "grain",
+    "taste": "sweet umami",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "Branded product (Uncle Ben's is a registered trademark of Mars, Inc.)"
+  },
+  {
+    "name": "unflavored gelatin",
+    "category": "thickener",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unflavored gelatin powder",
+    "category": "thickener",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unflavored gelatine",
+    "category": "thickener",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unflavored powdered gelatin",
+    "category": "thickener",
+    "taste": "umami",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unflavored yogurt",
+    "category": "dairy",
+    "taste": "sour sweet",
+    "cuisines": [
+      "Indian",
+      "Turkish",
+      "Greek",
+      "Lebanese",
+      "Middle Eastern"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unpeeled apple",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "British",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unrefined coconut oil",
+    "category": "fat",
+    "taste": "sweet",
+    "cuisines": [
+      "Indian",
+      "Thai",
+      "Filipino",
+      "Indonesian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unrefined sugar",
+    "category": "sweetener",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsalted",
+    "category": "other",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "Parse artifact — adjective, not a specific ingredient"
+  },
+  {
+    "name": "unsalted cashew",
+    "category": "nut",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Indian",
+      "Thai",
+      "Vietnamese",
+      "Chinese",
+      "Brazilian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsalted macadamia nut",
+    "category": "nut",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Australian",
+      "Hawaiian",
+      "Pacific Islander"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsalted margarine",
+    "category": "fat",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsalted peanut",
+    "category": "nut",
+    "taste": "umami sweet",
+    "cuisines": [
+      "West African",
+      "Thai",
+      "Indonesian",
+      "Vietnamese",
+      "Chinese"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsalted pistachio",
+    "category": "nut",
+    "taste": "sweet umami",
+    "cuisines": [
+      "Turkish",
+      "Persian",
+      "Lebanese",
+      "Indian",
+      "Moroccan"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsweetened almond milk",
+    "category": "liquid",
+    "taste": "sweet",
+    "cuisines": [
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsweetened applesauce",
+    "category": "condiment",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American",
+      "German",
+      "Eastern European"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsweetened chocolate",
+    "category": "confection",
+    "taste": "bitter",
+    "cuisines": [
+      "American",
+      "French",
+      "Belgian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsweetened coconut",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Thai",
+      "Indonesian",
+      "Malaysian",
+      "Indian",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsweetened coconut cream",
+    "category": "liquid",
+    "taste": "sweet",
+    "cuisines": [
+      "Thai",
+      "Indonesian",
+      "Malaysian",
+      "Filipino",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsweetened coconut flake",
+    "category": "nut",
+    "taste": "sweet",
+    "cuisines": [
+      "Thai",
+      "Indonesian",
+      "Malaysian",
+      "Indian",
+      "Caribbean"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsweetened coconut milk",
+    "category": "liquid",
+    "taste": "sweet",
+    "cuisines": [
+      "Thai",
+      "Indonesian",
+      "Malaysian",
+      "Filipino",
+      "Indian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsweetened pineapple",
+    "category": "fruit",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Pacific Islander",
+      "Filipino",
+      "Caribbean",
+      "Hawaiian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "unsweetened soymilk",
+    "category": "liquid",
+    "taste": "sweet",
+    "cuisines": [
+      "Chinese",
+      "Japanese",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "valencia orange",
+    "category": "citrus",
+    "taste": "sweet sour",
+    "cuisines": [
+      "Spanish",
+      "Mediterranean",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla",
+    "category": "spice",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "French",
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla almond milk",
+    "category": "liquid",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla bean ice cream",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla bean paste",
+    "category": "spice",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "French",
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla cake",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "French",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla cake mix",
+    "category": "baked",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla caramel",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "French",
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla chip",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla cream",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "French",
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla creme",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "French",
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla custard",
+    "category": "dairy",
+    "taste": "sweet",
+    "cuisines": [
+      "French",
+      "British",
+      "Australian"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla essence",
+    "category": "spice",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "French",
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla flavor",
+    "category": "spice",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "French",
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla flavoring",
+    "category": "spice",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "French",
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla frosting",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla ice cream",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "French",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla ice milk",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla icing",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "British"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla instant pudding",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla instant pudding mix",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla nonfat yogurt",
+    "category": "dairy",
+    "taste": "sweet sour",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla oil",
+    "category": "fat",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "French",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla paste",
+    "category": "spice",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "French",
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla pie filling",
+    "category": "condiment",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla pod",
+    "category": "spice",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "French",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla powder",
+    "category": "spice",
+    "taste": "sweet",
+    "cuisines": [
+      "Mexican",
+      "French",
+      "American",
+      "Global"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla protein powder",
+    "category": "other",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "Global"
+    ],
+    "isJunk": true,
+    "junkReason": "Supplement product, not a culinary food ingredient"
+  },
+  {
+    "name": "vanilla pudding",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American",
+      "British",
+      "French"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla pudding mix",
+    "category": "confection",
+    "taste": "sweet",
+    "cuisines": [
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  },
+  {
+    "name": "vanilla sauce",
+    "category": "condiment",
+    "taste": "sweet",
+    "cuisines": [
+      "French",
+      "German",
+      "American"
+    ],
+    "isJunk": false,
+    "junkReason": ""
+  }
+]
