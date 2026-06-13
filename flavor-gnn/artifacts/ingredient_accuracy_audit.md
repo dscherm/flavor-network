@@ -1,0 +1,362 @@
+# Ingredient Accuracy Audit — Report
+Generated: 2026-06-13T00:09:10.886Z
+
+- Records re-judged: **3890**
+- Category changes: **1380**
+- Taste changes: **2883**
+- Cuisine changes: **3315**
+- Junk entries flagged (NOT removed): **227**
+- All batches produced output.
+
+## Flagged junk (non-ingredient entries — candidates for a separate removal pass)
+
+- additional oil — Not a specific ingredient; 'additional oil' is a generic recipe instruction artifact
+- additional powdered sugar — Not a specific ingredient; 'additional powdered sugar' is a generic recipe instruction artifact
+- additional sugar — Not a specific ingredient; 'additional sugar' is a generic recipe instruction artifact
+- apple cinnamon — Flavor-adjunct compound descriptor, not a standalone ingredient
+- apple pie — Prepared dish, not a single ingredient
+- armour beef — Branded product (Armour is a commercial meat brand)
+- baked potato — Prepared dish, not a raw ingredient
+- bean with bacon soup — Prepared compound soup product, not a single ingredient
+- beef pot roast — Prepared dish, not a raw ingredient
+- beef stew — Prepared dish, not a single ingredient
+- box wheat chex — Branded cereal product (Wheat Chex by General Mills)
+- bread machine — Appliance reference, not an ingredient
+- bread pudding — Prepared dish, not a single ingredient
+- broccoli cheese soup — Prepared compound soup product, not a single ingredient
+- butter cake mix — Branded/prepared baking mix, not a single ingredient
+- butter flavor — Flavor extract/additive, not a real ingredient
+- butter substitute — Generic substitute product category, not a specific ingredient
+- buttered bread — Compound prepared food (bread + butter), not a single ingredient
+- buttered noodle — Prepared dish (noodles + butter), not a single ingredient
+- buttered toast — Prepared dish (toast + butter), not a single ingredient
+- butterfinger — Branded candy bar product
+- buttermilk baking — Ambiguous truncated entry, likely refers to a baking product not a raw ingredient
+- buttermilk baking mix — Prepared baking mix product, not a single ingredient
+- buttermilk biscuit — Prepared baked good (compound dish), not a single ingredient
+- buttermilk biscuit mix — Prepared baking mix product, not a single ingredient
+- buttermilk pancake mix — Prepared baking mix product, not a single ingredient
+- butternut flavoring — Artificial flavoring extract, not a real ingredient
+- buttery — Adjective/flavor descriptor, not a real ingredient
+- c.sugar — Abbreviation artifact (likely 'caster sugar'), not a proper ingredient entry
+- cake paraffin — Paraffin wax is a coating/additive material not a culinary ingredient; 'cake paraffin' is a non-ingredient artifact
+- campbell's cream — Branded product (Campbell's condensed cream soup), not a single ingredient
+- candy bar — Generic category descriptor, not a specific ingredient
+- caramel coloring — Food coloring additive, not a culinary ingredient
+- carnation cream — Branded product (Carnation condensed/evaporated cream), not a single ingredient
+- carnation milk — Branded product (Carnation evaporated milk), not a single ingredient
+- carrots target — Target is a retail store/brand name artifact, not a culinary ingredient
+- celery soup — Prepared condensed soup product (e.g. Campbells cream of celery), not a single ingredient
+- cheddar cheese soup — Prepared condensed soup product, not a single ingredient
+- cheddar soup — Prepared condensed soup product, not a single ingredient
+- cheese of choice — Recipe placeholder (of choice), not a specific ingredient
+- cheese soup — Prepared condensed soup product, not a single ingredient
+- cheesecloth — Kitchen equipment/tool, not an ingredient
+- chicken flavor — Flavor additive/extract artifact, not a real ingredient
+- chicken flavored rice — Prepared/seasoned rice product (e.g. Rice-A-Roni), not a single ingredient
+- chicken gravy mix — Prepared dry mix product, not a single ingredient
+- chicken gumbo soup — Prepared compound soup dish, not a single ingredient
+- chicken marinade — Generic prepared marinade product, not a single ingredient
+- chicken mushroom soup — Prepared condensed soup product, not a single ingredient
+- chicken rice soup — Prepared compound soup dish, not a single ingredient
+- chicken salad — Prepared compound dish, not a single ingredient
+- chicken soup — Prepared compound soup dish / condensed soup product, not a single ingredient
+- chicken stuffing mix — Prepared dry stuffing mix product, not a single ingredient
+- chicken with rice soup — Prepared compound soup dish / branded canned soup, not a single ingredient
+- chili beef soup — Prepared compound soup dish, not a single ingredient
+- chili with bean — Prepared compound dish (canned chili with beans), not a single ingredient
+- chili-o mix — Branded dry seasoning mix product (French's Chili-O), not a single ingredient
+- chocolate egg — Candy confection (Easter chocolate egg), not a culinary ingredient
+- chocolate flavor — Artificial flavor extract/additive, not a real ingredient
+- chocolate-covered — Incomplete descriptor artifact, not a specific ingredient
+- chocolate-hazelnut — Truncated ingredient name artifact (likely Nutella/chocolate-hazelnut spread), not a complete ingredient entry
+- chunk white chicken — Refers to canned chunk chicken (prepared/processed product), not a raw ingredient
+- clam chowder — Prepared compound soup dish, not a single ingredient
+- coating mix — Generic prepared coating/breading product, not a single ingredient
+- coca-cola — Branded soft drink product
+- coconut flavor — Artificial flavor extract/additive, not a real ingredient
+- coconut flavoring — Artificial flavor extract/additive, not a real ingredient
+- cointreau — Branded orange liqueur product (Cointreau is a specific brand), not a generic ingredient
+- condensed beef — Incomplete/truncated entry (condensed beef broth/soup), not a single ingredient
+- condensed chicken — Incomplete/truncated entry (condensed chicken broth/soup), not a single ingredient
+- condensed french onion soup — Prepared condensed soup product, not a single ingredient
+- condensed onion soup — Prepared condensed soup product, not a single ingredient
+- cookie cutter — Kitchen tool/equipment, not an ingredient
+- cookie sheet — Kitchen equipment (baking pan), not an ingredient
+- cool whip — Branded whipped topping product (Cool Whip), not a single ingredient
+- cool whip lite — Branded whipped topping product (Cool Whip Lite), not a single ingredient
+- corn chex — Branded breakfast cereal product (Chex), not a single ingredient
+- corn mix — Generic/vague prepared mix product, not a single ingredient
+- corn with — Truncated/incomplete ingredient name artifact
+- craisin — Branded product (Craisins by Ocean Spray — dried cranberries), not a generic ingredient
+- cream chicken soup — Prepared condensed soup product (cream of chicken soup), not a single ingredient
+- cream maker — Equipment/appliance descriptor, not an ingredient
+- cream mushroom soup — Prepared condensed soup product (cream of mushroom soup), not a single ingredient
+- cream of asparagus soup — Prepared condensed soup product, not a single ingredient
+- cream of broccoli soup — Prepared condensed soup product, not a single ingredient
+- cream of celery — Prepared condensed soup product (cream of celery soup), not a single ingredient
+- cream of celery soup — Prepared condensed soup product, not a single ingredient
+- cream of chicken — Prepared condensed soup product (cream of chicken soup), not a single ingredient
+- cream of chicken soup — Prepared condensed soup product, not a single ingredient
+- cream of mushroom — Prepared condensed soup product (cream of mushroom soup), not a single ingredient
+- cream of mushroom soup — Prepared condensed soup product, not a single ingredient
+- cream of onion soup — Prepared condensed soup product, not a single ingredient
+- cream of potato soup — Prepared condensed soup product, not a single ingredient
+- cream of shrimp soup — Prepared condensed soup product, not a single ingredient
+- cream of tomato soup — Prepared condensed soup product, not a single ingredient
+- cream soup — Generic prepared condensed soup category, not a single ingredient
+- cream-filled — Incomplete descriptor artifact, not a specific ingredient
+- cream-style — Generic style descriptor, not a specific ingredient
+- creamed soup — Generic prepared condensed cream soup, not a single ingredient
+- creamette — Branded pasta product (Creamette brand), not a generic ingredient
+- crisco oil — Branded shortening/oil product (Crisco), not a generic ingredient
+- cupcake liner — Kitchen equipment/baking supply, not an ingredient
+- dairy product — Generic category descriptor, not a specific ingredient
+- dr. pepper — Branded soft drink product (Dr Pepper), not an ingredient
+- drained oil — Generic residual cooking oil descriptor, not a specific ingredient
+- dream whip — Branded whipped topping mix product (Dream Whip), not a single ingredient
+- dream whip topping mix — Branded whipped topping mix product (Dream Whip), not a single ingredient
+- dressing ingredient — Generic category descriptor/placeholder, not a specific ingredient
+- easy cheese cream cheese — Branded processed cheese product (Easy Cheese), not a single ingredient
+- egg + — Malformed/truncated ingredient name artifact
+- egg beater — Branded egg substitute product (Egg Beaters), not a single ingredient
+- eggs + — Malformed/truncated ingredient name artifact
+- eggs at — Malformed/truncated ingredient name artifact
+- epsom salt — Epsom salt (magnesium sulfate) is a mineral supplement/bath product, not a culinary ingredient
+- equal sugar — Branded artificial sweetener product (Equal), not a generic ingredient
+- equal sugar substitute — Branded artificial sweetener product (Equal), not a generic ingredient
+- essential oil — Aromatic extract used for scent/therapy, not a culinary ingredient
+- european — Geographic descriptor, not an ingredient
+- extra butter — Modifier descriptor (extra butter), not a distinct ingredient from butter
+- extra flour — Modifier descriptor (extra flour), not a distinct ingredient from flour
+- extra sugar — Modifier descriptor (extra sugar), not a distinct ingredient from sugar
+- extra virgin — Incomplete/truncated descriptor, not a specific ingredient
+- extra virgin olive oil salt — Compound modifier descriptor (olive oil + salt combined), not a single ingredient
+- extra-lean beef king sooper — Branded/retailer-specific product (King Soopers store brand), not a generic ingredient
+- favorite cheese — Recipe placeholder ('favorite'), not a specific ingredient
+- favorite ice cream — Recipe placeholder ('favorite'), not a specific ingredient
+- favorite pasta — Recipe placeholder ('favorite'), not a specific ingredient
+- flat-leaf — Incomplete/truncated descriptor, not a specific ingredient
+- for sauce — Incomplete/truncated descriptor artifact, not a specific ingredient
+- fritos corn chip — Branded snack product (Fritos), not a generic ingredient
+- fryer — Equipment descriptor (deep fryer), not an ingredient
+- godiva liqueur — Branded liqueur product (Godiva), not a generic ingredient
+- gold medal flour — Branded flour product (Gold Medal by General Mills), not a generic ingredient
+- golden grahams cereal — Branded breakfast cereal product (Golden Grahams by General Mills), not a generic ingredient
+- grape nut — Branded cereal product (Grape-Nuts by Post), not a generic ingredient
+- grape nut cereal — Branded cereal product (Grape-Nuts by Post), not a generic ingredient
+- grape-nut — Branded cereal product (Grape-Nuts by Post), not a generic ingredient
+- hidden valley dressing — Branded salad dressing product (Hidden Valley by Clorox), not a generic ingredient
+- honey maid — Branded graham cracker product (Honey Maid by Nabisco), not a generic ingredient
+- hormel chili — Branded canned chili product (Hormel), not a generic ingredient
+- hormel chili with bean — Branded canned chili product (Hormel), not a generic ingredient
+- hormel chili without bean — Branded canned chili product (Hormel), not a generic ingredient
+- hormel real bacon bit — Branded processed bacon product (Hormel), not a generic ingredient
+- jalapeno cheez whiz — Branded processed cheese product (Cheez Whiz by Kraft), not a generic ingredient
+- jif creamy — Branded peanut butter product (Jif by J.M. Smucker), not a generic ingredient
+- jif peanut butter — Branded peanut butter product (Jif by J.M. Smucker), not a generic ingredient
+- kitchen twine — Kitchen equipment/tool, not an ingredient
+- knorr chicken — Branded bouillon product (Knorr by Unilever), not a generic ingredient
+- lotu — truncated or corrupted entry; not a recognizable culinary ingredient
+- low-sugar — descriptor/qualifier, not a culinary ingredient
+- mcbutter — branded butter-flavored powder product
+- milky — descriptor/adjective, not a culinary ingredient
+- milliliters milk — measurement artifact, not an ingredient name
+- morton tender quick salt — branded curing salt product (Morton Tender Quick)
+- nacho cheese dorito — branded snack product (Doritos Nacho Cheese)
+- olive or — truncated parse artifact; name is incomplete
+- orange and — truncated parse artifact; name is incomplete
+- orange flavored — truncated descriptor; not a complete ingredient name
+- orange food coloring — food coloring is an additive, not a culinary ingredient
+- original hidden — truncated parse artifact; likely Hidden Valley Ranch brand product
+- oscar mayer bacon — branded product (Oscar Mayer)
+- owens sausage — branded sausage product (Owens)
+- paste — Generic descriptor, not a specific ingredient
+- pepsi cola — Branded beverage product, not a culinary ingredient
+- percent milk — Measurement fragment, not a standalone ingredient
+- pine — Incomplete fragment, not a standalone culinary ingredient
+- promise buttery spread — Branded margarine product, not a culinary ingredient
+- protein powder — Dietary supplement, not a culinary ingredient
+- red cake coloring — Food coloring additive, not a culinary ingredient
+- reserved juice — Generic cooking descriptor, not a standalone ingredient
+- rice-a-roni — Branded processed product, not a culinary ingredient
+- roaster — Kitchen equipment, not an ingredient
+- root — Generic category label, not a specific ingredient
+- root vegetable — Generic category descriptor, not a specific ingredient
+- rowal — Unrecognized fragment, not a culinary ingredient
+- salted — Adjective descriptor, not a standalone ingredient
+- seed — Generic category label, not a specific ingredient
+- shellfish — Too generic — not a specific ingredient
+- soup — Too generic — not a specific ingredient
+- soy — Too generic — could be soy sauce, soy milk, tofu, etc.
+- spear — Too generic — spear of what? Parse artifact
+- spicy sauce — Too generic — not a specific ingredient
+- spirit — Too generic — not a specific ingredient
+- splenda brown sugar blend — Branded product (Splenda is a registered trademark of Heartland Consumer Products)
+- splenda sugar — Branded product (Splenda is a registered trademark of Heartland Consumer Products)
+- splenda sugar substitute — Branded product (Splenda is a registered trademark of Heartland Consumer Products)
+- stew — Too generic — not a specific ingredient
+- stove top dressing — Branded product (Stove Top is a registered trademark of Kraft Heinz)
+- strawberry flavored — Incomplete parse artifact — flavored what?
+- strawberry jello — Branded product (Jell-O is a registered trademark of Kraft Heinz)
+- sugar-free — Parse artifact — adjective, not a specific ingredient
+- sweet grass — Not a culinary ingredient — ornamental or medicinal plant
+- swiss chocolate cake mix — Branded product category — specific branded cake mix, not a culinary ingredient
+- t butter — Parse artifact — truncated entry, not a valid ingredient name
+- t oil — Parse artifact — truncated entry, not a valid ingredient name
+- t sugar — Parse artifact — truncated entry, not a valid ingredient name
+- tbl butter — Parse artifact — truncated unit abbreviation, not an ingredient
+- tbl olive oil — Parse artifact — truncated unit abbreviation, not an ingredient
+- type cheese — Parse artifact — incomplete descriptor, not a specific ingredient
+- uncle ben's rice — Branded product (Uncle Ben's is a registered trademark of Mars, Inc.)
+- unsalted — Parse artifact — adjective, not a specific ingredient
+- vanilla protein powder — Supplement product, not a culinary food ingredient
+- vanilla-flavored — Parse artifact — adjective, not a specific ingredient
+- vegetable — Too generic — not a specific ingredient
+- veggie — Too generic — not a specific ingredient
+- velveeta cheese — Branded product (Velveeta is a registered trademark of Kraft Heinz)
+- velveeta reduced fat cheese — Branded product (Velveeta is a registered trademark of Kraft Heinz)
+- very milk — Parse artifact — incomplete/nonsensical name
+- weight bacon — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight bittersweet chocolate — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight butter — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight chicken — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight chocolate — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight cream cheese — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight mushroom — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight semisweet chocolate — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight sugar — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight white chocolate — Parse artifact — unit-prefixed entry, not a real ingredient name
+- weight white chocolate chip — Parse artifact — unit-prefixed entry, not a real ingredient name
+- wesson oil — Branded product (Wesson is a registered trademark of Conagra Brands)
+- wheatie — unclear descriptor — Weetabix/Weet-Bix brand or generic wheaty cereal
+- whipping — parse artifact — truncated from 'whipping cream'
+- white baking — truncated name — white baking what? Parse artifact
+- white karo syrup — branded product (Karo corn syrup)
+- with juice — Prepositional fragment, not a standalone ingredient
+- yellow cake mix — Prepared baking mix product, not a single ingredient
+- yellow cheese — Vague descriptor, not a specific ingredient
+- zest from — Prepositional fragment, not a standalone ingredient
+
+## Sample category reclassifications
+
+- abalone: other -> protein
+- abiyuch: other -> vegetable
+- absinthe: other -> spirit
+- acerola: other -> fruit
+- achiote paste: other -> condiment
+- achiote powder: other -> spice
+- acorn: other -> nut
+- adzuki bean: vegetable -> protein
+- alaska wild rhubarb: other -> vegetable
+- alfalfa: other -> vegetable
+- all-purpose unbleached flour: thickener -> grain
+- almond bark: nut -> confection
+- almond essence: nut -> condiment
+- almond extract: nut -> condiment
+- almond filling: nut -> condiment
+- almond flavor: nut -> condiment
+- almond flavoring: nut -> condiment
+- almond flour: nut -> grain
+- almond meal: nut -> grain
+- almond milk: dairy -> liquid
+- almond paste: nut -> condiment
+- almonds blanched: other -> nut
+- almonds slivered: other -> nut
+- amaranth: other -> grain
+- amaranth flour: thickener -> grain
+- amaro montenegro: other -> liqueur
+- american butterfish: other -> protein
+- american pokeweed: other -> vegetable
+- anaheim chilie: other -> chili
+- angelica: other -> herb
+- anise seed: nut -> spice
+- aniseed: nut -> spice
+- apple filling: fruit -> condiment
+- apple jelly: fruit -> condiment
+- apple pie: fruit -> baked
+- apple pie filling: fruit -> condiment
+- apple pie spice: fruit -> spice
+- apple sauce: fruit -> condiment
+- apple schnapp: fruit -> spirit
+- applejack: other -> spirit
+- apricot gelatin: fruit -> condiment
+- apricot jam: fruit -> condiment
+- apricot jello: fruit -> condiment
+- apricot jelly: fruit -> condiment
+- apricot nectar: fruit -> liquid
+- apricot pie filling: fruit -> condiment
+- apricot preserve: fruit -> condiment
+- arrowhead: other -> vegetable
+- artemisia: other -> herb
+- asafoetida: other -> spice
+- asafoetida powder: other -> spice
+- ashgourd: other -> vegetable
+- asian chili paste: chili -> condiment
+- asian chili sauce: chili -> condiment
+- asian chili-garlic: chili -> condiment
+- asian fish sauce: protein -> umami
+- asparagus: other -> vegetable
+- atlantic herring: other -> protein
+- avocado dip: other -> condiment
+- avocadoe: other -> fruit
+- babaco: other -> fruit
+- babassu palm: other -> fat
+- baby carrot: aromatic -> vegetable
+- baby lima bean: vegetable -> protein
+- backfin crabmeat: other -> protein
+- bacon fat: protein -> fat
+- bacon grease: protein -> fat
+- bailey's irish cream: dairy -> liqueur
+- baking bit: other -> confection
+- baking chip: other -> confection
+- baking chocolate: sweetener -> confection
+- baking cocoa: sweetener -> condiment
+- baking crumb: other -> grain
+- baking flour: thickener -> grain
+- baking hen: other -> protein
+- baking mix: other -> grain
+- baking square: other -> confection
+- bamboo shoot: other -> vegetable
+- banana chip: fruit -> confection
+- banana cream: dairy -> condiment
+- banana flavoring: fruit -> condiment
+- banana instant pudding: fruit -> condiment
+- banana leaf: fruit -> other
+- bananas mashed: other -> fruit
+- barley flour: thickener -> grain
+- basil pesto: herb -> condiment
+- basket cherry tomatoe: fruit -> vegetable
+- bayleaf: other -> herb
+- bean: vegetable -> protein
+- bean curd: vegetable -> protein
+- bean dip: vegetable -> condiment
+- bean paste: vegetable -> condiment
+- bean sauce: vegetable -> condiment
+- bean soup mix: vegetable -> protein
+- bean thread: vegetable -> grain
+- bean with bacon soup: protein -> condiment
+- bechamel: other -> condiment
+- beech nut: other -> nut
+- beef base: protein -> umami
+- beef bouillon: protein -> umami
+- beef bouillon cube: protein -> umami
+- beef bouillon granule: protein -> umami
+- beef bouillon powder: protein -> umami
+- beef bouillon soup: protein -> liquid
+- beef consomme: protein -> liquid
+- beef flavor: protein -> umami
+- beef gravy: protein -> condiment
+- beef stew seasoning: protein -> seasoning
+- beef suet: protein -> fat
+- beefeater: other -> spirit
+- bitter chocolate: sweetener -> confection
+- bittergourd: other -> vegetable
+- bitters: other -> bitters
+- bittersweet: other -> confection
+- bittersweet chocolate chip: sweetener -> confection
+- black bean: vegetable -> protein
+- black bean garlic sauce: aromatic -> condiment
+- black bean sauce: vegetable -> condiment
+- black cherry gelatin: fruit -> condiment
+- black cherry jello: fruit -> condiment

@@ -57,3 +57,6 @@ proDataset/processed/pair-features.json
 # logo's source PNG is committed there; the throwaway iterations and the
 # vtracer SVGs are reproducible from scripts/generate-logos.py.
 resources/logo-options/
+
+# dataset apply-step backups
+*.bak
