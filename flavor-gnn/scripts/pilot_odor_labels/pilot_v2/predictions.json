@@ -1,0 +1,3111 @@
+[
+  {
+    "name": "aioli",
+    "aromas": [
+      "alliaceous green",
+      "fatty",
+      "creamy"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "almond",
+    "aromas": [
+      "nutty",
+      "fatty",
+      "woody"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "ambrette",
+    "aromas": [
+      "floral",
+      "woody",
+      "fruity"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "anchovy",
+    "aromas": [
+      "marine",
+      "meaty",
+      "fermented"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "angelica",
+    "aromas": [
+      "green",
+      "earthy",
+      "woody"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "anise seed",
+    "aromas": [
+      "spicy",
+      "sweet"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "annatto",
+    "aromas": [
+      "earthy",
+      "woody",
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "apple",
+    "aromas": [
+      "fruity",
+      "green"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "apple cider",
+    "aromas": [
+      "fruity",
+      "fermented"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "apple juice",
+    "aromas": [
+      "fruity"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "applesauce",
+    "aromas": [
+      "fruity",
+      "caramel"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "artichoke",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "asparagus",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "avocado",
+    "aromas": [
+      "green",
+      "fatty",
+      "creamy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "bacon",
+    "aromas": [
+      "smoky",
+      "meaty",
+      "roasted"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "baked potato",
+    "aromas": [
+      "earthy",
+      "roasted"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "balsamic vinegar",
+    "aromas": [
+      "fermented",
+      "fruity",
+      "caramel"
+    ],
+    "tastes": [
+      "sour",
+      "sweet"
+    ]
+  },
+  {
+    "name": "banana",
+    "aromas": [
+      "fruity",
+      "creamy"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "basil",
+    "aromas": [
+      "green",
+      "spicy",
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "basmati rice",
+    "aromas": [
+      "nutty",
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "bbq sauce",
+    "aromas": [
+      "smoky",
+      "caramel",
+      "spicy"
+    ],
+    "tastes": [
+      "sweet",
+      "umami"
+    ]
+  },
+  {
+    "name": "beef",
+    "aromas": [
+      "meaty",
+      "roasted",
+      "fatty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "beer",
+    "aromas": [
+      "fermented",
+      "nutty",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "beet",
+    "aromas": [
+      "earthy",
+      "green"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "bergamot",
+    "aromas": [
+      "citrusy",
+      "floral"
+    ],
+    "tastes": [
+      "sour",
+      "bitter"
+    ]
+  },
+  {
+    "name": "berries",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "black bean",
+    "aromas": [
+      "earthy",
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "black lime",
+    "aromas": [
+      "citrusy",
+      "fermented",
+      "earthy"
+    ],
+    "tastes": [
+      "sour",
+      "bitter"
+    ]
+  },
+  {
+    "name": "black pepper",
+    "aromas": [
+      "spicy",
+      "woody"
+    ],
+    "tastes": [
+      "spicy",
+      "pungent"
+    ]
+  },
+  {
+    "name": "black tea",
+    "aromas": [
+      "woody",
+      "earthy",
+      "roasted"
+    ],
+    "tastes": [
+      "astringent",
+      "bitter"
+    ]
+  },
+  {
+    "name": "blackberry",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "blackcurrant",
+    "aromas": [
+      "fruity",
+      "green"
+    ],
+    "tastes": [
+      "sour",
+      "sweet"
+    ]
+  },
+  {
+    "name": "blue cheese",
+    "aromas": [
+      "fermented",
+      "creamy",
+      "earthy"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "blueberry",
+    "aromas": [
+      "fruity"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "bonito",
+    "aromas": [
+      "marine",
+      "smoky",
+      "meaty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "bread",
+    "aromas": [
+      "roasted",
+      "nutty",
+      "fermented"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "brie",
+    "aromas": [
+      "creamy",
+      "fatty",
+      "earthy"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "broccoli",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "brown butter",
+    "aromas": [
+      "nutty",
+      "caramel",
+      "fatty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "brown sugar",
+    "aromas": [
+      "caramel",
+      "sweet"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "brussels sprouts",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "butter",
+    "aromas": [
+      "creamy",
+      "fatty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "béchamel",
+    "aromas": [
+      "creamy",
+      "fatty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "cabbage",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "cantaloupe",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "caper",
+    "aromas": [
+      "fermented",
+      "green"
+    ],
+    "tastes": [
+      "salty",
+      "sour"
+    ]
+  },
+  {
+    "name": "capers",
+    "aromas": [
+      "fermented",
+      "green"
+    ],
+    "tastes": [
+      "salty",
+      "sour"
+    ]
+  },
+  {
+    "name": "caramel",
+    "aromas": [
+      "caramel"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "caraway",
+    "aromas": [
+      "spicy",
+      "earthy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "cardamom",
+    "aromas": [
+      "spicy",
+      "citrusy",
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "carrot",
+    "aromas": [
+      "earthy",
+      "green"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "cashew",
+    "aromas": [
+      "nutty",
+      "creamy",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "cauliflower",
+    "aromas": [
+      "green",
+      "earthy",
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "cayenne",
+    "aromas": [
+      "spicy"
+    ],
+    "tastes": [
+      "spicy"
+    ]
+  },
+  {
+    "name": "celery",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "celery seed",
+    "aromas": [
+      "green",
+      "spicy",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "chamomile",
+    "aromas": [
+      "floral",
+      "green"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "cheddar",
+    "aromas": [
+      "creamy",
+      "fermented",
+      "fatty"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "cheese",
+    "aromas": [
+      "creamy",
+      "fermented",
+      "fatty"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "cherry",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "chervil",
+    "aromas": [
+      "green",
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "chestnut",
+    "aromas": [
+      "nutty",
+      "earthy",
+      "woody"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "chia seed",
+    "aromas": [
+      "nutty",
+      "earthy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "chicken",
+    "aromas": [
+      "meaty",
+      "fatty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "chickpea",
+    "aromas": [
+      "nutty",
+      "earthy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "chili",
+    "aromas": [
+      "fruity",
+      "green"
+    ],
+    "tastes": [
+      "spicy"
+    ]
+  },
+  {
+    "name": "chimichurri",
+    "aromas": [
+      "green",
+      "alliaceous green",
+      "spicy"
+    ],
+    "tastes": [
+      "sour",
+      "pungent"
+    ]
+  },
+  {
+    "name": "chive",
+    "aromas": [
+      "alliaceous green",
+      "green"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "chives",
+    "aromas": [
+      "alliaceous green",
+      "green"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "chocolate",
+    "aromas": [
+      "roasted",
+      "caramel",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter",
+      "sweet"
+    ]
+  },
+  {
+    "name": "chorizo",
+    "aromas": [
+      "meaty",
+      "smoky",
+      "spicy"
+    ],
+    "tastes": [
+      "umami",
+      "salty",
+      "spicy"
+    ]
+  },
+  {
+    "name": "cilantro",
+    "aromas": [
+      "green",
+      "citrusy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "cinnamon",
+    "aromas": [
+      "spicy",
+      "woody",
+      "caramel"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "clove",
+    "aromas": [
+      "spicy",
+      "woody"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "cocoa",
+    "aromas": [
+      "roasted",
+      "earthy",
+      "caramel"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "coconut",
+    "aromas": [
+      "creamy",
+      "nutty",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "coconut milk",
+    "aromas": [
+      "creamy",
+      "nutty",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "coconut oil",
+    "aromas": [
+      "fatty",
+      "creamy",
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "coffee",
+    "aromas": [
+      "roasted",
+      "earthy",
+      "smoky"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "coriander",
+    "aromas": [
+      "citrusy",
+      "spicy",
+      "woody"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "corn",
+    "aromas": [
+      "green",
+      "creamy"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "crab",
+    "aromas": [
+      "marine",
+      "meaty"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "crackers",
+    "aromas": [
+      "roasted",
+      "nutty"
+    ],
+    "tastes": [
+      "salty"
+    ]
+  },
+  {
+    "name": "cranberry",
+    "aromas": [
+      "fruity"
+    ],
+    "tastes": [
+      "sour",
+      "astringent"
+    ]
+  },
+  {
+    "name": "cream",
+    "aromas": [
+      "creamy",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "cream cheese",
+    "aromas": [
+      "creamy",
+      "fatty",
+      "fermented"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "cucumber",
+    "aromas": [
+      "green",
+      "marine"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "cumin",
+    "aromas": [
+      "earthy",
+      "spicy",
+      "woody"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "curry leaf",
+    "aromas": [
+      "citrusy",
+      "green",
+      "spicy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "curry powder",
+    "aromas": [
+      "spicy",
+      "earthy",
+      "woody"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "custard",
+    "aromas": [
+      "creamy",
+      "caramel",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "dark chocolate",
+    "aromas": [
+      "roasted",
+      "earthy",
+      "caramel"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "date",
+    "aromas": [
+      "caramel",
+      "fruity"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "dill",
+    "aromas": [
+      "green",
+      "citrusy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "duck",
+    "aromas": [
+      "meaty",
+      "fatty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "edamame",
+    "aromas": [
+      "green",
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "egg",
+    "aromas": [
+      "fatty",
+      "creamy"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "eggplant",
+    "aromas": [
+      "earthy",
+      "green"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "elderflower",
+    "aromas": [
+      "floral",
+      "fruity"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "epazote",
+    "aromas": [
+      "green",
+      "earthy",
+      "citrusy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "fennel",
+    "aromas": [
+      "spicy",
+      "green",
+      "floral"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "fennel pollen",
+    "aromas": [
+      "floral",
+      "spicy",
+      "green"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "feta",
+    "aromas": [
+      "fermented",
+      "creamy"
+    ],
+    "tastes": [
+      "salty",
+      "sour"
+    ]
+  },
+  {
+    "name": "fig",
+    "aromas": [
+      "fruity",
+      "caramel"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "fish",
+    "aromas": [
+      "marine",
+      "meaty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "fish sauce",
+    "aromas": [
+      "fermented",
+      "marine"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "flour",
+    "aromas": [
+      "nutty",
+      "earthy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "galangal",
+    "aromas": [
+      "spicy",
+      "woody",
+      "citrusy"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "garlic",
+    "aromas": [
+      "alliaceous green"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "gentian",
+    "aromas": [
+      "earthy",
+      "woody"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "ginger",
+    "aromas": [
+      "spicy",
+      "citrusy",
+      "woody"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "gochujang",
+    "aromas": [
+      "fermented",
+      "spicy"
+    ],
+    "tastes": [
+      "umami",
+      "spicy",
+      "sweet"
+    ]
+  },
+  {
+    "name": "gouda",
+    "aromas": [
+      "creamy",
+      "nutty",
+      "fermented"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "grains of paradise",
+    "aromas": [
+      "spicy",
+      "woody",
+      "citrusy"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "granny smith apple",
+    "aromas": [
+      "fruity",
+      "green"
+    ],
+    "tastes": [
+      "sour",
+      "sweet"
+    ]
+  },
+  {
+    "name": "grapefruit",
+    "aromas": [
+      "citrusy",
+      "fruity"
+    ],
+    "tastes": [
+      "sour",
+      "bitter"
+    ]
+  },
+  {
+    "name": "green bean",
+    "aromas": [
+      "green"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "green pepper",
+    "aromas": [
+      "green"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "gremolata",
+    "aromas": [
+      "citrusy",
+      "alliaceous green",
+      "green"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "gruyere",
+    "aromas": [
+      "nutty",
+      "creamy",
+      "fermented"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "guacamole",
+    "aromas": [
+      "fatty",
+      "green",
+      "alliaceous green"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "guava",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "ham",
+    "aromas": [
+      "meaty",
+      "smoky"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "harissa",
+    "aromas": [
+      "spicy",
+      "smoky",
+      "earthy"
+    ],
+    "tastes": [
+      "spicy",
+      "pungent"
+    ]
+  },
+  {
+    "name": "hazelnut",
+    "aromas": [
+      "nutty",
+      "roasted",
+      "woody"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "hemp seed",
+    "aromas": [
+      "nutty",
+      "green",
+      "earthy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "hibiscus",
+    "aromas": [
+      "floral",
+      "fruity"
+    ],
+    "tastes": [
+      "sour",
+      "astringent"
+    ]
+  },
+  {
+    "name": "hoisin sauce",
+    "aromas": [
+      "fermented",
+      "caramel"
+    ],
+    "tastes": [
+      "sweet",
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "hollandaise",
+    "aromas": [
+      "creamy",
+      "fatty"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "honey",
+    "aromas": [
+      "floral",
+      "caramel",
+      "fruity"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "hops",
+    "aromas": [
+      "green",
+      "floral",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "horseradish",
+    "aromas": [
+      "green"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "hot paprika",
+    "aromas": [
+      "spicy",
+      "smoky",
+      "earthy"
+    ],
+    "tastes": [
+      "spicy"
+    ]
+  },
+  {
+    "name": "hot sauce",
+    "aromas": [
+      "fermented",
+      "spicy"
+    ],
+    "tastes": [
+      "spicy",
+      "sour",
+      "salty"
+    ]
+  },
+  {
+    "name": "hummus",
+    "aromas": [
+      "nutty",
+      "earthy"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "ice cream",
+    "aromas": [
+      "creamy",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "jasmine",
+    "aromas": [
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "juniper berry",
+    "aromas": [
+      "woody",
+      "spicy",
+      "green"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "kaffir lime leaf",
+    "aromas": [
+      "citrusy",
+      "floral",
+      "green"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "kale",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "ketchup",
+    "aromas": [
+      "fruity",
+      "fermented"
+    ],
+    "tastes": [
+      "sweet",
+      "sour",
+      "umami"
+    ]
+  },
+  {
+    "name": "kimchi",
+    "aromas": [
+      "fermented",
+      "spicy",
+      "alliaceous green"
+    ],
+    "tastes": [
+      "sour",
+      "umami",
+      "spicy"
+    ]
+  },
+  {
+    "name": "kiwi",
+    "aromas": [
+      "fruity",
+      "green"
+    ],
+    "tastes": [
+      "sour",
+      "sweet"
+    ]
+  },
+  {
+    "name": "kombu",
+    "aromas": [
+      "marine"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "lamb",
+    "aromas": [
+      "meaty",
+      "fatty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "lavender",
+    "aromas": [
+      "floral",
+      "woody"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "leek",
+    "aromas": [
+      "alliaceous green",
+      "green"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "lemon",
+    "aromas": [
+      "citrusy",
+      "fruity"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "lemon balm",
+    "aromas": [
+      "citrusy",
+      "green",
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "lemon verbena",
+    "aromas": [
+      "citrusy",
+      "floral",
+      "green"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "lemongrass",
+    "aromas": [
+      "citrusy",
+      "green",
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "lentil",
+    "aromas": [
+      "earthy",
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "lettuce",
+    "aromas": [
+      "green"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "lime",
+    "aromas": [
+      "citrusy",
+      "green"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "lobster",
+    "aromas": [
+      "marine",
+      "meaty"
+    ],
+    "tastes": [
+      "umami",
+      "sweet"
+    ]
+  },
+  {
+    "name": "long pepper",
+    "aromas": [
+      "spicy",
+      "woody"
+    ],
+    "tastes": [
+      "spicy",
+      "pungent"
+    ]
+  },
+  {
+    "name": "lovage",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "lychee",
+    "aromas": [
+      "floral",
+      "fruity"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "macadamia",
+    "aromas": [
+      "nutty",
+      "fatty",
+      "creamy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "mace",
+    "aromas": [
+      "spicy",
+      "woody"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "mahleb",
+    "aromas": [
+      "nutty",
+      "fruity",
+      "spicy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "mandarin",
+    "aromas": [
+      "citrusy",
+      "fruity"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "mango",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "maple syrup",
+    "aromas": [
+      "caramel",
+      "woody"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "marigold",
+    "aromas": [
+      "floral",
+      "green"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "mascarpone",
+    "aromas": [
+      "creamy",
+      "fatty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "mashed potato",
+    "aromas": [
+      "earthy",
+      "creamy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "mastic",
+    "aromas": [
+      "woody",
+      "green"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "matcha",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter",
+      "umami",
+      "astringent"
+    ]
+  },
+  {
+    "name": "mayonnaise",
+    "aromas": [
+      "fatty",
+      "creamy"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "milk",
+    "aromas": [
+      "creamy",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "mint",
+    "aromas": [
+      "green",
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "miso",
+    "aromas": [
+      "fermented"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "molasses",
+    "aromas": [
+      "caramel",
+      "earthy"
+    ],
+    "tastes": [
+      "sweet",
+      "bitter"
+    ]
+  },
+  {
+    "name": "mole",
+    "aromas": [
+      "roasted",
+      "spicy",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter",
+      "spicy",
+      "umami"
+    ]
+  },
+  {
+    "name": "mozzarella",
+    "aromas": [
+      "creamy",
+      "fatty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "mushroom",
+    "aromas": [
+      "earthy",
+      "meaty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "mustard",
+    "aromas": [
+      "green",
+      "spicy"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "nectarine",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "nigella seed",
+    "aromas": [
+      "earthy",
+      "spicy",
+      "nutty"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "noodles",
+    "aromas": [
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "nori",
+    "aromas": [
+      "marine"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "nutmeg",
+    "aromas": [
+      "spicy",
+      "woody"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "oatmeal",
+    "aromas": [
+      "nutty",
+      "earthy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "olive",
+    "aromas": [
+      "fruity",
+      "fermented"
+    ],
+    "tastes": [
+      "salty",
+      "bitter"
+    ]
+  },
+  {
+    "name": "olive oil",
+    "aromas": [
+      "fruity",
+      "green",
+      "fatty"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "onion",
+    "aromas": [
+      "alliaceous green",
+      "green"
+    ],
+    "tastes": [
+      "pungent",
+      "sweet"
+    ]
+  },
+  {
+    "name": "orange",
+    "aromas": [
+      "citrusy",
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "orange blossom",
+    "aromas": [
+      "floral",
+      "citrusy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "orange juice",
+    "aromas": [
+      "citrusy",
+      "fruity"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "oregano",
+    "aromas": [
+      "green",
+      "woody",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "oyster sauce",
+    "aromas": [
+      "marine",
+      "fermented",
+      "meaty"
+    ],
+    "tastes": [
+      "umami",
+      "salty",
+      "sweet"
+    ]
+  },
+  {
+    "name": "pancetta",
+    "aromas": [
+      "meaty",
+      "fatty",
+      "fermented"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "pandan",
+    "aromas": [
+      "green",
+      "nutty",
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "papaya",
+    "aromas": [
+      "fruity",
+      "green"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "paprika",
+    "aromas": [
+      "fruity",
+      "woody",
+      "earthy"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "parmesan",
+    "aromas": [
+      "fermented",
+      "nutty",
+      "creamy"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "parsley",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "parsnip",
+    "aromas": [
+      "earthy",
+      "green",
+      "woody"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "passion fruit",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sour",
+      "sweet"
+    ]
+  },
+  {
+    "name": "pasta",
+    "aromas": [
+      "nutty",
+      "roasted"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "pea",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "peach",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "peanut",
+    "aromas": [
+      "nutty",
+      "roasted",
+      "fatty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "peanut butter",
+    "aromas": [
+      "nutty",
+      "fatty",
+      "roasted"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "pear",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "peas",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "pecan",
+    "aromas": [
+      "nutty",
+      "woody",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "pesto",
+    "aromas": [
+      "green",
+      "nutty",
+      "alliaceous green"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "pineapple",
+    "aromas": [
+      "fruity",
+      "citrusy"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "pineapple juice",
+    "aromas": [
+      "fruity",
+      "citrusy"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "pink peppercorn",
+    "aromas": [
+      "spicy",
+      "fruity",
+      "woody"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "pistachio",
+    "aromas": [
+      "nutty",
+      "green",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "plum",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "pomegranate",
+    "aromas": [
+      "fruity"
+    ],
+    "tastes": [
+      "sour",
+      "sweet",
+      "astringent"
+    ]
+  },
+  {
+    "name": "ponzu",
+    "aromas": [
+      "citrusy",
+      "fermented",
+      "marine"
+    ],
+    "tastes": [
+      "sour",
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "pork",
+    "aromas": [
+      "meaty",
+      "fatty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "potato",
+    "aromas": [
+      "earthy",
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "prosciutto",
+    "aromas": [
+      "meaty",
+      "fermented",
+      "fatty"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "prune",
+    "aromas": [
+      "fruity",
+      "caramel"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "pumpkin seed",
+    "aromas": [
+      "nutty",
+      "roasted",
+      "green"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "quince",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sour",
+      "sweet",
+      "astringent"
+    ]
+  },
+  {
+    "name": "quinoa",
+    "aromas": [
+      "nutty",
+      "earthy",
+      "green"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "radish",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "raisins",
+    "aromas": [
+      "fruity",
+      "caramel"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "ranch dressing",
+    "aromas": [
+      "creamy",
+      "alliaceous green",
+      "green"
+    ],
+    "tastes": [
+      "salty",
+      "sour"
+    ]
+  },
+  {
+    "name": "raspberry",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "red apple",
+    "aromas": [
+      "fruity",
+      "floral"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "red bell pepper",
+    "aromas": [
+      "green",
+      "fruity"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "red pepper",
+    "aromas": [
+      "fruity",
+      "spicy"
+    ],
+    "tastes": [
+      "spicy"
+    ]
+  },
+  {
+    "name": "red wine",
+    "aromas": [
+      "fruity",
+      "fermented",
+      "woody"
+    ],
+    "tastes": [
+      "sour",
+      "bitter",
+      "astringent"
+    ]
+  },
+  {
+    "name": "red wine vinegar",
+    "aromas": [
+      "fermented",
+      "fruity"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "rhubarb",
+    "aromas": [
+      "green",
+      "fruity"
+    ],
+    "tastes": [
+      "sour",
+      "astringent"
+    ]
+  },
+  {
+    "name": "rice",
+    "aromas": [
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "ricotta",
+    "aromas": [
+      "creamy",
+      "fatty"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "roasted garlic",
+    "aromas": [
+      "roasted",
+      "alliaceous green",
+      "caramel"
+    ],
+    "tastes": [
+      "umami",
+      "sweet"
+    ]
+  },
+  {
+    "name": "romesco",
+    "aromas": [
+      "nutty",
+      "roasted",
+      "fruity"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "rose",
+    "aromas": [
+      "floral",
+      "fruity"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "rosemary",
+    "aromas": [
+      "woody",
+      "green",
+      "spicy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "rum",
+    "aromas": [
+      "caramel",
+      "fermented",
+      "woody"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "saffron",
+    "aromas": [
+      "floral",
+      "earthy",
+      "woody"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "sage",
+    "aromas": [
+      "woody",
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "sake",
+    "aromas": [
+      "fermented",
+      "fruity"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "salami",
+    "aromas": [
+      "meaty",
+      "fermented",
+      "fatty"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "salmon",
+    "aromas": [
+      "marine",
+      "fatty",
+      "meaty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "salsa verde",
+    "aromas": [
+      "green",
+      "alliaceous green",
+      "citrusy"
+    ],
+    "tastes": [
+      "sour",
+      "salty"
+    ]
+  },
+  {
+    "name": "salt",
+    "aromas": [
+      "marine"
+    ],
+    "tastes": [
+      "salty"
+    ]
+  },
+  {
+    "name": "sarsaparilla",
+    "aromas": [
+      "woody",
+      "spicy",
+      "earthy"
+    ],
+    "tastes": [
+      "sweet",
+      "bitter"
+    ]
+  },
+  {
+    "name": "sausage",
+    "aromas": [
+      "meaty",
+      "smoky",
+      "spicy"
+    ],
+    "tastes": [
+      "umami",
+      "salty"
+    ]
+  },
+  {
+    "name": "savory",
+    "aromas": [
+      "green",
+      "woody",
+      "spicy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "scallion",
+    "aromas": [
+      "alliaceous green",
+      "green"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "scallop",
+    "aromas": [
+      "marine",
+      "meaty"
+    ],
+    "tastes": [
+      "umami",
+      "sweet"
+    ]
+  },
+  {
+    "name": "sesame oil",
+    "aromas": [
+      "nutty",
+      "roasted",
+      "fatty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "sesame seed",
+    "aromas": [
+      "nutty",
+      "roasted",
+      "fatty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "shallot",
+    "aromas": [
+      "alliaceous green"
+    ],
+    "tastes": [
+      "pungent",
+      "sweet"
+    ]
+  },
+  {
+    "name": "shiitake",
+    "aromas": [
+      "earthy",
+      "meaty",
+      "woody"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "shiso",
+    "aromas": [
+      "green",
+      "spicy",
+      "citrusy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "shrimp",
+    "aromas": [
+      "marine",
+      "meaty"
+    ],
+    "tastes": [
+      "umami",
+      "sweet"
+    ]
+  },
+  {
+    "name": "sichuan peppercorn",
+    "aromas": [
+      "spicy",
+      "citrusy",
+      "woody"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "smoked paprika",
+    "aromas": [
+      "smoky",
+      "spicy",
+      "fruity"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "sour cream",
+    "aromas": [
+      "creamy",
+      "fermented",
+      "fatty"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "soy sauce",
+    "aromas": [
+      "fermented",
+      "meaty"
+    ],
+    "tastes": [
+      "salty",
+      "umami"
+    ]
+  },
+  {
+    "name": "spinach",
+    "aromas": [
+      "green",
+      "earthy"
+    ],
+    "tastes": [
+      "astringent"
+    ]
+  },
+  {
+    "name": "star anise",
+    "aromas": [
+      "spicy",
+      "woody"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "strawberry",
+    "aromas": [
+      "fruity",
+      "floral",
+      "green"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "sugar",
+    "aromas": [
+      "caramel"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "sumac",
+    "aromas": [
+      "fruity",
+      "citrusy"
+    ],
+    "tastes": [
+      "sour",
+      "astringent"
+    ]
+  },
+  {
+    "name": "sun-dried tomato",
+    "aromas": [
+      "fruity",
+      "fermented",
+      "earthy"
+    ],
+    "tastes": [
+      "umami",
+      "sweet"
+    ]
+  },
+  {
+    "name": "sweet pepper",
+    "aromas": [
+      "green",
+      "fruity"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "sweet potato",
+    "aromas": [
+      "earthy",
+      "caramel"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "sweet red pepper",
+    "aromas": [
+      "fruity",
+      "green"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "tamarind",
+    "aromas": [
+      "fruity",
+      "caramel"
+    ],
+    "tastes": [
+      "sour",
+      "sweet"
+    ]
+  },
+  {
+    "name": "tapenade",
+    "aromas": [
+      "fruity",
+      "fermented",
+      "earthy"
+    ],
+    "tastes": [
+      "salty",
+      "umami"
+    ]
+  },
+  {
+    "name": "thyme",
+    "aromas": [
+      "green",
+      "woody",
+      "spicy"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "tofu",
+    "aromas": [
+      "nutty",
+      "green"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "tomato",
+    "aromas": [
+      "fruity",
+      "green"
+    ],
+    "tastes": [
+      "umami",
+      "sour",
+      "sweet"
+    ]
+  },
+  {
+    "name": "tomato paste",
+    "aromas": [
+      "fruity",
+      "caramel",
+      "earthy"
+    ],
+    "tastes": [
+      "umami",
+      "sweet"
+    ]
+  },
+  {
+    "name": "tomato sauce",
+    "aromas": [
+      "fruity",
+      "earthy"
+    ],
+    "tastes": [
+      "umami",
+      "sour"
+    ]
+  },
+  {
+    "name": "tonka bean",
+    "aromas": [
+      "sweet",
+      "caramel",
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "tortilla",
+    "aromas": [
+      "roasted",
+      "nutty"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "tuna",
+    "aromas": [
+      "marine",
+      "meaty"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "turkey",
+    "aromas": [
+      "meaty",
+      "roasted"
+    ],
+    "tastes": [
+      "umami"
+    ]
+  },
+  {
+    "name": "turmeric",
+    "aromas": [
+      "earthy",
+      "woody",
+      "spicy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "turnip",
+    "aromas": [
+      "earthy",
+      "green"
+    ],
+    "tastes": [
+      "pungent",
+      "bitter"
+    ]
+  },
+  {
+    "name": "tzatziki",
+    "aromas": [
+      "creamy",
+      "fermented",
+      "alliaceous green"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "unsweetened applesauce",
+    "aromas": [
+      "fruity"
+    ],
+    "tastes": [
+      "sweet",
+      "sour"
+    ]
+  },
+  {
+    "name": "vanilla",
+    "aromas": [
+      "sweet",
+      "creamy",
+      "floral"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "vodka",
+    "aromas": [
+      "fermented"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "walnut",
+    "aromas": [
+      "nutty",
+      "fatty",
+      "woody"
+    ],
+    "tastes": [
+      "bitter",
+      "astringent"
+    ]
+  },
+  {
+    "name": "wasabi",
+    "aromas": [
+      "green",
+      "spicy"
+    ],
+    "tastes": [
+      "pungent"
+    ]
+  },
+  {
+    "name": "watermelon",
+    "aromas": [
+      "fruity",
+      "green",
+      "floral"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "whiskey",
+    "aromas": [
+      "woody",
+      "smoky",
+      "caramel"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "white vinegar",
+    "aromas": [
+      "fermented",
+      "pungent"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "white wine",
+    "aromas": [
+      "fruity",
+      "fermented",
+      "floral"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "wild rice",
+    "aromas": [
+      "nutty",
+      "earthy",
+      "roasted"
+    ],
+    "tastes": []
+  },
+  {
+    "name": "wine",
+    "aromas": [
+      "fruity",
+      "fermented"
+    ],
+    "tastes": [
+      "sour",
+      "astringent"
+    ]
+  },
+  {
+    "name": "wintergreen",
+    "aromas": [
+      "green",
+      "spicy"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "worcestershire sauce",
+    "aromas": [
+      "fermented",
+      "meaty"
+    ],
+    "tastes": [
+      "umami",
+      "salty",
+      "sour"
+    ]
+  },
+  {
+    "name": "wormwood",
+    "aromas": [
+      "green",
+      "woody",
+      "earthy"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "yarrow",
+    "aromas": [
+      "green",
+      "floral",
+      "woody"
+    ],
+    "tastes": [
+      "bitter"
+    ]
+  },
+  {
+    "name": "yellow pepper",
+    "aromas": [
+      "fruity",
+      "green"
+    ],
+    "tastes": [
+      "sweet"
+    ]
+  },
+  {
+    "name": "yogurt",
+    "aromas": [
+      "creamy",
+      "fermented"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "yuzu",
+    "aromas": [
+      "citrusy",
+      "floral",
+      "fruity"
+    ],
+    "tastes": [
+      "sour"
+    ]
+  },
+  {
+    "name": "zucchini",
+    "aromas": [
+      "green"
+    ],
+    "tastes": []
+  }
+]

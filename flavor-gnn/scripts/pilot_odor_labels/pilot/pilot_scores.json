@@ -1,0 +1,128 @@
+{
+  "scored": 304,
+  "missing": [],
+  "primary_aroma_accuracy": 0.5033,
+  "taste_macro_f1": 0.617,
+  "eleven_head_macro_f1": 0.6059,
+  "molecular_baseline_11head_f1": 0.101,
+  "taste_per_label": {
+    "astringent": {
+      "precision": 0.455,
+      "recall": 0.5,
+      "f1": 0.476,
+      "support": 10
+    },
+    "bitter": {
+      "precision": 0.846,
+      "recall": 0.677,
+      "f1": 0.752,
+      "support": 65
+    },
+    "pungent": {
+      "precision": 0.588,
+      "recall": 0.8,
+      "f1": 0.678,
+      "support": 25
+    },
+    "salty": {
+      "precision": 0.214,
+      "recall": 1.0,
+      "f1": 0.353,
+      "support": 12
+    },
+    "sour": {
+      "precision": 0.882,
+      "recall": 0.882,
+      "f1": 0.882,
+      "support": 68
+    },
+    "spicy": {
+      "precision": 0.231,
+      "recall": 0.176,
+      "f1": 0.2,
+      "support": 17
+    },
+    "sweet": {
+      "precision": 0.935,
+      "recall": 0.687,
+      "f1": 0.792,
+      "support": 147
+    },
+    "umami": {
+      "precision": 0.859,
+      "recall": 0.753,
+      "f1": 0.803,
+      "support": 73
+    }
+  },
+  "eleven_head_per_label": {
+    "bitter": {
+      "precision": 0.846,
+      "recall": 0.677,
+      "f1": 0.752,
+      "support": 65
+    },
+    "odor_fatty": {
+      "precision": 1.0,
+      "recall": 0.05,
+      "f1": 0.095,
+      "support": 40
+    },
+    "odor_floral": {
+      "precision": 0.818,
+      "recall": 0.818,
+      "f1": 0.818,
+      "support": 11
+    },
+    "odor_fruity": {
+      "precision": 0.902,
+      "recall": 0.673,
+      "f1": 0.771,
+      "support": 55
+    },
+    "odor_green": {
+      "precision": 0.87,
+      "recall": 0.635,
+      "f1": 0.734,
+      "support": 63
+    },
+    "odor_spicy": {
+      "precision": 0.3,
+      "recall": 0.818,
+      "f1": 0.439,
+      "support": 11
+    },
+    "odor_woody": {
+      "precision": 0.875,
+      "recall": 0.13,
+      "f1": 0.226,
+      "support": 54
+    },
+    "salty": {
+      "precision": 0.214,
+      "recall": 1.0,
+      "f1": 0.353,
+      "support": 12
+    },
+    "sour": {
+      "precision": 0.882,
+      "recall": 0.882,
+      "f1": 0.882,
+      "support": 68
+    },
+    "sweet": {
+      "precision": 0.935,
+      "recall": 0.687,
+      "f1": 0.792,
+      "support": 147
+    },
+    "umami": {
+      "precision": 0.859,
+      "recall": 0.753,
+      "f1": 0.803,
+      "support": 73
+    }
+  },
+  "threshold": 0.65,
+  "verdict": "FAIL \u2014 distillation does not clear the bar; do not scale"
+}
