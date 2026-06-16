@@ -50,6 +50,22 @@ const RECIPE_TYPE_ALLOWED = {
   sauce: new Set(['savory', 'sweet', 'cocktail']),
 };
 
+// Recipe types that never take a sauce alongside them. Drinks (cocktails)
+// are the only structural exclusion — everything else (savory mains/sides/
+// appetizers, dessert sauces, the sauce type itself, and unknown/null) is
+// permissive by default so the Find-sauces affordance stays available.
+const NO_SAUCE_TYPES = new Set(['drink']);
+
+/**
+ * recipeTakesSauce — pure relevance gate for the recipe's "Find sauces" button.
+ * @param {string|null} recipeType  one of main/side/appetizer/dessert/drink/sauce/other/null
+ * @returns {boolean} false only for drinks; true for everything else (default permissive).
+ */
+export function recipeTakesSauce(recipeType) {
+  if (!recipeType) return true;
+  return !NO_SAUCE_TYPES.has(String(recipeType).toLowerCase());
+}
+
 export function rankSauces(bowl, sauces, recipeType = null, K = 5) {
   if (!Array.isArray(sauces) || sauces.length === 0) return [];
   if (!Array.isArray(bowl) || bowl.length === 0) return [];

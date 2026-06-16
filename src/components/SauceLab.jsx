@@ -11,6 +11,7 @@ import ClusterJoystick from './ClusterJoystick.jsx';
 import ShapeLegend from './ShapeLegend.jsx';
 import { SAUCE_SHAPE_LEGEND } from '../data/sauceShapes.js';
 import { formatSimilarityBadge } from '../data/recipeAromaSimilarity.js';
+import SauceSuggestionDeck from './SauceSuggestionDeck.jsx';
 
 /**
  * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
@@ -26,6 +27,9 @@ import { formatSimilarityBadge } from '../data/recipeAromaSimilarity.js';
  * + Sauce Builder + Browse/Saved/Lookup panel that lived here.
  */
 export default function SauceLab({
+  // Ingredient graph (carries gnnProbs) — used to compute matched sauces'
+  // single-series flavor radars in the matches card deck.
+  fullData = null,
   onSelectionChange,
   onOpenRecipeLab,
   // Phase 5 bridge: Build path → Sauce Lab. Shape:
@@ -37,6 +41,7 @@ export default function SauceLab({
   // Shape: { recipeName: string, items: AromaMatchResult[] }
   matchesContext = null,
   onExitMatches = () => {},
+  onBackToRecipe = null,
 }) {
   const [codexData, setCodexData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -263,93 +268,42 @@ export default function SauceLab({
   // Short-circuit BEFORE loading/error guards: the card list renders
   // purely from matchesContext.items and needs no codex data.
   if (matchesContext !== null) {
+    // Detail wins over the deck: selecting a sauce ("View sauce") opens its
+    // LabNodeCard detail; closing the detail returns to the deck. The deck and
+    // the detail never render simultaneously.
+    const detailSauce = selectedSauce && codexData
+      ? codexData.graph.nodes.get(selectedSauce)
+      : null;
     return (
-      <div className="absolute inset-0 overflow-y-auto bg-neural-bg text-neural-text">
+      <div className="absolute inset-0 overflow-hidden bg-neural-bg text-neural-text">
         {/* aria-live region for screen-reader announcements */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">{liveMsg}</div>
 
-        {/* Header strip */}
-        <div className="sticky top-0 z-30 bg-[#12121a]/95 backdrop-blur-md border-b border-[#1e1e2e] px-4 py-3 flex items-center gap-3">
-          {/* "Matches for …" header chip — reuses same pill style as
-              cuisine chips in the browse filter bar */}
-          <span className="px-2.5 py-1 rounded-full text-[11px] border bg-cyan-500/20 border-cyan-400/60 text-cyan-200 whitespace-nowrap">
-            Matches for {matchesContext.recipeName}
-          </span>
-          <span className="text-[11px] text-gray-500">{matchesContext.items.length} sauces</span>
-          <div className="flex-1" />
-          <button
-            type="button"
-            aria-label="Exit matches and browse all sauces"
-            onClick={onExitMatches}
-            className="px-2.5 py-1 rounded-full text-[11px] border bg-[#12121a] border-[#2a2a3a] text-gray-400 hover:text-gray-200 hover:border-[#3a3a4a] transition-colors whitespace-nowrap"
-          >
-            Show all sauces
-          </button>
-        </div>
-
-        {/* Matched sauce cards */}
-        <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {matchesContext.items.map(({ item, similarity, matchedAromas }, idx) => {
-              const isSelected = selectedSauce === item.name;
-              return (
-                <li key={`${item.name}-${idx}`}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedSauce(item.name)}
-                    className={`w-full flex flex-col gap-1.5 px-3 py-2.5 rounded-md text-left text-[12px] transition-colors ${
-                      isSelected
-                        ? 'bg-cyan-500/15 border border-cyan-400/40 text-white'
-                        : 'border border-[#1e1e2e] hover:bg-[#161622] text-gray-200'
-                    }`}
-                  >
-                    {/* Row 1: name + similarity badge */}
-                    <div className="flex items-center gap-2">
-                      <span className="flex-1 truncate font-medium">{item.name}</span>
-                      <span className="text-[10px] px-1.5 py-px rounded border border-cyan-400/40 text-cyan-300 bg-cyan-500/10 flex-shrink-0">
-                        {formatSimilarityBadge(similarity)}
-                      </span>
-                    </div>
-                    {/* Row 2: matched aroma chips */}
-                    {matchedAromas.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {matchedAromas.map((aromaKey) => (
-                          <span
-                            key={aromaKey}
-                            className="text-[9px] px-1.5 py-px rounded-full border border-[#2a2a3a] text-gray-400 bg-[#12121a]"
-                          >
-                            {formatAromaKey(aromaKey)}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        {/* Card mode — also available in matches mode */}
-        {selectedSauce && codexData && (() => {
-            const s = codexData.graph.nodes.get(selectedSauce);
-            return (
-              <LabNodeCard
-                kind="sauce"
-                name={s?.name || selectedSauce}
-                clusterName={familyForSelected?.name}
-                clusterColor={familyForSelected?.color || '#9a8f7a'}
-                clusterTag={s?.isRoot ? 'MOTHER' : (s?.cuisine || null)}
-                details={s ? [{ label: 'Cuisine', value: s.cuisine }] : []}
-                ingredients={s?.ingredientsDetailed?.length ? s.ingredientsDetailed : (s?.ingredients || [])}
-                prep={s?.instructions || ''}
-                likeThis={similarSauces}
-                pairsWith={s?.pairsWith || []}
-                onSelect={(name) => setSelectedSauce(name)}
-                onClose={() => setSelectedSauce(null)}
-              />
-            );
-          })()}
+        {selectedSauce ? (
+          <LabNodeCard
+            kind="sauce"
+            name={detailSauce?.name || selectedSauce}
+            clusterName={familyForSelected?.name}
+            clusterColor={familyForSelected?.color || '#9a8f7a'}
+            clusterTag={detailSauce?.isRoot ? 'MOTHER' : (detailSauce?.cuisine || null)}
+            details={detailSauce ? [{ label: 'Cuisine', value: detailSauce.cuisine }] : []}
+            ingredients={detailSauce?.ingredientsDetailed?.length ? detailSauce.ingredientsDetailed : (detailSauce?.ingredients || [])}
+            prep={detailSauce?.instructions || ''}
+            likeThis={similarSauces}
+            pairsWith={detailSauce?.pairsWith || []}
+            onSelect={(name) => setSelectedSauce(name)}
+            onClose={() => setSelectedSauce(null)}
+          />
+        ) : (
+          <SauceSuggestionDeck
+            items={matchesContext.items}
+            recipeName={matchesContext.recipeName}
+            nodes={fullData?.graph?.nodes}
+            onSelectSauce={(name) => setSelectedSauce(name)}
+            onBackToRecipe={onBackToRecipe}
+            onClose={onExitMatches}
+          />
+        )}
       </div>
     );
   }

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import SauceLab from '../SauceLab.jsx';
 
@@ -71,78 +71,76 @@ const MATCHES_CONTEXT = {
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('SauceLab — matchesContext=null (regression)', () => {
-  it('does NOT render a "Matches for" header chip', async () => {
-    const { queryByText } = render(<SauceLab matchesContext={null} />);
+  it('does NOT render the sauce suggestion deck', async () => {
+    render(<SauceLab matchesContext={null} />);
     await vi.waitFor(() => {
-      expect(queryByText(/Matches for/i)).toBeNull();
+      expect(screen.queryByTestId('sauce-suggestion-deck')).toBeNull();
     });
   });
 });
 
-describe('SauceLab — matchesContext non-null', () => {
-  it('renders exactly 3 cards for the 3-item fixture', () => {
+describe('SauceLab — matchesContext non-null renders the card deck', () => {
+  it('renders the SauceSuggestionDeck', () => {
     render(<SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={() => {}} />);
-    const listItems = document.querySelectorAll('li');
-    expect(listItems).toHaveLength(3);
+    expect(screen.getByTestId('sauce-suggestion-deck')).toBeTruthy();
   });
 
-  it('shows the "Matches for Chicken Piccata" header chip', () => {
+  it('shows one sauce card at a time with a stack size equal to the item count', () => {
     render(<SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={() => {}} />);
-    expect(screen.getByText('Matches for Chicken Piccata')).toBeTruthy();
+    const deck = screen.getByTestId('sauce-suggestion-deck');
+    expect(deck.getAttribute('data-stack-size')).toBe('3');
+    // Only the top card is rendered at a time.
+    expect(screen.getAllByTestId('sauce-card')).toHaveLength(1);
   });
 
-  it('each card has a similarity badge matching /^\\d{1,3}% match$/', () => {
+  it('first card shows its sauce name + "matches {recipe}" caption', () => {
     render(<SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={() => {}} />);
-    const badges = screen.getAllByText(/^\d{1,3}% match$/);
-    expect(badges).toHaveLength(3);
+    expect(screen.getByTestId('sauce-card-name').textContent).toBe('Marinara');
+    expect(screen.getByText(/matches Chicken Piccata/i)).toBeTruthy();
   });
 
-  it('each card has at least one matched-aroma chip', () => {
-    const { container } = render(
-      <SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={() => {}} />,
-    );
-    const aromaChips = container.querySelectorAll('li span.rounded-full');
-    expect(aromaChips.length).toBeGreaterThanOrEqual(3); // ≥1 per card
-  });
-
-  it('renders the "Show all sauces" button with the correct accessible name', () => {
+  it('each card renders single-series taste + aroma radars (empty delta)', () => {
     render(<SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={() => {}} />);
-    const btn = screen.getByRole('button', {
-      name: 'Exit matches and browse all sauces',
-    });
-    expect(btn).toBeTruthy();
-    expect(btn.textContent).toMatch(/Show all sauces/i);
+    expect(screen.getByTestId('sauce-card-radar-taste')).toBeTruthy();
+    expect(screen.getByTestId('sauce-card-radar-aroma')).toBeTruthy();
+    // Single series: the sauce's own profile is drawn as the "before" polygon.
+    // With delta={} the "after" polygon coincides with it (no separate shift).
+    const before = screen.getByTestId('sauce-card-radar-taste-before');
+    const after = screen.getByTestId('sauce-card-radar-taste-after');
+    expect(before).toBeTruthy();
+    expect(after.getAttribute('points')).toBe(before.getAttribute('points'));
   });
 
-  it('clicking "Show all sauces" fires onExitMatches', () => {
+  it('▶ advances to the next sauce card', () => {
+    render(<SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={() => {}} />);
+    fireEvent.click(screen.getByTestId('sauce-deck-next'));
+    expect(screen.getByTestId('sauce-card-name').textContent).toBe('Béchamel');
+  });
+
+  it('clicking × (close) fires onExitMatches', () => {
     const onExitMatches = vi.fn();
-    render(
-      <SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={onExitMatches} />,
-    );
-    const btn = screen.getByRole('button', {
-      name: 'Exit matches and browse all sauces',
-    });
-    fireEvent.click(btn);
+    render(<SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={onExitMatches} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(onExitMatches).toHaveBeenCalledTimes(1);
   });
 
-  it('reads name, ingredients, and image from item schema', () => {
-    const singleCtx = {
-      recipeName: 'Test Recipe',
-      items: [
-        {
-          item: { name: 'Hollandaise', ingredients: ['butter', 'egg yolk', 'lemon'], image: 'hollandaise.jpg' },
-          similarity: 0.83,
-          matchedAromas: ['odor_fatty'],
-        },
-      ],
-    };
-    render(<SauceLab matchesContext={singleCtx} onExitMatches={() => {}} />);
-    // Name rendered in card
-    expect(screen.getByText('Hollandaise')).toBeTruthy();
-    // Similarity badge
-    expect(screen.getByText('83% match')).toBeTruthy();
-    // Aroma chip — "odor_fatty" → "Creamy" (2026-05-27 chef-vocab rename)
-    expect(screen.getByText('Creamy')).toBeTruthy();
+  it('clicking ← Back fires onBackToRecipe', () => {
+    const onBackToRecipe = vi.fn();
+    render(
+      <SauceLab
+        matchesContext={MATCHES_CONTEXT}
+        onExitMatches={() => {}}
+        onBackToRecipe={onBackToRecipe}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('sauce-deck-back'));
+    expect(onBackToRecipe).toHaveBeenCalledTimes(1);
+  });
+
+  it('"View sauce" selects the sauce and swaps the deck for the detail card', () => {
+    render(<SauceLab matchesContext={MATCHES_CONTEXT} onExitMatches={() => {}} />);
+    fireEvent.click(screen.getByTestId('sauce-card-view'));
+    // Deck is replaced by the detail (LabNodeCard); the deck no longer renders.
+    expect(screen.queryByTestId('sauce-suggestion-deck')).toBeNull();
   });
 });
