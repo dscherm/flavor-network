@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rankSauces, classifySauce } from '../sauceRecommendation.js';
+import { rankSauces, classifySauce, recipeTakesSauce } from '../sauceRecommendation.js';
 
 const SAUCES = [
   {
@@ -136,5 +136,27 @@ describe('rankSauces — §15.1 sauce recommendation ranker', () => {
     const ranked = rankSauces(bowl, SAUCES, null);
     const classes = new Set(ranked.map((r) => r.class));
     expect(classes.size).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('recipeTakesSauce — Find-sauces relevance gate', () => {
+  it('returns false for drinks (cocktails do not take a sauce)', () => {
+    expect(recipeTakesSauce('drink')).toBe(false);
+    expect(recipeTakesSauce('Drink')).toBe(false); // case-insensitive
+  });
+
+  it('returns true for sauce-relevant types', () => {
+    expect(recipeTakesSauce('main')).toBe(true);
+    expect(recipeTakesSauce('side')).toBe(true);
+    expect(recipeTakesSauce('appetizer')).toBe(true);
+    expect(recipeTakesSauce('sauce')).toBe(true);
+    expect(recipeTakesSauce('dessert')).toBe(true);
+  });
+
+  it('defaults permissive for null / undefined / unknown types', () => {
+    expect(recipeTakesSauce(null)).toBe(true);
+    expect(recipeTakesSauce(undefined)).toBe(true);
+    expect(recipeTakesSauce('')).toBe(true);
+    expect(recipeTakesSauce('other')).toBe(true);
   });
 });
