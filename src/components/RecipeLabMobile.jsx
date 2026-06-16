@@ -55,6 +55,9 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   // means "add new"; non-null means "replace this ingredient".
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerReplaceTarget, setPickerReplaceTarget] = useState(null);
+  // + Add preview: the ingredient picked from the picker, shown as the
+  // chalkboard card (before→after radar) before it's committed to the bowl.
+  const [addPreview, setAddPreview] = useState(null);
   const [handoffToast, setHandoffToast] = useState(null);
   const [recipeType, setRecipeType] = useState(handoff?.recipeType || null);
   const [recipeImageUrl, setRecipeImageUrl] = useState(null);
@@ -554,11 +557,14 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             onSelect={(name) => {
               if (pickerReplaceTarget) {
                 handleSwapIngredient(pickerReplaceTarget, name);
+                setPickerOpen(false);
+                setPickerReplaceTarget(null);
               } else {
-                handleAddIngredient(name);
+                // + Add → preview the picked ingredient as the chalkboard
+                // card (before→after radar) before committing.
+                setAddPreview(name);
+                setPickerOpen(false);
               }
-              setPickerOpen(false);
-              setPickerReplaceTarget(null);
             }}
             onClose={() => { setPickerOpen(false); setPickerReplaceTarget(null); }}
           />
@@ -569,7 +575,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           card deck: each card shows a candidate + a before→after radar of how
           it augments the recipe's flavor profile. Add prefills a quantity. */}
       {suggestionsMode && fullData?.graph?.nodes && (
-        <div className="fixed inset-x-0 bottom-0 z-40" data-testid="recipe-suggestions-overlay">
+        <div className="fixed inset-0 z-40" data-testid="recipe-suggestions-overlay">
           <SuggestionCardDeck
             mode="add"
             bowlNames={recipeNames}
@@ -584,7 +590,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           card deck in replace-mode: substitutes similar to the focal that fit
           the recipe, each with its profile delta. Tapping swaps in place. */}
       {focusedIngredient && fullData?.graph?.nodes && (
-        <div className="fixed inset-x-0 bottom-0 z-40" data-testid="recipe-replace-overlay">
+        <div className="fixed inset-0 z-40" data-testid="recipe-replace-overlay">
           <SuggestionCardDeck
             mode="replace"
             ingredient={focusedIngredient}
@@ -596,6 +602,23 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         </div>
       )}
 
+      {/* + Add preview — the ingredient picked in the picker shown as the
+          chalkboard card (before→after radar). ✨ Add commits; ← Back returns
+          to the search picker so the full ingredient universe stays reachable. */}
+      {addPreview && fullData?.graph?.nodes && (
+        <div className="fixed inset-0 z-50" data-testid="recipe-add-preview-overlay">
+          <SuggestionCardDeck
+            mode="add"
+            candidates={[addPreview]}
+            bowlNames={recipeNames}
+            nodes={fullData.graph.nodes}
+            headerLabel="✨ Add to recipe"
+            onAdd={(name, amount) => { handleAddIngredient(name, amount); setAddPreview(null); }}
+            onClose={() => { setAddPreview(null); setPickerOpen(true); }}
+          />
+        </div>
+      )}
+
       {/* Flavor Profiles overlay — "◆ Flavor Profiles" chrome button. Per-axis
           carousel with analysis + boost/temper suggestions + a pairings page. */}
       {profilesOpen && fullData?.graph?.nodes && (
@@ -603,6 +626,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           <RecipeFlavorProfilesCard
             bowlNames={recipeNames}
             nodes={fullData.graph.nodes}
+            recipeType={recipeType}
             onAdd={(name, amount) => handleAddIngredient(name, amount)}
             onFindCocktail={onFindCocktail ? () => onFindCocktail(recipeNames, recipeTitle) : null}
             onFindSauce={onFindSauce ? () => onFindSauce(recipeNames, recipeTitle) : null}
