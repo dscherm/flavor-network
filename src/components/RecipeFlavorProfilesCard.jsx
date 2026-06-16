@@ -16,6 +16,8 @@ import {
 import { loadDirectionsIndex, retrieveDirections } from '../ml/directionsRuntime.js';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
 import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
+import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSimilarity.js';
+import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 
 const FONT = 'Caveat, cursive';
 
@@ -36,6 +38,36 @@ function loadRecipeVocab() {
   return _vocabPromise;
 }
 
+// Cocktail / sauce item lists for aroma matching on the Pairings page —
+// same data + normalization App.jsx uses for handleFindCocktail/Sauce.
+let _cocktailItemsPromise = null;
+function loadCocktailItems() {
+  if (!_cocktailItemsPromise) {
+    _cocktailItemsPromise = fetch(`${import.meta.env.BASE_URL}data/cocktail_codex_v2.json`)
+      .then((r) => { if (!r.ok) throw new Error('cocktail fetch failed'); return r.json(); })
+      .then((j) => (j?.cocktails || []).map((c) => ({
+        ...c,
+        ingredients: (c.ingredients_raw || []).map((r) => (typeof r === 'string' ? r : (r?.raw || r?.name || ''))).filter(Boolean),
+      })))
+      // Don't cache a network failure — reset so a later mount can retry.
+      .catch(() => { _cocktailItemsPromise = null; return null; });
+  }
+  return _cocktailItemsPromise;
+}
+let _sauceItemsPromise = null;
+function loadSauceItems() {
+  if (!_sauceItemsPromise) {
+    _sauceItemsPromise = fetch(`${import.meta.env.BASE_URL}data/sauce_augment.json`)
+      .then((r) => { if (!r.ok) throw new Error('sauce fetch failed'); return r.json(); })
+      .then((j) => (j?.sauces || []).map((s) => ({
+        ...s,
+        ingredients: (s.ingredients || []).map((i) => (typeof i === 'string' ? i : (i?.name || ''))).filter(Boolean),
+      })))
+      .catch(() => { _sauceItemsPromise = null; return null; });
+  }
+  return _sauceItemsPromise;
+}
+
 function Chip({ name, delta, onTap }) {
   return (
     <button
@@ -49,7 +81,7 @@ function Chip({ name, delta, onTap }) {
   );
 }
 
-export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, onAdd, onFindCocktail, onFindSauce, onClose }) {
+export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipeType = null, onAdd, onFindCocktail, onFindSauce, onClose }) {
   const { scores, drivers, n } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
 
   // Firing axes (score above a small floor), strongest first.
@@ -60,7 +92,14 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, onAdd,
 
   const [candidates, setCandidates] = useState([]); // model pool that fits the recipe
   const [dishes, setDishes] = useState([]);
+  const [cocktailMatches, setCocktailMatches] = useState([]); // aroma-matched cocktail names
+  const [sauceMatches, setSauceMatches] = useState([]);       // aroma-matched sauce names
   const quantityCtxRef = useRef(null);
+  const swipeStartRef = useRef(null); // touch-swipe between carousel pages
+
+  // computeRecipeAroma / rankByAromaSimilarity want a plain {name: node} lookup
+  // (node.gnnProbs), but `nodes` is a Map — convert once per nodes change.
+  const nodesObj = useMemo(() => (nodes ? Object.fromEntries(nodes) : null), [nodes]);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,8 +125,23 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, onAdd,
       const recs = retrieveDirections(bowlNames, idx, vocab, { k: 4, minOverlap: 2 });
       setDishes(recs.map((r) => r.title));
     }).catch(() => {});
+    // aroma-matched cocktail + sauce NAMES for the Pairings page
+    const recipeVec = nodesObj ? computeRecipeAroma(bowlNames, nodesObj) : null;
+    if (recipeVec) {
+      loadCocktailItems().then((items) => {
+        if (cancelled || !items) return;
+        setCocktailMatches(rankByAromaSimilarity(recipeVec, items, nodesObj, 4));
+      }).catch(() => {});
+      loadSauceItems().then((items) => {
+        if (cancelled || !items) return;
+        setSauceMatches(rankByAromaSimilarity(recipeVec, items, nodesObj, 4));
+      }).catch(() => {});
+    } else {
+      setCocktailMatches([]);
+      setSauceMatches([]);
+    }
     return () => { cancelled = true; };
-  }, [bowlNames, nodes]);
+  }, [bowlNames, nodes, nodesObj]);
 
   const [page, setPage] = useState(0);
   const totalPages = axes.length + 1; // + pairings
@@ -102,8 +156,30 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, onAdd,
   const boost = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'boost', topN: 4 }) : [];
   const temper = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'temper', topN: 3 }) : [];
 
+  // Touch-swipe between carousel pages (left = next page, right = previous).
+  const goPage = (delta) => setPage((p) => Math.max(0, Math.min(totalPages - 1, p + delta)));
+  const onTouchStart = (e) => {
+    const t = e.touches?.[0];
+    if (t) swipeStartRef.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e) => {
+    const s = swipeStartRef.current;
+    swipeStartRef.current = null;
+    const t = e.changedTouches?.[0];
+    if (!s || !t) return;
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return; // ignore vertical scrolls
+    goPage(dx < 0 ? 1 : -1);
+  };
+
   return (
-    <div className="w-full bg-[#fefae0] border-t border-[#c9b99a] rounded-t-xl shadow-2xl" data-testid="flavor-profiles-card">
+    <div
+      className="w-full bg-[#fefae0] border-t border-[#c9b99a] rounded-t-xl shadow-2xl"
+      data-testid="flavor-profiles-card"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
       <div className="flex items-center justify-between px-4 pt-2 pb-1">
         <span className="text-[11px] uppercase tracking-wider text-[#a09070]" style={{ fontFamily: FONT }}>Flavor Profiles</span>
         <button onClick={onClose} aria-label="Close" className="text-[#a09070] hover:text-[#5a4a2a] px-2 text-lg">×</button>
@@ -159,23 +235,79 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, onAdd,
                 </ul>
               </div>
             )}
-            <div className="flex flex-wrap gap-2 mt-1">
-              {onFindCocktail && (
-                <button onClick={onFindCocktail} className="min-h-[44px] px-4 rounded-full border border-[#c9b99a] bg-[#fde8a0] text-[#7a5a2a]" style={{ fontFamily: FONT, fontSize: 16 }}>🍸 Find cocktails</button>
-              )}
-              {onFindSauce && (
-                <button onClick={onFindSauce} className="min-h-[44px] px-4 rounded-full border border-[#c9b99a] bg-[#ffd0a0] text-[#7a5a2a]" style={{ fontFamily: FONT, fontSize: 16 }}>🥣 Find sauces</button>
-              )}
-            </div>
+            {/* 🍸 Cocktails — aroma-matched names; tap deep-links to the
+                Cocktail Lab. Falls back to the generic button if no matches. */}
+            {onFindCocktail && (
+              <div className="mb-2">
+                <p className="text-[10px] uppercase tracking-wider text-[#a09070] mb-0.5">🍸 Cocktails</p>
+                {cocktailMatches.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5" data-testid="pairings-cocktail-names">
+                    {cocktailMatches.map(({ item, similarity }) => (
+                      <button
+                        key={item.name}
+                        onClick={onFindCocktail}
+                        className="min-h-[40px] px-3 rounded-full border border-[#c9b99a] bg-[#fde8a0] text-[#7a5a2a]"
+                        style={{ fontFamily: FONT, fontSize: 16 }}
+                        title={`${Math.round((similarity || 0) * 100)}% aroma match — open in Cocktail Lab`}
+                      >
+                        {item.name}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <button onClick={onFindCocktail} className="min-h-[44px] px-4 rounded-full border border-[#c9b99a] bg-[#fde8a0] text-[#7a5a2a]" style={{ fontFamily: FONT, fontSize: 16 }}>🍸 Find cocktails</button>
+                )}
+              </div>
+            )}
+
+            {/* 🥣 Sauces — gated by recipeTakesSauce; aroma-matched names. */}
+            {onFindSauce && recipeTakesSauce(recipeType) && (
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-[#a09070] mb-0.5">🥣 Sauces</p>
+                {sauceMatches.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5" data-testid="pairings-sauce-names">
+                    {sauceMatches.map(({ item, similarity }) => (
+                      <button
+                        key={item.name}
+                        onClick={onFindSauce}
+                        className="min-h-[40px] px-3 rounded-full border border-[#c9b99a] bg-[#ffd0a0] text-[#7a5a2a]"
+                        style={{ fontFamily: FONT, fontSize: 16 }}
+                        title={`${Math.round((similarity || 0) * 100)}% aroma match — open in Sauce Lab`}
+                      >
+                        {item.name}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <button onClick={onFindSauce} className="min-h-[44px] px-4 rounded-full border border-[#c9b99a] bg-[#ffd0a0] text-[#7a5a2a]" style={{ fontFamily: FONT, fontSize: 16 }}>🥣 Find sauces</button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-4 pb-3">
-          <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0} className="min-h-[44px] px-4 text-[#7a6a4a] disabled:opacity-30" aria-label="Previous">◀</button>
-          <span className="text-xs text-[#a09070]">{isPairings ? 'Pairings' : `${page + 1} / ${axes.length}`}</span>
-          <button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="min-h-[44px] px-4 text-[#7a6a4a] disabled:opacity-30" aria-label="Next">▶</button>
+          <button onClick={() => goPage(-1)} disabled={page === 0} className="min-h-[44px] px-4 text-[#7a6a4a] disabled:opacity-30" aria-label="Previous">◀</button>
+          <div className="flex items-center gap-1.5" data-testid="profiles-page-dots" role="tablist" aria-label="Flavor Profiles pages">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                role="tab"
+                aria-selected={i === page}
+                aria-label={i === axes.length ? 'Pairings page' : `Axis page ${i + 1}`}
+                className="rounded-full transition-all"
+                style={{
+                  width: i === page ? 9 : 7,
+                  height: i === page ? 9 : 7,
+                  background: i === page ? '#7a6a4a' : '#d8cba8',
+                }}
+              />
+            ))}
+          </div>
+          <button onClick={() => goPage(1)} disabled={page >= totalPages - 1} className="min-h-[44px] px-4 text-[#7a6a4a] disabled:opacity-30" aria-label="Next">▶</button>
         </div>
       )}
     </div>
