@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd /d/Projects/flavor-network\\necho \\\"RALPH_HOME=$RALPH_HOME\\\"\\nls \\\"$RALPH_HOME/tools/\\\" 2>/dev/null | grep -iE \\\"phase|activate|task|bridge|mark\\\" \\necho \\\"=== grep for 'activate' in ral...",
-  "error": "Exit code 2\nRALPH_HOME=D:/Projects/ralph-universal\nbridge_state.py\ncost_by_phase.py\nphase_state.py\n=== grep for 'activate' in ralph tools ===\nD:/Projects/ralph-universal/tools/blind_tdd/orchestrator.py\nD:/Projects/ralph-universal/tools/blind_tdd/session.py\nD:/Projects/ralph-universal/tools/blind_tdd/test_session.py\nD:/Projects/ralph-universal/tools/blind_tdd/__init__.py\nD:/Projects/ralph-universal/tools/blind_tdd/__pycache__/orchestrator.cpython-311.pyc\nD:/Projects/ralph-universal/tools/blind_td...",
-  "timestamp": "2026-06-13T13:42:57.625Z",
+  "tool_input_preview": "{\"command\":\"cd /d/Projects/flavor-network; echo \\\"=== remote + ahead count ===\\\"; git remote -v | head -2; git log --oneline origin/master..master 2>/dev/null | wc -l | sed 's/^/commits ahead of origi...",
+  "error": "Exit code 2\n=== remote + ahead count ===\norigin\thttps://github.com/dscherm/flavor-network.git (fetch)\norigin\thttps://github.com/dscherm/flavor-network.git (push)\ncommits ahead of origin: 10\n=== deploy script / hosting config ===\n41:    \"firebase\": \"^12.10.0\",\nfirebase.json",
+  "timestamp": "2026-06-16T14:21:15.284Z",
   "retry_count": 1
 }

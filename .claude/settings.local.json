@@ -81,7 +81,20 @@
       "Read(//d/Projects/flavor-network/docs/**)",
       "Read(//d/Projects/ralph-universal/docs/**)",
       "Read(//d/Projects/ralph-universal/**)",
-      "Bash(jobs)"
+      "Bash(jobs)",
+      "PowerShell(git restore *)",
+      "PowerShell(git commit *)",
+      "WebFetch(domain:ift.onlinelibrary.wiley.com)",
+      "WebFetch(domain:archive.org)",
+      "WebFetch(domain:www.vcf-online.nl)",
+      "WebFetch(domain:www.leffingwell.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:aclanthology.org)",
+      "PowerShell(npx vitest run src/components/__tests__/SuggestionCardDeck.test.jsx src/components/__tests__/ProfileDeltaRadar.test.jsx)",
+      "PowerShell(npx vitest run)",
+      "PowerShell(npm run *)",
+      "Bash(awk '{print $6,$7,$8}')",
+      "Bash(bash .claude/scripts/gates.sh)"
     ]
   }
 }
