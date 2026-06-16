@@ -38,6 +38,7 @@ export default function CocktailLabV2({
   // Shape: { recipeName: string, items: AromaMatchResult[] }
   matchesContext = null,
   onExitMatches = () => {},
+  onBackToRecipe = null,
 }) {
   const [graph, setGraph] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -334,6 +335,17 @@ export default function CocktailLabV2({
 
         {/* Header strip */}
         <div className="sticky top-0 z-30 bg-[#12121a]/95 backdrop-blur-md border-b border-[#1e1e2e] px-4 py-3 flex items-center gap-3">
+          {onBackToRecipe && (
+            <button
+              type="button"
+              aria-label="Back to recipe"
+              onClick={onBackToRecipe}
+              data-testid="cocktail-matches-back"
+              className="min-h-[40px] px-3 rounded-lg text-[12px] border bg-[#12121a] border-[#2a2a3a] text-gray-300 hover:text-white hover:border-[#3a3a4a] transition-colors whitespace-nowrap"
+            >
+              ← Back to recipe
+            </button>
+          )}
           {/* "Matches for …" header chip — reuses same pill style as
               the spirit/family chips in the browse filter bar */}
           <span className="px-2.5 py-1 rounded-full text-[11px] border bg-cyan-500/20 border-cyan-400/60 text-cyan-200 whitespace-nowrap">

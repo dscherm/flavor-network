@@ -2282,6 +2282,7 @@ export default function App() {
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
             onExitMatches={() => setMatchesContext(null)}
+            onBackToRecipe={() => { setMatchesContext(null); setActiveTab('recipe'); }}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               setRecipeHandoff({
                 source: 'cocktail',
@@ -2310,6 +2311,7 @@ export default function App() {
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
             onExitMatches={() => setMatchesContext(null)}
+            onBackToRecipe={() => { setMatchesContext(null); setActiveTab('recipe'); }}
             onSelectionChange={handleLabSelectionChange}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               // Same one-shot handoff pattern as Cocktail Lab —
