@@ -95,11 +95,20 @@ export default function SuggestionCardDeck({
       if (!nodes) { setItems([]); setLoading(false); return () => { cancelled = true; }; }
       const out = [];
       for (const name of candidates) {
-        if (bowlSet.has(name)) continue;
+        if (bowlSet.has(name) || name === ingredient) continue;
         if (scopeFilter && !scopeFilter.has(name.toLowerCase())) continue;
         const node = nodes.get(name);
         if (!node) continue;
-        const delta = profileDelta(name, scores, n, nodes) || {};
+        let delta;
+        if (mode === 'replace') {
+          // Swap delta: profile with the focal removed + this candidate added.
+          const observed = bowlNames.filter((x) => x !== ingredient);
+          const swapped = recipeAxisProfile([...observed, name], nodes).scores;
+          delta = {};
+          for (const a of Object.keys(scores)) delta[a] = (swapped[a] || 0) - (scores[a] || 0);
+        } else {
+          delta = profileDelta(name, scores, n, nodes) || {};
+        }
         out.push({ name, delta, movers: topMovers(delta, 3) });
         if (out.length >= 18) break;
       }

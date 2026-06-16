@@ -224,4 +224,23 @@ describe('IngredientPicker', () => {
     render(<IngredientPicker mode="notebook" ctx={emptyCtx} />);
     expect(screen.getByTestId('picker-ingredient-list').textContent).toContain('No ingredients match');
   });
+
+  it('curated mode lists only the supplied candidate names + custom title (Suggest/Replace)', () => {
+    render(
+      <IngredientPicker
+        mode="notebook"
+        ctx={buildCtx()}
+        candidateNames={['lemon', 'basil']}
+        title="✨ Suggested ingredients"
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('✨ Suggested ingredients')).toBeInTheDocument();
+    expect(screen.getByTestId('picker-row-lemon')).toBeInTheDocument();
+    expect(screen.getByTestId('picker-row-basil')).toBeInTheDocument();
+    // non-candidates are excluded from the curated list
+    expect(screen.queryByTestId('picker-row-salt')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('picker-row-butter')).not.toBeInTheDocument();
+  });
 });

@@ -272,6 +272,11 @@ export default function IngredientPicker({
   onIngredientPick,
   onClose,
   maxRows = MAX_ROWS,
+  // Curated-candidate mode (Suggest / Replace): when a name array is supplied
+  // the list shows ONLY those candidates, in their ranked order. null = the
+  // open-ended Add flow (browse the full ingredient universe).
+  candidateNames = null,
+  title = null,
 }) {
   // B-version (2026-06-03): the picker no longer hides non-matching
   // rows on search. The search query SORTS matches to the top instead
@@ -312,6 +317,24 @@ export default function IngredientPicker({
   const ingredients = useMemo(() => {
     if (!nodes || typeof nodes.values !== 'function') return [];
     const q = search.trim().toLowerCase();
+
+    // Curated mode (Suggest / Replace): list only the supplied candidate names,
+    // in their ranked order, filtered by dish-type + search. Pills/axis/pin
+    // filtering is bypassed — the candidate list is the point.
+    if (Array.isArray(candidateNames)) {
+      const curated = [];
+      for (const name of candidateNames) {
+        const node = nodes.get(name);
+        if (!node) continue;
+        if (mode === 'notebook' && !dishTypeAllows(node, dishType)) continue;
+        const lower = name.toLowerCase();
+        if (q && !lower.includes(q)) continue;
+        curated.push({ name, node, pairingCount: node.pairingCount || 0, matchesSearch: !!q && lower.includes(q) });
+        if (curated.length >= maxRows) break;
+      }
+      return curated;
+    }
+
     const out = [];
     for (const node of nodes.values()) {
       if (mode === 'notebook' && !dishTypeAllows(node, dishType)) continue;
@@ -338,7 +361,7 @@ export default function IngredientPicker({
       return (b.pairingCount || 0) - (a.pairingCount || 0);
     });
     return out.slice(0, maxRows);
-  }, [nodes, ctx, activePill.type, chosenAxis, dishType, mode, maxRows, search, primaryPairSet]);
+  }, [nodes, ctx, activePill.type, chosenAxis, dishType, mode, maxRows, search, primaryPairSet, candidateNames]);
 
   const pinnedNames = useMemo(() => new Set(primaries.map((p) => p.name)), [primaries]);
 
@@ -393,7 +416,7 @@ export default function IngredientPicker({
             letterSpacing: '0.01em',
           }}
         >
-          {mode === 'notebook' ? 'Ingredient choices' : 'Discover by flavor'}
+          {title || (mode === 'notebook' ? 'Ingredient choices' : 'Discover by flavor')}
         </h2>
         {onClose && (
           <button
