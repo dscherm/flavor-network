@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import SuggestionCardDeck from './SuggestionCardDeck.jsx';
 
 /**
  * CocktailBuilder — Bidirectional cocktail builder.
@@ -26,6 +27,7 @@ export default function CocktailBuilder({
   const [quantities, setQuantities] = useState({});
   const [cocktailName, setCocktailName] = useState('');
   const [saved, setSaved] = useState(false);
+  const [deckOpen, setDeckOpen] = useState(false);
 
   // Filter ingredients for search
   const filteredIngredients = useMemo(() => {
@@ -239,9 +241,20 @@ export default function CocktailBuilder({
       {/* Suggestions */}
       {suggestions && suggestions.length > 0 && (
         <div>
-          <p className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">
-            Suggested Next
-          </p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[9px] text-gray-600 uppercase tracking-wider">
+              Suggested Next
+            </p>
+            <button
+              type="button"
+              onClick={() => setDeckOpen(true)}
+              data-testid="cocktail-suggest-cards"
+              className="min-h-[32px] text-[9px] text-purple-300 hover:text-purple-200 bg-purple-500/10 border border-purple-500/20 rounded px-2 py-0.5 transition-colors"
+              title="Browse suggestions as flavor-profile cards"
+            >
+              ✨ Suggest (cards)
+            </button>
+          </div>
           <div className="flex flex-wrap gap-1">
             {suggestions.slice(0, 6).map((sug) => (
               <button
@@ -281,6 +294,24 @@ export default function CocktailBuilder({
           >
             {saved ? 'Saved!' : 'Save Cocktail'}
           </button>
+        </div>
+      )}
+
+      {/* Full-screen chalkboard suggestion deck — same card as the Recipe Lab,
+          fed by the cocktail's "Suggested Next" candidates. The before→after
+          radar shows how each candidate shifts the drink's flavor profile. */}
+      {deckOpen && (
+        <div className="fixed inset-0 z-50" data-testid="cocktail-suggestions-overlay">
+          <SuggestionCardDeck
+            mode="add"
+            candidates={suggestions.map((s) => s.name)}
+            bowlNames={builderIngredients}
+            nodes={cocktailNodes}
+            qtyPrefill={false}
+            headerLabel="✨ Cocktail suggestions"
+            onAdd={(name) => onAddIngredient?.(name)}
+            onClose={() => setDeckOpen(false)}
+          />
         </div>
       )}
     </div>
