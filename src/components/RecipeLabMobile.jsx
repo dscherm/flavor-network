@@ -9,6 +9,7 @@ import RecipeTypePills from './RecipeTypePills.jsx';
 import IngredientPicker from './IngredientPicker.jsx';
 import { hapticLight, hapticMedium } from '../utils/native.js';
 import { computeRecipeAroma } from '../data/recipeAromaSimilarity.js';
+import { loadSuggestCandidates, loadReplaceCandidates } from '../data/recipeCandidates.js';
 import {
   bowlNames,
   bowlIncludes,
@@ -47,16 +48,22 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [recipeTitle, setRecipeTitle] = useState('');
   const [selectedStructure, setSelectedStructure] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
-  const [focusedIngredient, setFocusedIngredient] = useState(null);
-  const [suggestionsMode, setSuggestionsMode] = useState(false);
   const [profilesOpen, setProfilesOpen] = useState(false);
   // B-version P2: IngredientPicker modal (Add/Replace) — opens via
   // the "Add ingredient" CTA in the chrome row. Replace-target null
   // means "add new"; non-null means "replace this ingredient".
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerReplaceTarget, setPickerReplaceTarget] = useState(null);
-  // + Add preview: the ingredient picked from the picker, shown as the
-  // chalkboard card (before→after radar) before it's committed to the bowl.
+  // Unified "ingredient choices" flow. All three entry points (Add / Suggest /
+  // Replace) open the same picker, customized per mode:
+  //   add     → full ingredient universe (no curated list)
+  //   suggest → model pairings ranked against the whole recipe
+  //   replace → similar-flavor substitutes that fit the recipe
+  const [pickerMode, setPickerMode] = useState('add'); // 'add' | 'suggest' | 'replace'
+  const [pickerCandidates, setPickerCandidates] = useState(null); // curated names, or null
+  const [pickerLoading, setPickerLoading] = useState(false);
+  // Preview: the ingredient picked from the picker, shown as the chalkboard
+  // card (before→after radar) before it's committed. { name, mode, replaceTarget }.
   const [addPreview, setAddPreview] = useState(null);
   const [handoffToast, setHandoffToast] = useState(null);
   const [recipeType, setRecipeType] = useState(handoff?.recipeType || null);
@@ -75,6 +82,29 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
 
   // Name-only adapter cached per render for downstream string[] consumers.
   const recipeNames = useMemo(() => bowlNames(recipeIngredients), [recipeIngredients]);
+
+  // Open the unified "ingredient choices" picker for a given flow, pre-computing
+  // the curated candidate list for suggest/replace (add browses the full universe).
+  const openIngredientFlow = useCallback(async (flowMode, replaceTarget = null) => {
+    setAddPreview(null);
+    setPickerMode(flowMode);
+    setPickerReplaceTarget(replaceTarget);
+    setPickerCandidates(null);
+    setPickerOpen(true);
+    const gnodes = fullData?.graph?.nodes;
+    if (flowMode === 'add' || !gnodes) return;
+    setPickerLoading(true);
+    try {
+      const names = flowMode === 'replace'
+        ? await loadReplaceCandidates(replaceTarget, recipeNames, gnodes)
+        : await loadSuggestCandidates(recipeNames, gnodes);
+      setPickerCandidates(names);
+    } catch {
+      setPickerCandidates([]);
+    } finally {
+      setPickerLoading(false);
+    }
+  }, [fullData, recipeNames]);
 
   // Handoff watcher. Accepts both legacy string[] (existing entry
   // points: Cocktail / Sauce / Build / Network / Profile) and forward-
@@ -428,7 +458,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             <button
               type="button"
               data-testid="recipe-chrome-suggestions"
-              onClick={() => { setFocusedIngredient(null); setSuggestionsMode(true); }}
+              onClick={() => openIngredientFlow('suggest')}
               className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap"
               style={{ fontFamily: FONT_FAMILY }}
               aria-label="Smart ingredient suggestions for the recipe"
@@ -449,7 +479,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             <button
               type="button"
               data-testid="recipe-chrome-profiles"
-              onClick={() => { setSuggestionsMode(false); setFocusedIngredient(null); setProfilesOpen(true); }}
+              onClick={() => setProfilesOpen(true)}
               className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap"
               style={{ fontFamily: FONT_FAMILY }}
               aria-label="Flavor profiles of the recipe"
@@ -461,7 +491,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         <button
           type="button"
           data-testid="recipe-chrome-add-ingredient"
-          onClick={() => { setPickerReplaceTarget(null); setPickerOpen(true); }}
+          onClick={() => openIngredientFlow('add')}
           className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap"
           style={{ fontFamily: FONT_FAMILY }}
           aria-label="Add ingredient via picker"
@@ -505,15 +535,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           onRemove={handleRemoveIngredient}
           onRecenter={handleRecenter}
           onAmountChange={handleAmountChange}
-          onFocusIngredient={(name) => {
-            setFocusedIngredient(name);
-            setSuggestionsMode(false);
-          }}
-          onRequestAdd={() => {
-            // B-version P2: notebook + buttons route to IngredientPicker.
-            setPickerReplaceTarget(null);
-            setPickerOpen(true);
-          }}
+          onFocusIngredient={(name) => openIngredientFlow('replace', name)}
+          onRequestAdd={() => openIngredientFlow('add')}
           recipeTitle={recipeTitle}
           onTitleChange={setRecipeTitle}
           compatibility={null}
@@ -554,66 +577,40 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
               seasonMap: fullData?.seasonMap || null,
             }}
             dishType={recipeType === 'drink' ? 'cocktail' : recipeType === 'sauce' ? 'sauce' : null}
+            candidateNames={pickerMode === 'add' ? null : (pickerCandidates || [])}
+            title={pickerLoading
+              ? 'Finding ingredients…'
+              : pickerMode === 'suggest' ? '✨ Suggested ingredients'
+              : pickerMode === 'replace' ? `Replace ${pickerReplaceTarget || 'ingredient'}`
+              : 'Ingredient choices'}
             onSelect={(name) => {
-              if (pickerReplaceTarget) {
-                handleSwapIngredient(pickerReplaceTarget, name);
-                setPickerOpen(false);
-                setPickerReplaceTarget(null);
-              } else {
-                // + Add → preview the picked ingredient as the chalkboard
-                // card (before→after radar) before committing.
-                setAddPreview(name);
-                setPickerOpen(false);
-              }
+              // All three flows preview the picked ingredient as the chalkboard
+              // card (before→after radar) before committing.
+              setAddPreview({ name, mode: pickerMode === 'replace' ? 'replace' : 'add', replaceTarget: pickerReplaceTarget });
+              setPickerOpen(false);
             }}
-            onClose={() => { setPickerOpen(false); setPickerReplaceTarget(null); }}
+            onClose={() => { setPickerOpen(false); setPickerReplaceTarget(null); setPickerCandidates(null); }}
           />
         </div>
       )}
 
-      {/* Suggestions overlay (add) — "✨ Suggest" chrome button. Swipeable
-          card deck: each card shows a candidate + a before→after radar of how
-          it augments the recipe's flavor profile. Add prefills a quantity. */}
-      {suggestionsMode && fullData?.graph?.nodes && (
-        <div className="fixed inset-0 z-40" data-testid="recipe-suggestions-overlay">
-          <SuggestionCardDeck
-            mode="add"
-            bowlNames={recipeNames}
-            nodes={fullData.graph.nodes}
-            onAdd={(name, amount) => handleAddIngredient(name, amount)}
-            onClose={() => setSuggestionsMode(false)}
-          />
-        </div>
-      )}
-
-      {/* Replace overlay — the per-row "R" pill sets focusedIngredient. Same
-          card deck in replace-mode: substitutes similar to the focal that fit
-          the recipe, each with its profile delta. Tapping swaps in place. */}
-      {focusedIngredient && fullData?.graph?.nodes && (
-        <div className="fixed inset-0 z-40" data-testid="recipe-replace-overlay">
-          <SuggestionCardDeck
-            mode="replace"
-            ingredient={focusedIngredient}
-            bowlNames={recipeNames}
-            nodes={fullData.graph.nodes}
-            onSwap={(oldName, newName) => { handleSwapIngredient(oldName, newName); setFocusedIngredient(null); }}
-            onClose={() => setFocusedIngredient(null)}
-          />
-        </div>
-      )}
-
-      {/* + Add preview — the ingredient picked in the picker shown as the
-          chalkboard card (before→after radar). ✨ Add commits; ← Back returns
-          to the search picker so the full ingredient universe stays reachable. */}
+      {/* Flavor-radar preview — the ingredient picked in the "ingredient
+          choices" picker, shown as the chalkboard card (before→after radar)
+          before committing. One card path for Add / Suggest / Replace;
+          ✨ Add / Swap commits, ← Back reopens the picker. */}
       {addPreview && fullData?.graph?.nodes && (
         <div className="fixed inset-0 z-50" data-testid="recipe-add-preview-overlay">
           <SuggestionCardDeck
-            mode="add"
-            candidates={[addPreview]}
+            mode={addPreview.mode}
+            ingredient={addPreview.replaceTarget || null}
+            candidates={[addPreview.name]}
             bowlNames={recipeNames}
             nodes={fullData.graph.nodes}
-            headerLabel="✨ Add to recipe"
+            headerLabel={addPreview.mode === 'replace'
+              ? `Replace ${addPreview.replaceTarget}`
+              : (pickerMode === 'suggest' ? '✨ Add suggestion' : '✨ Add to recipe')}
             onAdd={(name, amount) => { handleAddIngredient(name, amount); setAddPreview(null); }}
+            onSwap={(oldName, newName) => { handleSwapIngredient(oldName, newName); setAddPreview(null); }}
             onClose={() => { setAddPreview(null); setPickerOpen(true); }}
           />
         </div>
