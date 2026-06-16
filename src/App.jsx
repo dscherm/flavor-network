@@ -288,19 +288,9 @@ export default function App() {
   // `selectedNodes` updates, so clicking around in the Network /
   // Cocktail / Sauce tabs no longer silently pollutes the recipe.
   const [recipeHandoff, setRecipeHandoff] = useState(null);
-  // B-version Make-a-Recipe 2-stage flow (2026-06-03):
-  //   Stage 1 ('start') = MakeRecipeStart 4-card entry router
-  //                       (existing / scratch / photo / weblink)
-  //   Stage 2 ('view')  = MakeRecipeView chalkboard cards-grid
-  // When MakeRecipeStart finishes (handoff or scratch), App.jsx
-  // intercepts the would-be jump to RecipeLab and instead stages the
-  // ingredients into Stage 2.
-  const [makeStage, setMakeStage] = useState('start');
-  const [makeStagedIngredients, setMakeStagedIngredients] = useState([]);
-  const [makeStagedTitle, setMakeStagedTitle] = useState('');
-  const [makeStagedDishType, setMakeStagedDishType] = useState(null);
-  const [makeStagedImage, setMakeStagedImage] = useState(null);
-  const [makeStagedImageUrl, setMakeStagedImageUrl] = useState(null);
+  // Make-a-Recipe: MakeRecipeStart's 4-card router (existing / scratch /
+  // photo / weblink) commits straight to the Recipe Notebook. The former
+  // Stage-2 chalkboard cards-grid was removed per user request.
   const [moleculeLabOpen, setMoleculeLabOpen] = useState(false);
   // SMILES to seed the Molecule Lab with on open (set when user clicks
   // "Open in Molecule Lab" on the Molecule of the Day card).
@@ -2365,93 +2355,19 @@ export default function App() {
                    Stage 2 with the ingredients staged.
           Stage 2: MakeRecipeView chalkboard cards-grid. Back button +
                    swipe-down returns to Stage 1. */}
-      {activeTab === 'make' && makeStage === 'start' && (
+      {activeTab === 'make' && (
         <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
+          {/* MakeRecipeStart's 4-card router (existing / scratch / photo /
+              weblink) commits straight to the Recipe Notebook via the real
+              setRecipeHandoff + setActiveTab('recipe'). The former Stage-2
+              MakeRecipeView chalkboard cards-grid was removed per user request
+              — the notebook is the next screen for every entry path. */}
           <MakeRecipeStart
-            setRecipeHandoff={(payload) => {
-              // Intercept: stage the ingredients/title in App-level
-              // state and transition to MakeRecipeView. The original
-              // setRecipeHandoff is reserved for Save-to-Notebook only.
-              if (!payload) return;
-              setMakeStagedIngredients(Array.isArray(payload.ingredients) ? [...payload.ingredients] : []);
-              setMakeStagedTitle(typeof payload.title === 'string' ? payload.title : '');
-              setMakeStagedDishType(payload.recipeType || null);
-              // Photo path (payload.image is a File). Stage it +
-              // create an object URL so Stage 2 can display the
-              // thumbnail above the cards grid. Revoke any prior URL.
-              if (makeStagedImageUrl) {
-                try { URL.revokeObjectURL(makeStagedImageUrl); } catch { /* noop */ }
-              }
-              if (payload.image instanceof File) {
-                setMakeStagedImage(payload.image);
-                const u = typeof URL.createObjectURL === 'function'
-                  ? URL.createObjectURL(payload.image)
-                  : null;
-                setMakeStagedImageUrl(u);
-              } else {
-                setMakeStagedImage(null);
-                setMakeStagedImageUrl(null);
-              }
-              setMakeStage('view');
-            }}
+            setRecipeHandoff={setRecipeHandoff}
             setRecipeMounted={setRecipeMounted}
-            setActiveTab={(tab) => {
-              // MakeRecipeStart calls setActiveTab('recipe') as its
-              // commit gesture. Intercept that and stay on 'make'
-              // (now in Stage 2). Anything else (e.g. 'cookbook' for
-              // the existing-recipe picker) passes through.
-              if (tab === 'recipe') {
-                setMakeStage('view');
-                return;
-              }
-              setActiveTab(tab);
-            }}
+            setActiveTab={setActiveTab}
             setCookbookPickerMode={setCookbookPickerMode}
             nodes={data?.graph?.nodes}
-          />
-        </div>
-      )}
-      {activeTab === 'make' && makeStage === 'view' && (
-        <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
-          <MakeRecipeView
-            data={data}
-            initialIngredients={makeStagedIngredients}
-            initialTitle={makeStagedTitle}
-            initialDishType={makeStagedDishType}
-            initialImageUrl={makeStagedImageUrl}
-            onBack={() => {
-              setMakeStage('start');
-              setMakeStagedIngredients([]);
-              setMakeStagedTitle('');
-              setMakeStagedDishType(null);
-              if (makeStagedImageUrl) {
-                try { URL.revokeObjectURL(makeStagedImageUrl); } catch { /* noop */ }
-              }
-              setMakeStagedImage(null);
-              setMakeStagedImageUrl(null);
-            }}
-            onCardTap={(name) => setPairingModeFocal(name)}
-            onSaveToNotebook={({ title, dishType, ingredients, portions }) => {
-              setRecipeHandoff({
-                source: 'make-bridge',
-                ingredients: Array.isArray(ingredients) ? [...ingredients] : [],
-                mode: 'recipe',
-                title: typeof title === 'string' ? title : '',
-                recipeType: dishType || null,
-                portions: portions || {},
-                ts: Date.now(),
-              });
-              setRecipeMounted(true);
-              setActiveTab('recipe');
-              setMakeStage('start');
-            }}
-            onExamineInNetwork={({ ingredients }) => {
-              if (Array.isArray(ingredients) && ingredients.length > 0) {
-                setSelectedNodes(ingredients);
-              }
-              setActiveTab('network');
-              setMakeStage('start');
-            }}
           />
         </div>
       )}
@@ -2481,19 +2397,23 @@ export default function App() {
             }}
             onOpenRecipeLab={(_mode, initialIngredients, extras = {}) => {
               const ingredients = Array.isArray(initialIngredients) ? [...initialIngredients] : [];
-              // B-version (2026-06-03): when the cookbook picker was
-              // opened from MakeRecipeStart (cookbookPickerMode === 'make'),
-              // route the picked recipe into MakeRecipeView's Stage 2
-              // chalkboard cards-grid INSTEAD of dropping the user into
-              // the Recipe Notebook. The Notebook is reached later via
-              // MakeRecipeView's "Save to Notebook" menu CTA.
+              // When the cookbook picker was opened from MakeRecipeStart
+              // (cookbookPickerMode === 'make'), route the picked recipe
+              // STRAIGHT to the Recipe Notebook (the Stage-2 cards-grid was
+              // removed per user request).
               if (cookbookPickerMode === 'make') {
-                setMakeStagedIngredients(ingredients);
-                setMakeStagedTitle(typeof extras?.title === 'string' ? extras.title : '');
-                setMakeStagedDishType(extras?.recipeType || null);
-                setMakeStage('view');
+                setRecipeHandoff({
+                  source: 'make-existing',
+                  mode: 'recipe',
+                  ts: Date.now(),
+                  ...extras,
+                  ingredients,
+                  recipeType: extras?.recipeType || null,
+                  title: typeof extras?.title === 'string' ? extras.title : '',
+                });
+                setRecipeMounted(true);
                 setCookbookPickerMode(null);
-                setActiveTab('make');
+                setActiveTab('recipe');
                 return;
               }
               setRecipeHandoff({
