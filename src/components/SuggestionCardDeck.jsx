@@ -1,10 +1,12 @@
 /**
  * SuggestionCardDeck — smart ingredient suggestions (add) / substitutions
- * (replace) for a recipe, shown as a flavor-profile-aware panel.
+ * (replace) for a recipe, shown as a swipeable Tinder-style card deck.
  *
- * Top: the recipe's current flavor-profile radar (context). Below: a scrollable
- * list of many ranked suggestions, each with a "sweet ▲ green ▼" delta of how
- * it shifts the recipe's profile, and an Add/Swap action.
+ * One candidate per card, rendered as a dark chalkboard IngredientProfileCard
+ * (PairingModeCard aesthetic): the candidate name, a hero before→after flavor
+ * radar (the recipe's profile with this ingredient added/swapped), a one-line
+ * delta caption, and an Add/Swap action. Swipe left / ◀ ▶ arrows browse the
+ * deck; the swipe mechanics mirror PairingMode.jsx (unified touch + mouse drag).
  *
  * Smartness (FM-P2 set-completion model):
  *  - CUISINE-CONDITIONED — the bowl's dominant cuisine drives suggestions
@@ -13,13 +15,14 @@
  *  - REPLACE = same-category substitutes ranked by recipe fit (rice noodle →
  *    other noodles/rice, not condiments).
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { recipeAxisProfile, profileDelta, topMovers, nodeProbs } from '../data/recipeProfileAnalysis.js';
 import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
-import ProfileDeltaRadar, { DeltaSummary } from './ProfileDeltaRadar.jsx';
+import IngredientProfileCard from './IngredientProfileCard.jsx';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
 
 const ALPHA = 0.3; // popularity-discount strength (mild — high α promotes junk)
+const SWIPE_THRESHOLD = 50; // px — mirror PairingMode
 
 let _modelPromise = null;
 function getModel() {
@@ -62,25 +65,51 @@ const WRONG_FOR_NOODLE = /lasagn|macaroni|\bziti\b|rigatoni|\bpenne\b|spaghetti/
 
 export default function SuggestionCardDeck({
   mode = 'add', ingredient = null, bowlNames = [], nodes, scopeFilter = null,
+  candidates = null, qtyPrefill = true, headerLabel = null,
   onAdd, onSwap, onClose,
 }) {
   const { scores, n } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cardIdx, setCardIdx] = useState(0);
 
   const quantityCtxRef = useRef(null);
   useEffect(() => {
+    if (!qtyPrefill) return undefined;
     let c = false;
     loadQuantityModel().then((ctx) => { if (!c) quantityCtxRef.current = ctx; });
     return () => { c = true; };
-  }, []);
+  }, [qtyPrefill]);
 
   useEffect(() => {
     setLoading(true);
+    let cancelled = false;
+    const bowlSet = new Set(bowlNames);
+
+    // Injected-candidate mode: the caller (Cocktail Lab, the + Add preview)
+    // supplies the candidate list, so skip the recipe set-completion model and
+    // build before→after cards directly. Runs BEFORE the empty-bowl guard so
+    // adding the FIRST ingredient still previews — the "before" profile is just
+    // zeros, so the card shows the candidate's own profile as the "after".
+    if (Array.isArray(candidates)) {
+      if (!nodes) { setItems([]); setLoading(false); return () => { cancelled = true; }; }
+      const out = [];
+      for (const name of candidates) {
+        if (bowlSet.has(name)) continue;
+        if (scopeFilter && !scopeFilter.has(name.toLowerCase())) continue;
+        const node = nodes.get(name);
+        if (!node) continue;
+        const delta = profileDelta(name, scores, n, nodes) || {};
+        out.push({ name, delta, movers: topMovers(delta, 3) });
+        if (out.length >= 18) break;
+      }
+      setItems(out);
+      setLoading(false);
+      return () => { cancelled = true; };
+    }
+
     const observed = mode === 'replace' ? bowlNames.filter((x) => x !== ingredient) : bowlNames;
     if (observed.length === 0 || !nodes) { setItems([]); setLoading(false); return undefined; }
-    const bowlSet = new Set(bowlNames);
-    let cancelled = false;
 
     getModel().then((rt) => {
       if (cancelled || !rt || !rt.model) { setItems([]); setLoading(false); return undefined; }
@@ -147,55 +176,164 @@ export default function SuggestionCardDeck({
         });
     }).catch(() => { if (!cancelled) { setItems([]); setLoading(false); } });
     return () => { cancelled = true; };
-  }, [mode, ingredient, bowlNames, nodes, scopeFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mode, ingredient, bowlNames, nodes, scopeFilter, candidates]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep the visible card in range as the ranked deck (re)loads.
+  useEffect(() => { setCardIdx(0); }, [items]);
 
   const commit = (name) => {
     if (mode === 'replace') { onSwap?.(ingredient, name); return; }
-    const amount = quantityCtxRef.current ? predictAmountFromCtx(name, quantityCtxRef.current) : null;
+    const amount = (qtyPrefill && quantityCtxRef.current) ? predictAmountFromCtx(name, quantityCtxRef.current) : null;
     if (amount) onAdd?.(name, amount); else onAdd?.(name);
   };
 
+  const nextCard = useCallback(() => {
+    setCardIdx((idx) => (idx + 1 < items.length ? idx + 1 : idx));
+  }, [items.length]);
+  const prevCard = useCallback(() => {
+    setCardIdx((idx) => (idx > 0 ? idx - 1 : idx));
+  }, []);
+
+  // Unified pointer handler (touch + mouse drag), mirroring PairingMode:
+  // a horizontal drag past the threshold flips to the next/previous card.
+  const dragStartRef = useRef(null);
+  const dispatchSwipe = useCallback((dx, dy) => {
+    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) nextCard(); else prevCard();
+  }, [nextCard, prevCard]);
+  const onTouchStart = (e) => {
+    const t = e.touches?.[0];
+    if (!t) return;
+    dragStartRef.current = { x: t.clientX, y: t.clientY, kind: 'touch' };
+  };
+  const onTouchEnd = (e) => {
+    const start = dragStartRef.current;
+    dragStartRef.current = null;
+    if (!start || start.kind !== 'touch') return;
+    const t = e.changedTouches?.[0];
+    if (!t) return;
+    dispatchSwipe(t.clientX - start.x, t.clientY - start.y);
+  };
+  const onMouseDown = (e) => {
+    if (e.target?.closest?.('button')) return; // let buttons act normally
+    dragStartRef.current = { x: e.clientX, y: e.clientY, kind: 'mouse' };
+  };
+  const onMouseUp = (e) => {
+    const start = dragStartRef.current;
+    dragStartRef.current = null;
+    if (!start || start.kind !== 'mouse') return;
+    dispatchSwipe(e.clientX - start.x, e.clientY - start.y);
+  };
+
+  // Esc closes the deck without adding/swapping.
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); onClose?.(); } };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const card = items[cardIdx] || null;
+  // Peek-stack: a couple of cards fanned behind the top one for the Tinder feel.
+  const peek = items.slice(cardIdx + 1, cardIdx + 3);
+
   return (
-    <div className="w-full bg-[#fefae0] border-t border-[#c9b99a] rounded-t-xl shadow-2xl" style={{ maxHeight: '62vh', display: 'flex', flexDirection: 'column' }} data-testid={`suggestion-deck-${mode}`}>
+    <div
+      className="w-full h-full shadow-2xl"
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'radial-gradient(ellipse at center, #161616 0%, #0a0a0a 80%, #050505 100%), #0a0a0a',
+      }}
+      data-testid={`suggestion-deck-${mode}`}
+      data-card-idx={cardIdx}
+      data-stack-size={items.length}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+    >
       <div className="flex items-center justify-between px-4 pt-2.5 pb-1 flex-shrink-0">
-        <span className="text-[12px] uppercase tracking-wider text-[#7a6a4a]" style={{ fontFamily: 'Caveat, cursive' }}>
-          {mode === 'replace' ? `⇄ Smart swaps for ${ingredient}` : '✨ Smart suggestions'}
+        <button
+          onClick={onClose}
+          data-testid="deck-back"
+          aria-label="Back without adding"
+          className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] text-[#bdb6a3] hover:text-[#f5efde] hover:bg-white/5"
+          style={{ fontFamily: 'Caveat, cursive', fontSize: 17 }}
+        >
+          ← Back
+        </button>
+        <span className="text-[13px] uppercase tracking-wider text-[#bdb6a3] text-center flex-1 px-2" style={{ fontFamily: 'Caveat, cursive' }}>
+          {headerLabel || (mode === 'replace' ? `⇄ Smart swaps for ${ingredient}` : '✨ Smart suggestions')}
         </span>
-        <button onClick={onClose} aria-label="Close" className="text-[#a09070] hover:text-[#5a4a2a] px-2 text-xl">×</button>
+        <button onClick={onClose} aria-label="Close" className="min-h-[44px] text-[#8a8478] hover:text-[#f5efde] px-2 text-2xl">×</button>
       </div>
 
-      {/* recipe flavor-profile radar (context) */}
-      {n > 0 && (
-        <div className="flex items-center gap-2 px-4 pb-1 flex-shrink-0 border-b border-[#e8dcc0]">
-          <ProfileDeltaRadar before={scores} delta={null} size={92} />
-          <p className="text-[11px] text-[#a09070]" style={{ fontFamily: 'Caveat, cursive', fontSize: 13 }}>
-            Your recipe&apos;s flavor profile. Each suggestion shows how it would shift it.
-          </p>
+      <div className="flex flex-col items-center justify-center overflow-y-auto px-3 py-3" style={{ flex: 1 }}>
+        {loading && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: 'Caveat, cursive' }}>Finding smart suggestions…</p>}
+        {!loading && items.length === 0 && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: 'Caveat, cursive' }}>No suggestions for this recipe yet.</p>}
+
+        {!loading && card && (
+          <div className="relative flex justify-center" data-testid="suggestion-card-stack">
+            {/* peek-stack behind the top card (Tinder style) */}
+            {peek.map((p, i) => (
+              <div
+                key={`peek-${p.name}`}
+                aria-hidden="true"
+                className="absolute top-0 w-[min(26rem,92vw)] rounded-2xl"
+                style={{
+                  height: '100%',
+                  background: 'radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%), #0a0a0a',
+                  border: '2px double #4a4a4a',
+                  transform: `translateY(${(i + 1) * 8}px) scale(${1 - (i + 1) * 0.03})`,
+                  opacity: 0.5 - i * 0.15,
+                  zIndex: 0,
+                }}
+              />
+            ))}
+            <div
+              key={card.name}
+              className="relative"
+              style={{ zIndex: 1 }}
+              data-testid="suggestion-card"
+              data-ingredient={card.name}
+            >
+              <IngredientProfileCard
+                name={card.name}
+                before={scores}
+                delta={card.delta}
+                movers={card.movers}
+                mode={mode}
+                onCommit={() => commit(card.name)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {!loading && items.length > 0 && (
+        <div className="flex items-center justify-between px-4 pb-3 pt-1 flex-shrink-0 border-t border-[#3a3a3a]">
+          <button
+            onClick={prevCard}
+            disabled={cardIdx === 0}
+            data-testid="deck-prev"
+            className="min-h-[44px] px-4 text-[#bdb6a3] disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Previous suggestion"
+          >
+            ◀
+          </button>
+          <span className="text-xs text-[#8a8478]">{Math.min(cardIdx + 1, items.length)} / {items.length}</span>
+          <button
+            onClick={nextCard}
+            disabled={cardIdx + 1 >= items.length}
+            data-testid="deck-next"
+            className="min-h-[44px] px-4 text-[#bdb6a3] disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Next suggestion"
+          >
+            ▶
+          </button>
         </div>
       )}
-
-      <div className="overflow-y-auto px-2 py-2" style={{ flex: 1 }}>
-        {loading && <p className="text-center text-base text-[#b8a88a] py-6" style={{ fontFamily: 'Caveat, cursive' }}>Finding smart suggestions…</p>}
-        {!loading && items.length === 0 && <p className="text-center text-base text-[#b8a88a] py-6" style={{ fontFamily: 'Caveat, cursive' }}>No suggestions for this recipe yet.</p>}
-        <ul className="space-y-1">
-          {items.map((it) => (
-            <li key={it.name}>
-              <div className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-[#f0e8d0]">
-                <span className="flex-1 truncate text-base" style={{ fontFamily: 'Caveat, cursive', color: '#3a3428' }}>{it.name}</span>
-                <DeltaSummary movers={it.movers} />
-                <button
-                  onClick={() => commit(it.name)}
-                  data-testid="deck-commit"
-                  className="flex-shrink-0 min-h-[36px] px-3 rounded-full border border-[#e0c873] bg-[#fff7d6] text-[#6a5a2a] hover:bg-[#ffefb8]"
-                  style={{ fontFamily: 'Caveat, cursive', fontSize: 15 }}
-                >
-                  {mode === 'replace' ? 'Swap' : '+ Add'}
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 }
