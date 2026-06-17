@@ -1,17 +1,26 @@
 /**
- * RecipeFlavorProfilesCard — swipeable per-axis flavor analysis for a recipe.
+ * RecipeFlavorProfilesCard — dark chalkboard, swipeable per-axis flavor analysis
+ * for a recipe.
  *
- * One page per firing flavor axis (taste + aroma): the recipe's score on that
- * axis, what's driving it, a rule-based insight, and model-ranked Boost/Temper
- * ingredient suggestions (tap to add, quantity-prefilled). A final Pairings
- * page lists similar dishes (FM-DIR1) + routes to Cocktail/Sauce Lab.
+ * Page 0 is a Flavor map: a chalkboard radar over the 11 taste+aroma axes that
+ * plots each bowl ingredient as a labeled dot positioned by its own flavor
+ * (gnnProbs centroid), so a sweet ingredient sits toward the "sweet" axis.
+ * Pages 1..axes.length are one per firing flavor axis (taste + aroma): the
+ * recipe's score on that axis, what's driving it, a rule-based insight, and
+ * model-ranked Boost/Temper ingredient suggestions (tap to add, quantity-
+ * prefilled). A final Pairings page lists similar dishes (FM-DIR1) + routes to
+ * Cocktail/Sauce Lab.
  *
- * Degrades gracefully: the static analysis (score/drivers/insight) renders even
- * if the model / dish index fail to load — only Boost/Temper + dishes drop out.
+ * Aesthetic matches IngredientProfileCard / PairingModeCard: near-black slate
+ * chalkboard wash, double chalk-rail border, cream-chalk Caveat text.
+ *
+ * Degrades gracefully: the static analysis (map/score/drivers/insight) renders
+ * even if the model / dish index fail to load — only Boost/Temper + dishes drop.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  recipeAxisProfile, axisInsight, axisLabel, axisColor, rankByAxisImpact, AXES,
+  recipeAxisProfile, axisInsight, axisLabel, axisColor, rankByAxisImpact,
+  nodeProbs, AXES,
 } from '../data/recipeProfileAnalysis.js';
 import { loadDirectionsIndex, retrieveDirections } from '../ml/directionsRuntime.js';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
@@ -20,6 +29,23 @@ import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSi
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 
 const FONT = 'Caveat, cursive';
+
+// ── Chalkboard palette (copied from IngredientProfileCard) ───────────
+const CHALK_BG = `
+  radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%),
+  #0a0a0a
+`;
+const CHALK_BORDER_OUTER = '#4a4a4a';
+const CHALK_BORDER_INNER = '#6a6a6a';
+const CHALK_CREAM = '#f5efde';
+const CHALK_DIM = '#bdb6a3';
+const CHALK_SUB = '#8a8478';
+const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
+
+// Chalk-green pill (Boost/Temper chips + pairing names) — matches the Add pill.
+const PILL_BG = 'rgba(16,78,51,0.55)';
+const PILL_BORDER = 'rgba(110,231,183,0.45)';
+const PILL_TEXT = '#bbf7d0';
 
 let _modelPromise = null;
 function getModel() {
@@ -68,15 +94,179 @@ function loadSauceItems() {
   return _sauceItemsPromise;
 }
 
+function axisAngle(i, n) {
+  return (Math.PI * 2 * i) / n - Math.PI / 2;
+}
+
+/**
+ * IngredientFlavorMap — a chalkboard radar over the 11 axes (grid rings, spokes,
+ * colored axis labels) that plots each bowl ingredient as a labeled dot placed
+ * by its own flavor centroid. Strongly single-flavored ingredients sit near
+ * their dominant axis edge; balanced ones cluster center.
+ *
+ *   angle_i = 2π·i/11 − π/2
+ *   vx = Σ p[axis_i]·cos(angle_i), vy = Σ p[axis_i]·sin(angle_i), mag = hypot(vx,vy)
+ *   place at r = (mag/maxMag)·0.82·R in direction (vx,vy); center if mag≈0.
+ */
+function IngredientFlavorMap({ bowlNames = [], nodes, size = 320, testId = 'flavor-map-radar' }) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const radius = size * 0.30;
+  const labelOffset = size * 0.075;
+  const N = AXES.length;
+  const gridLevels = [0.33, 0.66, 1.0];
+
+  const gridPoints = (level) =>
+    AXES.map((_, i) => {
+      const ang = axisAngle(i, N);
+      const r = level * radius;
+      return `${(cx + r * Math.cos(ang)).toFixed(1)},${(cy + r * Math.sin(ang)).toFixed(1)}`;
+    }).join(' ');
+
+  // Compute each ingredient's flavor-centroid vector, then normalize radii so
+  // the strongest-flavored ingredient sits at 0.82·R.
+  const placed = useMemo(() => {
+    const out = [];
+    let maxMag = 0;
+    for (const name of (Array.isArray(bowlNames) ? bowlNames : [])) {
+      const p = nodeProbs(name, nodes);
+      if (!p) continue;
+      let vx = 0;
+      let vy = 0;
+      let dom = AXES[0];
+      let domV = -Infinity;
+      for (let i = 0; i < N; i += 1) {
+        const a = AXES[i];
+        const v = p[a] || 0;
+        const ang = axisAngle(i, N);
+        vx += v * Math.cos(ang);
+        vy += v * Math.sin(ang);
+        if (v > domV) { domV = v; dom = a; }
+      }
+      const mag = Math.hypot(vx, vy);
+      if (mag > maxMag) maxMag = mag;
+      out.push({ name, vx, vy, mag, dom });
+    }
+    const denom = maxMag > 0 ? maxMag : 1;
+    return out.map((d) => {
+      const r = (d.mag / denom) * 0.82 * radius;
+      const ux = d.mag > 1e-6 ? d.vx / d.mag : 0;
+      const uy = d.mag > 1e-6 ? d.vy / d.mag : 0;
+      return {
+        ...d,
+        x: cx + r * ux,
+        y: cy + r * uy,
+        r,
+        // Push the label radially outward a touch so it doesn't sit on the dot.
+        lx: cx + (r + 9) * ux,
+        ly: cy + (r + 9) * uy,
+        ux,
+        uy,
+      };
+    });
+  }, [bowlNames, nodes, radius, cx, cy, N]);
+
+  const trunc = (s) => (s.length > 12 ? `${s.slice(0, 11)}…` : s);
+  const fontSize = N > 8 ? 12 : 14;
+
+  return (
+    <svg
+      width="100%"
+      viewBox={`0 0 ${size} ${size}`}
+      preserveAspectRatio="xMidYMid meet"
+      style={{ display: 'block', height: 'auto', width: '100%' }}
+      role="img"
+      aria-label="Ingredients placed by flavor"
+      data-testid={testId}
+    >
+      {/* grid rings */}
+      {gridLevels.map((level) => (
+        <polygon
+          key={`g-${level}`}
+          points={gridPoints(level)}
+          fill="none"
+          stroke={`${CHALK_BORDER_INNER}88`}
+          strokeWidth={level === 1.0 ? 1 : 0.5}
+        />
+      ))}
+      {/* axis spokes */}
+      {AXES.map((a, i) => {
+        const ang = axisAngle(i, N);
+        return (
+          <line
+            key={`spoke-${a}`}
+            x1={cx}
+            y1={cy}
+            x2={cx + radius * Math.cos(ang)}
+            y2={cy + radius * Math.sin(ang)}
+            stroke={`${CHALK_BORDER_INNER}66`}
+            strokeWidth={0.5}
+          />
+        );
+      })}
+      {/* colored axis labels with dynamic textAnchor (grow outward) */}
+      {AXES.map((a, i) => {
+        const ang = axisAngle(i, N);
+        const cosA = Math.cos(ang);
+        const sinA = Math.sin(ang);
+        const tx = cx + (radius + labelOffset) * cosA;
+        const ty = cy + (radius + labelOffset) * sinA;
+        const textAnchor = cosA > 0.15 ? 'start' : cosA < -0.15 ? 'end' : 'middle';
+        const dominantBaseline = sinA > 0.55 ? 'hanging' : sinA < -0.55 ? 'auto' : 'middle';
+        return (
+          <text
+            key={`lbl-${a}`}
+            x={tx}
+            y={ty}
+            textAnchor={textAnchor}
+            dominantBaseline={dominantBaseline}
+            fontSize={fontSize}
+            fontWeight={600}
+            fill={axisColor(a)}
+            style={{ fontFamily: FONT, letterSpacing: '0.04em' }}
+          >
+            {axisLabel(a).toLowerCase()}
+          </text>
+        );
+      })}
+      {/* ingredient dots + truncated labels */}
+      {placed.map((d) => {
+        const anchor = d.ux > 0.15 ? 'start' : d.ux < -0.15 ? 'end' : 'middle';
+        return (
+          <g key={`ing-${d.name}`} data-testid="flavor-map-ingredient" data-ingredient={d.name}>
+            <circle cx={d.x} cy={d.y} r={4} fill={axisColor(d.dom)} stroke="#0a0a0f" strokeWidth={1} />
+            <text
+              x={d.lx}
+              y={d.ly}
+              textAnchor={anchor}
+              dominantBaseline="middle"
+              fontSize={11}
+              fill={CHALK_CREAM}
+              style={{ fontFamily: FONT, textShadow: CHALK_TEXT_SHADOW }}
+            >
+              {trunc(d.name)}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/** Chalk-green pill: a Boost/Temper suggestion chip (tap adds, qty-prefilled). */
 function Chip({ name, delta, onTap }) {
   return (
     <button
       onClick={() => onTap(name)}
-      className="flex-shrink-0 inline-flex items-center gap-1 px-2.5 rounded-full border whitespace-nowrap"
-      style={{ minHeight: 40, paddingTop: 5, paddingBottom: 5, background: '#fff7d6', borderColor: '#e0c873', color: '#6a5a2a', fontFamily: FONT, fontSize: 16 }}
+      className="flex-shrink-0 inline-flex items-center gap-1 px-3 rounded-full border whitespace-nowrap"
+      style={{
+        minHeight: 40, paddingTop: 5, paddingBottom: 5,
+        background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT,
+        fontFamily: FONT, fontSize: 16, textShadow: CHALK_TEXT_SHADOW,
+      }}
       title={`Add ${name}`}
     >
-      {name}{typeof delta === 'number' ? <span className="text-[10px] text-[#a08a4a]">+{(delta).toFixed(2)}</span> : null}
+      {name}{typeof delta === 'number' ? <span className="text-[10px]" style={{ color: PILL_TEXT, opacity: 0.8 }}>+{(delta).toFixed(2)}</span> : null}
     </button>
   );
 }
@@ -144,15 +334,17 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
   }, [bowlNames, nodes, nodesObj]);
 
   const [page, setPage] = useState(0);
-  const totalPages = axes.length + 1; // + pairings
-  const isPairings = page >= axes.length;
+  const totalPages = axes.length + 2; // Flavor map + per-axis pages + Pairings
+  const isMap = page === 0;
+  const isPairings = page >= axes.length + 1;
 
   const addWithQty = (name) => {
     const amount = quantityCtxRef.current ? predictAmountFromCtx(name, quantityCtxRef.current) : null;
     if (amount) onAdd?.(name, amount); else onAdd?.(name);
   };
 
-  const axis = axes[page];
+  // Per-axis pages occupy indices 1..axes.length → axis = axes[page - 1].
+  const axis = (!isMap && !isPairings) ? axes[page - 1] : undefined;
   const boost = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'boost', topN: 4 }) : [];
   const temper = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'temper', topN: 3 }) : [];
 
@@ -173,41 +365,68 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
     goPage(dx < 0 ? 1 : -1);
   };
 
+  // Esc closes without changing the bowl (mirrors SuggestionCardDeck).
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); onClose?.(); } };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   return (
     <div
-      className="w-full bg-[#fefae0] border-t border-[#c9b99a] rounded-t-xl shadow-2xl"
+      className="w-full h-full shadow-2xl flex flex-col"
+      style={{ height: '100%', background: CHALK_BG, border: `2px double ${CHALK_BORDER_OUTER}`, boxShadow: `inset 0 0 0 1px ${CHALK_BORDER_INNER}55, 0 8px 24px rgba(0,0,0,0.55)` }}
       data-testid="flavor-profiles-card"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      <div className="flex items-center justify-between px-4 pt-2 pb-1">
-        <span className="text-[11px] uppercase tracking-wider text-[#a09070]" style={{ fontFamily: FONT }}>Flavor Profiles</span>
-        <button onClick={onClose} aria-label="Close" className="text-[#a09070] hover:text-[#5a4a2a] px-2 text-lg">×</button>
+      <div className="flex items-center justify-between px-4 pt-2.5 pb-1 flex-shrink-0">
+        <button
+          onClick={onClose}
+          data-testid="profiles-back"
+          aria-label="Back"
+          className="min-h-[44px] px-3 rounded-lg border border-[#3a3a3a] hover:bg-white/5"
+          style={{ fontFamily: FONT, fontSize: 17, color: CHALK_DIM }}
+        >
+          ← Back
+        </button>
+        <span className="text-[13px] uppercase tracking-wider text-center flex-1 px-2" style={{ fontFamily: FONT, color: CHALK_DIM }}>Flavor Profiles</span>
+        <button onClick={onClose} aria-label="Close" className="min-h-[44px] px-2 text-2xl" style={{ color: CHALK_SUB }}>×</button>
       </div>
 
-      <div className="px-4 pb-2 min-h-[210px]">
-        {n === 0 && <p className="text-base text-[#b8a88a] py-6 text-center" style={{ fontFamily: FONT }}>Add ingredients with flavor data to see profiles.</p>}
+      <div className="px-4 pb-2 overflow-y-auto" style={{ flex: 1 }}>
+        {n === 0 && <p className="text-base py-6 text-center" style={{ fontFamily: FONT, color: CHALK_SUB }}>Add ingredients with flavor data to see profiles.</p>}
 
-        {!isPairings && axis && (
+        {n > 0 && isMap && (
+          <div className="flex flex-col items-center">
+            <h3 className="text-2xl self-start mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Flavor map</h3>
+            <div style={{ width: 'min(100%, 60vh)' }}>
+              <IngredientFlavorMap bowlNames={bowlNames} nodes={nodes} />
+            </div>
+            <p className="text-sm mt-1 text-center" style={{ fontFamily: FONT, color: CHALK_DIM }}>Each ingredient placed by its flavor</p>
+          </div>
+        )}
+
+        {!isMap && !isPairings && axis && (
           <div>
             <div className="flex items-baseline gap-2">
-              <h3 className="text-2xl capitalize" style={{ fontFamily: FONT, color: axisColor(axis) }}>{axisLabel(axis)}</h3>
-              <span className="text-sm text-[#a09070]">{Math.round(scores[axis] * 100)}%</span>
+              <h3 className="text-2xl capitalize" style={{ fontFamily: FONT, color: axisColor(axis), textShadow: CHALK_TEXT_SHADOW }}>{axisLabel(axis)}</h3>
+              <span className="text-sm" style={{ color: CHALK_DIM }}>{Math.round(scores[axis] * 100)}%</span>
             </div>
             {/* score bar */}
-            <div className="h-2 rounded-full mt-1 mb-2" style={{ background: '#eadfc4' }}>
+            <div className="h-2 rounded-full mt-1 mb-2" style={{ background: '#2a2a2a' }}>
               <div className="h-2 rounded-full" style={{ width: `${Math.min(100, scores[axis] * 100)}%`, background: axisColor(axis) }} />
             </div>
             {drivers[axis]?.length > 0 && (
-              <p className="text-sm text-[#7a6a4a] mb-1" style={{ fontFamily: FONT }}>
-                Driven by: <span style={{ color: '#3a3428' }}>{drivers[axis].join(', ')}</span>
+              <p className="text-sm mb-1" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+                Driven by: <span style={{ color: CHALK_CREAM }}>{drivers[axis].join(', ')}</span>
               </p>
             )}
-            <p className="text-base text-[#5a4a2a] mb-2" style={{ fontFamily: FONT }}>{axisInsight(axis, scores[axis])}</p>
+            <p className="text-base mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{axisInsight(axis, scores[axis])}</p>
 
             {boost.length > 0 && (
               <div className="mb-1.5">
-                <p className="text-[10px] uppercase tracking-wider text-[#a09070] mb-0.5">Boost</p>
+                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>Boost</p>
                 <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {boost.map((b) => <Chip key={`b-${b.name}`} name={b.name} delta={b.delta} onTap={addWithQty} />)}
                 </div>
@@ -215,7 +434,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
             )}
             {temper.length > 0 && (
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-[#a09070] mb-0.5">Temper / balance</p>
+                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>Temper / balance</p>
                 <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                   {temper.map((t) => <Chip key={`t-${t.name}`} name={t.name} onTap={addWithQty} />)}
                 </div>
@@ -226,11 +445,11 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
 
         {isPairings && (
           <div>
-            <h3 className="text-2xl mb-2" style={{ fontFamily: FONT, color: '#3a3428' }}>Pairs well with</h3>
+            <h3 className="text-2xl mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Pairs well with</h3>
             {dishes.length > 0 && (
               <div className="mb-2">
-                <p className="text-[10px] uppercase tracking-wider text-[#a09070] mb-0.5">🍽 Similar dishes</p>
-                <ul className="text-base text-[#3a3428]" style={{ fontFamily: FONT }}>
+                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>🍽 Similar dishes</p>
+                <ul className="text-base" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
                   {dishes.map((d) => <li key={d}>· {d}</li>)}
                 </ul>
               </div>
@@ -239,15 +458,15 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
                 Cocktail Lab. Falls back to the generic button if no matches. */}
             {onFindCocktail && (
               <div className="mb-2">
-                <p className="text-[10px] uppercase tracking-wider text-[#a09070] mb-0.5">🍸 Cocktails</p>
+                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>🍸 Cocktails</p>
                 {cocktailMatches.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5" data-testid="pairings-cocktail-names">
                     {cocktailMatches.map(({ item, similarity }) => (
                       <button
                         key={item.name}
                         onClick={onFindCocktail}
-                        className="min-h-[40px] px-3 rounded-full border border-[#c9b99a] bg-[#fde8a0] text-[#7a5a2a]"
-                        style={{ fontFamily: FONT, fontSize: 16 }}
+                        className="min-h-[40px] px-3 rounded-full border"
+                        style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
                         title={`${Math.round((similarity || 0) * 100)}% aroma match — open in Cocktail Lab`}
                       >
                         {item.name}
@@ -255,7 +474,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
                     ))}
                   </div>
                 ) : (
-                  <button onClick={onFindCocktail} className="min-h-[44px] px-4 rounded-full border border-[#c9b99a] bg-[#fde8a0] text-[#7a5a2a]" style={{ fontFamily: FONT, fontSize: 16 }}>🍸 Find cocktails</button>
+                  <button onClick={onFindCocktail} className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>🍸 Find cocktails</button>
                 )}
               </div>
             )}
@@ -263,15 +482,15 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
             {/* 🥣 Sauces — gated by recipeTakesSauce; aroma-matched names. */}
             {onFindSauce && recipeTakesSauce(recipeType) && (
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-[#a09070] mb-0.5">🥣 Sauces</p>
+                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>🥣 Sauces</p>
                 {sauceMatches.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5" data-testid="pairings-sauce-names">
                     {sauceMatches.map(({ item, similarity }) => (
                       <button
                         key={item.name}
                         onClick={onFindSauce}
-                        className="min-h-[40px] px-3 rounded-full border border-[#c9b99a] bg-[#ffd0a0] text-[#7a5a2a]"
-                        style={{ fontFamily: FONT, fontSize: 16 }}
+                        className="min-h-[40px] px-3 rounded-full border"
+                        style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
                         title={`${Math.round((similarity || 0) * 100)}% aroma match — open in Sauce Lab`}
                       >
                         {item.name}
@@ -279,7 +498,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
                     ))}
                   </div>
                 ) : (
-                  <button onClick={onFindSauce} className="min-h-[44px] px-4 rounded-full border border-[#c9b99a] bg-[#ffd0a0] text-[#7a5a2a]" style={{ fontFamily: FONT, fontSize: 16 }}>🥣 Find sauces</button>
+                  <button onClick={onFindSauce} className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>🥣 Find sauces</button>
                 )}
               </div>
             )}
@@ -288,8 +507,8 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 pb-3">
-          <button onClick={() => goPage(-1)} disabled={page === 0} className="min-h-[44px] px-4 text-[#7a6a4a] disabled:opacity-30" aria-label="Previous">◀</button>
+        <div className="flex items-center justify-between px-4 pb-3 pt-1 flex-shrink-0 border-t border-[#3a3a3a]">
+          <button onClick={() => goPage(-1)} disabled={page === 0} className="min-h-[44px] px-4 disabled:opacity-30" style={{ color: CHALK_DIM }} aria-label="Previous">◀</button>
           <div className="flex items-center gap-1.5" data-testid="profiles-page-dots" role="tablist" aria-label="Flavor Profiles pages">
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
@@ -297,17 +516,17 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
                 onClick={() => setPage(i)}
                 role="tab"
                 aria-selected={i === page}
-                aria-label={i === axes.length ? 'Pairings page' : `Axis page ${i + 1}`}
+                aria-label={i === 0 ? 'Flavor map page' : i === axes.length + 1 ? 'Pairings page' : `Axis page ${i}`}
                 className="rounded-full transition-all"
                 style={{
                   width: i === page ? 9 : 7,
                   height: i === page ? 9 : 7,
-                  background: i === page ? '#7a6a4a' : '#d8cba8',
+                  background: i === page ? CHALK_CREAM : CHALK_BORDER_INNER,
                 }}
               />
             ))}
           </div>
-          <button onClick={() => goPage(1)} disabled={page >= totalPages - 1} className="min-h-[44px] px-4 text-[#7a6a4a] disabled:opacity-30" aria-label="Next">▶</button>
+          <button onClick={() => goPage(1)} disabled={page >= totalPages - 1} className="min-h-[44px] px-4 disabled:opacity-30" style={{ color: CHALK_DIM }} aria-label="Next">▶</button>
         </div>
       )}
     </div>
