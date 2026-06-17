@@ -254,7 +254,10 @@ export default function GuidedProfileRadar({
             : true;
           const opacity = chosenValue == null ? 1.0 : (isMatch ? 1.0 : 0.35);
           const strokeWidth = isMatch ? 2.0 : 1.0;
-          const showLabel = chosenValue == null ? false : isMatch;
+          // Always label each pairing node with its ingredient name (shown
+          // underneath the dot); when an axis is chosen, non-matching nodes
+          // still dim via the parent <g opacity>.
+          const showLabel = true;
           const px = cx + coords.x;
           const py = cy + coords.y;
           const name = pairing?.name || `pairing-${idx}`;
@@ -278,8 +281,9 @@ export default function GuidedProfileRadar({
               {showLabel && (
                 <text
                   x={px}
-                  y={py - 8}
+                  y={py + 13}
                   textAnchor="middle"
+                  dominantBaseline="hanging"
                   fontSize={10}
                   fill="#bfd5f0"
                   data-testid="guided-radar-pairing-label"

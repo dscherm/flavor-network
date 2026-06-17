@@ -170,7 +170,7 @@ describe('GuidedProfileRadar — P2 component', () => {
     }
   });
 
-  it('non-matching pairings render at opacity 0.35 + no label', () => {
+  it('non-matching pairings dim to opacity 0.35 but still show their name label', () => {
     const { container } = render(
       <GuidedProfileRadar
         focal={focal}
@@ -182,9 +182,11 @@ describe('GuidedProfileRadar — P2 component', () => {
     const nonMatches = container.querySelectorAll('[data-pairing-match="false"]');
     expect(nonMatches.length).toBeGreaterThan(0);
     for (const g of nonMatches) {
+      // dimmed via the parent <g opacity> …
       expect(g.getAttribute('data-pairing-opacity')).toBe('0.35');
+      // … but the ingredient name is now always rendered underneath the node.
       const label = g.querySelector('[data-testid="guided-radar-pairing-label"]');
-      expect(label).toBeNull();
+      expect(label).not.toBeNull();
     }
   });
 
