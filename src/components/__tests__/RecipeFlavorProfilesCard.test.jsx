@@ -24,9 +24,19 @@ describe('RecipeFlavorProfilesCard', () => {
   it('renders the static per-axis analysis (no model needed)', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
     expect(screen.getByText('Flavor Profiles')).toBeInTheDocument();
-    // Strongest axis (sweet, 0.30 aggregate) leads; its drivers + insight show.
+    // Page 0 is the Flavor map; advance one page to the strongest axis (sweet).
+    fireEvent.click(screen.getByLabelText('Next'));
     expect(screen.getByText('Sweet')).toBeInTheDocument();
     expect(screen.getByText(/Driven by:/)).toBeInTheDocument();
+  });
+
+  it('renders the Flavor map on page 0 with one dot per ingredient that has gnnProbs', () => {
+    render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter', 'mystery']} nodes={nodes} />);
+    const map = screen.getByTestId('flavor-map-radar');
+    expect(map).toBeInTheDocument();
+    // honey/lemon/butter have probs; mystery has none → 3 plotted ingredients.
+    const ings = screen.getAllByTestId('flavor-map-ingredient');
+    expect(ings.length).toBe(3);
   });
 
   it('shows an empty hint when no ingredient has flavor data', () => {
@@ -83,9 +93,12 @@ describe('RecipeFlavorProfilesCard', () => {
   it('renders page-indicator dots and navigates via dot tap + touch-swipe', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
     const dots = screen.getByTestId('profiles-page-dots').querySelectorAll('[role="tab"]');
-    expect(dots.length).toBe(4); // 3 firing axes + Pairings
-    // tap the last dot → Pairings page
-    fireEvent.click(dots[3]);
+    expect(dots.length).toBe(5); // Flavor map + 3 firing axes + Pairings
+    // dot[0] → Flavor map
+    fireEvent.click(dots[0]);
+    expect(screen.getByTestId('flavor-map-radar')).toBeInTheDocument();
+    // dot[4] (last) → Pairings page
+    fireEvent.click(dots[4]);
     expect(screen.getByText('Pairs well with')).toBeInTheDocument();
     // swipe right (dx > 0) → previous page, leaving Pairings
     const card = screen.getByTestId('flavor-profiles-card');

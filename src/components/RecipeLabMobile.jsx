@@ -619,7 +619,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       {/* Flavor Profiles overlay — "◆ Flavor Profiles" chrome button. Per-axis
           carousel with analysis + boost/temper suggestions + a pairings page. */}
       {profilesOpen && fullData?.graph?.nodes && (
-        <div className="fixed inset-x-0 bottom-0 z-40" data-testid="recipe-profiles-overlay">
+        <div className="fixed inset-0 z-40" data-testid="recipe-profiles-overlay">
           <RecipeFlavorProfilesCard
             bowlNames={recipeNames}
             nodes={fullData.graph.nodes}
