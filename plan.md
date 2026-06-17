@@ -178,3 +178,100 @@ clean up dead code — all tested, suite green.
   `python $RALPH_HOME/tools/bridge_state.py done <id>`.
 - Prior plan queues (Seamless UX, N1/N2/N3, greenfield RFP-1..5) live
   in git history; replaced per repo convention.
+- The RFP card-deck initiative above is **shipped + deployed**
+  (neuralflavor.web.app). The next planned initiative follows.
+
+---
+
+# NEXT INITIATIVE (PLANNED — not started): Recipe Flavor Profile Overview
+
+Crystallized via deep-interview 2026-06-17 (full spec in `.ralph/spec.md`
+§"Flavor Profile Overview"). Surfaces here for `--what-next`. Decisions:
+rule-based description NOW + explore a **local on-device** model (ONNX,
+NOT a cloud/Claude API); **quantity-weight** the profile (defer prep
+inference); reuse boost/temper for the enhance card; new **Overview**
+page first in the chalkboard Flavor Profiles carousel.
+
+### FP-OV-1 — Overview page: quantity-weighted flavor bar chart
+
+```json
+{
+  "id": "FP-OV-1",
+  "title": "Overview page: quantity-weighted horizontal flavor bar chart on the chalkboard Flavor Profiles card",
+  "category": "ui",
+  "priority": 1,
+  "description": "Add a new page-0 'Overview' to src/components/RecipeFlavorProfilesCard.jsx (before the Flavor map). Render a HORIZONTAL bar chart of the recipe's flavor percentages across the 11 taste+aroma axes, where each ingredient's contribution is WEIGHTED BY ITS PREDICTED/ENTERED QUANTITY (reuse quantityRuntime predictions / entered amounts; fall back to equal weight when amounts unknown). Bars use axisColor + axisLabel + %. Chalkboard styling. Re-index the carousel (Overview, Flavor map, per-axis pages, Pairings) + page dots/swipe.",
+  "acceptance": [
+    "Overview page renders a horizontal flavor bar chart (taste+aroma %) weighted by ingredient quantity",
+    "Equal-weight fallback when quantities unavailable; null-safe",
+    "Carousel re-indexed (Overview first) with dots/swipe; chalkboard styling",
+    "Pure quantity-weighting logic unit-tested; full suite green; build clean"
+  ]
+}
+```
+
+### FP-OV-2 — Rule-based smart flavor description (on-device, no API)
+
+```json
+{
+  "id": "FP-OV-2",
+  "title": "Rule-based smart flavor-profile description (on-device, no external API)",
+  "category": "logic",
+  "priority": 1,
+  "description": "Add a pure, tested generator that writes a chef-like paragraph describing the recipe's flavor from: the quantity-weighted taste/aroma/mouthfeel profile, the dominant + balancing axes, the driving ingredients, and the aroma-match signal. NO external LLM/API — fully on-device/deterministic. Surface it on the Overview page beneath the bar chart. Preparation-method nuance is OUT here (deferred — FP-OV-5).",
+  "acceptance": [
+    "Pure function maps weighted profile + drivers + aroma signal -> a readable multi-sentence description",
+    "No network/LLM dependency; deterministic + unit-tested across profiles (sweet-lean, balanced, faint, umami-rich, etc.)",
+    "Rendered on the Overview page; full suite green; build clean"
+  ]
+}
+```
+
+### FP-OV-3 — 'More {axis}? Try…' enhance card with ingredient buckets
+
+```json
+{
+  "id": "FP-OV-3",
+  "title": "'More {axis}? Try…' enhance card (boost/temper) with Make-a-Recipe-style ingredient buckets",
+  "category": "ui",
+  "priority": 1,
+  "description": "Add a swipeable enhancement page/section to the Flavor Profiles card: per flavor axis, 'More {axis}? Try …' showing model-ranked candidates (REUSE recipeProfileAnalysis.rankByAxisImpact boost/temper) rendered as the Make-a-Recipe-style ingredient mini-card 'buckets'. Tapping a bucket adds the ingredient (quantity-prefilled). Also surface a 'tone down' (temper) row per axis. Chalkboard styling consistent with the card.",
+  "acceptance": [
+    "Enhancement page shows 'More {axis}? Try…' buckets per axis using the existing boost/temper ranking",
+    "Buckets use the Make-a-Recipe mini-card visual; tap-to-add is quantity-prefilled",
+    "Swipeable within the carousel; full suite green; build clean"
+  ]
+}
+```
+
+### FP-OV-4 — SPIKE: local on-device description model (ONNX, no API)
+
+```json
+{
+  "id": "FP-OV-4",
+  "title": "SPIKE: explore a LOCAL on-device model for the flavor-profile description (ONNX, no cloud API)",
+  "category": "research",
+  "priority": 2,
+  "description": "Feasibility spike to augment/replace the rule-based description (FP-OV-2) with a LOCAL model running in-app (ONNX via onnxruntime-web, like the existing GNN / set-completion models) — explicitly NOT Claude or any cloud API. Assess: training-data path (recipe -> description pairs; could bootstrap from rule output + curation), candidate architecture (small seq model vs templated-slot/classifier), model size + latency for browser + Capacitor iOS, and offline behavior. Output: a written recommendation + go/no-go. No production wiring required.",
+  "acceptance": [
+    "Written feasibility report: data source, candidate architecture, in-browser/Capacitor inference cost, go/no-go",
+    "No external API used; throwaway prototype optional",
+    "If go: a follow-up implementation task is appended to plan.md"
+  ]
+}
+```
+
+### FP-OV-5 — FUTURE STRETCH: preparation-method inference
+
+```json
+{
+  "id": "FP-OV-5",
+  "title": "FUTURE STRETCH: preparation-method inference to tune the profile + description",
+  "category": "research",
+  "priority": 3,
+  "description": "Deferred. Infer the likely preparation method (saute / simmer / raw / bake / roast …) from the ingredient set + dish type to further tune the quantity-weighting and the flavor description. No prep-method model or data exists today; this is a separate research effort. Documented so it surfaces, but NOT scheduled until FP-OV-1..4 ship.",
+  "acceptance": [
+    "Scoped + deferred; revisit only after FP-OV-1..4 ship"
+  ]
+}
+```

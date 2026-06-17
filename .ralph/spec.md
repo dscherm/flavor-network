@@ -96,3 +96,71 @@ Replace the static recipe flavor-profile display with an interactive **Flavor Pr
 | Flavor axis | core | name, score, color, balancing-axis | profiled-by Recipe |
 | Suggestion | core | name, axis-delta, profile-before/after, fit | augments Recipe |
 | Pairing | supporting | kind (cocktail/sauce/dish), title | pairs-with Recipe |
+
+---
+
+# Flavor Profile Overview — bar chart + smart description + enhance card (PLANNED)
+
+## Metadata
+- Type: brownfield (UI + on-device logic/model) — Recipe → ◆ Flavor Profiles chalkboard card
+- Generated: 2026-06-17 (deep-interview, 4 decisions)
+- Status: PLANNED — not started. Tasks FP-OV-1..5 in `plan.md`; surfaces via `--what-next`.
+- The base "◆ Flavor Profiles" card is already shipped (chalkboard pop-out
+  with a flavor-map page, per-axis pages, pairings page). This initiative
+  ADDS an Overview page + smart description + an enhance card.
+
+## Decisions (deep-interview 2026-06-17)
+| # | Question | Decision |
+|---|---|---|
+| 1 | Smart-description engine | **Rule-based skeleton NOW**, and **explore a LOCAL on-device model** (ONNX/onnxruntime-web, like the GNN + set-completion models) to generate/score the description. **NOT** Claude or any cloud API. |
+| 2 | Quantity + prep tuning | **Quantity-weight** the flavor profile (reuse the quantity-prediction model / entered amounts). **Defer preparation-method inference** — no model/data today (FP-OV-5 stretch). |
+| 3 | Enhance card | **Reuse** the existing boost/temper ranking (`rankByAxisImpact`); new visual: **"More {axis}? Try…"** with **Make-a-Recipe-style ingredient mini-card "buckets"**, swipeable, tap-to-add (quantity-prefilled). |
+| 4 | Placement | New **"Overview" page first** (page 0) in the chalkboard Flavor Profiles carousel: horizontal flavor **bar chart** + smart **description**. Keep flavor-map, per-axis, pairings pages. Enhance "More X? Try…" is its **own swipeable page/section**. |
+
+## Goal
+Make the recipe's ◆ Flavor Profiles card open on an **Overview** that, at a glance,
+shows (a) a **horizontal bar chart** of the recipe's flavor percentages
+(taste + aroma), **weighted by the likely ingredient quantity ratios**, and
+(b) a **smart, on-device description** of the recipe's overall taste, aroma, and
+mouthfeel — informed by the ingredients, their pairings, and the aggregate
+profile. Add a swipeable **enhance card** ("More Spicy? Try…") that surfaces
+ingredient "buckets" to dial each flavor up or balance it, reusing the existing
+boost/temper model ranking.
+
+## Design
+- **Overview page (FP-OV-1):** horizontal bar chart over the 11 axes; each
+  ingredient's contribution weighted by its predicted/entered amount
+  (`quantityRuntime`), equal-weight fallback. Chalkboard styling; bars in
+  `axisColor`. Carousel re-indexed: Overview → Flavor map → per-axis → Pairings.
+- **Smart description (FP-OV-2):** pure, deterministic, on-device generator from
+  the quantity-weighted profile + dominant/balancing axes + driving ingredients +
+  aroma-match. No network/LLM. Rendered under the bar chart.
+- **On-device model spike (FP-OV-4):** assess an ONNX in-app model (browser +
+  Capacitor) to produce/upgrade the description — training data, size, latency,
+  go/no-go. Explicitly no cloud API.
+- **Enhance card (FP-OV-3):** "More {axis}? Try…" per axis using `rankByAxisImpact`
+  boost/temper, rendered as Make-a-Recipe-style ingredient buckets; tap adds
+  (quantity-prefilled); also a temper/"tone down" row.
+- **Prep-method (FP-OV-5):** deferred stretch — infer likely prep to further tune
+  weighting + description; needs new data/model.
+
+## Constraints
+- On-device only for the description — NO external/cloud LLM API (offline-capable,
+  Capacitor-friendly).
+- Reuse existing math/runtime: `recipeProfileAnalysis` (scores, drivers,
+  `rankByAxisImpact`), `quantityRuntime` (amounts), `recipeAromaSimilarity`.
+- Chalkboard visual language; mobile-first; additive + null-safe (static bar chart
+  + rule description must render even if the quantity model / on-device model fail).
+
+## Non-Goals
+- No cloud LLM. No preparation-method model in the first cut (FP-OV-5 only).
+- No change to the shipped flavor-map / per-axis / pairings pages beyond re-indexing.
+
+## Acceptance (summary; per-task in plan.md FP-OV-1..5)
+- Overview page: quantity-weighted horizontal flavor bar chart + on-device smart
+  description, as page 0 of the chalkboard carousel.
+- Swipeable "More {axis}? Try…" enhance card with ingredient buckets (boost/temper),
+  tap-to-add quantity-prefilled.
+- A written feasibility report for the local on-device description model (go/no-go).
+- Unit tests for the pure logic (quantity weighting, description generator); full
+  suite green; build clean.
