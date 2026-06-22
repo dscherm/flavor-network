@@ -143,6 +143,56 @@ export function axisInsight(axis, score) {
 const capFirst = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 /**
+ * Preparation-method → flavor effect (FP-OV-5). The likely cooking method is
+ * inferred UPSTREAM from real similar-recipe directions
+ * (directionsRuntime.retrieveCookingMethods), grounded in how the most
+ * set-similar RecipeNLG recipes were actually cooked. Each canonical method
+ * maps to a culinary family with a shared flavor-effect clause: Maillard
+ * browning deepens roasted/sweet/savory notes, moist heat melds or stays
+ * flavor-conservative, no-cook keeps fresh top notes forward.
+ *
+ * This is a DESCRIPTION-layer signal: `note` narrates the shift in
+ * describeRecipeProfile. `axes` records the directional nudge (sign only, not a
+ * calibrated magnitude) for a possible future opt-in "as-cooked" overlay — the
+ * numeric bar-chart profile is deliberately NOT mutated here (it stays an
+ * honest ingredient-flavor-potential reading).
+ */
+const METHOD_FAMILY = {
+  roast: 'brown', sear: 'brown', grill: 'brown', broil: 'brown', bake: 'brown', toast: 'brown',
+  fry: 'fry', 'deep-fry': 'fry', 'stir-fry': 'fry', 'sauté': 'fry', saute: 'fry',
+  caramelize: 'caramelize',
+  braise: 'meld', simmer: 'meld',
+  steam: 'gentle', poach: 'gentle', boil: 'gentle', blanch: 'gentle',
+  marinate: 'marinate',
+  raw: 'raw', chill: 'raw', whisk: 'raw', blend: 'raw',
+};
+
+const FAMILY_EFFECT = {
+  brown:      { note: 'browning brings out deeper, sweeter, roasted notes', axes: { sweet: 1, umami: 1, odor_woody: 1, odor_green: -1 } },
+  fry:        { note: 'frying adds richness and a toasted edge', axes: { odor_fatty: 1, umami: 1, odor_woody: 1 } },
+  caramelize: { note: 'caramelizing pushes it sweeter and richer', axes: { sweet: 2, odor_woody: 1 } },
+  meld:       { note: 'the slow simmer melds everything and deepens its savory, umami side', axes: { umami: 1, odor_green: -1 } },
+  gentle:     { note: 'gentle moist heat keeps it clean and fresh, easing the sharper aromas', axes: { odor_green: 1, odor_fruity: -1 } },
+  marinate:   { note: 'marinating works acid and salt deeper into it', axes: { sour: 1, salty: 1 } },
+  raw:        { note: 'kept raw, its bright, fresh top notes stay forward', axes: { odor_green: 1, odor_fruity: 1 } },
+};
+
+/**
+ * Flavor effect of a preparation method, or null for an empty/unknown method.
+ * @param {string|null|undefined} method  a canonical method from COOKING_METHODS
+ * @returns {{ method: string, family: string, note: string, axes: Record<string,number> }|null}
+ */
+export function methodFlavorEffect(method) {
+  if (!method) return null;
+  const m = String(method).toLowerCase();
+  const family = METHOD_FAMILY[m];
+  if (!family) return null;
+  const eff = FAMILY_EFFECT[family];
+  if (!eff) return null;
+  return { method: m, family, note: eff.note, axes: eff.axes };
+}
+
+/**
  * describeRecipeProfile — deterministic, on-device chef-style paragraph for the
  * Overview page. NO LLM / network: pure rules over the (quantity-weighted)
  * per-axis profile, the dominant taste + its balancing axis, the driving
@@ -150,10 +200,10 @@ const capFirst = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
  * green), and an optional aroma-match pairing signal.
  *
  * @param {{scores: Record<string,number>, drivers?: Record<string,string[]>, n: number}} profile
- * @param {{aromaMatch?: {name: string, similarity?: number}|null}} [opts]
+ * @param {{aromaMatch?: {name: string, similarity?: number}|null, cookingMethod?: string|null}} [opts]
  * @returns {string}
  */
-export function describeRecipeProfile(profile, { aromaMatch = null } = {}) {
+export function describeRecipeProfile(profile, { aromaMatch = null, cookingMethod = null } = {}) {
   const scores = profile?.scores || {};
   const drivers = profile?.drivers || {};
   const n = profile?.n || 0;
@@ -207,6 +257,12 @@ export function describeRecipeProfile(profile, { aromaMatch = null } = {}) {
     const pct = typeof aromaMatch.similarity === 'number' ? ` (${Math.round(aromaMatch.similarity * 100)}% match)` : '';
     sentences.push(`Its aromatics echo ${aromaMatch.name}${pct} — a natural pairing.`);
   }
+
+  // 6. Optional preparation-method effect (FP-OV-5). Narrates how the likely
+  //    cooking method (inferred from similar-recipe directions) shifts the
+  //    flavor; does not alter the numeric profile above.
+  const eff = methodFlavorEffect(cookingMethod);
+  if (eff) sentences.push(`Likely ${eff.method} — ${eff.note}.`);
 
   return sentences.join(' ');
 }

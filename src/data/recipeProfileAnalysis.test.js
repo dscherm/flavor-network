@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   recipeAxisProfile, recipeAxisProfileWeighted, amountGrams, describeRecipeProfile,
   axisInsight, profileDelta, topMovers, rankByAxisImpact, buildAxisEnhancements, AXES, axisLabel,
+  methodFlavorEffect,
 } from './recipeProfileAnalysis.js';
 
 function nodesFrom(map) {
@@ -132,9 +133,53 @@ describe('describeRecipeProfile', () => {
     expect(out).toMatch(/80% match/);
   });
 
+  it('appends a preparation-method effect sentence when a method is given (FP-OV-5)', () => {
+    const out = describeRecipeProfile(profile({ sweet: 0.3 }), { cookingMethod: 'roast' });
+    expect(out).toMatch(/Likely roast — browning brings out deeper, sweeter, roasted notes\./);
+  });
+
+  it('omits the method sentence for an unknown or missing method', () => {
+    const base = describeRecipeProfile(profile({ sweet: 0.3 }));
+    expect(describeRecipeProfile(profile({ sweet: 0.3 }), { cookingMethod: null })).toBe(base);
+    expect(describeRecipeProfile(profile({ sweet: 0.3 }), { cookingMethod: 'levitate' })).toBe(base);
+  });
+
   it('is deterministic for identical input', () => {
     const p = profile({ sweet: 0.4, odor_green: 0.3 }, { sweet: ['honey'] });
     expect(describeRecipeProfile(p)).toBe(describeRecipeProfile(p));
+  });
+});
+
+describe('methodFlavorEffect (FP-OV-5)', () => {
+  it('maps every canonical method to a family + note + axis nudges', () => {
+    const cases = {
+      roast: 'brown', sear: 'brown', grill: 'brown', broil: 'brown', bake: 'brown', toast: 'brown',
+      fry: 'fry', 'deep-fry': 'fry', 'stir-fry': 'fry', 'sauté': 'fry', saute: 'fry',
+      caramelize: 'caramelize',
+      braise: 'meld', simmer: 'meld',
+      steam: 'gentle', poach: 'gentle', boil: 'gentle', blanch: 'gentle',
+      marinate: 'marinate',
+      raw: 'raw', chill: 'raw', whisk: 'raw', blend: 'raw',
+    };
+    for (const [method, family] of Object.entries(cases)) {
+      const eff = methodFlavorEffect(method);
+      expect(eff, method).not.toBeNull();
+      expect(eff.family, method).toBe(family);
+      expect(eff.note.length, method).toBeGreaterThan(0);
+      expect(Object.keys(eff.axes).length, method).toBeGreaterThan(0);
+    }
+  });
+
+  it('is case-insensitive', () => {
+    expect(methodFlavorEffect('ROAST').family).toBe('brown');
+    expect(methodFlavorEffect('Braise').family).toBe('meld');
+  });
+
+  it('returns null for empty/unknown methods', () => {
+    expect(methodFlavorEffect(null)).toBeNull();
+    expect(methodFlavorEffect(undefined)).toBeNull();
+    expect(methodFlavorEffect('')).toBeNull();
+    expect(methodFlavorEffect('teleport')).toBeNull();
   });
 });
 
