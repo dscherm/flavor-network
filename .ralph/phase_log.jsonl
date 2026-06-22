@@ -185,3 +185,4 @@
 {"timestamp": "2026-06-22T17:07:20.506119+00:00", "pipeline_id": "5aac001c", "phase": "gate", "previous_phase": "explore", "task_id": "FP-OV-3", "source": "bridge_state"}
 {"timestamp": "2026-06-22T17:14:40.371935+00:00", "pipeline_id": "5aac001c", "phase": "explore", "previous_phase": "gate", "task_id": "FP-OV-4", "source": "bridge_state"}
 {"timestamp": "2026-06-22T17:25:16.614719+00:00", "pipeline_id": "5aac001c", "phase": "gate", "previous_phase": "explore", "task_id": "FP-OV-4", "source": "bridge_state"}
+{"timestamp": "2026-06-22T23:07:41.581475+00:00", "pipeline_id": "5aac001c", "phase": "learn", "previous_phase": "gate", "task_id": "FP-OV-4", "source": "bridge_state"}

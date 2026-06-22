@@ -269,6 +269,7 @@ page first in the chalkboard Flavor Profiles carousel.
   "title": "FUTURE STRETCH: preparation-method inference to tune the profile + description",
   "category": "research",
   "priority": 3,
+  "passes": true,
   "description": "Deferred. Infer the likely preparation method (saute / simmer / raw / bake / roast …) from the ingredient set + dish type to further tune the quantity-weighting and the flavor description. No prep-method model or data exists today; this is a separate research effort. Documented so it surfaces, but NOT scheduled until FP-OV-1..4 ship.",
   "acceptance": [
     "Scoped + deferred; revisit only after FP-OV-1..4 ship"

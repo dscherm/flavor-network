@@ -655,14 +655,14 @@
     },
     {
       "path": "src\\components\\RecipeLabMobile.jsx",
-      "accessCount": 34,
-      "lastAccessed": 1782146513963,
+      "accessCount": 36,
+      "lastAccessed": 1782167384971,
       "type": "file"
     },
     {
       "path": "src\\components\\SuggestionCardDeck.jsx",
-      "accessCount": 26,
-      "lastAccessed": 1781659059022,
+      "accessCount": 27,
+      "lastAccessed": 1782167415792,
       "type": "file"
     },
     {
@@ -697,14 +697,20 @@
     },
     {
       "path": "plan.md",
-      "accessCount": 10,
-      "lastAccessed": 1782161389894,
+      "accessCount": 12,
+      "lastAccessed": 1782169646563,
       "type": "file"
     },
     {
       "path": "src\\App.jsx",
-      "accessCount": 9,
-      "lastAccessed": 1781615705283,
+      "accessCount": 11,
+      "lastAccessed": 1782167369129,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\IngredientPicker.jsx",
+      "accessCount": 8,
+      "lastAccessed": 1782168236203,
       "type": "file"
     },
     {
@@ -717,12 +723,6 @@
       "path": "src\\components\\__tests__\\SuggestionCardDeck.test.jsx",
       "accessCount": 5,
       "lastAccessed": 1781528287892,
-      "type": "file"
-    },
-    {
-      "path": "src\\components\\IngredientPicker.jsx",
-      "accessCount": 5,
-      "lastAccessed": 1781612494324,
       "type": "file"
     },
     {
