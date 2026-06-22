@@ -276,3 +276,137 @@ page first in the chalkboard Flavor Profiles carousel.
   ]
 }
 ```
+
+---
+
+# NEXT INITIATIVE: Targeted "?" help bubbles + cheap UX wins (2026-06-22)
+
+**Context**: A 2026-06-22 two-scout exploration of the app's interactive
+surfaces (nav/entry + lab/tool) found the app has concept-level
+onboarding (HowItWorks modal, post-entry GuidedTour) but nothing
+explains the **non-obvious interaction grammar** on specific surfaces.
+The recurring root cause is **hover-dependent affordances + hidden
+primary actions on a mobile-first app**. Decision: add a small,
+targeted "?" help bubble (NOT on every page) on the 4 most-confusing
+surfaces, revealed as a **popover tooltip**, and fold in the
+low-risk UX tweaks that reduce *why* help is needed. The bigger
+IngredientPicker pin-to-confirm redesign is explicitly OUT (logged as
+HELP-6, deferred).
+
+**Target surfaces (chosen)**: IngredientPicker, Network 3D explorer,
+Filter pills, Flavor Profiles carousel.
+
+**Reveal pattern**: tiny circular "?" bubble button → taps open a small
+anchored, dismissible popover (outside-click / Esc / × to close) with
+2-4 plain-language lines: what it is, how to use, what to try.
+
+**Cadence**: interactive bridge mode — **pause between each task** for
+review. Build the shared component first, then wire one surface per task.
+
+**Constraints**: additive + null-safe (help is purely additive chrome;
+never blocks the underlying surface). Mobile-first (touch targets ≥44px,
+no hover-only reveals). Match each surface's existing visual language
+(chalkboard cards vs. the network UI). Read each target file first
+(`check-existing-before-authoring`). Unit-test the shared component +
+any new pure logic; full suite green, build clean.
+
+### HELP-1 — Reusable HelpBubble + popover component
+
+```json
+{
+  "id": "HELP-1",
+  "title": "Reusable HelpBubble component: tiny '?' button + dismissible anchored popover",
+  "category": "ui",
+  "priority": 1,
+  "description": "Create src/components/HelpBubble.jsx: a small circular '?' bubble button that toggles a compact anchored popover. Props: title, body (string | string[] lines), optional placement, optional size/variant for light (network) vs chalkboard (recipe) surfaces. Popover dismisses on outside-click, Esc, and an in-popover × ; only one open at a time per instance. Accessible: button has aria-label + aria-expanded, popover has role + focus handling, ≥44px touch target. Pure/presentational — no app data. NO wiring into surfaces yet.",
+  "acceptance": [
+    "HelpBubble renders a '?' button; clicking toggles a popover with title + body lines",
+    "Popover closes on outside-click, Esc, and the × ; reopen works",
+    "Accessible (aria-label, aria-expanded, role) + ≥44px target; light + chalkboard variants",
+    "Unit tests (render, toggle, dismiss paths); full suite green; build clean"
+  ]
+}
+```
+
+### HELP-2 — Wire HelpBubble into the IngredientPicker
+
+```json
+{
+  "id": "HELP-2",
+  "title": "Add a help bubble to the IngredientPicker explaining the pin-to-confirm add flow",
+  "category": "ui",
+  "priority": 1,
+  "description": "Mount HelpBubble in the IngredientPicker header (src/components/IngredientPicker.jsx ~:421, before the close ×). Copy explains the non-obvious flow: tap an ingredient row → it pins as a dot on the taste radar → tap the dot → 'Yes, add to recipe'. Also mention the '+ Add to Recipe' row shortcut once pinned. Read the file first to confirm the exact flow/labels.",
+  "acceptance": [
+    "A '?' bubble appears in the IngredientPicker header; popover explains pin → tap dot → confirm",
+    "Chalkboard variant matches the picker styling; does not block picker interactions",
+    "Full suite green; build clean"
+  ]
+}
+```
+
+### HELP-3 — Wire HelpBubble into the Network 3D explorer (+ tap-reveal labels)
+
+```json
+{
+  "id": "HELP-3",
+  "title": "Add a help bubble to the Network 3D explorer; make hover-only node/pole labels tap-revealable",
+  "category": "ui",
+  "priority": 1,
+  "description": "Mount HelpBubble in a corner of the Network canvas chrome (App.jsx ~:1674 / LivingArchView). Copy lists the interaction grammar: drag to orbit, scroll/pinch to zoom, tap a node for details, tap a cluster pill to focus, tap empty space / Esc to reset, arrow keys to walk, '/' to search. Cheap UX win: where node/pole labels currently reveal on hover only (a dead end on touch), make them tap-revealable too. Read App.jsx + the network components first to confirm exact affordances before writing copy.",
+  "acceptance": [
+    "A '?' bubble in the network canvas corner; popover lists the core gestures accurately",
+    "Hover-only node/pole labels are also reachable by tap on touch devices",
+    "Full suite green; build clean"
+  ]
+}
+```
+
+### HELP-4 — Wire HelpBubble into the Filter pills (+ rename 'None' + tap-reveal poles)
+
+```json
+{
+  "id": "HELP-4",
+  "title": "Add a help bubble to the filter pills; rename the misleading 'None' pill; tap-reveal pole labels",
+  "category": "ui",
+  "priority": 1,
+  "description": "Mount HelpBubble at the right edge of the filter pill row (src/components/FilterPillRow.jsx ~:13 / App.jsx :1698). Copy explains: filters stack (AND-intersection), the pull-strength slider lerps between co-occurrence and bucket poles, pole labels show member counts. Cheap UX wins: (1) rename the 'None' pill to what it actually does — it toggles particle flow, not 'clear filters' — verify the exact behavior in code first and pick an accurate one-word label (e.g. 'Particles'/'Flow'); (2) make the hover-only pole/member labels tap-revealable. Read FilterPillRow.jsx first.",
+  "acceptance": [
+    "A '?' bubble at the filter row's edge; popover explains stacking + pull-strength + poles",
+    "The 'None' pill is renamed to accurately describe its particle-toggle behavior",
+    "Pole/member labels are tap-revealable on touch; full suite green; build clean"
+  ]
+}
+```
+
+### HELP-5 — Wire HelpBubble into the Flavor Profiles carousel (+ page titles)
+
+```json
+{
+  "id": "HELP-5",
+  "title": "Add a help bubble to the Flavor Profiles carousel; label each page; add a first-open swipe hint",
+  "category": "ui",
+  "priority": 1,
+  "description": "Mount HelpBubble in the RecipeFlavorProfilesCard header (src/components/RecipeFlavorProfilesCard.jsx ~:504). Copy explains: swipe left/right (or use ◀ ▶ / the dots) to move between pages — Overview, Flavor map, per-axis Boost/Temper, Enhance, Pairings — and that tapping Boost/Temper chips adds ingredients. Cheap UX wins: ensure each carousel page shows a clear title (several already do — fill gaps), and add a subtle one-time ◀▶ swipe-hint nudge on first open. Apply the same page-title polish to SuggestionCardDeck where pages are unlabeled. Read both files first.",
+  "acceptance": [
+    "A '?' bubble in the Flavor Profiles header; popover explains swipe/pages + tap-to-add",
+    "Every carousel page has a visible title; a one-time swipe hint shows on first open",
+    "Full suite green; build clean"
+  ]
+}
+```
+
+### HELP-6 — FUTURE (deferred): IngredientPicker one-tap add redesign
+
+```json
+{
+  "id": "HELP-6",
+  "title": "FUTURE: rework IngredientPicker so '+ Add' is the primary one-tap action (radar-pin becomes optional)",
+  "category": "ui",
+  "priority": 3,
+  "description": "Deferred per scoping decision. The pin → tap-dot → confirm flow is 3 steps for 'add an ingredient'. The stronger fix than a help bubble (HELP-2) is to make the row's '+ Add to Recipe' the always-visible primary action and demote the radar-pin to an optional compare/preview gesture, collapsing 3 steps → 1. Touches the most-used add flow, so it is intentionally separate from the help-bubble pass. Revisit after HELP-1..5 ship + the help bubble's effect is observed.",
+  "acceptance": [
+    "Scoped + deferred; revisit after HELP-1..5 ship"
+  ]
+}
+```
