@@ -99,6 +99,48 @@
       "status": "done",
       "gate_result": null,
       "observation_id": "obs-20260622230742-0000000"
+    },
+    {
+      "id": "HELP-1",
+      "title": "Reusable HelpBubble component: tiny '?' button + dismissible anchored popover",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "HELP-2",
+      "title": "Add a help bubble to the IngredientPicker explaining the pin-to-confirm add flow",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "HELP-3",
+      "title": "Add a help bubble to the Network 3D explorer; make hover-only node/pole labels tap-revealable",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "HELP-4",
+      "title": "Add a help bubble to the filter pills; rename the misleading 'None' pill; tap-reveal pole labels",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "HELP-5",
+      "title": "Add a help bubble to the Flavor Profiles carousel; label each page; add a first-open swipe hint",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "HELP-6",
+      "title": "FUTURE: rework IngredientPicker so '+ Add' is the primary one-tap action (radar-pin becomes optional)",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
     }
   ],
   "current_task_index": 12,
@@ -116,5 +158,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-22T23:07:42.978842+00:00"
+  "updated_at": "2026-06-22T23:25:26.507727+00:00"
 }
