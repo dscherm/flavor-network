@@ -61,6 +61,15 @@ describe('RecipeFlavorProfilesCard', () => {
     expect(desc.textContent).toMatch(/sweet/i); // honey-led bowl
   });
 
+  it('exposes an Enhance page reachable from the carousel', () => {
+    render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
+    fireEvent.click(screen.getByLabelText('Enhance page')); // dot for the Enhance page
+    expect(screen.getByTestId('profiles-enhance')).toBeInTheDocument();
+    expect(screen.getByText('Enhance')).toBeInTheDocument();
+    // The model pool doesn't load in jsdom → the empty-state hint is shown.
+    expect(screen.getByText(/suggestions appear here/i)).toBeInTheDocument();
+  });
+
   it('renders the Flavor map on page 1 with one dot per ingredient that has gnnProbs', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter', 'mystery']} nodes={nodes} />);
     fireEvent.click(screen.getByLabelText('Next')); // Overview → Flavor map
@@ -125,15 +134,18 @@ describe('RecipeFlavorProfilesCard', () => {
   it('renders page-indicator dots and navigates via dot tap + touch-swipe', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
     const dots = screen.getByTestId('profiles-page-dots').querySelectorAll('[role="tab"]');
-    expect(dots.length).toBe(6); // Overview + Flavor map + 3 firing axes + Pairings
+    expect(dots.length).toBe(7); // Overview + Flavor map + 3 firing axes + Enhance + Pairings
     // dot[0] → Overview
     fireEvent.click(dots[0]);
     expect(screen.getByTestId('profiles-overview')).toBeInTheDocument();
     // dot[1] → Flavor map
     fireEvent.click(dots[1]);
     expect(screen.getByTestId('flavor-map-radar')).toBeInTheDocument();
-    // dot[5] (last) → Pairings page
+    // dot[5] → Enhance page
     fireEvent.click(dots[5]);
+    expect(screen.getByTestId('profiles-enhance')).toBeInTheDocument();
+    // dot[6] (last) → Pairings page
+    fireEvent.click(dots[6]);
     expect(screen.getByText('Pairs well with')).toBeInTheDocument();
     // swipe right (dx > 0) → previous page, leaving Pairings
     const card = screen.getByTestId('flavor-profiles-card');

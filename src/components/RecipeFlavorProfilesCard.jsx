@@ -20,8 +20,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   recipeAxisProfile, recipeAxisProfileWeighted, describeRecipeProfile, axisInsight,
-  axisLabel, axisColor, rankByAxisImpact, nodeProbs, AXES,
+  axisLabel, axisColor, rankByAxisImpact, buildAxisEnhancements, nodeProbs, AXES,
 } from '../data/recipeProfileAnalysis.js';
+import { clusterColor } from './MakeRecipeCardsGrid.jsx';
 import { loadDirectionsIndex, retrieveDirections } from '../ml/directionsRuntime.js';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
 import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
@@ -272,6 +273,46 @@ function Chip({ name, delta, onTap }) {
 }
 
 /**
+ * EnhanceCard — a compact Make-a-Recipe-style ingredient mini-card (chalkboard
+ * card + cluster-colored hero disc + Caveat name) for the Enhance page's
+ * "More {axis}? Try…" / "tone down" buckets. Tap adds the ingredient
+ * (quantity-prefilled by the caller).
+ */
+function EnhanceCard({ name, node, onTap }) {
+  const ch = (name || '?').trim().charAt(0).toUpperCase();
+  const fill = clusterColor(node);
+  return (
+    <button
+      type="button"
+      onClick={() => onTap(name)}
+      data-testid={`enhance-card-${name}`}
+      className="flex-shrink-0 flex flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-3 hover:brightness-110 transition-all"
+      style={{
+        width: 96, minHeight: 104,
+        background: CHALK_BG,
+        border: '2px double #4a4a4a',
+        boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 4px 12px rgba(0,0,0,0.45)',
+      }}
+      title={`Add ${name}`}
+    >
+      <span
+        className="flex items-center justify-center rounded-full"
+        style={{ width: 38, height: 38, backgroundColor: fill, boxShadow: `0 0 10px ${fill}66`, color: '#0a0a0f', fontSize: 19, fontWeight: 700, fontFamily: FONT }}
+        aria-hidden="true"
+      >
+        {ch}
+      </span>
+      <span
+        className="text-center leading-tight"
+        style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: 15, lineHeight: 1.05, textShadow: CHALK_TEXT_SHADOW }}
+      >
+        {name}
+      </span>
+    </button>
+  );
+}
+
+/**
  * FlavorBarChart — Overview page: a ranked horizontal bar chart of the recipe's
  * flavor composition. `scores` are the quantity-weighted per-axis means; each
  * row's % is that axis's share of the total flavor signal, and the bar length is
@@ -400,11 +441,12 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   }, [bowlNames, nodes, nodesObj]);
 
   const [page, setPage] = useState(0);
-  // Pages: 0 Overview · 1 Flavor map · 2..axes.length+1 per-axis · last Pairings.
-  const totalPages = axes.length + 3;
+  // Pages: 0 Overview · 1 Flavor map · 2..axes.length+1 per-axis · Enhance · Pairings.
+  const totalPages = axes.length + 4;
   const isOverview = page === 0;
   const isMap = page === 1;
-  const isPairings = page >= axes.length + 2;
+  const isEnhance = page === axes.length + 2;
+  const isPairings = page >= axes.length + 3;
 
   const addWithQty = (name) => {
     const amount = quantityCtxRef.current ? predictAmountFromCtx(name, quantityCtxRef.current) : null;
@@ -412,9 +454,16 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   };
 
   // Per-axis pages occupy indices 2..axes.length+1 → axis = axes[page - 2].
-  const axis = (!isOverview && !isMap && !isPairings) ? axes[page - 2] : undefined;
+  const axis = (!isOverview && !isMap && !isEnhance && !isPairings) ? axes[page - 2] : undefined;
   const boost = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'boost', topN: 4 }) : [];
   const temper = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'temper', topN: 3 }) : [];
+
+  // Enhance page: per-axis "More {axis}? Try…" boost + "tone down" temper buckets
+  // across every firing axis (model candidate pool; empty until the model loads).
+  const enhanceRows = useMemo(
+    () => (isEnhance ? buildAxisEnhancements(axes, candidates, scores, n, nodes) : []),
+    [isEnhance, axes, candidates, scores, n, nodes],
+  );
 
   // Touch-swipe between carousel pages (left = next page, right = previous).
   const goPage = (delta) => setPage((p) => Math.max(0, Math.min(totalPages - 1, p + delta)));
@@ -528,6 +577,44 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           </div>
         )}
 
+        {n > 0 && isEnhance && (
+          <div data-testid="profiles-enhance">
+            <h3 className="text-2xl mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Enhance</h3>
+            {enhanceRows.length === 0 ? (
+              <p className="text-base py-4" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+                Tap-to-add suggestions appear here once the recipe model has loaded.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {enhanceRows.map(({ axis: a, boost: bst, temper: tmp }) => (
+                  <div key={`enh-${a}`} data-testid="enhance-axis" data-axis={a}>
+                    {bst.length > 0 && (
+                      <>
+                        <p className="text-base mb-1" style={{ fontFamily: FONT, color: axisColor(a), textShadow: CHALK_TEXT_SHADOW }}>
+                          More {axisLabel(a).toLowerCase()}? Try…
+                        </p>
+                        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                          {bst.map((b) => <EnhanceCard key={`eb-${a}-${b.name}`} name={b.name} node={nodes?.get?.(b.name)} onTap={addWithQty} />)}
+                        </div>
+                      </>
+                    )}
+                    {tmp.length > 0 && (
+                      <>
+                        <p className="text-[11px] uppercase tracking-wider mt-1.5 mb-1" style={{ color: CHALK_SUB }}>
+                          Tone down {axisLabel(a).toLowerCase()}
+                        </p>
+                        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                          {tmp.map((t) => <EnhanceCard key={`et-${a}-${t.name}`} name={t.name} node={nodes?.get?.(t.name)} onTap={addWithQty} />)}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {isPairings && (
           <div>
             <h3 className="text-2xl mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Pairs well with</h3>
@@ -601,7 +688,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                 onClick={() => setPage(i)}
                 role="tab"
                 aria-selected={i === page}
-                aria-label={i === 0 ? 'Overview page' : i === 1 ? 'Flavor map page' : i === axes.length + 2 ? 'Pairings page' : `Axis page ${i}`}
+                aria-label={i === 0 ? 'Overview page' : i === 1 ? 'Flavor map page' : i === axes.length + 2 ? 'Enhance page' : i === axes.length + 3 ? 'Pairings page' : `Axis page ${i}`}
                 className="rounded-full transition-all"
                 style={{
                   width: i === page ? 9 : 7,

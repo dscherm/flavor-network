@@ -252,3 +252,21 @@ export function rankByAxisImpact(candidateNames, axis, scores, n, nodes, { mode 
   out.sort((a, b) => b.delta - a.delta);
   return out.slice(0, topN);
 }
+
+/**
+ * Per-axis enhancement buckets for the Overview "Enhance" page: for each axis,
+ * the boost candidates ("More {axis}? Try…") and temper candidates ("tone
+ * down"), drawn from the model candidate pool via rankByAxisImpact. Axes with
+ * no boost and no temper candidate are dropped so the page has no dead rows.
+ * @returns {Array<{axis: string, boost: Array<{name,delta}>, temper: Array<{name,delta}>}>}
+ */
+export function buildAxisEnhancements(axes, candidateNames, scores, n, nodes, { boostN = 3, temperN = 2 } = {}) {
+  const list = Array.isArray(axes) ? axes : [];
+  return list
+    .map((a) => ({
+      axis: a,
+      boost: rankByAxisImpact(candidateNames, a, scores, n, nodes, { mode: 'boost', topN: boostN }),
+      temper: rankByAxisImpact(candidateNames, a, scores, n, nodes, { mode: 'temper', topN: temperN }),
+    }))
+    .filter((r) => r.boost.length > 0 || r.temper.length > 0);
+}
