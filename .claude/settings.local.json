@@ -96,7 +96,8 @@
       "Bash(awk '{print $6,$7,$8}')",
       "Bash(bash .claude/scripts/gates.sh)",
       "WebFetch(domain:huggingface.co)",
-      "WebFetch(domain:www.sitepoint.com)"
+      "WebFetch(domain:www.sitepoint.com)",
+      "Bash(awk '/FP-OV-[0-9]/{p=NR} p&&NR<=p+30 && /\"\\(status|passes\\)\"/{print NR\": \"$0}' plan.md)"
     ]
   }
 }
