@@ -94,7 +94,9 @@
       "PowerShell(npx vitest run)",
       "PowerShell(npm run *)",
       "Bash(awk '{print $6,$7,$8}')",
-      "Bash(bash .claude/scripts/gates.sh)"
+      "Bash(bash .claude/scripts/gates.sh)",
+      "WebFetch(domain:huggingface.co)",
+      "WebFetch(domain:www.sitepoint.com)"
     ]
   }
 }
