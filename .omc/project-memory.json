@@ -50,7 +50,7 @@
   },
   "build": {
     "buildCommand": "npm run build 2>&1 | tail -4; echo \"BUILD_EXIT=$?\"",
-    "testCommand": "npx vitest run src/data/__fpov3_audit__.test.js 2>&1 | tail -25",
+    "testCommand": "bash \"$RALPH_HOME/tools/record_gate.sh\" pass \"npx vitest run\" src/components/RecipeFlavorProfilesCard.jsx src/data/recipeProfileAnalysis.js src/data/recipeProfileAnalysis.test.js 2>&1; echo \"---sidecar---\"; cat .ralph/last_gate_result.json",
     "lintCommand": null,
     "devCommand": "npm run dev",
     "scripts": {
@@ -649,8 +649,8 @@
   "hotPaths": [
     {
       "path": "src\\components\\RecipeFlavorProfilesCard.jsx",
-      "accessCount": 61,
-      "lastAccessed": 1782148245837,
+      "accessCount": 70,
+      "lastAccessed": 1782161916285,
       "type": "file"
     },
     {
@@ -667,8 +667,14 @@
     },
     {
       "path": "src\\data\\recipeProfileAnalysis.js",
+      "accessCount": 24,
+      "lastAccessed": 1782161903308,
+      "type": "file"
+    },
+    {
+      "path": "src\\data\\recipeProfileAnalysis.test.js",
       "accessCount": 20,
-      "lastAccessed": 1782148966991,
+      "lastAccessed": 1782161942522,
       "type": "file"
     },
     {
@@ -684,27 +690,21 @@
       "type": "file"
     },
     {
-      "path": "src\\data\\recipeProfileAnalysis.test.js",
-      "accessCount": 16,
-      "lastAccessed": 1782147818637,
-      "type": "file"
-    },
-    {
       "path": "src\\components\\__tests__\\RecipeFlavorProfilesCard.test.jsx",
       "accessCount": 16,
       "lastAccessed": 1782147837751,
       "type": "file"
     },
     {
-      "path": "src\\App.jsx",
-      "accessCount": 9,
-      "lastAccessed": 1781615705283,
+      "path": "plan.md",
+      "accessCount": 10,
+      "lastAccessed": 1782161389894,
       "type": "file"
     },
     {
-      "path": "plan.md",
+      "path": "src\\App.jsx",
       "accessCount": 9,
-      "lastAccessed": 1782145609859,
+      "lastAccessed": 1781615705283,
       "type": "file"
     },
     {
@@ -786,6 +786,12 @@
       "type": "file"
     },
     {
+      "path": "src",
+      "accessCount": 3,
+      "lastAccessed": 1782161677959,
+      "type": "directory"
+    },
+    {
       "path": "src\\data\\deriveBowlCuisine.js",
       "accessCount": 2,
       "lastAccessed": 1781450653788,
@@ -850,12 +856,6 @@
       "accessCount": 2,
       "lastAccessed": 1782148497298,
       "type": "file"
-    },
-    {
-      "path": "src",
-      "accessCount": 2,
-      "lastAccessed": 1782148963650,
-      "type": "directory"
     },
     {
       "path": "C:\\Users\\scher\\AppData\\Local\\Temp\\claude\\D--Projects-flavor-network\\06ba72b2-c854-41f7-bf98-8d26ea3f4e36\\tasks\\bicqiuyty.output",
