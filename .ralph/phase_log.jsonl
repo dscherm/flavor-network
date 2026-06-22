@@ -177,3 +177,11 @@
 {"timestamp": "2026-06-16T11:46:49.832572+00:00", "pipeline_id": "5aac001c", "phase": "explore", "previous_phase": "gate", "task_id": "RFP-R4", "source": "bridge_state"}
 {"timestamp": "2026-06-16T11:49:43.547227+00:00", "pipeline_id": "5aac001c", "phase": "gate", "previous_phase": "explore", "task_id": "RFP-R4", "source": "bridge_state"}
 {"timestamp": "2026-06-16T11:49:43.640303+00:00", "pipeline_id": "5aac001c", "phase": "learn", "previous_phase": "gate", "task_id": "RFP-R4", "source": "bridge_state"}
+{"timestamp": "2026-06-22T16:28:24.333402+00:00", "pipeline_id": "5aac001c", "phase": "explore", "previous_phase": "learn", "task_id": "FP-OV-1", "source": "bridge_state"}
+{"timestamp": "2026-06-22T16:40:36.464452+00:00", "pipeline_id": "5aac001c", "phase": "gate", "previous_phase": "explore", "task_id": "FP-OV-1", "source": "bridge_state"}
+{"timestamp": "2026-06-22T16:47:01.649052+00:00", "pipeline_id": "5aac001c", "phase": "explore", "previous_phase": "gate", "task_id": "FP-OV-2", "source": "bridge_state"}
+{"timestamp": "2026-06-22T16:52:39.086325+00:00", "pipeline_id": "5aac001c", "phase": "gate", "previous_phase": "explore", "task_id": "FP-OV-2", "source": "bridge_state"}
+{"timestamp": "2026-06-22T16:59:22.696363+00:00", "pipeline_id": "5aac001c", "phase": "explore", "previous_phase": "gate", "task_id": "FP-OV-3", "source": "bridge_state"}
+{"timestamp": "2026-06-22T17:07:20.506119+00:00", "pipeline_id": "5aac001c", "phase": "gate", "previous_phase": "explore", "task_id": "FP-OV-3", "source": "bridge_state"}
+{"timestamp": "2026-06-22T17:14:40.371935+00:00", "pipeline_id": "5aac001c", "phase": "explore", "previous_phase": "gate", "task_id": "FP-OV-4", "source": "bridge_state"}
+{"timestamp": "2026-06-22T17:25:16.614719+00:00", "pipeline_id": "5aac001c", "phase": "gate", "previous_phase": "explore", "task_id": "FP-OV-4", "source": "bridge_state"}

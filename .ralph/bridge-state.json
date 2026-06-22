@@ -1,7 +1,7 @@
 {
   "pipeline_id": "93f3df49",
   "started_at": "2026-06-14T15:21:37.891805+00:00",
-  "phase": "done",
+  "phase": "task-loop",
   "spec_path": null,
   "plan_source": "plan.md",
   "tasks": [
@@ -60,15 +60,54 @@
       "gate_result": "pass",
       "observation_id": "obs-20260615172853-0000000",
       "activated_at": "2026-06-15T17:28:51.749018+00:00"
+    },
+    {
+      "id": "FP-OV-1",
+      "title": "Overview page: quantity-weighted horizontal flavor bar chart on the chalkboard Flavor Profiles card",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260622162824-0000000",
+      "activated_at": "2026-06-22T16:28:22.914576+00:00"
+    },
+    {
+      "id": "FP-OV-2",
+      "title": "Rule-based smart flavor-profile description (on-device, no external API)",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260622164701-0000000",
+      "activated_at": "2026-06-22T16:47:00.158624+00:00"
+    },
+    {
+      "id": "FP-OV-3",
+      "title": "'More {axis}? Try\u2026' enhance card (boost/temper) with Make-a-Recipe-style ingredient buckets",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260622165922-0000000",
+      "activated_at": "2026-06-22T16:59:21.148517+00:00"
+    },
+    {
+      "id": "FP-OV-4",
+      "title": "SPIKE: explore a LOCAL on-device model for the flavor-profile description (ONNX, no cloud API)",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260622171440-0000000",
+      "activated_at": "2026-06-22T17:14:38.943159+00:00"
+    },
+    {
+      "id": "FP-OV-5",
+      "title": "FUTURE STRETCH: preparation-method inference to tune the profile + description",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
     }
   ],
-  "current_task_index": 4,
+  "current_task_index": 11,
   "stats": {
-    "tasks_completed": 7,
+    "tasks_completed": 11,
     "tasks_failed": 0,
-    "gate_passes": 8,
+    "gate_passes": 12,
     "gate_fails": 0,
-    "observations_recorded": 23
+    "observations_recorded": 35
   },
   "config": {
     "interactive_mode": true,
@@ -77,5 +116,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-16T19:20:44.062994+00:00"
+  "updated_at": "2026-06-22T17:25:18.194114+00:00"
 }

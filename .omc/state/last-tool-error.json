@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd /d/Projects/flavor-network; echo \\\"=== remote + ahead count ===\\\"; git remote -v | head -2; git log --oneline origin/master..master 2>/dev/null | wc -l | sed 's/^/commits ahead of origi...",
-  "error": "Exit code 2\n=== remote + ahead count ===\norigin\thttps://github.com/dscherm/flavor-network.git (fetch)\norigin\thttps://github.com/dscherm/flavor-network.git (push)\ncommits ahead of origin: 10\n=== deploy script / hosting config ===\n41:    \"firebase\": \"^12.10.0\",\nfirebase.json",
-  "timestamp": "2026-06-16T14:21:15.284Z",
+  "tool_input_preview": "{\"command\":\"cat D:/Projects/flavor-network/package.json | grep -A3 '\\\"scripts\\\"' | head; echo \\\"---\\\"; ls D:/Projects/flavor-network/tests 2>/dev/null; echo \\\"vitest config:\\\"; ls D:/Projects/flavor-n...",
+  "error": "Exit code 2\n  \"scripts\": {\n    \"predev\": \"node scripts/copy_wasm.cjs\",\n    \"dev\": \"vite\",\n    \"build:pairings\": \"node scripts/buildPairingsBinary.cjs\",\n---\ncocktail-lab.test.mjs\ndata-integrity.test.mjs\nsauce-lab.test.mjs\nvitest config:\nD:/Projects/flavor-network/vite.config.js",
+  "timestamp": "2026-06-22T16:42:32.951Z",
   "retry_count": 1
 }
