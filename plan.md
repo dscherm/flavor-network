@@ -318,6 +318,7 @@ any new pure logic; full suite green, build clean.
   "title": "Reusable HelpBubble component: tiny '?' button + dismissible anchored popover",
   "category": "ui",
   "priority": 1,
+  "passes": true,
   "description": "Create src/components/HelpBubble.jsx: a small circular '?' bubble button that toggles a compact anchored popover. Props: title, body (string | string[] lines), optional placement, optional size/variant for light (network) vs chalkboard (recipe) surfaces. Popover dismisses on outside-click, Esc, and an in-popover × ; only one open at a time per instance. Accessible: button has aria-label + aria-expanded, popover has role + focus handling, ≥44px touch target. Pure/presentational — no app data. NO wiring into surfaces yet.",
   "acceptance": [
     "HelpBubble renders a '?' button; clicking toggles a popover with title + body lines",
