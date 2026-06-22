@@ -24,14 +24,46 @@ describe('RecipeFlavorProfilesCard', () => {
   it('renders the static per-axis analysis (no model needed)', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
     expect(screen.getByText('Flavor Profiles')).toBeInTheDocument();
-    // Page 0 is the Flavor map; advance one page to the strongest axis (sweet).
+    // Page 0 Overview, page 1 Flavor map; two pages to the strongest axis (sweet).
+    fireEvent.click(screen.getByLabelText('Next'));
     fireEvent.click(screen.getByLabelText('Next'));
     expect(screen.getByText('Sweet')).toBeInTheDocument();
     expect(screen.getByText(/Driven by:/)).toBeInTheDocument();
   });
 
-  it('renders the Flavor map on page 0 with one dot per ingredient that has gnnProbs', () => {
+  it('renders the Overview flavor bar chart on page 0', () => {
+    render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
+    expect(screen.getByTestId('profiles-overview')).toBeInTheDocument();
+    const bars = screen.getAllByTestId('overview-bar');
+    // sweet (honey), sour (lemon), creamy/odor_fatty (butter) all fire.
+    expect(bars.length).toBeGreaterThanOrEqual(3);
+    expect(bars.some((b) => b.getAttribute('data-axis') === 'sweet')).toBe(true);
+  });
+
+  it('weights the Overview by entered amounts when bowlEntries is provided', () => {
+    // A big pour of lemon vs a pinch of honey → sour should out-share sweet.
+    const entries = [
+      { ingredient: 'honey', amount: { raw: 'a pinch', qty: null, unit: 'pinch', inferred: false } },
+      { ingredient: 'lemon', amount: { raw: '2 cups', qty: 2, unit: 'cup', inferred: false } },
+    ];
+    render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon']} bowlEntries={entries} nodes={nodes} />);
+    expect(screen.getByText(/weighted by amount/i)).toBeInTheDocument();
+    const bars = screen.getAllByTestId('overview-bar');
+    // First (top) bar is the dominant axis → sour, since lemon vastly outweighs honey.
+    expect(bars[0].getAttribute('data-axis')).toBe('sour');
+  });
+
+  it('renders a rule-based flavor description on the Overview page', () => {
+    render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
+    const desc = screen.getByTestId('profiles-description');
+    expect(desc).toBeInTheDocument();
+    expect(desc.textContent).toMatch(/recipe/i);
+    expect(desc.textContent).toMatch(/sweet/i); // honey-led bowl
+  });
+
+  it('renders the Flavor map on page 1 with one dot per ingredient that has gnnProbs', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter', 'mystery']} nodes={nodes} />);
+    fireEvent.click(screen.getByLabelText('Next')); // Overview → Flavor map
     const map = screen.getByTestId('flavor-map-radar');
     expect(map).toBeInTheDocument();
     // honey/lemon/butter have probs; mystery has none → 3 plotted ingredients.
@@ -93,12 +125,15 @@ describe('RecipeFlavorProfilesCard', () => {
   it('renders page-indicator dots and navigates via dot tap + touch-swipe', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
     const dots = screen.getByTestId('profiles-page-dots').querySelectorAll('[role="tab"]');
-    expect(dots.length).toBe(5); // Flavor map + 3 firing axes + Pairings
-    // dot[0] → Flavor map
+    expect(dots.length).toBe(6); // Overview + Flavor map + 3 firing axes + Pairings
+    // dot[0] → Overview
     fireEvent.click(dots[0]);
+    expect(screen.getByTestId('profiles-overview')).toBeInTheDocument();
+    // dot[1] → Flavor map
+    fireEvent.click(dots[1]);
     expect(screen.getByTestId('flavor-map-radar')).toBeInTheDocument();
-    // dot[4] (last) → Pairings page
-    fireEvent.click(dots[4]);
+    // dot[5] (last) → Pairings page
+    fireEvent.click(dots[5]);
     expect(screen.getByText('Pairs well with')).toBeInTheDocument();
     // swipe right (dx > 0) → previous page, leaving Pairings
     const card = screen.getByTestId('flavor-profiles-card');

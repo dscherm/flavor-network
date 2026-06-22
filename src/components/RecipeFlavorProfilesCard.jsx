@@ -19,8 +19,8 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  recipeAxisProfile, axisInsight, axisLabel, axisColor, rankByAxisImpact,
-  nodeProbs, AXES,
+  recipeAxisProfile, recipeAxisProfileWeighted, describeRecipeProfile, axisInsight,
+  axisLabel, axisColor, rankByAxisImpact, nodeProbs, AXES,
 } from '../data/recipeProfileAnalysis.js';
 import { loadDirectionsIndex, retrieveDirections } from '../ml/directionsRuntime.js';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
@@ -271,8 +271,66 @@ function Chip({ name, delta, onTap }) {
   );
 }
 
-export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipeType = null, onAdd, onFindCocktail, onFindSauce, onClose }) {
+/**
+ * FlavorBarChart — Overview page: a ranked horizontal bar chart of the recipe's
+ * flavor composition. `scores` are the quantity-weighted per-axis means; each
+ * row's % is that axis's share of the total flavor signal, and the bar length is
+ * scaled to the strongest axis so the chart fills the width. Axes that don't
+ * fire are hidden to avoid a wall of empty bars.
+ */
+function FlavorBarChart({ scores }) {
+  const rows = useMemo(() => {
+    const vals = AXES.map((a) => ({ axis: a, v: Math.max(0, scores[a] || 0) }));
+    const total = vals.reduce((s, r) => s + r.v, 0);
+    const shown = vals.filter((r) => r.v > 0.01).sort((x, y) => y.v - x.v);
+    const maxV = shown.length ? shown[0].v : 1;
+    return shown.map((r) => ({
+      ...r,
+      share: total > 0 ? r.v / total : 0,
+      width: maxV > 0 ? (r.v / maxV) * 100 : 0,
+    }));
+  }, [scores]);
+
+  if (rows.length === 0) {
+    return <p className="text-sm py-2" style={{ fontFamily: FONT, color: CHALK_SUB }}>No flavor signal yet.</p>;
+  }
+  return (
+    <div className="flex flex-col gap-2" data-testid="profiles-overview-bars">
+      {rows.map((r) => (
+        <div key={r.axis} className="flex items-center gap-2" data-testid="overview-bar" data-axis={r.axis}>
+          <span
+            className="text-base capitalize flex-shrink-0 text-right"
+            style={{ fontFamily: FONT, color: axisColor(r.axis), width: 84, textShadow: CHALK_TEXT_SHADOW }}
+          >
+            {axisLabel(r.axis)}
+          </span>
+          <div className="h-3 rounded-full flex-1" style={{ background: '#222' }}>
+            <div
+              className="h-3 rounded-full transition-all"
+              style={{ width: `${Math.max(2, r.width)}%`, background: axisColor(r.axis) }}
+            />
+          </div>
+          <span className="text-sm flex-shrink-0 tabular-nums" style={{ fontFamily: FONT, color: CHALK_DIM, width: 36 }}>
+            {Math.round(r.share * 100)}%
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries = null, nodes, recipeType = null, onAdd, onFindCocktail, onFindSauce, onClose }) {
   const { scores, drivers, n } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
+
+  // Overview page: quantity-weighted flavor composition. Prefer BowlEntry[]
+  // (carries entered/inferred amounts); fall back to equal-weighted names.
+  const overview = useMemo(
+    () => recipeAxisProfileWeighted(
+      (Array.isArray(bowlEntries) && bowlEntries.length) ? bowlEntries : bowlNames,
+      nodes,
+    ),
+    [bowlEntries, bowlNames, nodes],
+  );
 
   // Firing axes (score above a small floor), strongest first.
   const axes = useMemo(
@@ -290,6 +348,14 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
   // computeRecipeAroma / rankByAromaSimilarity want a plain {name: node} lookup
   // (node.gnnProbs), but `nodes` is a Map — convert once per nodes change.
   const nodesObj = useMemo(() => (nodes ? Object.fromEntries(nodes) : null), [nodes]);
+
+  // Rule-based, on-device chef description of the weighted profile (no LLM/API).
+  // The top aroma-match (cocktail, else sauce) feeds the optional pairing line.
+  const description = useMemo(() => {
+    const best = cocktailMatches[0] || sauceMatches[0] || null;
+    const aromaMatch = best ? { name: best.item?.name, similarity: best.similarity } : null;
+    return describeRecipeProfile({ scores: overview.scores, drivers, n }, { aromaMatch });
+  }, [overview.scores, drivers, n, cocktailMatches, sauceMatches]);
 
   useEffect(() => {
     let cancelled = false;
@@ -334,17 +400,19 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
   }, [bowlNames, nodes, nodesObj]);
 
   const [page, setPage] = useState(0);
-  const totalPages = axes.length + 2; // Flavor map + per-axis pages + Pairings
-  const isMap = page === 0;
-  const isPairings = page >= axes.length + 1;
+  // Pages: 0 Overview · 1 Flavor map · 2..axes.length+1 per-axis · last Pairings.
+  const totalPages = axes.length + 3;
+  const isOverview = page === 0;
+  const isMap = page === 1;
+  const isPairings = page >= axes.length + 2;
 
   const addWithQty = (name) => {
     const amount = quantityCtxRef.current ? predictAmountFromCtx(name, quantityCtxRef.current) : null;
     if (amount) onAdd?.(name, amount); else onAdd?.(name);
   };
 
-  // Per-axis pages occupy indices 1..axes.length → axis = axes[page - 1].
-  const axis = (!isMap && !isPairings) ? axes[page - 1] : undefined;
+  // Per-axis pages occupy indices 2..axes.length+1 → axis = axes[page - 2].
+  const axis = (!isOverview && !isMap && !isPairings) ? axes[page - 2] : undefined;
   const boost = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'boost', topN: 4 }) : [];
   const temper = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'temper', topN: 3 }) : [];
 
@@ -396,6 +464,23 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
 
       <div className="px-4 pb-2 overflow-y-auto" style={{ flex: 1 }}>
         {n === 0 && <p className="text-base py-6 text-center" style={{ fontFamily: FONT, color: CHALK_SUB }}>Add ingredients with flavor data to see profiles.</p>}
+
+        {n > 0 && isOverview && (
+          <div data-testid="profiles-overview">
+            <h3 className="text-2xl mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Overview</h3>
+            <p className="text-sm mb-2" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+              {overview.weighted ? 'Flavor balance, weighted by amount' : 'Flavor balance — add amounts to weight it'}
+            </p>
+            <FlavorBarChart scores={overview.scores} />
+            <p
+              className="text-base mt-3"
+              data-testid="profiles-description"
+              style={{ fontFamily: FONT, color: CHALK_CREAM, lineHeight: 1.45, textShadow: CHALK_TEXT_SHADOW }}
+            >
+              {description}
+            </p>
+          </div>
+        )}
 
         {n > 0 && isMap && (
           <div className="flex flex-col items-center">
@@ -516,7 +601,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], nodes, recipe
                 onClick={() => setPage(i)}
                 role="tab"
                 aria-selected={i === page}
-                aria-label={i === 0 ? 'Flavor map page' : i === axes.length + 1 ? 'Pairings page' : `Axis page ${i}`}
+                aria-label={i === 0 ? 'Overview page' : i === 1 ? 'Flavor map page' : i === axes.length + 2 ? 'Pairings page' : `Axis page ${i}`}
                 className="rounded-full transition-all"
                 style={{
                   width: i === page ? 9 : 7,
