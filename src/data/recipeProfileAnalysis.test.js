@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-  recipeAxisProfile, axisInsight, profileDelta, topMovers, rankByAxisImpact, AXES, axisLabel,
+  recipeAxisProfile, recipeAxisProfileWeighted, amountGrams, describeRecipeProfile,
+  axisInsight, profileDelta, topMovers, rankByAxisImpact, AXES, axisLabel,
 } from './recipeProfileAnalysis.js';
 
 function nodesFrom(map) {
@@ -27,6 +28,113 @@ describe('recipeAxisProfile', () => {
     const { n, scores } = recipeAxisProfile(['honey', 'mystery'], nodes);
     expect(n).toBe(1);
     expect(scores.sweet).toBeCloseTo(0.9);
+  });
+});
+
+describe('amountGrams', () => {
+  it('converts qty + unit to gram-equivalent', () => {
+    expect(amountGrams({ qty: 2, unit: 'cup' })).toBeCloseTo(480); // 2 * 240
+    expect(amountGrams({ qty: 1, unit: 'tbsp' })).toBeCloseTo(15);
+  });
+  it('defaults qty to 1 for a unit-only amount', () => {
+    expect(amountGrams({ qty: null, unit: 'pinch' })).toBeCloseTo(1);
+  });
+  it('returns null when nothing is parseable', () => {
+    expect(amountGrams(null)).toBeNull();
+    expect(amountGrams({ qty: null, unit: null })).toBeNull();
+    expect(amountGrams({ qty: 2, unit: null })).toBeNull(); // qty without a unit
+  });
+});
+
+describe('recipeAxisProfileWeighted', () => {
+  const nodes = nodesFrom({
+    honey: probs({ sweet: 0.9 }),
+    lemon: probs({ sour: 0.8 }),
+  });
+
+  it('equals the unweighted mean when no amounts are known', () => {
+    const w = recipeAxisProfileWeighted(['honey', 'lemon'], nodes);
+    const m = recipeAxisProfile(['honey', 'lemon'], nodes);
+    expect(w.weighted).toBe(false);
+    expect(w.n).toBe(2);
+    expect(w.scores.sweet).toBeCloseTo(m.scores.sweet); // 0.45
+    expect(w.scores.sour).toBeCloseTo(m.scores.sour);
+  });
+
+  it('weights ingredients by entered amount', () => {
+    const entries = [
+      { ingredient: 'honey', amount: { qty: null, unit: 'pinch' } }, // ~1g
+      { ingredient: 'lemon', amount: { qty: 2, unit: 'cup' } },      // ~480g
+    ];
+    const w = recipeAxisProfileWeighted(entries, nodes);
+    expect(w.weighted).toBe(true);
+    // lemon dominates → sour share far exceeds sweet.
+    expect(w.scores.sour).toBeGreaterThan(w.scores.sweet);
+    expect(w.scores.sour).toBeGreaterThan(0.7);
+  });
+
+  it('falls back to mean known weight for un-quantified ingredients', () => {
+    const entries = [
+      { ingredient: 'honey', amount: { qty: 1, unit: 'cup' } }, // 240g
+      { ingredient: 'lemon', amount: null },                    // unknown → fallback 240g
+    ];
+    const w = recipeAxisProfileWeighted(entries, nodes);
+    expect(w.weighted).toBe(true);
+    expect(w.scores.sweet).toBeCloseTo(0.45); // equal weights → same as mean
+  });
+
+  it('skips ingredients without probs and is null-safe', () => {
+    const w = recipeAxisProfileWeighted(['honey', 'mystery'], nodes);
+    expect(w.n).toBe(1);
+    expect(w.scores.sweet).toBeCloseTo(0.9);
+    expect(recipeAxisProfileWeighted(null, nodes).n).toBe(0);
+  });
+});
+
+describe('describeRecipeProfile', () => {
+  const profile = (scores, drivers = {}, n = 3) => ({ scores: probs(scores), drivers, n });
+
+  it('returns a prompt when the bowl has no flavor data', () => {
+    expect(describeRecipeProfile({ scores: z(), drivers: {}, n: 0 })).toMatch(/Add ingredients/i);
+  });
+
+  it('describes a sweet-lean recipe and flags the missing balancing axis', () => {
+    const out = describeRecipeProfile(profile({ sweet: 0.6, sour: 0.05 }, { sweet: ['honey'] }));
+    expect(out).toMatch(/leads with sweet/i);
+    expect(out).toMatch(/from honey/i);
+    expect(out).toMatch(/little sour/i); // suggests adding the counter-axis
+  });
+
+  it('calls out a balanced sweet/sour pair', () => {
+    const out = describeRecipeProfile(profile({ sweet: 0.3, sour: 0.2 }));
+    expect(out).toMatch(/sweet and sour sit in balance/i);
+  });
+
+  it('handles an umami-rich profile', () => {
+    const out = describeRecipeProfile(profile({ umami: 0.6 }, { umami: ['mushroom'] }));
+    expect(out).toMatch(/umami/i);
+    expect(out).toMatch(/from mushroom/i);
+  });
+
+  it('calls a flat profile mild and even', () => {
+    expect(describeRecipeProfile(profile({}))).toMatch(/mild and even/i);
+  });
+
+  it('reads a dominant aroma and a creamy mouthfeel', () => {
+    const out = describeRecipeProfile(profile({ odor_fruity: 0.5, odor_fatty: 0.4 }, { odor_fruity: ['apple'] }));
+    expect(out).toMatch(/aromatically it reads fruity/i);
+    expect(out).toMatch(/rich and rounded/i);
+  });
+
+  it('folds in an aroma-match pairing signal', () => {
+    const out = describeRecipeProfile(profile({ sweet: 0.3 }), { aromaMatch: { name: 'Negroni', similarity: 0.8 } });
+    expect(out).toMatch(/Negroni/);
+    expect(out).toMatch(/80% match/);
+  });
+
+  it('is deterministic for identical input', () => {
+    const p = profile({ sweet: 0.4, odor_green: 0.3 }, { sweet: ['honey'] });
+    expect(describeRecipeProfile(p)).toBe(describeRecipeProfile(p));
   });
 });
 

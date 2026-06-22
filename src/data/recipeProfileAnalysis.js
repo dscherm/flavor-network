@@ -7,6 +7,7 @@
  * profile shift a candidate ingredient would cause, and boost/temper rankings.
  */
 import { AROMA_LABELS, AROMA_COLORS } from './recipeScoring.js';
+import { UNIT_DENSITY } from './portionParser.js';
 
 export const TASTE_AXES = ['sweet', 'sour', 'bitter', 'salty', 'umami'];
 export const AROMA_AXES = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
@@ -70,6 +71,62 @@ export function recipeAxisProfile(bowlNames, nodes) {
   return { scores, drivers, n };
 }
 
+/**
+ * Gram-equivalent weight for a BowlEntry `amount`, or null when unknown.
+ * A unit-only amount ("a pinch") defaults qty→1; an amount whose unit isn't
+ * in UNIT_DENSITY falls back to the 'each' density so a parsed entry still
+ * counts. Returns null only when nothing parseable is present.
+ */
+export function amountGrams(amount) {
+  if (!amount) return null;
+  const { qty, unit } = amount;
+  if (qty == null && unit == null) return null;
+  const density = unit
+    ? (UNIT_DENSITY[unit] != null ? UNIT_DENSITY[unit] : UNIT_DENSITY.each)
+    : null;
+  if (density == null) return null; // qty without a unit isn't a real measure
+  const q = qty == null ? 1 : qty;
+  return q * density;
+}
+
+/**
+ * Quantity-weighted per-axis profile of a bowl. `entries` may be a BowlEntry[]
+ * ({ ingredient, amount }) or a plain string[]. Each ingredient's gnnProbs are
+ * weighted by its amount's gram-equivalent; an ingredient with no parsed amount
+ * falls back to the mean known weight (so it still counts). When NO amounts are
+ * known, every ingredient is weighted equally → identical to recipeAxisProfile's
+ * mean. Only ingredients that have gnnProbs contribute.
+ * @returns {{ scores: Record<string,number>, n: number, weighted: boolean }}
+ */
+export function recipeAxisProfileWeighted(entries, nodes) {
+  const list = Array.isArray(entries) ? entries : [];
+  const rows = [];
+  for (const e of list) {
+    const name = typeof e === 'string' ? e : e?.ingredient;
+    if (!name) continue;
+    const p = nodeProbs(name, nodes);
+    if (!p) continue;
+    const amount = typeof e === 'string' ? null : e?.amount;
+    rows.push({ p, grams: amountGrams(amount) });
+  }
+  const n = rows.length;
+  const scores = Object.fromEntries(AXES.map((a) => [a, 0]));
+  if (n === 0) return { scores, n: 0, weighted: false };
+
+  const known = rows.map((r) => r.grams).filter((g) => g != null && g > 0);
+  const weighted = known.length > 0;
+  const fallback = weighted ? known.reduce((s, g) => s + g, 0) / known.length : 1;
+
+  let wSum = 0;
+  for (const r of rows) {
+    const w = (r.grams != null && r.grams > 0) ? r.grams : fallback;
+    wSum += w;
+    for (const a of AXES) scores[a] += (r.p[a] || 0) * w;
+  }
+  for (const a of AXES) scores[a] = wSum ? scores[a] / wSum : 0;
+  return { scores, n, weighted };
+}
+
 /** Rule-based insight line for an axis given its aggregate score. */
 export function axisInsight(axis, score) {
   const bal = axisLabel(BALANCING[axis] || '');
@@ -81,6 +138,77 @@ export function axisInsight(axis, score) {
   }
   if (score >= 0.2) return `${axisLabel(axis)} is present and balanced.`;
   return `Faint ${axisLabel(axis).toLowerCase()} — boost it if you want more.`;
+}
+
+const capFirst = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
+/**
+ * describeRecipeProfile — deterministic, on-device chef-style paragraph for the
+ * Overview page. NO LLM / network: pure rules over the (quantity-weighted)
+ * per-axis profile, the dominant taste + its balancing axis, the driving
+ * ingredients, the dominant aroma, a mouthfeel cue (creamy/odor_fatty vs
+ * green), and an optional aroma-match pairing signal.
+ *
+ * @param {{scores: Record<string,number>, drivers?: Record<string,string[]>, n: number}} profile
+ * @param {{aromaMatch?: {name: string, similarity?: number}|null}} [opts]
+ * @returns {string}
+ */
+export function describeRecipeProfile(profile, { aromaMatch = null } = {}) {
+  const scores = profile?.scores || {};
+  const drivers = profile?.drivers || {};
+  const n = profile?.n || 0;
+  if (!n) return 'Add ingredients with flavor data to read this recipe’s profile.';
+
+  const val = (a) => Math.max(0, scores[a] || 0);
+  const strongest = (axesList) => axesList
+    .map((a) => ({ a, v: val(a) }))
+    .sort((x, y) => y.v - x.v)[0];
+  const driverPhrase = (a) => {
+    const d = (drivers[a] || []).slice(0, 2);
+    return d.length ? ` from ${d.join(' and ')}` : '';
+  };
+
+  const sentences = [];
+
+  // 1. Dominant taste + what drives it.
+  const tt = strongest(TASTE_AXES);
+  if (tt.v >= 0.08) {
+    const lead = tt.v >= 0.5 ? 'leads with' : tt.v >= 0.2 ? 'leans' : 'carries a touch of';
+    sentences.push(`This recipe ${lead} ${axisLabel(tt.a).toLowerCase()}${driverPhrase(tt.a)}.`);
+  } else {
+    sentences.push('This recipe is mild and even across the basic tastes.');
+  }
+
+  // 2. Balance against the dominant taste's counter-axis.
+  const bal = BALANCING[tt.a];
+  if (tt.v >= 0.2 && bal) {
+    const bv = val(bal);
+    if (bv >= 0.15) {
+      sentences.push(`${capFirst(axisLabel(tt.a).toLowerCase())} and ${axisLabel(bal).toLowerCase()} sit in balance.`);
+    } else {
+      sentences.push(`There’s little ${axisLabel(bal).toLowerCase()} to offset it — a hit of ${axisLabel(bal).toLowerCase()} would round it out.`);
+    }
+  }
+
+  // 3. Dominant aroma.
+  const ta = strongest(AROMA_AXES);
+  if (ta.v >= 0.08) {
+    sentences.push(`Aromatically it reads ${axisLabel(ta.a).toLowerCase()}${driverPhrase(ta.a)}.`);
+  }
+
+  // 4. Mouthfeel cue — creamy (odor_fatty) richness vs green brightness.
+  const rich = val('odor_fatty');
+  const green = val('odor_green');
+  if (rich >= 0.3) sentences.push('The overall feel is rich and rounded.');
+  else if (green >= 0.3 && rich < 0.15) sentences.push('The overall feel is bright and clean.');
+
+  // 5. Optional aroma-match pairing signal.
+  if (aromaMatch?.name) {
+    const pct = typeof aromaMatch.similarity === 'number' ? ` (${Math.round(aromaMatch.similarity * 100)}% match)` : '';
+    sentences.push(`Its aromatics echo ${aromaMatch.name}${pct} — a natural pairing.`);
+  }
+
+  return sentences.join(' ');
 }
 
 /**

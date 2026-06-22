@@ -622,6 +622,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         <div className="fixed inset-0 z-40" data-testid="recipe-profiles-overlay">
           <RecipeFlavorProfilesCard
             bowlNames={recipeNames}
+            bowlEntries={recipeIngredients}
             nodes={fullData.graph.nodes}
             recipeType={recipeType}
             onAdd={(name, amount) => handleAddIngredient(name, amount)}
