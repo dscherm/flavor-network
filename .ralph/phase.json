@@ -1,7 +1,7 @@
 {
   "pipeline_id": "5aac001c",
-  "phase": "gate",
+  "phase": "learn",
   "active_task_id": "FP-OV-4",
-  "phase_started_at": "2026-06-22T17:25:16.614719+00:00",
-  "updated_at": "2026-06-22T17:25:16.614719+00:00"
+  "phase_started_at": "2026-06-22T23:07:41.581475+00:00",
+  "updated_at": "2026-06-22T23:07:41.581475+00:00"
 }

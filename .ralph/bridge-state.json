@@ -1,7 +1,7 @@
 {
   "pipeline_id": "93f3df49",
   "started_at": "2026-06-14T15:21:37.891805+00:00",
-  "phase": "task-loop",
+  "phase": "learn",
   "spec_path": null,
   "plan_source": "plan.md",
   "tasks": [
@@ -96,18 +96,18 @@
     {
       "id": "FP-OV-5",
       "title": "FUTURE STRETCH: preparation-method inference to tune the profile + description",
-      "status": "pending",
+      "status": "done",
       "gate_result": null,
-      "observation_id": null
+      "observation_id": "obs-20260622230742-0000000"
     }
   ],
-  "current_task_index": 11,
+  "current_task_index": 12,
   "stats": {
-    "tasks_completed": 11,
+    "tasks_completed": 12,
     "tasks_failed": 0,
     "gate_passes": 12,
     "gate_fails": 0,
-    "observations_recorded": 35
+    "observations_recorded": 36
   },
   "config": {
     "interactive_mode": true,
@@ -116,5 +116,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-22T17:25:18.194114+00:00"
+  "updated_at": "2026-06-22T23:07:42.978842+00:00"
 }
