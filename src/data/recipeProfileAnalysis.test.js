@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   recipeAxisProfile, recipeAxisProfileWeighted, amountGrams, describeRecipeProfile,
-  axisInsight, profileDelta, topMovers, rankByAxisImpact, AXES, axisLabel,
+  axisInsight, profileDelta, topMovers, rankByAxisImpact, buildAxisEnhancements, AXES, axisLabel,
 } from './recipeProfileAnalysis.js';
 
 function nodesFrom(map) {
@@ -177,6 +177,35 @@ describe('rankByAxisImpact', () => {
   it('temper ranks by the balancing axis (sweet→sour)', () => {
     const r = rankByAxisImpact(['fig', 'lemon'], 'sweet', scores, 3, nodes, { mode: 'temper' });
     expect(r[0].name).toBe('lemon'); // raises sour, the balance for sweet
+  });
+});
+
+describe('buildAxisEnhancements', () => {
+  const nodes = nodesFrom({
+    fig: probs({ sweet: 0.9 }),
+    lemon: probs({ sour: 0.9 }),
+    salt: probs({ salty: 0.9 }),
+  });
+  const scores = { ...z(), sweet: 0.1 };
+
+  it('returns per-axis boost + temper buckets from the candidate pool', () => {
+    const rows = buildAxisEnhancements(['sweet'], ['fig', 'lemon', 'salt'], scores, 3, nodes);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].axis).toBe('sweet');
+    expect(rows[0].boost.map((b) => b.name)).toContain('fig');   // adds sweet
+    expect(rows[0].temper.map((t) => t.name)).toContain('lemon'); // raises sour (balances sweet)
+  });
+
+  it('drops axes with neither boost nor temper candidates', () => {
+    // salt adds neither bitter (boost) nor sweet (bitter's balance/temper) → row dropped.
+    const rows = buildAxisEnhancements(['bitter'], ['salt'], scores, 3, nodes);
+    expect(rows).toHaveLength(0);
+  });
+
+  it('is null-safe for empty axes / candidates', () => {
+    expect(buildAxisEnhancements([], ['fig'], scores, 1, nodes)).toEqual([]);
+    expect(buildAxisEnhancements(['sweet'], [], scores, 1, nodes)).toEqual([]);
+    expect(buildAxisEnhancements(null, null, scores, 1, nodes)).toEqual([]);
   });
 });
 
