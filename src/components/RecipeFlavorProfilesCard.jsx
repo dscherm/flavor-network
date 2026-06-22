@@ -23,7 +23,7 @@ import {
   axisLabel, axisColor, rankByAxisImpact, buildAxisEnhancements, nodeProbs, AXES,
 } from '../data/recipeProfileAnalysis.js';
 import { clusterColor } from './MakeRecipeCardsGrid.jsx';
-import { loadDirectionsIndex, retrieveDirections } from '../ml/directionsRuntime.js';
+import { loadDirectionsIndex, retrieveDirections, retrieveCookingMethods } from '../ml/directionsRuntime.js';
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
 import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
 import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSimilarity.js';
@@ -381,6 +381,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
 
   const [candidates, setCandidates] = useState([]); // model pool that fits the recipe
   const [dishes, setDishes] = useState([]);
+  const [cookingMethod, setCookingMethod] = useState(null); // dominant likely method (FP-OV-5)
   const [cocktailMatches, setCocktailMatches] = useState([]); // aroma-matched cocktail names
   const [sauceMatches, setSauceMatches] = useState([]);       // aroma-matched sauce names
   const quantityCtxRef = useRef(null);
@@ -395,8 +396,8 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   const description = useMemo(() => {
     const best = cocktailMatches[0] || sauceMatches[0] || null;
     const aromaMatch = best ? { name: best.item?.name, similarity: best.similarity } : null;
-    return describeRecipeProfile({ scores: overview.scores, drivers, n }, { aromaMatch });
-  }, [overview.scores, drivers, n, cocktailMatches, sauceMatches]);
+    return describeRecipeProfile({ scores: overview.scores, drivers, n }, { aromaMatch, cookingMethod });
+  }, [overview.scores, drivers, n, cocktailMatches, sauceMatches, cookingMethod]);
 
   useEffect(() => {
     let cancelled = false;
@@ -421,6 +422,9 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
       if (cancelled || !idx || !vocab) return;
       const recs = retrieveDirections(bowlNames, idx, vocab, { k: 4, minOverlap: 2 });
       setDishes(recs.map((r) => r.title));
+      // Likely preparation method, grounded in similar-recipe directions (FP-OV-5).
+      const { methods } = retrieveCookingMethods(bowlNames, idx, vocab, { k: 8, topN: 1 });
+      setCookingMethod(methods[0]?.method ?? null);
     }).catch(() => {});
     // aroma-matched cocktail + sauce NAMES for the Pairings page
     const recipeVec = nodesObj ? computeRecipeAroma(bowlNames, nodesObj) : null;
