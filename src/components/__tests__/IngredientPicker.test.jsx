@@ -225,6 +225,22 @@ describe('IngredientPicker', () => {
     expect(screen.getByTestId('picker-ingredient-list').textContent).toContain('No ingredients match');
   });
 
+  it('notebook mode: a help bubble explains the pin-to-confirm add flow (HELP-2)', () => {
+    render(<IngredientPicker mode="notebook" ctx={buildCtx()} />);
+    // Bubble present, popover hidden until tapped.
+    expect(screen.getByTestId('picker-help')).toBeInTheDocument();
+    expect(screen.queryByTestId('picker-help-popover')).toBeNull();
+    fireEvent.click(screen.getByTestId('picker-help'));
+    const pop = screen.getByTestId('picker-help-popover');
+    expect(pop).toHaveTextContent(/pins as a dot on the taste radar/i);
+    expect(pop).toHaveTextContent(/Yes, add to recipe/i);
+  });
+
+  it('guided mode: no pin-to-confirm help bubble (the flow does not apply)', () => {
+    render(<IngredientPicker mode="guided" ctx={buildCtx()} />);
+    expect(screen.queryByTestId('picker-help')).toBeNull();
+  });
+
   it('curated mode lists only the supplied candidate names + custom title (Suggest/Replace)', () => {
     render(
       <IngredientPicker

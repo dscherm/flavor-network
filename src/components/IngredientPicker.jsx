@@ -32,6 +32,7 @@
 import React, { useMemo, useState } from 'react';
 import { CATEGORICAL_AXES, bucketOf } from '../data/categoricalAxes.js';
 import { getNeighborsEnriched } from '../data/graph.js';
+import HelpBubble from './HelpBubble.jsx';
 
 const FONT_HAND = 'Caveat, cursive';
 const CHALK_BG = `
@@ -418,25 +419,42 @@ export default function IngredientPicker({
         >
           {title || (mode === 'notebook' ? 'Ingredient choices' : 'Discover by flavor')}
         </h2>
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            data-testid="picker-close"
-            aria-label="Close ingredient picker"
-            style={{
-              color: CHALK_DIM,
-              fontFamily: FONT_HAND,
-              fontSize: 22,
-              padding: '0 8px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            ×
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {mode === 'notebook' && (
+            <HelpBubble
+              variant="chalk"
+              placement="bottom"
+              label="How to add an ingredient"
+              testId="picker-help"
+              title="Adding an ingredient"
+              body={[
+                'Tap an ingredient row — it pins as a dot on the taste radar.',
+                'Tap that dot, then “Yes, add to recipe” to add it.',
+                'Once pinned, the row’s “+ Add to Recipe” shortcut works too.',
+                'Try pinning a few to compare their flavors on the radar.',
+              ]}
+            />
+          )}
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              data-testid="picker-close"
+              aria-label="Close ingredient picker"
+              style={{
+                color: CHALK_DIM,
+                fontFamily: FONT_HAND,
+                fontSize: 22,
+                padding: '0 8px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       <div
