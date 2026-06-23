@@ -62,9 +62,10 @@ export default function FilterPillRow({
         );
       })}
 
-      {/* "None" pill — 2026-05-31 redesign: toggles particles flowing
-          across the network. Does NOT clear the filter stack, so the
-          current palette stays. Active when particlesOverride === true. */}
+      {/* "Particles" pill (renamed from the misleading "None", HELP-4):
+          toggles particles flowing across the network. Does NOT clear the
+          filter stack, so the current palette stays. Active when
+          particlesOverride === true. */}
       <button
         type="button"
         role="checkbox"
@@ -78,7 +79,7 @@ export default function FilterPillRow({
         }`}
         style={{ minHeight: 44 }}
       >
-        None
+        Particles
       </button>
     </div>
   );

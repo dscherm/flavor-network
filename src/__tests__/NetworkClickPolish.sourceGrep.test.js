@@ -257,13 +257,15 @@ describe('NONE-PILL-PARTICLES-OVERRIDE (2026-05-31)', () => {
     expect(appJsx).toMatch(/toggleNoneOverride[\s\S]{0,200}setParticlesOverride\(\(p\) => !p\)/);
   });
 
-  it('FilterPillRow None pill is wired to onToggleNone (not onClear)', () => {
+  it('FilterPillRow particle-toggle pill is wired to onToggleNone (not onClear)', () => {
     const filterPillRow = readFileSync(
       resolve(__dirname, '../components/FilterPillRow.jsx'),
       'utf8',
     );
-    // The None button onClick must call onToggleNone, not onClear.
-    const noneBlock = filterPillRow.match(/"None" pill[\s\S]{0,800}>\s*None\s*</);
+    // HELP-4 renamed the misleading "None" label → "Particles"; the pill's
+    // particle-toggle wiring is unchanged. The button onClick must still call
+    // onToggleNone, not onClear.
+    const noneBlock = filterPillRow.match(/"Particles" pill[\s\S]{0,800}>\s*Particles\s*</);
     expect(noneBlock).not.toBeNull();
     expect(noneBlock[0]).toMatch(/onToggleNone\?\.\(\)/);
     expect(noneBlock[0]).not.toMatch(/onClear\?\.\(\)/);
