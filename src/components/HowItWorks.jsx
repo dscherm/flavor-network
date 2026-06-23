@@ -92,6 +92,19 @@ export default function HowItWorks({
                 </div>
               </section>
 
+              <section data-testid="howitworks-gestures">
+                <h3 className="text-cyan-300 font-semibold mb-1">Getting around</h3>
+                <p className="text-xs text-gray-400 mb-2">The 3D scene rewards a few
+                   gestures that aren't shown on screen:</p>
+                <div className="text-xs text-gray-400 space-y-0.5">
+                  <p><strong className="text-gray-200">Drag</strong> to orbit · <strong className="text-gray-200">scroll / pinch</strong> to zoom · <strong className="text-gray-200">two-finger drag</strong> to pan</p>
+                  <p><strong className="text-gray-200">Tap a dot</strong> for its details · <strong className="text-gray-200">press &amp; hold</strong> a dot to focus its pairings</p>
+                  <p><strong className="text-gray-200">Tap a cluster pill</strong> to isolate that cluster</p>
+                  <p><strong className="text-gray-200">Tap empty space</strong> (or press <strong className="text-gray-200">Esc</strong>) to reset selection, filters, and focus</p>
+                  <p className="text-gray-500">On a keyboard: <strong className="text-gray-300">arrow keys</strong> walk between related ingredients · <strong className="text-gray-300">/</strong> jumps to search</p>
+                </div>
+              </section>
+
               <section>
                 <h3 className="text-cyan-300 font-semibold mb-1">The AI Behind It</h3>
                 <p>A <strong>graph neural network</strong> (GINEConv, 3 layers) reads the
