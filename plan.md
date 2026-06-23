@@ -406,12 +406,15 @@ any new pure logic; full suite green, build clean.
 ```json
 {
   "id": "HELP-6",
-  "title": "FUTURE: rework IngredientPicker so '+ Add' is the primary one-tap action (radar-pin becomes optional)",
+  "title": "Rework IngredientPicker so '+ Add' is the primary one-tap action (radar-pin becomes optional)",
   "category": "ui",
   "priority": 3,
-  "description": "Deferred per scoping decision. The pin → tap-dot → confirm flow is 3 steps for 'add an ingredient'. The stronger fix than a help bubble (HELP-2) is to make the row's '+ Add to Recipe' the always-visible primary action and demote the radar-pin to an optional compare/preview gesture, collapsing 3 steps → 1. Touches the most-used add flow, so it is intentionally separate from the help-bubble pass. Revisit after HELP-1..5 ship + the help bubble's effect is observed.",
+  "passes": true,
+  "description": "Done. The pin → tap-dot → confirm flow was 3 steps for 'add an ingredient'. Every notebook row now exposes an always-visible '+ Add' primary button (data-testid picker-add-<name>) that commits in one tap via handleCommit/onSelect; the row BODY (picker-row-<name>) keeps the now-optional pin-to-radar gesture for flavor comparison. Guided mode is unchanged (tap = pick, no '+ Add'). Footer instruction updated to lead with '+ Add'. Restructured the non-pinned row from a single <button> to a div with a pin-body button + an add button (valid nesting).",
   "acceptance": [
-    "Scoped + deferred; revisit after HELP-1..5 ship"
+    "Every notebook row shows an always-visible '+ Add' that adds in one tap",
+    "Row-name tap still pins to the radar (optional compare); guided mode unaffected",
+    "Existing pin/commit tests stay green; +3 HELP-6 tests; full suite green; build clean"
   ]
 }
 ```

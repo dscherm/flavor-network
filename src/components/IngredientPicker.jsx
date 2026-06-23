@@ -664,46 +664,76 @@ export default function IngredientPicker({
                   );
                 }
                 const isAlready = alreadyAddedSet.has(ing.name);
+                // HELP-6: "+ Add" is the always-visible primary action — one tap
+                // adds the ingredient. The row BODY is the optional, demoted
+                // pin-to-radar gesture (compare flavors). In guided mode there
+                // is no pin/add split — tapping the row picks directly.
                 return (
-                  <button
+                  <div
                     key={ing.name}
-                    type="button"
-                    onClick={() => handleRowTap(ing)}
-                    data-testid={`picker-row-${ing.name}`}
-                    data-already-added={isAlready ? 'yes' : 'no'}
-                    data-search-match={ing.matchesSearch ? 'yes' : 'no'}
-                    className="w-full flex items-center justify-between gap-3 px-3 py-2 text-left transition-colors hover:bg-white/5"
+                    className="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-white/5"
                     style={{
-                      color: CHALK_CREAM,
                       borderBottom: `1px solid ${CHALK_BORDER_INNER}33`,
-                      fontFamily: FONT_HAND,
-                      fontSize: 18,
-                      textShadow: CHALK_TEXT_SHADOW,
-                      background: ing.matchesSearch
-                        ? 'rgba(134, 231, 245, 0.06)'
-                        : 'transparent',
+                      background: ing.matchesSearch ? 'rgba(134, 231, 245, 0.06)' : 'transparent',
                     }}
                   >
-                    <span className="truncate flex-1">{ing.name}</span>
-                    {isAlready && (
+                    <button
+                      type="button"
+                      onClick={() => handleRowTap(ing)}
+                      data-testid={`picker-row-${ing.name}`}
+                      data-already-added={isAlready ? 'yes' : 'no'}
+                      data-search-match={ing.matchesSearch ? 'yes' : 'no'}
+                      className="flex-1 min-w-0 flex items-center justify-between gap-3 text-left"
+                      style={{
+                        color: CHALK_CREAM,
+                        fontFamily: FONT_HAND,
+                        fontSize: 18,
+                        textShadow: CHALK_TEXT_SHADOW,
+                        background: 'transparent',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                      }}
+                      title={mode === 'notebook' ? `Pin ${ing.name} on the radar to compare` : undefined}
+                    >
+                      <span className="truncate flex-1">{ing.name}</span>
+                      {isAlready && (
+                        <span
+                          className="text-[10px] px-1.5 py-0 rounded-md flex-shrink-0"
+                          style={{
+                            color: '#fde68a',
+                            background: 'rgba(252, 211, 77, 0.12)',
+                            border: '1px solid rgba(252, 211, 77, 0.30)',
+                          }}
+                        >
+                          already added
+                        </span>
+                      )}
                       <span
-                        className="text-[10px] px-1.5 py-0 rounded-md"
+                        className="text-[11px] tabular-nums flex-shrink-0"
+                        style={{ color: CHALK_SUB }}
+                      >
+                        {ing.pairingCount}
+                      </span>
+                    </button>
+                    {mode === 'notebook' && (
+                      <button
+                        type="button"
+                        onClick={() => handleCommit(ing.name)}
+                        data-testid={`picker-add-${ing.name}`}
+                        aria-label={`Add ${ing.name} to recipe`}
+                        className="flex-shrink-0 px-2.5 py-1 rounded text-[14px] tracking-wide min-h-[36px]"
                         style={{
-                          color: '#fde68a',
-                          background: 'rgba(252, 211, 77, 0.12)',
-                          border: '1px solid rgba(252, 211, 77, 0.30)',
+                          background: 'rgba(16, 78, 51, 0.55)',
+                          color: '#bbf7d0',
+                          border: '1px solid rgba(110, 231, 183, 0.45)',
+                          fontFamily: FONT_HAND,
                         }}
                       >
-                        already added
-                      </span>
+                        + Add
+                      </button>
                     )}
-                    <span
-                      className="text-[11px] tabular-nums"
-                      style={{ color: CHALK_SUB }}
-                    >
-                      {ing.pairingCount}
-                    </span>
-                  </button>
+                  </div>
                 );
               })
             )}
@@ -722,7 +752,7 @@ export default function IngredientPicker({
         }}
       >
         {mode === 'notebook'
-          ? 'Tap a row to pin · tap a pinned dot on the radar to add it · tap "+ Add to Recipe" on the row works too.'
+          ? 'Tap "+ Add" to add an ingredient · tap a row name to pin it on the radar and compare flavors.'
           : 'Tap an ingredient to explore its pairings.'}
       </div>
     </div>

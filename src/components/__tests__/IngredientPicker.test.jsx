@@ -130,6 +130,31 @@ describe('IngredientPicker', () => {
     expect(screen.getByTestId('ingredient-picker').getAttribute('data-primary-count')).toBe('1');
   });
 
+  it('notebook mode: "+ Add" commits in one tap without pinning (HELP-6)', () => {
+    const onSelect = vi.fn();
+    render(<IngredientPicker mode="notebook" ctx={buildCtx()} onSelect={onSelect} />);
+    // Every row exposes an always-visible "+ Add" primary action.
+    const add = screen.getByTestId('picker-add-basil');
+    expect(add).toBeInTheDocument();
+    fireEvent.click(add);
+    // One tap → committed, no pin step needed.
+    expect(onSelect).toHaveBeenCalledWith('basil');
+    expect(screen.getByTestId('ingredient-picker').getAttribute('data-primary-count')).toBe('0');
+  });
+
+  it('notebook mode: tapping the row name still pins to the radar (demoted, optional)', () => {
+    const onSelect = vi.fn();
+    render(<IngredientPicker mode="notebook" ctx={buildCtx()} onSelect={onSelect} />);
+    fireEvent.click(screen.getByTestId('picker-row-basil'));
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.getByTestId('ingredient-picker').getAttribute('data-primary-count')).toBe('1');
+  });
+
+  it('guided mode: no "+ Add" button (row tap picks directly)', () => {
+    render(<IngredientPicker mode="guided" ctx={buildCtx()} onIngredientPick={vi.fn()} />);
+    expect(screen.queryByTestId('picker-add-basil')).toBeNull();
+  });
+
   it('notebook mode: commit click calls onSelect and clears that pin', () => {
     const onSelect = vi.fn();
     render(
