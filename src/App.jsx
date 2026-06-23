@@ -176,7 +176,10 @@ export default function App() {
   const initialTab = (() => {
     if (typeof window === 'undefined') return 'network';
     const path = new URLSearchParams(window.location.search).get('path');
-    return PATH_TO_TAB[path] || 'network';
+    // Default to 'make' — the network/Model surface is parked (2026-06-23),
+    // so the kitchen flow is the home surface. A direct ?path=explore still
+    // resolves to the network for anyone with the link.
+    return PATH_TO_TAB[path] || 'make';
   })();
   const [activeTab, setActiveTab] = useState(initialTab); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'guided' | 'guided-results' | 'build' | 'profile' | 'cookbook'
 
@@ -2793,8 +2796,7 @@ export default function App() {
             if (tab === 'recipe') setRecipeMounted(true);
             setLabDropdownOpen(false);
           }}
-          networkMode={mode}
-          onNetworkModeChange={setMode}
+          onOpenHowItWorks={() => setHowItWorksOpen(true)}
           onSelectLab={(id) => {
             // Bottom-bar Labs popover routes the same surfaces the
             // floating LabsFab used to. 'molecule' opens the modal lab;

@@ -23,14 +23,15 @@ describe('LandingScreen — MAKE-LANDING-TILE (3-tile row, post MAKE-BUILD-DEPRE
   // B-version P5 (2026-06-02): landing tile order is now Guided →
   // Make → Network per LANDING-CHALKBOARD spec. Old order was
   // pairing → guided → make; updated here to match.
-  it('renders 3 tiles in order: guided, make, pairing', () => {
+  // The 'pairing' (Explore the Network) tile is hidden 2026-06-23 while the
+  // molecular lab is parked — landing is now guided + make only.
+  it('renders 2 tiles in order: guided, make (network tile parked)', () => {
     render(<LandingScreen onModeSelect={vi.fn()} />);
     const tiles = screen.getAllByRole('button');
-    expect(tiles.length).toBe(3);
+    expect(tiles.length).toBe(2);
     expect(tiles[0]).toHaveAttribute('data-mode', 'guided');
     expect(tiles[1]).toHaveAttribute('data-mode', 'make');
-    expect(tiles[2]).toHaveAttribute('data-mode', 'pairing');
-    expect(screen.queryByText('Build your Recipe')).toBeNull();
+    expect(screen.queryByText('Explore the Network')).toBeNull();
   });
 
   it('Make tile shows the spec-locked label + subheadline', () => {

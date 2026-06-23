@@ -164,13 +164,10 @@ const TILES = [
     accent: '#a78bfa',
     Visual: MakeVisual,
   },
-  {
-    id: 'pairing', // routes to existing 'network' tab — preserves activeTab wiring
-    label: 'Explore the Network',
-    subheadline: "You're ready to poke around the NeuFlavor Network model without guidance to explore all kinds of ways of pairing ingredients.",
-    accent: '#4f8fff',
-    Visual: PairingVisual,
-  },
+  // 'Explore the Network' (molecular lab) tile hidden 2026-06-23 — the
+  // network/Model surface is parked until it earns its place; the kitchen
+  // flows (Guided, Make) are the entry points for now. Restore this tile +
+  // the Model tab + the Molecule Lab menu item together to bring it back.
 ];
 
 export default function LandingScreen({ onModeSelect, isLoading = false, picked = null }) {
