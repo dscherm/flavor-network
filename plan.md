@@ -337,6 +337,7 @@ any new pure logic; full suite green, build clean.
   "title": "Add a help bubble to the IngredientPicker explaining the pin-to-confirm add flow",
   "category": "ui",
   "priority": 1,
+  "passes": true,
   "description": "Mount HelpBubble in the IngredientPicker header (src/components/IngredientPicker.jsx ~:421, before the close ×). Copy explains the non-obvious flow: tap an ingredient row → it pins as a dot on the taste radar → tap the dot → 'Yes, add to recipe'. Also mention the '+ Add to Recipe' row shortcut once pinned. Read the file first to confirm the exact flow/labels.",
   "acceptance": [
     "A '?' bubble appears in the IngredientPicker header; popover explains pin → tap dot → confirm",
