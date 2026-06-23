@@ -28,6 +28,7 @@ import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.j
 import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
 import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSimilarity.js';
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
+import HelpBubble from './HelpBubble.jsx';
 
 const FONT = 'Caveat, cursive';
 
@@ -447,6 +448,24 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   const [page, setPage] = useState(0);
   // Pages: 0 Overview · 1 Flavor map · 2..axes.length+1 per-axis · Enhance · Pairings.
   const totalPages = axes.length + 4;
+
+  // First-open swipe hint (HELP-5): a one-time nudge that the card is a
+  // multi-page deck. Shown until the user navigates or ~4.5s elapse; the
+  // localStorage flag keeps it from reappearing on later opens.
+  const [showSwipeHint, setShowSwipeHint] = useState(() => {
+    try { return !localStorage.getItem('fn-fpcard-swipe-hint-seen'); } catch { return false; }
+  });
+  const dismissSwipeHint = () => {
+    setShowSwipeHint(false);
+    try { localStorage.setItem('fn-fpcard-swipe-hint-seen', '1'); } catch { /* ignore */ }
+  };
+  useEffect(() => {
+    if (!showSwipeHint) return undefined;
+    const t = setTimeout(dismissSwipeHint, 4500);
+    return () => clearTimeout(t);
+  }, [showSwipeHint]);
+  // Any page change means they've discovered navigation — retire the hint.
+  useEffect(() => { if (page !== 0) dismissSwipeHint(); }, [page]);
   const isOverview = page === 0;
   const isMap = page === 1;
   const isEnhance = page === axes.length + 2;
@@ -512,7 +531,21 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           ← Back
         </button>
         <span className="text-[13px] uppercase tracking-wider text-center flex-1 px-2" style={{ fontFamily: FONT, color: CHALK_DIM }}>Flavor Profiles</span>
-        <button onClick={onClose} aria-label="Close" className="min-h-[44px] px-2 text-2xl" style={{ color: CHALK_SUB }}>×</button>
+        <div className="flex items-center gap-0.5">
+          <HelpBubble
+            variant="chalk"
+            placement="bottom"
+            testId="profiles-help"
+            label="About Flavor Profiles"
+            title="Flavor Profiles"
+            body={[
+              'Swipe left/right — or tap ◀ ▶ or the dots — to move between pages.',
+              'Pages: Overview, a flavor map, one per flavor axis, Enhance, and Pairings.',
+              'On the axis and Enhance pages, tap a Boost or Temper chip to add it (amount prefilled).',
+            ]}
+          />
+          <button onClick={onClose} aria-label="Close" className="min-h-[44px] px-2 text-2xl" style={{ color: CHALK_SUB }}>×</button>
+        </div>
       </div>
 
       <div className="px-4 pb-2 overflow-y-auto" style={{ flex: 1 }}>
@@ -681,6 +714,16 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           </div>
         )}
       </div>
+
+      {showSwipeHint && totalPages > 1 && n > 0 && (
+        <div
+          data-testid="profiles-swipe-hint"
+          className="text-center pb-1 flex-shrink-0 animate-pulse"
+          style={{ fontFamily: FONT, fontSize: 15, color: CHALK_SUB }}
+        >
+          ◀ swipe or tap ▶ to explore every flavor page
+        </div>
+      )}
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-4 pb-3 pt-1 flex-shrink-0 border-t border-[#3a3a3a]">

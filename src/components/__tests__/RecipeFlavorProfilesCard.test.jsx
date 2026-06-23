@@ -12,6 +12,7 @@ function nodesFrom(map) {
 beforeEach(() => {
   // directions index + recipe vocab fetches → skip gracefully
   global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
+  try { localStorage.clear(); } catch { /* ignore */ }
 });
 
 describe('RecipeFlavorProfilesCard', () => {
@@ -152,5 +153,26 @@ describe('RecipeFlavorProfilesCard', () => {
     fireEvent.touchStart(card, { touches: [{ clientX: 100, clientY: 50 }] });
     fireEvent.touchEnd(card, { changedTouches: [{ clientX: 200, clientY: 55 }] });
     expect(screen.queryByText('Pairs well with')).not.toBeInTheDocument();
+  });
+
+  it('shows a help bubble explaining the carousel (HELP-5)', () => {
+    render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
+    expect(screen.queryByTestId('profiles-help-popover')).toBeNull();
+    fireEvent.click(screen.getByTestId('profiles-help'));
+    const pop = screen.getByTestId('profiles-help-popover');
+    expect(pop).toHaveTextContent(/swipe/i);
+    expect(pop).toHaveTextContent(/Boost or Temper/i);
+  });
+
+  it('shows a first-open swipe hint, then retires it after navigation + on later opens (HELP-5)', () => {
+    const { unmount } = render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
+    expect(screen.getByTestId('profiles-swipe-hint')).toBeInTheDocument();
+    // Navigating dismisses the hint and persists the seen flag.
+    fireEvent.click(screen.getByLabelText('Next'));
+    expect(screen.queryByTestId('profiles-swipe-hint')).toBeNull();
+    unmount();
+    // A later open does not show it again.
+    render(<RecipeFlavorProfilesCard bowlNames={['honey', 'lemon', 'butter']} nodes={nodes} />);
+    expect(screen.queryByTestId('profiles-swipe-hint')).toBeNull();
   });
 });
