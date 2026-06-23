@@ -282,6 +282,20 @@ export default function SuggestionCardDeck({
         {loading && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: 'Caveat, cursive' }}>Finding smart suggestions…</p>}
         {!loading && items.length === 0 && <p className="text-center text-base text-[#8a8478] py-6" style={{ fontFamily: 'Caveat, cursive' }}>No suggestions for this recipe yet.</p>}
 
+        {/* Per-page title (HELP-5): label each swipeable deck page by its subject
+            — the candidate name — mirroring the per-page <h3> titles in the
+            Flavor Profiles carousel. The dim suffix marks the page's position. */}
+        {!loading && card && (
+          <h3
+            data-testid="deck-page-title"
+            className="text-2xl text-center mb-2 flex-shrink-0"
+            style={{ fontFamily: 'Caveat, cursive', color: '#f5efde', textShadow: '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)' }}
+          >
+            {card.name}
+            <span className="text-base ml-2" style={{ color: '#8a8478' }}>{cardIdx + 1} / {items.length}</span>
+          </h3>
+        )}
+
         {!loading && card && (
           <div className="relative flex justify-center" data-testid="suggestion-card-stack">
             {/* peek-stack behind the top card (Tinder style) */}

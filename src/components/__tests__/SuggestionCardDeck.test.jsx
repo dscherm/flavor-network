@@ -61,6 +61,19 @@ describe('SuggestionCardDeck — add mode', () => {
     expect(onAdd.mock.calls[0][0]).toBe('cinnamon');
   });
 
+  it('labels each deck page with a title naming the candidate + position (HELP-5)', async () => {
+    suggestIngredients.mockResolvedValue([{ name: 'cinnamon' }, { name: 'ginger' }]);
+    render(<SuggestionCardDeck mode="add" bowlNames={['honey', 'lemon']} nodes={nodes} onAdd={vi.fn()} />);
+    await waitFor(() => expect(screen.getByTestId('deck-page-title')).toBeInTheDocument());
+    const title = screen.getByTestId('deck-page-title');
+    expect(title).toHaveTextContent('cinnamon');
+    expect(title).toHaveTextContent('1 / 2');
+    // Advancing the deck retitles the page to the next candidate.
+    fireEvent.click(screen.getByTestId('deck-next'));
+    expect(screen.getByTestId('deck-page-title')).toHaveTextContent('ginger');
+    expect(screen.getByTestId('deck-page-title')).toHaveTextContent('2 / 2');
+  });
+
   it('renders the after polygon reflecting a non-null delta (mover dots present)', async () => {
     suggestIngredients.mockResolvedValue([{ name: 'cinnamon' }]);
     const { container } = render(
