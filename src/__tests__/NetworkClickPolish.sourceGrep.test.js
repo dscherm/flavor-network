@@ -248,6 +248,20 @@ describe('α-EXIT-FULL-RESET (2026-05-31) — ESC from α-mode does a full reset
   });
 });
 
+describe('HELP-BUTTON-TOUR (guard) — HelpButton must not call the removed setShowTour', () => {
+  it('App.jsx no longer references the removed setShowTour setter', () => {
+    // setShowTour was removed with the Walkthrough overlay (2026-05-31); the
+    // HelpButton onClick must drive the GuidedTour via setTourActive instead.
+    expect(appJsx).not.toMatch(/setShowTour\s*\(/);
+  });
+
+  it('HelpButton onClick starts the GuidedTour (setTourActive(true))', () => {
+    const block = appJsx.match(/<HelpButton[\s\S]{0,800}?\/>/);
+    expect(block).not.toBeNull();
+    expect(block[0]).toMatch(/setTourActive\(true\)/);
+  });
+});
+
 describe('NONE-PILL-PARTICLES-OVERRIDE (2026-05-31)', () => {
   it('App.jsx defines particlesOverride state', () => {
     expect(appJsx).toMatch(/const \[particlesOverride, setParticlesOverride\] = useState\(false\)/);

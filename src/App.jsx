@@ -2027,7 +2027,19 @@ export default function App() {
           if (ingredients) setShowTreeExplorer(false);
         }}
       />
-      <HelpButton onClick={() => setShowTour(true)} />
+      <HelpButton
+        onClick={() => {
+          // Start the GuidedTour from a clean general state. (`setShowTour`
+          // was removed with the old Walkthrough overlay on 2026-05-31; the
+          // tour is now driven by tourActive — mirror the canonical start.)
+          setTourFocal(null);
+          setTourAxis('taste');
+          setTourChosenAxisKey(null);
+          setTourFocalBucket(null);
+          setActiveTab('network');
+          setTourActive(true);
+        }}
+      />
       <HowItWorks
         initialOpen={howItWorksInitialOpen}
         isOpen={howItWorksOpen}
@@ -2254,7 +2266,14 @@ export default function App() {
             onLogin={loginWithGoogle}
             onLoginWithApple={loginWithApple}
             onLogout={logout}
-            onReplayTour={() => { setActiveTab('network'); setShowTour(true); }}
+            onReplayTour={() => {
+              setTourFocal(null);
+              setTourAxis('taste');
+              setTourChosenAxisKey(null);
+              setTourFocalBucket(null);
+              setActiveTab('network');
+              setTourActive(true);
+            }}
           />
         )}
       </div>
