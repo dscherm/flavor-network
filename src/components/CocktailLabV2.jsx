@@ -57,7 +57,10 @@ export default function CocktailLabV2({
   // Explore = the 3D NetworkScene cluster view (existing behavior).
   // Browse = the 2D mini-map + filterable list view (new). Detail
   // panel + cocktail selection state are shared across both modes.
-  const [viewMode, setViewMode] = useState('explore');
+  // 2D "Browse" (the bar-menu list) is the default — it's the usable view;
+  // 3D "Explore" is the optional eye-candy (and on its way out with the
+  // molecular lab). See the 2026-06-23 labs design review.
+  const [viewMode, setViewMode] = useState('browse');
 
   useEffect(() => {
     let cancelled = false;
