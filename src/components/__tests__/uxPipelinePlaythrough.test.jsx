@@ -40,12 +40,10 @@ const SAMPLE_INGREDIENTS = ['chicken', 'onion', 'basil', 'vanilla', 'tomato', 'g
 // ──────────────────────── §1 — Landing + nav ────────────────────────
 
 describe('§1 — Landing page', () => {
-  it('1.A renders Explore the Network tile with verbatim subheadline', () => {
+  it('1.A hides the Explore the Network tile (molecular lab parked 2026-06-23)', () => {
     render(<LandingScreen onModeSelect={() => {}} />);
-    expect(screen.getByText('Explore the Network')).toBeInTheDocument();
-    expect(
-      screen.getByText(/You're ready to poke around the NeuFlavor Network model/),
-    ).toBeInTheDocument();
+    // The network/Model surface is hidden for now — only Guided + Make remain.
+    expect(screen.queryByText('Explore the Network')).not.toBeInTheDocument();
   });
 
   it('1.B renders Guided Discovery tile with verbatim subheadline', () => {
@@ -56,12 +54,13 @@ describe('§1 — Landing page', () => {
     ).toBeInTheDocument();
   });
 
-  it('1.D landing has 3 tiles (pairing/guided/make); no cocktail/sauce/recipes/build on landing', () => {
+  it('1.D landing has 2 tiles (guided/make); network parked, no cocktail/sauce/recipes/build on landing', () => {
     const { container } = render(<LandingScreen onModeSelect={() => {}} />);
     const tiles = container.querySelectorAll('button[data-mode]');
-    expect(tiles).toHaveLength(3);
+    expect(tiles).toHaveLength(2);
     const ids = Array.from(tiles).map((b) => b.getAttribute('data-mode'));
-    expect(ids).toEqual(expect.arrayContaining(['pairing', 'guided', 'make']));
+    expect(ids).toEqual(expect.arrayContaining(['guided', 'make']));
+    expect(ids).not.toContain('pairing'); // molecular lab parked 2026-06-23
     expect(ids).not.toContain('build');
     expect(ids).not.toContain('cocktail');
     expect(ids).not.toContain('sauce');
@@ -102,7 +101,7 @@ describe('§1 — Landing page', () => {
   // / Model / Labs. Profile moved into the Labs popover. Cocktail /
   // Sauce / Cookbook / Recipe Notebook / Profile / Molecule Lab are
   // all reachable via the Labs popover.
-  it('1.G MobileTabBar exposes Guided/Make/Model/Labs + no legacy Explore/Profile slot', async () => {
+  it('1.G MobileTabBar exposes Guided/Make/Labs; Model parked (molecular lab hidden 2026-06-23)', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
@@ -111,8 +110,8 @@ describe('§1 — Landing page', () => {
     );
     expect(/aria-label="Guided"/.test(src)).toBe(true);
     expect(/aria-label="Make"/.test(src)).toBe(true);
-    expect(/aria-label="Model"/.test(src)).toBe(true);
     expect(/aria-label="Labs"/.test(src)).toBe(true);
+    expect(/aria-label="Model"/.test(src)).toBe(false); // network tab hidden
     expect(/aria-label="Explore"/.test(src)).toBe(false);
     expect(/aria-label="Build"/.test(src)).toBe(false);
     // Profile is in the LABS popover content, not as a top-level
