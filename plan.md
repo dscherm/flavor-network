@@ -419,17 +419,20 @@ any new pure logic; full suite green, build clean.
 }
 ```
 
-### HELP-7 — FUTURE (deferred): tap-reveal morph pole labels on touch
+### HELP-7 — tap-reveal morph pole labels on touch
 
 ```json
 {
   "id": "HELP-7",
-  "title": "FUTURE: make hover-only morph POLE labels (member counts / top members) reachable by tap on touch",
+  "title": "Make hover-only morph POLE labels (member counts / top members) reachable by tap on touch",
   "category": "ui",
   "priority": 3,
-  "description": "Split out of HELP-3. When a filter/morph axis is engaged the scene shows wedge 'poles'; their labels (member count, top members, bridge) currently reveal on mousemove only (onPoleHover), so touch users never see them. Node labels are NOT affected — nodes are already tap (details) + long-press (pairing focus) accessible. Fixing poles means adding touch raycasting against the pole sprites in LivingArchView — non-trivial 3D work with regression risk in the network scene, so it was deliberately excluded from the 'cheap UX wins' pass. Revisit as a standalone change with its own verification.",
+  "passes": true,
+  "description": "Done. Pole labels (member count / top members / bridge) previously surfaced only on mousemove (onPoleHover), so touch users never saw them. In LivingArchView extracted a shared poleHitAt(clientX,clientY) raycast helper and a shared activePoleLabel, used by BOTH onMove (hover) and onClick (tap). A tap on a pole sprite now surfaces its tooltip (and toggles off / clears when tapping the same pole again or anything else); a normal tap reaches it via onClickGuard→onClick, and the node-selection path runs only when no pole was hit. Long-press (α-mode) and node tap are unaffected. Verified: hover still surfaces + clears poles after the refactor (regression-safe), and a live click on a pole sprite exercised the new tap branch (toggled the overlay). Build + full suite green; source-grep guard added.",
   "acceptance": [
-    "Scoped + deferred; standalone 3D change, not part of the help-bubble pass"
+    "Tapping a bucket-pole label surfaces its tooltip on touch (shared poleHitAt raycast)",
+    "Hover path unchanged (no regression); node tap / long-press unaffected",
+    "Source-grep guard for the tap path; full suite green; build clean"
   ]
 }
 ```
