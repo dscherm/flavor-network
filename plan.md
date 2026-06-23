@@ -347,19 +347,20 @@ any new pure logic; full suite green, build clean.
 }
 ```
 
-### HELP-3 — Wire HelpBubble into the Network 3D explorer (+ tap-reveal labels)
+### HELP-3 — Network gesture grammar (folded into the HowItWorks modal)
 
 ```json
 {
   "id": "HELP-3",
-  "title": "Add a help bubble to the Network 3D explorer; make hover-only node/pole labels tap-revealable",
+  "title": "Document the Network 3D interaction grammar in the existing HowItWorks modal (no new bubble)",
   "category": "ui",
   "priority": 1,
-  "description": "Mount HelpBubble in a corner of the Network canvas chrome (App.jsx ~:1674 / LivingArchView). Copy lists the interaction grammar: drag to orbit, scroll/pinch to zoom, tap a node for details, tap a cluster pill to focus, tap empty space / Esc to reset, arrow keys to walk, '/' to search. Cheap UX win: where node/pole labels currently reveal on hover only (a dead end on touch), make them tap-revealable too. Read App.jsx + the network components first to confirm exact affordances before writing copy.",
+  "passes": true,
+  "description": "REVISED after investigation: the Network already has TWO help affordances (the global tour '?' HelpButton + the 'How it works' modal), so a third floating bubble would be redundant (user prefers consolidation). The genuine gap is the interaction GRAMMAR, which neither documents. Add a 'Getting around' section to src/components/HowItWorks.jsx covering: drag to orbit, scroll/pinch to zoom, two-finger drag to pan, tap a dot for details, press-and-hold a dot to focus pairings, tap a cluster pill to isolate, tap empty space / Esc to reset, arrow keys to walk, '/' to search. The bundled 'tap-reveal hover labels' win is mostly moot — nodes are already tap + long-press accessible on touch; only morph POLE labels are hover-only and tap-revealing them is risky 3D raycasting → split out as HELP-7 (deferred).",
   "acceptance": [
-    "A '?' bubble in the network canvas corner; popover lists the core gestures accurately",
-    "Hover-only node/pole labels are also reachable by tap on touch devices",
-    "Full suite green; build clean"
+    "HowItWorks modal has a 'Getting around' section listing the core gestures accurately",
+    "No third floating help affordance added to the network (consolidated into HowItWorks)",
+    "Unit test for the new section; full suite green; build clean"
   ]
 }
 ```
@@ -409,6 +410,21 @@ any new pure logic; full suite green, build clean.
   "description": "Deferred per scoping decision. The pin → tap-dot → confirm flow is 3 steps for 'add an ingredient'. The stronger fix than a help bubble (HELP-2) is to make the row's '+ Add to Recipe' the always-visible primary action and demote the radar-pin to an optional compare/preview gesture, collapsing 3 steps → 1. Touches the most-used add flow, so it is intentionally separate from the help-bubble pass. Revisit after HELP-1..5 ship + the help bubble's effect is observed.",
   "acceptance": [
     "Scoped + deferred; revisit after HELP-1..5 ship"
+  ]
+}
+```
+
+### HELP-7 — FUTURE (deferred): tap-reveal morph pole labels on touch
+
+```json
+{
+  "id": "HELP-7",
+  "title": "FUTURE: make hover-only morph POLE labels (member counts / top members) reachable by tap on touch",
+  "category": "ui",
+  "priority": 3,
+  "description": "Split out of HELP-3. When a filter/morph axis is engaged the scene shows wedge 'poles'; their labels (member count, top members, bridge) currently reveal on mousemove only (onPoleHover), so touch users never see them. Node labels are NOT affected — nodes are already tap (details) + long-press (pairing focus) accessible. Fixing poles means adding touch raycasting against the pole sprites in LivingArchView — non-trivial 3D work with regression risk in the network scene, so it was deliberately excluded from the 'cheap UX wins' pass. Revisit as a standalone change with its own verification.",
+  "acceptance": [
+    "Scoped + deferred; standalone 3D change, not part of the help-bubble pass"
   ]
 }
 ```
