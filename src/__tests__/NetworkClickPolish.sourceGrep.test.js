@@ -268,9 +268,9 @@ describe('HELP-7 — bucket-pole labels reachable by tap on touch', () => {
     expect(lavJsx).toMatch(/let activePoleLabel = null/);
   });
 
-  it('onClick surfaces / toggles a tapped pole before node-selection runs', () => {
+  it('onClick surfaces a tapped pole (always shows; no toggle) before node-selection', () => {
     expect(lavJsx).toMatch(/const ud = poleHitAt\(event\.clientX, event\.clientY\)/);
-    expect(lavJsx).toMatch(/activePoleLabel === ud\.axisLabel/);
+    expect(lavJsx).toMatch(/activePoleLabel = ud\.axisLabel/);
   });
 
   it('onMove still drives pole hover via the shared helper (no regression)', () => {

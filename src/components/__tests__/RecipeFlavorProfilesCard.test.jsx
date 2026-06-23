@@ -148,10 +148,10 @@ describe('RecipeFlavorProfilesCard', () => {
     // dot[6] (last) → Pairings page
     fireEvent.click(dots[6]);
     expect(screen.getByText('Pairs well with')).toBeInTheDocument();
-    // swipe right (dx > 0) → previous page, leaving Pairings
+    // drag right (dx > 0) → previous page, leaving Pairings (pointer = mouse OR touch)
     const card = screen.getByTestId('flavor-profiles-card');
-    fireEvent.touchStart(card, { touches: [{ clientX: 100, clientY: 50 }] });
-    fireEvent.touchEnd(card, { changedTouches: [{ clientX: 200, clientY: 55 }] });
+    fireEvent.pointerDown(card, { clientX: 100, clientY: 50 });
+    fireEvent.pointerUp(card, { clientX: 200, clientY: 55 });
     expect(screen.queryByText('Pairs well with')).not.toBeInTheDocument();
   });
 

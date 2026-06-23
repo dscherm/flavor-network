@@ -54,8 +54,9 @@ export default function TourPopup({
       className={`fixed z-[120] w-[min(360px,calc(100vw-2rem))] rounded-2xl border-2 p-4 shadow-2xl backdrop-blur-md ${anchor}`}
       style={{
         borderColor: stage.accent,
+        // Single `background` only — mixing it with `backgroundColor` triggers
+        // React's "conflicting style property" warning on re-render.
         background: stage.gradient || 'rgba(13, 31, 56, 0.92)',
-        backgroundColor: 'rgba(13, 31, 56, 0.92)',
       }}
     >
       <div className="flex items-start justify-between gap-3 mb-2">

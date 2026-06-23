@@ -488,20 +488,19 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
     [isEnhance, axes, candidates, scores, n, nodes],
   );
 
-  // Touch-swipe between carousel pages (left = next page, right = previous).
+  // Pointer-drag between carousel pages — works for BOTH mouse and touch
+  // (left = next page, right = previous). Pointer events unify the gesture so
+  // desktop users can drag-swipe, not just tap the ◀ ▶ arrows / dots.
   const goPage = (delta) => setPage((p) => Math.max(0, Math.min(totalPages - 1, p + delta)));
-  const onTouchStart = (e) => {
-    const t = e.touches?.[0];
-    if (t) swipeStartRef.current = { x: t.clientX, y: t.clientY };
-  };
-  const onTouchEnd = (e) => {
+  const onPointerDown = (e) => { swipeStartRef.current = { x: e.clientX, y: e.clientY }; };
+  const onPointerUp = (e) => {
     const s = swipeStartRef.current;
     swipeStartRef.current = null;
-    const t = e.changedTouches?.[0];
-    if (!s || !t) return;
-    const dx = t.clientX - s.x;
-    const dy = t.clientY - s.y;
-    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return; // ignore vertical scrolls
+    if (!s) return;
+    const dx = e.clientX - s.x;
+    const dy = e.clientY - s.y;
+    // Ignore taps (small move) and vertical scrolls (dy dominates).
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
     goPage(dx < 0 ? 1 : -1);
   };
 
@@ -517,8 +516,8 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
       className="w-full h-full shadow-2xl flex flex-col"
       style={{ height: '100%', background: CHALK_BG, border: `2px double ${CHALK_BORDER_OUTER}`, boxShadow: `inset 0 0 0 1px ${CHALK_BORDER_INNER}55, 0 8px 24px rgba(0,0,0,0.55)` }}
       data-testid="flavor-profiles-card"
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
     >
       <div className="flex items-center justify-between px-4 pt-2.5 pb-1 flex-shrink-0">
         <button
