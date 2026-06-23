@@ -31,6 +31,8 @@ const VARIANTS = {
     sub: '#9aa0ac',
     font: 'inherit',
     shadow: '0 6px 24px rgba(0,0,0,0.5)',
+    titleSize: 17,
+    bodySize: 15,
   },
   chalk: {
     btn: 'text-[#bdb6a3] bg-[#1c1c1c]/90 border-[#4a4a4a] hover:text-[#f5efde] hover:border-[#6a6a6a] focus:ring-[#6a6a6a]',
@@ -43,6 +45,10 @@ const VARIANTS = {
     sub: '#bdb6a3',
     font: 'Caveat, cursive',
     shadow: '0 8px 24px rgba(0,0,0,0.55)',
+    // Caveat is a handwriting face — it reads ~30% smaller than a sans at
+    // the same px, so the chalk variant uses larger sizes for legibility.
+    titleSize: 23,
+    bodySize: 19,
   },
 };
 
@@ -111,15 +117,15 @@ export default function HelpBubble({
           className="absolute z-[60] rounded-xl p-3"
           style={{
             ...posStyle,
-            width: 248,
-            maxWidth: '78vw',
+            width: 284,
+            maxWidth: '82vw',
             boxShadow: v.shadow,
             ...v.pop,
           }}
         >
           <div className="flex items-start justify-between gap-2 mb-1">
             {title && (
-              <h4 className="text-base font-semibold" style={{ color: v.title, fontFamily: v.font, margin: 0 }}>
+              <h4 className="font-semibold" style={{ color: v.title, fontFamily: v.font, fontSize: v.titleSize, lineHeight: 1.2, margin: 0 }}>
                 {title}
               </h4>
             )}
@@ -137,8 +143,7 @@ export default function HelpBubble({
           {lines.map((line, i) => (
             <p
               key={i}
-              className="text-sm"
-              style={{ color: i === 0 && !title ? v.title : 'inherit', fontFamily: v.font, margin: '0 0 4px', lineHeight: 1.4 }}
+              style={{ color: i === 0 && !title ? v.title : 'inherit', fontFamily: v.font, fontSize: v.bodySize, margin: '0 0 5px', lineHeight: 1.4 }}
             >
               {line}
             </p>

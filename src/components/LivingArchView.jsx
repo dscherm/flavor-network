@@ -1283,22 +1283,21 @@ export default function LivingArchView({
       if (phTap) {
         const ud = poleHitAt(event.clientX, event.clientY);
         if (ud) {
-          if (activePoleLabel === ud.axisLabel) {
-            activePoleLabel = null;
-            phTap(null);
-          } else {
-            activePoleLabel = ud.axisLabel;
-            phTap({
-              label: ud.axisLabel,
-              memberCount: ud.memberCount || 0,
-              color: ud.color || '#ffffff',
-              topMembers: Array.isArray(ud.topMembers) ? ud.topMembers : [],
-              bridge: ud.bridge || null,
-              x: event.clientX,
-              y: event.clientY,
-            });
-            if (onNodeHover) onNodeHover(null, null);
-          }
+          // Tapping a pole always SURFACES its tooltip (no toggle): on
+          // desktop the label may already be hover-shown, and toggling it
+          // off on click is confusing. Dismiss is via tapping elsewhere
+          // (handled below) — which on touch is the natural gesture.
+          activePoleLabel = ud.axisLabel;
+          phTap({
+            label: ud.axisLabel,
+            memberCount: ud.memberCount || 0,
+            color: ud.color || '#ffffff',
+            topMembers: Array.isArray(ud.topMembers) ? ud.topMembers : [],
+            bridge: ud.bridge || null,
+            x: event.clientX,
+            y: event.clientY,
+          });
+          if (onNodeHover) onNodeHover(null, null);
           return;
         }
         if (activePoleLabel !== null) { activePoleLabel = null; phTap(null); }
