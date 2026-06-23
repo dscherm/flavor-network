@@ -391,6 +391,7 @@ any new pure logic; full suite green, build clean.
   "title": "Add a help bubble to the Flavor Profiles carousel; label each page; add a first-open swipe hint",
   "category": "ui",
   "priority": 1,
+  "passes": true,
   "description": "Mount HelpBubble in the RecipeFlavorProfilesCard header (src/components/RecipeFlavorProfilesCard.jsx ~:504). Copy explains: swipe left/right (or use ◀ ▶ / the dots) to move between pages — Overview, Flavor map, per-axis Boost/Temper, Enhance, Pairings — and that tapping Boost/Temper chips adds ingredients. Cheap UX wins: ensure each carousel page shows a clear title (several already do — fill gaps), and add a subtle one-time ◀▶ swipe-hint nudge on first open. Apply the same page-title polish to SuggestionCardDeck where pages are unlabeled. Read both files first.",
   "acceptance": [
     "A '?' bubble in the Flavor Profiles header; popover explains swipe/pages + tap-to-add",
