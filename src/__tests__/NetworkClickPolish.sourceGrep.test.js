@@ -262,6 +262,23 @@ describe('HELP-BUTTON-TOUR (guard) — HelpButton must not call the removed setS
   });
 });
 
+describe('HELP-7 — bucket-pole labels reachable by tap on touch', () => {
+  it('LivingArchView shares a poleHitAt helper + activePoleLabel for hover and tap', () => {
+    expect(lavJsx).toMatch(/function poleHitAt\(/);
+    expect(lavJsx).toMatch(/let activePoleLabel = null/);
+  });
+
+  it('onClick surfaces / toggles a tapped pole before node-selection runs', () => {
+    expect(lavJsx).toMatch(/const ud = poleHitAt\(event\.clientX, event\.clientY\)/);
+    expect(lavJsx).toMatch(/activePoleLabel === ud\.axisLabel/);
+  });
+
+  it('onMove still drives pole hover via the shared helper (no regression)', () => {
+    // onMove no longer declares its own lastPoleLabel — it uses activePoleLabel.
+    expect(lavJsx).not.toMatch(/let lastPoleLabel = null/);
+  });
+});
+
 describe('NONE-PILL-PARTICLES-OVERRIDE (2026-05-31)', () => {
   it('App.jsx defines particlesOverride state', () => {
     expect(appJsx).toMatch(/const \[particlesOverride, setParticlesOverride\] = useState\(false\)/);

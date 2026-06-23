@@ -1240,6 +1240,27 @@ export default function LivingArchView({
     }
     renderer.domElement.addEventListener('mousedown', onMouseDown);
 
+    // HELP-7 — the bucket-pole label currently surfaced, by hover OR tap.
+    // Shared between onMove (hover) and onClick (tap) so touch users — who
+    // have no hover — can tap a pole to reveal its member-count/top-members
+    // tooltip, and a tap elsewhere (or a desktop mouse-move away) clears it.
+    let activePoleLabel = null;
+
+    // Raycast the visible pole group at a screen point; returns the hit
+    // pole sprite's userData, or null. Reused by hover + tap.
+    function poleHitAt(clientX, clientY) {
+      const groupSet = modeRef.current === 'ml' ? poleLabelGroup3DByAxis : poleLabelGroup2DByAxis;
+      const visibleGroup = Object.values(groupSet || {}).find((g) => g.visible);
+      if (!visibleGroup || visibleGroup.children.length === 0) return null;
+      const rect = renderer.domElement.getBoundingClientRect();
+      const mx = ((clientX - rect.left) / rect.width) * 2 - 1;
+      const my = -((clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera({ x: mx, y: my }, camera);
+      const hits = raycaster.intersectObjects(visibleGroup.children, false);
+      const ud = hits.length > 0 ? hits[0].object.userData : null;
+      return ud && ud.isPole ? ud : null;
+    }
+
     function onClick(event) {
       // Drag-vs-tap gate. If the mouse moved more than DRAG_THRESHOLD_PX
       // between mousedown and click, treat it as an orbit drag and
@@ -1253,6 +1274,34 @@ export default function LivingArchView({
           return;
         }
         downPos.was = false;
+      }
+      // HELP-7: a tap on a bucket-pole label surfaces its tooltip (the
+      // hover path never fires on touch). Toggle off if the same pole is
+      // tapped again; clear if the tap missed all poles. Runs before the
+      // node-click logic so tapping a pole doesn't also select a node.
+      const phTap = onPoleHoverRef.current;
+      if (phTap) {
+        const ud = poleHitAt(event.clientX, event.clientY);
+        if (ud) {
+          if (activePoleLabel === ud.axisLabel) {
+            activePoleLabel = null;
+            phTap(null);
+          } else {
+            activePoleLabel = ud.axisLabel;
+            phTap({
+              label: ud.axisLabel,
+              memberCount: ud.memberCount || 0,
+              color: ud.color || '#ffffff',
+              topMembers: Array.isArray(ud.topMembers) ? ud.topMembers : [],
+              bridge: ud.bridge || null,
+              x: event.clientX,
+              y: event.clientY,
+            });
+            if (onNodeHover) onNodeHover(null, null);
+          }
+          return;
+        }
+        if (activePoleLabel !== null) { activePoleLabel = null; phTap(null); }
       }
       // R14 v3: when AffinityMode is engaged, the visible focal + ring
       // shapes sit at orbit positions far from the underlying
@@ -1403,9 +1452,9 @@ export default function LivingArchView({
     renderer.domElement.addEventListener('click', onClickGuard);
     renderer.domElement.style.cursor = 'default';
 
-    // Track the last pole sprite reported so we only fire onPoleHover
-    // on transitions (avoids spamming React state every mousemove tick).
-    let lastPoleLabel = null;
+    // Pole hover shares `activePoleLabel` (declared above) with the tap path
+    // so we only fire onPoleHover on transitions (avoids spamming React state
+    // every mousemove tick) and hover/tap don't fight over the surfaced label.
     function onMove(event) {
       // R18 — pole-sprite raycast runs first. Only one pole group is
       // visible at a time (the one for the active axis filter under the
@@ -1413,37 +1462,23 @@ export default function LivingArchView({
       // node-hover path entirely.
       const phCb = onPoleHoverRef.current;
       if (phCb) {
-        const groupSet = modeRef.current === 'ml'
-          ? poleLabelGroup3DByAxis
-          : poleLabelGroup2DByAxis;
-        const visibleGroup = Object.values(groupSet || {}).find((g) => g.visible);
-        if (visibleGroup && visibleGroup.children.length > 0) {
-          const rect = renderer.domElement.getBoundingClientRect();
-          const mx = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-          const my = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-          raycaster.setFromCamera({ x: mx, y: my }, camera);
-          const hits = raycaster.intersectObjects(visibleGroup.children, false);
-          if (hits.length > 0) {
-            const sprite = hits[0].object;
-            const ud = sprite.userData || {};
-            if (ud.isPole) {
-              lastPoleLabel = ud.axisLabel;
-              phCb({
-                label: ud.axisLabel,
-                memberCount: ud.memberCount || 0,
-                color: ud.color || '#ffffff',
-                topMembers: Array.isArray(ud.topMembers) ? ud.topMembers : [],
-                bridge: ud.bridge || null,
-                x: event.clientX,
-                y: event.clientY,
-              });
-              if (onNodeHover) onNodeHover(null, null);
-              return;
-            }
-          }
+        const ud = poleHitAt(event.clientX, event.clientY);
+        if (ud) {
+          activePoleLabel = ud.axisLabel;
+          phCb({
+            label: ud.axisLabel,
+            memberCount: ud.memberCount || 0,
+            color: ud.color || '#ffffff',
+            topMembers: Array.isArray(ud.topMembers) ? ud.topMembers : [],
+            bridge: ud.bridge || null,
+            x: event.clientX,
+            y: event.clientY,
+          });
+          if (onNodeHover) onNodeHover(null, null);
+          return;
         }
-        if (lastPoleLabel !== null) {
-          lastPoleLabel = null;
+        if (activePoleLabel !== null) {
+          activePoleLabel = null;
           phCb(null);
         }
       }
