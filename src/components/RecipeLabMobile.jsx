@@ -584,10 +584,15 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
               : pickerMode === 'replace' ? `Replace ${pickerReplaceTarget || 'ingredient'}`
               : 'Ingredient choices'}
             onSelect={(name) => {
-              // All three flows preview the picked ingredient as the chalkboard
-              // card (before→after radar) before committing.
-              setAddPreview({ name, mode: pickerMode === 'replace' ? 'replace' : 'add', replaceTarget: pickerReplaceTarget });
               setPickerOpen(false);
+              // Manual "+ Add" commits straight to the bowl — no preview step.
+              // ✨ Suggest / Smart-swaps keep the before→after profile-delta
+              // preview card (that's the point of those flows).
+              if (pickerMode === 'add') {
+                handleAddIngredient(name);
+                return;
+              }
+              setAddPreview({ name, mode: pickerMode === 'replace' ? 'replace' : 'add', replaceTarget: pickerReplaceTarget });
             }}
             onClose={() => { setPickerOpen(false); setPickerReplaceTarget(null); setPickerCandidates(null); }}
           />
