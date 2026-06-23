@@ -14,6 +14,13 @@ describe('HowItWorks — gestures section (HELP-3)', () => {
     expect(sec).toHaveTextContent(/arrow keys/i);
   });
 
+  it('explains filter stacking, pull-strength, and the Particles toggle (HELP-4)', () => {
+    render(<HowItWorks isOpen onClose={vi.fn()} showButton={false} />);
+    expect(screen.getByText('stack')).toBeInTheDocument();
+    expect(screen.getByText('pull-strength')).toBeInTheDocument();
+    expect(screen.getByText('Particles')).toBeInTheDocument();
+  });
+
   it('renders nothing of the modal body when closed', () => {
     render(<HowItWorks isOpen={false} onClose={vi.fn()} showButton={false} />);
     expect(screen.queryByTestId('howitworks-gestures')).toBeNull();

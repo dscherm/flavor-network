@@ -365,19 +365,20 @@ any new pure logic; full suite green, build clean.
 }
 ```
 
-### HELP-4 — Wire HelpBubble into the Filter pills (+ rename 'None' + tap-reveal poles)
+### HELP-4 — Rename the 'None' pill + document filter mechanics (consolidated into HowItWorks)
 
 ```json
 {
   "id": "HELP-4",
-  "title": "Add a help bubble to the filter pills; rename the misleading 'None' pill; tap-reveal pole labels",
+  "title": "Rename the misleading 'None' filter pill → 'Particles'; document filter mechanics in HowItWorks",
   "category": "ui",
   "priority": 1,
-  "description": "Mount HelpBubble at the right edge of the filter pill row (src/components/FilterPillRow.jsx ~:13 / App.jsx :1698). Copy explains: filters stack (AND-intersection), the pull-strength slider lerps between co-occurrence and bucket poles, pole labels show member counts. Cheap UX wins: (1) rename the 'None' pill to what it actually does — it toggles particle flow, not 'clear filters' — verify the exact behavior in code first and pick an accurate one-word label (e.g. 'Particles'/'Flow'); (2) make the hover-only pole/member labels tap-revealable. Read FilterPillRow.jsx first.",
+  "passes": true,
+  "description": "REVISED after investigation (same consolidation call as HELP-3): the network top-right already has an InsightDrawer '?' right beside the filter row, and HowItWorks' 'The Network' section already explains filter stacking + pole morphing — so a 4th floating '?' would be redundant. Delivered: (1) Cheap UX win — renamed the misleading 'None' pill (which actually toggles particle flow, not clear-filters) → 'Particles' in src/components/FilterPillRow.jsx; aria-label was already accurate and behavior (onToggleNone) unchanged. (2) Folded the two undocumented mechanics — the pull-strength slider + the Particles toggle — into the HowItWorks 'The Network' section. The 'tap-reveal pole labels' part is the 3D morph poles → deferred to HELP-7.",
   "acceptance": [
-    "A '?' bubble at the filter row's edge; popover explains stacking + pull-strength + poles",
-    "The 'None' pill is renamed to accurately describe its particle-toggle behavior",
-    "Pole/member labels are tap-revealable on touch; full suite green; build clean"
+    "The 'None' pill is renamed to 'Particles' (accurate particle-toggle label); wiring unchanged",
+    "HowItWorks documents filter stacking + pull-strength + the Particles toggle",
+    "Updated the source-grep guard test for the rename; full suite green; build clean"
   ]
 }
 ```

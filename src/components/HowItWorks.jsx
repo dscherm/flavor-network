@@ -81,6 +81,13 @@ export default function HowItWorks({
                    each pole groups its bucket's ingredients into a vertical wedge so you
                    can fly to "all fruity ingredients" or "all spring ingredients" as one
                    spatial cluster.</p>
+                <p className="mt-2">Filters <strong>stack</strong> — pick several and a dot
+                   has to satisfy all of them to stay lit. The <strong>pull-strength</strong>
+                   slider below the pills controls how hard the layout morphs toward those
+                   flavor poles: at 0 the co-occurrence map is untouched, and as you raise it
+                   the buckets pull apart into their wedges. The <strong>Particles</strong>
+                   pill is a separate toggle for the flowing-particle effect — it does
+                   <em> not</em> clear your filters.</p>
                 <p className="mt-2 text-xs text-gray-400">Taste palette (visible when the Taste filter is active):</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {Object.entries(TASTE_COLORS).map(([t, c]) => (
