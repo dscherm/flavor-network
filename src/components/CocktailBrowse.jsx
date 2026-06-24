@@ -12,6 +12,13 @@ const CHALK_DIM = '#bdb6a3';
 const CHALK_SUB = '#8a8478';
 const CHALK_RAIL = '#4a4a4a';
 const CHALK_SHADOW = '0 0 1px rgba(245,239,222,0.5), 0 0 3px rgba(245,239,222,0.2)';
+// Faint chalk-dust grain (SVG fractal noise, ~5% white) — reusable
+// kitchen-world DNA so the chalkboard surfaces feel like real boards, not
+// flat black. Subtle by design; must not hurt text legibility. Layer it
+// ABOVE the slate gradient via backgroundImage.
+export const CHALK_TEXTURE =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E\")";
+const CHALK_GRADIENT = 'radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%)';
 
 /**
  * CocktailBrowse — 2D selection surface for the Cocktail Lab. Sits as
@@ -388,7 +395,14 @@ export default function CocktailBrowse({
   return (
     <div
       className="absolute inset-0 top-10 overflow-y-auto"
-      style={{ background: CHALK_BG, color: CHALK_CREAM, boxShadow: `inset 0 0 0 2px ${CHALK_RAIL}55, inset 0 0 0 4px #00000080` }}
+      style={{
+        backgroundColor: '#0a0a0a',
+        backgroundImage: `${CHALK_TEXTURE}, ${CHALK_GRADIENT}`,
+        backgroundSize: '180px 180px, cover',
+        backgroundRepeat: 'repeat, no-repeat',
+        color: CHALK_CREAM,
+        boxShadow: `inset 0 0 0 2px ${CHALK_RAIL}55, inset 0 0 0 4px #00000080`,
+      }}
       data-browse-root
     >
       {/* ───── Board header — the bistro "specials board" title ───── */}
