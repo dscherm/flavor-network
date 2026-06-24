@@ -527,6 +527,20 @@ Prototype + interactive design tuning happened on the Cocktail Lab
 }
 ```
 
+### CK-7 — Cookbook dish detail card → kitchen-world
+
+```json
+{
+  "id": "CK-7",
+  "title": "Reskin the Cookbook dish detail (RecipeDetail in CookbookLab) to the chalk kitchen-world",
+  "category": "ui",
+  "priority": 2,
+  "passes": true,
+  "done_note": "Brought the dish detail modal up to the LabNodeCard treatment: chalk-slate surface (chalkSurfaceStyle + texture) + double chalk border replacing the dark-blue modal; Caveat 34px title + cuisine chip with color dot; description in larger Caveat; ingredients as a two-column → arrow list (matched cream / unmatched faded, same match logic, no more pill chips); MultiAxisRadarStack kept with a Caveat section label; action buttons restyled to chalk (cream 'Open in Recipe Notebook', cuisine-tinted 'Explore in Network'). role=dialog preserved. Seed dishes carry only description + ingredient strings (no step text) so no numbering needed here.",
+  "acceptance": ["Cookbook dish detail matches the kitchen-world card; dialog role preserved; suite green; build clean"]
+}
+```
+
 ### CK-6 — cocktail/sauce recipe-card readability
 
 ```json

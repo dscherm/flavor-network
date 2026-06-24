@@ -150,55 +150,50 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
       aria-label={`${recipe.name} details`}
     >
       <div
-        className="w-full max-w-2xl rounded-xl border bg-[#0d1f38] shadow-2xl max-h-[85vh] overflow-y-auto"
-        style={{ borderColor: `${color}66` }}
+        className="w-full max-w-2xl rounded-2xl max-h-[85vh] overflow-y-auto"
+        style={{ ...chalkSurfaceStyle(), border: `2px double ${CHALK_RAIL}`, boxShadow: `inset 0 0 0 1px ${color}33, 0 8px 24px rgba(0,0,0,0.55)`, color: CHALK_CREAM }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-3 p-4 border-b border-[#1d3158]">
+        <div className="flex items-start justify-between gap-3 p-4" style={{ borderBottom: `1.5px solid ${color}55` }}>
           <div>
-            <h2 className="text-xl font-bold text-white mb-1">{recipe.name}</h2>
+            <h2 className="text-[34px] leading-none mb-1.5" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{recipe.name}</h2>
             <span
-              className="text-[11px] font-medium px-2 py-0.5 rounded-full border inline-block"
-              style={{ color, borderColor: `${color}88`, background: `${color}22` }}
+              className="text-[14px] px-2.5 py-0.5 rounded-full border inline-flex items-center gap-1.5"
+              style={{ fontFamily: FONT, color: CHALK_CREAM, borderColor: `${color}99`, background: `${color}22` }}
             >
+              <span className="inline-block rounded-full" style={{ width: 9, height: 9, background: color }} aria-hidden="true" />
               {recipe.cuisine}
             </span>
           </div>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="text-gray-500 hover:text-gray-200 text-xl leading-none p-1"
+            className="text-2xl leading-none p-1"
+            style={{ color: CHALK_SUB }}
           >
             ×
           </button>
         </div>
         <div className="p-4 space-y-4">
-          <p className="text-sm text-[#bfd5f0] leading-relaxed">{recipe.description}</p>
+          <p style={{ fontFamily: FONT, fontSize: '20px', color: CHALK_DIM, lineHeight: 1.4 }}>{recipe.description}</p>
 
           <div>
-            <h3 className="text-[11px] uppercase tracking-widest text-gray-500 mb-2">
+            <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
               Ingredients ({recipe.ingredients.length})
-            </h3>
-            <div className="flex flex-wrap gap-1.5">
-              {matched.map((ing) => (
-                <span
-                  key={ing}
-                  className="text-xs px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-100 border border-emerald-400/30"
-                  title="matched in the ingredient graph"
-                >
-                  {ing}
-                </span>
-              ))}
-              {unmatched.map((ing) => (
-                <span
-                  key={ing}
-                  className="text-xs px-2 py-1 rounded-full bg-[#12203b] text-gray-400 border border-[#1d3158]"
-                  title="not found in the ingredient graph"
-                >
-                  {ing}
-                </span>
-              ))}
             </div>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1">
+              {[...matched.map((n) => ({ n, ok: true })), ...unmatched.map((n) => ({ n, ok: false }))].map(({ n, ok }) => (
+                <li
+                  key={n}
+                  className="flex items-baseline gap-2"
+                  style={{ fontFamily: FONT, fontSize: '20px', color: ok ? CHALK_CREAM : CHALK_SUB }}
+                  title={ok ? 'matched in the ingredient graph' : 'not found in the ingredient graph'}
+                >
+                  <span className="flex-shrink-0" style={{ color }}>→</span>
+                  <span>{n}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Flavor / taste / aroma / season / cuisine / method radar.
@@ -206,9 +201,9 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
               reads as the recipe's profile, not just one ingredient. */}
           {focalName && nodes ? (
             <div>
-              <h3 className="text-[11px] uppercase tracking-widest text-gray-500 mb-2">
+              <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
                 Flavor profile
-              </h3>
+              </div>
               <MultiAxisRadarStack
                 ingredients={matched}
                 nodes={nodes}
@@ -216,7 +211,7 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
               />
             </div>
           ) : (
-            <p className="text-[11px] text-gray-500 italic">
+            <p className="italic" style={{ fontFamily: FONT, fontSize: '16px', color: CHALK_SUB }}>
               No matched ingredients — radar unavailable.
             </p>
           )}
@@ -226,7 +221,8 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
               <button
                 type="button"
                 onClick={() => onOpenRecipeLab('recipe', recipe.ingredients)}
-                className="px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white font-medium border border-emerald-300 transition-colors"
+                className="px-4 py-2.5 rounded-lg transition-colors"
+                style={{ fontFamily: FONT, fontSize: '18px', color: '#0a0a0a', background: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}` }}
               >
                 Open in Recipe Notebook →
               </button>
@@ -235,7 +231,8 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
               <button
                 type="button"
                 onClick={() => onOpenInNetwork(matched[0] || recipe.ingredients[0])}
-                className="px-4 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-white font-medium border border-cyan-300 transition-colors"
+                className="px-4 py-2.5 rounded-lg transition-colors"
+                style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}22`, border: `1px solid ${color}88` }}
               >
                 Explore in Network →
               </button>
