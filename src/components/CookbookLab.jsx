@@ -18,9 +18,8 @@
  * pre-selects filters on mount.
  */
 import { useEffect, useMemo, useState } from 'react';
-import NetworkScene from './NetworkScene.jsx';
 import MultiAxisRadarStack from './MultiAxisRadarStack.jsx';
-import { SEED_RECIPES, CUISINE_COLOR, buildRecipesScene, userRecipeToSeed } from '../data/seedRecipes.js';
+import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
   CARD_CREAM, CARD_CREAM_EDGE, CARD_INK, CARD_INK_SUB,
@@ -276,11 +275,6 @@ export default function CookbookLab({
   const [cuisineFilter, setCuisineFilter] = useState(null);
   const [clusterFilter, setClusterFilter] = useState(DEFAULT_CLUSTER_FILTER);
   const [selected, setSelected] = useState(null);
-  // 'browse' = 2D recipe-box card grid (default); 'explore' = 3D NetworkScene.
-  const [viewMode, setViewMode] = useState('browse');
-  // Camera fly-to target for the 3D scene. Stamped with ts so
-  // re-clicking the same recipe re-triggers the fly-in.
-  const [flyToTarget, setFlyToTarget] = useState(null);
 
   // Apply external filter on mount (Phase 5 Build → Recipes bridge).
   // When the user arrived via Build, their explicit cuisine pick is a
@@ -320,18 +314,6 @@ export default function CookbookLab({
     [allRecipes, cuisineFilter, clusterFilter, externalFilter, isMakePicker],
   );
 
-  // 3D scene contract — built name-keyed. User-saved extras merged
-  // alongside the 15 curated seed books; scene rebuilds when the
-  // user's saved-recipe set changes.
-  const sceneData = useMemo(
-    () => buildRecipesScene(userRecipeSeeds),
-    [userRecipeSeeds],
-  );
-  const filteredNames = useMemo(
-    () => filtered.map((r) => r.name),
-    [filtered],
-  );
-
   // Branch on pickerMode. In Make-picker mode, card / sphere tap emits
   // a recipeHandoff per MAKE-MODE-SPEC §3.2 instead of opening the
   // detail modal. Default mode preserves the existing detail-modal flow.
@@ -367,29 +349,10 @@ export default function CookbookLab({
             ← Make → Pick a recipe
           </button>
         )}
-        <div className="flex items-center justify-between mb-1">
-          <h1 className="text-4xl sm:text-5xl flex-1 text-center" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
+        <div className="mb-1">
+          <h1 className="text-4xl sm:text-5xl text-center" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
             Cookbook
           </h1>
-          {/* View toggle (grid / 3D) — pinned right of the title. */}
-          <div className="inline-flex rounded-full overflow-hidden text-[13px]" style={{ border: `1px solid ${CHALK_RAIL}`, fontFamily: FONT }}>
-            <button
-              type="button"
-              onClick={() => setViewMode('browse')}
-              className="px-3 py-1 transition-colors"
-              style={{ background: viewMode === 'browse' ? CHALK_CREAM : 'transparent', color: viewMode === 'browse' ? '#0a0a0a' : CHALK_DIM }}
-            >
-              Grid
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('explore')}
-              className="px-3 py-1 transition-colors"
-              style={{ background: viewMode === 'explore' ? CHALK_CREAM : 'transparent', color: viewMode === 'explore' ? '#0a0a0a' : CHALK_DIM }}
-            >
-              3D
-            </button>
-          </div>
         </div>
         <p className="text-center text-base mb-6" style={{ fontFamily: FONT, color: CHALK_SUB }}>
           {isMakePicker
@@ -467,70 +430,20 @@ export default function CookbookLab({
           </div>
         </div>
 
-        {viewMode === 'explore' ? (
-          <div
-            className="relative w-full rounded-xl border border-[#1d3158] overflow-hidden bg-[#05080f]"
-            style={{ height: 'min(72vh, 640px)' }}
-          >
-            <NetworkScene
-              data={sceneData}
-              onNodeClick={(node) => {
-                if (!node) return;
-                const r = allRecipes.find((x) => x.name === node.name);
-                if (!r) return;
-                if (isMakePicker) {
-                  handlePickRecipe(r);
-                  return;
-                }
-                setSelected(r);
-                setFlyToTarget({
-                  position: r.position3D,
-                  distance: 8,
-                  ts: Date.now(),
-                });
-              }}
-              onNodeHover={() => {}}
-              selectedNode={selected?.name || null}
-              selectedNodes={selected ? [selected.name] : []}
-              showEdges={false}
-              showParticles={false}
-              filterCuisine=""
-              filterTaste=""
-              profileWeights={null}
-              treeFilterIngredients={filteredNames}
-              showNodeLabels={true}
-              labelNodeNames={filteredNames}
-              scaleMultiplier={2.5}
-              shapeAssignments={sceneData.shapeAssignments}
-              flyToTarget={flyToTarget}
-              disableClusterTour={true}
-            />
-            {filtered.length === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <p className="text-sm text-gray-400 bg-[#0a1428]/80 px-3 py-2 rounded">
-                  No recipes match your filters.
-                </p>
-              </div>
-            )}
-          </div>
+        {filtered.length === 0 ? (
+          <p className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+            No recipes match your filters.
+          </p>
         ) : (
-          filtered.length === 0 ? (
-            <p className="text-center text-sm text-gray-400 py-12">
-              No recipes match your filters.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filtered.map((r) => (
-                <RecipeCard key={r.id} recipe={r} onClick={() => handlePickRecipe(r)} />
-              ))}
-            </div>
-          )
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filtered.map((r) => (
+              <RecipeCard key={r.id} recipe={r} onClick={() => handlePickRecipe(r)} />
+            ))}
+          </div>
         )}
 
-        <p className="text-center text-[10px] text-gray-600 mt-3">
-          {viewMode === 'explore'
-            ? 'Tap a sphere for the full recipe. Drag to orbit, scroll to zoom.'
-            : 'Tap a card for the full recipe.'}
+        <p className="text-center text-[13px] mt-3" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+          Tap a card for the full recipe.
         </p>
       </div>
 

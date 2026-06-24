@@ -55,8 +55,6 @@ describe('CookbookLab — MAKE-COOKBOOK-PICKER (pickerMode="make")', () => {
     render(
       <CookbookLab onOpenRecipeLab={onOpenRecipeLab} />,
     );
-    // Switch to browse mode so card grid is exercised.
-    fireEvent.click(screen.getByText('Grid'));
     const firstRecipe = SEED_RECIPES.find((r) => r.cluster === 'savory') || SEED_RECIPES[0];
     fireEvent.click(screen.getByRole('button', { name: new RegExp(firstRecipe.name, 'i') }));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -68,7 +66,6 @@ describe('CookbookLab — MAKE-COOKBOOK-PICKER (pickerMode="make")', () => {
     render(
       <CookbookLab pickerMode="make" onOpenRecipeLab={onOpenRecipeLab} />,
     );
-    fireEvent.click(screen.getByText('Grid'));
     const firstRecipe = SEED_RECIPES.find((r) => r.cluster === 'savory') || SEED_RECIPES[0];
     fireEvent.click(screen.getByRole('button', { name: new RegExp(firstRecipe.name, 'i') }));
     expect(screen.queryByRole('dialog')).toBeNull();
@@ -79,22 +76,6 @@ describe('CookbookLab — MAKE-COOKBOOK-PICKER (pickerMode="make")', () => {
     expect(extras.source).toBe('make-cookbook');
     expect(extras.recipeType).toBe(firstRecipe.cluster);
     expect(extras.title).toBe(firstRecipe.name);
-  });
-
-  it('pickerMode="make": 3D scene sphere click emits recipeHandoff (same shape)', () => {
-    const onOpenRecipeLab = vi.fn();
-    render(
-      <CookbookLab pickerMode="make" onOpenRecipeLab={onOpenRecipeLab} />,
-    );
-    // Cookbook now defaults to 2D 'browse'; switch to 3D so the scene mounts
-    // and sphere taps go through onNodeClick.
-    fireEvent.click(screen.getByText('3D'));
-    const sceneNodeButtons = screen.queryAllByTestId(/^scene-node-/);
-    expect(sceneNodeButtons.length).toBeGreaterThan(0);
-    fireEvent.click(sceneNodeButtons[0]);
-    expect(onOpenRecipeLab).toHaveBeenCalledTimes(1);
-    const [, , extras] = onOpenRecipeLab.mock.calls[0];
-    expect(extras.source).toBe('make-cookbook');
   });
 
   it('pickerMode="make": breadcrumb "Make → Pick a recipe" renders and fires onExitPickerMode', () => {
@@ -133,7 +114,6 @@ describe('CookbookLab — MAKE-COOKBOOK-PICKER (pickerMode="make")', () => {
         onOpenRecipeLab={vi.fn()}
       />,
     );
-    fireEvent.click(screen.getByText('Grid'));
     // No external-filter narrowing → all SEED_RECIPES render under
     // the default 'savory' cluster filter (the default narrows by
     // cluster but NOT by externalFilter).
