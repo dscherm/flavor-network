@@ -60,6 +60,24 @@ describe('LabNodeCard', () => {
     expect(screen.queryByTestId('lab-node-card-bridges')).not.toBeInTheDocument();
   });
 
+  it('renders an already-numbered prep as clean steps (no double numbering)', () => {
+    render(
+      <LabNodeCard
+        kind="cocktail" name="Old Fashioned" clusterName="Boozy" clusterColor="#fb7185"
+        ingredients={['Bourbon']}
+        prep={'1. Muddle sugar with bitters.\n2. Add bourbon and ice.\n3. Stir and garnish.'}
+        onClose={() => {}}
+      />,
+    );
+    const prep = screen.getByTestId('lab-node-card-prep');
+    expect(prep.tagName).toBe('OL');
+    const items = prep.querySelectorAll('li');
+    expect(items).toHaveLength(3);
+    // The original "1." enumerator is stripped; our own marker provides "1.".
+    expect(items[0].textContent).toContain('Muddle sugar with bitters.');
+    expect(items[0].textContent).not.toMatch(/1\.\s*1\./);
+  });
+
   it('Back fires onClose; tapping a cousin fires onSelect', () => {
     const onClose = vi.fn();
     const onSelect = vi.fn();

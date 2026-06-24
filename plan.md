@@ -527,15 +527,16 @@ Prototype + interactive design tuning happened on the Cocktail Lab
 }
 ```
 
-### CK-6 — FUTURE: cocktail recipe-card readability
+### CK-6 — cocktail/sauce recipe-card readability
 
 ```json
 {
   "id": "CK-6",
-  "title": "FUTURE: improve the cocktail recipe card (LabNodeCard) readability",
+  "title": "Improve the recipe detail card (LabNodeCard) readability — no images",
   "category": "ui",
   "priority": 3,
-  "description": "Explored 2026-06-23: the cocktail data has NO images (441 cocktails; fields are name/family/ingredients_raw/recipe_text/glass/garnishes/build_method/ice/aeration) — so a photo would require fetching+hosting per drink (licensing + weight). LabNodeCard is already chalkboard-styled. Improve scannability WITHOUT photos: clearer ingredient list (measures are absent in data), a glassware glyph (reuse the family glass), garnish callout, prep steps. Decide later whether fetching cocktail imagery is worth it.",
-  "acceptance": ["Scoped; revisit after CK-2..5"]
+  "passes": true,
+  "done_note": "No-image readability pass on LabNodeCard (the shared Cocktail + Sauce detail card). Refactored to import chalkTheme.js (dropped duplicate constants) + chalk-dust texture on the surface. Ingredient lines reformatted as 'name … measure' with a dotted chalk leader, measure right-aligned and larger; bullet replaced by a family-color → arrow. Preparation upgraded to high-contrast cream + line-height 1.45 and auto-numbered steps via splitPrepSteps (line-break → numbered-marker → sentence split, with leading enumerators STRIPPED so pre-numbered preps don't render '1. 1. …'). FS_BODY bumped to clamp(19,2.7vh,27) so ingredients+prep read above the FS_CHIP cousin chips. Regression test added for already-numbered preps. NOTE: the Cookbook dish detail (RecipeDetail in CookbookLab.jsx) is a SEPARATE component still on the old dark-blue modal — not covered here; candidate follow-up (CK-7).",
+  "acceptance": ["LabNodeCard ingredient/prep readability improved without images; numbered preps don't double-number; suite green; build clean"]
 }
 ```
