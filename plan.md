@@ -527,6 +527,36 @@ Prototype + interactive design tuning happened on the Cocktail Lab
 }
 ```
 
+## ENTRY-SCREEN CONSISTENCY (2026-06-24) — DONE
+
+Design-review (frontend-design lens) follow-up: the opening Landing was already
+chalk kitchen-world, but the Make picker + Guided start were still dark-blue
+neural. Brought onto chalkTheme.js. Shipped in commit 8190800.
+
+### CK-8 — Make picker → kitchen-world  ✅ passes
+
+```json
+{ "id": "CK-8", "passes": true, "category": "ui",
+  "title": "Reskin MakeRecipeStart to the chalk kitchen-world",
+  "done_note": "Commit 8190800, user-confirmed. 4 picker cards mirror the landing tiles (slate wash, 2px double chalk-rail border + accent spine, Caveat title/subtitle); emoji → chalk line-art glyphs (book/pencil/camera/link, local MakeGlyph); url/parsing/preview/error/photo-preview stages reskinned to slate + Caveat + cream buttons. testids/handlers preserved." }
+```
+
+### CK-9 — Guided Discovery start → kitchen-world  ✅ passes
+
+```json
+{ "id": "CK-9", "passes": true, "category": "ui",
+  "title": "Reskin GuidedDiscoveryStart + ThoughtBubbleCard to the chalk kitchen-world",
+  "done_note": "Commit 8190800. Slate chalk surface; thought-bubble signature kept but restated in chalk (Caveat cream heading, chalk-dashed outline); ThoughtBubbleCard slate-filled + Caveat titles; stack chips + CTA chalk-cream. Per-category taxonomy colors + icons preserved; inactive chip bgs → slate. testids/aria/handlers preserved." }
+```
+
+### CK-10 — Landing 2-tile grid fix  ✅ passes
+
+```json
+{ "id": "CK-10", "passes": true, "category": "ui",
+  "title": "LandingScreen — center the 2-tile grid",
+  "done_note": "Commit 8190800. sm:grid-cols-3 max-w-5xl → sm:grid-cols-2 max-w-3xl so the two tiles (Network tile hidden) sit centered/balanced on desktop (verified: 256px margins at 1280w). NOTE: an uncommitted edit was reverted once by a concurrent working-tree reset — committed promptly to lock it in." }
+```
+
 ### CK-7 — Cookbook dish detail card → kitchen-world
 
 ```json
