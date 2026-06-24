@@ -58,6 +58,56 @@ function deriveSubclusterLabel(members) {
   return (root || members[0]).name;
 }
 
+// Distinct colored-chalk hues for subgroup headers, cycled within each family
+// (colored chalks on a slate board — each subgroup gets its own).
+const SUBGROUP_CHALKS = ['#f0a6a6', '#a6c8f0', '#bfe6a6', '#f0d9a6', '#d9b3f0', '#a6f0e0', '#f0bfa6', '#cfd0f0', '#e6b8d0'];
+
+// Keyword → flavor-family glyph, matched against the subgroup's root-cocktail
+// name + member names; first hit wins, generic glass is the fallback.
+const SUBGROUP_GLYPHS = [
+  { kind: 'coconut', rx: /colada|coconut|painkiller|mai\s*tai|zombie|hurricane|tiki|tropical|bahama/ },
+  { kind: 'mint',    rx: /mojito|mint|julep|basil|smash|southside|cucumber/ },
+  { kind: 'coffee',  rx: /espresso|coffee|mudslide/ },
+  { kind: 'cream',   rx: /cream|alexander|\bflip\b|\begg\b|grasshopper|\bnog\b|white russian|milk punch/ },
+  { kind: 'bubbly',  rx: /spritz|mimosa|champagne|royale|sparkl|prosecco|bellini|aperol|french\s*75|\bsoda\b|highball|\bfizz\b/ },
+  { kind: 'spice',   rx: /old\s*fashioned|manhattan|negroni|boulevardier|sazerac|toddy|mule|ginger|spice|chai|cinnamon|\bhot\b/ },
+  { kind: 'berry',   rx: /bramble|berry|raspberr|strawberr|blackberr|clover club/ },
+  { kind: 'citrus',  rx: /margarita|daiquiri|sour|gimlet|sidecar|collins|cosmo|kamikaze|caipirinha|caipi|lime|lemon|citrus|rickey|paloma|screwdriver/ },
+];
+function subgroupKind(text) {
+  const t = String(text || '').toLowerCase();
+  for (const { kind, rx } of SUBGROUP_GLYPHS) if (rx.test(t)) return kind;
+  return 'glass';
+}
+
+/** Small chalk line-art glyph for a subgroup, stroked in its chalk color. */
+function SubgroupGlyph({ kind, color }) {
+  const s = { fill: 'none', stroke: color, strokeWidth: 1.4, strokeLinecap: 'round', strokeLinejoin: 'round' };
+  let inner;
+  switch (kind) {
+    case 'citrus':
+      inner = (<><circle cx="8" cy="8" r="5.5" {...s} /><line x1="8" y1="8" x2="8" y2="2.5" {...s} /><line x1="8" y1="8" x2="13.5" y2="8" {...s} /><line x1="8" y1="8" x2="8" y2="13.5" {...s} /><line x1="8" y1="8" x2="2.5" y2="8" {...s} /></>); break;
+    case 'mint':
+      inner = (<><path d="M8 14 C8 10 8 7 8 3" {...s} /><path d="M8 7 C5 7 3.5 5.5 3 3 C6 3 7.7 4.5 8 7Z" {...s} /><path d="M8 9.5 C11 9.5 12.5 8 13 5.5 C10 5.5 8.3 7 8 9.5Z" {...s} /></>); break;
+    case 'coconut':
+      inner = (<><circle cx="8" cy="9" r="5" {...s} /><circle cx="6.3" cy="7.6" r="0.7" fill={color} stroke="none" /><circle cx="9.6" cy="7.2" r="0.7" fill={color} stroke="none" /><circle cx="8" cy="10.2" r="0.7" fill={color} stroke="none" /></>); break;
+    case 'berry':
+      inner = (<><circle cx="6" cy="9.7" r="2.6" {...s} /><circle cx="10" cy="9.7" r="2.6" {...s} /><circle cx="8" cy="5.6" r="2.6" {...s} /></>); break;
+    case 'cream':
+      inner = (<path d="M8 2 C5.5 6.5 4.5 8.5 4.5 10.5 a3.5 3.5 0 0 0 7 0 C11.5 8.5 10.5 6.5 8 2Z" {...s} />); break;
+    case 'spice':
+      inner = (<><line x1="8" y1="2.5" x2="8" y2="13.5" {...s} /><line x1="2.5" y1="8" x2="13.5" y2="8" {...s} /><line x1="4.2" y1="4.2" x2="11.8" y2="11.8" {...s} /><line x1="11.8" y1="4.2" x2="4.2" y2="11.8" {...s} /></>); break;
+    case 'coffee':
+      inner = (<g transform="rotate(-18 8 8)"><ellipse cx="8" cy="8" rx="3.8" ry="5.4" {...s} /><path d="M8 3 C6 6 10 10 8 13" {...s} /></g>); break;
+    case 'bubbly':
+      inner = (<><circle cx="6" cy="10.5" r="2.6" {...s} /><circle cx="10.6" cy="7.4" r="1.9" {...s} /><circle cx="8" cy="4" r="1.2" {...s} /></>); break;
+    case 'glass':
+    default:
+      inner = (<><path d="M3.5 4 L12.5 4 L8 9 Z" {...s} /><line x1="8" y1="9" x2="8" y2="13.5" {...s} /><line x1="5" y1="13.5" x2="11" y2="13.5" {...s} /></>); break;
+  }
+  return (<svg width="23" height="23" viewBox="0 0 16 16" aria-hidden="true" style={{ flexShrink: 0 }}>{inner}</svg>);
+}
+
 // The back-bar bottle shelf, in pour order. Each spirit gets its own
 // silhouette (see BOTTLE_PARAMS) — tapping filters the menu to that base.
 const SPIRIT_SHELF = [
@@ -524,14 +574,19 @@ export default function CocktailBrowse({
                 <span className="text-[12px]" style={{ color: CHALK_SUB }}>{filtered.length} of {members.length}</span>
               </header>
 
-              {subIds.map((sid) => {
+              {subIds.map((sid, sidIdx) => {
                 const subMembers = bySub.get(sid);
                 const subLabel = deriveSubclusterLabel(subMembers);
+                const chalk = SUBGROUP_CHALKS[sidIdx % SUBGROUP_CHALKS.length];
+                const kind = subgroupKind(`${subLabel || ''} ${subMembers.map((m) => m.name).join(' ')}`);
                 return (
                   <div key={sid} className="mb-3">
-                    <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>
-                      {subLabel ? `${subLabel}-style` : `Subcluster ${sid}`}
-                      <span className="ml-1.5" style={{ color: `${CHALK_SUB}99` }}>· {subMembers.length}</span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <SubgroupGlyph kind={kind} color={chalk} />
+                      <span className="text-[24px] leading-tight" style={{ fontFamily: FONT, color: chalk, textShadow: CHALK_SHADOW }}>
+                        {subLabel ? `${subLabel}-style` : `Subcluster ${sid}`}
+                      </span>
+                      <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {subMembers.length}</span>
                     </div>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
                       {subMembers.map((c, idx) => {
