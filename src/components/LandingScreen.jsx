@@ -213,7 +213,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
       {/* 3 primary tiles. iOS portrait shows them stacked at compact
           height; sm+ goes to 3-up. flex-1 + min-h-0 lets the grid
           consume the remaining viewport. */}
-      <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 flex-1 min-h-0 pb-[env(safe-area-inset-bottom,0px)]">
+      <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 flex-1 min-h-0 pb-[env(safe-area-inset-bottom,0px)]">
         {TILES.map((tile) => {
           const isPicked = picked === tile.id;
           const dimmed = isLoading && !isPicked;

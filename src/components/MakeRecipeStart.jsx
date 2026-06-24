@@ -2,32 +2,127 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase.js';
 import { matchRecipeIngredients } from '../data/parseRecipeIngredient.js';
+import {
+  FONT,
+  CHALK_CREAM,
+  CHALK_DIM,
+  CHALK_SUB,
+  CHALK_RAIL,
+  CHALK_SHADOW,
+} from '../data/chalkTheme.js';
+
+// Chalk line-art glyphs for the picker cards (replaces emoji). Stroked in
+// the card's accent color — matches the KitchenIcon / SubgroupGlyph style.
+function MakeGlyph({ kind, color, size = 44 }) {
+  const s = {
+    fill: 'none',
+    stroke: color,
+    strokeWidth: 1.6,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+  };
+  let inner;
+  switch (kind) {
+    case 'book': // open book
+      inner = (
+        <>
+          <path d="M12 6 C9.5 4.5 6 4.5 4 5.5 L4 18 C6 17 9.5 17 12 18.5" {...s} />
+          <path d="M12 6 C14.5 4.5 18 4.5 20 5.5 L20 18 C18 17 14.5 17 12 18.5" {...s} />
+          <path d="M12 6 L12 18.5" {...s} />
+        </>
+      );
+      break;
+    case 'pencil': // pencil / edit
+      inner = (
+        <>
+          <path d="M5 19 L5 16 L15 6 L18 9 L8 19 Z" {...s} />
+          <path d="M14 7 L17 10" {...s} />
+          <path d="M5 19 L8 19" {...s} />
+        </>
+      );
+      break;
+    case 'camera':
+      inner = (
+        <>
+          <path d="M4 8 L8 8 L9.5 6 L14.5 6 L16 8 L20 8 L20 18 L4 18 Z" {...s} />
+          <circle cx="12" cy="13" r="3.2" {...s} />
+        </>
+      );
+      break;
+    case 'link': // chain link
+      inner = (
+        <>
+          <path d="M9.5 14.5 L14.5 9.5" {...s} />
+          <path d="M8 11 L6 13 a3 3 0 0 0 4.2 4.2 L12 15.5" {...s} />
+          <path d="M16 13 L18 11 a3 3 0 0 0 -4.2 -4.2 L12 8.5" {...s} />
+        </>
+      );
+      break;
+    default:
+      inner = <circle cx="12" cy="12" r="4" {...s} />;
+      break;
+  }
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      style={{ flexShrink: 0 }}
+    >
+      {inner}
+    </svg>
+  );
+}
+
+// Shared chalk-slate panel style for the inner stages (URL input, parsing,
+// preview, error, photo preview).
+const slatePanelStyle = {
+  background: 'rgba(255,255,255,0.025)',
+  border: `2px double ${CHALK_RAIL}`,
+  boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
+};
+
+// Chalk cream primary action button style.
+const creamButtonStyle = {
+  fontFamily: FONT,
+  color: '#0a0a0a',
+  background: CHALK_CREAM,
+  border: `1px solid ${CHALK_CREAM}`,
+};
+
+// Dark slate text-input style (readable sans, not Caveat).
+const slateInputStyle = {
+  background: 'rgba(255,255,255,0.05)',
+  border: `1px solid ${CHALK_RAIL}`,
+  color: CHALK_CREAM,
+};
 
 const CARDS = [
   {
     id: 'existing',
-    icon: '📖',
+    glyph: 'book',
     title: 'Existing recipe',
     subtitle: 'Pick from your Cookbook',
     accent: '#a78bfa',
   },
   {
     id: 'scratch',
-    icon: '✏️',
+    glyph: 'pencil',
     title: 'Start from scratch',
     subtitle: 'Empty Recipe Lab',
     accent: '#38bdf8',
   },
   {
     id: 'photo',
-    icon: '📷',
+    glyph: 'camera',
     title: 'Upload a photo',
     subtitle: "We'll attach the image; you add ingredients by hand",
     accent: '#f472b6',
   },
   {
     id: 'weblink',
-    icon: '🔗',
+    glyph: 'link',
     title: 'From a web link',
     subtitle: 'Paste a recipe URL; we extract the ingredients',
     accent: '#34d399',
@@ -361,12 +456,16 @@ export default function MakeRecipeStart({
         {stage === STAGE.CARDS && pickedFile && (
           <div
             data-testid="make-photo-preview"
-            className="rounded-xl border border-[#1e1e2e] bg-[#12203b] p-5 sm:p-6"
+            className="rounded-xl p-5 sm:p-6"
+            style={slatePanelStyle}
           >
-            <h2 className="text-lg font-semibold text-cyan-100 mb-1">
+            <h2
+              className="text-2xl mb-1"
+              style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+            >
               Use this photo?
             </h2>
-            <p className="text-xs text-cyan-300/60 mb-4">
+            <p className="text-xs mb-4" style={{ color: CHALK_SUB }}>
               We'll attach it to your bowl and open Recipe Lab so you can
               add ingredients alongside it.
             </p>
@@ -384,7 +483,8 @@ export default function MakeRecipeStart({
                 type="button"
                 onClick={handlePickAnother}
                 data-testid="make-photo-preview-pick-another"
-                className="text-sm text-cyan-300/80 hover:text-cyan-100 underline"
+                className="text-base underline"
+                style={{ fontFamily: FONT, color: CHALK_DIM }}
               >
                 Pick another
               </button>
@@ -392,7 +492,8 @@ export default function MakeRecipeStart({
                 type="button"
                 onClick={handleConfirmPhoto}
                 data-testid="make-photo-preview-confirm"
-                className="px-4 py-2 rounded-md bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold"
+                className="px-4 py-2 rounded-md text-base"
+                style={creamButtonStyle}
               >
                 Use this photo →
               </button>
@@ -407,26 +508,40 @@ export default function MakeRecipeStart({
             data-testid={`make-card-${c.id}`}
             aria-label={`${c.title}. ${c.subtitle}`}
             onClick={() => onCardClick(c.id)}
-            className="relative w-full rounded-xl border border-[#1e1e2e] bg-[#12203b] p-5 sm:p-6 text-left transition-colors hover:bg-[#16284a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60"
-            style={{ minHeight: 44 }}
+            className="relative w-full rounded-xl p-5 sm:p-6 text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            style={{
+              minHeight: 44,
+              background: 'radial-gradient(ellipse at center, #1c1c1c 0%, #0e0e0e 100%)',
+              border: `2px double ${c.accent}`,
+              boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
+            }}
           >
             <span
-              className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl"
-              style={{ backgroundColor: c.accent }}
+              className="absolute left-0 top-0 bottom-0 w-1"
+              style={{ background: c.accent }}
               aria-hidden="true"
             />
             <div className="flex items-center gap-4 pl-2">
               <div
-                className="flex items-center justify-center w-20 h-20 rounded-lg bg-[#0a1428]/60 text-4xl"
+                className="flex items-center justify-center w-20 h-20 rounded-lg"
+                style={{
+                  background: 'rgba(255,255,255,0.025)',
+                  border: '1px solid #6a6a6a55',
+                }}
                 aria-hidden="true"
               >
-                {c.icon}
+                <MakeGlyph kind={c.glyph} color={c.accent} size={44} />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-base sm:text-lg font-semibold text-cyan-100">
+                <div
+                  className="text-2xl"
+                  style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+                >
                   {c.title}
                 </div>
-                <div className="text-sm text-cyan-300/80 mt-1">{c.subtitle}</div>
+                <div className="text-lg mt-0.5" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+                  {c.subtitle}
+                </div>
               </div>
             </div>
           </button>
@@ -435,7 +550,12 @@ export default function MakeRecipeStart({
           <div
             role="alert"
             data-testid="make-photo-error"
-            className="rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-100 text-sm px-4 py-3 flex items-start gap-3"
+            className="rounded-lg text-amber-100 text-sm px-4 py-3 flex items-start gap-3"
+            style={{
+              background: 'rgba(255,255,255,0.025)',
+              border: '2px double rgba(245,158,11,0.5)',
+              boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
+            }}
           >
             <span aria-hidden="true" className="text-lg leading-none">⚠️</span>
             <div className="flex-1 min-w-0">
@@ -453,9 +573,14 @@ export default function MakeRecipeStart({
         )}
 
         {stage === STAGE.URL_INPUT && (
-          <div data-testid="make-weblink-input" className="rounded-xl border border-[#1e1e2e] bg-[#12203b] p-5 sm:p-6">
-            <h2 className="text-lg font-semibold text-cyan-100 mb-2">Paste a recipe URL</h2>
-            <p className="text-sm text-cyan-300/80 mb-4">
+          <div data-testid="make-weblink-input" className="rounded-xl p-5 sm:p-6" style={slatePanelStyle}>
+            <h2
+              className="text-2xl mb-2"
+              style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+            >
+              Paste a recipe URL
+            </h2>
+            <p className="text-sm mb-4" style={{ color: CHALK_DIM }}>
               We'll fetch the page, look for recipe metadata, and match the
               ingredients to your dictionary.
             </p>
@@ -466,14 +591,16 @@ export default function MakeRecipeStart({
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com/recipe"
               data-testid="make-weblink-url-input"
-              className="w-full rounded-md border border-[#1e1e2e] bg-[#0a1428] px-3 py-2 text-sm text-cyan-100 placeholder:text-cyan-300/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 mb-4"
+              className="w-full rounded-md px-3 py-2 text-sm placeholder:text-[#8a8478] focus:outline-none focus:ring-2 focus:ring-white/20 mb-4"
+              style={slateInputStyle}
               onKeyDown={(e) => { if (e.key === 'Enter') handleParseUrl(); }}
             />
             <div className="flex items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={resetWebLink}
-                className="text-sm text-cyan-300/80 hover:text-cyan-100 underline"
+                className="text-base underline"
+                style={{ fontFamily: FONT, color: CHALK_DIM }}
                 data-testid="make-weblink-back"
               >
                 ← Back
@@ -481,7 +608,8 @@ export default function MakeRecipeStart({
               <button
                 type="button"
                 onClick={handleParseUrl}
-                className="px-4 py-2 rounded-md bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold"
+                className="px-4 py-2 rounded-md text-base"
+                style={creamButtonStyle}
                 data-testid="make-weblink-parse-btn"
               >
                 Parse recipe
@@ -491,21 +619,31 @@ export default function MakeRecipeStart({
         )}
 
         {stage === STAGE.PARSING && (
-          <div data-testid="make-weblink-parsing" className="rounded-xl border border-[#1e1e2e] bg-[#12203b] p-6 text-center text-cyan-200">
-            <div className="text-sm mb-2">Fetching recipe…</div>
-            <div className="text-xs text-cyan-300/60">{url}</div>
+          <div data-testid="make-weblink-parsing" className="rounded-xl p-6 text-center" style={slatePanelStyle}>
+            <div className="text-2xl mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Fetching recipe…</div>
+            <div className="text-xs break-all" style={{ color: CHALK_SUB }}>{url}</div>
           </div>
         )}
 
         {stage === STAGE.ERROR && (
-          <div data-testid="make-weblink-error" role="alert" className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-5">
-            <h2 className="text-sm font-semibold text-rose-200 mb-2">Couldn't import that URL</h2>
-            <p className="text-sm text-rose-100/80 mb-3">{errorMessage}</p>
+          <div
+            data-testid="make-weblink-error"
+            role="alert"
+            className="rounded-xl p-5"
+            style={{
+              background: 'rgba(255,255,255,0.025)',
+              border: '2px double rgba(244,63,94,0.5)',
+              boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
+            }}
+          >
+            <h2 className="text-xl mb-2" style={{ fontFamily: FONT, color: '#fda4af' }}>Couldn't import that URL</h2>
+            <p className="text-sm mb-3 text-rose-100/80">{errorMessage}</p>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setStage(STAGE.URL_INPUT)}
-                className="px-3 py-1.5 rounded-md bg-rose-500/30 hover:bg-rose-500/50 text-rose-100 text-xs font-semibold"
+                className="px-3 py-1.5 rounded-md bg-rose-500/30 hover:bg-rose-500/50 text-rose-100 text-base"
+                style={{ fontFamily: FONT }}
                 data-testid="make-weblink-error-retry"
               >
                 Try a different URL
@@ -513,7 +651,8 @@ export default function MakeRecipeStart({
               <button
                 type="button"
                 onClick={resetWebLink}
-                className="text-xs text-rose-100/70 hover:text-rose-50 underline"
+                className="text-base text-rose-100/70 hover:text-rose-50 underline"
+                style={{ fontFamily: FONT }}
               >
                 Back to picker
               </button>
@@ -522,11 +661,14 @@ export default function MakeRecipeStart({
         )}
 
         {stage === STAGE.PREVIEW && (
-          <div data-testid="make-weblink-preview" className="rounded-xl border border-[#1e1e2e] bg-[#12203b] p-5 sm:p-6">
-            <h2 className="text-lg font-semibold text-cyan-100 mb-1">
+          <div data-testid="make-weblink-preview" className="rounded-xl p-5 sm:p-6" style={slatePanelStyle}>
+            <h2
+              className="text-2xl mb-1"
+              style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+            >
               {parsed?.title || 'Recipe'}
             </h2>
-            <p className="text-xs text-cyan-300/60 mb-4">
+            <p className="text-xs mb-4" style={{ color: CHALK_SUB }}>
               We found {hits} known ingredient{hits === 1 ? '' : 's'} out of {matched.length} parsed lines. Tap to include or exclude.
             </p>
             <datalist id="make-weblink-ingredient-names">
@@ -542,7 +684,7 @@ export default function MakeRecipeStart({
                 const edited = userEdits.has(i);
                 const checkboxDisabled = status === 'empty';
                 let hint = '';
-                let hintColor = 'text-cyan-300/40';
+                let hintColor = 'text-[#8a8478]';
                 if (status === 'auto') {
                   const pct = Math.round((m.confidence || 0) * 100);
                   hint = `auto-matched (${pct}%)`;
@@ -555,7 +697,7 @@ export default function MakeRecipeStart({
                   hintColor = 'text-amber-300/80';
                 } else {
                   hint = 'no match — type one in';
-                  hintColor = 'text-cyan-300/40';
+                  hintColor = 'text-[#8a8478]';
                 }
                 return (
                   <li key={`m-${i}`} className="flex items-start gap-2 text-sm">
@@ -568,9 +710,9 @@ export default function MakeRecipeStart({
                       className="mt-1"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="text-cyan-100 truncate">{m.input}</div>
+                      <div className="truncate" style={{ color: CHALK_CREAM }}>{m.input}</div>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-cyan-300/60 text-xs">→</span>
+                        <span className="text-xs" style={{ color: CHALK_SUB }}>→</span>
                         <input
                           type="text"
                           list="make-weblink-ingredient-names"
@@ -578,13 +720,17 @@ export default function MakeRecipeStart({
                           onChange={(e) => handleEditRow(i, e.target.value)}
                           placeholder="ingredient name"
                           data-testid={`make-weblink-row-name-${i}`}
-                          className={`flex-1 min-w-0 bg-[#0a1830] border rounded px-2 py-1 text-xs focus:outline-none focus:border-cyan-400 ${
+                          className={`flex-1 min-w-0 rounded px-2 py-1 text-xs focus:outline-none focus:border-white/40 ${
                             status === 'user-unknown'
                               ? 'border-amber-500/50 text-amber-100'
                               : status === 'empty'
-                              ? 'border-[#1e1e2e] text-cyan-300/40'
-                              : 'border-[#1e1e2e] text-emerald-100'
+                              ? 'text-[#8a8478]'
+                              : 'text-emerald-100'
                           }`}
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            border: status === 'user-unknown' ? undefined : `1px solid ${CHALK_RAIL}`,
+                          }}
                         />
                         {edited && (
                           <button
@@ -592,7 +738,8 @@ export default function MakeRecipeStart({
                             onClick={() => handleResetRow(i)}
                             data-testid={`make-weblink-row-reset-${i}`}
                             title="Reset to auto-match"
-                            className="text-xs text-cyan-300/60 hover:text-cyan-100"
+                            className="text-xs"
+                            style={{ color: CHALK_DIM }}
                           >
                             ↻
                           </button>
@@ -610,7 +757,8 @@ export default function MakeRecipeStart({
               <button
                 type="button"
                 onClick={resetWebLink}
-                className="text-sm text-cyan-300/80 hover:text-cyan-100 underline"
+                className="text-base underline"
+                style={{ fontFamily: FONT, color: CHALK_DIM }}
               >
                 Cancel
               </button>
@@ -618,7 +766,8 @@ export default function MakeRecipeStart({
                 type="button"
                 onClick={handleAddToBowl}
                 disabled={included.size === 0}
-                className="px-4 py-2 rounded-md bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold"
+                className="px-4 py-2 rounded-md text-base disabled:opacity-40 disabled:cursor-not-allowed"
+                style={creamButtonStyle}
                 data-testid="make-weblink-add-btn"
               >
                 Add {included.size} to bowl →
