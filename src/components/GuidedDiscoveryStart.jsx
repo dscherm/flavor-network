@@ -40,6 +40,7 @@ import {
 import ThoughtBubbleCard from './ThoughtBubbleCard.jsx';
 import SearchBar from './SearchBar.jsx';
 import { CATEGORICAL_AXES } from '../data/categoricalAxes.js';
+import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
 // Inline bucket chips for the cuisine/aroma bubbles. The cuisine and
 // aroma "axis" filters in the Network tab toggle which dimension is
@@ -134,7 +135,7 @@ export default function GuidedDiscoveryStart({
   const renderIngredientSearch = useCallback(
     (bubbleConfig) => (
       <div className="pt-2">
-        <p className="text-[11px] text-gray-400 mb-2 text-center">
+        <p className="text-[11px] text-[#8a8478] mb-2 text-center">
           Pick one — we'll start the wheel from here.
         </p>
         <div className="relative">
@@ -186,9 +187,9 @@ export default function GuidedDiscoveryStart({
                 aria-pressed={active}
                 className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border capitalize transition-colors"
                 style={{
-                  background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
-                  borderColor: active ? color : 'rgba(42, 42, 58, 1)',
-                  color: active ? '#fff' : '#d1d5db',
+                  background: active ? `${color}33` : 'rgba(255,255,255,0.04)',
+                  borderColor: active ? color : `${CHALK_RAIL}99`,
+                  color: active ? '#fff' : CHALK_DIM,
                 }}
               >
                 {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
@@ -222,9 +223,9 @@ export default function GuidedDiscoveryStart({
                 aria-pressed={active}
                 className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border capitalize transition-colors"
                 style={{
-                  background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
-                  borderColor: active ? color : 'rgba(42, 42, 58, 1)',
-                  color: active ? '#fff' : '#d1d5db',
+                  background: active ? `${color}33` : 'rgba(255,255,255,0.04)',
+                  borderColor: active ? color : `${CHALK_RAIL}99`,
+                  color: active ? '#fff' : CHALK_DIM,
                 }}
               >
                 {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
@@ -247,7 +248,7 @@ export default function GuidedDiscoveryStart({
       const current = bubbleStack.find((b) => b.key === bubbleConfig.key)?.value?.cuisineBucket || null;
       return (
         <div className="pt-2">
-          <p className="text-[11px] text-gray-400 mb-2 text-center">Pick a cuisine:</p>
+          <p className="text-[11px] text-[#8a8478] mb-2 text-center">Pick a cuisine:</p>
           <div className="flex flex-wrap justify-center gap-2">
             {CUISINE_BUCKET_LABELS.map((label) => {
               const active = current === label;
@@ -264,9 +265,9 @@ export default function GuidedDiscoveryStart({
                   aria-pressed={active}
                   className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border transition-colors"
                   style={{
-                    background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
-                    borderColor: active ? color : 'rgba(42, 42, 58, 1)',
-                    color: active ? '#fff' : '#d1d5db',
+                    background: active ? `${color}33` : 'rgba(255,255,255,0.04)',
+                    borderColor: active ? color : `${CHALK_RAIL}99`,
+                    color: active ? '#fff' : CHALK_DIM,
                   }}
                 >
                   {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
@@ -289,7 +290,7 @@ export default function GuidedDiscoveryStart({
       const current = bubbleStack.find((b) => b.key === bubbleConfig.key)?.value?.aromaBucket || null;
       return (
         <div className="pt-2">
-          <p className="text-[11px] text-gray-400 mb-2 text-center">Pick an aroma family:</p>
+          <p className="text-[11px] text-[#8a8478] mb-2 text-center">Pick an aroma family:</p>
           <div className="flex flex-wrap justify-center gap-2">
             {AROMA_BUCKET_LABELS.map((label) => {
               const active = current === label;
@@ -306,9 +307,9 @@ export default function GuidedDiscoveryStart({
                   aria-pressed={active}
                   className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border transition-colors"
                   style={{
-                    background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
-                    borderColor: active ? color : 'rgba(42, 42, 58, 1)',
-                    color: active ? '#fff' : '#d1d5db',
+                    background: active ? `${color}33` : 'rgba(255,255,255,0.04)',
+                    borderColor: active ? color : `${CHALK_RAIL}99`,
+                    color: active ? '#fff' : CHALK_DIM,
                   }}
                 >
                   {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
@@ -342,7 +343,7 @@ export default function GuidedDiscoveryStart({
             className={`px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-full border transition-colors ${
               isOn
                 ? 'bg-emerald-500 text-white border-emerald-400'
-                : 'bg-[#0a1428]/60 text-gray-300 border-[#2a2a3a] hover:bg-[#16284a]'
+                : 'bg-white/[0.04] text-[#bdb6a3] border-[#4a4a4a]/80 hover:bg-white/[0.08]'
             }`}
           >
             {isOn ? 'On — tap to remove' : `Limit to ${bubbleConfig.key}-friendly ingredients`}
@@ -371,7 +372,7 @@ export default function GuidedDiscoveryStart({
       };
       return (
         <div className="pt-2">
-          <p className="text-[11px] text-gray-400 mb-2 text-center">Pick one or more — combines with everything else.</p>
+          <p className="text-[11px] text-[#8a8478] mb-2 text-center">Pick one or more — combines with everything else.</p>
           <div className="flex flex-wrap justify-center gap-2">
             {DIETARY_RESTRICTIONS.map((label) => {
               const active = current.includes(label);
@@ -385,9 +386,9 @@ export default function GuidedDiscoveryStart({
                   aria-pressed={active}
                   className="flex items-center gap-2 pl-2.5 pr-4 py-2 min-h-[44px] text-sm font-medium rounded-full border capitalize transition-colors"
                   style={{
-                    background: active ? `${color}33` : 'rgba(10, 20, 40, 0.6)',
-                    borderColor: active ? color : 'rgba(42, 42, 58, 1)',
-                    color: active ? '#fff' : '#d1d5db',
+                    background: active ? `${color}33` : 'rgba(255,255,255,0.04)',
+                    borderColor: active ? color : `${CHALK_RAIL}99`,
+                    color: active ? '#fff' : CHALK_DIM,
                   }}
                 >
                   {Icon && <Icon className="w-7 h-7 flex-shrink-0" style={{ color }} />}
@@ -421,7 +422,7 @@ export default function GuidedDiscoveryStart({
             className={`px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-full border transition-colors ${
               isOn
                 ? 'bg-emerald-500 text-white border-emerald-400'
-                : 'bg-[#0a1428]/60 text-gray-300 border-[#2a2a3a] hover:bg-[#16284a]'
+                : 'bg-white/[0.04] text-[#bdb6a3] border-[#4a4a4a]/80 hover:bg-white/[0.08]'
             }`}
           >
             {isOn ? 'On — tap to remove' : 'Yes, this is for dessert'}
@@ -484,7 +485,7 @@ export default function GuidedDiscoveryStart({
   return (
     <div
       className="flex flex-col items-center w-full min-h-screen px-4 pt-8 pb-12"
-      style={{ backgroundColor: '#0d1f38' }}
+      style={{ ...chalkSurfaceStyle(), color: CHALK_CREAM }}
       data-testid="guided-discovery-start"
     >
       {/* aria-live announcer (visually hidden) */}
@@ -506,7 +507,8 @@ export default function GuidedDiscoveryStart({
         <div className="flex flex-col items-center mb-8">
           <h1
             id="guided-sentence-starter"
-            className="thought-bubble-heading text-2xl sm:text-4xl text-white text-center font-bold tracking-tight"
+            className="thought-bubble-heading text-3xl sm:text-5xl text-center"
+            style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
           >
             I'm thinking about pairing that…
           </h1>
@@ -524,19 +526,19 @@ export default function GuidedDiscoveryStart({
             position: relative;
             display: inline-block;
             padding: 1.15rem 2.2rem;
-            border: 2px dashed rgba(125, 211, 252, 0.6);
+            border: 2px dashed rgba(189, 182, 163, 0.55);
             border-radius: 9999px;
-            background: linear-gradient(180deg, rgba(18,32,59,0.9), rgba(13,31,56,0.75));
+            background: rgba(255, 255, 255, 0.03);
             box-shadow:
-              0 0 0 1px rgba(125, 211, 252, 0.08),
-              0 12px 40px -10px rgba(56, 189, 248, 0.3);
+              inset 0 0 0 1px rgba(106, 106, 106, 0.33),
+              0 12px 40px -10px rgba(0, 0, 0, 0.55);
             backdrop-filter: blur(4px);
           }
           .thought-bubble-tail {
             display: block;
             border-radius: 9999px;
-            border: 2px dashed rgba(125, 211, 252, 0.6);
-            background: rgba(13,31,56,0.7);
+            border: 2px dashed rgba(189, 182, 163, 0.55);
+            background: rgba(20, 20, 20, 0.7);
           }
           .thought-bubble-tail-large {
             width: 18px;
@@ -556,8 +558,8 @@ export default function GuidedDiscoveryStart({
             position: absolute;
             display: block;
             border-radius: 9999px;
-            border: 1.5px solid var(--card-color, rgba(125, 211, 252, 0.6));
-            background: rgba(13,31,56,0.7);
+            border: 1.5px solid var(--card-color, rgba(189, 182, 163, 0.55));
+            background: rgba(20, 20, 20, 0.7);
             pointer-events: none;
             opacity: 0.7;
           }
@@ -585,7 +587,7 @@ export default function GuidedDiscoveryStart({
           aria-label="Selected bubbles"
         >
           {stackChips.length === 0 ? (
-            <span className="text-[11px] text-gray-500 italic">
+            <span className="text-[11px] italic" style={{ fontFamily: FONT, color: CHALK_SUB }}>
               (pick one or more bubbles below)
             </span>
           ) : (
@@ -596,12 +598,13 @@ export default function GuidedDiscoveryStart({
                 onClick={() => removeBubbleByKey(c.key)}
                 aria-label={`Remove ${c.label}`}
                 data-testid={`guided-stack-chip-${c.key}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-500/30 transition-colors min-h-[32px]"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm border transition-colors min-h-[32px]"
+                style={{ fontFamily: FONT, background: 'rgba(245,239,222,0.14)', color: CHALK_CREAM, borderColor: `${CHALK_DIM}88` }}
               >
                 <span className="truncate max-w-[180px]">
                   {c.label}{c.summary ? `: ${c.summary}` : ''}
                 </span>
-                <span aria-hidden="true" className="text-emerald-300">×</span>
+                <span aria-hidden="true" style={{ color: CHALK_SUB }}>×</span>
               </button>
             ))
           )}
@@ -649,10 +652,11 @@ export default function GuidedDiscoveryStart({
             disabled={ctaDisabled}
             aria-disabled={ctaDisabled}
             data-testid="guided-cta-show-pairings"
-            className={`px-5 py-2.5 min-h-[44px] rounded-lg font-medium transition-colors ${
+            style={{ fontFamily: FONT }}
+            className={`px-5 py-2.5 min-h-[44px] rounded-lg text-lg transition-colors ${
               ctaDisabled
-                ? 'bg-[#1a2a4a] text-gray-500 cursor-not-allowed border border-[#1d3158]'
-                : 'bg-emerald-500 hover:bg-emerald-400 text-white border border-emerald-300 shadow-[0_0_20px_rgba(52,211,153,0.35)]'
+                ? 'bg-white/[0.04] text-[#8a8478] cursor-not-allowed border border-[#4a4a4a]/60'
+                : 'bg-[#f5efde] hover:brightness-95 text-[#0a0a0a] border border-[#f5efde] shadow-[0_0_20px_rgba(245,239,222,0.25)]'
             }`}
           >
             Show me pairings →

@@ -20,6 +20,7 @@
 
 import { useCallback, useRef } from 'react';
 import { HEADER_ICON_BY_KEY, CARD_COLOR_BY_KEY, CloudOutline } from './guidedIcons.jsx';
+import { FONT } from '../data/chalkTheme.js';
 
 // Per-card tail-dot placement (left vs right) — alternates so the grid
 // doesn't visually rhyme. Mapping by bubbleKey for determinism.
@@ -73,7 +74,7 @@ export default function ThoughtBubbleCard({
   const strokeColor = selected ? '#34d399' : palette.stroke;
   const fillTint = selected
     ? 'rgba(20, 53, 36, 0.78)'
-    : 'rgba(13, 31, 56, 0.78)';
+    : 'rgba(24, 24, 24, 0.80)';
 
   return (
     <details
@@ -116,8 +117,8 @@ export default function ThoughtBubbleCard({
 
         {/* Title — big + bold, centered on top of the icon. */}
         <h3
-          className="thought-bubble-card-title text-base sm:text-lg font-bold text-center leading-tight"
-          style={{ color: selected ? '#a7f3d0' : palette.text }}
+          className="thought-bubble-card-title text-xl sm:text-2xl text-center leading-tight"
+          style={{ fontFamily: FONT, color: selected ? '#a7f3d0' : palette.text }}
         >
           {label}
         </h3>
