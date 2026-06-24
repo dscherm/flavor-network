@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { cocktailBaseSpirit, COCKTAIL_SPIRIT_LEGEND } from '../data/cocktailBaseSpirit.js';
+import { cocktailBaseSpirit, COCKTAIL_SPIRIT_LEGEND, COCKTAIL_SPIRIT_COLORS } from '../data/cocktailBaseSpirit.js';
 
 // ── Bistro-chalkboard palette (shared kitchen-world DNA, matches
 //    RecipeFlavorProfilesCard). The 2D cocktail list IS a bar menu, so it's
@@ -32,39 +32,19 @@ const CHALK_SHADOW = '0 0 1px rgba(245,239,222,0.5), 0 0 3px rgba(245,239,222,0.
  * UI driven by props.
  */
 
-// 2x3 mini-map layout: column x positions and row y positions in
-// viewBox coords. Bubble radius is sqrt(count)-scaled so the visual
-// area roughly tracks the family size.
-const MAP_VIEWBOX = '0 0 720 220';
-const COL_X = [140, 360, 580];
-const ROW_Y = [70, 168];
-const FAMILY_GRID = [
-  { idx: 0, col: 0, row: 0 }, // top-left
-  { idx: 1, col: 1, row: 0 },
-  { idx: 2, col: 2, row: 0 }, // biggest cluster, top-right
-  { idx: 3, col: 0, row: 1 },
-  { idx: 4, col: 1, row: 1 },
-  { idx: 5, col: 2, row: 1 },
-];
-const BUBBLE_R_BASE = 14;
-const BUBBLE_R_SCALE = 2.4;
 
-function bubbleRadius(count) {
-  return BUBBLE_R_BASE + Math.sqrt(count) * BUBBLE_R_SCALE;
-}
-
-/**
- * Pretty-print a family short-name that fits inside the bubble. The
- * full names from the data are sometimes long ("Highballs & Fizzes"),
- * so we strip ampersand-tails for the in-bubble label and show the
- * full name underneath.
- */
-function bubbleShortName(name) {
-  if (!name) return '';
-  if (name.length <= 14) return name;
-  // Drop everything after " & " or " · " for the inside-bubble label
-  const cut = name.split(/ & | · /)[0];
-  return cut.length <= 14 ? cut : cut.slice(0, 12) + '…';
+// Word-wrap a family name into up to 2 lines for the shelf tag (no truncation).
+function wrapFamilyName(name, max = 11) {
+  const words = String(name || '').trim().split(/\s+/);
+  if (words.length <= 1) return [name || ''];
+  const lines = [''];
+  for (const w of words) {
+    const last = lines[lines.length - 1];
+    if (!last) lines[lines.length - 1] = w;
+    else if ((last + ' ' + w).length <= max) lines[lines.length - 1] = `${last} ${w}`;
+    else lines.push(w);
+  }
+  return lines.slice(0, 2);
 }
 
 /**
@@ -90,6 +70,90 @@ const SPIRIT_CHIPS = [
   { key: 'wine',      label: 'Wine' },
   { key: 'other',     label: 'Other' },
 ];
+
+// Each cocktail family gets a signature glass. Matched by name keyword;
+// order matters (boozy/sipper before the generic stirred match).
+const GLASS_BY_FAMILY = [
+  { rx: /tropical/i,            glass: 'pilsner' },  // tall vaso cervecero
+  { rx: /highball|fizz/i,       glass: 'snifter' },  // brandy balloon
+  { rx: /sour/i,                glass: 'margarita' },
+  { rx: /boozy|sipper|rocks/i,  glass: 'rocks' },
+  { rx: /aromatic|stir/i,       glass: 'martini' },
+  { rx: /aperitivo|spritz/i,    glass: 'wine' },
+];
+function glassTypeFor(name = '') {
+  for (const { rx, glass } of GLASS_BY_FAMILY) if (rx.test(name)) return glass;
+  return 'coupe';
+}
+
+/**
+ * Render a chalk glass silhouette for a family, centered at `cx`, standing on
+ * the shelf at y≈104. Returns SVG elements (liquid fill + chalk outline, plus
+ * a stem/foot for stemware). Dashed stroke when inactive, solid when active.
+ */
+function glassMark(type, cx, color, stroke, active) {
+  const liquid = (d) => <path d={d} fill={color} fillOpacity={active ? 0.62 : 0.34} stroke="none" />;
+  const glass = (d) => (
+    <path d={d} fill="none" stroke={stroke} strokeWidth={active ? 2.4 : 1.6}
+      strokeDasharray={active ? '0' : '5 3'} strokeLinejoin="round" strokeLinecap="round" />
+  );
+  const stick = (x1, y1, x2, y2) => (
+    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={active ? 2.4 : 1.6} strokeLinecap="round" />
+  );
+  switch (type) {
+    case 'pilsner': // tall tapered beer/vaso-cervecero glass
+      return (<>
+        {liquid(`M ${cx - 9} 48 L ${cx + 9} 48 L ${cx + 6} 103 L ${cx - 6} 103 Z`)}
+        {glass(`M ${cx - 11} 22 L ${cx + 11} 22 L ${cx + 6} 104 L ${cx - 6} 104 Z`)}
+      </>);
+    case 'snifter': // brandy balloon — round bowl, incurved rim, short stem
+      return (<>
+        {liquid(`M ${cx - 13} 66 Q ${cx - 14} 80 ${cx} 82 Q ${cx + 14} 80 ${cx + 13} 66 Q ${cx + 7} 72 ${cx} 72 Q ${cx - 7} 72 ${cx - 13} 66 Z`)}
+        {glass(`M ${cx - 8} 48 Q ${cx - 19} 56 ${cx - 17} 72 Q ${cx - 15} 88 ${cx} 90 Q ${cx + 15} 88 ${cx + 17} 72 Q ${cx + 19} 56 ${cx + 8} 48`)}
+        {stick(cx, 90, cx, 100)}{stick(cx - 11, 102, cx + 11, 102)}
+      </>);
+    case 'margarita': // wide flared bowl with a stepped waist, on a stem
+      return (<>
+        {liquid(`M ${cx - 15} 47 Q ${cx - 12} 55 ${cx} 57 Q ${cx + 12} 55 ${cx + 15} 47 Z`)}
+        {glass(`M ${cx - 23} 40 Q ${cx - 20} 52 ${cx - 7} 58 L ${cx - 9} 63 Q ${cx - 9} 67 ${cx} 67 Q ${cx + 9} 67 ${cx + 9} 63 L ${cx + 7} 58 Q ${cx + 20} 52 ${cx + 23} 40`)}
+        {stick(cx, 67, cx, 101)}{stick(cx - 14, 102, cx + 14, 102)}
+      </>);
+    case 'highball':
+      return (<>
+        {liquid(`M ${cx - 10} 56 L ${cx + 10} 56 L ${cx + 8.5} 103 L ${cx - 8.5} 103 Z`)}
+        {glass(`M ${cx - 11} 28 L ${cx + 11} 28 L ${cx + 8.5} 104 L ${cx - 8.5} 104 Z`)}
+      </>);
+    case 'rocks':
+      return (<>
+        {liquid(`M ${cx - 14} 82 L ${cx + 14} 82 L ${cx + 13} 103 L ${cx - 13} 103 Z`)}
+        {glass(`M ${cx - 15} 64 L ${cx + 15} 64 L ${cx + 13} 104 L ${cx - 13} 104 Z`)}
+      </>);
+    case 'martini':
+      return (<>
+        {liquid(`M ${cx - 12} 46 L ${cx + 12} 46 L ${cx} 63 Z`)}
+        {glass(`M ${cx - 22} 38 L ${cx + 22} 38 L ${cx} 74 Z`)}
+        {stick(cx, 74, cx, 101)}{stick(cx - 13, 102, cx + 13, 102)}
+      </>);
+    case 'coupe':
+      return (<>
+        {liquid(`M ${cx - 13} 47 Q ${cx} 60 ${cx + 13} 47 Z`)}
+        {glass(`M ${cx - 20} 43 L ${cx + 20} 43 Q ${cx} 71 ${cx - 20} 43 Z`)}
+        {stick(cx, 65, cx, 101)}{stick(cx - 13, 102, cx + 13, 102)}
+      </>);
+    case 'wine':
+      return (<>
+        {liquid(`M ${cx - 10} 50 Q ${cx - 10} 62 ${cx} 64 Q ${cx + 10} 62 ${cx + 10} 50 Z`)}
+        {glass(`M ${cx - 13} 38 Q ${cx - 15} 62 ${cx} 66 Q ${cx + 15} 62 ${cx + 13} 38 Z`)}
+        {stick(cx, 66, cx, 101)}{stick(cx - 12, 102, cx + 12, 102)}
+      </>);
+    case 'hurricane':
+    default:
+      return (<>
+        {liquid(`M ${cx - 9.5} 60 Q ${cx - 11} 84 ${cx - 6} 103 L ${cx + 6} 103 Q ${cx + 11} 84 ${cx + 9.5} 60 Q ${cx} 64 ${cx - 9.5} 60 Z`)}
+        {glass(`M ${cx - 11} 32 Q ${cx - 16} 56 ${cx - 9} 76 Q ${cx - 12} 95 ${cx - 6} 104 L ${cx + 6} 104 Q ${cx + 12} 95 ${cx + 9} 76 Q ${cx + 16} 56 ${cx + 11} 32 Z`)}
+      </>);
+  }
+}
 
 export default function CocktailBrowse({
   graph,
@@ -157,7 +221,7 @@ export default function CocktailBrowse({
       {/* ───── Board header — the bistro "specials board" title ───── */}
       <div className="px-4 pt-5 pb-2 max-w-4xl mx-auto text-center">
         <h1
-          className="inline-block text-4xl pb-1"
+          className="inline-block text-5xl sm:text-6xl pb-1.5"
           style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW, borderBottom: `2px solid ${CHALK_DIM}88` }}
         >
           Cocktail Menu
@@ -167,57 +231,48 @@ export default function CocktailBrowse({
         </p>
       </div>
 
-      {/* ───── Family map — chalk-drawn bubbles ───── */}
+      {/* ───── Back-bar shelf — one chalk bottle per family ───── */}
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
-        <svg viewBox={MAP_VIEWBOX} className="w-full h-auto" role="img" aria-label="Cocktail family map">
-          <title>Cocktail family map</title>
-          {FAMILY_GRID.map(({ idx, col, row }) => {
-            const fam = graph.families[idx];
-            if (!fam) return null;
-            const cx = COL_X[col];
-            const cy = ROW_Y[row];
+        <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Families</div>
+        <svg
+          viewBox={`0 -12 ${graph.families.length * 110} 182`}
+          className="w-full h-auto"
+          style={{ maxHeight: 224 }}
+          role="img"
+          aria-label="Cocktail families — back-bar shelf"
+        >
+          <title>Cocktail families</title>
+          {/* the shelf */}
+          <line x1="6" y1="104" x2={graph.families.length * 110 - 6} y2="104" stroke={`${CHALK_DIM}cc`} strokeWidth="3" strokeLinecap="round" />
+          <line x1="6" y1="108" x2={graph.families.length * 110 - 6} y2="108" stroke={`${CHALK_RAIL}99`} strokeWidth="1.5" strokeLinecap="round" />
+          {graph.families.map((fam, i) => {
+            const cx = 55 + i * 110;
             const count = (graph.byFamily.get(fam.id) || []).length;
-            const r = bubbleRadius(count);
-            const isActive = filterFamily === fam.id;
+            const active = filterFamily === fam.id;
+            const dim = filterFamily != null && !active;
+            const stroke = active ? CHALK_CREAM : fam.color;
             return (
               <g
                 key={fam.id}
-                onClick={() => onFilterFamily(isActive ? null : fam.id)}
-                style={{ cursor: 'pointer' }}
+                onClick={() => onFilterFamily(active ? null : fam.id)}
+                style={{ cursor: 'pointer', opacity: dim ? 0.4 : 1, transition: 'opacity .15s' }}
+                role="button"
+                aria-label={`${fam.name}, ${count} cocktails`}
               >
-                <circle
-                  cx={cx}
-                  cy={cy}
-                  r={r}
-                  fill={fam.color}
-                  fillOpacity={filterFamily == null || isActive ? 0.55 : 0.18}
-                  stroke={isActive ? CHALK_CREAM : `${fam.color}`}
-                  strokeOpacity={isActive ? 0.95 : 0.6}
-                  strokeWidth={isActive ? 3 : 1.6}
-                  strokeDasharray={isActive ? '0' : '5 3'}
-                />
-                <text
-                  x={cx}
-                  y={cy - 1}
-                  textAnchor="middle"
-                  fontSize="16"
-                  fontFamily="Caveat, cursive"
-                  fill={CHALK_CREAM}
-                  pointerEvents="none"
-                >
-                  {bubbleShortName(fam.name)}
+                {/* full-slot invisible hit area so the whole glass is tappable
+                    (chalk outlines alone are thin + hard to hit) */}
+                <rect x={cx - 54} y="-12" width="108" height="170" fill="transparent" />
+                {/* the family's signature glass, scaled up about the shelf base */}
+                <g transform={`translate(${cx} 104) scale(1.3) translate(${-cx} -104)`} pointerEvents="none">
+                  {glassMark(glassTypeFor(fam.name), cx, fam.color, stroke, active)}
+                </g>
+                {/* family name on a shelf tag below (wrapped, not cut) + count */}
+                <text x={cx} y="123" textAnchor="middle" fontSize="22" fontFamily="Caveat, cursive" fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
+                  {wrapFamilyName(fam.name).map((ln, li) => (
+                    <tspan key={li} x={cx} dy={li === 0 ? 0 : 18}>{ln}</tspan>
+                  ))}
                 </text>
-                <text
-                  x={cx}
-                  y={cy + 16}
-                  textAnchor="middle"
-                  fontSize="12"
-                  fill={CHALK_CREAM}
-                  fillOpacity="0.7"
-                  pointerEvents="none"
-                >
-                  {count}
-                </text>
+                <text x={cx} y="160" textAnchor="middle" fontSize="15" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.6" pointerEvents="none">{count} drinks</text>
               </g>
             );
           })}
@@ -236,28 +291,40 @@ export default function CocktailBrowse({
         )}
       </div>
 
-      {/* ───── Filter bar — chalk-outline chips ───── */}
+      {/* ───── Filter bar — chalk-outline spirit chips ───── */}
       <div
         className="sticky top-0 z-30 backdrop-blur-md px-4 py-2.5 max-w-4xl mx-auto"
         style={{ background: '#0a0a0aE6', borderBottom: `1px solid ${CHALK_RAIL}66` }}
       >
+        <div className="text-[11px] uppercase tracking-wider mb-1.5" style={{ color: CHALK_SUB }}>Spirits</div>
         <div className="flex flex-wrap items-center gap-1.5">
           {SPIRIT_CHIPS.map((chip) => {
             const active = filterSpirit === chip.key;
+            // Color-code each spirit by its back-bar pour color. "All Spirits"
+            // (key null) stays neutral cream. Active = filled with the color;
+            // inactive = a colored chalk dot + colored outline.
+            const c = chip.key ? COCKTAIL_SPIRIT_COLORS[chip.key] : null;
             return (
               <button
                 key={String(chip.key)}
                 type="button"
                 onClick={() => onFilterSpirit(active ? null : chip.key)}
-                className="px-3 py-1 rounded-full text-[15px] border transition-colors"
+                className="px-3 py-1 rounded-full text-[15px] border transition-colors inline-flex items-center gap-1.5"
                 style={{
                   fontFamily: FONT,
-                  color: active ? '#0a0a0a' : CHALK_DIM,
-                  background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)',
-                  borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}`,
+                  color: active ? '#0a0a0a' : (c || CHALK_CREAM),
+                  background: active ? (c || CHALK_CREAM) : 'rgba(255,255,255,0.04)',
+                  borderColor: active ? (c || CHALK_CREAM) : `${c || CHALK_RAIL}99`,
                   textShadow: active ? 'none' : CHALK_SHADOW,
                 }}
               >
+                {c && (
+                  <span
+                    className="inline-block rounded-full"
+                    style={{ width: 8, height: 8, background: active ? '#0a0a0a55' : c }}
+                    aria-hidden="true"
+                  />
+                )}
                 {chip.label}
               </button>
             );

@@ -84,6 +84,21 @@ export function cocktailBaseSpiritShape(ingredientsRaw) {
   return DEFAULT_SHAPE;
 }
 
+// Back-bar liquid colors for the 2D menu's spirit chips — evocative of the
+// pour in the glass and visually distinct from each other (chalk on slate).
+// Keyed by the lowercase spirit names cocktailBaseSpirit() returns.
+export const COCKTAIL_SPIRIT_COLORS = Object.freeze({
+  gin:      '#9ccb7a', // juniper green
+  whiskey:  '#d99a4e', // bourbon amber
+  rum:      '#c2703a', // molasses caramel
+  vodka:    '#aec3d6', // iced clear / blue-white
+  tequila:  '#5fae9a', // blue-agave teal
+  liqueur:  '#d8524a', // Campari/amaro red
+  vermouth: '#b06a86', // fortified rosé
+  wine:     '#e0cf6f', // champagne gold
+  other:    '#9a9486', // chalk gray
+});
+
 export const COCKTAIL_SPIRIT_LEGEND = Object.freeze([
   { category: 'Gin',      shape: 'cube' },
   { category: 'Whiskey',  shape: 'cylinder' },
