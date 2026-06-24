@@ -528,18 +528,16 @@ describe('§4 — Recipes Lab', () => {
 
   it('4.A.2 filter pills are present (cuisine + cluster + All)', () => {
     render(<CookbookLab />);
-    // Switch to Grid mode so NetworkScene doesn't mount (jsdom has no
-    // WebGL); the cuisine names then render in recipe card badges too.
-    fireEvent.click(screen.getByText('Grid'));
+    // 2D card grid is the only view now; cuisine names render in the
+    // cookbook shelf and recipe-card badges.
     expect(screen.getAllByText('Italian').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Mexican').length).toBeGreaterThan(0);
-    // Two "All" pills (one per filter row: Cuisine + Type).
+    // Two "All" controls (one per filter row: Cuisine shelf + Type).
     expect(screen.getAllByText('All').length).toBe(2);
   });
 
   it('4.A.3 CookbookLab defaults to a flavor (cluster) filter on mount', () => {
     render(<CookbookLab />);
-    fireEvent.click(screen.getByText('Grid'));
     // Spec §4A: "Default to flavor filter". The cluster axis IS the
     // flavor axis (savory/baking/seafood/vegetable). On mount the "savory"
     // type control should be the active one (icon-only control, aria-pressed).
@@ -547,20 +545,17 @@ describe('§4 — Recipes Lab', () => {
     expect(savoryBtn).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('4.A.1 CookbookLab ships a 3D NetworkScene explore mode', async () => {
+  it('4.A.1 CookbookLab is 2D-only (3D explore view removed)', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
       path.resolve(process.cwd(), 'src/components/CookbookLab.jsx'),
       'utf8',
     );
-    // 3D explore mode imports NetworkScene + uses buildRecipesScene
-    // for the name-keyed scene contract.
-    expect(/import NetworkScene from/.test(src)).toBe(true);
-    expect(/buildRecipesScene/.test(src)).toBe(true);
-    // View toggle exposes both modes.
-    expect(/viewMode === 'explore'/.test(src)).toBe(true);
-    expect(/viewMode === 'browse'/.test(src)).toBe(true);
+    // The 3D NetworkScene view + view toggle were removed; only the 2D
+    // recipe-box card grid remains.
+    expect(/import NetworkScene from/.test(src)).toBe(false);
+    expect(/viewMode/.test(src)).toBe(false);
   });
 
   it('4.A.5 buildRecipesScene produces NetworkScene-compatible shape', async () => {
