@@ -18,25 +18,38 @@
  */
 
 import React, { useEffect } from 'react';
+import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
-const FONT = 'Caveat, cursive';
-const CHALK_BG = `
-  radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%),
-  #0a0a0a
-`;
 const CHALK_BORDER_OUTER = '#4a4a4a';
 const CHALK_BORDER_INNER = '#6a6a6a';
-const CHALK_CREAM = '#f5efde';
-const CHALK_DIM = '#bdb6a3';
-const CHALK_SUB = '#8a8478';
 const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 const TEXT_OUTLINE = { WebkitTextStroke: '0.6px rgba(8,8,8,0.62)', paintOrder: 'stroke fill' };
 
 const FS_NAME = 'clamp(34px, 6vh, 60px)';
 const FS_SECTION = 'clamp(13px, 1.7vh, 18px)';
-const FS_BODY = 'clamp(15px, 2vh, 21px)';
+// Ingredients + preparation are the heart of the card — set noticeably larger
+// than the cousin/bridge chips (FS_CHIP) so they read first.
+const FS_BODY = 'clamp(19px, 2.7vh, 27px)';
 const FS_CHIP = 'clamp(14px, 2vh, 20px)';
+const FS_MEASURE = 'clamp(15px, 1.9vh, 19px)';
 const FS_SUB = 'clamp(11px, 1.5vh, 15px)';
+
+// Split a free-text preparation into steps. Priority: explicit line breaks →
+// pre-existing numbered markers ("1. … 2. …") → sentence boundaries. Any
+// leading enumerator is stripped so our own numbering never doubles up
+// (recipes that already carry numbers won't render "1. 1. …"). Returns ≥2
+// entries only when the text really is multi-step.
+function splitPrepSteps(text) {
+  const t = String(text).trim();
+  let parts = t.split(/\n+/).map((s) => s.trim()).filter(Boolean);
+  if (parts.length <= 1 && /(?:^|\s)\d+[.)]\s+/.test(t)) {
+    parts = t.split(/\s*\d+[.)]\s+/).map((s) => s.trim()).filter(Boolean);
+  }
+  if (parts.length <= 1) {
+    parts = t.split(/(?<=[.!?])\s+(?=[A-Z0-9])/).map((s) => s.trim()).filter(Boolean);
+  }
+  return parts.map((s) => s.replace(/^\d+[.)]\s*/, '').trim()).filter(Boolean);
+}
 
 function SectionLabel({ children, color = CHALK_DIM }) {
   return (
@@ -107,7 +120,7 @@ export default function LabNodeCard({
 
   return (
     <div className="fixed inset-0 z-[80] flex flex-col items-center justify-center px-4 py-3"
-      style={{ background: CHALK_BG }}
+      style={chalkSurfaceStyle()}
       data-testid="lab-node-card"
       data-kind={kind}
       data-name={name || ''}>
@@ -158,26 +171,47 @@ export default function LabNodeCard({
         {ingList.length > 0 && (
           <div className="flex-shrink-0">
             <SectionLabel>Ingredients</SectionLabel>
-            <ul className="flex flex-col gap-0.5" data-testid="lab-node-card-ingredients">
+            <ul className="flex flex-col gap-1" data-testid="lab-node-card-ingredients">
               {ingList.map((ing, i) => (
                 <li key={`${ing.name}-${i}`} className="flex items-baseline gap-2"
                   style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_CREAM }}>
-                  <span style={{ color: clusterColor }}>•</span>
-                  <span>{ing.name}</span>
-                  {ing.measure ? <span style={{ color: CHALK_SUB, fontSize: FS_SUB }}>{ing.measure}</span> : null}
+                  <span className="flex-shrink-0" style={{ color: clusterColor }}>→</span>
+                  <span className="flex-shrink-0">{ing.name}</span>
+                  {ing.measure ? (
+                    <>
+                      <span className="flex-1 self-center mx-1" aria-hidden="true"
+                        style={{ borderBottom: `1px dotted ${CHALK_SUB}88`, transform: 'translateY(-2px)' }} />
+                      <span className="flex-shrink-0 whitespace-nowrap" style={{ color: CHALK_DIM, fontSize: FS_MEASURE }}>{ing.measure}</span>
+                    </>
+                  ) : null}
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        {/* Preparation */}
-        {prep && (
-          <div className="flex-shrink-0">
-            <SectionLabel>Preparation</SectionLabel>
-            <p style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_DIM, lineHeight: 1.3 }}>{prep}</p>
-          </div>
-        )}
+        {/* Preparation — numbered steps when multi-step, else a paragraph. */}
+        {prep && (() => {
+          const steps = splitPrepSteps(prep);
+          return (
+            <div className="flex-shrink-0">
+              <SectionLabel>Preparation</SectionLabel>
+              {steps.length > 1 ? (
+                <ol className="flex flex-col gap-1.5" data-testid="lab-node-card-prep">
+                  {steps.map((step, i) => (
+                    <li key={i} className="flex gap-2"
+                      style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_CREAM, lineHeight: 1.45 }}>
+                      <span className="flex-shrink-0" style={{ color: clusterColor, fontWeight: 700 }}>{i + 1}.</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p data-testid="lab-node-card-prep" style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_CREAM, lineHeight: 1.45 }}>{prep}</p>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Like this */}
         {likeThis.length > 0 && (
