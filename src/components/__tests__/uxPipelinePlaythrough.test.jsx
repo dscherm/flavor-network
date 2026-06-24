@@ -541,11 +541,10 @@ describe('§4 — Recipes Lab', () => {
     render(<CookbookLab />);
     fireEvent.click(screen.getByText('Grid'));
     // Spec §4A: "Default to flavor filter". The cluster axis IS the
-    // flavor axis (savory/baking/seafood/vegetable). On mount, the
-    // "savory" cluster pill should be active (emerald), not "All".
-    const savoryPill = screen.getByText('savory');
-    expect(savoryPill).toBeInTheDocument();
-    expect(savoryPill.className).toMatch(/bg-emerald-500\/20/);
+    // flavor axis (savory/baking/seafood/vegetable). On mount the "savory"
+    // type control should be the active one (icon-only control, aria-pressed).
+    const savoryBtn = screen.getByRole('button', { name: /savory dishes/i });
+    expect(savoryBtn).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('4.A.1 CookbookLab ships a 3D NetworkScene explore mode', async () => {

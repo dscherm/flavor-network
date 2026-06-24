@@ -1,24 +1,12 @@
 import { useMemo, useState } from 'react';
 import { cocktailBaseSpirit, COCKTAIL_SPIRIT_LEGEND, COCKTAIL_SPIRIT_COLORS } from '../data/cocktailBaseSpirit.js';
+import {
+  FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
+} from '../data/chalkTheme.js';
 
-// ── Bistro-chalkboard palette (shared kitchen-world DNA, matches
-//    RecipeFlavorProfilesCard). The 2D cocktail list IS a bar menu, so it's
-//    drawn as colored chalk on slate. Caveat carries names/headings; small
-//    data (counts, IBA, spirit) stays in a legible sans for readability.
-const FONT = 'Caveat, cursive';
-const CHALK_BG = 'radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%), #0a0a0a';
-const CHALK_CREAM = '#f5efde';
-const CHALK_DIM = '#bdb6a3';
-const CHALK_SUB = '#8a8478';
-const CHALK_RAIL = '#4a4a4a';
-const CHALK_SHADOW = '0 0 1px rgba(245,239,222,0.5), 0 0 3px rgba(245,239,222,0.2)';
-// Faint chalk-dust grain (SVG fractal noise, ~5% white) — reusable
-// kitchen-world DNA so the chalkboard surfaces feel like real boards, not
-// flat black. Subtle by design; must not hurt text legibility. Layer it
-// ABOVE the slate gradient via backgroundImage.
-export const CHALK_TEXTURE =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E\")";
-const CHALK_GRADIENT = 'radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%)';
+// The 2D cocktail list IS a bar menu, so it's drawn as colored chalk on
+// slate (shared kitchen-world DNA, see chalkTheme.js). Caveat carries
+// names/headings; small data (counts, IBA, spirit) stays in a legible sans.
 
 /**
  * CocktailBrowse — 2D selection surface for the Cocktail Lab. Sits as
@@ -235,7 +223,7 @@ function bottleMark(spirit, cx, color, stroke, active, name) {
         stroke={stroke} strokeWidth="1" strokeOpacity={active ? 0.95 : 0.6} />
       {name && (
         <text x={cx} y={labelCY + 0.5} textAnchor="middle" dominantBaseline="central"
-          fontSize="14" fontFamily="Caveat, cursive" fontWeight="700" fill="#211e18"
+          fontSize="16" fontFamily="Caveat, cursive" fontWeight="700" fill="#211e18"
           textLength={labelW - 6} lengthAdjust="spacingAndGlyphs" pointerEvents="none">{name}</text>
       )}
     </g>
@@ -396,10 +384,7 @@ export default function CocktailBrowse({
     <div
       className="absolute inset-0 top-10 overflow-y-auto"
       style={{
-        backgroundColor: '#0a0a0a',
-        backgroundImage: `${CHALK_TEXTURE}, ${CHALK_GRADIENT}`,
-        backgroundSize: '180px 180px, cover',
-        backgroundRepeat: 'repeat, no-repeat',
+        ...chalkSurfaceStyle(),
         color: CHALK_CREAM,
         boxShadow: `inset 0 0 0 2px ${CHALK_RAIL}55, inset 0 0 0 4px #00000080`,
       }}
@@ -422,18 +407,18 @@ export default function CocktailBrowse({
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
         <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Families</div>
         <svg
-          viewBox={`0 -30 ${graph.families.length * 110} 200`}
+          viewBox={`0 -48 ${graph.families.length * 120} 224`}
           className="w-full h-auto"
-          style={{ maxHeight: 256 }}
+          style={{ maxHeight: 292 }}
           role="img"
           aria-label="Cocktail families — back-bar shelf"
         >
           <title>Cocktail families</title>
           {/* the shelf */}
-          <line x1="6" y1="104" x2={graph.families.length * 110 - 6} y2="104" stroke={`${CHALK_DIM}cc`} strokeWidth="3" strokeLinecap="round" />
-          <line x1="6" y1="108" x2={graph.families.length * 110 - 6} y2="108" stroke={`${CHALK_RAIL}99`} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="6" y1="104" x2={graph.families.length * 120 - 6} y2="104" stroke={`${CHALK_DIM}cc`} strokeWidth="3.5" strokeLinecap="round" />
+          <line x1="6" y1="108.5" x2={graph.families.length * 120 - 6} y2="108.5" stroke={`${CHALK_RAIL}99`} strokeWidth="2" strokeLinecap="round" />
           {graph.families.map((fam, i) => {
-            const cx = 55 + i * 110;
+            const cx = 60 + i * 120;
             const count = (graph.byFamily.get(fam.id) || []).length;
             const active = filterFamily === fam.id;
             const dim = filterFamily != null && !active;
@@ -448,18 +433,18 @@ export default function CocktailBrowse({
               >
                 {/* full-slot invisible hit area so the whole glass is tappable
                     (chalk outlines alone are thin + hard to hit) */}
-                <rect x={cx - 54} y="-30" width="108" height="192" fill="transparent" />
+                <rect x={cx - 59} y="-48" width="118" height="222" fill="transparent" />
                 {/* the family's signature glass, scaled up about the shelf base */}
-                <g transform={`translate(${cx} 104) scale(1.5) translate(${-cx} -104)`} pointerEvents="none">
+                <g transform={`translate(${cx} 104) scale(1.85) translate(${-cx} -104)`} pointerEvents="none">
                   {glassMark(glassTypeFor(fam.name), cx, fam.color, stroke, active)}
                 </g>
                 {/* family name on a shelf tag below (wrapped, not cut) + count */}
-                <text x={cx} y="123" textAnchor="middle" fontSize="22" fontFamily="Caveat, cursive" fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
+                <text x={cx} y="128" textAnchor="middle" fontSize="27" fontFamily="Caveat, cursive" fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
                   {wrapFamilyName(fam.name).map((ln, li) => (
-                    <tspan key={li} x={cx} dy={li === 0 ? 0 : 18}>{ln}</tspan>
+                    <tspan key={li} x={cx} dy={li === 0 ? 0 : 22}>{ln}</tspan>
                   ))}
                 </text>
-                <text x={cx} y="160" textAnchor="middle" fontSize="15" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.6" pointerEvents="none">{count} drinks</text>
+                <text x={cx} y={`${128 + (wrapFamilyName(fam.name).length > 1 ? 22 : 0) + 20}`} textAnchor="middle" fontSize="17" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.6" pointerEvents="none">{count} drinks</text>
               </g>
             );
           })}
@@ -482,18 +467,18 @@ export default function CocktailBrowse({
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
         <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Spirits</div>
         <svg
-          viewBox={`0 -50 ${SPIRIT_SHELF.length * 112} 186`}
+          viewBox={`0 -66 ${SPIRIT_SHELF.length * 122} 204`}
           className="w-full h-auto"
-          style={{ maxHeight: 288 }}
+          style={{ maxHeight: 320 }}
           role="img"
           aria-label="Base spirits — back-bar bottle shelf"
         >
           <title>Base spirits</title>
           {/* the shelf */}
-          <line x1="6" y1="104" x2={SPIRIT_SHELF.length * 112 - 6} y2="104" stroke={`${CHALK_DIM}cc`} strokeWidth="3" strokeLinecap="round" />
-          <line x1="6" y1="108" x2={SPIRIT_SHELF.length * 112 - 6} y2="108" stroke={`${CHALK_RAIL}99`} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="6" y1="104" x2={SPIRIT_SHELF.length * 122 - 6} y2="104" stroke={`${CHALK_DIM}cc`} strokeWidth="3.5" strokeLinecap="round" />
+          <line x1="6" y1="108.5" x2={SPIRIT_SHELF.length * 122 - 6} y2="108.5" stroke={`${CHALK_RAIL}99`} strokeWidth="2" strokeLinecap="round" />
           {SPIRIT_SHELF.map((s, i) => {
-            const cx = 56 + i * 112;
+            const cx = 61 + i * 122;
             const count = spiritCounts[s.key] || 0;
             const active = filterSpirit === s.key;
             const dim = filterSpirit != null && !active;
@@ -508,12 +493,12 @@ export default function CocktailBrowse({
                 aria-label={`${s.label}, ${count} cocktails`}
               >
                 {/* full-slot invisible hit area — chalk outlines alone are hard to hit */}
-                <rect x={cx - 55} y="-50" width="110" height="174" fill="transparent" />
+                <rect x={cx - 60} y="-66" width="120" height="192" fill="transparent" />
                 {/* per-bottle scale: everything bumped up except gin (held smaller) */}
-                <g transform={`translate(${cx} 104) scale(${1.65 * (BOTTLE_PARAMS[s.key]?.scale ?? 1)}) translate(${-cx} -104)`} pointerEvents="none">
+                <g transform={`translate(${cx} 104) scale(${1.85 * (BOTTLE_PARAMS[s.key]?.scale ?? 1)}) translate(${-cx} -104)`} pointerEvents="none">
                   {bottleMark(s.key, cx, color, stroke, active, s.label)}
                 </g>
-                <text x={cx} y="128" textAnchor="middle" fontSize="15" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.65" pointerEvents="none">{count} drinks</text>
+                <text x={cx} y="130" textAnchor="middle" fontSize="17" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.65" pointerEvents="none">{count} drinks</text>
               </g>
             );
           })}
@@ -571,6 +556,7 @@ export default function CocktailBrowse({
           const members = graph.byFamily.get(fam.id) || [];
           const filtered = applyFilters(members);
           if (filtered.length === 0) return null;
+          const famGlassType = glassTypeFor(fam.name);
 
           // Group by subcluster_id, preserving original order.
           const bySub = new Map();
@@ -583,9 +569,12 @@ export default function CocktailBrowse({
 
           return (
             <section key={fam.id} className="mb-7">
-              <header className="flex items-baseline gap-2 mb-2 pb-1" style={{ borderBottom: `1.5px solid ${fam.color}66` }}>
-                <h2 className="text-2xl" style={{ fontFamily: FONT, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
-                <span className="text-[12px]" style={{ color: CHALK_SUB }}>{filtered.length} of {members.length}</span>
+              <header className="flex items-center gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${fam.color}66`, borderBottom: `1.5px solid ${fam.color}66` }}>
+                <svg width="38" height="58" viewBox="0 16 52 92" aria-hidden="true" style={{ flexShrink: 0 }}>
+                  {glassMark(famGlassType, 26, fam.color, fam.color, true)}
+                </svg>
+                <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
+                <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {filtered.length} of {members.length}</span>
               </header>
 
               {subIds.map((sid, sidIdx) => {
@@ -594,7 +583,11 @@ export default function CocktailBrowse({
                 const chalk = SUBGROUP_CHALKS[sidIdx % SUBGROUP_CHALKS.length];
                 const kind = subgroupKind(`${subLabel || ''} ${subMembers.map((m) => m.name).join(' ')}`);
                 return (
-                  <div key={sid} className="mb-3">
+                  <div
+                    key={sid}
+                    className="mb-2.5 ml-5 rounded-md"
+                    style={{ background: `${chalk}12`, borderLeft: `3px solid ${chalk}`, padding: '6px 8px 8px 10px' }}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       <SubgroupGlyph kind={kind} color={chalk} />
                       <span className="text-[24px] leading-tight" style={{ fontFamily: FONT, color: chalk, textShadow: CHALK_SHADOW }}>
@@ -602,7 +595,7 @@ export default function CocktailBrowse({
                       </span>
                       <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {subMembers.length}</span>
                     </div>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                       {subMembers.map((c, idx) => {
                         const a = annotated.get(c.name);
                         const isSelected = selectedCocktail === c.name;
@@ -611,18 +604,16 @@ export default function CocktailBrowse({
                             <button
                               type="button"
                               onClick={() => onSelectCocktail(c.name)}
-                              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[36px]"
+                              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[38px]"
                               style={{
-                                background: isSelected ? `${fam.color}22` : 'transparent',
-                                border: `1px solid ${isSelected ? `${fam.color}88` : 'transparent'}`,
+                                background: isSelected ? `${fam.color}22` : 'rgba(255,255,255,0.02)',
+                                border: `1px ${isSelected ? 'solid' : 'dashed'} ${isSelected ? `${fam.color}aa` : `${fam.color}55`}`,
                               }}
                             >
-                              <span
-                                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                                style={{ background: fam.color }}
-                                aria-hidden="true"
-                              />
-                              <span className="flex-1 truncate text-[17px]" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{c.name}</span>
+                              <svg width="15" height="22" viewBox="0 20 52 88" aria-hidden="true" className="flex-shrink-0">
+                                {glassMark(famGlassType, 26, fam.color, fam.color, true)}
+                              </svg>
+                              <span className="flex-1 truncate text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{c.name}</span>
                               {a?.iba_official && (
                                 <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>IBA</span>
                               )}

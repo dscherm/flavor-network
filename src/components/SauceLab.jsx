@@ -58,9 +58,9 @@ export default function SauceLab({
   }, [externalFilter]);
   // Camera fly-to target for the family fly-wheel (R10-66).
   const [flyToTarget, setFlyToTarget] = useState(null);
-  // Explore = the 3D NetworkScene (existing). Browse = 2D mini-map +
-  // sectioned list. Detail panel + selection state are shared.
-  const [viewMode, setViewMode] = useState('explore');
+  // Browse (2D specials board) is the default surface; Explore (3D
+  // NetworkScene) is the secondary view. Detail panel + selection shared.
+  const [viewMode, setViewMode] = useState('browse');
 
   useEffect(() => {
     let cancelled = false;
