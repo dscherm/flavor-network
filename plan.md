@@ -478,7 +478,8 @@ Prototype + interactive design tuning happened on the Cocktail Lab
   "title": "Cocktail menu Spirits row → per-spirit varied chalk bottle silhouettes",
   "category": "ui",
   "priority": 1,
-  "description": "Mirror the family glass-shelf for the Spirits filter: render each base spirit (gin/whiskey/rum/vodka/tequila/liqueur/vermouth/wine/other) as a DISTINCT chalk bottle silhouette (vary shoulder/height/width per spirit), filled in its COCKTAIL_SPIRIT_COLORS color, on a shelf, tappable to filter. Replaces the current color-coded text chips. Keep 'All Spirits' + IBA-only + search.",
+  "passes": true,
+  "description": "Done + user-validated (commit 24205c1). Spirit filter chips replaced by a tappable back-bar bottle shelf, one chalk bottle per base spirit via a parametric builder (bodyW/bodyTopW/shoulder/bodyStyle/punt): square-shouldered gin, tapered whiskey, bulged rum/liqueur, slim sloped vodka/vermouth, squat short-wide tequila, long-neck punted wine, generic other. Each bottle wears a cream paper label with the spirit name (Caveat, ink) — gin+vodka use a skewY rhombus label (vertical edges flush to the walls), the rest upright. Liquid/outline color-coded by COCKTAIL_SPIRIT_COLORS; '+N drinks' below. Bottles scaled 1.65 except gin (0.9). Sticky bar slimmed to IBA toggle + search + active-spirit pill.",
   "acceptance": ["Spirits shown as varied, color-coded chalk bottles on a shelf; tap-to-filter works; suite green; build clean"]
 }
 ```
@@ -491,6 +492,9 @@ Prototype + interactive design tuning happened on the Cocktail Lab
   "title": "Cocktail menu subgroups → colored chalk Caveat labels (drink-size) + per-subgroup icon",
   "category": "ui",
   "priority": 2,
+  "passes": true,
+  "decision": "Icon scope (user, 2026-06-24): keyword-matched glyph set, rendered as chalk line-art in the subgroup color (NOT emoji) to keep the chalkboard aesthetic; generic glass fallback.",
+  "done_note": "Commit 93a6ada. Headers: 24px Caveat + chalk glow, distinct chalk color per subgroup (9-hue palette cycled per family), keyword-matched chalk glyph (citrus/mint/coconut/berry/cream/spice/coffee/fizz + glass fallback) at 23px.",
   "description": "Within each family section, style the subgroup ('PINA COLADA-style') headers as colored chalk in the SAME Caveat font as the drink rows but LARGER (currently small uppercase sans), each subgroup a distinct chalk color. Add a small icon per subgroup. NOTE/decision needed: subgroups are data-derived (many per family) — a unique hand-drawn icon per subgroup isn't feasible; use a derived/generic chalk glyph (e.g. a small glass or a color swatch) or cap to a curated icon set. Confirm icon scope before building.",
   "acceptance": ["Subgroup headers: bigger Caveat, per-subgroup color, an icon; readable; suite green; build clean"]
 }
