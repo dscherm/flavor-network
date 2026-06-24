@@ -86,7 +86,9 @@ describe('CookbookLab — MAKE-COOKBOOK-PICKER (pickerMode="make")', () => {
     render(
       <CookbookLab pickerMode="make" onOpenRecipeLab={onOpenRecipeLab} />,
     );
-    // Stay in default 'explore' (3D) mode — sphere taps go through onNodeClick.
+    // Cookbook now defaults to 2D 'browse'; switch to 3D so the scene mounts
+    // and sphere taps go through onNodeClick.
+    fireEvent.click(screen.getByText('3D'));
     const sceneNodeButtons = screen.queryAllByTestId(/^scene-node-/);
     expect(sceneNodeButtons.length).toBeGreaterThan(0);
     fireEvent.click(sceneNodeButtons[0]);

@@ -521,7 +521,8 @@ Prototype + interactive design tuning happened on the Cocktail Lab
   "title": "Apply the chalkboard menu treatment to Sauce Lab + Cookbook (default 2D)",
   "category": "ui",
   "priority": 2,
-  "description": "Once CK-2..4 are settled on Cocktail, replicate: SauceBrowse → a 'Specials Board' (mother-sauce families as section headers; per-family glass/vessel optional), default SauceLab to 2D; CookbookLab → recipe CARDS in the cream-notebook/recipe-box style (it already has a strong card grid), default to grid/2D. Drop or demote the 3D Explore in all three.",
+  "passes": true,
+  "done_note": "User-validated over many rounds. Extracted shared src/data/chalkTheme.js (FONT/CHALK_* palette + CHALK_TEXTURE + chalkSurfaceStyle + CARD_* tokens); CocktailBrowse refactored to import it. SauceLab + CookbookLab default to 2D ('browse'). SauceBrowse → chalk 'Sauce Specials' board: 11 mother families as DISTINCT vessels (saucepan/ladle/boat/whisk-bowl/bottle/mortar/wok/jug/jar/carafe/cruet) on pantry shelves, 5/row centered, scaled 1.55; family list headers get line-above+below, 36px title, vessel icon, indented (ml-5) sauce cells with vessel-trace icon + 20px label + dashed chalk-trace cell. CookbookLab: cuisines as 'cookbooks' on a shelf (per-cuisine KitchenIcon, vertical spine titles), dish types as centered icon-only controls (84px KitchenIcon + label), recipe cards color-coded by cuisine wash over cream. Cocktail list polish: bigger family glasses/spirit bottles + labels, subgroup tinted cards (ml-5 indent, left spine), family headers line-above+below with glass icon, per-row glass-trace icon + dashed chalk-trace cells + 20px labels.",
   "acceptance": ["Sauce + Cookbook re-skinned to the kitchen world, default 2D; suite green; build clean"]
 }
 ```

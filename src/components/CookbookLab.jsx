@@ -21,42 +21,97 @@ import { useEffect, useMemo, useState } from 'react';
 import NetworkScene from './NetworkScene.jsx';
 import MultiAxisRadarStack from './MultiAxisRadarStack.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, buildRecipesScene, userRecipeToSeed } from '../data/seedRecipes.js';
+import {
+  FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
+  CARD_CREAM, CARD_CREAM_EDGE, CARD_INK, CARD_INK_SUB,
+} from '../data/chalkTheme.js';
 
+// ── Kitchen line-art icons (cuisine + dish-type) ──────────────────────
+function cuisineIconKind(cuisine = '') {
+  const c = cuisine.toLowerCase();
+  if (/italian/.test(c)) return 'leaf';
+  if (/french/.test(c)) return 'whisk';
+  if (/mexican/.test(c)) return 'pepper';
+  if (/south asian|indian|middle eastern/.test(c)) return 'spice';
+  if (/se asian|east asian|asian|thai|chinese|japanese|korean/.test(c)) return 'bowl';
+  if (/personal/.test(c)) return 'heart';
+  return 'fork';
+}
+function typeIconKind(cluster = '') {
+  const c = cluster.toLowerCase();
+  if (/savory|savoury/.test(c)) return 'pan';
+  if (/vegetable|veg/.test(c)) return 'carrot';
+  if (/bak/.test(c)) return 'bread';
+  if (/seafood|fish/.test(c)) return 'fish';
+  if (/personal/.test(c)) return 'heart';
+  return 'dot';
+}
+/** Small kitchen glyph, stroked in `color`. */
+function KitchenIcon({ kind, color, size = 18 }) {
+  const s = { fill: 'none', stroke: color, strokeWidth: 1.4, strokeLinecap: 'round', strokeLinejoin: 'round' };
+  let inner;
+  switch (kind) {
+    case 'leaf': inner = (<><path d="M9 3 C4 5 4 12 9 16 C14 12 14 5 9 3 Z" {...s} /><path d="M9 4 L9 15" {...s} /></>); break;
+    case 'whisk': inner = (<><path d="M9 2 L9 9" {...s} /><path d="M9 9 C5 10 5 16 9 16 C13 16 13 10 9 9" {...s} /><path d="M6.6 10.5 L7.6 15.4 M11.4 10.5 L10.4 15.4" {...s} /></>); break;
+    case 'spice': inner = (<><path d="M9 2 L9 16 M2 9 L16 9 M4 4 L14 14 M14 4 L4 14" {...s} /></>); break;
+    case 'bowl': inner = (<><path d="M3 8 Q9 16 15 8 Z" {...s} /><path d="M2.5 8 L15.5 8" {...s} /><path d="M11 2 L13 7.5 M13.2 2 L14.6 7.6" {...s} /></>); break;
+    case 'pepper': inner = (<><path d="M6.5 4.5 C6.5 2.5 9.5 2.5 9.5 4.5" {...s} /><path d="M9.5 4.5 C13.5 5.5 14 10.5 10 14.5 C7 16.5 4 14 5 11 C6 8 7.5 6 9.5 4.5 Z" {...s} /></>); break;
+    case 'heart': inner = (<path d="M9 15.5 C2 10.5 3 4 6.6 4 C8.2 4 9 5.6 9 5.6 C9 5.6 9.8 4 11.4 4 C15 4 16 10.5 9 15.5 Z" {...s} />); break;
+    case 'pan': inner = (<><path d="M3 9 Q3 13.5 8 13.5 Q13 13.5 13 9 Z" {...s} /><path d="M2.5 9 L13.5 9" {...s} /><path d="M13 8.6 L17 7.6" {...s} /></>); break;
+    case 'carrot': inner = (<><path d="M6 8 L10.5 16 L12.5 14 L8 6 Z" {...s} /><path d="M8 6 L6 3 M8 6 L9.2 2.4 M8 6 L11 3.8" {...s} /></>); break;
+    case 'bread': inner = (<><path d="M3 12 Q3 7 9 7 Q15 7 15 12 Z" {...s} /><path d="M2.5 12 L15.5 12" {...s} /><path d="M6 9 L7 11 M9 8.6 L10 11 M12 9 L13 11" {...s} /></>); break;
+    case 'fish': inner = (<><path d="M3 9 Q8 4 13 9 Q8 14 3 9 Z" {...s} /><path d="M13 9 L16.5 6 M13 9 L16.5 12" {...s} /><circle cx="6" cy="8.4" r="0.8" fill={color} stroke="none" /></>); break;
+    case 'book': inner = (<><path d="M3 4 L9 4 L9 15 L3 15 Z" {...s} /><path d="M9 4 L15 4 L15 15 L9 15 Z" {...s} /><path d="M9 4 L9 15" {...s} /></>); break;
+    case 'fork': inner = (<><path d="M6 16 L6 8 M4.6 2 L4.6 7 M6 2 L6 7 M7.4 2 L7.4 7 M4.6 7 Q6 8.4 7.4 7" {...s} /><path d="M12 16 L12 2 C14.2 4 14.2 8.4 12 9.2" {...s} /></>); break;
+    case 'dot':
+    default: inner = (<circle cx="9" cy="9" r="3.2" {...s} />); break;
+  }
+  return (<svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true" style={{ flexShrink: 0 }}>{inner}</svg>);
+}
+
+// A recipe-box card: cream stock, ink handwriting, a cuisine color spine.
 function RecipeCard({ recipe, onClick }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group relative flex flex-col items-stretch text-left rounded-xl border border-[#1d3158] bg-[#12203b] p-4 transition-all hover:border-cyan-400/60 hover:bg-[#16284a] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60"
+      className="group relative flex flex-col items-stretch text-left rounded-lg p-4 transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+      style={{
+        background: CARD_CREAM,
+        backgroundImage: `linear-gradient(135deg, ${color}3a, ${color}12)`,
+        border: `1px solid ${color}66`,
+        boxShadow: '0 1px 2px rgba(0,0,0,0.35), 0 6px 16px rgba(0,0,0,0.25)',
+      }}
     >
       <span
-        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl"
+        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg"
         style={{ background: color }}
         aria-hidden="true"
       />
       <div className="pl-2">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="text-base font-semibold text-white leading-tight">{recipe.name}</h3>
+          <h3 className="text-[22px] leading-tight" style={{ fontFamily: FONT, color: CARD_INK }}>{recipe.name}</h3>
           <span
             className="text-[10px] font-medium px-2 py-0.5 rounded-full border whitespace-nowrap"
-            style={{ color, borderColor: `${color}88`, background: `${color}22` }}
+            style={{ color, borderColor: `${color}99`, background: `${color}1a` }}
           >
             {recipe.cuisine}
           </span>
         </div>
-        <p className="text-xs text-[#9bb6da] leading-snug mb-2">{recipe.description}</p>
+        <p className="text-[13px] leading-snug mb-2" style={{ color: CARD_INK_SUB }}>{recipe.description}</p>
         <div className="flex flex-wrap gap-1">
           {recipe.ingredients.slice(0, 5).map((ing) => (
             <span
               key={ing}
-              className="text-[10px] px-1.5 py-0.5 rounded bg-[#0a1428] text-gray-400 border border-[#1d3158]/60"
+              className="text-[11px] px-1.5 py-0.5 rounded"
+              style={{ background: 'rgba(255,255,255,0.5)', color: CARD_INK_SUB, border: `1px solid ${CARD_CREAM_EDGE}` }}
             >
               {ing}
             </span>
           ))}
           {recipe.ingredients.length > 5 && (
-            <span className="text-[10px] text-gray-500">+{recipe.ingredients.length - 5} more</span>
+            <span className="text-[11px]" style={{ color: CARD_INK_SUB }}>+{recipe.ingredients.length - 5} more</span>
           )}
         </div>
       </div>
@@ -224,8 +279,8 @@ export default function CookbookLab({
   const [cuisineFilter, setCuisineFilter] = useState(null);
   const [clusterFilter, setClusterFilter] = useState(DEFAULT_CLUSTER_FILTER);
   const [selected, setSelected] = useState(null);
-  // 'explore' = 3D NetworkScene; 'browse' = 2D card grid.
-  const [viewMode, setViewMode] = useState('explore');
+  // 'browse' = 2D recipe-box card grid (default); 'explore' = 3D NetworkScene.
+  const [viewMode, setViewMode] = useState('browse');
   // Camera fly-to target for the 3D scene. Stamped with ts so
   // re-clicking the same recipe re-triggers the fly-in.
   const [flyToTarget, setFlyToTarget] = useState(null);
@@ -299,7 +354,7 @@ export default function CookbookLab({
   return (
     <div
       className="flex flex-col items-center w-full min-h-screen px-4 pt-6 pb-12"
-      style={{ backgroundColor: '#0d1f38' }}
+      style={{ ...chalkSurfaceStyle(), color: CHALK_CREAM }}
       data-testid="recipes-lab"
     >
       <div className="w-full max-w-5xl">
@@ -309,108 +364,105 @@ export default function CookbookLab({
             onClick={() => onExitPickerMode?.()}
             aria-label="Back to Make"
             data-testid="cookbook-picker-breadcrumb"
-            className="mb-3 inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full border border-[#1d3158] bg-[#0a1428] text-cyan-200 hover:bg-[#16284a] transition-colors"
+            className="mb-3 inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full transition-colors"
+            style={{ fontFamily: FONT, border: `1px solid ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.04)', color: CHALK_DIM }}
           >
             ← Make → Pick a recipe
           </button>
         )}
         <div className="flex items-center justify-between mb-1">
-          <h1 className="text-2xl sm:text-3xl text-white font-bold flex-1 text-center">
-            Recipes
+          <h1 className="text-4xl sm:text-5xl flex-1 text-center" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
+            Cookbook
           </h1>
-          {/* View toggle (3D / grid) — pinned right of the title. */}
-          <div className="inline-flex rounded-full border border-[#1d3158] overflow-hidden text-[11px]">
-            <button
-              type="button"
-              onClick={() => setViewMode('explore')}
-              className={`px-3 py-1 transition-colors ${
-                viewMode === 'explore'
-                  ? 'bg-cyan-500/20 text-cyan-200'
-                  : 'bg-[#0a1428] text-gray-400 hover:bg-[#16284a]'
-              }`}
-            >
-              3D
-            </button>
+          {/* View toggle (grid / 3D) — pinned right of the title. */}
+          <div className="inline-flex rounded-full overflow-hidden text-[13px]" style={{ border: `1px solid ${CHALK_RAIL}`, fontFamily: FONT }}>
             <button
               type="button"
               onClick={() => setViewMode('browse')}
-              className={`px-3 py-1 transition-colors ${
-                viewMode === 'browse'
-                  ? 'bg-cyan-500/20 text-cyan-200'
-                  : 'bg-[#0a1428] text-gray-400 hover:bg-[#16284a]'
-              }`}
+              className="px-3 py-1 transition-colors"
+              style={{ background: viewMode === 'browse' ? CHALK_CREAM : 'transparent', color: viewMode === 'browse' ? '#0a0a0a' : CHALK_DIM }}
             >
               Grid
             </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('explore')}
+              className="px-3 py-1 transition-colors"
+              style={{ background: viewMode === 'explore' ? CHALK_CREAM : 'transparent', color: viewMode === 'explore' ? '#0a0a0a' : CHALK_DIM }}
+            >
+              3D
+            </button>
           </div>
         </div>
-        <p className="text-center text-xs text-gray-500 mb-6">
+        <p className="text-center text-base mb-6" style={{ fontFamily: FONT, color: CHALK_SUB }}>
           {isMakePicker
             ? 'Pick one to start cooking'
             : '15 hand-curated dishes spanning 6 culinary traditions'}
         </p>
 
-        {/* Filter pills */}
+        {/* Filters — cuisines as cookbooks on a shelf, types as icon pills */}
         <div className="flex flex-col gap-3 mb-6">
+          {/* Cuisine cookbook shelf */}
           <div>
-            <span className="text-[10px] uppercase tracking-widest text-gray-500 mr-2">Cuisine:</span>
-            <div className="inline-flex flex-wrap gap-1.5">
-              <button
-                onClick={() => setCuisineFilter(null)}
-                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                  !cuisineFilter
-                    ? 'bg-cyan-500/20 text-cyan-200 border-cyan-400/40'
-                    : 'bg-[#0a1428] text-gray-400 border-[#1d3158] hover:bg-[#16284a]'
-                }`}
-              >
-                All
-              </button>
-              {cuisines.map((c) => {
-                const active = cuisineFilter === c;
-                const color = CUISINE_COLOR[c] || '#94a3b8';
-                return (
-                  <button
-                    key={c}
-                    onClick={() => setCuisineFilter(active ? null : c)}
-                    className="px-3 py-1 text-xs rounded-full border transition-colors"
-                    style={{
-                      background: active ? `${color}33` : 'rgba(10, 20, 40, 1)',
-                      borderColor: active ? color : '#1d3158',
-                      color: active ? '#fff' : '#9ca3af',
-                    }}
-                  >
-                    {c}
-                  </button>
-                );
-              })}
-            </div>
+            <span className="text-[11px] uppercase tracking-wider" style={{ color: CHALK_SUB }}>Cuisines</span>
+            {(() => {
+              const books = [{ key: null, label: 'All' }, ...cuisines.map((c) => ({ key: c, label: c }))];
+              const SLOT = 88;
+              const SHELF_Y = 156;
+              return (
+                <svg viewBox={`0 -12 ${books.length * SLOT} 186`} className="w-full h-auto" style={{ maxHeight: 230 }} role="img" aria-label="Cuisines — cookbook shelf">
+                  <title>Cuisines</title>
+                  <line x1="8" y1={SHELF_Y} x2={books.length * SLOT - 8} y2={SHELF_Y} stroke={`${CHALK_DIM}cc`} strokeWidth="3.5" strokeLinecap="round" />
+                  <line x1="8" y1={SHELF_Y + 5} x2={books.length * SLOT - 8} y2={SHELF_Y + 5} stroke={`${CHALK_RAIL}99`} strokeWidth="2" strokeLinecap="round" />
+                  {books.map((b, i) => {
+                    const cx = 46 + i * SLOT;
+                    const h = 116 + (i % 3) * 12;
+                    const top = SHELF_Y - h;
+                    const mid = (top + SHELF_Y) / 2;
+                    const active = cuisineFilter === b.key;
+                    const dim = cuisineFilter != null && !active;
+                    const color = b.key ? (CUISINE_COLOR[b.key] || '#cdbf9a') : CHALK_CREAM;
+                    const stroke = active ? CHALK_CREAM : color;
+                    const iconKind = b.key ? cuisineIconKind(b.key) : 'book';
+                    return (
+                      <g key={String(b.key)} onClick={() => setCuisineFilter(active ? null : b.key)} style={{ cursor: 'pointer', opacity: dim ? 0.4 : 1, transition: 'opacity .15s' }} role="button" aria-label={b.key ? `${b.label} cuisine` : 'All cuisines'}>
+                        <rect x={cx - 44} y="-12" width="88" height="180" fill="transparent" />
+                        <rect x={cx - 19} y={top} width="38" height={h} rx="3" fill={color} fillOpacity={active ? 0.5 : 0.26} stroke={stroke} strokeWidth={active ? 2.6 : 1.8} strokeDasharray={active ? '0' : '5 3'} />
+                        <line x1={cx - 19} y1={top + 13} x2={cx + 19} y2={top + 13} stroke={stroke} strokeWidth="1.4" strokeOpacity="0.8" />
+                        <line x1={cx - 19} y1={SHELF_Y - 13} x2={cx + 19} y2={SHELF_Y - 13} stroke={stroke} strokeWidth="1.4" strokeOpacity="0.8" />
+                        <g transform={`translate(${cx - 13} ${top + 6})`} pointerEvents="none"><KitchenIcon kind={iconKind} color={stroke} size={26} /></g>
+                        <text transform={`rotate(-90 ${cx} ${mid + 12})`} x={cx} y={mid + 12} textAnchor="middle" fontSize="20" fontFamily="Caveat, cursive" fontWeight="700" fill={active ? CHALK_CREAM : color} textLength={h - 66} lengthAdjust="spacingAndGlyphs" pointerEvents="none">{b.label}</text>
+                      </g>
+                    );
+                  })}
+                </svg>
+              );
+            })()}
           </div>
+          {/* Dish-type — icon-only (no bubbles), label underneath */}
           <div>
-            <span className="text-[10px] uppercase tracking-widest text-gray-500 mr-2">Type:</span>
-            <div className="inline-flex flex-wrap gap-1.5">
-              <button
-                onClick={() => setClusterFilter(null)}
-                className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                  !clusterFilter
-                    ? 'bg-cyan-500/20 text-cyan-200 border-cyan-400/40'
-                    : 'bg-[#0a1428] text-gray-400 border-[#1d3158] hover:bg-[#16284a]'
-                }`}
-              >
-                All
-              </button>
-              {clusters.map((c) => {
-                const active = clusterFilter === c;
+            <span className="text-[11px] uppercase tracking-wider block text-center" style={{ color: CHALK_SUB }}>Type</span>
+            <div className="flex flex-wrap items-end justify-center gap-6 mt-2">
+              {[{ key: null, label: 'All', kind: 'dot' }, ...clusters.map((c) => ({ key: c, label: c, kind: typeIconKind(c) }))].map((t) => {
+                const active = t.key === null ? !clusterFilter : clusterFilter === t.key;
+                const color = active ? CHALK_CREAM : CHALK_DIM;
                 return (
                   <button
-                    key={c}
-                    onClick={() => setClusterFilter(active ? null : c)}
-                    className={`px-3 py-1 text-xs rounded-full border transition-colors capitalize ${
-                      active
-                        ? 'bg-emerald-500/20 text-emerald-200 border-emerald-400/40'
-                        : 'bg-[#0a1428] text-gray-400 border-[#1d3158] hover:bg-[#16284a]'
-                    }`}
+                    key={String(t.key)}
+                    type="button"
+                    onClick={() => setClusterFilter(t.key)}
+                    className="flex flex-col items-center gap-1 transition-opacity"
+                    style={{ opacity: active ? 1 : 0.6 }}
+                    aria-label={t.key ? `${t.label} dishes` : 'All types'}
+                    aria-pressed={active}
                   >
-                    {c}
+                    <KitchenIcon kind={t.kind} color={color} size={84} />
+                    <span
+                      className="text-[19px] capitalize leading-none pb-0.5"
+                      style={{ fontFamily: FONT, color, borderBottom: active ? `2px solid ${CHALK_CREAM}` : '2px solid transparent' }}
+                    >
+                      {t.label}
+                    </span>
                   </button>
                 );
               })}
