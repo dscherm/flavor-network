@@ -436,3 +436,101 @@ any new pure logic; full suite green, build clean.
   ]
 }
 ```
+
+---
+
+# NEXT INITIATIVE: Labs 2D "kitchen-world" menu redesign (CK-MENU, 2026-06-23)
+
+**Context**: From the 2026-06-23 labs design review (frontend-design lens) +
+the "two worlds" decision: the molecular lab is parked, so the Cocktail /
+Sauce / Cookbook labs are being re-homed into the kitchen world. Finding: 3D
+"Explore" is decorative + hard to navigate; the 2D "Browse" views are the real
+product. So: **default labs to 2D and re-skin the 2D views as kitchen
+artifacts** — a cocktail BAR MENU + sauce SPECIALS BOARD on bistro chalkboard,
+and a recipe-card COOKBOOK. Shared chalkboard DNA with RecipeFlavorProfilesCard
+(slate wash, Caveat headings + a legible sans for data, colored-chalk accents).
+Reuse each lab's existing IA (family grouping, filters, ingredient/IBA badges).
+
+Prototype + interactive design tuning happened on the Cocktail Lab
+(`CocktailBrowse.jsx`); CK-2..6 carry the rest. Files: `CocktailBrowse.jsx`,
+`SauceBrowse.jsx`, `CookbookLab.jsx`, `LabNodeCard.jsx`, `cocktailBaseSpirit.js`
+(added `COCKTAIL_SPIRIT_COLORS`).
+
+### CK-1 — Cocktail Lab: bistro chalkboard bar menu (default 2D)
+
+```json
+{
+  "id": "CK-1",
+  "title": "Cocktail Lab 2D Browse → bistro chalkboard bar menu (default to 2D)",
+  "category": "ui",
+  "priority": 1,
+  "passes": true,
+  "description": "Done + user-validated. CocktailLabV2 defaults viewMode to 'browse'. CocktailBrowse reskinned to a chalkboard bar menu: big 'Cocktail Menu' chalk-script title (underline); per-family signature GLASSES drawn as chalk SVG on a back-bar shelf (Tropical→pilsner, Highballs→brandy balloon, Sour→margarita, Boozy→rocks, Aromatic→martini, Aperitivos→wine), scaled up, full-slot tap hit-area, family names word-WRAPPED (no truncation) + 'N drinks'; spirit filter chips color-coded by back-bar pour color (COCKTAIL_SPIRIT_COLORS); colored-chalk family section headers; drink names in Caveat, data (counts/IBA/spirit) in legible sans.",
+  "acceptance": ["Validated interactively over several rounds; suite green; build clean"]
+}
+```
+
+### CK-2 — Spirits row → varied chalk bottles
+
+```json
+{
+  "id": "CK-2",
+  "title": "Cocktail menu Spirits row → per-spirit varied chalk bottle silhouettes",
+  "category": "ui",
+  "priority": 1,
+  "description": "Mirror the family glass-shelf for the Spirits filter: render each base spirit (gin/whiskey/rum/vodka/tequila/liqueur/vermouth/wine/other) as a DISTINCT chalk bottle silhouette (vary shoulder/height/width per spirit), filled in its COCKTAIL_SPIRIT_COLORS color, on a shelf, tappable to filter. Replaces the current color-coded text chips. Keep 'All Spirits' + IBA-only + search.",
+  "acceptance": ["Spirits shown as varied, color-coded chalk bottles on a shelf; tap-to-filter works; suite green; build clean"]
+}
+```
+
+### CK-3 — Subgroup styling: colored Caveat labels + larger font + icons
+
+```json
+{
+  "id": "CK-3",
+  "title": "Cocktail menu subgroups → colored chalk Caveat labels (drink-size) + per-subgroup icon",
+  "category": "ui",
+  "priority": 2,
+  "description": "Within each family section, style the subgroup ('PINA COLADA-style') headers as colored chalk in the SAME Caveat font as the drink rows but LARGER (currently small uppercase sans), each subgroup a distinct chalk color. Add a small icon per subgroup. NOTE/decision needed: subgroups are data-derived (many per family) — a unique hand-drawn icon per subgroup isn't feasible; use a derived/generic chalk glyph (e.g. a small glass or a color swatch) or cap to a curated icon set. Confirm icon scope before building.",
+  "acceptance": ["Subgroup headers: bigger Caveat, per-subgroup color, an icon; readable; suite green; build clean"]
+}
+```
+
+### CK-4 — Chalk-textured background
+
+```json
+{
+  "id": "CK-4",
+  "title": "Cocktail menu → chalk-textured background fill",
+  "category": "ui",
+  "priority": 2,
+  "description": "Add a subtle chalk-like texture/shade behind the slate wash (faint noise / dust / smudge), shared as reusable kitchen-world DNA so the chalkboard surfaces (menu, specials board, Flavor Profiles card) feel like real boards rather than flat black. Keep it subtle — must not hurt text legibility.",
+  "acceptance": ["Subtle chalk texture behind the menu; text still legible; suite green; build clean"]
+}
+```
+
+### CK-5 — Roll the treatment to Sauce + Cookbook
+
+```json
+{
+  "id": "CK-5",
+  "title": "Apply the chalkboard menu treatment to Sauce Lab + Cookbook (default 2D)",
+  "category": "ui",
+  "priority": 2,
+  "description": "Once CK-2..4 are settled on Cocktail, replicate: SauceBrowse → a 'Specials Board' (mother-sauce families as section headers; per-family glass/vessel optional), default SauceLab to 2D; CookbookLab → recipe CARDS in the cream-notebook/recipe-box style (it already has a strong card grid), default to grid/2D. Drop or demote the 3D Explore in all three.",
+  "acceptance": ["Sauce + Cookbook re-skinned to the kitchen world, default 2D; suite green; build clean"]
+}
+```
+
+### CK-6 — FUTURE: cocktail recipe-card readability
+
+```json
+{
+  "id": "CK-6",
+  "title": "FUTURE: improve the cocktail recipe card (LabNodeCard) readability",
+  "category": "ui",
+  "priority": 3,
+  "description": "Explored 2026-06-23: the cocktail data has NO images (441 cocktails; fields are name/family/ingredients_raw/recipe_text/glass/garnishes/build_method/ice/aeration) — so a photo would require fetching+hosting per drink (licensing + weight). LabNodeCard is already chalkboard-styled. Improve scannability WITHOUT photos: clearer ingredient list (measures are absent in data), a glassware glyph (reuse the family glass), garnish callout, prep steps. Decide later whether fetching cocktail imagery is worth it.",
+  "acceptance": ["Scoped; revisit after CK-2..5"]
+}
+```
