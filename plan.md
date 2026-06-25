@@ -439,6 +439,30 @@ any new pure logic; full suite green, build clean.
 
 ---
 
+# FOLLOW-UPS (open, 2026-06-25)
+
+```json
+{
+  "id": "PERF-LAZY-NETWORK",
+  "title": "Lazy-mount LivingArchView only when activeTab === 'network' (+ React.lazy code-split)",
+  "category": "perf",
+  "priority": 2,
+  "description": "LivingArchView (178KB + the three/ WebGL stack) is currently ALWAYS mounted, hidden via opacity (App.jsx ~1677). It inits WebGL on every surface incl. the kitchen flows — wasteful on mobile and it HANGS headless Chromium (blocks automated Playwright/CI mobile QA). Fix: gate the mount with `activeTab === 'network'` and convert the static import (App.jsx:41) to lazyWithRetry + <Suspense> so the 178KB also code-splits out of the initial bundle. CARE: 6 tests reference LivingArchView — App.handoff.test.jsx, NetworkClickPolish.sourceGrep.test.js, LivingArchView.legacyRegression.test.jsx, AffinityMode.playthrough.test.js, CameraAnimator.labelAlignment.test.js, multiFilterMean.test.js. Verify App-level values it feeds (visibleNodeCount, joystickClusters, bridge-pulse) are network-only before gating. Reached via Guided 'Explore in the network →' (App.jsx:2227 setActiveTab('network')).",
+  "acceptance": ["LivingArchView mounts only on the network tab; not initialized on kitchen surfaces; headless page-load no longer hangs; 178KB code-split; suite green; build clean"]
+}
+```
+
+```json
+{
+  "id": "IOS-NATIVE-DEPLOY",
+  "title": "iOS native build + deploy (macOS-only)",
+  "category": "ops",
+  "priority": 2,
+  "description": "Web → iOS sync is DONE on Windows (npm run ios:sync ran 2026-06-25: web build + cap sync + strip-ios-bundle 477.8→432.2MB; ios/App/App/public has the latest bundle incl. chalk reskin, Molecule-Lab retire, HowItWorks rewrite). REMAINING needs a Mac + Xcode: `npm run ios:build` (xcodebuild) and/or `npm run ios:open` → Archive → TestFlight/device. Cannot run on this Windows box.",
+  "acceptance": ["On macOS: npm run ios:build succeeds; app archived + distributed"]
+}
+```
+
 # NEXT INITIATIVE: Labs 2D "kitchen-world" menu redesign (CK-MENU, 2026-06-23)
 
 **Context**: From the 2026-06-23 labs design review (frontend-design lens) +
