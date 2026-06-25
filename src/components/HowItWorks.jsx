@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { FONT, CHALK_CREAM, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
 /**
  * HowItWorks — modal explaining how the AI flavor network works.
@@ -49,7 +50,7 @@ export default function HowItWorks({
       {showButton && (
         <button
           onClick={requestOpen}
-          className="fixed top-[calc(var(--nav-h)+0.5rem)] right-4 sm:top-auto sm:bottom-6 sm:right-4 z-[55] w-8 h-8 rounded-full bg-[#0a0a12]/90 backdrop-blur-md border border-[#2a2a3a] text-gray-500 hover:text-cyan-300 text-sm font-bold transition-colors"
+          className="fixed top-[calc(var(--nav-h)+0.5rem)] right-4 sm:top-auto sm:bottom-6 sm:right-4 z-[55] w-8 h-8 rounded-full bg-[#121212]/90 backdrop-blur-md border border-[#4a4a4a] text-[#bdb6a3] hover:text-[#f5efde] text-sm font-bold transition-colors"
           title="How does this work?"
           aria-label="How does the AI work"
         >
@@ -59,14 +60,14 @@ export default function HowItWorks({
 
       {open && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#0d0d16] border border-[#2a2a3a] rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-4 border-b border-[#2a2a3a]">
-              <h2 className="text-lg font-bold text-white">How the Flavor Network Works</h2>
-              <button onClick={close} className="text-gray-500 hover:text-gray-300 text-xl">×</button>
+          <div className="rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" style={{ ...chalkSurfaceStyle(), border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
+            <div className="flex justify-between items-center p-4 border-b border-[#4a4a4a]">
+              <h2 className="text-2xl" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>How the Flavor Network Works</h2>
+              <button onClick={close} className="text-[#8a8478] hover:text-[#f5efde] text-xl">×</button>
             </div>
-            <div className="p-4 space-y-4 text-sm text-gray-300">
+            <div className="p-4 space-y-4 text-sm text-[#e8e2d0]">
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">The Network</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>The Network</h3>
                 <p>Each dot is an ingredient. Ingredients that appear together in recipes
                    are placed near each other — we analyzed <strong>2.2 million recipes</strong> from
                    RecipeNLG, plus TheMealDB and TheCocktailDB, to position
@@ -88,7 +89,7 @@ export default function HowItWorks({
                    the buckets pull apart into their wedges. The <strong>Particles</strong>
                    pill is a separate toggle for the flowing-particle effect — it does
                    <em> not</em> clear your filters.</p>
-                <p className="mt-2 text-xs text-gray-400">Taste palette (visible when the Taste filter is active):</p>
+                <p className="mt-2 text-xs text-[#bdb6a3]">Taste palette (visible when the Taste filter is active):</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {Object.entries(TASTE_COLORS).map(([t, c]) => (
                     <span key={t} className="flex items-center gap-1 text-xs">
@@ -100,20 +101,20 @@ export default function HowItWorks({
               </section>
 
               <section data-testid="howitworks-gestures">
-                <h3 className="text-cyan-300 font-semibold mb-1">Getting around</h3>
-                <p className="text-xs text-gray-400 mb-2">The 3D scene rewards a few
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Getting around</h3>
+                <p className="text-xs text-[#bdb6a3] mb-2">The 3D scene rewards a few
                    gestures that aren't shown on screen:</p>
-                <div className="text-xs text-gray-400 space-y-0.5">
-                  <p><strong className="text-gray-200">Drag</strong> to orbit · <strong className="text-gray-200">scroll / pinch</strong> to zoom · <strong className="text-gray-200">two-finger drag</strong> to pan</p>
-                  <p><strong className="text-gray-200">Tap a dot</strong> for its details · <strong className="text-gray-200">press &amp; hold</strong> a dot to focus its pairings</p>
-                  <p><strong className="text-gray-200">Tap a cluster pill</strong> to isolate that cluster</p>
-                  <p><strong className="text-gray-200">Tap empty space</strong> (or press <strong className="text-gray-200">Esc</strong>) to reset selection, filters, and focus</p>
-                  <p className="text-gray-500">On a keyboard: <strong className="text-gray-300">arrow keys</strong> walk between related ingredients · <strong className="text-gray-300">/</strong> jumps to search</p>
+                <div className="text-xs text-[#bdb6a3] space-y-0.5">
+                  <p><strong className="text-[#f5efde]">Drag</strong> to orbit · <strong className="text-[#f5efde]">scroll / pinch</strong> to zoom · <strong className="text-[#f5efde]">two-finger drag</strong> to pan</p>
+                  <p><strong className="text-[#f5efde]">Tap a dot</strong> for its details · <strong className="text-[#f5efde]">press &amp; hold</strong> a dot to focus its pairings</p>
+                  <p><strong className="text-[#f5efde]">Tap a cluster pill</strong> to isolate that cluster</p>
+                  <p><strong className="text-[#f5efde]">Tap empty space</strong> (or press <strong className="text-[#f5efde]">Esc</strong>) to reset selection, filters, and focus</p>
+                  <p className="text-[#8a8478]">On a keyboard: <strong className="text-[#e8e2d0]">arrow keys</strong> walk between related ingredients · <strong className="text-[#e8e2d0]">/</strong> jumps to search</p>
                 </div>
               </section>
 
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">The AI Behind It</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>The AI Behind It</h3>
                 <p>A <strong>graph neural network</strong> (GINEConv, 3 layers) reads the
                    molecular structure of flavor compounds — the actual atoms and bonds —
                    and predicts taste and aroma. It learned from
@@ -121,13 +122,13 @@ export default function HowItWorks({
                    ChemTastesDB v2.1, BitterDB, SuperSweetDB, FlavorNet, and FartDB,
                    trained with per-task label masking so each source only contributes
                    signal where it actually has measurements.</p>
-                <p className="mt-1 text-gray-400 text-xs">Think of it as teaching a computer to
+                <p className="mt-1 text-[#bdb6a3] text-xs">Think of it as teaching a computer to
                    "taste" a molecule by looking at its shape, the way your tongue's
                    receptors do.</p>
               </section>
 
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">Clusters</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Clusters</h3>
                 <p>Ingredients naturally group into clusters — baking staples, Asian
                    aromatics, Mediterranean herbs, etc. These clusters emerge from
                    how ingredients are actually used together, not from arbitrary
@@ -136,18 +137,18 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">Affinity Rings</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Affinity Rings</h3>
                 <p>Click any ingredient and the camera flies in to orbit a 60° angled
                    bird's-eye view. Around the focal you'll see 30+ chemistry-matched
                    ingredients laid out in a tier-stratified pyramid, ranked by
                    paired-recipe strength and shared flavor compounds:</p>
-                <div className="text-xs text-gray-400 space-y-0.5 mt-1">
+                <div className="text-xs text-[#bdb6a3] space-y-0.5 mt-1">
                   <p>★★★ — top 5, strongest pairings (closest tier)</p>
                   <p>★★ — next 10 (middle tier)</p>
                   <p>★ — next 15 (outer tier)</p>
                   <p>Surprising — chem-bridged pairings absent from cookbooks</p>
                 </div>
-                <p className="mt-1 text-xs text-gray-400">Each tier has its own silhouette
+                <p className="mt-1 text-xs text-[#bdb6a3]">Each tier has its own silhouette
                    shape (bipyramid / cylinder / sphere / star) so rank reads at a glance.
                    Cones radiate from the focal to each affinity, color-coded by the active
                    aroma / cuisine / taste bucket, with a small fan offset for same-bucket
@@ -155,7 +156,7 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">Recipe Lab</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Recipe Lab</h3>
                 <p>The Labs dropdown opens a notebook-style recipe builder. Build a
                    dish from the selected ingredients and a dynamic profile radar
                    visualizes the dish across one of five axes — taste, aroma, season,
@@ -166,7 +167,7 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">Cocktail &amp; Sauce Labs</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Cocktail &amp; Sauce Labs</h3>
                 <p>The Labs dropdown opens specialized 3D networks for
                    <strong> 426 cocktails</strong> and <strong>69 sauces</strong>, organized
                    by family (mother sauces, cocktail families). Each dot is shaped by
@@ -175,7 +176,7 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">Guided Discovery</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Guided Discovery</h3>
                 <p>Don't know where to start? The Guided tab walks you through a
                    thought-bubble grid — "I'm thinking about pairing that…" — where you
                    stack what you know (an ingredient, a season, a cuisine, dietary
@@ -185,7 +186,7 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">Molecular Profile</h3>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Molecular Profile</h3>
                 <p>The Details panel shows the flavor compounds an ingredient contains
                    and the AI's calibrated taste/aroma predictions. For
                    <strong> compound foods</strong> like mayonnaise or BBQ sauce — which aren't
@@ -194,41 +195,41 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">What the spatial layout means</h3>
-                <p className="text-xs text-gray-400 mb-2">The 3D positions came from a graph
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>What the spatial layout means</h3>
+                <p className="text-xs text-[#bdb6a3] mb-2">The 3D positions came from a graph
                    network trained on the pairing data — they aren't arbitrary, and they aren't
                    labels we typed in. Four things you can read off the layout:</p>
                 <div className="space-y-2">
-                  <div className="bg-[#12121a]/60 border border-[#2a2a3a] rounded p-2">
-                    <p className="text-xs"><strong className="text-cyan-200">1. Clusters land in distinct neighborhoods.</strong>
+                  <div className="bg-white/[0.04] border border-[#4a4a4a] rounded p-2">
+                    <p className="text-xs"><strong className="text-[#f5efde]">1. Clusters land in distinct neighborhoods.</strong>
                        {' '}The seven kitchen-station clusters (Beef Station, Sweet Dairy &amp; Chocolate,
                        Cocktail Bar, Chili &amp; Heat, Baking Pantry, Baking &amp; Frosting, Savory Sauces)
                        end up in spatially separated corners — not piled at the center like the prior layout.</p>
                   </div>
-                  <div className="bg-[#12121a]/60 border border-[#2a2a3a] rounded p-2">
-                    <p className="text-xs"><strong className="text-cyan-200">2. The shape encodes flavor.</strong>
+                  <div className="bg-white/[0.04] border border-[#4a4a4a] rounded p-2">
+                    <p className="text-xs"><strong className="text-[#f5efde]">2. The shape encodes flavor.</strong>
                        {' '}After the fact, the three axes track recognizable taste/aroma gradients:
                        savory↔sweet, heavy↔bright, cooked↔fresh. The model didn't aim for these;
                        they emerged because pairing patterns and flavor patterns rhyme.</p>
                   </div>
-                  <div className="bg-[#12121a]/60 border border-[#2a2a3a] rounded p-2">
-                    <p className="text-xs"><strong className="text-cyan-200">3. The shape encodes pairing.</strong>
+                  <div className="bg-white/[0.04] border border-[#4a4a4a] rounded p-2">
+                    <p className="text-xs"><strong className="text-[#f5efde]">3. The shape encodes pairing.</strong>
                        {' '}The network's training objective was "predict which ingredients pair." So
                        ingredients that pair well are placed close together — distance in this space
                        <em> is</em> a pairing-affinity signal you can read with your eye.</p>
                   </div>
-                  <div className="bg-[#12121a]/60 border border-[#2a2a3a] rounded p-2">
-                    <p className="text-xs"><strong className="text-cyan-200">4. The shape encodes purpose.</strong>
+                  <div className="bg-white/[0.04] border border-[#4a4a4a] rounded p-2">
+                    <p className="text-xs"><strong className="text-[#f5efde]">4. The shape encodes purpose.</strong>
                        {' '}Cluster names are verb-led (Smooths &amp; Sweetens, Salts &amp; Ferments,
                        Roasts &amp; Anchors) because the regions correspond to kitchen <em>actions</em>,
                        not just ingredient categories.</p>
                   </div>
                 </div>
                 <details className="mt-2">
-                  <summary className="text-[10px] uppercase tracking-wider text-gray-500 cursor-pointer hover:text-gray-300">
+                  <summary className="text-[10px] uppercase tracking-wider text-[#8a8478] cursor-pointer hover:text-[#e8e2d0]">
                     Caveats &amp; technical notes
                   </summary>
-                  <div className="text-xs text-gray-400 space-y-1 mt-1 pl-2 border-l border-[#2a2a3a]">
+                  <div className="text-xs text-[#bdb6a3] space-y-1 mt-1 pl-2 border-l border-[#4a4a4a]">
                     <p><strong>Cluster names are post-hoc handles.</strong> The model produced
                        the partition; the names are human-written labels for what each cluster
                        contains. They're useful narrative, not ground truth.</p>
@@ -249,10 +250,10 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-cyan-300 font-semibold mb-1">What's Reliable</h3>
-                <p className="text-xs text-gray-400 mb-1">v3 calibrated F1 (5-fold CV,
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>What's Reliable</h3>
+                <p className="text-xs text-[#bdb6a3] mb-1">v3 calibrated F1 (5-fold CV,
                    per-task threshold tuned). 9 of 11 heads beat the prior baseline.</p>
-                <div className="text-xs text-gray-400 space-y-0.5">
+                <div className="text-xs text-[#bdb6a3] space-y-0.5">
                   <p><strong className="text-green-400">Excellent:</strong> Sweet (0.90),
                      Sour (0.82), Bitter (0.80), Umami (0.73)</p>
                   <p><strong className="text-green-400">Strong:</strong> Fruity (0.72),
