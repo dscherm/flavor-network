@@ -5,7 +5,6 @@ import {
   loadSauceCodex,
   computeSauceCodexPositions,
 } from '../data/sauceCodex.js';
-import { formatSimilarityBadge } from '../data/recipeAromaSimilarity.js';
 import SauceSuggestionDeck from './SauceSuggestionDeck.jsx';
 
 /**
