@@ -131,7 +131,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
         <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, margin: '2px 0 8px' }}>
           Stand on one ingredient — twist the lens to see its partners by aroma, taste, cuisine or season.
         </div>
-        <SearchBar ingredients={ingredientNames} onSelect={(name) => recenter(name)} />
+        <SearchBar inline ingredients={ingredientNames} onSelect={(name) => recenter(name)} />
       </div>
 
       {/* Two-ingredient banner (P3c) */}
