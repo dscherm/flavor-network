@@ -62,34 +62,59 @@ export default function HowItWorks({
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" style={{ ...chalkSurfaceStyle(), border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
             <div className="flex justify-between items-center p-4 border-b border-[#4a4a4a]">
-              <h2 className="text-2xl" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>How the Flavor Network Works</h2>
+              <h2 className="text-2xl" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>How NeuFlavor works</h2>
               <button onClick={close} className="text-[#8a8478] hover:text-[#f5efde] text-xl">×</button>
             </div>
             <div className="p-4 space-y-4 text-sm text-[#e8e2d0]">
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>The Network</h3>
-                <p>Each dot is an ingredient. Ingredients that appear together in recipes
-                   are placed near each other — we analyzed <strong>2.2 million recipes</strong> from
-                   RecipeNLG, plus TheMealDB and TheCocktailDB, to position
-                   <strong> 3,913 ingredients</strong> with <strong>72,521 pairings</strong> between
-                   them.</p>
-                <p className="mt-2"><strong>What the colors mean depends on what you're looking at.</strong> With
-                   no filter active, color shows the recipe cluster an ingredient lives in
-                   (Baking, Italian, East Asian, etc.). When you tap a filter pill — Aroma,
-                   Cuisine, Season, Family, or Taste — colors switch to that filter's buckets.
-                   The chip at the top-left of the scene tells you which is active. The
-                   3D scene morphs into wedge-shaped flavor poles when an axis is engaged —
-                   each pole groups its bucket's ingredients into a vertical wedge so you
-                   can fly to "all fruity ingredients" or "all spring ingredients" as one
-                   spatial cluster.</p>
-                <p className="mt-2">Filters <strong>stack</strong> — pick several and a dot
-                   has to satisfy all of them to stay lit. The <strong>pull-strength</strong>
-                   slider below the pills controls how hard the layout morphs toward those
-                   flavor poles: at 0 the co-occurrence map is untouched, and as you raise it
-                   the buckets pull apart into their wedges. The <strong>Particles</strong>
-                   pill is a separate toggle for the flowing-particle effect — it does
-                   <em> not</em> clear your filters.</p>
-                <p className="mt-2 text-xs text-[#bdb6a3]">Taste palette (visible when the Taste filter is active):</p>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Two ways to start</h3>
+                <p>A cooking companion built on real recipe data. From the opening screen you
+                   pick how you want to work:</p>
+                <p className="mt-2"><strong className="text-[#f5efde]">Guided Discovery</strong> —
+                   you have an ingredient (or a season, cuisine, or craving) and want ideas for
+                   what pairs with it, and <em>why</em>.</p>
+                <p className="mt-1"><strong className="text-[#f5efde]">Make a recipe</strong> —
+                   you already have a dish in mind and want to build it, see its flavor profile,
+                   and get smart additions.</p>
+              </section>
+
+              <section>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Guided Discovery</h3>
+                <p>Stack what you know on a thought-bubble grid — "I'm thinking about pairing
+                   that…" — an ingredient plus any of season, cuisine, aroma, or dietary needs.
+                   The app surfaces hero pairings on a per-axis radar, each with a short story
+                   explaining whether it ranked from <strong>recipe co-occurrence</strong>,
+                   <strong> shared flavor compounds</strong>, or both. "Explore in the network →"
+                   opens the full pairing map seeded with your picks.</p>
+              </section>
+
+              <section>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Make a recipe</h3>
+                <p>Start four ways: <strong className="text-[#f5efde]">from scratch</strong>,
+                   <strong className="text-[#f5efde]"> from a photo</strong>,
+                   <strong className="text-[#f5efde]"> from a web link</strong> (we read the page
+                   and match its ingredients), or <strong className="text-[#f5efde]">from a saved
+                   Cookbook recipe</strong>. Any path opens the Recipe Lab with your bowl ready
+                   to build on.</p>
+              </section>
+
+              <section data-testid="howitworks-gestures">
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Explore the pairing map</h3>
+                <p className="text-xs text-[#bdb6a3] mb-2">Guided's "Explore in the network →"
+                   opens a 3D map where each dot is an ingredient and dots that pair often sit
+                   close together. <strong className="text-[#f5efde]">Getting around</strong> — a few
+                   gestures that aren't shown on screen:</p>
+                <div className="text-xs text-[#bdb6a3] space-y-0.5">
+                  <p><strong className="text-[#f5efde]">Drag</strong> to orbit · <strong className="text-[#f5efde]">scroll / pinch</strong> to zoom · <strong className="text-[#f5efde]">two-finger drag</strong> to pan</p>
+                  <p><strong className="text-[#f5efde]">Tap a dot</strong> for its details · <strong className="text-[#f5efde]">press &amp; hold</strong> a dot to focus its pairings</p>
+                  <p><strong className="text-[#f5efde]">Tap empty space</strong> (or press <strong className="text-[#f5efde]">Esc</strong>) to reset · on a keyboard, <strong className="text-[#e8e2d0]">arrow keys</strong> walk between related ingredients</p>
+                </div>
+                <p className="mt-2 text-xs text-[#bdb6a3]">Filter pills (Aroma, Cuisine, Season,
+                   Family, Taste) <strong className="text-[#f5efde]">stack</strong> — a dot must
+                   satisfy all of them to stay lit — and the <strong className="text-[#f5efde]">pull-strength</strong>
+                   slider morphs the layout toward flavor poles. The <strong className="text-[#f5efde]">Particles</strong>
+                   pill toggles the flowing-particle effect only.</p>
+                <p className="mt-2 text-xs text-[#bdb6a3]">Taste palette:</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {Object.entries(TASTE_COLORS).map(([t, c]) => (
                     <span key={t} className="flex items-center gap-1 text-xs">
@@ -100,172 +125,43 @@ export default function HowItWorks({
                 </div>
               </section>
 
-              <section data-testid="howitworks-gestures">
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Getting around</h3>
-                <p className="text-xs text-[#bdb6a3] mb-2">The 3D scene rewards a few
-                   gestures that aren't shown on screen:</p>
-                <div className="text-xs text-[#bdb6a3] space-y-0.5">
-                  <p><strong className="text-[#f5efde]">Drag</strong> to orbit · <strong className="text-[#f5efde]">scroll / pinch</strong> to zoom · <strong className="text-[#f5efde]">two-finger drag</strong> to pan</p>
-                  <p><strong className="text-[#f5efde]">Tap a dot</strong> for its details · <strong className="text-[#f5efde]">press &amp; hold</strong> a dot to focus its pairings</p>
-                  <p><strong className="text-[#f5efde]">Tap a cluster pill</strong> to isolate that cluster</p>
-                  <p><strong className="text-[#f5efde]">Tap empty space</strong> (or press <strong className="text-[#f5efde]">Esc</strong>) to reset selection, filters, and focus</p>
-                  <p className="text-[#8a8478]">On a keyboard: <strong className="text-[#e8e2d0]">arrow keys</strong> walk between related ingredients · <strong className="text-[#e8e2d0]">/</strong> jumps to search</p>
-                </div>
-              </section>
-
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>The AI Behind It</h3>
-                <p>A <strong>graph neural network</strong> (GINEConv, 3 layers) reads the
-                   molecular structure of flavor compounds — the actual atoms and bonds —
-                   and predicts taste and aroma. It learned from
-                   <strong> 19,902 unique molecules</strong> drawn from FooDB, FlavorDB,
-                   ChemTastesDB v2.1, BitterDB, SuperSweetDB, FlavorNet, and FartDB,
-                   trained with per-task label masking so each source only contributes
-                   signal where it actually has measurements.</p>
-                <p className="mt-1 text-[#bdb6a3] text-xs">Think of it as teaching a computer to
-                   "taste" a molecule by looking at its shape, the way your tongue's
-                   receptors do.</p>
-              </section>
-
-              <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Clusters</h3>
-                <p>Ingredients naturally group into clusters — baking staples, Asian
-                   aromatics, Mediterranean herbs, etc. These clusters emerge from
-                   how ingredients are actually used together, not from arbitrary
-                   categories. Use the bottom fly-wheel to fly the camera to a
-                   cluster and orbit it.</p>
-              </section>
-
-              <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Affinity Rings</h3>
-                <p>Click any ingredient and the camera flies in to orbit a 60° angled
-                   bird's-eye view. Around the focal you'll see 30+ chemistry-matched
-                   ingredients laid out in a tier-stratified pyramid, ranked by
-                   paired-recipe strength and shared flavor compounds:</p>
-                <div className="text-xs text-[#bdb6a3] space-y-0.5 mt-1">
-                  <p>★★★ — top 5, strongest pairings (closest tier)</p>
-                  <p>★★ — next 10 (middle tier)</p>
-                  <p>★ — next 15 (outer tier)</p>
-                  <p>Surprising — chem-bridged pairings absent from cookbooks</p>
-                </div>
-                <p className="mt-1 text-xs text-[#bdb6a3]">Each tier has its own silhouette
-                   shape (bipyramid / cylinder / sphere / star) so rank reads at a glance.
-                   Cones radiate from the focal to each affinity, color-coded by the active
-                   aroma / cuisine / taste bucket, with a small fan offset for same-bucket
-                   accents so they don't sit on the same plane. Click any apex to repivot.</p>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Where the data comes from</h3>
+                <p>Pairings come from how ingredients are actually used together — we analyzed
+                   <strong> 2.2 million recipes</strong> (RecipeNLG) plus TheMealDB and
+                   TheCocktailDB into <strong>3,913 ingredients</strong> and tens of thousands of
+                   co-occurrence pairings. A separate <strong>graph neural network</strong> reads
+                   each flavor compound's molecular structure to predict <strong>taste and
+                   aroma</strong> — that's what powers the flavor-profile radars (and the
+                   "Predicted from components" profile on compound foods like mayonnaise).</p>
+                <p className="mt-1 text-[#bdb6a3] text-xs">Honest note: the taste/aroma model is
+                   reliable on sweet, sour, bitter, umami and the main aromas; salty and spicy
+                   depend on mechanisms molecular structure doesn't capture well, so we leave
+                   them out rather than guess.</p>
               </section>
 
               <section>
                 <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Recipe Lab</h3>
-                <p>The Labs dropdown opens a notebook-style recipe builder. Build a
-                   dish from the selected ingredients and a dynamic profile radar
-                   visualizes the dish across one of five axes — taste, aroma, season,
-                   cuisine, or method — switchable from chips at the top. Lets you
-                   answer "is this dish leaning summery, woody, or umami-heavy?" at a
-                   glance. Tap "Build a recipe" from the Details panel to hand off
-                   your selection.</p>
+                <p>A notebook where you build a dish ingredient by ingredient. The
+                   <strong> Flavor Profiles</strong> card is a swipeable per-axis carousel —
+                   one page per taste (sweet/sour/bitter/salty/umami) and aroma
+                   (fruity/floral/green/woody/spicy/fatty) — showing the dish's score on that
+                   axis, the ingredients driving it, and one-tap <strong>boost</strong> /
+                   <strong> temper</strong> suggestions. <strong>✨ Suggest</strong> and
+                   <strong> Smart swaps</strong> propose additions and substitutions as cards
+                   with a before→after profile; a final page lists matching cocktails, sauces,
+                   and similar dishes.</p>
               </section>
 
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Cocktail &amp; Sauce Labs</h3>
-                <p>The Labs dropdown opens specialized 3D networks for
-                   <strong> 426 cocktails</strong> and <strong>69 sauces</strong>, organized
-                   by family (mother sauces, cocktail families). Each dot is shaped by
-                   its family / cuisine — clusters of similar drinks or sauces emerge
-                   directly from their ingredient overlaps.</p>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>The Labs — Cocktail, Sauce, Cookbook</h3>
+                <p>Bistro-chalkboard menus. <strong>Cocktail</strong> (<strong>426 drinks</strong>)
+                   groups by family with a back-bar of signature glasses and spirit bottles;
+                   <strong> Sauce</strong> lays out the mother-sauce families as a specials board
+                   of vessels; the <strong>Cookbook</strong> is a shelf of curated dishes. Tap
+                   any card for its ingredients, method, and what it pairs with.</p>
               </section>
 
-              <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Guided Discovery</h3>
-                <p>Don't know where to start? The Guided tab walks you through a
-                   thought-bubble grid — "I'm thinking about pairing that…" — where you
-                   stack what you know (an ingredient, a season, a cuisine, dietary
-                   restrictions). It then surfaces 5–10 hero pairings on a curated wheel
-                   with a per-pair story explaining whether the engine ranked it from
-                   recipe co-occurrence, shared compounds, or both.</p>
-              </section>
-
-              <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Molecular Profile</h3>
-                <p>The Details panel shows the flavor compounds an ingredient contains
-                   and the AI's calibrated taste/aroma predictions. For
-                   <strong> compound foods</strong> like mayonnaise or BBQ sauce — which aren't
-                   single molecules — the profile is synthesized from constituent
-                   ingredients and surfaced with a "Predicted from components" badge.</p>
-              </section>
-
-              <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>What the spatial layout means</h3>
-                <p className="text-xs text-[#bdb6a3] mb-2">The 3D positions came from a graph
-                   network trained on the pairing data — they aren't arbitrary, and they aren't
-                   labels we typed in. Four things you can read off the layout:</p>
-                <div className="space-y-2">
-                  <div className="bg-white/[0.04] border border-[#4a4a4a] rounded p-2">
-                    <p className="text-xs"><strong className="text-[#f5efde]">1. Clusters land in distinct neighborhoods.</strong>
-                       {' '}The seven kitchen-station clusters (Beef Station, Sweet Dairy &amp; Chocolate,
-                       Cocktail Bar, Chili &amp; Heat, Baking Pantry, Baking &amp; Frosting, Savory Sauces)
-                       end up in spatially separated corners — not piled at the center like the prior layout.</p>
-                  </div>
-                  <div className="bg-white/[0.04] border border-[#4a4a4a] rounded p-2">
-                    <p className="text-xs"><strong className="text-[#f5efde]">2. The shape encodes flavor.</strong>
-                       {' '}After the fact, the three axes track recognizable taste/aroma gradients:
-                       savory↔sweet, heavy↔bright, cooked↔fresh. The model didn't aim for these;
-                       they emerged because pairing patterns and flavor patterns rhyme.</p>
-                  </div>
-                  <div className="bg-white/[0.04] border border-[#4a4a4a] rounded p-2">
-                    <p className="text-xs"><strong className="text-[#f5efde]">3. The shape encodes pairing.</strong>
-                       {' '}The network's training objective was "predict which ingredients pair." So
-                       ingredients that pair well are placed close together — distance in this space
-                       <em> is</em> a pairing-affinity signal you can read with your eye.</p>
-                  </div>
-                  <div className="bg-white/[0.04] border border-[#4a4a4a] rounded p-2">
-                    <p className="text-xs"><strong className="text-[#f5efde]">4. The shape encodes purpose.</strong>
-                       {' '}Cluster names are verb-led (Smooths &amp; Sweetens, Salts &amp; Ferments,
-                       Roasts &amp; Anchors) because the regions correspond to kitchen <em>actions</em>,
-                       not just ingredient categories.</p>
-                  </div>
-                </div>
-                <details className="mt-2">
-                  <summary className="text-[10px] uppercase tracking-wider text-[#8a8478] cursor-pointer hover:text-[#e8e2d0]">
-                    Caveats &amp; technical notes
-                  </summary>
-                  <div className="text-xs text-[#bdb6a3] space-y-1 mt-1 pl-2 border-l border-[#4a4a4a]">
-                    <p><strong>Cluster names are post-hoc handles.</strong> The model produced
-                       the partition; the names are human-written labels for what each cluster
-                       contains. They're useful narrative, not ground truth.</p>
-                    <p><strong>Axis labels are post-hoc interpretations.</strong> Pearson
-                       correlations were computed against 64 ingredient features after training
-                       (X≈savory↔sweet r=0.65, Y≈heavy↔bright r=0.54, Z≈cooked↔fresh r=0.50).
-                       The axes weren't axes-of-flavor by design — they happened to align.</p>
-                    <p><strong>Stability is method-specific.</strong> KMeans on these embeddings
-                       is deterministic (Jaccard 0.974 across seeds). Leiden on the same
-                       embeddings caps at ~0.50 Jaccard — the graph has multiple equally-valid
-                       community structures, so a different clustering algorithm would surface
-                       a different (but also reasonable) partition.</p>
-                    <p><strong>Where the model is weakest.</strong> Salty and spicy aren't
-                       surfaced anywhere because their molecular signal is unreliable — see
-                       "What's Reliable" below for the per-task F1 numbers.</p>
-                  </div>
-                </details>
-              </section>
-
-              <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>What's Reliable</h3>
-                <p className="text-xs text-[#bdb6a3] mb-1">v3 calibrated F1 (5-fold CV,
-                   per-task threshold tuned). 9 of 11 heads beat the prior baseline.</p>
-                <div className="text-xs text-[#bdb6a3] space-y-0.5">
-                  <p><strong className="text-green-400">Excellent:</strong> Sweet (0.90),
-                     Sour (0.82), Bitter (0.80), Umami (0.73)</p>
-                  <p><strong className="text-green-400">Strong:</strong> Fruity (0.72),
-                     Creamy (0.62), Green (0.61)</p>
-                  <p><strong className="text-yellow-400">Moderate:</strong> Woody (0.54),
-                     Floral (0.52)</p>
-                  <p><strong className="text-red-400">Not surfaced:</strong> Salty (0.33)
-                     and Spicy (0.33) — these depend on ionic / TRPV1 mechanisms that
-                     aren't fully captured by molecular structure alone, so we hide
-                     them rather than show low-confidence guesses.</p>
-                </div>
-              </section>
             </div>
           </div>
         </div>
