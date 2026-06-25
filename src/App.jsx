@@ -45,6 +45,9 @@ import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 // it once the user actually lands on the Network tab (see the
 // networkVisited latch below).
 const LivingArchView = lazyWithRetry(() => import('./components/LivingArchView.jsx'));
+// PAIR-LAB-P2 — the Pairing Lab (ingredient-first ego-network). Lazy so
+// its canvas renderer + ego model code-split out of the initial bundle.
+const PairingLab = lazyWithRetry(() => import('./components/PairingLab.jsx'));
 import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
@@ -101,6 +104,7 @@ const TAB_TO_PATH = {
   sauce: 'sauce',
   recipe: 'notebook',
   cookbook: 'cookbook',
+  pairing: 'pairing',
   guided: 'guided',
   'guided-results': 'guided',         // ephemeral; collapse to entry
   'guided-pairing': 'guided',         // B-version Screen 3; collapse to entry
@@ -116,6 +120,7 @@ const PATH_TO_TAB = Object.fromEntries(
     notebook: 'recipe',
     cookbook: 'cookbook',
     recipes: 'cookbook',  // back-compat alias for pre-rename shared URLs
+    pairing: 'pairing',
     guided: 'guided',
     build: 'make',        // MAKE-BUILD-DEPRECATE: legacy ?path=build → make
     make: 'make',
@@ -2450,6 +2455,15 @@ export default function App() {
             }}
           />
         </div>
+      )}
+
+      {/* Pairing Lab — PAIR-LAB-P2: ingredient-first ego-network
+          (reintroduced "network mode"). Lazy-mounted; gated on the
+          'pairing' tab. */}
+      {activeTab === 'pairing' && (
+        <Suspense fallback={null}>
+          <PairingLab ctx={data} />
+        </Suspense>
       )}
 
       {/* R16 Phase 1: FilterPillRow — pinned to the top-center, just below

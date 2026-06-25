@@ -487,6 +487,7 @@ place=new lab, aesthetic=chalk-frame/vivid-data).
   "title": "pairingEgoModel.js — pure ego/lens/insight model (no rendering)",
   "category": "feature",
   "priority": 1,
+  "status": "done (2026-06-25, e6b8bb0) — 17 unit tests",
   "description": "New src/data/pairingEgoModel.js with pure, unit-tested functions: egoNeighborhood(name, data, {limit=12}) -> [{name, strength, node}] top partners by pairing strength via graph.js getNeighbors(Enriched); groupByLens(partners, lens, ctx) -> per-bucket member arrays reusing categoricalAxes.bucketAllNodes/bucketOf + CATEGORICAL_AXES (lens in affinity|aroma|taste|cuisine|season); lensInsight(partners, lens, ctx) -> one rule-based sentence from the bucket distribution. No DOM/canvas. Null-safe (missing data -> [] / null).",
   "acceptance": ["egoNeighborhood returns top-N partners sorted by strength desc, capped at limit, self excluded", "groupByLens buckets partners per lens using CATEGORICAL_AXES; affinity lens = single group by strength", "lensInsight returns a non-empty string describing the dominant bucket(s) per lens, '' when no partners", "unit tests cover all lenses + empty/missing-data; full suite green"]
 }
@@ -498,6 +499,7 @@ place=new lab, aesthetic=chalk-frame/vivid-data).
   "title": "PairingBoard.jsx — 2D Canvas ego renderer with 5 lens layouts + lens-twist transition",
   "category": "feature",
   "priority": 2,
+  "status": "done (2026-06-25, 8399929) — 5 component tests; rAF-only-during-twist, dpr cap 2, reduced-motion snap, a11y fallback list",
   "dependsOn": ["PAIR-LAB-P0"],
   "description": "New src/components/PairingBoard.jsx: 2D <canvas> ego graph. Center ingredient + partners from PAIR-LAB-P0. Layouts: affinity (radial, ring distance = strength), aroma/cuisine/season/taste (grouped/poled by bucket, vivid bucket palette from categoricalAxes colors). Spring/tween 'lens twist' re-layout on lens change. Chalk frame (chalkTheme), Caveat center label + sans partner labels. iOS: devicePixelRatio capped at 2; requestAnimationFrame ONLY during a transition then idle; prefers-reduced-motion -> snap. onSelectPartner(name) re-center callback; press-hold -> onPeek(name). Renderer-strategy seam documented so a Three.js impl can slot in later. Degrades to a partner LIST if canvas unsupported.",
   "acceptance": ["renders center + partners on canvas; 5 lenses produce distinct layouts", "lens change animates a re-layout; idle (no rAF) when not transitioning", "dpr capped; reduced-motion snaps; tap re-centers, press-hold peeks", "graceful list fallback; suite green; build clean"]
@@ -510,6 +512,7 @@ place=new lab, aesthetic=chalk-frame/vivid-data).
   "title": "PairingLab.jsx — lab shell (search + lens control + board + detail) wired as 4th lab",
   "category": "feature",
   "priority": 3,
+  "status": "done (2026-06-25) — wired into MobileTabBar labs menu + App.jsx (lazy-mounted, ?path=pairing routing); replaced the dead 'molecule' menu slot; 5 shell tests; code-split 11KB chunk",
   "dependsOn": ["PAIR-LAB-P1"],
   "description": "New src/components/PairingLab.jsx: chalk search (fuse.js/SearchBar pattern) + lens segmented control (Affinity/Aroma/Taste/Cuisine/Season) + PairingBoard + BottomSheet partner detail (IngredientPanel) + the lensInsight line. Wire as the 4th lab beside Cocktail/Sauce/Cookbook in the Labs entry (LabsFab / labs dropdown / onSelectLab). Lazy-mounted (lazyWithRetry + Suspense, per PERF-LAZY-NETWORK). Additive + null-safe.",
   "acceptance": ["Pairing Lab reachable from Labs entry; lazy-mounted", "search/tap -> ego board; lens control re-plates partners; insight line updates", "tap partner re-centers; detail sheet opens; suite green; build clean"]
