@@ -447,6 +447,8 @@ any new pure logic; full suite green, build clean.
   "title": "Lazy-mount LivingArchView only when activeTab === 'network' (+ React.lazy code-split)",
   "category": "perf",
   "priority": 2,
+  "status": "done (2026-06-25)",
+  "resolution": "App.jsx:41 static import → lazyWithRetry(() => import(...)); added a one-way `networkVisited` latch (flips true on first Network-tab visit, stays mounted via the opacity-toggle wrapper so WebGL isn't re-initialized on tab switches); mount wrapped in <Suspense fallback={null}>. LandingScreen early-return (App.jsx:1276) already prevents mount behind the landing gate, so no startPageComplete gating needed. sceneHandle is App-owned (useMemo) and passed INTO the view, so the Guided handoff is safe. All 6 referencing tests pass + full suite green + build clean; three chunk now code-split off the initial bundle.",
   "description": "LivingArchView (178KB + the three/ WebGL stack) is currently ALWAYS mounted, hidden via opacity (App.jsx ~1677). It inits WebGL on every surface incl. the kitchen flows — wasteful on mobile and it HANGS headless Chromium (blocks automated Playwright/CI mobile QA). Fix: gate the mount with `activeTab === 'network'` and convert the static import (App.jsx:41) to lazyWithRetry + <Suspense> so the 178KB also code-splits out of the initial bundle. CARE: 6 tests reference LivingArchView — App.handoff.test.jsx, NetworkClickPolish.sourceGrep.test.js, LivingArchView.legacyRegression.test.jsx, AffinityMode.playthrough.test.js, CameraAnimator.labelAlignment.test.js, multiFilterMean.test.js. Verify App-level values it feeds (visibleNodeCount, joystickClusters, bridge-pulse) are network-only before gating. Reached via Guided 'Explore in the network →' (App.jsx:2227 setActiveTab('network')).",
   "acceptance": ["LivingArchView mounts only on the network tab; not initialized on kitchen surfaces; headless page-load no longer hangs; 178KB code-split; suite green; build clean"]
 }
@@ -455,11 +457,12 @@ any new pure logic; full suite green, build clean.
 ```json
 {
   "id": "IOS-NATIVE-DEPLOY",
-  "title": "iOS native build + deploy (macOS-only)",
+  "title": "iOS native build + TestFlight (Codemagic, automatic on push to master)",
   "category": "ops",
-  "priority": 2,
-  "description": "Web → iOS sync is DONE on Windows (npm run ios:sync ran 2026-06-25: web build + cap sync + strip-ios-bundle 477.8→432.2MB; ios/App/App/public has the latest bundle incl. chalk reskin, Molecule-Lab retire, HowItWorks rewrite). REMAINING needs a Mac + Xcode: `npm run ios:build` (xcodebuild) and/or `npm run ios:open` → Archive → TestFlight/device. Cannot run on this Windows box.",
-  "acceptance": ["On macOS: npm run ios:build succeeds; app archived + distributed"]
+  "priority": 3,
+  "status": "automated",
+  "description": "CORRECTION 2026-06-25: this is NOT a manual macOS task. iOS builds run on Codemagic (cloud mac_mini_m2) via codemagic.yaml workflow `ios-testflight`, which triggers on every PUSH to master (branch_patterns: master). The cloud pipeline does its own npm ci + npm run build + npx cap sync ios + strip-ios-bundle + SPM resolve + agvtool build-number bump + xcode-project use-profiles + build-ipa, then publishes to App Store Connect (Apple ID 6760793304, bundle com.neuralflavor.app) and submits to the TestFlight 'Internal Testers' group. Signing is Codemagic-managed (app_store distribution). So local `npm run ios:sync` is NOT required for the cloud build (Codemagic regenerates the bundle from src); pushing src to master is the trigger. Today's master pushes (through 126877d + the PERF-LAZY-NETWORK commit) already kicked off TestFlight builds. Monitoring/retries happen in the Codemagic UI — not runnable from this box.",
+  "acceptance": ["Push to master triggers the Codemagic ios-testflight workflow; build-ipa succeeds; build appears in TestFlight Internal Testers (verify in Codemagic + App Store Connect UI)"]
 }
 ```
 
