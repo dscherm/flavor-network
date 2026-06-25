@@ -38,7 +38,13 @@ import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
-import LivingArchView from './components/LivingArchView.jsx';
+// PERF-LAZY-NETWORK (2026-06-25) — the Three.js network view is the
+// single heaviest chunk in the app (~178KB three + WebGL init). The
+// default home tab is 'make' (network is parked), so most sessions
+// never visit it. Code-split it off the initial bundle and only mount
+// it once the user actually lands on the Network tab (see the
+// networkVisited latch below).
+const LivingArchView = lazyWithRetry(() => import('./components/LivingArchView.jsx'));
 import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
@@ -182,6 +188,13 @@ export default function App() {
     return PATH_TO_TAB[path] || 'make';
   })();
   const [activeTab, setActiveTab] = useState(initialTab); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'guided' | 'guided-results' | 'build' | 'profile' | 'cookbook'
+  // PERF-LAZY-NETWORK — mount latch for the code-split LivingArchView.
+  // Starts true only on a deep-link to the network (?path=explore);
+  // otherwise flips true the first time the user visits the Network tab
+  // and never flips back, so subsequent tab-switches keep the scene
+  // warm (the opacity-toggle wrapper persists it) rather than tearing
+  // down and re-initializing WebGL each time.
+  const [networkVisited, setNetworkVisited] = useState(initialTab === 'network');
 
   // Write the current tab back to the URL so reload + share both work.
   useEffect(() => {
@@ -207,6 +220,12 @@ export default function App() {
       '--nav-h',
       'env(safe-area-inset-top, 0px)',
     );
+  }, [activeTab]);
+  // PERF-LAZY-NETWORK — flip the mount latch the first time the user
+  // lands on the Network tab. One-way: never resets, so the scene stays
+  // mounted (opacity-toggled) for the rest of the session.
+  useEffect(() => {
+    if (activeTab === 'network') setNetworkVisited(true);
   }, [activeTab]);
   // P8 ADR-2: Clear aroma-match context when user leaves the target Lab.
   // Prevents stale match state from persisting if user returns to Cocktail /
@@ -1650,6 +1669,8 @@ export default function App() {
 
       {/* Network tab */}
       <div className={`transition-opacity duration-300 ${activeTab === 'network' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'}`}>
+      {networkVisited && (
+      <Suspense fallback={null}>
       <LivingArchView
         data={data}
         onNodeClick={handleNodeClick}
@@ -1691,6 +1712,8 @@ export default function App() {
         onClearSelection={handleClearSelection}
         disableClusterTour={true}
       />
+      </Suspense>
+      )}
       {/* R19 Phase 3 — bridge-pulse rings on pull crossing 0.5. */}
       <BridgePulseOverlay pulse={bridgePulse} />
       {/* Task-6 Track 2 — corner wedge-grid overlay removed per user
