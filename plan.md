@@ -525,6 +525,7 @@ place=new lab, aesthetic=chalk-frame/vivid-data).
   "title": "Pairing Lab extras (parallelizable): bridge arcs, build-a-plate, two-ingredient mode, season-now, shuffle",
   "category": "feature",
   "priority": 4,
+  "status": "done (2026-06-25) — all 5 extras: model helpers (0ebd4ce) + UI. Built sequentially inline, NOT via parallel agents (headless claude -p had no API credit; Agent tool off per directive). Also added an accessible per-partner details button to the board fallback (a11y + testability). 13 new tests (1439 total suite).",
   "dependsOn": ["PAIR-LAB-P2"],
   "description": "Independent enhancements, each shippable alone (fan out): (a) bridge arcs — faint arc when two partners also pair with each other (3-ingredient trios); (b) build-a-plate — tap-collect partners into a tray -> send to Recipe/Cocktail/Sauce via existing onFindCocktail/onFindSauce handoff; (c) two-ingredient (edge) mode — center on a pair, show shared neighborhood; (d) season-now — season lens defaults to current month + highlights in-season; (e) serendipity shuffle — re-center on a strong-but-distant partner.",
   "acceptance": ["each extra behind its own commit + tests where logic is pure", "no regression to P0-P2; suite green; build clean"]

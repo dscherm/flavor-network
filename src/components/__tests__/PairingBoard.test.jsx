@@ -42,4 +42,21 @@ describe('PairingBoard', () => {
     rerender(<PairingBoard center="garlic" partners={PARTNERS} lens="taste" />);
     expect(screen.getByRole('button', { name: 'basil' })).toBeTruthy();
   });
+
+  it('accepts P3 bridges + highlightGroup props without crashing', () => {
+    render(
+      <PairingBoard
+        center="garlic" partners={PARTNERS} lens="season"
+        bridges={[{ a: 'basil', b: 'lemon' }]} highlightGroup="Summer"
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'basil' })).toBeTruthy();
+  });
+
+  it('exposes a details affordance per partner that fires onPeek', () => {
+    const onPeek = vi.fn();
+    render(<PairingBoard center="garlic" partners={PARTNERS} onPeek={onPeek} />);
+    fireEvent.click(screen.getByRole('button', { name: /details for onion/i }));
+    expect(onPeek).toHaveBeenCalledWith('onion');
+  });
 });

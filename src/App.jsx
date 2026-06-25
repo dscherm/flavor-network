@@ -2462,7 +2462,25 @@ export default function App() {
           'pairing' tab. */}
       {activeTab === 'pairing' && (
         <Suspense fallback={null}>
-          <PairingLab ctx={data} />
+          <PairingLab
+            ctx={data}
+            onFindCocktail={handleFindCocktail}
+            onFindSauce={handleFindSauce}
+            onSendToRecipe={(names, title) => {
+              // PAIR-LAB-P3b build-a-plate → Recipe Notebook (mirrors the
+              // cookbook→recipe handoff so ingredients prefill the notebook).
+              setRecipeHandoff({
+                source: 'pairing',
+                ingredients: Array.isArray(names) ? [...names] : [],
+                mode: 'recipe',
+                ts: Date.now(),
+                title: typeof title === 'string' ? title : '',
+              });
+              setRecipeInitialMode('recipe');
+              setRecipeMounted(true);
+              setActiveTab('recipe');
+            }}
+          />
         </Suspense>
       )}
 

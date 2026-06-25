@@ -20,6 +20,7 @@ const EDGES = [
   { source: 'garlic', target: 'onion',  strength: 0.7 },
   { source: 'garlic', target: 'butter', strength: 0.6 },
   { source: 'garlic', target: 'thyme',  strength: 0.5 },
+  { source: 'lemon',  target: 'thyme',  strength: 0.4 }, // lets garlic×lemon share 'thyme'
 ];
 
 const DATA = {
@@ -66,5 +67,33 @@ describe('PairingLab', () => {
   it('degrades gracefully when pairing data is absent', () => {
     render(<PairingLab ctx={{ graph: { nodes: new Map(), edges: [] } }} />);
     expect(screen.getByText(/isn’t loaded yet/i)).toBeTruthy();
+  });
+
+  // ── P3 extras ───────────────────────────────────────────────────────
+  it('P3e: 🎲 Surprise re-centers on a non-obvious (back-half) partner', () => {
+    render(<PairingLab ctx={DATA} />);
+    fireEvent.click(screen.getByTestId('shuffle-btn'));
+    // garlic ego back half = onion/butter/thyme; never re-centers on garlic.
+    expect(screen.getByRole('list', { name: /partners of (onion|butter|thyme)/i })).toBeTruthy();
+  });
+
+  it('P3c: "Pair with" enters two-ingredient mode (shared neighborhood)', () => {
+    render(<PairingLab ctx={DATA} />);
+    fireEvent.click(screen.getByRole('button', { name: /details for lemon/i }));
+    fireEvent.click(screen.getByTestId('peek-pair'));
+    expect(screen.getByTestId('compare-banner')).toBeTruthy();
+    // garlic×lemon share 'thyme' (garlic-thyme + lemon-thyme edges).
+    expect(screen.getByRole('list', { name: /partners of garlic \+ lemon/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'thyme' })).toBeTruthy();
+  });
+
+  it('P3b: "Add to plate" fills the tray and sends to Cocktail', () => {
+    const onFindCocktail = vi.fn();
+    render(<PairingLab ctx={DATA} onFindCocktail={onFindCocktail} />);
+    fireEvent.click(screen.getByRole('button', { name: /details for lemon/i }));
+    fireEvent.click(screen.getByTestId('peek-add'));
+    expect(screen.getByTestId('tray-bar')).toBeTruthy();
+    fireEvent.click(screen.getByTestId('tray-send-cocktail'));
+    expect(onFindCocktail).toHaveBeenCalledWith(['lemon'], 'garlic');
   });
 });

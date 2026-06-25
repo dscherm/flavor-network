@@ -1,19 +1,23 @@
 /**
- * PairingLab.jsx — PAIR-LAB-P2.
+ * PairingLab.jsx — PAIR-LAB-P2 shell + P3 extras.
  *
- * The Pairing Lab shell: a chalk-framed surface holding an ingredient
- * search, the lens segmented control, the PairingBoard ego renderer, a
- * one-line lens-contrast insight, and a bottom-sheet partner peek. This
- * reintroduces "network mode" as an ingredient-first ego-network — see
+ * The Pairing Lab: a chalk-framed surface holding an ingredient search,
+ * the lens segmented control, the PairingBoard ego renderer, a one-line
+ * lens-contrast insight, and a bottom-sheet partner peek. Reintroduces
+ * "network mode" as an ingredient-first ego-network — design in
  * .omc/plans/pairing-lab-design-2026-06-25.md.
  *
- * Reuses the existing model wholesale: egoNeighborhood / groupByLens /
- * lensInsight (pairingEgoModel) over graph.js pairings + the
- * categoricalAxes lenses. No new data, no model training.
+ * P3 extras layered in:
+ *   a) bridge arcs — partnerBridges() passed to the board.
+ *   b) build-a-plate — collect partners into a tray → send to
+ *      Cocktail/Sauce/Recipe via the existing handoffs.
+ *   c) two-ingredient mode — "pair with" sets a second center; the board
+ *      shows the shared neighborhood.
+ *   d) season-now — the season lens stars the current month's bucket.
+ *   e) serendipity — 🎲 re-centers on a strong-but-not-obvious partner.
  *
- * Additive + null-safe: degrades to a clear message if the pairing data
- * isn't loaded; the board itself degrades to a partner list if the 2D
- * canvas is unavailable.
+ * Reuses the existing model wholesale (pairingEgoModel over graph.js +
+ * categoricalAxes). No new data, no model training. Additive + null-safe.
  */
 import { useState, useMemo, useEffect, useRef } from 'react';
 import SearchBar from './SearchBar.jsx';
@@ -21,6 +25,7 @@ import BottomSheet from './BottomSheet.jsx';
 import PairingBoard from './PairingBoard.jsx';
 import {
   LENSES, LENS_LABELS, egoNeighborhood, lensInsight,
+  partnerBridges, sharedNeighborhood, monthToSeasonLabel, serendipitousPick,
 } from '../data/pairingEgoModel.js';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle,
@@ -30,12 +35,16 @@ const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 
 function pickDefaultCenter(names) {
   if (!Array.isArray(names) || names.length === 0) return null;
-  // Garlic is a famously well-connected hub — a good first impression.
-  if (names.includes('garlic')) return 'garlic';
+  if (names.includes('garlic')) return 'garlic'; // a famously well-connected hub
   return names[0];
 }
 
-export default function PairingLab({ ctx: data }) {
+const chip = (border = CHALK_RAIL) => ({
+  fontFamily: FONT, fontSize: 17, padding: '2px 12px', borderRadius: 14,
+  border: `1px solid ${border}`, background: '#0a0a0a', color: CHALK_CREAM, cursor: 'pointer',
+});
+
+export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onSendToRecipe }) {
   const nodes = data?.graph?.nodes;
   const ingredientNames = useMemo(() => {
     const list = data?.graph?.ingredientList;
@@ -45,38 +54,51 @@ export default function PairingLab({ ctx: data }) {
   }, [data, nodes]);
 
   const bucketCtx = useMemo(() => ({
-    gnnEntropy: data?.gnnEntropy,
-    cuisineMap: data?.cuisineMap,
-    seasonMap: data?.seasonMap,
+    gnnEntropy: data?.gnnEntropy, cuisineMap: data?.cuisineMap, seasonMap: data?.seasonMap,
   }), [data]);
 
   const [center, setCenter] = useState(() => pickDefaultCenter(ingredientNames));
   const [lens, setLens] = useState('affinity');
   const [peek, setPeek] = useState(null);
+  const [compareWith, setCompareWith] = useState(null); // P3c
+  const [tray, setTray] = useState([]);                 // P3b
 
-  // Adopt a default center once data arrives (center may start null).
+  // current season for the season-now star (P3d). new Date() is fine in
+  // app runtime (only the workflow sandbox forbids it).
+  const currentSeason = useMemo(() => {
+    try { return monthToSeasonLabel(new Date().getMonth()); } catch { return null; }
+  }, []);
+
   useEffect(() => {
     if (!center && ingredientNames.length) setCenter(pickDefaultCenter(ingredientNames));
   }, [center, ingredientNames]);
 
-  const partners = useMemo(
-    () => egoNeighborhood(center, data, { limit: 12 }),
-    [center, data],
-  );
-  const insight = useMemo(
-    () => lensInsight(partners, lens, bucketCtx),
-    [partners, lens, bucketCtx],
-  );
+  // Effective partner set: shared neighborhood in two-ingredient mode,
+  // otherwise the plain ego neighborhood.
+  const partners = useMemo(() => (
+    compareWith
+      ? sharedNeighborhood(center, compareWith, data, { limit: 12 })
+      : egoNeighborhood(center, data, { limit: 12 })
+  ), [center, compareWith, data]);
 
-  // Measure the board area (mobile-first; fall back to sane defaults).
+  const bridges = useMemo(() => partnerBridges(partners, data), [partners, data]);
+  const insight = useMemo(() => lensInsight(partners, lens, bucketCtx), [partners, lens, bucketCtx]);
+  const displayCenter = compareWith ? `${center} + ${compareWith}` : center;
+  const highlightGroup = lens === 'season' ? currentSeason : null;
+
+  const recenter = (name) => { setCenter(name); setCompareWith(null); };
+  const shuffle = () => { const pick = serendipitousPick(partners, Math.random); if (pick) recenter(pick); };
+  const addToTray = (name) => setTray((t) => (t.includes(name) ? t : [...t, name]));
+
+  // Board sizing (mobile-first; sane fallbacks).
   const boardRef = useRef(null);
-  const [dims, setDims] = useState({ w: 360, h: 440 });
+  const [dims, setDims] = useState({ w: 360, h: 420 });
   useEffect(() => {
     const measure = () => {
       const el = boardRef.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
-      setDims({ w: Math.max(280, Math.round(r.width)), h: Math.max(320, Math.round(r.height)) });
+      setDims({ w: Math.max(280, Math.round(r.width)), h: Math.max(300, Math.round(r.height)) });
     };
     measure();
     if (typeof window !== 'undefined') {
@@ -95,39 +117,52 @@ export default function PairingLab({ ctx: data }) {
       className="fixed inset-0 flex flex-col overflow-hidden"
       style={{ ...chalkSurfaceStyle(), paddingTop: 'var(--nav-h)', color: CHALK_CREAM }}
     >
-      {/* Header — title + search */}
+      {/* Header — title + shuffle + search */}
       <div style={{ padding: '10px 12px 6px', borderBottom: `1px solid ${CHALK_RAIL}` }}>
-        <div style={{ fontFamily: FONT, fontSize: 26, lineHeight: 1, color: CHALK_CREAM }}>
-          Pairing Lab
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <div style={{ fontFamily: FONT, fontSize: 26, lineHeight: 1, color: CHALK_CREAM }}>Pairing Lab</div>
+          <button
+            type="button" data-testid="shuffle-btn" onClick={shuffle} aria-label="Surprise me"
+            style={{ ...chip(), fontSize: 18 }}
+          >
+            🎲 Surprise
+          </button>
         </div>
-        <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, marginBottom: 8 }}>
+        <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, margin: '2px 0 8px' }}>
           Stand on one ingredient — twist the lens to see its partners by aroma, taste, cuisine or season.
         </div>
-        <SearchBar ingredients={ingredientNames} onSelect={(name) => { setCenter(name); }} />
+        <SearchBar ingredients={ingredientNames} onSelect={(name) => recenter(name)} />
       </div>
 
+      {/* Two-ingredient banner (P3c) */}
+      {compareWith && (
+        <div
+          data-testid="compare-banner"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '6px 12px', fontFamily: SANS, fontSize: 13, color: CHALK_CREAM,
+            background: 'rgba(245,239,222,0.06)', borderBottom: `1px solid ${CHALK_RAIL}`,
+          }}
+        >
+          <span>Pairs with <strong>{center}</strong> &amp; <strong>{compareWith}</strong></span>
+          <button type="button" onClick={() => setCompareWith(null)} aria-label="Exit pair view"
+            style={{ background: 'none', border: 'none', color: CHALK_DIM, fontSize: 18, cursor: 'pointer' }}>×</button>
+        </div>
+      )}
+
       {/* Lens segmented control */}
-      <div
-        role="tablist"
-        aria-label="Pairing lens"
-        style={{ display: 'flex', gap: 6, padding: '8px 12px', flexWrap: 'wrap' }}
-      >
+      <div role="tablist" aria-label="Pairing lens" style={{ display: 'flex', gap: 6, padding: '8px 12px', flexWrap: 'wrap' }}>
         {LENSES.map((l) => {
           const active = l === lens;
           return (
             <button
-              key={l}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => setLens(l)}
-              data-testid={`lens-${l}`}
+              key={l} type="button" role="tab" aria-selected={active}
+              onClick={() => setLens(l)} data-testid={`lens-${l}`}
               style={{
                 fontFamily: FONT, fontSize: 18, padding: '2px 12px', borderRadius: 14,
                 border: `1px solid ${active ? CHALK_CREAM : CHALK_RAIL}`,
                 background: active ? CHALK_CREAM : 'transparent',
-                color: active ? '#0a0a0a' : CHALK_DIM,
-                cursor: 'pointer',
+                color: active ? '#0a0a0a' : CHALK_DIM, cursor: 'pointer',
               }}
             >
               {LENS_LABELS[l]}
@@ -137,10 +172,7 @@ export default function PairingLab({ ctx: data }) {
       </div>
 
       {/* Insight line */}
-      <div
-        data-testid="lens-insight"
-        style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM, padding: '0 12px 6px', minHeight: 18 }}
-      >
+      <div data-testid="lens-insight" style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM, padding: '0 12px 6px', minHeight: 18 }}>
         {insight}
       </div>
 
@@ -152,22 +184,48 @@ export default function PairingLab({ ctx: data }) {
           </div>
         ) : partners.length === 0 ? (
           <div style={{ alignSelf: 'center', fontFamily: SANS, color: CHALK_SUB, padding: 24, textAlign: 'center' }}>
-            {center ? `No pairings found for ${center}. Search another ingredient.` : 'Search an ingredient to begin.'}
+            {compareWith
+              ? `Nothing pairs with both ${center} and ${compareWith}.`
+              : center ? `No pairings found for ${center}. Search another ingredient.` : 'Search an ingredient to begin.'}
           </div>
         ) : (
           <PairingBoard
-            center={center}
+            center={displayCenter}
             centerNode={center ? nodes?.get?.(center) : null}
             partners={partners}
             lens={lens}
             ctx={bucketCtx}
+            bridges={bridges}
+            highlightGroup={highlightGroup}
             width={dims.w}
             height={dims.h}
-            onSelectPartner={(name) => setCenter(name)}
+            onSelectPartner={(name) => recenter(name)}
             onPeek={(name) => setPeek(name)}
           />
         )}
       </div>
+
+      {/* Build-a-plate tray (P3b) */}
+      {tray.length > 0 && (
+        <div
+          data-testid="tray-bar"
+          style={{ borderTop: `1px solid ${CHALK_RAIL}`, padding: '8px 12px', background: 'rgba(10,10,10,0.6)' }}
+        >
+          <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, marginBottom: 4 }}>
+            Plate ({tray.length}): {tray.join(', ')}
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <button type="button" data-testid="tray-send-cocktail" style={chip()}
+              onClick={() => onFindCocktail?.(tray, center)}>🍸 Cocktail</button>
+            <button type="button" data-testid="tray-send-sauce" style={chip()}
+              onClick={() => onFindSauce?.(tray, center)}>🥣 Sauce</button>
+            <button type="button" data-testid="tray-send-recipe" style={chip()}
+              onClick={() => onSendToRecipe?.(tray, center)}>📓 Recipe</button>
+            <button type="button" data-testid="tray-clear"
+              style={{ ...chip(), color: CHALK_DIM }} onClick={() => setTray([])}>Clear</button>
+          </div>
+        </div>
+      )}
 
       {/* Partner peek */}
       <BottomSheet isOpen={!!peek} onClose={() => setPeek(null)} title={peek || ''}>
@@ -180,17 +238,14 @@ export default function PairingLab({ ctx: data }) {
             {Array.isArray(peekNode.flavorGraph?.tier1) && peekNode.flavorGraph.tier1.length > 0 && (
               <div><strong>Aroma:</strong> {peekNode.flavorGraph.tier1.join(', ')}</div>
             )}
-            <button
-              type="button"
-              onClick={() => { if (peek) setCenter(peek); setPeek(null); }}
-              style={{
-                marginTop: 12, fontFamily: FONT, fontSize: 18, padding: '4px 16px',
-                borderRadius: 14, border: `1px solid ${CHALK_RAIL}`, background: '#0a0a0a',
-                color: CHALK_CREAM, cursor: 'pointer',
-              }}
-            >
-              Center on {peek}
-            </button>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
+              <button type="button" data-testid="peek-center" style={chip()}
+                onClick={() => { if (peek) recenter(peek); setPeek(null); }}>Center on {peek}</button>
+              <button type="button" data-testid="peek-pair" style={chip()}
+                onClick={() => { setCompareWith(peek); setPeek(null); }}>🔗 Pair with {center}</button>
+              <button type="button" data-testid="peek-add" style={chip()}
+                onClick={() => { addToTray(peek); setPeek(null); }}>➕ Add to plate</button>
+            </div>
           </div>
         ) : (
           <div style={{ fontFamily: SANS, color: CHALK_SUB }}>No details available.</div>
