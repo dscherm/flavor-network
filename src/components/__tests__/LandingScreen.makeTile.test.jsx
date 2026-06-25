@@ -60,11 +60,13 @@ describe('LandingScreen — MAKE-LANDING-TILE (3-tile row, post MAKE-BUILD-DEPRE
     expect(btn).toBeInTheDocument();
   });
 
-  it('grid layout uses 3-column at sm+ breakpoint (1-col at mobile)', () => {
+  it('grid layout is 2-up at sm+ breakpoint (1-col at mobile)', () => {
+    // CK-10: the Network tile was hidden, leaving 2 tiles; the grid went
+    // from sm:grid-cols-3 (dead 3rd column) to a centered 2-up layout.
     const { container } = render(<LandingScreen onModeSelect={vi.fn()} />);
     const grid = container.querySelector('.grid');
     expect(grid).toBeTruthy();
     expect(grid.className).toMatch(/grid-cols-1/);
-    expect(grid.className).toMatch(/sm:grid-cols-3/);
+    expect(grid.className).toMatch(/sm:grid-cols-2/);
   });
 });

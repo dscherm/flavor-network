@@ -282,12 +282,12 @@ export default function SauceBrowse({
                     <g transform={`translate(${cx} ${cy}) scale(${VESSEL_SCALE}) translate(${-cx} ${-cy})`} pointerEvents="none">
                       {vesselMark(sauceVesselFor(fam.name), cx, cy, fam.color, stroke, active)}
                     </g>
-                    <text x={cx} y={cy + 30} textAnchor="middle" fontSize="20" fontFamily="Caveat, cursive" fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
+                    <text x={cx} y={cy + 32} textAnchor="middle" fontSize="28" fontFamily="Caveat, cursive" fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
                       {wrapName(fam.name).map((ln, li) => (
-                        <tspan key={li} x={cx} dy={li === 0 ? 0 : 17}>{ln}</tspan>
+                        <tspan key={li} x={cx} dy={li === 0 ? 0 : 25}>{ln}</tspan>
                       ))}
                     </text>
-                    <text x={cx} y={cy + 30 + (wrapName(fam.name).length > 1 ? 19 : 0) + 18} textAnchor="middle" fontSize="14" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.6" pointerEvents="none">{count} sauces</text>
+                    <text x={cx} y={cy + 32 + (wrapName(fam.name).length > 1 ? 25 : 0) + 22} textAnchor="middle" fontSize="20" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.6" pointerEvents="none">{count} sauces</text>
                   </g>
                 );
               })}
