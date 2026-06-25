@@ -6,6 +6,10 @@ import {
   egoNeighborhood,
   groupByLens,
   lensInsight,
+  partnerBridges,
+  sharedNeighborhood,
+  monthToSeasonLabel,
+  serendipitousPick,
 } from '../pairingEgoModel.js';
 
 // ── Fixture ───────────────────────────────────────────────────────────
@@ -163,5 +167,67 @@ describe('lensInsight', () => {
   it('reports no grouping when nothing classifies', () => {
     const ego2 = [{ name: 'mystery', strength: 0.3, node: { name: 'mystery' } }];
     expect(lensInsight(ego2, 'taste', CTX)).toBe('1 partner — no clear taste grouping.');
+  });
+});
+
+// ── P3a partnerBridges ────────────────────────────────────────────────
+describe('partnerBridges', () => {
+  it('finds partner pairs that also pair with each other (trios)', () => {
+    const ego = egoNeighborhood('garlic', DATA);
+    const bridges = partnerBridges(ego, DATA);
+    // EDGES has lemon-thyme, and both are garlic partners → one bridge.
+    expect(bridges).toEqual([{ a: 'lemon', b: 'thyme' }]);
+  });
+
+  it('is null-safe / empty for <2 partners or no edges', () => {
+    expect(partnerBridges([], DATA)).toEqual([]);
+    expect(partnerBridges([{ name: 'basil', strength: 1 }], DATA)).toEqual([]);
+    expect(partnerBridges(egoNeighborhood('garlic', DATA), {})).toEqual([]);
+  });
+});
+
+// ── P3c sharedNeighborhood ────────────────────────────────────────────
+describe('sharedNeighborhood', () => {
+  it('returns ingredients pairing with BOTH, excluding the two centers', () => {
+    // garlic↔thyme and lemon↔thyme both exist → thyme is shared.
+    const shared = sharedNeighborhood('garlic', 'lemon', DATA);
+    expect(shared.map((p) => p.name)).toEqual(['thyme']);
+    expect(shared[0].strength).toBe(Math.min(0.5, 0.4)); // min of the two links
+  });
+
+  it('is null-safe and rejects identical / missing inputs', () => {
+    expect(sharedNeighborhood('garlic', 'garlic', DATA)).toEqual([]);
+    expect(sharedNeighborhood('garlic', '', DATA)).toEqual([]);
+    expect(sharedNeighborhood('garlic', 'lemon', {})).toEqual([]);
+  });
+});
+
+// ── P3d monthToSeasonLabel ────────────────────────────────────────────
+describe('monthToSeasonLabel', () => {
+  it('maps months to the season lens labels', () => {
+    expect(monthToSeasonLabel(0)).toBe('Winter');  // Jan
+    expect(monthToSeasonLabel(3)).toBe('Spring');  // Apr
+    expect(monthToSeasonLabel(6)).toBe('Summer');  // Jul
+    expect(monthToSeasonLabel(9)).toBe('Autumn');  // Oct
+    expect(monthToSeasonLabel(11)).toBe('Winter'); // Dec
+  });
+  it('returns null on bad input', () => {
+    expect(monthToSeasonLabel(12)).toBeNull();
+    expect(monthToSeasonLabel(-1)).toBeNull();
+    expect(monthToSeasonLabel(1.5)).toBeNull();
+  });
+});
+
+// ── P3e serendipitousPick ─────────────────────────────────────────────
+describe('serendipitousPick', () => {
+  const ego = egoNeighborhood('garlic', DATA); // basil .9 .. thyme .5
+  it('picks from the back half (novelty over the obvious top)', () => {
+    // tail = [onion(.7), butter(.6), thyme(.5)]; rng=0 → first of tail.
+    expect(serendipitousPick(ego, () => 0)).toBe('onion');
+    expect(serendipitousPick(ego, () => 0.99)).toBe('thyme');
+  });
+  it('handles tiny / empty sets', () => {
+    expect(serendipitousPick([], () => 0)).toBeNull();
+    expect(serendipitousPick([{ name: 'solo', strength: 1 }], () => 0)).toBe('solo');
   });
 });
