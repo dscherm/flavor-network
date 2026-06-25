@@ -405,11 +405,13 @@ export default function CocktailBrowse({
 
       {/* ───── Back-bar shelf — one chalk bottle per family ───── */}
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
-        <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Families</div>
+        <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Families · swipe →</div>
+        <div className="overflow-x-auto pb-1">
         <svg
           viewBox={`0 -48 ${graph.families.length * 120} 224`}
-          className="w-full h-auto"
-          style={{ maxHeight: 292 }}
+          height={188}
+          width={Math.round(graph.families.length * 120 * 188 / 224)}
+          style={{ maxWidth: 'none', display: 'block', margin: '0 auto' }}
           role="img"
           aria-label="Cocktail families — back-bar shelf"
         >
@@ -449,6 +451,7 @@ export default function CocktailBrowse({
             );
           })}
         </svg>
+        </div>
         {filterFamily != null && (
           <div className="text-center -mt-1">
             <button
@@ -465,11 +468,13 @@ export default function CocktailBrowse({
 
       {/* ───── Back-bar bottle shelf — one chalk bottle per base spirit ───── */}
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
-        <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Spirits</div>
+        <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Spirits · swipe →</div>
+        <div className="overflow-x-auto pb-1">
         <svg
           viewBox={`0 -66 ${SPIRIT_SHELF.length * 122} 204`}
-          className="w-full h-auto"
-          style={{ maxHeight: 320 }}
+          height={190}
+          width={Math.round(SPIRIT_SHELF.length * 122 * 190 / 204)}
+          style={{ maxWidth: 'none', display: 'block', margin: '0 auto' }}
           role="img"
           aria-label="Base spirits — back-bar bottle shelf"
         >
@@ -503,6 +508,7 @@ export default function CocktailBrowse({
             );
           })}
         </svg>
+        </div>
         {filterSpirit != null && (
           <div className="text-center -mt-1">
             <button
