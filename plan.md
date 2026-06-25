@@ -466,6 +466,68 @@ any new pure logic; full suite green, build clean.
 }
 ```
 
+# NEXT INITIATIVE: Pairing Lab — reintroduce "network mode" (PAIR-LAB, 2026-06-25)
+
+**Context**: /design + /frontend-design exploration (full doc:
+`.omc/plans/pairing-lab-design-2026-06-25.md`). Reintroduce the parked
+"network mode" as an **ingredient-first ego-network** in a **2D Canvas**
+(no WebGL), as a new **Pairing Lab** in the kitchen world, **chalk frame /
+vivid bucket data inside**. Reuses the EXISTING model: `categoricalAxes.js`
+CATEGORICAL_AXES (the aroma/taste/cuisine/season/family "lenses"),
+`graph.js` getNeighbors for partner neighborhoods. Signature = the "lens
+twist": the same ~12 partners re-plate into grouped/recolored zones when
+you change aspect. iOS: ≤15 partners, dpr cap 2, rAF only during the
+twist (idle otherwise), lazy-mounted, reduced-motion respected. Interview
+decisions locked 2026-06-25 (interaction=ego, render=2D-now/WebGL-seam,
+place=new lab, aesthetic=chalk-frame/vivid-data).
+
+```json
+{
+  "id": "PAIR-LAB-P0",
+  "title": "pairingEgoModel.js — pure ego/lens/insight model (no rendering)",
+  "category": "feature",
+  "priority": 1,
+  "description": "New src/data/pairingEgoModel.js with pure, unit-tested functions: egoNeighborhood(name, data, {limit=12}) -> [{name, strength, node}] top partners by pairing strength via graph.js getNeighbors(Enriched); groupByLens(partners, lens, ctx) -> per-bucket member arrays reusing categoricalAxes.bucketAllNodes/bucketOf + CATEGORICAL_AXES (lens in affinity|aroma|taste|cuisine|season); lensInsight(partners, lens, ctx) -> one rule-based sentence from the bucket distribution. No DOM/canvas. Null-safe (missing data -> [] / null).",
+  "acceptance": ["egoNeighborhood returns top-N partners sorted by strength desc, capped at limit, self excluded", "groupByLens buckets partners per lens using CATEGORICAL_AXES; affinity lens = single group by strength", "lensInsight returns a non-empty string describing the dominant bucket(s) per lens, '' when no partners", "unit tests cover all lenses + empty/missing-data; full suite green"]
+}
+```
+
+```json
+{
+  "id": "PAIR-LAB-P1",
+  "title": "PairingBoard.jsx — 2D Canvas ego renderer with 5 lens layouts + lens-twist transition",
+  "category": "feature",
+  "priority": 2,
+  "dependsOn": ["PAIR-LAB-P0"],
+  "description": "New src/components/PairingBoard.jsx: 2D <canvas> ego graph. Center ingredient + partners from PAIR-LAB-P0. Layouts: affinity (radial, ring distance = strength), aroma/cuisine/season/taste (grouped/poled by bucket, vivid bucket palette from categoricalAxes colors). Spring/tween 'lens twist' re-layout on lens change. Chalk frame (chalkTheme), Caveat center label + sans partner labels. iOS: devicePixelRatio capped at 2; requestAnimationFrame ONLY during a transition then idle; prefers-reduced-motion -> snap. onSelectPartner(name) re-center callback; press-hold -> onPeek(name). Renderer-strategy seam documented so a Three.js impl can slot in later. Degrades to a partner LIST if canvas unsupported.",
+  "acceptance": ["renders center + partners on canvas; 5 lenses produce distinct layouts", "lens change animates a re-layout; idle (no rAF) when not transitioning", "dpr capped; reduced-motion snaps; tap re-centers, press-hold peeks", "graceful list fallback; suite green; build clean"]
+}
+```
+
+```json
+{
+  "id": "PAIR-LAB-P2",
+  "title": "PairingLab.jsx — lab shell (search + lens control + board + detail) wired as 4th lab",
+  "category": "feature",
+  "priority": 3,
+  "dependsOn": ["PAIR-LAB-P1"],
+  "description": "New src/components/PairingLab.jsx: chalk search (fuse.js/SearchBar pattern) + lens segmented control (Affinity/Aroma/Taste/Cuisine/Season) + PairingBoard + BottomSheet partner detail (IngredientPanel) + the lensInsight line. Wire as the 4th lab beside Cocktail/Sauce/Cookbook in the Labs entry (LabsFab / labs dropdown / onSelectLab). Lazy-mounted (lazyWithRetry + Suspense, per PERF-LAZY-NETWORK). Additive + null-safe.",
+  "acceptance": ["Pairing Lab reachable from Labs entry; lazy-mounted", "search/tap -> ego board; lens control re-plates partners; insight line updates", "tap partner re-centers; detail sheet opens; suite green; build clean"]
+}
+```
+
+```json
+{
+  "id": "PAIR-LAB-P3",
+  "title": "Pairing Lab extras (parallelizable): bridge arcs, build-a-plate, two-ingredient mode, season-now, shuffle",
+  "category": "feature",
+  "priority": 4,
+  "dependsOn": ["PAIR-LAB-P2"],
+  "description": "Independent enhancements, each shippable alone (fan out): (a) bridge arcs — faint arc when two partners also pair with each other (3-ingredient trios); (b) build-a-plate — tap-collect partners into a tray -> send to Recipe/Cocktail/Sauce via existing onFindCocktail/onFindSauce handoff; (c) two-ingredient (edge) mode — center on a pair, show shared neighborhood; (d) season-now — season lens defaults to current month + highlights in-season; (e) serendipity shuffle — re-center on a strong-but-distant partner.",
+  "acceptance": ["each extra behind its own commit + tests where logic is pure", "no regression to P0-P2; suite green; build clean"]
+}
+```
+
 # NEXT INITIATIVE: Labs 2D "kitchen-world" menu redesign (CK-MENU, 2026-06-23)
 
 **Context**: From the 2026-06-23 labs design review (frontend-design lens) +
