@@ -7,6 +7,7 @@ const LABS = [
   { id: 'cookbook', label: 'Cookbook',         desc: 'Browse saved recipes' },
   { id: 'cocktail', label: 'Cocktail Lab',     desc: 'Mix a drink' },
   { id: 'sauce',    label: 'Sauce Lab',        desc: 'Build a sauce' },
+  { id: 'pairing',  label: 'Pairing Lab',      desc: 'Explore flavor pairings' },
   { id: 'recipe',   label: 'Recipe Notebook',  desc: 'Handwritten notebook' },
   { id: 'profile',  label: 'Profile',          desc: 'Saved recipes & insights' },
 ];
