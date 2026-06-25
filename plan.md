@@ -532,6 +532,18 @@ place=new lab, aesthetic=chalk-frame/vivid-data).
 }
 ```
 
+```json
+{
+  "id": "PAIR-LAB-P4",
+  "title": "Pairing Lab polish — meaningful lines, chalk center, axis captions, cross-category Surprise, insights, network pathway",
+  "category": "feature",
+  "priority": 2,
+  "status": "done (2026-06-25) — all 7 items; verified by headless screenshot. Lines weight=strength/style=provenance + key; axis caption + clamped labels; chalk double-stroke center oval + bigger Caveat labels; 🎲 Surprise keeps center (cross-category); peek provenance+★tier+why; inline network teaser → onOpenInNetwork. Suite 1447 green; build clean.",
+  "description": "Round 2 from user feedback + /design (2026-06-25). (1) Lines: weight=strength, style=provenance (solid=chemistry, dashed=cuisine, glow=both) via getNeighborsEnriched, + a small key. (2) Axis names: clamp on-canvas bucket labels + an always-visible caption naming the lens buckets (fixes 'only taste shows axis names'). (3) Center oval: larger hand-drawn wobbly chalk ellipse + bigger Caveat. (4) Partner labels: bigger Caveat + chalk shadow (was tiny sans). (5) Surprise (🎲): SAME center, cross-category surprises — strong partners in a different taste/aroma family (surprisingNeighborhood); banner + exit, NOT a re-center. (6) Insights: enrich the peek sheet (provenance + ★ strength tier + why-line) + keep the lens-contrast line. (7) Network pathway: inline 'Where this comes from' teaser that expands to the full 3D network focused on the center (onOpenInNetwork → setSelectedNode + setActiveTab('network')) + a one-line explainer.",
+  "acceptance": ["lines differentiate strength (weight) + provenance (style) with a key", "every lens names its buckets (caption + clamped labels)", "center oval + partner labels read as chalk and are legible", "🎲 keeps the center and shows cross-category partners", "peek shows provenance + tier + why; lens line stays", "a teaser opens the focused 3D network with an explainer", "suite green; build clean"]
+}
+```
+
 # NEXT INITIATIVE: Labs 2D "kitchen-world" menu redesign (CK-MENU, 2026-06-23)
 
 **Context**: From the 2026-06-23 labs design review (frontend-design lens) +

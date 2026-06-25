@@ -152,16 +152,29 @@ export default function PairingBoard({
     const { labels } = targetRef.current;
     hitsRef.current = [];
 
-    // Edges: center → each partner (faint chalk).
-    c.lineWidth = 1;
-    c.strokeStyle = 'rgba(245,239,222,0.16)';
+    // Edges: center → each partner. Weight + opacity encode pairing
+    // STRENGTH; line style encodes PROVENANCE (how the pairing was
+    // determined): solid = shared chemistry/co-occurrence, dashed =
+    // culinary tradition, solid+glow = both.
+    const ss = partners.map((p) => p.strength);
+    const sMax = ss.length ? Math.max(...ss) : 1;
+    const sMin = ss.length ? Math.min(...ss) : 0;
+    const sSpan = Math.max(sMax - sMin, 1e-6);
     for (const p of partners) {
       const pt = pos.get(p.name);
       if (!pt) continue;
+      const sn = (p.strength - sMin) / sSpan; // 0..1
+      c.save();
+      c.lineWidth = 1 + sn * 3;
+      c.strokeStyle = `rgba(245,239,222,${(0.22 + sn * 0.5).toFixed(3)})`;
+      if (p.provenance === 'cuisine') c.setLineDash([5, 4]);
+      else c.setLineDash([]);
+      if (p.provenance === 'both') { c.shadowColor = 'rgba(245,239,222,0.8)'; c.shadowBlur = 6; }
       c.beginPath();
       c.moveTo(cx, cy);
       c.lineTo(pt.x, pt.y);
       c.stroke();
+      c.restore();
     }
 
     // Bridge arcs (P3a): a faint dashed curve between two partners that
@@ -194,9 +207,16 @@ export default function PairingBoard({
     c.textBaseline = 'middle';
     for (const lab of labels) {
       const hi = highlightGroup && lab.text === highlightGroup;
-      c.font = `600 ${hi ? 18 : 16}px ${FONT}`;
+      c.font = `600 ${hi ? 19 : 17}px ${FONT}`;
       c.fillStyle = lab.color;
-      c.fillText(hi ? `★ ${lab.text}` : lab.text, lab.x, lab.y);
+      // Clamp inside the canvas so spoke labels never clip off-screen.
+      const lx = Math.max(36, Math.min(width - 36, lab.x));
+      const ly = Math.max(20, Math.min(height - 12, lab.y));
+      c.save();
+      c.shadowColor = 'rgba(0,0,0,0.6)';
+      c.shadowBlur = 3;
+      c.fillText(hi ? `★ ${lab.text}` : lab.text, lx, ly);
+      c.restore();
     }
 
     // Partner nodes + names.
@@ -213,26 +233,41 @@ export default function PairingBoard({
       c.stroke();
       hitsRef.current.push({ name: p.name, x: pt.x, y: pt.y, r: t.r + 6 });
 
-      c.font = `12px ${SANS}`;
+      c.save();
+      c.font = `600 16px ${FONT}`;
       c.fillStyle = CHALK_CREAM;
-      c.fillText(p.name, pt.x, pt.y + t.r + 10);
+      c.shadowColor = 'rgba(245,239,222,0.5)';
+      c.shadowBlur = 3;
+      c.fillText(p.name, pt.x, pt.y + t.r + 13);
+      c.restore();
     }
 
-    // Center ingredient — chalk oval + Caveat name.
+    // Center ingredient — a bigger black chalk-oval with a hand-drawn
+    // double stroke + chalk glow, Caveat name.
     if (center) {
-      c.font = `700 22px ${FONT}`;
-      const w = Math.max(c.measureText(center).width + 26, 64);
-      const h = 38;
-      c.beginPath();
-      if (c.ellipse) c.ellipse(cx, cy, w / 2, h / 2, 0, 0, 2 * Math.PI);
-      else c.arc(cx, cy, w / 2, 0, 2 * Math.PI);
-      c.fillStyle = 'rgba(10,10,10,0.85)';
+      c.save();
+      c.font = `700 30px ${FONT}`;
+      const w = Math.max(c.measureText(center).width + 40, 100);
+      const h = 58;
+      const ell = (rx, ry) => {
+        c.beginPath();
+        if (c.ellipse) c.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        else c.arc(cx, cy, rx, 0, 2 * Math.PI);
+      };
+      ell(w / 2, h / 2);
+      c.fillStyle = 'rgba(8,8,10,0.92)';
+      c.shadowColor = 'rgba(245,239,222,0.45)';
+      c.shadowBlur = 16;
       c.fill();
-      c.lineWidth = 2;
-      c.strokeStyle = CHALK_CREAM;
-      c.stroke();
+      c.shadowBlur = 0;
+      // double chalk stroke — outer bold + inner faint = hand-drawn feel
+      c.strokeStyle = CHALK_CREAM; c.lineWidth = 2.5; ell(w / 2, h / 2); c.stroke();
+      c.strokeStyle = 'rgba(245,239,222,0.5)'; c.lineWidth = 1; ell(w / 2 - 2.5, h / 2 - 1.5); c.stroke();
       c.fillStyle = CHALK_CREAM;
+      c.shadowColor = 'rgba(245,239,222,0.6)';
+      c.shadowBlur = 4;
       c.fillText(center, cx, cy);
+      c.restore();
     }
   }, [partners, center, cx, cy, width, height, bridges, highlightGroup]);
 

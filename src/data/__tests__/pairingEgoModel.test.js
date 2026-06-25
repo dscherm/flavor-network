@@ -10,6 +10,7 @@ import {
   sharedNeighborhood,
   monthToSeasonLabel,
   serendipitousPick,
+  surprisingNeighborhood,
 } from '../pairingEgoModel.js';
 
 // ── Fixture ───────────────────────────────────────────────────────────
@@ -18,6 +19,7 @@ import {
 // (aroma — chef-tier1 wins, deterministic), taste (string), cuisines,
 // category. Season comes from ctx.seasonMap.
 const NODES = new Map([
+  ['garlic', { name: 'garlic', taste: 'pungent', category: 'Aromatic',  cuisines: ['Italian'],       flavorGraph: { tier1: ['pungent'] } }],
   ['basil',  { name: 'basil',  taste: 'bitter',  category: 'Herb',      cuisines: ['Italian'],       flavorGraph: { tier1: ['green'] } }],
   ['lemon',  { name: 'lemon',  taste: 'sour',    category: 'Fruit',     cuisines: ['Mediterranean'], flavorGraph: { tier1: ['citrus'] } }],
   ['onion',  { name: 'onion',  taste: 'pungent', category: 'Vegetable', cuisines: ['French'],        flavorGraph: { tier1: ['pungent'] } }],
@@ -69,6 +71,11 @@ describe('egoNeighborhood', () => {
   it('respects the limit', () => {
     const ego = egoNeighborhood('garlic', DATA, { limit: 3 });
     expect(ego.map((p) => p.name)).toEqual(['basil', 'lemon', 'onion']);
+  });
+
+  it('carries pairing provenance (chemistry when no cuisine index)', () => {
+    const ego = egoNeighborhood('garlic', DATA);
+    expect(ego.every((p) => p.provenance === 'chemistry')).toBe(true);
   });
 
   it('picks up reversed-orientation edges (target === center)', () => {
@@ -229,5 +236,33 @@ describe('serendipitousPick', () => {
   it('handles tiny / empty sets', () => {
     expect(serendipitousPick([], () => 0)).toBeNull();
     expect(serendipitousPick([{ name: 'solo', strength: 1 }], () => 0)).toBe('solo');
+  });
+});
+
+// ── P4 surprisingNeighborhood ─────────────────────────────────────────
+describe('surprisingNeighborhood', () => {
+  it('keeps the center but returns partners from a DIFFERENT taste family', () => {
+    // garlic = pungent; onion is also pungent → excluded as "not surprising".
+    // limit:4 fills exactly with the 4 cross-family partners (no top-up pad).
+    const surprises = surprisingNeighborhood('garlic', DATA, CTX, { limit: 4 });
+    expect(surprises.map((p) => p.name)).toEqual(['basil', 'lemon', 'butter', 'thyme']);
+    expect(surprises.find((p) => p.name === 'onion')).toBeUndefined();
+  });
+
+  it('tops up with same-family partners only when cross-family is too thin', () => {
+    // Only 4 cross-family exist; default limit 12 → pad with onion last.
+    const surprises = surprisingNeighborhood('garlic', DATA, CTX);
+    expect(surprises.map((p) => p.name)).toEqual(['basil', 'lemon', 'butter', 'thyme', 'onion']);
+  });
+
+  it('respects the limit and carries provenance', () => {
+    const surprises = surprisingNeighborhood('garlic', DATA, CTX, { limit: 2 });
+    expect(surprises).toHaveLength(2);
+    expect(surprises[0].provenance).toBe('chemistry');
+  });
+
+  it('is null-safe', () => {
+    expect(surprisingNeighborhood('', DATA, CTX)).toEqual([]);
+    expect(surprisingNeighborhood('garlic', {}, CTX)).toEqual([]);
   });
 });

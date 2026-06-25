@@ -2466,6 +2466,12 @@ export default function App() {
             ctx={data}
             onFindCocktail={handleFindCocktail}
             onFindSauce={handleFindSauce}
+            onOpenInNetwork={(name) => {
+              // PAIR-LAB-P4 — open the full 3D flavor network focused on
+              // the current ingredient (mirrors Cookbook's network handoff).
+              if (name) { setSelectedNode(name); setSelectedNodes([name]); }
+              setActiveTab('network');
+            }}
             onSendToRecipe={(names, title) => {
               // PAIR-LAB-P3b build-a-plate → Recipe Notebook (mirrors the
               // cookbook→recipe handoff so ingredients prefill the notebook).

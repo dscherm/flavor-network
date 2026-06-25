@@ -69,12 +69,34 @@ describe('PairingLab', () => {
     expect(screen.getByText(/isn’t loaded yet/i)).toBeTruthy();
   });
 
-  // ── P3 extras ───────────────────────────────────────────────────────
-  it('P3e: 🎲 Surprise re-centers on a non-obvious (back-half) partner', () => {
+  // ── P3 / P4 extras ──────────────────────────────────────────────────
+  it('P4: 🎲 Surprise keeps the SAME center and enters surprise mode', () => {
     render(<PairingLab ctx={DATA} />);
-    fireEvent.click(screen.getByTestId('shuffle-btn'));
-    // garlic ego back half = onion/butter/thyme; never re-centers on garlic.
-    expect(screen.getByRole('list', { name: /partners of (onion|butter|thyme)/i })).toBeTruthy();
+    expect(screen.getByRole('list', { name: /partners of garlic/i })).toBeTruthy();
+    fireEvent.click(screen.getByTestId('surprise-btn'));
+    expect(screen.getByTestId('surprise-banner')).toBeTruthy();
+    // center is unchanged (the prior bug re-centered on a random partner)
+    expect(screen.getByRole('list', { name: /partners of garlic/i })).toBeTruthy();
+  });
+
+  it('P4: a non-affinity lens names its buckets via the axis caption', () => {
+    render(<PairingLab ctx={DATA} />);
+    fireEvent.click(screen.getByTestId('lens-taste'));
+    expect(screen.getByTestId('axis-caption').textContent).toMatch(/^Taste: /);
+  });
+
+  it('P4: network teaser expands and opens the focused network', () => {
+    const onOpenInNetwork = vi.fn();
+    render(<PairingLab ctx={DATA} onOpenInNetwork={onOpenInNetwork} />);
+    fireEvent.click(screen.getByTestId('network-teaser-toggle'));
+    fireEvent.click(screen.getByTestId('network-open'));
+    expect(onOpenInNetwork).toHaveBeenCalledWith('garlic');
+  });
+
+  it('P4: peek shows a provenance + tier insight line', () => {
+    render(<PairingLab ctx={DATA} />);
+    fireEvent.click(screen.getByRole('button', { name: /details for lemon/i }));
+    expect(screen.getByTestId('peek-insight').textContent).toMatch(/pairs with garlic via/i);
   });
 
   it('P3c: "Pair with" enters two-ingredient mode (shared neighborhood)', () => {
