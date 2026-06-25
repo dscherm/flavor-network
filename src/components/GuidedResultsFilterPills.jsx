@@ -19,6 +19,7 @@ import {
   SeasonHeaderIcon,
   CuisineHeaderIcon,
 } from './guidedIcons.jsx';
+import { FONT, CHALK_CREAM, CHALK_RAIL } from '../data/chalkTheme.js';
 
 // TasteIcon: tongue / taste-bud silhouette (inline — Guided-only, no
 // existing taste header icon in guidedIcons.jsx).
@@ -72,14 +73,16 @@ export default function GuidedResultsFilterPills({
             onClick={() => {
               if (!isActive) onSelect?.(type);
             }}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-3 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
-              isActive
-                ? 'text-white bg-cyan-500 border border-cyan-400 ring-1 ring-cyan-300'
-                : 'text-gray-400 bg-[#12121a] border border-[#2a2a3a] hover:bg-[#1a1a2a]'
-            }`}
-            style={{ minHeight: 36 }}
+            className="flex-shrink-0 flex items-center gap-1.5 px-3.5 text-sm rounded-full transition-colors whitespace-nowrap border"
+            style={{
+              minHeight: 38,
+              fontFamily: FONT,
+              color: isActive ? '#0a0a0a' : CHALK_CREAM,
+              background: isActive ? CHALK_CREAM : 'rgba(255,255,255,0.04)',
+              borderColor: isActive ? CHALK_CREAM : `${CHALK_RAIL}99`,
+            }}
           >
-            <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+            <Icon className="w-4 h-4 flex-shrink-0" />
             {label}
           </button>
         );

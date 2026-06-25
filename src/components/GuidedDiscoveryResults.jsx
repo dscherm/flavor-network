@@ -32,6 +32,7 @@ import { getNeighborsEnriched } from '../data/graph.js';
 import { passesDietaryFilters } from '../data/dietaryFilters.js';
 import { getAxesFor, pairingMatchesAxis } from '../data/guidedRadarAxes.js';
 import StoryPanel from './StoryPanel.jsx';
+import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import GuidedProfileRadar from './GuidedProfileRadar.jsx';
 import GuidedResultsFilterPills from './GuidedResultsFilterPills.jsx';
 import ProvenancePanel from './ProvenancePanel.jsx';
@@ -339,11 +340,11 @@ export default function GuidedDiscoveryResults({
   return (
     <div
       className="flex flex-col items-center w-full min-h-screen px-4 pt-8 pb-12"
-      style={{ backgroundColor: '#0d1f38' }}
+      style={{ ...chalkSurfaceStyle(), color: CHALK_CREAM }}
       data-testid="guided-discovery-results"
     >
       <div className="w-full max-w-5xl">
-        <h1 className="text-xl sm:text-2xl text-white text-center font-light mb-3">
+        <h1 className="text-3xl sm:text-4xl text-center mb-3" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
           Guided Discovery — Results
         </h1>
 
@@ -354,14 +355,15 @@ export default function GuidedDiscoveryResults({
           data-testid="guided-results-stack"
         >
           {bubbleStack.length === 0 ? (
-            <span className="text-[11px] text-gray-500 italic">
+            <span className="text-[11px] italic" style={{ fontFamily: FONT, color: CHALK_SUB }}>
               (no bubbles selected — return to bubbles to add some)
             </span>
           ) : (
             bubbleStack.map((b) => (
               <span
                 key={b.key}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-100 border border-emerald-400/40 min-h-[28px]"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm border min-h-[28px]"
+                style={{ fontFamily: FONT, background: 'rgba(245,239,222,0.14)', color: CHALK_CREAM, borderColor: `${CHALK_DIM}88` }}
                 data-testid={`guided-results-chip-${b.key}`}
               >
                 <span className="truncate max-w-[200px]">
@@ -387,7 +389,7 @@ export default function GuidedDiscoveryResults({
 
         {/* Filter type pill row + GuidedProfileRadar — P6 mount. */}
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 mb-6">
-          <div className="bg-[#0a1428] border border-[#1d3158] rounded-xl p-3 min-h-[420px] flex flex-col items-center justify-start gap-3">
+          <div className="rounded-xl p-3 min-h-[420px] flex flex-col items-center justify-start gap-3" style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid ${CHALK_RAIL}99` }}>
             <GuidedResultsFilterPills
               current={filterType}
               onSelect={handlePillSelect}
@@ -431,7 +433,8 @@ export default function GuidedDiscoveryResults({
               type="button"
               onClick={() => setProvenancePanelOpen(true)}
               data-testid="guided-results-provenance-button"
-              className="mt-2 text-xs text-cyan-300/80 hover:text-cyan-200 underline underline-offset-2 transition-colors"
+              className="mt-2 text-sm underline underline-offset-2 transition-colors"
+              style={{ fontFamily: FONT, color: CHALK_DIM }}
             >
               Show me where this data comes from
             </button>
@@ -441,7 +444,8 @@ export default function GuidedDiscoveryResults({
               <StoryPanel story={story} pair={selectedPair} />
             ) : (
               <div
-                className="bg-[#0f1d33] border border-[#1d3158] rounded-xl p-4 sm:p-5 text-sm text-gray-400 leading-snug"
+                className="rounded-xl p-4 sm:p-5 text-sm leading-snug"
+                style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid ${CHALK_RAIL}99`, color: CHALK_DIM }}
                 data-testid="guided-results-story-placeholder"
               >
                 {focal
@@ -458,7 +462,8 @@ export default function GuidedDiscoveryResults({
             type="button"
             onClick={() => onBackToBubbles?.()}
             data-testid="guided-results-back"
-            className="px-5 py-2.5 min-h-[44px] rounded-lg font-medium bg-[#1a2a4a] hover:bg-[#22345a] text-gray-200 border border-[#2c4470] transition-colors"
+            className="px-5 py-2.5 min-h-[44px] rounded-lg text-lg transition-colors"
+            style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.04)', color: CHALK_DIM, border: `1px solid ${CHALK_RAIL}` }}
           >
             ← Back to bubbles
           </button>
@@ -466,7 +471,8 @@ export default function GuidedDiscoveryResults({
             type="button"
             onClick={() => onExploreInNetwork?.({ chosenValue, filterType })}
             data-testid="guided-results-explore"
-            className="px-5 py-2.5 min-h-[44px] rounded-lg font-medium bg-cyan-500 hover:bg-cyan-400 text-white border border-cyan-300 shadow-[0_0_20px_rgba(56,189,248,0.35)] transition-colors"
+            className="px-5 py-2.5 min-h-[44px] rounded-lg text-lg transition-colors hover:brightness-95"
+            style={{ fontFamily: FONT, background: CHALK_CREAM, color: '#0a0a0a', border: `1px solid ${CHALK_CREAM}`, boxShadow: '0 0 20px rgba(245,239,222,0.25)' }}
           >
             Explore in the network →
           </button>
