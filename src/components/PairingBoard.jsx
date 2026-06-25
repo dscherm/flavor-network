@@ -116,6 +116,8 @@ export default function PairingBoard({
   ctx = {},
   width = 360,
   height = 480,
+  bridges = [],          // PAIR-LAB-P3a: [{a,b}] partner pairs that also pair
+  highlightGroup = null, // PAIR-LAB-P3d: bucket label to star (e.g. season-now)
   onSelectPartner,
   onPeek,
 }) {
@@ -162,13 +164,39 @@ export default function PairingBoard({
       c.stroke();
     }
 
-    // Bucket labels (categorical lenses).
+    // Bridge arcs (P3a): a faint dashed curve between two partners that
+    // also pair with each other — a 3-ingredient trio with the center.
+    if (bridges && bridges.length) {
+      c.save();
+      c.setLineDash([4, 4]);
+      c.lineWidth = 1;
+      c.strokeStyle = 'rgba(245,239,222,0.3)';
+      for (const br of bridges) {
+        const pa = pos.get(br.a);
+        const pb = pos.get(br.b);
+        if (!pa || !pb) continue;
+        const mx = (pa.x + pb.x) / 2;
+        const my = (pa.y + pb.y) / 2;
+        const dx = mx - cx;
+        const dy = my - cy;
+        const len = Math.hypot(dx, dy) || 1;
+        c.beginPath();
+        c.moveTo(pa.x, pa.y);
+        c.quadraticCurveTo(mx + (dx / len) * 24, my + (dy / len) * 24, pb.x, pb.y);
+        c.stroke();
+      }
+      c.restore();
+    }
+
+    // Bucket labels (categorical lenses). A highlighted bucket (e.g. the
+    // current season) gets a star + a slightly larger label.
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     for (const lab of labels) {
-      c.font = `600 16px ${FONT}`;
+      const hi = highlightGroup && lab.text === highlightGroup;
+      c.font = `600 ${hi ? 18 : 16}px ${FONT}`;
       c.fillStyle = lab.color;
-      c.fillText(lab.text, lab.x, lab.y);
+      c.fillText(hi ? `★ ${lab.text}` : lab.text, lab.x, lab.y);
     }
 
     // Partner nodes + names.
@@ -206,7 +234,7 @@ export default function PairingBoard({
       c.fillStyle = CHALK_CREAM;
       c.fillText(center, cx, cy);
     }
-  }, [partners, center, cx, cy, width, height]);
+  }, [partners, center, cx, cy, width, height, bridges, highlightGroup]);
 
   // ── (re)layout + tween whenever inputs change ────────────────────────
   useEffect(() => {
@@ -308,7 +336,7 @@ export default function PairingBoard({
         aria-label={center ? `Partners of ${center}` : 'Partners'}
       >
         {partners.map((p) => (
-          <li key={p.name}>
+          <li key={p.name} style={canvasOk ? undefined : { display: 'flex', gap: 8, alignItems: 'center' }}>
             <button
               type="button"
               onClick={() => onSelectPartner?.(p.name)}
@@ -319,6 +347,19 @@ export default function PairingBoard({
             >
               {p.name}
             </button>
+            {onPeek && (
+              <button
+                type="button"
+                aria-label={`Details for ${p.name}`}
+                onClick={() => onPeek(p.name)}
+                style={canvasOk ? undefined : {
+                  background: 'none', border: `1px solid ${CHALK_DIM}`, color: CHALK_DIM,
+                  fontFamily: SANS, fontSize: 13, borderRadius: 10, padding: '2px 8px', cursor: 'pointer',
+                }}
+              >
+                ⋯
+              </button>
+            )}
           </li>
         ))}
       </ul>
