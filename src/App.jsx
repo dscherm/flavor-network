@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef, Suspense } from 'rea
 import useProData from './hooks/useProData.js';
 import { topAffinities } from './data/affinityTiers.js';
 import { lazyWithRetry } from './utils/lazyWithRetry.js';
-const MoleculeLab = lazyWithRetry(() => import('./components/MoleculeLab.jsx'));
+// Molecule Lab (molecular-structure viewer) retired 2026-06-25.
 // MoleculeOfTheDay shelved — the floating card is no longer mounted, but
 // the component + fetch logic stay in src/components/MoleculeOfTheDay.jsx
 // so we can re-surface it as a feature later (e.g. as a card on the
@@ -294,10 +294,6 @@ export default function App() {
   // Make-a-Recipe: MakeRecipeStart's 4-card router (existing / scratch /
   // photo / weblink) commits straight to the Recipe Notebook. The former
   // Stage-2 chalkboard cards-grid was removed per user request.
-  const [moleculeLabOpen, setMoleculeLabOpen] = useState(false);
-  // SMILES to seed the Molecule Lab with on open (set when user clicks
-  // "Open in Molecule Lab" on the Molecule of the Day card).
-  const [moleculeLabPreset, setMoleculeLabPreset] = useState('');
   const [labDropdownOpen, setLabDropdownOpen] = useState(false);
   const [exploreDropdownOpen, setExploreDropdownOpen] = useState(false);
   // Desktop Network-button dropdown — same dual-role behavior as
@@ -814,7 +810,6 @@ export default function App() {
     clearStartPageFlag();
     setStartPageComplete(false);
     setHowItWorksInitialOpen(false);
-    setMoleculeLabOpen(false);
     setActiveTab('network');
     setLandingPick(null);
   }, []);
@@ -1542,27 +1537,7 @@ export default function App() {
                     </svg>
                     Sauce Lab
                   </button>
-                  <button
-                    role="menuitem"
-                    onClick={() => { setMoleculeLabOpen(v => !v); setNetworkDropdownOpen(false); }}
-                    className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                      moleculeLabOpen ? 'text-cyan-300 bg-cyan-500/10' : 'text-gray-400 hover:text-gray-200 hover:bg-[#1a1a2a]'
-                    }`}
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <circle cx="12" cy="12" r="2" />
-                      <circle cx="5" cy="6" r="1.5" />
-                      <circle cx="19" cy="6" r="1.5" />
-                      <circle cx="5" cy="18" r="1.5" />
-                      <circle cx="19" cy="18" r="1.5" />
-                      <line x1="6.2" y1="7" x2="10.8" y2="11" />
-                      <line x1="17.8" y1="7" x2="13.2" y2="11" />
-                      <line x1="6.2" y1="17" x2="10.8" y2="13" />
-                      <line x1="17.8" y1="17" x2="13.2" y2="13" />
-                    </svg>
-                    Molecule Lab
-                  </button>
-                  <div className="border-t border-[#2a2a3a]" />
+                  {/* Molecule Lab menu item retired 2026-06-25. */}
                   <button
                     role="menuitem"
                     onClick={() => {
@@ -2640,18 +2615,7 @@ export default function App() {
         />
       )}
 
-      {/* Molecule Lab — slide-out card */}
-      <Suspense fallback={null}>
-        <MoleculeLab
-          isOpen={moleculeLabOpen}
-          onClose={() => { setMoleculeLabOpen(false); setMoleculeLabPreset(''); }}
-          selectedNodes={selectedNodes}
-          selectedNodesData={selectedNodes.map(n => data?.graph?.nodes?.get(n)).filter(Boolean)}
-          graphNodes={data?.graph?.nodes}
-          onSelectIngredient={handleSearchSelect}
-          initialSmiles={moleculeLabPreset}
-        />
-      </Suspense>
+      {/* Molecule Lab (molecular-structure viewer) retired 2026-06-25. */}
 
       {/* Molecule of the Day — shelved. The component, fetch logic, and
           card rendering live in src/components/MoleculeOfTheDay.jsx and
@@ -2799,12 +2763,8 @@ export default function App() {
           onOpenHowItWorks={() => setHowItWorksOpen(true)}
           onSelectLab={(id) => {
             // Bottom-bar Labs popover routes the same surfaces the
-            // floating LabsFab used to. 'molecule' opens the modal lab;
-            // every other id is an existing top-level activeTab.
-            if (id === 'molecule') {
-              setMoleculeLabOpen(true);
-              return;
-            }
+            // floating LabsFab used to — each id is a top-level activeTab.
+            // ('molecule' retired 2026-06-25 with the Molecule Lab.)
             if (id === 'cocktail') setCocktailMounted(true);
             if (id === 'sauce') setSauceMounted(true);
             if (id === 'recipe') setRecipeMounted(true);
