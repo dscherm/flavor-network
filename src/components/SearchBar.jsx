@@ -8,7 +8,7 @@ const MOBILE_HINTS = [
   'Search 4,488 ingredients...',
 ];
 
-function SearchBar({ ingredients, onSelect }) {
+function SearchBar({ ingredients, onSelect, inline = false }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -151,7 +151,12 @@ function SearchBar({ ingredients, onSelect }) {
   }, []);
 
   return (
-    <div className="search-container fixed left-1/2 -translate-x-1/2 z-[55] w-[calc(100%-5rem)] sm:w-72 md:w-88" style={{ top: 'var(--nav-h)' }}>
+    <div
+      className={inline
+        ? 'search-container relative w-full z-[55]'
+        : 'search-container fixed left-1/2 -translate-x-1/2 z-[55] w-[calc(100%-5rem)] sm:w-72 md:w-88'}
+      style={inline ? undefined : { top: 'var(--nav-h)' }}
+    >
       <input
         ref={inputRef}
         id="ingredient-search-input"
