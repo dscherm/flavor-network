@@ -24,6 +24,7 @@
 import { useCallback, useState } from 'react';
 import SearchBar from './SearchBar.jsx';
 import GuidedFilterTypeCard from './GuidedFilterTypeCard.jsx';
+import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
 const SUGGESTION_POOL = ['chicken', 'onion', 'basil', 'vanilla'];
 
@@ -52,24 +53,24 @@ export default function GuidedDiscoverySwipe({ ingredients = [], onComplete }) {
   return (
     <div
       className="flex flex-col items-center w-full min-h-screen px-4 pt-8 pb-12"
-      style={{ backgroundColor: '#0d1f38' }}
+      style={{ ...chalkSurfaceStyle(), color: CHALK_CREAM }}
       data-testid="guided-discovery-swipe"
     >
       <div className="w-full max-w-4xl">
-        <h1 className="text-2xl sm:text-3xl text-white text-center font-bold tracking-tight mb-2">
+        <h1 className="text-3xl sm:text-4xl text-center mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
           I'm thinking about pairing that…
         </h1>
-        <p className="text-sm text-[#9bb6da] text-center mb-6">
+        <p className="text-base text-center mb-6" style={{ fontFamily: FONT, color: CHALK_SUB }}>
           Two quick picks. Tap Got it to advance.
         </p>
 
         {step === 'ingredient' && (
           <div className="w-full max-w-xl mx-auto">
-            <h2 className="text-lg sm:text-xl font-bold text-white text-center mb-4">
+            <h2 className="text-2xl text-center mb-4" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
               Starts with a specific ingredient
             </h2>
-            <div className="rounded-xl border border-cyan-400/40 bg-[#12203b] p-5 sm:p-6 shadow-[0_0_24px_-8px_rgba(34,211,238,0.35)]">
-              <p className="text-xs text-gray-400 mb-3 text-center">
+            <div className="rounded-xl p-5 sm:p-6" style={{ background: 'rgba(255,255,255,0.025)', border: `2px double ${CHALK_RAIL}`, boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)' }}>
+              <p className="text-xs mb-3 text-center" style={{ color: CHALK_SUB }}>
                 Pick one — we'll start the wheel from here.
               </p>
               <div className="guided-search-inline relative mb-3">
@@ -82,7 +83,8 @@ export default function GuidedDiscoverySwipe({ ingredients = [], onComplete }) {
                 <button
                   type="button"
                   onClick={handleSuggestRandom}
-                  className="px-4 py-2 text-xs font-medium rounded-full bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 hover:bg-cyan-500/30 transition-colors"
+                  className="px-4 py-2 text-sm rounded-full transition-colors"
+                  style={{ fontFamily: FONT, background: 'rgba(245,239,222,0.12)', color: CHALK_CREAM, border: `1px solid ${CHALK_DIM}88` }}
                 >
                   Suggest one for me
                 </button>
@@ -102,10 +104,11 @@ export default function GuidedDiscoverySwipe({ ingredients = [], onComplete }) {
                 onClick={handleIngredientGotIt}
                 disabled={!ingredient}
                 aria-disabled={!ingredient ? 'true' : 'false'}
-                className="px-8 py-3 rounded-full font-semibold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-8 py-3 rounded-full text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  background: ingredient ? '#60a5fa' : 'rgba(42, 42, 58, 1)',
-                  color: ingredient ? '#0a0a0f' : 'rgba(100, 100, 120, 1)',
+                  fontFamily: FONT,
+                  background: ingredient ? CHALK_CREAM : 'rgba(255,255,255,0.04)',
+                  color: ingredient ? '#0a0a0a' : CHALK_SUB,
                 }}
               >
                 Got it
