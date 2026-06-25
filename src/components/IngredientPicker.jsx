@@ -699,7 +699,7 @@ export default function IngredientPicker({
                       <span className="truncate flex-1">{ing.name}</span>
                       {isAlready && (
                         <span
-                          className="text-[10px] px-1.5 py-0 rounded-md flex-shrink-0"
+                          className="text-[12px] px-1.5 py-0 rounded-md flex-shrink-0"
                           style={{
                             color: '#fde68a',
                             background: 'rgba(252, 211, 77, 0.12)',
@@ -710,7 +710,7 @@ export default function IngredientPicker({
                         </span>
                       )}
                       <span
-                        className="text-[11px] tabular-nums flex-shrink-0"
+                        className="text-[13px] tabular-nums flex-shrink-0"
                         style={{ color: CHALK_SUB }}
                       >
                         {ing.pairingCount}

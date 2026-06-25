@@ -29,19 +29,10 @@ import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
 import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSimilarity.js';
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 import HelpBubble from './HelpBubble.jsx';
+// CK-14: fold the duplicated chalkboard palette onto the shared theme.
+import { FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL as CHALK_BORDER_OUTER } from '../data/chalkTheme.js';
 
-const FONT = 'Caveat, cursive';
-
-// ── Chalkboard palette (copied from IngredientProfileCard) ───────────
-const CHALK_BG = `
-  radial-gradient(ellipse at center, #1c1c1c 0%, #0a0a0a 75%, #050505 100%),
-  #0a0a0a
-`;
-const CHALK_BORDER_OUTER = '#4a4a4a';
 const CHALK_BORDER_INNER = '#6a6a6a';
-const CHALK_CREAM = '#f5efde';
-const CHALK_DIM = '#bdb6a3';
-const CHALK_SUB = '#8a8478';
 const CHALK_TEXT_SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
 
 // Chalk-green pill (Boost/Temper chips + pairing names) — matches the Add pill.

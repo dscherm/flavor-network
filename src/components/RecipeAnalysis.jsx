@@ -8,7 +8,7 @@ function Section({ title, icon, children, defaultOpen = false }) {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 w-full text-left py-1 hover:bg-[#f0e8d0] rounded transition-colors"
       >
-        <span className="text-xs" style={{ color: '#8a7a5a' }}>{open ? '\u25BE' : '\u25B8'}</span>
+        <span className="text-[13px]" style={{ color: '#8a7a5a' }}>{open ? '\u25BE' : '\u25B8'}</span>
         <span className="text-sm font-bold" style={{ color: '#5a4a2a' }}>{icon} {title}</span>
       </button>
       {open && <div className="pl-3 pb-1">{children}</div>}
@@ -54,7 +54,7 @@ export default function RecipeAnalysis({ analysis }) {
               <span className="text-sm" style={{ color: '#3a3428' }}>
                 {pair[0]} + {pair[1]}
               </span>
-              <span className="text-xs ml-auto" style={{ color: '#9a8a6a' }}>{reason}</span>
+              <span className="text-[13px] ml-auto" style={{ color: '#9a8a6a' }}>{reason}</span>
             </div>
           ))}
         </Section>
@@ -65,7 +65,7 @@ export default function RecipeAnalysis({ analysis }) {
           {unusual.map(({ ingredient, note }) => (
             <div key={ingredient} className="py-0.5">
               <span className="text-sm font-bold" style={{ color: '#8a4a4a' }}>{ingredient}</span>
-              <p className="text-xs" style={{ color: '#8a7a5a' }}>{note}</p>
+              <p className="text-[13px]" style={{ color: '#8a7a5a' }}>{note}</p>
             </div>
           ))}
         </Section>
@@ -77,7 +77,7 @@ export default function RecipeAnalysis({ analysis }) {
             <div key={name} className="flex items-center gap-1.5 py-0.5">
               <StrengthBadge value={avgStrength} />
               <span className="text-sm" style={{ color: '#3a3428' }}>{name}</span>
-              <span className="text-xs ml-auto" style={{ color: '#9a8a6a' }}>{reason}</span>
+              <span className="text-[13px] ml-auto" style={{ color: '#9a8a6a' }}>{reason}</span>
             </div>
           ))}
         </Section>
@@ -91,9 +91,9 @@ export default function RecipeAnalysis({ analysis }) {
                 <span style={{ color: '#8a4a4a' }}>{remove}</span>
                 <span style={{ color: '#9a8a6a' }}>{'\u2192'}</span>
                 <span style={{ color: '#4a8a4a' }}>{addInstead}</span>
-                <span className="ml-auto text-xs font-bold" style={{ color: '#4a8a4a' }}>+{improvement}%</span>
+                <span className="ml-auto text-[13px] font-bold" style={{ color: '#4a8a4a' }}>+{improvement}%</span>
               </div>
-              <p className="text-xs" style={{ color: '#8a7a5a' }}>{reason}</p>
+              <p className="text-[13px]" style={{ color: '#8a7a5a' }}>{reason}</p>
             </div>
           ))}
         </Section>
@@ -107,7 +107,7 @@ export default function RecipeAnalysis({ analysis }) {
                 {structureAdvice.selectedMatch.name}: {structureAdvice.selectedMatch.confidence}%
               </span>
               {structureAdvice.selectedMatch.missing.length > 0 && (
-                <p className="text-xs" style={{ color: '#8a7a5a' }}>
+                <p className="text-[13px]" style={{ color: '#8a7a5a' }}>
                   Missing: {structureAdvice.selectedMatch.missing.join(', ')}
                 </p>
               )}

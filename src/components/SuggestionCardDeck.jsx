@@ -345,7 +345,7 @@ export default function SuggestionCardDeck({
           >
             ◀
           </button>
-          <span className="text-xs text-[#8a8478]">{Math.min(cardIdx + 1, items.length)} / {items.length}</span>
+          <span className="text-sm text-[#8a8478]">{Math.min(cardIdx + 1, items.length)} / {items.length}</span>
           <button
             onClick={nextCard}
             disabled={cardIdx + 1 >= items.length}
