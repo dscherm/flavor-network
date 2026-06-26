@@ -102,10 +102,6 @@ const TAB_TO_PATH = {
   recipe: 'notebook',
   cookbook: 'cookbook',
   pairing: 'pairing',
-  guided: 'guided',
-  'guided-results': 'guided',         // ephemeral; collapse to entry
-  'guided-pairing': 'guided',         // B-version Screen 3; collapse to entry
-  'guided-details': 'guided',         // B-version Screen 2 (α-details); collapse to entry
   make: 'make',
   labs: 'labs',
   profile: 'profile',
@@ -119,7 +115,6 @@ const PATH_TO_TAB = Object.fromEntries(
     cookbook: 'cookbook',
     recipes: 'cookbook',  // back-compat alias for pre-rename shared URLs
     pairing: 'pairing',
-    guided: 'guided',
     build: 'make',        // MAKE-BUILD-DEPRECATE: legacy ?path=build → make
     make: 'make',
     labs: 'labs',
@@ -191,7 +186,7 @@ export default function App() {
     // resolves to the network for anyone with the link.
     return PATH_TO_TAB[path] || 'make';
   })();
-  const [activeTab, setActiveTab] = useState(initialTab); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'guided' | 'guided-results' | 'build' | 'profile' | 'cookbook'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'network' | 'cocktail' | 'sauce' | 'recipe' | 'make' | 'labs' | 'profile' | 'cookbook' | 'pairing'
   // PERF-LAZY-NETWORK — mount latch for the code-split LivingArchView.
   // Starts true only on a deep-link to the network (?path=explore);
   // otherwise flips true the first time the user visits the Network tab
@@ -240,20 +235,6 @@ export default function App() {
     }
   }, [activeTab]);
 
-  // Phase 3 Guided Discovery — bubbleStack is plumbed at the App level
-  // so GuidedDiscoveryStart can hand off to GuidedDiscoveryResults
-  // without losing state on tab flip. Per Constraint #4, the only
-  // place setFilterStack is called from a Guided context is
-  // onExploreInNetwork below (the canonical bridge).
-  const [bubbleStack, setBubbleStack] = useState([]);
-  // Track 3 / P5 — GuidedDiscoverySwipe's new `{ ingredient, filterType }`
-  // payload feeds GuidedDiscoveryResults' initial pill via this state.
-  const [guidedInitialFilterType, setGuidedInitialFilterType] = useState(null);
-  // Phase 5 (2026-05-16) — Build path mirrors bubbleStack but the
-  // ingredient bubble's value carries a `{ingredients: string[]}`
-  // array instead of `{ingredient: string}`. Kept separate from the
-  // Guided bubbleStack so the two flows don't cross-contaminate
-  // state if the user bounces between them.
   // externalLabFilter is passed to Cocktail/Sauce/Recipes labs when
   // bridging from the Build flow. Pill state in the destination lab
   // reads this prop on mount.
@@ -1041,27 +1022,6 @@ export default function App() {
       if (tab === 'cocktail') setCocktailMounted(true);
       if (tab === 'recipe') setRecipeMounted(true);
     };
-    // Guided Discovery harness — drives the swipe screen to the
-    // results screen for the qa-guided-alpha-view probe.
-    // __qaGuidedPickIngredient(name) jumps the user straight from
-    // Step 1 (swipe) to Step 3 (Affinity View) with the named
-    // ingredient as the focal. Mirrors the production onComplete
-    // path that GuidedDiscoverySwipe invokes when the user picks an
-    // ingredient + filter type.
-    window.__qaGuidedPickIngredient = (name, filterType = 'aroma') => {
-      setBubbleStack([{
-        key: 'ingredient',
-        label: `Focal Flavor: ${name}`,
-        value: { ingredient: name },
-        axisHint: null,
-      }]);
-      setGuidedInitialFilterType(filterType || null);
-      setActiveTab('guided-results');
-    };
-    // No-op shim — the swipe step is bypassed by
-    // __qaGuidedPickIngredient. Kept so the test reads cleanly
-    // ("§B pick → §C skip swipe → §D step 3").
-    window.__qaGuidedSkipSwipe = () => {};
   }, []);
 
   const handlePanelClose = useCallback(() => {
@@ -1447,7 +1407,7 @@ export default function App() {
           Mounts when pairingModeFocal is set. Back / Esc clears the
           focal which dismisses the overlay. α-mode entry from this
           surface is REMOVED; α-mode survives for Guided Step 2. */}
-      {pairingModeFocal && data?.graph?.nodes && activeTab !== 'guided-pairing' && activeTab !== 'guided-details' && detailsCardMode && (
+      {pairingModeFocal && data?.graph?.nodes && detailsCardMode && (
         <AlphaModeDetailsCard
           focal={pairingModeFocal}
           ctx={{
@@ -1459,7 +1419,7 @@ export default function App() {
           onSelectPairing={() => setDetailsCardMode(false)}
         />
       )}
-      {pairingModeFocal && data?.graph?.nodes && activeTab !== 'guided-pairing' && activeTab !== 'guided-details' && !detailsCardMode && (
+      {pairingModeFocal && data?.graph?.nodes && !detailsCardMode && (
         <PairingMode
           focal={pairingModeFocal}
           ctx={{
