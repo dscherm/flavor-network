@@ -17,12 +17,13 @@
  */
 import { useState, useMemo, useEffect, useRef } from 'react';
 import SearchBar from './SearchBar.jsx';
-import BottomSheet from './BottomSheet.jsx';
 import PairingBoard from './PairingBoard.jsx';
+import PairingModeCard from './PairingModeCard.jsx';
 import {
   LENSES, LENS_LABELS, egoNeighborhood, lensInsight, groupByLens,
   sharedNeighborhood, surprisingNeighborhood, partnerBridges,
 } from '../data/pairingEgoModel.js';
+import { buildPairingCardProps } from '../data/pairingCardData.js';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
@@ -258,7 +259,9 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
       {/* Build-a-plate tray */}
       {tray.length > 0 && (
         <div data-testid="tray-bar" style={{ borderTop: `1px solid ${CHALK_RAIL}`, padding: '8px 12px', background: 'rgba(10,10,10,0.6)' }}>
-          <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, marginBottom: 4 }}>Plate ({tray.length}): {tray.join(', ')}</div>
+          <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, marginBottom: 4 }}>
+            Your plate · {tray.length} pick{tray.length === 1 ? '' : 's'}: {tray.join(', ')} — send to a lab to build with them:
+          </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <button type="button" data-testid="tray-send-cocktail" style={chip()} onClick={() => onFindCocktail?.(tray, center)}>🍸 Cocktail</button>
             <button type="button" data-testid="tray-send-sauce" style={chip()} onClick={() => onFindSauce?.(tray, center)}>🥣 Sauce</button>
@@ -268,33 +271,48 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
         </div>
       )}
 
-      {/* Partner peek — enriched with provenance + ★ tier + why-line */}
-      <BottomSheet isOpen={!!peek} onClose={() => setPeek(null)} title={peek || ''}>
-        {peekNode ? (
-          <div style={{ fontFamily: SANS, fontSize: 14, color: CHALK_CREAM, lineHeight: 1.5 }}>
-            {peekPartner && (
-              <div data-testid="peek-insight" style={{ marginBottom: 6, color: CHALK_DIM }}>
-                <span style={{ color: CHALK_CREAM }}>{strengthTier(peekPartner.strength, data?.affinityThresholds)}</span>
-                {' '}pairs with <strong>{center}</strong> via {PROV_LABEL[peekPartner.provenance] || 'shared chemistry'}.
-              </div>
-            )}
-            {peekNode.taste && <div><strong>Taste:</strong> {peekNode.taste}</div>}
-            {Array.isArray(peekNode.cuisines) && peekNode.cuisines.length > 0 && (
-              <div><strong>Cuisines:</strong> {peekNode.cuisines.join(', ')}</div>
-            )}
-            {Array.isArray(peekNode.flavorGraph?.tier1) && peekNode.flavorGraph.tier1.length > 0 && (
-              <div><strong>Aroma:</strong> {peekNode.flavorGraph.tier1.join(', ')}</div>
-            )}
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 12 }}>
-              <button type="button" data-testid="peek-center" style={chip()} onClick={() => { if (peek) recenter(peek); setPeek(null); }}>Center on {peek}</button>
-              <button type="button" data-testid="peek-pair" style={chip()} onClick={() => { setCompareWith(peek); setPeek(null); }}>🔗 Pair with {center}</button>
+      {/* Partner / focus pairing card — the rich Guided card (analysis,
+          shared compounds, profile radar), no swipe deck. Opened by a
+          tap-then-details on a partner, or a long-press on the focus oval
+          (peek === center → the focus ingredient's own profile). */}
+      {peek && peekNode && (
+        <div
+          data-testid="pairing-card-overlay"
+          className="fixed inset-0 flex items-center justify-center bg-black/75 p-3"
+          style={{ zIndex: 150 }}
+          onClick={() => setPeek(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="flex flex-col items-center gap-3 max-h-full overflow-y-auto py-2"
+          >
+            <PairingModeCard
+              {...buildPairingCardProps(center, peek, data, {
+                strength: peek === center ? null : (peekPartner?.strength ?? null),
+                lens,
+              })}
+            />
+            <div
+              data-testid="peek-insight"
+              style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM, textAlign: 'center', maxWidth: 360 }}
+            >
+              {peek === center
+                ? `${peek} — its own flavor profile.`
+                : `${strengthTier(peekPartner?.strength, data?.affinityThresholds)} pairs with ${center} via ${PROV_LABEL[peekPartner?.provenance] || 'shared chemistry'}.`}
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {peek !== center && (
+                <button type="button" data-testid="peek-center" style={chip()} onClick={() => { recenter(peek); setPeek(null); }}>Center on {peek}</button>
+              )}
+              {peek !== center && (
+                <button type="button" data-testid="peek-pair" style={chip()} onClick={() => { setCompareWith(peek); setPeek(null); }}>🔗 Pair with {center}</button>
+              )}
               <button type="button" data-testid="peek-add" style={chip()} onClick={() => { addToTray(peek); setPeek(null); }}>➕ Add to plate</button>
+              <button type="button" data-testid="peek-close" style={{ ...chip(), color: CHALK_DIM }} onClick={() => setPeek(null)}>Close</button>
             </div>
           </div>
-        ) : (
-          <div style={{ fontFamily: SANS, color: CHALK_SUB }}>No details available.</div>
-        )}
-      </BottomSheet>
+        </div>
+      )}
     </div>
   );
 }

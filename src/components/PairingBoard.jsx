@@ -254,6 +254,9 @@ export default function PairingBoard({
       c.font = `700 30px ${FONT}`;
       const w = Math.max(c.measureText(center).width + 40, 100);
       const h = 58;
+      // Make the focus oval a hit target too: a long-press here peeks the
+      // center ingredient's own profile card (PAIR-LAB consolidation).
+      hitsRef.current.push({ name: center, x: cx, y: cy, r: Math.max(w, h) / 2 });
       const ell = (rx, ry) => {
         c.beginPath();
         if (c.ellipse) c.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
