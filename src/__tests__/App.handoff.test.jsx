@@ -179,7 +179,6 @@ vi.mock('../hooks/useAuth.js', () => ({
 vi.mock('../data/affinityTiers.js',       () => ({ topAffinities: () => [] }));
 vi.mock('../data/graph.js',               () => ({ getNeighbors: () => [], getNeighborsEnriched: () => [], findStrongestPath: () => [] }));
 vi.mock('../data/metadata.js',            () => ({ getAllCuisines: () => [], getAllTastes: () => [] }));
-vi.mock('../data/guidedDiscovery.js',     () => ({ deriveFilterStackFromBubbles: () => ({}) }));
 vi.mock('../data/networkModes.js',        () => ({
   MODE_CYCLE: ['network'], MODE_LABELS: { network: 'Network' },
   MODE_TO_AXIS: {}, FILTER_TO_AXIS: {}, morphAxisForStack: () => 'network',
