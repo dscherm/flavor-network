@@ -27,11 +27,9 @@ vi.mock('../NetworkScene.jsx', () => ({
 
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import LandingScreen from '../LandingScreen.jsx';
-import GuidedDiscoverySwipe from '../GuidedDiscoverySwipe.jsx';
 import MultiAxisRadarStack from '../MultiAxisRadarStack.jsx';
 import CookbookLab from '../CookbookLab.jsx';
 import TourPopup from '../TourPopup.jsx';
-import { BUBBLE_REGISTRY } from '../../data/guidedDiscovery.js';
 import { STAGES } from '../../data/guidedTourStages.js';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
 
@@ -146,50 +144,9 @@ describe('§1 — Landing page', () => {
   });
 });
 
-// ──────────────────────── §2 — Guided Discovery ────────────────────────
-
-describe('§2.A — Guided card mechanic', () => {
-  it('2.A.1 SwipeDeck shows one card at a time (centered, Yes/No)', () => {
-    render(<GuidedDiscoverySwipe ingredients={SAMPLE_INGREDIENTS} />);
-    // First card is the ingredient card — title is "Starts with a specific ingredient"
-    expect(screen.getByText('Starts with a specific ingredient')).toBeInTheDocument();
-    // Other cards should NOT be visible
-    expect(screen.queryByText('Goes with a season')).toBeNull();
-  });
-
-  it('2.A.2 ingredient card has NO rejection gesture, has explicit confirm (required)', () => {
-    // Track 3 P5 (2026-05-18): the swipe-deck Yes/No pair was replaced by
-    // a single "Got it" confirm button. The intent — no rejection gesture
-    // on the ingredient card, only an explicit confirm — is preserved.
-    render(<GuidedDiscoverySwipe ingredients={SAMPLE_INGREDIENTS} />);
-    expect(screen.queryByTestId('swipe-deck-no-ingredient')).toBeNull();
-    expect(screen.getByRole('button', { name: /got it/i })).toBeInTheDocument();
-  });
-
-  it('2.A.3 ingredient card has "Suggest one for me" fallback', () => {
-    render(<GuidedDiscoverySwipe ingredients={SAMPLE_INGREDIENTS} />);
-    expect(screen.getByText('Suggest one for me')).toBeInTheDocument();
-  });
-
-  it('2.A.3 clicking "Suggest one" picks from [chicken, onion, basil, vanilla]', () => {
-    const { container } = render(<GuidedDiscoverySwipe ingredients={SAMPLE_INGREDIENTS} />);
-    fireEvent.click(screen.getByText('Suggest one for me'));
-    // Picked name lands in <strong className="text-emerald-200">{name}</strong>.
-    const strongs = Array.from(container.querySelectorAll('strong.text-emerald-200'));
-    expect(strongs.length).toBeGreaterThan(0);
-    const picked = strongs[0].textContent;
-    expect(['chicken', 'onion', 'basil', 'vanilla']).toContain(picked);
-  });
-
-  it('2.A.4 Guided deck has 7 cards (cocktail + sauce excluded)', () => {
-    // The deck cycles through cards; verify the registry filter is applied.
-    // Total registry is 9; Guided should exclude cocktail + sauce → 7.
-    const registry = BUBBLE_REGISTRY;
-    expect(registry).toHaveLength(9);
-    const guided = registry.filter((b) => !['cocktail', 'sauce'].includes(b.key));
-    expect(guided).toHaveLength(7);
-  });
-});
+// §2.A — Guided card mechanic: removed 2026-06-26 with the Guided flow
+// (GuidedDiscoverySwipe + BUBBLE_REGISTRY deleted). The tour-stage tests
+// below (§2.D–§2.I) use guidedTourStages, which is KEPT for the tours.
 
 describe('§2.B–§2.C — Results page', () => {
   function buildMockNodes() {
