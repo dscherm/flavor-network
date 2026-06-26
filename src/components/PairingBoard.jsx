@@ -79,20 +79,24 @@ function computeLayout(partners, lens, ctx, cx, cy, minDim) {
     return { targets, labels };
   }
 
-  // Categorical: spokes per bucket.
+  // Categorical: each bucket owns an angular SECTOR; its members fan
+  // across that sector on an outer ring (so nothing crowds the center),
+  // with a small radial stagger so adjacent node labels don't collide.
   const groups = groupByLens(partners, lens, ctx);
   const G = groups.length || 1;
-  const rStart = 0.27 * minDim; // start spokes well outside the center oval
-  const rEnd = 0.48 * minDim;
-  // Small angular fan so multiple members on one spoke don't stack their
-  // labels on a single radial line (reduces the crowded-center look).
-  const fan = G > 1 ? Math.min(0.18, Math.PI / (G * 2.2)) : 0.14;
+  const rMid = 0.40 * minDim;             // members sit on this ring
+  const stagger = 0.05 * minDim;          // alternate radius to de-overlap labels
+  const sectorW = 2 * Math.PI / G;
   groups.forEach((g, gi) => {
-    const baseAng = -Math.PI / 2 + (gi * 2 * Math.PI) / G;
+    const sectorCenter = -Math.PI / 2 + gi * sectorW;
     const M = g.members.length;
+    // Members span up to 70% of the sector width (leaves a gap between
+    // buckets); a lone member sits dead-center on the sector.
+    const span = Math.min(sectorW * 0.7, 1.0);
     g.members.forEach((p, mi) => {
-      const r = M > 1 ? rStart + (mi * (rEnd - rStart)) / (M - 1) : (rStart + rEnd) / 2;
-      const ang = baseAng + (M > 1 ? (mi - (M - 1) / 2) * fan / M : 0);
+      const t = M > 1 ? (mi / (M - 1)) - 0.5 : 0; // -0.5 … 0.5 across the arc
+      const ang = sectorCenter + t * span;
+      const r = rMid + (mi % 2 === 0 ? 0 : stagger);
       targets.set(p.name, {
         x: cx + r * Math.cos(ang),
         y: cy + r * Math.sin(ang),
@@ -101,12 +105,11 @@ function computeLayout(partners, lens, ctx, cx, cy, minDim) {
         group: g.label,
       });
     });
-    const ang = baseAng;
-    const lr = rEnd + 0.05 * minDim;
+    const lr = rMid + 0.115 * minDim; // bucket label just outside the ring
     labels.push({
       text: g.label,
-      x: cx + lr * Math.cos(ang),
-      y: cy + lr * Math.sin(ang),
+      x: cx + lr * Math.cos(sectorCenter),
+      y: cy + lr * Math.sin(sectorCenter),
       color: g.color,
     });
   });
