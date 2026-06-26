@@ -61,26 +61,22 @@ function PairingVisual() {
   );
 }
 
-function GuidedVisual() {
-  // Thought bubble + spark — Guided Discovery's universal cue.
+function LabsVisual() {
+  // Erlenmeyer flask + glowing bubbles — the Labs cue (echoes the Labs
+  // flask icon in the bottom bar).
   return (
     <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
       <path
-        d="M 26 28 Q 26 18 38 18 L 70 18 Q 82 18 82 30 Q 82 42 70 42 L 50 42 L 38 56 L 38 42 Q 26 42 26 30 Z"
-        fill="rgba(52,211,153,0.18)" stroke="rgb(52,211,153)" strokeWidth="2"
+        d="M 42 20 L 42 44 L 26 76 Q 24 82 32 82 L 68 82 Q 76 82 74 76 L 58 44 L 58 20"
+        fill="rgba(52,211,153,0.16)" stroke="rgb(52,211,153)" strokeWidth="2.5" strokeLinejoin="round"
       />
-      <circle cx="32" cy="68" r="3" fill="rgba(52,211,153,0.6)" />
-      <circle cx="22" cy="78" r="2" fill="rgba(52,211,153,0.45)" />
-      <circle cx="14" cy="86" r="1.4" fill="rgba(52,211,153,0.3)" />
-      <circle cx="46" cy="30" r="2.2" fill="rgb(125,186,94)"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(125,186,94,0.8))' }}
-      />
-      <circle cx="56" cy="30" r="2.2" fill="rgb(125,186,94)"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(125,186,94,0.8))' }}
-      />
-      <circle cx="66" cy="30" r="2.2" fill="rgb(125,186,94)"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(125,186,94,0.8))' }}
-      />
+      <line x1="38" y1="20" x2="62" y2="20" stroke="rgb(52,211,153)" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="44" cy="66" r="4" fill="rgb(245,158,11)"
+        style={{ filter: 'drop-shadow(0 0 4px rgba(245,158,11,0.85))' }} />
+      <circle cx="57" cy="70" r="3.5" fill="rgb(236,72,153)"
+        style={{ filter: 'drop-shadow(0 0 4px rgba(236,72,153,0.85))' }} />
+      <circle cx="50" cy="59" r="3" fill="rgb(34,211,238)"
+        style={{ filter: 'drop-shadow(0 0 4px rgba(34,211,238,0.85))' }} />
     </svg>
   );
 }
@@ -151,11 +147,11 @@ function _RemovedLegacyChefHatVisual() {
 // B-version P5 — spec'd order: Guided (1) → Make (2) → Network (3).
 const TILES = [
   {
-    id: 'guided',
-    label: 'Guided Discovery',
-    subheadline: 'You want a guided tour to discover ways of exploring ingredient pairings and why they pair well.',
+    id: 'labs',
+    label: 'The Labs',
+    subheadline: 'Explore the kitchen labs — cocktails, sauces, the cookbook, the pairing map, and the recipe notebook.',
     accent: '#34d399',
-    Visual: GuidedVisual,
+    Visual: LabsVisual,
   },
   {
     id: 'make',
