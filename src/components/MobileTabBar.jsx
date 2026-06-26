@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 
-// Labs popover destinations. The molecular surfaces — the network "Model"
-// tab and the "Molecule Lab" compound inspector — are parked (2026-06-23)
-// until they earn their place; restore them together with the landing tile.
+// Labs popover destinations. The Flavor Network (the 3D pairing map) is
+// surfaced here again (2026-06-25) now that the Pairing Lab gives it a
+// clear purpose + an on-ramp; the "Molecule Lab" compound inspector
+// remains retired.
 const LABS = [
   { id: 'cookbook', label: 'Cookbook',         desc: 'Browse saved recipes' },
   { id: 'cocktail', label: 'Cocktail Lab',     desc: 'Mix a drink' },
   { id: 'sauce',    label: 'Sauce Lab',        desc: 'Build a sauce' },
   { id: 'pairing',  label: 'Pairing Lab',      desc: 'Explore flavor pairings' },
+  { id: 'network',  label: 'Flavor Network',   desc: 'The full 3D pairing map' },
   { id: 'recipe',   label: 'Recipe Notebook',  desc: 'Handwritten notebook' },
   { id: 'profile',  label: 'Profile',          desc: 'Saved recipes & insights' },
 ];
