@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import HowItWorks from '../HowItWorks.jsx';
 
@@ -24,5 +24,14 @@ describe('HowItWorks — gestures section (HELP-3)', () => {
   it('renders nothing of the modal body when closed', () => {
     render(<HowItWorks isOpen={false} onClose={vi.fn()} showButton={false} />);
     expect(screen.queryByTestId('howitworks-gestures')).toBeNull();
+  });
+
+  it('the explore-network teaser closes the card and fires onExploreNetwork', () => {
+    const onClose = vi.fn();
+    const onExploreNetwork = vi.fn();
+    render(<HowItWorks isOpen onClose={onClose} onExploreNetwork={onExploreNetwork} showButton={false} />);
+    fireEvent.click(screen.getByTestId('howitworks-explore-network'));
+    expect(onClose).toHaveBeenCalled();
+    expect(onExploreNetwork).toHaveBeenCalled();
   });
 });

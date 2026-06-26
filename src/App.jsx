@@ -2046,13 +2046,11 @@ export default function App() {
           setTourActive(true);
         }}
       />
-      <HowItWorks
-        initialOpen={howItWorksInitialOpen}
-        isOpen={howItWorksOpen}
-        onRequestOpen={() => setHowItWorksOpen(true)}
-        onClose={() => setHowItWorksOpen(false)}
-        showButton={activeTab !== 'network'}
-      />
+      {/* HowItWorks mount MOVED to a top-level position (just before the
+          bottom tab bar). It was nested inside the Network tab's
+          opacity-toggle wrapper, so on every non-network tab the wrapper's
+          opacity-0 hid the dialog — that's why "How it works" only opened
+          with the network surface visible. */}
       <TrainingTraceModal
         isOpen={trainingTraceOpen}
         onClose={handleTrainingTraceClose}
@@ -2808,6 +2806,17 @@ export default function App() {
           />
         )
       )}
+
+      {/* How it works — TOP-LEVEL mount (moved here 2026-06-26 so it
+          renders above every tab, not trapped in the network wrapper). */}
+      <HowItWorks
+        initialOpen={howItWorksInitialOpen}
+        isOpen={howItWorksOpen}
+        onRequestOpen={() => setHowItWorksOpen(true)}
+        onClose={() => setHowItWorksOpen(false)}
+        onExploreNetwork={() => { setHowItWorksOpen(false); setActiveTab('network'); }}
+        showButton={false}
+      />
 
       {/* Bottom tab bar — primary nav on BOTH mobile and web
           (2026-06-03; desktop top-nav was retired this rev). */}
