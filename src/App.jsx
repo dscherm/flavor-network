@@ -1589,24 +1589,11 @@ export default function App() {
             )}
           </div>
 
-          {/* Guided — promoted to top-level. Routes to GuidedDiscoveryStart. */}
-          <button
-            onClick={() => {
-              setActiveTab('guided');
-              setNetworkDropdownOpen(false);
-            }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'guided' || activeTab === 'guided-results' || activeTab === 'guided-pairing' || activeTab === 'guided-details'
-                ? 'text-pink-300 bg-pink-500/10 border border-pink-500/20'
-                : 'text-gray-500 hover:text-gray-300 border border-transparent'
-            }`}
-            aria-label="Guided Discovery"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Guided
-          </button>
+          {/* Guided Discovery retired from nav (2026-06-26) — the Labs
+              start tile + Pairing Lab replaced it. The guided screens
+              still exist but are no longer reachable from the UI; deep
+              code removal is a tracked follow-up (it's entangled with the
+              network PairingMode flow + the tour stage data). */}
 
           {/* Profile — icon-only, sits at the right edge of the nav block. */}
           <button
