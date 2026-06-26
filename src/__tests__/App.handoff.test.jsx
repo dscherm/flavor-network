@@ -366,25 +366,9 @@ describe('GD-TOUR-AFFINITY-ENGAGE — α-mode engagement on Guided handoff', () 
     expect(engageBlock[0]).toMatch(/setAffinityRequested\(true\)/);
   });
 
-  it('GuidedDiscoveryResults onAxisSelect handler sets affinityRequested=true alongside selectedNodes=[focal]', async () => {
-    const fs = await import('node:fs');
-    const path = await import('node:path');
-    const src = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/App.jsx'),
-      'utf8',
-    );
-    // Locate the onAxisSelect inline handler from the GuidedDiscoveryResults
-    // mount block by its distinctive tour-activation call. Signature is
-    // (axis) or (axis, chosenAxisKey) per GD-TOUR-AXIS-INTENT-CARRY.
-    const handlerMatch = src.match(/onAxisSelect=\{\(axis[^)]*\)\s*=>/);
-    expect(handlerMatch).toBeTruthy();
-    const startIdx = handlerMatch.index;
-    const endIdx = src.indexOf('setTourActive(true)', startIdx);
-    expect(endIdx).toBeGreaterThan(startIdx);
-    const block = src.slice(startIdx, endIdx);
-    expect(block).toMatch(/setSelectedNodes\(\[focal\]\)/);
-    expect(block).toMatch(/setAffinityRequested\(true\)/);
-  });
+  // (Removed 2026-06-26) The GuidedDiscoveryResults onAxisSelect handler
+  // was deleted with the Guided flow. The network α-mode handoff that
+  // matters now (sceneHandle.engageAffinity) is still asserted above.
 });
 
 // ── GD-WALKTHROUGH-TOUR-MUTEX (2026-05-30) ────────────────────────────────

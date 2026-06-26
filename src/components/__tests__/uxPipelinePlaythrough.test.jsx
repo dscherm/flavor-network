@@ -287,21 +287,9 @@ describe('§2.D–§2.I — Guided tour stage config', () => {
     // row 2.D.1 — "Radar click does not engage AffinityMode".
   });
 
-  it('2.E.1 App.jsx onAxisSelect engages AffinityMode (sets selectedNodes) before landing on network', async () => {
-    // Fix verified by reading the source. App.jsx's onAxisSelect now
-    // calls setSelectedNodes([focal]) → AffinityMode auto-engages
-    // because alphaEngaged = affinityEnabled && selectedNodes.length === 1.
-    const fs = await import('node:fs');
-    const path = await import('node:path');
-    const src = fs.readFileSync(
-      path.resolve(process.cwd(), 'src/App.jsx'),
-      'utf8',
-    );
-    const handlerMatch = src.match(/onAxisSelect=\{[\s\S]*?setActiveTab\('network'\);\s*\}\}/);
-    expect(handlerMatch).toBeTruthy();
-    const handlerBody = handlerMatch[0];
-    expect(/setSelectedNodes\(\[focal\]\)/.test(handlerBody)).toBe(true);
-  });
+  // (Removed 2026-06-26) The GuidedDiscoveryResults onAxisSelect handler
+  // was deleted with the Guided flow; its α-mode engagement is no longer
+  // a Guided-entry concern. The network handoff is covered elsewhere.
 
   it('2.F.1 stage 3 (pull2) __randomAxis is resolved in GuidedTour', async () => {
     const pull2 = STAGES.find((s) => s.id === 'pull2');
