@@ -46,20 +46,21 @@ describe('§1 — Landing page', () => {
     expect(screen.queryByText('Explore the Network')).not.toBeInTheDocument();
   });
 
-  it('1.B renders Guided Discovery tile with verbatim subheadline', () => {
+  it('1.B renders the Labs tile with its subheadline (Guided retired 2026-06-26)', () => {
     render(<LandingScreen onModeSelect={() => {}} />);
-    expect(screen.getByText('Guided Discovery')).toBeInTheDocument();
+    expect(screen.getByText('The Labs')).toBeInTheDocument();
     expect(
-      screen.getByText(/You want a guided tour to discover ways of exploring/),
+      screen.getByText(/Explore the kitchen labs/),
     ).toBeInTheDocument();
   });
 
-  it('1.D landing has 2 tiles (guided/make); network parked, no cocktail/sauce/recipes/build on landing', () => {
+  it('1.D landing has 2 tiles (labs/make); network parked, no cocktail/sauce/recipes/build on landing', () => {
     const { container } = render(<LandingScreen onModeSelect={() => {}} />);
     const tiles = container.querySelectorAll('button[data-mode]');
     expect(tiles).toHaveLength(2);
     const ids = Array.from(tiles).map((b) => b.getAttribute('data-mode'));
-    expect(ids).toEqual(expect.arrayContaining(['guided', 'make']));
+    expect(ids).toEqual(expect.arrayContaining(['labs', 'make']));
+    expect(ids).not.toContain('guided'); // Guided retired; replaced by Labs
     expect(ids).not.toContain('pairing'); // molecular lab parked 2026-06-23
     expect(ids).not.toContain('build');
     expect(ids).not.toContain('cocktail');
@@ -70,8 +71,8 @@ describe('§1 — Landing page', () => {
   it('1.D tile click invokes onModeSelect with correct mode key', () => {
     const onSelect = vi.fn();
     render(<LandingScreen onModeSelect={onSelect} />);
-    fireEvent.click(screen.getByText('Guided Discovery'));
-    expect(onSelect).toHaveBeenCalledWith('guided');
+    fireEvent.click(screen.getByText('The Labs'));
+    expect(onSelect).toHaveBeenCalledWith('labs');
   });
 
   it('1.F Explore secondary nav has exactly 3 entries (Cocktail/Sauce/Recipes)', async () => {
@@ -101,14 +102,14 @@ describe('§1 — Landing page', () => {
   // / Model / Labs. Profile moved into the Labs popover. Cocktail /
   // Sauce / Cookbook / Recipe Notebook / Profile / Molecule Lab are
   // all reachable via the Labs popover.
-  it('1.G MobileTabBar exposes Guided/Make/Labs; Model parked (molecular lab hidden 2026-06-23)', async () => {
+  it('1.G MobileTabBar exposes Make/Labs/How-to; Guided retired (2026-06-26), Model parked', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
       path.resolve(process.cwd(), 'src/components/MobileTabBar.jsx'),
       'utf8',
     );
-    expect(/aria-label="Guided"/.test(src)).toBe(true);
+    expect(/aria-label="Guided"/.test(src)).toBe(false); // Guided retired; Labs is the entry now
     expect(/aria-label="Make"/.test(src)).toBe(true);
     expect(/aria-label="Labs"/.test(src)).toBe(true);
     expect(/aria-label="Model"/.test(src)).toBe(false); // network tab hidden

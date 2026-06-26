@@ -58,6 +58,7 @@ import AlphaModeDetailsCard from './components/AlphaModeDetailsCard.jsx';
 import LabsFab from './components/LabsFab.jsx';
 import CookbookLab from './components/CookbookLab.jsx';
 import MakeRecipeStart from './components/MakeRecipeStart.jsx';
+import LabsPanel from './components/LabsPanel.jsx';
 import GuidedTour from './components/GuidedTour.jsx';
 import LabTour from './components/LabTour.jsx';
 import GuidedDiscoveryResults from './components/GuidedDiscoveryResults.jsx';
@@ -110,6 +111,7 @@ const TAB_TO_PATH = {
   'guided-pairing': 'guided',         // B-version Screen 3; collapse to entry
   'guided-details': 'guided',         // B-version Screen 2 (α-details); collapse to entry
   make: 'make',
+  labs: 'labs',
   profile: 'profile',
 };
 const PATH_TO_TAB = Object.fromEntries(
@@ -124,6 +126,7 @@ const PATH_TO_TAB = Object.fromEntries(
     guided: 'guided',
     build: 'make',        // MAKE-BUILD-DEPRECATE: legacy ?path=build → make
     make: 'make',
+    labs: 'labs',
     profile: 'profile',
   }),
 );
@@ -822,12 +825,20 @@ export default function App() {
       // strength + GNN aroma scoring.
       setRecipeMounted(true);
       setActiveTab('recipe');
-    } else if (mode === 'guided') {
-      // Phase 3 Guided Discovery — Screen 1 (thought bubbles).
-      setActiveTab('guided');
+    } else if (mode === 'labs') {
+      // Labs start tile — opens the lab card panel (replaced Guided).
+      setActiveTab('labs');
     } else if (mode === 'make') {
       setActiveTab('make');
     }
+  }, []);
+
+  // Labs panel → open the picked lab (mount flags mirror onSelectLab).
+  const handleLabPick = useCallback((id) => {
+    if (id === 'cocktail') setCocktailMounted(true);
+    if (id === 'sauce') setSauceMounted(true);
+    if (id === 'recipe') setRecipeMounted(true);
+    setActiveTab(id);
   }, []);
 
   const handleStartOver = useCallback(() => {
@@ -2378,6 +2389,10 @@ export default function App() {
                    Stage 2 with the ingredients staged.
           Stage 2: MakeRecipeView chalkboard cards-grid. Back button +
                    swipe-down returns to Stage 1. */}
+      {activeTab === 'labs' && (
+        <LabsPanel onPick={handleLabPick} />
+      )}
+
       {activeTab === 'make' && (
         <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
           {/* MakeRecipeStart's 4-card router (existing / scratch / photo /

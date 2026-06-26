@@ -25,11 +25,11 @@ describe('LandingScreen — MAKE-LANDING-TILE (3-tile row, post MAKE-BUILD-DEPRE
   // pairing → guided → make; updated here to match.
   // The 'pairing' (Explore the Network) tile is hidden 2026-06-23 while the
   // molecular lab is parked — landing is now guided + make only.
-  it('renders 2 tiles in order: guided, make (network tile parked)', () => {
+  it('renders 2 tiles in order: labs, make (network parked; Guided retired 2026-06-26)', () => {
     render(<LandingScreen onModeSelect={vi.fn()} />);
     const tiles = screen.getAllByRole('button');
     expect(tiles.length).toBe(2);
-    expect(tiles[0]).toHaveAttribute('data-mode', 'guided');
+    expect(tiles[0]).toHaveAttribute('data-mode', 'labs');
     expect(tiles[1]).toHaveAttribute('data-mode', 'make');
     expect(screen.queryByText('Explore the Network')).toBeNull();
   });
