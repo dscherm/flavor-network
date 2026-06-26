@@ -136,6 +136,21 @@ export default function MobileTabBar({
               </div>
             )}
           </div>
+
+          {/* How-to — top-level help button (2026-06-25). "How it works"
+              was buried in the Labs popover; surface it here so it's one
+              tap from any screen. */}
+          {onOpenHowItWorks && (
+            <button
+              onClick={() => { onOpenHowItWorks(); closeAll(); }}
+              data-testid="tabbar-howto"
+              className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-500 hover:text-gray-300 transition-colors"
+              aria-label="How it works"
+            >
+              <span className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center text-[12px] font-bold leading-none">?</span>
+              <span className="text-[10px]">How-to</span>
+            </button>
+          )}
         </div>
       </div>
     </>

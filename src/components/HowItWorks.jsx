@@ -23,6 +23,7 @@ export default function HowItWorks({
   isOpen,
   onRequestOpen,
   onClose,
+  onExploreNetwork,
   showButton = true,
 } = {}) {
   const [internalOpen, setInternalOpen] = useState(initialOpen);
@@ -59,7 +60,7 @@ export default function HowItWorks({
       )}
 
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div data-testid="howitworks-overlay" className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm" style={{ zIndex: 200 }}>
           <div className="rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" style={{ ...chalkSurfaceStyle(), border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}>
             <div className="flex justify-between items-center p-4 border-b border-[#4a4a4a]">
               <h2 className="text-2xl" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>How NeuFlavor works</h2>
@@ -160,6 +161,48 @@ export default function HowItWorks({
                    <strong> Sauce</strong> lays out the mother-sauce families as a specials board
                    of vessels; the <strong>Cookbook</strong> is a shelf of curated dishes. Tap
                    any card for its ingredients, method, and what it pairs with.</p>
+              </section>
+
+              <section>
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Explore the flavor network</h3>
+                <p>Everything above is built on one map: a network of every ingredient, linked by
+                   how often they meet in real recipes and the flavor compounds they share. Open it
+                   to roam the whole graph.</p>
+                <button
+                  type="button"
+                  data-testid="howitworks-explore-network"
+                  onClick={() => { close(); onExploreNetwork?.(); }}
+                  className="mt-2 w-full rounded-lg overflow-hidden border text-left transition-colors hover:bg-white/5"
+                  style={{ borderColor: CHALK_RAIL, background: 'rgba(10,10,10,0.5)' }}
+                  aria-label="Open the flavor network"
+                >
+                  <svg viewBox="0 0 320 92" className="w-full block" style={{ height: 'auto' }} aria-hidden="true">
+                    {(() => {
+                      const nodes = [
+                        [40, 50, '#ff4fb8'], [95, 26, '#00ffd0'], [120, 66, '#ffd700'],
+                        [170, 40, '#4f9eff'], [210, 70, '#9d4edd'], [250, 30, '#ff8c42'],
+                        [288, 56, '#6bcb77'],
+                      ];
+                      const links = [[0, 1], [0, 2], [1, 3], [2, 3], [3, 4], [3, 5], [5, 6], [4, 6]];
+                      return (
+                        <>
+                          {links.map(([a, b], i) => (
+                            <line key={i} x1={nodes[a][0]} y1={nodes[a][1]} x2={nodes[b][0]} y2={nodes[b][1]}
+                              stroke="rgba(245,239,222,0.28)" strokeWidth="1" />
+                          ))}
+                          {nodes.map(([x, y, c], i) => (
+                            <circle key={i} cx={x} cy={y} r={i % 3 === 0 ? 6 : 4.5} fill={c}
+                              stroke="rgba(245,239,222,0.6)" strokeWidth="1" />
+                          ))}
+                        </>
+                      );
+                    })()}
+                  </svg>
+                  <div className="px-3 py-2 flex items-center justify-between">
+                    <span style={{ fontFamily: FONT, color: CHALK_CREAM, fontSize: 18 }}>Open the flavor network</span>
+                    <span style={{ color: '#bdb6a3' }}>→</span>
+                  </div>
+                </button>
               </section>
 
             </div>
