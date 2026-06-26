@@ -71,22 +71,12 @@ export default function HowItWorks({
                 <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Two ways to start</h3>
                 <p>A cooking companion built on real recipe data. From the opening screen you
                    pick how you want to work:</p>
-                <p className="mt-2"><strong className="text-[#f5efde]">Guided Discovery</strong> —
-                   you have an ingredient (or a season, cuisine, or craving) and want ideas for
-                   what pairs with it, and <em>why</em>.</p>
+                <p className="mt-2"><strong className="text-[#f5efde]">The Labs</strong> —
+                   explore: open the Cocktail, Sauce, Cookbook, Recipe-Notebook, and
+                   <em> Pairing</em> labs and roam how ingredients fit together.</p>
                 <p className="mt-1"><strong className="text-[#f5efde]">Make a recipe</strong> —
                    you already have a dish in mind and want to build it, see its flavor profile,
                    and get smart additions.</p>
-              </section>
-
-              <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Guided Discovery</h3>
-                <p>Stack what you know on a thought-bubble grid — "I'm thinking about pairing
-                   that…" — an ingredient plus any of season, cuisine, aroma, or dietary needs.
-                   The app surfaces hero pairings on a per-axis radar, each with a short story
-                   explaining whether it ranked from <strong>recipe co-occurrence</strong>,
-                   <strong> shared flavor compounds</strong>, or both. "Explore in the network →"
-                   opens the full pairing map seeded with your picks.</p>
               </section>
 
               <section>
@@ -101,10 +91,11 @@ export default function HowItWorks({
 
               <section data-testid="howitworks-gestures">
                 <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Explore the pairing map</h3>
-                <p className="text-xs text-[#bdb6a3] mb-2">Guided's "Explore in the network →"
-                   opens a 3D map where each dot is an ingredient and dots that pair often sit
-                   close together. <strong className="text-[#f5efde]">Getting around</strong> — a few
-                   gestures that aren't shown on screen:</p>
+                <p className="text-xs text-[#bdb6a3] mb-2">The flavor network — open it from the
+                   card below, or "See in the network →" inside the Pairing Lab — is a 3D map
+                   where each dot is an ingredient and dots that pair often sit close together.
+                   <strong className="text-[#f5efde]"> Getting around</strong> — a few gestures
+                   that aren't shown on screen:</p>
                 <div className="text-xs text-[#bdb6a3] space-y-0.5">
                   <p><strong className="text-[#f5efde]">Drag</strong> to orbit · <strong className="text-[#f5efde]">scroll / pinch</strong> to zoom · <strong className="text-[#f5efde]">two-finger drag</strong> to pan</p>
                   <p><strong className="text-[#f5efde]">Tap a dot</strong> for its details · <strong className="text-[#f5efde]">press &amp; hold</strong> a dot to focus its pairings</p>
@@ -155,12 +146,22 @@ export default function HowItWorks({
               </section>
 
               <section>
-                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>The Labs — Cocktail, Sauce, Cookbook</h3>
-                <p>Bistro-chalkboard menus. <strong>Cocktail</strong> (<strong>426 drinks</strong>)
-                   groups by family with a back-bar of signature glasses and spirit bottles;
+                <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>The Labs</h3>
+                <p>The <strong className="text-[#f5efde]">Labs</strong> tile opens a panel of
+                   kitchens. <strong>Cocktail</strong> (<strong>426 drinks</strong>) groups by
+                   family with a back-bar of signature glasses and spirit bottles;
                    <strong> Sauce</strong> lays out the mother-sauce families as a specials board
-                   of vessels; the <strong>Cookbook</strong> is a shelf of curated dishes. Tap
-                   any card for its ingredients, method, and what it pairs with.</p>
+                   of vessels; the <strong>Cookbook</strong> is a shelf of curated dishes; and the
+                   <strong> Recipe Notebook</strong> is the hand-built recipe surface (also reached
+                   from "Make a recipe"). Tap any card for its ingredients, method, and pairings.</p>
+                <p className="mt-2"><strong className="text-[#f5efde]">Pairing Lab</strong> — stand
+                   on one ingredient and see its strongest partners as a little map. Twist the
+                   <em> lens</em> (Aroma · Taste · Cuisine · Season) and the same partners regroup
+                   and recolor; line thickness shows pairing strength, and solid vs. dashed shows
+                   whether it comes from shared chemistry or culinary tradition. Tap a partner to
+                   re-center on it, or press-and-hold any node (or the center) for its full card —
+                   pair strength, the shared aroma compounds, and a flavor radar. 🎲 Surprise swaps
+                   in cross-family partners, and "See in the network →" zooms out to the full 3D map.</p>
               </section>
 
               <section>
