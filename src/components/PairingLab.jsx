@@ -21,7 +21,7 @@ import BottomSheet from './BottomSheet.jsx';
 import PairingBoard from './PairingBoard.jsx';
 import {
   LENSES, LENS_LABELS, egoNeighborhood, lensInsight, groupByLens,
-  sharedNeighborhood, surprisingNeighborhood,
+  sharedNeighborhood, surprisingNeighborhood, partnerBridges,
 } from '../data/pairingEgoModel.js';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, chalkSurfaceStyle,
@@ -88,6 +88,10 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
   }, [center, compareWith, surprise, data, bucketCtx]);
 
   const insight = useMemo(() => lensInsight(partners, lens, bucketCtx), [partners, lens, bucketCtx]);
+  // PAIR-LAB-P3a — partner pairs that also pair with each other (trios);
+  // PairingBoard draws a faint arc between them. (Restored 2026-06-25:
+  // the P4 PairingLab rewrite had dropped this wiring.)
+  const bridges = useMemo(() => partnerBridges(partners, data), [partners, data]);
   const axisCaption = useMemo(() => {
     if (lens === 'affinity') return '';
     const groups = groupByLens(partners, lens, bucketCtx).filter((g) => g.label !== 'Other');
@@ -212,6 +216,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
               partners={partners}
               lens={lens}
               ctx={bucketCtx}
+              bridges={bridges}
               highlightGroup={highlightGroup}
               width={dims.w}
               height={dims.h}
