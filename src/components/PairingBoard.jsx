@@ -61,8 +61,8 @@ function computeLayout(partners, lens, ctx, cx, cy, minDim) {
   const nodeR = (s) => 7 + ((s - sMin) / sSpan) * 7; // 7..14 px
 
   if (lens === 'affinity') {
-    const rIn = 0.18 * minDim;
-    const rOut = 0.42 * minDim;
+    const rIn = 0.24 * minDim;  // clear the (now larger) center oval
+    const rOut = 0.46 * minDim;
     const n = partners.length;
     partners.forEach((p, i) => {
       const ang = -Math.PI / 2 + (i * 2 * Math.PI) / n;
@@ -82,13 +82,17 @@ function computeLayout(partners, lens, ctx, cx, cy, minDim) {
   // Categorical: spokes per bucket.
   const groups = groupByLens(partners, lens, ctx);
   const G = groups.length || 1;
-  const rStart = 0.16 * minDim;
-  const rEnd = 0.44 * minDim;
+  const rStart = 0.27 * minDim; // start spokes well outside the center oval
+  const rEnd = 0.48 * minDim;
+  // Small angular fan so multiple members on one spoke don't stack their
+  // labels on a single radial line (reduces the crowded-center look).
+  const fan = G > 1 ? Math.min(0.18, Math.PI / (G * 2.2)) : 0.14;
   groups.forEach((g, gi) => {
-    const ang = -Math.PI / 2 + (gi * 2 * Math.PI) / G;
+    const baseAng = -Math.PI / 2 + (gi * 2 * Math.PI) / G;
     const M = g.members.length;
     g.members.forEach((p, mi) => {
       const r = M > 1 ? rStart + (mi * (rEnd - rStart)) / (M - 1) : (rStart + rEnd) / 2;
+      const ang = baseAng + (M > 1 ? (mi - (M - 1) / 2) * fan / M : 0);
       targets.set(p.name, {
         x: cx + r * Math.cos(ang),
         y: cy + r * Math.sin(ang),
@@ -97,7 +101,8 @@ function computeLayout(partners, lens, ctx, cx, cy, minDim) {
         group: g.label,
       });
     });
-    const lr = rEnd + 0.07 * minDim;
+    const ang = baseAng;
+    const lr = rEnd + 0.05 * minDim;
     labels.push({
       text: g.label,
       x: cx + lr * Math.cos(ang),
