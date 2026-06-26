@@ -52,8 +52,6 @@ import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
-import GuidedDiscoverySwipe from './components/GuidedDiscoverySwipe.jsx';
-import GuidedDiscoveryFocalPicker from './components/GuidedDiscoveryFocalPicker.jsx';
 import AlphaModeDetailsCard from './components/AlphaModeDetailsCard.jsx';
 import LabsFab from './components/LabsFab.jsx';
 import CookbookLab from './components/CookbookLab.jsx';
@@ -61,11 +59,9 @@ import MakeRecipeStart from './components/MakeRecipeStart.jsx';
 import LabsPanel from './components/LabsPanel.jsx';
 import GuidedTour from './components/GuidedTour.jsx';
 import LabTour from './components/LabTour.jsx';
-import GuidedDiscoveryResults from './components/GuidedDiscoveryResults.jsx';
 import IngredientPicker from './components/IngredientPicker.jsx';
 import PairingMode from './components/PairingMode.jsx';
 import MakeRecipeView from './components/MakeRecipeView.jsx';
-import { deriveFilterStackFromBubbles } from './data/guidedDiscovery.js';
 import {
   MODE_CYCLE as NETWORK_MODE_CYCLE,
   MODE_LABELS as NETWORK_MODE_LABELS,
@@ -2054,184 +2050,6 @@ export default function App() {
         onClose={handleTrainingTraceClose}
       />
       </div>
-
-      {/* Phase 3 Guided Discovery — Screen 1 (bubbles). Mounted as a
-          sibling of the Network wrapper so its opacity-0 cascade
-          doesn't suppress the bubble grid. */}
-      {/* B-version Guided Screen 1 — focal picker (search bar + "Pick
-          for me" button). Replaces the prior GuidedDiscoverySwipe deck.
-          Picking a focal hands off to AlphaModeDetailsCard (Screen 2). */}
-      {activeTab === 'guided' && (
-        <GuidedDiscoveryFocalPicker
-          ingredients={ingredientList}
-          onPickFocal={(name) => {
-            setPairingModeFocal(name);
-            // Stage the focal as a bubbleStack so the "Discover" handoff
-            // into GuidedDiscoveryResults has its expected input shape.
-            setBubbleStack([{
-              key: 'ingredient',
-              label: `Focal Flavor: ${name}`,
-              value: { ingredient: name },
-              axisHint: null,
-            }]);
-            setActiveTab('guided-details');
-          }}
-          onClose={() => {
-            setActiveTab('network');
-          }}
-        />
-      )}
-
-      {/* B-version Guided Screen 2 — AlphaModeDetailsCard. Details card
-          for the focal (tier chips + 4 radars + affinity ring with
-          tap-to-name / double-tap-to-inspect interactions) + the
-          "Ingredient pairings →" CTA that routes to PairingMode. */}
-      {activeTab === 'guided-details' && pairingModeFocal && data?.graph?.nodes && (
-        <AlphaModeDetailsCard
-          focal={pairingModeFocal}
-          ctx={{
-            graph: data.graph,
-            cuisineNeighborIndex: data.cuisineNeighborIndex || null,
-          }}
-          onExit={() => setActiveTab('guided')}
-          onIngredientPairings={() => setActiveTab('guided-pairing')}
-          onSelectPairing={(name) => {
-            // Double-tap on an affinity node opens PairingMode focused
-            // on the ORIGINAL focal — user lands in the swipe browser
-            // with the inspected pairing accessible in the stack.
-            setActiveTab('guided-pairing');
-          }}
-        />
-      )}
-
-      {/* B-version Guided Screen 2 — PairingMode Tinder browser for
-          the picked focal. The "Discover where these flavor pairings
-          come from →" CTA inside PairingMode routes into the original
-          radar + α-mode discovery (guided-results, Screen 3). */}
-      {activeTab === 'guided-pairing' && pairingModeFocal && data?.graph?.nodes && (
-        <PairingMode
-          focal={pairingModeFocal}
-          ctx={{
-            graph: data.graph,
-            cuisineNeighborIndex: data.cuisineNeighborIndex || null,
-            bridgeCompoundIndex: data.bridgeCompoundIndex || null,
-            flavorBibleSet: data.flavorBibleSet || null,
-            flavorBibleNeighbors: data.flavorBibleNeighbors || null,
-          }}
-          odorThresholds={data.odorThresholds || null}
-          onExit={() => {
-            setPairingModeFocal(null);
-            setActiveTab('guided');
-          }}
-          onDiscover={() => {
-            // B-version Guided flow (2026-06-03): skip Page 3
-            // (GuidedDiscoveryResults radar) and go DIRECTLY to
-            // α-mode on the Network tab. The web app was previously
-            // landing the user in Network mode without α-mode
-            // engaged — fixed by setting both selectedNodes AND
-            // affinityRequested in the same tick before the tab
-            // switch so LivingArchView's α-driver picks it up
-            // on the first render after the route change.
-            const focal = pairingModeFocal;
-            setPairingModeFocal(null);
-            if (focal) {
-              setSelectedNodes([focal]);
-              setAffinityRequested(true);
-              // Camera fly-to so the focal is on-screen when α
-              // engages (matches the iOS behavior the user already
-              // sees working).
-              const positions = dataRef.current?.positions?.positions;
-              const pos = positions?.[focal];
-              if (Array.isArray(pos) && pos.length === 3) {
-                setFlyToTarget({ position: pos, ts: Date.now() });
-              }
-              // RESTORE-GUIDED-TOUR (2026-06-04): re-engage the multi-stage
-              // GuidedTour that was lost when the B-version flow short-cut
-              // straight to the network. It opens on the 3D Affinity view
-              // (Step 1) then walks the network morph → clusters →
-              // ingredient pick. Axis-less entry (no explicit radar pick),
-              // matching the documented "Explore in network" CTA path.
-              setTourFocal(focal);
-              setTourAxis(null);
-              setTourChosenAxisKey(null);
-              setTourFocalBucket(null);
-              setTourActive(true);
-            }
-            setActiveTab('network');
-          }}
-        />
-      )}
-
-      {/* Phase 3 Guided Discovery — Screen 2 (P6: GuidedProfileRadar +
-          GuidedResultsFilterPills + ProvenancePanel). The
-          onExploreInNetwork handler is the canonical bridge into
-          App.jsx's network filterStack per Constraint #4. */}
-      {activeTab === 'guided-results' && (
-        <div className="fixed inset-0 z-[40] overflow-y-auto">
-          <GuidedDiscoveryResults
-            bubbleStack={bubbleStack}
-            initialFilterType={guidedInitialFilterType}
-            // `data` from useProData IS the affinityCtx contract:
-            // it carries pairingStrength, top5, bridgeCompoundIndex,
-            // affinityThresholds, graph.{nodes,edges}, gnnEntropy,
-            // bridgeCompounds — exactly what surprisingAffinities /
-            // topAffinities / CuratedWheel consume. Without this prop
-            // GuidedDiscoveryResults stays in the empty-state and the
-            // user never sees the curated wheel for their focal pick.
-            ctx={data}
-            onBackToBubbles={() => setActiveTab('guided')}
-            onAxisSelect={(axis, chosenAxisKey = null) => {
-              // Phase 6 — radar click sets filter pills + activates
-              // the GuidedTour overlay on the network tab.
-              // GD-TOUR-AFFINITY-ENGAGE: alphaEngaged requires BOTH
-              // selectedNodes.length === 1 AND affinityRequested. Set
-              // both so the network paints with α-rings live on landing
-              // (matching Step 1's "We've engaged the Affinity view"
-              // popup copy).
-              const axisFilter = axis === 'aroma' ? 'aromas' : axis;
-              setFilterStack([
-                axisFilter,
-                ...deriveFilterStackFromBubbles(bubbleStack).filter((f) => f !== axisFilter),
-              ]);
-              const focal = bubbleStack.find((b) => b.key === 'ingredient')?.value?.ingredient || null;
-              if (focal) {
-                setSelectedNodes([focal]);
-                setAffinityRequested(true);
-              }
-              setTourAxis(axis);
-              setTourFocal(focal);
-              setTourChosenAxisKey(chosenAxisKey);
-              // GD-TOUR-AXIS-INTENT-CARRY: resolve the focal's bucket
-              // on the morph axis so Step 1 can name it (e.g. tomato →
-              // umami). bucketOf returns null when the node lacks the
-              // axis data; the popup hides the context line in that case.
-              const axisDef = CATEGORICAL_AXES[axisFilter];
-              const focalNode = focal && data?.graph?.nodes
-                ? data.graph.nodes.get(focal)
-                : null;
-              if (axisDef && focalNode) {
-                const bucketCtx = {
-                  gnnEntropy: data.gnnEntropy || null,
-                  cuisineMap: data.cuisineMap || null,
-                  seasonMap: data.seasonMap || null,
-                  cocktailScope, sauceScope,
-                };
-                setTourFocalBucket(axisDef.bucketOf(focalNode, bucketCtx) || null);
-              } else {
-                setTourFocalBucket(null);
-              }
-              setTourActive(true);
-              setActiveTab('network');
-            }}
-            onExploreInNetwork={() => {
-              // Constraint #4: this is the ONLY place setFilterStack
-              // is called from a Guided Discovery context.
-              setFilterStack(deriveFilterStackFromBubbles(bubbleStack));
-              setActiveTab('network');
-            }}
-          />
-        </div>
-      )}
 
       {/* Profile tab — full screen, mounted only when active. MUST be a
           sibling of the Network wrapper (not nested inside it), otherwise
