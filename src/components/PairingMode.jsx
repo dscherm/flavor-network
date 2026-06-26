@@ -30,99 +30,11 @@ import {
 } from '../data/guidedRadarAxes.js';
 import { getNeighborsEnriched } from '../data/graph.js';
 import PairingModeCard from './PairingModeCard.jsx';
+import { hydrateNode, buildAnalysis, sharedCompoundsFor } from '../data/pairingCardData.js';
 
 const FILTER_CYCLE = ['taste', 'aroma', 'season', 'cuisine'];
 const SWIPE_THRESHOLD = 50;
 
-function hydrateNode(name, ctx) {
-  const node = ctx?.graph?.nodes?.get?.(name);
-  if (!node) return { name };
-  return node;
-}
-
-function tokenizeTaste(t) {
-  if (!t || typeof t !== 'string') return [];
-  return t.toLowerCase().split(/[\s,/]+/).filter(Boolean);
-}
-
-/**
- * Build a 1-2 sentence "Pairing analysis" string.
- *   - sentence 1 ALWAYS describes the pairing-strength + signal source
- *     (chemistry vs co-occurrence).
- *   - sentence 2 (optional) names ACCENTUATED aroma / taste tokens —
- *     i.e., the intersection of focal + pairing flavor signatures.
- *     If the intersection is empty we drop sentence 2.
- */
-function buildAnalysis(focal, pairingNode, strength, sharedCompounds) {
-  if (!focal || !pairingNode || !pairingNode.name) return null;
-  const focalName = typeof focal === 'string' ? focal : focal?.name;
-  const focalNode = (typeof focal === 'object' && focal && focal.name) ? focal : null;
-  const sharedTier1 = (() => {
-    const a = focalNode?.flavorGraph?.tier1;
-    const b = pairingNode?.flavorGraph?.tier1;
-    if (!Array.isArray(a) || !Array.isArray(b)) return [];
-    const setB = new Set(b.map((s) => String(s).toLowerCase()));
-    return a.filter((s) => setB.has(String(s).toLowerCase()));
-  })();
-  const sharedTaste = (() => {
-    const a = new Set(tokenizeTaste(focalNode?.taste));
-    const b = tokenizeTaste(pairingNode?.taste);
-    return b.filter((t) => a.has(t));
-  })();
-  const sharedCuisines = (() => {
-    const a = Array.isArray(focalNode?.cuisines) ? focalNode.cuisines : [];
-    const b = Array.isArray(pairingNode?.cuisines) ? pairingNode.cuisines : [];
-    if (a.length === 0 || b.length === 0) return [];
-    const setA = new Set(a.map((s) => String(s).toLowerCase()));
-    return b.filter((c) => setA.has(String(c).toLowerCase()));
-  })();
-
-  // Strength banding. "long-tail" surfaces as "weakly pairs with" in
-  // sentence 1 (per user 2026-06-03 — "long-tail" was opaque copy).
-  const strengthBand = (() => {
-    if (typeof strength !== 'number') return 'modest';
-    if (strength >= 0.85) return 'classic';
-    if (strength >= 0.65) return 'strong';
-    if (strength >= 0.45) return 'workable';
-    return 'weak';
-  })();
-  const hasChem = Array.isArray(sharedCompounds) && sharedCompounds.length > 0;
-
-  // Sentence 1: strength + signal source. When chemistry is absent we
-  // either name the shared cuisines (preferred) OR drop the anchor
-  // clause entirely if even cuisine evidence is missing. We NEVER
-  // print "no shared aroma compounds detected" — that's noise.
-  // For weak pairs, replace the "is a X pair" shape with the cleaner
-  // "weakly pairs with" verb so the description matches user
-  // expectation.
-  let s1;
-  if (strengthBand === 'weak') {
-    if (hasChem) {
-      const noun = `${sharedCompounds.length} shared aroma compound${sharedCompounds.length === 1 ? '' : 's'}`;
-      s1 = `${focalName} weakly pairs with ${pairingNode.name}, anchored by ${noun}.`;
-    } else if (sharedCuisines.length > 0) {
-      const cuisineList = sharedCuisines.slice(0, 3).join(', ');
-      s1 = `${focalName} weakly pairs with ${pairingNode.name} through recipe co-occurrence in ${cuisineList} cooking.`;
-    } else {
-      s1 = `${focalName} weakly pairs with ${pairingNode.name}.`;
-    }
-  } else if (hasChem) {
-    const noun = `${sharedCompounds.length} shared aroma compound${sharedCompounds.length === 1 ? '' : 's'}`;
-    s1 = `${focalName} + ${pairingNode.name} is a ${strengthBand} pair, anchored by ${noun}.`;
-  } else if (sharedCuisines.length > 0) {
-    const cuisineList = sharedCuisines.slice(0, 3).join(', ');
-    s1 = `${focalName} + ${pairingNode.name} is a ${strengthBand} pair from recipe co-occurrence in ${cuisineList} cooking.`;
-  } else {
-    s1 = `${focalName} + ${pairingNode.name} is a ${strengthBand} pair.`;
-  }
-
-  let s2 = null;
-  const accents = [...new Set([...sharedTier1, ...sharedTaste])].slice(0, 3);
-  if (accents.length > 0) {
-    s2 = `Pairing accentuates ${accents.join(' + ')} notes.`;
-  }
-  return s2 ? `${s1} ${s2}` : s1;
-}
 
 export default function PairingMode({
   focal,
@@ -146,44 +58,7 @@ export default function PairingMode({
   //      node carries `gnnCompounds.top_compounds: [{name,...}, ...]`.
   const allPairings = useMemo(() => {
     if (!focalName || !ctx?.graph?.edges) return [];
-    const bridgeIdx = ctx?.bridgeCompoundIndex;
     const focalNode = hydrateNode(focalName, ctx);
-    const focalTop5 = (() => {
-      const arr = focalNode?.gnnCompounds?.top_compounds;
-      if (!Array.isArray(arr)) return null;
-      const set = new Set();
-      for (const c of arr.slice(0, 5)) {
-        const n = typeof c === 'string' ? c : c?.name;
-        if (n) set.add(n);
-      }
-      return set;
-    })();
-    const lookupBridges = (other, otherNode) => {
-      // Pass 1: curated bridge
-      if (bridgeIdx) {
-        const k1 = `${focalName}|${other}`;
-        const k2 = `${other}|${focalName}`;
-        const entry = bridgeIdx.get?.(k1) || bridgeIdx.get?.(k2) || null;
-        const bridges = entry?.bridges;
-        if (Array.isArray(bridges) && bridges.length > 0) {
-          const names = bridges
-            .map((b) => (typeof b === 'string' ? b : b?.name))
-            .filter(Boolean);
-          if (names.length > 0) return names;
-        }
-      }
-      // Pass 2: GNN top-5 intersection (always available when both
-      // ingredients have molecular profiles).
-      if (!focalTop5) return null;
-      const otherTop5 = otherNode?.gnnCompounds?.top_compounds;
-      if (!Array.isArray(otherTop5)) return null;
-      const shared = [];
-      for (const c of otherTop5.slice(0, 5)) {
-        const n = typeof c === 'string' ? c : c?.name;
-        if (n && focalTop5.has(n)) shared.push(n);
-      }
-      return shared.length > 0 ? shared : null;
-    };
     try {
       const list = getNeighborsEnriched(
         focalName,
@@ -194,7 +69,7 @@ export default function PairingMode({
         .map((p) => {
           const node = hydrateNode(p.name, ctx);
           const strength = typeof p.strength === 'number' ? p.strength : 0;
-          const sharedCompounds = lookupBridges(p.name, node);
+          const sharedCompounds = sharedCompoundsFor(focalName, focalNode, p.name, node, ctx);
           const fb = ctx?.flavorBibleSet?.has(
             focalName < p.name ? `${focalName}|${p.name}` : `${p.name}|${focalName}`,
           ) ?? false;
@@ -224,7 +99,7 @@ export default function PairingMode({
           seen.add(name);
           const node = hydrateNode(name, ctx);
           if (!node || !node.name) continue;
-          const sharedCompounds = lookupBridges(name, node);
+          const sharedCompounds = sharedCompoundsFor(focalName, focalNode, name, node, ctx);
           fbOnly.push({
             name,
             strength: 0,
