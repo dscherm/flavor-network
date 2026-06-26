@@ -5,7 +5,6 @@ import { getCocktailRoles, getSauceRoles } from '../data/ingredientRoles.js';
 import RecipeNotebook from './RecipeNotebook.jsx';
 import SuggestionCardDeck from './SuggestionCardDeck.jsx';
 import RecipeFlavorProfilesCard from './RecipeFlavorProfilesCard.jsx';
-import RecipeTypePills from './RecipeTypePills.jsx';
 import IngredientPicker from './IngredientPicker.jsx';
 import { hapticLight, hapticMedium } from '../utils/native.js';
 import { computeRecipeAroma } from '../data/recipeAromaSimilarity.js';
@@ -449,10 +448,12 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
 
       {/* B-version P2: dish-type joystick + Add ingredient launcher.
           Replaces the persistent taste-wheel zone with explicit chrome. */}
-      <div className="flex items-center gap-2 mx-2 mb-1">
-        <div className="flex-1 min-w-0">
-          <RecipeTypePills value={recipeType} onChange={setRecipeType} />
-        </div>
+      {/* B-version + 2026-06-25: the recipe-type pill row (Main/Side/
+          Appetizer/…) was removed — it didn't drive anything meaningful
+          and crowded the action buttons on mobile. recipeType still
+          flows from the handoff (drink/sauce → picker dishType). The
+          chrome is now just the action buttons, wrapping + centered. */}
+      <div className="flex flex-wrap items-center justify-center gap-2 mx-2 mb-1">
         {recipeIngredients.length > 0 && (
           <>
             <button
