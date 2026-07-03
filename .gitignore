@@ -60,3 +60,9 @@ resources/logo-options/
 
 # dataset apply-step backups
 *.bak
+
+# --- build/agent artifacts (added by artifact-robustness pass) ---
+.pytest_cache/
+.ralph/
+.omc/
+NUL
