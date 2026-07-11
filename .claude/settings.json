@@ -29,23 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/ralph-universal/tools/compact_memories.py\" --check-only"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python \"D:/Projects/ralph-universal/tools/compact_memories.py\" --check-only"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python \"D:/Projects/unpossible-ralph/tools/compact_memories.py\" --check-only"
+            "command": "python \"D:/Projects/ralph-universal/tools/cost_by_phase.py\" --project-dir . --format jsonl"
           }
         ]
       }
@@ -65,7 +49,34 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/blind_tdd_path_guard.py"
+            "command": "python \"D:/Projects/flavor-network/.claude/hooks/blind_tdd_path_guard.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/flavor-network/.claude/hooks/blind_tdd_bash_guard.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/flavor-network/.claude/hooks/phase_permission_guard.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/flavor-network/.claude/hooks/bash_telemetry.py\""
           }
         ]
       }
@@ -86,6 +97,14 @@
             "command": "python \"D:/Projects/ralph-universal/tools/write_handoff.py\""
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/reflect_prompt.py\" --project-dir ."
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -94,10 +113,33 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/blind_tdd_audit.py"
+            "command": "python \"D:/Projects/flavor-network/.claude/hooks/blind_tdd_audit.py\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/precompact_handoff.py\" --project-dir ."
+          }
+        ]
+      }
+    ],
+    "CwdChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/scoped_context.py\" refresh"
           }
         ]
       }
     ]
+  },
+  "env": {
+    "OMC_SKIP_HOOKS": "keyword-detector"
   }
 }
