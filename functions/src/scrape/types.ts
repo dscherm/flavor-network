@@ -24,13 +24,21 @@ export interface ScrapeResult {
   finalUrl?: string;
   /** When status='error': a friendly message safe to render in the UI. */
   errorMessage?: string;
+  /** WEBLINK-2: which fetch attempt produced the page. 'proxy' means the
+   *  origin bot-blocked us and the reader proxy served it instead — worth
+   *  seeing in logs, since proxy reliance is a fragility signal. */
+  fetchPath?: FetchPath;
 }
+
+/** WEBLINK-2: how a page was retrieved. */
+export type FetchPath = 'direct' | 'proxy';
 
 export interface FetchedPage {
   url: string;
   finalUrl: string;
   contentType: string;
   body: string;
+  fetchPath?: FetchPath;
 }
 
 export interface UrlFetcher {
