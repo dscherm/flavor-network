@@ -689,3 +689,136 @@ neural. Brought onto chalkTheme.js. Shipped in commit 8190800.
   "acceptance": ["LabNodeCard ingredient/prep readability improved without images; numbered preps don't double-number; suite green; build clean"]
 }
 ```
+
+---
+
+## WEBLINK IMPORT REPAIR (2026-07-31) — "load recipes from links" is broken
+
+**Symptom (user-reported, reproduced 2026-07-31):** pasting a recipe URL in
+Make → "From a web link" fails with *"The recipe parser failed"*.
+
+**Measured root cause.** `functions/src/scrape/handler.ts` fetches the target
+page with the bot-advertising UA `flavor-network-scrape/0.1 (+github...)`.
+Live probe of that exact request:
+
+| site | status w/ bot UA | status w/ browser UA |
+|---|---|---|
+| allrecipes.com | **402** | **402** |
+| seriouseats.com | **402** | **402** |
+| simplyrecipes.com | **402** | **402** |
+| foodnetwork.com | **403** | **200** ✅ |
+| bonappetit.com | 200 | 200 |
+
+Two distinct walls: (a) UA-sniffing sites (foodnetwork class) that a realistic
+browser header set defeats; (b) Dotdash-Meredith properties returning HTTP 402
+to any datacenter IP regardless of headers — those need a reader-proxy hop.
+Measured: `https://r.jina.ai/<url>` with `x-return-format: html` returns the
+full HTML **including the JSON-LD Recipe block** for seriouseats (883KB,
+hasRecipeLD ✅) and simplyrecipes (896KB, hasRecipeLD ✅) in <1.1s.
+
+Secondary defects found in the same read:
+- `DEFAULT_BUDGET_MS = 5_000` is too tight once a proxy hop is involved.
+- The Cloud Function parses **JSON-LD only**; the older client-side
+  `src/data/recipeScraper.js` has microdata + HTML-heuristic fallbacks that
+  were never ported, so schema-less pages fail outright.
+- The client fires the 25s parse spinner before checking auth, so a
+  signed-out user waits, then gets an error screen instead of a Sign-in button.
+
+**Decision (user, 2026-07-31):** keep the `unauthenticated` guard on the
+callable — it stops `scrapeRecipe` becoming a public URL-fetch proxy — and fix
+the client UX around it instead.
+
+**Cadence:** interactive bridge mode — **pause between each task.**
+
+### WEBLINK-1 — Browser-realistic fetch headers + workable budget
+
+```json
+{
+  "id": "WEBLINK-1",
+  "title": "Send a browser-realistic header set from the scrape fetcher and raise the fetch budget",
+  "category": "bugfix",
+  "priority": 1,
+  "description": "In functions/src/scrape/handler.ts, replace the bot-advertising user-agent on defaultFetcher with a current desktop-Chrome UA plus the companion headers real browsers send (accept, accept-language, sec-fetch-dest/mode/site, upgrade-insecure-requests). This alone flips foodnetwork.com from 403 to 200 (measured). Raise DEFAULT_BUDGET_MS from 5_000 to 15_000 so a redirect chain or a proxy hop fits inside the 30s callable timeout and the client's 25s race. Keep every SSRF guard exactly as-is: ssrfReason() per hop, assertHostnameResolvesPublicly() per hop, redirect 'manual' with REDIRECT_MAX. Do not touch ssrf.ts logic. Extend functions/src/scrape/handler.test.ts to assert the outbound headers include a Mozilla/5.0 user-agent and that the budget default is 15s.",
+  "acceptance": [
+    "defaultFetcher sends a Mozilla/5.0 desktop-Chrome UA + accept-language + sec-fetch-* headers",
+    "DEFAULT_BUDGET_MS is 15_000 and still strictly under the 30s callable timeout",
+    "Per-hop ssrfReason + assertHostnameResolvesPublicly + redirect manual + REDIRECT_MAX unchanged",
+    "handler.test.ts covers the header set and the new budget; functions vitest suite green; npx tsc --noEmit clean"
+  ]
+}
+```
+
+### WEBLINK-2 — Reader-proxy fallback for datacenter-IP-blocked sites
+
+```json
+{
+  "id": "WEBLINK-2",
+  "title": "Fall back to the r.jina.ai reader proxy when the origin bot-blocks the fetch",
+  "category": "bugfix",
+  "priority": 1,
+  "description": "Headers alone cannot reach allrecipes/seriouseats/simplyrecipes (HTTP 402 to any datacenter IP). Add a second fetch attempt in functions/src/scrape/handler.ts: when the direct fetch of the ORIGIN returns a bot-block-shaped status (401, 402, 403, 406, 429, 451, or any 5xx), retry once through https://r.jina.ai/<absolute-url> with header x-return-format html, which returns the origin HTML with its JSON-LD intact (measured working on seriouseats + simplyrecipes). Requirements: (1) the proxy is a single hard-coded constant host, never user-controlled, and the ORIGINAL url still passes the full SSRF gauntlet before any proxy attempt, so this cannot be used to reach internal hosts; (2) only fall back for bot-block statuses, never for 404/410 (a genuinely missing page must stay a fast, honest error); (3) attempt the proxy at most once per request; (4) record which path succeeded on the returned ScrapeResult (e.g. fetchPath direct or proxy) so the field is observable in logs; (5) the whole two-attempt sequence must fit the WEBLINK-1 budget. Add handler tests with a stubbed fetcher covering: direct-200 never proxies, 402 proxies and succeeds, 404 does not proxy, proxy failure surfaces the ORIGIN status in the error message.",
+  "acceptance": [
+    "A bot-block status (401/402/403/406/429/451/5xx) on the origin triggers exactly one r.jina.ai retry with x-return-format html",
+    "404/410 never trigger the proxy; the origin error is returned directly",
+    "Proxy host is a hard-coded constant; the user-supplied URL still runs the full SSRF gauntlet first",
+    "ScrapeResult reports which fetch path succeeded",
+    "Stubbed-fetcher tests cover direct-200 / 402-then-proxy / 404-no-proxy / proxy-also-fails; functions suite green; tsc clean"
+  ]
+}
+```
+
+### WEBLINK-3 — Microdata + heuristic parser fallbacks
+
+```json
+{
+  "id": "WEBLINK-3",
+  "title": "Port the microdata + HTML-heuristic ingredient extraction into the Cloud Function parser",
+  "category": "bugfix",
+  "priority": 2,
+  "description": "functions/src/scrape/parser.ts only understands JSON-LD, so a fetched-fine page without schema.org markup returns 'No Recipe schema found'. src/data/recipeScraper.js already implements two further strategies client-side (itemprop=recipeIngredient microdata, then class/id-based ingredient-list heuristics incl. wprm-recipe-ingredient and tasty-recipe patterns) - port them to TypeScript as an ordered fallback chain behind the existing JSON-LD path. Route every extracted line through the existing parseIngredientLine() so raw/noun/quantity/unit stay consistent with the JSON-LD path, and reuse the existing dedup behaviour. JSON-LD must keep winning when present; the fallbacks only run when it yields no usable Recipe. Title fallback order: microdata itemprop=name, og:title, then title tag. Keep the 'No Recipe schema found' error only for pages where all three strategies come up empty, and reword it to mention that the page had no recognisable recipe markup. Add parser.test.ts fixtures for a microdata-only page and a class-heuristic-only page.",
+  "acceptance": [
+    "Parser tries JSON-LD, then microdata, then class/id heuristics, in that order",
+    "JSON-LD still wins whenever a usable Recipe node exists (existing tests unchanged)",
+    "Fallback lines go through parseIngredientLine so raw/noun/quantity/unit match the JSON-LD shape",
+    "Title falls back microdata name then og:title then title tag",
+    "parser.test.ts gains microdata-only and heuristic-only fixtures; functions suite green; tsc clean"
+  ]
+}
+```
+
+### WEBLINK-4 — Client: check auth before the spinner, offer inline sign-in
+
+```json
+{
+  "id": "WEBLINK-4",
+  "title": "Gate the URL parse on auth up front with an inline Sign in action",
+  "category": "ui",
+  "priority": 2,
+  "description": "In src/components/MakeRecipeStart.jsx, handleParseUrl currently enters STAGE.PARSING and calls the callable before knowing whether the user is signed in, so a signed-out user watches a spinner and then lands on a dead-end error screen. Read the current auth state (src/hooks/useAuth.js already wraps onAuthStateChanged / signInWithPopup for Google + Apple) and, when there is no user, skip the network call entirely: show the sign-in prompt in the URL-input stage with working Sign in buttons, and re-run the parse automatically once sign-in resolves so the pasted URL is not lost. Also carry the improved server errors through: when the result carries a fetch-path or origin-status detail, show a specific message ('that site blocked the import' vs 'no recipe markup found on that page') rather than the generic 'The recipe parser failed'. Keep the 25s timeout race, keep resetWebLink/back behaviour, and preserve every data-testid (make-weblink-url-input, make-weblink-parse-btn, make-weblink-error, make-weblink-preview, make-weblink-back). Extend src/components/__tests__/MakeRecipeStart.weblink.test.jsx accordingly.",
+  "acceptance": [
+    "Signed-out parse shows an inline Sign in affordance without firing the callable or the spinner",
+    "The pasted URL survives sign-in and the parse resumes automatically",
+    "Blocked-site and no-markup failures render distinct, actionable copy",
+    "25s timeout race, back/reset behaviour and all existing data-testids preserved",
+    "MakeRecipeStart.weblink.test.jsx covers signed-out, resume-after-sign-in, and both error branches; app vitest suite green; npm run build clean"
+  ]
+}
+```
+
+### WEBLINK-5 — Deploy and verify against a live URL matrix
+
+```json
+{
+  "id": "WEBLINK-5",
+  "title": "Build, deploy scrapeRecipe, and verify recipe import end-to-end on real URLs",
+  "category": "verification",
+  "priority": 3,
+  "description": "The deployed revision predates WEBLINK-1..4 (functions/lib was last built 2026-05-30). Run npm --prefix functions run build, deploy with firebase deploy --only functions:scrapeRecipe, then verify against a real URL matrix covering each measured wall: foodnetwork.com (UA-sniffing, fixed by WEBLINK-1), seriouseats.com and simplyrecipes.com (HTTP 402 datacenter block, needs the WEBLINK-2 proxy), bonappetit.com (already worked - regression check), a schema-less blog page (exercises WEBLINK-3), and a deliberate 404 (must fail fast without a proxy hop). Record the observed status, fetch path, title and ingredient count for each row in .ralph/weblink_verification.md. Deployment touches live infrastructure - confirm with the user before running firebase deploy.",
+  "acceptance": [
+    "functions build succeeds and scrapeRecipe deploys (after explicit user go-ahead)",
+    "Live matrix run covering UA-blocked, 402-blocked, already-working, schema-less and 404 URLs",
+    "Every row status / fetch path / title / ingredient count recorded in .ralph/weblink_verification.md",
+    "Any row still failing is written up as a follow-up task rather than reported as a pass"
+  ]
+}
+```
