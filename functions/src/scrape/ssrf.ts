@@ -10,7 +10,6 @@
 // metadata, scan internal services, or perform DNS rebinding attacks.
 
 import { lookup } from 'node:dns/promises';
-import { Agent } from 'undici';
 
 export const REDIRECT_MAX = 5;
 
@@ -126,25 +125,20 @@ export async function assertHostnameResolvesPublicly(url: string): Promise<strin
   return addresses[0].address;
 }
 
-/**
- * Build a one-shot undici Agent that forces the TCP connection to a
- * pre-validated IP. Without pinning, undici performs its own DNS lookup
- * at connect time — a DNS-rebinding attacker with a low-TTL record could
- * see our lookup return a public IP and undici's lookup return an
- * internal IP moments later. Fresh agent per hop avoids cross-request
- * connection reuse with stale pinning.
- */
-export function pinnedAgent(pinnedIp: string): Agent {
-  const family = pinnedIp.includes(':') ? 6 : 4;
-  return new Agent({
-    connect: {
-      lookup: (
-        _hostname: string,
-        _options: unknown,
-        callback: (err: Error | null, address: string, family: number) => void,
-      ) => {
-        callback(null, pinnedIp, family);
-      },
-    },
-  });
-}
+// REMOVED 2026-08-01: pinnedAgent(). It built an undici Agent that forced the
+// TCP connection to a pre-validated IP, to close the DNS-rebinding window
+// between our lookup and undici's connect-time lookup. It was never wired up
+// — handler.ts explains the decision at the assertHostnameResolvesPublicly()
+// call site: undici 6's connect.lookup signature is incompatible with node's
+// classic (err, addr, family) form, and the residual attack surface (a
+// rebind landing in the milliseconds between two lookups, against an
+// auth-gated endpoint) was judged too narrow to justify the complexity.
+//
+// Deleted because it was the ONLY reason `undici` was a direct dependency,
+// and that dependency carried a high-severity advisory. Dead code that
+// imports a vulnerable package is a liability with no upside. The live
+// defences are unchanged: ssrfReason() + assertHostnameResolvesPublicly(),
+// both re-run on every redirect hop.
+//
+// If IP pinning is revisited, note that undici's Agent connect.lookup has
+// since changed — check the current signature rather than restoring this.
