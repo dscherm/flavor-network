@@ -35,6 +35,15 @@ And the theory was never even tested. No measurement of ITP blocking
 anything was performed; the mechanism was inferred from the config, and the
 inference was plausible enough to feel like a finding.
 
+**Epilogue — the theory was not merely unmeasured, it was wrong.** After the
+revert, Google sign-in was confirmed working in Safari on iPhone with the
+original cross-origin `authDomain`. ITP had never been breaking anything.
+The real blocker was that the mobile nav exposed no sign-in entry point at
+all (see [[walk-step-one-in-the-users-state]]). So the change staked a
+universal outage against an upside of exactly zero — and the plausible
+mechanism, the config diff, and the ITP documentation all pointed the same
+convincing direction while being irrelevant to the actual failure.
+
 ## Root cause
 
 Fix selection ran on "is this cause plausible?" and skipped "what does this
