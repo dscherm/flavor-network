@@ -518,3 +518,101 @@ describe('describeServerFailure — Apple News (WEBLINK-8)', () => {
       .toMatch(/No recipe markup/);
   });
 });
+
+// WEBLINK-9 (2026-08-01). Reported from iOS: "I'm not able to push the parse
+// recipe button." A regression I introduced in WEBLINK-4, with two
+// independent causes that compounded into a hard dead end:
+//
+//   1. disabled={needsSignIn} was ONE-WAY. It was cleared only by a
+//      SUCCESSFUL sign-in or by Back. useAuth uses signInWithPopup, which
+//      iOS blocks routinely — so a failed sign-in left Parse permanently
+//      unpressable with no path forward.
+//   2. Even un-disabled, re-tapping wrote setPendingParseUrl(sameString).
+//      React bails on identical state, the effect never re-ran, and the
+//      retry silently did nothing.
+describe('MakeRecipeStart — WEBLINK-9 the Parse button must never trap', () => {
+  it('stays enabled while the sign-in prompt is showing', async () => {
+    authState = { user: null, loading: false };
+    mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/pasta' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+    // The dead end: a disabled control with no way back.
+    expect(screen.getByTestId('make-weblink-parse-btn')).toBeEnabled();
+  });
+
+  it('re-tapping Parse after a failed sign-in re-attempts rather than doing nothing', async () => {
+    authState = { user: null, loading: false };
+    mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/pasta' },
+    });
+
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+
+    // Sign-in popup was blocked — user is still signed out and taps again.
+    // The identical URL must still count as a NEW attempt.
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+    expect(screen.getByTestId('make-weblink-parse-btn')).toBeEnabled();
+    expect(screen.getByTestId('make-weblink-url-input')).toHaveValue('https://example.com/pasta');
+    expect(scrapeRecipeMock).not.toHaveBeenCalled();
+  });
+
+  it('repeated failed attempts do not break the eventual success', async () => {
+    scrapeRecipeMock.mockResolvedValueOnce({
+      data: {
+        status: 'ok', title: 'Retried Pasta',
+        ingredients: [{ raw: 'tomato', noun: 'tomato' }],
+        finalUrl: 'https://example.com/pasta',
+      },
+    });
+    authState = { user: null, loading: false };
+    const props = {
+      setRecipeHandoff: vi.fn(), setRecipeMounted: vi.fn(),
+      setActiveTab: vi.fn(), setCookbookPickerMode: vi.fn(), nodes: SAMPLE_NODES,
+    };
+    const { rerender } = render(<MakeRecipeStart {...props} />);
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/pasta' },
+    });
+    // Two failed attempts — the popup was blocked twice.
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+    expect(scrapeRecipeMock).not.toHaveBeenCalled();
+
+    // Sign-in finally lands. The queued URL resumes on its own — the user
+    // does NOT have to tap a third time.
+    authState = { user: { uid: 'signed-in' }, loading: false };
+    rerender(<MakeRecipeStart {...props} />);
+
+    await waitFor(() => expect(screen.getByTestId('make-weblink-preview')).toBeInTheDocument());
+    expect(screen.getByText('Retried Pasta')).toBeInTheDocument();
+    // Exactly one call — the retries must not queue up duplicate parses.
+    expect(scrapeRecipeMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('Back still escapes the sign-in state entirely', async () => {
+    authState = { user: null, loading: false };
+    mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/x' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByTestId('make-weblink-back'));
+    expect(screen.getByTestId('make-card-weblink')).toBeInTheDocument();
+    expect(screen.queryByTestId('make-weblink-signin')).toBeNull();
+  });
+});

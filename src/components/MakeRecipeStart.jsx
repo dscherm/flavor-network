@@ -203,7 +203,12 @@ export default function MakeRecipeStart({
   // then hit a dead-end error screen. Hold the URL instead and let the
   // auth-resolution effect below decide: parse it, or ask them to sign in
   // and parse it for them afterwards. `null` means nothing is waiting.
-  const [pendingParseUrl, setPendingParseUrl] = useState(null);
+  // WEBLINK-9 (2026-08-01): a fresh object per attempt, not a bare string.
+  // Re-tapping Parse with the SAME url wrote identical state, React bailed
+  // out, and the effect below never re-ran — so the retry silently did
+  // nothing. The nonce guarantees every tap is a new attempt.
+  const [pendingParse, setPendingParse] = useState(null);
+  const parseAttempt = useRef(0);
   const [needsSignIn, setNeedsSignIn] = useState(false);
 
   const { user, loading: authLoading, loginWithGoogle, loginWithApple } = useAuth();
@@ -218,18 +223,18 @@ export default function MakeRecipeStart({
   // when sign-in resolves, `user` flips and this fires again with the URL
   // still queued, so the parse resumes without the user retyping anything.
   useEffect(() => {
-    if (!pendingParseUrl || authLoading) return;
+    if (!pendingParse || authLoading) return;
     if (!user) {
       setNeedsSignIn(true);
       return;
     }
     setNeedsSignIn(false);
-    setPendingParseUrl(null);
-    runParse(pendingParseUrl);
+    setPendingParse(null);
+    runParse(pendingParse.url);
     // runParse is intentionally out of deps: it's recreated every render and
     // including it would re-fire the parse on unrelated state changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingParseUrl, authLoading, user]);
+  }, [pendingParse, authLoading, user]);
 
   const knownNames = useMemo(() => {
     if (!nodes) return [];
@@ -330,7 +335,7 @@ export default function MakeRecipeStart({
     setMatched([]);
     setIncluded(new Set());
     setUserEdits(new Map());
-    setPendingParseUrl(null);
+    setPendingParse(null);
     setNeedsSignIn(false);
   };
 
@@ -409,7 +414,8 @@ export default function MakeRecipeStart({
     // the auth effect's call — queue it either way so the typed URL survives
     // a sign-in round trip.
     setErrorMessage(null);
-    setPendingParseUrl(trimmed);
+    parseAttempt.current += 1;
+    setPendingParse({ url: trimmed, attempt: parseAttempt.current });
   };
 
   const runParse = async (trimmed) => {
@@ -710,8 +716,7 @@ export default function MakeRecipeStart({
               <button
                 type="button"
                 onClick={handleParseUrl}
-                disabled={needsSignIn}
-                className="px-4 py-2 rounded-md text-base disabled:opacity-50"
+                className="px-4 py-2 rounded-md text-base"
                 style={creamButtonStyle}
                 data-testid="make-weblink-parse-btn"
               >
