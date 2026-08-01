@@ -71,11 +71,29 @@ describe('parseIngredientLine', () => {
   });
 
   it('treats unknown leading word as part of the noun, not a unit', () => {
-    // "stick" isn't in KNOWN_UNITS — should fall through.
-    const r = parseIngredientLine('1 stick butter');
+    // WEBLINK-6: this used "1 stick butter" as the example, but "stick" was
+    // promoted into KNOWN_UNITS alongside the other container/count words —
+    // and "1 stick butter" -> unit "stick", noun "butter" is the better
+    // parse, so the example was refreshed rather than the behaviour reverted.
+    const r = parseIngredientLine('1 glug olive oil');
     expect(r?.quantity).toBe(1);
     expect(r?.unit).toBeUndefined();
-    expect(r?.noun).toMatch(/stick butter/);
+    expect(r?.noun).toMatch(/glug olive oil/);
+  });
+
+  it('recognises container and count words as units (WEBLINK-6)', () => {
+    // "2 cans tomato paste" previously kept "cans" in the noun, so the
+    // candidate cascade never produced plain "tomato" and the line matched
+    // "italian tomatoe" against the real dictionary.
+    expect(parseIngredientLine('2 cans tomato paste')).toMatchObject({
+      quantity: 2, unit: 'cans', noun: 'tomato paste',
+    });
+    expect(parseIngredientLine('1 stick butter')).toMatchObject({
+      quantity: 1, unit: 'stick', noun: 'butter',
+    });
+    expect(parseIngredientLine('1 bunch parsley')).toMatchObject({
+      quantity: 1, unit: 'bunch', noun: 'parsley',
+    });
   });
 
   it('returns null on empty input', () => {
@@ -293,5 +311,67 @@ describe('matchRecipeIngredients', () => {
     const hits = out.filter((e) => e.matched !== null);
     expect(out).toHaveLength(8);
     expect(hits.length).toBeGreaterThanOrEqual(3);
+  });
+});
+
+// WEBLINK-6 (2026-08-01). Found by an end-to-end UI run, not by tests —
+// every layer's suite was green while the composed system imported Serious
+// Eats' "Classic Panzanella Salad (Tuscan-Style Tomato and Bread Salad)" as
+// allspice + cubed cheese + lettuce. tomato, bread and basil were all in the
+// dictionary and none was chosen.
+//
+// Root cause: deriveCandidates offered the bare last token as a candidate
+// even when it was a shape word. Against the real 3,891-name dictionary,
+// "pieces" -> allspice (0.76), "cubes" -> cubed cheese (0.99),
+// "leaves" -> leaves lettuce (0.99) — all beating the real ingredient.
+describe('WEBLINK-6 — real recipe lines must not match shape words', () => {
+  // Verbatim from seriouseats.com/classic-panzanella-salad-recipe.
+  const PANZANELLA = [
+    '2 1/2 pounds (1.1kg) mixed ripe tomatoes, cut into bite-size pieces',
+    '3/4 pound (340g) ciabatta or rustic sourdough bread, cut into 1 1/2-inch cubes (about 6 cups bread cubes)',
+    '1/2 cup (1/2 ounce) packed basil leaves, roughly chopped',
+  ];
+  const DICT = [
+    'tomato', 'bread', 'basil', 'olive oil', 'shallot', 'garlic', 'salt',
+    // The decoys that actually won before the fix.
+    'allspice', 'cubed cheese', 'leaves lettuce', 'thai basil leave',
+  ];
+
+  it('matches the ingredient, not the shape it was cut into', () => {
+    const [tomatoes, bread, basil] = matchRecipeIngredients(
+      PANZANELLA.map((raw) => ({ raw, noun: raw })), DICT,
+    );
+    expect(tomatoes.matched).toBe('tomato');
+    expect(bread.matched).toBe('bread');
+    expect(basil.matched).toBe('basil');
+  });
+
+  it('never returns one of the shape-word decoys', () => {
+    const decoys = ['allspice', 'cubed cheese', 'leaves lettuce'];
+    const matched = matchRecipeIngredients(
+      PANZANELLA.map((raw) => ({ raw, noun: raw })), DICT,
+    ).map((r) => r.matched);
+    decoys.forEach((d) => expect(matched).not.toContain(d));
+  });
+
+  it('strips trailing preparation clauses from the noun', () => {
+    expect(parseIngredientLine(PANZANELLA[0]).noun).toBe('mixed ripe tomatoes');
+    expect(parseIngredientLine(PANZANELLA[1]).noun).toBe('ciabatta or rustic sourdough bread');
+  });
+
+  it('singularizes -oes plurals correctly (tomatoes -> tomato, not tomatoe)', () => {
+    const [r] = matchRecipeIngredients(
+      [{ raw: '2 pounds ripe tomatoes', noun: '2 pounds ripe tomatoes' }],
+      ['tomato', 'tomatoe'],
+    );
+    expect(r.matched).toBe('tomato');
+  });
+
+  it('still preserves canonical compounds', () => {
+    const dict = ['tomato', 'tomato paste', 'ginger', 'ginger paste'];
+    const [paste] = matchRecipeIngredients(
+      [{ raw: '2 cans tomato paste', noun: '2 cans tomato paste' }], dict,
+    );
+    expect(paste.matched).toBe('tomato paste');
   });
 });

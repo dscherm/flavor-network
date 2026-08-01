@@ -822,3 +822,40 @@ the client UX around it instead.
   ]
 }
 ```
+
+### WEBLINK-6 — Ingredient matcher: stop matching shape words to real ingredients
+
+**Found by end-to-end UI verification (2026-08-01), not by tests.** Importing
+Serious Eats' "Classic Panzanella Salad (Tuscan-Style Tomato and Bread Salad)"
+put allspice, cubed cheese and lettuce in the bowl — no tomato, no bread, no
+basil — while every layer's tests were green. See
+`lessons/every-layer-green-system-wrong.md`.
+
+Reproduced against the real 3,891-name dictionary:
+
+| noun after parsing | bare last token | matched | conf |
+|---|---|---|---|
+| `mixed ripe tomatoes, cut into bite-size pieces` | `pieces` | allspice | 0.760 |
+| `ciabatta or rustic sourdough bread, cut into 1 1/2-inch cubes` | `cubes` | cubed cheese | 0.992 |
+| `packed basil leaves` | `leaves` | leaves lettuce | 0.992 |
+
+`tomato`, `bread` and `basil` all exist in the dictionary — the matcher chose
+wrong entries over available right ones.
+
+```json
+{
+  "id": "WEBLINK-6",
+  "title": "Stop the matcher proposing shape/prep words as standalone ingredient candidates",
+  "category": "bugfix",
+  "priority": 1,
+  "description": "Two independent defects in src/data/parseRecipeIngredient.js. (1) deriveCandidates pushes the bare last token as a match candidate; when a line ends in a shape word the candidate is 'pieces'/'cubes'/'leaves', which fuzzy-matches unrelated dictionary entries at ~0.99 confidence. The module already classifies these as FORM_SUFFIXES and uses them to strip suffixes, then contradicts itself by offering them as ingredients. Skip the bare-last-token candidate whenever that token is a FORM_SUFFIX or a KNOWN_UNIT. (2) preprocessLine only drops a comma-tail when it matches TAIL_MODIFIERS exactly, so real prep clauses ('cut into bite-size pieces', 'cut into 1 1/2-inch cubes', 'plus more for seasoning') survive into the noun and leave the shape word trailing. Drop a comma-tail when it STARTS with a preparation verb/phrase, not only on exact match. Also add the leading qualifiers this recipe exposed ('packed', 'ripe', 'mixed') to LEADING_ADJECTIVES. Do NOT loosen MATCH_THRESHOLD or CONFIDENCE_FLOOR — the bug is candidate generation, not the threshold. Server-side parser.ts is out of scope: the client re-parses item.raw, so the server noun is unused on this path.",
+  "acceptance": [
+    "The ten real Panzanella lines are a test fixture; tomatoes->tomato, bread->bread, basil->basil, and no row matches a shape word",
+    "deriveCandidates never proposes a bare FORM_SUFFIX or KNOWN_UNIT as a standalone candidate",
+    "preprocessLine drops comma-tails beginning with a prep verb, not just exact TAIL_MODIFIERS hits",
+    "Existing parseRecipeIngredient tests stay green (canonical compounds like 'tomato paste' must not collapse)",
+    "Verified by READING the matched names on 3+ additional real recipes, not by counting them",
+    "Full app suite green; build clean"
+  ]
+}
+```
