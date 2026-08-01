@@ -54,6 +54,9 @@ const TAIL_MODIFIERS = new Set([
   'plus more for serving', 'plus more', 'room temperature',
   'at room temperature', 'cold', 'warm', 'hot', 'rinsed', 'drained',
   'rinsed and drained', 'thawed', 'frozen', 'fresh',
+  // WEBLINK-7
+  'crumbled', 'sauteed', 'sautéed', 'caramelized', 'toasted', 'cooked',
+  'stemmed', 'seeded', 'cored', 'pitted', 'trimmed', 'torn',
 ]);
 
 // Leading qualifier adjectives that get stripped to expose the canonical
@@ -70,6 +73,9 @@ const LEADING_ADJECTIVES = new Set([
   // reduce to "basil", "mixed ripe tomatoes" to "tomatoes".
   'packed', 'ripe', 'mixed', 'rustic', 'freshly', 'roughly', 'finely',
   'thinly', 'coarsely', 'toasted', 'chopped', 'diced',
+  // WEBLINK-7
+  'sliced', 'canned', 'soft', 'firm', 'grated', 'shredded', 'cooked',
+  'skinless', 'boneless', 'ground', 'granulated', 'powdered', 'active',
 ]);
 
 // Trailing "form" / preparation nouns that can be stripped to expose
@@ -81,6 +87,13 @@ const FORM_SUFFIXES = new Set([
   'breast', 'breasts', 'thigh', 'thighs', 'leg', 'legs', 'wing', 'wings',
   'leaves', 'leaf', 'sprigs', 'sprig', 'cloves', 'clove', 'slices',
   'slice', 'pieces', 'piece', 'sticks', 'stick',
+  // WEBLINK-7: measured on a 102-line real-recipe corpus. "feta cheese"
+  // must reduce to "feta" and "vanilla extract" to "vanilla", because the
+  // dictionary carries the bare form and not the compound.
+  'cheese', 'extract', 'crumbs', 'crumb', 'halves', 'halve',
+  'florets', 'floret', 'chunks', 'chunk', 'wedges', 'wedge',
+  'strips', 'strip', 'rounds', 'round', 'cubes', 'cube',
+  'matchsticks', 'clumps', 'clump',
 ]);
 
 /**
@@ -103,6 +116,10 @@ const PREP_CLAUSE_OPENERS = [
   'husked', 'scrubbed', 'washed', 'patted', 'plus', 'preferably', 'ideally',
   'about', 'approximately', 'such', 'or', 'plus more', 'well', 'lightly',
   'roughly', 'finely', 'thinly', 'coarsely', 'freshly', 'very',
+  // WEBLINK-7 — openers seen in the 102-line corpus.
+  'cooked', 'crumbled', 'tossed', 'added', 'separated', 'broken',
+  'stems', 'seeds', 'otherwise', 'divided', 'grated', 'shredded',
+  'melted', 'softened', 'if', 'to', 'for', 'at', 'as',
 ];
 
 function isPrepClause(tail) {
@@ -145,6 +162,13 @@ function preprocessLine(line) {
   let s = String(line ?? '').trim();
   if (!s) return '';
   s = s.replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+  // WEBLINK-7: abbreviated units are routinely written with a period
+  // ("2 tsp. vanilla extract", "6 oz. chocolate" — Bon Appétit's house
+  // style). The unit regex matches [a-zA-Z]+ only, so "tsp." failed to
+  // parse as a unit and stayed in the noun as "tsp. vanilla extract",
+  // which matched nothing. Drop the period when the bare token is a unit.
+  s = s.replace(/\b([a-zA-Z]+)\.(?=\s)/g, (m, word) =>
+    KNOWN_UNITS.has(word.toLowerCase()) ? word : m);
   // WEBLINK-6: strip EVERY trailing prep clause, not just the last one and
   // not only on an exact TAIL_MODIFIERS hit. "…bread, cut into cubes" and
   // "…tomatoes, cut into bite-size pieces" both used to survive intact.
@@ -218,6 +242,15 @@ function deriveCandidates(noun) {
   push(base);
 
   const tokens = base.split(/\s+/);
+
+  // WEBLINK-7: singularize a single-token noun too. This only ever handled
+  // the last word of a MULTI-token noun, so a bare "mushrooms" never reached
+  // "mushroom" — which is the form the dictionary carries.
+  if (tokens.length === 1) {
+    const sing = singularize(tokens[0]);
+    if (sing !== tokens[0]) push(sing);
+  }
+
   if (tokens.length > 1) {
     const last = tokens[tokens.length - 1];
     const sing = singularize(last);
@@ -230,6 +263,14 @@ function deriveCandidates(noun) {
   while (stripped.length > 1 && LEADING_ADJECTIVES.has(stripped[0])) {
     stripped = stripped.slice(1);
     push(stripped.join(' '));
+    // WEBLINK-7: and its singularized form. Generating singulars only from
+    // the raw tokens meant "large egg yolks" produced "large egg yolk" and
+    // "egg yolks", but never "egg yolk" — the one the dictionary has. Under
+    // the exact-only rule for dropped-token candidates that became a miss
+    // where it had previously matched.
+    const sLast = stripped[stripped.length - 1];
+    const sSing = singularize(sLast);
+    if (sSing !== sLast) push([...stripped.slice(0, -1), sSing].join(' '));
   }
 
   // WEBLINK-6: strip the form suffix from BOTH the original tokens and the
@@ -268,7 +309,38 @@ function deriveCandidates(noun) {
     }
   }
 
+  // WEBLINK-7: the FIRST content token, last. English compounds usually put
+  // the head last, which is why the last-token candidate exists — but
+  // "panko bread crumbs" carries its identity up front, and the dictionary
+  // has "panko" and not "bread crumbs". Safe to offer because dropped-token
+  // candidates only win on an exact hit (see matchIngredientName).
+  if (tokens.length > 1 && !isShapeWord(tokens[0]) && !LEADING_ADJECTIVES.has(tokens[0])) {
+    push(tokens[0]);
+  }
+
   return out;
+}
+
+/**
+ * WEBLINK-7: does the matched name actually mention the noun's head word?
+ *
+ * English puts the head of a compound last — the head of "baby arugula" is
+ * arugula, of "baking soda" is soda. A fuzzy match that shares only the
+ * modifier ("baby eggplant", "baking potatoe") names a different food, and
+ * is worse than no match at all.
+ *
+ * Compared both ways so plural/singular pairs still count as sharing:
+ * head "tomatoes" vs match "tomato".
+ */
+function sharesHeadWord(noun, matchedName) {
+  const tokens = String(noun ?? '').toLowerCase().split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return false;
+  const head = tokens[tokens.length - 1].replace(/[^a-z0-9-]/g, '');
+  if (!head) return true;
+  const headSing = singularize(head);
+  const target = String(matchedName ?? '').toLowerCase();
+  return target.includes(head) || target.includes(headSing)
+    || head.includes(target) || headSing.includes(target);
 }
 
 function buildMatchIndex(knownNames) {
@@ -302,43 +374,50 @@ export function matchIngredientName(noun, knownOrIndex) {
   const candidates = deriveCandidates(trimmed);
   if (candidates.length === 0) return null;
 
+  // WEBLINK-7 (2026-08-01): a candidate produced by DROPPING tokens
+  // (idx > 0 — adjective-stripped, form-stripped, last-token, first-token)
+  // may only win on an EXACT dictionary hit. Generalizing is a fallback for
+  // when the full phrase isn't known, not an upgrade over it.
+  //
+  // Previously a *fuzzy* hit on a dropped-token candidate could beat the
+  // full noun, and fuzzy scores on short strings are enormous: "baking soda"
+  // dropped to "soda", which fuzzy-matched "soda water" at 0.99 and won —
+  // even though neither "baking soda" nor "soda" is in the dictionary and
+  // the honest answer is no match. Same shape turned "vanilla extract" into
+  // "lemon extract". The shorter the fragment, the more confidently wrong
+  // the neighbour, which is precisely backwards.
   let best = null;
-  let baseConfidence = 0;
   candidates.forEach((cand, idx) => {
     if (index.exactSet.has(cand)) {
       const canonical = index.canonicalByLower.get(cand) || cand;
-      const hit = { name: canonical, score: 0, confidence: 1, candidate: cand, idx };
-      if (idx === 0) baseConfidence = 1;
-      if (!best || hit.confidence > best.confidence) best = hit;
+      // Ties go to the earlier (more specific) candidate: strict >.
+      if (!best || 1 > best.confidence) {
+        best = { name: canonical, score: 0, confidence: 1, candidate: cand, idx };
+      }
       return;
     }
+    // Fuzzy is only trusted on the full noun. A fuzzy hit on a fragment says
+    // more about string length than about the ingredient.
+    if (idx !== 0) return;
     const hits = index.fuse.search(cand, { limit: 1 });
     if (hits.length === 0) return;
     const [hit] = hits;
+    // WEBLINK-7: a fuzzy match must share the noun's HEAD word. Without this
+    // a shared leading adjective carries the whole match: "baking soda" ->
+    // "baking potatoe", "baby arugula" -> "baby eggplant". Neither soda nor
+    // arugula is in the dictionary, so the honest answer is no match, and
+    // returning a different food silently changes the recipe's flavor
+    // profile. It also correctly refuses "chicken thighs" -> "...chicken
+    // breast", which is the wrong cut.
+    if (!sharesHeadWord(cand, hit.item)) return;
     const score = typeof hit.score === 'number' ? hit.score : 1;
     const confidence = Math.max(0, 1 - score);
-    if (idx === 0) baseConfidence = confidence;
     if (!best || confidence > best.confidence) {
       best = { name: hit.item, score, confidence, candidate: cand, idx };
     }
   });
 
   if (!best) return null;
-
-  // Form-stripped / generalized candidates (idx > 0) only win on STRICT
-  // improvement. Ties go to the more-specific full noun so canonical
-  // compounds ("tomato paste", "ginger paste", "red wine vinegar")
-  // aren't collapsed to their head word.
-  if (best.idx > 0 && best.confidence <= baseConfidence + 1e-6) {
-    if (baseConfidence >= CONFIDENCE_FLOOR) {
-      const baseHit = index.fuse.search(candidates[0], { limit: 1 })[0];
-      if (baseHit) {
-        const score = typeof baseHit.score === 'number' ? baseHit.score : 1;
-        return { name: baseHit.item, score, confidence: Math.max(0, 1 - score) };
-      }
-    }
-  }
-
   if (best.confidence < CONFIDENCE_FLOOR) return null;
   return { name: best.name, score: best.score, confidence: best.confidence };
 }
