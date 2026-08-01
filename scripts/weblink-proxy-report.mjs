@@ -17,10 +17,18 @@
  * Reads from `firebase functions:log`, which keeps a limited window — run it
  * periodically rather than expecting full history.
  */
-import { execFileSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 
 const args = process.argv.slice(2);
 const project = valueFor('--project') ?? 'neuralflavor';
+
+// The project id is interpolated into a shelled-out command on Windows.
+// Firebase project ids are [a-z0-9-] only, so anything else is rejected
+// rather than passed through to cmd.exe.
+if (!/^[a-z0-9][a-z0-9-]{0,60}$/.test(project)) {
+  console.error(`Refusing to run: --project ${JSON.stringify(project)} is not a valid Firebase project id.`);
+  process.exit(1);
+}
 
 function valueFor(flag) {
   const i = args.indexOf(flag);
@@ -29,10 +37,15 @@ function valueFor(flag) {
 
 function fetchLogLines() {
   try {
-    return execFileSync(
-      process.platform === 'win32' ? 'npx.cmd' : 'npx',
-      ['firebase', 'functions:log', '--only', 'scrapeRecipe', '--project', project],
-      { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
+    // Node 20+ refuses to spawn a .cmd without a shell (the CVE-2024-27980
+    // fix) and throws EINVAL, so this has to go through a shell on Windows.
+    // Passing an args ARRAY with shell:true is separately deprecated
+    // (DEP0190) because the array is concatenated rather than escaped — so
+    // build the command as one string instead. `project` is the only
+    // interpolated value and is validated against [a-z0-9-] above.
+    return execSync(
+      `npx firebase functions:log --only scrapeRecipe --project ${project}`,
+      { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] },
     ).split('\n');
   } catch (err) {
     console.error('Could not read function logs. Is the Firebase CLI authenticated?');
