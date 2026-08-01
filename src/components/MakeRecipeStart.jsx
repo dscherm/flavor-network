@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase.js';
 import { matchRecipeIngredients } from '../data/parseRecipeIngredient.js';
+import useAuth from '../hooks/useAuth.js';
 import {
   FONT,
   CHALK_CREAM,
@@ -137,6 +138,24 @@ const STAGE = {
   ERROR: 'error',
 };
 
+/**
+ * WEBLINK-4: turn a server errorMessage into copy that tells the user what
+ * to do next. The two failures they'll actually hit are "the site refused
+ * us" and "the page has no recipe card", and those want different advice —
+ * try another site vs. this isn't a recipe page. Everything else falls
+ * through to the server's own wording, which is already user-facing.
+ */
+export function describeServerFailure(serverMessage) {
+  const msg = serverMessage || '';
+  if (/blocked the import|HTTP \d{3}/i.test(msg)) {
+    return 'That site blocked the import — it refuses automated requests. Try the recipe on a different site, or add the ingredients by hand.';
+  }
+  if (/no recipe markup/i.test(msg)) {
+    return msg;
+  }
+  return msg || 'Could not parse a recipe from that URL.';
+}
+
 export default function MakeRecipeStart({
   setRecipeHandoff,
   setRecipeMounted,
@@ -171,11 +190,38 @@ export default function MakeRecipeStart({
   // missing from the map uses the auto-match result; a row present uses
   // the user-typed value (which may be a known ingredient name or not).
   const [userEdits, setUserEdits] = useState(new Map());
+  // WEBLINK-4 (2026-07-31): the parse used to fire before we knew whether
+  // the user was signed in, so a signed-out user watched a 25s spinner and
+  // then hit a dead-end error screen. Hold the URL instead and let the
+  // auth-resolution effect below decide: parse it, or ask them to sign in
+  // and parse it for them afterwards. `null` means nothing is waiting.
+  const [pendingParseUrl, setPendingParseUrl] = useState(null);
+  const [needsSignIn, setNeedsSignIn] = useState(false);
+
+  const { user, loading: authLoading, loginWithGoogle, loginWithApple } = useAuth();
 
   useEffect(() => {
     if (stage === STAGE.CARDS) firstCardRef.current?.focus();
     if (stage === STAGE.URL_INPUT) urlInputRef.current?.focus();
   }, [stage]);
+
+  // WEBLINK-4: a queued URL waits here until auth is known. Signed in ->
+  // parse it. Signed out -> show the inline sign-in prompt and keep waiting;
+  // when sign-in resolves, `user` flips and this fires again with the URL
+  // still queued, so the parse resumes without the user retyping anything.
+  useEffect(() => {
+    if (!pendingParseUrl || authLoading) return;
+    if (!user) {
+      setNeedsSignIn(true);
+      return;
+    }
+    setNeedsSignIn(false);
+    setPendingParseUrl(null);
+    runParse(pendingParseUrl);
+    // runParse is intentionally out of deps: it's recreated every render and
+    // including it would re-fire the parse on unrelated state changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingParseUrl, authLoading, user]);
 
   const knownNames = useMemo(() => {
     if (!nodes) return [];
@@ -276,6 +322,8 @@ export default function MakeRecipeStart({
     setMatched([]);
     setIncluded(new Set());
     setUserEdits(new Map());
+    setPendingParseUrl(null);
+    setNeedsSignIn(false);
   };
 
   // MAKE-WEBLINK-MATCH-V2: dictionary membership check, case-insensitive.
@@ -330,7 +378,7 @@ export default function MakeRecipeStart({
     });
   };
 
-  const handleParseUrl = async () => {
+  const handleParseUrl = () => {
     const trimmed = url.trim();
     if (!trimmed) {
       setErrorMessage('Paste a recipe URL first.');
@@ -349,7 +397,14 @@ export default function MakeRecipeStart({
       setStage(STAGE.ERROR);
       return;
     }
+    // The URL is well-formed. Whether it gets parsed now or after sign-in is
+    // the auth effect's call — queue it either way so the typed URL survives
+    // a sign-in round trip.
+    setErrorMessage(null);
+    setPendingParseUrl(trimmed);
+  };
 
+  const runParse = async (trimmed) => {
     setStage(STAGE.PARSING);
     setErrorMessage(null);
     try {
@@ -367,7 +422,7 @@ export default function MakeRecipeStart({
       ]);
       const result = res?.data;
       if (!result || result.status !== 'ok' || !Array.isArray(result.ingredients)) {
-        setErrorMessage(result?.errorMessage || 'Could not parse a recipe from that URL.');
+        setErrorMessage(describeServerFailure(result?.errorMessage));
         setStage(STAGE.ERROR);
         return;
       }
@@ -595,6 +650,45 @@ export default function MakeRecipeStart({
               style={slateInputStyle}
               onKeyDown={(e) => { if (e.key === 'Enter') handleParseUrl(); }}
             />
+            {/* WEBLINK-4: shown only after a parse is queued and auth has
+                resolved to signed-out. The URL stays in the input, and the
+                queued parse resumes on its own once sign-in completes. */}
+            {needsSignIn && (
+              <div
+                data-testid="make-weblink-signin"
+                className="rounded-lg p-4 mb-4"
+                style={{ border: `1px solid ${CHALK_RAIL}`, background: 'rgba(0,0,0,0.15)' }}
+              >
+                <div className="text-base mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+                  Sign in to import from a link
+                </div>
+                <p className="text-sm mb-3" style={{ color: CHALK_DIM }}>
+                  Importing fetches the page on your behalf, so it needs an
+                  account. Your URL is saved — we'll pick up right where you
+                  left off.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={loginWithGoogle}
+                    className="px-4 py-2 rounded-md text-base"
+                    style={creamButtonStyle}
+                    data-testid="make-weblink-signin-google"
+                  >
+                    Sign in with Google
+                  </button>
+                  <button
+                    type="button"
+                    onClick={loginWithApple}
+                    className="px-4 py-2 rounded-md text-base"
+                    style={creamButtonStyle}
+                    data-testid="make-weblink-signin-apple"
+                  >
+                    Sign in with Apple
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="flex items-center justify-between gap-2">
               <button
                 type="button"
@@ -608,7 +702,8 @@ export default function MakeRecipeStart({
               <button
                 type="button"
                 onClick={handleParseUrl}
-                className="px-4 py-2 rounded-md text-base"
+                disabled={needsSignIn}
+                className="px-4 py-2 rounded-md text-base disabled:opacity-50"
                 style={creamButtonStyle}
                 data-testid="make-weblink-parse-btn"
               >

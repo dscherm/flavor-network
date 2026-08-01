@@ -1,6 +1,20 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+
+// WEBLINK-4: MakeRecipeStart now reads auth state to decide whether the URL
+// import can run. Stub it signed-in so these picker tests stay hermetic and
+// don't reach real Firebase Auth.
+vi.mock('../../hooks/useAuth.js', () => ({
+  default: () => ({
+    user: { uid: 'test-user' },
+    loading: false,
+    loginWithGoogle: vi.fn(),
+    loginWithApple: vi.fn(),
+    logout: vi.fn(),
+  }),
+}));
+
 import MakeRecipeStart from '../MakeRecipeStart.jsx';
 
 function mountPicker(overrides = {}) {
