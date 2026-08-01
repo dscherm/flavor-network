@@ -910,3 +910,37 @@ declined one the user simply adds. Declining is the better failure.
   ]
 }
 ```
+
+### WEBLINK-8 — Apple News links: resolve when possible, explain honestly when not
+
+**Measured 2026-08-01** against a real link
+(`apple.news/KcFmm7QLuNEyYYYM2Bm9Z_w`, America's Test Kitchen):
+the apple.news interstitial is a 7.5KB "open in the News app" bounce page.
+It carries `og:title` ("Miso Pork and Eggplant Stir-Fry — America's Test
+Kitchen") and `<meta name="Author">`, but **no canonical, no og:url, and
+every absolute URL on the page is an Apple domain**. The only navigation is
+a JS redirect to `applenewss://`, which only the News app can open. There is
+nothing for the redirect-follower to resolve.
+
+Today such a link returns "No recipe markup found on this page" — true and
+useless. n=1 so far, and from a News+ publisher; a free-publisher sample may
+expose a web URL, so the resolver path is built opportunistically.
+
+```json
+{
+  "id": "WEBLINK-8",
+  "title": "Detect apple.news links: use a publisher URL if present, otherwise name the recipe and explain",
+  "category": "feature",
+  "priority": 2,
+  "description": "In functions/src/scrape/. Recognise the apple.news host and handle it as its own case. (1) OPPORTUNISTIC RESOLVE: scan the interstitial for a non-Apple http(s) URL (canonical, og:url, or any publisher-domain link); if one is found, follow it and scrape normally, so free-publisher articles that do expose a web version keep working end-to-end. (2) HONEST FALLBACK: when no publisher URL exists, do NOT return the generic no-markup error. Extract og:title (strip the trailing ' — Publisher' suffix) and the Author meta, and return a distinct error naming the recipe and publisher so the user can see we read the right article, plus guidance to use News's Open-in-Safari and paste that link. The guidance must NOT promise Open-in-Safari always exists — News+ content has no public web equivalent. Add an appleNews flag or a distinct error kind on ScrapeResult so the client can render this branch specifically rather than pattern-matching prose. Client side: extend describeServerFailure in src/components/MakeRecipeStart.jsx to render the Apple News case with the extracted title. Keep the SSRF gauntlet on any followed publisher URL — it is user-influenced content.",
+  "acceptance": [
+    "An apple.news URL whose interstitial contains a publisher link is followed and scraped normally",
+    "An apple.news URL with no publisher link returns a distinct Apple-News error naming the recipe title and publisher, not the generic no-markup message",
+    "The title is cleaned of the trailing ' — Publisher' suffix that og:title carries",
+    "Copy does not claim Open-in-Safari always works (News+ has no web version)",
+    "Any followed publisher URL still passes ssrfReason + assertHostnameResolvesPublicly",
+    "Tests use the REAL captured interstitial as a fixture, not a hand-written mock",
+    "Non-apple.news URLs are completely unaffected; functions + app suites green"
+  ]
+}
+```

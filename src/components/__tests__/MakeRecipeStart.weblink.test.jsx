@@ -483,3 +483,38 @@ describe('describeServerFailure — WEBLINK-4 error copy', () => {
     expect(blocked).not.toBe(noMarkup);
   });
 });
+
+// WEBLINK-8: Apple News gets its own branch, keyed on the structured
+// appleNews field rather than on prose, so a future edit to the generic
+// fallbacks can't silently swallow it.
+describe('describeServerFailure — Apple News (WEBLINK-8)', () => {
+  const APPLE_MSG =
+    'Apple News links don\'t include the original recipe page, so we can\'t read the '
+    + 'ingredients for “Miso Pork and Eggplant Stir-Fry” from America\'s Test Kitchen.';
+
+  it('passes the Apple News message through with the recipe named', () => {
+    const out = describeServerFailure(APPLE_MSG, {
+      appleNews: { title: 'Miso Pork and Eggplant Stir-Fry', publisher: "America's Test Kitchen" },
+    });
+    expect(out).toContain('Miso Pork and Eggplant Stir-Fry');
+    expect(out).toContain("America's Test Kitchen");
+  });
+
+  it('does not fall through to the generic blocked-site copy', () => {
+    const out = describeServerFailure(APPLE_MSG, { appleNews: { title: 'X', publisher: 'Y' } });
+    expect(out).not.toMatch(/refuses automated requests/);
+    expect(out).not.toMatch(/Could not parse a recipe/);
+  });
+
+  it('still renders something useful if the message is missing', () => {
+    const out = describeServerFailure('', { appleNews: { title: null, publisher: null } });
+    expect(out).toMatch(/Apple News/);
+  });
+
+  it('leaves non-Apple failures on their existing branches', () => {
+    expect(describeServerFailure('HTTP 402 fetching https://x.com', { fetchPath: 'proxy' }))
+      .toMatch(/blocked the import/i);
+    expect(describeServerFailure('No recipe markup found on this page.', {}))
+      .toMatch(/No recipe markup/);
+  });
+});
