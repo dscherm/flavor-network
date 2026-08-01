@@ -375,3 +375,74 @@ describe('WEBLINK-6 — real recipe lines must not match shape words', () => {
     expect(paste.matched).toBe('tomato paste');
   });
 });
+
+// WEBLINK-7 (2026-08-01). Measured over a 102-line corpus scraped from 7
+// live recipes. Two rules, and the second matters more than the first:
+// generalize only to EXACT hits, and decline when the dictionary has no
+// right answer. A wrong ingredient silently changes the recipe's computed
+// flavor profile; a declined one the user simply adds.
+describe('WEBLINK-7 — generalize only on exact hits', () => {
+  const DICT = [
+    'mozzarella', 'feta', 'ricotta', 'parmesan', 'mushroom', 'vanilla',
+    'tomato', 'tomato paste', 'tomato sauce', 'water chestnut', 'panko',
+    'italian sausage', 'black olive', 'egg yolk', 'red wine vinegar',
+    // Decoys that won before the fix, each a genuinely different food.
+    'soda water', 'lemon extract', 'baking potatoe', 'baby eggplant',
+    'crumbled cornbread', 'lump crabmeat', 'hotsauce', 'crumb crust',
+    'boneless skinless chicken breast',
+  ];
+  const match = (raw) => matchRecipeIngredients([{ raw, noun: raw }], DICT)[0].matched;
+
+  it('reduces a compound to the bare form the dictionary carries', () => {
+    expect(match('Feta cheese, crumbled')).toBe('feta');
+    expect(match('Fresh soft mozzarella cheese, separated into small clumps')).toBe('mozzarella');
+    expect(match('0.75 cup grated Parmesan cheese')).toBe('parmesan');
+    expect(match('2 tsp. vanilla extract')).toBe('vanilla');
+    expect(match('1 cup panko bread crumbs')).toBe('panko');
+  });
+
+  it('singularizes a single-token noun', () => {
+    expect(match('Mushrooms, very thinly sliced if raw, otherwise first sauteed')).toBe('mushroom');
+  });
+
+  it('keeps the qualifier when it is part of the dictionary name', () => {
+    expect(match('1 (8 ounce) can sliced water chestnuts, drained')).toBe('water chestnut');
+    expect(match('2 (6.5 ounce) cans canned tomato sauce')).toBe('tomato sauce');
+    expect(match('Sliced black olives')).toBe('black olive');
+  });
+
+  it('handles abbreviated units written with a period', () => {
+    // "2 tsp. vanilla extract" used to keep "tsp." in the noun.
+    expect(parseIngredientLine('2 tsp. vanilla extract')).toMatchObject({
+      quantity: 2, unit: 'tsp', noun: 'vanilla extract',
+    });
+    expect(parseIngredientLine('6 oz. chocolate')).toMatchObject({ unit: 'oz', noun: 'chocolate' });
+  });
+
+  it('DECLINES when the dictionary has no right answer', () => {
+    // Neither "baking soda" nor "soda" is in the dictionary. Returning
+    // "soda water" (0.99 before the fix) was worse than returning nothing.
+    expect(match('3/4 tsp. baking soda')).toBeNull();
+    // "arugula" absent — must not become "baby eggplant" on a shared "baby".
+    expect(match('Baby arugula, tossed in a little olive oil')).toBeNull();
+  });
+
+  it('refuses a match that shares only a modifier, not the head word', () => {
+    // Chicken thigh is not chicken breast — a different cut is a wrong
+    // ingredient, not a near miss.
+    expect(match('5 boneless, skinless chicken thighs')).toBeNull();
+  });
+
+  it('a fuzzy hit must mention the head word', () => {
+    expect(matchIngredientName('baking soda', ['baking potatoe'])).toBeNull();
+    expect(matchIngredientName('baby arugula', ['baby eggplant'])).toBeNull();
+    // …but plural/singular head pairs still count as sharing.
+    expect(matchIngredientName('ripe tomatoes', ['tomato'])?.name).toBe('tomato');
+  });
+
+  it('still preserves canonical compounds and the WEBLINK-6 behaviour', () => {
+    expect(match('2 cans tomato paste')).toBe('tomato paste');
+    expect(match('2 tablespoons red wine vinegar')).toBe('red wine vinegar');
+    expect(match('2 large egg yolks')).toBe('egg yolk');
+  });
+});

@@ -859,3 +859,54 @@ wrong entries over available right ones.
   ]
 }
 ```
+
+### WEBLINK-7 — Matcher accuracy pass over a 102-line real-recipe corpus
+
+Follow-up to WEBLINK-6, which fixed the shape-word class. A 102-line corpus
+scraped from 7 live recipes (foodnetwork, allrecipes x2, simplyrecipes,
+bonappetit, seriouseats, budgetbytes) shows the remaining errors split into
+two kinds, and the second matters more:
+
+**A. A correct entry exists and was not chosen**
+
+| line | matched | should be |
+|---|---|---|
+| Fresh soft mozzarella cheese, separated into small clumps | lump crabmeat | mozzarella |
+| Feta cheese, crumbled | crumbled cornbread | feta |
+| Italian sausage, cooked ahead and crumbled | crumbled cornbread | italian sausage |
+| Mushrooms, very thinly sliced if raw, otherwise first sauteed | salted | mushroom |
+| 2 tsp. vanilla extract | lemon extract | vanilla |
+| 2 cans canned tomato sauce | hotsauce | tomato sauce |
+| 1 can sliced water chestnuts, drained | chestnut | water chestnut |
+| 3 skinless, boneless chicken breast halves, thinly sliced | halved cherry tomatoe | boneless skinless chicken breast |
+| 1 cup panko bread crumbs | crumb crust | panko |
+
+**B. NO correct entry exists, and a confident wrong one was returned anyway**
+
+`baking soda` -> "soda water"; `Baby arugula` -> "woven wheat cracker";
+`Bell peppers` -> (correctly none); `chicken thighs` -> "boneless skinless
+chicken breast" (wrong cut). Verified absent from the 3,891-name dictionary:
+baking soda, soda, arugula, bell pepper, chicken thigh, vanilla extract,
+mozzarella cheese, feta cheese, pesto.
+
+A wrong ingredient silently changes the recipe's computed flavor profile; a
+declined one the user simply adds. Declining is the better failure.
+
+```json
+{
+  "id": "WEBLINK-7",
+  "title": "Matcher accuracy: generalize only to exact hits, and decline when no entry exists",
+  "category": "bugfix",
+  "priority": 1,
+  "description": "In src/data/parseRecipeIngredient.js. CORE RULE: a candidate derived by DROPPING tokens (any idx>0 in deriveCandidates — adjective-stripped, form-stripped, last-token, first-token) may only win on an EXACT dictionary hit. Today a fuzzy hit on a dropped-token candidate can beat the full noun, which is how 'baking soda' became 'soda water' (0.99) and 'vanilla extract' became 'lemon extract'. Generalizing is a fallback, not an upgrade. Supporting changes: (a) singularize single-token nouns too — deriveCandidates only singularizes the last word of multi-token nouns, so bare 'Mushrooms' never reached 'mushroom'; (b) add cheese/extract/crumbs/halves/florets/chunks/wedges/strips to FORM_SUFFIXES so 'feta cheese'->'feta', 'vanilla extract'->'vanilla'; (c) add sliced/canned/soft/firm/grated/shredded/cooked to LEADING_ADJECTIVES; (d) add cooked/crumbled/tossed/added/separated/stems/seeds/otherwise/broken to the prep-clause openers and crumbled/sauteed/caramelized to TAIL_MODIFIERS; (e) push the FIRST content token as a last-resort candidate so 'panko bread crumbs'->'panko' (exact-only under the core rule). Do NOT lower MATCH_THRESHOLD or CONFIDENCE_FLOOR. Expect the unmatched count to RISE — that is the point.",
+  "acceptance": [
+    "Dropped-token candidates win only on an exact dictionary hit; fuzzy generalization cannot beat the full noun",
+    "Group A lines match their correct entry (mozzarella, feta, italian sausage, mushroom, vanilla, tomato sauce, water chestnut, panko)",
+    "Group B lines with no correct entry return NO match rather than a confident wrong one (baking soda, baby arugula)",
+    "The WEBLINK-6 Panzanella fixture still passes unchanged",
+    "Canonical compounds still preserved (tomato paste, red wine vinegar)",
+    "Re-run the 102-line corpus and READ every changed row; report matched-correct / declined / still-wrong counts honestly",
+    "Full app suite green; build clean"
+  ]
+}
+```
