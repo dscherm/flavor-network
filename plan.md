@@ -944,3 +944,51 @@ expose a web URL, so the resolver path is built opportunistically.
   ]
 }
 ```
+
+### WEBLINK-12 — Native sign-in for the packaged iOS app (NOT STARTED)
+
+**Confirmed 2026-08-01.** Safari on iPhone works — sign-in and import both
+verified by the user. The packaged Capacitor app does not: the sign-in
+buttons do nothing.
+
+Cause is structural, not a regression. The app runs in a WKWebView loaded
+from `capacitor://localhost`. `signInWithPopup` needs a popup window that
+does not exist there; `signInWithRedirect` needs to return to a Firebase
+authorized domain, and authorized domains are HTTPS origins — so
+`capacitor://localhost` can never be one. The Firebase **web** SDK's OAuth
+cannot complete in the packaged app on any build. It has never worked.
+
+Nothing native is configured today (measured): no `GoogleService-Info.plist`,
+no `CFBundleURLSchemes` (so no `REVERSED_CLIENT_ID`), no entitlements file,
+no auth plugin — only the core Capacitor plugins.
+
+**PREREQUISITES — human-only, must land before the code work:**
+1. Download `GoogleService-Info.plist` from Firebase Console → iOS app.
+2. Enable **Sign in with Apple** on the App ID in the Apple Developer portal.
+   Not optional: App Store Review Guideline 4.8 requires it wherever Google
+   sign-in is offered.
+3. Confirm Codemagic still signs cleanly once the app carries an entitlement.
+
+**RISK, stated plainly:** adding an entitlement changes provisioning-profile
+requirements, and the Codemagic signing setup was only just stabilised. This
+is the single most likely change to break the working TestFlight pipeline.
+Do it as its own task with its own TestFlight verification — never bolted
+onto another change.
+
+```json
+{
+  "id": "WEBLINK-12",
+  "title": "Native Google + Apple sign-in for the Capacitor iOS app",
+  "category": "feature",
+  "priority": 2,
+  "blocked_by": "human prerequisites above (plist, Apple capability, signing check)",
+  "description": "Add @capacitor-firebase/authentication (or equivalent) so the packaged iOS app signs in through the native Google Sign-In SDK and Apple's ASAuthorization, then exchanges the resulting credential for a Firebase session via signInWithCredential. Branch useAuth on Capacitor.isNativePlatform(): native path in the app, and leave the existing popup -> redirect web path COMPLETELY untouched, since it is verified working in Safari on iPhone. Add GoogleService-Info.plist to the Xcode project, the REVERSED_CLIENT_ID URL scheme to Info.plist, and an entitlements file with com.apple.developer.applesignin. Preserve the authError surfacing from WEBLINK-10 on both paths — a silent native failure would be exactly as undebuggable as the web one was.",
+  "acceptance": [
+    "Signing in on a TestFlight build completes and persists across app restarts",
+    "Both Google and Apple work natively (4.8 requires Apple alongside Google)",
+    "The web path in Safari is unchanged and still works — verified, not assumed",
+    "Auth failures surface visibly on the native path too",
+    "Codemagic still builds and signs; a TestFlight build is confirmed BEFORE this is called done"
+  ]
+}
+```

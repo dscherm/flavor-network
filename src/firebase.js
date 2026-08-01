@@ -20,10 +20,17 @@ const firebaseConfig = {
   //
   // That is strictly worse than the ITP risk it was meant to avoid: a hard
   // failure for every user on every platform, versus a suspected failure on
-  // one. Reverted. To do this properly, first add
-  // https://neuralflavor.web.app/__/auth/handler to the Authorized redirect
-  // URIs of the OAuth 2.0 client in Google Cloud Console, verify, and only
-  // then flip this value.
+  // one.
+  //
+  // DISPROVEN 2026-08-01, after the revert: Google sign-in was confirmed
+  // working in Safari on iPhone with THIS cross-origin value. ITP was never
+  // breaking anything here — the actual blocker was that no sign-in entry
+  // point existed in the mobile nav at all (fixed in WEBLINK-11, bb2181d).
+  //
+  // So there is no reason to revisit this. Do NOT spend time registering the
+  // web.app redirect URI in Google Cloud Console to "enable" a same-origin
+  // authDomain: it would buy nothing, and the cross-origin flow is verified
+  // working on the platform it was supposed to fix.
   authDomain: "neuralflavor.firebaseapp.com",
   projectId: "neuralflavor",
   storageBucket: "neuralflavor.firebasestorage.app",
