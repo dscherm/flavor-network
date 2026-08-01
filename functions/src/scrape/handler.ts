@@ -195,7 +195,40 @@ export interface HandleScrapeDeps {
   budgetMs?: number;
 }
 
+/**
+ * One structured line per scrape, so proxy reliance is queryable rather than
+ * inferred. Three of the six recipe sites we verified only import because
+ * r.jina.ai is up and free — that is a real fragility, and the thing you want
+ * before it bites is the trend, not the incident. Count `path=proxy` against
+ * `path=direct` per host over time:
+ *
+ *   firebase functions:log --only scrapeRecipe | grep '\[scrape\] outcome'
+ *
+ * Host (not full URL) is deliberate: it's the grouping key for "which sites
+ * need the proxy", and it keeps user-supplied paths out of the log.
+ */
+function logOutcome(fields: {
+  host: string;
+  ok: boolean;
+  fetchPath?: string;
+  parseStrategy?: string;
+  ingredients?: number;
+  ms: number;
+  error?: string;
+}): void {
+  console.info('[scrape] outcome', JSON.stringify(fields));
+}
+
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return 'invalid-url';
+  }
+}
+
 export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise<ScrapeResult> {
+  const startedAt = Date.now();
   if (!url || typeof url !== 'string') {
     return { status: 'error', errorMessage: 'url is required' };
   }
@@ -215,11 +248,8 @@ export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise
     const causeMsg = cause instanceof Error ? cause.message : cause ? String(cause) : '';
     const fullMsg = causeMsg ? `${baseMsg}: ${causeMsg}` : baseMsg;
     console.error('[scrape] url-fetch failed', { url, message: baseMsg, cause: causeMsg, raw: cause });
+    logOutcome({ host: hostOf(url), ok: false, ms: Date.now() - startedAt, error: 'fetch-failed' });
     return { status: 'error', errorMessage: fullMsg };
-  }
-
-  if (page.fetchPath === 'proxy') {
-    console.info('[scrape] served via reader proxy', { url, finalUrl: page.finalUrl });
   }
 
   // WEBLINK-3: JSON-LD, then microdata, then class/id heuristics. JSON-LD
@@ -229,10 +259,18 @@ export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise
     bestRecipe = parseRecipeFromHtml(page.body);
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Recipe parse failed';
+    logOutcome({
+      host: hostOf(url), ok: false, fetchPath: page.fetchPath,
+      ms: Date.now() - startedAt, error: 'parse-threw',
+    });
     return { status: 'error', errorMessage: msg, finalUrl: page.finalUrl, fetchPath: page.fetchPath };
   }
 
   if (!bestRecipe) {
+    logOutcome({
+      host: hostOf(url), ok: false, fetchPath: page.fetchPath,
+      ms: Date.now() - startedAt, error: 'no-recipe-markup',
+    });
     return {
       status: 'error',
       errorMessage:
@@ -242,13 +280,14 @@ export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise
     };
   }
 
-  if (bestRecipe.strategy !== 'json-ld') {
-    console.info('[scrape] parsed without JSON-LD', {
-      url,
-      strategy: bestRecipe.strategy,
-      ingredients: bestRecipe.ingredients.length,
-    });
-  }
+  logOutcome({
+    host: hostOf(url),
+    ok: true,
+    fetchPath: page.fetchPath,
+    parseStrategy: bestRecipe.strategy,
+    ingredients: bestRecipe.ingredients.length,
+    ms: Date.now() - startedAt,
+  });
 
   return {
     status: 'ok',
