@@ -5,7 +5,18 @@ import { getFunctions } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBEEwVg9EwgqvdLmv-eg19akt5lXAUqSdk",
-  authDomain: "neuralflavor.firebaseapp.com",
+  // WEBLINK-10 (2026-08-01): was "neuralflavor.firebaseapp.com" while the app
+  // is served from neuralflavor.web.app — a CROSS-ORIGIN auth flow. Safari's
+  // Intelligent Tracking Prevention blocks third-party storage access, which
+  // is precisely what the cross-domain popup/redirect handshake relies on, so
+  // sign-in failed on iPhone. Firebase Hosting serves the auth handler on
+  // every site of the project — verified https://neuralflavor.web.app/__/auth/handler
+  // returns 200 — so pointing authDomain at the app's own origin makes the
+  // whole flow same-origin and sidesteps ITP entirely.
+  //
+  // Existing sessions are unaffected: Firebase persists auth state under
+  // `firebase:authUser:<apiKey>:<appName>`, which does not include authDomain.
+  authDomain: "neuralflavor.web.app",
   projectId: "neuralflavor",
   storageBucket: "neuralflavor.firebasestorage.app",
   messagingSenderId: "793952773208",
