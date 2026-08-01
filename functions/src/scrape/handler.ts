@@ -3,13 +3,13 @@
 // and slimmed: no Firestore write, no LLM fallback, no family/uid model.
 // Returns parsed recipe directly to the callable client.
 
-import { extractJsonLdRecipes, jsonLdToRecipe } from './parser';
+import { parseRecipeFromHtml } from './parser';
 import {
   ssrfReason,
   REDIRECT_MAX,
   assertHostnameResolvesPublicly,
 } from './ssrf';
-import type { FetchedPage, ScrapeResult, UrlFetcher } from './types';
+import type { FetchedPage, ParsedRecipe, ScrapeResult, UrlFetcher } from './types';
 
 // WEBLINK-1 (2026-07-31): 5s was too tight — a redirect chain on a slow
 // origin regularly blew the budget before the page arrived, and it leaves
@@ -222,20 +222,13 @@ export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise
     console.info('[scrape] served via reader proxy', { url, finalUrl: page.finalUrl });
   }
 
-  let bestRecipe: { title: string; ingredients: ReturnType<typeof jsonLdToRecipe>['ingredients'] } | null = null;
+  // WEBLINK-3: JSON-LD, then microdata, then class/id heuristics. JSON-LD
+  // still wins whenever the page publishes it.
+  let bestRecipe: ParsedRecipe | null = null;
   try {
-    const nodes = extractJsonLdRecipes(page.body);
-    for (const node of nodes) {
-      const r = jsonLdToRecipe(node);
-      if (!r.title || r.ingredients.length === 0) continue;
-      // First usable Recipe node wins. Some sites embed multiple Recipe
-      // entries (e.g. one summary + one detail); we want the one with
-      // ingredients populated.
-      bestRecipe = r;
-      break;
-    }
+    bestRecipe = parseRecipeFromHtml(page.body);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'JSON-LD parse failed';
+    const msg = err instanceof Error ? err.message : 'Recipe parse failed';
     return { status: 'error', errorMessage: msg, finalUrl: page.finalUrl, fetchPath: page.fetchPath };
   }
 
@@ -243,10 +236,18 @@ export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise
     return {
       status: 'error',
       errorMessage:
-        'No Recipe schema found on this page. Try a different URL — most popular recipe sites embed JSON-LD recipe data.',
+        'No recipe markup found on this page — it has no recipe card we can read. Try the page with the actual recipe on it, or add the ingredients by hand.',
       finalUrl: page.finalUrl,
       fetchPath: page.fetchPath,
     };
+  }
+
+  if (bestRecipe.strategy !== 'json-ld') {
+    console.info('[scrape] parsed without JSON-LD', {
+      url,
+      strategy: bestRecipe.strategy,
+      ingredients: bestRecipe.ingredients.length,
+    });
   }
 
   return {
@@ -255,5 +256,6 @@ export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise
     ingredients: bestRecipe.ingredients,
     finalUrl: page.finalUrl,
     fetchPath: page.fetchPath,
+    parseStrategy: bestRecipe.strategy,
   };
 }

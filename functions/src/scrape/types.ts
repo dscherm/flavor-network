@@ -28,10 +28,23 @@ export interface ScrapeResult {
    *  origin bot-blocked us and the reader proxy served it instead — worth
    *  seeing in logs, since proxy reliance is a fragility signal. */
   fetchPath?: FetchPath;
+  /** WEBLINK-3: which extraction strategy produced the recipe. A rising
+   *  share of 'heuristic' means sites are dropping structured data and the
+   *  guesswork layer is carrying more weight than it should. */
+  parseStrategy?: ParseStrategy;
 }
 
 /** WEBLINK-2: how a page was retrieved. */
 export type FetchPath = 'direct' | 'proxy';
+
+/** WEBLINK-3: which extraction strategy produced the recipe, most reliable first. */
+export type ParseStrategy = 'json-ld' | 'microdata' | 'heuristic';
+
+export interface ParsedRecipe {
+  title: string;
+  ingredients: ParsedIngredient[];
+  strategy: ParseStrategy;
+}
 
 export interface FetchedPage {
   url: string;

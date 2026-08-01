@@ -41,12 +41,12 @@ describe('handleScrape', () => {
     expect(result.finalUrl).toBe('https://example.com/recipe');
   });
 
-  it('returns status=error when the page has no JSON-LD Recipe', async () => {
+  it('returns status=error when the page has no recipe markup at all', async () => {
     const result = await handleScrape('https://example.com/notarecipe', {
       fetcher: mockFetcher('<html><body>just a page</body></html>'),
     });
     expect(result.status).toBe('error');
-    expect(result.errorMessage).toMatch(/No Recipe schema/);
+    expect(result.errorMessage).toMatch(/No recipe markup found/);
   });
 
   it('returns status=error when the URL is invalid', async () => {
@@ -90,7 +90,32 @@ describe('handleScrape', () => {
       </script>`),
     });
     expect(result.status).toBe('error');
-    expect(result.errorMessage).toMatch(/No Recipe schema/);
+    expect(result.errorMessage).toMatch(/No recipe markup found/);
+  });
+
+  // WEBLINK-3: JSON-LD stays authoritative — a page carrying both must not
+  // fall through to the guessier layers.
+  it('reports which strategy parsed the page, preferring JSON-LD', async () => {
+    const result = await handleScrape('https://example.com/recipe', {
+      fetcher: mockFetcher(RECIPE_JSON_LD_HTML),
+    });
+    expect(result.parseStrategy).toBe('json-ld');
+  });
+
+  it('parses a page that has microdata but no JSON-LD', async () => {
+    const result = await handleScrape('https://example.com/recipe', {
+      fetcher: mockFetcher(
+        `<div itemscope itemtype="http://schema.org/Recipe">
+           <h1 itemprop="name">Skillet Cornbread</h1>
+           <li itemprop="recipeIngredient">1 cup cornmeal</li>
+           <li itemprop="recipeIngredient">1 cup buttermilk</li>
+         </div>`,
+      ),
+    });
+    expect(result.status).toBe('ok');
+    expect(result.title).toBe('Skillet Cornbread');
+    expect(result.ingredients).toHaveLength(2);
+    expect(result.parseStrategy).toBe('microdata');
   });
 });
 
