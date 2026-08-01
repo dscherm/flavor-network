@@ -2602,6 +2602,7 @@ export default function App() {
           (2026-06-03; desktop top-nav was retired this rev). */}
       {true && (
         <MobileTabBar
+          user={user}
           activeTab={activeTab}
           onTabChange={(tab) => {
             setActiveTab(tab);

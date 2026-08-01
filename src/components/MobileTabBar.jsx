@@ -26,6 +26,7 @@ export default function MobileTabBar({
   onTabChange,
   onSelectLab,
   onOpenHowItWorks,
+  user = null,
 }) {
   const [labsOpen, setLabsOpen] = useState(false);
 
@@ -68,6 +69,27 @@ export default function MobileTabBar({
             <span className="text-[10px]">Make</span>
           </button>
 
+          {/* WEBLINK-11: top-level Sign in, signed-out only. Reported from
+              an iPhone as "there's not an option to sign in anywhere on the
+              app" — and that was fair: the only route was Labs -> Profile ->
+              scroll, under a menu that reads as cocktail/sauce/recipe labs
+              and a row described as "Saved recipes & insights". Nothing on
+              that path said sign in. Disappears once signed in, so the bar
+              stays three-wide for everyone who is already in. */}
+          {!user && (
+            <button
+              onClick={() => { onTabChange('profile'); closeAll(); }}
+              data-testid="tabbar-signin"
+              className="flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors text-blue-400"
+              aria-label="Sign in"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span className="text-[10px]">Sign in</span>
+            </button>
+          )}
+
           {/* Labs — popover to every lab + Recipe Notebook + Profile, plus
               the rehomed "How it works" explainer. */}
           <div className="relative">
@@ -91,7 +113,13 @@ export default function MobileTabBar({
                 className="absolute bottom-full right-0 mb-2 w-56 bg-[#12121a] border border-[#2a2a3a] rounded-lg shadow-xl z-[101] overflow-hidden"
                 data-testid="tabbar-labs-menu"
               >
-                {LABS.map((lab) => (
+                {LABS.map((lab) => {
+                  // WEBLINK-11: "Profile / Saved recipes & insights" gave a
+                  // signed-out user no reason to think sign-in lived there.
+                  const isSignIn = lab.id === 'profile' && !user;
+                  const label = isSignIn ? 'Sign in' : lab.label;
+                  const desc = isSignIn ? 'Save recipes, import from links' : lab.desc;
+                  return (
                   <button
                     key={lab.id}
                     onClick={() => {
@@ -102,10 +130,11 @@ export default function MobileTabBar({
                     data-testid={`tabbar-labs-item-${lab.id}`}
                     className="w-full text-left px-3 py-2 min-h-[44px] hover:bg-white/5 flex flex-col"
                   >
-                    <span className="text-[13px] text-gray-100 leading-tight">{lab.label}</span>
-                    <span className="text-[11px] text-gray-500 leading-tight">{lab.desc}</span>
+                    <span className="text-[13px] text-gray-100 leading-tight">{label}</span>
+                    <span className="text-[11px] text-gray-500 leading-tight">{desc}</span>
                   </button>
-                ))}
+                  );
+                })}
                 {onOpenHowItWorks && (
                   <button
                     onClick={() => { closeAll(); onOpenHowItWorks(); }}
