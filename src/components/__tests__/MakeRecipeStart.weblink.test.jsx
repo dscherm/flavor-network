@@ -12,7 +12,17 @@ vi.mock('../../firebase.js', () => ({
   functions: { __mock: true },
 }));
 
-import MakeRecipeStart from '../MakeRecipeStart.jsx';
+// WEBLINK-4: auth state now gates the parse. Default to signed-in so the
+// existing flow tests are unaffected; the signed-out tests below override it
+// via authState.
+const loginWithGoogle = vi.fn();
+const loginWithApple = vi.fn();
+let authState = { user: { uid: 'test-user' }, loading: false };
+vi.mock('../../hooks/useAuth.js', () => ({
+  default: () => ({ ...authState, loginWithGoogle, loginWithApple, logout: vi.fn() }),
+}));
+
+import MakeRecipeStart, { describeServerFailure } from '../MakeRecipeStart.jsx';
 
 const SAMPLE_NODES = new Map([
   ['tomato', {}], ['basil', {}], ['garlic', {}], ['olive oil', {}],
@@ -34,6 +44,9 @@ function mountPicker(overrides = {}) {
 
 beforeEach(() => {
   scrapeRecipeMock.mockReset();
+  loginWithGoogle.mockReset();
+  loginWithApple.mockReset();
+  authState = { user: { uid: 'test-user' }, loading: false };
 });
 
 describe('MakeRecipeStart — MAKE-WEBLINK-UI (4th picker option)', () => {
@@ -330,5 +343,143 @@ describe('MakeRecipeStart — MAKE-WEBLINK-UI (4th picker option)', () => {
       expect(screen.getByTestId('make-weblink-error')).toBeInTheDocument();
     });
     expect(screen.getByText(/Sign in/)).toBeInTheDocument();
+  });
+});
+
+// ===== WEBLINK-4 — auth is resolved BEFORE the spinner =====
+//
+// Previously handleParseUrl entered STAGE.PARSING and called the callable
+// without knowing whether the user was signed in, so a signed-out user
+// watched a 25s spinner and then landed on a dead-end error screen.
+
+describe('MakeRecipeStart — WEBLINK-4 auth gate', () => {
+  function pasteUrl(value = 'https://example.com/pasta') {
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), { target: { value } });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+  }
+
+  it('signed out: offers sign-in without firing the callable or the spinner', async () => {
+    authState = { user: null, loading: false };
+    mountPicker();
+    pasteUrl();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument();
+    });
+    expect(scrapeRecipeMock).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('make-weblink-parsing')).toBeNull();
+    expect(screen.queryByTestId('make-weblink-error')).toBeNull();
+  });
+
+  it('signed out: the typed URL survives, and Sign in is wired up', async () => {
+    authState = { user: null, loading: false };
+    mountPicker();
+    pasteUrl('https://example.com/keepme');
+
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+    expect(screen.getByTestId('make-weblink-url-input')).toHaveValue('https://example.com/keepme');
+
+    fireEvent.click(screen.getByTestId('make-weblink-signin-google'));
+    expect(loginWithGoogle).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByTestId('make-weblink-signin-apple'));
+    expect(loginWithApple).toHaveBeenCalledTimes(1);
+  });
+
+  it('resumes the queued parse automatically once sign-in resolves', async () => {
+    scrapeRecipeMock.mockResolvedValueOnce({
+      data: {
+        status: 'ok',
+        title: 'Resumed Pasta',
+        ingredients: [{ raw: '1 cup tomato', noun: 'tomato' }],
+        finalUrl: 'https://example.com/pasta',
+      },
+    });
+    authState = { user: null, loading: false };
+    const { rerender } = render(
+      <MakeRecipeStart
+        setRecipeHandoff={vi.fn()}
+        setRecipeMounted={vi.fn()}
+        setActiveTab={vi.fn()}
+        setCookbookPickerMode={vi.fn()}
+        nodes={SAMPLE_NODES}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/pasta' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+    expect(scrapeRecipeMock).not.toHaveBeenCalled();
+
+    // Sign-in completes -> onAuthStateChanged delivers a user.
+    authState = { user: { uid: 'now-signed-in' }, loading: false };
+    rerender(
+      <MakeRecipeStart
+        setRecipeHandoff={vi.fn()}
+        setRecipeMounted={vi.fn()}
+        setActiveTab={vi.fn()}
+        setCookbookPickerMode={vi.fn()}
+        nodes={SAMPLE_NODES}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('make-weblink-preview')).toBeInTheDocument());
+    expect(scrapeRecipeMock).toHaveBeenCalledWith({ url: 'https://example.com/pasta' });
+    expect(screen.getByText('Resumed Pasta')).toBeInTheDocument();
+  });
+
+  it('waits for auth to resolve rather than assuming signed-out', async () => {
+    authState = { user: null, loading: true };
+    mountPicker();
+    pasteUrl();
+
+    // Auth hasn't answered yet — neither prompt for sign-in nor call out.
+    await waitFor(() => expect(screen.queryByTestId('make-weblink-parsing')).toBeNull());
+    expect(screen.queryByTestId('make-weblink-signin')).toBeNull();
+    expect(scrapeRecipeMock).not.toHaveBeenCalled();
+  });
+
+  it('signed in: parses immediately, no sign-in prompt', async () => {
+    scrapeRecipeMock.mockResolvedValueOnce({
+      data: { status: 'ok', title: 'X', ingredients: [{ raw: 'tomato', noun: 'tomato' }], finalUrl: 'https://example.com/x' },
+    });
+    mountPicker();
+    pasteUrl('https://example.com/x');
+    await waitFor(() => expect(screen.getByTestId('make-weblink-preview')).toBeInTheDocument());
+    expect(screen.queryByTestId('make-weblink-signin')).toBeNull();
+  });
+
+  it('invalid URL still errors before any auth consideration', async () => {
+    authState = { user: null, loading: false };
+    mountPicker();
+    pasteUrl('not a url');
+    await waitFor(() => expect(screen.getByTestId('make-weblink-error')).toBeInTheDocument());
+    expect(screen.queryByTestId('make-weblink-signin')).toBeNull();
+  });
+});
+
+describe('describeServerFailure — WEBLINK-4 error copy', () => {
+  it('tells the user a site refused us, and to try elsewhere', () => {
+    expect(describeServerFailure('HTTP 402 fetching https://x.com (site blocked the import; reader proxy also failed)'))
+      .toMatch(/blocked the import/i);
+    expect(describeServerFailure('HTTP 403 fetching https://x.com')).toMatch(/different site|by hand/i);
+  });
+
+  it('passes the no-markup message through — it already says what to do', () => {
+    const msg = 'No recipe markup found on this page — it has no recipe card we can read.';
+    expect(describeServerFailure(msg)).toBe(msg);
+  });
+
+  it('falls back when the server says nothing useful', () => {
+    expect(describeServerFailure('')).toMatch(/Could not parse a recipe/);
+    expect(describeServerFailure(undefined)).toMatch(/Could not parse a recipe/);
+  });
+
+  it('distinguishes the two failures the user will actually hit', () => {
+    const blocked = describeServerFailure('HTTP 402 fetching https://x.com');
+    const noMarkup = describeServerFailure('No recipe markup found on this page.');
+    expect(blocked).not.toBe(noMarkup);
   });
 });
