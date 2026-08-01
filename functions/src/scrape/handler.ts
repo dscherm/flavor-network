@@ -5,6 +5,11 @@
 
 import { parseRecipeFromHtml } from './parser';
 import {
+  appleNewsErrorMessage,
+  isAppleNewsUrl,
+  parseAppleNewsInterstitial,
+} from './applenews';
+import {
   ssrfReason,
   REDIRECT_MAX,
   assertHostnameResolvesPublicly,
@@ -250,6 +255,32 @@ export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise
     console.error('[scrape] url-fetch failed', { url, message: baseMsg, cause: causeMsg, raw: cause });
     logOutcome({ host: hostOf(url), ok: false, ms: Date.now() - startedAt, error: 'fetch-failed' });
     return { status: 'error', errorMessage: fullMsg };
+  }
+
+  // WEBLINK-8: apple.news serves an "open in the News app" interstitial, not
+  // the article. If it names a publisher URL, follow that and scrape it
+  // normally — re-entering handleScrape so the followed URL runs the full
+  // SSRF gauntlet, since it is user-influenced content. Otherwise report what
+  // the interstitial DOES tell us instead of the generic no-markup error.
+  if (isAppleNewsUrl(url)) {
+    const info = parseAppleNewsInterstitial(page.body);
+    if (info.publisherUrl) {
+      console.info('[scrape] apple.news resolved to publisher', {
+        url, publisherUrl: info.publisherUrl,
+      });
+      return handleScrape(info.publisherUrl, deps);
+    }
+    logOutcome({
+      host: hostOf(url), ok: false, fetchPath: page.fetchPath,
+      ms: Date.now() - startedAt, error: 'apple-news-unresolvable',
+    });
+    return {
+      status: 'error',
+      errorMessage: appleNewsErrorMessage(info),
+      finalUrl: page.finalUrl,
+      fetchPath: page.fetchPath,
+      appleNews: { title: info.title, publisher: info.publisher },
+    };
   }
 
   // WEBLINK-3: JSON-LD, then microdata, then class/id heuristics. JSON-LD

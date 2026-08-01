@@ -145,8 +145,16 @@ const STAGE = {
  * try another site vs. this isn't a recipe page. Everything else falls
  * through to the server's own wording, which is already user-facing.
  */
-export function describeServerFailure(serverMessage) {
+export function describeServerFailure(serverMessage, result = null) {
   const msg = serverMessage || '';
+  // WEBLINK-8: Apple News is its own failure, keyed on the structured field
+  // rather than on prose. apple.news serves an "open in the News app"
+  // interstitial that names the recipe but never links the publisher's page,
+  // so there is nothing to import — but we can prove we read the right
+  // article, which is the difference between a bug and a limitation.
+  if (result?.appleNews) {
+    return msg || 'Apple News links don\'t include the original recipe page, so we can\'t read the ingredients.';
+  }
   if (/blocked the import|HTTP \d{3}/i.test(msg)) {
     return 'That site blocked the import — it refuses automated requests. Try the recipe on a different site, or add the ingredients by hand.';
   }
@@ -422,7 +430,7 @@ export default function MakeRecipeStart({
       ]);
       const result = res?.data;
       if (!result || result.status !== 'ok' || !Array.isArray(result.ingredients)) {
-        setErrorMessage(describeServerFailure(result?.errorMessage));
+        setErrorMessage(describeServerFailure(result?.errorMessage, result));
         setStage(STAGE.ERROR);
         return;
       }

@@ -32,6 +32,12 @@ export interface ScrapeResult {
    *  share of 'heuristic' means sites are dropping structured data and the
    *  guesswork layer is carrying more weight than it should. */
   parseStrategy?: ParseStrategy;
+  /** WEBLINK-8: present when an apple.news link could not be resolved to a
+   *  publisher article. Carries what the interstitial did reveal so the UI
+   *  can name the recipe rather than showing a generic failure — the user
+   *  needs to see that we read the right article and that the limitation is
+   *  Apple's link format, not a mis-parse. */
+  appleNews?: { title: string | null; publisher: string | null };
 }
 
 /** WEBLINK-2: how a page was retrieved. */
