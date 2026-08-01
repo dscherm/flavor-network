@@ -28,6 +28,14 @@ const KNOWN_UNITS = new Set([
   'oz', 'ounce', 'ounces', 'g', 'gram', 'grams', 'kg', 'ml', 'l',
   'lb', 'lbs', 'pound', 'pounds', 'pinch', 'dash', 'clove', 'cloves',
   'sprig', 'sprigs', 'slice', 'slices', 'piece', 'pieces',
+  // WEBLINK-6: container and count words. Without these, "2 cans tomato
+  // paste" kept "cans" in the noun, so the only candidates were
+  // "cans tomato paste" / "cans tomato" — never plain "tomato" — and it
+  // matched "italian tomatoe". Measured on real recipe lines.
+  'can', 'cans', 'package', 'packages', 'pkg', 'jar', 'jars', 'bottle',
+  'bottles', 'box', 'boxes', 'bunch', 'bunches', 'head', 'heads',
+  'stalk', 'stalks', 'stick', 'sticks', 'ear', 'ears', 'sheet', 'sheets',
+  'quart', 'quarts', 'pint', 'pints', 'gallon', 'liter', 'liters',
 ]);
 
 const UNICODE_FRACTIONS = {
@@ -58,6 +66,10 @@ const LEADING_ADJECTIVES = new Set([
   'low-fat', 'fat-free', 'unsalted', 'salted', 'thick', 'thin', 'old',
   'young', 'baby', 'mini', 'jumbo', 'boneless', 'skinless', 'lean',
   'sweet', 'sour', 'spicy', 'mild', 'crushed', 'plain', 'pure',
+  // WEBLINK-6: exposed by real recipe lines — "packed basil leaves" must
+  // reduce to "basil", "mixed ripe tomatoes" to "tomatoes".
+  'packed', 'ripe', 'mixed', 'rustic', 'freshly', 'roughly', 'finely',
+  'thinly', 'coarsely', 'toasted', 'chopped', 'diced',
 ]);
 
 // Trailing "form" / preparation nouns that can be stripped to expose
@@ -70,6 +82,39 @@ const FORM_SUFFIXES = new Set([
   'leaves', 'leaf', 'sprigs', 'sprig', 'cloves', 'clove', 'slices',
   'slice', 'pieces', 'piece', 'sticks', 'stick',
 ]);
+
+/**
+ * WEBLINK-6: is this token a shape/measure word rather than a food?
+ * "cubes", "leaves", "pieces", "cup" describe how much or what form —
+ * they must never stand alone as an ingredient candidate.
+ */
+function isShapeWord(token) {
+  const t = String(token ?? '').toLowerCase();
+  return FORM_SUFFIXES.has(t) || KNOWN_UNITS.has(t);
+}
+
+// WEBLINK-6: verbs and phrases that open a preparation clause. TAIL_MODIFIERS
+// only matched a comma-tail EXACTLY, so real-world tails carrying any detail
+// ("cut into bite-size pieces", "cut into 1 1/2-inch cubes", "plus more for
+// seasoning") survived into the noun and left a shape word trailing. Match on
+// the opening word instead, which covers the long tail of phrasings.
+const PREP_CLAUSE_OPENERS = [
+  'cut', 'torn', 'tear', 'trimmed', 'stemmed', 'seeded', 'cored', 'pitted',
+  'husked', 'scrubbed', 'washed', 'patted', 'plus', 'preferably', 'ideally',
+  'about', 'approximately', 'such', 'or', 'plus more', 'well', 'lightly',
+  'roughly', 'finely', 'thinly', 'coarsely', 'freshly', 'very',
+];
+
+function isPrepClause(tail) {
+  const t = String(tail ?? '').trim().toLowerCase();
+  if (!t) return false;
+  if (TAIL_MODIFIERS.has(t)) return true;
+  const first = t.split(/\s+/)[0];
+  if (PREP_CLAUSE_OPENERS.includes(first)) return true;
+  // "…, minced" style single-word tails already covered by TAIL_MODIFIERS;
+  // this catches "…, minced and drained" and similar compounds.
+  return TAIL_MODIFIERS.has(first);
+}
 
 function parseFraction(s) {
   const t = String(s ?? '').trim();
@@ -100,12 +145,13 @@ function preprocessLine(line) {
   let s = String(line ?? '').trim();
   if (!s) return '';
   s = s.replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
-  const lastComma = s.lastIndexOf(',');
-  if (lastComma > 0) {
-    const tail = s.slice(lastComma + 1).trim().toLowerCase();
-    if (TAIL_MODIFIERS.has(tail)) {
-      s = s.slice(0, lastComma).trim();
-    }
+  // WEBLINK-6: strip EVERY trailing prep clause, not just the last one and
+  // not only on an exact TAIL_MODIFIERS hit. "…bread, cut into cubes" and
+  // "…tomatoes, cut into bite-size pieces" both used to survive intact.
+  let lastComma = s.lastIndexOf(',');
+  while (lastComma > 0 && isPrepClause(s.slice(lastComma + 1))) {
+    s = s.slice(0, lastComma).trim();
+    lastComma = s.lastIndexOf(',');
   }
   return s;
 }
@@ -145,6 +191,11 @@ const CONFIDENCE_FLOOR = 0.5;
 function singularize(word) {
   if (!word || word.length < 4) return word;
   if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
+  // WEBLINK-6: "-oes" plurals lose both letters — tomatoes -> tomato,
+  // potatoes -> potato. The generic trailing-s rule below produced
+  // "tomatoe", which then matched a malformed dictionary entry of the same
+  // spelling at confidence 1.0, so a real recipe imported "tomatoe".
+  if (word.endsWith('oes')) return word.slice(0, -2);
   if (word.endsWith('es') && /(s|x|z|ch|sh)es$/.test(word)) return word.slice(0, -2);
   if (word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
   return word;
@@ -181,19 +232,40 @@ function deriveCandidates(noun) {
     push(stripped.join(' '));
   }
 
-  if (tokens.length > 1) {
-    const last = tokens[tokens.length - 1];
-    const sing = singularize(last);
-    if (FORM_SUFFIXES.has(last) || FORM_SUFFIXES.has(sing)) {
-      push(tokens.slice(0, -1).join(' '));
+  // WEBLINK-6: strip the form suffix from BOTH the original tokens and the
+  // adjective-stripped form. Applying it only to the original meant
+  // "packed basil leaves" yielded "packed basil" but never plain "basil",
+  // so the best available candidate lost to "thai basil leave" at 0.69.
+  for (const variant of [tokens, stripped]) {
+    if (variant.length > 1) {
+      const last = variant[variant.length - 1];
+      const sing = singularize(last);
+      if (FORM_SUFFIXES.has(last) || FORM_SUFFIXES.has(sing)) {
+        push(variant.slice(0, -1).join(' '));
+      }
     }
   }
 
+  // WEBLINK-6 (2026-08-01): the bare last token is a useful last resort for
+  // lines like "rustic sourdough bread" -> "bread", but ONLY when that token
+  // names a food. When the line ends in a shape or measure word the candidate
+  // becomes "pieces" / "cubes" / "leaves", and those fuzzy-match unrelated
+  // dictionary entries at crushing confidence — measured against the real
+  // 3,891-name list: pieces -> "allspice" (0.76), cubes -> "cubed cheese"
+  // (0.99), leaves -> "leaves lettuce" (0.99). A Panzanella imported as
+  // allspice + cubed cheese + lettuce, with tomato/bread/basil all present in
+  // the dictionary and never chosen.
+  //
+  // This module already classifies these words as FORM_SUFFIXES and strips
+  // them above to expose the head noun; offering them as ingredients two
+  // blocks later contradicts that. A shape word is never the ingredient.
   if (tokens.length > 1) {
     const last = tokens[tokens.length - 1];
-    push(last);
     const sing = singularize(last);
-    if (sing !== last) push(sing);
+    if (!isShapeWord(last) && !isShapeWord(sing)) {
+      push(last);
+      if (sing !== last) push(sing);
+    }
   }
 
   return out;
