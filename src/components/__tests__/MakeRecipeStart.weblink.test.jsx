@@ -19,7 +19,7 @@ const loginWithGoogle = vi.fn();
 const loginWithApple = vi.fn();
 let authState = { user: { uid: 'test-user' }, loading: false };
 vi.mock('../../hooks/useAuth.js', () => ({
-  default: () => ({ ...authState, loginWithGoogle, loginWithApple, logout: vi.fn() }),
+  default: () => ({ authError: null, ...authState, loginWithGoogle, loginWithApple, logout: vi.fn() }),
 }));
 
 import MakeRecipeStart, { describeServerFailure } from '../MakeRecipeStart.jsx';
@@ -614,5 +614,42 @@ describe('MakeRecipeStart — WEBLINK-9 the Parse button must never trap', () =>
     fireEvent.click(screen.getByTestId('make-weblink-back'));
     expect(screen.getByTestId('make-card-weblink')).toBeInTheDocument();
     expect(screen.queryByTestId('make-weblink-signin')).toBeNull();
+  });
+});
+
+// WEBLINK-10: a sign-in failure must be visible. It previously went to
+// console.error only, so on an iPhone — where Safari blocks the popup —
+// tapping Sign in produced no change on screen whatsoever.
+describe('MakeRecipeStart — WEBLINK-10 sign-in errors are surfaced', () => {
+  it('renders the auth error inside the sign-in panel', async () => {
+    authState = {
+      user: null,
+      loading: false,
+      authError: 'Sign-in was blocked by the browser. Try again, or allow pop-ups for this site.',
+    };
+    mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/x' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+    const err = screen.getByTestId('make-weblink-signin-error');
+    expect(err).toHaveTextContent(/blocked by the browser/i);
+    expect(err).toHaveAttribute('role', 'alert');
+  });
+
+  it('shows no error row when there is nothing wrong', async () => {
+    authState = { user: null, loading: false, authError: null };
+    mountPicker();
+    fireEvent.click(screen.getByTestId('make-card-weblink'));
+    fireEvent.change(screen.getByTestId('make-weblink-url-input'), {
+      target: { value: 'https://example.com/x' },
+    });
+    fireEvent.click(screen.getByTestId('make-weblink-parse-btn'));
+
+    await waitFor(() => expect(screen.getByTestId('make-weblink-signin')).toBeInTheDocument());
+    expect(screen.queryByTestId('make-weblink-signin-error')).toBeNull();
   });
 });

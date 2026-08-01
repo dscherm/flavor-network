@@ -211,7 +211,7 @@ export default function MakeRecipeStart({
   const parseAttempt = useRef(0);
   const [needsSignIn, setNeedsSignIn] = useState(false);
 
-  const { user, loading: authLoading, loginWithGoogle, loginWithApple } = useAuth();
+  const { user, loading: authLoading, authError, loginWithGoogle, loginWithApple } = useAuth();
 
   useEffect(() => {
     if (stage === STAGE.CARDS) firstCardRef.current?.focus();
@@ -701,6 +701,19 @@ export default function MakeRecipeStart({
                     Sign in with Apple
                   </button>
                 </div>
+                {/* WEBLINK-10: sign-in used to fail silently — the rejection
+                    went to console.error and the panel never changed, which
+                    on a phone is indistinguishable from a dead button. */}
+                {authError && (
+                  <p
+                    className="text-sm mt-3"
+                    style={{ color: '#fda4af' }}
+                    data-testid="make-weblink-signin-error"
+                    role="alert"
+                  >
+                    {authError}
+                  </p>
+                )}
               </div>
             )}
             <div className="flex items-center justify-between gap-2">

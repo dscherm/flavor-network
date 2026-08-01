@@ -9,6 +9,7 @@ vi.mock('../../hooks/useAuth.js', () => ({
   default: () => ({
     user: { uid: 'test-user' },
     loading: false,
+    authError: null,
     loginWithGoogle: vi.fn(),
     loginWithApple: vi.fn(),
     logout: vi.fn(),
