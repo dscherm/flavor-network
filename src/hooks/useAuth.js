@@ -73,6 +73,11 @@ export default function useAuth() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
+  // WEBLINK-18: a breadcrumb of how far native sign-in got. There is no way
+  // to read a console from the packaged app without a Mac, so the app has to
+  // report its own progress on screen. Reset per attempt; rendered in
+  // ProfilePanel under the buttons.
+  const [authDebug, setAuthDebug] = useState(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -109,11 +114,19 @@ export default function useAuth() {
    */
   const signInNative = useCallback(async (providerId) => {
     const isGoogle = providerId === 'google';
+    setAuthDebug(`1/4 calling native ${providerId} sheet`);
     const result = isGoogle
       ? await FirebaseAuthentication.signInWithGoogle()
       : await FirebaseAuthentication.signInWithApple();
 
     const idToken = result?.credential?.idToken;
+    // Report what the plugin actually handed back. For Apple a missing
+    // nonce is fatal on its own — Firebase rejects the credential — and
+    // that is invisible without this line.
+    setAuthDebug(
+      `2/4 plugin returned: idToken=${idToken ? 'yes' : 'NO'}`
+      + ` nonce=${result?.credential?.nonce ? 'yes' : 'NO'}`,
+    );
     if (!idToken) {
       throw new Error('Sign-in returned no identity token.');
     }
@@ -129,10 +142,12 @@ export default function useAuth() {
     // Firebase user the app is still signed out, which is precisely the
     // state that was reported as "signing in worked" while Profile showed
     // signed out.
+    setAuthDebug('3/4 exchanging credential with Firebase');
     const result2 = await signInWithCredential(auth, credential);
     if (!result2?.user) {
       throw new Error('Signed in with the provider, but no Firebase session was created.');
     }
+    setAuthDebug(`4/4 signed in as ${result2.user.uid}`);
   }, []);
 
   /**
@@ -152,6 +167,7 @@ export default function useAuth() {
 
   const signIn = useCallback(async (providerId) => {
     setAuthError(null);
+    setAuthDebug(null);
     try {
       if (Capacitor.isNativePlatform()) {
         await signInNative(providerId);
@@ -160,9 +176,23 @@ export default function useAuth() {
       }
       return true;
     } catch (err) {
+      const code = String(err?.code ?? '');
+      // Always record the raw failure, even for a cancellation. This is the
+      // only channel we have off the device.
+      setAuthDebug(`error code=${code || '(none)'} msg=${err?.message ?? '(none)'}`);
       // Backing out of the sheet is a decision, not a failure — but only
       // on an exact code match. Everything else surfaces.
-      if (isUserCancellation(err)) return false;
+      //
+      // WEBLINK-18: 1001 is the exception to the exception. Apple returns
+      // ASAuthorizationError.canceled both when the user dismisses the sheet
+      // AND when the system aborts the authorization itself — a missing or
+      // mismatched entitlement looks identical from JS. Reported from a
+      // device: Face ID completed, then nothing and no message, which is a
+      // completed authorization, not a dismissal. So 1001 now surfaces on
+      // native. A spurious message after a deliberate cancel is the cost,
+      // and it is much cheaper than another silent failure.
+      const nativeAppleAbort = code === '1001' && Capacitor.isNativePlatform();
+      if (isUserCancellation(err) && !nativeAppleAbort) return false;
       setAuthError(friendlyAuthError(err));
       return false;
     }
@@ -190,5 +220,5 @@ export default function useAuth() {
     }
   }, []);
 
-  return { user, loading, authError, loginWithGoogle, loginWithApple, logout };
+  return { user, loading, authError, authDebug, loginWithGoogle, loginWithApple, logout };
 }

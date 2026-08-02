@@ -15,7 +15,7 @@ import {
 import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
 import RecipeImport from './RecipeImport.jsx';
 
-function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, authError, onLogin, onLoginWithApple, onLogout, onReplayTour }) {
+function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, authError, authDebug, onLogin, onLoginWithApple, onLogout, onReplayTour }) {
   const [tab, setTab] = useState('recipes');
   const [searchQuery, setSearchQuery] = useState('');
   const [importError, setImportError] = useState('');
@@ -454,6 +454,18 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
                 nothing rendered it, which on a phone is indistinguishable
                 from a dead button. Reported from the iOS app as "I click the
                 sign in buttons and nothing happens". */}
+            {/* WEBLINK-18: sign-in progress breadcrumb. Deliberately plain
+                and always-on while native sign-in is unverified — the
+                packaged app has no console reachable from Windows, so this
+                is the only diagnostic channel off the device. */}
+            {authDebug && (
+              <div
+                data-testid="auth-debug"
+                className="mt-2 text-[10px] font-mono opacity-60 break-all"
+              >
+                {authDebug}
+              </div>
+            )}
             {authError && (
               <p
                 className="text-[11px] mt-2 leading-snug"

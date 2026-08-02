@@ -156,7 +156,7 @@ export default function App() {
   // `data` directly (avoids re-memoization on every load tick).
   const dataRef = useRef(data);
   useEffect(() => { dataRef.current = data; }, [data]);
-  const { user, authError, loginWithGoogle, loginWithApple, logout } = useAuth();
+  const { user, authError, authDebug, loginWithGoogle, loginWithApple, logout } = useAuth();
   // R8-49 — auto-open the Training Trace modal once after data is ready
   // and the user has cleared the landing screen. ?reset=trace lets a
   // user replay the onboarding by clearing the localStorage flag.
@@ -2044,6 +2044,7 @@ export default function App() {
             }}
             user={user}
             authError={authError}
+            authDebug={authDebug}
             onLogin={loginWithGoogle}
             onLoginWithApple={loginWithApple}
             onLogout={logout}
