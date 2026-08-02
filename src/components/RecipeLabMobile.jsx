@@ -416,8 +416,18 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           <button
             onClick={() => {
               if (recipeIngredients.length < 2) return;
-              userProfile?.addRecipe?.(recipeTitle || 'Untitled Recipe', recipeNames);
-              setHandoffToast(`Saved "${recipeTitle || 'Untitled Recipe'}" to profile`);
+              const title = recipeTitle || 'Untitled Recipe';
+              // COOKBOOK-1: `?.` on the call meant a missing profile saved
+              // nothing while still showing "Saved" — a toast that lies is
+              // worse than no toast, and it is the same silent-failure shape
+              // that cost this project a day in WEBLINK-17..20. Confirm the
+              // writer exists before claiming the write happened.
+              if (typeof userProfile?.addRecipe !== 'function') {
+                setHandoffToast('Could not save — profile unavailable.');
+                return;
+              }
+              userProfile.addRecipe(title, recipeNames);
+              setHandoffToast(`Saved "${title}" to your Cookbook`);
               hapticMedium();
             }}
             disabled={recipeIngredients.length < 2}
