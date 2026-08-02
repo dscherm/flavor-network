@@ -343,6 +343,62 @@ function sharesHeadWord(noun, matchedName) {
     || head.includes(target) || headSing.includes(target);
 }
 
+/**
+ * WEBLINK-13: heads that describe a FORM rather than an identity. For
+ * "baking powder" / "olive oil" / "hot sauce", the head word is shared by
+ * dozens of unrelated things and the modifier is what names the food.
+ */
+const GENERIC_HEADS = new Set([
+  'powder', 'oil', 'sauce', 'juice', 'extract', 'flakes', 'paste',
+  'syrup', 'vinegar', 'stock', 'broth', 'seasoning', 'blend', 'mix',
+]);
+
+/**
+ * WEBLINK-13: is this noun nothing but a measurement?
+ *
+ * The heuristic parser emits table and nav fragments whenever it misfires on
+ * a page that isn't a recipe — "lb.", "oz.", "cup", "head". Every one of
+ * those is ALSO a real dictionary entry's neighbour, so they matched at high
+ * confidence: lb. -> bilberry, oz. -> mozzarella, cup -> cupcake,
+ * head -> arrowhead. A measurement is never an ingredient.
+ */
+function isUnitOnly(noun) {
+  const tokens = String(noun ?? '')
+    .toLowerCase()
+    .replace(/[.,;:()]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+  if (tokens.length === 0) return true;
+  return tokens.every(
+    (t) => KNOWN_UNITS.has(t) || FORM_SUFFIXES.has(t) || /^[\d/¼½¾⅓⅔⅛⅜⅝⅞.-]+$/.test(t),
+  );
+}
+
+/**
+ * WEBLINK-13: for a generic head, require the modifier to agree too.
+ *
+ * "baking powder" is absent from the dictionary and "gelatin powder" is
+ * present. They share the head "powder", so the WEBLINK-7 head-word guard
+ * accepted it — but baking powder is not gelatin powder, and a wrong
+ * leavening agent silently changes the recipe's computed profile.
+ */
+function modifiersAgree(noun, matchedName) {
+  const tokens = String(noun ?? '').toLowerCase().split(/\s+/).filter(Boolean);
+  if (tokens.length < 2) return true;
+  const head = tokens[tokens.length - 1].replace(/[^a-z0-9-]/g, '');
+  if (!GENERIC_HEADS.has(head) && !GENERIC_HEADS.has(singularize(head))) return true;
+
+  const target = String(matchedName ?? '').toLowerCase();
+  // At least one non-generic, non-adjective modifier must survive into the
+  // matched name, otherwise only the shared form word is doing the work.
+  const modifiers = tokens
+    .slice(0, -1)
+    .map((t) => t.replace(/[^a-z0-9-]/g, ''))
+    .filter((t) => t.length > 2 && !LEADING_ADJECTIVES.has(t) && !KNOWN_UNITS.has(t));
+  if (modifiers.length === 0) return true;
+  return modifiers.some((m) => target.includes(m) || target.includes(singularize(m)));
+}
+
 function buildMatchIndex(knownNames) {
   const list = (knownNames || []).map((n) => String(n));
   return {
@@ -366,6 +422,8 @@ function buildMatchIndex(knownNames) {
 export function matchIngredientName(noun, knownOrIndex) {
   const trimmed = String(noun ?? '').trim().toLowerCase();
   if (!trimmed) return null;
+  // WEBLINK-13: a measurement is never an ingredient.
+  if (isUnitOnly(trimmed)) return null;
 
   const index = (knownOrIndex && typeof knownOrIndex === 'object' && knownOrIndex.fuse)
     ? knownOrIndex
@@ -410,6 +468,9 @@ export function matchIngredientName(noun, knownOrIndex) {
     // profile. It also correctly refuses "chicken thighs" -> "...chicken
     // breast", which is the wrong cut.
     if (!sharesHeadWord(cand, hit.item)) return;
+    // WEBLINK-13: a shared GENERIC head is not enough — "baking powder" and
+    // "gelatin powder" share "powder" and are different leavening agents.
+    if (!modifiersAgree(cand, hit.item)) return;
     const score = typeof hit.score === 'number' ? hit.score : 1;
     const confidence = Math.max(0, 1 - score);
     if (!best || confidence > best.confidence) {

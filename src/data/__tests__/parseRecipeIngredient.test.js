@@ -446,3 +446,67 @@ describe('WEBLINK-7 — generalize only on exact hits', () => {
     expect(match('2 large egg yolks')).toBe('egg yolk');
   });
 });
+
+// WEBLINK-13 (2026-08-02). Third accuracy pass, found by scraping a wider
+// corpus (3 sites, 348 lines) and reading every matched row.
+describe('WEBLINK-13 — units are not food, generic heads need a modifier', () => {
+  const DICT = [
+    'tomato', 'tomato paste', 'red wine vinegar', 'sesame oil', 'soy sauce',
+    'chicken stock', 'vegetable broth', 'maple syrup', 'orange juice',
+    'vanilla', 'garlic', 'salt',
+    // Real dictionary entries that unit fragments matched at high
+    // confidence before this fix.
+    'bilberry', 'mozzarella', 'cupcake', 'arrowhead', 'gelatin powder',
+  ];
+  const match = (raw) => matchRecipeIngredients([{ raw, noun: raw }], DICT)[0].matched;
+
+  it('rejects a noun that is nothing but a measurement', () => {
+    // These arise when the heuristic parser misfires on a page that is not
+    // a recipe and emits table/nav fragments. Every decoy below is a real
+    // dictionary entry, which is why they matched so confidently.
+    expect(match('lb.')).toBeNull();
+    expect(match('lb')).toBeNull();
+    expect(match('oz.')).toBeNull();
+    expect(match('cup')).toBeNull();
+    expect(match('cups')).toBeNull();
+    expect(match('head')).toBeNull();
+    expect(match('2 cups')).toBeNull();
+    expect(match('tsp.')).toBeNull();
+  });
+
+  it('specifically refuses the four that shipped wrong', () => {
+    // lb. -> bilberry, oz. -> mozzarella, cup -> cupcake, head -> arrowhead
+    ['lb.', 'oz.', 'cup', 'head'].forEach((u) => {
+      expect(match(u)).toBeNull();
+    });
+  });
+
+  it('declines when only a GENERIC head word is shared', () => {
+    // "baking powder" is absent from the dictionary; "gelatin powder" is
+    // present. They share "powder" — but a wrong leavening agent silently
+    // changes the recipe's computed profile.
+    expect(match('1 tsp baking powder')).toBeNull();
+  });
+
+  it('still matches generic-head phrases the dictionary actually has', () => {
+    expect(match('2 cans tomato paste')).toBe('tomato paste');
+    expect(match('2 tablespoons red wine vinegar')).toBe('red wine vinegar');
+    expect(match('2 Tbsp sesame oil')).toBe('sesame oil');
+    expect(match('1 tsp soy sauce')).toBe('soy sauce');
+    expect(match('1 cup chicken stock')).toBe('chicken stock');
+    expect(match('2 cups vegetable broth')).toBe('vegetable broth');
+    expect(match('1 tbsp maple syrup')).toBe('maple syrup');
+    expect(match('1 cup orange juice')).toBe('orange juice');
+  });
+
+  it('leaves the form-suffix path alone — vanilla extract still reduces', () => {
+    // 'extract' is a FORM_SUFFIX, so this resolves by exact hit on the
+    // stripped candidate, not by the fuzzy branch the guard sits on.
+    expect(match('2 tsp. vanilla extract')).toBe('vanilla');
+  });
+
+  it('does not disturb ordinary single-word ingredients', () => {
+    expect(match('2 cloves garlic')).toBe('garlic');
+    expect(match('1 tsp salt')).toBe('salt');
+  });
+});
