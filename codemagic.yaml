@@ -6,20 +6,14 @@ workflows:
     integrations:
       app_store_connect: app_store_connect_key
     environment:
-      # NOTE (2026-08-02): the `ios_signing:` block was REMOVED. It ran during
-      # "Preparing build machine" — before any script — and fetched signing
-      # files WITHOUT creating them, so once the profiles were deleted while
-      # chasing the Sign-In-with-Apple entitlement it failed the whole build
-      # with:
-      #
-      #     No matching profiles found for bundle identifier
-      #     "com.neuralflavor.app" and distribution type "app_store"
-      #
-      # Verified in the Codemagic UI: Settings -> Code signing identities has
-      # NO certificates and NO profiles stored. So there was nothing local to
-      # pair a fetched profile against, and nothing in that block could create
-      # one. Signing now happens explicitly in a script step below, where
-      # --create can mint whatever is missing.
+      ios_signing:
+        # Codemagic-managed cert + profile (set up once in the UI under
+        # Code signing identities). Replaces the manual openssl genrsa
+        # + certificates create + fetch-signing-files dance, which kept
+        # tripping Apple's "1 active iOS Distribution cert per team"
+        # limit on every build.
+        distribution_type: app_store
+        bundle_identifier: com.neuralflavor.app
       vars:
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
@@ -83,25 +77,12 @@ workflows:
           NEW_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
           echo "Latest build on Apple's side: $LATEST_BUILD_NUMBER -> uploading as $NEW_BUILD_NUMBER"
           agvtool new-version -all $NEW_BUILD_NUMBER
-      - name: Set up code signing
+      - name: Apply provisioning profiles
         script: |
-          set -e
-          # Explicit signing, replacing the removed `ios_signing:` block.
-          # --create is the whole point: it mints the distribution
-          # certificate and/or the App Store provisioning profile if either
-          # is missing, and pairs them by construction. That makes the
-          # pipeline self-healing — deleting a profile in Apple's portal (as
-          # happened when the Sign In with Apple capability invalidated them
-          # all) can no longer dead-end a build.
-          #
-          # Requires the app_store_connect integration above, which supplies
-          # the API key env vars. The key must be App Manager or Admin to
-          # create; this one is App Manager.
-          keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
-          keychain add-certificates
-          # build-ipa needs export_options.plist, which only use-profiles
-          # writes.
+          # ios_signing imports the cert + profile into the keychain,
+          # but the export_options.plist that build-ipa needs is only
+          # written by `use-profiles` — the auto-flow doesn't run it
+          # because it leaves room for custom signing strategies.
           xcode-project use-profiles
       - name: Build ipa
         script: |
