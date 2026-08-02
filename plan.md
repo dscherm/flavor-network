@@ -992,3 +992,50 @@ onto another change.
   ]
 }
 ```
+
+### WEBLINK-13 — Matcher: reject unit-only nouns and generic-head mismatches
+
+Third accuracy pass. Found by scraping a wider corpus (3 sites) and READING
+every matched row.
+
+**A. A noun that is entirely a unit must never match a food.** WEBLINK-6
+guarded the bare LAST TOKEN being a shape word; this is the case where the
+whole noun is one. Measured against the real 3,891-name dictionary:
+
+| noun | matched | |
+|---|---|---|
+| `lb.` / `lb` | bilberry | ✗ |
+| `oz.` | mozzarella | ✗ |
+| `cup` / `cups` | cupcake | ✗ |
+| `head` | arrowhead | ✗ |
+
+These arise whenever the heuristic parser misfires on a page that isn't a
+recipe — it emits table/nav fragments, and every one of those decoys is a
+genuine dictionary entry, so they match at high confidence.
+
+**B. When the head word is GENERIC, the modifier carries the identity.**
+
+    "1¼ tsp. baking powder"  ->  gelatin powder
+
+`baking powder` is absent from the dictionary and `gelatin powder` is
+present; they share the head `powder`, so the WEBLINK-7 head-word guard
+passes it. For generic form heads (powder, oil, sauce, juice, extract,
+flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
+
+```json
+{
+  "id": "WEBLINK-13",
+  "title": "Reject unit-only nouns; require modifier agreement on generic head words",
+  "category": "bugfix",
+  "priority": 1,
+  "description": "In src/data/parseRecipeIngredient.js. (A) matchIngredientName returns null when the noun, after normalisation, consists ONLY of unit/measure/quantity tokens and punctuation — 'lb.', 'oz.', 'cup', 'cups', 'head', '2 lb', bare numerals. Reuse KNOWN_UNITS plus the abbreviation-with-period forms; strip trailing periods before the check. (B) Add a GENERIC_HEADS set (powder, oil, sauce, juice, extract, flakes, paste, syrup, vinegar, stock, broth) — when the noun's head word is in it, a fuzzy match must ALSO share a non-generic modifier token, else decline. Exact dictionary hits are unaffected in both cases: if the dictionary genuinely contains the phrase, it still wins. Do NOT touch MATCH_THRESHOLD or CONFIDENCE_FLOOR. Expect unmatched to rise; declining is the point.",
+  "acceptance": [
+    "Unit-only nouns (lb., oz., cup, cups, head, tsp., bare numerals) return no match",
+    "'baking powder' declines rather than returning 'gelatin powder'",
+    "Generic-head phrases that ARE in the dictionary still match exactly (tomato paste, red wine vinegar, hot sauce)",
+    "The WEBLINK-6 Panzanella and WEBLINK-7 fixtures still pass unchanged",
+    "Re-run the corpus and READ every changed row; report corrected / newly-declined / still-wrong honestly",
+    "Full app suite green; build clean"
+  ]
+}
+```
