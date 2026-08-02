@@ -27,7 +27,6 @@
     "ios:build": "npm run build && npx cap sync ios && node scripts/strip-ios-bundle.mjs && cd ios/App && xcodebuild build -workspace App.xcworkspace -scheme App -configuration Debug -destination 'generic/platform=iOS Simulator'"
   },
   "dependencies": {
-    "@capacitor-firebase/authentication": "^8.3.0",
     "@capacitor/cli": "^8.0.1",
     "@capacitor/core": "^8.0.1",
     "@capacitor/haptics": "^8.0.2",
