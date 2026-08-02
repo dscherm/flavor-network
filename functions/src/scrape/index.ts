@@ -23,6 +23,17 @@ export const scrapeRecipe = onCall(
       'https://neuralflavor.firebaseapp.com',
       /^https:\/\/.*\.neuralflavor\.web\.app$/,
       /^http:\/\/localhost(:\d+)?$/,
+      // WEBLINK-16: the packaged iOS app is NOT served over http. Capacitor
+      // loads it from capacitor://localhost (iosScheme is unset in
+      // capacitor.config.json, so the default applies), and that origin
+      // matched none of the entries above — so the callable's preflight
+      // rejected every request from the app while the same code worked in
+      // a browser. Android uses http://localhost, already covered above.
+      // ionic://localhost is the pre-Capacitor-3 scheme, included so an
+      // older build or a changed iosScheme does not silently break.
+      'capacitor://localhost',
+      'ionic://localhost',
+      /^capacitor:\/\/localhost(:\d+)?$/,
     ],
   },
   async (request: CallableRequest<ScrapeCallPayload>): Promise<ScrapeResult> => {
