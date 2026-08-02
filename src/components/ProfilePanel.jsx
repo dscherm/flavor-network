@@ -15,7 +15,7 @@ import {
 import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
 import RecipeImport from './RecipeImport.jsx';
 
-function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, onLogin, onLoginWithApple, onLogout, onReplayTour }) {
+function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, authError, onLogin, onLoginWithApple, onLogout, onReplayTour }) {
   const [tab, setTab] = useState('recipes');
   const [searchQuery, setSearchQuery] = useState('');
   const [importError, setImportError] = useState('');
@@ -447,6 +447,23 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
               </svg>
               Sign in with Google
             </button>
+            {/* WEBLINK-14: these buttons were completely silent on failure.
+                authError was added to useAuth in WEBLINK-10 and surfaced in
+                the weblink sign-in panel, but never here — and this is where
+                the buttons actually live. A failed sign-in set the error and
+                nothing rendered it, which on a phone is indistinguishable
+                from a dead button. Reported from the iOS app as "I click the
+                sign in buttons and nothing happens". */}
+            {authError && (
+              <p
+                className="text-[11px] mt-2 leading-snug"
+                style={{ color: '#fda4af' }}
+                data-testid="profile-signin-error"
+                role="alert"
+              >
+                {authError}
+              </p>
+            )}
           </div>
         )}
         {/* Replay tour */}
