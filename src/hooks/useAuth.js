@@ -51,6 +51,39 @@ const USER_CANCELLED_CODES = new Set([
   '1001',
 ]);
 
+/**
+ * WEBLINK-19: prove whether the Identity Toolkit is reachable FROM THE
+ * WEBVIEW.
+ *
+ * Reported from a device on build 206: the breadcrumb stops at "3/4
+ * exchanging credential" and never becomes an error line. The catch always
+ * overwrites the breadcrumb, so this is not a rejection — the promise never
+ * settles. signInWithCredential has no timeout of its own, so a request
+ * that never completes hangs sign-in forever with nothing on screen.
+ *
+ * recaptchaParams is a plain GET, needs no auth, and has no side effects —
+ * it is purely a reachability probe. If it also stalls, the webview cannot
+ * reach Google at all (transport / origin), which is a very different fix
+ * from the SDK being stuck.
+ */
+async function probeIdentityToolkit(apiKey) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/recaptchaParams?key=${apiKey}`,
+      { signal: ctl.signal },
+    );
+    return `reachable HTTP ${res.status}`;
+  } catch (err) {
+    return `UNREACHABLE ${err?.name ?? ''} ${err?.message ?? ''}`.trim();
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+const EXCHANGE_TIMEOUT_MS = 15000;
+
 function isUserCancellation(err) {
   return USER_CANCELLED_CODES.has(String(err?.code ?? ''));
 }
@@ -143,7 +176,31 @@ export default function useAuth() {
     // state that was reported as "signing in worked" while Profile showed
     // signed out.
     setAuthDebug('3/4 exchanging credential with Firebase');
-    const result2 = await signInWithCredential(auth, credential);
+    // Race the exchange against a timeout. Without this a stalled request
+    // leaves the UI on 3/4 indefinitely and reports nothing at all, which
+    // is exactly how this failure presented.
+    let timer;
+    const stalled = new Promise((_, reject) => {
+      timer = setTimeout(
+        () => reject(Object.assign(new Error('exchange stalled'), { code: 'exchange-timeout' })),
+        EXCHANGE_TIMEOUT_MS,
+      );
+    });
+    let result2;
+    try {
+      result2 = await Promise.race([signInWithCredential(auth, credential), stalled]);
+    } catch (err) {
+      if (err?.code === 'exchange-timeout') {
+        const reach = await probeIdentityToolkit(auth?.config?.apiKey ?? '');
+        throw new Error(
+          `Firebase never answered the credential exchange (>${EXCHANGE_TIMEOUT_MS / 1000}s). `
+          + `Network probe: ${reach}`,
+        );
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
     if (!result2?.user) {
       throw new Error('Signed in with the provider, but no Firebase session was created.');
     }

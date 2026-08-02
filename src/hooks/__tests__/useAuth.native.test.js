@@ -122,6 +122,30 @@ describe('useAuth — native vs web routing (WEBLINK-12)', () => {
     expect(result.current.authError).toBeTruthy();
   });
 
+  it('reports a STALLED exchange instead of hanging on 3/4 forever', async () => {
+    // WEBLINK-19. Reported on build 206: the breadcrumb reached "3/4
+    // exchanging credential" and stopped there, never becoming an error
+    // line. Since the catch always overwrites the breadcrumb, that is not a
+    // rejection — signInWithCredential simply never settles, and it carries
+    // no timeout of its own. A promise that never resolves is indis-
+    // tinguishable from a dead button.
+    vi.useFakeTimers();
+    isNative.mockReturnValue(true);
+    signInWithApple.mockResolvedValue({ credential: { idToken: 't', nonce: 'n' } });
+    signInWithCredential.mockReturnValue(new Promise(() => {}));  // never settles
+    global.fetch = vi.fn(async () => ({ status: 200 }));
+
+    const { result } = renderHook(() => useAuth());
+    let done;
+    await act(async () => {
+      done = result.current.loginWithApple();
+      await vi.advanceTimersByTimeAsync(16000);
+      await done;
+    });
+    expect(result.current.authError).toMatch(/never answered/i);
+    vi.useRealTimers();
+  });
+
   it('records a breadcrumb of the raw failure for off-device diagnosis', async () => {
     // The packaged app has no console reachable from Windows. authDebug is
     // the only channel, so it must carry the raw code even when authError
