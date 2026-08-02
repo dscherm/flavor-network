@@ -303,7 +303,15 @@ export default function CookbookLab({
     () =>
       allRecipes.filter((r) => {
         if (cuisineFilter && r.cuisine !== cuisineFilter) return false;
-        if (clusterFilter && r.cluster !== clusterFilter) return false;
+        // COOKBOOK-1: user-saved recipes are exempt from the cluster
+        // filter. The clusters are a taxonomy over the CURATED seed set;
+        // userRecipeToSeed stamps saved recipes 'personal', which matches no
+        // default. The Cookbook opens on 'savory', so a recipe the user had
+        // just saved was dropped on mount — saved correctly, stored
+        // correctly, and invisible. Your own recipes belong in your cookbook
+        // regardless of which curated cluster you happen to be browsing.
+        // cuisineFilter still applies, so an explicit cuisine narrows them.
+        if (clusterFilter && !r._userSaved && r.cluster !== clusterFilter) return false;
         if (!isMakePicker && externalFilter?.ingredients?.length) {
           const reqs = externalFilter.ingredients.map((s) => s.toLowerCase());
           const has = r.ingredients.map((s) => s.toLowerCase());
