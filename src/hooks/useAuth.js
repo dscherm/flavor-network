@@ -28,8 +28,32 @@ const POPUP_UNAVAILABLE = new Set([
   'auth/web-storage-unsupported',
 ]);
 
-/** The user backed out of the native sheet — not an error worth showing. */
-const USER_CANCELLED = /cancel|abort|1001|user closed/i;
+/**
+ * WEBLINK-17: the user backed out of the native sheet.
+ *
+ * This was `/cancel|abort|1001|user closed/i` tested against the whole
+ * message, which is far too loose: "1001" occurs in request ids and
+ * unrelated codes, "abort" matches a network AbortError, and "cancel"
+ * matches plenty of genuine failures. Worse, a match returned WITHOUT
+ * setting authError — so a real error in the credential exchange was
+ * swallowed, sign-in appeared to succeed, and no session existed. That is
+ * the exact silent-failure mode WEBLINK-10 was written to remove.
+ *
+ * Now: exact codes only, and when uncertain SHOW the error. A spurious
+ * "sign-in failed" after a deliberate cancel is a small annoyance; a
+ * swallowed real error costs hours.
+ */
+const USER_CANCELLED_CODES = new Set([
+  'auth/cancelled-popup-request',
+  'auth/popup-closed-by-user',
+  'auth/user-cancelled',
+  // ASAuthorizationError.canceled — Apple's native sheet dismissal.
+  '1001',
+]);
+
+function isUserCancellation(err) {
+  return USER_CANCELLED_CODES.has(String(err?.code ?? ''));
+}
 
 function friendlyAuthError(err) {
   const code = err?.code ?? '';
@@ -100,7 +124,15 @@ export default function useAuth() {
         idToken,
         rawNonce: result?.credential?.nonce,
       });
-    await signInWithCredential(auth, credential);
+    // WEBLINK-17: confirm the exchange actually produced a session. The
+    // plugin succeeding only means the PLATFORM authenticated; without a
+    // Firebase user the app is still signed out, which is precisely the
+    // state that was reported as "signing in worked" while Profile showed
+    // signed out.
+    const result2 = await signInWithCredential(auth, credential);
+    if (!result2?.user) {
+      throw new Error('Signed in with the provider, but no Firebase session was created.');
+    }
   }, []);
 
   /**
@@ -128,8 +160,9 @@ export default function useAuth() {
       }
       return true;
     } catch (err) {
-      // Backing out of the native sheet is a decision, not a failure.
-      if (USER_CANCELLED.test(err?.message ?? '')) return false;
+      // Backing out of the sheet is a decision, not a failure — but only
+      // on an exact code match. Everything else surfaces.
+      if (isUserCancellation(err)) return false;
       setAuthError(friendlyAuthError(err));
       return false;
     }

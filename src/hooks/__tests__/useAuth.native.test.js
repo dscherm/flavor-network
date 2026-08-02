@@ -47,7 +47,7 @@ beforeEach(() => {
   [signInWithGoogle, signInWithApple, nativeSignOut, signInWithPopup,
    signInWithRedirect, signInWithCredential].forEach((m) => m.mockReset());
   signInWithPopup.mockResolvedValue({});
-  signInWithCredential.mockResolvedValue({});
+  signInWithCredential.mockResolvedValue({ user: { uid: 'u1' } });
   nativeSignOut.mockResolvedValue(undefined);
 });
 
@@ -94,11 +94,40 @@ describe('useAuth — native vs web routing (WEBLINK-12)', () => {
   });
 
   it('treats a cancelled native sheet as a decision, not an error', async () => {
+    // WEBLINK-17: cancellation is now detected by CODE. Apple's native
+    // sheet dismissal is ASAuthorizationError.canceled == 1001.
     isNative.mockReturnValue(true);
-    signInWithGoogle.mockRejectedValue(new Error('The user canceled the sign-in flow.'));
+    const cancelled = Object.assign(new Error('The user canceled the sign-in flow.'), { code: '1001' });
+    signInWithGoogle.mockRejectedValue(cancelled);
     const { result } = renderHook(() => useAuth());
     await act(async () => { await result.current.loginWithGoogle(); });
     expect(result.current.authError).toBeNull();
+  });
+
+  it('SHOWS an error whose message merely mentions cancel but carries no code', async () => {
+    // The regression this replaces: USER_CANCELLED was a regex tested
+    // against the whole message (/cancel|abort|1001|user closed/i) and a
+    // match returned WITHOUT setting authError. Real failures containing
+    // any of those substrings vanished silently, sign-in appeared to
+    // succeed, and no session existed.
+    isNative.mockReturnValue(true);
+    signInWithGoogle.mockRejectedValue(new Error('Request aborted: token exchange failed (id 1001)'));
+    const { result } = renderHook(() => useAuth());
+    await act(async () => { await result.current.loginWithGoogle(); });
+    expect(result.current.authError).toBeTruthy();
+    expect(result.current.authError).toMatch(/token exchange failed/i);
+  });
+
+  it('fails loudly when the exchange yields no Firebase session', async () => {
+    // The plugin succeeding only means the PLATFORM authenticated. Without
+    // a Firebase user the app is still signed out — exactly the state
+    // reported as "signing in worked" while Profile showed signed out.
+    isNative.mockReturnValue(true);
+    signInWithGoogle.mockResolvedValue({ credential: { idToken: 'tok' } });
+    signInWithCredential.mockResolvedValue({ user: null });
+    const { result } = renderHook(() => useAuth());
+    await act(async () => { await result.current.loginWithGoogle(); });
+    expect(result.current.authError).toMatch(/no Firebase session/i);
   });
 
   it('signs out of BOTH SDKs natively so the native session cannot re-auth', async () => {

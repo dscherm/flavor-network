@@ -174,6 +174,7 @@ export default function MakeRecipeStart({
   const fileInputRef = useRef(null);
   const firstCardRef = useRef(null);
   const urlInputRef = useRef(null);
+  const signInPanelRef = useRef(null);
 
   // MAKE-WEBLINK-UI (2026-05-30): 4th picker option is a multi-stage
   // flow rather than a one-shot tap. Stage state drives which section
@@ -226,6 +227,13 @@ export default function MakeRecipeStart({
     if (!pendingParse || authLoading) return;
     if (!user) {
       setNeedsSignIn(true);
+      // WEBLINK-17: the panel renders BELOW the URL input, so on a phone it
+      // can appear entirely off-screen — the tap then looks like it did
+      // nothing at all, which is exactly how it was reported. Bring it into
+      // view so the state change is visible.
+      requestAnimationFrame(() => {
+        signInPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
       return;
     }
     setNeedsSignIn(false);
@@ -669,6 +677,7 @@ export default function MakeRecipeStart({
                 queued parse resumes on its own once sign-in completes. */}
             {needsSignIn && (
               <div
+                ref={signInPanelRef}
                 data-testid="make-weblink-signin"
                 className="rounded-lg p-4 mb-4"
                 style={{ border: `1px solid ${CHALK_RAIL}`, background: 'rgba(0,0,0,0.15)' }}
