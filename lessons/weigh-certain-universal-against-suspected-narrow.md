@@ -35,14 +35,35 @@ And the theory was never even tested. No measurement of ITP blocking
 anything was performed; the mechanism was inferred from the config, and the
 inference was plausible enough to feel like a finding.
 
-**Epilogue — the theory was not merely unmeasured, it was wrong.** After the
-revert, Google sign-in was confirmed working in Safari on iPhone with the
-original cross-origin `authDomain`. ITP had never been breaking anything.
-The real blocker was that the mobile nav exposed no sign-in entry point at
-all (see [[walk-step-one-in-the-users-state]]). So the change staked a
-universal outage against an upside of exactly zero — and the plausible
-mechanism, the config diff, and the ITP documentation all pointed the same
-convincing direction while being irrelevant to the actual failure.
+**Epilogue 1 — the theory looked disproven.** After the revert, Google
+sign-in was confirmed working in Safari on iPhone with the original
+cross-origin `authDomain`. The real blocker was that the mobile nav exposed
+no sign-in entry point at all (see [[walk-step-one-in-the-users-state]]).
+
+**Epilogue 2 — and that conclusion was itself too strong.** Hours later,
+Apple sign-in on Safari/iOS failed with Firebase's storage-partitioning
+error: *"Unable to process request due to missing initial state … using
+signInWithRedirect in a storage-partitioned browser environment."*
+Cross-origin `authDomain` genuinely does break the REDIRECT flow, because
+the redirect parks state in `sessionStorage` on `firebaseapp.com` and Safari
+partitions storage per origin. Same-origin `authDomain` is Firebase's
+documented fix — the exact change that had been reverted, and that the
+revert's own comment told the next person never to revisit.
+
+So the scorecard is finer than "wrong":
+
+| claim | verdict |
+|---|---|
+| ITP caused the reported sign-in failure | **false** — no sign-in button existed |
+| Cross-origin authDomain breaks redirect sign-in | **true** — hit in production later |
+| Shipping it without registering the redirect URI | **reckless** — universal outage |
+
+The decision was still bad, and would be bad again on the same evidence: a
+correct mechanism does not redeem shipping a global config change on an
+unmeasured hunch without its prerequisite. But note the second failure mode
+too — an over-broad retraction. "Disproven, do not revisit" foreclosed a fix
+that was later needed, and someone had to rediscover it under pressure.
+Retract the claim you actually tested, not the whole idea.
 
 ## Root cause
 
