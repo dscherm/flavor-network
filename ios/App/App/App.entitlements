@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- WEBLINK-12: Sign in with Apple. App Store Review Guideline 4.8
+	     requires it wherever a third-party sign-in (Google) is offered.
+	     This entitlement is only honoured if the capability is ALSO enabled
+	     on the App ID in the Apple Developer portal — without that, signing
+	     fails at build time rather than at runtime. -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+</dict>
+</plist>
