@@ -97,6 +97,14 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
-        beta_groups:
-          - Internal Testers
+        # `beta_groups` and `submit_to_testflight` are for EXTERNAL testing.
+        # Both were rejected by App Store Connect (2026-08-02):
+        #
+        #   Cannot add internal group to a build
+        #   Complete test information is required ... for external testing
+        #
+        # Internal testers receive every processed build automatically, so
+        # neither is needed — uploading IS the distribution. Re-enable them
+        # only when external testers are wanted, and fill Test Information
+        # (feedback email + review contact) first, or beta review rejects it.
+        submit_to_testflight: false
