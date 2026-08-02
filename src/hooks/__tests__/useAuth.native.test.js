@@ -93,15 +93,44 @@ describe('useAuth — native vs web routing (WEBLINK-12)', () => {
     expect(result.current.authError).toMatch(/identity token/i);
   });
 
-  it('treats a cancelled native sheet as a decision, not an error', async () => {
-    // WEBLINK-17: cancellation is now detected by CODE. Apple's native
-    // sheet dismissal is ASAuthorizationError.canceled == 1001.
+  it('keeps a genuine cancellation silent when the code says so', async () => {
+    // Cancellation is detected by CODE, never by message text. An explicit
+    // "the user closed it" code stays quiet — that is a decision, not a
+    // failure, and nagging about it is noise.
     isNative.mockReturnValue(true);
-    const cancelled = Object.assign(new Error('The user canceled the sign-in flow.'), { code: '1001' });
+    const cancelled = Object.assign(new Error('closed'), { code: 'auth/popup-closed-by-user' });
     signInWithGoogle.mockRejectedValue(cancelled);
     const { result } = renderHook(() => useAuth());
     await act(async () => { await result.current.loginWithGoogle(); });
     expect(result.current.authError).toBeNull();
+  });
+
+  it('SURFACES a native 1001, because Apple sends it for real aborts too', async () => {
+    // WEBLINK-18. This reverses WEBLINK-17's treatment of 1001, on evidence:
+    // reported from a device on build 205 as "Face ID comes up and then it
+    // doesn't sign in, no error message". Face ID COMPLETING is not a sheet
+    // dismissal, so 1001 there was the system aborting the authorization
+    // (entitlement/config), which JS cannot distinguish from a real cancel.
+    // Silence on the one code Apple overloads is how the failure stayed
+    // invisible. Surfacing it costs a spurious message after a deliberate
+    // cancel; that is far cheaper than another silent dead end.
+    isNative.mockReturnValue(true);
+    const aborted = Object.assign(new Error('The operation couldn’t be completed.'), { code: '1001' });
+    signInWithApple.mockRejectedValue(aborted);
+    const { result } = renderHook(() => useAuth());
+    await act(async () => { await result.current.loginWithApple(); });
+    expect(result.current.authError).toBeTruthy();
+  });
+
+  it('records a breadcrumb of the raw failure for off-device diagnosis', async () => {
+    // The packaged app has no console reachable from Windows. authDebug is
+    // the only channel, so it must carry the raw code even when authError
+    // shows friendlier wording.
+    isNative.mockReturnValue(true);
+    signInWithGoogle.mockRejectedValue(Object.assign(new Error('boom'), { code: 'auth/internal-error' }));
+    const { result } = renderHook(() => useAuth());
+    await act(async () => { await result.current.loginWithGoogle(); });
+    expect(result.current.authDebug).toMatch(/auth\/internal-error/);
   });
 
   it('SHOWS an error whose message merely mentions cancel but carries no code', async () => {
