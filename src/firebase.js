@@ -5,33 +5,37 @@ import { getFunctions } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBEEwVg9EwgqvdLmv-eg19akt5lXAUqSdk",
-  // DO NOT change this to neuralflavor.web.app without first adding the
-  // matching redirect URI in Google Cloud Console.
+  // authDomain must match the app's own origin. This is the THIRD state for
+  // this value today; the history matters because two of them were wrong.
   //
-  // WEBLINK-10 (2026-08-01) did exactly that, reasoning that same-origin auth
-  // would sidestep Safari's ITP. The handler does serve on web.app
-  // (https://neuralflavor.web.app/__/auth/handler returns 200) — but that is
-  // only half the requirement. authDomain also determines the OAuth
-  // redirect_uri Firebase sends to Google, and the OAuth client only has
-  // https://neuralflavor.firebaseapp.com/__/auth/handler registered. Google
-  // rejected the flow outright:
+  // 1. Originally neuralflavor.firebaseapp.com — cross-origin.
+  // 2. WEBLINK-10 changed it to web.app on an ITP hunch, WITHOUT registering
+  //    the new redirect URI with Google. Every sign-in broke with
+  //    Error 400: redirect_uri_mismatch. Reverted.
+  // 3. That revert's comment then declared the ITP theory "disproven" and
+  //    told the next person not to revisit it. Too strong, and wrong.
   //
-  //     Access blocked — Error 400: redirect_uri_mismatch
+  // What is actually true, confirmed in production on Safari/iOS:
+  //   - ITP did NOT cause the original complaint (no sign-in button existed;
+  //     see WEBLINK-11). That part was correctly disproven.
+  //   - Cross-origin authDomain DOES break signInWithRedirect, because the
+  //     redirect stores state in sessionStorage on firebaseapp.com and
+  //     Safari partitions storage per origin. Firebase reports it as:
+  //       "Unable to process request due to missing initial state ...
+  //        signInWithRedirect in a storage-partitioned browser environment"
   //
-  // That is strictly worse than the ITP risk it was meant to avoid: a hard
-  // failure for every user on every platform, versus a suspected failure on
-  // one.
+  // Same-origin authDomain is Firebase's documented fix. The PREREQUISITE —
+  // skipped in attempt 2, done now — is registering the handler with both
+  // providers BEFORE flipping this value:
+  //   Google Cloud -> Credentials -> Web client -> Authorized redirect URIs
+  //     https://neuralflavor.web.app/__/auth/handler
+  //   Apple Services ID -> Sign In with Apple -> Configure -> Return URLs
+  //     https://neuralflavor.web.app/__/auth/handler
+  // The firebaseapp.com entries were kept in both, so reverting is safe.
   //
-  // DISPROVEN 2026-08-01, after the revert: Google sign-in was confirmed
-  // working in Safari on iPhone with THIS cross-origin value. ITP was never
-  // breaking anything here — the actual blocker was that no sign-in entry
-  // point existed in the mobile nav at all (fixed in WEBLINK-11, bb2181d).
-  //
-  // So there is no reason to revisit this. Do NOT spend time registering the
-  // web.app redirect URI in Google Cloud Console to "enable" a same-origin
-  // authDomain: it would buy nothing, and the cross-origin flow is verified
-  // working on the platform it was supposed to fix.
-  authDomain: "neuralflavor.firebaseapp.com",
+  // Sessions survive the change: Firebase persists auth under
+  // `firebase:authUser:<apiKey>:<appName>`, which excludes authDomain.
+  authDomain: "neuralflavor.web.app",
   projectId: "neuralflavor",
   storageBucket: "neuralflavor.firebasestorage.app",
   messagingSenderId: "793952773208",
