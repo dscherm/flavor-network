@@ -134,6 +134,6 @@
       "timeout",
       "needs_human"
     ],
-    "alert_file": ".ralph/alerts.log"
+    "alert_file": null
   }
 }
