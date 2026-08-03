@@ -10,7 +10,7 @@ You own:
 - `.claude/PROMPT.md` — Main ralph prompt
 - `PLAN_PROMPT.md` — Plan mode prompt (to be created)
 - `activity.md` — Structured progress log (to be created)
-- `.ralph/` — Workspace directory (gate_failure.md, metrics.jsonl, pending_tasks.md, etc.)
+- `.schermness/` — Workspace directory (gate_failure.md, metrics.jsonl, pending_tasks.md, etc.)
 - `tools/` — Context preparation, status dashboard scripts (to be created)
 
 You do NOT own:
