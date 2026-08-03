@@ -17,6 +17,12 @@
 
 set -e
 
+# Same resolution as .git/hooks/post-commit and tools/_internal/paths.py:
+# prefer the current name, fall back to the legacy one only when that is
+# what actually exists.
+RALPH_DIR=".schermness"
+[ ! -d ".schermness" ] && [ -d ".ralph" ] && RALPH_DIR=".ralph"
+
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$PROJECT_DIR"
 
@@ -185,7 +191,7 @@ fi
 
 # Ensure .ralph directory exists and metrics file
 mkdir -p .ralph
-touch .ralph/metrics.jsonl
+touch $RALPH_DIR/metrics.jsonl
 
 # Set lock
 echo $$ > "$LOCK_FILE"
@@ -259,12 +265,12 @@ while true; do
   if [ "$TIMED_OUT" = true ]; then
     echo ""
     echo "TIMEOUT: Agent exceeded ${TIMEOUT}s for iteration $ITERATION"
-    echo "TIMEOUT: Agent exceeded ${TIMEOUT}s at iteration $ITERATION ($(date '+%Y-%m-%d %H:%M:%S'))" > .ralph/gate_failure.md
+    echo "TIMEOUT: Agent exceeded ${TIMEOUT}s at iteration $ITERATION ($(date '+%Y-%m-%d %H:%M:%S'))" > $RALPH_DIR/gate_failure.md
     # Record timeout metrics
     ITER_END=$(date +%s)
     DURATION=$((ITER_END - ITER_START))
     FILES_CHANGED=$(git diff --name-only HEAD~1 2>/dev/null | wc -l | tr -d ' \r\n')
-    echo "{\"iteration\":$ITERATION,\"preset\":\"$PRESET\",\"duration_s\":$DURATION,\"gate_result\":\"timeout\",\"files_changed\":$FILES_CHANGED,\"timestamp\":\"$(date -Iseconds)\"}" >> .ralph/metrics.jsonl
+    echo "{\"iteration\":$ITERATION,\"preset\":\"$PRESET\",\"duration_s\":$DURATION,\"gate_result\":\"timeout\",\"files_changed\":$FILES_CHANGED,\"timestamp\":\"$(date -Iseconds)\"}" >> $RALPH_DIR/metrics.jsonl
     echo ""
     echo "  Next iteration in 3s... (create .claude/ralph.stop to halt)"
     sleep 3
@@ -293,7 +299,7 @@ while true; do
   if [ "$GATE_EXIT" -ne 0 ]; then
     echo "  Gate FAILED (exit $GATE_EXIT):"
     echo "$GATE_OUTPUT" | tail -10
-    echo "$GATE_OUTPUT" > .ralph/gate_failure.md
+    echo "$GATE_OUTPUT" > $RALPH_DIR/gate_failure.md
     # ── Consecutive failure tracking ──
     CONSECUTIVE_FAILURES=$((CONSECUTIVE_FAILURES + 1))
     if [ "$CONSECUTIVE_FAILURES" -ge 3 ]; then
@@ -313,7 +319,7 @@ while true; do
     fi
   else
     echo "  Gates passed."
-    > .ralph/gate_failure.md
+    > $RALPH_DIR/gate_failure.md
     CONSECUTIVE_FAILURES=0
     LAST_GATE_HASH=""
     SAME_ERROR_COUNT=0
@@ -328,7 +334,7 @@ while true; do
   else
     GATE_RESULT="fail"
   fi
-  echo "{\"iteration\":$ITERATION,\"preset\":\"$PRESET\",\"duration_s\":$DURATION,\"gate_result\":\"$GATE_RESULT\",\"files_changed\":$FILES_CHANGED,\"timestamp\":\"$(date -Iseconds)\"}" >> .ralph/metrics.jsonl
+  echo "{\"iteration\":$ITERATION,\"preset\":\"$PRESET\",\"duration_s\":$DURATION,\"gate_result\":\"$GATE_RESULT\",\"files_changed\":$FILES_CHANGED,\"timestamp\":\"$(date -Iseconds)\"}" >> $RALPH_DIR/metrics.jsonl
 
   # Brief pause between iterations
   echo ""
