@@ -2187,7 +2187,13 @@ export default function App() {
           <CookbookLab
             externalFilter={externalLabFilter}
             ctx={data}
-            userRecipes={userProfile?.recipes || []}
+            // COOKBOOK-2: useUserProfile returns { profile, addRecipe, ... },
+            // so recipes live at userProfile.profile.recipes. Reading
+            // userProfile.recipes yielded undefined and `|| []` quietly turned
+            // that into "you have no saved recipes" — the Cookbook never
+            // received one. Every other consumer (e.g. CocktailPanel) already
+            // uses the .profile. path.
+            userRecipes={userProfile?.profile?.recipes || []}
             pickerMode={cookbookPickerMode}
             onExitPickerMode={() => {
               setCookbookPickerMode(null);

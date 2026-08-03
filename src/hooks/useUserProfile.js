@@ -59,6 +59,15 @@ function normalizeRecipe(recipe) {
   };
 }
 
+/** Collapse recipes sharing a name (case-insensitive), keeping the last. */
+function dedupeRecipes(recipes) {
+  const byName = new Map();
+  for (const r of recipes) {
+    byName.set(String(r?.name || '').trim().toLowerCase(), r);
+  }
+  return [...byName.values()];
+}
+
 function loadLocalProfile() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -67,7 +76,9 @@ function loadLocalProfile() {
     return {
       cuisines: Array.isArray(parsed.cuisines) ? parsed.cuisines : [],
       ingredients: Array.isArray(parsed.ingredients) ? parsed.ingredients : [],
-      recipes: Array.isArray(parsed.recipes) ? parsed.recipes.map(normalizeRecipe) : [],
+      // Collapse duplicates already written by the pre-COOKBOOK-2 append.
+      // Last wins: the most recent save is the one the user meant to keep.
+      recipes: Array.isArray(parsed.recipes) ? dedupeRecipes(parsed.recipes.map(normalizeRecipe)) : [],
       cocktails: Array.isArray(parsed.cocktails) ? parsed.cocktails : [],
       sauces: Array.isArray(parsed.sauces) ? parsed.sauces : [],
       pairings: Array.isArray(parsed.pairings)
@@ -234,15 +245,26 @@ export default function useUserProfile(user) {
   }, [update]);
 
   // --- Recipes ---
+  // COOKBOOK-2: saving the same recipe twice REPLACES it rather than
+  // appending. Tapping Save twice (or re-saving after an edit) had been
+  // stacking duplicates — one profile here accumulated the same dish four
+  // times. Name is the identity, matched case-insensitively after trimming,
+  // which is the same rule mergeProfiles already uses to reconcile local
+  // against cloud. Replacing rather than rejecting means an edited recipe
+  // still saves; it just does not multiply.
   const addRecipe = useCallback((name, ingredients) => {
     const recipe = {
       name: name.trim(),
       ingredients: ingredients.map(normalizeIngredient),
     };
-    update((prev) => ({
-      ...prev,
-      recipes: [...prev.recipes, recipe],
-    }));
+    const key = recipe.name.toLowerCase();
+    update((prev) => {
+      const idx = prev.recipes.findIndex((r) => String(r?.name || '').trim().toLowerCase() === key);
+      if (idx === -1) return { ...prev, recipes: [...prev.recipes, recipe] };
+      const recipes = [...prev.recipes];
+      recipes[idx] = recipe;
+      return { ...prev, recipes };
+    });
   }, [update]);
 
   const removeRecipe = useCallback((index) => {
