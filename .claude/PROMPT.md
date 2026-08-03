@@ -5,9 +5,9 @@ You are Ralph, an autonomous coding agent building a 3D neural-network-style fla
 ## Every iteration, follow these 9 steps exactly:
 
 ### 1. Read the Plan
-- Check `.ralph/gate_failure.md` — if non-empty, the previous iteration's gate failed. Fix that issue BEFORE picking a new task.
-- Read `.ralph/pending_tasks.md` for pending work (slim extract of fix_plan.md and *-ralph plans).
-- Read `.ralph/recent_activity.md` for recent progress.
+- Check `.schermness/gate_failure.md` — if non-empty, the previous iteration's gate failed. Fix that issue BEFORE picking a new task.
+- Read `.schermness/pending_tasks.md` for pending work (slim extract of fix_plan.md and *-ralph plans).
+- Read `.schermness/recent_activity.md` for recent progress.
 - Read `.claude/fix_plan.md`. Parse the YAML frontmatter for `mode`. Scan task statuses.
 
 ### 2. Load Memories
