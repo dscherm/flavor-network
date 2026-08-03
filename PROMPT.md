@@ -2,11 +2,11 @@
 
 ## Context
 
-@.ralph/pending_tasks.md
-@.ralph/recent_activity.md
-@.ralph/memories.md
-@.ralph/gate_failure.md
-@.ralph/human_note.md
+@.schermness/pending_tasks.md
+@.schermness/recent_activity.md
+@.schermness/memories.md
+@.schermness/gate_failure.md
+@.schermness/human_note.md
 @CLAUDE.md
 
 ## Your Task — 8-Phase Sequence
@@ -20,7 +20,7 @@ Follow these phases in order. ONE task per iteration.
 - Read recent activity to understand what was just completed.
 - Read memories for cross-iteration context.
 - **If gate_failure.md is non-empty, FIX THE GATE FAILURE before starting any new task.**
-- If `.ralph/remote_gate_result.md` exists with status: fail, treat it as a gate failure.
+- If `.schermness/remote_gate_result.md` exists with status: fail, treat it as a gate failure.
 - If human_note.md has content, follow those instructions.
 
 ### Phase 2: Search
@@ -59,7 +59,7 @@ Follow these phases in order. ONE task per iteration.
 
   **Status:** COMPLETE
   ```
-- If you learned something non-obvious, add it to `.ralph/memories.md`.
+- If you learned something non-obvious, add it to `.schermness/memories.md`.
 - If you discovered new issues, add them as new JSON task blocks at the end of `plan.md`.
 
 ### Phase 6: Mark — CRITICAL

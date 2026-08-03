@@ -4,7 +4,7 @@
 was already built and shipped in commit `21f2f6c`
 (`RecipeFlavorProfilesCard.jsx`, `SuggestionCardDeck.jsx`,
 `ProfileDeltaRadar.jsx`, `recipeProfileAnalysis.js` + tests; mounted in
-`RecipeLabMobile.jsx`). A 2026-06-14 audit against `.ralph/spec.md`
+`RecipeLabMobile.jsx`). A 2026-06-14 audit against `.schermness/spec.md`
 found the feature is production-green (1319 tests pass) but **Component
 2 deviates from the spec** and a few cleanups remain. This plan is the
 remediation pass — NOT a greenfield build. Every task below EDITS
@@ -164,7 +164,7 @@ clean up dead code — all tested, suite green.
   "description": "Grep-confirm src/components/RecipeFlavorProfileCard.jsx (the OLD singular component) is imported nowhere, then delete it (and any now-orphaned tests for it). Do a final pass: all spec acceptance criteria satisfied, graceful-degradation verified, no regressions. Run the full vitest suite and production build.",
   "acceptance": [
     "RecipeFlavorProfileCard.jsx (singular) deleted after grep confirms zero usage; no broken imports",
-    "All .ralph/spec.md acceptance criteria demonstrably satisfied post-remediation",
+    "All .schermness/spec.md acceptance criteria demonstrably satisfied post-remediation",
     "Graceful-degradation path still holds (model/index unavailable -> static analysis renders)",
     "Full vitest suite green; npm run build succeeds"
   ]
@@ -185,7 +185,7 @@ clean up dead code — all tested, suite green.
 
 # NEXT INITIATIVE (PLANNED — not started): Recipe Flavor Profile Overview
 
-Crystallized via deep-interview 2026-06-17 (full spec in `.ralph/spec.md`
+Crystallized via deep-interview 2026-06-17 (full spec in `.schermness/spec.md`
 §"Flavor Profile Overview"). Surfaces here for `--what-next`. Decisions:
 rule-based description NOW + explore a **local on-device** model (ONNX,
 NOT a cloud/Claude API); **quantity-weight** the profile (defer prep
@@ -813,11 +813,11 @@ the client UX around it instead.
   "title": "Build, deploy scrapeRecipe, and verify recipe import end-to-end on real URLs",
   "category": "verification",
   "priority": 3,
-  "description": "The deployed revision predates WEBLINK-1..4 (functions/lib was last built 2026-05-30). Run npm --prefix functions run build, deploy with firebase deploy --only functions:scrapeRecipe, then verify against a real URL matrix covering each measured wall: foodnetwork.com (UA-sniffing, fixed by WEBLINK-1), seriouseats.com and simplyrecipes.com (HTTP 402 datacenter block, needs the WEBLINK-2 proxy), bonappetit.com (already worked - regression check), a schema-less blog page (exercises WEBLINK-3), and a deliberate 404 (must fail fast without a proxy hop). Record the observed status, fetch path, title and ingredient count for each row in .ralph/weblink_verification.md. Deployment touches live infrastructure - confirm with the user before running firebase deploy.",
+  "description": "The deployed revision predates WEBLINK-1..4 (functions/lib was last built 2026-05-30). Run npm --prefix functions run build, deploy with firebase deploy --only functions:scrapeRecipe, then verify against a real URL matrix covering each measured wall: foodnetwork.com (UA-sniffing, fixed by WEBLINK-1), seriouseats.com and simplyrecipes.com (HTTP 402 datacenter block, needs the WEBLINK-2 proxy), bonappetit.com (already worked - regression check), a schema-less blog page (exercises WEBLINK-3), and a deliberate 404 (must fail fast without a proxy hop). Record the observed status, fetch path, title and ingredient count for each row in .schermness/weblink_verification.md. Deployment touches live infrastructure - confirm with the user before running firebase deploy.",
   "acceptance": [
     "functions build succeeds and scrapeRecipe deploys (after explicit user go-ahead)",
     "Live matrix run covering UA-blocked, 402-blocked, already-working, schema-less and 404 URLs",
-    "Every row status / fetch path / title / ingredient count recorded in .ralph/weblink_verification.md",
+    "Every row status / fetch path / title / ingredient count recorded in .schermness/weblink_verification.md",
     "Any row still failing is written up as a follow-up task rather than reported as a pass"
   ]
 }

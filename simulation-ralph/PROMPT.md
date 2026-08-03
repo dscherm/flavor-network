@@ -2,8 +2,8 @@
 
 ## Context
 
-@.ralph/pending_tasks.md
-@.ralph/recent_activity.md
+@.schermness/pending_tasks.md
+@.schermness/recent_activity.md
 @CLAUDE.md
 
 ## Your Task
