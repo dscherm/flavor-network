@@ -18,3 +18,11 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     }),
   });
 }
+
+// JSDOM does not implement Element.scrollIntoView either. MakeRecipeStart
+// calls it inside a requestAnimationFrame to bring the sign-in panel into
+// view (WEBLINK-17); without this stub the call throws after the test body
+// has finished and vitest reports it as an unhandled error.
+if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}
