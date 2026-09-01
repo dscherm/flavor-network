@@ -1,0 +1,24 @@
+# Force LF in the working tree on every OS. Without this, a fresh clone on
+# Windows (core.autocrlf=true) checks out CRLF; the two shebang'd scripts in
+# chemDataset/validation then fail to load under vitest because vite-node's
+# hashbang stripper doesn't match across \r, and the gate goes red on a
+# clean checkout only (found at the v1.0.0 closeout, 2026-09-01).
+* text=auto eol=lf
+
+# Binaries — never touch line endings.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.wasm binary
+*.npz  binary
+*.npy  binary
+*.pt   binary
+*.onnx binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.pdf  binary
+*.tar.gz binary
