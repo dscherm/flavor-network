@@ -64,5 +64,22 @@ resources/logo-options/
 # --- build/agent artifacts (added by artifact-robustness pass) ---
 .pytest_cache/
 .ralph/
+.schermness/
 .omc/
 NUL
+
+# Themis blind-TDD gate runtime state — ephemeral, per-machine.
+.themis/blind_tdd/
+.themis/blind_audit/
+.themis/observations.jsonl
+.themis/human_requests/
+# Curated quality-review verdicts stay tracked.
+!.themis/blind_tdd/quality_review/
+!.themis/blind_tdd/quality_review/**
+
+# --- v1.0.0 closeout (2026-09-01): agent/test scratch that had been tracked ---
+.playwright-shots/
+.tmp/
+test-results/
+.claude/worktrees/
+dev-server.log
