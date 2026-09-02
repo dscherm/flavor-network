@@ -74,11 +74,9 @@ if (harnessEnrolled) {
 const sidecarNote = harnessEnrolled ? ' Sidecar written.' : '';
 
 if (passed) {
-  process.stdout.write(`[gate] GATE PASSED.${sidecarNote}
-`);
+  process.stdout.write(`[gate] GATE PASSED.${sidecarNote}\n`);
   process.exit(0);
 } else {
-  process.stdout.write(`[gate] GATE FAILED — fix before committing.${sidecarNote}
-`);
+  process.stdout.write(`[gate] GATE FAILED — fix before committing.${sidecarNote}\n`);
   process.exit(1);
 }
