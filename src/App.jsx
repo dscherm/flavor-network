@@ -2014,7 +2014,7 @@ export default function App() {
       {/* Profile tab — full screen, mounted only when active. MUST be a
           sibling of the Network wrapper (not nested inside it), otherwise
           the Network wrapper's opacity-0 cascades to ProfilePanel. */}
-      <div className={`transition-opacity duration-300 ${activeTab === 'profile' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'}`}>
+      <div className={`transition-opacity duration-300 ${activeTab === 'profile' ? 'opacity-100' : 'hidden'}`}>
         {activeTab === 'profile' && (
           <ProfilePanel
             profile={userProfile.profile}
@@ -2065,7 +2065,7 @@ export default function App() {
       {cocktailMounted && (
         <div
           className={`transition-opacity duration-300 ${
-            activeTab === 'cocktail' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+            activeTab === 'cocktail' ? 'opacity-100' : 'hidden'
           }`}
         >
           <CocktailLabV2
@@ -2093,7 +2093,7 @@ export default function App() {
       {sauceMounted && (
         <div
           className={`transition-opacity duration-300 ${
-            activeTab === 'sauce' ? 'opacity-100' : 'opacity-0 pointer-events-none fixed inset-0'
+            activeTab === 'sauce' ? 'opacity-100' : 'hidden'
           }`}
         >
           <SauceLab
@@ -2128,7 +2128,7 @@ export default function App() {
           className={`transition-opacity duration-300 ${
             activeTab === 'recipe'
               ? 'opacity-100'
-              : 'opacity-0 pointer-events-none fixed inset-0'
+              : 'hidden'
           }`}
         >
           <RecipeLab
@@ -2161,7 +2161,7 @@ export default function App() {
       )}
 
       {activeTab === 'make' && (
-        <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
+        <div className="fixed inset-x-0 top-0 overflow-y-auto" style={{ bottom: 'var(--tab-bar-h)', paddingTop: 'env(safe-area-inset-top, 0px)' }}>{/* v1.0.3: stops above the tab bar; --nav-h padding reserved a hidden top nav */}
           {/* MakeRecipeStart's 4-card router (existing / scratch / photo /
               weblink) commits straight to the Recipe Notebook via the real
               setRecipeHandoff + setActiveTab('recipe'). The former Stage-2
@@ -2183,7 +2183,7 @@ export default function App() {
           alongside the Recipes Notebook authoring surface as a
           sub-tab under Explore. */}
       {activeTab === 'cookbook' && (
-        <div className="fixed inset-0 overflow-y-auto" style={{ paddingTop: 'var(--nav-h)' }}>
+        <div className="fixed inset-x-0 top-0 overflow-y-auto" style={{ bottom: 'var(--tab-bar-h)', paddingTop: 'env(safe-area-inset-top, 0px)' }}>{/* v1.0.3: stops above the tab bar; --nav-h padding reserved a hidden top nav */}
           <CookbookLab
             externalFilter={externalLabFilter}
             ctx={data}
@@ -2199,13 +2199,8 @@ export default function App() {
               setCookbookPickerMode(null);
               setActiveTab('make');
             }}
-            onOpenInNetwork={(ingredientName) => {
-              if (ingredientName) {
-                setSelectedNode(ingredientName);
-                setSelectedNodes([ingredientName]);
-              }
-              setActiveTab('network');
-            }}
+            // onOpenInNetwork intentionally not passed (v1.0.3): the 3D network
+            // is parked, so the modal's "Explore in Network" button is hidden.
             onOpenRecipeLab={(_mode, initialIngredients, extras = {}) => {
               const ingredients = Array.isArray(initialIngredients) ? [...initialIngredients] : [];
               // When the cookbook picker was opened from MakeRecipeStart

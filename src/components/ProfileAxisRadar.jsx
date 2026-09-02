@@ -181,8 +181,8 @@ export default function ProfileAxisRadar({
 
   const cx = width / 2;
   const cy = width / 2;
-  const radius = width * 0.34;
-  const labelOffset = 18;
+  const radius = width * 0.30; // v1.0.3: was 0.34 — edge labels clipped on phones
+  const labelOffset = 14;
 
   const config = AXIS_CONFIG[axis] || AXIS_CONFIG.taste;
   const colorFor = config.colorFor;

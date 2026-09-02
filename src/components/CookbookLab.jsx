@@ -413,7 +413,7 @@ export default function CookbookLab({
           {/* Dish-type — icon-only (no bubbles), label underneath */}
           <div>
             <span className="text-[11px] uppercase tracking-wider block text-center" style={{ color: CHALK_SUB }}>Type</span>
-            <div className="flex flex-wrap items-end justify-center gap-6 mt-2">
+            <div className="flex flex-wrap items-end justify-center gap-4 sm:gap-6 mt-2">
               {[{ key: null, label: 'All', kind: 'dot' }, ...clusters.map((c) => ({ key: c, label: c, kind: typeIconKind(c) }))].map((t) => {
                 const active = t.key === null ? !clusterFilter : clusterFilter === t.key;
                 const color = active ? CHALK_CREAM : CHALK_DIM;
@@ -427,7 +427,7 @@ export default function CookbookLab({
                     aria-label={t.key ? `${t.label} dishes` : 'All types'}
                     aria-pressed={active}
                   >
-                    <KitchenIcon kind={t.kind} color={color} size={84} />
+                    <KitchenIcon kind={t.kind} color={color} size={56} />
                     <span
                       className="text-[19px] capitalize leading-none pb-0.5"
                       style={{ fontFamily: FONT, color, borderBottom: active ? `2px solid ${CHALK_CREAM}` : '2px solid transparent' }}

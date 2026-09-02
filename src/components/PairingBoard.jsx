@@ -246,7 +246,26 @@ export default function PairingBoard({
       c.fillStyle = CHALK_CREAM;
       c.shadowColor = 'rgba(245,239,222,0.5)';
       c.shadowBlur = 3;
-      c.fillText(p.name, pt.x, pt.y + t.r + 13);
+      // v1.0.3: place the label radially — left of nodes on the left half,
+      // right of nodes on the right half, above/below near the vertical axis.
+      // Centred-below labels collided for neighbours near the top of the ring
+      // ("tomato paste" / "parmesan").
+      const ldx = pt.x - cx;
+      const ldy = pt.y - cy;
+      const tw = c.measureText(p.name).width;
+      const sideFits = ldx < 0 ? (pt.x - t.r - 7 - tw >= 4) : (pt.x + t.r + 7 + tw <= width - 4);
+      if (Math.abs(ldx) > 0.35 * Math.abs(ldy) && sideFits) {
+        c.textAlign = ldx < 0 ? 'right' : 'left';
+        c.textBaseline = 'middle';
+        c.fillText(p.name, pt.x + (ldx < 0 ? -(t.r + 7) : (t.r + 7)), pt.y);
+      } else {
+        // Above for the top half, below for the bottom half, x clamped so the
+        // text never leaves the canvas (phones: outer nodes sit near the edge).
+        c.textAlign = 'center';
+        c.textBaseline = ldy < 0 ? 'alphabetic' : 'hanging';
+        const lx = Math.min(width - tw / 2 - 4, Math.max(tw / 2 + 4, pt.x));
+        c.fillText(p.name, lx, ldy < 0 ? pt.y - t.r - 6 : pt.y + t.r + 6);
+      }
       c.restore();
     }
 
