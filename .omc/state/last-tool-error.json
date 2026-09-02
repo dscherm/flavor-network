@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cat D:/Projects/flavor-network/package.json | grep -A3 '\\\"scripts\\\"' | head; echo \\\"---\\\"; ls D:/Projects/flavor-network/tests 2>/dev/null; echo \\\"vitest config:\\\"; ls D:/Projects/flavor-n...",
-  "error": "Exit code 2\n  \"scripts\": {\n    \"predev\": \"node scripts/copy_wasm.cjs\",\n    \"dev\": \"vite\",\n    \"build:pairings\": \"node scripts/buildPairingsBinary.cjs\",\n---\ncocktail-lab.test.mjs\ndata-integrity.test.mjs\nsauce-lab.test.mjs\nvitest config:\nD:/Projects/flavor-network/vite.config.js",
-  "timestamp": "2026-06-22T16:42:32.951Z",
-  "retry_count": 1
-}

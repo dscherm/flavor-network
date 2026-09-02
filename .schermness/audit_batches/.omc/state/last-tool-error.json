@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd D:/Projects/flavor-network/.ralph/audit_batches && echo \\\"=== batch_38.json (input head) ===\\\" && head -c 1200 batch_38.json && echo \\\"\\\" && echo \\\"=== batch_38.out.json (output head) =...",
-  "error": "Exit code 2\n=== batch_38.json (input head) ===\n[{\"name\":\"white sesame seed\",\"totalCount\":1022,\"category\":\"nut\",\"taste\":\"bitter sweet\",\"cuisines\":[\"Chinese\",\"Japanese\",\"Korean\",\"Turkish\",\"Lebanese\",\"Israeli\"]},{\"name\":\"white shoepeg corn\",\"totalCount\":310,\"category\":\"vegetable\",\"taste\":\"astringent sweet\",\"cuisines\":[\"Mexican\",\"Southern US\"]},{\"name\":\"white spelt flour\",\"totalCount\":65,\"category\":\"thickener\",\"taste\":\"sweet\",\"cuisines\":[\"Global\"]},{\"name\":\"white syrup\",\"totalCount\":1346,\"category\":...",
-  "timestamp": "2026-06-12T22:18:36.146Z",
-  "retry_count": 1
-}
