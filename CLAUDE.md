@@ -76,7 +76,7 @@ python $RALPH_HOME/tools/tag_lesson.py consulted <stem> \
   --reason "<one-line reason>"
 ```
 
-This appends a `consulted` event to `.ralph/lesson-events.jsonl` —
+This appends a `consulted` event to `.schermness/lesson-events.jsonl` —
 honest audit signal that doesn't inflate the application count.
 
 ### Short version
@@ -142,3 +142,8 @@ Before emitting `<lesson_applied stem='X' />`, ask:
 
 If yes → tag.
 If no → it's ritual or compliance, not application. Don't tag.
+
+
+<!-- ralph-universal: auto-injected context -->
+@.claude/.ralph-examples.md
+@.claude/.ralph-yellow.md
