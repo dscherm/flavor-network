@@ -4,7 +4,7 @@
 
 A browser app for cooks who want to know *why* things go together. It puts
 3,891 ingredients and 95,992 scored pairings (68,417 observed across 2.2
-million real recipes, the rest predicted by a molecular taste/odor model) — behind four working
+million real recipes, the rest predicted by a molecular taste/odor model) behind four working
 surfaces: a cocktail lab, a sauce lab, a pairing explorer, and a
 "make a recipe" flow with a handwritten-notebook cookbook.
 
@@ -120,7 +120,7 @@ npm run dev          # http://localhost:5173
 ```
 
 ```bash
-npm run gate         # full vitest suite (131 files) + production build — the
+npm run gate         # full vitest suite (132 files) + production build — the
                      # pre-commit check; must be green
 npm run build        # dist/
 npm run preview      # serve dist/ locally
