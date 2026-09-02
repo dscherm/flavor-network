@@ -29,18 +29,6 @@ import {
 
 
 // Word-wrap a family name into up to 2 lines for the shelf tag (no truncation).
-function wrapFamilyName(name, max = 11) {
-  const words = String(name || '').trim().split(/\s+/);
-  if (words.length <= 1) return [name || ''];
-  const lines = [''];
-  for (const w of words) {
-    const last = lines[lines.length - 1];
-    if (!last) lines[lines.length - 1] = w;
-    else if ((last + ' ' + w).length <= max) lines[lines.length - 1] = `${last} ${w}`;
-    else lines.push(w);
-  }
-  return lines.slice(0, 2);
-}
 
 /**
  * Derive a human label for a subcluster. The data only carries an id
@@ -56,6 +44,21 @@ function deriveSubclusterLabel(members) {
 // Distinct colored-chalk hues for subgroup headers, cycled within each family
 // (colored chalks on a slate board — each subgroup gets its own).
 const SUBGROUP_CHALKS = ['#f0a6a6', '#a6c8f0', '#bfe6a6', '#f0d9a6', '#d9b3f0', '#a6f0e0', '#f0bfa6', '#cfd0f0', '#e6b8d0'];
+
+// v1.0.4: dark family colours (Espagnole brown, Mole) vanish as text or outline
+// on the near-black card. Lift anything below a luminance floor toward chalk
+// cream; bright families pass through unchanged.
+function popColor(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  if (lum >= 0.5) return hex;
+  const t = Math.min(0.65, (0.5 - lum) * 1.8);
+  const mix = (c, target) => Math.round(c + (target - c) * t);
+  return `#${[mix(r, 245), mix(g, 239), mix(b, 222)].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
 
 // Keyword → flavor-family glyph, matched against the subgroup's root-cocktail
 // name + member names; first hit wins, generic glass is the fallback.
@@ -411,7 +414,7 @@ export default function CocktailBrowse({
         <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Families</div>
         <div className="pb-1">
         <svg
-          viewBox={`0 -48 ${graph.families.length * 120} 240`}
+          viewBox={`0 -48 ${graph.families.length * 120} 170`}
           preserveAspectRatio="xMidYMid meet"
           style={{ width: '100%', maxWidth: Math.round(graph.families.length * 120 * 200 / 240), height: 'auto', display: 'block', margin: '0 auto' }}
           role="img"
@@ -442,17 +445,43 @@ export default function CocktailBrowse({
                 <g transform={`translate(${cx} 104) scale(1.85) translate(${-cx} -104)`} pointerEvents="none">
                   {glassMark(glassTypeFor(fam.name), cx, fam.color, stroke, active)}
                 </g>
-                {/* family name on a shelf tag below (wrapped, not cut) + count */}
-                <text x={cx} y="128" textAnchor="middle" fontSize="27" fontFamily="Caveat, cursive" fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
-                  {wrapFamilyName(fam.name).map((ln, li) => (
-                    <tspan key={li} x={cx} dy={li === 0 ? 0 : 30}>{ln}</tspan>
-                  ))}
-                </text>
-                <text x={cx} y={`${128 + (wrapFamilyName(fam.name).length > 1 ? 30 : 0) + 26}`} textAnchor="middle" fontSize="26" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.75" pointerEvents="none">{count} drinks</text>
               </g>
             );
           })}
         </svg>
+        {/* v1.0.4: family names + counts as fixed-size HTML "shelf tags". Inside the
+            scaled SVG they rendered at ~8px on phones; here they stay 14–18px at any
+            width, hang at alternating slants like chalk price tags, and are tappable. */}
+        <div
+          className="grid mx-auto mt-1"
+          style={{ gridTemplateColumns: `repeat(${graph.families.length}, minmax(0, 1fr))`, width: '100%', maxWidth: Math.round(graph.families.length * 120 * 200 / 240) }}
+        >
+          {graph.families.map((fam, i) => {
+            const active = filterFamily === fam.id;
+            const dim = filterFamily != null && !active;
+            const count = (graph.byFamily.get(fam.id) || []).length;
+            const ink = active ? CHALK_CREAM : popColor(fam.color);
+            return (
+              <button
+                key={fam.id}
+                type="button"
+                onClick={() => onFilterFamily(active ? null : fam.id)}
+                aria-label={`${fam.name}, ${count} cocktails`}
+                aria-pressed={active}
+                className="flex flex-col items-center px-0.5 pt-1 pb-1 min-w-0"
+                style={{ opacity: dim ? 0.4 : 1, transition: 'opacity .15s' }}
+              >
+                <span
+                  className="text-[14px] sm:text-[18px] leading-[1.05] text-center px-1.5 py-0.5 rounded-sm max-w-full min-h-[2.4em] flex items-center justify-center"
+                  style={{ fontFamily: FONT, color: ink, border: `1px dashed ${ink}99`, background: `${fam.color}1a`, transform: `rotate(${i % 2 ? 5 : -5}deg)`, textShadow: CHALK_SHADOW, boxShadow: `0 0 8px ${fam.color}33` }}
+                >
+                  {fam.name}
+                </span>
+                <span className="text-[11px] sm:text-[13px] mt-1.5" style={{ fontFamily: FONT, color: CHALK_DIM }}>{count} drinks</span>
+              </button>
+            );
+          })}
+        </div>
         </div>
         {filterFamily != null && (
           <div className="text-center -mt-1">
@@ -470,10 +499,14 @@ export default function CocktailBrowse({
 
       {/* ───── Back-bar bottle shelf — one chalk bottle per base spirit ───── */}
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
-        <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Spirits</div>
-        <div className="pb-1">
+        <div className="flex items-baseline justify-between mb-1">
+          <div className="text-[11px] uppercase tracking-wider" style={{ color: CHALK_SUB }}>Spirits</div>
+          <div className="sm:hidden text-[11px] tracking-wide" style={{ fontFamily: FONT, color: CHALK_SUB }}>swipe →</div>
+        </div>
+        <div className="pb-1 overflow-x-auto -mx-4 px-4">
+        <div style={{ minWidth: SPIRIT_SHELF.length * 76 }}>
         <svg
-          viewBox={`0 -66 ${SPIRIT_SHELF.length * 122} 204`}
+          viewBox={`0 -66 ${SPIRIT_SHELF.length * 122} 180`}
           preserveAspectRatio="xMidYMid meet"
           style={{ width: '100%', maxWidth: Math.round(SPIRIT_SHELF.length * 122 * 190 / 204), height: 'auto', display: 'block', margin: '0 auto' }}
           role="img"
@@ -504,11 +537,45 @@ export default function CocktailBrowse({
                 <g transform={`translate(${cx} 104) scale(${1.85 * (BOTTLE_PARAMS[s.key]?.scale ?? 1)}) translate(${-cx} -104)`} pointerEvents="none">
                   {bottleMark(s.key, cx, color, stroke, active, s.label)}
                 </g>
-                <text x={cx} y="132" textAnchor="middle" fontSize="26" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.75" pointerEvents="none">{count} drinks</text>
               </g>
             );
           })}
         </svg>
+        {/* v1.0.4: spirit tags as HTML (see the family tags above). Nine bottles
+            cannot fit a phone at a readable size, so this shelf swipes sideways
+            at a fixed minimum width instead of shrinking. */}
+        <div
+          className="grid mx-auto mt-1"
+          style={{ gridTemplateColumns: `repeat(${SPIRIT_SHELF.length}, minmax(0, 1fr))`, width: '100%', maxWidth: Math.round(SPIRIT_SHELF.length * 122 * 190 / 204) }}
+        >
+          {SPIRIT_SHELF.map((sp, i) => {
+            const active = filterSpirit === sp.key;
+            const dim = filterSpirit != null && !active;
+            const count = spiritCounts[sp.key] || 0;
+            const base = COCKTAIL_SPIRIT_COLORS[sp.key] || CHALK_DIM;
+            const ink = active ? CHALK_CREAM : popColor(base);
+            return (
+              <button
+                key={sp.key}
+                type="button"
+                onClick={() => onFilterSpirit(active ? null : sp.key)}
+                aria-label={`${sp.label}, ${count} cocktails`}
+                aria-pressed={active}
+                className="flex flex-col items-center px-0.5 pt-1 pb-1 min-w-0"
+                style={{ opacity: dim ? 0.4 : 1, transition: 'opacity .15s' }}
+              >
+                <span
+                  className="text-[14px] sm:text-[17px] leading-[1.05] text-center px-1.5 py-0.5 rounded-sm max-w-full min-h-[1.6em] flex items-center justify-center"
+                  style={{ fontFamily: FONT, color: ink, border: `1px dashed ${ink}99`, background: `${base}1a`, transform: `rotate(${i % 2 ? 5 : -5}deg)`, textShadow: CHALK_SHADOW, boxShadow: `0 0 8px ${base}33` }}
+                >
+                  {sp.label}
+                </span>
+                <span className="text-[11px] sm:text-[13px] mt-1.5" style={{ fontFamily: FONT, color: CHALK_DIM }}>{count} drinks</span>
+              </button>
+            );
+          })}
+        </div>
+        </div>
         </div>
         {filterSpirit != null && (
           <div className="text-center -mt-1">
@@ -615,22 +682,26 @@ export default function CocktailBrowse({
                               style={{
                                 // v1.0.3: each drink card carries a wash of its family colour so the
                                 // list reads as coloured chalk cards rather than dashed outlines.
+                                // v1.0.4: family wash blended toward the sub-cluster chalk (variety
+                                // within a family), full-strength family outline with a soft glow.
                                 background: isSelected
-                                  ? `linear-gradient(135deg, ${fam.color}3a, ${fam.color}22)`
-                                  : `linear-gradient(135deg, ${fam.color}1f, ${fam.color}10)`,
-                                border: `1px solid ${isSelected ? `${fam.color}cc` : `${fam.color}66`}`,
-                                boxShadow: isSelected ? `inset 0 0 0 1px ${fam.color}55, 0 2px 8px rgba(0,0,0,0.35)` : '0 1px 4px rgba(0,0,0,0.3)',
+                                  ? `linear-gradient(135deg, ${fam.color}55, ${chalk}30)`
+                                  : `linear-gradient(135deg, ${fam.color}36, ${chalk}1c)`,
+                                border: `1.5px solid ${isSelected ? CHALK_CREAM : popColor(fam.color)}`,
+                                boxShadow: isSelected
+                                  ? `0 0 0 1px ${fam.color}, 0 0 14px ${fam.color}88, 0 2px 8px rgba(0,0,0,0.4)`
+                                  : `0 0 10px ${fam.color}55, 0 2px 6px rgba(0,0,0,0.35)`,
                               }}
                             >
                               <svg width="15" height="22" viewBox="0 20 52 88" aria-hidden="true" className="flex-shrink-0">
                                 {glassMark(famGlassType, 26, fam.color, fam.color, true)}
                               </svg>
-                              <span className="flex-1 truncate text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{c.name}</span>
+                              <span className="flex-1 truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{c.name}</span>
                               {a?.iba_official && (
                                 <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>IBA</span>
                               )}
                               {a?.spirit && a.spirit !== 'other' && (
-                                <span className="text-[10px] capitalize" style={{ color: CHALK_SUB }}>{a.spirit}</span>
+                                <span className="text-[10px] capitalize" style={{ color: CHALK_DIM }}>{a.spirit}</span>
                               )}
                             </button>
                           </li>

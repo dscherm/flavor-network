@@ -20,6 +20,21 @@ const SLOT_W = 144;
 const ROW_H = 138;
 const ROW_Y0 = 84;
 const BOARD_W = PER_ROW * SLOT_W; // 720
+
+// v1.0.4: dark family colours (Espagnole brown, Mole) vanish as text or outline
+// on the near-black card. Lift anything below a luminance floor toward chalk
+// cream; bright families pass through unchanged.
+function popColor(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  if (lum >= 0.5) return hex;
+  const t = Math.min(0.65, (0.5 - lum) * 1.8);
+  const mix = (c, target) => Math.round(c + (target - c) * t);
+  return `#${[mix(r, 245), mix(g, 239), mix(b, 222)].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
 const VESSEL_SCALE = 1.55;
 
 // Centered {cx, cy} per family index + the row count (for viewBox sizing).
@@ -373,22 +388,25 @@ export default function SauceBrowse({
                         className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[38px]"
                         style={{
                           // v1.0.3: each sauce card carries a wash of its mother-family colour.
+                          // v1.0.4: stronger mother-family wash, full-strength outline with a soft glow.
                           background: isSelected
-                            ? `linear-gradient(135deg, ${fam.color}3a, ${fam.color}22)`
-                            : `linear-gradient(135deg, ${fam.color}1f, ${fam.color}10)`,
-                          border: `1px solid ${isSelected ? `${fam.color}cc` : `${fam.color}66`}`,
-                          boxShadow: isSelected ? `inset 0 0 0 1px ${fam.color}55, 0 2px 8px rgba(0,0,0,0.35)` : '0 1px 4px rgba(0,0,0,0.3)',
+                            ? `linear-gradient(135deg, ${fam.color}55, ${fam.color}2a)`
+                            : `linear-gradient(135deg, ${fam.color}36, ${fam.color}16)`,
+                          border: `1.5px solid ${isSelected ? CHALK_CREAM : popColor(fam.color)}`,
+                          boxShadow: isSelected
+                            ? `0 0 0 1px ${fam.color}, 0 0 14px ${fam.color}88, 0 2px 8px rgba(0,0,0,0.4)`
+                            : `0 0 10px ${fam.color}55, 0 2px 6px rgba(0,0,0,0.35)`,
                         }}
                       >
                         <svg width="22" height="18" viewBox="-8 6 80 66" aria-hidden="true" className="flex-shrink-0">
                           {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
                         </svg>
-                        <span className="flex-1 truncate text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{s.name}</span>
+                        <span className="flex-1 truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{s.name}</span>
                         {s.isRoot && (
                           <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>MOTHER</span>
                         )}
                         {s.cuisine && (
-                          <span className="text-[11px]" style={{ color: CHALK_SUB }}>{s.cuisine}</span>
+                          <span className="text-[11px]" style={{ color: CHALK_DIM }}>{s.cuisine}</span>
                         )}
                       </button>
                     </li>
