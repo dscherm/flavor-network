@@ -31,7 +31,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SRC = path.join(__dirname, '..', '..', 'COCKTAIL_CODEX_NEEDS.md');
+const SRC = path.join(__dirname, '..', 'data', 'COCKTAIL_CODEX_NEEDS.md');
 const OUT = path.join(__dirname, '..', '..', 'public', 'data', 'cocktail_codex.json');
 const COCKTAILDB_DIR = path.join(__dirname, '..', 'raw', 'cocktaildb');
 

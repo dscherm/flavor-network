@@ -94,7 +94,7 @@ const STEPS = [
     script: './11-parse-cocktail-codex.js',
     flag: 'cocktail-codex',
     prereq: () => {
-      const f = path.join(__dirname, '..', '..', 'COCKTAIL_CODEX_NEEDS.md');
+      const f = path.join(__dirname, '..', 'data', 'COCKTAIL_CODEX_NEEDS.md');
       if (!fs.existsSync(f)) return `Missing ${f} (curated codex source).`;
       return null;
     },
