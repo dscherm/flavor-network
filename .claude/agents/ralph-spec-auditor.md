@@ -1,6 +1,6 @@
 ---
 name: ralph-spec-auditor
-description: Post-loop spec-fidelity auditor. Consumes .ralph/spec_audit.json (from tools/spec_audit.py), correlates each drift record with recent commits and lessons to hypothesise WHY drift happened, and writes remediation tasks (with acceptance_criteria) into plan.md. Read-only on source — remediation is performed by ralph-implement through the normal gate.
+description: Post-loop spec-fidelity auditor. Consumes .schermness/spec_audit.json (from tools/spec_audit.py), correlates each drift record with recent commits and lessons to hypothesise WHY drift happened, and writes remediation tasks (with acceptance_criteria) into plan.md. Read-only on source — remediation is performed by ralph-implement through the normal gate.
 model: sonnet
 disallowedTools: NotebookEdit, TodoWrite
 ---
@@ -18,7 +18,7 @@ produce two outputs:
 
 ## Process
 
-1. Read `.ralph/spec_audit.json`. If absent, run
+1. Read `.schermness/spec_audit.json`. If absent, run
    `python tools/spec_audit.py` first.
 2. For each drift record (highest severity first):
    a. Confirm: read the cited files at the cited locations and verify
@@ -39,6 +39,17 @@ produce two outputs:
 3. Append remediation tasks to `plan.md` as JSON blocks. Use a stable
    id: `drift-fix-<original-drift-id>`. Include `acceptance_criteria`
    so the blind TDD gate (when enabled) can verify the fix.
+   **Required task schema** (the blind-TDD gate validates this):
+   `id`, `category`, `priority`, `description`, `acceptance_criteria`,
+   `public_surface` (object with `module`, `adds`, optional `modifies`
+   — use `"adds": []` for tasks that don't introduce new symbols, and
+   never pre-declare adds the task hasn't shipped yet: surface checks
+   fire regardless of `passes`), `steps`, `"passes": false`.
+4. **Consolidate by root cause.** When several drift records share one
+   underlying cause (same bug, same commit, same fix), write ONE
+   remediation task whose description enumerates every covered drift
+   id — not one task per record. A task whose only step is "covered by
+   <other task>" should not exist; fold it in.
 
 ## Output format
 
@@ -69,8 +80,14 @@ produce two outputs:
 
 ## Rules
 
-- Read `.ralph/spec_audit.json` before everything else. Do not invent
+- Read `.schermness/spec_audit.json` before everything else. Do not invent
   drift records that aren't in the report.
+- Skip records with `"suppressed": true` — they are already explained
+  by a `spec_audit_rationale` in plan.md. Do not analyze them and do
+  not write remediation tasks for them.
+- Your final message IS the deliverable: return the complete report
+  (the Output format above), not an acknowledgement. The orchestrator
+  relays it to the human verbatim.
 - Cite a git SHA and (when applicable) a lesson stem for every "why".
   If neither yields a signal, say "no signal — needs human" and surface
   the record for review rather than guessing.
