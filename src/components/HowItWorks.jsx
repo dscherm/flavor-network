@@ -121,7 +121,7 @@ export default function HowItWorks({
                 <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Where the data comes from</h3>
                 <p>Pairings come from how ingredients are actually used together — we analyzed
                    <strong> 2.2 million recipes</strong> (RecipeNLG) plus TheMealDB and
-                   TheCocktailDB into <strong>3,913 ingredients</strong> and tens of thousands of
+                   TheCocktailDB into <strong>3,891 ingredients</strong> and tens of thousands of
                    co-occurrence pairings. A separate <strong>graph neural network</strong> reads
                    each flavor compound's molecular structure to predict <strong>taste and
                    aroma</strong> — that's what powers the flavor-profile radars (and the

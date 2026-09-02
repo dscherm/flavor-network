@@ -5,7 +5,7 @@ const MODES = [
   {
     id: 'pairing',
     label: 'Explore Pairing Model',
-    description: 'A 3D network of 3,913 ingredients clustered by shared chemistry and 48,588 pairings.',
+    description: 'A 3D network of 3,891 ingredients clustered by shared chemistry and 68,417 pairings.',
   },
   {
     id: 'cocktail',
@@ -147,7 +147,7 @@ export default function StartPage({ onModeSelect }) {
             Find flavors that work together.
           </h1>
           <p className="text-sm sm:text-base text-neural-muted max-w-2xl mx-auto leading-relaxed">
-            Built on 2.2M recipes, 48,588 pairings, and real molecular chemistry. Pick a model to explore.
+            Built on 2.2M recipes, 68,417 pairings, and real molecular chemistry. Pick a model to explore.
           </p>
         </header>
 

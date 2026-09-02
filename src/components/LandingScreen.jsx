@@ -203,7 +203,7 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
           textShadow: '0 0 1px rgba(245,239,222,0.45), 0 0 3px rgba(245,239,222,0.18)',
         }}
       >
-        Built on 2.2M recipes, 48,588 pairings, and real molecular chemistry.
+        Built on 2.2M recipes, 68,417 pairings, and real molecular chemistry.
       </p>
 
       {/* 3 primary tiles. iOS portrait shows them stacked at compact
