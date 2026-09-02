@@ -10,7 +10,7 @@ Tag: `v1.0.0` · Bundle: `assets/index-DFFDS8PS.js` · Deployed: 2026-09-02 01:3
 ## What v1.0.0 is
 
 A browser app for cooks: 3,891 ingredients, 95,992 scored pairings
-distilled from 2.2 M recipes, 441 cocktails in six *Cocktail Codex*
+(68,417 observed in 2.2 M recipes, 27,575 model-predicted), 441 cocktails in six *Cocktail Codex*
 families, 77 sauces in ten mother families, an on-device set-completion
 model that proposes the next ingredient, and a molecular taste/odor model
 that explains *why*. Four labs plus a make-a-recipe flow and a cookbook,
