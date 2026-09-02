@@ -1,250 +1,230 @@
 # Flavor Network
 
-A 3D, browser-based exploration of how ingredients pair, how cocktails
-cluster into a culinary codex, and how the 10 mother sauces relate to
-their global descendants. Built on 2.2M real recipes, 48,588 ingredient
-pairings, and a graph neural network trained on flavor-compound
-chemistry.
+**Live: https://neuralflavor.web.app** — frozen at **v1.0.0** (2026-09-01). Web only.
 
-Live: **https://neuralflavor.web.app**
+A browser app for cooks who want to know *why* things go together. It puts
+3,891 ingredients and 95,992 scored pairings — distilled from 2.2 million
+real recipes and a molecular taste/odor model — behind four working
+surfaces: a cocktail lab, a sauce lab, a pairing explorer, and a
+"make a recipe" flow with a handwritten-notebook cookbook.
 
-The app opens to a picker with three "model" entry points:
+> **Status:** finished, not abandoned. The live site is the only
+> distribution channel and is not receiving features. `CLOSEOUT.md` has
+> the release notes and where to start if you return; `BACKLOG.md` lists
+> everything that was deliberately not built.
 
-- **Explore Pairing Model** → 3,913 ingredients in a 3D network,
-  clustered by shared chemistry. Click a node, see its top pairings,
-  understand why basil tastes like strawberry.
-- **Explore Cocktail Model** → the *Cocktail Codex* view: 172 cocktails
-  as nodes, grouped into the 7 super-cluster families (Old-Fashioned,
-  Martini, Daiquiri, Sidecar, Whisky Highball, Flip, Syrups). Click a
-  cocktail, see its ingredients, find similar drinks, push the
-  ingredients into the Recipe Lab to experiment with substitutions.
-- **Explore Sauce Model** → 77 curated sauces grouped into the 10
-  mother families (Béchamel, Velouté, Espagnole, Hollandaise, Tomato,
-  Curry, Stir-fry, Mole, Salsa, Nut Sauce). Within each family, sauces
-  sub-cluster by cuisine (Indian / Thai / Japanese curries, etc.).
+## What's in the app
 
-A **Recipe Lab** mode lets you assemble a bowl of ingredients and
-get phase-aware substitution suggestions — what to add when the bowl
-is empty (popular pairings) shifts to coherence-driven suggestions in
-the middle of a recipe, then to predictive next-ingredient ranking
-once the bowl is mostly assembled.
+The landing page offers two doors:
 
----
+| Door | What it opens |
+|---|---|
+| **The Labs** | **Cocktail Lab** — 441 cocktails in the 6 *Cocktail Codex* families (Old-Fashioned, Martini, Daiquiri, Sidecar, Whisky Highball, Flip) and 15 sub-clusters, as a 3D graph; build a drink, get "suggested next" ingredients. **Sauce Lab** — 77 curated sauces in the 10 mother families (Escoffier's five + Curry, Stir-fry, Mole, Salsa, Nut Sauce). **Pairing Lab** — pick an ingredient, see its strongest pairings and the compounds that explain them. **Recipe Notebook** — a 2D canvas notebook for assembling a bowl of ingredients with phase-aware suggestions. |
+| **Make a recipe** | Start from ingredients, a cuisine, or a recipe URL (parsed server-side by a Cloud Function); an on-device set-completion model (ONNX, runs in the browser) proposes what to add next. Save to the **Cookbook**. |
 
-## How the modeling works
+Signing in (Google or Apple, via Firebase Auth) is optional; it syncs the
+cookbook and the personal pairing prior to Firestore. Without sign-in
+everything works from `localStorage`.
 
-### 1. The pairing graph (3,913 ingredients × 48,588 edges)
+The original 3D "neural network" view of all 3,891 ingredients still
+exists but is parked — open it with `https://neuralflavor.web.app/?path=explore`.
 
-The base graph is built from a **proprietary blended dataset** in
-`proDataset/`. Sources, in weight order:
-
-| Source           | Records   | Weight | What it contributes              |
-| ---------------- | --------- | ------ | -------------------------------- |
-| RecipeNLG        | 2.2M      | 40%    | Recipe-level co-occurrence + PMI |
-| FlavorDB         | ~1k       | 30%    | Shared molecular compounds       |
-| TheMealDB        | 595       | 15%    | Cuisine-tagged co-occurrence     |
-| TheCocktailDB    | 426       | 15%    | Cocktail-specific co-occurrence  |
-
-Edge strength is a **NPMI + log-count hybrid**: NPMI rewards specific
-non-trivial pairings (lemon juice ↔ tequila), the log-count term keeps
-common-but-real pairs (salt ↔ pepper) from being washed out by the
-NPMI normalization. Pipeline lives in `proDataset/scripts/` and runs
-top-to-bottom via `npm run all` (script numbers indicate order):
+## Architecture
 
 ```
-01-parse-recipenlg → 02-fetch-flavordb → 03-fetch-mealdb
-  → 04-fetch-cocktaildb → 05-blend → 05-process-compounds
-  → 06-compute-features → 07-blend-v2 → 08-derive-recipe-pairs
-  → 09-derive-cocktail-clusters → 10-derive-sauce-clusters
-  → 11-parse-cocktail-codex
+  ┌──────────────────────────────┐   ┌──────────────────────────────┐
+  │  proDataset/  (Node.js)      │   │  chemDataset/  (Node.js)     │
+  │  RecipeNLG · TheMealDB ·     │   │  FooDB · FlavorDB ·          │
+  │  TheCocktailDB · FlavorDB    │   │  ChemTastesDB · BitterDB ·   │
+  │  → co-occurrence, NPMI,      │   │  SuperSweetDB · FlavorNet ·  │
+  │    cuisine tags, codex parse │   │  FartDB · PubChem SMILES     │
+  └──────────────┬───────────────┘   └──────────────┬───────────────┘
+                 │ ingredients.json,                 │ compounds.parquet
+                 │ pairings.json, …                  ▼
+                 │                    ┌──────────────────────────────┐
+                 │                    │  flavor-gnn/  (Python)       │
+                 │                    │  GINEConv MPNN, 11 heads     │
+                 │                    │  (5 tastes + 6 odors), plus  │
+                 │                    │  the set-completion model    │
+                 │                    │  → gnn_*.json, *.onnx,       │
+                 │                    │    layouts, cluster labels   │
+                 │                    └──────────────┬───────────────┘
+                 ▼                                   ▼
+  ┌──────────────────────────────────────────────────────────────────┐
+  │  public/proDataset · public/data · public/models  (committed)    │
+  └──────────────────────────────┬───────────────────────────────────┘
+                                 ▼
+  ┌──────────────────────────────────────────────────────────────────┐
+  │  src/  React 18 + Vite · Three.js (3D labs) · Canvas 2D (notebook)│
+  │  onnxruntime-web (set-completion, in-browser) · RDKit wasm        │
+  └──────────────────────────────┬───────────────────────────────────┘
+                                 ▼
+  ┌──────────────────────────────────────────────────────────────────┐
+  │  Firebase project `neuralflavor`                                  │
+  │  Hosting (dist/) · Auth (Google, Apple) · Firestore (profiles/)   │
+  │  Cloud Function `scrapeRecipe` (functions/, TypeScript)           │
+  └──────────────────────────────────────────────────────────────────┘
 ```
 
-Output ships in `public/proDataset/` as `ingredients.json` (node
-metadata), `pairings.json` (edge list), `recipe_pairs.json` (recipe-
-level co-occurrence for the suggestion engine), plus a binary
-`pairings.bin` for fast load.
+Three things worth understanding about this shape:
 
-### 2. Chemistry: the GNN taste/odor predictor
+1. **All served data is committed.** `public/` holds the finished JSON,
+   binary and ONNX files (~220 MB). Cloning and building requires no
+   pipeline run, no Python, and no raw datasets. The pipelines exist to
+   *regenerate* those files, not to build the app.
+2. **Inference happens in the browser.** The set-completion model and the
+   compound viewer run client-side with onnxruntime-web and RDKit
+   compiled to WebAssembly. The only server-side code is one Cloud
+   Function that fetches and parses a recipe URL (server-side to avoid
+   CORS and to sandbox SSRF).
+3. **The molecular model is an explanation surface, not the pairing
+   engine.** Pairing strength comes from recipe co-occurrence (NPMI +
+   log-count). The GNN's taste/odor probabilities drive radar charts and
+   "why" text; measured per-ingredient accuracy is too weak to rank
+   pairings with (see `.claude/.chemdataset-status.md` for the numbers).
 
-A separate sub-project, `chemDataset/` and `flavor-gnn/`, trains a
-**multi-task message-passing neural network** on flavor compounds:
-
-- **Inputs**: SMILES → molecular graph (atoms as nodes, bonds as
-  edges). Compound features pulled from FooDB, FlavorDB, ChemTasteDB,
-  BitterDB, SuperSweetDB, FlavorNet, and PubChem.
-- **Architecture**: GINEConv, 3 layers, hidden=128. 11-task multi-head
-  output for taste (sweet, sour, bitter, salty, umami) and odor
-  (fruity, green, woody, fatty, floral, spicy).
-- **Training**: 5-fold CV, 15 epochs, batch=64, seed=42, CPU. Per-task
-  threshold calibration writes `public/proDataset/odor_thresholds.json`.
-- **Calibrated F1 (post-R12 calibration)**: bitter 0.81, fruity 0.62,
-  umami 0.61 (unlocked via calibration from baseline 0.25), green
-  0.56, sweet 0.56, woody 0.52, fatty 0.52, sour 0.49 (also unlocked),
-  floral 0.46. Salty (0.40, 16 training positives) and spicy (0.30) are
-  data-limited and **not surfaced in the UI**.
-- **Coverage**: 2,790 of 3,913 ingredients have GNN predictions. The
-  ~1,100 missing are mostly high-pairing hub ingredients (cheddar,
-  bacon, egg, tomato paste) where compound data is incomplete. The
-  app shows GNN-predicted profiles in the IngredientPanel as a
-  separate "Predicted profile" section, not as a replacement for
-  curated taste tags.
-
-### 3. Cocktail Codex (172 cocktails, 7 families)
-
-`proDataset/scripts/11-parse-cocktail-codex.js` parses a curated
-markdown source (`COCKTAIL_CODEX_NEEDS.md`) into 172 cocktail
-recipes, each tagged with a family and subcluster. The 7 families
-mirror Dave Arnold's *Cocktail Codex* taxonomy: each family has a
-single root cocktail (Old-Fashioned, Martini, Daiquiri, Sidecar,
-Whisky Highball, Flip) plus a Syrups bin. Within a family, cocktails
-break into Core / Balance / Seasoning / Variations / Extended Family
-subclusters.
-
-In the 3D scene (`src/data/cocktailCodex.js` +
-`src/components/CocktailLab.jsx`):
-- Family centroids lie on a 36-unit radius circle.
-- Subclusters ring each centroid at radius 8.
-- Individual cocktails scatter ±3 units around their subcluster.
-- **Tree edges** (strength=1) connect each cocktail to its family
-  root. **Jaccard edges** connect cocktails with ingredient overlap
-  ≥ 0.18 within the same family.
-
-### 4. Sauce Codex (77 sauces, 10 mother families)
-
-`src/data/sauceCodex.js` loads `public/data/sauce_augment.json` (77
-curated sauces, each with structured ingredient + measure + technique
-fields), reassigns the 27 originally-tagged "Independent" sauces to
-their nearest mother family at load time (table in `REASSIGN`), and
-groups by `family + cuisine` for visual sub-clustering. Curry shows
-Indian / Thai / African as visible sub-pods; Stir-fry separates
-Japanese / Chinese / Korean. Single-cuisine families (Espagnole = all
-French) collapse the sub-centroid back to the family centroid.
-
-Eponymous mother sauces (Béchamel, Velouté, Espagnole, Hollandaise)
-sit AT their family centroid as the visual anchor; non-eponymous
-families (Curry, Stir-fry, Salsa, Mole, Nut Sauce) use the first
-sauce as the centroid label anchor.
-
-### 5. Phase-shifting suggestion engine (Recipe Lab)
-
-When the user assembles a bowl in the Recipe Lab, suggestions are
-ranked differently as the bowl grows — see `.claude/.ralph-spec.md`
-for the full info-theoretic spec:
-
-| Bowl size | Phase       | Score function                                        |
-| --------- | ----------- | ----------------------------------------------------- |
-| N = 0     | Cold-start  | Pure corpus frequency (top-paired ingredients)        |
-| N = 1–2   | Reductive   | `pairing × ΔH` over `P(Cluster \| bowl)`              |
-| N = 3–5   | Coherent    | `−KL(neighbor_dist(c) ‖ bowl_dist)`                   |
-| N ≥ 6     | Predictive  | `P(c \| bowl)` from recipe-level co-occurrence        |
-
-`P(Cluster | bowl)` is the marginal cluster posterior built from a
-precomputed `clusterMatrix` (3913 × 10 soft cluster assignments
-derived from each ingredient's top-50 neighbors). Boundaries are
-linearly blended so the drawer doesn't visibly reshuffle at N=3 and
-N=6.
-
-A separate **wildcard slot** ranks candidates by
-`pairing_strength × surprisal(c | bowl)` with eligibility filters
-(pairing ≥ 0.3, corpus appearances ≥ 100, not in the safe top-K) so
-the user can find non-obvious bridges (the "kalamata + chocolate"
-discoveries) without losing safe defaults.
-
-A per-user prior, stored in `localStorage` under `fn-recipe-prior`,
-records implicit signals (saved recipes weighted at +1.0, clicks on
-ingredients that survive to a save at +0.5, debounced searches at
-+0.2) and biases ranking toward ingredients the user has shown
-affinity for. Cold-start blend `α = N_saves / (N_saves + 5)` keeps
-new users on pure corpus until they've saved a few recipes.
-
----
-
-## Project structure
+### Repository map
 
 ```
-flavor-network/
-├── src/
-│   ├── App.jsx                  # Tab orchestration + handoff state
-│   ├── components/
-│   │   ├── StartPage.jsx        # Three-model entry picker
-│   │   ├── NetworkScene.jsx     # Three.js 3D canvas
-│   │   ├── CocktailLab.jsx      # Cocktail Codex view
-│   │   ├── SauceLab.jsx         # Sauce Codex view
-│   │   ├── RecipeLabMobile.jsx  # Recipe Lab (web + iOS share layout)
-│   │   ├── SuggestionDrawer.jsx # Phase-shifting suggestion engine
-│   │   ├── IngredientPanel.jsx  # Ingredient drilldown (right side)
-│   │   ├── CocktailDetailPanel.jsx
-│   │   └── SauceDetailPanel.jsx
-│   ├── data/
-│   │   ├── graph.js             # Adjacency builder + neighbor lookup
-│   │   ├── cocktailCodex.js     # 7-family cocktail layout
-│   │   ├── sauceCodex.js        # 10-family sauce layout
-│   │   ├── recipeSuggestionEngine.js
-│   │   └── infoTheory.js        # entropy / KL / surprisal
-│   ├── three/                   # Scene, instanced meshes, shaders
-│   └── hooks/useProData.js      # Loads ProData dataset
-├── public/
-│   ├── proDataset/              # ingredients.json, pairings.json, GNN outputs
-│   └── data/                    # cocktail_codex.json, sauce_augment.json
-├── proDataset/                  # Standalone Node.js pipeline (sources → blend)
-├── chemDataset/                 # Compound data fetchers
-├── flavor-gnn/                  # PyTorch GNN training
-└── ios/                         # Capacitor iOS project (Xcode)
+src/                 React app. App.jsx routes tabs; components/ holds the
+                     labs, notebook, make flow, cookbook; three/ the 3D
+                     scene; data/ the graph/scoring math; hooks/useProData
+                     loads everything under public/.
+public/proDataset/   Ingredient + pairing dataset, cluster labels, layouts,
+                     GNN outputs (served as-is)
+public/data/         Curated cocktail/sauce/cuisine augment files
+public/models/       ONNX models + vocab/index files for in-browser inference
+public/wasm/         Copied from node_modules by scripts/copy_wasm.cjs (gitignored)
+functions/           Cloud Function `scrapeRecipe` (TypeScript, vitest)
+proDataset/          Pairing-dataset pipeline (Node). scripts/ run in
+                     numbered order; data/ holds hand-curated inputs
+chemDataset/         Compound-dataset fetchers + validation suite (Node)
+flavor-gnn/          Molecular GNN, set-completion model, layouts (Python)
+scripts/             Build helpers (pairings binary, wasm copy, gate) and
+                     Playwright QA scripts
+docs/                Live specs for the shipped surfaces; docs/archive/ is
+                     history; docs/{privacy,support} are the GitHub Pages site
+lessons/, .claude/, ralph.sh, schermness.config.json, plan.md, activity.md,
+public_api.md        Autonomous-agent harness files (schermness). Inert
+                     unless you run the harness; kept so the project stays
+                     enrollable.
 ```
 
----
+## Run it locally
 
-## Build & run
+Requires Node 20+ (built with Node 24).
 
 ```bash
-npm install
-npm run dev          # Vite dev server (port 5173)
-npm run build        # Production build → dist/
-npm run preview      # Serve the production build locally
-npm run api          # Express API (port 3001) for ingredient lookup
+npm ci
+npm run dev          # http://localhost:5173
 ```
-
-iOS (Mac only):
 
 ```bash
-npm run ios:sync     # Build web + sync to ios/App/App/public
-npm run ios:open     # Open Xcode project
+npm run gate         # full vitest suite (131 files) + production build — the
+                     # pre-commit check; must be green
+npm run build        # dist/
+npm run preview      # serve dist/ locally
 ```
 
-To rebuild the dataset from sources (requires `proDataset/raw/recipenlg.csv`
-from Kaggle):
+Optional — the PDF/photo recipe import in the Profile panel needs the local
+Express API with a Gemini key. Copy `.env.example` to `.env`, fill
+`GEMINI_API_KEY`, then:
 
 ```bash
-cd proDataset
-npm install
-npm run all
+npm run api          # http://localhost:3001; Vite proxies /api/* to it in dev
 ```
 
----
+That API is development-only; nothing on the live site calls it.
 
-## Stack
+## Deploy
 
-- **Frontend**: React 18 + Vite, Tailwind CSS for panels, Three.js
-  (WebGL) for the 3D scene with bloom post-processing.
-- **3D rendering**: `InstancedMesh` for nodes (thousands of spheres),
-  `BufferGeometry` line segments for edges, sprite labels for cluster
-  centroids, `OrbitControls` for navigation.
-- **Search**: Fuse.js for fuzzy ingredient/cocktail/sauce search.
-- **API**: Express.js for the `/api/ingredient/:name` lookup.
-- **iOS**: Capacitor wraps the web app for App Store distribution
-  (bundle id `com.neuralflavor.app`).
-- **Hosting**: Firebase Hosting (`neuralflavor.web.app`).
-- **ML**: PyTorch + PyTorch Geometric for the GNN training pipeline
-  in `flavor-gnn/`.
+Firebase project `neuralflavor` (see `.firebaserc`). You need
+`firebase-tools` and access to the project.
 
----
+```bash
+npm run gate
+firebase deploy --only hosting            # web app → https://neuralflavor.web.app
+firebase deploy --only functions          # scrapeRecipe (builds functions/ first)
+firebase deploy --only firestore:rules    # profiles/{uid} owner-only rules
+```
 
-## License & credits
+`firebase.json` sets `no-cache` on `index.html` and the versioned dataset
+files so a deploy propagates within a minute; hashed `assets/*` are
+immutable. Dataset snapshot files (`*.bak`, `*.pre-*`) are excluded from
+upload.
 
-The pipeline derives data from open sources (RecipeNLG, TheMealDB,
-TheCocktailDB, FlavorDB, FooDB, ChemTasteDB, BitterDB, SuperSweetDB,
-FlavorNet, PubChem). The blended `proDataset/` output is proprietary.
-Cocktail Codex taxonomy follows Dave Arnold's *Cocktail Codex* (2018);
-mother sauce taxonomy follows Auguste Escoffier's *Le Guide
-Culinaire* (1903) extended with five global parallels (Curry,
-Stir-fry, Mole, Salsa, Nut Sauce) per the in-app classification.
+Auth providers, `authDomain`, and the callable's CORS allow-list are
+configured in the Firebase and Google Cloud consoles, not in this repo;
+`.claude/skills/firebase-auth/SKILL.md` records every field and the
+failure each one produces when wrong.
+
+## Regenerating the datasets
+
+You never need to do this to run or deploy the app. If you want to change
+the data:
+
+**Pairing dataset (`proDataset/`)** — needs the RecipeNLG CSV (~2.2 GB)
+from Kaggle at `proDataset/raw/recipenlg.csv`; the other sources are
+fetched by the scripts and cached under `proDataset/raw/` (gitignored).
+
+```bash
+cd proDataset && npm install
+npm run all                    # scripts 01…19 in order → proDataset/output/
+cp output/*.json ../public/proDataset/     # publish to the app
+cd .. && npm run build:pairings            # repack public/proDataset/pairings.bin
+```
+
+`proDataset/processed/pair-features.json` (~110 MB) is a regenerable
+intermediate and is gitignored. Hand-curated inputs (cuisine additions,
+manual pairings, the *Cocktail Codex* source) live in `proDataset/data/`.
+
+**Compound dataset (`chemDataset/`)** — `node scripts/NN-fetch-*.js` in
+order, then `10-blend.js`. FooDB is a ~1 GB bulk download; the rest are
+rate-limited scrapes or Zenodo/GitHub pulls. `npm run validate:pairings`
+runs the chef-curated validation suite.
+
+**Molecular GNN and layouts (`flavor-gnn/`)** — Python ≥ 3.10; install
+from `flavor-gnn/pyproject.toml` into `flavor-gnn/.venv`. Training and
+export are the `fm_*`, `aggregate_predictions.py` and layout scripts under
+`flavor-gnn/scripts/`; `npm run bake:flavor-pipeline` runs the layout +
+graph bake that writes `public/proDataset/flavor_*.json`. Trained
+artifacts are in `flavor-gnn/artifacts/`; training tensors and the
+RecipeNLG-derived corpus (`flavor-gnn/data/`, ~800 MB) are gitignored and
+rebuilt by `fm_p0_*`.
+
+The honest state of the model — what lifted accuracy, what didn't, and the
+experiments not to repeat — is in `.claude/.chemdataset-status.md`.
+
+## Tests
+
+`npm test` runs vitest over `src/**` and `chemDataset/validation/**`
+(1,438 tests). `functions/` has its own vitest suite
+(`npm --prefix functions test`). `scripts/qa-*.mjs` are Playwright
+walkthroughs that write screenshots to `.playwright-shots/` (gitignored).
+
+## Credits and data licenses
+
+This repository's **code** is MIT-licensed (`LICENSE`). The **data** under
+`public/` is derived from the sources below, each under its own terms.
+Nothing here re-distributes any source dataset; what ships is aggregate
+statistics (co-occurrence counts, scores, cluster assignments, model
+weights). Verify the current terms of each source before any commercial
+use.
+
+| Source | Used for | Terms (as understood at the freeze) |
+|---|---|---|
+| **RecipeNLG** (Bień et al., 2020) | Ingredient co-occurrence and PMI from 2.2 M recipes; set-completion training corpus | **Research use only.** We ship derived aggregate statistics and model weights, never recipe text. The CSV is not in the repo. |
+| **FlavorDB / FlavorDB2** (Garg et al., IIIT-Delhi) | Shared-compound pairing signal; taste/odor descriptors | Academic use; cite the FlavorDB paper. No explicit license published. |
+| **TheMealDB** | Cuisine-tagged co-occurrence (595 meals) | Free API for education/development with attribution; commercial use requires a supporter key. |
+| **TheCocktailDB** | Cocktail co-occurrence (426 drinks) | Same terms as TheMealDB. |
+| **FooDB** (Wishart Lab) | Food → compound mapping | CC BY-NC 4.0. |
+| **ChemTastesDB v2.1** (Zenodo 15051366) | Taste labels for the GNN | See the Zenodo record's license. |
+| **BitterDB** (Hebrew University) | Bitter labels | Free for academic use. |
+| **SuperSweetDB** | Sweet labels | Academic use. |
+| **FlavorNet** (Acree & Arn, Cornell) | Odor descriptors | Free for non-commercial use with attribution. |
+| **FART / FartDB** (github.com/fart-lab/fart) | 14.5 k taste-labelled compounds, incl. pKa-derived sour labels | See that repository's license. |
+| **PubChem** (NCBI) | Canonical SMILES | Public domain. |
+| *Cocktail Codex* (Day, Fauchald, Kaplan, 2018) and *Le Guide Culinaire* (Escoffier, 1903) | Family taxonomies only | Taxonomy used as a classification scheme; no text reproduced. |
+
+Software: React, Vite, Three.js, onnxruntime-web, RDKit (BSD-3, via
+WebAssembly), PyTorch + PyTorch Geometric, Firebase.
