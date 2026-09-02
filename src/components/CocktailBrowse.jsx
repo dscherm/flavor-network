@@ -382,9 +382,11 @@ export default function CocktailBrowse({
 
   return (
     <div
-      className="absolute inset-x-0 top-10 overflow-y-auto"
-      style={{ bottom: 'var(--tab-bar-h)' }} // v1.0.2: stop above the fixed tab bar; inset-0 hid the last ~57px
+      className="absolute inset-x-0 top-0 overflow-y-auto" // v1.0.3: top-10 reserved a top nav that is hidden — 40px blank band
+      // v1.0.2/3: bottom stops above the fixed tab bar (inset-0 hid the last ~57px).
       style={{
+        bottom: 'var(--tab-bar-h)',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
         ...chalkSurfaceStyle(),
         color: CHALK_CREAM,
         boxShadow: `inset 0 0 0 2px ${CHALK_RAIL}55, inset 0 0 0 4px #00000080`,
@@ -409,9 +411,9 @@ export default function CocktailBrowse({
         <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Families</div>
         <div className="pb-1">
         <svg
-          viewBox={`0 -48 ${graph.families.length * 120} 224`}
+          viewBox={`0 -48 ${graph.families.length * 120} 240`}
           preserveAspectRatio="xMidYMid meet"
-          style={{ width: '100%', maxWidth: Math.round(graph.families.length * 120 * 188 / 224), height: 'auto', display: 'block', margin: '0 auto' }}
+          style={{ width: '100%', maxWidth: Math.round(graph.families.length * 120 * 200 / 240), height: 'auto', display: 'block', margin: '0 auto' }}
           role="img"
           aria-label="Cocktail families — back-bar shelf"
         >
@@ -443,10 +445,10 @@ export default function CocktailBrowse({
                 {/* family name on a shelf tag below (wrapped, not cut) + count */}
                 <text x={cx} y="128" textAnchor="middle" fontSize="27" fontFamily="Caveat, cursive" fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
                   {wrapFamilyName(fam.name).map((ln, li) => (
-                    <tspan key={li} x={cx} dy={li === 0 ? 0 : 22}>{ln}</tspan>
+                    <tspan key={li} x={cx} dy={li === 0 ? 0 : 30}>{ln}</tspan>
                   ))}
                 </text>
-                <text x={cx} y={`${128 + (wrapFamilyName(fam.name).length > 1 ? 22 : 0) + 20}`} textAnchor="middle" fontSize="17" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.6" pointerEvents="none">{count} drinks</text>
+                <text x={cx} y={`${128 + (wrapFamilyName(fam.name).length > 1 ? 30 : 0) + 26}`} textAnchor="middle" fontSize="26" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.75" pointerEvents="none">{count} drinks</text>
               </g>
             );
           })}
@@ -502,7 +504,7 @@ export default function CocktailBrowse({
                 <g transform={`translate(${cx} 104) scale(${1.85 * (BOTTLE_PARAMS[s.key]?.scale ?? 1)}) translate(${-cx} -104)`} pointerEvents="none">
                   {bottleMark(s.key, cx, color, stroke, active, s.label)}
                 </g>
-                <text x={cx} y="130" textAnchor="middle" fontSize="17" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.65" pointerEvents="none">{count} drinks</text>
+                <text x={cx} y="132" textAnchor="middle" fontSize="26" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.75" pointerEvents="none">{count} drinks</text>
               </g>
             );
           })}
@@ -611,8 +613,13 @@ export default function CocktailBrowse({
                               onClick={() => onSelectCocktail(c.name)}
                               className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[38px]"
                               style={{
-                                background: isSelected ? `${fam.color}22` : 'rgba(255,255,255,0.02)',
-                                border: `1px ${isSelected ? 'solid' : 'dashed'} ${isSelected ? `${fam.color}aa` : `${fam.color}55`}`,
+                                // v1.0.3: each drink card carries a wash of its family colour so the
+                                // list reads as coloured chalk cards rather than dashed outlines.
+                                background: isSelected
+                                  ? `linear-gradient(135deg, ${fam.color}3a, ${fam.color}22)`
+                                  : `linear-gradient(135deg, ${fam.color}1f, ${fam.color}10)`,
+                                border: `1px solid ${isSelected ? `${fam.color}cc` : `${fam.color}66`}`,
+                                boxShadow: isSelected ? `inset 0 0 0 1px ${fam.color}55, 0 2px 8px rgba(0,0,0,0.35)` : '0 1px 4px rgba(0,0,0,0.3)',
                               }}
                             >
                               <svg width="15" height="22" viewBox="0 20 52 88" aria-hidden="true" className="flex-shrink-0">

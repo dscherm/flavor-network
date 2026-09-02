@@ -227,9 +227,10 @@ export default function SauceBrowse({
 
   return (
     <div
-      className="absolute inset-x-0 top-10 overflow-y-auto"
-      style={{ bottom: 'var(--tab-bar-h)' }} // v1.0.2: stop above the fixed tab bar; inset-0 hid the last ~57px
-      style={{ ...chalkSurfaceStyle(), color: CHALK_CREAM, boxShadow: `inset 0 0 0 2px ${CHALK_RAIL}55, inset 0 0 0 4px #00000080` }}
+      className="absolute inset-x-0 top-0 overflow-y-auto"
+      // v1.0.2/3: bottom stops above the fixed tab bar (inset-0 hid the last ~57px);
+      // top-0 instead of top-10 — the top nav it reserved space for is hidden.
+      style={{ bottom: 'var(--tab-bar-h)', paddingTop: 'env(safe-area-inset-top, 0px)', ...chalkSurfaceStyle(), color: CHALK_CREAM, boxShadow: `inset 0 0 0 2px ${CHALK_RAIL}55, inset 0 0 0 4px #00000080` }}
       data-sauce-browse-root
     >
       {/* ───── Board header — the "specials board" title ───── */}
@@ -250,7 +251,7 @@ export default function SauceBrowse({
         <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Mother families</div>
         {(() => {
           const { positions, rowCount } = computeLayout(families.length);
-          const boardH = ROW_Y0 + (rowCount - 1) * ROW_H + 92;
+          const boardH = ROW_Y0 + (rowCount - 1) * ROW_H + 100;
           return (
             <svg viewBox={`0 0 ${BOARD_W} ${boardH}`} className="w-full h-auto" style={{ maxHeight: 440 }} role="img" aria-label="Sauce family pantry shelf">
               <title>Sauce families</title>
@@ -285,10 +286,10 @@ export default function SauceBrowse({
                     </g>
                     <text x={cx} y={cy + 32} textAnchor="middle" fontSize="28" fontFamily="Caveat, cursive" fill={active ? CHALK_CREAM : fam.color} pointerEvents="none">
                       {wrapName(fam.name).map((ln, li) => (
-                        <tspan key={li} x={cx} dy={li === 0 ? 0 : 25}>{ln}</tspan>
+                        <tspan key={li} x={cx} dy={li === 0 ? 0 : 30}>{ln}</tspan>
                       ))}
                     </text>
-                    <text x={cx} y={cy + 32 + (wrapName(fam.name).length > 1 ? 25 : 0) + 22} textAnchor="middle" fontSize="20" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.6" pointerEvents="none">{count} sauces</text>
+                    <text x={cx} y={cy + 32 + (wrapName(fam.name).length > 1 ? 30 : 0) + 24} textAnchor="middle" fontSize="26" fontFamily="Caveat, cursive" fill={CHALK_CREAM} fillOpacity="0.75" pointerEvents="none">{count} sauces</text>
                   </g>
                 );
               })}
@@ -371,8 +372,12 @@ export default function SauceBrowse({
                         onClick={() => onSelectSauce(s.name)}
                         className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[38px]"
                         style={{
-                          background: isSelected ? `${fam.color}22` : 'rgba(255,255,255,0.02)',
-                          border: `1px ${isSelected ? 'solid' : 'dashed'} ${isSelected ? `${fam.color}aa` : `${fam.color}55`}`,
+                          // v1.0.3: each sauce card carries a wash of its mother-family colour.
+                          background: isSelected
+                            ? `linear-gradient(135deg, ${fam.color}3a, ${fam.color}22)`
+                            : `linear-gradient(135deg, ${fam.color}1f, ${fam.color}10)`,
+                          border: `1px solid ${isSelected ? `${fam.color}cc` : `${fam.color}66`}`,
+                          boxShadow: isSelected ? `inset 0 0 0 1px ${fam.color}55, 0 2px 8px rgba(0,0,0,0.35)` : '0 1px 4px rgba(0,0,0,0.3)',
                         }}
                       >
                         <svg width="22" height="18" viewBox="-8 6 80 66" aria-hidden="true" className="flex-shrink-0">

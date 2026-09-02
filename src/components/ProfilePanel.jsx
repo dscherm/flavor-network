@@ -610,7 +610,7 @@ function RecipeList({ recipes, onRemove, onLoad }) {
       <p className="text-[11px] text-gray-600 text-center mt-6">
         No recipes added yet.
         <br />
-        Use Recipe Lab to create one.
+        Use the Recipe Notebook or Make a recipe to create one.
       </p>
     );
   }
