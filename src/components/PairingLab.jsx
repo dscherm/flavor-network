@@ -133,8 +133,9 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
   return (
     <div
       data-testid="pairing-lab"
-      className="fixed inset-0 flex flex-col overflow-hidden"
-      style={{ ...chalkSurfaceStyle(), paddingTop: 'var(--nav-h)', color: CHALK_CREAM }}
+      className="fixed inset-x-0 top-0 flex flex-col overflow-hidden"
+      // v1.0.2: bottom stops above the fixed tab bar (the legend was clipped under it).
+      style={{ ...chalkSurfaceStyle(), paddingTop: 'var(--nav-h)', color: CHALK_CREAM, bottom: 'var(--tab-bar-h)' }}
     >
       {/* Header — title + Surprise + search */}
       <div style={{ padding: '10px 12px 6px', borderBottom: `1px solid ${CHALK_RAIL}` }}>
