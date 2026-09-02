@@ -39,7 +39,7 @@ describe('LandingScreen — MAKE-LANDING-TILE (3-tile row, post MAKE-BUILD-DEPRE
     expect(screen.getByText('Make a recipe')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Start a recipe from scratch, from a recipe link, or from a saved Cookbook recipe.',
+        'Start a recipe from scratch, from a photo, or from a saved Cookbook recipe.',
       ),
     ).toBeInTheDocument();
   });
@@ -55,7 +55,7 @@ describe('LandingScreen — MAKE-LANDING-TILE (3-tile row, post MAKE-BUILD-DEPRE
   it('Make tile aria-label includes both label and subheadline', () => {
     render(<LandingScreen onModeSelect={vi.fn()} />);
     const btn = screen.getByRole('button', {
-      name: /Make a recipe.*Start a recipe from scratch, from a recipe link, or from a saved Cookbook recipe\./i,
+      name: /Make a recipe.*Start a recipe from scratch, from a photo, or from a saved Cookbook recipe\./i,
     });
     expect(btn).toBeInTheDocument();
   });

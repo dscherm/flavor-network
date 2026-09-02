@@ -156,7 +156,7 @@ const TILES = [
   {
     id: 'make',
     label: 'Make a recipe',
-    subheadline: 'Start a recipe from scratch, from a recipe link, or from a saved Cookbook recipe.',
+    subheadline: 'Start a recipe from scratch, from a photo, or from a saved Cookbook recipe.',
     accent: '#a78bfa',
     Visual: MakeVisual,
   },
