@@ -4,8 +4,10 @@
 
 This policy describes what information Flavor Network ("the app",
 "we", "our") collects, why, where it's stored, how long we keep it,
-and how you can have it deleted. The policy applies to the iOS app
-distributed on the App Store under bundle ID `com.neuralflavor.app`.
+and how you can have it deleted. The policy applies to the web app at
+https://neuralflavor.web.app. (An iOS build under bundle ID
+`com.neuralflavor.app` was prepared but never distributed; the iOS-specific
+sections below are retained for completeness.)
 
 If anything here is unclear or you'd like a copy of your data,
 contact: **schermele@gmail.com**.
