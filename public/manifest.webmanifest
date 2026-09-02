@@ -1,0 +1,16 @@
+{
+  "name": "Flavor Network",
+  "short_name": "Flavor",
+  "description": "Why ingredients go together — cocktail, sauce and pairing labs built on 2.2M recipes and molecular chemistry.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0d1f38",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
