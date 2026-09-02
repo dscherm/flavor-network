@@ -1,12 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import {
-  getAuth,
-  initializeAuth,
-  indexedDBLocalPersistence,
-  GoogleAuthProvider,
-  OAuthProvider,
-} from 'firebase/auth';
-import { Capacitor } from '@capacitor/core';
+import { getAuth, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 
@@ -51,30 +44,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// WEBLINK-20: native must pin persistence explicitly, web must not.
-//
-// Measured, not guessed. The WEBLINK-18 breadcrumb stopped at "3/4
-// exchanging credential" on device and never became an error line, so
-// signInWithCredential was neither resolving nor rejecting. WEBLINK-19's
-// probe then returned "reachable HTTP 200" — the WKWebView CAN reach
-// identitytoolkit, so it is not network, transport, or origin.
-//
-// That leaves the SDK. Every auth call queues behind Firebase's internal
-// initialisation promise, which settles only once persistence is resolved.
-// getAuth() probes browser storage to pick a mechanism, and inside a
-// WKWebView served from capacitor://localhost that probe never completes —
-// so the queue never drains and the call hangs forever with no error. This
-// is the documented Capacitor setup for @capacitor-firebase/authentication.
-//
-// Scoped to native ON PURPOSE. Auth initialisation is global, and the last
-// global auth change made here without bounding its blast radius
-// (authDomain, WEBLINK-10) broke sign-in for every user on every platform.
-// Web keeps getAuth() byte-for-byte, so the worst case is confined to the
-// surface that is already broken. See the lesson
-// weigh-certain-universal-against-suspected-narrow.
-export const auth = Capacitor.isNativePlatform()
-  ? initializeAuth(app, { persistence: indexedDBLocalPersistence })
-  : getAuth(app);
+// Web-only since the v1.0.0 closeout. The native (Capacitor) auth init —
+// initializeAuth with pinned IndexedDB persistence for the WKWebView — lives
+// on branch archive/ios with the rest of the iOS build.
+export const auth = getAuth(app);
 export const db = getFirestore(app);
 // MAKE-WEBLINK-FN (2026-05-30): Cloud Functions client for the
 // scrapeRecipe Callable. Region defaults to us-central1 — match the

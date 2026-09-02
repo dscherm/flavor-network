@@ -8,7 +8,6 @@ import { computeTastePositions } from '../data/tastePositioning.js';
 import { computeAffinityThresholds } from '../data/affinityThresholds.js';
 import { buildTier1Thresholds } from '../data/primaryTier1.js';
 import { resolvePrimaryTier1 } from '../data/tier1Overrides.js';
-import { isNative } from '../utils/native.js';
 
 // N+1 v3 feature flag — when enabled, useProData fetches the corpus-wide
 // v3 artifacts (flavor_positions_v3, flavor_positions_2d_v3, cluster_labels_v3)
@@ -41,7 +40,6 @@ function flavorV3Enabled() {
   // research pass (2026-05-24) added 25 cluster-classified ingredients and
   // 44 aliases to the v3 corpus; flipping web makes that work visible to
   // all users. V2 still reachable via localStorage.FN_FLAVOR_V3='false'.
-  if (isNative()) return true;
   return true;
 }
 
