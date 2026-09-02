@@ -5,7 +5,7 @@
 - **Rendering**: Three.js scene with post-processing (bloom/glow), OrbitControls for 3D navigation
 - **API**: Express.js REST endpoint for ingredient lookup (`/api/ingredient/:name`)
 - **Search**: In-app fuzzy search bar (fuse.js) + drilldown panel showing pairings, cuisines, metadata
-- **Data**: ProData proprietary dataset — 3,891 ingredients, 95,992 pairings derived from RecipeNLG (2.2M recipes), TheMealDB, and TheCocktailDB, augmented with GNN-predicted novel pairs. NPMI + log-count hybrid scoring. NO Flavor Bible dependency.
+- **Data**: ProData proprietary dataset — 3,891 ingredients, 95,992 scored pairings (68,417 observed in RecipeNLG (2.2M recipes) / TheMealDB / TheCocktailDB co-occurrence, 27,575 GNN-predicted). NPMI + log-count hybrid scoring. NO Flavor Bible dependency.
 - **Navigation**: Landing → "The Labs" (Cocktail Lab, Sauce Lab, Pairing Lab, Recipe Notebook) or "Make a recipe"; plus Cookbook and Profile. The 3D Network view is parked (reachable via `?path=explore`). Labs are lazy-mounted.
 - **Distribution**: web only (Firebase Hosting). The iOS/Capacitor effort is archived on branch `archive/ios` — see CLOSEOUT.md. `@capacitor/*` packages remain as inert `isNativePlatform()` guards.
 
