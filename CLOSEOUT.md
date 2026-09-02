@@ -5,7 +5,7 @@ finished product and the only distribution channel. This document is the
 release note, the list of what is known not to work, and the map for anyone
 who comes back to it — including future me.
 
-Tag: `v1.0.0` · Bundle: `<filled at release>` · Deployed: `<filled at release>`
+Tag: `v1.0.0` · Bundle: `assets/index-DFFDS8PS.js` · Deployed: 2026-09-02 01:32 UTC (Firebase Hosting, 239 files)
 
 ## What v1.0.0 is
 
@@ -35,14 +35,15 @@ on disk). The `@capacitor/*` packages that `src/` imports remain as inert
 
 ## What changed at the closeout
 
-Nineteen commits between the last feature deploy (2026-08-02) and the tag.
-No features. In order of consequence:
+Twenty-one closeout commits (plus five pre-existing harness commits that
+had never been pushed) between the last feature deploy (2026-08-02) and the
+tag. No features. In order of consequence:
 
 1. **The gate is an honest green.** It had been red since Aug 2 (a jsdom
    `scrollIntoView` unhandled error), masked by an exit-code bug in the
    check itself; it ran only `src/` (skipping 21 tests); and a fresh clone
    on Windows failed on CRLF + shebang. Now: `.gitattributes` forces LF,
-   `npm run gate` runs all 131 files / 1,440 tests plus the build, and it
+   `npm run gate` runs all 132 files / 1,440 tests plus the build, and it
    no longer depends on the agent harness being present.
 2. **One live bug fixed.** PDF/photo recipe import in the Profile panel
    posted to a dev-only endpoint and failed with a null-JSON error on the
