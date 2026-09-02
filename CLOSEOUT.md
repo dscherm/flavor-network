@@ -6,6 +6,7 @@ release note, the list of what is known not to work, and the map for anyone
 who comes back to it — including future me.
 
 Tag: `v1.0.0` · Bundle: `assets/index-DFFDS8PS.js` · Deployed: 2026-09-02 01:32 UTC (Firebase Hosting, 239 files)
+Tag: `v1.0.1` · Bundle: `assets/index-BCzjul9s.js` · Deployed: 2026-09-02 10:25 UTC — landing/How-it-works copy now quotes the shipped counts (3,891 ingredients, 68,417 recipe-observed pairings). Live site runs v1.0.1.
 
 ## What v1.0.0 is
 
