@@ -5,9 +5,9 @@
 - **Rendering**: Three.js scene with post-processing (bloom/glow), OrbitControls for 3D navigation
 - **API**: Express.js REST endpoint for ingredient lookup (`/api/ingredient/:name`)
 - **Search**: In-app fuzzy search bar (fuse.js) + drilldown panel showing pairings, cuisines, metadata
-- **Data**: ProData proprietary dataset — 3,913 ingredients, 48,588 pairings derived from RecipeNLG (2.2M recipes), TheMealDB, and TheCocktailDB. NPMI + log-count hybrid scoring. NO Flavor Bible dependency.
-- **Navigation**: Network tab + Labs dropdown (Cocktail Lab, Sauce Lab, Recipe Lab). Labs are lazy-mounted.
-- **iOS**: Capacitor wraps the web app for App Store distribution (com.neuralflavor.app)
+- **Data**: ProData proprietary dataset — 3,891 ingredients, 95,992 pairings derived from RecipeNLG (2.2M recipes), TheMealDB, and TheCocktailDB, augmented with GNN-predicted novel pairs. NPMI + log-count hybrid scoring. NO Flavor Bible dependency.
+- **Navigation**: Landing → "The Labs" (Cocktail Lab, Sauce Lab, Pairing Lab, Recipe Notebook) or "Make a recipe"; plus Cookbook and Profile. The 3D Network view is parked (reachable via `?path=explore`). Labs are lazy-mounted.
+- **Distribution**: web only (Firebase Hosting). The iOS/Capacitor effort is archived on branch `archive/ios` — see CLOSEOUT.md. `@capacitor/*` packages remain as inert `isNativePlatform()` guards.
 
 ## Data Sources (ProData Pipeline)
 The app uses a proprietary dataset built from open sources via `proDataset/`:
@@ -60,7 +60,6 @@ proDataset/                  # Proprietary dataset pipeline (standalone Node.js)
 public/
 ├── proDataset/              # ACTIVE: ingredients.json, pairings.json (served to app)
 └── data/                    # Augment data (cocktail_augment.json, sauce_augment.json, cuisine_map.json, season_region.json)
-ios/                         # Capacitor iOS project (Xcode)
 ```
 
 ## Data Model
@@ -82,9 +81,8 @@ ios/                         # Capacitor iOS project (Xcode)
 npm install          # Install dependencies
 npm run dev          # Vite dev server (port 5173)
 npm run build        # Production build
-npm run api          # Start API server (port 3001)
-npm run ios:sync     # Build web + sync to iOS
-npm run ios:open     # Open Xcode project (Mac only)
+npm run gate         # Full vitest suite + build — must pass before any commit
+npm run api          # Start API server (port 3001; dev-only, needs GEMINI_API_KEY)
 ```
 
 ## ProData Pipeline
