@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 /*
- * Gate script — runs the commit gate (vitest + build) and writes
- * .ralph/last_gate_result.json which the post-commit hook consumes
- * within 10 minutes to mark the observation as `gate: pass`.
+ * Gate script — runs the commit gate (full vitest suite + build).
+ *
+ * Runs the whole suite that vitest.config.js declares (src/ AND
+ * chemDataset/validation/). It used to run `vitest run src/`, which silently
+ * skipped 4 files / 21 tests — found at the v1.0.0 closeout.
+ *
+ * When the repo is enrolled in the schermness harness (.schermness/ exists)
+ * it also writes .ralph/last_gate_result.json, which the post-commit hook
+ * consumes within 10 minutes to mark the observation as `gate: pass`.
+ * Outside the harness the sidecar is skipped: this is a plain project script.
  *
  * Usage:
  *   node scripts/gate.cjs            # run, write sidecar, exit 0 on pass
@@ -22,8 +29,8 @@ const path = require('path');
 const args = new Set(process.argv.slice(2));
 const noBuild = args.has('--no-build');
 
+const harnessEnrolled = fs.existsSync(path.join(process.cwd(), '.schermness'));
 const ralphDir = path.join(process.cwd(), '.ralph');
-if (!fs.existsSync(ralphDir)) fs.mkdirSync(ralphDir, { recursive: true });
 const sidecarPath = path.join(ralphDir, 'last_gate_result.json');
 
 function run(label, cmd) {
@@ -44,8 +51,8 @@ function run(label, cmd) {
 }
 
 const checks = {};
-const tests_ok = run('vitest run src/', 'npx vitest run src/');
-checks.tests = { strategy: 'npx vitest run src/', passed: tests_ok };
+const tests_ok = run('vitest run', 'npx vitest run');
+checks.tests = { strategy: 'npx vitest run', passed: tests_ok };
 
 let build_ok = true;
 if (!noBuild) {
@@ -56,16 +63,22 @@ if (!noBuild) {
 const passed = tests_ok && build_ok;
 const result = {
   result: passed ? 'pass' : 'fail',
-  strategy: noBuild ? 'vitest src/' : 'vitest src/ + npm run build',
+  strategy: noBuild ? 'vitest' : 'vitest + npm run build',
   checks,
 };
 
-fs.writeFileSync(sidecarPath, JSON.stringify(result, null, 2));
+if (harnessEnrolled) {
+  if (!fs.existsSync(ralphDir)) fs.mkdirSync(ralphDir, { recursive: true });
+  fs.writeFileSync(sidecarPath, JSON.stringify(result, null, 2));
+}
+const sidecarNote = harnessEnrolled ? ' Sidecar written.' : '';
 
 if (passed) {
-  process.stdout.write('[gate] sidecar written — commit within 10 minutes to record gate: pass\n');
+  process.stdout.write(`[gate] GATE PASSED.${sidecarNote}
+`);
   process.exit(0);
 } else {
-  process.stdout.write('[gate] gate FAILED — fix before committing. Sidecar written with result: fail\n');
+  process.stdout.write(`[gate] GATE FAILED — fix before committing.${sidecarNote}
+`);
   process.exit(1);
 }
