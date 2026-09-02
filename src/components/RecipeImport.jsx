@@ -120,6 +120,20 @@ export default function RecipeImport({ onSave }) {
     setDraft((d) => ({ ...d, instructions: [...d.instructions, ''] }));
   };
 
+  // The importer POSTs to /api/recipe/import, which only exists as the
+  // Vite dev proxy to the local Express API (npm run api + GEMINI_API_KEY).
+  // On the deployed site the hosting rewrite answers that POST with
+  // index.html (200), so the upload used to fail with a null-JSON error.
+  // Hide it outside dev rather than offer a dead end (v1.0.0 closeout).
+  if (!import.meta.env.DEV) {
+    return (
+      <p className="mb-3 text-[11px] text-gray-500">
+        PDF / photo import runs locally with the API server
+        (<code>npm run api</code>); it isn't available on the web build.
+      </p>
+    );
+  }
+
   // Collapsed: just the toggle button
   if (!open) {
     return (
