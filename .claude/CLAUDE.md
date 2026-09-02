@@ -1,7 +1,7 @@
 # Flavor Network — Neural Visualization Platform
 
 ## Architecture
-- **Stack**: React 18 + Vite + Three.js (WebGL) + Capacitor (iOS)
+- **Stack**: React 18 + Vite + Three.js (WebGL) + onnxruntime-web + Firebase
 - **Rendering**: Three.js scene with post-processing (bloom/glow), OrbitControls for 3D navigation
 - **API**: Express.js REST endpoint for ingredient lookup (`/api/ingredient/:name`)
 - **Search**: In-app fuzzy search bar (fuse.js) + drilldown panel showing pairings, cuisines, metadata
@@ -66,7 +66,7 @@ public/
 - **Ingredient node**: `{ id, name, cuisines[], taste, weight, volume, season, tips, pairingCount, category, sources[] }`
 - **Pairing edge**: `{ source, target, strength }` (from ProData pairings)
 - **Cocktail augment**: `cocktail_augment.json` (curated cocktail-specific data)
-- **Sauce augment**: `sauce_augment.json` (69 curated sauce recipes + sauce-specific data)
+- **Sauce augment**: `sauce_augment.json` (77 curated sauce recipes + sauce-specific data)
 
 ## Visual Design — Neural Network Aesthetic
 - Nodes = glowing spheres; size = number of pairings; color = taste profile (multi-taste blending)
