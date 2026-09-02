@@ -83,3 +83,14 @@ NUL
 test-results/
 .claude/worktrees/
 dev-server.log
+# Per-session / per-machine files the harness regenerates on every start.
+.claude/.ralph-*.md
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+.firebase/
+# Pipeline outputs are published by copying into public/proDataset/ (see
+# README "Regenerating the datasets"); the copies under proDataset/ are the
+# same bytes and don't need a second home in git.
+proDataset/output/pairings.json
+proDataset/output/cuisine_pairings.json
+proDataset/public/
