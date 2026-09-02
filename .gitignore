@@ -94,3 +94,5 @@ dev-server.log
 proDataset/output/pairings.json
 proDataset/output/cuisine_pairings.json
 proDataset/public/
+.themis/blind_tdd_warn_since.json
+.themis/current_task.json
