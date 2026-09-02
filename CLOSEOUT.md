@@ -7,7 +7,8 @@ who comes back to it — including future me.
 
 Tag: `v1.0.0` · Bundle: `assets/index-DFFDS8PS.js` · Deployed: 2026-09-02 01:32 UTC (Firebase Hosting, 239 files)
 Tag: `v1.0.1` · Bundle: `assets/index-BCzjul9s.js` · Deployed: 2026-09-02 10:25 UTC — landing/How-it-works copy now quotes the shipped counts (3,891 ingredients, 68,417 recipe-observed pairings). 
-Tag: `v1.0.2` · Bundle: `assets/index-BHUdOK7y.js` · Deployed: 2026-09-02 22:05 UTC — Capacitor removed entirely; every scroll surface now stops above the fixed tab bar (the 'can't scroll to the bottom of a card' bug); Playwright playtest script added. Live site runs v1.0.2.
+Tag: `v1.0.2` · Bundle: `assets/index-BHUdOK7y.js` · Deployed: 2026-09-02 22:05 UTC — Capacitor removed entirely; every scroll surface now stops above the fixed tab bar (the 'can't scroll to the bottom of a card' bug); Playwright playtest script added. 
+Tag: `v1.0.3` · Bundle: `assets/index-D0QyKVkq.js` · Deployed: 2026-09-02 22:40 UTC — mobile polish pass (tinted cocktail/sauce cards, readable shelf counts, blank top band removed, radial pairing labels, radar labels inside the ring, one-row cookbook type filter, inactive labs unmounted from layout). Firebase browser API key now restricted to the site's origins (HTTP referrers). Live site runs v1.0.3.
 
 ## What v1.0.0 is
 
@@ -86,6 +87,10 @@ tag. No features. In order of consequence:
 - **Public data is large.** `public/` is ~220 MB and every byte of it is
   committed; the git clone is ~450 MB. History was deliberately not
   rewritten.
+- **The Firebase browser API key is referrer-restricted** (v1.0.3) to
+  `neuralflavor.web.app`, `neuralflavor.firebaseapp.com`, `localhost:5173`,
+  `localhost:4173`, `127.0.0.1:5173`. A new dev port or domain must be added
+  in Cloud Console → Credentials → "Browser key" before auth works there.
 - **Auth configuration lives in consoles, not the repo.** Changing
   `authDomain` or adding a provider without registering the redirect URI
   first breaks sign-in for every user (it happened once); read
