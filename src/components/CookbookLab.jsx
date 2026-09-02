@@ -143,13 +143,14 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      className="fixed inset-x-0 top-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      style={{ bottom: 'var(--tab-bar-h)' }} // v1.0.2: stop above the fixed tab bar
       onClick={onClose}
       role="dialog"
       aria-label={`${recipe.name} details`}
     >
       <div
-        className="w-full max-w-2xl rounded-2xl max-h-[85vh] overflow-y-auto"
+        className="w-full max-w-2xl rounded-2xl max-h-full overflow-y-auto"
         style={{ ...chalkSurfaceStyle(), border: `2px double ${CHALK_RAIL}`, boxShadow: `inset 0 0 0 1px ${color}33, 0 8px 24px rgba(0,0,0,0.55)`, color: CHALK_CREAM }}
         onClick={(e) => e.stopPropagation()}
       >

@@ -71,8 +71,8 @@ export default function LabsPanel({ onPick }) {
   return (
     <div
       data-testid="labs-panel"
-      className="fixed inset-0 overflow-y-auto flex flex-col items-center"
-      style={{ ...chalkSurfaceStyle(), paddingTop: 'calc(var(--nav-h) + 1rem)', color: CHALK_CREAM }}
+      className="fixed inset-x-0 top-0 overflow-y-auto flex flex-col items-center"
+      style={{ bottom: 'var(--tab-bar-h)',  ...chalkSurfaceStyle(), paddingTop: 'calc(var(--nav-h) + 1rem)', color: CHALK_CREAM }}
     >
       <div style={{ fontFamily: FONT, fontSize: 34, lineHeight: 1 }}>The Labs</div>
       <div style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB, marginTop: 4, marginBottom: 16, padding: '0 24px', textAlign: 'center' }}>

@@ -119,8 +119,9 @@ export default function LabNodeCard({
   const likeThisLabel = kind === 'sauce' ? 'Sauces like this' : 'Cocktails like this';
 
   return (
-    <div className="fixed inset-0 z-[80] flex flex-col items-center justify-center px-4 py-3"
-      style={chalkSurfaceStyle()}
+    <div className="fixed inset-x-0 top-0 z-[80] flex flex-col items-center justify-center px-4 py-3"
+      // v1.0.2: bottom stops above the fixed tab bar — inset-0 let the bar cover the card's last ~57px.
+      style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)' }}
       data-testid="lab-node-card"
       data-kind={kind}
       data-name={name || ''}>
@@ -137,7 +138,7 @@ export default function LabNodeCard({
       </div>
 
       <div className="w-full max-w-[560px] flex-1 min-h-0 flex flex-col rounded-2xl px-5 py-4 mb-3 overflow-y-auto"
-        style={{ maxHeight: '82vh', background: 'rgba(255,255,255,0.025)', border: `2px double ${CHALK_BORDER_OUTER}`, boxShadow: `inset 0 0 0 1px ${CHALK_BORDER_INNER}55, 0 8px 24px rgba(0,0,0,0.55)` }}>
+        style={{ maxHeight: 'calc(100dvh - var(--tab-bar-h) - 72px)', background: 'rgba(255,255,255,0.025)', border: `2px double ${CHALK_BORDER_OUTER}`, boxShadow: `inset 0 0 0 1px ${CHALK_BORDER_INNER}55, 0 8px 24px rgba(0,0,0,0.55)` }}>
         <h2 className="text-center flex-shrink-0"
           style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: FS_NAME, lineHeight: 1.05, textShadow: CHALK_TEXT_SHADOW, WebkitTextStroke: '1px rgba(8,8,8,0.55)', paintOrder: 'stroke fill' }}>
           {name}

@@ -227,7 +227,8 @@ export default function SauceBrowse({
 
   return (
     <div
-      className="absolute inset-0 top-10 overflow-y-auto"
+      className="absolute inset-x-0 top-10 overflow-y-auto"
+      style={{ bottom: 'var(--tab-bar-h)' }} // v1.0.2: stop above the fixed tab bar; inset-0 hid the last ~57px
       style={{ ...chalkSurfaceStyle(), color: CHALK_CREAM, boxShadow: `inset 0 0 0 2px ${CHALK_RAIL}55, inset 0 0 0 4px #00000080` }}
       data-sauce-browse-root
     >
