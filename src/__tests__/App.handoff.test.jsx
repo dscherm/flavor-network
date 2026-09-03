@@ -320,7 +320,11 @@ describe('App — ADR-2: matchesContext clears on tab leave', () => {
     await act(async () => {
       await capturedFindCocktail?.(['tomato', 'basil'], 'Pasta');
     });
-    expect(lastCocktailCtx).not.toBeNull();
+    // The intermediate guard asserts the SHAPE, not just non-null: `undefined`
+    // satisfies not.toBeNull(), so if the pill callback were never wired up the
+    // failure surfaced two lines later on the toBeNull() check and read as if
+    // clearing had broken. Seen twice on a loaded clean-clone gate (2026-09-02).
+    expect(lastCocktailCtx).toMatchObject({ recipeName: 'Pasta' });
 
     // Fire onExitMatches — simulates user clicking "Show all cocktails".
     await act(async () => { capturedExitFn?.(); });
@@ -335,7 +339,11 @@ describe('App — ADR-2: matchesContext clears on tab leave', () => {
     await act(async () => {
       await capturedFindCocktail?.(['tomato', 'basil'], 'Pasta');
     });
-    expect(lastCocktailCtx).not.toBeNull();
+    // The intermediate guard asserts the SHAPE, not just non-null: `undefined`
+    // satisfies not.toBeNull(), so if the pill callback were never wired up the
+    // failure surfaced two lines later on the toBeNull() check and read as if
+    // clearing had broken. Seen twice on a loaded clean-clone gate (2026-09-02).
+    expect(lastCocktailCtx).toMatchObject({ recipeName: 'Pasta' });
 
     // Switch back to Notebook tab — the useEffect should clear matchesContext.
     await act(async () => { clickNotebookTab(); });
