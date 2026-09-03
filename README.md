@@ -1,6 +1,6 @@
 # Flavor Network
 
-**Live: https://neuralflavor.web.app** — frozen at **v1.0.0** (2026-09-01). Web only.
+**Live: https://neuralflavor.web.app** — frozen at **v1.0.0** (2026-09-01), currently serving **v1.0.4** (fixes and polish only, no features). Web only.
 
 A browser app for cooks who want to know *why* things go together. It puts
 3,891 ingredients and 95,992 scored pairings (68,417 observed across 2.2
@@ -120,7 +120,7 @@ npm run dev          # http://localhost:5173
 ```
 
 ```bash
-npm run gate         # full vitest suite (132 files) + production build — the
+npm run gate         # full vitest suite (131 files) + production build — the
                      # pre-commit check; must be green
 npm run build        # dist/
 npm run preview      # serve dist/ locally
@@ -198,7 +198,7 @@ experiments not to repeat — is in `.claude/.chemdataset-status.md`.
 ## Tests
 
 `npm test` runs vitest over `src/**` and `chemDataset/validation/**`
-(1,438 tests). `functions/` has its own vitest suite
+(1,427 tests). `functions/` has its own vitest suite
 (`npm --prefix functions test`). `scripts/qa-*.mjs` are Playwright
 walkthroughs that write screenshots to `.playwright-shots/` (gitignored).
 

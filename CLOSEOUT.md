@@ -1,6 +1,10 @@
-# CLOSEOUT — Flavor Network v1.0.0
+# CLOSEOUT — Flavor Network v1.0.x
 
-**Frozen 2026-09-01.** The web app at **https://neuralflavor.web.app** is the
+**Frozen 2026-09-01 at v1.0.0; live site currently serves v1.0.4.**
+Everything after v1.0.0 is bug fixes, mobile polish and one security
+hardening step — no features. Per-release detail below.
+
+**Originally frozen 2026-09-01.** The web app at **https://neuralflavor.web.app** is the
 finished product and the only distribution channel. This document is the
 release note, the list of what is known not to work, and the map for anyone
 who comes back to it — including future me.
@@ -48,7 +52,9 @@ tag. No features. In order of consequence:
    `scrollIntoView` unhandled error), masked by an exit-code bug in the
    check itself; it ran only `src/` (skipping 21 tests); and a fresh clone
    on Windows failed on CRLF + shebang. Now: `.gitattributes` forces LF,
-   `npm run gate` runs all 132 files / 1,440 tests plus the build, and it
+   `npm run gate` runs the whole configured suite plus the build (131 files /
+   1,427 tests as of v1.0.4; it was 132/1,440 before the Capacitor removal
+   deleted the native-auth test file), and it
    no longer depends on the agent harness being present.
 2. **One live bug fixed.** PDF/photo recipe import in the Profile panel
    posted to a dev-only endpoint and failed with a null-JSON error on the
@@ -96,13 +102,27 @@ tag. No features. In order of consequence:
   `authDomain` or adding a provider without registering the redirect URI
   first breaks sign-in for every user (it happened once); read
   `.claude/skills/firebase-auth/SKILL.md` before touching it.
+- **One intermittent test failure, unresolved.** Two cases in
+  `src/__tests__/App.handoff.test.jsx` (the ADR-2 "matchesContext clears on
+  tab leave" pair) failed twice during `npm run gate` on a clean clone while
+  the machine was running other builds, and passed on every one of nine
+  deliberate re-runs afterwards — including four with `--sequence.shuffle`
+  and one under induced CPU contention. Not reproduced on demand, so not
+  fixed and not diagnosed. What is known: the failing assertions are the
+  `toBeNull()` ones while the `not.toBeNull()` guards in the same tests pass,
+  which is the signature of the pill callback never being wired up for that
+  run (`undefined` satisfies `not.toBeNull()`). Those guards now assert the
+  object shape instead, so a recurrence fails at the true point with a
+  legible message. If you see it, capture the full vitest output — the gate
+  script truncates stderr to the last 1500 characters, which is why the
+  original failures were never diagnosable.
 
 ## If you return — start here
 
-1. `git clone` → `npm ci` → `npm run gate`. Green on a clean clone as of
-   the tag (Node 24, Windows and the CRLF trap accounted for). If it isn't
-   green, fix that before anything else; do not trust a build whose gate
-   you haven't seen pass.
+1. `git clone` → `npm ci` → `npm run gate`. Green on a clean clone at the
+   tag (Node 24, Windows and the CRLF trap accounted for) — with one known
+   exception, below. If it isn't green, fix that before anything else; do
+   not trust a build whose gate you haven't seen pass.
 2. `npm run dev`, open http://localhost:5173, sign in, save a recipe, open
    the Cookbook. That exercises Firestore, Auth and the cookbook path that
    was the last bug fixed before the freeze.
