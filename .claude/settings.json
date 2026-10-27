@@ -32,15 +32,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$RALPH_HOME/tools/cost_by_phase.py\" --project-dir . --format jsonl",
-            "timeout": 60
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "python \"$RALPH_HOME/tools/inject_examples.py\" --project-dir .",
             "timeout": 60
           }
@@ -69,7 +60,7 @@
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "Bash|PowerShell",
         "hooks": [
           {
             "type": "command",
@@ -94,6 +85,36 @@
           {
             "type": "command",
             "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/bash_telemetry.py\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/read_guard.py\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/import_shadow_guard.py\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/blind_tdd_path_guard.py\"",
             "timeout": 10
           }
         ]
@@ -123,6 +144,15 @@
           {
             "type": "command",
             "command": "python \"$RALPH_HOME/tools/reflect_prompt.py\" --project-dir .",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$RALPH_HOME/tools/bead_drift.py\" --project-dir . --prompt",
             "timeout": 30
           }
         ]
@@ -176,6 +206,17 @@
             "type": "command",
             "command": "python \"$RALPH_HOME/tools/scoped_context.py\" refresh",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/agent_artifact_check.py\"",
+            "timeout": 15
           }
         ]
       }
