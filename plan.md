@@ -1039,3 +1039,22 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "STW-1",
+  "title": "Review orphaned doc docs/MAKE-MODE-SPEC.md: link it from an index or archive it",
+  "passes": false,
+  "category": "docs",
+  "steward_key": "orphan:docs/MAKE-MODE-SPEC.md",
+  "description": "Review orphaned doc docs/MAKE-MODE-SPEC.md: link it from an index or archive it\n\nsteward_key: orphan:docs/MAKE-MODE-SPEC.md",
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "given": "the doc-steward flagged this issue",
+      "when": "the fix is applied by a human or implementer through the gate",
+      "then": "docs/MAKE-MODE-SPEC.md is linked from an index doc or moved to docs/archive/ with an ARCHIVE.md entry"
+    }
+  ]
+}
+```
