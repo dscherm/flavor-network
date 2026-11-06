@@ -81,7 +81,7 @@ import AffinityTriangleOverlay from './components/AffinityTriangleOverlay.jsx';
 import WedgeGridFlavorWheel from './components/WedgeGridFlavorWheel.jsx';
 import InsightDrawer from './components/InsightDrawer.jsx';
 import { rankBridges } from './data/bridgeRanker.js';
-import { computeRecipeAroma, rankByAromaSimilarity } from './data/recipeAromaSimilarity.js';
+import { buildPairingIndex, rankByPairing } from './data/recipePairingMatch.js';
 import { computeClusterBucketOverlap } from './data/clusterBucketOverlap.js';
 import { computeBucketPoles2D, computeBucketPoles3D, fibonacciSphere, POLE_RADIUS } from './data/bucketPoles.js';
 import { getCocktailScope, getSauceScope } from './data/labScope.js';
@@ -129,7 +129,13 @@ export default function App() {
   // than dropping the user into wherever they were last. While false,
   // useProData is disabled so the 27MB pairings payload does not
   // download until the user clicks a card.
-  const [startPageComplete, setStartPageComplete] = useState(false);
+  // A shared/reloaded link that names a surface (`?path=cocktail`) is an
+  // explicit choice, so it skips the landing picker and opens that tab.
+  const [startPageComplete, setStartPageComplete] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const path = new URLSearchParams(window.location.search).get('path');
+    return Boolean(path && PATH_TO_TAB[path]);
+  });
   const [howItWorksInitialOpen, setHowItWorksInitialOpen] = useState(false);
   // R20.1 — lift HowItWorks open state so the Network-tab dropdown can
   // trigger the modal alongside the legacy floating "?" button on other
@@ -196,8 +202,10 @@ export default function App() {
   const [networkVisited, setNetworkVisited] = useState(initialTab === 'network');
 
   // Write the current tab back to the URL so reload + share both work.
+  // Not before the landing pick — a bare first visit must not gain a
+  // ?path= (that would make a reload skip the landing picker).
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !startPageComplete) return;
     const target = TAB_TO_PATH[activeTab];
     const params = new URLSearchParams(window.location.search);
     if (target) params.set('path', target);
@@ -207,7 +215,7 @@ export default function App() {
     if (url !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
       window.history.replaceState(null, '', url);
     }
-  }, [activeTab]);
+  }, [activeTab, startPageComplete]);
 
   // B-version (2026-06-03) — desktop top nav is retired in favor of
   // the always-visible MobileTabBar at the bottom. `--nav-h` now
@@ -286,6 +294,14 @@ export default function App() {
   const [cocktailMounted, setCocktailMounted] = useState(false);
   const [sauceMounted, setSauceMounted] = useState(false);
   const [recipeMounted, setRecipeMounted] = useState(false);
+  // Latch each lab mounted whenever it becomes the active tab, so entry
+  // paths that only set activeTab (a shared ?path= link, a reload) still
+  // render it instead of a blank screen.
+  useEffect(() => {
+    if (activeTab === 'cocktail') setCocktailMounted(true);
+    if (activeTab === 'sauce') setSauceMounted(true);
+    if (activeTab === 'recipe') setRecipeMounted(true);
+  }, [activeTab]);
   const [recipeInitialMode, setRecipeInitialMode] = useState(null);
   const [cookbookPickerMode, setCookbookPickerMode] = useState(null);
   // One-shot handoff payload to the Recipe Lab. ONLY explicit user
@@ -1077,55 +1093,50 @@ export default function App() {
     setSelectedNodes(nodes);
   }, []);
 
-  // P8: Aroma-match handlers. Called from the Recipe Notebook pills.
-  // Each handler:
-  //   1. Computes the recipe's 6-axis aroma vector (returns early if null).
-  //   2. Fetches the target lab's item list from its source JSON.
-  //   3. Ranks by cosine aroma similarity and sets matchesContext.
-  //   4. Navigates to the target lab tab (lazy-mounts if needed).
-  const handleFindCocktail = useCallback(async (recipeIngredients, recipeName) => {
-    if (!data?.graph?.nodes) return;
-    const nodesObj = Object.fromEntries(data.graph.nodes);
-    const recipeVec = computeRecipeAroma(recipeIngredients, nodesObj);
-    if (!recipeVec) return;
+  // "Goes well with" handlers. Called from the Recipe Notebook pills and
+  // the Cookbook recipe popup. Each handler:
+  //   1. Fetches the target lab's item list from its source JSON.
+  //   2. Ranks items by observed ingredient co-occurrence with the recipe
+  //      (recipePairingMatch.js; replaced the molecular aroma cosine
+  //      2026-11-05) and sets matchesContext.
+  //   3. Navigates to the target lab tab (lazy-mounts if needed).
+  const handleFindCocktail = useCallback(async (recipeIngredients, recipeName, returnTab = 'recipe') => {
+    if (!data?.graph?.nodes || !recipeIngredients?.length) return;
     try {
       const res = await fetch(`${import.meta.env.BASE_URL}data/cocktail_codex_v2.json`);
       if (!res.ok) return;
       const codex = await res.json();
       // Normalize cocktails to have a string[] `ingredients` field so
-      // rankByAromaSimilarity can call computeRecipeAroma on each item.
+      // rankByPairing can resolve each one against the pairing graph.
       const items = (codex.cocktails || []).map(c => ({
         ...c,
         ingredients: (c.ingredients_raw || []).map(r =>
           typeof r === 'string' ? r : (r.raw || r.name || '')
         ).filter(Boolean),
       }));
-      const ranked = rankByAromaSimilarity(recipeVec, items, nodesObj, 8);
-      setMatchesContext({ recipeName: recipeName || 'this recipe', items: ranked });
+      const ranked = rankByPairing(recipeIngredients, items, buildPairingIndex(data.graph.edges, data.graph.nodes.keys()), 8);
+      setMatchesContext({ recipeName: recipeName || 'this recipe', items: ranked, returnTab });
       setCocktailMounted(true);
       setActiveTab('cocktail');
     } catch { /* network failure — fail silently, pills remain active */ }
   }, [data]);
 
-  const handleFindSauce = useCallback(async (recipeIngredients, recipeName) => {
-    if (!data?.graph?.nodes) return;
-    const nodesObj = Object.fromEntries(data.graph.nodes);
-    const recipeVec = computeRecipeAroma(recipeIngredients, nodesObj);
-    if (!recipeVec) return;
+  const handleFindSauce = useCallback(async (recipeIngredients, recipeName, returnTab = 'recipe') => {
+    if (!data?.graph?.nodes || !recipeIngredients?.length) return;
     try {
       const res = await fetch(`${import.meta.env.BASE_URL}data/sauce_augment.json`);
       if (!res.ok) return;
       const augment = await res.json();
       // sauce_augment sauces have ingredients: [{name, measure}] — normalize
-      // to string[] so rankByAromaSimilarity can score each sauce.
+      // to string[] so rankByPairing can score each sauce.
       const items = (augment.sauces || []).map(s => ({
         ...s,
         ingredients: (s.ingredients || []).map(i =>
           typeof i === 'string' ? i : (i.name || '')
         ).filter(Boolean),
       }));
-      const ranked = rankByAromaSimilarity(recipeVec, items, nodesObj, 8);
-      setMatchesContext({ recipeName: recipeName || 'this recipe', items: ranked });
+      const ranked = rankByPairing(recipeIngredients, items, buildPairingIndex(data.graph.edges, data.graph.nodes.keys()), 8);
+      setMatchesContext({ recipeName: recipeName || 'this recipe', items: ranked, returnTab });
       setSauceMounted(true);
       setActiveTab('sauce');
     } catch { /* network failure — fail silently */ }
@@ -1609,7 +1620,7 @@ export default function App() {
               className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
                 activeTab === 'cookbook' ? 'text-pink-300 bg-pink-500/10' : 'text-gray-500 hover:text-gray-300'
               }`}
-              title="Recipe browser — 15 hand-curated dishes"
+              title="Recipe browser — hand-curated dishes"
             >
               Cookbook
             </button>
@@ -2073,7 +2084,7 @@ export default function App() {
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
             onExitMatches={() => setMatchesContext(null)}
-            onBackToRecipe={() => { setMatchesContext(null); setActiveTab('recipe'); }}
+            onBackToRecipe={() => { const back = matchesContext?.returnTab || 'recipe'; setMatchesContext(null); setActiveTab(back); }}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               setRecipeHandoff({
                 source: 'cocktail',
@@ -2102,7 +2113,7 @@ export default function App() {
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
             onExitMatches={() => setMatchesContext(null)}
-            onBackToRecipe={() => { setMatchesContext(null); setActiveTab('recipe'); }}
+            onBackToRecipe={() => { const back = matchesContext?.returnTab || 'recipe'; setMatchesContext(null); setActiveTab(back); }}
             onSelectionChange={handleLabSelectionChange}
             onOpenRecipeLab={(_mode, initialIngredients) => {
               // Same one-shot handoff pattern as Cocktail Lab —
@@ -2179,7 +2190,7 @@ export default function App() {
 
       {/* CookbookLab — Phase 4 (pipeline 2026-05-16; renamed from
           RecipesLab 2026-05-29 via DOCS-RL-COOKBOOK-RENAME). 3D
-          aesthetic recipe browser with 15 hand-curated dishes. Lives
+          aesthetic recipe browser with 49 hand-curated dishes. Lives
           alongside the Recipes Notebook authoring surface as a
           sub-tab under Explore. */}
       {activeTab === 'cookbook' && (
@@ -2187,6 +2198,8 @@ export default function App() {
           <CookbookLab
             externalFilter={externalLabFilter}
             ctx={data}
+            onFindCocktail={(ings, name) => handleFindCocktail(ings, name, 'cookbook')}
+            onFindSauce={(ings, name) => handleFindSauce(ings, name, 'cookbook')}
             // COOKBOOK-2: useUserProfile returns { profile, addRecipe, ... },
             // so recipes live at userProfile.profile.recipes. Reading
             // userProfile.recipes yielded undefined and `|| []` quietly turned

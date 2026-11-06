@@ -3,28 +3,32 @@
  * buildPairingsBinary.cjs — pack proDataset/pairings.json into a
  * minimal binary file.
  *
- * Only three fields are actually read by the app:
+ * Fields the app reads:
  *   ingredientA (string)
  *   ingredientB (string)
  *   strength    (number)
+ *   known       (boolean — observed co-occurrence vs model-predicted;
+ *                used by src/data/recipePairingMatch.js since v2)
  *
  * Every other field (tradition, chemistry, novelty, balance, bridging,
- * sharedCompounds, explanation, breakdown.x1..x8, known,
- * predictedNovelty, flavorDistance) is dead weight and gets dropped.
+ * sharedCompounds, explanation, breakdown.x1..x8, predictedNovelty,
+ * flavorDistance) is dead weight and gets dropped.
  *
  * Binary layout (little-endian):
  *   magic         : 4 bytes  — 'FNPR'
- *   version       : u32      — 1
+ *   version       : u32      — 2
  *   count         : u32      — number of pairing records
  *   records[count]:
  *     idxA        : u16      — index into ingredients.json key order
- *     idxB        : u16      — index into ingredients.json key order
+ *     idxB        : u16      — low 15 bits: index; bit 15: known flag
  *     strength    : f32      — normalized strength value
+ *
+ * Decoder: src/data/pairingsBinary.js (reads v1 and v2).
  *
  * Any pairing whose ingredient is missing from ingredients.json is
  * skipped (the old JS reader skipped these anyway via `nodes.has()`).
- * Indices are capped at 65535 — script aborts if the ingredient count
- * exceeds this.
+ * Indices are capped at 32767 (bit 15 of idxB is the known flag) —
+ * script aborts if the ingredient count exceeds this.
  */
 
 const fs = require('fs');
@@ -47,10 +51,10 @@ function main() {
     if (key.startsWith('_')) continue;
     nameToIdx.set(key, idx++);
   }
-  if (nameToIdx.size > 0xffff) {
+  if (nameToIdx.size > 0x7fff) {
     throw new Error(
-      `ingredient count ${nameToIdx.size} exceeds u16 cap (65535) — ` +
-      `widen idx fields to u32 in the binary format`
+      `ingredient count ${nameToIdx.size} exceeds the 15-bit index cap (32767) — ` +
+      `widen idx fields in the binary format`
     );
   }
   console.log(`[build-bin] indexed ${nameToIdx.size} ingredients`);
@@ -77,7 +81,7 @@ function main() {
 
   // Header
   buf.write('FNPR', 0, 'ascii');
-  buf.writeUInt32LE(1, 4);
+  buf.writeUInt32LE(2, 4);
   buf.writeUInt32LE(valid, 8);
 
   // Records
@@ -87,7 +91,7 @@ function main() {
     const b = nameToIdx.get(p.ingredientB);
     if (a === undefined || b === undefined) continue;
     buf.writeUInt16LE(a, offset);
-    buf.writeUInt16LE(b, offset + 2);
+    buf.writeUInt16LE(p.known === true ? (b | 0x8000) : b, offset + 2);
     buf.writeFloatLE(Number(p.strength) || 0, offset + 4);
     offset += RECORD_BYTES;
   }

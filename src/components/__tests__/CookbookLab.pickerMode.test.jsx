@@ -100,7 +100,7 @@ describe('CookbookLab — MAKE-COOKBOOK-PICKER (pickerMode="make")', () => {
     render(<CookbookLab pickerMode="make" onOpenRecipeLab={vi.fn()} />);
     expect(screen.getByText('Pick one to start cooking')).toBeInTheDocument();
     expect(
-      screen.queryByText('15 hand-curated dishes spanning 6 culinary traditions'),
+      screen.queryByText(/hand-curated dishes spanning/),
     ).toBeNull();
   });
 

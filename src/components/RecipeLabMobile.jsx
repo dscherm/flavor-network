@@ -640,6 +640,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             bowlNames={recipeNames}
             bowlEntries={recipeIngredients}
             nodes={fullData.graph.nodes}
+            edges={fullData.graph.edges}
             recipeType={recipeType}
             onAdd={(name, amount) => handleAddIngredient(name, amount)}
             onFindCocktail={onFindCocktail ? () => onFindCocktail(recipeNames, recipeTitle) : null}

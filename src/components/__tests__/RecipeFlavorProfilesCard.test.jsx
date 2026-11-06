@@ -118,6 +118,39 @@ describe('RecipeFlavorProfilesCard', () => {
     expect(screen.getByText('Marinara')).toBeInTheDocument();
   });
 
+  it('ranks Pairings by ingredient co-occurrence when pairing edges are passed', async () => {
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.includes('cocktail_codex_v2')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ cocktails: [
+          { name: 'Gin Fizz', ingredients_raw: ['gin', 'lemon'] },
+          { name: 'Honey Toddy', ingredients_raw: ['whiskey', 'honey', 'lemon'] },
+        ] }) });
+      }
+      if (u.includes('sauce_augment')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ sauces: [] }) });
+      return Promise.resolve({ ok: false });
+    });
+    const pairNodes = nodesFrom({
+      honey: probs({ sweet: 0.9 }), butter: probs({ odor_fatty: 0.6 }),
+      gin: probs({}), lemon: probs({ sour: 0.8 }), whiskey: probs({}),
+    });
+    const edges = [
+      { source: 'butter', target: 'whiskey', strength: 0.9, known: true },
+      { source: 'gin', target: 'lemon', strength: 0.9, known: true },
+    ];
+    // The card caches the cocktail list at module level; load a fresh copy
+    // so this test sees its own fixture, not an earlier test's.
+    vi.resetModules();
+    const { default: FreshCard } = await import('../RecipeFlavorProfilesCard.jsx');
+    render(<FreshCard bowlNames={['honey', 'butter']} nodes={pairNodes} edges={edges} recipeType="drink" onFindCocktail={vi.fn()} />);
+    for (let i = 0; i < 11; i++) fireEvent.click(screen.getByLabelText('Next'));
+    await waitFor(() => expect(screen.getByTestId('pairings-cocktail-names')).toBeInTheDocument());
+    const names = screen.getByTestId('pairings-cocktail-names').textContent;
+    // Honey Toddy shares honey and its whiskey pairs with butter; Gin Fizz pairs with nothing in the bowl.
+    expect(names.indexOf('Honey Toddy')).toBeGreaterThanOrEqual(0);
+    expect(names.indexOf('Gin Fizz') === -1 || names.indexOf('Honey Toddy') < names.indexOf('Gin Fizz')).toBe(true);
+  });
+
   it('falls back to Find cocktails/sauces buttons when no aroma matches', async () => {
     // beforeEach fetch returns ok:false → no cocktail/sauce data → fallback.
     render(<RecipeFlavorProfilesCard bowlNames={['honey', 'butter']} nodes={nodes} recipeType="main" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);

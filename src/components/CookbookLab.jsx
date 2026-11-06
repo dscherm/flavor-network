@@ -6,7 +6,7 @@
  * RecipeLabMobile). The shipped behavior is unchanged — just the
  * file/export/labKey/URL identity is the new canonical name.
  *
- * Two-mode browseable surface for the 15 hand-curated seed recipes:
+ * Two-mode browseable surface for the hand-curated seed recipes:
  *   - Explore (default): 3D NetworkScene with one sphere per recipe,
  *     anchored by `position3D` on cuisine-quadrant directions. Colors
  *     are keyed by cuisine via CUISINE_COLOR. Mirrors the Cocktail
@@ -20,10 +20,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import MultiAxisRadarStack from './MultiAxisRadarStack.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
+import { getRecipeDetails } from '../data/seedRecipeDetails.js';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
   CARD_CREAM, CARD_CREAM_EDGE, CARD_INK, CARD_INK_SUB,
 } from '../data/chalkTheme.js';
+
+const SEED_CUISINE_COUNT = new Set(SEED_RECIPES.map((r) => r.cuisine)).size;
 
 // ── Kitchen line-art icons (cuisine + dish-type) ──────────────────────
 function cuisineIconKind(cuisine = '') {
@@ -118,9 +121,10 @@ function RecipeCard({ recipe, onClick }) {
   );
 }
 
-function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }) {
+function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
   const nodes = ctx?.graph?.nodes;
+  const details = getRecipeDetails(recipe.id);
   // Match recipe ingredient strings to actual nodes in the ingredient
   // graph so the radar has real taste/aroma/season/etc. data to plot.
   // Only ingredients that resolve get a chip in the "matched" row;
@@ -176,6 +180,11 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
         </div>
         <div className="p-4 space-y-4">
           <p style={{ fontFamily: FONT, fontSize: '20px', color: CHALK_DIM, lineHeight: 1.4 }}>{recipe.description}</p>
+          {details && (
+            <p className="text-[14px]" style={{ color: CHALK_SUB }} data-testid="recipe-meta">
+              Serves {details.serves} · {details.time}
+            </p>
+          )}
 
           <div>
             <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
@@ -190,11 +199,32 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
                   title={ok ? 'matched in the ingredient graph' : 'not found in the ingredient graph'}
                 >
                   <span className="flex-shrink-0" style={{ color }}>→</span>
-                  <span>{n}</span>
+                  <span>
+                    {details?.amounts?.[n] && (
+                      <span className="text-[14px] mr-1.5" style={{ fontFamily: 'system-ui, sans-serif', color: CHALK_DIM }}>{details.amounts[n]}</span>
+                    )}
+                    {n}
+                  </span>
                 </li>
               ))}
             </ul>
           </div>
+
+          {details?.steps?.length > 0 && (
+            <div data-testid="recipe-method">
+              <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
+                Method
+              </div>
+              <ol className="space-y-2">
+                {details.steps.map((step, i) => (
+                  <li key={i} className="flex gap-3 text-[15px] leading-snug" style={{ color: CHALK_CREAM }}>
+                    <span className="flex-shrink-0 text-[20px] leading-none" style={{ fontFamily: FONT, color }}>{i + 1}.</span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
 
           {/* Flavor / taste / aroma / season / cuisine / method radar.
               Averaged across all matched ingredients so the chart
@@ -214,6 +244,36 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab }
             <p className="italic" style={{ fontFamily: FONT, fontSize: '16px', color: CHALK_SUB }}>
               No matched ingredients — radar unavailable.
             </p>
+          )}
+
+          {(onFindCocktail || onFindSauce) && matched.length > 0 && (
+            <div data-testid="recipe-goes-well-with">
+              <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
+                Goes well with
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {onFindCocktail && (
+                  <button
+                    type="button"
+                    onClick={() => onFindCocktail(matched, recipe.name)}
+                    className="px-3 py-2 rounded-lg text-left"
+                    style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}1a`, border: `1px solid ${color}77` }}
+                  >
+                    🍸 Matching cocktails →
+                  </button>
+                )}
+                {onFindSauce && (
+                  <button
+                    type="button"
+                    onClick={() => onFindSauce(matched, recipe.name)}
+                    className="px-3 py-2 rounded-lg text-left"
+                    style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}1a`, border: `1px solid ${color}77` }}
+                  >
+                    🥣 Matching sauces →
+                  </button>
+                )}
+              </div>
+            </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
@@ -254,6 +314,8 @@ export default function CookbookLab({
   externalFilter = null,
   onOpenInNetwork,
   onOpenRecipeLab,
+  onFindCocktail,
+  onFindSauce,
   ctx = null,
   pickerMode = null,
   onExitPickerMode,
@@ -366,7 +428,7 @@ export default function CookbookLab({
         <p className="text-center text-base mb-6" style={{ fontFamily: FONT, color: CHALK_SUB }}>
           {isMakePicker
             ? 'Pick one to start cooking'
-            : '15 hand-curated dishes spanning 6 culinary traditions'}
+            : `${SEED_RECIPES.length} hand-curated dishes spanning ${SEED_CUISINE_COUNT} culinary traditions`}
         </p>
 
         {/* Filters — cuisines as cookbooks on a shelf, types as icon pills */}
@@ -465,6 +527,8 @@ export default function CookbookLab({
           onClose={() => setSelected(null)}
           onOpenInNetwork={onOpenInNetwork}
           onOpenRecipeLab={onOpenRecipeLab}
+          onFindCocktail={onFindCocktail}
+          onFindSauce={onFindSauce}
         />
       )}
     </div>

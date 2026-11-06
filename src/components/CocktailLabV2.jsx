@@ -9,6 +9,7 @@ import {
   cocktailSimilarity,
 } from '../data/cocktailCodexV2.js';
 import { formatSimilarityBadge } from '../data/recipeAromaSimilarity.js';
+import { formatPairedVia } from '../data/recipePairingMatch.js';
 
 /**
  * CocktailLabV2 — data-driven taxonomy view.
@@ -237,7 +238,7 @@ export default function CocktailLabV2({
         {/* Matched cocktail cards */}
         <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {matchesContext.items.map(({ item, similarity, matchedAromas }, idx) => {
+            {matchesContext.items.map(({ item, similarity, matchedAromas = [], pairedVia = [] }, idx) => {
               const isSelected = selectedCocktail === item.name;
               return (
                 <li key={`${item.name}-${idx}`}>
@@ -257,7 +258,20 @@ export default function CocktailLabV2({
                         {formatSimilarityBadge(similarity)}
                       </span>
                     </div>
-                    {/* Row 2: matched aroma chips */}
+                    {/* Row 2: which ingredients pair with the recipe */}
+                    {pairedVia.length > 0 && (
+                      <div className="flex flex-wrap gap-1" data-testid="cocktail-match-paired-via">
+                        {pairedVia.map((p) => (
+                          <span
+                            key={`${p.item}|${p.recipe}`}
+                            className="text-[10px] px-1.5 py-px rounded-full border border-[#2a2a3a] text-gray-300 bg-[#12121a]"
+                          >
+                            {formatPairedVia(p)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {/* Row 3: matched aroma chips (legacy aroma-ranked results) */}
                     {matchedAromas.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {matchedAromas.map((aromaKey) => (

@@ -3,6 +3,7 @@ import { cocktailBaseSpirit, COCKTAIL_SPIRIT_LEGEND, COCKTAIL_SPIRIT_COLORS } fr
 import {
   FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
+import { parseQuery, matchItem, cocktailIngredientNames, buildIngredientVocab } from '../data/ingredientSearch.js';
 
 // The 2D cocktail list IS a bar menu, so it's drawn as colored chalk on
 // slate (shared kitchen-world DNA, see chalkTheme.js). Caveat carries
@@ -346,18 +347,47 @@ export default function CocktailBrowse({
     return map;
   }, [graph]);
 
+  // Search matches drink names AND ingredients ("gin, lime" = both).
+  // Map of cocktail name → matched ingredient strings; null = no search.
+  const searchHits = useMemo(() => {
+    const terms = parseQuery(searchTerm);
+    if (!annotated || terms.length === 0) return null;
+    const hits = new Map();
+    for (const a of annotated.values()) {
+      const r = matchItem({ name: a.name, ingredients: cocktailIngredientNames(a) }, terms);
+      if (r.match) hits.set(a.name, r.hits);
+    }
+    return hits;
+  }, [annotated, searchTerm]);
+
+  // Ingredient vocabulary for the search box's autocomplete.
+  const ingredientVocab = useMemo(
+    () => (annotated ? buildIngredientVocab([...annotated.values()].map(cocktailIngredientNames)) : []),
+    [annotated],
+  );
+
   // Apply the spirit/IBA/search filters to a member list.
-  const applyFilters = (members) => {
-    const term = searchTerm.trim().toLowerCase();
-    return members.filter((m) => {
-      const a = annotated.get(m.name);
-      if (!a) return false;
-      if (filterSpirit && a.spirit !== filterSpirit) return false;
-      if (ibaOnly && !a.iba_official) return false;
-      if (term && !a.name.toLowerCase().includes(term)) return false;
-      return true;
-    });
-  };
+  const applyFilters = (members) => members.filter((m) => {
+    const a = annotated.get(m.name);
+    if (!a) return false;
+    if (filterSpirit && a.spirit !== filterSpirit) return false;
+    if (ibaOnly && !a.iba_official) return false;
+    if (searchHits && !searchHits.has(a.name)) return false;
+    return true;
+  });
+
+  const matchCount = useMemo(() => {
+    if (!annotated) return 0;
+    let n = 0;
+    for (const a of annotated.values()) {
+      if (filterSpirit && a.spirit !== filterSpirit) continue;
+      if (ibaOnly && !a.iba_official) continue;
+      if (searchHits && !searchHits.has(a.name)) continue;
+      if (filterFamily != null && a.family_id !== filterFamily) continue;
+      n += 1;
+    }
+    return n;
+  }, [annotated, filterSpirit, ibaOnly, searchHits, filterFamily]);
 
   // Cocktails per base spirit — drives the bottle-shelf counts.
   const spiritCounts = useMemo(() => {
@@ -617,11 +647,22 @@ export default function CocktailBrowse({
             type="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search…"
-            className="ml-auto px-2.5 py-1 rounded-md focus:outline-none w-32 text-[15px]"
+            placeholder="Search drink or ingredient — e.g. gin, lime"
+            aria-label="Search cocktails by name or ingredient"
+            list="cocktail-ingredient-vocab"
+            data-cocktail-search
+            className="ml-auto flex-1 min-w-[12rem] sm:max-w-sm px-2.5 py-1 rounded-md focus:outline-none text-[15px]"
             style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
           />
+          <datalist id="cocktail-ingredient-vocab">
+            {ingredientVocab.map((v) => <option key={v} value={v} />)}
+          </datalist>
         </div>
+        {searchHits && (
+          <p className="mt-1 text-[13px]" style={{ color: CHALK_SUB }} aria-live="polite">
+            {matchCount} cocktail{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
+          </p>
+        )}
       </div>
 
       {/* ───── Menu sections — colored-chalk family headers ───── */}
@@ -696,7 +737,14 @@ export default function CocktailBrowse({
                               <svg width="15" height="22" viewBox="0 20 52 88" aria-hidden="true" className="flex-shrink-0">
                                 {glassMark(famGlassType, 26, fam.color, fam.color, true)}
                               </svg>
-                              <span className="flex-1 truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{c.name}</span>
+                              <span className="flex-1 min-w-0">
+                                <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{c.name}</span>
+                                {searchHits?.get(c.name)?.length > 0 && (
+                                  <span className="block truncate text-[11px]" style={{ color: CHALK_DIM }} data-search-hit>
+                                    with {searchHits.get(c.name).join(', ')}
+                                  </span>
+                                )}
+                              </span>
                               {a?.iba_official && (
                                 <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>IBA</span>
                               )}

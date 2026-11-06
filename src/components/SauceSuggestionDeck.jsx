@@ -19,6 +19,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { recipeAxisProfile, TASTE_AXES, AROMA_AXES } from '../data/recipeProfileAnalysis.js';
 import { BeforeAfterRadar } from './IngredientProfileCard.jsx';
+import { formatPairedVia } from '../data/recipePairingMatch.js';
 
 const FONT_HAND = 'Caveat, cursive';
 const SWIPE_THRESHOLD = 50; // px — mirror SuggestionCardDeck / PairingMode
@@ -62,7 +63,7 @@ function LabeledRadar({ label, profile, axes, testId }) {
 
 /** One sauce card: name, "matches {recipe}" / similarity %, taste + aroma
  *  radars, optional matched-aroma chips, and a chalk-green "View sauce" pill. */
-function SauceCard({ name, profile, recipeName, similarity, matchedAromas, onView }) {
+function SauceCard({ name, profile, recipeName, similarity, matchedAromas, pairedVia = [], onView }) {
   const pct = typeof similarity === 'number' ? Math.round(similarity * 100) : null;
   return (
     <div
@@ -104,6 +105,20 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, onVie
         <LabeledRadar label="Taste" profile={profile} axes={TASTE_AXES} testId="sauce-card-radar-taste" />
         <LabeledRadar label="Aroma" profile={profile} axes={AROMA_AXES} testId="sauce-card-radar-aroma" />
       </div>
+
+      {pairedVia.length > 0 && (
+        <div className="flex flex-wrap gap-1 justify-center" data-testid="sauce-card-paired-via">
+          {pairedVia.map((p) => (
+            <span
+              key={`${p.item}|${p.recipe}`}
+              className="px-2 py-px rounded-full border"
+              style={{ borderColor: CHALK_SUB, color: CHALK_DIM, fontFamily: FONT_HAND, fontSize: 'clamp(11px, 2.4vw, 14px)' }}
+            >
+              {formatPairedVia(p)}
+            </span>
+          ))}
+        </div>
+      )}
 
       {Array.isArray(matchedAromas) && matchedAromas.length > 0 && (
         <div className="flex flex-wrap gap-1 justify-center">
@@ -147,11 +162,12 @@ export default function SauceSuggestionDeck({
   // Precompute each sauce's single-series profile from its ingredient names.
   // recipeAxisProfile already skips names without gnnProbs.
   const cards = useMemo(() => {
-    return (Array.isArray(items) ? items : []).map(({ item, similarity, matchedAromas }) => ({
+    return (Array.isArray(items) ? items : []).map(({ item, similarity, matchedAromas, pairedVia }) => ({
       name: item?.name,
       profile: recipeAxisProfile(item?.ingredients || [], nodes).scores,
       similarity,
       matchedAromas: matchedAromas || [],
+      pairedVia: pairedVia || [],
     })).filter((c) => c.name);
   }, [items, nodes]);
 
@@ -267,6 +283,7 @@ export default function SauceSuggestionDeck({
                 recipeName={recipeName}
                 similarity={card.similarity}
                 matchedAromas={card.matchedAromas}
+                pairedVia={card.pairedVia}
                 onView={() => onSelectSauce?.(card.name)}
               />
             </div>

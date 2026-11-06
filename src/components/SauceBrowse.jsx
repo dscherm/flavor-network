@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
+import { parseQuery, matchItem, buildIngredientVocab } from '../data/ingredientSearch.js';
 
 /**
  * SauceBrowse — 2D selection surface for the Sauce Lab, drawn as a bistro
@@ -223,14 +224,41 @@ export default function SauceBrowse({
     return families.filter((f) => f.id === filterFamily);
   }, [families, filterFamily]);
 
-  const applyFilters = (members) => {
-    const term = searchTerm.trim().toLowerCase();
-    return members.filter((m) => {
-      if (filterCuisine && m.cuisine !== filterCuisine) return false;
-      if (term && !m.name.toLowerCase().includes(term)) return false;
-      return true;
-    });
-  };
+  // Search matches sauce names AND ingredients ("tomato, basil" = both).
+  // Map of sauce name → matched ingredient strings; null = no search.
+  const searchHits = useMemo(() => {
+    const terms = parseQuery(searchTerm);
+    if (!codexData?.graph?.nodes || terms.length === 0) return null;
+    const hits = new Map();
+    for (const n of codexData.graph.nodes.values()) {
+      const r = matchItem({ name: n.name, ingredients: n.ingredients }, terms);
+      if (r.match) hits.set(n.name, r.hits);
+    }
+    return hits;
+  }, [codexData, searchTerm]);
+
+  const ingredientVocab = useMemo(() => {
+    if (!codexData?.graph?.nodes) return [];
+    return buildIngredientVocab([...codexData.graph.nodes.values()].map((n) => n.ingredients));
+  }, [codexData]);
+
+  const applyFilters = (members) => members.filter((m) => {
+    if (filterCuisine && m.cuisine !== filterCuisine) return false;
+    if (searchHits && !searchHits.has(m.name)) return false;
+    return true;
+  });
+
+  const matchCount = useMemo(() => {
+    if (!codexData?.graph?.nodes) return 0;
+    let n = 0;
+    for (const m of codexData.graph.nodes.values()) {
+      if (filterFamily != null && m.family_id !== filterFamily) continue;
+      if (filterCuisine && m.cuisine !== filterCuisine) continue;
+      if (searchHits && !searchHits.has(m.name)) continue;
+      n += 1;
+    }
+    return n;
+  }, [codexData, filterFamily, filterCuisine, searchHits]);
 
   if (!codexData) {
     return (
@@ -325,6 +353,25 @@ export default function SauceBrowse({
         className="sticky top-0 z-30 backdrop-blur-md px-4 py-2.5 max-w-4xl mx-auto"
         style={{ background: '#0a0a0aE6', borderBottom: `1px solid ${CHALK_RAIL}66` }}
       >
+        <input
+          type="search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search sauce or ingredient — e.g. tomato, basil"
+          aria-label="Search sauces by name or ingredient"
+          list="sauce-ingredient-vocab"
+          data-sauce-search
+          className="w-full px-2.5 py-1.5 rounded-md focus:outline-none text-[16px] mb-1"
+          style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+        />
+        <datalist id="sauce-ingredient-vocab">
+          {ingredientVocab.map((v) => <option key={v} value={v} />)}
+        </datalist>
+        {searchHits && (
+          <p className="mb-1.5 text-[13px]" style={{ color: CHALK_SUB }} aria-live="polite">
+            {matchCount} sauce{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
+          </p>
+        )}
         <div className="text-[11px] uppercase tracking-wider mb-1.5" style={{ color: CHALK_SUB }}>Cuisines</div>
         <div className="flex flex-wrap items-center gap-1.5">
           {[{ key: null, label: 'All Cuisines' }, ...cuisines.map((c) => ({ key: c, label: c }))].map((chip) => {
@@ -347,14 +394,6 @@ export default function SauceBrowse({
               </button>
             );
           })}
-          <input
-            type="search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search…"
-            className="ml-auto px-2.5 py-1 rounded-md focus:outline-none w-32 text-[15px]"
-            style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
-          />
         </div>
       </div>
 
@@ -401,7 +440,14 @@ export default function SauceBrowse({
                         <svg width="22" height="18" viewBox="-8 6 80 66" aria-hidden="true" className="flex-shrink-0">
                           {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
                         </svg>
-                        <span className="flex-1 truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{s.name}</span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{s.name}</span>
+                          {searchHits?.get(s.name)?.length > 0 && (
+                            <span className="block truncate text-[11px]" style={{ color: CHALK_DIM }} data-search-hit>
+                              with {searchHits.get(s.name).join(', ')}
+                            </span>
+                          )}
+                        </span>
                         {s.isRoot && (
                           <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>MOTHER</span>
                         )}

@@ -1058,3 +1058,102 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+## 2026-11-05 — Lab search, Cookbook expansion, shared links
+
+```json
+{
+  "id": "LABSEARCH-1",
+  "title": "Search the Cocktail Lab and Sauce Lab by ingredient",
+  "category": "ui",
+  "passes": true,
+  "description": "The lab browse search boxes matched only names. Match ingredients too (word-based, comma = AND), show which ingredients matched on each row, and autocomplete ingredient names. Shared logic in src/data/ingredientSearch.js.",
+  "acceptance": [
+    "Typing an ingredient in either lab lists every drink/sauce containing it, with a 'with …' hint per row",
+    "'gin, lime' requires both; 'gin' does not match 'ginger beer'",
+    "Unit tests for the matcher and component tests for both labs; full suite green"
+  ]
+}
+```
+
+```json
+{
+  "id": "COOKBOOK-49",
+  "title": "Expand the Cookbook from 15 to 49 seed recipes",
+  "category": "data",
+  "passes": true,
+  "description": "Add 34 recipes across the existing 7 cuisines and 4 dish types in src/data/seedRecipes.js, using ProData ingredient spellings. Subtitle counts recipes from data.",
+  "acceptance": [
+    "49 recipes with unique ids and positions",
+    "Every ingredient name resolves in public/proDataset/ingredients.json (test)",
+    "Cookbook subtitle reads the real count"
+  ]
+}
+```
+
+```json
+{
+  "id": "COOKBOOK-NAMES-1",
+  "title": "Fix original seed-recipe ingredient names that don't resolve",
+  "category": "data",
+  "passes": true,
+  "description": "ground beef, bell pepper, seaweed, chili pepper were absent from ProData and silently dropped out of flavor profiles; renamed to beef, sweet pepper, wakame, ancho chili.",
+  "acceptance": ["Guard test covers all 49 recipes, not just the new ones"]
+}
+```
+
+```json
+{
+  "id": "COOKBOOK-METHOD-1",
+  "title": "Quantities, servings, time and method steps for every Cookbook recipe",
+  "category": "data",
+  "passes": true,
+  "description": "New src/data/seedRecipeDetails.js keyed by recipe id; the recipe popup shows 'Serves N · time', an amount beside each ingredient, and a numbered Method.",
+  "acceptance": [
+    "Every seed recipe has serves, time, >=3 steps and an amount for every ingredient (tests)",
+    "Popup renders meta, amounts and steps (component test)"
+  ]
+}
+```
+
+```json
+{
+  "id": "COOKBOOK-PAIR-1",
+  "title": "'Goes well with' cocktails and sauces from a Cookbook recipe",
+  "category": "ui",
+  "passes": true,
+  "description": "Recipe popup gets Matching cocktails / Matching sauces buttons that reuse App's aroma-match handlers; matchesContext carries returnTab so 'Back to recipe' returns to the Cookbook.",
+  "acceptance": [
+    "Buttons hand the recipe's matched ingredients to the labs (component test)",
+    "Back from matches returns to the Cookbook (verified in browser)"
+  ]
+}
+```
+
+```json
+{
+  "id": "DEEPLINK-1",
+  "title": "Shared ?path= links open the named screen",
+  "category": "ui",
+  "passes": true,
+  "description": "A URL with a valid ?path= skipped nothing: the landing picker always showed, and once past it the lab rendered blank because labs only mounted via click handlers. Now a valid ?path= skips the landing picker, labs latch mounted whenever they become active, and ?path= is written only after the user picks (a bare visit stays on the landing).",
+  "acceptance": [
+    "?path=cocktail / ?path=sauce open those labs directly; bare and unknown paths show the landing (App.deepLink.test.jsx)"
+  ]
+}
+```
+
+```json
+{
+  "id": "PAIRMATCH-1",
+  "title": "Rank 'goes well with' cocktails and sauces by ingredient co-occurrence, not molecular aroma",
+  "category": "data",
+  "passes": true,
+  "description": "New src/data/recipePairingMatch.js ranks items by IDF-weighted best observed pairing strength between item and recipe ingredients (shared ingredient = 1). Used by App's Find cocktail/sauce handlers (Recipe Notebook + Cookbook) and the Flavor Profiles Pairings page; match cards show the pairs that drove each match. pairings.bin bumped to v2 to carry the observed/predicted flag (bit 15 of idxB); decoder moved to src/data/pairingsBinary.js.",
+  "acceptance": [
+    "On the 9 seed recipes with a same-name sauce, that sauce ranks top-3 for 8/9 (aroma cosine: 1/9); MRR 0.66 vs 0.10",
+    "Only observed (known) pairings are used; pairings.bin known count equals pairings.json (test)",
+    "Unit tests for the ranker; full suite green; verified in browser (Beef Bolognese → Bolognese sauce; Brandy Flip / Mulled Wine)"
+  ]
+}
+```

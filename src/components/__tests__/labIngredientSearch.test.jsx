@@ -1,0 +1,121 @@
+// @vitest-environment jsdom
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import CocktailBrowse from '../CocktailBrowse.jsx';
+import SauceBrowse from '../SauceBrowse.jsx';
+
+// ── Cocktail fixture ─────────────────────────────────────────────────
+function cocktail(name, ings, extra = {}) {
+  return {
+    name, canonical: name.toLowerCase(), family_id: 0, subcluster_id: '0.1',
+    ingredients_raw: ings.map((raw) => ({ raw })), ...extra,
+  };
+}
+const COCKTAILS = [
+  cocktail('Gimlet', ['Gin', 'Lime juice', 'Simple syrup'], { is_root: true }),
+  cocktail('Negroni', ['Gin', 'Campari', 'Sweet vermouth']),
+  cocktail('Moscow Mule', ['Vodka', 'Ginger beer', 'Lime juice']),
+];
+const COCKTAIL_GRAPH = {
+  families: [{ id: 0, name: 'Sours', color: '#88ccff' }],
+  byFamily: new Map([[0, COCKTAILS]]),
+};
+
+function renderCocktails() {
+  return render(
+    <CocktailBrowse
+      graph={COCKTAIL_GRAPH}
+      selectedCocktail={null}
+      onSelectCocktail={vi.fn()}
+      filterFamily={null}
+      onFilterFamily={vi.fn()}
+      filterSpirit={null}
+      onFilterSpirit={vi.fn()}
+    />,
+  );
+}
+
+const shown = (names) => names.filter((n) => screen.queryByText(n));
+
+describe('Cocktail Lab — ingredient search', () => {
+  it('shows every cocktail with no query', () => {
+    renderCocktails();
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toHaveLength(3);
+  });
+
+  it('finds cocktails by ingredient, not just name', () => {
+    renderCocktails();
+    fireEvent.change(screen.getByLabelText(/search cocktails/i), { target: { value: 'lime' } });
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toEqual(['Gimlet', 'Moscow Mule']);
+    expect(screen.getByText(/2 cocktails match/)).toBeInTheDocument();
+    expect(screen.getAllByText('with Lime juice')).toHaveLength(2);
+  });
+
+  it('"gin" does not pull in ginger-beer drinks', () => {
+    renderCocktails();
+    fireEvent.change(screen.getByLabelText(/search cocktails/i), { target: { value: 'gin' } });
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toEqual(['Gimlet', 'Negroni']);
+  });
+
+  it('combines comma-separated ingredients with AND', () => {
+    renderCocktails();
+    fireEvent.change(screen.getByLabelText(/search cocktails/i), { target: { value: 'gin, lime' } });
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toEqual(['Gimlet']);
+  });
+
+  it('shows the empty state when nothing matches', () => {
+    renderCocktails();
+    fireEvent.change(screen.getByLabelText(/search cocktails/i), { target: { value: 'durian' } });
+    expect(screen.getByText(/No cocktails match/)).toBeInTheDocument();
+  });
+});
+
+// ── Sauce fixture ────────────────────────────────────────────────────
+function sauce(name, ingredients, extra = {}) {
+  return { name, family_id: 0, cuisine: 'Italian', ingredients, ...extra };
+}
+const SAUCE_CODEX = {
+  codex: { clusters: [{ id: 0, name: 'Tomato', color: '#e05050' }] },
+  graph: {
+    nodes: new Map([
+      ['Marinara', sauce('Marinara', ['tomato', 'garlic', 'basil', 'olive oil'], { isRoot: true })],
+      ['Arrabbiata', sauce('Arrabbiata', ['tomato', 'garlic', 'red pepper flakes'])],
+      ['Pesto', sauce('Pesto', ['basil', 'pine nut', 'parmesan'])],
+    ]),
+  },
+};
+
+function renderSauces() {
+  return render(
+    <SauceBrowse
+      codexData={SAUCE_CODEX}
+      selectedSauce={null}
+      onSelectSauce={vi.fn()}
+      filterFamily={null}
+      onFilterFamily={vi.fn()}
+      filterCuisine={null}
+      onFilterCuisine={vi.fn()}
+    />,
+  );
+}
+
+describe('Sauce Lab — ingredient search', () => {
+  it('finds sauces by ingredient', () => {
+    renderSauces();
+    fireEvent.change(screen.getByLabelText(/search sauces/i), { target: { value: 'basil' } });
+    expect(shown(['Marinara', 'Arrabbiata', 'Pesto'])).toEqual(['Marinara', 'Pesto']);
+    expect(screen.getByText(/2 sauces match/)).toBeInTheDocument();
+  });
+
+  it('combines ingredients with AND', () => {
+    renderSauces();
+    fireEvent.change(screen.getByLabelText(/search sauces/i), { target: { value: 'tomato + basil' } });
+    expect(shown(['Marinara', 'Arrabbiata', 'Pesto'])).toEqual(['Marinara']);
+  });
+
+  it('still matches by sauce name', () => {
+    renderSauces();
+    fireEvent.change(screen.getByLabelText(/search sauces/i), { target: { value: 'arrab' } });
+    expect(shown(['Marinara', 'Arrabbiata', 'Pesto'])).toEqual(['Arrabbiata']);
+  });
+});

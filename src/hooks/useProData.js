@@ -127,6 +127,10 @@ function buildProGraph(ingredientsData, pairingsData) {
       source,
       target,
       strength: pairing.strength,
+      // Observed co-occurrence vs model-predicted (cuisine-augment) pairing;
+      // recipePairingMatch.js ranks "goes well with" on observed ones only.
+      // Only set when the source says; a missing flag must not read as "predicted".
+      ...(typeof pairing.known === 'boolean' ? { known: pairing.known } : {}),
     });
   }
 

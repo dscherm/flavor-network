@@ -252,10 +252,11 @@ export function describeRecipeProfile(profile, { aromaMatch = null, cookingMetho
   if (rich >= 0.3) sentences.push('The overall feel is rich and rounded.');
   else if (green >= 0.3 && rich < 0.15) sentences.push('The overall feel is bright and clean.');
 
-  // 5. Optional aroma-match pairing signal.
+  // 5. Optional pairing signal (best cocktail/sauce match; since 2026-11-05
+  //    ranked by ingredient co-occurrence, so no aroma claim in the copy).
   if (aromaMatch?.name) {
     const pct = typeof aromaMatch.similarity === 'number' ? ` (${Math.round(aromaMatch.similarity * 100)}% match)` : '';
-    sentences.push(`Its aromatics echo ${aromaMatch.name}${pct} — a natural pairing.`);
+    sentences.push(`Pairs naturally with ${aromaMatch.name}${pct}.`);
   }
 
   // 6. Optional preparation-method effect (FP-OV-5). Narrates how the likely

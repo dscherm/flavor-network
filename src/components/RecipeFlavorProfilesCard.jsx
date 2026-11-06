@@ -27,6 +27,7 @@ import { loadDirectionsIndex, retrieveDirections, retrieveCookingMethods } from 
 import { loadQuantityModel, predictAmountFromCtx } from '../ml/quantityRuntime.js';
 import { deriveBowlCuisine } from '../data/deriveBowlCuisine.js';
 import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSimilarity.js';
+import { buildPairingIndex, rankByPairing } from '../data/recipePairingMatch.js';
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 import HelpBubble from './HelpBubble.jsx';
 // CK-14: fold the duplicated chalkboard palette onto the shared theme.
@@ -57,7 +58,7 @@ function loadRecipeVocab() {
   return _vocabPromise;
 }
 
-// Cocktail / sauce item lists for aroma matching on the Pairings page —
+// Cocktail / sauce item lists for matching on the Pairings page —
 // same data + normalization App.jsx uses for handleFindCocktail/Sauce.
 let _cocktailItemsPromise = null;
 function loadCocktailItems() {
@@ -352,7 +353,7 @@ function FlavorBarChart({ scores }) {
   );
 }
 
-export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries = null, nodes, recipeType = null, onAdd, onFindCocktail, onFindSauce, onClose }) {
+export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries = null, nodes, edges = null, recipeType = null, onAdd, onFindCocktail, onFindSauce, onClose }) {
   const { scores, drivers, n } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
 
   // Overview page: quantity-weighted flavor composition. Prefer BowlEntry[]
@@ -374,8 +375,8 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   const [candidates, setCandidates] = useState([]); // model pool that fits the recipe
   const [dishes, setDishes] = useState([]);
   const [cookingMethod, setCookingMethod] = useState(null); // dominant likely method (FP-OV-5)
-  const [cocktailMatches, setCocktailMatches] = useState([]); // aroma-matched cocktail names
-  const [sauceMatches, setSauceMatches] = useState([]);       // aroma-matched sauce names
+  const [cocktailMatches, setCocktailMatches] = useState([]); // best-pairing cocktail names
+  const [sauceMatches, setSauceMatches] = useState([]);       // best-pairing sauce names
   const quantityCtxRef = useRef(null);
   const swipeStartRef = useRef(null); // touch-swipe between carousel pages
 
@@ -384,7 +385,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   const nodesObj = useMemo(() => (nodes ? Object.fromEntries(nodes) : null), [nodes]);
 
   // Rule-based, on-device chef description of the weighted profile (no LLM/API).
-  // The top aroma-match (cocktail, else sauce) feeds the optional pairing line.
+  // The top match (cocktail, else sauce) feeds the optional pairing line.
   const description = useMemo(() => {
     const best = cocktailMatches[0] || sauceMatches[0] || null;
     const aromaMatch = best ? { name: best.item?.name, similarity: best.similarity } : null;
@@ -418,23 +419,30 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
       const { methods } = retrieveCookingMethods(bowlNames, idx, vocab, { k: 8, topN: 1 });
       setCookingMethod(methods[0]?.method ?? null);
     }).catch(() => {});
-    // aroma-matched cocktail + sauce NAMES for the Pairings page
-    const recipeVec = nodesObj ? computeRecipeAroma(bowlNames, nodesObj) : null;
-    if (recipeVec) {
+    // Cocktail + sauce NAMES for the Pairings page. Ranked by observed
+    // ingredient co-occurrence when the pairing edges are available
+    // (recipePairingMatch.js); the molecular aroma cosine is only the
+    // fallback for callers that don't pass edges.
+    const pairingIndex = Array.isArray(edges) && edges.length > 0 ? buildPairingIndex(edges, nodes.keys()) : null;
+    const recipeVec = !pairingIndex && nodesObj ? computeRecipeAroma(bowlNames, nodesObj) : null;
+    const rank = (items) => (pairingIndex
+      ? rankByPairing(bowlNames, items, pairingIndex, 4)
+      : rankByAromaSimilarity(recipeVec, items, nodesObj, 4));
+    if (pairingIndex || recipeVec) {
       loadCocktailItems().then((items) => {
         if (cancelled || !items) return;
-        setCocktailMatches(rankByAromaSimilarity(recipeVec, items, nodesObj, 4));
+        setCocktailMatches(rank(items));
       }).catch(() => {});
       loadSauceItems().then((items) => {
         if (cancelled || !items) return;
-        setSauceMatches(rankByAromaSimilarity(recipeVec, items, nodesObj, 4));
+        setSauceMatches(rank(items));
       }).catch(() => {});
     } else {
       setCocktailMatches([]);
       setSauceMatches([]);
     }
     return () => { cancelled = true; };
-  }, [bowlNames, nodes, nodesObj]);
+  }, [bowlNames, nodes, nodesObj, edges]);
 
   const [page, setPage] = useState(0);
   // Pages: 0 Overview · 1 Flavor map · 2..axes.length+1 per-axis · Enhance · Pairings.
@@ -653,7 +661,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                 </ul>
               </div>
             )}
-            {/* 🍸 Cocktails — aroma-matched names; tap deep-links to the
+            {/* 🍸 Cocktails — best-pairing names; tap deep-links to the
                 Cocktail Lab. Falls back to the generic button if no matches. */}
             {onFindCocktail && (
               <div className="mb-2">
@@ -666,7 +674,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                         onClick={onFindCocktail}
                         className="min-h-[40px] px-3 rounded-full border"
                         style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
-                        title={`${Math.round((similarity || 0) * 100)}% aroma match — open in Cocktail Lab`}
+                        title={`${Math.round((similarity || 0) * 100)}% match — open in Cocktail Lab`}
                       >
                         {item.name}
                       </button>
@@ -678,7 +686,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
               </div>
             )}
 
-            {/* 🥣 Sauces — gated by recipeTakesSauce; aroma-matched names. */}
+            {/* 🥣 Sauces — gated by recipeTakesSauce; best-pairing names. */}
             {onFindSauce && recipeTakesSauce(recipeType) && (
               <div>
                 <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>🥣 Sauces</p>
@@ -690,7 +698,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                         onClick={onFindSauce}
                         className="min-h-[40px] px-3 rounded-full border"
                         style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}
-                        title={`${Math.round((similarity || 0) * 100)}% aroma match — open in Sauce Lab`}
+                        title={`${Math.round((similarity || 0) * 100)}% match — open in Sauce Lab`}
                       >
                         {item.name}
                       </button>
