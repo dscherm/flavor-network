@@ -11,8 +11,7 @@
 
 
 <!-- unpossible-ralph: auto-injected context -->
-@.claude/.ralph-handoff.md
-@.claude/.ralph-bridge-resume.md
+@.claude/.ralph-recap.md
 
 
 <!-- unpossible-ralph: auto-injected context -->
@@ -20,7 +19,6 @@
 
 
 <!-- unpossible-ralph: auto-injected context -->
-@.claude/.ralph-precompact.md
 @.claude/.ralph-human-requests.md
 @.claude/.ralph-scope.md
 

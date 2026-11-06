@@ -56,7 +56,15 @@
       "preflight": "warn",
       "test_dirs": [
         "tests/contracts/",
-        "tests/integration/"
+        "chemDataset/validation/__tests__/",
+        "flavor-gnn/tests/",
+        "src/__tests__/",
+        "src/components/__tests__/",
+        "src/data/__tests__/",
+        "src/data/tests/",
+        "src/hooks/__tests__/",
+        "src/ml/__tests__/",
+        "src/three/__tests__/"
       ],
       "public_api_file": "public_api.md",
       "routing": {
@@ -83,7 +91,14 @@
       "suppression_audit": true,
       "security_ac_pack": {
         "enabled": true
-      }
+      },
+      "non_blind_test_dirs": [
+        "functions/src/scrape/",
+        "src/components/",
+        "src/data/",
+        "src/three/",
+        "src/utils/"
+      ]
     }
   },
   "harness": {

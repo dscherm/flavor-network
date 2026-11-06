@@ -13,7 +13,7 @@ No-op unless ALL three are true:
 
 1. `.schermness/phase.json` exists (i.e., bridge mode is active and a phase has
    been emitted at least once).
-2. The current phase is in `{explore, plan}` — i.e., the agent is supposed
+2. The current phase is in `{explore, plan, design}` — i.e., the agent is supposed
    to be reading, not writing.
 3. The tool name is one of Edit / Write / NotebookEdit / NotebookRead.
 
@@ -24,7 +24,7 @@ same convention.
 
 ## Modes
 
-Read from `ralph.config.json` under `bridge.enforce_phase_permissions`:
+Read from `schermness.config.json` (else `ralph.config.json`) under `bridge.enforce_phase_permissions`:
 
 - `"off"`   — passthrough, no print
 - `"warn"`  — print stderr nudge, exit 0 (default — matches gate-coupling)
@@ -55,13 +55,13 @@ from pathlib import Path
 
 
 PHASE_NAME = "phase.json"
-CONFIG_FILE = "ralph.config.json"
+CONFIG_FILES = ("schermness.config.json", "ralph.config.json")
 
 # Tool names that perform writes. Bash deliberately excluded — see module docstring.
 WRITE_TOOLS = {"Edit", "Write", "NotebookEdit"}
 
 # Read-only phases — Edit/Write should be flagged here.
-READ_ONLY_PHASES = {"explore", "plan"}
+READ_ONLY_PHASES = {"explore", "plan", "design"}
 
 
 # Project root for this invocation. None until the payload is read, or when
@@ -163,7 +163,11 @@ def _mode_from_config(project_dir: Path) -> str:
     env = os.environ.get("RALPH_PHASE_GUARD")
     if env in ("off", "warn", "strict"):
         return env
-    cfg = _read_json(project_dir / CONFIG_FILE) or {}
+    cfg: dict = {}
+    for name in CONFIG_FILES:
+        cfg = _read_json(project_dir / name) or {}
+        if cfg:
+            break
     bridge = cfg.get("bridge") or {}
     mode = bridge.get("enforce_phase_permissions")
     if mode in ("off", "warn", "strict"):
@@ -177,6 +181,21 @@ def _file_path_from_input(tool_name: str, tool_input: dict) -> str:
     if tool_name == "NotebookEdit":
         return str(tool_input.get("notebook_path") or "")
     return ""
+
+
+def _is_design_brief(project_dir: Path, target: str) -> bool:
+    """True when `target` is a file under `<state_dir>/design/`."""
+    if not target or "\x00" in target:
+        return False
+    try:
+        p = Path(target)
+        if not p.is_absolute():
+            p = project_dir / p
+        p = Path(os.path.normpath(p)).resolve()
+        folder = (_state_dir(project_dir) / "design").resolve()
+        return folder in p.parents
+    except (OSError, ValueError):
+        return False
 
 
 def main() -> int:
@@ -212,6 +231,8 @@ def main() -> int:
 
     tool_input = hook.get("tool_input") or {}
     target = _file_path_from_input(tool_name, tool_input)
+    if phase == "design" and _is_design_brief(project_dir, target):
+        return 0
     target_str = f" on `{target}`" if target else ""
 
     suggestion_phase = "implement"
