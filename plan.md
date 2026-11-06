@@ -1199,3 +1199,35 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   "acceptance": ["83 recipes, every ingredient name resolves in ProData, every recipe has complete details (tests)"]
 }
 ```
+
+```json
+{
+  "id": "COCKTAIL-FOUND-1",
+  "title": "Cocktail Lab foundation: named sub-groups, normalised glass, suggested amounts, brand aliases, loader tests",
+  "category": "data",
+  "passes": true,
+  "description": "The 15 data-driven sub-groups get hand names (src/data/cocktailSubclusters.js) shown in the menu and on cards; 40+ glass spellings fold into 10 types with a fallback from ice/build; cocktails without quantities (217/441) show per-slot house amounts marked '~ suggested' instead of nothing (src/data/cocktailAmounts.js); brand/bar-shorthand aliases (St-Germain, Jack Daniels, sour mix, …) and ice/soda/cola as trivial; tests for the codex loader, similarity, and every sub-group having a name.",
+  "acceptance": [
+    "Every subcluster id in cocktail_codex_v2.json has a name (test)",
+    "Every cocktail derives a glass type (test)",
+    "Cards with no source amounts show ~ amounts and a note; cards with amounts are unchanged",
+    "Loader + similarity tests green"
+  ]
+}
+```
+
+```json
+{
+  "id": "COCKTAIL-FACETS-1",
+  "title": "Cocktail Lab search by occasion, season, strength, character, effort, glass",
+  "category": "ui",
+  "passes": true,
+  "description": "src/data/cocktailFacets.js derives facets per cocktail by rule from slots, build method, ice, glass, family and seasonal ingredients (no hand tags yet); a chip rail in CocktailBrowse filters on them with per-chip counts under the other active filters, plus No egg / No dairy toggles. Occasion tags are rule-bootstrapped and still want a human pass.",
+  "acceptance": [
+    "Chips for occasion / season / strength / character / effort / glass combine with the ingredient search and spirit shelf",
+    "A chip that would leave nothing is disabled and shows 0",
+    "No facet value covers more than 80% of the corpus; every occasion has >5 drinks (test)",
+    "Component tests for filtering; full suite green"
+  ]
+}
+```

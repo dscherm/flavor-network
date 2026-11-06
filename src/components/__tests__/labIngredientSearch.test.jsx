@@ -12,9 +12,9 @@ function cocktail(name, ings, extra = {}) {
   };
 }
 const COCKTAILS = [
-  cocktail('Gimlet', ['Gin', 'Lime juice', 'Simple syrup'], { is_root: true }),
-  cocktail('Negroni', ['Gin', 'Campari', 'Sweet vermouth']),
-  cocktail('Moscow Mule', ['Vodka', 'Ginger beer', 'Lime juice']),
+  cocktail('Gimlet', ['Gin', 'Lime juice', 'Simple syrup'], { is_root: true, build_method: 'shake', ice_format: 'up' }),
+  cocktail('Negroni', ['Gin', 'Campari', 'Sweet vermouth'], { build_method: 'stir', ice_format: 'rocks' }),
+  cocktail('Moscow Mule', ['Vodka', 'Ginger beer', 'Lime juice'], { build_method: 'build', ice_format: 'tall' }),
 ];
 const COCKTAIL_GRAPH = {
   families: [{ id: 0, name: 'Sours', color: '#88ccff' }],
@@ -67,6 +67,35 @@ describe('Cocktail Lab — ingredient search', () => {
     renderCocktails();
     fireEvent.change(screen.getByLabelText(/search cocktails/i), { target: { value: 'durian' } });
     expect(screen.getByText(/No cocktails match/)).toBeInTheDocument();
+  });
+});
+
+describe('Cocktail Lab — facet chips', () => {
+  it('renders the facet rail and filters by strength', () => {
+    renderCocktails();
+    expect(screen.getByTestId('cocktail-facet-rail')).toBeInTheDocument();
+    // Negroni: stirred spirit + amaro + vermouth, no sour → strong. The others are not.
+    fireEvent.click(screen.getByRole('button', { name: /^strong/ }));
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toEqual(['Negroni']);
+    // Clear filters restores everything.
+    fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toHaveLength(3);
+  });
+
+  it('a chip in another group that would leave nothing is disabled, with a count of 0', () => {
+    renderCocktails();
+    fireEvent.click(screen.getByRole('button', { name: /^light/ }));
+    // Only the (strong) Negroni is a nightcap, so with "light" active the chip is dead.
+    const nightcap = screen.getByRole('button', { name: /^nightcap 0/ });
+    expect(nightcap).toBeDisabled();
+    // Within the same single-choice group a chip shows what switching would give.
+    expect(screen.getByRole('button', { name: /^strong 1/ })).toBeEnabled();
+  });
+
+  it('bubbly character picks the soda highball', () => {
+    renderCocktails();
+    fireEvent.click(screen.getByRole('button', { name: /^bubbly/ }));
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toEqual(['Moscow Mule']);
   });
 });
 

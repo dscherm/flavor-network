@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { cocktailBaseSpirit, COCKTAIL_SPIRIT_LEGEND, COCKTAIL_SPIRIT_COLORS } from '../data/cocktailBaseSpirit.js';
 import {
   FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
 import { parseQuery, matchItem, cocktailIngredientNames, buildIngredientVocab } from '../data/ingredientSearch.js';
+import { subclusterName } from '../data/cocktailSubclusters.js';
+import { deriveFacets, matchesFacetFilter, loadFacetContext, FACET_GROUPS } from '../data/cocktailFacets.js';
 
 // The 2D cocktail list IS a bar menu, so it's drawn as colored chalk on
 // slate (shared kitchen-world DNA, see chalkTheme.js). Caveat carries
@@ -329,6 +331,15 @@ export default function CocktailBrowse({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [ibaOnly, setIbaOnly] = useState(false);
+  // Facet filter: { occasions: 'brunch', strength: 'light', noEgg: true, … }.
+  const [facetFilter, setFacetFilter] = useState({});
+  const [facetCtx, setFacetCtx] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    loadFacetContext(import.meta.env.BASE_URL).then((ctx) => { if (!cancelled) setFacetCtx(ctx); });
+    return () => { cancelled = true; };
+  }, []);
+  const activeFacetCount = Object.values(facetFilter).filter((v) => v).length;
 
   // Annotate every cocktail with its derived spirit once. Cached on
   // the graph object so re-renders don't recompute.
@@ -346,6 +357,15 @@ export default function CocktailBrowse({
     }
     return map;
   }, [graph]);
+
+  // Facets per cocktail (strength, occasion, season…), once the slot and
+  // season lookups have loaded. Before that they derive from text alone.
+  const facetsByName = useMemo(() => {
+    if (!annotated) return null;
+    const m = new Map();
+    for (const a of annotated.values()) m.set(a.name, deriveFacets(a, facetCtx || {}));
+    return m;
+  }, [annotated, facetCtx]);
 
   // Search matches drink names AND ingredients ("gin, lime" = both).
   // Map of cocktail name → matched ingredient strings; null = no search.
@@ -373,8 +393,30 @@ export default function CocktailBrowse({
     if (filterSpirit && a.spirit !== filterSpirit) return false;
     if (ibaOnly && !a.iba_official) return false;
     if (searchHits && !searchHits.has(a.name)) return false;
+    if (activeFacetCount && !matchesFacetFilter(facetsByName?.get(a.name), facetFilter)) return false;
     return true;
   });
+
+  // Per-chip counts under every OTHER active filter, so a chip shows how
+  // many drinks it would leave rather than going dead without warning.
+  const chipCounts = useMemo(() => {
+    if (!annotated || !facetsByName) return new Map();
+    const base = [...annotated.values()].filter((a) => {
+      if (filterSpirit && a.spirit !== filterSpirit) return false;
+      if (ibaOnly && !a.iba_official) return false;
+      if (searchHits && !searchHits.has(a.name)) return false;
+      if (filterFamily != null && a.family_id !== filterFamily) return false;
+      return true;
+    });
+    const counts = new Map();
+    for (const g of FACET_GROUPS) {
+      for (const v of g.values) {
+        const others = { ...facetFilter, [g.key]: v };
+        counts.set(`${g.key}:${v}`, base.filter((a) => matchesFacetFilter(facetsByName.get(a.name), others)).length);
+      }
+    }
+    return counts;
+  }, [annotated, facetsByName, facetFilter, filterSpirit, ibaOnly, searchHits, filterFamily]);
 
   const matchCount = useMemo(() => {
     if (!annotated) return 0;
@@ -384,10 +426,11 @@ export default function CocktailBrowse({
       if (ibaOnly && !a.iba_official) continue;
       if (searchHits && !searchHits.has(a.name)) continue;
       if (filterFamily != null && a.family_id !== filterFamily) continue;
+      if (activeFacetCount && !matchesFacetFilter(facetsByName?.get(a.name), facetFilter)) continue;
       n += 1;
     }
     return n;
-  }, [annotated, filterSpirit, ibaOnly, searchHits, filterFamily]);
+  }, [annotated, filterSpirit, ibaOnly, searchHits, filterFamily, activeFacetCount, facetFilter, facetsByName]);
 
   // Cocktails per base spirit — drives the bottle-shelf counts.
   const spiritCounts = useMemo(() => {
@@ -663,6 +706,55 @@ export default function CocktailBrowse({
             {matchCount} cocktail{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
           </p>
         )}
+
+        {/* ───── Facet rail — occasion / season / strength / character / effort / glass ───── */}
+        <div className="mt-2 flex flex-col gap-1.5" data-testid="cocktail-facet-rail">
+          {FACET_GROUPS.map((g) => (
+            <div key={g.key} className="flex items-center gap-1.5 overflow-x-auto" role="group" aria-label={`Filter by ${g.label.toLowerCase()}`}>
+              <span className="text-[11px] uppercase tracking-wider flex-shrink-0 w-[4.5rem]" style={{ color: CHALK_SUB }}>{g.label}</span>
+              {g.values.map((v) => {
+                const active = facetFilter[g.key] === v;
+                const count = chipCounts.get(`${g.key}:${v}`);
+                const dead = count === 0 && !active;
+                return (
+                  <button
+                    key={v}
+                    type="button"
+                    aria-pressed={active}
+                    disabled={dead}
+                    onClick={() => setFacetFilter((f) => ({ ...f, [g.key]: active ? null : v }))}
+                    className="px-2.5 py-0.5 rounded-full text-[14px] border whitespace-nowrap flex-shrink-0 transition-colors"
+                    style={{
+                      fontFamily: FONT,
+                      color: active ? '#0a0a0a' : (dead ? `${CHALK_SUB}99` : CHALK_CREAM),
+                      background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)',
+                      borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}99`,
+                      textShadow: active ? 'none' : CHALK_SHADOW,
+                      opacity: dead ? 0.5 : 1,
+                    }}
+                  >
+                    {v}{typeof count === 'number' && !active ? ` ${count}` : ''}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+          <div className="flex items-center gap-3 text-[13px]" style={{ color: CHALK_DIM }}>
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" checked={!!facetFilter.noEgg} onChange={(e) => setFacetFilter((f) => ({ ...f, noEgg: e.target.checked }))} style={{ accentColor: CHALK_CREAM }} />
+              No egg
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" checked={!!facetFilter.noDairy} onChange={(e) => setFacetFilter((f) => ({ ...f, noDairy: e.target.checked }))} style={{ accentColor: CHALK_CREAM }} />
+              No dairy
+            </label>
+            {activeFacetCount > 0 && (
+              <button type="button" onClick={() => setFacetFilter({})} className="underline underline-offset-2" style={{ color: CHALK_DIM }}>
+                Clear filters · {matchCount} shown
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* ───── Menu sections — colored-chalk family headers ───── */}
@@ -694,7 +786,9 @@ export default function CocktailBrowse({
 
               {subIds.map((sid, sidIdx) => {
                 const subMembers = bySub.get(sid);
-                const subLabel = deriveSubclusterLabel(subMembers);
+                const derived = deriveSubclusterLabel(subMembers);
+                const subName = subclusterName(sid, null);
+                const subLabel = subName || (derived ? `${derived}-style` : null);
                 const chalk = SUBGROUP_CHALKS[sidIdx % SUBGROUP_CHALKS.length];
                 const kind = subgroupKind(`${subLabel || ''} ${subMembers.map((m) => m.name).join(' ')}`);
                 return (
@@ -706,7 +800,7 @@ export default function CocktailBrowse({
                     <div className="flex items-center gap-2 mb-1">
                       <SubgroupGlyph kind={kind} color={chalk} />
                       <span className="text-[24px] leading-tight" style={{ fontFamily: FONT, color: chalk, textShadow: CHALK_SHADOW }}>
-                        {subLabel ? `${subLabel}-style` : `Subcluster ${sid}`}
+                        {subLabel || `Subcluster ${sid}`}
                       </span>
                       <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {subMembers.length}</span>
                     </div>
@@ -767,7 +861,7 @@ export default function CocktailBrowse({
             No cocktails match these filters.{' '}
             <button
               type="button"
-              onClick={() => { onFilterFamily(null); onFilterSpirit(null); setSearchTerm(''); setIbaOnly(false); }}
+              onClick={() => { onFilterFamily(null); onFilterSpirit(null); setSearchTerm(''); setIbaOnly(false); setFacetFilter({}); }}
               className="underline underline-offset-2"
               style={{ color: CHALK_DIM }}
             >

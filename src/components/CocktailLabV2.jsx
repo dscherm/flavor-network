@@ -9,6 +9,10 @@ import {
   cocktailSimilarity,
 } from '../data/cocktailCodexV2.js';
 import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
+import { subclusterName } from '../data/cocktailSubclusters.js';
+import { loadFacetContext, deriveFacets, guessSlot } from '../data/cocktailFacets.js';
+import { suggestAmounts } from '../data/cocktailAmounts.js';
+import { normalizeIngredient } from '../data/normalizeIngredient.js';
 
 /**
  * CocktailLabV2 — data-driven taxonomy view.
@@ -181,6 +185,33 @@ export default function CocktailLabV2({
     return graph.families.find((f) => f.id === selectedNode.family_id) || null;
   }, [selectedNode, graph]);
 
+  // Slot + season lookups for the card: suggested amounts where the source
+  // recipe gives none, and a normalised glass when none is recorded.
+  const [facetCtx, setFacetCtx] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    loadFacetContext(import.meta.env.BASE_URL).then((ctx) => { if (!cancelled) setFacetCtx(ctx); });
+    return () => { cancelled = true; };
+  }, []);
+  const cardIngredients = useMemo(() => {
+    if (!selectedNode) return { items: [], anySuggested: false };
+    const slotOf = (n) => facetCtx?.slotOf?.(n) || guessSlot(n);
+    const normalize = (raw) => normalizeIngredient(String(raw).normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+    return suggestAmounts(selectedNode.ingredients_raw || [], slotOf, normalize);
+  }, [selectedNode, facetCtx]);
+  const cardDetails = useMemo(() => {
+    if (!selectedNode) return [];
+    const f = deriveFacets(selectedNode, facetCtx || {});
+    return [
+      { label: 'Glass', value: selectedNode.glass || (f.glass ? `${f.glass} (typical)` : null) },
+      { label: 'Build', value: selectedNode.build_method },
+      { label: 'Ice', value: selectedNode.ice_format },
+      { label: 'Aeration', value: selectedNode.aeration },
+      { label: 'Strength', value: f.strength },
+      ...(cardIngredients.anySuggested ? [{ label: 'Amounts', value: '~ = suggested, not from the source recipe' }] : []),
+    ];
+  }, [selectedNode, facetCtx, cardIngredients]);
+
   // aria-live announcement when matchesContext becomes active.
   const prevMatchesRef = useRef(null);
   const [liveMsg, setLiveMsg] = useState('');
@@ -297,14 +328,9 @@ export default function CocktailLabV2({
             name={selectedNode?.name || selectedCocktail}
             clusterName={familyForSelected?.name}
             clusterColor={familyForSelected?.color || '#9a8f7a'}
-            clusterTag={selectedNode?.subcluster_id || familyForSelected?.signature || null}
-            details={selectedNode ? [
-              { label: 'Glass', value: selectedNode.glass },
-              { label: 'Build', value: selectedNode.build_method },
-              { label: 'Ice', value: selectedNode.ice_format },
-              { label: 'Aeration', value: selectedNode.aeration },
-            ] : []}
-            ingredients={selectedNode?.ingredients_raw || []}
+            clusterTag={subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null}
+            details={cardDetails}
+            ingredients={cardIngredients.items}
             prep={selectedNode?.recipe_text || ''}
             likeThis={similarCocktails}
             bridges={crossFamilyCousins}
@@ -359,14 +385,9 @@ export default function CocktailLabV2({
           name={selectedNode?.name || selectedCocktail}
           clusterName={familyForSelected?.name}
           clusterColor={familyForSelected?.color || '#9a8f7a'}
-          clusterTag={selectedNode?.subcluster_id || familyForSelected?.signature || null}
-          details={selectedNode ? [
-            { label: 'Glass', value: selectedNode.glass },
-            { label: 'Build', value: selectedNode.build_method },
-            { label: 'Ice', value: selectedNode.ice_format },
-            { label: 'Aeration', value: selectedNode.aeration },
-          ] : []}
-          ingredients={selectedNode?.ingredients_raw || []}
+          clusterTag={subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null}
+          details={cardDetails}
+          ingredients={cardIngredients.items}
           prep={selectedNode?.recipe_text || ''}
           likeThis={similarCocktails}
           bridges={crossFamilyCousins}

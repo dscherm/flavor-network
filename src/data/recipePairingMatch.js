@@ -34,7 +34,9 @@ import { normalizeIngredient } from './normalizeIngredient.js';
 const TRIVIAL = new Set([
   'water', 'cold water', 'sparkling water', 'ice', 'cubes ice', 'ice cube', 'crushed ice',
   'seltzer', 'cold seltzer', 'club soda', 'soda water', 'soda', 'cola', 'cold cola', 'co2', 'co2 bottle',
-  'salt', 'sugar', 'black pepper', 'pepper',
+  'salt', 'sugar', 'sugar cube', 'cube sugar', 'black pepper', 'pepper', 'pinch of salt', 'pinch pepper',
+  'coca cola', 'cola', 'sprite', 'mountain dew', 'surge', 'schweppes russchian', 'lemon lime soda',
+  'lactic acid solution', 'phosphoric acid solution', 'salt solution',
 ]);
 // A recipe ingredient with ≤ ~60 partners counts fully; busier hubs
 // count proportionally less.
@@ -75,6 +77,12 @@ const ALIASES = {
   limoncello: 'lemon', 'sweet and sour': 'lemon juice', 'citric acid solution': 'lemon juice',
   cayenne: 'cayenne pepper', jalapeno: 'jalapeno chile', 'aji amarillo': 'chili',
   pancetta: 'bacon', plantain: 'green plantain',
+  // Brands and bar shorthand.
+  'st germain': 'elderflower cordial', 'st. germain': 'elderflower cordial',
+  anisette: 'sambuca', 'jack daniels': 'whiskey', 'bacardi limon': 'rum', 'absolut citron': 'vodka',
+  everclear: 'vodka', corona: 'beer', 'guinness stout': 'beer', apfelkorn: 'apple', passoa: 'passion fruit',
+  'pisang ambon': 'banana', 'creme de mure': 'blackberry', 'sour mix': 'lemon juice', 'hot damn': 'cinnamon',
+  jagermeister: 'amaro montenegro', 'pimms no 1': 'gin', 'pimms': 'gin', strega: 'herbal liqueur',
 };
 
 const indexCache = new WeakMap();
