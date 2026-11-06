@@ -1157,3 +1157,18 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "PAIRMATCH-2",
+  "title": "Stop drinks scored on a sliver of their recipe from dominating matches",
+  "category": "data",
+  "passes": true,
+  "description": "'Normandie Club Bloody Mary' resolved only lemon + lime juice (aquavit and bottled mix unmatched) and appeared in the top-8 cocktail matches for 35/49 Cookbook recipes. scoreItemForRecipe now scales the score by the share of the item's ingredients that resolve.",
+  "acceptance": [
+    "That drink drops out of every top-8; most frequent cocktail is Michelada at 16/49",
+    "Same-name sauce still top-3 for 8/9 recipes (MRR 0.66 -> 0.60; Bolognese 1st -> 2nd)",
+    "Regression tests for coverage scaling; full suite green"
+  ]
+}
+```

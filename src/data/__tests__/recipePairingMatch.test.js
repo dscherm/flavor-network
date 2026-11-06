@@ -65,6 +65,24 @@ describe('scoreItemForRecipe', () => {
   });
 });
 
+describe('coverage — items judged on a sliver of their recipe', () => {
+  it('scales the score by the share of ingredients that resolve', () => {
+    // Same two readable ingredients; the second item also has two we cannot read
+    // (the "Normandie Club Bloody Mary" case: aquavit + bottled mix unmatched).
+    const full = scoreItemForRecipe(['beef', 'tomato'], ['Red wine', 'Cognac'], index());
+    const sliver = scoreItemForRecipe(['beef', 'tomato'], ['Red wine', 'Cognac', 'Aquavit', 'House Bloody Mary Mix'], index());
+    expect(sliver.score).toBeCloseTo(full.score / 2, 5);
+  });
+
+  it('a mostly-unreadable drink no longer outranks a fully-read one', () => {
+    const items = [
+      { name: 'Mystery Mary', ingredients: ['Red wine', 'Cognac', 'Aquavit', 'Secret mix', 'Pickle brine X'] },
+      { name: 'Wine Punch', ingredients: ['Red wine', 'Cognac', 'Tomato'] },
+    ];
+    expect(rankByPairing(['beef', 'tomato'], items, index())[0].item.name).toBe('Wine Punch');
+  });
+});
+
 describe('rankByPairing', () => {
   const items = [
     { name: 'Margarita', ingredients: ['Tequila', 'Lime juice', 'Syrup'] },

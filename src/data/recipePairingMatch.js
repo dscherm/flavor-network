@@ -89,10 +89,16 @@ export function resolveIngredientName(raw, names) {
 export function scoreItemForRecipe(recipeIngredients, itemIngredients, index) {
   const recipe = (recipeIngredients || []).filter((r) => index.names.has(r) && !TRIVIAL.has(r));
   if (recipe.length === 0) return null;
-  const resolved = [...new Set((itemIngredients || [])
-    .map((i) => resolveIngredientName(i, index.names))
-    .filter((i) => i && !TRIVIAL.has(i)))];
+  const mapped = (itemIngredients || []).filter(Boolean)
+    .map((i) => resolveIngredientName(i, index.names));
+  const resolved = [...new Set(mapped.filter((i) => i && !TRIVIAL.has(i)))];
   if (resolved.length < 2) return null;
+  // Share of the item's (non-trivial) ingredients we could read. An item
+  // judged on a sliver of its recipe — "Normandie Club Bloody Mary" read as
+  // just lemon + lime juice, its aquavit and mix unmatched — would otherwise
+  // pair with every savoury dish. The score is scaled by this share.
+  const unresolved = mapped.filter((i) => !i).length;
+  const coverage = resolved.length / (resolved.length + unresolved);
 
   const hubRef = Math.log(1 + index.nodeCount / (1 + HUB_DEGREE));
   let sum = 0;
@@ -114,7 +120,7 @@ export function scoreItemForRecipe(recipeIngredients, itemIngredients, index) {
   }
   links.sort((a, b) => b.weight - a.weight);
   return {
-    score: wsum > 0 ? sum / wsum : 0,
+    score: wsum > 0 ? (sum / wsum) * coverage : 0,
     pairedVia: links.slice(0, 3).map(({ item, recipe: r }) => ({ item, recipe: r })),
   };
 }
