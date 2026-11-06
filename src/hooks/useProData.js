@@ -131,6 +131,10 @@ function buildProGraph(ingredientsData, pairingsData) {
       // recipePairingMatch.js ranks "goes well with" on observed ones only.
       // Only set when the source says; a missing flag must not read as "predicted".
       ...(typeof pairing.known === 'boolean' ? { known: pairing.known } : {}),
+      // Recipe co-occurrence sub-score (pairings.bin v3 `cooccurrence`, or
+      // pairings.json `tradition`); recipePairingMatch.js ranks on it.
+      ...(typeof pairing.cooccurrence === 'number' ? { cooccurrence: pairing.cooccurrence }
+        : typeof pairing.tradition === 'number' ? { cooccurrence: pairing.tradition } : {}),
     });
   }
 

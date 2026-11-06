@@ -3,11 +3,13 @@
  * (written by scripts/buildPairingsBinary.cjs).
  *
  * Layout (little-endian): 'FNPR' magic, u32 version, u32 count, then
- * count × { u16 idxA, u16 idxB, f32 strength }.
- *   v1 — idxB is a plain index.
+ * count × { u16 idxA, u16 idxB, f32 strength[, f32 cooccurrence] }.
+ *   v1 — idxB is a plain index. 8-byte records.
  *   v2 — bit 15 of idxB is the `known` flag (observed co-occurrence vs
  *        model-predicted); the index is the low 15 bits. Ingredient count
  *        is therefore capped at 32767.
+ *   v3 — adds f32 `cooccurrence` (the pipeline's tradition sub-score).
+ *        12-byte records.
  */
 export const PAIRINGS_KNOWN_BIT = 0x8000;
 
@@ -20,9 +22,10 @@ export function decodePairingsBinary(arrayBuffer, ingredientsData) {
     throw new Error(`bad magic ${JSON.stringify(magic)} in pairings.bin`);
   }
   const version = view.getUint32(4, true);
-  if (version !== 1 && version !== 2) {
+  if (version !== 1 && version !== 2 && version !== 3) {
     throw new Error(`unsupported pairings.bin version ${version}`);
   }
+  const recordBytes = version >= 3 ? 12 : 8;
   const count = view.getUint32(8, true);
 
   // Same order the builder used: ingredients.json insertion order, skipping meta keys.
@@ -39,14 +42,15 @@ export function decodePairingsBinary(arrayBuffer, ingredientsData) {
     const rawB = view.getUint16(offset + 2, true);
     const strength = view.getFloat32(offset + 4, true);
     const rec = { ingredientA: idxToName[a], ingredientB: null, strength };
-    if (version === 2) {
+    if (version >= 2) {
       rec.ingredientB = idxToName[rawB & ~PAIRINGS_KNOWN_BIT];
       rec.known = (rawB & PAIRINGS_KNOWN_BIT) !== 0;
     } else {
       rec.ingredientB = idxToName[rawB];
     }
+    if (version >= 3) rec.cooccurrence = view.getFloat32(offset + 8, true);
     out[i] = rec;
-    offset += 8;
+    offset += recordBytes;
   }
   return out;
 }

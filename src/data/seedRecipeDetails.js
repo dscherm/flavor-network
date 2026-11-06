@@ -530,6 +530,359 @@ export const RECIPE_DETAILS = {
       'Leave to soak at least 4 hours.',
     ],
   },
+
+  // ── American ───────────────────────────────────────────────────────
+  cheeseburger: {
+    serves: 4, time: '25 min',
+    amounts: { beef: '600 g minced (20% fat)', cheddar: '4 slices', 'hamburger bun': '4', lettuce: '4 leaves', tomato: '1, sliced', onion: '½, thinly sliced', 'dill pickle': '8 slices', ketchup: 'to taste', mustard: 'to taste' },
+    steps: [
+      'Divide the beef into 4 loose balls; season the outsides only.',
+      'Press each onto a very hot griddle or pan and cook 2–3 min until crusted; flip.',
+      'Lay cheddar on the patties for the last minute to melt.',
+      'Toast the buns in the fat; build with pickle, onion, tomato, lettuce and sauces.',
+    ],
+  },
+  'mac-and-cheese': {
+    serves: 6, time: '50 min',
+    amounts: { macaroni: '400 g', cheddar: '300 g grated, sharp', milk: '700 ml', butter: '50 g + 20 g for the top', flour: '40 g', mustard: '1 tsp', nutmeg: '1 pinch', panko: '40 g' },
+    steps: [
+      'Boil the macaroni 2 min short of done; drain.',
+      'Melt the butter, stir in the flour 1 min, then whisk in the milk until thick.',
+      'Off the heat add cheddar, mustard, nutmeg and salt; fold in the pasta.',
+      'Top with panko tossed in melted butter; bake at 200 °C for 20 min until bubbling.',
+    ],
+  },
+  'bbq-ribs': {
+    serves: 4, time: '4 hr',
+    amounts: { 'pork rib': '2 racks', 'brown sugar': '3 tbsp', paprika: '2 tbsp smoked', 'cayenne pepper': '1 tsp', 'black pepper': '1 tbsp', 'apple cider vinegar': '3 tbsp', 'barbecue sauce': '200 ml' },
+    steps: [
+      'Peel the membrane off the back of the racks.',
+      'Rub with brown sugar, paprika, cayenne, pepper and salt; rest 1 hour or overnight.',
+      'Wrap in foil with the vinegar and cook at 140 °C for 3 hours until the meat pulls from the bone.',
+      'Unwrap, brush with sauce, and grill or broil 10 min until sticky.',
+    ],
+  },
+  'clam-chowder': {
+    serves: 4, time: '45 min',
+    amounts: { clam: '1 kg in shell, or 300 g shelled + 300 ml clam juice', potato: '400 g, diced', onion: '1', celery: '2 stalks', bacon: '100 g', cream: '250 ml', butter: '30 g', thyme: '3 sprigs' },
+    steps: [
+      'Steam the clams in 300 ml water until open; chop the meat and keep the strained liquid.',
+      'Render the bacon, then soften onion and celery in the fat with the butter.',
+      'Add potato, thyme and the clam liquid; simmer 15 min until tender.',
+      'Stir in cream and clams; heat through without boiling and season.',
+    ],
+  },
+  'buttermilk-pancakes': {
+    serves: 4, time: '25 min',
+    amounts: { flour: '250 g', buttermilk: '400 ml', egg: '2', butter: '40 g melted + for the pan', sugar: '2 tbsp', vanilla: '1 tsp', 'maple syrup': 'to serve' },
+    steps: [
+      'Whisk flour, sugar, 1½ tsp baking powder, ½ tsp baking soda and a pinch of salt.',
+      'Whisk buttermilk, eggs, melted butter and vanilla; fold into the dry mix — lumps are fine.',
+      'Ladle onto a buttered medium-hot pan; flip when bubbles burst on top.',
+      'Serve with butter and maple syrup.',
+    ],
+  },
+  'chicken-gumbo': {
+    serves: 6, time: '2 hr',
+    amounts: { chicken: '800 g thigh', 'andouille sausage': '300 g, sliced', okra: '250 g, sliced', onion: '1', celery: '2 stalks', 'green pepper': '1', flour: '80 g', 'cayenne pepper': '½ tsp', rice: '400 g, cooked' },
+    steps: [
+      'Cook the flour in 80 ml oil, stirring constantly, until the colour of milk chocolate (20–30 min).',
+      'Add the onion, celery and pepper; cook 5 min.',
+      'Add 1.5 L stock, the chicken, sausage, cayenne and okra; simmer 1 hour.',
+      'Shred the chicken back in, season, and serve over rice.',
+    ],
+  },
+  'caesar-salad': {
+    serves: 4, time: '20 min',
+    amounts: { 'romaine lettuce': '2 heads', parmesan: '60 g, shaved', anchovy: '4 fillets', 'egg yolk': '1', 'lemon juice': '2 tbsp', garlic: '1 clove', 'olive oil': '120 ml', 'garlic crouton': '2 handfuls' },
+    steps: [
+      'Mash the anchovies and garlic to a paste.',
+      'Whisk in the yolk and lemon juice, then the oil in a thin stream until creamy.',
+      'Toss the torn romaine in the dressing.',
+      'Top with croutons and parmesan.',
+    ],
+  },
+  'fried-chicken': {
+    serves: 4, time: '1 hr + brining',
+    amounts: { chicken: '1.5 kg pieces', buttermilk: '500 ml', flour: '250 g', paprika: '1 tbsp', 'cayenne pepper': '1 tsp', garlic: '2 cloves, crushed', salt: '1 tbsp', 'black pepper': '1 tsp' },
+    steps: [
+      'Brine the chicken in buttermilk, garlic and half the salt for 4+ hours.',
+      'Mix flour with paprika, cayenne, pepper and the rest of the salt.',
+      'Dredge the pieces, pressing the flour on; rest 10 min.',
+      'Fry at 160 °C for 12–15 min until deep golden and 75 °C inside.',
+    ],
+  },
+  'apple-pie': {
+    serves: 8, time: '1½ hr',
+    amounts: { apple: '1.2 kg, mixed sweet and tart', 'pie crust': '2 × 23 cm rounds', sugar: '120 g', butter: '30 g', cinnamon: '1½ tsp', nutmeg: '¼ tsp', 'lemon juice': '1 tbsp', flour: '2 tbsp' },
+    steps: [
+      'Toss sliced apples with sugar, flour, spices and lemon juice.',
+      'Line a pie dish with one crust, fill, and dot with butter.',
+      'Lay the second crust on top, seal and crimp, and cut vents.',
+      'Bake at 200 °C for 20 min, then 180 °C for 35–40 min until the juices bubble thickly.',
+    ],
+  },
+  'chocolate-chip-cookies': {
+    serves: 24, time: '30 min + chilling',
+    amounts: { flour: '300 g', butter: '200 g, soft', 'brown sugar': '150 g', sugar: '100 g', egg: '1 + 1 yolk', vanilla: '2 tsp', 'chocolate chip': '250 g', salt: '1 tsp' },
+    steps: [
+      'Beat butter and both sugars until pale; beat in egg, yolk and vanilla.',
+      'Fold in flour, salt and ¾ tsp baking soda, then the chocolate.',
+      'Chill the dough 1 hour (or overnight for deeper flavour).',
+      'Bake scoops at 180 °C for 11–13 min until the edges set and the middles look underdone.',
+    ],
+  },
+
+  // ── Mediterranean ──────────────────────────────────────────────────
+  paella: {
+    serves: 6, time: '1 hr',
+    amounts: { rice: '500 g bomba or arborio', chicken: '500 g thigh', shrimp: '300 g', chorizo: '150 g', saffron: '1 large pinch', tomato: '2, grated', 'green pea': '100 g', 'sweet pepper': '1 red', garlic: '3 cloves', 'olive oil': '4 tbsp' },
+    steps: [
+      'Brown the chicken and chorizo in oil in a wide pan; set aside.',
+      'Soften the pepper and garlic, add the tomato and cook to a paste.',
+      'Stir in the rice to coat, add 1.2 L hot stock with the saffron, and return the meat. Do not stir again.',
+      'Simmer 15 min, add peas and shrimp, cook 5 min more, then rest 5 min for the socarrat.',
+    ],
+  },
+  gazpacho: {
+    serves: 4, time: '15 min + chilling',
+    amounts: { tomato: '1 kg ripe', cucumber: '1', 'sweet pepper': '1 green', onion: '½', garlic: '1 clove', 'olive oil': '80 ml', 'sherry vinegar': '2 tbsp', bread: '1 thick slice, crusts off' },
+    steps: [
+      'Soak the bread in a little water.',
+      'Blend everything but the oil until smooth.',
+      'With the motor running, pour in the oil to emulsify; season.',
+      'Chill at least 2 hours; serve with diced vegetables on top.',
+    ],
+  },
+  'patatas-bravas': {
+    serves: 4, time: '45 min',
+    amounts: { potato: '800 g, in chunks', tomato: '400 g canned', paprika: '2 tsp smoked', garlic: '3 cloves', 'olive oil': 'for frying + 2 tbsp', mayonnaise: '100 g', 'cayenne pepper': '½ tsp' },
+    steps: [
+      'Par-boil the potatoes 8 min, dry, then fry in oil until crisp.',
+      'For the bravas sauce, cook 2 cloves garlic in 2 tbsp oil, add paprika, cayenne and tomatoes; simmer 15 min and blend.',
+      'Beat the last clove, crushed, into the mayonnaise for the aioli.',
+      'Serve the potatoes with both sauces.',
+    ],
+  },
+  'greek-salad': {
+    serves: 4, time: '10 min',
+    amounts: { tomato: '4, in wedges', cucumber: '1', feta: '200 g in one slab', 'kalamata olive': '16', 'purple onion': '½, sliced', oregano: '1 tsp dried', 'olive oil': '4 tbsp', 'lemon juice': '1 tbsp' },
+    steps: [
+      'Cut the tomatoes into wedges and the cucumber into thick half-moons.',
+      'Toss tomato, cucumber, onion and olives with oil, lemon and salt.',
+      'Lay the feta on top and scatter with oregano and more oil. No lettuce.',
+    ],
+  },
+  moussaka: {
+    serves: 6, time: '2 hr',
+    amounts: { eggplant: '3 large', lamb: '600 g minced', onion: '1', tomato: '400 g canned', cinnamon: '1 tsp', garlic: '3 cloves', milk: '600 ml', butter: '60 g', flour: '60 g', parmesan: '60 g' },
+    steps: [
+      'Slice and salt the eggplant 20 min, then brush with oil and roast until golden.',
+      'Brown the lamb with onion and garlic; add tomato and cinnamon and simmer 30 min.',
+      'Make a béchamel with butter, flour and milk; beat in the parmesan.',
+      'Layer eggplant and lamb, pour over the béchamel, and bake at 180 °C for 45 min.',
+    ],
+  },
+  spanakopita: {
+    serves: 8, time: '1¼ hr',
+    amounts: { spinach: '1 kg', feta: '300 g, crumbled', 'phyllo dough': '12 sheets', egg: '2', onion: '1', dill: '1 bunch', butter: '100 g, melted' },
+    steps: [
+      'Wilt the spinach, squeeze very dry, and chop.',
+      'Mix with sautéed onion, dill, feta and beaten eggs.',
+      'Layer 6 buttered phyllo sheets in a tin, add the filling, and top with 6 more.',
+      'Score the top and bake at 180 °C for 45 min until crisp.',
+    ],
+  },
+  'pork-souvlaki': {
+    serves: 4, time: '30 min + marinating',
+    amounts: { pork: '800 g shoulder, cubed', 'lemon juice': '2 lemons', oregano: '2 tbsp dried', garlic: '4 cloves', 'olive oil': '4 tbsp', 'pita bread': '4', yogurt: '200 g' },
+    steps: [
+      'Marinate the pork in lemon, oregano, garlic and oil for 2+ hours.',
+      'Thread onto skewers and grill over high heat 10–12 min, turning.',
+      'Warm the pita; serve the skewers with yogurt, tomato and onion.',
+    ],
+  },
+
+  // ── Italian ────────────────────────────────────────────────────────
+  lasagna: {
+    serves: 8, time: '2 hr',
+    amounts: { 'lasagna noodle': '12 sheets', beef: '600 g minced', tomato: '800 g canned', onion: '1', garlic: '3 cloves', ricotta: '400 g', mozzarella: '300 g', parmesan: '80 g', basil: '1 handful' },
+    steps: [
+      'Brown the beef with onion and garlic, add the tomatoes and basil, and simmer 45 min.',
+      'Mix the ricotta with half the parmesan, an egg if you like, and salt.',
+      'Layer sauce, noodles, ricotta and mozzarella three times; finish with sauce and parmesan.',
+      'Bake covered at 190 °C for 30 min, uncovered 15 min more; rest 15 min before cutting.',
+    ],
+  },
+  'osso-buco': {
+    serves: 4, time: '2½ hr',
+    amounts: { veal: '4 shank slices, 4 cm thick', 'white wine': '250 ml', onion: '1', carrot: '1', celery: '1 stalk', tomato: '200 g canned', garlic: '2 cloves + 1 for gremolata', lemon: '1, zested', parsley: '1 handful' },
+    steps: [
+      'Flour and brown the shanks on both sides; set aside.',
+      'Soften diced onion, carrot, celery and garlic; add wine and reduce by half.',
+      'Return the veal, add tomato and 300 ml stock, cover, and braise at 160 °C for 2 hours.',
+      'Mix parsley, lemon zest and raw garlic for the gremolata; scatter over to serve.',
+    ],
+  },
+  'panna-cotta': {
+    serves: 4, time: '15 min + 4 hr setting',
+    amounts: { cream: '400 ml', milk: '100 ml', sugar: '60 g', vanilla: '1 pod', gelatin: '2 sheets or 1 tsp powdered' },
+    steps: [
+      'Soak the gelatin in cold water.',
+      'Heat cream, milk, sugar and vanilla to just below a simmer.',
+      'Squeeze out the gelatin and dissolve it in the hot cream.',
+      'Pour into moulds and chill 4 hours; serve with fruit.',
+    ],
+  },
+
+  // ── French ─────────────────────────────────────────────────────────
+  bouillabaisse: {
+    serves: 6, time: '1½ hr',
+    amounts: { 'white fish': '800 g firm, in chunks', mussel: '500 g', shrimp: '300 g', fennel: '1 bulb', tomato: '4', saffron: '1 pinch', garlic: '4 cloves', orange: '2 strips of peel', 'olive oil': '5 tbsp' },
+    steps: [
+      'Soften sliced fennel and garlic in oil; add tomato, orange peel and saffron.',
+      'Add 1.5 L fish stock and simmer 20 min.',
+      'Add the fish, then 3 min later the mussels and shrimp; cook until the shells open.',
+      'Serve with rouille and toasted bread.',
+    ],
+  },
+  'tarte-tatin': {
+    serves: 6, time: '1 hr',
+    amounts: { apple: '6 firm', butter: '80 g', sugar: '150 g', 'puff pastry': '1 sheet' },
+    steps: [
+      'Melt the sugar in an ovenproof pan to a deep amber caramel; stir in the butter.',
+      'Pack peeled apple halves tightly into the caramel, rounded side down.',
+      'Cook 15 min on the hob, lay the pastry over, tuck in the edges, and bake at 200 °C for 25 min.',
+      'Rest 5 min, then invert onto a plate.',
+    ],
+  },
+  'salade-nicoise': {
+    serves: 4, time: '30 min',
+    amounts: { tuna: '2 × 150 g, seared or tinned in oil', egg: '4', 'green bean': '200 g', potato: '400 g small', tomato: '4', olive: '16 niçoise', anchovy: '8 fillets', 'olive oil': '5 tbsp' },
+    steps: [
+      'Boil the potatoes until tender; blanch the beans 3 min; soft-boil the eggs 7 min.',
+      'Whisk oil with a little red wine vinegar and mustard for the dressing.',
+      'Arrange everything on a platter with the halved eggs, olives and anchovies.',
+      'Dress and serve just warm.',
+    ],
+  },
+
+  // ── East Asian ─────────────────────────────────────────────────────
+  'miso-ramen': {
+    serves: 2, time: '45 min (with ready stock)',
+    amounts: { 'ramen noodle': '2 portions', pork: '200 g belly, sliced', egg: '2, soft-boiled', scallion: '2', 'soy sauce': '1 tbsp', miso: '3 tbsp', garlic: '2 cloves', ginger: '1 tbsp grated', nori: '2 sheets' },
+    steps: [
+      'Fry the pork until browned; add garlic and ginger for a minute.',
+      'Add 1 L pork or chicken stock and the soy; simmer 10 min.',
+      'Whisk the miso into a ladle of broth and return it; do not boil.',
+      'Cook the noodles, divide into bowls, pour over the broth and top with egg, pork, scallion and nori.',
+    ],
+  },
+  'kung-pao-chicken': {
+    serves: 3, time: '25 min',
+    amounts: { chicken: '450 g thigh, diced', peanut: '60 g roasted', chili: '8 dried', 'sichuan peppercorn': '1 tsp', 'soy sauce': '2 tbsp', 'rice vinegar': '1 tbsp', garlic: '3 cloves', scallion: '4, in short lengths' },
+    steps: [
+      'Marinate the chicken in half the soy and a little cornstarch.',
+      'Fry the chilies and Sichuan pepper in oil until fragrant, then the chicken until golden.',
+      'Add garlic and scallion, then the rest of the soy, vinegar and 1 tsp sugar.',
+      'Toss in the peanuts and serve.',
+    ],
+  },
+  'beef-bulgogi': {
+    serves: 4, time: '20 min + marinating',
+    amounts: { beef: '600 g sirloin, paper-thin', 'soy sauce': '4 tbsp', 'brown sugar': '2 tbsp', 'sesame oil': '1 tbsp', garlic: '4 cloves', pear: '½, grated', scallion: '3', 'sesame seed': '1 tbsp' },
+    steps: [
+      'Mix soy, sugar, sesame oil, garlic and grated pear; marinate the beef 1+ hours.',
+      'Sear in a very hot pan in batches so it chars rather than stews.',
+      'Finish with scallion and sesame seeds; serve with rice and lettuce leaves.',
+    ],
+  },
+
+  // ── SE Asian ───────────────────────────────────────────────────────
+  laksa: {
+    serves: 4, time: '40 min',
+    amounts: { 'rice noodle': '300 g', 'coconut milk': '400 ml', shrimp: '300 g', 'curry paste': '4 tbsp laksa or red', 'bean sprout': '100 g', tofu: '200 g fried puffs', lime: '1', cilantro: '1 handful' },
+    steps: [
+      'Fry the paste in oil until fragrant; add coconut milk and 600 ml stock.',
+      'Simmer 10 min, add tofu and shrimp until pink.',
+      'Soak or boil the noodles; divide into bowls.',
+      'Ladle over the soup; top with sprouts, cilantro and lime.',
+    ],
+  },
+  'banh-mi': {
+    serves: 2, time: '30 min + pickling',
+    amounts: { pork: '300 g, thinly sliced', 'bread baguette': '2 short', carrot: '1, julienned', radish: '1 daikon, julienned', cucumber: '½', cilantro: '1 handful', 'jalapeno chile': '1, sliced', mayonnaise: '3 tbsp', 'soy sauce': '2 tbsp' },
+    steps: [
+      'Pickle the carrot and radish in equal vinegar and water with a spoon of sugar for 30 min.',
+      'Marinate the pork in soy, a little sugar and garlic; sear until charred.',
+      'Split and toast the baguettes; spread with mayonnaise.',
+      'Fill with pork, pickles, cucumber, cilantro and chili.',
+    ],
+  },
+
+  // ── South Asian ────────────────────────────────────────────────────
+  samosa: {
+    serves: 6, time: '1½ hr',
+    amounts: { potato: '500 g, boiled', 'green pea': '100 g', flour: '250 g', cumin: '1 tsp seeds', coriander: '1 tsp ground', 'garam masala': '1 tsp', ginger: '1 tbsp', cilantro: '2 tbsp' },
+    steps: [
+      'Make a stiff dough with flour, 3 tbsp oil, salt and water; rest 30 min.',
+      'Sizzle cumin, add ginger, then crushed potato, peas and spices; cool.',
+      'Roll dough into rounds, halve, form cones, fill, and seal.',
+      'Fry at 160 °C until golden and blistered, about 8 min.',
+    ],
+  },
+  'butter-chicken': {
+    serves: 4, time: '1 hr + marinating',
+    amounts: { chicken: '700 g thigh', butter: '60 g', tomato: '500 g, puréed', cream: '150 ml', 'garam masala': '2 tsp', fenugreek: '1 tsp dried leaves', ginger: '1 tbsp', garlic: '4 cloves' },
+    steps: [
+      'Marinate the chicken in yogurt, half the ginger-garlic and 1 tsp garam masala; grill until charred.',
+      'Melt the butter, cook the rest of the ginger-garlic, add the tomato and simmer 20 min.',
+      'Stir in cream, fenugreek, the remaining garam masala and a little sugar.',
+      'Add the chicken and simmer 10 min.',
+    ],
+  },
+
+  // ── Middle Eastern ─────────────────────────────────────────────────
+  'lamb-kofta': {
+    serves: 4, time: '30 min',
+    amounts: { lamb: '600 g minced', onion: '1, grated and squeezed', parsley: '1 handful', cumin: '2 tsp', coriander: '1 tsp', cinnamon: '½ tsp', garlic: '3 cloves', yogurt: '200 g' },
+    steps: [
+      'Knead the lamb with onion, herbs, spices, garlic and salt until sticky.',
+      'Shape onto skewers in long ovals; chill 15 min.',
+      'Grill over high heat 8–10 min, turning once.',
+      'Serve with garlic-spiked yogurt and flatbread.',
+    ],
+  },
+  mujadara: {
+    serves: 4, time: '50 min',
+    amounts: { lentil: '250 g brown or green', rice: '200 g', onion: '3 large, thinly sliced', cumin: '1½ tsp', 'olive oil': '100 ml' },
+    steps: [
+      'Fry the onions slowly in the oil until deeply browned and crisp, 25–30 min.',
+      'Simmer the lentils 15 min, add the rice, cumin and 400 ml water; cover and cook 15 min.',
+      'Stir half the onions and their oil through; pile the rest on top.',
+    ],
+  },
+
+  // ── Mexican ────────────────────────────────────────────────────────
+  'chiles-rellenos': {
+    serves: 4, time: '1 hr',
+    amounts: { 'poblano pepper': '4 large', 'monterey jack cheese': '250 g', egg: '4, separated', flour: '3 tbsp + for dusting', tomato: '400 g', onion: '½', garlic: '2 cloves' },
+    steps: [
+      'Char the poblanos over a flame, steam in a covered bowl, peel, and slit to seed.',
+      'Stuff with cheese and close with a toothpick; dust in flour.',
+      'Whip the whites to peaks, fold in the yolks and flour; coat the chiles and fry until golden.',
+      'Blend and simmer the tomato, onion and garlic for the sauce; serve the chiles in it.',
+    ],
+  },
+  elote: {
+    serves: 4, time: '20 min',
+    amounts: { corn: '4 ears', mayonnaise: '4 tbsp', 'cotija cheese': '60 g, crumbled', 'chili powder': '1 tsp', lime: '1', cilantro: '2 tbsp chopped' },
+    steps: [
+      'Grill the corn, turning, until charred in spots, 10 min.',
+      'Brush with mayonnaise mixed with lime juice.',
+      'Roll in cotija, dust with chili and scatter cilantro; serve with lime wedges.',
+    ],
+  },
 };
 
 /** Details for a recipe id, or null (user-saved recipes have none). */

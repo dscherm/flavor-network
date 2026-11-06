@@ -8,8 +8,7 @@ import {
   crossFamilySimilar,
   cocktailSimilarity,
 } from '../data/cocktailCodexV2.js';
-import { formatSimilarityBadge } from '../data/recipeAromaSimilarity.js';
-import { formatPairedVia } from '../data/recipePairingMatch.js';
+import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 
 /**
  * CocktailLabV2 — data-driven taxonomy view.
@@ -255,7 +254,7 @@ export default function CocktailLabV2({
                     <div className="flex items-center gap-2">
                       <span className="flex-1 truncate font-medium">{item.name}</span>
                       <span className="text-[10px] px-1.5 py-px rounded border border-cyan-400/40 text-cyan-300 bg-cyan-500/10 flex-shrink-0">
-                        {formatSimilarityBadge(similarity)}
+                        {formatMatchBadge(similarity)}
                       </span>
                     </div>
                     {/* Row 2: which ingredients pair with the recipe */}

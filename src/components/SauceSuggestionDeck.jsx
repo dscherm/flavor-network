@@ -19,7 +19,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { recipeAxisProfile, TASTE_AXES, AROMA_AXES } from '../data/recipeProfileAnalysis.js';
 import { BeforeAfterRadar } from './IngredientProfileCard.jsx';
-import { formatPairedVia } from '../data/recipePairingMatch.js';
+import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 
 const FONT_HAND = 'Caveat, cursive';
 const SWIPE_THRESHOLD = 50; // px — mirror SuggestionCardDeck / PairingMode
@@ -64,7 +64,7 @@ function LabeledRadar({ label, profile, axes, testId }) {
 /** One sauce card: name, "matches {recipe}" / similarity %, taste + aroma
  *  radars, optional matched-aroma chips, and a chalk-green "View sauce" pill. */
 function SauceCard({ name, profile, recipeName, similarity, matchedAromas, pairedVia = [], onView }) {
-  const pct = typeof similarity === 'number' ? Math.round(similarity * 100) : null;
+  const badge = typeof similarity === 'number' ? formatMatchBadge(similarity) : null;
   return (
     <div
       className="w-[min(40rem,94vw)] rounded-2xl overflow-hidden flex flex-col items-center"
@@ -97,7 +97,7 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
         className="text-center"
         style={{ color: CHALK_DIM, fontFamily: FONT_HAND, fontSize: 'clamp(13px, 2.8vw, 18px)', textShadow: CHALK_TEXT_SHADOW }}
       >
-        matches {recipeName}{pct !== null ? ` · ${pct}%` : ''}
+        matches {recipeName}{badge ? ` · ${badge}` : ''}
       </p>
 
       {/* Single-series flavor radars — taste + aroma shown separately. */}

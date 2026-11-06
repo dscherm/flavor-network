@@ -9,21 +9,26 @@
  *   strength    (number)
  *   known       (boolean — observed co-occurrence vs model-predicted;
  *                used by src/data/recipePairingMatch.js since v2)
+ *   tradition   (number — recipe co-occurrence sub-score; shipped as
+ *                `cooccurrence`, the edge score recipePairingMatch.js
+ *                ranks on since v3. Agrees with the Flavor Bible at
+ *                AUROC 0.63 vs 0.53 for the blended strength.)
  *
- * Every other field (tradition, chemistry, novelty, balance, bridging,
+ * Every other field (chemistry, novelty, balance, bridging,
  * sharedCompounds, explanation, breakdown.x1..x8, predictedNovelty,
  * flavorDistance) is dead weight and gets dropped.
  *
  * Binary layout (little-endian):
  *   magic         : 4 bytes  — 'FNPR'
- *   version       : u32      — 2
+ *   version       : u32      — 3
  *   count         : u32      — number of pairing records
  *   records[count]:
  *     idxA        : u16      — index into ingredients.json key order
  *     idxB        : u16      — low 15 bits: index; bit 15: known flag
  *     strength    : f32      — normalized strength value
+ *     cooccurrence: f32      — tradition sub-score (v3+)
  *
- * Decoder: src/data/pairingsBinary.js (reads v1 and v2).
+ * Decoder: src/data/pairingsBinary.js (reads v1, v2 and v3).
  *
  * Any pairing whose ingredient is missing from ingredients.json is
  * skipped (the old JS reader skipped these anyway via `nodes.has()`).
@@ -75,13 +80,13 @@ function main() {
   console.log(`[build-bin] ${valid} pairings have both ingredients in the index`);
 
   const HEADER_BYTES = 12;
-  const RECORD_BYTES = 8;
+  const RECORD_BYTES = 12;
   const totalBytes = HEADER_BYTES + valid * RECORD_BYTES;
   const buf = Buffer.alloc(totalBytes);
 
   // Header
   buf.write('FNPR', 0, 'ascii');
-  buf.writeUInt32LE(2, 4);
+  buf.writeUInt32LE(3, 4);
   buf.writeUInt32LE(valid, 8);
 
   // Records
@@ -93,6 +98,7 @@ function main() {
     buf.writeUInt16LE(a, offset);
     buf.writeUInt16LE(p.known === true ? (b | 0x8000) : b, offset + 2);
     buf.writeFloatLE(Number(p.strength) || 0, offset + 4);
+    buf.writeFloatLE(Number(p.tradition) || 0, offset + 8);
     offset += RECORD_BYTES;
   }
 

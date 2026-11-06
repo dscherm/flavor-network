@@ -1172,3 +1172,30 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "PAIRMATCH-3",
+  "title": "Pairing-match reliability: answer key, co-occurrence score, hub discounts, floor, aliases",
+  "category": "data",
+  "passes": true,
+  "description": "scripts/evalPairingMatch.mjs is a three-part offline answer key (namesake-sauce rank, top-N concentration over every Cookbook recipe, Flavor Bible agreement vs random). Measured on it: the blended `strength` barely agrees with the Flavor Bible (AUROC 0.53), the pipeline's `tradition` sub-score does (0.63), so the ranker now scores on it (pairings.bin v3 carries it as `cooccurrence`). Hub ingredients are discounted on the item side too, short items shrink toward zero, matches under 0.1 are not shown and under 0.2 read 'loose match'. Ice/soda are ignored; accents, hyphens and ~50 spirit/liqueur aliases resolve.",
+  "acceptance": [
+    "Namesake sauce in the top 3 for 9/9 recipes (7 ranked first; MRR 0.81 vs 0.60 before)",
+    "No cocktail in more than 14 of 83 Cookbook top-8 lists (was 26 of 49)",
+    "Flavor Bible agreement of top-5 sauces x1.24 vs random",
+    "pairings.bin v3 cooccurrence equals pairings.json tradition (test); full suite green"
+  ]
+}
+```
+
+```json
+{
+  "id": "COOKBOOK-83",
+  "title": "Cookbook 49 -> 83 recipes, adding American and Mediterranean",
+  "category": "data",
+  "passes": true,
+  "description": "34 more recipes with servings, time, amounts and method; two new cuisines with colours.",
+  "acceptance": ["83 recipes, every ingredient name resolves in ProData, every recipe has complete details (tests)"]
+}
+```

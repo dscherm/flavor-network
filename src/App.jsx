@@ -2190,7 +2190,7 @@ export default function App() {
 
       {/* CookbookLab — Phase 4 (pipeline 2026-05-16; renamed from
           RecipesLab 2026-05-29 via DOCS-RL-COOKBOOK-RENAME). 3D
-          aesthetic recipe browser with 49 hand-curated dishes. Lives
+          aesthetic recipe browser with 83 hand-curated dishes. Lives
           alongside the Recipes Notebook authoring surface as a
           sub-tab under Explore. */}
       {activeTab === 'cookbook' && (

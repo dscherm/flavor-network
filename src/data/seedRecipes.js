@@ -1,7 +1,8 @@
 /**
  * seedRecipes.js — Phase 4 (pipeline 2026-05-16).
  *
- * 49 hand-curated seed recipes (15 original + 34 added 2026-11-05) covering 7 cuisines and the 8 GNN
+ * 83 hand-curated seed recipes (15 original + 34 added 2026-11-05 + 34 added
+ * 2026-11-06) covering 9 cuisines and the 8 GNN
  * aroma clusters. Each entry carries a `position3D` placed on a
  * cuisine-anchored sphere so the 3D scene has stable, reproducible
  * geometry (Architect rejected t-SNE at N=15 — perplexity must be < N).
@@ -491,6 +492,333 @@ export const SEED_RECIPES = [
     ingredients: ['phyllo dough', 'walnut', 'pistachio', 'butter', 'honey', 'sugar', 'cinnamon'],
     position3D: [-11, 2, 4],
   },
+
+  // ── Third set (2026-11-06): 34 more, adding American + Mediterranean ──
+  // z ≥ 6 or ≤ -6 keeps every position distinct from the earlier sets.
+
+  // American (south pole)
+  {
+    id: 'cheeseburger',
+    name: 'Cheeseburger',
+    cuisine: 'American',
+    cluster: 'savory',
+    description: 'Griddled beef patty with melted cheddar, pickle, and the works on a soft bun.',
+    ingredients: ['beef', 'cheddar', 'hamburger bun', 'lettuce', 'tomato', 'onion', 'dill pickle', 'ketchup', 'mustard'],
+    position3D: [3, -11, 6],
+  },
+  {
+    id: 'mac-and-cheese',
+    name: 'Mac and Cheese',
+    cuisine: 'American',
+    cluster: 'savory',
+    description: 'Baked macaroni in a sharp cheddar béchamel with a crisp crumb top.',
+    ingredients: ['macaroni', 'cheddar', 'milk', 'butter', 'flour', 'mustard', 'nutmeg', 'panko'],
+    position3D: [1, -11, 7],
+  },
+  {
+    id: 'bbq-ribs',
+    name: 'BBQ Pork Ribs',
+    cuisine: 'American',
+    cluster: 'savory',
+    description: 'Dry-rubbed pork ribs cooked low and slow, glazed with barbecue sauce.',
+    ingredients: ['pork rib', 'brown sugar', 'paprika', 'cayenne pepper', 'black pepper', 'apple cider vinegar', 'barbecue sauce'],
+    position3D: [4, -10, 8],
+  },
+  {
+    id: 'clam-chowder',
+    name: 'New England Clam Chowder',
+    cuisine: 'American',
+    cluster: 'seafood',
+    description: 'Creamy chowder of clams, potato, and bacon.',
+    ingredients: ['clam', 'potato', 'onion', 'celery', 'bacon', 'cream', 'butter', 'thyme'],
+    position3D: [2, -12, 6],
+  },
+  {
+    id: 'buttermilk-pancakes',
+    name: 'Buttermilk Pancakes',
+    cuisine: 'American',
+    cluster: 'baking',
+    description: 'Fluffy griddle pancakes with butter and maple syrup.',
+    ingredients: ['flour', 'buttermilk', 'egg', 'butter', 'sugar', 'vanilla', 'maple syrup'],
+    position3D: [0, -12, 8],
+  },
+  {
+    id: 'chicken-gumbo',
+    name: 'Chicken and Sausage Gumbo',
+    cuisine: 'American',
+    cluster: 'savory',
+    description: 'Dark-roux Louisiana stew with andouille, okra, and the trinity, over rice.',
+    ingredients: ['chicken', 'andouille sausage', 'okra', 'onion', 'celery', 'green pepper', 'flour', 'cayenne pepper', 'rice'],
+    position3D: [5, -11, 7],
+  },
+  {
+    id: 'caesar-salad',
+    name: 'Caesar Salad',
+    cuisine: 'American',
+    cluster: 'vegetable',
+    description: 'Crisp romaine in an anchovy-garlic dressing with parmesan and croutons.',
+    ingredients: ['romaine lettuce', 'parmesan', 'anchovy', 'egg yolk', 'lemon juice', 'garlic', 'olive oil', 'garlic crouton'],
+    position3D: [3, -12, 9],
+  },
+  {
+    id: 'fried-chicken',
+    name: 'Buttermilk Fried Chicken',
+    cuisine: 'American',
+    cluster: 'savory',
+    description: 'Buttermilk-brined chicken in a crackling paprika crust.',
+    ingredients: ['chicken', 'buttermilk', 'flour', 'paprika', 'cayenne pepper', 'garlic', 'salt', 'black pepper'],
+    position3D: [1, -10, 9],
+  },
+  {
+    id: 'apple-pie',
+    name: 'Apple Pie',
+    cuisine: 'American',
+    cluster: 'baking',
+    description: 'Double-crust pie of cinnamon-spiced apples.',
+    ingredients: ['apple', 'pie crust', 'sugar', 'butter', 'cinnamon', 'nutmeg', 'lemon juice', 'flour'],
+    position3D: [4, -12, 7],
+  },
+  {
+    id: 'chocolate-chip-cookies',
+    name: 'Chocolate Chip Cookies',
+    cuisine: 'American',
+    cluster: 'baking',
+    description: 'Chewy brown-sugar cookies studded with chocolate.',
+    ingredients: ['flour', 'butter', 'brown sugar', 'sugar', 'egg', 'vanilla', 'chocolate chip', 'salt'],
+    position3D: [2, -10, 10],
+  },
+
+  // Mediterranean — Spanish + Greek (west, below the equator)
+  {
+    id: 'paella',
+    name: 'Paella',
+    cuisine: 'Mediterranean',
+    cluster: 'seafood',
+    description: 'Saffron rice cooked flat with chicken, chorizo, and shrimp until the base crisps.',
+    ingredients: ['rice', 'chicken', 'shrimp', 'chorizo', 'saffron', 'tomato', 'green pea', 'sweet pepper', 'garlic', 'olive oil'],
+    position3D: [-6, -4, 6],
+  },
+  {
+    id: 'gazpacho',
+    name: 'Gazpacho',
+    cuisine: 'Mediterranean',
+    cluster: 'vegetable',
+    description: 'Chilled raw tomato and cucumber soup, sharpened with sherry vinegar.',
+    ingredients: ['tomato', 'cucumber', 'sweet pepper', 'onion', 'garlic', 'olive oil', 'sherry vinegar', 'bread'],
+    position3D: [-7, -3, 7],
+  },
+  {
+    id: 'patatas-bravas',
+    name: 'Patatas Bravas',
+    cuisine: 'Mediterranean',
+    cluster: 'vegetable',
+    description: 'Crisp fried potatoes with a smoky-spicy tomato sauce and garlic mayo.',
+    ingredients: ['potato', 'tomato', 'paprika', 'garlic', 'olive oil', 'mayonnaise', 'cayenne pepper'],
+    position3D: [-5, -5, 8],
+  },
+  {
+    id: 'greek-salad',
+    name: 'Greek Salad',
+    cuisine: 'Mediterranean',
+    cluster: 'vegetable',
+    description: 'Tomato, cucumber, olives, and a slab of feta with oregano and oil.',
+    ingredients: ['tomato', 'cucumber', 'feta', 'kalamata olive', 'purple onion', 'oregano', 'olive oil', 'lemon juice'],
+    position3D: [-6, -2, 9],
+  },
+  {
+    id: 'moussaka',
+    name: 'Moussaka',
+    cuisine: 'Mediterranean',
+    cluster: 'savory',
+    description: 'Layered eggplant and cinnamon-spiced lamb under a béchamel crust.',
+    ingredients: ['eggplant', 'lamb', 'onion', 'tomato', 'cinnamon', 'garlic', 'milk', 'butter', 'flour', 'parmesan'],
+    position3D: [-7, -5, 6],
+  },
+  {
+    id: 'spanakopita',
+    name: 'Spanakopita',
+    cuisine: 'Mediterranean',
+    cluster: 'baking',
+    description: 'Spinach and feta pie in crackling phyllo.',
+    ingredients: ['spinach', 'feta', 'phyllo dough', 'egg', 'onion', 'dill', 'butter'],
+    position3D: [-5, -3, 10],
+  },
+  {
+    id: 'pork-souvlaki',
+    name: 'Pork Souvlaki',
+    cuisine: 'Mediterranean',
+    cluster: 'savory',
+    description: 'Lemon-oregano pork skewers in warm pita with yogurt.',
+    ingredients: ['pork', 'lemon juice', 'oregano', 'garlic', 'olive oil', 'pita bread', 'yogurt'],
+    position3D: [-8, -4, 8],
+  },
+
+  // Italian
+  {
+    id: 'lasagna',
+    name: 'Lasagna',
+    cuisine: 'Italian',
+    cluster: 'savory',
+    description: 'Sheets of pasta layered with meat ragù, ricotta, and mozzarella.',
+    ingredients: ['lasagna noodle', 'beef', 'tomato', 'onion', 'garlic', 'ricotta', 'mozzarella', 'parmesan', 'basil'],
+    position3D: [9, 8, 7],
+  },
+  {
+    id: 'osso-buco',
+    name: 'Osso Buco',
+    cuisine: 'Italian',
+    cluster: 'savory',
+    description: 'Veal shanks braised in white wine and tomato, finished with gremolata.',
+    ingredients: ['veal', 'white wine', 'onion', 'carrot', 'celery', 'tomato', 'garlic', 'lemon', 'parsley'],
+    position3D: [8, 7, -6],
+  },
+  {
+    id: 'panna-cotta',
+    name: 'Panna Cotta',
+    cuisine: 'Italian',
+    cluster: 'baking',
+    description: 'Barely-set vanilla cream, served chilled.',
+    ingredients: ['cream', 'milk', 'sugar', 'vanilla', 'gelatin'],
+    position3D: [7, 9, 8],
+  },
+
+  // French
+  {
+    id: 'bouillabaisse',
+    name: 'Bouillabaisse',
+    cuisine: 'French',
+    cluster: 'seafood',
+    description: 'Provençal fish stew scented with saffron, fennel, and orange.',
+    ingredients: ['white fish', 'mussel', 'shrimp', 'fennel', 'tomato', 'saffron', 'garlic', 'orange', 'olive oil'],
+    position3D: [9, -8, 7],
+  },
+  {
+    id: 'tarte-tatin',
+    name: 'Tarte Tatin',
+    cuisine: 'French',
+    cluster: 'baking',
+    description: 'Upside-down caramelized apple tart.',
+    ingredients: ['apple', 'butter', 'sugar', 'puff pastry'],
+    position3D: [8, -9, -7],
+  },
+  {
+    id: 'salade-nicoise',
+    name: 'Salade Niçoise',
+    cuisine: 'French',
+    cluster: 'seafood',
+    description: 'Composed salad of tuna, egg, green beans, potato, and olives.',
+    ingredients: ['tuna', 'egg', 'green bean', 'potato', 'tomato', 'olive', 'anchovy', 'olive oil'],
+    position3D: [7, -7, 9],
+  },
+
+  // East Asian
+  {
+    id: 'miso-ramen',
+    name: 'Miso Ramen',
+    cuisine: 'East Asian',
+    cluster: 'savory',
+    description: 'Miso-enriched pork broth over springy noodles with a soft egg.',
+    ingredients: ['ramen noodle', 'pork', 'egg', 'scallion', 'soy sauce', 'miso', 'garlic', 'ginger', 'nori'],
+    position3D: [-9, 8, 7],
+  },
+  {
+    id: 'kung-pao-chicken',
+    name: 'Kung Pao Chicken',
+    cuisine: 'East Asian',
+    cluster: 'savory',
+    description: 'Wok-fried chicken with peanuts, dried chilies, and Sichuan pepper.',
+    ingredients: ['chicken', 'peanut', 'chili', 'sichuan peppercorn', 'soy sauce', 'rice vinegar', 'garlic', 'scallion'],
+    position3D: [-8, 7, -7],
+  },
+  {
+    id: 'beef-bulgogi',
+    name: 'Beef Bulgogi',
+    cuisine: 'East Asian',
+    cluster: 'savory',
+    description: 'Thin-sliced beef in a sweet soy-pear marinade, seared hot.',
+    ingredients: ['beef', 'soy sauce', 'brown sugar', 'sesame oil', 'garlic', 'pear', 'scallion', 'sesame seed'],
+    position3D: [-10, 8, 8],
+  },
+
+  // SE Asian
+  {
+    id: 'laksa',
+    name: 'Laksa',
+    cuisine: 'SE Asian',
+    cluster: 'seafood',
+    description: 'Spiced coconut noodle soup with shrimp and tofu.',
+    ingredients: ['rice noodle', 'coconut milk', 'shrimp', 'curry paste', 'bean sprout', 'tofu', 'lime', 'cilantro'],
+    position3D: [-6, 9, 7],
+  },
+  {
+    id: 'banh-mi',
+    name: 'Pork Bánh Mì',
+    cuisine: 'SE Asian',
+    cluster: 'savory',
+    description: 'Crackly baguette with pork, pickled vegetables, cilantro, and chili.',
+    ingredients: ['pork', 'bread baguette', 'carrot', 'radish', 'cucumber', 'cilantro', 'jalapeno chile', 'mayonnaise', 'soy sauce'],
+    position3D: [-7, 10, -7],
+  },
+
+  // South Asian
+  {
+    id: 'samosa',
+    name: 'Vegetable Samosas',
+    cuisine: 'South Asian',
+    cluster: 'baking',
+    description: 'Crisp pastry triangles filled with spiced potato and peas.',
+    ingredients: ['potato', 'green pea', 'flour', 'cumin', 'coriander', 'garam masala', 'ginger', 'cilantro'],
+    position3D: [-9, -7, 7],
+  },
+  {
+    id: 'butter-chicken',
+    name: 'Butter Chicken',
+    cuisine: 'South Asian',
+    cluster: 'savory',
+    description: 'Tandoori-style chicken in a silky tomato-butter-cream gravy.',
+    ingredients: ['chicken', 'butter', 'tomato', 'cream', 'garam masala', 'fenugreek', 'ginger', 'garlic'],
+    position3D: [-8, -8, -7],
+  },
+
+  // Middle Eastern
+  {
+    id: 'lamb-kofta',
+    name: 'Lamb Kofta',
+    cuisine: 'Middle Eastern',
+    cluster: 'savory',
+    description: 'Grilled spiced lamb skewers with yogurt.',
+    ingredients: ['lamb', 'onion', 'parsley', 'cumin', 'coriander', 'cinnamon', 'garlic', 'yogurt'],
+    position3D: [-12, 0, 7],
+  },
+  {
+    id: 'mujadara',
+    name: 'Mujadara',
+    cuisine: 'Middle Eastern',
+    cluster: 'vegetable',
+    description: 'Lentils and rice crowned with deeply caramelized onions.',
+    ingredients: ['lentil', 'rice', 'onion', 'cumin', 'olive oil'],
+    position3D: [-11, 1, -7],
+  },
+
+  // Mexican
+  {
+    id: 'chiles-rellenos',
+    name: 'Chiles Rellenos',
+    cuisine: 'Mexican',
+    cluster: 'vegetable',
+    description: 'Cheese-stuffed roasted poblanos in a light egg batter with tomato sauce.',
+    ingredients: ['poblano pepper', 'monterey jack cheese', 'egg', 'flour', 'tomato', 'onion', 'garlic'],
+    position3D: [11, 1, 7],
+  },
+  {
+    id: 'elote',
+    name: 'Elote',
+    cuisine: 'Mexican',
+    cluster: 'vegetable',
+    description: 'Grilled corn slathered with mayo, cotija, chili, and lime.',
+    ingredients: ['corn', 'mayonnaise', 'cotija cheese', 'chili powder', 'lime', 'cilantro'],
+    position3D: [12, 1, -7],
+  },
 ];
 
 /**
@@ -506,6 +834,8 @@ export const CUISINE_COLOR = {
   'South Asian':    '#a855f7',
   Mexican:          '#ef4444',
   'Middle Eastern': '#ec4899',
+  American:         '#14b8a6',
+  Mediterranean:    '#84cc16',
   // B-version (2026-06-03): user-saved recipes use chalk-cream so they
   // visually read as "yours" against the cuisine-colored seed set.
   Personal:         '#f5efde',
@@ -568,6 +898,7 @@ export function buildRecipesNetworkData() {
 const CUISINE_ORDER = [
   'Italian', 'French', 'East Asian', 'SE Asian',
   'South Asian', 'Mexican', 'Middle Eastern',
+  'American', 'Mediterranean',
   'Personal',
 ];
 

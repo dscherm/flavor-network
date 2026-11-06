@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  buildPairingIndex, resolveIngredientName, scoreItemForRecipe, rankByPairing, formatPairedVia,
+  buildPairingIndex, resolveIngredientName, scoreItemForRecipe, rankByPairing, formatPairedVia, formatMatchBadge,
 } from '../recipePairingMatch.js';
 
 const NAMES = ['beef', 'tomato', 'red wine', 'onion', 'gin', 'lime', 'lime juice', 'syrup',
@@ -119,5 +119,47 @@ describe('formatPairedVia', () => {
   it('reads naturally for shared and paired ingredients', () => {
     expect(formatPairedVia({ item: 'red wine', recipe: 'red wine' })).toBe('shares red wine');
     expect(formatPairedVia({ item: 'cognac', recipe: 'beef' })).toBe('cognac + beef');
+  });
+});
+
+describe('name resolution — aliases, accents, trivial ingredients', () => {
+  const names = new Set([...NAMES, 'apple brandy', 'benedictine', 'creme de cacao', 'madeira wine', 'cayenne pepper', 'maple syrup', 'half and half']);
+  it('maps spirits the graph spells differently', () => {
+    expect(resolveIngredientName('Calvados', names)).toBe('apple brandy');
+    expect(resolveIngredientName('Rainwater madeira', names)).toBe('madeira wine');
+    expect(resolveIngredientName('cayenne', names)).toBe('cayenne pepper');
+  });
+  it('strips accents and hyphens', () => {
+    expect(resolveIngredientName('Bénédictine', names)).toBe('benedictine');
+    expect(resolveIngredientName('1 ounce white crème de cacao', names)).toBe('creme de cacao');
+    expect(resolveIngredientName('1 ounce half-and-half', names)).toBe('half and half');
+  });
+  it('survives a leading adjective before a comma', () => {
+    expect(resolveIngredientName('½ ounce dark, robust maple syrup', names)).toBe('maple syrup');
+  });
+  it('ice and soda are trivial: neither matched nor counted as unresolved', () => {
+    expect(resolveIngredientName('3 oz Club soda', names)).toBeNull();
+    const a = scoreItemForRecipe(['beef', 'tomato'], ['Red wine', 'Cognac'], index());
+    const b = scoreItemForRecipe(['beef', 'tomato'], ['Red wine', 'Cognac', 'cubes ice', 'cold seltzer'], index());
+    expect(b.score).toBeCloseTo(a.score, 6);
+  });
+});
+
+describe('scoring floors and badges', () => {
+  it('rankByPairing drops items under the match floor', () => {
+    const items = [{ name: 'Gin Tonic', ingredients: ['Gin', 'Tonic water'] }];
+    expect(rankByPairing(['beef'], items, index())).toEqual([]);
+  });
+  it('a hub-only drink scores below a drink with a specific pairing', () => {
+    const items = [
+      { name: 'Syrup Sour', ingredients: ['Syrup', 'Lime juice', 'Lime'] },
+      { name: 'Wine Punch', ingredients: ['Red wine', 'Cognac'] },
+    ];
+    const [first] = rankByPairing(['beef', 'tomato'], items, index(), 2, 0);
+    expect(first.item.name).toBe('Wine Punch');
+  });
+  it('formatMatchBadge labels weak matches instead of quoting a low percent', () => {
+    expect(formatMatchBadge(0.12)).toBe('loose match');
+    expect(formatMatchBadge(0.47)).toBe('47% match');
   });
 });

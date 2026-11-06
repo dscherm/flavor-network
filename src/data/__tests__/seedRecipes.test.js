@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { SEED_RECIPES, CUISINE_COLOR, buildRecipesNetworkData } from '../seedRecipes.js';
 
 describe('seedRecipes — Phase 4', () => {
-  it('exports exactly 49 recipes', () => {
-    expect(SEED_RECIPES).toHaveLength(49);
+  it('exports exactly 83 recipes', () => {
+    expect(SEED_RECIPES).toHaveLength(83);
   });
 
   it('every recipe has id, name, cuisine, ingredients[], position3D', () => {
@@ -36,8 +36,8 @@ describe('seedRecipes — Phase 4', () => {
 
   it('buildRecipesNetworkData returns NetworkScene-shaped data', () => {
     const { nodes, positions } = buildRecipesNetworkData();
-    expect(nodes.size).toBe(49);
-    expect(Object.keys(positions)).toHaveLength(49);
+    expect(nodes.size).toBe(83);
+    expect(Object.keys(positions)).toHaveLength(83);
     for (const r of SEED_RECIPES) {
       expect(nodes.get(r.id)).toBeTruthy();
       expect(positions[r.id]).toEqual(r.position3D);

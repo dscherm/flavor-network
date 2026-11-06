@@ -11,14 +11,16 @@ function toArrayBuffer(buf) {
 }
 
 function packed(version, records) {
-  const buf = Buffer.alloc(12 + records.length * 8);
+  const rb = version >= 3 ? 12 : 8;
+  const buf = Buffer.alloc(12 + records.length * rb);
   buf.write('FNPR', 0, 'ascii');
   buf.writeUInt32LE(version, 4);
   buf.writeUInt32LE(records.length, 8);
-  records.forEach(([a, b, s], i) => {
-    buf.writeUInt16LE(a, 12 + i * 8);
-    buf.writeUInt16LE(b, 14 + i * 8);
-    buf.writeFloatLE(s, 16 + i * 8);
+  records.forEach(([a, b, s, c], i) => {
+    buf.writeUInt16LE(a, 12 + i * rb);
+    buf.writeUInt16LE(b, 14 + i * rb);
+    buf.writeFloatLE(s, 16 + i * rb);
+    if (rb === 12) buf.writeFloatLE(c ?? 0, 20 + i * rb);
   });
   return toArrayBuffer(buf);
 }
@@ -37,8 +39,13 @@ describe('decodePairingsBinary', () => {
     expect(out[1]).toEqual({ ingredientA: 'b', ingredientB: 'c', strength: 0.25, known: false });
   });
 
+  it('v3: adds the cooccurrence score', () => {
+    const [r] = decodePairingsBinary(packed(3, [[0, 1 | 0x8000, 0.5, 0.75]]), ING);
+    expect(r).toEqual({ ingredientA: 'a', ingredientB: 'b', strength: 0.5, known: true, cooccurrence: 0.75 });
+  });
+
   it('rejects unknown versions', () => {
-    expect(() => decodePairingsBinary(packed(3, []), ING)).toThrow(/version 3/);
+    expect(() => decodePairingsBinary(packed(4, []), ING)).toThrow(/version 4/);
   });
 
   it('the shipped pairings.bin carries the same observed flags as pairings.json', () => {
@@ -52,6 +59,7 @@ describe('decodePairingsBinary', () => {
       expect(bin[i].ingredientA).toBe(json[i].ingredientA);
       expect(bin[i].ingredientB).toBe(json[i].ingredientB);
       expect(bin[i].known).toBe(json[i].known === true);
+      expect(bin[i].cooccurrence).toBeCloseTo(Number(json[i].tradition) || 0, 5);
     }
   }, 60000);
 });

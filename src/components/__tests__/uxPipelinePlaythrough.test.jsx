@@ -463,8 +463,8 @@ describe('§2.K — Popup polish', () => {
 // ──────────────────────── §4 — Recipes Lab ────────────────────────
 
 describe('§4 — Recipes Lab', () => {
-  it('4.A.4 ships 49 hand-curated recipes', () => {
-    expect(SEED_RECIPES).toHaveLength(49);
+  it('4.A.4 ships 83 hand-curated recipes', () => {
+    expect(SEED_RECIPES).toHaveLength(83);
   });
 
   it('4.A.4 recipes cover ≥6 cuisines (spec §4: "diverse cuisines")', () => {
@@ -507,7 +507,7 @@ describe('§4 — Recipes Lab', () => {
   it('4.A.5 buildRecipesScene produces NetworkScene-compatible shape', async () => {
     const { buildRecipesScene } = await import('../../data/seedRecipes.js');
     const scene = buildRecipesScene();
-    expect(scene.graph.nodes.size).toBe(49);
+    expect(scene.graph.nodes.size).toBe(83);
     expect(Array.isArray(scene.graph.edges)).toBe(true);
     expect(scene.codex.clusters.length).toBeGreaterThanOrEqual(6);
     // Positions keyed by NAME (not id) so NetworkScene's selection works.
