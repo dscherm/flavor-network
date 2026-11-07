@@ -42,6 +42,13 @@ describe('coverage', () => {
     expect(haveIngredient('salt', k)).toEqual({ covered: true, basic: true });
     expect(haveIngredient('salt', k, { assumeBasics: false }).covered).toBe(false);
   });
+  it('a pantry egg covers yolks; clarified or cold butter is butter', () => {
+    expect(haveIngredient('egg yolk', new Set(['eggs'])).covered).toBe(true);
+    expect(haveIngredient('clarified butter', new Set(['butter'])).via).toBe('butter');
+    expect(haveIngredient('clarified butter', new Set()).covered).toBe(true); // butter is a basic
+    expect(haveIngredient('clarified butter', new Set(), { assumeBasics: false }).covered).toBe(false);
+    expect(haveIngredient('cold butter', new Set(), { names: new Set(['butter']) }).covered).toBe(true);
+  });
   it('counts real ingredients only, not assumed basics', () => {
     const c = coverIngredients(['pasta', 'tomato', 'garlic', 'olive oil', 'salt'], ['pasta', 'tomato']);
     expect(c).toMatchObject({ total: 3, covered: 2, missing: ['garlic'] });

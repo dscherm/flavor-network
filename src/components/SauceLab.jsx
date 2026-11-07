@@ -8,6 +8,11 @@ import {
 import SauceSuggestionDeck from './SauceSuggestionDeck.jsx';
 import { ChalkLoader } from './chalkArt.jsx';
 import SaucePairings from './SaucePairings.jsx';
+import SaucePantryPanel from './SaucePantryPanel.jsx';
+import InventSauce from './InventSauce.jsx';
+import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics } from '../data/myKitchen.js';
+import { buildCategoryMap } from '../data/saucePantry.js';
+import { buildPairingIndex } from '../data/recipePairingMatch.js';
 
 /**
  * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
@@ -47,6 +52,17 @@ export default function SauceLab({
   const [selectedSauce, setSelectedSauce] = useState(null);
   const [filterFamily, setFilterFamily] = useState(null);
   const [filterCuisine, setFilterCuisine] = useState(null);
+  // My pantry (the shared kitchen list, also edited by Make a recipe) +
+  // the pantry / Invent panels. `returnPanel`: the panel a sauce card was
+  // opened from, reopened when the card closes.
+  const [kitchen, setKitchen] = useState(() => loadKitchen());
+  const [assumeBasics, setAssumeBasics] = useState(() => loadAssumeBasics());
+  const [panel, setPanel] = useState(null); // null | 'pantry' | 'invent'
+  const [returnPanel, setReturnPanel] = useState(null);
+  const updateKitchen = (next) => { setKitchen(next); saveKitchen(next); };
+  const updateAssumeBasics = (on) => { setAssumeBasics(on); saveAssumeBasics(on); };
+  // Re-read on open: Make a recipe edits the same list.
+  const openPanel = (which) => { setKitchen(loadKitchen()); setAssumeBasics(loadAssumeBasics()); setPanel(which); };
 
   // Apply Build → Lab pre-filter on mount.
   useEffect(() => {
@@ -71,6 +87,9 @@ export default function SauceLab({
           positions,
           ingredientToSauces: codex.ingredientToSauces,
           codex: codex.codex,
+          // Sauce-ingredient catalogue + curated pairings (pantry / Invent).
+          ingredientMeta: codex.ingredientMeta || [],
+          pairings: codex.pairings || [],
         });
         setLoading(false);
       } catch (err) {
@@ -121,6 +140,25 @@ export default function SauceLab({
     if (!node) return null;
     return codexData.codex.clusters.find(c => c.id === node.family_id) || null;
   }, [selectedSauce, codexData]);
+
+  // Pantry / Invent context: the sauce list, the sauce-ingredient catalogue
+  // (roles), names for resolving what the cook types, and two pairing
+  // indexes — recipe co-occurrence (ProData graph) + curated sauce pairings.
+  const pantryCtx = useMemo(() => {
+    const meta = codexData?.ingredientMeta || [];
+    const catalogueNames = new Set(meta.map((i) => String(i.name || '').toLowerCase()).filter(Boolean));
+    const graphNodes = fullData?.graph?.nodes;
+    const graphEdges = fullData?.graph?.edges;
+    const kitchenNames = new Set([...catalogueNames, ...(graphNodes ? graphNodes.keys() : [])]);
+    return {
+      sauces: codexData ? [...codexData.graph.nodes.values()] : [],
+      catMap: buildCategoryMap(meta),
+      catalogueNames,
+      kitchenNames,
+      pairingIndex: graphNodes && graphEdges ? buildPairingIndex(graphEdges, graphNodes.keys()) : null,
+      sauceIndex: codexData?.pairings ? buildPairingIndex(codexData.pairings, catalogueNames) : null,
+    };
+  }, [codexData, fullData]);
 
   // aria-live announcement when matchesContext becomes active.
   const prevMatchesRef = useRef(null);
@@ -201,6 +239,12 @@ export default function SauceLab({
     );
   }
 
+  const pickFromPanel = (name) => { setReturnPanel(panel); setPanel(null); setSelectedSauce(name); };
+  const closeCard = () => {
+    setSelectedSauce(null);
+    if (returnPanel) { setPanel(returnPanel); setReturnPanel(null); }
+  };
+
   return (
     <>
       <SauceBrowse
@@ -211,7 +255,46 @@ export default function SauceLab({
         onFilterFamily={setFilterFamily}
         filterCuisine={filterCuisine}
         onFilterCuisine={setFilterCuisine}
+        pantryCount={kitchen.length}
+        onOpenPantry={() => openPanel('pantry')}
+        onOpenInvent={() => openPanel('invent')}
       />
+
+      {panel === 'pantry' && (
+        <SaucePantryPanel
+          kitchen={kitchen}
+          onChange={updateKitchen}
+          assumeBasics={assumeBasics}
+          onAssumeBasicsChange={updateAssumeBasics}
+          sauces={pantryCtx.sauces}
+          families={codexData.codex.clusters}
+          names={pantryCtx.kitchenNames}
+          coverNames={pantryCtx.catalogueNames}
+          catMap={pantryCtx.catMap}
+          pairingIndex={pantryCtx.pairingIndex}
+          sauceIndex={pantryCtx.sauceIndex}
+          onSelectSauce={pickFromPanel}
+          onInvent={() => setPanel('invent')}
+          onClose={() => setPanel(null)}
+        />
+      )}
+      {panel === 'invent' && (
+        <InventSauce
+          kitchen={kitchen}
+          assumeBasics={assumeBasics}
+          sauces={pantryCtx.sauces}
+          families={codexData.codex.clusters}
+          meta={codexData.ingredientMeta || []}
+          catMap={pantryCtx.catMap}
+          names={pantryCtx.catalogueNames}
+          pairingIndex={pantryCtx.pairingIndex}
+          sauceIndex={pantryCtx.sauceIndex}
+          categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null}
+          onClose={() => setPanel(null)}
+          onSelectSauce={pickFromPanel}
+          onOpenRecipeLab={onOpenRecipeLab ? (names) => onOpenRecipeLab('sauce', names) : null}
+        />
+      )}
 
       {selectedSauce && (() => {
         const s = codexData.graph.nodes.get(selectedSauce);
@@ -228,7 +311,7 @@ export default function SauceLab({
             likeThis={similarSauces}
             pairsWith={s?.pairsWith || []}
             onSelect={(name) => setSelectedSauce(name)}
-            onClose={() => setSelectedSauce(null)}
+            onClose={closeCard}
           >
             {s && (
               <SaucePairings sauce={s} color={familyForSelected?.color} onFindWine={onFindWine}

@@ -1504,6 +1504,23 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
     "Notebook toasts for make-kitchen / make-invent and a method fold that a later handoff clears (test)",
     "Checked at 375px in a browser with chicken, garlic, lemon, rice, onion, tomato and with an empty kitchen; no console errors",
     "npm run gate green"
+
+  "id": "KITCHEN-3",
+  "title": "Sauce Lab: My pantry + Invent a sauce",
+  "category": "ui",
+  "passes": true,
+  "description": "The Sauce Lab gets the Cocktail Lab's pair (My bar, Invent a cocktail) for sauces. Two buttons under the sauce search box, '🧺 My pantry (n)' and '✨ Invent a sauce', each open a full chalk panel with Back. 'My pantry' edits the shared kitchen list of src/data/myKitchen.js (localStorage fn-my-kitchen, the same list Make a recipe edits; re-read when a panel opens), with an add box autocompleting over sauce ingredient names, quick-add chips for the 20 most used sauce ingredients (basics and already-covered ones hidden) and the 'assume basics' toggle, then lists 'Sauces you can make' and 'One or two away' naming what is missing. A sauce one away gets a stand-in from the pantry only when it plays the same role (sauce_augment category) and is the same kind within it (src/data/saucePantry.js sauceKind: lime for lemon, shallot for onion, cream for crème fraîche; never flour for egg yolk, milk for cream or garlic for onion). 'Invent a sauce' (src/data/inventSauce.js) has one technique per SAUCE_TEMPLATES skeleton (roux & milk, roux & stock, brown reduction, emulsion, tomato simmer, curry base, stir-fry, mole, salsa, nut sauce), narrowed by kind where chemistry needs it: an emulsion needs fat + egg yolk + citrus/vinegar, a roux sauce fat + flour (not cornstarch) + the right liquid. Roles are filled from the pantry first; a required role the pantry lacks falls back to the ingredients most used for it, marked 'you'd need' (optional roles never send the cook shopping); 'Only what I have' names what is missing instead of inventing around it. Combinations ranked by beam search on mean pair strength (ProData co-occurrence + half the curated sauce pairings) plus strength with the chosen protein and a small per-pantry-item bonus. Three inventions per page (Shuffle steps on): name, family vessel, amounts from a per-kind house table, the technique as a method naming the actual ingredients (oil emulsions are a mayonnaise/aïoli whisked cold; a butter emulsion is held under 70 °C), why it works, the closest existing sauce (Jaccard, src/data/sauceSimilarity.js, shared with sauceCodex), the honest note 'an idea from what pairs, not a tested recipe', a wine for the chosen protein (winesForSauce), and 'Open in Recipe Notebook' (SauceLab's onOpenRecipeLab handoff, protein included). A sauce card opened from a panel returns to that panel when closed. The family vessel drawing moved from SauceBrowse to src/components/sauceVessels.jsx (unchanged geometry). myKitchen gains equivalents: eggs cover egg yolk, butter covers clarified/cold butter (also as an assumed basic), lemon covers zest. loadSauceCodex also returns the ingredient catalogue and curated pairings.",
+  "acceptance": [
+    "Stand-ins only within the same role and kind: lime for lemon, shallot for onion, cream for crème fraîche; never flour/cornstarch for egg yolk, cream for milk, garlic for onion (test)",
+    "Can make / one or two away on the shared kitchen list; empty pantry gives nothing; assume-basics off makes butter and flour count (test)",
+    "Every invent technique keeps its SAUCE_TEMPLATES required roles (test)",
+    "Never invents an emulsion without an emulsifier, a fat and an acid, across empty and partial pantries; with 'only what I have' the missing emulsifier is named (test)",
+    "A roux sauce always has fat, flour (never starch or egg) and the right liquid; no béchamel without a liquid (test)",
+    "Every technique builds from an empty pantry with a non-empty method and every line priced with an amount; no ingredient twice (test)",
+    "Pantry-first: nothing to buy when the pantry covers it; a missing required role is marked you'd need; optional roles never are (test)",
+    "Component tests for SaucePantryPanel, InventSauce and the SauceLab wiring (buttons, Back, card returns to the panel, shared list written)",
+    "Checked at 375px in a browser with butter, egg yolk, lemon, shallot, white wine, cream, tomato, garlic and with an empty pantry: no horizontal overflow, no page errors, controls ≥ 44px",
+    "npm run gate green (168 files, 1807 tests; build clean)"
   ]
 }
 ```
