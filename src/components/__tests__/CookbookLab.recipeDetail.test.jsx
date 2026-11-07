@@ -31,6 +31,8 @@ describe('Cookbook recipe popup — cookable details', () => {
     expect(within(dialog).getByTestId('recipe-meta')).toHaveTextContent(`Serves ${d.serves}`);
     expect(within(dialog).getByText(d.amounts['red wine'])).toBeInTheDocument();
     const method = within(dialog).getByTestId('recipe-method');
+    // DESIGN-3: the method sits behind a "Method (N steps)" fold.
+    fireEvent.click(within(method).getByRole('button', { name: `Method (${d.steps.length} steps)` }));
     expect(within(method).getAllByRole('listitem')).toHaveLength(d.steps.length);
   });
 

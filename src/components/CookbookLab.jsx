@@ -18,12 +18,14 @@
  * pre-selects filters on mount.
  */
 import { useEffect, useMemo, useState } from 'react';
-import MultiAxisRadarStack from './MultiAxisRadarStack.jsx';
+import ProfileAxisRadar from './ProfileAxisRadar.jsx';
+import { DishArt, IngredientGlyph, LabArt } from './chalkArt.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
 import { getRecipeDetails } from '../data/seedRecipeDetails.js';
+import { dishTypeOf, dishTypeLabel } from '../data/dishType.js';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
-  CARD_CREAM, CARD_CREAM_EDGE, CARD_INK, CARD_INK_SUB,
+  CARD_CREAM, CARD_INK, CARD_INK_SUB,
 } from '../data/chalkTheme.js';
 
 const SEED_CUISINE_COUNT = new Set(SEED_RECIPES.map((r) => r.cuisine)).size;
@@ -71,14 +73,19 @@ function KitchenIcon({ kind, color, size = 18 }) {
   return (<svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true" style={{ flexShrink: 0 }}>{inner}</svg>);
 }
 
-// A recipe-box card: cream stock, ink handwriting, a cuisine color spine.
+// A recipe-box card: cream stock, ink handwriting, a cuisine colour spine,
+// and (DESIGN-3) a small slate inset with a chalk drawing of the dish type,
+// tinted with the cuisine colour. Picture first, name second.
 function RecipeCard({ recipe, onClick }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
+  const kind = dishTypeOf(recipe);
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group relative flex flex-col items-stretch text-left rounded-lg p-4 transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+      data-testid={`recipe-card-${recipe.id}`}
+      data-dish-type={kind}
+      className="group relative flex items-center gap-3 text-left rounded-lg p-2.5 pl-3.5 transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
       style={{
         background: CARD_CREAM,
         backgroundImage: `linear-gradient(135deg, ${color}3a, ${color}12)`,
@@ -91,44 +98,53 @@ function RecipeCard({ recipe, onClick }) {
         style={{ background: color }}
         aria-hidden="true"
       />
-      <div className="pl-2">
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="text-[22px] leading-tight" style={{ fontFamily: FONT, color: CARD_INK }}>{recipe.name}</h3>
-          <span
-            className="text-[10px] font-medium px-2 py-0.5 rounded-full border whitespace-nowrap"
-            style={{ color, borderColor: `${color}99`, background: `${color}1a` }}
-          >
-            {recipe.cuisine}
-          </span>
-        </div>
-        <p className="text-[13px] leading-snug mb-2" style={{ color: CARD_INK_SUB }}>{recipe.description}</p>
-        <div className="flex flex-wrap gap-1">
-          {recipe.ingredients.slice(0, 5).map((ing) => (
-            <span
-              key={ing}
-              className="text-[11px] px-1.5 py-0.5 rounded"
-              style={{ background: 'rgba(255,255,255,0.5)', color: CARD_INK_SUB, border: `1px solid ${CARD_CREAM_EDGE}` }}
-            >
-              {ing}
-            </span>
-          ))}
-          {recipe.ingredients.length > 5 && (
-            <span className="text-[11px]" style={{ color: CARD_INK_SUB }}>+{recipe.ingredients.length - 5} more</span>
-          )}
-        </div>
-      </div>
+      <span
+        className="flex-shrink-0 flex items-center justify-center rounded-md"
+        style={{ ...chalkSurfaceStyle(), width: 84, height: 84, border: `1.5px solid ${color}88`, boxShadow: 'inset 0 0 8px rgba(0,0,0,0.6)' }}
+        aria-hidden="true"
+      >
+        <DishArt kind={kind} accent={color} size={66} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[22px] leading-tight" style={{ fontFamily: FONT, color: CARD_INK }}>{recipe.name}</span>
+        <span className="flex items-center gap-1.5 mt-0.5 text-[11px] font-medium" style={{ color: CARD_INK_SUB }}>
+          <span className="inline-block rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: color }} aria-hidden="true" />
+          {recipe.cuisine}
+          <span aria-hidden="true">·</span>
+          {dishTypeLabel(kind)}
+        </span>
+        <span className="block text-[12.5px] leading-snug mt-1 line-clamp-2" style={{ color: CARD_INK_SUB }}>{recipe.description}</span>
+      </span>
     </button>
   );
 }
 
+// ── small chalk meta glyphs (serves / time / ingredient count) ───────
+function MetaGlyph({ kind, color = CHALK_DIM }) {
+  const s = { fill: 'none', stroke: color, strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' };
+  let inner;
+  if (kind === 'serves') inner = (<><circle cx="9" cy="5.5" r="3" {...s} /><path d="M3 16 Q3 9.5 9 9.5 Q15 9.5 15 16" {...s} /></>);
+  else if (kind === 'time') inner = (<><circle cx="9" cy="9" r="7" {...s} /><path d="M9 4.5 L9 9 L12.5 11" {...s} /></>);
+  else inner = (<><path d="M2.5 8 L15.5 8 Q15 15 9 15.5 Q3 15 2.5 8 Z" {...s} /><path d="M6 5 Q5 3 6 1.5 M10 5 Q9 3 10 1.5" {...s} /></>);
+  return <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style={{ flexShrink: 0 }}>{inner}</svg>;
+}
+
+const SECTION_LABEL = { fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW };
+const RADAR_AXES = ['taste', 'aroma', 'season', 'cuisine', 'method'];
+
+// DESIGN-3: the popup leads with pictures — dish drawing, meta as
+// icon+number, the profile radar — then ingredient chips, the method
+// behind a fold, and "Goes well with" as drawn mini-cards.
 function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce, onFindWine }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
+  const kind = dishTypeOf(recipe);
   const nodes = ctx?.graph?.nodes;
   const details = getRecipeDetails(recipe.id);
+  const [methodOpen, setMethodOpen] = useState(false);
+  const [axis, setAxis] = useState('taste');
   // Match recipe ingredient strings to actual nodes in the ingredient
   // graph so the radar has real taste/aroma/season/etc. data to plot.
-  // Only ingredients that resolve get a chip in the "matched" row;
-  // unmatched ones fall to the "raw" row so the user still sees them.
+  // Unmatched ones are still listed (dimmer) so the user sees them.
   const { matched, unmatched } = useMemo(() => {
     if (!nodes) return { matched: [], unmatched: recipe.ingredients };
     const ok = [];
@@ -144,10 +160,24 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, 
   // Focal = first matched ingredient. The radar averages across all
   // matched ingredients so the chart reflects the whole recipe.
   const focalName = matched[0] || null;
+  const steps = details?.steps || [];
+  const hasPairings = (onFindCocktail || onFindSauce || onFindWine) && matched.length > 0;
+  const categoryOf = (n) => (nodes ? (nodes.get(n.toLowerCase()) || nodes.get(n))?.category : null);
+
+  const pairCards = [
+    onFindWine && {
+      key: 'wine', label: 'Wines', aria: 'Matching wines', accent: '#be123c',
+      run: () => onFindWine(recipe.ingredients, recipe.name, {
+        cuisine: recipe.cuisine, dishType: recipe.cluster, methodText: steps.join(' '),
+      }),
+    },
+    onFindCocktail && { key: 'cocktail', label: 'Cocktails', aria: 'Matching cocktails', accent: '#f59e0b', run: () => onFindCocktail(matched, recipe.name) },
+    onFindSauce && { key: 'sauce', label: 'Sauces', aria: 'Matching sauces', accent: '#ea580c', run: () => onFindSauce(matched, recipe.name) },
+  ].filter(Boolean);
 
   return (
     <div
-      className="fixed inset-x-0 top-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      className="fixed inset-x-0 top-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4"
       style={{ bottom: 'var(--tab-bar-h)' }} // v1.0.2: stop above the fixed tab bar
       onClick={onClose}
       role="dialog"
@@ -158,9 +188,11 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, 
         style={{ ...chalkSurfaceStyle(), border: `2px double ${CHALK_RAIL}`, boxShadow: `inset 0 0 0 1px ${color}33, 0 8px 24px rgba(0,0,0,0.55)`, color: CHALK_CREAM }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-3 p-4" style={{ borderBottom: `1.5px solid ${color}55` }}>
-          <div>
-            <h2 className="text-[34px] leading-none mb-1.5" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{recipe.name}</h2>
+        {/* 1 — title, dish drawing, meta as icon + number */}
+        <div className="flex items-start gap-3 p-4 pb-3" style={{ borderBottom: `1.5px solid ${color}55` }} data-testid="recipe-head">
+          <DishArt kind={kind} accent={color} size={76} />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-[32px] leading-none mb-1.5" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{recipe.name}</h2>
             <span
               className="text-[14px] px-2.5 py-0.5 rounded-full border inline-flex items-center gap-1.5"
               style={{ fontFamily: FONT, color: CHALK_CREAM, borderColor: `${color}99`, background: `${color}22` }}
@@ -168,132 +200,133 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, 
               <span className="inline-block rounded-full" style={{ width: 9, height: 9, background: color }} aria-hidden="true" />
               {recipe.cuisine}
             </span>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[14px]" style={{ color: CHALK_DIM }} data-testid="recipe-meta">
+              {details && (
+                <>
+                  <span className="inline-flex items-center gap-1"><MetaGlyph kind="serves" /><span className="sr-only">Serves </span>{details.serves}</span>
+                  <span className="inline-flex items-center gap-1"><MetaGlyph kind="time" /><span className="sr-only">Time: </span>{details.time}</span>
+                </>
+              )}
+              <span className="inline-flex items-center gap-1"><MetaGlyph kind="ings" />{recipe.ingredients.length}<span className="sr-only"> ingredients</span></span>
+            </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-2xl leading-none p-1"
+            className="text-2xl leading-none p-1 -mr-1 -mt-1 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
             style={{ color: CHALK_SUB }}
           >
             ×
           </button>
         </div>
-        <div className="p-4 space-y-4">
-          <p style={{ fontFamily: FONT, fontSize: '20px', color: CHALK_DIM, lineHeight: 1.4 }}>{recipe.description}</p>
-          {details && (
-            <p className="text-[14px]" style={{ color: CHALK_SUB }} data-testid="recipe-meta">
-              Serves {details.serves} · {details.time}
+
+        <div className="p-4 pt-3 space-y-4">
+          {recipe.description && (
+            <p className="leading-snug" style={{ fontFamily: FONT, fontSize: '19px', color: CHALK_DIM }}>{recipe.description}</p>
+          )}
+
+          {/* 2 — the profile radar, near the top */}
+          {focalName && nodes ? (
+            <div className="flex flex-col items-center" data-testid="recipe-profile">
+              <span className="sr-only">Flavor profile</span>
+              <ProfileAxisRadar
+                ingredients={matched}
+                nodes={nodes}
+                axis={axis}
+                onAxisChange={(a) => RADAR_AXES.includes(a) && setAxis(a)}
+                focalName={focalName}
+                width={248}
+                theme="dark"
+              />
+            </div>
+          ) : (
+            <p className="italic text-center" style={{ fontFamily: FONT, fontSize: '16px', color: CHALK_SUB }} data-testid="recipe-profile">
+              No matched ingredients — radar unavailable.
             </p>
           )}
 
-          <div>
-            <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
-              Ingredients ({recipe.ingredients.length})
+          {/* 3 — ingredients as chips: amount + name (+ a category glyph) */}
+          <div data-testid="recipe-ingredients">
+            <div className="uppercase tracking-[0.16em] mb-2" style={SECTION_LABEL}>
+              Ingredients
             </div>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1">
+            <ul className="flex flex-wrap gap-1.5">
               {[...matched.map((n) => ({ n, ok: true })), ...unmatched.map((n) => ({ n, ok: false }))].map(({ n, ok }) => (
                 <li
                   key={n}
-                  className="flex items-baseline gap-2"
-                  style={{ fontFamily: FONT, fontSize: '20px', color: ok ? CHALK_CREAM : CHALK_SUB }}
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
+                  style={{ background: ok ? `${color}1f` : 'rgba(255,255,255,0.03)', border: `1px solid ${ok ? `${color}66` : CHALK_RAIL}` }}
                   title={ok ? 'matched in the ingredient graph' : 'not found in the ingredient graph'}
                 >
-                  <span className="flex-shrink-0" style={{ color }}>→</span>
-                  <span>
-                    {details?.amounts?.[n] && (
-                      <span className="text-[14px] mr-1.5" style={{ fontFamily: 'system-ui, sans-serif', color: CHALK_DIM }}>{details.amounts[n]}</span>
-                    )}
-                    {n}
-                  </span>
+                  <IngredientGlyph category={categoryOf(n)} color={ok ? CHALK_CREAM : CHALK_SUB} size={15} />
+                  {details?.amounts?.[n] && (
+                    <span className="text-[12px]" style={{ color: CHALK_DIM }}>{details.amounts[n]}</span>
+                  )}
+                  <span style={{ fontFamily: FONT, fontSize: '18px', lineHeight: 1.1, color: ok ? CHALK_CREAM : CHALK_SUB }}>{n}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {details?.steps?.length > 0 && (
+          {/* 4 — method, folded */}
+          {steps.length > 0 && (
             <div data-testid="recipe-method">
-              <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
-                Method
-              </div>
-              <ol className="space-y-2">
-                {details.steps.map((step, i) => (
-                  <li key={i} className="flex gap-3 text-[15px] leading-snug" style={{ color: CHALK_CREAM }}>
-                    <span className="flex-shrink-0 text-[20px] leading-none" style={{ fontFamily: FONT, color }}>{i + 1}.</span>
-                    <span>{step}</span>
-                  </li>
-                ))}
-              </ol>
+              <button
+                type="button"
+                onClick={() => setMethodOpen((o) => !o)}
+                aria-expanded={methodOpen}
+                aria-controls={`method-${recipe.id}`}
+                className="w-full flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+                style={{ border: `1px dashed ${color}88`, background: 'rgba(255,255,255,0.03)' }}
+              >
+                <span style={{ fontFamily: FONT, fontSize: '20px', color: CHALK_CREAM }}>Method ({steps.length} steps)</span>
+                <span aria-hidden="true" style={{ color, transform: methodOpen ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}>▸</span>
+              </button>
+              {methodOpen && (
+                <ol id={`method-${recipe.id}`} className="space-y-2 mt-3">
+                  {steps.map((step, i) => (
+                    <li key={i} className="flex gap-3 text-[15px] leading-snug" style={{ color: CHALK_CREAM }}>
+                      <span className="flex-shrink-0 text-[22px] leading-none" style={{ fontFamily: FONT, color }}>{i + 1}.</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
           )}
 
-          {/* Flavor / taste / aroma / season / cuisine / method radar.
-              Averaged across all matched ingredients so the chart
-              reads as the recipe's profile, not just one ingredient. */}
-          {focalName && nodes ? (
-            <div>
-              <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
-                Flavor profile
-              </div>
-              <MultiAxisRadarStack
-                ingredients={matched}
-                nodes={nodes}
-                focalName={focalName}
-              />
-            </div>
-          ) : (
-            <p className="italic" style={{ fontFamily: FONT, fontSize: '16px', color: CHALK_SUB }}>
-              No matched ingredients — radar unavailable.
-            </p>
-          )}
-
-          {(onFindCocktail || onFindSauce || onFindWine) && matched.length > 0 && (
+          {/* 5 — goes well with: drawn mini-cards */}
+          {hasPairings && pairCards.length > 0 && (
             <div data-testid="recipe-goes-well-with">
-              <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
+              <div className="uppercase tracking-[0.16em] mb-2" style={SECTION_LABEL}>
                 Goes well with
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {onFindWine && (
+              <div className="grid grid-cols-3 gap-2">
+                {pairCards.map((p) => (
                   <button
+                    key={p.key}
                     type="button"
-                    onClick={() => onFindWine(recipe.ingredients, recipe.name, {
-                      cuisine: recipe.cuisine, dishType: recipe.cluster, methodText: details?.steps?.join(' ') || '',
-                    })}
-                    className="px-3 py-2 rounded-lg text-left"
-                    style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}1a`, border: `1px solid ${color}77` }}
+                    onClick={p.run}
+                    aria-label={p.aria}
+                    data-testid={`pair-card-${p.key}`}
+                    className="flex flex-col items-center gap-1 rounded-lg px-1 pt-2 pb-1.5 transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+                    style={{ background: `${color}14`, border: `1px solid ${color}66` }}
                   >
-                    🍷 Matching wines →
+                    <LabArt id={p.key} accent={p.accent} size={54} />
+                    <span style={{ fontFamily: FONT, fontSize: '19px', color: CHALK_CREAM, lineHeight: 1 }}>{p.label} →</span>
                   </button>
-                )}
-                {onFindCocktail && (
-                  <button
-                    type="button"
-                    onClick={() => onFindCocktail(matched, recipe.name)}
-                    className="px-3 py-2 rounded-lg text-left"
-                    style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}1a`, border: `1px solid ${color}77` }}
-                  >
-                    🍸 Matching cocktails →
-                  </button>
-                )}
-                {onFindSauce && (
-                  <button
-                    type="button"
-                    onClick={() => onFindSauce(matched, recipe.name)}
-                    className="px-3 py-2 rounded-lg text-left"
-                    style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}1a`, border: `1px solid ${color}77` }}
-                  >
-                    🥣 Matching sauces →
-                  </button>
-                )}
+                ))}
               </div>
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
             {onOpenRecipeLab && (
               <button
                 type="button"
                 onClick={() => onOpenRecipeLab('recipe', recipe.ingredients)}
-                className="px-4 py-2.5 rounded-lg transition-colors"
+                className="px-4 py-2.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
                 style={{ fontFamily: FONT, fontSize: '18px', color: '#0a0a0a', background: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}` }}
               >
                 Open in Recipe Notebook →
@@ -303,7 +336,7 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, 
               <button
                 type="button"
                 onClick={() => onOpenInNetwork(matched[0] || recipe.ingredients[0])}
-                className="px-4 py-2.5 rounded-lg transition-colors"
+                className="px-4 py-2.5 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
                 style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}22`, border: `1px solid ${color}88` }}
               >
                 Explore in Network →

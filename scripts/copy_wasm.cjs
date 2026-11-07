@@ -26,10 +26,22 @@ const root = path.resolve(__dirname, '..');
 const outDir = path.join(root, 'public', 'wasm');
 fs.mkdirSync(outDir, { recursive: true });
 
+// Look for node_modules the way Node resolves packages: in the project
+// root first, then each parent directory. A git worktree under
+// .claude/worktrees/ has no node_modules of its own and resolves packages
+// from the main checkout's, so a root-only lookup failed the build there.
+function findSource(rel) {
+  for (let dir = root; ; dir = path.dirname(dir)) {
+    const p = path.join(dir, rel);
+    if (fs.existsSync(p)) return p;
+    if (path.dirname(dir) === dir) return null;
+  }
+}
+
 for (const [src, dst] of SOURCES) {
-  const srcPath = path.join(root, src);
+  const srcPath = findSource(src);
   const dstPath = path.join(root, dst);
-  if (!fs.existsSync(srcPath)) {
+  if (!srcPath) {
     console.error(`[copy_wasm] missing ${src} — run \`npm install\` first`);
     process.exit(1);
   }

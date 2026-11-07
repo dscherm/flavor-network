@@ -14,6 +14,9 @@
  *   onAxisChange  — callback when the user picks a different axis
  *   width         — render size
  *   theme         — 'dark' | 'light'
+ *   showAxisSwitcher — default true; false hides the axis chips. Use it
+ *                   when the radar sits inside another clickable element,
+ *                   where the chips would be buttons nested in a button.
  *
  * The signal for each axis category is normalized to [0, 1] across
  * the recipe so the polygon fills the radar. This is the "what is
@@ -161,6 +164,7 @@ export default function ProfileAxisRadar({
   onAxisChange = null,
   width = 320,
   theme = 'light',
+  showAxisSwitcher = true,
 }) {
   const isDark = theme === 'dark';
 
@@ -227,6 +231,7 @@ export default function ProfileAxisRadar({
   return (
     <div className="flex flex-col items-center gap-1.5" style={{ width }}>
       {/* Axis switcher chips */}
+      {showAxisSwitcher && (
       <div className="flex items-center gap-1 flex-wrap justify-center" role="toolbar" aria-label="Axis filter">
         {AXIS_ORDER.map((key) => {
           const active = key === axis;
@@ -247,12 +252,16 @@ export default function ProfileAxisRadar({
           );
         })}
       </div>
+      )}
 
       <svg
         width={width}
         height={width}
         viewBox={`0 0 ${width} ${width}`}
         className="select-none"
+        // Long edge labels ("Astringent") run past the square; let them
+        // draw into the surrounding padding instead of being clipped.
+        style={{ overflow: 'visible' }}
         role="img"
         aria-label={`${config.label} radar for ${ingredients.length || 0} ingredient${ingredients.length === 1 ? '' : 's'}`}
       >

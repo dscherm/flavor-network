@@ -47,13 +47,24 @@ export default function MultiAxisRadarStack({
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {AXES.map((axis) => (
-          <button
+          // DESIGN-3: a div with button semantics, not a <button>. The
+          // radar inside used to render its own axis chips (<button>s), and
+          // a button inside a button is invalid HTML (React's
+          // validateDOMNesting warning in the Cookbook).
+          <div
             key={axis}
-            type="button"
+            role="button"
+            tabIndex={0}
             onClick={() => onAxisSelect?.(axis)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onAxisSelect?.(axis);
+              }
+            }}
             data-axis={axis}
             data-testid={`multi-radar-${axis}`}
-            className="flex flex-col items-center gap-2 rounded-xl border border-[#1d3158] bg-[#0a1428]/80 p-3 sm:p-4 transition-all hover:border-cyan-400/60 hover:bg-[#0f1d33] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60"
+            className="flex flex-col items-center gap-2 cursor-pointer rounded-xl border border-[#1d3158] bg-[#0a1428]/80 p-3 sm:p-4 transition-all hover:border-cyan-400/60 hover:bg-[#0f1d33] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60"
             aria-label={`Explore in network — ${axis} axis`}
           >
             <div className="w-full flex items-center justify-between mb-1">
@@ -68,12 +79,13 @@ export default function MultiAxisRadarStack({
                 focalName={focalName}
                 width={260}
                 theme="dark"
+                showAxisSwitcher={false}
               />
             </div>
             <p className="text-[11px] text-gray-500 text-center leading-tight">
               {AXIS_BLURB[axis]}
             </p>
-          </button>
+          </div>
         ))}
       </div>
     </div>

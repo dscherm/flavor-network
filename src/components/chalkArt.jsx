@@ -339,3 +339,315 @@ export function IngredientArt({ category, size = 20, ink = CHALK_CREAM, tint = n
     </svg>
   );
 }
+
+// ── Cookbook dish drawings (DESIGN-3) ─────────────────────────────────
+// One chalk drawing per dish type (src/data/dishType.js). The food is
+// tinted with the accent (the cuisine colour); lines are chalk cream.
+const LEAF_GREEN = '#84cc16';
+const YOLK = '#fbbf24';
+const TOMATO_RED = '#ef4444';
+const BOWL = 'M12 48 L88 48 Q86 82 50 86 Q14 82 12 48 Z';
+const BOWL_FILL = 'M15 52 Q50 58 85 52 Q82 80 50 84 Q18 80 15 52 Z';
+const BOWL_FOOT = 'M38 86 L36 92 L64 92 L62 86';
+const PLATE = 'M8 70 A42 14 0 1 0 92 70 A42 14 0 1 0 8 70 Z';
+const STEAM = 'M34 38 Q28 30 34 22 Q40 14 34 6 M52 38 Q46 30 52 22 Q58 14 52 6 M70 38 Q64 30 70 22';
+const BASE = 'M8 92 L92 92';
+
+/* eslint-disable react/display-name */
+const DISH_DRAW = {
+  soup: (c) => (
+    <>
+      <path d={BOWL_FILL} fill={c} fillOpacity="0.55" />
+      <Chalk d={BOWL} c={CHALK_CREAM} />
+      <Chalk d={BOWL_FOOT} c={CHALK_CREAM} w={2} />
+      <Chalk d={STEAM} c={CHALK_CREAM} w={1.8} />
+      <Chalk d="M66 52 L88 30 M86 26 Q96 22 93 31 Q90 36 85 33" c={CHALK_DIM} w={2.2} />
+    </>
+  ),
+  noodles: (c) => (
+    <>
+      <path d={BOWL_FILL} fill={c} fillOpacity="0.5" />
+      <Chalk d="M22 50 Q28 38 34 50 Q40 38 46 50 Q52 38 58 50 Q64 38 70 50 Q74 42 78 50" c={YOLK} w={2} />
+      <Chalk d={BOWL} c={CHALK_CREAM} />
+      <Chalk d={BOWL_FOOT} c={CHALK_CREAM} w={2} />
+      <Chalk d="M52 44 L86 8 M60 46 L94 14" c={CHALK_DIM} w={2.4} />
+    </>
+  ),
+  pasta: (c) => (
+    <>
+      <path d={PLATE} fill={CHALK_CREAM} fillOpacity="0.08" />
+      <Chalk d={PLATE} c={CHALK_CREAM} w={2.2} />
+      <path d="M24 64 A26 12 0 1 0 76 64 A26 12 0 1 0 24 64 Z" fill={c} fillOpacity="0.55" />
+      <Chalk d="M28 64 Q50 46 72 64 Q50 76 34 62 Q50 52 64 64 Q52 70 44 64" c={YOLK} w={2} />
+      <Chalk d="M56 60 L72 18 M66 16 L68 6 M71 18 L74 8 M76 20 L80 10 M66 16 Q71 24 76 20" c={CHALK_CREAM} w={2} />
+    </>
+  ),
+  rice: (c) => (
+    <>
+      <path d={BOWL_FILL} fill={c} fillOpacity="0.55" />
+      <path d="M18 48 Q50 14 82 48 Z" fill={CHALK_CREAM} fillOpacity="0.22" />
+      <Chalk d="M18 48 Q50 14 82 48" c={CHALK_CREAM} w={2.2} />
+      {[[36, 38], [48, 30], [60, 37], [42, 44], [56, 44], [50, 38]].map(([x, y]) => (
+        <Chalk key={`${x}-${y}`} d={`M${x - 2} ${y} L${x + 2} ${y - 1}`} c={CHALK_CREAM} w={1.6} />
+      ))}
+      <Chalk d={BOWL} c={CHALK_CREAM} />
+      <Chalk d={BOWL_FOOT} c={CHALK_CREAM} w={2} />
+    </>
+  ),
+  curry: (c) => (
+    <>
+      <path d="M21 46 L79 46 L76 82 Q75 86 70 86 L30 86 Q25 86 24 82 Z" fill={c} fillOpacity="0.55" />
+      <Chalk d="M18 40 L82 40 L78 84 Q77 90 70 90 L30 90 Q23 90 22 84 Z" c={CHALK_CREAM} />
+      <Chalk d="M20 48 Q8 48 9 56 Q10 62 21 60 M80 48 Q92 48 91 56 Q90 62 79 60" c={CHALK_CREAM} w={2.2} />
+      <Chalk d="M30 47 Q50 42 70 47" c={YOLK} w={1.8} />
+      {[[36, 56], [50, 60], [62, 54]].map(([x, y]) => <circle key={x} cx={x} cy={y} r="3" fill={CHALK_CREAM} fillOpacity="0.55" />)}
+      <Chalk d={STEAM} c={CHALK_CREAM} w={1.8} />
+    </>
+  ),
+  stew: (c) => (
+    <>
+      <path d="M19 54 L81 54 L79 84 Q78 88 72 88 L28 88 Q22 88 21 84 Z" fill={c} fillOpacity="0.55" />
+      <Chalk d="M16 50 L84 50 L82 84 Q80 92 72 92 L28 92 Q20 92 18 84 Z" c={CHALK_CREAM} />
+      <path d="M12 46 Q50 18 88 46 Z" fill={c} fillOpacity="0.3" />
+      <Chalk d="M12 46 Q50 18 88 46 Z" c={CHALK_CREAM} />
+      <Chalk d="M44 30 L44 22 L56 22 L56 30" c={CHALK_CREAM} w={2.2} />
+      <Chalk d="M16 58 L8 58 L8 66 L17 66 M84 58 L92 58 L92 66 L83 66" c={CHALK_CREAM} w={2} />
+    </>
+  ),
+  grill: (c) => (
+    <>
+      <Chalk d="M8 92 L92 92 M14 84 L86 84" c={CHALK_SUB} w={2} />
+      <Chalk d="M10 82 L90 14" c={CHALK_DIM} w={2.4} />
+      {[[30, 65, c], [46, 51, LEAF_GREEN], [62, 38, c], [76, 26, TOMATO_RED]].map(([x, y, col]) => {
+        const d = `M${x - 9} ${y - 7} L${x + 7} ${y - 9} L${x + 9} ${y + 7} L${x - 7} ${y + 9} Z`;
+        return (
+          <g key={`${x}`}>
+            <path d={d} fill={col} fillOpacity="0.6" />
+            <Chalk d={d} c={CHALK_CREAM} w={2} />
+          </g>
+        );
+      })}
+    </>
+  ),
+  fish: (c) => (
+    <>
+      <Chalk d={PLATE} c={CHALK_CREAM} w={2.2} />
+      <path d="M18 60 Q42 34 68 60 Q42 84 18 60 Z" fill={c} fillOpacity="0.55" />
+      <Chalk d="M18 60 Q42 34 68 60 Q42 84 18 60 Z M68 60 L86 46 L84 74 Z" c={CHALK_CREAM} />
+      <Chalk d="M34 50 Q40 60 34 70" c={CHALK_CREAM} w={1.8} />
+      <circle cx="26" cy="57" r="2.4" fill={CHALK_CREAM} />
+      <path d="M76 76 Q84 70 90 76 Q84 82 76 78 Z" fill={YOLK} fillOpacity="0.8" />
+    </>
+  ),
+  salad: (c) => (
+    <>
+      <path d={BOWL_FILL} fill={c} fillOpacity="0.5" />
+      {['M24 50 Q16 30 34 24 Q38 40 24 50 Z', 'M44 48 Q40 22 58 16 Q62 36 44 48 Z', 'M62 50 Q66 28 82 30 Q78 46 62 50 Z'].map((d) => (
+        <g key={d}>
+          <path d={d} fill={LEAF_GREEN} fillOpacity="0.55" />
+          <Chalk d={d} c={CHALK_CREAM} w={1.8} />
+        </g>
+      ))}
+      <circle cx="40" cy="44" r="6" fill={TOMATO_RED} fillOpacity="0.8" />
+      <Chalk d={BOWL} c={CHALK_CREAM} />
+      <Chalk d={BOWL_FOOT} c={CHALK_CREAM} w={2} />
+    </>
+  ),
+  wok: (c) => (
+    <>
+      <path d="M12 52 Q50 90 88 52 Z" fill={c} fillOpacity="0.5" />
+      <Chalk d="M8 48 L92 48 Q50 98 8 48 Z" c={CHALK_CREAM} />
+      <Chalk d="M90 50 L99 44" c={CHALK_CREAM} w={3.2} />
+      <Chalk d="M26 38 Q34 16 50 14 Q66 16 74 34" c={CHALK_SUB} w={1.4} />
+      {[[30, 32, LEAF_GREEN], [48, 22, TOMATO_RED], [66, 28, YOLK], [42, 42, c]].map(([x, y, col]) => (
+        <path key={`${x}`} d={`M${x - 5} ${y - 3} L${x + 5} ${y - 4} L${x + 4} ${y + 4} L${x - 4} ${y + 4} Z`} fill={col} fillOpacity="0.8" stroke={CHALK_CREAM} strokeWidth="1" />
+      ))}
+    </>
+  ),
+  taco: (c) => (
+    <>
+      <path d="M14 76 A36 36 0 0 1 86 76 Z" fill={YOLK} fillOpacity="0.3" />
+      <Chalk d="M20 60 Q26 46 32 56 Q38 42 46 52 Q52 38 60 50 Q66 40 72 54 Q78 46 82 62" c={LEAF_GREEN} w={2.6} />
+      <path d="M24 64 Q50 44 76 64 Q50 70 24 64 Z" fill={c} fillOpacity="0.65" />
+      <Chalk d="M14 76 A36 36 0 0 1 86 76 Z" c={CHALK_CREAM} />
+      <Chalk d="M8 88 L92 88" c={CHALK_SUB} w={2} />
+    </>
+  ),
+  sandwich: (c) => (
+    <>
+      <path d="M16 44 Q16 16 50 16 Q84 16 84 44 Z" fill={YOLK} fillOpacity="0.3" />
+      <Chalk d="M16 44 Q16 16 50 16 Q84 16 84 44 Z" c={CHALK_CREAM} />
+      {[[36, 28], [50, 24], [64, 28], [44, 36], [58, 36]].map(([x, y]) => <ellipse key={`${x}${y}`} cx={x} cy={y} rx="2" ry="1.2" fill={CHALK_CREAM} />)}
+      <Chalk d="M12 49 Q18 43 24 49 Q30 55 36 49 Q42 43 48 49 Q54 55 60 49 Q66 43 72 49 Q78 55 88 49" c={LEAF_GREEN} w={2.4} />
+      <path d="M14 54 L86 54 Q88 61 86 66 L14 66 Q12 61 14 54 Z" fill={c} fillOpacity="0.7" />
+      <Chalk d="M14 54 L86 54 Q88 61 86 66 L14 66 Q12 61 14 54 Z" c={CHALK_CREAM} w={2} />
+      <path d="M22 54 L78 54 L72 61 L64 56 L56 62 L46 56 L36 61 Z" fill={YOLK} fillOpacity="0.85" />
+      <path d="M16 70 L84 70 Q84 82 76 82 L24 82 Q16 82 16 70 Z" fill={YOLK} fillOpacity="0.3" />
+      <Chalk d="M16 70 L84 70 Q84 82 76 82 L24 82 Q16 82 16 70 Z" c={CHALK_CREAM} />
+      <Chalk d={BASE} c={CHALK_SUB} w={2} />
+    </>
+  ),
+  wrap: (c) => (
+    <>
+      <path d="M18 36 Q24 14 40 20 Q50 8 62 20 Q78 14 82 36 Q50 26 18 36 Z" fill={c} fillOpacity="0.7" />
+      <Chalk d="M26 26 Q30 18 34 24 M56 16 Q60 10 64 18 M70 24 Q74 18 78 26" c={LEAF_GREEN} w={2.2} />
+      <path d="M50 92 L16 34 Q50 24 84 34 Z" fill={YOLK} fillOpacity="0.3" />
+      <Chalk d="M50 92 L16 34 Q50 24 84 34 Z" c={CHALK_CREAM} />
+      <path d="M33 63 Q50 58 67 63 L50 92 Z" fill={CHALK_CREAM} fillOpacity="0.25" />
+      <Chalk d="M33 63 Q50 58 67 63" c={CHALK_CREAM} w={1.8} />
+      <Chalk d="M30 46 Q50 40 70 46" c={CHALK_CREAM} w={1.4} />
+    </>
+  ),
+  dumpling: (c) => (
+    <>
+      <path d="M14 70 Q50 22 86 70 Q50 84 14 70 Z" fill={c} fillOpacity="0.4" />
+      <Chalk d="M14 70 Q50 22 86 70 Q50 84 14 70 Z" c={CHALK_CREAM} />
+      <Chalk d="M30 52 L36 60 M42 44 L45 54 M56 44 L54 54 M68 52 L63 60" c={CHALK_CREAM} w={1.8} />
+      <Chalk d="M8 88 L92 88" c={CHALK_SUB} w={2} />
+      <Chalk d="M36 26 Q32 20 36 14 M50 22 Q46 16 50 10 M64 26 Q60 20 64 14" c={CHALK_CREAM} w={1.6} />
+    </>
+  ),
+  dip: (c) => (
+    <>
+      <path d="M14 56 Q50 46 86 56 Q80 86 50 88 Q20 86 14 56 Z" fill={c} fillOpacity="0.55" />
+      <Chalk d="M10 56 L90 56 Q84 90 50 92 Q16 90 10 56 Z" c={CHALK_CREAM} />
+      <Chalk d="M30 52 Q50 42 70 52 Q50 60 40 52" c={CHALK_CREAM} w={1.8} />
+      <circle cx="50" cy="50" r="2" fill={YOLK} />
+      <path d="M62 48 L80 14 L94 32 Z" fill={YOLK} fillOpacity="0.35" />
+      <Chalk d="M62 48 L80 14 L94 32 Z" c={CHALK_CREAM} w={2} />
+    </>
+  ),
+  skillet: (c) => (
+    <>
+      <path d="M14 56 A32 20 0 1 0 78 56 A32 20 0 1 0 14 56 Z" fill={c} fillOpacity="0.5" />
+      <Chalk d="M10 56 A36 24 0 1 0 82 56 A36 24 0 1 0 10 56 Z" c={CHALK_CREAM} />
+      <Chalk d="M82 52 L99 44" c={CHALK_CREAM} w={3.4} />
+      {[[34, 52], [56, 62]].map(([x, y]) => (
+        <g key={x}>
+          <path d={`M${x - 11} ${y} Q${x - 8} ${y - 10} ${x + 2} ${y - 9} Q${x + 12} ${y - 4} ${x + 9} ${y + 5} Q${x} ${y + 11} ${x - 11} ${y} Z`} fill={CHALK_CREAM} fillOpacity="0.7" />
+          <circle cx={x} cy={y} r="4.5" fill={YOLK} />
+        </g>
+      ))}
+    </>
+  ),
+  pizza: (c) => (
+    <>
+      <path d="M18 54 A32 32 0 1 0 82 54 A32 32 0 1 0 18 54 Z" fill={c} fillOpacity="0.55" />
+      <Chalk d="M12 54 A38 38 0 1 0 88 54 A38 38 0 1 0 12 54 Z" c={CHALK_CREAM} />
+      <Chalk d="M50 18 L50 90 M18 36 L82 72 M18 72 L82 36" c={CHALK_CREAM} w={1.4} />
+      {[[38, 40], [64, 46], [42, 70], [66, 68]].map(([x, y]) => <circle key={`${x}${y}`} cx={x} cy={y} r="5" fill={CHALK_CREAM} fillOpacity="0.7" />)}
+      {[[56, 32], [30, 56], [58, 60]].map(([x, y]) => <path key={`${x}${y}`} d={`M${x - 4} ${y} Q${x} ${y - 6} ${x + 4} ${y} Q${x} ${y + 4} ${x - 4} ${y} Z`} fill={LEAF_GREEN} />)}
+    </>
+  ),
+  bake: (c) => (
+    <>
+      <path d="M14 80 Q12 42 50 40 Q88 42 86 80 Z" fill={c} fillOpacity="0.45" />
+      <Chalk d="M14 80 Q12 42 50 40 Q88 42 86 80 Z" c={CHALK_CREAM} />
+      <Chalk d="M30 54 L38 66 M46 50 L54 64 M62 50 L70 64" c={CHALK_CREAM} w={2} />
+      <Chalk d="M6 88 L94 88" c={CHALK_SUB} w={2.4} />
+      <Chalk d="M36 32 Q32 24 36 16 M54 30 Q50 22 54 14" c={CHALK_CREAM} w={1.6} />
+    </>
+  ),
+  dessert: (c) => (
+    <>
+      <path d="M14 56 L84 40 L84 78 L14 90 Z" fill={c} fillOpacity="0.5" />
+      <Chalk d="M14 56 L84 40 L84 78 L14 90 Z" c={CHALK_CREAM} />
+      <Chalk d="M14 73 L84 59" c={CHALK_CREAM} w={1.8} />
+      <Chalk d="M14 56 Q24 50 30 54 Q38 46 46 50 Q54 42 62 46 Q70 38 84 40" c={CHALK_CREAM} w={2.2} />
+      <circle cx="70" cy="34" r="6" fill={TOMATO_RED} />
+      <Chalk d="M70 28 Q72 18 80 14" c={LEAF_GREEN} w={1.6} />
+      <Chalk d={BASE} c={CHALK_SUB} w={2} />
+    </>
+  ),
+  veg: (c) => (
+    <>
+      {/* a long roasting pepper (poblano) beside an ear of corn */}
+      <g transform="rotate(-45 68 38)">
+        <ellipse cx="68" cy="38" rx="10" ry="25" fill={YOLK} fillOpacity="0.55" stroke={CHALK_CREAM} strokeWidth="2.2" />
+        <path d="M63 22 L63 54 M68 16 L68 60 M73 22 L73 54 M60 30 L76 30 M59 38 L77 38 M60 46 L76 46" stroke={CHALK_CREAM} strokeOpacity="0.55" strokeWidth="1.2" />
+        <path d="M58 58 Q56 70 66 76 Q66 66 68 62 M78 58 Q80 70 70 76" fill="none" stroke={LEAF_GREEN} strokeWidth="2.2" strokeLinecap="round" />
+      </g>
+      <path d="M22 26 Q12 36 20 54 Q32 76 60 88 Q74 92 82 86 Q62 74 52 58 Q42 40 36 28 Q30 20 22 26 Z" fill={c} fillOpacity="0.6" />
+      <Chalk d="M22 26 Q12 36 20 54 Q32 76 60 88 Q74 92 82 86 Q62 74 52 58 Q42 40 36 28 Q30 20 22 26 Z" c={CHALK_CREAM} />
+      <Chalk d="M26 34 Q30 52 46 68" c={CHALK_CREAM} w={1.4} />
+      <Chalk d="M20 26 Q22 18 28 22 Q30 16 36 26 M27 22 Q26 12 34 6" c={LEAF_GREEN} w={2.6} />
+    </>
+  ),
+  plate: (c) => (
+    <>
+      <path d="M18 72 Q18 32 50 32 Q82 32 82 72 Z" fill={c} fillOpacity="0.4" />
+      <Chalk d="M18 72 Q18 32 50 32 Q82 32 82 72 Z" c={CHALK_CREAM} />
+      <Chalk d="M44 32 L44 24 L56 24 L56 32" c={CHALK_CREAM} w={2.2} />
+      <Chalk d="M8 74 L92 74 Q90 82 50 82 Q10 82 8 74 Z" c={CHALK_CREAM} w={2.2} />
+    </>
+  ),
+};
+/* eslint-enable react/display-name */
+
+/** Kinds DishArt can draw (the keys of DISH_TYPES in src/data/dishType.js). */
+export const DISH_ART_KINDS = Object.keys(DISH_DRAW);
+
+/** Chalk drawing of a dish type, the food tinted with `accent`. Decorative. */
+export function DishArt({ kind, accent = CHALK_CREAM, size = 64 }) {
+  const known = Object.prototype.hasOwnProperty.call(DISH_DRAW, kind);
+  return (
+    <svg
+      width={size} height={size} viewBox="0 0 100 100" aria-hidden="true"
+      data-testid="dish-art" data-kind={known ? kind : 'plate'}
+      style={{ flexShrink: 0, overflow: 'visible' }}
+    >
+      {(known ? DISH_DRAW[kind] : DISH_DRAW.plate)(accent)}
+    </svg>
+  );
+}
+
+// ── Ingredient glyphs (DESIGN-3) ──────────────────────────────────────
+// A tiny chalk sketch per ingredient-graph category, for ingredient chips.
+const GLYPH_OF_CATEGORY = {
+  protein: 'meat',
+  vegetable: 'veg', umami: 'veg',
+  fruit: 'fruit', citrus: 'fruit',
+  herb: 'leaf', aromatic: 'leaf',
+  spice: 'spice', seasoning: 'spice', chili: 'chili',
+  dairy: 'cheese',
+  grain: 'grain', baked: 'grain', thickener: 'grain',
+  fat: 'drop', liquid: 'drop',
+  condiment: 'jar', acid: 'jar', mixer: 'jar',
+  sweetener: 'sugar', confection: 'sugar',
+  nut: 'nut',
+  spirit: 'bottle', liqueur: 'bottle', bitters: 'bottle',
+};
+
+/** Glyph kind for an ingredient category, or null when there is none. */
+export function ingredientGlyphKind(category) {
+  return GLYPH_OF_CATEGORY[String(category || '').toLowerCase()] || null;
+}
+
+const GLYPH_PATH = {
+  meat: 'M8 9.5 Q6 3.5 11 2 Q16.5 1 16 6.5 Q15.5 10.5 9.5 10.5 Z M9 10 L4.5 14.5 M4.5 14.5 Q2 13.5 2.4 15.6 M4.5 14.5 Q5.5 17 3.4 16.8',
+  veg: 'M5 7 L10 16 L12 14 L8 5 Z M8 5 L6 2 M8 5 L9.4 1.6 M8 5 L11 3',
+  fruit: 'M9 5 Q3 4 3 10 Q4 16 9 15 Q14 16 15 10 Q15 4 9 5 Z M9 5 Q9 2 11 1.5',
+  leaf: 'M9 2 C4 4 4 12 9 16 C14 12 14 4 9 2 Z M9 4 L9 15',
+  spice: 'M9 2 L9 16 M2 9 L16 9 M4 4 L14 14 M14 4 L4 14',
+  chili: 'M6 4 C6 2 9 2 9 4 M9 4 C13 5 14 10 10 14 C7 16 4 14 5 11 C6 8 7 6 9 4 Z',
+  cheese: 'M2 13 L16 13 L16 7 L2 10 Z M16 7 L8 4 L2 10',
+  grain: 'M9 16 L9 3 M9 6 Q6 5 5 3 M9 6 Q12 5 13 3 M9 10 Q6 9 5 7 M9 10 Q12 9 13 7 M9 13 Q6 12 5 10 M9 13 Q12 12 13 10',
+  drop: 'M9 2 Q4 9 4 11.5 Q4 16 9 16 Q14 16 14 11.5 Q14 9 9 2 Z',
+  jar: 'M5 5 L13 5 L13 15 Q13 16 12 16 L6 16 Q5 16 5 15 Z M6 2 L12 2 L12 5 L6 5 Z M5 9 L13 9',
+  sugar: 'M3 7 L9 4 L15 7 L15 13 L9 16 L3 13 Z M3 7 L9 10 L15 7 M9 10 L9 16',
+  nut: 'M9 3 Q15 4 15 10 Q14 16 9 16 Q4 16 3 10 Q3 4 9 3 Z M9 3 Q7 9 9 16',
+  bottle: 'M7.5 1.5 L10.5 1.5 L10.5 5 Q13 6.5 13 9 L13 16 L5 16 L5 9 Q5 6.5 7.5 5 Z',
+};
+
+/** Small chalk glyph for an ingredient category (renders nothing when unknown). */
+export function IngredientGlyph({ category, color = CHALK_DIM, size = 16 }) {
+  const kind = ingredientGlyphKind(category);
+  if (!kind) return null;
+  const d = GLYPH_PATH[kind];
+  return (
+    <svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true" data-testid="ingredient-glyph" data-kind={kind} style={{ flexShrink: 0 }}>
+      <path d={d} fill="none" stroke={color} strokeOpacity="0.3" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={d} fill="none" stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
