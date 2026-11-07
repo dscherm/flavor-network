@@ -11,10 +11,12 @@
  * vessel, ingredients with amounts, the technique as the method, the
  * closest existing sauce, and — with a protein — a wine (winesForSauce).
  * "Only what I have" never falls back: a missing emulsifier or liquid is
- * named instead of invented around. Shuffle steps to the next three.
+ * named instead of invented around. Shuffle shows the next three by maximal
+ * marginal relevance against the sauces already shown (WEAK-5), never one
+ * twice, and says when the pantry has no more.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { INVENT_STYLES, inventSauces, proteinVocabulary } from '../data/inventSauce.js';
+import { INVENT_STYLES, inventSauces, proteinVocabulary, nextSauces, EXHAUSTED_SAUCE } from '../data/inventSauce.js';
 import { nearestSauces } from '../data/sauceSimilarity.js';
 import { winesForSauce, proteinIngredient } from '../data/sauceWines.js';
 import { loadWineStyles, familyColor } from '../data/wineStyles.js';
@@ -130,7 +132,6 @@ export default function InventSauce({
   const [styleId, setStyleId] = useState(initialStyle);
   const [protein, setProtein] = useState(null);
   const [pantryOnly, setPantryOnly] = useState(false);
-  const [page, setPage] = useState(0);
   const familyById = useMemo(() => new Map((families || []).map((f) => [f.id, f])), [families]);
   const proteins = useMemo(() => proteinVocabulary(sauces).slice(0, PROTEINS_SHOWN), [sauces]);
   const style = INVENT_STYLES.find((s) => s.id === styleId) || INVENT_STYLES[0];
@@ -147,13 +148,19 @@ export default function InventSauce({
     () => inventSauces({ styleId, protein, kitchen, assumeBasics, pantryOnly, meta, sauces, catMap, names, pairingIndex, sauceIndex, limit: 12 }),
     [styleId, protein, kitchen, assumeBasics, pantryOnly, meta, sauces, catMap, names, pairingIndex, sauceIndex],
   );
-  useEffect(() => { setPage(0); }, [styleId, protein, kitchen, pantryOnly, assumeBasics]);
-
-  const pages = result.ok ? Math.max(1, Math.ceil(result.sauces.length / PER_PAGE)) : 0;
-  const shown = useMemo(
-    () => (result.ok ? result.sauces.slice((page % pages) * PER_PAGE, (page % pages) * PER_PAGE + PER_PAGE) : []),
-    [result, page, pages],
-  );
+  // This session's sauces: every one shown so far, and the page on screen.
+  const pool = useMemo(() => (result.ok ? result.pool || result.sauces : []), [result]);
+  const [session, setSession] = useState({ pool: null, seen: [], shown: [], exhausted: false });
+  const fresh = (p) => { const first = nextSauces(p, [], PER_PAGE); return { pool: p, seen: first, shown: first, exhausted: false }; };
+  const current = session.pool === pool ? session : fresh(pool);
+  useEffect(() => { if (session.pool !== pool) setSession(fresh(pool)); }, [pool, session.pool]);
+  const shown = current.shown;
+  const shuffle = () => {
+    const next = nextSauces(pool, current.seen, PER_PAGE);
+    setSession(next.length === 0
+      ? { ...current, exhausted: true }
+      : { ...current, seen: [...current.seen, ...next], shown: next });
+  };
 
   const cards = useMemo(() => shown.map((inv) => {
     const keys = inv.lines.map((l) => l.key);
@@ -242,14 +249,26 @@ export default function InventSauce({
             onSelectSauce={onSelectSauce} onOpenRecipeLab={onOpenRecipeLab} familyById={familyById} />
         ))}
 
-        {result.ok && (
+        {result.ok && current.exhausted && (
+          <div className="mt-3 rounded-lg px-3 py-3" style={{ border: `1px dashed ${CHALK_RAIL}` }} data-testid="sauce-invent-exhausted" role="status">
+            <p className="text-[18px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{EXHAUSTED_SAUCE}</p>
+            <button type="button" onClick={() => setSession(fresh(pool))} data-testid="sauce-invent-start-over"
+              className={`mt-2 px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`}
+              style={{ fontFamily: FONT, fontSize: 18, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+              ↺ Start over
+            </button>
+          </div>
+        )}
+        {result.ok && !current.exhausted && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={() => setPage((i) => i + 1)} disabled={pages < 2} data-testid="sauce-invent-shuffle"
-              className={`px-3 py-2 rounded-lg border min-h-[44px] disabled:opacity-40 ${FOCUS}`}
+            <button type="button" onClick={shuffle} data-testid="sauce-invent-shuffle"
+              className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`}
               style={{ fontFamily: FONT, fontSize: 18, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
               🔀 Shuffle
             </button>
-            {pages > 1 && <span className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{(page % pages) + 1} of {pages}</span>}
+            <span className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid="sauce-invent-count">
+              {current.seen.length} of {pool.length} sauces
+            </span>
           </div>
         )}
       </div>

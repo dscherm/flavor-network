@@ -6,15 +6,18 @@
  * the ones the kitchen leans toward) and optionally a main ingredient from
  * the kitchen. The set-completion model grows a dish from the kitchen
  * (src/data/inventRecipe.js); at most two "you'd need" ingredients come
- * from outside it when the dish is thin. Three inventions at a time, each
- * with amounts (quantityRuntime), the closest real recipe (title + method)
- * and an honest note that it is an idea, not a tested recipe.
+ * from outside it. Three inventions at a time, each with amounts
+ * (quantityRuntime), the closest real recipe (title + method) and an honest
+ * note that it is an idea, not a tested recipe. Shuffle picks the next three
+ * by maximal marginal relevance against every idea already shown this
+ * session (WEAK-5), never repeats one, and says so when the kitchen has no
+ * more ("That's every idea for this kitchen…").
  *
  * If the model fails to load the panel says invent is unavailable; if the
  * real-recipe index fails, inventions simply have no "closest" line.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { inventRecipes, kitchenCuisines, cuisineOptions, inventionHandoff } from '../data/inventRecipe.js';
+import { inventRecipes, kitchenCuisines, cuisineOptions, inventionHandoff, nextInventions, EXHAUSTED_RECIPE } from '../data/inventRecipe.js';
 import { isBasic } from '../data/myKitchen.js';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
 import { blendIndex } from '../data/everydayPairs.js';
@@ -49,7 +52,10 @@ export default function InventRecipe({ kitchen = [], nodes = null, edges = null,
   const [main, setMain] = useState(null);
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [page, setPage] = useState(0);
+  // This session's ideas: everything shown so far, and the page on screen.
+  const [seen, setSeen] = useState([]);
+  const [shown, setShown] = useState([]);
+  const [exhausted, setExhausted] = useState(false);
   const [amounts, setAmounts] = useState(new Map());
   const [openMethod, setOpenMethod] = useState(null);
 
@@ -77,18 +83,28 @@ export default function InventRecipe({ kitchen = [], nodes = null, edges = null,
     let live = true;
     setBusy(true);
     inventRecipes({ kitchen, cuisine, main, suggest: model.data.suggest, pairingIndex, nodes, names, limit: 12 })
-      .then((r) => { if (live) { setResult(r); setPage(0); setOpenMethod(null); } })
+      .then((r) => {
+        if (!live) return;
+        const first = r.ok ? nextInventions(r.pool || r.inventions, [], PER_PAGE) : [];
+        setResult(r); setSeen(first); setShown(first); setExhausted(false); setOpenMethod(null);
+      })
       .catch(() => { if (live) setResult({ ok: false, reason: 'Something went wrong inventing a dish. Try another cuisine.' }); })
       .finally(() => { if (live) setBusy(false); });
     return () => { live = false; };
   }, [model, cuisine, main, kitchen, pairingIndex, nodes, names]);
 
-  const inventions = useMemo(() => (result?.ok ? result.inventions : []), [result]);
-  const pages = Math.max(1, Math.ceil(inventions.length / PER_PAGE));
-  const shown = useMemo(
-    () => inventions.slice((page % pages) * PER_PAGE, (page % pages) * PER_PAGE + PER_PAGE),
-    [inventions, page, pages],
-  );
+  const pool = useMemo(() => (result?.ok ? result.pool || result.inventions : []), [result]);
+  const shuffle = () => {
+    setOpenMethod(null);
+    const next = nextInventions(pool, seen, PER_PAGE);
+    if (next.length === 0) { setExhausted(true); return; }
+    setSeen((s) => [...s, ...next]);
+    setShown(next);
+  };
+  const startOver = () => {
+    const first = nextInventions(pool, [], PER_PAGE);
+    setSeen(first); setShown(first); setExhausted(false); setOpenMethod(null);
+  };
 
   const closest = useMemo(() => {
     const m = new Map();
@@ -258,10 +274,25 @@ export default function InventRecipe({ kitchen = [], nodes = null, edges = null,
                     </article>
                   );
                 })}
-                <button type="button" onClick={() => { setPage((p) => p + 1); setOpenMethod(null); }} disabled={pages < 2} data-testid="invent-recipe-shuffle"
-                  className={`self-center px-4 py-2 rounded-lg border min-h-[44px] disabled:opacity-40 ${FOCUS}`} style={btn}>
-                  🔀 Shuffle
-                </button>
+                {exhausted ? (
+                  <div className="rounded-lg px-3 py-3 text-center" style={{ border: `1px dashed ${CHALK_RAIL}` }} data-testid="invent-recipe-exhausted" role="status">
+                    <p className="text-[18px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{EXHAUSTED_RECIPE}</p>
+                    <button type="button" onClick={startOver} data-testid="invent-recipe-start-over"
+                      className={`mt-2 px-4 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={btn}>
+                      ↺ Start over
+                    </button>
+                  </div>
+                ) : (
+                  <div className="self-center flex items-center gap-2">
+                    <button type="button" onClick={shuffle} data-testid="invent-recipe-shuffle"
+                      className={`px-4 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={btn}>
+                      🔀 Shuffle
+                    </button>
+                    <span className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid="invent-recipe-count">
+                      {seen.length} of {pool.length} ideas
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </>

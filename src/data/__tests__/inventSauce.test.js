@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   INVENT_STYLES, inventSauces, fitsSlot, amountFor, methodFor, proteinVocabulary, buildSaucePool,
+  sauceSizeTerm, isSauceBasic, nextSauces, EXHAUSTED_SAUCE, SAUCE_SIZE,
 } from '../inventSauce.js';
 import { SAUCE_TEMPLATES } from '../sauceScoring.js';
 import { buildCategoryMap, sauceRoleOf, sauceKind } from '../saucePantry.js';
@@ -176,5 +177,59 @@ describe('helpers', () => {
   });
   it('unknown style', () => {
     expect(inventSauces({ ...base, styleId: 'Nope' })).toMatchObject({ ok: false });
+  });
+});
+
+describe('size, why and variety (WEAK-5)', () => {
+  const PANTRY = ['butter', 'egg yolk', 'lemon', 'shallot', 'white wine', 'cream', 'tomato', 'garlic'];
+
+  it('the size term peaks at 5–7 ingredients', () => {
+    const top = sauceSizeTerm(5);
+    for (const n of [5, 6, 7]) expect(sauceSizeTerm(n)).toBe(top);
+    expect(sauceSizeTerm(3)).toBeLessThan(sauceSizeTerm(4));
+    expect(sauceSizeTerm(4)).toBeLessThan(top);
+    expect(sauceSizeTerm(8)).toBeLessThan(top);
+  });
+
+  it('basics fill slots but never make the "why"', () => {
+    expect(isSauceBasic('butter')).toBe(true);
+    expect(isSauceBasic('olive oil')).toBe(true);
+    expect(isSauceBasic('sesame oil')).toBe(true);
+    expect(isSauceBasic('garlic')).toBe(false);
+    for (const style of INVENT_STYLES) {
+      const r = inventSauces({ ...base, styleId: style.id, kitchen: PANTRY });
+      for (const inv of r.pool) {
+        const m = inv.why.match(/: (.*)\.$/);
+        if (m) for (const pair of m[1].split(', ')) for (const k of pair.split(' + ')) expect(isSauceBasic(k), `${inv.name}: ${inv.why}`).toBe(false);
+      }
+    }
+  });
+
+  it('fills optional roles from the pantry: mean size at least 5 over every style', () => {
+    const sizes = INVENT_STYLES.flatMap((style) => inventSauces({ ...base, styleId: style.id, kitchen: PANTRY }).sauces.map((s) => s.lines.length));
+    expect(sizes.reduce((a, b) => a + b, 0) / sizes.length).toBeGreaterThanOrEqual(SAUCE_SIZE.min);
+  });
+
+  it('a tomato sauce and a salsa can take onion and garlic both', () => {
+    const t = inventSauces({ ...base, styleId: 'Tomato', kitchen: ['tomato', 'garlic', 'onion'] });
+    expect(t.sauces[0].lines.map((l) => l.key)).toEqual(expect.arrayContaining(['tomato', 'garlic', 'onion']));
+    expect(t.sauces[0].method).toMatch(/garlic and onion|onion and garlic/);
+    const s = inventSauces({ ...base, styleId: 'Salsa', kitchen: ['tomato', 'garlic', 'onion'] });
+    expect(s.sauces[0].lines.map((l) => l.key)).toEqual(expect.arrayContaining(['tomato', 'garlic', 'onion']));
+  });
+
+  it('Shuffle walks every sauce once, names unique, then is exhausted', () => {
+    const r = inventSauces({ ...base, styleId: 'Hollandaise', kitchen: PANTRY });
+    const shown = [];
+    for (let i = 0; i < 100; i++) {
+      const next = nextSauces(r.pool, shown, 3);
+      if (next.length === 0) break;
+      shown.push(...next);
+    }
+    expect(shown).toHaveLength(r.pool.length);
+    expect(new Set(shown.map((s) => s.lines.map((l) => l.key).sort().join())).size).toBe(shown.length);
+    expect(new Set(shown.map((s) => s.name)).size).toBe(shown.length);
+    expect(nextSauces(r.pool, shown, 3)).toEqual([]);
+    expect(EXHAUSTED_SAUCE).toBe("That's every idea for this pantry; add an ingredient for more.");
   });
 });

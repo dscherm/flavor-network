@@ -90,7 +90,9 @@ describe('inventionName', () => {
 });
 
 describe('inventRecipes', () => {
-  const KITCHEN = ['chicken', 'lemon', 'garlic', 'tomato', 'chocolate', 'salt', 'olive oil'];
+  // WEAK-5: rice joined the kitchen. With DISH_MIN now 5, a 4-item kitchen
+  // dish fills up with something to buy; this test is about the kitchen-only case.
+  const KITCHEN = ['chicken', 'lemon', 'garlic', 'tomato', 'rice', 'chocolate', 'salt', 'olive oil'];
   const LOGITS = { lemon: 1, garlic: 0.5, tomato: -1, chocolate: -6, basil: 0, parmesan: -1, rice: -2 };
 
   it('grows the dish from the kitchen, leaving out what does not fit', async () => {
@@ -100,7 +102,7 @@ describe('inventRecipes', () => {
     const first = r.inventions[0];
     expect(first.ingredients[0]).toMatchObject({ name: 'chicken', main: true });
     const names = first.ingredients.map((i) => i.name);
-    expect(names).toEqual(expect.arrayContaining(['chicken', 'lemon', 'garlic', 'tomato']));
+    expect(names).toEqual(expect.arrayContaining(['chicken', 'lemon', 'garlic', 'tomato', 'rice']));
     expect(names).not.toContain('chocolate'); // logit below FIT_LOGIT
     expect(names).not.toContain('salt');
     expect(first.ingredients.every((i) => !i.needed)).toBe(true);
@@ -113,28 +115,37 @@ describe('inventRecipes', () => {
   it('a thin dish adds at most two things to buy, labelled needed', async () => {
     const suggest = fakeSuggest({ lemon: 1, basil: 0.5, parmesan: 0.2, rice: 0.1, 'extra-virgin olive oil': 3 });
     const r = await inventRecipes({ kitchen: ['chicken', 'lemon'], suggest, nodes: NODES, names: NAMES });
+    // WEAK-5: which two it buys now follows role balance (a starch beats a
+    // second rich ingredient), so the test checks the rule, not the pair.
     const inv = r.inventions[0];
     const needed = inv.ingredients.filter((i) => i.needed).map((i) => i.name);
-    expect(needed.length).toBeLessThanOrEqual(MAX_OUTSIDE);
-    expect(needed).toEqual(['basil', 'parmesan']);
-    expect(needed).not.toContain('extra-virgin olive oil'); // a basic, never "to buy"
+    expect(needed).toHaveLength(MAX_OUTSIDE);
+    expect(inv.ingredients.length).toBe(4);
+    for (const d of r.pool) {
+      const buy = d.ingredients.filter((i) => i.needed).map((i) => i.name);
+      expect(buy.length).toBeLessThanOrEqual(MAX_OUTSIDE);
+      expect(buy).not.toContain('extra-virgin olive oil'); // a basic, never "to buy"
+      for (const b of buy) expect(['basil', 'parmesan', 'rice']).toContain(b);
+    }
   });
 
   it('things to buy need an observed pairing with the dish and to be common', async () => {
     const suggest = fakeSuggest({ lemon: 1, basil: 0.5, parmesan: 0.2, rice: 0.1 });
     const idx = index([['chicken', 'rice', 0.4], ['chicken', 'lemon', 0.5], ['chicken', 'parmesan', 0.1]], { rice: 400, basil: 400, parmesan: 10 });
     const r = await inventRecipes({ kitchen: ['chicken', 'lemon'], suggest, pairingIndex: idx, nodes: NODES, names: NAMES });
-    const needed = r.inventions[0].ingredients.filter((i) => i.needed).map((i) => i.name);
-    expect(needed).toEqual(['rice']); // basil: no pairing; parmesan: too rare here
+    // WEAK-5: checked over every idea, not only the first (ranking now weighs size and balance).
+    const bought = new Set(r.pool.flatMap((d) => d.ingredients.filter((i) => i.needed).map((i) => i.name)));
+    expect([...bought]).toEqual(['rice']); // basil: no pairing; parmesan: too rare here
   });
 
-  it('scores by mean pairing and offers distinct dishes', async () => {
+  it('leads with the best-scoring dish and offers distinct, distinctly named dishes', async () => {
     const idx = index([['chicken', 'lemon', 0.9], ['lemon', 'garlic', 0.2], ['chicken', 'tomato', 0.1], ['garlic', 'tomato', 0.1]]);
     const r = await inventRecipes({ kitchen: KITCHEN, suggest: fakeSuggest(LOGITS), pairingIndex: idx, nodes: NODES, names: NAMES });
-    const keys = r.inventions.map((i) => i.ingredients.map((x) => x.name).sort().join());
+    const keys = r.pool.map((i) => i.ingredients.map((x) => x.name).sort().join());
     expect(new Set(keys).size).toBe(keys.length);
-    expect(new Set(r.inventions.map((i) => i.name)).size).toBe(r.inventions.length);
-    for (let i = 1; i < r.inventions.length; i++) expect(r.inventions[i - 1].score).toBeGreaterThanOrEqual(r.inventions[i].score);
+    expect(new Set(r.pool.map((i) => i.name)).size).toBe(r.pool.length);
+    // WEAK-5: the order after the first is MMR (variety), not score; the first is the best.
+    expect(r.inventions[0].score).toBe(Math.max(...r.pool.map((i) => i.score)));
     expect(r.inventions[0].why).toMatch(/chicken \+ lemon|lemon \+ chicken/);
   });
 

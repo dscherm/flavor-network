@@ -1577,6 +1577,23 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
     "docs/directions-index.md: root cause, before/after table, 20-entry spot-check",
     "Kitchen real-recipe list shows at most one result per normalised title (test)",
     "npm run gate green (182 files, 2024 tests on master e2310af + WEAK-2; build clean)"
+
+  "id": "WEAK-5",
+  "title": "Invent: dishes and sauces of a real size, and Shuffle that finds new ones",
+  "category": "feature",
+  "passes": true,
+  "description": "Invented dishes averaged 4-4.4 ingredients and repeated (the pasta kitchen gave one dish), one beef-kitchen dish had no beef, sauces were thin (salsa = tomato + garlic) and their 'why' lines leaned on olive oil + garlic. Cause: ranking by mean pair strength favours small sets, and a deterministic top-k repeats. Recipe (src/data/inventRecipe.js): each seed is grown four ways up to 8 ingredients (fit gate logit -3.5, was -2.5), every prefix alone and with 1-2 common outside ingredients becomes a candidate; score = coherence (basics left out; 1/4 mean pair + 3/4 best partner) + size (flat top 5-8) + role balance (main, vegetable, starch where the cuisine expects one, aromatic, acid or richness, herb or spice) + fit - buying (0.05 to fill to 5, 0.09 beyond) + kitchen use; the chosen main is in every dish, savoury dishes need a centre, a kitchen with a protein/legume/starch builds every dish on one, thin subsets of better dishes are dropped. Sauce (src/data/inventSauce.js): basics fill slots but never count toward coherence or the 'why', pair strength capped at 0.5, size term peaking at 5-7, a cost for an optional ingredient that pairs with nothing, a second optional aromatic for Tomato and Salsa; chemistry slots unchanged. Variety (src/data/inventVariety.js): maximal marginal relevance (lambda 0.6, Jaccard) against the ideas shown this session, unique names in that order, and 'That's every idea for this kitchen/pantry; add an ingredient for more' with Start over when the pool is done (InventRecipe.jsx, InventSauce.jsx). Measured by scripts/measureInvent.mjs (real set-completion model via onnxruntime-node); before/after and by-eye review in docs/invent-size-variety.md.",
+  "acceptance": [
+    "Checks (a)-(f) written down before changing anything in docs/invent-size-variety.md",
+    "(a) recipe mean size within 5-8: chicken 4.43 -> 5.67, pasta 5.00 -> 5.67, beef 4.00 -> 5.08",
+    "(b) distinct dishes over a first page + 5 Shuffles >= 10: chicken 5-6 -> 18, pasta 1 -> 18, beef 3 -> 18 (pools 71/29/65, none exhausted; a 2-item kitchen reaches the exhausted message after 11)",
+    "(c) chosen main in 100% of its dishes (471/471); with any main, 180/180 dishes have a centre (was 35/48)",
+    "(d) no assumed basic in the top 'why' pair: recipes 0/180, sauces 330/545 -> 0/345",
+    "(e) sauce mean size 4.41 -> 5.97 over 10 techniques with the chemistry tests (inventSauce.test.js) passing",
+    "(f) by-eye review: 9/10 recipes and 9/10 sauces a cook would make (tables in the doc)",
+    "Unit tests: size term, coherence, role balance, centre rule, buying cost, why line, MMR selection, exhaustion, unique names (inventRecipeSize.test.js, inventVariety.test.js, inventSauce.test.js, InventRecipe/InventSauce component tests); four existing invent tests updated with a reason in the test",
+    "Checked at 375px in Chrome (Vite 5197): 18 distinct dishes over 5 Shuffles, main = lemon in every card, exhausted message + Start over for recipe and sauce, no page errors",
+    "npm run gate green"
   ]
 }
 ```
