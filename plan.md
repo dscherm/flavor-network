@@ -1343,3 +1343,20 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "WINE-6",
+  "title": "Wine card: flavour-profile radar, aroma families and 'pairs by profile' rules; review of the wine mappings",
+  "category": "ui",
+  "passes": true,
+  "description": "Opening a wine card now shows a 'Flavour profile' section (structure radar over body/acidity/tannin/sweetness/alcohol/oak via ProfileRadar, plus an aroma-family breakdown over 8 families), a 'Pairs by profile' list of structure -> food rules with example foods from the style's classic matches and its aroma bridges, and an 'Avoid' list. Pure logic in src/data/wineProfile.js restates the pairing engine (src/data/winePairing.js, unchanged) at its thresholds; consistency tests score dishes with the engine itself. LabNodeCard gains an optional children slot. docs/wine-mapping-review.md audits the 53 styles and the rules with a prioritised, measurable improvement list. No data edits.",
+  "acceptance": [
+    "wineProfile.js unit tests: axes in 0..1, every aroma tag mapped, Barolo tannin rule, off-dry Riesling heat rule, Sauternes dessert rule, Champagne bubbles rule",
+    "Engine-consistency tests: rule groups rank as the engine scores them (steak, fish, Thai, dessert, fried)",
+    "Component test: opening a wine card shows the profile and mapping sections",
+    "Checked at 375px in the browser: no horizontal scroll",
+    "Full vitest suite green; evalWinePairing numbers unchanged (no engine or data change)"
+  ]
+}
+```

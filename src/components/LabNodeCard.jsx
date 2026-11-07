@@ -106,6 +106,7 @@ export default function LabNodeCard({
   bridges = [],          // [{ name, family_name, color }]
   pairsWith = [],        // string[]
   actions = [],          // [{ label, onClick, testid }] — buttons under the family chip
+  children = null,       // optional extra sections, rendered after the details row
   onSelect,
   onClose,
 }) {
@@ -183,6 +184,9 @@ export default function LabNodeCard({
             ))}
           </div>
         )}
+
+        {/* Kind-specific sections (e.g. the wine flavour profile) */}
+        {children && <div className="flex-shrink-0">{children}</div>}
 
         {/* Ingredients */}
         {ingList.length > 0 && (

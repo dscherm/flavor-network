@@ -91,6 +91,28 @@ describe('WineLab — browse', () => {
     expect(within(card).getByText('Wines like this')).toBeInTheDocument();
     expect(within(card).getByTestId('lab-node-card-pairs-with')).toHaveTextContent('tomato');
   });
+
+  it('the wine card shows the flavour profile radar, aroma families and pairing rules', async () => {
+    render(<WineLab />);
+    await waitFor(() => screen.getByText('Wine List'));
+    fireEvent.click(screen.getByTestId('wine-row-barolo'));
+    const card = screen.getByTestId('lab-node-card');
+    expect(within(card).getByText('Flavour profile')).toBeInTheDocument();
+    expect(within(card).getByRole('img', { name: /structure radar/i })).toBeInTheDocument();
+    expect(within(card).getByTestId('wine-aroma-families')).toHaveTextContent('Earthy');
+    expect(within(card).getByText('Pairs by profile')).toBeInTheDocument();
+    expect(within(card).getByTestId('wine-rule-tannin')).toHaveTextContent(/red meat/i);
+    expect(within(card).getByTestId('wine-avoid')).toHaveTextContent(/fish/i);
+  });
+
+  it('a dessert wine card maps to desserts, not to red meat', async () => {
+    render(<WineLab />);
+    await waitFor(() => screen.getByText('Wine List'));
+    fireEvent.click(screen.getByTestId('wine-row-sauternes'));
+    const card = screen.getByTestId('lab-node-card');
+    expect(within(card).getByTestId('wine-rule-dessert')).toHaveTextContent(/desserts/i);
+    expect(within(card).queryByTestId('wine-rule-tannin')).toBeNull();
+  });
 });
 
 describe('WineLab — matches', () => {
