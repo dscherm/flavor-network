@@ -1524,3 +1524,23 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "WEAK-A",
+  "title": "Everyday-pairs index for the invent and kitchen features",
+  "category": "data",
+  "passes": true,
+  "description": "pairings.json is missing the most common pairs in cooking (chicken|garlic, garlic|onion, garlic|olive oil, beef|onion …). 07-blend-v2.js weights NPMI, on which hub pairs score low, and keeps only the strongest 40k. Option A (owner-approved): a separate index built from the raw RecipeNLG counts, used only by the invent and kitchen features. scripts/build_everyday_pairs.mjs (rule in src/data/everydayPairsSelect.js) maps co-occurrence names onto the app vocabulary: 3,353 exact plus 136 through spelling variants and aliases, with counts summed. It drops TRIVIAL + SUGGESTION_EXCLUDE and keeps pairs with count >= 30 and PMI > 0. It scores each pair log10(count)^3 * cbrt(min(PMI,3)), keeps each ingredient's top 32 (either side) and quantile-maps the score percentile onto the curated tradition strengths. Output: public/proDataset/everyday_pairs.json, 488 KB, 35,701 pairs, 2,906 names, deterministic. src/data/everydayPairs.js has a cached, fail-safe loader (null on failure), strength(), partners() and blendIndex(curated, everyday): the buildPairingIndex shape with the per-pair max. It is wired into Invent a recipe (InventRecipe.jsx) and the Sauce Lab pantry context (Invent a sauce + My pantry stand-ins) through useEverydayPairs. The cocktail lab is not wired: links rose from 73% to 82%, but the top picks got worse (Margarita → rum sour), and its single index also drives Riff. pairings.json/.bin, the Pairing Lab, the Cookbook 'goes well with' ranking and evalPairingMatch are untouched. Before/after in docs/everyday-pairs.md (scripts/measureEverydayPairs.mjs, real set-completion model via onnxruntime-node).",
+  "acceptance": [
+    "Checks written down before measuring in docs/everyday-pairs.md",
+    "(a) 9 of 10 named common pairs present blended (0 of 8 brief pairs curated); butter|garlic is absent because RecipeNLG PMI is -0.54, and the report says why",
+    "(b) Cookbook within-recipe pairs with an edge: 29.1% curated → 67.8% blended",
+    "(c)/(d) Invent a recipe (3 kitchens) and Invent a sauce (1 pantry, 10 styles) measured over 5 shuffles before/after; sizes and variety unchanged, as expected (the next bead's job)",
+    "Builder selection rule unit-tested on a tiny fixture: hub pairs kept, trivial/floor/negative-PMI dropped, alias merge, top-K on either side, determinism (test)",
+    "Loader caches, returns null on failure and retries; blendIndex keeps the buildPairingIndex shape, takes the per-pair max, does not mutate curated, falls back to curated when everyday is null, and drops into inventRecipes unchanged (test)",
+    "Artifact <= 1.5 MB (488 KB)",
+    "npm run gate green"
+  ]
+}
+```
