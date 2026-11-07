@@ -2182,6 +2182,7 @@ export default function App() {
             onFindCocktail={handleFindCocktail}
             onFindSauce={handleFindSauce}
             onFindWine={handleFindWine}
+            onOpenCookbook={() => setActiveTab('cookbook')}
           />
         </div>
       )}

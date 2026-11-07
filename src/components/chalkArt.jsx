@@ -273,3 +273,69 @@ export function MakeArt({ kind, accent = CHALK_CREAM, size = 68 }) {
   const Cmp = MAKE_ART[kind];
   return Cmp ? <Cmp c={accent} size={size} /> : null;
 }
+
+// ── Ingredient drawings by category (DESIGN-4) ─────────────────────────
+// Small drawings for the Recipe Notebook: chalk on the board (starter
+// items), ink on the paper page (ingredient rows). Derived only from the
+// ingredient's existing `category` field — no new data. viewBox 0 0 32 32.
+const INGREDIENT_GLYPHS = {
+  leaf: 'M6 26 Q6 8 26 6 Q24 24 6 26 Z M6 26 L18 14',
+  drop: 'M16 4 Q26 17 23 23 A7.5 7.5 0 0 1 9 23 Q6 17 16 4 Z',
+  pepper: 'M11 11 Q4 19 10 26 Q16 30 27 28 Q17 24 16 13 Q15 10 11 11 Z M13 11 Q12 6 17 4',
+  citrus: 'M16 4 A12 12 0 1 0 16 28 A12 12 0 1 0 16 4 Z M16 7 L16 25 M8 12 L24 20 M8 20 L24 12',
+  apple: 'M16 10 Q8 4 6 13 Q5 24 12 27 Q16 28 20 27 Q27 24 26 13 Q24 4 16 10 Z M16 10 Q16 6 19 3',
+  carrot: 'M6 27 Q9 19 20 9 L23 12 Q13 23 6 27 Z M21 10 L23 3 M22 11 L29 9 M22 10 L27 5',
+  bulb: 'M16 6 Q26 14 24 22 Q22 28 16 28 Q10 28 8 22 Q6 14 16 6 Z M16 6 L16 2 M16 12 Q12 20 16 28 M16 12 Q20 20 16 28',
+  fish: 'M4 16 Q13 6 22 16 Q13 26 4 16 Z M22 16 L28 10 L28 22 Z M9 15 L9.5 15',
+  cheese: 'M4 24 L28 24 L28 12 L4 20 Z M11 21 A1.5 1.5 0 1 0 11 21.1 M20 19 A2 2 0 1 0 20 19.1',
+  wheat: 'M16 29 L16 5 M16 11 Q11 9 11 5 Q16 6 16 11 M16 11 Q21 9 21 5 Q16 6 16 11 M16 18 Q11 16 11 12 Q16 13 16 18 M16 18 Q21 16 21 12 Q16 13 16 18',
+  loaf: 'M5 23 Q3 10 16 10 Q29 10 27 23 Z M11 13 L13 18 M16 12 L18 17 M21 13 L23 18',
+  nut: 'M9 14 Q16 4 23 14 Z M10 14 Q10 26 16 28 Q22 26 22 14',
+  cube: 'M8 12 L16 8 L24 12 L24 22 L16 26 L8 22 Z M8 12 L16 16 L24 12 M16 16 L16 26',
+  bottle: 'M13 3 L19 3 L19 9 Q23 12 23 16 L23 28 L9 28 L9 16 Q9 12 13 9 Z M9 18 L23 18',
+  mushroom: 'M4 16 Q4 5 16 5 Q28 5 28 16 Z M12 16 L12 27 L20 27 L20 16',
+  bowl: 'M4 14 L28 14 Q27 26 16 26 Q5 26 4 14 Z M10 10 Q12 7 10 4 M17 10 Q19 7 17 4',
+};
+
+const CATEGORY_GLYPH = {
+  herb: 'leaf',
+  liquid: 'drop', mixer: 'drop', acid: 'drop', fat: 'drop',
+  chili: 'pepper', spice: 'pepper', seasoning: 'pepper',
+  citrus: 'citrus',
+  fruit: 'apple',
+  vegetable: 'carrot',
+  aromatic: 'bulb',
+  protein: 'fish',
+  dairy: 'cheese',
+  grain: 'wheat',
+  baked: 'loaf',
+  nut: 'nut',
+  sweetener: 'cube', confection: 'cube',
+  spirit: 'bottle', liqueur: 'bottle', bitters: 'bottle', condiment: 'bottle',
+  umami: 'mushroom',
+};
+
+/** Which drawing an ingredient category gets ('bowl' when unknown). */
+export function ingredientArtKind(category) {
+  return CATEGORY_GLYPH[String(category || '').toLowerCase()] || 'bowl';
+}
+
+/**
+ * Small drawing of an ingredient, picked by its `category`. `ink` is the
+ * line colour (chalk cream on the board, pencil brown on paper); `tint`
+ * fills the shape faintly (e.g. the taste colour). Decorative: aria-hidden.
+ */
+export function IngredientArt({ category, size = 20, ink = CHALK_CREAM, tint = null }) {
+  const kind = ingredientArtKind(category);
+  const d = INGREDIENT_GLYPHS[kind];
+  const w = size >= 40 ? 1.8 : 2.2;
+  return (
+    <svg
+      width={size} height={size} viewBox="0 0 32 32" aria-hidden="true"
+      data-testid="ingredient-art" data-kind={kind}
+      style={{ flexShrink: 0, overflow: 'visible' }}
+    >
+      <Chalk d={d} c={ink} w={w} fill={tint || 'none'} fillOpacity={tint ? 0.35 : 1} />
+    </svg>
+  );
+}

@@ -1421,6 +1421,18 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
     "Family shelf: one glass per family with a count; tapping filters, tapping again clears; works with the colour and country chips (test)",
     "My bar rows (You can make, One away) and Invent (card, nearest cocktails, style chips) show the family glass; a campari drink is poured red (test)",
     "Checked at 375px in the browser: wine list, shelf, filtered shelf, card, My bar, Invent; Cocktail menu shelf unchanged",
+
+  "id": "DESIGN-4",
+  "title": "Recipe Notebook: chalk frame, paper page, and a starter state",
+  "category": "ui",
+  "passes": true,
+  "description": "Item 7 of docs/design-review-2026-11.md; owner's ruling: 'Chalk frame, paper page.' The Recipe Notebook (RecipeLabMobile, also behind RecipeLab on desktop) now sits on the labs' chalkboard (chalkSurfaceStyle) and stops above the tab bar. The header ('Recipe Notebook' chalk heading + count), Save/Clear and the toolbar (Suggest, Amounts, Flavor Profiles, + Add) are chalk-outline buttons in Caveat; the toast is chalk. The recipe itself stays a cream lined sheet with a red margin, pinned with two strips of tape and a drop shadow. Each ingredient row carries a small ink drawing picked from the ingredient's existing `category` (IngredientArt / ingredientArtKind, appended to chalkArt.jsx: leaf for herbs, drop for liquids/fats/acids, pepper for chili/spice, citrus slice, apple, carrot, garlic bulb, fish for protein, cheese, wheat, loaf, nut, sugar cube, bottle, mushroom; bowl when unknown). With an empty bowl the board shows 'Start with…' and three starter ingredients drawn in chalk (src/data/notebookStarters.js: the most-paired ingredient of the first three present of vegetable, aromatic, herb, protein, citrus, …; pantry staples excluded), a tap adds one; plus 'or open a Cookbook recipe' (new onOpenCookbook prop, App switches to the Cookbook tab). Popouts (picker, suggestion card deck, Flavor Profiles card) were already chalk and are unchanged.",
+  "acceptance": [
+    "Empty bowl: three chalk starter ingredients render, tap adds to the bowl and the starter goes away (test)",
+    "'or open a Cookbook recipe' calls onOpenCookbook; hidden when not wired; starter renders before the graph loads (test)",
+    "Chrome keeps Suggest / Amounts / Flavor Profiles / + Add / Save / Clear with a non-empty bowl; Flavor Profiles still opens (test)",
+    "Frame is the chalk surface, the page is a separate paper sheet; each row has an aria-hidden category drawing (test)",
+    "Checked at 375px with an empty bowl and with 7 ingredients (amounts filled, Flavor Profiles opened)",
     "npm run gate green"
   ]
 }

@@ -4,9 +4,12 @@ import { scoreIngredient } from '../data/tastePositioning.js';
 import { getNeighborsEnriched } from '../data/graph.js';
 import { bowlGetAmount } from '../data/bowlEntry.js';
 import RecipeCookingMethod from './RecipeCookingMethod.jsx';
+import { IngredientArt } from './chalkArt.jsx';
 
 const FONT_FAMILY = 'Caveat, cursive';
 const LINE_HEIGHT = 28;
+const PENCIL = '#5a4a2a'; // ink for the small drawings on the paper
+const MARGIN_PAD = 38; // left of the red margin line (at 32px)
 
 function getDominantTaste(name, node) {
   if (!node) return 'default';
@@ -201,7 +204,8 @@ export default function RecipeNotebook({
   if (entries.length === 0) {
     return (
       <div
-        className="flex-1 flex items-center justify-center px-6"
+        data-testid="notebook-empty-page"
+        className="flex-1 h-full flex items-center justify-center px-6 py-6"
         style={{ backgroundColor: '#fefae0' }}
       >
         <div className="text-center" style={{ fontFamily: FONT_FAMILY }}>
@@ -209,7 +213,7 @@ export default function RecipeNotebook({
             Start your recipe...
           </p>
           <p className="text-lg" style={{ color: '#c9b99a' }}>
-            Search for an ingredient above to build around
+            Pick a starter above, or tap + Add
           </p>
         </div>
       </div>
@@ -227,12 +231,12 @@ export default function RecipeNotebook({
     >
       {/* Red margin line */}
       <div
-        className="absolute left-[40px] top-0 bottom-0 w-[1px]"
+        className="absolute left-[32px] top-0 bottom-0 w-[1px]"
         style={{ backgroundColor: '#e07070', opacity: 0.5 }}
       />
 
       {/* Title input */}
-      <div className="px-4 pt-2 pb-1" style={{ paddingLeft: 48 }}>
+      <div className="px-4 pt-2 pb-1" style={{ paddingLeft: MARGIN_PAD }}>
         <input
           type="text"
           value={recipeTitle}
@@ -244,7 +248,7 @@ export default function RecipeNotebook({
       </div>
 
       {/* Ingredient list */}
-      <div className="px-2" style={{ paddingLeft: 48 }}>
+      <div className="px-2" style={{ paddingLeft: MARGIN_PAD }}>
         {entries.map((entry) => {
           const name = entry.ingredient;
           const amount = bowlGetAmount(entries, name);
@@ -296,15 +300,15 @@ export default function RecipeNotebook({
                 style={{ backgroundColor: tasteColor }}
               />
 
-              {/* Icon: diamond for center, circle for others */}
-              <span
-                className="flex-shrink-0 inline-block"
-                style={{
-                  width: 8, height: 8,
-                  backgroundColor: tasteColor,
-                  borderRadius: isCenter ? 0 : '50%',
-                  transform: isCenter ? 'rotate(45deg)' : 'none',
-                }}
+              {/* DESIGN-4: a small ink drawing of the ingredient, chosen by
+                  its category (leaf for herbs, drop for liquids, …). It
+                  replaces the old taste dot; the center ingredient is still
+                  marked by its bold name (and has no recenter button). */}
+              <IngredientArt
+                category={nodes?.get?.(name)?.category}
+                size={16}
+                ink={PENCIL}
+                tint={tasteColor}
               />
 
               {/* Name */}
@@ -530,7 +534,7 @@ export default function RecipeNotebook({
 
       {/* Compatibility score */}
       {compatibility !== null && entries.length >= 2 && (
-        <div className="px-4 pt-3 pb-2" style={{ paddingLeft: 48 }}>
+        <div className="px-4 pt-3 pb-2" style={{ paddingLeft: MARGIN_PAD }}>
           <span
             className="text-base"
             style={{ fontFamily: FONT_FAMILY, color: '#7a6a4a' }}
