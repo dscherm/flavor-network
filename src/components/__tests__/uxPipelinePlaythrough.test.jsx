@@ -44,33 +44,25 @@ describe('§1 — Landing page', () => {
     expect(screen.queryByText('Explore the Network')).not.toBeInTheDocument();
   });
 
-  it('1.B renders the Labs tile with its subheadline (Guided retired 2026-06-26)', () => {
+  it('1.B the labs are on the landing page, Recipe Lab first (2026-11-07)', () => {
     render(<LandingScreen onModeSelect={() => {}} />);
-    expect(screen.getByText('The Labs')).toBeInTheDocument();
-    expect(
-      screen.getByText(/Explore the kitchen labs/),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Recipe Lab')).toBeInTheDocument();
+    expect(screen.queryByText('The Labs')).not.toBeInTheDocument();
+    expect(screen.queryByText('Make a recipe')).not.toBeInTheDocument();
   });
 
-  it('1.D landing has 2 tiles (labs/make); network parked, no cocktail/sauce/recipes/build on landing', () => {
+  it('1.D landing has one tile per lab; no Make, Labs, Guided or Build tile', () => {
     const { container } = render(<LandingScreen onModeSelect={() => {}} />);
-    const tiles = container.querySelectorAll('button[data-mode]');
-    expect(tiles).toHaveLength(2);
-    const ids = Array.from(tiles).map((b) => b.getAttribute('data-mode'));
-    expect(ids).toEqual(expect.arrayContaining(['labs', 'make']));
-    expect(ids).not.toContain('guided'); // Guided retired; replaced by Labs
-    expect(ids).not.toContain('pairing'); // molecular lab parked 2026-06-23
-    expect(ids).not.toContain('build');
-    expect(ids).not.toContain('cocktail');
-    expect(ids).not.toContain('sauce');
-    expect(ids).not.toContain('recipe');
+    const ids = Array.from(container.querySelectorAll('button[data-mode]')).map((b) => b.getAttribute('data-mode'));
+    expect(ids).toEqual(['make', 'cocktail', 'sauce', 'wine', 'cookbook', 'pairing']);
+    for (const gone of ['labs', 'guided', 'build', 'recipe']) expect(ids).not.toContain(gone);
   });
 
   it('1.D tile click invokes onModeSelect with correct mode key', () => {
     const onSelect = vi.fn();
     render(<LandingScreen onModeSelect={onSelect} />);
-    fireEvent.click(screen.getByText('The Labs'));
-    expect(onSelect).toHaveBeenCalledWith('labs');
+    fireEvent.click(screen.getByText('Recipe Lab'));
+    expect(onSelect).toHaveBeenCalledWith('make');
   });
 
   it('1.F Explore secondary nav has exactly 3 entries (Cocktail/Sauce/Recipes)', async () => {
@@ -100,7 +92,7 @@ describe('§1 — Landing page', () => {
   // / Model / Labs. Profile moved into the Labs popover. Cocktail /
   // Sauce / Cookbook / Recipe Notebook / Profile / Molecule Lab are
   // all reachable via the Labs popover.
-  it('1.G MobileTabBar exposes Make/Labs/How-to; Guided retired (2026-06-26), Model parked', async () => {
+  it('1.G MobileTabBar exposes Recipe Lab/Labs/How-to; Guided retired (2026-06-26), Model parked', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
@@ -108,7 +100,8 @@ describe('§1 — Landing page', () => {
       'utf8',
     );
     expect(/aria-label="Guided"/.test(src)).toBe(false); // Guided retired; Labs is the entry now
-    expect(/aria-label="Make"/.test(src)).toBe(true);
+    expect(/aria-label="Recipe Lab"/.test(src)).toBe(true); // was "Make" until 2026-11-07
+    expect(/aria-label="Make"/.test(src)).toBe(false);
     expect(/aria-label="Labs"/.test(src)).toBe(true);
     expect(/aria-label="Model"/.test(src)).toBe(false); // network tab hidden
     expect(/aria-label="Explore"/.test(src)).toBe(false);

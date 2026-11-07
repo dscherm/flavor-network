@@ -8,12 +8,12 @@ import { FONT, CHALK_CREAM, CHALK_SUB, chalkSurfaceStyle } from '../data/chalkTh
 import { LabArt } from './chalkArt.jsx';
 
 const LAB_CARDS = [
+  { id: 'make',     label: 'Recipe Lab',      desc: 'Cook from your kitchen, or invent', accent: '#34d399' },
   { id: 'cocktail', label: 'Cocktail Lab',    desc: 'Mix a drink by family + spirit',  accent: '#f59e0b' },
   { id: 'sauce',    label: 'Sauce Lab',       desc: 'Build a sauce from the mothers',  accent: '#fb923c' },
   { id: 'wine',     label: 'Wine Lab',        desc: 'Pair a wine with any dish',       accent: '#e11d48' },
   { id: 'cookbook', label: 'Cookbook',        desc: 'Browse curated dishes',           accent: '#ec4899' },
   { id: 'pairing',  label: 'Pairing Lab',     desc: 'Explore how ingredients pair',    accent: '#22d3ee' },
-  { id: 'recipe',   label: 'Recipe Notebook', desc: 'Write a recipe by hand',          accent: '#34d399' },
 ];
 
 export default function LabsPanel({ onPick }) {

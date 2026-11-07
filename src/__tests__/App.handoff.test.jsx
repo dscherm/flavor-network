@@ -15,17 +15,17 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 
 // ── Module mocks ──────────────────────────────────────────────────────────────
 
-// LandingScreen — fires onModeSelect('pairing') immediately on render so
+// LandingScreen — fires onModeSelect('network') immediately on render so
 // startPageComplete becomes true AND activeTab lands on the network (the
-// 'pairing' tile is the network entry; handleModeSelect has no 'network'
-// branch). This gives us the network sub-nav whose "Notebook" button the
-// tests click to reach RecipeLab — independent of the default tab.
+// parked 3D view; the landing tiles are the labs since 2026-11-07, so
+// 'pairing' now opens the Pairing Lab). This gives us the network sub-nav
+// whose "Notebook" button the tests click to reach RecipeLab.
 vi.mock('../components/LandingScreen.jsx', () => ({
   default: ({ onModeSelect }) => {
     // Call in a useEffect so it's synchronous within act() boundaries.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { useEffect } = require('react');
-    useEffect(() => { onModeSelect?.('pairing'); }, []);
+    useEffect(() => { onModeSelect?.('network'); }, []);
     return <div data-testid="landing-screen" />;
   },
 }));

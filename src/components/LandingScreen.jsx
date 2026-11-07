@@ -1,171 +1,30 @@
 import AnimatedLogo from './AnimatedLogo.jsx';
 import { hapticMedium } from '../utils/native.js';
-import { ChalkLoader } from './chalkArt.jsx';
+import { ChalkLoader, LabArt } from './chalkArt.jsx';
 
 /**
- * LandingScreen — permanent landing surface. Top half = animated brand
- * mark + tagline. Bottom half = 3 primary tiles (Explore the Network /
- * Guided Discovery / Build your Recipe).
- *
- * Iter 2026-05-16 (UX pipeline Phase 1):
- *   - Reduced from 5 tiles to 3 (per plan.md §1). Cocktail / Sauce /
- *     Recipes Lab become sublistings UNDER "Explore the Network",
- *     surfaced via the in-app secondary nav (not the landing page).
- *   - Each tile carries a subheadline from the user spec.
- *   - "Build your Recipe" is a new top-level path that replaces the
- *     prior Recipe Lab notebook entry — actual builder UX lands in
- *     pipeline Phase 5.
+ * LandingScreen — the front page: the chalk logo (about half the screen),
+ * a tagline, then a tile for each lab (Recipe Lab first). Tapping a tile
+ * opens that lab.
  *
  * Doubles as the loading surface: when `isLoading` is true after the
  * user has tapped a tile, the picked tile shows a shimmer; the others
- * dim. The animated logo keeps running.
+ * dim. The logo keeps running.
  */
 
-function PairingVisual() {
-  // Lifted from StartPage.jsx — a dot-network silhouette mirroring
-  // the 3D ingredient graph behind the Network tab.
-  const dots = [
-    { x: 50, y: 12, d: 0 },
-    { x: 14, y: 36, d: 0.3 },
-    { x: 86, y: 36, d: 0.6 },
-    { x: 50, y: 50, d: 0.15 },
-    { x: 24, y: 78, d: 0.45 },
-    { x: 76, y: 78, d: 0.75 },
-    { x: 50, y: 90, d: 0.9 },
-  ];
-  const edges = [
-    [0, 3], [1, 3], [2, 3], [3, 4], [3, 5], [4, 6], [5, 6], [1, 4], [2, 5],
-  ];
-  return (
-    <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
-      {edges.map(([a, b], i) => (
-        <line
-          key={i}
-          x1={dots[a].x} y1={dots[a].y} x2={dots[b].x} y2={dots[b].y}
-          stroke="rgba(79,143,255,0.35)" strokeWidth="0.7"
-        />
-      ))}
-      {dots.map((dot, i) => (
-        <circle
-          key={i}
-          cx={dot.x} cy={dot.y} r="3.5"
-          fill="rgb(79,143,255)"
-          className="motion-safe:animate-pulse"
-          style={{
-            filter: 'drop-shadow(0 0 3px rgba(79,143,255,0.9))',
-            animationDelay: `${dot.d}s`,
-            animationDuration: '2.4s',
-          }}
-        />
-      ))}
-    </svg>
-  );
-}
-
-function LabsVisual() {
-  // Erlenmeyer flask + glowing bubbles — the Labs cue (echoes the Labs
-  // flask icon in the bottom bar).
-  return (
-    <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
-      <path
-        d="M 42 20 L 42 44 L 26 76 Q 24 82 32 82 L 68 82 Q 76 82 74 76 L 58 44 L 58 20"
-        fill="rgba(52,211,153,0.16)" stroke="rgb(52,211,153)" strokeWidth="2.5" strokeLinejoin="round"
-      />
-      <line x1="38" y1="20" x2="62" y2="20" stroke="rgb(52,211,153)" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="44" cy="66" r="4" fill="rgb(245,158,11)"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(245,158,11,0.85))' }} />
-      <circle cx="57" cy="70" r="3.5" fill="rgb(236,72,153)"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(236,72,153,0.85))' }} />
-      <circle cx="50" cy="59" r="3" fill="rgb(34,211,238)"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(34,211,238,0.85))' }} />
-    </svg>
-  );
-}
-
-function MakeVisual() {
-  // B-version P5 — pot with glowing balls (per spec restore).
-  // Cylindrical pot with rim + handles; 4 luminous balls inside echo
-  // the NeuFlavor ingredient nodes glowing in their broth.
-  return (
-    <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
-      {/* Pot body */}
-      <rect
-        x="20" y="42" width="60" height="42" rx="4"
-        fill="rgba(167,139,250,0.16)" stroke="rgb(167,139,250)" strokeWidth="2"
-      />
-      {/* Rim */}
-      <rect
-        x="16" y="38" width="68" height="8" rx="2"
-        fill="rgba(167,139,250,0.30)" stroke="rgb(167,139,250)" strokeWidth="2"
-      />
-      {/* Handles */}
-      <path d="M 16 50 Q 10 50 10 58 Q 10 64 16 64"
-        fill="none" stroke="rgb(167,139,250)" strokeWidth="2" strokeLinecap="round" />
-      <path d="M 84 50 Q 90 50 90 58 Q 90 64 84 64"
-        fill="none" stroke="rgb(167,139,250)" strokeWidth="2" strokeLinecap="round" />
-      {/* Glowing balls */}
-      <circle cx="34" cy="62" r="4" fill="rgb(125,186,94)"
-        className="motion-safe:animate-pulse"
-        style={{ filter: 'drop-shadow(0 0 6px rgba(125,186,94,0.95))', animationDelay: '0s', animationDuration: '2.4s' }} />
-      <circle cx="50" cy="58" r="4.5" fill="rgb(245,158,11)"
-        className="motion-safe:animate-pulse"
-        style={{ filter: 'drop-shadow(0 0 6px rgba(245,158,11,0.95))', animationDelay: '0.4s', animationDuration: '2.4s' }} />
-      <circle cx="66" cy="64" r="4" fill="rgb(236,72,153)"
-        className="motion-safe:animate-pulse"
-        style={{ filter: 'drop-shadow(0 0 6px rgba(236,72,153,0.95))', animationDelay: '0.8s', animationDuration: '2.4s' }} />
-      <circle cx="44" cy="72" r="3.5" fill="rgb(6,182,212)"
-        className="motion-safe:animate-pulse"
-        style={{ filter: 'drop-shadow(0 0 5px rgba(6,182,212,0.95))', animationDelay: '1.2s', animationDuration: '2.4s' }} />
-      {/* Steam wisps */}
-      <path d="M 36 34 Q 32 28 36 22" fill="none" stroke="rgba(167,139,250,0.55)" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M 50 32 Q 46 26 50 20" fill="none" stroke="rgba(167,139,250,0.55)" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M 64 34 Q 60 28 64 22" fill="none" stroke="rgba(167,139,250,0.55)" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function _RemovedLegacyChefHatVisual() {
-  return (
-    <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
-      {/* (kept only to swallow the dangling chef-hat SVG below — not rendered) */}
-      <line x1="30" y1="72" x2="68" y2="72" stroke="rgba(167,139,250,0.35)" strokeWidth="1.2" />
-      {/* Chef's hat */}
-      <path
-        d="M 32 36 Q 26 36 26 30 Q 26 22 34 22 Q 36 14 50 14 Q 64 14 66 22 Q 74 22 74 30 Q 74 36 68 36 Z"
-        fill="rgba(244,114,182,0.22)" stroke="rgb(244,114,182)" strokeWidth="2"
-      />
-      {/* Hat band */}
-      <line x1="32" y1="36" x2="68" y2="36" stroke="rgb(244,114,182)" strokeWidth="2" />
-      {/* Spark/star on the hat — "you make it" cue */}
-      <circle cx="50" cy="26" r="2"
-        fill="rgb(244,114,182)"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(244,114,182,0.9))' }}
-      />
-    </svg>
-  );
-}
-
-// B-version P5 — spec'd order: Guided (1) → Make (2) → Network (3).
-const TILES = [
-  {
-    id: 'labs',
-    label: 'The Labs',
-    subheadline: 'Explore the kitchen labs — cocktails, sauces, the cookbook, the pairing map, and the recipe notebook.',
-    accent: '#34d399',
-    Visual: LabsVisual,
-  },
-  {
-    id: 'make',
-    label: 'Make a recipe',
-    subheadline: 'Start a recipe from scratch, from a photo, or from a saved Cookbook recipe.',
-    accent: '#a78bfa',
-    Visual: MakeVisual,
-  },
-  // 'Explore the Network' (molecular lab) tile hidden 2026-06-23 — the
-  // network/Model surface is parked until it earns its place; the kitchen
-  // flows (Guided, Make) are the entry points for now. Restore this tile +
-  // the Model tab + the Molecule Lab menu item together to bring it back.
+// The labs, straight from the landing page (2026-11-07): the Recipe Lab
+// (what's in your kitchen → cook or invent) leads; the rest follow. The
+// separate "Make a recipe" path and the "The Labs" menu tile are gone.
+// `art` is the chalkArt LabArt id.
+export const LAB_TILES = [
+  { id: 'make',     label: 'Recipe Lab',   subheadline: 'Cook from your kitchen, or invent', accent: '#34d399', art: 'recipe' },
+  { id: 'cocktail', label: 'Cocktail Lab', subheadline: 'Mix, riff or invent a drink',       accent: '#f59e0b', art: 'cocktail' },
+  { id: 'sauce',    label: 'Sauce Lab',    subheadline: 'The mother sauces and beyond',      accent: '#fb923c', art: 'sauce' },
+  { id: 'wine',     label: 'Wine Lab',     subheadline: 'A wine for any dish',               accent: '#e11d48', art: 'wine' },
+  { id: 'cookbook', label: 'Cookbook',     subheadline: '83 dishes, start to finish',        accent: '#ec4899', art: 'cookbook' },
+  { id: 'pairing',  label: 'Pairing Lab',  subheadline: 'What goes with what',               accent: '#22d3ee', art: 'pairing' },
 ];
+const TILES = LAB_TILES;
 
 export default function LandingScreen({ onModeSelect, isLoading = false, picked = null }) {
   const handleTile = (id) => {
@@ -215,14 +74,12 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
         </p>
       )}
 
-      {/* 3 primary tiles. iOS portrait shows them stacked at compact
-          height; sm+ goes to 3-up. flex-1 + min-h-0 lets the grid
-          consume the remaining viewport. */}
-      <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 flex-1 min-h-0 pb-[env(safe-area-inset-bottom,0px)]">
+      {/* The labs: two columns on phones, three on wider screens. Each tile
+          is the lab's chalk drawing over its name. */}
+      <div className="w-full max-w-3xl grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 flex-1 min-h-0 auto-rows-fr pb-[env(safe-area-inset-bottom,0px)]">
         {TILES.map((tile) => {
           const isPicked = picked === tile.id;
           const dimmed = isLoading && !isPicked;
-          const Visual = tile.Visual;
           return (
             <button
               key={tile.id}
@@ -230,11 +87,10 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
               disabled={isLoading}
               data-mode={tile.id}
               aria-label={`${tile.label}. ${tile.subheadline}`}
-              className={`group relative flex flex-row sm:flex-col items-stretch sm:items-center text-left sm:text-center gap-3 sm:gap-2 rounded-xl p-3 sm:px-[5px] sm:pt-[5px] sm:pb-3 min-h-[88px] transition-all overflow-hidden focus:outline-none
+              className={`group relative flex flex-col items-center justify-center text-center gap-0.5 rounded-xl px-2 py-1.5 min-h-[72px] transition-all overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f5efde]
                 ${dimmed ? 'opacity-40 cursor-wait' : 'hover:brightness-110'}
               `}
               style={{
-                // Chalkboard tile: double chalk-rail border + slate wash.
                 background: 'radial-gradient(ellipse at center, #1c1c1c 0%, #0e0e0e 100%)',
                 border: `2px double ${isPicked ? tile.accent : '#4a4a4a'}`,
                 boxShadow: isPicked
@@ -243,42 +99,26 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
               }}
               data-testid={`landing-tile-${tile.id}`}
             >
+              <span className="absolute left-0 top-0 bottom-0 w-1" style={{ background: tile.accent }} aria-hidden="true" />
+              <span className="flex items-center justify-center flex-shrink min-h-0" aria-hidden="true" style={{ maxHeight: '58%' }}>
+                <LabArt id={tile.art} accent={tile.accent} size={52} />
+              </span>
               <span
-                className="absolute left-0 top-0 bottom-0 w-1"
-                style={{ background: tile.accent }}
-                aria-hidden="true"
-              />
-              <div
-                className="flex items-center justify-center rounded-lg flex-shrink-0 aspect-square h-full sm:h-auto sm:w-[82%] p-2 sm:p-1.5"
+                className="block text-xl sm:text-2xl leading-none"
                 style={{
-                  background: 'rgba(255,255,255,0.025)',
-                  border: `1px solid #6a6a6a55`,
+                  color: '#f5efde',
+                  fontFamily: 'Caveat, cursive',
+                  textShadow: '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)',
                 }}
               >
-                <Visual />
-              </div>
-              <div className="flex-1 min-w-0 flex flex-col justify-center sm:px-2 sm:pb-1">
-                <span
-                  className="block text-2xl sm:text-3xl leading-tight"
-                  style={{
-                    color: '#f5efde',
-                    fontFamily: 'Caveat, cursive',
-                    textShadow: '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)',
-                  }}
-                >
-                  {tile.label}
-                </span>
-                <span
-                  className="block text-sm sm:text-base leading-snug mt-0.5 sm:mt-1.5 line-clamp-2 sm:line-clamp-3"
-                  style={{
-                    color: '#bdb6a3',
-                    fontFamily: 'Caveat, cursive',
-                    textShadow: '0 0 1px rgba(245,239,222,0.45), 0 0 3px rgba(245,239,222,0.18)',
-                  }}
-                >
-                  {tile.subheadline}
-                </span>
-              </div>
+                {tile.label}
+              </span>
+              <span
+                className="hidden sm:block text-sm leading-snug"
+                style={{ color: '#bdb6a3', fontFamily: 'Caveat, cursive' }}
+              >
+                {tile.subheadline}
+              </span>
               {isPicked && isLoading && (
                 <span className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden" aria-hidden="true">
                   <span

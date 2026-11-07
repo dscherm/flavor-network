@@ -811,10 +811,10 @@ export default function App() {
     writeStartPageFlag();
     setStartPageComplete(true);
     setLandingPick(mode);
-    if (mode === 'pairing') {
-      // Pairing model — the 3,913-ingredient network with chemistry-
-      // based clustering. Lands on the Network tab.
-      setActiveTab('network');
+    // Landing tiles are the labs (LandingScreen LAB_TILES): 'make' is the
+    // Recipe Lab; the others are lab tab ids.
+    if (mode === 'pairing' || mode === 'wine' || mode === 'cookbook' || mode === 'network') {
+      setActiveTab(mode);
     } else if (mode === 'cocktail') {
       // Cocktail model — 6 family taxonomy with cocktails as nodes.
       setCocktailMounted(true);

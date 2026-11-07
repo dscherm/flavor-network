@@ -218,7 +218,7 @@ function NotebookArt({ c, size }) {
 
 const LAB_ART = {
   cocktail: CocktailArt, sauce: SauceArt, wine: WineArt,
-  cookbook: CookbookArt, pairing: PairingArt, recipe: NotebookArt,
+  cookbook: CookbookArt, pairing: PairingArt, recipe: NotebookArt, make: NotebookArt,
 };
 
 /** Chalk drawing for a lab id (cocktail/sauce/wine/cookbook/pairing/recipe). */

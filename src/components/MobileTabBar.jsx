@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 // clear purpose + an on-ramp; the "Molecule Lab" compound inspector
 // remains retired.
 const LABS = [
+  { id: 'make',     label: 'Recipe Lab',       desc: 'Cook from your kitchen, or invent' },
   { id: 'cookbook', label: 'Cookbook',         desc: 'Browse saved recipes' },
   { id: 'cocktail', label: 'Cocktail Lab',     desc: 'Mix a drink' },
   { id: 'sauce',    label: 'Sauce Lab',        desc: 'Build a sauce' },
@@ -15,7 +16,7 @@ const LABS = [
 ];
 
 /**
- * MobileTabBar — bottom-of-viewport nav: Guided · Make · Labs.
+ * MobileTabBar — bottom-of-viewport nav: Recipe Lab · (Sign in) · Labs · How-to.
  *
  * The molecular lab (network "Model" tab + its 3D/2D modes + the Molecule
  * Lab compound inspector) is hidden for now — the kitchen flows are the
@@ -55,19 +56,19 @@ export default function MobileTabBar({
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="flex items-center justify-around h-14">
-          {/* Make */}
+          {/* Recipe Lab (was "Make"; tab id stays 'make') */}
           <button
             onClick={() => { onTabChange('make'); closeAll(); }}
             data-testid="tabbar-make"
             className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
               isMakeActive ? 'text-pink-400' : 'text-gray-500'
             }`}
-            aria-label="Make"
+            aria-label="Recipe Lab"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-6zM2 10h2m16 0h2M9 6c0-1 1-1 1-2m4 2c0-1 1-1 1-2" />
             </svg>
-            <span className="text-[10px]">Make</span>
+            <span className="text-[10px]">Recipe Lab</span>
           </button>
 
           {/* WEBLINK-11: top-level Sign in, signed-out only. Reported from

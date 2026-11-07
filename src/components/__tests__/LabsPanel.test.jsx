@@ -6,10 +6,10 @@ import LabsPanel from '../LabsPanel.jsx';
 afterEach(cleanup);
 
 describe('LabsPanel', () => {
-  it('renders a card for each of the five labs', () => {
+  it('renders a card for each lab, Recipe Lab included', () => {
     render(<LabsPanel onPick={vi.fn()} />);
     expect(screen.getByTestId('labs-panel')).toBeTruthy();
-    for (const id of ['cocktail', 'sauce', 'cookbook', 'pairing', 'recipe']) {
+    for (const id of ['make', 'cocktail', 'sauce', 'wine', 'cookbook', 'pairing']) {
       expect(screen.getByTestId(`labs-card-${id}`)).toBeTruthy();
     }
   });
