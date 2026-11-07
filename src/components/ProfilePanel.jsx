@@ -120,7 +120,7 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
         : null;
 
   return (
-    <div className="fixed inset-0 pt-10 z-[80] select-none bg-[#0a0a0f]">
+    <div className="fixed inset-0 z-[80] select-none bg-[#0a0a0f]" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 2.5rem)' }}>
       {/* Profile screen — full-width on mobile, capped width on desktop */}
       <div className="h-full mx-auto max-w-2xl bg-[#12121a] border-x border-[#1e1e2e] flex flex-col overflow-hidden">
       {/* Header */}

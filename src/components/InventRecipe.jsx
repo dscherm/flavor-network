@@ -143,7 +143,7 @@ export default function InventRecipe({ kitchen = [], nodes = null, edges = null,
   const btn = { fontFamily: FONT, fontSize: 18, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
 
   return (
-    <div className="fixed inset-x-0 top-0 z-[83] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
+    <div className="fixed inset-x-0 top-0 safe-top-pad z-[83] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="invent-recipe" role="dialog" aria-label="Invent a recipe">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">

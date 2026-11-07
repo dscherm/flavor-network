@@ -206,7 +206,7 @@ export default function SauceLab({
       ? codexData.graph.nodes.get(selectedSauce)
       : null;
     return (
-      <div className="absolute inset-0 overflow-hidden bg-neural-bg text-neural-text">
+      <div className="absolute inset-0 overflow-hidden bg-neural-bg text-neural-text" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         {/* aria-live region for screen-reader announcements */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">{liveMsg}</div>
 

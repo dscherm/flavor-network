@@ -91,6 +91,15 @@
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+
+  /* Full-screen panels and cards anchored to the top: their own 0.75rem
+     top padding PLUS the notch / status bar (viewport-fit=cover draws the
+     page behind it on iPhones, and as a home-screen app with the
+     black-translucent status bar). Without this the Back buttons sit
+     under the status bar. */
+  .safe-top-pad {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 0.75rem) !important;
+  }
 }
 
 /* DESIGN-1: horizontal chip rows still swipe, but without a visible

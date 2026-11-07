@@ -124,7 +124,7 @@ export default function LabNodeCard({
   const likeThisLabel = { sauce: 'Sauces like this', wine: 'Wines like this' }[kind] || 'Cocktails like this';
 
   return (
-    <div className="fixed inset-x-0 top-0 z-[80] flex flex-col items-center justify-center px-4 py-3"
+    <div className="fixed inset-x-0 top-0 safe-top-pad z-[80] flex flex-col items-center justify-center px-4 py-3"
       // v1.0.2: bottom stops above the fixed tab bar — inset-0 let the bar cover the card's last ~57px.
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)' }}
       data-testid="lab-node-card"

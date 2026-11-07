@@ -143,7 +143,7 @@ export default function KitchenPanel({
   };
 
   return (
-    <div className="fixed inset-x-0 top-0 z-[82] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
+    <div className="fixed inset-x-0 top-0 safe-top-pad z-[82] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="kitchen-panel" role="dialog" aria-label="What's in my kitchen">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">

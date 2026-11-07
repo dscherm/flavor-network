@@ -421,8 +421,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     <div
       data-testid="recipe-lab"
       data-surface="chalk-frame"
-      className="fixed inset-0 pt-10 flex flex-col"
-      style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
+      className="fixed inset-0 flex flex-col"
+      style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM, paddingTop: 'calc(env(safe-area-inset-top, 0px) + 2.5rem)' }}
     >
       {handoffToast && (
         <div

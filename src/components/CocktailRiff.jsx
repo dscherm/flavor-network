@@ -40,7 +40,7 @@ export default function CocktailRiff({
   );
 
   return (
-    <div className="fixed inset-x-0 top-0 z-[85] flex flex-col items-center px-4 py-3 overflow-y-auto"
+    <div className="fixed inset-x-0 top-0 safe-top-pad z-[85] flex flex-col items-center px-4 py-3 overflow-y-auto"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="cocktail-riff" role="dialog" aria-label={`Riff on ${cocktail?.name}`}>
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2">

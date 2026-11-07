@@ -345,7 +345,7 @@ export default function WineLab({
   // ── Matches mode ────────────────────────────────────────────────────
   if (matchesContext) {
     return (
-      <div className="absolute inset-x-0 top-0 overflow-y-auto" style={{ bottom: 'var(--tab-bar-h)', ...chalkSurfaceStyle(), color: CHALK_CREAM }} data-testid="wine-matches">
+      <div className="absolute inset-x-0 top-0 overflow-y-auto" style={{ bottom: 'var(--tab-bar-h)', paddingTop: 'env(safe-area-inset-top, 0px)', ...chalkSurfaceStyle(), color: CHALK_CREAM }} data-testid="wine-matches">
         <div className="sticky top-0 z-30 px-4 py-3 flex items-center gap-2 backdrop-blur-md" style={{ background: '#0a0a0aE6', borderBottom: `1px solid ${CHALK_RAIL}66` }}>
           {onBackToRecipe && (
             <button type="button" onClick={onBackToRecipe} data-testid="wine-matches-back"

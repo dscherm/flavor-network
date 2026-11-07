@@ -197,7 +197,7 @@ export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenReci
 
   return (
     <div
-      className="fixed inset-x-0 top-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4"
+      className="fixed inset-x-0 top-0 safe-top-pad z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4"
       style={{ bottom: 'var(--tab-bar-h)' }} // v1.0.2: stop above the fixed tab bar
       onClick={onClose}
       role="dialog"

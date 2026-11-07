@@ -352,7 +352,7 @@ export default function CocktailLabV2({
   // purely from matchesContext.items and needs no codex data.
   if (matchesContext !== null) {
     return (
-      <div className="absolute inset-0 overflow-y-auto bg-neural-bg text-neural-text">
+      <div className="absolute inset-0 overflow-y-auto bg-neural-bg text-neural-text" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         {/* aria-live region for screen-reader announcements */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">{liveMsg}</div>
 

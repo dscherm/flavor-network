@@ -75,7 +75,7 @@ export default function MyBarPanel({
 
   const pill = { fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM };
   return (
-    <div className="fixed inset-x-0 top-0 z-[82] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
+    <div className="fixed inset-x-0 top-0 safe-top-pad z-[82] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="my-bar-panel" role="dialog" aria-label="My bar">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
