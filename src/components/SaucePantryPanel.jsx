@@ -45,6 +45,8 @@ export default function SaucePantryPanel({
   onChange,
   assumeBasics = true,
   onAssumeBasicsChange,
+  spiceRack = false,
+  onSpiceRackChange,
   sauces = [],
   families = [],
   names = new Set(),      // for resolving what the cook types (catalogue + ingredient graph)
@@ -67,8 +69,8 @@ export default function SaucePantryPanel({
     return allCommon.filter((k) => !haveIngredient(k, have, { assumeBasics: false }).covered).slice(0, 20);
   }, [allCommon, kitchen]);
   const result = useMemo(
-    () => whatSauceCanIMake(sauces, kitchen, { assumeBasics, names: coverNames || names, catMap, pairingIndex, sauceIndex }),
-    [sauces, kitchen, assumeBasics, names, coverNames, catMap, pairingIndex, sauceIndex],
+    () => whatSauceCanIMake(sauces, kitchen, { assumeBasics, spiceRack, names: coverNames || names, catMap, pairingIndex, sauceIndex }),
+    [sauces, kitchen, assumeBasics, spiceRack, names, coverNames, catMap, pairingIndex, sauceIndex],
   );
 
   const add = (raw) => {
@@ -122,6 +124,11 @@ export default function SaucePantryPanel({
           <input type="checkbox" checked={assumeBasics} onChange={(e) => onAssumeBasicsChange?.(e.target.checked)}
             data-testid="sauce-pantry-basics" className="w-5 h-5" style={{ accentColor: CHALK_CREAM }} />
           Assume I have the basics — salt, pepper, oil, butter, sugar, flour
+        </label>
+        <label className="flex items-center gap-2 min-h-[44px] cursor-pointer text-[15px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+          <input type="checkbox" checked={spiceRack} onChange={(e) => onSpiceRackChange?.(e.target.checked)}
+            data-testid="sauce-pantry-spice-rack" className="w-5 h-5" style={{ accentColor: CHALK_CREAM }} />
+          Spice rack — cumin, paprika, cinnamon, thyme, oregano, bay, nutmeg…
         </label>
 
         <ul className="mt-2 flex flex-wrap gap-1.5" data-testid="sauce-pantry-items" aria-label="In my pantry">
@@ -191,6 +198,7 @@ export default function SaucePantryPanel({
             </section>
             <p className="mt-3 text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
               {assumeBasics ? 'Salt, pepper, oil, butter, sugar, flour and water are assumed. ' : ''}
+              {spiceRack ? 'Common dried spices are assumed. ' : ''}
               A stand-in is only offered from the same role and kind — lime for lemon, shallot for onion, cream for crème fraîche — never flour for egg yolk.
             </p>
           </>

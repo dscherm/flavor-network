@@ -22,7 +22,7 @@ const NODES = new Map(['chicken', 'garlic', 'lemon', 'lemon juice', 'rice', 'oni
 
 function mount(props = {}) {
   const p = {
-    kitchen: [], onChange: vi.fn(), assumeBasics: true, onAssumeBasicsChange: vi.fn(),
+    kitchen: [], onChange: vi.fn(), assumeBasics: true, onAssumeBasicsChange: vi.fn(), onSpiceRackChange: vi.fn(),
     nodes: NODES, onOpenRecipe: vi.fn(), onUseRealRecipe: vi.fn(), onInvent: vi.fn(), onClose: vi.fn(),
     ...props,
   };
@@ -67,18 +67,44 @@ describe('KitchenPanel', () => {
   });
 
   it('lists Cookbook recipes you can make and the ones one or two away, with what is missing', () => {
-    // Mujadara in the Cookbook: lentil, rice, onion, olive oil, cumin, salt (lentil & cumin missing)
-    mount({ kitchen: ['rice', 'onion', 'lentil', 'cumin'] });
+    // Mujadara in the Cookbook: lentil, rice, onion, cumin, olive oil. Its
+    // mains are lentil, rice and onion; cumin is "even better with" (WEAK-3).
+    mount({ kitchen: ['rice', 'onion', 'lentil'] });
     const make = screen.getByTestId('kitchen-make');
-    expect(within(make).getByRole('button', { name: /Mujadara/ })).toBeInTheDocument();
+    const row = within(make).getByRole('button', { name: /Mujadara/ });
+    expect(row).toHaveTextContent('you have the 3 mains');
+    expect(screen.getByTestId('kitchen-recipe-mujadara-better')).toHaveTextContent('even better with: cumin');
     expect(within(make).getAllByTestId('dish-art').length).toBeGreaterThan(0);
   });
 
+  it('a main covered by an everyday swap counts, and the row says which', () => {
+    // Fried Chicken: chicken, buttermilk, flour + flavourings. Milk + lemon make
+    // buttermilk. (The NODES fixture files garlic under "vegetable", so add it.)
+    mount({ kitchen: ['chicken', 'milk', 'lemon', 'garlic'] });
+    const make = screen.getByTestId('kitchen-make');
+    expect(within(make).getByRole('button', { name: /Fried Chicken/ })).toBeInTheDocument();
+    expect(screen.getByTestId('kitchen-recipe-fried-chicken-swap')).toHaveTextContent('with a swap: your milk and lemon for the buttermilk');
+  });
+
+  it('the spice rack switch sits next to Assume basics, off by default', () => {
+    const p = mount({ kitchen: ['rice'] });
+    const sw = screen.getByRole('switch', { name: /Spice rack/ });
+    expect(sw).toHaveAttribute('aria-checked', 'false');
+    fireEvent.click(sw);
+    expect(p.onSpiceRackChange).toHaveBeenCalledWith(true);
+  });
+
+  it('with the spice rack on, a missing spice is no longer "even better with"', () => {
+    mount({ kitchen: ['rice', 'onion', 'lentil'], spiceRack: true });
+    expect(within(screen.getByTestId('kitchen-make')).getByRole('button', { name: /Mujadara/ })).toBeInTheDocument();
+    expect(screen.queryByTestId('kitchen-recipe-mujadara-better')).toBeNull();
+  });
+
   it('names what a nearly-there Cookbook recipe is missing, and opens it on tap', () => {
-    const p = mount({ kitchen: ['rice', 'onion', 'lentil'] });
+    const p = mount({ kitchen: ['rice', 'onion'] });
     const nearly = screen.getByTestId('kitchen-nearly');
     const row = within(nearly).getByRole('button', { name: /Mujadara/ });
-    expect(row).toHaveTextContent('missing cumin');
+    expect(row).toHaveTextContent('missing lentil');
     fireEvent.click(row);
     expect(p.onOpenRecipe).toHaveBeenCalledWith(expect.objectContaining({ name: 'Mujadara' }));
   });
@@ -100,7 +126,7 @@ describe('KitchenPanel', () => {
 
   it('if the index fails to load, says so and the Cookbook lists still work', async () => {
     realResult = Promise.resolve(null);
-    mount({ kitchen: ['rice', 'onion', 'lentil'] });
+    mount({ kitchen: ['rice', 'onion'] });
     expect(await screen.findByTestId('kitchen-real-failed')).toBeInTheDocument();
     expect(within(screen.getByTestId('kitchen-nearly')).getByRole('button', { name: /Mujadara/ })).toBeInTheDocument();
   });

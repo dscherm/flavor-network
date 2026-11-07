@@ -1593,6 +1593,21 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
     "(f) by-eye review: 9/10 recipes and 9/10 sauces a cook would make (tables in the doc)",
     "Unit tests: size term, coherence, role balance, centre rule, buying cost, why line, MMR selection, exhaustion, unique names (inventRecipeSize.test.js, inventVariety.test.js, inventSauce.test.js, InventRecipe/InventSauce component tests); four existing invent tests updated with a reason in the test",
     "Checked at 375px in Chrome (Vite 5197): 18 distinct dishes over 5 Shuffles, main = lemon in every card, exhausted message + Start over for recipe and sauce, no page errors",
+
+  "id": "WEAK-3",
+  "title": "\"Makeable\" that matches how people cook: mains vs flavourings, everyday swaps, spice rack",
+  "category": "feature",
+  "passes": true,
+  "description": "With a 30-item kitchen, 0 of 83 Cookbook recipes were 'You can make'; the misses were mostly flavourings. src/data/recipeMains.js classifies each recipe ingredient as main or supporting from the ingredient-graph category, in this order: per-recipe dish-defining flavourings (25 recipes), then ingredients the recipe's name names, then a short per-ingredient list (onion main, garlic supporting, parmesan main, panko supporting), then bake/dessert structure, then the category. A recipe is makeable when every main is covered; missing supporting items show as 'even better with'. src/data/kitchenSwaps.js is a hand-written table of 65 directed everyday swaps. Each side has the same role (graph category) and kind; butter <-> oil applies only where the fat is supporting; 'sauce: false' marks swaps that fail in a sauce. A swap from the kitchen counts a main as covered and is shown ('use your onion for the scallion', 'with a swap'). A Spice rack switch (fn-my-kitchen-spices, default off) counts 16 common dried spices as on hand in the Recipe Lab, the Sauce Lab pantry and What do I need?. The Sauce Lab pantry stays strict (no split, no table swaps). Fixes found on the way: 'bell pepper' was stored as pepper (the spice) and 'vegetable oil' as vegetable; a vinegar is now an Acid before the sauce Liquid rule (cider vinegar had been a wine-kind stand-in). Report: docs/kitchen-makeable.md (scripts/measureKitchenMakeable.mjs).",
+  "acceptance": [
+    "Checks written down before changing code in docs/kitchen-makeable.md",
+    "(a) 30-item kitchen: You can make 0 -> 6 (predicted 6), 3 with a swap; every listed recipe has all mains covered directly or by a table swap (mechanical re-check in the script and a test)",
+    "(b) 6-item kitchen: 0 -> 0 (predicted 0); one-or-two-mains-away 1 -> 20",
+    "(c) By-eye review of 15 newly makeable recipes: 14 yes, 1 no (Chana Masala without garam masala), now fixed by a per-recipe main; Kung Pao from chicken+garlic+onion caught on the first run and fixed",
+    "(d) No swap crosses roles: a test over the whole table checks the same graph category on both sides, Sauce Lab role agreement, sauce flag never contradicting sameRoleAndKind, supporting-only fat swaps, no garlic<->onion (test)",
+    "Unit tests: classification (category defaults, garlic/onion, name rule, per-recipe overrides, bakes, no-graph fallback, every Cookbook recipe has >= 2 mains), swaps (findSwap helpers, supportingOnly, inRecipe, sauce mode), spice rack storage and coverage, kitchen aliases, split/swap coverage, needsFromKitchen better/swaps, shopping list (test)",
+    "Component tests: KitchenPanel mains/swap/even-better rows and the Spice rack switch; WhatDoINeed You need / Even better with / swaps / summary; Cookbook card reads kitchen + spice rack; Sauce pantry spice rack (test)",
+    "Checked at 375px in the browser (kitchen panel switches + You can make with spice rack off/on, Cookbook card What do I need? with a swap, Sauce pantry switches); no horizontal overflow",
     "npm run gate green"
   ]
 }

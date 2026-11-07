@@ -78,11 +78,11 @@ describe('cookbookForKitchen', () => {
     expect(r.nearly[1].missing).toEqual(['basil', 'onion']);
   });
 
-  it('without assumed basics, salt and oil count as missing', () => {
+  it('without assumed basics, salt and oil are not mains: they are "even better with"', () => {
     const r = cookbookForKitchen(RECIPES, ['chicken', 'lemon', 'garlic'], { assumeBasics: false });
-    expect(r.make).toEqual([]);
-    expect(r.nearly[0].item.id).toBe('a');
-    expect(r.nearly[0].missing).toEqual(['salt', 'olive oil']);
+    expect(r.make.map((e) => e.item.id)).toEqual(['a']);
+    expect(r.make[0].missing).toEqual([]);
+    expect(r.make[0].better).toEqual(['salt', 'olive oil']);
   });
 
   it('an empty kitchen makes nothing', () => {

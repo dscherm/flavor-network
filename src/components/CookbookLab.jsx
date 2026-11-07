@@ -20,7 +20,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import WhatDoINeed from './WhatDoINeed.jsx';
 import { needsFromKitchen } from '../data/whatDoINeed.js';
-import { loadKitchen, saveKitchen, addToKitchen, loadAssumeBasics } from '../data/myKitchen.js';
+import { loadKitchen, saveKitchen, addToKitchen, loadAssumeBasics, loadSpiceRack } from '../data/myKitchen.js';
+import { mainsOf, categoryLookup } from '../data/recipeMains.js';
+import { resolveIngredientName } from '../data/recipePairingMatch.js';
 import ProfileAxisRadar from './ProfileAxisRadar.jsx';
 import { DishArt, IngredientGlyph, LabArt } from './chalkArt.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
@@ -145,8 +147,13 @@ export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenReci
   const details = getRecipeDetails(recipe.id);
   // "What do I need?" against the shared kitchen (Recipe / Sauce Labs).
   const [kitchen, setKitchen] = useState(() => loadKitchen());
+  // WEAK-3: only missing mains are "you need"; flavourings are "even better
+  // with"; everyday swaps from the kitchen count.
+  const nodeNames = nodes ? new Set(nodes.keys()) : null;
   const needs = needsFromKitchen(recipe.ingredients, kitchen, {
-    assumeBasics: loadAssumeBasics(), names: nodes ? new Set(nodes.keys()) : null, amounts: details?.amounts || {},
+    assumeBasics: loadAssumeBasics(), spiceRack: loadSpiceRack(), names: nodeNames, amounts: details?.amounts || {},
+    mainOf: mainsOf(recipe, { categoryOf: categoryLookup(nodes), resolve: nodeNames ? (n) => resolveIngredientName(n, nodeNames) : null }),
+    swaps: true,
   });
   const haveIt = (name) => {
     const next = addToKitchen(kitchen, name, nodes ? new Set(nodes.keys()) : new Set());

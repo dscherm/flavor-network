@@ -10,7 +10,7 @@ import { ChalkLoader } from './chalkArt.jsx';
 import SaucePairings from './SaucePairings.jsx';
 import SaucePantryPanel from './SaucePantryPanel.jsx';
 import InventSauce from './InventSauce.jsx';
-import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, addToKitchen } from '../data/myKitchen.js';
+import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, loadSpiceRack, saveSpiceRack, addToKitchen } from '../data/myKitchen.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
 import { needsFromKitchen } from '../data/whatDoINeed.js';
 import { buildCategoryMap } from '../data/saucePantry.js';
@@ -61,17 +61,19 @@ export default function SauceLab({
   // opened from, reopened when the card closes.
   const [kitchen, setKitchen] = useState(() => loadKitchen());
   const [assumeBasics, setAssumeBasics] = useState(() => loadAssumeBasics());
+  const [spiceRack, setSpiceRack] = useState(() => loadSpiceRack());
   const [panel, setPanel] = useState(null); // null | 'pantry' | 'invent'
   const [returnPanel, setReturnPanel] = useState(null);
   const updateKitchen = (next) => { setKitchen(next); saveKitchen(next); };
   const updateAssumeBasics = (on) => { setAssumeBasics(on); saveAssumeBasics(on); };
+  const updateSpiceRack = (on) => { setSpiceRack(on); saveSpiceRack(on); };
   // Re-read on open: Make a recipe edits the same list.
-  const openPanel = (which) => { setKitchen(loadKitchen()); setAssumeBasics(loadAssumeBasics()); setPanel(which); };
+  const openPanel = (which) => { setKitchen(loadKitchen()); setAssumeBasics(loadAssumeBasics()); setSpiceRack(loadSpiceRack()); setPanel(which); };
   // "What do I need?" on a sauce card, against the same kitchen list.
   const sauceNeeds = (sauce) => (
     <WhatDoINeed
       title={sauce.name}
-      needs={needsFromKitchen(sauce.ingredientsDetailed?.length ? sauce.ingredientsDetailed : sauce.ingredients, kitchen, { assumeBasics })}
+      needs={needsFromKitchen(sauce.ingredientsDetailed?.length ? sauce.ingredientsDetailed : sauce.ingredients, kitchen, { assumeBasics, spiceRack })}
       stockEmpty={kitchen.length === 0}
       onHave={(name) => updateKitchen(addToKitchen(kitchen, name, new Set()))}
       color={familyForSelected?.color}
@@ -285,6 +287,8 @@ export default function SauceLab({
           onChange={updateKitchen}
           assumeBasics={assumeBasics}
           onAssumeBasicsChange={updateAssumeBasics}
+          spiceRack={spiceRack}
+          onSpiceRackChange={updateSpiceRack}
           sauces={pantryCtx.sauces}
           families={codexData.codex.clusters}
           names={pantryCtx.kitchenNames}

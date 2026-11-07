@@ -16,6 +16,8 @@ import { whatCanICook, coverIngredients, isBasic } from './myKitchen.js';
 import { normalizeText } from './ingredientSearch.js';
 import { retrieveDirections } from '../ml/directionsRuntime.js';
 import { normalizeTitle } from '../ml/directionsQuality.js';
+import { mainsOf } from './recipeMains.js';
+import { resolveIngredientName } from './recipePairingMatch.js';
 
 /**
  * The ingredients the Cookbook uses most, basics excluded — the quick-add
@@ -82,13 +84,23 @@ export function missingText(missing, max = 2) {
 }
 
 /**
- * Cookbook recipes the kitchen covers. `make`: nothing missing; `nearly`:
- * one or two away. An empty kitchen makes nothing (a recipe of only
- * basics would otherwise count as "covered").
+ * Cookbook recipes the kitchen covers (WEAK-3). `make`: every MAIN is
+ * covered, directly or by an everyday swap (kitchenSwaps.js; `withSwap`
+ * marks those); missing supporting items ride along as `better` ("even
+ * better with: thyme"). `nearly`: one or two mains away. An empty kitchen
+ * makes nothing (a recipe of only basics would otherwise count as
+ * "covered").
+ *
+ * `categoryOf(name)` → ingredient-graph category (recipeMains.categoryLookup
+ * over the graph nodes); without it mains are guessed from the name.
  */
-export function cookbookForKitchen(recipes, kitchen, { assumeBasics = true, names = null, maxMissing = 2 } = {}) {
+export function cookbookForKitchen(recipes, kitchen, {
+  assumeBasics = true, spiceRack = false, names = null, maxMissing = 2, categoryOf = null,
+} = {}) {
   if (!kitchen || kitchen.length === 0) return { make: [], nearly: [] };
-  return whatCanICook(recipes, kitchen, { maxMissing, assumeBasics, names });
+  const resolve = names ? (n) => resolveIngredientName(n, names) : null;
+  const mainOfItem = (r) => mainsOf(r, { categoryOf: categoryOf || (() => null), resolve });
+  return whatCanICook(recipes, kitchen, { maxMissing, assumeBasics, spiceRack, names, mainOfItem, swaps: true });
 }
 
 // Vocab words that, in a title, name the dish rather than an ingredient.
@@ -128,7 +140,7 @@ export function titleIngredients(title, vocabSet) {
  * @returns {Array<{ title, steps, ingredients, have, missing, total, covered, jaccard }>}
  */
 export function realRecipesForKitchen(kitchen, index, vocab, {
-  assumeBasics = true, k = 8, pool = 80, maxMissing = 4, names = null,
+  assumeBasics = true, k = 8, pool = 80, maxMissing = 4, names = null, spiceRack = false,
 } = {}) {
   if (!kitchen || kitchen.length === 0 || !index || !Array.isArray(vocab)) return [];
   const query = [...new Set(kitchen.map((x) => String(x).toLowerCase()))];
@@ -147,7 +159,7 @@ export function realRecipesForKitchen(kitchen, index, vocab, {
     const listed = rec.ingredients || rec.matchedNames || [];
     const named = titleIngredients(title, vocabSet);
     const ingredients = [...new Set([...listed, ...named])];
-    const c = coverIngredients(ingredients, kitchenSet, { assumeBasics, names });
+    const c = coverIngredients(ingredients, kitchenSet, { assumeBasics, spiceRack, names });
     if (c.covered < Math.min(2, c.total) || c.missing.length > maxMissing) continue;
     seenTitles.add(titleKey);
     out.push({

@@ -34,6 +34,8 @@ const EGG = /\begg( yolks?)?s?\b|\byolks?\b/;
 // Fallback when an ingredient is not in the sauce catalogue.
 const ROLE_RULES = [
   [/peanut butter|almond butter|beurre blanc/, 'Other'],
+  // Before the liquids: cider / wine / sherry vinegar is an acid, not a wine.
+  [/\bvinegar\b/, 'Acid'],
   [/\b(butter|ghee|oil|lard|schmaltz|tallow|duck fat|bacon fat|beurre)\b/, 'Fat'],
   [/\b(stock|broth|dashi|fumet|demi|bouillon|wine|sake|mirin|vermouth|sherry|madeira|cider|beer|cognac|brandy|water)\b/, 'Liquid'],
   [/\b(flour|cornstarch|corn starch|arrowroot|tapioca|potato starch|roux)\b/, 'Thickener'],
@@ -179,9 +181,9 @@ export function standInFor(missing, sauce, kitchen, { catMap = new Map(), pairin
  * Coverage of one sauce by the pantry, plus a stand-in when exactly one
  * ingredient is missing.
  */
-export function coverSauce(sauce, kitchen, { assumeBasics = true, names = null, catMap = new Map(), pairingIndex = null, sauceIndex = null } = {}) {
+export function coverSauce(sauce, kitchen, { assumeBasics = true, spiceRack = false, names = null, catMap = new Map(), pairingIndex = null, sauceIndex = null } = {}) {
   const list = sauce?.ingredientsDetailed?.length ? sauce.ingredientsDetailed : sauce?.ingredients;
-  const c = coverIngredients(list, kitchen, { assumeBasics, names });
+  const c = coverIngredients(list, kitchen, { assumeBasics, spiceRack, names });
   const standIn = c.missing.length === 1
     ? standInFor(c.missing[0], sauce, kitchen, { catMap, pairingIndex, sauceIndex })
     : null;
@@ -194,9 +196,9 @@ export function coverSauce(sauce, kitchen, { assumeBasics = true, names = null, 
  * with a stand-in in the pantry come first. An empty pantry gives nothing:
  * basics alone do not make a sauce.
  */
-export function whatSauceCanIMake(sauces, kitchen, { maxMissing = 2, assumeBasics = true, names = null, catMap = new Map(), pairingIndex = null, sauceIndex = null } = {}) {
+export function whatSauceCanIMake(sauces, kitchen, { maxMissing = 2, assumeBasics = true, spiceRack = false, names = null, catMap = new Map(), pairingIndex = null, sauceIndex = null } = {}) {
   if (!kitchen || (kitchen.size ?? kitchen.length) === 0) return { make: [], nearly: [] };
-  const base = whatCanICook(sauces, kitchen, { maxMissing, assumeBasics, names });
+  const base = whatCanICook(sauces, kitchen, { maxMissing, assumeBasics, spiceRack, names });
   const ctx = { catMap, pairingIndex, sauceIndex };
   const make = base.make.map((e) => ({ ...e, standIn: null }));
   const nearly = base.nearly.map((e) => ({

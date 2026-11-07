@@ -98,4 +98,16 @@ describe('SaucePantryPanel', () => {
     expect(onClose).toHaveBeenCalled();
     expect(onInvent).toHaveBeenCalled();
   });
+
+  it('WEAK-3: the spice rack switch (off by default) counts nutmeg, so the Béchamel can be made', () => {
+    const onSpiceRackChange = vi.fn();
+    const { rerender } = renderPanel({ onSpiceRackChange });
+    const box = screen.getByTestId('sauce-pantry-spice-rack');
+    expect(box).not.toBeChecked();
+    fireEvent.click(box);
+    expect(onSpiceRackChange).toHaveBeenCalledWith(true);
+    rerender(<SaucePantryPanel kitchen={['egg yolk', 'lemon', 'onion', 'white wine', 'cream', 'milk']} onChange={vi.fn()}
+      sauces={sauces} families={families} names={names} catMap={catMap} onClose={vi.fn()} spiceRack />);
+    expect(within(screen.getByTestId('sauce-pantry-make')).getByText('Béchamel')).toBeInTheDocument();
+  });
 });
