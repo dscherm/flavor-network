@@ -18,7 +18,8 @@ Tag: `v1.1.0` · Bundle: `assets/index-DuoyXy0q.js` · Deployed: 2026-11-06 UTC 
 Tag: `v1.1.1` · Bundle: `assets/index-epf1vbCr.js` · Deployed: 2026-11-06 UTC — match scores scale by how much of a drink's recipe resolves (the Bloody Mary that matched 35/49 dishes is gone); harness wiring repaired. 
 Tag: `v1.2.0` · Bundle: `assets/index-Df3xIDxC.js` · Deployed: 2026-11-06 UTC — pairing matches re-ranked on the recipe co-occurrence score with hub discounts, a match floor and 'loose match' badges (measured on scripts/evalPairingMatch.mjs: namesake sauce first for 7/9, no cocktail in more than 14/83 top lists); pairings.bin v3; Cookbook 49 → 83 recipes with American + Mediterranean. 
 Tag: `v1.3.0` · Bundle: `assets/index-B5WVEllV.js` · Deployed: 2026-11-06 UTC — Cocktail Lab: filter chips for occasion, season, strength, character, effort and glass (rule-derived, occasion tags not yet hand-checked); named sub-groups; normalised glass types; suggested '~' amounts for the 217 drinks with none; brand aliases. 
-Tag: `v1.4.0` · Bundle: `assets/index-DaXfr6rc.js` · Deployed: 2026-11-07 UTC — Wine Lab: 53 hand-written wine styles, a sommelier-rule pairing engine (answer key: tuned top-3 31/42, held-out 10/16), wine list with search and colour chips, 'Matching wines' from Cookbook recipes and the Recipe Notebook. Live site runs v1.4.0.
+Tag: `v1.4.0` · Bundle: `assets/index-DaXfr6rc.js` · Deployed: 2026-11-07 UTC — Wine Lab: 53 hand-written wine styles, a sommelier-rule pairing engine (answer key: tuned top-3 31/42, held-out 10/16), wine list with search and colour chips, 'Matching wines' from Cookbook recipes and the Recipe Notebook. 
+Tag: `v1.4.1` · Bundle: `assets/index-CpVsf59R.js` · Deployed: 2026-11-07 UTC — Wine Lab country of origin and region: country chips, region chips, group by country, origin on cards, search by country/region. Live site runs v1.4.1.
 
 ## What v1.0.0 is
 
