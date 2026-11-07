@@ -37,6 +37,14 @@ const EQUIVALENT = {
   cilantro: ['coriander'], coriander: ['cilantro'],
   'heavy cream': ['cream', 'double cream', 'whipping cream'], cream: ['heavy cream', 'double cream'],
   egg: ['eggs'], eggs: ['egg'],
+  // A whole egg on the shelf covers a recipe's yolks (and a pantry of
+  // "lemons" covers zest as well as juice).
+  'egg yolk': ['egg', 'eggs', 'egg yolks'], 'egg yolks': ['egg yolk', 'egg', 'eggs'],
+  'lemon zest': ['lemon'], 'lime zest': ['lime'],
+  'dry white wine': ['white wine'], 'white wine': ['dry white wine'],
+  'creme fraiche': ['crème fraîche'], 'crème fraîche': ['creme fraiche'],
+  // Butter you clarify, chill or salt yourself is still butter.
+  'clarified butter': ['butter'], 'cold butter': ['butter'], 'unsalted butter': ['butter'], 'salted butter': ['butter'],
 };
 
 function defaultStorage() {
@@ -106,9 +114,13 @@ export function haveIngredient(name, kitchenSet, { assumeBasics = true, names = 
   if (!n) return { covered: true, basic: true };
   if (kitchenSet.has(n)) return { covered: true, via: n };
   for (const eq of EQUIVALENT[n] || []) if (kitchenSet.has(eq)) return { covered: true, via: eq };
+  // Clarified butter when butter is an assumed basic.
+  if (assumeBasics && (EQUIVALENT[n] || []).some(isBasic)) return { covered: true, basic: true };
   if (names) {
     const r = resolveIngredientName(n, names);
     if (r && kitchenSet.has(r)) return { covered: true, via: r };
+    // "cold butter" resolves to butter, an assumed basic.
+    if (r && assumeBasics && isBasic(r)) return { covered: true, basic: true };
   }
   if (assumeBasics && isBasic(n)) return { covered: true, basic: true };
   return { covered: false };

@@ -1,4 +1,5 @@
 import { sauceShapeKey } from './sauceShapes.js';
+import { sauceKeywordSet, jaccard } from './sauceSimilarity.js';
 
 /**
  * sauceCodex.js — Sauce Lab data layer that mirrors the Cocktail Codex
@@ -81,39 +82,8 @@ const REASSIGN = {
   'Dashi': 'Velouté',
 };
 
-// Words that contribute zero signal for ingredient-set similarity.
-// Borrowed from cocktailCodex but trimmed to what shows up in sauce
-// recipes. Salt/water/oil/etc are intentionally NOT here so they DO
-// participate in keyword overlap (they're meaningful in saucework).
-const STOP_KW = new Set([
-  'fresh','dried','ground','whole','small','large','medium','to','taste',
-  'a','an','and','or','of','the','for','with',
-]);
-
-function tokensOf(name) {
-  if (!name) return [];
-  return String(name)
-    .toLowerCase()
-    .split(/[\s/,()-]+/)
-    .filter(t => t.length > 2 && !STOP_KW.has(t));
-}
-
-function sauceKeywordSet(ingredients) {
-  const set = new Set();
-  for (const ing of ingredients) {
-    const name = typeof ing === 'string' ? ing : (ing.name || '');
-    for (const t of tokensOf(name)) set.add(t);
-  }
-  return set;
-}
-
-function jaccard(a, b) {
-  if (a.size === 0 || b.size === 0) return 0;
-  let inter = 0;
-  for (const t of a) if (b.has(t)) inter++;
-  const union = a.size + b.size - inter;
-  return union === 0 ? 0 : inter / union;
-}
+// Ingredient keyword sets + Jaccard live in sauceSimilarity.js (shared with
+// the pantry and Invent panels).
 
 // R15-5: intra-cuisine-pod scatter — bumped 3.5 → 5.25 (1.5×) so
 // members are easier to see and pick. The per-member growth
@@ -246,6 +216,10 @@ export async function loadSauceCodex(basePath = '/data') {
     ingredientList,
     ingredientToSauces,
     codex: { clusters: FAMILIES, sauces: augment.sauces || [] },
+    // Sauce-ingredient catalogue ({name, category, codexRole, …}) and the
+    // curated sauce-ingredient pairings — used by the pantry + Invent panels.
+    ingredientMeta: augment.ingredients || [],
+    pairings: augment.pairings || [],
   };
 }
 
