@@ -15,6 +15,8 @@ import { useEffect, useMemo, useState } from 'react';
 import LabNodeCard from './LabNodeCard.jsx';
 import { loadWineStyles, similarWines, wineSearchText, dots, familyColor, countryFlag, fromCountry, countryIndex } from '../data/wineStyles.js';
 import { scaleWord } from '../data/winePairing.js';
+import { wineProfileAxes, wineFoodMapping } from '../data/wineProfile.js';
+import ProfileRadar from './ProfileRadar.jsx';
 import { parseQuery, matchItem } from '../data/ingredientSearch.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 
@@ -34,6 +36,83 @@ function chipMatches(wine, key) {
   if (key === 'sparkling') return Boolean(wine.sparkling);
   if (key === 'sweet') return wine.family === 'sweet' || wine.family === 'fortified';
   return wine.colour === key;
+}
+
+function ProfileHeading({ children, color = CHALK_DIM }) {
+  return (
+    <div className="uppercase tracking-[0.16em] mb-1.5 mt-3"
+      style={{ color, fontFamily: FONT, fontSize: 'clamp(13px, 1.7vh, 18px)', textShadow: CHALK_SHADOW }}>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * "Flavour profile" + "Pairs by profile" sections of the wine card: the
+ * structure radar, the aroma families, and the structure → food rules
+ * (src/data/wineProfile.js, which restates the pairing engine's rules).
+ */
+export function WineProfileSections({ wine, color }) {
+  const profile = wineProfileAxes(wine);
+  const mapping = wineFoodMapping(wine);
+  return (
+    <div data-testid="wine-profile">
+      <ProfileHeading>Flavour profile</ProfileHeading>
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        <ProfileRadar axes={profile.axes.map((a) => a.key)} values={profile.values} label="structure" color={color} size={170} />
+        <ul className="flex-1 min-w-[180px] max-w-full flex flex-col gap-1.5" data-testid="wine-aroma-families" aria-label="Aroma families">
+          {profile.aromaFamilies.map((f) => (
+            <li key={f.id} className="flex flex-col">
+              <div className="flex items-baseline gap-2" style={{ fontFamily: FONT, fontSize: 18, color: CHALK_CREAM }}>
+                <span className="inline-block rounded-full flex-shrink-0" style={{ width: 9, height: 9, background: f.color }} aria-hidden="true" />
+                <span>{f.label}</span>
+                <span className="ml-auto text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{Math.round(f.share * 100)}%</span>
+              </div>
+              <div className="h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }} aria-hidden="true">
+                <div className="h-1.5 rounded-full" style={{ width: `${Math.max(8, f.share * 100)}%`, background: f.color }} />
+              </div>
+              <div className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{f.tags.join(', ')}</div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <ProfileHeading>Pairs by profile</ProfileHeading>
+      <ul className="flex flex-col gap-2" data-testid="wine-food-mapping">
+        {mapping.rules.map((r) => (
+          <li key={r.id} data-testid={`wine-rule-${r.id}`} className="flex flex-col gap-0.5">
+            <div style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.25 }}>
+              <span className="px-1.5 mr-1.5 rounded border text-[11px] align-middle whitespace-nowrap"
+                style={{ fontFamily: SANS, color: CHALK_DIM, borderColor: `${color}88`, background: `${color}1a` }}>{r.trait}</span>
+              {r.text}
+            </div>
+            {r.examples.length > 0 && (
+              <div className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>e.g. {r.examples.join(', ')}</div>
+            )}
+          </li>
+        ))}
+        {mapping.bridges.length > 0 && (
+          <li data-testid="wine-rule-bridges" style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM, lineHeight: 1.25 }}>
+            <span className="px-1.5 mr-1.5 rounded border text-[11px] align-middle whitespace-nowrap"
+              style={{ fontFamily: SANS, color: CHALK_DIM, borderColor: `${color}88`, background: `${color}1a` }}>aromas</span>
+            Echo {mapping.bridges.join('; ')}
+          </li>
+        )}
+      </ul>
+      {mapping.avoid.length > 0 && (
+        <>
+          <ProfileHeading>Avoid</ProfileHeading>
+          <ul className="flex flex-col gap-1" data-testid="wine-avoid">
+            {mapping.avoid.map((a) => (
+              <li key={a.id} className="flex gap-2" style={{ fontFamily: FONT, fontSize: 18, color: CHALK_DIM, lineHeight: 1.25 }}>
+                <span aria-hidden="true" style={{ color: CHALK_SUB }}>✕</span><span>{a.text}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  );
 }
 
 /** One wine row in the list. */
@@ -155,7 +234,9 @@ export default function WineLab({
       pairsWith={selected.classicMatches}
       onSelect={(name) => { const w = wines.find((x) => x.name === name); if (w) setSelectedId(w.id); }}
       onClose={() => setSelectedId(null)}
-    />
+    >
+      <WineProfileSections wine={selected} color={familyColor(families, selected.family)} />
+    </LabNodeCard>
   );
 
   // ── Matches mode ────────────────────────────────────────────────────

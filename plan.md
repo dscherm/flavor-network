@@ -1352,5 +1352,18 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   "passes": true,
   "description": "scripts/build_wine_review_aromas.py maps each of the 53 Wine Lab styles to reviews in the Kaggle 'Wine Reviews' set (variety + country/province/region/title selectors) and counts how often each of 18 aroma families and their terms appear; ships only aggregate shares + lift per style in public/data/wine_review_aromas.json (CC BY-NC-SA 4.0, attributed; README updated). 52/53 styles profiled (Madeira: 11 reviews, below the 15 minimum). 74% of the hand-written aroma tags are confirmed by the reviews' top-5 families; the unconfirmed ones are listed by --compare. Card display waits for WINE-6.",
   "acceptance": ["No review text shipped; licence and attribution in the file and README", "--compare agreement reported"]
+
+  "id": "WINE-6",
+  "title": "Wine card: flavour-profile radar, aroma families and 'pairs by profile' rules; review of the wine mappings",
+  "category": "ui",
+  "passes": true,
+  "description": "Opening a wine card now shows a 'Flavour profile' section (structure radar over body/acidity/tannin/sweetness/alcohol/oak via ProfileRadar, plus an aroma-family breakdown over 8 families), a 'Pairs by profile' list of structure -> food rules with example foods from the style's classic matches and its aroma bridges, and an 'Avoid' list. Pure logic in src/data/wineProfile.js restates the pairing engine (src/data/winePairing.js, unchanged) at its thresholds; consistency tests score dishes with the engine itself. LabNodeCard gains an optional children slot. docs/wine-mapping-review.md audits the 53 styles and the rules with a prioritised, measurable improvement list. No data edits.",
+  "acceptance": [
+    "wineProfile.js unit tests: axes in 0..1, every aroma tag mapped, Barolo tannin rule, off-dry Riesling heat rule, Sauternes dessert rule, Champagne bubbles rule",
+    "Engine-consistency tests: rule groups rank as the engine scores them (steak, fish, Thai, dessert, fried)",
+    "Component test: opening a wine card shows the profile and mapping sections",
+    "Checked at 375px in the browser: no horizontal scroll",
+    "Full vitest suite green; evalWinePairing numbers unchanged (no engine or data change)"
+  ]
 }
 ```
