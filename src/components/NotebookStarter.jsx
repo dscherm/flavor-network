@@ -36,7 +36,7 @@ export default function NotebookStarter({ nodes, onAdd, onOpenCookbook }) {
                 className="w-full min-h-[96px] flex flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 style={{ border: `1.5px dashed ${CHALK_DIM}88`, outlineColor: CHALK_CREAM }}
               >
-                <IngredientArt category={category} size={48} ink={CHALK_CREAM} />
+                <IngredientArt category={category} name={name} size={48} ink={CHALK_CREAM} />
                 <span
                   className="block max-w-full px-1 text-[20px] leading-tight text-center break-words"
                   style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}

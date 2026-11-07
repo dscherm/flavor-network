@@ -20,7 +20,7 @@ describe('dishTypeOf (DESIGN-3)', () => {
     ['beef-bolognese', 'pasta'], ['mac-and-cheese', 'pasta'], ['biryani', 'rice'], ['sushi-roll', 'rice'],
     ['thai-green-curry', 'curry'], ['dal-tadka', 'curry'], ['beef-bourguignon', 'stew'],
     ['chicken-satay', 'grill'], ['teriyaki-salmon', 'fish'], ['greek-salad', 'salad'],
-    ['mapo-tofu', 'wok'], ['tacos-al-pastor', 'taco'], ['banh-mi', 'sandwich'], ['cheeseburger', 'sandwich'],
+    ['mapo-tofu', 'wok'], ['tacos-al-pastor', 'taco'], ['banh-mi', 'baguette'], ['patatas-bravas', 'tapas'], ['cheeseburger', 'sandwich'],
     ['chicken-shawarma', 'wrap'], ['falafel', 'wrap'], ['chicken-enchiladas', 'wrap'],
     ['pork-gyoza', 'dumpling'], ['samosa', 'dumpling'], ['hummus', 'dip'], ['shakshuka', 'skillet'],
     ['margherita-pizza', 'pizza'], ['croissant', 'bake'], ['garlic-naan', 'bake'],

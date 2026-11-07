@@ -150,3 +150,19 @@ describe('IngredientArt', () => {
     expect(svg.getAttribute('width')).toBe('24');
   });
 });
+
+describe('ingredient drawings by name', () => {
+  it('a few common ingredients get their own drawing ahead of the category', () => {
+    expect(ingredientArtKind('vegetable', 'tomato')).toBe('tomato');
+    expect(ingredientArtKind('vegetable', 'cherry tomatoes')).toBe('tomato');
+    expect(ingredientArtKind('vegetable', 'potato')).toBe('potato');
+    expect(ingredientArtKind('aromatic', 'red onion')).toBe('bulb');
+    expect(ingredientArtKind('vegetable', 'bell pepper')).toBe('pepper');
+    expect(ingredientArtKind('vegetable', 'carrot')).toBe('carrot');
+  });
+  it('other vegetables are broccoli, not a carrot; processed forms keep their category', () => {
+    expect(ingredientArtKind('vegetable', 'zucchini')).toBe('broccoli');
+    expect(ingredientArtKind('condiment', 'tomato paste')).toBe('bottle');
+    expect(ingredientArtKind('herb', 'peppermint')).toBe('leaf');
+  });
+});

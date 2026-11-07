@@ -306,6 +306,7 @@ export default function RecipeNotebook({
                   marked by its bold name (and has no recenter button). */}
               <IngredientArt
                 category={nodes?.get?.(name)?.category}
+                name={name}
                 size={16}
                 ink={PENCIL}
                 tint={tasteColor}

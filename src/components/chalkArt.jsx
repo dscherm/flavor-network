@@ -295,6 +295,9 @@ const INGREDIENT_GLYPHS = {
   bottle: 'M13 3 L19 3 L19 9 Q23 12 23 16 L23 28 L9 28 L9 16 Q9 12 13 9 Z M9 18 L23 18',
   mushroom: 'M4 16 Q4 5 16 5 Q28 5 28 16 Z M12 16 L12 27 L20 27 L20 16',
   bowl: 'M4 14 L28 14 Q27 26 16 26 Q5 26 4 14 Z M10 10 Q12 7 10 4 M17 10 Q19 7 17 4',
+  tomato: 'M16 9 Q27 9 27 19 Q27 28 16 28 Q5 28 5 19 Q5 9 16 9 Z M16 9 L12 6 M16 9 L20 6 M16 9 L11 10 M16 9 L21 10 M16 9 L16 4',
+  potato: 'M5 18 Q4 9 14 8 Q26 6 28 15 Q29 25 17 26 Q6 27 5 18 Z M11 14 L11.5 14.5 M19 12 L19.5 12.5 M21 20 L21.5 20.5',
+  broccoli: 'M7 16 Q3 10 9 8 Q11 3 16 5 Q21 2 23 8 Q29 10 25 16 Z M13 16 L14 28 L18 28 L19 16 M16 22 L12 18 M16 22 L20 18',
 };
 
 const CATEGORY_GLYPH = {
@@ -303,7 +306,7 @@ const CATEGORY_GLYPH = {
   chili: 'pepper', spice: 'pepper', seasoning: 'pepper',
   citrus: 'citrus',
   fruit: 'apple',
-  vegetable: 'carrot',
+  vegetable: 'broccoli',
   aromatic: 'bulb',
   protein: 'fish',
   dairy: 'cheese',
@@ -315,8 +318,27 @@ const CATEGORY_GLYPH = {
   umami: 'mushroom',
 };
 
-/** Which drawing an ingredient category gets ('bowl' when unknown). */
-export function ingredientArtKind(category) {
+// A few ingredients are common enough to get their own drawing, ahead of
+// their category's (tomato is a "vegetable", but not a carrot).
+const NAME_GLYPH = [
+  [/tomato/, 'tomato'],
+  [/potato/, 'potato'],
+  [/onion|shallot|leek|garlic/, 'bulb'],
+  [/mushroom|porcini|shiitake/, 'mushroom'],
+  [/carrot|parsnip/, 'carrot'],
+  [/pepper(?!mint)|chil[ei]|jalape/, 'pepper'],
+  [/lemon|lime|orange|grapefruit|yuzu/, 'citrus'],
+];
+
+/**
+ * Which drawing an ingredient gets: by name for a few common ones, else by
+ * category ('broccoli' for other vegetables, 'bowl' when unknown).
+ */
+export function ingredientArtKind(category, name = '') {
+  const n = String(name || '').toLowerCase();
+  if (n && !/powder|paste|sauce|juice|stock|flakes/.test(n)) {
+    for (const [re, kind] of NAME_GLYPH) if (re.test(n)) return kind;
+  }
   return CATEGORY_GLYPH[String(category || '').toLowerCase()] || 'bowl';
 }
 
@@ -325,8 +347,8 @@ export function ingredientArtKind(category) {
  * line colour (chalk cream on the board, pencil brown on paper); `tint`
  * fills the shape faintly (e.g. the taste colour). Decorative: aria-hidden.
  */
-export function IngredientArt({ category, size = 20, ink = CHALK_CREAM, tint = null }) {
-  const kind = ingredientArtKind(category);
+export function IngredientArt({ category, name = '', size = 20, ink = CHALK_CREAM, tint = null }) {
+  const kind = ingredientArtKind(category, name);
   const d = INGREDIENT_GLYPHS[kind];
   const w = size >= 40 ? 1.8 : 2.2;
   return (
@@ -515,6 +537,36 @@ const DISH_DRAW = {
       <circle cx="50" cy="50" r="2" fill={YOLK} />
       <path d="M62 48 L80 14 L94 32 Z" fill={YOLK} fillOpacity="0.35" />
       <Chalk d="M62 48 L80 14 L94 32 Z" c={CHALK_CREAM} w={2} />
+    </>
+  ),
+  // Patatas bravas and other small plates: a clay dish of potato cubes
+  // under red sauce and a line of aioli.
+  tapas: (c) => (
+    <>
+      <path d="M12 54 A38 18 0 1 0 88 54 A38 18 0 1 0 12 54 Z" fill={c} fillOpacity="0.45" />
+      <Chalk d="M12 54 A38 18 0 1 0 88 54 A38 18 0 1 0 12 54 Z" c={CHALK_CREAM} />
+      <Chalk d="M14 60 Q50 84 86 60" c={CHALK_CREAM} w={2} />
+      {[[30, 50], [42, 44], [55, 47], [67, 51], [37, 58], [50, 57], [62, 60]].map(([x, y]) => (
+        <g key={`${x}${y}`}>
+          <rect x={x - 6} y={y - 6} width="12" height="11" rx="3" fill={YOLK} fillOpacity="0.85" />
+          <rect x={x - 6} y={y - 6} width="12" height="11" rx="3" fill="none" stroke={CHALK_CREAM} strokeWidth="1.2" />
+        </g>
+      ))}
+      <Chalk d="M26 46 Q34 54 42 44 Q50 36 58 46 Q66 56 74 48" c={TOMATO_RED} w={3.2} />
+      <Chalk d="M30 56 Q40 50 48 56 Q58 62 68 54" c={CHALK_CREAM} w={2.2} />
+      <Chalk d={BASE} c={CHALK_SUB} w={2} />
+    </>
+  ),
+  // Bánh mì and other baguette sandwiches: a long roll, split, with filling.
+  baguette: (c) => (
+    <>
+      <path d="M10 62 Q8 44 30 38 L80 26 Q96 24 92 40 Q90 50 74 54 L26 68 Q12 72 10 62 Z" fill={YOLK} fillOpacity="0.3" />
+      <path d="M18 58 L84 38 L86 44 L20 64 Z" fill={c} fillOpacity="0.75" />
+      <Chalk d="M18 58 Q40 50 60 46 Q72 42 84 38" c={LEAF_GREEN} w={2.6} />
+      <Chalk d="M20 63 Q44 56 86 44" c={TOMATO_RED} w={2} />
+      <Chalk d="M10 62 Q8 44 30 38 L80 26 Q96 24 92 40 Q90 50 74 54 L26 68 Q12 72 10 62 Z" c={CHALK_CREAM} />
+      <Chalk d="M34 40 L40 34 M50 36 L56 30 M66 32 L72 26" c={CHALK_CREAM} w={2} />
+      <Chalk d={BASE} c={CHALK_SUB} w={2} />
     </>
   ),
   skillet: (c) => (
