@@ -152,6 +152,20 @@ describe('realRecipesForKitchen', () => {
     expect(r.find((x) => x.title === 'Spanish Rice')).toBeUndefined();
   });
 
+  it('shows one result per normalised title, not per spelling (WEAK-2)', () => {
+    const rec = [
+      { v: [0, 1, 2], t: "Mom's Lemon Chicken", d: ['Roast chicken with lemon and garlic.'] },
+      { v: [0, 1, 2, 7], t: 'Moms Lemon Chicken!', d: ['Bake chicken, garlic and lemon.'] },
+      { v: [0, 2, 3], t: 'Lemon Chicken & Rice (Easy)', d: ['Cook rice; add chicken and lemon.'] },
+      { v: [0, 2, 3, 7], t: 'lemon chicken and rice', d: ['Simmer chicken and rice with lemon.'] },
+    ];
+    const inv = {};
+    rec.forEach((r, i) => r.v.forEach((id) => { (inv[id] ||= []).push(i); }));
+    const r = realRecipesForKitchen(['chicken', 'garlic', 'lemon', 'rice'], { recipes: rec, inv }, VOCAB);
+    expect(r).toHaveLength(2);
+    expect(new Set(r.map((x) => x.title.toLowerCase().replace(/[^a-z]/g, '')))).toHaveLength(2);
+  });
+
   it('is empty without an index or a kitchen', () => {
     expect(realRecipesForKitchen(['chicken'], null, VOCAB)).toEqual([]);
     expect(realRecipesForKitchen([], INDEX, VOCAB)).toEqual([]);
