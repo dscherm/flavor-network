@@ -28,17 +28,40 @@
  * garnish), except with an empty pantry, where the whole sauce list is the
  * pool (as Invent a cocktail does with an empty bar).
  *
- * Score of a combination = mean pair strength over every pair of its
- * ingredients + mean strength with the protein (pairStrength: recipe
- * co-occurrence + curated sauce pairings), + a bonus for using what the
- * cook has, + a small bonus for common ingredients. Amounts are a house
- * table per kind, for about 1½–2 cups of sauce; the UI says they are an
- * idea from what pairs, not a tested recipe.
+ * Score of a combination (WEAK-5) = coherence of its non-basic
+ * ingredients (a quarter mean pair strength, three quarters each one's best partner,
+ * each strength capped at PAIR_CAP;
+ * pairStrength: recipe co-occurrence + curated sauce pairings; butter,
+ * oil, flour and the like fill their slots but never count, so they cannot
+ * carry a sauce or its "why" line) + mean strength with the protein + a
+ * size term that peaks at 5–7 ingredients + a bonus for using what the cook
+ * has + a small bonus for common ingredients − a charge for an optional
+ * ingredient that pairs with nothing else in the sauce. Required slots are
+ * always filled; optional ones from the pantry when they cohere.
+ *
+ * Which sauces are shown: maximal marginal relevance over the beam's
+ * complete sauces (inventVariety.js), names kept unique in that order;
+ * Shuffle walks the pool and then says it is exhausted.
+ *
+ * Amounts are a house table per kind, for about 1½–2 cups of sauce; the
+ * UI says they are an idea from what pairs, not a tested recipe.
  */
 import { SAUCE_TEMPLATES } from './sauceScoring.js';
 import { sauceRoleOf, sauceKind, pairStrength } from './saucePantry.js';
 import { isBasic, haveIngredient } from './myKitchen.js';
 import { proteinIngredient } from './sauceWines.js';
+import { mmrOrder, assignUniqueNames, nextIdeas, dropThinSubsets, EXHAUSTED_SAUCE } from './inventVariety.js';
+
+export { EXHAUSTED_SAUCE };
+
+export const SAUCE_SIZE = { min: 5, max: 7 };
+export const LONELY_COST = 0.08;   // an optional ingredient that pairs with nothing else in the sauce
+export const SAUCE_POOL_FLOOR = 0.45; // sauces scoring further below the best are not offered
+// Pair strength counts up to PAIR_CAP ("a real pairing") and no further:
+// one very strong pair (tomato + garlic) must not outweigh a fuller sauce
+// whose every ingredient pairs well.
+export const PAIR_CAP = 0.5;
+const capped = (s) => Math.min(s, PAIR_CAP) / PAIR_CAP;
 
 const norm = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 const tmpl = (name) => SAUCE_TEMPLATES.find((t) => t.name === name);
@@ -49,6 +72,18 @@ const BODY_FRUIT = /mango|pineapple|peach|papaya|avocado/;
 
 /** Basics a cook is assumed to have (myKitchen PANTRY_BASICS, as sauce lines). */
 const BASIC_LINES = ['butter', 'olive oil', 'vegetable oil', 'flour', 'black pepper', 'sugar', 'water'];
+
+/** Assumed basics (and any oil): they fill a slot but never carry the score or the "why". */
+export function isSauceBasic(key) {
+  const k = norm(key);
+  return BASIC_LINES.includes(k) || isBasic(k) || /\boil\b/.test(k);
+}
+
+/** Size term: flat top for 5–7 ingredients, falling by `step` per ingredient outside it. */
+export function sauceSizeTerm(n, { min = SAUCE_SIZE.min, max = SAUCE_SIZE.max, peak = 0.15, step = 0.1 } = {}) {
+  if (n >= min && n <= max) return peak;
+  return peak - step * (n < min ? min - n : n - max);
+}
 
 /**
  * slot: { id, label, roles, kinds?, test?(name, role, kind), required, key? }
@@ -119,6 +154,7 @@ export const INVENT_STYLES = [
       { id: 'fat', label: 'fat', roles: ['Fat'], required: true },
       { id: 'tomato', label: 'tomato', roles: ['Acid'], kinds: ['tomato'], required: true },
       { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: true, key: true },
+      { id: 'aromatic2', label: 'second aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: false },
       { id: 'herb', label: 'herb', roles: ['Herb'], required: false, key: true },
       { id: 'chili', label: 'chili', roles: ['Chili'], required: false, key: true },
       { id: 'umami', label: 'umami', roles: ['Protein'], kinds: ['fish', 'cheese', 'meat'], required: false, key: true },
@@ -173,6 +209,7 @@ export const INVENT_STYLES = [
     slots: [
       { id: 'body', label: 'tomato, tomatillo or fruit', roles: ['Acid', 'Other'], test: (n, r, k) => (r === 'Acid' && k === 'tomato') || BODY_FRUIT.test(n), required: true, key: true },
       { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: true, key: true },
+      { id: 'aromatic2', label: 'second aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: false },
       { id: 'chili', label: 'chili', roles: ['Chili'], kinds: ['fresh chili', 'dried chili'], required: false, key: true },
       { id: 'herb', label: 'herb', roles: ['Herb'], kinds: ['soft herb'], required: false, key: true },
       { id: 'acid', label: 'citrus or vinegar', roles: ['Acid'], kinds: ['citrus', 'vinegar'], required: false },
@@ -326,7 +363,7 @@ export function methodFor(styleId, lines) {
       return `${pre}Whisk the ${at('emulsifier')} with ${reduce ? 'the reduction' : `the ${acid}`} and a spoon of water over barely simmering water until thick and pale — keep it under 70 °C or the yolk sets. Off the heat, whisk in the warm ${fat} drop by drop, then in a thin stream: the yolk’s lecithin holds the fat in tiny droplets.${finish(extras)} Season; if it gets too thick, loosen with warm water.`;
     }
     case 'Tomato':
-      return `Warm the ${fat} and soften the ${at('aromatic')} 8–10 minutes without colour${at('chili') ? `, adding the ${at('chili')} for the last minute` : ''}.${at('umami') ? ` Stir in the ${at('umami')}.` : ''}${at('wine') ? ` Add the ${at('wine')} and reduce by half.` : ''} Add the ${at('tomato')} and simmer 20–30 minutes until thick — the water cooks off and the acid mellows.${finish([herb])} Season with salt.`;
+      return `Warm the ${fat} and soften the ${and([at('aromatic'), at('aromatic2')])} 8–10 minutes without colour${at('chili') ? `, adding the ${at('chili')} for the last minute` : ''}.${at('umami') ? ` Stir in the ${at('umami')}.` : ''}${at('wine') ? ` Add the ${at('wine')} and reduce by half.` : ''} Add the ${at('tomato')} and simmer 20–30 minutes until thick — the water cooks off and the acid mellows.${finish([herb])} Season with salt.`;
     case 'Curry':
       return `Heat the ${fat} and fry the ${and([at('aromatic'), at('aromatic2')])} until soft and golden. Add the ${and([at('spice'), at('chili')])} and fry 1 minute until fragrant — spices bloom in hot fat.${at('acid') ? ` Add the ${at('acid')} and cook it down.` : ''}${at('liquid') ? ` Pour in the ${at('liquid')} and simmer 10–15 minutes.` : ' Add a splash of water and simmer 10 minutes.'}${finish([herb])} Season with salt.`;
     case 'Stir-fry':
@@ -334,7 +371,7 @@ export function methodFor(styleId, lines) {
     case 'Mole':
       return `Toast the ${at('chili')} in a dry pan, then soak in hot ${at('liquid') || 'water'} for 20 minutes. Toast the ${at('spice')}${at('body') ? ` and the ${at('body')}` : ''}. Blend everything${at('aromatic') || at('tomato') ? ` with the ${and([at('aromatic'), at('tomato')])}` : ''} until smooth. Fry the purée in the hot ${fat} 5–10 minutes, stirring, until it darkens, then simmer, loosening with liquid, until it coats a spoon. Season with salt.`;
     case 'Salsa':
-      return `Finely chop the ${and([at('body'), at('aromatic'), at('chili'), herb])}. Toss with ${at('acid') ? `the ${at('acid')} and ` : ''}a good pinch of salt and rest 15 minutes so the salt draws out the juices. Taste and adjust.`;
+      return `Finely chop the ${and([at('body'), at('aromatic'), at('aromatic2'), at('chili'), herb])}. Toss with ${at('acid') ? `the ${at('acid')} and ` : ''}a good pinch of salt and rest 15 minutes so the salt draws out the juices. Taste and adjust.`;
     case 'Nut Sauce':
       return `Whisk the ${at('nut')} with ${and([at('acid'), at('umami'), at('aromatic'), at('chili'), at('sweet')]) || 'a pinch of salt'}, then add ${at('liquid') ? `the ${at('liquid')}` : 'warm water'} a spoon at a time — it seizes at first, then loosens to a pourable sauce. Season.`;
     default:
@@ -414,20 +451,31 @@ export function inventSauces({
   }
   const prot = protein ? proteinIngredient(protein) : null;
   const ctx = { pairingIndex, sauceIndex };
-  const scoreOf = (members) => {
+  const scoreOf = (members, optional = new Set()) => {
+    // Basics fill their slots but do not count: butter + cream must not carry a sauce.
+    const xs = members.filter((m) => !isSauceBasic(m.key));
+    const best = xs.map(() => 0);
     let sum = 0; let n = 0;
-    for (let i = 0; i < members.length; i++) {
-      for (let j = i + 1; j < members.length; j++) { sum += pairStrength(members[i].key, members[j].key, ctx); n += 1; }
+    for (let i = 0; i < xs.length; i++) {
+      for (let j = i + 1; j < xs.length; j++) {
+        const s = capped(pairStrength(xs[i].key, xs[j].key, ctx));
+        sum += s; n += 1;
+        if (s > best[i]) best[i] = s;
+        if (s > best[j]) best[j] = s;
+      }
     }
-    const pairing = n ? sum / n : 0;
-    const withProtein = prot && members.length
-      ? members.reduce((s, m) => s + pairStrength(m.key, prot, ctx), 0) / members.length
-      : 0;
-    // Using what the cook has earns a little per ingredient, so a sauce is
-    // not left bare just because a mean over fewer pairs scores higher.
+    const meanBest = xs.length ? best.reduce((a, b) => a + b, 0) / xs.length : 0;
+    const pairing = 0.25 * (n ? sum / n : 0) + 0.75 * meanBest;
+    const protS = prot ? xs.map((m) => capped(pairStrength(m.key, prot, ctx))) : [];
+    const withProtein = protS.length ? protS.reduce((a, b) => a + b, 0) / protS.length : 0;
+    // An optional ingredient that pairs with nothing in the sauce (or the
+    // protein) does not cohere: it is there only to make up the numbers.
+    let lonely = 0;
+    xs.forEach((m, i) => { if (optional.has(m) && best[i] === 0 && !(protS[i] > 0)) lonely += 1; });
+    // Using what the cook has earns a little per ingredient.
     const have = members.filter((m) => m.have).length;
     const common = members.length ? members.reduce((s, m) => s + m.common, 0) / members.length : 0;
-    return pairing + withProtein + 0.06 * have + 0.1 * common;
+    return pairing + withProtein + sauceSizeTerm(members.length) + 0.06 * have + 0.1 * common - LONELY_COST * lonely;
   };
 
   // Beam search over the slots; optional slots may stay empty.
@@ -439,7 +487,8 @@ export function inventSauces({
       for (const c of choices) {
         if (c && p.picked.some((q) => q && q.key === c.key)) continue; // no ingredient twice
         const picked = [...p.picked, c];
-        next.push({ picked, score: scoreOf(picked.filter(Boolean)) });
+        const optional = new Set(picked.filter((q, j) => q && !style.slots[j].required));
+        next.push({ picked, score: scoreOf(picked.filter(Boolean), optional) });
       }
     }
     next.sort((a, b) => b.score - a.score);
@@ -447,28 +496,26 @@ export function inventSauces({
   });
   if (!partial.length || !partial[0].picked.length) return { ok: false, missing: [], reason: 'Nothing to build with' };
 
-  // Keep inventions that differ by more than a one-ingredient swap (symmetric
-  // difference of 3+ lines), then top up with the rest in score order.
-  const chosen = [];
-  const keysOf = (p) => new Set(p.picked.filter(Boolean).map((c) => c.key));
-  const built = new Map(partial.map((p) => [p, buildInvention(style, p, { catMap: cats, protein, ctx })]));
-  const usedNames = new Set();
-  for (const p of partial) {
-    const ks = keysOf(p);
-    if (usedNames.has(built.get(p).name)) continue;
-    const distinct = chosen.every((q) => {
-      const qs = keysOf(q);
-      let diff = 0;
-      for (const k of ks) if (!qs.has(k)) diff += 1;
-      for (const k of qs) if (!ks.has(k)) diff += 1;
-      return diff >= 3;
-    });
-    if (distinct) { chosen.push(p); usedNames.add(built.get(p).name); }
-    if (chosen.length >= limit) break;
-  }
-  for (const p of partial) { if (chosen.length >= limit) break; if (!chosen.includes(p)) chosen.push(p); }
+  // Session order by MMR (penalise overlap with sauces already shown), then
+  // unique names in that order. `pool` is everything Shuffle can reach.
+  const top = partial[0].score;
+  const built = dropThinSubsets(
+    partial.filter((p) => p.score >= top - SAUCE_POOL_FLOOR).map((p) => buildInvention(style, p, { catMap: cats, protein, ctx })),
+    { keysOf: sauceKeys, minSize: SAUCE_SIZE.min },
+  );
+  const ordered = mmrOrder(built, { keysOf: sauceKeys });
+  const ideas = assignUniqueNames(ordered, (inv) => inv.names).map(({ idea, name }) => ({ ...idea, name }));
+  return { ok: true, sauces: ideas.slice(0, limit), pool: ideas };
+}
 
-  return { ok: true, sauces: chosen.map((p) => built.get(p)) };
+const sauceKeys = (inv) => inv.lines.map((l) => l.key);
+
+/**
+ * The next sauces to show in this session (MMR over the pool, never one
+ * already shown). [] means the pool is exhausted: show EXHAUSTED_SAUCE.
+ */
+export function nextSauces(pool, shown = [], n = 3) {
+  return nextIdeas(pool, shown, n, { keysOf: sauceKeys });
 }
 
 function buildInvention(style, { picked, score }, { catMap, protein, ctx }) {
@@ -482,21 +529,30 @@ function buildInvention(style, { picked, score }, { catMap, protein, ctx }) {
     .filter((s) => s.key)
     .map((s) => lines.find((l) => l.slot === s.id))
     .filter((l) => l && !isBasic(l.key));
-  const words = telling.slice(0, 2).map((l) => shortName(l.key));
   const word = style.wordFor ? style.wordFor(lines) : style.word;
-  const name = words.length ? `${words.join(' & ')} ${word}` : `House ${word}`;
+  // Candidate names, best first: the first two telling ingredients, then
+  // other pairs of them, then one alone, then "House …" (unique per session).
+  const W = [...new Set(telling.map((l) => shortName(l.key)))];
+  const names = [];
+  for (let i = 0; i < W.length; i++) for (let j = i + 1; j < W.length; j++) names.push(`${W[i]} & ${W[j]} ${word}`);
+  for (const w of W) names.push(`${w} ${word}`);
+  names.push(`House ${word}`);
+  const name = names[0];
   const prot = protein ? proteinIngredient(protein) : null;
   const pairs = [];
   for (let i = 0; i < lines.length; i++) {
     for (let j = i + 1; j < lines.length; j++) pairs.push({ a: lines[i].key, b: lines[j].key, s: pairStrength(lines[i].key, lines[j].key, ctx) });
     if (prot) pairs.push({ a: lines[i].key, b: protein, s: pairStrength(lines[i].key, prot, ctx) });
   }
-  const strong = pairs.filter((p) => p.s > 0).sort((x, y) => y.s - x.s).slice(0, 2);
+  // Basics (butter, oil, flour …) never make the "why".
+  const strong = pairs.filter((p) => p.s > 0 && !isSauceBasic(p.a) && !isSauceBasic(p.b))
+    .sort((x, y) => y.s - x.s).slice(0, 2);
   const why = strong.length
     ? `Strongest pairings: ${strong.map((p) => `${p.a} + ${p.b}`).join(', ')}.`
     : `Follows the ${style.label.toLowerCase()} skeleton; no pairing data links these ingredients.`;
   return {
     name,
+    names,
     styleId: style.id,
     familyId: style.familyId,
     lines,

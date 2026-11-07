@@ -108,6 +108,23 @@ describe('InventRecipe', () => {
     await waitFor(() => expect(screen.getAllByTestId('invent-recipe-name')[0]).toHaveTextContent('Thai-style'));
   });
 
+  it('Shuffle shows new dishes until there are none, then says so; Start over begins again (WEAK-5)', async () => {
+    mount({ kitchen: ['chicken', 'lemon', 'garlic'] });
+    const first = (await screen.findAllByTestId('invent-recipe-name')).map((n) => n.textContent);
+    const seen = [...first];
+    for (let i = 0; i < 50 && !screen.queryByTestId('invent-recipe-exhausted'); i++) {
+      fireEvent.click(screen.getByTestId('invent-recipe-shuffle'));
+      if (!screen.queryByTestId('invent-recipe-exhausted')) seen.push(...screen.getAllByTestId('invent-recipe-name').map((n) => n.textContent));
+    }
+    const done = screen.getByTestId('invent-recipe-exhausted');
+    expect(done).toHaveTextContent("That's every idea for this kitchen; add an ingredient for more.");
+    expect(new Set(seen).size).toBe(seen.length); // never the same dish twice
+    expect(screen.queryByTestId('invent-recipe-shuffle')).toBeNull();
+    fireEvent.click(within(done).getByTestId('invent-recipe-start-over'));
+    expect(screen.getAllByTestId('invent-recipe-name').map((n) => n.textContent)).toEqual(first);
+    expect(screen.getByTestId('invent-recipe-count')).toHaveTextContent(new RegExp(`^${first.length} of \\d+ ideas$`));
+  });
+
   it('an empty kitchen says to add things first', async () => {
     mount({ kitchen: [] });
     expect(await screen.findByTestId('invent-recipe-missing')).toHaveTextContent(/Add a few things/);

@@ -101,6 +101,20 @@ describe('InventSauce', () => {
     expect(arg[arg.length - 1]).toBe('salmon');
   });
 
+  it('Shuffle never repeats a sauce and says when the pantry has no more (WEAK-5)', () => {
+    renderInvent({ initialStyle: 'Tomato', kitchen: ['tomato', 'garlic', 'onion', 'shallot'] });
+    const seen = screen.getAllByTestId('sauce-invent-name').map((n) => n.textContent);
+    for (let i = 0; i < 50 && !screen.queryByTestId('sauce-invent-exhausted'); i++) {
+      fireEvent.click(screen.getByTestId('sauce-invent-shuffle'));
+      if (!screen.queryByTestId('sauce-invent-exhausted')) seen.push(...screen.getAllByTestId('sauce-invent-name').map((n) => n.textContent));
+    }
+    expect(screen.getByTestId('sauce-invent-exhausted')).toHaveTextContent("That's every idea for this pantry; add an ingredient for more.");
+    expect(new Set(seen).size).toBe(seen.length);
+    fireEvent.click(screen.getByTestId('sauce-invent-start-over'));
+    expect(screen.queryByTestId('sauce-invent-exhausted')).toBeNull();
+    expect(screen.getAllByTestId('sauce-invent-name').map((n) => n.textContent)[0]).toBe(seen[0]);
+  });
+
   it('shuffle steps through the inventions; Back closes', () => {
     const onClose = vi.fn();
     renderInvent({ initialStyle: 'Béchamel', kitchen: [], onClose });
