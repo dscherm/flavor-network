@@ -173,7 +173,7 @@ describe('Sauce Lab — ingredient search', () => {
   });
 });
 
-describe('Cocktail Lab — "Only what I can make" switch', () => {
+describe('Cocktail Lab — "Only what I have" switch', () => {
   const renderWith = (props) => render(
     <CocktailBrowse graph={COCKTAIL_GRAPH} selectedCocktail={null} onSelectCocktail={vi.fn()}
       filterFamily={null} onFilterFamily={vi.fn()} filterSpirit={null} onFilterSpirit={vi.fn()} {...props} />,

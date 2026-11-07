@@ -250,12 +250,12 @@ export default function CocktailBrowse({
   onOpenMyBar = null,
   onOpenInvent = null,
   // Names of drinks the bar + kitchen fully covers (myBar.whatCanIMake);
-  // null hides the "Only what I can make" switch.
+  // null hides the "Only what I have" switch.
   makeableNames = null,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [ibaOnly, setIbaOnly] = useState(false);
-  // "Only what I can make" — remembered on this device.
+  // "Only what I have" — remembered on this device.
   const [barOnly, setBarOnlyRaw] = useState(() => {
     try { return localStorage.getItem('fn-cocktail-bar-only') === '1'; } catch { return false; }
   });
@@ -634,7 +634,7 @@ export default function CocktailBrowse({
                 <span className="absolute top-[2px] rounded-full transition-all"
                   style={{ width: 14, height: 14, left: barOnly ? 17 : 2, background: barOnly ? '#0a0a0a' : CHALK_CREAM }} />
               </span>
-              🍾 Only what I can make
+              🍾 Only what I have
               <span className="text-[13px]" style={{ fontFamily: 'system-ui, sans-serif', color: CHALK_DIM }}>({makeableNames.size})</span>
             </button>
           )}

@@ -294,7 +294,7 @@ export default function CocktailLabV2({
     return () => { cancelled = true; };
   }, []);
   // Drinks the bar + kitchen fully covers — drives the menu's
-  // "Only what I can make" switch (null until roles and data load).
+  // "Only what I have" switch (null until roles and data load).
   const makeableNames = useMemo(() => {
     if (!graph?.cocktails || !cocktailRoles) return null;
     const { make } = whatCanIMake(graph.cocktails, stock, { roles: cocktailRoles, names: riffIndex?.names || new Set(), pairingIndex: riffIndex });
