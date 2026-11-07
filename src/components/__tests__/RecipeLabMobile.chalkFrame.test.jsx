@@ -128,7 +128,7 @@ describe('RecipeLabMobile — chalk frame around a paper page', () => {
     expect(basilArt.getAttribute('data-kind')).toBe('leaf');
     expect(basilArt.getAttribute('aria-hidden')).toBe('true');
     const chickenArt = within(screen.getByTestId('notebook-row-chicken')).getByTestId('ingredient-art');
-    expect(chickenArt.getAttribute('data-kind')).toBe('fish');
+    expect(chickenArt.getAttribute('data-kind')).toBe('drumstick');
   });
 });
 
