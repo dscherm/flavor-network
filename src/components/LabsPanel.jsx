@@ -23,6 +23,16 @@ function SauceIcon({ c }) {
     </svg>
   );
 }
+function WineIcon({ c }) {
+  return (
+    <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
+      <path d="M34 20 L66 20 Q68 44 50 54 Q32 44 34 20 Z" fill="none" stroke={c} strokeWidth="3" strokeLinejoin="round" />
+      <path d="M36 34 Q50 40 64 34" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="50" y1="54" x2="50" y2="78" stroke={c} strokeWidth="3" strokeLinecap="round" />
+      <line x1="38" y1="80" x2="62" y2="80" stroke={c} strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
 function CookbookIcon({ c }) {
   return (
     <svg viewBox="0 0 100 100" className="w-full h-full" aria-hidden="true">
@@ -62,6 +72,7 @@ function NotebookIcon({ c }) {
 const LAB_CARDS = [
   { id: 'cocktail', label: 'Cocktail Lab',    desc: 'Mix a drink by family + spirit',  accent: '#f59e0b', Icon: CocktailIcon },
   { id: 'sauce',    label: 'Sauce Lab',       desc: 'Build a sauce from the mothers',  accent: '#fb923c', Icon: SauceIcon },
+  { id: 'wine',     label: 'Wine Lab',        desc: 'Pair a wine with any dish',       accent: '#e11d48', Icon: WineIcon },
   { id: 'cookbook', label: 'Cookbook',        desc: 'Browse curated dishes',           accent: '#ec4899', Icon: CookbookIcon },
   { id: 'pairing',  label: 'Pairing Lab',     desc: 'Explore how ingredients pair',    accent: '#22d3ee', Icon: PairingIcon },
   { id: 'recipe',   label: 'Recipe Notebook', desc: 'Write a recipe by hand',          accent: '#34d399', Icon: NotebookIcon },

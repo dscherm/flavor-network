@@ -100,6 +100,8 @@ export default function LabNodeCard({
   details = [],          // [{ label, value }]
   ingredients = [],      // string[] | [{ name, measure }]
   prep,                  // string
+  ingredientsLabel = 'Ingredients',
+  prepLabel = 'Preparation',
   likeThis = [],         // [{ name, similarity, color }]
   bridges = [],          // [{ name, family_name, color }]
   pairsWith = [],        // string[]
@@ -116,7 +118,7 @@ export default function LabNodeCard({
   const ingList = (ingredients || []).map((ing) =>
     typeof ing === 'string' ? { name: ing, measure: '' } : { name: ing?.name, measure: ing?.measure || '' },
   ).filter((ing) => ing.name);
-  const likeThisLabel = kind === 'sauce' ? 'Sauces like this' : 'Cocktails like this';
+  const likeThisLabel = { sauce: 'Sauces like this', wine: 'Wines like this' }[kind] || 'Cocktails like this';
 
   return (
     <div className="fixed inset-x-0 top-0 z-[80] flex flex-col items-center justify-center px-4 py-3"
@@ -133,7 +135,7 @@ export default function LabNodeCard({
           ← Back
         </button>
         <span style={{ color: CHALK_DIM, fontFamily: FONT, fontSize: FS_SUB, textShadow: CHALK_TEXT_SHADOW }}>
-          {kind === 'sauce' ? 'sauce' : 'cocktail'} · card
+          {kind === 'sauce' || kind === 'wine' ? kind : 'cocktail'} · card
         </span>
       </div>
 
@@ -171,7 +173,7 @@ export default function LabNodeCard({
         {/* Ingredients */}
         {ingList.length > 0 && (
           <div className="flex-shrink-0">
-            <SectionLabel>Ingredients</SectionLabel>
+            <SectionLabel>{ingredientsLabel}</SectionLabel>
             <ul className="flex flex-col gap-1" data-testid="lab-node-card-ingredients">
               {ingList.map((ing, i) => (
                 <li key={`${ing.name}-${i}`} className="flex items-baseline gap-2"
@@ -193,10 +195,10 @@ export default function LabNodeCard({
 
         {/* Preparation — numbered steps when multi-step, else a paragraph. */}
         {prep && (() => {
-          const steps = splitPrepSteps(prep);
+          const steps = kind === 'wine' ? [prep] : splitPrepSteps(prep);
           return (
             <div className="flex-shrink-0">
-              <SectionLabel>Preparation</SectionLabel>
+              <SectionLabel>{prepLabel}</SectionLabel>
               {steps.length > 1 ? (
                 <ol className="flex flex-col gap-1.5" data-testid="lab-node-card-prep">
                   {steps.map((step, i) => (

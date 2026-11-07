@@ -48,6 +48,7 @@ const LivingArchView = lazyWithRetry(() => import('./components/LivingArchView.j
 // PAIR-LAB-P2 — the Pairing Lab (ingredient-first ego-network). Lazy so
 // its canvas renderer + ego model code-split out of the initial bundle.
 const PairingLab = lazyWithRetry(() => import('./components/PairingLab.jsx'));
+const WineLab = lazyWithRetry(() => import('./components/WineLab.jsx'));
 import CocktailLabV2 from './components/CocktailLabV2.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
@@ -82,6 +83,8 @@ import WedgeGridFlavorWheel from './components/WedgeGridFlavorWheel.jsx';
 import InsightDrawer from './components/InsightDrawer.jsx';
 import { rankBridges } from './data/bridgeRanker.js';
 import { buildPairingIndex, rankByPairing } from './data/recipePairingMatch.js';
+import { rankWinesForRecipe } from './data/winePairing.js';
+import { loadWineStyles } from './data/wineStyles.js';
 import { computeClusterBucketOverlap } from './data/clusterBucketOverlap.js';
 import { computeBucketPoles2D, computeBucketPoles3D, fibonacciSphere, POLE_RADIUS } from './data/bucketPoles.js';
 import { getCocktailScope, getSauceScope } from './data/labScope.js';
@@ -99,6 +102,7 @@ const TAB_TO_PATH = {
   network: 'explore',
   cocktail: 'cocktail',
   sauce: 'sauce',
+  wine: 'wine',
   recipe: 'notebook',
   cookbook: 'cookbook',
   pairing: 'pairing',
@@ -111,6 +115,7 @@ const PATH_TO_TAB = Object.fromEntries(
     explore: 'network',
     cocktail: 'cocktail',
     sauce: 'sauce',
+    wine: 'wine',
     notebook: 'recipe',
     cookbook: 'cookbook',
     recipes: 'cookbook',  // back-compat alias for pre-rename shared URLs
@@ -241,7 +246,11 @@ export default function App() {
     if (activeTab !== 'cocktail' && activeTab !== 'sauce') {
       setMatchesContext(null);
     }
+    if (activeTab !== 'wine') setWineMatches(null);
   }, [activeTab]);
+  // Wine Lab matches live apart from matchesContext so the (hidden, still
+  // mounted) cocktail and sauce labs never render a list of wines.
+  const [wineMatches, setWineMatches] = useState(null);
 
   // externalLabFilter is passed to Cocktail/Sauce/Recipes labs when
   // bridging from the Build flow. Pill state in the destination lab
@@ -1140,6 +1149,24 @@ export default function App() {
       setSauceMounted(true);
       setActiveTab('sauce');
     } catch { /* network failure — fail silently */ }
+  }, [data]);
+
+  // "Matching wines": rank wine styles for a recipe (src/data/winePairing.js).
+  // `extras` carries cuisine / dish type / method text when the caller has
+  // them (Cookbook recipes do); the ranker works from ingredients alone too.
+  const handleFindWine = useCallback(async (recipeIngredients, recipeName, returnTab = 'recipe', extras = {}) => {
+    if (!recipeIngredients?.length) return;
+    const styles = await loadWineStyles(import.meta.env.BASE_URL);
+    if (!styles) return;
+    const nodes = data?.graph?.nodes;
+    const ranked = rankWinesForRecipe(recipeIngredients, styles.wines, {
+      categoryOf: (name) => nodes?.get(name)?.category || null,
+      cuisine: extras.cuisine || null,
+      dishType: extras.dishType || null,
+      methodText: extras.methodText || '',
+    }, 8);
+    setWineMatches({ recipeName: recipeName || 'this recipe', items: ranked, returnTab });
+    setActiveTab('wine');
   }, [data]);
 
   // Parse URL parameters on mount to pre-load shared recipe ingredients
@@ -2152,6 +2179,7 @@ export default function App() {
             isMobile={isMobile}
             onFindCocktail={handleFindCocktail}
             onFindSauce={handleFindSauce}
+            onFindWine={handleFindWine}
           />
         </div>
       )}
@@ -2169,6 +2197,17 @@ export default function App() {
                    swipe-down returns to Stage 1. */}
       {activeTab === 'labs' && (
         <LabsPanel onPick={handleLabPick} />
+      )}
+
+      {/* Wine Lab — lazy, gated on the tab (no 3D, so no mount latch). */}
+      {activeTab === 'wine' && (
+        <Suspense fallback={null}>
+          <WineLab
+            matchesContext={wineMatches}
+            onExitMatches={() => setWineMatches(null)}
+            onBackToRecipe={wineMatches ? () => { const back = wineMatches.returnTab || 'recipe'; setWineMatches(null); setActiveTab(back); } : null}
+          />
+        </Suspense>
       )}
 
       {activeTab === 'make' && (
@@ -2200,6 +2239,7 @@ export default function App() {
             ctx={data}
             onFindCocktail={(ings, name) => handleFindCocktail(ings, name, 'cookbook')}
             onFindSauce={(ings, name) => handleFindSauce(ings, name, 'cookbook')}
+            onFindWine={(ings, name, extras) => handleFindWine(ings, name, 'cookbook', extras)}
             // COOKBOOK-2: useUserProfile returns { profile, addRecipe, ... },
             // so recipes live at userProfile.profile.recipes. Reading
             // userProfile.recipes yielded undefined and `|| []` quietly turned

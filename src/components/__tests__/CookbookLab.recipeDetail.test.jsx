@@ -44,6 +44,18 @@ describe('Cookbook recipe popup — cookable details', () => {
     expect(onFindSauce).toHaveBeenCalledWith(bolognese.ingredients, 'Beef Bolognese');
   });
 
+  it('"Matching wines" passes cuisine, dish type and method so the wine ranker can use them', () => {
+    const onFindWine = vi.fn();
+    const dialog = openBolognese({ onFindWine });
+    fireEvent.click(within(dialog).getByRole('button', { name: /matching wines/i }));
+    expect(onFindWine).toHaveBeenCalledTimes(1);
+    const [ings, name, extras] = onFindWine.mock.calls[0];
+    expect(ings).toEqual(bolognese.ingredients);
+    expect(name).toBe('Beef Bolognese');
+    expect(extras).toEqual(expect.objectContaining({ cuisine: 'Italian', dishType: 'savory' }));
+    expect(extras.methodText).toMatch(/simmer/i);
+  });
+
   it('hides "Goes well with" when no handlers are wired', () => {
     const dialog = openBolognese();
     expect(within(dialog).queryByTestId('recipe-goes-well-with')).toBeNull();

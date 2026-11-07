@@ -33,7 +33,7 @@ const FONT_FAMILY = 'Caveat, cursive';
  * aroma-match handlers, save flow) adapt via `bowlNames(bowl)` at the
  * prop boundary.
  */
-export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, handoff = null, userProfile, onFindCocktail, onFindSauce }) {
+export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, handoff = null, userProfile, onFindCocktail, onFindSauce, onFindWine }) {
   const [labMode, setLabMode] = useState(initialMode === 'cocktail' ? 'cocktail' : 'taste');
 
   // Seed the bowl from initialIngredients / initialIngredient, dedup'd
@@ -645,6 +645,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
             onAdd={(name, amount) => handleAddIngredient(name, amount)}
             onFindCocktail={onFindCocktail ? () => onFindCocktail(recipeNames, recipeTitle) : null}
             onFindSauce={onFindSauce ? () => onFindSauce(recipeNames, recipeTitle) : null}
+            onFindWine={onFindWine ? () => onFindWine(recipeNames, recipeTitle) : null}
             onClose={() => setProfilesOpen(false)}
           />
         </div>

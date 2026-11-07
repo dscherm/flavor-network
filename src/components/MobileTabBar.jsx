@@ -8,6 +8,7 @@ const LABS = [
   { id: 'cookbook', label: 'Cookbook',         desc: 'Browse saved recipes' },
   { id: 'cocktail', label: 'Cocktail Lab',     desc: 'Mix a drink' },
   { id: 'sauce',    label: 'Sauce Lab',        desc: 'Build a sauce' },
+  { id: 'wine',     label: 'Wine Lab',         desc: 'Pair a wine' },
   { id: 'pairing',  label: 'Pairing Lab',      desc: 'Explore flavor pairings' },
   { id: 'recipe',   label: 'Recipe Notebook',  desc: 'Handwritten notebook' },
   { id: 'profile',  label: 'Profile',          desc: 'Saved recipes & insights' },
@@ -31,7 +32,7 @@ export default function MobileTabBar({
   const [labsOpen, setLabsOpen] = useState(false);
 
   const isMakeActive = activeTab === 'make';
-  const isLabsActive = ['cookbook', 'cocktail', 'sauce', 'recipe', 'profile'].includes(activeTab);
+  const isLabsActive = ['cookbook', 'cocktail', 'sauce', 'wine', 'pairing', 'labs', 'recipe', 'profile'].includes(activeTab);
 
   const closeAll = () => setLabsOpen(false);
 

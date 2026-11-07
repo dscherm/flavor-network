@@ -1231,3 +1231,48 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "WINE-1",
+  "title": "Wine style data for the Wine Lab",
+  "category": "data",
+  "passes": true,
+  "description": "public/data/wine_styles.json: 53 hand-written wine styles in 10 families (sparkling to fortified) with body/acidity/tannin/sweetness/alcohol/oak scales, aromas, grapes, region, cuisine, serving temperature, tasting notes and classic food matches named as ProData ingredients. Original data from standard wine-education descriptions; no third-party database.",
+  "acceptance": [
+    "Every classic match resolves in public/proDataset/ingredients.json (test)",
+    "Scales in range, unique ids, every family populated, whites/rosés tannin <= 1 (tests)"
+  ]
+}
+```
+
+```json
+{
+  "id": "WINE-2",
+  "title": "Wine pairing engine with a sommelier answer key",
+  "category": "data",
+  "passes": true,
+  "description": "src/data/winePairing.js: dish traits from ingredient names + ProData category + method text (protein with cured pork demoted, richness, acid, dessert, hot vs mild chili, umami, warm spice, char, soup, wine in the pot); idealWine() derives the target body/acidity/tannin/sweetness/alcohol/oak/colour; each wine is scored by distance from it plus flavour bridges, region and classic matches, with reasons. Answer keys in src/data/wineAnswerKey.js (written before the engine; held-out key written mid-tuning and never tuned on); scripts/evalWinePairing.mjs reports hit@1/hit@3/MRR, concentration and coverage.",
+  "acceptance": [
+    "Tuned key: accepted wine in top 3 for 31/42 dishes (MRR 0.63); held-out: 10/16 (MRR 0.49)",
+    "Regression floors in tests: >= 30/42 and >= 9/16",
+    "Rule tests: steak -> tannic red, oysters never red, dessert -> sweet wine, hot dish -> off-dry low alcohol",
+    "Known weak spot: Indian curries rank crisp whites above aromatic off-dry whites"
+  ]
+}
+```
+
+```json
+{
+  "id": "WINE-3",
+  "title": "Wine Lab UI and wiring",
+  "category": "ui",
+  "passes": true,
+  "description": "src/components/WineLab.jsx: chalk wine list by family with search (name, grape, region, aroma, food) and colour chips; matches mode with per-wine reasons and back-to-recipe; shared LabNodeCard (kind=wine) with structure words, grapes, tasting notes, similar wines, classic foods and 'why' for matched wines. Wired as a lab: Labs tile, mobile Labs menu, ?path=wine, Cookbook 'Matching wines' (passes cuisine, dish type, method), Recipe Notebook Flavor Profiles 'Find wines'.",
+  "acceptance": [
+    "Component tests for browse, search, chips, card, matches and back; Cookbook passes cuisine/dish type/method; ?path=wine opens the lab",
+    "In-app ranking identical to scripts/evalWinePairing.mjs (verified in browser for Beef Bourguignon)",
+    "No horizontal scroll at 375px"
+  ]
+}
+```

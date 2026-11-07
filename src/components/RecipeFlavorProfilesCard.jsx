@@ -353,7 +353,7 @@ function FlavorBarChart({ scores }) {
   );
 }
 
-export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries = null, nodes, edges = null, recipeType = null, onAdd, onFindCocktail, onFindSauce, onClose }) {
+export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries = null, nodes, edges = null, recipeType = null, onAdd, onFindCocktail, onFindSauce, onFindWine = null, onClose }) {
   const { scores, drivers, n } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
 
   // Overview page: quantity-weighted flavor composition. Prefer BowlEntry[]
@@ -683,6 +683,14 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
                 ) : (
                   <button onClick={onFindCocktail} className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>🍸 Find cocktails</button>
                 )}
+              </div>
+            )}
+
+            {/* 🍷 Wines — opens the Wine Lab's matches for this recipe. */}
+            {onFindWine && recipeType !== 'drink' && (
+              <div className="mb-2">
+                <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: CHALK_SUB }}>🍷 Wine</p>
+                <button onClick={onFindWine} data-testid="pairings-find-wines" className="min-h-[44px] px-4 rounded-full border" style={{ fontFamily: FONT, fontSize: 16, background: PILL_BG, borderColor: PILL_BORDER, color: PILL_TEXT, textShadow: CHALK_TEXT_SHADOW }}>🍷 Find wines</button>
               </div>
             )}
 

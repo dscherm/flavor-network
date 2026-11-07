@@ -16,6 +16,7 @@ vi.mock('../components/LandingScreen.jsx', () => ({
   default: () => <div data-testid="landing-screen" />,
 }));
 
+vi.mock('../components/WineLab.jsx', () => ({ default: () => <div data-testid="wine-lab" /> }));
 vi.mock('../components/LivingArchView.jsx',   () => ({ default: () => <div data-testid="living-arch" /> }));
 vi.mock('../components/NetworkScene.jsx',     () => ({ default: () => <div data-testid="network-scene" /> }));
 vi.mock('../components/SearchBar.jsx',        () => ({ default: () => null }));
@@ -254,6 +255,12 @@ describe('App — shared links open the named surface', () => {
     visit('?path=sauce');
     await mountApp();
     expect(screen.getByTestId('sauce-lab')).toBeInTheDocument();
+  });
+
+  it('?path=wine opens the Wine Lab', async () => {
+    visit('?path=wine');
+    await mountApp();
+    await screen.findByTestId('wine-lab');
   });
 
   it('a bare visit shows the landing picker and leaves the URL clean', async () => {

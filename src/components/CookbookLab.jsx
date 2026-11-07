@@ -121,7 +121,7 @@ function RecipeCard({ recipe, onClick }) {
   );
 }
 
-function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce }) {
+function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce, onFindWine }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
   const nodes = ctx?.graph?.nodes;
   const details = getRecipeDetails(recipe.id);
@@ -246,12 +246,24 @@ function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, 
             </p>
           )}
 
-          {(onFindCocktail || onFindSauce) && matched.length > 0 && (
+          {(onFindCocktail || onFindSauce || onFindWine) && matched.length > 0 && (
             <div data-testid="recipe-goes-well-with">
               <div className="uppercase tracking-[0.16em] mb-2" style={{ fontFamily: FONT, fontSize: '15px', color: CHALK_DIM, textShadow: CHALK_SHADOW }}>
                 Goes well with
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {onFindWine && (
+                  <button
+                    type="button"
+                    onClick={() => onFindWine(recipe.ingredients, recipe.name, {
+                      cuisine: recipe.cuisine, dishType: recipe.cluster, methodText: details?.steps?.join(' ') || '',
+                    })}
+                    className="px-3 py-2 rounded-lg text-left"
+                    style={{ fontFamily: FONT, fontSize: '18px', color: CHALK_CREAM, background: `${color}1a`, border: `1px solid ${color}77` }}
+                  >
+                    🍷 Matching wines →
+                  </button>
+                )}
                 {onFindCocktail && (
                   <button
                     type="button"
@@ -316,6 +328,7 @@ export default function CookbookLab({
   onOpenRecipeLab,
   onFindCocktail,
   onFindSauce,
+  onFindWine,
   ctx = null,
   pickerMode = null,
   onExitPickerMode,
@@ -529,6 +542,7 @@ export default function CookbookLab({
           onOpenRecipeLab={onOpenRecipeLab}
           onFindCocktail={onFindCocktail}
           onFindSauce={onFindSauce}
+          onFindWine={onFindWine}
         />
       )}
     </div>
