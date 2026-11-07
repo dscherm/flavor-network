@@ -21,9 +21,10 @@ const RY = 25;
 const ORBIT = `M${CX - RX} ${CY} a${RX} ${RY} 0 1 0 ${RX * 2} 0 a${RX} ${RY} 0 1 0 ${-RX * 2} 0`;
 
 const ORBITS = [
+  // Drawn in this order: the orange ring first, so the green rings cross over it.
+  { angle: 88, color: ORANGE, dur: '8s' },   // the upright, middle orbit
   { angle: -28, color: SAGE, dur: '7s' },
   { angle: 32, color: SAGE, dur: '9s' },
-  { angle: 88, color: ORANGE, dur: '8s' },   // the upright, middle orbit
 ];
 
 const CSS = `
