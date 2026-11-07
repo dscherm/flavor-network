@@ -20,8 +20,27 @@ import {
   bowlGetAmount,
 } from '../data/bowlEntry.js';
 import { predictBowlAmounts } from '../ml/quantityRuntime.js';
+import NotebookStarter from './NotebookStarter.jsx';
+import {
+  FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
+} from '../data/chalkTheme.js';
 
-const FONT_FAMILY = 'Caveat, cursive';
+const FONT_FAMILY = FONT;
+
+// DESIGN-4 "chalk frame, paper page": the chrome is chalk on the board,
+// the recipe itself stays a cream sheet pinned to it.
+const PAPER = '#fefae0';
+const PAPER_EDGE = '#c9b99a';
+const TAPE = 'rgba(245,239,222,0.55)';
+const CHALK_BTN_CLASS = 'min-h-[44px] px-3 py-1 text-[17px] rounded-lg border-[1.5px] whitespace-nowrap transition-colors hover:bg-white/5 active:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
+const CHALK_BTN_STYLE = {
+  fontFamily: FONT,
+  color: CHALK_CREAM,
+  borderColor: `${CHALK_DIM}aa`,
+  background: 'rgba(255,255,255,0.03)',
+  textShadow: CHALK_SHADOW,
+  outlineColor: CHALK_CREAM,
+};
 
 /**
  * RecipeLabMobile — Mobile-specific Recipe Lab with 3-zone layout:
@@ -33,7 +52,7 @@ const FONT_FAMILY = 'Caveat, cursive';
  * aroma-match handlers, save flow) adapt via `bowlNames(bowl)` at the
  * prop boundary.
  */
-export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, handoff = null, userProfile, onFindCocktail, onFindSauce, onFindWine }) {
+export default function RecipeLabMobile({ fullData, initialIngredient, initialIngredients, initialMode = null, handoff = null, userProfile, onFindCocktail, onFindSauce, onFindWine, onOpenCookbook }) {
   const [labMode, setLabMode] = useState(initialMode === 'cocktail' ? 'cocktail' : 'taste');
 
   // Seed the bowl from initialIngredients / initialIngredient, dedup'd
@@ -384,17 +403,20 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   return (
     <div
       data-testid="recipe-lab"
+      data-surface="chalk-frame"
       className="fixed inset-0 pt-10 flex flex-col"
-      style={{ backgroundColor: '#fefae0' }}
+      style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
     >
       {handoffToast && (
         <div
           className="fixed left-1/2 -translate-x-1/2 z-[70] px-3 py-1.5 text-sm rounded-full shadow-lg pointer-events-none"
           style={{
             top: 'calc(var(--nav-h, 40px) + 12px)',
-            backgroundColor: '#3a3428',
-            color: '#fefae0',
+            backgroundColor: '#0a0a0aee',
+            color: CHALK_CREAM,
+            border: `1.5px solid ${CHALK_DIM}aa`,
             fontFamily: FONT_FAMILY,
+            fontSize: 17,
             animation: 'fn-toast-in 240ms ease-out',
             maxWidth: '90vw',
           }}
@@ -406,13 +428,24 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
       )}
       <style>{`@keyframes fn-toast-in { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }`}</style>
 
-      <div className="relative z-20 mx-2 mt-1 mb-1 flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg border border-[#c9b99a] bg-[#fefae0]/90">
-        <div className="text-xs text-[#7a6a4a]" style={{ fontFamily: FONT_FAMILY }}>
-          {recipeIngredients.length === 0
-            ? 'Build a recipe…'
-            : `${recipeIngredients.length} ingredient${recipeIngredients.length === 1 ? '' : 's'}`}
+      <div
+        className="relative z-20 mx-3 mt-1 mb-1 flex items-center justify-between gap-2 pb-1"
+        style={{ borderBottom: `2px solid ${CHALK_DIM}66` }}
+      >
+        <div className="min-w-0">
+          <h1
+            className="text-[26px] leading-none truncate"
+            style={{ fontFamily: FONT_FAMILY, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
+          >
+            Recipe Notebook
+          </h1>
+          <div className="text-[15px] leading-tight" style={{ fontFamily: FONT_FAMILY, color: CHALK_SUB }}>
+            {recipeIngredients.length === 0
+              ? 'Build a recipe…'
+              : `${recipeIngredients.length} ingredient${recipeIngredients.length === 1 ? '' : 's'}`}
+          </div>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-1.5 flex-shrink-0">
           <button
             onClick={() => {
               if (recipeIngredients.length < 2) return;
@@ -431,12 +464,13 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
               hapticMedium();
             }}
             disabled={recipeIngredients.length < 2}
-            className={`min-h-[40px] px-4 text-sm font-medium rounded-md border transition-colors ${
-              recipeIngredients.length >= 2
-                ? 'bg-[#5a4a2a] text-[#fefae0] border-[#5a4a2a] hover:bg-[#3a3428]'
-                : 'bg-[#e8dcc0]/50 text-[#a09070] border-[#d8cca8] cursor-not-allowed'
-            }`}
-            style={{ fontFamily: FONT_FAMILY }}
+            className={CHALK_BTN_CLASS}
+            style={{
+              ...CHALK_BTN_STYLE,
+              ...(recipeIngredients.length >= 2
+                ? { color: '#0a0a0a', background: CHALK_CREAM, borderColor: CHALK_CREAM, textShadow: 'none' }
+                : {}),
+            }}
             aria-label="Save recipe to profile"
           >
             Save Recipe
@@ -444,8 +478,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           <button
             onClick={handleClear}
             disabled={recipeIngredients.length === 0}
-            className="min-h-[40px] px-3 text-sm rounded-md border border-[#d8cca8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:bg-[#f0e8d0]"
-            style={{ fontFamily: FONT_FAMILY, color: '#a09070' }}
+            className={CHALK_BTN_CLASS}
+            style={{ ...CHALK_BTN_STYLE, color: CHALK_DIM, borderColor: CHALK_RAIL }}
           >
             Clear
           </button>
@@ -463,15 +497,15 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           and crowded the action buttons on mobile. recipeType still
           flows from the handoff (drink/sauce → picker dishType). The
           chrome is now just the action buttons, wrapping + centered. */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mx-2 mb-1">
+      <div className="flex flex-wrap items-center justify-center gap-2 mx-2 mb-1" role="toolbar" aria-label="Recipe tools">
         {recipeIngredients.length > 0 && (
           <>
             <button
               type="button"
               data-testid="recipe-chrome-suggestions"
               onClick={() => openIngredientFlow('suggest')}
-              className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap"
-              style={{ fontFamily: FONT_FAMILY }}
+              className={CHALK_BTN_CLASS}
+              style={CHALK_BTN_STYLE}
               aria-label="Smart ingredient suggestions for the recipe"
             >
               ✨ Suggest
@@ -481,8 +515,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
               data-testid="recipe-chrome-quantities"
               onClick={handleSuggestQuantities}
               disabled={quantityBusy}
-              className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap disabled:opacity-50"
-              style={{ fontFamily: FONT_FAMILY }}
+              className={CHALK_BTN_CLASS}
+              style={CHALK_BTN_STYLE}
               aria-label="Suggest quantities for the recipe"
             >
               {quantityBusy ? '⚖ …' : '⚖ Amounts'}
@@ -491,8 +525,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
               type="button"
               data-testid="recipe-chrome-profiles"
               onClick={() => setProfilesOpen(true)}
-              className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap"
-              style={{ fontFamily: FONT_FAMILY }}
+              className={CHALK_BTN_CLASS}
+              style={CHALK_BTN_STYLE}
               aria-label="Flavor profiles of the recipe"
             >
               ◆ Flavor Profiles
@@ -503,8 +537,8 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           type="button"
           data-testid="recipe-chrome-add-ingredient"
           onClick={() => openIngredientFlow('add')}
-          className="min-h-[44px] px-3 py-1 text-sm rounded-md border border-[#c9b99a] bg-[#fefae0] text-[#5a4a2a] hover:bg-[#f0e8d0] whitespace-nowrap"
-          style={{ fontFamily: FONT_FAMILY }}
+          className={CHALK_BTN_CLASS}
+          style={CHALK_BTN_STYLE}
           aria-label="Add ingredient via picker"
         >
           + Add
@@ -515,7 +549,35 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           conditional block REMOVED. Add path is now the IngredientPicker
           modal launched by the "+ Add" chrome button. */}
 
-      <div className="flex-1 relative overflow-y-auto" style={{ minHeight: 80 }}>
+      {recipeIngredients.length === 0 && (
+        <NotebookStarter
+          nodes={fullData?.graph?.nodes}
+          onAdd={(name) => handleAddIngredient(name)}
+          onOpenCookbook={onOpenCookbook}
+        />
+      )}
+
+      {/* The paper page, pinned to the board: shadow + two strips of tape. */}
+      <div className="flex-1 relative mx-2 mt-2 mb-2 flex flex-col" style={{ minHeight: 120 }} data-testid="notebook-paper">
+        <span
+          aria-hidden="true"
+          className="absolute -top-2 left-6 z-10 w-14 h-5 pointer-events-none"
+          style={{ background: TAPE, transform: 'rotate(-6deg)', boxShadow: '0 1px 2px rgba(0,0,0,0.25)' }}
+        />
+        <span
+          aria-hidden="true"
+          className="absolute -top-2 right-6 z-10 w-14 h-5 pointer-events-none"
+          style={{ background: TAPE, transform: 'rotate(5deg)', boxShadow: '0 1px 2px rgba(0,0,0,0.25)' }}
+        />
+      <div
+        className="flex-1 relative overflow-y-auto rounded-[3px]"
+        style={{
+          minHeight: 80,
+          backgroundColor: PAPER,
+          border: `1px solid ${PAPER_EDGE}`,
+          boxShadow: '0 10px 24px rgba(0,0,0,0.55), 0 2px 4px rgba(0,0,0,0.4)',
+        }}
+      >
         {recipeImageUrl && (
           <div className="relative mx-4 mt-2 mb-1 flex items-start gap-2">
             <img
@@ -565,6 +627,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
         {/* Flavor-profile display moved to the "◆ Flavor Profiles" pop-out
             card (chrome button) — RecipeFlavorProfilesCard. */}
 
+      </div>
       </div>
 
       {/* B-version P2: IngredientPicker modal sheet. Mounted at the

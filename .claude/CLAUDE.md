@@ -31,7 +31,7 @@ src/
 │   ├── Controls.jsx         # Filter/view controls
 │   ├── CocktailLab.jsx      # Cocktail Lab (3D, uses ProData graph)
 │   ├── SauceLab.jsx         # Sauce Lab (3D, uses ProData graph)
-│   ├── RecipeLab.jsx        # Recipe Lab (2D canvas, notebook aesthetic)
+│   ├── RecipeLab.jsx        # Recipe Lab (2D canvas, paper page on the chalkboard)
 │   ├── NotebookCanvas.jsx   # Canvas 2D renderer for Recipe Lab
 │   ├── RecipePanel.jsx      # Recipe Lab right sidebar
 │   └── ...                  # Profile, insights, quiz, etc.
