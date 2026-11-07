@@ -49,6 +49,19 @@ describe('coverage', () => {
     expect(haveIngredient('clarified butter', new Set(), { assumeBasics: false }).covered).toBe(false);
     expect(haveIngredient('cold butter', new Set(), { names: new Set(['butter']) }).covered).toBe(true);
   });
+  it('a missing pinch or dash is a finish, not a missing ingredient', () => {
+    const hollandaise = [
+      { name: 'egg yolk', measure: '3' }, { name: 'butter', measure: '1/2 cup' },
+      { name: 'lemon juice', measure: '1 tbsp' }, { name: 'cayenne', measure: 'pinch' },
+    ];
+    const c = coverIngredients(hollandaise, ['eggs', 'lemon']);
+    expect(c.missing).toEqual([]);
+    expect(c.total).toBe(2); // egg yolk + lemon juice (butter is a basic)
+    // ...but one that is in the kitchen still counts
+    expect(coverIngredients(hollandaise, ['eggs', 'lemon', 'cayenne']).total).toBe(3);
+    // and a full measure is never skipped
+    expect(coverIngredients([{ name: 'tarragon', measure: '2 tbsp' }], []).missing).toEqual(['tarragon']);
+  });
   it('counts real ingredients only, not assumed basics', () => {
     const c = coverIngredients(['pasta', 'tomato', 'garlic', 'olive oil', 'salt'], ['pasta', 'tomato']);
     expect(c).toMatchObject({ total: 3, covered: 2, missing: ['garlic'] });

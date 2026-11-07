@@ -180,7 +180,8 @@ export function standInFor(missing, sauce, kitchen, { catMap = new Map(), pairin
  * ingredient is missing.
  */
 export function coverSauce(sauce, kitchen, { assumeBasics = true, names = null, catMap = new Map(), pairingIndex = null, sauceIndex = null } = {}) {
-  const c = coverIngredients(sauce?.ingredients, kitchen, { assumeBasics, names });
+  const list = sauce?.ingredientsDetailed?.length ? sauce.ingredientsDetailed : sauce?.ingredients;
+  const c = coverIngredients(list, kitchen, { assumeBasics, names });
   const standIn = c.missing.length === 1
     ? standInFor(c.missing[0], sauce, kitchen, { catMap, pairingIndex, sauceIndex })
     : null;

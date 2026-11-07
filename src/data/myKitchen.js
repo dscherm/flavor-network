@@ -131,6 +131,8 @@ export function haveIngredient(name, kitchenSet, { assumeBasics = true, names = 
  * @returns {{ total: number, covered: number, missing: string[], have: string[] }}
  *   `total` excludes assumed basics, so "4 of 5" counts real ingredients.
  */
+const FINISHING_MEASURE = /\b(pinch|dash|to taste|garnish|optional)\b/i;
+
 export function coverIngredients(ingredients, kitchen, opts = {}) {
   const kitchenSet = kitchen instanceof Set ? kitchen : new Set(kitchen || []);
   const missing = [];
@@ -141,6 +143,9 @@ export function coverIngredients(ingredients, kitchen, opts = {}) {
     if (!name) continue;
     const c = haveIngredient(name, kitchenSet, opts);
     if (c.basic) continue;
+    // A pinch of nutmeg or a dash of cayenne is a finish, not a reason the
+    // dish can't be made: like basics, it neither counts nor goes missing.
+    if (!c.covered && typeof raw === 'object' && FINISHING_MEASURE.test(String(raw?.measure || ''))) continue;
     total += 1;
     if (c.covered) have.push(name); else missing.push(name);
   }
@@ -156,7 +161,10 @@ export function whatCanICook(items, kitchen, { maxMissing = 2, ...opts } = {}) {
   const make = [];
   const nearly = [];
   for (const item of items || []) {
-    const c = coverIngredients(item.ingredients, kitchen, opts);
+    // Prefer the detailed list ({name, measure}) when there is one, so a
+    // "pinch" can be recognised as a finish (sauces carry both).
+    const list = item.ingredientsDetailed?.length ? item.ingredientsDetailed : item.ingredients;
+    const c = coverIngredients(list, kitchen, opts);
     if (c.total === 0) continue;
     const entry = { item, ...c };
     if (c.missing.length === 0) make.push(entry);
