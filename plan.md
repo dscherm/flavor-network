@@ -1562,3 +1562,21 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "WEAK-2",
+  "title": "Directions index: steps that match their recipe, one per title",
+  "category": "data",
+  "passes": true,
+  "description": "public/models/directions_index.json (real RecipeNLG recipes behind 'What's in my kitchen?' and Invent a recipe's closest real recipe) had 15.5% of entries whose steps mention none of their ingredients ('Barbecue Wieners' with 'Wash turkey thoroughly…'), 41% repeated titles and 6.3% titles naming a food the list lacks. Root cause measured: not a CSV join drift (parser counter equals the CSV index column on all 2,231,142 rows, all corpus titles match); the source rows themselves are mismatched, and the old builder took the first 40,000 sets in file order, all from the scraped 'Gathered' rows, unchecked. flavor-gnn/scripts/fm_dir1_build_index.mjs now joins on the CSV index column and re-checks the title, screens every 3-10-ingredient candidate (steps must mention >= 1/3 of the raw ingredients and >= 1 shown one; title headline foods must be in the list; no meat cooked in steps that list and title lack; method <= 1,000 chars), keeps per normalised title the most complete version + at most one more with <= 25% Jaccard overlap, and samples titles in seeded-hash order to 40,000 entries (<= 25 MB). Pure checks in src/ml/directionsQuality.js; fm_dir1_measure.mjs reports the numbers; docs/directions-index.md has before/after. The kitchen panel's real-recipe list shows one result per normalised title.",
+  "acceptance": [
+    "Builder joins on the CSV index column and drops + counts title mismatches (0 drift, 0 mismatches on the rebuild)",
+    "Alignment, title-food, foreign-meat and same-title variant checks unit-tested on fixtures, including the real Barbecue Wieners row (src/ml/__tests__/directionsQuality.test.js)",
+    "Rebuilt index: 40,000 entries, 24.01 MB (<= 25 MB), seeded deterministic sample; steps mentioning none of their ingredients 15.5% -> 0%, repeated titles 40.9% -> 5.4% exact (max 2 per normalised title), missing title food 6.3% -> 0% (test reads the shipped file)",
+    "docs/directions-index.md: root cause, before/after table, 20-entry spot-check",
+    "Kitchen real-recipe list shows at most one result per normalised title (test)",
+    "npm run gate green (182 files, 2024 tests on master e2310af + WEAK-2; build clean)"
+  ]
+}
+```

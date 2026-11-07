@@ -15,6 +15,7 @@
 import { whatCanICook, coverIngredients, isBasic } from './myKitchen.js';
 import { normalizeText } from './ingredientSearch.js';
 import { retrieveDirections } from '../ml/directionsRuntime.js';
+import { normalizeTitle } from '../ml/directionsQuality.js';
 
 /**
  * The ingredients the Cookbook uses most, basics excluded — the quick-add
@@ -139,7 +140,9 @@ export function realRecipesForKitchen(kitchen, index, vocab, {
   const out = [];
   for (const rec of found) {
     const title = String(rec.title || '').trim();
-    const titleKey = title.toLowerCase();
+    // One result per normalised title (WEAK-2 safety net): "Mom's Chili"
+    // and "Moms Chili!" are the same card to the cook.
+    const titleKey = normalizeTitle(title) || title.toLowerCase();
     if (!title || seenTitles.has(titleKey)) continue;
     const listed = rec.ingredients || rec.matchedNames || [];
     const named = titleIngredients(title, vocabSet);
