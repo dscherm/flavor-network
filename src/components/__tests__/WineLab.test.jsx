@@ -49,6 +49,34 @@ describe('WineLab — browse', () => {
     expect(screen.queryByTestId('wine-row-barolo')).toBeNull();
   });
 
+  it('country chips filter, and a country shows its region chips', async () => {
+    render(<WineLab />);
+    await waitFor(() => screen.getByText('Wine List'));
+    fireEvent.click(screen.getByTestId('wine-country-Italy'));
+    const shown = [...document.querySelectorAll('[data-testid^="wine-row-"]')].map((el) => el.dataset.testid.replace('wine-row-', ''));
+    expect(shown.sort()).toEqual(WINE_JSON.wines.filter((w) => w.countries.includes('Italy')).map((w) => w.id).sort());
+    fireEvent.click(screen.getByRole('button', { name: /^Piedmont/ }));
+    const piedmont = [...document.querySelectorAll('[data-testid^="wine-row-"]')].map((el) => el.dataset.testid.replace('wine-row-', ''));
+    expect(piedmont.sort()).toEqual(['barbera', 'barolo', 'moscato-dasti']);
+  });
+
+  it('search matches a region name: "tuscany" finds Chianti and Vin Santo', async () => {
+    render(<WineLab />);
+    await waitFor(() => screen.getByText('Wine List'));
+    fireEvent.change(screen.getByLabelText(/search wines/i), { target: { value: 'tuscany' } });
+    const shown = [...document.querySelectorAll('[data-testid^="wine-row-"]')].map((el) => el.dataset.testid.replace('wine-row-', ''));
+    expect(shown.sort()).toEqual(['chianti', 'vin-santo']);
+  });
+
+  it('group by country makes one section per home country, each wine once', async () => {
+    render(<WineLab />);
+    await waitFor(() => screen.getByText('Wine List'));
+    fireEvent.click(screen.getByRole('button', { name: 'Country' }));
+    expect(screen.getByTestId('wine-country-section-France')).toBeInTheDocument();
+    expect(screen.getByTestId('wine-country-section-Hungary')).toBeInTheDocument();
+    expect(document.querySelectorAll('[data-testid^="wine-row-"]').length).toBe(WINE_JSON.wines.length);
+  });
+
   it('opens a wine card with structure, grapes, notes and classic foods', async () => {
     render(<WineLab />);
     await waitFor(() => screen.getByText('Wine List'));
@@ -57,6 +85,8 @@ describe('WineLab — browse', () => {
     expect(card).toHaveAttribute('data-kind', 'wine');
     expect(within(card).getByText('Grapes')).toBeInTheDocument();
     expect(within(card).getByText('Sangiovese')).toBeInTheDocument();
+    expect(card).toHaveTextContent('Country: 🇮🇹 Italy');
+    expect(card).toHaveTextContent('Region: Tuscany');
     expect(within(card).getByText('Tasting notes')).toBeInTheDocument();
     expect(within(card).getByText('Wines like this')).toBeInTheDocument();
     expect(within(card).getByTestId('lab-node-card-pairs-with')).toHaveTextContent('tomato');

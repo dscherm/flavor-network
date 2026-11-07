@@ -1276,3 +1276,18 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "WINE-4",
+  "title": "Wine Lab: country of origin and region",
+  "category": "ui",
+  "passes": true,
+  "description": "Each wine style gets country (home), countries (everywhere it is made) and area (principal wine region). Wine Lab adds country chips with flags and counts, region chips inside a country, a Group by Style/Country switch, country/region on rows and cards, and search over country and region names (src/data/wineStyles.js countryIndex/fromCountry/countryFlag).",
+  "acceptance": [
+    "Every wine has country in countries and an area; every country has a flag (tests)",
+    "Italy chip shows the Italian styles; Piedmont narrows to Barbera, Barolo, Moscato d'Asti; 'tuscany' search finds Chianti and Vin Santo; group by country shows each wine once (tests)",
+    "Known: Windows desktop browsers draw flag emoji as letters (FR)"
+  ]
+}
+```

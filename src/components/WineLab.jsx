@@ -2,9 +2,10 @@
  * WineLab — a chalkboard wine list (public/data/wine_styles.json).
  *
  * Two modes:
- *   - Browse: wine styles grouped by family (Sparkling → Fortified), with a
- *     search box that matches name, grape, region, aroma and classic food
- *     ("salmon", "nebbiolo", "smoky"), and colour chips.
+ *   - Browse: wine styles grouped by family (Sparkling → Fortified) or by
+ *     country of origin, with a search box that matches name, grape,
+ *     country, region, aroma and classic food ("salmon", "nebbiolo",
+ *     "tuscany"), colour chips, and country → region chips.
  *   - Matches: entered from a recipe ("Matching wines"); shows the ranked
  *     wines from src/data/winePairing.js with the reason for each.
  * Tapping a wine opens the shared LabNodeCard with its structure, grapes,
@@ -12,7 +13,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import LabNodeCard from './LabNodeCard.jsx';
-import { loadWineStyles, similarWines, wineSearchText, dots, familyColor } from '../data/wineStyles.js';
+import { loadWineStyles, similarWines, wineSearchText, dots, familyColor, countryFlag, fromCountry, countryIndex } from '../data/wineStyles.js';
 import { scaleWord } from '../data/winePairing.js';
 import { parseQuery, matchItem } from '../data/ingredientSearch.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
@@ -56,7 +57,7 @@ function WineRow({ wine, color, onSelect, reasons = null, badge = null }) {
         )}
       </div>
       <div className="text-[11px] truncate" style={{ fontFamily: SANS, color: CHALK_DIM }}>
-        {wine.region} · {wine.grapes.join(', ')}
+        {countryFlag(wine.country)} {wine.area ? `${wine.area}, ${wine.country}` : wine.region} · {wine.grapes.join(', ')}
       </div>
       <div className="text-[11px] flex flex-wrap gap-x-3" style={{ fontFamily: SANS, color: CHALK_SUB }} aria-label={`body ${wine.body}, acidity ${wine.acidity}, tannin ${wine.tannin}, sweetness ${wine.sweetness} out of 5`}>
         <span>body <span style={{ color: CHALK_DIM }}>{dots(wine.body)}</span></span>
@@ -85,6 +86,9 @@ export default function WineLab({
   const [selectedId, setSelectedId] = useState(null);
   const [search, setSearch] = useState('');
   const [colour, setColour] = useState(null);
+  const [country, setCountry] = useState(null);
+  const [area, setArea] = useState(null);
+  const [groupBy, setGroupBy] = useState('style'); // 'style' | 'country'
 
   useEffect(() => {
     let cancelled = false;
@@ -102,8 +106,20 @@ export default function WineLab({
   const visible = useMemo(() => {
     const terms = parseQuery(search);
     return wines.filter((w) => chipMatches(w, colour)
+      && fromCountry(w, country)
+      && (!area || (w.country === country && w.area === area))
       && (terms.length === 0 || matchItem({ name: w.name, ingredients: wineSearchText(w) }, terms).match));
+  }, [wines, search, colour, country, area]);
+
+  // Country chips count within the colour + search filters (not the
+  // country filter itself), so each chip says what tapping it would give.
+  const countries = useMemo(() => {
+    const terms = parseQuery(search);
+    return countryIndex(wines.filter((w) => chipMatches(w, colour)
+      && (terms.length === 0 || matchItem({ name: w.name, ingredients: wineSearchText(w) }, terms).match)));
   }, [wines, search, colour]);
+  const areasForCountry = countries.find((c) => c.country === country)?.areas || [];
+  const filtersActive = Boolean(search.trim() || colour || country);
 
   // Reasons for the selected wine when it was opened from a match list.
   const matchReasons = useMemo(() => {
@@ -119,9 +135,11 @@ export default function WineLab({
       name={selected.name}
       clusterName={families.find((f) => f.id === selected.family)?.name || selected.family}
       clusterColor={familyColor(families, selected.family)}
-      clusterTag={selected.region}
+      clusterTag={selected.area ? `${selected.area}, ${selected.country}` : selected.region}
       details={[
         ...(matchReasons ? [{ label: `Why with ${matchesContext.recipeName}`, value: matchReasons.join('; ') }] : []),
+        { label: 'Country', value: `${countryFlag(selected.country)} ${(selected.countries || [selected.country]).join(', ')}`.trim() },
+        { label: 'Region', value: selected.area || selected.region },
         { label: 'Body', value: scaleWord('body', selected.body) },
         { label: 'Acidity', value: scaleWord('acidity', selected.acidity) },
         { label: 'Tannin', value: scaleWord('tannin', selected.tannin) },
@@ -217,13 +235,71 @@ export default function WineLab({
             );
           })}
         </div>
-        {(search.trim() || colour) && (
-          <p className="mt-1 text-[13px]" style={{ color: CHALK_SUB }} aria-live="polite">{visible.length} wine{visible.length === 1 ? '' : 's'} shown</p>
+        <div className="flex gap-1.5 mt-1.5 overflow-x-auto pb-0.5" role="group" aria-label="Filter by country">
+          {countries.map((c) => {
+            const active = country === c.country;
+            return (
+              <button key={c.country} type="button" aria-pressed={active}
+                data-testid={`wine-country-${c.country}`}
+                onClick={() => { setCountry(active ? null : c.country); setArea(null); }}
+                className="px-2.5 py-0.5 rounded-full text-[14px] border whitespace-nowrap flex-shrink-0"
+                style={{ fontFamily: FONT, color: active ? '#0a0a0a' : CHALK_CREAM, background: active ? CHALK_CREAM : 'rgba(255,255,255,0.04)', borderColor: active ? CHALK_CREAM : `${CHALK_RAIL}99` }}>
+                {countryFlag(c.country)} {c.country} {c.count}
+              </button>
+            );
+          })}
+        </div>
+        {country && areasForCountry.length > 1 && (
+          <div className="flex gap-1.5 mt-1.5 overflow-x-auto pb-0.5" role="group" aria-label={`Filter ${country} by region`}>
+            {areasForCountry.map((a) => {
+              const active = area === a.area;
+              return (
+                <button key={a.area} type="button" aria-pressed={active}
+                  onClick={() => setArea(active ? null : a.area)}
+                  className="px-2.5 py-0.5 rounded-full text-[13px] border whitespace-nowrap flex-shrink-0"
+                  style={{ fontFamily: SANS, color: active ? '#0a0a0a' : CHALK_DIM, background: active ? CHALK_DIM : 'transparent', borderColor: `${CHALK_RAIL}99` }}>
+                  {a.area} {a.count}
+                </button>
+              );
+            })}
+          </div>
         )}
+        <div className="flex items-center gap-3 mt-1.5 text-[13px]" style={{ color: CHALK_SUB }}>
+          <span>Group by</span>
+          {[['style', 'Style'], ['country', 'Country']].map(([key, label]) => (
+            <button key={key} type="button" aria-pressed={groupBy === key} onClick={() => setGroupBy(key)}
+              className="underline-offset-2" style={{ color: groupBy === key ? CHALK_CREAM : CHALK_DIM, textDecoration: groupBy === key ? 'underline' : 'none' }}>
+              {label}
+            </button>
+          ))}
+          {filtersActive && (
+            <span className="ml-auto" aria-live="polite">{visible.length} wine{visible.length === 1 ? '' : 's'} shown</span>
+          )}
+        </div>
       </div>
 
       <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
-        {families.map((fam) => {
+        {groupBy === 'country' && countryIndex(visible).map((c) => {
+          // A wine sits under its primary country only, so nothing repeats.
+          const members = visible.filter((w) => w.country === c.country)
+            .sort((a, b) => (a.area || '').localeCompare(b.area || '') || a.name.localeCompare(b.name));
+          if (members.length === 0) return null;
+          return (
+            <section key={c.country} className="mb-6" data-testid={`wine-country-section-${c.country}`}>
+              <header className="flex items-center gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${CHALK_RAIL}`, borderBottom: `1.5px solid ${CHALK_RAIL}` }}>
+                <span className="text-[26px] leading-none" aria-hidden="true">{countryFlag(c.country)}</span>
+                <h2 className="text-[32px] leading-none" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>{c.country}</h2>
+                <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {members.length}</span>
+              </header>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-3">
+                {members.map((w) => (
+                  <li key={w.id}><WineRow wine={w} color={familyColor(families, w.family)} onSelect={setSelectedId} /></li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
+        {groupBy === 'style' && families.map((fam) => {
           const members = visible.filter((w) => w.family === fam.id);
           if (members.length === 0) return null;
           return (
@@ -244,7 +320,7 @@ export default function WineLab({
         {visible.length === 0 && (
           <div className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
             No wines match.{' '}
-            <button type="button" onClick={() => { setSearch(''); setColour(null); }} className="underline underline-offset-2" style={{ color: CHALK_DIM }}>Reset</button>
+            <button type="button" onClick={() => { setSearch(''); setColour(null); setCountry(null); setArea(null); }} className="underline underline-offset-2" style={{ color: CHALK_DIM }}>Reset</button>
           </div>
         )}
       </div>

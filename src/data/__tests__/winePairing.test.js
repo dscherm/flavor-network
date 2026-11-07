@@ -35,6 +35,17 @@ describe('wine_styles.json', () => {
   it('whites and rosés have little or no tannin', () => {
     for (const w of wines.filter((x) => x.colour !== 'red')) expect(w.tannin, w.id).toBeLessThanOrEqual(1);
   });
+  it('every wine has a country, its countries include it, and a region', () => {
+    for (const w of wines) {
+      expect(w.country, w.id).toBeTruthy();
+      expect(w.countries, w.id).toContain(w.country);
+      expect(w.area, w.id).toBeTruthy();
+    }
+  });
+  it('every country has a flag', async () => {
+    const { countryFlag } = await import('../wineStyles.js');
+    for (const c of new Set(wines.flatMap((w) => w.countries))) expect(countryFlag(c), c).not.toBe('');
+  });
   it('every classic match is an ingredient name in ProData', () => {
     const missing = wines.flatMap((w) => w.classicMatches.filter((m) => !(m in ingredients)).map((m) => `${w.id}: ${m}`));
     expect(missing).toEqual([]);
@@ -140,5 +151,20 @@ describe('scaleWord', () => {
     expect(scaleWord('sweetness', 1)).toBe('bone dry');
     expect(scaleWord('tannin', 0)).toBe('none');
     expect(scaleWord('body', 5)).toBe('very full');
+  });
+});
+
+describe('countryIndex / fromCountry', () => {
+  it('counts a wine under every country it is made in, regions under its home country', async () => {
+    const { countryIndex, fromCountry } = await import('../wineStyles.js');
+    const idx = countryIndex(wines);
+    const france = idx.find((c) => c.country === 'France');
+    expect(france.count).toBeGreaterThanOrEqual(19);
+    expect(france.areas.map((a) => a.area)).toEqual(expect.arrayContaining(['Burgundy', 'Loire Valley', 'Bordeaux', 'Rhône Valley']));
+    expect(idx[0].count).toBeGreaterThanOrEqual(idx[idx.length - 1].count);
+    const rosado = wines.find((w) => w.id === 'rosado');
+    expect(fromCountry(rosado, 'France')).toBe(true);
+    expect(fromCountry(rosado, 'Italy')).toBe(false);
+    expect(fromCountry(rosado, null)).toBe(true);
   });
 });

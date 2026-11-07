@@ -41,7 +41,46 @@ export function similarWines(wine, wines, k = 6) {
 
 /** Everything a search box should match on for a wine. */
 export function wineSearchText(wine) {
-  return [wine.name, wine.region, ...(wine.grapes || []), ...(wine.aromas || []), ...(wine.classicMatches || [])];
+  return [
+    wine.name, wine.region, wine.area, ...(wine.countries || [wine.country]),
+    ...(wine.grapes || []), ...(wine.aromas || []), ...(wine.classicMatches || []),
+  ].filter(Boolean);
+}
+
+const FLAGS = {
+  France: '🇫🇷', Italy: '🇮🇹', Spain: '🇪🇸', Portugal: '🇵🇹', Germany: '🇩🇪', Austria: '🇦🇹',
+  Greece: '🇬🇷', Hungary: '🇭🇺', USA: '🇺🇸', 'New Zealand': '🇳🇿', Australia: '🇦🇺',
+  Argentina: '🇦🇷', Chile: '🇨🇱', 'South Africa': '🇿🇦',
+};
+/** Flag emoji for a country name, or '' when unknown. */
+export function countryFlag(country) {
+  return FLAGS[country] || '';
+}
+
+/** Does the wine come from `country` (any of its countries)? */
+export function fromCountry(wine, country) {
+  return !country || (wine.countries || [wine.country]).includes(country);
+}
+
+/**
+ * Countries in the list, most styles first, each with its regions:
+ * [{ country, count, areas: [{ area, count }] }]. A wine counts for every
+ * country it is made in; its region counts under its primary country.
+ */
+export function countryIndex(wines) {
+  const byCountry = new Map();
+  for (const w of wines || []) {
+    for (const c of w.countries || [w.country]) {
+      if (!c) continue;
+      if (!byCountry.has(c)) byCountry.set(c, { country: c, count: 0, areas: new Map() });
+      const e = byCountry.get(c);
+      e.count += 1;
+      if (c === w.country && w.area) e.areas.set(w.area, (e.areas.get(w.area) || 0) + 1);
+    }
+  }
+  return [...byCountry.values()]
+    .map((e) => ({ ...e, areas: [...e.areas].map(([area, count]) => ({ area, count })).sort((a, b) => b.count - a.count || a.area.localeCompare(b.area)) }))
+    .sort((a, b) => b.count - a.count || a.country.localeCompare(b.country));
 }
 
 /** Five-dot meter for a 0–5 scale: "●●●○○". */
