@@ -1291,3 +1291,25 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "FOODON-1",
+  "title": "Measure FoodOn (CC BY 4.0) synonyms for ingredient name matching",
+  "category": "data",
+  "passes": true,
+  "description": "scripts/build_foodon_synonyms.py maps FoodOn label/exact synonyms to ProData names (2,095 mappings, unambiguous only). Result: Flavor Bible name match 45% -> 46%; ~85-90% precise on a spot check but mostly Latin species names, with culinary errors (ninjin -> ginseng; bell pepper -> paprika). Not shipped. The real gap is plurals, 'x, y' inversions, 'x and y' entries, mojibake and non-ingredient rows.",
+  "acceptance": ["Finding recorded in the script docstring; map kept git-ignored, not in the app"]
+}
+```
+
+```json
+{
+  "id": "AROMA-1",
+  "title": "Experiment: do model-written aroma tags predict good pairings?",
+  "category": "data",
+  "passes": true,
+  "description": "449 Flavor Bible answer-key ingredients tagged (1-5 of 32 aroma tags, intensity 1-3) by three model agents told to describe each ingredient alone (data/experiments/aroma_tags_449.json, instructions alongside). Pre-registered test (scripts/evalAromaTags.mjs): aroma-tag cosine AUROC 0.512 vs molecular GNN 0.527 on all 100,576 pairs; adds nothing to co-occurrence on observed pairs (0.630 -> 0.630). FAIL. Exploratory (scripts/exploreAromaTagCombos.py, held-out ingredients): tag COMBINATIONS reach 0.598 when trained on Flavor Bible labels, but 0.510 when trained on recipe co-occurrence — the signal is learned from the Flavor Bible itself, which the project cannot ship. Conclusion: no shippable aroma pairing signal; do not tag the remaining 3,891 for pairing. Tags may still serve as descriptive 'smells like' labels.",
+  "acceptance": ["Pre-registered verdict recorded (FAIL); exploratory results labelled as post-hoc"]
+}
+```
