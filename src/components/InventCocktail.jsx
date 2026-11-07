@@ -12,6 +12,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { FAMILY_SKELETONS, inventCocktails, isBaseSpirit, drinkRows, drinkAsCocktail } from '../data/cocktailInvent.js';
 import { nearestCocktails } from '../data/cocktailRiff.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { CocktailFamilyGlass, DrinkGlass } from './cocktailGlasses.jsx';
+import { drinkColor } from '../data/drinkColor.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 // Display order: the two most familiar styles first.
@@ -54,6 +56,10 @@ export default function InventCocktail({
   );
   useEffect(() => { setN(0); }, [familyId, base, bar]);
   const drink = result.ok ? result.drinks[n % result.drinks.length] : null;
+  // The invented drink's colour: the family colour unless an ingredient
+  // (campari, grenadine, blue curaçao …) tints it.
+  const pour = useMemo(() => (drink ? drinkColor(drink.lines.map((l) => l.key), color) : null), [drink, color]);
+  const familyName = familyById.get(familyId)?.name || skel.name;
   const nearest = useMemo(
     () => (drink ? nearestCocktails(drinkRows(drink), cocktails, names, { k: 3 }) : []),
     [drink, cocktails, names],
@@ -89,7 +95,10 @@ export default function InventCocktail({
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Style" data-testid="invent-families">
           {INVENT_FAMILY_ORDER.map((id) => (
             <button key={id} type="button" aria-pressed={familyId === id} onClick={() => setFamilyId(id)}
-              className="px-3 py-1 rounded-full border min-h-[36px] text-[16px]" style={chip(familyId === id)}>
+              className="pl-1.5 pr-3 py-0.5 rounded-full border min-h-[40px] text-[16px] inline-flex items-center gap-1" style={chip(familyId === id)}>
+              <CocktailFamilyGlass familyName={familyById.get(id)?.name || FAMILY_SKELETONS[id].name}
+                color={familyById.get(id)?.color || NEUTRAL}
+                liquid={familyById.get(id)?.color || NEUTRAL} size={30} testid={`invent-family-glass-${id}`} />
               {familyById.get(id)?.name || FAMILY_SKELETONS[id].name}
             </button>
           ))}
@@ -122,8 +131,15 @@ export default function InventCocktail({
 
         {drink && (
           <article className="mt-4 rounded-xl px-4 py-3" style={{ border: `1px solid ${color}aa`, background: `${color}1a` }} data-testid="invent-card">
-            <h3 className="text-[30px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }} data-testid="invent-name">{drink.name}</h3>
-            <p className="text-[12px] mb-2" style={{ fontFamily: SANS, color: CHALK_DIM }}>{drink.family} · {drink.build} · {drink.glass}</p>
+            <div className="flex items-center gap-3 mb-2">
+              <span data-testid="invent-glass" data-color={pour.color} data-tinted={pour.tinted ? 'true' : 'false'} className="flex-shrink-0">
+                <CocktailFamilyGlass familyName={familyName} color={color} liquid={pour.color} size={92} testid="invent-drink-glass" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-[30px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }} data-testid="invent-name">{drink.name}</h3>
+                <p className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{drink.family} · {drink.build} · {drink.glass}</p>
+              </div>
+            </div>
             <ul className="flex flex-col gap-1" data-testid="invent-lines">
               {drink.lines.map((l) => (
                 <li key={l.key} className="flex items-baseline gap-2">
@@ -143,7 +159,8 @@ export default function InventCocktail({
                 <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Closest existing cocktails</p>
                 {nearest.map((x) => (
                   <button key={x.cocktail.name} type="button" onClick={() => onSelectCocktail?.(x.cocktail.name)}
-                    className="w-full text-left flex items-baseline gap-2 py-0.5 min-h-[32px]">
+                    className="w-full text-left flex items-center gap-2 py-0.5 min-h-[36px]">
+                    <DrinkGlass cocktail={x.cocktail} familyById={familyById} size={32} />
                     <span className="text-[19px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{x.cocktail.name}</span>
                     <span className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{Math.round(x.similarity * 100)}% alike</span>
                   </button>

@@ -107,6 +107,7 @@ export default function LabNodeCard({
   pairsWith = [],        // string[]
   actions = [],          // [{ label, onClick, testid }] — buttons under the family chip
   children = null,       // optional extra sections, rendered after the details row
+  headerArt = null,      // optional decorative drawing above the name (e.g. the wine's glass)
   onSelect,
   onClose,
 }) {
@@ -143,6 +144,9 @@ export default function LabNodeCard({
 
       <div className="w-full max-w-[560px] flex-1 min-h-0 flex flex-col rounded-2xl px-5 py-4 mb-3 overflow-y-auto"
         style={{ maxHeight: 'calc(100dvh - var(--tab-bar-h) - 72px)', background: 'rgba(255,255,255,0.025)', border: `2px double ${CHALK_BORDER_OUTER}`, boxShadow: `inset 0 0 0 1px ${CHALK_BORDER_INNER}55, 0 8px 24px rgba(0,0,0,0.55)` }}>
+        {headerArt && (
+          <div className="flex justify-center flex-shrink-0 mb-1" aria-hidden="true" data-testid="lab-node-card-art">{headerArt}</div>
+        )}
         <h2 className="text-center flex-shrink-0"
           style={{ color: CHALK_CREAM, fontFamily: FONT, fontSize: FS_NAME, lineHeight: 1.05, textShadow: CHALK_TEXT_SHADOW, WebkitTextStroke: '1px rgba(8,8,8,0.55)', paintOrder: 'stroke fill' }}>
           {name}

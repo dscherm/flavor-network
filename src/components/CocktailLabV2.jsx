@@ -241,6 +241,7 @@ export default function CocktailLabV2({
       bar={bar}
       onChange={updateBar}
       cocktails={graph.cocktails}
+      families={graph.families}
       roles={cocktailRoles || {}}
       pairingIndex={riffIndex}
       onSelectCocktail={pickFromPanel}
