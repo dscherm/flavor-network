@@ -1407,3 +1407,23 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "DESIGN-3",
+  "title": "Cookbook: a chalk drawing on every recipe, and a popup that leads with pictures",
+  "category": "ui",
+  "passes": true,
+  "description": "Items 2 (Cookbook part) and 3 of docs/design-review-2026-11.md, plus the nested-button bug noted at the end of that review. (a) Recipe tiles: each tile leads with a small slate inset holding a chalk drawing of the dish type (soup, noodles, pasta, rice, curry, stew, grill, fish, salad, stir-fry, taco, wrap, sandwich/burger, dumplings, dip, skillet, pizza, bakes, dessert, vegetables), tinted with the cuisine colour; name stays as text, with cuisine + dish type on one line and a two-line description. The ingredient word chips on the tile were dropped. Dish type comes from src/data/dishType.js (dishTypeOf), which reads name, cluster and ingredients, so user-saved recipes get a picture too ('plate' is the fallback). Drawings are DishArt in src/components/chalkArt.jsx (new exports appended; existing ones unchanged). (b) Recipe popup: title + dish drawing + serves/time/ingredient count as icon+number pairs; the profile radar (one ProfileAxisRadar with working Taste/Aroma/Season/Cuisine/Method chips) right under the title; ingredients as chips (amount + name, with a small chalk glyph per ingredient-graph category, IngredientGlyph); the method behind a 'Method (N steps)' fold; 'Goes well with' as three drawn mini-cards (wine, cocktail, sauce via LabArt). Open in Recipe Notebook, Explore in Network, and the find-wines/cocktails/sauces handoffs are unchanged. The five-radar MultiAxisRadarStack is no longer used by the Cookbook. (c) MultiAxisRadarStack: each card is a div with role=button, tabIndex 0 and Enter/Space handling instead of a <button>, and its inner radar hides its axis chips (new ProfileAxisRadar prop showAxisSwitcher), so there is no button inside a button. ProfileAxisRadar's svg now has overflow visible so long edge labels ('Astringent') are not clipped.",
+  "acceptance": [
+    "dishTypeOf gives all 83 seed recipes a real dish type, never the generic plate, and every type has a drawing (test)",
+    "Every tile has an aria-hidden dish drawing of its type and keeps the recipe name as text (test)",
+    "Popup order: head (drawing + meta) → radar → ingredient chips → method → goes well with (test)",
+    "Method fold is closed by default and opens and closes on tap (test)",
+    "Wines/cocktails/sauces mini-cards, Recipe Notebook and Network actions all fire with the same arguments as before (test)",
+    "MultiAxisRadarStack: no <button> inside a button, Enter/Space select an axis (test); no validateDOMNesting warning in the popup (test, and no console warnings in the browser)",
+    "Checked at 375px in a browser: tiles for all dish types; popups for Beef Bolognese, Thai Green Curry, Tacos al Pastor, Crème Brûlée, Chicken Shawarma",
+    "Full vitest suite green (154 files, 1696 tests) and vite build clean"
+  ]
+}
+```
