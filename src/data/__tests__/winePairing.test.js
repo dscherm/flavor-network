@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { dishProfile, idealWine, rankWinesForRecipe, scaleWord } from '../winePairing.js';
+import { dishProfile, idealWine, isFried, rankWinesForRecipe, scaleWord } from '../winePairing.js';
 import { ANSWER_KEY, HELD_OUT } from '../wineAnswerKey.js';
 import { SEED_RECIPES } from '../seedRecipes.js';
 import { RECIPE_DETAILS } from '../seedRecipeDetails.js';
@@ -76,6 +76,21 @@ describe('dishProfile', () => {
   });
 });
 
+describe('isFried', () => {
+  it('frying the food itself counts', () => {
+    expect(isFried('Fry at 160 °C for 12–15 min until deep golden.')).toBe(true);
+    expect(isFried('Dry the potatoes, then fry in oil until crisp.')).toBe(true);
+    expect(isFried('Deep-fry the squid.')).toBe(true);
+    expect(isFried('Fry the lardons until golden.')).toBe(true);
+  });
+  it('frying the flavour base of a sauce does not', () => {
+    expect(isFried('Fry the onion until soft, then garlic and the ground spices.')).toBe(false);
+    expect(isFried('Fry the curry paste in the coconut cream until fragrant.')).toBe(false);
+    expect(isFried('Fry the rest of the ginger and garlic, add the tomatoes.')).toBe(false);
+    expect(isFried('')).toBe(false);
+  });
+});
+
 describe('idealWine', () => {
   it('a dessert wants sweetness at least 4', () => {
     expect(idealWine(dishProfile(['cream', 'egg yolk', 'sugar', 'vanilla'], { categoryOf, dishType: 'baking' })).sweetness).toBeGreaterThanOrEqual(4);
@@ -89,7 +104,42 @@ describe('idealWine', () => {
   });
 });
 
+describe('idealWine — warm spice and cream', () => {
+  const ctx = { categoryOf };
+  it('cream in a tomato sauce lowers the acid the wine needs', () => {
+    const plain = idealWine(dishProfile(['chicken', 'tomato', 'garlic', 'onion'], ctx));
+    const creamy = idealWine(dishProfile(['chicken', 'tomato', 'garlic', 'onion', 'cream'], ctx));
+    expect(creamy.acidity).toBeLessThan(plain.acidity);
+  });
+  it('yogurt is tangy, not cream: it does not round off the acid', () => {
+    expect(dishProfile(['pork', 'lemon juice', 'yogurt'], ctx).creamy).toBe(0);
+    expect(dishProfile(['chicken', 'tomato', 'cream'], ctx).creamy).toBe(1);
+  });
+  it('warm spice without red meat raises sweetness and lowers the acid target', () => {
+    const plain = idealWine(dishProfile(['chickpea', 'tomato', 'onion', 'garlic'], ctx));
+    const spiced = idealWine(dishProfile(['chickpea', 'tomato', 'onion', 'garlic', 'garam masala', 'cumin', 'cardamom'], ctx));
+    expect(spiced.sweetness).toBeGreaterThan(plain.sweetness + 0.5);
+    expect(spiced.acidity).toBeLessThan(plain.acidity);
+  });
+  it('warm spice with red meat does not push toward sweetness', () => {
+    const plain = idealWine(dishProfile(['lamb', 'onion', 'garlic'], ctx));
+    const spiced = idealWine(dishProfile(['lamb', 'onion', 'garlic', 'cumin', 'coriander', 'cinnamon'], ctx));
+    expect(spiced.sweetness - plain.sweetness).toBeLessThan(0.5);
+  });
+});
+
 describe('rankWinesForRecipe — classic rules', () => {
+  it('a garam-masala, cream and tomato curry gets an aromatic or off-dry wine first, not a racy dry white', () => {
+    const [first] = top(['chicken', 'tomato', 'cream', 'garam masala', 'ginger', 'garlic', 'fenugreek']);
+    expect(first.colour).not.toBe('red');
+    expect(first.family === 'aromatic-white' || first.family === 'rose' || first.sweetness >= 2).toBe(true);
+    expect(first.family).not.toBe('crisp-white');
+  });
+  it('a coconut fish curry gets an aromatic white first', () => {
+    const recipe = SEED_RECIPES.find((r) => r.id === 'goan-fish-curry');
+    const [first] = rankWinesForRecipe(recipe.ingredients, wines, ctxFor(recipe), 1).map((r) => r.item);
+    expect(first.family).toBe('aromatic-white');
+  });
   it('steak gets a tannic red', () => {
     const [first] = top(['beef steak', 'butter', 'black pepper', 'rosemary']);
     expect(first.colour).toBe('red');
@@ -138,11 +188,11 @@ describe('answer keys (regression floors)', () => {
       }
     }
   });
-  it('tuned key: an accepted wine in the top 3 for at least 30 of 42 dishes (shipped: 31)', () => {
-    expect(hit3(ANSWER_KEY)).toBeGreaterThanOrEqual(30);
+  it('tuned key: an accepted wine in the top 3 for at least 33 of 42 dishes (shipped: 33)', () => {
+    expect(hit3(ANSWER_KEY)).toBeGreaterThanOrEqual(33);
   });
-  it('held-out key: at least 9 of 16 (shipped: 10)', () => {
-    expect(hit3(HELD_OUT)).toBeGreaterThanOrEqual(9);
+  it('held-out key: at least 12 of 16 (shipped: 12)', () => {
+    expect(hit3(HELD_OUT)).toBeGreaterThanOrEqual(12);
   });
 });
 

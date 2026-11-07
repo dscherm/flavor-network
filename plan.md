@@ -1364,6 +1364,17 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
     "Component test: opening a wine card shows the profile and mapping sections",
     "Checked at 375px in the browser: no horizontal scroll",
     "Full vitest suite green; evalWinePairing numbers unchanged (no engine or data change)"
+
+  "id": "WINE-5",
+  "title": "Wine engine: aromatic, off-dry wines for warm-spiced curries instead of racy whites",
+  "category": "data",
+  "passes": true,
+  "description": "Indian curries ranked crisp high-acid whites (Assyrtiko, Chablis, Champagne) first. Three principled rules in src/data/winePairing.js: (1) isFried() — frying the flavour base (onion, garlic, spices, curry paste) starts a sauce and no longer marks the dish fried (which demanded acid and bubbles); (2) a 'creamy' trait (cream, butter, ghee, coconut milk; not yogurt or buttermilk, which are the acid) rounds off the acid the dish's tomato and acid ingredients ask of the wine; (3) warm spice without red meat raises the sweetness target and lowers the acid target, so aromatic off-dry wines lead. Red-meat dishes keep their reds. Tuned key 31/42 MRR 0.633 -> 33/42 MRR 0.703; held-out 10/16 MRR 0.49 -> 12/16 MRR 0.58.",
+  "acceptance": [
+    "Garam masala + cream + tomato curry gets an aromatic or off-dry, non-crisp, non-red wine first (test)",
+    "Goan fish curry gets an aromatic white first (test)",
+    "Tuned key hit@3 and MRR not lowered; floors raised to measured 33/42 and 12/16",
+    "Full vitest suite green"
   ]
 }
 ```

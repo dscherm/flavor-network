@@ -11,7 +11,11 @@
  *      chili heat (burns) and strong umami (bitter).
  *   5. Heat: low alcohol and a touch of sweetness calm chili; high alcohol
  *      amplifies it.
- *   6. Bubbles and acid love salt and fried food.
+ *   6. Bubbles and acid love salt and fried food (frying the onions or
+ *      the spice paste for a sauce does not make a fried dish).
+ *   6b. Warm spice without red meat (curries, masalas) wants an aromatic,
+ *      off-dry wine, not a racy one; cream in the sauce rounds off the
+ *      acid of its tomato and yogurt.
  *   7. Flavour bridges: earthy wine with mushrooms, peppery Syrah with
  *      black pepper, herbal Sauvignon with green herbs …
  *   8. Region: "what grows together goes together".
@@ -73,6 +77,22 @@ const DESSERT_MARKER = /\b(vanilla|chocolate|cocoa|caramel|custard|cream|mascarp
 const CURED_PORK = /\b(bacon|pancetta|guanciale|prosciutto|ham|chorizo|salami|andouille)\b/;
 const SAVOURY_MARKER = /\b(garlic|onion|salt|cheese|cheddar|parmesan|gruyere|feta|cumin|yeast|spinach|potato|pea)\b/;
 
+// Frying the flavour base (onion, garlic, spices, a curry paste) starts a
+// sauce; it does not make a fried dish that wants acid and bubbles.
+const FLAVOUR_BASE = /^(onions?|shallots?|garlic|ginger|cumin|spices?|paste|curry|chil(?:i|e|li)e?s?|aromatics|mustard|seeds?|lemongrass|whole|ground)$/;
+const FRY_OBJECT = /\b(deep.fr\w*|fr(?:y|ied|ying))\b(?:\s+(?:the\s+)?(?:rest\s+of\s+the\s+)?(\w+))?/g;
+
+/** True when a step fries the food itself, not just its flavour base. */
+export function isFried(methodText) {
+  const text = String(methodText || '').toLowerCase();
+  for (const sentence of text.split(/[.;|]/)) {
+    for (const [, verb, object] of sentence.matchAll(FRY_OBJECT)) {
+      if (verb.startsWith('deep') || !object || !FLAVOUR_BASE.test(object)) return true;
+    }
+  }
+  return false;
+}
+
 const has = (key, name) => (PROTEIN_KEYS.has(key) && NOT_PROTEIN.test(name) ? false : RX[key].test(name));
 
 /**
@@ -108,7 +128,7 @@ export function dishProfile(ingredients, ctx = {}) {
     (ctx.dishType === 'baking' && hasSugar && dessertMarkers >= 1 && savouryMarkers <= 1)
     || sweetCount >= 3);
 
-  const fried = /\b(deep.fr|fry|fried|frying)\b/.test(method);
+  const fried = isFried(method);
   const braised = /\b(braise|braising|stew)\b/.test(method);
   const soup = /\b(soup|broth|ladle|chowder)\b/.test(method) || names.some((x) => /\b(broth|stock|dashi)\b/.test(x)) && /\bladle|simmer\b/.test(method);
   const grilled = /\b(grill|char|charred|barbecue|smok)/.test(method);
@@ -147,6 +167,9 @@ export function dishProfile(ingredients, ctx = {}) {
     fruit: sat(count('fruit'), 3),
     tropical: sat(names.filter((x) => has('tropical', x)).length, 1),
     tomato: names.some((x) => has('tomato', x)),
+    // Cream, butter, ghee or coconut milk in the sauce rounds off its acid.
+    // Yogurt and buttermilk are dairy but tangy: they are the acid.
+    creamy: sat(names.filter((x) => (has('cream', x) || CATEGORY_HINT[ctx.categoryOf?.(x)] === 'cream') && !has('acid', x)).length, 1),
     fried,
     braised,
     grilled,
@@ -207,11 +230,17 @@ export function idealWine(p) {
               : 1.2 + p.earthy + p.richness * 0.5);
   // Chili heat burns with tannin and alcohol; spice and umami make tannin bitter.
   const tannin = clamp(tanninBase - 2.2 * p.heat - 1.2 * p.umami * (meat ? 0.4 : 1) - 1.4 * p.spice, 0, 5);
+  // A warmly spiced dish without red meat (a curry, a masala) wants an
+  // aromatic wine with a touch of sweetness, not a lean, racy one: austere
+  // acid turns thin and hard against cardamom, cumin and garam masala, while
+  // residual sugar and perfume carry them. Red meat keeps its red.
+  const aromaticSpice = meat ? 0 : Math.max(0, p.spice - 0.3);
   return {
     body: Math.min(5, dishWeight(p) + charredMeat * 0.5),
-    acidity: clamp(2.6 + 1.6 * p.acidity + 0.9 * p.richness * (p.fried ? 1.3 : 0.7) + 0.6 * p.salty + (p.tomato ? 0.8 : 0)),
+    acidity: clamp(2.6 + 1.6 * p.acidity * (1 - 0.75 * p.creamy) + 0.9 * p.richness * (p.fried ? 1.3 : 0.7) + 0.6 * p.salty
+      + (p.tomato ? 0.8 * (1 - p.creamy) : 0) - aromaticSpice),
     tannin,
-    sweetness: clamp(1 + 2 * p.heat + 1.3 * p.sweetness + 0.6 * p.spice * (p.heat > 0.2 ? 1 : 0.4)),
+    sweetness: clamp(1 + 2 * p.heat + 1.3 * p.sweetness + 0.6 * p.spice * (p.heat > 0.2 ? 1 : 0.4) + aromaticSpice),
     alcohol: clamp(3 + 0.8 * p.richness - 1.8 * p.heat),
     oak: Math.max(0, Math.min(2, (p.smoky > 0.4 ? 1.2 : 0) + (p.richness > 0.5 && !fish ? 0.6 : 0) + (p.braised ? 0.3 : 0) - (fish && p.richness < 0.4 ? 1 : 0))),
     colour: p.cookedWith.red ? 'red' : p.cookedWith.white ? 'white'
