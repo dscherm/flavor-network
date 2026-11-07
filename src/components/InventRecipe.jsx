@@ -17,6 +17,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { inventRecipes, kitchenCuisines, cuisineOptions, inventionHandoff } from '../data/inventRecipe.js';
 import { isBasic } from '../data/myKitchen.js';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
+import { blendIndex } from '../data/everydayPairs.js';
+import useEverydayPairs from '../hooks/useEverydayPairs.js';
 import { loadInventModel, loadRealRecipes } from '../ml/kitchenRuntime.js';
 import { closestRealRecipe } from '../data/kitchenRecipes.js';
 import { predictBowlAmounts } from '../ml/quantityRuntime.js';
@@ -33,7 +35,11 @@ export default function InventRecipe({ kitchen = [], nodes = null, edges = null,
     if (!nodes) return new Set();
     return new Set(nodes instanceof Map ? nodes.keys() : Object.keys(nodes));
   }, [nodes]);
-  const pairingIndex = useMemo(() => (edges ? buildPairingIndex(edges, names) : null), [edges, names]);
+  // Curated pairing graph + the everyday pairs it lacks (chicken|garlic …),
+  // max per pair (WEAK-A). Without the everyday file: the curated graph alone.
+  const everyday = useEverydayPairs();
+  const curatedIndex = useMemo(() => (edges ? buildPairingIndex(edges, names) : null), [edges, names]);
+  const pairingIndex = useMemo(() => blendIndex(curatedIndex, everyday), [curatedIndex, everyday]);
   const pantry = useMemo(() => kitchen.filter((k) => !isBasic(k)), [kitchen]);
 
   const [model, setModel] = useState({ status: 'loading', data: null });

@@ -14,6 +14,8 @@
  * Why the model gates and not the pairing graph: the observed-pairing
  * index is sparse between hub ingredients (no chicken|garlic edge at
  * all), so "pairs with half the dish" rejected the obvious partners.
+ * The panel now passes the curated graph blended with the everyday pairs
+ * (everydayPairs.js, WEAK-A), which has those edges; the model still gates.
  *
  * Generation is always driven by seed ingredients plus a cuisine:
  * generating from a flavour profile alone is a documented dead end.

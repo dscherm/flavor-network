@@ -15,6 +15,8 @@ import WhatDoINeed from './WhatDoINeed.jsx';
 import { needsFromKitchen } from '../data/whatDoINeed.js';
 import { buildCategoryMap } from '../data/saucePantry.js';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
+import { blendIndex } from '../data/everydayPairs.js';
+import useEverydayPairs from '../hooks/useEverydayPairs.js';
 
 /**
  * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
@@ -156,6 +158,10 @@ export default function SauceLab({
   // Pantry / Invent context: the sauce list, the sauce-ingredient catalogue
   // (roles), names for resolving what the cook types, and two pairing
   // indexes — recipe co-occurrence (ProData graph) + curated sauce pairings.
+  // The recipe co-occurrence index also carries the everyday pairs the
+  // curated graph lacks (garlic|olive oil, lemon|garlic …), max per pair
+  // (WEAK-A); without the everyday file it is the curated graph alone.
+  const everyday = useEverydayPairs();
   const pantryCtx = useMemo(() => {
     const meta = codexData?.ingredientMeta || [];
     const catalogueNames = new Set(meta.map((i) => String(i.name || '').toLowerCase()).filter(Boolean));
@@ -167,10 +173,10 @@ export default function SauceLab({
       catMap: buildCategoryMap(meta),
       catalogueNames,
       kitchenNames,
-      pairingIndex: graphNodes && graphEdges ? buildPairingIndex(graphEdges, graphNodes.keys()) : null,
+      pairingIndex: blendIndex(graphNodes && graphEdges ? buildPairingIndex(graphEdges, graphNodes.keys()) : null, everyday),
       sauceIndex: codexData?.pairings ? buildPairingIndex(codexData.pairings, catalogueNames) : null,
     };
-  }, [codexData, fullData]);
+  }, [codexData, fullData, everyday]);
 
   // aria-live announcement when matchesContext becomes active.
   const prevMatchesRef = useRef(null);

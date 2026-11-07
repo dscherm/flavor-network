@@ -17,7 +17,7 @@ const NUM_HEADS = 11;
 // Basic pantry staples — excluded from all ingredient suggestions (add /
 // replace / boost / temper). Everyone has these; they're never a meaningful
 // suggestion. (Red/green/bell pepper are vegetables — intentionally kept.)
-const SUGGESTION_EXCLUDE = ['water', 'salt', 'pepper', 'black pepper', 'sugar', 'flour'];
+export const SUGGESTION_EXCLUDE = ['water', 'salt', 'pepper', 'black pepper', 'sugar', 'flour'];
 
 /** Build a lowercased name → vocab-id index from recipe_vocab.json `vocab`. */
 export function buildVocabIndex(vocab) {

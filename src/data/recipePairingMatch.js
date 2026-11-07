@@ -31,7 +31,7 @@ import { normalizeIngredient } from './normalizeIngredient.js';
 
 // Too generic to say anything about fit — dropped before and after
 // resolution so they count neither as matches nor as unresolved.
-const TRIVIAL = new Set([
+export const TRIVIAL = new Set([
   'water', 'cold water', 'sparkling water', 'ice', 'cubes ice', 'ice cube', 'crushed ice',
   'seltzer', 'cold seltzer', 'club soda', 'soda water', 'soda', 'cola', 'cold cola', 'co2', 'co2 bottle',
   'salt', 'sugar', 'sugar cube', 'cube sugar', 'black pepper', 'pepper', 'pinch of salt', 'pinch pepper',
