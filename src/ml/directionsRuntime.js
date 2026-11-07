@@ -85,7 +85,7 @@ export function resolveNamesToIds(names, nameToId) {
  * @param {object}   index       directions_index.json contents.
  * @param {string[]} vocab       recipe_vocab.json `vocab` array.
  * @param {{ k?: number, minOverlap?: number }} opts
- * @returns {Array<{ title:string, steps:string[], overlap:number, jaccard:number, matchedNames:string[], bowlIds:number[] }>}
+ * @returns {Array<{ title:string, steps:string[], overlap:number, jaccard:number, matchedNames:string[], ingredients:string[], bowlIds:number[] }>}
  */
 export function retrieveDirections(bowlNames, index, vocab, opts = {}) {
   const k          = opts.k          ?? 3;
@@ -131,12 +131,16 @@ export function retrieveDirections(bowlNames, index, vocab, opts = {}) {
     const recIdSet    = new Set(rec.v);
     const matchedIds  = bowlIds.filter(id => recIdSet.has(id));
     const matchedNames = matchedIds.map(id => idToName.get(id) ?? String(id));
+    // KITCHEN-2: the recipe's full ingredient list (vocab names), so callers
+    // can say what the cook is missing, not only what matched.
+    const ingredients = [...recIdSet].map(id => idToName.get(id) ?? String(id));
     return {
       title:        rec.t,
       steps:        rec.d,
       overlap,
       jaccard,
       matchedNames,
+      ingredients,
       bowlIds,
     };
   });

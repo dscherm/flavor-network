@@ -87,6 +87,9 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   const [recipeType, setRecipeType] = useState(handoff?.recipeType || null);
   const [recipeImageUrl, setRecipeImageUrl] = useState(null);
   const [focalKey, setFocalKey] = useState(null);
+  // KITCHEN-2: steps handed over with the recipe ({ steps, from }), or null.
+  const [recipeMethod, setRecipeMethod] = useState(null);
+  const [methodOpen, setMethodOpen] = useState(false);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -145,6 +148,13 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
           msg = 'Photo attached. Pick ingredients to build the bowl.';
         } else if (handoff.source === 'make-scratch') {
           msg = 'Empty recipe ready. Pick ingredients to build the bowl.';
+        } else if (handoff.source === 'make-kitchen') {
+          // KITCHEN-2: a recipe picked from "What's in my kitchen?".
+          const missing = Array.isArray(handoff.missing) ? handoff.missing : [];
+          msg = `From your kitchen:${titleSuffix} — ${incoming.length} ingredient${incoming.length === 1 ? '' : 's'}`
+            + (missing.length ? `; still need ${missing.slice(0, 2).join(' and ')}${missing.length > 2 ? '…' : ''}` : '');
+        } else if (handoff.source === 'make-invent') {
+          msg = `Invented:${titleSuffix} — an idea to taste and adjust`;
         } else if (incoming.length > 0) {
           msg = `Loaded ${incoming.length} ingredients${titleSuffix}`;
         } else {
@@ -163,6 +173,12 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     });
     setCenterIngredient(incoming[0]?.ingredient || null);
     setRecipeTitle(handoff.title || '');
+    // KITCHEN-2: Recipe Lab handoffs may carry a method (a real recipe's or
+    // a Cookbook recipe's steps). Any other handoff clears it.
+    setRecipeMethod(Array.isArray(handoff.steps) && handoff.steps.length
+      ? { steps: handoff.steps.map(String), from: handoff.stepsFrom || '' }
+      : null);
+    setMethodOpen(false);
     setSelectedStructure(null);
     setActiveTab('all');
     if (handoff.mode === 'cocktail') setLabMode('cocktail');
@@ -360,6 +376,7 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
     setActiveTab('all');
     setRecipeImageUrl(null);
     setFocalKey(null);
+    setRecipeMethod(null);
   }, []);
 
   // §13.3 focal toggle. Tap-and-hold (mobile) and right-click (desktop)
@@ -626,6 +643,32 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
 
         {/* Flavor-profile display moved to the "◆ Flavor Profiles" pop-out
             card (chrome button) — RecipeFlavorProfilesCard. */}
+
+        {/* KITCHEN-2: the method that came with a Recipe Lab handoff. */}
+        {recipeMethod && (
+          <div className="mx-4 mt-1 mb-3" data-testid="recipe-handoff-method">
+            <button
+              type="button"
+              onClick={() => setMethodOpen((o) => !o)}
+              aria-expanded={methodOpen}
+              className="w-full min-h-[44px] flex items-center justify-between gap-2 rounded-md px-3 text-left border border-dashed border-[#c9b99a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              style={{ fontFamily: FONT_FAMILY, color: '#3a3226', outlineColor: '#3a3226' }}
+            >
+              <span className="text-[19px] leading-tight">
+                Method ({recipeMethod.steps.length} steps)
+                {recipeMethod.from && recipeMethod.from !== recipeTitle && (
+                  <span className="block text-[14px]" style={{ color: '#7a6a4a' }}>from “{recipeMethod.from}”</span>
+                )}
+              </span>
+              <span aria-hidden="true">{methodOpen ? '▾' : '▸'}</span>
+            </button>
+            {methodOpen && (
+              <ol className="mt-2 space-y-1.5 list-decimal pl-6 text-[14px] leading-snug" style={{ color: '#3a3226' }}>
+                {recipeMethod.steps.map((s, i) => <li key={i}>{s}</li>)}
+              </ol>
+            )}
+          </div>
+        )}
 
       </div>
       </div>

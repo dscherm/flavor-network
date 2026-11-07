@@ -1485,3 +1485,25 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "KITCHEN-2",
+  "title": "Recipe Lab: what's in my kitchen, what you can cook, and invent a recipe",
+  "category": "feature",
+  "passes": true,
+  "description": "The Make screen works like the Cocktail Lab's My bar + Invent a cocktail, and becomes the Recipe Lab (owner, 2026-11-07). Header 'Recipe Lab' in the labs' chalk style with the subtitle 'What's in your kitchen? Cook it, or invent something.' and an 'Open my notebook' link (to the Recipe Notebook, no handoff). Lead cards: 'What's in my kitchen?' (new MakeArt pantry drawing) and 'Invent a recipe' (new MakeArt invent drawing), which replaces 'Start from scratch'; Cookbook / photo / link stay below as secondary cards. The kitchen panel (src/components/KitchenPanel.jsx) uses the shared myKitchen.js list (localStorage fn-my-kitchen, also used by the Sauce Lab): add box with autocomplete over graph ingredient names, removable chips with ingredient drawings, quick-add chips (the Cookbook's 18 most-used non-basic ingredients) and an 'Assume basics' switch. Results update live: You can make (Cookbook recipes fully covered, with DishArt), One or two away ('missing basil'), and From 40,000 real recipes (directions index, lazy-loaded behind a chalk loader; each with 'you have N of M' and what is missing, and a method fold). Tapping a Cookbook recipe opens the Cookbook's own RecipeDetail (now exported from CookbookLab.jsx), whose notebook button hands off with the recipe's method; tapping a real recipe hands its covered ingredients, title and steps to the Notebook (source make-kitchen). Invent (src/components/InventRecipe.jsx, logic in src/data/inventRecipe.js): cuisine chips from the model vocab (default: the cuisines the kitchen leans toward), optional main ingredient; the FM-P2 set-completion model grows the dish from the kitchen (candidateNames), an ingredient joining only at logit >= -2.5; a thin dish (< 4) may add at most 2 common, pairing-backed ingredients from outside, labelled \"you'd need\"; scored by mean pairwise pairing strength plus a small model-confidence bonus; three at a time with Shuffle. Each card: a simple name ('Chicken & Lemon Skillet, Italian-style'), a dish drawing, amounts from quantityRuntime, the closest real recipe with its method, and the note 'An idea from what pairs, not a tested recipe'. 'Write it in the Recipe Notebook' hands off (source make-invent) with amounts and the closest recipe's steps. The Notebook shows a toast for each new source and a 'Method (N steps)' fold for handed-over steps. retrieveDirections also returns each recipe's full ingredient list. Findings: the observed-pairing index has no edge between many hub pairs (no chicken|garlic), so it cannot gate which kitchen items join a dish (the model logit does); and the directions index keeps only vocab-mapped ingredients (Cajun 15 Bean Soup lists no bean), so ingredients named in a recipe title count too, and a 'closest real recipe' must name one of the dish's ingredients in its title.",
+  "acceptance": [
+    "Recipe Lab header, subtitle and 'Open my notebook' (no handoff); cards in order kitchen, invent, existing, photo, weblink; no scratch card (test)",
+    "Kitchen panel: autocomplete, Enter adds the best match, quick-add, remove chip, basics switch; saved to fn-my-kitchen (test)",
+    "You can make / One or two away from the Cookbook, naming what is missing; tapping opens the Cookbook detail, which hands off with the method (test)",
+    "Real recipes: chalk loader while the index loads, then 'you have N of M' + missing; an ingredient named only in the title counts; tap hands off make-kitchen with title and steps (test)",
+    "Index failure: says so and the Cookbook lists still work (test); model failure: invent says it is unavailable (test)",
+    "Invent: kitchen first, poor fits left out, at most 2 \"you'd need\" items that are common and pairing-backed, distinct dishes and names, scored by mean pairing (test)",
+    "Invent card: name with cuisine, dish drawing, amounts, closest real recipe + method, the honest note; Write it hands off make-invent with amounts (test)",
+    "Notebook toasts for make-kitchen / make-invent and a method fold that a later handoff clears (test)",
+    "Checked at 375px in a browser with chicken, garlic, lemon, rice, onion, tomato and with an empty kitchen; no console errors",
+    "npm run gate green"
+  ]
+}
+```

@@ -49,7 +49,7 @@ describe('LabArt / MakeArt', () => {
       expect(container.querySelector('svg'), id).toBeTruthy();
       unmount();
     }
-    for (const kind of ['book', 'pencil', 'camera', 'link']) {
+    for (const kind of ['book', 'pencil', 'camera', 'link', 'pantry', 'invent']) {
       const { container, unmount } = render(<MakeArt kind={kind} accent="#34d399" />);
       expect(container.querySelector('svg'), kind).toBeTruthy();
       unmount();
