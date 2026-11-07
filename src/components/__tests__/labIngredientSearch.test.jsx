@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import CocktailBrowse from '../CocktailBrowse.jsx';
 import SauceBrowse from '../SauceBrowse.jsx';
@@ -170,5 +170,41 @@ describe('Sauce Lab — ingredient search', () => {
     renderSauces();
     fireEvent.change(screen.getByLabelText(/search sauces/i), { target: { value: 'arrab' } });
     expect(shown(['Marinara', 'Arrabbiata', 'Pesto'])).toEqual(['Arrabbiata']);
+  });
+});
+
+describe('Cocktail Lab — "Only what I can make" switch', () => {
+  const renderWith = (props) => render(
+    <CocktailBrowse graph={COCKTAIL_GRAPH} selectedCocktail={null} onSelectCocktail={vi.fn()}
+      filterFamily={null} onFilterFamily={vi.fn()} filterSpirit={null} onFilterSpirit={vi.fn()} {...props} />,
+  );
+  beforeEach(() => { try { localStorage.removeItem('fn-cocktail-bar-only'); } catch { /* */ } });
+
+  it('is hidden until the makeable list is known', () => {
+    renderWith({});
+    expect(screen.queryByTestId('cocktail-bar-only')).toBeNull();
+  });
+
+  it('filters the menu to drinks the bar can make, and remembers the setting', () => {
+    const { unmount } = renderWith({ makeableNames: new Set(['Negroni']) });
+    const sw = screen.getByTestId('cocktail-bar-only');
+    expect(sw.getAttribute('role')).toBe('switch');
+    expect(sw.getAttribute('aria-checked')).toBe('false');
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toHaveLength(3);
+    fireEvent.click(sw);
+    expect(sw.getAttribute('aria-checked')).toBe('true');
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toEqual(['Negroni']);
+    unmount();
+    renderWith({ makeableNames: new Set(['Negroni']) });
+    expect(screen.getByTestId('cocktail-bar-only').getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('says so, and offers My bar, when nothing is makeable', () => {
+    const onOpenMyBar = vi.fn();
+    renderWith({ makeableNames: new Set(), onOpenMyBar });
+    fireEvent.click(screen.getByTestId('cocktail-bar-only'));
+    expect(screen.getByTestId('cocktail-bar-only-empty').textContent).toMatch(/Nothing complete/);
+    fireEvent.click(screen.getByText('Add bottles in My bar'));
+    expect(onOpenMyBar).toHaveBeenCalled();
   });
 });

@@ -249,9 +249,21 @@ export default function CocktailBrowse({
   barCount = 0,
   onOpenMyBar = null,
   onOpenInvent = null,
+  // Names of drinks the bar + kitchen fully covers (myBar.whatCanIMake);
+  // null hides the "Only what I can make" switch.
+  makeableNames = null,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [ibaOnly, setIbaOnly] = useState(false);
+  // "Only what I can make" — remembered on this device.
+  const [barOnly, setBarOnlyRaw] = useState(() => {
+    try { return localStorage.getItem('fn-cocktail-bar-only') === '1'; } catch { return false; }
+  });
+  const setBarOnly = (on) => {
+    setBarOnlyRaw(on);
+    try { localStorage.setItem('fn-cocktail-bar-only', on ? '1' : '0'); } catch { /* private mode */ }
+  };
+  const barFilterOn = barOnly && makeableNames != null;
   // Facet filter: { occasions: 'brunch', strength: 'light', noEgg: true, … }.
   const [facetFilter, setFacetFilter] = useState({});
   // DESIGN-1: the six facet rows sit behind one Filters chip so the glass
@@ -316,6 +328,7 @@ export default function CocktailBrowse({
     if (!a) return false;
     if (filterSpirit && a.spirit !== filterSpirit) return false;
     if (ibaOnly && !a.iba_official) return false;
+    if (barFilterOn && !makeableNames.has(a.name)) return false;
     if (searchHits && !searchHits.has(a.name)) return false;
     if (activeFacetCount && !matchesFacetFilter(facetsByName?.get(a.name), facetFilter)) return false;
     return true;
@@ -328,6 +341,7 @@ export default function CocktailBrowse({
     const base = [...annotated.values()].filter((a) => {
       if (filterSpirit && a.spirit !== filterSpirit) return false;
       if (ibaOnly && !a.iba_official) return false;
+      if (barFilterOn && !makeableNames.has(a.name)) return false;
       if (searchHits && !searchHits.has(a.name)) return false;
       if (filterFamily != null && a.family_id !== filterFamily) return false;
       return true;
@@ -340,7 +354,7 @@ export default function CocktailBrowse({
       }
     }
     return counts;
-  }, [annotated, facetsByName, facetFilter, filterSpirit, ibaOnly, searchHits, filterFamily]);
+  }, [annotated, facetsByName, facetFilter, filterSpirit, ibaOnly, barFilterOn, makeableNames, searchHits, filterFamily]);
 
   const matchCount = useMemo(() => {
     if (!annotated) return 0;
@@ -348,13 +362,14 @@ export default function CocktailBrowse({
     for (const a of annotated.values()) {
       if (filterSpirit && a.spirit !== filterSpirit) continue;
       if (ibaOnly && !a.iba_official) continue;
+      if (barFilterOn && !makeableNames.has(a.name)) continue;
       if (searchHits && !searchHits.has(a.name)) continue;
       if (filterFamily != null && a.family_id !== filterFamily) continue;
       if (activeFacetCount && !matchesFacetFilter(facetsByName?.get(a.name), facetFilter)) continue;
       n += 1;
     }
     return n;
-  }, [annotated, filterSpirit, ibaOnly, searchHits, filterFamily, activeFacetCount, facetFilter, facetsByName]);
+  }, [annotated, filterSpirit, ibaOnly, barFilterOn, makeableNames, searchHits, filterFamily, activeFacetCount, facetFilter, facetsByName]);
 
   // Cocktails per base spirit — drives the bottle-shelf counts.
   const spiritCounts = useMemo(() => {
@@ -603,6 +618,26 @@ export default function CocktailBrowse({
             />
             IBA only
           </label>
+          {makeableNames != null && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={barOnly}
+              onClick={() => setBarOnly(!barOnly)}
+              data-testid="cocktail-bar-only"
+              className="inline-flex items-center gap-2 pl-1 pr-3 rounded-full border min-h-[40px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              style={{ fontFamily: FONT, fontSize: 16, borderColor: barOnly ? CHALK_CREAM : CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM, background: barOnly ? 'rgba(245,239,222,0.08)' : 'transparent' }}
+            >
+              {/* the pill: a track with a sliding knob */}
+              <span aria-hidden="true" className="relative inline-block rounded-full transition-colors"
+                style={{ width: 34, height: 20, background: barOnly ? '#a3e635' : 'rgba(255,255,255,0.12)', border: `1px solid ${barOnly ? '#a3e635' : CHALK_RAIL}` }}>
+                <span className="absolute top-[2px] rounded-full transition-all"
+                  style={{ width: 14, height: 14, left: barOnly ? 17 : 2, background: barOnly ? '#0a0a0a' : CHALK_CREAM }} />
+              </span>
+              🍾 Only what I can make
+              <span className="text-[13px]" style={{ fontFamily: 'system-ui, sans-serif', color: CHALK_DIM }}>({makeableNames.size})</span>
+            </button>
+          )}
           {filterSpirit != null && (
             <span className="text-[15px] inline-flex items-center gap-1.5" style={{ fontFamily: FONT, color: COCKTAIL_SPIRIT_COLORS[filterSpirit] || CHALK_CREAM }}>
               <span className="inline-block rounded-full" style={{ width: 8, height: 8, background: COCKTAIL_SPIRIT_COLORS[filterSpirit] || CHALK_CREAM }} aria-hidden="true" />
@@ -652,6 +687,12 @@ export default function CocktailBrowse({
               style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
               ✨ Invent a cocktail
             </button>
+          )}
+          {barFilterOn && makeableNames.size === 0 && (
+            <p className="w-full text-[14px]" role="status" data-testid="cocktail-bar-only-empty" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+              Nothing complete from your bar yet.{' '}
+              {onOpenMyBar && <button type="button" onClick={onOpenMyBar} className="underline underline-offset-2" style={{ color: CHALK_CREAM }}>Add bottles in My bar</button>}
+            </p>
           )}
           {!filtersOpen && activeFacetCount > 0 && (
             <button type="button" onClick={() => setFacetFilter({})} className="text-[13px] underline underline-offset-2" style={{ color: CHALK_DIM }}>

@@ -20,7 +20,7 @@ import { suggestAmounts } from '../data/cocktailAmounts.js';
 import { normalizeIngredient } from '../data/normalizeIngredient.js';
 import MyBarPanel from './MyBarPanel.jsx';
 import InventCocktail from './InventCocktail.jsx';
-import { loadBar, saveBar, splitBar, stockFor, coverCocktail, countedLines, barKey, isBooze, addToBar } from '../data/myBar.js';
+import { loadBar, saveBar, splitBar, stockFor, coverCocktail, countedLines, barKey, isBooze, addToBar, whatCanIMake } from '../data/myBar.js';
 import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
 import { needsFromBarCoverage } from '../data/whatDoINeed.js';
@@ -293,6 +293,14 @@ export default function CocktailLabV2({
     loadFacetContext(import.meta.env.BASE_URL).then((ctx) => { if (!cancelled) setFacetCtx(ctx); });
     return () => { cancelled = true; };
   }, []);
+  // Drinks the bar + kitchen fully covers — drives the menu's
+  // "Only what I can make" switch (null until roles and data load).
+  const makeableNames = useMemo(() => {
+    if (!graph?.cocktails || !cocktailRoles) return null;
+    const { make } = whatCanIMake(graph.cocktails, stock, { roles: cocktailRoles, names: riffIndex?.names || new Set(), pairingIndex: riffIndex });
+    return new Set(make.map((m) => m.cocktail.name));
+  }, [graph, cocktailRoles, stock, riffIndex]);
+
   // "What do I need?" for the open drink: the bar (booze) + the kitchen.
   const cardNeeds = useMemo(() => {
     if (!selectedCocktail || !graph?.cocktails || !cocktailRoles) return null;
@@ -495,6 +503,7 @@ export default function CocktailLabV2({
         filterSpirit={filterSpirit}
         onFilterSpirit={setFilterSpirit}
         barCount={bar.length}
+        makeableNames={makeableNames}
         onOpenMyBar={() => setBarPanel('bar')}
         onOpenInvent={() => setBarPanel('invent')}
       />
