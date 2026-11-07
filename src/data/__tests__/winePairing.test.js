@@ -42,9 +42,12 @@ describe('wine_styles.json', () => {
       expect(w.area, w.id).toBeTruthy();
     }
   });
-  it('every country has a flag', async () => {
-    const { countryFlag } = await import('../wineStyles.js');
-    for (const c of new Set(wines.flatMap((w) => w.countries))) expect(countryFlag(c), c).not.toBe('');
+  it('every country has a drawn flag (not an emoji)', async () => {
+    const { flagSpec, flagShapes } = await import('../countryFlags.js');
+    for (const c of new Set(wines.flatMap((w) => w.countries))) {
+      expect(flagSpec(c), c).toBeTruthy();
+      expect(flagShapes(flagSpec(c)).length, c).toBeGreaterThan(0);
+    }
   });
   it('every classic match is an ingredient name in ProData', () => {
     const missing = wines.flatMap((w) => w.classicMatches.filter((m) => !(m in ingredients)).map((m) => `${w.id}: ${m}`));

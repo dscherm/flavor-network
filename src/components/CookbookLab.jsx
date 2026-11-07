@@ -454,7 +454,7 @@ export default function CookbookLab({
               const SLOT = 88;
               const SHELF_Y = 156;
               return (
-                <div className="overflow-x-auto pb-1">
+                <div className="overflow-x-auto chip-row pb-1">
                 <svg viewBox={`0 -12 ${books.length * SLOT} 186`} height={176} width={Math.round(books.length * SLOT * 176 / 186)} style={{ maxWidth: 'none', display: 'block', margin: '0 auto' }} role="img" aria-label="Cuisines — cookbook shelf">
                   <title>Cuisines</title>
                   <line x1="8" y1={SHELF_Y} x2={books.length * SLOT - 8} y2={SHELF_Y} stroke={`${CHALK_DIM}cc`} strokeWidth="3.5" strokeLinecap="round" />

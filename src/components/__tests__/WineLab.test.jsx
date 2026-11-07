@@ -85,7 +85,9 @@ describe('WineLab — browse', () => {
     expect(card).toHaveAttribute('data-kind', 'wine');
     expect(within(card).getByText('Grapes')).toBeInTheDocument();
     expect(within(card).getByText('Sangiovese')).toBeInTheDocument();
-    expect(card).toHaveTextContent('Country: 🇮🇹 Italy');
+    expect(card).toHaveTextContent('Country: Italy');
+    // A drawn flag, not an emoji (Windows shows emoji flags as "IT").
+    expect(within(card).getByRole('img', { name: 'Italy flag' })).toBeInTheDocument();
     expect(card).toHaveTextContent('Region: Tuscany');
     expect(within(card).getByText('Tasting notes')).toBeInTheDocument();
     expect(within(card).getByText('Wines like this')).toBeInTheDocument();

@@ -119,6 +119,11 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
       setDims({ w: Math.max(280, Math.round(r.width)), h: Math.max(300, Math.round(r.height)) });
     };
     measure();
+    if (typeof ResizeObserver !== 'undefined' && boardRef.current) {
+      const ro = new ResizeObserver(measure);
+      ro.observe(boardRef.current);
+      return () => ro.disconnect();
+    }
     if (typeof window !== 'undefined') {
       window.addEventListener('resize', measure);
       return () => window.removeEventListener('resize', measure);
@@ -149,9 +154,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
             {surprise ? '🎲 Surprising' : '🎲 Surprise'}
           </button>
         </div>
-        <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_SUB, margin: '2px 0 8px' }}>
-          Stand on one ingredient — twist the lens to see its partners by aroma, taste, cuisine or season.
-        </div>
+        <div style={{ height: 8 }} />
         <SearchBar inline ingredients={ingredientNames} onSelect={(name) => recenter(name)} />
       </div>
 
@@ -170,7 +173,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
       )}
 
       {/* Lens segmented control */}
-      <div role="tablist" aria-label="Pairing lens" style={{ display: 'flex', gap: 6, padding: '8px 12px', flexWrap: 'wrap' }}>
+      <div role="tablist" aria-label="Pairing lens" className="chip-row" style={{ display: 'flex', gap: 6, padding: '8px 12px', overflowX: 'auto', flexShrink: 0 }}>
         {LENSES.map((l) => {
           const active = l === lens;
           return (
@@ -178,7 +181,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
               key={l} type="button" role="tab" aria-selected={active}
               onClick={() => setLens(l)} data-testid={`lens-${l}`}
               style={{
-                fontFamily: FONT, fontSize: 18, padding: '2px 12px', borderRadius: 14,
+                fontFamily: FONT, fontSize: 18, padding: '2px 12px', borderRadius: 14, flexShrink: 0,
                 border: `1px solid ${active ? CHALK_CREAM : CHALK_RAIL}`,
                 background: active ? CHALK_CREAM : 'transparent',
                 color: active ? '#0a0a0a' : CHALK_DIM, cursor: 'pointer',
@@ -201,7 +204,7 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
       )}
 
       {/* Board */}
-      <div ref={boardRef} style={{ flex: 1, position: 'relative', display: 'flex', justifyContent: 'center' }}>
+      <div ref={boardRef} style={{ flex: 1, minHeight: 0, position: 'relative', display: 'flex', justifyContent: 'center', overflow: 'hidden' }}>
         {!hasData ? (
           <div style={emptyStyle}>Pairing data isn’t loaded yet.</div>
         ) : partners.length === 0 ? (
@@ -225,11 +228,6 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
               onSelectPartner={(name) => recenter(name)}
               onPeek={(name) => setPeek(name)}
             />
-            {/* Line key */}
-            <div style={{ position: 'absolute', left: 8, bottom: 6, fontFamily: SANS, fontSize: 10, color: CHALK_SUB, pointerEvents: 'none', lineHeight: 1.4 }}>
-              <div>thicker line = stronger pairing</div>
-              <div>solid = chemistry · dashed = tradition</div>
-            </div>
           </>
         )}
       </div>
@@ -243,7 +241,14 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
               🌐 Where do these pairings come from?
             </button>
           ) : (
-            <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM, lineHeight: 1.5 }}>
+            <div style={{ fontFamily: SANS, fontSize: 12, color: CHALK_DIM, lineHeight: 1.5 }} data-testid="network-teaser-body">
+              <div style={{ marginBottom: 4 }}>
+                Stand on one ingredient — twist the lens to see its partners by aroma, taste, cuisine or season.
+                Tap a partner to move to it; press and hold for its details.
+              </div>
+              <div style={{ color: CHALK_SUB, marginBottom: 4 }}>
+                Thicker line = stronger pairing · solid = chemistry · dashed = tradition.
+              </div>
               Each line is a real co-occurrence across 2.2M recipes plus shared flavor chemistry. The full
               <strong> flavor network</strong> maps every ingredient at once — this lab zooms into one.
               <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>

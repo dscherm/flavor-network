@@ -24,11 +24,15 @@ import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { FONT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
 import { groupByLens } from '../data/pairingEgoModel.js';
+import { placeLabels, ringRadii } from '../data/pairingLabelLayout.js';
 
 const TWEEN_MS = 460;
 const HOLD_MS = 420;           // press-and-hold → peek
 const TAP_MOVE_TOL = 10;       // px; movement beyond this cancels a tap
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+const LABEL_FONT = `600 16px ${FONT}`;
+const BUCKET_FONT = (hi) => `600 ${hi ? 19 : 17}px ${FONT}`;
+const CENTER_FONT = `700 30px ${FONT}`;
 
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
@@ -49,7 +53,7 @@ function tasteColorFor(node) {
  *   categorical → one labeled spoke per bucket; members step outward,
  *     strongest nearest the center.
  */
-function computeLayout(partners, lens, ctx, cx, cy, minDim) {
+function computeLayout(partners, lens, ctx, cx, cy, width, height) {
   const targets = new Map();   // name → {x,y,r,color,group}
   const labels = [];           // {text,x,y,color} bucket labels
   if (!partners || partners.length === 0) return { targets, labels };
@@ -60,17 +64,20 @@ function computeLayout(partners, lens, ctx, cx, cy, minDim) {
   const sSpan = Math.max(sMax - sMin, 1e-6);
   const nodeR = (s) => 7 + ((s - sMin) / sSpan) * 7; // 7..14 px
 
+  // DESIGN-1: the ring is an ellipse that uses the whole board (phones are
+  // taller than wide) instead of a circle sized to the narrow side.
+  const { rx, ry } = ringRadii(width, height);
+
   if (lens === 'affinity') {
-    const rIn = 0.24 * minDim;  // clear the (now larger) center oval
-    const rOut = 0.46 * minDim;
+    const fIn = 0.55;           // inner ring, clear of the center oval
     const n = partners.length;
     partners.forEach((p, i) => {
       const ang = -Math.PI / 2 + (i * 2 * Math.PI) / n;
       const sNorm = (p.strength - sMin) / sSpan;      // 1 = strongest
-      const r = rOut - sNorm * (rOut - rIn);          // strongest → inner
+      const f = 1 - sNorm * (1 - fIn);                // strongest → inner
       targets.set(p.name, {
-        x: cx + r * Math.cos(ang),
-        y: cy + r * Math.sin(ang),
+        x: cx + f * rx * Math.cos(ang),
+        y: cy + f * ry * Math.sin(ang),
         r: nodeR(p.strength),
         color: tasteColorFor(p.node),
         group: 'Affinity',
@@ -84,8 +91,8 @@ function computeLayout(partners, lens, ctx, cx, cy, minDim) {
   // with a small radial stagger so adjacent node labels don't collide.
   const groups = groupByLens(partners, lens, ctx);
   const G = groups.length || 1;
-  const rMid = 0.40 * minDim;             // members sit on this ring
-  const stagger = 0.05 * minDim;          // alternate radius to de-overlap labels
+  const fMid = 0.78;                      // members sit on this ring
+  const fStagger = 0.12;                  // alternate radius to de-overlap labels
   const sectorW = 2 * Math.PI / G;
   groups.forEach((g, gi) => {
     const sectorCenter = -Math.PI / 2 + gi * sectorW;
@@ -96,24 +103,63 @@ function computeLayout(partners, lens, ctx, cx, cy, minDim) {
     g.members.forEach((p, mi) => {
       const t = M > 1 ? (mi / (M - 1)) - 0.5 : 0; // -0.5 … 0.5 across the arc
       const ang = sectorCenter + t * span;
-      const r = rMid + (mi % 2 === 0 ? 0 : stagger);
+      const f = fMid + (mi % 2 === 0 ? 0 : fStagger);
       targets.set(p.name, {
-        x: cx + r * Math.cos(ang),
-        y: cy + r * Math.sin(ang),
+        x: cx + f * rx * Math.cos(ang),
+        y: cy + f * ry * Math.sin(ang),
         r: nodeR(p.strength),
         color: g.color,
         group: g.label,
       });
     });
-    const lr = rMid + 0.115 * minDim; // bucket label just outside the ring
-    labels.push({
+    labels.push({ // bucket label just outside its members
       text: g.label,
-      x: cx + lr * Math.cos(sectorCenter),
-      y: cy + lr * Math.sin(sectorCenter),
+      x: cx + rx * Math.cos(sectorCenter),
+      y: cy + ry * Math.sin(sectorCenter),
       color: g.color,
     });
   });
   return { targets, labels };
+}
+
+/**
+ * Fix the text spots for a layout (DESIGN-1): bucket labels clamped onto the
+ * board, then partner names placed so none overlap each other, a circle,
+ * a bucket label or the center oval. `measureWith(font, text)` → px.
+ */
+function placeText(layout, partners, center, highlightGroup, cx, cy, width, height, measureWith) {
+  const obstacles = [];
+  if (center) {
+    const w = Math.max(measureWith(CENTER_FONT, center) + 40, 100);
+    obstacles.push({ x0: cx - w / 2, y0: cy - 29, x1: cx + w / 2, y1: cy + 29 });
+  }
+  const nodes = partners
+    .map((p) => { const t = layout.targets.get(p.name); return t && { name: p.name, x: t.x, y: t.y, r: t.r }; })
+    .filter(Boolean);
+  // Group labels go first, kept clear of the circles and the center oval;
+  // the partner names then keep clear of the group labels too.
+  const groupText = layout.labels.map((lab) => {
+    const hi = !!highlightGroup && lab.text === highlightGroup;
+    return { ...lab, hi, text: hi ? `★ ${lab.text}` : lab.text };
+  });
+  const groupSpots = placeLabels(
+    groupText.map((g) => ({ name: g.text, x: g.x, y: g.y, r: 0 })),
+    {
+      width, height, cx, cy, lineHeight: 22,
+      obstacles: [...obstacles, ...nodes.map((n) => ({ x0: n.x - n.r, y0: n.y - n.r, x1: n.x + n.r, y1: n.y + n.r }))],
+      measure: (text) => measureWith(BUCKET_FONT(groupText.find((g) => g.text === text)?.hi), text),
+    },
+  );
+  const buckets = groupText.map((g) => {
+    const spot = groupSpots.get(g.text);
+    obstacles.push(spot.box);
+    return { ...g, x: spot.x, y: spot.y };
+  });
+  const names = placeLabels(nodes, {
+    width, height, cx, cy, obstacles, lineHeight: 18,
+    measure: (text) => measureWith(LABEL_FONT, text),
+  });
+  return { buckets, names };
 }
 
 export default function PairingBoard({
@@ -131,7 +177,7 @@ export default function PairingBoard({
 }) {
   const canvasRef = useRef(null);
   const posRef = useRef(new Map());      // animated name → {x,y}
-  const targetRef = useRef({ targets: new Map(), labels: [] });
+  const targetRef = useRef({ targets: new Map(), labels: [], text: null });
   const rafRef = useRef(0);
   const hitsRef = useRef([]);            // {name,x,y,r}
   const pointerRef = useRef(null);       // {x,y,t,holdTimer,held}
@@ -146,7 +192,15 @@ export default function PairingBoard({
 
   const cx = width / 2;
   const cy = height / 2;
-  const minDim = Math.min(width, height);
+
+  // Re-place the labels once the Caveat web font is in, so the measured
+  // widths match what is drawn.
+  const [fontsReady, setFontsReady] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    try { document.fonts?.ready?.then(() => { if (alive) setFontsReady(true); }); } catch { /* no font API */ }
+    return () => { alive = false; };
+  }, []);
 
   // ── draw a single frame from posRef ──────────────────────────────────
   const draw = useCallback(() => {
@@ -157,7 +211,7 @@ export default function PairingBoard({
 
     c.clearRect(0, 0, width, height);
     const pos = posRef.current;
-    const { labels } = targetRef.current;
+    const { targets, text } = targetRef.current;
     hitsRef.current = [];
 
     // Edges: center → each partner. Weight + opacity encode pairing
@@ -213,24 +267,20 @@ export default function PairingBoard({
     // current season) gets a star + a slightly larger label.
     c.textAlign = 'center';
     c.textBaseline = 'middle';
-    for (const lab of labels) {
-      const hi = highlightGroup && lab.text === highlightGroup;
-      c.font = `600 ${hi ? 19 : 17}px ${FONT}`;
+    for (const lab of text?.buckets || []) {
+      c.font = BUCKET_FONT(lab.hi);
       c.fillStyle = lab.color;
-      // Clamp inside the canvas so spoke labels never clip off-screen.
-      const lx = Math.max(36, Math.min(width - 36, lab.x));
-      const ly = Math.max(20, Math.min(height - 12, lab.y));
       c.save();
       c.shadowColor = 'rgba(0,0,0,0.6)';
       c.shadowBlur = 3;
-      c.fillText(hi ? `★ ${lab.text}` : lab.text, lx, ly);
+      c.fillText(lab.text, lab.x, lab.y);
       c.restore();
     }
 
     // Partner nodes + names.
     for (const p of partners) {
       const pt = pos.get(p.name);
-      const t = targetRef.current.targets.get(p.name);
+      const t = targets.get(p.name);
       if (!pt || !t) continue;
       c.beginPath();
       c.arc(pt.x, pt.y, t.r, 0, 2 * Math.PI);
@@ -241,39 +291,27 @@ export default function PairingBoard({
       c.stroke();
       hitsRef.current.push({ name: p.name, x: pt.x, y: pt.y, r: t.r + 6 });
 
-      c.save();
-      c.font = `600 16px ${FONT}`;
-      c.fillStyle = CHALK_CREAM;
-      c.shadowColor = 'rgba(245,239,222,0.5)';
-      c.shadowBlur = 3;
-      // v1.0.3: place the label radially — left of nodes on the left half,
-      // right of nodes on the right half, above/below near the vertical axis.
-      // Centred-below labels collided for neighbours near the top of the ring
-      // ("tomato paste" / "parmesan").
-      const ldx = pt.x - cx;
-      const ldy = pt.y - cy;
-      const tw = c.measureText(p.name).width;
-      const sideFits = ldx < 0 ? (pt.x - t.r - 7 - tw >= 4) : (pt.x + t.r + 7 + tw <= width - 4);
-      if (Math.abs(ldx) > 0.35 * Math.abs(ldy) && sideFits) {
-        c.textAlign = ldx < 0 ? 'right' : 'left';
-        c.textBaseline = 'middle';
-        c.fillText(p.name, pt.x + (ldx < 0 ? -(t.r + 7) : (t.r + 7)), pt.y);
-      } else {
-        // Above for the top half, below for the bottom half, x clamped so the
-        // text never leaves the canvas (phones: outer nodes sit near the edge).
+      // DESIGN-1: the spot was fixed on the target layout (no overlaps);
+      // during a lens tween it rides along with its circle.
+      const spot = text?.names.get(p.name);
+      if (spot) {
+        c.save();
+        c.font = LABEL_FONT;
+        c.fillStyle = CHALK_CREAM;
+        c.shadowColor = 'rgba(245,239,222,0.5)';
+        c.shadowBlur = 3;
         c.textAlign = 'center';
-        c.textBaseline = ldy < 0 ? 'alphabetic' : 'hanging';
-        const lx = Math.min(width - tw / 2 - 4, Math.max(tw / 2 + 4, pt.x));
-        c.fillText(p.name, lx, ldy < 0 ? pt.y - t.r - 6 : pt.y + t.r + 6);
+        c.textBaseline = 'middle';
+        c.fillText(p.name, spot.x + (pt.x - t.x), spot.y + (pt.y - t.y));
+        c.restore();
       }
-      c.restore();
     }
 
     // Center ingredient — a bigger black chalk-oval with a hand-drawn
     // double stroke + chalk glow, Caveat name.
     if (center) {
       c.save();
-      c.font = `700 30px ${FONT}`;
+      c.font = CENTER_FONT;
       const w = Math.max(c.measureText(center).width + 40, 100);
       const h = 58;
       // Make the focus oval a hit target too: a long-press here peeks the
@@ -299,11 +337,19 @@ export default function PairingBoard({
       c.fillText(center, cx, cy);
       c.restore();
     }
-  }, [partners, center, cx, cy, width, height, bridges, highlightGroup]);
+  }, [partners, center, cx, cy, width, height, bridges]);
 
   // ── (re)layout + tween whenever inputs change ────────────────────────
   useEffect(() => {
-    const layout = computeLayout(partners, lens, ctx, cx, cy, minDim);
+    const layout = computeLayout(partners, lens, ctx, cx, cy, width, height);
+    let mctx = null;
+    try { mctx = canvasRef.current?.getContext?.('2d') || null; } catch { mctx = null; }
+    const measureWith = (font, txt) => {
+      if (!mctx) return String(txt).length * 8;
+      mctx.font = font;
+      return mctx.measureText(txt).width;
+    };
+    layout.text = placeText(layout, partners, center, highlightGroup, cx, cy, width, height, measureWith);
     targetRef.current = layout;
 
     const startPos = new Map();
@@ -340,7 +386,7 @@ export default function PairingBoard({
 
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [partners, lens, ctx, width, height, reducedMotion, draw]);
+  }, [partners, lens, ctx, width, height, reducedMotion, draw, center, highlightGroup, fontsReady]);
 
   // ── canvas backing store (dpr capped at 2) ───────────────────────────
   useEffect(() => {

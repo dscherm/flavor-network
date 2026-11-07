@@ -6,6 +6,7 @@ import {
   computeSauceCodexPositions,
 } from '../data/sauceCodex.js';
 import SauceSuggestionDeck from './SauceSuggestionDeck.jsx';
+import { ChalkLoader } from './chalkArt.jsx';
 
 /**
  * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
@@ -178,16 +179,7 @@ export default function SauceLab({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
-        <div className="text-center">
-          <div className="relative w-16 h-16 mx-auto mb-4">
-            <div className="absolute inset-0 border-2 border-amber-400/30 rounded-full animate-ping" />
-            <div className="absolute inset-2 border-2 border-amber-400/50 rounded-full animate-spin" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-[30%] bg-amber-400/80 rounded-full animate-pulse" />
-          </div>
-          <p className="text-gray-400 text-sm">Building sauce codex...</p>
-        </div>
-      </div>
+      <ChalkLoader label="Warming the sauce pots…" color="#fb923c" />
     );
   }
   if (error) {

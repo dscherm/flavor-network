@@ -337,6 +337,9 @@ export default function CocktailBrowse({
   const [ibaOnly, setIbaOnly] = useState(false);
   // Facet filter: { occasions: 'brunch', strength: 'light', noEgg: true, … }.
   const [facetFilter, setFacetFilter] = useState({});
+  // DESIGN-1: the six facet rows sit behind one Filters chip so the glass
+  // and bottle shelves stay on screen.
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [facetCtx, setFacetCtx] = useState(null);
   useEffect(() => {
     let cancelled = false;
@@ -580,7 +583,7 @@ export default function CocktailBrowse({
           <div className="text-[11px] uppercase tracking-wider" style={{ color: CHALK_SUB }}>Spirits</div>
           <div className="sm:hidden text-[11px] tracking-wide" style={{ fontFamily: FONT, color: CHALK_SUB }}>swipe →</div>
         </div>
-        <div className="pb-1 overflow-x-auto -mx-4 px-4">
+        <div className="pb-1 overflow-x-auto chip-row -mx-4 px-4">
         <div style={{ minWidth: SPIRIT_SHELF.length * 76 }}>
         <svg
           viewBox={`0 -66 ${SPIRIT_SHELF.length * 122} 180`}
@@ -705,24 +708,40 @@ export default function CocktailBrowse({
             {ingredientVocab.map((v) => <option key={v} value={v} />)}
           </datalist>
         </div>
-        {(onOpenMyBar || onOpenInvent) && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {onOpenMyBar && (
-              <button type="button" onClick={onOpenMyBar} data-testid="cocktail-my-bar-open"
-                className="px-3 py-1 rounded-full border min-h-[40px] text-[17px]"
-                style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
-                🍾 My bar{barCount ? ` (${barCount})` : ''}
-              </button>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <button type="button" onClick={() => setFiltersOpen((o) => !o)} data-testid="cocktail-filters-toggle"
+            aria-expanded={filtersOpen} aria-controls="cocktail-facet-rail"
+            className="px-3 py-1 rounded-full border min-h-[40px] text-[17px] flex items-center gap-1.5"
+            style={{ fontFamily: FONT, borderColor: activeFacetCount ? CHALK_CREAM : CHALK_RAIL, color: CHALK_CREAM }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 6h16M7 12h10M10 18h4" />
+            </svg>
+            Filters
+            {activeFacetCount > 0 && (
+              <span className="rounded-full px-1.5 text-[13px] leading-5" style={{ fontFamily: 'system-ui, sans-serif', background: CHALK_CREAM, color: '#0a0a0a' }}>{activeFacetCount}</span>
             )}
-            {onOpenInvent && (
-              <button type="button" onClick={onOpenInvent} data-testid="cocktail-invent-open"
-                className="px-3 py-1 rounded-full border min-h-[40px] text-[17px]"
-                style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
-                ✨ Invent a cocktail
-              </button>
-            )}
-          </div>
-        )}
+            <span aria-hidden="true" className="text-[13px]" style={{ color: CHALK_SUB }}>{filtersOpen ? '▴' : '▾'}</span>
+          </button>
+          {onOpenMyBar && (
+            <button type="button" onClick={onOpenMyBar} data-testid="cocktail-my-bar-open"
+              className="px-3 py-1 rounded-full border min-h-[40px] text-[17px]"
+              style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
+              🍾 My bar{barCount ? ` (${barCount})` : ''}
+            </button>
+          )}
+          {onOpenInvent && (
+            <button type="button" onClick={onOpenInvent} data-testid="cocktail-invent-open"
+              className="px-3 py-1 rounded-full border min-h-[40px] text-[17px]"
+              style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
+              ✨ Invent a cocktail
+            </button>
+          )}
+          {!filtersOpen && activeFacetCount > 0 && (
+            <button type="button" onClick={() => setFacetFilter({})} className="text-[13px] underline underline-offset-2" style={{ color: CHALK_DIM }}>
+              Clear filters · {matchCount} shown
+            </button>
+          )}
+        </div>
         {searchHits && (
           <p className="mt-1 text-[13px]" style={{ color: CHALK_SUB }} aria-live="polite">
             {matchCount} cocktail{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
@@ -730,9 +749,10 @@ export default function CocktailBrowse({
         )}
 
         {/* ───── Facet rail — occasion / season / strength / character / effort / glass ───── */}
-        <div className="mt-2 flex flex-col gap-1.5" data-testid="cocktail-facet-rail">
+        {filtersOpen && (
+        <div className="mt-2 flex flex-col gap-1.5" id="cocktail-facet-rail" data-testid="cocktail-facet-rail">
           {FACET_GROUPS.map((g) => (
-            <div key={g.key} className="flex items-center gap-1.5 overflow-x-auto" role="group" aria-label={`Filter by ${g.label.toLowerCase()}`}>
+            <div key={g.key} className="flex items-center gap-1.5 overflow-x-auto chip-row" role="group" aria-label={`Filter by ${g.label.toLowerCase()}`}>
               <span className="text-[11px] uppercase tracking-wider flex-shrink-0 w-[4.5rem]" style={{ color: CHALK_SUB }}>{g.label}</span>
               {g.values.map((v) => {
                 const active = facetFilter[g.key] === v;
@@ -777,6 +797,7 @@ export default function CocktailBrowse({
             )}
           </div>
         </div>
+        )}
       </div>
 
       {/* ───── Menu sections — colored-chalk family headers ───── */}

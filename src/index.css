@@ -92,3 +92,15 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
+
+/* DESIGN-1: horizontal chip rows still swipe, but without a visible
+   scrollbar under each row (it read as a stray purple line on phones). */
+@layer utilities {
+  .chip-row {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .chip-row::-webkit-scrollbar {
+    display: none;
+  }
+}

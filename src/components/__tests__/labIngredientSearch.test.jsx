@@ -71,8 +71,30 @@ describe('Cocktail Lab — ingredient search', () => {
 });
 
 describe('Cocktail Lab — facet chips', () => {
+  // DESIGN-1: the facet rows sit behind one Filters chip.
+  const openFilters = () => fireEvent.click(screen.getByTestId('cocktail-filters-toggle'));
+
+  it('hides the facet rows behind a Filters chip that counts active filters', () => {
+    renderCocktails();
+    const toggle = screen.getByTestId('cocktail-filters-toggle');
+    expect(screen.queryByTestId('cocktail-facet-rail')).toBeNull();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    openFilters();
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(screen.getByRole('button', { name: /^strong/ }));
+    fireEvent.click(screen.getByLabelText('No egg'));
+    expect(toggle).toHaveTextContent(/Filters\s*2/);
+    // Closing keeps the filters applied, and offers a way to clear them.
+    openFilters();
+    expect(screen.queryByTestId('cocktail-facet-rail')).toBeNull();
+    expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toEqual(['Negroni']);
+    fireEvent.click(screen.getByRole('button', { name: /clear filters/i }));
+    expect(toggle).toHaveTextContent(/^\s*Filters\s*▾/);
+  });
+
   it('renders the facet rail and filters by strength', () => {
     renderCocktails();
+    openFilters();
     expect(screen.getByTestId('cocktail-facet-rail')).toBeInTheDocument();
     // Negroni: stirred spirit + amaro + vermouth, no sour → strong. The others are not.
     fireEvent.click(screen.getByRole('button', { name: /^strong/ }));
@@ -84,6 +106,7 @@ describe('Cocktail Lab — facet chips', () => {
 
   it('a chip in another group that would leave nothing is disabled, with a count of 0', () => {
     renderCocktails();
+    openFilters();
     fireEvent.click(screen.getByRole('button', { name: /^light/ }));
     // Only the (strong) Negroni is a nightcap, so with "light" active the chip is dead.
     const nightcap = screen.getByRole('button', { name: /^nightcap 0/ });
@@ -94,6 +117,7 @@ describe('Cocktail Lab — facet chips', () => {
 
   it('bubbly character picks the soda highball', () => {
     renderCocktails();
+    openFilters();
     fireEvent.click(screen.getByRole('button', { name: /^bubbly/ }));
     expect(shown(['Gimlet', 'Negroni', 'Moscow Mule'])).toEqual(['Moscow Mule']);
   });

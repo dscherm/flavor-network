@@ -47,16 +47,6 @@ export function wineSearchText(wine) {
   ].filter(Boolean);
 }
 
-const FLAGS = {
-  France: '🇫🇷', Italy: '🇮🇹', Spain: '🇪🇸', Portugal: '🇵🇹', Germany: '🇩🇪', Austria: '🇦🇹',
-  Greece: '🇬🇷', Hungary: '🇭🇺', USA: '🇺🇸', 'New Zealand': '🇳🇿', Australia: '🇦🇺',
-  Argentina: '🇦🇷', Chile: '🇨🇱', 'South Africa': '🇿🇦',
-};
-/** Flag emoji for a country name, or '' when unknown. */
-export function countryFlag(country) {
-  return FLAGS[country] || '';
-}
-
 /** Does the wine come from `country` (any of its countries)? */
 export function fromCountry(wine, country) {
   return !country || (wine.countries || [wine.country]).includes(country);
