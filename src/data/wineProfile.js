@@ -197,3 +197,19 @@ export function wineFoodMapping(wine) {
 
   return { rules, bridges, avoid, goodWith: [...(w.classicMatches || [])] };
 }
+
+/**
+ * The aroma families wine reviewers mention for a style noticeably more
+ * often than for wine in general (public/data/wine_review_aromas.json,
+ * aggregated from 130k Wine Enthusiast reviews). Null when the style has
+ * too few reviews to say.
+ * @returns {{ reviews: number, families: { family, share, lift }[] } | null}
+ */
+export function reviewHighlights(entry, { minShare = 0.1, minLift = 1.3, max = 4 } = {}) {
+  if (!entry || !Array.isArray(entry.families) || !(entry.reviews >= 30)) return null;
+  const families = entry.families
+    .filter((f) => f.share >= minShare && f.lift >= minLift)
+    .sort((a, b) => b.share - a.share)
+    .slice(0, max);
+  return families.length ? { reviews: entry.reviews, families } : null;
+}

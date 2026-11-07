@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { wineProfileAxes, wineFoodMapping, aromaFamilyOf, STRUCTURE_AXES } from '../wineProfile.js';
+import { wineProfileAxes, wineFoodMapping, aromaFamilyOf, STRUCTURE_AXES, reviewHighlights } from '../wineProfile.js';
 import { dishProfile, scoreWine } from '../winePairing.js';
 
 const WINES = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/wine_styles.json'), 'utf8')).wines;
@@ -149,5 +149,26 @@ describe('wineFoodMapping agrees with the pairing engine', () => {
     expect(gain(champagne)).toBeGreaterThan(gain(stillTwin));
     // the bubbles rule fires exactly for dry sparkling wines, as the engine's bonus does
     for (const w of WINES) expect(ruleIds(w.id).includes('bubbles')).toBe(Boolean(w.sparkling && w.sweetness <= 2));
+  });
+});
+
+describe('reviewHighlights (Wine Reviews aggregates)', () => {
+  const REVIEWS = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'public/data/wine_review_aromas.json'), 'utf8')).styles;
+
+  it('keeps only families mentioned often and more than for wine in general', () => {
+    const h = reviewHighlights(REVIEWS.gewurztraminer);
+    expect(h.reviews).toBeGreaterThan(100);
+    expect(h.families.length).toBeLessThanOrEqual(4);
+    for (const f of h.families) { expect(f.share).toBeGreaterThanOrEqual(0.1); expect(f.lift).toBeGreaterThanOrEqual(1.3); }
+    expect(h.families.map((f) => f.family)).toContain('spice');
+  });
+
+  it('says nothing for an unprofiled style or missing data', () => {
+    expect(reviewHighlights(REVIEWS.madeira)).toBeNull();
+    expect(reviewHighlights(undefined)).toBeNull();
+  });
+
+  it('every wine style id has an entry in the review file', () => {
+    for (const w of WINES) expect(REVIEWS[w.id], w.id).toBeTruthy();
   });
 });

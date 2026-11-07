@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import LabNodeCard from './LabNodeCard.jsx';
 import { loadWineStyles, similarWines, wineSearchText, dots, familyColor, countryFlag, fromCountry, countryIndex } from '../data/wineStyles.js';
 import { scaleWord } from '../data/winePairing.js';
-import { wineProfileAxes, wineFoodMapping } from '../data/wineProfile.js';
+import { wineProfileAxes, wineFoodMapping, reviewHighlights } from '../data/wineProfile.js';
 import ProfileRadar from './ProfileRadar.jsx';
 import { parseQuery, matchItem } from '../data/ingredientSearch.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
@@ -52,9 +52,10 @@ function ProfileHeading({ children, color = CHALK_DIM }) {
  * structure radar, the aroma families, and the structure → food rules
  * (src/data/wineProfile.js, which restates the pairing engine's rules).
  */
-export function WineProfileSections({ wine, color }) {
+export function WineProfileSections({ wine, color, reviewEntry = null }) {
   const profile = wineProfileAxes(wine);
   const mapping = wineFoodMapping(wine);
+  const reviewed = reviewHighlights(reviewEntry);
   return (
     <div data-testid="wine-profile">
       <ProfileHeading>Flavour profile</ProfileHeading>
@@ -76,6 +77,22 @@ export function WineProfileSections({ wine, color }) {
           ))}
         </ul>
       </div>
+
+      {reviewed && (
+        <div className="mt-2" data-testid="wine-review-aromas">
+          <div className="text-[12px] mb-1" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+            What {reviewed.reviews.toLocaleString()} critics' reviews mention most:
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {reviewed.families.map((f) => (
+              <span key={f.family} className="px-2 py-0.5 rounded-full border"
+                style={{ fontFamily: FONT, fontSize: 16, color: CHALK_CREAM, borderColor: `${color}88`, background: `${color}1a` }}>
+                {f.family} <span style={{ fontFamily: SANS, fontSize: 11, color: CHALK_DIM }}>{Math.round(f.share * 100)}%</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <ProfileHeading>Pairs by profile</ProfileHeading>
       <ul className="flex flex-col gap-2" data-testid="wine-food-mapping">
@@ -178,6 +195,17 @@ export default function WineLab({
     return () => { cancelled = true; };
   }, []);
 
+  // Review-derived aromas (optional; the card works without them).
+  const [reviewAromas, setReviewAromas] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${import.meta.env.BASE_URL}data/wine_review_aromas.json`)
+      .then((r) => (r.ok && (r.headers.get('content-type') || '').includes('json') ? r.json() : null))
+      .then((d) => { if (!cancelled && d?.styles) setReviewAromas(d.styles); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
   const families = data?.families || [];
   const wines = data?.wines || [];
   const byId = useMemo(() => new Map(wines.map((w) => [w.id, w])), [wines]);
@@ -235,7 +263,7 @@ export default function WineLab({
       onSelect={(name) => { const w = wines.find((x) => x.name === name); if (w) setSelectedId(w.id); }}
       onClose={() => setSelectedId(null)}
     >
-      <WineProfileSections wine={selected} color={familyColor(families, selected.family)} />
+      <WineProfileSections wine={selected} color={familyColor(families, selected.family)} reviewEntry={reviewAromas?.[selected.id]} />
     </LabNodeCard>
   );
 
