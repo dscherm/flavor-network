@@ -188,10 +188,11 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
     >
       <h1 id="fn-landing-title" className="sr-only">Neural Flavor</h1>
 
-      {/* Top — animated logo. B-version (2026-06-03): shrunk to 32vh
+      {/* Top — the logo, the largest thing on the page (about half the screen
+          on phones; DESIGN-5). Was 32vh (B-version, 2026-06-03): shrunk to 32vh
           on small viewports + flex-shrink so the 3 tile buttons
           guaranteed-fit beneath the logo on iOS portrait. */}
-      <div className="w-full flex items-center justify-center pt-[max(env(safe-area-inset-top),0.5rem)] h-[32vh] sm:h-[50vh] flex-shrink-0">
+      <div className="w-full flex items-center justify-center pt-[max(env(safe-area-inset-top),0.5rem)] h-[48vh] sm:h-[56vh] flex-shrink-0">
         <AnimatedLogo className="h-full w-auto max-w-full" />
       </div>
 
