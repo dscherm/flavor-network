@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { buildVocabIndex, predictQuantity, predictBowlQuantities } from '../quantityModel.js';
+import { buildVocabIndex, predictQuantity, predictBowlQuantities, kitchenize } from '../quantityModel.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -35,6 +35,30 @@ describe('quantityModel — predictQuantity', () => {
   it('returns null on bad input', () => {
     expect(predictQuantity('', { artifact, vocabIndex })).toBeNull();
     expect(predictQuantity('flour', null)).toBeNull();
+  });
+});
+
+// WEAK-4 post-processing: an older/hand-built artifact still yields kitchen units.
+describe('quantityModel — WEAK-4 kitchenize', () => {
+  const legacy = {
+    _meta: { minSamples: 5, global: { unit: 'each', qty: 1.2, grams: 120 } },
+    model: {
+      0: { unit: 'each', qty: 3.6, n: 100 },     // chicken: "3.6 each"
+      1: { unit: 'c', qty: 0.83, n: 100 },       // milk: "c 0.83"
+      2: { unit: 'teaspoon', qty: 1, n: 100 },   // cumin
+      3: { unit: 'tbsp', qty: 4, n: 100 },       // already kitchen: untouched
+    },
+  };
+  const idx = buildVocabIndex(['chicken', 'milk', 'cumin', 'olive oil']);
+  it('normalises unit names and rounds to kitchen fractions', () => {
+    expect(predictQuantity('chicken', { artifact: legacy, vocabIndex: idx })).toEqual({ unit: 'each', qty: 4, source: 'model' });
+    expect(predictQuantity('milk', { artifact: legacy, vocabIndex: idx })).toEqual({ unit: 'cup', qty: 0.75, source: 'model' });
+    expect(predictQuantity('cumin', { artifact: legacy, vocabIndex: idx })).toEqual({ unit: 'tsp', qty: 1, source: 'model' });
+    expect(predictQuantity('nope', { artifact: legacy, vocabIndex: idx })).toEqual({ unit: 'each', qty: 1, source: 'global' });
+  });
+  it('leaves an already-kitchen prediction alone (keeps the build-time category choice)', () => {
+    expect(kitchenize('tbsp', 4)).toEqual({ unit: 'tbsp', qty: 4 });
+    expect(predictQuantity('olive oil', { artifact: legacy, vocabIndex: idx })).toEqual({ unit: 'tbsp', qty: 4, source: 'model' });
   });
 });
 

@@ -1,6 +1,12 @@
 /**
  * FM-Q2 — per-ingredient quantity model + held-out eval vs a global baseline.
  *
+ * SUPERSEDED by weak4_quantity_model.mjs (WEAK-4, 2026-11-07), which builds the
+ * shipped public/models/quantity_model.json. This script's input triples come
+ * from FM-Q1's parseLeadingAmount, which labels plurals ("cups", "lbs"),
+ * package sizes ("1 (16 oz.) pkg.") and "garlic cloves" as 'each' (100 g);
+ * kept for the record of the original FM-Q2 eval only.
+ *
  * Reads flavor-gnn/data/ingredient_quantities.jsonl (FM-Q1: {r,v,q,u}) and the
  * app's UNIT_DENSITY (src/data/portionParser.js) to learn, per vocab ingredient:
  *   - modal unit  = most frequent unit for that ingredient

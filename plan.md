@@ -1544,3 +1544,21 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "WEAK-4",
+  "title": "Amount model: kitchen units and kitchen fractions (no more '3.6 each')",
+  "category": "data",
+  "passes": true,
+  "description": "The FM-Q2 amount model (public/models/quantity_model.json) that prefills amounts in the Recipe Notebook, Invent a recipe and the kitchen hand-offs gave unusable amounts ('chicken: each 3.6', 'pasta: each 4.54', 'c 0.83' vs 'cup'). Root cause is in FM-Q1's line parser (fm_p0_2_build_corpus.mjs parseLeadingAmount): a unit counted only when the lowercased token was literally a UNIT_DENSITY key, so plurals (cups, lbs, ounces, tablespoons, teaspoons), parenthetical packages ('1 (16 oz.) pkg.'), unsized cans/packages and 'garlic cloves' all became 'each' = 100 g, and 'T.' (tablespoon) became 't' (teaspoon). On the first 100k recipes 27% of quantity lines were 'each' and only 42% of those were real counts. FM-Q2 then took the modal raw unit and qty = median grams / density, so 'each 4.54' was 454 g. Fix at the source: src/ml/ingredientLineParser.js re-parses RecipeNLG lines (package sizes converted to weight, plural/abbreviated units, case-sensitive T/t, ranges, unicode fractions, count nouns, stick butter, plausibility caps); flavor-gnn/scripts/weak4_quantity_model.mjs re-parses once (12.08M triples), picks volume / weight / count per ingredient by vote with the ingredients.json category default as tie-break (runner-up within 80%), takes the median amount in that dimension and expresses it via src/ml/kitchenUnits.js category rules (spices tsp; oils and sauces tbsp below 1/4 cup; meat, fish and pasta by the pound from ~1/2 lb; small weights in oz; counts keep their noun: each / clove / can / pkg) rounded to kitchen fractions (spoons 1/8 1/4 1/2 3/4, cups 1/4 1/3 1/2 2/3 3/4, quarter pounds, whole cloves, half steps for 'each' below 2). quantityModel.predictQuantity adds a post-processing layer (kitchenize: normalise unit names, round) so any older artifact also yields kitchen amounts; quantityRuntime writes raw as ASCII kitchen fractions ('1 1/2 lb') that parseAmount re-reads. portionParser gains 'can' (425 g) and 'pkg' (250 g). API unchanged ({unit, qty, source} / {raw, qty, unit, inferred}); artifact 186 -> 212 KB.",
+  "acceptance": [
+    "A hand-written list of 46 common ingredients, each with acceptable units and a plausible range (e.g. garlic 1-6 clove; olive oil 1-4 tbsp; pasta 0.5-1 lb), written before the rebuild: 17/46 pass with the old artifact, 46/46 after (src/ml/__tests__/quantityKitchenCheck.test.js)",
+    "No prediction carries a non-kitchen quantity: 1031 of 3619 entries before, 0 of 3587 after; every raw string re-parses with parseAmount to the same unit and qty (test)",
+    "FM-Q2 eval: on the original triples the old metric gets worse (grams MdAPE 0.583 -> 0.667, raw-unit top-1 0.495 -> 0.317), because its ground truth is the each=100 g artefact itself; on the corrected re-parse holdout (r % 10 == 0, 1.21M rows) grams-equivalent MdAPE improves 0.647 -> 0.500 and measuring-dimension top-1 0.649 -> 0.830 (global baseline 0.662) (flavor-gnn/data/weak4_eval.json)",
+    "Unit tests for unit normalisation, kitchen rounding, category rules and the line parser's artefacts (kitchenUnits.test.js, ingredientLineParser.test.js, quantityModel.test.js)",
+    "API and artifact size kept: {unit, qty, source} / {raw, qty, unit, inferred}; 212 KB vs 186 KB",
+    "npm run gate green (180 files, 2001 tests on master 3a3c958 + WEAK-4; build clean)"
+  ]
+}
+```

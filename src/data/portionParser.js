@@ -34,6 +34,8 @@ export const UNIT_DENSITY = {
   sprig: 2,
   clove: 3,
   handful: 30,
+  can: 425, // WEAK-4: a standard 15 oz can
+  pkg: 250, // WEAK-4: a generic package (cake mix, yeast, gelatin, soup mix)
   to_taste: 1,
 };
 
@@ -58,6 +60,8 @@ const UNIT_NORMALIZE = {
   sprig: 'sprig',
   clove: 'clove',
   handful: 'handful',
+  can: 'can', tin: 'can',
+  pkg: 'pkg', package: 'pkg', packet: 'pkg', envelope: 'pkg',
   to_taste: 'to_taste',
 };
 

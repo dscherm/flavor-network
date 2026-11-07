@@ -5,3 +5,4 @@ recipe_sets.jsonl
 ingredient_quantities.jsonl
 ner_vocab_map.json
 train_tensors.npz
+ingredient_quantities_v2.jsonl
