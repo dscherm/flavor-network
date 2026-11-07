@@ -1632,3 +1632,25 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+## 2026-11-07 — Apple News links resolve to the publisher; ?import= share link
+
+```json
+{
+  "id": "WEBLINK-17",
+  "title": "Apple News links: find the recipe on the publisher's own site, fail helpfully, and accept ?import= from an iOS Share-sheet Shortcut",
+  "category": "feature",
+  "passes": true,
+  "description": "The owner's import of an apple.news link failed with apple-news-unresolvable. apple.news pages never contain the publisher's page for newer articles, but do carry the recipe title and publisher. Server (functions/src/scrape/applenewsResolve.ts): a hard-coded publisher table (name/aliases -> host, own search URL, recipe-path regex, paywalled flag, or an unsearchable reason); the publisher's OWN site search is fetched through the existing SSRF-checked fetcher with the r.jina.ai fallback (no general web search engine); candidate links must be on the publisher host and match a recipe path; a candidate is accepted only if its slug AND then the parsed page's recipe title both match the Apple title (identity tokens, coverage >= 0.85 and Dice >= 0.85, >= 2 shared words, marketing adjectives kept, ties refused as ambiguous). Resolution is capped at 12 s and at what is left of a 23 s overall budget (client races 25 s, callable times out at 30 s). Success returns a normal result plus resolvedFrom 'apple.news', publisherUrl and publisherHost; the older canonical-link path (which DOES fire on older Bon Appetit and Allrecipes articles) is tagged the same way. Failure returns appleNews {title, publisher, paywalled, searchQuery, reason, publisherUrl?}. Client: src/components/AppleNewsFallback.jsx replaces the dead-end message (recipe + publisher named, why, subscriber-only when true, a user-clicked 'Find it on the web' search link, a paste box, the Share -> Open in Safari tip); the preview says 'Found on <host>'. ?import=<url> (and ?path=make&import=) opens Make a recipe on the web-link step and queues the parse through the existing signed-out flow; only http(s) is accepted (src/utils/importParam.js) and the param is removed with history.replaceState. Shortcut steps: docs/apple-news-shortcut.md, linked from a 'Sharing from Apple News?' expander.",
+  "acceptance": [
+    "Publisher map unit tests: names, aliases, curly/straight apostrophes, paywalled flags (ATK, Cook's, NYT Cooking), People Inc. sites marked blocks-automated-access with no search, every search URL on its own host over https (test)",
+    "Title matching tests incl. near-miss rejections taken from the live search pages (miso-glazed-pork vs miso pork stir-fry, southern-fried-chicken vs Southern Thai, black-forest-cupcakes, easy/classic tuna melt vs Ultimate Tuna Melt, one missing word, one extra word on a 2-word title, single shared word) and ambiguity refusal (test)",
+    "Resolver tests with fixtures and no network: success, slug matches but page title differs -> rejected, no ingredients -> rejected, unknown / unsearchable / no title fetch nothing, search failure, budget timeout (test)",
+    "Handler tests: resolvedFrom/publisherHost on success (search and canonical paths), fallback payload {title, publisher, paywalled, searchQuery, reason}, publisherUrl kept when Apple linked a page that refuses us, SSRF on a canonical link still a hard error (test)",
+    "Real links measured 2026-11-07 (13 apple.news links: 2 fixtures + 11 found by web search): 8 resolve with ingredients (ATK and Epicurious fixtures and Pioneer Woman via publisher search with title match; 4 Bon Appetit via Apple's canonical link, 2 of them with a renamed title); Ultimate Tuna Melt correctly refused; Delish listicle refused (not a recipe); HGTV Magazine unsearchable; 3 Allrecipes refused by the publisher (402 + Jina 451) and returned with the publisher link. Slowest call 5.4 s",
+    "Client tests: fallback panel copy, subscriber line only when paywalled, search link href/target/rel, tip, paste box imports, publisher link, back; Found-on line; initialImportUrl starts the parse once, signed-out queue then resume, non-http ignored; share-help link (test)",
+    "App tests: ?import= skips the landing picker and opens make, wins over another ?path=, is stripped from the address bar (path kept), non-http value ignored and stripped, hand-off cleared once consumed (test)",
+    "functions build + 149 tests green; npm run gate green. Not deployed (needs owner approval)"
+  ]
+}
+```

@@ -16,6 +16,11 @@ import { RecipeDetail } from './CookbookLab.jsx';
 import { getRecipeDetails } from '../data/seedRecipeDetails.js';
 import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, loadSpiceRack, saveSpiceRack, isBasic } from '../data/myKitchen.js';
 import { realRecipeHandoff } from '../data/kitchenRecipes.js';
+import AppleNewsFallback from './AppleNewsFallback.jsx';
+
+/** WEBLINK-17: how to set up the iOS Share-sheet Shortcut that feeds ?import=. */
+export const SHORTCUT_DOC_URL =
+  'https://github.com/dscherm/flavor-network/blob/master/docs/apple-news-shortcut.md';
 
 // KITCHEN-2: the kitchen + invent panels (and the ML they pull in) load
 // only when opened.
@@ -129,6 +134,10 @@ export default function MakeRecipeStart({
   setCookbookPickerMode,
   nodes = null,
   edges = null,
+  // WEBLINK-17: a link handed over by `?import=` (iOS Share-sheet Shortcut).
+  // Already validated as http(s) by App; re-checked by handleParseUrl.
+  initialImportUrl = null,
+  onImportConsumed,
 }) {
   const fileInputRef = useRef(null);
   const firstCardRef = useRef(null);
@@ -170,6 +179,9 @@ export default function MakeRecipeStart({
   const [pendingParse, setPendingParse] = useState(null);
   const parseAttempt = useRef(0);
   const [needsSignIn, setNeedsSignIn] = useState(false);
+  // WEBLINK-17: the structured Apple News fallback (title, publisher,
+  // paywalled, searchQuery) when a link couldn't be resolved.
+  const [appleNewsInfo, setAppleNewsInfo] = useState(null);
 
   // KITCHEN-2: what the cook has (localStorage `fn-my-kitchen`, shared with
   // the Sauce Lab) and which panel is open over the cards.
@@ -213,6 +225,21 @@ export default function MakeRecipeStart({
     // including it would re-fire the parse on unrelated state changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingParse, authLoading, user]);
+
+  // WEBLINK-17: `?import=<link>` (the iOS Share-sheet Shortcut) lands here.
+  // Open the web-link step with the URL filled in and queue the parse exactly
+  // as a Parse tap would, so a signed-out user gets the sign-in panel and the
+  // parse resumes after sign-in. Consumed once: App clears the prop, and the
+  // ref stops a re-render from importing twice.
+  const consumedImportRef = useRef(null);
+  useEffect(() => {
+    if (!initialImportUrl || consumedImportRef.current === initialImportUrl) return;
+    consumedImportRef.current = initialImportUrl;
+    onImportConsumed?.();
+    setStage(STAGE.URL_INPUT);
+    handleParseUrl(initialImportUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialImportUrl]);
 
   const knownNames = useMemo(() => {
     if (!nodes) return [];
@@ -330,6 +357,7 @@ export default function MakeRecipeStart({
     setUserEdits(new Map());
     setPendingParse(null);
     setNeedsSignIn(false);
+    setAppleNewsInfo(null);
   };
 
   // MAKE-WEBLINK-MATCH-V2: dictionary membership check, case-insensitive.
@@ -384,8 +412,10 @@ export default function MakeRecipeStart({
     });
   };
 
-  const handleParseUrl = () => {
-    const trimmed = url.trim();
+  const handleParseUrl = (override) => {
+    const trimmed = (typeof override === 'string' ? override : url).trim();
+    if (typeof override === 'string') setUrl(trimmed);
+    setAppleNewsInfo(null);
     if (!trimmed) {
       setErrorMessage('Paste a recipe URL first.');
       setStage(STAGE.ERROR);
@@ -429,12 +459,18 @@ export default function MakeRecipeStart({
       ]);
       const result = res?.data;
       if (!result || result.status !== 'ok' || !Array.isArray(result.ingredients)) {
+        setAppleNewsInfo(result?.appleNews || null);
         setErrorMessage(describeServerFailure(result?.errorMessage, result));
         setStage(STAGE.ERROR);
         return;
       }
       const matchResults = matchRecipeIngredients(result.ingredients, knownNames);
-      setParsed({ title: result.title, finalUrl: result.finalUrl });
+      setParsed({
+        title: result.title,
+        finalUrl: result.finalUrl,
+        // WEBLINK-17: an Apple News link resolved to the publisher's page.
+        foundOn: result.resolvedFrom === 'apple.news' ? (result.publisherHost || null) : null,
+      });
       setMatched(matchResults);
       // Default-include all rows that matched something.
       const initialIncluded = new Set();
@@ -675,6 +711,26 @@ export default function MakeRecipeStart({
               We'll fetch the page, look for recipe metadata, and match the
               ingredients to your dictionary.
             </p>
+            {/* WEBLINK-17: the Share-sheet route for Apple News readers. */}
+            <details className="text-sm mb-4" style={{ color: CHALK_DIM }} data-testid="make-weblink-share-help">
+              <summary className="cursor-pointer" style={{ color: CHALK_CREAM }}>
+                Sharing from Apple News?
+              </summary>
+              <p className="mt-2">
+                Paste the apple.news link here and we'll look the recipe up on the
+                publisher's own site. To skip the copy-paste, add a "Send to Flavor
+                Network" shortcut to your iPhone's Share sheet:{' '}
+                <a
+                  href={SHORTCUT_DOC_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                  data-testid="make-weblink-share-help-link"
+                >
+                  how to set it up
+                </a>.
+              </p>
+            </details>
             <input
               ref={urlInputRef}
               type="url"
@@ -769,7 +825,18 @@ export default function MakeRecipeStart({
           </div>
         )}
 
-        {stage === STAGE.ERROR && (
+        {stage === STAGE.ERROR && appleNewsInfo && (
+          <AppleNewsFallback
+            info={appleNewsInfo}
+            onImportUrl={(u) => handleParseUrl(u)}
+            onBack={resetWebLink}
+            panelStyle={slatePanelStyle}
+            inputStyle={slateInputStyle}
+            buttonStyle={creamButtonStyle}
+          />
+        )}
+
+        {stage === STAGE.ERROR && !appleNewsInfo && (
           <div
             data-testid="make-weblink-error"
             role="alert"
@@ -812,6 +879,11 @@ export default function MakeRecipeStart({
             >
               {parsed?.title || 'Recipe'}
             </h2>
+            {parsed?.foundOn && (
+              <p className="text-sm mb-1" style={{ color: CHALK_DIM }} data-testid="make-weblink-found-on">
+                Found on {parsed.foundOn} (from your Apple News link)
+              </p>
+            )}
             <p className="text-xs mb-4" style={{ color: CHALK_SUB }}>
               We found {hits} known ingredient{hits === 1 ? '' : 's'} out of {matched.length} parsed lines. Tap to include or exclude.
             </p>

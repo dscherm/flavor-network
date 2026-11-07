@@ -136,9 +136,15 @@ describe('handleScrape on apple.news', () => {
     expect(result.status).toBe('error');
     expect(result.errorMessage).not.toMatch(/No recipe markup found/);
     expect(result.errorMessage).toContain('Apple News');
+    // WEBLINK-17: the fetcher hands back the interstitial for every URL, so
+    // the publisher-site search finds no candidates and the fallback carries
+    // what the client needs to finish by hand.
     expect(result.appleNews).toEqual({
       title: 'Miso Pork and Eggplant Stir-Fry',
       publisher: "America's Test Kitchen",
+      paywalled: true,
+      searchQuery: "Miso Pork and Eggplant Stir-Fry America's Test Kitchen",
+      reason: 'no-confident-match',
     });
   });
 

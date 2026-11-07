@@ -10,6 +10,12 @@ import {
   parseAppleNewsInterstitial,
 } from './applenews';
 import {
+  RESOLVE_BUDGET_MS,
+  findPublisher,
+  resolveAppleNews,
+  webSearchQuery,
+} from './applenewsResolve';
+import {
   ssrfReason,
   REDIRECT_MAX,
   assertHostnameResolvesPublicly,
@@ -21,6 +27,13 @@ import type { FetchedPage, ParsedRecipe, ScrapeResult, UrlFetcher } from './type
 // no room for a second fetch attempt. 15s still sits well inside the 30s
 // callable timeout and the client's 25s race.
 export const DEFAULT_BUDGET_MS = 15_000;
+
+/**
+ * WEBLINK-17: ceiling for the whole call, apple.news resolution included.
+ * The client races 25s and the callable times out at 30s; 23s leaves room
+ * for the callable round trip.
+ */
+export const OVERALL_BUDGET_MS = 23_000;
 
 /**
  * WEBLINK-1 (2026-07-31): outbound request headers.
@@ -198,6 +211,8 @@ export const defaultFetcher: UrlFetcher = {
 export interface HandleScrapeDeps {
   fetcher: UrlFetcher;
   budgetMs?: number;
+  /** WEBLINK-17: override the apple.news resolver cap (tests). */
+  resolveBudgetMs?: number;
 }
 
 /**
@@ -220,6 +235,7 @@ function logOutcome(fields: {
   ingredients?: number;
   ms: number;
   error?: string;
+  resolvedTo?: string;
 }): void {
   console.info('[scrape] outcome', JSON.stringify(fields));
 }
@@ -264,23 +280,81 @@ export async function handleScrape(url: string, deps: HandleScrapeDeps): Promise
   // the interstitial DOES tell us instead of the generic no-markup error.
   if (isAppleNewsUrl(url)) {
     const info = parseAppleNewsInterstitial(page.body);
+    const paywalled = !!findPublisher(info.publisher)?.paywalled;
+    const fallback = (reason: string, publisherUrl?: string): ScrapeResult => {
+      logOutcome({
+        host: hostOf(url), ok: false, fetchPath: page.fetchPath,
+        ms: Date.now() - startedAt, error: `apple-news-unresolvable:${reason}`,
+      });
+      return {
+        status: 'error',
+        errorMessage: appleNewsErrorMessage(info, paywalled),
+        finalUrl: page.finalUrl,
+        fetchPath: page.fetchPath,
+        appleNews: {
+          title: info.title,
+          publisher: info.publisher,
+          paywalled,
+          searchQuery: webSearchQuery(info.title, info.publisher),
+          reason,
+          ...(publisherUrl ? { publisherUrl } : {}),
+        },
+      };
+    };
+    const remaining = () => Math.max(0, OVERALL_BUDGET_MS - (Date.now() - startedAt));
+
     if (info.publisherUrl) {
+      // WEBLINK-17 measurement: some apple.news pages (older Bon Appétit and
+      // Allrecipes articles) DO carry a canonical link, so this branch is live.
       console.info('[scrape] apple.news resolved to publisher', {
         url, publisherUrl: info.publisherUrl,
       });
-      return handleScrape(info.publisherUrl, deps);
+      const followed = await handleScrape(info.publisherUrl, {
+        ...deps, budgetMs: Math.min(deps.budgetMs ?? DEFAULT_BUDGET_MS, remaining()),
+      });
+      if (followed.status === 'ok') {
+        const pubUrl = followed.finalUrl ?? info.publisherUrl;
+        return {
+          ...followed,
+          resolvedFrom: 'apple.news',
+          publisherUrl: pubUrl,
+          publisherHost: hostOf(pubUrl).replace(/^www\./, ''),
+        };
+      }
+      // A rejected URL (SSRF, malformed) stays a hard error: never hand the
+      // user a link to it. Anything else (the publisher blocked us, no recipe
+      // card) gets the helpful fallback, carrying the publisher link we found.
+      if (/invalid url|unsupported url|forbidden/i.test(followed.errorMessage ?? '')) return followed;
+      return fallback('publisher-page-failed', info.publisherUrl);
     }
-    logOutcome({
-      host: hostOf(url), ok: false, fetchPath: page.fetchPath,
-      ms: Date.now() - startedAt, error: 'apple-news-unresolvable',
-    });
-    return {
-      status: 'error',
-      errorMessage: appleNewsErrorMessage(info),
-      finalUrl: page.finalUrl,
-      fetchPath: page.fetchPath,
-      appleNews: { title: info.title, publisher: info.publisher },
-    };
+
+    // WEBLINK-17: no link on the page, but we have title + publisher. Look
+    // the recipe up on the publisher's own site. The budget is the lesser of
+    // the resolver cap and what is left of the overall call budget, so a slow
+    // apple.news fetch can't push the total past the client's 25s race.
+    const resolution = await resolveAppleNews(
+      info, deps.fetcher, Math.min(deps.resolveBudgetMs ?? RESOLVE_BUDGET_MS, remaining()),
+    );
+    if (resolution.ok) {
+      const { recipe, page: pub } = resolution;
+      logOutcome({
+        host: hostOf(url), ok: true, fetchPath: pub.fetchPath, parseStrategy: recipe.strategy,
+        ingredients: recipe.ingredients.length, ms: Date.now() - startedAt,
+        resolvedTo: hostOf(pub.finalUrl),
+      });
+      return {
+        status: 'ok',
+        title: recipe.title,
+        ingredients: recipe.ingredients,
+        finalUrl: pub.finalUrl,
+        fetchPath: pub.fetchPath,
+        parseStrategy: recipe.strategy,
+        resolvedFrom: 'apple.news',
+        publisherUrl: pub.finalUrl,
+        publisherHost: hostOf(pub.finalUrl).replace(/^www\./, ''),
+      };
+    }
+    return fallback(resolution.reason);
   }
 
   // WEBLINK-3: JSON-LD, then microdata, then class/id heuristics. JSON-LD

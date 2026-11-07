@@ -55,6 +55,15 @@ vi.mock('../components/ErrorCard.jsx',        () => ({ default: () => null }));
 vi.mock('../components/BottomSheet.jsx',      () => ({ default: () => null }));
 vi.mock('../components/AnimatedLogo.jsx',     () => ({ default: () => null }));
 
+// WEBLINK-17: capture what App hands MakeRecipeStart for ?import=.
+let lastMakeProps = null;
+vi.mock('../components/MakeRecipeStart.jsx', () => ({
+  default: (props) => {
+    lastMakeProps = props;
+    return <div data-testid="make-start" data-import={props.initialImportUrl || ''} />;
+  },
+}));
+
 // CocktailLabV2 — capture matchesContext + expose an exit button.
 let lastCocktailCtx   = undefined;
 let capturedExitFn    = null;
@@ -274,5 +283,50 @@ describe('App — shared links open the named surface', () => {
     visit('?path=nonsense');
     await mountApp();
     expect(screen.getByTestId('landing-screen')).toBeInTheDocument();
+  });
+});
+
+// WEBLINK-17: `?import=<link>` from the iOS Share-sheet Shortcut.
+describe('App — ?import= starts a link import', () => {
+  beforeEach(() => { lastMakeProps = null; });
+  afterEach(() => { visit(''); });
+
+  const LINK = 'https://apple.news/KZrKwE9isOtqUF7Y9dIy3GQ';
+
+  it('skips the landing picker, opens Make a recipe and hands over the link', async () => {
+    visit(`?import=${encodeURIComponent(LINK)}`);
+    await mountApp();
+    expect(screen.queryByTestId('landing-screen')).toBeNull();
+    expect(screen.getByTestId('make-start')).toBeInTheDocument();
+    expect(lastMakeProps.initialImportUrl).toBe(LINK);
+  });
+
+  it('wins over another ?path=', async () => {
+    visit(`?path=cocktail&import=${encodeURIComponent(LINK)}`);
+    await mountApp();
+    expect(screen.getByTestId('make-start')).toBeInTheDocument();
+    expect(lastMakeProps.initialImportUrl).toBe(LINK);
+  });
+
+  it('removes import from the address bar after reading it (?path=make kept)', async () => {
+    visit(`?path=make&import=${encodeURIComponent(LINK)}`);
+    await mountApp();
+    expect(window.location.search).not.toContain('import');
+    expect(new URLSearchParams(window.location.search).get('path')).toBe('make');
+  });
+
+  it('ignores a non-http(s) value and still strips it', async () => {
+    visit(`?import=${encodeURIComponent('javascript:alert(1)')}`);
+    await mountApp();
+    expect(screen.getByTestId('landing-screen')).toBeInTheDocument();
+    expect(lastMakeProps).toBeNull();
+    expect(window.location.search).toBe('');
+  });
+
+  it('clears the hand-off once MakeRecipeStart consumes it', async () => {
+    visit(`?import=${encodeURIComponent(LINK)}`);
+    await mountApp();
+    await act(async () => { lastMakeProps.onImportConsumed(); });
+    expect(lastMakeProps.initialImportUrl).toBeNull();
   });
 });

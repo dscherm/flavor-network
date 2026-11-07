@@ -93,6 +93,7 @@ import BottomSheet from './components/BottomSheet.jsx';
 import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
+import { readImportParam, stripImportParam } from './utils/importParam.js';
 
 // Spec §1.H — URL deep-link routing. `?path=<slug>` ↔ activeTab.
 // 2026-05-29 DOCS-RL-COOKBOOK-RENAME: 'cookbook' tab key renamed to
@@ -137,11 +138,26 @@ export default function App() {
   // download until the user clicks a card.
   // A shared/reloaded link that names a surface (`?path=cocktail`) is an
   // explicit choice, so it skips the landing picker and opens that tab.
+  // WEBLINK-17: so does `?import=<recipe link>` (the iOS Share-sheet
+  // Shortcut), which opens Make a recipe and starts the link import.
+  const [importUrl, setImportUrl] = useState(() => (
+    typeof window === 'undefined' ? null : readImportParam(window.location.search)
+  ));
   const [startPageComplete, setStartPageComplete] = useState(() => {
     if (typeof window === 'undefined') return false;
+    if (readImportParam(window.location.search)) return true;
     const path = new URLSearchParams(window.location.search).get('path');
     return Boolean(path && PATH_TO_TAB[path]);
   });
+  // WEBLINK-17: read once, then take `import` out of the address bar so a
+  // reload, a back-navigation or a shared screenshot can't re-import. Runs
+  // for an invalid value too. Declared before the ?path= writer below, so
+  // that effect sees the cleaned URL.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const cleaned = stripImportParam(window.location.href);
+    if (cleaned) window.history.replaceState(window.history.state, '', cleaned);
+  }, []);
   const [howItWorksInitialOpen, setHowItWorksInitialOpen] = useState(false);
   // R20.1 — lift HowItWorks open state so the Network-tab dropdown can
   // trigger the modal alongside the legacy floating "?" button on other
@@ -192,6 +208,8 @@ export default function App() {
   // Legacy `?path=build` redirects to make. Reverse mapping in PATH_TO_TAB.
   const initialTab = (() => {
     if (typeof window === 'undefined') return 'network';
+    // WEBLINK-17: an import always lands on Make a recipe, whatever ?path= says.
+    if (importUrl) return 'make';
     const path = new URLSearchParams(window.location.search).get('path');
     // Default to 'make' — the network/Model surface is parked (2026-06-23),
     // so the kitchen flow is the home surface. A direct ?path=explore still
@@ -2228,6 +2246,8 @@ export default function App() {
             setCookbookPickerMode={setCookbookPickerMode}
             nodes={data?.graph?.nodes}
             edges={data?.graph?.edges}
+            initialImportUrl={importUrl}
+            onImportConsumed={() => setImportUrl(null)}
           />
         </div>
       )}
