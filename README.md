@@ -227,6 +227,7 @@ use.
 | *Cocktail Codex* (Day, Fauchald, Kaplan, 2018) and *Le Guide Culinaire* (Escoffier, 1903) | Family taxonomies only | Taxonomy used as a classification scheme; no text reproduced. |
 | **Wine Reviews** (zynicide, Kaggle — 129,971 reviews) | Aroma profile per Wine Lab style (`public/data/wine_review_aromas.json`) | Source licence **CC BY-NC-SA 4.0**. We ship only aggregate descriptor shares per style, never review text; that file is adapted material and is itself CC BY-NC-SA 4.0 — non-commercial, share-alike. |
 | Wine Lab styles (`public/data/wine_styles.json`) | Wine structure, aromas, classic matches | Written for this project from general wine-education knowledge. |
+| **Wikipedia** + **Wikimedia Commons** | "About this dish / sauce / drink / wine" stories and photos on the cards (`public/data/dish_stories.json`, built by `scripts/build_dish_stories.mjs`) | Text: 1–2 sentences per article, **CC BY-SA 4.0**, each linked to its article. Photos: only Commons files under CC0, public domain, CC BY or CC BY-SA, credited on the card with artist, licence and file page; hotlinked from upload.wikimedia.org, not stored in this repository. |
 | *The Flavor Bible* (Page & Dornenburg, 2008) | — | **Not used or shipped.** Its pairing list was removed from the app, the live site and this repository's history on 2026-11-07. A private local copy is used only to score the pairing engines offline. |
 
 Software: React, Vite, Three.js, onnxruntime-web, RDKit (BSD-3, via

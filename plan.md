@@ -1612,3 +1612,23 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "STORIES-1",
+  "title": "Dish stories and photos from Wikipedia on recipe, sauce, cocktail and wine cards",
+  "category": "feature",
+  "passes": true,
+  "description": "Cards carry an 'About this dish / sauce / drink / wine' section: the first 1-2 sentences (<=300 chars) of the English Wikipedia article plus its lead photo when the photo is freely licensed on Wikimedia Commons. Build-time only: scripts/build_dish_stories.mjs (polite User-Agent, ~1 req/s, raw responses cached in .cache/dish-stories/, deterministic re-runs) writes public/data/dish_stories.json (271 KB, keyed recipes/sauces/cocktails/wines, _meta with source, licences, date, counts). Matching (src/data/dishStoryMatch.js, pure): overrides (scripts/dish_story_overrides.json: title, null to skip, or {title, photo:false}), then exact title, sentence case, title + qualifier, then opensearch; a page is accepted only if not a disambiguation page, food/drink by description or first sentence (own title excluded; album/film/place/distillery descriptions rejected), and the title plausibly names the item (search hits may be more specific, never less, so riffs do not inherit their parent). Photos: lead image must be a Commons file (enwiki-hosted = skipped) with LicenseShortName CC0 / public domain / CC BY / CC BY-SA and a real artist; thumbnails hotlinked from upload.wikimedia.org (500px bucket). Loader src/data/dishStories.js (lazy, cached, fail-safe, retries after failure) + component src/components/DishStory.jsx (fixed aspect box, loading=lazy, alt 'Photo of x', chalk frame, credit 'Text: Wikipedia (CC BY-SA) · Photo: artist, licence' all linked) mounted in Cookbook RecipeDetail, SauceLab and CocktailLabV2 LabNodeCard children, WineLab card. README data-licence table row added. Report: docs/dish-stories.md.",
+  "acceptance": [
+    "Checks and coverage predictions written before the first fetch in docs/dish-stories.md",
+    "(a) Coverage, predicted -> actual: recipes story 85% -> 95% (79/83), photo 75% -> 94%; sauces 80% -> 94% (72/77), photo 65% -> 86%; cocktails 35% -> 40% (177/439), photo 28% -> 37%; wines 85% -> 98% (52/53), photo 60% -> 77%",
+    "(b) 100% of the 348 shipped photos have a free licence, a recorded artist, a Commons file page and an upload.wikimedia.org URL (test over the JSON)",
+    "(c) No disambiguation or non-food pages: test over title + description + text; by-eye review of every recipe and sauce (title, text, photo on a contact sheet) and of all cocktail and wine titles + photos; 15 wrong matches caught and fixed by rule or override (albums, distillery, Dal makhani, Supreme (cooking), Madeira wine, Shiraz wine, parent-cocktail redirects)",
+    "(d) Component tests: loader (single fetch, fail-safe, retry), section with photo / without photo / no story / failed image, Cookbook popup and sauce LabNodeCard with and without a story",
+    "Unit tests for the matching rules on fixtures, no network (Mole sauce vs animal, Bramble cocktail vs shrub, Gravy (Southern), Velouté, riffs, sentence case, spelling-variant redirects, licences, artist cleaning, sentence trimming)",
+    "Checked at 375px in Chrome (Vite 5297): Paella, Mole Poblano, Butter Croissant, Garlic Bok Choy (no story), Béchamel, Mole Poblano sauce, Negroni, Bramble, Golden Boy (no story), Barolo; images loaded, no overflow, no page errors",
+    "npm run gate green"
+  ]
+}
+```

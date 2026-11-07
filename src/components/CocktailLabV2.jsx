@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import LabNodeCard from './LabNodeCard.jsx';
+import DishStory from './DishStory.jsx';
 import CocktailBrowse from './CocktailBrowse.jsx';
 import {
   loadCodexV2,
@@ -459,6 +460,7 @@ export default function CocktailLabV2({
             onClose={() => setSelectedCocktail(null)}
           >
             {needsSection}
+            <DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />
           </LabNodeCard>
         )}
         {riffPanel}
@@ -514,6 +516,7 @@ export default function CocktailLabV2({
           onClose={() => setSelectedCocktail(null)}
         >
           {needsSection}
+          <DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />
         </LabNodeCard>
       )}
       {barPanels}

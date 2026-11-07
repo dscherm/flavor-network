@@ -19,6 +19,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import WhatDoINeed from './WhatDoINeed.jsx';
+import DishStory from './DishStory.jsx';
 import { needsFromKitchen } from '../data/whatDoINeed.js';
 import { loadKitchen, saveKitchen, addToKitchen, loadAssumeBasics, loadSpiceRack } from '../data/myKitchen.js';
 import { mainsOf, categoryLookup } from '../data/recipeMains.js';
@@ -317,6 +318,9 @@ export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenReci
               )}
             </div>
           )}
+
+          {/* 4b — STORIES-1: background + photo from Wikipedia (seed recipes only) */}
+          <DishStory kind="recipe" storyKey={recipe.id} name={recipe.name} className="!mt-0" />
 
           {/* 5 — goes well with: drawn mini-cards */}
           {hasPairings && pairCards.length > 0 && (
