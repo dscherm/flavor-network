@@ -20,6 +20,7 @@ import { normalizeIngredient } from '../data/normalizeIngredient.js';
 import MyBarPanel from './MyBarPanel.jsx';
 import InventCocktail from './InventCocktail.jsx';
 import { loadBar, saveBar } from '../data/myBar.js';
+import { ChalkLoader } from './chalkArt.jsx';
 
 /**
  * CocktailLabV2 — data-driven taxonomy view.
@@ -422,16 +423,7 @@ export default function CocktailLabV2({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center w-full h-full bg-neural-bg pt-10">
-        <div className="text-center">
-          <div className="relative w-16 h-16 mx-auto mb-4">
-            <div className="absolute inset-0 border-2 border-purple-400/30 rounded-full animate-ping" />
-            <div className="absolute inset-2 border-2 border-purple-400/50 rounded-full animate-spin" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-[30%] bg-purple-400/80 rounded-full animate-pulse" />
-          </div>
-          <p className="text-gray-400 text-sm">Loading Cocktail Lab v2…</p>
-        </div>
-      </div>
+      <ChalkLoader label="Setting up the bar…" color="#f59e0b" />
     );
   }
   if (error) {

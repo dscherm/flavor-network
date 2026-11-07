@@ -11,70 +11,7 @@ import {
   CHALK_RAIL,
   CHALK_SHADOW,
 } from '../data/chalkTheme.js';
-
-// Chalk line-art glyphs for the picker cards (replaces emoji). Stroked in
-// the card's accent color — matches the KitchenIcon / SubgroupGlyph style.
-function MakeGlyph({ kind, color, size = 44 }) {
-  const s = {
-    fill: 'none',
-    stroke: color,
-    strokeWidth: 1.6,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
-  };
-  let inner;
-  switch (kind) {
-    case 'book': // open book
-      inner = (
-        <>
-          <path d="M12 6 C9.5 4.5 6 4.5 4 5.5 L4 18 C6 17 9.5 17 12 18.5" {...s} />
-          <path d="M12 6 C14.5 4.5 18 4.5 20 5.5 L20 18 C18 17 14.5 17 12 18.5" {...s} />
-          <path d="M12 6 L12 18.5" {...s} />
-        </>
-      );
-      break;
-    case 'pencil': // pencil / edit
-      inner = (
-        <>
-          <path d="M5 19 L5 16 L15 6 L18 9 L8 19 Z" {...s} />
-          <path d="M14 7 L17 10" {...s} />
-          <path d="M5 19 L8 19" {...s} />
-        </>
-      );
-      break;
-    case 'camera':
-      inner = (
-        <>
-          <path d="M4 8 L8 8 L9.5 6 L14.5 6 L16 8 L20 8 L20 18 L4 18 Z" {...s} />
-          <circle cx="12" cy="13" r="3.2" {...s} />
-        </>
-      );
-      break;
-    case 'link': // chain link
-      inner = (
-        <>
-          <path d="M9.5 14.5 L14.5 9.5" {...s} />
-          <path d="M8 11 L6 13 a3 3 0 0 0 4.2 4.2 L12 15.5" {...s} />
-          <path d="M16 13 L18 11 a3 3 0 0 0 -4.2 -4.2 L12 8.5" {...s} />
-        </>
-      );
-      break;
-    default:
-      inner = <circle cx="12" cy="12" r="4" {...s} />;
-      break;
-  }
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      style={{ flexShrink: 0 }}
-    >
-      {inner}
-    </svg>
-  );
-}
+import { MakeArt } from './chalkArt.jsx';
 
 // Shared chalk-slate panel style for the inner stages (URL input, parsing,
 // preview, error, photo preview).
@@ -600,14 +537,14 @@ export default function MakeRecipeStart({
             />
             <div className="flex items-center gap-4 pl-2">
               <div
-                className="flex items-center justify-center w-20 h-20 rounded-lg"
+                className="flex items-center justify-center w-24 h-24 rounded-lg flex-shrink-0"
                 style={{
                   background: 'rgba(255,255,255,0.025)',
                   border: '1px solid #6a6a6a55',
                 }}
                 aria-hidden="true"
               >
-                <MakeGlyph kind={c.glyph} color={c.accent} size={44} />
+                <MakeArt kind={c.glyph} accent={c.accent} size={76} />
               </div>
               <div className="flex-1 min-w-0">
                 <div

@@ -50,6 +50,7 @@ const LivingArchView = lazyWithRetry(() => import('./components/LivingArchView.j
 const PairingLab = lazyWithRetry(() => import('./components/PairingLab.jsx'));
 const WineLab = lazyWithRetry(() => import('./components/WineLab.jsx'));
 import CocktailLabV2 from './components/CocktailLabV2.jsx';
+import { ChalkLoader } from './components/chalkArt.jsx';
 import SauceLab from './components/SauceLab.jsx';
 import RecipeLab from './components/RecipeLab.jsx';
 import MobileTabBar from './components/MobileTabBar.jsx';
@@ -2202,7 +2203,7 @@ export default function App() {
 
       {/* Wine Lab — lazy, gated on the tab (no 3D, so no mount latch). */}
       {activeTab === 'wine' && (
-        <Suspense fallback={null}>
+        <Suspense fallback={<ChalkLoader label="Uncorking the wine list…" color="#9f1239" />}>
           <WineLab
             matchesContext={wineMatches}
             onExitMatches={() => setWineMatches(null)}
@@ -2296,7 +2297,7 @@ export default function App() {
           (reintroduced "network mode"). Lazy-mounted; gated on the
           'pairing' tab. */}
       {activeTab === 'pairing' && (
-        <Suspense fallback={null}>
+        <Suspense fallback={<ChalkLoader label="Laying out the pairings…" color="#22d3ee" />}>
           <PairingLab
             ctx={data}
             onFindCocktail={handleFindCocktail}

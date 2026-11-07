@@ -1,5 +1,6 @@
 import AnimatedLogo from './AnimatedLogo.jsx';
 import { hapticMedium } from '../utils/native.js';
+import { ChalkLoader } from './chalkArt.jsx';
 
 /**
  * LandingScreen — permanent landing surface. Top half = animated brand
@@ -194,17 +195,24 @@ export default function LandingScreen({ onModeSelect, isLoading = false, picked 
         <AnimatedLogo className="h-full w-auto max-w-full" />
       </div>
 
-      {/* Tagline directly below the logo */}
-      <p
-        className="text-center text-sm sm:text-xl max-w-xl mt-1 sm:mt-2 mb-2 sm:mb-6 leading-snug flex-shrink-0"
-        style={{
-          color: '#bdb6a3',
-          fontFamily: 'Caveat, cursive',
-          textShadow: '0 0 1px rgba(245,239,222,0.45), 0 0 3px rgba(245,239,222,0.18)',
-        }}
-      >
-        Built on 2.2M recipes, 68,417 pairings, and real molecular chemistry.
-      </p>
+      {/* Tagline directly below the logo; while the data loads, a chalk
+          glass filling up takes its place (DESIGN-1). */}
+      {isLoading ? (
+        <div className="mt-1 sm:mt-2 mb-2 sm:mb-6 flex-shrink-0">
+          <ChalkLoader compact label="Setting the table…" color={TILES.find((t) => t.id === picked)?.accent} />
+        </div>
+      ) : (
+        <p
+          className="text-center text-sm sm:text-xl max-w-xl mt-1 sm:mt-2 mb-2 sm:mb-6 leading-snug flex-shrink-0"
+          style={{
+            color: '#bdb6a3',
+            fontFamily: 'Caveat, cursive',
+            textShadow: '0 0 1px rgba(245,239,222,0.45), 0 0 3px rgba(245,239,222,0.18)',
+          }}
+        >
+          Built on 2.2M recipes, 68,417 pairings, and real molecular chemistry.
+        </p>
+      )}
 
       {/* 3 primary tiles. iOS portrait shows them stacked at compact
           height; sm+ goes to 3-up. flex-1 + min-h-0 lets the grid
