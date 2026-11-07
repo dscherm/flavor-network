@@ -23,7 +23,7 @@ function Harness({ initial = [], ...props }) {
 describe('MyBarPanel', () => {
   it('starts empty, with quick-add chips for common ingredients', () => {
     render(<Harness />);
-    expect(screen.getByText(/your bar is empty/i)).toBeInTheDocument();
+    expect(screen.getByText(/no bottles yet/i)).toBeInTheDocument();
     const quick = screen.getByTestId('my-bar-quick');
     expect(within(quick).getByText('+ sweet vermouth')).toBeInTheDocument();
     expect(screen.queryByTestId('my-bar-make')).toBeNull();
@@ -71,5 +71,40 @@ describe('MyBarPanel', () => {
     fireEvent.click(screen.getByTestId('my-bar-close'));
     expect(onInvent).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
+  });
+});
+
+describe('MyBarPanel — bar is booze, the rest is the shared kitchen', () => {
+  const gimlet = { name: 'Gimlet', ingredients_raw: [ing('2 oz Gin'), ing('3/4 oz Lime juice'), ing('3/4 oz Simple syrup')] };
+  const roles2 = { ...roles, 'lime juice': { role: 'sour' }, 'simple syrup': { role: 'sweet' } };
+  const idx2 = buildPairingIndex([], Object.keys(roles2));
+  function Both({ bar0 = [], kitchen0 = [] }) {
+    const [bar, setBar] = useState(bar0);
+    const [kitchen, setKitchen] = useState(kitchen0);
+    return (
+      <>
+        <MyBarPanel bar={bar} onChange={setBar} kitchen={kitchen} onKitchenChange={setKitchen}
+          cocktails={[gimlet]} roles={roles2} pairingIndex={idx2} />
+        <output data-testid="kitchen-state">{kitchen.join(',')}</output>
+        <output data-testid="bar-state">{bar.join(',')}</output>
+      </>
+    );
+  }
+
+  it('a mixer typed into the bar goes to the kitchen; a bottle stays on the bar', () => {
+    render(<Both />);
+    fireEvent.change(screen.getByTestId('my-bar-input'), { target: { value: 'lime juice' } });
+    fireEvent.click(screen.getByTestId('my-bar-add'));
+    expect(screen.getByTestId('kitchen-state').textContent).toBe('lime juice');
+    expect(screen.getByTestId('my-bar-routed').textContent).toMatch(/to your kitchen/);
+    fireEvent.change(screen.getByTestId('my-bar-input'), { target: { value: 'gin' } });
+    fireEvent.click(screen.getByTestId('my-bar-add'));
+    expect(screen.getByTestId('bar-state').textContent).toBe('gin');
+  });
+
+  it('drinks are checked against bar + kitchen together', () => {
+    render(<Both bar0={['gin']} kitchen0={['lime juice', 'simple syrup']} />);
+    expect(within(screen.getByTestId('my-bar-make')).getByText('Gimlet')).toBeTruthy();
+    expect(screen.getByTestId('my-bar-kitchen').textContent).toContain('lime juice');
   });
 });

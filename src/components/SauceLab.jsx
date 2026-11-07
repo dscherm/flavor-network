@@ -10,7 +10,9 @@ import { ChalkLoader } from './chalkArt.jsx';
 import SaucePairings from './SaucePairings.jsx';
 import SaucePantryPanel from './SaucePantryPanel.jsx';
 import InventSauce from './InventSauce.jsx';
-import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics } from '../data/myKitchen.js';
+import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, addToKitchen } from '../data/myKitchen.js';
+import WhatDoINeed from './WhatDoINeed.jsx';
+import { needsFromKitchen } from '../data/whatDoINeed.js';
 import { buildCategoryMap } from '../data/saucePantry.js';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
 
@@ -63,6 +65,16 @@ export default function SauceLab({
   const updateAssumeBasics = (on) => { setAssumeBasics(on); saveAssumeBasics(on); };
   // Re-read on open: Make a recipe edits the same list.
   const openPanel = (which) => { setKitchen(loadKitchen()); setAssumeBasics(loadAssumeBasics()); setPanel(which); };
+  // "What do I need?" on a sauce card, against the same kitchen list.
+  const sauceNeeds = (sauce) => (
+    <WhatDoINeed
+      title={sauce.name}
+      needs={needsFromKitchen(sauce.ingredientsDetailed?.length ? sauce.ingredientsDetailed : sauce.ingredients, kitchen, { assumeBasics })}
+      stockEmpty={kitchen.length === 0}
+      onHave={(name) => updateKitchen(addToKitchen(kitchen, name, new Set()))}
+      color={familyForSelected?.color}
+    />
+  );
 
   // Apply Build → Lab pre-filter on mount.
   useEffect(() => {
@@ -204,6 +216,7 @@ export default function SauceLab({
             onSelect={(name) => setSelectedSauce(name)}
             onClose={() => setSelectedSauce(null)}
           >
+            {detailSauce && sauceNeeds(detailSauce)}
             {detailSauce && (
               <SaucePairings sauce={detailSauce} color={familyForSelected?.color} onFindWine={onFindWine}
                 categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
@@ -313,6 +326,7 @@ export default function SauceLab({
             onSelect={(name) => setSelectedSauce(name)}
             onClose={closeCard}
           >
+            {s && sauceNeeds(s)}
             {s && (
               <SaucePairings sauce={s} color={familyForSelected?.color} onFindWine={onFindWine}
                 categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />

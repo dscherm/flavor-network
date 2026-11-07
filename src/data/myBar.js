@@ -231,3 +231,37 @@ export function commonBarIngredients(cocktails, roles, names, n = 20) {
 export function barKeyLists(cocktails, roles, names) {
   return (cocktails || []).map((c) => countedLines(c, roles, names).map((l) => l.key));
 }
+
+// ── Bar = booze only; everything else lives in the shared kitchen ──────────
+// (owner, 2026-11-07: "link the pantry and bartending pantries so there's no
+// need for overlap. just keep the bar one for booze"). Mixers, citrus,
+// syrups, eggs, herbs come from myKitchen.js; cocktail coverage looks at
+// both lists together (stockFor).
+const BOOZE_ROLES = new Set(['spirit', 'amaro_liqueur', 'vermouth', 'bitter']);
+const BOOZE_WORDS = /\b(wine|champagne|prosecco|cava|cr[eé]mant|sparkling|beer|ale|lager|stout|cider|sake|soju|port|sherry|madeira|marsala|liqueur|schnapps|brandy|cognac|vermouth|bitters|amaro|aperol|campari|chartreuse|absinthe|baileys|irish cream|kahlua|mezcal|tequila|whiske?y|bourbon|rye|scotch|rum|gin|vodka|pisco|cacha[cç]a|grappa|lillet|sloe gin)\b/;
+const NOT_BOOZE = /\b(cherr(y|ies)|juice|syrup|peel|twist|soda|water|tonic|cola|ginger ale|ginger beer|vinegar|extract|salt|sugar|egg)\b/;
+
+/** Is this bar key alcohol (a bottle for the bar shelf)? */
+export function isBooze(key, roles = {}) {
+  const k = String(key || '').toLowerCase();
+  if (!k) return false;
+  if (/\b(liqueur|brandy|schnapps)\b/.test(k)) return true; // cherry brandy, cherry liqueur
+  if (NOT_BOOZE.test(k)) return false;
+  return BOOZE_ROLES.has(roleOf(k, roles)) || BOOZE_WORDS.test(k);
+}
+
+/**
+ * Split a stored bar into booze (stays) and everything else (moves to the
+ * kitchen). Used once on load to tidy bars saved before the split.
+ */
+export function splitBar(bar, roles = {}) {
+  const keep = [];
+  const move = [];
+  for (const k of bar || []) (isBooze(k, roles) ? keep : move).push(k);
+  return { bar: keep, moved: move };
+}
+
+/** Bar + kitchen as one stock list for cocktail coverage. */
+export function stockFor(bar, kitchen) {
+  return [...new Set([...(bar || []), ...(kitchen || [])])];
+}

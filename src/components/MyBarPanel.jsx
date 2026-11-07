@@ -9,7 +9,8 @@
  * the parent (localStorage `fn-my-bar`).
  */
 import { useMemo, useState } from 'react';
-import { whatCanIMake, commonBarIngredients, barKeyLists, addToBar, removeFromBar, substitutionText } from '../data/myBar.js';
+import { whatCanIMake, commonBarIngredients, barKeyLists, addToBar, removeFromBar, substitutionText, barKey, isBooze, stockFor } from '../data/myBar.js';
+import { addToKitchen, removeFromKitchen } from '../data/myKitchen.js';
 import { buildIngredientVocab } from '../data/ingredientSearch.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { DrinkGlass } from './cocktailGlasses.jsx';
@@ -20,6 +21,10 @@ const ONE_AWAY_SHOWN = 30;
 export default function MyBarPanel({
   bar = [],
   onChange,
+  // The shared kitchen (myKitchen.js): mixers, citrus, syrups, eggs, herbs.
+  // The bar holds booze only; cocktails are checked against both.
+  kitchen = [],
+  onKitchenChange,
   cocktails = [],
   families = [],
   roles = {},
@@ -34,14 +39,32 @@ export default function MyBarPanel({
 
   const vocab = useMemo(() => buildIngredientVocab(barKeyLists(cocktails, roles, names)), [cocktails, roles, names]);
   const common = useMemo(() => commonBarIngredients(cocktails, roles, names, 20), [cocktails, roles, names]);
+  const stock = useMemo(() => stockFor(bar, kitchen), [bar, kitchen]);
   const result = useMemo(
-    () => whatCanIMake(cocktails, bar, { roles, names, pairingIndex }),
-    [cocktails, bar, roles, names, pairingIndex],
+    () => whatCanIMake(cocktails, stock, { roles, names, pairingIndex }),
+    [cocktails, stock, roles, names, pairingIndex],
   );
+  // Kitchen items a cocktail could use (shown as their own shared group).
+  const cocktailWords = useMemo(() => new Set(vocab), [vocab]);
+  const kitchenForDrinks = useMemo(
+    () => kitchen.filter((k) => cocktailWords.has(k) && !isBooze(k, roles)),
+    [kitchen, cocktailWords, roles],
+  );
+  const [routed, setRouted] = useState('');
 
+  // Booze goes on the bar shelf; anything else goes to the shared kitchen.
   const add = (raw) => {
-    const next = addToBar(bar, raw, names);
-    if (next !== bar) onChange?.(next);
+    const key = barKey(raw, names);
+    if (!key) return;
+    if (isBooze(key, roles) || !onKitchenChange) {
+      const next = addToBar(bar, raw, names);
+      if (next !== bar) onChange?.(next);
+      setRouted('');
+    } else {
+      const next = addToKitchen(kitchen, key, names);
+      if (next !== kitchen) onKitchenChange(next);
+      setRouted(key);
+    }
   };
   const submit = (e) => {
     e.preventDefault();
@@ -71,13 +94,13 @@ export default function MyBarPanel({
       <div className="w-full max-w-[560px] rounded-2xl px-4 py-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
         <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>My bar</h2>
         <p className="text-center text-[13px] mb-3" style={{ fontFamily: SANS, color: CHALK_SUB }}>
-          What you have on the shelf. Kept on this device only.
+          Your bottles. Mixers, citrus, syrups and eggs come from your kitchen, shared with the Recipe and Sauce Labs. Kept on this device only.
         </p>
 
         <form onSubmit={submit} className="flex gap-2">
           <input
             type="search" value={text} onChange={(e) => setText(e.target.value)}
-            placeholder="Add a bottle or ingredient — e.g. rye"
+            placeholder="Add a bottle — e.g. rye"
             aria-label="Add an ingredient to my bar" list="my-bar-vocab" data-testid="my-bar-input"
             className="flex-1 min-w-0 px-2.5 py-2 rounded-md focus:outline-none text-[17px]"
             style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
@@ -88,7 +111,7 @@ export default function MyBarPanel({
 
         <ul className="mt-3 flex flex-wrap gap-1.5" data-testid="my-bar-items" aria-label="In my bar">
           {bar.length === 0 && (
-            <li className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>Your bar is empty — add what you have, or tap the common ones below.</li>
+            <li className="text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>No bottles yet — add what you have, or tap the common ones below.</li>
           )}
           {bar.map((k) => (
             <li key={k}>
@@ -100,11 +123,33 @@ export default function MyBarPanel({
           ))}
         </ul>
 
-        {common.some((k) => !bar.includes(k)) && (
+        {routed && (
+          <p className="mt-2 text-[13px]" role="status" data-testid="my-bar-routed" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+            Added {routed} to your kitchen (not a bottle).
+          </p>
+        )}
+
+        {kitchenForDrinks.length > 0 && (
+          <div className="mt-3" data-testid="my-bar-kitchen">
+            <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>From your kitchen</p>
+            <ul className="flex flex-wrap gap-1.5" aria-label="From your kitchen">
+              {kitchenForDrinks.map((k) => (
+                <li key={k}>
+                  <button type="button" onClick={() => onKitchenChange?.(removeFromKitchen(kitchen, k))} aria-label={`Remove ${k} from your kitchen`}
+                    className="px-3 py-1 rounded-full border min-h-[36px] text-[16px]" style={{ ...pill, borderStyle: 'dotted', color: CHALK_DIM }}>
+                    {k} <span aria-hidden="true" style={{ color: CHALK_SUB }}>×</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {common.some((k) => !stock.includes(k)) && (
           <div className="mt-3">
             <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Quick add — most used in cocktails</p>
             <div className="flex flex-wrap gap-1.5" data-testid="my-bar-quick">
-              {common.filter((k) => !bar.includes(k)).map((k) => (
+              {common.filter((k) => !stock.includes(k)).map((k) => (
                 <button key={k} type="button" onClick={() => add(k)}
                   className="px-2.5 py-1 rounded-full border min-h-[36px] text-[15px]" style={{ ...pill, borderStyle: 'dashed', color: CHALK_DIM }}>
                   + {k}
@@ -114,7 +159,7 @@ export default function MyBarPanel({
           </div>
         )}
 
-        {bar.length > 0 && (
+        {stock.length > 0 && (
           <>
             <section className="mt-5" data-testid="my-bar-make">
               <h3 className="text-[24px]" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>You can make ({result.make.length})</h3>

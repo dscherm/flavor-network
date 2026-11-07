@@ -18,6 +18,9 @@
  * pre-selects filters on mount.
  */
 import { useEffect, useMemo, useState } from 'react';
+import WhatDoINeed from './WhatDoINeed.jsx';
+import { needsFromKitchen } from '../data/whatDoINeed.js';
+import { loadKitchen, saveKitchen, addToKitchen, loadAssumeBasics } from '../data/myKitchen.js';
 import ProfileAxisRadar from './ProfileAxisRadar.jsx';
 import { DishArt, IngredientGlyph, LabArt } from './chalkArt.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
@@ -140,6 +143,15 @@ export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenReci
   const kind = dishTypeOf(recipe);
   const nodes = ctx?.graph?.nodes;
   const details = getRecipeDetails(recipe.id);
+  // "What do I need?" against the shared kitchen (Recipe / Sauce Labs).
+  const [kitchen, setKitchen] = useState(() => loadKitchen());
+  const needs = needsFromKitchen(recipe.ingredients, kitchen, {
+    assumeBasics: loadAssumeBasics(), names: nodes ? new Set(nodes.keys()) : null, amounts: details?.amounts || {},
+  });
+  const haveIt = (name) => {
+    const next = addToKitchen(kitchen, name, nodes ? new Set(nodes.keys()) : new Set());
+    setKitchen(next); saveKitchen(next);
+  };
   const [methodOpen, setMethodOpen] = useState(false);
   const [axis, setAxis] = useState('taste');
   // Match recipe ingredient strings to actual nodes in the ingredient
@@ -268,6 +280,9 @@ export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenReci
               ))}
             </ul>
           </div>
+
+          {/* 3b — what to buy, from the shared kitchen */}
+          <WhatDoINeed title={recipe.name} needs={needs} stockEmpty={kitchen.length === 0} onHave={haveIt} color={color} />
 
           {/* 4 — method, folded */}
           {steps.length > 0 && (

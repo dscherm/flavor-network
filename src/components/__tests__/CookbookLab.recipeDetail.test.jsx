@@ -29,7 +29,7 @@ describe('Cookbook recipe popup — cookable details', () => {
     const dialog = openBolognese();
     const d = RECIPE_DETAILS['beef-bolognese'];
     expect(within(dialog).getByTestId('recipe-meta')).toHaveTextContent(`Serves ${d.serves}`);
-    expect(within(dialog).getByText(d.amounts['red wine'])).toBeInTheDocument();
+    expect(within(within(dialog).getByTestId('recipe-ingredients')).getByText(d.amounts['red wine'])).toBeInTheDocument();
     const method = within(dialog).getByTestId('recipe-method');
     // DESIGN-3: the method sits behind a "Method (N steps)" fold.
     fireEvent.click(within(method).getByRole('button', { name: `Method (${d.steps.length} steps)` }));

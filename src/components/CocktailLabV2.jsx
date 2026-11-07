@@ -19,7 +19,10 @@ import { suggestAmounts } from '../data/cocktailAmounts.js';
 import { normalizeIngredient } from '../data/normalizeIngredient.js';
 import MyBarPanel from './MyBarPanel.jsx';
 import InventCocktail from './InventCocktail.jsx';
-import { loadBar, saveBar } from '../data/myBar.js';
+import { loadBar, saveBar, splitBar, stockFor, coverCocktail, countedLines, barKey, isBooze, addToBar } from '../data/myBar.js';
+import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
+import WhatDoINeed from './WhatDoINeed.jsx';
+import { needsFromBarCoverage } from '../data/whatDoINeed.js';
 import { ChalkLoader } from './chalkArt.jsx';
 
 /**
@@ -65,7 +68,23 @@ export default function CocktailLabV2({
   // My bar (per device, localStorage) + the My bar / Invent panels.
   const [bar, setBar] = useState(() => loadBar());
   const updateBar = (next) => { setBar(next); saveBar(next); };
-  const [barPanel, setBarPanel] = useState(null); // null | 'bar' | 'invent'
+  // The shared kitchen (Recipe / Sauce Labs): mixers, citrus, syrups, eggs.
+  // The bar is booze only; cocktails are checked against both.
+  const [kitchen, setKitchen] = useState(() => loadKitchen());
+  const updateKitchen = (next) => { setKitchen(next); saveKitchen(next); };
+  const stock = useMemo(() => stockFor(bar, kitchen), [bar, kitchen]);
+  const [barPanel, setBarPanelRaw] = useState(null); // null | 'bar' | 'invent'
+  // Re-read the kitchen when a panel opens: the other labs may have changed it.
+  const setBarPanel = (p) => { if (p) setKitchen(loadKitchen()); setBarPanelRaw(p); };
+  // One-time tidy-up of bars saved before the split: non-booze moves to the kitchen.
+  useEffect(() => {
+    if (!cocktailRoles) return;
+    const { bar: booze, moved } = splitBar(bar, cocktailRoles);
+    if (!moved.length) return;
+    updateBar(booze);
+    updateKitchen([...new Set([...loadKitchen(), ...moved])]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cocktailRoles]);
   // An invented drink opened in the riff panel (a codex-shaped cocktail).
   const [riffDrink, setRiffDrink] = useState(null);
   const [filterFamily, setFilterFamily] = useState(null);
@@ -240,6 +259,8 @@ export default function CocktailLabV2({
     <MyBarPanel
       bar={bar}
       onChange={updateBar}
+      kitchen={kitchen}
+      onKitchenChange={updateKitchen}
       cocktails={graph.cocktails}
       families={graph.families}
       roles={cocktailRoles || {}}
@@ -250,7 +271,7 @@ export default function CocktailLabV2({
     />
   ) : graph && barPanel === 'invent' ? (
     <InventCocktail
-      bar={bar}
+      bar={stock}
       cocktails={graph.cocktails}
       families={graph.families}
       roles={cocktailRoles || {}}
@@ -271,6 +292,27 @@ export default function CocktailLabV2({
     loadFacetContext(import.meta.env.BASE_URL).then((ctx) => { if (!cancelled) setFacetCtx(ctx); });
     return () => { cancelled = true; };
   }, []);
+  // "What do I need?" for the open drink: the bar (booze) + the kitchen.
+  const cardNeeds = useMemo(() => {
+    if (!selectedCocktail || !graph?.cocktails || !cocktailRoles) return null;
+    const c = graph.cocktails.find((x) => x.name === selectedCocktail);
+    if (!c) return null;
+    const names = riffIndex?.names || new Set();
+    const cov = coverCocktail(c, stock, { roles: cocktailRoles, names, pairingIndex: riffIndex });
+    return needsFromBarCoverage(cov, countedLines(c, cocktailRoles, names));
+  }, [selectedCocktail, graph, cocktailRoles, riffIndex, stock]);
+  const haveForDrink = (raw) => {
+    const names = riffIndex?.names || new Set();
+    const key = barKey(raw, names);
+    if (!key) return;
+    if (isBooze(key, cocktailRoles || {})) updateBar(addToBar(bar, raw, names));
+    else updateKitchen(addToKitchen(kitchen, key, names));
+  };
+  const needsSection = cardNeeds ? (
+    <WhatDoINeed title={selectedNode?.name || selectedCocktail} needs={cardNeeds} stockEmpty={stock.length === 0}
+      stockLabel="bar and kitchen" onHave={haveForDrink} color={familyForSelected?.color} />
+  ) : null;
+
   const cardIngredients = useMemo(() => {
     if (!selectedNode) return { items: [], anySuggested: false };
     const slotOf = (n) => facetCtx?.slotOf?.(n) || guessSlot(n);
@@ -415,7 +457,9 @@ export default function CocktailLabV2({
             bridges={crossFamilyCousins}
             onSelect={(name) => setSelectedCocktail(name)}
             onClose={() => setSelectedCocktail(null)}
-          />
+          >
+            {needsSection}
+          </LabNodeCard>
         )}
         {riffPanel}
       </div>
@@ -468,7 +512,9 @@ export default function CocktailLabV2({
           bridges={crossFamilyCousins}
           onSelect={(name) => setSelectedCocktail(name)}
           onClose={() => setSelectedCocktail(null)}
-        />
+        >
+          {needsSection}
+        </LabNodeCard>
       )}
       {barPanels}
       {riffPanel}
