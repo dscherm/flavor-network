@@ -225,6 +225,9 @@ use.
 | **FART / FartDB** (github.com/fart-lab/fart) | 14.5 k taste-labelled compounds, incl. pKa-derived sour labels | See that repository's license. |
 | **PubChem** (NCBI) | Canonical SMILES | Public domain. |
 | *Cocktail Codex* (Day, Fauchald, Kaplan, 2018) and *Le Guide Culinaire* (Escoffier, 1903) | Family taxonomies only | Taxonomy used as a classification scheme; no text reproduced. |
+| **Wine Reviews** (zynicide, Kaggle — 129,971 reviews) | Aroma profile per Wine Lab style (`public/data/wine_review_aromas.json`) | Source licence **CC BY-NC-SA 4.0**. We ship only aggregate descriptor shares per style, never review text; that file is adapted material and is itself CC BY-NC-SA 4.0 — non-commercial, share-alike. |
+| Wine Lab styles (`public/data/wine_styles.json`) | Wine structure, aromas, classic matches | Written for this project from general wine-education knowledge. |
+| *The Flavor Bible* (Page & Dornenburg, 2008) | — | **Not used or shipped.** Its pairing list was removed from the app, the live site and this repository's history on 2026-11-07. A private local copy is used only to score the pairing engines offline. |
 
 Software: React, Vite, Three.js, onnxruntime-web, RDKit (BSD-3, via
 WebAssembly), PyTorch + PyTorch Geometric, Firebase.

@@ -1343,3 +1343,14 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "WINE-7",
+  "title": "Wine aroma profiles from 130k wine reviews (CC BY-NC-SA)",
+  "category": "data",
+  "passes": true,
+  "description": "scripts/build_wine_review_aromas.py maps each of the 53 Wine Lab styles to reviews in the Kaggle 'Wine Reviews' set (variety + country/province/region/title selectors) and counts how often each of 18 aroma families and their terms appear; ships only aggregate shares + lift per style in public/data/wine_review_aromas.json (CC BY-NC-SA 4.0, attributed; README updated). 52/53 styles profiled (Madeira: 11 reviews, below the 15 minimum). 74% of the hand-written aroma tags are confirmed by the reviews' top-5 families; the unconfirmed ones are listed by --compare. Card display waits for WINE-6.",
+  "acceptance": ["No review text shipped; licence and attribution in the file and README", "--compare agreement reported"]
+}
+```

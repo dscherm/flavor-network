@@ -1,0 +1,7381 @@
+{
+ "_meta": {
+  "source": "Wine Reviews (zynicide, Kaggle; winemag-data-130k-v2.csv, 129,971 reviews) — https://www.kaggle.com/datasets/zynicide/wine-reviews",
+  "license": "CC BY-NC-SA 4.0 (adapted material: aggregate descriptor shares only; no review text). Non-commercial use only; share alike.",
+  "built_by": "scripts/build_wine_review_aromas.py",
+  "share": "fraction of the style's reviews that mention the family/term; lift = share / share across all reviews",
+  "total_reviews": 129971
+ },
+ "styles": {
+  "champagne": {
+   "reviews": 1243,
+   "families": [
+    {
+     "family": "orchard fruit",
+     "share": 0.35,
+     "lift": 2.42
+    },
+    {
+     "family": "citrus",
+     "share": 0.327,
+     "lift": 1.65
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.247,
+     "lift": 0.84
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.187,
+     "lift": 2.36
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.183,
+     "lift": 1.66
+    },
+    {
+     "family": "red fruit",
+     "share": 0.169,
+     "lift": 0.5
+    },
+    {
+     "family": "nutty",
+     "share": 0.068,
+     "lift": 1.71
+    },
+    {
+     "family": "spice",
+     "share": 0.064,
+     "lift": 0.24
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.055,
+     "lift": 0.49
+    },
+    {
+     "family": "black fruit",
+     "share": 0.035,
+     "lift": 0.12
+    },
+    {
+     "family": "floral",
+     "share": 0.03,
+     "lift": 0.24
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.019,
+     "lift": 0.22
+    },
+    {
+     "family": "earthy",
+     "share": 0.017,
+     "lift": 0.1
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.014,
+     "lift": 0.21
+    },
+    {
+     "family": "melon",
+     "share": 0.011,
+     "lift": 0.32
+    },
+    {
+     "family": "herbal",
+     "share": 0.01,
+     "lift": 0.06
+    },
+    {
+     "family": "pepper",
+     "share": 0.002,
+     "lift": 0.02
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.002,
+     "lift": 0.01
+    }
+   ],
+   "terms": [
+    {
+     "term": "apple",
+     "share": 0.245
+    },
+    {
+     "term": "citrus",
+     "share": 0.172
+    },
+    {
+     "term": "toast",
+     "share": 0.146
+    },
+    {
+     "term": "mineral",
+     "share": 0.127
+    },
+    {
+     "term": "creamy",
+     "share": 0.106
+    },
+    {
+     "term": "toasty",
+     "share": 0.089
+    },
+    {
+     "term": "pear",
+     "share": 0.08
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.06
+    },
+    {
+     "term": "lemon",
+     "share": 0.054
+    },
+    {
+     "term": "minerality",
+     "share": 0.053
+    }
+   ]
+  },
+  "prosecco": {
+   "reviews": 945,
+   "families": [
+    {
+     "family": "stone fruit",
+     "share": 0.632,
+     "lift": 5.66
+    },
+    {
+     "family": "floral",
+     "share": 0.545,
+     "lift": 4.31
+    },
+    {
+     "family": "citrus",
+     "share": 0.544,
+     "lift": 2.74
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.418,
+     "lift": 2.89
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.27,
+     "lift": 3.42
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.154,
+     "lift": 1.4
+    },
+    {
+     "family": "herbal",
+     "share": 0.147,
+     "lift": 0.86
+    },
+    {
+     "family": "nutty",
+     "share": 0.124,
+     "lift": 3.1
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.114,
+     "lift": 1.3
+    },
+    {
+     "family": "melon",
+     "share": 0.068,
+     "lift": 1.92
+    },
+    {
+     "family": "spice",
+     "share": 0.054,
+     "lift": 0.2
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.038,
+     "lift": 0.54
+    },
+    {
+     "family": "pepper",
+     "share": 0.032,
+     "lift": 0.34
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.025,
+     "lift": 0.09
+    },
+    {
+     "family": "earthy",
+     "share": 0.013,
+     "lift": 0.08
+    },
+    {
+     "family": "red fruit",
+     "share": 0.002,
+     "lift": 0.01
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.001,
+     "lift": 0.01
+    },
+    {
+     "family": "black fruit",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "peach",
+     "share": 0.467
+    },
+    {
+     "term": "citrus",
+     "share": 0.34
+    },
+    {
+     "term": "creamy",
+     "share": 0.237
+    },
+    {
+     "term": "flower",
+     "share": 0.237
+    },
+    {
+     "term": "pear",
+     "share": 0.233
+    },
+    {
+     "term": "apple",
+     "share": 0.203
+    },
+    {
+     "term": "stone fruit",
+     "share": 0.182
+    },
+    {
+     "term": "green apple",
+     "share": 0.166
+    },
+    {
+     "term": "mineral",
+     "share": 0.139
+    },
+    {
+     "term": "lemon",
+     "share": 0.122
+    },
+    {
+     "term": "almond",
+     "share": 0.108
+    },
+    {
+     "term": "honey",
+     "share": 0.101
+    }
+   ]
+  },
+  "cava": {
+   "reviews": 497,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.573,
+     "lift": 2.89
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.535,
+     "lift": 3.7
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.33,
+     "lift": 4.18
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.241,
+     "lift": 2.19
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.221,
+     "lift": 1.98
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.211,
+     "lift": 0.72
+    },
+    {
+     "family": "herbal",
+     "share": 0.189,
+     "lift": 1.1
+    },
+    {
+     "family": "melon",
+     "share": 0.145,
+     "lift": 4.1
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.141,
+     "lift": 2.0
+    },
+    {
+     "family": "earthy",
+     "share": 0.141,
+     "lift": 0.86
+    },
+    {
+     "family": "spice",
+     "share": 0.109,
+     "lift": 0.4
+    },
+    {
+     "family": "red fruit",
+     "share": 0.101,
+     "lift": 0.3
+    },
+    {
+     "family": "pepper",
+     "share": 0.076,
+     "lift": 0.83
+    },
+    {
+     "family": "black fruit",
+     "share": 0.05,
+     "lift": 0.17
+    },
+    {
+     "family": "floral",
+     "share": 0.03,
+     "lift": 0.24
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.026,
+     "lift": 0.3
+    },
+    {
+     "family": "nutty",
+     "share": 0.024,
+     "lift": 0.6
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.014,
+     "lift": 0.11
+    }
+   ],
+   "terms": [
+    {
+     "term": "apple",
+     "share": 0.499
+    },
+    {
+     "term": "citrus",
+     "share": 0.3
+    },
+    {
+     "term": "lime",
+     "share": 0.26
+    },
+    {
+     "term": "yeasty",
+     "share": 0.229
+    },
+    {
+     "term": "briny",
+     "share": 0.171
+    },
+    {
+     "term": "nectarine",
+     "share": 0.133
+    },
+    {
+     "term": "melon",
+     "share": 0.127
+    },
+    {
+     "term": "lemon",
+     "share": 0.111
+    },
+    {
+     "term": "peach",
+     "share": 0.103
+    },
+    {
+     "term": "dusty",
+     "share": 0.103
+    },
+    {
+     "term": "vanilla",
+     "share": 0.082
+    },
+    {
+     "term": "spice",
+     "share": 0.078
+    }
+   ]
+  },
+  "sparkling-rose": {
+   "reviews": 858,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.61,
+     "lift": 1.81
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.258,
+     "lift": 3.26
+    },
+    {
+     "family": "citrus",
+     "share": 0.227,
+     "lift": 1.15
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.164,
+     "lift": 0.56
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.133,
+     "lift": 0.92
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.114,
+     "lift": 1.02
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.094,
+     "lift": 0.86
+    },
+    {
+     "family": "spice",
+     "share": 0.083,
+     "lift": 0.31
+    },
+    {
+     "family": "floral",
+     "share": 0.08,
+     "lift": 0.64
+    },
+    {
+     "family": "nutty",
+     "share": 0.062,
+     "lift": 1.55
+    },
+    {
+     "family": "earthy",
+     "share": 0.045,
+     "lift": 0.28
+    },
+    {
+     "family": "black fruit",
+     "share": 0.042,
+     "lift": 0.14
+    },
+    {
+     "family": "herbal",
+     "share": 0.042,
+     "lift": 0.24
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.035,
+     "lift": 0.4
+    },
+    {
+     "family": "melon",
+     "share": 0.027,
+     "lift": 0.76
+    },
+    {
+     "family": "pepper",
+     "share": 0.019,
+     "lift": 0.2
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.01,
+     "lift": 0.08
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.008,
+     "lift": 0.12
+    }
+   ],
+   "terms": [
+    {
+     "term": "strawberry",
+     "share": 0.217
+    },
+    {
+     "term": "raspberry",
+     "share": 0.169
+    },
+    {
+     "term": "creamy",
+     "share": 0.113
+    },
+    {
+     "term": "apple",
+     "share": 0.113
+    },
+    {
+     "term": "cherry",
+     "share": 0.107
+    },
+    {
+     "term": "citrus",
+     "share": 0.103
+    },
+    {
+     "term": "peach",
+     "share": 0.075
+    },
+    {
+     "term": "yeasty",
+     "share": 0.07
+    },
+    {
+     "term": "toast",
+     "share": 0.063
+    },
+    {
+     "term": "red berry",
+     "share": 0.062
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.051
+    },
+    {
+     "term": "red currant",
+     "share": 0.05
+    }
+   ]
+  },
+  "lambrusco": {
+   "reviews": 50,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.74,
+     "lift": 2.2
+    },
+    {
+     "family": "black fruit",
+     "share": 0.54,
+     "lift": 1.79
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.2,
+     "lift": 2.53
+    },
+    {
+     "family": "floral",
+     "share": 0.16,
+     "lift": 1.26
+    },
+    {
+     "family": "spice",
+     "share": 0.12,
+     "lift": 0.44
+    },
+    {
+     "family": "earthy",
+     "share": 0.1,
+     "lift": 0.61
+    },
+    {
+     "family": "nutty",
+     "share": 0.08,
+     "lift": 2.0
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.06,
+     "lift": 0.54
+    },
+    {
+     "family": "citrus",
+     "share": 0.04,
+     "lift": 0.2
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.04,
+     "lift": 0.28
+    },
+    {
+     "family": "herbal",
+     "share": 0.04,
+     "lift": 0.23
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.04,
+     "lift": 0.31
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.02,
+     "lift": 0.28
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.02,
+     "lift": 0.07
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.02,
+     "lift": 0.23
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.02,
+     "lift": 0.18
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "pepper",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.44
+    },
+    {
+     "term": "blackberry",
+     "share": 0.26
+    },
+    {
+     "term": "raspberry",
+     "share": 0.24
+    },
+    {
+     "term": "strawberry",
+     "share": 0.22
+    },
+    {
+     "term": "red berry",
+     "share": 0.16
+    },
+    {
+     "term": "blueberry",
+     "share": 0.12
+    },
+    {
+     "term": "black cherry",
+     "share": 0.1
+    },
+    {
+     "term": "creamy",
+     "share": 0.1
+    },
+    {
+     "term": "butter",
+     "share": 0.08
+    },
+    {
+     "term": "almond",
+     "share": 0.08
+    },
+    {
+     "term": "violet",
+     "share": 0.06
+    },
+    {
+     "term": "plum",
+     "share": 0.06
+    }
+   ]
+  },
+  "sancerre": {
+   "reviews": 708,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.483,
+     "lift": 2.43
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.388,
+     "lift": 3.52
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.27,
+     "lift": 1.86
+    },
+    {
+     "family": "herbal",
+     "share": 0.194,
+     "lift": 1.13
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.119,
+     "lift": 1.68
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.11,
+     "lift": 0.99
+    },
+    {
+     "family": "spice",
+     "share": 0.086,
+     "lift": 0.32
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.073,
+     "lift": 0.25
+    },
+    {
+     "family": "black fruit",
+     "share": 0.056,
+     "lift": 0.19
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.038,
+     "lift": 0.48
+    },
+    {
+     "family": "floral",
+     "share": 0.032,
+     "lift": 0.26
+    },
+    {
+     "family": "melon",
+     "share": 0.023,
+     "lift": 0.64
+    },
+    {
+     "family": "pepper",
+     "share": 0.018,
+     "lift": 0.2
+    },
+    {
+     "family": "nutty",
+     "share": 0.016,
+     "lift": 0.39
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.014,
+     "lift": 0.16
+    },
+    {
+     "family": "earthy",
+     "share": 0.011,
+     "lift": 0.07
+    },
+    {
+     "family": "red fruit",
+     "share": 0.003,
+     "lift": 0.01
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "citrus",
+     "share": 0.264
+    },
+    {
+     "term": "mineral",
+     "share": 0.22
+    },
+    {
+     "term": "apple",
+     "share": 0.157
+    },
+    {
+     "term": "herbal",
+     "share": 0.151
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.12
+    },
+    {
+     "term": "minerality",
+     "share": 0.102
+    },
+    {
+     "term": "lemon",
+     "share": 0.089
+    },
+    {
+     "term": "pear",
+     "share": 0.089
+    },
+    {
+     "term": "tropical",
+     "share": 0.076
+    },
+    {
+     "term": "spice",
+     "share": 0.065
+    },
+    {
+     "term": "lime",
+     "share": 0.058
+    },
+    {
+     "term": "apricot",
+     "share": 0.054
+    }
+   ]
+  },
+  "nz-sauvignon": {
+   "reviews": 547,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.6,
+     "lift": 3.02
+    },
+    {
+     "family": "herbal",
+     "share": 0.477,
+     "lift": 2.78
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.364,
+     "lift": 5.16
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.252,
+     "lift": 2.26
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.199,
+     "lift": 1.81
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.177,
+     "lift": 2.02
+    },
+    {
+     "family": "melon",
+     "share": 0.166,
+     "lift": 4.71
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.069,
+     "lift": 0.24
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.062,
+     "lift": 0.79
+    },
+    {
+     "family": "spice",
+     "share": 0.046,
+     "lift": 0.17
+    },
+    {
+     "family": "pepper",
+     "share": 0.046,
+     "lift": 0.5
+    },
+    {
+     "family": "floral",
+     "share": 0.022,
+     "lift": 0.17
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.015,
+     "lift": 0.1
+    },
+    {
+     "family": "earthy",
+     "share": 0.015,
+     "lift": 0.09
+    },
+    {
+     "family": "nutty",
+     "share": 0.011,
+     "lift": 0.27
+    },
+    {
+     "family": "red fruit",
+     "share": 0.009,
+     "lift": 0.03
+    },
+    {
+     "family": "black fruit",
+     "share": 0.007,
+     "lift": 0.02
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.004,
+     "lift": 0.03
+    }
+   ],
+   "terms": [
+    {
+     "term": "grapefruit",
+     "share": 0.36
+    },
+    {
+     "term": "citrus",
+     "share": 0.221
+    },
+    {
+     "term": "herbal",
+     "share": 0.214
+    },
+    {
+     "term": "passion fruit",
+     "share": 0.188
+    },
+    {
+     "term": "melon",
+     "share": 0.165
+    },
+    {
+     "term": "nectarine",
+     "share": 0.139
+    },
+    {
+     "term": "pineapple",
+     "share": 0.137
+    },
+    {
+     "term": "grassy",
+     "share": 0.115
+    },
+    {
+     "term": "fig",
+     "share": 0.113
+    },
+    {
+     "term": "tropical",
+     "share": 0.11
+    },
+    {
+     "term": "stone fruit",
+     "share": 0.099
+    },
+    {
+     "term": "flint",
+     "share": 0.088
+    }
+   ]
+  },
+  "pinot-grigio": {
+   "reviews": 605,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.58,
+     "lift": 2.92
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.507,
+     "lift": 4.55
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.499,
+     "lift": 3.45
+    },
+    {
+     "family": "floral",
+     "share": 0.337,
+     "lift": 2.66
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.208,
+     "lift": 1.89
+    },
+    {
+     "family": "nutty",
+     "share": 0.185,
+     "lift": 4.64
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.17,
+     "lift": 2.16
+    },
+    {
+     "family": "melon",
+     "share": 0.136,
+     "lift": 3.84
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.122,
+     "lift": 1.39
+    },
+    {
+     "family": "herbal",
+     "share": 0.119,
+     "lift": 0.69
+    },
+    {
+     "family": "spice",
+     "share": 0.114,
+     "lift": 0.42
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.109,
+     "lift": 0.37
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.089,
+     "lift": 1.27
+    },
+    {
+     "family": "pepper",
+     "share": 0.015,
+     "lift": 0.16
+    },
+    {
+     "family": "red fruit",
+     "share": 0.013,
+     "lift": 0.04
+    },
+    {
+     "family": "earthy",
+     "share": 0.008,
+     "lift": 0.05
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.002,
+     "lift": 0.01
+    },
+    {
+     "family": "black fruit",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "citrus",
+     "share": 0.345
+    },
+    {
+     "term": "peach",
+     "share": 0.314
+    },
+    {
+     "term": "pear",
+     "share": 0.306
+    },
+    {
+     "term": "apple",
+     "share": 0.245
+    },
+    {
+     "term": "mineral",
+     "share": 0.187
+    },
+    {
+     "term": "almond",
+     "share": 0.154
+    },
+    {
+     "term": "creamy",
+     "share": 0.154
+    },
+    {
+     "term": "flower",
+     "share": 0.147
+    },
+    {
+     "term": "green apple",
+     "share": 0.137
+    },
+    {
+     "term": "stone fruit",
+     "share": 0.121
+    },
+    {
+     "term": "melon",
+     "share": 0.119
+    },
+    {
+     "term": "lemon",
+     "share": 0.098
+    }
+   ]
+  },
+  "albarino": {
+   "reviews": 340,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.597,
+     "lift": 3.01
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.524,
+     "lift": 4.69
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.474,
+     "lift": 3.27
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.347,
+     "lift": 3.14
+    },
+    {
+     "family": "melon",
+     "share": 0.344,
+     "lift": 9.74
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.265,
+     "lift": 3.76
+    },
+    {
+     "family": "floral",
+     "share": 0.135,
+     "lift": 1.07
+    },
+    {
+     "family": "earthy",
+     "share": 0.129,
+     "lift": 0.79
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.103,
+     "lift": 1.3
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.091,
+     "lift": 0.31
+    },
+    {
+     "family": "herbal",
+     "share": 0.062,
+     "lift": 0.36
+    },
+    {
+     "family": "pepper",
+     "share": 0.044,
+     "lift": 0.48
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.035,
+     "lift": 0.4
+    },
+    {
+     "family": "nutty",
+     "share": 0.032,
+     "lift": 0.81
+    },
+    {
+     "family": "spice",
+     "share": 0.018,
+     "lift": 0.07
+    },
+    {
+     "family": "black fruit",
+     "share": 0.006,
+     "lift": 0.02
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "apple",
+     "share": 0.421
+    },
+    {
+     "term": "citrus",
+     "share": 0.374
+    },
+    {
+     "term": "peach",
+     "share": 0.338
+    },
+    {
+     "term": "melon",
+     "share": 0.332
+    },
+    {
+     "term": "nectarine",
+     "share": 0.221
+    },
+    {
+     "term": "lemon",
+     "share": 0.144
+    },
+    {
+     "term": "lime",
+     "share": 0.112
+    },
+    {
+     "term": "dusty",
+     "share": 0.1
+    },
+    {
+     "term": "pineapple",
+     "share": 0.097
+    },
+    {
+     "term": "apricot",
+     "share": 0.097
+    },
+    {
+     "term": "tropical",
+     "share": 0.094
+    },
+    {
+     "term": "tangerine",
+     "share": 0.088
+    }
+   ]
+  },
+  "muscadet": {
+   "reviews": 280,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.536,
+     "lift": 2.7
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.425,
+     "lift": 2.93
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.318,
+     "lift": 2.88
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.179,
+     "lift": 2.26
+    },
+    {
+     "family": "spice",
+     "share": 0.136,
+     "lift": 0.5
+    },
+    {
+     "family": "pepper",
+     "share": 0.086,
+     "lift": 0.93
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.075,
+     "lift": 0.25
+    },
+    {
+     "family": "melon",
+     "share": 0.071,
+     "lift": 2.02
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.064,
+     "lift": 0.58
+    },
+    {
+     "family": "nutty",
+     "share": 0.046,
+     "lift": 1.16
+    },
+    {
+     "family": "floral",
+     "share": 0.036,
+     "lift": 0.28
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.032,
+     "lift": 0.46
+    },
+    {
+     "family": "black fruit",
+     "share": 0.025,
+     "lift": 0.08
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.014,
+     "lift": 0.16
+    },
+    {
+     "family": "herbal",
+     "share": 0.007,
+     "lift": 0.04
+    },
+    {
+     "family": "earthy",
+     "share": 0.004,
+     "lift": 0.02
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "apple",
+     "share": 0.307
+    },
+    {
+     "term": "citrus",
+     "share": 0.261
+    },
+    {
+     "term": "mineral",
+     "share": 0.186
+    },
+    {
+     "term": "lemon",
+     "share": 0.186
+    },
+    {
+     "term": "creamy",
+     "share": 0.157
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.129
+    },
+    {
+     "term": "spice",
+     "share": 0.107
+    },
+    {
+     "term": "minerality",
+     "share": 0.107
+    },
+    {
+     "term": "pear",
+     "share": 0.1
+    },
+    {
+     "term": "melon",
+     "share": 0.071
+    },
+    {
+     "term": "pepper",
+     "share": 0.071
+    },
+    {
+     "term": "apples",
+     "share": 0.054
+    }
+   ]
+  },
+  "chablis": {
+   "reviews": 588,
+   "families": [
+    {
+     "family": "mineral & saline",
+     "share": 0.412,
+     "lift": 3.73
+    },
+    {
+     "family": "citrus",
+     "share": 0.366,
+     "lift": 1.84
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.352,
+     "lift": 2.43
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.23,
+     "lift": 0.78
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.131,
+     "lift": 1.17
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.102,
+     "lift": 1.16
+    },
+    {
+     "family": "spice",
+     "share": 0.1,
+     "lift": 0.37
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.094,
+     "lift": 1.18
+    },
+    {
+     "family": "black fruit",
+     "share": 0.066,
+     "lift": 0.22
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.06,
+     "lift": 0.84
+    },
+    {
+     "family": "nutty",
+     "share": 0.02,
+     "lift": 0.51
+    },
+    {
+     "family": "floral",
+     "share": 0.017,
+     "lift": 0.13
+    },
+    {
+     "family": "melon",
+     "share": 0.015,
+     "lift": 0.43
+    },
+    {
+     "family": "herbal",
+     "share": 0.009,
+     "lift": 0.05
+    },
+    {
+     "family": "earthy",
+     "share": 0.005,
+     "lift": 0.03
+    },
+    {
+     "family": "pepper",
+     "share": 0.005,
+     "lift": 0.06
+    },
+    {
+     "family": "red fruit",
+     "share": 0.002,
+     "lift": 0.01
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "mineral",
+     "share": 0.228
+    },
+    {
+     "term": "apple",
+     "share": 0.223
+    },
+    {
+     "term": "citrus",
+     "share": 0.194
+    },
+    {
+     "term": "minerality",
+     "share": 0.165
+    },
+    {
+     "term": "toast",
+     "share": 0.114
+    },
+    {
+     "term": "pear",
+     "share": 0.1
+    },
+    {
+     "term": "spice",
+     "share": 0.087
+    },
+    {
+     "term": "vanilla",
+     "share": 0.08
+    },
+    {
+     "term": "lemon",
+     "share": 0.066
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.061
+    },
+    {
+     "term": "creamy",
+     "share": 0.054
+    },
+    {
+     "term": "apricot",
+     "share": 0.054
+    }
+   ]
+  },
+  "vermentino": {
+   "reviews": 232,
+   "families": [
+    {
+     "family": "stone fruit",
+     "share": 0.625,
+     "lift": 5.6
+    },
+    {
+     "family": "citrus",
+     "share": 0.526,
+     "lift": 2.65
+    },
+    {
+     "family": "floral",
+     "share": 0.332,
+     "lift": 2.62
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.328,
+     "lift": 2.26
+    },
+    {
+     "family": "herbal",
+     "share": 0.323,
+     "lift": 1.88
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.216,
+     "lift": 1.95
+    },
+    {
+     "family": "nutty",
+     "share": 0.168,
+     "lift": 4.21
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.138,
+     "lift": 1.57
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.129,
+     "lift": 1.84
+    },
+    {
+     "family": "melon",
+     "share": 0.129,
+     "lift": 3.66
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.129,
+     "lift": 1.64
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.112,
+     "lift": 0.38
+    },
+    {
+     "family": "spice",
+     "share": 0.099,
+     "lift": 0.37
+    },
+    {
+     "family": "pepper",
+     "share": 0.039,
+     "lift": 0.42
+    },
+    {
+     "family": "earthy",
+     "share": 0.022,
+     "lift": 0.13
+    },
+    {
+     "family": "black fruit",
+     "share": 0.017,
+     "lift": 0.06
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.004,
+     "lift": 0.03
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "peach",
+     "share": 0.401
+    },
+    {
+     "term": "citrus",
+     "share": 0.323
+    },
+    {
+     "term": "pear",
+     "share": 0.19
+    },
+    {
+     "term": "apricot",
+     "share": 0.177
+    },
+    {
+     "term": "flower",
+     "share": 0.164
+    },
+    {
+     "term": "stone fruit",
+     "share": 0.151
+    },
+    {
+     "term": "almond",
+     "share": 0.142
+    },
+    {
+     "term": "apple",
+     "share": 0.134
+    },
+    {
+     "term": "mineral",
+     "share": 0.129
+    },
+    {
+     "term": "creamy",
+     "share": 0.116
+    },
+    {
+     "term": "honey",
+     "share": 0.116
+    },
+    {
+     "term": "lemon",
+     "share": 0.112
+    }
+   ]
+  },
+  "assyrtiko": {
+   "reviews": 18,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.889,
+     "lift": 4.48
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.722,
+     "lift": 6.54
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.611,
+     "lift": 8.67
+    },
+    {
+     "family": "spice",
+     "share": 0.389,
+     "lift": 1.44
+    },
+    {
+     "family": "floral",
+     "share": 0.278,
+     "lift": 2.19
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.167,
+     "lift": 1.49
+    },
+    {
+     "family": "pepper",
+     "share": 0.111,
+     "lift": 1.2
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.111,
+     "lift": 0.38
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "black fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "herbal",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "earthy",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "nutty",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "lemon",
+     "share": 0.722
+    },
+    {
+     "term": "tropical",
+     "share": 0.5
+    },
+    {
+     "term": "sea",
+     "share": 0.5
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.389
+    },
+    {
+     "term": "spice",
+     "share": 0.333
+    },
+    {
+     "term": "citrus",
+     "share": 0.333
+    },
+    {
+     "term": "lime",
+     "share": 0.278
+    },
+    {
+     "term": "flowers",
+     "share": 0.222
+    },
+    {
+     "term": "peach",
+     "share": 0.167
+    },
+    {
+     "term": "peppery",
+     "share": 0.111
+    },
+    {
+     "term": "mineral",
+     "share": 0.111
+    },
+    {
+     "term": "vanilla",
+     "share": 0.111
+    }
+   ]
+  },
+  "gruner": {
+   "reviews": 1345,
+   "families": [
+    {
+     "family": "orchard fruit",
+     "share": 0.567,
+     "lift": 3.92
+    },
+    {
+     "family": "citrus",
+     "share": 0.509,
+     "lift": 2.57
+    },
+    {
+     "family": "pepper",
+     "share": 0.328,
+     "lift": 3.55
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.253,
+     "lift": 3.2
+    },
+    {
+     "family": "spice",
+     "share": 0.245,
+     "lift": 0.91
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.138,
+     "lift": 1.25
+    },
+    {
+     "family": "herbal",
+     "share": 0.132,
+     "lift": 0.77
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.117,
+     "lift": 1.05
+    },
+    {
+     "family": "black fruit",
+     "share": 0.088,
+     "lift": 0.29
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.081,
+     "lift": 1.15
+    },
+    {
+     "family": "floral",
+     "share": 0.051,
+     "lift": 0.41
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.046,
+     "lift": 0.16
+    },
+    {
+     "family": "earthy",
+     "share": 0.036,
+     "lift": 0.22
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.032,
+     "lift": 0.36
+    },
+    {
+     "family": "melon",
+     "share": 0.024,
+     "lift": 0.67
+    },
+    {
+     "family": "nutty",
+     "share": 0.018,
+     "lift": 0.45
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "pear",
+     "share": 0.401
+    },
+    {
+     "term": "citrus",
+     "share": 0.221
+    },
+    {
+     "term": "spice",
+     "share": 0.175
+    },
+    {
+     "term": "lemon",
+     "share": 0.155
+    },
+    {
+     "term": "pepper",
+     "share": 0.126
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.118
+    },
+    {
+     "term": "apple",
+     "share": 0.115
+    },
+    {
+     "term": "white pepper",
+     "share": 0.111
+    },
+    {
+     "term": "peppery",
+     "share": 0.111
+    },
+    {
+     "term": "yeasty",
+     "share": 0.092
+    },
+    {
+     "term": "yeast",
+     "share": 0.089
+    },
+    {
+     "term": "creamy",
+     "share": 0.087
+    }
+   ]
+  },
+  "vinho-verde": {
+   "reviews": 361,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.601,
+     "lift": 3.03
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.418,
+     "lift": 2.89
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.18,
+     "lift": 1.63
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.141,
+     "lift": 1.79
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.108,
+     "lift": 0.97
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.055,
+     "lift": 0.79
+    },
+    {
+     "family": "spice",
+     "share": 0.05,
+     "lift": 0.18
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.05,
+     "lift": 0.17
+    },
+    {
+     "family": "floral",
+     "share": 0.044,
+     "lift": 0.35
+    },
+    {
+     "family": "black fruit",
+     "share": 0.033,
+     "lift": 0.11
+    },
+    {
+     "family": "melon",
+     "share": 0.014,
+     "lift": 0.39
+    },
+    {
+     "family": "herbal",
+     "share": 0.014,
+     "lift": 0.08
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.014,
+     "lift": 0.16
+    },
+    {
+     "family": "pepper",
+     "share": 0.008,
+     "lift": 0.09
+    },
+    {
+     "family": "nutty",
+     "share": 0.008,
+     "lift": 0.21
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "earthy",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "citrus",
+     "share": 0.324
+    },
+    {
+     "term": "apple",
+     "share": 0.258
+    },
+    {
+     "term": "lemon",
+     "share": 0.166
+    },
+    {
+     "term": "mineral",
+     "share": 0.136
+    },
+    {
+     "term": "creamy",
+     "share": 0.125
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.105
+    },
+    {
+     "term": "pear",
+     "share": 0.089
+    },
+    {
+     "term": "apples",
+     "share": 0.075
+    },
+    {
+     "term": "lime",
+     "share": 0.075
+    },
+    {
+     "term": "apricot",
+     "share": 0.066
+    }
+   ]
+  },
+  "riesling-dry": {
+   "reviews": 1299,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.634,
+     "lift": 3.2
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.379,
+     "lift": 2.62
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.175,
+     "lift": 1.58
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.156,
+     "lift": 1.4
+    },
+    {
+     "family": "floral",
+     "share": 0.114,
+     "lift": 0.9
+    },
+    {
+     "family": "spice",
+     "share": 0.105,
+     "lift": 0.39
+    },
+    {
+     "family": "earthy",
+     "share": 0.095,
+     "lift": 0.58
+    },
+    {
+     "family": "black fruit",
+     "share": 0.07,
+     "lift": 0.23
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.07,
+     "lift": 0.89
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.061,
+     "lift": 0.69
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.049,
+     "lift": 0.7
+    },
+    {
+     "family": "herbal",
+     "share": 0.04,
+     "lift": 0.23
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.039,
+     "lift": 0.13
+    },
+    {
+     "family": "nutty",
+     "share": 0.023,
+     "lift": 0.58
+    },
+    {
+     "family": "pepper",
+     "share": 0.014,
+     "lift": 0.15
+    },
+    {
+     "family": "red fruit",
+     "share": 0.005,
+     "lift": 0.01
+    },
+    {
+     "family": "melon",
+     "share": 0.003,
+     "lift": 0.09
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "lemon",
+     "share": 0.339
+    },
+    {
+     "term": "citrus",
+     "share": 0.288
+    },
+    {
+     "term": "apple",
+     "share": 0.225
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.122
+    },
+    {
+     "term": "pear",
+     "share": 0.118
+    },
+    {
+     "term": "peach",
+     "share": 0.079
+    },
+    {
+     "term": "lemon zest",
+     "share": 0.076
+    },
+    {
+     "term": "apples",
+     "share": 0.07
+    },
+    {
+     "term": "mineral",
+     "share": 0.07
+    },
+    {
+     "term": "spice",
+     "share": 0.069
+    },
+    {
+     "term": "earthy",
+     "share": 0.067
+    },
+    {
+     "term": "tangerine",
+     "share": 0.067
+    }
+   ]
+  },
+  "riesling-offdry": {
+   "reviews": 730,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.679,
+     "lift": 3.42
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.503,
+     "lift": 4.51
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.405,
+     "lift": 3.67
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.325,
+     "lift": 3.69
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.29,
+     "lift": 2.01
+    },
+    {
+     "family": "floral",
+     "share": 0.219,
+     "lift": 1.73
+    },
+    {
+     "family": "earthy",
+     "share": 0.189,
+     "lift": 1.15
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.144,
+     "lift": 2.04
+    },
+    {
+     "family": "spice",
+     "share": 0.115,
+     "lift": 0.43
+    },
+    {
+     "family": "melon",
+     "share": 0.114,
+     "lift": 3.22
+    },
+    {
+     "family": "herbal",
+     "share": 0.114,
+     "lift": 0.66
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.107,
+     "lift": 0.36
+    },
+    {
+     "family": "red fruit",
+     "share": 0.063,
+     "lift": 0.19
+    },
+    {
+     "family": "black fruit",
+     "share": 0.034,
+     "lift": 0.11
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.023,
+     "lift": 0.29
+    },
+    {
+     "family": "nutty",
+     "share": 0.018,
+     "lift": 0.45
+    },
+    {
+     "family": "pepper",
+     "share": 0.005,
+     "lift": 0.06
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "peach",
+     "share": 0.368
+    },
+    {
+     "term": "lime",
+     "share": 0.326
+    },
+    {
+     "term": "lemon",
+     "share": 0.288
+    },
+    {
+     "term": "tangerine",
+     "share": 0.244
+    },
+    {
+     "term": "mineral",
+     "share": 0.232
+    },
+    {
+     "term": "honey",
+     "share": 0.223
+    },
+    {
+     "term": "apple",
+     "share": 0.185
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.151
+    },
+    {
+     "term": "citrus",
+     "share": 0.121
+    },
+    {
+     "term": "minerality",
+     "share": 0.119
+    },
+    {
+     "term": "apricot",
+     "share": 0.11
+    },
+    {
+     "term": "slate",
+     "share": 0.093
+    }
+   ]
+  },
+  "gewurztraminer": {
+   "reviews": 476,
+   "families": [
+    {
+     "family": "spice",
+     "share": 0.452,
+     "lift": 1.67
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.372,
+     "lift": 3.33
+    },
+    {
+     "family": "citrus",
+     "share": 0.279,
+     "lift": 1.41
+    },
+    {
+     "family": "floral",
+     "share": 0.261,
+     "lift": 2.06
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.244,
+     "lift": 3.46
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.237,
+     "lift": 2.7
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.116,
+     "lift": 0.8
+    },
+    {
+     "family": "pepper",
+     "share": 0.099,
+     "lift": 1.07
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.084,
+     "lift": 0.76
+    },
+    {
+     "family": "black fruit",
+     "share": 0.074,
+     "lift": 0.24
+    },
+    {
+     "family": "earthy",
+     "share": 0.074,
+     "lift": 0.45
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.053,
+     "lift": 0.18
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.04,
+     "lift": 0.51
+    },
+    {
+     "family": "nutty",
+     "share": 0.015,
+     "lift": 0.37
+    },
+    {
+     "family": "red fruit",
+     "share": 0.011,
+     "lift": 0.03
+    },
+    {
+     "family": "herbal",
+     "share": 0.006,
+     "lift": 0.04
+    },
+    {
+     "family": "melon",
+     "share": 0.004,
+     "lift": 0.12
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.002,
+     "lift": 0.02
+    }
+   ],
+   "terms": [
+    {
+     "term": "spice",
+     "share": 0.317
+    },
+    {
+     "term": "peach",
+     "share": 0.294
+    },
+    {
+     "term": "spicy",
+     "share": 0.162
+    },
+    {
+     "term": "honey",
+     "share": 0.155
+    },
+    {
+     "term": "lychee",
+     "share": 0.151
+    },
+    {
+     "term": "rose",
+     "share": 0.143
+    },
+    {
+     "term": "lemon",
+     "share": 0.113
+    },
+    {
+     "term": "honeysuckle",
+     "share": 0.09
+    },
+    {
+     "term": "honeyed",
+     "share": 0.088
+    },
+    {
+     "term": "citrus",
+     "share": 0.084
+    },
+    {
+     "term": "pepper",
+     "share": 0.082
+    },
+    {
+     "term": "floral",
+     "share": 0.067
+    }
+   ]
+  },
+  "viognier": {
+   "reviews": 996,
+   "families": [
+    {
+     "family": "stone fruit",
+     "share": 0.539,
+     "lift": 4.83
+    },
+    {
+     "family": "citrus",
+     "share": 0.409,
+     "lift": 2.06
+    },
+    {
+     "family": "floral",
+     "share": 0.334,
+     "lift": 2.64
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.306,
+     "lift": 1.04
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.296,
+     "lift": 4.2
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.278,
+     "lift": 1.92
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.211,
+     "lift": 2.4
+    },
+    {
+     "family": "spice",
+     "share": 0.166,
+     "lift": 0.61
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.152,
+     "lift": 1.92
+    },
+    {
+     "family": "melon",
+     "share": 0.116,
+     "lift": 3.3
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.111,
+     "lift": 1.01
+    },
+    {
+     "family": "nutty",
+     "share": 0.068,
+     "lift": 1.71
+    },
+    {
+     "family": "herbal",
+     "share": 0.056,
+     "lift": 0.33
+    },
+    {
+     "family": "pepper",
+     "share": 0.034,
+     "lift": 0.37
+    },
+    {
+     "family": "earthy",
+     "share": 0.021,
+     "lift": 0.13
+    },
+    {
+     "family": "red fruit",
+     "share": 0.006,
+     "lift": 0.02
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.005,
+     "lift": 0.04
+    },
+    {
+     "family": "black fruit",
+     "share": 0.003,
+     "lift": 0.01
+    }
+   ],
+   "terms": [
+    {
+     "term": "peach",
+     "share": 0.29
+    },
+    {
+     "term": "apricot",
+     "share": 0.21
+    },
+    {
+     "term": "citrus",
+     "share": 0.171
+    },
+    {
+     "term": "lemon",
+     "share": 0.16
+    },
+    {
+     "term": "tropical",
+     "share": 0.156
+    },
+    {
+     "term": "vanilla",
+     "share": 0.146
+    },
+    {
+     "term": "pear",
+     "share": 0.14
+    },
+    {
+     "term": "honey",
+     "share": 0.128
+    },
+    {
+     "term": "apple",
+     "share": 0.119
+    },
+    {
+     "term": "honeysuckle",
+     "share": 0.11
+    },
+    {
+     "term": "oak",
+     "share": 0.11
+    },
+    {
+     "term": "lime",
+     "share": 0.107
+    }
+   ]
+  },
+  "chenin-blanc": {
+   "reviews": 270,
+   "families": [
+    {
+     "family": "orchard fruit",
+     "share": 0.5,
+     "lift": 3.45
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.481,
+     "lift": 5.48
+    },
+    {
+     "family": "nutty",
+     "share": 0.322,
+     "lift": 8.07
+    },
+    {
+     "family": "citrus",
+     "share": 0.237,
+     "lift": 1.19
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.185,
+     "lift": 1.68
+    },
+    {
+     "family": "spice",
+     "share": 0.152,
+     "lift": 0.56
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.119,
+     "lift": 1.06
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.089,
+     "lift": 1.13
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.081,
+     "lift": 1.16
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.074,
+     "lift": 0.25
+    },
+    {
+     "family": "floral",
+     "share": 0.041,
+     "lift": 0.32
+    },
+    {
+     "family": "black fruit",
+     "share": 0.037,
+     "lift": 0.12
+    },
+    {
+     "family": "melon",
+     "share": 0.011,
+     "lift": 0.31
+    },
+    {
+     "family": "herbal",
+     "share": 0.007,
+     "lift": 0.04
+    },
+    {
+     "family": "pepper",
+     "share": 0.007,
+     "lift": 0.08
+    },
+    {
+     "family": "red fruit",
+     "share": 0.004,
+     "lift": 0.01
+    },
+    {
+     "family": "earthy",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "honey",
+     "share": 0.356
+    },
+    {
+     "term": "apple",
+     "share": 0.252
+    },
+    {
+     "term": "pear",
+     "share": 0.156
+    },
+    {
+     "term": "almond",
+     "share": 0.13
+    },
+    {
+     "term": "honeyed",
+     "share": 0.126
+    },
+    {
+     "term": "lemon",
+     "share": 0.122
+    },
+    {
+     "term": "almonds",
+     "share": 0.115
+    },
+    {
+     "term": "spice",
+     "share": 0.111
+    },
+    {
+     "term": "mineral",
+     "share": 0.104
+    },
+    {
+     "term": "minerality",
+     "share": 0.074
+    },
+    {
+     "term": "nutty",
+     "share": 0.063
+    },
+    {
+     "term": "apples",
+     "share": 0.063
+    }
+   ]
+  },
+  "chardonnay-oaked": {
+   "reviews": 5183,
+   "families": [
+    {
+     "family": "oak & toast",
+     "share": 0.617,
+     "lift": 2.09
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.489,
+     "lift": 3.38
+    },
+    {
+     "family": "citrus",
+     "share": 0.421,
+     "lift": 2.12
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.36,
+     "lift": 5.11
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.271,
+     "lift": 2.43
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.265,
+     "lift": 3.36
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.254,
+     "lift": 2.88
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.23,
+     "lift": 2.08
+    },
+    {
+     "family": "spice",
+     "share": 0.139,
+     "lift": 0.52
+    },
+    {
+     "family": "floral",
+     "share": 0.136,
+     "lift": 1.07
+    },
+    {
+     "family": "nutty",
+     "share": 0.061,
+     "lift": 1.52
+    },
+    {
+     "family": "herbal",
+     "share": 0.04,
+     "lift": 0.23
+    },
+    {
+     "family": "melon",
+     "share": 0.03,
+     "lift": 0.86
+    },
+    {
+     "family": "earthy",
+     "share": 0.023,
+     "lift": 0.14
+    },
+    {
+     "family": "pepper",
+     "share": 0.006,
+     "lift": 0.07
+    },
+    {
+     "family": "red fruit",
+     "share": 0.001,
+     "lift": 0.0
+    },
+    {
+     "family": "black fruit",
+     "share": 0.001,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.001,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "oak",
+     "share": 0.345
+    },
+    {
+     "term": "vanilla",
+     "share": 0.238
+    },
+    {
+     "term": "lemon",
+     "share": 0.228
+    },
+    {
+     "term": "apple",
+     "share": 0.226
+    },
+    {
+     "term": "pear",
+     "share": 0.216
+    },
+    {
+     "term": "pineapple",
+     "share": 0.196
+    },
+    {
+     "term": "toast",
+     "share": 0.167
+    },
+    {
+     "term": "lime",
+     "share": 0.14
+    },
+    {
+     "term": "tropical",
+     "share": 0.139
+    },
+    {
+     "term": "peach",
+     "share": 0.131
+    },
+    {
+     "term": "creamy",
+     "share": 0.106
+    },
+    {
+     "term": "minerality",
+     "share": 0.101
+    }
+   ]
+  },
+  "white-burgundy": {
+   "reviews": 1724,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.354,
+     "lift": 1.79
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.311,
+     "lift": 2.15
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.283,
+     "lift": 2.57
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.268,
+     "lift": 0.91
+    },
+    {
+     "family": "spice",
+     "share": 0.218,
+     "lift": 0.81
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.205,
+     "lift": 1.84
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.133,
+     "lift": 1.68
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.095,
+     "lift": 1.35
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.051,
+     "lift": 0.58
+    },
+    {
+     "family": "black fruit",
+     "share": 0.041,
+     "lift": 0.14
+    },
+    {
+     "family": "melon",
+     "share": 0.033,
+     "lift": 0.94
+    },
+    {
+     "family": "nutty",
+     "share": 0.031,
+     "lift": 0.78
+    },
+    {
+     "family": "floral",
+     "share": 0.017,
+     "lift": 0.14
+    },
+    {
+     "family": "herbal",
+     "share": 0.009,
+     "lift": 0.05
+    },
+    {
+     "family": "pepper",
+     "share": 0.006,
+     "lift": 0.06
+    },
+    {
+     "family": "earthy",
+     "share": 0.003,
+     "lift": 0.02
+    },
+    {
+     "family": "red fruit",
+     "share": 0.001,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "citrus",
+     "share": 0.207
+    },
+    {
+     "term": "mineral",
+     "share": 0.178
+    },
+    {
+     "term": "apple",
+     "share": 0.177
+    },
+    {
+     "term": "spice",
+     "share": 0.165
+    },
+    {
+     "term": "toast",
+     "share": 0.159
+    },
+    {
+     "term": "pear",
+     "share": 0.106
+    },
+    {
+     "term": "apricot",
+     "share": 0.103
+    },
+    {
+     "term": "creamy",
+     "share": 0.102
+    },
+    {
+     "term": "minerality",
+     "share": 0.102
+    },
+    {
+     "term": "peach",
+     "share": 0.085
+    },
+    {
+     "term": "lemon",
+     "share": 0.082
+    },
+    {
+     "term": "toasty",
+     "share": 0.057
+    }
+   ]
+  },
+  "rhone-white": {
+   "reviews": 229,
+   "families": [
+    {
+     "family": "tropical fruit",
+     "share": 0.432,
+     "lift": 6.14
+    },
+    {
+     "family": "melon",
+     "share": 0.397,
+     "lift": 11.24
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.31,
+     "lift": 2.14
+    },
+    {
+     "family": "citrus",
+     "share": 0.306,
+     "lift": 1.54
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.288,
+     "lift": 2.58
+    },
+    {
+     "family": "spice",
+     "share": 0.266,
+     "lift": 0.99
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.266,
+     "lift": 3.03
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.249,
+     "lift": 0.85
+    },
+    {
+     "family": "floral",
+     "share": 0.127,
+     "lift": 1.0
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.092,
+     "lift": 0.83
+    },
+    {
+     "family": "nutty",
+     "share": 0.074,
+     "lift": 1.86
+    },
+    {
+     "family": "pepper",
+     "share": 0.052,
+     "lift": 0.57
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.048,
+     "lift": 0.61
+    },
+    {
+     "family": "earthy",
+     "share": 0.044,
+     "lift": 0.27
+    },
+    {
+     "family": "herbal",
+     "share": 0.039,
+     "lift": 0.23
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.026,
+     "lift": 0.21
+    },
+    {
+     "family": "black fruit",
+     "share": 0.009,
+     "lift": 0.03
+    },
+    {
+     "family": "red fruit",
+     "share": 0.004,
+     "lift": 0.01
+    }
+   ],
+   "terms": [
+    {
+     "term": "pineapple",
+     "share": 0.389
+    },
+    {
+     "term": "melon",
+     "share": 0.389
+    },
+    {
+     "term": "pear",
+     "share": 0.236
+    },
+    {
+     "term": "citrus",
+     "share": 0.223
+    },
+    {
+     "term": "honey",
+     "share": 0.157
+    },
+    {
+     "term": "peach",
+     "share": 0.144
+    },
+    {
+     "term": "spice",
+     "share": 0.131
+    },
+    {
+     "term": "oak",
+     "share": 0.092
+    },
+    {
+     "term": "honeyed",
+     "share": 0.087
+    },
+    {
+     "term": "toasted",
+     "share": 0.087
+    },
+    {
+     "term": "apricot",
+     "share": 0.087
+    },
+    {
+     "term": "apple",
+     "share": 0.074
+    }
+   ]
+  },
+  "provence-rose": {
+   "reviews": 1062,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.365,
+     "lift": 1.09
+    },
+    {
+     "family": "citrus",
+     "share": 0.219,
+     "lift": 1.11
+    },
+    {
+     "family": "spice",
+     "share": 0.209,
+     "lift": 0.77
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.137,
+     "lift": 1.25
+    },
+    {
+     "family": "pepper",
+     "share": 0.115,
+     "lift": 1.24
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.095,
+     "lift": 1.08
+    },
+    {
+     "family": "herbal",
+     "share": 0.064,
+     "lift": 0.37
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.053,
+     "lift": 0.18
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.047,
+     "lift": 0.42
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.042,
+     "lift": 0.29
+    },
+    {
+     "family": "black fruit",
+     "share": 0.034,
+     "lift": 0.11
+    },
+    {
+     "family": "floral",
+     "share": 0.029,
+     "lift": 0.23
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.016,
+     "lift": 0.2
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.012,
+     "lift": 0.17
+    },
+    {
+     "family": "earthy",
+     "share": 0.009,
+     "lift": 0.06
+    },
+    {
+     "family": "nutty",
+     "share": 0.009,
+     "lift": 0.24
+    },
+    {
+     "family": "melon",
+     "share": 0.003,
+     "lift": 0.08
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.001,
+     "lift": 0.01
+    }
+   ],
+   "terms": [
+    {
+     "term": "spice",
+     "share": 0.165
+    },
+    {
+     "term": "strawberry",
+     "share": 0.1
+    },
+    {
+     "term": "citrus",
+     "share": 0.096
+    },
+    {
+     "term": "pepper",
+     "share": 0.095
+    },
+    {
+     "term": "caramel",
+     "share": 0.091
+    },
+    {
+     "term": "raspberry",
+     "share": 0.086
+    },
+    {
+     "term": "mineral",
+     "share": 0.084
+    },
+    {
+     "term": "red currant",
+     "share": 0.051
+    }
+   ]
+  },
+  "rosado": {
+   "reviews": 221,
+   "families": [
+    {
+     "family": "citrus",
+     "share": 0.425,
+     "lift": 2.14
+    },
+    {
+     "family": "red fruit",
+     "share": 0.38,
+     "lift": 1.13
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.29,
+     "lift": 2.6
+    },
+    {
+     "family": "black fruit",
+     "share": 0.186,
+     "lift": 0.62
+    },
+    {
+     "family": "melon",
+     "share": 0.158,
+     "lift": 4.48
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.149,
+     "lift": 1.35
+    },
+    {
+     "family": "earthy",
+     "share": 0.113,
+     "lift": 0.69
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.109,
+     "lift": 0.75
+    },
+    {
+     "family": "herbal",
+     "share": 0.068,
+     "lift": 0.39
+    },
+    {
+     "family": "spice",
+     "share": 0.059,
+     "lift": 0.22
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.059,
+     "lift": 0.75
+    },
+    {
+     "family": "pepper",
+     "share": 0.05,
+     "lift": 0.54
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.045,
+     "lift": 0.64
+    },
+    {
+     "family": "floral",
+     "share": 0.032,
+     "lift": 0.25
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.027,
+     "lift": 0.09
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.014,
+     "lift": 0.15
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.005,
+     "lift": 0.04
+    },
+    {
+     "family": "nutty",
+     "share": 0.005,
+     "lift": 0.11
+    }
+   ],
+   "terms": [
+    {
+     "term": "citrus",
+     "share": 0.344
+    },
+    {
+     "term": "cherry",
+     "share": 0.222
+    },
+    {
+     "term": "raspberry",
+     "share": 0.19
+    },
+    {
+     "term": "plum",
+     "share": 0.186
+    },
+    {
+     "term": "nectarine",
+     "share": 0.172
+    },
+    {
+     "term": "peach",
+     "share": 0.136
+    },
+    {
+     "term": "apple",
+     "share": 0.109
+    },
+    {
+     "term": "grapefruit",
+     "share": 0.109
+    },
+    {
+     "term": "dusty",
+     "share": 0.1
+    },
+    {
+     "term": "melon",
+     "share": 0.1
+    },
+    {
+     "term": "strawberry",
+     "share": 0.086
+    },
+    {
+     "term": "briny",
+     "share": 0.086
+    }
+   ]
+  },
+  "red-burgundy": {
+   "reviews": 1550,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.393,
+     "lift": 1.17
+    },
+    {
+     "family": "black fruit",
+     "share": 0.186,
+     "lift": 0.62
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.137,
+     "lift": 0.47
+    },
+    {
+     "family": "spice",
+     "share": 0.132,
+     "lift": 0.49
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.046,
+     "lift": 0.42
+    },
+    {
+     "family": "earthy",
+     "share": 0.03,
+     "lift": 0.18
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.021,
+     "lift": 0.17
+    },
+    {
+     "family": "herbal",
+     "share": 0.01,
+     "lift": 0.06
+    },
+    {
+     "family": "floral",
+     "share": 0.007,
+     "lift": 0.06
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.005,
+     "lift": 0.06
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.003,
+     "lift": 0.02
+    },
+    {
+     "family": "citrus",
+     "share": 0.002,
+     "lift": 0.01
+    },
+    {
+     "family": "pepper",
+     "share": 0.001,
+     "lift": 0.01
+    },
+    {
+     "family": "nutty",
+     "share": 0.001,
+     "lift": 0.02
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.001,
+     "lift": 0.01
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.115
+    },
+    {
+     "term": "plum",
+     "share": 0.115
+    },
+    {
+     "term": "smoky",
+     "share": 0.1
+    },
+    {
+     "term": "spice",
+     "share": 0.093
+    },
+    {
+     "term": "strawberry",
+     "share": 0.091
+    },
+    {
+     "term": "red berry",
+     "share": 0.059
+    }
+   ]
+  },
+  "pinot-noir-nw": {
+   "reviews": 3223,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.733,
+     "lift": 2.18
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.287,
+     "lift": 0.98
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.246,
+     "lift": 1.93
+    },
+    {
+     "family": "earthy",
+     "share": 0.215,
+     "lift": 1.31
+    },
+    {
+     "family": "black fruit",
+     "share": 0.195,
+     "lift": 0.65
+    },
+    {
+     "family": "spice",
+     "share": 0.192,
+     "lift": 0.71
+    },
+    {
+     "family": "herbal",
+     "share": 0.191,
+     "lift": 1.11
+    },
+    {
+     "family": "floral",
+     "share": 0.078,
+     "lift": 0.62
+    },
+    {
+     "family": "citrus",
+     "share": 0.076,
+     "lift": 0.38
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.069,
+     "lift": 0.62
+    },
+    {
+     "family": "pepper",
+     "share": 0.067,
+     "lift": 0.73
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.052,
+     "lift": 0.59
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.036,
+     "lift": 0.46
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.013,
+     "lift": 0.09
+    },
+    {
+     "family": "nutty",
+     "share": 0.01,
+     "lift": 0.25
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.009,
+     "lift": 0.13
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.007,
+     "lift": 0.06
+    },
+    {
+     "family": "melon",
+     "share": 0.004,
+     "lift": 0.12
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.418
+    },
+    {
+     "term": "raspberry",
+     "share": 0.152
+    },
+    {
+     "term": "oak",
+     "share": 0.15
+    },
+    {
+     "term": "chocolate",
+     "share": 0.14
+    },
+    {
+     "term": "strawberry",
+     "share": 0.115
+    },
+    {
+     "term": "cranberry",
+     "share": 0.095
+    },
+    {
+     "term": "black cherry",
+     "share": 0.088
+    },
+    {
+     "term": "earth",
+     "share": 0.078
+    },
+    {
+     "term": "plum",
+     "share": 0.075
+    },
+    {
+     "term": "herbal",
+     "share": 0.074
+    },
+    {
+     "term": "herb",
+     "share": 0.074
+    },
+    {
+     "term": "cherries",
+     "share": 0.073
+    }
+   ]
+  },
+  "beaujolais": {
+   "reviews": 1020,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.563,
+     "lift": 1.67
+    },
+    {
+     "family": "black fruit",
+     "share": 0.209,
+     "lift": 0.69
+    },
+    {
+     "family": "spice",
+     "share": 0.109,
+     "lift": 0.4
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.095,
+     "lift": 0.86
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.061,
+     "lift": 0.21
+    },
+    {
+     "family": "pepper",
+     "share": 0.014,
+     "lift": 0.15
+    },
+    {
+     "family": "floral",
+     "share": 0.013,
+     "lift": 0.1
+    },
+    {
+     "family": "herbal",
+     "share": 0.01,
+     "lift": 0.06
+    },
+    {
+     "family": "earthy",
+     "share": 0.01,
+     "lift": 0.06
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.007,
+     "lift": 0.05
+    },
+    {
+     "family": "citrus",
+     "share": 0.005,
+     "lift": 0.02
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.004,
+     "lift": 0.04
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.004,
+     "lift": 0.05
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.002,
+     "lift": 0.01
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.001,
+     "lift": 0.01
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "nutty",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.413
+    },
+    {
+     "term": "plum",
+     "share": 0.124
+    },
+    {
+     "term": "spice",
+     "share": 0.087
+    },
+    {
+     "term": "mineral",
+     "share": 0.067
+    },
+    {
+     "term": "cherries",
+     "share": 0.052
+    },
+    {
+     "term": "black cherry",
+     "share": 0.05
+    }
+   ]
+  },
+  "valpolicella": {
+   "reviews": 336,
+   "families": [
+    {
+     "family": "spice",
+     "share": 0.607,
+     "lift": 2.25
+    },
+    {
+     "family": "red fruit",
+     "share": 0.586,
+     "lift": 1.74
+    },
+    {
+     "family": "black fruit",
+     "share": 0.39,
+     "lift": 1.29
+    },
+    {
+     "family": "earthy",
+     "share": 0.262,
+     "lift": 1.59
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.232,
+     "lift": 0.79
+    },
+    {
+     "family": "nutty",
+     "share": 0.182,
+     "lift": 4.55
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.113,
+     "lift": 0.89
+    },
+    {
+     "family": "pepper",
+     "share": 0.068,
+     "lift": 0.74
+    },
+    {
+     "family": "herbal",
+     "share": 0.062,
+     "lift": 0.36
+    },
+    {
+     "family": "floral",
+     "share": 0.051,
+     "lift": 0.4
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.048,
+     "lift": 0.54
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.033,
+     "lift": 0.23
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.027,
+     "lift": 0.34
+    },
+    {
+     "family": "citrus",
+     "share": 0.021,
+     "lift": 0.1
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.018,
+     "lift": 0.16
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.473
+    },
+    {
+     "term": "spice",
+     "share": 0.449
+    },
+    {
+     "term": "almond",
+     "share": 0.149
+    },
+    {
+     "term": "leather",
+     "share": 0.137
+    },
+    {
+     "term": "tobacco",
+     "share": 0.134
+    },
+    {
+     "term": "blackberry",
+     "share": 0.125
+    },
+    {
+     "term": "oak",
+     "share": 0.104
+    },
+    {
+     "term": "blueberry",
+     "share": 0.098
+    },
+    {
+     "term": "spicy",
+     "share": 0.089
+    },
+    {
+     "term": "chocolate",
+     "share": 0.086
+    },
+    {
+     "term": "raspberry",
+     "share": 0.08
+    },
+    {
+     "term": "clove",
+     "share": 0.074
+    }
+   ]
+  },
+  "chianti": {
+   "reviews": 1368,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.827,
+     "lift": 2.46
+    },
+    {
+     "family": "spice",
+     "share": 0.634,
+     "lift": 2.35
+    },
+    {
+     "family": "black fruit",
+     "share": 0.576,
+     "lift": 1.91
+    },
+    {
+     "family": "earthy",
+     "share": 0.479,
+     "lift": 2.91
+    },
+    {
+     "family": "floral",
+     "share": 0.345,
+     "lift": 2.73
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.322,
+     "lift": 1.09
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.318,
+     "lift": 2.5
+    },
+    {
+     "family": "herbal",
+     "share": 0.29,
+     "lift": 1.69
+    },
+    {
+     "family": "pepper",
+     "share": 0.235,
+     "lift": 2.55
+    },
+    {
+     "family": "nutty",
+     "share": 0.054,
+     "lift": 1.36
+    },
+    {
+     "family": "citrus",
+     "share": 0.039,
+     "lift": 0.2
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.029,
+     "lift": 0.33
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.018,
+     "lift": 0.17
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.015,
+     "lift": 0.19
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.004,
+     "lift": 0.03
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.003,
+     "lift": 0.03
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.781
+    },
+    {
+     "term": "black cherry",
+     "share": 0.393
+    },
+    {
+     "term": "spice",
+     "share": 0.274
+    },
+    {
+     "term": "plum",
+     "share": 0.247
+    },
+    {
+     "term": "leather",
+     "share": 0.181
+    },
+    {
+     "term": "clove",
+     "share": 0.168
+    },
+    {
+     "term": "espresso",
+     "share": 0.159
+    },
+    {
+     "term": "raspberry",
+     "share": 0.151
+    },
+    {
+     "term": "oak",
+     "share": 0.149
+    },
+    {
+     "term": "violet",
+     "share": 0.145
+    },
+    {
+     "term": "licorice",
+     "share": 0.144
+    },
+    {
+     "term": "herb",
+     "share": 0.144
+    }
+   ]
+  },
+  "rioja": {
+   "reviews": 1059,
+   "families": [
+    {
+     "family": "black fruit",
+     "share": 0.656,
+     "lift": 2.18
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.586,
+     "lift": 1.99
+    },
+    {
+     "family": "red fruit",
+     "share": 0.448,
+     "lift": 1.33
+    },
+    {
+     "family": "earthy",
+     "share": 0.446,
+     "lift": 2.71
+    },
+    {
+     "family": "spice",
+     "share": 0.365,
+     "lift": 1.35
+    },
+    {
+     "family": "herbal",
+     "share": 0.284,
+     "lift": 1.65
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.213,
+     "lift": 1.68
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.12,
+     "lift": 1.36
+    },
+    {
+     "family": "pepper",
+     "share": 0.106,
+     "lift": 1.15
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.075,
+     "lift": 0.94
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.054,
+     "lift": 0.49
+    },
+    {
+     "family": "citrus",
+     "share": 0.042,
+     "lift": 0.21
+    },
+    {
+     "family": "floral",
+     "share": 0.037,
+     "lift": 0.29
+    },
+    {
+     "family": "nutty",
+     "share": 0.01,
+     "lift": 0.26
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.008,
+     "lift": 0.05
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.002,
+     "lift": 0.02
+    },
+    {
+     "family": "melon",
+     "share": 0.002,
+     "lift": 0.05
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "plum",
+     "share": 0.505
+    },
+    {
+     "term": "oak",
+     "share": 0.29
+    },
+    {
+     "term": "cherry",
+     "share": 0.265
+    },
+    {
+     "term": "earthy",
+     "share": 0.227
+    },
+    {
+     "term": "vanilla",
+     "share": 0.219
+    },
+    {
+     "term": "spice",
+     "share": 0.215
+    },
+    {
+     "term": "raspberry",
+     "share": 0.209
+    },
+    {
+     "term": "herbal",
+     "share": 0.147
+    },
+    {
+     "term": "tobacco",
+     "share": 0.137
+    },
+    {
+     "term": "blackberry",
+     "share": 0.137
+    },
+    {
+     "term": "oaky",
+     "share": 0.133
+    },
+    {
+     "term": "chocolate",
+     "share": 0.121
+    }
+   ]
+  },
+  "cotes-du-rhone": {
+   "reviews": 496,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.629,
+     "lift": 1.87
+    },
+    {
+     "family": "earthy",
+     "share": 0.347,
+     "lift": 2.11
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.343,
+     "lift": 2.7
+    },
+    {
+     "family": "black fruit",
+     "share": 0.317,
+     "lift": 1.05
+    },
+    {
+     "family": "spice",
+     "share": 0.294,
+     "lift": 1.09
+    },
+    {
+     "family": "herbal",
+     "share": 0.181,
+     "lift": 1.06
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.179,
+     "lift": 0.61
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.101,
+     "lift": 1.28
+    },
+    {
+     "family": "floral",
+     "share": 0.083,
+     "lift": 0.65
+    },
+    {
+     "family": "pepper",
+     "share": 0.081,
+     "lift": 0.87
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.034,
+     "lift": 0.39
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.018,
+     "lift": 0.16
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.01,
+     "lift": 0.09
+    },
+    {
+     "family": "nutty",
+     "share": 0.008,
+     "lift": 0.2
+    },
+    {
+     "family": "citrus",
+     "share": 0.004,
+     "lift": 0.02
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.002,
+     "lift": 0.01
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.002,
+     "lift": 0.03
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.375
+    },
+    {
+     "term": "cherries",
+     "share": 0.179
+    },
+    {
+     "term": "chocolate",
+     "share": 0.159
+    },
+    {
+     "term": "leather",
+     "share": 0.155
+    },
+    {
+     "term": "dusty",
+     "share": 0.147
+    },
+    {
+     "term": "plum",
+     "share": 0.125
+    },
+    {
+     "term": "black cherry",
+     "share": 0.107
+    },
+    {
+     "term": "clove",
+     "share": 0.105
+    },
+    {
+     "term": "oak",
+     "share": 0.103
+    },
+    {
+     "term": "creamy",
+     "share": 0.097
+    },
+    {
+     "term": "cinnamon",
+     "share": 0.085
+    },
+    {
+     "term": "raspberry",
+     "share": 0.083
+    }
+   ]
+  },
+  "barbera": {
+   "reviews": 721,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.603,
+     "lift": 1.79
+    },
+    {
+     "family": "black fruit",
+     "share": 0.559,
+     "lift": 1.85
+    },
+    {
+     "family": "spice",
+     "share": 0.523,
+     "lift": 1.94
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.35,
+     "lift": 1.19
+    },
+    {
+     "family": "earthy",
+     "share": 0.305,
+     "lift": 1.85
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.211,
+     "lift": 1.66
+    },
+    {
+     "family": "pepper",
+     "share": 0.161,
+     "lift": 1.74
+    },
+    {
+     "family": "floral",
+     "share": 0.147,
+     "lift": 1.16
+    },
+    {
+     "family": "herbal",
+     "share": 0.111,
+     "lift": 0.65
+    },
+    {
+     "family": "nutty",
+     "share": 0.046,
+     "lift": 1.15
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.039,
+     "lift": 0.44
+    },
+    {
+     "family": "citrus",
+     "share": 0.037,
+     "lift": 0.19
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.036,
+     "lift": 0.33
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.026,
+     "lift": 0.33
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.008,
+     "lift": 0.06
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.001,
+     "lift": 0.01
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.001,
+     "lift": 0.02
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.477
+    },
+    {
+     "term": "spice",
+     "share": 0.243
+    },
+    {
+     "term": "blackberry",
+     "share": 0.233
+    },
+    {
+     "term": "black cherry",
+     "share": 0.225
+    },
+    {
+     "term": "plum",
+     "share": 0.184
+    },
+    {
+     "term": "raspberry",
+     "share": 0.165
+    },
+    {
+     "term": "oak",
+     "share": 0.155
+    },
+    {
+     "term": "clove",
+     "share": 0.129
+    },
+    {
+     "term": "licorice",
+     "share": 0.126
+    },
+    {
+     "term": "vanilla",
+     "share": 0.107
+    },
+    {
+     "term": "coffee",
+     "share": 0.097
+    },
+    {
+     "term": "earth",
+     "share": 0.097
+    }
+   ]
+  },
+  "merlot": {
+   "reviews": 3102,
+   "families": [
+    {
+     "family": "red fruit",
+     "share": 0.586,
+     "lift": 1.74
+    },
+    {
+     "family": "black fruit",
+     "share": 0.478,
+     "lift": 1.58
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.417,
+     "lift": 1.42
+    },
+    {
+     "family": "spice",
+     "share": 0.314,
+     "lift": 1.16
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.264,
+     "lift": 2.08
+    },
+    {
+     "family": "herbal",
+     "share": 0.25,
+     "lift": 1.46
+    },
+    {
+     "family": "earthy",
+     "share": 0.192,
+     "lift": 1.17
+    },
+    {
+     "family": "pepper",
+     "share": 0.098,
+     "lift": 1.06
+    },
+    {
+     "family": "floral",
+     "share": 0.046,
+     "lift": 0.36
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.043,
+     "lift": 0.48
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.043,
+     "lift": 0.39
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.026,
+     "lift": 0.33
+    },
+    {
+     "family": "citrus",
+     "share": 0.01,
+     "lift": 0.05
+    },
+    {
+     "family": "nutty",
+     "share": 0.01,
+     "lift": 0.24
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.005,
+     "lift": 0.03
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.003,
+     "lift": 0.04
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.002,
+     "lift": 0.02
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.01
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.385
+    },
+    {
+     "term": "plum",
+     "share": 0.204
+    },
+    {
+     "term": "oak",
+     "share": 0.198
+    },
+    {
+     "term": "spice",
+     "share": 0.143
+    },
+    {
+     "term": "blackberry",
+     "share": 0.141
+    },
+    {
+     "term": "chocolate",
+     "share": 0.135
+    },
+    {
+     "term": "vanilla",
+     "share": 0.105
+    },
+    {
+     "term": "black cherry",
+     "share": 0.09
+    },
+    {
+     "term": "raspberry",
+     "share": 0.084
+    },
+    {
+     "term": "cherries",
+     "share": 0.084
+    },
+    {
+     "term": "herb",
+     "share": 0.078
+    },
+    {
+     "term": "herbal",
+     "share": 0.076
+    }
+   ]
+  },
+  "chinon": {
+   "reviews": 173,
+   "families": [
+    {
+     "family": "oak & toast",
+     "share": 0.318,
+     "lift": 1.08
+    },
+    {
+     "family": "red fruit",
+     "share": 0.312,
+     "lift": 0.93
+    },
+    {
+     "family": "black fruit",
+     "share": 0.26,
+     "lift": 0.86
+    },
+    {
+     "family": "spice",
+     "share": 0.243,
+     "lift": 0.9
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.075,
+     "lift": 0.68
+    },
+    {
+     "family": "earthy",
+     "share": 0.064,
+     "lift": 0.39
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.058,
+     "lift": 0.66
+    },
+    {
+     "family": "herbal",
+     "share": 0.052,
+     "lift": 0.3
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.035,
+     "lift": 0.44
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.023,
+     "lift": 0.18
+    },
+    {
+     "family": "floral",
+     "share": 0.017,
+     "lift": 0.14
+    },
+    {
+     "family": "citrus",
+     "share": 0.012,
+     "lift": 0.06
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.006,
+     "lift": 0.04
+    },
+    {
+     "family": "pepper",
+     "share": 0.006,
+     "lift": 0.06
+    },
+    {
+     "family": "nutty",
+     "share": 0.006,
+     "lift": 0.14
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "smoky",
+     "share": 0.26
+    },
+    {
+     "term": "spice",
+     "share": 0.162
+    },
+    {
+     "term": "cherry",
+     "share": 0.104
+    },
+    {
+     "term": "red berry",
+     "share": 0.098
+    },
+    {
+     "term": "plum",
+     "share": 0.087
+    },
+    {
+     "term": "spicy",
+     "share": 0.075
+    },
+    {
+     "term": "black currant",
+     "share": 0.075
+    },
+    {
+     "term": "blackberry",
+     "share": 0.069
+    },
+    {
+     "term": "mineral",
+     "share": 0.052
+    }
+   ]
+  },
+  "montepulciano": {
+   "reviews": 215,
+   "families": [
+    {
+     "family": "black fruit",
+     "share": 0.637,
+     "lift": 2.11
+    },
+    {
+     "family": "red fruit",
+     "share": 0.623,
+     "lift": 1.85
+    },
+    {
+     "family": "spice",
+     "share": 0.572,
+     "lift": 2.12
+    },
+    {
+     "family": "earthy",
+     "share": 0.386,
+     "lift": 2.35
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.251,
+     "lift": 1.98
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.242,
+     "lift": 0.82
+    },
+    {
+     "family": "floral",
+     "share": 0.167,
+     "lift": 1.32
+    },
+    {
+     "family": "herbal",
+     "share": 0.121,
+     "lift": 0.7
+    },
+    {
+     "family": "pepper",
+     "share": 0.088,
+     "lift": 0.96
+    },
+    {
+     "family": "nutty",
+     "share": 0.074,
+     "lift": 1.86
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.051,
+     "lift": 0.46
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.042,
+     "lift": 0.48
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.009,
+     "lift": 0.06
+    },
+    {
+     "family": "citrus",
+     "share": 0.005,
+     "lift": 0.02
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.005,
+     "lift": 0.04
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.005,
+     "lift": 0.06
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.558
+    },
+    {
+     "term": "spice",
+     "share": 0.395
+    },
+    {
+     "term": "blackberry",
+     "share": 0.26
+    },
+    {
+     "term": "tobacco",
+     "share": 0.177
+    },
+    {
+     "term": "plum",
+     "share": 0.167
+    },
+    {
+     "term": "black cherry",
+     "share": 0.167
+    },
+    {
+     "term": "oak",
+     "share": 0.144
+    },
+    {
+     "term": "chocolate",
+     "share": 0.14
+    },
+    {
+     "term": "leather",
+     "share": 0.121
+    },
+    {
+     "term": "espresso",
+     "share": 0.121
+    },
+    {
+     "term": "black fruit",
+     "share": 0.107
+    },
+    {
+     "term": "vanilla",
+     "share": 0.079
+    }
+   ]
+  },
+  "cab-napa": {
+   "reviews": 1838,
+   "families": [
+    {
+     "family": "black fruit",
+     "share": 0.746,
+     "lift": 2.48
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.603,
+     "lift": 2.05
+    },
+    {
+     "family": "red fruit",
+     "share": 0.418,
+     "lift": 1.24
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.306,
+     "lift": 2.41
+    },
+    {
+     "family": "spice",
+     "share": 0.22,
+     "lift": 0.81
+    },
+    {
+     "family": "earthy",
+     "share": 0.189,
+     "lift": 1.15
+    },
+    {
+     "family": "herbal",
+     "share": 0.147,
+     "lift": 0.86
+    },
+    {
+     "family": "pepper",
+     "share": 0.07,
+     "lift": 0.75
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.047,
+     "lift": 0.42
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.04,
+     "lift": 0.46
+    },
+    {
+     "family": "floral",
+     "share": 0.03,
+     "lift": 0.24
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.018,
+     "lift": 0.23
+    },
+    {
+     "family": "citrus",
+     "share": 0.004,
+     "lift": 0.02
+    },
+    {
+     "family": "nutty",
+     "share": 0.004,
+     "lift": 0.1
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.002,
+     "lift": 0.02
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.001,
+     "lift": 0.0
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "oak",
+     "share": 0.407
+    },
+    {
+     "term": "blackberry",
+     "share": 0.336
+    },
+    {
+     "term": "cherry",
+     "share": 0.255
+    },
+    {
+     "term": "chocolate",
+     "share": 0.209
+    },
+    {
+     "term": "cassis",
+     "share": 0.198
+    },
+    {
+     "term": "blackberries",
+     "share": 0.165
+    },
+    {
+     "term": "cedar",
+     "share": 0.16
+    },
+    {
+     "term": "smoky",
+     "share": 0.108
+    },
+    {
+     "term": "black currant",
+     "share": 0.101
+    },
+    {
+     "term": "cherries",
+     "share": 0.079
+    },
+    {
+     "term": "tobacco",
+     "share": 0.076
+    },
+    {
+     "term": "black cherry",
+     "share": 0.064
+    }
+   ]
+  },
+  "bordeaux": {
+   "reviews": 4725,
+   "families": [
+    {
+     "family": "black fruit",
+     "share": 0.375,
+     "lift": 1.24
+    },
+    {
+     "family": "spice",
+     "share": 0.17,
+     "lift": 0.63
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.144,
+     "lift": 0.49
+    },
+    {
+     "family": "red fruit",
+     "share": 0.085,
+     "lift": 0.25
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.059,
+     "lift": 0.46
+    },
+    {
+     "family": "earthy",
+     "share": 0.035,
+     "lift": 0.21
+    },
+    {
+     "family": "herbal",
+     "share": 0.033,
+     "lift": 0.19
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.022,
+     "lift": 0.2
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.012,
+     "lift": 0.14
+    },
+    {
+     "family": "pepper",
+     "share": 0.008,
+     "lift": 0.09
+    },
+    {
+     "family": "floral",
+     "share": 0.004,
+     "lift": 0.03
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.002,
+     "lift": 0.02
+    },
+    {
+     "family": "citrus",
+     "share": 0.001,
+     "lift": 0.0
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.001,
+     "lift": 0.01
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "nutty",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "black currant",
+     "share": 0.125
+    },
+    {
+     "term": "blackberry",
+     "share": 0.12
+    },
+    {
+     "term": "spice",
+     "share": 0.109
+    },
+    {
+     "term": "plum",
+     "share": 0.082
+    },
+    {
+     "term": "smoky",
+     "share": 0.078
+    }
+   ]
+  },
+  "syrah-rhone": {
+   "reviews": 164,
+   "families": [
+    {
+     "family": "black fruit",
+     "share": 0.476,
+     "lift": 1.58
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.421,
+     "lift": 1.43
+    },
+    {
+     "family": "red fruit",
+     "share": 0.311,
+     "lift": 0.92
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.311,
+     "lift": 2.45
+    },
+    {
+     "family": "pepper",
+     "share": 0.256,
+     "lift": 2.77
+    },
+    {
+     "family": "spice",
+     "share": 0.238,
+     "lift": 0.88
+    },
+    {
+     "family": "earthy",
+     "share": 0.22,
+     "lift": 1.33
+    },
+    {
+     "family": "herbal",
+     "share": 0.116,
+     "lift": 0.67
+    },
+    {
+     "family": "floral",
+     "share": 0.073,
+     "lift": 0.58
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.049,
+     "lift": 0.62
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.018,
+     "lift": 0.21
+    },
+    {
+     "family": "citrus",
+     "share": 0.006,
+     "lift": 0.03
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.006,
+     "lift": 0.09
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.006,
+     "lift": 0.06
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "nutty",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "plum",
+     "share": 0.171
+    },
+    {
+     "term": "cherry",
+     "share": 0.165
+    },
+    {
+     "term": "pepper",
+     "share": 0.159
+    },
+    {
+     "term": "cedar",
+     "share": 0.14
+    },
+    {
+     "term": "espresso",
+     "share": 0.14
+    },
+    {
+     "term": "vanilla",
+     "share": 0.14
+    },
+    {
+     "term": "oak",
+     "share": 0.134
+    },
+    {
+     "term": "spice",
+     "share": 0.098
+    },
+    {
+     "term": "coffee",
+     "share": 0.091
+    },
+    {
+     "term": "smoke",
+     "share": 0.085
+    },
+    {
+     "term": "blackberry",
+     "share": 0.085
+    },
+    {
+     "term": "peppery",
+     "share": 0.079
+    }
+   ]
+  },
+  "shiraz": {
+   "reviews": 620,
+   "families": [
+    {
+     "family": "oak & toast",
+     "share": 0.524,
+     "lift": 1.78
+    },
+    {
+     "family": "black fruit",
+     "share": 0.498,
+     "lift": 1.65
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.373,
+     "lift": 2.93
+    },
+    {
+     "family": "red fruit",
+     "share": 0.318,
+     "lift": 0.94
+    },
+    {
+     "family": "earthy",
+     "share": 0.258,
+     "lift": 1.57
+    },
+    {
+     "family": "spice",
+     "share": 0.218,
+     "lift": 0.81
+    },
+    {
+     "family": "herbal",
+     "share": 0.189,
+     "lift": 1.1
+    },
+    {
+     "family": "pepper",
+     "share": 0.171,
+     "lift": 1.85
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.171,
+     "lift": 2.17
+    },
+    {
+     "family": "floral",
+     "share": 0.024,
+     "lift": 0.19
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.024,
+     "lift": 0.28
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.006,
+     "lift": 0.06
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.005,
+     "lift": 0.04
+    },
+    {
+     "family": "citrus",
+     "share": 0.002,
+     "lift": 0.01
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.002,
+     "lift": 0.01
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "nutty",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "vanilla",
+     "share": 0.31
+    },
+    {
+     "term": "oak",
+     "share": 0.173
+    },
+    {
+     "term": "plum",
+     "share": 0.169
+    },
+    {
+     "term": "creamy",
+     "share": 0.166
+    },
+    {
+     "term": "chocolate",
+     "share": 0.144
+    },
+    {
+     "term": "spice",
+     "share": 0.129
+    },
+    {
+     "term": "blackberry",
+     "share": 0.124
+    },
+    {
+     "term": "cherry",
+     "share": 0.119
+    },
+    {
+     "term": "cedar",
+     "share": 0.11
+    },
+    {
+     "term": "dusty",
+     "share": 0.108
+    },
+    {
+     "term": "mocha",
+     "share": 0.106
+    },
+    {
+     "term": "raspberry",
+     "share": 0.1
+    }
+   ]
+  },
+  "malbec": {
+   "reviews": 1510,
+   "families": [
+    {
+     "family": "black fruit",
+     "share": 0.707,
+     "lift": 2.35
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.486,
+     "lift": 1.65
+    },
+    {
+     "family": "spice",
+     "share": 0.328,
+     "lift": 1.21
+    },
+    {
+     "family": "herbal",
+     "share": 0.319,
+     "lift": 1.86
+    },
+    {
+     "family": "red fruit",
+     "share": 0.258,
+     "lift": 0.77
+    },
+    {
+     "family": "earthy",
+     "share": 0.241,
+     "lift": 1.46
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.225,
+     "lift": 1.77
+    },
+    {
+     "family": "pepper",
+     "share": 0.111,
+     "lift": 1.2
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.08,
+     "lift": 0.73
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.079,
+     "lift": 1.0
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.077,
+     "lift": 0.87
+    },
+    {
+     "family": "floral",
+     "share": 0.073,
+     "lift": 0.58
+    },
+    {
+     "family": "citrus",
+     "share": 0.025,
+     "lift": 0.13
+    },
+    {
+     "family": "nutty",
+     "share": 0.005,
+     "lift": 0.12
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.004,
+     "lift": 0.03
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.003,
+     "lift": 0.03
+    },
+    {
+     "family": "melon",
+     "share": 0.003,
+     "lift": 0.07
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.001,
+     "lift": 0.01
+    }
+   ],
+   "terms": [
+    {
+     "term": "plum",
+     "share": 0.366
+    },
+    {
+     "term": "blackberry",
+     "share": 0.316
+    },
+    {
+     "term": "oak",
+     "share": 0.241
+    },
+    {
+     "term": "herbal",
+     "share": 0.215
+    },
+    {
+     "term": "spice",
+     "share": 0.164
+    },
+    {
+     "term": "chocolate",
+     "share": 0.156
+    },
+    {
+     "term": "cherry",
+     "share": 0.151
+    },
+    {
+     "term": "cassis",
+     "share": 0.12
+    },
+    {
+     "term": "oaky",
+     "share": 0.116
+    },
+    {
+     "term": "earthy",
+     "share": 0.109
+    },
+    {
+     "term": "toasty",
+     "share": 0.106
+    },
+    {
+     "term": "raspberry",
+     "share": 0.104
+    }
+   ]
+  },
+  "zinfandel": {
+   "reviews": 2714,
+   "families": [
+    {
+     "family": "black fruit",
+     "share": 0.469,
+     "lift": 1.56
+    },
+    {
+     "family": "red fruit",
+     "share": 0.468,
+     "lift": 1.39
+    },
+    {
+     "family": "spice",
+     "share": 0.388,
+     "lift": 1.44
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.282,
+     "lift": 0.96
+    },
+    {
+     "family": "pepper",
+     "share": 0.261,
+     "lift": 2.83
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.242,
+     "lift": 1.9
+    },
+    {
+     "family": "earthy",
+     "share": 0.219,
+     "lift": 1.33
+    },
+    {
+     "family": "herbal",
+     "share": 0.099,
+     "lift": 0.58
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.094,
+     "lift": 1.06
+    },
+    {
+     "family": "floral",
+     "share": 0.036,
+     "lift": 0.29
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.027,
+     "lift": 0.25
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.025,
+     "lift": 0.32
+    },
+    {
+     "family": "citrus",
+     "share": 0.012,
+     "lift": 0.06
+    },
+    {
+     "family": "nutty",
+     "share": 0.007,
+     "lift": 0.17
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.002,
+     "lift": 0.02
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.001,
+     "lift": 0.01
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.001,
+     "lift": 0.01
+    },
+    {
+     "family": "melon",
+     "share": 0.001,
+     "lift": 0.02
+    }
+   ],
+   "terms": [
+    {
+     "term": "blackberry",
+     "share": 0.248
+    },
+    {
+     "term": "cherry",
+     "share": 0.227
+    },
+    {
+     "term": "chocolate",
+     "share": 0.148
+    },
+    {
+     "term": "spice",
+     "share": 0.132
+    },
+    {
+     "term": "raspberry",
+     "share": 0.126
+    },
+    {
+     "term": "oak",
+     "share": 0.121
+    },
+    {
+     "term": "spicy",
+     "share": 0.115
+    },
+    {
+     "term": "pepper",
+     "share": 0.1
+    },
+    {
+     "term": "black pepper",
+     "share": 0.094
+    },
+    {
+     "term": "plum",
+     "share": 0.084
+    },
+    {
+     "term": "cinnamon",
+     "share": 0.08
+    },
+    {
+     "term": "cherries",
+     "share": 0.078
+    }
+   ]
+  },
+  "barolo": {
+   "reviews": 1609,
+   "families": [
+    {
+     "family": "spice",
+     "share": 0.775,
+     "lift": 2.87
+    },
+    {
+     "family": "red fruit",
+     "share": 0.753,
+     "lift": 2.24
+    },
+    {
+     "family": "earthy",
+     "share": 0.523,
+     "lift": 3.18
+    },
+    {
+     "family": "herbal",
+     "share": 0.443,
+     "lift": 2.58
+    },
+    {
+     "family": "black fruit",
+     "share": 0.369,
+     "lift": 1.22
+    },
+    {
+     "family": "floral",
+     "share": 0.349,
+     "lift": 2.76
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.339,
+     "lift": 1.15
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.29,
+     "lift": 2.28
+    },
+    {
+     "family": "pepper",
+     "share": 0.183,
+     "lift": 1.99
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.063,
+     "lift": 0.57
+    },
+    {
+     "family": "citrus",
+     "share": 0.04,
+     "lift": 0.2
+    },
+    {
+     "family": "nutty",
+     "share": 0.039,
+     "lift": 0.98
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.029,
+     "lift": 0.33
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.019,
+     "lift": 0.24
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.005,
+     "lift": 0.03
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.001,
+     "lift": 0.01
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.672
+    },
+    {
+     "term": "licorice",
+     "share": 0.334
+    },
+    {
+     "term": "spice",
+     "share": 0.307
+    },
+    {
+     "term": "black cherry",
+     "share": 0.246
+    },
+    {
+     "term": "leather",
+     "share": 0.244
+    },
+    {
+     "term": "raspberry",
+     "share": 0.221
+    },
+    {
+     "term": "herb",
+     "share": 0.211
+    },
+    {
+     "term": "rose",
+     "share": 0.204
+    },
+    {
+     "term": "clove",
+     "share": 0.188
+    },
+    {
+     "term": "tobacco",
+     "share": 0.17
+    },
+    {
+     "term": "oak",
+     "share": 0.165
+    },
+    {
+     "term": "anise",
+     "share": 0.154
+    }
+   ]
+  },
+  "amarone": {
+   "reviews": 610,
+   "families": [
+    {
+     "family": "spice",
+     "share": 0.697,
+     "lift": 2.58
+    },
+    {
+     "family": "black fruit",
+     "share": 0.648,
+     "lift": 2.15
+    },
+    {
+     "family": "red fruit",
+     "share": 0.541,
+     "lift": 1.61
+    },
+    {
+     "family": "earthy",
+     "share": 0.52,
+     "lift": 3.16
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.359,
+     "lift": 2.82
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.352,
+     "lift": 1.2
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.298,
+     "lift": 3.39
+    },
+    {
+     "family": "pepper",
+     "share": 0.225,
+     "lift": 2.43
+    },
+    {
+     "family": "floral",
+     "share": 0.177,
+     "lift": 1.4
+    },
+    {
+     "family": "herbal",
+     "share": 0.125,
+     "lift": 0.72
+    },
+    {
+     "family": "nutty",
+     "share": 0.077,
+     "lift": 1.93
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.062,
+     "lift": 0.43
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.039,
+     "lift": 0.36
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.01,
+     "lift": 0.12
+    },
+    {
+     "family": "citrus",
+     "share": 0.007,
+     "lift": 0.03
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.003,
+     "lift": 0.03
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "cherry",
+     "share": 0.482
+    },
+    {
+     "term": "spice",
+     "share": 0.418
+    },
+    {
+     "term": "plum",
+     "share": 0.316
+    },
+    {
+     "term": "tobacco",
+     "share": 0.315
+    },
+    {
+     "term": "blackberry",
+     "share": 0.275
+    },
+    {
+     "term": "licorice",
+     "share": 0.257
+    },
+    {
+     "term": "black cherry",
+     "share": 0.254
+    },
+    {
+     "term": "raisin",
+     "share": 0.221
+    },
+    {
+     "term": "leather",
+     "share": 0.216
+    },
+    {
+     "term": "chocolate",
+     "share": 0.18
+    },
+    {
+     "term": "oak",
+     "share": 0.152
+    },
+    {
+     "term": "black pepper",
+     "share": 0.138
+    }
+   ]
+  },
+  "sauternes": {
+   "reviews": 193,
+   "families": [
+    {
+     "family": "honey & caramel",
+     "share": 0.518,
+     "lift": 5.89
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.301,
+     "lift": 2.69
+    },
+    {
+     "family": "citrus",
+     "share": 0.238,
+     "lift": 1.2
+    },
+    {
+     "family": "spice",
+     "share": 0.238,
+     "lift": 0.88
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.098,
+     "lift": 0.68
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.078,
+     "lift": 1.1
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.036,
+     "lift": 0.46
+    },
+    {
+     "family": "floral",
+     "share": 0.031,
+     "lift": 0.25
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.026,
+     "lift": 0.09
+    },
+    {
+     "family": "nutty",
+     "share": 0.026,
+     "lift": 0.65
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.021,
+     "lift": 0.19
+    },
+    {
+     "family": "herbal",
+     "share": 0.01,
+     "lift": 0.06
+    },
+    {
+     "family": "earthy",
+     "share": 0.01,
+     "lift": 0.06
+    },
+    {
+     "family": "black fruit",
+     "share": 0.005,
+     "lift": 0.02
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "pepper",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "honey",
+     "share": 0.363
+    },
+    {
+     "term": "apricot",
+     "share": 0.187
+    },
+    {
+     "term": "spice",
+     "share": 0.161
+    },
+    {
+     "term": "lemon",
+     "share": 0.124
+    },
+    {
+     "term": "peach",
+     "share": 0.093
+    },
+    {
+     "term": "honeyed",
+     "share": 0.088
+    },
+    {
+     "term": "marmalade",
+     "share": 0.088
+    },
+    {
+     "term": "citrus",
+     "share": 0.057
+    },
+    {
+     "term": "spicy",
+     "share": 0.057
+    }
+   ]
+  },
+  "moscato-dasti": {
+   "reviews": 190,
+   "families": [
+    {
+     "family": "stone fruit",
+     "share": 0.795,
+     "lift": 7.12
+    },
+    {
+     "family": "floral",
+     "share": 0.642,
+     "lift": 5.07
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.495,
+     "lift": 5.63
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.4,
+     "lift": 5.07
+    },
+    {
+     "family": "citrus",
+     "share": 0.389,
+     "lift": 1.96
+    },
+    {
+     "family": "herbal",
+     "share": 0.253,
+     "lift": 1.47
+    },
+    {
+     "family": "nutty",
+     "share": 0.163,
+     "lift": 4.09
+    },
+    {
+     "family": "spice",
+     "share": 0.121,
+     "lift": 0.45
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.079,
+     "lift": 0.55
+    },
+    {
+     "family": "red fruit",
+     "share": 0.063,
+     "lift": 0.19
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.063,
+     "lift": 0.21
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.058,
+     "lift": 0.82
+    },
+    {
+     "family": "melon",
+     "share": 0.042,
+     "lift": 1.19
+    },
+    {
+     "family": "pepper",
+     "share": 0.021,
+     "lift": 0.23
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.021,
+     "lift": 0.19
+    },
+    {
+     "family": "black fruit",
+     "share": 0.011,
+     "lift": 0.03
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.011,
+     "lift": 0.08
+    },
+    {
+     "family": "earthy",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "peach",
+     "share": 0.537
+    },
+    {
+     "term": "honey",
+     "share": 0.458
+    },
+    {
+     "term": "apricot",
+     "share": 0.311
+    },
+    {
+     "term": "creamy",
+     "share": 0.311
+    },
+    {
+     "term": "flower",
+     "share": 0.274
+    },
+    {
+     "term": "stone fruit",
+     "share": 0.174
+    },
+    {
+     "term": "blossom",
+     "share": 0.163
+    },
+    {
+     "term": "almond",
+     "share": 0.142
+    },
+    {
+     "term": "citrus",
+     "share": 0.142
+    },
+    {
+     "term": "lemon",
+     "share": 0.142
+    },
+    {
+     "term": "sage",
+     "share": 0.132
+    },
+    {
+     "term": "jasmine",
+     "share": 0.132
+    }
+   ]
+  },
+  "tokaji": {
+   "reviews": 42,
+   "families": [
+    {
+     "family": "honey & caramel",
+     "share": 0.643,
+     "lift": 7.31
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.571,
+     "lift": 5.12
+    },
+    {
+     "family": "citrus",
+     "share": 0.5,
+     "lift": 2.52
+    },
+    {
+     "family": "floral",
+     "share": 0.429,
+     "lift": 3.39
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.357,
+     "lift": 2.47
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.214,
+     "lift": 3.04
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.214,
+     "lift": 0.73
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.19,
+     "lift": 2.41
+    },
+    {
+     "family": "spice",
+     "share": 0.143,
+     "lift": 0.53
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.119,
+     "lift": 1.08
+    },
+    {
+     "family": "herbal",
+     "share": 0.071,
+     "lift": 0.42
+    },
+    {
+     "family": "earthy",
+     "share": 0.071,
+     "lift": 0.43
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.048,
+     "lift": 0.37
+    },
+    {
+     "family": "black fruit",
+     "share": 0.024,
+     "lift": 0.08
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "pepper",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "nutty",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "apricot",
+     "share": 0.452
+    },
+    {
+     "term": "honey",
+     "share": 0.429
+    },
+    {
+     "term": "pear",
+     "share": 0.262
+    },
+    {
+     "term": "apple",
+     "share": 0.19
+    },
+    {
+     "term": "vanilla",
+     "share": 0.19
+    },
+    {
+     "term": "lemon",
+     "share": 0.167
+    },
+    {
+     "term": "citrus",
+     "share": 0.167
+    },
+    {
+     "term": "honeyed",
+     "share": 0.167
+    },
+    {
+     "term": "orange peel",
+     "share": 0.143
+    },
+    {
+     "term": "creamy",
+     "share": 0.119
+    },
+    {
+     "term": "pineapple",
+     "share": 0.119
+    },
+    {
+     "term": "flower",
+     "share": 0.119
+    }
+   ]
+  },
+  "vin-santo": {
+   "reviews": 41,
+   "families": [
+    {
+     "family": "honey & caramel",
+     "share": 0.854,
+     "lift": 9.71
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.585,
+     "lift": 5.25
+    },
+    {
+     "family": "nutty",
+     "share": 0.585,
+     "lift": 14.67
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.39,
+     "lift": 1.33
+    },
+    {
+     "family": "spice",
+     "share": 0.317,
+     "lift": 1.17
+    },
+    {
+     "family": "citrus",
+     "share": 0.22,
+     "lift": 1.11
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.049,
+     "lift": 0.34
+    },
+    {
+     "family": "herbal",
+     "share": 0.049,
+     "lift": 0.28
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.049,
+     "lift": 0.62
+    },
+    {
+     "family": "floral",
+     "share": 0.024,
+     "lift": 0.19
+    },
+    {
+     "family": "earthy",
+     "share": 0.024,
+     "lift": 0.15
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.024,
+     "lift": 0.19
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "black fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "pepper",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "honey",
+     "share": 0.659
+    },
+    {
+     "term": "apricot",
+     "share": 0.488
+    },
+    {
+     "term": "almond",
+     "share": 0.415
+    },
+    {
+     "term": "toasted",
+     "share": 0.268
+    },
+    {
+     "term": "caramel",
+     "share": 0.268
+    },
+    {
+     "term": "butterscotch",
+     "share": 0.171
+    },
+    {
+     "term": "nut",
+     "share": 0.146
+    },
+    {
+     "term": "spice",
+     "share": 0.146
+    },
+    {
+     "term": "citrus",
+     "share": 0.122
+    },
+    {
+     "term": "hazelnut",
+     "share": 0.122
+    },
+    {
+     "term": "apricots",
+     "share": 0.098
+    },
+    {
+     "term": "stone fruit",
+     "share": 0.098
+    }
+   ]
+  },
+  "fino-sherry": {
+   "reviews": 29,
+   "families": [
+    {
+     "family": "nutty",
+     "share": 0.759,
+     "lift": 19.01
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.69,
+     "lift": 6.25
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.379,
+     "lift": 4.8
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.345,
+     "lift": 3.09
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.207,
+     "lift": 0.7
+    },
+    {
+     "family": "citrus",
+     "share": 0.172,
+     "lift": 0.87
+    },
+    {
+     "family": "earthy",
+     "share": 0.138,
+     "lift": 0.84
+    },
+    {
+     "family": "pepper",
+     "share": 0.138,
+     "lift": 1.49
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.138,
+     "lift": 1.57
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.103,
+     "lift": 0.71
+    },
+    {
+     "family": "melon",
+     "share": 0.069,
+     "lift": 1.95
+    },
+    {
+     "family": "spice",
+     "share": 0.069,
+     "lift": 0.26
+    },
+    {
+     "family": "floral",
+     "share": 0.034,
+     "lift": 0.27
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "black fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "herbal",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "salty",
+     "share": 0.379
+    },
+    {
+     "term": "nutty",
+     "share": 0.345
+    },
+    {
+     "term": "briny",
+     "share": 0.345
+    },
+    {
+     "term": "apricot",
+     "share": 0.31
+    },
+    {
+     "term": "nut",
+     "share": 0.276
+    },
+    {
+     "term": "sea",
+     "share": 0.276
+    },
+    {
+     "term": "almond",
+     "share": 0.207
+    },
+    {
+     "term": "yeasty",
+     "share": 0.172
+    },
+    {
+     "term": "saline",
+     "share": 0.172
+    },
+    {
+     "term": "butter",
+     "share": 0.172
+    },
+    {
+     "term": "vanilla",
+     "share": 0.172
+    },
+    {
+     "term": "buttery",
+     "share": 0.172
+    }
+   ]
+  },
+  "amontillado": {
+   "reviews": 57,
+   "families": [
+    {
+     "family": "honey & caramel",
+     "share": 0.825,
+     "lift": 9.38
+    },
+    {
+     "family": "nutty",
+     "share": 0.632,
+     "lift": 15.83
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.333,
+     "lift": 2.99
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.263,
+     "lift": 2.07
+    },
+    {
+     "family": "citrus",
+     "share": 0.246,
+     "lift": 1.24
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.246,
+     "lift": 0.83
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.211,
+     "lift": 1.91
+    },
+    {
+     "family": "earthy",
+     "share": 0.175,
+     "lift": 1.07
+    },
+    {
+     "family": "spice",
+     "share": 0.175,
+     "lift": 0.65
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.088,
+     "lift": 1.11
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.053,
+     "lift": 0.36
+    },
+    {
+     "family": "pepper",
+     "share": 0.053,
+     "lift": 0.57
+    },
+    {
+     "family": "floral",
+     "share": 0.018,
+     "lift": 0.14
+    },
+    {
+     "family": "red fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "black fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "herbal",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "toffee",
+     "share": 0.509
+    },
+    {
+     "term": "nutty",
+     "share": 0.456
+    },
+    {
+     "term": "caramel",
+     "share": 0.421
+    },
+    {
+     "term": "apricot",
+     "share": 0.298
+    },
+    {
+     "term": "almond",
+     "share": 0.193
+    },
+    {
+     "term": "citrus",
+     "share": 0.193
+    },
+    {
+     "term": "salty",
+     "share": 0.158
+    },
+    {
+     "term": "hazelnut",
+     "share": 0.123
+    },
+    {
+     "term": "chocolate",
+     "share": 0.123
+    },
+    {
+     "term": "toasted",
+     "share": 0.123
+    },
+    {
+     "term": "honey",
+     "share": 0.105
+    },
+    {
+     "term": "mocha",
+     "share": 0.105
+    }
+   ]
+  },
+  "tawny-port": {
+   "reviews": 168,
+   "families": [
+    {
+     "family": "honey & caramel",
+     "share": 0.494,
+     "lift": 5.62
+    },
+    {
+     "family": "spice",
+     "share": 0.22,
+     "lift": 0.82
+    },
+    {
+     "family": "nutty",
+     "share": 0.131,
+     "lift": 3.28
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.101,
+     "lift": 0.34
+    },
+    {
+     "family": "red fruit",
+     "share": 0.077,
+     "lift": 0.23
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.054,
+     "lift": 0.42
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.03,
+     "lift": 0.38
+    },
+    {
+     "family": "black fruit",
+     "share": 0.024,
+     "lift": 0.08
+    },
+    {
+     "family": "citrus",
+     "share": 0.018,
+     "lift": 0.09
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.018,
+     "lift": 0.16
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.006,
+     "lift": 0.04
+    },
+    {
+     "family": "floral",
+     "share": 0.006,
+     "lift": 0.05
+    },
+    {
+     "family": "earthy",
+     "share": 0.006,
+     "lift": 0.04
+    },
+    {
+     "family": "pepper",
+     "share": 0.006,
+     "lift": 0.06
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.006,
+     "lift": 0.05
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "herbal",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "spice",
+     "share": 0.196
+    },
+    {
+     "term": "toffee",
+     "share": 0.155
+    },
+    {
+     "term": "caramel",
+     "share": 0.107
+    },
+    {
+     "term": "raisin",
+     "share": 0.101
+    },
+    {
+     "term": "raisins",
+     "share": 0.095
+    },
+    {
+     "term": "marmalade",
+     "share": 0.054
+    }
+   ]
+  },
+  "ruby-port": {
+   "reviews": 468,
+   "families": [
+    {
+     "family": "black fruit",
+     "share": 0.389,
+     "lift": 1.29
+    },
+    {
+     "family": "honey & caramel",
+     "share": 0.205,
+     "lift": 2.33
+    },
+    {
+     "family": "spice",
+     "share": 0.147,
+     "lift": 0.55
+    },
+    {
+     "family": "red fruit",
+     "share": 0.135,
+     "lift": 0.4
+    },
+    {
+     "family": "chocolate & coffee",
+     "share": 0.094,
+     "lift": 0.74
+    },
+    {
+     "family": "oak & toast",
+     "share": 0.075,
+     "lift": 0.25
+    },
+    {
+     "family": "floral",
+     "share": 0.051,
+     "lift": 0.41
+    },
+    {
+     "family": "earthy",
+     "share": 0.045,
+     "lift": 0.27
+    },
+    {
+     "family": "herbal",
+     "share": 0.028,
+     "lift": 0.16
+    },
+    {
+     "family": "mineral & saline",
+     "share": 0.019,
+     "lift": 0.17
+    },
+    {
+     "family": "nutty",
+     "share": 0.015,
+     "lift": 0.37
+    },
+    {
+     "family": "citrus",
+     "share": 0.013,
+     "lift": 0.06
+    },
+    {
+     "family": "pepper",
+     "share": 0.013,
+     "lift": 0.14
+    },
+    {
+     "family": "stone fruit",
+     "share": 0.011,
+     "lift": 0.1
+    },
+    {
+     "family": "butter & bread",
+     "share": 0.011,
+     "lift": 0.14
+    },
+    {
+     "family": "orchard fruit",
+     "share": 0.004,
+     "lift": 0.03
+    },
+    {
+     "family": "tropical fruit",
+     "share": 0.0,
+     "lift": 0.0
+    },
+    {
+     "family": "melon",
+     "share": 0.0,
+     "lift": 0.0
+    }
+   ],
+   "terms": [
+    {
+     "term": "blackberry",
+     "share": 0.124
+    },
+    {
+     "term": "plum",
+     "share": 0.111
+    },
+    {
+     "term": "spice",
+     "share": 0.098
+    },
+    {
+     "term": "chocolate",
+     "share": 0.083
+    },
+    {
+     "term": "cherry",
+     "share": 0.066
+    },
+    {
+     "term": "caramel",
+     "share": 0.056
+    },
+    {
+     "term": "black currant",
+     "share": 0.051
+    }
+   ]
+  },
+  "madeira": {
+   "reviews": 11,
+   "families": [],
+   "terms": [],
+   "note": "fewer than 15 reviews — not profiled"
+  }
+ }
+}
