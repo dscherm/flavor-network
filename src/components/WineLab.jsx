@@ -13,6 +13,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import LabNodeCard from './LabNodeCard.jsx';
+import DishStory from './DishStory.jsx';
 import { loadWineStyles, similarWines, wineSearchText, dots, familyColor, fromCountry, countryIndex } from '../data/wineStyles.js';
 import { scaleWord } from '../data/winePairing.js';
 import { wineProfileAxes, wineFoodMapping, reviewHighlights } from '../data/wineProfile.js';
@@ -337,6 +338,7 @@ export default function WineLab({
       onClose={() => setSelectedId(null)}
     >
       <WineProfileSections wine={selected} color={familyColor(families, selected.family)} reviewEntry={reviewAromas?.[selected.id]} />
+      <DishStory kind="wine" storyKey={selected.id} name={selected.name} />
     </LabNodeCard>
   );
 

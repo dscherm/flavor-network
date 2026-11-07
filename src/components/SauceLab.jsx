@@ -12,6 +12,7 @@ import SaucePantryPanel from './SaucePantryPanel.jsx';
 import InventSauce from './InventSauce.jsx';
 import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, loadSpiceRack, saveSpiceRack, addToKitchen } from '../data/myKitchen.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
+import DishStory from './DishStory.jsx';
 import { needsFromKitchen } from '../data/whatDoINeed.js';
 import { buildCategoryMap } from '../data/saucePantry.js';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
@@ -229,6 +230,7 @@ export default function SauceLab({
               <SaucePairings sauce={detailSauce} color={familyForSelected?.color} onFindWine={onFindWine}
                 categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
             )}
+            <DishStory kind="sauce" storyKey={detailSauce?.name || selectedSauce} name={detailSauce?.name || selectedSauce} />
           </LabNodeCard>
         ) : (
           <SauceSuggestionDeck
@@ -341,6 +343,7 @@ export default function SauceLab({
               <SaucePairings sauce={s} color={familyForSelected?.color} onFindWine={onFindWine}
                 categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
             )}
+            <DishStory kind="sauce" storyKey={s?.name || selectedSauce} name={s?.name || selectedSauce} />
           </LabNodeCard>
         );
       })()}
