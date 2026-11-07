@@ -1,19 +1,12 @@
 /**
- * AnimatedLogo — chalk-rendered Neural Flavor brand mark (chef toque +
- * "Nf" nucleus + Rutherford atomic-orbit shells, drawn in chalk on a
- * chalkboard).
+ * AnimatedLogo — the Neural Flavor brand mark on the landing page.
  *
- * Currently a static chalk PNG; the animated orbiting electrons were
- * removed because the hand-drawn chalk rings in the PNG aren't true
- * ellipses, so no programmatic motion path traced them convincingly.
+ * Drawn in chalk as SVG (ChalkLogo): chef's toque with "Nf" on the band,
+ * over a Rutherford atom whose electrons travel its orbits. The old painted
+ * PNG stays at public/fn-logo-chalk.png (used nowhere in the app now).
  */
+import ChalkLogo from './ChalkLogo.jsx';
+
 export default function AnimatedLogo({ className = '', title = 'Neural Flavor' }) {
-  return (
-    <img
-      src="/fn-logo-chalk.png"
-      alt={title}
-      className={className}
-      draggable={false}
-    />
-  );
+  return <ChalkLogo className={className} title={title} />;
 }
