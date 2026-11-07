@@ -348,7 +348,7 @@ export default function WineLab({
           {onBackToRecipe && (
             <button type="button" onClick={onBackToRecipe} data-testid="wine-matches-back"
               className="px-3 py-1.5 rounded-lg text-[15px]" style={{ fontFamily: FONT, color: CHALK_CREAM, border: `1px solid ${CHALK_RAIL}` }}>
-              ← Back to recipe
+              ← Back to {matchesContext?.returnTab === 'sauce' ? 'sauce' : 'recipe'}
             </button>
           )}
           <span className="flex-1 text-[22px] truncate" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>Wines for {matchesContext.recipeName}</span>

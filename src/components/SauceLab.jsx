@@ -7,6 +7,7 @@ import {
 } from '../data/sauceCodex.js';
 import SauceSuggestionDeck from './SauceSuggestionDeck.jsx';
 import { ChalkLoader } from './chalkArt.jsx';
+import SaucePairings from './SaucePairings.jsx';
 
 /**
  * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
@@ -35,6 +36,8 @@ export default function SauceLab({
   // only the matched sauces instead of the full browse view.
   // Shape: { recipeName: string, items: AromaMatchResult[] }
   matchesContext = null,
+  // Opens the Wine Lab's matches for an ingredient list (App.handleFindWine).
+  onFindWine = null,
   onExitMatches = () => {},
   onBackToRecipe = null,
 }) {
@@ -162,7 +165,12 @@ export default function SauceLab({
             pairsWith={detailSauce?.pairsWith || []}
             onSelect={(name) => setSelectedSauce(name)}
             onClose={() => setSelectedSauce(null)}
-          />
+          >
+            {detailSauce && (
+              <SaucePairings sauce={detailSauce} color={familyForSelected?.color} onFindWine={onFindWine}
+                categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
+            )}
+          </LabNodeCard>
         ) : (
           <SauceSuggestionDeck
             items={matchesContext.items}
@@ -221,7 +229,12 @@ export default function SauceLab({
             pairsWith={s?.pairsWith || []}
             onSelect={(name) => setSelectedSauce(name)}
             onClose={() => setSelectedSauce(null)}
-          />
+          >
+            {s && (
+              <SaucePairings sauce={s} color={familyForSelected?.color} onFindWine={onFindWine}
+                categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
+            )}
+          </LabNodeCard>
         );
       })()}
 

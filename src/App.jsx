@@ -2142,6 +2142,7 @@ export default function App() {
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
             onExitMatches={() => setMatchesContext(null)}
+            onFindWine={handleFindWine}
             onBackToRecipe={() => { const back = matchesContext?.returnTab || 'recipe'; setMatchesContext(null); setActiveTab(back); }}
             onSelectionChange={handleLabSelectionChange}
             onOpenRecipeLab={(_mode, initialIngredients) => {

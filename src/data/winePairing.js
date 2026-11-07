@@ -135,8 +135,9 @@ export function dishProfile(ingredients, ctx = {}) {
   // Real char and smoke (grill, barbecue sauce, chipotle) — not bacon or paprika.
   const charred = grilled || names.some((x) => /\b(barbecue|bbq|chipotle|smoked|liquid smoke)\b/.test(x));
   const cookedWith = {
-    red: names.some((x) => /\bred wine\b/.test(x)),
-    white: names.some((x) => /\b(white wine|dry white)\b/.test(x)),
+    // Wine in the pot, not wine vinegar (Béarnaise, a red-wine-vinegar dressing).
+    red: names.some((x) => /\bred wine\b/.test(x) && !/vinegar/.test(x)),
+    white: names.some((x) => /\b(white wine|dry white)\b/.test(x) && !/vinegar/.test(x)),
   };
   const hotChili = names.filter((x) => (has('chili', x) || ctx.categoryOf?.(x) === 'chili') && !MILD_CHILI.test(x)).length;
   const mildChili = names.filter((x) => MILD_CHILI.test(x)).length;

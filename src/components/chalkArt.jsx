@@ -297,6 +297,9 @@ const INGREDIENT_GLYPHS = {
   bowl: 'M4 14 L28 14 Q27 26 16 26 Q5 26 4 14 Z M10 10 Q12 7 10 4 M17 10 Q19 7 17 4',
   tomato: 'M16 9 Q27 9 27 19 Q27 28 16 28 Q5 28 5 19 Q5 9 16 9 Z M16 9 L12 6 M16 9 L20 6 M16 9 L11 10 M16 9 L21 10 M16 9 L16 4',
   potato: 'M5 18 Q4 9 14 8 Q26 6 28 15 Q29 25 17 26 Q6 27 5 18 Z M11 14 L11.5 14.5 M19 12 L19.5 12.5 M21 20 L21.5 20.5',
+  drumstick: 'M20 4 Q29 5 28 14 Q27 21 19 20 L12 25 Q13 29 9 29 Q7 29 7 27 Q4 27 4 24 Q4 21 8 21 L13 15 Q12 6 20 4 Z',
+  steak: 'M6 12 Q10 4 20 6 Q29 8 27 18 Q25 27 14 26 Q4 25 5 18 Q5 15 6 12 Z M12 13 Q17 10 21 14 M10 19 Q16 21 22 18',
+  egg: 'M16 4 Q25 6 25 18 Q25 28 16 28 Q7 28 7 18 Q7 6 16 4 Z',
   broccoli: 'M7 16 Q3 10 9 8 Q11 3 16 5 Q21 2 23 8 Q29 10 25 16 Z M13 16 L14 28 L18 28 L19 16 M16 22 L12 18 M16 22 L20 18',
 };
 
@@ -321,6 +324,11 @@ const CATEGORY_GLYPH = {
 // A few ingredients are common enough to get their own drawing, ahead of
 // their category's (tomato is a "vegetable", but not a carrot).
 const NAME_GLYPH = [
+  [/\b(chicken|turkey|duck|rabbit|quail|poultry)\b/, 'drumstick'],
+  [/\b(beef|veal|lamb|pork|ham|sausage|bison|venison|steak|mutton|goat)\b/, 'steak'],
+  [/\beggs?\b/, 'egg'],
+  [/\b(tofu|paneer)\b/, 'cube'],
+  [/fish|salmon|tuna|cod|shrimp|prawn|crab|lobster|clam|mussel|scallop|oyster|anchov|sardine/, 'fish'],
   [/tomato/, 'tomato'],
   [/potato/, 'potato'],
   [/onion|shallot|leek|garlic/, 'bulb'],
