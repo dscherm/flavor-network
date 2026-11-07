@@ -1437,3 +1437,18 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "DESIGN-5",
+  "title": "Landing logo redrawn in chalk as SVG",
+  "category": "ui",
+  "passes": true,
+  "description": "The landing logo (chef's toque with Nf on the band over a Rutherford atom) was a painted PNG. Redrawn as an SVG component (src/components/ChalkLogo.jsx, rendered by AnimatedLogo) in the lab icons' chalk style: crisp line over a faint dust halo, slightly roughened edges. Toque per the owner: tall pleated band, three round puffs overhanging it, middle tallest. Atom per the owner: upright middle orbit orange, the two tilted orbits green. Orbits are true ellipses, so electrons travel them again; hidden under prefers-reduced-motion. public/fn-logo-chalk.png kept, unused.",
+  "acceptance": [
+    "Landing shows the SVG logo with an accessible name (test)",
+    "Nf on the band, three orbits, three moving electrons; animate=false draws it still (test)",
+    "Checked at 375px and enlarged: hat reads as a toque, atom clear of the band"
+  ]
+}
+```
