@@ -17,7 +17,7 @@ TAGS = ROOT + 'data/experiments/aroma_tags_449.json'
 VOCAB = ['citrus', 'berry', 'stone-fruit', 'tropical-fruit', 'apple-pear', 'dried-fruit', 'floral', 'green-grassy', 'herbal', 'mint', 'anise', 'earthy', 'mushroom', 'woody', 'smoky', 'roasted', 'nutty', 'caramel', 'chocolate', 'coffee', 'vanilla', 'warm-spice', 'peppery', 'pungent-allium', 'sulfurous-brassica', 'buttery-creamy', 'cheesy', 'meaty', 'briny-marine', 'fermented-funky', 'sour-tangy', 'sweet']
 
 tags = json.load(open(TAGS, encoding='utf-8'))
-fb = json.load(open(ROOT + 'public/proDataset/flavor_bible_matched.json', encoding='utf-8'))['pairs']
+fb = json.load(open(ROOT + 'data/private/flavor_bible_matched.json', encoding='utf-8'))['pairs']
 names = sorted({n for p in fb for n in p})
 listed = {tuple(sorted(p)) for p in fb}
 ent = json.load(open(ROOT + 'public/proDataset/gnn_entropy.json', encoding='utf-8'))

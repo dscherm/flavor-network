@@ -106,7 +106,7 @@ def main() -> int:
         stage["miss"] += 1; return None
 
     pairs_raw, fb_names = [], set()
-    with (ROOT / "data/flavor_bible_full.csv").open(encoding="utf-8") as fh:
+    with (ROOT / "data/private/flavor_bible_full.csv").open(encoding="utf-8") as fh:
         for r in csv.DictReader(fh):
             a = (r.get("main") or "").strip().lower(); b = (r.get("pairing") or "").strip().lower()
             if a and b:
@@ -137,7 +137,7 @@ def main() -> int:
     # on-disk order is order-independent. The app builds a Set<"a|b"> from this.
     out = {"pairs": [list(p) for p in mpairs], "n": len(mpairs),
            "_generated": "scripts/match_flavor_bible_v2.py"}
-    out_path = ROOT / "public/proDataset/flavor_bible_matched.json"
+    out_path = ROOT / "data/private/flavor_bible_matched.json"  # never public: copyrighted source
     out_path.write_text(json.dumps(out), encoding="utf-8")
     print(f"wrote {len(mpairs)} pairs -> {out_path.relative_to(ROOT)}")
 

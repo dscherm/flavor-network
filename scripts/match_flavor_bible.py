@@ -5,7 +5,7 @@ matched set.
 
 Cascade: exact -> synonyms.json -> singularize -> token-subset -> fuzzy(difflib).
 Reports recovery at each stage; writes the matched FB pair graph to
-public/proDataset/flavor_bible_matched.json.
+data/private/flavor_bible_matched.json (git-ignored; the Flavor Bible is copyrighted and is never published or shipped).
 """
 from __future__ import annotations
 
@@ -75,7 +75,7 @@ def main() -> int:
 
     pairs_raw = []
     fb_names = set()
-    with (ROOT / "data/flavor_bible_full.csv").open(encoding="utf-8") as fh:
+    with (ROOT / "data/private/flavor_bible_full.csv").open(encoding="utf-8") as fh:
         for r in csv.DictReader(fh):
             a = (r.get("main") or "").strip().lower()
             b = (r.get("pairing") or "").strip().lower()
@@ -104,7 +104,7 @@ def main() -> int:
     print(f"FB pairs: {len(pairs_raw)} raw  -> {len(matched_pairs)} unique matched (both endpoints) "
           f"(was 2,330 before matching)")
 
-    (ROOT / "public/proDataset/flavor_bible_matched.json").write_text(
+    (ROOT / "data/private/flavor_bible_matched.json").write_text(
         json.dumps({"pairs": matched_pairs, "n": len(matched_pairs)}), encoding="utf-8")
 
     # re-measure: learned classifier (contrast + co-presence) FB pair vs random
@@ -123,7 +123,7 @@ def main() -> int:
     clf = LogisticRegression(max_iter=2000).fit(Xtr, ytr)
     auc = roc_auc_score(yte, clf.predict_proba(Xte)[:, 1])
     print(f"\nLearned pairing-classifier AUROC on fuller set: {auc:.3f}  (was 0.696 on 2,330 pairs)")
-    print("wrote public/proDataset/flavor_bible_matched.json")
+    print("wrote data/private/flavor_bible_matched.json")
     return 0
 
 

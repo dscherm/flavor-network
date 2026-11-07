@@ -103,7 +103,7 @@ def build(ingredients: set[str]) -> dict[str, str]:
 
 def measure(ingredients: set[str], foodon: dict[str, str]) -> None:
     """Flavor Bible name-match rate with the existing cascade, then with FoodOn added."""
-    fb = ROOT / "data/flavor_bible_full.csv"
+    fb = ROOT / "data/private/flavor_bible_full.csv"
     syn = {k: v for k, v in json.loads((ROOT / "proDataset/data/synonyms.json").read_text(encoding="utf-8")).items() if not k.startswith("_")}
     names, pairs = set(), []
     with fb.open(encoding="utf-8") as fh:

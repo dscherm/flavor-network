@@ -9,7 +9,7 @@
  * vocabulary (model-written; see the experiment notes in plan.md AROMA-1).
  *
  * Answer key: Flavor Bible pairs matched to our names
- * (public/proDataset/flavor_bible_matched.json) — evaluation only.
+ * (data/private/flavor_bible_matched.json — git-ignored, never published) — evaluation only.
  *
  * Test A — added value over co-occurrence. Pairs that co-occur in recipes
  *   (observed pairings) between answer-key ingredients; label = listed in
@@ -36,7 +36,7 @@ const tags = JSON.parse(readFileSync(tagsPath, 'utf8'));
 
 export const VOCAB = ['citrus', 'berry', 'stone-fruit', 'tropical-fruit', 'apple-pear', 'dried-fruit', 'floral', 'green-grassy', 'herbal', 'mint', 'anise', 'earthy', 'mushroom', 'woody', 'smoky', 'roasted', 'nutty', 'caramel', 'chocolate', 'coffee', 'vanilla', 'warm-spice', 'peppery', 'pungent-allium', 'sulfurous-brassica', 'buttery-creamy', 'cheesy', 'meaty', 'briny-marine', 'fermented-funky', 'sour-tangy', 'sweet'];
 
-const fbPairs = read('public/proDataset/flavor_bible_matched.json').pairs;
+const fbPairs = read('data/private/flavor_bible_matched.json').pairs;
 const names = [...new Set(fbPairs.flat())].sort();
 const key = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
 const listed = new Set(fbPairs.map(([a, b]) => key(a, b)));

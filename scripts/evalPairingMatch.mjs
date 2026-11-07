@@ -32,7 +32,7 @@ const { buildPairingIndex, rankByPairing, TUNING } = await import(src('data/reci
 const ingredients = JSON.parse(readFileSync(pub('proDataset/ingredients.json'), 'utf8'));
 const pairings = JSON.parse(readFileSync(pub('proDataset/pairings.json'), 'utf8'))
   .filter((p) => p.ingredientA in ingredients && p.ingredientB in ingredients);
-const fb = JSON.parse(readFileSync(pub('proDataset/flavor_bible_matched.json'), 'utf8')).pairs;
+const fb = JSON.parse(readFileSync(path.join(ROOT, 'data/private/flavor_bible_matched.json'), 'utf8')).pairs;
 const fbSet = new Set(fb.map(([a, b]) => (a < b ? `${a}|${b}` : `${b}|${a}`)));
 const cocktails = JSON.parse(readFileSync(pub('data/cocktail_codex_v2.json'), 'utf8')).cocktails
   .map((c) => ({ name: c.name, ingredients: c.ingredients_raw.map((r) => r.raw) }));

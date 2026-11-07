@@ -854,22 +854,12 @@ export default function useProData({ enabled = true } = {}) {
           if (!arr) { arr = []; flavorBibleNeighbors.set(x, arr); }
           arr.push(y);
         };
-        try {
-          const fbRes = await fetch('/proDataset/flavor_bible_matched.json');
-          if (fbRes.ok) {
-            const fb = await fbRes.json();
-            if (Array.isArray(fb?.pairs)) {
-              for (const pair of fb.pairs) {
-                if (!Array.isArray(pair) || pair.length < 2) continue;
-                const [a, b] = pair;
-                if (!a || !b) continue;
-                flavorBibleSet.add(a < b ? `${a}|${b}` : `${b}|${a}`);
-                addFbNeighbor(a, b);
-                addFbNeighbor(b, a);
-              }
-            }
-          }
-        } catch { /* optional — curated FB layer is additive */ }
+        // 2026-11-07: the Flavor Bible list is copyrighted and is no longer
+        // published or loaded (removed from the repo and its history). The
+        // set and adjacency stay empty, so every consumer takes its existing
+        // "no curated layer" path: no 📖 badges, no "Also in The Flavor
+        // Bible" list, no ★★ floor. addFbNeighbor is kept for that contract.
+        void addFbNeighbor;
 
         if (typeof window !== 'undefined') window.__proDataGraph = graph;
         setData({
