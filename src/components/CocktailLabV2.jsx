@@ -17,6 +17,9 @@ import { buildRolePool } from '../data/cocktailRiff.js';
 import { loadFacetContext, deriveFacets, guessSlot } from '../data/cocktailFacets.js';
 import { suggestAmounts } from '../data/cocktailAmounts.js';
 import { normalizeIngredient } from '../data/normalizeIngredient.js';
+import MyBarPanel from './MyBarPanel.jsx';
+import InventCocktail from './InventCocktail.jsx';
+import { loadBar, saveBar } from '../data/myBar.js';
 
 /**
  * CocktailLabV2 — data-driven taxonomy view.
@@ -58,6 +61,12 @@ export default function CocktailLabV2({
     return () => { cancelled = true; };
   }, []);
   useEffect(() => { setRiffOpen(false); }, [selectedCocktail]);
+  // My bar (per device, localStorage) + the My bar / Invent panels.
+  const [bar, setBar] = useState(() => loadBar());
+  const updateBar = (next) => { setBar(next); saveBar(next); };
+  const [barPanel, setBarPanel] = useState(null); // null | 'bar' | 'invent'
+  // An invented drink opened in the riff panel (a codex-shaped cocktail).
+  const [riffDrink, setRiffDrink] = useState(null);
   const [filterFamily, setFilterFamily] = useState(null);
   const [filterSpirit, setFilterSpirit] = useState(null);
 
@@ -209,18 +218,46 @@ export default function CocktailLabV2({
   }, [fullData]);
   const riffPool = useMemo(() => (cocktailRoles ? buildRolePool(cocktailRoles, riffIndex.names) : null), [cocktailRoles, riffIndex]);
   const cardActions = selectedNode ? [{ label: '🔀 Riff on this', onClick: () => setRiffOpen(true), testid: 'cocktail-riff-open' }] : [];
-  const riffPanel = riffOpen && selectedNode && graph ? (
+  const riffTarget = riffDrink || (riffOpen ? selectedNode : null);
+  const riffPanel = riffTarget && graph ? (
     <CocktailRiff
-      key={selectedNode.name}
-      cocktail={selectedNode}
+      key={riffTarget.name}
+      cocktail={riffTarget}
       cocktails={graph.cocktails}
       roles={cocktailRoles || {}}
       pool={riffPool}
       pairingIndex={riffIndex}
-      color={familyForSelected?.color || '#9a8f7a'}
-      onClose={() => setRiffOpen(false)}
-      onSelectCocktail={(name) => { setSelectedCocktail(name); setRiffOpen(false); }}
+      color={(riffDrink ? graph.families.find((f) => f.id === riffDrink.family_id)?.color : familyForSelected?.color) || '#9a8f7a'}
+      onClose={() => { setRiffOpen(false); setRiffDrink(null); }}
+      onSelectCocktail={(name) => { setSelectedCocktail(name); setRiffOpen(false); setRiffDrink(null); setBarPanel(null); }}
       onOpenRecipeLab={onOpenRecipeLab ? (names) => onOpenRecipeLab('cocktail', names) : null}
+    />
+  ) : null;
+
+  const pickFromPanel = (name) => { setBarPanel(null); setSelectedCocktail(name); };
+  const barPanels = graph && barPanel === 'bar' ? (
+    <MyBarPanel
+      bar={bar}
+      onChange={updateBar}
+      cocktails={graph.cocktails}
+      roles={cocktailRoles || {}}
+      pairingIndex={riffIndex}
+      onSelectCocktail={pickFromPanel}
+      onInvent={() => setBarPanel('invent')}
+      onClose={() => setBarPanel(null)}
+    />
+  ) : graph && barPanel === 'invent' ? (
+    <InventCocktail
+      bar={bar}
+      cocktails={graph.cocktails}
+      families={graph.families}
+      roles={cocktailRoles || {}}
+      pool={riffPool}
+      pairingIndex={riffIndex}
+      onClose={() => setBarPanel(null)}
+      onRiff={(drink) => setRiffDrink(drink)}
+      onOpenRecipeLab={onOpenRecipeLab ? (names) => onOpenRecipeLab('cocktail', names) : null}
+      onSelectCocktail={pickFromPanel}
     />
   ) : null;
 
@@ -418,6 +455,9 @@ export default function CocktailLabV2({
         onFilterFamily={setFilterFamily}
         filterSpirit={filterSpirit}
         onFilterSpirit={setFilterSpirit}
+        barCount={bar.length}
+        onOpenMyBar={() => setBarPanel('bar')}
+        onOpenInvent={() => setBarPanel('invent')}
       />
 
       {selectedCocktail && (
@@ -437,6 +477,7 @@ export default function CocktailLabV2({
           onClose={() => setSelectedCocktail(null)}
         />
       )}
+      {barPanels}
       {riffPanel}
 
       {/* Card mode (LabNodeCard) is a full-screen overlay with its own

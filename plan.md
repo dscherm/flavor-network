@@ -1343,3 +1343,19 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "COCKTAIL-BAR-1",
+  "title": "Cocktail Lab: My bar + Invent a cocktail",
+  "category": "ui",
+  "passes": true,
+  "description": "'My bar' (per device, localStorage fn-my-bar, every access wrapped) lists the user's bottles with autocomplete from the cocktail vocabulary resolved to graph names and quick-add chips for the 20 most common cocktail ingredients, and ranks every codex cocktail by coverage: 'You can make' (all non-trivial lines covered; water/ice/soda/sugar/garnish assumed) and 'One away' (names the missing line and suggests a same-role, same-kind substitute from the bar). Spirits of the same family stand in for each other (familyKey: any whiskey for a whiskey, never vodka for gin) and say 'with rye instead of bourbon'. 'Invent a cocktail' fills a family skeleton (Sour, Aromatic Stirred, Highball/Fizz, Aperitivo spritz, Tropical, Sipper) from the bar or, with an empty bar, the whole role pool, choosing the combination with the highest mean co-occurrence strength; amounts from SLOT_DEFAULT_AMOUNT scaled into the family's volume range; card with build/glass, why-it-works pairings, nearest existing cocktails, Shuffle, Riff on it, Write it in the Recipe Notebook. src/data/myBar.js, src/data/cocktailInvent.js, src/components/MyBarPanel.jsx, src/components/InventCocktail.jsx; entry buttons in CocktailBrowse, wiring in CocktailLabV2.",
+  "acceptance": [
+    "Coverage ranking: exact, one-away with substitute, same-family spirit substitution, no vodka-for-gin (tests)",
+    "Invent guard rails: one base spirit, never two sours, no ingredient twice, missing role reported (tests)",
+    "Component tests for MyBarPanel and InventCocktail; full vitest suite green",
+    "Not yet verified in a browser"
+  ]
+}
+```

@@ -328,6 +328,10 @@ export default function CocktailBrowse({
   onFilterFamily,
   filterSpirit,
   onFilterSpirit,
+  // My bar / Invent entry points (optional — buttons hidden without them).
+  barCount = 0,
+  onOpenMyBar = null,
+  onOpenInvent = null,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [ibaOnly, setIbaOnly] = useState(false);
@@ -701,6 +705,24 @@ export default function CocktailBrowse({
             {ingredientVocab.map((v) => <option key={v} value={v} />)}
           </datalist>
         </div>
+        {(onOpenMyBar || onOpenInvent) && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {onOpenMyBar && (
+              <button type="button" onClick={onOpenMyBar} data-testid="cocktail-my-bar-open"
+                className="px-3 py-1 rounded-full border min-h-[40px] text-[17px]"
+                style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
+                🍾 My bar{barCount ? ` (${barCount})` : ''}
+              </button>
+            )}
+            {onOpenInvent && (
+              <button type="button" onClick={onOpenInvent} data-testid="cocktail-invent-open"
+                className="px-3 py-1 rounded-full border min-h-[40px] text-[17px]"
+                style={{ fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM }}>
+                ✨ Invent a cocktail
+              </button>
+            )}
+          </div>
+        )}
         {searchHits && (
           <p className="mt-1 text-[13px]" style={{ color: CHALK_SUB }} aria-live="polite">
             {matchCount} cocktail{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
