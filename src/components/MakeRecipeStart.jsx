@@ -14,7 +14,7 @@ import {
 import { MakeArt, ChalkLoader } from './chalkArt.jsx';
 import { RecipeDetail } from './CookbookLab.jsx';
 import { getRecipeDetails } from '../data/seedRecipeDetails.js';
-import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, isBasic } from '../data/myKitchen.js';
+import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, loadSpiceRack, saveSpiceRack, isBasic } from '../data/myKitchen.js';
 import { realRecipeHandoff } from '../data/kitchenRecipes.js';
 
 // KITCHEN-2: the kitchen + invent panels (and the ML they pull in) load
@@ -175,10 +175,12 @@ export default function MakeRecipeStart({
   // the Sauce Lab) and which panel is open over the cards.
   const [kitchen, setKitchen] = useState(() => loadKitchen());
   const [assumeBasics, setAssumeBasics] = useState(() => loadAssumeBasics());
+  const [spiceRack, setSpiceRack] = useState(() => loadSpiceRack());
   const [panel, setPanel] = useState(null); // null | 'kitchen' | 'invent'
   const [openRecipe, setOpenRecipe] = useState(null); // a Cookbook recipe, shown as in the Cookbook
   const updateKitchen = (next) => { setKitchen(next); saveKitchen(next); };
   const updateAssumeBasics = (on) => { setAssumeBasics(on); saveAssumeBasics(on); };
+  const updateSpiceRack = (on) => { setSpiceRack(on); saveSpiceRack(on); };
 
   const { user, loading: authLoading, authError, loginWithGoogle, loginWithApple } = useAuth();
 
@@ -930,6 +932,8 @@ export default function MakeRecipeStart({
               onChange={updateKitchen}
               assumeBasics={assumeBasics}
               onAssumeBasicsChange={updateAssumeBasics}
+              spiceRack={spiceRack}
+              onSpiceRackChange={updateSpiceRack}
               nodes={nodes}
               onOpenRecipe={setOpenRecipe}
               onUseRealRecipe={(m) => sendToNotebook(realRecipeHandoff(m, { assumeBasics }))}

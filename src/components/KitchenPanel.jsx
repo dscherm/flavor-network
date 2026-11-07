@@ -22,6 +22,7 @@ import {
   cookbookForKitchen, realRecipesForKitchen,
 } from '../data/kitchenRecipes.js';
 import { SEED_RECIPES, CUISINE_COLOR } from '../data/seedRecipes.js';
+import { categoryLookup } from '../data/recipeMains.js';
 import { dishTypeOf } from '../data/dishType.js';
 import { loadRealRecipes } from '../ml/kitchenRuntime.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
@@ -32,11 +33,31 @@ const NEARLY_SHOWN = 12;
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 const NEUTRAL = CHALK_DIM;
 
+/** A chalk on/off switch (role="switch"), 44px tall. */
+function ChalkSwitch({ on, onToggle, label, testId, className = '' }) {
+  return (
+    <button type="button" role="switch" aria-checked={on} data-testid={testId} onClick={onToggle}
+      className={`${className} w-full flex items-center gap-3 text-left min-h-[44px] rounded-lg px-1 ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
+      <span aria-hidden="true" className="relative inline-block flex-shrink-0 rounded-full"
+        style={{ width: 44, height: 24, border: `1.5px solid ${CHALK_DIM}`, background: on ? 'rgba(245,239,222,0.25)' : 'transparent' }}>
+        <span className="absolute top-[2px] rounded-full transition-all"
+          style={{ width: 17, height: 17, left: on ? 22 : 3, background: on ? CHALK_CREAM : CHALK_SUB }} />
+      </span>
+      <span className="text-[18px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{label}</span>
+    </button>
+  );
+}
+
+/** "your onion for the scallion" · "your milk and butter for the cream" */
+const swapPhrase = (s) => `your ${[s.use, ...(s.plus || [])].join(' and ')} for the ${s.for}`;
+
 export default function KitchenPanel({
   kitchen = [],
   onChange,
   assumeBasics = true,
   onAssumeBasicsChange,
+  spiceRack = false,
+  onSpiceRackChange,
   nodes = null,
   onOpenRecipe,
   onUseRealRecipe,
@@ -66,15 +87,16 @@ export default function KitchenPanel({
   const suggestions = useMemo(() => kitchenSuggestions(text, vocab, kitchen, 6), [text, vocab, kitchen]);
   const common = useMemo(() => commonKitchenIngredients(SEED_RECIPES, 18), []);
   const lookup = names.size ? names : null;
+  const categoryOf = useMemo(() => categoryLookup(nodes), [nodes]);
   const cookbook = useMemo(
-    () => cookbookForKitchen(SEED_RECIPES, kitchen, { assumeBasics, names: lookup }),
-    [kitchen, assumeBasics, lookup],
+    () => cookbookForKitchen(SEED_RECIPES, kitchen, { assumeBasics, spiceRack, names: lookup, categoryOf }),
+    [kitchen, assumeBasics, spiceRack, lookup, categoryOf],
   );
   const realMatches = useMemo(
     () => (real.status === 'ready'
-      ? realRecipesForKitchen(kitchen, real.data.index, real.data.vocab, { assumeBasics, names: lookup, k: 8 })
+      ? realRecipesForKitchen(kitchen, real.data.index, real.data.vocab, { assumeBasics, spiceRack, names: lookup, k: 8 })
       : []),
-    [real, kitchen, assumeBasics, lookup],
+    [real, kitchen, assumeBasics, spiceRack, lookup],
   );
 
   const add = (raw) => {
@@ -90,7 +112,6 @@ export default function KitchenPanel({
 
   const pill = { fontFamily: FONT, borderColor: CHALK_RAIL, color: CHALK_CREAM, outlineColor: CHALK_CREAM };
   const h3 = { fontFamily: FONT, textShadow: CHALK_SHADOW };
-  const categoryOf = (n) => (nodes?.get ? nodes.get(n)?.category : null);
 
   const recipeRow = (entry, nearly) => {
     const r = entry.item;
@@ -103,8 +124,18 @@ export default function KitchenPanel({
           <span className="flex-1 min-w-0">
             <span className="block text-[20px] leading-tight" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{r.name}</span>
             <span className="block text-[12px]" style={{ fontFamily: SANS, color: nearly ? CHALK_DIM : CHALK_SUB }}>
-              {nearly ? missingText(entry.missing) : `${r.cuisine} · you have all ${entry.total}`}
+              {nearly ? missingText(entry.missing) : `${r.cuisine} · you have the ${entry.total === 1 ? 'main' : `${entry.total} mains`}`}
             </span>
+            {!nearly && entry.withSwap && (
+              <span className="block text-[12px]" data-testid={`kitchen-recipe-${r.id}-swap`} style={{ fontFamily: SANS, color: CHALK_CREAM }}>
+                with a swap: {entry.swaps.filter((s) => s.main).map(swapPhrase).join('; ')}
+              </span>
+            )}
+            {!nearly && entry.better?.length > 0 && (
+              <span className="block text-[12px]" data-testid={`kitchen-recipe-${r.id}-better`} style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                even better with: {entry.better.slice(0, 4).join(', ')}{entry.better.length > 4 ? ` +${entry.better.length - 4}` : ''}
+              </span>
+            )}
           </span>
         </button>
       </li>
@@ -187,16 +218,10 @@ export default function KitchenPanel({
           </div>
         )}
 
-        <button type="button" role="switch" aria-checked={assumeBasics} data-testid="kitchen-basics"
-          onClick={() => onAssumeBasicsChange?.(!assumeBasics)}
-          className={`mt-3 w-full flex items-center gap-3 text-left min-h-[44px] rounded-lg px-1 ${FOCUS}`} style={{ outlineColor: CHALK_CREAM }}>
-          <span aria-hidden="true" className="relative inline-block flex-shrink-0 rounded-full"
-            style={{ width: 44, height: 24, border: `1.5px solid ${CHALK_DIM}`, background: assumeBasics ? 'rgba(245,239,222,0.25)' : 'transparent' }}>
-            <span className="absolute top-[2px] rounded-full transition-all"
-              style={{ width: 17, height: 17, left: assumeBasics ? 22 : 3, background: assumeBasics ? CHALK_CREAM : CHALK_SUB }} />
-          </span>
-          <span className="text-[18px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>Assume basics (salt, pepper, oil, butter…)</span>
-        </button>
+        <ChalkSwitch on={assumeBasics} onToggle={() => onAssumeBasicsChange?.(!assumeBasics)} testId="kitchen-basics"
+          label="Assume basics (salt, pepper, oil, butter…)" className="mt-3" />
+        <ChalkSwitch on={spiceRack} onToggle={() => onSpiceRackChange?.(!spiceRack)} testId="kitchen-spice-rack"
+          label="Spice rack (cumin, paprika, cinnamon, thyme…)" />
 
         {kitchen.length > 0 && (
           <>
@@ -260,6 +285,8 @@ export default function KitchenPanel({
             </section>
             <p className="mt-3 text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
               {assumeBasics ? 'Salt, pepper, oil, butter, sugar, flour and water are assumed. ' : ''}
+              {spiceRack ? 'Common dried spices are assumed. ' : ''}
+              A recipe counts when you have its mains; spices, herbs and sauces are "even better with". A swap stays within one kind (onion for scallion, never garlic for onion).
               Lemon counts for lemon juice, stock for broth. Real recipes come from RecipeNLG; tap one to start it in your notebook.
             </p>
           </>
