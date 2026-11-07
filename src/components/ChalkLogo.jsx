@@ -47,16 +47,16 @@ export default function ChalkLogo({ className = '', title = 'Neural Flavor', ani
 
   // Toque: a tall pleated band under a puffed top that overhangs it, made
   // of three round lobes with the middle one tallest.
-  const puffs = 'M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C72 26 90 14 100 14 C110 14 128 26 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96';
+  const puffs = 'M70 96 C48 100 32 88 36 70 C39 52 56 44 72 50 C73 34 90 28 100 28 C110 28 127 34 128 50 C144 44 161 52 164 70 C168 88 152 100 130 96';
   const gather = 'M70 96 Q100 103 130 96';
-  const lobes = 'M72 50 Q80 64 78 84 M128 50 Q120 64 122 84 M100 22 Q96 40 100 62';
+  const lobes = 'M72 50 Q80 64 78 84 M128 50 Q120 64 122 84 M100 36 Q97 50 100 66';
   const band = 'M70 98 L68 136 Q100 141 132 136 L130 98 Q100 104 70 98 Z';
   // Vertical pleats on the band, kept clear of the "Nf".
   const pleats = 'M76 101 L75 137 M83 102 L82 138 M117 102 L118 138 M124 101 L125 137';
   const hem = 'M69 130 Q100 135 131 130';
 
   return (
-    <svg className={className} viewBox="0 0 200 296" role="img" aria-label={title} data-testid="chalk-logo">
+    <svg className={className} viewBox="0 16 200 280" role="img" aria-label={title} data-testid="chalk-logo">
       <title>{title}</title>
       <style>{CSS}</style>
       <defs>
