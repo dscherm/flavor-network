@@ -24,11 +24,11 @@
 // recipe and publisher so the user can see we read the right article and
 // that the limitation is Apple's link format, not a mis-parse.
 //
-// findPublisherUrl() is kept as a hedge and is fully tested, but be honest
-// about its status: it has NEVER fired on a real apple.news link. Do not
-// treat it as an exercised path — if you are debugging why an Apple News
-// import didn't resolve, the answer is almost certainly that Apple exposed
-// no URL, exactly as on both captured fixtures.
+// WEBLINK-17 (2026-11-07) correction: findPublisherUrl() DOES fire on real
+// links. Of 13 apple.news recipe links measured, 7 carried a canonical
+// publisher URL (older Bon Appétit and Allrecipes articles); the two fixtures
+// here and newer articles carry none. When there is no link,
+// applenewsResolve.ts looks the title up on the publisher's own site.
 
 /** Hosts whose pages are Apple News interstitials rather than articles. */
 const APPLE_NEWS_HOSTS = new Set(['apple.news', 'www.apple.news']);
@@ -139,22 +139,26 @@ export function parseAppleNewsInterstitial(html: string): AppleNewsInterstitial 
 }
 
 /**
- * The message shown when an Apple News link cannot be resolved.
+ * The message shown when an Apple News link cannot be resolved — neither by a
+ * link on the page nor by the WEBLINK-17 publisher-site lookup.
  *
  * Deliberately does NOT promise that Open-in-Safari exists: News+ articles
- * have no public web version at all, and the sample that motivated this
- * (America's Test Kitchen) is a News+ publisher. Naming the recipe matters —
- * it tells the user we read the right article and the failure is Apple's
- * link format, not a mis-parse.
+ * have no public web version at all. Naming the recipe matters — it tells the
+ * user we read the right article and the failure is Apple's link format, not
+ * a mis-parse. The client renders its own panel from `appleNews`; this text is
+ * the plain-prose version for older clients and logs.
  */
-export function appleNewsErrorMessage(info: AppleNewsInterstitial): string {
+export function appleNewsErrorMessage(info: AppleNewsInterstitial, paywalled = false): string {
   const what = info.title
     ? `“${info.title}”${info.publisher ? ` from ${info.publisher}` : ''}`
     : 'that article';
+  const sub = paywalled && info.publisher
+    ? ` ${info.publisher} is subscriber-only, so its recipes may not have a free web page.`
+    : '';
   return (
-    `Apple News links don't include the original recipe page, so we can't read the ` +
-    `ingredients for ${what}. If the article has a web version, open it in News, tap ⋯ ` +
-    `→ Open in Safari, and paste that link instead. News+ articles don't have one — ` +
+    `Apple News links don't include the original recipe page, so we couldn't find the ` +
+    `ingredients for ${what}.${sub} If the article has a web version, open it in News, tap ` +
+    `Share → Open in Safari, and paste that link instead. News+ articles don't always have one — ` +
     `for those you'll need to add the ingredients by hand.`
   );
 }

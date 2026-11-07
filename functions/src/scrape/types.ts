@@ -37,7 +37,28 @@ export interface ScrapeResult {
    *  can name the recipe rather than showing a generic failure — the user
    *  needs to see that we read the right article and that the limitation is
    *  Apple's link format, not a mis-parse. */
-  appleNews?: { title: string | null; publisher: string | null };
+  appleNews?: AppleNewsFallback;
+  /** WEBLINK-17: set when an apple.news link was resolved to the
+   *  publisher's own recipe page. `finalUrl` is then the publisher page and
+   *  `publisherHost` is what the preview shows ("Found on epicurious.com"). */
+  resolvedFrom?: 'apple.news';
+  publisherUrl?: string;
+  publisherHost?: string;
+}
+
+/** WEBLINK-17: what the client needs to help the user finish by hand. */
+export interface AppleNewsFallback {
+  title: string | null;
+  publisher: string | null;
+  /** The publisher is subscriber-only on the web. */
+  paywalled: boolean;
+  /** Title + publisher, for the user's own "Find it on the web" search. */
+  searchQuery: string;
+  /** Why automatic resolution didn't land — for logs and copy choice. */
+  reason?: string;
+  /** The publisher page Apple linked, when it linked one but we couldn't
+   *  read it (e.g. the publisher blocks automated requests). */
+  publisherUrl?: string;
 }
 
 /** WEBLINK-2: how a page was retrieved. */
