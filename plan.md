@@ -1407,3 +1407,21 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+```json
+{
+  "id": "DESIGN-2",
+  "title": "A picture on every row: wine family glasses, drink glasses in My bar and Invent",
+  "category": "ui",
+  "passes": true,
+  "description": "Recommendation 2 of docs/design-review-2026-11.md, minus the Cookbook part. src/components/wineGlasses.jsx draws one chalk glass per wine family (flute for sparkling; white tulip, Riesling glass and Chardonnay bowl for the whites; flared rose glass; a red balloon whose bowl grows light -> medium -> full; a small dessert glass; a copita for fortified), filled with the family colour as wine, chalk-dust halo, glow, dashed when unselected. Wine Lab: the glass on every row (browse and matches mode), on each family header, large at the top of the wine card (new optional LabNodeCard headerArt slot), and a new family filter drawn as a swipeable shelf of glasses with slanted chalk tags and counts, combined with the colour and country chips. The cocktail family glass geometry moved out of CocktailBrowse into src/components/cocktailGlasses.jsx (unchanged drawing) so My bar and Invent a cocktail can show each drink's family glass beside its name; the invented drink is drawn large in its glass, filled with a colour from its ingredients (src/data/drinkColor.js: family colour, tinted by campari, grenadine, blue curacao and other strong colourants). Style chips in Invent carry their glass too.",
+  "acceptance": [
+    "Every wine family in wine_styles.json renders a glass of its own shape, aria-hidden, filled with the family colour; red bowls grow light -> full (test)",
+    "Every wine row in browse and matches mode includes its family glass; the card leads with a large glass (test)",
+    "Family shelf: one glass per family with a count; tapping filters, tapping again clears; works with the colour and country chips (test)",
+    "My bar rows (You can make, One away) and Invent (card, nearest cocktails, style chips) show the family glass; a campari drink is poured red (test)",
+    "Checked at 375px in the browser: wine list, shelf, filtered shelf, card, My bar, Invent; Cocktail menu shelf unchanged",
+    "npm run gate green"
+  ]
+}
+```

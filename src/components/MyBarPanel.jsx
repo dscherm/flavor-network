@@ -12,6 +12,7 @@ import { useMemo, useState } from 'react';
 import { whatCanIMake, commonBarIngredients, barKeyLists, addToBar, removeFromBar, substitutionText } from '../data/myBar.js';
 import { buildIngredientVocab } from '../data/ingredientSearch.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { DrinkGlass } from './cocktailGlasses.jsx';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const ONE_AWAY_SHOWN = 30;
@@ -20,6 +21,7 @@ export default function MyBarPanel({
   bar = [],
   onChange,
   cocktails = [],
+  families = [],
   roles = {},
   pairingIndex = null,
   onSelectCocktail,
@@ -27,6 +29,7 @@ export default function MyBarPanel({
   onClose,
 }) {
   const names = pairingIndex?.names || new Set();
+  const familyById = useMemo(() => new Map((families || []).map((f) => [f.id, f])), [families]);
   const [text, setText] = useState('');
 
   const vocab = useMemo(() => buildIngredientVocab(barKeyLists(cocktails, roles, names)), [cocktails, roles, names]);
@@ -120,11 +123,14 @@ export default function MyBarPanel({
                 {result.make.map((m) => (
                   <li key={m.cocktail.name}>
                     <button type="button" onClick={() => onSelectCocktail?.(m.cocktail.name)}
-                      className="w-full text-left py-1 min-h-[36px]">
-                      <span className="text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{m.cocktail.name}</span>
-                      {m.substitutions.length > 0 && (
-                        <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{substitutionText(m.substitutions)}</span>
-                      )}
+                      className="w-full text-left py-1 min-h-[36px] flex items-center gap-2.5">
+                      <DrinkGlass cocktail={m.cocktail} familyById={familyById} />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{m.cocktail.name}</span>
+                        {m.substitutions.length > 0 && (
+                          <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{substitutionText(m.substitutions)}</span>
+                        )}
+                      </span>
                     </button>
                   </li>
                 ))}
@@ -137,12 +143,15 @@ export default function MyBarPanel({
                 {result.oneAway.slice(0, ONE_AWAY_SHOWN).map((m) => (
                   <li key={m.cocktail.name}>
                     <button type="button" onClick={() => onSelectCocktail?.(m.cocktail.name)}
-                      className="w-full text-left py-1 min-h-[36px]">
-                      <span className="text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{m.cocktail.name}</span>
-                      <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
-                        missing {m.missing[0].key}
-                        {m.suggestion ? ` · or use your ${m.suggestion.use} in its place` : ''}
-                        {m.substitutions.length ? ` · ${substitutionText(m.substitutions)}` : ''}
+                      className="w-full text-left py-1 min-h-[36px] flex items-center gap-2.5">
+                      <DrinkGlass cocktail={m.cocktail} familyById={familyById} />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{m.cocktail.name}</span>
+                        <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                          missing {m.missing[0].key}
+                          {m.suggestion ? ` · or use your ${m.suggestion.use} in its place` : ''}
+                          {m.substitutions.length ? ` · ${substitutionText(m.substitutions)}` : ''}
+                        </span>
                       </span>
                     </button>
                   </li>
