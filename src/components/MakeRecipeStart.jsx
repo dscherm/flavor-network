@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase.js';
 import { matchRecipeIngredients } from '../data/parseRecipeIngredient.js';
@@ -11,7 +11,16 @@ import {
   CHALK_RAIL,
   CHALK_SHADOW,
 } from '../data/chalkTheme.js';
-import { MakeArt } from './chalkArt.jsx';
+import { MakeArt, ChalkLoader } from './chalkArt.jsx';
+import { RecipeDetail } from './CookbookLab.jsx';
+import { getRecipeDetails } from '../data/seedRecipeDetails.js';
+import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, isBasic } from '../data/myKitchen.js';
+import { realRecipeHandoff } from '../data/kitchenRecipes.js';
+
+// KITCHEN-2: the kitchen + invent panels (and the ML they pull in) load
+// only when opened.
+const KitchenPanel = lazy(() => import('./KitchenPanel.jsx'));
+const InventRecipe = lazy(() => import('./InventRecipe.jsx'));
 
 // Shared chalk-slate panel style for the inner stages (URL input, parsing,
 // preview, error, photo preview).
@@ -36,6 +45,25 @@ const slateInputStyle = {
   color: CHALK_CREAM,
 };
 
+// KITCHEN-2: the kitchen leads, "Invent a recipe" replaces "Start from
+// scratch"; Cookbook / photo / link stay as secondary ways in.
+const LEAD_CARDS = [
+  {
+    id: 'kitchen',
+    glyph: 'pantry',
+    title: "What's in my kitchen?",
+    subtitle: "Tell us what you have; we'll find what you can cook",
+    accent: '#a3e635',
+  },
+  {
+    id: 'invent',
+    glyph: 'invent',
+    title: 'Invent a recipe',
+    subtitle: 'A new dish from what you have and what pairs',
+    accent: '#fbbf24',
+  },
+];
+
 const CARDS = [
   {
     id: 'existing',
@@ -43,13 +71,6 @@ const CARDS = [
     title: 'Existing recipe',
     subtitle: 'Pick from your Cookbook',
     accent: '#a78bfa',
-  },
-  {
-    id: 'scratch',
-    glyph: 'pencil',
-    title: 'Start from scratch',
-    subtitle: 'Empty Recipe Lab',
-    accent: '#38bdf8',
   },
   {
     id: 'photo',
@@ -107,6 +128,7 @@ export default function MakeRecipeStart({
   setActiveTab,
   setCookbookPickerMode,
   nodes = null,
+  edges = null,
 }) {
   const fileInputRef = useRef(null);
   const firstCardRef = useRef(null);
@@ -148,6 +170,15 @@ export default function MakeRecipeStart({
   const [pendingParse, setPendingParse] = useState(null);
   const parseAttempt = useRef(0);
   const [needsSignIn, setNeedsSignIn] = useState(false);
+
+  // KITCHEN-2: what the cook has (localStorage `fn-my-kitchen`, shared with
+  // the Sauce Lab) and which panel is open over the cards.
+  const [kitchen, setKitchen] = useState(() => loadKitchen());
+  const [assumeBasics, setAssumeBasics] = useState(() => loadAssumeBasics());
+  const [panel, setPanel] = useState(null); // null | 'kitchen' | 'invent'
+  const [openRecipe, setOpenRecipe] = useState(null); // a Cookbook recipe, shown as in the Cookbook
+  const updateKitchen = (next) => { setKitchen(next); saveKitchen(next); };
+  const updateAssumeBasics = (on) => { setAssumeBasics(on); saveAssumeBasics(on); };
 
   const { user, loading: authLoading, authError, loginWithGoogle, loginWithApple } = useAuth();
 
@@ -192,15 +223,30 @@ export default function MakeRecipeStart({
     setActiveTab('cookbook');
   };
 
-  const handleScratch = () => {
-    setRecipeHandoff({
-      source: 'make-scratch',
-      ingredients: [],
+  const sendToNotebook = (handoff) => {
+    setRecipeHandoff(handoff);
+    setRecipeMounted(true);
+    setActiveTab('recipe');
+  };
+
+  // A Cookbook recipe picked from the kitchen goes to the notebook with its
+  // method attached (the Cookbook's own details).
+  const handleCookbookToNotebook = (recipe) => {
+    const details = getRecipeDetails(recipe.id);
+    sendToNotebook({
+      source: 'make-kitchen',
+      mode: 'recipe',
+      ingredients: [...recipe.ingredients],
+      title: recipe.name,
+      steps: details?.steps || [],
+      stepsFrom: recipe.name,
+      recipeType: recipe.cluster || null,
       image: null,
-      recipeType: null,
-      mode: null,
       ts: Date.now(),
     });
+  };
+
+  const handleOpenNotebook = () => {
     setRecipeMounted(true);
     setActiveTab('recipe');
   };
@@ -449,23 +495,89 @@ export default function MakeRecipeStart({
 
   const onCardClick = (id) => {
     if (id === 'existing') return handleExisting();
-    if (id === 'scratch') return handleScratch();
+    if (id === 'kitchen') { setPanel('kitchen'); return; }
+    if (id === 'invent') { setPanel('invent'); return; }
     if (id === 'photo') return handlePhotoCardClick();
     if (id === 'weblink') { setStage(STAGE.URL_INPUT); return; }
   };
 
-  const refForCard = (id) => (id === 'existing' ? firstCardRef : null);
+  const refForCard = (id) => (id === 'kitchen' ? firstCardRef : null);
 
   const hits = matched.filter((m) => m.matched).length;
+
+  const kitchenCount = kitchen.filter((k) => !isBasic(k)).length;
+  const subtitleFor = (c) => {
+    if (c.id === 'kitchen' && kitchenCount > 0) return `${kitchenCount} thing${kitchenCount === 1 ? '' : 's'} on hand · see what you can cook`;
+    return c.subtitle;
+  };
+
+  const renderCard = (c, lead) => (
+    <button
+      key={c.id}
+      ref={refForCard(c.id)}
+      type="button"
+      data-testid={`make-card-${c.id}`}
+      aria-label={`${c.title}. ${subtitleFor(c)}`}
+      onClick={() => onCardClick(c.id)}
+      className={`relative w-full rounded-xl text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${lead ? 'p-5 sm:p-6' : 'px-4 py-3'}`}
+      style={{
+        minHeight: 44,
+        background: 'radial-gradient(ellipse at center, #1c1c1c 0%, #0e0e0e 100%)',
+        border: `2px double ${c.accent}`,
+        boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
+      }}
+    >
+      <span className="absolute left-0 top-0 bottom-0 w-1" style={{ background: c.accent }} aria-hidden="true" />
+      <div className="flex items-center gap-4 pl-2">
+        <div
+          className={`flex items-center justify-center rounded-lg flex-shrink-0 ${lead ? 'w-24 h-24' : 'w-14 h-14'}`}
+          style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid #6a6a6a55' }}
+          aria-hidden="true"
+        >
+          <MakeArt kind={c.glyph} accent={c.accent} size={lead ? 76 : 44} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className={lead ? 'text-[28px] leading-tight' : 'text-xl'} style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>
+            {c.title}
+          </div>
+          <div className={lead ? 'text-lg mt-0.5' : 'text-base'} style={{ fontFamily: FONT, color: CHALK_DIM }}>
+            {subtitleFor(c)}
+          </div>
+        </div>
+      </div>
+    </button>
+  );
 
   return (
     <div
       role="region"
-      aria-label="Make a recipe"
+      aria-label="Recipe Lab"
       data-testid="make-recipe-start"
-      className="flex flex-col items-center justify-center px-4"
+      className="flex flex-col items-center px-4 pt-5 pb-8"
       style={{ minHeight: 'calc(100vh - var(--nav-h))' }}
     >
+      {/* KITCHEN-2: this screen is the Recipe Lab — same chalk board header
+          as "Cocktail Menu" / "Wine List". */}
+      <header className="w-full max-w-md text-center mb-4" data-testid="recipe-lab-header">
+        <h1
+          className="inline-block text-5xl pb-1.5"
+          style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW, borderBottom: `2px solid ${CHALK_DIM}88` }}
+        >
+          Recipe Lab
+        </h1>
+        <p className="text-lg mt-1.5" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+          What's in your kitchen? Cook it, or invent something.
+        </p>
+        <button
+          type="button"
+          onClick={handleOpenNotebook}
+          data-testid="recipe-lab-open-notebook"
+          className="mt-1 min-h-[44px] px-3 text-lg underline underline-offset-4 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          style={{ fontFamily: FONT, color: CHALK_DIM, outlineColor: CHALK_CREAM }}
+        >
+          Open my notebook →
+        </button>
+      </header>
       <div className="w-full max-w-md flex flex-col gap-4">
         {stage === STAGE.CARDS && pickedFile && (
           <div
@@ -514,52 +626,15 @@ export default function MakeRecipeStart({
             </div>
           </div>
         )}
-        {stage === STAGE.CARDS && !pickedFile && CARDS.map((c) => (
-          <button
-            key={c.id}
-            ref={refForCard(c.id)}
-            type="button"
-            data-testid={`make-card-${c.id}`}
-            aria-label={`${c.title}. ${c.subtitle}`}
-            onClick={() => onCardClick(c.id)}
-            className="relative w-full rounded-xl p-5 sm:p-6 text-left transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-            style={{
-              minHeight: 44,
-              background: 'radial-gradient(ellipse at center, #1c1c1c 0%, #0e0e0e 100%)',
-              border: `2px double ${c.accent}`,
-              boxShadow: 'inset 0 0 0 1px #6a6a6a55, 0 8px 24px rgba(0,0,0,0.55)',
-            }}
-          >
-            <span
-              className="absolute left-0 top-0 bottom-0 w-1"
-              style={{ background: c.accent }}
-              aria-hidden="true"
-            />
-            <div className="flex items-center gap-4 pl-2">
-              <div
-                className="flex items-center justify-center w-24 h-24 rounded-lg flex-shrink-0"
-                style={{
-                  background: 'rgba(255,255,255,0.025)',
-                  border: '1px solid #6a6a6a55',
-                }}
-                aria-hidden="true"
-              >
-                <MakeArt kind={c.glyph} accent={c.accent} size={76} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div
-                  className="text-2xl"
-                  style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}
-                >
-                  {c.title}
-                </div>
-                <div className="text-lg mt-0.5" style={{ fontFamily: FONT, color: CHALK_DIM }}>
-                  {c.subtitle}
-                </div>
-              </div>
-            </div>
-          </button>
-        ))}
+        {stage === STAGE.CARDS && !pickedFile && (
+          <>
+            {LEAD_CARDS.map((c) => renderCard(c, true))}
+            <p className="text-center text-lg -mb-1 mt-1" style={{ fontFamily: FONT, color: CHALK_SUB }} data-testid="make-secondary-label">
+              …or start from a recipe you already have
+            </p>
+            {CARDS.map((c) => renderCard(c, false))}
+          </>
+        )}
         {stage === STAGE.CARDS && !pickedFile && photoError && (
           <div
             role="alert"
@@ -843,6 +918,48 @@ export default function MakeRecipeStart({
           </div>
         )}
       </div>
+      {panel && (
+        <Suspense fallback={(
+          <div className="fixed inset-x-0 top-0 z-[82]" style={{ bottom: 'var(--tab-bar-h)' }}>
+            <ChalkLoader label={panel === 'invent' ? 'Opening the idea board…' : 'Opening the pantry…'} color="#a3e635" />
+          </div>
+        )}>
+          {panel === 'kitchen' && (
+            <KitchenPanel
+              kitchen={kitchen}
+              onChange={updateKitchen}
+              assumeBasics={assumeBasics}
+              onAssumeBasicsChange={updateAssumeBasics}
+              nodes={nodes}
+              onOpenRecipe={setOpenRecipe}
+              onUseRealRecipe={(m) => sendToNotebook(realRecipeHandoff(m, { assumeBasics }))}
+              onInvent={() => setPanel('invent')}
+              onClose={() => setPanel(null)}
+            />
+          )}
+          {panel === 'invent' && (
+            <InventRecipe
+              kitchen={kitchen}
+              nodes={nodes}
+              edges={edges}
+              onWrite={sendToNotebook}
+              onEditKitchen={() => setPanel('kitchen')}
+              onClose={() => setPanel(null)}
+            />
+          )}
+        </Suspense>
+      )}
+      {openRecipe && (
+        // Above the kitchen panel (z 82); RecipeDetail itself is fixed at z 80.
+        <div className="relative z-[90]">
+          <RecipeDetail
+            recipe={openRecipe}
+            ctx={{ graph: { nodes } }}
+            onClose={() => setOpenRecipe(null)}
+            onOpenRecipeLab={() => handleCookbookToNotebook(openRecipe)}
+          />
+        </div>
+      )}
       <input
         ref={fileInputRef}
         type="file"

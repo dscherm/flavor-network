@@ -135,7 +135,7 @@ const RADAR_AXES = ['taste', 'aroma', 'season', 'cuisine', 'method'];
 // DESIGN-3: the popup leads with pictures — dish drawing, meta as
 // icon+number, the profile radar — then ingredient chips, the method
 // behind a fold, and "Goes well with" as drawn mini-cards.
-function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce, onFindWine }) {
+export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce, onFindWine }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
   const kind = dishTypeOf(recipe);
   const nodes = ctx?.graph?.nodes;

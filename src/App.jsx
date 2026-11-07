@@ -2227,6 +2227,7 @@ export default function App() {
             setActiveTab={setActiveTab}
             setCookbookPickerMode={setCookbookPickerMode}
             nodes={data?.graph?.nodes}
+            edges={data?.graph?.edges}
           />
         </div>
       )}

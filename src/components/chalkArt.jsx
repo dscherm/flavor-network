@@ -266,9 +266,39 @@ function PencilArt({ c, size }) {
   );
 }
 
-const MAKE_ART = { book: CookbookArt, pencil: PencilArt, camera: CameraArt, link: LinkArt };
+function PantryArt({ c, size }) {
+  return (
+    <Art size={size}>
+      {/* KITCHEN-2: a pantry cupboard — two shelves of jars, a bottle, an onion */}
+      <Chalk d="M10 8 L90 8 L90 94 L10 94 Z" c={CHALK_CREAM} />
+      <Chalk d="M10 50 L90 50" c={CHALK_CREAM} w={2.2} />
+      <path d="M18 24 L36 24 L36 48 L18 48 Z" fill={c} fillOpacity="0.45" />
+      <Chalk d="M18 24 L36 24 L36 48 L18 48 Z M16 20 L38 20 L38 24 L16 24 Z" c={CHALK_CREAM} w={2} />
+      <path d="M44 32 L60 32 L60 48 L44 48 Z" fill={c} fillOpacity="0.25" />
+      <Chalk d="M44 32 L60 32 L60 48 L44 48 Z M42 28 L62 28 L62 32 L42 32 Z" c={CHALK_CREAM} w={2} />
+      <Chalk d="M72 14 L78 14 L78 22 Q84 26 84 32 L84 48 L66 48 L66 32 Q66 26 72 22 Z" c={CHALK_CREAM} w={2} />
+      <path d="M30 70 Q42 60 46 76 Q46 90 32 90 Q18 88 22 76 Q24 70 30 70 Z" fill={c} fillOpacity="0.35" />
+      <Chalk d="M30 70 Q42 60 46 76 Q46 90 32 90 Q18 88 22 76 Q24 70 30 70 Z M33 68 Q34 62 38 60" c={CHALK_CREAM} w={2} />
+      <path d="M58 66 L82 66 L82 92 L58 92 Z" fill={c} fillOpacity="0.2" />
+      <Chalk d="M58 66 L82 66 L82 92 L58 92 Z M56 62 L84 62 L84 66 L56 66 Z M62 76 L78 76" c={CHALK_CREAM} w={2} />
+    </Art>
+  );
+}
+function InventArt({ c, size }) {
+  return (
+    <Art size={size}>
+      {/* KITCHEN-2: a pan with a spark over it — a new dish */}
+      <path d="M14 58 L70 58 Q68 80 42 80 Q16 80 14 58 Z" fill={c} fillOpacity="0.35" />
+      <Chalk d="M14 58 L70 58 Q68 80 42 80 Q16 80 14 58 Z M70 62 L92 54" c={CHALK_CREAM} />
+      <Chalk d="M42 10 L46 26 L62 30 L46 34 L42 50 L38 34 L22 30 L38 26 Z" c={c} w={2.4} fill={c} fillOpacity={0.3} />
+      <Chalk d="M72 14 L74 20 L80 22 L74 24 L72 30 L70 24 L64 22 L70 20 Z" c={CHALK_CREAM} w={1.8} />
+    </Art>
+  );
+}
 
-/** Chalk drawing for a Make-screen card (book/pencil/camera/link). */
+const MAKE_ART = { book: CookbookArt, pencil: PencilArt, camera: CameraArt, link: LinkArt, pantry: PantryArt, invent: InventArt };
+
+/** Chalk drawing for a Make-screen card (book/pencil/camera/link/pantry/invent). */
 export function MakeArt({ kind, accent = CHALK_CREAM, size = 68 }) {
   const Cmp = MAKE_ART[kind];
   return Cmp ? <Cmp c={accent} size={size} /> : null;

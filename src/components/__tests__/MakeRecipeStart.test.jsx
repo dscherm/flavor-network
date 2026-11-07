@@ -32,6 +32,7 @@ function mountPicker(overrides = {}) {
 
 describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)', () => {
   beforeEach(() => {
+    localStorage.clear();
     if (typeof globalThis.ResizeObserver === 'undefined') {
       globalThis.ResizeObserver = class {
         observe() {} unobserve() {} disconnect() {}
@@ -47,22 +48,21 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
     }
   });
 
-  it('renders 4 cards in spec order: existing, scratch, photo, weblink', () => {
+  it('KITCHEN-2: the kitchen leads, then invent, then existing / photo / weblink (no scratch card)', () => {
     mountPicker();
-    const cards = screen.getAllByRole('button');
-    expect(cards.length).toBeGreaterThanOrEqual(4);
-    expect(cards[0]).toHaveAttribute('data-testid', 'make-card-existing');
-    expect(cards[1]).toHaveAttribute('data-testid', 'make-card-scratch');
-    expect(cards[2]).toHaveAttribute('data-testid', 'make-card-photo');
-    expect(cards[3]).toHaveAttribute('data-testid', 'make-card-weblink');
+    const cards = screen.getAllByRole('button').filter((b) => (b.getAttribute('data-testid') || '').startsWith('make-card-'));
+    expect(cards.map((c) => c.getAttribute('data-testid'))).toEqual([
+      'make-card-kitchen', 'make-card-invent', 'make-card-existing', 'make-card-photo', 'make-card-weblink',
+    ]);
+    expect(screen.queryByTestId('make-card-scratch')).toBeNull();
   });
 
   it('card copy matches §2.3 exactly', () => {
     mountPicker();
     expect(screen.getByText('Existing recipe')).toBeInTheDocument();
     expect(screen.getByText('Pick from your Cookbook')).toBeInTheDocument();
-    expect(screen.getByText('Start from scratch')).toBeInTheDocument();
-    expect(screen.getByText('Empty Recipe Lab')).toBeInTheDocument();
+    expect(screen.getByText("What's in my kitchen?")).toBeInTheDocument();
+    expect(screen.getByText('Invent a recipe')).toBeInTheDocument();
     expect(screen.getByText('Upload a photo')).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -74,7 +74,7 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
   it('aria-label on each card is "${title}. ${subtitle}"', () => {
     mountPicker();
     expect(screen.getByLabelText('Existing recipe. Pick from your Cookbook')).toBeInTheDocument();
-    expect(screen.getByLabelText('Start from scratch. Empty Recipe Lab')).toBeInTheDocument();
+    expect(screen.getByLabelText('Invent a recipe. A new dish from what you have and what pairs')).toBeInTheDocument();
     expect(
       screen.getByLabelText(
         "Upload a photo. We'll attach the image; you add ingredients by hand",
@@ -82,9 +82,19 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
     ).toBeInTheDocument();
   });
 
-  it('container is role=region aria-label="Make a recipe"', () => {
+  it('KITCHEN-2: the screen is the Recipe Lab (region label + chalk heading + subtitle)', () => {
     mountPicker();
-    expect(screen.getByRole('region', { name: 'Make a recipe' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Recipe Lab' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Recipe Lab' })).toBeInTheDocument();
+    expect(screen.getByText("What's in your kitchen? Cook it, or invent something.")).toBeInTheDocument();
+  });
+
+  it('KITCHEN-2: "Open my notebook" goes to the notebook with no handoff', () => {
+    const s = mountPicker();
+    fireEvent.click(screen.getByTestId('recipe-lab-open-notebook'));
+    expect(s.setActiveTab).toHaveBeenCalledWith('recipe');
+    expect(s.setRecipeMounted).toHaveBeenCalledWith(true);
+    expect(s.setRecipeHandoff).not.toHaveBeenCalled();
   });
 
   it('clicking "existing" sets cookbookPickerMode="make" + activeTab="cookbook"', () => {
@@ -93,20 +103,6 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
     expect(s.setCookbookPickerMode).toHaveBeenCalledWith('make');
     expect(s.setActiveTab).toHaveBeenCalledWith('cookbook');
     expect(s.setRecipeHandoff).not.toHaveBeenCalled();
-  });
-
-  it('clicking "scratch" emits recipeHandoff with empty bowl + source="make-scratch"', () => {
-    const s = mountPicker();
-    fireEvent.click(screen.getByTestId('make-card-scratch'));
-    expect(s.setRecipeHandoff).toHaveBeenCalledTimes(1);
-    const payload = s.setRecipeHandoff.mock.calls[0][0];
-    expect(payload.source).toBe('make-scratch');
-    expect(payload.ingredients).toEqual([]);
-    expect(payload.image).toBeNull();
-    expect(payload.recipeType).toBeNull();
-    expect(typeof payload.ts).toBe('number');
-    expect(s.setRecipeMounted).toHaveBeenCalledWith(true);
-    expect(s.setActiveTab).toHaveBeenCalledWith('recipe');
   });
 
   it('clicking "photo" opens the file picker (does not emit handoff yet)', () => {
@@ -280,8 +276,8 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
     expect(screen.queryByTestId('make-photo-error')).toBeNull();
   });
 
-  it('first focus on mount lands on the existing card', () => {
+  it('first focus on mount lands on the kitchen card', () => {
     mountPicker();
-    expect(document.activeElement).toBe(screen.getByTestId('make-card-existing'));
+    expect(document.activeElement).toBe(screen.getByTestId('make-card-kitchen'));
   });
 });

@@ -121,6 +121,13 @@ describe('retrieveDirections', () => {
     // lemon is not in recipe 0 and not in bowl, so it should not appear
     expect(results[0].matchedNames).not.toContain('lemon');
   });
+
+  it('KITCHEN-2: ingredients lists the whole recipe, including what the bowl lacks', () => {
+    const results = retrieveDirections(['chicken', 'lemon'], FIXTURE_INDEX, VOCAB, { k: 1 });
+    expect(results[0].title).toBe('Lemon Butter Chicken');
+    expect(results[0].ingredients).toEqual(['chicken', 'lemon', 'butter']);
+    expect(results[0].matchedNames).toEqual(['chicken', 'lemon']);
+  });
 });
 
 // ── adaptSteps ────────────────────────────────────────────────────────────────
