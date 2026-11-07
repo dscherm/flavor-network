@@ -246,6 +246,9 @@ export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenReci
             <p className="leading-snug" style={{ fontFamily: FONT, fontSize: '19px', color: CHALK_DIM }}>{recipe.description}</p>
           )}
 
+          {/* 1b — STORIES-1: photo + background from Wikipedia, leading the card */}
+          <DishStory kind="recipe" storyKey={recipe.id} name={recipe.name} className="!mt-0" />
+
           {/* 2 — the profile radar, near the top */}
           {focalName && nodes ? (
             <div className="flex flex-col items-center" data-testid="recipe-profile">
@@ -318,9 +321,6 @@ export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenReci
               )}
             </div>
           )}
-
-          {/* 4b — STORIES-1: background + photo from Wikipedia (seed recipes only) */}
-          <DishStory kind="recipe" storyKey={recipe.id} name={recipe.name} className="!mt-0" />
 
           {/* 5 — goes well with: drawn mini-cards */}
           {hasPairings && pairCards.length > 0 && (

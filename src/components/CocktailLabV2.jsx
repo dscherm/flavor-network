@@ -459,8 +459,8 @@ export default function CocktailLabV2({
             onSelect={(name) => setSelectedCocktail(name)}
             onClose={() => setSelectedCocktail(null)}
           >
-            {needsSection}
             <DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />
+            {needsSection}
           </LabNodeCard>
         )}
         {riffPanel}
@@ -515,8 +515,8 @@ export default function CocktailLabV2({
           onSelect={(name) => setSelectedCocktail(name)}
           onClose={() => setSelectedCocktail(null)}
         >
-          {needsSection}
           <DishStory kind="cocktail" storyKey={selectedNode?.name || selectedCocktail} name={selectedNode?.name || selectedCocktail} />
+          {needsSection}
         </LabNodeCard>
       )}
       {barPanels}

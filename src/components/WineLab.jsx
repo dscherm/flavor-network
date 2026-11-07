@@ -337,8 +337,8 @@ export default function WineLab({
       onSelect={(name) => { const w = wines.find((x) => x.name === name); if (w) setSelectedId(w.id); }}
       onClose={() => setSelectedId(null)}
     >
-      <WineProfileSections wine={selected} color={familyColor(families, selected.family)} reviewEntry={reviewAromas?.[selected.id]} />
       <DishStory kind="wine" storyKey={selected.id} name={selected.name} />
+      <WineProfileSections wine={selected} color={familyColor(families, selected.family)} reviewEntry={reviewAromas?.[selected.id]} />
     </LabNodeCard>
   );
 

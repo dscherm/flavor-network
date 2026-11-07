@@ -225,12 +225,12 @@ export default function SauceLab({
             onSelect={(name) => setSelectedSauce(name)}
             onClose={() => setSelectedSauce(null)}
           >
+            <DishStory kind="sauce" storyKey={detailSauce?.name || selectedSauce} name={detailSauce?.name || selectedSauce} />
             {detailSauce && sauceNeeds(detailSauce)}
             {detailSauce && (
               <SaucePairings sauce={detailSauce} color={familyForSelected?.color} onFindWine={onFindWine}
                 categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
             )}
-            <DishStory kind="sauce" storyKey={detailSauce?.name || selectedSauce} name={detailSauce?.name || selectedSauce} />
           </LabNodeCard>
         ) : (
           <SauceSuggestionDeck
@@ -338,12 +338,12 @@ export default function SauceLab({
             onSelect={(name) => setSelectedSauce(name)}
             onClose={closeCard}
           >
+            <DishStory kind="sauce" storyKey={s?.name || selectedSauce} name={s?.name || selectedSauce} />
             {s && sauceNeeds(s)}
             {s && (
               <SaucePairings sauce={s} color={familyForSelected?.color} onFindWine={onFindWine}
                 categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null} />
             )}
-            <DishStory kind="sauce" storyKey={s?.name || selectedSauce} name={s?.name || selectedSauce} />
           </LabNodeCard>
         );
       })()}
