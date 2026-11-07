@@ -132,7 +132,8 @@ function CocktailArt({ c, size }) {
   return (
     <Art size={size}>
       {/* coupe with a cherry and a lime wheel */}
-      <path d="M26 34 Q50 64 74 34 Z" fill={c} fillOpacity="0.55" />
+      {/* light-blue drink (amber/orange accents read as brown at half strength) */}
+      <path d="M26 34 Q50 64 74 34 Z" fill="#7dd3fc" fillOpacity="0.7" />
       <Chalk d="M18 28 L82 28 Q50 72 18 28 Z" c={CHALK_CREAM} />
       <Chalk d="M50 58 L50 88 M36 90 Q50 85 64 90" c={CHALK_CREAM} />
       <Chalk d="M60 30 L70 12" c={CHALK_CREAM} w={2} />
@@ -147,7 +148,8 @@ function SauceArt({ c, size }) {
   return (
     <Art size={size}>
       {/* saucepan with steam and a ladle */}
-      <path d="M22 50 L78 50 L75 82 Q74 88 68 88 L32 88 Q26 88 25 82 Z" fill={c} fillOpacity="0.5" />
+      {/* deep-red sauce */}
+      <path d="M22 50 L78 50 L75 82 Q74 88 68 88 L32 88 Q26 88 25 82 Z" fill="#b91c1c" fillOpacity="0.8" />
       <Chalk d="M18 44 L82 44 L77 84 Q76 90 69 90 L31 90 Q24 90 23 84 Z" c={CHALK_CREAM} />
       <Chalk d="M82 50 L97 46" c={CHALK_CREAM} w={3.2} />
       <Chalk d="M36 34 Q30 26 36 18 Q42 10 36 4" c={CHALK_CREAM} w={2} />
