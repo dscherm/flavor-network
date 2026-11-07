@@ -10,6 +10,10 @@ import {
 } from '../data/cocktailCodexV2.js';
 import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 import { subclusterName } from '../data/cocktailSubclusters.js';
+import CocktailRiff from './CocktailRiff.jsx';
+import { getCocktailRoles } from '../data/ingredientRoles.js';
+import { buildPairingIndex } from '../data/recipePairingMatch.js';
+import { buildRolePool } from '../data/cocktailRiff.js';
 import { loadFacetContext, deriveFacets, guessSlot } from '../data/cocktailFacets.js';
 import { suggestAmounts } from '../data/cocktailAmounts.js';
 import { normalizeIngredient } from '../data/normalizeIngredient.js';
@@ -27,6 +31,9 @@ import { normalizeIngredient } from '../data/normalizeIngredient.js';
 export default function CocktailLabV2({
   onSelectionChange,
   onOpenRecipeLab,
+  // Ingredient graph (for the riff panel's pairing scores). Optional:
+  // without it the riff still swaps by role, ranked by how common.
+  fullData = null,
   // Phase 5 bridge: Build path → Cocktail Lab. Shape:
   //   { family?: string, spirit?: string }
   // Pre-selects filter pills on mount so the user lands in the slice
@@ -43,6 +50,14 @@ export default function CocktailLabV2({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCocktail, setSelectedCocktail] = useState(null);
+  const [riffOpen, setRiffOpen] = useState(false);
+  const [cocktailRoles, setCocktailRoles] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    getCocktailRoles().then((r) => { if (!cancelled) setCocktailRoles(r || {}); });
+    return () => { cancelled = true; };
+  }, []);
+  useEffect(() => { setRiffOpen(false); }, [selectedCocktail]);
   const [filterFamily, setFilterFamily] = useState(null);
   const [filterSpirit, setFilterSpirit] = useState(null);
 
@@ -184,6 +199,30 @@ export default function CocktailLabV2({
     if (!selectedNode || !graph) return null;
     return graph.families.find((f) => f.id === selectedNode.family_id) || null;
   }, [selectedNode, graph]);
+
+  // Riff on a classic: pairing index (from the ingredient graph) + the
+  // same-role candidate pools from the slot dictionary.
+  const riffIndex = useMemo(() => {
+    const nodes = fullData?.graph?.nodes;
+    const edges = fullData?.graph?.edges;
+    return nodes && edges ? buildPairingIndex(edges, nodes.keys()) : { names: new Set(), strength: new Map(), degree: new Map(), nodeCount: 1 };
+  }, [fullData]);
+  const riffPool = useMemo(() => (cocktailRoles ? buildRolePool(cocktailRoles, riffIndex.names) : null), [cocktailRoles, riffIndex]);
+  const cardActions = selectedNode ? [{ label: '🔀 Riff on this', onClick: () => setRiffOpen(true), testid: 'cocktail-riff-open' }] : [];
+  const riffPanel = riffOpen && selectedNode && graph ? (
+    <CocktailRiff
+      key={selectedNode.name}
+      cocktail={selectedNode}
+      cocktails={graph.cocktails}
+      roles={cocktailRoles || {}}
+      pool={riffPool}
+      pairingIndex={riffIndex}
+      color={familyForSelected?.color || '#9a8f7a'}
+      onClose={() => setRiffOpen(false)}
+      onSelectCocktail={(name) => { setSelectedCocktail(name); setRiffOpen(false); }}
+      onOpenRecipeLab={onOpenRecipeLab ? (names) => onOpenRecipeLab('cocktail', names) : null}
+    />
+  ) : null;
 
   // Slot + season lookups for the card: suggested amounts where the source
   // recipe gives none, and a normalised glass when none is recorded.
@@ -330,6 +369,7 @@ export default function CocktailLabV2({
             clusterColor={familyForSelected?.color || '#9a8f7a'}
             clusterTag={subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null}
             details={cardDetails}
+            actions={cardActions}
             ingredients={cardIngredients.items}
             prep={selectedNode?.recipe_text || ''}
             likeThis={similarCocktails}
@@ -338,6 +378,7 @@ export default function CocktailLabV2({
             onClose={() => setSelectedCocktail(null)}
           />
         )}
+        {riffPanel}
       </div>
     );
   }
@@ -387,6 +428,7 @@ export default function CocktailLabV2({
           clusterColor={familyForSelected?.color || '#9a8f7a'}
           clusterTag={subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null}
           details={cardDetails}
+          actions={cardActions}
           ingredients={cardIngredients.items}
           prep={selectedNode?.recipe_text || ''}
           likeThis={similarCocktails}
@@ -395,6 +437,7 @@ export default function CocktailLabV2({
           onClose={() => setSelectedCocktail(null)}
         />
       )}
+      {riffPanel}
 
       {/* Card mode (LabNodeCard) is a full-screen overlay with its own
           Back button, so the floating Clear-Selection button is gone. */}

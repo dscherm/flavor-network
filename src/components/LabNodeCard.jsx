@@ -105,6 +105,7 @@ export default function LabNodeCard({
   likeThis = [],         // [{ name, similarity, color }]
   bridges = [],          // [{ name, family_name, color }]
   pairsWith = [],        // string[]
+  actions = [],          // [{ label, onClick, testid }] — buttons under the family chip
   onSelect,
   onClose,
 }) {
@@ -155,6 +156,19 @@ export default function LabNodeCard({
               <span className="inline-block rounded-full" style={{ width: 10, height: 10, background: clusterColor }} />
               {clusterName}{clusterTag ? <span style={{ color: CHALK_SUB }}> · {clusterTag}</span> : null}
             </span>
+          </div>
+        )}
+
+        {/* Card actions (e.g. "Riff on this") */}
+        {actions.length > 0 && (
+          <div className="flex justify-center flex-wrap gap-2 mt-1.5 mb-0.5 flex-shrink-0">
+            {actions.map((a) => (
+              <button key={a.label} type="button" onClick={a.onClick} data-testid={a.testid}
+                className="px-4 py-1.5 rounded-full border min-h-[40px]"
+                style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }}>
+                {a.label}
+              </button>
+            ))}
           </div>
         )}
 

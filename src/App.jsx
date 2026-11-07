@@ -2107,6 +2107,7 @@ export default function App() {
           }`}
         >
           <CocktailLabV2
+            fullData={data}
             onSelectionChange={handleLabSelectionChange}
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}

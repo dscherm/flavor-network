@@ -1313,3 +1313,18 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   "acceptance": ["Pre-registered verdict recorded (FAIL); exploratory results labelled as post-hoc"]
 }
 ```
+
+```json
+{
+  "id": "COCKTAIL-RIFF-1",
+  "title": "Cocktail Lab: riff on a classic",
+  "category": "ui",
+  "passes": true,
+  "description": "'Riff on this' on every cocktail card opens a panel listing the drink's lines with their role; each line offers same-role swaps (slot dictionary, cleaned of garnishes and whole fruit) ranked by co-occurrence with the rest of the drink; after any change the panel names the closest existing cocktails (shared ingredients, spirits compared by family, base spirit weighted double). Reset, and 'Write this riff in the Recipe Notebook'. src/data/cocktailRiff.js + src/components/CocktailRiff.jsx; LabNodeCard gains an actions prop.",
+  "acceptance": [
+    "Whiskey Negroni names the Boulevardier as basically the same drink; tequila Daiquiri names a Margarita (tests)",
+    "Swaps stay within the role and exclude what is already in the drink; water/ice fixed, sugar swappable (tests)",
+    "Verified in browser on the Negroni"
+  ]
+}
+```
