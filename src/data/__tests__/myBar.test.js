@@ -86,6 +86,12 @@ describe('coverage', () => {
     expect(c.suggestion).toBeNull();
   });
 
+  it('no cross-family spirit stand-in: gin is not offered for a missing bourbon', () => {
+    const c = coverCocktail(negroni, ['bourbon', 'sweet vermouth', 'campari'], { roles, names });
+    expect(c.missing.map((m) => m.key)).toEqual(['gin']);
+    expect(c.suggestion).toBeNull();
+  });
+
   it('family substitution: rye covers bourbon and says so', () => {
     const c = coverCocktail(whiskeySour, ['rye', 'lemon juice', 'simple syrup', 'egg white'], { roles, names });
     expect(c.missing).toEqual([]);

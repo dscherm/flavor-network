@@ -180,7 +180,9 @@ export function coverCocktail(cocktail, bar, { roles = {}, names = new Set(), pa
     else if (c.substitution) substitutions.push({ from: line.key, to: c.via });
   }
   let suggestion = null;
-  if (missing.length === 1 && lines.length > 1) {
+  // A missing base spirit gets no stand-in: same-family spirits are already
+  // covered above, and gin in a Rob Roy is a different drink, not a swap.
+  if (missing.length === 1 && lines.length > 1 && !isSpiritKey(missing[0].key, roles)) {
     const pool = barRolePool([...barSet], roles, missing[0]);
     const idx = lines.indexOf(missing[0]);
     // swapCandidates excludes what is already in the drink and keeps the role.
