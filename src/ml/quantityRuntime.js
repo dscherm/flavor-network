@@ -11,6 +11,7 @@
  * resolves the predictor to null and predictAmount returns null.
  */
 import { predictQuantity, buildVocabIndex } from './quantityModel.js';
+import { formatKitchenQty } from './kitchenUnits.js';
 
 let _ctxPromise = null;
 
@@ -39,7 +40,8 @@ export function loadQuantityModel(basePath = '') {
 function toAmount(pred) {
   if (!pred || !pred.unit) return null;
   const qty = typeof pred.qty === 'number' ? pred.qty : null;
-  const raw = qty != null ? `${qty} ${pred.unit}` : pred.unit;
+  // "1 1/2 lb", "3/4 cup" — kitchen fractions that parseAmount re-reads.
+  const raw = qty != null ? `${formatKitchenQty(qty)} ${pred.unit}` : pred.unit;
   return { raw, qty, unit: pred.unit, inferred: true };
 }
 

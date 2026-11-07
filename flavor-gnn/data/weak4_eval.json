@@ -1,0 +1,69 @@
+{
+  "task": "WEAK-4",
+  "parse": null,
+  "model": {
+    "dims": {
+      "volume": 2002,
+      "weight": 760,
+      "count": 925
+    },
+    "tieBroken": 84,
+    "units": {
+      "lb": 489,
+      "each": 663,
+      "can": 113,
+      "cup": 1312,
+      "oz": 271,
+      "clove": 3,
+      "tsp": 300,
+      "tbsp": 390,
+      "pkg": 142,
+      "sprig": 3,
+      "handful": 1
+    },
+    "global": {
+      "unit": "cup",
+      "qty": 0.25,
+      "grams": 60,
+      "d": "v"
+    }
+  },
+  "original_fm_q2_metric": {
+    "note": "FM-Q2 metric on the ORIGINAL FM-Q1 triples (whose units/grams carry the each=100g parse artefact)",
+    "new": {
+      "n": 1216578,
+      "unit_top1_raw": 0.3168,
+      "unit_top1_normalised": 0.5636,
+      "qty_grams_MdAPE": 0.6667
+    },
+    "old": {
+      "n": 1216578,
+      "unit_top1_raw": 0.4948,
+      "unit_top1_normalised": 0.6497,
+      "qty_grams_MdAPE": 0.5833
+    }
+  },
+  "reparsed_holdout_metric": {
+    "note": "holdout r%10==0 of the WEAK-4 re-parse: dimension top-1 and within-dimension amount MdAPE in ml/g/count",
+    "new": {
+      "n": 1210873,
+      "dimension_top1": 0.8298,
+      "global_dimension_top1": 0.6617,
+      "within_dimension_MdAPE": 0.5,
+      "within_dimension_n": 996633,
+      "global_within_dimension_MdAPE": 0.875,
+      "grams_equiv_MdAPE_all_rows": 0.5,
+      "grams_equiv_n": 1210842
+    },
+    "old": {
+      "n": 1210873,
+      "dimension_top1": 0.6491,
+      "global_dimension_top1": 0.6617,
+      "within_dimension_MdAPE": 0.5,
+      "within_dimension_n": 724138,
+      "global_within_dimension_MdAPE": 0.875,
+      "grams_equiv_MdAPE_all_rows": 0.6473,
+      "grams_equiv_n": 1210842
+    }
+  }
+}
