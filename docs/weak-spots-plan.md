@@ -9,7 +9,7 @@ parallel what can be.
 | # | Weak spot | Cause (measured) |
 |---|---|---|
 | A | Invented dishes and sauces are thin and repetitive; "why" lines cite tomato + onion | The shipped pairing data lacks everyday pairs (garlic\|onion, chicken\|garlic, beef\|onion …). The blend step favoured distinctive pairs and kept the top 40,000. The raw counts (381k pairs from 2.2M recipes) are intact. |
-| 2 | "Real recipe" matches show wrong methods and repeats | Index builder matched rows by a parse counter, not the CSV's own id: 14.5% of entries carry another recipe's steps; 41% repeat a title; 6.8% name a food they lack. |
+| 2 | "Real recipe" matches show wrong methods and repeats | 14.5% of entries carry steps that mention none of their ingredients; 41% repeat a title; 6.8% name a food they lack. First guess (a row-matching bug in the builder) was **wrong**: WEAK-2 checked all 2.2M rows and the join is exact. The bad pairings are in RecipeNLG itself (row 38762 "Barbecue Wieners" has turkey steps); the builder took the first 40,000 rows unchecked. Fixed by quality filters + seeded sampling (see docs/directions-index.md). |
 | 4 | Amounts like "3.6 each" chicken, "4.54 each" pasta | The amount model uses "each" for mass/volume foods and does not round. |
 | 3 | Almost no Cookbook recipe is "makeable" | 30 kitchen items → 0 complete, 20 one-or-two away. The missing items are mostly flavourings (cinnamon, scallion, parsley, thyme, garam masala). |
 | 5 | Shuffle runs out; sauces of 3 ingredients | Scoring by mean pair strength favours small sets; deterministic top-k gives the same few dishes. |
