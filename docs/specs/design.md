@@ -1,0 +1,5 @@
+# design as-built specs
+
+## DESIGN-1 — Fewer words, more chalk: small items from the 2026-11 design review
+
+Items 1, 4, 5, 6 and 8 of docs/design-review-2026-11.md. (1) Cocktail Lab: the six facet rows (occasion/season/strength/character/effort/glass) sit behind one 'Filters' chip that shows the number of active filters; horizontal chip rows hide their scrollbars (.chip-row utility). (4) Pairing Lab: the ring is an ellipse that uses the whole board, names and group labels are placed by src/data/pairingLabelLayout.js so they never overlap each other, a circle or the centre oval; the explainer and line key moved into the 'Where do these pairings come from?' footer; lens chips on one row. (5) One loader, ChalkLoader (a chalk wine glass filling up), replaces the purple spinners in Cocktail/Sauce Lab, the Wine/Pairing lazy-load fallbacks, the wine list wait and the dimmed landing. (6) Wine Lab flags are drawn SVGs (src/data/countryFlags.js) instead of emoji, which Windows shows as 'FR'. (8) Labs menu and Make screen lead with larger chalk drawings (src/components/chalkArt.jsx).
