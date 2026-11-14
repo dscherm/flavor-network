@@ -1,7 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
-  cuisineOptions, kitchenCuisines, meanPairing, isBasicLike, anchorOrder,
-  inventionName, inventRecipes, inventionHandoff, FIT_LOGIT, MAX_OUTSIDE,
+  cuisineOptions, kitchenCuisines, isBasicLike, recipeRoles, inventionName, inventionNames, inventionHandoff,
 } from '../inventRecipe.js';
 
 const NODES = new Map([
@@ -24,17 +23,6 @@ function index(pairs, degree = {}) {
   return { strength, degree: new Map(Object.entries(degree)), names: NAMES };
 }
 
-// A fake model: a fixed logit per ingredient; never suggests what is observed.
-function fakeSuggest(logits) {
-  return vi.fn(async (observed, { candidateNames, k }) => {
-    const pool = candidateNames || Object.keys(logits);
-    return pool.filter((n) => !observed.includes(n) && n in logits)
-      .map((name) => ({ name, score: logits[name] }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, k);
-  });
-}
-
 describe('cuisineOptions / kitchenCuisines', () => {
   const VOCAB = ['Global', 'Italian', 'Indian', 'Greek', 'Chinese', 'Mexican', 'mexican', 'italian'];
 
@@ -49,23 +37,11 @@ describe('cuisineOptions / kitchenCuisines', () => {
 });
 
 describe('helpers', () => {
-  it('meanPairing averages every pair', () => {
-    const idx = index([['chicken', 'lemon', 0.6], ['chicken', 'garlic', 0.3]]);
-    const { score, pairs } = meanPairing(['chicken', 'lemon', 'garlic'], idx);
-    expect(pairs).toHaveLength(3);
-    expect(score).toBeCloseTo(0.3);
-  });
-
   it('isBasicLike catches long names for basics', () => {
     expect(isBasicLike('extra-virgin olive oil')).toBe(true);
     expect(isBasicLike('kosher salt')).toBe(true);
     expect(isBasicLike('red pepper')).toBe(false);
     expect(isBasicLike('chicken')).toBe(false);
-  });
-
-  it('anchorOrder puts proteins first and aromatics last', () => {
-    expect(anchorOrder(['garlic', 'tomato', 'chicken', 'lemon'], NODES)[0]).toBe('chicken');
-    expect(anchorOrder(['garlic', 'basil'], NODES)).toEqual(['basil', 'garlic']);
   });
 });
 
@@ -89,72 +65,7 @@ describe('inventionName', () => {
   });
 });
 
-describe('inventRecipes', () => {
-  // WEAK-5: rice joined the kitchen. With DISH_MIN now 5, a 4-item kitchen
-  // dish fills up with something to buy; this test is about the kitchen-only case.
-  const KITCHEN = ['chicken', 'lemon', 'garlic', 'tomato', 'rice', 'chocolate', 'salt', 'olive oil'];
-  const LOGITS = { lemon: 1, garlic: 0.5, tomato: -1, chocolate: -6, basil: 0, parmesan: -1, rice: -2 };
-
-  it('grows the dish from the kitchen, leaving out what does not fit', async () => {
-    const suggest = fakeSuggest(LOGITS);
-    const r = await inventRecipes({ kitchen: KITCHEN, cuisine: 'Italian', main: 'chicken', suggest, nodes: NODES, names: NAMES });
-    expect(r.ok).toBe(true);
-    const first = r.inventions[0];
-    expect(first.ingredients[0]).toMatchObject({ name: 'chicken', main: true });
-    const names = first.ingredients.map((i) => i.name);
-    expect(names).toEqual(expect.arrayContaining(['chicken', 'lemon', 'garlic', 'tomato', 'rice']));
-    expect(names).not.toContain('chocolate'); // logit below FIT_LOGIT
-    expect(names).not.toContain('salt');
-    expect(first.ingredients.every((i) => !i.needed)).toBe(true);
-    // Every model call is restricted to the kitchen and carries the cuisine.
-    expect(suggest.mock.calls[0][1]).toMatchObject({ cuisine: 'Italian', candidateNames: expect.any(Array) });
-    expect(suggest.mock.calls[0][1].candidateNames).not.toContain('basil');
-    expect(LOGITS.chocolate).toBeLessThan(FIT_LOGIT);
-  });
-
-  it('a thin dish adds at most two things to buy, labelled needed', async () => {
-    const suggest = fakeSuggest({ lemon: 1, basil: 0.5, parmesan: 0.2, rice: 0.1, 'extra-virgin olive oil': 3 });
-    const r = await inventRecipes({ kitchen: ['chicken', 'lemon'], suggest, nodes: NODES, names: NAMES });
-    // WEAK-5: which two it buys now follows role balance (a starch beats a
-    // second rich ingredient), so the test checks the rule, not the pair.
-    const inv = r.inventions[0];
-    const needed = inv.ingredients.filter((i) => i.needed).map((i) => i.name);
-    expect(needed).toHaveLength(MAX_OUTSIDE);
-    expect(inv.ingredients.length).toBe(4);
-    for (const d of r.pool) {
-      const buy = d.ingredients.filter((i) => i.needed).map((i) => i.name);
-      expect(buy.length).toBeLessThanOrEqual(MAX_OUTSIDE);
-      expect(buy).not.toContain('extra-virgin olive oil'); // a basic, never "to buy"
-      for (const b of buy) expect(['basil', 'parmesan', 'rice']).toContain(b);
-    }
-  });
-
-  it('things to buy need an observed pairing with the dish and to be common', async () => {
-    const suggest = fakeSuggest({ lemon: 1, basil: 0.5, parmesan: 0.2, rice: 0.1 });
-    const idx = index([['chicken', 'rice', 0.4], ['chicken', 'lemon', 0.5], ['chicken', 'parmesan', 0.1]], { rice: 400, basil: 400, parmesan: 10 });
-    const r = await inventRecipes({ kitchen: ['chicken', 'lemon'], suggest, pairingIndex: idx, nodes: NODES, names: NAMES });
-    // WEAK-5: checked over every idea, not only the first (ranking now weighs size and balance).
-    const bought = new Set(r.pool.flatMap((d) => d.ingredients.filter((i) => i.needed).map((i) => i.name)));
-    expect([...bought]).toEqual(['rice']); // basil: no pairing; parmesan: too rare here
-  });
-
-  it('leads with the best-scoring dish and offers distinct, distinctly named dishes', async () => {
-    const idx = index([['chicken', 'lemon', 0.9], ['lemon', 'garlic', 0.2], ['chicken', 'tomato', 0.1], ['garlic', 'tomato', 0.1]]);
-    const r = await inventRecipes({ kitchen: KITCHEN, suggest: fakeSuggest(LOGITS), pairingIndex: idx, nodes: NODES, names: NAMES });
-    const keys = r.pool.map((i) => i.ingredients.map((x) => x.name).sort().join());
-    expect(new Set(keys).size).toBe(keys.length);
-    expect(new Set(r.pool.map((i) => i.name)).size).toBe(r.pool.length);
-    // WEAK-5: the order after the first is MMR (variety), not score; the first is the best.
-    expect(r.inventions[0].score).toBe(Math.max(...r.pool.map((i) => i.score)));
-    expect(r.inventions[0].why).toMatch(/chicken \+ lemon|lemon \+ chicken/);
-  });
-
-  it('says why when it cannot invent', async () => {
-    expect(await inventRecipes({ kitchen: ['salt', 'olive oil'], suggest: fakeSuggest({}) })).toMatchObject({ ok: false });
-    expect(await inventRecipes({ kitchen: ['chicken'], suggest: null })).toMatchObject({ ok: false, reason: expect.stringMatching(/unavailable/) });
-    expect(await inventRecipes({ kitchen: ['chicken'], suggest: fakeSuggest({}) })).toMatchObject({ ok: false });
-  });
-
+describe('inventionHandoff', () => {
   it('builds a make-invent handoff with amounts and the closest method', () => {
     const inv = { name: 'Chicken & Lemon Skillet', ingredients: [{ name: 'chicken' }, { name: 'lemon', needed: true }] };
     const amounts = new Map([['chicken', { raw: '1 lb', qty: 1, unit: 'lb', inferred: true }]]);
@@ -164,5 +75,34 @@ describe('inventRecipes', () => {
       { ingredient: 'chicken', amount: { raw: '1 lb', qty: 1, unit: 'lb', inferred: true } },
       { ingredient: 'lemon', amount: null },
     ]);
+  });
+});
+
+describe('recipeRoles', () => {
+  const N = new Map([
+    ...NODES,
+    ['lentils', { category: undefined }], ['potato', { category: 'vegetable' }],
+  ]);
+  it('names the balance roles a set fills: main, vegetable, starch, aromatic, acid or richness, herb or spice', () => {
+    const r = recipeRoles(['chicken', 'tomato', 'rice', 'garlic', 'lemon', 'basil'], { nodes: N });
+    expect(r).toEqual({ main: true, vegetable: true, starch: true, aromatic: true, acidRich: true, herbSpice: true });
+    expect(recipeRoles(['lentils'], { nodes: N }).main).toBe(true); // a legume is a main
+    expect(recipeRoles(['tomato'], { nodes: N, main: 'tomato' }).main).toBe(true); // the chosen main counts
+    expect(recipeRoles(['potato'], { nodes: N }).starch).toBe(true);
+  });
+});
+
+describe('inventionNames', () => {
+  it('keeps names distinct: a different second ingredient, then "with …"; aromatics last', () => {
+    const strength = new Map();
+    for (const [a, b, s] of [['chicken', 'lemon', 0.7], ['chicken', 'rice', 0.5], ['chicken', 'tomato', 0.3]]) {
+      strength.set(`${a}|${b}`, s); strength.set(`${b}|${a}`, s);
+    }
+    const { names } = inventionNames(['chicken', 'lemon', 'basil', 'tomato', 'garlic'], { nodes: NODES, index: { strength } });
+    expect(names[0]).toBe('Chicken & Lemon Skillet');
+    expect(new Set(names).size).toBe(names.length);
+    expect(names).toContain('Chicken & Tomato Skillet');
+    expect(names.some((n) => / with /.test(n))).toBe(true);
+    expect(names.findIndex((n) => /Garlic/.test(n))).toBeGreaterThan(names.findIndex((n) => /Tomato/.test(n)));
   });
 });

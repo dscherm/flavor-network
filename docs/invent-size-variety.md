@@ -1,5 +1,12 @@
 # Invent: size and variety (WEAK-5)
 
+> **Retired 2026-11-14.** The finished-idea generators this document measured
+> (`inventRecipes`, `inventSauces`, Shuffle and maximal marginal relevance in
+> `inventVariety.js`) were removed when the three Invent panels became "pick a
+> baseline, then build it yourself". `scripts/measureInvent.mjs` was removed
+> with them; its last commit is `b4b48f8`. The numbers below describe code
+> that no longer exists and are kept as a record only.
+
 ## Checks, written before changing anything
 
 Measured by `node scripts/measureInvent.mjs` (it reuses the setup of

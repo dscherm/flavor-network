@@ -1,5 +1,12 @@
 # Everyday pairs (WEAK-A)
 
+> **Note 2026-11-14.** Parts (c), (d) and (e) below measured the finished-idea
+> generators (`inventRecipes`, `inventSauces`, `inventCocktails`), which were
+> retired in favour of the build-it-yourself panels. `scripts/measureEverydayPairs.mjs`
+> now measures only (a) common pairs present and (b) Cookbook pairs with an edge;
+> the last commit whose script ran (c) to (e) is `a3066d6`. The blended index still
+> feeds the panels' slot ranking. Those sections are kept as a record only.
+
 ## Checks, written before measuring
 
 Measured by `node scripts/measureEverydayPairs.mjs`. "Curated" is the index the

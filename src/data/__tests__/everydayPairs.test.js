@@ -6,7 +6,7 @@ import {
   parseEverydayPairs, loadEverydayPairs, resetEverydayPairs, strength, partners, blendIndex,
 } from '../everydayPairs.js';
 import { buildPairingIndex } from '../recipePairingMatch.js';
-import { inventRecipes } from '../inventRecipe.js';
+import { dishSkeleton, rankDishSlot } from '../dishSkeletons.js';
 
 // ── Builder selection rule (tiny fixture) ─────────────────────────────
 
@@ -197,14 +197,15 @@ describe('blendIndex', () => {
   it('caches per (curated, everyday) pair', () => {
     expect(blendIndex(curated, ev)).toBe(blendIndex(curated, ev));
   });
-  it('drops into an existing scorer unchanged', async () => {
-    const suggest = async (members, { candidateNames }) => (candidateNames || []).map((name, i) => ({ name, score: 2 - i * 0.1 }));
-    const kitchen = ['chicken', 'garlic', 'onion'];
-    const nodes = new Map([['chicken', { category: 'protein' }]]);
-    const before = await inventRecipes({ kitchen, suggest, pairingIndex: curated, nodes, names: new Set(NAMES), limit: 3 });
-    const after = await inventRecipes({ kitchen, suggest, pairingIndex: blendIndex(curated, ev), nodes, names: new Set(NAMES), limit: 3 });
-    expect(after.ok).toBe(true);
-    expect(after.inventions[0].score).toBeGreaterThan(before.inventions[0].score);
-    expect(after.inventions[0].why).toMatch(/garlic/);
+  it('drops into the dish slot ranker unchanged', () => {
+    const nodes = new Map([
+      ['chicken', { category: 'protein' }], ['garlic', { category: 'aromatic' }],
+      ['onion', { category: 'aromatic' }], ['saffron', { category: 'spice' }],
+    ]);
+    const slot = dishSkeleton('stir-fry', { nodes }).slots.find((s) => s.id === 'aromatic');
+    const rank = (pairingIndex) => rankDishSlot({ slot, currentKeys: ['chicken'], kitchen: ['garlic', 'onion'], nodes, pairingIndex });
+    const before = rank(curated).find((r) => r.key === 'garlic');
+    const after = rank(blendIndex(curated, ev)).find((r) => r.key === 'garlic');
+    expect(after.score).toBeGreaterThan(before.score);
   });
 });

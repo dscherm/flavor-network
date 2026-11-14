@@ -1,12 +1,11 @@
 /**
- * inventSauce.js — "Invent a sauce": build a new sauce from one of the
- * Sauce Lab's technique skeletons (SAUCE_TEMPLATES, sauceScoring.js),
- * filling each role from the cook's pantry first, choosing the combination
- * whose ingredients pair best with each other and with the protein it will
- * be served with. The sauce counterpart of cocktailInvent.js.
+ * inventSauce.js — what the "Invent a sauce" panel builds on: the Sauce Lab's
+ * technique skeletons as build slots, and the ranking, amounts and method
+ * text for a sauce the cook assembles one slot at a time (inventBuild.js).
+ * The sauce counterpart of cocktailInvent.js.
  *
- * Each style keeps its template's required roles as required slots, and
- * narrows them by KIND where the chemistry demands it:
+ * Each style (INVENT_STYLES) keeps its template's required roles as required
+ * slots, and narrows them by KIND where the chemistry demands it:
  *   Emulsion (Hollandaise) = fat + EGG YOLK (the emulsifier: its lecithin
  *                            holds fat droplets in water) + acid
  *   Roux (Béchamel/Velouté) = fat + FLOUR (cornstarch is not a roux) + liquid
@@ -18,45 +17,27 @@
  *   Mole                    = fat + dried chili + spice + chocolate/nut/sweet
  *   Salsa                   = tomato / tomatillo / fruit + aromatic
  *   Nut sauce               = nut or seed (tahini, peanut) (+ acid, seasoning)
- * A required slot is never left empty: it is filled from the pantry, or —
- * unless `pantryOnly` — from the ingredients most used for that role in
- * the sauce list, marked `need` ("you'd need"). With `pantryOnly` an
- * unfillable required slot is reported as missing, never invented around:
- * no hollandaise without egg yolk, no béchamel without a liquid.
+ * A required slot is never filled with the wrong chemistry, and with
+ * `pantryOnly` an unfillable required slot stays empty and is reported as
+ * missing: no hollandaise without egg yolk, no béchamel without a liquid.
  *
- * Optional slots take pantry ingredients only (nobody should shop for a
- * garnish), except with an empty pantry, where the whole sauce list is the
- * pool (as Invent a cocktail does with an empty bar).
+ * rankSauceSlot orders the candidates for a slot: pantry items first, then
+ * (unless pantryOnly) the ingredients most used for that role in the sauce
+ * list, marked "you'd need". Within a tier: pairing with the rest of the
+ * build and with the protein (pairStrength, each capped at PAIR_CAP; butter,
+ * oil, flour and the like fill their slots but never count), then how common
+ * the ingredient is.
  *
- * Score of a combination (WEAK-5) = coherence of its non-basic
- * ingredients (a quarter mean pair strength, three quarters each one's best partner,
- * each strength capped at PAIR_CAP;
- * pairStrength: recipe co-occurrence + curated sauce pairings; butter,
- * oil, flour and the like fill their slots but never count, so they cannot
- * carry a sauce or its "why" line) + mean strength with the protein + a
- * size term that peaks at 5–7 ingredients + a bonus for using what the cook
- * has + a small bonus for common ingredients − a charge for an optional
- * ingredient that pairs with nothing else in the sauce. Required slots are
- * always filled; optional ones from the pantry when they cohere.
- *
- * Which sauces are shown: maximal marginal relevance over the beam's
- * complete sauces (inventVariety.js), names kept unique in that order;
- * Shuffle walks the pool and then says it is exhausted.
- *
- * Amounts are a house table per kind, for about 1½–2 cups of sauce; the
- * UI says they are an idea from what pairs, not a tested recipe.
+ * sauceFromBuild turns a build into what the card shows: lines with amounts
+ * (a house table per kind, for about 1½–2 cups of sauce), the method written
+ * from the current lines, and a "why" line. The UI says the amounts are an
+ * idea from what pairs, not a tested recipe.
  */
 import { SAUCE_TEMPLATES } from './sauceScoring.js';
 import { sauceRoleOf, sauceKind, pairStrength } from './saucePantry.js';
 import { isBasic, haveIngredient } from './myKitchen.js';
 import { proteinIngredient } from './sauceWines.js';
-import { mmrOrder, assignUniqueNames, nextIdeas, dropThinSubsets, EXHAUSTED_SAUCE } from './inventVariety.js';
 
-export { EXHAUSTED_SAUCE };
-
-export const SAUCE_SIZE = { min: 5, max: 7 };
-export const LONELY_COST = 0.08;   // an optional ingredient that pairs with nothing else in the sauce
-export const SAUCE_POOL_FLOOR = 0.45; // sauces scoring further below the best are not offered
 // Pair strength counts up to PAIR_CAP ("a real pairing") and no further:
 // one very strong pair (tomato + garlic) must not outweigh a fuller sauce
 // whose every ingredient pairs well.
@@ -77,12 +58,6 @@ const BASIC_LINES = ['butter', 'olive oil', 'vegetable oil', 'flour', 'black pep
 export function isSauceBasic(key) {
   const k = norm(key);
   return BASIC_LINES.includes(k) || isBasic(k) || /\boil\b/.test(k);
-}
-
-/** Size term: flat top for 5–7 ingredients, falling by `step` per ingredient outside it. */
-export function sauceSizeTerm(n, { min = SAUCE_SIZE.min, max = SAUCE_SIZE.max, peak = 0.15, step = 0.1 } = {}) {
-  if (n >= min && n <= max) return peak;
-  return peak - step * (n < min ? min - n : n - max);
 }
 
 /**
@@ -379,144 +354,9 @@ export function methodFor(styleId, lines) {
   }
 }
 
-// ── Inventing ─────────────────────────────────────────────────────────
+// ── Names ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 const titleCase = (s) => String(s).replace(/\b([a-z])/g, (m) => m.toUpperCase());
 const shortName = (k) => titleCase(String(k).replace(/ juice$/, '').replace(/^fresh /, '').replace(/ (sauce|leaf|leaves)$/, (m) => (/fish|soy|oyster/.test(k) ? m : '')));
-
-/**
- * Candidates for each slot.
- * @returns {{ lists: Array<Array<{key, have, common}>>, missing: string[] }}
- */
-function slotLists(style, { kitchen, assumeBasics, catMap, pool, pantryOnly, names, perSlot }) {
-  const kitchenSet = new Set((kitchen || []).map(norm));
-  const pantry = [...kitchenSet];
-  if (assumeBasics) for (const b of BASIC_LINES) if (!kitchenSet.has(b)) pantry.push(b);
-  const emptyPantry = kitchenSet.size === 0;
-  const maxCommon = Math.max(1, ...pool.values());
-  const commonness = (k) => Math.log1p(pool.get(k) || 0) / Math.log1p(maxCommon);
-  const has = (k) => kitchenSet.has(k) || haveIngredient(k, kitchenSet, { assumeBasics, names }).covered;
-
-  const missing = [];
-  const lists = style.slots.map((slot) => {
-    const fromPantry = pantry.filter((k) => fitsSlot(k, slot, catMap))
-      .map((key) => ({ key, have: true, common: commonness(key) }));
-    let list = fromPantry;
-    const useFallback = emptyPantry || (slot.required && fromPantry.length === 0);
-    if (useFallback && !pantryOnly) {
-      const seen = new Set(fromPantry.map((c) => c.key));
-      const extra = [...pool.keys()]
-        .filter((k) => !seen.has(k) && !COMPOUND.test(k) && fitsSlot(k, slot, catMap))
-        .map((key) => ({ key, have: has(key), common: commonness(key) }));
-      list = [...fromPantry, ...extra];
-    }
-    list.sort((a, b) => (b.have ? 1 : 0) - (a.have ? 1 : 0) || b.common - a.common || a.key.localeCompare(b.key));
-    list = list.slice(0, perSlot);
-    if (slot.required && list.length === 0) missing.push(slot.label);
-    return list;
-  });
-  return { lists, missing };
-}
-
-/**
- * Invent sauces in a style.
- * @param {object} opts
- *   styleId — INVENT_STYLES id (a SAUCE_TEMPLATES name); protein — optional label ("chicken");
- *   kitchen — the shared kitchen list; assumeBasics; pantryOnly — never fall back;
- *   meta — sauce catalogue ({name, category}[]); sauces — the sauce list (for the pool);
- *   catMap — buildCategoryMap(meta) (optional, built from meta);
- *   pairingIndex / sauceIndex — buildPairingIndex() results; names — for kitchen equivalents;
- *   limit — max inventions returned.
- * @returns {{ ok: true, sauces: Invention[] } | { ok: false, missing: string[], reason: string }}
- *   Invention = { name, styleId, familyId, lines: [{ key, slot, label, amount, have }],
- *                 need: string[], method, technique, description, why, score }
- */
-export function inventSauces({
-  styleId, protein = null, kitchen = [], assumeBasics = true, pantryOnly = false,
-  meta = [], sauces = [], catMap = null, pairingIndex = null, sauceIndex = null, names = null,
-  limit = 12, perSlot = 5, beam = 60,
-} = {}) {
-  const style = INVENT_STYLE_BY_ID.get(styleId);
-  if (!style) return { ok: false, missing: [], reason: 'Unknown style' };
-  const cats = catMap || new Map((meta || []).filter((i) => i?.name && i.category).map((i) => [norm(i.name), i.category]));
-  const pool = buildSaucePool(meta, sauces);
-  const { lists, missing } = slotLists(style, { kitchen, assumeBasics, catMap: cats, pool, pantryOnly, names, perSlot });
-  if (missing.length) {
-    return {
-      ok: false,
-      missing,
-      reason: pantryOnly
-        ? `${style.chemistry} Your pantry has nothing for: ${missing.join('; ')}.`
-        : `Nothing in the sauce list can be the ${missing.join('; ')}.`,
-    };
-  }
-  const prot = protein ? proteinIngredient(protein) : null;
-  const ctx = { pairingIndex, sauceIndex };
-  const scoreOf = (members, optional = new Set()) => {
-    // Basics fill their slots but do not count: butter + cream must not carry a sauce.
-    const xs = members.filter((m) => !isSauceBasic(m.key));
-    const best = xs.map(() => 0);
-    let sum = 0; let n = 0;
-    for (let i = 0; i < xs.length; i++) {
-      for (let j = i + 1; j < xs.length; j++) {
-        const s = capped(pairStrength(xs[i].key, xs[j].key, ctx));
-        sum += s; n += 1;
-        if (s > best[i]) best[i] = s;
-        if (s > best[j]) best[j] = s;
-      }
-    }
-    const meanBest = xs.length ? best.reduce((a, b) => a + b, 0) / xs.length : 0;
-    const pairing = 0.25 * (n ? sum / n : 0) + 0.75 * meanBest;
-    const protS = prot ? xs.map((m) => capped(pairStrength(m.key, prot, ctx))) : [];
-    const withProtein = protS.length ? protS.reduce((a, b) => a + b, 0) / protS.length : 0;
-    // An optional ingredient that pairs with nothing in the sauce (or the
-    // protein) does not cohere: it is there only to make up the numbers.
-    let lonely = 0;
-    xs.forEach((m, i) => { if (optional.has(m) && best[i] === 0 && !(protS[i] > 0)) lonely += 1; });
-    // Using what the cook has earns a little per ingredient.
-    const have = members.filter((m) => m.have).length;
-    const common = members.length ? members.reduce((s, m) => s + m.common, 0) / members.length : 0;
-    return pairing + withProtein + sauceSizeTerm(members.length) + 0.06 * have + 0.1 * common - LONELY_COST * lonely;
-  };
-
-  // Beam search over the slots; optional slots may stay empty.
-  let partial = [{ picked: [], score: 0 }];
-  style.slots.forEach((slot, i) => {
-    const choices = slot.required ? lists[i] : [...lists[i], null];
-    const next = [];
-    for (const p of partial) {
-      for (const c of choices) {
-        if (c && p.picked.some((q) => q && q.key === c.key)) continue; // no ingredient twice
-        const picked = [...p.picked, c];
-        const optional = new Set(picked.filter((q, j) => q && !style.slots[j].required));
-        next.push({ picked, score: scoreOf(picked.filter(Boolean), optional) });
-      }
-    }
-    next.sort((a, b) => b.score - a.score);
-    partial = next.slice(0, beam);
-  });
-  if (!partial.length || !partial[0].picked.length) return { ok: false, missing: [], reason: 'Nothing to build with' };
-
-  // Session order by MMR (penalise overlap with sauces already shown), then
-  // unique names in that order. `pool` is everything Shuffle can reach.
-  const top = partial[0].score;
-  const built = dropThinSubsets(
-    partial.filter((p) => p.score >= top - SAUCE_POOL_FLOOR).map((p) => buildInvention(style, p, { catMap: cats, protein, ctx })),
-    { keysOf: sauceKeys, minSize: SAUCE_SIZE.min },
-  );
-  const ordered = mmrOrder(built, { keysOf: sauceKeys });
-  const ideas = assignUniqueNames(ordered, (inv) => inv.names).map(({ idea, name }) => ({ ...idea, name }));
-  return { ok: true, sauces: ideas.slice(0, limit), pool: ideas };
-}
-
-const sauceKeys = (inv) => inv.lines.map((l) => l.key);
-
-/**
- * The next sauces to show in this session (MMR over the pool, never one
- * already shown). [] means the pool is exhausted: show EXHAUSTED_SAUCE.
- */
-export function nextSauces(pool, shown = [], n = 3) {
-  return nextIdeas(pool, shown, n, { keysOf: sauceKeys });
-}
 
 /** Candidate names for a sauce, best first, from the style's telling slots in `lines`. */
 function nameCandidates(style, lines) {
@@ -548,30 +388,6 @@ function whyFor(style, lines, protein, ctx) {
   return strong.length
     ? `Strongest pairings: ${strong.map((p) => `${p.a} + ${p.b}`).join(', ')}.`
     : `Follows the ${style.label.toLowerCase()} skeleton; no pairing data links these ingredients.`;
-}
-
-function buildInvention(style, { picked, score }, { catMap, protein, ctx }) {
-  const lines = [];
-  style.slots.forEach((slot, i) => {
-    const c = picked[i];
-    if (!c) return;
-    lines.push({ key: c.key, slot: slot.id, label: slot.label, amount: amountFor(c.key, slot, style.id, catMap), have: !!c.have });
-  });
-  const names = nameCandidates(style, lines);
-  return {
-    name: names[0],
-    names,
-    styleId: style.id,
-    familyId: style.familyId,
-    lines,
-    need: lines.filter((l) => !l.have).map((l) => l.key),
-    method: methodFor(style.id, lines),
-    technique: style.template?.technique || '',
-    description: style.template?.description || '',
-    chemistry: style.chemistry,
-    why: whyFor(style, lines, protein, ctx),
-    score,
-  };
 }
 
 // ── Build model (INVENT-3): pick a technique, then build the sauce yourself ──

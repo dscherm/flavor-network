@@ -1,8 +1,9 @@
 /**
- * cocktailInvent.js — "Invent a cocktail": build a new drink from a family
- * skeleton, filling each role from the user's bar (or, with an empty bar,
- * from the whole cocktail role pool), choosing the combination whose
- * ingredients pair best in real recipes.
+ * cocktailInvent.js — what the "Invent a cocktail" panel builds on: the
+ * codex v2 family skeletons as build slots, the ranking of candidates for a
+ * slot, and the drink (amounts, name, "why") a build makes. The cook picks a
+ * family, then builds the drink slot by slot (inventBuild.js), from the bar
+ * first or, with an empty bar, from the whole cocktail role pool.
  *
  * Skeletons follow the codex v2 families' dominant slots
  * (docs/cocktail-codex-v2/findings.md, public/data/cocktail_codex_v2.json):
@@ -17,15 +18,17 @@
  * Amounts start from SLOT_DEFAULT_AMOUNT (src/data/cocktailAmounts.js),
  * times a per-slot multiple, then are scaled so the liquid total lands in
  * the family's volume range and rounded to ¼ oz. They are house
- * proportions, not tested recipes, and the UI says so.
+ * proportions, not tested recipes, and the UI says so. Extras added beyond
+ * the skeleton get a small pour by role, or a plain amount for a herb or fruit.
  *
- * Guard rails: one base spirit (the Aperitivo skeleton has none: the
- * aperitif is the base), never two sours, no ingredient twice, and a
- * required role the pool cannot fill is reported, not invented.
+ * Guard rails (cocktailSkeleton rules): one base spirit (the Aperitivo
+ * skeleton has none: the aperitif is the base), never two sours, no
+ * ingredient twice, and a required slot the pool cannot fill is reported
+ * missing, not invented around.
  *
- * Pairing score of a combination = mean co-occurrence strength over every
- * pair of its lines (buildPairingIndex strength), plus a small bonus for
- * ingredients common in cocktails, so a whole-pool draw prefers bottles
+ * rankCocktailSlot scores a candidate as its mean co-occurrence strength
+ * with the rest of the build (buildPairingIndex strength) plus a small bonus
+ * for ingredients common in cocktails, so an empty-bar draw prefers bottles
  * people own.
  */
 import { SLOT_DEFAULT_AMOUNT } from './cocktailAmounts.js';
@@ -191,90 +194,6 @@ function slotCandidates(slot, cands, roles) {
 
 const strengthOf = (index, a, b) => index?.strength?.get(`${a}|${b}`) || 0;
 
-/**
- * Invent drinks for a family.
- * @param {object} opts
- *   familyId — codex family id (0–5); base — optional base spirit key;
- *   bar — array of bar keys (empty → whole pool); pool — buildRolePool();
- *   roles — slot dictionary; pairingIndex — buildPairingIndex(); limit — max drinks.
- * @returns {{ ok: true, drinks: Drink[] } | { ok: false, missing: string[], reason: string }}
- *   Drink = { name, family, lines: [{ key, role, slot, label, amount }], build, glass,
- *             why, score, base }
- */
-export function inventCocktails({ familyId, base = null, bar = [], pool = null, roles = {}, pairingIndex = null, limit = 12, perSlot = 6 } = {}) {
-  const skel = FAMILY_SKELETONS[familyId];
-  if (!skel) return { ok: false, missing: [], reason: 'Unknown family' };
-  const cands = candidatePool(bar, pool, roles);
-  const maxCommon = Math.max(1, ...[...cands.values()].flatMap((m) => [...m.values()]));
-  const commonness = (c) => Math.log1p(c) / Math.log1p(maxCommon);
-
-  const baseSlot = skel.slots.find((s) => s.base);
-  let bases = [null];
-  if (baseSlot) {
-    let list = slotCandidates(baseSlot, cands, roles);
-    if (base) {
-      const want = list.filter((c) => c.key === base);
-      // The chosen base is used even when it is not in the bar / pool lists.
-      list = want.length ? want : (isBaseSpirit(base, roles) || !Object.keys(roles).length ? [{ key: base, common: 1 }] : []);
-    }
-    if (list.length === 0) {
-      return { ok: false, missing: [baseSlot.label], reason: base ? `${base} can't be a base spirit` : 'No base spirit in your bar' };
-    }
-    bases = list.sort((a, b) => b.common - a.common).slice(0, base ? 1 : 5);
-  }
-
-  const otherSlots = skel.slots.filter((s) => !s.base);
-  const missing = new Set();
-  const combos = [];
-  for (const b of bases) {
-    const anchor = b?.key;
-    // Per slot: candidates ranked by pairing with the base (or commonness), top perSlot.
-    const lists = otherSlots.map((slot) => {
-      const list = slotCandidates(slot, cands, roles).filter((c) => c.key !== anchor);
-      return list
-        .map((c) => ({ ...c, pre: (anchor ? strengthOf(pairingIndex, c.key, anchor) : 0) + 0.15 * commonness(c.common) }))
-        .sort((x, y) => y.pre - x.pre)
-        .slice(0, perSlot);
-    });
-    otherSlots.forEach((slot, i) => { if (slot.required && lists[i].length === 0) missing.add(slot.label); });
-    if (otherSlots.some((slot, i) => slot.required && lists[i].length === 0)) continue;
-    // Cartesian product; optional slots may stay empty.
-    const choices = lists.map((l, i) => (otherSlots[i].required ? l : [...l, null]));
-    const walk = (i, picked) => {
-      if (i === choices.length) {
-        const keys = [anchor, ...picked.map((p) => p?.key)].filter(Boolean);
-        if (new Set(keys).size !== keys.length) return; // no ingredient twice
-        combos.push({ base: b, picked: [...picked] });
-        return;
-      }
-      for (const c of choices[i]) { picked.push(c); walk(i + 1, picked); picked.pop(); }
-    };
-    walk(0, []);
-  }
-  if (combos.length === 0) {
-    return { ok: false, missing: [...missing], reason: missing.size ? `Your bar has nothing for: ${[...missing].join(', ')}` : 'Nothing to build with' };
-  }
-
-  const scored = combos.map(({ base: b, picked }) => {
-    const members = [b, ...picked].filter(Boolean);
-    let sum = 0; let n = 0; const pairs = [];
-    for (let i = 0; i < members.length; i++) {
-      for (let j = i + 1; j < members.length; j++) {
-        const s = strengthOf(pairingIndex, members[i].key, members[j].key);
-        sum += s; n += 1;
-        pairs.push({ a: members[i].key, b: members[j].key, s });
-      }
-    }
-    const pairing = n ? sum / n : 0;
-    // An optional slot earns its place only by pairing: empty optional is fine.
-    const common = members.reduce((s, m) => s + commonness(m.common), 0) / members.length;
-    return { b, picked, pairs, score: pairing + 0.1 * common };
-  }).sort((x, y) => y.score - x.score);
-
-  const drinks = scored.slice(0, limit).map((c) => buildDrink(familyId, skel, c, roles));
-  return { ok: true, drinks };
-}
-
 const titleCase = (s) => String(s).replace(/\b([a-z])/g, (m) => m.toUpperCase());
 const short = (k) => titleCase(String(k).replace(/ juice$/, '').replace(/^fresh /, ''));
 const GENERIC_NAME = /^(simple |sugar )?syrup$|^(soda|carbonated|sparkling) water$|^club soda$|^seltzer$|bitters$/;
@@ -296,33 +215,7 @@ function describeDrink(familyId, skel, filled, pairs) {
   return { lead, name, why };
 }
 
-function buildDrink(familyId, skel, { b, picked, pairs, score }, roles) {
-  const filled = [];
-  if (b) filled.push({ slot: skel.slots.find((s) => s.base), key: b.key, role: 'spirit' });
-  skel.slots.filter((s) => !s.base).forEach((slot, i) => { if (picked[i]) filled.push({ slot, key: picked[i].key, role: roleOf(picked[i].key, roles) }); });
-  const amounts = scaleAmounts(filled, skel.volume);
-  const lines = filled.map((f, i) => ({
-    key: f.key,
-    slot: f.slot.id,
-    label: f.slot.label,
-    role: roleOf(f.key, roles) || f.slot.roles[0],
-    amount: amounts[i],
-  }));
-  const { lead, name, why } = describeDrink(familyId, skel, filled, pairs);
-  return {
-    name,
-    family: skel.name,
-    familyId,
-    base: lead?.key || null,
-    lines,
-    build: skel.build,
-    glass: skel.glass,
-    why,
-    score,
-  };
-}
-
-// ── Build-it-yourself (INVENT-2): skeleton, slot ranking, drink from a build ──
+// ── The build model: skeleton, slot ranking, drink from a build ──
 
 export const FAMILY_BLURB = Object.freeze({
   2: 'bright, shaken, citrus-forward',
@@ -364,8 +257,8 @@ export function cocktailSkeleton(familyId, { roles = {} } = {}) {
 /**
  * Ranked candidates for one slot: [{ key, have, score }]. Bar items first
  * (have: true), then the rest of the codex pool; with an empty bar, the whole
- * pool. score = mean pairing strength with currentKeys + the small
- * commonness bonus inventCocktails uses.
+ * pool. score = mean pairing strength with currentKeys + a small bonus for
+ * ingredients common in cocktails.
  */
 export function rankCocktailSlot({ slot, currentKeys = [], bar = [], pool = null, roles = {}, pairingIndex = null } = {}) {
   if (!slot) return [];
@@ -388,7 +281,27 @@ export function rankCocktailSlot({ slot, currentKeys = [], bar = [], pool = null
   return [...own, ...scored(all, false).filter((c) => !ownKeys.has(c.key))];
 }
 
-const EXTRA_AMOUNT = { bitter: '2 dashes', aromatic: '1 dash', spirit: '¼ oz', amaro_liqueur: '¼ oz', vermouth: '¼ oz', sweet: '¼ oz', sour: '¼ oz', modifier: '½ oz' };
+const EXTRA_AMOUNT = { bitter: '2 dashes', spirit: '¼ oz', amaro_liqueur: '¼ oz', vermouth: '¼ oz', sweet: '¼ oz', sour: '¼ oz', modifier: '½ oz' };
+const HERB_EXTRA = /\b(mint|basil|rosemary|thyme|sage|cilantro|parsley|dill|tarragon|lavender|shiso)\b/;
+const SMALL_FRUIT_EXTRA = /\b(cherry|cherries|olive|olives|berry|berries|grape|grapes|onion|onions)\b/;
+const SOLID_EXTRA = /\b(cucumber|orange|lemon|lime|grapefruit|apple|pear|peach|melon|pineapple|ginger|jalapeno|jalapeño|chili|celery|peel|twist|zest|slice|wedge|fruit)\b/;
+const LIQUID_AROMATIC = /\b(water|tincture|saline|extract|essence|absinthe|vanilla|smoke|rinse)\b/;
+
+/**
+ * A plain amount for an extra beyond the skeleton. Herbs, fruit and other
+ * solids are not poured: a sprig, a few slices. Only a liquid aromatic gets a
+ * dash; anything else with no role is "to taste".
+ */
+export function extraAmount(key, role) {
+  const k = String(key || '').toLowerCase();
+  if (!role || role === 'aromatic') {
+    if (HERB_EXTRA.test(k)) return /leaves?$/.test(k) ? 'a few leaves' : 'a sprig';
+    if (SMALL_FRUIT_EXTRA.test(k)) return 'a few';
+    if (SOLID_EXTRA.test(k)) return 'a few slices';
+    return role === 'aromatic' && LIQUID_AROMATIC.test(k) ? '1 dash' : 'to taste';
+  }
+  return EXTRA_AMOUNT[role] || 'to taste';
+}
 
 /**
  * The drink a build makes, in the shape the card, drinkAsCocktail and
@@ -405,7 +318,7 @@ export function drinkFromBuild(build, { familyId, familyName, roles = {}, pairin
   }));
   for (const x of build.extras) {
     const role = roleOf(x.key, roles);
-    lines.push({ key: x.key, slot: 'extra', label: 'extra', role, amount: EXTRA_AMOUNT[role] || 'to taste', source: x.source, locked: false });
+    lines.push({ key: x.key, slot: 'extra', label: 'extra', role, amount: extraAmount(x.key, role), source: x.source, locked: false });
   }
   const keys = lines.map((l) => l.key);
   const pairs = [];
