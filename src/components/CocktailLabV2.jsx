@@ -25,6 +25,11 @@ import { loadBar, saveBar, splitBar, stockFor, coverCocktail, countedLines, barK
 import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
 import { needsFromBarCoverage } from '../data/whatDoINeed.js';
+import { readSaved, withSavedCocktails } from '../data/savedInventions.js';
+import { fromSavedItem } from '../data/inventSaved.js';
+import useSaveInvention from '../hooks/useSaveInvention.js';
+import InventSaveOverlay from './InventSaveOverlay.jsx';
+import SavedDeleteConfirm from './SavedDeleteConfirm.jsx';
 import { ChalkLoader } from './chalkArt.jsx';
 
 /**
@@ -54,6 +59,10 @@ export default function CocktailLabV2({
   matchesContext = null,
   onExitMatches = () => {},
   onBackToRecipe = null,
+  // The cook's account: the profile hook (saveInvention / deleteInvention, profile.cocktails)
+  // and { user, loginWithGoogle, loginWithApple, authError }. Absent = no saving, lists as before.
+  userProfile = null,
+  auth = null,
 }) {
   const [graph, setGraph] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -61,6 +70,12 @@ export default function CocktailLabV2({
   const [selectedCocktail, setSelectedCocktail] = useState(null);
   const [riffOpen, setRiffOpen] = useState(false);
   const [cocktailRoles, setCocktailRoles] = useState(null);
+  // The cook's own cocktails (profile.cocktails), merged into the codex graph for the list, the card and My bar.
+  const save = useSaveInvention({ kind: 'cocktail', userProfile, auth });
+  const [editItem, setEditItem] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const profileData = userProfile?.profile || null;
+  const savedCocktails = useMemo(() => readSaved(profileData, 'cocktail'), [profileData]);
   useEffect(() => {
     let cancelled = false;
     getCocktailRoles().then((r) => { if (!cancelled) setCocktailRoles(r || {}); });
@@ -80,7 +95,7 @@ export default function CocktailLabV2({
   const setBarPanel = (p) => { if (p) setKitchen(loadKitchen()); setBarPanelRaw(p); };
   // "✨ Invent this" seed (from the search box); any other way into Invent starts fresh.
   const [inventSeed, setInventSeed] = useState(null);
-  const openInvent = () => { setInventSeed(null); setBarPanel('invent'); };
+  const openInvent = () => { setInventSeed(null); setEditItem(null); setBarPanel('invent'); };
   // One-time tidy-up of bars saved before the split: non-booze moves to the kitchen.
   useEffect(() => {
     if (!cocktailRoles) return;
@@ -124,6 +139,12 @@ export default function CocktailLabV2({
     load();
     return () => { cancelled = true; };
   }, []);
+
+  // The codex graph plus the cook's saved cocktails (the same object when none are saved).
+  const lab = useMemo(
+    () => withSavedCocktails(graph, savedCocktails, { roles: cocktailRoles || {} }),
+    [graph, savedCocktails, cocktailRoles],
+  );
 
   // NetworkScene-compatible data shape: Map<name, node> + positions
   // dictionary keyed by name. Each cocktail's 3D position is computed
@@ -196,11 +217,11 @@ export default function CocktailLabV2({
   }, [selectedCocktail, onSelectionChange]);
 
   const selectedNode = useMemo(() => {
-    if (!selectedCocktail || !graph) return null;
-    return graph.byCanonical.get(canonicalize(selectedCocktail))
-      || [...graph.byCanonical.values()].find((c) => c.name === selectedCocktail)
+    if (!selectedCocktail || !lab) return null;
+    return lab.byCanonical.get(canonicalize(selectedCocktail))
+      || [...lab.byCanonical.values()].find((c) => c.name === selectedCocktail)
       || null;
-  }, [selectedCocktail, graph]);
+  }, [selectedCocktail, lab]);
 
   // Within-family closest cousins (cosine ≥ 0.55).
   const similarCocktails = useMemo(() => {
@@ -242,7 +263,21 @@ export default function CocktailLabV2({
     return nodes && edges ? buildPairingIndex(edges, nodes.keys()) : { names: new Set(), strength: new Map(), degree: new Map(), nodeCount: 1 };
   }, [fullData]);
   const riffPool = useMemo(() => (cocktailRoles ? buildRolePool(cocktailRoles, riffIndex.names) : null), [cocktailRoles, riffIndex]);
-  const cardActions = selectedNode ? [{ label: '🔀 Riff on this', onClick: () => setRiffOpen(true), testid: 'cocktail-riff-open' }] : [];
+  const editSelected = () => {
+    const item = savedCocktails.find((x) => x.id === selectedNode?.savedId);
+    if (!item) return;
+    setEditItem({ id: item.id, ...fromSavedItem(item) });
+    setInventSeed(null);
+    setSelectedCocktail(null);
+    setBarPanel('invent');
+  };
+  const cardActions = selectedNode ? [
+    { label: '🔀 Riff on this', onClick: () => setRiffOpen(true), testid: 'cocktail-riff-open' },
+    ...(selectedNode.mine && userProfile?.deleteInvention ? [
+      { label: '✏️ Edit', onClick: editSelected, testid: 'saved-edit' },
+      { label: '🗑 Delete', onClick: () => setConfirmDelete({ id: selectedNode.savedId, name: selectedNode.name }), testid: 'saved-delete' },
+    ] : []),
+  ] : [];
   const riffTarget = riffDrink || (riffOpen ? selectedNode : null);
   const riffPanel = riffTarget && graph ? (
     <CocktailRiff
@@ -266,6 +301,7 @@ export default function CocktailLabV2({
     const res = inventSeedFor(query);
     if (!res) return;
     setInventSeed(res.seed);
+    setEditItem(null);
     setBarPanel('invent');
   };
   const pickFromPanel = (name) => { setBarPanel(null); setSelectedCocktail(name); };
@@ -275,7 +311,7 @@ export default function CocktailLabV2({
       onChange={updateBar}
       kitchen={kitchen}
       onKitchenChange={updateKitchen}
-      cocktails={graph.cocktails}
+      cocktails={lab.cocktails}
       families={graph.families}
       roles={cocktailRoles || {}}
       pairingIndex={riffIndex}
@@ -285,15 +321,19 @@ export default function CocktailLabV2({
     />
   ) : graph && barPanel === 'invent' ? (
     <InventCocktail
-      key={inventSeed ? 'seeded' : 'plain'}
+      key={editItem ? `edit-${editItem.id}` : (inventSeed ? 'seeded' : 'plain')}
       seed={inventSeed}
+      nodes={fullData?.graph?.nodes}
+      kitchen={kitchen}
+      onSave={save.onSave}
+      editItem={editItem}
       bar={stock}
       cocktails={graph.cocktails}
       families={graph.families}
       roles={cocktailRoles || {}}
       pool={riffPool}
       pairingIndex={riffIndex}
-      onClose={() => setBarPanel(null)}
+      onClose={() => { save.cancelPending(); setEditItem(null); setBarPanel(null); }}
       onRiff={(drink) => setRiffDrink(drink)}
       onOpenRecipeLab={onOpenRecipeLab ? (names) => onOpenRecipeLab('cocktail', names) : null}
       onSelectCocktail={pickFromPanel}
@@ -311,20 +351,20 @@ export default function CocktailLabV2({
   // Drinks the bar + kitchen fully covers — drives the menu's
   // "Only what I have" switch (null until roles and data load).
   const makeableNames = useMemo(() => {
-    if (!graph?.cocktails || !cocktailRoles) return null;
-    const { make } = whatCanIMake(graph.cocktails, stock, { roles: cocktailRoles, names: riffIndex?.names || new Set(), pairingIndex: riffIndex });
+    if (!lab?.cocktails || !cocktailRoles) return null;
+    const { make } = whatCanIMake(lab.cocktails, stock, { roles: cocktailRoles, names: riffIndex?.names || new Set(), pairingIndex: riffIndex });
     return new Set(make.map((m) => m.cocktail.name));
-  }, [graph, cocktailRoles, stock, riffIndex]);
+  }, [lab, cocktailRoles, stock, riffIndex]);
 
   // "What do I need?" for the open drink: the bar (booze) + the kitchen.
   const cardNeeds = useMemo(() => {
-    if (!selectedCocktail || !graph?.cocktails || !cocktailRoles) return null;
-    const c = graph.cocktails.find((x) => x.name === selectedCocktail);
+    if (!selectedCocktail || !lab?.cocktails || !cocktailRoles) return null;
+    const c = lab.cocktails.find((x) => x.name === selectedCocktail);
     if (!c) return null;
     const names = riffIndex?.names || new Set();
     const cov = coverCocktail(c, stock, { roles: cocktailRoles, names, pairingIndex: riffIndex });
     return needsFromBarCoverage(cov, countedLines(c, cocktailRoles, names));
-  }, [selectedCocktail, graph, cocktailRoles, riffIndex, stock]);
+  }, [selectedCocktail, lab, cocktailRoles, riffIndex, stock]);
   const haveForDrink = (raw) => {
     const names = riffIndex?.names || new Set();
     const key = barKey(raw, names);
@@ -355,6 +395,24 @@ export default function CocktailLabV2({
       ...(cardIngredients.anySuggested ? [{ label: 'Amounts', value: '~ = suggested, not from the source recipe' }] : []),
     ];
   }, [selectedNode, facetCtx, cardIngredients]);
+
+  const savedNotices = (
+    <>
+      <InventSaveOverlay save={save} auth={auth} />
+      {confirmDelete && (
+        <SavedDeleteConfirm
+          name={confirmDelete.name}
+          noun="cocktails"
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={() => {
+            userProfile?.deleteInvention?.('cocktail', confirmDelete.id);
+            setConfirmDelete(null);
+            setSelectedCocktail(null);
+          }}
+        />
+      )}
+    </>
+  );
 
   // aria-live announcement when matchesContext becomes active.
   const prevMatchesRef = useRef(null);
@@ -470,9 +528,9 @@ export default function CocktailLabV2({
           <LabNodeCard
             kind="cocktail"
             name={selectedNode?.name || selectedCocktail}
-            clusterName={familyForSelected?.name}
+            clusterName={familyForSelected?.name || (selectedNode?.mine ? 'Uncategorised' : undefined)}
             clusterColor={familyForSelected?.color || '#9a8f7a'}
-            clusterTag={subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null}
+            clusterTag={selectedNode?.mine ? 'YOURS' : (subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null)}
             details={cardDetails}
             actions={cardActions}
             ingredients={cardIngredients.items}
@@ -487,6 +545,7 @@ export default function CocktailLabV2({
           </LabNodeCard>
         )}
         {riffPanel}
+        {savedNotices}
       </div>
     );
   }
@@ -510,7 +569,7 @@ export default function CocktailLabV2({
   return (
     <>
       <CocktailBrowse
-        graph={graph}
+        graph={lab}
         selectedCocktail={selectedCocktail}
         onSelectCocktail={(name) => setSelectedCocktail(name)}
         filterFamily={filterFamily}
@@ -529,9 +588,9 @@ export default function CocktailLabV2({
         <LabNodeCard
           kind="cocktail"
           name={selectedNode?.name || selectedCocktail}
-          clusterName={familyForSelected?.name}
+          clusterName={familyForSelected?.name || (selectedNode?.mine ? 'Uncategorised' : undefined)}
           clusterColor={familyForSelected?.color || '#9a8f7a'}
-          clusterTag={subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null}
+          clusterTag={selectedNode?.mine ? 'YOURS' : (subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null)}
           details={cardDetails}
           actions={cardActions}
           ingredients={cardIngredients.items}
@@ -547,6 +606,7 @@ export default function CocktailLabV2({
       )}
       {barPanels}
       {riffPanel}
+      {savedNotices}
 
       {/* Card mode (LabNodeCard) is a full-screen overlay with its own
           Back button, so the floating Clear-Selection button is gone. */}

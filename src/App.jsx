@@ -454,6 +454,8 @@ export default function App() {
 
   const [activePanel, setActivePanel] = useState(null);
   const userProfile = useUserProfile(user);
+  // What the labs' "save my invention" needs: who is signed in and how to sign in.
+  const inventAuth = useMemo(() => ({ user, authError, loginWithGoogle, loginWithApple }), [user, authError, loginWithGoogle, loginWithApple]);
 
   // R16 Phase 1: derived values from the (mode, filterStack) tuple.
   //   activeFilter — the tail of the stack (most-recently-toggled filter)
@@ -2129,6 +2131,8 @@ export default function App() {
         >
           <CocktailLabV2
             fullData={data}
+            userProfile={userProfile}
+            auth={inventAuth}
             onSelectionChange={handleLabSelectionChange}
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
@@ -2159,6 +2163,7 @@ export default function App() {
           <SauceLab
             fullData={data}
             userProfile={userProfile}
+            auth={inventAuth}
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
             onExitMatches={() => setMatchesContext(null)}
@@ -2242,6 +2247,7 @@ export default function App() {
               MakeRecipeView chalkboard cards-grid was removed per user request
               — the notebook is the next screen for every entry path. */}
           <MakeRecipeStart
+            userProfile={userProfile}
             setRecipeHandoff={setRecipeHandoff}
             setRecipeMounted={setRecipeMounted}
             setActiveTab={setActiveTab}
