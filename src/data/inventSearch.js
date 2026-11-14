@@ -22,7 +22,7 @@
  * Baselines: a name gives that recipe's family / style / dish type with its
  * lines pinned. Ingredients alone use the browse page's active chip when set,
  * else the skeleton that locks the most pins in distinct slots (a dry
- * seedBuild), ties going to the panel's display order / the most common style.
+ * rankCategories), ties going to the panel's display order / the most common style.
  *
  * Seeds (all pins are { key, source: 'search' }; an empty query gives null):
  *   cocktail { familyId, base?, pinned }   sauce { styleId, protein?, pinned }
@@ -30,7 +30,7 @@
  * Each fromSearch function returns { seed, summary, parsed } | null.
  */
 import { parseQuery, normalizeText } from './ingredientSearch.js';
-import { seedBuild } from './inventBuild.js';
+import { rankCategories } from './inventBuild.js';
 import { cocktailSkeleton, isBaseSpirit, FAMILY_SKELETONS, INVENT_FAMILY_ORDER } from './cocktailInvent.js';
 import { riffRows } from './cocktailRiff.js';
 import { barKey } from './myBar.js';
@@ -116,25 +116,18 @@ function typedTerms(parsed) {
   return out;
 }
 
-const placedCount = (build) => build.slots.filter((s) => s.line).length;
-const requiredPlaced = (build) => build.slots.filter((s) => s.line && s.required).length;
-
-/** The candidate whose skeleton locks the most pins (then required slots, then weight); ties keep the earlier one. */
-function bestFit(candidates, pinned) {
-  let best = null;
-  for (const c of candidates) {
-    const build = seedBuild(c.skeleton, { pinned });
-    const score = [placedCount(build), requiredPlaced(build), c.weight || 0];
-    const better = !best || score.reduce((verdict, v, i) => (verdict !== 0 ? verdict : Math.sign(v - best.score[i])), 0) > 0;
-    if (better) best = { id: c.id, score };
-  }
-  return best ? best.id : null;
+/** The candidate whose skeleton places the most keys in distinct slots (inventBuild.rankCategories); ties go to the heavier, then earlier one. */
+function bestFit(candidates, keys) {
+  const ranked = rankCategories(keys, candidates.map(({ id, skeleton }) => ({ id, skeleton })), {
+    order: [...candidates].sort((a, b) => (b.weight || 0) - (a.weight || 0)).map((c) => c.id),
+  });
+  return ranked.length ? ranked[0].id : null;
 }
 
 // ---------------------------------------------------------------- cocktail
 function bestCocktailFamily(keys, roles, filterFamily) {
   if (filterFamily != null && FAMILY_SKELETONS[filterFamily]) return filterFamily;
-  return bestFit(INVENT_FAMILY_ORDER.map((id) => ({ id, skeleton: cocktailSkeleton(id, { roles }) })), pins(keys));
+  return bestFit(INVENT_FAMILY_ORDER.map((id) => ({ id, skeleton: cocktailSkeleton(id, { roles }) })), keys);
 }
 
 /**
@@ -221,7 +214,7 @@ function bestSauceStyle(keys, sauces, catMap, filterFamily, filterCuisine) {
   const styles = INVENT_STYLES.filter((s) => !allowed || allowed.has(s.familyId));
   return bestFit(
     (styles.length ? styles : INVENT_STYLES).map((s) => ({ id: s.id, skeleton: sauceSkeleton(s.id, { catMap }), weight: counts.get(s.familyId) || 0 })),
-    pins(keys),
+    keys,
   );
 }
 

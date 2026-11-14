@@ -1,0 +1,53 @@
+/**
+ * InventCategoryPicker — the collapsed, optional row "Going for a particular
+ * style? (optional)". Opening it lists the categories with their one-line blurbs
+ * and a "No particular style" choice. Controlled: the panel owns value and open.
+ *
+ * Props
+ *   title         string
+ *   options       [{ id, label, blurb?, art? }]     art is any node (an icon / swatch)
+ *   value         id | null                          the chosen category
+ *   onChange      (idOrNull)
+ *   open          bool
+ *   onToggle      ()
+ *   labels        { none, noneBlurb }
+ *   testidPrefix  default 'category'
+ * Test ids: {p} root, {p}-toggle, {p}-option-{id} (aria-pressed), {p}-none.
+ */
+import { btn, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
+
+export default function InventCategoryPicker({
+  title, options = [], value = null, onChange, open = false, onToggle, labels = {}, testidPrefix = 'category',
+}) {
+  const L = { none: 'No particular style', noneBlurb: 'Just add ingredients; I will suggest one.', ...labels };
+  const p = testidPrefix;
+  const chosen = options.find((o) => o.id === value);
+  const row = (id, label, blurb, art, testid) => (
+    <li key={String(id)}>
+      <button type="button" onClick={() => onChange(id)} aria-pressed={value === id || (id == null && value == null)} data-testid={testid}
+        className="w-full flex items-center gap-2 px-3 rounded-lg min-h-[44px] text-left"
+        style={{ border: `1px solid ${(value === id || (id == null && value == null)) ? ACCENT : CHALK_RAIL}`, background: (value === id || (id == null && value == null)) ? `${ACCENT}22` : 'transparent' }}>
+        {art ? <span className="flex-shrink-0" aria-hidden="true">{art}</span> : null}
+        <span className="flex-1 min-w-0">
+          <span className="block text-[18px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{label}</span>
+          {blurb ? <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{blurb}</span> : null}
+        </span>
+      </button>
+    </li>
+  );
+  return (
+    <div data-testid={p} className="min-w-0">
+      <button type="button" onClick={onToggle} aria-expanded={open} data-testid={`${p}-toggle`}
+        className="w-full flex items-center justify-between gap-2 px-3 rounded-lg min-h-[44px] text-left" style={btn({ fontSize: 18 })}>
+        <span className="min-w-0 truncate">{title}{chosen ? <span style={{ color: ACCENT }}> · {chosen.label}</span> : null}</span>
+        <span aria-hidden="true" style={{ color: CHALK_SUB }}>{open ? '▴' : '▾'}</span>
+      </button>
+      {open && (
+        <ul className="flex flex-col gap-1.5 mt-2" data-testid={`${p}-options`}>
+          {row(null, L.none, L.noneBlurb, null, `${p}-none`)}
+          {options.map((o) => row(o.id, o.label, o.blurb, o.art, `${p}-option-${o.id}`))}
+        </ul>
+      )}
+    </div>
+  );
+}

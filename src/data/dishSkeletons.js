@@ -37,7 +37,7 @@
  */
 import { recipeRoles, isBasicLike, pairStrength } from './inventRecipe.js';
 import { isBasic, haveIngredient } from './myKitchen.js';
-import { oneOf } from './inventBuild.js';
+import { oneOf, rankCategories } from './inventBuild.js';
 
 export const DISH_MIN_DEGREE = 50;     // graph degree an ordinary candidate needs
 export const MODEL_WEIGHT = 0.5;       // weight of the set-completion score next to pair strength
@@ -359,38 +359,12 @@ export function rankDishSlot({
 }
 
 /**
- * How many of `keys` a skeleton can place in DISTINCT slots (a best
- * assignment, not first-come: "carrot" may go to the vegetable slot so the
- * aromatic slot can take "onion"). Required slots are matched first.
- */
-function placeable(skeleton, keys) {
-  const slots = [...skeleton.slots].sort((a, b) => (b.required - a.required));
-  const holder = new Map(); // key → slot
-  const attempt = (slot, seen) => {
-    for (const k of keys) {
-      if (seen.has(k) || !slot.accepts(k)) continue;
-      seen.add(k);
-      const other = holder.get(k);
-      if (!other || attempt(other, seen)) { holder.set(k, slot); return true; }
-    }
-    return false;
-  };
-  for (const slot of slots) attempt(slot, new Set());
-  const used = [...holder.values()];
-  return { placed: used.length, required: used.filter((s) => s.required).length };
-}
-
-/**
  * The dish type whose skeleton places the most of `names` in distinct slots.
  * Ties go to the type with more REQUIRED slots filled, then to
  * DISH_SKELETON_ORDER. An empty list (or nothing that fits) gives the first type.
  */
 export function dishTypeForIngredients(names, { nodes = null } = {}) {
   const keys = [...new Set((names || []).map(lower).filter(Boolean))];
-  let best = null;
-  for (const id of DISH_SKELETON_ORDER) {
-    const { placed, required } = placeable(dishSkeleton(id, { nodes }), keys);
-    if (!best || placed > best.placed || (placed === best.placed && required > best.required)) best = { id, placed, required };
-  }
-  return best.id;
+  const skeletons = DISH_SKELETON_ORDER.map((id) => ({ id, skeleton: dishSkeleton(id, { nodes }) }));
+  return rankCategories(keys, skeletons, { order: DISH_SKELETON_ORDER })[0].id;
 }
