@@ -518,13 +518,8 @@ export function nextSauces(pool, shown = [], n = 3) {
   return nextIdeas(pool, shown, n, { keysOf: sauceKeys });
 }
 
-function buildInvention(style, { picked, score }, { catMap, protein, ctx }) {
-  const lines = [];
-  style.slots.forEach((slot, i) => {
-    const c = picked[i];
-    if (!c) return;
-    lines.push({ key: c.key, slot: slot.id, label: slot.label, amount: amountFor(c.key, slot, style.id, catMap), have: !!c.have });
-  });
+/** Candidate names for a sauce, best first, from the style's telling slots in `lines`. */
+function nameCandidates(style, lines) {
   const telling = style.slots
     .filter((s) => s.key)
     .map((s) => lines.find((l) => l.slot === s.id))
@@ -537,21 +532,34 @@ function buildInvention(style, { picked, score }, { catMap, protein, ctx }) {
   for (let i = 0; i < W.length; i++) for (let j = i + 1; j < W.length; j++) names.push(`${W[i]} & ${W[j]} ${word}`);
   for (const w of W) names.push(`${w} ${word}`);
   names.push(`House ${word}`);
-  const name = names[0];
+  return names;
+}
+
+/** "Strongest pairings: …" from the lines (and protein); basics never make it. */
+function whyFor(style, lines, protein, ctx) {
   const prot = protein ? proteinIngredient(protein) : null;
   const pairs = [];
   for (let i = 0; i < lines.length; i++) {
     for (let j = i + 1; j < lines.length; j++) pairs.push({ a: lines[i].key, b: lines[j].key, s: pairStrength(lines[i].key, lines[j].key, ctx) });
     if (prot) pairs.push({ a: lines[i].key, b: protein, s: pairStrength(lines[i].key, prot, ctx) });
   }
-  // Basics (butter, oil, flour …) never make the "why".
   const strong = pairs.filter((p) => p.s > 0 && !isSauceBasic(p.a) && !isSauceBasic(p.b))
     .sort((x, y) => y.s - x.s).slice(0, 2);
-  const why = strong.length
+  return strong.length
     ? `Strongest pairings: ${strong.map((p) => `${p.a} + ${p.b}`).join(', ')}.`
     : `Follows the ${style.label.toLowerCase()} skeleton; no pairing data links these ingredients.`;
+}
+
+function buildInvention(style, { picked, score }, { catMap, protein, ctx }) {
+  const lines = [];
+  style.slots.forEach((slot, i) => {
+    const c = picked[i];
+    if (!c) return;
+    lines.push({ key: c.key, slot: slot.id, label: slot.label, amount: amountFor(c.key, slot, style.id, catMap), have: !!c.have });
+  });
+  const names = nameCandidates(style, lines);
   return {
-    name,
+    name: names[0],
     names,
     styleId: style.id,
     familyId: style.familyId,
@@ -561,8 +569,129 @@ function buildInvention(style, { picked, score }, { catMap, protein, ctx }) {
     technique: style.template?.technique || '',
     description: style.template?.description || '',
     chemistry: style.chemistry,
-    why,
+    why: whyFor(style, lines, protein, ctx),
     score,
+  };
+}
+
+// ── Build model (INVENT-3): pick a technique, then build the sauce yourself ──
+const catsOf = (catMap, meta) => catMap || new Map((meta || []).filter((i) => i?.name && i.category).map((i) => [norm(i.name), i.category]));
+
+/**
+ * The skeleton of a style for src/data/inventBuild.js: the style's slots with
+ * accepts(key) built on fitsSlot. Chemistry stays in REQUIRED slots (an
+ * emulsion's egg yolk), so a missing one shows in missing(build) and is never
+ * invented around. "No ingredient twice" is built into inventBuild itself.
+ */
+export function sauceSkeleton(styleId, { catMap = null } = {}) {
+  const style = INVENT_STYLE_BY_ID.get(styleId);
+  if (!style) return { slots: [], rules: [] };
+  const cats = catMap || new Map();
+  return {
+    slots: style.slots.map((s) => ({ ...s, accepts: (key) => fitsSlot(key, s, cats) })),
+    rules: [],
+  };
+}
+
+/** Is this ingredient in the cook's pantry (the kitchen list, an assumed basic, or an equivalent)? */
+export function haveSauceKey(key, { kitchen = [], assumeBasics = true, names = null } = {}) {
+  const k = norm(key);
+  const set = new Set((kitchen || []).map(norm));
+  if (set.has(k)) return true;
+  if (assumeBasics && BASIC_LINES.includes(k)) return true;
+  return haveIngredient(k, set, { assumeBasics, names }).covered;
+}
+
+/**
+ * Ranked candidates for one slot given the rest of the build: pantry items
+ * first, then (unless pantryOnly) the ingredients most used for the slot in
+ * the sauce list, marked have:false ("you'd need"). Within each tier: pairing
+ * with currentKeys and with the protein (pairStrength, capped at PAIR_CAP,
+ * basics never count either way), then how common the ingredient is.
+ * @returns {Array<{ key, have, score }>}
+ */
+export function rankSauceSlot({
+  slot, currentKeys = [], protein = null, kitchen = [], assumeBasics = true, pantryOnly = false,
+  pool = null, catMap = null, pairingIndex = null, sauceIndex = null, names = null,
+} = {}) {
+  if (!slot) return [];
+  const cats = catMap || new Map();
+  const ctx = { pairingIndex, sauceIndex };
+  const p = pool || new Map();
+  const maxCommon = Math.max(1, ...p.values());
+  const commonness = (k) => Math.log1p(p.get(k) || 0) / Math.log1p(maxCommon);
+  const skip = new Set((currentKeys || []).map(norm));
+  const context = (currentKeys || []).filter((k) => !isSauceBasic(k));
+  const prot = protein ? proteinIngredient(protein) : null;
+
+  const pantry = new Set((kitchen || []).map(norm));
+  if (assumeBasics) for (const b of BASIC_LINES) pantry.add(b);
+  const cands = new Map();
+  const own = new Set(); // exactly in the pantry (or an assumed basic), ahead of an equivalent or an outside pick
+  for (const k of pantry) if (!skip.has(k) && fitsSlot(k, slot, cats)) { cands.set(k, true); own.add(k); }
+  if (!pantryOnly) {
+    for (const k of p.keys()) {
+      if (cands.has(k) || skip.has(k) || COMPOUND.test(k) || !fitsSlot(k, slot, cats)) continue;
+      cands.set(k, haveSauceKey(k, { kitchen, assumeBasics, names }));
+    }
+  }
+  const scoreOf = (k) => {
+    let s = 0.1 * commonness(k);
+    if (isSauceBasic(k)) return s;
+    if (context.length) s += context.reduce((a, c) => a + capped(pairStrength(k, c, ctx)), 0) / context.length;
+    if (prot) s += capped(pairStrength(k, prot, ctx));
+    return s;
+  };
+  return [...cands].map(([key, have]) => ({ key, have, score: scoreOf(key) }))
+    .sort((a, b) => (own.has(b.key) ? 1 : 0) - (own.has(a.key) ? 1 : 0) || (b.have ? 1 : 0) - (a.have ? 1 : 0)
+      || b.score - a.score || a.key.localeCompare(b.key));
+}
+
+/**
+ * What the card renders for a build. Lines carry the slot's label and an
+ * amount (amountFor); extras are slot 'extra'. The method is written from the
+ * CURRENT lines, and left empty while a required slot is empty. `need` = lines
+ * not in the pantry. Feeds nearestSauces (keys) and winesForSauce as the old
+ * invention object did.
+ * opts: { styleId, protein, catMap, meta, pairingIndex, sauceIndex, kitchen, assumeBasics, names }
+ */
+export function sauceFromBuild(build, {
+  styleId, protein = null, catMap = null, meta = [], pairingIndex = null, sauceIndex = null,
+  kitchen = null, assumeBasics = true, names = null,
+} = {}) {
+  const style = INVENT_STYLE_BY_ID.get(styleId);
+  if (!style) return null;
+  const cats = catsOf(catMap, meta);
+  const ctx = { pairingIndex, sauceIndex };
+  const haveOf = (line) => (line.have !== undefined && line.have !== null ? !!line.have
+    : (kitchen ? haveSauceKey(line.key, { kitchen, assumeBasics, names }) : false));
+  const lines = [];
+  for (const slot of build.slots) {
+    if (!slot.line) continue;
+    lines.push({
+      key: slot.line.key, slot: slot.id, label: slot.label, source: slot.line.source, locked: !!slot.locked,
+      amount: amountFor(slot.line.key, slot, style.id, cats), have: haveOf(slot.line),
+    });
+  }
+  for (const x of build.extras) {
+    lines.push({
+      key: x.key, slot: 'extra', label: 'extra', source: x.source, locked: false,
+      amount: amountFor(x.key, { required: false }, style.id, cats), have: haveOf(x),
+    });
+  }
+  const complete = build.slots.every((s) => !s.required || s.line);
+  const candidates = nameCandidates(style, lines);
+  return {
+    name: candidates[0],
+    styleId: style.id,
+    familyId: style.familyId,
+    lines,
+    need: lines.filter((l) => !l.have).map((l) => l.key),
+    method: complete ? methodFor(style.id, lines) : '',
+    technique: style.template?.technique || '',
+    description: style.template?.description || '',
+    chemistry: style.chemistry,
+    why: whyFor(style, lines, protein, ctx),
   };
 }
 
