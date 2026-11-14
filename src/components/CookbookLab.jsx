@@ -29,6 +29,8 @@ import { DishArt, IngredientGlyph, LabArt } from './chalkArt.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
 import { getRecipeDetails } from '../data/seedRecipeDetails.js';
 import { dishTypeOf, dishTypeLabel } from '../data/dishType.js';
+import { parseQuery, matchItem } from '../data/ingredientSearch.js';
+import { recipeSeedFromSearch } from '../data/inventSearch.js';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
   CARD_CREAM, CARD_INK, CARD_INK_SUB,
@@ -392,6 +394,8 @@ export default function CookbookLab({
   pickerMode = null,
   onExitPickerMode,
   userRecipes = [],
+  // "✨ Invent this": called with the Recipe Lab seed built from the search box (App opens Make a recipe on it).
+  onInventThis = null,
 }) {
   // B-version (2026-06-03): user-saved recipes appear inside the
   // cookbook as additional 3D books, normalized into SEED_RECIPES
@@ -410,6 +414,7 @@ export default function CookbookLab({
   const [cuisineFilter, setCuisineFilter] = useState(null);
   const [clusterFilter, setClusterFilter] = useState(DEFAULT_CLUSTER_FILTER);
   const [selected, setSelected] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Apply external filter on mount (Phase 5 Build → Recipes bridge).
   // When the user arrived via Build, their explicit cuisine pick is a
@@ -434,6 +439,7 @@ export default function CookbookLab({
     [allRecipes],
   );
 
+  const searchTerms = useMemo(() => parseQuery(searchTerm), [searchTerm]);
   const filtered = useMemo(
     () =>
       allRecipes.filter((r) => {
@@ -452,10 +458,30 @@ export default function CookbookLab({
           const has = r.ingredients.map((s) => s.toLowerCase());
           if (!reqs.every((req) => has.some((h) => h.includes(req) || req.includes(h)))) return false;
         }
+        if (searchTerms.length && !matchItem({ name: r.name, ingredients: r.ingredients }, searchTerms).match) return false;
         return true;
       }),
-    [allRecipes, cuisineFilter, clusterFilter, externalFilter, isMakePicker],
+    [allRecipes, cuisineFilter, clusterFilter, externalFilter, isMakePicker, searchTerms],
   );
+
+  const inventSeed = useMemo(
+    () => (onInventThis && searchTerms.length
+      ? recipeSeedFromSearch(searchTerm, { recipes: allRecipes, nodes: ctx?.graph?.nodes || null, filterCuisine: cuisineFilter })
+      : null),
+    [onInventThis, searchTerm, searchTerms, allRecipes, ctx, cuisineFilter],
+  );
+  const inventButton = inventSeed ? (
+    <div className="inline-flex flex-col items-center">
+      <button type="button" onClick={() => onInventThis(inventSeed.seed)} data-testid="cookbook-invent-this"
+        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px]"
+        style={{ fontFamily: FONT, borderColor: CHALK_CREAM, color: CHALK_CREAM }}>
+        ✨ Invent this
+      </button>
+      {inventSeed.summary && (
+        <span className="text-[13px] mt-0.5" data-testid="cookbook-invent-this-summary" style={{ color: CHALK_SUB }}>{inventSeed.summary}</span>
+      )}
+    </div>
+  ) : null;
 
   // Branch on pickerMode. In Make-picker mode, card / sphere tap emits
   // a recipeHandoff per MAKE-MODE-SPEC §3.2 instead of opening the
@@ -502,6 +528,27 @@ export default function CookbookLab({
             ? 'Pick one to start cooking'
             : `${SEED_RECIPES.length} hand-curated dishes spanning ${SEED_CUISINE_COUNT} culinary traditions`}
         </p>
+
+        <div className="mb-4 text-center">
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search dish or ingredient — e.g. chicken, ginger"
+            aria-label="Search dishes by name or ingredient"
+            data-testid="cookbook-search"
+            className="w-full max-w-md px-2.5 py-1.5 rounded-md focus:outline-none text-[16px]"
+            style={{ fontFamily: FONT, background: 'rgba(255,255,255,0.05)', border: `1px solid ${CHALK_RAIL}`, color: CHALK_CREAM }}
+          />
+          {searchTerms.length > 0 && filtered.length > 0 && (
+            <div className="mt-2">
+              <p className="text-[13px] mb-1" style={{ color: CHALK_SUB }} aria-live="polite">
+                {filtered.length} dish{filtered.length === 1 ? '' : 'es'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
+              </p>
+              {inventButton}
+            </div>
+          )}
+        </div>
 
         {/* Filters — cuisines as cookbooks on a shelf, types as icon pills */}
         <div className="flex flex-col gap-3 mb-6">
@@ -575,7 +622,12 @@ export default function CookbookLab({
           </div>
         </div>
 
-        {filtered.length === 0 ? (
+        {filtered.length === 0 && searchTerms.length > 0 && inventButton ? (
+          <div className="text-center py-10" data-testid="cookbook-invent-empty" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+            <p className="text-[20px] mb-3">No dish here has {searchTerms.join(' + ')} — invent one?</p>
+            {inventButton}
+          </div>
+        ) : filtered.length === 0 ? (
           <p className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
             No recipes match your filters.
           </p>

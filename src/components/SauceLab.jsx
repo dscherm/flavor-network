@@ -10,6 +10,7 @@ import { ChalkLoader } from './chalkArt.jsx';
 import SaucePairings from './SaucePairings.jsx';
 import SaucePantryPanel from './SaucePantryPanel.jsx';
 import InventSauce from './InventSauce.jsx';
+import { sauceSeedFromSearch } from '../data/inventSearch.js';
 import { loadKitchen, saveKitchen, loadAssumeBasics, saveAssumeBasics, loadSpiceRack, saveSpiceRack, addToKitchen } from '../data/myKitchen.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
 import DishStory from './DishStory.jsx';
@@ -69,6 +70,8 @@ export default function SauceLab({
   const updateAssumeBasics = (on) => { setAssumeBasics(on); saveAssumeBasics(on); };
   const updateSpiceRack = (on) => { setSpiceRack(on); saveSpiceRack(on); };
   // Re-read on open: Make a recipe edits the same list.
+  // "✨ Invent this" seed (from the search box); any other way into Invent starts fresh.
+  const [inventSeed, setInventSeed] = useState(null);
   const openPanel = (which) => { setKitchen(loadKitchen()); setAssumeBasics(loadAssumeBasics()); setSpiceRack(loadSpiceRack()); setPanel(which); };
   // "What do I need?" on a sauce card, against the same kitchen list.
   const sauceNeeds = (sauce) => (
@@ -268,6 +271,10 @@ export default function SauceLab({
     if (returnPanel) { setPanel(returnPanel); setReturnPanel(null); }
   };
 
+  const inventSeedFor = (query) => sauceSeedFromSearch(query, {
+    sauces: pantryCtx.sauces, catMap: pantryCtx.catMap, names: pantryCtx.catalogueNames, filterFamily, filterCuisine,
+  });
+
   return (
     <>
       <SauceBrowse
@@ -280,7 +287,12 @@ export default function SauceLab({
         onFilterCuisine={setFilterCuisine}
         pantryCount={kitchen.length}
         onOpenPantry={() => openPanel('pantry')}
-        onOpenInvent={() => openPanel('invent')}
+        onOpenInvent={() => { setInventSeed(null); openPanel('invent'); }}
+        onInventThis={(q) => {
+          const res = inventSeedFor(q);
+          if (res) { setInventSeed(res.seed); openPanel('invent'); }
+        }}
+        inventSummary={(q) => inventSeedFor(q)?.summary || ''}
       />
 
       {panel === 'pantry' && (
@@ -299,12 +311,14 @@ export default function SauceLab({
           pairingIndex={pantryCtx.pairingIndex}
           sauceIndex={pantryCtx.sauceIndex}
           onSelectSauce={pickFromPanel}
-          onInvent={() => setPanel('invent')}
+          onInvent={() => { setInventSeed(null); setPanel('invent'); }}
           onClose={() => setPanel(null)}
         />
       )}
       {panel === 'invent' && (
         <InventSauce
+          key={inventSeed ? 'seeded' : 'plain'}
+          seed={inventSeed}
           kitchen={kitchen}
           assumeBasics={assumeBasics}
           sauces={pantryCtx.sauces}

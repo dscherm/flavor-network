@@ -20,6 +20,7 @@ import { suggestAmounts } from '../data/cocktailAmounts.js';
 import { normalizeIngredient } from '../data/normalizeIngredient.js';
 import MyBarPanel from './MyBarPanel.jsx';
 import InventCocktail from './InventCocktail.jsx';
+import { cocktailSeedFromSearch } from '../data/inventSearch.js';
 import { loadBar, saveBar, splitBar, stockFor, coverCocktail, countedLines, barKey, isBooze, addToBar, whatCanIMake } from '../data/myBar.js';
 import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
@@ -77,6 +78,9 @@ export default function CocktailLabV2({
   const [barPanel, setBarPanelRaw] = useState(null); // null | 'bar' | 'invent'
   // Re-read the kitchen when a panel opens: the other labs may have changed it.
   const setBarPanel = (p) => { if (p) setKitchen(loadKitchen()); setBarPanelRaw(p); };
+  // "✨ Invent this" seed (from the search box); any other way into Invent starts fresh.
+  const [inventSeed, setInventSeed] = useState(null);
+  const openInvent = () => { setInventSeed(null); setBarPanel('invent'); };
   // One-time tidy-up of bars saved before the split: non-booze moves to the kitchen.
   useEffect(() => {
     if (!cocktailRoles) return;
@@ -255,6 +259,15 @@ export default function CocktailLabV2({
     />
   ) : null;
 
+  const inventSeedFor = (query) => cocktailSeedFromSearch(query, {
+    cocktails: graph?.cocktails || [], roles: cocktailRoles || {}, names: riffIndex?.names || new Set(), filterFamily, filterSpirit,
+  });
+  const inventThis = (query) => {
+    const res = inventSeedFor(query);
+    if (!res) return;
+    setInventSeed(res.seed);
+    setBarPanel('invent');
+  };
   const pickFromPanel = (name) => { setBarPanel(null); setSelectedCocktail(name); };
   const barPanels = graph && barPanel === 'bar' ? (
     <MyBarPanel
@@ -267,11 +280,13 @@ export default function CocktailLabV2({
       roles={cocktailRoles || {}}
       pairingIndex={riffIndex}
       onSelectCocktail={pickFromPanel}
-      onInvent={() => setBarPanel('invent')}
+      onInvent={openInvent}
       onClose={() => setBarPanel(null)}
     />
   ) : graph && barPanel === 'invent' ? (
     <InventCocktail
+      key={inventSeed ? 'seeded' : 'plain'}
+      seed={inventSeed}
       bar={stock}
       cocktails={graph.cocktails}
       families={graph.families}
@@ -505,7 +520,9 @@ export default function CocktailLabV2({
         barCount={bar.length}
         makeableNames={makeableNames}
         onOpenMyBar={() => setBarPanel('bar')}
-        onOpenInvent={() => setBarPanel('invent')}
+        onOpenInvent={openInvent}
+        onInventThis={inventThis}
+        inventSummary={(q) => inventSeedFor(q)?.summary || ''}
       />
 
       {selectedCocktail && (

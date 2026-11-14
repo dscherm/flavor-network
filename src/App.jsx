@@ -143,6 +143,8 @@ export default function App() {
   const [importUrl, setImportUrl] = useState(() => (
     typeof window === 'undefined' ? null : readImportParam(window.location.search)
   ));
+  // "✨ Invent this" from the Cookbook search: a Recipe Lab seed handed to Make a recipe once.
+  const [inventSeed, setInventSeed] = useState(null);
   const [startPageComplete, setStartPageComplete] = useState(() => {
     if (typeof window === 'undefined') return false;
     if (readImportParam(window.location.search)) return true;
@@ -2248,6 +2250,8 @@ export default function App() {
             edges={data?.graph?.edges}
             initialImportUrl={importUrl}
             onImportConsumed={() => setImportUrl(null)}
+            initialInventSeed={inventSeed}
+            onInventSeedConsumed={() => setInventSeed(null)}
           />
         </div>
       )}
@@ -2272,6 +2276,7 @@ export default function App() {
             // received one. Every other consumer (e.g. CocktailPanel) already
             // uses the .profile. path.
             userRecipes={userProfile?.profile?.recipes || []}
+            onInventThis={(seed) => { setInventSeed(seed); setActiveTab('make'); }}
             pickerMode={cookbookPickerMode}
             onExitPickerMode={() => {
               setCookbookPickerMode(null);

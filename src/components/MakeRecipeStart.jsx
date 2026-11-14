@@ -138,6 +138,9 @@ export default function MakeRecipeStart({
   // Already validated as http(s) by App; re-checked by handleParseUrl.
   initialImportUrl = null,
   onImportConsumed,
+  // "✨ Invent this" from the Cookbook search: a Recipe Lab seed, opened once on Invent.
+  initialInventSeed = null,
+  onInventSeedConsumed,
 }) {
   const fileInputRef = useRef(null);
   const firstCardRef = useRef(null);
@@ -189,6 +192,7 @@ export default function MakeRecipeStart({
   const [assumeBasics, setAssumeBasics] = useState(() => loadAssumeBasics());
   const [spiceRack, setSpiceRack] = useState(() => loadSpiceRack());
   const [panel, setPanel] = useState(null); // null | 'kitchen' | 'invent'
+  const [inventSeed, setInventSeed] = useState(null); // null for every ordinary way into Invent
   const [openRecipe, setOpenRecipe] = useState(null); // a Cookbook recipe, shown as in the Cookbook
   const updateKitchen = (next) => { setKitchen(next); saveKitchen(next); };
   const updateAssumeBasics = (on) => { setAssumeBasics(on); saveAssumeBasics(on); };
@@ -240,6 +244,14 @@ export default function MakeRecipeStart({
     handleParseUrl(initialImportUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialImportUrl]);
+
+  useEffect(() => {
+    if (!initialInventSeed) return;
+    setInventSeed(initialInventSeed);
+    setPanel('invent');
+    onInventSeedConsumed?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialInventSeed]);
 
   const knownNames = useMemo(() => {
     if (!nodes) return [];
@@ -534,7 +546,7 @@ export default function MakeRecipeStart({
   const onCardClick = (id) => {
     if (id === 'existing') return handleExisting();
     if (id === 'kitchen') { setPanel('kitchen'); return; }
-    if (id === 'invent') { setPanel('invent'); return; }
+    if (id === 'invent') { setInventSeed(null); setPanel('invent'); return; }
     if (id === 'photo') return handlePhotoCardClick();
     if (id === 'weblink') { setStage(STAGE.URL_INPUT); return; }
   };
@@ -1009,12 +1021,13 @@ export default function MakeRecipeStart({
               nodes={nodes}
               onOpenRecipe={setOpenRecipe}
               onUseRealRecipe={(m) => sendToNotebook(realRecipeHandoff(m, { assumeBasics }))}
-              onInvent={() => setPanel('invent')}
+              onInvent={() => { setInventSeed(null); setPanel('invent'); }}
               onClose={() => setPanel(null)}
             />
           )}
           {panel === 'invent' && (
             <InventRecipe
+              seed={inventSeed}
               kitchen={kitchen}
               nodes={nodes}
               edges={edges}

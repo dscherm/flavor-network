@@ -14,7 +14,7 @@
  */
 import { useMemo, useState } from 'react';
 import {
-  cocktailSkeleton, rankCocktailSlot, drinkFromBuild, drinkRows, drinkAsCocktail, isBaseSpirit, FAMILY_SKELETONS, FAMILY_BLURB,
+  cocktailSkeleton, rankCocktailSlot, drinkFromBuild, drinkRows, drinkAsCocktail, isBaseSpirit, FAMILY_SKELETONS, FAMILY_BLURB, INVENT_FAMILY_ORDER,
 } from '../data/cocktailInvent.js';
 import { seedBuild, fillRequired, shortlist, setSlot, clearSlot, addExtra, removeExtra, missing } from '../data/inventBuild.js';
 import { nearestCocktails } from '../data/cocktailRiff.js';
@@ -25,8 +25,6 @@ import { drinkColor } from '../data/drinkColor.js';
 import InventSlots from './InventSlots.jsx';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
-// Display order: the two most familiar styles first.
-export const INVENT_FAMILY_ORDER = [2, 4, 1, 5, 0, 3];
 const NEUTRAL = '#9a8f7a';
 const NO_PINS = [];
 const withArticle = (label) => `${/^[aeiou]/i.test(label) ? 'an' : 'a'} ${label}`;

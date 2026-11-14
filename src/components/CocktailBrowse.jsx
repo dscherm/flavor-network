@@ -249,6 +249,9 @@ export default function CocktailBrowse({
   barCount = 0,
   onOpenMyBar = null,
   onOpenInvent = null,
+  // "✨ Invent this": called with the search text; inventSummary(query) → short phrase under the button.
+  onInventThis = null,
+  inventSummary = null,
   // Names of drinks the bar + kitchen fully covers (myBar.whatCanIMake);
   // null hides the "Only what I have" switch.
   makeableNames = null,
@@ -370,6 +373,20 @@ export default function CocktailBrowse({
     }
     return n;
   }, [annotated, filterSpirit, ibaOnly, barFilterOn, makeableNames, searchHits, filterFamily, activeFacetCount, facetFilter, facetsByName]);
+
+  const inventSummaryText = onInventThis && inventSummary && searchTerm.trim() ? inventSummary(searchTerm) : '';
+  const inventButton = onInventThis ? (
+    <div className="inline-flex flex-col items-start">
+      <button type="button" onClick={() => onInventThis(searchTerm.trim())} data-testid="cocktail-invent-this"
+        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px]"
+        style={{ fontFamily: FONT, borderColor: CHALK_CREAM, color: CHALK_CREAM }}>
+        ✨ Invent this
+      </button>
+      {inventSummaryText && (
+        <span className="text-[13px] mt-0.5" data-testid="cocktail-invent-this-summary" style={{ color: CHALK_SUB }}>{inventSummaryText}</span>
+      )}
+    </div>
+  ) : null;
 
   // Cocktails per base spirit — drives the bottle-shelf counts.
   const spiritCounts = useMemo(() => {
@@ -705,6 +722,11 @@ export default function CocktailBrowse({
             {matchCount} cocktail{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
           </p>
         )}
+        {searchHits && onInventThis && searchTerm.trim() && matchCount > 0 && (
+          <div className="mt-1.5">
+            {inventButton}
+          </div>
+        )}
 
         {/* ───── Facet rail — occasion / season / strength / character / effort / glass ───── */}
         {filtersOpen && (
@@ -760,6 +782,12 @@ export default function CocktailBrowse({
 
       {/* ───── Menu sections — colored-chalk family headers ───── */}
       <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
+        {searchHits && onInventThis && searchTerm.trim() && matchCount === 0 && (
+          <div className="text-center py-6" data-testid="cocktail-invent-empty" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+            <p className="text-[20px] mb-3">No cocktail has {parseQuery(searchTerm).join(' + ')} — invent one?</p>
+            {inventButton}
+          </div>
+        )}
         {familiesToRender.map((fam) => {
           const members = graph.byFamily.get(fam.id) || [];
           const filtered = applyFilters(members);

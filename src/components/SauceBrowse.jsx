@@ -65,6 +65,9 @@ export default function SauceBrowse({
   pantryCount = 0,
   onOpenPantry = null,
   onOpenInvent = null,
+  // "✨ Invent this": called with the search text; inventSummary(query) → short phrase under the button.
+  onInventThis = null,
+  inventSummary = null,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -132,6 +135,20 @@ export default function SauceBrowse({
     }
     return n;
   }, [codexData, filterFamily, filterCuisine, searchHits]);
+
+  const inventSummaryText = onInventThis && inventSummary && searchTerm.trim() ? inventSummary(searchTerm) : '';
+  const inventButton = onInventThis ? (
+    <div className="inline-flex flex-col items-start">
+      <button type="button" onClick={() => onInventThis(searchTerm.trim())} data-testid="sauce-invent-this"
+        className="px-4 py-1 rounded-full border min-h-[44px] text-[17px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        style={{ fontFamily: FONT, borderColor: CHALK_CREAM, color: CHALK_CREAM, outlineColor: CHALK_CREAM }}>
+        ✨ Invent this
+      </button>
+      {inventSummaryText && (
+        <span className="text-[13px] mt-0.5" data-testid="sauce-invent-this-summary" style={{ color: CHALK_SUB }}>{inventSummaryText}</span>
+      )}
+    </div>
+  ) : null;
 
   if (!codexData) {
     return (
@@ -263,6 +280,7 @@ export default function SauceBrowse({
             {matchCount} sauce{matchCount === 1 ? '' : 's'} match “{searchTerm.trim()}” · separate ingredients with commas to combine
           </p>
         )}
+        {searchHits && onInventThis && searchTerm.trim() && matchCount > 0 && <div className="mb-2">{inventButton}</div>}
         <div className="text-[11px] uppercase tracking-wider mb-1.5" style={{ color: CHALK_SUB }}>Cuisines</div>
         <div className="flex flex-wrap items-center gap-1.5">
           {[{ key: null, label: 'All Cuisines' }, ...cuisines.map((c) => ({ key: c, label: c }))].map((chip) => {
@@ -290,6 +308,12 @@ export default function SauceBrowse({
 
       {/* ───── Menu sections — colored-chalk family headers ───── */}
       <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
+        {searchHits && onInventThis && searchTerm.trim() && matchCount === 0 && (
+          <div className="text-center py-6" data-testid="sauce-invent-empty" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+            <p className="text-[20px] mb-3">No sauce has {parseQuery(searchTerm).join(' + ')} — invent one?</p>
+            {inventButton}
+          </div>
+        )}
         {familiesToRender.map((fam) => {
           const members = byFamily.get(fam.id) || [];
           const filtered = applyFilters(members);
