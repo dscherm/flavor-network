@@ -348,7 +348,7 @@ export default function InventRecipe({
           <>
             <InventCategoryPicker testidPrefix="invent-recipe-category" title="A particular kind of dish? (optional)" options={typeOptions}
               value={typeId} open={pickerOpen} onToggle={() => setPickerOpen((o) => !o)} onChange={pickType}
-              labels={{ none: 'No particular kind', noneBlurb: 'Just add ingredients; I will suggest one.' }} />
+              labels={{ none: 'No particular kind', noneBlurb: 'Choose your own ingredients; we suggest as you go.' }} />
 
             {cuisineList.length > 0 && (
               <div>

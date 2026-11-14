@@ -289,3 +289,15 @@ describe('rules', () => {
     for (const id of DISH_SKELETON_ORDER.filter((x) => x !== 'pasta')) expect(dishSkeleton(id, { nodes }).rules).toEqual([]);
   });
 });
+
+describe('rankDishSlot with no slot leaves out near-duplicates', () => {
+  it('nothing of the same kind as a listed line, and one candidate per kind', () => {
+    const r = rankDishSlot({ slot: null, currentKeys: ['chicken', 'black pepper', 'olive oil'], nodes, pairingIndex }).map((c) => c.key);
+    expect(r.length).toBeGreaterThan(10);
+    expect(r).not.toContain('white pepper');
+    expect(r).not.toContain('chicken');
+    const last = (k) => k.split(' ').pop().replace(/(es|s)$/, '');
+    const seen = new Set();
+    for (const k of r.slice(0, 40)) { expect(seen.has(last(k)), k).toBe(false); seen.add(last(k)); }
+  });
+});

@@ -1,7 +1,8 @@
 /**
  * inventSauce.js — what the "Invent a sauce" panel builds on: the Sauce Lab's
- * technique skeletons as build slots, and the ranking, amounts and method
- * text for a sauce the cook assembles one slot at a time (inventBuild.js).
+ * technique skeletons (an optional technique, applied only when the cook accepts
+ * it), and the ranking of suggestions, amounts and method text for a sauce the
+ * cook assembles ingredient by ingredient from an empty list (inventBuild.js).
  * The sauce counterpart of cocktailInvent.js.
  *
  * Each style (INVENT_STYLES) keeps its template's required roles as required
@@ -17,9 +18,8 @@
  *   Mole                    = fat + dried chili + spice + chocolate/nut/sweet
  *   Salsa                   = tomato / tomatillo / fruit + aromatic
  *   Nut sauce               = nut or seed (tahini, peanut) (+ acid, seasoning)
- * A required slot is never filled with the wrong chemistry, and with
- * `pantryOnly` an unfillable required slot stays empty and is reported as
- * missing: no hollandaise without egg yolk, no béchamel without a liquid.
+ * A required slot only ever takes the right chemistry, and with `pantryOnly`
+ * an unfillable required slot stays empty and is reported as missing: no hollandaise without egg yolk, no béchamel without a liquid.
  *
  * rankSauceSlot orders the candidates for a slot: pantry items first, then
  * (unless pantryOnly) the ingredients most used for that role in the sauce
@@ -37,6 +37,7 @@ import { SAUCE_TEMPLATES } from './sauceScoring.js';
 import { sauceRoleOf, sauceKind, pairStrength, sameRoleAndKind } from './saucePantry.js';
 import { swapsFor } from './kitchenSwaps.js';
 import { isBasic, haveIngredient } from './myKitchen.js';
+import { sameKind } from './inventBuild.js';
 import { proteinIngredient } from './sauceWines.js';
 
 // Pair strength counts up to PAIR_CAP ("a real pairing") and no further:
@@ -434,7 +435,7 @@ export function rankSauceSlot({
   pool = null, catMap = null, pairingIndex = null, sauceIndex = null, names = null,
 } = {}) {
   const cats = catMap || new Map();
-  const GENERAL_SKIP = /^(water|salt|ice)$/;
+  const GENERAL_SKIP = /^(water|ice|(sea |kosher )?salt|(black |white |ground |cracked )?pepper|peppercorns?)$/;
   const fits = slot ? (k) => fitsSlot(k, slot, cats) : (k) => !GENERAL_SKIP.test(k) && !!sauceRoleOf(k, cats);
   const ctx = { pairingIndex, sauceIndex };
   const p = pool || new Map();
@@ -463,9 +464,17 @@ export function rankSauceSlot({
     if (prot) s += capped(pairStrength(k, prot, ctx));
     return s;
   };
-  return [...cands].map(([key, have]) => ({ key, have, score: scoreOf(key) }))
+  const sorted = [...cands].map(([key, have]) => ({ key, have, score: scoreOf(key) }))
     .sort((a, b) => (own.has(b.key) ? 1 : 0) - (own.has(a.key) ? 1 : 0) || (b.have ? 1 : 0) - (a.have ? 1 : 0)
       || b.score - a.score || a.key.localeCompare(b.key));
+  if (slot) return sorted;
+  // No technique chosen: nothing of the same kind as a line already there, one per kind.
+  const kept = [];
+  for (const c of sorted) {
+    if ((currentKeys || []).some((t) => sameKind(c.key, t)) || kept.some((k) => sameKind(k.key, c.key))) continue;
+    kept.push(c);
+  }
+  return kept;
 }
 
 /**

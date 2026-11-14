@@ -1,9 +1,11 @@
 /**
  * cocktailInvent.js — what the "Invent a cocktail" panel builds on: the
- * codex v2 family skeletons as build slots, the ranking of candidates for a
- * slot, and the drink (amounts, name, "why") a build makes. The cook picks a
- * family, then builds the drink slot by slot (inventBuild.js), from the bar
- * first or, with an empty bar, from the whole cocktail role pool.
+ * codex v2 family skeletons (an optional style, applied only when the cook
+ * accepts it), the liquor choices for step 1, the ranking of suggestions (for
+ * one part of a style, or for the whole list with the noise left out), and the
+ * drink (amounts, name, "why") a list makes. The list starts empty: the cook
+ * adds every ingredient (inventBuild.js); suggestions draw on the bar first or,
+ * with an empty bar, on the whole cocktail role pool. Nothing is filled in.
  *
  * Skeletons follow the codex v2 families' dominant slots
  * (docs/cocktail-codex-v2/findings.md, public/data/cocktail_codex_v2.json):
@@ -33,6 +35,7 @@
  */
 import { SLOT_DEFAULT_AMOUNT } from './cocktailAmounts.js';
 import { roleOf, familyKey, ROLE_LABEL } from './cocktailRiff.js';
+import { GENERIC_BOTTLE_KEYS } from './myBar.js';
 import { oneOf } from './inventBuild.js';
 
 const SOUR_RE = /\b(lemon|lime|grapefruit|yuzu|citrus|sour mix|sweet and sour)\b/;
@@ -238,6 +241,22 @@ function slotAccepts(slot, roles) {
   };
 }
 
+/** The liquors a cook reaches for first, in the order a bar shelf lists them. */
+export const COMMON_LIQUORS = Object.freeze([
+  'gin', 'vodka', 'rum', 'tequila', 'mezcal', 'bourbon', 'rye', 'scotch', 'brandy', 'cognac', 'whiskey',
+]);
+
+/**
+ * Step 1 choices, "Which liquor?": the bar's own base spirits first (have: true),
+ * then COMMON_LIQUORS the roles know as a base spirit, no key twice.
+ * -> [{ key, have }]
+ */
+export function liquorChoices({ stock = [], roles = {} } = {}) {
+  const mine = [...new Set(stock)].filter((k) => isBaseSpirit(k, roles));
+  const rest = COMMON_LIQUORS.filter((k) => !mine.includes(k) && isBaseSpirit(k, roles));
+  return [...mine.map((key) => ({ key, have: true })), ...rest.map((key) => ({ key, have: false }))];
+}
+
 /**
  * The guard rails as ADVICE, never a refusal: a second base spirit is a split
  * base, a second sour wants a balance check. Only a duplicate is refused (built
@@ -263,6 +282,26 @@ export function cocktailSkeleton(familyId, { roles = {} } = {}) {
   };
 }
 
+const KITCHEN_NOISE = /^(salt|sea salt|kosher salt|water|ice|(black |white |ground |cracked )?pepper|peppercorns?)$/;
+const BITTERS_KEY = /\bbitters?$/;
+const SYRUPY = /\b(syrup|honey|agave|nectar)\b/;
+
+/**
+ * Should a no-slot suggestion be left out of the list? True for a generic catch-all
+ * key (GENERIC_BOTTLE_KEYS and the bare "bitters" / "liqueur"), a second base spirit,
+ * another bitters when one is in the list, and kitchen basics: salt, pepper, water,
+ * ice, and sugar once a syrup (or honey, agave) is in the list.
+ */
+export function isSuggestionNoise(key, currentKeys = [], roles = {}) {
+  const k = String(key).toLowerCase();
+  if (GENERIC_BOTTLE_KEYS.has(k) || k === 'bitters' || k === 'liqueur' || k === 'spirit') return true;
+  if (KITCHEN_NOISE.test(k)) return true;
+  if (k === 'sugar' && currentKeys.some((c) => SYRUPY.test(c))) return true;
+  if (isBaseSpirit(k, roles) && currentKeys.some((c) => isBaseSpirit(c, roles))) return true;
+  if ((BITTERS_KEY.test(k) || roleOf(k, roles) === 'bitter') && currentKeys.some((c) => BITTERS_KEY.test(c) || roleOf(c, roles) === 'bitter')) return true;
+  return false;
+}
+
 /**
  * Ranked candidates for one slot: [{ key, have, score }]. Bar items first
  * (have: true), then the rest of the codex pool; with an empty bar, the whole
@@ -270,7 +309,7 @@ export function cocktailSkeleton(familyId, { roles = {} } = {}) {
  * ingredients common in cocktails.
  *
  * With NO slot (null) it ranks the whole pool, every role, the same way:
- * "what goes with what the cook has", bar first.
+ * "what goes with what the cook has", bar first, minus isSuggestionNoise().
  */
 export function rankCocktailSlot({ slot, currentKeys = [], bar = [], pool = null, roles = {}, pairingIndex = null } = {}) {
   const all = candidatePool([], pool, roles);
@@ -281,7 +320,7 @@ export function rankCocktailSlot({ slot, currentKeys = [], bar = [], pool = null
   const skip = new Set(currentKeys);
   const candidatesOf = (cands) => (slot ? slotCandidates(slot, cands, roles) : [...cands.values()].flatMap((m) => [...m].map(([key, common]) => ({ key, common }))));
   const scored = (cands, have) => candidatesOf(cands)
-    .filter((c) => !skip.has(c.key))
+    .filter((c) => !skip.has(c.key) && (slot || !isSuggestionNoise(c.key, currentKeys, roles)))
     .map((c) => {
       const mean = currentKeys.length ? currentKeys.reduce((s, k) => s + pair(c.key, k), 0) / currentKeys.length : 0;
       return { key: c.key, have, score: mean + 0.15 * commonness(c.common) };

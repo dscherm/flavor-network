@@ -1,6 +1,7 @@
 /**
  * InventChecklist — "A Sour usually has": the parts a chosen category asks for,
- * ticked as the cook's list satisfies them. Required parts first. An unticked part
+ * ticked as the cook's list satisfies them ("✓ sweetener — simple syrup"). Required parts first;
+ * only an unticked part carries a small "needed" / "optional" tag. An unticked part
  * opens suggestions for it; nothing is added until the cook picks one. Lab-agnostic.
  *
  * Props
@@ -10,9 +11,9 @@
  *   openId        string | null                   the part whose options are showing
  *   optionsFor    (slotId) → [{ key, have?, note? }]
  *   onPick        (slotId, key)
- *   labels        { required, usual, none, have, close }
+ *   labels        { required: "needed", usual: "optional" (the tag words), none, have, close }
  *   testidPrefix  default 'checklist'
- * Test ids: {p} root, {p}-item-{slotId} (data-done, data-required), {p}-open-{slotId} (unticked parts only),
+ * Test ids: {p} root, {p}-item-{slotId} (data-done, data-required), {p}-tag-{slotId} (unticked parts only: 'needed' / 'optional'), {p}-open-{slotId} (unticked parts only),
  * {p}-why-{slotId}, {p}-options-{slotId}, {p}-option (data-key), {p}-none-{slotId}.
  */
 import { Chip, heading, small, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
@@ -20,7 +21,7 @@ import { Chip, heading, small, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CH
 export default function InventChecklist({
   title, items = [], onOpen, openId = null, optionsFor = () => [], onPick, labels = {}, testidPrefix = 'checklist',
 }) {
-  const L = { required: 'needed', usual: 'usual', none: 'Nothing on your list fits. Type one above.', have: 'have', ...labels };
+  const L = { required: 'needed', usual: 'optional', none: 'Nothing on your list fits. Type one above.', have: 'have', ...labels };
   const p = testidPrefix;
   if (!items.length) return null;
   const ordered = [...items.filter((i) => i.required), ...items.filter((i) => !i.required)];
@@ -37,9 +38,10 @@ export default function InventChecklist({
               <span aria-hidden="true" className="w-6 text-center text-[20px] flex-shrink-0" style={{ fontFamily: FONT, color: it.done ? ACCENT : CHALK_SUB }}>{it.done ? '✓' : '○'}</span>
               <span className="flex-1 min-w-0">
                 <span className="block text-[20px] truncate" style={{ fontFamily: FONT, color: it.done ? CHALK_CREAM : CHALK_DIM }}>
-                  {it.label}{it.done && it.key ? <span style={{ color: CHALK_SUB }}> — {it.key}</span> : null}
+                  {it.label}
+                  {it.done ? (it.key ? <span style={{ color: CHALK_SUB }}> — {it.key}</span> : null)
+                    : <span data-testid={`${p}-tag-${it.slotId}`} className="text-[12px] ml-2" style={{ fontFamily: SANS, color: CHALK_SUB }}>· {tag}</span>}
                 </span>
-                <span className="block text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{tag}</span>
               </span>
             </>
           );

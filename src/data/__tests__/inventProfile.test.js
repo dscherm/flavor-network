@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildFlavorProfile } from '../inventProfile.js';
+import { buildFlavorProfile, ATTRIBUTION_MIN } from '../inventProfile.js';
 import { AXES } from '../recipeProfileAnalysis.js';
 
 const probs = (o) => ({ ...Object.fromEntries(AXES.map((a) => [a, 0])), ...o });
@@ -42,5 +42,39 @@ describe('buildFlavorProfile', () => {
     expect(p.uncounted).toEqual(['gin', 'lime juice']);
     expect(p.axes).toEqual([]);
     expect(p.summary).toMatch(/flavor data/);
+  });
+});
+
+describe('summary wording rules', () => {
+  const n2 = new Map([
+    ['lime juice', { gnnProbs: probs({ sour: 0.9 }) }],
+    ['simple syrup', { gnnProbs: probs({ sweet: 0.3, bitter: 0.2 }) }],
+    ['butter', { gnnProbs: probs({ bitter: 0.3, sweet: 0.2 }) }],
+  ]);
+  it('credits an ingredient only when its own score on the axis is at least ATTRIBUTION_MIN', () => {
+    expect(ATTRIBUTION_MIN).toBe(0.6);
+    const s = buildFlavorProfile(['lime juice', 'simple syrup'], n2, { noun: 'drink' }).summary;
+    expect(s).toBe('This drink leans sour (mostly from lime juice) and sweet.');
+  });
+  it('never blames a weak contributor: no "from" when nobody is clearly high', () => {
+    const s = buildFlavorProfile(['simple syrup', 'butter'], n2, { noun: 'sauce' }).summary;
+    expect(s).toMatch(/^This sauce leans /);
+    expect(s).not.toMatch(/from/);
+  });
+  it('names at most two axes', () => {
+    const many = new Map([
+      ['a', { gnnProbs: probs({ sweet: 0.5, sour: 0.5, bitter: 0.5 }) }],
+      ['b', { gnnProbs: probs({ sweet: 0.5, sour: 0.5, bitter: 0.5 }) }],
+    ]);
+    const s = buildFlavorProfile(['a', 'b'], many).summary;
+    expect(s.match(/ and /g) || []).toHaveLength(1);
+  });
+  it('fewer than two counted ingredients: not enough to go on', () => {
+    expect(buildFlavorProfile(['lime juice'], n2).summary).toBe('Not enough flavor data in this list to go on yet.');
+    expect(buildFlavorProfile(['lime juice', 'mystery'], n2).summary).toMatch(/Not enough/);
+  });
+  it('nothing firing: says no single flavor stands out', () => {
+    const flat = new Map([['x', { gnnProbs: probs({}) }], ['y', { gnnProbs: probs({}) }]]);
+    expect(buildFlavorProfile(['x', 'y'], flat, { noun: 'dish' }).summary).toBe('No single flavor stands out in this dish.');
   });
 });

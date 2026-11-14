@@ -276,3 +276,19 @@ describe('start-empty helpers (INVENT-10)', () => {
     expect(cream.find((x) => x.key === 'milk' && x.note)).toBeUndefined();
   });
 });
+
+describe('sauce no-technique suggestions leave out noise', () => {
+  const pool = buildSaucePool(meta, sauces);
+  const rank = (currentKeys) => rankSauceSlot({ slot: null, currentKeys, kitchen: [], pool, catMap, sauceIndex }).map((c) => c.key);
+  it('no salt, pepper, water or ice', () => {
+    const out = rank(['chicken']);
+    for (const k of ['salt', 'pepper', 'black pepper', 'white pepper', 'water', 'ice']) expect(out).not.toContain(k);
+  });
+  it('nothing of the same kind as a line already there, and one per kind', () => {
+    const out = rank(['butter', 'lemon juice']);
+    expect(out).not.toContain('lime juice');
+    expect(out).not.toContain('lemon juice');
+    const lastWords = out.map((k) => k.split(' ').pop());
+    expect(new Set(lastWords.filter((w) => w.length > 3)).size).toBe(lastWords.filter((w) => w.length > 3).length);
+  });
+});

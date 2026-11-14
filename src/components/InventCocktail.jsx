@@ -2,7 +2,7 @@
  * InventCocktail — "Invent a cocktail" for the Cocktail Lab. Starts EMPTY: the
  * panel never adds an ingredient or a name on its own.
  *
- *   1. Which liquor?  (the bar's base spirits first, the codex's common ones,
+ *   1. Which liquor?  (the bar's base spirits first, then the common liquors,
  *      a text box). Nothing else shows until this is answered.
  *   2. Your ingredients: add by typing or from suggestions, remove, edit the
  *      suggested amounts; a line the cook does not have offers same-role
@@ -25,7 +25,7 @@
  */
 import { useMemo, useState } from 'react';
 import {
-  cocktailSkeleton, cocktailAdviceRules, rankCocktailSlot, drinkFromBuild, drinkRows, drinkAsCocktail, isBaseSpirit, extraAmount,
+  cocktailSkeleton, cocktailAdviceRules, rankCocktailSlot, liquorChoices, drinkFromBuild, drinkRows, drinkAsCocktail, isBaseSpirit, extraAmount,
   FAMILY_SKELETONS, FAMILY_BLURB, INVENT_FAMILY_ORDER,
 } from '../data/cocktailInvent.js';
 import {
@@ -128,15 +128,8 @@ export default function InventCocktail({
 
   const rank = ({ slot, currentKeys }) => rankCocktailSlot({ slot, currentKeys, bar: stock, pool, roles, pairingIndex });
 
-  // Step 1: the base spirits the cook has, then the codex's most common.
-  const startOptions = useMemo(() => {
-    const mine = stock.filter((k) => isBaseSpirit(k, roles)).map((k) => ({ key: k, have: true }));
-    const spirits = pool?.get('spirit');
-    const common = spirits
-      ? [...spirits].filter(([k]) => isBaseSpirit(k, roles) && !stockSet.has(k)).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k]) => ({ key: k, have: false }))
-      : [];
-    return [...mine, ...common];
-  }, [stock, stockSet, pool, roles]);
+  // Step 1: the base spirits the cook has, then the common liquors.
+  const startOptions = useMemo(() => liquorChoices({ stock, roles }), [stock, roles]);
 
   const add = (text, extra = {}) => {
     const key = keyFor(text);
@@ -168,7 +161,7 @@ export default function InventCocktail({
   };
   const pickCategory = (id) => {
     setOpenPart(null);
-    if (id == null) patch({ categoryId: null, build: { ...clearCategory(build), rules: adviceRules } });
+    if (id == null) patch({ categoryId: null, build: clearCategory(build) });
     else patch({ categoryId: id, build: applyCategory(build, cocktailSkeleton(id, { roles })) });
   };
   const pickPart = (slotId, key) => {

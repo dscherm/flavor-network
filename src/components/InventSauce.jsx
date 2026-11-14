@@ -314,9 +314,9 @@ export default function InventSauce({
                 art: <SauceVessel familyName={familyById.get(s.familyId)?.name || s.id} color={familyById.get(s.familyId)?.color || CHALK_DIM} size={26} />,
               }))}
               value={styleId} onChange={pickStyle} open={pickerOpen} onToggle={() => setPickerOpen((o) => !o)}
-              labels={{ none: 'No particular technique', noneBlurb: 'Just add ingredients; I will suggest one.' }} />
+              labels={{ none: 'No particular technique', noneBlurb: 'Choose your own ingredients; we suggest as you go.' }} />
 
-            <label className="flex items-center gap-2 min-h-[44px] cursor-pointer text-[15px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+            <label className="flex items-center gap-2 min-h-[44px] min-w-[44px] cursor-pointer text-[15px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
               <input type="checkbox" checked={pantryOnly} onChange={(e) => setPantryOnly(e.target.checked)}
                 data-testid={`${P}-pantry-only`} className="w-5 h-5" style={{ accentColor: CHALK_CREAM }} />
               Only what I have (no shopping)

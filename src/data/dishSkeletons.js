@@ -1,7 +1,8 @@
 /**
  * dishSkeletons.js — the dish-type skeletons behind "Invent a recipe"
- * (INVENT-4): pick a dish type and a main, get the bare skeleton of that
- * dish, build the rest yourself. The food counterpart of the sauce styles
+ * (INVENT-4): an optional dish type, applied only when the cook accepts it,
+ * gives the checklist of what that dish usually has; the cook adds every
+ * ingredient themselves. The food counterpart of the sauce styles
  * in inventSauce.js, and the Recipe Lab's input to inventBuild.js.
  *
  * Pure: no React, no fetch. The caller injects the graph `nodes` (Map name
@@ -25,7 +26,7 @@
  *
  * Never accepted anywhere: salt, oil, water and the like. They are in every
  * kitchen and make no choice. Basics (isBasic / isBasicLike) are also never
- * RANKED as a candidate, so a pre-fill is always a real choice; the one
+ * RANKED as a candidate, so a suggestion is always a real choice; the one
  * exception is a slot that lists `keepBasics` (the roast's fat may be butter).
  *
  * Ranking (rankDishSlot): the slot's accepted ingredients, kept to ordinary
@@ -37,7 +38,7 @@
  */
 import { recipeRoles, isBasicLike, pairStrength } from './inventRecipe.js';
 import { isBasic, haveIngredient } from './myKitchen.js';
-import { oneOf, rankCategories } from './inventBuild.js';
+import { oneOf, rankCategories, sameKind } from './inventBuild.js';
 
 export const DISH_MIN_DEGREE = 50;     // graph degree an ordinary candidate needs
 export const MODEL_WEIGHT = 0.5;       // weight of the set-completion score next to pair strength
@@ -331,7 +332,8 @@ function common(key, node, degree) {
 /**
  * Ordered candidates for one slot, given the rest of the build. With `slot`
  * null ("goes with the list") the whole ordinary pool is ranked against
- * currentKeys instead, kitchen first, basics never offered.
+ * currentKeys instead, kitchen first, basics never offered, nothing of the same kind
+ * as a line already in the list, and one candidate per kind (black pepper or white, not both).
  * @returns {{ key: string, have: boolean, score: number }[]} kitchen items
  *   first, then by score (pair strength with currentKeys + MODEL_WEIGHT × the
  *   model's score + the cuisine bonus), name as the final tie-break.
@@ -349,6 +351,7 @@ export function rankDishSlot({
     const n = lower(key);
     if (taken.has(n) || ((isBasicLike(n) || isBasic(n)) && !slot?.keepBasics?.includes(n))) continue;
     if (slot && !slotAccepts(slot, n, nodes)) continue;
+    if (!slot && [...taken].some((t) => sameKind(n, t))) continue;
     const node = nodes.get(key);
     const have = haveIngredient(n, kitchenSet, { assumeBasics: false }).covered;
     if (!have && !common(n, node, degree)) continue;
@@ -357,7 +360,11 @@ export function rankDishSlot({
     const score = pair + MODEL_WEIGHT * model + (cuisineHit(node, cuisine) ? CUISINE_BONUS : 0);
     out.push({ key: n, have, score });
   }
-  return out.sort((a, b) => (b.have - a.have) || (b.score - a.score) || (a.key < b.key ? -1 : 1));
+  const sorted = out.sort((a, b) => (b.have - a.have) || (b.score - a.score) || (a.key < b.key ? -1 : 1));
+  if (slot) return sorted;
+  const kept = [];
+  for (const c of sorted) if (!kept.some((k) => sameKind(k.key, c.key))) kept.push(c);
+  return kept;
 }
 
 /**

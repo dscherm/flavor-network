@@ -9,23 +9,18 @@
  *   - recipeRoles: which balance roles (main, vegetable, starch, aromatic,
  *     acid or richness, herb or spice) a set of ingredients fills
  *   - isBasicLike: oils, salt, pepper and the like, assumed to be in the kitchen
- *   - inventionName(s): a title for a set of ingredients
  *   - inventionHandoff: the recipeHandoff that writes a built dish to the Notebook
  *
  * The finished-idea generator that used to live here (inventRecipes, Shuffle
  * and its scoring terms) was retired on 2026-11-14.
  */
 import { isBasic } from './myKitchen.js';
-import { dishTypeOf } from './dishType.js';
 
 export const INVENT_ALPHA = 0;     // no popularity discount: it promotes rare oddities here
 
 // Oils, fats and seasonings read as "basics" even when the name is longer.
 // Pepper only as the spice: "red pepper" / "bell pepper" are vegetables.
 const BASIC_LIKE = /\boil\b|\bsalt\b|^((ground |cracked )?(black|white) |ground )?pepper(corns?)?$|^water$|^sugar$|^flour$|\bshortening\b|\bmargarine\b|\bcooking spray\b/;
-
-// Names that tell little about a dish: they go last in its name.
-const QUIET_NAME = /^(milk|whole milk|skim milk|water|stock|broth|chicken stock|chicken broth|beef stock|beef broth|vegetable stock|vegetable broth)$/;
 
 const lower = (s) => String(s || '').toLowerCase().trim();
 
@@ -75,82 +70,6 @@ export function isBasicLike(name) {
 }
 
 const AROMATIC = /^(garlic|onion|shallot|red onion|yellow onion|white onion)$/;
-
-const ASIAN_WOK = new Set(['Chinese', 'Japanese', 'Korean', 'Thai', 'Vietnamese', 'Indonesian', 'Malaysian', 'Filipino']);
-const CURRY_LANDS = new Set(['Indian', 'Pakistani', 'Sri Lankan']);
-const SAVOURY = new Set(['protein', 'aromatic', 'vegetable', 'grain', 'umami']);
-const TYPE_WORD = {
-  soup: 'Soup', noodles: 'Noodles', pasta: 'Pasta', rice: 'Rice', curry: 'Curry', salad: 'Salad',
-  taco: 'Tacos', wrap: 'Wraps', sandwich: 'Sandwich', bake: 'Bake', dessert: 'Dessert',
-};
-// The ingredient that already says the dish word (no "Rice & Chicken Rice").
-const WORD_INGREDIENT = { Rice: /\brice\b/, Pasta: /pasta|spaghetti|penne|linguine|macaroni|fettuccine/, Noodles: /noodle|udon|soba|ramen/, Tacos: /tortilla|taco/, Wraps: /tortilla|pita|lavash/ };
-
-const titleCase = (s) => String(s).replace(/\b([a-z])/g, (m) => m.toUpperCase());
-
-/**
- * Candidate names for a dish, best first: two telling ingredients + what
- * kind of dish it looks like (or the `noun` the cook chose: Stir-Fry,
- * Braise, Soup …) + the cuisine ("Chicken & Lemon Rice,
- * Italian-style"), then the same with a different second ingredient,
- * then "… with X". The first is the plain name; the rest keep names
- * unique when two dishes would collapse to one.
- * @returns {{ name: string, names: string[], dishType: string, word: string }}
- */
-export function inventionNames(names, { cuisine = null, nodes = null, index = null, noun = null, dishType: givenType = null } = {}) {
-  const type = dishTypeOf({ name: '', cluster: '', ingredients: names });
-  let word = TYPE_WORD[type] || null;
-  let dishType = type;
-  const cats = names.map((n) => nodes?.get?.(n)?.category).filter(Boolean);
-  if (!word && cats.length && !cats.some((c) => SAVOURY.has(c))) { word = 'Dessert'; dishType = 'dessert'; }
-  if (!word) {
-    if (cuisine && ASIAN_WOK.has(cuisine)) { word = 'Stir-fry'; dishType = 'wok'; }
-    else if (cuisine && CURRY_LANDS.has(cuisine)) { word = 'Curry'; dishType = 'curry'; }
-    else { word = 'Skillet'; dishType = 'skillet'; }
-  }
-  // The cook chose the kind of dish: its own noun and type, not a guess from the ingredients.
-  if (noun) { word = noun; dishType = givenType || dishType; }
-  const wordRe = WORD_INGREDIENT[word];
-  const tellers = names.filter((n) => !(wordRe && wordRe.test(n)));
-  // Lead with a protein if there is one ("Chicken & Lemon", not "Lemon & Chicken"),
-  // else a vegetable or starch ("Potato & Carrot", not "Thyme & Carrot"), else
-  // the seed; then what pairs best with the lead; aromatics and plain
-  // liquids (milk, stock) last.
-  const cat = (n) => nodes?.get?.(n)?.category;
-  const quiet = (n) => AROMATIC.test(n) || cat(n) === 'liquid' || QUIET_NAME.test(n);
-  const protein = tellers.find((n) => cat(n) === 'protein');
-  const body = tellers.find((n) => ['vegetable', 'grain'].includes(cat(n)) && !quiet(n));
-  const anchor = protein || body || (tellers.includes(names[0]) ? names[0] : tellers[0]);
-  const ordered = [
-    ...tellers.filter((n) => n === anchor),
-    ...tellers.filter((n) => n !== anchor && !quiet(n))
-      .sort((a, b) => pairStrength(index, b, anchor) - pairStrength(index, a, anchor)),
-    ...tellers.filter((n) => n !== anchor && quiet(n)),
-  ];
-  const style = (base) => (cuisine ? `${base}, ${cuisine}-style` : base);
-  // Telling ingredients first; aromatics and plain liquids only when nothing else is left.
-  const T = ordered.map(titleCase);
-  const loud = ordered.map((n, i) => (i === 0 || !quiet(n) ? i : -1)).filter((i) => i >= 0);
-  const soft = ordered.map((n, i) => (i > 0 && quiet(n) ? i : -1)).filter((i) => i >= 0);
-  const out = [];
-  const push = (base) => { const nm = style(base); if (!out.includes(nm)) out.push(nm); };
-  if (T.length === 0) push(word);
-  if (T.length === 1) push(`${T[0]} ${word}`);
-  // The lead (the protein, say) stays in the name as long as it can.
-  for (const j of loud.slice(1)) push(`${T[0]} & ${T[j]} ${word}`);
-  if (loud.length >= 3) for (const j of loud.slice(2)) push(`${T[0]} & ${T[loud[1]]} ${word} with ${T[j]}`);
-  for (const j of soft) push(`${T[0]} & ${T[j]} ${word}`);
-  if (loud.length >= 2) for (const j of soft) push(`${T[0]} & ${T[loud[1]]} ${word} with ${T[j]}`);
-  if (loud.length >= 3) for (const j of loud.slice(2)) push(`${T[loud[1]]} & ${T[j]} ${word}`);
-  return { name: out[0], names: out, dishType, word };
-}
-
-/** The plain name of a dish (the first of inventionNames). */
-export function inventionName(names, opts = {}) {
-  const { name, dishType, word } = inventionNames(names, opts);
-  return { name, dishType, word };
-}
-
 const LEGUME = /\b(beans?|lentils?|chickpeas?|garbanzos?|tofu|tempeh|edamame|split peas?)\b/;
 const STARCHY = /\b(potato(es)?|yams?|cassava|plantains?|gnocchi|tortillas?|bread|noodles?|pasta|rice|couscous|quinoa|polenta)\b/;
 const ACID = /vinegar|\bwine\b|lemon|lime|yogurt|sour cream/;

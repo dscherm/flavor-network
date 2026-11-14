@@ -180,3 +180,27 @@ describe('sauce adapters', () => {
     expect(m.mine).toHaveLength(1);
   });
 });
+
+describe('one display name everywhere (title, Yours row, search, lookup)', () => {
+  it('cocktail: a clash with a codex name is "Negroni (yours)" in every place the lists read', () => {
+    const base = { families: FAMILIES, cocktails: [{ name: 'Negroni', canonical: 'negroni', family_id: 3 }], byFamily: new Map(), byCanonical: new Map() };
+    const mine = saveInvention({}, input({ name: 'Negroni' }), ctx()).item;
+    const merged = withSavedCocktails(base, [mine], {});
+    const row = merged.mine[0];
+    expect(row.name).toBe('Negroni (yours)');
+    expect(row.canonical).toBe('negroni yours');
+    expect(merged.cocktails.map((c) => c.name)).toEqual(['Negroni', 'Negroni (yours)']);
+    expect(merged.cocktails[1]).toBe(row);
+    expect(merged.byCanonical.get(row.canonical)).toBe(row);
+    expect(merged.byFamily.get(3)[0]).toBe(row);
+  });
+  it('sauce: the node key, the node name and the Yours row agree', () => {
+    const CLUSTERS = [{ id: 4, name: 'Tomato', color: '#d94a3d' }];
+    const s = saveInvention({}, { kind: 'sauce', name: 'Red Thing', category: 'Tomato', lines: [{ key: 'tomato', amount: '', role: null }, { key: 'garlic', amount: '', role: null }] }, ctx()).item;
+    const codex = { codex: { clusters: CLUSTERS }, graph: { nodes: new Map([['Red Thing', { name: 'Red Thing' }]]), edges: [] } };
+    const m = withSavedSauces(codex, [s], {});
+    const row = m.mine[0];
+    expect(row.name).toBe('Red Thing (yours)');
+    expect(m.graph.nodes.get('Red Thing (yours)')).toBe(row);
+  });
+});

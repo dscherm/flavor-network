@@ -63,3 +63,6 @@ The Cloud Function `scrapeRecipe` exists and works for schema.org recipes. Open:
 - BARPHOTO-REMEASURE Re-run the bar-photo accuracy test against the Gemini API with the new naming and prompt (only a cached-answer re-map exists, `docs/bar-photo.md`); repeat after 2026-12-01, when Google's pricing page routes `gemini-2.5-flash` to a newer Flash-Lite model
 - BARPHOTO-E2E Owner's end-to-end check on a phone: own-key scan and code scan, review list, adding to My bar
 - INVENT-E2E Owner's check at 375px: bourbon Boozy Sipper written to the Notebook, an Emulsion with chicken, a Stir-fry with tofu, and "✨ Invent this" from each of the three searches
+- INVENT-RECIPE-EDIT Saved recipes have no Edit in the Cookbook (cocktails and sauces can be edited from their lab's list; recipes can only be deleted or reopened by inventing again)
+- INVENT-DELETE-SYNC A delete on one device can come back from another until it is deleted there too, because the profile merge is a union of saved items
+- INVENT-PROFILE-DATA The Invent flavor profile rests on weak per-ingredient data (`.claude/.chemdataset-status.md`, correction banner); the summary is deliberately modest and names an ingredient only when its own score on an axis is at least 0.6

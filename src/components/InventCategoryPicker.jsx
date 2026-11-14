@@ -19,7 +19,7 @@ import { btn, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT 
 export default function InventCategoryPicker({
   title, options = [], value = null, onChange, open = false, onToggle, labels = {}, testidPrefix = 'category',
 }) {
-  const L = { none: 'No particular style', noneBlurb: 'Just add ingredients; I will suggest one.', ...labels };
+  const L = { none: 'No particular style', noneBlurb: 'Choose your own ingredients; we suggest as you go.', ...labels };
   const p = testidPrefix;
   const chosen = options.find((o) => o.id === value);
   const row = (id, label, blurb, art, testid) => (

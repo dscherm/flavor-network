@@ -44,6 +44,16 @@ describe('InventChecklist', () => {
     const { container } = render(<InventChecklist items={[]} onOpen={() => {}} />);
     expect(container).toBeEmptyDOMElement();
   });
+  it('a ticked part reads "label — ingredient" with no tag; needed / optional only on unticked parts', () => {
+    setup();
+    const done = screen.getByTestId('c-item-base');
+    expect(done.textContent).toMatch(/base spirit — gin/);
+    expect(done.textContent).not.toMatch(/needed|optional|usual/);
+    expect(screen.queryByTestId('c-tag-base')).toBeNull();
+    expect(screen.getByTestId('c-tag-sour')).toHaveTextContent('needed');
+    expect(screen.getByTestId('c-tag-bitters')).toHaveTextContent('optional');
+    expect(screen.getByTestId('c-item-bitters').textContent).not.toMatch(/usual/);
+  });
   it('has 44px targets', () => {
     setup();
     expect(screen.getByTestId('c-open-sour').className).toMatch(/min-h-\[44px\]/);

@@ -1,8 +1,12 @@
 /**
  * inventBuild.js — the shared "Build" state behind the three invent panels
- * (cocktail, sauce, recipe). The user picks a baseline, gets a skeleton whose
- * REQUIRED slots are pre-filled with the best-pairing pick and whose optional
- * slots start empty, then swaps slots and adds extras themselves.
+ * (cocktail, sauce, recipe). A build starts EMPTY (openBuild): the cook's own
+ * lines are all it holds. A category (skeleton) is optional and re-homes the same
+ * lines into slots without adding or dropping any (applyCategory / clearCategory);
+ * checklist() says which parts are ticked, advice() reports soft notes, and
+ * suggestNext() ranks what to add. The older slot-first helpers (seedBuild,
+ * fillRequired, setSlot, shortlist, addExtra, ...) remain for tests and for
+ * setSlot / shortlist, which the panels still use to put a pick in a part.
  *
  * Lab-agnostic and pure: no React, no fetch, no lab imports. A lab injects
  *   - a skeleton   { slots: [{ id, label, required, accepts(key)→bool, ...passthrough }], rules?: [rule] }
@@ -13,6 +17,10 @@
  *   Build = { lab, baseline, slots: [Slot], extras: [Line], rules: [rule], rejected: [{ key, reason }] }
  *   Slot  = { id, label, required, accepts, line: Line|null, locked: bool, ...passthrough }
  *   Line  = { key, source: 'auto'|'user'|'search', ...extra }
+ *
+ * A build keeps `baseRules` (the lab's own rules, given to openBuild): applyCategory
+ * adds the skeleton's rules to them (an advice rule of the same `kind` is not doubled)
+ * and clearCategory goes back to them.
  *
  * Every function returns a new build and never mutates its input (a deep-
  * frozen build works). Operations that can be refused (setSlot, addExtra)
@@ -26,6 +34,20 @@
  * refused for clashing with the very pick it replaces). oneOf() builds the
  * "only one X" rule from an injected predicate.
  */
+
+/**
+ * "Same kind of thing": the same name, or both end in the same word ("black pepper",
+ * "white pepper", "pepper"; "olive oil", "sesame oil"). For leaving a near-duplicate
+ * out of a suggestion list; never used to refuse a line.
+ */
+export function sameKind(a, b) {
+  const x = String(a).toLowerCase().trim();
+  const y = String(b).toLowerCase().trim();
+  if (!x || !y) return false;
+  if (x === y) return true;
+  const last = (t) => t.split(/\s+/).pop().replace(/(es|s)$/, '');
+  return last(x) === last(y);
+}
 
 /** Normalise a rankFn result into { key, ...extra } objects. */
 function asCandidates(list) {
@@ -81,6 +103,7 @@ export function oneOf(predicate, reason, { advise = false, kind = 'advice' } = {
     };
   }
   const rule = () => null;
+  rule.kind = kind;
   rule.advise = (build) => {
     const hits = buildKeys(build).filter((k) => predicate(k));
     return hits.length > 1 ? { kind, message: say(hits[hits.length - 1]), keys: hits } : null;
@@ -212,7 +235,7 @@ export function openBuild({ lab = null, baseline = {}, lines = [], rules = [] } 
     seen.add(l.key);
     extras.push({ ...l, source: l.source || 'user' });
   }
-  return { lab, baseline, slots: [], extras, rules, rejected };
+  return { lab, baseline, slots: [], extras, rules, baseRules: rules, rejected };
 }
 
 /**
@@ -254,22 +277,26 @@ export function applyCategory(build, skeleton) {
     if (line) used.add(line.key);
     return { ...s, line: line || null };
   });
-  return { ...build, slots: placed, extras: lines.filter((l) => !used.has(l.key)), rules: skeleton.rules || [] };
+  const base = build.baseRules || [];
+  const same = (r) => base.some((b) => b === r || (r.kind && b.kind === r.kind));
+  const rules = [...base, ...(skeleton.rules || []).filter((r) => !same(r))];
+  return { ...build, slots: placed, extras: lines.filter((l) => !used.has(l.key)), rules };
 }
 
-/** Back to a flat list: lines in slot order then extras, rules dropped. */
+/** Back to a flat list: lines in slot order then extras; the category's rules go, the lab's base rules stay. */
 export function clearCategory(build) {
-  return { ...build, slots: [], extras: flatLines(build), rules: [] };
+  return { ...build, slots: [], extras: flatLines(build), rules: build.baseRules || [] };
 }
 
 /**
  * What the category asks for: [{ slotId, label, required, done, key, ...slot
  * passthrough (why, parts, ...) }], in slot order; [] when there is no category.
- * A slot is done when it holds a line; one line ticks at most one part.
+ * A slot is done when it holds a line; one line ticks at most one part. `key` is always
+ * the line's ingredient: a skeleton slot's own `key` flag (marks a naming slot) is overridden.
  */
 export function checklist(build) {
   return build.slots.map(({ id, label, required, accepts, line, locked, ...rest }) => ({
-    slotId: id, label, required: !!required, done: !!line, key: line ? line.key : null, ...rest,
+    ...rest, slotId: id, label, required: !!required, done: !!line, key: line ? line.key : null,
   }));
 }
 

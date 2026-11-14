@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  cuisineOptions, kitchenCuisines, isBasicLike, recipeRoles, inventionName, inventionNames, inventionHandoff,
+  cuisineOptions, kitchenCuisines, isBasicLike, recipeRoles, inventionHandoff,
 } from '../inventRecipe.js';
 
 const NODES = new Map([
@@ -45,33 +45,6 @@ describe('helpers', () => {
   });
 });
 
-describe('inventionName', () => {
-  it('is simple and honest: protein first, kind of dish, cuisine', () => {
-    const idx = index([['chicken', 'lemon', 0.7], ['chicken', 'tomato', 0.2]]);
-    expect(inventionName(['lemon', 'garlic', 'chicken', 'tomato'], { cuisine: 'Italian', nodes: NODES, index: idx }))
-      .toMatchObject({ name: 'Chicken & Lemon Skillet, Italian-style', dishType: 'skillet' });
-  });
-
-  it('names the dish by its starch without repeating it', () => {
-    const r = inventionName(['rice', 'chicken', 'tomato'], { nodes: NODES });
-    expect(r.name).toBe('Chicken & Tomato Rice');
-    expect(r.dishType).toBe('rice');
-  });
-
-  it('uses the noun of the dish type the cook chose instead of guessing one', () => {
-    const r = inventionName(['chicken', 'carrot', 'lemon'], { nodes: NODES, noun: 'Braise', dishType: 'stew' });
-    expect(r).toMatchObject({ name: 'Chicken & Carrot Braise', dishType: 'stew', word: 'Braise' });
-    expect(inventionName(['chicken', 'rice'], { nodes: NODES, noun: 'Bowl', dishType: 'rice' }).name).toBe('Chicken & Rice Bowl');
-    expect(inventionName(['chicken', 'pasta'], { nodes: NODES, noun: 'Pasta', dishType: 'pasta' }).name).toBe('Chicken Pasta');
-  });
-
-  it('uses a stir-fry / curry for those cuisines, and dessert for sweet sets', () => {
-    expect(inventionName(['chicken', 'garlic'], { cuisine: 'Chinese', nodes: NODES }).name).toBe('Chicken & Garlic Stir-fry, Chinese-style');
-    expect(inventionName(['chicken', 'tomato'], { cuisine: 'Indian', nodes: NODES }).dishType).toBe('curry');
-    expect(inventionName(['strawberry', 'cream', 'chocolate'], { nodes: NODES }).dishType).toBe('dessert');
-  });
-});
-
 describe('inventionHandoff', () => {
   it('builds a make-invent handoff with amounts and the closest method', () => {
     const inv = { name: 'Chicken & Lemon Skillet', ingredients: [{ name: 'chicken' }, { name: 'lemon', needed: true }] };
@@ -99,17 +72,3 @@ describe('recipeRoles', () => {
   });
 });
 
-describe('inventionNames', () => {
-  it('keeps names distinct: a different second ingredient, then "with …"; aromatics last', () => {
-    const strength = new Map();
-    for (const [a, b, s] of [['chicken', 'lemon', 0.7], ['chicken', 'rice', 0.5], ['chicken', 'tomato', 0.3]]) {
-      strength.set(`${a}|${b}`, s); strength.set(`${b}|${a}`, s);
-    }
-    const { names } = inventionNames(['chicken', 'lemon', 'basil', 'tomato', 'garlic'], { nodes: NODES, index: { strength } });
-    expect(names[0]).toBe('Chicken & Lemon Skillet');
-    expect(new Set(names).size).toBe(names.length);
-    expect(names).toContain('Chicken & Tomato Skillet');
-    expect(names.some((n) => / with /.test(n))).toBe(true);
-    expect(names.findIndex((n) => /Garlic/.test(n))).toBeGreaterThan(names.findIndex((n) => /Tomato/.test(n)));
-  });
-});

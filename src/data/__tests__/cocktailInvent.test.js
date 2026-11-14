@@ -3,7 +3,7 @@ import { buildPairingIndex } from '../recipePairingMatch.js';
 import { buildRolePool, roleOf } from '../cocktailRiff.js';
 import {
   FAMILY_SKELETONS, scaleAmounts, formatOz, ozOf, isBaseSpirit, ingredientKind, drinkAsCocktail,
-  cocktailSkeleton, cocktailAdviceRules, rankCocktailSlot, drinkFromBuild, drinkRows, extraAmount, FAMILY_BLURB,
+  cocktailSkeleton, cocktailAdviceRules, rankCocktailSlot, liquorChoices, isSuggestionNoise, COMMON_LIQUORS, drinkFromBuild, drinkRows, extraAmount, FAMILY_BLURB,
 } from '../cocktailInvent.js';
 import { seedBuild, fillRequired, setSlot, addExtra, advice, openBuild } from '../inventBuild.js';
 
@@ -188,5 +188,48 @@ describe('extraAmount', () => {
     expect(extraAmount('orange slice', 'aromatic')).toBe('a few slices');
     expect(extraAmount('basil', null)).toBe('a sprig');
     expect(extraAmount('mystery thing', null)).toBe('to taste');
+  });
+});
+
+describe('liquorChoices (step 1)', () => {
+  const full = { ...roles, tequila: { role: 'spirit' }, mezcal: { role: 'spirit' }, scotch: { role: 'spirit' }, brandy: { role: 'spirit' }, cognac: { role: 'spirit' }, whiskey: { role: 'spirit' }, 'apple brandy': { role: 'spirit' } };
+  it('offers bourbon, rye and mezcal, and not apple brandy', () => {
+    const keys = liquorChoices({ roles: full }).map((c) => c.key);
+    expect(keys).toEqual(['gin', 'vodka', 'rum', 'tequila', 'mezcal', 'bourbon', 'rye', 'scotch', 'brandy', 'cognac', 'whiskey']);
+    expect(keys).not.toContain('apple brandy');
+    expect(COMMON_LIQUORS).toEqual(expect.arrayContaining(['bourbon', 'rye', 'mezcal']));
+  });
+  it('puts the bar first, marks it have, and never repeats a key', () => {
+    const out = liquorChoices({ stock: ['rye', 'lime juice', 'rye', 'apple brandy'], roles: full });
+    expect(out.slice(0, 2)).toEqual([{ key: 'rye', have: true }, { key: 'apple brandy', have: true }]);
+    const keys = out.map((c) => c.key);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(out.find((c) => c.key === 'gin').have).toBe(false);
+  });
+});
+
+describe('no-slot suggestions leave out the noise', () => {
+  const r2 = { ...roles, bitters: { role: 'bitter' }, liqueur: { role: 'amaro_liqueur' }, pepper: { role: 'modifier' }, salt: { role: 'modifier' }, water: { role: 'modifier' }, sugar: { role: 'sweet' }, 'orange bitters': { role: 'bitter' }, 'black pepper': { role: 'modifier' } };
+  const pool2 = buildRolePool(r2, new Set(Object.keys(r2)));
+  const rank = (currentKeys) => rankCocktailSlot({ slot: null, currentKeys, pool: pool2, roles: r2, pairingIndex: index }).map((c) => c.key);
+  it('never a generic catch-all key, bare bitters or liqueur', () => {
+    const out = rank(['bourbon']);
+    for (const k of ['liqueur', 'bitters', 'spirit', 'juice', 'fruit']) expect(out).not.toContain(k);
+  });
+  it('never a second base spirit', () => {
+    const out = rank(['bourbon', 'simple syrup']);
+    for (const k of ['gin', 'rum', 'rye', 'vodka']) expect(out).not.toContain(k);
+    expect(out).toContain('lemon juice');
+  });
+  it('never another bitters once one is in the list', () => {
+    const out = rank(['bourbon', 'angostura bitters']);
+    expect(out).not.toContain('orange bitters');
+    expect(rank(['bourbon'])).toContain('angostura bitters');
+  });
+  it('drops kitchen basics, and sugar when a syrup is present', () => {
+    const out = rank(['bourbon', 'simple syrup']);
+    for (const k of ['pepper', 'black pepper', 'salt', 'water', 'sugar']) expect(out).not.toContain(k);
+    expect(isSuggestionNoise('sugar', ['bourbon'], r2)).toBe(false);
+    expect(isSuggestionNoise('sugar', ['simple syrup'], r2)).toBe(true);
   });
 });
