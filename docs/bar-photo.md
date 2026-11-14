@@ -355,3 +355,81 @@ node scripts/measureBarPhoto.mjs --fresh         # ask again for photos already 
   so the 9-photo kitchen set plus the 15 bar photos cannot both finish in
   a day; the six unrun kitchen photos are the first thing to do with a paid key.
 - `.cache/` is git-ignored; photos and results are never committed.
+
+## BARPHOTO-2: bottle naming (written 2026-11-14)
+
+**What changed.** `barKey`, `isBooze` (src/data/myBar.js) and `keyFor`
+(scripts/measureBarPhoto.mjs):
+
+- `isBooze` now accepts amaretto, every "creme de ..." liqueur, Amarula,
+  genepy, aquavit, ouzo, pastis, arak, raki, limoncello, soju, baijiu,
+  eau-de-vie, calvados, armagnac, slivovitz, kirsch and the named liqueurs with
+  no generic word in their name (Licor 43, Disaronno, Drambuie, Galliano,
+  Strega, St-Germain, Jagermeister, Goldwasser, Cynar, Averna, Fernet, Suze,
+  Dubonnet, Pimm's, Grand Marnier, Midori, Chambord, Frangelico, Malibu,
+  Southern Comfort ...). Same word-list style as before; NOT_BOOZE still wins
+  for cherry, juice, syrup and the rest.
+- Root cause of "averna became amaro montenegro": `ALIASES` in
+  recipePairingMatch.js maps the bare word `amaro` (and `jagermeister`) to
+  `amaro montenegro`, and `resolveIngredientName` falls back to the last word
+  of a phrase, so "Averna Amaro Siciliano" resolved through the word "amaro".
+  That alias is right for pairing data and for a bare "amaro", so it is left
+  alone; `barKey` now refuses `amaro montenegro` for any text that is not
+  "amaro" or does not say Montenegro, and a short list of named bottles
+  (`namedBottle`) keeps its own key when the resolution was generic or the
+  wrong brand ("Licor 43" was "liqueur", Goldwasser and genepy "herbal liqueur").
+- `creme de cassis` was resolving to `blackcurrant` (a fruit, so it left the
+  bar): `LIQUEUR_WORDS`, the existing guard for "sloe gin", now covers
+  "creme de", limoncello, aquavit and Suze.
+- A bar saved before this change still loads unchanged. One consequence: a
+  recipe line "creme de cassis" used to be keyed `blackcurrant` and so was
+  "covered" by a fresh blackcurrant; it is now keyed `creme de cassis`, which
+  only a cassis bottle covers. Same for limoncello (was `lemon`).
+- measureBarPhoto.mjs: stricter prompt (no unreadable bottles, never another
+  brand's name as the key, `key` is "" when nothing fits, do not pad), no stated
+  maximum in either prompt (the "At most 40" in the kitchen prompt acted as a
+  target), truncation to 60 in code, `maxOutputTokens` 4096, the bottle list
+  gains the new entries, and `keyFor` lets the label name a bottle when the
+  model's key was generic or a different brand.
+
+**Predictions, written before any re-score.** On the same 12 scored photos
+(was 77% found / 82% right, from 73 truth bottles):
+
+- Naming fix only, same cached model answers: about 85% found (62 of 73: the
+  six bottles Disaronno, Licor 43, Cassisee, Goldwasser, Averna and Genepy
+  become hits) and about 89% right (62 of about 70 reported). That reaches the
+  "found" target roughly and falls short of 92% right, because what is left is
+  not naming: Amarula and Strega were never read, Rosso Antico and Pernod come
+  back as generic types, and a few bottles are still the model's family guess.
+- Full re-run with the hardened prompts: 86 to 90% found, 90 to 93% right. I
+  have no basis stronger than the prompt change for this, and it is not
+  measured. The 88% / 92% target is therefore plausible only with the prompt
+  changes, not from naming alone.
+
+**Result: naming fix only, same model answers; prompt changes not yet
+re-measured.** Offline: the 12 scored photos' cached answers
+(`.cache/bar-photos/results.json`, gemini-2.5-flash, 73 truth bottles) were
+re-mapped through the new `barKey` / `isBooze` / `keyFor` and re-scored against
+`truth.json` (a throwaway script, not committed; no API call).
+
+| | Found | Right (of what was reported) | Bottles reported |
+|---|---|---|---|
+| Before (cached, old naming) | 76.7% | 82.4% | 68 |
+| After, exact | 86.3% (63 of 73) | 90.0% (63 of 70) | 70 |
+| After, family match | 87.7% | 91.4% | 70 |
+
+The prediction above (about 85% / 89%) was close; it was one bottle low.
+Gained: Disaronno, Cassisee, Licor 43, Goldwasser (c01), Averna (c04), Genepy
+(IMG_1835). Still missed, none of them naming: Amarula, Rosso Antico and
+Strega (not read or only a generic type), Pernod ("anise liqueur"), Cointreau
+in IMG_1836 and c04, rye in IMG_1835, gin in c07, vodka in c13, and the
+Canadian whisky in c01 (reported as `whisky`). Wrong reports left: `kahlua`
+and `sherry` in c01 (not in the answer key), `aperol` and `campari` in c05.
+
+**Not verified.** The target (88% found, 92% right) is not met by naming
+alone. The hardened prompts, the new bottle list, the 60-entry truncation and
+the 4096-token cap have not been run: the Gemini API's daily quota is
+exhausted today and no call was made. So the two commercial bar-wall photos
+(c03: it failed to parse before, c06: it invented generic bottles) are NOT
+yet verified, and neither is "no entry without a readable label". The re-run is
+`node scripts/measureBarPhoto.mjs --fresh`.

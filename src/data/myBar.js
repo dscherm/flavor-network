@@ -63,7 +63,32 @@ export function saveBar(items, storage = defaultStorage()) {
 // Recipe lines that resolve to a word too generic to stand for a bottle
 // ("coffee liqueur" → "liqueur") keep their own text instead.
 const GENERIC_KEYS = new Set(['liqueur', 'fruit', 'juice', 'spirit']);
-const LIQUEUR_WORDS = /\bsloe\b|liqueur|\bcream\b|schnapp/;
+// Words that make a line a liqueur: its own text beats a resolution that has
+// lost the word ("sloe gin" is not gin, "creme de cassis" is not blackcurrant,
+// limoncello is not lemon).
+const LIQUEUR_WORDS = /\bsloe\b|liqueur|\bcream\b|schnapp|\bcreme de\b|\blimoncello\b|\baquavit\b|\bsuze\b/;
+// Bottles that can only be called by their name: the graph has a generic word
+// (or a different brand) for them, so the name is the key.
+const NAMED_BOTTLES = [
+  ['licor 43', /\blicor 43\b|\bcuarenta y tres\b/],
+  ['amaretto', /\bdisaronno\b/],
+  ['amarula', /\bamarula\b/],
+  ['averna', /\baverna\b/],
+  ['jagermeister', /\bjagermeister\b|\bjager meister\b/],
+  ['goldwasser', /\bgoldwasser\b/],
+  ['genepy', /\bgenepy\b|\bgenepi\b/],
+  ['strega', /\bstrega\b/],
+  ['southern comfort', /\bsouthern comfort\b/],
+];
+// A resolution that does not say which bottle it is.
+export const GENERIC_BOTTLE_KEYS = new Set([...GENERIC_KEYS, 'herbal liqueur', 'amaro montenegro']);
+
+/** The brand key when the text names one of NAMED_BOTTLES, else ''. */
+export function namedBottle(raw) {
+  const t = stripAccents(raw).toLowerCase().replace(/['’-]/g, ' ').replace(/\s+/g, ' ');
+  for (const [key, re] of NAMED_BOTTLES) if (re.test(t)) return key;
+  return '';
+}
 
 /** Bar / recipe key for free text: graph name when it resolves, else normalised text. */
 export function barKey(raw, names = new Set()) {
@@ -71,6 +96,10 @@ export function barKey(raw, names = new Set()) {
   if (!text) return '';
   const norm = normalizeIngredient(text) || text.toLowerCase();
   const resolved = resolveIngredientName(text, names);
+  const named = namedBottle(text);
+  if (named && resolved !== named && (!resolved || GENERIC_BOTTLE_KEYS.has(resolved))) return named;
+  // The graph's bare "amaro" is Montenegro; no other amaro (or Jagermeister) is.
+  if (resolved === 'amaro montenegro' && norm !== 'amaro' && !/montenegro/.test(norm)) return norm;
   if (!resolved || (GENERIC_KEYS.has(resolved) && norm !== resolved)) return norm;
   // "Sloe gin" is a liqueur, not gin; "Irish cream" is not whiskey.
   if (resolved !== norm && LIQUEUR_WORDS.test(norm) && !LIQUEUR_WORDS.test(resolved)) return norm;
@@ -238,12 +267,12 @@ export function barKeyLists(cocktails, roles, names) {
 // syrups, eggs, herbs come from myKitchen.js; cocktail coverage looks at
 // both lists together (stockFor).
 const BOOZE_ROLES = new Set(['spirit', 'amaro_liqueur', 'vermouth', 'bitter']);
-const BOOZE_WORDS = /\b(wine|champagne|prosecco|cava|cr[eé]mant|sparkling|beer|ale|lager|stout|cider|sake|soju|port|sherry|madeira|marsala|liqueur|schnapps|brandy|cognac|vermouth|bitters|amaro|aperol|campari|chartreuse|absinthe|baileys|irish cream|kahlua|mezcal|tequila|whiske?y|bourbon|rye|scotch|rum|gin|vodka|pisco|cacha[cç]a|grappa|lillet|sloe gin)\b/;
+const BOOZE_WORDS = /\b(creme de|amaretto|disaronno|amarula|licor 43|genepy|genepi|aquavit|ouzo|pastis|arak|raki|limoncello|baijiu|eau de vie|calvados|armagnac|slivovitz|kirsch|drambuie|galliano|strega|st[ .-]?germain|jagermeister|goldwasser|cynar|averna|fernet|suze|dubonnet|pimm'?s?|grand marnier|cointreau|midori|chambord|frangelico|malibu|southern comfort|benedictine|wine|champagne|prosecco|cava|cr[eé]mant|sparkling|beer|ale|lager|stout|cider|sake|soju|port|sherry|madeira|marsala|liqueur|schnapps|brandy|cognac|vermouth|bitters|amaro|aperol|campari|chartreuse|absinthe|baileys|irish cream|kahlua|mezcal|tequila|whiske?y|bourbon|rye|scotch|rum|gin|vodka|pisco|cacha[cç]a|grappa|lillet|sloe gin)\b/;
 const NOT_BOOZE = /\b(cherr(y|ies)|juice|syrup|peel|twist|soda|water|tonic|cola|ginger ale|ginger beer|vinegar|extract|salt|sugar|egg)\b/;
 
 /** Is this bar key alcohol (a bottle for the bar shelf)? */
 export function isBooze(key, roles = {}) {
-  const k = String(key || '').toLowerCase();
+  const k = stripAccents(key).toLowerCase();
   if (!k) return false;
   if (/\b(liqueur|brandy|schnapps)\b/.test(k)) return true; // cherry brandy, cherry liqueur
   if (NOT_BOOZE.test(k)) return false;

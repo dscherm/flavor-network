@@ -53,11 +53,12 @@ const dir = path.resolve(ROOT, args.find((a) => !a.startsWith('--')) || (kitchen
 
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const TIMEOUT_MS = 60_000;
+const MAX_BOTTLES = 60; // longer answers are cut in code; the prompts state no number (a stated cap is read as a target)
 const RETRIES = 4;          // a 503 ("high demand") or 429 is retried
 const RETRY_WAIT_MS = 8_000; // × attempt number
 const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.heic': 'image/heic', '.heif': 'image/heif' };
 
-const { barKey, isBooze, barKeyLists } = await import(src('data/myBar.js'));
+const { barKey, isBooze, barKeyLists, namedBottle, GENERIC_BOTTLE_KEYS } = await import(src('data/myBar.js'));
 const { familyKey, roleOf } = await import(src('data/cocktailRiff.js'));
 const { kitchenKey, isBasic, isSpiceRackItem } = await import(src('data/myKitchen.js'));
 
@@ -71,6 +72,13 @@ const counts = new Map();
 for (const keys of barKeyLists(codex.cocktails, roles, names)) {
   for (const k of new Set(keys)) if (isBooze(k, roles)) counts.set(k, (counts.get(k) || 0) + 1);
 }
+// Bottles real bars hold that no recipe in the list names (Licor 43, Amarula,
+// genepy, the creme de liqueurs ...): without them the model has nothing to
+// answer with and leaves the key empty.
+const EXTRA_BOTTLES = ['amaretto', 'amarula', 'licor 43', 'goldwasser', 'genepy', 'averna', 'jagermeister', 'strega', 'cynar',
+  'creme de cassis', 'creme de violette', 'creme de mure', 'creme de banane', 'creme de peche', 'aquavit', 'ouzo', 'pastis',
+  'limoncello', 'soju', 'kirsch', 'slivovitz', 'southern comfort', 'amaro'];
+for (const k of EXTRA_BOTTLES) { const bk = barKey(k, names); if (bk && isBooze(bk, roles) && !counts.has(bk)) counts.set(bk, 0); }
 const vocab = [...counts].sort((a, b) => b[1] - a[1]).map(([k]) => k);
 const vocabSet = new Set(vocab);
 
@@ -100,12 +108,13 @@ const SYSTEM_PROMPT = `You look at a photo of someone's home bar and list the bo
 For each distinct bottle you can identify:
 - "label": what the label says (brand and expression), e.g. "Maker's Mark", "Carpano Antica Formula".
 - "type": the generic kind of drink, lower case, e.g. "bourbon", "london dry gin", "sweet vermouth", "orange liqueur", "aromatic bitters".
-- "key": the ONE entry from the app's list below that this bottle counts as (copy it exactly), or "" when nothing on the list fits.
+- "key": the ONE entry from the app's list below that this bottle is (copy it exactly), or "" when nothing on the list fits. Never put a different brand's name here: an Averna is "" if "averna" is not on the list, never "amaro montenegro".
 - "confidence": "high" when you can read the label, "medium" when you recognise the bottle but cannot read it, "low" when you are guessing from shape or colour.
 
 Rules:
 - One entry per distinct product. Two bottles of the same product are one entry.
-- Never invent a bottle. A bottle you cannot identify at all is left out.
+- List only bottles whose label you can read, or that you clearly recognise by their shape. A bottle you cannot identify is left out.
+- Never invent a bottle and do not pad the list. Stop when you have listed what you can actually see; do not add the bottles a bar usually has.
 - Alcohol only in "bottles". Mixers, juices, syrups, fruit and tools go in "other" as short lower-case names (e.g. "tonic water", "lime").
 - Output only the JSON object.
 
@@ -144,7 +153,6 @@ For each distinct food you can identify:
 Rules:
 - One entry per distinct ingredient. Three onions are one entry.
 - Never invent food. Something you cannot identify (an opaque container, an unlabelled jar) is left out.
-- At most 40 entries.
 - Things that are not food (dishes, appliances, cleaning products) go in "other".
 - Output only the JSON object.`;
 
@@ -171,8 +179,13 @@ async function ask(parts) {
 /** The bar key the app would store for one detected bottle ('' = not a bar item). */
 function keyFor(bottle) {
   if (kitchen) return kitchenKey(bottle.type, names) || '';
-  if (vocabSet.has(bottle.key)) return bottle.key;
-  const k = barKey(bottle.type, names);
+  const k = vocabSet.has(bottle.key) ? bottle.key : barKey(bottle.type, names);
+  // The label can name a bottle the model's answer lost: "Licor 43" typed as
+  // "liqueur", "Averna Amaro Siciliano" keyed as a different brand's amaro.
+  // Only when the answer is empty or generic, so "Grand Marnier" keyed as
+  // "orange liqueur" (a kind the cocktail list uses) is left alone.
+  const named = namedBottle(bottle.label);
+  if (named && (!k || GENERIC_BOTTLE_KEYS.has(k))) return named;
   return k && isBooze(k, roles) ? k : '';
 }
 
@@ -212,7 +225,7 @@ const model = new GoogleGenerativeAI(process.env.GEMINI_API_KEY).getGenerativeMo
   systemInstruction: kitchen ? KITCHEN_PROMPT : SYSTEM_PROMPT,
   generationConfig: {
     temperature: 0.1,
-    maxOutputTokens: 8192,
+    maxOutputTokens: 4096,
     responseMimeType: 'application/json',
     responseSchema: kitchen ? KITCHEN_SCHEMA : RESPONSE_SCHEMA,
     thinkingConfig: { thinkingBudget: 0 },
@@ -244,7 +257,7 @@ for (const file of photos) {
     const usage = result.response.usageMetadata || {};
     row.ms = Date.now() - t0;
     row.tokens = { in: usage.promptTokenCount ?? null, out: usage.candidatesTokenCount ?? null };
-    row.bottles = (parsed.bottles || []).map((b) => ({ ...b, barKey: keyFor(b) }));
+    row.bottles = (parsed.bottles || []).slice(0, MAX_BOTTLES).map((b) => ({ ...b, barKey: keyFor(b) }));
     row.other = parsed.other || [];
     row.found = [...new Set(row.bottles.map((b) => b.barKey).filter(Boolean))];
     row.unmapped = row.bottles.filter((b) => !b.barKey).map((b) => `${b.label} (${b.type})`);
