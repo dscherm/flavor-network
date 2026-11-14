@@ -69,9 +69,11 @@ describe('MakeRecipeStart — KITCHEN-2 kitchen flow', () => {
     expect(h.steps.length).toBeGreaterThan(0);
   });
 
-  it('invent card opens Invent a recipe, which says it is unavailable when the model is', async () => {
+  it('invent card opens Invent a recipe, which still works (with a quiet note) when the model is unavailable', async () => {
     mount();
     fireEvent.click(screen.getByTestId('make-card-invent'));
-    expect(await screen.findByTestId('invent-recipe-unavailable')).toBeInTheDocument();
+    expect(await screen.findByTestId('invent-recipe-no-model')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'What kind of dish?' })).toBeInTheDocument();
+    expect(screen.queryByTestId('invent-recipe-unavailable')).toBeNull();
   });
 });
