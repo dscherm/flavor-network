@@ -1792,11 +1792,11 @@ INVENT-2/3/4 (one per lab, independent of each other), then INVENT-5/6 (search),
 
 ## 2026-11-14 — Fill My bar from a photo
 
-Spec: `.schermness/spec.md` → "Fill My bar from a photo". Owner decision 2026-11-14: no paid
-key; each user brings their own Gemini key, so the scan runs in the browser (BARPHOTO-6) and
-the Cloud Function (BARPHOTO-3) is superseded. Order: BARPHOTO-1 (record the test),
-BARPHOTO-2 (naming), BARPHOTO-6 (in-browser scan), BARPHOTO-4 (screen), BARPHOTO-5 (final pass).
-Independent of INVENT-1..7.
+Spec: `.schermness/spec.md` → "Fill My bar from a photo". Owner rulings 2026-11-14: no paid key;
+each user pastes their own Gemini key (scan runs in the browser), AND a user with a code from
+the owner may scan on the owner's free key through the scanBar function. Order: BARPHOTO-1
+(record the test, done), BARPHOTO-2 (naming), BARPHOTO-3 (function, invite codes), BARPHOTO-6
+(scan client, both paths), BARPHOTO-4 (screen), BARPHOTO-5 (final pass).
 
 ```json
 {
@@ -1837,38 +1837,39 @@ Independent of INVENT-1..7.
 ```json
 {
   "id": "BARPHOTO-3",
-  "title": "SUPERSEDED 2026-11-14 — scanBar Cloud Function (owner chose 'each user brings a key'; see BARPHOTO-6)",
+  "title": "scanBar Cloud Function for invite-code holders: photo in, bottle list out, on the owner's own (free) key",
   "category": "feature",
   "passes": false,
-  "description": "Owner ruled 'No paid key' and then 'Each user brings a key' on 2026-11-14, so no server-side model call is needed. The function was built before the ruling (branch worktree-agent-ac7124b4a03455f73, commit c96f7a9, 33 tests, not merged, not deployed) and is parked there; its prompt, response schema, validation and parsing are the starting point for BARPHOTO-6. Original brief: functions/src/barscan/: onCall scanBar. Requires request.auth.uid (unauthenticated otherwise, as scrapeRecipe). Input {image: base64, mimeType}; rejects non-image mime types and payloads over 4 MB. Calls Gemini 2.5 Flash with the BARPHOTO-2 prompt and response schema, key from the GEMINI_API_KEY Functions secret, thinking budget 0, capped output tokens; retries 503/429 up to 3 times inside a 25 s budget. Per-user daily cap (default 10) counted in Firestore; over the cap returns resource-exhausted with a plain message. Returns {bottles:[{label,type,key,confidence}], other:[...]}. The image is not stored and not logged. The model call is injected so tests need no network.",
+  "description": "Owner rulings 2026-11-14, in order: 'No paid key'; 'Each user brings a key'; then 'Stick with pasting their own key but also allow users that have a code from me to use my key'. So there are two ways to scan: a user's own key in the browser (BARPHOTO-6), or a code the owner hands out, which runs the scan on the owner's key through this function. Start from the function already built on branch worktree-agent-ac7124b4a03455f73 (commit c96f7a9, functions/src/barscan/, 33 tests) and change the access rule: instead of requiring sign-in, the request carries `code`; the function looks up Firestore `scanCodes/{code}` ({ enabled: boolean, label: string, dailyCap?: number }) through the Admin SDK and refuses a missing, unknown or disabled code with permission-denied and one fixed message (never saying which). Codes are compared as given after trim; a code must be 8-64 characters of [A-Za-z0-9-] or it is refused before any lookup. Usage is counted per code per UTC day (`barScans/{code}_{day}`), default cap 10, overridable per code by dailyCap; over the cap is resource-exhausted. Everything else stays: input validation, 4 MB limit, hardened prompt with no stated maximum, retries inside 25 s, no retry on a daily-quota 429, lenient parse, truncation to 60, no image or code in logs (log the code's label, not the code). The key is the GEMINI_API_KEY Functions secret; the owner's key is on Gemini's free tier (about 20 requests a day in total), so the 'out of capacity for today' message matters. firestore.rules must deny all client access to scanCodes and barScans. Add a short docs section on how the owner creates, disables and caps a code in the Firebase console. Merge the branch into master when green.",
   "acceptance": [
-    "Signed-out call -> unauthenticated; missing image, non-image mime, oversize -> invalid-argument (test)",
-    "Happy path with an injected model returns the parsed bottles and other (test)",
-    "503 then success is retried and succeeds; 503 past the budget -> unavailable with a plain message (test)",
-    "11th call in a day for one uid -> resource-exhausted; another uid unaffected; next day resets (test)",
-    "Malformed model output -> a clean error, never a crash or a partial list (test)",
-    "No image bytes or base64 in any log line (test over the logger calls)",
-    "functions build + tests green. NOT deployed (needs owner approval and the cost decision in the spec)"
-  ],
-  "superseded_by": "BARPHOTO-6"
+    "Missing, malformed, unknown and disabled codes each give permission-denied with the same message, and no model call (test)",
+    "A valid code works with no sign-in; the model call uses the injected model (test)",
+    "Missing image, non-image mime, oversize, bad vocab -> invalid-argument (test)",
+    "503 then success is retried; 503 past the budget -> unavailable; a daily-quota 429 -> the 'out of capacity for today' message, not retried (test)",
+    "Per-code daily cap: default 10, per-code dailyCap honoured, another code unaffected, next day resets, rejected input does not count (test)",
+    "Malformed model output -> a clean error, never a partial list; more than 60 bottles truncated (test)",
+    "No image bytes, base64 or code value in any log line (test over the logger calls)",
+    "firestore.rules denies client reads and writes of scanCodes and barScans (rules file reviewed; test if the repo has a rules test harness)",
+    "functions build + tests green. NOT deployed (needs owner approval and the secret set by the owner)"
+  ]
 }
 ```
 
 ```json
 {
   "id": "BARPHOTO-4",
-  "title": "My bar: 'Add from a photo' with the user's own Gemini key and a review list before anything is added",
+  "title": "My bar: 'Add from a photo' with an invite code or the user's own Gemini key, and a review list before anything is added",
   "category": "feature",
   "passes": false,
-  "description": "src/components/MyBarPanel.jsx gains '📷 Add from a photo' (file input, image/*, camera or library). First use shows a one-time set-up card: what the key is, that it is free, a link to Google AI Studio's key page, a paste box, 'the key stays on this device and is sent only to Google', that the photo goes from the browser straight to Google under the user's own key and Google's terms for that key apply, and that a free key allows about 20 scans a day; Remove key is always available. New src/components/BarScanReview.jsx: one row per bottle (label, 'added as' name editable with the bar typeahead, checkbox; high confidence checked, medium/low unchecked; 'already in your bar'), non-alcohol items offered for the shared kitchen unchecked, 'Add N to my bar', 'Add another photo'. Uses src/data/barScan.js (BARPHOTO-6) for the key, the downscale, the model call and the row mapping. Guidance line 'One shelf at a time, labels facing you'; plain messages for no key, a key Google rejects, the key's daily limit reached, offline, model busy and an empty result; manual search always still usable. No sign-in is required and nothing goes to this app's servers.",
+  "description": "src/components/MyBarPanel.jsx gains '📷 Add from a photo' (file input, image/*, camera or library). First use shows a one-time set-up card with two choices. 'I have a code': a paste box; the photo is read using the app owner's Google key, through this app's server, and is not stored. 'Use my own Google key': what the key is, that it is free, a link to Google AI Studio's key page, a paste box, 'the key stays on this device and is sent only to Google', that the photo goes from the browser straight to Google under the user's own key and Google's terms for that key apply, and that a free key allows about 20 scans a day. Change / remove is always available. New src/components/BarScanReview.jsx: one row per bottle (label, 'added as' name editable with the bar typeahead, checkbox; high confidence checked, medium/low unchecked; 'already in your bar'), non-alcohol items offered for the shared kitchen unchecked, 'Add N to my bar', 'Add another photo'. Uses src/data/barScan.js (BARPHOTO-6) for storage, the downscale, the scan and the row mapping; the code path uses httpsCallable(functions, 'scanBar'). Guidance line 'One shelf at a time, labels facing you'; plain messages for a rejected key, a rejected code, the daily limit, offline, busy and an empty result; manual search always still usable. No sign-in is required.",
   "acceptance": [
-    "No key saved: tapping the button shows the set-up card, not the file picker; saving a key then opens the picker; Remove key returns to the set-up card (test)",
-    "The set-up card states where the key is kept, where the photo goes and the free daily limit, and links to the key page with target=_blank rel=noopener (test)",
+    "Nothing saved: tapping the button shows the set-up card with both choices, not the file picker; saving a code or a key then opens the picker; Remove returns to the set-up card (test)",
+    "The set-up card says, for each choice, where the photo goes and what is kept on the device, states the free daily limit for an own key, and links to the key page with target=_blank rel=noopener (test)",
     "Nothing is written to the bar until 'Add N to my bar'; only checked rows are added; Cancel adds nothing (test)",
     "Default checks by confidence, 'already in your bar' rows, editable 'added as' name, bottles with no bar name shown as editable not dropped (test)",
     "Checked 'other' items go to the kitchen list, not the bar (test)",
-    "Rejected key, daily limit, offline, busy and empty result each show their own message and leave the manual bar usable (test)",
-    "The key never appears in the DOM after saving (masked), in console output, or in any request other than the one to Google (test)",
+    "Rejected key, rejected code, daily limit, offline, busy and empty result each show their own message and leave the manual bar usable (test)",
+    "The key and the code are masked in the DOM after saving and never appear in console output (test)",
     "Checked at 375px in the browser with a stubbed scan result, no horizontal overflow",
     "npm run gate green"
   ]
@@ -1878,15 +1879,16 @@ Independent of INVENT-1..7.
 ```json
 {
   "id": "BARPHOTO-5",
-  "title": "Bar photo final pass: owner's photos end to end with the owner's own key, docs",
+  "title": "Bar photo final pass: owner's photos end to end by key and by code, docs, deploy hand-off",
   "category": "chore",
   "passes": false,
-  "description": "Run the owner's two bar photos through the real flow in the browser with the owner's key pasted into the set-up card, and compare with the test. Update docs/bar-photo.md (decision: each user brings a key; no Cloud Function, no paid key), CLOSEOUT.md and the README (what the feature needs from a user, where the key lives, that nothing is deployed server-side). Note in the docs that Google's pricing page says gemini-2.5-flash requests route to a newer Flash-Lite model from 2026-12-01, so accuracy should be re-measured after that date.",
+  "description": "Run the owner's two bar photos through the real flow in the browser, once with the owner's key pasted in and once with an invite code against the functions emulator (or the deployed function if the owner has approved a deploy), and compare with the test. Update docs/bar-photo.md (the three rulings and what was built), CLOSEOUT.md and the README (the two ways to scan, where the key and code live, how the owner makes and disables a code). List exactly what the owner must do to switch the code path on: set the GEMINI_API_KEY secret, deploy the function and the rules, create a code. Note that Google's pricing page says gemini-2.5-flash requests route to a newer Flash-Lite model from 2026-12-01, so accuracy should be re-measured after that date.",
   "acceptance": [
-    "Owner's two photos end to end in the browser: the review list shows the bottles found in the test (14 of 17 or better), none invented",
-    "CLOSEOUT.md and README describe the feature and the bring-your-own-key set-up; no secret, function or deploy step is mentioned as required",
-    "docs/bar-photo.md records the decision and the model-routing note",
-    "npm run gate green"
+    "Owner's two photos end to end by own key: the review list shows the bottles found in the test (14 of 17 or better), none invented",
+    "The same by invite code against the emulator or the deployed function",
+    "CLOSEOUT.md and README describe both paths and the owner's steps to enable codes",
+    "docs/bar-photo.md records the rulings and the model-routing note",
+    "npm run gate green; function and rules deployed only if the owner approved"
   ]
 }
 ```
@@ -1894,18 +1896,20 @@ Independent of INVENT-1..7.
 ```json
 {
   "id": "BARPHOTO-6",
-  "title": "Scan a bar photo in the browser with the user's own Gemini key (no server)",
+  "title": "Bar photo scan client: the user's own Gemini key in the browser, or an invite code through scanBar",
   "category": "feature",
   "passes": false,
-  "description": "Owner decision 2026-11-14: no paid key on the live site; each user brings their own free Gemini key. New module src/data/barScan.js, no React: (1) key storage on this device only (localStorage 'fn-gemini-key', wrapped like myBar.js so blocked storage means 'no key', never an error): loadKey/saveKey/clearKey, a format sanity check, and a mask for display. (2) downscaleSize(w, h, 1600) and a canvas-based downscale to JPEG. (3) scanBarPhoto({ imageBase64, mimeType, key, vocab, fetch }) calling Google's generateContent REST endpoint directly from the browser with the key in the x-goog-api-key header (never in the URL), model gemini-2.5-flash, temperature 0.1, JSON response schema, thinking off, capped output tokens; prompt and schema taken from the parked scanBar function (branch worktree-agent-ac7124b4a03455f73, functions/src/barscan/handler.ts): only readable labels, never another brand's name, key '' when nothing fits, no stated maximum (a stated cap acted as a target in testing), truncate to 60 in code. Retries 503/429 up to 3 times with backoff inside 25 s, but not a daily-quota 429. Lenient parse; malformed output is a clean error, never a partial list. Errors are typed: no-key, bad-key (400/401/403), daily-limit, busy, offline, unreadable. (4) toReviewRows(result, bar, { names, roles }) mapping with barKey/isBooze: default checks by confidence, already-in-bar flag, bottles with no bar name kept as editable rows, merge of a second photo without duplicates. The vocab list is built from the cocktail codex the way scripts/measureBarPhoto.mjs does. fetch is injected so tests use no network.",
+  "description": "Owner rulings 2026-11-14, in order: 'No paid key'; 'Each user brings a key'; then 'Stick with pasting their own key but also allow users that have a code from me to use my key'. New module src/data/barScan.js, no React. (1) Storage on this device only, wrapped like myBar.js so blocked storage means 'nothing saved', never an error: the user's own key ('fn-gemini-key') and an invite code ('fn-scan-code'); load/save/clear for each, a format sanity check, a mask for display, and scanMode() -> 'key' | 'code' | null (own key wins when both are saved). (2) downscaleSize(w, h, 1600) and a canvas-based downscale to JPEG. (3) scanBarPhoto({ imageBase64, mimeType, vocab, key?, code?, fetch, callScanBar }): with a key it calls Google's generateContent REST endpoint directly from the browser, key in the x-goog-api-key header (never in the URL), model gemini-2.5-flash, temperature 0.1, JSON response schema, thinking off, capped output tokens, prompt and schema as in functions/src/barscan/handler.ts (only readable labels, never another brand's name, key '' when nothing fits, no stated maximum, truncate to 60 in code), retries 503/429 up to 3 times inside 25 s but not a daily-quota 429; with a code it calls the scanBar callable (injected as callScanBar) with { code, image, mimeType, vocab } and maps its HttpsError codes. Both paths return the same { bottles, other } and the same typed errors: not-set-up, bad-key, bad-code, daily-limit, busy, offline, unreadable. (4) toReviewRows(result, bar, { names, roles }) with barKey/isBooze: default checks by confidence, already-in-bar flag, bottles with no bar name kept as editable rows, merge of a second photo without duplicates. The vocab list is built from the cocktail codex the way scripts/measureBarPhoto.mjs does. fetch and callScanBar are injected so tests use no network.",
   "acceptance": [
-    "Key storage: save/load/clear round-trip; blocked or missing storage gives 'no key' without throwing; mask shows only the last 4 characters (test)",
-    "The request goes to generativelanguage.googleapis.com only, with the key in a header and never in the URL or the body (test on the injected fetch)",
-    "Happy path returns parsed bottles and other; more than 60 bottles are truncated; entries missing label/type are dropped; unknown confidence becomes low (test)",
-    "503 then success is retried; 503 past the budget gives busy; a daily-quota 429 gives daily-limit and is not retried; 400/401/403 give bad-key; a thrown network error gives offline; malformed JSON gives unreadable (test, injected sleep)",
+    "Storage: key and code each round-trip; blocked or missing storage gives 'nothing saved' without throwing; mask shows only the last 4 characters; scanMode prefers the key (test)",
+    "Key path: the request goes to generativelanguage.googleapis.com only, key in a header and never in the URL or body (test on the injected fetch)",
+    "Code path: callScanBar receives { code, image, mimeType, vocab } and fetch is never called (test)",
+    "Both paths: parsed bottles and other; more than 60 truncated; entries missing label/type dropped; unknown confidence becomes low (test)",
+    "Key path errors: 503 then success retried; past the budget -> busy; daily-quota 429 -> daily-limit, not retried; 400/401/403 -> bad-key; network error -> offline; malformed JSON -> unreadable (test, injected sleep)",
+    "Code path errors: permission-denied -> bad-code; resource-exhausted -> daily-limit; unavailable -> busy; internal -> unreadable (test)",
     "toReviewRows: rows from a result, default checks by confidence, already-in-bar flag, merge without duplicates, no-bar-name bottles kept (test)",
     "downscaleSize keeps aspect ratio, never upscales, long side at most 1600 (test)",
-    "The key is never written to console or to any error message (test)",
+    "Neither the key nor the code is ever written to console or to any error message (test)",
     "npm run gate green"
   ]
 }
