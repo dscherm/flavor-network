@@ -1914,3 +1914,134 @@ the owner may scan on the owner's free key through the scanBar function. Order: 
   ]
 }
 ```
+
+## 2026-11-14 — Invent, second pass: start empty, the cook chooses everything
+
+Spec: `.schermness/spec.md` → "Invent, second pass". Owner's review of the live v1.12.0 panels:
+no pre-filled ingredients or name; liquor / main ingredient first; category optional and
+recommended from the list; suggestions, replacements and a flavor profile on the panel; the
+cook names it and saves it to their account. Order: INVENT-8 (shared pieces) first; then
+INVENT-9 / 10 / 11 (one per lab) and INVENT-12 (saving and lists) in parallel; INVENT-13 last.
+
+```json
+{
+  "id": "INVENT-8",
+  "title": "Invent shared pieces for start-empty: checklist, category recommendation, suggestions, replacements, flavor profile, name-and-save",
+  "category": "feature",
+  "passes": false,
+  "description": "Shared building blocks the three panels will use; no panel is reworked here. Pure, in src/data/inventBuild.js (additive, existing API kept): openBuild({ lab, baseline, lines }) for a list with no category; applyCategory(build, skeleton) / clearCategory(build) that re-home the same lines into a skeleton's slots (or back to a flat list) without adding or dropping any; checklist(build) -> [{ slotId, label, required, done, key }]; advice(build) -> soft notes for rails that are advice not refusals (two base spirits = split base), with only a duplicate ingredient still refused; recommendCategory(keys, skeletons, { order }) -> { id, placed, requiredPlaced } | null using the best assignment of keys to distinct slots (the logic INVENT-5 used for search, moved here and reused there); suggestNext(build, rankFn, n) -> ranked candidates for the whole list. New pure src/data/inventProfile.js: buildFlavorProfile(keys, nodes) on recipeProfileAnalysis.js (scores per axis, which keys had no data). New pure src/data/inventSaved.js: the saved-item shape, toSavedItem(build, { name, category, lines, method, glass, protein }), validation (name, at least two ingredients), and fromSavedItem(item) -> a seed that reopens it. Components (lab-agnostic, chalk): InventList.jsx (the cook's lines with editable suggested amount, remove, 'don't have it' mark and a replacements popover fed by a replacementsFor(key) prop, plus the always-visible add box), InventChecklist.jsx, InventSuggestions.jsx, InventCategoryHint.jsx (recommendation with Accept / Not now), InventFlavorProfile.jsx (compact 11-axis chart reusing the recipe creator's drawing where it can), InventNameSave.jsx (empty name box, save button, disabled rules, signed-out prompt via an onNeedSignIn prop). InventSlots.jsx stays until the panels stop using it (INVENT-13 removes it).",
+  "acceptance": [
+    "openBuild holds exactly the lines given and nothing else; applyCategory then clearCategory returns the same lines in the same order (test)",
+    "checklist ticks a part only when a line fits it, each line ticks at most one part, and never adds a line (test)",
+    "recommendCategory returns null under two ingredients, picks the category that places the most keys in distinct slots with ties to required parts then order, on fake skeletons and on the real cocktail families (gin + lime juice + simple syrup -> Sour; bourbon + sugar + bitters -> Boozy Sippers) (test)",
+    "advice reports a second base spirit as a note and the add still succeeds; a duplicate ingredient is still refused (test)",
+    "suggestNext excludes what is in the list and puts owned items first (test)",
+    "buildFlavorProfile returns axis scores and the list of keys with no data; an empty list gives an empty profile, no throw (test)",
+    "toSavedItem refuses an empty name or fewer than two ingredients; fromSavedItem(toSavedItem(x)) reopens the same lines and category (test)",
+    "Each component renders from props alone, imports nothing lab-specific, has 44px targets, and has its own test; InventNameSave starts with an empty name box",
+    "Existing inventBuild / inventSearch tests still pass; npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-9",
+  "title": "Cocktail Lab invent starts empty: which liquor, optional style, add your own ingredients, recommended style, suggestions, replacements, flavor profile, name and save",
+  "category": "feature",
+  "passes": false,
+  "description": "Rework src/components/InventCocktail.jsx onto the INVENT-8 pieces. Step 1 'Which liquor?': the bar's base spirits first, then the common ones, a text box, no 'any'. Nothing else is shown until it is answered. The list then holds only that liquor. 'Going for a particular style? (optional)' is collapsed; choosing one of the 6 families shows the checklist built from FAMILY_SKELETONS; with none chosen and two or more ingredients the recommendation appears and is applied only on Accept. The cook adds ingredients by typing (barKey) or from suggestions (rankCocktailSlot over the whole list, bar first). Lines not in the bar or kitchen are marked with replacements from swapCandidates. Amounts are suggestions by role (scaleAmounts when a style is set, role defaults otherwise), editable. The flavor profile is drawn from the list. Glass, method, why-line and closest cocktails appear only once a style is chosen or accepted. The name box is empty; 'Add to my cocktails' calls onSave(savedItem) (wired in INVENT-12); Riff on it and Write it in the Recipe Notebook stay. fillRequired is not called anywhere in the panel. The seed prop still opens the panel from a search with the searched ingredients as the list.",
+  "acceptance": [
+    "The panel opens showing only the liquor question; no ingredient list, no name, no card (test)",
+    "After picking bourbon the list is exactly [bourbon]; nothing else is added and the name box is empty (test)",
+    "With no style, adding sugar and bitters shows 'This looks like Boozy Sippers'; the style is applied only after Accept; Not now hides it until the list changes (test)",
+    "With Sour chosen the checklist shows a sour and a sweetener unticked; adding lime juice ticks the sour; tapping the unticked sweetener lists suggestions and adds nothing by itself (test)",
+    "A second base spirit is added with a split-base note; a duplicate is refused (test)",
+    "An ingredient not in the bar shows 'Don't have it? Try…' with same-role bottles from the bar, and tapping one replaces the line (test)",
+    "The flavor profile renders for the list and names ingredients it could not count (test)",
+    "Save is disabled until there is a name and two ingredients; onSave receives name, lines with amounts and roles, and the style or null (test)",
+    "Opening from the search seed shows the searched ingredients as the list (test)",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-10",
+  "title": "Sauce Lab invent starts empty: main ingredient, optional 'what is it for', optional technique, add your own, recommended technique, suggestions, replacements, flavor profile, name and save",
+  "category": "feature",
+  "passes": false,
+  "description": "Rework src/components/InventSauce.jsx onto the INVENT-8 pieces. Step 1 'What is the sauce built on?': pantry items that can anchor a sauce first (tomato, butter, cream, chili, stock, nuts, yogurt, …), common ones next, a text box. Step 2 optional 'What is it for?' (the protein / dish chips that exist today). The list holds only the main. 'A particular technique? (optional)' is collapsed; choosing one of the 10 INVENT_STYLES shows its checklist with the chemistry explained on unticked required parts ('an emulsion needs egg yolk: its lecithin holds the fat'); with none chosen the technique is recommended from the list and applied only on Accept. Suggestions rank by pairing with the list and the protein, pantry first. Lines the cook does not have are marked with same-role, same-kind replacements from the pantry. 'Only what I have' restricts suggestions and replacements to the pantry. Amounts are suggestions (amountFor), editable. Flavor profile from the list. Method, vessel, wine and closest sauce appear only once a technique is chosen or accepted. Empty name box; 'Add to my sauces' calls onSave(savedItem); Open in Recipe Notebook stays. fillRequired is not called. The seed prop still works.",
+  "acceptance": [
+    "The panel opens showing only the main-ingredient question (test)",
+    "After picking butter the list is exactly [butter] and the name box is empty (test)",
+    "With no technique, adding egg yolk and lemon juice recommends Emulsion; applied only on Accept (test)",
+    "With Emulsion chosen and no egg yolk, the emulsifier part is unticked with its one-line why, and nothing is filled in for it (test)",
+    "Choosing 'for chicken' re-ranks suggestions and the wine line appears once a technique is set (test)",
+    "A line not in the pantry shows replacements from the pantry of the same role and kind; 'Only what I have' limits suggestions to the pantry (test)",
+    "The flavor profile renders for the list (test)",
+    "Save is disabled until there is a name and two ingredients; onSave receives name, lines, technique or null, protein (test)",
+    "Opening from the search seed shows the searched ingredients as the list (test)",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-11",
+  "title": "Recipe Lab invent starts empty: main ingredient, optional dish type, add your own, recommended dish type, suggestions, replacements, flavor profile, name and save",
+  "category": "feature",
+  "passes": false,
+  "description": "Rework src/components/InventRecipe.jsx onto the INVENT-8 pieces. Step 1 'What is the main ingredient?': kitchen items first, a text box. The list holds only the main. 'A particular kind of dish? (optional)' is collapsed (the 8 dish types, two-column grid); with none chosen the dish type is recommended from the list (dishTypeForIngredients / recommendCategory) and applied only on Accept. Cuisine stays an optional steer for suggestions. Suggestions come from the set-completion model blended with the pairing index (as rankDishSlot does), kitchen first, and fall back to the pairing index when the model is not loaded; they are offered, never added. Lines not in the kitchen are marked with replacements from kitchenSwaps.findSwap. Amounts are suggestions (predictBowlAmounts), editable. Flavor profile from the list. Method and closest real recipe appear only once a dish type is chosen or accepted. Empty name box; 'Add to my recipes' saves through the existing user-recipe path (INVENT-12 wires it) and 'Write it' still hands off to the Recipe Notebook. fillRequired is not called; the model re-fill that replaced pre-filled slots is removed. The seed prop still works.",
+  "acceptance": [
+    "The panel opens showing only the main-ingredient question (test)",
+    "After picking chicken the list is exactly [chicken] and the name box is empty (test)",
+    "With no dish type, adding noodle, soy sauce and ginger recommends Stir-fry; applied only on Accept (test)",
+    "With Tacos chosen the checklist shows tortilla, salsa or sauce and fresh topping unticked and nothing is filled in (test)",
+    "Suggestions use the injected model when loaded and the pairing index when it failed; neither path adds an ingredient by itself (test)",
+    "A line not in the kitchen shows a swap from the kitchen when kitchenSwaps has one (test)",
+    "The flavor profile renders for the list (test)",
+    "Save is disabled until there is a name and two ingredients; Write it hands the list and amounts to the Recipe Notebook as before (test)",
+    "Opening from the Cookbook search seed shows the searched ingredients as the list (test)",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-12",
+  "title": "Save an invention to the account and show the cook's own cocktails, sauces and recipes in each lab's list",
+  "category": "feature",
+  "passes": false,
+  "description": "Profile gains cocktails: [] and sauces: [] beside the existing recipes: [] (find the profile document read/write used for Cookbook user recipes in App.jsx and its hooks; use the same path; firestore.rules already limits profiles/{uid} to its owner). src/data/inventSaved.js (from INVENT-8) is the shape. CocktailLabV2.jsx, SauceLab.jsx and MakeRecipeStart.jsx pass onSave to their invent panels: signed in -> append to the profile array and confirm ('Saved to your cocktails'); signed out -> the existing sign-in prompt, then the save resumes with nothing lost. Saved cocktails and sauces are adapted to the codex shapes the browse lists and cards already render (family from the saved category or the recommended one, else an 'Uncategorised' group), merged into CocktailBrowse / SauceBrowse in a 'Yours' group at the top and inside their family, marked as the cook's own, searchable, and counted by My bar's what-can-I-make and the sauce pantry. Opening one shows the normal card with Edit (reopens the invent panel via fromSavedItem) and Delete (confirm first). Saved recipes go through the existing user-recipe save so the Cookbook lists them as today. Sizes are bounded: at most 200 saved items per kind, names at most 80 characters.",
+  "acceptance": [
+    "Saving while signed in appends one item to the right profile array and nothing else in the profile changes (test with the profile writer mocked)",
+    "Saving while signed out shows sign-in, and after sign-in the same invention is saved exactly once (test)",
+    "A saved cocktail appears in the Cocktail Lab list under 'Yours' and its family, is found by search by name and by ingredient, and is counted by what-can-I-make when the bar covers it (test)",
+    "A saved sauce appears in the Sauce Lab list the same way (test)",
+    "Edit reopens the panel with the same lines, category and name; saving again updates the item in place, not a duplicate; Delete asks first and removes it (test)",
+    "A profile with no cocktails / sauces fields, or with malformed entries, loads as empty lists without an error (test)",
+    "Checked at 375px in the browser; npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-13",
+  "title": "Invent second pass: remove what start-empty replaced, docs, final browser pass",
+  "category": "chore",
+  "passes": false,
+  "description": "Remove InventSlots.jsx and anything else the start-empty panels no longer use (fillRequired stays in inventBuild.js only if something still calls it; otherwise remove it and its tests). Update panel and module header comments, entry-point copy, CLOSEOUT.md (an unreleased entry), README.md and BACKLOG.md. Final pass in the browser across the three labs: open, pick the start, add ingredients, accept a recommendation, use a suggestion and a replacement, read the flavor profile, name and save, find it in the list, edit, delete; and 'Invent this' from each search.",
+  "acceptance": [
+    "grep finds no remaining import of removed files or exports; no skipped tests",
+    "No user-facing copy says the app will fill in or suggest a finished recipe",
+    "End to end at 375px for each lab as described, with nothing appearing in a list or name box that was not chosen",
+    "CLOSEOUT.md, README.md and BACKLOG.md updated without claiming a deploy that did not happen",
+    "npm run gate green"
+  ]
+}
+```
