@@ -120,6 +120,12 @@ export const FAMILY_SKELETONS = Object.freeze({
   },
 });
 
+/**
+ * Family ids in the order the Invent panel shows them (most familiar first).
+ * Also the tie-break when a search fits several families equally.
+ */
+export const INVENT_FAMILY_ORDER = Object.freeze([2, 4, 1, 5, 0, 3]);
+
 /** "¾ oz" → 0.75; "2 dashes" → null (not a pour). */
 export function ozOf(amount) {
   const m = /^\s*([0-9.]+)?\s*([¼½¾])?\s*oz/.exec(String(amount || ''));
