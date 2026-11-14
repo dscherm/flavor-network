@@ -1703,7 +1703,7 @@ INVENT-2/3/4 (one per lab, independent of each other), then INVENT-5/6 (search),
   "id": "INVENT-3",
   "title": "Sauce Lab invent: technique (+ protein), then build the sauce yourself",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Rework src/components/InventSauce.jsx onto inventBuild.js. Baseline = one of the 10 INVENT_STYLES (Roux & milk, Roux & stock, Brown reduction, Emulsion, Tomato simmer, Curry base, Stir-fry, Mole, Salsa, Nut sauce) plus an optional protein. One sauce card instead of three: required slots pre-filled from pantry first by pairStrength with the build and protein ('you'd need' kept for non-pantry picks), optional slots empty with ranked shortlists, free text and extras. 'Only what I have' restricts shortlists to the pantry and reports an unfillable required slot as missing. Amounts (amountFor), method (methodFor), wine-with-protein and closest sauce update live. Shuffle and the three-up page removed.",
   "acceptance": [
     "Picking Emulsion gives fat + egg yolk + acid pre-filled and aromatic/herb/spice empty (test)",

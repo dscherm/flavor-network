@@ -14,7 +14,7 @@
  *   onRemoveExtra    (key)
  *   notice           string | null                         a refusal reason to show
  *   color            accent colour (defaults to chalk cream)
- *   labels           copy overrides (see DEFAULT_LABELS)
+ *   labels           copy overrides (see DEFAULT_LABELS); `notHave` (no default) marks a line whose `have` is false, e.g. "you'd need"
  *   testidPrefix     default 'slots'
  */
 import { useState } from 'react';
@@ -86,6 +86,7 @@ function SlotRow({ slot, amount, shortlistFor, onPick, onClear, L, p, color }) {
           </span>
           <span className="block text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
             {slot.label}{mark ? ` · 🔒 ${mark}` : ''}{line?.have ? ` · ${L.inBar}` : ''}
+            {line && line.have === false && L.notHave ? <span data-testid={`${p}-need`}> · {L.notHave}</span> : null}
           </span>
         </span>
         {line && (
@@ -145,6 +146,7 @@ export default function InventSlots({
             <span className="flex-1 min-w-0">
               <span className="block text-[20px] truncate" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{x.key}</span>
               {x.source === 'search' && <span className="block text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>🔒 {L.fromSearch}</span>}
+              {x.have === false && L.notHave ? <span className="block text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-need`}>{L.notHave}</span> : null}
             </span>
             <button type="button" onClick={() => onRemoveExtra(x.key)} aria-label={`${L.remove} ${x.key}`} data-testid={`${p}-remove-${x.key}`}
               className="min-h-[44px] min-w-[44px] rounded-lg flex-shrink-0" style={btn({ fontSize: 20 })}>✕</button>
