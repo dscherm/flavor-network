@@ -96,7 +96,7 @@ tag. No features. In order of consequence:
 - **PDF/photo recipe import is dev-only.** It needs the Express API and a
   Gemini key (`npm run api`). Recipe-by-URL works on the live site via the
   Cloud Function. (The My bar photo scan is a different feature and needs no
-  server of ours when the user brings their own key; see the Unreleased entry.)
+  server of ours when the user brings their own key; see the v1.12.0 entry.)
 - **The molecular model is weak per-ingredient.** Compound-level taste/odor
   F1 looks good but does not survive aggregation to ingredients (chef-set
   AUROC ≈ 0.5). It drives radar charts and explanations; pairing strength
