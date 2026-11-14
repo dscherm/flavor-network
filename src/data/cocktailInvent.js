@@ -30,6 +30,7 @@
  */
 import { SLOT_DEFAULT_AMOUNT } from './cocktailAmounts.js';
 import { roleOf, familyKey, ROLE_LABEL } from './cocktailRiff.js';
+import { oneOf } from './inventBuild.js';
 
 const SOUR_RE = /\b(lemon|lime|grapefruit|yuzu|citrus|sour mix|sweet and sour)\b/;
 const BITTER_APERITIF = /campari|aperol|amaro|fernet|cynar|averna|montenegro|suze|gentian|bitter|chartreuse|absinthe/;
@@ -272,6 +273,23 @@ const titleCase = (s) => String(s).replace(/\b([a-z])/g, (m) => m.toUpperCase())
 const short = (k) => titleCase(String(k).replace(/ juice$/, '').replace(/^fresh /, ''));
 const GENERIC_NAME = /^(simple |sugar )?syrup$|^(soda|carbonated|sparkling) water$|^club soda$|^seltzer$|bitters$/;
 
+/** Name and "why" for a drink made of `filled` ({ slot, key, role }) lines. */
+function describeDrink(familyId, skel, filled, pairs) {
+  const lead = filled.find((f) => f.slot.base || f.slot.primary);
+  // The name's second word is the most telling modifier: the family's key
+  // slot unless it is plain syrup, soda or bitters, then the next line.
+  const telling = filled.filter((f) => f !== lead && !GENERIC_NAME.test(f.key));
+  const keyLine = telling.find((f) => f.slot.key) || telling[0] || null;
+  let word = skel.word;
+  if (familyId === 1 && filled.some((f) => f.slot.id === 'sour')) word = 'Fizz';
+  const name = `${[lead && short(lead.key), keyLine && short(keyLine.key)].filter(Boolean).join(' & ')} ${word}`.trim();
+  const strong = pairs.filter((p) => p.s > 0).sort((x, y) => y.s - x.s).slice(0, 2);
+  const why = strong.length
+    ? `Strongest pairings in real recipes: ${strong.map((p) => `${p.a} + ${p.b}`).join(', ')}.`
+    : `Follows the ${skel.name} proportions; no recipe pairing data links these ingredients.`;
+  return { lead, name, why };
+}
+
 function buildDrink(familyId, skel, { b, picked, pairs, score }, roles) {
   const filled = [];
   if (b) filled.push({ slot: skel.slots.find((s) => s.base), key: b.key, role: 'spirit' });
@@ -284,18 +302,7 @@ function buildDrink(familyId, skel, { b, picked, pairs, score }, roles) {
     role: roleOf(f.key, roles) || f.slot.roles[0],
     amount: amounts[i],
   }));
-  const lead = filled.find((f) => f.slot.base || f.slot.primary);
-  // The name's second word is the most telling modifier: the family's key
-  // slot unless it is plain syrup, soda or bitters, then the next line.
-  const telling = filled.filter((f) => f !== lead && !GENERIC_NAME.test(f.key));
-  const keyLine = telling.find((f) => f.slot.key) || telling[0] || null;
-  let word = skel.word;
-  if (familyId === 1 && filled.some((f) => f.slot.id === 'sour')) word = 'Fizz';
-  const name = `${[lead && short(lead.key), keyLine && short(keyLine.key)].filter(Boolean).join(' & ')} ${word}`;
-  const strong = pairs.filter((p) => p.s > 0).sort((x, y) => y.s - x.s).slice(0, 2);
-  const why = strong.length
-    ? `Strongest pairings in real recipes: ${strong.map((p) => `${p.a} + ${p.b}`).join(', ')}.`
-    : `Follows the ${skel.name} proportions; no recipe pairing data links these ingredients.`;
+  const { lead, name, why } = describeDrink(familyId, skel, filled, pairs);
   return {
     name,
     family: skel.name,
@@ -306,6 +313,108 @@ function buildDrink(familyId, skel, { b, picked, pairs, score }, roles) {
     glass: skel.glass,
     why,
     score,
+  };
+}
+
+// ── Build-it-yourself (INVENT-2): skeleton, slot ranking, drink from a build ──
+
+export const FAMILY_BLURB = Object.freeze({
+  2: 'bright, shaken, citrus-forward',
+  4: 'spirit-forward, silky',
+  1: 'long, bubbly, easy',
+  5: 'low-proof, bittersweet, bubbly',
+  0: 'fruity, shaken, crushed ice',
+  3: 'strong, stirred, slow',
+});
+
+function slotAccepts(slot, roles) {
+  return (key) => {
+    if (slot.base) return isBaseSpirit(key, roles);
+    const role = roleOf(key, roles);
+    if (role ? !slot.roles.includes(role) : !slot.test) return false;
+    if (slot.test && !slot.test(key, role)) return false;
+    // Never a second sour by the back door (a lime cordial as "sweetener").
+    if (slot.id !== 'sour' && SOUR_RE.test(key)) return false;
+    return true;
+  };
+}
+
+/**
+ * A family's skeleton in the shape inventBuild.seedBuild wants: its slots
+ * (each with accepts(key)) plus the guard rails as rules.
+ */
+export function cocktailSkeleton(familyId, { roles = {} } = {}) {
+  const skel = FAMILY_SKELETONS[familyId];
+  if (!skel) return { slots: [], rules: [] };
+  return {
+    slots: skel.slots.map((slot) => ({ ...slot, accepts: slotAccepts(slot, roles) })),
+    rules: [
+      oneOf((k) => isBaseSpirit(k, roles), (k) => `Only one base spirit — swap the one you have instead of adding ${k}.`),
+      oneOf((k) => SOUR_RE.test(k), (k) => `Never two sours — ${k} would be a second one. Swap the one you have.`),
+    ],
+  };
+}
+
+/**
+ * Ranked candidates for one slot: [{ key, have, score }]. Bar items first
+ * (have: true), then the rest of the codex pool; with an empty bar, the whole
+ * pool. score = mean pairing strength with currentKeys + the small
+ * commonness bonus inventCocktails uses.
+ */
+export function rankCocktailSlot({ slot, currentKeys = [], bar = [], pool = null, roles = {}, pairingIndex = null } = {}) {
+  if (!slot) return [];
+  const all = candidatePool([], pool, roles);
+  const mine = bar && bar.length ? candidatePool(bar, pool, roles) : null;
+  const maxCommon = Math.max(1, ...[...all.values(), ...(mine ? mine.values() : [])].flatMap((m) => [...m.values()]));
+  const commonness = (c) => Math.log1p(c) / Math.log1p(maxCommon);
+  const pair = (a, b) => strengthOf(pairingIndex, a, b) || strengthOf(pairingIndex, b, a);
+  const skip = new Set(currentKeys);
+  const scored = (cands, have) => slotCandidates(slot, cands, roles)
+    .filter((c) => !skip.has(c.key))
+    .map((c) => {
+      const mean = currentKeys.length ? currentKeys.reduce((s, k) => s + pair(c.key, k), 0) / currentKeys.length : 0;
+      return { key: c.key, have, score: mean + 0.15 * commonness(c.common) };
+    })
+    .sort((x, y) => y.score - x.score || x.key.localeCompare(y.key));
+  if (!mine) return scored(all, false);
+  const own = scored(mine, true);
+  const ownKeys = new Set(own.map((c) => c.key));
+  return [...own, ...scored(all, false).filter((c) => !ownKeys.has(c.key))];
+}
+
+const EXTRA_AMOUNT = { bitter: '2 dashes', aromatic: '1 dash', spirit: '¼ oz', amaro_liqueur: '¼ oz', vermouth: '¼ oz', sweet: '¼ oz', sour: '¼ oz', modifier: '½ oz' };
+
+/**
+ * The drink a build makes, in the shape the card, drinkAsCocktail and
+ * drinkRows read. Amounts are re-run on every call (scaleAmounts over the
+ * filled slots); extras get a small default pour by role.
+ * opts: { familyId, familyName, roles, pairingIndex }
+ */
+export function drinkFromBuild(build, { familyId, familyName, roles = {}, pairingIndex = null } = {}) {
+  const skel = FAMILY_SKELETONS[familyId];
+  const filled = build.slots.filter((s) => s.line).map((slot) => ({ slot, key: slot.line.key, role: roleOf(slot.line.key, roles) || slot.roles?.[0] }));
+  const amounts = scaleAmounts(filled, skel.volume);
+  const lines = filled.map((f, i) => ({
+    key: f.key, slot: f.slot.id, label: f.slot.label, role: f.role, amount: amounts[i], source: f.slot.line.source, locked: !!f.slot.locked,
+  }));
+  for (const x of build.extras) {
+    const role = roleOf(x.key, roles);
+    lines.push({ key: x.key, slot: 'extra', label: 'extra', role, amount: EXTRA_AMOUNT[role] || 'to taste', source: x.source, locked: false });
+  }
+  const keys = lines.map((l) => l.key);
+  const pairs = [];
+  const pair = (a, b) => strengthOf(pairingIndex, a, b) || strengthOf(pairingIndex, b, a);
+  for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) pairs.push({ a: keys[i], b: keys[j], s: pair(keys[i], keys[j]) });
+  const { lead, name, why } = describeDrink(familyId, skel, filled, pairs);
+  return {
+    name,
+    family: familyName || skel.name,
+    familyId,
+    base: lead?.key || null,
+    lines,
+    build: skel.build,
+    glass: skel.glass,
+    why,
   };
 }
 

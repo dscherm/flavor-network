@@ -3,7 +3,9 @@ import { buildPairingIndex } from '../recipePairingMatch.js';
 import { buildRolePool, roleOf } from '../cocktailRiff.js';
 import {
   inventCocktails, FAMILY_SKELETONS, scaleAmounts, formatOz, ozOf, isBaseSpirit, ingredientKind, drinkAsCocktail,
+  cocktailSkeleton, rankCocktailSlot, drinkFromBuild, drinkRows, FAMILY_BLURB,
 } from '../cocktailInvent.js';
+import { seedBuild, fillRequired, setSlot, addExtra } from '../inventBuild.js';
 
 const roles = {
   gin: { role: 'spirit' }, rye: { role: 'spirit' }, bourbon: { role: 'spirit' }, vodka: { role: 'spirit' }, rum: { role: 'spirit' },
@@ -147,5 +149,86 @@ describe('ingredientKind', () => {
     expect(ingredientKind('egg white', 'modifier')).toBe('dairy');
     expect(ingredientKind('campari', 'amaro_liqueur')).toBe('bitter');
     expect(ingredientKind('triple sec', 'amaro_liqueur')).toBe('sweet liqueur');
+  });
+});
+
+describe('cocktailSkeleton', () => {
+  it('has the family slots with accepts() adapters', () => {
+    const sk = cocktailSkeleton(2, { roles });
+    expect(sk.slots.map((s) => s.id)).toEqual(['base', 'sour', 'sweet']);
+    const [base, sour, sweet] = sk.slots;
+    expect(base.accepts('rye')).toBe(true);
+    expect(base.accepts('campari')).toBe(false);
+    expect(sour.accepts('lime juice')).toBe(true);
+    expect(sour.accepts('simple syrup')).toBe(false);
+    expect(sweet.accepts('simple syrup')).toBe(true);
+    expect(sweet.accepts('lemon juice')).toBe(false);
+  });
+  it('refuses a second base spirit and a second sour with a readable reason', () => {
+    const b = seedBuild(cocktailSkeleton(2, { roles }), { pinned: [{ key: 'gin', source: 'user' }] });
+    const r = addExtra(b, 'rye');
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/one base spirit/i);
+    const s = setSlot(b, 'sour', 'lemon juice');
+    const two = addExtra(s.build, 'lime juice');
+    expect(two.ok).toBe(false);
+    expect(two.reason).toMatch(/two sours/i);
+    expect(setSlot(s.build, 'sour', 'lime juice').ok).toBe(true); // swapping is not a second sour
+  });
+});
+
+describe('rankCocktailSlot', () => {
+  const slot = cocktailSkeleton(4, { roles }).slots.find((s) => s.id === 'vermouth');
+  it('puts bar bottles first and marks them, then the rest of the pool', () => {
+    const r = rankCocktailSlot({ slot, currentKeys: ['gin'], bar: ['dry vermouth'], pool, roles, pairingIndex: index });
+    expect(r[0]).toMatchObject({ key: 'dry vermouth', have: true });
+    expect(r.find((c) => c.key === 'sweet vermouth').have).toBe(false);
+  });
+  it('ranks by mean pairing with the current keys', () => {
+    const r = rankCocktailSlot({ slot, currentKeys: ['gin', 'campari'], bar: [], pool, roles, pairingIndex: index });
+    expect(r[0].key).toBe('sweet vermouth');
+    expect(r.every((c) => c.have === false)).toBe(true);
+    expect(r[0].score).toBeGreaterThan(r[1].score);
+  });
+  it('excludes keys already in the build', () => {
+    const r = rankCocktailSlot({ slot, currentKeys: ['sweet vermouth'], bar: [], pool, roles, pairingIndex: index });
+    expect(r.map((c) => c.key)).not.toContain('sweet vermouth');
+  });
+});
+
+describe('drinkFromBuild', () => {
+  const rankFn = (slot, currentKeys) => rankCocktailSlot({ slot, currentKeys, bar: [], pool, roles, pairingIndex: index });
+  const make = (familyId, pinned) => fillRequired(seedBuild(cocktailSkeleton(familyId, { roles }), { pinned }), rankFn);
+  it('turns a filled build into the card drink, re-scaling amounts', () => {
+    const d = drinkFromBuild(make(2, [{ key: 'gin', source: 'user' }]), { familyId: 2, familyName: 'Sour Family', roles, pairingIndex: index });
+    expect(d.lines.map((l) => l.slot)).toEqual(['base', 'sour', 'sweet']);
+    expect(d.lines[0]).toMatchObject({ key: 'gin', amount: '2 oz', locked: true, source: 'user' });
+    expect(d.family).toBe('Sour Family');
+    expect(d.build).toMatch(/Shake/);
+    expect(d.glass).toMatch(/Coupe/);
+    expect(d.name).toMatch(/^Gin .*Sour$/);
+  });
+  it('gives extras a default pour by role and keeps riff/closest helpers working', () => {
+    let b = make(2, [{ key: 'gin', source: 'user' }]);
+    b = addExtra(b, 'angostura bitters').build;
+    const d = drinkFromBuild(b, { familyId: 2, roles });
+    const extra = d.lines.find((l) => l.slot === 'extra');
+    expect(extra).toMatchObject({ key: 'angostura bitters', amount: '2 dashes' });
+    expect(drinkAsCocktail(d).ingredients_raw.at(-1).raw).toBe('2 dashes angostura bitters');
+    expect(drinkRows(d).at(-1)).toMatchObject({ key: 'angostura bitters', role: 'bitter' });
+  });
+  it('works on a build with an empty slot (no crash, fewer lines)', () => {
+    const b = fillRequired(seedBuild(cocktailSkeleton(4, { roles }), {}), () => []);
+    const d = drinkFromBuild(b, { familyId: 4, roles });
+    expect(d.lines).toEqual([]);
+    expect(typeof d.name).toBe('string');
+  });
+});
+
+describe('FAMILY_BLURB', () => {
+  it('has one plain line per family', () => {
+    expect(Object.keys(FAMILY_BLURB).sort()).toEqual(['0', '1', '2', '3', '4', '5']);
+    expect(FAMILY_BLURB[2]).toBe('bright, shaken, citrus-forward');
+    expect(FAMILY_BLURB[5]).toBe('low-proof, bittersweet, bubbly');
   });
 });
