@@ -3,3 +3,6 @@
 // a recipe URL, parses JSON-LD, returns the title + ingredient list).
 
 export { scrapeRecipe } from './scrape';
+
+// BARPHOTO-3: scanBar — photo of a home bar in, list of bottles out.
+export { scanBar } from './barscan';
