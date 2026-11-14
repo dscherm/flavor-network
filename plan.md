@@ -1779,7 +1779,7 @@ INVENT-2/3/4 (one per lab, independent of each other), then INVENT-5/6 (search),
   "id": "INVENT-7",
   "title": "Invent redesign cleanup: retire the finished-idea generators from the UI, docs, final browser pass",
   "category": "chore",
-  "passes": false,
+  "passes": true,
   "description": "Remove now-unused UI paths (Shuffle, nextInventions/nextSauces paging, exhausted copy) and any generator exports nothing imports any more; keep the scorers the build model reuses. Update the entry-point copy (LabsPanel 'Mix a drink by family + spirit' etc.) and CLOSEOUT.md / BACKLOG.md. Final pass in the browser across all three labs and the three search surfaces.",
   "acceptance": [
     "grep finds no remaining import of removed exports; dead tests removed or rewritten, not skipped",
