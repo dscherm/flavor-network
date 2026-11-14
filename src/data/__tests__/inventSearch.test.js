@@ -182,6 +182,7 @@ describe('sauce seed', () => {
   it('hollandaise → the Emulsion style with its ingredients pinned', () => {
     const { seed, summary } = sauceSeedFromSearch('hollandaise', sauceCtx);
     expect(seed.styleId).toBe('Hollandaise');
+    expect(seed.fromName).toBe(true);
     expect(INVENT_STYLE_BY_ID.get(seed.styleId).label).toBe('Emulsion');
     expect(keysOf(seed)).toEqual(['egg yolk', 'clarified butter', 'lemon juice', 'cayenne']);
     expect(seed.pinned.every((p) => p.source === 'search')).toBe(true);
@@ -193,6 +194,7 @@ describe('sauce seed', () => {
   it('tomato, basil → a fitting style with both pinned and placed', () => {
     const { seed } = sauceSeedFromSearch('tomato, basil', sauceCtx);
     expect(keysOf(seed)).toEqual(['tomato', 'basil']);
+    expect(seed.fromName).toBeUndefined(); // a best fit, not a named sauce
     expect(seed.protein).toBeUndefined();
     const build = sauceBuild(seed);
     expect(build.rejected).toEqual([]);
