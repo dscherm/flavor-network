@@ -51,37 +51,41 @@ describe('CocktailLabV2 — ✨ Invent this', () => {
     const box = await screen.findByLabelText(/search cocktails/i);
     fireEvent.change(box, { target: { value: v } });
   };
-  const lineText = (id) => screen.getByTestId(`invent-line-${id}`).textContent;
+  const listKeys = () => screen.queryAllByTestId('invent-list-line').map((l) => l.dataset.key);
 
-  it("'gin, cucumber' opens InventCocktail with gin and cucumber locked; closing keeps the search", async () => {
+  it("'gin, cucumber' opens InventCocktail with gin and cucumber as the list; closing keeps the search", async () => {
     render(<CocktailLabV2 fullData={fullData} />);
     await search('gin, cucumber');
     await waitFor(() => expect(screen.getByTestId('cocktail-invent-this-summary')).toHaveTextContent('gin + cucumber'));
     fireEvent.click(screen.getByTestId('cocktail-invent-this'));
     expect(screen.getByTestId('invent-cocktail')).toBeInTheDocument();
-    expect(lineText('base')).toBe('gin');
-    expect(screen.getByTestId('invent-slot-base')).toHaveTextContent(/locked/);
-    expect(screen.getByTestId('invent-extras')).toHaveTextContent('cucumber');
+    expect(listKeys()).toEqual(['gin', 'cucumber']);
+    expect(screen.getAllByTestId('invent-list-line')[0]).toHaveTextContent(/from your search/);
+    expect(screen.queryByTestId('invent-start')).toBeNull();
+    expect(screen.queryByTestId('invent-checklist')).toBeNull();
     fireEvent.click(screen.getByTestId('invent-close'));
     expect(screen.queryByTestId('invent-cocktail')).toBeNull();
     expect(screen.getByLabelText(/search cocktails/i)).toHaveValue('gin, cucumber');
   });
 
-  it('changing the style keeps the searched ingredients', async () => {
+  it('choosing a style keeps the searched ingredients', async () => {
     render(<CocktailLabV2 fullData={fullData} />);
     await search('gin, cucumber');
     fireEvent.click(await screen.findByTestId('cocktail-invent-this'));
-    fireEvent.click(within(screen.getByTestId('invent-families')).getByLabelText(/Highballs/));
-    expect(lineText('base')).toBe('gin');
-    expect(screen.getByTestId('invent-extras')).toHaveTextContent('cucumber');
+    fireEvent.click(screen.getByTestId('invent-category-toggle'));
+    fireEvent.click(screen.getByTestId('invent-category-option-1'));
+    expect(listKeys()).toEqual(['gin', 'cucumber']);
+    expect(screen.getByTestId('invent-checklist-item-base').dataset.done).toBe('true');
   });
 
-  it("'negroni, mezcal' opens the Negroni's family with mezcal as the base", async () => {
+  it("'negroni, mezcal' opens with the Negroni's family applied and mezcal as the base", async () => {
     render(<CocktailLabV2 fullData={fullData} />);
     await search('negroni, mezcal');
     fireEvent.click(await screen.findByTestId('cocktail-invent-this'));
-    expect(lineText('base')).toBe('mezcal');
-    expect(lineText('vermouth')).toBe('sweet vermouth');
+    expect(listKeys()).toContain('mezcal');
+    expect(listKeys()).not.toContain('gin');
+    expect(screen.getByTestId('invent-checklist-item-base')).toHaveTextContent('mezcal');
+    expect(screen.getByTestId('invent-checklist-item-vermouth').dataset.done).toBe('true');
   });
 
   it('the ordinary Invent button starts fresh, with no old seed', async () => {
@@ -90,6 +94,7 @@ describe('CocktailLabV2 — ✨ Invent this', () => {
     fireEvent.click(await screen.findByTestId('cocktail-invent-this'));
     fireEvent.click(screen.getByTestId('invent-close'));
     fireEvent.click(screen.getByTestId('cocktail-invent-open'));
-    expect(screen.getByTestId('invent-cocktail').textContent).not.toMatch(/from your search/);
+    expect(screen.getByTestId('invent-start')).toBeInTheDocument();
+    expect(screen.queryAllByTestId('invent-list-line')).toHaveLength(0);
   });
 });

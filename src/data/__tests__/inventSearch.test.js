@@ -92,6 +92,7 @@ describe('cocktail seed', () => {
     const { seed, summary } = cocktailSeedFromSearch('negroni', cocktailCtx);
     const negroni = cocktails.find((c) => c.name === 'Negroni');
     expect(seed.familyId).toBe(negroni.family_id);
+    expect(seed.fromName).toBe(true);
     expect(seed.base).toBe('gin');
     expect(keysOf(seed)).toEqual(['gin', 'sweet vermouth', 'campari']);
     expect(seed.pinned.every((p) => p.source === 'search')).toBe(true);
@@ -108,6 +109,7 @@ describe('cocktail seed', () => {
     expect(keysOf(seed)).toEqual(['gin', 'cucumber']);
     expect(seed.base).toBe('gin');
     expect(summary).toBe('gin + cucumber');
+    expect(seed.fromName).toBeUndefined(); // best fit only: the panel recommends it
     const counts = INVENT_FAMILY_ORDER.map((id) => locked(seedBuild(cocktailSkeleton(id, { roles }), { pinned: seed.pinned })));
     expect(locked(cocktailBuild(seed))).toBe(Math.max(...counts));
     expect(seed.familyId).toBe(INVENT_FAMILY_ORDER[counts.indexOf(Math.max(...counts))]);

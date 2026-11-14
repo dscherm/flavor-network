@@ -21,10 +21,10 @@
  * proportions, not tested recipes, and the UI says so. Extras added beyond
  * the skeleton get a small pour by role, or a plain amount for a herb or fruit.
  *
- * Guard rails (cocktailSkeleton rules): one base spirit (the Aperitivo
- * skeleton has none: the aperitif is the base), never two sours, no
- * ingredient twice, and a required slot the pool cannot fill is reported
- * missing, not invented around.
+ * Guard rails (cocktailAdviceRules): a second base spirit and a second sour
+ * are ADVICE (split base, check the balance), never refused; only an
+ * ingredient twice is refused. A required slot the pool cannot fill is
+ * reported missing, not invented around.
  *
  * rankCocktailSlot scores a candidate as its mean co-occurrence strength
  * with the rest of the build (buildPairingIndex strength) plus a small bonus
@@ -239,18 +239,27 @@ function slotAccepts(slot, roles) {
 }
 
 /**
- * A family's skeleton in the shape inventBuild.seedBuild wants: its slots
- * (each with accepts(key)) plus the guard rails as rules.
+ * The guard rails as ADVICE, never a refusal: a second base spirit is a split
+ * base, a second sour wants a balance check. Only a duplicate is refused (built
+ * into inventBuild). Also used by a build that has no style chosen yet.
+ */
+export function cocktailAdviceRules(roles = {}) {
+  return [
+    oneOf((k) => isBaseSpirit(k, roles), () => "Two base spirits: that's a split base. Fine, just know it.", { advise: true, kind: 'split-base' }),
+    oneOf((k) => SOUR_RE.test(k), () => 'Two sours: check the balance.', { advise: true, kind: 'two-sours' }),
+  ];
+}
+
+/**
+ * A family's skeleton in the shape inventBuild.applyCategory / seedBuild want:
+ * its slots (each with accepts(key)) plus the guard rails as advice rules.
  */
 export function cocktailSkeleton(familyId, { roles = {} } = {}) {
   const skel = FAMILY_SKELETONS[familyId];
   if (!skel) return { slots: [], rules: [] };
   return {
     slots: skel.slots.map((slot) => ({ ...slot, accepts: slotAccepts(slot, roles) })),
-    rules: [
-      oneOf((k) => isBaseSpirit(k, roles), (k) => `Only one base spirit — swap the one you have instead of adding ${k}.`),
-      oneOf((k) => SOUR_RE.test(k), (k) => `Never two sours — ${k} would be a second one. Swap the one you have.`),
-    ],
+    rules: cocktailAdviceRules(roles),
   };
 }
 
@@ -259,16 +268,19 @@ export function cocktailSkeleton(familyId, { roles = {} } = {}) {
  * (have: true), then the rest of the codex pool; with an empty bar, the whole
  * pool. score = mean pairing strength with currentKeys + a small bonus for
  * ingredients common in cocktails.
+ *
+ * With NO slot (null) it ranks the whole pool, every role, the same way:
+ * "what goes with what the cook has", bar first.
  */
 export function rankCocktailSlot({ slot, currentKeys = [], bar = [], pool = null, roles = {}, pairingIndex = null } = {}) {
-  if (!slot) return [];
   const all = candidatePool([], pool, roles);
   const mine = bar && bar.length ? candidatePool(bar, pool, roles) : null;
   const maxCommon = Math.max(1, ...[...all.values(), ...(mine ? mine.values() : [])].flatMap((m) => [...m.values()]));
   const commonness = (c) => Math.log1p(c) / Math.log1p(maxCommon);
   const pair = (a, b) => strengthOf(pairingIndex, a, b) || strengthOf(pairingIndex, b, a);
   const skip = new Set(currentKeys);
-  const scored = (cands, have) => slotCandidates(slot, cands, roles)
+  const candidatesOf = (cands) => (slot ? slotCandidates(slot, cands, roles) : [...cands.values()].flatMap((m) => [...m].map(([key, common]) => ({ key, common }))));
+  const scored = (cands, have) => candidatesOf(cands)
     .filter((c) => !skip.has(c.key))
     .map((c) => {
       const mean = currentKeys.length ? currentKeys.reduce((s, k) => s + pair(c.key, k), 0) / currentKeys.length : 0;

@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
+// INVENT-9: the Cocktail Lab invent panel starts empty; the cook chooses everything.
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
 import InventCocktail from '../InventCocktail.jsx';
 import { buildPairingIndex } from '../../data/recipePairingMatch.js';
 import { buildRolePool } from '../../data/cocktailRiff.js';
+import { AXES } from '../../data/recipeProfileAnalysis.js';
 
 const ing = (raw) => ({ raw });
 const negroni = { name: 'Negroni', ingredients_raw: [ing('1 oz Gin'), ing('1 oz Sweet vermouth'), ing('1 oz Campari')] };
@@ -25,181 +27,334 @@ const index = buildPairingIndex([
 const pool = buildRolePool(roles, index.names);
 const families = [{ id: 2, name: 'Sour Family', color: '#a16207' }, { id: 4, name: 'Aromatic Stirred', color: '#7c3aed' }, { id: 3, name: 'Boozy Sippers', color: '#92400e' }];
 const BAR = ['gin', 'campari', 'sweet vermouth', 'lemon juice', 'simple syrup'];
+const probs = (o) => ({ ...Object.fromEntries(AXES.map((a) => [a, 0])), ...o });
+const nodes = new Map([['lemon juice', { gnnProbs: probs({ sour: 0.9 }) }], ['simple syrup', { gnnProbs: probs({ sweet: 0.8 }) }]]);
 
 function renderInvent(props = {}) {
   return render(<InventCocktail bar={BAR} cocktails={[negroni, oldFashioned]}
-    families={families} roles={roles} pool={pool} pairingIndex={index} onClose={vi.fn()} {...props} />);
+    families={families} roles={roles} pool={pool} pairingIndex={index} nodes={nodes} onClose={vi.fn()} {...props} />);
 }
-const slotRow = (id) => screen.getByTestId(`invent-slot-${id}`);
-const lineText = (id) => screen.getByTestId(`invent-line-${id}`).textContent;
-const open = (id) => fireEvent.click(screen.getByTestId(`invent-open-${id}`));
-const type = (testid, text) => {
-  fireEvent.change(screen.getByTestId(testid), { target: { value: text } });
-  fireEvent.submit(screen.getByTestId(testid).closest('form'));
+const byId = (id) => screen.getByTestId(id);
+const listKeys = () => screen.queryAllByTestId('invent-list-line').map((l) => l.dataset.key);
+const addText = (text) => {
+  fireEvent.change(byId('invent-list-add-input'), { target: { value: text } });
+  fireEvent.submit(byId('invent-list-add-input').closest('form'));
+};
+const startWith = (text) => {
+  fireEvent.change(byId('invent-start-input'), { target: { value: text } });
+  fireEvent.submit(byId('invent-start-input').closest('form'));
+};
+const chooseStyle = (id) => {
+  fireEvent.click(byId('invent-category-toggle'));
+  fireEvent.click(byId(`invent-category-option-${id}`));
 };
 
-describe('InventCocktail: baseline pickers', () => {
-  it('shows the spirit picker before the style picker, and each style with its one-line description', () => {
+describe('InventCocktail: starts empty', () => {
+  it('opens showing only the liquor question: no list, no name, no card', () => {
+    renderInvent({ onSave: vi.fn() });
+    expect(byId('invent-start-question')).toHaveTextContent(/liquor/i);
+    for (const id of ['invent-list', 'invent-namesave', 'invent-card', 'invent-category', 'invent-hint', 'invent-suggest', 'invent-profile', 'invent-checklist']) {
+      expect(screen.queryByTestId(id)).toBeNull();
+    }
+    expect(screen.queryByText(/^any$/)).toBeNull();
+    expect(byId('invent-close')).toBeTruthy();
+  });
+
+  it('offers the bar base spirits first, then the common ones, and a text box', () => {
+    renderInvent({ bar: ['rye', 'lemon juice'] });
+    const opts = screen.getAllByTestId('invent-start-option').map((o) => o.dataset.key);
+    expect(opts[0]).toBe('rye');
+    expect(opts).toContain('gin');
+    expect(opts).not.toContain('lemon juice');
+    expect(byId('invent-start-input')).toBeTruthy();
+  });
+
+  it('after picking bourbon the list is exactly [bourbon], nothing else is added, the name box is empty', () => {
+    renderInvent({ bar: ['bourbon', 'simple syrup'], onSave: vi.fn() });
+    fireEvent.click(screen.getAllByTestId('invent-start-option').find((o) => o.dataset.key === 'bourbon'));
+    expect(listKeys()).toEqual(['bourbon']);
+    expect(byId('invent-namesave-name')).toHaveValue('');
+    expect(screen.queryByTestId('invent-checklist')).toBeNull();
+    expect(screen.queryByTestId('invent-card')).toBeNull();
+    expect(screen.queryByTestId('invent-start')).toBeNull();
+  });
+
+  it('a typed liquor starts the list too', () => {
     renderInvent();
-    const bases = screen.getByTestId('invent-bases');
-    const styles = screen.getByTestId('invent-families');
-    expect(bases.compareDocumentPosition(styles) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByText(/2 · What are you going for\?/)).toBeTruthy();
-    const blurbs = { 2: 'bright, shaken, citrus-forward', 4: 'spirit-forward, silky', 1: 'long, bubbly, easy', 5: 'low-proof, bittersweet, bubbly', 0: 'fruity, shaken, crushed ice', 3: 'strong, stirred, slow' };
-    for (const [id, text] of Object.entries(blurbs)) expect(screen.getByTestId(`invent-blurb-${id}`)).toHaveTextContent(text);
+    startWith('Rye');
+    expect(listKeys()).toEqual(['rye']);
   });
 
-  it('opens on a pre-filled sour from the bar with amounts, build and why', () => {
-    renderInvent();
-    expect(screen.getByTestId('invent-source')).toHaveTextContent('From your bar (5 items)');
-    expect(screen.getByTestId('invent-name')).toHaveTextContent('Gin & Lemon Sour');
-    expect(screen.getByTestId('invent-lines')).toHaveTextContent('2 oz');
-    expect(screen.getByTestId('invent-card')).toHaveTextContent(/Shake/);
-    expect(screen.getByTestId('invent-why')).toHaveTextContent('gin + lemon juice');
-    expect(screen.queryByTestId('invent-shuffle')).toBeNull();
-  });
-
-  it('bourbon + Boozy Sippers: bourbon locked as the base, sweetener pre-filled, bitters empty and offered', () => {
-    renderInvent({ bar: ['bourbon', 'rye', 'simple syrup', 'angostura bitters', 'lemon juice'] });
-    fireEvent.click(within(screen.getByTestId('invent-bases')).getByText('bourbon'));
-    fireEvent.click(within(screen.getByTestId('invent-families')).getByText('Boozy Sippers'));
-    expect(lineText('base')).toBe('bourbon');
-    expect(slotRow('base')).toHaveTextContent('🔒');
-    expect(lineText('sweet')).toBe('simple syrup');
-    expect(slotRow('bitters').dataset.empty).toBe('true');
-    expect(lineText('bitters')).toMatch(/optional/);
-    open('bitters');
-    expect(within(screen.getByTestId('invent-shortlist-bitters')).getByText('angostura bitters')).toBeTruthy();
-  });
-
-  it('switching to Aromatic Stirred builds the Negroni and names it as the closest cocktail', () => {
-    const onSelectCocktail = vi.fn();
-    renderInvent({ onSelectCocktail });
-    fireEvent.click(within(screen.getByTestId('invent-families')).getByText('Aromatic Stirred'));
-    expect(screen.getByTestId('invent-name')).toHaveTextContent('Gin & Sweet Vermouth Stirred');
-    expect(slotRow('modifier').dataset.empty).toBe('true'); // optional slots start empty
-    open('modifier');
-    fireEvent.click(within(screen.getByTestId('invent-shortlist-modifier')).getByText('campari'));
-    expect(screen.getByTestId('invent-name')).toHaveTextContent('Gin & Campari Stirred');
-    fireEvent.click(within(screen.getByTestId('invent-nearest')).getByText('Negroni'));
-    expect(onSelectCocktail).toHaveBeenCalledWith('Negroni');
-  });
-
-  it('Aperitivos with a spirit chosen says the aperitif is the base instead of dropping the pick silently', () => {
-    renderInvent({ bar: ['gin', 'campari', 'soda water'] });
-    fireEvent.click(within(screen.getByTestId('invent-bases')).getByText('gin'));
-    fireEvent.click(within(screen.getByTestId('invent-families')).getByText(/Aperitivos/));
-    expect(screen.getByTestId('invent-no-spirit')).toHaveTextContent(/aperitif is the base/);
-    expect(lineText('aperitif')).toBe('campari');
+  it('Start over returns to the question with everything cleared', () => {
+    renderInvent({ onSave: vi.fn() });
+    startWith('gin');
+    addText('lemon juice');
+    fireEvent.click(byId('invent-restart'));
+    expect(byId('invent-start')).toBeTruthy();
+    startWith('gin');
+    expect(listKeys()).toEqual(['gin']);
   });
 });
 
-describe('InventCocktail: building it yourself', () => {
-  it('says what is missing instead of refilling behind the user', () => {
-    renderInvent({ bar: ['gin', 'simple syrup'] });
-    expect(screen.getByTestId('invent-missing')).toHaveTextContent('Needs a sour');
-    expect(slotRow('sour').dataset.empty).toBe('true');
-    fireEvent.click(screen.getByTestId('invent-clear-sweet'));
-    expect(screen.getByTestId('invent-missing')).toHaveTextContent('Needs a sour and a sweetener');
+describe('InventCocktail: the style is opt-in and recommended', () => {
+  it('recommends for sugar and bitters, applies only on Accept, and Not now hides it until the list changes', () => {
+    renderInvent({ bar: ['bourbon', 'simple syrup', 'angostura bitters'] });
+    startWith('bourbon');
+    expect(screen.queryByTestId('invent-hint')).toBeNull();
+    addText('simple syrup');
+    addText('angostura bitters');
+    expect(byId('invent-hint')).toHaveTextContent('This looks like Boozy Sippers');
+    expect(screen.queryByTestId('invent-checklist')).toBeNull();
+    fireEvent.click(byId('invent-hint-dismiss'));
+    expect(screen.queryByTestId('invent-hint')).toBeNull();
+    addText('rye');
+    expect(byId('invent-hint')).toBeTruthy();
+    fireEvent.click(byId('invent-hint-accept'));
+    expect(screen.queryByTestId('invent-hint')).toBeNull();
+    expect(byId('invent-checklist')).toHaveTextContent('A Sipper usually has');
+    expect(byId('invent-card')).toBeTruthy();
+    expect(listKeys().sort()).toEqual(['angostura bitters', 'bourbon', 'rye', 'simple syrup']);
   });
 
-  it('swapping from the shortlist updates the line, amounts, name and closest cocktails', () => {
-    renderInvent({ bar: ['gin', 'campari', 'sweet vermouth', 'lemon juice', 'simple syrup', 'triple sec'] });
-    open('sweet');
-    fireEvent.click(within(screen.getByTestId('invent-shortlist-sweet')).getByText('triple sec'));
-    expect(lineText('sweet')).toBe('triple sec');
-    expect(screen.getByTestId('invent-name')).toHaveTextContent('Gin & Triple Sec Sour');
-    expect(screen.getByTestId('invent-amount-sweet')).toHaveTextContent('¾ oz');
-    expect(screen.getByTestId('invent-nearest').textContent).not.toBe('');
-  });
-
-  it('a typed ingredient goes into the slot, and one that does not fit is refused with a reason', () => {
+  it('the style picker is collapsed by default and lists the six styles with a no-style choice', () => {
     renderInvent();
-    open('sour');
-    type('invent-type-sour', 'Lime Juice');
-    expect(lineText('sour')).toBe('lime juice');
-    expect(screen.getByTestId('invent-name')).toHaveTextContent(/Lime/);
-    open('sweet');
-    type('invent-type-sweet', 'lime juice');
-    expect(screen.getByTestId('invent-notice')).toBeTruthy();
+    startWith('gin');
+    expect(screen.queryByTestId('invent-category-option-2')).toBeNull();
+    fireEvent.click(byId('invent-category-toggle'));
+    for (const id of [2, 4, 1, 5, 0, 3]) expect(byId(`invent-category-option-${id}`)).toBeTruthy();
+    expect(byId('invent-category-none')).toBeTruthy();
+    expect(byId('invent-category-option-2')).toHaveTextContent('bright, shaken, citrus-forward');
+    expect(byId('invent-family-glass-2')).toBeTruthy();
   });
 
-  it('refuses a second base spirit and a second sour, with a visible reason', () => {
-    renderInvent({ bar: ['gin', 'rye', 'lemon juice', 'lime juice', 'simple syrup'] });
-    type('invent-add-input', 'rye');
-    expect(screen.getByTestId('invent-notice')).toHaveTextContent(/one base spirit/i);
-    expect(screen.queryByTestId('invent-remove-rye')).toBeNull();
-    type('invent-add-input', 'lime juice');
-    expect(screen.getByTestId('invent-notice')).toHaveTextContent(/two sours/i);
-    expect(screen.queryByTestId('invent-remove-lime juice')).toBeNull();
+  it('with Sour chosen: sour and sweetener unticked; lime juice ticks the sour; the sweetener tap adds nothing by itself', () => {
+    renderInvent({ bar: ['gin', 'lime juice', 'simple syrup'] });
+    startWith('gin');
+    chooseStyle(2);
+    expect(byId('invent-checklist-item-sour').dataset.done).toBe('false');
+    expect(byId('invent-checklist-item-sweet').dataset.done).toBe('false');
+    expect(byId('invent-checklist-item-base').dataset.done).toBe('true');
+    addText('lime juice');
+    expect(byId('invent-checklist-item-sour').dataset.done).toBe('true');
+    fireEvent.click(byId('invent-checklist-open-sweet'));
+    expect(within(byId('invent-checklist-options-sweet')).getByText('simple syrup')).toBeTruthy();
+    expect(listKeys()).toEqual(['gin', 'lime juice']);
+    fireEvent.click(within(byId('invent-checklist-options-sweet')).getByText('simple syrup'));
+    expect(listKeys()).toEqual(['gin', 'lime juice', 'simple syrup']);
+    expect(byId('invent-checklist-item-sweet').dataset.done).toBe('true');
   });
 
-  it('adds an extra with a default amount and removes it', () => {
-    renderInvent({ bar: ['gin', 'lemon juice', 'simple syrup', 'angostura bitters'] });
-    type('invent-add-input', 'angostura bitters');
-    expect(screen.getByTestId('invent-extras')).toHaveTextContent('angostura bitters');
-    expect(screen.getByTestId('invent-extras')).toHaveTextContent('2 dashes');
-    fireEvent.click(screen.getByTestId('invent-remove-angostura bitters'));
-    expect(screen.getByTestId('invent-extras')).not.toHaveTextContent('angostura bitters');
+  it('never fills a part by itself: choosing a style with only gin leaves the rest unticked', () => {
+    renderInvent({ bar: BAR });
+    startWith('gin');
+    chooseStyle(2);
+    expect(listKeys()).toEqual(['gin']);
+    expect(byId('invent-checklist-item-sour').dataset.done).toBe('false');
   });
 
-  it('a tinting ingredient changes the glass colour', () => {
-    renderInvent({ bar: ['gin', 'lemon juice', 'simple syrup', 'campari'] });
-    const before = screen.getByTestId('invent-glass').dataset.color;
-    type('invent-add-input', 'campari');
-    expect(screen.getByTestId('invent-glass').dataset.color).not.toBe(before);
+  it('clearing the style removes the checklist and the card but keeps the list', () => {
+    renderInvent({ bar: ['gin', 'lime juice'] });
+    startWith('gin');
+    addText('lime juice');
+    chooseStyle(2);
+    expect(byId('invent-card')).toBeTruthy();
+    fireEvent.click(byId('invent-category-none'));
+    expect(screen.queryByTestId('invent-checklist')).toBeNull();
+    expect(screen.queryByTestId('invent-card')).toBeNull();
+    expect(listKeys()).toEqual(['gin', 'lime juice']);
   });
 
-  it('Riff on it and Write it in the Recipe Notebook pass the built lines, extras included', () => {
-    const onRiff = vi.fn(); const onOpenRecipeLab = vi.fn();
-    renderInvent({ onRiff, onOpenRecipeLab, bar: ['gin', 'lemon juice', 'simple syrup', 'angostura bitters'] });
-    type('invent-add-input', 'angostura bitters');
-    fireEvent.click(screen.getByTestId('invent-riff'));
-    expect(onRiff.mock.calls[0][0].ingredients_raw.map((r) => r.raw)).toEqual(['2 oz gin', '¾ oz lemon juice', '¾ oz simple syrup', '2 dashes angostura bitters']);
-    fireEvent.click(screen.getByTestId('invent-notebook'));
-    expect(onOpenRecipeLab.mock.calls[0][0]).toEqual(['gin', 'lemon juice', 'simple syrup', 'angostura bitters']);
-    expect(screen.queryByText(/Shuffle/)).toBeNull();
-  });
-
-  it('Start over re-seeds the build', () => {
-    renderInvent();
-    fireEvent.click(screen.getByTestId('invent-clear-sour'));
-    expect(screen.getByTestId('invent-missing')).toBeTruthy();
-    fireEvent.click(screen.getByTestId('invent-restart'));
-    expect(lineText('sour')).toBe('lemon juice');
-    expect(screen.queryByTestId('invent-missing')).toBeNull();
+  it('glass, method, why and the closest cocktails appear only once a style is chosen', () => {
+    renderInvent({ bar: ['gin', 'campari', 'sweet vermouth'] });
+    startWith('gin');
+    addText('campari');
+    addText('sweet vermouth');
+    for (const id of ['invent-glass', 'invent-why', 'invent-method', 'invent-nearest']) expect(screen.queryByTestId(id)).toBeNull();
+    chooseStyle(4);
+    expect(byId('invent-method')).toHaveTextContent(/Stir/);
+    expect(byId('invent-glass')).toBeTruthy();
+    expect(byId('invent-why')).toBeTruthy();
+    expect(byId('invent-nearest')).toHaveTextContent('Negroni');
   });
 });
 
-describe('InventCocktail: empty bar and seed', () => {
-  it('with an empty bar draws on the whole pool for fills and shortlists, and offers base spirits', () => {
-    renderInvent({ bar: [] });
-    expect(screen.getByTestId('invent-source')).toHaveTextContent(/every bottle/);
-    fireEvent.click(within(screen.getByTestId('invent-bases')).getByText('rye'));
-    expect(lineText('base')).toBe('rye');
-    expect(screen.getByTestId('invent-name')).toHaveTextContent(/^Rye/);
-    open('sour');
-    const list = screen.getByTestId('invent-shortlist-sour');
-    // lemon juice is already the pick; the rest of the pool is on offer
-    expect(within(list).getByText('lime juice')).toBeTruthy();
+describe('InventCocktail: your ingredients', () => {
+  it('a second base spirit is added with a split-base note; a duplicate is refused with a reason', () => {
+    renderInvent();
+    startWith('bourbon');
+    addText('rye');
+    expect(listKeys()).toEqual(['bourbon', 'rye']);
+    expect(byId('invent-advice-split-base')).toHaveTextContent(/split base/i);
+    addText('bourbon');
+    expect(byId('invent-list-notice')).toBeTruthy();
+    expect(listKeys()).toEqual(['bourbon', 'rye']);
   });
 
-  it('the seed prop opens on its style with search pins locked in the slots they fit', () => {
-    renderInvent({
-      seed: { familyId: 3, pinned: [{ key: 'bourbon', source: 'search' }, { key: 'angostura bitters', source: 'search' }] },
-      bar: ['bourbon', 'simple syrup', 'angostura bitters'],
+  it('two sours are advice too', () => {
+    renderInvent();
+    startWith('gin');
+    addText('lemon juice');
+    addText('lime juice');
+    expect(byId('invent-advice-two-sours')).toHaveTextContent(/check the balance/i);
+    expect(listKeys()).toEqual(['gin', 'lemon juice', 'lime juice']);
+  });
+
+  it("amounts are suggested by role, editable, and the cook's text survives a style change", () => {
+    renderInvent({ bar: ['gin', 'lemon juice', 'simple syrup'] });
+    startWith('gin');
+    addText('lemon juice');
+    expect(byId('invent-list-amount-gin')).toHaveValue('2 oz');
+    expect(byId('invent-list-amount-lemon juice')).toHaveValue('¾ oz');
+    fireEvent.change(byId('invent-list-amount-gin'), { target: { value: '1½ oz' } });
+    chooseStyle(2);
+    expect(byId('invent-list-amount-gin')).toHaveValue('1½ oz');
+    expect(byId('invent-list-amount-lemon juice')).toBeTruthy();
+  });
+
+  it('an ingredient not in the bar offers same-role bottles from the bar; tapping one replaces the line', () => {
+    renderInvent({ bar: ['bourbon', 'rye', 'lemon juice'] });
+    startWith('gin');
+    expect(byId('invent-list-line').dataset.have).toBe('false');
+    fireEvent.click(byId('invent-list-need-gin'));
+    const opts = screen.getAllByTestId('invent-list-replace-option').map((o) => o.dataset.key);
+    expect(opts).toEqual(expect.arrayContaining(['bourbon', 'rye']));
+    expect(opts).not.toContain('lemon juice');
+    fireEvent.click(screen.getAllByTestId('invent-list-replace-option').find((o) => o.dataset.key === 'rye'));
+    expect(listKeys()).toEqual(['rye']);
+  });
+
+  it('a line the bar has is marked have; the kitchen prop counts as stock', () => {
+    renderInvent({ bar: ['gin'], kitchen: ['lemon juice'] });
+    startWith('gin');
+    addText('lemon juice');
+    expect(screen.getAllByTestId('invent-list-line').every((l) => l.dataset.have === 'true')).toBe(true);
+    expect(screen.queryByTestId('invent-list-need-gin')).toBeNull();
+  });
+
+  it('suggestions rank what goes with the list, bar first, and tapping one adds it', () => {
+    renderInvent({ bar: ['gin', 'campari', 'sweet vermouth'] });
+    startWith('gin');
+    const items = screen.getAllByTestId('invent-suggest-item').map((i) => i.dataset.key);
+    expect(items.length).toBeGreaterThan(0);
+    expect(items).not.toContain('gin');
+    expect(['campari', 'sweet vermouth']).toContain(items[0]);
+    fireEvent.click(screen.getAllByTestId('invent-suggest-item')[0]);
+    expect(listKeys()).toHaveLength(2);
+  });
+
+  it('removing a line removes it', () => {
+    renderInvent();
+    startWith('gin');
+    addText('lemon juice');
+    fireEvent.click(byId('invent-list-remove-lemon juice'));
+    expect(listKeys()).toEqual(['gin']);
+  });
+});
+
+describe('InventCocktail: flavor profile', () => {
+  it('draws bars for the list and names the ingredients it could not count', () => {
+    renderInvent();
+    startWith('lemon juice');
+    addText('simple syrup');
+    addText('mystery bitters');
+    expect(byId('invent-profile-bar-sour')).toBeTruthy();
+    expect(byId('invent-profile-bar-sweet')).toBeTruthy();
+    expect(byId('invent-profile-summary')).toHaveTextContent(/This drink/);
+    expect(byId('invent-profile-uncounted')).toHaveTextContent('mystery bitters');
+  });
+
+  it('with no nodes it explains there is no flavor data and never throws', () => {
+    renderInvent({ nodes: null });
+    startWith('gin');
+    addText('lemon juice');
+    expect(byId('invent-profile-nodata')).toBeTruthy();
+  });
+});
+
+describe('InventCocktail: name and save', () => {
+  it("is disabled until there is a name and two ingredients, then sends the cook's drink", async () => {
+    const onSave = vi.fn().mockResolvedValue({ status: 'saved', message: 'Added to your cocktails.' });
+    renderInvent({ onSave });
+    startWith('gin');
+    expect(byId('invent-namesave-save')).toBeDisabled();
+    fireEvent.change(byId('invent-namesave-name'), { target: { value: 'My Gin Thing' } });
+    expect(byId('invent-namesave-save')).toBeDisabled();
+    expect(byId('invent-namesave-reason')).toHaveTextContent(/two ingredients/i);
+    addText('lemon juice');
+    expect(byId('invent-namesave-save')).not.toBeDisabled();
+    fireEvent.change(byId('invent-list-amount-lemon juice'), { target: { value: '1 oz' } });
+    fireEvent.click(byId('invent-namesave-save'));
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave.mock.calls[0][0]).toEqual({
+      kind: 'cocktail', name: 'My Gin Thing', category: null,
+      lines: [{ key: 'gin', amount: '2 oz', role: 'spirit' }, { key: 'lemon juice', amount: '1 oz', role: 'sour' }],
     });
-    expect(screen.getByTestId('invent-name')).toHaveTextContent(/Sipper/);
-    expect(lineText('base')).toBe('bourbon');
-    expect(slotRow('base')).toHaveTextContent(/from your search/);
-    expect(lineText('bitters')).toBe('angostura bitters');
-    expect(slotRow('bitters')).toHaveTextContent(/from your search/);
-    fireEvent.click(within(screen.getByTestId('invent-families')).getByText('Aromatic Stirred'));
-    expect(lineText('base')).toBe('bourbon');
+    await waitFor(() => expect(byId('invent-namesave-status')).toHaveAttribute('data-status', 'saved'));
   });
 
-  it('a pinned ingredient no slot takes becomes an extra', () => {
-    renderInvent({ seed: { familyId: 2, pinned: [{ key: 'angostura bitters', source: 'search' }] }, bar: BAR });
-    expect(screen.getByTestId('invent-extras')).toHaveTextContent('angostura bitters');
+  it('sends the style, glass and method when one is chosen, and relays a sign-in answer', async () => {
+    const onSave = vi.fn().mockResolvedValue({ status: 'signin' });
+    renderInvent({ onSave });
+    startWith('gin');
+    addText('lemon juice');
+    chooseStyle(2);
+    fireEvent.change(byId('invent-namesave-name'), { target: { value: '  Tart  ' } });
+    fireEvent.click(byId('invent-namesave-save'));
+    const input = onSave.mock.calls[0][0];
+    expect(input).toMatchObject({ kind: 'cocktail', name: 'Tart', category: 2 });
+    expect(input.glass).toMatch(/Coupe/);
+    expect(input.method).toMatch(/Shake/);
+    await waitFor(() => expect(byId('invent-namesave-status')).toHaveAttribute('data-status', 'signin'));
+  });
+
+  it('shows no save row without an onSave prop', () => {
+    renderInvent();
+    startWith('gin');
+    expect(screen.queryByTestId('invent-namesave')).toBeNull();
+  });
+
+  it('editItem opens on that drink with its own name and saves under the same id', async () => {
+    const onSave = vi.fn().mockResolvedValue({ status: 'saved' });
+    renderInvent({
+      onSave,
+      editItem: { id: 'abc', name: 'House Sour', baseline: { category: 2 }, lines: [{ key: 'gin', amount: '2 oz', role: 'spirit' }, { key: 'lemon juice', amount: '1 oz', role: 'sour' }] },
+    });
+    expect(byId('invent-namesave-name')).toHaveValue('House Sour');
+    expect(listKeys()).toEqual(['gin', 'lemon juice']);
+    expect(byId('invent-list-amount-lemon juice')).toHaveValue('1 oz');
+    expect(byId('invent-checklist')).toBeTruthy();
+    fireEvent.click(byId('invent-namesave-save'));
+    expect(onSave.mock.calls[0][0]).toMatchObject({ id: 'abc', name: 'House Sour', category: 2 });
+    await waitFor(() => expect(byId('invent-namesave-status')).toBeTruthy());
+  });
+});
+
+describe('InventCocktail: seed, riff, notebook', () => {
+  it('a search seed opens with the searched ingredients as the list; a best-fit family is only recommended', () => {
+    renderInvent({ seed: { familyId: 2, base: 'gin', pinned: [{ key: 'gin', source: 'search' }, { key: 'lemon juice', source: 'search' }] } });
+    expect(listKeys()).toEqual(['gin', 'lemon juice']);
+    expect(screen.getAllByTestId('invent-list-line')[0].textContent).toMatch(/from your search/);
+    expect(screen.queryByTestId('invent-checklist')).toBeNull();
+    expect(byId('invent-hint')).toBeTruthy();
+  });
+
+  it('a seed that named a recipe applies its family', () => {
+    renderInvent({ seed: { familyId: 4, fromName: true, base: 'mezcal', pinned: [{ key: 'mezcal', source: 'search' }, { key: 'sweet vermouth', source: 'search' }, { key: 'campari', source: 'search' }] } });
+    expect(byId('invent-checklist-item-vermouth').dataset.done).toBe('true');
+    expect(screen.queryByTestId('invent-hint')).toBeNull();
+  });
+
+  it('Riff on it (styled) and the Recipe Notebook pass the built lines with the cook amounts', () => {
+    const onRiff = vi.fn(); const onOpenRecipeLab = vi.fn();
+    renderInvent({ onRiff, onOpenRecipeLab });
+    startWith('gin');
+    expect(screen.queryByTestId('invent-riff')).toBeNull();
+    addText('lemon juice');
+    chooseStyle(2);
+    fireEvent.change(byId('invent-list-amount-gin'), { target: { value: '3 oz' } });
+    fireEvent.click(byId('invent-riff'));
+    expect(onRiff.mock.calls[0][0].ingredients_raw.map((r) => r.raw)).toEqual(['3 oz gin', expect.stringMatching(/lemon juice$/)]);
+    fireEvent.click(byId('invent-notebook'));
+    expect(onOpenRecipeLab.mock.calls[0][0]).toEqual(['gin', 'lemon juice']);
   });
 });

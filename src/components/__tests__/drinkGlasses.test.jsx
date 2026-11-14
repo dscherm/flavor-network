@@ -72,8 +72,24 @@ describe('Invent a cocktail — the drink in its glass', () => {
   const renderInvent = (props) => render(<InventCocktail bar={['gin', 'campari', 'lemon juice', 'simple syrup', 'soda water']}
     cocktails={[negroni]} families={families} roles={roles} pool={pool} pairingIndex={index} onClose={vi.fn()} {...props} />);
 
+  const start = (liquor) => {
+    fireEvent.change(screen.getByTestId('invent-start-input'), { target: { value: liquor } });
+    fireEvent.submit(screen.getByTestId('invent-start-input').closest('form'));
+  };
+  const style = (id) => {
+    fireEvent.click(screen.getByTestId('invent-category-toggle'));
+    fireEvent.click(screen.getByTestId(`invent-category-option-${id}`));
+  };
+  const add = (text) => {
+    fireEvent.change(screen.getByTestId('invent-list-add-input'), { target: { value: text } });
+    fireEvent.submit(screen.getByTestId('invent-list-add-input').closest('form'));
+  };
+
   it('draws the invented sour in its family glass, untinted', () => {
     renderInvent();
+    start('gin');
+    add('lemon juice');
+    style(2);
     const wrap = screen.getByTestId('invent-glass');
     expect(within(wrap).getByTestId('invent-drink-glass').dataset.glass).toBe('margarita');
     expect(wrap.dataset.tinted).toBe('false');
@@ -81,19 +97,24 @@ describe('Invent a cocktail — the drink in its glass', () => {
   });
 
   it('a campari drink is poured red', () => {
-    renderInvent({ initialFamily: 5 });
+    renderInvent();
+    start('gin');
+    add('campari');
+    style(5);
     const wrap = screen.getByTestId('invent-glass');
-    expect(screen.getByTestId('invent-lines')).toHaveTextContent('campari');
+    expect(screen.getByTestId('invent-list-lines')).toHaveTextContent('campari');
     expect(wrap.dataset.tinted).toBe('true');
     expect(wrap.dataset.color).toBe('#c8102e');
   });
 
-  it('every style chip carries its glass, and the names stay as text', () => {
+  it('every style option carries its glass, and the names stay as text', () => {
     renderInvent();
-    const group = screen.getByTestId('invent-families');
+    start('gin');
+    fireEvent.click(screen.getByTestId('invent-category-toggle'));
+    const group = screen.getByTestId('invent-category');
     for (const id of [2, 4, 1, 5, 0, 3]) expect(within(group).getByTestId(`invent-family-glass-${id}`)).toBeTruthy();
-    expect(within(group).getByRole('button', { name: 'Sour Family' })).toBeInTheDocument();
-    fireEvent.click(within(group).getByRole('button', { name: 'Aperitivos' }));
-    expect(within(group).getByRole('button', { name: 'Aperitivos' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(group).getByRole('button', { name: /Sour Family/ })).toBeInTheDocument();
+    fireEvent.click(within(group).getByRole('button', { name: /Aperitivos/ }));
+    expect(screen.getByTestId('invent-category-option-5')).toHaveAttribute('aria-pressed', 'true');
   });
 });

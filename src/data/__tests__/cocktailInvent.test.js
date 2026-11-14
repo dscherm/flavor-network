@@ -3,9 +3,9 @@ import { buildPairingIndex } from '../recipePairingMatch.js';
 import { buildRolePool, roleOf } from '../cocktailRiff.js';
 import {
   FAMILY_SKELETONS, scaleAmounts, formatOz, ozOf, isBaseSpirit, ingredientKind, drinkAsCocktail,
-  cocktailSkeleton, rankCocktailSlot, drinkFromBuild, drinkRows, extraAmount, FAMILY_BLURB,
+  cocktailSkeleton, cocktailAdviceRules, rankCocktailSlot, drinkFromBuild, drinkRows, extraAmount, FAMILY_BLURB,
 } from '../cocktailInvent.js';
-import { seedBuild, fillRequired, setSlot, addExtra } from '../inventBuild.js';
+import { seedBuild, fillRequired, setSlot, addExtra, advice, openBuild } from '../inventBuild.js';
 
 const roles = {
   gin: { role: 'spirit' }, rye: { role: 'spirit' }, bourbon: { role: 'spirit' }, vodka: { role: 'spirit' }, rum: { role: 'spirit' },
@@ -75,16 +75,21 @@ describe('cocktailSkeleton', () => {
     expect(sweet.accepts('simple syrup')).toBe(true);
     expect(sweet.accepts('lemon juice')).toBe(false);
   });
-  it('refuses a second base spirit and a second sour with a readable reason', () => {
+  it('a second base spirit and a second sour are advice, not refusals; a duplicate is refused', () => {
     const b = seedBuild(cocktailSkeleton(2, { roles }), { pinned: [{ key: 'gin', source: 'user' }] });
     const r = addExtra(b, 'rye');
-    expect(r.ok).toBe(false);
-    expect(r.reason).toMatch(/one base spirit/i);
+    expect(r.ok).toBe(true);
+    expect(advice(r.build).map((a) => a.kind)).toEqual(['split-base']);
+    expect(advice(r.build)[0].message).toMatch(/split base/i);
     const s = setSlot(b, 'sour', 'lemon juice');
     const two = addExtra(s.build, 'lime juice');
-    expect(two.ok).toBe(false);
-    expect(two.reason).toMatch(/two sours/i);
-    expect(setSlot(s.build, 'sour', 'lime juice').ok).toBe(true); // swapping is not a second sour
+    expect(two.ok).toBe(true);
+    expect(advice(two.build).map((a) => a.kind)).toEqual(['two-sours']);
+    expect(addExtra(s.build, 'lemon juice').ok).toBe(false);
+  });
+  it('cocktailAdviceRules work on a flat, style-less build', () => {
+    const flat = openBuild({ lab: 'cocktail', rules: cocktailAdviceRules(roles), lines: [{ key: 'gin' }, { key: 'rye' }] });
+    expect(advice(flat)[0].kind).toBe('split-base');
   });
 });
 
@@ -100,6 +105,15 @@ describe('rankCocktailSlot', () => {
     expect(r[0].key).toBe('sweet vermouth');
     expect(r.every((c) => c.have === false)).toBe(true);
     expect(r[0].score).toBeGreaterThan(r[1].score);
+  });
+  it('with no slot ranks the whole pool of every role by pairing, bar first', () => {
+    const r = rankCocktailSlot({ slot: null, currentKeys: ['gin'], bar: ['dry vermouth'], pool, roles, pairingIndex: index });
+    expect(r[0]).toMatchObject({ key: 'dry vermouth', have: true });
+    const roleSet = new Set(r.map((c) => roleOf(c.key, roles)));
+    expect(roleSet.size).toBeGreaterThan(3);
+    expect(r.map((c) => c.key)).not.toContain('gin');
+    const open = rankCocktailSlot({ slot: null, currentKeys: ['gin', 'campari'], bar: [], pool, roles, pairingIndex: index });
+    expect(open[0].key).toBe('sweet vermouth');
   });
   it('excludes keys already in the build', () => {
     const r = rankCocktailSlot({ slot, currentKeys: ['sweet vermouth'], bar: [], pool, roles, pairingIndex: index });

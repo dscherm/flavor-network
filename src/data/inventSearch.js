@@ -25,7 +25,8 @@
  * rankCategories), ties going to the panel's display order / the most common style.
  *
  * Seeds (all pins are { key, source: 'search' }; an empty query gives null):
- *   cocktail { familyId, base?, pinned }   sauce { styleId, protein?, pinned }
+ *   cocktail { familyId, fromName?, base?, pinned }   (fromName: the search NAMED a recipe, so familyId is its
+ *            own family; without it familyId is only a best fit, a recommendation for the panel)   sauce { styleId, protein?, pinned }
  *   recipe   { type, main?, cuisine?, pinned }   (type = a DISH_SKELETONS id)
  * Each fromSearch function returns { seed, summary, parsed } | null.
  */
@@ -162,7 +163,7 @@ export function cocktailSeedFromSearch(query, { cocktails = [], roles = {}, name
     const pinned = uniq([...(typedSpirit ? [typedSpirit] : []), ...kept, ...typedPins]);
     const familyId = FAMILY_SKELETONS[cocktail.family_id] ? cocktail.family_id : bestCocktailFamily(pinned, roles, filterFamily);
     return {
-      seed: { familyId, ...(base ? { base } : {}), pinned: pins(pinned) },
+      seed: { familyId, fromName: true, ...(base ? { base } : {}), pinned: pins(pinned) },
       summary: `${withArticle(cocktail.name)}${typedPins.length ? ` with ${joinWords(typedPins)}` : ''}`,
       parsed,
     };
