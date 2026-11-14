@@ -280,7 +280,9 @@ function skeletonForRecipe(recipe, keys, nodes) {
  *   recipes = Cookbook recipes (name, ingredients[], cuisine?, cluster?); nodes = graph
  *   nodes (name → { category }); names defaults to the node names.
  *   `main` is NOT repeated in `pinned` (the panel puts it in the main slot itself).
- * @returns {{ seed: { type, main?, cuisine?, pinned }, summary: string, parsed } | null}
+ * @returns {{ seed: { type, fromName?, main?, cuisine?, pinned }, summary: string, parsed } | null}
+ *   `fromName` is true only when the search named a recipe (then `type` is that recipe's dish type);
+ *   otherwise `type` is a best fit the panel shows as a recommendation.
  */
 export function recipeSeedFromSearch(query, { recipes = [], nodes = null, names = null, filterCuisine = null } = {}) {
   const known = names || new Set(nodes && typeof nodes.keys === 'function' ? nodes.keys() : []);
@@ -303,7 +305,7 @@ export function recipeSeedFromSearch(query, { recipes = [], nodes = null, names 
     const main = mains.find((k) => isMainKey(k, nodes)) || mains[0] || null;
     const rest = uniq([...mains, ...typedPins]).filter((k) => k !== main);
     return {
-      seed: { type, ...(main ? { main } : {}), ...(cuisine ? { cuisine } : {}), pinned: pins(rest) },
+      seed: { type, fromName: true, ...(main ? { main } : {}), ...(cuisine ? { cuisine } : {}), pinned: pins(rest) },
       summary: `a dish like ${recipe.name}${typedPins.length ? ` with ${joinWords(typedPins)}` : ''}`,
       parsed,
     };

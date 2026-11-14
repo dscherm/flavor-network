@@ -245,6 +245,7 @@ describe('recipe seed', () => {
     const bolognese = SEED_RECIPES.find((r) => r.name === 'Beef Bolognese');
     const { seed, summary } = recipeSeedFromSearch('beef bolognese', recipeCtx);
     expect(seed.type).toBe('pasta');
+    expect(seed.fromName).toBe(true);
     expect(seed.cuisine).toBe(bolognese.cuisine);
     expect(seed.main).toBe('beef');
     expect(seed.pinned.every((p) => p.source === 'search')).toBe(true);
@@ -255,6 +256,7 @@ describe('recipe seed', () => {
   it('chicken alone → main chicken with a dish type chosen', () => {
     const { seed } = recipeSeedFromSearch('chicken', recipeCtx);
     expect(seed.main).toBe('chicken');
+    expect(seed.fromName).toBeUndefined();
     expect(DISH_SKELETON_ORDER).toContain(seed.type);
     expect(seed.pinned).toEqual([]);
   });
