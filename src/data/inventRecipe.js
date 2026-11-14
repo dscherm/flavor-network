@@ -90,13 +90,14 @@ const titleCase = (s) => String(s).replace(/\b([a-z])/g, (m) => m.toUpperCase())
 
 /**
  * Candidate names for a dish, best first: two telling ingredients + what
- * kind of dish it looks like + the cuisine ("Chicken & Lemon Rice,
+ * kind of dish it looks like (or the `noun` the cook chose: Stir-Fry,
+ * Braise, Soup …) + the cuisine ("Chicken & Lemon Rice,
  * Italian-style"), then the same with a different second ingredient,
  * then "… with X". The first is the plain name; the rest keep names
  * unique when two dishes would collapse to one.
  * @returns {{ name: string, names: string[], dishType: string, word: string }}
  */
-export function inventionNames(names, { cuisine = null, nodes = null, index = null } = {}) {
+export function inventionNames(names, { cuisine = null, nodes = null, index = null, noun = null, dishType: givenType = null } = {}) {
   const type = dishTypeOf({ name: '', cluster: '', ingredients: names });
   let word = TYPE_WORD[type] || null;
   let dishType = type;
@@ -107,6 +108,8 @@ export function inventionNames(names, { cuisine = null, nodes = null, index = nu
     else if (cuisine && CURRY_LANDS.has(cuisine)) { word = 'Curry'; dishType = 'curry'; }
     else { word = 'Skillet'; dishType = 'skillet'; }
   }
+  // The cook chose the kind of dish: its own noun and type, not a guess from the ingredients.
+  if (noun) { word = noun; dishType = givenType || dishType; }
   const wordRe = WORD_INGREDIENT[word];
   const tellers = names.filter((n) => !(wordRe && wordRe.test(n)));
   // Lead with a protein if there is one ("Chicken & Lemon", not "Lemon & Chicken"),

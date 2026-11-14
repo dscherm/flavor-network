@@ -57,3 +57,9 @@ The Cloud Function `scrapeRecipe` exists and works for schema.org recipes. Open:
 ## iOS / App Store — ARCHIVED, not backlog
 - IOS-NATIVE-DEPLOY, WEBLINK-12 (native Google + Apple sign-in)
   Archived on branch `archive/ios`. See `CLOSEOUT.md` § "Why web-only".
+
+## Invent redesign and My bar from a photo (2026-11-14, on master, not deployed)
+- BARPHOTO-DEPLOY Deploy `scanBar`, its Firestore rules and the `GEMINI_API_KEY` secret, and create invite codes (`docs/bar-scan-codes.md`); until then only the own-key route works
+- BARPHOTO-REMEASURE Re-run the bar-photo accuracy test against the Gemini API with the new naming and prompt (only a cached-answer re-map exists, `docs/bar-photo.md`); repeat after 2026-12-01, when Google's pricing page routes `gemini-2.5-flash` to a newer Flash-Lite model
+- BARPHOTO-E2E Owner's end-to-end check on a phone: own-key scan and code scan, review list, adding to My bar
+- INVENT-E2E Owner's check at 375px: bourbon Boozy Sipper written to the Notebook, an Emulsion with chicken, a Stir-fry with tofu, and "✨ Invent this" from each of the three searches

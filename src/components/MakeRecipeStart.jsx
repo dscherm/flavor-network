@@ -64,7 +64,7 @@ const LEAD_CARDS = [
     id: 'invent',
     glyph: 'invent',
     title: 'Invent a recipe',
-    subtitle: 'A new dish from what you have and what pairs',
+    subtitle: 'Pick a kind of dish, then build it yourself',
     accent: '#fbbf24',
   },
 ];
@@ -616,7 +616,7 @@ export default function MakeRecipeStart({
           Recipe Lab
         </h1>
         <p className="text-lg mt-1.5" style={{ fontFamily: FONT, color: CHALK_SUB }}>
-          What's in your kitchen? Cook it, or invent something.
+          What's in your kitchen? Cook it, or build something new.
         </p>
         <button
           type="button"
@@ -1007,7 +1007,7 @@ export default function MakeRecipeStart({
       {panel && (
         <Suspense fallback={(
           <div className="fixed inset-x-0 top-0 z-[82]" style={{ bottom: 'var(--tab-bar-h)' }}>
-            <ChalkLoader label={panel === 'invent' ? 'Opening the idea board…' : 'Opening the pantry…'} color="#a3e635" />
+            <ChalkLoader label={panel === 'invent' ? 'Opening the recipe builder…' : 'Opening the pantry…'} color="#a3e635" />
           </div>
         )}>
           {panel === 'kitchen' && (

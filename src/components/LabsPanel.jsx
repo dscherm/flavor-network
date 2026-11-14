@@ -9,7 +9,7 @@ import { LabArt } from './chalkArt.jsx';
 
 const LAB_CARDS = [
   { id: 'make',     label: 'Recipe Lab',      desc: 'Cook from your kitchen, or invent', accent: '#34d399' },
-  { id: 'cocktail', label: 'Cocktail Lab',    desc: 'Mix a drink by family + spirit',  accent: '#f59e0b' },
+  { id: 'cocktail', label: 'Cocktail Lab',    desc: 'Browse, riff or build a drink',   accent: '#f59e0b' },
   { id: 'sauce',    label: 'Sauce Lab',       desc: 'Build a sauce from the mothers',  accent: '#fb923c' },
   { id: 'wine',     label: 'Wine Lab',        desc: 'Pair a wine with any dish',       accent: '#e11d48' },
   { id: 'cookbook', label: 'Cookbook',        desc: 'Browse curated dishes',           accent: '#ec4899' },

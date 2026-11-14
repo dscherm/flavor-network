@@ -374,6 +374,8 @@ export default function CocktailBrowse({
     return n;
   }, [annotated, filterSpirit, ibaOnly, barFilterOn, makeableNames, searchHits, filterFamily, activeFacetCount, facetFilter, facetsByName]);
 
+  // A search that matches nothing shows ONE empty state: the invent offer, with a way back.
+  const inventEmpty = !!(searchHits && onInventThis && searchTerm.trim() && matchCount === 0);
   const inventSummaryText = onInventThis && inventSummary && searchTerm.trim() ? inventSummary(searchTerm) : '';
   const inventButton = onInventThis ? (
     <div className="inline-flex flex-col items-start">
@@ -782,10 +784,17 @@ export default function CocktailBrowse({
 
       {/* ───── Menu sections — colored-chalk family headers ───── */}
       <div className="px-4 py-4 max-w-4xl mx-auto pb-24">
-        {searchHits && onInventThis && searchTerm.trim() && matchCount === 0 && (
+        {inventEmpty && (
           <div className="text-center py-6" data-testid="cocktail-invent-empty" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
             <p className="text-[20px] mb-3">No cocktail has {parseQuery(searchTerm).join(' + ')} — invent one?</p>
             {inventButton}
+            <p className="mt-3 text-[15px]" style={{ color: CHALK_SUB }}>
+              <button type="button" data-testid="cocktail-invent-empty-clear"
+                onClick={() => { onFilterFamily(null); onFilterSpirit(null); setSearchTerm(''); setIbaOnly(false); setFacetFilter({}); }}
+                className="underline underline-offset-2" style={{ color: CHALK_DIM }}>
+                Clear search and filters
+              </button>
+            </p>
           </div>
         )}
         {familiesToRender.map((fam) => {
@@ -885,7 +894,7 @@ export default function CocktailBrowse({
             </section>
           );
         })}
-        {familiesToRender.every((f) => applyFilters(graph.byFamily.get(f.id) || []).length === 0) && (
+        {!inventEmpty && familiesToRender.every((f) => applyFilters(graph.byFamily.get(f.id) || []).length === 0) && (
           <div className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
             No cocktails match these filters.{' '}
             <button

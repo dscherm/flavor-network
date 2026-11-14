@@ -58,6 +58,13 @@ describe('inventionName', () => {
     expect(r.dishType).toBe('rice');
   });
 
+  it('uses the noun of the dish type the cook chose instead of guessing one', () => {
+    const r = inventionName(['chicken', 'carrot', 'lemon'], { nodes: NODES, noun: 'Braise', dishType: 'stew' });
+    expect(r).toMatchObject({ name: 'Chicken & Carrot Braise', dishType: 'stew', word: 'Braise' });
+    expect(inventionName(['chicken', 'rice'], { nodes: NODES, noun: 'Bowl', dishType: 'rice' }).name).toBe('Chicken & Rice Bowl');
+    expect(inventionName(['chicken', 'pasta'], { nodes: NODES, noun: 'Pasta', dishType: 'pasta' }).name).toBe('Chicken Pasta');
+  });
+
   it('uses a stir-fry / curry for those cuisines, and dessert for sweet sets', () => {
     expect(inventionName(['chicken', 'garlic'], { cuisine: 'Chinese', nodes: NODES }).name).toBe('Chicken & Garlic Stir-fry, Chinese-style');
     expect(inventionName(['chicken', 'tomato'], { cuisine: 'Indian', nodes: NODES }).dishType).toBe('curry');

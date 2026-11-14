@@ -165,7 +165,7 @@ const MAIN = (label = 'main') => S('main', label, true, ['main']);
  */
 export const DISH_SKELETONS = {
   'stir-fry': {
-    id: 'stir-fry', label: 'Stir-fry', dishType: 'wok',
+    id: 'stir-fry', label: 'Stir-fry', noun: 'Stir-Fry', dishType: 'wok',
     blurb: 'fast, hot pan, sauce at the end',
     method: 'Cut everything small and even, and get the pan very hot. Cook the main first and set it aside, then the vegetables, then the aromatics for a few seconds. Return the main, add the sauce, toss until glossy and serve over the starch.',
     slots: [
@@ -180,7 +180,7 @@ export const DISH_SKELETONS = {
     ],
   },
   'braise-stew': {
-    id: 'braise-stew', label: 'Braise / stew', dishType: 'stew',
+    id: 'braise-stew', label: 'Braise / stew', noun: 'Braise', dishType: 'stew',
     blurb: 'low and slow, one pot, deep flavor',
     method: 'Brown the main well in a heavy pot and set it aside. Soften the aromatic base in the same pot, add the liquid and scrape up the browned bits, then return the main. Cover and simmer gently, or bake, until it is tender, and finish with the herb and a splash of acid.',
     slots: [
@@ -193,7 +193,7 @@ export const DISH_SKELETONS = {
     ],
   },
   soup: {
-    id: 'soup', label: 'Soup', dishType: 'soup',
+    id: 'soup', label: 'Soup', noun: 'Soup', dishType: 'soup',
     blurb: 'simmered in a broth, one bowl',
     method: 'Soften the aromatic base in a little fat. Add the vegetables and the main, pour in the liquid and simmer until everything is tender. Add the starch near the end so it does not go soft, then season and finish with the herb or a squeeze of acid.',
     slots: [
@@ -207,7 +207,7 @@ export const DISH_SKELETONS = {
     ],
   },
   salad: {
-    id: 'salad', label: 'Salad', dishType: 'salad',
+    id: 'salad', label: 'Salad', noun: 'Salad', dishType: 'salad',
     blurb: 'raw and crisp, dressed just before eating',
     method: 'Wash and dry the greens well and tear them into pieces. Whisk the acid with the fat for the dressing, and add the other ingredients. Dress the greens only at the last minute, toss gently, and top with the crunch.',
     slots: [
@@ -221,7 +221,7 @@ export const DISH_SKELETONS = {
     ],
   },
   pasta: {
-    id: 'pasta', label: 'Pasta', dishType: 'pasta',
+    id: 'pasta', label: 'Pasta', noun: 'Pasta', dishType: 'pasta',
     blurb: 'a sauce that clings to a good shape',
     method: 'Boil the pasta in well-salted water until just short of done and keep a cup of the water. Build the sauce in a wide pan from the aromatic and the sauce base, then toss the pasta in with a splash of the water until it clings. Finish with the cheese and herb.',
     slots: [
@@ -235,7 +235,7 @@ export const DISH_SKELETONS = {
     rule: 'pasta',
   },
   roast: {
-    id: 'roast', label: 'Roast', dishType: 'grill',
+    id: 'roast', label: 'Roast', noun: 'Roast', dishType: 'grill',
     blurb: 'oven heat, crisp outside, tender inside',
     method: 'Heat the oven hot and pat the main dry. Rub it with the fat and the aromatic or herb, and season well. Roast, with any vegetables alongside, until it is cooked through and well browned, then rest it before carving and finish with a squeeze of acid.',
     slots: [
@@ -247,7 +247,7 @@ export const DISH_SKELETONS = {
     ],
   },
   tacos: {
-    id: 'tacos', label: 'Tacos', dishType: 'taco',
+    id: 'tacos', label: 'Tacos', noun: 'Tacos', dishType: 'taco',
     blurb: 'warm tortillas, a savory filling, bright toppings',
     method: 'Cook the main with a little seasoning until browned and well flavored. Warm the tortillas in a dry pan until pliable. Fill with the main, spoon over the salsa or sauce, and finish with the fresh topping and a squeeze of lime.',
     slots: [
@@ -261,7 +261,7 @@ export const DISH_SKELETONS = {
     ],
   },
   'grain-bowl': {
-    id: 'grain-bowl', label: 'Grain bowl', dishType: 'rice',
+    id: 'grain-bowl', label: 'Grain bowl', noun: 'Bowl', dishType: 'rice',
     blurb: 'grains, a main and a vegetable under a sauce',
     method: 'Cook the grain and keep it warm. Roast or sauté the main and the vegetable until browned. Pile everything over the grain in sections, spoon the sauce over, and top with the crunch, pickle and herb.',
     slots: [
@@ -304,7 +304,7 @@ export function dishSkeleton(typeId, { nodes = null } = {}) {
   const rules = [];
   if (def.rule === 'pasta') rules.push(oneOf(isPastaKey, 'a pasta dish has one pasta shape'));
   return {
-    id: def.id, label: def.label, blurb: def.blurb, dishType: def.dishType, method: def.method,
+    id: def.id, label: def.label, noun: def.noun, blurb: def.blurb, dishType: def.dishType, method: def.method,
     slots: def.slots.map((s) => ({ ...s, accepts: (key) => slotAccepts(s, key, nodes) })),
     rules,
   };

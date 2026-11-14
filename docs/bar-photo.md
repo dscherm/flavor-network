@@ -24,7 +24,7 @@ app cares about, which is the My bar name?
 
 | Option | What it is | Why not / why |
 |---|---|---|
-| **Cloud vision model through a Cloud Function (chosen)** | Send the photo to Gemini 2.5 Flash (the model `src/api/recipeImport.js` already uses) and get a list back | Reads curved, stylised labels and brands in one call, many bottles per photo. Costs money per photo and needs a signed-in guard and a key kept on the server |
+| **Cloud vision model (chosen as the reader; delivery changed, see Decision)** | Send the photo to Gemini 2.5 Flash (the model `src/api/recipeImport.js` already uses) and get a list back | Reads curved, stylised labels and brands in one call, many bottles per photo. As first written this assumed a Cloud Function behind a signed-in guard on a paid key; the owner ruled out a paid key on 2026-11-14, and what was built instead is under Decision |
 | On-device OCR | Read the label text in the browser, match against a brand table | Labels are curved, decorative and angled; OCR gives fragments. Needs a brand table we would have to build and keep. Not measured |
 | On-device image model | A small classifier or detector in onnxruntime-web | Can find "a bottle" but cannot read which brand it is. Not measured |
 | Barcode scan | Scan each bottle's barcode | One bottle at a time (the slow thing we are replacing), weak spirits coverage in free barcode data, and no barcode scanner in iOS Safari. Not measured |
@@ -270,6 +270,10 @@ six photos are untested. Needs a second run with a paid key.
 
 ## Cost per photo
 
+> The paid-key assumption in this section is superseded by the Decision section
+> at the end: nothing was built on a paid key. The arithmetic stays as the list-price
+> cost of a photo.
+
 The Gemini API key used here is on the **free tier**, which allows **20
 requests per day** for `gemini-2.5-flash`; it was hit during the test (the
 429 text is in the kitchen results, quota id
@@ -313,7 +317,7 @@ shelves need a cap.
 | (c) hidden bottles | BARPHOTO-4: guidance line "One shelf at a time, labels facing you", and "Add another photo" |
 | (d) 503s | BARPHOTO-3: retries 503/429 up to 3 times inside a 25 s budget, plain message when over |
 | (e) wrong brand, and everything else | BARPHOTO-4: mandatory review list; "high" boxes ticked, "medium" and "low" unticked, the name editable, nothing added until "Add N to my bar" |
-| Cost and abuse | BARPHOTO-3: signed-in only, per-user daily cap (default 10), key as a Functions secret. Open decision for the owner: a paid key on the live site |
+| Cost and abuse | Was: signed-in only, per-user daily cap, key as a Functions secret, a paid key. Superseded by the owner's rulings, see Decision |
 
 ## Script acceptance check: empty or missing folder
 
@@ -433,3 +437,42 @@ exhausted today and no call was made. So the two commercial bar-wall photos
 (c03: it failed to parse before, c06: it invented generic bottles) are NOT
 yet verified, and neither is "no entry without a readable label". The re-run is
 `node scripts/measureBarPhoto.mjs --fresh`.
+
+## Decision (2026-11-14): who pays, and how a user scans
+
+The question left open above was whether to put a paid AI key on the live site.
+The owner ruled three times on 2026-11-14, in this order:
+
+1. **"No paid key."** No Gemini key with billing is attached to the site.
+2. **"Each user brings a key."** Each user supplies their own Gemini key.
+3. **"Stick with pasting their own key but also allow users that have a code
+   from me to use my key."** Own key stays the main route; an invite code is
+   added as a second route on the owner's key.
+
+What was built for them:
+
+- **Own key (rulings 1 and 2).** The user pastes a free Gemini key from Google
+  AI Studio. It is kept in this browser only (`fn-gemini-key` in localStorage),
+  shown masked, and the scan goes from the browser straight to Google
+  (`src/data/barScan.js`, `src/components/BarScanSetup.jsx`). Nothing is
+  charged to the owner and no sign-in is needed. Costs for the user: a free key
+  allows about 20 scans a day, and Google's free-tier terms apply to the photos
+  sent on it.
+- **Invite code (ruling 3).** The `scanBar` Cloud Function
+  (`functions/src/barscan/`) takes a photo and a code, checks the code in
+  Firestore `scanCodes/{code}`, counts a per-code daily cap in `barScans`, and
+  runs the scan on the owner's key (a Functions secret, free tier). No sign-in.
+  The owner's free key allows about 20 requests a day across every code holder
+  together. **The function, its Firestore rules and the secret are not
+  deployed**; the steps are in `docs/bar-scan-codes.md`. Until they are done a
+  code does not work, and the own-key route is the only one that does.
+- Whichever route is used, the review list is the same and mandatory: nothing
+  reaches My bar without the "Add N to my bar" tap.
+- The signed-in guard, the per-user cap and the paid key of the earlier design
+  were not built.
+
+Not measured: accuracy after the naming fix and the hardened prompt (only the
+cached model answers were re-mapped, see BARPHOTO-2); a re-run needs the
+Gemini API. Google's pricing page says requests to `gemini-2.5-flash` route to
+a newer Flash-Lite model from 2026-12-01, so accuracy should be re-measured
+after that date whatever the result before it.

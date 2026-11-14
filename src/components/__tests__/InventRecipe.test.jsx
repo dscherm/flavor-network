@@ -187,6 +187,27 @@ describe('InventRecipe', () => {
     const needed = screen.getByTestId('invent-recipe-needed');
     expect(needed).toHaveTextContent("you'd need");
     expect(needed).not.toHaveTextContent('carrot');
+    // A space between the label and the list ("you'd need soy sauce", never "you'd needsoy sauce").
+    expect(needed.textContent).toMatch(/you'd need\s+\S/);
+  });
+
+  it('the dish types are a two-column grid, not eight rows', () => {
+    mount();
+    const types = screen.getByRole('group', { name: 'What kind of dish?' });
+    expect(types.className).toMatch(/grid-cols-2/);
+    expect(types.className).not.toMatch(/flex-col/);
+    expect(within(types).getAllByRole('button')).toHaveLength(8);
+  });
+
+  it('the name agrees with the chosen dish type, whatever the ingredients look like', async () => {
+    mount();
+    const noun = { 'Stir-fry': /Stir-Fry/, 'Braise / stew': /Braise/, Soup: /Soup/, Salad: /Salad/, Pasta: /Pasta/, Roast: /Roast/, Tacos: /Tacos/, 'Grain bowl': /Bowl/ };
+    fireEvent.click(within(mainsGroup()).getByRole('button', { name: 'chicken' }));
+    for (const [label, re] of Object.entries(noun)) {
+      fireEvent.click(within(screen.getByRole('group', { name: 'What kind of dish?' })).getByRole('button', { name: label }));
+      expect(screen.getByTestId('invent-recipe-name').textContent, label).toMatch(re);
+      expect(screen.getByTestId('invent-recipe-name').textContent, label).toMatch(/^Chicken/);
+    }
   });
 
   it('says what a required slot still needs when nothing fits', async () => {

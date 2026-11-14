@@ -74,7 +74,7 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
   it('aria-label on each card is "${title}. ${subtitle}"', () => {
     mountPicker();
     expect(screen.getByLabelText('Existing recipe. Pick from your Cookbook')).toBeInTheDocument();
-    expect(screen.getByLabelText('Invent a recipe. A new dish from what you have and what pairs')).toBeInTheDocument();
+    expect(screen.getByLabelText('Invent a recipe. Pick a kind of dish, then build it yourself')).toBeInTheDocument();
     expect(
       screen.getByLabelText(
         "Upload a photo. We'll attach the image; you add ingredients by hand",
@@ -86,7 +86,7 @@ describe('MakeRecipeStart — 4-card picker (MAKE-PICKER §2 + MAKE-WEBLINK-UI)'
     mountPicker();
     expect(screen.getByRole('region', { name: 'Recipe Lab' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'Recipe Lab' })).toBeInTheDocument();
-    expect(screen.getByText("What's in your kitchen? Cook it, or invent something.")).toBeInTheDocument();
+    expect(screen.getByText("What's in your kitchen? Cook it, or build something new.")).toBeInTheDocument();
   });
 
   it('KITCHEN-2: "Open my notebook" goes to the notebook with no handoff', () => {

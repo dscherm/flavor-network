@@ -24,6 +24,12 @@ describe('BarScanSetup', () => {
     expect(key).toHaveTextContent('about 20 scans a day');
   });
 
+  it("the intro says how to connect, and never talks of paying", () => {
+    const { container } = render(<BarScanSetup />);
+    expect(container).toHaveTextContent("Reading labels uses Google's photo reader. Choose how to connect to it; you only do this once.");
+    expect(container.textContent).not.toMatch(/pay/i);
+  });
+
   it('links to the key page in a new tab with noopener', () => {
     render(<BarScanSetup />);
     const a = screen.getByTestId('bar-scan-key-link');

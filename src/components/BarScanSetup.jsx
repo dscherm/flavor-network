@@ -1,5 +1,5 @@
 /**
- * BarScanSetup — the one-time card for "Add from a photo": how to pay for
+ * BarScanSetup — the one-time card for "Add from a photo": how to connect to
  * the reading. Two choices, each saying where the photo goes and what stays
  * on this device. Storage and format checks live in src/data/barScan.js.
  *
@@ -49,7 +49,7 @@ export default function BarScanSetup({ onSaved, onClose, storage }) {
       data-testid="bar-scan-setup" aria-label="Set up photo reading">
       <h3 className="text-[22px] mb-1" style={{ fontFamily: FONT }}>Add bottles from a photo</h3>
       <p className="text-[13px] mb-2" style={{ color: CHALK_SUB }}>
-        Reading labels needs Google's photo reader. Pick one way to pay for it, once.
+        Reading labels uses Google's photo reader. Choose how to connect to it; you only do this once.
       </p>
 
       {(saved.key || saved.code) && (

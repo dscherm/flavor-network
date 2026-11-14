@@ -186,7 +186,7 @@ export default function InventRecipe({
   }, [pantry, typeId, nodeMap, main]);
 
   const nameInfo = useMemo(
-    () => (keys.length ? inventionName(keys, { cuisine, nodes: nodeMap, index: pairingIndex }) : { name: skeleton.label }),
+    () => (keys.length ? inventionName(keys, { cuisine, nodes: nodeMap, index: pairingIndex, noun: skeleton.noun, dishType: skeleton.dishType }) : { name: skeleton.label }),
     [keys.join('|'), cuisine, nodeMap, pairingIndex, skeleton], // eslint-disable-line react-hooks/exhaustive-deps
   );
   const closest = useMemo(() => (real && keys.length ? closestRealRecipe(keys, real.index, real.vocab) : null), [real, keysSig]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -260,17 +260,17 @@ export default function InventRecipe({
         )}
 
         <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>1 · What kind of dish?</p>
-        <div className="flex flex-col gap-1.5" role="group" aria-label="What kind of dish?" data-testid="invent-recipe-types">
+        <div className="grid grid-cols-2 gap-1.5" role="group" aria-label="What kind of dish?" data-testid="invent-recipe-types">
           {DISH_SKELETON_ORDER.map((id) => {
             const d = DISH_SKELETONS[id];
             return (
               <button key={id} type="button" aria-label={d.label} aria-pressed={typeId === id} data-testid={`invent-recipe-type-${id}`}
                 onClick={() => reseed(id, main)}
-                className={`pl-2 pr-3 py-1 rounded-xl border min-h-[48px] inline-flex items-center gap-2 text-left ${FOCUS}`} style={chip(typeId === id)}>
-                <DishArt kind={d.dishType} accent={typeId === id ? '#0a0a0a' : ACCENT} size={34} />
-                <span className="min-w-0">
-                  <span className="block text-[19px] leading-tight">{d.label}</span>
-                  <span className="block text-[12px] leading-tight" style={{ fontFamily: SANS, opacity: 0.75 }}>{d.blurb}</span>
+                className={`pl-2 pr-2 py-1 rounded-xl border min-h-[48px] flex items-center gap-2 text-left min-w-0 ${FOCUS}`} style={chip(typeId === id)}>
+                <DishArt kind={d.dishType} accent={typeId === id ? '#0a0a0a' : ACCENT} size={30} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[18px] leading-tight truncate">{d.label}</span>
+                  <span className="block text-[11px] leading-tight truncate" title={d.blurb} style={{ fontFamily: SANS, opacity: 0.75 }}>{d.blurb}</span>
                 </span>
               </button>
             );
@@ -342,7 +342,7 @@ export default function InventRecipe({
 
           {needed.length > 0 && (
             <p className="mt-2 text-[13px]" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid="invent-recipe-needed">
-              <span className="px-1.5 rounded-full border mr-1.5 text-[11px]" style={{ borderColor: '#f59e0b' }}>you'd need</span>
+              <span className="px-1.5 rounded-full border mr-1.5 text-[11px]" style={{ borderColor: '#f59e0b' }}>you'd need</span>{' '}
               {needed.join(', ')}
             </p>
           )}

@@ -58,6 +58,19 @@ describe('CocktailBrowse — ✨ Invent this', () => {
     expect(onInventThis).toHaveBeenCalledWith('gin, cucumber, chartreuse');
     expect(screen.getAllByTestId('cocktail-invent-this')).toHaveLength(1);
   });
+  it('shows ONE empty state: the invent offer, with the way back inside it', () => {
+    cocktailBrowse({ onInventThis: vi.fn() });
+    fireEvent.change(screen.getByLabelText(/search cocktails/i), { target: { value: 'gin, cucumber, chartreuse' } });
+    expect(screen.queryByText(/No cocktails match these filters/)).toBeNull();
+    expect(within(screen.getByTestId('cocktail-invent-empty')).getByTestId('cocktail-invent-empty-clear')).toHaveTextContent('Clear search and filters');
+    fireEvent.click(screen.getByTestId('cocktail-invent-empty-clear'));
+    expect(screen.queryByTestId('cocktail-invent-empty')).toBeNull();
+  });
+  it('without the invent handler the plain empty state remains', () => {
+    cocktailBrowse();
+    fireEvent.change(screen.getByLabelText(/search cocktails/i), { target: { value: 'gin, cucumber, chartreuse' } });
+    expect(screen.getByText(/No cocktails match these filters/)).toBeInTheDocument();
+  });
 });
 
 // ── Sauce browse ────────────────────────────────────────────────────
@@ -88,6 +101,14 @@ describe('SauceBrowse — ✨ Invent this', () => {
     expect(empty).toHaveTextContent('No sauce has tomato + basil + miso — invent one?');
     fireEvent.click(within(empty).getByTestId('sauce-invent-this'));
     expect(onInventThis).toHaveBeenCalledWith('tomato, basil, miso');
+  });
+  it('shows ONE empty state: the invent offer, with the way back inside it', () => {
+    sauceBrowse({ onInventThis: vi.fn() });
+    fireEvent.change(screen.getByLabelText(/search sauces/i), { target: { value: 'tomato, basil, miso' } });
+    expect(screen.queryByText(/No sauces match these filters/)).toBeNull();
+    expect(within(screen.getByTestId('sauce-invent-empty')).getByTestId('sauce-invent-empty-clear')).toHaveTextContent('Clear search and filters');
+    fireEvent.click(screen.getByTestId('sauce-invent-empty-clear'));
+    expect(screen.queryByTestId('sauce-invent-empty')).toBeNull();
   });
 });
 
