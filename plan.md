@@ -1654,3 +1654,234 @@ flakes, paste) the distinguishing word is the modifier, and baking != gelatin.
   ]
 }
 ```
+
+## 2026-11-14 — Invent redesign: pick a baseline, build it yourself; "Invent this" from search
+
+Spec: `.schermness/spec.md` → "Invent redesign". Order: INVENT-1 first (shared model), then
+INVENT-2/3/4 (one per lab, independent of each other), then INVENT-5/6 (search), INVENT-7 last.
+
+```json
+{
+  "id": "INVENT-1",
+  "title": "Shared build model for invent: baseline skeleton, pre-filled required slots, swap/add/remove, guard rails",
+  "category": "feature",
+  "passes": false,
+  "description": "New pure module src/data/inventBuild.js: Build/Slot/Line state shared by the three invent panels. seedBuild(skeleton, {pinned}) places pinned keys in the first accepting slot (locked) or in extras; fillRequired(build, rankFn) fills only empty required slots with the top-ranked pick; shortlist(build, slotId, rankFn, n) ranks candidates against the rest of the build; setSlot/clearSlot/addExtra/removeExtra are immutable; clearing a required slot reports it in `missing` instead of refilling. Guard rails (one base spirit, never two sours, no duplicate ingredient, lab-specific rules passed in) refuse a bad add with a one-line reason. Lab-agnostic: skeletons, rankFn and amounts are injected.",
+  "acceptance": [
+    "seedBuild puts each pinned key in the first slot whose accepts() takes it, marked locked + source; keys no slot takes land in extras (test)",
+    "fillRequired fills every empty required slot with rankFn's top pick and leaves optional, locked and user-set slots untouched (test)",
+    "shortlist excludes keys already in the build and re-ranks when another slot changes (test)",
+    "clearSlot on a required slot leaves it empty and lists its label in missing; nothing refills it until fillRequired is called explicitly (test)",
+    "Guard rails: duplicate key, second base spirit, second sour each refused with a reason and the build unchanged (test)",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-2",
+  "title": "Cocktail Lab invent: spirit first, then 'what are you going for?', then build the drink yourself",
+  "category": "feature",
+  "passes": false,
+  "description": "Rework src/components/InventCocktail.jsx onto inventBuild.js. Step 1 picks the spirit (bar's base spirits, or the codex's most common with an empty bar; 'any' allowed); step 2 picks the style from the 6 codex families, each with a one-line plain description (Sour: bright, shaken, citrus-forward; Aromatic Stirred: spirit-forward, silky; Highballs & Fizzes: long, bubbly, easy; Aperitivos: low-proof, bittersweet, bubbly; Tropical Sours: fruity, shaken, crushed ice; Boozy Sippers: strong, stirred, slow). Aperitivos with a spirit chosen says the aperitif is the base instead of dropping the pick silently. The card shows the FAMILY_SKELETONS slots with required ones pre-filled by the existing pairing score; each slot opens a ranked shortlist (bar first) plus free text; '+ add an ingredient' adds extras. Amounts (scaleAmounts), glass, build, colour, why-line and closest cocktails update on every change. Shuffle removed; Riff on it, Write it in the Recipe Notebook and Start over remain.",
+  "acceptance": [
+    "Spirit picker appears before the style picker; each of the 6 styles shows its one-line description (test)",
+    "Picking bourbon + Boozy Sippers gives a card with base = bourbon (locked), sweetener pre-filled, bitters slot empty and offered (test)",
+    "Swapping a slot from its shortlist and typing a free-text ingredient both update amounts, glass colour and closest cocktails (test)",
+    "Adding a second base spirit or a second sour is refused with a visible reason (test)",
+    "No Shuffle button; Riff on it and Write it in the Recipe Notebook pass the built lines (test)",
+    "Empty bar: shortlists come from the whole codex pool; existing data-testids kept where the element survives",
+    "Checked at 375px in the browser, no horizontal overflow",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-3",
+  "title": "Sauce Lab invent: technique (+ protein), then build the sauce yourself",
+  "category": "feature",
+  "passes": false,
+  "description": "Rework src/components/InventSauce.jsx onto inventBuild.js. Baseline = one of the 10 INVENT_STYLES (Roux & milk, Roux & stock, Brown reduction, Emulsion, Tomato simmer, Curry base, Stir-fry, Mole, Salsa, Nut sauce) plus an optional protein. One sauce card instead of three: required slots pre-filled from pantry first by pairStrength with the build and protein ('you'd need' kept for non-pantry picks), optional slots empty with ranked shortlists, free text and extras. 'Only what I have' restricts shortlists to the pantry and reports an unfillable required slot as missing. Amounts (amountFor), method (methodFor), wine-with-protein and closest sauce update live. Shuffle and the three-up page removed.",
+  "acceptance": [
+    "Picking Emulsion gives fat + egg yolk + acid pre-filled and aromatic/herb/spice empty (test)",
+    "With a protein chosen, shortlists re-rank by pairing with the protein and the wine line appears (test)",
+    "Only what I have + a pantry without egg yolk: emulsifier slot shown as missing, never filled from outside (test)",
+    "Method text and amounts change when a slot is swapped (test)",
+    "No Shuffle button; Open in Recipe Notebook passes the built lines + protein (test)",
+    "Checked at 375px in the browser, no horizontal overflow",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-4",
+  "title": "Recipe Lab invent: dish type + main baseline (cuisine optional), then build the dish yourself",
+  "category": "feature",
+  "passes": false,
+  "description": "New pure src/data/dishSkeletons.js with 8 dish-type skeletons (stir-fry, braise/stew, soup, salad, pasta, roast, tacos, grain bowl), slot membership from the ingredient-graph categories used by recipeRoles / recipeMains.js. Rework src/components/InventRecipe.jsx onto inventBuild.js: step 1 dish type (DishArt drawings), step 2 main (kitchen proteins/legumes/veg first, any ingredient allowed), step 3 optional cuisine chips that only re-rank. Slot shortlists rank by the set-completion model (suggest, cuisine-aware, restricted to the slot's kinds) blended with the curated+everyday pairing index, kitchen first; if the model fails to load, ranking falls back to the pairing index and the panel still works. Amounts (predictBowlAmounts) and closest real recipe update live; Write it uses the existing inventionHandoff path. Shuffle and the three-up page removed.",
+  "acceptance": [
+    "dishSkeletons: every skeleton has >= 2 required slots, every slot accepts at least 5 ingredients in the graph, no slot accepts salt/oil/water (test)",
+    "Stir-fry + chicken gives main = chicken (locked) and vegetable, aromatic, sauce, starch pre-filled (test with injected suggest)",
+    "Changing cuisine re-orders shortlists but does not replace pre-filled or user-set slots (test)",
+    "Model load failure: panel still opens, slots still fill from the pairing index (test)",
+    "Write it hands the built ingredients + amounts to the Recipe Notebook (test)",
+    "By-eye review of one build per dish type (8) recorded in the commit body: no absurd pre-fill",
+    "Checked at 375px in the browser, no horizontal overflow",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-5",
+  "title": "Search parsing for 'Invent this': split a search into recipe names and ingredients, pick a baseline",
+  "category": "feature",
+  "passes": false,
+  "description": "Pure parseSearchForInvent(query, {names, vocab}) in src/data/inventBuild.js: comma-separated terms (ingredientSearch.parseQuery) classified as a recipe name (codex cocktail, sauce, Cookbook recipe; exact or near match) or an ingredient (vocab), unknown terms kept as free-text extras. Baseline resolver per lab: a name gives that recipe's family/technique/dish type with its lines pre-filled (source 'search'); ingredients alone use the browse page's active chips if any, else the skeleton that locks the most search ingredients (tie: most common style).",
+  "acceptance": [
+    "'negroni' resolves to the Negroni's codex family, with its lines pre-filled as source 'search' (test)",
+    "'gin, cucumber' resolves to ingredients, both locked; baseline picked by most slots filled (test)",
+    "'negroni, mezcal' gives the Negroni baseline with mezcal swapped into the base slot (test)",
+    "An unknown term is kept as a free-text extra, never dropped (test)",
+    "Active spirit/family/cuisine chips on the browse page override the best-fit baseline (test)",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-6",
+  "title": "'✨ Invent this' button on the Cocktail, Sauce and Cookbook search bars",
+  "category": "feature",
+  "passes": false,
+  "description": "CocktailBrowse.jsx, SauceBrowse.jsx and CookbookLab.jsx show '✨ Invent this' whenever the search box has text, including when 0 results match ('No cocktail has gin + cucumber + chartreuse — invent one?'). It opens the lab's invent panel already seeded via parseSearchForInvent + seedBuild (Cookbook opens Recipe Lab invent). Baseline pickers stay editable; changing them re-seeds and keeps the locked search ingredients.",
+  "acceptance": [
+    "Button hidden with an empty search, shown with text, shown with 0 matches with the no-match copy (test, all three surfaces)",
+    "Cocktail search 'gin, cucumber' opens InventCocktail with gin and cucumber locked (test)",
+    "Sauce search 'tomato, basil' opens InventSauce with both locked under a fitting technique (test)",
+    "Cookbook search 'chicken' opens Recipe Lab invent with chicken as the main (test)",
+    "Changing style/technique/dish type in the panel keeps the searched ingredients (test)",
+    "Checked at 375px in the browser on all three surfaces",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "INVENT-7",
+  "title": "Invent redesign cleanup: retire the finished-idea generators from the UI, docs, final browser pass",
+  "category": "chore",
+  "passes": false,
+  "description": "Remove now-unused UI paths (Shuffle, nextInventions/nextSauces paging, exhausted copy) and any generator exports nothing imports any more; keep the scorers the build model reuses. Update the entry-point copy (LabsPanel 'Mix a drink by family + spirit' etc.) and CLOSEOUT.md / BACKLOG.md. Final pass in the browser across all three labs and the three search surfaces.",
+  "acceptance": [
+    "grep finds no remaining import of removed exports; dead tests removed or rewritten, not skipped",
+    "Entry-point copy matches the new flow on Labs, Cocktail browse, Sauce browse, Make a recipe",
+    "End-to-end at 375px: bourbon Boozy Sipper built and written to the Notebook; Emulsion with chicken built; Stir-fry with tofu built; 'Invent this' from each search",
+    "npm run gate green"
+  ]
+}
+```
+
+## 2026-11-14 — Fill My bar from a photo
+
+Spec: `.schermness/spec.md` → "Fill My bar from a photo". Order: BARPHOTO-1 (record the
+test), BARPHOTO-2 (naming), BARPHOTO-3 (function), BARPHOTO-4 (screen), BARPHOTO-5 (final pass).
+Independent of INVENT-1..7.
+
+```json
+{
+  "id": "BARPHOTO-1",
+  "title": "Record the bar-photo accuracy test: script, report, cost per photo",
+  "category": "docs",
+  "passes": false,
+  "description": "Commit scripts/measureBarPhoto.mjs (written 2026-11-14) and write docs/bar-photo.md: the options considered, the 15 test photos (13 Wikimedia Commons with licence and artist from .cache/bar-photos/SOURCES.json, 2 of the owner's bar), the answer key and how it was made, the scores, the four failure modes with examples, and the cost per photo worked out from the measured token counts and the current Gemini 2.5 Flash list price (looked up, with the date). Photos stay in .cache/ (git-ignored).",
+  "acceptance": [
+    "scripts/measureBarPhoto.mjs committed; runs with no photos and with no truth file without crashing",
+    "docs/bar-photo.md has the baseline numbers: 12 scored photos, 73 bottles, 77% found, 82% right; owner's bar 14 of 17, 0 invented",
+    "Cost per photo stated with the price source and date",
+    "Every Commons photo listed with title, licence and artist",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "BARPHOTO-2",
+  "title": "Bottle naming: stop losing amaretto, cassis, génépy and named amari between the label and My bar",
+  "category": "fix",
+  "passes": false,
+  "description": "src/data/myBar.js: isBooze learns the kinds it drops (amaretto, crème de cassis and other crème de liqueurs, cream liqueurs, génépy, aquavit and similar); a bottle whose only match is a generic word ('liqueur', 'herbal liqueur') keeps its own normalised name; a plain 'amaro' entry exists and a named amaro never resolves to a different brand (Averna, Jägermeister must not become amaro montenegro, for typed entries as well as scanned ones). The bottle list sent to the model gains these entries, and the prompt forbids substituting another brand, listing unreadable bottles, or exceeding 40 entries; output tokens capped. Re-measure with scripts/measureBarPhoto.mjs --fresh.",
+  "acceptance": [
+    "Predictions written in docs/bar-photo.md before the re-run",
+    "barKey + isBooze: amaretto, creme de cassis, licor 43, genepy, amarula each give a non-empty, non-generic bar key (test)",
+    "barKey('averna') and barKey('jagermeister') are not 'amaro montenegro' (test)",
+    "No existing My bar / coverCocktail test regresses; a bar saved before the change still loads",
+    "Re-run on the same 12 scored photos: at least 88% found and 92% right (was 77% / 82%); numbers recorded either way",
+    "The two commercial bar-wall photos (c03, c06): no entry without a readable label, no parse failure, at most 40 entries",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "BARPHOTO-3",
+  "title": "scanBar Cloud Function: photo in, list of bottles out, signed-in only with a daily cap",
+  "category": "feature",
+  "passes": false,
+  "description": "functions/src/barscan/: onCall scanBar. Requires request.auth.uid (unauthenticated otherwise, as scrapeRecipe). Input {image: base64, mimeType}; rejects non-image mime types and payloads over 4 MB. Calls Gemini 2.5 Flash with the BARPHOTO-2 prompt and response schema, key from the GEMINI_API_KEY Functions secret, thinking budget 0, capped output tokens; retries 503/429 up to 3 times inside a 25 s budget. Per-user daily cap (default 10) counted in Firestore; over the cap returns resource-exhausted with a plain message. Returns {bottles:[{label,type,key,confidence}], other:[...]}. The image is not stored and not logged. The model call is injected so tests need no network.",
+  "acceptance": [
+    "Signed-out call -> unauthenticated; missing image, non-image mime, oversize -> invalid-argument (test)",
+    "Happy path with an injected model returns the parsed bottles and other (test)",
+    "503 then success is retried and succeeds; 503 past the budget -> unavailable with a plain message (test)",
+    "11th call in a day for one uid -> resource-exhausted; another uid unaffected; next day resets (test)",
+    "Malformed model output -> a clean error, never a crash or a partial list (test)",
+    "No image bytes or base64 in any log line (test over the logger calls)",
+    "functions build + tests green. NOT deployed (needs owner approval and the cost decision in the spec)"
+  ]
+}
+```
+
+```json
+{
+  "id": "BARPHOTO-4",
+  "title": "My bar: 'Add from a photo' with a review list before anything is added",
+  "category": "feature",
+  "passes": false,
+  "description": "src/components/MyBarPanel.jsx gains '📷 Add from a photo' (file input, image/*, camera or library). New pure src/data/barScan.js: downscale target (1600 px long side), mapping a scan result to review rows with barKey/isBooze, default checks (high checked, medium/low unchecked), 'already in your bar', merge of a second photo. New src/components/BarScanReview.jsx: one row per bottle (label, 'added as' name editable with the bar typeahead, checkbox), non-alcohol items offered for the shared kitchen unchecked, 'Add N to my bar', 'Add another photo'. Signed out: existing sign-in prompt, then the scan resumes. Guidance line 'One shelf at a time, labels facing you'; plain messages for empty result, daily cap, offline and model busy; manual search always still usable.",
+  "acceptance": [
+    "barScan.js: rows from a scan result, default checks by confidence, already-in-bar flag, merge without duplicates, bottles with no bar key shown as editable not dropped (test)",
+    "Nothing is written to the bar until 'Add N to my bar'; only checked rows are added; Cancel adds nothing (test)",
+    "Checked 'other' items go to the kitchen list, not the bar (test)",
+    "Signed-out tap shows sign-in and resumes the scan after it (test)",
+    "Empty result, cap reached, offline and busy each show their message and leave the manual bar usable (test)",
+    "Image is downscaled to at most 1600 px before upload (test on the size calculation)",
+    "Checked at 375px in the browser with the function emulator, no horizontal overflow",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "BARPHOTO-5",
+  "title": "Bar photo final pass: owner's photos end to end, docs, deploy hand-off",
+  "category": "chore",
+  "passes": false,
+  "description": "Run the owner's two bar photos through the real flow (emulator or deployed function, owner's choice) and compare with the test. Update docs/bar-photo.md, CLOSEOUT.md (the 'PDF/photo import is dev-only' note, the new secret, the daily cap) and the README. List exactly what the owner must do to go live: set the secret, approve the deploy.",
+  "acceptance": [
+    "Owner's two photos end to end: the review list shows the bottles found in the test (14 of 17 or better), none invented",
+    "CLOSEOUT.md and README describe the feature, the secret and the cap; go-live steps listed",
+    "npm run gate green; function deployed only if the owner approved"
+  ]
+}
+```
