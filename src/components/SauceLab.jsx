@@ -19,6 +19,11 @@ import { buildCategoryMap } from '../data/saucePantry.js';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
 import { blendIndex } from '../data/everydayPairs.js';
 import useEverydayPairs from '../hooks/useEverydayPairs.js';
+import { readSaved, withSavedSauces } from '../data/savedInventions.js';
+import { fromSavedItem } from '../data/inventSaved.js';
+import useSaveInvention from '../hooks/useSaveInvention.js';
+import InventSaveOverlay from './InventSaveOverlay.jsx';
+import SavedDeleteConfirm from './SavedDeleteConfirm.jsx';
 
 /**
  * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
@@ -51,11 +56,25 @@ export default function SauceLab({
   onFindWine = null,
   onExitMatches = () => {},
   onBackToRecipe = null,
+  // The cook's account: the profile hook (saveInvention / deleteInvention, profile.sauces)
+  // and { user, loginWithGoogle, loginWithApple, authError }. Absent = no saving, lists as before.
+  userProfile = null,
+  auth = null,
 }) {
-  const [codexData, setCodexData] = useState(null);
+  const [codexRaw, setCodexData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSauce, setSelectedSauce] = useState(null);
+  // The cook's own sauces (profile.sauces), merged into the codex for the list, the card and the pantry.
+  const save = useSaveInvention({ kind: 'sauce', userProfile, auth });
+  const [editItem, setEditItem] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const profileData = userProfile?.profile || null;
+  const savedSauces = useMemo(() => readSaved(profileData, 'sauce'), [profileData]);
+  const codexData = useMemo(
+    () => withSavedSauces(codexRaw, savedSauces, { catMap: codexRaw ? buildCategoryMap(codexRaw.ingredientMeta || []) : null }),
+    [codexRaw, savedSauces],
+  );
   const [filterFamily, setFilterFamily] = useState(null);
   const [filterCuisine, setFilterCuisine] = useState(null);
   // My pantry (the shared kitchen list, also edited by Make a recipe) +
@@ -73,6 +92,19 @@ export default function SauceLab({
   // "✨ Invent this" seed (from the search box); any other way into Invent starts fresh.
   const [inventSeed, setInventSeed] = useState(null);
   const openPanel = (which) => { setKitchen(loadKitchen()); setAssumeBasics(loadAssumeBasics()); setSpiceRack(loadSpiceRack()); setPanel(which); };
+  // Edit / Delete on a card for one of the cook's own sauces (never on codex sauces).
+  const savedActions = (sauce) => (sauce?.mine && userProfile?.deleteInvention ? [
+    { label: '✏️ Edit', testid: 'saved-edit', onClick: () => {
+      const item = savedSauces.find((x) => x.id === sauce.savedId);
+      if (!item) return;
+      setEditItem({ id: item.id, ...fromSavedItem(item) });
+      setInventSeed(null);
+      setReturnPanel(null);
+      setSelectedSauce(null);
+      openPanel('invent');
+    } },
+    { label: '🗑 Delete', testid: 'saved-delete', onClick: () => setConfirmDelete({ id: sauce.savedId, name: sauce.name }) },
+  ] : []);
   // "What do I need?" on a sauce card, against the same kitchen list.
   const sauceNeeds = (sauce) => (
     <WhatDoINeed
@@ -184,6 +216,24 @@ export default function SauceLab({
     };
   }, [codexData, fullData, everyday]);
 
+  const savedNotices = (
+    <>
+      <InventSaveOverlay save={save} auth={auth} />
+      {confirmDelete && (
+        <SavedDeleteConfirm
+          name={confirmDelete.name}
+          noun="sauces"
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={() => {
+            userProfile?.deleteInvention?.('sauce', confirmDelete.id);
+            setConfirmDelete(null);
+            setSelectedSauce(null);
+          }}
+        />
+      )}
+    </>
+  );
+
   // aria-live announcement when matchesContext becomes active.
   const prevMatchesRef = useRef(null);
   const [liveMsg, setLiveMsg] = useState('');
@@ -217,9 +267,10 @@ export default function SauceLab({
           <LabNodeCard
             kind="sauce"
             name={detailSauce?.name || selectedSauce}
-            clusterName={familyForSelected?.name}
+            clusterName={familyForSelected?.name || (detailSauce?.mine ? 'Uncategorised' : undefined)}
             clusterColor={familyForSelected?.color || '#9a8f7a'}
-            clusterTag={detailSauce?.isRoot ? 'MOTHER' : (detailSauce?.cuisine || null)}
+            clusterTag={detailSauce?.mine ? 'YOURS' : (detailSauce?.isRoot ? 'MOTHER' : (detailSauce?.cuisine || null))}
+            actions={savedActions(detailSauce)}
             details={detailSauce ? [{ label: 'Cuisine', value: detailSauce.cuisine }] : []}
             ingredients={detailSauce?.ingredientsDetailed?.length ? detailSauce.ingredientsDetailed : (detailSauce?.ingredients || [])}
             prep={detailSauce?.instructions || ''}
@@ -245,6 +296,7 @@ export default function SauceLab({
             onClose={onExitMatches}
           />
         )}
+        {savedNotices}
       </div>
     );
   }
@@ -287,10 +339,10 @@ export default function SauceLab({
         onFilterCuisine={setFilterCuisine}
         pantryCount={kitchen.length}
         onOpenPantry={() => openPanel('pantry')}
-        onOpenInvent={() => { setInventSeed(null); openPanel('invent'); }}
+        onOpenInvent={() => { setInventSeed(null); setEditItem(null); openPanel('invent'); }}
         onInventThis={(q) => {
           const res = inventSeedFor(q);
-          if (res) { setInventSeed(res.seed); openPanel('invent'); }
+          if (res) { setInventSeed(res.seed); setEditItem(null); openPanel('invent'); }
         }}
         inventSummary={(q) => inventSeedFor(q)?.summary || ''}
       />
@@ -311,14 +363,17 @@ export default function SauceLab({
           pairingIndex={pantryCtx.pairingIndex}
           sauceIndex={pantryCtx.sauceIndex}
           onSelectSauce={pickFromPanel}
-          onInvent={() => { setInventSeed(null); setPanel('invent'); }}
+          onInvent={() => { setInventSeed(null); setEditItem(null); setPanel('invent'); }}
           onClose={() => setPanel(null)}
         />
       )}
       {panel === 'invent' && (
         <InventSauce
-          key={inventSeed ? 'seeded' : 'plain'}
+          key={editItem ? `edit-${editItem.id}` : (inventSeed ? 'seeded' : 'plain')}
           seed={inventSeed}
+          nodes={fullData?.graph?.nodes}
+          onSave={save.onSave}
+          editItem={editItem}
           kitchen={kitchen}
           assumeBasics={assumeBasics}
           sauces={pantryCtx.sauces}
@@ -329,7 +384,7 @@ export default function SauceLab({
           pairingIndex={pantryCtx.pairingIndex}
           sauceIndex={pantryCtx.sauceIndex}
           categoryOf={(n) => fullData?.graph?.nodes?.get?.(n)?.category || null}
-          onClose={() => setPanel(null)}
+          onClose={() => { save.cancelPending(); setEditItem(null); setPanel(null); }}
           onSelectSauce={pickFromPanel}
           onOpenRecipeLab={onOpenRecipeLab ? (names) => onOpenRecipeLab('sauce', names) : null}
         />
@@ -341,9 +396,10 @@ export default function SauceLab({
           <LabNodeCard
             kind="sauce"
             name={s?.name || selectedSauce}
-            clusterName={familyForSelected?.name}
+            clusterName={familyForSelected?.name || (s?.mine ? 'Uncategorised' : undefined)}
             clusterColor={familyForSelected?.color || '#9a8f7a'}
-            clusterTag={s?.isRoot ? 'MOTHER' : (s?.cuisine || null)}
+            clusterTag={s?.mine ? 'YOURS' : (s?.isRoot ? 'MOTHER' : (s?.cuisine || null))}
+            actions={savedActions(s)}
             details={s ? [{ label: 'Cuisine', value: s.cuisine }] : []}
             ingredients={s?.ingredientsDetailed?.length ? s.ingredientsDetailed : (s?.ingredients || [])}
             prep={s?.instructions || ''}
@@ -361,6 +417,8 @@ export default function SauceLab({
           </LabNodeCard>
         );
       })()}
+
+      {savedNotices}
 
       {/* Card mode (LabNodeCard) is a full-screen overlay with its own
           Back button, so the floating Clear-Selection button is gone. */}

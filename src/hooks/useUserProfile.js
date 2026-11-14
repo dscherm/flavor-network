@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase.js';
+import { saveInvention as saveInventionInto, deleteInvention as deleteInventionFrom } from '../data/savedInventions.js';
 
 const STORAGE_KEY = 'flavor-user-profile-v2';
 
@@ -56,6 +57,11 @@ function normalizeRecipe(recipe) {
     ingredients: Array.isArray(recipe.ingredients)
       ? recipe.ingredients.map(normalizeIngredient)
       : [],
+    // Recipes the cook invented keep their id / method / cuisine / source.
+    ...(typeof recipe.id === 'string' && recipe.id ? { id: recipe.id } : {}),
+    ...(typeof recipe.instructions === 'string' && recipe.instructions ? { instructions: recipe.instructions } : {}),
+    ...(typeof recipe.cuisine === 'string' && recipe.cuisine ? { cuisine: recipe.cuisine } : {}),
+    ...(recipe.source === 'invent' ? { source: 'invent' } : {}),
   };
 }
 
@@ -144,6 +150,8 @@ export default function useUserProfile(user) {
   const [profile, setProfile] = useState(loadLocalProfile);
   const [cloudLoaded, setCloudLoaded] = useState(false);
   const skipNextSync = useRef(false);
+  const profileRef = useRef(profile);
+  profileRef.current = profile;
 
   // Load from Firestore on login, merge with local
   useEffect(() => {
@@ -169,7 +177,12 @@ export default function useUserProfile(user) {
           };
           const local = loadLocalProfile();
           const merged = mergeProfiles(local, cloud);
-          skipNextSync.current = true;
+          // Saved on this device before the cloud copy loaded (an invention saved
+          // right after sign-in): write the merge back instead of skipping it.
+          const localOnly = merged.recipes.length > cloud.recipes.length
+            || merged.cocktails.length > cloud.cocktails.length
+            || merged.sauces.length > cloud.sauces.length;
+          skipNextSync.current = !localOnly;
           setProfile(merged);
           saveLocalProfile(merged);
         }
@@ -341,6 +354,35 @@ export default function useUserProfile(user) {
     }));
   }, [update]);
 
+  // --- Invented cocktails / sauces / recipes (src/data/savedInventions.js) ---
+  // Synchronous so the caller can tell the cook what happened: the result is
+  // known before this returns. The local write happens first; if it throws
+  // (storage full or blocked) nothing changes and the reason comes back.
+  const saveInvention = useCallback((input) => {
+    const res = saveInventionInto(profileRef.current, input);
+    if (!res.ok) return res;
+    try {
+      saveLocalProfile(res.profile);
+    } catch {
+      return { ok: false, profile: profileRef.current, item: null, reason: 'Could not save on this device. Nothing was lost; try again.' };
+    }
+    profileRef.current = res.profile;
+    setProfile(res.profile);
+    return res;
+  }, []);
+
+  const deleteInvention = useCallback((kind, id) => {
+    const next = deleteInventionFrom(profileRef.current, kind, id);
+    try {
+      saveLocalProfile(next);
+    } catch {
+      return false;
+    }
+    profileRef.current = next;
+    setProfile(next);
+    return true;
+  }, []);
+
   // --- Favorite Pairings ---
   const addPairing = useCallback((a, b) => {
     const p = canonicalPairing(a, b);
@@ -471,6 +513,8 @@ export default function useUserProfile(user) {
     addSauce,
     removeSauce,
     updateSauce,
+    saveInvention,
+    deleteInvention,
     addPairing,
     removePairing,
     togglePairing,

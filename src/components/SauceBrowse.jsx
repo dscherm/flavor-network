@@ -4,6 +4,7 @@ import {
 } from '../data/chalkTheme.js';
 import { parseQuery, matchItem, buildIngredientVocab } from '../data/ingredientSearch.js';
 import { popColor, sauceVesselFor, vesselMark } from './sauceVessels.jsx';
+import { UNCATEGORISED } from '../data/savedInventions.js';
 
 /**
  * SauceBrowse — 2D selection surface for the Sauce Lab, drawn as a bistro
@@ -159,6 +160,62 @@ export default function SauceBrowse({
       </div>
     );
   }
+
+  // The cook's own sauces: a "Yours" group first, and again inside their family
+  // (or an "Uncategorised" section when no family fits), each marked "yours".
+  const mineAll = codexData.mine || [];
+  const familyOf = (m) => families.find((f) => f.id === m.family_id) || UNCATEGORISED;
+  const yoursShown = mineAll.filter((m) => (filterFamily == null || m.family_id === filterFamily) && applyFilters([m]).length > 0);
+  const uncategorised = filterFamily == null ? mineAll.filter((m) => m.family_id == null) : [];
+  const sections = [
+    ...familiesToRender.map((fam) => {
+      const members = byFamily.get(fam.id) || [];
+      return { fam, members, filtered: applyFilters(members) };
+    }),
+    ...(uncategorised.length ? [{ fam: UNCATEGORISED, members: uncategorised, filtered: applyFilters(uncategorised) }] : []),
+  ];
+  const renderRow = (s, fam, famVessel) => {
+    const isSelected = selectedSauce === s.name;
+    return (
+      <button
+        type="button"
+        onClick={() => onSelectSauce(s.name)}
+        data-testid="sauce-row"
+        data-yours={s.mine ? 'true' : undefined}
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[38px]"
+        style={{
+          background: isSelected
+            ? `linear-gradient(135deg, ${fam.color}55, ${fam.color}2a)`
+            : `linear-gradient(135deg, ${fam.color}36, ${fam.color}16)`,
+          border: `1.5px solid ${isSelected ? CHALK_CREAM : popColor(fam.color)}`,
+          boxShadow: isSelected
+            ? `0 0 0 1px ${fam.color}, 0 0 14px ${fam.color}88, 0 2px 8px rgba(0,0,0,0.4)`
+            : `0 0 10px ${fam.color}55, 0 2px 6px rgba(0,0,0,0.35)`,
+        }}
+      >
+        <svg width="22" height="18" viewBox="-8 6 80 66" aria-hidden="true" className="flex-shrink-0">
+          {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
+        </svg>
+        <span className="flex-1 min-w-0">
+          <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{s.name}</span>
+          {searchHits?.get(s.name)?.length > 0 && (
+            <span className="block truncate text-[11px]" style={{ color: CHALK_DIM }} data-search-hit>
+              with {searchHits.get(s.name).join(', ')}
+            </span>
+          )}
+        </span>
+        {s.mine && (
+          <span className="text-[10px] rounded px-1 py-px tracking-wide uppercase" data-testid="yours-tag" style={{ color: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}88` }}>yours</span>
+        )}
+        {s.isRoot && (
+          <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>MOTHER</span>
+        )}
+        {s.cuisine && (
+          <span className="text-[11px]" style={{ color: CHALK_DIM }}>{s.cuisine}</span>
+        )}
+      </button>
+    );
+  };
 
   return (
     <div
@@ -323,70 +380,43 @@ export default function SauceBrowse({
             </p>
           </div>
         )}
-        {familiesToRender.map((fam) => {
-          const members = byFamily.get(fam.id) || [];
-          const filtered = applyFilters(members);
+        {yoursShown.length > 0 && (
+          <section className="mb-7" data-testid="sauce-yours-group" aria-label="Yours">
+            <header className="flex items-baseline gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${CHALK_CREAM}55`, borderBottom: `1.5px solid ${CHALK_CREAM}55` }}>
+              <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Yours</h2>
+              <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {yoursShown.length}</span>
+            </header>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
+              {yoursShown.map((m, idx) => {
+                const fam = familyOf(m);
+                return <li key={`yours-${m.savedId || m.name}-${idx}`}>{renderRow(m, fam, sauceVesselFor(fam.name))}</li>;
+              })}
+            </ul>
+          </section>
+        )}
+        {sections.map(({ fam, members, filtered }) => {
           if (filtered.length === 0) return null;
-          // Mother sauce first.
-          filtered.sort((a, b) => (b.isRoot ? 1 : 0) - (a.isRoot ? 1 : 0));
+          const sorted = [...filtered].sort((a, b) => (b.isRoot ? 1 : 0) - (a.isRoot ? 1 : 0));
           const famVessel = sauceVesselFor(fam.name);
 
           return (
-            <section key={fam.id} className="mb-7">
+            <section key={fam.id ?? 'uncategorised'} className="mb-7" data-testid={fam.id == null ? 'sauce-uncategorised-group' : undefined}>
               <header className="flex items-center gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${fam.color}66`, borderBottom: `1.5px solid ${fam.color}66` }}>
                 <svg width="42" height="36" viewBox="-8 2 80 72" aria-hidden="true" style={{ flexShrink: 0 }}>
                   {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
                 </svg>
                 <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: fam.color, textShadow: CHALK_SHADOW }}>{fam.name}</h2>
-                <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {filtered.length} of {members.length}</span>
+                <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {sorted.length} of {members.length}</span>
               </header>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
-                {filtered.map((s, idx) => {
-                  const isSelected = selectedSauce === s.name;
-                  return (
-                    <li key={`${s.name}-${idx}`}>
-                      <button
-                        type="button"
-                        onClick={() => onSelectSauce(s.name)}
-                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[38px]"
-                        style={{
-                          // v1.0.3: each sauce card carries a wash of its mother-family colour.
-                          // v1.0.4: stronger mother-family wash, full-strength outline with a soft glow.
-                          background: isSelected
-                            ? `linear-gradient(135deg, ${fam.color}55, ${fam.color}2a)`
-                            : `linear-gradient(135deg, ${fam.color}36, ${fam.color}16)`,
-                          border: `1.5px solid ${isSelected ? CHALK_CREAM : popColor(fam.color)}`,
-                          boxShadow: isSelected
-                            ? `0 0 0 1px ${fam.color}, 0 0 14px ${fam.color}88, 0 2px 8px rgba(0,0,0,0.4)`
-                            : `0 0 10px ${fam.color}55, 0 2px 6px rgba(0,0,0,0.35)`,
-                        }}
-                      >
-                        <svg width="22" height="18" viewBox="-8 6 80 66" aria-hidden="true" className="flex-shrink-0">
-                          {vesselMark(famVessel, 32, 58, fam.color, fam.color, true)}
-                        </svg>
-                        <span className="flex-1 min-w-0">
-                          <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{s.name}</span>
-                          {searchHits?.get(s.name)?.length > 0 && (
-                            <span className="block truncate text-[11px]" style={{ color: CHALK_DIM }} data-search-hit>
-                              with {searchHits.get(s.name).join(', ')}
-                            </span>
-                          )}
-                        </span>
-                        {s.isRoot && (
-                          <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>MOTHER</span>
-                        )}
-                        {s.cuisine && (
-                          <span className="text-[11px]" style={{ color: CHALK_DIM }}>{s.cuisine}</span>
-                        )}
-                      </button>
-                    </li>
-                  );
-                })}
+                {sorted.map((s, idx) => (
+                  <li key={`${s.name}-${idx}`}>{renderRow(s, fam, famVessel)}</li>
+                ))}
               </ul>
             </section>
           );
         })}
-        {!inventEmpty && familiesToRender.every((f) => applyFilters(byFamily.get(f.id) || []).length === 0) && (
+        {!inventEmpty && yoursShown.length === 0 && sections.every((x) => x.filtered.length === 0) && (
           <div className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
             No sauces match these filters.{' '}
             <button

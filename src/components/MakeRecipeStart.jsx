@@ -3,6 +3,8 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase.js';
 import { matchRecipeIngredients } from '../data/parseRecipeIngredient.js';
 import useAuth from '../hooks/useAuth.js';
+import useSaveInvention from '../hooks/useSaveInvention.js';
+import InventSaveOverlay from './InventSaveOverlay.jsx';
 import {
   FONT,
   CHALK_CREAM,
@@ -141,6 +143,9 @@ export default function MakeRecipeStart({
   // "✨ Invent this" from the Cookbook search: a Recipe Lab seed, opened once on Invent.
   initialInventSeed = null,
   onInventSeedConsumed,
+  // The profile hook (saveInvention writes the recipe into profile.recipes, where the Cookbook lists it).
+  // Absent = the invent panel shows no save row.
+  userProfile = null,
 }) {
   const fileInputRef = useRef(null);
   const firstCardRef = useRef(null);
@@ -199,6 +204,8 @@ export default function MakeRecipeStart({
   const updateSpiceRack = (on) => { setSpiceRack(on); saveSpiceRack(on); };
 
   const { user, loading: authLoading, authError, loginWithGoogle, loginWithApple } = useAuth();
+  const saveAuth = { user, authError, loginWithGoogle, loginWithApple };
+  const save = useSaveInvention({ kind: 'recipe', userProfile, auth: saveAuth });
 
   useEffect(() => {
     if (stage === STAGE.CARDS) firstCardRef.current?.focus();
@@ -1033,11 +1040,13 @@ export default function MakeRecipeStart({
               edges={edges}
               onWrite={sendToNotebook}
               onEditKitchen={() => setPanel('kitchen')}
-              onClose={() => setPanel(null)}
+              onSave={save.onSave}
+              onClose={() => { save.cancelPending(); setPanel(null); }}
             />
           )}
         </Suspense>
       )}
+      <InventSaveOverlay save={save} auth={saveAuth} />
       {openRecipe && (
         // Above the kitchen panel (z 82); RecipeDetail itself is fixed at z 80.
         <div className="relative z-[90]">

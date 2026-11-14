@@ -7,6 +7,7 @@ import { parseQuery, matchItem, cocktailIngredientNames, buildIngredientVocab } 
 import { subclusterName } from '../data/cocktailSubclusters.js';
 import { deriveFacets, matchesFacetFilter, loadFacetContext, FACET_GROUPS } from '../data/cocktailFacets.js';
 import { glassMark, glassTypeFor } from './cocktailGlasses.jsx';
+import { UNCATEGORISED } from '../data/savedInventions.js';
 
 // The 2D cocktail list IS a bar menu, so it's drawn as colored chalk on
 // slate (shared kitchen-world DNA, see chalkTheme.js). Caveat carries
@@ -294,6 +295,10 @@ export default function CocktailBrowse({
         });
       }
     }
+    // The cook's own drinks with no family still count, search and filter like the rest.
+    for (const c of graph.mine || []) {
+      if (!map.has(c.name)) map.set(c.name, { ...c, spirit: cocktailBaseSpirit(c.ingredients_raw) });
+    }
     return map;
   }, [graph]);
 
@@ -413,6 +418,66 @@ export default function CocktailBrowse({
       </div>
     );
   }
+
+  // The cook's own drinks: a "Yours" group first, and again inside their family
+  // (or an "Uncategorised" section when no family fits), each marked "yours".
+  const familyOf = (c) => graph.families.find((f) => f.id === c.family_id) || UNCATEGORISED;
+  const yoursShown = (graph.mine || []).filter((c) => (filterFamily == null || c.family_id === filterFamily) && applyFilters([c]).length > 0);
+  const uncategorised = filterFamily == null ? (graph.mine || []).filter((c) => c.family_id == null) : [];
+  const sections = [
+    ...familiesToRender.map((fam) => {
+      const members = graph.byFamily.get(fam.id) || [];
+      return { fam, members, filtered: applyFilters(members) };
+    }),
+    ...(uncategorised.length ? [{ fam: UNCATEGORISED, members: uncategorised, filtered: applyFilters(uncategorised) }] : []),
+  ];
+  const renderRow = (c, fam, chalk, famGlassType) => {
+    const a = annotated.get(c.name);
+    const isSelected = selectedCocktail === c.name;
+    return (
+      <button
+        type="button"
+        onClick={() => onSelectCocktail(c.name)}
+        data-testid="cocktail-row"
+        data-yours={c.mine ? 'true' : undefined}
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[38px]"
+        style={{
+          // v1.0.3: each drink card carries a wash of its family colour so the
+          // list reads as coloured chalk cards rather than dashed outlines.
+          // v1.0.4: family wash blended toward the sub-cluster chalk (variety
+          // within a family), full-strength family outline with a soft glow.
+          background: isSelected
+            ? `linear-gradient(135deg, ${fam.color}55, ${chalk}30)`
+            : `linear-gradient(135deg, ${fam.color}36, ${chalk}1c)`,
+          border: `1.5px solid ${isSelected ? CHALK_CREAM : popColor(fam.color)}`,
+          boxShadow: isSelected
+            ? `0 0 0 1px ${fam.color}, 0 0 14px ${fam.color}88, 0 2px 8px rgba(0,0,0,0.4)`
+            : `0 0 10px ${fam.color}55, 0 2px 6px rgba(0,0,0,0.35)`,
+        }}
+      >
+        <svg width="15" height="22" viewBox="0 20 52 88" aria-hidden="true" className="flex-shrink-0">
+          {glassMark(famGlassType, 26, fam.color, fam.color, true)}
+        </svg>
+        <span className="flex-1 min-w-0">
+          <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{c.name}</span>
+          {searchHits?.get(c.name)?.length > 0 && (
+            <span className="block truncate text-[11px]" style={{ color: CHALK_DIM }} data-search-hit>
+              with {searchHits.get(c.name).join(', ')}
+            </span>
+          )}
+        </span>
+        {c.mine && (
+          <span className="text-[10px] rounded px-1 py-px tracking-wide uppercase" data-testid="yours-tag" style={{ color: CHALK_CREAM, border: `1px solid ${CHALK_CREAM}88` }}>yours</span>
+        )}
+        {a?.iba_official && (
+          <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>IBA</span>
+        )}
+        {a?.spirit && a.spirit !== 'other' && (
+          <span className="text-[10px] capitalize" style={{ color: CHALK_DIM }}>{a.spirit}</span>
+        )}
+      </button>
+    );
+  };
 
   return (
     <div
@@ -797,23 +862,45 @@ export default function CocktailBrowse({
             </p>
           </div>
         )}
-        {familiesToRender.map((fam) => {
-          const members = graph.byFamily.get(fam.id) || [];
-          const filtered = applyFilters(members);
+        {yoursShown.length > 0 && (
+          <section className="mb-7" data-testid="cocktail-yours-group" aria-label="Yours">
+            <header className="flex items-baseline gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${CHALK_CREAM}55`, borderBottom: `1.5px solid ${CHALK_CREAM}55` }}>
+              <h2 className="text-[36px] leading-none" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Yours</h2>
+              <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {yoursShown.length}</span>
+            </header>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 ml-5">
+              {yoursShown.map((c, idx) => {
+                const fam = familyOf(c);
+                return (
+                  <li key={`yours-${c.savedId || c.name}-${idx}`}>
+                    {renderRow(c, fam, fam.color, glassTypeFor(fam.name))}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+        {sections.map(({ fam, members, filtered }) => {
           if (filtered.length === 0) return null;
           const famGlassType = glassTypeFor(fam.name);
 
-          // Group by subcluster_id, preserving original order.
+          // Group by subcluster_id, preserving original order; the cook's own drinks sit in a "Yours" subgroup.
           const bySub = new Map();
+          const mineHere = [];
           for (const m of filtered) {
+            if (m.mine) { mineHere.push(m); continue; }
             const sid = m.subcluster_id || 'misc';
             if (!bySub.has(sid)) bySub.set(sid, []);
             bySub.get(sid).push(m);
           }
           const subIds = [...bySub.keys()].sort();
+          const groups = [
+            ...subIds.map((sid) => ({ sid, members: bySub.get(sid), yours: false })),
+            ...(mineHere.length ? [{ sid: 'yours', members: mineHere, yours: true }] : []),
+          ];
 
           return (
-            <section key={fam.id} className="mb-7">
+            <section key={fam.id ?? 'uncategorised'} className="mb-7" data-testid={fam.id == null ? 'cocktail-uncategorised-group' : undefined}>
               <header className="flex items-center gap-2.5 mb-2 py-1.5" style={{ borderTop: `1.5px solid ${fam.color}66`, borderBottom: `1.5px solid ${fam.color}66` }}>
                 <svg width="38" height="58" viewBox="0 16 52 92" aria-hidden="true" style={{ flexShrink: 0 }}>
                   {glassMark(famGlassType, 26, fam.color, fam.color, true)}
@@ -822,13 +909,12 @@ export default function CocktailBrowse({
                 <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {filtered.length} of {members.length}</span>
               </header>
 
-              {subIds.map((sid, sidIdx) => {
-                const subMembers = bySub.get(sid);
+              {groups.map(({ sid, members: subMembers, yours }, sidIdx) => {
                 const derived = deriveSubclusterLabel(subMembers);
-                const subName = subclusterName(sid, null);
+                const subName = yours ? 'Yours' : subclusterName(sid, null);
                 const subLabel = subName || (derived ? `${derived}-style` : null);
                 const chalk = SUBGROUP_CHALKS[sidIdx % SUBGROUP_CHALKS.length];
-                const kind = subgroupKind(`${subLabel || ''} ${subMembers.map((m) => m.name).join(' ')}`);
+                const kind = yours ? 'glass' : subgroupKind(`${subLabel || ''} ${subMembers.map((m) => m.name).join(' ')}`);
                 return (
                   <div
                     key={sid}
@@ -843,50 +929,11 @@ export default function CocktailBrowse({
                       <span className="text-[14px]" style={{ fontFamily: FONT, color: CHALK_SUB }}>· {subMembers.length}</span>
                     </div>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                      {subMembers.map((c, idx) => {
-                        const a = annotated.get(c.name);
-                        const isSelected = selectedCocktail === c.name;
-                        return (
-                          <li key={`${c.canonical || c.name}-${idx}`}>
-                            <button
-                              type="button"
-                              onClick={() => onSelectCocktail(c.name)}
-                              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-colors min-h-[38px]"
-                              style={{
-                                // v1.0.3: each drink card carries a wash of its family colour so the
-                                // list reads as coloured chalk cards rather than dashed outlines.
-                                // v1.0.4: family wash blended toward the sub-cluster chalk (variety
-                                // within a family), full-strength family outline with a soft glow.
-                                background: isSelected
-                                  ? `linear-gradient(135deg, ${fam.color}55, ${chalk}30)`
-                                  : `linear-gradient(135deg, ${fam.color}36, ${chalk}1c)`,
-                                border: `1.5px solid ${isSelected ? CHALK_CREAM : popColor(fam.color)}`,
-                                boxShadow: isSelected
-                                  ? `0 0 0 1px ${fam.color}, 0 0 14px ${fam.color}88, 0 2px 8px rgba(0,0,0,0.4)`
-                                  : `0 0 10px ${fam.color}55, 0 2px 6px rgba(0,0,0,0.35)`,
-                              }}
-                            >
-                              <svg width="15" height="22" viewBox="0 20 52 88" aria-hidden="true" className="flex-shrink-0">
-                                {glassMark(famGlassType, 26, fam.color, fam.color, true)}
-                              </svg>
-                              <span className="flex-1 min-w-0">
-                                <span className="block truncate text-[20px]" style={{ fontFamily: FONT, color: isSelected ? CHALK_CREAM : popColor(fam.color), textShadow: `0 0 6px ${fam.color}66, ${CHALK_SHADOW}` }}>{c.name}</span>
-                                {searchHits?.get(c.name)?.length > 0 && (
-                                  <span className="block truncate text-[11px]" style={{ color: CHALK_DIM }} data-search-hit>
-                                    with {searchHits.get(c.name).join(', ')}
-                                  </span>
-                                )}
-                              </span>
-                              {a?.iba_official && (
-                                <span className="text-[9px] rounded px-1 py-px tracking-wide" style={{ color: '#fde68a', border: '1px solid rgba(252,211,77,0.35)' }}>IBA</span>
-                              )}
-                              {a?.spirit && a.spirit !== 'other' && (
-                                <span className="text-[10px] capitalize" style={{ color: CHALK_DIM }}>{a.spirit}</span>
-                              )}
-                            </button>
-                          </li>
-                        );
-                      })}
+                      {subMembers.map((c, idx) => (
+                        <li key={`${c.canonical || c.name}-${idx}`}>
+                          {renderRow(c, fam, chalk, famGlassType)}
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 );
@@ -894,7 +941,7 @@ export default function CocktailBrowse({
             </section>
           );
         })}
-        {!inventEmpty && familiesToRender.every((f) => applyFilters(graph.byFamily.get(f.id) || []).length === 0) && (
+        {!inventEmpty && yoursShown.length === 0 && sections.every((x) => x.filtered.length === 0) && (
           <div className="text-center text-base py-12" style={{ fontFamily: FONT, color: CHALK_SUB }}>
             No cocktails match these filters.{' '}
             <button
