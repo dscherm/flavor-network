@@ -7,13 +7,20 @@
  * ingredient away (named, with a same-role substitute from the bar when
  * there is one). Logic in src/data/myBar.js; the bar itself is stored by
  * the parent (localStorage `fn-my-bar`).
+ *
+ * "Add from a photo": a one-time set-up card (an invite code or the user's
+ * own Google key, src/data/barScan.js), then photo → scan → a review list.
+ * Nothing reaches the bar or kitchen until "Add N to my bar".
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { whatCanIMake, commonBarIngredients, barKeyLists, addToBar, removeFromBar, substitutionText, barKey, isBooze, stockFor } from '../data/myBar.js';
 import { addToKitchen, removeFromKitchen } from '../data/myKitchen.js';
 import { buildIngredientVocab } from '../data/ingredientSearch.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { DrinkGlass } from './cocktailGlasses.jsx';
+import BarScanSetup from './BarScanSetup.jsx';
+import BarScanReview from './BarScanReview.jsx';
+import { scanMode, loadScanKey, loadScanCode, barVocab, runBarScan, toReviewRows, mergeReviewRows, ScanError } from '../data/barScan.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const ONE_AWAY_SHOWN = 30;
@@ -32,6 +39,8 @@ export default function MyBarPanel({
   onSelectCocktail,
   onInvent,
   onClose,
+  // (args: { file, vocab, key, code }) => Promise<{ bottles, other }>; injectable so tests never touch the network.
+  scan = runBarScan,
 }) {
   const names = pairingIndex?.names || new Set();
   const familyById = useMemo(() => new Map((families || []).map((f) => [f.id, f])), [families]);
@@ -51,6 +60,61 @@ export default function MyBarPanel({
     [kitchen, cocktailWords, roles],
   );
   const [routed, setRouted] = useState('');
+
+  // Photo scan: view is null | 'setup' | 'review'; busy while reading labels.
+  const [scanView, setScanView] = useState(null);
+  const [scanBusy, setScanBusy] = useState(false);
+  const [scanError, setScanError] = useState(null);
+  const [scanNote, setScanNote] = useState('');
+  const [review, setReview] = useState({ rows: [], other: [] });
+  const [mode, setMode] = useState(() => scanMode());
+  const fileRef = useRef(null);
+  const openPicker = () => fileRef.current?.click();
+  const startScan = () => {
+    setScanError(null); setScanNote('');
+    if (!scanMode()) { setScanView('setup'); return; }
+    openPicker();
+  };
+  const onPhoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setScanBusy(true); setScanError(null); setScanNote('');
+    try {
+      const vocabForScan = barVocab(cocktails, roles, names);
+      const result = await scan({ file, vocab: vocabForScan, key: loadScanKey(), code: loadScanCode() });
+      const next = toReviewRows(result, bar, { names, roles });
+      const prev = scanView === 'review' ? review : { rows: [], other: [] };
+      if (next.rows.length === 0 && next.other.length === 0 && prev.rows.length === 0) {
+        setScanNote("I couldn't read any labels — try closer, with more light.");
+        setScanView(null);
+      } else {
+        const seen = new Set(prev.other.map((o) => o.kitchenKey));
+        setReview({
+          rows: mergeReviewRows(prev.rows, next.rows),
+          other: [...prev.other, ...next.other.filter((o) => !seen.has(o.kitchenKey)).map((o) => ({ ...o, checked: false }))],
+        });
+        setScanView('review');
+      }
+    } catch (err) {
+      setScanError(err instanceof ScanError ? err : new ScanError('unreadable'));
+    } finally {
+      setScanBusy(false);
+    }
+  };
+  const commitScan = (rows, others) => {
+    let nextBar = bar;
+    for (const r of rows) nextBar = addToBar(nextBar, r.barKey, names);
+    if (nextBar !== bar) onChange?.(nextBar);
+    if (others.length && onKitchenChange) {
+      let nextKitchen = kitchen;
+      for (const o of others) nextKitchen = addToKitchen(nextKitchen, o.kitchenKey, names);
+      if (nextKitchen !== kitchen) onKitchenChange(nextKitchen);
+    }
+    setScanNote(`Added ${rows.length} to your bar${others.length ? ` and ${others.length} to your kitchen` : ''}.`);
+    setReview({ rows: [], other: [] });
+    setScanView(null);
+  };
 
   // Booze goes on the bar shelf; anything else goes to the shared kitchen.
   const add = (raw) => {
@@ -108,6 +172,47 @@ export default function MyBarPanel({
           <datalist id="my-bar-vocab">{vocab.map((v) => <option key={v} value={v} />)}</datalist>
           <button type="submit" data-testid="my-bar-add" className="px-4 rounded-md min-h-[44px] border" style={pill}>Add</button>
         </form>
+
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <button type="button" onClick={startScan} disabled={scanBusy} data-testid="my-bar-photo"
+            className="px-3 rounded-md min-h-[44px] border disabled:opacity-50" style={pill}>📷 Add from a photo</button>
+          {mode && scanView !== 'setup' && (
+            <button type="button" data-testid="my-bar-scan-change" onClick={() => { setScanError(null); setScanView('setup'); }}
+              className="px-2 min-h-[44px] text-[14px] underline" style={{ fontFamily: SANS, color: CHALK_SUB }}>Change key or code</button>
+          )}
+          <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhoto} data-testid="my-bar-photo-input" aria-label="Choose a photo of your bottles" />
+        </div>
+        {scanBusy && (
+          <p role="status" data-testid="my-bar-scan-busy" className="mt-2 text-[15px]" style={{ fontFamily: FONT, color: CHALK_DIM }}>Reading the labels…</p>
+        )}
+        {scanError && (
+          <div role="alert" data-testid="my-bar-scan-error" className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: '#f2b8a8' }}>
+            <p>{scanError.message}</p>
+            {(scanError.kind === 'bad-key' || scanError.kind === 'bad-code') && (
+              <button type="button" data-testid="my-bar-scan-fix" onClick={() => { setScanError(null); setScanView('setup'); }}
+                className="mt-1 px-3 rounded-md min-h-[44px] border" style={pill}>Change key or code</button>
+            )}
+          </div>
+        )}
+        {scanNote && !scanError && !scanBusy && (
+          <p role="status" data-testid="my-bar-scan-note" className="mt-2 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{scanNote}</p>
+        )}
+        {scanView === 'setup' && (
+          <BarScanSetup
+            onSaved={(m) => { setMode(m); setScanView(null); openPicker(); }}
+            onClose={() => { setMode(scanMode()); setScanView(null); }}
+          />
+        )}
+        {scanView === 'review' && (
+          <BarScanReview
+            rows={review.rows} other={review.other} bar={bar} names={names} roles={roles} vocab={vocab}
+            onRowsChange={(rows) => setReview((r) => ({ ...r, rows }))}
+            onOtherChange={(other) => setReview((r) => ({ ...r, other }))}
+            onAdd={commitScan} busy={scanBusy}
+            onAnother={openPicker}
+            onCancel={() => { setReview({ rows: [], other: [] }); setScanView(null); }}
+          />
+        )}
 
         <ul className="mt-3 flex flex-wrap gap-1.5" data-testid="my-bar-items" aria-label="In my bar">
           {bar.length === 0 && (

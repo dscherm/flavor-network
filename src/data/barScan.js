@@ -372,6 +372,21 @@ export async function scanBarPhoto({
   throw new ScanError('not-set-up');
 }
 
+/**
+ * The real pipeline the My bar screen uses: downscale the photo file, then
+ * scan it with the saved key or code. Firebase is imported only here, on the
+ * code path, so the rest of the app never loads it for this feature.
+ */
+export async function runBarScan({ file, vocab, key = '', code = '' }) {
+  let photo;
+  try { photo = await downscaleImage(file); } catch { throw new ScanError('bad-photo'); }
+  const callScanBar = async (data) => {
+    const [{ httpsCallable }, { functions }] = await Promise.all([import('firebase/functions'), import('../firebase.js')]);
+    return httpsCallable(functions, 'scanBar')(data);
+  };
+  return scanBarPhoto({ imageBase64: photo.base64, mimeType: photo.mimeType, vocab, key, code, callScanBar });
+}
+
 // ── Review ─────────────────────────────────────────────────────────────────
 
 const RANK = { high: 3, medium: 2, low: 1 };
