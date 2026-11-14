@@ -1949,7 +1949,7 @@ INVENT-9 / 10 / 11 (one per lab) and INVENT-12 (saving and lists) in parallel; I
   "id": "INVENT-9",
   "title": "Cocktail Lab invent starts empty: which liquor, optional style, add your own ingredients, recommended style, suggestions, replacements, flavor profile, name and save",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Rework src/components/InventCocktail.jsx onto the INVENT-8 pieces. Step 1 'Which liquor?': the bar's base spirits first, then the common ones, a text box, no 'any'. Nothing else is shown until it is answered. The list then holds only that liquor. 'Going for a particular style? (optional)' is collapsed; choosing one of the 6 families shows the checklist built from FAMILY_SKELETONS; with none chosen and two or more ingredients the recommendation appears and is applied only on Accept. The cook adds ingredients by typing (barKey) or from suggestions (rankCocktailSlot over the whole list, bar first). Lines not in the bar or kitchen are marked with replacements from swapCandidates. Amounts are suggestions by role (scaleAmounts when a style is set, role defaults otherwise), editable. The flavor profile is drawn from the list. Glass, method, why-line and closest cocktails appear only once a style is chosen or accepted. The name box is empty; 'Add to my cocktails' calls onSave(savedItem) (wired in INVENT-12); Riff on it and Write it in the Recipe Notebook stay. fillRequired is not called anywhere in the panel. The seed prop still opens the panel from a search with the searched ingredients as the list.",
   "acceptance": [
     "The panel opens showing only the liquor question; no ingredient list, no name, no card (test)",
@@ -1971,7 +1971,7 @@ INVENT-9 / 10 / 11 (one per lab) and INVENT-12 (saving and lists) in parallel; I
   "id": "INVENT-10",
   "title": "Sauce Lab invent starts empty: main ingredient, optional 'what is it for', optional technique, add your own, recommended technique, suggestions, replacements, flavor profile, name and save",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Rework src/components/InventSauce.jsx onto the INVENT-8 pieces. Step 1 'What is the sauce built on?': pantry items that can anchor a sauce first (tomato, butter, cream, chili, stock, nuts, yogurt, …), common ones next, a text box. Step 2 optional 'What is it for?' (the protein / dish chips that exist today). The list holds only the main. 'A particular technique? (optional)' is collapsed; choosing one of the 10 INVENT_STYLES shows its checklist with the chemistry explained on unticked required parts ('an emulsion needs egg yolk: its lecithin holds the fat'); with none chosen the technique is recommended from the list and applied only on Accept. Suggestions rank by pairing with the list and the protein, pantry first. Lines the cook does not have are marked with same-role, same-kind replacements from the pantry. 'Only what I have' restricts suggestions and replacements to the pantry. Amounts are suggestions (amountFor), editable. Flavor profile from the list. Method, vessel, wine and closest sauce appear only once a technique is chosen or accepted. Empty name box; 'Add to my sauces' calls onSave(savedItem); Open in Recipe Notebook stays. fillRequired is not called. The seed prop still works.",
   "acceptance": [
     "The panel opens showing only the main-ingredient question (test)",
@@ -1993,7 +1993,7 @@ INVENT-9 / 10 / 11 (one per lab) and INVENT-12 (saving and lists) in parallel; I
   "id": "INVENT-11",
   "title": "Recipe Lab invent starts empty: main ingredient, optional dish type, add your own, recommended dish type, suggestions, replacements, flavor profile, name and save",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Rework src/components/InventRecipe.jsx onto the INVENT-8 pieces. Step 1 'What is the main ingredient?': kitchen items first, a text box. The list holds only the main. 'A particular kind of dish? (optional)' is collapsed (the 8 dish types, two-column grid); with none chosen the dish type is recommended from the list (dishTypeForIngredients / recommendCategory) and applied only on Accept. Cuisine stays an optional steer for suggestions. Suggestions come from the set-completion model blended with the pairing index (as rankDishSlot does), kitchen first, and fall back to the pairing index when the model is not loaded; they are offered, never added. Lines not in the kitchen are marked with replacements from kitchenSwaps.findSwap. Amounts are suggestions (predictBowlAmounts), editable. Flavor profile from the list. Method and closest real recipe appear only once a dish type is chosen or accepted. Empty name box; 'Add to my recipes' saves through the existing user-recipe path (INVENT-12 wires it) and 'Write it' still hands off to the Recipe Notebook. fillRequired is not called; the model re-fill that replaced pre-filled slots is removed. The seed prop still works.",
   "acceptance": [
     "The panel opens showing only the main-ingredient question (test)",
@@ -2015,7 +2015,7 @@ INVENT-9 / 10 / 11 (one per lab) and INVENT-12 (saving and lists) in parallel; I
   "id": "INVENT-12",
   "title": "Save an invention to the account and show the cook's own cocktails, sauces and recipes in each lab's list",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Profile gains cocktails: [] and sauces: [] beside the existing recipes: [] (find the profile document read/write used for Cookbook user recipes in App.jsx and its hooks; use the same path; firestore.rules already limits profiles/{uid} to its owner). src/data/inventSaved.js (from INVENT-8) is the shape. CocktailLabV2.jsx, SauceLab.jsx and MakeRecipeStart.jsx pass onSave to their invent panels: signed in -> append to the profile array and confirm ('Saved to your cocktails'); signed out -> the existing sign-in prompt, then the save resumes with nothing lost. Saved cocktails and sauces are adapted to the codex shapes the browse lists and cards already render (family from the saved category or the recommended one, else an 'Uncategorised' group), merged into CocktailBrowse / SauceBrowse in a 'Yours' group at the top and inside their family, marked as the cook's own, searchable, and counted by My bar's what-can-I-make and the sauce pantry. Opening one shows the normal card with Edit (reopens the invent panel via fromSavedItem) and Delete (confirm first). Saved recipes go through the existing user-recipe save so the Cookbook lists them as today. Sizes are bounded: at most 200 saved items per kind, names at most 80 characters.",
   "acceptance": [
     "Saving while signed in appends one item to the right profile array and nothing else in the profile changes (test with the profile writer mocked)",
