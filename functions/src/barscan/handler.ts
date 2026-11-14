@@ -1,9 +1,10 @@
-// BARPHOTO-3. The scanBar pipeline: validate, enforce the daily cap, ask the
+﻿// BARPHOTO-3. The scanBar pipeline: validate, enforce the daily cap, ask the
 // model which bottles are in the photo, parse its answer. Pure and
 // dependency-injected (model, usage store, clock, logger) so the tests need
 // no network. Prompt and schema come from scripts/measureBarPhoto.mjs, the
 // accuracy test that proved the approach.
 
+import { createHash } from 'node:crypto';
 import { HttpsError } from 'firebase-functions/v2/https';
 import type {
   BarScanDeps,
@@ -13,6 +14,7 @@ import type {
 } from './types';
 
 export const DAILY_SCAN_CAP = 10;
+export const MAX_DAILY_CAP = 200;
 export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 export const MAX_VOCAB = 300;
 export const MAX_VOCAB_ENTRY = 60;
@@ -148,26 +150,52 @@ const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
 const utcDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
-export async function handleScanBar(
-  uid: string,
-  data: unknown,
-  deps: BarScanDeps,
-): Promise<ScanBarResult> {
+const BAD_CODE = "That code isn't valid. Check it with whoever gave it to you.";
+
+/** Trimmed code if it has the right shape (8-64 of A-Z a-z 0-9 -), else null. */
+export function codeShape(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null;
+  const code = raw.trim();
+  return /^[A-Za-z0-9-]{8,64}$/.test(code) ? code : null;
+}
+
+/** A code's own cap if it is a whole number from 1 to 200, else the default. */
+export function capFor(dailyCap: unknown): number {
+  return typeof dailyCap === 'number' && Number.isInteger(dailyCap) && dailyCap >= 1 && dailyCap <= MAX_DAILY_CAP
+    ? dailyCap
+    : DAILY_SCAN_CAP;
+}
+
+export async function handleScanBar(data: unknown, deps: BarScanDeps): Promise<ScanBarResult> {
+  // The code is checked first. Missing, malformed, unknown and disabled codes
+  // all get the same answer, so a guesser learns nothing.
+  const code = codeShape((data as { code?: unknown } | null | undefined)?.code);
+  if (!code) throw new HttpsError('permission-denied', BAD_CODE);
+  const entry = await deps.codes.get(code);
+  if (!entry || entry.enabled !== true) throw new HttpsError('permission-denied', BAD_CODE);
+
+  // The code itself is never logged: its label and a short one-way fingerprint are.
+  const who = {
+    code: entry.label,
+    fp: createHash('sha256').update(code).digest('hex').slice(0, 8),
+  };
+
   const { image, mimeType, vocab } = validateRequest(data);
   const bytes = approxDecodedBytes(image);
 
   const startedAt = deps.now();
   const day = utcDay(startedAt);
-  const used = await deps.usage.get(uid, day);
-  if (used >= DAILY_SCAN_CAP) {
-    deps.log('scanBar', { uid, bytes, mimeType, outcome: 'over-cap' });
+  const cap = capFor(entry.dailyCap);
+  const used = await deps.usage.get(code, day);
+  if (used >= cap) {
+    deps.log('scanBar', { ...who, bytes, mimeType, outcome: 'over-cap' });
     throw new HttpsError(
       'resource-exhausted',
-      `You've scanned ${DAILY_SCAN_CAP} photos today. Try again tomorrow, or add bottles by typing.`,
+      `This code has used its ${cap} photo scans for today. Try again tomorrow, or add bottles by typing.`,
     );
   }
   // Counted when the model is actually called, so a failed call still costs a scan.
-  await deps.usage.increment(uid, day);
+  await deps.usage.increment(code, day);
 
   const sleep = deps.sleep ?? defaultSleep;
   const prompt = buildPrompt(vocab);
@@ -179,18 +207,19 @@ export async function handleScanBar(
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       const retryable = /(503|429)/.test(msg);
-      // A used-up daily quota does not come back in seconds: do not retry it.
+      // The owner's key is on a small free daily quota. A used-up daily quota
+      // does not come back in seconds: do not retry it.
       if (retryable && /per day|free_tier/i.test(msg)) {
-        deps.log('scanBar', { uid, bytes, mimeType, outcome: 'quota', ms: deps.now() - startedAt });
+        deps.log('scanBar', { ...who, bytes, mimeType, outcome: 'quota', ms: deps.now() - startedAt });
         throw new HttpsError('unavailable', 'The photo reader is out of capacity for today. Try again tomorrow, or add bottles by typing.');
       }
       if (!retryable) {
-        deps.log('scanBar', { uid, bytes, mimeType, outcome: 'model-error', ms: deps.now() - startedAt });
+        deps.log('scanBar', { ...who, bytes, mimeType, outcome: 'model-error', ms: deps.now() - startedAt });
         throw new HttpsError('internal', 'The photo reader could not read that photo. Try again.');
       }
       const wait = RETRY_BASE_MS * 2 ** attempt;
       if (attempt >= MAX_RETRIES || deps.now() - startedAt + wait > MODEL_BUDGET_MS) {
-        deps.log('scanBar', { uid, bytes, mimeType, outcome: 'busy', attempts: attempt + 1, ms: deps.now() - startedAt });
+        deps.log('scanBar', { ...who, bytes, mimeType, outcome: 'busy', attempts: attempt + 1, ms: deps.now() - startedAt });
         throw new HttpsError('unavailable', 'The photo reader is busy. Try again in a minute.');
       }
       await sleep(wait);
@@ -201,11 +230,11 @@ export async function handleScanBar(
   try {
     result = parseModelOutput(text);
   } catch (err) {
-    deps.log('scanBar', { uid, bytes, mimeType, outcome: 'bad-output', ms: deps.now() - startedAt });
+    deps.log('scanBar', { ...who, bytes, mimeType, outcome: 'bad-output', ms: deps.now() - startedAt });
     throw err;
   }
   deps.log('scanBar', {
-    uid,
+    ...who,
     bytes,
     mimeType,
     outcome: 'ok',

@@ -1,5 +1,6 @@
-// BARPHOTO-3. Firebase Callable wrapper for scanBar: one photo of a home bar
-// in, a list of bottles out. The logic is in handler.ts; this file only wires
+﻿// BARPHOTO-3. Firebase Callable wrapper for scanBar: one photo of a home bar
+// in, a list of bottles out, for holders of an invite code (scanCodes/{code}).
+// The logic is in handler.ts; this file only wires
 // the real Gemini call and the Firestore-backed daily counter. The image is
 // held in memory for the call and never stored or logged.
 
@@ -10,24 +11,43 @@ import { getApps, initializeApp } from 'firebase-admin/app';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { GoogleGenerativeAI, type ResponseSchema } from '@google/generative-ai';
 import { handleScanBar, MAX_OUTPUT_TOKENS } from './handler';
-import type { ScanBarRequest, ScanBarResult, UsageStore } from './types';
+import type { BarScanDeps, ScanBarRequest, ScanBarResult, UsageStore } from './types';
 
 const GEMINI_API_KEY = defineSecret('GEMINI_API_KEY');
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 // One call; the handler owns the retry budget. This only stops a hung socket.
 const CALL_TIMEOUT_MS = 20_000;
 
-function firestoreUsage(): UsageStore {
+function db() {
   if (getApps().length === 0) initializeApp();
-  const ref = (uid: string, day: string) => getFirestore().collection('barScans').doc(`${uid}_${day}`);
+  return getFirestore();
+}
+
+function firestoreCodes(): BarScanDeps['codes'] {
   return {
-    async get(uid, day) {
-      const snap = await ref(uid, day).get();
+    async get(code) {
+      const snap = await db().collection('scanCodes').doc(code).get();
+      if (!snap.exists) return null;
+      const d = snap.data() ?? {};
+      return {
+        enabled: d.enabled === true,
+        label: typeof d.label === 'string' ? d.label : 'unlabelled',
+        dailyCap: typeof d.dailyCap === 'number' ? d.dailyCap : undefined,
+      };
+    },
+  };
+}
+
+function firestoreUsage(): UsageStore {
+  const ref = (code: string, day: string) => db().collection('barScans').doc(`${code}_${day}`);
+  return {
+    async get(code, day) {
+      const snap = await ref(code, day).get();
       const n = snap.exists ? snap.get('count') : 0;
       return typeof n === 'number' ? n : 0;
     },
-    async increment(uid, day) {
-      await ref(uid, day).set({ count: FieldValue.increment(1), uid, day }, { merge: true });
+    async increment(code, day) {
+      await ref(code, day).set({ count: FieldValue.increment(1), day }, { merge: true });
     },
   };
 }
@@ -78,12 +98,11 @@ export const scanBar = onCall(
     ],
   },
   async (request: CallableRequest<ScanBarRequest>): Promise<ScanBarResult> => {
-    if (!request.auth?.uid) {
-      throw new HttpsError('unauthenticated', 'Sign in to add bottles from a photo.');
-    }
+    // No sign-in: access is by invite code, checked inside the handler.
     try {
-      return await handleScanBar(request.auth.uid, request.data, {
+      return await handleScanBar(request.data, {
         askModel: askGemini,
+        codes: firestoreCodes(),
         usage: firestoreUsage(),
         now: () => Date.now(),
         log: (message, fields) => logger.info(message, fields),

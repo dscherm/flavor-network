@@ -4,5 +4,14 @@ service cloud.firestore {
     match /profiles/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Bar-photo scan codes and their daily counters: only the scanBar Cloud
+    // Function (Admin SDK, which bypasses rules) touches these. Never clients.
+    match /scanCodes/{code} {
+      allow read, write: if false;
+    }
+    match /barScans/{doc} {
+      allow read, write: if false;
+    }
   }
 }
