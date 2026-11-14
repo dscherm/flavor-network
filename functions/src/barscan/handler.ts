@@ -51,6 +51,8 @@ export const RESPONSE_SCHEMA = {
   required: ['bottles', 'other'],
 };
 
+// KEEP IN STEP with src/data/barScan.js: RESPONSE_SCHEMA, buildPrompt and
+// parseModelOutput are ported there to plain JS for the in-browser own-key path.
 export function buildPrompt(vocab: string[]): string {
   const base = `You look at a photo of someone's home bar and list the bottles of alcohol in it, for a cocktail app.
 
