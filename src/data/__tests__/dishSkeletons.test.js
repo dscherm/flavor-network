@@ -237,6 +237,34 @@ describe('cuisine only re-orders', () => {
   });
 });
 
+describe('rankDishSlot with no slot ("goes with the list")', () => {
+  const base = { slot: null, currentKeys: ['chicken'], nodes, pairingIndex };
+  it('ranks the whole ordinary pool against the list, best pairing first, never basics or keys in the list', () => {
+    const r = rankDishSlot(base);
+    expect(r.length).toBeGreaterThan(100);
+    for (let i = 1; i < r.length; i++) expect(r[i - 1].score).toBeGreaterThanOrEqual(r[i].score);
+    expect(r.map((c) => c.key)).not.toContain('chicken');
+    for (const c of r) expect(isBasicLike(c.key) || isBasic(c.key), c.key).toBe(false);
+    // not limited to one part: it offers vegetables, sauces and starches alike
+    const keys = new Set(r.slice(0, 400).map((c) => c.key));
+    expect(['broccoli', 'rice', 'garlic'].some((k) => keys.has(k))).toBe(true);
+  });
+  it('puts the kitchen first and lets a model score lift a candidate', () => {
+    const plain = rankDishSlot(base);
+    const mine = plain.slice(-2).map((c) => c.key);
+    const r = rankDishSlot({ ...base, kitchen: mine });
+    expect(r.slice(0, 2).map((c) => c.key).sort()).toEqual([...mine].sort());
+    expect(r[0].have).toBe(true);
+    const last = plain[plain.length - 1].key;
+    const lifted = rankDishSlot({ ...base, modelScores: new Map([[last, 0.99]]) });
+    expect(lifted.findIndex((c) => c.key === last)).toBeLessThan(plain.length - 1);
+  });
+  it('still needs the graph, and works with no pairing index', () => {
+    expect(rankDishSlot({ slot: null, nodes: null })).toEqual([]);
+    expect(rankDishSlot({ slot: null, nodes }).length).toBeGreaterThan(5);
+  });
+});
+
 describe('dishTypeForIngredients', () => {
   const t = (s) => dishTypeForIngredients(s.split(',').map((x) => x.trim()), { nodes });
   it('noodle, soy sauce, ginger, chicken → stir-fry', () => expect(t('noodle, soy sauce, ginger, chicken')).toBe('stir-fry'));

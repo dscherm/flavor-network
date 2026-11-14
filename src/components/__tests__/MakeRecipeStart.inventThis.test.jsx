@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // INVENT-6: the Cookbook's "✨ Invent this" seed, handed to Make a recipe, opens Recipe Lab invent on it.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 vi.mock('../../hooks/useAuth.js', () => ({
   default: () => ({ user: { uid: 't' }, loading: false, authError: null, loginWithGoogle: vi.fn(), loginWithApple: vi.fn(), logout: vi.fn() }),
@@ -29,30 +29,31 @@ function mount(extra = {}) {
   const view = render(<MakeRecipeStart {...s} nodes={NODES} edges={[]} onInventSeedConsumed={onInventSeedConsumed} {...extra} />);
   return { ...s, onInventSeedConsumed, view };
 }
-const line = (id) => screen.getByTestId(`invent-recipe-slots-line-${id}`).textContent;
+const lineKeys = () => screen.queryAllByTestId('invent-recipe-list-line').map((r) => r.getAttribute('data-key'));
 
 describe('MakeRecipeStart — initialInventSeed', () => {
   beforeEach(() => { localStorage.clear(); });
 
-  it("a 'chicken' seed opens Recipe invent with chicken as the main, and reports it consumed", async () => {
+  it("a 'chicken' seed opens Recipe invent with chicken as the list, and reports it consumed", async () => {
     const { seed } = recipeSeedFromSearch('chicken', { recipes: [], nodes: NODES });
     const m = mount({ initialInventSeed: seed });
     expect(await screen.findByTestId('invent-recipe')).toBeInTheDocument();
-    expect(line('main')).toBe('chicken');
+    expect(screen.queryByTestId('invent-recipe-start')).toBeNull();
+    expect(lineKeys()).toEqual(['chicken']);
     expect(m.onInventSeedConsumed).toHaveBeenCalledTimes(1);
   });
 
-  it('changing the dish type keeps the searched ingredients', async () => {
+  it('searched ingredients are the list; the stir-fry fit is recommended, and choosing another type keeps them', async () => {
     const { seed } = recipeSeedFromSearch('noodle, soy sauce, ginger, chicken', { recipes: [], nodes: NODES });
     mount({ initialInventSeed: seed });
     await screen.findByTestId('invent-recipe');
-    expect(seed.type).toBe('stir-fry');
-    expect(line('main')).toBe('chicken');
-    expect(line('aromatic')).toBe('ginger');
-    fireEvent.click(within(screen.getByRole('group', { name: 'What kind of dish?' })).getByRole('button', { name: 'Soup' }));
-    expect(line('main')).toBe('chicken');
-    // soup's aromatic slot is an onion-family base, so ginger moves to the extras instead of vanishing
-    expect(screen.getByTestId('invent-recipe-slots-extras')).toHaveTextContent('ginger');
+    expect(lineKeys().sort()).toEqual(['chicken', 'ginger', 'noodle', 'soy sauce']);
+    expect(screen.getByTestId('invent-recipe-hint')).toHaveTextContent('Stir-fry');
+    expect(screen.queryByTestId('invent-recipe-checklist')).toBeNull();
+    fireEvent.click(screen.getByTestId('invent-recipe-category-toggle'));
+    fireEvent.click(screen.getByTestId('invent-recipe-category-option-soup'));
+    expect(screen.getByTestId('invent-recipe-checklist')).toHaveTextContent('Soup usually have');
+    expect(lineKeys().sort()).toEqual(['chicken', 'ginger', 'noodle', 'soy sauce']);
   });
 
   it('opening Invent from the cards afterwards starts fresh', async () => {
@@ -62,6 +63,7 @@ describe('MakeRecipeStart — initialInventSeed', () => {
     fireEvent.click(screen.getByTestId('invent-recipe-close'));
     fireEvent.click(screen.getByTestId('make-card-invent'));
     await screen.findByTestId('invent-recipe');
-    expect(screen.getByTestId('invent-recipe').textContent).not.toMatch(/from your search/);
+    expect(screen.getByTestId('invent-recipe-start-question')).toBeInTheDocument();
+    expect(screen.queryByTestId('invent-recipe-list')).toBeNull();
   });
 });

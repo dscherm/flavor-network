@@ -73,7 +73,7 @@ describe('MakeRecipeStart — KITCHEN-2 kitchen flow', () => {
     mount();
     fireEvent.click(screen.getByTestId('make-card-invent'));
     expect(await screen.findByTestId('invent-recipe-no-model')).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'What kind of dish?' })).toBeInTheDocument();
+    expect(screen.getByTestId('invent-recipe-start-question')).toHaveTextContent('What is the main ingredient?');
     expect(screen.queryByTestId('invent-recipe-unavailable')).toBeNull();
   });
 });

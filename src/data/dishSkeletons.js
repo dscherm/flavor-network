@@ -329,7 +329,9 @@ function common(key, node, degree) {
 }
 
 /**
- * Ordered candidates for one slot, given the rest of the build.
+ * Ordered candidates for one slot, given the rest of the build. With `slot`
+ * null ("goes with the list") the whole ordinary pool is ranked against
+ * currentKeys instead, kitchen first, basics never offered.
  * @returns {{ key: string, have: boolean, score: number }[]} kitchen items
  *   first, then by score (pair strength with currentKeys + MODEL_WEIGHT × the
  *   model's score + the cuisine bonus), name as the final tie-break.
@@ -337,7 +339,7 @@ function common(key, node, degree) {
 export function rankDishSlot({
   slot, currentKeys = [], kitchen = [], cuisine = null, nodes = null, pairingIndex = null, modelScores = null,
 } = {}) {
-  if (!slot || !nodes || typeof nodes.keys !== 'function') return [];
+  if (!nodes || typeof nodes.keys !== 'function') return [];
   const kitchenSet = new Set((kitchen || []).map(lower));
   const taken = new Set((currentKeys || []).map(lower));
   const partners = [...taken].filter((k) => !isBasicLike(k));
@@ -345,8 +347,8 @@ export function rankDishSlot({
   const out = [];
   for (const key of nodes.keys()) {
     const n = lower(key);
-    if (taken.has(n) || ((isBasicLike(n) || isBasic(n)) && !slot.keepBasics?.includes(n))) continue;
-    if (!slotAccepts(slot, n, nodes)) continue;
+    if (taken.has(n) || ((isBasicLike(n) || isBasic(n)) && !slot?.keepBasics?.includes(n))) continue;
+    if (slot && !slotAccepts(slot, n, nodes)) continue;
     const node = nodes.get(key);
     const have = haveIngredient(n, kitchenSet, { assumeBasics: false }).covered;
     if (!have && !common(n, node, degree)) continue;
