@@ -251,7 +251,7 @@ export function sauceSeedFromSearch(query, { sauces = [], catMap = null, names =
     const family = STYLE_BY_FAMILY.get(sauceFamilyId(sauce));
     const styleId = family ? family.id : bestSauceStyle(pinned, sauces, catMap, filterFamily, filterCuisine);
     return {
-      seed: { styleId, ...(protein ? { protein } : {}), pinned: pins(pinned) },
+      seed: { styleId, fromName: true, ...(protein ? { protein } : {}), pinned: pins(pinned) },
       summary: `${withArticle(sauce.name)}${typedPins.length ? ` with ${joinWords(typedPins)}` : ''}${tail}`,
       parsed,
     };

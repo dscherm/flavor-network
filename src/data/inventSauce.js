@@ -34,7 +34,8 @@
  * idea from what pairs, not a tested recipe.
  */
 import { SAUCE_TEMPLATES } from './sauceScoring.js';
-import { sauceRoleOf, sauceKind, pairStrength } from './saucePantry.js';
+import { sauceRoleOf, sauceKind, pairStrength, sameRoleAndKind } from './saucePantry.js';
+import { swapsFor } from './kitchenSwaps.js';
 import { isBasic, haveIngredient } from './myKitchen.js';
 import { proteinIngredient } from './sauceWines.js';
 
@@ -66,12 +67,12 @@ export function isSauceBasic(key) {
  */
 export const INVENT_STYLES = [
   {
-    id: 'Béchamel', label: 'Roux & milk', word: 'Béchamel', familyId: 0, template: tmpl('Béchamel'),
+    id: 'Béchamel', blurb: 'butter and flour cooked, then milk: white, creamy, mild', label: 'Roux & milk', word: 'Béchamel', familyId: 0, template: tmpl('Béchamel'),
     chemistry: 'A roux sauce needs fat, flour and a liquid: the flour’s starch swells and thickens at 60–70 °C.',
     slots: [
-      { id: 'fat', label: 'fat', roles: ['Fat'], kinds: ['butter', 'oil'], required: true },
-      { id: 'roux', label: 'flour (for the roux)', roles: ['Thickener'], kinds: ['flour'], required: true },
-      { id: 'liquid', label: 'milk or cream', roles: ['Liquid'], kinds: ['milk', 'cream'], required: true },
+      { id: 'fat', why: "the fat coats the flour so it thickens without lumping", label: 'fat', roles: ['Fat'], kinds: ['butter', 'oil'], required: true },
+      { id: 'roux', why: "starch thickens as it cooks in the fat", label: 'flour (for the roux)', roles: ['Thickener'], kinds: ['flour'], required: true },
+      { id: 'liquid', why: "the milk is what the cooked starch swells into a sauce", anchor: true, label: 'milk or cream', roles: ['Liquid'], kinds: ['milk', 'cream'], required: true },
       { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: false, key: true },
       { id: 'cheese', label: 'cheese', roles: ['Protein'], kinds: ['cheese'], required: false, key: true },
       { id: 'spice', label: 'spice', roles: ['Seasoning'], kinds: ['warm spice', 'paprika'], required: false, key: true },
@@ -79,13 +80,13 @@ export const INVENT_STYLES = [
     ],
   },
   {
-    id: 'Velouté', label: 'Roux & stock', word: 'Velouté', familyId: 1, template: tmpl('Velouté'),
+    id: 'Velouté', blurb: 'a pale roux thickening stock: silky and savoury', label: 'Roux & stock', word: 'Velouté', familyId: 1, template: tmpl('Velouté'),
     chemistry: 'A roux sauce needs fat, flour and a liquid — here a stock, simmered until the roux loses its raw taste.',
     slots: [
-      { id: 'fat', label: 'fat', roles: ['Fat'], kinds: ['butter', 'oil'], required: true },
-      { id: 'roux', label: 'flour (for the roux)', roles: ['Thickener'], kinds: ['flour'], required: true },
-      { id: 'liquid', label: 'stock', roles: ['Liquid'], kinds: ['stock'], required: true, key: true },
-      { id: 'wine', label: 'wine', roles: ['Liquid'], kinds: ['wine'], required: false, key: true },
+      { id: 'fat', why: "the fat coats the flour so it thickens without lumping", label: 'fat', roles: ['Fat'], kinds: ['butter', 'oil'], required: true },
+      { id: 'roux', why: "starch thickens as it cooks in the fat", label: 'flour (for the roux)', roles: ['Thickener'], kinds: ['flour'], required: true },
+      { id: 'liquid', why: "the stock carries the flavour; the roux thickens it lightly", anchor: true, label: 'stock', roles: ['Liquid'], kinds: ['stock'], required: true, key: true },
+      { id: 'wine', anchor: true, label: 'wine', roles: ['Liquid'], kinds: ['wine'], required: false, key: true },
       { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic', 'vegetable'], required: false, key: true },
       { id: 'cream', label: 'cream (to enrich)', roles: ['Liquid'], kinds: ['cream'], required: false },
       { id: 'acid', label: 'acid (to finish)', roles: ['Acid'], kinds: ['citrus'], required: false, key: true },
@@ -93,13 +94,13 @@ export const INVENT_STYLES = [
     ],
   },
   {
-    id: 'Espagnole', label: 'Brown reduction', word: 'Brown Sauce', familyId: 2, template: tmpl('Espagnole'),
+    id: 'Espagnole', blurb: 'a browned roux, stock and aromatics: dark, deep, meaty', label: 'Brown reduction', word: 'Brown Sauce', familyId: 2, template: tmpl('Espagnole'),
     chemistry: 'A brown sauce needs fat, flour, stock and aromatics; browning the roux and vegetables (Maillard, 150 °C and up) builds the flavour.',
     slots: [
-      { id: 'fat', label: 'fat', roles: ['Fat'], required: true },
-      { id: 'roux', label: 'flour (for a brown roux)', roles: ['Thickener'], kinds: ['flour'], required: true },
-      { id: 'liquid', label: 'stock', roles: ['Liquid'], kinds: ['stock'], required: true },
-      { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'vegetable', 'garlic'], required: true, key: true },
+      { id: 'fat', why: "the fat browns the roux and vegetables without burning them", label: 'fat', roles: ['Fat'], required: true },
+      { id: 'roux', why: "browned flour thickens and adds a toasted, nutty flavour", label: 'flour (for a brown roux)', roles: ['Thickener'], kinds: ['flour'], required: true },
+      { id: 'liquid', why: "stock gives the body and meaty depth; its gelatin makes it glossy", anchor: true, label: 'stock', roles: ['Liquid'], kinds: ['stock'], required: true },
+      { id: 'aromatic', why: "browned onion and vegetables add the sweetness and depth", label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'vegetable', 'garlic'], required: true, key: true },
       { id: 'wine', label: 'wine (to deglaze)', roles: ['Liquid'], kinds: ['wine'], required: false, key: true },
       { id: 'tomato', label: 'tomato', roles: ['Acid', 'Other'], test: (n) => /tomat/.test(n), required: false },
       { id: 'meat', label: 'cured meat', roles: ['Protein'], kinds: ['meat'], required: false, key: true },
@@ -107,55 +108,55 @@ export const INVENT_STYLES = [
     ],
   },
   {
-    id: 'Hollandaise', label: 'Emulsion', word: 'Butter Sauce', familyId: 3, template: tmpl('Hollandaise'),
+    id: 'Hollandaise', blurb: 'butter or oil held in egg yolk: rich, glossy', label: 'Emulsion', word: 'Butter Sauce', familyId: 3, template: tmpl('Hollandaise'),
     // Oil + yolk + acid, whisked cold, is a mayonnaise (aïoli with garlic).
     wordFor: (lines) => (lines.some((l) => l.slot === 'fat' && /\boil\b/.test(l.key))
       ? (lines.some((l) => /garlic/.test(l.key)) ? 'Aïoli' : 'Mayonnaise') : 'Butter Sauce'),
     chemistry: 'An emulsion needs fat, an emulsifier and an acid: egg yolk’s lecithin holds the fat in tiny droplets; the acid steadies the yolk proteins.',
     slots: [
       // Toasted sesame and coconut oil overwhelm as the whole fat of an emulsion.
-      { id: 'fat', label: 'fat', roles: ['Fat'], kinds: ['butter', 'oil'], test: (n) => !/sesame|coconut|palm/.test(n), required: true },
-      { id: 'emulsifier', label: 'egg yolk (the emulsifier)', roles: ['Thickener'], kinds: ['egg'], required: true },
-      { id: 'acid', label: 'acid', roles: ['Acid'], kinds: ['citrus', 'vinegar'], required: true, key: true },
+      { id: 'fat', why: "the fat is what the emulsion is made of", anchor: true, label: 'fat', roles: ['Fat'], kinds: ['butter', 'oil'], test: (n) => !/sesame|coconut|palm/.test(n), required: true },
+      { id: 'emulsifier', why: "its lecithin holds the fat in the water", label: 'egg yolk (the emulsifier)', roles: ['Thickener'], kinds: ['egg'], required: true },
+      { id: 'acid', why: "acid steadies the yolk proteins and cuts the richness", label: 'acid', roles: ['Acid'], kinds: ['citrus', 'vinegar'], required: true, key: true },
       { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: false, key: true },
       { id: 'herb', label: 'herb', roles: ['Herb'], kinds: ['soft herb'], required: false, key: true },
       { id: 'spice', label: 'spice', roles: ['Seasoning', 'Chili'], kinds: ['paprika', 'pepper', 'dried chili', 'chili paste'], required: false, key: true },
     ],
   },
   {
-    id: 'Tomato', label: 'Tomato simmer', word: 'Tomato Sauce', familyId: 4, template: tmpl('Tomato'),
+    id: 'Tomato', blurb: 'tomato simmered down with aromatics: sweet-sharp, thick', label: 'Tomato simmer', word: 'Tomato Sauce', familyId: 4, template: tmpl('Tomato'),
     chemistry: 'A tomato sauce needs fat, tomato and aromatics; simmering drives off water and mellows the acid.',
     slots: [
-      { id: 'fat', label: 'fat', roles: ['Fat'], required: true },
-      { id: 'tomato', label: 'tomato', roles: ['Acid'], kinds: ['tomato'], required: true },
-      { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: true, key: true },
+      { id: 'fat', why: "fat carries the aroma of the tomato and aromatics", label: 'fat', roles: ['Fat'], required: true },
+      { id: 'tomato', why: "the body of the sauce; simmering concentrates it", anchor: true, label: 'tomato', roles: ['Acid'], kinds: ['tomato'], required: true },
+      { id: 'aromatic', why: "onion or garlic softens and sweetens to build the base", label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: true, key: true },
       { id: 'aromatic2', label: 'second aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: false },
       { id: 'herb', label: 'herb', roles: ['Herb'], required: false, key: true },
-      { id: 'chili', label: 'chili', roles: ['Chili'], required: false, key: true },
+      { id: 'chili', anchor: true, label: 'chili', roles: ['Chili'], required: false, key: true },
       { id: 'umami', label: 'umami', roles: ['Protein'], kinds: ['fish', 'cheese', 'meat'], required: false, key: true },
       { id: 'wine', label: 'wine', roles: ['Liquid'], kinds: ['wine'], required: false },
     ],
   },
   {
-    id: 'Curry', label: 'Curry base', word: 'Curry', familyId: 5, template: tmpl('Curry'),
+    id: 'Curry', blurb: 'spices bloomed in hot fat, then a liquid: warm, deep', label: 'Curry base', word: 'Curry', familyId: 5, template: tmpl('Curry'),
     chemistry: 'A curry base needs fat, aromatics and spice: whole and ground spices bloom in hot fat, where their aroma compounds dissolve.',
     slots: [
-      { id: 'fat', label: 'fat', roles: ['Fat'], required: true },
-      { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic', 'root', 'lemongrass'], required: true, key: true },
-      { id: 'spice', label: 'spice', roles: ['Seasoning'], kinds: ['earthy spice', 'warm spice', 'paprika'], required: true, key: true },
+      { id: 'fat', why: "hot fat dissolves the spices' aroma compounds", label: 'fat', roles: ['Fat'], required: true },
+      { id: 'aromatic', why: "onion, garlic or ginger is the base the spices cook into", label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic', 'root', 'lemongrass'], required: true, key: true },
+      { id: 'spice', why: "the spices are the flavour, bloomed in hot fat", label: 'spice', roles: ['Seasoning'], kinds: ['earthy spice', 'warm spice', 'paprika'], required: true, key: true },
       { id: 'aromatic2', label: 'second aromatic', roles: ['Aromatic'], kinds: ['garlic', 'root', 'lemongrass', 'onion'], required: false },
-      { id: 'chili', label: 'chili', roles: ['Chili'], required: false, key: true },
-      { id: 'liquid', label: 'liquid', roles: ['Liquid'], kinds: ['coconut', 'stock', 'cultured dairy', 'cream'], required: false, key: true },
+      { id: 'chili', anchor: true, label: 'chili', roles: ['Chili'], required: false, key: true },
+      { id: 'liquid', anchor: true, label: 'liquid', roles: ['Liquid'], kinds: ['coconut', 'stock', 'cultured dairy', 'cream'], required: false, key: true },
       { id: 'acid', label: 'acid', roles: ['Acid'], kinds: ['tomato', 'citrus', 'sour'], required: false },
       { id: 'herb', label: 'herb', roles: ['Herb'], kinds: ['soft herb', 'aromatic leaf'], required: false, key: true },
     ],
   },
   {
-    id: 'Stir-fry', label: 'Stir-fry', word: 'Stir-fry Sauce', familyId: 6, template: tmpl('Stir-fry'),
+    id: 'Stir-fry', blurb: 'soy, fish sauce or paste with fast-cooked aromatics: salty, glossy', label: 'Stir-fry', word: 'Stir-fry Sauce', familyId: 6, template: tmpl('Stir-fry'),
     chemistry: 'A stir-fry sauce is salt-and-umami led (soy, fish sauce or a fermented paste) with fast-cooked aromatics; a starch slurry glosses it at about 90 °C.',
     slots: [
-      { id: 'umami', label: 'soy, fish sauce or paste', roles: ['Protein'], kinds: ['soy', 'fish', 'ferment paste'], required: true, key: true },
-      { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['garlic', 'root', 'onion', 'lemongrass'], required: true, key: true },
+      { id: 'umami', why: "soy, fish sauce or a paste gives the salt and savoury depth", anchor: true, label: 'soy, fish sauce or paste', roles: ['Protein'], kinds: ['soy', 'fish', 'ferment paste'], required: true, key: true },
+      { id: 'aromatic', why: "garlic or ginger flashed in hot oil gives the fragrance", label: 'aromatic', roles: ['Aromatic'], kinds: ['garlic', 'root', 'onion', 'lemongrass'], required: true, key: true },
       { id: 'aromatic2', label: 'second aromatic', roles: ['Aromatic'], kinds: ['garlic', 'root', 'onion'], required: false },
       { id: 'sweet', label: 'sweetener', roles: ['Other'], kinds: ['sweet'], required: false },
       { id: 'acid', label: 'acid', roles: ['Acid'], kinds: ['vinegar', 'citrus'], required: false },
@@ -165,13 +166,13 @@ export const INVENT_STYLES = [
     ],
   },
   {
-    id: 'Mole', label: 'Mole', word: 'Mole', familyId: 7, template: tmpl('Mole'),
+    id: 'Mole', blurb: 'dried chilies, spice and chocolate or nuts, fried and simmered: dark, complex', label: 'Mole', word: 'Mole', familyId: 7, template: tmpl('Mole'),
     chemistry: 'A mole needs fat, dried chilies, spice and a rich body (chocolate, nuts or fruit); frying the purée in fat deepens and darkens it.',
     slots: [
-      { id: 'fat', label: 'fat', roles: ['Fat'], required: true },
-      { id: 'chili', label: 'dried chili', roles: ['Chili'], kinds: ['dried chili'], test: (n) => !/flake|powder|gochugaru|cayenne/.test(n), required: true, key: true },
-      { id: 'spice', label: 'spice', roles: ['Seasoning'], kinds: ['warm spice', 'earthy spice'], required: true },
-      { id: 'body', label: 'chocolate, nuts or fruit', roles: ['Other'], test: (n, r, k) => /chocolate|cocoa|plantain|raisin/.test(n) || k === 'nut', required: true, key: true },
+      { id: 'fat', why: "frying the purée in fat deepens and darkens it", label: 'fat', roles: ['Fat'], required: true },
+      { id: 'chili', why: "dried chilies give the fruity heat and the dark base", anchor: true, label: 'dried chili', roles: ['Chili'], kinds: ['dried chili'], test: (n) => !/flake|powder|gochugaru|cayenne/.test(n), required: true, key: true },
+      { id: 'spice', why: "warm spices round out the chili", label: 'spice', roles: ['Seasoning'], kinds: ['warm spice', 'earthy spice'], required: true },
+      { id: 'body', why: "chocolate, nuts or fruit give the body and bitter-sweet depth", label: 'chocolate, nuts or fruit', roles: ['Other'], test: (n, r, k) => /chocolate|cocoa|plantain|raisin/.test(n) || k === 'nut', required: true, key: true },
       { id: 'sweet', label: 'sweetener', roles: ['Other'], kinds: ['sweet'], required: false },
       { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: false },
       { id: 'tomato', label: 'tomato', roles: ['Acid'], kinds: ['tomato'], required: false },
@@ -179,22 +180,22 @@ export const INVENT_STYLES = [
     ],
   },
   {
-    id: 'Salsa', label: 'Salsa', word: 'Salsa', familyId: 8, template: tmpl('Salsa'),
+    id: 'Salsa', blurb: 'chopped juicy fruit or tomato with aromatics: raw, fresh, bright', label: 'Salsa', word: 'Salsa', familyId: 8, template: tmpl('Salsa'),
     chemistry: 'A salsa needs a juicy body (tomato, tomatillo or fruit) and aromatics; salt draws out the juices that become the sauce.',
     slots: [
-      { id: 'body', label: 'tomato, tomatillo or fruit', roles: ['Acid', 'Other'], test: (n, r, k) => (r === 'Acid' && k === 'tomato') || BODY_FRUIT.test(n), required: true, key: true },
-      { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: true, key: true },
+      { id: 'body', why: "the juicy body becomes the sauce", anchor: true, label: 'tomato, tomatillo or fruit', roles: ['Acid', 'Other'], test: (n, r, k) => (r === 'Acid' && k === 'tomato') || BODY_FRUIT.test(n), required: true, key: true },
+      { id: 'aromatic', why: "raw onion or garlic adds the bite", label: 'aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: true, key: true },
       { id: 'aromatic2', label: 'second aromatic', roles: ['Aromatic'], kinds: ['onion', 'garlic'], required: false },
-      { id: 'chili', label: 'chili', roles: ['Chili'], kinds: ['fresh chili', 'dried chili'], required: false, key: true },
+      { id: 'chili', anchor: true, label: 'chili', roles: ['Chili'], kinds: ['fresh chili', 'dried chili'], required: false, key: true },
       { id: 'herb', label: 'herb', roles: ['Herb'], kinds: ['soft herb'], required: false, key: true },
       { id: 'acid', label: 'citrus or vinegar', roles: ['Acid'], kinds: ['citrus', 'vinegar'], required: false },
     ],
   },
   {
-    id: 'Nut Sauce', label: 'Nut sauce', word: 'Nut Sauce', familyId: 9, template: tmpl('Nut Sauce'),
+    id: 'Nut Sauce', blurb: 'a nut or seed paste loosened to pourable: rich, nutty', label: 'Nut sauce', word: 'Nut Sauce', familyId: 9, template: tmpl('Nut Sauce'),
     chemistry: 'A nut sauce needs a nut or seed paste; it seizes at first, then loosens to a pourable sauce as water goes in.',
     slots: [
-      { id: 'nut', label: 'nut or seed', roles: ['Other'], kinds: ['nut'], required: true, key: true },
+      { id: 'nut', why: "the nut or seed paste is the body of the sauce", anchor: true, label: 'nut or seed', roles: ['Other'], kinds: ['nut'], required: true, key: true },
       { id: 'acid', label: 'acid', roles: ['Acid'], kinds: ['citrus', 'vinegar', 'sour'], required: false, key: true },
       { id: 'umami', label: 'soy or fish sauce', roles: ['Protein'], kinds: ['soy', 'fish', 'ferment paste'], required: false },
       { id: 'aromatic', label: 'aromatic', roles: ['Aromatic'], kinds: ['garlic', 'root'], required: false, key: true },
@@ -424,36 +425,40 @@ export function haveSauceKey(key, { kitchen = [], assumeBasics = true, names = n
  * the sauce list, marked have:false ("you'd need"). Within each tier: pairing
  * with currentKeys and with the protein (pairStrength, capped at PAIR_CAP,
  * basics never count either way), then how common the ingredient is.
+ * With slot null (no technique chosen) the whole pool is ranked the same way:
+ * pantry first, then by pairing with currentKeys and the protein.
  * @returns {Array<{ key, have, score }>}
  */
 export function rankSauceSlot({
   slot, currentKeys = [], protein = null, kitchen = [], assumeBasics = true, pantryOnly = false,
   pool = null, catMap = null, pairingIndex = null, sauceIndex = null, names = null,
 } = {}) {
-  if (!slot) return [];
   const cats = catMap || new Map();
+  const GENERAL_SKIP = /^(water|salt|ice)$/;
+  const fits = slot ? (k) => fitsSlot(k, slot, cats) : (k) => !GENERAL_SKIP.test(k) && !!sauceRoleOf(k, cats);
   const ctx = { pairingIndex, sauceIndex };
   const p = pool || new Map();
   const maxCommon = Math.max(1, ...p.values());
   const commonness = (k) => Math.log1p(p.get(k) || 0) / Math.log1p(maxCommon);
   const skip = new Set((currentKeys || []).map(norm));
-  const context = (currentKeys || []).filter((k) => !isSauceBasic(k));
+  const nonBasic = (currentKeys || []).filter((k) => !isSauceBasic(k));
+  const context = !slot && !nonBasic.length ? (currentKeys || []) : nonBasic;
   const prot = protein ? proteinIngredient(protein) : null;
 
   const pantry = new Set((kitchen || []).map(norm));
   if (assumeBasics) for (const b of BASIC_LINES) pantry.add(b);
   const cands = new Map();
   const own = new Set(); // exactly in the pantry (or an assumed basic), ahead of an equivalent or an outside pick
-  for (const k of pantry) if (!skip.has(k) && fitsSlot(k, slot, cats)) { cands.set(k, true); own.add(k); }
+  for (const k of pantry) if (!skip.has(k) && fits(k)) { cands.set(k, true); own.add(k); }
   if (!pantryOnly) {
     for (const k of p.keys()) {
-      if (cands.has(k) || skip.has(k) || COMPOUND.test(k) || !fitsSlot(k, slot, cats)) continue;
+      if (cands.has(k) || skip.has(k) || COMPOUND.test(k) || !fits(k)) continue;
       cands.set(k, haveSauceKey(k, { kitchen, assumeBasics, names }));
     }
   }
   const scoreOf = (k) => {
     let s = 0.1 * commonness(k);
-    if (isSauceBasic(k)) return s;
+    if (isSauceBasic(k) && slot) return s;
     if (context.length) s += context.reduce((a, c) => a + capped(pairStrength(k, c, ctx)), 0) / context.length;
     if (prot) s += capped(pairStrength(k, prot, ctx));
     return s;
@@ -516,4 +521,60 @@ export function proteinVocabulary(sauces) {
   const counts = new Map();
   for (const s of sauces || []) for (const p of s.proteins || []) counts.set(p, (counts.get(p) || 0) + 1);
   return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([p]) => p);
+}
+
+// ── Start-empty helpers (INVENT-10) ─────────────────────────────────────────
+/** Can this ingredient anchor a sauce (is it the main of some technique)? */
+export function canAnchorSauce(key, catMap = null) {
+  const cats = catMap || new Map();
+  return INVENT_STYLES.some((st) => st.slots.some((sl) => sl.anchor && fitsSlot(key, sl, cats)));
+}
+
+/**
+ * Step-1 choices: pantry items that can anchor a sauce first (have: true), then
+ * the most used ingredient of each technique's anchor part, from the sauce list.
+ * @returns {Array<{ key, have }>}
+ */
+export function sauceAnchors({ kitchen = [], assumeBasics = true, names = null, pool = null, catMap = null, perSlot = 2, limit = 14 } = {}) {
+  const cats = catMap || new Map();
+  const out = [];
+  const seen = new Set();
+  const take = (key, have) => { if (!seen.has(key)) { seen.add(key); out.push({ key, have }); } };
+  for (const k of (kitchen || []).map(norm)) if (k && canAnchorSauce(k, cats)) take(k, true);
+  const p = pool || new Map();
+  for (const st of INVENT_STYLES) {
+    for (const sl of st.slots.filter((x) => x.anchor)) {
+      const top = [...p].filter(([k, n]) => n > 0 && !COMPOUND.test(k) && fitsSlot(k, sl, cats))
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, perSlot);
+      for (const [k] of top) take(k, haveSauceKey(k, { kitchen, assumeBasics, names }));
+    }
+  }
+  return [...out.filter((x) => x.have), ...out.filter((x) => !x.have)].slice(0, limit);
+}
+
+/**
+ * Stand-ins from the pantry for one ingredient: with a slot, pantry items that fit
+ * the same slot; without, pantry items of the same sauce role AND kind; plus the
+ * kitchen swap table (swaps flagged sauce:false never). Never offers a key already in the build.
+ * @returns {Array<{ key, note? }>}
+ */
+export function sauceReplacements(key, { slot = null, buildKeys = [], kitchen = [], assumeBasics = true, names = null, catMap = null, limit = 6 } = {}) {
+  const cats = catMap || new Map();
+  const k0 = norm(key);
+  const inBuild = new Set((buildKeys || []).map(norm));
+  const pantry = new Set((kitchen || []).map(norm));
+  if (assumeBasics) for (const b of BASIC_LINES) pantry.add(b);
+  const out = [];
+  const seen = new Set();
+  const push = (k, note) => { if (!seen.has(k) && k !== k0 && !inBuild.has(k)) { seen.add(k); out.push(note ? { key: k, note } : { key: k }); } };
+  for (const k of pantry) {
+    if (!k || COMPOUND.test(k)) continue;
+    if (slot ? fitsSlot(k, slot, cats) : sameRoleAndKind(k0, k, cats)) push(k);
+  }
+  const has = (x) => haveSauceKey(x, { kitchen, assumeBasics, names });
+  for (const sw of swapsFor(k0)) {
+    if (sw.sauce === false || !has(sw.use) || !sw.plus.every(has)) continue;
+    push(norm(sw.use), sw.plus.length ? `with ${sw.plus.join(', ')}` : 'swap');
+  }
+  return out.slice(0, limit);
 }

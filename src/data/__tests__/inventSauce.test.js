@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   INVENT_STYLES, fitsSlot, amountFor, methodFor, proteinVocabulary, buildSaucePool, isSauceBasic,
-  sauceSkeleton, rankSauceSlot, sauceFromBuild, haveSauceKey,
+  sauceSkeleton, rankSauceSlot, sauceFromBuild, haveSauceKey, canAnchorSauce, sauceAnchors, sauceReplacements,
 } from '../inventSauce.js';
 import { SAUCE_TEMPLATES } from '../sauceScoring.js';
 import { buildCategoryMap } from '../saucePantry.js';
@@ -136,7 +136,6 @@ describe('build model (INVENT-3)', () => {
     expect(r.slice(firstOutside).every((c) => !c.have)).toBe(true);
     expect(r.map((c) => c.key)).toContain('white wine vinegar');
     expect(r.every((c) => typeof c.score === 'number')).toBe(true);
-    expect(rankSauceSlot({ slot: null })).toEqual([]);
   });
 
   it('rankSauceSlot: pairing with the protein re-ranks a slot; basics never count', () => {
@@ -214,5 +213,66 @@ describe('build model (INVENT-3)', () => {
     expect(haveSauceKey('olive oil', { kitchen: [] })).toBe(true);
     expect(haveSauceKey('olive oil', { kitchen: [], assumeBasics: false })).toBe(false);
     expect(haveSauceKey('saffron', { kitchen })).toBe(false);
+  });
+});
+
+describe('start-empty helpers (INVENT-10)', () => {
+  const pool = buildSaucePool(meta, sauces);
+  it('every technique has a blurb and every required part a plain why', () => {
+    for (const s of INVENT_STYLES) {
+      expect(s.blurb, s.id).toMatch(/\S/);
+      for (const sl of s.slots.filter((x) => x.required)) expect(sl.why, `${s.id}/${sl.id}`).toMatch(/\S/);
+    }
+    expect(INVENT_STYLES.find((s) => s.id === 'Hollandaise').slots.find((s) => s.id === 'emulsifier').why).toMatch(/lecithin/);
+  });
+
+  it('rankSauceSlot with no slot ranks the pool: pantry first, then pairing with the list and protein', () => {
+    const idx = buildPairingIndex([{ source: 'tomato', target: 'basil', strength: 1 }], ['tomato', 'basil']);
+    const r = rankSauceSlot({ slot: null, currentKeys: ['basil'], kitchen: ['garlic', 'tomato'], assumeBasics: false, pool, catMap, pairingIndex: idx });
+    expect(r.length).toBeGreaterThan(5);
+    expect(r.slice(0, 2).map((c) => c.key).sort()).toEqual(['garlic', 'tomato']);
+    expect(r[0].key).toBe('tomato'); // pairs with basil
+    expect(r.find((c) => c.key === 'basil')).toBeUndefined();
+    expect(r.some((c) => /^(water|salt)$/.test(c.key))).toBe(false);
+    const only = rankSauceSlot({ slot: null, currentKeys: ['basil'], kitchen: ['garlic', 'tomato'], assumeBasics: false, pantryOnly: true, pool, catMap });
+    expect(only.map((c) => c.key).sort()).toEqual(['garlic', 'tomato']);
+    expect(only.every((c) => c.have)).toBe(true);
+  });
+
+  it('canAnchorSauce: a main like tomato, butter or tahini can; a pinch of nutmeg cannot', () => {
+    for (const k of ['tomato', 'butter', 'cream', 'tahini', 'soy sauce', 'chicken stock']) expect(canAnchorSauce(k, catMap), k).toBe(true);
+    expect(canAnchorSauce('nutmeg', catMap)).toBe(false);
+    expect(canAnchorSauce('egg yolk', catMap)).toBe(false);
+  });
+
+  it('sauceAnchors: pantry anchors first, then common ones from the sauce list, no duplicates', () => {
+    const a = sauceAnchors({ kitchen: ['tahini', 'nutmeg', 'cream'], pool, catMap });
+    expect(a.slice(0, 2).map((x) => x.key)).toEqual(['tahini', 'cream']);
+    expect(a.slice(0, 2).every((x) => x.have)).toBe(true);
+    expect(a.map((x) => x.key)).not.toContain('nutmeg');
+    expect(new Set(a.map((x) => x.key)).size).toBe(a.length);
+    expect(a.length).toBeGreaterThan(5);
+    expect(a.length).toBeLessThanOrEqual(14);
+    expect(a.slice(2).some((x) => !x.have)).toBe(true);
+  });
+
+  it('sauceReplacements: same role AND kind from the pantry; never across kinds; never one already used', () => {
+    const r = sauceReplacements('onion', { kitchen: ['shallot', 'garlic', 'butter'], catMap });
+    expect(r.map((x) => x.key)).toContain('shallot');
+    expect(r.map((x) => x.key)).not.toContain('butter');
+    const none = sauceReplacements('egg yolk', { kitchen: ['flour', 'cornstarch'], catMap });
+    expect(none.map((x) => x.key)).not.toContain('flour');
+    const used = sauceReplacements('onion', { kitchen: ['shallot'], buildKeys: ['shallot'], catMap });
+    expect(used.map((x) => x.key)).not.toContain('shallot');
+  });
+
+  it('sauceReplacements with a slot offers what fits that slot, and respects kitchenSwaps sauce:false', () => {
+    const acid = sauceSkeleton('Hollandaise', { catMap }).slots.find((s) => s.id === 'acid');
+    const r = sauceReplacements('lemon juice', { slot: acid, kitchen: ['white wine vinegar', 'flour', 'tomato'], assumeBasics: false, catMap });
+    expect(r.map((x) => x.key)).toContain('white wine vinegar');
+    expect(r.map((x) => x.key)).not.toContain('flour');
+    // milk for cream is a pan swap that does not hold in a sauce.
+    const cream = sauceReplacements('cream', { kitchen: ['milk', 'butter'], assumeBasics: false, catMap });
+    expect(cream.find((x) => x.key === 'milk' && x.note)).toBeUndefined();
   });
 });
