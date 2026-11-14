@@ -1760,7 +1760,7 @@ INVENT-2/3/4 (one per lab, independent of each other), then INVENT-5/6 (search),
   "id": "INVENT-6",
   "title": "'✨ Invent this' button on the Cocktail, Sauce and Cookbook search bars",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "CocktailBrowse.jsx, SauceBrowse.jsx and CookbookLab.jsx show '✨ Invent this' whenever the search box has text, including when 0 results match ('No cocktail has gin + cucumber + chartreuse — invent one?'). It opens the lab's invent panel already seeded via parseSearchForInvent + seedBuild (Cookbook opens Recipe Lab invent). Baseline pickers stay editable; changing them re-seeds and keeps the locked search ingredients.",
   "acceptance": [
     "Button hidden with an empty search, shown with text, shown with 0 matches with the no-match copy (test, all three surfaces)",
@@ -1860,7 +1860,7 @@ the owner may scan on the owner's free key through the scanBar function. Order: 
   "id": "BARPHOTO-4",
   "title": "My bar: 'Add from a photo' with an invite code or the user's own Gemini key, and a review list before anything is added",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "src/components/MyBarPanel.jsx gains '📷 Add from a photo' (file input, image/*, camera or library). First use shows a one-time set-up card with two choices. 'I have a code': a paste box; the photo is read using the app owner's Google key, through this app's server, and is not stored. 'Use my own Google key': what the key is, that it is free, a link to Google AI Studio's key page, a paste box, 'the key stays on this device and is sent only to Google', that the photo goes from the browser straight to Google under the user's own key and Google's terms for that key apply, and that a free key allows about 20 scans a day. Change / remove is always available. New src/components/BarScanReview.jsx: one row per bottle (label, 'added as' name editable with the bar typeahead, checkbox; high confidence checked, medium/low unchecked; 'already in your bar'), non-alcohol items offered for the shared kitchen unchecked, 'Add N to my bar', 'Add another photo'. Uses src/data/barScan.js (BARPHOTO-6) for storage, the downscale, the scan and the row mapping; the code path uses httpsCallable(functions, 'scanBar'). Guidance line 'One shelf at a time, labels facing you'; plain messages for a rejected key, a rejected code, the daily limit, offline, busy and an empty result; manual search always still usable. No sign-in is required.",
   "acceptance": [
     "Nothing saved: tapping the button shows the set-up card with both choices, not the file picker; saving a code or a key then opens the picker; Remove returns to the set-up card (test)",
