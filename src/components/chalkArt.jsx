@@ -337,7 +337,7 @@ const INGREDIENT_GLYPHS = {
 
 const CATEGORY_GLYPH = {
   herb: 'leaf',
-  liquid: 'drop', mixer: 'drop', acid: 'drop', fat: 'drop',
+  liquid: 'drop', juice: 'drop', mixer: 'drop', acid: 'drop', fat: 'drop',
   chili: 'pepper', spice: 'pepper', seasoning: 'pepper',
   citrus: 'citrus',
   fruit: 'apple',
@@ -345,12 +345,12 @@ const CATEGORY_GLYPH = {
   aromatic: 'bulb',
   protein: 'fish',
   dairy: 'cheese',
-  grain: 'wheat',
+  grain: 'wheat', thickener: 'wheat',
   baked: 'loaf',
   nut: 'nut',
   sweetener: 'cube', confection: 'cube',
-  spirit: 'bottle', liqueur: 'bottle', bitters: 'bottle', condiment: 'bottle',
-  umami: 'mushroom',
+  spirit: 'bottle', liqueur: 'bottle', wine: 'bottle', beer: 'bottle', bitters: 'bottle', condiment: 'bottle',
+  'savory seasoning': 'mushroom',
 };
 
 // A few ingredients are common enough to get their own drawing, ahead of
@@ -697,17 +697,17 @@ export function DishArt({ kind, accent = CHALK_CREAM, size = 64 }) {
 // A tiny chalk sketch per ingredient-graph category, for ingredient chips.
 const GLYPH_OF_CATEGORY = {
   protein: 'meat',
-  vegetable: 'veg', umami: 'veg',
+  vegetable: 'veg', 'savory seasoning': 'veg',
   fruit: 'fruit', citrus: 'fruit',
   herb: 'leaf', aromatic: 'leaf',
   spice: 'spice', seasoning: 'spice', chili: 'chili',
   dairy: 'cheese',
   grain: 'grain', baked: 'grain', thickener: 'grain',
-  fat: 'drop', liquid: 'drop',
+  fat: 'drop', liquid: 'drop', juice: 'drop',
   condiment: 'jar', acid: 'jar', mixer: 'jar',
   sweetener: 'sugar', confection: 'sugar',
   nut: 'nut',
-  spirit: 'bottle', liqueur: 'bottle', bitters: 'bottle',
+  spirit: 'bottle', liqueur: 'bottle', wine: 'bottle', beer: 'bottle', bitters: 'bottle',
 };
 
 /** Glyph kind for an ingredient category, or null when there is none. */

@@ -5,7 +5,7 @@
 //   npm run audit:data -- --check         exit 1 if any count is ABOVE data/review/baseline.json (writes nothing)
 //   npm run audit:data -- --update-baseline   store this run's counts as the new baseline
 //
-// The audit looks at the RAW generated data. It also validates the curation tables (src/data/curation)
+// The ingredient-hygiene and taste rules look at the RAW generated data; the category rules look at the CURATED data (DATA-4). It also validates the curation tables (src/data/curation)
 // and prints the curated counts beside the raw ones; an invalid table fails the run.
 //
 // Exit code is non-zero only for a missing or malformed input, or a failed --check.
@@ -17,6 +17,7 @@ import {
   findTasteNeutralSweet, findTasteVocabulary, findTasteOutliers, tasteDistribution, partitionReviewed,
   cocktailChecks, sauceChecks, dishChecks, TASTE_VOCAB,
 } from '../src/data/dataAudit.js';
+import { CATEGORY_SCHEME } from '../src/data/categoryScheme.js';
 import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { dishTypeOf, DISH_TYPES } from '../src/data/dishType.js';
 import { DISH_SKELETONS, DISH_SKELETON_ORDER } from '../src/data/dishSkeletons.js';
@@ -39,13 +40,14 @@ export const RULES = {
   'packaged-mix': ['packaged', 'Ingredient: boxed mix'],
   'packaged-soup': ['packaged', 'Ingredient: canned condensed soup'],
   'packaged-flavored': ['packaged', "Ingredient: 'flavored' product"],
-  'category-cheese': ['category', 'Category: a cheese outside the usual cheese category'],
-  'category-juice': ['category', 'Category: a juice outside the usual juice category'],
-  'category-flour': ['category', 'Category: a flour outside the usual flour category'],
-  'category-wine': ['category', 'Category: a wine outside the usual wine category'],
-  'category-beer': ['category', 'Category: a beer or cider outside the usual category'],
-  'category-spirit': ['category', 'Category: a spirit outside the usual spirit category'],
-  'category-umami': ['category', "Category: filed under 'umami' (a taste, not a kind of food)"],
+  'category-cheese': ['category', 'Category: a cheese outside dairy'],
+  'category-juice': ['category', 'Category: a juice outside juice (citrus juices belong to citrus)'],
+  'category-flour': ['category', 'Category: a flour outside grain'],
+  'category-wine': ['category', 'Category: a wine outside wine'],
+  'category-vermouth': ['category', 'Category: a vermouth outside liqueur'],
+  'category-beer': ['category', 'Category: a beer or hard cider outside beer'],
+  'category-spirit': ['category', 'Category: a spirit outside spirit'],
+  'category-umami': ['category', "Category: still filed under 'umami' (a taste; the category is 'savory seasoning')"],
   'taste-neutral-sweet': ['taste', "Taste: starch, plain fat, water or neutral spirit labelled 'sweet'"],
   'taste-vocab': ['taste', 'Taste: word outside the known vocabulary'],
   'taste-missing': ['taste', 'Taste: no label'],
@@ -105,13 +107,13 @@ export function runAudit() {
   const dish = dishChecks({ dishTypes, cookbookTypes: DISH_TYPES, inventTypes });
 
   const findings = [
-    ...dups, ...findNonFood(ingredients), ...findPackaged(ingredients), ...findCategoryInconsistencies(ingredients),
+    ...dups, ...findNonFood(ingredients), ...findPackaged(ingredients), ...findCategoryInconsistencies(cur.ingredients),
     ...findTasteNeutralSweet(ingredients), ...findTasteVocabulary(ingredients), ...findTasteOutliers(ingredients),
     ...cocktail.findings, ...sauce.findings, ...dish.findings,
   ];
   const isIngredientRule = (r) => /^(duplicate|non-food|fragment|packaged|category|taste)/.test(r);
   for (const f of findings) {
-    f.useCount = isIngredientRule(f.rule) ? (ingredients[f.item]?.totalCount ?? 0) : '';
+    f.useCount = isIngredientRule(f.rule) ? ((cur.ingredients[f.item] || ingredients[f.item])?.totalCount ?? 0) : '';
   }
 
   // A candidate already decided (aliased, hidden, flagged packaged, or on the keep list) is REVIEWED.
@@ -139,7 +141,9 @@ export function runAudit() {
     totals: { ingredients: Object.keys(ingredients).length, cocktails: codex.cocktails.length, sauces: sauces.length, dishes: SEED_RECIPES.length },
     findings, rules, metrics, handled, suppressedByKeepList: suppressed, keepListSize: keep.size, curated,
     details: {
-      categorySplits: categorySplits(ingredients),
+      categorySplits: categorySplits(cur.ingredients),
+      categoryCounts: categoryCounts(cur.ingredients),
+      categoryCountsRaw: categoryCounts(ingredients),
       tasteDistribution: tasteDistribution(ingredients),
       cocktailsByFamily: cocktail.byFamily,
       sauces: { motherSauce: sauce.motherSauce, cuisine: sauce.cuisine, total: sauce.total, independent: sauce.independent },
@@ -156,6 +160,12 @@ function summaryTable(result) {
   }
   const w = rows[0].map((_, i) => Math.max(...rows.map((r) => r[i].length)));
   return rows.map((r) => r.map((c, i) => (i >= 2 ? c.padStart(w[i]) : c.padEnd(w[i]))).join('  ')).join('\n');
+}
+
+function categoryCounts(ingredients) {
+  const out = {};
+  for (const [n, e] of Object.entries(ingredients)) if (!n.startsWith('_')) out[e.category || '(none)'] = (out[e.category || '(none)'] || 0) + 1;
+  return out;
 }
 
 const clean = (s) => String(s ?? '').replace(/[\t\r\n]+/g, ' ').trim();
@@ -240,11 +250,14 @@ function writeDoc(result, baseline) {
     ruleRows.push([title, `\`${id}\``, String(b.metrics[id] ?? 'n/a'), String(result.rules[id].total)]);
   }
   const d = result.details;
-  const splitRows = [['Family', 'Members', 'Split by category (most common first)', 'Outside the most common']];
+  const splitRows = [['Family', 'Members', 'Split by category (most common first)', 'Category the scheme gives it', 'Outside it']];
   for (const s of d.categorySplits) {
     const by = Object.entries(s.byCategory).sort((x, y) => y[1] - x[1]).map(([c, n]) => `${c} ${n}`).join(', ');
-    splitRows.push([s.family, String(s.total), by, String(s.minority.length)]);
+    splitRows.push([s.family, String(s.total), by, s.target.join(' / ') || 'n/a', String(s.outside.length)]);
   }
+  const schemeRows = [['Category', 'Ingredients in the generated data', 'Ingredients now (curated)', 'What it holds', 'Three examples']];
+  for (const c of CATEGORY_SCHEME) schemeRows.push([`\`${c.category}\``, String(d.categoryCountsRaw[c.category] ?? 0), String(d.categoryCounts[c.category] ?? 0), c.definition, c.examples.join(', ')]);
+  const dropped = Object.entries(d.categoryCountsRaw).filter(([c]) => !CATEGORY_SCHEME.some((x) => x.category === c)).map(([c, n]) => `\`${c}\` (${n})`);
   const famRows = [['Cocktail family', 'Drinks', 'Cream or egg drinks']];
   for (const [f, v] of Object.entries(d.cocktailsByFamily)) famRows.push([f, String(v.total), String(v.creamEgg)]);
   const mother = Object.entries(d.sauces.motherSauce).sort((x, y) => y[1] - x[1]).map(([k, n]) => `${k} ${n}`).join(', ');
@@ -306,11 +319,28 @@ Data sizes at baseline: ${b.totals.ingredients} ingredients, ${b.totals.cocktail
 ${b.totals.sauces} sauces, ${b.totals.dishes} Cookbook dishes.
 
 ${afterData3(result, b)}
+## After DATA-4: one category scheme
+
+Every ingredient has exactly one category, and the list below is the whole scheme. The generated data
+(\`public/proDataset/ingredients.json\`) is not edited: the scheme is applied on load by the curation layer
+(\`categoryRenames.json\` renames the old \`umami\` category to \`savory seasoning\`, and \`categoryOverrides.json\`
+has one line, with a reason, for each ingredient moved). The category rules below are run over the curated data
+and must report zero outside the scheme. Old category words in the generated data that the scheme dropped: ${dropped.join(', ') || 'none'}.
+
+${mdTable(schemeRows)}
+
+Four decisions that are not obvious from the names:
+
+* **Citrus juices stay with citrus.** Lemon, lime, orange, grapefruit and yuzu juice are filed under \`citrus\`, and every other juice under \`juice\`. The cocktail sour slot and the sauce acid slot read the \`citrus\` category, and lemon and lime juice must keep working as the sour; moving them would have meant changing those slot rules.
+* **Vermouth stays in \`liqueur\`.** It is an aromatised wine, but My bar and the cocktail slots treat it as a liqueur-shelf modifier, so it is not moved into \`wine\`. The audit checks this too (rule \`category-vermouth\`).
+* **Every flour is \`grain\`.** Cornstarch, gelatin and other setting agents stay \`thickener\`; a roux or thickener slot finds flour and cornstarch by name.
+* **Apple cider is a \`juice\`.** In a recipe it is pressed apple juice. Bare "cider" is filed under \`beer\`.
+
 ## Detail from the latest run
 
 Sizes now: ${result.totals.ingredients} ingredients, ${result.totals.cocktails} cocktails, ${result.totals.sauces} sauces, ${result.totals.dishes} dishes.
 
-### Categories: how each family is split
+### Categories: how each family is split (curated data, what the app loads)
 
 ${mdTable(splitRows)}
 
@@ -328,6 +358,8 @@ Mother sauces: ${mother}. Most common cuisines: ${cuisines}.
 ${mdTable(dishRows)}
 
 ### Taste labels: which first word each category uses most
+
+Computed on the generated data, before the curation layer, so it still shows the old category names (DATA-5 moves it onto the curated data).
 
 The known vocabulary is: ${TASTE_VOCAB.join(', ')}.
 

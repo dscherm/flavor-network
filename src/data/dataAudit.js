@@ -174,59 +174,73 @@ export function findPackaged(ingredients) {
 }
 
 // ----------------------------------------------------------------- category
+//
+// The category scheme (src/data/categoryScheme.js, written down in docs/data-quality.md) is enforced here:
+// each family below names the one category its members belong to. The audit is run over the CURATED data,
+// so a finding means the data still disagrees with the scheme.
 
 const CHEESE_WORDS = /\b(cheese|cheddar|parmesan|parmigiano|romano|mozzarella|mozarella|gouda|brie|camembert|feta|gruyere|provolone|havarti|fontina|gorgonzola|ricotta|mascarpone|colby|muenster|asiago|manchego|halloumi|paneer)\b/;
 const NOT_CHEESE = /(cake|cloth|cracker|soup|sauce|dressing|frosting|spread|ball|flavor|dorito|puff|straw|popcorn|bread|biscuit|pizza|ravioli|tortellini|manicotti|sandwich|dip|filled|stuffed|burger|steak|chip|roll|chocolate|filling|icing|romano bean|romano pepper)/;
-const WINE_WORDS = /\b(wine|sherry|port|marsala|sake|prosecco|champagne|vermouth|madeira|sauternes|riesling|chardonnay|merlot|cabernet|pinot|chianti|zinfandel|moscato|cava|lambrusco|mirin|sangria|rioja|malbec|syrah|shiraz|sauvignon)\b/;
-const NOT_WINE = /(vinegar|jelly|sauce|glaze|cake|gelatin|syrup|extract|flavor|cookie|ham|soup|dressing|spritzer|cooler)/;
+// Vermouth is an aromatised wine, but the bar and the cocktail slots treat it as a liqueur-shelf modifier:
+// it has its own family below and stays in 'liqueur' (DATA-4 decision).
+const WINE_WORDS = /\b(wine|sherry|port|marsala|sake|prosecco|champagne|madeira|sauternes|riesling|chardonnay|merlot|cabernet|pinot|chianti|zinfandel|moscato|cava|lambrusco|mirin|sangria|rioja|malbec|syrah|shiraz|sauvignon)\b/;
+const NOT_WINE = /(vinegar|vinaigrette|jelly|sauce|glaze|cake|gelatin|syrup|extract|flavor|cookie|\bham\b|soup|dressing|spritzer|cooler)/;
 const BEER_WORDS = /\b(beer|ale|lager|stout|porter|cider|pilsner)\b/;
-// Ginger beer, root beer and ginger ale are soft drinks: not beer for this rule.
-const NOT_BEER = /(ginger|root|birch|cream) (beer|ale)|\b(vinegar|batter|bread|cake|sauce|marinade)\b/;
+// Ginger beer, root beer and ginger ale are soft drinks; apple cider is pressed apple juice in a recipe.
+const NOT_BEER = /(ginger|root|birch|cream) (beer|ale)|\b(vinegar|batter|bread|cake|sauce|marinade)\b|\bapple cider$/;
 const SPIRIT_WORDS = /^(vodka|gin|rum|light rum|dark rum|white rum|spiced rum|tequila|whiskey|whisky|bourbon|scotch|rye whiskey|brandy|cognac|mezcal|grain alcohol|everclear|armagnac|pisco)$/;
+// A juice is the juice of a fruit or vegetable. Brines (pickle, olive), clam juice and a salted lemon juice are
+// not; three bare fragments ("juice from", "with juice", "reserved juice") are not named juices either.
+const NOT_JUICE = /\b(juice of|jelly|bar|box|sparkler|pickle|pickled|olive|clam|salt)\b|^(juice from|with juice|reserved juice)$/;
+// Citrus juices stay with citrus: the cocktail sour slot and the sauce acid slot read that category, and
+// lemon and lime juice must keep working as the sour.
+const CITRUS_WORD = /\b(lemons?|limes?|orange|grapefruit|mandarin|tangerine|clementine|yuzu|citrus|realemon)\b/;
 
+const isJuice = (n) => (/\bjuice\b/.test(n) && !NOT_JUICE.test(n)) || /\bapple cider$/.test(n);
+
+/** Each family: which names belong to it, and the one category the scheme files each of them under. */
 export const CATEGORY_FAMILIES = {
-  cheese: (n) => CHEESE_WORDS.test(n) && !NOT_CHEESE.test(n),
-  juice: (n) => /\bjuice\b/.test(n) && !/\b(juice of|jelly|bar|box|sparkler)\b/.test(n),
-  flour: (n) => /(^|\s)flour$/.test(n),
-  wine: (n) => WINE_WORDS.test(n) && !NOT_WINE.test(n),
-  beer: (n) => BEER_WORDS.test(n) && !NOT_BEER.test(n),
-  spirit: (n) => SPIRIT_WORDS.test(n),
+  cheese: { test: (n) => CHEESE_WORDS.test(n) && !NOT_CHEESE.test(n), expected: () => 'dairy' },
+  juice: { test: isJuice, expected: (n) => (CITRUS_WORD.test(n) && /\bjuice\b/.test(n) ? 'citrus' : 'juice') },
+  flour: { test: (n) => /(^|\s)flour$/.test(n), expected: () => 'grain' },
+  wine: { test: (n) => WINE_WORDS.test(n) && !NOT_WINE.test(n), expected: () => 'wine' },
+  vermouth: { test: (n) => /\bvermouth\b/.test(n) && !NOT_WINE.test(n), expected: () => 'liqueur' },
+  beer: { test: (n) => BEER_WORDS.test(n) && !NOT_BEER.test(n), expected: () => 'beer' },
+  spirit: { test: (n) => SPIRIT_WORDS.test(n), expected: () => 'spirit' },
 };
 
-/** Per family: how many entries sit in each category, and who is in a minority. */
+/** Per family: how many entries sit in each category, and who is outside the category the scheme gives them. */
 export function categorySplits(ingredients, families = CATEGORY_FAMILIES) {
   const out = [];
-  for (const [family, test] of Object.entries(families)) {
-    const members = Object.keys(ingredients).filter((n) => test(n.toLowerCase()));
+  for (const [family, { test, expected }] of Object.entries(families)) {
+    const members = Object.keys(ingredients).filter((n) => !n.startsWith('_') && test(n.toLowerCase()));
     const byCategory = {};
     for (const m of members) {
       const c = ingredients[m].category || '(none)';
       byCategory[c] = (byCategory[c] || 0) + 1;
     }
-    const ranked = Object.entries(byCategory).sort((a, b) => b[1] - a[1]);
-    const majority = ranked[0]?.[0] ?? null;
-    const minority = members.filter((m) => (ingredients[m].category || '(none)') !== majority);
-    out.push({ family, total: members.length, byCategory, majority, minority });
+    const target = [...new Set(members.map((m) => expected(m.toLowerCase())))];
+    const outside = members.filter((m) => (ingredients[m].category || '(none)') !== expected(m.toLowerCase()));
+    out.push({ family, total: members.length, byCategory, target, outside });
   }
   return out;
 }
 
-/** Findings for each member outside its family's most common category, plus every member of the 'umami' category. */
+/** Findings for each member outside the category the scheme gives it, plus every entry still filed under 'umami'. */
 export function findCategoryInconsistencies(ingredients, families = CATEGORY_FAMILIES) {
   const out = [];
-  for (const s of categorySplits(ingredients, families)) {
-    const share = s.total ? s.byCategory[s.majority] / s.total : 0;
-    for (const m of s.minority) {
-      out.push(finding(
-        m, `category-${s.family}`, share >= 0.7 ? 'HIGH' : 'LOW',
-        `a ${s.family} filed under '${ingredients[m].category}'; the most common category for ${s.family} is '${s.majority}' (${s.byCategory[s.majority]} of ${s.total})`,
-        `consider category '${s.majority}'`,
-      ));
+  for (const [family, { test, expected }] of Object.entries(families)) {
+    for (const m of Object.keys(ingredients)) {
+      if (m.startsWith('_') || !test(m.toLowerCase())) continue;
+      const want = expected(m.toLowerCase());
+      const have = ingredients[m].category || '(none)';
+      if (have === want) continue;
+      out.push(finding(m, `category-${family}`, 'HIGH', `a ${family} filed under '${have}'; the scheme files it under '${want}'`, `set category '${want}'`));
     }
   }
   for (const [name, e] of Object.entries(ingredients)) {
-    if (e.category === 'umami') {
-      out.push(finding(name, 'category-umami', 'LOW', "filed under 'umami', which is a taste, not a kind of food", 'move to its real category'));
+    if (e && e.category === 'umami') {
+      out.push(finding(name, 'category-umami', 'HIGH', "filed under 'umami', which is a taste, not a kind of food; the scheme calls this category 'savory seasoning'", "set category 'savory seasoning' (or its real category)"));
     }
   }
   return out;

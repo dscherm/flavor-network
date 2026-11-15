@@ -51,13 +51,14 @@ so later clean-up tasks can show the numbers going down and nothing can quietly 
 | Ingredient: boxed mix | `packaged-mix` | 0 | 0 |
 | Ingredient: canned condensed soup | `packaged-soup` | 0 | 0 |
 | Ingredient: 'flavored' product | `packaged-flavored` | 0 | 0 |
-| Category: a cheese outside the usual cheese category | `category-cheese` | 7 | 7 |
-| Category: a juice outside the usual juice category | `category-juice` | 27 | 27 |
-| Category: a flour outside the usual flour category | `category-flour` | 17 | 17 |
-| Category: a wine outside the usual wine category | `category-wine` | 17 | 17 |
-| Category: a beer or cider outside the usual category | `category-beer` | 0 | 0 |
-| Category: a spirit outside the usual spirit category | `category-spirit` | 0 | 0 |
-| Category: filed under 'umami' (a taste, not a kind of food) | `category-umami` | 47 | 47 |
+| Category: a cheese outside dairy | `category-cheese` | 0 | 0 |
+| Category: a juice outside juice (citrus juices belong to citrus) | `category-juice` | 0 | 0 |
+| Category: a flour outside grain | `category-flour` | 0 | 0 |
+| Category: a wine outside wine | `category-wine` | 0 | 0 |
+| Category: a vermouth outside liqueur | `category-vermouth` | 0 | 0 |
+| Category: a beer or hard cider outside beer | `category-beer` | 0 | 0 |
+| Category: a spirit outside spirit | `category-spirit` | 0 | 0 |
+| Category: still filed under 'umami' (a taste; the category is 'savory seasoning') | `category-umami` | 0 | 0 |
 | Taste: starch, plain fat, water or neutral spirit labelled 'sweet' | `taste-neutral-sweet` | 228 | 228 |
 | Taste: word outside the known vocabulary | `taste-vocab` | 0 | 0 |
 | Taste: no label | `taste-missing` | 0 | 0 |
@@ -136,20 +137,68 @@ front of a cook as a suggestion, a stand-in, a checklist pick or a "goes with" p
 
 Hidden names and merged variants are already gone from the curated dataset (DATA-2), so the predicate is a second guard for them.
 
+## After DATA-4: one category scheme
+
+Every ingredient has exactly one category, and the list below is the whole scheme. The generated data
+(`public/proDataset/ingredients.json`) is not edited: the scheme is applied on load by the curation layer
+(`categoryRenames.json` renames the old `umami` category to `savory seasoning`, and `categoryOverrides.json`
+has one line, with a reason, for each ingredient moved). The category rules below are run over the curated data
+and must report zero outside the scheme. Old category words in the generated data that the scheme dropped: `umami` (47).
+
+| Category | Ingredients in the generated data | Ingredients now (curated) | What it holds | Three examples |
+| --- | --- | --- | --- | --- |
+| `protein` | 490 | 455 | meat, poultry, fish and shellfish, eggs, tofu and other protein foods | egg, chicken, beef |
+| `vegetable` | 406 | 356 | vegetables, mushrooms and legumes eaten as the body of a dish | tomato, carrot, potato |
+| `fruit` | 223 | 205 | fruit other than citrus, fresh or dried | apple, banana, peach |
+| `citrus` | 86 | 80 | citrus fruit, its zest and its juice (the sour of a drink or a sauce) | lemon, lime juice, orange juice |
+| `dairy` | 245 | 239 | milk, cream, butter-fat dairy, yogurt and every cheese | milk, cream cheese, parmesan |
+| `grain` | 299 | 309 | grains, rice, pasta, bread crumb and every flour | rice, flour, bread |
+| `baked` | 206 | 205 | finished bakery goods and crackers | cake, graham cracker, vanilla wafer |
+| `confection` | 182 | 180 | chocolate, candy, puddings and ice cream | chocolate, vanilla ice cream, butterscotch chip |
+| `sweetener` | 103 | 98 | sugars, syrups and honey | sugar, honey, maple syrup |
+| `fat` | 124 | 121 | cooking oils and fats | butter, olive oil, sesame oil |
+| `nut` | 87 | 80 | nuts, seeds and nut butters | pecan, walnut, almond |
+| `herb` | 111 | 108 | leafy herbs, fresh or dried | parsley, basil, thyme |
+| `spice` | 173 | 158 | dried spices and spice blends | cinnamon, cumin, paprika |
+| `seasoning` | 36 | 35 | salts and salt-and-spice seasonings | garlic salt, lemon pepper, celery salt |
+| `aromatic` | 58 | 56 | onions, garlic, ginger and their kin, the flavor base of a dish | onion, garlic, ginger |
+| `chili` | 84 | 74 | fresh and dried chili peppers | cayenne pepper, jalapeño, chili |
+| `condiment` | 422 | 412 | prepared sauces, pastes, pickles and spreads | mustard, mayonnaise, soy sauce |
+| `savory seasoning` | 0 | 38 | concentrated umami seasonings: fish sauce, worcestershire, bouillon, miso, anchovy (the old "umami" category) | fish sauce, worcestershire sauce, chicken bouillon |
+| `acid` | 37 | 36 | vinegars and other cooking sours | vinegar, balsamic vinegar, rice vinegar |
+| `thickener` | 44 | 28 | starches and setting agents (not flour) | cornstarch, gelatin, cornflour |
+| `liquid` | 241 | 147 | stocks, soups, plant milks and other cooking liquids that are not a juice, wine or beer | chicken stock, coconut milk, tomato soup |
+| `juice` | 0 | 46 | fruit and vegetable juices and nectars (citrus juices are in citrus) | pineapple juice, tomato juice, apple cider |
+| `wine` | 0 | 50 | still, sparkling and fortified wine, sake, mirin and cooking wine (vermouth is in liqueur) | white wine, sake, port wine |
+| `beer` | 0 | 6 | beer, ale, stout, lager and hard cider | beer, stout beer, lager beer |
+| `spirit` | 45 | 36 | distilled spirits | rum, bourbon, tequila |
+| `liqueur` | 59 | 55 | liqueurs, cordials and vermouth | triple sec, kahlua, sweet vermouth |
+| `mixer` | 8 | 7 | sodas and other non-alcoholic bar mixers | ginger ale, tonic water, ginger beer |
+| `bitters` | 4 | 4 | cocktail bitters | angostura bitters, orange bitters, gentian |
+| `other` | 71 | 43 | anything that fits nowhere else (yeast, powders, non-food leftovers) | yeast, protein powder, corn husk |
+
+Four decisions that are not obvious from the names:
+
+* **Citrus juices stay with citrus.** Lemon, lime, orange, grapefruit and yuzu juice are filed under `citrus`, and every other juice under `juice`. The cocktail sour slot and the sauce acid slot read the `citrus` category, and lemon and lime juice must keep working as the sour; moving them would have meant changing those slot rules.
+* **Vermouth stays in `liqueur`.** It is an aromatised wine, but My bar and the cocktail slots treat it as a liqueur-shelf modifier, so it is not moved into `wine`. The audit checks this too (rule `category-vermouth`).
+* **Every flour is `grain`.** Cornstarch, gelatin and other setting agents stay `thickener`; a roux or thickener slot finds flour and cornstarch by name.
+* **Apple cider is a `juice`.** In a recipe it is pressed apple juice. Bare "cider" is filed under `beer`.
+
 ## Detail from the latest run
 
 Sizes now: 3891 ingredients, 441 cocktails, 77 sauces, 83 dishes.
 
-### Categories: how each family is split
+### Categories: how each family is split (curated data, what the app loads)
 
-| Family | Members | Split by category (most common first) | Outside the most common |
-| --- | --- | --- | --- |
-| cheese | 146 | dairy 139, umami 7 | 7 |
-| juice | 82 | liquid 55, citrus 24, acid 2, aromatic 1 | 27 |
-| flour | 47 | grain 30, thickener 16, nut 1 | 17 |
-| wine | 54 | liquid 37, spirit 9, liqueur 6, condiment 2 | 17 |
-| beer | 9 | liquid 9 | 0 |
-| spirit | 12 | spirit 12 | 0 |
+| Family | Members | Split by category (most common first) | Category the scheme gives it | Outside it |
+| --- | --- | --- | --- | --- |
+| cheese | 138 | dairy 138 | dairy | 0 |
+| juice | 71 | juice 46, citrus 25 | citrus / juice | 0 |
+| flour | 46 | grain 46 | grain | 0 |
+| wine | 50 | wine 50 | wine | 0 |
+| vermouth | 4 | liqueur 4 | liqueur | 0 |
+| beer | 6 | beer 6 | beer | 0 |
+| spirit | 12 | spirit 12 | spirit | 0 |
 
 ### Cocktail families
 
@@ -196,6 +245,8 @@ Mother sauces: Independent 27, Stir-fry 8, Curry 7, Espagnole 6, Béchamel 5, To
 | Dish (`plate`) | 0 | none |
 
 ### Taste labels: which first word each category uses most
+
+Computed on the generated data, before the curation layer, so it still shows the old category names (DATA-5 moves it onto the curated data).
 
 The known vocabulary is: sweet, sour, bitter, salty, umami, spicy, pungent, astringent.
 

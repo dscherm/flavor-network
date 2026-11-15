@@ -39,7 +39,7 @@ import { getGeneralRole } from './ingredientRoles.js';
 
 /** Ingredient-graph categories that are the food of a dish. */
 export const MAIN_CATEGORIES = new Set([
-  'protein', 'vegetable', 'grain', 'dairy', 'fruit', 'baked', 'confection', 'liquid',
+  'protein', 'vegetable', 'grain', 'dairy', 'fruit', 'baked', 'confection', 'liquid', 'juice', 'beer',
 ]);
 
 /**
@@ -48,7 +48,7 @@ export const MAIN_CATEGORIES = new Set([
  */
 export const SUPPORTING_CATEGORIES = new Set([
   'spice', 'herb', 'seasoning', 'condiment', 'sweetener', 'acid', 'citrus', 'chili',
-  'aromatic', 'umami', 'fat', 'nut', 'thickener', 'other', 'spirit', 'liqueur', 'mixer', 'bitters',
+  'aromatic', 'savory seasoning', 'fat', 'nut', 'thickener', 'other', 'spirit', 'liqueur', 'mixer', 'bitters', 'wine',
 ]);
 
 // In a bake or a dessert these give the dish its structure, so they are mains.
@@ -59,7 +59,7 @@ export const INGREDIENT_CLASS = {
   // Onions are the body of a dish (see the header).
   onion: 'main', 'purple onion': 'main', 'red onion': 'main', 'white onion': 'main',
   'yellow onion': 'main', 'sweet onion': 'main', 'pearl onion': 'main',
-  // Hard cheeses the graph files under "umami": in carbonara or lasagna they are cheese.
+  // Hard cheeses (filed under the old 'umami' category until DATA-4, now dairy): in carbonara or lasagna they are cheese.
   parmesan: 'main', pecorino: 'main', 'parmigiano reggiano': 'main', 'pecorino romano': 'main',
   // Coatings and toppings filed under grain / baked.
   panko: 'supporting', breadcrumb: 'supporting', breadcrumbs: 'supporting',

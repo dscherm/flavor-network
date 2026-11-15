@@ -1,1 +1,9 @@
-{ "categories": {}, "tastes": {} }
+{
+  "categories": {
+    "savory seasoning": { "reason": "the renamed 'umami' category: bouillon, fish sauce, miso, worcestershire and similar; a kind of food, where umami is a taste" },
+    "juice": { "reason": "fruit and vegetable juices and nectars (apple, pineapple, tomato, cranberry); citrus juices stay with citrus because the sour slots read that category" },
+    "wine": { "reason": "still, sparkling and fortified wine, sake, mirin and cooking wine; vermouth stays in liqueur" },
+    "beer": { "reason": "beer, ale, stout, lager and cider (ginger beer is a mixer; apple cider is a juice)" }
+  },
+  "tastes": {}
+}

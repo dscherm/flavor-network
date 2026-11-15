@@ -153,7 +153,7 @@ function isShellfish(name) {
 }
 
 function isAlcohol(name, node) {
-  if (node?.category === 'spirit' || node?.category === 'liqueur') return true;
+  if (['spirit', 'liqueur', 'wine', 'beer'].includes(node?.category)) return true;
   return nameContainsAny(name, ALCOHOL_KEYWORDS);
 }
 

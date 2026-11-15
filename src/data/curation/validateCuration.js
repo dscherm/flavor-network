@@ -9,6 +9,7 @@
  *   categoryOverrides  { "<name>": { category, reason } }
  *   tasteOverrides     { "<name>": { taste, reason } }
  *   additions          { "<name>": { category, taste, reason } }
+ *   categoryRenames    { "<old category>": { to, reason } }   (every ingredient filed under the old word moves)
  *   vocabulary         { categories: { "<word>": {reason} }, tastes: { "<word>": {reason} } }
  *
  * Options (all optional; the data-dependent checks are skipped when absent):
@@ -78,6 +79,9 @@ export function validateCuration(tables, opts = {}) {
     if (tablesFor.length > 1) problems.push(`"${key}" appears in contradictory tables: ${tablesFor.join(', ')}`);
   }
 
+  const renames = isObj(tables?.categoryRenames) ? tables.categoryRenames : {};
+  if (tables?.categoryRenames !== undefined && !isObj(tables.categoryRenames)) problems.push('categoryRenames: must be an object');
+
   const categories = opts.categories ? new Set([...opts.categories, ...extraCategories]) : null;
   const tastes = opts.tastes ? new Set([...opts.tastes, ...extraTastes]) : null;
   const checkCategory = (at, c) => {
@@ -88,6 +92,14 @@ export function validateCuration(tables, opts = {}) {
     if (!nonEmpty(s)) { problems.push(`${at}: missing taste`); return; }
     if (tastes) for (const w of s.trim().split(/\s+/)) if (!tastes.has(w)) problems.push(`${at}: unknown taste word "${w}" (add it to vocabulary.tastes with a reason if it is new)`);
   };
+  for (const [from, e] of Object.entries(renames)) {
+    const at = `categoryRenames "${from}"`;
+    if (!isObj(e)) { problems.push(`${at}: entry must be an object`); continue; }
+    if (!nonEmpty(e.reason)) problems.push(`${at}: missing reason`);
+    checkCategory(at, e.to);
+    if (e.to === from) problems.push(`${at}: renames itself`);
+    if (Object.hasOwn(renames, e.to)) problems.push(`${at}: target "${e.to}" is itself renamed (no chains: point at the final category)`);
+  }
   for (const [k, e] of Object.entries(t.categoryOverrides)) if (isObj(e)) checkCategory(`categoryOverrides "${k}"`, e.category);
   for (const [k, e] of Object.entries(t.tasteOverrides)) if (isObj(e)) checkTaste(`tasteOverrides "${k}"`, e.taste);
   for (const [k, e] of Object.entries(t.additions)) {

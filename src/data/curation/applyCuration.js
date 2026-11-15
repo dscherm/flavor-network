@@ -10,7 +10,9 @@
  *   applyCuration(ingredients, pairings, tables) -> { ingredients, pairings, report }
  *
  * `pairings` may be null (skip the pairing merge; used when the pairings were already merged at build
- * time). Order of operations: additions, aliases, hidden, packaged, category and taste overrides.
+ * time). Order of operations: additions, aliases, hidden, packaged, category renames, category and taste overrides.
+ * A category rename ({ "umami": { to: "savory seasoning" } }) moves every ingredient filed under the old word; an
+ * override on a single ingredient is applied after it and wins.
  *
  * Pairing merge rule when two records collapse onto one unordered pair:
  *   strength  the stronger of the two (also tradition / cooccurrence: the larger)
@@ -57,13 +59,13 @@ export function applyCuration(ingredients, pairings, tables = {}) {
   const t = {
     aliases: tables.aliases || {}, hidden: tables.hidden || {}, packaged: tables.packaged || {},
     categoryOverrides: tables.categoryOverrides || {}, tasteOverrides: tables.tasteOverrides || {},
-    additions: tables.additions || {},
+    additions: tables.additions || {}, categoryRenames: tables.categoryRenames || {},
   };
   const report = {
     aliasesApplied: [], aliasesAbsent: [], aliasesMissingCanonical: [],
     hiddenApplied: [], hiddenAbsent: [],
     packagedApplied: [], packagedAbsent: [],
-    categoryApplied: [], categoryAbsent: [], tasteApplied: [], tasteAbsent: [],
+    categoryRenamed: [], categoryApplied: [], categoryAbsent: [], tasteApplied: [], tasteAbsent: [],
     additionsApplied: [], additionsExisting: [],
     pairingsIn: pairings ? pairings.length : 0, pairingsOut: 0, pairingsMerged: 0, pairingsDropped: 0,
   };
@@ -102,6 +104,10 @@ export function applyCuration(ingredients, pairings, tables = {}) {
     if (!out[name]) { report.packagedAbsent.push(name); continue; }
     out[name].packaged = true;
     report.packagedApplied.push(name);
+  }
+  for (const [name, info] of Object.entries(out)) {
+    const r = !name.startsWith('_') && info ? t.categoryRenames[info.category] : null;
+    if (r) { info.category = r.to; report.categoryRenamed.push(name); }
   }
   for (const [name, o] of Object.entries(t.categoryOverrides)) {
     if (!out[name]) { report.categoryAbsent.push(name); continue; }

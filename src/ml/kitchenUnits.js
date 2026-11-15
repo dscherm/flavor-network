@@ -96,7 +96,7 @@ export function toBase(qty, unit) {
 export const CATEGORY_DEFAULT_DIMENSION = {
   protein: 'weight',
   vegetable: 'count', fruit: 'count', aromatic: 'count', citrus: 'count', chili: 'count',
-  fat: 'volume', condiment: 'volume', liquid: 'volume', acid: 'volume', umami: 'volume',
+  fat: 'volume', condiment: 'volume', liquid: 'volume', juice: 'volume', wine: 'volume', beer: 'volume', acid: 'volume', 'savory seasoning': 'volume',
   sweetener: 'volume', spice: 'volume', seasoning: 'volume', herb: 'volume', dairy: 'volume',
   grain: 'volume', thickener: 'volume', nut: 'volume', confection: 'volume', baked: 'volume',
   spirit: 'volume', liqueur: 'volume', mixer: 'volume', bitters: 'volume', other: 'volume',

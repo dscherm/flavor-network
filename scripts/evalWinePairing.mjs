@@ -31,7 +31,9 @@ const { RECIPE_DETAILS } = await import(src('data/seedRecipeDetails.js'));
 const { rankWinesForRecipe } = await import(src('data/winePairing.js'));
 const { ANSWER_KEY, HELD_OUT } = await import(src('data/wineAnswerKey.js'));
 
-const ingredients = JSON.parse(readFileSync(path.join(ROOT, 'public/proDataset/ingredients.json'), 'utf8'));
+const { loadCurationTables, applyCuration } = await import(pathToFileURL(path.join(ROOT, 'scripts/lib/curationTables.mjs')).href);
+// The category scheme (DATA-4) is applied by the curation layer, so the eval reads the curated categories the app sees.
+const ingredients = applyCuration(JSON.parse(readFileSync(path.join(ROOT, 'public/proDataset/ingredients.json'), 'utf8')), null, loadCurationTables()).ingredients;
 const wines = JSON.parse(readFileSync(path.join(ROOT, 'public/data/wine_styles.json'), 'utf8')).wines;
 const categoryOf = (name) => ingredients[name]?.category || null;
 

@@ -99,39 +99,59 @@ describe('category rules', () => {
     cheddar: { category: 'dairy' }, brie: { category: 'dairy' }, 'goat cheese': { category: 'dairy' }, 'blue cheese': { category: 'dairy' },
     parmesan: { category: 'umami' }, cheesecake: { category: 'baked' }, cheesecloth: { category: 'other' }, 'romano bean': { category: 'protein' },
     'lemon juice': { category: 'citrus' }, 'lime juice': { category: 'citrus' }, 'pineapple juice': { category: 'liquid' }, 'orange juice': { category: 'citrus' },
+    'tangerine juice': { category: 'liquid' }, 'apple cider': { category: 'liquid' }, 'pickle juice': { category: 'liquid' }, 'clam juice': { category: 'liquid' }, 'tomato juice': { category: 'juice' },
     'wheat flour': { category: 'grain' }, 'rice flour': { category: 'grain' }, 'flour tortilla': { category: 'baked' }, 'corn flour': { category: 'thickener' },
-    sherry: { category: 'spirit' }, 'red wine': { category: 'liquid' }, 'white wine': { category: 'liquid' }, 'dry sherry': { category: 'spirit' }, 'rose wine': { category: 'liquid' }, 'wine vinegar': { category: 'acid' },
-    beer: { category: 'liquid' }, 'ginger beer': { category: 'mixer' }, 'root beer': { category: 'liquid' }, cider: { category: 'liquid' }, vodka: { category: 'spirit' }, 'peanut butter': { category: 'nut' },
+    sherry: { category: 'spirit' }, 'red wine': { category: 'liquid' }, 'white wine': { category: 'wine' }, 'dry sherry': { category: 'wine' }, 'rose wine': { category: 'liquid' },
+    'wine vinegar': { category: 'acid' }, 'red wine vinaigrette': { category: 'condiment' }, champagne: { category: 'mixer' }, 'dry vermouth': { category: 'liqueur' }, 'sweet vermouth': { category: 'wine' },
+    beer: { category: 'liquid' }, 'ginger beer': { category: 'mixer' }, 'root beer': { category: 'liquid' }, cider: { category: 'beer' }, 'sweet apple cider': { category: 'juice' }, vodka: { category: 'spirit' }, 'peanut butter': { category: 'nut' },
   };
-  it('puts members in the family and reports the minority', () => {
-    const s = Object.fromEntries(categorySplits(data).map((x) => [x.family, x]));
-    expect(s.cheese.minority).toEqual(['parmesan']);
+  const splits = () => Object.fromEntries(categorySplits(data).map((x) => [x.family, x]));
+  it('puts members in the family and reports the ones outside the category the scheme gives them', () => {
+    const s = splits();
+    expect(s.cheese.outside).toEqual(['parmesan']);
     expect(s.cheese.total).toBe(5);
-    expect(s.juice.majority).toBe('citrus');
-    expect(s.juice.minority).toEqual(['pineapple juice']);
-    expect(s.flour.minority).toEqual(['corn flour']);
-    expect(s.wine.minority.sort()).toEqual(['dry sherry', 'sherry']);
+    expect(s.cheese.target).toEqual(['dairy']);
+    expect(s.flour.outside).toEqual(['corn flour']);
+    expect(s.wine.outside.sort()).toEqual(['red wine', 'rose wine', 'sherry', 'champagne'].sort());
   });
-  it('does not count cheesecake, cheesecloth, romano bean as cheese, or a vinegar as wine', () => {
-    const s = Object.fromEntries(categorySplits(data).map((x) => [x.family, x]));
+  it('files a citrus juice under citrus and every other juice under juice, and leaves brines and clam juice out', () => {
+    const s = splits();
+    expect(s.juice.target.sort()).toEqual(['citrus', 'juice']);
+    expect(s.juice.outside.sort()).toEqual(['apple cider', 'pineapple juice', 'tangerine juice']);
+    expect(s.juice.total).toBe(8);
+  });
+  it('does not count cheesecake, cheesecloth, romano bean as cheese, or a vinegar, a vinaigrette or a ham as wine', () => {
+    const s = splits();
     expect(s.cheese.total).toBe(5);
-    expect(s.wine.total).toBe(5);
-    expect(s.juice.total).toBe(4);
+    expect(s.wine.total).toBe(6);
+    expect(findCategoryInconsistencies({ champagne: { category: 'wine' }, 'red wine vinaigrette': { category: 'condiment' } })).toEqual([]);
   });
-  it('treats ginger beer and root beer as soft drinks, not beer', () => {
-    const s = Object.fromEntries(categorySplits(data).map((x) => [x.family, x]));
+  it('keeps vermouth in liqueur, and treats ginger beer and root beer as soft drinks, not beer', () => {
+    const s = splits();
+    expect(s.vermouth.target).toEqual(['liqueur']);
+    expect(s.vermouth.outside).toEqual(['sweet vermouth']);
     expect(s.beer.total).toBe(2);
-    expect(s.beer.minority).toEqual([]);
+    expect(s.beer.outside).toEqual(['beer']);
   });
-  it('pineapple juice is a juice; findings name the category used by most', () => {
+  it('a finding names the category the scheme gives the item', () => {
     const f = findCategoryInconsistencies(data);
     const p = f.find((x) => x.item === 'pineapple juice');
     expect(p.rule).toBe('category-juice');
-    expect(p.suggestion).toBe("consider category 'citrus'");
+    expect(p.suggestion).toBe("set category 'juice'");
+    expect(f.find((x) => x.item === 'tangerine juice').suggestion).toBe("set category 'citrus'");
+    expect(f.find((x) => x.item === 'corn flour').suggestion).toBe("set category 'grain'");
+    expect(f.find((x) => x.item === 'sweet vermouth').rule).toBe('category-vermouth');
   });
-  it("lists every entry in the 'umami' category", () => {
+  it("still lists every entry in the 'umami' category", () => {
     const f = findCategoryInconsistencies(data).filter((x) => x.rule === 'category-umami');
     expect(items(f)).toEqual(['parmesan']);
+  });
+  it('reports nothing for data that follows the scheme', () => {
+    const ok = {
+      parmesan: { category: 'dairy' }, 'lemon juice': { category: 'citrus' }, 'apple juice': { category: 'juice' }, flour: { category: 'grain' },
+      'red wine': { category: 'wine' }, 'dry vermouth': { category: 'liqueur' }, beer: { category: 'beer' }, rum: { category: 'spirit' }, 'fish sauce': { category: 'savory seasoning' },
+    };
+    expect(findCategoryInconsistencies(ok)).toEqual([]);
   });
 });
 

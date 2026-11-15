@@ -59,12 +59,16 @@ const RX = {
   fruit: /\b(apple|pear|peach|apricot|plum|cherry|berry|strawberry|raspberry|mango|pineapple|fig|date|raisin|quince|papaya|coconut)\b(?!.*\b(vinegar|cider vinegar)\b)/,
   tropical: /\b(coconut|mango|pineapple|papaya|passion fruit|lychee)\b/,
 };
+// The hard grating cheeses were filed under the old 'umami' category (hint 'umami') until DATA-4 moved every
+// cheese to dairy (hint 'cream'). A parmesan is a seasoning in a dish, not its cream, so they keep the hint
+// they always had: the wine ranking does not move with the category scheme.
+const HARD_CHEESE = /\b(parmesan|parmesian|parmigiano|pecorino|romano)\b/;
 const CATEGORY_HINT = {
   protein: null, // too broad; the name lexicons decide the protein type
   dairy: 'cream', fat: 'fat', acid: 'acid', citrus: 'citrus', sweetener: 'sweet', confection: 'sweet',
   // No 'spice' hint: the category also holds paprika and black pepper, and
   // a dry rub is not a curry. warmSpice comes from its name lexicon only.
-  chili: 'chili', umami: 'umami', herb: 'herbal', nut: 'nutty', fruit: 'fruit',
+  chili: 'chili', 'savory seasoning': 'umami', herb: 'herbal', nut: 'nutty', fruit: 'fruit',
 };
 
 // Stocks, broths and sauces name a protein without being one.
@@ -103,7 +107,11 @@ const has = (key, name) => (PROTEIN_KEYS.has(key) && NOT_PROTEIN.test(name) ? fa
 export function dishProfile(ingredients, ctx = {}) {
   const names = (ingredients || []).map((i) => String(i || '').toLowerCase().trim()).filter(Boolean);
   const n = Math.max(names.length, 1);
-  const count = (key) => names.filter((nm) => has(key, nm) || CATEGORY_HINT[ctx.categoryOf?.(nm)] === key).length;
+  const hintOf = (nm) => {
+    const cat = ctx.categoryOf?.(nm);
+    return cat === 'dairy' && HARD_CHEESE.test(nm) ? 'umami' : CATEGORY_HINT[cat];
+  };
+  const count = (key) => names.filter((nm) => has(key, nm) || hintOf(nm) === key).length;
   const method = String(ctx.methodText || '').toLowerCase();
 
   // Cured pork used as seasoning (bacon in chowder, chorizo in paella) only
@@ -170,7 +178,7 @@ export function dishProfile(ingredients, ctx = {}) {
     tomato: names.some((x) => has('tomato', x)),
     // Cream, butter, ghee or coconut milk in the sauce rounds off its acid.
     // Yogurt and buttermilk are dairy but tangy: they are the acid.
-    creamy: sat(names.filter((x) => (has('cream', x) || CATEGORY_HINT[ctx.categoryOf?.(x)] === 'cream') && !has('acid', x)).length, 1),
+    creamy: sat(names.filter((x) => (has('cream', x) || hintOf(x) === 'cream') && !has('acid', x)).length, 1),
     fried,
     braised,
     grilled,

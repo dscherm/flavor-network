@@ -124,3 +124,32 @@ describe('applyCuration', () => {
     expect(pairings).toEqual([{ ingredientA: 'peach', ingredientB: 'basil', strength: 0.5, known: true, cooccurrence: 0.7 }]);
   });
 });
+
+describe('category renames', () => {
+  const data = () => ({
+    'fish sauce': { category: 'umami', taste: 'salty umami', sources: [], totalCount: 1 },
+    parmesan: { category: 'umami', taste: 'salty', sources: [], totalCount: 1 },
+    gin: { category: 'spirit', taste: 'bitter', sources: [], totalCount: 1 },
+    _meta: { category: 'umami' },
+  });
+  const renames = { umami: { to: 'savory seasoning', reason: 'r' } };
+  it('moves every ingredient filed under the old word and leaves the rest and the meta keys alone', () => {
+    const { ingredients, report } = applyCuration(data(), null, { categoryRenames: renames });
+    expect(ingredients['fish sauce'].category).toBe('savory seasoning');
+    expect(ingredients.parmesan.category).toBe('savory seasoning');
+    expect(ingredients.gin.category).toBe('spirit');
+    expect(ingredients._meta.category).toBe('umami');
+    expect(report.categoryRenamed.sort()).toEqual(['fish sauce', 'parmesan']);
+  });
+  it('an override on one ingredient is applied after the rename and wins', () => {
+    const { ingredients } = applyCuration(data(), null, { categoryRenames: renames, categoryOverrides: { parmesan: { category: 'dairy', reason: 'r' } } });
+    expect(ingredients.parmesan.category).toBe('dairy');
+    expect(ingredients['fish sauce'].category).toBe('savory seasoning');
+  });
+  it('is idempotent and does not mutate its input', () => {
+    const input = data();
+    const once = applyCuration(input, null, { categoryRenames: renames }).ingredients;
+    expect(input.parmesan.category).toBe('umami');
+    expect(applyCuration(once, null, { categoryRenames: renames }).ingredients).toEqual(once);
+  });
+});

@@ -84,7 +84,7 @@ export function recipeRoles(names, { nodes = null, main = null } = {}) {
     if (c === 'grain' || (STARCHY.test(n) && c !== 'protein')) roles.starch = true;
     else if (c === 'vegetable') roles.vegetable = true;
     if (c === 'aromatic' || AROMATIC.test(n)) roles.aromatic = true;
-    if (['citrus', 'acid', 'dairy', 'umami', 'fat', 'nut'].includes(c) || ACID.test(n)) roles.acidRich = true;
+    if (['citrus', 'acid', 'dairy', 'savory seasoning', 'fat', 'nut'].includes(c) || ACID.test(n)) roles.acidRich = true;
     if (['herb', 'spice', 'chili', 'seasoning'].includes(c)) roles.herbSpice = true;
   }
   return roles;

@@ -52,6 +52,20 @@ describe('validateCuration', () => {
   it('rejects a table that is not an object', () => {
     expect(joined({ aliases: [] })).toMatch(/must be an object/);
   });
+  describe('categoryRenames', () => {
+    const v = { vocabulary: { categories: { 'savory seasoning': { reason: 'r' } } } };
+    it('accepts a rename to a declared category', () => {
+      expect(validateCuration({ ...v, categoryRenames: { umami: { to: 'savory seasoning', reason: 'a taste is not a food' } } }, { ...opts, categories: new Set(['umami', 'fruit']) })).toEqual([]);
+    });
+    it('rejects a missing reason, an unknown target, a self-rename and a chain', () => {
+      const o = { ...opts, categories: new Set(['umami', 'fruit']) };
+      expect(validateCuration({ ...v, categoryRenames: { umami: { to: 'savory seasoning' } } }, o).join('|')).toMatch(/missing reason/);
+      expect(validateCuration({ categoryRenames: { umami: { to: 'savory seasoning', reason: 'r' } } }, o).join('|')).toMatch(/unknown category "savory seasoning"/);
+      expect(validateCuration({ categoryRenames: { fruit: { to: 'fruit', reason: 'r' } } }, o).join('|')).toMatch(/renames itself/);
+      expect(validateCuration({ ...v, categoryRenames: { umami: { to: 'fruit', reason: 'r' }, fruit: { to: 'savory seasoning', reason: 'r' } } }, o).join('|')).toMatch(/itself renamed/);
+      expect(validateCuration({ categoryRenames: [] }, o).join('|')).toMatch(/categoryRenames: must be an object/);
+    });
+  });
   it('reads vocabularies from the data', () => {
     const v = vocabulariesOf({ _x: {}, a: { category: 'fruit', taste: 'sweet sour' }, b: { category: 'herb', taste: 'umami' } });
     expect([...v.categories].sort()).toEqual(['fruit', 'herb']);

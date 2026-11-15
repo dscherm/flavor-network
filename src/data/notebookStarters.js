@@ -12,7 +12,7 @@
 // Savoury, cook-from-here categories first; pantry staples (sugar, flour,
 // butter, oil, stock) are left out on purpose — nobody starts a dish there.
 export const STARTER_CATEGORIES = [
-  'vegetable', 'aromatic', 'herb', 'protein', 'citrus', 'fruit', 'umami', 'chili', 'spice', 'dairy',
+  'vegetable', 'aromatic', 'herb', 'protein', 'citrus', 'fruit', 'savory seasoning', 'chili', 'spice', 'dairy',
 ];
 
 function nodeList(nodes) {

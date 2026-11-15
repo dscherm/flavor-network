@@ -10,7 +10,7 @@ const DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../src/data/cur
 
 export function loadCurationTables() {
   const out = {};
-  for (const name of [...TABLE_NAMES, 'vocabulary']) {
+  for (const name of [...TABLE_NAMES, 'categoryRenames', 'vocabulary']) {
     const p = resolve(DIR, `${name}.json`);
     out[name] = existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : {};
   }

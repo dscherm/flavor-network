@@ -34,14 +34,14 @@ const CATEGORY_TO_COCKTAIL_ROLE = {
   spirit: 'spirit', liqueur: 'liqueur', sweetener: 'sweetener',
   citrus: 'citrus', herb: 'modifier', spice: 'seasoning',
   fruit: 'citrus', dairy: 'dairy', protein: 'dairy',
-  liquid: 'lengthener', condiment: 'seasoning', acid: 'citrus',
+  liquid: 'lengthener', juice: 'lengthener', beer: 'lengthener', wine: 'lengthener', condiment: 'seasoning', acid: 'citrus',
   fat: 'modifier', aromatic: 'modifier', vegetable: null,
   grain: null, nut: null, chili: 'seasoning', seasoning: 'seasoning',
   bitters: 'seasoning', other: null,
 };
 
 const CATEGORY_TO_SAUCE_ROLE = {
-  fat: 'fat', dairy: 'dairy', liquid: 'liquid', grain: 'thickener',
+  fat: 'fat', dairy: 'dairy', liquid: 'liquid', juice: 'liquid', beer: 'liquid', wine: 'liquid', grain: 'thickener',
   thickener: 'thickener', aromatic: 'aromatic', herb: 'herb',
   spice: 'spice', chili: 'chili', acid: 'acid', citrus: 'acid',
   condiment: 'umami', protein: 'umami', seasoning: 'spice',
