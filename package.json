@@ -12,6 +12,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "api": "node src/api/server.js",
+    "audit:data": "node scripts/auditData.mjs",
     "measure:flavor": "node scripts/measureFlavorProfile.mjs",
     "gate": "node scripts/gate.cjs",
     "gate:quick": "node scripts/gate.cjs --no-build",

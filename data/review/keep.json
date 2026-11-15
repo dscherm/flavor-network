@@ -1,0 +1,11 @@
+{
+  "note": "Names a person has reviewed and decided are NOT duplicates. The duplicate rule skips them and the audit reports how many it skipped. Names that are not in the data today stay listed so they remain protected if they appear.",
+  "keep": [
+    { "name": "ripe olive", "reason": "the canned black olive of the American pantry, a different product from an olive" },
+    { "name": "instant mashed potato", "reason": "dried potato flakes, a different product from a potato" },
+    { "name": "instant polenta", "reason": "pre-cooked polenta cooks in minutes and behaves differently from polenta" },
+    { "name": "new potato", "reason": "a small waxy potato, cooked differently from a baking potato" },
+    { "name": "cherry tomato", "reason": "a different size and sweetness from a plain tomato" },
+    { "name": "extra virgin olive oil", "reason": "a grade of olive oil a cook picks on purpose, not the same as plain olive oil" }
+  ]
+}

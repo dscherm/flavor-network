@@ -1,0 +1,116 @@
+item	rule	confidence	use_count	detail	suggested_action
+lemon juice	category-juice	LOW	152937	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+parmesan	category-cheese	HIGH	100057	a cheese filed under 'umami'; the most common category for cheese is 'dairy' (139 of 146)	consider category 'dairy'
+parmesan	category-umami	LOW	100057	filed under 'umami', which is a taste, not a kind of food	move to its real category
+worcestershire sauce	category-umami	LOW	64972	filed under 'umami', which is a taste, not a kind of food	move to its real category
+orange juice	category-juice	LOW	43437	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+lime juice	category-juice	LOW	38368	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+wheat flour	category-flour	LOW	17137	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+fish sauce	category-umami	LOW	9369	filed under 'umami', which is a taste, not a kind of food	move to its real category
+sake	category-wine	LOW	6529	a wine filed under 'spirit'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+anchovy	category-umami	LOW	6262	filed under 'umami', which is a taste, not a kind of food	move to its real category
+worcestershire	category-umami	LOW	5340	filed under 'umami', which is a taste, not a kind of food	move to its real category
+romano cheese	category-cheese	HIGH	4961	a cheese filed under 'umami'; the most common category for cheese is 'dairy' (139 of 146)	consider category 'dairy'
+romano cheese	category-umami	LOW	4961	filed under 'umami', which is a taste, not a kind of food	move to its real category
+mirin	category-wine	LOW	4806	a wine filed under 'condiment'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+freshly squeezed lemon juice	category-juice	LOW	3568	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+white flour	category-flour	LOW	3177	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+chicken bouillon	category-umami	LOW	2721	filed under 'umami', which is a taste, not a kind of food	move to its real category
+chicken bouillon cube	category-umami	LOW	2685	filed under 'umami', which is a taste, not a kind of food	move to its real category
+sherry wine	category-wine	LOW	2440	a wine filed under 'spirit'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+orange juice concentrate	category-juice	LOW	2419	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+beef bouillon	category-umami	LOW	2162	filed under 'umami', which is a taste, not a kind of food	move to its real category
+wheat pastry flour	category-flour	LOW	1996	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+freshly squeezed lime juice	category-juice	LOW	1789	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+chicken bouillon granule	category-umami	LOW	1604	filed under 'umami', which is a taste, not a kind of food	move to its real category
+miso	category-umami	LOW	1566	filed under 'umami', which is a taste, not a kind of food	move to its real category
+marsala wine	category-wine	LOW	1458	a wine filed under 'spirit'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+nutritional yeast	category-umami	LOW	1403	filed under 'umami', which is a taste, not a kind of food	move to its real category
+freshly squeezed orange juice	category-juice	LOW	1233	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+port wine	category-wine	LOW	1183	a wine filed under 'spirit'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+grapefruit juice	category-juice	LOW	1149	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+beef bouillon granule	category-umami	LOW	940	filed under 'umami', which is a taste, not a kind of food	move to its real category
+tapioca flour	category-flour	LOW	829	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+pecorino cheese	category-cheese	HIGH	781	a cheese filed under 'umami'; the most common category for cheese is 'dairy' (139 of 146)	consider category 'dairy'
+pecorino cheese	category-umami	LOW	781	filed under 'umami', which is a taste, not a kind of food	move to its real category
+onion juice	category-juice	LOW	707	a juice filed under 'aromatic'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+madeira wine	category-wine	LOW	545	a wine filed under 'spirit'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+chicken base	category-umami	LOW	531	filed under 'umami', which is a taste, not a kind of food	move to its real category
+pecorino	category-umami	LOW	519	filed under 'umami', which is a taste, not a kind of food	move to its real category
+pecorino romano cheese	category-cheese	HIGH	494	a cheese filed under 'umami'; the most common category for cheese is 'dairy' (139 of 146)	consider category 'dairy'
+pecorino romano cheese	category-umami	LOW	494	filed under 'umami', which is a taste, not a kind of food	move to its real category
+worchestershire sauce	category-umami	LOW	465	filed under 'umami', which is a taste, not a kind of food	move to its real category
+sweet vermouth	category-wine	LOW	457	a wine filed under 'liqueur'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+cream sherry	category-wine	LOW	440	a wine filed under 'liqueur'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+white rice flour	category-flour	LOW	342	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+beef base	category-umami	LOW	336	filed under 'umami', which is a taste, not a kind of food	move to its real category
+chicken bouillon powder	category-umami	LOW	328	filed under 'umami', which is a taste, not a kind of food	move to its real category
+sweet rice flour	category-flour	LOW	276	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+white cooking wine	category-wine	LOW	275	a wine filed under 'spirit'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+red miso	category-umami	LOW	270	filed under 'umami', which is a taste, not a kind of food	move to its real category
+chicken soup base	category-umami	LOW	251	filed under 'umami', which is a taste, not a kind of food	move to its real category
+nori	category-umami	LOW	214	filed under 'umami', which is a taste, not a kind of food	move to its real category
+millet flour	category-flour	LOW	207	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+chicken soup stock granule	category-umami	LOW	207	filed under 'umami', which is a taste, not a kind of food	move to its real category
+lemon juice concentrate	category-juice	LOW	206	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+dill pickle juice	category-juice	LOW	200	a juice filed under 'acid'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+beef bouillon cube	category-umami	LOW	195	filed under 'umami', which is a taste, not a kind of food	move to its real category
+wondra flour	category-flour	LOW	192	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+sherry	category-wine	LOW	189	a wine filed under 'spirit'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+prosecco	category-wine	LOW	182	a wine filed under 'spirit'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+bonito flakes	category-umami	LOW	181	filed under 'umami', which is a taste, not a kind of food	move to its real category
+parmigiano-reggiano cheese	category-cheese	HIGH	176	a cheese filed under 'umami'; the most common category for cheese is 'dairy' (139 of 146)	consider category 'dairy'
+parmigiano-reggiano cheese	category-umami	LOW	176	filed under 'umami', which is a taste, not a kind of food	move to its real category
+lemon juice from concentrate	category-juice	LOW	173	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+ponzu sauce	category-umami	LOW	173	filed under 'umami', which is a taste, not a kind of food	move to its real category
+lemon juice freshly squeezed	category-juice	LOW	166	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+wholemeal flour	category-flour	LOW	159	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+arrowroot flour	category-flour	LOW	140	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+red wine vinaigrette	category-wine	LOW	132	a wine filed under 'condiment'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+key lime juice	category-juice	LOW	128	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+lemon juice from	category-juice	LOW	126	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+beef bouillon powder	category-umami	LOW	118	filed under 'umami', which is a taste, not a kind of food	move to its real category
+coconut amino	category-umami	LOW	117	filed under 'umami', which is a taste, not a kind of food	move to its real category
+vermouth	category-wine	LOW	117	a wine filed under 'liqueur'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+yellow miso	category-umami	LOW	114	filed under 'umami', which is a taste, not a kind of food	move to its real category
+beef flavor	category-umami	LOW	108	filed under 'umami', which is a taste, not a kind of food	move to its real category
+white wine worcestershire sauce	category-umami	LOW	108	filed under 'umami', which is a taste, not a kind of food	move to its real category
+white wheat flour	category-flour	LOW	94	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+mandarin juice	category-juice	LOW	94	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+extra flour	category-flour	LOW	92	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+dashi	category-umami	LOW	92	filed under 'umami', which is a taste, not a kind of food	move to its real category
+wheat bread flour	category-flour	LOW	89	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+freshly squeezed grapefruit juice	category-juice	LOW	88	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+dashi stock	category-umami	LOW	88	filed under 'umami', which is a taste, not a kind of food	move to its real category
+worcester sauce	category-umami	LOW	84	filed under 'umami', which is a taste, not a kind of food	move to its real category
+chicken flavored bouillon granule	category-umami	LOW	83	filed under 'umami', which is a taste, not a kind of food	move to its real category
+pink grapefruit juice	category-juice	LOW	81	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+ruby red grapefruit juice	category-juice	LOW	80	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+white bread flour	category-flour	LOW	74	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+lemon juice salt	category-juice	LOW	73	a juice filed under 'acid'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+lime juice freshly squeezed	category-juice	LOW	71	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+blood orange juice	category-juice	LOW	67	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+black soy sauce	category-umami	LOW	67	filed under 'umami', which is a taste, not a kind of food	move to its real category
+hazelnut flour	category-flour	LOW	65	a flour filed under 'nut'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+white spelt flour	category-flour	LOW	65	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+white vermouth	category-wine	LOW	62	a wine filed under 'liqueur'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+asian fish sauce	category-umami	LOW	61	filed under 'umami', which is a taste, not a kind of food	move to its real category
+bouillon powder	category-umami	LOW	60	filed under 'umami', which is a taste, not a kind of food	move to its real category
+red grapefruit juice	category-juice	LOW	57	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+chicken bullion	category-umami	LOW	57	filed under 'umami', which is a taste, not a kind of food	move to its real category
+worchester sauce	category-umami	LOW	57	filed under 'umami', which is a taste, not a kind of food	move to its real category
+parmigiano cheese	category-cheese	HIGH	55	a cheese filed under 'umami'; the most common category for cheese is 'dairy' (139 of 146)	consider category 'dairy'
+parmigiano cheese	category-umami	LOW	55	filed under 'umami', which is a taste, not a kind of food	move to its real category
+meal flour	category-flour	LOW	54	a flour filed under 'thickener'; the most common category for flour is 'grain' (30 of 47)	consider category 'grain'
+clementine juice	category-juice	LOW	54	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+lemon juice only	category-juice	LOW	54	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+parmesian cheese	category-cheese	HIGH	52	a cheese filed under 'umami'; the most common category for cheese is 'dairy' (139 of 146)	consider category 'dairy'
+orange juice freshly squeezed	category-juice	LOW	52	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+parmesian cheese	category-umami	LOW	52	filed under 'umami', which is a taste, not a kind of food	move to its real category
+lemons juice	category-juice	LOW	51	a juice filed under 'citrus'; the most common category for juice is 'liquid' (55 of 82)	consider category 'liquid'
+doenjang	category-umami	LOW	50	filed under 'umami', which is a taste, not a kind of food	move to its real category
+dry vermouth	category-wine	LOW	21	a wine filed under 'liqueur'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+dry sherry	category-wine	LOW	7	a wine filed under 'liqueur'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+chicken stock cube	category-umami	LOW	6	filed under 'umami', which is a taste, not a kind of food	move to its real category
+port	category-wine	LOW	5	a wine filed under 'spirit'; the most common category for wine is 'liquid' (37 of 54)	consider category 'liquid'
+dark soy sauce	category-umami	LOW	1	filed under 'umami', which is a taste, not a kind of food	move to its real category

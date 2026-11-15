@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-15",
+  "totals": {
+    "ingredients": 3891,
+    "cocktails": 441,
+    "sauces": 77,
+    "dishes": 83
+  },
+  "metrics": {
+    "duplicate-misspelling": 94,
+    "duplicate-plural": 3,
+    "duplicate-prefix": 122,
+    "non-food": 14,
+    "fragment": 32,
+    "packaged-brand": 38,
+    "packaged-mix": 63,
+    "packaged-soup": 14,
+    "packaged-flavored": 20,
+    "category-cheese": 7,
+    "category-juice": 27,
+    "category-flour": 17,
+    "category-wine": 17,
+    "category-beer": 0,
+    "category-spirit": 0,
+    "category-umami": 47,
+    "taste-neutral-sweet": 228,
+    "taste-vocab": 0,
+    "taste-missing": 0,
+    "taste-outlier": 68,
+    "cocktail-cream-egg": 45,
+    "cocktail-citrus-stirred": 11,
+    "cocktail-no-amounts": 148,
+    "cocktail-duplicate": 4,
+    "cocktail-subgroup-unnamed": 15,
+    "cocktail-missing-classic": 3,
+    "sauce-independent": 27,
+    "dish-singleton": 6,
+    "dish-no-invent-equivalent": 15,
+    "sauce-independent-share-percent": 35
+  },
+  "notes": [
+    "Duplicate ingredients: the by-hand critique said at least 151 duplicates plus 74 misnamed (about 225). This audit finds 219 candidates (199 HIGH, 20 LOW) in three rules (misspellings, plurals, preparation words). The two are close; the audit counts each name once and keeps LOW candidates (such as ripe olive and mashed banana) separate, so the numbers are not expected to match exactly.",
+    "Boxed mixes: the critique counted 24 cake and pudding mixes. This audit counts 63 because it also counts soup, dressing, gravy, biscuit, pancake, stuffing and other mixes, and instant puddings.",
+    "Brands: 38 found against about 39 in the critique; the brand list lives in src/data/dataAudit.js and can be extended.",
+    "Cream and egg cocktails: the critique counted 59 (42 in Sour Family, 17 in Highballs and Fizzes). This audit counts 45 because it does not count a drink whose only egg is egg white (the foam of a sour) or whose only cream is coconut cream or cream of coconut. Counting those too would raise the number toward the critique.",
+    "Lemon or lime in the stirred families: the critique said 14 in each of Boozy Sippers and Aromatic Stirred (28). This audit finds 11 in total, because it only counts a line that is lemon or lime juice or a bare lemon or lime, not a twist, wedge or peel.",
+    "Cocktails with no amounts: the critique said 105 of 441. This audit counts 148: a drink is counted when no line has either a millilitre amount or a measure containing a digit. I cannot tell how the 105 was counted.",
+    "Duplicate cocktail names: 4 here (Corpse Reviver 2 and Pina Colada, as in the critique, plus Old Fashioned spelt with and without a hyphen, and Southside spelt with and without a space), against 2 in the critique.",
+    "Categories: juice has 82 members here (24 citrus, 55 liquid, 3 other) against 62 (16 and 46) in the critique, because the audit matches the word juice anywhere in the name. Flour is 30 grain and 16 thickener here against 30 and 17."
+  ]
+}
