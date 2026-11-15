@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { deleteDoc, doc, getDoc, getDocs, collection, setDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, deleteDoc, doc, getDoc, getDocs, collection, setDoc, updateDoc } from 'firebase/firestore';
 
 const ID = 'abcdefghjk';
 const OWNER = 'owner-uid';
@@ -164,5 +164,70 @@ describe('the other collections are unchanged', () => {
       await assertFails(getDoc(doc(asOwner(), c, id)));
       await assertFails(setDoc(doc(asOwner(), c, id), { a: 1 }));
     }
+  });
+});
+
+// SHARE-7. Reports: create by anyone within limits, never readable or changeable through the app.
+const goodReport = (over = {}) => ({ shareId: ID, reason: 'spam', note: 'Looks like an advert.', at: Date.now(), ...over });
+const makeReport = (db, data) => addDoc(collection(db, 'shareReports'), data);
+
+describe('shareReports/{id}', () => {
+  it('lets anyone create a valid report, signed out or signed in', async () => {
+    await assertSucceeds(makeReport(anon(), goodReport()));
+    await assertSucceeds(makeReport(asOther(), goodReport({ note: '' })));
+    await assertSucceeds(makeReport(anon(), goodReport({ note: 'x'.repeat(300) })));
+  });
+  it('accepts every reason on the list', async () => {
+    for (const reason of ['offensive', 'spam', 'private', 'not-recipe', 'other']) {
+      await assertSucceeds(makeReport(anon(), goodReport({ reason })));
+    }
+  });
+  it('denies a note over 300 characters', async () => {
+    await assertFails(makeReport(anon(), goodReport({ note: 'x'.repeat(301) })));
+  });
+  it('denies a reason that is not on the list', async () => {
+    await assertFails(makeReport(anon(), goodReport({ reason: 'because' })));
+  });
+  it('denies an extra key, such as a reporter uid', async () => {
+    await assertFails(makeReport(asOther(), goodReport({ uid: OTHER })));
+  });
+  it('denies a missing key', async () => {
+    const d = goodReport(); delete d.note;
+    await assertFails(makeReport(anon(), d));
+  });
+  it('denies a bad shareId', async () => {
+    for (const shareId of ['short', 'ABCDEFGHJK', 'abcdefghjk1', 'abcdefghj!', 42, null]) {
+      await assertFails(makeReport(anon(), goodReport({ shareId })));
+    }
+  });
+  it('denies a wrong type for note or at, and a time more than a day ahead', async () => {
+    await assertFails(makeReport(anon(), goodReport({ note: 5 })));
+    await assertFails(makeReport(anon(), goodReport({ at: 'now' })));
+    await assertFails(makeReport(anon(), goodReport({ at: Date.now() + 2 * 86400000 })));
+    await assertSucceeds(makeReport(anon(), goodReport({ at: Date.now() - 5 * 86400000 })));
+  });
+  it('denies get, list, update and delete to everyone, including a signed-in user', async () => {
+    let rid;
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      rid = (await addDoc(collection(ctx.firestore(), 'shareReports'), goodReport())).id;
+    });
+    for (const db of [anon(), asOther(), asOwner()]) {
+      await assertFails(getDoc(doc(db, 'shareReports', rid)));
+      await assertFails(getDocs(collection(db, 'shareReports')));
+      await assertFails(updateDoc(doc(db, 'shareReports', rid), { note: 'edited' }));
+      await assertFails(deleteDoc(doc(db, 'shareReports', rid)));
+    }
+  });
+});
+
+describe('site-owner takedown, exercised against the emulator', () => {
+  it('setting removed: true on a shared document (as the console does, bypassing rules) stops anonymous reads', async () => {
+    await seed();
+    await assertSucceeds(getDoc(doc(anon(), 'shared', ID)));
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await updateDoc(doc(ctx.firestore(), 'shared', ID), { removed: true });
+    });
+    await assertFails(getDoc(doc(anon(), 'shared', ID)));
+    await assertFails(getDoc(doc(asOther(), 'shared', ID)));
   });
 });

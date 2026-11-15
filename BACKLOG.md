@@ -66,3 +66,11 @@ The Cloud Function `scrapeRecipe` exists and works for schema.org recipes. Open:
 - INVENT-RECIPE-EDIT Saved recipes have no Edit in the Cookbook (cocktails and sauces can be edited from their lab's list; recipes can only be deleted or reopened by inventing again)
 - INVENT-DELETE-SYNC A delete on one device can come back from another until it is deleted there too, because the profile merge is a union of saved items
 - INVENT-PROFILE-DATA The Invent flavor profile rests on weak per-ingredient data (`.claude/.chemdataset-status.md`, correction banner); the summary is deliberately modest and names an ingredient only when its own score on an axis is at least 0.6
+
+## Sharing, parked after SHARE-7 (2026-11-15, on master, not deployed)
+- SHARE-VIDEO A short video for TikTok and Reels (browsers do not all record MP4; test on real phones first)
+- SHARE-QR A QR code on the share cards
+- SHARE-DOMAIN A custom short domain for share links
+- SHARE-COUNTERS View and save counters on shared links (open decision 1 in docs/sharing.md; today nothing is counted)
+- SHARE-REPORT-EMAIL Email the owner when a report arrives (open decision 2; today reports are read by hand in the console)
+- SHARE-LINK-CAP A per-link daily cap that serves the plain preview after a limit (open decision 3; today caching only)

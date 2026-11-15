@@ -59,5 +59,22 @@ service cloud.firestore {
         && request.resource.data.removed == true;
       allow delete: if ownerOnly();
     }
+
+    // SHARE-7. Reports about a shared recipe. Anyone may create one (signed in or not), in exactly this
+    // shape; nobody can read, list, change or delete them through the app. The site owner reads them in
+    // the Firebase console, which does not go through these rules. Nothing identifies the reporter.
+    match /shareReports/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['shareId', 'reason', 'note', 'at'])
+        && request.resource.data.keys().hasAll(['shareId', 'reason', 'note', 'at'])
+        && request.resource.data.shareId is string
+        && request.resource.data.shareId.size() == 10
+        && request.resource.data.shareId.matches('[a-z0-9]+')
+        && request.resource.data.reason in ['offensive', 'spam', 'private', 'not-recipe', 'other']
+        && request.resource.data.note is string
+        && request.resource.data.note.size() <= 300
+        && request.resource.data.at is number
+        && request.resource.data.at < request.time.toMillis() + 86400000;
+      allow read, update, delete: if false;
+    }
   }
 }

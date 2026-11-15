@@ -33,6 +33,12 @@ everything works from `localStorage`.
 The original 3D "neural network" view of all 3,891 ingredients still
 exists but is parked — open it with `https://neuralflavor.web.app/?path=explore`.
 
+## Sharing a recipe
+
+Every cocktail, sauce and dish has a Share button. It gives a link (`/r/<kind>/<slug>`) that opens the whole recipe without an account, a preview card when the link is pasted into a chat, and picture cards for Instagram and TikTok. A signed-in cook can also publish a recipe they made as a frozen public copy (`/r/<id>`), after a step that shows exactly what becomes public; no name is shown unless they choose one, and they can unshare from Profile, "Shared links". Pages for those copies have a Report link, and the site owner can remove any copy from the Firebase console. Full details, the takedown steps and the deploy command are in [`docs/sharing.md`](docs/sharing.md). Not deployed yet.
+
+**What is recorded about visitors:** nothing. Opening a shared link is not counted and there is no analytics. A report stores the link id, a reason, an optional note and the time, and nothing about who sent it, even if they were signed in. (The limit of 3 reports a day per browser is kept in that browser's own storage.) A shared copy stores its owner's account id, which is never shown.
+
 ## Architecture
 
 ```

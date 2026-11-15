@@ -7,7 +7,7 @@
  * Sharing a recipe the person made themselves. The publish step exists (SHARE-6) but this stays false until the
  * Report link and the takedown path exist (SHARE-7): nothing a user wrote may go public without a way to report and remove it.
  */
-export const SHARE_OWN_ENABLED = false;
+export const SHARE_OWN_ENABLED = true;
 
 // encodeURIComponent leaves ! ' ( ) * alone; encode those too so an apostrophe can never end a quoted value.
 const enc = (v) => encodeURIComponent(v).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);

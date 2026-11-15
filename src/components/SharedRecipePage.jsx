@@ -9,12 +9,13 @@
  *   loadData   (kind) => Promise<{ cocktails?, families?, sauces?, dishes?, dishDetails? }>
  *   loadShared (id) => Promise<document|null>; default reads shared/{id} from Firestore (loaded only for an id route)
  *   loadNodes  () => Promise<Map name → { gnnProbs }|null>; a failure drops the chart, nothing else.
+ *   sendReport (report) => Promise; default writes shareReports in Firestore. Tests pass a mock.
  *   actions    optional node rendered in the actions area after the built-in buttons.
  *   onHome     optional; default is a plain link to "/".
  *   navigate   (url) => void; "Make it your own" goes through it (default: window.location.assign).
  * The page sits outside <App/>, so RecipeActions uses useAuth / useUserProfile itself.
  * Test ids: shared-page, shared-header, shared-name, shared-line, shared-method, shared-glass,
- *   shared-by, shared-report-slot (an empty slot for the Report link, SHARE-7; only on a user's copy),
+ *   shared-by, shared-report-slot (holds the Report link, ShareReport.jsx; only on a user's copy),
  *   shared-actions, shared-gone, shared-home, shared-loading, shared-save, shared-own,
  *   shared-save-note, shared-invite, shared-invite-button.
  */
@@ -23,6 +24,7 @@ import InventFlavorProfile from './InventFlavorProfile.jsx';
 import InventSaveOverlay from './InventSaveOverlay.jsx';
 import { ShareButton } from './ShareSheet.jsx';
 import ShareImages from './ShareImages.jsx';
+import ShareReport from './ShareReport.jsx';
 import useAuth from '../hooks/useAuth.js';
 import useUserProfile from '../hooks/useUserProfile.js';
 import useSaveInvention from '../hooks/useSaveInvention.js';
@@ -188,7 +190,7 @@ async function defaultLoadShared(id) {
   return getShare(db, id);
 }
 
-export default function SharedRecipePage({ route, loadData = defaultLoadData, loadShared = defaultLoadShared, loadNodes = defaultLoadNodes, actions = null, onHome = null, navigate = assignLocation }) {
+export default function SharedRecipePage({ route, loadData = defaultLoadData, loadShared = defaultLoadShared, loadNodes = defaultLoadNodes, sendReport = undefined, actions = null, onHome = null, navigate = assignLocation }) {
   const [state, setState] = useState({ status: 'loading', recipe: null });
   const [nodes, setNodes] = useState(null);
   const kind = route?.kind;
@@ -306,7 +308,11 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
               <RecipeActions recipe={recipe} nodes={nodes} navigate={navigate} />
               {actions}
             </section>
-            {recipe.shareId && <div data-testid="shared-report-slot" className="mt-4 empty:hidden" />}
+            {recipe.shareId && (
+              <div data-testid="shared-report-slot" className="mt-4 empty:hidden">
+                <ShareReport shareId={recipe.shareId} sendReport={sendReport} />
+              </div>
+            )}
           </article>
         )}
       </main>

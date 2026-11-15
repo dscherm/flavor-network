@@ -105,10 +105,13 @@ describe('ShareButton', () => {
     fireEvent.click(screen.getByTestId('share-button'));
     expect(screen.getByTestId('share-sheet')).toBeTruthy();
   });
-  it('shows nothing for an own item while the flag is off, or with no link', () => {
-    expect(SHARE_OWN_ENABLED).toBe(false);
-    const { container } = render(<><ShareButton recipe={recipe} ownItem link="" /><ShareButton recipe={recipe} link="" /></>);
+  it('shows nothing for a built-in item with no link, and a button for an own item now the flag is on', () => {
+    expect(SHARE_OWN_ENABLED).toBe(true);
+    const { container } = render(<ShareButton recipe={recipe} link="" />);
     expect(container.querySelector('button')).toBeNull();
+    cleanup();
+    render(<ShareButton recipe={recipe} ownItem link="" />);
+    expect(screen.getByTestId('share-button')).toBeTruthy();
   });
   it('LabNodeCard shows Share only when given a share link', () => {
     const { rerender } = render(<LabNodeCard name="Negroni" share={null} onClose={() => {}} />);

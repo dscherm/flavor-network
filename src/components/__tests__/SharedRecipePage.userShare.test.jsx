@@ -36,10 +36,10 @@ describe('SharedRecipePage /r/<id>', () => {
     expect((await screen.findByTestId('shared-by')).textContent).toBe('Shared by Dan');
   });
 
-  it('leaves an empty slot for the Report link, only on a user copy', async () => {
+  it('fills the slot with the Report link, only on a user copy', async () => {
     page(DOC);
     const slot = await screen.findByTestId('shared-report-slot');
-    expect(slot.childElementCount).toBe(0);
+    expect(slot.querySelector('[data-testid="report-open"]')).toBeTruthy();
     cleanup();
     const cocktail = { canonical: 'Negroni', name: 'Negroni', ingredients: ['gin', 'campari', 'sweet vermouth'], family_id: 1, build: 'stir' };
     render(<SharedRecipePage route={{ kind: 'cocktail', slug: 'negroni' }} loadData={async () => ({ cocktails: [cocktail], families: [] })} loadNodes={loadNodes} loadShared={vi.fn()} />);

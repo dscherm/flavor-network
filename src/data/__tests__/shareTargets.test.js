@@ -46,8 +46,8 @@ describe('helpers', () => {
     expect(shareTextFor({ name: 'Negroni' })).toBe('Negroni, on Neural Flavor');
     expect(shareTextFor({})).toBe('A recipe on Neural Flavor');
   });
-  it('sharing own items is off until SHARE-6', () => {
-    expect(SHARE_OWN_ENABLED).toBe(false);
+  it('sharing own items is on, shipped with the Report link (SHARE-7)', () => {
+    expect(SHARE_OWN_ENABLED).toBe(true);
   });
 });
 
