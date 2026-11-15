@@ -2114,7 +2114,7 @@ together, never SHARE-6 alone. Three open decisions with defaults are defined in
   "id": "SHARE-4",
   "title": "Link preview: a function that fills in the title, description and image for /r/ links",
   "category": "backend",
-  "passes": false,
+  "passes": true,
   "description": "Cloud Function sharePreview (functions/src/share/) and a hosting rewrite /r/** to it, placed before the catch-all. It returns the built app's index.html with <title>, og:title, og:description (the first ingredients), og:image, og:url, og:type and twitter:card=summary_large_image filled in for the recipe; every value HTML-escaped. Built-in recipes resolve from a small JSON index generated at build time (scripts/buildShareIndex.mjs) so the function does not bundle the app's data modules. Unknown or removed ids get the generic site tags. Cache-Control: public, max-age=600. If anything throws, it serves the unmodified index.html. Also adds generic og tags to index.html for every other page.",
   "acceptance": [
     "Handler unit tests: built-in cocktail, sauce and dish each produce the expected tags; a name with quotes, angle brackets and an ampersand is escaped; unknown id gives generic tags",
