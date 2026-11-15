@@ -2045,3 +2045,134 @@ INVENT-9 / 10 / 11 (one per lab) and INVENT-12 (saving and lists) in parallel; I
   ]
 }
 ```
+
+## 2026-11-15 — Share a recipe on social media; the link invites the visitor to join
+
+Spec: `.schermness/spec.md` → "Share a recipe on social media". Owner's four decisions: share
+the user's own recipes and the app's built-in ones; a visitor sees the whole recipe and is
+asked to sign up only at Save; the picture is a generated chalkboard recipe card; the sharer
+chooses each time whether a name shows. Order: SHARE-1 first (page and links for built-in
+recipes, no new public data); then SHARE-2 (share sheet) and SHARE-3 (save and sign-up
+prompt) in parallel; SHARE-4 (link preview function) and SHARE-5 (card image) after SHARE-1;
+SHARE-6 (publishing a user's own recipe) and SHARE-7 (report, takedown, final pass) land
+together, never SHARE-6 alone. Three open decisions with defaults are defined in the spec
+(counting views, who handles reports, a cap on a popular link).
+
+```json
+{
+  "id": "SHARE-1",
+  "title": "Public recipe page and /r/ links for the app's built-in recipes",
+  "category": "ui",
+  "passes": false,
+  "description": "New route /r/<kind>/<slug> (kind cocktail, sauce or dish) rendering SharedRecipePage.jsx: name, ingredients with amounts, method, glass or vessel, and the flavor profile chart with its 'visual guide' label. Pure resolver src/data/sharedRecipe.js: parseSharePath(pathname), slugFor(kind, item), resolveBuiltIn(kind, slug) over cocktailCodexV2.js, sauceCodex.js and the Cookbook dishes, returning one normalised shape { kind, name, lines, method, glass, category } that SHARE-6 reuses for user copies. The page opens without the landing picker, without sign-in and without loading the full pairing dataset. Unknown slug shows 'This recipe is no longer shared' with a button to the starting page.",
+  "acceptance": [
+    "/r/cocktail/<slug>, /r/sauce/<slug> and /r/dish/<slug> each render the whole recipe signed out, for at least three real items per kind (component tests)",
+    "parseSharePath, slugFor and resolveBuiltIn are pure and unit-tested, including unknown kind, unknown slug and a slug needing URL encoding",
+    "The network tab shows pairings.json is not requested when a /r/ link is opened directly",
+    "An unknown link shows the 'no longer shared' message, not a blank page or the landing picker",
+    "375px: no horizontal overflow; npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHARE-2",
+  "title": "Share button and share sheet on recipe cards",
+  "category": "ui",
+  "passes": false,
+  "description": "ShareSheet.jsx plus a Share button on built-in and own cocktail, sauce and Cookbook dish cards and on the result step of the three invent panels after saving. Phone: navigator.share with title, text and url. Elsewhere: Copy link, X, Facebook, Pinterest and WhatsApp as plain share URLs (pure builder src/data/shareTargets.js, no third-party scripts), and a Download image slot that SHARE-5 fills. For built-in recipes the link is the /r/<kind>/<slug> link from SHARE-1. For a user's own recipe the button is present but routes to the publish step that SHARE-6 adds; until then it is hidden behind one flag so this task can ship alone.",
+  "acceptance": [
+    "shareTargets builds correct, fully encoded URLs for each network (unit tests with a name containing an ampersand, a quote and an emoji)",
+    "With navigator.share available the native sheet is called with title, text and url; without it the fallback buttons render (component tests)",
+    "Copy link writes the link and shows a confirmation; a clipboard failure shows the link as selectable text instead",
+    "Share appears on built-in cards in the Cocktail Lab, Sauce Lab and Cookbook; no external script is loaded",
+    "375px, 44px targets; npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHARE-3",
+  "title": "Save to my cookbook and Make it your own from a shared page, with the sign-up prompt",
+  "category": "ui",
+  "passes": false,
+  "description": "On SharedRecipePage: 'Save to my cookbook' (or 'my cocktails' / 'my sauces'), 'Make it your own', and for signed-out visitors a one-line invitation with 'Create a free account'. Save reuses useSaveInvention and InventSaveOverlay; the overlay copy says why an account is needed; the save completes after sign-in returns, including the redirect sign-in flow (the pending save survives the reload). The saved copy carries sharedFrom (slug or share id). Make it your own opens that lab's invent panel through its seed prop with the recipe's lines and category. The invitation is inline, shown once per page, never a blocking pop-up.",
+  "acceptance": [
+    "Signed in: Save adds one copy to the right profile list with sharedFrom set; saving the same shared recipe twice does not duplicate it",
+    "Signed out: Save opens the sign-in overlay; after sign-in the copy is saved without a second tap (tested for popup and for redirect return)",
+    "Make it your own opens the correct lab's invent panel with every line of the shared recipe and its category chosen",
+    "The signed-out invitation renders once and is absent when signed in",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHARE-4",
+  "title": "Link preview: a function that fills in the title, description and image for /r/ links",
+  "category": "backend",
+  "passes": false,
+  "description": "Cloud Function sharePreview (functions/src/share/) and a hosting rewrite /r/** to it, placed before the catch-all. It returns the built app's index.html with <title>, og:title, og:description (the first ingredients), og:image, og:url, og:type and twitter:card=summary_large_image filled in for the recipe; every value HTML-escaped. Built-in recipes resolve from a small JSON index generated at build time (scripts/buildShareIndex.mjs) so the function does not bundle the app's data modules. Unknown or removed ids get the generic site tags. Cache-Control: public, max-age=600. If anything throws, it serves the unmodified index.html. Also adds generic og tags to index.html for every other page.",
+  "acceptance": [
+    "Handler unit tests: built-in cocktail, sauce and dish each produce the expected tags; a name with quotes, angle brackets and an ampersand is escaped; unknown id gives generic tags",
+    "A thrown error inside the handler still returns the app's index.html with status 200",
+    "firebase.json rewrite order is /r/** before ** and existing ?path= links still work (deep-link tests green)",
+    "scripts/buildShareIndex.mjs runs in the build and its output covers every built-in cocktail, sauce and Cookbook dish",
+    "Functions tests and npm run gate green; the function is NOT deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHARE-5",
+  "title": "The recipe card image: server-drawn for previews, downloadable in the browser",
+  "category": "feature",
+  "passes": false,
+  "description": "One pure layout description src/data/shareCardLayout.js (name, up to 8 ingredient lines with '+N more', the 11-axis flavor chart as plain numbers, site name, chalkboard palette) consumed by two renderers. Server: Cloud Function shareCard behind a hosting rewrite /r-img/**, drawing a 1200x630 PNG with satori and resvg and bundled fonts, Cache-Control one day. Browser: a canvas renderer at 1080x1350 behind the share sheet's Download image button, offered to navigator.share as a file where supported. Long names shrink then wrap to two lines then truncate. The card says 'flavor chart: a visual guide' in small type.",
+  "acceptance": [
+    "shareCardLayout unit tests: 1, 8 and 20 ingredients; a 80-character name; a recipe with no profile data (chart omitted, not empty axes)",
+    "The server renderer returns a PNG of 1200x630 for a built-in cocktail, sauce and dish (functions tests check signature and dimensions)",
+    "Download image produces a 1080x1350 PNG in the browser (checked in the browser at 375px) and failure to draw does not block Copy link",
+    "og:image from SHARE-4 points at the /r-img/ URL for the same recipe",
+    "npm run gate green; the function is NOT deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHARE-6",
+  "title": "Share a recipe the user made: publish a frozen copy, choose the name shown, unshare",
+  "category": "feature",
+  "passes": false,
+  "description": "New public collection shared/{id} (shape and limits in the spec) and firestore.rules for it: get by id for anyone, no list, create only signed in as owner within the limits, owner may set removed or delete, nothing else. src/data/sharePublish.js (pure toSharedDoc with the limits, and the Firestore calls). The share sheet's publish step for own items: shows exactly what will be public, the name choice (first name / typed nickname / nothing, default nothing), then 'Create link'. profiles/{uid}.shares tracks links (cap 50 live); an unedited item reuses its link. Profile gains 'Shared links' with Unshare. /r/<id> renders through SharedRecipePage and the preview and card functions read shared/{id}; removed or missing shows 'no longer shared' and generic preview tags. Must ship together with SHARE-7.",
+  "acceptance": [
+    "Rules tests (emulator): anonymous get by id allowed, list denied; create denied signed out, denied with another uid as owner, denied over each limit; update by a non-owner denied; owner can set removed and delete",
+    "toSharedDoc unit tests: trims and caps every field, drops unknown fields, never includes the owner's email or display name unless chosen as 'by'",
+    "Nothing is written to shared/ before the 'Create link' tap; the tap is preceded by a view of what will be public (component test)",
+    "Unshare makes /r/<id> show 'no longer shared' and the preview function serve generic tags",
+    "The 51st live share is refused with a plain sentence; npm run gate green; rules NOT deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "SHARE-7",
+  "title": "Report, takedown, docs and the final pass",
+  "category": "chore",
+  "passes": false,
+  "description": "A 'Report' link on pages for user-shared recipes: reason picker and optional note written to shareReports/{auto} (rules: create by anyone within size limits, no read, no update), limited to 3 per browser per day. docs/sharing.md: how links work, what is public, how the owner removes a share in the Firebase console (set removed: true), how to read reports, and the three open decisions with their defaults. CLOSEOUT.md (unreleased entry), README.md (including what is and is not recorded about visitors) and BACKLOG.md updated. Final pass in the browser at 375px: share a built-in recipe; publish, open signed out, save through sign-in, unshare; report. Preview checked with a real preview checker only after deploy; until then say so.",
+  "acceptance": [
+    "Rules tests: report create allowed within limits, oversize denied, read denied to everyone",
+    "The fourth report from one browser in a day is refused with a plain sentence",
+    "docs/sharing.md exists and its takedown steps were followed once against the emulator",
+    "End to end at 375px as described, with anything not verified (live previews before deploy) named as not verified",
+    "CLOSEOUT.md, README.md and BACKLOG.md updated without claiming a deploy that did not happen; npm run gate green"
+  ]
+}
+```
