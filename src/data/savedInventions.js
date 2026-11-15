@@ -45,6 +45,7 @@ export function recipeFromItem(item) {
     ingredients: item.lines.map((l) => ({ name: l.key.toLowerCase(), quantity: null, unit: null, raw: lineText(l) })),
     ...(item.method ? { instructions: item.method } : {}),
     ...(item.cuisine ? { cuisine: item.cuisine } : {}),
+    ...(item.sharedFrom ? { sharedFrom: item.sharedFrom } : {}),
     source: 'invent',
   };
 }

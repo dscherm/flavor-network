@@ -98,3 +98,20 @@ describe('CocktailLabV2 — ✨ Invent this', () => {
     expect(screen.queryAllByTestId('invent-list-line')).toHaveLength(0);
   });
 });
+
+describe('CocktailLabV2 — a seed handed in once (a shared recipe\'s Make it your own)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => GRAPH });
+  });
+  it('opens InventCocktail with every line in the list and the family applied, then reports it consumed', async () => {
+    const consumed = vi.fn();
+    const neg = picked.find((c) => c.name === 'Negroni');
+    const seed = { familyId: neg.family_id, fromName: true, pinned: ['gin', 'campari', 'sweet vermouth'].map((key) => ({ key, source: 'search' })) };
+    render(<CocktailLabV2 fullData={fullData} initialInventSeed={seed} onInventSeedConsumed={consumed} />);
+    expect(await screen.findByTestId('invent-cocktail')).toBeInTheDocument();
+    expect(screen.queryAllByTestId('invent-list-line').map((l) => l.dataset.key).sort()).toEqual(['campari', 'gin', 'sweet vermouth']);
+    expect(screen.getByTestId('invent-checklist')).toBeInTheDocument();
+    expect(consumed).toHaveBeenCalledTimes(1);
+  });
+});

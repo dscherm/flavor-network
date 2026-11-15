@@ -8,6 +8,7 @@
  *   category: string|number|null,          the style / family / dish-type id the cook chose or accepted
  *   lines: [{ key, amount, role }],        amount '' when none; role null when none
  *   method?, glass?, protein?,             only present when given
+ *   sharedFrom?,                           '<kind>/<slug>' of the shared recipe it was saved from
  *   source: 'invent',
  * }
  */
@@ -54,6 +55,7 @@ export function toSavedItem(input, { now = Date.now(), makeId } = {}) {
     ...(text(x.method) ? { method: text(x.method) } : {}),
     ...(text(x.glass) ? { glass: text(x.glass) } : {}),
     ...(text(x.protein) ? { protein: text(x.protein) } : {}),
+    ...(text(x.sharedFrom) ? { sharedFrom: text(x.sharedFrom) } : {}),
     source: 'invent',
   };
   return { ok: true, item };

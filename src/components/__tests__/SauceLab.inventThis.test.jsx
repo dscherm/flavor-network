@@ -84,3 +84,17 @@ describe('SauceLab — ✨ Invent this', () => {
     expect(screen.getByTestId('sauce-invent-start')).toHaveTextContent('What is the sauce built on?');
   });
 });
+
+describe('SauceLab — a seed handed in once (a shared recipe\'s Make it your own)', () => {
+  beforeEach(() => { localStorage.clear(); });
+  it('opens InventSauce with every line pinned and the technique chosen, then reports it consumed', async () => {
+    const consumed = vi.fn();
+    const seed = { styleId: 'Hollandaise', fromName: true, pinned: ['egg yolk', 'butter', 'lemon juice'].map((key) => ({ key, source: 'search' })) };
+    render(<SauceLab initialInventSeed={seed} onInventSeedConsumed={consumed} />);
+    expect(await screen.findByTestId('sauce-invent')).toBeInTheDocument();
+    const keys = screen.queryAllByTestId('sauce-invent-list-line').map((e) => e.getAttribute('data-key'));
+    expect(keys).toEqual(expect.arrayContaining(['egg yolk', 'butter', 'lemon juice']));
+    expect(screen.getByTestId('sauce-invent-checklist')).toHaveTextContent('An Emulsion needs');
+    expect(consumed).toHaveBeenCalledTimes(1);
+  });
+});

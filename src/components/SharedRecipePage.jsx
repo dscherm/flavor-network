@@ -8,14 +8,25 @@
  *                                        not resolvable yet and shows "no longer shared".
  *   loadData   (kind) => Promise<{ cocktails?, families?, sauces?, dishes?, dishDetails? }>
  *   loadNodes  () => Promise<Map name → { gnnProbs }|null>; a failure drops the chart, nothing else.
- *   actions    optional node rendered in the actions area (SHARE-2/3 put their buttons here).
+ *   actions    optional node rendered in the actions area after the built-in buttons.
  *   onHome     optional; default is a plain link to "/".
+ *   navigate   (url) => void; "Make it your own" goes through it (default: window.location.assign).
+ * The page sits outside <App/>, so RecipeActions uses useAuth / useUserProfile itself.
  * Test ids: shared-page, shared-header, shared-name, shared-line, shared-method, shared-glass,
- *   shared-actions, shared-gone, shared-home, shared-loading.
+ *   shared-actions, shared-gone, shared-home, shared-loading, shared-save, shared-own,
+ *   shared-save-note, shared-invite, shared-invite-button.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
+import InventSaveOverlay from './InventSaveOverlay.jsx';
 import { ShareButton } from './ShareSheet.jsx';
+import useAuth from '../hooks/useAuth.js';
+import useUserProfile from '../hooks/useUserProfile.js';
+import useSaveInvention from '../hooks/useSaveInvention.js';
+import {
+  alreadySaved, profileListFor, saveLabel, savedKindFor, savedNoun, sharedFromFor, sharedSaveInput,
+} from '../data/sharedSave.js';
+import { clearPendingSave, LAB_PATH, readPendingSave, setPendingSave, stashInventSeed } from '../data/sharedHandoff.js';
 import { resolveBuiltIn } from '../data/sharedRecipe.js';
 import { buildFlavorProfile } from '../data/inventProfile.js';
 import { resolveIngredientName } from '../data/recipePairingMatch.js';
@@ -60,6 +71,125 @@ export async function defaultLoadNodes() {
   return nodes;
 }
 
+const SAVE_WHY = { title: 'Create a free account to keep this recipe', body: 'Your account keeps what you save and shows it on every device. This recipe is saved the moment you are in.' };
+const INVITE_WHY = { title: 'Create a free account', body: 'Save recipes, and build your own drinks, sauces and dishes from what pairs well. It is free.' };
+const tap = { minHeight: 44 };
+
+/**
+ * Save, Make it your own, Share, and (signed out) the invitation. Mounted only once the
+ * recipe is on screen. A Save asked for while signed out waits in the sign-in prompt and
+ * completes by itself when the account arrives: in this page (popup sign-in) or, after the
+ * redirect sign-in reloads it, from the pending-save marker in sessionStorage.
+ */
+function RecipeActions({ recipe, navigate }) {
+  const auth = useAuth();
+  const userProfile = useUserProfile(auth.user);
+  const save = useSaveInvention({ kind: savedKindFor(recipe.kind), userProfile, auth });
+  const sharedFrom = sharedFromFor(recipe);
+  const noun = savedNoun(recipe.kind);
+  const saved = !!auth.user && alreadySaved(profileListFor(userProfile.profile, recipe.kind), sharedFrom);
+  const [note, setNote] = useState(null);
+  const [justSaved, setJustSaved] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [restored] = useState(() => {
+    const p = readPendingSave();
+    return p && p.kind === recipe.kind && p.slug === recipe.slug ? p : null;
+  });
+  const restoredDone = useRef(false);
+
+  const report = (res) => {
+    if (res.status === 'saved') { setJustSaved(true); setNote({ status: 'saved', message: res.message }); }
+    else if (res.status === 'error') setNote({ status: 'error', message: res.message });
+  };
+
+  // Back from the redirect sign-in with a Save waiting: finish it once, without another tap.
+  // Signed out once auth has settled means the sign-in did not complete: drop the marker.
+  useEffect(() => {
+    if (!restored || restoredDone.current || auth.loading) return;
+    restoredDone.current = true;
+    clearPendingSave();
+    if (!auth.user) return;
+    const input = sharedSaveInput(recipe);
+    if (!input) return;
+    if (alreadySaved(profileListFor(userProfile.profile, recipe.kind), sharedFrom)) {
+      setNote({ status: 'info', message: `Already in your ${noun}` });
+      return;
+    }
+    Promise.resolve(save.onSave(input)).then(report);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restored, auth.loading, auth.user]);
+
+  // Signed in (popup path: the hook saves the queued copy itself): the marker and any open prompt are done.
+  useEffect(() => {
+    if (!auth.user) return;
+    setInviteOpen(false);
+    if (!restored) clearPendingSave();
+  }, [auth.user, restored]);
+
+  // A failed sign-in clears the marker; the prompt stays so the error shows and the cook can retry.
+  useEffect(() => { if (auth.authError) clearPendingSave(); }, [auth.authError]);
+
+  useEffect(() => { if (save.toast?.status === 'saved') setJustSaved(true); }, [save.toast]);
+
+  const onSave = async () => {
+    setNote(null);
+    if (auth.user && saved) { setNote({ status: 'info', message: `Already in your ${noun}` }); return; }
+    const input = sharedSaveInput(recipe);
+    if (!input) return;
+    report(await save.onSave(input));
+  };
+
+  const startSignIn = (login) => async () => {
+    if (save.pending) setPendingSave({ kind: recipe.kind, slug: recipe.slug });
+    const ok = await login?.();
+    if (ok === false) clearPendingSave();
+  };
+  const overlayAuth = { ...auth, loginWithGoogle: startSignIn(auth.loginWithGoogle), loginWithApple: startSignIn(auth.loginWithApple) };
+  const cancel = () => { save.cancelPending(); clearPendingSave(); setInviteOpen(false); };
+  const overlaySave = { ...save, pending: save.pending || (inviteOpen ? {} : null), cancelPending: cancel };
+
+  const makeOwn = async () => {
+    setNote(null);
+    const { inventSeedForShared } = await import('../data/sharedSeed.js');
+    const res = inventSeedForShared(recipe);
+    if (!res || !stashInventSeed(res.lab, res.seed)) { setNote({ status: 'error', message: 'Could not open this in the editor. Try again.' }); return; }
+    navigate(`/?path=${LAB_PATH[res.lab]}`);
+  };
+
+  const saveText = saved ? (justSaved ? 'Saved' : `Already in your ${noun}`) : saveLabel(recipe.kind);
+  return (
+    <>
+      <button type="button" onClick={onSave} data-testid="shared-save" data-saved={saved ? 'true' : 'false'}
+        className="inline-flex items-center justify-center rounded-lg px-4"
+        style={{ ...btn({ background: `${ACCENT}55`, borderColor: ACCENT }), ...tap }}>
+        {saveText}
+      </button>
+      <button type="button" onClick={makeOwn} data-testid="shared-own"
+        className="inline-flex items-center justify-center rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap }}>
+        Make it your own
+      </button>
+      <ShareButton recipe={recipe} link={`/r/${recipe.kind}/${recipe.slug}`} />
+      {note && (
+        <p role="status" data-testid="shared-save-note" data-status={note.status} className="basis-full text-[14px]"
+          style={{ fontFamily: SANS, color: note.status === 'error' ? '#fda4af' : CHALK_DIM }}>{note.message}</p>
+      )}
+      {!auth.loading && !auth.user && (
+        <aside data-testid="shared-invite" className="basis-full mt-4 rounded-lg p-4" style={{ border: `1px solid ${CHALK_RAIL}` }}>
+          <p className="text-[15px]" style={{ fontFamily: SANS, color: CHALK_CREAM }}>
+            Neural Flavor helps you build drinks, sauces and dishes from what pairs well.
+          </p>
+          <button type="button" onClick={() => setInviteOpen(true)} data-testid="shared-invite-button"
+            className="mt-3 inline-flex items-center justify-center rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap }}>
+            Create a free account
+          </button>
+        </aside>
+      )}
+      <InventSaveOverlay save={overlaySave} auth={overlayAuth} copy={save.pending ? SAVE_WHY : INVITE_WHY} />
+    </>
+  );
+}
+
+
 function Gone({ onHome }) {
   const homeProps = onHome ? { onClick: onHome, href: '/' } : { href: '/' };
   return (
@@ -76,7 +206,9 @@ function Gone({ onHome }) {
   );
 }
 
-export default function SharedRecipePage({ route, loadData = defaultLoadData, loadNodes = defaultLoadNodes, actions = null, onHome = null }) {
+const assignLocation = (url) => window.location.assign(url);
+
+export default function SharedRecipePage({ route, loadData = defaultLoadData, loadNodes = defaultLoadNodes, actions = null, onHome = null, navigate = assignLocation }) {
   const [state, setState] = useState({ status: 'loading', recipe: null });
   const [nodes, setNodes] = useState(null);
   const kind = route?.kind;
@@ -177,7 +309,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
             )}
 
             <section data-testid="shared-actions" aria-label="Actions" className="mt-6 flex flex-wrap gap-2 empty:hidden">
-              <ShareButton recipe={recipe} link={`/r/${recipe.kind}/${recipe.slug}`} />
+              <RecipeActions recipe={recipe} navigate={navigate} />
               {actions}
             </section>
           </article>

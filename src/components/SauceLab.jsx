@@ -61,6 +61,9 @@ export default function SauceLab({
   // and { user, loginWithGoogle, loginWithApple, authError }. Absent = no saving, lists as before.
   userProfile = null,
   auth = null,
+  // An Invent seed handed in once (a shared recipe's "Make it your own"): opens the Invent panel on it.
+  initialInventSeed = null,
+  onInventSeedConsumed = null,
 }) {
   const [codexRaw, setCodexData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -93,6 +96,14 @@ export default function SauceLab({
   // "✨ Invent this" seed (from the search box); any other way into Invent starts fresh.
   const [inventSeed, setInventSeed] = useState(null);
   const openPanel = (which) => { setKitchen(loadKitchen()); setAssumeBasics(loadAssumeBasics()); setSpiceRack(loadSpiceRack()); setPanel(which); };
+  useEffect(() => {
+    if (!initialInventSeed) return;
+    setInventSeed(initialInventSeed);
+    setEditItem(null);
+    openPanel('invent');
+    onInventSeedConsumed?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialInventSeed]);
   // Edit / Delete on a card for one of the cook's own sauces (never on codex sauces).
   const savedActions = (sauce) => (sauce?.mine && userProfile?.deleteInvention ? [
     { label: '✏️ Edit', testid: 'saved-edit', onClick: () => {

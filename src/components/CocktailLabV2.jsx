@@ -64,6 +64,9 @@ export default function CocktailLabV2({
   // and { user, loginWithGoogle, loginWithApple, authError }. Absent = no saving, lists as before.
   userProfile = null,
   auth = null,
+  // An Invent seed handed in once (a shared recipe's "Make it your own"): opens the Invent panel on it.
+  initialInventSeed = null,
+  onInventSeedConsumed = null,
 }) {
   const [graph, setGraph] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -97,6 +100,14 @@ export default function CocktailLabV2({
   // "✨ Invent this" seed (from the search box); any other way into Invent starts fresh.
   const [inventSeed, setInventSeed] = useState(null);
   const openInvent = () => { setInventSeed(null); setEditItem(null); setBarPanel('invent'); };
+  useEffect(() => {
+    if (!initialInventSeed) return;
+    setInventSeed(initialInventSeed);
+    setEditItem(null);
+    setBarPanel('invent');
+    onInventSeedConsumed?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialInventSeed]);
   // One-time tidy-up of bars saved before the split: non-booze moves to the kitchen.
   useEffect(() => {
     if (!cocktailRoles) return;

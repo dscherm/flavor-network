@@ -74,10 +74,14 @@ vi.mock('../components/MakeRecipeStart.jsx', () => ({
 
 // CocktailLabV2 — capture matchesContext + expose an exit button.
 let lastCocktailCtx   = undefined;
+let lastCocktailProps = null;
+let lastSauceProps    = null;
 let capturedExitFn    = null;
 
 vi.mock('../components/CocktailLabV2.jsx', () => ({
-  default: ({ matchesContext, onExitMatches }) => {
+  default: (props) => {
+    const { matchesContext, onExitMatches } = props;
+    lastCocktailProps = props;
     lastCocktailCtx = matchesContext;
     capturedExitFn  = onExitMatches;
     return (
@@ -97,7 +101,9 @@ vi.mock('../components/CocktailLabV2.jsx', () => ({
 let lastSauceCtx = undefined;
 
 vi.mock('../components/SauceLab.jsx', () => ({
-  default: ({ matchesContext, onExitMatches }) => {
+  default: (props) => {
+    const { matchesContext, onExitMatches } = props;
+    lastSauceProps = props;
     lastSauceCtx = matchesContext;
     return (
       <div data-testid="sauce-lab">
@@ -271,5 +277,50 @@ describe('App — Cookbook ✨ Invent this hands a seed to Make a recipe', () =>
     expect(lastMakeProps.initialInventSeed).toEqual({ type: 'stir-fry', main: 'chicken', pinned: [{ key: 'ginger', source: 'search' }] });
     await act(async () => { lastMakeProps.onInventSeedConsumed(); });
     expect(lastMakeProps.initialInventSeed).toBeNull();
+  });
+});
+
+// SHARE-3: "Make it your own" on a shared recipe page leaves a seed in sessionStorage; App takes it once.
+describe('App — a seed left by the shared recipe page', () => {
+  beforeEach(() => { lastMakeProps = null; lastCocktailProps = null; lastSauceProps = null; sessionStorage.clear(); });
+  afterEach(() => { visit(''); sessionStorage.clear(); });
+
+  const stash = (lab, seed) => sessionStorage.setItem('shared-invent-seed', JSON.stringify({ lab, seed, at: Date.now() }));
+
+  it('cocktail: opens the Cocktail Lab with the seed, removes the stash, and clears it once consumed', async () => {
+    const seed = { familyId: 1, fromName: true, pinned: [{ key: 'gin', source: 'search' }, { key: 'campari', source: 'search' }] };
+    stash('cocktail', seed);
+    visit('?path=cocktail');
+    await mountApp();
+    expect(screen.getByTestId('cocktail-lab')).toBeInTheDocument();
+    expect(lastCocktailProps.initialInventSeed).toEqual(seed);
+    expect(sessionStorage.getItem('shared-invent-seed')).toBeNull();
+    await act(async () => { lastCocktailProps.onInventSeedConsumed(); });
+    expect(lastCocktailProps.initialInventSeed).toBeNull();
+  });
+
+  it('sauce: the seed goes to the Sauce Lab only', async () => {
+    const seed = { styleId: 'Hollandaise', fromName: true, pinned: [{ key: 'butter', source: 'search' }] };
+    stash('sauce', seed);
+    visit('?path=sauce');
+    await mountApp();
+    expect(lastSauceProps.initialInventSeed).toEqual(seed);
+    expect(sessionStorage.getItem('shared-invent-seed')).toBeNull();
+  });
+
+  it('dish: Make a recipe receives it as its initial Invent seed', async () => {
+    const seed = { type: 'braise-stew', fromName: true, main: 'beef', pinned: [{ key: 'carrot', source: 'search' }] };
+    stash('make', seed);
+    visit('?path=make');
+    await mountApp();
+    expect(lastMakeProps.initialInventSeed).toEqual(seed);
+    await act(async () => { lastMakeProps.onInventSeedConsumed(); });
+    expect(lastMakeProps.initialInventSeed).toBeNull();
+  });
+
+  it('with no stash nothing is handed over', async () => {
+    visit('?path=cocktail');
+    await mountApp();
+    expect(lastCocktailProps.initialInventSeed).toBeNull();
   });
 });

@@ -94,6 +94,7 @@ import useIsMobile from './hooks/useIsMobile.js';
 import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { readImportParam, stripImportParam } from './utils/importParam.js';
+import { takeInventSeed } from './data/sharedHandoff.js';
 
 // Spec §1.H — URL deep-link routing. `?path=<slug>` ↔ activeTab.
 // 2026-05-29 DOCS-RL-COOKBOOK-RENAME: 'cookbook' tab key renamed to
@@ -144,7 +145,10 @@ export default function App() {
     typeof window === 'undefined' ? null : readImportParam(window.location.search)
   ));
   // "✨ Invent this" from the Cookbook search: a Recipe Lab seed handed to Make a recipe once.
-  const [inventSeed, setInventSeed] = useState(null);
+  // "Make it your own" on a shared recipe page leaves a seed in sessionStorage; read once here and removed.
+  const [sharedSeed] = useState(() => takeInventSeed());
+  const [inventSeed, setInventSeed] = useState(() => (sharedSeed?.lab === 'make' ? sharedSeed.seed : null));
+  const [labInventSeed, setLabInventSeed] = useState(() => (sharedSeed && sharedSeed.lab !== 'make' ? sharedSeed : null));
   const [startPageComplete, setStartPageComplete] = useState(() => {
     if (typeof window === 'undefined') return false;
     if (readImportParam(window.location.search)) return true;
@@ -2136,6 +2140,8 @@ export default function App() {
             fullData={data}
             userProfile={userProfile}
             auth={inventAuth}
+            initialInventSeed={labInventSeed?.lab === 'cocktail' ? labInventSeed.seed : null}
+            onInventSeedConsumed={() => setLabInventSeed(null)}
             onSelectionChange={handleLabSelectionChange}
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
@@ -2167,6 +2173,8 @@ export default function App() {
             fullData={data}
             userProfile={userProfile}
             auth={inventAuth}
+            initialInventSeed={labInventSeed?.lab === 'sauce' ? labInventSeed.seed : null}
+            onInventSeedConsumed={() => setLabInventSeed(null)}
             externalFilter={externalLabFilter}
             matchesContext={matchesContext}
             onExitMatches={() => setMatchesContext(null)}

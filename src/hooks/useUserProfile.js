@@ -62,6 +62,7 @@ function normalizeRecipe(recipe) {
     ...(typeof recipe.instructions === 'string' && recipe.instructions ? { instructions: recipe.instructions } : {}),
     ...(typeof recipe.cuisine === 'string' && recipe.cuisine ? { cuisine: recipe.cuisine } : {}),
     ...(recipe.source === 'invent' ? { source: 'invent' } : {}),
+    ...(typeof recipe.sharedFrom === 'string' && recipe.sharedFrom ? { sharedFrom: recipe.sharedFrom } : {}),
   };
 }
 

@@ -14,6 +14,8 @@
  *   method  text; steps separated by newlines
  *   glass   glass or vessel, or null
  *   category family / mother sauce / cuisine, or null
+ *   categoryId  the id behind it that the Invent panels know: codex family_id (cocktail), mother-sauce style
+ *               id (sauce), dishType.js type (dish); null when there is none
  *
  * Slugs: lowercase, accents and apostrophes dropped, runs of anything else
  * become one hyphen. They come from the item's canonical name (cocktail), name
@@ -22,6 +24,7 @@
 import { normalizeIngredient } from './normalizeIngredient.js';
 import { suggestAmounts } from './cocktailAmounts.js';
 import { guessSlot } from './cocktailFacets.js';
+import { dishTypeOf } from './dishType.js';
 
 export const SHARE_KINDS = Object.freeze(['cocktail', 'sauce', 'dish']);
 
@@ -136,6 +139,7 @@ function resolveCocktail(c, data) {
   return {
     kind: 'cocktail', slug: slugFor('cocktail', c), name: c.name, lines,
     method: cocktailMethod(c), glass: c.glass || null, category: family?.name || null,
+    categoryId: Number.isInteger(c.family_id) ? c.family_id : null,
     ...(garnish ? { garnish } : {}),
   };
 }
@@ -148,6 +152,7 @@ function resolveSauce(s) {
     kind: 'sauce', slug: slugFor('sauce', s), name: s.name, lines,
     method: s.instructions || '', glass: null,
     category: s.motherSauce && s.motherSauce !== 'Independent' ? s.motherSauce : null,
+    categoryId: s.motherSauce && s.motherSauce !== 'Independent' ? s.motherSauce : null,
   };
 }
 
@@ -159,6 +164,7 @@ function resolveDish(d, data) {
   return {
     kind: 'dish', slug: slugFor('dish', d), name: d.name, lines,
     method: (det?.steps || []).join('\n'), glass: null, category: d.cuisine || null,
+    categoryId: dishTypeOf(d),
     ...(meta ? { meta } : {}),
   };
 }
