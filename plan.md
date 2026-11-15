@@ -2287,6 +2287,7 @@ then FLAVOR-3, FLAVOR-4, FLAVOR-5 in that order; FLAVOR-6 last.
     "Recipe Notebook, an invent panel, the shared page and a server card show the same leading tastes for the same recipe (test with Negroni and Beef Bolognese)",
     "Boost and temper suggestions still work and no longer rank on placeholder values (tests)",
     "docs/flavor-profile.md has baseline, after FLAVOR-2, after FLAVOR-3, after FLAVOR-4 and final numbers from the same test set, with what is still wrong listed by item",
+    "Set SHARE_CHARTS_ENABLED to true in src/data/shareTargets.js once the rebuilt charts pass the measure; run node scripts/buildShareIndex.mjs and commit the regenerated share-cards.json and cardLayout.generated.ts; update the SHARE-8 note in docs/sharing.md",
     "375px browser check of the Recipe Notebook card, an invent panel and the shared page; share-cards.json regenerated; npm run gate and functions tests green; nothing deployed without the owner's go-ahead"
   ]
 }
@@ -2519,7 +2520,7 @@ Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independ
   "id": "SHARE-8",
   "title": "Hide flavor charts on shared pages and share cards until the charts are rebuilt",
   "category": "fix",
-  "passes": false,
+  "passes": true,
   "description": "Owner, 2026-11-15: 'Deploy, charts hidden'. After FLAVOR-2, 186 of 599 built-in recipes still draw a chart and on the test set most of those lead with a wrong taste. One exported switch SHARE_CHARTS_ENABLED = false (beside SHARE_OWN_ENABLED) turns the flavor chart off on every PUBLIC share surface: the shared recipe page (no chart section and no 'not enough data' line), the browser share cards (single and set of three; card 1 of the set shows name and details without the chart), the server cards (share-cards.json regenerated with no bars), and the bars stored when a user publishes their own recipe (bars: []). Charts inside the app (Recipe Notebook, invent panels) are unchanged. FLAVOR-6 turns the switch back on.",
   "acceptance": [
     "With the switch off: no chart and no flavor-data line on /r/ pages for a built-in and a user copy (component tests); browser and server cards carry no chart (tests); a newly published share stores bars: []",
