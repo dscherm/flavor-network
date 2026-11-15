@@ -1,0 +1,1230 @@
+{
+ "_about": "Blind aroma answer key. Written by the assistant on 2026-11-16 from general culinary knowledge WITHOUT reading the aroma table (src/data/flavorAromas.js) or the earlier aroma key (data/aroma-truth.json). Not independently checked; the owner may correct any line. 'expect' lists the 1-3 aromas a cook would expect among the strongest, strongest first, from the eleven-aroma vocabulary (fruity, floral, green, woody, spice, fatty, toasty, nutty, earthy, smoky, savory). 'expect6' is the same expectation restricted to the six axes the charts have today (fruity, floral, green, woody, spice, fatty); an empty list means today's charts cannot express the item. 'holdout': true marks the roughly one third held back (every third item of each group); do not tune the aroma table against those. Spice means warm aromatic spice, never chili heat.",
+ "ingredients": [
+  {
+   "name": "bourbon",
+   "expect": [
+    "woody",
+    "toasty"
+   ],
+   "expect6": [
+    "woody"
+   ],
+   "holdout": false,
+   "note": "charred oak, vanilla, caramel"
+  },
+  {
+   "name": "rye whiskey",
+   "expect": [
+    "spice",
+    "woody"
+   ],
+   "expect6": [
+    "spice",
+    "woody"
+   ],
+   "holdout": true,
+   "note": "rye spice over oak"
+  },
+  {
+   "name": "mezcal",
+   "expect": [
+    "smoky"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "agave roasted in earth pits"
+  },
+  {
+   "name": "cognac",
+   "expect": [
+    "fruity",
+    "woody"
+   ],
+   "expect6": [
+    "fruity",
+    "woody"
+   ],
+   "holdout": false,
+   "note": "grape brandy aged in oak"
+  },
+  {
+   "name": "amaretto",
+   "expect": [
+    "nutty"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "almond/apricot-kernel liqueur"
+  },
+  {
+   "name": "coffee liqueur",
+   "expect": [
+    "toasty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "roasted coffee"
+  },
+  {
+   "name": "campari",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "bitter orange peel leads the aroma"
+  },
+  {
+   "name": "angostura bitters",
+   "expect": [
+    "spice"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": true,
+   "note": "clove, cinnamon, gentian"
+  },
+  {
+   "name": "sherry",
+   "expect": [
+    "nutty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "oxidative sherry: walnut, almond"
+  },
+  {
+   "name": "red wine",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "dark berry"
+  },
+  {
+   "name": "basil",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": true,
+   "note": "fresh herb"
+  },
+  {
+   "name": "mint",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": false,
+   "note": "fresh herb"
+  },
+  {
+   "name": "cilantro",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": false,
+   "note": "fresh herb"
+  },
+  {
+   "name": "dill",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": true,
+   "note": "fresh herb"
+  },
+  {
+   "name": "rosemary",
+   "expect": [
+    "woody",
+    "green"
+   ],
+   "expect6": [
+    "woody",
+    "green"
+   ],
+   "holdout": false,
+   "note": "resinous herb"
+  },
+  {
+   "name": "tarragon",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": false,
+   "note": "fresh herb"
+  },
+  {
+   "name": "parsley",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": true,
+   "note": "fresh herb"
+  },
+  {
+   "name": "cinnamon",
+   "expect": [
+    "spice",
+    "woody"
+   ],
+   "expect6": [
+    "spice",
+    "woody"
+   ],
+   "holdout": false,
+   "note": "warm sweet spice"
+  },
+  {
+   "name": "clove",
+   "expect": [
+    "spice"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": false,
+   "note": "warm spice"
+  },
+  {
+   "name": "cumin",
+   "expect": [
+    "spice",
+    "earthy"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": true,
+   "note": "warm earthy spice"
+  },
+  {
+   "name": "cardamom",
+   "expect": [
+    "spice"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": false,
+   "note": "warm spice"
+  },
+  {
+   "name": "nutmeg",
+   "expect": [
+    "spice"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": false,
+   "note": "warm spice"
+  },
+  {
+   "name": "star anise",
+   "expect": [
+    "spice"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": true,
+   "note": "warm spice"
+  },
+  {
+   "name": "ginger",
+   "expect": [
+    "spice"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": false,
+   "note": "warm aromatic root; not chili heat"
+  },
+  {
+   "name": "vanilla",
+   "expect": [
+    "woody"
+   ],
+   "expect6": [
+    "woody"
+   ],
+   "holdout": false,
+   "note": "sweet vanilla-wood note"
+  },
+  {
+   "name": "lemon",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": true,
+   "note": "citrus"
+  },
+  {
+   "name": "lime",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "citrus"
+  },
+  {
+   "name": "orange",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "citrus"
+  },
+  {
+   "name": "grapefruit",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": true,
+   "note": "citrus"
+  },
+  {
+   "name": "pineapple",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "tropical fruit"
+  },
+  {
+   "name": "strawberry",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "berry"
+  },
+  {
+   "name": "raspberry",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": true,
+   "note": "berry"
+  },
+  {
+   "name": "peach",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "stone fruit"
+  },
+  {
+   "name": "lavender",
+   "expect": [
+    "floral"
+   ],
+   "expect6": [
+    "floral"
+   ],
+   "holdout": false,
+   "note": "flower"
+  },
+  {
+   "name": "rose water",
+   "expect": [
+    "floral"
+   ],
+   "expect6": [
+    "floral"
+   ],
+   "holdout": true,
+   "note": "flower"
+  },
+  {
+   "name": "elderflower",
+   "expect": [
+    "floral"
+   ],
+   "expect6": [
+    "floral"
+   ],
+   "holdout": false,
+   "note": "flower"
+  },
+  {
+   "name": "orange blossom",
+   "expect": [
+    "floral"
+   ],
+   "expect6": [
+    "floral"
+   ],
+   "holdout": false,
+   "note": "flower"
+  },
+  {
+   "name": "mushroom",
+   "expect": [
+    "earthy"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "forest floor"
+  },
+  {
+   "name": "beet",
+   "expect": [
+    "earthy"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "soil, geosmin"
+  },
+  {
+   "name": "truffle",
+   "expect": [
+    "earthy"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "earthy, musky"
+  },
+  {
+   "name": "cucumber",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": true,
+   "note": "fresh, cut-green"
+  },
+  {
+   "name": "celery",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": false,
+   "note": "fresh, green"
+  },
+  {
+   "name": "spinach",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": false,
+   "note": "leafy green"
+  },
+  {
+   "name": "butter",
+   "expect": [
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": true,
+   "note": "dairy fat"
+  },
+  {
+   "name": "cream",
+   "expect": [
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": false,
+   "note": "dairy fat"
+  },
+  {
+   "name": "coconut milk",
+   "expect": [
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": false,
+   "note": "coconut fat"
+  },
+  {
+   "name": "olive oil",
+   "expect": [
+    "fatty",
+    "green"
+   ],
+   "expect6": [
+    "fatty",
+    "green"
+   ],
+   "holdout": true,
+   "note": "oil with a grassy edge"
+  },
+  {
+   "name": "sesame oil",
+   "expect": [
+    "nutty",
+    "toasty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "toasted sesame"
+  },
+  {
+   "name": "almond",
+   "expect": [
+    "nutty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "nut"
+  },
+  {
+   "name": "hazelnut",
+   "expect": [
+    "nutty"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "nut"
+  },
+  {
+   "name": "walnut",
+   "expect": [
+    "nutty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "nut"
+  },
+  {
+   "name": "pistachio",
+   "expect": [
+    "nutty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "nut"
+  },
+  {
+   "name": "tahini",
+   "expect": [
+    "nutty"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "sesame paste"
+  },
+  {
+   "name": "bacon",
+   "expect": [
+    "smoky",
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "smoked cured pork"
+  },
+  {
+   "name": "prosciutto",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "cured meat"
+  },
+  {
+   "name": "anchovy",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "fish, brine"
+  },
+  {
+   "name": "fish sauce",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "fermented fish"
+  },
+  {
+   "name": "soy sauce",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "fermented soy"
+  },
+  {
+   "name": "miso",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "fermented soy paste"
+  },
+  {
+   "name": "parmesan",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "aged cheese"
+  },
+  {
+   "name": "blue cheese",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "aged, pungent cheese"
+  },
+  {
+   "name": "oyster",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "sea, marine"
+  },
+  {
+   "name": "espresso",
+   "expect": [
+    "toasty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "roasted coffee"
+  },
+  {
+   "name": "cocoa",
+   "expect": [
+    "toasty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "roasted cacao"
+  },
+  {
+   "name": "caramel",
+   "expect": [
+    "toasty"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "browned sugar"
+  },
+  {
+   "name": "brown sugar",
+   "expect": [
+    "toasty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "molasses, caramel"
+  },
+  {
+   "name": "maple syrup",
+   "expect": [
+    "toasty",
+    "woody"
+   ],
+   "expect6": [
+    "woody"
+   ],
+   "holdout": false,
+   "note": "caramel and wood"
+  },
+  {
+   "name": "honey",
+   "expect": [
+    "floral"
+   ],
+   "expect6": [
+    "floral"
+   ],
+   "holdout": true,
+   "note": "floral nectar"
+  },
+  {
+   "name": "smoked paprika",
+   "expect": [
+    "smoky"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "wood-smoked pepper"
+  },
+  {
+   "name": "curry powder",
+   "expect": [
+    "spice"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": false,
+   "note": "warm spice blend"
+  }
+ ],
+ "recipes": [
+  {
+   "id": "cocktail/daiquiri",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "rum, lime, sugar"
+  },
+  {
+   "id": "cocktail/margarita",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": true,
+   "note": "lime and orange"
+  },
+  {
+   "id": "cocktail/mojito",
+   "expect": [
+    "green",
+    "fruity"
+   ],
+   "expect6": [
+    "green",
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "mint over lime"
+  },
+  {
+   "id": "cocktail/gin-basil-smash",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": false,
+   "note": "muddled basil"
+  },
+  {
+   "id": "cocktail/pina-colada",
+   "expect": [
+    "fruity",
+    "fatty"
+   ],
+   "expect6": [
+    "fruity",
+    "fatty"
+   ],
+   "holdout": true,
+   "note": "pineapple and coconut cream"
+  },
+  {
+   "id": "cocktail/old-fashioned",
+   "expect": [
+    "woody"
+   ],
+   "expect6": [
+    "woody"
+   ],
+   "holdout": false,
+   "note": "whiskey over oak"
+  },
+  {
+   "id": "cocktail/mint-julep",
+   "expect": [
+    "green",
+    "woody"
+   ],
+   "expect6": [
+    "green",
+    "woody"
+   ],
+   "holdout": false,
+   "note": "mint over bourbon"
+  },
+  {
+   "id": "cocktail/irish-coffee",
+   "expect": [
+    "toasty"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "roasted coffee"
+  },
+  {
+   "id": "cocktail/white-russian",
+   "expect": [
+    "toasty",
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": false,
+   "note": "coffee liqueur and cream"
+  },
+  {
+   "id": "cocktail/brandy-alexander",
+   "expect": [
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": false,
+   "note": "cream; nutmeg on top"
+  },
+  {
+   "id": "cocktail/amaretto-sour",
+   "expect": [
+    "nutty",
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": true,
+   "note": "almond liqueur and lemon"
+  },
+  {
+   "id": "cocktail/aperol-spritz",
+   "expect": [
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "bitter orange"
+  },
+  {
+   "id": "cocktail/eggnog",
+   "expect": [
+    "fatty",
+    "spice"
+   ],
+   "expect6": [
+    "fatty",
+    "spice"
+   ],
+   "holdout": false,
+   "note": "cream, egg, nutmeg"
+  },
+  {
+   "id": "cocktail/mulled-wine",
+   "expect": [
+    "spice",
+    "fruity"
+   ],
+   "expect6": [
+    "spice",
+    "fruity"
+   ],
+   "holdout": true,
+   "note": "wine with cinnamon, clove"
+  },
+  {
+   "id": "cocktail/elderflower-caipirinha",
+   "expect": [
+    "floral",
+    "fruity"
+   ],
+   "expect6": [
+    "floral",
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "elderflower and lime"
+  },
+  {
+   "id": "cocktail/mai-tai",
+   "expect": [
+    "fruity",
+    "nutty"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "citrus and orgeat"
+  },
+  {
+   "id": "cocktail/penicillin",
+   "expect": [
+    "smoky",
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": true,
+   "note": "smoky scotch float, lemon, ginger"
+  },
+  {
+   "id": "sauce/beurre-blanc",
+   "expect": [
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": false,
+   "note": "butter"
+  },
+  {
+   "id": "sauce/hollandaise",
+   "expect": [
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": false,
+   "note": "butter and egg yolk"
+  },
+  {
+   "id": "sauce/alfredo",
+   "expect": [
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": true,
+   "note": "butter, cream, cheese"
+  },
+  {
+   "id": "sauce/beurre-noisette",
+   "expect": [
+    "nutty",
+    "toasty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "browned butter"
+  },
+  {
+   "id": "sauce/chimichurri",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": false,
+   "note": "parsley, oregano"
+  },
+  {
+   "id": "sauce/salsa-verde",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": true,
+   "note": "herbs, tomatillo"
+  },
+  {
+   "id": "sauce/mint-chutney",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": false,
+   "note": "mint, cilantro"
+  },
+  {
+   "id": "sauce/peanut-sauce-thai",
+   "expect": [
+    "nutty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "peanut"
+  },
+  {
+   "id": "sauce/romesco",
+   "expect": [
+    "nutty",
+    "smoky"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "almond and roasted pepper"
+  },
+  {
+   "id": "sauce/korma",
+   "expect": [
+    "spice",
+    "fatty"
+   ],
+   "expect6": [
+    "spice",
+    "fatty"
+   ],
+   "holdout": false,
+   "note": "warm spice and cream"
+  },
+  {
+   "id": "sauce/mole-poblano",
+   "expect": [
+    "toasty",
+    "spice"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": false,
+   "note": "chocolate, chilies, spice"
+  },
+  {
+   "id": "sauce/bbq-sauce",
+   "expect": [
+    "smoky"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "smoke and sweet molasses"
+  },
+  {
+   "id": "sauce/nuoc-cham",
+   "expect": [
+    "savory",
+    "fruity"
+   ],
+   "expect6": [
+    "fruity"
+   ],
+   "holdout": false,
+   "note": "fish sauce and lime"
+  },
+  {
+   "id": "dish/apple-pie",
+   "expect": [
+    "fruity",
+    "spice"
+   ],
+   "expect6": [
+    "fruity",
+    "spice"
+   ],
+   "holdout": false,
+   "note": "apple and cinnamon"
+  },
+  {
+   "id": "dish/baklava",
+   "expect": [
+    "nutty",
+    "spice"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": true,
+   "note": "nuts, syrup, cinnamon"
+  },
+  {
+   "id": "dish/creme-brulee",
+   "expect": [
+    "toasty",
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": false,
+   "note": "burnt sugar and cream"
+  },
+  {
+   "id": "dish/tiramisu",
+   "expect": [
+    "toasty",
+    "fatty"
+   ],
+   "expect6": [
+    "fatty"
+   ],
+   "holdout": false,
+   "note": "coffee, cocoa, mascarpone"
+  },
+  {
+   "id": "dish/chocolate-chip-cookies",
+   "expect": [
+    "toasty"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "baked, browned, chocolate"
+  },
+  {
+   "id": "dish/french-onion-soup",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "beef broth, caramelized onion, cheese"
+  },
+  {
+   "id": "dish/miso-soup",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "fermented miso, dashi"
+  },
+  {
+   "id": "dish/pesto-genovese",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": true,
+   "note": "basil"
+  },
+  {
+   "id": "dish/hummus",
+   "expect": [
+    "nutty"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "tahini and chickpea"
+  },
+  {
+   "id": "dish/tabbouleh",
+   "expect": [
+    "green"
+   ],
+   "expect6": [
+    "green"
+   ],
+   "holdout": false,
+   "note": "parsley and mint"
+  },
+  {
+   "id": "dish/bbq-ribs",
+   "expect": [
+    "smoky"
+   ],
+   "expect6": [],
+   "holdout": true,
+   "note": "smoked pork"
+  },
+  {
+   "id": "dish/pho",
+   "expect": [
+    "spice",
+    "savory"
+   ],
+   "expect6": [
+    "spice"
+   ],
+   "holdout": false,
+   "note": "star anise, cinnamon, beef broth"
+  },
+  {
+   "id": "dish/linguine-vongole",
+   "expect": [
+    "savory"
+   ],
+   "expect6": [],
+   "holdout": false,
+   "note": "clams, sea"
+  },
+  {
+   "id": "dish/butter-chicken",
+   "expect": [
+    "fatty",
+    "spice"
+   ],
+   "expect6": [
+    "fatty",
+    "spice"
+   ],
+   "holdout": true,
+   "note": "butter, cream, warm spice"
+  }
+ ]
+}
