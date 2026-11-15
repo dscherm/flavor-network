@@ -1,0 +1,475 @@
+{
+ "_about": "Answer key for scripts/measureFlavorProfile.mjs. Written by the assistant from common culinary knowledge on 2026-11-15; NOT independently checked. 'expect' lists the tastes a cook would expect to lead, strongest first (heat means chili or pepper heat, which the chart has no axis for). 'not' lists tastes that must not be the top bar. 'aroma' lists aroma axes expected among the top two. The owner can correct any line.",
+ "items": [
+  {
+   "id": "cocktail/negroni",
+   "expect": [
+    "bitter",
+    "sweet"
+   ],
+   "not": [
+    "sour"
+   ],
+   "note": "Campari and sweet vermouth: bitter-sweet, no citrus"
+  },
+  {
+   "id": "cocktail/daiquiri",
+   "expect": [
+    "sour",
+    "sweet"
+   ],
+   "not": [
+    "bitter"
+   ],
+   "note": "Rum, lime, sugar"
+  },
+  {
+   "id": "cocktail/margarita",
+   "expect": [
+    "sour",
+    "salty",
+    "sweet"
+   ],
+   "not": [
+    "bitter"
+   ],
+   "note": "Lime-led; salt rim and orange liqueur follow"
+  },
+  {
+   "id": "cocktail/old-fashioned",
+   "expect": [
+    "sweet",
+    "bitter"
+   ],
+   "not": [
+    "sour"
+   ],
+   "note": "Sugar and bitters on whiskey"
+  },
+  {
+   "id": "cocktail/manhattan",
+   "expect": [
+    "sweet",
+    "bitter"
+   ],
+   "not": [
+    "sour"
+   ],
+   "note": "Sweet vermouth and bitters"
+  },
+  {
+   "id": "cocktail/whiskey-sour",
+   "expect": [
+    "sour",
+    "sweet"
+   ],
+   "note": "Lemon and sugar"
+  },
+  {
+   "id": "cocktail/mojito",
+   "expect": [
+    "sour",
+    "sweet"
+   ],
+   "not": [
+    "bitter"
+   ],
+   "aroma": [
+    "green"
+   ],
+   "note": "Lime, sugar, mint"
+  },
+  {
+   "id": "cocktail/americano",
+   "expect": [
+    "bitter",
+    "sweet"
+   ],
+   "not": [
+    "sour"
+   ],
+   "note": "Campari, sweet vermouth, soda"
+  },
+  {
+   "id": "cocktail/aperol-spritz",
+   "expect": [
+    "bitter",
+    "sweet"
+   ],
+   "not": [
+    "sour"
+   ],
+   "note": "Aperol, prosecco, soda"
+  },
+  {
+   "id": "cocktail/paloma",
+   "expect": [
+    "sour",
+    "bitter",
+    "sweet"
+   ],
+   "note": "Grapefruit and lime"
+  },
+  {
+   "id": "cocktail/gimlet",
+   "expect": [
+    "sour",
+    "sweet"
+   ],
+   "not": [
+    "bitter"
+   ],
+   "note": "Gin and sweetened lime"
+  },
+  {
+   "id": "cocktail/sidecar",
+   "expect": [
+    "sour",
+    "sweet"
+   ],
+   "not": [
+    "bitter"
+   ],
+   "note": "Cognac, orange liqueur, lemon"
+  },
+  {
+   "id": "cocktail/boulevardier",
+   "expect": [
+    "bitter",
+    "sweet"
+   ],
+   "not": [
+    "sour"
+   ],
+   "note": "Bourbon, Campari, sweet vermouth"
+  },
+  {
+   "id": "cocktail/pina-colada",
+   "expect": [
+    "sweet"
+   ],
+   "not": [
+    "sour",
+    "bitter"
+   ],
+   "aroma": [
+    "fruity"
+   ],
+   "note": "Rum, coconut cream, pineapple"
+  },
+  {
+   "id": "cocktail/tom-collins",
+   "expect": [
+    "sour",
+    "sweet"
+   ],
+   "not": [
+    "bitter"
+   ],
+   "note": "Gin, lemon, sugar, soda"
+  },
+  {
+   "id": "cocktail/bloody-mary",
+   "expect": [
+    "umami",
+    "salty",
+    "heat"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Tomato juice, Worcestershire, hot sauce, salt"
+  },
+  {
+   "id": "cocktail/pisco-sour",
+   "expect": [
+    "sour",
+    "sweet"
+   ],
+   "not": [
+    "bitter"
+   ],
+   "note": "Pisco, lime, sugar, egg white"
+  },
+  {
+   "id": "cocktail/white-russian",
+   "expect": [
+    "sweet"
+   ],
+   "not": [
+    "sour",
+    "salty"
+   ],
+   "note": "Vodka, coffee liqueur, cream"
+  },
+  {
+   "id": "cocktail/cosmopolitan",
+   "expect": [
+    "sour",
+    "sweet"
+   ],
+   "not": [
+    "bitter",
+    "salty"
+   ],
+   "note": "Vodka, cranberry, lime, orange liqueur"
+  },
+  {
+   "id": "cocktail/tequila-sunrise",
+   "expect": [
+    "sweet"
+   ],
+   "not": [
+    "bitter",
+    "salty"
+   ],
+   "note": "Orange juice and grenadine"
+  },
+  {
+   "id": "sauce/hollandaise",
+   "expect": [
+    "sour",
+    "salty"
+   ],
+   "not": [
+    "sweet",
+    "bitter"
+   ],
+   "note": "Butter and egg yolk with lemon; a savoury, tart-rich sauce"
+  },
+  {
+   "id": "sauce/teriyaki",
+   "expect": [
+    "sweet",
+    "salty",
+    "umami"
+   ],
+   "not": [
+    "sour",
+    "bitter"
+   ],
+   "note": "Soy, mirin, sugar"
+  },
+  {
+   "id": "sauce/ponzu",
+   "expect": [
+    "sour",
+    "salty",
+    "umami"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Citrus and soy"
+  },
+  {
+   "id": "sauce/nuoc-cham",
+   "expect": [
+    "sour",
+    "salty",
+    "sweet"
+   ],
+   "not": [
+    "bitter"
+   ],
+   "note": "Lime, fish sauce, sugar, chili"
+  },
+  {
+   "id": "sauce/sweet-and-sour-sauce",
+   "expect": [
+    "sweet",
+    "sour"
+   ],
+   "not": [
+    "bitter",
+    "salty"
+   ],
+   "note": "Named for it"
+  },
+  {
+   "id": "sauce/salsa-verde",
+   "expect": [
+    "sour",
+    "heat"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "aroma": [
+    "green"
+   ],
+   "note": "Tomatillo, lime, chili"
+  },
+  {
+   "id": "sauce/buffalo-sauce",
+   "expect": [
+    "heat",
+    "sour",
+    "salty"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Hot sauce vinegar and butter"
+  },
+  {
+   "id": "sauce/marinara",
+   "expect": [
+    "umami",
+    "sour"
+   ],
+   "not": [
+    "bitter"
+   ],
+   "note": "Tomato: savoury with acidity"
+  },
+  {
+   "id": "sauce/black-bean-sauce",
+   "expect": [
+    "salty",
+    "umami"
+   ],
+   "not": [
+    "sweet",
+    "sour"
+   ],
+   "note": "Fermented soybeans and soy"
+  },
+  {
+   "id": "dish/beef-bolognese",
+   "expect": [
+    "umami"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Meat and tomato ragu"
+  },
+  {
+   "id": "dish/margherita-pizza",
+   "expect": [
+    "umami",
+    "salty"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Cheese and tomato"
+  },
+  {
+   "id": "dish/caesar-salad",
+   "expect": [
+    "salty",
+    "umami"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Parmesan, anchovy, dressing"
+  },
+  {
+   "id": "dish/thai-green-curry",
+   "expect": [
+    "heat"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Green chili curry paste; chili heat leads"
+  },
+  {
+   "id": "dish/tom-yum",
+   "expect": [
+    "sour",
+    "heat"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Hot-and-sour soup"
+  },
+  {
+   "id": "dish/creme-brulee",
+   "expect": [
+    "sweet"
+   ],
+   "not": [
+    "salty",
+    "umami",
+    "sour"
+   ],
+   "note": "Custard and caramelised sugar"
+  },
+  {
+   "id": "dish/tiramisu",
+   "expect": [
+    "sweet",
+    "bitter"
+   ],
+   "not": [
+    "salty",
+    "umami"
+   ],
+   "note": "Sweet cream with coffee and cocoa"
+  },
+  {
+   "id": "dish/apple-pie",
+   "expect": [
+    "sweet"
+   ],
+   "not": [
+    "salty",
+    "umami"
+   ],
+   "note": "Baked apples and sugar"
+  },
+  {
+   "id": "dish/miso-soup",
+   "expect": [
+    "umami",
+    "salty"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Miso and dashi"
+  },
+  {
+   "id": "dish/greek-salad",
+   "expect": [
+    "salty",
+    "sour"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Feta, olives, vinegar"
+  },
+  {
+   "id": "dish/mapo-tofu",
+   "expect": [
+    "heat",
+    "umami",
+    "salty"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "note": "Chili bean paste and Sichuan pepper"
+  },
+  {
+   "id": "dish/pesto-genovese",
+   "expect": [
+    "salty",
+    "umami"
+   ],
+   "not": [
+    "sweet"
+   ],
+   "aroma": [
+    "green"
+   ],
+   "note": "Parmesan, pine nuts, basil, salt"
+  }
+ ]
+}
