@@ -72,11 +72,15 @@ describe('the tables against the real data', () => {
       expect(/^(duplicate|merge|alias|hidden|packaged)\.?$/i.test(e.reason.trim()), `${name}: generic reason`).toBe(false);
     }
   });
-  it('every addition is used (an alias points at it) and does not already exist', () => {
+  // DATA-5: bottles and ingredients that built-in recipes use and the generated data lacks. They are not alias targets.
+  const STANDALONE = new Set(['rye whiskey', 'cola', "peychaud's bitters", 'fernet branca', 'cynar', 'southern comfort', "pimm's", 'peach schnapps',
+    'creme de cassis', 'suze', 'jagermeister', 'sloe gin', 'limoncello', 'aquavit', 'clove', 'tomatillo']);
+  it('every addition is used (an alias points at it, or it is a listed standalone entry) and does not already exist', () => {
     for (const a of ADDITIONS) {
       expect(raw[a], a).toBeUndefined();
-      expect(ALIASES.some(([, to]) => to === a), a).toBe(true);
+      expect(STANDALONE.has(a) || ALIASES.some(([, to]) => to === a), a).toBe(true);
     }
+    for (const a of STANDALONE) expect(CURATION_TABLES.additions[a], a).toBeDefined();
   });
 });
 
@@ -151,7 +155,12 @@ describe('typed names, search, typeaheads and keys land on the canonical entry',
     expect(resolveIngredient('Lean  Beef')).toBe('beef');
     expect(resolveIngredient('basil')).toBe('basil');
     expect(aliasTarget('basil')).toBeNull();
-    expect(isRetiredIngredient('fryer')).toBe(true);
+    expect(isRetiredIngredient('cheesecloth')).toBe(true);
+    expect(isRetiredIngredient('fryer')).toBe(true); // merged into chicken, so never offered as itself
+    expect(resolveIngredient('fryer')).toBe('chicken');
+    expect(resolveIngredient('Lemon juice freshly squeezed')).toBe('lemon juice');
+    expect(resolveIngredient('lemons juice')).toBe('lemon juice');
+    expect(isRetiredIngredient('juice from')).toBe(true);
     expect(isRetiredIngredient('peach')).toBe(false);
   });
   it('resolveIngredientName reads a variant as its canonical, on a curated and on a raw name set', () => {
@@ -168,7 +177,7 @@ describe('typed names, search, typeaheads and keys land on the canonical entry',
   });
   it('search terms and the autocomplete vocabulary use the canonical name', () => {
     expect(parseQuery('peache, gin')).toEqual(['peach', 'gin']);
-    expect(buildIngredientVocab([['peache', 'peach', 'fryer', 'gin']])).toEqual(['gin', 'peach']);
+    expect(buildIngredientVocab([['peache', 'peach', 'cheesecloth', 'gin']])).toEqual(['gin', 'peach']);
   });
   it('barKey and kitchenKey store the canonical, with or without the graph names', () => {
     expect(barKey('green chilie', names())).toBe('green chili');
@@ -255,13 +264,13 @@ describe('the models stay on their own vocabulary', () => {
     expect(resolveNamesToIds(['peach'], nameToId).sort()).toEqual(peachIds.sort());
     expect(idToName.get(vocab.indexOf('peache'))).toBe('peach');
     const index = {
-      recipes: [{ t: 'Peach crumble', d: ['bake'], v: [vocab.indexOf('peache'), vocab.indexOf('flour'), vocab.indexOf('fryer')] }],
-      inv: { [vocab.indexOf('peache')]: [0], [vocab.indexOf('flour')]: [0], [vocab.indexOf('fryer')]: [0] },
+      recipes: [{ t: 'Peach crumble', d: ['bake'], v: [vocab.indexOf('peache'), vocab.indexOf('flour'), vocab.indexOf('cheesecloth')] }],
+      inv: { [vocab.indexOf('peache')]: [0], [vocab.indexOf('flour')]: [0], [vocab.indexOf('cheesecloth')]: [0] },
     };
     const found = retrieveDirections(['peach', 'flour'], index, vocab, { k: 1, minOverlap: 2 });
     expect(found).toHaveLength(1);
     expect(found[0].matchedNames).toEqual(expect.arrayContaining(['peach', 'flour']));
-    expect(found[0].ingredients).not.toContain('fryer');
+    expect(found[0].ingredients).not.toContain('cheesecloth');
     expect(found[0].ingredients).not.toContain('peache');
   });
 });

@@ -76,7 +76,9 @@ export function validateCuration(tables, opts = {}) {
     }
   }
   for (const [key, tablesFor] of owners) {
-    if (tablesFor.length > 1) problems.push(`"${key}" appears in contradictory tables: ${tablesFor.join(', ')}`);
+    // a taste override sits beside a category override or a packaged flag: they set different fields
+    const orthogonal = tablesFor.length === 2 && tablesFor.includes('tasteOverrides') && (tablesFor.includes('categoryOverrides') || tablesFor.includes('packaged'));
+    if (tablesFor.length > 1 && !orthogonal) problems.push(`"${key}" appears in contradictory tables: ${tablesFor.join(', ')}`);
   }
 
   const renames = isObj(tables?.categoryRenames) ? tables.categoryRenames : {};

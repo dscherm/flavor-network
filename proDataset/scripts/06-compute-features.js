@@ -43,13 +43,16 @@ const TASTE_SYNERGIES = {
   'astringent|astringent': 0.2,
 };
 
+const NON_TASTE_WORDS = new Set(['neutral', 'rich']);
+
 function lookupTasteCompat(tasteA, tasteB, tasteMatrix) {
   if (tasteMatrix) {
     // External matrix: keys are "tasteA|tasteB" (alphabetically sorted)
     const key = tasteA < tasteB ? `${tasteA}|${tasteB}` : `${tasteB}|${tasteA}`;
     if (tasteMatrix[key] !== undefined) return tasteMatrix[key];
   }
-  // Hardcoded fallback
+  // Hardcoded fallback. 'neutral' and 'rich' (DATA-5) are not tastes: they neither clash nor synergise.
+  if (NON_TASTE_WORDS.has(tasteA) || NON_TASTE_WORDS.has(tasteB)) return 0.6;
   if (tasteA === tasteB) return 0.4;
   const key = tasteA < tasteB ? `${tasteA}|${tasteB}` : `${tasteB}|${tasteA}`;
   return TASTE_SYNERGIES[key] ?? 0.6;

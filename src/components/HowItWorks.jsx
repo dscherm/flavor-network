@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FONT, CHALK_CREAM, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { TASTE_COLORS as TASTE_PALETTE, TASTE_WORD_NOTES } from '../utils/color.js';
 
 /**
  * HowItWorks — modal explaining how the AI flavor network works.
@@ -16,6 +17,7 @@ import { FONT, CHALK_CREAM, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '
 const TASTE_COLORS = {
   sweet: '#fb92b4', bitter: '#a78bfa', umami: '#f9a870',
   salty: '#93c5fd', sour: '#c9a330',
+  neutral: TASTE_PALETTE.neutral, rich: TASTE_PALETTE.rich,
 };
 
 export default function HowItWorks({
@@ -109,12 +111,13 @@ export default function HowItWorks({
                 <p className="mt-2 text-xs text-[#bdb6a3]">Taste palette:</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {Object.entries(TASTE_COLORS).map(([t, c]) => (
-                    <span key={t} className="flex items-center gap-1 text-xs">
+                    <span key={t} className="flex items-center gap-1 text-xs" title={TASTE_WORD_NOTES[t]}>
                       <span className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
                       {t}
                     </span>
                   ))}
                 </div>
+                <p className="mt-2 text-xs text-[#bdb6a3]">{TASTE_WORD_NOTES.neutral}. {TASTE_WORD_NOTES.rich}.</p>
               </section>
 
               <section>

@@ -2,11 +2,9 @@
 //
 // computeSnapshot() runs, over the REAL data (curated ingredients, curated pairings, the codex, the sauce
 // catalogue, the Cookbook), every code path that reads an ingredient's `category`, and records what each
-// one returns. The snapshot taken before DATA-4 is committed as
-// src/data/__tests__/fixtures/categoryBehaviour.before.json; src/data/__tests__/categoryScheme.test.js
-// recomputes it and fails on any difference that is not listed there as intended and explained.
+// one returns. DATA-4 compared it with a snapshot taken before the category change; DATA-5 retired that fixture (it was
+// pinned to the data of the day), and src/data/__tests__/categoryScheme.test.js now asserts the named guarantees on the live snapshot.
 //
-//   node scripts/snapshotCategoryBehaviour.mjs     writes the fixture (only ever run on the pre-change tree)
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';

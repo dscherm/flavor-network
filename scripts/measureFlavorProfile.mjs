@@ -9,7 +9,14 @@
  *
  * Usage:
  *   node scripts/measureFlavorProfile.mjs [--json] [--truth path]
+ *   node scripts/measureFlavorProfile.mjs --labels-preview [--json] [--truth path]
  *   npm run measure:flavor
+ *
+ * --labels-preview (DATA-5): scores the same items using ONLY the curated taste labels in
+ * ingredients.json (src/data/curation applied), the weights FLAVOR-3 will use (first word 1.0, second 0.6,
+ * third 0.35; spicy and pungent feed heat; astringent counts half toward bitter; neutral and rich feed no
+ * taste axis) and equal weight for every ingredient. No aroma bars, so the aroma figure reads 0 of N.
+ * It changes no app code and is how the label work is checked before FLAVOR-3 builds the real function.
  *
  * Exit code is non-zero if the truth file is malformed or an item does not resolve.
  */
@@ -22,6 +29,7 @@ import { RECIPE_DETAILS } from '../src/data/seedRecipeDetails.js';
 import { buildFlavorProfile } from '../src/data/inventProfile.js';
 import { resolveIngredientName } from '../src/data/recipePairingMatch.js';
 import { scoreItem, summarize, TASTES } from '../src/data/flavorScore.js';
+import { loadCurationTables, applyCuration } from './lib/curationTables.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const KINDS = ['cocktail', 'sauce', 'dish'];
@@ -58,6 +66,46 @@ export function profileFor(recipe, ctx) {
   return { bars: p.bars, counted: p.counted, uncounted: p.uncounted };
 }
 
+const LABEL_WEIGHTS = [1, 0.6, 0.35];
+const LABEL_AXES = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'heat'];
+const LABEL_AXIS = { sweet: ['sweet', 1], sour: ['sour', 1], bitter: ['bitter', 1], salty: ['salty', 1], umami: ['umami', 1], spicy: ['heat', 1], pungent: ['heat', 1], astringent: ['bitter', 0.5] };
+
+/** Taste-axis weights for one label ("sweet sour"): neutral, rich and unknown words add nothing. */
+export function labelWeights(label) {
+  const w = Object.fromEntries(LABEL_AXES.map((a) => [a, 0]));
+  String(label || '').split(/\s+/).filter(Boolean).slice(0, 3).forEach((word, i) => {
+    const hit = LABEL_AXIS[word];
+    if (hit) w[hit[0]] += LABEL_WEIGHTS[i] * hit[1];
+  });
+  return w;
+}
+
+function loadLabels() {
+  const raw = readJson(resolve(ROOT, 'public/proDataset/ingredients.json'));
+  const cur = applyCuration(raw, null, loadCurationTables()).ingredients;
+  const labels = new Map();
+  for (const [name, e] of Object.entries(cur)) if (!name.startsWith('_') && e.taste) labels.set(name, e.taste);
+  return labels;
+}
+
+/** The labels-only chart for one recipe: the mean of its counted ingredients' label weights. */
+export function labelProfileFor(recipe, ctx) {
+  const names = new Set(ctx.nodes.keys());
+  const counted = [];
+  const uncounted = [];
+  const sum = Object.fromEntries(LABEL_AXES.map((a) => [a, 0]));
+  for (const l of recipe.lines) {
+    const key = resolveIngredientName(l.label || l.key, names);
+    if (!key) { uncounted.push(l.key); continue; }
+    counted.push(key);
+    const w = labelWeights(ctx.nodes.get(key));
+    for (const a of LABEL_AXES) sum[a] += w[a];
+  }
+  const n = counted.length;
+  const bars = n ? LABEL_AXES.map((axis) => ({ axis, label: axis, score: sum[axis] / n })) : [];
+  return { bars, counted, uncounted };
+}
+
 export function validateTruth(truth) {
   const problems = [];
   if (!truth || !Array.isArray(truth.items) || !truth.items.length) return ['"items" must be a non-empty array'];
@@ -75,14 +123,14 @@ export function validateTruth(truth) {
   return problems;
 }
 
-export function measure(truth, data, nodes) {
+export function measure(truth, data, nodes, profile = profileFor) {
   const rows = [];
   const missing = [];
   for (const it of truth.items) {
     const [kind, slug] = it.id.split('/');
     const recipe = KINDS.includes(kind) ? resolveBuiltIn(kind, slug, data) : null;
     if (!recipe) { missing.push(it.id); continue; }
-    const p = profileFor(recipe, { nodes, kind });
+    const p = profile(recipe, { nodes, kind });
     const total = p.counted.length + p.uncounted.length;
     const score = scoreItem(p.bars, it, { counted: p.counted.length, total });
     const bars = p.bars.filter((b) => TASTES.includes(b.axis)).sort((a, b) => b.score - a.score).slice(0, 3);
@@ -110,7 +158,10 @@ function main() {
   const problems = validateTruth(truth);
   if (problems.length) { console.error(`Malformed truth file ${truthPath}:\n  ${problems.join('\n  ')}`); process.exit(2); }
 
-  const { rows, missing } = measure(truth, loadData(), loadNodes());
+  const preview = args.includes('--labels-preview');
+  const { rows, missing } = preview
+    ? measure(truth, loadData(), loadLabels(), labelProfileFor)
+    : measure(truth, loadData(), loadNodes());
   if (missing.length) { console.error(`These items do not resolve to a built-in recipe: ${missing.join(', ')}`); process.exit(3); }
   const sum = summarize(rows);
 

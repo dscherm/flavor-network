@@ -31,6 +31,12 @@ describe('validateCuration', () => {
       .toMatch(/"peache" appears in contradictory tables: aliases, hidden/);
     expect(joined({ hidden: { fryer: { reason: 'r' } }, packaged: { fryer: { reason: 'r' } } })).toMatch(/contradictory/);
   });
+  it('lets a taste override sit beside a category override or a packaged flag, and nowhere else', () => {
+    expect(validateCuration({ categoryOverrides: { peach: { category: 'fruit', reason: 'r' } }, tasteOverrides: { peach: { taste: 'sweet', reason: 'r' } } }, opts)).toEqual([]);
+    expect(validateCuration({ packaged: { peach: { reason: 'r' } }, tasteOverrides: { peach: { taste: 'sweet', reason: 'r' } } }, opts)).toEqual([]);
+    expect(joined({ aliases: { peache: { to: 'peach', reason: 'r' } }, tasteOverrides: { peache: { taste: 'sweet', reason: 'r' } } })).toMatch(/contradictory/);
+    expect(joined({ categoryOverrides: { peach: { category: 'fruit', reason: 'r' } }, packaged: { peach: { reason: 'r' } } })).toMatch(/contradictory/);
+  });
   it('rejects a missing or blank reason in every table', () => {
     expect(joined({ aliases: { peache: { to: 'peach' } } })).toMatch(/missing reason/);
     expect(joined({ hidden: { fryer: { reason: '  ' } } })).toMatch(/missing reason/);

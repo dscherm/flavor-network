@@ -5,5 +5,8 @@
     "wine": { "reason": "still, sparkling and fortified wine, sake, mirin and cooking wine; vermouth stays in liqueur" },
     "beer": { "reason": "beer, ale, stout, lager and cider (ginger beer is a mixer; apple cider is a juice)" }
   },
-  "tastes": {}
+  "tastes": {
+    "neutral": { "reason": "contributes no taste of its own: water, ice, plain starch (flour, rice, bread, pasta), neutral spirit; stands alone in a label and feeds no taste axis" },
+    "rich": { "reason": "a fatty or creamy mouthfeel that is not one of the basic tastes (butter, oil, cream, egg yolk, avocado, nuts); a mouthfeel note, not a taste, so it feeds no taste axis; may lead a label with a taste after it (cream is 'rich sweet')" }
+  }
 }

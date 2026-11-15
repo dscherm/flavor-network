@@ -28,6 +28,7 @@ const TASTE_COLORS = {
   hot: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
   mild: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
   neutral: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
+  rich: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
 };
 
 const PROPERTY_BADGE = 'bg-gray-700/40 text-gray-300 border-gray-600/30';

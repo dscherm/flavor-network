@@ -5,7 +5,7 @@
 //   npm run audit:data -- --check         exit 1 if any count is ABOVE data/review/baseline.json (writes nothing)
 //   npm run audit:data -- --update-baseline   store this run's counts as the new baseline
 //
-// The ingredient-hygiene and taste rules look at the RAW generated data; the category rules look at the CURATED data (DATA-4). It also validates the curation tables (src/data/curation)
+// The ingredient-hygiene rules look at the RAW generated data; the category and taste rules look at the CURATED data (DATA-4, DATA-5). It also validates the curation tables (src/data/curation)
 // and prints the curated counts beside the raw ones; an invalid table fails the run.
 //
 // Exit code is non-zero only for a missing or malformed input, or a failed --check.
@@ -18,6 +18,7 @@ import {
   cocktailChecks, sauceChecks, dishChecks, TASTE_VOCAB,
 } from '../src/data/dataAudit.js';
 import { CATEGORY_SCHEME } from '../src/data/categoryScheme.js';
+import { TASTE_WORDS, TASTE_RULES, TASTE_EXAMPLES } from '../src/data/tasteScheme.js';
 import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { dishTypeOf, DISH_TYPES } from '../src/data/dishType.js';
 import { DISH_SKELETONS, DISH_SKELETON_ORDER } from '../src/data/dishSkeletons.js';
@@ -108,7 +109,7 @@ export function runAudit() {
 
   const findings = [
     ...dups, ...findNonFood(ingredients), ...findPackaged(ingredients), ...findCategoryInconsistencies(cur.ingredients),
-    ...findTasteNeutralSweet(ingredients), ...findTasteVocabulary(ingredients), ...findTasteOutliers(ingredients),
+    ...findTasteNeutralSweet(cur.ingredients), ...findTasteVocabulary(cur.ingredients), ...findTasteOutliers(cur.ingredients),
     ...cocktail.findings, ...sauce.findings, ...dish.findings,
   ];
   const isIngredientRule = (r) => /^(duplicate|non-food|fragment|packaged|category|taste)/.test(r);
@@ -123,7 +124,11 @@ export function runAudit() {
     packaged: new Set(Object.keys(tables.packaged || {})), kept: keep,
   };
   const { unreviewed, handledItems } = partitionReviewed(findings, decided);
-  findings.splice(0, findings.length, ...unreviewed);
+  // A first-word outlier on a name with a taste override has been read and decided (DATA-5): it is the correction itself.
+  const tasteRead = new Set(Object.keys(tables.tasteOverrides || {}));
+  const stillOpen = unreviewed.filter((f) => !(f.rule === 'taste-outlier' && tasteRead.has(f.item)));
+  handledItems.tasteRead = new Set(unreviewed.filter((f) => f.rule === 'taste-outlier' && tasteRead.has(f.item)).map((f) => f.item));
+  findings.splice(0, findings.length, ...stillOpen);
   const handled = Object.fromEntries(Object.entries(handledItems).map(([k, v]) => [k, v.size]));
 
   const rules = {};
@@ -144,7 +149,7 @@ export function runAudit() {
       categorySplits: categorySplits(cur.ingredients),
       categoryCounts: categoryCounts(cur.ingredients),
       categoryCountsRaw: categoryCounts(ingredients),
-      tasteDistribution: tasteDistribution(ingredients),
+      tasteDistribution: tasteDistribution(cur.ingredients),
       cocktailsByFamily: cocktail.byFamily,
       sauces: { motherSauce: sauce.motherSauce, cuisine: sauce.cuisine, total: sauce.total, independent: sauce.independent },
       dishes: { count: dish.count, cookbookTypes: dish.cookbookTypes, inventTypes: dish.inventTypes },
@@ -262,6 +267,10 @@ function writeDoc(result, baseline) {
   for (const [f, v] of Object.entries(d.cocktailsByFamily)) famRows.push([f, String(v.total), String(v.creamEgg)]);
   const mother = Object.entries(d.sauces.motherSauce).sort((x, y) => y[1] - x[1]).map(([k, n]) => `${k} ${n}`).join(', ');
   const cuisines = Object.entries(d.sauces.cuisine).sort((x, y) => y[1] - x[1]).slice(0, 8).map(([k, n]) => `${k} ${n}`).join(', ');
+  const tasteWordRows = [['Word', 'What it means', 'Examples']];
+  for (const w of TASTE_WORDS) tasteWordRows.push([`**${w.word}**`, w.meaning, w.examples.join(', ')]);
+  const tasteExampleRows = [['Ingredient', 'Label', 'Why']];
+  for (const e of TASTE_EXAMPLES) tasteExampleRows.push([e.name, `\`${e.label}\``, e.why]);
   const tasteRows = [['Category', 'Most used first taste words']];
   for (const [c, dist] of Object.entries(d.tasteDistribution).sort()) tasteRows.push([c, topWords(dist)]);
   const dishRows = [['Cookbook type (what a recipe is called in the Cookbook)', 'Dishes of that type', 'Invent a recipe type that makes it']];
@@ -357,9 +366,27 @@ Mother sauces: ${mother}. Most common cuisines: ${cuisines}.
 
 ${mdTable(dishRows)}
 
+### How taste labels are assigned
+
+Every ingredient has a taste label of one to three words, strongest first. These labels are the app's taste data:
+the recipe taste charts are drawn from them. There are ten words.
+
+${mdTable(tasteWordRows)}
+
+The rules:
+
+${TASTE_RULES.map((r, i) => `${i + 1}. ${r}`).join(String.fromCharCode(10))}
+
+Worked examples (checked against the data by a test, so this table cannot drift):
+
+${mdTable(tasteExampleRows)}
+
+In the charts, the first word counts fully, the second 0.6 and the third 0.35. Spicy and pungent both count as heat, astringent counts half toward
+bitter, and neutral and rich count toward no taste (rich is a mouthfeel, shown on its own if at all). Every correction is one line with its reason in \`src/data/curation/tasteOverrides.json\`.
+
 ### Taste labels: which first word each category uses most
 
-Computed on the generated data, before the curation layer, so it still shows the old category names (DATA-5 moves it onto the curated data).
+Computed on the curated data (the generated data with the curation tables applied), so it shows the current category names.
 
 The known vocabulary is: ${TASTE_VOCAB.join(', ')}.
 
@@ -387,7 +414,7 @@ function main() {
   console.log(summaryTable(result));
   const h = result.handled;
   console.log(`
-reviewed, so not counted above: ${h.aliased} aliased, ${h.hidden} hidden, ${h.packaged} flagged packaged, ${h.kept} kept as they are (keep list has ${result.keepListSize} entries)`);
+reviewed, so not counted above: ${h.aliased} aliased, ${h.hidden} hidden, ${h.packaged} flagged packaged, ${h.kept} kept as they are (keep list has ${result.keepListSize} entries); ${h.tasteRead} taste outliers decided by a taste override`);
   console.log(`
 curation tables: valid. ingredients raw ${c.ingredients.raw} -> curated ${c.ingredients.curated} (${c.merged} merged, ${c.hidden} hidden, ${c.additions} added; ${c.packaged} flagged packaged; ${c.categoryOverrides} category and ${c.tasteOverrides} taste overrides)` +
     (c.pairings ? `; pairings raw ${c.pairings.raw} -> curated ${c.pairings.curated}` : ''));

@@ -48,6 +48,9 @@ const TASTE_COLORS = {
   sweet: '#ff6b9d',
 };
 
+// DATA-5: labels that are not tastes. Used only when no taste word matched, so "rich sweet" stays sweet.
+const NON_TASTE_COLORS = { neutral: '#8b95a5', rich: '#d9b45a' };
+
 const DEFAULT_COLOR = '#4f8fff';
 
 // Taste filter aliases — when filtering by one of these keys,
@@ -123,6 +126,9 @@ function getColorForNode(node) {
         blended.lerp(matchedColors[i], 1 / (i + 1));
       }
       base = blended;
+    } else {
+      const word = Object.keys(NON_TASTE_COLORS).find((w) => taste.includes(w));
+      if (word) base = new Color(NON_TASTE_COLORS[word]);
     }
   }
 

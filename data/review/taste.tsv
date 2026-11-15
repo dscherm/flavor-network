@@ -1,297 +1,57 @@
 item	rule	confidence	use_count	detail	suggested_action
-butter	taste-neutral-sweet	HIGH	565159	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-flour	taste-neutral-sweet	HIGH	478619	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rice	taste-neutral-sweet	HIGH	70834	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-cornstarch	taste-neutral-sweet	HIGH	60620	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-bread	taste-neutral-sweet	HIGH	43093	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat flour	taste-neutral-sweet	HIGH	17137	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-pasta	taste-neutral-sweet	HIGH	16750	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-flour tortilla	taste-neutral-sweet	HIGH	14823	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-salad oil	taste-neutral-sweet	HIGH	13136	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-cornmeal	taste-neutral-sweet	HIGH	13027	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-oatmeal	taste-neutral-sweet	HIGH	10268	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-corn tortilla	taste-neutral-sweet	HIGH	9417	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-egg noodle	taste-neutral-sweet	HIGH	8580	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white bread	taste-neutral-sweet	HIGH	8401	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-vodka	taste-neutral-sweet	HIGH	7657	a neutral spirit labelled 'sweet bitter'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-brown rice	taste-neutral-sweet	HIGH	6577	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-lasagna noodle	taste-neutral-sweet	HIGH	5932	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-vegetable shortening	taste-neutral-sweet	HIGH	5612	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-lemon extract	taste-outlier	LOW	5032	first taste word 'sour' is used by 5 of 173 'spice' entries	check the label
-yellow cornmeal	taste-neutral-sweet	HIGH	5001	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-quinoa	taste-neutral-sweet	HIGH	4724	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-soda water	taste-neutral-sweet	HIGH	4197	a water labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-corn oil	taste-neutral-sweet	HIGH	4124	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white flour	taste-neutral-sweet	HIGH	3177	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-penne pasta	taste-neutral-sweet	HIGH	3059	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-italian bread	taste-neutral-sweet	HIGH	2684	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-chili bean	taste-outlier	LOW	2588	first taste word 'spicy' is used by 4 of 490 'protein' entries	check the label
-barley	taste-neutral-sweet	HIGH	2573	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-sunflower oil	taste-neutral-sweet	HIGH	2564	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wild rice	taste-neutral-sweet	HIGH	2507	a starch labelled 'sweet bitter'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-fryer	taste-outlier	LOW	2496	first taste word 'umami' is used by 2 of 71 'other' entries	check the label
-baking cocoa	taste-outlier	LOW	2494	first taste word 'bitter' is used by 4 of 422 'condiment' entries	check the label
-wheat bread	taste-neutral-sweet	HIGH	2421	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-grapeseed oil	taste-neutral-sweet	HIGH	2079	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat pastry flour	taste-neutral-sweet	HIGH	1996	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-polenta	taste-neutral-sweet	HIGH	1938	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rice flour	taste-neutral-sweet	HIGH	1933	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-ghee	taste-neutral-sweet	HIGH	1918	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-ramen noodle	taste-neutral-sweet	HIGH	1792	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-pearl barley	taste-neutral-sweet	HIGH	1774	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-crusty bread	taste-neutral-sweet	HIGH	1745	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-long-grain rice	taste-neutral-sweet	HIGH	1742	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-pita bread	taste-neutral-sweet	HIGH	1685	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rice noodle	taste-neutral-sweet	HIGH	1558	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-lemon flavoring	taste-outlier	LOW	1557	first taste word 'sour' is used by 5 of 173 'spice' entries	check the label
-almond flour	taste-neutral-sweet	HIGH	1511	a starch labelled 'sweet bitter'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-instant rice	taste-neutral-sweet	HIGH	1391	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-long-grain white rice	taste-neutral-sweet	HIGH	1369	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rotini pasta	taste-neutral-sweet	HIGH	1340	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-sweet butter	taste-neutral-sweet	HIGH	1285	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-coconut flour	taste-neutral-sweet	HIGH	1189	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rye flour	taste-neutral-sweet	HIGH	1188	a starch labelled 'bitter sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rye bread	taste-neutral-sweet	HIGH	1173	a starch labelled 'bitter sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-potato starch	taste-neutral-sweet	HIGH	1132	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-chili oil	taste-outlier	LOW	1092	first taste word 'spicy' is used by 1 of 124 'fat' entries	check the label
-wheat tortilla	taste-neutral-sweet	HIGH	1070	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-safflower oil	taste-neutral-sweet	HIGH	1023	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-lettuce leave	taste-outlier	LOW	1013	first taste word 'astringent' is used by 8 of 406 'vegetable' entries	check the label
-shell pasta	taste-neutral-sweet	HIGH	969	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-brown rice flour	taste-neutral-sweet	HIGH	949	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-bacon dripping	taste-outlier	LOW	913	first taste word 'salty' is used by 3 of 124 'fat' entries	check the label
-chinese noodle	taste-neutral-sweet	HIGH	908	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-angel hair pasta	taste-neutral-sweet	HIGH	897	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-onion ring	taste-outlier	LOW	847	first taste word 'pungent' is used by 4 of 206 'baked' entries	check the label
-tapioca flour	taste-neutral-sweet	HIGH	829	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-unbleached white flour	taste-neutral-sweet	HIGH	781	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rigatoni pasta	taste-neutral-sweet	HIGH	778	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-bacon grease	taste-outlier	LOW	746	first taste word 'salty' is used by 3 of 124 'fat' entries	check the label
-country bread	taste-neutral-sweet	HIGH	656	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-pastry flour	taste-neutral-sweet	HIGH	647	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-cooked rice	taste-neutral-sweet	HIGH	624	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-chickpea flour	taste-neutral-sweet	HIGH	596	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white cornmeal	taste-neutral-sweet	HIGH	593	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wide noodle	taste-neutral-sweet	HIGH	573	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-udon noodle	taste-neutral-sweet	HIGH	564	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-bacon fat	taste-outlier	LOW	564	first taste word 'salty' is used by 3 of 124 'fat' entries	check the label
-buckwheat flour	taste-neutral-sweet	HIGH	560	a starch labelled 'bitter sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat pita bread	taste-neutral-sweet	HIGH	545	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-soy flour	taste-neutral-sweet	HIGH	531	a starch labelled 'umami sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-instant white rice	taste-neutral-sweet	HIGH	521	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-crisp rice	taste-neutral-sweet	HIGH	488	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-chili with bean	taste-outlier	LOW	478	first taste word 'spicy' is used by 4 of 490 'protein' entries	check the label
-sesame dressing	taste-outlier	LOW	458	first taste word 'bitter' is used by 4 of 422 'condiment' entries	check the label
-white sandwich bread	taste-neutral-sweet	HIGH	429	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-yellow rice	taste-neutral-sweet	HIGH	429	a starch labelled 'sweet pungent'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-camembert cheese	taste-outlier	LOW	415	first taste word 'bitter' is used by 1 of 245 'dairy' entries	check the label
-party rye bread	taste-neutral-sweet	HIGH	366	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-instant brown rice	taste-neutral-sweet	HIGH	365	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-spanish rice	taste-neutral-sweet	HIGH	361	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-ginger juice	taste-outlier	LOW	343	first taste word 'spicy' is used by 3 of 241 'liquid' entries	check the label
-white rice flour	taste-neutral-sweet	HIGH	342	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-short-grain rice	taste-neutral-sweet	HIGH	332	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat spaghetti	taste-neutral-sweet	HIGH	330	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-buttermilk baking mix	taste-outlier	LOW	323	first taste word 'sour' is used by 5 of 206 'baked' entries	check the label
-wheat pasta	taste-neutral-sweet	HIGH	315	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-sorghum flour	taste-neutral-sweet	HIGH	310	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-steamed rice	taste-neutral-sweet	HIGH	309	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-blanched almond flour	taste-neutral-sweet	HIGH	303	a starch labelled 'sweet bitter'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-hair pasta	taste-neutral-sweet	HIGH	292	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-chicken seasoning	taste-outlier	LOW	291	first taste word 'salty' is used by 1 of 173 'spice' entries	check the label
-minute rice	taste-neutral-sweet	HIGH	290	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-long grain brown rice	taste-neutral-sweet	HIGH	286	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-grain rice	taste-neutral-sweet	HIGH	279	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wide egg noodle	taste-neutral-sweet	HIGH	277	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white cooking wine	taste-outlier	LOW	275	first taste word 'sour' is used by 1 of 45 'spirit' entries	check the label
-lemon flavor	taste-outlier	LOW	273	first taste word 'sour' is used by 5 of 173 'spice' entries	check the label
-garlic cheese	taste-outlier	LOW	252	first taste word 'pungent' is used by 1 of 245 'dairy' entries	check the label
-soy	taste-outlier	LOW	249	first taste word 'umami' is used by 2 of 71 'other' entries	check the label
-buttermilk biscuit	taste-outlier	LOW	245	first taste word 'sour' is used by 5 of 206 'baked' entries	check the label
-roll garlic	taste-outlier	LOW	245	first taste word 'pungent' is used by 4 of 206 'baked' entries	check the label
-clarified butter	taste-neutral-sweet	HIGH	239	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-red quinoa	taste-neutral-sweet	HIGH	238	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-barley flour	taste-neutral-sweet	HIGH	224	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rotini noodle	taste-neutral-sweet	HIGH	222	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-sweet cream butter	taste-neutral-sweet	HIGH	220	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-cocktail peanut	taste-outlier	LOW	220	first taste word 'salty' is used by 2 of 87 'nut' entries	check the label
-egg bread	taste-neutral-sweet	HIGH	215	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-spiral pasta	taste-neutral-sweet	HIGH	215	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-udon noodles	taste-neutral-sweet	HIGH	213	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-quinoa flour	taste-neutral-sweet	HIGH	211	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-buttered bread	taste-neutral-sweet	HIGH	209	a starch labelled 'sweet salty'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-instant polenta	taste-neutral-sweet	HIGH	207	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-millet flour	taste-neutral-sweet	HIGH	207	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-risotto rice	taste-neutral-sweet	HIGH	206	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-unbleached flour	taste-neutral-sweet	HIGH	198	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-margarine	taste-neutral-sweet	HIGH	197	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-grain bread	taste-neutral-sweet	HIGH	196	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-cooking rice	taste-neutral-sweet	HIGH	194	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-unsalted margarine	taste-neutral-sweet	HIGH	193	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-jalapeno juice	taste-outlier	LOW	193	first taste word 'spicy' is used by 3 of 241 'liquid' entries	check the label
-wondra flour	taste-neutral-sweet	HIGH	192	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-graham flour	taste-neutral-sweet	HIGH	190	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-pasta noodle	taste-neutral-sweet	HIGH	187	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-uncle ben's rice	taste-neutral-sweet	HIGH	185	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-multi-grain bread	taste-neutral-sweet	HIGH	179	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-gold medal flour	taste-neutral-sweet	HIGH	176	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-cocktail rye bread	taste-outlier	LOW	174	first taste word 'bitter' is used by 2 of 206 'baked' entries	check the label
-pomegranate molasses	taste-outlier	LOW	173	first taste word 'sour' is used by 2 of 103 'sweetener' entries	check the label
-raisin bran	taste-neutral-sweet	HIGH	172	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-brown basmati rice	taste-neutral-sweet	HIGH	171	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-spelt flour	taste-neutral-sweet	HIGH	163	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-gluten flour	taste-neutral-sweet	HIGH	162	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-garlic juice	taste-outlier	LOW	161	first taste word 'pungent' is used by 2 of 241 'liquid' entries	check the label
-crusty italian bread	taste-neutral-sweet	HIGH	160	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wholemeal flour	taste-neutral-sweet	HIGH	159	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-black rice	taste-neutral-sweet	HIGH	153	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-loaves bread	taste-neutral-sweet	HIGH	153	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-thin noodle	taste-neutral-sweet	HIGH	153	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-cavatappi pasta	taste-neutral-sweet	HIGH	152	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat lasagna noodle	taste-neutral-sweet	HIGH	148	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-old-fashioned oatmeal	taste-neutral-sweet	HIGH	147	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-thin rice noodle	taste-neutral-sweet	HIGH	141	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-arrowroot flour	taste-neutral-sweet	HIGH	140	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-sweet unsalted butter	taste-neutral-sweet	HIGH	137	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-stone- yellow cornmeal	taste-neutral-sweet	HIGH	136	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-thin egg noodle	taste-neutral-sweet	HIGH	136	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-sticky rice	taste-neutral-sweet	HIGH	132	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-short-grain brown rice	taste-neutral-sweet	HIGH	131	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-raisin bread	taste-neutral-sweet	HIGH	129	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-stone- cornmeal	taste-neutral-sweet	HIGH	129	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-brown bread	taste-neutral-sweet	HIGH	127	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-garlic bread	taste-neutral-sweet	HIGH	124	a starch labelled 'pungent sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-long grain wild rice	taste-neutral-sweet	HIGH	124	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-garlic bread	taste-outlier	LOW	124	first taste word 'pungent' is used by 4 of 206 'baked' entries	check the label
-soybean oil	taste-neutral-sweet	HIGH	123	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-short pasta	taste-neutral-sweet	HIGH	122	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-okra	taste-outlier	LOW	121	first taste word 'astringent' is used by 8 of 406 'vegetable' entries	check the label
-carnaroli rice	taste-neutral-sweet	HIGH	120	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-chinese rice	taste-neutral-sweet	HIGH	120	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-lemon oil	taste-outlier	LOW	120	first taste word 'sour' is used by 2 of 124 'fat' entries	check the label
-cooked brown rice	taste-neutral-sweet	HIGH	118	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-elbow noodle	taste-neutral-sweet	HIGH	118	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white basmati rice	taste-neutral-sweet	HIGH	118	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-amaranth flour	taste-neutral-sweet	HIGH	117	a starch labelled 'sweet astringent'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rotelle pasta	taste-neutral-sweet	HIGH	117	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-bucatini pasta	taste-neutral-sweet	HIGH	116	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-salted spanish peanut	taste-outlier	LOW	116	first taste word 'salty' is used by 2 of 87 'nut' entries	check the label
-chinese egg noodle	taste-neutral-sweet	HIGH	115	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-shell noodle	taste-neutral-sweet	HIGH	114	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-black olive	taste-outlier	LOW	114	first taste word 'salty' is used by 4 of 406 'vegetable' entries	check the label
-radish	taste-outlier	LOW	114	first taste word 'pungent' is used by 1 of 406 'vegetable' entries	check the label
-hickory smoke	taste-outlier	LOW	113	first taste word 'bitter' is used by 4 of 422 'condiment' entries	check the label
-country white bread	taste-neutral-sweet	HIGH	111	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-buttermilk biscuit mix	taste-outlier	LOW	111	first taste word 'sour' is used by 5 of 206 'baked' entries	check the label
-jalapeno bean	taste-outlier	LOW	110	first taste word 'spicy' is used by 4 of 490 'protein' entries	check the label
-wheat penne pasta	taste-neutral-sweet	HIGH	109	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-mung bean sprout	taste-outlier	LOW	106	first taste word 'astringent' is used by 8 of 406 'vegetable' entries	check the label
-kelp	taste-outlier	LOW	104	first taste word 'salty' is used by 4 of 406 'vegetable' entries	check the label
-fusilli pasta	taste-neutral-sweet	HIGH	103	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-oregano dressing	taste-outlier	LOW	103	first taste word 'astringent' is used by 1 of 422 'condiment' entries	check the label
-broad noodle	taste-neutral-sweet	HIGH	102	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-green plantain	taste-outlier	LOW	102	first taste word 'astringent' is used by 2 of 223 'fruit' entries	check the label
-country-style bread	taste-neutral-sweet	HIGH	100	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white corn tortilla	taste-neutral-sweet	HIGH	99	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-banana leaf	taste-outlier	LOW	99	first taste word 'astringent' is used by 1 of 71 'other' entries	check the label
-favorite pasta	taste-neutral-sweet	HIGH	98	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-farfalle pasta	taste-neutral-sweet	HIGH	97	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-grain white rice	taste-neutral-sweet	HIGH	97	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-alfalfa	taste-outlier	LOW	97	first taste word 'astringent' is used by 8 of 406 'vegetable' entries	check the label
-black pitted olive	taste-outlier	LOW	97	first taste word 'salty' is used by 4 of 406 'vegetable' entries	check the label
-buttered noodle	taste-neutral-sweet	HIGH	96	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-coarse cornmeal	taste-neutral-sweet	HIGH	96	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-pak choy	taste-outlier	LOW	96	first taste word 'astringent' is used by 8 of 406 'vegetable' entries	check the label
-cooked white rice	taste-neutral-sweet	HIGH	95	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-spiral noodle	taste-neutral-sweet	HIGH	95	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-alphabet pasta	taste-neutral-sweet	HIGH	94	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-sushi rice	taste-neutral-sweet	HIGH	94	a starch labelled 'sweet sour umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white wheat flour	taste-neutral-sweet	HIGH	94	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white lupine	taste-outlier	LOW	94	first taste word 'bitter' is used by 2 of 490 'protein' entries	check the label
-fettucini noodle	taste-neutral-sweet	HIGH	93	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-puffed rice	taste-neutral-sweet	HIGH	93	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat elbow macaroni	taste-neutral-sweet	HIGH	93	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-agar	taste-outlier	LOW	93	first taste word 'astringent' is used by 1 of 44 'thickener' entries	check the label
-ostrich fern	taste-outlier	LOW	93	first taste word 'astringent' is used by 8 of 406 'vegetable' entries	check the label
-extra flour	taste-neutral-sweet	HIGH	92	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-garbanzo bean flour	taste-neutral-sweet	HIGH	92	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-garlic soup	taste-outlier	LOW	92	first taste word 'pungent' is used by 2 of 241 'liquid' entries	check the label
-lupine	taste-outlier	LOW	92	first taste word 'bitter' is used by 2 of 490 'protein' entries	check the label
-sourdough	taste-outlier	LOW	92	first taste word 'sour' is used by 5 of 206 'baked' entries	check the label
-pumpernickel bread	taste-neutral-sweet	HIGH	91	a starch labelled 'bitter sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-dark rye bread	taste-outlier	LOW	91	first taste word 'bitter' is used by 2 of 206 'baked' entries	check the label
-castelvetrano olive	taste-outlier	LOW	90	first taste word 'salty' is used by 4 of 406 'vegetable' entries	check the label
-wheat bread flour	taste-neutral-sweet	HIGH	89	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-somen noodle	taste-neutral-sweet	HIGH	88	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-extra wide egg noodle	taste-neutral-sweet	HIGH	87	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-long bean	taste-outlier	LOW	87	first taste word 'astringent' is used by 8 of 406 'vegetable' entries	check the label
-rice vermicelli noodle	taste-neutral-sweet	HIGH	86	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-quick-cooking oatmeal	taste-neutral-sweet	HIGH	85	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-jumbo pasta	taste-neutral-sweet	HIGH	84	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat flour tortilla	taste-neutral-sweet	HIGH	83	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-fettucine noodle	taste-neutral-sweet	HIGH	82	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-vermicelli pasta	taste-neutral-sweet	HIGH	82	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-steamed white rice	taste-neutral-sweet	HIGH	81	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white quinoa	taste-neutral-sweet	HIGH	79	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-thin white bread	taste-neutral-sweet	HIGH	78	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-egg pasta	taste-neutral-sweet	HIGH	77	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-saffron rice	taste-neutral-sweet	HIGH	77	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-elbow pasta	taste-neutral-sweet	HIGH	75	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white bread flour	taste-neutral-sweet	HIGH	74	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wasabi pea	taste-outlier	LOW	74	first taste word 'spicy' is used by 1 of 406 'vegetable' entries	check the label
-blended oatmeal	taste-neutral-sweet	HIGH	72	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-bowtie pasta	taste-neutral-sweet	HIGH	72	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rigatoni noodle	taste-neutral-sweet	HIGH	72	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-baking flour	taste-neutral-sweet	HIGH	71	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-gemelli pasta	taste-neutral-sweet	HIGH	71	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-chili meat	taste-outlier	LOW	71	first taste word 'spicy' is used by 4 of 490 'protein' entries	check the label
-hickory liquid smoke	taste-outlier	LOW	71	first taste word 'bitter' is used by 4 of 422 'condiment' entries	check the label
-garbanzo flour	taste-neutral-sweet	HIGH	70	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-chaat masala	taste-outlier	LOW	70	first taste word 'sour' is used by 5 of 173 'spice' entries	check the label
-wheat macaroni	taste-neutral-sweet	HIGH	68	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-lemon butter	taste-outlier	LOW	68	first taste word 'sour' is used by 2 of 124 'fat' entries	check the label
-short-grain white rice	taste-neutral-sweet	HIGH	67	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-garlic crouton	taste-outlier	LOW	67	first taste word 'pungent' is used by 4 of 206 'baked' entries	check the label
-hazelnut flour	taste-neutral-sweet	HIGH	65	a starch labelled 'sweet bitter'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-white spelt flour	taste-neutral-sweet	HIGH	65	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-green banana	taste-outlier	LOW	65	first taste word 'astringent' is used by 2 of 223 'fruit' entries	check the label
-curly noodle	taste-neutral-sweet	HIGH	64	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-all-purpose unbleached flour	taste-neutral-sweet	HIGH	62	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-arrowroot starch	taste-neutral-sweet	HIGH	62	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-dark rye flour	taste-neutral-sweet	HIGH	62	a starch labelled 'bitter sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-vermicelli rice noodle	taste-neutral-sweet	HIGH	62	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-mixed lettuce	taste-outlier	LOW	61	first taste word 'astringent' is used by 8 of 406 'vegetable' entries	check the label
-glass noodle	taste-neutral-sweet	HIGH	60	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wholemeal bread	taste-neutral-sweet	HIGH	60	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-crusty white bread	taste-neutral-sweet	HIGH	59	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat egg noodle	taste-neutral-sweet	HIGH	59	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat rotini pasta	taste-neutral-sweet	HIGH	59	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-quick-cooking barley	taste-neutral-sweet	HIGH	58	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-rice bran	taste-neutral-sweet	HIGH	58	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-buttermilk pancake mix	taste-outlier	LOW	58	first taste word 'sour' is used by 5 of 206 'baked' entries	check the label
-buckwheat noodle	taste-neutral-sweet	HIGH	55	a starch labelled 'bitter sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-ditalini pasta	taste-neutral-sweet	HIGH	55	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-loaves white bread	taste-neutral-sweet	HIGH	55	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-stale bread	taste-neutral-sweet	HIGH	55	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-unbleached bread	taste-neutral-sweet	HIGH	55	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wheat bran	taste-neutral-sweet	HIGH	55	a starch labelled 'bitter sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-meal flour	taste-neutral-sweet	HIGH	54	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-seashell pasta	taste-neutral-sweet	HIGH	54	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-wagon wheel pasta	taste-neutral-sweet	HIGH	54	a starch labelled 'sweet umami'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-chili beef soup	taste-outlier	LOW	54	first taste word 'spicy' is used by 3 of 241 'liquid' entries	check the label
-rye cocktail bread	taste-neutral-sweet	HIGH	52	a starch labelled 'bitter sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-flat noodle	taste-neutral-sweet	HIGH	51	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-hokkien noodle	taste-neutral-sweet	HIGH	50	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-berbere	taste-outlier	LOW	34	first taste word 'spicy' is used by 1 of 36 'seasoning' entries	check the label
-self-raising flour	taste-neutral-sweet	HIGH	19	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-semolina	taste-neutral-sweet	HIGH	8	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-dry sherry	taste-outlier	LOW	7	first taste word 'sour' is used by 1 of 59 'liqueur' entries	check the label
-self rising flour	taste-neutral-sweet	HIGH	5	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-strong white bread flour	taste-neutral-sweet	HIGH	5	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-tortilla	taste-neutral-sweet	HIGH	5	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-shortening	taste-neutral-sweet	HIGH	4	a plain fat labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-water	taste-neutral-sweet	HIGH	4	a water labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-multigrain bread	taste-neutral-sweet	HIGH	3	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-oat bread	taste-neutral-sweet	HIGH	2	a starch labelled 'sweet'	label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)
-pomegranate molasse	taste-outlier	LOW	1	first taste word 'sour' is used by 2 of 103 'sweetener' entries	check the label
-sumac	taste-outlier	LOW	1	first taste word 'sour' is used by 5 of 173 'spice' entries	check the label
+lemon extract	taste-outlier	LOW	5032	first taste word 'sour' is used by 3 of 159 'spice' entries	check the label
+chili bean	taste-outlier	LOW	2588	first taste word 'spicy' is used by 4 of 455 'protein' entries	check the label
+baking cocoa	taste-outlier	LOW	2494	first taste word 'bitter' is used by 4 of 412 'condiment' entries	check the label
+onion ring	taste-outlier	LOW	847	first taste word 'pungent' is used by 3 of 205 'baked' entries	check the label
+wheat germ	taste-outlier	LOW	746	first taste word 'bitter' is used by 6 of 309 'grain' entries	check the label
+pickle juice	taste-outlier	LOW	677	first taste word 'sour' is used by 4 of 144 'liquid' entries	check the label
+chili with bean	taste-outlier	LOW	478	first taste word 'spicy' is used by 4 of 455 'protein' entries	check the label
+sesame dressing	taste-outlier	LOW	458	first taste word 'bitter' is used by 4 of 412 'condiment' entries	check the label
+spanish peanut	taste-outlier	LOW	340	first taste word 'umami' is used by 2 of 80 'nut' entries	check the label
+chicken seasoning	taste-outlier	LOW	291	first taste word 'salty' is used by 1 of 159 'spice' entries	check the label
+garlic cheese	taste-outlier	LOW	252	first taste word 'pungent' is used by 1 of 239 'dairy' entries	check the label
+soy	taste-outlier	LOW	249	first taste word 'umami' is used by 1 of 43 'other' entries	check the label
+roll garlic	taste-outlier	LOW	245	first taste word 'pungent' is used by 3 of 205 'baked' entries	check the label
+buckwheat	taste-outlier	LOW	239	first taste word 'bitter' is used by 6 of 309 'grain' entries	check the label
+cocktail peanut	taste-outlier	LOW	220	first taste word 'salty' is used by 1 of 80 'nut' entries	check the label
+pomegranate molasses	taste-outlier	LOW	173	first taste word 'sour' is used by 2 of 98 'sweetener' entries	check the label
+buckwheat groat	taste-outlier	LOW	149	first taste word 'bitter' is used by 6 of 309 'grain' entries	check the label
+okra	taste-outlier	LOW	121	first taste word 'astringent' is used by 6 of 357 'vegetable' entries	check the label
+lemon oil	taste-outlier	LOW	120	first taste word 'sour' is used by 2 of 121 'fat' entries	check the label
+black olive	taste-outlier	LOW	114	first taste word 'salty' is used by 4 of 357 'vegetable' entries	check the label
+radish	taste-outlier	LOW	114	first taste word 'pungent' is used by 1 of 357 'vegetable' entries	check the label
+hickory smoke	taste-outlier	LOW	113	first taste word 'bitter' is used by 4 of 412 'condiment' entries	check the label
+jalapeno bean	taste-outlier	LOW	110	first taste word 'spicy' is used by 4 of 455 'protein' entries	check the label
+mung bean sprout	taste-outlier	LOW	106	first taste word 'astringent' is used by 6 of 357 'vegetable' entries	check the label
+kelp	taste-outlier	LOW	104	first taste word 'salty' is used by 4 of 357 'vegetable' entries	check the label
+oregano dressing	taste-outlier	LOW	103	first taste word 'astringent' is used by 1 of 412 'condiment' entries	check the label
+green plantain	taste-outlier	LOW	102	first taste word 'astringent' is used by 2 of 205 'fruit' entries	check the label
+rye	taste-outlier	LOW	101	first taste word 'bitter' is used by 6 of 309 'grain' entries	check the label
+banana leaf	taste-outlier	LOW	99	first taste word 'astringent' is used by 1 of 43 'other' entries	check the label
+alfalfa	taste-outlier	LOW	97	first taste word 'astringent' is used by 6 of 357 'vegetable' entries	check the label
+black pitted olive	taste-outlier	LOW	97	first taste word 'salty' is used by 4 of 357 'vegetable' entries	check the label
+pak choy	taste-outlier	LOW	96	first taste word 'astringent' is used by 6 of 357 'vegetable' entries	check the label
+teff	taste-outlier	LOW	94	first taste word 'bitter' is used by 6 of 309 'grain' entries	check the label
+white lupine	taste-outlier	LOW	94	first taste word 'bitter' is used by 2 of 455 'protein' entries	check the label
+ostrich fern	taste-outlier	LOW	93	first taste word 'astringent' is used by 6 of 357 'vegetable' entries	check the label
+garlic soup	taste-outlier	LOW	92	first taste word 'pungent' is used by 1 of 144 'liquid' entries	check the label
+lupine	taste-outlier	LOW	92	first taste word 'bitter' is used by 2 of 455 'protein' entries	check the label
+castelvetrano olive	taste-outlier	LOW	90	first taste word 'salty' is used by 4 of 357 'vegetable' entries	check the label
+long bean	taste-outlier	LOW	87	first taste word 'astringent' is used by 6 of 357 'vegetable' entries	check the label
+wasabi pea	taste-outlier	LOW	74	first taste word 'spicy' is used by 1 of 357 'vegetable' entries	check the label
+chili meat	taste-outlier	LOW	71	first taste word 'spicy' is used by 4 of 455 'protein' entries	check the label
+hickory liquid smoke	taste-outlier	LOW	71	first taste word 'bitter' is used by 4 of 412 'condiment' entries	check the label
+chaat masala	taste-outlier	LOW	70	first taste word 'sour' is used by 3 of 159 'spice' entries	check the label
+lemon butter	taste-outlier	LOW	68	first taste word 'sour' is used by 2 of 121 'fat' entries	check the label
+garlic crouton	taste-outlier	LOW	67	first taste word 'pungent' is used by 3 of 205 'baked' entries	check the label
+green banana	taste-outlier	LOW	65	first taste word 'astringent' is used by 2 of 205 'fruit' entries	check the label
+cranberry cocktail	taste-outlier	LOW	63	first taste word 'sour' is used by 4 of 144 'liquid' entries	check the label
+linseed	taste-outlier	LOW	58	first taste word 'bitter' is used by 6 of 309 'grain' entries	check the label
+chili beef soup	taste-outlier	LOW	54	first taste word 'spicy' is used by 1 of 144 'liquid' entries	check the label
+sunflower nut	taste-outlier	LOW	54	first taste word 'umami' is used by 2 of 80 'nut' entries	check the label
+cucumber juice	taste-outlier	LOW	50	first taste word 'bitter' is used by 1 of 46 'juice' entries	check the label
+berbere	taste-outlier	LOW	34	first taste word 'spicy' is used by 1 of 35 'seasoning' entries	check the label
+fermented tea	taste-outlier	LOW	8	first taste word 'sour' is used by 4 of 144 'liquid' entries	check the label
+hibiscus tea	taste-outlier	LOW	2	first taste word 'sour' is used by 4 of 144 'liquid' entries	check the label
+pomegranate molasse	taste-outlier	LOW	1	first taste word 'sour' is used by 2 of 98 'sweetener' entries	check the label
+sumac	taste-outlier	LOW	1	first taste word 'sour' is used by 3 of 159 'spice' entries	check the label

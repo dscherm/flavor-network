@@ -4,6 +4,7 @@ export const TASTE_ORDER = ['sweet','sour','bitter','salty','umami','spicy','pun
 export const TASTE_HEX = {
   sweet:'#fb92b4', sour:'#c9a330', bitter:'#a78bfa', salty:'#93c5fd',
   umami:'#f9a870', spicy:'#f87171', pungent:'#b48c64', astringent:'#4ade80',
+  neutral:'#9ca3af', rich:'#e9c46a',
 };
 export const CATEGORY_RADII = {
   protein:40, meat:40, seafood:38, dairy:32, vegetable:35, fruit:30,

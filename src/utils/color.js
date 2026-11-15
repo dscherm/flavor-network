@@ -12,7 +12,17 @@ export const TASTE_COLORS = {
   hot: '#f87171',
   pungent: '#b48c64',
   astringent: '#4ade80',
+  // DATA-5: two labels that are not tastes. Listed after every taste so a label such as "rich sweet"
+  // (cream) takes the sweet colour in colorForTaste; a label that is only neutral or rich takes these.
+  neutral: '#9ca3af',
+  rich: '#e9c46a',
   default: '#4f8fff',
+};
+
+/** Plain-language legend text for the two labels that are not tastes (DATA-5). */
+export const TASTE_WORD_NOTES = {
+  neutral: 'neutral: no taste of its own (water, flour, rice, vodka)',
+  rich: 'rich: fat or creaminess, not a taste (butter, oil, cream)',
 };
 
 export const CUISINE_COLORS = {

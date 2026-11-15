@@ -51,12 +51,12 @@ function flavorV3Enabled() {
 // public/proDataset/*_v3.json.pre-gnn-promote.bak.
 
 // Map proDataset categories to taste strings that NodeMesh can color.
-// NodeMesh checks node.taste for: pungent, astringent, salty, sour, bitter, hot, spicy, sweet
+// NodeMesh checks node.taste for: pungent, astringent, salty, sour, bitter, hot, spicy, sweet (and neutral, rich when no taste word matches)
 // Multi-taste profiles per category — NodeMesh blends colors when multiple tastes are present
 export const CATEGORY_TO_TASTE = {
   aromatic: 'pungent sweet',
-  fat: 'sweet',
-  dairy: 'sweet sour',
+  fat: 'rich',
+  dairy: 'rich sweet',
   protein: 'salty pungent',
   'savory seasoning': 'salty bitter',
   citrus: 'sour sweet',
@@ -67,7 +67,7 @@ export const CATEGORY_TO_TASTE = {
   chili: 'spicy pungent',
   sweetener: 'sweet',
   nut: 'bitter sweet',
-  grain: 'sweet',
+  grain: 'neutral',
   liquid: 'sour salty',
   baked: 'sweet',
   confection: 'sweet',
@@ -75,7 +75,7 @@ export const CATEGORY_TO_TASTE = {
   juice: 'sweet sour',
   wine: 'sour bitter',
   beer: 'bitter sweet',
-  thickener: 'sweet',
+  thickener: 'neutral',
   mixer: 'sour sweet',
   spirit: 'bitter pungent',
   liqueur: 'sweet bitter',

@@ -74,9 +74,10 @@ export function buildAnalysis(focal, pairingNode, strength, sharedCompounds) {
     return a.filter((s) => setB.has(String(s).toLowerCase()));
   })();
   const sharedTaste = (() => {
+    // 'neutral' means no taste, so two neutral ingredients share nothing worth showing (DATA-5)
     const a = new Set(tokenizeTaste(focalNode?.taste));
     const b = tokenizeTaste(pairingNode?.taste);
-    return b.filter((t) => a.has(t));
+    return b.filter((t) => t !== 'neutral' && a.has(t));
   })();
   const sharedCuisines = (() => {
     const a = Array.isArray(focalNode?.cuisines) ? focalNode.cuisines : [];

@@ -8,7 +8,7 @@
  * distinction a cook would care about, so a person must decide).
  */
 
-export const TASTE_VOCAB = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'spicy', 'pungent', 'astringent'];
+export const TASTE_VOCAB = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'spicy', 'pungent', 'astringent', 'neutral', 'rich'];
 
 const finding = (item, rule, confidence, detail, suggestion = '') => ({ item, rule, confidence, detail, suggestion });
 const tokens = (s) => String(s || '').toLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -249,8 +249,8 @@ export function findCategoryInconsistencies(ingredients, families = CATEGORY_FAM
 // -------------------------------------------------------------------- taste
 
 const STARCH_LAST = new Set(['flour', 'cornstarch', 'starch', 'rice', 'bread', 'pasta', 'noodle', 'noodles', 'spaghetti', 'macaroni',
-  'oats', 'oatmeal', 'couscous', 'bran', 'cornmeal', 'polenta', 'semolina', 'barley', 'quinoa', 'breadcrumbs', 'tortilla']);
-const SWEET_STARCH_NOT = /(sweet|sugar|cake|pudding|cookie|candy|syrup|pie|dessert|chocolate|honey|cinnamon)/;
+  'oat', 'oats', 'oatmeal', 'couscous', 'bran', 'cornmeal', 'polenta', 'semolina', 'barley', 'quinoa', 'breadcrumbs', 'tortilla']);
+const SWEET_STARCH_NOT = /(sweet|sugar|cake|pudding|cookie|candy|syrup|pie|dessert|chocolate|honey|cinnamon|raisin)/;
 const PLAIN_FAT = /^(?:(?:unsalted |salted |sweet |sweet cream |clarified |lite |light |whipped |stick )*(?:butter|margarine)|(?:extra[- ]virgin |virgin |vegetable |salad |cooking |canola |corn |olive |safflower |sunflower |soybean |grapeseed |light |pure )?oil|shortening|vegetable shortening|lard|ghee)$/;
 const PLAIN_WATER = /^(?:(?:hot|cold|warm|boiling|ice|ice-cold|lukewarm|sparkling|mineral|distilled|filtered|tap) )*water$|^(?:ice|ice cubes?|crushed ice|club soda|soda water|seltzer(?: water)?|carbonated water)$/;
 const NEUTRAL_SPIRIT = /^(?:vodka|grain alcohol|everclear)$/;
@@ -272,7 +272,7 @@ export function findTasteNeutralSweet(ingredients) {
     if (!tokens(e.taste).includes('sweet')) continue;
     for (const [group, test] of Object.entries(TASTE_GROUPS)) {
       if (test(name.toLowerCase())) {
-        out.push(finding(name, 'taste-neutral-sweet', 'HIGH', `a ${group} labelled '${e.taste}'`, "label has no sweet; the vocabulary has no 'neutral' (decision for DATA-5)"));
+        out.push(finding(name, 'taste-neutral-sweet', 'HIGH', `a ${group} labelled '${e.taste}'`, "label it 'neutral' (starch, water, neutral spirit) or 'rich' (plain fat): neither is sweet"));
         break;
       }
     }

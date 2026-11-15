@@ -13,16 +13,19 @@
   "cupcake liner": {"reason":"baking supply, not food"},
   "epsom salt": {"reason":"bath salt, not food"},
   "european": {"reason":"a bare adjective (European cucumber, European-style butter), not an ingredient"},
-  "fryer": {"reason":"kitchen equipment, not food"},
+  "juice from": {"reason":"a bare fragment of \"juice from 1 lemon\", not an ingredient"},
   "kitchen twine": {"reason":"kitchen supply, not food"},
   "leaf": {"reason":"a bare word, not an ingredient"},
+  "lemon juice from": {"reason":"a bare fragment of \"lemon juice from 1 lemon\", not an ingredient"},
   "milky": {"reason":"a bare adjective, not an ingredient"},
   "nacho cheese flavor": {"reason":"a bare flavour word: the tail of a flavoured snack, no product named"},
   "orange flavored": {"reason":"a bare adjective fragment, not an ingredient"},
+  "reserved juice": {"reason":"a bare fragment (juice set aside from a can or a step), not an ingredient"},
   "root": {"reason":"a bare word, not an ingredient"},
   "salted": {"reason":"a bare adjective, not an ingredient"},
   "strawberry flavored": {"reason":"a bare adjective fragment of \"strawberry flavored gelatin\", not an ingredient"},
   "sugar-free": {"reason":"a bare adjective, not an ingredient"},
   "unsalted": {"reason":"a bare adjective (a butter or nut word), not an ingredient"},
-  "vanilla-flavored": {"reason":"a bare adjective fragment, not an ingredient"}
+  "vanilla-flavored": {"reason":"a bare adjective fragment, not an ingredient"},
+  "with juice": {"reason":"a bare fragment (\"with juice\" of a canned fruit), not an ingredient"}
 }

@@ -71,7 +71,7 @@ const VALID_CATEGORIES = new Set([
   'spirit','liqueur','bitters','vegetable','fruit','other',
 ]);
 const VALID_TASTES = new Set([
-  'sweet','sour','bitter','salty','umami','spicy','pungent','astringent',
+  'sweet','sour','bitter','salty','umami','spicy','pungent','astringent','neutral','rich',
 ]);
 
 function loadIngredients() {

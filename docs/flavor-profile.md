@@ -167,3 +167,30 @@ Of the 599 built-in recipes, the share cards and link previews draw a chart for 
 ## Shared pages and cards show no chart (2026-11-15, SHARE-8)
 
 After FLAVOR-2, 186 of 599 built-in recipes still drew a chart and most of those led with a wrong taste (`npm run measure:flavor`). So the public share surfaces (the `/r/` page, the share pictures, the link-preview cards, and the bars stored with a user's shared recipe) draw no chart until the charts are rebuilt. The switch is `SHARE_CHARTS_ENABLED` in `src/data/shareTargets.js`; FLAVOR-6 turns it back on. In-app charts are unchanged.
+
+## How neutral and rich are treated (2026-11-15, DATA-5)
+
+The ingredient taste labels now have ten words: the eight old ones plus `neutral` and `rich` (the full rules are in `docs/data-quality.md`, "How taste labels are assigned"). FLAVOR-3 reads them like this:
+
+- **The six chart tastes** are sweet, sour, bitter, salty, umami and heat. First word of a label counts 1.0, second 0.6, third 0.35. `spicy` and `pungent` both feed heat. `astringent` counts half toward bitter.
+- **`neutral`** contributes to no taste axis. The ingredient still counts as an ingredient with data (it is counted, not uncounted), so a recipe of flour and water is a recipe with no taste, not a recipe with no data. `neutral` always stands alone in a label.
+- **`rich`** is a mouthfeel, not a taste. It contributes to none of the six axes. It may lead a label (`rich sweet` for cream): the word after it still counts at the position it holds, so cream gives sweet 0.6, not 1.0. If a chart shows richness at all it is shown separately from the six tastes.
+- Spirits carry no heat word: the burn of alcohol is not charted as heat. Many herbs and warm spices still carry `pungent` from the generated data, so heat is overstated for them until FLAVOR-4's table overrides it.
+
+### What the labels alone give (`node scripts/measureFlavorProfile.mjs --labels-preview`)
+
+The preview scores the same 41 items using only the curated labels, the weights above and equal weight for every ingredient (no amounts, no FLAVOR-4 table, no aroma). It changes no app code; it is the evidence that the label work helps before FLAVOR-3 builds the real function. It is a measurement, not a tuned result: no label was changed to move a test item.
+
+Before the DATA-5 corrections (curated data with no taste overrides):
+
+```
+Items 41. Top taste expected: 31/41 (75.6%). Top two both expected: 19/34 items with 2+ expected (55.9%). Forbidden taste leads: 6. No chart: 0. Ingredients counted: 96.6%. Aroma as expected: 0/4 (0%).
+```
+
+After the DATA-5 corrections (325 label overrides, 16 added bar and mixer entries, `neutral` and `rich` in use):
+
+```
+Items 41. Top taste expected: 32/41 (78%). Top two both expected: 21/34 items with 2+ expected (61.8%). Forbidden taste leads: 6. No chart: 0. Ingredients counted: 97%. Aroma as expected: 0/4 (0%).
+```
+
+The gain is real but small (one more top taste, two more top pairs). Labels alone reach the FLAVOR-3 target of 70% at the top taste; the hand-tuned table in FLAVOR-4 is what takes it to 85%. Visible limits of labels alone: no amounts (a dash of bitters weighs as much as two ounces of gin), nuts labelled `rich sweet` put some sweet into pesto, tomato leads sweet in tomato sauces, and heat is not scored here because the scorer has five taste axes.

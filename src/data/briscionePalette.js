@@ -57,6 +57,8 @@ export const BRISCIONE_TASTE = {
   pungent:    '#f97316',  // orange
   astringent: '#14b8a6',  // teal
   umami:      '#facc15',  // gold
+  neutral:    '#94a3b8',  // slate: no taste (DATA-5); not a radar axis
+  rich:       '#fcd34d',  // butter: fat or creaminess, not a taste (DATA-5); not a radar axis
 };
 
 export const BRISCIONE_SEASON = {
