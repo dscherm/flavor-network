@@ -216,7 +216,12 @@ export async function handleScanBar(data: unknown, deps: BarScanDeps): Promise<S
         throw new HttpsError('unavailable', 'The photo reader is out of capacity for today. Try again tomorrow, or add bottles by typing.');
       }
       if (!retryable) {
-        deps.log('scanBar', { ...who, bytes, mimeType, outcome: 'model-error', ms: deps.now() - startedAt });
+        // Only the status number and Google's reason token are logged, never the
+        // error text itself (it could echo the photo): enough to tell a bad key
+        // from a bad request.
+        const status = /\[(\d{3}) /.exec(msg)?.[1] ?? '';
+        const reason = /"reason":"([A-Z_]{1,40})"/.exec(msg)?.[1] ?? '';
+        deps.log('scanBar', { ...who, bytes, mimeType, outcome: 'model-error', status, reason, ms: deps.now() - startedAt });
         throw new HttpsError('internal', 'The photo reader could not read that photo. Try again.');
       }
       const wait = RETRY_BASE_MS * 2 ** attempt;
