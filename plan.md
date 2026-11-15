@@ -2360,7 +2360,7 @@ independent of those; DATA-8 last. DATA-5 must land before FLAVOR-3.
   "id": "DATA-4",
   "title": "One consistent category scheme",
   "category": "data",
-  "passes": false,
+  "passes": true,
   "description": "Write the category scheme down in docs/data-quality.md (each category with a one-line definition and three examples), then apply it through categoryOverrides.json: all cheeses under dairy; all juices under a new 'juice' category; all flours under grain; still, sparkling, fortified and cooking wines under a new 'wine' category; beer and cider under 'beer'; the 'umami' category renamed 'savory seasoning'; vermouths and aromatised wines decided once and stated. Before changing anything, list every place in the code that reads a category name (inventSauce.js slot rules, dishSkeletons.js, recipeRoles, recipeMains.js, myBar.js isBooze and family rules, suggestion filters, colour and legend maps, tests) and update them in the same change so no slot or filter silently empties.",
   "acceptance": [
     "The list of category readers is in the report, and each was either updated or shown not to be affected",
