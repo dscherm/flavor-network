@@ -2660,7 +2660,7 @@ AROMA-1, AROMA-2, AROMA-3, AROMA-4. Taste numbers must not move.
   "id": "AROMA-2",
   "title": "Second-opinion check: every disagreement with the distilled profiles reviewed",
   "category": "data",
-  "passes": false,
+  "passes": true,
   "description": "scripts/checkAromaAgreement.mjs compares each line of the aroma table with the second source (flavor_profiles_distilled.json, through the curation layer's name resolution) and prints: agreement on the strongest aroma, top-two overlap, table lines with no counterpart, and every disagreement with both sides shown and whether the second source's entry is chef-sourced. Read every disagreement (40 at the time of the spec). For each: correct the table line with a reason when the second source is right (likely: chilies, gin, vermouths), or record it in data/review/aroma-accepted.json with a reason when the table is right or the difference is only the missing axes (those are re-checked in AROMA-3). The check becomes part of npm run audit:data: a table edit that creates a new unreviewed disagreement fails --check. Do not tune against the held-back third of the blind key.",
   "acceptance": [
     "Every disagreement is either fixed or accepted with a specific reason; the script reports zero unreviewed",
