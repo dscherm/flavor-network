@@ -1820,7 +1820,7 @@ the owner may scan on the owner's free key through the scanBar function. Order: 
   "id": "BARPHOTO-2",
   "title": "Bottle naming: stop losing amaretto, cassis, génépy and named amari between the label and My bar",
   "category": "fix",
-  "passes": false,
+  "passes": true,
   "description": "src/data/myBar.js: isBooze learns the kinds it drops (amaretto, crème de cassis and other crème de liqueurs, cream liqueurs, génépy, aquavit and similar); a bottle whose only match is a generic word ('liqueur', 'herbal liqueur') keeps its own normalised name; a plain 'amaro' entry exists and a named amaro never resolves to a different brand (Averna, Jägermeister must not become amaro montenegro, for typed entries as well as scanned ones). The bottle list sent to the model gains these entries, and the prompt forbids substituting another brand, listing unreadable bottles, or exceeding 40 entries; output tokens capped. Re-measure with scripts/measureBarPhoto.mjs --fresh.",
   "acceptance": [
     "Predictions written in docs/bar-photo.md before the re-run",
