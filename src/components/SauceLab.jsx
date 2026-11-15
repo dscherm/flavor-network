@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import LabNodeCard from './LabNodeCard.jsx';
+import { shareLinkFor } from '../data/sharedRecipe.js';
 import SauceBrowse from './SauceBrowse.jsx';
 import {
   loadSauceCodex,
@@ -105,6 +106,8 @@ export default function SauceLab({
     } },
     { label: '🗑 Delete', testid: 'saved-delete', onClick: () => setConfirmDelete({ id: sauce.savedId, name: sauce.name }) },
   ] : []);
+  // Share: codex sauces only; the cook's own (mine) wait for the publish step.
+  const shareFor = (sauce) => (sauce && !sauce.mine ? { link: shareLinkFor('sauce', sauce), recipe: { kind: 'sauce', name: sauce.name } } : null);
   // "What do I need?" on a sauce card, against the same kitchen list.
   const sauceNeeds = (sauce) => (
     <WhatDoINeed
@@ -271,6 +274,7 @@ export default function SauceLab({
             clusterColor={familyForSelected?.color || '#9a8f7a'}
             clusterTag={detailSauce?.mine ? 'YOURS' : (detailSauce?.isRoot ? 'MOTHER' : (detailSauce?.cuisine || null))}
             actions={savedActions(detailSauce)}
+            share={shareFor(detailSauce)}
             details={detailSauce ? [{ label: 'Cuisine', value: detailSauce.cuisine }] : []}
             ingredients={detailSauce?.ingredientsDetailed?.length ? detailSauce.ingredientsDetailed : (detailSauce?.ingredients || [])}
             prep={detailSauce?.instructions || ''}
@@ -400,6 +404,7 @@ export default function SauceLab({
             clusterColor={familyForSelected?.color || '#9a8f7a'}
             clusterTag={s?.mine ? 'YOURS' : (s?.isRoot ? 'MOTHER' : (s?.cuisine || null))}
             actions={savedActions(s)}
+            share={shareFor(s)}
             details={s ? [{ label: 'Cuisine', value: s.cuisine }] : []}
             ingredients={s?.ingredientsDetailed?.length ? s.ingredientsDetailed : (s?.ingredients || [])}
             prep={s?.instructions || ''}

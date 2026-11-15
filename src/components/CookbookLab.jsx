@@ -28,6 +28,8 @@ import ProfileAxisRadar from './ProfileAxisRadar.jsx';
 import { DishArt, IngredientGlyph, LabArt } from './chalkArt.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
 import { getRecipeDetails } from '../data/seedRecipeDetails.js';
+import { shareLinkFor } from '../data/sharedRecipe.js';
+import { ShareButton } from './ShareSheet.jsx';
 import { dishTypeOf, dishTypeLabel } from '../data/dishType.js';
 import { parseQuery, matchItem } from '../data/ingredientSearch.js';
 import { recipeSeedFromSearch } from '../data/inventSearch.js';
@@ -36,6 +38,7 @@ import {
   CARD_CREAM, CARD_INK, CARD_INK_SUB,
 } from '../data/chalkTheme.js';
 
+const BUILT_IN_DISH_IDS = new Set(SEED_RECIPES.map((r) => r.id));
 const SEED_CUISINE_COUNT = new Set(SEED_RECIPES.map((r) => r.cuisine)).size;
 
 // ── Kitchen line-art icons (cuisine + dish-type) ──────────────────────
@@ -148,6 +151,8 @@ export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenReci
   const kind = dishTypeOf(recipe);
   const nodes = ctx?.graph?.nodes;
   const details = getRecipeDetails(recipe.id);
+  // Built-in dishes only; the cook's own saved recipes (cuisine 'Personal') wait for the publish step.
+  const shareLink = BUILT_IN_DISH_IDS.has(recipe.id) ? shareLinkFor('dish', recipe) : '';
   // "What do I need?" against the shared kitchen (Recipe / Sauce Labs).
   const [kitchen, setKitchen] = useState(() => loadKitchen());
   // WEAK-3: only missing mains are "you need"; flavourings are "even better
@@ -244,6 +249,11 @@ export function RecipeDetail({ recipe, ctx, onClose, onOpenInNetwork, onOpenReci
         </div>
 
         <div className="p-4 pt-3 space-y-4">
+          {shareLink && (
+            <div className="flex justify-end !mt-0" data-testid="recipe-share">
+              <ShareButton recipe={{ kind: 'dish', name: recipe.name }} link={shareLink} />
+            </div>
+          )}
           {recipe.description && (
             <p className="leading-snug" style={{ fontFamily: FONT, fontSize: '19px', color: CHALK_DIM }}>{recipe.description}</p>
           )}

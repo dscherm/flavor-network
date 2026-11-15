@@ -15,6 +15,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
+import { ShareButton } from './ShareSheet.jsx';
 import { resolveBuiltIn } from '../data/sharedRecipe.js';
 import { buildFlavorProfile } from '../data/inventProfile.js';
 import { resolveIngredientName } from '../data/recipePairingMatch.js';
@@ -176,6 +177,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
             )}
 
             <section data-testid="shared-actions" aria-label="Actions" className="mt-6 flex flex-wrap gap-2 empty:hidden">
+              <ShareButton recipe={recipe} link={`/r/${recipe.kind}/${recipe.slug}`} />
               {actions}
             </section>
           </article>

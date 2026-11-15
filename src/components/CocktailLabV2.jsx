@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import LabNodeCard from './LabNodeCard.jsx';
 import DishStory from './DishStory.jsx';
+import { shareLinkFor } from '../data/sharedRecipe.js';
 import CocktailBrowse from './CocktailBrowse.jsx';
 import {
   loadCodexV2,
@@ -278,6 +279,10 @@ export default function CocktailLabV2({
       { label: '🗑 Delete', onClick: () => setConfirmDelete({ id: selectedNode.savedId, name: selectedNode.name }), testid: 'saved-delete' },
     ] : []),
   ] : [];
+  // Share: codex drinks only; the cook's own (mine) wait for the publish step.
+  const shareProp = selectedNode && !selectedNode.mine
+    ? { link: shareLinkFor('cocktail', selectedNode), recipe: { kind: 'cocktail', name: selectedNode.name } }
+    : null;
   const riffTarget = riffDrink || (riffOpen ? selectedNode : null);
   const riffPanel = riffTarget && graph ? (
     <CocktailRiff
@@ -533,6 +538,7 @@ export default function CocktailLabV2({
             clusterTag={selectedNode?.mine ? 'YOURS' : (subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null)}
             details={cardDetails}
             actions={cardActions}
+            share={shareProp}
             ingredients={cardIngredients.items}
             prep={selectedNode?.recipe_text || ''}
             likeThis={similarCocktails}
@@ -593,6 +599,7 @@ export default function CocktailLabV2({
           clusterTag={selectedNode?.mine ? 'YOURS' : (subclusterName(selectedNode?.subcluster_id, selectedNode?.subcluster_id) || familyForSelected?.signature || null)}
           details={cardDetails}
           actions={cardActions}
+            share={shareProp}
           ingredients={cardIngredients.items}
           prep={selectedNode?.recipe_text || ''}
           likeThis={similarCocktails}
