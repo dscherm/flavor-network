@@ -2677,7 +2677,7 @@ AROMA-1, AROMA-2, AROMA-3, AROMA-4. Taste numbers must not move.
   "id": "AROMA-3",
   "title": "Eleven aroma axes: toasty, nutty, earthy, smoky and savory join the six",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "The aroma axes become fruity, floral, green, woody, spice, fatty, toasty (roasted, caramel), nutty, earthy, smoky, savory (meaty, marine, fermented). Every line of src/data/flavorAromas.js is re-read and given values on the new axes where they apply; ingredients that had no aroma because their aromas had no home get real lines (fish sauce, anchovy, soy sauce, miso, parmesan and aged cheeses, coffee and coffee liqueur, cocoa and chocolate, nuts and nut milks, mushrooms, beets, root vegetables, smoked paprika, bacon, mezcal and peated whisky, caramel and brown sugar, toasted sesame, stocks and seared-meat bases). Values that were standing in for a missing axis are moved (coffee liqueur from woody to toasty, almond milk from woody to nutty). flavorAroma.js, the shared profile helpers, axis labels, colours (eleven distinct, readable on slate, not colliding with the six taste colours), balancing pairs, per-axis pages and boost / temper all cover eleven. The second-opinion check is re-run with the full 17-word mapping; accepted disagreements that were only 'missing axis' must now agree or be re-decided.",
   "acceptance": [
     "Every table line was re-read; the count of lines changed and of ingredients newly given an aroma is reported; a test fails if an axis name outside the eleven appears",
