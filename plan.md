@@ -2291,3 +2291,225 @@ then FLAVOR-3, FLAVOR-4, FLAVOR-5 in that order; FLAVOR-6 last.
   ]
 }
 ```
+
+## 2026-11-15 — Data cleanup: ingredients, categories, taste labels, cocktail and sauce groupings
+
+Spec: `.schermness/spec.md` → "Data cleanup". From a read-only critique on 2026-11-15: at
+least 151 duplicate ingredients under another spelling, non-food entries, inconsistent
+categories, starches and fats labelled sweet, 59 cream and egg cocktails filed under sours
+and highballs, a third of sauces in a catch-all. Fixes go in a curation layer the app
+applies on load, mirrored into the pipeline's inputs; no generated file is edited by hand
+and no model is retrained (Decision 2, defined in the spec; the owner may override). Order:
+DATA-1 (audit), DATA-2 (the layer), then DATA-3, DATA-4, DATA-5; DATA-6 and DATA-7 are
+independent of those; DATA-8 last. DATA-5 must land before FLAVOR-3.
+
+```json
+{
+  "id": "DATA-1",
+  "title": "Repeatable data audit with today's baseline",
+  "category": "tooling",
+  "passes": false,
+  "description": "scripts/auditData.mjs reads only repo files and reports: duplicate ingredient candidates (misspelt singulars such as 'tomatoe', plurals, leading preparation words such as 'freshly', 'lean', 'boneless', 'cooked', 'instant'), non-food and fragment candidates, branded and packaged candidates, category inconsistencies by rule (cheese, juice, flour, wine, beer, the 'umami' category), taste-label oddities by category (starch, plain fat, water, neutral spirits), cocktail checks (cream or egg drinks per family, citrus in the stirred families, lines without amounts, duplicate names, unnamed sub-groups, a short list of classics that must exist), the share of sauces under 'Independent', dish-type singletons and the two dish-type vocabularies. Writes docs/data-quality.md (method, limits, baseline numbers) and candidate lists as review files under data/review/. Changes no data.",
+  "acceptance": [
+    "The script makes no network call, edits no data file, and exits non-zero only on a missing input",
+    "Its rules are pure functions with unit tests (each rule: a hit, a near miss that must not hit, e.g. 'olive' is not a bad singular and 'fresh mozzarella' is not a duplicate of 'mozzarella' unless listed)",
+    "docs/data-quality.md states each baseline number as printed and says the lists are candidates for review, not verdicts",
+    "The candidate lists are written in a form DATA-3..7 can paste from (one line per item with the rule that flagged it)",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "DATA-2",
+  "title": "The curation layer: aliases, hidden, packaged, category and taste overrides applied on load",
+  "category": "feature",
+  "passes": false,
+  "description": "src/data/curation/ with empty-but-valid tables (aliases.json, hidden.json, packaged.json, categoryOverrides.json, tasteOverrides.json; each entry one line with a reason) and a pure applyCuration(ingredients, pairings, tables): aliases merge an entry into its canonical one (pairings combined, the stronger score kept, counts summed, self-pairs dropped), hidden entries removed with their pairings, packaged entries flagged, overrides applied. Wired where useProData builds the graph and into every build script that reads ingredients (share index, placeholder list). resolveIngredient(name) goes through the alias table and is used by the typed-ingredient matchers, barKey, kitchenKey and the model vocabulary lookups, so an old or variant name still lands on the canonical entry. A saved recipe that names a merged or hidden ingredient still opens and shows its original text. Seed the tables with ten obvious entries to prove the path end to end.",
+  "acceptance": [
+    "applyCuration unit tests: alias merge with pairing combination, hidden removal, packaged flag, overrides, an alias chain, an alias to a missing canonical (reported, not crashed), idempotence",
+    "With the ten seed entries, the merged names no longer appear as separate nodes anywhere in the app and their pairings appear on the canonical entry (component or integration test)",
+    "A test fails if any module reads ingredients.json or builds the graph without going through the curated loader",
+    "A saved item naming a merged ingredient opens and displays; the set-completion and quantity models still receive names from their own vocabulary (tests)",
+    "Load time of the main dataset is measured before and after and the difference reported; npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "DATA-3",
+  "title": "Ingredient merges, removals and packaged flags",
+  "category": "data",
+  "passes": false,
+  "description": "Fill aliases.json, hidden.json and packaged.json from DATA-1's review lists after reading every line: duplicates (at least the 151 found on 2026-11-15) merged into their canonical entry; non-food and fragments hidden; branded and packaged products flagged (Decision 3: kept and searchable, never suggested). Where a 'duplicate' is a real distinction a cook would care about (new potato vs potato, extra-virgin olive oil vs olive oil, cherry tomato vs tomato), it is NOT merged and the reason is recorded in a keep list so the audit stops flagging it. Suggestions, stand-ins, checklist picks and the bar and kitchen typeaheads exclude packaged and hidden entries.",
+  "acceptance": [
+    "Every alias, hidden and packaged line carries a reason; the keep list exists and is honoured by the audit",
+    "The audit re-run reports zero unreviewed duplicate, non-food and fragment candidates",
+    "No packaged or hidden entry appears in suggestions, stand-ins or checklist picks in any of the three invent panels or the Recipe Notebook (tests over the real data)",
+    "Counts before and after (ingredients visible, pairings) are added to docs/data-quality.md",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "DATA-4",
+  "title": "One consistent category scheme",
+  "category": "data",
+  "passes": false,
+  "description": "Write the category scheme down in docs/data-quality.md (each category with a one-line definition and three examples), then apply it through categoryOverrides.json: all cheeses under dairy; all juices under a new 'juice' category; all flours under grain; still, sparkling, fortified and cooking wines under a new 'wine' category; beer and cider under 'beer'; the 'umami' category renamed 'savory seasoning'; vermouths and aromatised wines decided once and stated. Before changing anything, list every place in the code that reads a category name (inventSauce.js slot rules, dishSkeletons.js, recipeRoles, recipeMains.js, myBar.js isBooze and family rules, suggestion filters, colour and legend maps, tests) and update them in the same change so no slot or filter silently empties.",
+  "acceptance": [
+    "The list of category readers is in the report, and each was either updated or shown not to be affected",
+    "The audit's category rules report zero inconsistencies (cheese, juice, flour, wine, beer)",
+    "For each invent panel, every checklist part and slot shortlist still returns candidates for the same test recipes as before (a before/after test over real data), and My bar still recognises every bottle it recognised before",
+    "No category named 'umami' remains; colours and legends cover the new categories",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "DATA-5",
+  "title": "Taste labels: add neutral and rich, fix starches, fats and spirits",
+  "category": "data",
+  "passes": false,
+  "description": "The taste vocabulary gains 'neutral' and 'rich'. tasteOverrides.json corrects: starches and plain grains (flour, rice, bread, pasta, cornstarch, oats, tortilla) to neutral; plain fats and oils to rich (butter 'rich sweet' at most); water, ice and soda water to neutral; vodka neutral; other spirits, wines and beers reviewed one by one; egg, cream and cheeses reviewed; the audit's other oddities resolved or kept with a reason. Add the missing bar entries (rye whiskey, cola, common bitters and mixers) as curated additions with category and taste. Everything that reads the taste field (node colours, taste compatibility, filters, legends) handles the two new words. Must land before FLAVOR-3, which then treats neutral as contributing to no taste axis and rich as a mouthfeel note outside the six tastes.",
+  "acceptance": [
+    "No starch, plain fat, water or soda is labelled sweet (audit rule reports zero); each override carries a reason",
+    "Every reader of the taste field handles 'neutral' and 'rich' (tests; no undefined colour or missing legend entry)",
+    "The added bar entries resolve through barKey and appear in the My bar typeahead",
+    "The spec section 'Flavor profiles that mean something' and FLAVOR-3's task text are updated to say how neutral and rich are treated",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "DATA-6",
+  "title": "Cocktails: a family for flips and cream drinks, misfiled drinks, names, duplicates, missing classics",
+  "category": "data",
+  "passes": false,
+  "description": "Per Decision 4 (the owner may override before this starts): add a seventh family, 'Flips & Cream Drinks', with a root drink and a one-line blurb, and move the cream and egg drinks into it after reading each one (about 59 candidates). Move the clear mistakes (Mojito, Bramble) and review the drinks with citrus in 'Boozy Sippers' and 'Aromatic Stirred'. Name the 15 sub-groups. Remove the two duplicates. Add Espresso Martini, Long Island Iced Tea and Sex on the Beach with published specs. Add amounts where a standard published spec exists (IBA for the official ones); otherwise leave the existing '~ suggested' amounts. All of it in the codex's source and proDataset/scripts/11-parse-cocktail-codex.js, regenerating cocktail_codex_v2.json; the generated file is not edited by hand. Update everything that assumes six: the family list and order, the Invent style picker, blurbs and checklist skeleton for the new family, the parked 3D layout, share slugs (existing links must keep working), tests and copy that says 'six'.",
+  "acceptance": [
+    "Regenerating the codex from source reproduces the committed file exactly",
+    "The audit reports no cream or egg drink outside the new family except those on a stated keep list, no duplicate names, no unnamed sub-group, and the three classics present",
+    "Every /r/cocktail/<slug> link that worked before still works (test over the previous slug list)",
+    "Invent a cocktail offers the new style with a checklist that makes sense for it (cream or egg, sweetener, spirit) and recommends it for a cream drink",
+    "The count of drinks without amounts before and after is reported; no amount is invented",
+    "npm run gate green; functions tests green; share index regenerated"
+  ]
+}
+```
+
+```json
+{
+  "id": "DATA-7",
+  "title": "Sauces: split the catch-all; one dish-type vocabulary",
+  "category": "data",
+  "passes": false,
+  "description": "Review the 27 sauces under mother sauce 'Independent' and regroup them into named groups wherever at least three share one (candidates: vinaigrettes, cold emulsions, herb sauces, fermented and chili condiments, dairy sauces); the rest stay 'Independent'. Update the Sauce Lab's family list, colours, Invent a sauce techniques where a new group maps to one, and the share index. Separately, define one dish-type list used by both the Cookbook (dishTypeOf, 22 types today, six with one dish) and Invent a recipe (dishSkeletons.js, 8 types): every Cookbook dish maps to a type that Invent also knows, or to an explicit 'other' with a reason.",
+  "acceptance": [
+    "'Independent' holds fewer than 12 sauces and each new group has at least three; every sauce still has exactly one group",
+    "Sauce Lab list, filters and share links still work for every sauce (tests)",
+    "One exported dish-type list; a test fails if the Cookbook and Invent a recipe disagree on it; no type has a single dish unless listed with a reason",
+    "dishTypeForIngredients and the Cookbook filters give the same type for the same dish",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "DATA-8",
+  "title": "Mirror into the pipeline inputs; final audit and docs",
+  "category": "chore",
+  "passes": false,
+  "description": "Write the curation tables into the pipeline's inputs so a future rebuild agrees: aliases into proDataset/data/synonyms.json (without disturbing its 525 existing entries), hidden entries into a stop list the parse and blend steps honour, category and taste rules into the tables 05-blend.js reads. A test fails when the app's tables and the pipeline inputs drift. Do NOT re-run the full pipeline. Re-run the audit and record before and after in docs/data-quality.md; regenerate share-index.json and share-cards.json; update README.md and CLOSEOUT.md (unreleased entry) with the new counts (ingredients, pairings, cocktail families) wherever the old ones are quoted, and BACKLOG.md with what was deliberately left (the full rebuild, low-count ingredients).",
+  "acceptance": [
+    "The drift test exists and passes; the pipeline scripts still parse (node --check) and their unit tests, if any, pass",
+    "docs/data-quality.md has before and after for every audit number, and lists what is still open by item",
+    "Every count quoted in README.md, CLOSEOUT.md and .claude/CLAUDE.md matches the data as loaded through the curation layer, or is marked as the raw count",
+    "Nothing deployed without the owner's go-ahead; npm run gate and functions tests green"
+  ]
+}
+```
+
+## 2026-11-15 — Usage data: learn how people use the app
+
+Spec: `.schermness/spec.md` → "Usage data". Owner chose Google Analytics through Firebase.
+Recommended additions awaiting the owner's yes: USAGE-3 (counts from account records) and
+USAGE-4 (a feedback button). Consent default: ask everyone once, nothing sent until yes
+(defined in the spec). Owner step first: turn on Google Analytics for the project in the
+Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independent.
+
+```json
+{
+  "id": "USAGE-1",
+  "title": "Consent banner, privacy page and analytics wiring (nothing sent before a yes)",
+  "category": "feature",
+  "passes": false,
+  "description": "src/data/usage.js: consent state (unset, yes, no) kept on the device; track(name, params) is a no-op unless consent is yes; Firebase Analytics is imported lazily only after a yes and only when isSupported(); failures are swallowed. A one-time banner with Yes and No in the chalk language, not blocking the page, 44px targets; the choice can be changed in Profile. A plain /privacy page (routed like the shared recipe page, no account needed) listing what is collected, by whom (Google), the typed text that is sent (search terms that found nothing, unrecognised ingredient names), and how to turn it off; linked from the banner, the Labs menu and the shared recipe page. No user id, email or display name is ever set on analytics. The measurement id comes from the Firebase config; without one, everything stays a no-op. README's statement that the app records nothing is rewritten to match.",
+  "acceptance": [
+    "With consent unset or no: no analytics module is loaded and no request goes to Google (test with a spy on the dynamic import; browser network check)",
+    "With consent yes: the module loads once and track() forwards name and params; turning it off in Profile stops further calls",
+    "track() never throws, with analytics blocked, unsupported or missing a measurement id",
+    "/privacy renders signed out without loading the main dataset; the banner appears once and is absent after either answer",
+    "375px check; npm run gate green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "USAGE-2",
+  "title": "The events: labs, invent, sharing, searches that find nothing, photo scan, sign-in",
+  "category": "feature",
+  "passes": false,
+  "description": "docs/usage-data.md holds the one table of events (name, when it fires, fields) and src/data/usageEvents.js the matching helpers, so nothing calls track() with a free-form name. Events: lab_opened (lab); invent_started (lab), invent_style_chosen, invent_named, invent_saved; share_sheet_opened (kind, built-in or own), share_link_created, shared_page_opened (kind, built-in or own), shared_saved, shared_signup; search_no_result (lab, term trimmed to 60 characters, lowercased); ingredient_unrecognised (lab, text trimmed to 60); scan_started, scan_succeeded (count), scan_kept (count); signin_started (provider), signin_completed. Never sent: recipe contents, the name a user gave their own recipe, nicknames, anything from a shared recipe a user wrote.",
+  "acceptance": [
+    "A test fails if track() is called anywhere outside usageEvents.js, and if an event in the code is missing from docs/usage-data.md or the reverse",
+    "Each event fires once at the stated moment (component tests with a test double), including search_no_result only after the query settles, not per keystroke",
+    "A test asserts no event carries a user-written recipe name, nickname or uid",
+    "The privacy page's list matches docs/usage-data.md (test)",
+    "npm run gate green; live arrival in Google's debug view is named as NOT verified until after deploy"
+  ]
+}
+```
+
+```json
+{
+  "id": "USAGE-3",
+  "title": "Totals from account records, printed by a script the owner runs",
+  "category": "tooling",
+  "passes": false,
+  "description": "scripts/accountStats.mjs, run by the owner with their own Google login (application default credentials), reads the profiles, shared and shareReports collections with firebase-admin and prints totals only: accounts, accounts with at least one saved item, saved cocktails, sauces and recipes, items saved from a shared link, live and removed shared links, reports waiting. It prints no recipe content, names, emails or ids, and writes nothing. docs/usage-data.md says how to run it. The counting functions are pure and tested on made-up records. Awaiting the owner's yes (recommended addition).",
+  "acceptance": [
+    "The counting functions are pure and unit-tested; the script has a --dry-run that uses a fixture and no network",
+    "The script only reads; a test asserts no write or delete call exists in it",
+    "Its output contains numbers and labels only (test on a fixture containing names and emails)",
+    "It was NOT run against production by the builder; the docs say the owner runs it",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "USAGE-4",
+  "title": "A feedback button",
+  "category": "feature",
+  "passes": false,
+  "description": "'Send feedback' in the Labs menu and on the shared recipe page: a short note (500 characters) and an optional 'what were you trying to do' (200), written to feedback/{auto} as { note, goal, lab, at } with no identity. Rules: create by anyone within the limits, no read, update or delete; the owner reads it in the Firebase console (docs/usage-data.md says where). Three per browser per day as a courtesy limit. Awaiting the owner's yes (recommended addition).",
+  "acceptance": [
+    "Rules tests on the emulator: create allowed within limits, oversize and extra keys denied, read denied to everyone",
+    "The fourth message in a day from one browser is refused with a plain sentence; a failed send keeps the text",
+    "No uid, email or name is written (test)",
+    "375px check; npm run gate green; rules not deployed without the owner's go-ahead"
+  ]
+}
+```
