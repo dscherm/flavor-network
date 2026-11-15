@@ -2627,3 +2627,81 @@ it shows); PICTURE-5 last.
   ]
 }
 ```
+
+## 2026-11-16 — More reliable aromas: a second opinion, wider axes, a stronger test
+
+Spec: `.schermness/spec.md` → "More reliable aromas". Measured 2026-11-16: the app already
+holds a second set of aroma labels for 3,927 ingredients (`flavor_profiles_distilled.json`);
+FLAVOR-5's aroma table agrees with it on the strongest aroma for 221 of 261 shared
+ingredients (85%); eight of that source's 17 aroma words (fermented, earthy, caramel, nutty,
+roasted, smoky, meaty, marine) have no place on the six aroma axes. Owner chose: a stronger
+test, a second-opinion check with every disagreement reviewed, and wider axes. Order:
+AROMA-1, AROMA-2, AROMA-3, AROMA-4. Taste numbers must not move.
+
+```json
+{
+  "id": "AROMA-1",
+  "title": "A blind aroma answer key and an outside key",
+  "category": "tooling",
+  "passes": false,
+  "description": "data/aroma-truth-blind.json: about 100 items (60 single ingredients across spirits, liqueurs, herbs, spices, fruit, vegetables, dairy, nuts, meats and seafood, coffee, chocolate, smoked and fermented things; 40 built-in recipes across the three kinds), each with the aromas a cook would expect among the strongest two or three, using the eleven-aroma vocabulary (fruity, floral, green, woody, spice, fatty, toasty, nutty, earthy, smoky, savory), and aromas that must not lead. It is written WITHOUT opening src/data/flavorAromas.js or data/aroma-truth.json (the builder writes and commits the key before reading either, and says so); a third of it is marked held back. An outside key: the chef-sourced entries of public/proDataset/flavor_profiles_distilled.json mapped to the eleven aromas by a stated table. The scorer gains --aroma-blind and --aroma-chef modes reporting, on the six axes that exist today (new-axis expectations counted as not expressible, shown separately) and ready for eleven: strongest aroma expected, forbidden aroma leading, no aroma data. docs/flavor-profile.md records the method and today's scores.",
+  "acceptance": [
+    "The key file's first commit predates any read of the aroma table in this task (the builder states the order of work; the key has its own commit)",
+    "Every recipe item resolves to a built-in recipe and every ingredient item to a curated ingredient; the script fails loudly otherwise",
+    "The mapping from the second source's 17 words to the eleven aromas is one reviewable table with a test",
+    "Scores on the blind key (all, and held-back third) and on the chef key are reported as printed, including how many expectations today's six axes cannot express",
+    "The existing measures are unchanged (taste 36/41 and 19/20; aroma 30/30 and 8/10 or whatever FLAVOR-6 left, stated); npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "AROMA-2",
+  "title": "Second-opinion check: every disagreement with the distilled profiles reviewed",
+  "category": "data",
+  "passes": false,
+  "description": "scripts/checkAromaAgreement.mjs compares each line of the aroma table with the second source (flavor_profiles_distilled.json, through the curation layer's name resolution) and prints: agreement on the strongest aroma, top-two overlap, table lines with no counterpart, and every disagreement with both sides shown and whether the second source's entry is chef-sourced. Read every disagreement (40 at the time of the spec). For each: correct the table line with a reason when the second source is right (likely: chilies, gin, vermouths), or record it in data/review/aroma-accepted.json with a reason when the table is right or the difference is only the missing axes (those are re-checked in AROMA-3). The check becomes part of npm run audit:data: a table edit that creates a new unreviewed disagreement fails --check. Do not tune against the held-back third of the blind key.",
+  "acceptance": [
+    "Every disagreement is either fixed or accepted with a specific reason; the script reports zero unreviewed",
+    "Agreement before and after is reported as printed, overall and for chef-sourced entries",
+    "Blind-key and chef-key scores from AROMA-1 re-run and reported; taste measures unchanged",
+    "An 'owner may disagree' table lists the judgement calls",
+    "npm run audit:data -- --check passes; npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "AROMA-3",
+  "title": "Eleven aroma axes: toasty, nutty, earthy, smoky and savory join the six",
+  "category": "feature",
+  "passes": false,
+  "description": "The aroma axes become fruity, floral, green, woody, spice, fatty, toasty (roasted, caramel), nutty, earthy, smoky, savory (meaty, marine, fermented). Every line of src/data/flavorAromas.js is re-read and given values on the new axes where they apply; ingredients that had no aroma because their aromas had no home get real lines (fish sauce, anchovy, soy sauce, miso, parmesan and aged cheeses, coffee and coffee liqueur, cocoa and chocolate, nuts and nut milks, mushrooms, beets, root vegetables, smoked paprika, bacon, mezcal and peated whisky, caramel and brown sugar, toasted sesame, stocks and seared-meat bases). Values that were standing in for a missing axis are moved (coffee liqueur from woody to toasty, almond milk from woody to nutty). flavorAroma.js, the shared profile helpers, axis labels, colours (eleven distinct, readable on slate, not colliding with the six taste colours), balancing pairs, per-axis pages and boost / temper all cover eleven. The second-opinion check is re-run with the full 17-word mapping; accepted disagreements that were only 'missing axis' must now agree or be re-decided.",
+  "acceptance": [
+    "Every table line was re-read; the count of lines changed and of ingredients newly given an aroma is reported; a test fails if an axis name outside the eleven appears",
+    "Named checks on real data as tests: fish sauce and anchovy savory; coffee toasty; almond nutty; mushroom earthy; smoked paprika and mezcal smoky; brown butter or caramel toasty; an Espresso-style or coffee drink shows toasty; a miso or soy dish shows savory",
+    "Blind key: score on all items and on the held-back third, before and after, now on eleven axes; chef key likewise; second-opinion agreement before and after. All as printed, with the held-back third not tuned against",
+    "Taste measures unchanged (36/41 and 19/20)",
+    "Functions tests green; npm run audit:data -- --check passes; npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "AROMA-4",
+  "title": "Readable charts with eleven aromas; docs; final measurement",
+  "category": "chore",
+  "passes": false,
+  "description": "With six tastes and eleven aromas a full chart has seventeen bars. One rule, the same on every surface (Recipe Notebook overview and flavor map, invent panels, Cookbook radar, shared page, browser and server share cards): show the strongest bars above a stated floor, tastes and aromas in their own groups, with a stated maximum per group (for example four and four on a card, more on the full Recipe Notebook page), and 'show all' where there is room. Per-axis pages and boost / temper work for every axis. Server and browser cards re-rendered and looked at for a drink, a sauce and a dish. docs/flavor-profile.md gains 'Aromas, second pass' with all scores stage by stage, what the second source is and is not (mostly AI-written; a second opinion, not ground truth), and what is still wrong by item. BACKLOG.md records the two deferred pieces with enough detail to pick up: using the second source for ingredients outside the table, and aromas created by cooking method. CLOSEOUT.md unreleased entry and README updated. share-cards.json regenerated.",
+  "acceptance": [
+    "The bar rule is written once in code and in docs/flavor-profile.md, and a test asserts each surface uses it",
+    "Three cards (a drink, a sauce, a dish) were rendered and looked at; each is described honestly, including whether the chart is readable",
+    "Recipe Notebook, an invent panel, the shared page and a server card lead with the same tastes and aromas for two named recipes (test)",
+    "All measures re-run and recorded: taste main and hold-out unchanged; aroma original, blind (all and held-back), chef key, second-opinion agreement",
+    "375px DOM check of the Recipe Notebook card and an invent panel; npm run gate, functions and rules tests green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
