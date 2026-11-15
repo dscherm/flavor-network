@@ -56,3 +56,33 @@ export function summarize(rows) {
     countedPct: list.length ? Math.round((1000 * list.reduce((s, r) => s + r.coverage, 0)) / list.length) / 10 : null,
   };
 }
+
+/**
+ * FLAVOR-5. scoreAroma(bars, item) scores one aroma-key item against the drawn aroma bars.
+ * bars: [{ axis, score }] (axes odor_fruity ... odor_fatty; others ignored). item: { expect, not? } with aroma
+ * names without the prefix. ok = every expected aroma is among the top TWO aroma bars; forbiddenLead = the top
+ * bar is one the item must not lead with; noChart = no aroma bar at all.
+ */
+export function scoreAroma(bars, item) {
+  const aromas = byScore(bars).filter((b) => b.axis && b.axis.startsWith(AROMA_PREFIX) && b.score > 0);
+  const tops = aromas.slice(0, 2).map((b) => b.axis.slice(AROMA_PREFIX.length));
+  const expect = item.expect || [];
+  const not = item.not || [];
+  const noChart = aromas.length === 0;
+  return {
+    tops, noChart,
+    ok: !noChart && expect.every((a) => tops.includes(a)),
+    forbiddenLead: !noChart && not.includes(tops[0]),
+  };
+}
+
+/** summarizeAroma(rows) where each row is { ok, forbiddenLead, noChart } → counts and percentages. */
+export function summarizeAroma(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+  const ok = list.filter((r) => r.ok).length;
+  return {
+    items: list.length, ok, okPct: pct(ok, list.length),
+    forbiddenLeads: list.filter((r) => r.forbiddenLead).length,
+    noChart: list.filter((r) => r.noChart).length,
+  };
+}

@@ -230,7 +230,7 @@ describe('profileDelta + topMovers', () => {
     const nodes = nodesFrom({ fig: { taste: 'sweet', probs: probs({ odor_fruity: 0.4 }) } });
     const d = profileDelta('fig', scores, 2, nodes); // /(n+1)=/3
     expect(d.sweet).toBeCloseTo((1 - 0.2) / 3);
-    expect(d.odor_fruity).toBeCloseTo(0.4 / 3);
+    expect(d.odor_fruity).toBeCloseTo(0.5 / 3); // fig's aroma comes from the aroma table (fruity 1.5 of 3), not from probs
     const movers = topMovers(d, 2).map((m) => m.axis);
     expect(movers).toContain('sweet');
   });

@@ -63,9 +63,9 @@ describe('the draw rule', () => {
     expect(drawRule(1, 1, 1)).toEqual({ tasteDrawn: false, aromaDrawn: false });
   });
 
-  it('a recipe of only placeholder ingredients draws nothing and says so', () => {
-    // (Names without a line in the FLAVOR-4 strength table: that table is its own, label-free source of taste.)
-    const keys = ['sour cream', 'corn', 'cream cheese', 'cheese', 'peanut butter'];
+  it('a recipe of ingredients with no taste label, no taste line and no aroma line draws nothing and says so', () => {
+    // FLAVOR-5: the model's values (placeholders or not) are never read; only labels, the strength table and the aroma table.
+    const keys = ['zzz one', 'zzz two', 'zzz three', 'zzz four'];
     const p = buildFlavorProfile(keys, nodes, { noun: 'drink' });
     expect(p.drawn).toBe(false);
     expect(p.bars).toEqual([]);
@@ -88,19 +88,18 @@ describe('the draw rule', () => {
     expect(AXES.filter((a) => a.startsWith('odor_')).every((a) => p.scores[a] === 0)).toBe(true);
   });
 
-  it('draws aroma only when aroma is real and there is no taste label (the model taste values never count)', () => {
-    const n = new Map([
-      ['a', { gnnProbs: { ...PLACEHOLDER_TASTE, odor_fruity: 0.9, odor_floral: 0.1, odor_green: 0.1, odor_woody: 0.1, odor_spicy: 0.1, odor_fatty: 0.1 } }],
-      ['b', { gnnProbs: { ...PLACEHOLDER_TASTE, odor_fruity: 0.5, odor_floral: 0.1, odor_green: 0.6, odor_woody: 0.1, odor_spicy: 0.1, odor_fatty: 0.1 } }],
-    ]);
-    const p = recipeAxisProfile(['a', 'b'], n);
+  it('draws aroma only when there is an aroma line and no taste label (the model values never count)', () => {
+    const fake = { gnnProbs: { ...PLACEHOLDER_TASTE, odor_fruity: 0.9, odor_floral: 0.1, odor_green: 0.1, odor_woody: 0.1, odor_spicy: 0.1, odor_fatty: 0.1 } };
+    const n = new Map([['lavender', fake], ['rose water', fake]]);
+    const p = recipeAxisProfile(['lavender', 'rose water'], n);
     expect(p.tasteDrawn).toBe(false);
     expect(p.aromaDrawn).toBe(true);
     expect(p.scores.sweet).toBe(0);
-    expect(p.scores.odor_fruity).toBeCloseTo(0.7);
-    const w = recipeAxisProfileWeighted(['a', 'b'], n);
+    expect(p.scores.odor_floral).toBeCloseTo(1);
+    expect(p.scores.odor_fruity).toBe(0);
+    const w = recipeAxisProfileWeighted(['lavender', 'rose water'], n);
     expect(w.tasteDrawn).toBe(false);
-    expect(w.scores.odor_fruity).toBeCloseTo(0.7);
+    expect(w.scores.odor_floral).toBeCloseTo(1);
   });
 
   it('one real ingredient among many placeholders is not enough', () => {

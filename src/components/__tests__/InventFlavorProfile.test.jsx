@@ -29,10 +29,10 @@ describe('InventFlavorProfile', () => {
       unmount();
     }
   });
-  it('a list made only of placeholder-valued ingredients draws no chart, just the plain line', () => {
-    // (Names with no line in the FLAVOR-4 strength table, which is a label-free taste source of its own.)
-    const names = ['sour cream', 'corn', 'cream cheese', 'cheese'];
-    const nodes = new Map(names.map((k) => [k, { gnnProbs: RAW[k].probs }]));
+  it('a list with no taste label, no taste line and no aroma line draws no chart, just the plain line', () => {
+    // (The model's values, placeholder or not, are never read: FLAVOR-5.)
+    const names = ['zzz one', 'zzz two', 'zzz three', 'zzz four'];
+    const nodes = new Map(names.map((k) => [k, { gnnProbs: RAW['sugar'].probs }]));
     const pr = buildFlavorProfile(names, nodes, { noun: 'drink' });
     render(<InventFlavorProfile profile={pr} testidPrefix="f" />);
     expect(screen.getByTestId('f-empty')).toHaveTextContent('Not enough flavor data for a chart yet.');

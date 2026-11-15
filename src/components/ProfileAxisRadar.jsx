@@ -24,7 +24,7 @@
  * "more summery? more woody? more floral?" from the prompt.
  */
 
-import { hasRealAroma } from '../data/flavorPlaceholders.js';
+import { ingredientAroma, AROMA_STRENGTH_MAX } from '../data/flavorAroma.js';
 import { useMemo } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { axisOrder, bucketColor, AROMA_LABEL_TO_GNN_KEY } from '../data/briscionePalette.js';
@@ -33,7 +33,7 @@ import { dominantMethodFor, COOKING_METHODS } from '../data/cookingMethods.js';
 // Taste + Aroma keysets pull from the canonical Briscione vocab so the
 // radar shares its label/order with the network filter pill row and
 // the rest of the app. Aroma is the chef-canonical 13 — 5 fill from
-// GNN gnnProbs, the other 8 (citrus/herbal/earthy/roasted/caramel/
+// the aroma table (flavorAromas.js), the other 8 (citrus/herbal/earthy/roasted/caramel/
 // fermented/marine/pungent) are chef-tier1-only and surface as
 // zero-value axes on most ingredients.
 const AXIS_CONFIG = {
@@ -91,22 +91,22 @@ function deriveCuisineKeys(ingredients, nodes) {
     .map(([k]) => k);
 }
 
-function signalForAxis(node, axis, keyList) {
+function signalForAxis(node, axis, keyList, name = '') {
   // Returns Map<key, value 0..1> for one ingredient on one axis.
   const out = new Map();
   if (!node) return out;
   if (axis === 'aroma') {
-    const probs = node.gnnProbs || {};
-    // The model's constant placeholder aroma vector is not data: such an ingredient adds nothing.
-    if (!hasRealAroma(probs)) return out;
+    // FLAVOR-5: aroma comes from the hand-tuned aroma table by ingredient name (flavorAromas.js), never from the model.
+    const a = ingredientAroma(name);
+    if (!a.any || a.aromaless) return out;
     for (const k of keyList) {
-      // 5 of 13 chef labels map to a GNN column (creamy→odor_fatty).
+      // 5 of 13 chef labels map to one of the six aroma axes (creamy→odor_fatty).
       // The other 8 (citrus/herbal/earthy/roasted/caramel/fermented/
-      // marine/pungent) have no GNN signal and stay 0 by omission.
+      // marine/pungent) have no such axis and stay 0 by omission.
       const gnnKey = AROMA_LABEL_TO_GNN_KEY[k];
       if (!gnnKey) continue;
-      const p = probs[gnnKey];
-      if (typeof p === 'number') out.set(k, Math.max(0, Math.min(1, p)));
+      const v = a.axes[gnnKey];
+      if (typeof v === 'number' && v > 0) out.set(k, Math.max(0, Math.min(1, v / AROMA_STRENGTH_MAX)));
     }
     return out;
   }
@@ -146,7 +146,7 @@ function aggregate(ingredients, nodes, axis, keyList) {
   for (const k of keyList) acc.set(k, 0);
   for (const name of ingredients) {
     const node = nodes?.get ? nodes.get(name) : nodes?.[name];
-    const sig = signalForAxis(node, axis, keyList);
+    const sig = signalForAxis(node, axis, keyList, name);
     for (const [k, v] of sig) acc.set(k, (acc.get(k) || 0) + v);
   }
   // Normalize: divide by max so the largest axis lands at 1. If

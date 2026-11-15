@@ -6,12 +6,14 @@ import { AXES } from '../../data/recipeProfileAnalysis.js';
 
 const z = () => Object.fromEntries(AXES.map((a) => [a, 0]));
 const probs = (o) => ({ ...z(), ...o });
-// (Fixture names are NOT in the FLAVOR-4 strength table, so these tests exercise the label path.)
-// A value is a curated taste label, or [label, aromaValues]: TASTE comes from the label, AROMA from gnnProbs.
+// (Fixture names are NOT in the FLAVOR-4 strength table, so these tests exercise the label path for TASTE.
+// AROMA comes from the FLAVOR-5 aroma table by name: strawberry and cranberry are fruity, coconut cream is fatty
+// and fruity, none of them has a taste line. The model's values (gnnProbs) are never read.)
+// A value is a curated taste label; a second array element is ignored (kept so old fixtures read the same).
 function nodesFrom(map) {
   return new Map(Object.entries(map).map(([k, v]) => {
-    const [taste, aroma] = Array.isArray(v) ? v : [v];
-    return [k, { taste, gnnProbs: probs(aroma || {}) }];
+    const [taste] = Array.isArray(v) ? v : [v];
+    return [k, { taste, gnnProbs: probs({}) }];
   }));
 }
 
@@ -23,23 +25,24 @@ beforeEach(() => {
 
 describe('RecipeFlavorProfilesCard', () => {
   const nodes = nodesFrom({
-    'sweet thing': 'sweet',
-    'sour thing': 'sour',
-    'creamy thing': ['rich sweet', { odor_fatty: 0.6 }],
+    'strawberry': 'sweet',
+    'cranberry': 'sour',
+    'coconut cream': ['rich sweet', { odor_fatty: 0.6 }],
   });
 
   it('renders the static per-axis analysis (no model needed)', () => {
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing', 'creamy thing']} nodes={nodes} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
     expect(screen.getByText('Flavor Profiles')).toBeInTheDocument();
     // Page 0 Overview, page 1 Flavor map; two pages to the strongest axis (sweet).
     fireEvent.click(screen.getByLabelText('Next'));
     fireEvent.click(screen.getByLabelText('Next'));
-    expect(screen.getByText('Sweet')).toBeInTheDocument();
+    // strawberry and cranberry are fruity by the aroma table, which outweighs the label-derived tastes
+    expect(screen.getByRole('heading', { name: /fruity/i })).toBeInTheDocument();
     expect(screen.getByText(/Driven by:/)).toBeInTheDocument();
   });
 
   it('renders the Overview flavor bar chart on page 0', () => {
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing', 'creamy thing']} nodes={nodes} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
     expect(screen.getByTestId('profiles-overview')).toBeInTheDocument();
     const bars = screen.getAllByTestId('overview-bar');
     // sweet (honey), sour (lemon), creamy/odor_fatty (butter) all fire.
@@ -50,10 +53,10 @@ describe('RecipeFlavorProfilesCard', () => {
   it('weights the Overview by entered amounts when bowlEntries is provided', () => {
     // A big pour of lemon vs a pinch of honey → sour should out-share sweet.
     const entries = [
-      { ingredient: 'sweet thing', amount: { raw: 'a pinch', qty: null, unit: 'pinch', inferred: false } },
-      { ingredient: 'sour thing', amount: { raw: '2 cups', qty: 2, unit: 'cup', inferred: false } },
+      { ingredient: 'strawberry', amount: { raw: 'a pinch', qty: null, unit: 'pinch', inferred: false } },
+      { ingredient: 'cranberry', amount: { raw: '2 cups', qty: 2, unit: 'cup', inferred: false } },
     ];
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing']} bowlEntries={entries} nodes={nodes} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry']} bowlEntries={entries} nodes={nodes} />);
     expect(screen.getByText(/weighted by amount/i)).toBeInTheDocument();
     const bars = screen.getAllByTestId('overview-bar');
     // First (top) bar is the dominant axis → sour, since lemon vastly outweighs honey.
@@ -61,7 +64,7 @@ describe('RecipeFlavorProfilesCard', () => {
   });
 
   it('renders a rule-based flavor description on the Overview page', () => {
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing', 'creamy thing']} nodes={nodes} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
     const desc = screen.getByTestId('profiles-description');
     expect(desc).toBeInTheDocument();
     expect(desc.textContent).toMatch(/recipe/i);
@@ -69,7 +72,7 @@ describe('RecipeFlavorProfilesCard', () => {
   });
 
   it('exposes an Enhance page reachable from the carousel', () => {
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing', 'creamy thing']} nodes={nodes} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
     fireEvent.click(screen.getByLabelText('Enhance page')); // dot for the Enhance page
     expect(screen.getByTestId('profiles-enhance')).toBeInTheDocument();
     expect(screen.getByText('Enhance')).toBeInTheDocument();
@@ -78,7 +81,7 @@ describe('RecipeFlavorProfilesCard', () => {
   });
 
   it('renders the Flavor map on page 1 with one dot per ingredient that has gnnProbs', () => {
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing', 'creamy thing', 'mystery']} nodes={nodes} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream', 'mystery']} nodes={nodes} />);
     fireEvent.click(screen.getByLabelText('Next')); // Overview → Flavor map
     const map = screen.getByTestId('flavor-map-radar');
     expect(map).toBeInTheDocument();
@@ -92,12 +95,9 @@ describe('RecipeFlavorProfilesCard', () => {
     expect(screen.getByText('Not enough flavor data for a chart yet.')).toBeInTheDocument();
   });
 
-  it('a recipe whose ingredients have only placeholder model values (and no taste label) draws no chart and shows the plain line', () => {
-    const raw = JSON.parse(readFileSync('public/proDataset/gnn_entropy.json', 'utf8'));
-    // (Names with no line in the FLAVOR-4 strength table, which is a label-free taste source of its own.)
-    const names = ['sour cream', 'corn', 'cream cheese', 'cheese'];
-    const real = new Map(names.map((k) => [k, { gnnProbs: raw[k].probs }]));
-    render(<RecipeFlavorProfilesCard bowlNames={names} nodes={real} />);
+  it('a recipe whose ingredients have no taste label, no taste line and no aroma line draws no chart and shows the plain line', () => {
+    const names = ['zzz one', 'zzz two', 'zzz three', 'zzz four'];
+    render(<RecipeFlavorProfilesCard bowlNames={names} nodes={new Map(names.map((k) => [k, {}]))} />);
     expect(screen.getByTestId('profiles-no-chart')).toHaveTextContent('Not enough flavor data for a chart yet.');
     expect(screen.queryByTestId('profiles-overview')).toBeNull();
     expect(screen.queryAllByTestId('overview-bar')).toHaveLength(0);
@@ -123,10 +123,10 @@ describe('RecipeFlavorProfilesCard', () => {
     const heat = bars.find((b) => b.getAttribute('data-axis') === 'heat');
     expect(heat).toBeTruthy();
     expect(heat).toHaveTextContent('Heat');
-    expect(bars[0].getAttribute('data-axis')).toBe('heat'); // 1.6 beats a 1.0 on equal amounts
+    const tasteBars = bars.filter((b) => !b.getAttribute('data-axis').startsWith('odor_'));
+    expect(tasteBars[0].getAttribute('data-axis')).toBe('heat'); // chili's heat beats lime's sour and the salt on equal footing
     expect(heat.querySelectorAll('div')[1].style.background).toMatch(/rgb\(255, 68, 68\)|#ff4444/i);
-    fireEvent.click(screen.getByLabelText('Next'));
-    fireEvent.click(screen.getByLabelText('Next')); // the strongest axis page: Heat
+    for (let i = 0; i < 10 && !screen.queryByRole('heading', { name: 'Heat' }); i++) fireEvent.click(screen.getByLabelText('Next'));
     expect(screen.getByRole('heading', { name: 'Heat' })).toBeInTheDocument();
   });
 
@@ -141,7 +141,7 @@ describe('RecipeFlavorProfilesCard', () => {
 
   it('calls onClose when the × is tapped', () => {
     const onClose = vi.fn();
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing']} nodes={nodes} onClose={onClose} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry']} nodes={nodes} onClose={onClose} />);
     fireEvent.click(screen.getByLabelText('Close'));
     expect(onClose).toHaveBeenCalled();
   });
@@ -158,12 +158,12 @@ describe('RecipeFlavorProfilesCard', () => {
       return Promise.resolve({ ok: false });
     });
     const richNodes = nodesFrom({
-      'sweet thing': ['sweet', { odor_fruity: 0.4 }],
-      'creamy thing': ['rich', { odor_fatty: 0.6 }],
+      'strawberry': ['sweet', { odor_fruity: 0.4 }],
+      'coconut cream': ['rich', { odor_fatty: 0.6 }],
       gin: ['bitter', { odor_woody: 0.5 }],
       tomato: ['sweet sour umami', { odor_green: 0.5 }],
     });
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'creamy thing']} nodes={richNodes} recipeType="main" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'coconut cream']} nodes={richNodes} recipeType="main" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
     for (let i = 0; i < 11; i++) fireEvent.click(screen.getByLabelText('Next')); // → Pairings page
     await waitFor(() => expect(screen.getByTestId('pairings-cocktail-names')).toBeInTheDocument());
     expect(screen.getByText('Negroni')).toBeInTheDocument();
@@ -206,33 +206,33 @@ describe('RecipeFlavorProfilesCard', () => {
 
   it('falls back to Find cocktails/sauces buttons when no aroma matches', async () => {
     // beforeEach fetch returns ok:false → no cocktail/sauce data → fallback.
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'creamy thing']} nodes={nodes} recipeType="main" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'coconut cream']} nodes={nodes} recipeType="main" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
     for (let i = 0; i < 11; i++) fireEvent.click(screen.getByLabelText('Next'));
     await waitFor(() => expect(screen.getByText('🍸 Find cocktails')).toBeInTheDocument());
     expect(screen.getByText('🥣 Find sauces')).toBeInTheDocument();
   });
 
   it('hides the sauce pairing entirely for drink recipes (gate)', () => {
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'creamy thing']} nodes={nodes} recipeType="drink" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'coconut cream']} nodes={nodes} recipeType="drink" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
     for (let i = 0; i < 11; i++) fireEvent.click(screen.getByLabelText('Next'));
     expect(screen.queryByText('🥣 Sauces')).not.toBeInTheDocument();
   });
 
   it('renders page-indicator dots and navigates via dot tap + touch-swipe', () => {
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing', 'creamy thing']} nodes={nodes} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
     const dots = screen.getByTestId('profiles-page-dots').querySelectorAll('[role="tab"]');
-    expect(dots.length).toBe(7); // Overview + Flavor map + 3 firing axes + Enhance + Pairings
+    expect(dots.length).toBe(8); // Overview + Flavor map + 4 firing axes (sweet, sour, fruity, fatty) + Enhance + Pairings
     // dot[0] → Overview
     fireEvent.click(dots[0]);
     expect(screen.getByTestId('profiles-overview')).toBeInTheDocument();
     // dot[1] → Flavor map
     fireEvent.click(dots[1]);
     expect(screen.getByTestId('flavor-map-radar')).toBeInTheDocument();
-    // dot[5] → Enhance page
-    fireEvent.click(dots[5]);
-    expect(screen.getByTestId('profiles-enhance')).toBeInTheDocument();
-    // dot[6] (last) → Pairings page
+    // dot[6] → Enhance page
     fireEvent.click(dots[6]);
+    expect(screen.getByTestId('profiles-enhance')).toBeInTheDocument();
+    // dot[7] (last) → Pairings page
+    fireEvent.click(dots[7]);
     expect(screen.getByText('Pairs well with')).toBeInTheDocument();
     // drag right (dx > 0) → previous page, leaving Pairings (pointer = mouse OR touch)
     const card = screen.getByTestId('flavor-profiles-card');
@@ -242,7 +242,7 @@ describe('RecipeFlavorProfilesCard', () => {
   });
 
   it('shows a help bubble explaining the carousel (HELP-5)', () => {
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing', 'creamy thing']} nodes={nodes} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
     expect(screen.queryByTestId('profiles-help-popover')).toBeNull();
     fireEvent.click(screen.getByTestId('profiles-help'));
     const pop = screen.getByTestId('profiles-help-popover');
@@ -251,14 +251,14 @@ describe('RecipeFlavorProfilesCard', () => {
   });
 
   it('shows a first-open swipe hint, then retires it after navigation + on later opens (HELP-5)', () => {
-    const { unmount } = render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing', 'creamy thing']} nodes={nodes} />);
+    const { unmount } = render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
     expect(screen.getByTestId('profiles-swipe-hint')).toBeInTheDocument();
     // Navigating dismisses the hint and persists the seen flag.
     fireEvent.click(screen.getByLabelText('Next'));
     expect(screen.queryByTestId('profiles-swipe-hint')).toBeNull();
     unmount();
     // A later open does not show it again.
-    render(<RecipeFlavorProfilesCard bowlNames={['sweet thing', 'sour thing', 'creamy thing']} nodes={nodes} />);
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
     expect(screen.queryByTestId('profiles-swipe-hint')).toBeNull();
   });
 });

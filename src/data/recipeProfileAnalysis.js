@@ -3,18 +3,18 @@
  * and the profile-delta suggestion cards. No React, no I/O → unit-testable.
  *
  * The recipe's profile is, across the 12 taste+aroma axes: TASTE (sweet, sour, bitter, salty, umami, heat)
- * from each ingredient's curated taste label weighted by amount (flavorTaste.js), AROMA (six axes) from the
- * model's gnnProbs. From that we derive: per-axis drivers, an insight line, the
+ * from each ingredient's curated taste label and hand-tuned strength, weighted by amount (flavorTaste.js,
+ * flavorStrengths.js), AROMA (fruity, floral, green, woody, spicy, fatty) from the hand-tuned aroma table, weighted
+ * by amount and potency (flavorAroma.js, flavorAromas.js). The model's per-ingredient values are not read. From that we derive: per-axis drivers, an insight line, the
  * profile shift a candidate ingredient would cause, and boost/temper rankings.
  */
 import { isSuggestable } from './curation/suggestable.js';
 import { AROMA_LABELS, AROMA_COLORS } from './recipeScoring.js';
-import { hasRealAroma } from './flavorPlaceholders.js';
 import { TASTE_AXES, TASTELESS_WEIGHT, STRENGTH_MAX, ingredientTaste, tasteProfile } from './flavorTaste.js';
+import { AROMA_AXES, AROMALESS_WEIGHT, AROMA_STRENGTH_MAX, ingredientAroma, aromaProfile } from './flavorAroma.js';
 import { amountGrams } from './amountGrams.js';
 
-export { TASTE_AXES, amountGrams };
-export const AROMA_AXES = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
+export { TASTE_AXES, AROMA_AXES, amountGrams };
 export const AXES = [...TASTE_AXES, ...AROMA_AXES];
 
 const TASTE_COLOR = {
@@ -38,40 +38,42 @@ export const BALANCING = {
 };
 
 /**
- * A node's per-axis values, or null when it has neither a taste label nor real aroma values.
- * TASTE comes from the node's curated taste label (`node.taste`, see flavorTaste.js), never from the
- * model. AROMA still comes from the model's values (`gnnProbs`) with PLACEHOLDER vectors removed
- * (flavorPlaceholders.js). The two halves are judged separately: a node can have one and not the other
- * (those keys are then absent). `_tasteless` marks a label with no taste of its own (neutral, or fat only).
+ * A node's per-axis values, or null when it has neither a taste nor an aroma line.
+ * TASTE comes from the node's curated taste label (`node.taste`) and the strength table (flavorTaste.js); AROMA from
+ * the aroma table (flavorAroma.js, by ingredient name). Neither reads the model. The two halves are judged
+ * separately: a node can have one and not the other (those keys are then absent). `_tasteless` / `_aromaless` mark an
+ * ingredient with no taste / no aroma of its own (neutral, fat only, water).
  */
 export function nodeProbs(name, nodes) {
   const node = nodes?.get?.(name);
   const t = ingredientTaste(name, node?.taste);
-  if (!node && !t.any) return null;
+  const a = ingredientAroma(name);
+  if (!t.any && !a.any) return null;
   const out = {};
   if (t.any) {
     // 0..1 per taste: strength on the 0..3 scale. (Potency is a weight in the recipe's mean, not a strength.)
-    for (const a of TASTE_AXES) out[a] = t.axes[a] / STRENGTH_MAX;
+    for (const ax of TASTE_AXES) out[ax] = t.axes[ax] / STRENGTH_MAX;
     if (t.tasteless) out._tasteless = true;
   }
-  const p = node?.gnnProbs;
-  if (p && hasRealAroma(p)) for (const a of AROMA_AXES) if (typeof p[a] === 'number') out[a] = p[a];
-  return Object.keys(out).some((k) => k !== '_tasteless') ? out : null;
+  if (a.any) {
+    for (const ax of AROMA_AXES) out[ax] = a.axes[ax] / AROMA_STRENGTH_MAX;
+    if (a.aromaless) out._aromaless = true;
+  }
+  return out;
 }
 
-const hasTasteHalf = (p) => TASTE_AXES.some((a) => typeof p[a] === 'number');
-const hasAromaHalf = (p) => AROMA_AXES.some((a) => typeof p[a] === 'number');
 
 /**
  * THE DRAW RULE, applied per half: a half (taste, aroma) is drawn only when at least two of the
  * recipe's ingredients AND at least half of them have real values for it.
  * @param {number} total  how many ingredients the recipe has
  * @param {number} nTaste how many have a taste label
- * @param {number} nAroma how many have real aroma values
+ * @param {number} nAroma how many have an aroma line
+ * @param {number} [aromaTotal] the total the aroma half is judged against (garnish aroma lines add to it); default `total`
  */
-export function drawRule(total, nTaste, nAroma) {
-  const ok = (k) => k >= 2 && k * 2 >= total;
-  return { tasteDrawn: ok(nTaste), aromaDrawn: ok(nAroma) };
+export function drawRule(total, nTaste, nAroma, aromaTotal = total) {
+  const ok = (k, t) => k >= 2 && k * 2 >= t;
+  return { tasteDrawn: ok(nTaste, total), aromaDrawn: ok(nAroma, aromaTotal) };
 }
 
 /** Shown on every surface in place of a chart when neither half draws. */
@@ -79,11 +81,12 @@ export const NO_CHART_LINE = 'Not enough flavor data for a chart yet.';
 
 /**
  * The one profile computation behind every chart. `entries` are names or { ingredient, amount }.
- * Taste: flavorTaste.tasteProfile over the curated labels, weighted by amount (equal when none is
- * known). Aroma: weighted mean of the model's aroma values over ingredients with real ones. A half
- * that fails the draw rule scores 0 on all its axes; the taste half also needs something to chart.
+ * Taste: flavorTaste.tasteProfile over the curated labels and the strength table, weighted by amount (equal when
+ * none is known). Aroma: flavorAroma.aromaProfile over the aroma table, weighted by amount and potency; `aromaExtras`
+ * ([{ key, amount }], from garnishAromaLines) count for aroma only. A half that fails the draw rule scores 0 on all
+ * its axes; each half also needs something to chart.
  */
-function profileOf(entries, nodes) {
+function profileOf(entries, nodes, { aromaExtras = [] } = {}) {
   const list = Array.isArray(entries) ? entries : [];
   const items = [];
   for (const e of list) {
@@ -96,43 +99,25 @@ function profileOf(entries, nodes) {
     items.map((i) => ({ key: i.name, amount: i.amount })),
     (k) => nodes?.get?.(k)?.taste,
   );
-  const aromaRows = [];
-  let n = 0;
-  for (const it of items) {
-    const p = nodeProbs(it.name, nodes);
-    if (!p) continue;
-    n += 1;
-    if (hasAromaHalf(p)) aromaRows.push({ name: it.name, p, grams: amountGrams(it.amount) });
-  }
+  const extras = (Array.isArray(aromaExtras) ? aromaExtras : []).filter((x) => x?.key);
+  const aroma = aromaProfile([...items.map((i) => ({ key: i.name, amount: i.amount })), ...extras]);
   const nTaste = taste.n;
-  const nAroma = aromaRows.length;
-  const rule = drawRule(total, nTaste, nAroma);
+  const nAroma = aroma.n;
+  const rule = drawRule(total, nTaste, nAroma, total + extras.length);
   const tasteDrawn = rule.tasteDrawn && taste.charted;
-  const aromaDrawn = rule.aromaDrawn;
+  const aromaDrawn = rule.aromaDrawn && aroma.charted;
 
-  const known = aromaRows.map((r) => r.grams).filter((g) => g != null && g > 0);
-  const weighted = known.length > 0 || taste.weighted;
-  const fallback = known.length ? known.reduce((s, g) => s + g, 0) / known.length : 1;
+  const weighted = taste.weighted || aroma.weighted;
   const scores = Object.fromEntries(AXES.map((a) => [a, 0]));
   const drivers = Object.fromEntries(AXES.map((a) => [a, []]));
   if (tasteDrawn) {
     for (const a of TASTE_AXES) { scores[a] = taste.scores[a]; drivers[a] = taste.drivers[a]; }
   }
-  if (aromaDrawn && nAroma) {
-    const contrib = Object.fromEntries(AROMA_AXES.map((a) => [a, []]));
-    let wSum = 0;
-    for (const r of aromaRows) {
-      const w = r.grams != null && r.grams > 0 ? r.grams : fallback;
-      wSum += w;
-      for (const a of AROMA_AXES) { scores[a] += (r.p[a] || 0) * w; contrib[a].push({ name: r.name, v: r.p[a] || 0 }); }
-    }
-    for (const a of AROMA_AXES) {
-      scores[a] = wSum ? scores[a] / wSum : 0;
-      drivers[a] = contrib[a].filter((c) => c.v > 0.05).sort((x, y) => y.v - x.v).slice(0, 3).map((c) => c.name);
-    }
+  if (aromaDrawn) {
+    for (const a of AROMA_AXES) { scores[a] = aroma.scores[a]; drivers[a] = aroma.drivers[a]; }
   }
   return {
-    scores, drivers, n, nTaste, nAroma, tasteDrawn, aromaDrawn, drawn: tasteDrawn || aromaDrawn, weighted,
+    scores, drivers, n: items.filter((i) => nodeProbs(i.name, nodes)).length, nTaste, nAroma, tasteDrawn, aromaDrawn, drawn: tasteDrawn || aromaDrawn, weighted,
     rich: tasteDrawn ? taste.rich : 0,
   };
 }
@@ -141,7 +126,7 @@ function profileOf(entries, nodes) {
  * Aggregate per-axis profile of a bowl of names, every ingredient weighted equally.
  * @returns {{ scores: Record<string,number>, drivers: Record<string,string[]>, n: number,
  *             nTaste: number, nAroma: number, tasteDrawn: boolean, aromaDrawn: boolean, drawn: boolean }}
- *   n = ingredients with a taste label or real aroma values.
+ *   n = ingredients with a taste line or an aroma line.
  */
 export function recipeAxisProfile(bowlNames, nodes) {
   return profileOf(Array.isArray(bowlNames) ? bowlNames : [], nodes);
@@ -154,8 +139,8 @@ export function recipeAxisProfile(bowlNames, nodes) {
  * weighted equally. Same result shape as recipeAxisProfile plus `weighted` and `rich` (the mouthfeel
  * share, outside the six tastes).
  */
-export function recipeAxisProfileWeighted(entries, nodes) {
-  return profileOf(entries, nodes);
+export function recipeAxisProfileWeighted(entries, nodes, opts = {}) {
+  return profileOf(entries, nodes, opts);
 }
 
 /** Rule-based insight line for an axis given its aggregate score. */
@@ -306,8 +291,7 @@ export function describeRecipeProfile(profile, { aromaMatch = null, cookingMetho
 
 /**
  * Per-axis shift a candidate ingredient causes if added to the bowl.
- * delta[axis] = (cand[axis] - mean[axis]) / (n + 1). 0 on a half where the candidate has only placeholder
- * values, or (when `drawn` = { taste, aroma } is given) where the recipe has no chart.
+ * delta[axis] = (cand[axis] - mean[axis]) / (n + 1). 0 on a half where the candidate has no values, or (when `drawn` = { taste, aroma } is given) where the recipe has no chart.
  * @returns {Record<string, number>|null}
  */
 export function profileDelta(candidateName, scores, n, nodes, { drawn = null } = {}) {
@@ -317,8 +301,8 @@ export function profileDelta(candidateName, scores, n, nodes, { drawn = null } =
   for (const a of AXES) {
     const half = TASTE_AXES.includes(a) ? 'taste' : 'aroma';
     const live = typeof p[a] === 'number' && (!drawn || drawn[half]);
-    // A candidate with no taste of its own (water, starch, fat) dilutes at TASTELESS_WEIGHT of a normal one.
-    const f = p._tasteless && half === 'taste' ? TASTELESS_WEIGHT : 1;
+    // A candidate with no taste (or no aroma) of its own (water, starch, fat) dilutes at TASTELESS_WEIGHT (AROMALESS_WEIGHT) of a normal one.
+    const f = half === 'taste' ? (p._tasteless ? TASTELESS_WEIGHT : 1) : (p._aromaless ? AROMALESS_WEIGHT : 1);
     delta[a] = live ? (f * (p[a] - (scores[a] || 0))) / (n + 1) : 0;
   }
   return delta;
@@ -338,7 +322,7 @@ export function topMovers(delta, k = 3) {
  * Rank candidate names by their impact on a target axis.
  *  - mode 'boost'  → largest positive delta on `axis`
  *  - mode 'temper' → largest positive delta on the balancing axis of `axis`
- * Only candidates with real (non-placeholder) values on the target axis are considered; with
+ * Only candidates with values on the target axis are considered; with
  * `drawn` = { taste, aroma }, a target on a half the recipe does not draw ranks nothing.
  * Returns [{name, delta}].
  */

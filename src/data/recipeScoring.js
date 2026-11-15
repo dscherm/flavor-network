@@ -128,7 +128,7 @@ export const AROMA_LABELS = {
   odor_floral: 'floral',
   odor_green: 'green',
   odor_woody: 'woody',
-  odor_spicy: 'spicy',
+  odor_spicy: 'spice',  // 2026-11-16 (FLAVOR-5): 'spicy' read as chili heat, which is the taste axis "heat"
   odor_fatty: 'creamy',  // 2026-05-27 (batch 6 chef-vocab): renamed
 };
 

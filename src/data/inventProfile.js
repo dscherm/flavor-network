@@ -3,14 +3,15 @@
  * Notebook's Flavor Profiles card. Pure: a thin shaping layer over
  * recipeProfileAnalysis.js. A VISUAL AID built from per-ingredient flavor
  * data, not a taste test and not an accuracy claim. TASTE is worked out from each ingredient's curated taste
- * label (flavorTaste.js); AROMA from the model's values (gnnProbs), where PLACEHOLDER vectors never count
- * (flavorPlaceholders.js). Taste and aroma are drawn separately, each only when at least half the
+ * label and hand-tuned strength (flavorTaste.js, flavorStrengths.js); AROMA from the hand-tuned aroma table
+ * (flavorAroma.js, flavorAromas.js); the model's per-ingredient values are not read. Taste and aroma are drawn separately, each only when at least half the
  * ingredients (and at least two) have data for it (recipeProfileAnalysis.drawRule); when neither draws there are no bars and the
  * surface shows NO_CHART_LINE.
  *
  * buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null, garnish = '' }) →
- *   `amounts` is { key: "2 oz" | { qty, unit } | grams }: the taste half is weighted by it (equal weights without).
- *   `garnish` is the recipe's garnish text: a salt, sugar or chili rim in it adds a thin fixed dusting of that taste.
+ *   `amounts` is { key: "2 oz" | { qty, unit } | grams }: both halves are weighted by it (equal weights without).
+ *   `garnish` is the recipe's garnish text: a salt, sugar or chili rim in it adds a thin fixed dusting of that taste;
+ *   a citrus twist, a mint sprig and the like add a small fixed amount of that ingredient to the AROMA half only.
  *   {
  *     scores:   { axis: number }   all 12 axes (sweet, sour, bitter, salty, umami, heat,
  *                                  odor_fruity ... odor_fatty), 0..1; all 0 when nothing counted
@@ -24,11 +25,12 @@
  *     summary:  string             one sentence describing the chart (see summarize); NO_CHART_LINE when
  *                                  nothing draws; '' for an empty list
  *   }
- * `nodes` is a Map name → { taste, gnnProbs } or null (then everything is uncounted).
+ * `nodes` is a Map name → { taste } or null (taste labels only; aroma needs no node).
  * Never throws: bad input gives the empty profile.
  */
 import { AXES, axisLabel, axisColor, nodeProbs, recipeAxisProfileWeighted, NO_CHART_LINE } from './recipeProfileAnalysis.js';
 import { garnishTasteLines } from './flavorStrengths.js';
+import { garnishAromaLines } from './flavorAromas.js';
 
 /** Fewer counted ingredients than this and the summary says there is not enough to go on. */
 export const MIN_COUNTED = 2;
@@ -51,7 +53,7 @@ export function buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.
   const uncounted = list.filter((k) => !nodeProbs(k, nodes));
   // A salt, sugar or chili rim sits in the garnish text, not in a line: it adds a thin, fixed dusting (flavorStrengths.js).
   const rim = garnishTasteLines(garnish).map((r) => ({ ingredient: r.key, amount: r.amount }));
-  const prof = recipeAxisProfileWeighted([...list.map((k) => ({ ingredient: k, amount: amounts?.[k] ?? null })), ...rim], nodes);
+  const prof = recipeAxisProfileWeighted([...list.map((k) => ({ ingredient: k, amount: amounts?.[k] ?? null })), ...rim], nodes, { aromaExtras: garnishAromaLines(garnish) });
   const axes = AXES.filter((a) => prof.scores[a] >= minScore).sort((a, b) => prof.scores[b] - prof.scores[a]);
   const summary = list.length ? summarize({ axes, counted, noun, drawn: prof.drawn }) : '';
   return {

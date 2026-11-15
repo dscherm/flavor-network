@@ -17,6 +17,11 @@
  * taste axis) and equal weight for every ingredient. No aroma bars, so the aroma figure reads 0 of N.
  * It changes no app code and is how the label work is checked before FLAVOR-3 builds the real function.
  *
+ * --aroma (FLAVOR-5): scores the aroma half against data/aroma-truth.json (or --truth path). A recipe is charted by
+ * buildFlavorProfile as the app does; a single ingredient ("ingredient/mint") is charted through the same aroma
+ * function (flavorAroma.aromaProfile) with one line, bypassing the two-ingredient draw rule. An item is right when
+ * every expected aroma is among the top two aroma bars. Prints the tuning set and the hold-out separately.
+ *
  * Exit code is non-zero if the truth file is malformed or an item does not resolve.
  */
 import { readFileSync } from 'node:fs';
@@ -27,7 +32,8 @@ import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../src/data/seedRecipeDetails.js';
 import { buildFlavorProfile } from '../src/data/inventProfile.js';
 import { resolveIngredientName } from '../src/data/recipePairingMatch.js';
-import { scoreItem, summarize, TASTES } from '../src/data/flavorScore.js';
+import { scoreItem, summarize, TASTES, scoreAroma, summarizeAroma } from '../src/data/flavorScore.js';
+import { aromaProfile } from '../src/data/flavorAroma.js';
 import { loadCurationTables, applyCuration } from './lib/curationTables.mjs';
 import { loadFlavorNodes } from './lib/flavorNodes.mjs';
 
@@ -48,8 +54,8 @@ function loadData() {
 /**
  * THE ADAPTER. The one place that decides how a chart is drawn for a recipe. FLAVOR-2..6 change
  * what this calls; the scorer (src/data/flavorScore.js) and the answer key stay as they are.
- * Since FLAVOR-3 the taste half is the curated labels weighted by amount (flavorTaste.js); the aroma half
- * is still the model's values. Returns { bars: [{ axis, label, score }], counted: [key], uncounted: [key] }.
+ * Since FLAVOR-3 the taste half is the curated labels weighted by amount (flavorTaste.js); since FLAVOR-5
+ * the aroma half is the hand-tuned aroma table (flavorAroma.js). Returns { bars: [{ axis, label, score }], counted: [key], uncounted: [key] }.
  */
 export function profileFor(recipe, ctx) {
   const names = new Set(ctx.nodes.keys());
@@ -146,9 +152,71 @@ const verdict = (r) => {
   return v.join(', ');
 };
 
+const AROMA_AXIS_IDS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
+
+/** Aroma bars for one aroma-key item: a built-in recipe through the app's chart, or one ingredient through aromaProfile. */
+export function aromaBarsFor(item, data, nodes) {
+  const [kind, slug] = item.id.split(/\/(.+)/);
+  if (kind === 'ingredient') {
+    const p = aromaProfile([{ key: slug }]);
+    return { bars: AROMA_AXIS_IDS.map((axis) => ({ axis, score: p.scores[axis] })), found: p.n > 0, name: slug };
+  }
+  const recipe = KINDS.includes(kind) ? resolveBuiltIn(kind, slug, data) : null;
+  if (!recipe) return { bars: [], found: false, name: item.id };
+  return { bars: profileFor(recipe, { nodes, kind }).bars, found: true, name: recipe.name };
+}
+
+export function validateAromaTruth(truth) {
+  const problems = [];
+  if (!truth || !Array.isArray(truth.items) || !truth.items.length) return ['"items" must be a non-empty array'];
+  const seen = new Set();
+  truth.items.forEach((it, i) => {
+    const at = `items[${i}]${it && it.id ? ` (${it.id})` : ''}`;
+    if (!it || typeof it.id !== 'string' || !/^(ingredient|cocktail|sauce|dish)\/.+$/.test(it.id)) return problems.push(`${at}: id must look like "<kind>/<slug>" or "ingredient/<name>"`);
+    if (seen.has(it.id)) problems.push(`${at}: duplicate id`);
+    seen.add(it.id);
+    if (!Array.isArray(it.expect) || it.expect.length < 1 || it.expect.length > 2 || !it.expect.every((a) => AROMA_OK.has(a))) problems.push(`${at}: expect must be 1 or 2 of ${[...AROMA_OK].join(', ')}`);
+    if (it.not !== undefined && !(Array.isArray(it.not) && it.not.every((a) => AROMA_OK.has(a)))) problems.push(`${at}: not must list aroma names`);
+    if (Array.isArray(it.not) && Array.isArray(it.expect) && it.not.some((a) => it.expect.includes(a))) problems.push(`${at}: an aroma is both expected and forbidden`);
+  });
+  return problems;
+}
+
+function mainAroma(args, json) {
+  const ti = args.indexOf('--truth');
+  const truthPath = resolve(ti >= 0 ? args[ti + 1] : resolve(ROOT, 'data/aroma-truth.json'));
+  let truth;
+  try { truth = readJson(truthPath); } catch (e) { console.error(`Cannot read truth file ${truthPath}: ${e.message}`); process.exit(2); }
+  const problems = validateAromaTruth(truth);
+  if (problems.length) { console.error(`Malformed truth file ${truthPath}: ${problems.join('; ')}`); process.exit(2); }
+  const data = loadData();
+  const nodes = loadFlavorNodes();
+  const rows = [];
+  const missing = [];
+  for (const it of truth.items) {
+    const r = aromaBarsFor(it, data, nodes);
+    if (!r.found && !it.id.startsWith('ingredient/')) { missing.push(it.id); continue; }
+    rows.push({ it, name: r.name, hold: Boolean(it.holdout), bars: r.bars, ...scoreAroma(r.bars, it) });
+  }
+  if (missing.length) { console.error(`These items do not resolve to a built-in recipe: ${missing.join(', ')}`); process.exit(3); }
+  const sets = [['Tuning set', rows.filter((r) => !r.hold)], ['Hold-out', rows.filter((r) => r.hold)]];
+  if (json) { console.log(JSON.stringify({ tuning: summarizeAroma(sets[0][1]), holdout: summarizeAroma(sets[1][1]), items: rows.map(({ it, name, hold, bars, ...s }) => ({ id: it.id, name, holdout: hold, bars, ...s })) }, null, 2)); return; }
+  const w = Math.max(...rows.map((r) => r.it.id.length));
+  for (const r of rows) {
+    const tops = r.bars.filter((b) => b.axis.startsWith('odor_') && b.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map((b) => `${b.axis.slice(5)} ${b.score.toFixed(2)}`).join(', ') || '(none)';
+    console.log(`${r.it.id.padEnd(w)}  ${r.hold ? 'H' : 'T'}  expect ${r.it.expect.join('/')}${r.it.not?.length ? ` not ${r.it.not.join('/')}` : ''}  |  ${tops}  |  ${r.noChart ? 'NO AROMA' : r.ok ? 'ok' : 'miss'}${r.forbiddenLead ? ', FORBIDDEN LEADS' : ''}`);
+  }
+  console.log('');
+  for (const [label, set] of sets) {
+    const x = summarizeAroma(set);
+    console.log(`${label}: items ${x.items}, as expected ${x.ok}/${x.items} (${x.okPct}%), forbidden leads ${x.forbiddenLeads}, no aroma ${x.noChart}`);
+  }
+}
+
 function main() {
   const args = process.argv.slice(2);
   const json = args.includes('--json');
+  if (args.includes('--aroma')) return mainAroma(args, json);
   const ti = args.indexOf('--truth');
   const truthPath = resolve(ti >= 0 ? args[ti + 1] : resolve(ROOT, 'data/flavor-truth.json'));
   let truth;

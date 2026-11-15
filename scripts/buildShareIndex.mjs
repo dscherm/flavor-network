@@ -92,7 +92,7 @@ export function buildShareCards() {
       keys.push(key);
       if (l.amount && amounts[key] === undefined) amounts[key] = l.amount;
     }
-    const bars = !SHARE_CHARTS_ENABLED ? [] : buildFlavorProfile(keys, nodes, { noun: noun[kind], amounts }).bars
+    const bars = !SHARE_CHARTS_ENABLED ? [] : buildFlavorProfile(keys, nodes, { noun: noun[kind], amounts, garnish: r.garnish || '' }).bars
       .map((b) => ({ label: b.label, color: b.color, score: Math.round(b.score * 100) / 100 }));
     const lines = r.lines.slice(0, CARD_LINES).map((l) => {
       const o = { label: l.label || l.key, amount: l.amount || '' };

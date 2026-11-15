@@ -35,6 +35,7 @@ Who wrote it, and its limits:
 ```
 npm run measure:flavor            # the table and overall line
 npm run measure:flavor -- --json  # the same, for machines
+npm run measure:flavor -- --aroma  # the aroma half against data/aroma-truth.json (tuning set and hold-out)
 ```
 
 It reads only files in the repository and makes no network call. It stops with an error if the key is malformed or an item is not a real built-in recipe.
@@ -432,12 +433,126 @@ The Margarita in the codex has 3/4 oz each of orange liqueur, lime juice and sim
 
 `flavorStrengths.test.js`: the file is well formed; every name is a real ingredient (or on the short `NOT_IN_GRAPH` list of bottles and mixers the graph does not hold, which is itself checked); every base spirit, bar bottle, generic bottle key, the 40 most-used cocktail ingredients and the 60 most-used sauce and dish ingredients have a line; an entry overrides its label; two dashes of bitters register against 2 oz of spirit; soda water does not dilute a chart to nothing; label-only ingredients sit on the same scale; the typical-amount rule; the rim rule. `flavorStrengths.realData.test.js`: top taste at least 85% with no forbidden lead on the main key, the hold-out at least 85%, and the named checks on the real recipes (Negroni bitter then sweet with sour not in the top two; Daiquiri sour and sweet; Old Fashioned sweet and bitter with the bitters registering; Margarita never bitter on top with sour in the top two; Bolognese and marinara not sweet-first; a soy sauce sauce salty and umami; a Thai curry shows heat).
 
+## Aroma data assessment (2026-11-16, FLAVOR-5)
+
+The plan for FLAVOR-5 was to build aromas from the published aroma descriptors in `public/proDataset/gnn_compounds.json` (2.3 MB). Before building on it I measured it with throwaway Node scripts (not committed). All numbers below are from that file.
+
+**What the file holds.** 3,083 ingredients. Each has `total_compounds: 20` and a `top_compounds` list of at most 5 compounds (`name` plus a list of descriptor `tags`): 2,042 ingredients list 5, 805 list 4, 138 list 1. So 15 of an ingredient's 20 compounds are not stored. Across the whole file there are only 242 distinct compounds and 206 distinct tags. The most common tags are `bitter` (6,751 uses), `odorless` (4,603), `sweet` (3,165), `ethereal`, `alcoholic`, `medical`: taste words and lab words, not aroma notes.
+
+**Ubiquity (the constant problem, again).**
+
+- 4 compounds appear in more than half of all ingredients: Ethanol 72%, L-Histidine 70%, Caffeine 68%, Theobromine 68%. (So 4 compounds are above 20% and 4 above 50%; the next most common is 11%.) Sugar, butter, chocolate and 436 other ingredients list exactly those four and nothing else.
+- Only 179 distinct compound lists exist among 3,083 ingredients. The biggest group of ingredients sharing one identical list is 439 (Ethanol, L-Histidine, Caffeine, Theobromine); the next are 324, 167, 143 and 137.
+- After removing the four ubiquitous compounds, 868 ingredients (28%) have no compound left at all. 698 (23%) have at least 3 compounds that appear in under 5% of ingredients, which is the most generous reading of "genuinely specific".
+
+**Spot checks on 31 well-known ingredients** (after removing the four ubiquitous compounds):
+
+| Ingredient | What is left | Does it describe it? |
+|---|---|---|
+| mint | menthyl acetate (mint, orange, rose), piperitone (minty), coumarin, methyl benzoate, octanol | Yes, mostly |
+| basil | thymol (herbal), coumarin, vanillic acid, a wood/spice compound | Roughly |
+| vanilla | menthone (menthol, camphor, peppermint), dodecanol (coconut, wax) | No: peppermint for vanilla |
+| lemon | one compound, tridecanal (grapefruit peel, citrus) | Thin but right |
+| lime | nonane (gasoline), succinic acid, nonanal (citrus, lime), nonanol | Half |
+| orange | methyl anthranilate (neroli), acetic acid (vinegar), hexanal (grass) | Mostly not: vinegar and grass |
+| strawberry, banana | menthone (peppermint) | No |
+| coconut | succinic acid | No |
+| butter, cream, coffee, chocolate | nothing | No data |
+| olive oil | apigenin (bitter), phytol (floral) | No |
+| cinnamon | menthone, dodecanol, one fruity compound | No |
+| cumin | mannitol, terpineol (floral) | No |
+| gin, rum | thiamine (mild, sour, bitter) | No |
+| ginger | nonane (gasoline) | No |
+| garlic | dimethyl trisulfide (sulphur, onion) | Yes |
+| onion | a sulphur compound plus coumarin, prune, vanillic acid | Partly |
+| tomato | isoamyl butyrate (apricot, whiskey, banana), hexyl hexanoate, coumarin | No: whiskey and banana for tomato |
+| mushroom, parmesan | a different fruit-ester list, coumarin | No |
+| black pepper, clove, bacon, oak, whiskey, rose water, lavender | not in the file | No data |
+
+11 of the 31 names I checked are absent from the file or have nothing left. Of the other 20, a cook would recognise the aroma for about 5 (mint, lemon, garlic, and partly basil and onion).
+
+**A mechanical cross-check.** I mapped the descriptor tags to the six axes with a crude regular expression and compared the strongest axis it gave with the hand-tuned table below, over the 202 table ingredients that have both. For 75 the tags gave no signal after removing the four common compounds; for the other 127 the strongest axis agreed with the table for 41 (32%). Orange, grapefruit juice, brandy and orange liqueur are among the disagreements (the tags say floral, spicy or fatty; every cook would say fruity). A better tag map would not fix this: the ubiquity and the missing compounds are in the data, not in the map.
+
+**Verdict: not usable**, neither as the main source nor as a secondary source. A fallback would give plausible-looking but wrong aromas to the 700 or so ingredients that have a few specific compounds (tomato smelling of whiskey, vanilla of peppermint) and nothing to the rest, and a wrong bar is worse than no bar. So FLAVOR-5 builds the aroma half from a hand-tuned table only (the way the taste half was finished in FLAVOR-4), skips the planned tag map, build step and generated aroma file, and leaves ingredients outside the table with no aroma data. The file `gnn_compounds.json` is not read by any chart and nothing new loads it.
+
+## After FLAVOR-5 (2026-11-16, aromas from a hand-tuned table, not the model)
+
+### What changed
+
+- `src/data/flavorAromas.js` is a table of about 330 ingredient lines: for each of the six aromas (fruity, floral, green, woody, spicy, fatty) a strength of 0 to 3 per gram, plus an aroma **potency** (how many grams of an ordinary ingredient one gram counts as: mint leaf 10, cloves 8, vanilla 6, rose water 8, saffron 12, bitters 5 to 6, citrus peel 2, base spirits 0.7, water 0). It covers every ingredient the strength table covers, plus fruits, flowers, herbs, spices, nuts, teas and cheeses, and the garnishes that matter in cocktails. Written by the assistant from common culinary knowledge on 2026-11-16; the correction rule is at the top of the file.
+- `src/data/flavorAroma.js`: `aromaProfile(lines, lookup, opts)`, shaped like `tasteProfile`: amount-weighted by grams times potency, an ingredient with no aroma of its own (water, sugar, vodka) counted as data that dilutes at a quarter of its amount, an ingredient with no line "not counted", the same 0 to 1 scale, drivers, `charted`.
+- The chart's aroma half in `recipeProfileAnalysis.js` (and so the overview bars, per-axis pages, flavor map, boost and temper ranking, and the three invent panels) now comes from `aromaProfile`. The model's per-ingredient aroma values (`gnnProbs`) are no longer read by any recipe chart. The draw rule is unchanged: an aroma half draws only when at least two ingredients, and at least half, have an aroma line.
+- A cocktail's garnish text now adds to the aroma half only: a citrus twist, peel or zest is 2 g of that fruit, a wedge or wheel 1 g, a mint sprig or bouquet 2 g mint, rosemary, basil, thyme, sage 2 g, nutmeg 0.5 g, cinnamon 1 g, coffee beans 1 g; any other garnish adds nothing (`garnishAromaLines`). It does not change the taste half.
+- A bare count of a whole citrus fruit ("1 orange", the resolved name of "twist orange peel") counts for aroma as its zest (lemon 6 g, lime 5 g, orange 8 g, grapefruit 10 g), because the smell of citrus is in the peel. The taste half still weighs the whole fruit.
+- The axis called "spicy" is the smell of aromatic spice (cinnamon, clove, nutmeg, black pepper, ginger, cumin), not chili heat, which is the taste axis Heat. The chart now labels it **Spice** (it said "spicy"). The internal ids (`odor_spicy`) are unchanged.
+- **Vanilla and the sweet-woody family** (vanilla, caramel, toast, roast, coffee, cocoa, nuts, smoke, oak) are WOODY. The creamy side of vanilla is a smaller fatty value.
+- `scripts/measureFlavorProfile.mjs --aroma` scores the aroma half against `data/aroma-truth.json`; `scripts/buildShareIndex.mjs` passes the garnish so server cards compute the same bars when charts are turned on (they are still off, `bars: []`).
+
+### The aroma test set (`data/aroma-truth.json`)
+
+40 items written by the assistant on 2026-11-16 before the table was tuned, not independently checked: 20 single ingredients (charted through the same aroma function with one line, which skips the two-ingredient draw rule) and 20 built-in recipes. Each lists the aromas that must ALL be among the chart's top two aroma bars, and aromas that must not lead. 30 are the tuning set; 10 are marked `"holdout": true` and were not tuned against (strawberry, lavender, clove, smoked paprika, Chimichurri, Eggnog, Mint Julep, Mole Poblano, White Russian, Apple Pie).
+
+One thing to know about how independent it is: I wrote the table after the key and with the key's items in view, so even the first run was not blind. The hold-out is "not tuned against after the first run", not "never seen".
+
+### Result, as printed
+
+Before (the model's aroma values, which is what the chart drew until now; a throwaway script ran the old chart code before any change):
+
+```
+Tuning set: items 30, as expected 4/30 (13.3%), forbidden leads 4, no aroma 22
+Hold-out: items 10, as expected 0/10 (0%), forbidden leads 0, no aroma 10
+```
+
+(22 of the 30 tuning items and all 10 hold-out items had no aroma bars at all. The four "ok" ones were vanilla, cinnamon, bourbon and Manhattan, from the model's woody lean; mint, basil, olive oil and orange were forbidden leads.)
+
+After (`node scripts/measureFlavorProfile.mjs --aroma`):
+
+```
+Tuning set: items 30, as expected 30/30 (100%), forbidden leads 0, no aroma 0
+Hold-out: items 10, as expected 8/10 (80%), forbidden leads 0, no aroma 0
+```
+
+What took the tuning set from 28 to 30: three general changes made after the first run, listed so nothing is hidden. (1) A bare count of a whole citrus fruit counts as zest (the Manhattan's "twist orange peel: 1" had been weighing 60 g of orange). (2) Tomato lowered to green 1.2, fruity 0.6, potency 0.8 (a cup of tomato puree was out-smelling 2 teaspoons of garam masala in the Tikka Masala). (3) Ground spice potencies raised by 1 to 2 (cumin 5, garam masala 6, cinnamon 5, nutmeg 6, curry paste 4, cardamom 6, turmeric 3, allspice 6, star anise 6, caraway 5, coriander 3): a gram of ground spice is among the most aroma-potent things in a dish. The third change moved the hold-out the wrong way: Apple Pie, which was right before, now misses.
+
+The two hold-out misses:
+- **Apple Pie** (fatty 0.24, spice 0.24, fruity 0.24; expected fruity): the recipe's apples are "1.2 kg", and `amountGrams` has no kilogram unit, so the apples get the recipe's mean weight and count for about 30 g instead of 1,200 g. That is a gap in the shared amount reader (it also affects the taste half), not in the aroma table, and I did not change it because it would move the taste numbers this task must not move.
+- **Mole Poblano** (woody 0.48, green 0.13, fruity 0.10; expected spice and woody): chocolate (50 g) outweighs the one cinnamon stick and the dried chilies' woody and fruity notes. Left as a miss: a cook might call a mole woody first.
+
+The main key's four aroma expectations (`npm run measure:flavor`, line "Aroma as expected"): **0/4 before, 4/4 now** (Mojito, Pina Colada, Salsa Verde, Pesto). `data/flavor-truth.json` and `data/flavor-holdout.json` were not edited.
+
+The taste half is unchanged, as printed:
+
+```
+Items 41. Top taste expected: 36/41 (87.8%). Top two both expected: 31/34 items with 2+ expected (91.2%). Forbidden taste leads: 0. No chart: 0. Ingredients counted: 99.6%. Aroma as expected: 4/4 (100%).
+Items 20. Top taste expected: 19/20 (95%). Top two both expected: 14/16 items with 2+ expected (87.5%). Forbidden taste leads: 1. No chart: 0. Ingredients counted: 100%. Aroma as expected: 0/0 (null%).
+```
+
+(The second line is the taste hold-out, `--truth data/flavor-holdout.json`; it has no aroma expectations.)
+
+Aroma charts as printed for the four main-key items: Mojito fruity 0.51, green 0.16, woody 0.10; Pina Colada fruity 0.59, fatty 0.29; Salsa Verde green 0.63, fruity 0.10; Pesto green 0.42, fatty 0.25, spice 0.10. Old Fashioned: woody 0.50, spice 0.23, fruity 0.15.
+
+### What is still weak
+
+- **Not every ingredient has a line.** An ingredient outside the table has no aroma data. A recipe still draws an aroma chart when at least two, and half, of its ingredients have a line; the rest are listed as not counted.
+- **The six axes are a coarse view of smell.** Fish, shellfish, garlic's sulphur, fermented and sour smells have no axis; those ingredients are written as aroma-less or at a low value on the nearest axis.
+- **Cooking changes aroma** (browning, caramelising, reducing). The chart reads raw ingredients.
+- **Manhattan** leads fruity (0.41) with woody second (0.38): the cherry and the orange twist outweigh the bourbon. It passes its check (woody in the top two) but a bartender would put woody first.
+- **Kilograms.** `amountGrams` does not read "kg", which hurts any recipe that lists a big ingredient that way.
+
+### How to correct a line
+
+Edit its numbers in `src/data/flavorAromas.js` (keep the name as spelled), then run `npm run measure:flavor -- --aroma` and `npm test -- flavorAroma`. Do not add a line to make one recipe come out right: ask whether a cook would agree with the line on its own.
+
+### Tests
+
+`flavorAromas.test.js`: the table is well formed (axes on 0..3, potency present, aroma-less entries have potency 0), every name is a real ingredient or on the short `NOT_IN_GRAPH_AROMA` list (itself checked), every strength-table ingredient has an aroma line, potent things are potent and bulk things are not, vanilla is woody, garnish parsing. `flavorAroma.test.js`: `aromaProfile` (scale, counted and uncounted, a mint leaf or a twist against 2 oz of spirit, a dash of bitters is a note, the table overrides a fallback lookup, aroma-less dilution, unmeasured amounts, citrus zest, bad input), `nodeProbs` never reads the model, the draw rule, a spirit, citrus and sugar cocktail draws its citrus aroma, garnish adds to aroma only, `profileDelta`. `flavorAroma.realData.test.js`: spot checks on real data (mint green, lemon fruity, butter fatty, black pepper spice, rose water floral, vanilla woody, a Mojito green and fruity, an Old Fashioned woody, Pesto green, Hollandaise fatty), the aroma key is well formed with a 10-item hold-out, tuning set at least 85%, hold-out at least 70%, the main key still 36 of 41 on taste with its four aroma expectations met.
+
 ## What comes next
 
 - FLAVOR-2 (done, see above) stops drawing a chart from the repeated placeholder rows: ingredients carrying them count as having no flavor data, and a recipe without enough real data shows "not enough flavor data" instead of a chart.
 - FLAVOR-3 (done, see above) draws the tastes from the curated taste word each ingredient already has (salt is salty, sugar is sweet, coffee is bitter), weighted by how much of it the recipe uses, and adds heat as a sixth taste.
 - FLAVOR-4 (done, see above) hand-tunes strengths for the ingredients that matter most, so a dash of bitters and two ounces of gin no longer weigh the same.
-- FLAVOR-5 takes aromas from published aroma descriptors instead of the model.
+- FLAVOR-5 (done, see above) found the published aroma descriptors unusable (see "Aroma data assessment") and draws aromas from a hand-tuned table instead of the model.
 - FLAVOR-6 makes every surface use the same profile, makes the wording honest, and re-measures on this same test set; the aim is to beat the numbers above.
 
 ## Shared pages and cards show no chart (2026-11-15, SHARE-8)
