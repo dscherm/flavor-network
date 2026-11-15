@@ -2308,7 +2308,7 @@ independent of those; DATA-8 last. DATA-5 must land before FLAVOR-3.
   "id": "DATA-1",
   "title": "Repeatable data audit with today's baseline",
   "category": "tooling",
-  "passes": false,
+  "passes": true,
   "description": "scripts/auditData.mjs reads only repo files and reports: duplicate ingredient candidates (misspelt singulars such as 'tomatoe', plurals, leading preparation words such as 'freshly', 'lean', 'boneless', 'cooked', 'instant'), non-food and fragment candidates, branded and packaged candidates, category inconsistencies by rule (cheese, juice, flour, wine, beer, the 'umami' category), taste-label oddities by category (starch, plain fat, water, neutral spirits), cocktail checks (cream or egg drinks per family, citrus in the stirred families, lines without amounts, duplicate names, unnamed sub-groups, a short list of classics that must exist), the share of sauces under 'Independent', dish-type singletons and the two dish-type vocabularies. Writes docs/data-quality.md (method, limits, baseline numbers) and candidate lists as review files under data/review/. Changes no data.",
   "acceptance": [
     "The script makes no network call, edits no data file, and exits non-zero only on a missing input",
