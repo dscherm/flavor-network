@@ -2063,7 +2063,7 @@ together, never SHARE-6 alone. Three open decisions with defaults are defined in
   "id": "SHARE-1",
   "title": "Public recipe page and /r/ links for the app's built-in recipes",
   "category": "ui",
-  "passes": false,
+  "passes": true,
   "description": "New route /r/<kind>/<slug> (kind cocktail, sauce or dish) rendering SharedRecipePage.jsx: name, ingredients with amounts, method, glass or vessel, and the flavor profile chart with its 'visual guide' label. Pure resolver src/data/sharedRecipe.js: parseSharePath(pathname), slugFor(kind, item), resolveBuiltIn(kind, slug) over cocktailCodexV2.js, sauceCodex.js and the Cookbook dishes, returning one normalised shape { kind, name, lines, method, glass, category } that SHARE-6 reuses for user copies. The page opens without the landing picker, without sign-in and without loading the full pairing dataset. Unknown slug shows 'This recipe is no longer shared' with a button to the starting page.",
   "acceptance": [
     "/r/cocktail/<slug>, /r/sauce/<slug> and /r/dish/<slug> each render the whole recipe signed out, for at least three real items per kind (component tests)",
