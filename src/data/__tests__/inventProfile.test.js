@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildFlavorProfile, ATTRIBUTION_MIN } from '../inventProfile.js';
+import { buildFlavorProfile } from '../inventProfile.js';
 import { AXES } from '../recipeProfileAnalysis.js';
 
 const probs = (o) => ({ ...Object.fromEntries(AXES.map((a) => [a, 0])), ...o });
@@ -24,10 +24,11 @@ describe('buildFlavorProfile', () => {
     expect(p.bars[0]).toMatchObject({ axis: p.axes[0], score: p.scores[p.axes[0]] });
     expect(p.bars[0].label).toBeTruthy();
     expect(p.bars[0].color).toMatch(/^#/);
-    expect(p.summary).toMatch(/This recipe/);
+    expect(p.summary).toMatch(/^On the chart, the strongest signal/);
   });
   it('uses the noun the panel asks for', () => {
-    expect(buildFlavorProfile(['lime juice', 'simple syrup'], nodes, { noun: 'drink' }).summary).toMatch(/This drink/);
+    expect(buildFlavorProfile(['lime juice', 'simple syrup'], nodes, { noun: 'drink' }).summary).toMatch(/strongest signal/);
+    expect(buildFlavorProfile(['x', 'y'], new Map([['x', { gnnProbs: probs({}) }], ['y', { gnnProbs: probs({}) }]]), { noun: 'drink' }).summary).toMatch(/this drink/);
   });
   it('an empty list gives an empty profile and never throws', () => {
     for (const keys of [[], null, undefined, 'nope']) {
@@ -48,33 +49,35 @@ describe('buildFlavorProfile', () => {
 describe('summary wording rules', () => {
   const n2 = new Map([
     ['lime juice', { gnnProbs: probs({ sour: 0.9 }) }],
-    ['simple syrup', { gnnProbs: probs({ sweet: 0.3, bitter: 0.2 }) }],
-    ['butter', { gnnProbs: probs({ bitter: 0.3, sweet: 0.2 }) }],
+    ['simple syrup', { gnnProbs: probs({ sweet: 0.3, bitter: 0.2, sour: 0.7 }) }],
   ]);
-  it('credits an ingredient only when its own score on the axis is at least ATTRIBUTION_MIN', () => {
-    expect(ATTRIBUTION_MIN).toBe(0.6);
+  it('describes the chart and never credits an ingredient', () => {
     const s = buildFlavorProfile(['lime juice', 'simple syrup'], n2, { noun: 'drink' }).summary;
-    expect(s).toBe('This drink leans sour (mostly from lime juice) and sweet.');
+    expect(s).toBe('On the chart, the strongest signals are sour and sweet.');
+    expect(s).not.toMatch(/from|mostly|lime|syrup/);
   });
-  it('never blames a weak contributor: no "from" when nobody is clearly high', () => {
-    const s = buildFlavorProfile(['simple syrup', 'butter'], n2, { noun: 'sauce' }).summary;
-    expect(s).toMatch(/^This sauce leans /);
-    expect(s).not.toMatch(/from/);
+  it('one axis reads singular', () => {
+    const one = new Map([['a', { gnnProbs: probs({ sour: 0.5 }) }], ['b', { gnnProbs: probs({ sour: 0.5 }) }]]);
+    expect(buildFlavorProfile(['a', 'b'], one, { noun: 'sauce' }).summary).toBe('On the chart, the strongest signal is sour.');
   });
   it('names at most two axes', () => {
     const many = new Map([
       ['a', { gnnProbs: probs({ sweet: 0.5, sour: 0.5, bitter: 0.5 }) }],
       ['b', { gnnProbs: probs({ sweet: 0.5, sour: 0.5, bitter: 0.5 }) }],
     ]);
-    const s = buildFlavorProfile(['a', 'b'], many).summary;
-    expect(s.match(/ and /g) || []).toHaveLength(1);
+    expect(buildFlavorProfile(['a', 'b'], many).summary.match(/ and /g) || []).toHaveLength(1);
   });
   it('fewer than two counted ingredients: not enough to go on', () => {
     expect(buildFlavorProfile(['lime juice'], n2).summary).toBe('Not enough flavor data in this list to go on yet.');
     expect(buildFlavorProfile(['lime juice', 'mystery'], n2).summary).toMatch(/Not enough/);
   });
-  it('nothing firing: says no single flavor stands out', () => {
+  it('nothing firing: no strong signal', () => {
     const flat = new Map([['x', { gnnProbs: probs({}) }], ['y', { gnnProbs: probs({}) }]]);
-    expect(buildFlavorProfile(['x', 'y'], flat, { noun: 'dish' }).summary).toBe('No single flavor stands out in this dish.');
+    expect(buildFlavorProfile(['x', 'y'], flat, { noun: 'dish' }).summary).toBe('The chart shows no strong signal for this dish.');
+  });
+  it('still returns drivers and bars', () => {
+    const p = buildFlavorProfile(['lime juice', 'simple syrup'], n2);
+    expect(p.drivers).toBeTruthy();
+    expect(p.bars.length).toBeGreaterThan(0);
   });
 });

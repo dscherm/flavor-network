@@ -273,7 +273,7 @@ describe('InventSauce — flavor profile', () => {
     addIng('cumin');
     expect(screen.getByTestId(`${P}-profile`)).toBeInTheDocument();
     expect(screen.getByTestId(`${P}-profile-bar-sour`)).toBeInTheDocument();
-    expect(screen.getByTestId(`${P}-profile-summary`)).toHaveTextContent(/This sauce/);
+    expect(screen.getByTestId(`${P}-profile-summary`)).toHaveTextContent(/On the chart|this sauce/);
     expect(screen.getByTestId(`${P}-profile-uncounted`)).toHaveTextContent('cumin');
   });
 
