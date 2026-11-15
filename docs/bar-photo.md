@@ -476,3 +476,30 @@ cached model answers were re-mapped, see BARPHOTO-2); a re-run needs the
 Gemini API. Google's pricing page says requests to `gemini-2.5-flash` route to
 a newer Flash-Lite model from 2026-12-01, so accuracy should be re-measured
 after that date whatever the result before it.
+
+## Re-measure with fresh model answers (2026-11-15)
+
+Run: `node scripts/measureBarPhoto.mjs --fresh`, then once more without
+`--fresh` to fill in failures. Model gemini-2.5-flash, hardened prompt, the
+naming fix from BARPHOTO-2 in place.
+
+- Scored: 11 of the 12 truth photos, 67 of the 73 truth bottles. `c13.jpg`
+  (6 bottles) was not answered: the free tier's 20 requests a day ran out
+  (it also allows only 5 a minute, which failed one photo on the first pass).
+- Exact key: found 81% of the bottles; 98% of what it reported was right.
+- Same spirit family counted: found 82%; 100% right.
+- Owner's two bar photos: 14 of 17 found, none wrong (missed rum, rye,
+  Cointreau), the same count as the first test.
+- Against the BARPHOTO-2 target (88% found / 92% right): "right" is met,
+  "found" is not. What is left is bottles the model does not report at all,
+  which naming cannot fix.
+- `c03.jpg` (no truth) returned unterminated JSON on the first pass and a
+  normal list on the second.
+
+Kitchen photos, same day (`--kitchen`, 9 photos, no truth file so no score):
+the three spice-rack photos and the labelled-jar photo read cleanly off
+labels. `IMG_1844.jpeg` again ends in a run of invented "Trader Joe's
+Organic ..." lines. The mapping to kitchen keys loses the meaning of several
+compound names: "chipotle aioli" became chipotle, "fig chili spread" chili,
+"banana muffin mix" banana, "brown rice lasagna" brown rice, "pickled onion"
+onion, "sweet and sour sauce" sour sauce.
