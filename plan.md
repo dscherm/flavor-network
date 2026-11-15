@@ -2168,7 +2168,7 @@ together, never SHARE-6 alone. Three open decisions with defaults are defined in
   "id": "SHARE-7",
   "title": "Report, takedown, docs and the final pass",
   "category": "chore",
-  "passes": false,
+  "passes": true,
   "description": "A 'Report' link on pages for user-shared recipes: reason picker and optional note written to shareReports/{auto} (rules: create by anyone within size limits, no read, no update), limited to 3 per browser per day. docs/sharing.md: how links work, what is public, how the owner removes a share in the Firebase console (set removed: true), how to read reports, and the three open decisions with their defaults. CLOSEOUT.md (unreleased entry), README.md (including what is and is not recorded about visitors) and BACKLOG.md updated. Final pass in the browser at 375px: share a built-in recipe; publish, open signed out, save through sign-in, unshare; report. Preview checked with a real preview checker only after deploy; until then say so.",
   "acceptance": [
     "Rules tests: report create allowed within limits, oversize denied, read denied to everyone",
