@@ -2129,15 +2129,18 @@ together, never SHARE-6 alone. Three open decisions with defaults are defined in
 ```json
 {
   "id": "SHARE-5",
-  "title": "The recipe card image: server-drawn for previews, downloadable in the browser",
+  "title": "The recipe card images: server-drawn for previews; a downloadable set for Instagram and TikTok",
   "category": "feature",
   "passes": false,
-  "description": "One pure layout description src/data/shareCardLayout.js (name, up to 8 ingredient lines with '+N more', the 11-axis flavor chart as plain numbers, site name, chalkboard palette) consumed by two renderers. Server: Cloud Function shareCard behind a hosting rewrite /r-img/**, drawing a 1200x630 PNG with satori and resvg and bundled fonts, Cache-Control one day. Browser: a canvas renderer at 1080x1350 behind the share sheet's Download image button, offered to navigator.share as a file where supported. Long names shrink then wrap to two lines then truncate. The card says 'flavor chart: a visual guide' in small type.",
+  "description": "One pure layout description src/data/shareCardLayout.js (name, ingredient lines, the 11-axis flavor chart as plain numbers, method, the short link as printed text, site name, chalkboard palette) consumed by two renderers. Server: Cloud Function shareCard behind a hosting rewrite /r-img/**, drawing a 1200x630 PNG with satori and resvg and bundled fonts, Cache-Control one day. Browser (canvas), behind the share sheet: (a) a portrait card 1080x1350 for the Instagram feed; (b) a tall card 1080x1920 for Stories and TikTok, with the top and bottom 250px kept clear of text because both apps cover them; (c) a swipeable set of three cards in either size: 1 name and flavor chart, 2 ingredients, 3 method. Every card prints the short link (for example neuralflavor.web.app/r/ab12cd) since neither app allows a tappable link in a post. Share sheet additions: 'Share images' hands the PNG files to navigator.share where navigator.canShare({ files }) is true, so the person picks Instagram or TikTok in the phone's own menu; 'Download images' everywhere else; 'Copy caption' copies a ready caption (recipe name, the link as text, two hashtags) because the share menu does not carry text with files; one line says the link was copied for an Instagram Story link sticker. Long names shrink, then wrap to two lines, then truncate; long ingredient lists and methods continue with '+N more at the link'. The chart is labelled 'flavor chart: a visual guide'. No posting API of Instagram or TikTok is used. A short video is NOT part of this task (later experiment, needs testing on real phones).",
   "acceptance": [
-    "shareCardLayout unit tests: 1, 8 and 20 ingredients; a 80-character name; a recipe with no profile data (chart omitted, not empty axes)",
-    "The server renderer returns a PNG of 1200x630 for a built-in cocktail, sauce and dish (functions tests check signature and dimensions)",
-    "Download image produces a 1080x1350 PNG in the browser (checked in the browser at 375px) and failure to draw does not block Copy link",
+    "shareCardLayout unit tests: 1, 8 and 20 ingredients; an 80-character name; a method too long for one card; a recipe with no profile data (chart omitted, not empty axes); the printed link present on every card",
+    "The server renderer returns a 1200x630 PNG for a built-in cocktail, sauce and dish (functions tests check signature and dimensions)",
+    "The browser renderer produces PNGs of exactly 1080x1350 and 1080x1920, single and as a set of three, and no text falls in the top or bottom 250px of the tall card (layout unit test)",
+    "With navigator.canShare({ files }) true, 'Share images' calls navigator.share with the files; with it false or absent, 'Download images' is offered instead (component tests)",
+    "'Copy caption' copies the name, the link and the hashtags; a drawing failure does not block Copy link",
     "og:image from SHARE-4 points at the /r-img/ URL for the same recipe",
+    "Checked in the browser at 375px; sharing into Instagram and TikTok on a real phone is named as NOT verified unless the owner did it",
     "npm run gate green; the function is NOT deployed without the owner's go-ahead"
   ]
 }
