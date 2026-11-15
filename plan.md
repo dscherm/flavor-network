@@ -2179,3 +2179,115 @@ together, never SHARE-6 alone. Three open decisions with defaults are defined in
   ]
 }
 ```
+
+## 2026-11-15 — Flavor profiles that mean something
+
+Spec: `.schermness/spec.md` → "Flavor profiles that mean something". Measured 2026-11-15:
+1,526 of 3,432 ingredients carry one identical taste vector and 2,063 one identical aroma
+vector, so most charts are drawn from a constant (sour tops 261 of 439 built-in cocktails).
+Owner chose: a test set first, tastes rebuilt on the curated labels, a hand-tuned table for
+the ingredients that matter, aromas rebuilt on published descriptors, bad charts hidden
+meanwhile. Order: FLAVOR-1 and FLAVOR-2 first (no share card is deployed before FLAVOR-2);
+then FLAVOR-3, FLAVOR-4, FLAVOR-5 in that order; FLAVOR-6 last.
+
+```json
+{
+  "id": "FLAVOR-1",
+  "title": "Flavor test set and scorer, with today's baseline",
+  "category": "tooling",
+  "passes": false,
+  "description": "data/flavor-truth.json: about 40 well-known cocktails, sauces and dishes that exist in the app's built-in data, each with the tastes a cook would expect (strongest first), tastes that must not lead, and aroma expectations only where uncontroversial. Written by the assistant from common culinary knowledge and marked as such in the file. scripts/measureFlavorProfile.mjs computes each item's chart exactly as the app does (same functions, same data files) and prints per item and overall: top taste is an expected one, top two both expected, a forbidden taste leads, share of ingredients counted; --json for machines. docs/flavor-profile.md records the method, the answer key's authorship and limits, and the baseline numbers for today's charts.",
+  "acceptance": [
+    "Every item in data/flavor-truth.json resolves to a built-in recipe (the script fails loudly on an unknown one)",
+    "The script reads only files in the repo, makes no network call, and exits non-zero on a malformed truth file",
+    "The scoring functions are pure and unit-tested with hand-made profiles (all right, top-1 wrong, forbidden leading, nothing counted)",
+    "docs/flavor-profile.md states the baseline as printed by the script, including Negroni and Daiquiri by name",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "FLAVOR-2",
+  "title": "Never draw a chart from placeholder values",
+  "category": "fix",
+  "passes": false,
+  "description": "Detect the constant vectors by value: a build step (in scripts/buildShareIndex.mjs or a sibling wired into the same prebuild) writes a small JSON listing every exact taste vector and aroma vector shared by more than a threshold number of ingredients in gnn_entropy.json. isPlaceholder(probs) uses it. Ingredients whose values are placeholder count as having no flavor data (they appear under 'Not counted'), separately for the taste half and the aroma half. A chart is drawn only when at least half of the ingredients, and at least two, have real values; otherwise the surface says there is not enough flavor data and draws nothing. Applies to buildFlavorProfile, recipeAxisProfile and recipeAxisProfileWeighted, so the Recipe Notebook, the invent panels, the shared page and both card renderers all follow; share-cards.json is regenerated. Boost / temper suggestions must not rank on placeholder values either.",
+  "acceptance": [
+    "The generated placeholder list contains the 1,526-ingredient taste vector and the 2,063-ingredient aroma vector, and a test asserts sugar, salt, coffee and lemon are treated as not counted for taste",
+    "A recipe made only of placeholder ingredients draws no chart on the Recipe Notebook card, an invent panel and the shared page (component tests)",
+    "share-cards.json regenerated; the count of built-in recipes with and without a chart is reported before and after",
+    "scripts/measureFlavorProfile.mjs re-run and the numbers added to docs/flavor-profile.md (a forbidden taste leading should drop sharply; counted share will drop too, and that is stated)",
+    "npm run gate green; functions tests green"
+  ]
+}
+```
+
+```json
+{
+  "id": "FLAVOR-3",
+  "title": "Tastes from the curated labels, weighted by amount",
+  "category": "feature",
+  "passes": false,
+  "description": "src/data/flavorTaste.js (pure): turns an ingredient's curated taste label from ingredients.json (one to three ordered words) into weights on six taste axes: sweet, sour, bitter, salty, umami, heat. First word 1.0, second 0.6, third 0.35; 'spicy' and 'pungent' both feed heat; 'astringent' counts half toward bitter. tasteProfile(lines, lookup) averages by gram-equivalent amount (reusing amountGrams), with equal weights when no amounts are known, and reports counted and uncounted. The taste labels are shipped to the pages that need them as a small file (not the full ingredients.json) so the shared page stays light. The model's taste values are no longer used for the taste half of any chart.",
+  "acceptance": [
+    "Unit tests: label parsing for one, two and three words; heat from spicy and from pungent; astringent; amount weighting (2 oz vs a dash); unknown ingredient uncounted",
+    "At least 90% of the ingredients in the test set are counted for taste",
+    "scripts/measureFlavorProfile.mjs: the top taste is an expected one for at least 70% of items with labels alone (the hand-tuned table in FLAVOR-4 is what takes it to 85%); numbers added to docs/flavor-profile.md",
+    "The shared page's extra download for taste data is reported and under 150 KB",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "FLAVOR-4",
+  "title": "Hand-tuned strengths and potency for the ingredients that matter most",
+  "category": "data",
+  "passes": false,
+  "description": "src/data/flavorStrengths.js: about 150 one-line entries covering base spirits, liqueurs, amari, vermouths and fortified wines, bitters, citrus and juices, sweeteners and syrups, sodas and mixers, dairy and eggs, sauce bases (stock, tomato, cream, butter, roux), salty and umami seasonings, chilies and hot sauces, and common herbs and spices. Each entry gives 0..3 on sweet, sour, bitter, salty, umami and heat, and a potency: how much a small amount counts (bitters, absinthe, hot sauce, fish sauce high; soda water and ice near zero). A table entry overrides the label-derived weights from FLAVOR-3. Keys go through the same normalisation as the bar and kitchen keys (barKey, kitchenKey) so 'campari', 'angostura bitters' and 'sweet vermouth' hit. Written by the assistant from common bartending and cooking knowledge and marked as such; the file header says how to correct a line.",
+  "acceptance": [
+    "Every base spirit and every bottle in the app's bar list (GENERIC_BOTTLE_KEYS and the codex's 40 most used ingredients) has an entry; a test lists any that are missing",
+    "Unit tests: an entry overrides the label; potency makes two dashes of bitters register against 2 oz of spirit; soda water does not dilute the chart to nothing",
+    "Negroni charts bitter and sweet ahead of sour; Daiquiri sour and sweet; Old Fashioned sweet and bitter (asserted in a test using the real recipes)",
+    "scripts/measureFlavorProfile.mjs: top taste expected for at least 85% of items and no forbidden taste leading; numbers added to docs/flavor-profile.md",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "FLAVOR-5",
+  "title": "Aromas from published descriptors instead of the model",
+  "category": "feature",
+  "passes": false,
+  "description": "Confirm what gnn_compounds.json holds (how many ingredients, how many descriptor tags, the shape) and write that into docs/flavor-profile.md. A reviewed map from descriptor tags to the six aroma axes (fruity, floral, green, woody, spicy, fatty) in src/data/aromaDescriptorMap.js; tags with no home are listed and dropped. A build step writes a small per-ingredient aroma file (six numbers each, normalised) so pages do not load the full compound file. aromaProfile(lines, lookup) mirrors tasteProfile (amount weighting, counted and uncounted). Ingredients with no descriptors are not counted for aroma. The model's odor values are no longer used for any chart.",
+  "acceptance": [
+    "The tag map is one reviewable table; a test fails if a tag present in the data is neither mapped nor on the explicit dropped list",
+    "The number of ingredients with an aroma profile, and the share of test-set ingredients counted for aroma, are reported",
+    "Spot checks asserted in tests with real data: mint leads green, vanilla woody or sweet-associated axis as mapped, lemon fruity, butter fatty, black pepper spicy; any that the data does not support is reported, not forced",
+    "The generated aroma file is under 300 KB and is the only aroma data the shared page loads",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "FLAVOR-6",
+  "title": "One profile everywhere, honest wording, final measurement",
+  "category": "chore",
+  "passes": false,
+  "description": "A single profile function (tastes from FLAVOR-3 and FLAVOR-4, aromas from FLAVOR-5, the draw rule from FLAVOR-2) behind every chart: Recipe Notebook Flavor Profiles (overview bar chart, per-axis pages, boost / temper ranking via rankByAxisImpact), the three invent panels (InventFlavorProfile), the shared recipe page, and the share cards in the browser and on the server through the share index. The chart axes become the six tastes plus the six aromas; any axis list, colour or label that assumed five tastes is updated. Copy says the chart is built from taste labels and published aroma notes for each ingredient, weighted by amount, and is a guide rather than a taste test. Remove code paths that read the model's per-ingredient values for charts once nothing uses them (the radar views in the parked Network tab may keep them). .claude/.chemdataset-status.md gains a dated note pointing at docs/flavor-profile.md. Final scorer run recorded; three share cards re-rendered and looked at.",
+  "acceptance": [
+    "grep shows no chart surface reading gnnProbs for a recipe profile; the parked Network views are named if they still do",
+    "Recipe Notebook, an invent panel, the shared page and a server card show the same leading tastes for the same recipe (test with Negroni and Beef Bolognese)",
+    "Boost and temper suggestions still work and no longer rank on placeholder values (tests)",
+    "docs/flavor-profile.md has baseline, after FLAVOR-2, after FLAVOR-3, after FLAVOR-4 and final numbers from the same test set, with what is still wrong listed by item",
+    "375px browser check of the Recipe Notebook card, an invent panel and the shared page; share-cards.json regenerated; npm run gate and functions tests green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
