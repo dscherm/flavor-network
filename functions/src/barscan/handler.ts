@@ -221,7 +221,10 @@ export async function handleScanBar(data: unknown, deps: BarScanDeps): Promise<S
         // from a bad request.
         const status = /\[(\d{3}) /.exec(msg)?.[1] ?? '';
         const reason = /"reason":"([A-Z_]{1,40})"/.exec(msg)?.[1] ?? '';
-        deps.log('scanBar', { ...who, bytes, mimeType, outcome: 'model-error', status, reason, ms: deps.now() - startedAt });
+        // Google's one-line explanation, dropped if it carries any of the photo.
+        const said = /\d{3} [A-Za-z ]+\] ([^\[{]{1,160})/.exec(msg)?.[1]?.trim() ?? '';
+        const detail = said && !said.includes(image.slice(0, 24)) ? said : '';
+        deps.log('scanBar', { ...who, bytes, mimeType, outcome: 'model-error', status, reason, detail, ms: deps.now() - startedAt });
         throw new HttpsError('internal', 'The photo reader could not read that photo. Try again.');
       }
       const wait = RETRY_BASE_MS * 2 ** attempt;
