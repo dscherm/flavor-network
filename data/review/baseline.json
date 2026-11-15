@@ -37,7 +37,9 @@
     "sauce-independent": 27,
     "dish-singleton": 6,
     "dish-no-invent-equivalent": 15,
-    "sauce-independent-share-percent": 35
+    "sauce-independent-share-percent": 35,
+    "aroma-disagreement-unreviewed": 0,
+    "aroma-accepted-stale": 0
   },
   "notes": [
     "Duplicate ingredients: the by-hand critique said at least 151 duplicates plus 74 misnamed (about 225). This audit finds 219 candidates (199 HIGH, 20 LOW) in three rules (misspellings, plurals, preparation words). The two are close; the audit counts each name once and keeps LOW candidates (such as ripe olive and mashed banana) separate, so the numbers are not expected to match exactly.",

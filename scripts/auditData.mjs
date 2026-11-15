@@ -23,6 +23,7 @@ import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { dishTypeOf, DISH_TYPES } from '../src/data/dishType.js';
 import { DISH_SKELETONS, DISH_SKELETON_ORDER } from '../src/data/dishSkeletons.js';
 import { loadCurationTables, validateAgainst, applyCuration } from './lib/curationTables.mjs';
+import { runAgreement } from './checkAromaAgreement.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const REVIEW_DIR = resolve(ROOT, 'data/review');
@@ -141,9 +142,14 @@ export function runAudit() {
 
   const metrics = Object.fromEntries(Object.entries(rules).map(([id, r]) => [id, r.total]));
   metrics['sauce-independent-share-percent'] = sauce.total ? Math.round((100 * sauce.independent) / sauce.total) : 0;
+  // AROMA-2: disagreements between the aroma table and the second source that nobody has decided (six-axis set until AROMA-3).
+  const aroma = runAgreement({ axes: 'six' });
+  metrics['aroma-disagreement-unreviewed'] = aroma.unreviewed.length;
+  metrics['aroma-accepted-stale'] = aroma.problems.length;
 
   return {
     totals: { ingredients: Object.keys(ingredients).length, cocktails: codex.cocktails.length, sauces: sauces.length, dishes: SEED_RECIPES.length },
+    aroma: { summary: aroma.summary, unreviewed: aroma.unreviewed.map((x) => x.name), problems: aroma.problems },
     findings, rules, metrics, handled, suppressedByKeepList: suppressed, keepListSize: keep.size, curated,
     details: {
       categorySplits: categorySplits(cur.ingredients),
@@ -418,6 +424,8 @@ reviewed, so not counted above: ${h.aliased} aliased, ${h.hidden} hidden, ${h.pa
   console.log(`
 curation tables: valid. ingredients raw ${c.ingredients.raw} -> curated ${c.ingredients.curated} (${c.merged} merged, ${c.hidden} hidden, ${c.additions} added; ${c.packaged} flagged packaged; ${c.categoryOverrides} category and ${c.tasteOverrides} taste overrides)` +
     (c.pairings ? `; pairings raw ${c.pairings.raw} -> curated ${c.pairings.curated}` : ''));
+  const ag = result.aroma.summary;
+  console.log(`aroma table vs second source (six axes): strongest aroma agrees ${ag.agree}/${ag.compared} (${ag.agreePct}%), chef-sourced ${ag.agreeChef}/${ag.comparedChef} (${ag.agreeChefPct}%); unreviewed disagreements ${result.aroma.unreviewed.length}${result.aroma.unreviewed.length ? ': ' + result.aroma.unreviewed.join(', ') : ''}; data/review/aroma-accepted.json problems ${result.aroma.problems.length}`);
   console.log(`sauces under 'Independent': ${result.details.sauces.independent} of ${result.details.sauces.total} (${result.metrics['sauce-independent-share-percent']}%)`);
 
   if (args.has('--check')) {

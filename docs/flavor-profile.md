@@ -721,3 +721,79 @@ The chef key's list of ingredients with no line in the table (153) is the bigger
 ### Not verified
 
 The blind key has not been checked by a cook. The word map's six-axis column drops words with no home (caramel, earthy, fermented, marine, meaty, nutty, roasted, smoky), so the chef key's six-axis score depends on that choice.
+
+## Aromas: second-opinion check (2026-11-16, AROMA-2)
+
+### What the check is
+
+The app holds two independently produced sets of aroma labels: the hand-tuned table (`src/data/flavorAromas.js`, written by the assistant) and `public/proDataset/flavor_profiles_distilled.json` (3,927 ingredients; 304 set by a chef, the rest by an earlier AI labelling pass). `node scripts/checkAromaAgreement.mjs` compares them line by line. **The second source is a second opinion, not ground truth**: most of it is also AI-written, and it uses 17 words where the chart has six aromas. A disagreement is a prompt to look, never a verdict.
+
+How it works (`src/data/aromaAgreement.js`, pure, with tests):
+
+- Each table line is matched to the second source by name, through the curation layer (accents ignored, merged names followed in both directions). Lines with no aroma of their own (water, sugar, flour) are not compared. Lines with no counterpart are counted.
+- The second source's words are mapped to the axes in use by `src/data/aromaWordMap.js`. A line AGREES when its strongest aroma (any axis tied for strongest) is among the mapped aromas. Words with no home on the axis set (roasted, nutty, earthy, smoky, savory ones) are reported as such, not scored; a second source whose words all lack a home is "no aroma that fits these axes" and is not a disagreement. `--axes eleven` judges against the eleven-aroma set for AROMA-3.
+- Every disagreement is printed with both sides, the table line's values and whether the second source's entry is chef-sourced. Each one is read and either the table line is corrected, or the disagreement is recorded in `data/review/aroma-accepted.json` with a reason and a kind: `table-right`, `both-defensible`, or `missing-axis` (the right aroma has no axis yet, with the aroma it should become; AROMA-3 re-decides these). `data/review/aroma-disagreements.tsv` lists the unreviewed ones (empty when all are decided).
+- `npm run audit:data -- --check` runs it: an unreviewed disagreement, or an accepted entry that no longer disagrees, fails the check (`aroma-disagreement-unreviewed` and `aroma-accepted-stale` in the baseline, both 0). Proved by a temporary edit (mint made woody): the check failed with one unreviewed disagreement, and passed again once the edit was reverted.
+
+### Numbers, as printed
+
+Before (332-line table):
+
+```
+strongest aroma agrees: 225/254 (88.6%); chef-sourced 114/127 (89.8%)
+one of the top two agrees: 249/254 (98%)
+disagreements: 29
+```
+
+After (335 lines: elderflower, orange blossom and curry powder added):
+
+```
+strongest aroma agrees: 244/257 (94.9%); chef-sourced 124/130 (95.4%)
+one of the top two agrees: 254/257 (98.8%)
+disagreements: 13 (all 13 recorded; unreviewed 0)
+```
+
+26 table lines have no counterpart in the second source (mostly bar bottles: kirsch, aquavit, fernet branca, creme de cassis and so on) and 25 more have a second source whose aromas all lack an axis today (rum, whiskey, peanut, sesame oil, dashi, bonito flakes). Neither group can be checked on six axes.
+
+Of the 29 disagreements: 16 table lines corrected (gin, both vermouths, tomato juice, tomato sauce, chili, red chili, chili flake, chili powder, ancho and guajillo chili, Sichuan peppercorn, fennel, lemongrass, rosemary, sage), 11 recorded as `missing-axis`, 1 `table-right` (clove) and 1 `both-defensible` (cardamom).
+
+Other measures, before and after, as printed:
+
+| Measure | Before | After |
+| --- | --- | --- |
+| Blind key, all (strongest aroma expected, scored items) | 67/76 (88.2%) | 71/76 (93.4%) |
+| Blind key, tuning (not held back) | 43/51 (84.3%) | 47/51 (92.2%) |
+| Blind key, held back | 24/25 (96%) | 24/25 (96%) |
+| Chef key | 113/260 (43.5%); 153 with no table line | 123/260 (47.3%); 150 with no table line |
+| First answer key (`--aroma`), tuning / hold-out | 30/30, 9/10 | 30/30, 9/10 |
+| Taste, main set / hold-out | 36/41, 19/20 | 36/41, 19/20 |
+
+Three of the four blind-key gains are the three added lines (elderflower, orange blossom, curry powder), which were "no aroma data"; the fourth is White Russian, once coffee liqueur stopped standing in as strong woody. The held-back third was not looked at item by item while lines were decided (the measure script takes `--no-holdout-detail`), and its score did not move.
+
+### Judgement calls the owner may disagree with
+
+| Line | Now | Was | Why |
+| --- | --- | --- | --- |
+| gin | woody 1.3, green 1.2, fruity 1.1, spice 0.9, floral 0.5 | green 1.5 first | Juniper is pine resin (woody; the chef entry for juniper berry says green AND woody), with citrus peel and coriander close behind. Reasonable people lead with juniper as green. |
+| vermouth, dry | floral 1.2, green 0.8, spice 0.7, fruity 0.4, woody 0.4 | spice 1 first | Chamomile, citrus peel and wormwood read floral and herbal before spice. |
+| sweet vermouth | woody 1.1, spice 1, fruity 0.7 | spice 1.2 first | Vanilla and caramel (woody on this chart) lead, then warm spice. |
+| cardamom | spice 2, green 1.4, floral 1 | spice 2.2, no green | Kept spice-first (a cook files it with the warm spices) and added the eucalyptus-green freshness the chef entry names. Recorded as both-defensible. |
+| clove | unchanged | | The chef entry says woody alone; clove is the archetypal spice aroma. Recorded table-right. |
+| chilies | fruity first (chili, red chili, chili flake, ancho, guajillo); chili powder spice first | green or woody first | Dried and red chilies smell of dried fruit; heat is a taste axis, so the second source's "spicy" for a chili does not make the aroma "spice". Chili powder is a blend with cumin and oregano. |
+| lemongrass | green 2, fruity 1.8 | fruity 2.2 first | The chef entry says green only; citral is undeniable, so it stays close behind. |
+| rosemary, sage | woody first, green close | green first | Rosemary and sage are "woody herbs" with a pine-camphor edge (chef entries say woody). |
+| fennel | green 1.8, spice 1.4 | spice 2 first | The only recipe using it (bouillabaisse) means the bulb; the chef entry says green. Fennel seed has no line. |
+| coffee liqueur, kahlua, creme de cacao | woody 1 | woody 2.5 | Woody was standing in for roast and cocoa, which have no axis yet; at 2.5 it outweighed cream in a White Russian. 1 keeps only the vanilla and oak. Toasty is AROMA-3's. |
+| chocolate | fatty 0.8 added, woody unchanged | | The chef entry names fatty (cocoa butter). |
+| tomato juice, tomato sauce | fruity first | green first | Cooked tomato is sweet and fruity; fresh juice keeps a green note beside it. |
+
+### What was left alone, and why
+
+- **Pho and baklava still have little spice on the chart.** Their star anise, cinnamon and ginger lines exist and are at table strength; the spice is small beside the beef (1.5 kg of bones counts as meat) and 450 g of butter, nuts and phyllo. That comes from how amounts weigh in, not from a table line, so it was left for a decision about amounts rather than raising spice potencies to flip two test items.
+- **Pistachio, rice noodle and phyllo dough have no line** (pistachio would be nutty, which has no axis; the other two would be aromaless). Left for AROMA-3.
+- **Lines whose second source has only words with no axis** are not disagreements and are not in the accepted file; the full list with the aroma each should get is in AROMA-3's worklist (the AROMA-2 report).
+- 150 of the 304 chef-key ingredients still have no table line; only the three on the AROMA-1 worklist that six axes can express were added.
+
+### Not verified
+
+The second source has no ground-truth check of its own. A cook has not reviewed the 16 corrections or the 13 recorded decisions; each is a judgement from common culinary knowledge on 2026-11-16.

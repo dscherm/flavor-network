@@ -24,6 +24,8 @@
  * --aroma-blind (AROMA-1): scores data/aroma-truth-blind.json (written before the aroma table was read): single
  * ingredients through the app's aromaProfile with one line, recipes through the app's chart. Reports all items and the
  * held-back third separately, against expect6 while the charts have six axes (--axes eleven reads expect instead).
+ * --no-holdout-detail (AROMA-2): with --list / --aroma, per-item lines are printed for tuning items only, so a held-back item
+ * is never looked at while lines are being decided (the summaries still count them).
  * --aroma-chef (AROMA-1): scores the chef-sourced entries of flavor_profiles_distilled.json (unordered sets) the same way.
  * Add --list to print every item. Both exit 3 if an ingredient is not a curated name or a recipe is not built in.
  *
@@ -199,7 +201,7 @@ function mainAroma(args, json) {
   const sets = [['Tuning set', rows.filter((r) => !r.hold)], ['Hold-out', rows.filter((r) => r.hold)]];
   if (json) { console.log(JSON.stringify({ tuning: summarizeAroma(sets[0][1]), holdout: summarizeAroma(sets[1][1]), items: rows.map(({ it, name, hold, bars, ...s }) => ({ id: it.id, name, holdout: hold, bars, ...s })) }, null, 2)); return; }
   const w = Math.max(...rows.map((r) => r.it.id.length));
-  for (const r of rows) {
+  for (const r of args.includes('--no-holdout-detail') ? rows.filter((x) => !x.hold) : rows) {
     const tops = r.bars.filter((b) => b.axis.startsWith('odor_') && b.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map((b) => `${b.axis.slice(5)} ${b.score.toFixed(2)}`).join(', ') || '(none)';
     console.log(`${r.it.id.padEnd(w)}  ${r.hold ? 'H' : 'T'}  expect ${r.it.expect.join('/')}${r.it.not?.length ? ` not ${r.it.not.join('/')}` : ''}  |  ${tops}  |  ${r.noChart ? 'NO AROMA' : r.ok ? 'ok' : 'miss'}${r.forbiddenLead ? ', FORBIDDEN LEADS' : ''}`);
   }
@@ -269,8 +271,9 @@ function mainAromaKey(kind, args, json) {
     return;
   }
   if (args.includes('--list')) {
-    const w = Math.max(...lines.map((l) => l.id.length));
-    for (const l of lines) console.log(`${l.id.padEnd(w)}  ${l.holdout ? 'H' : 'T'}  expect ${l.expected.join('/') || '-'}  |  ${l.chart}  |  ${l.verdict}`);
+    const shown = args.includes('--no-holdout-detail') ? lines.filter((l) => !l.holdout) : lines;
+    const w = Math.max(...shown.map((l) => l.id.length));
+    for (const l of shown) console.log(`${l.id.padEnd(w)}  ${l.holdout ? 'H' : 'T'}  expect ${l.expected.join('/') || '-'}  |  ${l.chart}  |  ${l.verdict}`);
   }
   summaryLines(kind === 'blind' ? 'Blind aroma key' : 'Chef aroma key', rows, set);
 }
