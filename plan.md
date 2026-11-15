@@ -2097,7 +2097,7 @@ together, never SHARE-6 alone. Three open decisions with defaults are defined in
   "id": "SHARE-3",
   "title": "Save to my cookbook and Make it your own from a shared page, with the sign-up prompt",
   "category": "ui",
-  "passes": false,
+  "passes": true,
   "description": "On SharedRecipePage: 'Save to my cookbook' (or 'my cocktails' / 'my sauces'), 'Make it your own', and for signed-out visitors a one-line invitation with 'Create a free account'. Save reuses useSaveInvention and InventSaveOverlay; the overlay copy says why an account is needed; the save completes after sign-in returns, including the redirect sign-in flow (the pending save survives the reload). The saved copy carries sharedFrom (slug or share id). Make it your own opens that lab's invent panel through its seed prop with the recipe's lines and category. The invitation is inline, shown once per page, never a blocking pop-up.",
   "acceptance": [
     "Signed in: Save adds one copy to the right profile list with sharedFrom set; saving the same shared recipe twice does not duplicate it",
