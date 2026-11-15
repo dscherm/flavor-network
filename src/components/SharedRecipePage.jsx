@@ -4,15 +4,17 @@
  * recipe's own source file and the per-ingredient flavor values.
  *
  * Props
- *   route      { kind, slug } | { id }   from parseSharePath. { id } (a user's published copy) is
- *                                        not resolvable yet and shows "no longer shared".
+ *   route      { kind, slug } | { id }   from parseSharePath. { id } is a user's published copy (shared/{id}),
+ *                                        read through loadShared; missing or removed shows "no longer shared".
  *   loadData   (kind) => Promise<{ cocktails?, families?, sauces?, dishes?, dishDetails? }>
+ *   loadShared (id) => Promise<document|null>; default reads shared/{id} from Firestore (loaded only for an id route)
  *   loadNodes  () => Promise<Map name → { gnnProbs }|null>; a failure drops the chart, nothing else.
  *   actions    optional node rendered in the actions area after the built-in buttons.
  *   onHome     optional; default is a plain link to "/".
  *   navigate   (url) => void; "Make it your own" goes through it (default: window.location.assign).
  * The page sits outside <App/>, so RecipeActions uses useAuth / useUserProfile itself.
  * Test ids: shared-page, shared-header, shared-name, shared-line, shared-method, shared-glass,
+ *   shared-by, shared-report-slot (an empty slot for the Report link, SHARE-7; only on a user's copy),
  *   shared-actions, shared-gone, shared-home, shared-loading, shared-save, shared-own,
  *   shared-save-note, shared-invite, shared-invite-button.
  */
@@ -29,6 +31,7 @@ import {
 } from '../data/sharedSave.js';
 import { clearPendingSave, LAB_PATH, readPendingSave, setPendingSave, stashInventSeed } from '../data/sharedHandoff.js';
 import { resolveBuiltIn } from '../data/sharedRecipe.js';
+import { fromSharedDoc } from '../data/sharePublish.js';
 import { defaultLoadData, defaultLoadNodes } from '../data/sharedLoaders.js';
 import { buildFlavorProfile } from '../data/inventProfile.js';
 import { resolveIngredientName } from '../data/recipePairingMatch.js';
@@ -55,6 +58,7 @@ function RecipeActions({ recipe, nodes, navigate }) {
   const userProfile = useUserProfile(auth.user);
   const save = useSaveInvention({ kind: savedKindFor(recipe.kind), userProfile, auth });
   const sharedFrom = sharedFromFor(recipe);
+  const shareLink = recipe.shareId ? `/r/${recipe.shareId}` : `/r/${recipe.kind}/${recipe.slug}`;
   const noun = savedNoun(recipe.kind);
   const saved = !!auth.user && alreadySaved(profileListFor(userProfile.profile, recipe.kind), sharedFrom);
   const [note, setNote] = useState(null);
@@ -137,8 +141,8 @@ function RecipeActions({ recipe, nodes, navigate }) {
         className="inline-flex items-center justify-center rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap }}>
         Make it your own
       </button>
-      <ShareButton recipe={recipe} link={`/r/${recipe.kind}/${recipe.slug}`}
-        imagesSlot={<ShareImages link={`/r/${recipe.kind}/${recipe.slug}`} recipe={recipe} nodes={nodes} />} />
+      <ShareButton recipe={recipe} link={shareLink}
+        imagesSlot={<ShareImages link={shareLink} recipe={recipe} nodes={nodes} />} />
       {note && (
         <p role="status" data-testid="shared-save-note" data-status={note.status} className="basis-full text-[14px]"
           style={{ fontFamily: SANS, color: note.status === 'error' ? '#fda4af' : CHALK_DIM }}>{note.message}</p>
@@ -178,14 +182,33 @@ function Gone({ onHome }) {
 
 const assignLocation = (url) => window.location.assign(url);
 
-export default function SharedRecipePage({ route, loadData = defaultLoadData, loadNodes = defaultLoadNodes, actions = null, onHome = null, navigate = assignLocation }) {
+// Firestore is reached only for a /r/<id> link: the built-in recipe path never calls this.
+async function defaultLoadShared(id) {
+  const [{ getShare }, { db }] = await Promise.all([import('../data/shareStore.js'), import('../firebase.js')]);
+  return getShare(db, id);
+}
+
+export default function SharedRecipePage({ route, loadData = defaultLoadData, loadShared = defaultLoadShared, loadNodes = defaultLoadNodes, actions = null, onHome = null, navigate = assignLocation }) {
   const [state, setState] = useState({ status: 'loading', recipe: null });
   const [nodes, setNodes] = useState(null);
   const kind = route?.kind;
   const slug = route?.slug;
+  const shareId = typeof route?.id === 'string' ? route.id.toLowerCase() : '';
 
   useEffect(() => {
     let live = true;
+    if (shareId) {
+      setState({ status: 'loading', recipe: null });
+      Promise.resolve()
+        .then(() => loadShared(shareId))
+        .then((doc) => {
+          if (!live) return;
+          const recipe = fromSharedDoc(doc, shareId);
+          setState(recipe ? { status: 'ready', recipe } : { status: 'gone', recipe: null });
+        })
+        .catch(() => { if (live) setState({ status: 'gone', recipe: null }); });
+      return () => { live = false; };
+    }
     if (!kind || !slug) { setState({ status: 'gone', recipe: null }); return undefined; }
     setState({ status: 'loading', recipe: null });
     Promise.resolve()
@@ -197,7 +220,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
       })
       .catch(() => { if (live) setState({ status: 'gone', recipe: null }); });
     return () => { live = false; };
-  }, [kind, slug, loadData]);
+  }, [kind, slug, shareId, loadData, loadShared]);
 
   const ready = state.status === 'ready';
   useEffect(() => {
@@ -238,6 +261,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
               {KIND_WORD[recipe.kind]}{recipe.category ? ` · ${recipe.category}` : ''}
             </p>
             <h1 data-testid="shared-name" className="break-words" style={{ fontFamily: FONT, fontSize: 40, lineHeight: 1.1, color: CHALK_CREAM }}>{recipe.name}</h1>
+            {recipe.by ? <p data-testid="shared-by" className="mt-1 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>Shared by {recipe.by}</p> : null}
             {recipe.meta ? <p className="mt-1 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{recipe.meta}</p> : null}
             {recipe.glass ? (
               <p className="mt-1 text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid="shared-glass">Glass: {recipe.glass}</p>
@@ -282,6 +306,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
               <RecipeActions recipe={recipe} nodes={nodes} navigate={navigate} />
               {actions}
             </section>
+            {recipe.shareId && <div data-testid="shared-report-slot" className="mt-4 empty:hidden" />}
           </article>
         )}
       </main>

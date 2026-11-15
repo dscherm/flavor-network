@@ -9,6 +9,7 @@
  *   ownItem     a recipe the person made: no link is produced here (SHARE-6 adds publishing);
  *               the sheet offers onPublish instead
  *   onPublish   called from the own-item sheet
+ *   ownSlot     own item only: replaces the "Make a public link" block with the publish step (OwnShare.jsx)
  *   imagesSlot  node rendered in data-testid="share-images-slot"; when omitted, a built-in recipe gets
  *               <ShareImages> (the card pictures, SHARE-5)
  *   origin      override for tests; defaults to window.location.origin
@@ -31,7 +32,7 @@ const NETWORKS = [
 
 const tap = { minHeight: 44 };
 
-export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, onPublish, imagesSlot, origin }) {
+export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, onPublish, ownSlot, imagesSlot, origin }) {
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
   const closeRef = useRef(null);
@@ -85,15 +86,17 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
         </div>
 
         {ownItem ? (
-          <div className="mt-3" data-testid="share-own">
-            <p className="text-[15px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
-              To share your own recipe it first needs a public link.
-            </p>
-            <button type="button" onClick={onPublish} disabled={!onPublish} data-testid="share-publish"
-              className="mt-3 w-full rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap, opacity: onPublish ? 1 : 0.5 }}>
-              Make a public link
-            </button>
-          </div>
+          ownSlot !== undefined ? ownSlot : (
+            <div className="mt-3" data-testid="share-own">
+              <p className="text-[15px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+                To share your own recipe it first needs a public link.
+              </p>
+              <button type="button" onClick={onPublish} disabled={!onPublish} data-testid="share-publish"
+                className="mt-3 w-full rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap, opacity: onPublish ? 1 : 0.5 }}>
+                Make a public link
+              </button>
+            </div>
+          )
         ) : (
           <div className="mt-3 flex flex-col gap-2">
             {canNative && (

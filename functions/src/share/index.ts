@@ -6,9 +6,20 @@ import { logger } from 'firebase-functions';
 import { createShellFetcher, handleSharePreview, type ShareEntry } from './handler';
 import shareIndex from './share-index.json';
 import shareCards from './share-cards.json';
+import { getApps, initializeApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 import { handleShareCard, type CardData } from './card';
+import { createSharedLookup } from './shared';
 
 const SHELL_TIMEOUT_MS = 5_000;
+
+// shared/{id} through the Admin SDK (rules do not apply). One cache for both functions; a removed share
+// stops being served within SHARED_TTL_MS. A read that throws propagates: each handler logs it and serves the generic result.
+const shared = createSharedLookup(async (id) => {
+  if (getApps().length === 0) initializeApp();
+  const snap = await getFirestore().collection('shared').doc(id).get();
+  return snap.exists ? snap.data() : null;
+});
 
 // /index.html is served statically by Hosting (the rewrite covers only /r/**), so this cannot loop.
 const fetchIndexHtml = createShellFetcher(async (origin) => {
@@ -26,8 +37,7 @@ export const sharePreview = onRequest(
       { path: req.path, headers: req.headers },
       {
         fetchIndexHtml,
-        // SHARE-6 connects Firestore here; until then a /r/<id> gets the generic tags.
-        lookupShared: async () => null,
+        lookupShared: (id) => shared.preview(id.toLowerCase()),
         index: shareIndex as Record<string, ShareEntry>,
         log: (message, fields) => logger.warn(message, fields),
       },
@@ -44,8 +54,7 @@ export const shareCard = onRequest(
       { path: req.path },
       {
         cards: shareCards as unknown as Record<string, CardData>,
-        // SHARE-6 connects Firestore here and returns { name, kind, lines, lineCount, bars, ... } or null.
-        lookupShared: async () => null,
+        lookupShared: (id) => shared.card(id),
         log: (message, fields) => logger.warn(message, fields),
       },
     );

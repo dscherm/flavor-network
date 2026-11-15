@@ -13,5 +13,51 @@ service cloud.firestore {
     match /barScans/{doc} {
       allow read, write: if false;
     }
+
+    // SHARE-6. A user's published copy of a recipe they made. Anyone with the id may read it (get);
+    // nobody may list the collection. Created only by a signed-in owner, in exactly this shape; the
+    // owner may later set removed: true or delete it, and nothing else changes after creation.
+    // NOT enforced here (rules cannot loop over a list): what is inside each entry of lines and bars.
+    // The page renders them as plain text and the functions re-validate them before use.
+    match /shared/{id} {
+      function ownerOnly() {
+        return request.auth != null && resource.data.owner == request.auth.uid;
+      }
+      function str(v, max) {
+        return v is string && v.size() <= max;
+      }
+      function optStr(d, k, max) {
+        return !(k in d) || str(d[k], max);
+      }
+      function validNew() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['kind', 'name', 'lines', 'method', 'glass', 'category', 'protein', 'bars', 'by', 'owner', 'createdAt', 'removed'])
+          && d.keys().hasAll(['kind', 'name', 'lines', 'bars', 'by', 'owner', 'createdAt', 'removed'])
+          && id.size() == 10
+          && id.matches('[a-z0-9]+')
+          && d.kind in ['cocktail', 'sauce', 'recipe']
+          && d.name is string && d.name.size() > 0 && d.name.size() <= 80
+          && d.lines is list && d.lines.size() > 0 && d.lines.size() <= 40
+          && d.bars is list && d.bars.size() <= 11
+          && (d.by == null || str(d.by, 30))
+          && d.owner == request.auth.uid
+          && d.createdAt is number
+          && d.createdAt < request.time.toMillis() + 86400000
+          && d.removed == false
+          && optStr(d, 'method', 2000)
+          && optStr(d, 'glass', 60)
+          && optStr(d, 'category', 60)
+          && optStr(d, 'protein', 60);
+      }
+
+      // A removed share is not readable by id any more, except by its owner.
+      allow get: if resource == null || resource.data.removed != true || ownerOnly();
+      allow list: if false;
+      allow create: if request.auth != null && validNew();
+      allow update: if ownerOnly()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['removed'])
+        && request.resource.data.removed == true;
+      allow delete: if ownerOnly();
+    }
   }
 }

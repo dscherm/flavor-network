@@ -117,8 +117,9 @@ export default function SauceLab({
     } },
     { label: '🗑 Delete', testid: 'saved-delete', onClick: () => setConfirmDelete({ id: sauce.savedId, name: sauce.name }) },
   ] : []);
-  // Share: codex sauces only; the cook's own (mine) wait for the publish step.
+  // Share: codex sauces link straight to /r/<kind>/<slug>; the cook's own (mine) go through the publish step.
   const shareFor = (sauce) => (sauce && !sauce.mine ? { link: shareLinkFor('sauce', sauce), recipe: { kind: 'sauce', name: sauce.name } } : null);
+  const ownShareFor = (sauce) => (sauce?.mine ? { kind: 'sauce', item: savedSauces.find((x) => x.id === sauce.savedId) || null } : null);
   // "What do I need?" on a sauce card, against the same kitchen list.
   const sauceNeeds = (sauce) => (
     <WhatDoINeed
@@ -286,6 +287,7 @@ export default function SauceLab({
             clusterTag={detailSauce?.mine ? 'YOURS' : (detailSauce?.isRoot ? 'MOTHER' : (detailSauce?.cuisine || null))}
             actions={savedActions(detailSauce)}
             share={shareFor(detailSauce)}
+            ownShare={ownShareFor(detailSauce)}
             details={detailSauce ? [{ label: 'Cuisine', value: detailSauce.cuisine }] : []}
             ingredients={detailSauce?.ingredientsDetailed?.length ? detailSauce.ingredientsDetailed : (detailSauce?.ingredients || [])}
             prep={detailSauce?.instructions || ''}
@@ -416,6 +418,7 @@ export default function SauceLab({
             clusterTag={s?.mine ? 'YOURS' : (s?.isRoot ? 'MOTHER' : (s?.cuisine || null))}
             actions={savedActions(s)}
             share={shareFor(s)}
+            ownShare={ownShareFor(s)}
             details={s ? [{ label: 'Cuisine', value: s.cuisine }] : []}
             ingredients={s?.ingredientsDetailed?.length ? s.ingredientsDetailed : (s?.ingredients || [])}
             prep={s?.instructions || ''}

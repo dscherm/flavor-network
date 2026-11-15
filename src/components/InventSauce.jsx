@@ -240,6 +240,7 @@ export default function InventSauce({
     setStyleId(null); setProtein(null); setEdits({}); setName(''); setPantryOnly(false);
     setPickerOpen(false); setOpenPart(null); setDismissedFor(null); setNotice(null); setSave({ status: 'idle', message: '' });
   };
+  const [lastSaved, setLastSaved] = useState(null);
   const doSave = async () => {
     const input = {
       kind: 'sauce', ...(editItem?.id ? { id: editItem.id } : {}), name: name.trim(), category: styleId || null, lines: savedLines,
@@ -249,6 +250,7 @@ export default function InventSauce({
     try {
       const res = await onSave(input);
       setSave({ status: res?.status || 'saved', message: res?.message || '' });
+      if ((res?.status || 'saved') === 'saved') setLastSaved(input);
     } catch (err) {
       setSave({ status: 'error', message: err?.message || 'Could not save.' });
     }
@@ -403,7 +405,8 @@ export default function InventSauce({
             {onSave && (
               <InventNameSave testidPrefix={`${P}-namesave`} name={name} onName={setName} placeholder="Name your sauce"
                 canSave={savePreview.ok} disabledReason={savePreview.ok ? '' : savePreview.reason}
-                saveLabel="Add to my sauces" status={save.status} message={save.message} onSave={doSave} />
+                saveLabel="Add to my sauces" status={save.status} message={save.message} onSave={doSave}
+                shareItem={lastSaved ? { kind: 'sauce', item: lastSaved } : null} />
             )}
 
             <div className="flex flex-wrap gap-2">

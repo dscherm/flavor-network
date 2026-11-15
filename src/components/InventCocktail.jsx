@@ -216,6 +216,7 @@ export default function InventCocktail({
 
   const canSave = name.trim().length > 0 && keys.length >= 2;
   const disabledReason = !name.trim() ? 'Give it a name, then add it to your cocktails.' : 'Add at least two ingredients.';
+  const [lastSaved, setLastSaved] = useState(null);
   const save = async () => {
     if (!onSave || !canSave) return;
     setSaveState({ status: 'saving', message: '' });
@@ -230,6 +231,7 @@ export default function InventCocktail({
     let res;
     try { res = await onSave(input); } catch { res = { status: 'error', message: 'Could not save. Try again.' }; }
     setSaveState({ status: res?.status || 'error', message: res?.message || '' });
+    if (res?.status === 'saved') setLastSaved(input);
   };
 
   const pickerOptions = INVENT_FAMILY_ORDER.map((id) => ({
@@ -333,7 +335,8 @@ export default function InventCocktail({
             {onSave && (
               <InventNameSave name={name} onName={(t) => { patch({ name: t }); setSaveState({ status: 'idle', message: '' }); }}
                 placeholder="Name your drink" canSave={canSave} disabledReason={disabledReason} saveLabel="Add to my cocktails"
-                status={saveState.status} message={saveState.message} onSave={save} testidPrefix="invent-namesave" />
+                status={saveState.status} message={saveState.message} onSave={save} testidPrefix="invent-namesave"
+                shareItem={lastSaved ? { kind: 'cocktail', item: lastSaved } : null} />
             )}
 
             <div className="flex flex-wrap gap-2">

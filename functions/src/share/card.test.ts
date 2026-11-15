@@ -91,7 +91,7 @@ describe('shareCard PNG', () => {
     const lookupShared = vi.fn(async (id: string) => (id === 'ab12cd' ? { name: 'Grandma soup', kind: 'dish', lines: [{ label: 'carrot', amount: '2' }], bars: [] } : null));
     const hit = await handleShareCard({ path: '/r-img/ab12cd.png' }, deps({ lookupShared }));
     expect(lookupShared).toHaveBeenCalledWith('ab12cd');
-    expect(hit.headers['Cache-Control']).toBe('public, max-age=86400, s-maxage=86400');
+    expect(hit.headers['Cache-Control']).toBe('public, max-age=600, s-maxage=600');
     expect(dims(hit.body as Buffer)).toEqual({ w: 1200, h: 630 });
     const log = vi.fn();
     const boom = await handleShareCard({ path: '/r-img/ab12cd.png' }, deps({ lookupShared: async () => { throw new Error('db down'); }, log }));

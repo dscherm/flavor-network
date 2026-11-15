@@ -20,6 +20,8 @@
 import React, { useEffect } from 'react';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { ShareButton } from './ShareSheet.jsx';
+import { OwnShareButton } from './OwnShare.jsx';
+import { SHARE_OWN_ENABLED } from '../data/shareTargets.js';
 
 const CHALK_BORDER_OUTER = '#4a4a4a';
 const CHALK_BORDER_INNER = '#6a6a6a';
@@ -108,6 +110,7 @@ export default function LabNodeCard({
   pairsWith = [],        // string[]
   actions = [],          // [{ label, onClick, testid }] — buttons under the family chip
   share = null,          // { link, recipe } for a built-in recipe: adds a Share button to the actions row
+  ownShare = null,       // { kind, item } for a recipe the cook made: a Share button that publishes it first (SHARE_OWN_ENABLED)
   children = null,       // optional extra sections, rendered after the details row
   headerArt = null,      // optional decorative drawing above the name (e.g. the wine's glass)
   onSelect,
@@ -167,7 +170,7 @@ export default function LabNodeCard({
         )}
 
         {/* Card actions (e.g. "Riff on this") */}
-        {(actions.length > 0 || share?.link) && (
+        {(actions.length > 0 || share?.link || (SHARE_OWN_ENABLED && ownShare?.item)) && (
           <div className="flex justify-center flex-wrap gap-2 mt-1.5 mb-0.5 flex-shrink-0">
             {actions.map((a) => (
               <button key={a.label} type="button" onClick={a.onClick} data-testid={a.testid}
@@ -178,6 +181,10 @@ export default function LabNodeCard({
             ))}
             {share?.link && (
               <ShareButton recipe={share.recipe} link={share.link} testid="card-share" className="!rounded-full !px-4 !py-1.5"
+                style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
+            )}
+            {ownShare?.item && (
+              <OwnShareButton kind={ownShare.kind} item={ownShare.item} testid="card-own-share" className="!rounded-full !px-4 !py-1.5"
                 style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
             )}
           </div>

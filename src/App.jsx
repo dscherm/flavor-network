@@ -36,6 +36,7 @@ import { getAllCuisines, getAllTastes } from './data/metadata.js';
 // duplicative and intercepted clicks on first load.
 import HelpButton from './components/HelpButton.jsx';
 import ProfilePanel from './components/ProfilePanel.jsx';
+import { ShareOwnContext } from './components/OwnShare.jsx';
 import GlobalInsights from './components/GlobalInsights.jsx';
 import FlavorTreeExplorer from './components/FlavorTreeExplorer.jsx';
 // PERF-LAZY-NETWORK (2026-06-25) — the Three.js network view is the
@@ -463,6 +464,8 @@ export default function App() {
   const userProfile = useUserProfile(user);
   // What the labs' "save my invention" needs: who is signed in and how to sign in.
   const inventAuth = useMemo(() => ({ user, authError, loginWithGoogle, loginWithApple }), [user, authError, loginWithGoogle, loginWithApple]);
+  // Sharing a recipe the cook made (OwnShare.jsx) reads the profile and sign-in state from here.
+  const shareOwnValue = useMemo(() => ({ userProfile, auth: inventAuth }), [userProfile, inventAuth]);
 
   // R16 Phase 1: derived values from the (mode, filterStack) tuple.
   //   activeFilter — the tail of the stack (most-recently-toggled filter)
@@ -1450,7 +1453,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <ShareOwnContext.Provider value={shareOwnValue}>
       {/* Screen-reader-only live region: announces the currently-selected
           ingredient and its top pairings so keyboard/screen-reader users
           know what's happening in the 3D canvas they can't see. */}
@@ -2737,6 +2740,6 @@ export default function App() {
         </div>
       )}
 
-    </>
+    </ShareOwnContext.Provider>
   );
 }

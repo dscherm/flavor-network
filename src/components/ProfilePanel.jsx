@@ -14,6 +14,7 @@ import {
 } from '../data/frequencyWeights.js';
 import { TASTE_COLORS, colorForCuisine } from '../utils/color.js';
 import RecipeImport from './RecipeImport.jsx';
+import SharedLinks from './SharedLinks.jsx';
 
 function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, graphNodes, onSelectIngredient, onLoadRecipe, user, authError, authDebug, onLogin, onLoginWithApple, onLogout, onReplayTour }) {
   const [tab, setTab] = useState('recipes');
@@ -478,6 +479,8 @@ function ProfilePanel({ profile, actions, ingredientList, cuisines, onClose, gra
             )}
           </div>
         )}
+        {/* Live public links, with Copy link and Unshare (SHARE-6) */}
+        <SharedLinks shares={profile.shares} onRemoved={actions.removeShare} />
         {/* Replay tour */}
         {onReplayTour && (
           <button

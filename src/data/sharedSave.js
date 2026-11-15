@@ -21,7 +21,8 @@ const NOUN = Object.freeze({ cocktail: 'cocktails', sauce: 'sauces', dish: 'cook
 export const savedKindFor = (kind) => KIND[kind] || null;
 export const saveLabel = (kind) => LABEL[kind] || 'Save';
 export const savedNoun = (kind) => NOUN[kind] || 'list';
-export const sharedFromFor = (recipe) => (recipe?.kind && recipe?.slug ? `${recipe.kind}/${recipe.slug}` : '');
+// A user's published copy remembers its share id; a built-in remembers '<kind>/<slug>'.
+export const sharedFromFor = (recipe) => (recipe?.shareId ? String(recipe.shareId) : recipe?.kind && recipe?.slug ? `${recipe.kind}/${recipe.slug}` : '');
 
 export function profileListFor(profile, kind) {
   const field = LIST[kind];

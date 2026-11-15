@@ -270,12 +270,14 @@ export default function InventRecipe({
     ...(skeleton ? { method: skeleton.method } : {}), ...(cuisine ? { cuisine } : {}),
   };
   const check = toSavedItem(savedInput);
+  const [lastSaved, setLastSaved] = useState(null);
   const save = async () => {
     if (!onSave || !check.ok) return;
     setSaveState({ status: 'saving', message: '' });
     try {
       const res = await onSave(savedInput);
       setSaveState({ status: res?.status || 'saved', message: res?.message || '' });
+      if ((res?.status || 'saved') === 'saved') setLastSaved(savedInput);
     } catch (e) {
       setSaveState({ status: 'error', message: 'Could not save. Try again.' });
     }
@@ -417,6 +419,7 @@ export default function InventRecipe({
               <InventNameSave testidPrefix="invent-recipe-namesave" name={name} placeholder="Name your dish" saveLabel="Add to my recipes"
                 canSave={check.ok} disabledReason={check.ok ? undefined : check.reason}
                 status={saveState.status} message={saveState.message}
+                shareItem={lastSaved ? { kind: 'recipe', item: lastSaved } : null}
                 onName={(t) => { setSaveState({ status: 'idle', message: '' }); patch({ name: t }); }} onSave={save} />
             )}
 

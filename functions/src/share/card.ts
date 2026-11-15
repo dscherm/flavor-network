@@ -12,6 +12,8 @@ export const CANONICAL_HOST = 'neuralflavor.web.app';
 export const FALLBACK_IMAGE = '/icons/icon-512.png';
 const PNG_CACHE = 'public, max-age=86400, s-maxage=86400';
 const GENERIC_CACHE = 'public, max-age=600, s-maxage=600';
+// A user's share can be removed, so its image is cached for minutes, not a day: a removal shows up within the window.
+const USER_CACHE = GENERIC_CACHE;
 
 /** What a card needs for one recipe (built-ins: share-cards.json; user shares: SHARE-6's lookup). */
 export interface CardData {
@@ -164,7 +166,7 @@ export async function handleShareCard(req: { path: string }, deps: CardDeps): Pr
       if (data) cache = PNG_CACHE;
     } else if (target) {
       data = await deps.lookupShared(target.id);
-      if (data) cache = PNG_CACHE;
+      if (data) cache = USER_CACHE;
     }
   } catch (err) {
     deps.log('shareCard lookup failed', { path: req.path, error: String(err) });

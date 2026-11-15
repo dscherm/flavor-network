@@ -3,8 +3,10 @@
  * link in a post, so the recipe travels as card images with the short link printed on them.
  *
  * Props
- *   link         "/r/cocktail/negroni" (a built-in's share path); anything else renders nothing
+ *   link         "/r/cocktail/negroni" (a built-in's share path) or "/r/<id>" (a user's published copy, which needs `recipe`);
+ *                anything else renders nothing
  *   recipe       optional full normalised recipe ({ kind, name, lines, method, ... }); loaded from `link` when absent
+ *   bars         optional ready-made chart bars (a user's published copy stores its own); else worked out from `nodes`
  *   nodes        optional Map of flavor values; when absent only an already-cached copy is used (never a new
  *                download), and the cards are drawn without the chart if there is none
  *   origin       defaults to window.location.origin
@@ -43,9 +45,13 @@ function Choice({ legend, options, value, onChange, testid }) {
   );
 }
 
-export default function ShareImages({ link = '', recipe: given = null, nodes: givenNodes, origin, loadData = defaultLoadData, loadNodes = loadCachedNodes, renderFiles = defaultRenderFiles }) {
+export default function ShareImages({ link = '', recipe: given = null, bars: givenBars = null, nodes: givenNodes, origin, loadData = defaultLoadData, loadNodes = loadCachedNodes, renderFiles = defaultRenderFiles }) {
   const route = useMemo(() => parseSharePath(link), [link]);
   const builtIn = route && route.kind && route.slug ? route : null;
+  // A user's own published copy (/r/<id>) is drawn from the recipe passed in; there is nothing to load for it.
+  const givenKind = given && Array.isArray(given.lines) ? given.kind : null;
+  const userCopy = useMemo(() => (!builtIn && route && route.id && givenKind ? { kind: givenKind, slug: route.id } : null), [builtIn, route, givenKind]);
+  const target = builtIn || userCopy;
   const [loaded, setLoaded] = useState(null);
   const [loadedNodes, setLoadedNodes] = useState(null);
   const [count, setCount] = useState('one');
@@ -60,13 +66,13 @@ export default function ShareImages({ link = '', recipe: given = null, nodes: gi
   const recipe = given && Array.isArray(given.lines) ? given : loaded;
 
   useEffect(() => {
-    if (!builtIn || (given && Array.isArray(given.lines))) return undefined;
+    if (!target || (given && Array.isArray(given.lines))) return undefined;
     let live = true;
-    Promise.resolve().then(() => loadData(builtIn.kind))
-      .then((data) => { if (live) setLoaded(resolveBuiltIn(builtIn.kind, builtIn.slug, data)); })
+    Promise.resolve().then(() => loadData(target.kind))
+      .then((data) => { if (live) setLoaded(resolveBuiltIn(target.kind, target.slug, data)); })
       .catch(() => { if (live) setError('Could not get this recipe ready for pictures.'); });
     return () => { live = false; };
-  }, [builtIn, given, loadData]);
+  }, [target, given, loadData]);
 
   useEffect(() => {
     if (givenNodes !== undefined) return undefined;
@@ -77,24 +83,24 @@ export default function ShareImages({ link = '', recipe: given = null, nodes: gi
 
   const nodes = givenNodes !== undefined ? givenNodes : loadedNodes;
   const base = origin ?? (typeof window !== 'undefined' ? window.location.origin : '');
-  const fullLink = builtIn ? absoluteShareUrl(link, base) : '';
-  const printed = builtIn ? printedLinkFor(link, base) : '';
+  const fullLink = target ? absoluteShareUrl(link, base) : '';
+  const printed = target ? printedLinkFor(link, base) : '';
 
   // Draw ahead of the tap: navigator.share must be called straight from the tap, with nothing awaited first.
   useEffect(() => {
-    if (!recipe || !builtIn) return undefined;
+    if (!recipe || !target) return undefined;
     let live = true;
     setFiles(null); setError(''); setNote('');
     Promise.resolve()
-      .then(() => renderFiles({ recipe, bars: barsFor(recipe, nodes), link: printed, count, format, slug: builtIn.slug }))
+      .then(() => renderFiles({ recipe, bars: Array.isArray(givenBars) ? givenBars : barsFor(recipe, nodes), link: printed, count, format, slug: target.slug }))
       .then((f) => { if (live) setFiles(f); })
       .catch(() => { if (live) setError('Could not draw the pictures. The link still works.'); });
     return () => { live = false; };
-  }, [recipe, nodes, printed, count, format, builtIn, renderFiles]);
+  }, [recipe, nodes, givenBars, printed, count, format, target, renderFiles]);
 
   useEffect(() => () => { urlsRef.current.forEach((u) => URL.revokeObjectURL(u)); urlsRef.current = []; }, []);
 
-  if (!builtIn) return null;
+  if (!target) return null;
 
   const canShareFiles = !!files && typeof navigator !== 'undefined' && typeof navigator.canShare === 'function'
     && (() => { try { return navigator.canShare({ files }); } catch { return false; } })();
@@ -137,7 +143,7 @@ export default function ShareImages({ link = '', recipe: given = null, nodes: gi
           style={{ fontFamily: SANS, color: error ? '#fda4af' : CHALK_SUB }}>
           {error || (waiting ? 'Drawing the pictures...' : note)}
         </p>
-        <button type="button" onClick={() => copyText(captionFor(recipe || { name: '', kind: builtIn.kind }, fullLink), setCaptionNote, 'Caption copied')}
+        <button type="button" onClick={() => copyText(captionFor(recipe || { name: '', kind: target.kind }, fullLink), setCaptionNote, 'Caption copied')}
           data-testid="share-caption" className="w-full rounded-lg px-4" style={{ ...btn({ background: 'rgba(255,255,255,0.05)' }), ...tap }}>
           Copy caption
         </button>

@@ -68,10 +68,10 @@ describe('SharedRecipePage, signed out, real data', () => {
   for (const [label, route] of [
     ['unknown slug', { kind: 'cocktail', slug: 'no-such-drink' }],
     ['unknown kind', { kind: 'wine', slug: 'merlot' }],
-    ['a user-copy id', { id: 'abc123def4' }],
+    ['a user-copy id that is not found', { id: 'abc123def4' }],
   ]) {
     it(`says it is no longer shared for ${label}`, async () => {
-      render(<SharedRecipePage route={route} loadData={loadData} loadNodes={loadNodes} />);
+      render(<SharedRecipePage route={route} loadData={loadData} loadNodes={loadNodes} loadShared={async () => null} />);
       expect(await screen.findByTestId('shared-gone')).toBeTruthy();
       expect(screen.getByText('This recipe is no longer shared')).toBeTruthy();
       expect(screen.getByTestId('shared-home').getAttribute('href')).toBe('/');

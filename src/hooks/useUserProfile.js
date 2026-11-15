@@ -11,6 +11,7 @@ const DEFAULT_PROFILE = {
   recipes: [],
   cocktails: [],
   sauces: [],
+  shares: [], // { id, kind, sourceId, fingerprint, name, createdAt } of the cook's live public links
   pairings: [], // { a, b } where a < b alphabetically (canonical key)
   quizAnswers: null,
 };
@@ -66,6 +67,27 @@ function normalizeRecipe(recipe) {
   };
 }
 
+/** Live public links (SHARE-6): only well-formed entries survive a reload. */
+function cleanShares(list) {
+  if (!Array.isArray(list)) return [];
+  const seen = new Set();
+  const out = [];
+  for (const s of list) {
+    const id = typeof s?.id === 'string' ? s.id : '';
+    if (!/^[a-z0-9]{10}$/.test(id) || seen.has(id)) continue;
+    seen.add(id);
+    out.push({
+      id,
+      kind: String(s.kind || ''),
+      sourceId: String(s.sourceId || ''),
+      fingerprint: String(s.fingerprint || ''),
+      name: String(s.name || '').slice(0, 80),
+      createdAt: typeof s.createdAt === 'number' ? s.createdAt : 0,
+    });
+  }
+  return out;
+}
+
 /** Collapse recipes sharing a name (case-insensitive), keeping the last. */
 function dedupeRecipes(recipes) {
   const byName = new Map();
@@ -88,6 +110,7 @@ function loadLocalProfile() {
       recipes: Array.isArray(parsed.recipes) ? dedupeRecipes(parsed.recipes.map(normalizeRecipe)) : [],
       cocktails: Array.isArray(parsed.cocktails) ? parsed.cocktails : [],
       sauces: Array.isArray(parsed.sauces) ? parsed.sauces : [],
+      shares: cleanShares(parsed.shares),
       pairings: Array.isArray(parsed.pairings)
         ? parsed.pairings.map((p) => canonicalPairing(p?.a, p?.b)).filter(Boolean)
         : [],
@@ -137,12 +160,17 @@ function mergeProfiles(local, cloud) {
     }
     return merged;
   };
+  const mergeShares = (a, b) => {
+    const seen = new Set(a.map((x) => x.id));
+    return [...a, ...b.filter((x) => !seen.has(x.id))];
+  };
   return {
     cuisines: mergeArrays(local.cuisines, cloud.cuisines),
     ingredients: mergeArrays(local.ingredients, cloud.ingredients),
     recipes: mergeRecipes(local.recipes, cloud.recipes),
     cocktails: mergeCocktails(local.cocktails || [], cloud.cocktails || []),
     sauces: mergeSauces(local.sauces || [], cloud.sauces || []),
+    shares: mergeShares(local.shares || [], cloud.shares || []),
     quizAnswers: cloud.quizAnswers || local.quizAnswers || null,
   };
 }
@@ -174,6 +202,7 @@ export default function useUserProfile(user) {
             recipes: Array.isArray(cloudData.recipes) ? cloudData.recipes.map(normalizeRecipe) : [],
             cocktails: Array.isArray(cloudData.cocktails) ? cloudData.cocktails : [],
             sauces: Array.isArray(cloudData.sauces) ? cloudData.sauces : [],
+            shares: cleanShares(cloudData.shares),
             quizAnswers: cloudData.quizAnswers || null,
           };
           const local = loadLocalProfile();
@@ -182,7 +211,8 @@ export default function useUserProfile(user) {
           // right after sign-in): write the merge back instead of skipping it.
           const localOnly = merged.recipes.length > cloud.recipes.length
             || merged.cocktails.length > cloud.cocktails.length
-            || merged.sauces.length > cloud.sauces.length;
+            || merged.sauces.length > cloud.sauces.length
+            || merged.shares.length > cloud.shares.length;
           skipNextSync.current = !localOnly;
           setProfile(merged);
           saveLocalProfile(merged);
@@ -384,6 +414,21 @@ export default function useUserProfile(user) {
     return true;
   }, []);
 
+  // --- Shared links (SHARE-6): the cook's live public copies, kept so they can be listed and taken down ---
+  const addShare = useCallback((entry) => {
+    const [clean] = cleanShares([entry]);
+    if (!clean) return false;
+    update((prev) => ({
+      ...prev,
+      shares: [...cleanShares(prev.shares).filter((s) => s.id !== clean.id), clean],
+    }));
+    return true;
+  }, [update]);
+
+  const removeShare = useCallback((id) => {
+    update((prev) => ({ ...prev, shares: cleanShares(prev.shares).filter((s) => s.id !== id) }));
+  }, [update]);
+
   // --- Favorite Pairings ---
   const addPairing = useCallback((a, b) => {
     const p = canonicalPairing(a, b);
@@ -429,7 +474,8 @@ export default function useUserProfile(user) {
 
   // --- Bulk ---
   const clearProfile = useCallback(() => {
-    update(DEFAULT_PROFILE);
+    // Live public links stay listed: clearing the profile does not take them down, so the cook must still see them.
+    update((prev) => ({ ...DEFAULT_PROFILE, shares: cleanShares(prev.shares) }));
   }, [update]);
 
   const exportProfile = useCallback(() => {
@@ -455,6 +501,7 @@ export default function useUserProfile(user) {
         sauces: Array.isArray(parsed.sauces)
           ? parsed.sauces
           : [],
+        shares: cleanShares(parsed.shares),
         pairings: Array.isArray(parsed.pairings)
           ? parsed.pairings.map((p) => canonicalPairing(p?.a, p?.b)).filter(Boolean)
           : [],
@@ -516,6 +563,8 @@ export default function useUserProfile(user) {
     updateSauce,
     saveInvention,
     deleteInvention,
+    addShare,
+    removeShare,
     addPairing,
     removePairing,
     togglePairing,

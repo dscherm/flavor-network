@@ -14,13 +14,15 @@
  *   message         string                         shown for saved / error / signin (signin default: "Sign in to save, then it saves.")
  *   maxLength       default 80
  *   testidPrefix    default 'namesave'
+ *   shareItem       { kind, item } the saved invention; once status is 'saved' a Share button publishes it (OwnShare, behind SHARE_OWN_ENABLED)
  * Test ids: {p} root, {p}-name, {p}-save, {p}-reason, {p}-status.
  */
 import { btn, inputStyle, SANS, CHALK_CREAM, CHALK_DIM, ACCENT } from './inventUi.jsx';
+import { OwnShareButton } from './OwnShare.jsx';
 
 export default function InventNameSave({
   name = '', onName, placeholder = 'Name it', canSave = false, disabledReason = 'Add a name and at least two ingredients.',
-  saveLabel = 'Save', onSave, status = 'idle', message = '', maxLength = 80, testidPrefix = 'namesave',
+  saveLabel = 'Save', onSave, status = 'idle', message = '', maxLength = 80, testidPrefix = 'namesave', shareItem = null,
 }) {
   const p = testidPrefix;
   const saving = status === 'saving';
@@ -38,6 +40,9 @@ export default function InventNameSave({
       {shown && status !== 'idle' && status !== 'saving' && (
         <p role={status === 'error' ? 'alert' : 'status'} className="text-[14px]" style={{ fontFamily: SANS, color: status === 'error' ? ACCENT : CHALK_CREAM }}
           data-testid={`${p}-status`} data-status={status}>{shown}</p>
+      )}
+      {status === 'saved' && shareItem?.item && (
+        <OwnShareButton kind={shareItem.kind} item={shareItem.item} testid={`${p}-share`} className="w-full" />
       )}
     </div>
   );
