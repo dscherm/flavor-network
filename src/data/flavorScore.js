@@ -2,11 +2,11 @@
  * flavorScore.js — scores a drawn flavor chart against the answer key in data/flavor-truth.json.
  * Pure: no file or network access; the profile function stays outside (scripts/measureFlavorProfile.mjs).
  *
- * A "taste" bar is one of sweet, sour, bitter, salty, umami. "heat" is an expectation the chart has no
- * axis for, so an item that expects heat first can never score top-1; that is deliberate and visible.
+ * A "taste" bar is one of sweet, sour, bitter, salty, umami, heat. (Until FLAVOR-3 the chart had no heat
+ * axis, so an item that expected heat first could never score top-1; that is what the baseline showed.)
  * Aroma bars have axes odor_fruity ... odor_fatty; the key writes them without the prefix ("green").
  */
-export const TASTES = ['sweet', 'sour', 'bitter', 'salty', 'umami'];
+export const TASTES = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'heat'];
 const AROMA_PREFIX = 'odor_';
 
 const byScore = (bars) => [...(Array.isArray(bars) ? bars : [])].sort((a, b) => b.score - a.score);

@@ -73,21 +73,21 @@ describe('the draw rule', () => {
     expect(p.summary).toBe(NO_CHART_LINE);
   });
 
-  it('draws taste only when taste is real and aroma is a placeholder (halves are independent)', () => {
+  it('draws taste only when the taste label is there and aroma is a placeholder (halves are independent)', () => {
     const n = new Map([
-      ['a', { gnnProbs: { ...PLACEHOLDER_AROMA, sweet: 0.9, sour: 0.1, bitter: 0.1, salty: 0.1, umami: 0.1 } }],
-      ['b', { gnnProbs: { ...PLACEHOLDER_AROMA, sweet: 0.5, sour: 0.7, bitter: 0.1, salty: 0.1, umami: 0.1 } }],
+      ['a', { taste: 'sweet', gnnProbs: { ...PLACEHOLDER_AROMA } }],
+      ['b', { taste: 'sour sweet', gnnProbs: { ...PLACEHOLDER_AROMA } }],
     ]);
     const p = buildFlavorProfile(['a', 'b'], n);
     expect(p.tasteDrawn).toBe(true);
     expect(p.aromaDrawn).toBe(false);
     expect(p.counted).toEqual(['a', 'b']);
     expect(p.bars.length).toBeGreaterThan(0);
-    expect(p.bars.every((b) => ['sweet', 'sour', 'bitter', 'salty', 'umami'].includes(b.axis))).toBe(true);
+    expect(p.bars.every((b) => ['sweet', 'sour', 'bitter', 'salty', 'umami', 'heat'].includes(b.axis))).toBe(true);
     expect(AXES.filter((a) => a.startsWith('odor_')).every((a) => p.scores[a] === 0)).toBe(true);
   });
 
-  it('draws aroma only when aroma is real and taste is a placeholder', () => {
+  it('draws aroma only when aroma is real and there is no taste label (the model taste values never count)', () => {
     const n = new Map([
       ['a', { gnnProbs: { ...PLACEHOLDER_TASTE, odor_fruity: 0.9, odor_floral: 0.1, odor_green: 0.1, odor_woody: 0.1, odor_spicy: 0.1, odor_fatty: 0.1 } }],
       ['b', { gnnProbs: { ...PLACEHOLDER_TASTE, odor_fruity: 0.5, odor_floral: 0.1, odor_green: 0.6, odor_woody: 0.1, odor_spicy: 0.1, odor_fatty: 0.1 } }],
@@ -122,7 +122,7 @@ describe('the draw rule', () => {
 describe('boost / temper ranking', () => {
   const cands = new Map([
     ['syrup', { gnnProbs: PLACEHOLDER_TASTE }],
-    ['jam', { gnnProbs: { ...PLACEHOLDER_AROMA, sweet: 0.9, sour: 0.1, bitter: 0.1, salty: 0.1, umami: 0.1 } }],
+    ['jam', { taste: 'sweet', gnnProbs: { ...PLACEHOLDER_AROMA } }],
   ]);
   const scores = z();
   it('never ranks a candidate on placeholder values', () => {

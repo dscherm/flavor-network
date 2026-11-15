@@ -204,7 +204,10 @@ export default function InventCocktail({
   const sig = keys.join('|');
   const rec = !styled && keys.length >= 2 && hintOff !== sig ? recommendCategory(keys, skeletons, { order: INVENT_FAMILY_ORDER }) : null;
 
-  const profile = useMemo(() => buildFlavorProfile(keys, nodes, { noun: 'drink' }), [sig, nodes]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The taste half is weighted by what each line pours, so a dash of bitters does not count like 2 oz of spirit.
+  const profileAmounts = Object.fromEntries(keys.map((k) => [k, amountFor(k)]));
+  const amountSig = keys.map((k) => `${k}=${profileAmounts[k]}`).join('|');
+  const profile = useMemo(() => buildFlavorProfile(keys, nodes, { noun: 'drink', amounts: profileAmounts }), [amountSig, nodes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const finalDrink = drink ? { ...drink, lines: drink.lines.map((l) => ({ ...l, amount: amountFor(l.key) })) } : null;
   const nearest = useMemo(

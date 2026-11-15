@@ -14,7 +14,7 @@ export const TASTE_WORDS = [
   { word: 'salty', meaning: 'salt, brine, cured and salted foods', examples: ['salt', 'feta', 'bacon'] },
   { word: 'umami', meaning: 'savoury depth: aged cheese, soy, mushrooms, meat, tomato paste', examples: ['soy sauce', 'parmesan', 'mushroom'] },
   { word: 'spicy', meaning: 'the heat of chili, pepper and ginger', examples: ['cayenne pepper', 'ginger', 'ginger beer'] },
-  { word: 'pungent', meaning: 'a sharp, nose-clearing bite: garlic, onion, mustard, strong spices', examples: ['garlic', 'cumin', 'sage'] },
+  { word: 'pungent', meaning: 'a sharp, nose-clearing bite: garlic, onion, mustard, strong spices', examples: ['garlic', 'onion', 'horseradish root'] },
   { word: 'astringent', meaning: 'a dry, puckering, leafy feel: some herbs, tea, unripe fruit', examples: ['oregano', 'mint', 'okra'] },
   { word: 'neutral', meaning: 'no taste of its own: water, plain starch, neutral spirit. It always stands alone', examples: ['water', 'flour', 'vodka'] },
   { word: 'rich', meaning: 'a fatty or creamy mouthfeel that is not one of the basic tastes: butter, oil, cream, egg yolk, avocado. It may lead a label with a taste after it', examples: ['butter', 'olive oil', 'egg yolk'] },
@@ -26,7 +26,7 @@ export const TASTE_RULES = [
   'Starches and grains (flour, rice, bread, pasta, noodles, oats, cornmeal, cornstarch, tortillas), water, ice, soda water and neutral spirit are neutral. Neutral is never combined with another word.',
   'Plain fats and oils (butter, oils, lard, shortening, ghee) are rich. Cream, milk, egg yolk, avocado and nuts are rich first, with a taste after it only if the taste is real: cream is rich sweet, sour cream is sour rich.',
   'The burn of alcohol is not a taste. Spirits are never labelled pungent or spicy; they get the flavour that tells them apart: bourbon sweet, gin bitter, vodka neutral, rum sweet.',
-  'Spicy and pungent are charted as heat, so they are kept for real bite (chili, garlic, mustard). Many herbs and warm spices still carry pungent from the generated data; the hand-tuned strengths table (FLAVOR-4) is where that is corrected.',
+  'Spicy and pungent are charted as heat, so they are kept for real bite (chili, garlic, mustard). Herbs and warm spices (parsley, thyme, cumin, cinnamon, nutmeg and the like) are aromatic, not hot: FLAVOR-3 took pungent off them in tasteOverrides.json.',
   'A label that is a deliberate correction of the generated data is one line in src/data/curation/tasteOverrides.json with a reason.',
 ];
 

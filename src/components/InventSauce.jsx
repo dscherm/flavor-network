@@ -175,7 +175,9 @@ export default function InventSauce({
   const wine = useMemo(() => (sauce && protein && styles?.wines && keys.length
     ? winesForSauce({ ingredients: keys, proteins: [protein] }, styles.wines, { categoryOf: categoryOf || undefined })[0] || null
     : null), [sauce, protein, styles, keysId, categoryOf]); // eslint-disable-line react-hooks/exhaustive-deps
-  const profile = useMemo(() => buildFlavorProfile(keys, nodes, { noun: 'sauce' }), [keysId, nodes]); // eslint-disable-line react-hooks/exhaustive-deps
+  const profileAmounts = Object.fromEntries(keys.map((k) => [k, amountOf(k)]));
+  const amountSig = keys.map((k) => `${k}=${profileAmounts[k]}`).join('|');
+  const profile = useMemo(() => buildFlavorProfile(keys, nodes, { noun: 'sauce', amounts: profileAmounts }), [amountSig, nodes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rankArgs = { protein, kitchen, assumeBasics, pantryOnly, pool, catMap: cats, pairingIndex, sauceIndex, names };
   const rec = !styleId && dismissedFor !== keysId ? recommendCategory(keys, skeletons) : null;

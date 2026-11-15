@@ -37,6 +37,17 @@ export const UNIT_DENSITY = {
   can: 425, // WEAK-4: a standard 15 oz can
   pkg: 250, // WEAK-4: a generic package (cake mix, yeast, gelatin, soup mix)
   to_taste: 1,
+  // FLAVOR-3: cocktail and bar units, so a chart can weigh a dash against an ounce.
+  cl: 10, // 1 cl = 10 ml
+  shot: 44, jigger: 44, // a US shot / jigger is 1.5 oz
+  drop: 0.05,
+  splash: 7,
+  barspoon: 5,
+  part: 30, // 'parts' are relative; a part is taken as about an ounce
+  top: 60, // 'top with soda': about 2 oz
+  fill: 90, // 'fill with ice / soda'
+  bunch: 50,
+  slice: 15, wedge: 15, leaf: 1, stalk: 40,
 };
 
 // Input-variant → canonical short form mapping. parseAmount always

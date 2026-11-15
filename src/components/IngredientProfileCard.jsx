@@ -13,7 +13,7 @@
  *
  * Props:
  *   name    string                       candidate ingredient name
- *   before  Record<axis, number>         recipe's current 11-axis profile
+ *   before  Record<axis, number>         recipe's current 12-axis profile
  *   delta   Record<axis, number>         per-axis shift this candidate causes
  *   movers  [{ axis, delta }]            the axes that move most (for caption + dots)
  *   mode    'add' | 'replace'
@@ -46,7 +46,7 @@ function axisAngle(i, n) {
 
 /**
  * BeforeAfterRadar — two overlaid polygons (before = faint cream fill, after =
- * bright accent outline) over the 11 axes, with grid rings, axis spokes,
+ * bright accent outline) over the 12 axes, with grid rings, axis spokes,
  * colored axis labels (dynamic textAnchor so long words don't clip), and dots
  * on the axes that moved most.
  */
@@ -288,7 +288,7 @@ export default function IngredientProfileCard({
       <DeltaCaption movers={movers} />
 
       {/* HERO before→after radars — taste + aroma shown separately so each
-          is readable (5 GNN tastes / 6 GNN aroma heads). */}
+          is readable (6 tastes from the curated labels / 6 aroma heads). */}
       <div className="w-full flex flex-wrap justify-center items-start gap-x-3 gap-y-2">
         <LabeledRadar
           label="Taste"

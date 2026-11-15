@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * measureFlavorProfile.mjs — how good are the flavor charts?
  *
@@ -30,6 +29,7 @@ import { buildFlavorProfile } from '../src/data/inventProfile.js';
 import { resolveIngredientName } from '../src/data/recipePairingMatch.js';
 import { scoreItem, summarize, TASTES } from '../src/data/flavorScore.js';
 import { loadCurationTables, applyCuration } from './lib/curationTables.mjs';
+import { loadFlavorNodes } from './lib/flavorNodes.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const KINDS = ['cocktail', 'sauce', 'dish'];
@@ -45,24 +45,22 @@ function loadData() {
   return { cocktails: codex.cocktails || [], families: codex.families || [], sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 }
 
-function loadNodes() {
-  const raw = readJson(resolve(ROOT, 'public/proDataset/gnn_entropy.json'));
-  const nodes = new Map();
-  for (const [name, info] of Object.entries(raw)) {
-    if (!name.startsWith('_') && info?.probs) nodes.set(name, { gnnProbs: info.probs });
-  }
-  return nodes;
-}
-
 /**
  * THE ADAPTER. The one place that decides how a chart is drawn for a recipe. FLAVOR-2..6 change
  * what this calls; the scorer (src/data/flavorScore.js) and the answer key stay as they are.
- * Returns { bars: [{ axis, label, score }], counted: [key], uncounted: [key] }.
+ * Since FLAVOR-3 the taste half is the curated labels weighted by amount (flavorTaste.js); the aroma half
+ * is still the model's values. Returns { bars: [{ axis, label, score }], counted: [key], uncounted: [key] }.
  */
 export function profileFor(recipe, ctx) {
   const names = new Set(ctx.nodes.keys());
-  const keys = recipe.lines.map((l) => resolveIngredientName(l.label || l.key, names) || l.key);
-  const p = buildFlavorProfile(keys, ctx.nodes, { noun: NOUN[recipe.kind] });
+  const keys = [];
+  const amounts = {};
+  for (const l of recipe.lines) {
+    const key = resolveIngredientName(l.label || l.key, names) || l.key;
+    keys.push(key);
+    if (l.amount && amounts[key] === undefined) amounts[key] = l.amount;
+  }
+  const p = buildFlavorProfile(keys, ctx.nodes, { noun: NOUN[recipe.kind], amounts });
   return { bars: p.bars, counted: p.counted, uncounted: p.uncounted };
 }
 
@@ -161,7 +159,7 @@ function main() {
   const preview = args.includes('--labels-preview');
   const { rows, missing } = preview
     ? measure(truth, loadData(), loadLabels(), labelProfileFor)
-    : measure(truth, loadData(), loadNodes());
+    : measure(truth, loadData(), loadFlavorNodes());
   if (missing.length) { console.error(`These items do not resolve to a built-in recipe: ${missing.join(', ')}`); process.exit(3); }
   const sum = summarize(rows);
 

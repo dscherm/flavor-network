@@ -19,7 +19,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  recipeAxisProfile, recipeAxisProfileWeighted, describeRecipeProfile, axisInsight,
+  recipeAxisProfileWeighted, describeRecipeProfile, axisInsight,
   axisLabel, axisColor, rankByAxisImpact, buildAxisEnhancements, nodeProbs, AXES, NO_CHART_LINE,
 } from '../data/recipeProfileAnalysis.js';
 import { clusterColor } from './MakeRecipeCardsGrid.jsx';
@@ -93,7 +93,7 @@ function axisAngle(i, n) {
 }
 
 /**
- * IngredientFlavorMap — a chalkboard radar over the 11 axes (grid rings, spokes,
+ * IngredientFlavorMap — a chalkboard radar over the 12 axes (grid rings, spokes,
  * colored axis labels) that plots each bowl ingredient as a labeled dot placed
  * by its own flavor centroid. Strongly single-flavored ingredients sit near
  * their dominant axis edge; balanced ones cluster center.
@@ -354,12 +354,8 @@ function FlavorBarChart({ scores }) {
 }
 
 export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries = null, nodes, edges = null, recipeType = null, onAdd, onFindCocktail, onFindSauce, onFindWine = null, onClose }) {
-  const { scores, drivers, n, drawn, tasteDrawn, aromaDrawn } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
-  // Which halves the draw rule lets through; boost / temper never rank on a half that is not drawn.
-  const drawnHalves = useMemo(() => ({ taste: tasteDrawn, aroma: aromaDrawn }), [tasteDrawn, aromaDrawn]);
-
-  // Overview page: quantity-weighted flavor composition. Prefer BowlEntry[]
-  // (carries entered/inferred amounts); fall back to equal-weighted names.
+  // The whole card reads ONE profile: tastes from the curated labels weighted by amount, aromas from the
+  // model. Prefer BowlEntry[] (entered / inferred amounts); fall back to equal-weighted names.
   const overview = useMemo(
     () => recipeAxisProfileWeighted(
       (Array.isArray(bowlEntries) && bowlEntries.length) ? bowlEntries : bowlNames,
@@ -367,6 +363,9 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
     ),
     [bowlEntries, bowlNames, nodes],
   );
+  const { scores, drivers, n, drawn, tasteDrawn, aromaDrawn } = overview;
+  // Which halves the draw rule lets through; boost / temper never rank on a half that is not drawn.
+  const drawnHalves = useMemo(() => ({ taste: tasteDrawn, aroma: aromaDrawn }), [tasteDrawn, aromaDrawn]);
 
   // Firing axes (score above a small floor), strongest first.
   const axes = useMemo(

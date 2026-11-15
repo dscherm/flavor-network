@@ -4,7 +4,7 @@ This page is for the site owner. It records what the flavor chart is, a problem 
 
 ## What the chart is
 
-Wherever the app shows a bar chart of "flavor" for a cocktail, sauce or dish, the bars are the recipe's 11 flavor axes: five tastes (sweet, sour, bitter, salty, umami) and six aromas (fruity, floral, green, woody, spicy, fatty). It appears on the Recipe Notebook's Flavor Profiles card, in the three Invent panels, on the shared-recipe page, and on the share-card images and link previews.
+Wherever the app shows a bar chart of "flavor" for a cocktail, sauce or dish, the bars are the recipe's flavor axes: five tastes (sweet, sour, bitter, salty, umami; FLAVOR-3 later added heat as a sixth) and six aromas (fruity, floral, green, woody, spicy, fatty). It appears on the Recipe Notebook's Flavor Profiles card, in the three Invent panels, on the shared-recipe page, and on the share-card images and link previews.
 
 Each ingredient has a row of 11 numbers in the file `public/proDataset/gnn_entropy.json` (3,432 ingredients). The chart averages those rows over the recipe's ingredients, so every ingredient counts equally. A dash of bitters weighs the same as two ounces of gin.
 
@@ -156,10 +156,123 @@ Read plainly: fewer charts is the intended outcome of this step, and the numbers
 
 Of the 599 built-in recipes, the share cards and link previews draw a chart for 186 (before: 596). By kind: cocktails 140 of 439 (before 436), sauces 16 of 77 (before 77), dishes 30 of 83 (before 83).
 
+## After FLAVOR-3 (2026-11-15, tastes from the curated labels, weighted by amount)
+
+What changed: the taste half of every in-app chart (Recipe Notebook Flavor Profiles card, the three Invent panels, and the code the shared page and cards will use when their charts are switched on) is no longer read from the model. Each ingredient's curated taste label is turned into weights on six taste axes (sweet, sour, bitter, salty, umami, **heat**) and averaged over the recipe, each ingredient counting in proportion to how much of it the line holds (`src/data/flavorTaste.js`, `src/data/amountGrams.js`). Heat is new: `spicy` and `pungent` both feed it. The aroma half is unchanged for now (still the model, with placeholder rows dropped, until FLAVOR-5). The chart now has 12 axes: six tastes and six aromas.
+
+The rules (the same ones as "How neutral and rich are treated" above): first word 1.0, second 0.6, third 0.35; `astringent` gives half its weight to bitter; `neutral` and `rich` feed no axis but count as data. A recipe whose every ingredient is neutral or rich has nothing to chart and shows the plain line.
+
+Amounts: a line's weight is its gram-equivalent. Free text such as "~¾ oz", "1.5 cl", "2 dashes", "1 shot", "2 parts", "Top with soda" and "1/4 cup, diced" is read. Before this, 1,072 of 1,857 cocktail lines did not parse; 517 of 3,079 built-in recipe lines still carry no usable amount, mostly bare counts like "1" or "3, smashed", and those get the mean weight of the known lines. Units added to the weight table: cl 10 g, shot and jigger 44 g, dash 1 g, drop 0.05 g, splash 7 g, barspoon 5 g, part 30 g, top 60 g, fill 90 g, and bunch, slice, wedge, leaf and stalk. A dash weighs about a gram, an ounce 28 g, and "top with soda" is 60 g, not zero.
+
+Herb relabel (owner-approved): 103 herbs and warm spices (parsley, thyme, oregano, basil, cumin, cinnamon, nutmeg, paprika, turmeric, coriander, dill, sage, rosemary, cilantro, bay leaf, allspice, cardamom, fennel seed, mint, tarragon and their spelling variants) had `pungent` (a few `spicy`) as a second word meaning merely aromatic. Each now has a one-line override in `tasteOverrides.json` without it, so garlic, onion, mustard, horseradish, ginger, pepper, the chilies and cloves are what carry heat. Clove was left alone: it is added by `additions.json`, and a name cannot be in both tables.
+
+### Neutral and fat ingredients: how much they dilute
+
+An ingredient with no taste of its own (neutral: water, soda, starch, vodka; or rich with nothing after it: butter, oil) has to count as data, but how much of its amount should count against the rest? Four rates, measured on the 41 test recipes (every row is the same code; only the dilution rate changes):
+
+| Dilution rate (share of its amount that counts) | Weighting | Top taste expected | Top two expected | Forbidden taste leads | No chart | Median strength of the leading bar |
+|---|---|---|---|---|---|---|
+| 0 (ignored entirely) | by amount | 30/41 | 19/34 | 8 | 0 | 0.73 |
+| 0.25 (chosen) | by amount | 30/41 | 19/34 | 8 | 0 | 0.63 |
+| 0.5 | by amount | 30/41 | 19/34 | 8 | 0 | 0.58 |
+| 1 (full dilution) | by amount | 29/41 | 19/34 | 8 | 1 | 0.53 |
+| any of the four | equal weights | 31/41 | 18/34 | 5 | 0 | 0.50 to 0.52 |
+
+The rate never changes which taste leads (every taste is diluted alike); it only changes how strong the bars read. Full dilution lets 4 oz of soda wash a highball out until one test recipe loses its chart. Ignoring neutral entirely makes a long drink read as strong as a short one (a gin and soda as loud as neat gin). A quarter keeps a highball tasting of its spirit while a recipe that is mostly water or pasta still reads milder. `TASTELESS_WEIGHT = 0.25` in `flavorTaste.js`.
+
+### Result, as printed by `npm run measure:flavor`
+
+```
+cocktail/negroni            expect bitter/sweet not sour  |  bitter 0.89, sweet 0.39  |  counted 100%  |  top1, top2
+cocktail/daiquiri           expect sour/sweet not bitter  |  sweet 0.77, sour 0.23  |  counted 100%  |  top1, top2
+cocktail/margarita          expect sour/salty/sweet not bitter  |  bitter 0.58, sweet 0.35, sour 0.18  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS
+cocktail/old-fashioned      expect sweet/bitter not sour  |  sweet 0.83  |  counted 100%  |  top1, not-top2
+cocktail/manhattan          expect sweet/bitter not sour  |  sweet 0.99, sour 0.12, bitter 0.09  |  counted 83%  |  top1, not-top2
+cocktail/whiskey-sour       expect sour/sweet  |  sweet 0.79, sour 0.21  |  counted 100%  |  top1, top2
+cocktail/mojito             expect sour/sweet not bitter  |  sweet 0.65, sour 0.21, bitter 0.13  |  counted 100%  |  top1, top2, aroma miss
+cocktail/americano          expect bitter/sweet not sour  |  sweet 0.80, bitter 0.80  |  counted 67%  |  top1, top2
+cocktail/aperol-spritz      expect bitter/sweet not sour  |  sour 0.73, bitter 0.27, sweet 0.16  |  counted 67%  |  miss, not-top2, FORBIDDEN LEADS
+cocktail/paloma             expect sour/bitter/sweet  |  bitter 0.81, sour 0.35, sweet 0.14  |  counted 100%  |  top1, top2
+cocktail/gimlet             expect sour/sweet not bitter  |  bitter 0.69, sour 0.36, sweet 0.11  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS
+cocktail/sidecar            expect sour/sweet not bitter  |  sweet 0.79, sour 0.21, bitter 0.13  |  counted 100%  |  top1, top2
+cocktail/boulevardier       expect bitter/sweet not sour  |  sweet 0.92, bitter 0.36  |  counted 100%  |  top1, top2
+cocktail/pina-colada        expect sweet not sour/bitter  |  sweet 0.87, sour 0.20  |  counted 100%  |  top1, aroma miss
+cocktail/tom-collins        expect sour/sweet not bitter  |  sweet 0.43, bitter 0.38, sour 0.31  |  counted 83%  |  top1, not-top2
+cocktail/bloody-mary        expect umami/salty/heat not sweet  |  sweet 0.62, sour 0.58, umami 0.23  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS
+cocktail/pisco-sour         expect sour/sweet not bitter  |  sweet 0.61, sour 0.33  |  counted 100%  |  top1, top2
+cocktail/white-russian      expect sweet not sour/salty  |  sweet 0.67, bitter 0.25  |  counted 100%  |  top1
+cocktail/cosmopolitan       expect sour/sweet not bitter/salty  |  sour 0.81, sweet 0.52, bitter 0.05  |  counted 100%  |  top1, top2
+cocktail/tequila-sunrise    expect sweet not bitter/salty  |  sweet 0.50, bitter 0.36, sour 0.35  |  counted 100%  |  top1
+sauce/hollandaise           expect sour/salty not sweet/bitter  |  sour 0.16  |  counted 100%  |  top1, not-top2
+sauce/teriyaki              expect sweet/salty/umami not sour/bitter  |  sweet 0.54, umami 0.43, salty 0.26  |  counted 100%  |  top1, top2
+sauce/ponzu                 expect sour/salty/umami not sweet  |  umami 0.50, sour 0.36, salty 0.26  |  counted 100%  |  top1, top2
+sauce/nuoc-cham             expect sour/salty/sweet not bitter  |  salty 0.31, heat 0.21, sweet 0.21  |  counted 100%  |  top1, not-top2
+sauce/sweet-and-sour-sauce  expect sweet/sour not bitter/salty  |  sweet 0.47, sour 0.41, umami 0.08  |  counted 100%  |  top1, top2
+sauce/salsa-verde           expect sour/heat not sweet  |  sour 0.63, heat 0.38, sweet 0.09  |  counted 100%  |  top1, top2, aroma miss
+sauce/buffalo-sauce         expect heat/sour/salty not sweet  |  heat 0.59, sour 0.18, umami 0.06  |  counted 100%  |  top1, top2
+sauce/marinara              expect umami/sour not bitter  |  sweet 0.97, sour 0.57, umami 0.34  |  counted 100%  |  miss, not-top2
+sauce/black-bean-sauce      expect salty/umami not sweet/sour  |  sweet 0.53, heat 0.45, umami 0.39  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS
+dish/beef-bolognese         expect umami not sweet  |  sweet 0.48, umami 0.38, sour 0.20  |  counted 100%  |  miss, FORBIDDEN LEADS
+dish/margherita-pizza       expect umami/salty not sweet  |  sweet 0.63, sour 0.36, umami 0.22  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS
+dish/caesar-salad           expect salty/umami not sweet  |  umami 0.43, salty 0.40, heat 0.24  |  counted 100%  |  top1, top2
+dish/thai-green-curry       expect heat not sweet  |  umami 0.51, sweet 0.21, bitter 0.16  |  counted 100%  |  miss
+dish/tom-yum                expect sour/heat not sweet  |  umami 0.53, heat 0.39, salty 0.25  |  counted 100%  |  miss, not-top2
+dish/creme-brulee           expect sweet not salty/umami/sour  |  sweet 0.71  |  counted 100%  |  top1
+dish/tiramisu               expect sweet/bitter not salty/umami  |  sweet 0.41, bitter 0.32, umami 0.10  |  counted 100%  |  top1, top2
+dish/apple-pie              expect sweet not salty/umami  |  sweet 0.81, sour 0.18  |  counted 100%  |  top1
+dish/miso-soup              expect umami/salty not sweet  |  umami 0.72, salty 0.45, heat 0.23  |  counted 100%  |  top1, top2
+dish/greek-salad            expect salty/sour not sweet  |  salty 0.58, sweet 0.24, heat 0.15  |  counted 100%  |  top1, not-top2
+dish/mapo-tofu              expect heat/umami/salty not sweet  |  heat 0.45, umami 0.37, sweet 0.13  |  counted 100%  |  top1, top2
+dish/pesto-genovese         expect salty/umami not sweet  |  sweet 0.28, umami 0.18, salty 0.11  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS, aroma miss
+
+Items 41. Top taste expected: 30/41 (73.2%). Top two both expected: 19/34 items with 2+ expected (55.9%). Forbidden taste leads: 8. No chart: 0. Ingredients counted: 97.6%. Aroma as expected: 0/4 (0%).
+```
+
+Counted: 97.6% of the test recipes' ingredients have a taste label (it was 37.5% after FLAVOR-2). Across all 599 built-in recipes, 598 now draw a taste chart (FLAVOR-2 left 186): cocktails 438 of 439, sauces 77 of 77, dishes 83 of 83. 94 of 3,079 ingredient lines (3%) did not resolve to a known ingredient.
+
+Against the labels-only preview (`--labels-preview`, equal weights): the preview now reads 31/41 top taste with 5 forbidden leads (it read 32/41 before the herb relabel and before heat counted as a scored taste; heat now competes for the top spot). With amounts the default run is 30/41, **one item below equal weights, and its forbidden-leads count rises from 5 to 8**. Why: amounts push the base spirit, the biggest pour, to the front. Gin and tequila are labelled `bitter`, bourbon and rum `sweet`, so a margarita and a gimlet read bitter (forbidden) because 2 oz of spirit outweighs 3/4 oz of lime. Equal weights hid this by giving the citrus the same vote as the spirit, but it also let a pinch of cayenne lead a hollandaise on heat (equal weights put heat first on four sauces that do not taste hot). Amounts fix those four and break three spirit-led drinks. A one-line strength per ingredient (FLAVOR-4) is what separates "a lot of a mild thing" from "a little of a strong thing".
+
+### The misses, one by one (FLAVOR-4's worklist)
+
+Top taste not an expected one (11 items). "Fix" says what strength or potency would repair it, on the FLAVOR-4 scale of 0 to 3 per taste.
+
+| Item | Leads | Why | Fix in the FLAVOR-4 table |
+|---|---|---|---|
+| Margarita | bitter 0.58 (forbidden) | Tequila `bitter`, 57 g, against lime juice `sour`, 21 g. The key's `salty` can never show: the salt rim is not an ingredient line. | tequila bitter at most 0.5; lime juice sour 3 with high potency; orange liqueur sweet 2 |
+| Aperol Spritz | sour 0.73 (forbidden) | Prosecco `sour`, 57 g, against aperol `bitter sweet`, 21 g. Seltzer does not resolve (the pairing matcher treats it as trivial by design). | prosecco sour 1 and sweet 1, low potency; aperol bitter 2, sweet 2, potency 2 |
+| Gimlet | bitter 0.69 (forbidden) | Gin `bitter`, 71 g, against lime juice 14 g and syrup 14 g. The bare "lime [1]" garnish line has no weight. | gin bitter 0.3; lime juice sour 3; syrup sweet 3 |
+| Bloody Mary | sweet 0.62 (forbidden) | Tomato juice labelled `sweet sour umami`, 90 g, so sweet leads. The 2 dashes of Worcestershire, the Tabasco (no amount) and the pepper are about 1 g each. | tomato umami 2, sour 1, sweet 0.8; Worcestershire umami 3 and Tabasco heat 3, both high potency so a dash registers |
+| Marinara | sweet 0.97 | Tomato, `sweet sour umami`, 907 g of about 1,000. Salt 3 g, garlic 12 g. | tomato umami 2, sour 1.5, sweet 0.8; salt salty 3 with high potency |
+| Black bean sauce | sweet 0.53 (forbidden) | Bean paste `sweet umami`, 30 g, outweighs soy sauce 15 g; ginger `spicy pungent` (heat 1.6) 15 g puts heat second. | bean paste umami 2, salty 2, sweet 0.3; soy sauce potency 3; ginger heat capped at 1 |
+| Beef bolognese | sweet 0.48 (forbidden) | Tomato `sweet sour umami` 400 g; beef `umami` 500 g is diluted by 400 g of pasta; onion `pungent sweet` adds heat for a cooked onion; carrot has no weight. | tomato as above; beef umami 1; cooked onion heat 0, sweet 0.5 |
+| Margherita pizza | sweet 0.63 (forbidden) | Tomato again, plus flour 300 g (neutral) and mozzarella `rich` with no salty. Salt is 5 g. | tomato as above; mozzarella salty 1, umami 1; salt potency |
+| Thai green curry | umami 0.51 | Expects heat first. Curry paste `spicy pungent` is 45 g against chicken 500 g and coconut milk 400 g. | curry paste heat 3 with potency 5; chicken umami 0.5 |
+| Tom yum | umami 0.49, heat 0.45 | A near miss: heat is 0.04 behind. Shrimp `umami salty sweet` 300 g and mushroom 150 g against 3 chilies and 2 limes that are bare counts with no weight. Expected sour and heat. | chili heat 3 with potency, and a typical weight for a bare count (chili 15 g, lime 60 g, egg 50 g, onion 150 g); shrimp umami 1 |
+| Pesto genovese | sweet 0.28 (forbidden) | Pasta, 400 g neutral, dilutes everything; basil `sweet` 60 g and pine nut `rich sweet` 30 g put sweet first; parmesan `umami salty` is only 50 g. The pine-nut and basil sweetness is the DATA-5 borderline. | basil sweet 0.3 (it is an aroma more than a taste); pine nut sweet 0.2; parmesan umami 2, salty 2, potency 2 |
+
+Top taste right, but the top two are not both expected tastes:
+
+| Item | Chart | Why |
+|---|---|---|
+| Old Fashioned | sweet 0.83 only | Angostura bitters, 2 dashes, is 2 g against bourbon 45 g, and the sugar cube has no weight; "dash Water" does not resolve. Fix: bitters bitter 3 with potency 8; sugar cube 4 g. |
+| Manhattan | sweet 0.99, sour 0.12, bitter 0.09 | Bourbon `sweet` 71 g swamps the vermouth and bitters. Fix: bitters potency; vermouth bitter 1; whiskey sweet 0.5. |
+| Tom Collins | sweet 0.43, bitter 0.38, sour 0.31 | Gin `bitter` 57 g outweighs lemon juice 28 g. Fix: gin bitter 0.3, lemon juice sour 3. |
+| Hollandaise | sour 0.16 only | Butter 240 g and egg are rich (no taste), so one faint sour bar is all there is. Salt is 1 g. Fix: lemon juice sour 3 with potency; salt potency. |
+| Nuoc cham | salty 0.31, heat 0.21, sweet 0.21 | Sour is below sweet at equal grams (lime juice 30 g, sugar 30 g, fish sauce 45 g). The chili adds heat, which the key does not list; I think nuoc cham does taste of its chili, so this line of the key is debatable (I did not edit it). Fix: lime juice sour 3. |
+| Greek salad | salty 0.58, sweet 0.24, heat 0.15 | Tomato `sweet` first; red onion `pungent sweet` charts heat; lemon juice is 15 g. Fix: tomato; raw onion heat 0.5. |
+
+Reading the key: Nuoc cham (above) is the line I think is debatable. The Thai green curry and mapo tofu lines expect heat; mapo tofu now gets it (heat first, 0.45) and green curry does not, only because the curry paste is a small weight, which is a strength problem and not a label problem. Not changed: `data/flavor-truth.json`.
+
+Where the misses come from, in order: (1) no strength per ingredient, so a large pour of a mild thing beats a small amount of a strong thing (nine of the eleven misses); (2) tomato labelled sweet first (five of them); (3) bare counts with no weight (lime, chili, egg, sugar cube, onion; 517 of 3,079 lines); (4) the aroma check still fails 0 of 4, which is FLAVOR-5's job.
+
+### Where the labels live and what the pages download
+
+The labels ship as a small file, `public/proDataset/taste_labels.json` (name to label, 3,674 ingredients), written by `scripts/buildTasteLabels.mjs` in `prebuild` from the same curated data the app applies on load. **104,693 bytes raw, 20,568 bytes gzipped.** The shared page and the share-card code load this instead of `ingredients.json`. Inside the main app the labels are already on the ingredient nodes (`node.taste`), so nothing is downloaded twice.
+
 ## What comes next
 
 - FLAVOR-2 (done, see above) stops drawing a chart from the repeated placeholder rows: ingredients carrying them count as having no flavor data, and a recipe without enough real data shows "not enough flavor data" instead of a chart.
-- FLAVOR-3 draws the tastes from the curated taste word each ingredient already has (salt is salty, sugar is sweet, coffee is bitter), weighted by how much of it the recipe uses.
+- FLAVOR-3 (done, see above) draws the tastes from the curated taste word each ingredient already has (salt is salty, sugar is sweet, coffee is bitter), weighted by how much of it the recipe uses, and adds heat as a sixth taste.
 - FLAVOR-4 hand-tunes strengths for the ingredients that matter most, so a dash of bitters and two ounces of gin no longer weigh the same.
 - FLAVOR-5 takes aromas from published aroma descriptors instead of the model.
 - FLAVOR-6 makes every surface use the same profile, makes the wording honest, and re-measures on this same test set; the aim is to beat the numbers above.
@@ -175,7 +288,7 @@ The ingredient taste labels now have ten words: the eight old ones plus `neutral
 - **The six chart tastes** are sweet, sour, bitter, salty, umami and heat. First word of a label counts 1.0, second 0.6, third 0.35. `spicy` and `pungent` both feed heat. `astringent` counts half toward bitter.
 - **`neutral`** contributes to no taste axis. The ingredient still counts as an ingredient with data (it is counted, not uncounted), so a recipe of flour and water is a recipe with no taste, not a recipe with no data. `neutral` always stands alone in a label.
 - **`rich`** is a mouthfeel, not a taste. It contributes to none of the six axes. It may lead a label (`rich sweet` for cream): the word after it still counts at the position it holds, so cream gives sweet 0.6, not 1.0. If a chart shows richness at all it is shown separately from the six tastes.
-- Spirits carry no heat word: the burn of alcohol is not charted as heat. Many herbs and warm spices still carry `pungent` from the generated data, so heat is overstated for them until FLAVOR-4's table overrides it.
+- Spirits carry no heat word: the burn of alcohol is not charted as heat. Many herbs and warm spices carried `pungent` from the generated data; FLAVOR-3 removed it from 103 of them (see "After FLAVOR-3").
 
 ### What the labels alone give (`node scripts/measureFlavorProfile.mjs --labels-preview`)
 

@@ -266,7 +266,7 @@ describe('InventSauce — the list', () => {
 describe('InventSauce — flavor profile', () => {
   it('renders for the list, naming what has no data', () => {
     const probs = (o) => ({ ...Object.fromEntries(AXES.map((a) => [a, 0])), ...o });
-    const nodes = new Map([['butter', { gnnProbs: probs({ sweet: 0.5, odor_fatty: 0.8 }) }], ['tomato', { gnnProbs: probs({ sour: 0.7, umami: 0.4 }) }]]);
+    const nodes = new Map([['butter', { taste: 'rich sweet', gnnProbs: probs({ odor_fatty: 0.8 }) }], ['tomato', { taste: 'sweet sour umami', gnnProbs: probs({}) }]]);
     renderInvent({ nodes });
     start('butter');
     addIng('tomato');

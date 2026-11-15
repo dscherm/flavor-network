@@ -12,8 +12,8 @@ const LINK = '/r/dish/beef-bolognese';
 const data = { dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
 const recipe = resolveBuiltIn('dish', 'beef-bolognese', data);
 const fakeFiles = (n = 1) => Array.from({ length: n }, (_, i) => new File([new Uint8Array([1, 2, 3])], `beef-bolognese-card-${i + 1}.png`, { type: 'image/png' }));
-// Real (non-placeholder) taste values for every ingredient, so the draw rule (FLAVOR-2) lets the chart through.
-const NODES = new Map(recipe.lines.map((l, i) => [l.label || l.key, { gnnProbs: { sweet: 0.9 - i * 0.05, sour: 0.1 + i * 0.03, bitter: 0.1, salty: 0.1, umami: 0.8 } }]));
+// A taste label for every ingredient, so the draw rule lets the chart through.
+const NODES = new Map(recipe.lines.map((l, i) => [l.label || l.key, { taste: i % 2 ? 'umami salty' : 'sweet sour' }]));
 
 function setup(over = {}) {
   const renderFiles = over.renderFiles || vi.fn(async ({ count }) => fakeFiles(count === 'set' ? 3 : 1));

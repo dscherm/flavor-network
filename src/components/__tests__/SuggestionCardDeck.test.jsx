@@ -18,8 +18,9 @@ import SuggestionCardDeck from '../SuggestionCardDeck.jsx';
 
 const z = () => Object.fromEntries(AXES.map((a) => [a, 0]));
 const probs = (o) => ({ ...z(), ...o });
+// A value is [taste label, aroma values].
 function nodesFrom(map) {
-  return new Map(Object.entries(map).map(([k, gnnProbs]) => [k, { gnnProbs, category: 'spice', cuisines: [] }]));
+  return new Map(Object.entries(map).map(([k, [taste, aroma]]) => [k, { taste, gnnProbs: probs(aroma || {}), category: 'spice', cuisines: [] }]));
 }
 
 beforeEach(() => {
@@ -30,10 +31,10 @@ beforeEach(() => {
 // A bowl with flavor data + a candidate ("cinnamon") that strongly shifts a
 // different axis, so its profileDelta is non-null and produces movers.
 const nodes = nodesFrom({
-  honey: probs({ sweet: 0.9 }),
-  lemon: probs({ sour: 0.8 }),
-  cinnamon: probs({ odor_spicy: 0.9 }),
-  ginger: probs({ odor_spicy: 0.7, sour: 0.2 }),
+  honey: ['sweet'],
+  lemon: ['sour'],
+  cinnamon: ['sweet', { odor_spicy: 0.9 }],
+  ginger: ['spicy pungent', { odor_spicy: 0.7 }],
 });
 
 describe('SuggestionCardDeck — add mode', () => {

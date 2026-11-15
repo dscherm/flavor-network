@@ -1,16 +1,17 @@
 /**
  * inventProfile.js — the flavor profile of an Invent list, drawn like the Recipe
  * Notebook's Flavor Profiles card. Pure: a thin shaping layer over
- * recipeProfileAnalysis.js. A VISUAL AID built from per-ingredient flavor data
- * (gnnProbs), not a taste test and not an accuracy claim. PLACEHOLDER values (the constant vectors the
- * model filled in for ingredients it knew nothing about) never count: see flavorPlaceholders.js. Taste
- * and aroma are drawn separately, each only when at least half the ingredients (and at least two) have
- * real values for it (recipeProfileAnalysis.drawRule); when neither draws there are no bars and the
+ * recipeProfileAnalysis.js. A VISUAL AID built from per-ingredient flavor
+ * data, not a taste test and not an accuracy claim. TASTE is worked out from each ingredient's curated taste
+ * label (flavorTaste.js); AROMA from the model's values (gnnProbs), where PLACEHOLDER vectors never count
+ * (flavorPlaceholders.js). Taste and aroma are drawn separately, each only when at least half the
+ * ingredients (and at least two) have data for it (recipeProfileAnalysis.drawRule); when neither draws there are no bars and the
  * surface shows NO_CHART_LINE.
  *
- * buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05 }) →
+ * buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null }) →
+ *   `amounts` is { key: "2 oz" | { qty, unit } | grams }: the taste half is weighted by it (equal weights without).
  *   {
- *     scores:   { axis: number }   all 11 axes (sweet, sour, bitter, salty, umami,
+ *     scores:   { axis: number }   all 12 axes (sweet, sour, bitter, salty, umami, heat,
  *                                  odor_fruity ... odor_fatty), 0..1; all 0 when nothing counted
  *     axes:     [axis]             the FIRING axes (score >= minScore), strongest first
  *     bars:     [{ axis, label, color, score }]   same order as `axes`, ready to draw
@@ -22,10 +23,10 @@
  *     summary:  string             one sentence describing the chart (see summarize); NO_CHART_LINE when
  *                                  nothing draws; '' for an empty list
  *   }
- * `nodes` is a Map name → { gnnProbs } or null (then everything is uncounted).
+ * `nodes` is a Map name → { taste, gnnProbs } or null (then everything is uncounted).
  * Never throws: bad input gives the empty profile.
  */
-import { AXES, axisLabel, axisColor, nodeProbs, recipeAxisProfile, NO_CHART_LINE } from './recipeProfileAnalysis.js';
+import { AXES, axisLabel, axisColor, nodeProbs, recipeAxisProfileWeighted, NO_CHART_LINE } from './recipeProfileAnalysis.js';
 
 /** Fewer counted ingredients than this and the summary says there is not enough to go on. */
 export const MIN_COUNTED = 2;
@@ -42,11 +43,11 @@ export function summarize({ axes, counted, noun = 'recipe', drawn = true }) {
   return `On the chart, the strongest signal${lead.length > 1 ? 's are' : ' is'} ${lead.join(' and ')}.`;
 }
 
-export function buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05 } = {}) {
+export function buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null } = {}) {
   const list = [...new Set((Array.isArray(keys) ? keys : []).filter((k) => typeof k === 'string' && k))];
   const counted = list.filter((k) => nodeProbs(k, nodes));
   const uncounted = list.filter((k) => !nodeProbs(k, nodes));
-  const prof = recipeAxisProfile(list, nodes);
+  const prof = recipeAxisProfileWeighted(list.map((k) => ({ ingredient: k, amount: amounts?.[k] ?? null })), nodes);
   const axes = AXES.filter((a) => prof.scores[a] >= minScore).sort((a, b) => prof.scores[b] - prof.scores[a]);
   const summary = list.length ? summarize({ axes, counted, noun, drawn: prof.drawn }) : '';
   return {

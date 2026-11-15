@@ -28,7 +28,12 @@ const pool = buildRolePool(roles, index.names);
 const families = [{ id: 2, name: 'Sour Family', color: '#a16207' }, { id: 4, name: 'Aromatic Stirred', color: '#7c3aed' }, { id: 3, name: 'Boozy Sippers', color: '#92400e' }];
 const BAR = ['gin', 'campari', 'sweet vermouth', 'lemon juice', 'simple syrup'];
 const probs = (o) => ({ ...Object.fromEntries(AXES.map((a) => [a, 0])), ...o });
-const nodes = new Map([['lemon juice', { gnnProbs: probs({ sour: 0.9 }) }], ['simple syrup', { gnnProbs: probs({ sweet: 0.8 }) }]]);
+// TASTE comes from the curated label; the aroma half (gnnProbs) is not needed here.
+const nodes = new Map([
+  ['lemon juice', { taste: 'sour' }], ['simple syrup', { taste: 'sweet' }],
+  ['gin', { taste: 'bitter' }], ['sweet vermouth', { taste: 'sweet bitter' }], ['campari', { taste: 'bitter sweet sour' }],
+  ['jalapeno', { taste: 'spicy pungent' }], ['soda water', { taste: 'neutral' }],
+]);
 
 function renderInvent(props = {}) {
   return render(<InventCocktail bar={BAR} cocktails={[negroni, oldFashioned]}
@@ -261,6 +266,35 @@ describe('InventCocktail: flavor profile', () => {
     expect(byId('invent-profile-bar-sweet')).toBeTruthy();
     expect(byId('invent-profile-summary')).toHaveTextContent(/On the chart|this drink/);
     expect(byId('invent-profile-uncounted')).toHaveTextContent('mystery bitters');
+  });
+
+  it('gin, sweet vermouth and campari chart bitter and sweet, with Heat labelled and absent', () => {
+    renderInvent();
+    startWith('gin');
+    addText('sweet vermouth');
+    addText('campari');
+    const bars = screen.getAllByTestId(/^invent-profile-bar-/).map((b) => b.dataset.testid.replace('invent-profile-bar-', ''));
+    expect(bars[0]).toBe('bitter');
+    expect(bars).toContain('sweet');
+    expect(bars).not.toContain('heat');
+    expect(byId('invent-profile-bar-bitter')).toHaveAttribute('aria-label', expect.stringMatching(/^Bitter \d+ percent$/));
+  });
+
+  it('a jalapeno adds a Heat bar with its label', () => {
+    renderInvent();
+    startWith('gin');
+    addText('jalapeno');
+    addText('lemon juice');
+    expect(byId('invent-profile-bar-heat')).toHaveAttribute('aria-label', expect.stringMatching(/^Heat \d+ percent$/));
+    expect(byId('invent-profile-bar-heat')).toHaveTextContent('Heat');
+  });
+
+  it('a list of only soda water has nothing to chart, shows the plain line and does not crash', () => {
+    renderInvent();
+    startWith('soda water');
+    addText('soda water');
+    expect(screen.queryByTestId('invent-profile-bar-sweet')).toBeNull();
+    expect(byId('invent-profile')).toBeTruthy();
   });
 
   it('with no nodes it explains there is no flavor data and never throws', () => {

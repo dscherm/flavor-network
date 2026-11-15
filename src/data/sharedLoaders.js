@@ -1,6 +1,6 @@
 /**
  * sharedLoaders.js — the default data loaders for a built-in recipe page and the share-card images:
- * the recipe's own source file and the per-ingredient flavor values. Nothing here loads the pairing data.
+ * the recipe's own source file and the per-ingredient flavor data (curated taste labels, model aroma values). Nothing here loads the pairing data.
  */
 
 export async function defaultLoadData(kind) {
@@ -26,33 +26,45 @@ export async function defaultLoadData(kind) {
   return {};
 }
 
-export async function defaultLoadNodes() {
-  const res = await fetch('/proDataset/gnn_entropy.json');
-  if (!res.ok) throw new Error(`flavor data ${res.status}`);
-  const raw = await res.json();
+const LABELS_URL = '/proDataset/taste_labels.json';
+
+/** The curated taste labels (name -> label), about 20 KB gzipped. A failure gives {} and the taste half draws nothing. */
+async function fetchLabels(init) {
+  try {
+    const res = await fetch(LABELS_URL, init);
+    return res.ok ? await res.json() : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Map name -> { taste, gnnProbs? }: TASTE from the label file, AROMA from the model's values. */
+function mergeNodes(labels, raw) {
   const nodes = new Map();
-  for (const [name, info] of Object.entries(raw)) {
+  for (const [name, taste] of Object.entries(labels || {})) nodes.set(name, { taste });
+  for (const [name, info] of Object.entries(raw || {})) {
     if (name.startsWith('_') || !info?.probs) continue;
-    nodes.set(name, { gnnProbs: info.probs });
+    nodes.set(name, { ...(nodes.get(name) || {}), gnnProbs: info.probs });
   }
   return nodes;
 }
 
+export async function defaultLoadNodes() {
+  const [res, labels] = await Promise.all([fetch('/proDataset/gnn_entropy.json'), fetchLabels()]);
+  if (!res.ok) throw new Error(`flavor data ${res.status}`);
+  return mergeNodes(labels, await res.json());
+}
+
 /**
- * The flavor values only if the browser already has the file (the app loads it for every lab), never
+ * The flavor values only if the browser already has the files (the app loads them for every lab), never
  * a new download: the share card is then drawn without a chart rather than fetching 1.4 MB for a picture.
  */
 export async function loadCachedNodes() {
   try {
-    const res = await fetch('/proDataset/gnn_entropy.json', { cache: 'only-if-cached', mode: 'same-origin' });
+    const cached = { cache: 'only-if-cached', mode: 'same-origin' };
+    const [res, labels] = await Promise.all([fetch('/proDataset/gnn_entropy.json', cached), fetchLabels(cached)]);
     if (!res.ok) return null;
-    const raw = await res.json();
-    const nodes = new Map();
-    for (const [name, info] of Object.entries(raw)) {
-      if (name.startsWith('_') || !info?.probs) continue;
-      nodes.set(name, { gnnProbs: info.probs });
-    }
-    return nodes;
+    return mergeNodes(labels, await res.json());
   } catch {
     return null;
   }

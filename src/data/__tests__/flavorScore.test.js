@@ -25,10 +25,11 @@ describe('scoreItem', () => {
     expect(r).toMatchObject({ noChart: true, top1: false, top2: false, forbiddenLead: false, tops: [], coverage: 0 });
     expect(scoreItem(undefined, negroni).noChart).toBe(true);
   });
-  it('single expected taste is scored on top1 only; heat can never match', () => {
+  it('single expected taste is scored on top1 only; heat is a taste like the others', () => {
     expect(scoreItem([bar('umami', 0.7)], { expect: ['umami'] }).top2).toBeNull();
-    const heat = scoreItem([bar('sour', 0.7)], { expect: ['heat'] });
-    expect(heat.top1).toBe(false);
+    expect(scoreItem([bar('sour', 0.7)], { expect: ['heat'] }).top1).toBe(false);
+    expect(scoreItem([bar('heat', 0.7), bar('sour', 0.2)], { expect: ['heat'] }).top1).toBe(true);
+    expect(scoreItem([bar('heat', 0.7)], { expect: ['sour'], not: ['heat'] }).forbiddenLead).toBe(true);
   });
   it('aroma: expected axes must be in the top two aroma bars, taste bars ignored', () => {
     const t = { expect: ['sour'], aroma: ['green'] };

@@ -3,21 +3,23 @@ import { buildFlavorProfile } from '../inventProfile.js';
 import { AXES } from '../recipeProfileAnalysis.js';
 
 const probs = (o) => ({ ...Object.fromEntries(AXES.map((a) => [a, 0])), ...o });
+// TASTE comes from the curated label, AROMA from gnnProbs.
 const nodes = new Map([
-  ['lime juice', { gnnProbs: probs({ sour: 0.9, odor_fruity: 0.6 }) }],
-  ['simple syrup', { gnnProbs: probs({ sweet: 0.8 }) }],
-  ['gin', { gnnProbs: probs({ odor_woody: 0.4, bitter: 0.2 }) }],
+  ['lime juice', { taste: 'sour', gnnProbs: probs({ odor_fruity: 0.6 }) }],
+  ['simple syrup', { taste: 'sweet', gnnProbs: probs({}) }],
+  ['gin', { taste: 'bitter', gnnProbs: probs({ odor_woody: 0.4 }) }],
 ]);
 
 describe('buildFlavorProfile', () => {
   it('scores the axes, orders the firing ones, and names keys with no data', () => {
     const p = buildFlavorProfile(['lime juice', 'simple syrup', 'gin', 'mystery bitters'], nodes);
-    expect(Object.keys(p.scores)).toHaveLength(11);
+    expect(Object.keys(p.scores)).toHaveLength(12);
     expect(p.counted).toEqual(['lime juice', 'simple syrup', 'gin']);
     expect(p.uncounted).toEqual(['mystery bitters']);
-    expect(p.scores.sour).toBeCloseTo(0.3);
-    expect(p.axes[0]).toBe('sour');
+    expect(p.scores.sour).toBeCloseTo(1 / 3);
+    expect(p.scores.heat).toBe(0);
     expect(p.axes).toContain('sour');
+    expect(p.axes).toContain('sweet');
     expect(p.axes).not.toContain('umami');
     const vals = p.axes.map((a) => p.scores[a]);
     expect([...vals].sort((a, b) => b - a)).toEqual(vals);
@@ -28,7 +30,8 @@ describe('buildFlavorProfile', () => {
   });
   it('uses the noun the panel asks for', () => {
     expect(buildFlavorProfile(['lime juice', 'simple syrup'], nodes, { noun: 'drink' }).summary).toMatch(/strongest signal/);
-    expect(buildFlavorProfile(['x', 'y'], new Map([['x', { gnnProbs: probs({}) }], ['y', { gnnProbs: probs({}) }]]), { noun: 'drink' }).summary).toMatch(/this drink/);
+    expect(buildFlavorProfile(['x', 'y'], new Map([['x', { taste: 'sweet' }], ['y', { taste: 'sweet' }]]), { noun: 'drink' }).summary).toMatch(/strongest signal/);
+    expect(buildFlavorProfile(['x', 'y'], new Map([['x', { taste: 'neutral' }], ['y', { taste: 'neutral' }]]), { noun: 'drink' }).summary).toMatch(/not enough flavor data/i);
   });
   it('an empty list gives an empty profile and never throws', () => {
     for (const keys of [[], null, undefined, 'nope']) {
@@ -48,8 +51,8 @@ describe('buildFlavorProfile', () => {
 
 describe('summary wording rules', () => {
   const n2 = new Map([
-    ['lime juice', { gnnProbs: probs({ sour: 0.9 }) }],
-    ['simple syrup', { gnnProbs: probs({ sweet: 0.3, bitter: 0.2, sour: 0.7 }) }],
+    ['lime juice', { taste: 'sour' }],
+    ['simple syrup', { taste: 'sweet sour' }],
   ]);
   it('describes the chart and never credits an ingredient', () => {
     const s = buildFlavorProfile(['lime juice', 'simple syrup'], n2, { noun: 'drink' }).summary;
@@ -57,13 +60,13 @@ describe('summary wording rules', () => {
     expect(s).not.toMatch(/from|mostly|lime|syrup/);
   });
   it('one axis reads singular', () => {
-    const one = new Map([['a', { gnnProbs: probs({ sour: 0.5 }) }], ['b', { gnnProbs: probs({ sour: 0.5 }) }]]);
+    const one = new Map([['a', { taste: 'sour' }], ['b', { taste: 'sour' }]]);
     expect(buildFlavorProfile(['a', 'b'], one, { noun: 'sauce' }).summary).toBe('On the chart, the strongest signal is sour.');
   });
   it('names at most two axes', () => {
     const many = new Map([
-      ['a', { gnnProbs: probs({ sweet: 0.5, sour: 0.5, bitter: 0.5 }) }],
-      ['b', { gnnProbs: probs({ sweet: 0.5, sour: 0.5, bitter: 0.5 }) }],
+      ['a', { taste: 'sweet sour bitter' }],
+      ['b', { taste: 'sweet sour bitter' }],
     ]);
     expect(buildFlavorProfile(['a', 'b'], many).summary.match(/ and /g) || []).toHaveLength(1);
   });
@@ -72,8 +75,9 @@ describe('summary wording rules', () => {
     expect(buildFlavorProfile(['lime juice', 'mystery'], n2).summary).toMatch(/Not enough/);
   });
   it('nothing firing: no strong signal', () => {
-    const flat = new Map([['x', { gnnProbs: probs({}) }], ['y', { gnnProbs: probs({}) }]]);
-    expect(buildFlavorProfile(['x', 'y'], flat, { noun: 'dish' }).summary).toBe('The chart shows no strong signal for this dish.');
+    // One neutral ingredient and one with no label: nothing to chart.
+    const flat = new Map([['x', { taste: 'neutral' }], ['y', { gnnProbs: probs({}) }]]);
+    expect(buildFlavorProfile(['x', 'y'], flat, { noun: 'dish' }).summary).toMatch(/Not enough flavor data/);
   });
   it('still returns drivers and bars', () => {
     const p = buildFlavorProfile(['lime juice', 'simple syrup'], n2);

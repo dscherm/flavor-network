@@ -8,7 +8,7 @@
     "dev": "vite",
     "build:pairings": "node scripts/buildPairingsBinary.cjs",
     "build:wasm": "node scripts/copy_wasm.cjs",
-    "prebuild": "npm run build:pairings && npm run build:wasm && node scripts/buildFlavorPlaceholders.mjs && node scripts/buildShareIndex.mjs",
+    "prebuild": "npm run build:pairings && npm run build:wasm && node scripts/buildFlavorPlaceholders.mjs && node scripts/buildTasteLabels.mjs && node scripts/buildShareIndex.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "api": "node src/api/server.js",

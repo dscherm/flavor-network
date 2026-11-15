@@ -13,8 +13,14 @@ export function barsFor(recipe, nodes) {
   if (!SHARE_CHARTS_ENABLED || !recipe || !(nodes instanceof Map) || !nodes.size) return [];
   try {
     const names = new Set(nodes.keys());
-    const keys = (recipe.lines || []).map((l) => resolveIngredientName(l.label || l.key, names) || l.key);
-    return buildFlavorProfile(keys, nodes, { noun: NOUN[recipe.kind] || 'recipe' }).bars
+    const keys = [];
+    const amounts = {};
+    for (const l of recipe.lines || []) {
+      const key = resolveIngredientName(l.label || l.key, names) || l.key;
+      keys.push(key);
+      if (l.amount && amounts[key] === undefined) amounts[key] = l.amount;
+    }
+    return buildFlavorProfile(keys, nodes, { noun: NOUN[recipe.kind] || 'recipe', amounts }).bars
       .map((b) => ({ label: b.label, color: b.color, score: b.score }));
   } catch {
     return [];

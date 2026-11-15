@@ -26,11 +26,11 @@ vi.mock('../../ml/quantityRuntime.js', () => ({
 import InventRecipe from '../InventRecipe.jsx';
 import { recipeSeedFromSearch } from '../../data/inventSearch.js';
 
-const SWEETISH = { sweet: 0.8, odor_fruity: 0.4 };
+const SWEETISH = { odor_fruity: 0.4 };
 const NODES = new Map([
-  ['chicken', { category: 'protein', cuisines: ['italian cuisine'], gnnProbs: SWEETISH }],
+  ['chicken', { category: 'protein', cuisines: ['italian cuisine'], taste: 'umami sweet', gnnProbs: SWEETISH }],
   ['tofu', { category: 'protein', cuisines: [] }],
-  ['pork', { category: 'protein', cuisines: [], gnnProbs: { sweet: 0.7, odor_fatty: 0.5 } }],
+  ['pork', { category: 'protein', cuisines: [], taste: 'sweet umami', gnnProbs: { odor_fatty: 0.5 } }],
   ['broccoli', { category: 'vegetable', cuisines: [] }],
   ['carrot', { category: 'vegetable', cuisines: [] }],
   ['zucchini', { category: 'vegetable', cuisines: ['chinese cuisine'] }],

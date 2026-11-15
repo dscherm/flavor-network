@@ -200,11 +200,12 @@ export default function InventRecipe({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [build, scores, cuisine, kitchen, nodeMap, pairingIndex],
   );
-  const profile = useMemo(() => buildFlavorProfile(keys, nodeMap, { noun: 'dish' }), [keysSig, nodeMap]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const slotLines = build.slots.filter((s) => s.line).map((s) => ({ ...s.line, role: s.id }));
   const allLines = [...slotLines, ...build.extras.map((l) => ({ ...l, role: null }))];
   const amountOf = (k) => edits.get(k) ?? amounts.get(k)?.raw ?? '';
+  const profileAmounts = Object.fromEntries(keys.map((k) => [k, amountOf(k)]));
+  const amountSig = keys.map((k) => `${k}=${profileAmounts[k]}`).join('|');
+  const profile = useMemo(() => buildFlavorProfile(keys, nodeMap, { noun: 'dish', amounts: profileAmounts }), [amountSig, nodeMap]); // eslint-disable-line react-hooks/exhaustive-deps
   const lines = allLines.map((l) => ({
     key: l.key, source: l.source, amount: amountOf(l.key) || undefined, have: kitchen.length ? owns(l.key) : undefined,
   }));

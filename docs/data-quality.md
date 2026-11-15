@@ -257,7 +257,7 @@ the recipe taste charts are drawn from them. There are ten words.
 | **salty** | salt, brine, cured and salted foods | salt, feta, bacon |
 | **umami** | savoury depth: aged cheese, soy, mushrooms, meat, tomato paste | soy sauce, parmesan, mushroom |
 | **spicy** | the heat of chili, pepper and ginger | cayenne pepper, ginger, ginger beer |
-| **pungent** | a sharp, nose-clearing bite: garlic, onion, mustard, strong spices | garlic, cumin, sage |
+| **pungent** | a sharp, nose-clearing bite: garlic, onion, mustard, strong spices | garlic, onion, horseradish root |
 | **astringent** | a dry, puckering, leafy feel: some herbs, tea, unripe fruit | oregano, mint, okra |
 | **neutral** | no taste of its own: water, plain starch, neutral spirit. It always stands alone | water, flour, vodka |
 | **rich** | a fatty or creamy mouthfeel that is not one of the basic tastes: butter, oil, cream, egg yolk, avocado. It may lead a label with a taste after it | butter, olive oil, egg yolk |
@@ -269,7 +269,7 @@ The rules:
 3. Starches and grains (flour, rice, bread, pasta, noodles, oats, cornmeal, cornstarch, tortillas), water, ice, soda water and neutral spirit are neutral. Neutral is never combined with another word.
 4. Plain fats and oils (butter, oils, lard, shortening, ghee) are rich. Cream, milk, egg yolk, avocado and nuts are rich first, with a taste after it only if the taste is real: cream is rich sweet, sour cream is sour rich.
 5. The burn of alcohol is not a taste. Spirits are never labelled pungent or spicy; they get the flavour that tells them apart: bourbon sweet, gin bitter, vodka neutral, rum sweet.
-6. Spicy and pungent are charted as heat, so they are kept for real bite (chili, garlic, mustard). Many herbs and warm spices still carry pungent from the generated data; the hand-tuned strengths table (FLAVOR-4) is where that is corrected.
+6. Spicy and pungent are charted as heat, so they are kept for real bite (chili, garlic, mustard). Herbs and warm spices (parsley, thyme, cumin, cinnamon, nutmeg and the like) are aromatic, not hot: FLAVOR-3 took pungent off them in tasteOverrides.json.
 7. A label that is a deliberate correction of the generated data is one line in src/data/curation/tasteOverrides.json with a reason.
 
 Worked examples (checked against the data by a test, so this table cannot drift):
@@ -315,7 +315,7 @@ The known vocabulary is: sweet, sour, bitter, salty, umami, spicy, pungent, astr
 | fat | sweet 63, rich 22, bitter 18, umami 9 |
 | fruit | sweet 168, sour 34, astringent 2, rich 1 |
 | grain | neutral 177, sweet 96, salty 12, umami 10 |
-| herb | bitter 36, pungent 32, sweet 21, astringent 12 |
+| herb | bitter 57, sweet 22, astringent 12, sour 9 |
 | juice | sweet 25, sour 16, pungent 2, spicy 2 |
 | liqueur | sweet 55, bitter 10 |
 | liquid | salty 51, sweet 46, umami 26, bitter 11 |
@@ -324,8 +324,8 @@ The known vocabulary is: sweet, sour, bitter, salty, umami, spicy, pungent, astr
 | other | sweet 18, bitter 13, pungent 8, salty 2 |
 | protein | umami 308, salty 102, sweet 31, neutral 5 |
 | savory seasoning | umami 22, salty 16 |
-| seasoning | salty 28, pungent 4, sour 2, spicy 1 |
-| spice | spicy 53, pungent 45, sweet 42, bitter 15 |
+| seasoning | salty 28, pungent 3, sour 2, bitter 1 |
+| spice | spicy 53, sweet 47, pungent 30, bitter 25 |
 | spirit | sweet 22, bitter 15, neutral 1 |
 | sweetener | sweet 96, sour 2 |
 | thickener | sweet 13, neutral 6, bitter 5, umami 3 |

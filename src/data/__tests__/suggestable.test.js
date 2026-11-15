@@ -189,10 +189,11 @@ describe('stand-ins', () => {
 });
 
 describe('Recipe Notebook boost and temper', () => {
-  const mk = (probs) => ({ gnnProbs: { sweet: 0, sour: 0, bitter: 0, salty: 0, umami: 0, odor_fruity: 0, odor_floral: 0, odor_green: 0, odor_woody: 0, odor_spicy: 0, odor_fatty: 0, ...probs } });
+  // TASTE comes from the curated label, AROMA from gnnProbs.
+  const mk = (taste, probs) => ({ taste, gnnProbs: { odor_fruity: 0, odor_floral: 0, odor_green: 0, odor_woody: 0, odor_spicy: 0, odor_fatty: 0, ...probs } });
   const fake = new Map([
-    ['whipped cream', mk({ sweet: 0.8, odor_fruity: 0.5 })], ['cool whip', mk({ sweet: 0.95, odor_fruity: 0.5 })],
-    ['honey', mk({ sweet: 0.9, odor_fruity: 0.5 })],
+    ['whipped cream', mk('rich sweet', { odor_fruity: 0.5 })], ['cool whip', mk('sweet', { odor_fruity: 0.5 })],
+    ['honey', mk('sweet', { odor_fruity: 0.5 })],
   ]);
   const scores = { sweet: 0.1, sour: 0, bitter: 0, salty: 0, umami: 0, odor_fruity: 0.1, odor_floral: 0, odor_green: 0, odor_woody: 0, odor_spicy: 0, odor_fatty: 0 };
   it('rankByAxisImpact skips a packaged candidate, however strong', () => {

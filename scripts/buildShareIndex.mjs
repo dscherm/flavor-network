@@ -12,6 +12,7 @@ import { RECIPE_DETAILS } from '../src/data/seedRecipeDetails.js';
 import { buildFlavorProfile } from '../src/data/inventProfile.js';
 import { resolveIngredientName } from '../src/data/recipePairingMatch.js';
 import { SHARE_CHARTS_ENABLED } from '../src/data/shareTargets.js';
+import { loadFlavorNodes } from './lib/flavorNodes.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const OUT_PATH = resolve(ROOT, 'functions/src/share/share-index.json');
@@ -72,15 +73,6 @@ export function buildShareIndex() {
   return index;
 }
 
-function flavorNodes() {
-  const raw = readJson('public/proDataset/gnn_entropy.json');
-  const nodes = new Map();
-  for (const [name, info] of Object.entries(raw)) {
-    if (!name.startsWith('_') && info?.probs) nodes.set(name, { gnnProbs: info.probs });
-  }
-  return nodes;
-}
-
 /**
  * What the shareCard function needs to draw a built-in recipe's preview card, so it never loads the
  * flavor data or the app's modules: the first few ingredient lines, and the chart bars worked out
@@ -88,13 +80,19 @@ function flavorNodes() {
  */
 export function buildShareCards() {
   const data = loadData();
-  const nodes = SHARE_CHARTS_ENABLED ? flavorNodes() : new Map();
+  const nodes = SHARE_CHARTS_ENABLED ? loadFlavorNodes() : new Map();
   const names = new Set(nodes.keys());
   const noun = { cocktail: 'drink', sauce: 'sauce', dish: 'dish' };
   const out = {};
   eachBuiltIn(data, (kind, slug, r) => {
-    const keys = r.lines.map((l) => resolveIngredientName(l.label || l.key, names) || l.key);
-    const bars = !SHARE_CHARTS_ENABLED ? [] : buildFlavorProfile(keys, nodes, { noun: noun[kind] }).bars
+    const keys = [];
+    const amounts = {};
+    for (const l of r.lines) {
+      const key = resolveIngredientName(l.label || l.key, names) || l.key;
+      keys.push(key);
+      if (l.amount && amounts[key] === undefined) amounts[key] = l.amount;
+    }
+    const bars = !SHARE_CHARTS_ENABLED ? [] : buildFlavorProfile(keys, nodes, { noun: noun[kind], amounts }).bars
       .map((b) => ({ label: b.label, color: b.color, score: Math.round(b.score * 100) / 100 }));
     const lines = r.lines.slice(0, CARD_LINES).map((l) => {
       const o = { label: l.label || l.key, amount: l.amount || '' };

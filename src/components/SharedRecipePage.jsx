@@ -240,8 +240,14 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
   const profile = useMemo(() => {
     if (!SHARE_CHARTS_ENABLED || !recipe || !nodes) return null;
     const names = new Set(nodes.keys());
-    const keys = recipe.lines.map((l) => resolveIngredientName(l.label || l.key, names) || l.key);
-    return buildFlavorProfile(keys, nodes, { noun: KIND_NOUN[recipe.kind] || 'recipe' });
+    const keys = [];
+    const amounts = {};
+    for (const l of recipe.lines) {
+      const key = resolveIngredientName(l.label || l.key, names) || l.key;
+      keys.push(key);
+      if (l.amount && amounts[key] === undefined) amounts[key] = l.amount;
+    }
+    return buildFlavorProfile(keys, nodes, { noun: KIND_NOUN[recipe.kind] || 'recipe', amounts });
   }, [recipe, nodes]);
 
   const steps = recipe?.method ? recipe.method.split('\n').map((s) => s.trim()).filter(Boolean) : [];

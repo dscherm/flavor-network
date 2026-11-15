@@ -6,8 +6,12 @@ import { AXES } from '../../data/recipeProfileAnalysis.js';
 
 const z = () => Object.fromEntries(AXES.map((a) => [a, 0]));
 const probs = (o) => ({ ...z(), ...o });
+// A value is a curated taste label, or [label, aromaValues]: TASTE comes from the label, AROMA from gnnProbs.
 function nodesFrom(map) {
-  return new Map(Object.entries(map).map(([k, gnnProbs]) => [k, { gnnProbs }]));
+  return new Map(Object.entries(map).map(([k, v]) => {
+    const [taste, aroma] = Array.isArray(v) ? v : [v];
+    return [k, { taste, gnnProbs: probs(aroma || {}) }];
+  }));
 }
 
 beforeEach(() => {
@@ -18,9 +22,9 @@ beforeEach(() => {
 
 describe('RecipeFlavorProfilesCard', () => {
   const nodes = nodesFrom({
-    honey: probs({ sweet: 0.9 }),
-    lemon: probs({ sour: 0.8 }),
-    butter: probs({ odor_fatty: 0.6 }),
+    honey: 'sweet',
+    lemon: 'sour',
+    butter: ['rich sweet', { odor_fatty: 0.6 }],
   });
 
   it('renders the static per-axis analysis (no model needed)', () => {
@@ -87,7 +91,7 @@ describe('RecipeFlavorProfilesCard', () => {
     expect(screen.getByText('Not enough flavor data for a chart yet.')).toBeInTheDocument();
   });
 
-  it('a recipe of only placeholder-valued ingredients draws no chart and shows the plain line', () => {
+  it('a recipe whose ingredients have only placeholder model values (and no taste label) draws no chart and shows the plain line', () => {
     const raw = JSON.parse(readFileSync('public/proDataset/gnn_entropy.json', 'utf8'));
     const names = ['sugar', 'salt', 'coffee', 'lemon'];
     const real = new Map(names.map((k) => [k, { gnnProbs: raw[k].probs }]));
@@ -98,6 +102,39 @@ describe('RecipeFlavorProfilesCard', () => {
     fireEvent.click(screen.getByLabelText('Next'));
     expect(screen.queryByTestId('flavor-map-radar')).toBeNull();
     expect(screen.getByTestId('profiles-no-chart')).toBeInTheDocument();
+  });
+
+  it('the same ingredients with their curated taste labels DO chart, sugar sweet, lemon sour and coffee bitter', () => {
+    const labels = JSON.parse(readFileSync('public/proDataset/taste_labels.json', 'utf8'));
+    const names = ['sugar', 'salt', 'coffee', 'lemon'];
+    const withLabels = new Map(names.map((k) => [k, { taste: labels[k] }]));
+    render(<RecipeFlavorProfilesCard bowlNames={names} nodes={withLabels} />);
+    expect(screen.queryByTestId('profiles-no-chart')).toBeNull();
+    const axes = screen.getAllByTestId('overview-bar').map((b) => b.getAttribute('data-axis'));
+    for (const a of ['sweet', 'salty', 'bitter']) expect(axes).toContain(a);
+  });
+
+  it('charts Heat for a recipe with chili: labelled Heat, with its own colour, and a page of its own', () => {
+    const heatNodes = nodesFrom({ chili: 'spicy pungent', lime: 'sour', salt: 'salty' });
+    render(<RecipeFlavorProfilesCard bowlNames={['chili', 'lime', 'salt']} nodes={heatNodes} />);
+    const bars = screen.getAllByTestId('overview-bar');
+    const heat = bars.find((b) => b.getAttribute('data-axis') === 'heat');
+    expect(heat).toBeTruthy();
+    expect(heat).toHaveTextContent('Heat');
+    expect(bars[0].getAttribute('data-axis')).toBe('heat'); // 1.6 beats a 1.0 on equal amounts
+    expect(heat.querySelectorAll('div')[1].style.background).toMatch(/rgb\(255, 68, 68\)|#ff4444/i);
+    fireEvent.click(screen.getByLabelText('Next'));
+    fireEvent.click(screen.getByLabelText('Next')); // the strongest axis page: Heat
+    expect(screen.getByRole('heading', { name: 'Heat' })).toBeInTheDocument();
+  });
+
+  it('a recipe of only neutral ingredients shows the plain line and does not crash', () => {
+    const water = new Map(['water', 'ice', 'flour'].map((k) => [k, { taste: 'neutral' }]));
+    render(<RecipeFlavorProfilesCard bowlNames={['water', 'ice', 'flour']} nodes={water} />);
+    expect(screen.getByTestId('profiles-no-chart')).toHaveTextContent('Not enough flavor data for a chart yet.');
+    fireEvent.click(screen.getByLabelText('Next'));
+    fireEvent.click(screen.getByLabelText('Next'));
+    expect(screen.getByTestId('flavor-profiles-card')).toBeInTheDocument();
   });
 
   it('calls onClose when the × is tapped', () => {
@@ -119,10 +156,10 @@ describe('RecipeFlavorProfilesCard', () => {
       return Promise.resolve({ ok: false });
     });
     const richNodes = nodesFrom({
-      honey: probs({ sweet: 0.9, odor_fruity: 0.4 }),
-      butter: probs({ odor_fatty: 0.6 }),
-      gin: probs({ odor_woody: 0.5 }),
-      tomato: probs({ odor_green: 0.5 }),
+      honey: ['sweet', { odor_fruity: 0.4 }],
+      butter: ['rich', { odor_fatty: 0.6 }],
+      gin: ['bitter', { odor_woody: 0.5 }],
+      tomato: ['sweet sour umami', { odor_green: 0.5 }],
     });
     render(<RecipeFlavorProfilesCard bowlNames={['honey', 'butter']} nodes={richNodes} recipeType="main" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
     for (let i = 0; i < 11; i++) fireEvent.click(screen.getByLabelText('Next')); // → Pairings page
@@ -145,8 +182,8 @@ describe('RecipeFlavorProfilesCard', () => {
       return Promise.resolve({ ok: false });
     });
     const pairNodes = nodesFrom({
-      honey: probs({ sweet: 0.9 }), butter: probs({ odor_fatty: 0.6 }),
-      gin: probs({}), lemon: probs({ sour: 0.8 }), whiskey: probs({}),
+      honey: 'sweet', butter: ['rich', { odor_fatty: 0.6 }],
+      gin: 'bitter', lemon: 'sour', whiskey: 'bitter sweet',
     });
     const edges = [
       { source: 'butter', target: 'whiskey', strength: 0.9, known: true },
