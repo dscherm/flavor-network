@@ -2151,7 +2151,7 @@ together, never SHARE-6 alone. Three open decisions with defaults are defined in
   "id": "SHARE-6",
   "title": "Share a recipe the user made: publish a frozen copy, choose the name shown, unshare",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "New public collection shared/{id} (shape and limits in the spec) and firestore.rules for it: get by id for anyone, no list, create only signed in as owner within the limits, owner may set removed or delete, nothing else. src/data/sharePublish.js (pure toSharedDoc with the limits, and the Firestore calls). The share sheet's publish step for own items: shows exactly what will be public, the name choice (first name / typed nickname / nothing, default nothing), then 'Create link'. profiles/{uid}.shares tracks links (cap 50 live); an unedited item reuses its link. Profile gains 'Shared links' with Unshare. /r/<id> renders through SharedRecipePage and the preview and card functions read shared/{id}; removed or missing shows 'no longer shared' and generic preview tags. Must ship together with SHARE-7.",
   "acceptance": [
     "Rules tests (emulator): anonymous get by id allowed, list denied; create denied signed out, denied with another uid as owner, denied over each limit; update by a non-owner denied; owner can set removed and delete",
