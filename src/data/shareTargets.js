@@ -33,3 +33,29 @@ export function shareTargetUrls({ title = '', text = '', url = '' } = {}) {
     whatsapp: `https://wa.me/?text=${enc(`${line} ${url}`.trim())}`,
   };
 }
+
+const KIND_TAG = { cocktail: '#cocktails', sauce: '#sauce', dish: '#cooking' };
+
+/** A ready caption for a post: the name, the link as text (apps do not make it tappable), two hashtags. */
+export function captionFor(recipe, link) {
+  const name = String(recipe?.name || '').trim() || 'A recipe';
+  const tag = KIND_TAG[recipe?.kind] || '#cooking';
+  return [name, String(link || '').trim(), '', `#neuralflavor ${tag}`].filter((l, i) => l || i === 2).join('\n');
+}
+
+const CANONICAL_HOST = 'neuralflavor.web.app';
+
+/**
+ * The short link as printed on a card: "neuralflavor.web.app/r/cocktail/negroni". A path is put on the
+ * site's own host unless the page is on one of its real hosts (so a dev machine never prints "localhost").
+ */
+export function printedLinkFor(path, origin) {
+  if (!path) return '';
+  const p = path.startsWith('/') ? path : `/${path}`;
+  let host = CANONICAL_HOST;
+  try {
+    const h = new URL(origin).host;
+    if (h === 'neuralflavor.firebaseapp.com') host = h;
+  } catch { /* no origin: the site host */ }
+  return `${host}${p}`;
+}

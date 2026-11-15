@@ -5,6 +5,8 @@ import { onRequest } from 'firebase-functions/v2/https';
 import { logger } from 'firebase-functions';
 import { createShellFetcher, handleSharePreview, type ShareEntry } from './handler';
 import shareIndex from './share-index.json';
+import shareCards from './share-cards.json';
+import { handleShareCard, type CardData } from './card';
 
 const SHELL_TIMEOUT_MS = 5_000;
 
@@ -27,6 +29,23 @@ export const sharePreview = onRequest(
         // SHARE-6 connects Firestore here; until then a /r/<id> gets the generic tags.
         lookupShared: async () => null,
         index: shareIndex as Record<string, ShareEntry>,
+        log: (message, fields) => logger.warn(message, fields),
+      },
+    );
+    res.status(out.status).set(out.headers).send(out.body);
+  },
+);
+
+// SHARE-5. Hosting rewrites /r-img/** here: the 1200x630 PNG behind og:image.
+export const shareCard = onRequest(
+  { region: 'us-central1', memory: '1GiB', timeoutSeconds: 30, invoker: 'public' },
+  async (req, res) => {
+    const out = await handleShareCard(
+      { path: req.path },
+      {
+        cards: shareCards as unknown as Record<string, CardData>,
+        // SHARE-6 connects Firestore here and returns { name, kind, lines, lineCount, bars, ... } or null.
+        lookupShared: async () => null,
         log: (message, fields) => logger.warn(message, fields),
       },
     );

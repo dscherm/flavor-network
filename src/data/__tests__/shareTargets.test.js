@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { shareTargetUrls, absoluteShareUrl, shareTextFor, SHARE_OWN_ENABLED } from '../shareTargets.js';
+import { shareTargetUrls, absoluteShareUrl, shareTextFor, captionFor, printedLinkFor, SHARE_OWN_ENABLED } from '../shareTargets.js';
 
 const TRICKY = `Tom & Jerry's "Special" 🍸`;
 const URL_ = 'https://neuralflavor.web.app/r/cocktail/tom-and-jerrys';
@@ -48,5 +48,24 @@ describe('helpers', () => {
   });
   it('sharing own items is off until SHARE-6', () => {
     expect(SHARE_OWN_ENABLED).toBe(false);
+  });
+});
+
+describe('captionFor', () => {
+  it('has the name, the link as text and two hashtags', () => {
+    const c = captionFor({ kind: 'cocktail', name: 'Negroni' }, 'https://neuralflavor.web.app/r/cocktail/negroni');
+    expect(c.split(String.fromCharCode(10))).toEqual(['Negroni', 'https://neuralflavor.web.app/r/cocktail/negroni', '', '#neuralflavor #cocktails']);
+    expect(captionFor({ kind: 'sauce', name: 'Alfredo' }, 'x')).toMatch(/#neuralflavor #sauce$/);
+    expect(captionFor({ kind: 'dish', name: 'Risotto' }, 'x')).toMatch(/#neuralflavor #cooking$/);
+    expect(captionFor({ kind: 'dish', name: '' }, 'x')).toMatch(/^A recipe/);
+  });
+});
+
+describe('printedLinkFor', () => {
+  it('prints the site host and path, never localhost', () => {
+    expect(printedLinkFor('/r/cocktail/negroni', 'https://neuralflavor.web.app')).toBe('neuralflavor.web.app/r/cocktail/negroni');
+    expect(printedLinkFor('/r/cocktail/negroni', 'http://localhost:5173')).toBe('neuralflavor.web.app/r/cocktail/negroni');
+    expect(printedLinkFor('/r/ab12cd', '')).toBe('neuralflavor.web.app/r/ab12cd');
+    expect(printedLinkFor('', 'https://neuralflavor.web.app')).toBe('');
   });
 });

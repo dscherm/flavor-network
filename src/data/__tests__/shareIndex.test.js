@@ -43,4 +43,14 @@ describe('share index', () => {
     expect(describeRecipe('sauce', lines).length).toBeLessThanOrEqual(160);
     expect(describeRecipe('sauce', [])).toBe('A sauce on Neural Flavor.');
   });
+
+  it('the committed share-cards.json and generated layout are up to date (run scripts/buildShareIndex.mjs)', async () => {
+    const { buildShareCards, buildLayoutModule } = await import('../../../scripts/buildShareIndex.mjs');
+    const cards = buildShareCards();
+    const committed = json('functions/src/share/share-cards.json');
+    expect(committed).toEqual(cards);
+    expect(Object.keys(cards).sort()).toEqual(Object.keys(index).sort());
+    const gen = readFileSync(resolve(ROOT, 'functions/src/share/cardLayout.generated.ts'), 'utf8');
+    expect(gen).toBe(buildLayoutModule());
+  }, 60_000);
 });

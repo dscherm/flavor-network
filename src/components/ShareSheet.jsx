@@ -9,7 +9,8 @@
  *   ownItem     a recipe the person made: no link is produced here (SHARE-6 adds publishing);
  *               the sheet offers onPublish instead
  *   onPublish   called from the own-item sheet
- *   imagesSlot  node rendered in data-testid="share-images-slot" (SHARE-5 fills it)
+ *   imagesSlot  node rendered in data-testid="share-images-slot"; when omitted, a built-in recipe gets
+ *               <ShareImages> (the card pictures, SHARE-5)
  *   origin      override for tests; defaults to window.location.origin
  * ShareButton props: the same, minus open/onClose, plus label, className, style, testid.
  *   Renders nothing for an own item while SHARE_OWN_ENABLED is false, and nothing
@@ -18,6 +19,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { absoluteShareUrl, shareTargetUrls, shareTextFor, SHARE_OWN_ENABLED } from '../data/shareTargets.js';
+import ShareImages from './ShareImages.jsx';
 import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
 
 const NETWORKS = [
@@ -29,7 +31,7 @@ const NETWORKS = [
 
 const tap = { minHeight: 44 };
 
-export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, onPublish, imagesSlot = null, origin }) {
+export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, onPublish, imagesSlot, origin }) {
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
   const closeRef = useRef(null);
@@ -128,7 +130,9 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
           </div>
         )}
 
-        <div data-testid="share-images-slot" className="mt-3">{imagesSlot}</div>
+        <div data-testid="share-images-slot" className="mt-3">
+          {imagesSlot !== undefined ? imagesSlot : (!ownItem && link ? <ShareImages link={link} origin={origin} /> : null)}
+        </div>
       </div>
     </div>
   );

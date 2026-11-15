@@ -8,4 +8,4 @@ export { scrapeRecipe } from './scrape';
 export { scanBar } from './barscan';
 
 // SHARE-4: sharePreview — link-preview tags for /r/ share links.
-export { sharePreview } from './share';
+export { sharePreview, shareCard } from './share';

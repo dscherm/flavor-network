@@ -20,6 +20,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
 import InventSaveOverlay from './InventSaveOverlay.jsx';
 import { ShareButton } from './ShareSheet.jsx';
+import ShareImages from './ShareImages.jsx';
 import useAuth from '../hooks/useAuth.js';
 import useUserProfile from '../hooks/useUserProfile.js';
 import useSaveInvention from '../hooks/useSaveInvention.js';
@@ -28,6 +29,7 @@ import {
 } from '../data/sharedSave.js';
 import { clearPendingSave, LAB_PATH, readPendingSave, setPendingSave, stashInventSeed } from '../data/sharedHandoff.js';
 import { resolveBuiltIn } from '../data/sharedRecipe.js';
+import { defaultLoadData, defaultLoadNodes } from '../data/sharedLoaders.js';
 import { buildFlavorProfile } from '../data/inventProfile.js';
 import { resolveIngredientName } from '../data/recipePairingMatch.js';
 import { chalkSurfaceStyle } from '../data/chalkTheme.js';
@@ -36,40 +38,7 @@ import { FONT, SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn,
 const KIND_NOUN = { cocktail: 'drink', sauce: 'sauce', dish: 'dish' };
 const KIND_WORD = { cocktail: 'Cocktail', sauce: 'Sauce', dish: 'Dish' };
 
-export async function defaultLoadData(kind) {
-  if (kind === 'cocktail') {
-    const res = await fetch('/data/cocktail_codex_v2.json');
-    if (!res.ok) throw new Error(`cocktail data ${res.status}`);
-    const raw = await res.json();
-    return { cocktails: raw.cocktails || [], families: raw.families || [] };
-  }
-  if (kind === 'sauce') {
-    const res = await fetch('/data/sauce_augment.json');
-    if (!res.ok) throw new Error(`sauce data ${res.status}`);
-    const raw = await res.json();
-    return { sauces: raw.sauces || [] };
-  }
-  if (kind === 'dish') {
-    const [{ SEED_RECIPES }, { RECIPE_DETAILS }] = await Promise.all([
-      import('../data/seedRecipes.js'),
-      import('../data/seedRecipeDetails.js'),
-    ]);
-    return { dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
-  }
-  return {};
-}
-
-export async function defaultLoadNodes() {
-  const res = await fetch('/proDataset/gnn_entropy.json');
-  if (!res.ok) throw new Error(`flavor data ${res.status}`);
-  const raw = await res.json();
-  const nodes = new Map();
-  for (const [name, info] of Object.entries(raw)) {
-    if (name.startsWith('_') || !info?.probs) continue;
-    nodes.set(name, { gnnProbs: info.probs });
-  }
-  return nodes;
-}
+export { defaultLoadData, defaultLoadNodes };
 
 const SAVE_WHY = { title: 'Create a free account to keep this recipe', body: 'Your account keeps what you save and shows it on every device. This recipe is saved the moment you are in.' };
 const INVITE_WHY = { title: 'Create a free account', body: 'Save recipes, and build your own drinks, sauces and dishes from what pairs well. It is free.' };
@@ -81,7 +50,7 @@ const tap = { minHeight: 44 };
  * completes by itself when the account arrives: in this page (popup sign-in) or, after the
  * redirect sign-in reloads it, from the pending-save marker in sessionStorage.
  */
-function RecipeActions({ recipe, navigate }) {
+function RecipeActions({ recipe, nodes, navigate }) {
   const auth = useAuth();
   const userProfile = useUserProfile(auth.user);
   const save = useSaveInvention({ kind: savedKindFor(recipe.kind), userProfile, auth });
@@ -168,7 +137,8 @@ function RecipeActions({ recipe, navigate }) {
         className="inline-flex items-center justify-center rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap }}>
         Make it your own
       </button>
-      <ShareButton recipe={recipe} link={`/r/${recipe.kind}/${recipe.slug}`} />
+      <ShareButton recipe={recipe} link={`/r/${recipe.kind}/${recipe.slug}`}
+        imagesSlot={<ShareImages link={`/r/${recipe.kind}/${recipe.slug}`} recipe={recipe} nodes={nodes} />} />
       {note && (
         <p role="status" data-testid="shared-save-note" data-status={note.status} className="basis-full text-[14px]"
           style={{ fontFamily: SANS, color: note.status === 'error' ? '#fda4af' : CHALK_DIM }}>{note.message}</p>
@@ -309,7 +279,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
             )}
 
             <section data-testid="shared-actions" aria-label="Actions" className="mt-6 flex flex-wrap gap-2 empty:hidden">
-              <RecipeActions recipe={recipe} navigate={navigate} />
+              <RecipeActions recipe={recipe} nodes={nodes} navigate={navigate} />
               {actions}
             </section>
           </article>

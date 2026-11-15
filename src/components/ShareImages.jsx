@@ -1,0 +1,156 @@
+/**
+ * ShareImages — the "pictures" part of the share sheet (SHARE-5). Instagram and TikTok take no tappable
+ * link in a post, so the recipe travels as card images with the short link printed on them.
+ *
+ * Props
+ *   link         "/r/cocktail/negroni" (a built-in's share path); anything else renders nothing
+ *   recipe       optional full normalised recipe ({ kind, name, lines, method, ... }); loaded from `link` when absent
+ *   nodes        optional Map of flavor values; when absent only an already-cached copy is used (never a new
+ *                download), and the cards are drawn without the chart if there is none
+ *   origin       defaults to window.location.origin
+ *   loadData / loadNodes / renderFiles   injectable for tests
+ * Test ids: share-images, share-choice-count, share-choice-format, share-images-action, share-images-status,
+ *   share-caption, share-caption-status, share-story-copy.
+ * A failure to draw shows one plain line; Copy link and the rest of the sheet are not touched.
+ */
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { absoluteShareUrl, captionFor, printedLinkFor } from '../data/shareTargets.js';
+import { parseSharePath, resolveBuiltIn } from '../data/sharedRecipe.js';
+import { barsFor } from '../data/shareCardData.js';
+import { defaultLoadData, loadCachedNodes } from '../data/sharedLoaders.js';
+import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
+
+const tap = { minHeight: 44 };
+const COUNTS = [{ id: 'one', label: 'One card' }, { id: 'set', label: 'Set of 3' }];
+const FORMATS = [{ id: 'portrait', label: 'Feed' }, { id: 'tall', label: 'Story or TikTok' }];
+
+async function defaultRenderFiles(opts) {
+  const { renderCardFiles } = await import('../data/shareCardCanvas.js');
+  return renderCardFiles(opts);
+}
+
+function Choice({ legend, options, value, onChange, testid }) {
+  return (
+    <div role="group" aria-label={legend} data-testid={testid} className="grid grid-cols-2 gap-2">
+      {options.map((o) => (
+        <button key={o.id} type="button" onClick={() => onChange(o.id)} aria-pressed={value === o.id}
+          data-testid={`${testid}-${o.id}`} className="rounded-lg px-2"
+          style={{ ...btn({ fontSize: 17, background: value === o.id ? `${ACCENT}33` : 'rgba(255,255,255,0.05)', borderColor: value === o.id ? ACCENT : CHALK_RAIL }), ...tap }}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function ShareImages({ link = '', recipe: given = null, nodes: givenNodes, origin, loadData = defaultLoadData, loadNodes = loadCachedNodes, renderFiles = defaultRenderFiles }) {
+  const route = useMemo(() => parseSharePath(link), [link]);
+  const builtIn = route && route.kind && route.slug ? route : null;
+  const [loaded, setLoaded] = useState(null);
+  const [loadedNodes, setLoadedNodes] = useState(null);
+  const [count, setCount] = useState('one');
+  const [format, setFormat] = useState('portrait');
+  const [files, setFiles] = useState(null);
+  const [error, setError] = useState('');
+  const [note, setNote] = useState('');
+  const [captionNote, setCaptionNote] = useState('');
+  const [storyNote, setStoryNote] = useState('');
+  const urlsRef = useRef([]);
+
+  const recipe = given && Array.isArray(given.lines) ? given : loaded;
+
+  useEffect(() => {
+    if (!builtIn || (given && Array.isArray(given.lines))) return undefined;
+    let live = true;
+    Promise.resolve().then(() => loadData(builtIn.kind))
+      .then((data) => { if (live) setLoaded(resolveBuiltIn(builtIn.kind, builtIn.slug, data)); })
+      .catch(() => { if (live) setError('Could not get this recipe ready for pictures.'); });
+    return () => { live = false; };
+  }, [builtIn, given, loadData]);
+
+  useEffect(() => {
+    if (givenNodes !== undefined) return undefined;
+    let live = true;
+    Promise.resolve().then(() => loadNodes()).then((n) => { if (live) setLoadedNodes(n instanceof Map ? n : null); }).catch(() => { if (live) setLoadedNodes(null); });
+    return () => { live = false; };
+  }, [givenNodes, loadNodes]);
+
+  const nodes = givenNodes !== undefined ? givenNodes : loadedNodes;
+  const base = origin ?? (typeof window !== 'undefined' ? window.location.origin : '');
+  const fullLink = builtIn ? absoluteShareUrl(link, base) : '';
+  const printed = builtIn ? printedLinkFor(link, base) : '';
+
+  // Draw ahead of the tap: navigator.share must be called straight from the tap, with nothing awaited first.
+  useEffect(() => {
+    if (!recipe || !builtIn) return undefined;
+    let live = true;
+    setFiles(null); setError(''); setNote('');
+    Promise.resolve()
+      .then(() => renderFiles({ recipe, bars: barsFor(recipe, nodes), link: printed, count, format, slug: builtIn.slug }))
+      .then((f) => { if (live) setFiles(f); })
+      .catch(() => { if (live) setError('Could not draw the pictures. The link still works.'); });
+    return () => { live = false; };
+  }, [recipe, nodes, printed, count, format, builtIn, renderFiles]);
+
+  useEffect(() => () => { urlsRef.current.forEach((u) => URL.revokeObjectURL(u)); urlsRef.current = []; }, []);
+
+  if (!builtIn) return null;
+
+  const canShareFiles = !!files && typeof navigator !== 'undefined' && typeof navigator.canShare === 'function'
+    && (() => { try { return navigator.canShare({ files }); } catch { return false; } })();
+
+  const share = async () => {
+    if (!files) return;
+    try { await navigator.share({ files, title: recipe?.name || 'Recipe' }); } catch { /* cancelled (AbortError) or refused */ }
+  };
+  const download = () => {
+    if (!files) return;
+    files.forEach((f) => {
+      const url = URL.createObjectURL(f);
+      urlsRef.current.push(url);
+      const a = document.createElement('a');
+      a.href = url; a.download = f.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => { URL.revokeObjectURL(url); urlsRef.current = urlsRef.current.filter((u) => u !== url); }, 4000);
+    });
+    setNote(files.length > 1 ? 'Saved 3 pictures' : 'Saved the picture');
+  };
+  const copyText = async (text, setter, done) => {
+    try { await navigator.clipboard.writeText(text); setter(done); } catch { setter('Could not copy. Select the text yourself.'); }
+  };
+
+  const waiting = !files && !error;
+  return (
+    <section data-testid="share-images" aria-label="Share as pictures" className="mt-4 pt-3 min-w-0" style={{ borderTop: `1px solid ${CHALK_RAIL}` }}>
+      <h3 style={{ ...heading, fontSize: 22 }}>As pictures</h3>
+      <p className="text-[14px] mt-0.5" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+        For Instagram and TikTok. The link is printed on every card.
+      </p>
+      <div className="mt-2 flex flex-col gap-2">
+        <Choice legend="How many cards" options={COUNTS} value={count} onChange={setCount} testid="share-choice-count" />
+        <Choice legend="Where you will post" options={FORMATS} value={format} onChange={setFormat} testid="share-choice-format" />
+        <button type="button" onClick={canShareFiles ? share : download} disabled={!files} data-testid="share-images-action"
+          className="w-full rounded-lg px-4" style={{ ...btn({ background: `${ACCENT}22` }), ...tap, opacity: files ? 1 : 0.55 }}>
+          {canShareFiles ? 'Share images' : 'Download images'}
+        </button>
+        <p role="status" data-testid="share-images-status" className="text-[14px] min-h-[1.25rem]"
+          style={{ fontFamily: SANS, color: error ? '#fda4af' : CHALK_SUB }}>
+          {error || (waiting ? 'Drawing the pictures...' : note)}
+        </p>
+        <button type="button" onClick={() => copyText(captionFor(recipe || { name: '', kind: builtIn.kind }, fullLink), setCaptionNote, 'Caption copied')}
+          data-testid="share-caption" className="w-full rounded-lg px-4" style={{ ...btn({ background: 'rgba(255,255,255,0.05)' }), ...tap }}>
+          Copy caption
+        </button>
+        <p role="status" data-testid="share-caption-status" className="text-[14px] min-h-[1.25rem]" style={{ fontFamily: SANS, color: ACCENT }}>{captionNote}</p>
+        <p className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>
+          Posting a Story? Copy the link and add it as a link sticker.{' '}
+          <button type="button" onClick={() => copyText(fullLink, setStoryNote, 'Link copied')} data-testid="share-story-copy"
+            className="underline px-1" style={{ ...tap, color: CHALK_CREAM, fontFamily: SANS, fontSize: 14 }}>
+            Copy the link
+          </button>
+          <span role="status" data-testid="share-story-status" style={{ color: ACCENT }}>{storyNote}</span>
+        </p>
+      </div>
+    </section>
+  );
+}

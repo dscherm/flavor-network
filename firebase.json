@@ -15,6 +15,10 @@
         "function": { "functionId": "sharePreview", "region": "us-central1" }
       },
       {
+        "source": "/r-img/**",
+        "function": { "functionId": "shareCard", "region": "us-central1" }
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
