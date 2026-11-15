@@ -12,6 +12,7 @@
  *   title         string, default "Flavor profile"
  *   labels        { empty, uncounted, note }
  *   testidPrefix  default 'profile'
+ * When profile.drawn is false (and the list is not empty) only the plain line (profile.summary) shows, in {p}-empty.
  * Test ids: {p} root, {p}-bar-{axis} (aria-label "Sweet 42 percent"), {p}-summary, {p}-uncounted, {p}-note, {p}-empty.
  */
 import { heading, small, SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from './inventUi.jsx';
@@ -26,6 +27,16 @@ export default function InventFlavorProfile({ profile, title = 'Flavor profile',
   const p = testidPrefix;
   const bars = profile?.bars || [];
   const uncounted = profile?.uncounted || [];
+  // The draw rule said no chart (too few ingredients with real flavor values): one plain line, no bars.
+  const noChart = profile?.drawn === false && (profile.counted?.length || 0) + uncounted.length > 0;
+  if (noChart) {
+    return (
+      <div data-testid={p} className="min-w-0">
+        <p className="mb-1" style={heading}>{title}</p>
+        <p className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-empty`}>{profile.summary || 'Not enough flavor data for a chart yet.'}</p>
+      </div>
+    );
+  }
   const max = bars.reduce((m, b) => Math.max(m, b.score), 0) || 1;
   return (
     <div data-testid={p} className="min-w-0">

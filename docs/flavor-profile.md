@@ -100,9 +100,65 @@ Headline: the top taste is an expected one for 20 of 41 items (48.8%); the top t
 
 By name: the Negroni (expected bitter and sweet, sour must not lead) charts sweet 0.72, sour 0.62, bitter 0.46. Its top bar is expected, but bitter, the defining taste, is last of the three, and sour is second. The Daiquiri (expected sour and sweet, bitter must not lead) charts sour 0.64, bitter 0.55, sweet 0.53, so bitter beats sweet. Old Fashioned, Manhattan, Boulevardier, Aperol Spritz and Piña Colada all have a forbidden taste on top.
 
+## After FLAVOR-2 (2026-11-15, placeholder values no longer drawn)
+
+What changed: an ingredient whose taste numbers are one of the repeated placeholder rows no longer counts toward the taste half of a chart, and one whose aroma numbers are the repeated placeholder row no longer counts toward the aroma half. Taste and aroma are judged separately. A half is drawn only when at least two of the recipe's ingredients, and at least half of them, have real values for it. When neither half draws, the chart is replaced by the line "Not enough flavor data for a chart yet." Which rows count as placeholders is worked out by value from the data file when the site is built (`src/data/flavorPlaceholders.json`): any exact taste row or aroma row shared by more than 150 ingredients. That is the three taste rows (1,526, 261 and 249 ingredients) and the one aroma row (2,062 ingredients).
+
+Exactly as printed by `npm run measure:flavor`:
+
+```
+cocktail/negroni            expect bitter/sweet not sour  |  (none)  |  counted 33%  |  NO CHART
+cocktail/daiquiri           expect sour/sweet not bitter  |  (none)  |  counted 33%  |  NO CHART
+cocktail/margarita          expect sour/salty/sweet not bitter  |  sour 0.72, sweet 0.39, umami 0.33  |  counted 50%  |  top1, top2
+cocktail/old-fashioned      expect sweet/bitter not sour  |  sour 0.61, bitter 0.45, sweet 0.32  |  counted 50%  |  miss, not-top2, FORBIDDEN LEADS
+cocktail/manhattan          expect sweet/bitter not sour  |  sour 0.54, sweet 0.46, bitter 0.37  |  counted 83%  |  miss, not-top2, FORBIDDEN LEADS
+cocktail/whiskey-sour       expect sour/sweet  |  (none)  |  counted 33%  |  NO CHART
+cocktail/mojito             expect sour/sweet not bitter  |  (none)  |  counted 40%  |  NO CHART
+cocktail/americano          expect bitter/sweet not sour  |  (none)  |  counted 33%  |  NO CHART
+cocktail/aperol-spritz      expect bitter/sweet not sour  |  (none)  |  counted 33%  |  NO CHART
+cocktail/paloma             expect sour/bitter/sweet  |  (none)  |  counted 33%  |  NO CHART
+cocktail/gimlet             expect sour/sweet not bitter  |  sour 0.67, umami 0.55, sweet 0.50  |  counted 50%  |  top1, not-top2
+cocktail/sidecar            expect sour/sweet not bitter  |  sour 0.39, sweet 0.22, bitter 0.09  |  counted 67%  |  top1, top2
+cocktail/boulevardier       expect bitter/sweet not sour  |  sour 0.62, sweet 0.49, bitter 0.21  |  counted 67%  |  miss, not-top2, FORBIDDEN LEADS
+cocktail/pina-colada        expect sweet not sour/bitter  |  (none)  |  counted 0%  |  NO CHART
+cocktail/tom-collins        expect sour/sweet not bitter  |  (none)  |  counted 33%  |  NO CHART
+cocktail/bloody-mary        expect umami/salty/heat not sweet  |  (none)  |  counted 43%  |  NO CHART
+cocktail/pisco-sour         expect sour/sweet not bitter  |  (none)  |  counted 20%  |  NO CHART
+cocktail/white-russian      expect sweet not sour/salty  |  (none)  |  counted 33%  |  NO CHART
+cocktail/cosmopolitan       expect sour/sweet not bitter/salty  |  sweet 0.63, sour 0.58, bitter 0.33  |  counted 75%  |  top1, top2
+cocktail/tequila-sunrise    expect sweet not bitter/salty  |  sour 0.72, sweet 0.39, umami 0.33  |  counted 50%  |  miss
+sauce/hollandaise           expect sour/salty not sweet/bitter  |  (none)  |  counted 17%  |  NO CHART
+sauce/teriyaki              expect sweet/salty/umami not sour/bitter  |  (none)  |  counted 14%  |  NO CHART
+sauce/ponzu                 expect sour/salty/umami not sweet  |  (none)  |  counted 17%  |  NO CHART
+sauce/nuoc-cham             expect sour/salty/sweet not bitter  |  (none)  |  counted 17%  |  NO CHART
+sauce/sweet-and-sour-sauce  expect sweet/sour not bitter/salty  |  (none)  |  counted 0%  |  NO CHART
+sauce/salsa-verde           expect sour/heat not sweet  |  (none)  |  counted 43%  |  NO CHART
+sauce/buffalo-sauce         expect heat/sour/salty not sweet  |  (none)  |  counted 17%  |  NO CHART
+sauce/marinara              expect umami/sour not bitter  |  bitter 0.47, sweet 0.31, sour 0.23  |  counted 50%  |  miss, not-top2, FORBIDDEN LEADS
+sauce/black-bean-sauce      expect salty/umami not sweet/sour  |  (none)  |  counted 22%  |  NO CHART
+dish/beef-bolognese         expect umami not sweet  |  sweet 0.38, sour 0.30, bitter 0.29  |  counted 63%  |  miss, FORBIDDEN LEADS
+dish/margherita-pizza       expect umami/salty not sweet  |  sweet 0.39, bitter 0.36, sour 0.24  |  counted 71%  |  miss, not-top2, FORBIDDEN LEADS
+dish/caesar-salad           expect salty/umami not sweet  |  bitter 0.36, sour 0.30, sweet 0.25  |  counted 63%  |  miss, not-top2
+dish/thai-green-curry       expect heat not sweet  |  (none)  |  counted 38%  |  NO CHART
+dish/tom-yum                expect sour/heat not sweet  |  (none)  |  counted 38%  |  NO CHART
+dish/creme-brulee           expect sweet not salty/umami/sour  |  bitter 0.53, sweet 0.37, sour 0.12  |  counted 50%  |  miss
+dish/tiramisu               expect sweet/bitter not salty/umami  |  (none)  |  counted 17%  |  NO CHART
+dish/apple-pie              expect sweet not salty/umami  |  (none)  |  counted 25%  |  NO CHART
+dish/miso-soup              expect umami/salty not sweet  |  (none)  |  counted 0%  |  NO CHART
+dish/greek-salad            expect salty/sour not sweet  |  bitter 0.39, sour 0.32, sweet 0.28  |  counted 63%  |  miss, not-top2
+dish/mapo-tofu              expect heat/umami/salty not sweet  |  (none)  |  counted 13%  |  NO CHART
+dish/pesto-genovese         expect salty/umami not sweet  |  (none)  |  counted 43%  |  NO CHART
+
+Items 41. Top taste expected: 4/41 (9.8%). Top two both expected: 3/34 items with 2+ expected (8.8%). Forbidden taste leads: 6. No chart: 27. Ingredients counted: 37.5%. Aroma as expected: 0/4 (0%).
+```
+
+Read plainly: fewer charts is the intended outcome of this step, and the numbers show it. 27 of the 41 items now have no chart (none before), and only 37.5% of ingredients are counted (82.6% before). The top taste is an expected one on 4 of 41 items (9.8%, was 20 of 41), but that figure now counts every no-chart item as a miss; among the 14 items that still draw a chart it is 4 of 14. A forbidden taste leads on 6 items (was 12): the count halved, but an item with no chart cannot have a wrong leader, so part of that drop is only charts disappearing; all 6 remaining are items that kept a chart and still lead wrongly. The remaining charts are drawn from rows that are not the constant, and they are still not good: that is what the next steps (tastes from the curated labels, then hand-tuned strengths) are for. The Negroni, Daiquiri, Whiskey Sour, Mojito, Americano, Aperol Spritz, Paloma, Piña Colada and Tom Collins now show no chart rather than a wrong one.
+
+Of the 599 built-in recipes, the share cards and link previews draw a chart for 186 (before: 596). By kind: cocktails 140 of 439 (before 436), sauces 16 of 77 (before 77), dishes 30 of 83 (before 83).
+
 ## What comes next
 
-- FLAVOR-2 stops drawing a chart from the repeated placeholder rows: ingredients carrying them count as having no flavor data, and a recipe without enough real data shows "not enough flavor data" instead of a chart.
+- FLAVOR-2 (done, see above) stops drawing a chart from the repeated placeholder rows: ingredients carrying them count as having no flavor data, and a recipe without enough real data shows "not enough flavor data" instead of a chart.
 - FLAVOR-3 draws the tastes from the curated taste word each ingredient already has (salt is salty, sugar is sweet, coffee is bitter), weighted by how much of it the recipe uses.
 - FLAVOR-4 hand-tunes strengths for the ingredients that matter most, so a dash of bitters and two ounces of gin no longer weigh the same.
 - FLAVOR-5 takes aromas from published aroma descriptors instead of the model.

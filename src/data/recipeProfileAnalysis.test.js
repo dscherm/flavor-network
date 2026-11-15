@@ -25,10 +25,10 @@ describe('recipeAxisProfile', () => {
   });
 
   it('skips ingredients without probs', () => {
-    const nodes = nodesFrom({ honey: probs({ sweet: 0.9 }) });
-    const { n, scores } = recipeAxisProfile(['honey', 'mystery'], nodes);
-    expect(n).toBe(1);
-    expect(scores.sweet).toBeCloseTo(0.9);
+    const nodes = nodesFrom({ honey: probs({ sweet: 0.9 }), jam: probs({ sweet: 0.5 }) });
+    const { n, scores } = recipeAxisProfile(['honey', 'jam', 'mystery'], nodes);
+    expect(n).toBe(2);
+    expect(scores.sweet).toBeCloseTo(0.7);
   });
 });
 
@@ -85,9 +85,9 @@ describe('recipeAxisProfileWeighted', () => {
   });
 
   it('skips ingredients without probs and is null-safe', () => {
-    const w = recipeAxisProfileWeighted(['honey', 'mystery'], nodes);
-    expect(w.n).toBe(1);
-    expect(w.scores.sweet).toBeCloseTo(0.9);
+    const w = recipeAxisProfileWeighted(['honey', 'lemon', 'mystery'], nodes);
+    expect(w.n).toBe(2);
+    expect(w.scores.sweet).toBeCloseTo(0.45);
     expect(recipeAxisProfileWeighted(null, nodes).n).toBe(0);
   });
 });

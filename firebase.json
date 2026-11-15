@@ -64,7 +64,7 @@
         "firebase-debug.*.log",
         "*.local"
       ],
-      "predeploy": ["node scripts/buildShareIndex.mjs", "npm --prefix \"$RESOURCE_DIR\" run build"]
+      "predeploy": ["node scripts/buildFlavorPlaceholders.mjs", "node scripts/buildShareIndex.mjs", "npm --prefix \"$RESOURCE_DIR\" run build"]
     }
   ]
 }

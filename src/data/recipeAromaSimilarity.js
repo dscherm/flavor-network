@@ -1,3 +1,4 @@
+import { hasRealAroma } from './flavorPlaceholders.js';
 // Six GNN aroma axes calibrated above F1=0.50. Source-of-record:
 // .claude/.chemdataset-status.md — odor_fruity (0.722), odor_fatty (0.617),
 // odor_green (0.606), odor_woody (0.541), odor_floral (0.515), odor_spicy
@@ -7,11 +8,12 @@ export const AROMA_KEYS = ['odor_fruity', 'odor_floral', 'odor_green',
                             'odor_woody', 'odor_spicy', 'odor_fatty'];
 
 // Returns 6-dim aroma vector (mean of GNN probabilities across ingredients
-// that have GNN data). Returns null when zero ingredients have aroma data.
+// that have REAL aroma data: the model's constant placeholder vector is skipped, see
+// flavorPlaceholders.js). Returns null when zero ingredients have aroma data.
 export function computeRecipeAroma(ingredientNames, ingredientsData) {
   const vectors = (ingredientNames || [])
     .map(name => ingredientsData?.[name]?.gnnProbs)
-    .filter(p => p && AROMA_KEYS.some(k => typeof p[k] === 'number'));
+    .filter(p => p && hasRealAroma(p));
   if (vectors.length === 0) return null;
   const sum = new Array(AROMA_KEYS.length).fill(0);
   for (const v of vectors) {

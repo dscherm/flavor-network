@@ -24,6 +24,7 @@
  * "more summery? more woody? more floral?" from the prompt.
  */
 
+import { hasRealAroma } from '../data/flavorPlaceholders.js';
 import { useMemo } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { axisOrder, bucketColor, AROMA_LABEL_TO_GNN_KEY } from '../data/briscionePalette.js';
@@ -96,6 +97,8 @@ function signalForAxis(node, axis, keyList) {
   if (!node) return out;
   if (axis === 'aroma') {
     const probs = node.gnnProbs || {};
+    // The model's constant placeholder aroma vector is not data: such an ingredient adds nothing.
+    if (!hasRealAroma(probs)) return out;
     for (const k of keyList) {
       // 5 of 13 chef labels map to a GNN column (creamy→odor_fatty).
       // The other 8 (citrus/herbal/earthy/roasted/caramel/fermented/

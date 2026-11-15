@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
 import RecipeFlavorProfilesCard from '../RecipeFlavorProfilesCard.jsx';
 import { AXES } from '../../data/recipeProfileAnalysis.js';
 
@@ -83,7 +84,20 @@ describe('RecipeFlavorProfilesCard', () => {
 
   it('shows an empty hint when no ingredient has flavor data', () => {
     render(<RecipeFlavorProfilesCard bowlNames={['mystery']} nodes={nodesFrom({})} />);
-    expect(screen.getByText(/Add ingredients with flavor data/)).toBeInTheDocument();
+    expect(screen.getByText('Not enough flavor data for a chart yet.')).toBeInTheDocument();
+  });
+
+  it('a recipe of only placeholder-valued ingredients draws no chart and shows the plain line', () => {
+    const raw = JSON.parse(readFileSync('public/proDataset/gnn_entropy.json', 'utf8'));
+    const names = ['sugar', 'salt', 'coffee', 'lemon'];
+    const real = new Map(names.map((k) => [k, { gnnProbs: raw[k].probs }]));
+    render(<RecipeFlavorProfilesCard bowlNames={names} nodes={real} />);
+    expect(screen.getByTestId('profiles-no-chart')).toHaveTextContent('Not enough flavor data for a chart yet.');
+    expect(screen.queryByTestId('profiles-overview')).toBeNull();
+    expect(screen.queryAllByTestId('overview-bar')).toHaveLength(0);
+    fireEvent.click(screen.getByLabelText('Next'));
+    expect(screen.queryByTestId('flavor-map-radar')).toBeNull();
+    expect(screen.getByTestId('profiles-no-chart')).toBeInTheDocument();
   });
 
   it('calls onClose when the × is tapped', () => {

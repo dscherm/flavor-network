@@ -68,7 +68,9 @@ export default function SuggestionCardDeck({
   candidates = null, qtyPrefill = true, headerLabel = null,
   onAdd, onSwap, onClose,
 }) {
-  const { scores, n } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
+  const { scores, n, tasteDrawn, aromaDrawn } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
+  // Add cards only move a half the recipe actually draws (no chart from placeholder or too-thin data).
+  const drawnHalves = { taste: tasteDrawn, aroma: aromaDrawn };
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cardIdx, setCardIdx] = useState(0);
@@ -107,7 +109,7 @@ export default function SuggestionCardDeck({
           delta = {};
           for (const a of Object.keys(scores)) delta[a] = (swapped[a] || 0) - (scores[a] || 0);
         } else {
-          delta = profileDelta(name, scores, n, nodes) || {};
+          delta = profileDelta(name, scores, n, nodes, { drawn: drawnHalves }) || {};
         }
         out.push({ name, delta, movers: topMovers(delta, 3) });
         if (out.length >= 18) break;
@@ -175,7 +177,7 @@ export default function SuggestionCardDeck({
               delta = {};
               for (const a of Object.keys(scores)) delta[a] = (swapped[a] || 0) - (scores[a] || 0);
             } else {
-              delta = profileDelta(s.name, scores, n, nodes) || {};
+              delta = profileDelta(s.name, scores, n, nodes, { drawn: drawnHalves }) || {};
             }
             out.push({ name: s.name, delta, movers: topMovers(delta, 3) });
             if (out.length >= 18) break;

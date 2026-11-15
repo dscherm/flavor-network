@@ -30,7 +30,7 @@ const SWEETISH = { sweet: 0.8, odor_fruity: 0.4 };
 const NODES = new Map([
   ['chicken', { category: 'protein', cuisines: ['italian cuisine'], gnnProbs: SWEETISH }],
   ['tofu', { category: 'protein', cuisines: [] }],
-  ['pork', { category: 'protein', cuisines: [] }],
+  ['pork', { category: 'protein', cuisines: [], gnnProbs: { sweet: 0.7, odor_fatty: 0.5 } }],
   ['broccoli', { category: 'vegetable', cuisines: [] }],
   ['carrot', { category: 'vegetable', cuisines: [] }],
   ['zucchini', { category: 'vegetable', cuisines: ['chinese cuisine'] }],
@@ -279,6 +279,10 @@ describe('InventRecipe', () => {
     answer('chicken');
     const profile = screen.getByTestId('invent-recipe-profile');
     expect(profile).toBeInTheDocument();
+    // One ingredient with flavor data is too thin: the plain line, no bars (FLAVOR-2 draw rule).
+    expect(screen.getByTestId('invent-recipe-profile-empty')).toHaveTextContent('Not enough flavor data for a chart yet.');
+    expect(screen.queryByTestId('invent-recipe-profile-bar-sweet')).toBeNull();
+    addTyped('pork');
     expect(screen.getByTestId('invent-recipe-profile-bar-sweet')).toBeInTheDocument();
     addTyped('tofu'); // no profile data: named as not counted
     expect(screen.getByTestId('invent-recipe-profile-uncounted')).toHaveTextContent('tofu');

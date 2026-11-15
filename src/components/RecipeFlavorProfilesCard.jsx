@@ -20,7 +20,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   recipeAxisProfile, recipeAxisProfileWeighted, describeRecipeProfile, axisInsight,
-  axisLabel, axisColor, rankByAxisImpact, buildAxisEnhancements, nodeProbs, AXES,
+  axisLabel, axisColor, rankByAxisImpact, buildAxisEnhancements, nodeProbs, AXES, NO_CHART_LINE,
 } from '../data/recipeProfileAnalysis.js';
 import { clusterColor } from './MakeRecipeCardsGrid.jsx';
 import { loadDirectionsIndex, retrieveDirections, retrieveCookingMethods } from '../ml/directionsRuntime.js';
@@ -354,7 +354,9 @@ function FlavorBarChart({ scores }) {
 }
 
 export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries = null, nodes, edges = null, recipeType = null, onAdd, onFindCocktail, onFindSauce, onFindWine = null, onClose }) {
-  const { scores, drivers, n } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
+  const { scores, drivers, n, drawn, tasteDrawn, aromaDrawn } = useMemo(() => recipeAxisProfile(bowlNames, nodes), [bowlNames, nodes]);
+  // Which halves the draw rule lets through; boost / temper never rank on a half that is not drawn.
+  const drawnHalves = useMemo(() => ({ taste: tasteDrawn, aroma: aromaDrawn }), [tasteDrawn, aromaDrawn]);
 
   // Overview page: quantity-weighted flavor composition. Prefer BowlEntry[]
   // (carries entered/inferred amounts); fall back to equal-weighted names.
@@ -389,8 +391,8 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   const description = useMemo(() => {
     const best = cocktailMatches[0] || sauceMatches[0] || null;
     const aromaMatch = best ? { name: best.item?.name, similarity: best.similarity } : null;
-    return describeRecipeProfile({ scores: overview.scores, drivers, n }, { aromaMatch, cookingMethod });
-  }, [overview.scores, drivers, n, cocktailMatches, sauceMatches, cookingMethod]);
+    return describeRecipeProfile({ scores: overview.scores, drivers, n, tasteDrawn, aromaDrawn }, { aromaMatch, cookingMethod });
+  }, [overview.scores, drivers, n, tasteDrawn, aromaDrawn, cocktailMatches, sauceMatches, cookingMethod]);
 
   useEffect(() => {
     let cancelled = false;
@@ -477,14 +479,14 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
 
   // Per-axis pages occupy indices 2..axes.length+1 → axis = axes[page - 2].
   const axis = (!isOverview && !isMap && !isEnhance && !isPairings) ? axes[page - 2] : undefined;
-  const boost = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'boost', topN: 4 }) : [];
-  const temper = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'temper', topN: 3 }) : [];
+  const boost = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'boost', topN: 4, drawn: drawnHalves }) : [];
+  const temper = axis ? rankByAxisImpact(candidates, axis, scores, n, nodes, { mode: 'temper', topN: 3, drawn: drawnHalves }) : [];
 
   // Enhance page: per-axis "More {axis}? Try…" boost + "tone down" temper buckets
   // across every firing axis (model candidate pool; empty until the model loads).
   const enhanceRows = useMemo(
-    () => (isEnhance ? buildAxisEnhancements(axes, candidates, scores, n, nodes) : []),
-    [isEnhance, axes, candidates, scores, n, nodes],
+    () => (isEnhance ? buildAxisEnhancements(axes, candidates, scores, n, nodes, { drawn: drawnHalves }) : []),
+    [isEnhance, axes, candidates, scores, n, nodes, drawnHalves],
   );
 
   // Pointer-drag between carousel pages — works for BOTH mouse and touch
@@ -547,9 +549,13 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
       </div>
 
       <div className="px-4 pb-2 overflow-y-auto" style={{ flex: 1 }}>
-        {n === 0 && <p className="text-base py-6 text-center" style={{ fontFamily: FONT, color: CHALK_SUB }}>Add ingredients with flavor data to see profiles.</p>}
+        {!drawn && (
+          <p className="text-base py-6 text-center" data-testid="profiles-no-chart" style={{ fontFamily: FONT, color: CHALK_SUB }}>
+            {bowlNames.length === 0 ? 'Add ingredients with flavor data to see profiles.' : NO_CHART_LINE}
+          </p>
+        )}
 
-        {n > 0 && isOverview && (
+        {drawn && isOverview && (
           <div data-testid="profiles-overview">
             <h3 className="text-2xl mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Overview</h3>
             <p className="text-sm mb-2" style={{ fontFamily: FONT, color: CHALK_DIM }}>
@@ -566,7 +572,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           </div>
         )}
 
-        {n > 0 && isMap && (
+        {drawn && isMap && (
           <div className="flex flex-col items-center">
             <h3 className="text-2xl self-start mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Flavor map</h3>
             <div style={{ width: 'min(100%, 60vh)' }}>
@@ -612,7 +618,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           </div>
         )}
 
-        {n > 0 && isEnhance && (
+        {drawn && isEnhance && (
           <div data-testid="profiles-enhance">
             <h3 className="text-2xl mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Enhance</h3>
             {enhanceRows.length === 0 ? (
@@ -721,7 +727,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
         )}
       </div>
 
-      {showSwipeHint && totalPages > 1 && n > 0 && (
+      {showSwipeHint && totalPages > 1 && drawn && (
         <div
           data-testid="profiles-swipe-hint"
           className="text-center pb-1 flex-shrink-0 animate-pulse"

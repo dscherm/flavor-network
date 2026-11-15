@@ -68,7 +68,7 @@ describe('summary wording rules', () => {
     expect(buildFlavorProfile(['a', 'b'], many).summary.match(/ and /g) || []).toHaveLength(1);
   });
   it('fewer than two counted ingredients: not enough to go on', () => {
-    expect(buildFlavorProfile(['lime juice'], n2).summary).toBe('Not enough flavor data in this list to go on yet.');
+    expect(buildFlavorProfile(['lime juice'], n2).summary).toBe('Not enough flavor data for a chart yet.');
     expect(buildFlavorProfile(['lime juice', 'mystery'], n2).summary).toMatch(/Not enough/);
   });
   it('nothing firing: no strong signal', () => {

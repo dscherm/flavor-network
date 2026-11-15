@@ -116,15 +116,22 @@ describe('layout sharing', () => {
     expect(gen.startsWith('// @ts-nocheck\n// GENERATED')).toBe(true);
   });
   it('lays out a built-in preview card with the chart, the printed link and the site name', () => {
-    const card = layoutFor(cards['cocktail/negroni'], 'neuralflavor.web.app/r/cocktail/negroni');
+    const card = layoutFor(cards['cocktail/boulevardier'], 'neuralflavor.web.app/r/cocktail/boulevardier');
     const text = card.primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n');
     expect(card.width).toBe(1200);
     expect(card.height).toBe(630);
-    expect(text).toContain('Negroni');
-    expect(text).toContain('neuralflavor.web.app/r/cocktail/negroni');
+    expect(text).toContain('Boulevardier');
+    expect(text).toContain('neuralflavor.web.app/r/cocktail/boulevardier');
     expect(text).toContain('Neural Flavor');
     expect(text).toContain('flavor chart: a visual guide');
     expect(generated.FORMATS.preview.width).toBe(1200);
+  });
+  it('draws no chart for a recipe without enough real flavor data (FLAVOR-2)', () => {
+    expect(cards['cocktail/negroni'].bars).toEqual([]);
+    const card = layoutFor(cards['cocktail/negroni'], 'neuralflavor.web.app/r/cocktail/negroni');
+    const text = card.primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n');
+    expect(text).toContain('Negroni');
+    expect(text).not.toContain('flavor chart');
   });
   it('maps every primitive kind to a satori node', () => {
     const tree = toSatori(layoutFor(cards['cocktail/negroni'], 'x') as any) as any;

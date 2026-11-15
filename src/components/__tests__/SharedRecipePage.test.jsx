@@ -21,16 +21,17 @@ const loadData = vi.fn(async (kind) => {
 });
 const loadNodes = async () => new Map(Object.entries(entropy).filter(([k, v]) => !k.startsWith('_') && v?.probs).map(([k, v]) => [k, { gnnProbs: v.probs }]));
 
+// The last column: does the recipe have enough real (non-placeholder) flavor data to draw a chart (FLAVOR-2)?
 const CASES = {
-  cocktail: [['negroni', 'Negroni', 'gin'], ['daiquiri', 'Daiquiri', 'lime juice'], ['margarita', 'Margarita', 'simple syrup']],
-  sauce: [['alfredo', 'Alfredo', 'parmesan'], ['hollandaise', 'Hollandaise', 'butter'], ['bearnaise', 'Béarnaise', 'tarragon']],
-  dish: [['margherita-pizza', 'Margherita Pizza', 'mozzarella'], ['beef-bolognese', 'Beef Bolognese', 'carrot'], ['risotto-saffron', 'Saffron Risotto', 'saffron']],
+  cocktail: [['negroni', 'Negroni', 'gin', false], ['daiquiri', 'Daiquiri', 'lime juice', false], ['margarita', 'Margarita', 'simple syrup', true]],
+  sauce: [['alfredo', 'Alfredo', 'parmesan', false], ['hollandaise', 'Hollandaise', 'butter', false], ['bearnaise', 'Béarnaise', 'tarragon', true]],
+  dish: [['margherita-pizza', 'Margherita Pizza', 'mozzarella', true], ['beef-bolognese', 'Beef Bolognese', 'carrot', true], ['risotto-saffron', 'Saffron Risotto', 'saffron', true]],
 };
 
 describe('SharedRecipePage, signed out, real data', () => {
   for (const [kind, rows] of Object.entries(CASES)) {
-    for (const [slug, name, ingredient] of rows) {
-      it(`${kind}/${slug} shows name, ingredients, method${kind === 'cocktail' ? ', glass' : ''} and the chart`, async () => {
+    for (const [slug, name, ingredient, hasChart] of rows) {
+      it(`${kind}/${slug} shows name, ingredients, method${kind === 'cocktail' ? ', glass' : ''} and ${hasChart ? 'the chart' : 'no chart, only the plain line'}`, async () => {
         render(<SharedRecipePage route={{ kind, slug }} loadData={loadData} loadNodes={loadNodes} />);
         expect((await screen.findByTestId('shared-name')).textContent).toBe(name);
         const lines = screen.getAllByTestId('shared-line');
@@ -41,7 +42,13 @@ describe('SharedRecipePage, signed out, real data', () => {
         if (kind === 'dish') expect(lines.some((l) => /\d/.test(l.textContent))).toBe(true);
         const chart = await screen.findByTestId('shared-profile');
         expect(within(chart).getByText(/Flavor profile \(visual guide\)/)).toBeTruthy();
-        expect(screen.getByTestId('shared-profile-note')).toBeTruthy();
+        if (hasChart) {
+          expect(within(chart).getAllByRole('listitem').length).toBeGreaterThan(0);
+          expect(screen.getByTestId('shared-profile-note')).toBeTruthy();
+        } else {
+          expect(screen.getByTestId('shared-profile-empty').textContent).toBe('Not enough flavor data for a chart yet.');
+          expect(within(chart).queryAllByRole('listitem')).toHaveLength(0);
+        }
         expect(screen.getByTestId('shared-actions')).toBeTruthy();
       });
     }
