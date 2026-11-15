@@ -86,3 +86,61 @@ export function summarizeAroma(rows) {
     noChart: list.filter((r) => r.noChart).length,
   };
 }
+
+/**
+ * AROMA-1. The blind aroma key and the outside (chef) key are scored by scoreAromaKey. The axis set is a parameter
+ * so AROMA-3 can move the charts from six aromas to eleven without touching the scorer: a set says which aroma
+ * names exist, which bar id carries each one, and which field of a key item holds the expectation for it.
+ */
+export const AROMA_SET_SIX = {
+  name: 'six',
+  names: ['fruity', 'floral', 'green', 'woody', 'spice', 'fatty'],
+  id: (n) => (n === 'spice' ? 'odor_spicy' : `odor_${n}`),
+  expectField: 'expect6',
+};
+export const AROMA_SET_ELEVEN = {
+  name: 'eleven',
+  names: ['fruity', 'floral', 'green', 'woody', 'spice', 'fatty', 'toasty', 'nutty', 'earthy', 'smoky', 'savory'],
+  id: (n) => (n === 'spice' ? 'odor_spicy' : `odor_${n}`),
+  expectField: 'expect',
+};
+
+/**
+ * scoreAromaKey(bars, item, set) → { tops, expected, inexpressible, noChart, top1, top2, forbiddenLead }
+ * bars [{ axis, score }]; item { expect, expect6?, not? } (aroma names; the chef key is an unordered set, so only
+ * top1 membership and top2 overlap are used, never order). expected is the item's list for the set; when it is
+ * empty the item cannot be expressed on this set (inexpressible) and is not scored.
+ * top1: the strongest aroma is an expected one. top2: at least one of the two strongest is expected.
+ * forbiddenLead: the strongest aroma is one the item must not lead with. noChart: no aroma bar above zero.
+ */
+export function scoreAromaKey(bars, item, set = AROMA_SET_SIX) {
+  const idToName = new Map(set.names.map((n) => [set.id(n), n]));
+  const ranked = byScore(bars).filter((b) => idToName.has(b.axis) && b.score > 0);
+  const tops = ranked.slice(0, 2).map((b) => idToName.get(b.axis));
+  const expected = (item[set.expectField] ?? item.expect ?? []).filter((n) => set.names.includes(n));
+  const not = (item.not || []).filter((n) => set.names.includes(n));
+  const noChart = ranked.length === 0;
+  const inexpressible = expected.length === 0;
+  return {
+    tops, expected, inexpressible, noChart,
+    top1: !inexpressible && !noChart && expected.includes(tops[0]),
+    top2: !inexpressible && !noChart && tops.some((t) => expected.includes(t)),
+    forbiddenLead: !noChart && not.includes(tops[0]),
+  };
+}
+
+/** summarizeAromaKey(rows of scoreAromaKey) → counts. Scored items exclude the inexpressible ones. */
+export function summarizeAromaKey(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+  const inexpressible = list.filter((r) => r.inexpressible).length;
+  const scored = list.filter((r) => !r.inexpressible);
+  const top1 = scored.filter((r) => r.top1).length;
+  const top2 = scored.filter((r) => r.top2).length;
+  return {
+    items: list.length, inexpressible, scored: scored.length,
+    top1, top1Pct: pct(top1, scored.length),
+    top2, top2Pct: pct(top2, scored.length),
+    forbiddenLeads: list.filter((r) => r.forbiddenLead).length,
+    noChart: scored.filter((r) => r.noChart).length,
+  };
+}

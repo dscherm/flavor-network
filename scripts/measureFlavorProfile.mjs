@@ -21,6 +21,12 @@
  * function (flavorAroma.aromaProfile) with one line, bypassing the two-ingredient draw rule. An item is right when
  * every expected aroma is among the top two aroma bars. Prints the tuning set and the hold-out separately.
  *
+ * --aroma-blind (AROMA-1): scores data/aroma-truth-blind.json (written before the aroma table was read): single
+ * ingredients through the app's aromaProfile with one line, recipes through the app's chart. Reports all items and the
+ * held-back third separately, against expect6 while the charts have six axes (--axes eleven reads expect instead).
+ * --aroma-chef (AROMA-1): scores the chef-sourced entries of flavor_profiles_distilled.json (unordered sets) the same way.
+ * Add --list to print every item. Both exit 3 if an ingredient is not a curated name or a recipe is not built in.
+ *
  * Exit code is non-zero if the truth file is malformed or an item does not resolve.
  */
 import { readFileSync } from 'node:fs';
@@ -31,7 +37,8 @@ import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../src/data/seedRecipeDetails.js';
 import { profileForRecipe } from '../src/data/shareCardData.js';
 import { resolveIngredientName } from '../src/data/recipePairingMatch.js';
-import { scoreItem, summarize, TASTES, scoreAroma, summarizeAroma } from '../src/data/flavorScore.js';
+import { scoreItem, summarize, TASTES, scoreAroma, summarizeAroma, scoreAromaKey, summarizeAromaKey, AROMA_SET_SIX, AROMA_SET_ELEVEN } from '../src/data/flavorScore.js';
+import { chefTruthItems } from '../src/data/aromaWordMap.js';
 import { aromaProfile } from '../src/data/flavorAroma.js';
 import { loadCurationTables, applyCuration } from './lib/curationTables.mjs';
 import { loadFlavorNodes } from './lib/flavorNodes.mjs';
@@ -203,9 +210,76 @@ function mainAroma(args, json) {
   }
 }
 
+function aromaBarsForKey(item, data, nodes) {
+  if (item.name !== undefined) {
+    const p = aromaProfile([{ key: item.name }]);
+    return { bars: Object.entries(p.scores).map(([axis, score]) => ({ axis, score })), found: p.n > 0, label: item.name };
+  }
+  const [kind, slug] = item.id.split(/\/(.+)/);
+  const recipe = KINDS.includes(kind) ? resolveBuiltIn(kind, slug, data) : null;
+  if (!recipe) return { bars: [], found: false, missing: true, label: item.id };
+  const p = profileFor(recipe, { nodes, kind });
+  return { bars: p.bars, found: p.counted.length > 0, label: item.id };
+}
+
+function summaryLines(title, rows, set) {
+  const groups = rows.some((r) => r.hold) ? [['All', rows], ['Tuning (not held back)', rows.filter((r) => !r.hold)], ['Held back', rows.filter((r) => r.hold)]] : [['All', rows]];
+  console.log(`\n${title} (axes: ${set.name})`);
+  for (const [g, rs] of groups) {
+    if (!rs.length) continue;
+    const x = summarizeAromaKey(rs);
+    const noData = rs.filter((r) => !r.found).length;
+    const withData = rs.filter((r) => r.found && !r.inexpressible);
+    const okWithData = withData.filter((r) => r.top1).length;
+    console.log(`${g}: of the scored items that have aroma data, strongest aroma expected ${okWithData}/${withData.length} (${withData.length ? Math.round((1000 * okWithData) / withData.length) / 10 : null}%)`);
+    console.log(`${g}: items ${x.items}; cannot be expressed on ${set.name} axes ${x.inexpressible}; scored ${x.scored}; strongest aroma expected ${x.top1}/${x.scored} (${x.top1Pct}%); one of top two expected ${x.top2}/${x.scored} (${x.top2Pct}%); forbidden leads ${x.forbiddenLeads}; no aroma data ${noData}`);
+  }
+}
+
+function mainAromaKey(kind, args, json) {
+  const set = args.includes('--axes') && args[args.indexOf('--axes') + 1] === 'eleven' ? AROMA_SET_ELEVEN : AROMA_SET_SIX;
+  const data = loadData();
+  const nodes = loadFlavorNodes();
+  let items;
+  if (kind === 'blind') {
+    const truth = readJson(resolve(ROOT, 'data/aroma-truth-blind.json'));
+    const curated = readJson(resolve(ROOT, 'public/proDataset/taste_labels.json'));
+    const bad = truth.ingredients.filter((i) => !(i.name in curated)).map((i) => i.name);
+    if (bad.length) { console.error(`These ingredients are not curated names: ${bad.join(', ')}`); process.exit(3); }
+    items = [...truth.ingredients, ...truth.recipes];
+  } else {
+    items = chefTruthItems(readJson(resolve(ROOT, 'public/proDataset/flavor_profiles_distilled.json'))).map((i) => ({ name: i.key, expect: i.expect, expect6: i.expect6 }));
+  }
+  const rows = [];
+  const missing = [];
+  for (const it of items) {
+    const r = aromaBarsForKey(it, data, nodes);
+    if (r.missing) { missing.push(it.id); continue; }
+    rows.push({ it, label: r.label, hold: Boolean(it.holdout), bars: r.bars, found: r.found, ...scoreAromaKey(r.bars, it, set) });
+  }
+  if (missing.length) { console.error(`These items do not resolve to a built-in recipe: ${missing.join(', ')}`); process.exit(3); }
+  const lines = rows.map((r) => {
+    const tops = r.bars.filter((b) => set.names.some((n) => set.id(n) === b.axis) && b.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map((b) => `${b.axis.slice(5)} ${b.score.toFixed(2)}`).join(', ') || '(none)';
+    const verdict = r.inexpressible ? 'INEXPRESSIBLE' : !r.found ? 'NO AROMA DATA' : r.top1 ? 'ok' : r.top2 ? 'second' : 'miss';
+    return { id: r.label, holdout: r.hold, expected: r.expected, chart: tops, verdict };
+  });
+  if (json) {
+    const by = (rs) => summarizeAromaKey(rs);
+    console.log(JSON.stringify({ all: by(rows), tuning: by(rows.filter((r) => !r.hold)), heldBack: by(rows.filter((r) => r.hold)), items: lines }, null, 2));
+    return;
+  }
+  if (args.includes('--list')) {
+    const w = Math.max(...lines.map((l) => l.id.length));
+    for (const l of lines) console.log(`${l.id.padEnd(w)}  ${l.holdout ? 'H' : 'T'}  expect ${l.expected.join('/') || '-'}  |  ${l.chart}  |  ${l.verdict}`);
+  }
+  summaryLines(kind === 'blind' ? 'Blind aroma key' : 'Chef aroma key', rows, set);
+}
+
 function main() {
   const args = process.argv.slice(2);
   const json = args.includes('--json');
+  if (args.includes('--aroma-blind')) return mainAromaKey('blind', args, json);
+  if (args.includes('--aroma-chef')) return mainAromaKey('chef', args, json);
   if (args.includes('--aroma')) return mainAroma(args, json);
   const ti = args.indexOf('--truth');
   const truthPath = resolve(ti >= 0 ? args[ti + 1] : resolve(ROOT, 'data/flavor-truth.json'));

@@ -14,6 +14,7 @@
     "api": "node src/api/server.js",
     "audit:data": "node scripts/auditData.mjs",
     "measure:flavor": "node scripts/measureFlavorProfile.mjs",
+    "measure:aroma": "node scripts/measureFlavorProfile.mjs --aroma-blind && node scripts/measureFlavorProfile.mjs --aroma-chef",
     "gate": "node scripts/gate.cjs",
     "gate:quick": "node scripts/gate.cjs --no-build",
     "validate:pairings": "node chemDataset/validation/score_pairings.js",

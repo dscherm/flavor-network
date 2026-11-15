@@ -661,3 +661,63 @@ How to read them: the tuning-set aroma figure and the main taste set were both i
 The placeholder detection from FLAVOR-2 (`flavorPlaceholders.js`, its generated JSON, `scripts/buildFlavorPlaceholders.mjs` and the `prebuild` and predeploy steps) is gone: nothing reads the model's per-ingredient values for a recipe chart any more, so there is nothing to detect. Still reading the model's per-ingredient values, and kept on purpose: the single-ingredient wheels and radars (Ingredient panel, affinity and pairing cards, the distilled profile, suggestion drawers, the aroma filter in the suggestion popout, the odor badge) and the parked 3D Network views. None of these draws a recipe's flavor chart. The app still downloads the model file once for those surfaces; the public shared page and the share images do not.
 
 `recipeAromaSimilarity.computeRecipeAroma` (the fallback that matches a recipe to cocktails and sauces by aroma when no pairing data is loaded, and decides whether the Find buttons are enabled) now uses the new aroma profile. On ten Cookbook recipes the old values returned the same two cocktails (Bloody Mary and Pisco Punch) for every recipe and ties at 100% for most sauces; the new ones vary by recipe.
+
+## Aromas: a blind test (2026-11-16, AROMA-1)
+
+### Why a second key was needed
+
+The first aroma answer key (`data/aroma-truth.json`) was written in the same pass that wrote the aroma table, with the table in view. Its 30 of 30 therefore proves little: the key and the table agree because one author wrote both while looking at each other. This task measures the same charts against two keys that did not see the table.
+
+### How the two new keys were made
+
+- **Blind key, `data/aroma-truth-blind.json`.** Written by the assistant from general culinary knowledge on 2026-11-16 BEFORE the aroma table, the first key or any aroma score was read, and committed alone first (commit 68e4354). Not independently checked; the owner may correct any line. 70 single ingredients and 44 built-in recipes (17 cocktails, 13 sauces, 14 dishes), each with 1 to 3 expected aromas from the eleven-aroma vocabulary (fruity, floral, green, woody, spice, fatty, toasty, nutty, earthy, smoky, savory), chosen to be non-debatable. 38 items (every third of each group, spread across kinds) are marked held back. Because today's charts have only the first six aromas, each item also carries `expect6`, the same expectation restricted to those six; an empty `expect6` means today's chart cannot express the item at all.
+- **Outside key, the chef-sourced entries of `public/proDataset/flavor_profiles_distilled.json`.** 304 ingredients whose aroma words were set by a chef rather than distilled by a model. The 17 words are turned into the eleven aromas (and into today's six) by one table, `src/data/aromaWordMap.js`. The word lists carry no order, so an item counts as right when the chart's strongest aroma is anywhere in the list.
+
+### How it is scored
+
+`node scripts/measureFlavorProfile.mjs --aroma-blind [--list]` and `--aroma-chef`, or `npm run measure:aroma`. A single ingredient is charted through the same `aromaProfile` function the app uses, with one line; a recipe through the app's own chart. "Strongest aroma expected" means the highest bar is one of the expected aromas; "one of top two" means either of the two highest is. Items whose six-axis expectation is empty are counted separately and not scored. `--axes eleven` scores against `expect` and the eleven names, for AROMA-3.
+
+### Today's scores, as printed (six axes)
+
+Blind key:
+
+```
+All: of the scored items that have aroma data, strongest aroma expected 67/73 (91.8%)
+All: items 114; cannot be expressed on six axes 38; scored 76; strongest aroma expected 67/76 (88.2%); one of top two expected 70/76 (92.1%); forbidden leads 0; no aroma data 8
+Tuning (not held back): items 76; cannot be expressed on six axes 25; scored 51; strongest aroma expected 43/51 (84.3%); one of top two expected 46/51 (90.2%); forbidden leads 0; no aroma data 7
+Held back: items 38; cannot be expressed on six axes 13; scored 25; strongest aroma expected 24/25 (96%); one of top two expected 24/25 (96%); forbidden leads 0; no aroma data 1
+```
+
+Chef key:
+
+```
+All: of the scored items that have aroma data, strongest aroma expected 113/132 (85.6%)
+All: items 304; cannot be expressed on six axes 44; scored 260; strongest aroma expected 113/260 (43.5%); one of top two expected 124/260 (47.7%); forbidden leads 0; no aroma data 153
+```
+
+### What it means
+
+- **Of the items the six-axis chart can express and has data for, it does well** (about 88 to 92% on the blind key, 96% on the held-back third). The earlier 30 of 30 was not far off for the six aromas the chart has.
+- **A third of what a cook expects cannot be shown at all.** 38 of 114 blind-key items (33%) and 44 of 304 chef-key items (14%) expect only aromas the six axes lack (roasted, nutty, earthy, smoky, savory and the like): fish sauce, anchovy, oyster, miso, soy, cocoa, coffee, caramel, nuts, mushroom, truffle, bacon, smoked paprika, mezcal, and recipes such as French onion soup, miso soup, barbecue ribs, cookies and hummus. Today's chart folds roasted, nutty, earth and smoke into "woody" and meat and cheese into "fatty". That is the case for AROMA-3 (eleven axes), not for tuning the table.
+- **The chef key is much lower than the blind key (43.5% of scored; 85.6% of those that have data).** The gap is coverage: 153 of 304 chef-key ingredients have no line in the aroma table, so the chart draws nothing for them. Where the table has a line it agrees with the chefs about as often as it agrees with the blind key.
+- **Held-back 96% is the least reliable number**: 25 scored items, one miss. The tuning set was not tuned (the table was never seen by the key's author), so the held-back split matters less here than in FLAVOR-5, but keep it for AROMA-2.
+- **Limits.** The blind key is one assistant's judgement, not checked by a cook. Single-ingredient and recipe items are pooled. "No aroma data" includes items that are also inexpressible on six axes, so the two counts overlap.
+
+### Worklist for AROMA-2 and AROMA-3 (nothing was changed here)
+
+Ingredients where the chart has no data, or the wrong lead (ingredient: what the chart says; what the key expects):
+- elderflower: no line; floral. orange blossom: no line; floral. curry powder: no line; spice.
+- beet, pistachio, prosciutto, anchovy, fish sauce, oyster, espresso: no line (nothing drawn); expect earthy, nutty, savory, savory, savory, savory, toasty (eleven axes needed to say so).
+- mezcal: woody 0.67, green 0.33; smoky. coffee liqueur / espresso / cocoa / caramel / brown sugar: woody (or nothing); toasty. amaretto, sherry and the nuts (almond, hazelnut, walnut, tahini, sesame oil): woody with some fatty; nutty. mushroom, truffle: woody; earthy. bacon: woody 0.83, fatty 0.67; smoky then savory. smoked paprika: woody; smoky. soy sauce, miso, parmesan, blue cheese: woody or fatty; savory.
+- cardamom (chef key): spicy 0.73 with floral 0.33; chef set says green or woody, which the blind key does not. Check before acting.
+
+Recipes:
+- cocktail/white-russian: woody 0.43, fatty 0.24; key fatty first. cocktail/brandy-alexander: woody 0.48, fatty 0.21; fatty first. dish/tiramisu: woody 0.31 tied with fatty 0.31; fatty first. (Coffee and cocoa are read as woody and outweigh the cream; fixed in effect by a toasty axis.)
+- sauce/mole-poblano: woody 0.19, fatty 0.16, spicy 0.11; expects toasty then spice. dish/baklava: fatty 0.54, woody 0.20; expects nutty and spice, spice absent. dish/pho: fatty 0.20, woody 0.15, green 0.10; expects spice (star anise, cinnamon) first, spice absent.
+- sauce/beurre-noisette (nutty, toasty), sauce/peanut-sauce-thai (nutty), sauce/romesco (nutty, smoky), sauce/bbq-sauce (smoky), dish/hummus (nutty), dish/bbq-ribs (smoky), dish/chocolate-chip-cookies (toasty), dish/french-onion-soup, dish/miso-soup, dish/linguine-vongole (savory), cocktail/irish-coffee (toasty): inexpressible on six axes; they need AROMA-3 first.
+
+The chef key's list of ingredients with no line in the table (153) is the bigger AROMA-2 job; `node scripts/measureFlavorProfile.mjs --aroma-chef --json` lists them.
+
+### Not verified
+
+The blind key has not been checked by a cook. The word map's six-axis column drops words with no home (caramel, earthy, fermented, marine, meaty, nutty, roasted, smoky), so the chef key's six-axis score depends on that choice.
