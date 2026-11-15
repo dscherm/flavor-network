@@ -2195,7 +2195,7 @@ then FLAVOR-3, FLAVOR-4, FLAVOR-5 in that order; FLAVOR-6 last.
   "id": "FLAVOR-1",
   "title": "Flavor test set and scorer, with today's baseline",
   "category": "tooling",
-  "passes": false,
+  "passes": true,
   "description": "data/flavor-truth.json: about 40 well-known cocktails, sauces and dishes that exist in the app's built-in data, each with the tastes a cook would expect (strongest first), tastes that must not lead, and aroma expectations only where uncontroversial. Written by the assistant from common culinary knowledge and marked as such in the file. scripts/measureFlavorProfile.mjs computes each item's chart exactly as the app does (same functions, same data files) and prints per item and overall: top taste is an expected one, top two both expected, a forbidden taste leads, share of ingredients counted; --json for machines. docs/flavor-profile.md records the method, the answer key's authorship and limits, and the baseline numbers for today's charts.",
   "acceptance": [
     "Every item in data/flavor-truth.json resolves to a built-in recipe (the script fails loudly on an unknown one)",
