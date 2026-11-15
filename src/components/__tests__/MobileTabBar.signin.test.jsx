@@ -58,7 +58,23 @@ describe('MobileTabBar — signed-out sign-in affordance', () => {
 
   it('leaves the other tabs untouched in both states', () => {
     mount({ user: null });
-    expect(screen.getByTestId('tabbar-make')).toBeInTheDocument();
+    expect(screen.getByTestId('tabbar-home')).toBeInTheDocument();
     expect(screen.getByTestId('tabbar-labs')).toBeInTheDocument();
+  });
+});
+
+describe('MobileTabBar — Home', () => {
+  it('calls onHome from the left button and no longer shows a Recipe Lab tab', () => {
+    const onHome = vi.fn();
+    render(<MobileTabBar activeTab="cocktail" onTabChange={() => {}} onHome={onHome} />);
+    expect(screen.queryByTestId('tabbar-make')).toBeNull();
+    fireEvent.click(screen.getByTestId('tabbar-home'));
+    expect(onHome).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the Recipe Lab reachable from the Labs popover', () => {
+    render(<MobileTabBar activeTab="cocktail" onTabChange={() => {}} />);
+    fireEvent.click(screen.getByTestId('tabbar-labs'));
+    expect(screen.getByTestId('tabbar-labs-item-make')).toBeInTheDocument();
   });
 });

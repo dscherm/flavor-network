@@ -178,6 +178,9 @@ export default function App() {
   // surface (LandingScreen with isLoading=true) can shimmer the picked
   // tile rather than the whole row. Reset on handleStartOver.
   const [landingPick, setLandingPick] = useState(null);
+  // Home (bottom-bar button): the starting page shown OVER the running app, so
+  // going home drops no lab state and does not refetch the dataset.
+  const [homeOpen, setHomeOpen] = useState(false);
 
   // Primary data source: ProData (proprietary dataset from RecipeNLG + MealDB + CocktailDB)
   const { loading, error, data, retry } = useProData({ enabled: startPageComplete });
@@ -2695,6 +2698,7 @@ export default function App() {
       {true && (
         <MobileTabBar
           user={user}
+          onHome={() => setHomeOpen(true)}
           activeTab={activeTab}
           onTabChange={(tab) => {
             setActiveTab(tab);
@@ -2715,6 +2719,14 @@ export default function App() {
             setPairingModeFocal(null);
           }}
         />
+      )}
+
+      {homeOpen && (
+        <div className="fixed inset-0 z-[110]" data-testid="home-overlay">
+          <LandingScreen
+            onModeSelect={(mode) => { setHomeOpen(false); handleModeSelect(mode); }}
+          />
+        </div>
       )}
 
     </>

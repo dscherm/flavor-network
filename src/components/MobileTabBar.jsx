@@ -16,7 +16,7 @@ const LABS = [
 ];
 
 /**
- * MobileTabBar — bottom-of-viewport nav: Recipe Lab · (Sign in) · Labs · How-to.
+ * MobileTabBar — bottom-of-viewport nav: Home · (Sign in) · Labs · How-to.
  *
  * The molecular lab (network "Model" tab + its 3D/2D modes + the Molecule
  * Lab compound inspector) is hidden for now — the kitchen flows are the
@@ -28,12 +28,12 @@ export default function MobileTabBar({
   onTabChange,
   onSelectLab,
   onOpenHowItWorks,
+  onHome,
   user = null,
 }) {
   const [labsOpen, setLabsOpen] = useState(false);
 
-  const isMakeActive = activeTab === 'make';
-  const isLabsActive = ['cookbook', 'cocktail', 'sauce', 'wine', 'pairing', 'labs', 'recipe', 'profile'].includes(activeTab);
+  const isLabsActive = ['make', 'cookbook', 'cocktail', 'sauce', 'wine', 'pairing', 'labs', 'recipe', 'profile'].includes(activeTab);
 
   const closeAll = () => setLabsOpen(false);
 
@@ -56,19 +56,19 @@ export default function MobileTabBar({
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="flex items-center justify-around h-14">
-          {/* Recipe Lab (was "Make"; tab id stays 'make') */}
+          {/* Home — back to the starting page (the lab picker). Took the
+              Recipe Lab's slot 2026-11-15; the Recipe Lab is a tile there
+              and a row in the Labs popover. */}
           <button
-            onClick={() => { onTabChange('make'); closeAll(); }}
-            data-testid="tabbar-make"
-            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 transition-colors ${
-              isMakeActive ? 'text-pink-400' : 'text-gray-500'
-            }`}
-            aria-label="Recipe Lab"
+            onClick={() => { if (onHome) onHome(); closeAll(); }}
+            data-testid="tabbar-home"
+            className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-gray-500 hover:text-gray-300 transition-colors"
+            aria-label="Home"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-6zM2 10h2m16 0h2M9 6c0-1 1-1 1-2m4 2c0-1 1-1 1-2" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 11.5 12 4l9 7.5M5.5 10v9.5h4.5v-5.5h4v5.5h4.5V10" />
             </svg>
-            <span className="text-[10px]">Recipe Lab</span>
+            <span className="text-[10px]">Home</span>
           </button>
 
           {/* WEBLINK-11: top-level Sign in, signed-out only. Reported from

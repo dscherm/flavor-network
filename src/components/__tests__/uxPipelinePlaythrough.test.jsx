@@ -92,7 +92,7 @@ describe('§1 — Landing page', () => {
   // / Model / Labs. Profile moved into the Labs popover. Cocktail /
   // Sauce / Cookbook / Recipe Notebook / Profile / Molecule Lab are
   // all reachable via the Labs popover.
-  it('1.G MobileTabBar exposes Recipe Lab/Labs/How-to; Guided retired (2026-06-26), Model parked', async () => {
+  it('1.G MobileTabBar exposes Home/Labs/How-to; Guided retired (2026-06-26), Model parked', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
@@ -100,7 +100,8 @@ describe('§1 — Landing page', () => {
       'utf8',
     );
     expect(/aria-label="Guided"/.test(src)).toBe(false); // Guided retired; Labs is the entry now
-    expect(/aria-label="Recipe Lab"/.test(src)).toBe(true); // was "Make" until 2026-11-07
+    expect(/aria-label="Home"/.test(src)).toBe(true); // took the Recipe Lab's slot 2026-11-15
+    expect(/aria-label="Recipe Lab"/.test(src)).toBe(false); // now a Labs popover row and a home tile
     expect(/aria-label="Make"/.test(src)).toBe(false);
     expect(/aria-label="Labs"/.test(src)).toBe(true);
     expect(/aria-label="Model"/.test(src)).toBe(false); // network tab hidden
