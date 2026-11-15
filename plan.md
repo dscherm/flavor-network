@@ -2531,3 +2531,99 @@ Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independ
   ]
 }
 ```
+
+## 2026-11-16 — A picture for a recipe: chalk drawing from a photo, or a chalk icon
+
+Spec: `.schermness/spec.md` → "A picture for a recipe". Owner's decisions after trying a
+prototype: coloured chalk, made by a free filter in the browser, defaults line weight 5, fine
+detail 13, shading 110, colour 200, grain 5, with an "Adjust" button revealing the five
+sliders; only the chalk version is ever published or stored; pictures live in the database
+(under 150 KB each); cocktails and sauces get a small set of new drawings to pick from.
+Prototype source: `docs/prototypes/chalk-filter-bench.html` (untracked until PICTURE-1 commits it). Order: PICTURE-1 (filter) and
+PICTURE-2 (drawings and the chooser) first; PICTURE-3 (storage and rules); PICTURE-4 (where
+it shows); PICTURE-5 last.
+
+```json
+{
+  "id": "PICTURE-1",
+  "title": "The chalk filter as a tested module",
+  "category": "feature",
+  "passes": false,
+  "description": "Port the prototype's filter into src/data/chalkFilter.js as pure functions over pixel arrays: chalkify({ data, width, height }, settings) returning the same shape, CHALK_DEFAULTS (weight 5, detail 13, shading 110, colour 200, grain 5), CHALK_RANGES (weight 0.6-10, detail 0-16, shading 0-200, colour 0-300, grain 0-100), and prepare(image) that scales to 1080 px on the long side and stretches contrast. Fixed-seed noise so the same photo and settings always give the same picture. A runner that keeps the page responsive (a Web Worker, or sliced work with yields) and reports progress. encodeChalk(canvas) produces WebP (JPEG fallback) at 600 px on the long side, stepping quality down until under 150 KB, and returns { blob, mime, w, h, bytes }. Copy the prototype page into docs/prototypes/chalk-filter-bench.html for reference.",
+  "acceptance": [
+    "chalkify is deterministic and pure: unit tests on small synthetic images (a white square on black gives bright outlines on slate; a flat image gives no lines; colour 0 gives cream chalk only; grain 0 leaves strokes untouched; each setting clamps to its range)",
+    "The output at the defaults matches the prototype's for the same input within a small tolerance (a fixture image and a stored checksum or per-pixel tolerance test)",
+    "encodeChalk returns under 150 KB for three varied sample images and reports the measured sizes; the encoded picture carries no EXIF (test by inspecting the bytes)",
+    "Converting a 12-megapixel photo does not block input for more than 100 ms at a time (measured in a browser and reported), and shows progress",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "PICTURE-2",
+  "title": "New glass and sauce drawings, and the picture chooser",
+  "category": "ui",
+  "passes": false,
+  "description": "Add chalk drawings in the style of chalkArt.jsx: six glasses (coupe, rocks, highball, flute, martini, mug) that take the drink colour as ChalkGlass does, and four for sauces (pan, jar, bowl, bottle). One registry of pickable drawings by kind (dish: the 23 existing DISH_ART_KINDS; cocktail: the glasses; sauce: the four) with stable ids such as 'dish:pasta' and 'glass:coupe'. RecipePicture.jsx: three choices (a drawing, a photo turned into chalk, no picture). The photo path takes a picture from the camera or library, shows the chalk result at the defaults with a 'drawing…' state, an 'Adjust' button that reveals the five sliders with live preview and Reset, and 'Use this picture'. Landscape or square crop choice only. No storage yet: the component returns { kind: 'icon', icon } or { kind: 'chalk', blob, mime, w, h } to its parent.",
+  "acceptance": [
+    "The ten new drawings render at 24, 64 and 120 px without clipping and match the stroke weight and palette of the existing ones (looked at in a browser and described honestly)",
+    "The drawing grid shows the right set per kind and returns a stable id; unknown ids render a fallback, not a crash",
+    "The photo path: choosing a picture shows the chalk result at the defaults; Adjust reveals five labelled sliders; Reset restores the defaults; Use this picture returns the encoded result (component tests with a stubbed filter)",
+    "A file that cannot be opened (for example HEIC outside Safari) gives a plain sentence and leaves the chooser usable",
+    "375px, 44px targets, no horizontal overflow; npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "PICTURE-3",
+  "title": "Storing pictures: with a saved item and with a shared copy",
+  "category": "feature",
+  "passes": false,
+  "description": "Saved items gain picture: { kind: 'icon'|'chalk', icon?, v }. A chalk picture is stored as its own document profiles/{uid}/pictures/{itemId} ({ data (base64), mime, w, h, updatedAt }), never inside the profile document; deleting the item deletes its picture. A shared copy stores sharedPictures/{shareId} ({ data, mime, w, h, owner, createdAt }) written with the share, and shared/{id} carries picture: { kind, icon? } only. firestore.rules: profiles/{uid}/pictures/{id} readable and writable by that user only, size-capped (data string length under 210,000); sharedPictures/{id} get by anyone, list by nobody, create by the signed-in owner within the cap and only alongside their own share id, delete by the owner, and unreadable to others once shared/{id}.removed is true. Offline or failed picture writes never block saving the item or creating the link; the item is saved without the picture and the user is told in one line. The original photo is never sent anywhere.",
+  "acceptance": [
+    "Rules tests on the emulator: own picture read and write allowed, another user's denied; oversize denied; sharedPictures get allowed, list denied, create denied signed out or with another owner or oversize, readable only by the owner after the share is removed",
+    "Saving an item with a chalk picture writes two documents and the profile document's size does not grow by the picture (test)",
+    "Deleting an item deletes its picture; unsharing makes the shared picture unreadable to others (tests)",
+    "A test asserts that no network call in the save or share path carries the original file (only the encoded chalk data)",
+    "A failed picture write still saves the item and shows one plain line",
+    "npm run test:rules, functions tests and npm run gate green; rules NOT deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "PICTURE-4",
+  "title": "Showing the picture: saved items, the shared page, the share cards",
+  "category": "feature",
+  "passes": false,
+  "description": "Wire RecipePicture into: the name-and-save step of the three invent panels, Edit on a saved item, and the share sheet's publish step (the preview of what becomes public shows the picture). Show the picture on 'Yours' cards in the Cocktail Lab and Sauce Lab and on user recipes in the Cookbook, on the shared recipe page for user copies, and on the share cards: browser cards (single and set of three) and the server card, which reads sharedPictures/{id} and embeds it (and draws the chosen icon for icon pictures). A recipe with a picture uses the space that short recipes leave empty on the card. The Report sheet gains the reason 'The picture'. Removing or unsharing a recipe stops its picture being served within the existing cache window.",
+  "acceptance": [
+    "A saved item with an icon and one with a chalk picture each show it on their lab card, their shared page and their browser and server cards (component, layout and functions tests)",
+    "The server card renders a real PNG of 1200x630 containing the picture for a user share with a chalk picture and with an icon (functions tests); hostile or oversized picture data is refused and the card still renders",
+    "Card layouts with a picture were looked at as images (one cocktail, one dish) and described honestly",
+    "A recipe without a picture looks exactly as before (snapshot or layout test)",
+    "npm run gate, functions and rules tests green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "PICTURE-5",
+  "title": "Pictures: docs and the final pass",
+  "category": "chore",
+  "passes": false,
+  "description": "docs/sharing.md gains a section on pictures: what is stored and where, that the original photo never leaves the device, the size cap, that a report can be about the picture, and that removing a share removes its picture. CLOSEOUT.md (unreleased entry), README.md and BACKLOG.md updated (left out on purpose: original photos, an AI image model, cropping tools, more than one picture). Final pass at 375px: invent a drink, add a chalk picture from a photo, adjust it, save; pick a drawing for a sauce; share one and open the link signed out. Anything not exercised for real (a phone camera, real Firestore writes, live previews) is named as not verified.",
+  "acceptance": [
+    "docs/sharing.md describes exactly what the code stores and sends",
+    "End to end at 375px as described, with what was and was not exercised stated",
+    "CLOSEOUT.md, README.md and BACKLOG.md updated without claiming a deploy that did not happen",
+    "npm run gate, functions and rules tests green"
+  ]
+}
+```
