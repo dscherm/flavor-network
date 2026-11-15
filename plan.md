@@ -2326,7 +2326,7 @@ independent of those; DATA-8 last. DATA-5 must land before FLAVOR-3.
   "id": "DATA-2",
   "title": "The curation layer: aliases, hidden, packaged, category and taste overrides applied on load",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "src/data/curation/ with empty-but-valid tables (aliases.json, hidden.json, packaged.json, categoryOverrides.json, tasteOverrides.json; each entry one line with a reason) and a pure applyCuration(ingredients, pairings, tables): aliases merge an entry into its canonical one (pairings combined, the stronger score kept, counts summed, self-pairs dropped), hidden entries removed with their pairings, packaged entries flagged, overrides applied. Wired where useProData builds the graph and into every build script that reads ingredients (share index, placeholder list). resolveIngredient(name) goes through the alias table and is used by the typed-ingredient matchers, barKey, kitchenKey and the model vocabulary lookups, so an old or variant name still lands on the canonical entry. A saved recipe that names a merged or hidden ingredient still opens and shows its original text. Seed the tables with ten obvious entries to prove the path end to end.",
   "acceptance": [
     "applyCuration unit tests: alias merge with pairing combination, hidden removal, packaged flag, overrides, an alias chain, an alias to a missing canonical (reported, not crashed), idempotence",
