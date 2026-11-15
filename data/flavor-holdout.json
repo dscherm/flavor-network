@@ -1,0 +1,25 @@
+{
+ "_about": "HOLD-OUT answer key for scripts/measureFlavorProfile.mjs (run it with: node scripts/measureFlavorProfile.mjs --truth data/flavor-holdout.json). Written by the assistant on 2026-11-16, BEFORE the FLAVOR-4 strength table was tuned, from common culinary knowledge; NOT independently checked. These 20 recipes are NOT in data/flavor-truth.json and must NOT be used for tuning: they exist only to show whether improvements on the main set carry over to recipes that were not looked at. If a line here seems wrong, correct it and say so in the commit; do not edit it to make a number move. Same format as the main key.",
+ "items": [
+  { "id": "cocktail/moscow-mule", "expect": ["sour", "sweet", "heat"], "not": ["bitter"], "note": "Vodka, lime, ginger" },
+  { "id": "cocktail/mai-tai", "expect": ["sweet", "sour"], "not": ["bitter"], "note": "Rum, orange liqueur, lime, orgeat, syrup" },
+  { "id": "cocktail/caipirinha", "expect": ["sour", "sweet"], "not": ["bitter"], "note": "Cachaca, lime, sugar" },
+  { "id": "cocktail/sazerac", "expect": ["bitter", "sweet"], "not": ["sour"], "note": "Rye, cognac, sugar, two bitters, absinthe" },
+  { "id": "cocktail/amaretto-sour", "expect": ["sweet", "sour"], "not": ["bitter"], "note": "Amaretto, lemon, syrup" },
+  { "id": "cocktail/bees-knees", "expect": ["sour", "sweet"], "not": ["bitter"], "note": "Gin, lemon, honey" },
+  { "id": "cocktail/brandy-alexander", "expect": ["sweet"], "not": ["sour", "bitter", "salty"], "note": "Cognac, creme de cacao, cream" },
+  { "id": "cocktail/irish-coffee", "expect": ["bitter", "sweet"], "not": ["sour", "salty"], "note": "Coffee, whiskey, sugar, cream" },
+  { "id": "sauce/tonkatsu-sauce", "expect": ["sweet", "umami", "sour"], "not": ["bitter"], "note": "Ketchup, Worcestershire, soy, sugar" },
+  { "id": "sauce/bbq-sauce", "expect": ["sweet", "sour", "umami"], "not": ["bitter"], "note": "Ketchup, sugar, vinegar, Worcestershire" },
+  { "id": "sauce/chimichurri", "expect": ["sour", "salty", "heat"], "not": ["sweet"], "note": "Parsley, vinegar, garlic, chili" },
+  { "id": "sauce/pad-thai-sauce", "expect": ["sour", "salty", "sweet"], "not": ["bitter"], "note": "Tamarind, fish sauce, palm sugar" },
+  { "id": "sauce/harissa", "expect": ["heat"], "not": ["sweet"], "note": "Dried chilies, garlic, spices" },
+  { "id": "sauce/beurre-blanc", "expect": ["sour", "salty"], "not": ["sweet", "heat", "bitter"], "note": "Wine, shallot, butter, lemon" },
+  { "id": "dish/spaghetti-carbonara", "expect": ["salty", "umami"], "not": ["sweet", "sour"], "note": "Bacon, cheese, egg, pepper" },
+  { "id": "dish/shrimp-ceviche", "expect": ["sour"], "not": ["sweet", "bitter"], "note": "Shrimp cured in lime" },
+  { "id": "dish/guacamole", "expect": ["sour", "salty", "heat"], "not": ["sweet", "bitter"], "note": "Avocado, lime, onion, chili" },
+  { "id": "dish/chocolate-chip-cookies", "expect": ["sweet"], "not": ["salty", "umami", "sour", "heat"], "note": "Sugar and chocolate" },
+  { "id": "dish/pho", "expect": ["umami", "salty"], "not": ["sweet"], "note": "Beef broth soup" },
+  { "id": "dish/mac-and-cheese", "expect": ["salty", "umami"], "not": ["sweet", "sour"], "note": "Cheddar sauce on pasta" }
+ ]
+}

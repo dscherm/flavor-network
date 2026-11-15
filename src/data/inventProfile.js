@@ -8,8 +8,9 @@
  * ingredients (and at least two) have data for it (recipeProfileAnalysis.drawRule); when neither draws there are no bars and the
  * surface shows NO_CHART_LINE.
  *
- * buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null }) →
+ * buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null, garnish = '' }) →
  *   `amounts` is { key: "2 oz" | { qty, unit } | grams }: the taste half is weighted by it (equal weights without).
+ *   `garnish` is the recipe's garnish text: a salt, sugar or chili rim in it adds a thin fixed dusting of that taste.
  *   {
  *     scores:   { axis: number }   all 12 axes (sweet, sour, bitter, salty, umami, heat,
  *                                  odor_fruity ... odor_fatty), 0..1; all 0 when nothing counted
@@ -27,6 +28,7 @@
  * Never throws: bad input gives the empty profile.
  */
 import { AXES, axisLabel, axisColor, nodeProbs, recipeAxisProfileWeighted, NO_CHART_LINE } from './recipeProfileAnalysis.js';
+import { garnishTasteLines } from './flavorStrengths.js';
 
 /** Fewer counted ingredients than this and the summary says there is not enough to go on. */
 export const MIN_COUNTED = 2;
@@ -43,11 +45,13 @@ export function summarize({ axes, counted, noun = 'recipe', drawn = true }) {
   return `On the chart, the strongest signal${lead.length > 1 ? 's are' : ' is'} ${lead.join(' and ')}.`;
 }
 
-export function buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null } = {}) {
+export function buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null, garnish = '' } = {}) {
   const list = [...new Set((Array.isArray(keys) ? keys : []).filter((k) => typeof k === 'string' && k))];
   const counted = list.filter((k) => nodeProbs(k, nodes));
   const uncounted = list.filter((k) => !nodeProbs(k, nodes));
-  const prof = recipeAxisProfileWeighted(list.map((k) => ({ ingredient: k, amount: amounts?.[k] ?? null })), nodes);
+  // A salt, sugar or chili rim sits in the garnish text, not in a line: it adds a thin, fixed dusting (flavorStrengths.js).
+  const rim = garnishTasteLines(garnish).map((r) => ({ ingredient: r.key, amount: r.amount }));
+  const prof = recipeAxisProfileWeighted([...list.map((k) => ({ ingredient: k, amount: amounts?.[k] ?? null })), ...rim], nodes);
   const axes = AXES.filter((a) => prof.scores[a] >= minScore).sort((a, b) => prof.scores[b] - prof.scores[a]);
   const summary = list.length ? summarize({ axes, counted, noun, drawn: prof.drawn }) : '';
   return {

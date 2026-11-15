@@ -10,7 +10,7 @@
 import { isSuggestable } from './curation/suggestable.js';
 import { AROMA_LABELS, AROMA_COLORS } from './recipeScoring.js';
 import { hasRealAroma } from './flavorPlaceholders.js';
-import { TASTE_AXES, TASTELESS_WEIGHT, labelWeights, isTasteless, tasteProfile } from './flavorTaste.js';
+import { TASTE_AXES, TASTELESS_WEIGHT, STRENGTH_MAX, ingredientTaste, tasteProfile } from './flavorTaste.js';
 import { amountGrams } from './amountGrams.js';
 
 export { TASTE_AXES, amountGrams };
@@ -46,14 +46,15 @@ export const BALANCING = {
  */
 export function nodeProbs(name, nodes) {
   const node = nodes?.get?.(name);
-  if (!node) return null;
+  const t = ingredientTaste(name, node?.taste);
+  if (!node && !t.any) return null;
   const out = {};
-  const w = labelWeights(node.taste);
-  if (w.any) {
-    for (const a of TASTE_AXES) out[a] = w.axes[a];
-    if (isTasteless(w)) out._tasteless = true;
+  if (t.any) {
+    // 0..1 per taste: strength on the 0..3 scale. (Potency is a weight in the recipe's mean, not a strength.)
+    for (const a of TASTE_AXES) out[a] = t.axes[a] / STRENGTH_MAX;
+    if (t.tasteless) out._tasteless = true;
   }
-  const p = node.gnnProbs;
+  const p = node?.gnnProbs;
   if (p && hasRealAroma(p)) for (const a of AROMA_AXES) if (typeof p[a] === 'number') out[a] = p[a];
   return Object.keys(out).some((k) => k !== '_tasteless') ? out : null;
 }

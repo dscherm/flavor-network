@@ -283,9 +283,10 @@ describe('InventRecipe', () => {
     expect(screen.getByTestId('invent-recipe-profile-empty')).toHaveTextContent('Not enough flavor data for a chart yet.');
     expect(screen.queryByTestId('invent-recipe-profile-bar-sweet')).toBeNull();
     addTyped('pork');
-    expect(screen.getByTestId('invent-recipe-profile-bar-sweet')).toBeInTheDocument();
-    addTyped('tofu'); // no profile data: named as not counted
-    expect(screen.getByTestId('invent-recipe-profile-uncounted')).toHaveTextContent('tofu');
+    // (chicken and pork have lines in the FLAVOR-4 strength table: umami)
+    expect(screen.getByTestId('invent-recipe-profile-bar-umami')).toBeInTheDocument();
+    addTyped('noodle'); // no profile data: named as not counted
+    expect(screen.getByTestId('invent-recipe-profile-uncounted')).toHaveTextContent('noodle');
   });
 
   it('amounts are editable suggestions that survive list changes', async () => {

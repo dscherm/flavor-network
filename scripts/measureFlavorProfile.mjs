@@ -60,7 +60,7 @@ export function profileFor(recipe, ctx) {
     keys.push(key);
     if (l.amount && amounts[key] === undefined) amounts[key] = l.amount;
   }
-  const p = buildFlavorProfile(keys, ctx.nodes, { noun: NOUN[recipe.kind], amounts });
+  const p = buildFlavorProfile(keys, ctx.nodes, { noun: NOUN[recipe.kind], amounts, garnish: recipe.garnish || '' });
   return { bars: p.bars, counted: p.counted, uncounted: p.uncounted };
 }
 

@@ -64,7 +64,8 @@ describe('the draw rule', () => {
   });
 
   it('a recipe of only placeholder ingredients draws nothing and says so', () => {
-    const keys = ['sugar', 'salt', 'coffee', 'lemon', 'gin'];
+    // (Names without a line in the FLAVOR-4 strength table: that table is its own, label-free source of taste.)
+    const keys = ['sour cream', 'corn', 'cream cheese', 'cheese', 'peanut butter'];
     const p = buildFlavorProfile(keys, nodes, { noun: 'drink' });
     expect(p.drawn).toBe(false);
     expect(p.bars).toEqual([]);
@@ -121,17 +122,17 @@ describe('the draw rule', () => {
 
 describe('boost / temper ranking', () => {
   const cands = new Map([
-    ['syrup', { gnnProbs: PLACEHOLDER_TASTE }],
+    ['unlabelled stuff', { gnnProbs: PLACEHOLDER_TASTE }],
     ['jam', { taste: 'sweet', gnnProbs: { ...PLACEHOLDER_AROMA } }],
   ]);
   const scores = z();
   it('never ranks a candidate on placeholder values', () => {
-    expect(rankByAxisImpact(['syrup'], 'sweet', scores, 3, cands)).toEqual([]);
-    expect(rankByAxisImpact(['syrup'], 'sour', scores, 3, cands, { mode: 'temper' })).toEqual([]);
-    expect(profileDelta('syrup', scores, 3, cands)).toBeNull();
+    expect(rankByAxisImpact(['unlabelled stuff'], 'sweet', scores, 3, cands)).toEqual([]);
+    expect(rankByAxisImpact(['unlabelled stuff'], 'sour', scores, 3, cands, { mode: 'temper' })).toEqual([]);
+    expect(profileDelta('unlabelled stuff', scores, 3, cands)).toBeNull();
   });
   it('still ranks a candidate with real values', () => {
-    expect(rankByAxisImpact(['syrup', 'jam'], 'sweet', scores, 3, cands).map((r) => r.name)).toEqual(['jam']);
+    expect(rankByAxisImpact(['unlabelled stuff', 'jam'], 'sweet', scores, 3, cands).map((r) => r.name)).toEqual(['jam']);
   });
   it('returns nothing when the recipe half is not drawn', () => {
     const drawn = { taste: false, aroma: false };

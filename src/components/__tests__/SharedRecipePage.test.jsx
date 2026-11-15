@@ -22,10 +22,12 @@ const loadData = vi.fn(async (kind) => {
 });
 const loadNodes = async () => new Map(Object.entries(entropy).filter(([k, v]) => !k.startsWith('_') && v?.probs).map(([k, v]) => [k, { gnnProbs: v.probs }]));
 
-// The last column: does the recipe have enough real (non-placeholder) flavor data to draw a chart (FLAVOR-2)?
+// The last column: does the recipe have enough real (non-placeholder) flavor data to draw a chart? Since FLAVOR-4 the
+// hand-tuned strength table is a taste source of its own, so a recipe of ingredients on that table draws one even when
+// the model's values for them are placeholders.
 const CASES = {
-  cocktail: [['negroni', 'Negroni', 'gin', false], ['daiquiri', 'Daiquiri', 'lime juice', false], ['margarita', 'Margarita', 'simple syrup', true]],
-  sauce: [['alfredo', 'Alfredo', 'parmesan', false], ['hollandaise', 'Hollandaise', 'butter', false], ['bearnaise', 'Béarnaise', 'tarragon', true]],
+  cocktail: [['negroni', 'Negroni', 'gin', true], ['daiquiri', 'Daiquiri', 'lime juice', true], ['margarita', 'Margarita', 'simple syrup', true]],
+  sauce: [['alfredo', 'Alfredo', 'parmesan', true], ['hollandaise', 'Hollandaise', 'butter', true], ['bearnaise', 'Béarnaise', 'tarragon', true]],
   dish: [['margherita-pizza', 'Margherita Pizza', 'mozzarella', true], ['beef-bolognese', 'Beef Bolognese', 'carrot', true], ['risotto-saffron', 'Saffron Risotto', 'saffron', true]],
 };
 

@@ -6,6 +6,8 @@ import {
 } from './recipeProfileAnalysis.js';
 
 // A value is a curated taste label ('sweet', 'sour sweet'), or { taste, probs } to add model aroma values.
+// (Fixture names are deliberately NOT real ingredient names: real ones such as honey and lemon now have lines in the
+// FLAVOR-4 strength table, which would replace these labels. Those lines are tested in flavorStrengths.test.js.)
 function nodesFrom(map) {
   return new Map(Object.entries(map).map(([k, v]) => [k, typeof v === 'string' ? { taste: v } : { taste: v.taste, gnnProbs: v.probs }]));
 }
@@ -14,17 +16,17 @@ const probs = (o) => ({ ...z(), ...o });
 
 describe('recipeAxisProfile', () => {
   it('averages per-axis and ranks drivers', () => {
-    const nodes = nodesFrom({ honey: 'sweet', lemon: 'sour sweet' });
-    const { scores, drivers, n } = recipeAxisProfile(['honey', 'lemon'], nodes);
+    const nodes = nodesFrom({ syrupy: 'sweet', citrusy: 'sour sweet' });
+    const { scores, drivers, n } = recipeAxisProfile(['syrupy', 'citrusy'], nodes);
     expect(n).toBe(2);
     expect(scores.sweet).toBeCloseTo((1 + 0.6) / 2);
     expect(scores.sour).toBeCloseTo(0.5);
-    expect(drivers.sweet[0]).toBe('honey'); // highest sweet
+    expect(drivers.sweet[0]).toBe('syrupy'); // highest sweet
   });
 
   it('skips ingredients without a taste label', () => {
-    const nodes = nodesFrom({ honey: 'sweet', jam: 'sweet sour' });
-    const { n, scores } = recipeAxisProfile(['honey', 'jam', 'mystery'], nodes);
+    const nodes = nodesFrom({ syrupy: 'sweet', jam: 'sweet sour' });
+    const { n, scores } = recipeAxisProfile(['syrupy', 'jam', 'mystery'], nodes);
     expect(n).toBe(2);
     expect(scores.sweet).toBeCloseTo(1);
   });
@@ -46,11 +48,11 @@ describe('amountGrams', () => {
 });
 
 describe('recipeAxisProfileWeighted', () => {
-  const nodes = nodesFrom({ honey: 'sweet', lemon: 'sour' });
+  const nodes = nodesFrom({ syrupy: 'sweet', citrusy: 'sour' });
 
   it('equals the unweighted mean when no amounts are known', () => {
-    const w = recipeAxisProfileWeighted(['honey', 'lemon'], nodes);
-    const m = recipeAxisProfile(['honey', 'lemon'], nodes);
+    const w = recipeAxisProfileWeighted(['syrupy', 'citrusy'], nodes);
+    const m = recipeAxisProfile(['syrupy', 'citrusy'], nodes);
     expect(w.weighted).toBe(false);
     expect(w.n).toBe(2);
     expect(w.scores.sweet).toBeCloseTo(m.scores.sweet); // 0.5
@@ -59,20 +61,20 @@ describe('recipeAxisProfileWeighted', () => {
 
   it('weights ingredients by entered amount', () => {
     const entries = [
-      { ingredient: 'honey', amount: { qty: null, unit: 'pinch' } }, // ~1g
-      { ingredient: 'lemon', amount: { qty: 2, unit: 'cup' } },      // ~480g
+      { ingredient: 'syrupy', amount: { qty: null, unit: 'pinch' } }, // ~1g
+      { ingredient: 'citrusy', amount: { qty: 2, unit: 'cup' } },      // ~480g
     ];
     const w = recipeAxisProfileWeighted(entries, nodes);
     expect(w.weighted).toBe(true);
-    // lemon dominates → sour share far exceeds sweet.
+    // citrusy dominates → sour share far exceeds sweet.
     expect(w.scores.sour).toBeGreaterThan(w.scores.sweet);
     expect(w.scores.sour).toBeGreaterThan(0.7);
   });
 
   it('falls back to mean known weight for un-quantified ingredients', () => {
     const entries = [
-      { ingredient: 'honey', amount: { qty: 1, unit: 'cup' } }, // 240g
-      { ingredient: 'lemon', amount: null },                    // unknown → fallback 240g
+      { ingredient: 'syrupy', amount: { qty: 1, unit: 'cup' } }, // 240g
+      { ingredient: 'citrusy', amount: null },                    // unknown → fallback 240g
     ];
     const w = recipeAxisProfileWeighted(entries, nodes);
     expect(w.weighted).toBe(true);
@@ -80,7 +82,7 @@ describe('recipeAxisProfileWeighted', () => {
   });
 
   it('skips ingredients without a label and is null-safe', () => {
-    const w = recipeAxisProfileWeighted(['honey', 'lemon', 'mystery'], nodes);
+    const w = recipeAxisProfileWeighted(['syrupy', 'citrusy', 'mystery'], nodes);
     expect(w.n).toBe(2);
     expect(w.scores.sweet).toBeCloseTo(0.5);
     expect(recipeAxisProfileWeighted(null, nodes).n).toBe(0);
@@ -95,9 +97,9 @@ describe('describeRecipeProfile', () => {
   });
 
   it('describes a sweet-lean recipe and flags the missing balancing axis', () => {
-    const out = describeRecipeProfile(profile({ sweet: 0.6, sour: 0.05 }, { sweet: ['honey'] }));
+    const out = describeRecipeProfile(profile({ sweet: 0.6, sour: 0.05 }, { sweet: ['syrupy'] }));
     expect(out).toMatch(/leads with sweet/i);
-    expect(out).toMatch(/from honey/i);
+    expect(out).toMatch(/from syrupy/i);
     expect(out).toMatch(/little sour/i); // suggests adding the counter-axis
   });
 
@@ -107,9 +109,9 @@ describe('describeRecipeProfile', () => {
   });
 
   it('handles an umami-rich profile', () => {
-    const out = describeRecipeProfile(profile({ umami: 0.6 }, { umami: ['mushroom'] }));
+    const out = describeRecipeProfile(profile({ umami: 0.6 }, { umami: ['fungus'] }));
     expect(out).toMatch(/umami/i);
-    expect(out).toMatch(/from mushroom/i);
+    expect(out).toMatch(/from fungus/i);
   });
 
   it('calls a flat profile mild and even', () => {
@@ -140,7 +142,7 @@ describe('describeRecipeProfile', () => {
   });
 
   it('is deterministic for identical input', () => {
-    const p = profile({ sweet: 0.4, odor_green: 0.3 }, { sweet: ['honey'] });
+    const p = profile({ sweet: 0.4, odor_green: 0.3 }, { sweet: ['syrupy'] });
     expect(describeRecipeProfile(p)).toBe(describeRecipeProfile(p));
   });
 });
@@ -187,25 +189,26 @@ describe('heat, the sixth taste', () => {
     expect(BALANCING.heat).toBe('sweet');
     expect(axisInsight('heat', 0.7)).toBe('Runs hot — balance with sweet.');
   });
-  it('a chili charts heat, drives it, and nodeProbs carries it', () => {
-    const nodes = nodesFrom({ chili: 'spicy pungent', lime: 'sour', salt: 'salty' });
-    const p = recipeAxisProfile(['chili', 'lime', 'salt'], nodes);
-    expect(p.scores.heat).toBeGreaterThan(p.scores.sour);
-    expect(p.drivers.heat).toEqual(['chili']);
-    expect(nodeProbs('chili', nodes).heat).toBeCloseTo(1.6);
-    expect(describeRecipeProfile(p)).toMatch(/leads with heat from chili/);
+  it('a peppery charts heat, drives it, and nodeProbs carries it', () => {
+    const nodes = nodesFrom({ peppery: 'spicy pungent', zesty: 'astringent', brinex: 'rich salty' });
+    const p = recipeAxisProfile(['peppery', 'zesty'], nodes);
+    expect(p.scores.heat).toBeGreaterThan(p.scores.bitter); // spicy + pungent is capped at the top of the scale (3), the same as one first word
+    expect(p.scores.heat).toBeGreaterThanOrEqual(p.scores.salty);
+    expect(p.drivers.heat).toEqual(['peppery']);
+    expect(nodeProbs('peppery', nodes).heat).toBeCloseTo(1); // spicy + pungent is capped at the top of the scale
+    expect(describeRecipeProfile(p)).toMatch(/leads with heat from peppery/);
   });
   it('neutral ingredients are counted but add no taste, and a boost of heat ranks chilies first', () => {
-    const nodes = nodesFrom({ water: 'neutral', chili: 'spicy', sugar: 'sweet' });
-    expect(nodeProbs('water', nodes)).toMatchObject({ _tasteless: true, sweet: 0, heat: 0 });
+    const nodes = nodesFrom({ aquax: 'neutral', peppery: 'spicy', sweetx: 'sweet' });
+    expect(nodeProbs('aquax', nodes)).toMatchObject({ _tasteless: true, sweet: 0, heat: 0 });
     const scores = { ...z(), sweet: 0.6 };
-    const r = rankByAxisImpact(['water', 'chili', 'sugar'], 'heat', scores, 2, nodes, { mode: 'boost' });
-    expect(r.map((x) => x.name)).toEqual(['chili']);
-    expect(profileDelta('water', scores, 2, nodes).sweet).toBeLessThan(0); // dilutes, at the tasteless rate
+    const r = rankByAxisImpact(['aquax', 'peppery', 'sweetx'], 'heat', scores, 2, nodes, { mode: 'boost' });
+    expect(r.map((x) => x.name)).toEqual(['peppery']);
+    expect(profileDelta('aquax', scores, 2, nodes).sweet).toBeLessThan(0); // dilutes, at the tasteless rate
   });
   it('a recipe of only neutral ingredients has nothing to chart', () => {
-    const nodes = nodesFrom({ water: 'neutral', flour: 'neutral' });
-    const p = recipeAxisProfile(['water', 'flour'], nodes);
+    const nodes = nodesFrom({ aquax: 'neutral', powderx: 'neutral' });
+    const p = recipeAxisProfile(['aquax', 'powderx'], nodes);
     expect(p.n).toBe(2);
     expect(p.tasteDrawn).toBe(false);
     expect(p.drawn).toBe(false);
@@ -237,35 +240,35 @@ describe('profileDelta + topMovers', () => {
 });
 
 describe('rankByAxisImpact', () => {
-  const nodes = nodesFrom({ fig: 'sweet', date: 'bitter sweet', lemon: 'sour' });
+  const nodes = nodesFrom({ fig: 'sweet', date: 'bitter sweet', citrusy: 'sour' });
   const scores = { ...z(), sweet: 0.1 };
 
   it('boost ranks candidates by positive delta on the axis', () => {
-    const r = rankByAxisImpact(['fig', 'date', 'lemon'], 'sweet', scores, 3, nodes, { mode: 'boost' });
-    expect(r.map((x) => x.name)).toEqual(['fig', 'date']); // lemon adds no sweet
+    const r = rankByAxisImpact(['fig', 'date', 'citrusy'], 'sweet', scores, 3, nodes, { mode: 'boost' });
+    expect(r.map((x) => x.name)).toEqual(['fig', 'date']); // citrusy adds no sweet
   });
 
   it('temper ranks by the balancing axis (sweet→sour)', () => {
-    const r = rankByAxisImpact(['fig', 'lemon'], 'sweet', scores, 3, nodes, { mode: 'temper' });
-    expect(r[0].name).toBe('lemon'); // raises sour, the balance for sweet
+    const r = rankByAxisImpact(['fig', 'citrusy'], 'sweet', scores, 3, nodes, { mode: 'temper' });
+    expect(r[0].name).toBe('citrusy'); // raises sour, the balance for sweet
   });
 });
 
 describe('buildAxisEnhancements', () => {
-  const nodes = nodesFrom({ fig: 'sweet', lemon: 'sour', salt: 'salty' });
+  const nodes = nodesFrom({ fig: 'sweet', citrusy: 'sour', brinex: 'salty' });
   const scores = { ...z(), sweet: 0.1 };
 
   it('returns per-axis boost + temper buckets from the candidate pool', () => {
-    const rows = buildAxisEnhancements(['sweet'], ['fig', 'lemon', 'salt'], scores, 3, nodes);
+    const rows = buildAxisEnhancements(['sweet'], ['fig', 'citrusy', 'brinex'], scores, 3, nodes);
     expect(rows).toHaveLength(1);
     expect(rows[0].axis).toBe('sweet');
     expect(rows[0].boost.map((b) => b.name)).toContain('fig');   // adds sweet
-    expect(rows[0].temper.map((t) => t.name)).toContain('lemon'); // raises sour (balances sweet)
+    expect(rows[0].temper.map((t) => t.name)).toContain('citrusy'); // raises sour (balances sweet)
   });
 
   it('drops axes with neither boost nor temper candidates', () => {
-    // salt adds neither bitter (boost) nor sweet (bitter's balance/temper) → row dropped.
-    const rows = buildAxisEnhancements(['bitter'], ['salt'], scores, 3, nodes);
+    // brinex adds neither bitter (boost) nor sweet (bitter's balance/temper) → row dropped.
+    const rows = buildAxisEnhancements(['bitter'], ['brinex'], scores, 3, nodes);
     expect(rows).toHaveLength(0);
   });
 

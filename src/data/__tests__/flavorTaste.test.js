@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { labelWeights, tasteProfile, TASTE_AXES, TASTELESS_WEIGHT, isTasteless } from '../flavorTaste.js';
+import { labelWeights, tasteProfile as tasteProfileWith, TASTE_AXES, TASTELESS_WEIGHT, isTasteless } from '../flavorTaste.js';
+
+// These tests are about the LABEL path, and their fixtures reuse real names (sugar, salt, gin) that the FLAVOR-4
+// table also covers, so they switch the table off. The table has its own tests in flavorStrengths.test.js.
+const tasteProfile = (lines, lk, o = {}) => tasteProfileWith(lines, lk, { strengths: null, ...o });
 
 const LABELS = {
   sugar: 'sweet', lime: 'sour', coffee: 'bitter', salt: 'salty', miso: 'umami salty', chili: 'spicy pungent',

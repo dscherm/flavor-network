@@ -269,11 +269,174 @@ Where the misses come from, in order: (1) no strength per ingredient, so a large
 
 The labels ship as a small file, `public/proDataset/taste_labels.json` (name to label, 3,674 ingredients), written by `scripts/buildTasteLabels.mjs` in `prebuild` from the same curated data the app applies on load. **104,693 bytes raw, 20,568 bytes gzipped.** The shared page and the share-card code load this instead of `ingredients.json`. Inside the main app the labels are already on the ingredient nodes (`node.taste`), so nothing is downloaded twice.
 
+## After FLAVOR-4 (2026-11-16, a hand-tuned strength for each ingredient that matters most)
+
+What changed: FLAVOR-3 gave every ingredient a taste label ("sweet bitter") that says WHICH tastes it has but not how STRONG they are, so the biggest pour won: 2 oz of tequila (labelled bitter) beat 3/4 oz of lime juice (sour), and a Margarita charted bitter. `src/data/flavorStrengths.js` is a table with one line for each of 269 ingredients (every base spirit and bar bottle, the 40 most-used cocktail ingredients, the 60 most-used sauce and dish ingredients, and the rest of the common liqueurs, bitters, juices, syrups, mixers, dairy, seasonings, chilies and herbs). It was written by the assistant from common bartending and cooking knowledge on 2026-11-16 and is NOT independently checked.
+
+### How the table works, in plain words
+
+Each line gives, for each of the six tastes, a number from 0 to 3 for how strongly THAT ingredient tastes of it per gram (0 = none, 1 = faint, 2 = clearly there, 3 = what the ingredient is: sugar is sweet 3, lime juice is sour 3). It also gives a **potency**: how much one gram of it counts, compared with an ordinary ingredient at 1.
+
+- A little of something strong has a high potency (bitters 6, hot sauce 10, chili 8, fish sauce 6, soy sauce 4, salt 25, lime and lemon juice 2.5, sugar 2.5, syrups 2, strong liqueurs 1.5).
+- A lot of something mild has a low one (base spirits 0.5 to 0.7: mostly ethanol and water with a mild character).
+- Soda water, water, oils, butter, flour and pasta have potency 0: no taste worth charting. They still count as ingredients and still water a recipe down a little (their grams count at `TASTELESS_WEIGHT` = 0.25, as in FLAVOR-3), so a long drink reads a little weaker than the same drink neat but does not vanish.
+
+A taste's bar is the average of the strengths of everything in the recipe, each counted in proportion to its **grams x potency**. So two dashes of bitters (2 g x 6) count about as much as 12 g of an ordinary ingredient, not as 2 g, while 57 g of whiskey (57 x 0.6) counts as 34. Every bar stays between 0 and 1. (The brief suggested potencies of 25 to 40 for bitters; once potency is a weight in an average rather than a multiplier on an uncapped sum, those numbers would make two dashes outweigh the whiskey in an Old Fashioned, so 6 is the number that matches a cook's sense that bitters are a note, not the drink.)
+
+**An ingredient with a line REPLACES its label.** Any other ingredient keeps the label from FLAVOR-3, put on the same scale: the first word of a label counts as strength 3, the second 1.8, the third 1.05 (the FLAVOR-3 weights 1.0, 0.6, 0.35 times 3), potency 1, and one ingredient is capped at 3 (a label that says spicy and pungent is 3, not 4.8). So a recipe made only of label-only ingredients charts as it did under FLAVOR-3.
+
+**Lines with no amount.** 517 of 3,079 built-in lines had no usable amount ("1", "to taste", "1 stick") and took the mean weight of the recipe's measured lines. With potency that goes wrong: a Bloody Mary's unmeasured Tabasco became a quarter of the drink and one chili in nuoc cham a third of the sauce. So an ingredient on the table can carry a typical single portion (`DEFAULT_GRAMS`: hot sauce 2 g, a chili 8 g, a lime 20 g, a lemon 25 g, an egg 50 g, a clove of garlic 3 g, the juice of one lime 30 g; 35 entries), a bare count multiplies it ("6" chilies is 48 g, "8 limes" of lime juice is 240 g), and any other table ingredient with potency above 1.5 counts 3 g. These defaults are not treated as measured amounts, so a recipe with no measured amounts is still equal-weighted. Ingredients that are not on the table keep the mean rule. Evidence for doing this: the same table with the mean rule read 38/41 on the main key (it flattered the result by giving a chili a third of a sauce); with the defaults it reads 36/41 and the charts are the more believable ones.
+
+**Rims.** A Margarita's salt rim and a Bloody Mary's salt and pepper live in the recipe's garnish text, not in an ingredient line. `buildFlavorProfile` now takes an optional `garnish` string; a salt rim counts as half a gram of salt, a sugar rim as a gram of sugar, a chili or tajin rim as half a gram of chili powder, and no other garnish counts. The measuring script passes it. The in-app panels (Invent, Recipe Notebook) have no garnish text so nothing changes there; when FLAVOR-6 turns the shared pages and cards back on, `recipe.garnish` is what to pass.
+
+### Result, as printed by `npm run measure:flavor`
+
+Before (the end of FLAVOR-3, the run above): `Items 41. Top taste expected: 30/41 (73.2%). Top two both expected: 19/34 items with 2+ expected (55.9%). Forbidden taste leads: 8. No chart: 0. Ingredients counted: 97.6%. Aroma as expected: 0/4 (0%).`
+
+After:
+
+```
+cocktail/negroni            expect bitter/sweet not sour  |  bitter 0.50, sweet 0.39  |  counted 100%  |  top1, top2
+cocktail/daiquiri           expect sour/sweet not bitter  |  sour 0.46, sweet 0.30  |  counted 100%  |  top1, top2
+cocktail/margarita          expect sour/salty/sweet not bitter  |  sweet 0.40, sour 0.31, bitter 0.08  |  counted 100%  |  top1, top2
+cocktail/old-fashioned      expect sweet/bitter not sour  |  sweet 0.27, bitter 0.23  |  counted 100%  |  top1, top2
+cocktail/manhattan          expect sweet/bitter not sour  |  sweet 0.49, bitter 0.20, sour 0.14  |  counted 83%  |  top1, top2
+cocktail/whiskey-sour       expect sour/sweet  |  sour 0.41, sweet 0.40, bitter 0.05  |  counted 100%  |  top1, top2
+cocktail/mojito             expect sour/sweet not bitter  |  sweet 0.33, sour 0.15  |  counted 100%  |  top1, top2, aroma miss
+cocktail/americano          expect bitter/sweet not sour  |  bitter 0.67, sweet 0.53  |  counted 100%  |  top1, top2
+cocktail/aperol-spritz      expect bitter/sweet not sour  |  sweet 0.38, bitter 0.19, sour 0.18  |  counted 100%  |  top1, top2
+cocktail/paloma             expect sour/bitter/sweet  |  sour 0.46, bitter 0.35, sweet 0.14  |  counted 100%  |  top1, top2
+cocktail/gimlet             expect sour/sweet not bitter  |  sour 0.39, sweet 0.22, bitter 0.08  |  counted 100%  |  top1, top2
+cocktail/sidecar            expect sour/sweet not bitter  |  sour 0.44, sweet 0.29, bitter 0.10  |  counted 100%  |  top1, top2
+cocktail/boulevardier       expect bitter/sweet not sour  |  bitter 0.49, sweet 0.48  |  counted 100%  |  top1, top2
+cocktail/pina-colada        expect sweet not sour/bitter  |  sweet 0.41, sour 0.19  |  counted 100%  |  top1, aroma miss
+cocktail/tom-collins        expect sour/sweet not bitter  |  sour 0.39, sweet 0.33, bitter 0.07  |  counted 100%  |  top1, top2
+cocktail/bloody-mary        expect umami/salty/heat not sweet  |  sour 0.45, umami 0.39, sweet 0.17  |  counted 100%  |  miss, not-top2
+cocktail/pisco-sour         expect sour/sweet not bitter  |  sour 0.56, sweet 0.25  |  counted 100%  |  top1, top2
+cocktail/white-russian      expect sweet not sour/salty  |  sweet 0.45, bitter 0.21  |  counted 100%  |  top1
+cocktail/cosmopolitan       expect sour/sweet not bitter/salty  |  sour 0.65, sweet 0.41, bitter 0.12  |  counted 100%  |  top1, top2
+cocktail/tequila-sunrise    expect sweet not bitter/salty  |  sour 0.50, sweet 0.42  |  counted 100%  |  miss
+sauce/hollandaise           expect sour/salty not sweet/bitter  |  sour 0.19, salty 0.16  |  counted 100%  |  top1, top2
+sauce/teriyaki              expect sweet/salty/umami not sour/bitter  |  salty 0.70, umami 0.61, sweet 0.27  |  counted 100%  |  top1, top2
+sauce/ponzu                 expect sour/salty/umami not sweet  |  salty 0.57, umami 0.56, sour 0.22  |  counted 100%  |  top1, top2
+sauce/nuoc-cham             expect sour/salty/sweet not bitter  |  umami 0.55, salty 0.54, sweet 0.15  |  counted 100%  |  miss, not-top2
+sauce/sweet-and-sour-sauce  expect sweet/sour not bitter/salty  |  sweet 0.49, sour 0.30, salty 0.17  |  counted 100%  |  top1, top2
+sauce/salsa-verde           expect sour/heat not sweet  |  sour 0.58, heat 0.12, salty 0.07  |  counted 100%  |  top1, top2, aroma miss
+sauce/buffalo-sauce         expect heat/sour/salty not sweet  |  sour 0.40, salty 0.30, umami 0.15  |  counted 100%  |  top1, top2
+sauce/marinara              expect umami/sour not bitter  |  umami 0.59, sour 0.44, sweet 0.24  |  counted 100%  |  top1, top2
+sauce/black-bean-sauce      expect salty/umami not sweet/sour  |  umami 0.41, salty 0.34, sweet 0.32  |  counted 100%  |  top1, top2
+dish/beef-bolognese         expect umami not sweet  |  umami 0.29, sweet 0.17, sour 0.16  |  counted 100%  |  top1
+dish/margherita-pizza       expect umami/salty not sweet  |  salty 0.29, umami 0.29, sour 0.18  |  counted 100%  |  top1, top2
+dish/caesar-salad           expect salty/umami not sweet  |  salty 0.44, umami 0.41, sour 0.20  |  counted 100%  |  top1, top2
+dish/thai-green-curry       expect heat not sweet  |  umami 0.22, heat 0.15, salty 0.14  |  counted 100%  |  miss
+dish/tom-yum                expect sour/heat not sweet  |  umami 0.40, salty 0.27, heat 0.20  |  counted 100%  |  miss, not-top2
+dish/creme-brulee           expect sweet not salty/umami/sour  |  sweet 0.38  |  counted 100%  |  top1
+dish/tiramisu               expect sweet/bitter not salty/umami  |  sweet 0.48, bitter 0.30  |  counted 100%  |  top1, top2
+dish/apple-pie              expect sweet not salty/umami  |  sweet 0.82, sour 0.14  |  counted 100%  |  top1
+dish/miso-soup              expect umami/salty not sweet  |  umami 0.67, salty 0.33  |  counted 100%  |  top1, top2
+dish/greek-salad            expect salty/sour not sweet  |  salty 0.55, sour 0.30, bitter 0.08  |  counted 100%  |  top1, top2
+dish/mapo-tofu              expect heat/umami/salty not sweet  |  heat 0.25, umami 0.13  |  counted 100%  |  top1, top2
+dish/pesto-genovese         expect salty/umami not sweet  |  salty 0.26, umami 0.24, sweet 0.06  |  counted 100%  |  top1, top2, aroma miss
+
+Items 41. Top taste expected: 36/41 (87.8%). Top two both expected: 31/34 items with 2+ expected (91.2%). Forbidden taste leads: 0. No chart: 0. Ingredients counted: 99.6%. Aroma as expected: 0/4 (0%).
+```
+
+Main set: top taste expected 30/41 (73.2%) to **36/41 (87.8%)**, top two 19/34 to 31/34 (91.2%), forbidden taste leads 8 to **0**.
+
+### The hold-out: 20 recipes written before the table was tuned
+
+`data/flavor-holdout.json` holds 20 well-known recipes that are NOT in the main answer key (8 cocktails, 6 sauces, 6 dishes, resolved from the built-in data), with the tastes a cook would expect, written by the assistant before any strength was set and never used for tuning. Run it with `node scripts/measureFlavorProfile.mjs --truth data/flavor-holdout.json` (the `--truth` option already existed). The same code, before and after.
+
+Before (the FLAVOR-3 code, labels only):
+
+```
+cocktail/moscow-mule         expect sour/sweet/heat not bitter  |  sweet 0.38, sour 0.38, heat 0.23  |  counted 75%  |  top1, top2
+cocktail/mai-tai             expect sweet/sour not bitter  |  sweet 0.80, sour 0.18, bitter 0.13  |  counted 100%  |  top1, top2
+cocktail/caipirinha          expect sour/sweet not bitter  |  sweet 0.75, bitter 0.37, sour 0.25  |  counted 100%  |  top1, not-top2
+cocktail/sazerac             expect bitter/sweet not sour  |  sweet 0.65, bitter 0.52  |  counted 100%  |  top1, top2
+cocktail/amaretto-sour       expect sweet/sour not bitter  |  sweet 0.61, sour 0.36, bitter 0.18  |  counted 100%  |  top1, top2
+cocktail/bees-knees          expect sour/sweet not bitter  |  bitter 0.57, sweet 0.21, sour 0.21  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS
+cocktail/brandy-alexander    expect sweet not sour/bitter/salty  |  sweet 0.89, bitter 0.17  |  counted 100%  |  top1
+cocktail/irish-coffee        expect bitter/sweet not sour/salty  |  bitter 0.67, sweet 0.35  |  counted 100%  |  top1, top2
+sauce/tonkatsu-sauce         expect sweet/umami/sour not bitter  |  sweet 0.55, umami 0.41, sour 0.25  |  counted 100%  |  top1, top2
+sauce/bbq-sauce              expect sweet/sour/umami not bitter  |  sweet 0.77, sour 0.42, heat 0.16  |  counted 100%  |  top1, top2
+sauce/chimichurri            expect sour/salty/heat not sweet  |  bitter 0.74, sour 0.13  |  counted 100%  |  miss, not-top2
+sauce/pad-thai-sauce         expect sour/salty/sweet not bitter  |  sour 0.38, sweet 0.28, umami 0.27  |  counted 100%  |  top1, top2
+sauce/harissa                expect heat not sweet  |  heat 0.55, sour 0.20, sweet 0.11  |  counted 100%  |  top1
+sauce/beurre-blanc           expect sour/salty not sweet/heat/bitter  |  sour 0.60, sweet 0.40, heat 0.13  |  counted 100%  |  top1, not-top2
+dish/spaghetti-carbonara     expect salty/umami not sweet/sour  |  salty 0.69, umami 0.35  |  counted 100%  |  top1, top2
+dish/shrimp-ceviche          expect sour not sweet/bitter  |  heat 0.40, sweet 0.35, umami 0.34  |  counted 100%  |  miss
+dish/guacamole               expect sour/salty/heat not sweet/bitter  |  heat 0.42, bitter 0.31, sweet 0.26  |  counted 100%  |  top1, not-top2
+dish/chocolate-chip-cookies  expect sweet not salty/umami/sour/heat  |  sweet 0.52, bitter 0.32, umami 0.11  |  counted 100%  |  top1
+dish/pho                     expect umami/salty not sweet  |  sweet 0.39, heat 0.39, sour 0.15  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS
+dish/mac-and-cheese          expect salty/umami not sweet/sour  |  sweet 0.37, salty 0.26, umami 0.16  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS
+
+Items 20. Top taste expected: 15/20 (75%). Top two both expected: 9/16 items with 2+ expected (56.3%). Forbidden taste leads: 3. No chart: 0. Ingredients counted: 98.8%. Aroma as expected: 0/0 (null%).
+```
+
+After:
+
+```
+cocktail/moscow-mule         expect sour/sweet/heat not bitter  |  sour 0.45, sweet 0.34, heat 0.10  |  counted 100%  |  top1, top2
+cocktail/mai-tai             expect sweet/sour not bitter  |  sweet 0.52, sour 0.30, bitter 0.12  |  counted 100%  |  top1, top2
+cocktail/caipirinha          expect sour/sweet not bitter  |  sweet 0.55, sour 0.13, bitter 0.06  |  counted 100%  |  top1, top2
+cocktail/sazerac             expect bitter/sweet not sour  |  bitter 0.44, sweet 0.26  |  counted 100%  |  top1, top2
+cocktail/amaretto-sour       expect sweet/sour not bitter  |  sweet 0.47, sour 0.41, bitter 0.15  |  counted 100%  |  top1, top2
+cocktail/bees-knees          expect sour/sweet not bitter  |  sour 0.41, sweet 0.33, bitter 0.06  |  counted 100%  |  top1, top2
+cocktail/brandy-alexander    expect sweet not sour/bitter/salty  |  sweet 0.49, bitter 0.08  |  counted 100%  |  top1
+cocktail/irish-coffee        expect bitter/sweet not sour/salty  |  bitter 0.41, sweet 0.15, sour 0.09  |  counted 100%  |  top1, top2
+sauce/tonkatsu-sauce         expect sweet/umami/sour not bitter  |  umami 0.63, sweet 0.50, salty 0.48  |  counted 100%  |  top1, top2
+sauce/bbq-sauce              expect sweet/sour/umami not bitter  |  sweet 0.56, sour 0.43, umami 0.36  |  counted 100%  |  top1, top2
+sauce/chimichurri            expect sour/salty/heat not sweet  |  sour 0.25, salty 0.12, bitter 0.05  |  counted 100%  |  top1, top2
+sauce/pad-thai-sauce         expect sour/salty/sweet not bitter  |  sour 0.35, umami 0.33, salty 0.32  |  counted 100%  |  top1, not-top2
+sauce/harissa                expect heat not sweet  |  heat 0.72, salty 0.11, sour 0.07  |  counted 100%  |  top1
+sauce/beurre-blanc           expect sour/salty not sweet/heat/bitter  |  sour 0.35, salty 0.10, sweet 0.09  |  counted 100%  |  top1, top2
+dish/spaghetti-carbonara     expect salty/umami not sweet/sour  |  salty 0.40, umami 0.37  |  counted 100%  |  top1, top2
+dish/shrimp-ceviche          expect sour not sweet/bitter  |  sour 0.43, umami 0.20, sweet 0.10  |  counted 100%  |  top1
+dish/guacamole               expect sour/salty/heat not sweet/bitter  |  sour 0.44, salty 0.13, heat 0.11  |  counted 100%  |  top1, top2
+dish/chocolate-chip-cookies  expect sweet not salty/umami/sour/heat  |  sweet 0.65, bitter 0.22, salty 0.10  |  counted 100%  |  top1
+dish/pho                     expect umami/salty not sweet  |  sweet 0.35, umami 0.12  |  counted 100%  |  miss, not-top2, FORBIDDEN LEADS
+dish/mac-and-cheese          expect salty/umami not sweet/sour  |  salty 0.15, umami 0.15, sweet 0.12  |  counted 100%  |  top1, top2
+
+Items 20. Top taste expected: 19/20 (95%). Top two both expected: 14/16 items with 2+ expected (87.5%). Forbidden taste leads: 1. No chart: 0. Ingredients counted: 100%. Aroma as expected: 0/0 (null%).
+```
+
+Hold-out: top taste expected 15/20 (75%) to **19/20 (95%)**, top two 9/16 to 14/16, forbidden leads 3 to 1. The main set and the hold-out moved the same way (+6 and +4 items). The one forbidden lead left on the hold-out is Beef Pho (below). Honesty note: I read the hold-out's per-recipe output after each run, as the script prints it. The only change I made because of what it showed is the typical-amount rule for fruit juice by count ("8 limes" of lime juice in the ceviche), a general mechanism and not a recipe-specific line. I did not add a line for an ingredient that only the hold-out used (star anise, for instance, is why Beef Pho still misses).
+
+### What is still wrong, by item
+
+Main set (5 recipes whose top taste is not an expected one; the aroma misses on Mojito, Pina Colada, Salsa Verde and Pesto are FLAVOR-5):
+
+| Item | Chart | Why |
+|---|---|---|
+| Bloody Mary | sour 0.45, umami 0.39, sweet 0.17 (expects umami, salty, heat) | Tomato juice is sour 1 and the lemon juice (15 ml, potency 2.5) adds more; the Tabasco is 2 g. A cook would call a Bloody Mary savory first; the chart calls it tart. Not forced. |
+| Tequila Sunrise | sour 0.50, sweet 0.42 (expects sweet) | The codex recipe has lime juice (about 3/4 oz) as well as orange juice and grenadine, and orange juice is sweet 2, sour 1.5. |
+| Nuoc cham | umami 0.55, salty 0.54, sweet 0.15 (expects sour, salty, sweet) | Fish sauce, 45 g at potency 6, outweighs the lime juice and sugar (30 g each at 2.5). The key lists no heat although the dish has a chili. |
+| Thai green curry (dish) | umami 0.22, heat 0.15 (expects heat) | Chicken 500 g and coconut milk 400 g are most of the weight and the paste is 45 g. Heat is second, a real bar, but not the lead. |
+| Tom yum | umami 0.40, salty 0.27, heat 0.20 (expects sour, heat) | Shrimp and mushroom are most of the weight; the lime is a bare count of 20 g. |
+
+Hold-out: Beef Pho (sweet 0.35, forbidden): the 1.5 kg of bones plus 300 g of sirloin is one unparsable amount, the star anise is label-only (label sweet, strength 3, no usable amount so it takes the mean weight of 225 g) and there is no stock line. Pad Thai Sauce: sour leads but umami (fish sauce) beats salty for second.
+
+Two lines of the answer key that I think are debatable, listed for the owner and not edited: **Nuoc cham** expects sour, salty and sweet but no heat although the recipe has a chili; **Margarita** expects salty, but the salt is a rim in the garnish text (now read, but a rim is half a gram of salt, so it shows as a small bar, 0.07).
+
+The Margarita in the codex has 3/4 oz each of orange liqueur, lime juice and simple syrup (those amounts are the app's own suggestions, marked with a tilde), so it charts sweet 0.40, sour 0.31: sour is second, not first. "Margarita (Dry)" (no syrup) charts sour first.
+
+### How to correct a line (no code needed)
+
+1. Open `src/data/flavorStrengths.js` and find the ingredient. The name has to be spelled exactly as the app spells it; a name the app does not know fails the test on purpose.
+2. Change the numbers on that one line: the six tastes (0 to 3; leave a taste out for none) and `potency` (the scale is at the top of the file). Ask: would a bartender or a cook agree with this line on its own? Do not change a number only because one recipe came out wrong.
+3. To add an ingredient, add one line the same way. To say what one of it weighs when a recipe gives no amount, add it to `DEFAULT_GRAMS`.
+4. Run `npm run measure:flavor` (the main key) and `node scripts/measureFlavorProfile.mjs --truth data/flavor-holdout.json` (the hold-out) and look at the recipes you care about; run `npm test -- flavorStrengths` to check the file is well formed.
+
+### Tests
+
+`flavorStrengths.test.js`: the file is well formed; every name is a real ingredient (or on the short `NOT_IN_GRAPH` list of bottles and mixers the graph does not hold, which is itself checked); every base spirit, bar bottle, generic bottle key, the 40 most-used cocktail ingredients and the 60 most-used sauce and dish ingredients have a line; an entry overrides its label; two dashes of bitters register against 2 oz of spirit; soda water does not dilute a chart to nothing; label-only ingredients sit on the same scale; the typical-amount rule; the rim rule. `flavorStrengths.realData.test.js`: top taste at least 85% with no forbidden lead on the main key, the hold-out at least 85%, and the named checks on the real recipes (Negroni bitter then sweet with sour not in the top two; Daiquiri sour and sweet; Old Fashioned sweet and bitter with the bitters registering; Margarita never bitter on top with sour in the top two; Bolognese and marinara not sweet-first; a soy sauce sauce salty and umami; a Thai curry shows heat).
+
 ## What comes next
 
 - FLAVOR-2 (done, see above) stops drawing a chart from the repeated placeholder rows: ingredients carrying them count as having no flavor data, and a recipe without enough real data shows "not enough flavor data" instead of a chart.
 - FLAVOR-3 (done, see above) draws the tastes from the curated taste word each ingredient already has (salt is salty, sugar is sweet, coffee is bitter), weighted by how much of it the recipe uses, and adds heat as a sixth taste.
-- FLAVOR-4 hand-tunes strengths for the ingredients that matter most, so a dash of bitters and two ounces of gin no longer weigh the same.
+- FLAVOR-4 (done, see above) hand-tunes strengths for the ingredients that matter most, so a dash of bitters and two ounces of gin no longer weigh the same.
 - FLAVOR-5 takes aromas from published aroma descriptors instead of the model.
 - FLAVOR-6 makes every surface use the same profile, makes the wording honest, and re-measures on this same test set; the aim is to beat the numbers above.
 

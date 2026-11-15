@@ -270,11 +270,11 @@ describe('InventSauce — flavor profile', () => {
     renderInvent({ nodes });
     start('butter');
     addIng('tomato');
-    addIng('cumin');
+    addIng('fenugreek'); // no taste label and no line in the FLAVOR-4 strength table
     expect(screen.getByTestId(`${P}-profile`)).toBeInTheDocument();
     expect(screen.getByTestId(`${P}-profile-bar-sour`)).toBeInTheDocument();
     expect(screen.getByTestId(`${P}-profile-summary`)).toHaveTextContent(/On the chart|this sauce/);
-    expect(screen.getByTestId(`${P}-profile-uncounted`)).toHaveTextContent('cumin');
+    expect(screen.getByTestId(`${P}-profile-uncounted`)).toHaveTextContent('fenugreek');
   });
 
   it('still renders with no profile data at all', () => {
