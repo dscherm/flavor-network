@@ -12,6 +12,8 @@
  * ranking logic is pure and unit-tested; inference is lazy.
  */
 
+import { planVocabAliases } from '../data/curation/vocabAliases.js';
+
 const NUM_HEADS = 11;
 
 // Basic pantry staples — excluded from all ingredient suggestions (add /
@@ -23,6 +25,10 @@ export const SUGGESTION_EXCLUDE = ['water', 'salt', 'pepper', 'black pepper', 's
 export function buildVocabIndex(vocab) {
   const idx = new Map();
   if (Array.isArray(vocab)) for (let i = 0; i < vocab.length; i++) idx.set(String(vocab[i]).toLowerCase(), i);
+  // Curation: canonical and variant names both resolve to an id the model knows (vocabAliases.js).
+  const plan = planVocabAliases(vocab);
+  for (const [name, id] of plan.extra) idx.set(name, id);
+  idx.variantIds = plan.variantIds;
   return idx;
 }
 
@@ -39,7 +45,8 @@ export function buildRecipeInputs(observedNames, opts, meta, vocabIndex) {
   const observedIds = [];
   for (const name of observedNames || []) {
     const id = vocabIndex.get(String(name).toLowerCase());
-    if (id != null) observedIds.push(id);
+    if (id == null) continue;
+    for (const got of [id, ...(vocabIndex.variantIds?.get(id) || [])]) if (!observedIds.includes(got)) observedIds.push(got);
   }
   const obsIds = new Array(maxlen).fill(pad_id);
   const obsMask = new Array(maxlen).fill(0);
@@ -70,7 +77,9 @@ export function buildRecipeInputs(observedNames, opts, meta, vocabIndex) {
  * @returns {Array<{name:string, score:number}>}
  */
 export function rankLogits(logits, vocab, observedIds, k = 10, candidateIds = null) {
+  const { retired, display } = planVocabAliases(vocab);
   const excluded = new Set(observedIds);
+  for (const id of retired) excluded.add(id);
   const idx = [];
   if (candidateIds) {
     for (const i of candidateIds) if (!excluded.has(i) && i >= 0 && i < vocab.length) idx.push(i);
@@ -78,7 +87,7 @@ export function rankLogits(logits, vocab, observedIds, k = 10, candidateIds = nu
     for (let i = 0; i < vocab.length; i++) if (!excluded.has(i)) idx.push(i);
   }
   idx.sort((a, b) => logits[b] - logits[a]);
-  return idx.slice(0, k).map((i) => ({ name: vocab[i], score: logits[i] }));
+  return idx.slice(0, k).map((i) => ({ name: display.get(i) ?? vocab[i], score: logits[i] }));
 }
 
 /**

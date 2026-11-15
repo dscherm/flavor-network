@@ -12,6 +12,7 @@
  * kitchenize() below and src/ml/kitchenUnits.js.
  */
 import { normalizeUnit, isKitchenQty, toKitchen } from './kitchenUnits.js';
+import { planVocabAliases } from '../data/curation/vocabAliases.js';
 
 /** Build a name → vocab-id index from vocab.json's `vocab` array. */
 export function buildVocabIndex(vocabArray) {
@@ -19,6 +20,10 @@ export function buildVocabIndex(vocabArray) {
   if (Array.isArray(vocabArray)) {
     for (let i = 0; i < vocabArray.length; i++) idx.set(String(vocabArray[i]).toLowerCase(), i);
   }
+  // Curation: canonical and variant names both resolve to an id the model knows (vocabAliases.js).
+  const plan = planVocabAliases(vocabArray);
+  for (const [name, id] of plan.extra) idx.set(name, id);
+  idx.variantIds = plan.variantIds;
   return idx;
 }
 
@@ -36,7 +41,12 @@ export function predictQuantity(name, ctx) {
   const global = meta.global || null;
 
   const id = vocabIndex instanceof Map ? vocabIndex.get(String(name).toLowerCase()) : undefined;
-  const entry = id != null ? artifact.model?.[id] : undefined;
+  // A canonical name also carries its merged variants' statistics: the best-sampled one answers.
+  let entry = id != null ? artifact.model?.[id] : undefined;
+  for (const vid of (id != null && vocabIndex.variantIds?.get(id)) || []) {
+    const alt = artifact.model?.[vid];
+    if (alt && (alt.n ?? 0) > (entry?.n ?? 0)) entry = alt;
+  }
 
   if (entry && (entry.n ?? 0) >= minSamples && entry.unit) {
     return { ...kitchenize(entry.unit, entry.qty), source: 'model' };

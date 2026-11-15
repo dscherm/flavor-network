@@ -30,6 +30,12 @@
  *
  * Decoder: src/data/pairingsBinary.js (reads v1, v2 and v3).
  *
+ * Curation (src/data/curation): the pairing merge for aliased ingredients runs HERE, at build time,
+ * so the app pays nothing at load. Merged variants and hidden entries have no records in the binary.
+ * Indices are still the RAW ingredients.json order (the decoder indexes into the raw object), so a
+ * variant's slot is simply unused. Run via `npm run build:pairings` (part of `prebuild`); the
+ * committed binary is checked against the tables by src/data/__tests__/curation.integration.test.js.
+ *
  * Any pairing whose ingredient is missing from ingredients.json is
  * skipped (the old JS reader skipped these anyway via `nodes.has()`).
  * Indices are capped at 32767 (bit 15 of idxB is the known flag) —
@@ -38,13 +44,14 @@
 
 const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 
 const PRODATASET = path.join(__dirname, '..', 'public', 'proDataset');
 const INGREDIENTS_PATH = path.join(PRODATASET, 'ingredients.json');
 const PAIRINGS_JSON = path.join(PRODATASET, 'pairings.json');
 const OUT_BIN = path.join(PRODATASET, 'pairings.bin');
 
-function main() {
+async function main() {
   console.log('[build-bin] reading', INGREDIENTS_PATH);
   const ingredientsRaw = fs.readFileSync(INGREDIENTS_PATH, 'utf-8');
   const ingredients = JSON.parse(ingredientsRaw);
@@ -66,8 +73,18 @@ function main() {
 
   console.log('[build-bin] reading', PAIRINGS_JSON);
   const pairingsRaw = fs.readFileSync(PAIRINGS_JSON, 'utf-8');
-  const pairings = JSON.parse(pairingsRaw);
-  console.log(`[build-bin] ${pairings.length} pairings in source JSON`);
+  const rawPairings = JSON.parse(pairingsRaw);
+  console.log(`[build-bin] ${rawPairings.length} pairings in source JSON`);
+
+  const { loadCurationTables, validateAgainst, applyCuration } = await import(
+    pathToFileURL(path.join(__dirname, 'lib', 'curationTables.mjs')).href
+  );
+  const tables = loadCurationTables();
+  const problems = validateAgainst(tables, ingredients);
+  if (problems.length) throw new Error('curation tables are invalid: ' + problems.join('; '));
+  const { pairings, report } = applyCuration(ingredients, rawPairings, tables);
+  console.log(`[build-bin] curation: ${report.aliasesApplied.length} aliases, ${report.hiddenApplied.length} hidden -> ` +
+    `${report.pairingsMerged} pairings merged, ${report.pairingsDropped} dropped, ${pairings.length} kept`);
 
   // First pass: count valid records so we can allocate the buffer
   // exactly. A pairing is valid only if both ingredients are known.
@@ -113,4 +130,4 @@ function main() {
   console.log(`  output      : ${OUT_BIN}`);
 }
 
-main();
+main().catch((e) => { console.error(e); process.exit(1); });

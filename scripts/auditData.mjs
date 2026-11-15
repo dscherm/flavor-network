@@ -5,6 +5,9 @@
 //   npm run audit:data -- --check         exit 1 if any count is ABOVE data/review/baseline.json (writes nothing)
 //   npm run audit:data -- --update-baseline   store this run's counts as the new baseline
 //
+// The audit looks at the RAW generated data. It also validates the curation tables (src/data/curation)
+// and prints the curated counts beside the raw ones; an invalid table fails the run.
+//
 // Exit code is non-zero only for a missing or malformed input, or a failed --check.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -17,6 +20,7 @@ import {
 import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { dishTypeOf, DISH_TYPES } from '../src/data/dishType.js';
 import { DISH_SKELETONS, DISH_SKELETON_ORDER } from '../src/data/dishSkeletons.js';
+import { loadCurationTables, validateAgainst, applyCuration } from './lib/curationTables.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const REVIEW_DIR = resolve(ROOT, 'data/review');
@@ -78,6 +82,18 @@ export function runAudit() {
   const keepFile = existsSync(KEEP_PATH) ? readJson(KEEP_PATH, 'keep.json') : { keep: [] };
   const keep = new Set((keepFile.keep || []).map((k) => k.name));
 
+  const tables = loadCurationTables();
+  const tableProblems = validateAgainst(tables, ingredients);
+  const rawPairings = args.has('--json') || args.has('--check') ? null : readJson(resolve(ROOT, 'public/proDataset/pairings.json'), 'pairings.json');
+  const cur = applyCuration(ingredients, rawPairings, tables);
+  const curated = {
+    ingredients: { raw: Object.keys(ingredients).length, curated: Object.keys(cur.ingredients).length },
+    merged: cur.report.aliasesApplied.length, hidden: cur.report.hiddenApplied.length, packaged: cur.report.packagedApplied.length,
+    categoryOverrides: cur.report.categoryApplied.length, tasteOverrides: cur.report.tasteApplied.length, additions: cur.report.additionsApplied.length,
+    pairings: rawPairings ? { raw: cur.report.pairingsIn, curated: cur.report.pairingsOut } : null,
+    tableProblems,
+  };
+
   const dupsAll = findDuplicates(ingredients, { keep: new Set() });
   const dups = findDuplicates(ingredients, { keep });
   const suppressed = dupsAll.length - dups.length;
@@ -111,7 +127,7 @@ export function runAudit() {
 
   return {
     totals: { ingredients: Object.keys(ingredients).length, cocktails: codex.cocktails.length, sauces: sauces.length, dishes: SEED_RECIPES.length },
-    findings, rules, metrics, suppressedByKeepList: suppressed, keepListSize: keep.size,
+    findings, rules, metrics, suppressedByKeepList: suppressed, keepListSize: keep.size, curated,
     details: {
       categorySplits: categorySplits(ingredients),
       tasteDistribution: tasteDistribution(ingredients),
@@ -267,8 +283,17 @@ function main() {
     process.stdout.write(JSON.stringify({ ...result, findings: result.findings }, null, 2) + '\n');
     return;
   }
+  const c = result.curated;
+  if (c.tableProblems.length) {
+    console.error('audit:data: the curation tables are invalid:');
+    for (const p of c.tableProblems) console.error(`  ${p}`);
+    process.exit(1);
+  }
   console.log(summaryTable(result));
   console.log(`\nsuppressed by keep list: ${result.suppressedByKeepList} (keep list has ${result.keepListSize} entries)`);
+  console.log(`
+curation tables: valid. ingredients raw ${c.ingredients.raw} -> curated ${c.ingredients.curated} (${c.merged} merged, ${c.hidden} hidden, ${c.additions} added; ${c.packaged} flagged packaged; ${c.categoryOverrides} category and ${c.tasteOverrides} taste overrides)` +
+    (c.pairings ? `; pairings raw ${c.pairings.raw} -> curated ${c.pairings.curated}` : ''));
   console.log(`sauces under 'Independent': ${result.details.sauces.independent} of ${result.details.sauces.total} (${result.metrics['sauce-independent-share-percent']}%)`);
 
   if (args.has('--check')) {

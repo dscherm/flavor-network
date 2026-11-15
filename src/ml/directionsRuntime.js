@@ -9,6 +9,7 @@
  * All heavy logic (retrieveDirections, adaptSteps) is pure and unit-testable
  * — no fetch calls inside them.
  */
+import { planVocabAliases } from '../data/curation/vocabAliases.js';
 
 // ── Singleton loader ──────────────────────────────────────────────────────────
 
@@ -52,6 +53,11 @@ export function buildVocabMaps(vocab) {
     nameToId.set(name, i);
     idToName.set(i, name);
   }
+  // Curation: canonical and variant names both resolve to a vocab id; a variant id shows its canonical name.
+  const plan = planVocabAliases(vocab);
+  for (const [name, id] of plan.extra) nameToId.set(name, id);
+  for (const [id, name] of plan.display) idToName.set(id, name);
+  nameToId.variantIds = plan.variantIds;
   return { nameToId, idToName };
 }
 
@@ -68,7 +74,8 @@ export function resolveNamesToIds(names, nameToId) {
   const seen = new Set();
   for (const n of names) {
     const id = nameToId.get(String(n).toLowerCase());
-    if (id != null && !seen.has(id)) { seen.add(id); ids.push(id); }
+    if (id == null) continue;
+    for (const got of [id, ...(nameToId.variantIds?.get(id) || [])]) if (!seen.has(got)) { seen.add(got); ids.push(got); }
   }
   return ids;
 }
@@ -130,10 +137,11 @@ export function retrieveDirections(bowlNames, index, vocab, opts = {}) {
     const rec         = index.recipes[ri];
     const recIdSet    = new Set(rec.v);
     const matchedIds  = bowlIds.filter(id => recIdSet.has(id));
-    const matchedNames = matchedIds.map(id => idToName.get(id) ?? String(id));
+    const matchedNames = [...new Set(matchedIds.map(id => idToName.get(id) ?? String(id)))];
     // KITCHEN-2: the recipe's full ingredient list (vocab names), so callers
     // can say what the cook is missing, not only what matched.
-    const ingredients = [...recIdSet].map(id => idToName.get(id) ?? String(id));
+    const { hiddenIds } = planVocabAliases(vocab);
+    const ingredients = [...new Set([...recIdSet].filter(id => !hiddenIds.has(id)).map(id => idToName.get(id) ?? String(id)))];
     return {
       title:        rec.t,
       steps:        rec.d,
@@ -261,11 +269,16 @@ export function adaptSteps(steps, recipeVocabIds, bowlNames, vocab) {
   const presentNames = [];
   const absentNames  = [];
   const seen         = new Set();
+  const seenNames    = new Set();
+  const { hiddenIds } = planVocabAliases(vocab);
 
   for (const id of (recipeVocabIds ?? [])) {
     if (seen.has(id)) continue;
     seen.add(id);
+    if (hiddenIds.has(id)) continue;
     const name = idToName.get(id) ?? String(id);
+    if (seenNames.has(name)) continue;
+    seenNames.add(name);
     if (bowlIds.has(id)) presentNames.push(name);
     else                 absentNames.push(name);
   }

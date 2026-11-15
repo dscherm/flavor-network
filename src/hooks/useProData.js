@@ -8,6 +8,7 @@ import { computeTastePositions } from '../data/tastePositioning.js';
 import { computeAffinityThresholds } from '../data/affinityThresholds.js';
 import { buildTier1Thresholds } from '../data/primaryTier1.js';
 import { resolvePrimaryTier1 } from '../data/tier1Overrides.js';
+import { loadCuratedDataset } from '../data/curation/loadDataset.js';
 
 // N+1 v3 feature flag — when enabled, useProData fetches the corpus-wide
 // v3 artifacts (flavor_positions_v3, flavor_positions_2d_v3, cluster_labels_v3)
@@ -110,6 +111,7 @@ function buildProGraph(ingredientsData, pairingsData) {
         : null,
       // ProData-specific
       category: info.category || null,
+      ...(info.packaged ? { packaged: true } : {}),
       sourceCount: sources.length,
       sources,
     });
@@ -941,16 +943,12 @@ export default function useProData({ enabled = true } = {}) {
       // Fallback: load on main thread (no Worker support)
       (async () => {
         try {
-          const [ingredientsRes, pairingsRes, seasonRegionRes, cuisineMapRes] = await Promise.all([
-            fetch('/proDataset/ingredients.json'),
-            fetch('/proDataset/pairings.json'),
+          const [curated, seasonRegionRes, cuisineMapRes] = await Promise.all([
+            loadCuratedDataset((url) => fetch(url)),
             fetch('/data/season_region.json').catch(() => null),
             fetch('/data/cuisine_map.json').catch(() => null),
           ]);
-          if (!ingredientsRes.ok) throw new Error('Failed to load proDataset/ingredients.json');
-          if (!pairingsRes.ok) throw new Error('Failed to load proDataset/pairings.json');
-          const ingredientsData = await ingredientsRes.json();
-          const pairingsData = await pairingsRes.json();
+          const { ingredientsData, pairingsData } = curated;
           const seasonRegionData = seasonRegionRes?.ok ? await seasonRegionRes.json() : {};
           const cuisineMapData = cuisineMapRes?.ok ? await cuisineMapRes.json() : {};
           await finish(ingredientsData, pairingsData, seasonRegionData, cuisineMapData);

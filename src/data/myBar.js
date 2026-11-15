@@ -28,6 +28,7 @@ import { resolveIngredientName, isTrivialIngredient } from './recipePairingMatch
 import { riffRows, roleOf, familyKey, swapCandidates } from './cocktailRiff.js';
 import { ingredientKind } from './cocktailInvent.js';
 import { normalizeIngredient } from './normalizeIngredient.js';
+import { aliasTarget } from './curation/resolveIngredient.js';
 
 export const MY_BAR_KEY = 'fn-my-bar';
 
@@ -43,7 +44,7 @@ export function loadBar(storage = defaultStorage()) {
     const raw = storage?.getItem(MY_BAR_KEY);
     if (!raw) return [];
     const list = JSON.parse(raw);
-    return Array.isArray(list) ? [...new Set(list.filter((x) => typeof x === 'string' && x.trim()))] : [];
+    return Array.isArray(list) ? [...new Set(list.filter((x) => typeof x === 'string' && x.trim()).map((x) => aliasTarget(x) ?? x))] : [];
   } catch {
     return [];
   }
@@ -94,7 +95,8 @@ export function namedBottle(raw) {
 export function barKey(raw, names = new Set()) {
   const text = stripAccents(raw).trim();
   if (!text) return '';
-  const norm = normalizeIngredient(text) || text.toLowerCase();
+  const typed = normalizeIngredient(text) || text.toLowerCase();
+  const norm = aliasTarget(typed) ?? typed;
   const resolved = resolveIngredientName(text, names);
   const named = namedBottle(text);
   if (named && resolved !== named && (!resolved || GENERIC_BOTTLE_KEYS.has(resolved))) return named;

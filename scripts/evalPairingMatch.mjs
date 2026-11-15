@@ -29,9 +29,15 @@ const src = (p) => pathToFileURL(path.join(ROOT, 'src', p)).href;
 const { SEED_RECIPES } = await import(src('data/seedRecipes.js'));
 const { buildPairingIndex, rankByPairing, TUNING } = await import(src('data/recipePairingMatch.js'));
 
-const ingredients = JSON.parse(readFileSync(pub('proDataset/ingredients.json'), 'utf8'));
-const pairings = JSON.parse(readFileSync(pub('proDataset/pairings.json'), 'utf8'))
-  .filter((p) => p.ingredientA in ingredients && p.ingredientB in ingredients);
+const { loadCurationTables, applyCuration } = await import(pathToFileURL(path.join(ROOT, 'scripts/lib/curationTables.mjs')).href);
+// The app's curated view of the data (src/data/curation), not the raw generated files.
+const curated = applyCuration(
+  JSON.parse(readFileSync(pub('proDataset/ingredients.json'), 'utf8')),
+  JSON.parse(readFileSync(pub('proDataset/pairings.json'), 'utf8')),
+  loadCurationTables(),
+);
+const ingredients = curated.ingredients;
+const pairings = curated.pairings.filter((p) => p.ingredientA in ingredients && p.ingredientB in ingredients);
 const fb = JSON.parse(readFileSync(path.join(ROOT, 'data/private/flavor_bible_matched.json'), 'utf8')).pairs;
 const fbSet = new Set(fb.map(([a, b]) => (a < b ? `${a}|${b}` : `${b}|${a}`)));
 const cocktails = JSON.parse(readFileSync(pub('data/cocktail_codex_v2.json'), 'utf8')).cocktails

@@ -32,6 +32,7 @@ import {
 } from '../src/data/everydayPairsSelect.js';
 import { TRIVIAL } from '../src/data/recipePairingMatch.js';
 import { SUGGESTION_EXCLUDE } from '../src/ml/recipeRuntime.js';
+import { loadCurationTables, applyCuration } from './lib/curationTables.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CO = path.join(ROOT, 'proDataset/processed/recipenlg-cooccurrence.json');
@@ -41,7 +42,8 @@ const OUT = path.join(ROOT, 'public/proDataset/everyday_pairs.json');
 const check = process.argv.includes('--check');
 
 const co = JSON.parse(fs.readFileSync(CO, 'utf8'));
-const vocab = new Set(Object.keys(JSON.parse(fs.readFileSync(VOCAB, 'utf8'))));
+// The vocabulary is the CURATED one (src/data/curation): merged and hidden names are not offered.
+const vocab = new Set(Object.keys(applyCuration(JSON.parse(fs.readFileSync(VOCAB, 'utf8')), null, loadCurationTables()).ingredients));
 const exclude = new Set([...TRIVIAL, ...SUGGESTION_EXCLUDE]);
 
 const { pairs, mapping } = selectEverydayPairs(co, { vocab, exclude });

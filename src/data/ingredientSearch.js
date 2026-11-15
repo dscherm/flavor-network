@@ -10,6 +10,7 @@
  * not "ginger beer". Terms of 4+ letters also match word prefixes, so a
  * half-typed "ging" already finds ginger.
  */
+import { aliasTarget, isRetiredIngredient } from './curation/resolveIngredient.js';
 
 /** Lowercase, strip accents (Bénédictine → benedictine), collapse spaces. */
 export function normalizeText(s) {
@@ -39,7 +40,8 @@ export function parseQuery(query) {
   return String(query ?? '')
     .split(/[,+]/)
     .map((t) => normalizeText(t))
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((t) => aliasTarget(t) ?? t);
 }
 
 /** Does one normalized term hit this ingredient string? */
@@ -105,7 +107,7 @@ export function buildIngredientVocab(ingredientLists, { maxWords = 4 } = {}) {
     for (const ing of list || []) {
       const label = String(ing || '').trim();
       const key = normalizeText(label);
-      if (!key || key.split(' ').length > maxWords) continue;
+      if (!key || key.split(' ').length > maxWords || isRetiredIngredient(key)) continue;
       if (!seen.has(key)) seen.set(key, label.toLowerCase());
     }
   }

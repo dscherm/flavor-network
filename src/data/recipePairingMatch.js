@@ -28,6 +28,7 @@
  * drink can't outscore a five-ingredient one on a single lucky pair.
  */
 import { normalizeIngredient } from './normalizeIngredient.js';
+import { aliasTarget } from './curation/resolveIngredient.js';
 
 // Too generic to say anything about fit — dropped before and after
 // resolution so they count neither as matches nor as unresolved.
@@ -134,6 +135,16 @@ function stripAccents(raw) {
   return String(raw ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
+// A merged variant ("peache") lands on its canonical entry first, even in a name set that still has
+// the variant (the raw gnn_entropy keys); then the name itself; then the local alias table.
+function known(cand, names) {
+  const canon = aliasTarget(cand);
+  if (canon && names.has(canon)) return canon;
+  if (names.has(cand)) return cand;
+  const via = ALIASES[cand];
+  return via && names.has(via) ? via : null;
+}
+
 export function resolveIngredientName(raw, names) {
   const clean = stripAccents(raw).replace(/-/g, ' ');
   // normalizeIngredient cuts at the first comma ("gin, London dry"); a
@@ -144,19 +155,19 @@ export function resolveIngredientName(raw, names) {
   const bare = clean.toLowerCase()
     .replace(/^[0-9¼½¾⅓⅔⅛⅜⅝⅞][0-9¼½¾⅓⅔⅛⅜⅝⅞.\s/()]*\s*(ounces?|oz|dashes?|drops?|teaspoons?|tablespoons?|tsp|tbsp|parts?|cups?|cl|ml)?\s*/, '')
     .replace(/\s+/g, ' ').trim();
-  if (bare && names.has(bare)) return bare;
-  if (bare && ALIASES[bare] && names.has(ALIASES[bare])) return ALIASES[bare];
+  const bareHit = bare && known(bare, names);
+  if (bareHit) return bareHit;
   const forms = [...new Set([normalizeIngredient(clean), normalizeIngredient(clean.replace(/,/g, ' '))].filter(Boolean))];
   for (const n of forms) {
     if (TRIVIAL.has(n)) return null;
-    if (names.has(n)) return n;
-    if (ALIASES[n] && names.has(ALIASES[n])) return ALIASES[n];
+    const hit = known(n, names);
+    if (hit) return hit;
     const words = n.split(' ').map((w) => singular(w, names));
     for (let len = Math.min(3, words.length); len >= 1; len--) {
       for (let i = words.length - len; i >= 0; i--) {
         const cand = words.slice(i, i + len).join(' ');
-        if (names.has(cand)) return cand;
-        if (ALIASES[cand] && names.has(ALIASES[cand])) return ALIASES[cand];
+        const candHit = known(cand, names);
+        if (candHit) return candHit;
       }
     }
   }

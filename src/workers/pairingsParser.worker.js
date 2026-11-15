@@ -21,54 +21,20 @@
  */
 
 /* eslint-env worker */
-import { decodePairingsBinary } from '../data/pairingsBinary.js';
+import { loadCuratedDataset } from '../data/curation/loadDataset.js';
 
-// Decoder shared with tests — see src/data/pairingsBinary.js for the layout.
+// The curated loader (src/data/curation/loadDataset.js) fetches and decodes ingredients + pairings
+// and applies the curation tables; this worker only relays progress and the other small files.
 
 self.onmessage = async (event) => {
   const msg = event.data;
   if (!msg || msg.type !== 'load') return;
 
   try {
-    self.postMessage({ type: 'progress', stage: 'fetching-ingredients' });
-    const ingredientsRes = await fetch('/proDataset/ingredients.json');
-    if (!ingredientsRes.ok) {
-      throw new Error('Failed to load proDataset/ingredients.json');
-    }
-
-    self.postMessage({ type: 'progress', stage: 'parsing-ingredients' });
-    const ingredientsData = await ingredientsRes.json();
-
-    // Prefer the packed binary format (~380 KB vs 27 MB JSON). Fall
-    // back to pairings.json if the binary is missing or fails to
-    // decode — keeps old deployments / dev trees working.
-    self.postMessage({ type: 'progress', stage: 'fetching-pairings' });
-    let pairingsData = null;
-    let usedFormat = 'json';
-    try {
-      const binRes = await fetch('/proDataset/pairings.bin');
-      if (binRes.ok) {
-        const arrayBuffer = await binRes.arrayBuffer();
-        self.postMessage({ type: 'progress', stage: 'decoding-pairings-bin' });
-        pairingsData = decodePairingsBinary(arrayBuffer, ingredientsData);
-        usedFormat = 'bin';
-      }
-    } catch (err) {
-      // Will fall through to JSON
-      self.postMessage({
-        type: 'progress',
-        stage: 'bin-decode-failed-falling-back',
-      });
-    }
-
-    if (!pairingsData) {
-      const pairingsRes = await fetch('/proDataset/pairings.json');
-      if (!pairingsRes.ok) {
-        throw new Error('Failed to load proDataset/pairings.json');
-      }
-      self.postMessage({ type: 'progress', stage: 'parsing-pairings' });
-      pairingsData = await pairingsRes.json();
-    }
+    const { ingredientsData, pairingsData, usedFormat } = await loadCuratedDataset(
+      (url) => fetch(url),
+      (stage) => self.postMessage({ type: 'progress', stage })
+    );
 
     self.postMessage({ type: 'progress', stage: 'fetching-season' });
     let seasonRegionData = {};

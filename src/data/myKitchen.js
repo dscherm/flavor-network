@@ -13,6 +13,7 @@
  */
 import { resolveIngredientName, isTrivialIngredient } from './recipePairingMatch.js';
 import { normalizeIngredient } from './normalizeIngredient.js';
+import { aliasTarget } from './curation/resolveIngredient.js';
 import { findSwap } from './kitchenSwaps.js';
 
 export const MY_KITCHEN_KEY = 'fn-my-kitchen';
@@ -91,7 +92,7 @@ export function loadKitchen(storage = defaultStorage()) {
     const raw = storage?.getItem(MY_KITCHEN_KEY);
     if (!raw) return [];
     const list = JSON.parse(raw);
-    return Array.isArray(list) ? [...new Set(list.filter((x) => typeof x === 'string' && x.trim()))] : [];
+    return Array.isArray(list) ? [...new Set(list.filter((x) => typeof x === 'string' && x.trim()).map((x) => aliasTarget(x) ?? x))] : [];
   } catch {
     return [];
   }
@@ -133,7 +134,9 @@ export function kitchenKey(raw, names = new Set()) {
   // Basics as typed: "vegetable oil" must not resolve to "vegetable".
   if (BASICS.has(lower)) return lower;
   const resolved = names.size ? resolveIngredientName(text, names) : null;
-  return resolved || normalizeIngredient(text) || text.toLowerCase();
+  if (resolved) return resolved;
+  const typed = normalizeIngredient(text) || text.toLowerCase();
+  return aliasTarget(typed) ?? typed;
 }
 
 export function addToKitchen(kitchen, raw, names) {

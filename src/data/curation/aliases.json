@@ -1,0 +1,7 @@
+{
+  "peache": { "to": "peach", "reason": "pipeline singularising slip: 'peaches' lost its s and then its es" },
+  "green chilie": { "to": "green chili", "reason": "misspelling of chili" },
+  "freshly black pepper": { "to": "black pepper", "reason": "preparation word left over from 'freshly ground black pepper'" },
+  "lean beef": { "to": "beef", "reason": "'lean' is a cut grade, not a different ingredient for pairing" },
+  "red potatoe": { "to": "red potato", "reason": "misspelling of potato" }
+}
