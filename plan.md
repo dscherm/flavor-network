@@ -2343,7 +2343,7 @@ independent of those; DATA-8 last. DATA-5 must land before FLAVOR-3.
   "id": "DATA-3",
   "title": "Ingredient merges, removals and packaged flags",
   "category": "data",
-  "passes": false,
+  "passes": true,
   "description": "Fill aliases.json, hidden.json and packaged.json from DATA-1's review lists after reading every line: duplicates (at least the 151 found on 2026-11-15) merged into their canonical entry; non-food and fragments hidden; branded and packaged products flagged (Decision 3: kept and searchable, never suggested). Where a 'duplicate' is a real distinction a cook would care about (new potato vs potato, extra-virgin olive oil vs olive oil, cherry tomato vs tomato), it is NOT merged and the reason is recorded in a keep list so the audit stops flagging it. Suggestions, stand-ins, checklist picks and the bar and kitchen typeaheads exclude packaged and hidden entries.",
   "acceptance": [
     "Every alias, hidden and packaged line carries a reason; the keep list exists and is honoured by the audit",
