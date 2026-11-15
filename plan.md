@@ -2280,7 +2280,7 @@ then FLAVOR-3, FLAVOR-4, FLAVOR-5 in that order; FLAVOR-6 last.
   "id": "FLAVOR-6",
   "title": "One profile everywhere, honest wording, final measurement",
   "category": "chore",
-  "passes": false,
+  "passes": true,
   "description": "A single profile function (tastes from FLAVOR-3 and FLAVOR-4, aromas from FLAVOR-5, the draw rule from FLAVOR-2) behind every chart: Recipe Notebook Flavor Profiles (overview bar chart, per-axis pages, boost / temper ranking via rankByAxisImpact), the three invent panels (InventFlavorProfile), the shared recipe page, and the share cards in the browser and on the server through the share index. The chart axes become the six tastes plus the six aromas; any axis list, colour or label that assumed five tastes is updated. Copy says the chart is built from taste labels and published aroma notes for each ingredient, weighted by amount, and is a guide rather than a taste test. Remove code paths that read the model's per-ingredient values for charts once nothing uses them (the radar views in the parked Network tab may keep them). .claude/.chemdataset-status.md gains a dated note pointing at docs/flavor-profile.md. Final scorer run recorded; three share cards re-rendered and looked at.",
   "acceptance": [
     "grep shows no chart surface reading gnnProbs for a recipe profile; the parked Network views are named if they still do",
