@@ -2034,7 +2034,7 @@ INVENT-9 / 10 / 11 (one per lab) and INVENT-12 (saving and lists) in parallel; I
   "id": "INVENT-13",
   "title": "Invent second pass: remove what start-empty replaced, docs, final browser pass",
   "category": "chore",
-  "passes": false,
+  "passes": true,
   "description": "Remove InventSlots.jsx and anything else the start-empty panels no longer use (fillRequired stays in inventBuild.js only if something still calls it; otherwise remove it and its tests). Update panel and module header comments, entry-point copy, CLOSEOUT.md (an unreleased entry), README.md and BACKLOG.md. Final pass in the browser across the three labs: open, pick the start, add ingredients, accept a recommendation, use a suggestion and a replacement, read the flavor profile, name and save, find it in the list, edit, delete; and 'Invent this' from each search.",
   "acceptance": [
     "grep finds no remaining import of removed files or exports; no skipped tests",
