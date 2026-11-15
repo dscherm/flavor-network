@@ -2513,3 +2513,20 @@ Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independ
   ]
 }
 ```
+
+```json
+{
+  "id": "SHARE-8",
+  "title": "Hide flavor charts on shared pages and share cards until the charts are rebuilt",
+  "category": "fix",
+  "passes": false,
+  "description": "Owner, 2026-11-15: 'Deploy, charts hidden'. After FLAVOR-2, 186 of 599 built-in recipes still draw a chart and on the test set most of those lead with a wrong taste. One exported switch SHARE_CHARTS_ENABLED = false (beside SHARE_OWN_ENABLED) turns the flavor chart off on every PUBLIC share surface: the shared recipe page (no chart section and no 'not enough data' line), the browser share cards (single and set of three; card 1 of the set shows name and details without the chart), the server cards (share-cards.json regenerated with no bars), and the bars stored when a user publishes their own recipe (bars: []). Charts inside the app (Recipe Notebook, invent panels) are unchanged. FLAVOR-6 turns the switch back on.",
+  "acceptance": [
+    "With the switch off: no chart and no flavor-data line on /r/ pages for a built-in and a user copy (component tests); browser and server cards carry no chart (tests); a newly published share stores bars: []",
+    "With the switch on (test override) everything behaves as before this task",
+    "share-cards.json regenerated and the generated-files sync tests pass; card layouts still fill sensibly without the chart (look at one preview card and say what it looks like)",
+    "docs/sharing.md and docs/flavor-profile.md say charts are hidden on shared pages and cards and why; FLAVOR-6's task text names turning the switch back on",
+    "functions tests, npm run test:rules and npm run gate green; nothing deployed by the builder"
+  ]
+}
+```
