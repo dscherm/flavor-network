@@ -2692,7 +2692,7 @@ AROMA-1, AROMA-2, AROMA-3, AROMA-4. Taste numbers must not move.
 ```json
 {
   "id": "AROMA-4",
-  "title": "Readable charts with eleven aromas; docs; final measurement",
+  "title": "Charts kept readable with eleven aromas (interim rule; the redesign is CHART-1); docs; final measurement",
   "category": "chore",
   "passes": false,
   "description": "With six tastes and eleven aromas a full chart has seventeen bars. One rule, the same on every surface (Recipe Notebook overview and flavor map, invent panels, Cookbook radar, shared page, browser and server share cards): show the strongest bars above a stated floor, tastes and aromas in their own groups, with a stated maximum per group (for example four and four on a card, more on the full Recipe Notebook page), and 'show all' where there is room. Per-axis pages and boost / temper work for every axis. Server and browser cards re-rendered and looked at for a drink, a sauce and a dish. docs/flavor-profile.md gains 'Aromas, second pass' with all scores stage by stage, what the second source is and is not (mostly AI-written; a second opinion, not ground truth), and what is still wrong by item. BACKLOG.md records the two deferred pieces with enough detail to pick up: using the second source for ingredients outside the table, and aromas created by cooking method. CLOSEOUT.md unreleased entry and README updated. share-cards.json regenerated.",
@@ -2702,6 +2702,22 @@ AROMA-1, AROMA-2, AROMA-3, AROMA-4. Taste numbers must not move.
     "Recipe Notebook, an invent panel, the shared page and a server card lead with the same tastes and aromas for two named recipes (test)",
     "All measures re-run and recorded: taste main and hold-out unchanged; aroma original, blind (all and held-back), chef key, second-opinion agreement",
     "375px DOM check of the Recipe Notebook card and an invent panel; npm run gate, functions and rules tests green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "CHART-1",
+  "title": "Explore, with the owner, how the flavor graphs should change for six tastes and eleven aromas",
+  "category": "design",
+  "passes": false,
+  "description": "Owner, 2026-11-16: 'explore and brainstorm how we should change the graphs for the widening number of aromas. You can wait to do this once we have the data right.' Starts only after AROMA-3 (eleven aroma axes with real values). An exploration, not a build: survey every place a flavor graph appears (Recipe Notebook overview bars, flavor-map radar, per-axis pages, boost and temper, invent panels, Cookbook radar, ingredient panel, shared page, share cards in three sizes) and what each is for; then show the owner several candidate designs drawn with REAL data for the same five recipes (a spirit-forward drink, a sour, a rich sauce, a spiced dish, a dessert), for example: grouped bars with only the strongest shown; two small wheels (taste and aroma); one wheel with aroma families as sectors; a short written 'tasting note' line with a small chart; a ranked chip list. Each shown at phone width and on a share card, with what it makes easy and what it hides. The owner picks; the choice becomes a spec and build tasks. AROMA-4's bar rule is an interim so charts stay readable until then, not the final design.",
+  "acceptance": [
+    "Every existing graph surface is listed with its purpose and what breaks at seventeen axes",
+    "At least four candidate designs are shown to the owner as viewable mock-ups using real recipe data, at phone width and card size",
+    "Each candidate has its trade-offs stated; the owner's choice is recorded verbatim",
+    "A spec and tasks are written from that choice; nothing is built in this task"
   ]
 }
 ```
