@@ -2442,7 +2442,7 @@ independent of those; DATA-8 last. DATA-5 must land before FLAVOR-3.
 ## 2026-11-15 — Usage data: learn how people use the app
 
 Spec: `.schermness/spec.md` → "Usage data". Owner chose Google Analytics through Firebase.
-Recommended additions awaiting the owner's yes: USAGE-3 (counts from account records) and
+Owner also approved (2026-11-15, "Yes, add both"): USAGE-3 (counts from account records) and
 USAGE-4 (a feedback button). Consent default: ask everyone once, nothing sent until yes
 (defined in the spec). Owner step first: turn on Google Analytics for the project in the
 Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independent.
@@ -2487,7 +2487,7 @@ Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independ
   "title": "Totals from account records, printed by a script the owner runs",
   "category": "tooling",
   "passes": false,
-  "description": "scripts/accountStats.mjs, run by the owner with their own Google login (application default credentials), reads the profiles, shared and shareReports collections with firebase-admin and prints totals only: accounts, accounts with at least one saved item, saved cocktails, sauces and recipes, items saved from a shared link, live and removed shared links, reports waiting. It prints no recipe content, names, emails or ids, and writes nothing. docs/usage-data.md says how to run it. The counting functions are pure and tested on made-up records. Awaiting the owner's yes (recommended addition).",
+  "description": "scripts/accountStats.mjs, run by the owner with their own Google login (application default credentials), reads the profiles, shared and shareReports collections with firebase-admin and prints totals only: accounts, accounts with at least one saved item, saved cocktails, sauces and recipes, items saved from a shared link, live and removed shared links, reports waiting. It prints no recipe content, names, emails or ids, and writes nothing. docs/usage-data.md says how to run it. The counting functions are pure and tested on made-up records.",
   "acceptance": [
     "The counting functions are pure and unit-tested; the script has a --dry-run that uses a fixture and no network",
     "The script only reads; a test asserts no write or delete call exists in it",
@@ -2504,7 +2504,7 @@ Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independ
   "title": "A feedback button",
   "category": "feature",
   "passes": false,
-  "description": "'Send feedback' in the Labs menu and on the shared recipe page: a short note (500 characters) and an optional 'what were you trying to do' (200), written to feedback/{auto} as { note, goal, lab, at } with no identity. Rules: create by anyone within the limits, no read, update or delete; the owner reads it in the Firebase console (docs/usage-data.md says where). Three per browser per day as a courtesy limit. Awaiting the owner's yes (recommended addition).",
+  "description": "'Send feedback' in the Labs menu and on the shared recipe page: a short note (500 characters) and an optional 'what were you trying to do' (200), written to feedback/{auto} as { note, goal, lab, at } with no identity. Rules: create by anyone within the limits, no read, update or delete; the owner reads it in the Firebase console (docs/usage-data.md says where). Three per browser per day as a courtesy limit.",
   "acceptance": [
     "Rules tests on the emulator: create allowed within limits, oversize and extra keys denied, read denied to everyone",
     "The fourth message in a day from one browser is refused with a plain sentence; a failed send keeps the text",
