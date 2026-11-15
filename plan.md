@@ -2212,7 +2212,7 @@ then FLAVOR-3, FLAVOR-4, FLAVOR-5 in that order; FLAVOR-6 last.
   "id": "FLAVOR-2",
   "title": "Never draw a chart from placeholder values",
   "category": "fix",
-  "passes": false,
+  "passes": true,
   "description": "Detect the constant vectors by value: a build step (in scripts/buildShareIndex.mjs or a sibling wired into the same prebuild) writes a small JSON listing every exact taste vector and aroma vector shared by more than a threshold number of ingredients in gnn_entropy.json. isPlaceholder(probs) uses it. Ingredients whose values are placeholder count as having no flavor data (they appear under 'Not counted'), separately for the taste half and the aroma half. A chart is drawn only when at least half of the ingredients, and at least two, have real values; otherwise the surface says there is not enough flavor data and draws nothing. Applies to buildFlavorProfile, recipeAxisProfile and recipeAxisProfileWeighted, so the Recipe Notebook, the invent panels, the shared page and both card renderers all follow; share-cards.json is regenerated. Boost / temper suggestions must not rank on placeholder values either.",
   "acceptance": [
     "The generated placeholder list contains the 1,526-ingredient taste vector and the 2,063-ingredient aroma vector, and a test asserts sugar, salt, coffee and lemon are treated as not counted for taste",
