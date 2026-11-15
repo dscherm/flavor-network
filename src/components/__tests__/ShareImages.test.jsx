@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+vi.mock('../../data/shareTargets.js', async (orig) => ({ ...(await orig()), SHARE_CHARTS_ENABLED: true }));
 import ShareImages from '../ShareImages.jsx';
 import { ShareSheet } from '../ShareSheet.jsx';
 import { resolveBuiltIn } from '../../data/sharedRecipe.js';

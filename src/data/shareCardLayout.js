@@ -302,6 +302,35 @@ function header(fr, recipe, { nameSize, align = 'left', maxLines = 2 }) {
 
 const subline = (recipe) => [recipe.meta, recipe.glass ? `Glass: ${recipe.glass}` : '', recipe.garnish ? `Garnish: ${recipe.garnish}` : ''].filter(Boolean).join(' · ');
 
+/**
+ * The link-preview card without a chart: nothing sits on the right, so the name and ingredients use the
+ * full width. Up to five ingredients: one larger column, centred in the free space. Six or more: two columns.
+ */
+function previewNoChart(fr, r, sub, footerTop) {
+  const w = fr.x1 - fr.x0;
+  let y = header(fr, r, { nameSize: 110 });
+  if (sub) y += text(fr.prims, { x: fr.x0, y: y + 2, w, text: ellipsize(sub, 28, {}, w), size: 28, color: PALETTE.dim }) + 6;
+  y += 14;
+  const total = totalLines(r);
+  const lines = cleanLines(r);
+  const from = fr.prims.length;
+  let end;
+  if (total >= 6) {
+    const gap = 56;
+    const colW = Math.round((w - gap) / 2);
+    const half = Math.ceil(lines.length / 2);
+    const o = { size: 28, row: 40, amountW: 190 };
+    const a = ingredientRows(fr, y, footerTop - 8, { ...r, lines: lines.slice(0, half), lineCount: half }, { x: fr.x0, w: colW, ...o });
+    const b = ingredientRows(fr, y, footerTop - 8, { ...r, lines: lines.slice(half), lineCount: total - half }, { x: fr.x0 + colW + gap, w: colW, ...o });
+    end = Math.max(a, b);
+  } else {
+    end = ingredientRows(fr, y, footerTop - 8, r, { x: fr.x0, w, size: 40, row: 60, amountW: 300 });
+  }
+  const free = footerTop - 8 - end;
+  if (free > 40) shift(fr.prims, from, Math.round(free * 0.4));
+  return fr;
+}
+
 // ---- the three single cards ------------------------------------------------------------------------
 export function layoutCard({ format = 'portrait', recipe, bars, link = '', page = '' }) {
   const fr = frame(format);
@@ -312,20 +341,19 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
 
   if (format === 'preview') {
     const hasChart = cleanBars(bars, 6).length > 0;
-    const colW = hasChart ? Math.round(w * 0.56) : w;
+    if (!hasChart) return finish(`${format}`, previewNoChart(fr, r, sub, footerTop));
+    const colW = Math.round(w * 0.56);
     const left = { ...fr, x1: fr.x0 + colW };
     let y = header(left, r, { nameSize: 92 });
     if (sub) y += text(fr.prims, { x: fr.x0, y: y + 2, w: colW, text: ellipsize(sub, 24, {}, colW), size: 24, color: PALETTE.dim }) + 6;
     y += 10;
     ingredientRows(fr, y, footerTop - 8, r, { x: fr.x0, w: colW, size: 28, row: 38, amountW: 215 });
-    if (hasChart) {
-      const cx = fr.x0 + colW + 56;
-      const cw = fr.x1 - cx;
-      const b = cleanBars(bars, 6);
-      const total = chartHeight(b.length, { row: 44, caption: 30 });
-      const cy = Math.max(fr.top + 40, Math.round((fr.top + footerTop - total) / 2));
-      chart(fr, cy, b, { x: cx, w: cw, row: 44, size: 24 });
-    }
+    const cx = fr.x0 + colW + 56;
+    const cw = fr.x1 - cx;
+    const b = cleanBars(bars, 6);
+    const total = chartHeight(b.length, { row: 44, caption: 30 });
+    const cy = Math.max(fr.top + 40, Math.round((fr.top + footerTop - total) / 2));
+    chart(fr, cy, b, { x: cx, w: cw, row: 44, size: 24 });
     return finish(`${format}`, fr);
   }
 

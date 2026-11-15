@@ -16,7 +16,7 @@
  * A failure to draw shows one plain line; Copy link and the rest of the sheet are not touched.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { absoluteShareUrl, captionFor, printedLinkFor } from '../data/shareTargets.js';
+import { absoluteShareUrl, captionFor, printedLinkFor, SHARE_CHARTS_ENABLED } from '../data/shareTargets.js';
 import { parseSharePath, resolveBuiltIn } from '../data/sharedRecipe.js';
 import { barsFor } from '../data/shareCardData.js';
 import { defaultLoadData, loadCachedNodes } from '../data/sharedLoaders.js';
@@ -75,7 +75,7 @@ export default function ShareImages({ link = '', recipe: given = null, bars: giv
   }, [target, given, loadData]);
 
   useEffect(() => {
-    if (givenNodes !== undefined) return undefined;
+    if (givenNodes !== undefined || !SHARE_CHARTS_ENABLED) return undefined;
     let live = true;
     Promise.resolve().then(() => loadNodes()).then((n) => { if (live) setLoadedNodes(n instanceof Map ? n : null); }).catch(() => { if (live) setLoadedNodes(null); });
     return () => { live = false; };
@@ -92,7 +92,7 @@ export default function ShareImages({ link = '', recipe: given = null, bars: giv
     let live = true;
     setFiles(null); setError(''); setNote('');
     Promise.resolve()
-      .then(() => renderFiles({ recipe, bars: Array.isArray(givenBars) ? givenBars : barsFor(recipe, nodes), link: printed, count, format, slug: target.slug }))
+      .then(() => renderFiles({ recipe, bars: !SHARE_CHARTS_ENABLED ? [] : Array.isArray(givenBars) ? givenBars : barsFor(recipe, nodes), link: printed, count, format, slug: target.slug }))
       .then((f) => { if (live) setFiles(f); })
       .catch(() => { if (live) setError('Could not draw the pictures. The link still works.'); });
     return () => { live = false; };

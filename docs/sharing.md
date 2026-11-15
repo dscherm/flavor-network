@@ -110,3 +110,11 @@ Do not deploy hosting alone. Check afterwards: open a built-in link and a link y
 - If nothing is decided: a link that went viral could pass the free allowance and start a bill on your account (it is on the pay-as-you-go plan because functions need it).
 - Options: (a) caching only (default); (b) also a daily cap per link, after which the link shows the plain generic preview (bounded cost; a popular link looks plain); (c) a budget alert in Google Cloud (does not stop spending, tells you).
 - Collides with: the earlier "No paid key" ruling for the photo scan is about the AI key, not Firebase, but the intent (no surprise bill) is the same.
+
+## Charts are hidden on shared pages and cards (2026-11-15, SHARE-8)
+
+The flavor chart is off on every public share surface: the `/r/` page (no "Flavor profile" section and no "Not enough flavor data" line), the picture cards you save or send (single and set of three), the link-preview cards, and the bars stored when someone shares their own recipe (always an empty list for now). The page also no longer downloads the flavor data file (`gnn_entropy.json`, about 1.37 MB; about 80 KB compressed), so it loads lighter.
+
+Why: the charts still lead with a wrong taste on most of the test recipes (see `docs/flavor-profile.md`), and a wrong chart on a public link is worse than none.
+
+What turns it back on: one switch, `SHARE_CHARTS_ENABLED` in `src/data/shareTargets.js`. FLAVOR-6 (the rebuilt charts, re-measured on the test set) sets it to `true`; then run `node scripts/buildShareIndex.mjs` and commit the regenerated `functions/src/share/share-cards.json` and `cardLayout.generated.ts`, and redeploy functions. Charts inside the app (Recipe Notebook, the invent panels) are not affected.

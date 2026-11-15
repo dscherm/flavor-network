@@ -115,7 +115,7 @@ describe('layout sharing', () => {
     expect(gen.endsWith(src)).toBe(true);
     expect(gen.startsWith('// @ts-nocheck\n// GENERATED')).toBe(true);
   });
-  it('lays out a built-in preview card with the chart, the printed link and the site name', () => {
+  it('lays out a built-in preview card with the printed link and the site name (no chart while SHARE_CHARTS_ENABLED is off)', () => {
     const card = layoutFor(cards['cocktail/boulevardier'], 'neuralflavor.web.app/r/cocktail/boulevardier');
     const text = card.primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n');
     expect(card.width).toBe(1200);
@@ -123,8 +123,26 @@ describe('layout sharing', () => {
     expect(text).toContain('Boulevardier');
     expect(text).toContain('neuralflavor.web.app/r/cocktail/boulevardier');
     expect(text).toContain('Neural Flavor');
-    expect(text).toContain('flavor chart: a visual guide');
+    expect(text).not.toContain('flavor chart');
     expect(generated.FORMATS.preview.width).toBe(1200);
+  });
+  it('SHARE-8: the committed switch is off, share-cards.json has no bars, and a card draws no chart even when handed bars', () => {
+    expect(generated.SHARE_CHARTS_ENABLED).toBe(false);
+    for (const c of Object.values(realCards as Record<string, any>)) expect(c.bars).toEqual([]);
+    const withBars = { ...cards['cocktail/boulevardier'], bars: [{ label: 'sweet', color: '#ff00aa', score: 0.8 }] };
+    const text = layoutFor(withBars, 'x').primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ');
+    expect(text).not.toContain('flavor chart');
+  });
+  it('the layout itself still draws the chart when handed bars (what switching it on restores)', () => {
+    const bars = [{ label: 'sweet', color: '#ff00aa', score: 0.8 }];
+    const card = generated.layoutCard({ format: 'preview', recipe: { ...cards['cocktail/boulevardier'], method: '' }, bars, link: 'x' });
+    expect(card.primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ')).toContain('flavor chart: a visual guide');
+  });
+  it('no-chart preview: the ingredients use the full width (two columns from six lines)', () => {
+    const lines = Array.from({ length: 8 }, (_, i) => ({ label: `thing ${i}`, amount: '1' }));
+    const card = layoutFor({ name: 'Big dish', kind: 'dish', lines, lineCount: 8, bars: [] }, 'x');
+    const xs = card.primitives.filter((p: any) => p.type === 'text' && /^thing/.test(p.text)).map((p: any) => p.x);
+    expect(Math.max(...xs)).toBeGreaterThan(600);
   });
   it('draws no chart for a recipe without enough real flavor data (FLAVOR-2)', () => {
     expect(cards['cocktail/negroni'].bars).toEqual([]);

@@ -6,7 +6,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { layoutCard, layoutSiteCard } from './cardLayout.generated';
+import { layoutCard, layoutSiteCard, SHARE_CHARTS_ENABLED } from './cardLayout.generated';
 
 export const CANONICAL_HOST = 'neuralflavor.web.app';
 export const FALLBACK_IMAGE = '/icons/icon-512.png';
@@ -71,7 +71,7 @@ export function layoutFor(data: CardData | null, link: string) {
       kind: data.kind, name: data.name, category: data.category, glass: data.glass, meta: data.meta, garnish: data.garnish,
       lines: data.lines, lineCount: data.lineCount, method: '',
     },
-    bars: data.bars,
+    bars: SHARE_CHARTS_ENABLED ? data.bars : [],
     link,
   });
 }

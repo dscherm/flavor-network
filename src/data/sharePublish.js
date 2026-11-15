@@ -16,6 +16,8 @@
  * Document: { kind: 'cocktail'|'sauce'|'recipe', name, lines: [{ key, amount, role? }], method?, glass?,
  *   category?, protein?, bars: [{ label, color, score }], by: string|null, owner, createdAt: number, removed: false }
  */
+import { SHARE_CHARTS_ENABLED } from './shareTargets.js';
+
 export const SHARE_LIMITS = Object.freeze({
   name: 80, by: 30, lines: 40, key: 60, amount: 30, role: 30, method: 2000,
   glass: 60, category: 60, protein: 60, bars: 11, barLabel: 20, live: 50,
@@ -95,7 +97,7 @@ export function toSharedDoc(item, { kind, uid, by = null, bars = [], now = Date.
     ...(c.glass ? { glass: c.glass } : {}),
     ...(c.category ? { category: c.category } : {}),
     ...(c.protein ? { protein: c.protein } : {}),
-    bars: cleanBars(bars),
+    bars: SHARE_CHARTS_ENABLED ? cleanBars(bars) : [],
     by: who || null,
     owner: uid,
     createdAt: typeof now === 'number' && Number.isFinite(now) ? now : Date.now(),

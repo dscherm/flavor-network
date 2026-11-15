@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+vi.mock('../shareTargets.js', async (orig) => ({ ...(await orig()), SHARE_CHARTS_ENABLED: true }));
 import {
   SHARE_LIMITS, firstName, fromSharedDoc, itemFromRecipe, newShareId, shareFingerprint, toSharedDoc,
 } from '../sharePublish.js';

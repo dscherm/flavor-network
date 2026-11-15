@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 // The page's account hooks reach Firebase; these tests are about the recipe, signed out.
 vi.mock('../../hooks/useAuth.js', () => ({ default: () => ({ user: null, loading: false, authError: null, loginWithGoogle: vi.fn(), loginWithApple: vi.fn() }) }));
 vi.mock('../../hooks/useUserProfile.js', () => ({ default: () => ({ profile: {}, saveInvention: vi.fn() }) }));
+vi.mock('../../data/shareTargets.js', async (orig) => ({ ...(await orig()), SHARE_CHARTS_ENABLED: true }));
 import SharedRecipePage from '../SharedRecipePage.jsx';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../../data/seedRecipeDetails.js';

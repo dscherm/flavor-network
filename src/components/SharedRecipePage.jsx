@@ -37,6 +37,7 @@ import { fromSharedDoc } from '../data/sharePublish.js';
 import { defaultLoadData, defaultLoadNodes } from '../data/sharedLoaders.js';
 import { buildFlavorProfile } from '../data/inventProfile.js';
 import { resolveIngredientName } from '../data/recipePairingMatch.js';
+import { SHARE_CHARTS_ENABLED } from '../data/shareTargets.js';
 import { chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { FONT, SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading, small } from './inventUi.jsx';
 
@@ -226,7 +227,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
 
   const ready = state.status === 'ready';
   useEffect(() => {
-    if (!ready) return undefined;
+    if (!ready || !SHARE_CHARTS_ENABLED) return undefined;
     let live = true;
     Promise.resolve()
       .then(() => loadNodes())
@@ -237,7 +238,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
 
   const recipe = state.recipe;
   const profile = useMemo(() => {
-    if (!recipe || !nodes) return null;
+    if (!SHARE_CHARTS_ENABLED || !recipe || !nodes) return null;
     const names = new Set(nodes.keys());
     const keys = recipe.lines.map((l) => resolveIngredientName(l.label || l.key, names) || l.key);
     return buildFlavorProfile(keys, nodes, { noun: KIND_NOUN[recipe.kind] || 'recipe' });
@@ -298,7 +299,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
               </section>
             )}
 
-            {profile && (
+            {SHARE_CHARTS_ENABLED && profile && (
               <section className="mt-6" aria-label="Flavor profile">
                 <InventFlavorProfile profile={profile} title="Flavor profile (visual guide)" testidPrefix="shared-profile" />
               </section>

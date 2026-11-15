@@ -163,3 +163,7 @@ Of the 599 built-in recipes, the share cards and link previews draw a chart for 
 - FLAVOR-4 hand-tunes strengths for the ingredients that matter most, so a dash of bitters and two ounces of gin no longer weigh the same.
 - FLAVOR-5 takes aromas from published aroma descriptors instead of the model.
 - FLAVOR-6 makes every surface use the same profile, makes the wording honest, and re-measures on this same test set; the aim is to beat the numbers above.
+
+## Shared pages and cards show no chart (2026-11-15, SHARE-8)
+
+After FLAVOR-2, 186 of 599 built-in recipes still drew a chart and most of those led with a wrong taste (`npm run measure:flavor`). So the public share surfaces (the `/r/` page, the share pictures, the link-preview cards, and the bars stored with a user's shared recipe) draw no chart until the charts are rebuilt. The switch is `SHARE_CHARTS_ENABLED` in `src/data/shareTargets.js`; FLAVOR-6 turns it back on. In-app charts are unchanged.

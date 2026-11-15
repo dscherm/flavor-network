@@ -9,6 +9,14 @@
  */
 export const SHARE_OWN_ENABLED = true;
 
+/**
+ * The flavor chart on PUBLIC share surfaces: the shared recipe page, the share-card images (single and set),
+ * the server preview cards, and the bars stored when a user publishes a recipe. Off since 2026-11-15 (SHARE-8):
+ * the charts still mostly lead with a wrong taste (docs/flavor-profile.md). FLAVOR-6 turns this back on once the
+ * rebuilt charts pass. Charts inside the app (Recipe Notebook, invent panels) are not affected.
+ */
+export const SHARE_CHARTS_ENABLED = false;
+
 // encodeURIComponent leaves ! ' ( ) * alone; encode those too so an apostrophe can never end a quoted value.
 const enc = (v) => encodeURIComponent(v).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
 
