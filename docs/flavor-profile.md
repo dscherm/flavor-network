@@ -645,9 +645,9 @@ How to read them: the tuning-set aroma figure and the main taste set were both i
 ### How to correct a line (one procedure for labels, strengths and aromas)
 
 1. Find the ingredient, spelled exactly as the app spells it (a name the app does not know fails the tests on purpose).
-2. Taste label: `src/data/curation/tasteOverrides.json` (one ingredient, a label made of the ten words in `docs/data-quality.md`). Taste strength: one line in `src/data/flavorStrengths.js` (the six tastes, 0 to 3, and `potency`; the scale is at the top of the file). Aroma: one line in `src/data/flavorAromas.js` (the six aromas, 0 to 3, and `potency`). To say what one of the ingredient weighs when a recipe gives no amount, add it to `DEFAULT_GRAMS` in the strengths file.
+2. Taste label: `src/data/curation/tasteOverrides.json` (one ingredient, a label made of the ten words in `docs/data-quality.md`). Taste strength: one line in `src/data/flavorStrengths.js` (the six tastes, 0 to 3, and `potency`; the scale is at the top of the file). Aroma: one line in `src/data/flavorAromas.js` (the eleven aromas, 0 to 3, and `potency`; the file header says what each axis means). To say what one of the ingredient weighs when a recipe gives no amount, add it to `DEFAULT_GRAMS` in the strengths file.
 3. Ask whether a bartender or cook would agree with the line on its own. Do not change a number only because one recipe came out wrong.
-4. Run `npm run measure:flavor`, `node scripts/measureFlavorProfile.mjs --truth data/flavor-holdout.json` and `npm run measure:flavor -- --aroma`; check the recipes you care about. Run `npm test -- flavorStrengths flavorAroma` for the table checks.
+4. Run `npm run measure:flavor`, `node scripts/measureFlavorProfile.mjs --truth data/flavor-holdout.json` and `npm run measure:flavor -- --aroma`; for an aroma line also `node scripts/checkAromaAgreement.mjs` (a new disagreement with the second source must be fixed or recorded with a reason in `data/review/aroma-accepted.json`; `npm run audit:data -- --check` fails otherwise) and `node scripts/measureFlavorProfile.mjs --aroma-blind --axes eleven --no-holdout-detail`. Check the recipes you care about. Run `npm test -- flavorStrengths flavorAroma` for the table checks.
 5. To make the public cards and pages pick it up, run `node scripts/buildShareIndex.mjs` (it also runs in `npm run build`), commit the regenerated `functions/src/share/share-cards.json`, and deploy (see `docs/sharing.md`).
 
 ### What the charts are NOT
@@ -797,3 +797,83 @@ Three of the four blind-key gains are the three added lines (elderflower, orange
 ### Not verified
 
 The second source has no ground-truth check of its own. A cook has not reviewed the 16 corrections or the 13 recorded decisions; each is a judgement from common culinary knowledge on 2026-11-16.
+
+## Aromas on eleven axes (2026-11-15, AROMA-3)
+
+### What changed and why
+
+The blind key (AROMA-1) showed that **38 of 114 items (a third) expect aromas the six axes could not show**: roasted, nutty, earthy, smoky and savory. The old table used "woody" as a stand-in for roast, nuts, smoke and soil, and gave fish sauce, anchovy, shellfish and most mushrooms no honest home at all. The aroma half of every chart now has **eleven axes**: the six it had (fruity, floral, green, woody, spice, creamy) plus
+
+| Chart id | Label | Means |
+| --- | --- | --- |
+| `odor_toasty` | Toasty | roasted, caramelised, baked, browned: coffee, cocoa, caramel, brown sugar, maple, malt |
+| `odor_nutty` | Nutty | nuts and seeds, almond, sesame, brown butter, sherry, aged cheese |
+| `odor_earthy` | Earthy | mushroom, truffle, beet, root vegetables, soil, bitter roots, turmeric and cumin |
+| `odor_smoky` | Smoky | mezcal, peated whisky, smoked paprika, bacon, chipotle, liquid smoke |
+| `odor_savory` | Savory | meaty, marine, fermented, aged: fish sauce, anchovy, soy, miso, parmesan, stocks, shellfish |
+
+Every one of the 335 lines of `src/data/flavorAromas.js` was re-read. **137 were changed, 198 left as they were, 75 were added (410 lines now).** Of the changed lines, 7 had been "no aroma of their own" and now have one (fish sauce, anchovy, fish stock, shrimp, white fish, clam, mussel). Values that stood in for a missing axis were moved: coffee, coffee liqueur, kahlua and creme de cacao, cocoa, chocolate, caramel, brown sugar, maple and molasses to toasty; almond, almond milk, almond syrup, nuts, tahini, sesame and sherry to nutty; mezcal, smoked paprika, liquid smoke and bacon to smoky; mushroom and truffle to earthy; soy, miso, parmesan, blue cheese and stocks to savory. Added lines: fish and shellfish (oyster, scallop, crab, lobster, squid, sardine, tuna, caviar and more), cured meat (prosciutto, chorizo), the soy family (shoyu, tamari, oyster sauce, hoisin), misos and doenjang, kombu and wakame, stocks, mushrooms (shiitake, portobello, porcini, chanterelle), beet, parsnip, turnip, sweet potato, espresso, black tea, matcha, brown butter, chocolates, nutella, toffee, malt, bread, popcorn, balsamic and sherry vinegar, nuts and nut butters. 212 of the 410 lines now carry at least one of the five new axes. The file header says what each line means; a test fails if an axis name outside the eleven appears.
+
+Stocks were also lowered from potency 0.7-0.8 to 0.4-0.6: they are mostly water, and at the old value a litre of stock outweighed the chocolate in a mole. A line says what the ingredient smells of raw or as bought; cooking-method aromas (browning, frying) are still not modelled. An ingredient with an aroma line but no strength line is simply charted for aroma only: taste and aroma are judged apart.
+
+### Colours
+
+Seventeen colours on the chalk slate (`#1c1c1c`, with `#0a0a0a` behind). The six tastes keep theirs; the five old aromas that clashed were moved and the five new ones chosen with them (CIEDE2000; the closest pair, spice and toasty, is 14.4 apart). **Spice no longer shares Heat's red.** Every colour has at least 3:1 contrast on the slate (a test pins both this and the distance).
+
+| Axis | Colour | Contrast on #1c1c1c |
+| --- | --- | --- |
+| sweet, sour, bitter, salty, umami, heat (unchanged) | #ff5fa2, #2bd4d4, #a855f7, #5b8def, #e0a93b, #ff4444 | 6.0, 9.3, 4.3, 5.3, 8.0, 5.0 |
+| fruity | #fd875a | 7.1 |
+| floral | #e0a9d6 | 8.8 |
+| green | #7ccc7b | 8.7 |
+| woody | #967a51 | 4.2 |
+| spice | #c25726 | 3.8 |
+| creamy | #efe096 | 12.8 |
+| toasty | #cd7e2d | 5.4 |
+| nutty | #ceb89b | 8.9 |
+| earthy | #9aa373 | 6.4 |
+| smoky | #a9aac1 | 7.5 |
+| savory | #ba4b65 | 3.5 |
+
+Balancing pairs (for boost and temper): toasty with green; nutty, earthy and smoky with fruity; savory with sour.
+
+### Numbers, as printed (taste measures unchanged: 36/41 with 0 forbidden, hold-out 19/20)
+
+Before = the six-axis table (AROMA-2), scored on eleven axes. After = this task, eleven axes. Counts are "strongest aroma is an expected one".
+
+| Measure | Before (six-axis table) | After |
+| --- | --- | --- |
+| Blind key, all 114 items, eleven axes | 71/114 (62.3%) | 106/114 (93%), top two 107/114 |
+| Blind, tuning (76) | 47/76 | 72/76 (94.7%) |
+| Blind, held back (38) | 24/38 | 34/38 (89.5%) |
+| Blind, six-axis view (the 76 items six axes can express) | 71/76; held back 24/25 | 71/76; held back 24/25 |
+| Chef key, eleven axes (304) | 123/304 (40.5%), no aroma data 150 | 161/304 (53%), top two 170/304, no aroma data 122 |
+| Agreement with the second source, eleven axes | 244/282 (86.5%), chef-sourced 124/143 | 355/364 (97.5%), chef-sourced 166/174 (95.4%) |
+| Old key (`--aroma`, written for six axes) | tuning 30/30, hold-out 9/10 | tuning 28/30, hold-out 8/10 |
+| Main key's four aroma checks | 4/4 | 4/4 |
+
+The held-back third was not looked at item by item and not tuned against. Four of the 114 items were tuned after looking at tuning-set misses only (parmesan and blue cheese lead savory; stock potency lowered). The held-back figure (89.5%) reads lower than the 96% reported for the six-axis chart, but they are not the same set: the six-axis figure scored 25 of the 38 items (the other 13 had no axis to be scored on); the eleven-axis one scores all 38. Restricted to the original 25 the result is unchanged (24/25).
+
+The old key's two new misses are coffee and Irish Coffee, which that key expects as "woody" because it was written when coffee had no axis; both now lead toasty, which is the correct answer. The extra hold-out miss was not inspected (the held-back detail is withheld on purpose).
+
+The agreement rise is partly by construction: lines were re-read with the second source's words in view, and where both readings were defensible a tie was chosen so the line agrees. It is a second opinion from a mostly AI-written source, not ground truth.
+
+### Second-opinion check on eleven axes
+
+`checkAromaAgreement.mjs` and `npm run audit:data` now judge on eleven axes (`--axes six` still works). Of the 13 accepted entries from AROMA-2, the 11 `missing-axis` ones all agree on their own now and were removed from `data/review/aroma-accepted.json`; clove (table-right) and cardamom (both-defensible) stand. Five new decisions are recorded: whiskey and rye (oak and spice lead, with the caramel and grain the second source names just behind), gochujang (fermented soybean and chili over the chef's "woody"), parmesan and blue cheese (savory first; the chef entries say fatty and nutty, creamy and fatty), bread (toasty crust over the chef's "nutty") and balsamic vinegar (the chef's "fermented" is the vinegar's tang, which the savory axis does not mean). Zero unreviewed.
+
+### What is still wrong, by item
+
+- **Brandy Alexander** (tuning set): toasty 0.29 beats creamy 0.21; the creme de cacao and cognac outweigh the cream.
+- **Beurre noisette**: expects nutty and toasty; the recipe says "butter", and browning is a cooking-method aroma the chart does not model.
+- **Thai peanut sauce**: creamy 0.46 and fruity 0.23 beat nutty 0.17; coconut milk is bulky.
+- **Mole poblano**: savory (stock) still leads toasty (chocolate, chilies).
+- **BBQ sauce** shows no smoky bar: one teaspoon of smoked paprika against a cup of ketchup.
+- **Umami (taste) and Savory (aroma) repeat each other** on soy, miso and fish-sauce recipes (Miso Soup: umami 0.67, savory 0.59): two bars for one idea. A question for CHART-1.
+- Potato, rice, tofu and flour remain "no aroma of their own"; the second source calls them earthy or nutty.
+- 122 of 304 chef-key ingredients still have no table line.
+- The table is an AI assistant's judgement, checked against a second, mostly AI-written source and against two blind keys written by the same assistant. **No cook or professional has reviewed it.**
+
+### Surfaces touched
+
+The Recipe Notebook flavor map (17 spokes) and the ingredient before/after aroma radar (11 spokes) got a slightly smaller disc, a smaller label font and a side margin so the longest labels fit (checked on rendered images with a fallback font, not in a real browser). Cards keep their existing limit of the strongest few bars. The model-era ingredient panel and suggestion drawer still draw the six model aromas. AROMA-4 sets the display rule; CHART-1 is the redesign.

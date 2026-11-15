@@ -14,7 +14,7 @@ import MoleculeTasteMap from './MoleculeTasteMap.jsx';
 import FullWheel from './FullWheel.jsx';
 import AffinityFlavorWheel from './AffinityFlavorWheel.jsx'; // @deprecated — kept for one-release rollback safety
 import WedgeGridFlavorWheel from './WedgeGridFlavorWheel.jsx';
-import { scoreRecipeAroma, AROMA_LABELS, AROMA_COLORS, scoreRecipe } from '../data/recipeScoring.js';
+import { scoreRecipeAroma, AROMA_LABELS, AROMA_COLORS, MODEL_AROMA_KEYS, scoreRecipe } from '../data/recipeScoring.js';
 import { BRISCIONE_AROMA } from '../data/briscionePalette.js';
 
 const TASTE_COLORS = {
@@ -149,7 +149,7 @@ function CollapsibleSection({ title, badge, children, defaultOpen = false, onHea
 
 function AromaProfileSection({ aroma }) {
   if (!aroma || !aroma.hasSignal) return null;
-  const entries = Object.keys(AROMA_LABELS).map((key, i) => ({
+  const entries = MODEL_AROMA_KEYS.map((key, i) => ({
     key,
     label: AROMA_LABELS[key],
     color: AROMA_COLORS[key],

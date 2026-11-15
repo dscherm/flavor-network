@@ -2,10 +2,11 @@
  * flavorAroma.js — the aroma half of every flavor chart (FLAVOR-5), the way flavorTaste.js is the taste half.
  * Pure: no fetch, no React.
  *
- * Six chart axes (ids kept from the model-era chart so every surface keeps working): odor_fruity, odor_floral,
- * odor_green, odor_woody, odor_spicy, odor_fatty. "spicy" is the aroma of aromatic spice, not chili heat (heat is a
- * taste axis); the chart's label for it is "Spice" (recipeScoring.AROMA_LABELS). See flavorAromas.js for what each
- * axis means and where the numbers come from.
+ * Eleven chart axes (AROMA-3; the first six keep the ids of the model-era chart so every surface keeps working):
+ * odor_fruity, odor_floral, odor_green, odor_woody, odor_spicy, odor_fatty, odor_toasty, odor_nutty, odor_earthy,
+ * odor_smoky, odor_savory. "spicy" is the aroma of aromatic spice, not chili heat (heat is a taste axis); the chart's
+ * label for it is "Spice" (recipeScoring.AROMA_LABELS). See flavorAromas.js for what each axis means and where the
+ * numbers come from.
  *
  * Each ingredient with a line in flavorAromas.js counts as having aroma data, including ones with no aroma of their
  * own (water, sugar, salt, vodka), which dilute the rest at AROMALESS_WEIGHT of their amount. An ingredient with no
@@ -16,9 +17,9 @@
  */
 import { amountGrams } from './amountGrams.js';
 import { defaultGrams } from './flavorStrengths.js';
-import { aromaFor } from './flavorAromas.js';
+import { aromaFor, AROMA_LINE_AXES } from './flavorAromas.js';
 
-export const AROMA_AXES = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
+export const AROMA_AXES = AROMA_LINE_AXES.map((a) => `odor_${a}`);
 const SHORT = AROMA_AXES.map((a) => a.slice(5));
 /** The top of the 0..3 strength scale used by flavorAromas.js. */
 export const AROMA_STRENGTH_MAX = 3;
@@ -73,7 +74,7 @@ function unmeasuredGrams(key, amount, row) {
  *  lines   [{ key, amount? }]; amount is a string ("2 oz"), a { qty, unit } object or grams (number)
  *  lookup  optional (key) => { axes, potency } | null, a fallback for ingredients the table lacks
  *  opts    { aromalessWeight = AROMALESS_WEIGHT, table }  (table: null switches the hand-tuned table off)
- * scores is keyed odor_fruity ... odor_fatty. No amounts known: equal weights. Some known: the unknown ones get a
+ * scores is keyed odor_fruity ... odor_savory. No amounts known: equal weights. Some known: the unknown ones get a
  * typical portion if the ingredient has one, else the mean known amount. `charted` is false when every counted
  * ingredient has no aroma of its own.
  */

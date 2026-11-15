@@ -28,6 +28,11 @@ import { ingredientAroma, AROMA_STRENGTH_MAX } from '../data/flavorAroma.js';
 import { useMemo } from 'react';
 import { TASTE_COLORS } from '../utils/color.js';
 import { axisOrder, bucketColor, AROMA_LABEL_TO_GNN_KEY } from '../data/briscionePalette.js';
+
+/** Chef aroma labels that only the hand-tuned aroma table (not the model) can answer, now that it has eleven axes. */
+const TABLE_ONLY_AROMA_KEY = {
+  earthy: 'odor_earthy', roasted: 'odor_toasty', caramel: 'odor_toasty', fermented: 'odor_savory', marine: 'odor_savory',
+};
 import { dominantMethodFor, COOKING_METHODS } from '../data/cookingMethods.js';
 
 // Taste + Aroma keysets pull from the canonical Briscione vocab so the
@@ -100,10 +105,10 @@ function signalForAxis(node, axis, keyList, name = '') {
     const a = ingredientAroma(name);
     if (!a.any || a.aromaless) return out;
     for (const k of keyList) {
-      // 5 of 13 chef labels map to one of the six aroma axes (creamy→odor_fatty).
-      // The other 8 (citrus/herbal/earthy/roasted/caramel/fermented/
-      // marine/pungent) have no such axis and stay 0 by omission.
-      const gnnKey = AROMA_LABEL_TO_GNN_KEY[k];
+      // 5 of 13 chef labels map to one of the six model aroma axes (creamy→odor_fatty); AROMA-3 adds the table's five
+      // new axes, so earthy, roasted, caramel, fermented and marine now have a home too. citrus/herbal/pungent
+      // still have none and stay 0 by omission.
+      const gnnKey = AROMA_LABEL_TO_GNN_KEY[k] || TABLE_ONLY_AROMA_KEY[k];
       if (!gnnKey) continue;
       const v = a.axes[gnnKey];
       if (typeof v === 'number' && v > 0) out.set(k, Math.max(0, Math.min(1, v / AROMA_STRENGTH_MAX)));

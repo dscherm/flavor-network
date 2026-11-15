@@ -2,7 +2,7 @@
  * RecipeFlavorProfilesCard — dark chalkboard, swipeable per-axis flavor analysis
  * for a recipe.
  *
- * Page 0 is a Flavor map: a chalkboard radar over the 11 taste+aroma axes that
+ * Page 0 is a Flavor map: a chalkboard radar over the 17 taste+aroma axes that
  * plots each bowl ingredient as a labeled dot positioned by its own flavor
  * (its own taste and aroma values), so a sweet ingredient sits toward the "sweet" axis.
  * Pages 1..axes.length are one per firing flavor axis (taste + aroma): the
@@ -93,7 +93,7 @@ function axisAngle(i, n) {
 }
 
 /**
- * IngredientFlavorMap — a chalkboard radar over the 12 axes (grid rings, spokes,
+ * IngredientFlavorMap — a chalkboard radar over the 17 axes (grid rings, spokes,
  * colored axis labels) that plots each bowl ingredient as a labeled dot placed
  * by its own flavor centroid. Strongly single-flavored ingredients sit near
  * their dominant axis edge; balanced ones cluster center.
@@ -105,9 +105,10 @@ function axisAngle(i, n) {
 function IngredientFlavorMap({ bowlNames = [], nodes, size = 320, testId = 'flavor-map-radar' }) {
   const cx = size / 2;
   const cy = size / 2;
-  const radius = size * 0.30;
-  const labelOffset = size * 0.075;
   const N = AXES.length;
+  // AROMA-3: seventeen spokes. A slightly smaller disc and label size keep the outermost labels (umami, salty) inside the box.
+  const radius = size * (N > 12 ? 0.27 : 0.30);
+  const labelOffset = size * 0.075;
   const gridLevels = [0.33, 0.66, 1.0];
 
   const gridPoints = (level) =>
@@ -161,12 +162,13 @@ function IngredientFlavorMap({ bowlNames = [], nodes, size = 320, testId = 'flav
   }, [bowlNames, nodes, radius, cx, cy, N]);
 
   const trunc = (s) => (s.length > 12 ? `${s.slice(0, 11)}…` : s);
-  const fontSize = N > 8 ? 12 : 14;
+  const fontSize = N > 12 ? 11 : N > 8 ? 12 : 14;
+  const sidePad = N > 12 ? 24 : 0;
 
   return (
     <svg
       width="100%"
-      viewBox={`0 0 ${size} ${size}`}
+      viewBox={`${-sidePad} 0 ${size + 2 * sidePad} ${size}`}
       preserveAspectRatio="xMidYMid meet"
       style={{ display: 'block', height: 'auto', width: '100%' }}
       role="img"

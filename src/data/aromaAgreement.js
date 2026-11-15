@@ -12,8 +12,11 @@ import { curationKey } from './curation/normalize.js';
 
 export const AXIS_SETS = { six: AROMAS_SIX, eleven: AROMAS_ELEVEN };
 
-/** Table axis keys are written fruity..spicy; the aroma sets say spice. */
-const TABLE_TO_SET = { fruity: 'fruity', floral: 'floral', green: 'green', woody: 'woody', spicy: 'spice', fatty: 'fatty' };
+/** Table axis keys are written fruity..savory; the aroma sets say spice for the table's spicy. */
+const TABLE_TO_SET = {
+  fruity: 'fruity', floral: 'floral', green: 'green', woody: 'woody', spicy: 'spice', fatty: 'fatty',
+  toasty: 'toasty', nutty: 'nutty', earthy: 'earthy', smoky: 'smoky', savory: 'savory',
+};
 
 /** The second source's entry for a table name: the name itself, its merged-into name, or a variant merged into it. */
 export function resolveSecond(name, ingredients, aliases = new Map()) {

@@ -126,8 +126,8 @@ describe('review bookkeeping', () => {
   });
 });
 
-describe('the real aroma table against the real second source (six axes)', () => {
-  const { rows } = compareAromaTable(AROMAS, distilled, { aliases: new Map(aliasEntries()), axes: AXIS_SETS.six });
+describe('the real aroma table against the real second source (eleven axes)', () => {
+  const { rows } = compareAromaTable(AROMAS, distilled, { aliases: new Map(aliasEntries()), axes: AXIS_SETS.eleven });
   it('every disagreement has been read and decided', () => {
     expect(unreviewedDisagreements(rows, accepted).map((r) => r.name)).toEqual([]);
   });

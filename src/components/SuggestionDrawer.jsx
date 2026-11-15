@@ -7,7 +7,7 @@ import { analyzeRecipe } from '../data/recipeAnalysis.js';
 import { rankByRecipeCooccurrence } from '../data/recipeSuggestionEngine.js';
 import { rankAddByTaste, TASTE_COLUMNS, computeDominantTaste, EMPTY_ADD_COLUMNS } from '../data/addModeBucketing.js';
 import useIsMobile from '../hooks/useIsMobile.js';
-import { AROMA_LABELS, AROMA_COLORS } from '../data/recipeScoring.js';
+import { AROMA_LABELS, AROMA_COLORS, MODEL_AROMA_KEYS } from '../data/recipeScoring.js';
 import OdorBadge from './OdorBadge.jsx';
 import SuggestionDrawerToggle from './SuggestionDrawerToggle.jsx';
 
@@ -675,7 +675,7 @@ export default function SuggestionDrawer({
     : filterMode === 'aroma'
     ? [
         { key: 'all', label: 'All' },
-        ...Object.keys(AROMA_LABELS).map(odorKey => ({
+        ...MODEL_AROMA_KEYS.map(odorKey => ({
           key: `aroma:${odorKey.replace('odor_', '')}`,
           label: AROMA_LABELS[odorKey],
           aromaColor: AROMA_COLORS[odorKey],

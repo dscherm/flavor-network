@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { AROMAS, AROMA_ALIASES, NOT_IN_GRAPH_AROMA, aromaFor, garnishAromaLines } from '../flavorAromas.js';
+import { AROMAS, AROMA_ALIASES, AROMA_LINE_AXES, NOT_IN_GRAPH_AROMA, aromaFor, garnishAromaLines } from '../flavorAromas.js';
 import { STRENGTHS, NOT_IN_GRAPH } from '../flavorStrengths.js';
 import { loadCurationTables, applyCuration } from '../../../scripts/lib/curationTables.mjs';
 
 const raw = JSON.parse(readFileSync('public/proDataset/ingredients.json', 'utf8'));
 const GRAPH = new Set(Object.keys(applyCuration(raw, null, loadCurationTables()).ingredients).filter((k) => !k.startsWith('_')));
-const AX = ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty'];
+const AX = ['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty', 'toasty', 'nutty', 'earthy', 'smoky', 'savory'];
 
 describe('the aroma table is well formed', () => {
-  it('every line has a potency and only the six aromas on 0..3', () => {
+  it('every line has a potency and only the eleven aromas on 0..3 (an axis name outside the eleven fails)', () => {
     const bad = [];
     for (const [k, e] of Object.entries(AROMAS)) {
       if (typeof e.potency !== 'number' || e.potency < 0) bad.push(`${k}: potency`);
@@ -42,9 +42,10 @@ describe('the aroma table is well formed', () => {
     expect(n).toBeGreaterThanOrEqual(250);
     expect(n).toBeLessThanOrEqual(450);
   });
-  it('aromaFor returns six axes and a potency, and null for an unknown name', () => {
+  it('aromaFor returns eleven axes and a potency, and null for an unknown name', () => {
     const r = aromaFor('Mint');
     expect(Object.keys(r.axes)).toEqual(AX);
+    expect(AROMA_LINE_AXES).toEqual(AX);
     expect(r.axes.green).toBe(3);
     expect(r.potency).toBeGreaterThan(5);
     expect(aromaFor('not an ingredient')).toBeNull();

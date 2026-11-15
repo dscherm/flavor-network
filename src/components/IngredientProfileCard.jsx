@@ -60,9 +60,10 @@ function BeforeAfterRadar({
 }) {
   const cx = size / 2;
   const cy = size / 2;
-  const radius = size * 0.30;
-  const labelOffset = size * 0.075;
   const N = axes.length;
+  // AROMA-3: eleven aroma spokes. A smaller disc and label size keep the side labels (savory, toasty) inside the box.
+  const radius = size * (N > 8 ? 0.26 : 0.30);
+  const labelOffset = size * 0.075;
   const gridLevels = [0.33, 0.66, 1.0];
 
   const after = {};
@@ -83,12 +84,14 @@ function BeforeAfterRadar({
     }).join(' ');
 
   const moverSet = new Set((movers || []).map((m) => m.axis));
-  const fontSize = N > 8 ? 12 : 14;
+  const fontSize = N > 8 ? 11 : 14;
+  // Side room for the longest labels (earthy, woody, savory) once there are eleven aroma spokes.
+  const sidePad = N > 8 ? 22 : 0;
 
   return (
     <svg
       width="100%"
-      viewBox={`0 0 ${size} ${size}`}
+      viewBox={`${-sidePad} 0 ${size + 2 * sidePad} ${size}`}
       preserveAspectRatio="xMidYMid meet"
       style={{ display: 'block', height: 'auto', width: '100%' }}
       role="img"

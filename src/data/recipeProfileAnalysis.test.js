@@ -183,9 +183,10 @@ describe('methodFlavorEffect (FP-OV-5)', () => {
 describe('heat, the sixth taste', () => {
   it('is a taste axis with its own label, a red colour and sweet as its balance', () => {
     expect(TASTE_AXES).toEqual(['sweet', 'sour', 'bitter', 'salty', 'umami', 'heat']);
-    expect(AXES).toHaveLength(12);
+    expect(AXES).toHaveLength(17);
     expect(axisLabel('heat')).toBe('Heat');
-    expect(axisColor('heat')).toBe(axisColor('odor_spicy'));
+    expect(axisColor('heat')).toBe('#ff4444');
+    expect(axisColor('odor_spicy')).not.toBe(axisColor('heat')); // AROMA-3: Spice no longer shares heat's red
     expect(BALANCING.heat).toBe('sweet');
     expect(axisInsight('heat', 0.7)).toBe('Runs hot — balance with sweet.');
   });

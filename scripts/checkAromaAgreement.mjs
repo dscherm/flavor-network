@@ -2,7 +2,7 @@
 // (public/proDataset/flavor_profiles_distilled.json), names resolved through the curation layer's aliases.
 //
 //   node scripts/checkAromaAgreement.mjs                  summary + unreviewed disagreements; writes data/review/aroma-disagreements.tsv
-//   node scripts/checkAromaAgreement.mjs --axes eleven    judge against the eleven-aroma set (six is the default)
+//   node scripts/checkAromaAgreement.mjs --axes six       judge against the old six-aroma set (eleven is the default since AROMA-3)
 //   node scripts/checkAromaAgreement.mjs --all            list every disagreement, reviewed or not
 //   node scripts/checkAromaAgreement.mjs --check          exit 1 when a disagreement is unreviewed or the accepted file is stale
 //   node scripts/checkAromaAgreement.mjs --json
@@ -17,7 +17,7 @@ import { compareAromaTable, unreviewedDisagreements, validateAccepted, disagreem
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (p) => JSON.parse(readFileSync(resolve(ROOT, p), 'utf8'));
 
-export function runAgreement({ axes = 'six' } = {}) {
+export function runAgreement({ axes = 'eleven' } = {}) {
   const distilled = readJson('public/proDataset/flavor_profiles_distilled.json');
   const accepted = existsSync(resolve(ROOT, 'data/review/aroma-accepted.json')) ? readJson('data/review/aroma-accepted.json') : {};
   const { rows, summary } = compareAromaTable(AROMAS, distilled, { aliases: new Map(aliasEntries()), axes: AXIS_SETS[axes] });
@@ -27,7 +27,7 @@ export function runAgreement({ axes = 'six' } = {}) {
 
 function main() {
   const args = process.argv.slice(2);
-  const axes = args.includes('--axes') ? args[args.indexOf('--axes') + 1] : 'six';
+  const axes = args.includes('--axes') ? args[args.indexOf('--axes') + 1] : 'eleven';
   if (!AXIS_SETS[axes]) { console.error(`unknown axis set ${axes}`); process.exit(2); }
   const r = runAgreement({ axes });
   const s = r.summary;

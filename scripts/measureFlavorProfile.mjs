@@ -41,7 +41,7 @@ import { profileForRecipe } from '../src/data/shareCardData.js';
 import { resolveIngredientName } from '../src/data/recipePairingMatch.js';
 import { scoreItem, summarize, TASTES, scoreAroma, summarizeAroma, scoreAromaKey, summarizeAromaKey, AROMA_SET_SIX, AROMA_SET_ELEVEN } from '../src/data/flavorScore.js';
 import { chefTruthItems } from '../src/data/aromaWordMap.js';
-import { aromaProfile } from '../src/data/flavorAroma.js';
+import { aromaProfile, AROMA_AXES } from '../src/data/flavorAroma.js';
 import { loadCurationTables, applyCuration } from './lib/curationTables.mjs';
 import { loadFlavorNodes } from './lib/flavorNodes.mjs';
 
@@ -151,7 +151,7 @@ const verdict = (r) => {
   return v.join(', ');
 };
 
-const AROMA_AXIS_IDS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
+const AROMA_AXIS_IDS = AROMA_AXES;
 
 /** Aroma bars for one aroma-key item: a built-in recipe through the app's chart, or one ingredient through aromaProfile. */
 export function aromaBarsFor(item, data, nodes) {

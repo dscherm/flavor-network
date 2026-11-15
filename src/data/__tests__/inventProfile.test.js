@@ -14,7 +14,7 @@ const nodes = new Map([
 describe('buildFlavorProfile', () => {
   it('scores the axes, orders the firing ones, and names keys with no data', () => {
     const p = buildFlavorProfile(['sour fruit', 'sweet stuff', 'bitter root', 'mystery bitters'], nodes);
-    expect(Object.keys(p.scores)).toHaveLength(12);
+    expect(Object.keys(p.scores)).toHaveLength(17);
     expect(p.counted).toEqual(['sour fruit', 'sweet stuff', 'bitter root']);
     expect(p.uncounted).toEqual(['mystery bitters']);
     expect(p.scores.sour).toBeCloseTo(1 / 3);

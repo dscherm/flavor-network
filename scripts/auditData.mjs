@@ -142,8 +142,8 @@ export function runAudit() {
 
   const metrics = Object.fromEntries(Object.entries(rules).map(([id, r]) => [id, r.total]));
   metrics['sauce-independent-share-percent'] = sauce.total ? Math.round((100 * sauce.independent) / sauce.total) : 0;
-  // AROMA-2: disagreements between the aroma table and the second source that nobody has decided (six-axis set until AROMA-3).
-  const aroma = runAgreement({ axes: 'six' });
+  // AROMA-2, AROMA-3: disagreements between the aroma table and the second source that nobody has decided (judged on the eleven-aroma set).
+  const aroma = runAgreement({ axes: 'eleven' });
   metrics['aroma-disagreement-unreviewed'] = aroma.unreviewed.length;
   metrics['aroma-accepted-stale'] = aroma.problems.length;
 
@@ -425,7 +425,7 @@ reviewed, so not counted above: ${h.aliased} aliased, ${h.hidden} hidden, ${h.pa
 curation tables: valid. ingredients raw ${c.ingredients.raw} -> curated ${c.ingredients.curated} (${c.merged} merged, ${c.hidden} hidden, ${c.additions} added; ${c.packaged} flagged packaged; ${c.categoryOverrides} category and ${c.tasteOverrides} taste overrides)` +
     (c.pairings ? `; pairings raw ${c.pairings.raw} -> curated ${c.pairings.curated}` : ''));
   const ag = result.aroma.summary;
-  console.log(`aroma table vs second source (six axes): strongest aroma agrees ${ag.agree}/${ag.compared} (${ag.agreePct}%), chef-sourced ${ag.agreeChef}/${ag.comparedChef} (${ag.agreeChefPct}%); unreviewed disagreements ${result.aroma.unreviewed.length}${result.aroma.unreviewed.length ? ': ' + result.aroma.unreviewed.join(', ') : ''}; data/review/aroma-accepted.json problems ${result.aroma.problems.length}`);
+  console.log(`aroma table vs second source (eleven axes): strongest aroma agrees ${ag.agree}/${ag.compared} (${ag.agreePct}%), chef-sourced ${ag.agreeChef}/${ag.comparedChef} (${ag.agreeChefPct}%); unreviewed disagreements ${result.aroma.unreviewed.length}${result.aroma.unreviewed.length ? ': ' + result.aroma.unreviewed.join(', ') : ''}; data/review/aroma-accepted.json problems ${result.aroma.problems.length}`);
   console.log(`sauces under 'Independent': ${result.details.sauces.independent} of ${result.details.sauces.total} (${result.metrics['sauce-independent-share-percent']}%)`);
 
   if (args.has('--check')) {

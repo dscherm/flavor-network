@@ -1,15 +1,38 @@
 {
-  "sherry": { "kind": "missing-axis", "aroma": "nutty", "reason": "Oxidised sherry smells of walnut and dried fruit; the table's woody 1.5 stands in for nutty, which has no axis on the six. The second source's fermented note belongs to savory." },
-  "cream sherry": { "kind": "missing-axis", "aroma": "toasty", "reason": "Sweetened oloroso: caramel, raisin and walnut. Woody stands in for the caramel and nutty notes that have no axis on the six; AROMA-3 should give it toasty and nutty." },
-  "madeira wine": { "kind": "missing-axis", "aroma": "toasty", "reason": "Cooked, oxidised wine: caramel and toasted nut. Woody stands in for caramel, which has no axis on the six." },
-  "kahlua": { "kind": "missing-axis", "aroma": "toasty", "reason": "A coffee liqueur smells of roast coffee and caramel. The woody line is now 1, the vanilla and rum-oak part only (it was 2.5, strong enough to outweigh cream in a White Russian); its real home is toasty." },
-  "creme de cacao": { "kind": "missing-axis", "aroma": "toasty", "reason": "Cocoa and vanilla sweetness: roasted and caramel notes with no axis on the six. Woody lowered to 1 (vanilla only) so it no longer outweighs cream in a Brandy Alexander; its real home is toasty." },
-  "almond milk": { "kind": "missing-axis", "aroma": "nutty", "reason": "Almond milk is mild and nutty first, creamy second. Nutty has no axis on the six, so woody stands in." },
-  "hot sauce": { "kind": "missing-axis", "aroma": "savory", "reason": "A vinegary, fermented chili mash. The chef entry says fermented and spicy (heat); fermented belongs to savory, and chili heat is a taste axis, not an aroma. The table's fruity/green line is the chili's own smell." },
-  "clove": { "kind": "table-right", "reason": "Clove (eugenol) is the archetypal warm-spice aroma that a cook names first; the chef entry's single word, woody, describes the dried bud rather than what it perfumes a dish with." },
-  "cardamom": { "kind": "both-defensible", "reason": "Cardamom smells of eucalyptus-green freshness and of warm, sweet spice. The chef entry says green and woody; the line now carries green 1.4 beside spice 2, but a cook files it with the warm spices." },
-  "bacon": { "kind": "missing-axis", "aroma": "smoky", "reason": "Cured, smoked pork fat: smoke first, fat second. Woody stands in for smoke, which has no axis on the six; the second source agrees on fatty and smoky." },
-  "chocolate": { "kind": "missing-axis", "aroma": "toasty", "reason": "Roasted cacao is toasty first; woody stands in. Fatty 0.8 was added for the cocoa butter the chef entry names." },
-  "tahini": { "kind": "missing-axis", "aroma": "nutty", "reason": "Ground sesame: nutty and toasted. Woody stands in for nutty, which has no axis on the six." },
-  "pecan": { "kind": "missing-axis", "aroma": "nutty", "reason": "A nut: nutty first, then fatty. Woody stands in for nutty, which has no axis on the six." }
+  "clove": {
+    "kind": "table-right",
+    "reason": "Clove (eugenol) is the archetypal warm-spice aroma that a cook names first; the chef entry's single word, woody, describes the dried bud rather than what it perfumes a dish with."
+  },
+  "cardamom": {
+    "kind": "both-defensible",
+    "reason": "Cardamom smells of eucalyptus-green freshness and of warm, sweet spice. The chef entry says green and woody; the line now carries green 1.4 beside spice 2, but a cook files it with the warm spices."
+  },
+  "whiskey": {
+    "kind": "table-right",
+    "reason": "Whiskey smells of oak first; the caramel and vanilla the second source names come from that oak and are on the line as toasty 1. A bartender describes it as oak and caramel, in that order."
+  },
+  "rye": {
+    "kind": "table-right",
+    "reason": "Rye whiskey is oak and rye spice (dill, pepper); the second source's nutty and earthy are its grain notes, which sit below those on the line (toasty 0.6). The second source here is AI-written, not a chef entry."
+  },
+  "gochujang": {
+    "kind": "both-defensible",
+    "reason": "The chef entry says woody. A cook who has opened a tub smells fermented soybean and sweet chili first, so the line leads savory 1.4 with woody kept at 0.6; the two are not the same note and neither is checked."
+  },
+  "bread": {
+    "kind": "both-defensible",
+    "reason": "The chef entry says nutty (the grain). Baked bread's crust is toasty first on the line (1.4) with savory yeast behind; a cook could rank wheat's nutty note higher. Bread is not in the strength table and counts only where a recipe lists it."
+  },
+  "balsamic vinegar": {
+    "kind": "table-right",
+    "reason": "The chef entry says fermented, which for a vinegar is the acetic tang; the savory axis means fish sauce, soy and aged cheese, not sourness (taste, not aroma). Aged balsamic's smell is cooked-grape caramel (toasty 1.2) with fruit (1)."
+  },
+  "parmesan": {
+    "kind": "both-defensible",
+    "reason": "The chef entry says fatty and nutty. A cook calls aged parmesan savory (brothy, umami) first and nutty second; the line leads savory 1.8 with nutty 1.5 and fatty 1.3 close behind."
+  },
+  "blue cheese": {
+    "kind": "both-defensible",
+    "reason": "The chef entry says creamy and fatty. The smell of a blue cheese is its fermented, funky, savory note before its fat, so the line leads savory 1.8 with fatty 1.4 behind; neither is checked."
+  }
 }

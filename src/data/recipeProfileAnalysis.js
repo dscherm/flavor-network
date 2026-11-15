@@ -2,9 +2,9 @@
  * recipeProfileAnalysis — pure flavor-profile math for the Flavor Profiles card
  * and the profile-delta suggestion cards. No React, no I/O → unit-testable.
  *
- * The recipe's profile is, across the 12 taste+aroma axes: TASTE (sweet, sour, bitter, salty, umami, heat)
+ * The recipe's profile is, across the 17 taste+aroma axes: TASTE (sweet, sour, bitter, salty, umami, heat)
  * from each ingredient's curated taste label and hand-tuned strength, weighted by amount (flavorTaste.js,
- * flavorStrengths.js), AROMA (fruity, floral, green, woody, spicy, fatty) from the hand-tuned aroma table, weighted
+ * flavorStrengths.js), AROMA (fruity, floral, green, woody, spicy, fatty, toasty, nutty, earthy, smoky, savory) from the hand-tuned aroma table, weighted
  * by amount and potency (flavorAroma.js, flavorAromas.js). The model's per-ingredient values are not read. From that we derive: per-axis drivers, an insight line, the
  * profile shift a candidate ingredient would cause, and boost/temper rankings.
  */
@@ -18,7 +18,7 @@ export { TASTE_AXES, AROMA_AXES, amountGrams };
 export const AXES = [...TASTE_AXES, ...AROMA_AXES];
 
 const TASTE_COLOR = {
-  sweet: '#ff5fa2', sour: '#2bd4d4', bitter: '#a855f7', salty: '#5b8def', umami: '#e0a93b', heat: AROMA_COLORS.odor_spicy,
+  sweet: '#ff5fa2', sour: '#2bd4d4', bitter: '#a855f7', salty: '#5b8def', umami: '#e0a93b', heat: '#ff4444',
 };
 
 export function axisLabel(axis) {
@@ -35,6 +35,9 @@ export const BALANCING = {
   sweet: 'sour', sour: 'sweet', bitter: 'sweet', salty: 'sour', umami: 'sour', heat: 'sweet',
   odor_fruity: 'odor_green', odor_floral: 'odor_woody', odor_green: 'odor_fruity',
   odor_woody: 'odor_fruity', odor_spicy: 'sweet', odor_fatty: 'odor_green',
+  // AROMA-3: a heavy, dark aroma is lifted by a fresh, bright one; savory by sourness.
+  odor_toasty: 'odor_green', odor_nutty: 'odor_fruity', odor_earthy: 'odor_fruity',
+  odor_smoky: 'odor_fruity', odor_savory: 'sour',
 };
 
 /**
@@ -185,9 +188,9 @@ const METHOD_FAMILY = {
 };
 
 const FAMILY_EFFECT = {
-  brown:      { note: 'browning brings out deeper, sweeter, roasted notes', axes: { sweet: 1, umami: 1, odor_woody: 1, odor_green: -1 } },
-  fry:        { note: 'frying adds richness and a toasted edge', axes: { odor_fatty: 1, umami: 1, odor_woody: 1 } },
-  caramelize: { note: 'caramelizing pushes it sweeter and richer', axes: { sweet: 2, odor_woody: 1 } },
+  brown:      { note: 'browning brings out deeper, sweeter, roasted notes', axes: { sweet: 1, umami: 1, odor_toasty: 1, odor_green: -1 } },
+  fry:        { note: 'frying adds richness and a toasted edge', axes: { odor_fatty: 1, umami: 1, odor_toasty: 1 } },
+  caramelize: { note: 'caramelizing pushes it sweeter and richer', axes: { sweet: 2, odor_toasty: 1 } },
   meld:       { note: 'the slow simmer melds everything and deepens its savory, umami side', axes: { umami: 1, odor_green: -1 } },
   gentle:     { note: 'gentle moist heat keeps it clean and fresh, easing the sharper aromas', axes: { odor_green: 1, odor_fruity: -1 } },
   marinate:   { note: 'marinating works acid and salt deeper into it', axes: { sour: 1, salty: 1 } },

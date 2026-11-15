@@ -121,7 +121,9 @@ export function verdictForScore(score) {
  * the bars lets the user see "this combo trends woody + spicy"
  * directly.
  * ────────────────────────────────────────────────────────────── */
-const AROMAS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
+/** The six aromas the model-era ingredient wheels draw (the recipe charts have eleven: see AROMA_LABELS). */
+export const MODEL_AROMA_KEYS = ['odor_fruity', 'odor_floral', 'odor_green', 'odor_woody', 'odor_spicy', 'odor_fatty'];
+const AROMAS = MODEL_AROMA_KEYS;
 
 export const AROMA_LABELS = {
   odor_fruity: 'fruity',
@@ -130,15 +132,33 @@ export const AROMA_LABELS = {
   odor_woody: 'woody',
   odor_spicy: 'spice',  // 2026-11-16 (FLAVOR-5): 'spicy' read as chili heat, which is the taste axis "heat"
   odor_fatty: 'creamy',  // 2026-05-27 (batch 6 chef-vocab): renamed
+  // AROMA-3: five more aromas the six could not show (the recipe charts read them from the hand-tuned aroma table;
+  // the model-era wheels still draw only the first six).
+  odor_toasty: 'toasty',
+  odor_nutty: 'nutty',
+  odor_earthy: 'earthy',
+  odor_smoky: 'smoky',
+  odor_savory: 'savory',
 };
 
+/**
+ * Eleven aroma colours (AROMA-3). Chosen together with the six taste colours (recipeProfileAnalysis TASTE_COLOR: sweet
+ * #ff5fa2, sour #2bd4d4, bitter #a855f7, salty #5b8def, umami #e0a93b, heat #ff4444) so all seventeen are told apart:
+ * the closest pair is about 14 on the CIEDE2000 scale and each has at least 3:1 contrast on the chalk slate (#1c1c1c).
+ * Spice used to share heat's red. Pinned by a test (flavorAromaAxes.test.js).
+ */
 export const AROMA_COLORS = {
-  odor_fruity: '#ff8c42',
-  odor_floral: '#e879a8',
-  odor_green:  '#6bcb77',
-  odor_woody:  '#a67c52',
-  odor_spicy:  '#ff4444',
-  odor_fatty:  '#d4aa70',
+  odor_fruity: '#fd875a',
+  odor_floral: '#e0a9d6',
+  odor_green:  '#7ccc7b',
+  odor_woody:  '#967a51',
+  odor_spicy:  '#c25726',
+  odor_fatty:  '#efe096',
+  odor_toasty: '#cd7e2d',
+  odor_nutty:  '#ceb89b',
+  odor_earthy: '#9aa373',
+  odor_smoky:  '#a9aac1',
+  odor_savory: '#ba4b65',
 };
 
 export function scoreRecipeAroma(ingredients) {
