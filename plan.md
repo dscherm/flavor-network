@@ -2246,7 +2246,7 @@ then FLAVOR-3, FLAVOR-4, FLAVOR-5 in that order; FLAVOR-6 last.
   "id": "FLAVOR-4",
   "title": "Hand-tuned strengths and potency for the ingredients that matter most",
   "category": "data",
-  "passes": false,
+  "passes": true,
   "description": "src/data/flavorStrengths.js: about 150 one-line entries covering base spirits, liqueurs, amari, vermouths and fortified wines, bitters, citrus and juices, sweeteners and syrups, sodas and mixers, dairy and eggs, sauce bases (stock, tomato, cream, butter, roux), salty and umami seasonings, chilies and hot sauces, and common herbs and spices. Each entry gives 0..3 on sweet, sour, bitter, salty, umami and heat, and a potency: how much a small amount counts (bitters, absinthe, hot sauce, fish sauce high; soda water and ice near zero). A table entry overrides the label-derived weights from FLAVOR-3. Keys go through the same normalisation as the bar and kitchen keys (barKey, kitchenKey) so 'campari', 'angostura bitters' and 'sweet vermouth' hit. Written by the assistant from common bartending and cooking knowledge and marked as such; the file header says how to correct a line.",
   "acceptance": [
     "Every base spirit and every bottle in the app's bar list (GENERIC_BOTTLE_KEYS and the codex's 40 most used ingredients) has an entry; a test lists any that are missing",
