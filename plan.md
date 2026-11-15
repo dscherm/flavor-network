@@ -2080,7 +2080,7 @@ together, never SHARE-6 alone. Three open decisions with defaults are defined in
   "id": "SHARE-2",
   "title": "Share button and share sheet on recipe cards",
   "category": "ui",
-  "passes": false,
+  "passes": true,
   "description": "ShareSheet.jsx plus a Share button on built-in and own cocktail, sauce and Cookbook dish cards and on the result step of the three invent panels after saving. Phone: navigator.share with title, text and url. Elsewhere: Copy link, X, Facebook, Pinterest and WhatsApp as plain share URLs (pure builder src/data/shareTargets.js, no third-party scripts), and a Download image slot that SHARE-5 fills. For built-in recipes the link is the /r/<kind>/<slug> link from SHARE-1. For a user's own recipe the button is present but routes to the publish step that SHARE-6 adds; until then it is hidden behind one flag so this task can ship alone.",
   "acceptance": [
     "shareTargets builds correct, fully encoded URLs for each network (unit tests with a name containing an ampersand, a quote and an emoji)",
