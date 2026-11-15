@@ -7,7 +7,7 @@ import { render, screen, fireEvent, waitFor, cleanup, within } from '@testing-li
 vi.mock('../../data/shareTargets.js', async (importOriginal) => ({ ...(await importOriginal()), SHARE_OWN_ENABLED: true }));
 const publishShare = vi.fn(async () => {});
 vi.mock('../../data/shareStore.js', () => ({ publishShare: (...a) => publishShare(...a), getShare: vi.fn(), unshare: vi.fn() }));
-vi.mock('../../data/sharedLoaders.js', () => ({ loadCachedNodes: async () => null, defaultLoadData: vi.fn(), defaultLoadNodes: vi.fn() }));
+vi.mock('../../data/sharedLoaders.js', () => ({ loadLabelNodes: async () => null, defaultLoadData: vi.fn(), defaultLoadNodes: vi.fn() }));
 vi.mock('../ShareImages.jsx', () => ({ default: ({ link, bars }) => <div data-testid="stub-images" data-link={link} data-bars={JSON.stringify(bars ?? null)} /> }));
 
 import { OwnShareButton, ShareOwnContext, LIMIT_MESSAGE } from '../OwnShare.jsx';

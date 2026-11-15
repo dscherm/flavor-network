@@ -47,6 +47,8 @@ export function summarize({ axes, counted, noun = 'recipe', drawn = true }) {
   return `On the chart, the strongest signal${lead.length > 1 ? 's are' : ' is'} ${lead.join(' and ')}.`;
 }
 
+const capitalized = (w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w);
+
 export function buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null, garnish = '' } = {}) {
   const list = [...new Set((Array.isArray(keys) ? keys : []).filter((k) => typeof k === 'string' && k))];
   const counted = list.filter((k) => nodeProbs(k, nodes));
@@ -59,7 +61,7 @@ export function buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.
   return {
     scores: prof.scores,
     axes,
-    bars: axes.map((axis) => ({ axis, label: axisLabel(axis), color: axisColor(axis), score: prof.scores[axis] })),
+    bars: axes.map((axis) => ({ axis, label: capitalized(axisLabel(axis)), color: axisColor(axis), score: prof.scores[axis] })),
     drivers: prof.drivers,
     counted,
     uncounted,

@@ -8,7 +8,7 @@
  *                                        read through loadShared; missing or removed shows "no longer shared".
  *   loadData   (kind) => Promise<{ cocktails?, families?, sauces?, dishes?, dishDetails? }>
  *   loadShared (id) => Promise<document|null>; default reads shared/{id} from Firestore (loaded only for an id route)
- *   loadNodes  () => Promise<Map name → { gnnProbs }|null>; a failure drops the chart, nothing else.
+ *   loadNodes  () => Promise<Map name → { taste }|null>; a failure drops the chart, nothing else.
  *   sendReport (report) => Promise; default writes shareReports in Firestore. Tests pass a mock.
  *   actions    optional node rendered in the actions area after the built-in buttons.
  *   onHome     optional; default is a plain link to "/".
@@ -35,13 +35,11 @@ import { clearPendingSave, LAB_PATH, readPendingSave, setPendingSave, stashInven
 import { resolveBuiltIn } from '../data/sharedRecipe.js';
 import { fromSharedDoc } from '../data/sharePublish.js';
 import { defaultLoadData, defaultLoadNodes } from '../data/sharedLoaders.js';
-import { buildFlavorProfile } from '../data/inventProfile.js';
-import { resolveIngredientName } from '../data/recipePairingMatch.js';
+import { profileForRecipe } from '../data/shareCardData.js';
 import { SHARE_CHARTS_ENABLED } from '../data/shareTargets.js';
 import { chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { FONT, SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading, small } from './inventUi.jsx';
 
-const KIND_NOUN = { cocktail: 'drink', sauce: 'sauce', dish: 'dish' };
 const KIND_WORD = { cocktail: 'Cocktail', sauce: 'Sauce', dish: 'Dish' };
 
 export { defaultLoadData, defaultLoadNodes };
@@ -239,15 +237,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
   const recipe = state.recipe;
   const profile = useMemo(() => {
     if (!SHARE_CHARTS_ENABLED || !recipe || !nodes) return null;
-    const names = new Set(nodes.keys());
-    const keys = [];
-    const amounts = {};
-    for (const l of recipe.lines) {
-      const key = resolveIngredientName(l.label || l.key, names) || l.key;
-      keys.push(key);
-      if (l.amount && amounts[key] === undefined) amounts[key] = l.amount;
-    }
-    return buildFlavorProfile(keys, nodes, { noun: KIND_NOUN[recipe.kind] || 'recipe', amounts });
+    return profileForRecipe(recipe, nodes);
   }, [recipe, nodes]);
 
   const steps = recipe?.method ? recipe.method.split('\n').map((s) => s.trim()).filter(Boolean) : [];

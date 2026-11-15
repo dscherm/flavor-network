@@ -9,90 +9,36 @@ import {
 } from '../recipeAromaSimilarity.js';
 
 // ---------------------------------------------------------------------------
-// Fixture helpers
-// ---------------------------------------------------------------------------
-
-/** Build a minimal ingredientsData lookup keyed by ingredient name. */
-function mkIngredientsData(entries) {
-  const out = {};
-  for (const [name, gnnProbs] of Object.entries(entries)) {
-    out[name] = { gnnProbs };
-  }
-  return out;
-}
-
-/** Build a gnnProbs object using short aroma keys (fruity, fatty, etc.). */
-function gnnProbs(values) {
-  const out = {};
-  for (const [k, v] of Object.entries(values)) {
-    out[`odor_${k}`] = v;
-  }
-  return out;
-}
-
-// ---------------------------------------------------------------------------
-// computeRecipeAroma
+// computeRecipeAroma: the hand-tuned aroma table (FLAVOR-6), not the model's per-ingredient values
 // ---------------------------------------------------------------------------
 
 describe('computeRecipeAroma', () => {
-  it('returns null for empty ingredient list', () => {
-    expect(computeRecipeAroma([], {})).toBeNull();
+  it('returns null for empty, null and undefined lists', () => {
+    expect(computeRecipeAroma([])).toBeNull();
+    expect(computeRecipeAroma(null)).toBeNull();
+    expect(computeRecipeAroma(undefined)).toBeNull();
   });
 
-  it('returns null when passed null/undefined ingredient list', () => {
-    expect(computeRecipeAroma(null, {})).toBeNull();
-    expect(computeRecipeAroma(undefined, {})).toBeNull();
+  it('returns null when no ingredient has an aroma of its own', () => {
+    expect(computeRecipeAroma(['salt', 'sugar'])).toBeNull();
+    expect(computeRecipeAroma(['not-a-real-ingredient'])).toBeNull();
   });
 
-  it('returns null when no ingredients have GNN data', () => {
-    const data = mkIngredientsData({ salt: null, sugar: null });
-    // null gnnProbs entries are excluded by the filter
-    expect(computeRecipeAroma(['salt', 'sugar'], data)).toBeNull();
+  it('gives a 6-vector in AROMA_KEYS order from the table: mint is green, butter is fatty', () => {
+    const mint = computeRecipeAroma(['mint']);
+    expect(mint).toHaveLength(AROMA_KEYS.length);
+    expect(mint.indexOf(Math.max(...mint))).toBe(AROMA_KEYS.indexOf('odor_green'));
+    const butter = computeRecipeAroma(['butter']);
+    expect(butter.indexOf(Math.max(...butter))).toBe(AROMA_KEYS.indexOf('odor_fatty'));
   });
 
-  it('returns null when ingredients exist in data but have no numeric aroma keys', () => {
-    const data = { water: { gnnProbs: { taste_sweet: 0.1 } } };
-    expect(computeRecipeAroma(['water'], data)).toBeNull();
+  it('is the same profile the chart draws: lemon leads fruity', () => {
+    const v = computeRecipeAroma(['lemon', 'sugar']);
+    expect(v.indexOf(Math.max(...v))).toBe(AROMA_KEYS.indexOf('odor_fruity'));
   });
 
-  it('happy path: returns mean vector for 3-ingredient fixture', () => {
-    const data = mkIngredientsData({
-      apple:    gnnProbs({ fruity: 0.9, floral: 0.2, green: 0.4, woody: 0.1, spicy: 0.0, fatty: 0.1 }),
-      cinnamon: gnnProbs({ fruity: 0.1, floral: 0.1, green: 0.1, woody: 0.6, spicy: 0.8, fatty: 0.1 }),
-      butter:   gnnProbs({ fruity: 0.0, floral: 0.0, green: 0.0, woody: 0.0, spicy: 0.0, fatty: 0.9 }),
-    });
-    const vec = computeRecipeAroma(['apple', 'cinnamon', 'butter'], data);
-    expect(vec).not.toBeNull();
-    expect(vec).toHaveLength(AROMA_KEYS.length);
-    // odor_fruity mean = (0.9 + 0.1 + 0.0) / 3
-    expect(vec[0]).toBeCloseTo(1.0 / 3, 5);
-    // odor_fatty mean = (0.1 + 0.1 + 0.9) / 3
-    expect(vec[5]).toBeCloseTo(1.1 / 3, 5);
-  });
-
-  it('partial GNN coverage: 1 of 3 ingredients has data → returns that single vector', () => {
-    const data = {
-      apple:    { gnnProbs: gnnProbs({ fruity: 0.8, fatty: 0.2 }) },
-      salt:     {},                 // no gnnProbs at all
-      mystery:  { gnnProbs: null }, // explicit null
-    };
-    const vec = computeRecipeAroma(['apple', 'salt', 'mystery'], data);
-    expect(vec).not.toBeNull();
-    // Single-ingredient mean = the ingredient's own values
-    expect(vec[0]).toBeCloseTo(0.8, 5); // odor_fruity
-    expect(vec[5]).toBeCloseTo(0.2, 5); // odor_fatty
-  });
-
-  it('missing aroma keys in a vector are treated as 0', () => {
-    const data = mkIngredientsData({
-      apple:    gnnProbs({ fruity: 0.6 }),           // only fruity
-      cinnamon: gnnProbs({ woody: 0.5, spicy: 0.4 }), // no fruity
-    });
-    const vec = computeRecipeAroma(['apple', 'cinnamon'], data);
-    // odor_fruity: (0.6 + 0) / 2 = 0.3
-    expect(vec[0]).toBeCloseTo(0.3, 5);
-    // odor_woody: (0 + 0.5) / 2 = 0.25
-    expect(vec[3]).toBeCloseTo(0.25, 5);
+  it('does not read the model: ingredientsData is not an argument any more', () => {
+    expect(computeRecipeAroma.length).toBe(1);
   });
 });
 
@@ -191,92 +137,57 @@ describe('topAromaOverlap', () => {
 // ---------------------------------------------------------------------------
 
 describe('rankByAromaSimilarity', () => {
-  const ingredientsData = mkIngredientsData({
-    whiskey: gnnProbs({ fruity: 0.3, woody: 0.8, spicy: 0.6, fatty: 0.1 }),
-    sugar:   gnnProbs({ fruity: 0.5, floral: 0.3 }),
-    bitters: gnnProbs({ woody: 0.5, spicy: 0.7 }),
-    gin:     gnnProbs({ floral: 0.7, green: 0.6, spicy: 0.3 }),
-    lime:    gnnProbs({ fruity: 0.9, green: 0.5 }),
-    cream:   gnnProbs({ fatty: 0.8, floral: 0.2 }),
-  });
-
   const cocktails = [
-    { name: 'Old Fashioned', ingredients: ['whiskey', 'sugar', 'bitters'], image: 'old-fashioned.jpg' },
-    { name: 'Gimlet',        ingredients: ['gin', 'lime'],                 image: 'gimlet.jpg' },
-    { name: 'White Russian', ingredients: ['cream', 'whiskey'],            image: 'white-russian.jpg' },
+    { name: 'Gimlet', ingredients: ['gin', 'lime'], image: 'gimlet.jpg' },
+    { name: 'Old Fashioned', ingredients: ['bourbon', 'bitters'], image: 'old-fashioned.jpg' },
+    { name: 'White Russian', ingredients: ['cream', 'vodka'], image: 'white-russian.jpg' },
   ];
+  const vecOf = (names) => computeRecipeAroma(names);
 
-  // recipe vector strongly woody+spicy (matches Old Fashioned best)
-  const woodySpicyVec = [0.0, 0.0, 0.0, 0.9, 0.9, 0.0]; // fruity,floral,green,woody,spicy,fatty
-
-  it('returns results in descending similarity order', () => {
-    const results = rankByAromaSimilarity(woodySpicyVec, cocktails, ingredientsData, 8);
+  it('returns results in descending similarity order, best match first', () => {
+    const results = rankByAromaSimilarity(vecOf(['lemon', 'lime']), cocktails, 8);
     expect(results.length).toBeGreaterThan(0);
     for (let i = 1; i < results.length; i++) {
       expect(results[i - 1].similarity).toBeGreaterThanOrEqual(results[i].similarity);
     }
+    expect(results[0].item.name).toBe('Gimlet');
   });
 
-  it('returns ≤ topN results', () => {
-    const results = rankByAromaSimilarity(woodySpicyVec, cocktails, ingredientsData, 2);
-    expect(results.length).toBeLessThanOrEqual(2);
+  it('returns at most topN results', () => {
+    expect(rankByAromaSimilarity(vecOf(['lemon']), cocktails, 2).length).toBeLessThanOrEqual(2);
   });
 
-  it('filters items with no usable GNN vector', () => {
-    const noDataItems = [
-      { name: 'Mystery', ingredients: ['unknown-a', 'unknown-b'], image: 'x.jpg' },
-    ];
-    const results = rankByAromaSimilarity(woodySpicyVec, noDataItems, ingredientsData, 8);
-    expect(results).toHaveLength(0);
+  it('filters items with no aroma vector', () => {
+    const none = [{ name: 'Mystery', ingredients: ['unknown-a', 'unknown-b'], image: 'x.jpg' }];
+    expect(rankByAromaSimilarity(vecOf(['lemon']), none, 8)).toHaveLength(0);
   });
 
-  it('null recipeVector returns empty array', () => {
-    expect(rankByAromaSimilarity(null, cocktails, ingredientsData)).toEqual([]);
+  it('null and undefined recipeVector return an empty array', () => {
+    expect(rankByAromaSimilarity(null, cocktails)).toEqual([]);
+    expect(rankByAromaSimilarity(undefined, cocktails)).toEqual([]);
   });
 
-  it('undefined recipeVector returns empty array', () => {
-    expect(rankByAromaSimilarity(undefined, cocktails, ingredientsData)).toEqual([]);
+  it('null and undefined items return an empty array', () => {
+    expect(rankByAromaSimilarity(vecOf(['lemon']), null)).toEqual([]);
+    expect(rankByAromaSimilarity(vecOf(['lemon']), undefined)).toEqual([]);
   });
 
-  it('null/undefined items returns empty array', () => {
-    expect(rankByAromaSimilarity(woodySpicyVec, null, ingredientsData)).toEqual([]);
-    expect(rankByAromaSimilarity(woodySpicyVec, undefined, ingredientsData)).toEqual([]);
-  });
-
-  it('each result has similarity, matchedAromas, and item fields', () => {
-    const results = rankByAromaSimilarity(woodySpicyVec, cocktails, ingredientsData, 8);
+  it('each result has similarity, matchedAromas and the item passed through unchanged', () => {
+    const results = rankByAromaSimilarity(vecOf(['lemon']), cocktails, 8);
     for (const r of results) {
       expect(typeof r.similarity).toBe('number');
       expect(Array.isArray(r.matchedAromas)).toBe(true);
       expect(r.item).toBeDefined();
     }
+    const gimlet = results.find((r) => r.item.name === 'Gimlet');
+    expect(gimlet.item.image).toBe('gimlet.jpg');
+    expect(Array.isArray(gimlet.item.ingredients)).toBe(true);
   });
 
-  // -------------------------------------------------------------------------
-  // Schema round-trip (critical)
-  // -------------------------------------------------------------------------
-  it('schema round-trip: all item keys pass through unchanged', () => {
-    const results = rankByAromaSimilarity(woodySpicyVec, cocktails, ingredientsData, 8);
-    expect(results.length).toBeGreaterThan(0);
-    const first = results[0];
-    expect(first.item.name).toBe('Old Fashioned');
-    expect(Array.isArray(first.item.ingredients)).toBe(true);
-    expect(first.item.image).toBe('old-fashioned.jpg');
-  });
-
-  it('schema round-trip: fixture cocktail with only whiskey having gnnProbs', () => {
-    const partialData = mkIngredientsData({
-      whiskey: gnnProbs({ fruity: 0.3, woody: 0.8, spicy: 0.6, fatty: 0.1 }),
-      // sugar and bitters have no entry → treated as no GNN data
-    });
-    const singleCocktail = [
-      { name: 'Old Fashioned', ingredients: ['whiskey', 'sugar', 'bitters'], image: 'old-fashioned.jpg' },
-    ];
-    const results = rankByAromaSimilarity(woodySpicyVec, singleCocktail, partialData, 8);
-    expect(results).toHaveLength(1);
-    expect(results[0].item.name).toBe('Old Fashioned');
-    expect(Array.isArray(results[0].item.ingredients)).toBe(true);
-    expect(results[0].item.image).toBe('old-fashioned.jpg');
+  it('different recipes get different top matches (the model values gave the same two every time)', () => {
+    const citrus = rankByAromaSimilarity(vecOf(['lemon', 'lime']), cocktails, 1)[0].item.name;
+    const creamy = rankByAromaSimilarity(vecOf(['butter', 'cream']), cocktails, 1)[0].item.name;
+    expect(citrus).not.toBe(creamy);
   });
 });
 

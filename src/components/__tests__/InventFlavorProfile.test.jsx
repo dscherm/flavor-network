@@ -19,7 +19,9 @@ describe('InventFlavorProfile', () => {
     expect(screen.getByTestId('f-bar-sweet')).toHaveTextContent('Sweet');
     expect(screen.getByTestId('f-summary')).toHaveTextContent('leans sour');
     expect(screen.getByTestId('f-uncounted')).toHaveTextContent('mystery bitters');
-    expect(screen.getByTestId('f-note')).toHaveTextContent('not how it will taste');
+    expect(screen.getByTestId('f-note')).toHaveTextContent(/taste labels and aroma notes for each ingredient, weighted by amount/);
+    expect(screen.getByTestId('f-note')).toHaveTextContent(/guide, not a taste test/);
+    expect(screen.getByTestId('f-note').textContent).not.toMatch(/compound|molecul/i);
   });
   it('renders an empty profile without throwing', () => {
     for (const pr of [undefined, null, {}, { bars: [], summary: '', uncounted: [] }]) {

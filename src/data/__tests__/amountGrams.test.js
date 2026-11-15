@@ -51,3 +51,29 @@ describe('amountGrams: cocktail and kitchen units', () => {
     expect(parseAmountText('nonsense words')).toBeNull();
   });
 });
+
+describe('amountGrams: weights in kilograms, pounds and litres (FLAVOR-6)', () => {
+  it('reads kg, kilogram(s) and a number stuck to the unit', () => {
+    expect(amountGrams('1.2 kg')).toBe(1200);
+    expect(amountGrams('1 kg')).toBe(1000);
+    expect(amountGrams('1.5 kilograms')).toBe(1500);
+    expect(amountGrams('1.2kg')).toBe(1200);
+    expect(amountGrams({ qty: 2, unit: 'kg' })).toBe(2000);
+  });
+  it('reads lb, lbs and pounds', () => {
+    expect(amountGrams('2 lb')).toBeCloseTo(907.2, 5);
+    expect(amountGrams('2 lbs')).toBeCloseTo(907.2, 5);
+    expect(amountGrams('1 pound')).toBeCloseTo(453.6, 5);
+  });
+  it('reads g and gram variants and l, liter, litre', () => {
+    expect(amountGrams('500 g')).toBe(500);
+    expect(amountGrams('500g')).toBe(500);
+    expect(amountGrams('250 grams')).toBe(250);
+    expect(amountGrams('1 l')).toBe(1000);
+    expect(amountGrams('1.5 litres')).toBe(1500);
+    expect(amountGrams('1 liter')).toBe(1000);
+  });
+  it('1.2 kg of apples is no longer weighed as a handful', () => {
+    expect(amountGrams('1.2 kg')).toBeGreaterThan(1000);
+  });
+});

@@ -19,7 +19,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { absoluteShareUrl, captionFor, printedLinkFor, SHARE_CHARTS_ENABLED } from '../data/shareTargets.js';
 import { parseSharePath, resolveBuiltIn } from '../data/sharedRecipe.js';
 import { barsFor } from '../data/shareCardData.js';
-import { defaultLoadData, loadCachedNodes } from '../data/sharedLoaders.js';
+import { defaultLoadData, loadLabelNodes } from '../data/sharedLoaders.js';
 import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
 
 const tap = { minHeight: 44 };
@@ -45,7 +45,7 @@ function Choice({ legend, options, value, onChange, testid }) {
   );
 }
 
-export default function ShareImages({ link = '', recipe: given = null, bars: givenBars = null, nodes: givenNodes, origin, loadData = defaultLoadData, loadNodes = loadCachedNodes, renderFiles = defaultRenderFiles }) {
+export default function ShareImages({ link = '', recipe: given = null, bars: givenBars = null, nodes: givenNodes, origin, loadData = defaultLoadData, loadNodes = loadLabelNodes, renderFiles = defaultRenderFiles }) {
   const route = useMemo(() => parseSharePath(link), [link]);
   const builtIn = route && route.kind && route.slug ? route : null;
   // A user's own published copy (/r/<id>) is drawn from the recipe passed in; there is nothing to load for it.

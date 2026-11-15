@@ -115,7 +115,7 @@ describe('layout sharing', () => {
     expect(gen.endsWith(src)).toBe(true);
     expect(gen.startsWith('// @ts-nocheck\n// GENERATED')).toBe(true);
   });
-  it('lays out a built-in preview card with the printed link and the site name (no chart while SHARE_CHARTS_ENABLED is off)', () => {
+  it('lays out a built-in preview card with the printed link, the site name and the flavor chart', () => {
     const card = layoutFor(cards['cocktail/boulevardier'], 'neuralflavor.web.app/r/cocktail/boulevardier');
     const text = card.primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n');
     expect(card.width).toBe(1200);
@@ -123,15 +123,24 @@ describe('layout sharing', () => {
     expect(text).toContain('Boulevardier');
     expect(text).toContain('neuralflavor.web.app/r/cocktail/boulevardier');
     expect(text).toContain('Neural Flavor');
-    expect(text).not.toContain('flavor chart');
+    expect(text).toContain('flavor chart');
     expect(generated.FORMATS.preview.width).toBe(1200);
   });
-  it('SHARE-8: the committed switch is off, share-cards.json has no bars, and a card draws no chart even when handed bars', () => {
-    expect(generated.SHARE_CHARTS_ENABLED).toBe(false);
-    for (const c of Object.values(realCards as Record<string, any>)) expect(c.bars).toEqual([]);
-    const withBars = { ...cards['cocktail/boulevardier'], bars: [{ label: 'sweet', color: '#ff00aa', score: 0.8 }] };
-    const text = layoutFor(withBars, 'x').primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ');
-    expect(text).not.toContain('flavor chart');
+  it('FLAVOR-6: the committed switch is on, every card in share-cards.json has bars, and the card draws the chart', () => {
+    expect(generated.SHARE_CHARTS_ENABLED).toBe(true);
+    for (const c of Object.values(realCards as Record<string, any>)) expect(c.bars.length).toBeGreaterThan(0);
+    const text = layoutFor(cards['cocktail/boulevardier'], 'x').primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ');
+    expect(text).toContain('flavor chart');
+  });
+  it('the preview chart keeps to six bars and stays inside the card, even for the busiest recipes', () => {
+    const busiest = Object.entries(cards).sort((x, y) => y[1].bars.length - x[1].bars.length).slice(0, 5).map(([k]) => k);
+    for (const key of ['cocktail/negroni', 'cocktail/daiquiri', 'dish/beef-bolognese', ...busiest]) {
+      const card = layoutFor(cards[key], 'x') as any;
+      const labels = new Set(cards[key].bars.slice(0, 6).map((b) => b.label.charAt(0).toUpperCase() + b.label.slice(1)));
+      const drawn = card.primitives.filter((p: any) => p.type === 'text' && [...labels].includes(p.text));
+      expect(drawn.length).toBe(Math.min(6, cards[key].bars.length));
+      for (const p of card.primitives.filter((q: any) => q.type !== 'line')) expect(p.y + (p.h || 0)).toBeLessThanOrEqual(card.height);
+    }
   });
   it('the layout itself still draws the chart when handed bars (what switching it on restores)', () => {
     const bars = [{ label: 'sweet', color: '#ff00aa', score: 0.8 }];
@@ -144,12 +153,12 @@ describe('layout sharing', () => {
     const xs = card.primitives.filter((p: any) => p.type === 'text' && /^thing/.test(p.text)).map((p: any) => p.x);
     expect(Math.max(...xs)).toBeGreaterThan(600);
   });
-  it('draws no chart for a recipe without enough real flavor data (FLAVOR-2)', () => {
-    expect(cards['cocktail/negroni'].bars).toEqual([]);
+  it('draws the chart for a recipe with enough flavor data (FLAVOR-6)', () => {
+    expect(cards['cocktail/negroni'].bars.length).toBeGreaterThan(0);
     const card = layoutFor(cards['cocktail/negroni'], 'neuralflavor.web.app/r/cocktail/negroni');
     const text = card.primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n');
     expect(text).toContain('Negroni');
-    expect(text).not.toContain('flavor chart');
+    expect(text).toContain('Bitter');
   });
   it('maps every primitive kind to a satori node', () => {
     const tree = toSatori(layoutFor(cards['cocktail/negroni'], 'x') as any) as any;

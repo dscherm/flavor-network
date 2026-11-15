@@ -124,23 +124,21 @@ export default function HowItWorks({
                 <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Where the data comes from</h3>
                 <p>Pairings come from how ingredients are actually used together — we analyzed
                    <strong> 2.2 million recipes</strong> (RecipeNLG) plus TheMealDB and
-                   TheCocktailDB into <strong>3,891 ingredients</strong> and tens of thousands of
-                   co-occurrence pairings. A separate <strong>graph neural network</strong> reads
-                   each flavor compound's molecular structure to predict <strong>taste and
-                   aroma</strong> — that's what powers the flavor-profile radars (and the
-                   "Predicted from components" profile on compound foods like mayonnaise).</p>
-                <p className="mt-1 text-[#bdb6a3] text-xs">Honest note: the taste/aroma model is
-                   reliable on sweet, sour, bitter, umami and the main aromas; salty and spicy
-                   depend on mechanisms molecular structure doesn't capture well, so we leave
-                   them out rather than guess.</p>
+                   TheCocktailDB into <strong>3,674 ingredients</strong> and tens of thousands of
+                   co-occurrence pairings. The flavor charts are built from a taste label and a
+                   set of aroma notes for each ingredient, weighted by how much of it is in the
+                   recipe.</p>
+                <p className="mt-1 text-[#bdb6a3] text-xs">Honest note: the labels and notes were
+                   written from common culinary knowledge and have not been checked by a
+                   professional. The chart is a guide, not a taste test.</p>
               </section>
 
               <section>
                 <h3 className="text-[20px] mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_SHADOW }}>Recipe Lab</h3>
                 <p>A notebook where you build a dish ingredient by ingredient. The
                    <strong> Flavor Profiles</strong> card is a swipeable per-axis carousel —
-                   one page per taste (sweet/sour/bitter/salty/umami) and aroma
-                   (fruity/floral/green/woody/spicy/fatty) — showing the dish's score on that
+                   one page per taste (sweet/sour/bitter/salty/umami/heat) and aroma
+                   (fruity/floral/green/woody/spice/creamy) — showing the dish's score on that
                    axis, the ingredients driving it, and one-tap <strong>boost</strong> /
                    <strong> temper</strong> suggestions. <strong>✨ Suggest</strong> and
                    <strong> Smart swaps</strong> propose additions and substitutions as cards

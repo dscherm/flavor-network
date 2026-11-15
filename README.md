@@ -4,7 +4,7 @@
 
 A browser app for cooks who want to know *why* things go together. It puts
 3,891 ingredients and 95,992 scored pairings (68,417 observed across 2.2
-million real recipes, the rest predicted by a molecular taste/odor model) behind four working
+million real recipes, the rest predicted by a molecular model) behind four working
 surfaces: a cocktail lab, a sauce lab, a pairing explorer, and a
 "make a recipe" flow with a handwritten-notebook cookbook.
 
@@ -22,7 +22,7 @@ The landing page offers two doors:
 | **The Labs** | **Cocktail Lab** — 441 cocktails in the 6 *Cocktail Codex* families (Old-Fashioned, Martini, Daiquiri, Sidecar, Whisky Highball, Flip) and 15 sub-clusters, as a 3D graph; build a drink, get "suggested next" ingredients. **Sauce Lab** — 77 curated sauces in the 10 mother families (Escoffier's five + Curry, Stir-fry, Mole, Salsa, Nut Sauce). **Pairing Lab** — pick an ingredient, see its strongest pairings and the compounds that explain them. **Recipe Notebook** — a 2D canvas notebook for assembling a bowl of ingredients with phase-aware suggestions. |
 | **Make a recipe** | Start from ingredients, a cuisine, or a recipe URL (parsed server-side by a Cloud Function); an on-device set-completion model (ONNX, runs in the browser) proposes what to add next. Save to the **Cookbook**. |
 
-**Invent, in every lab.** Cocktail Lab, Sauce Lab and the Recipe Lab each have an *Invent* panel that starts empty: one question first (which liquor, what the sauce is built on, the main ingredient), then you add every ingredient yourself, by typing or from suggestions. A style, technique or kind of dish is optional; with a few ingredients in, one is recommended from your list and applied only if you accept it, and a checklist shows what it usually has. Ingredients you do not have offer stand-ins, a flavor profile (a visual guide, not a taste test) is drawn from the list, and you name it and save it to your account; your own cocktails and sauces then appear in the lab's list with Edit and Delete, and invented recipes in the Cookbook. "✨ Invent this" on the Cocktail, Sauce and Cookbook search boxes starts the list from what you typed. Amounts are suggestions, an idea from what pairs rather than a tested recipe.
+**Invent, in every lab.** Cocktail Lab, Sauce Lab and the Recipe Lab each have an *Invent* panel that starts empty: one question first (which liquor, what the sauce is built on, the main ingredient), then you add every ingredient yourself, by typing or from suggestions. A style, technique or kind of dish is optional; with a few ingredients in, one is recommended from your list and applied only if you accept it, and a checklist shows what it usually has. Ingredients you do not have offer stand-ins, a flavor profile (built from taste labels and aroma notes for each ingredient, weighted by amount; a guide, not a taste test) is drawn from the list, and you name it and save it to your account; your own cocktails and sauces then appear in the lab's list with Edit and Delete, and invented recipes in the Cookbook. "✨ Invent this" on the Cocktail, Sauce and Cookbook search boxes starts the list from what you typed. Amounts are suggestions, an idea from what pairs rather than a tested recipe.
 
 **My bar from a photo.** In Cocktail Lab, My bar → "Add from a photo" reads the labels on a shelf photo and lists the bottles it found; you tick the right ones and only then are they added. Reading uses Google's Gemini, connected one of two ways, set up once on the card the button opens: paste your own free Gemini key from [Google AI Studio](https://aistudio.google.com/apikey) (kept in your browser, the photo goes straight from your browser to Google), or enter an invite code from the site owner, which runs the scan on the owner's key through the `scanBar` Cloud Function (not deployed yet; see `docs/bar-scan-codes.md`). Free keys allow about 20 scans a day.
 
@@ -88,10 +88,15 @@ Three things worth understanding about this shape:
    Function that fetches and parses a recipe URL (server-side to avoid
    CORS and to sandbox SSRF).
 3. **The molecular model is an explanation surface, not the pairing
-   engine.** Pairing strength comes from recipe co-occurrence (NPMI +
-   log-count). The GNN's taste/odor probabilities drive radar charts and
-   "why" text; measured per-ingredient accuracy is too weak to rank
-   pairings with (see `.claude/.chemdataset-status.md` for the numbers).
+   engine, and it is not the source of the recipe flavor charts.**
+   Pairing strength comes from recipe co-occurrence (NPMI + log-count).
+   The recipe flavor charts (Recipe Notebook, Invent panels, shared pages
+   and cards) are built from a hand-written taste label and aroma notes
+   for each ingredient, weighted by amount, and are a guide rather than a
+   taste test (`docs/flavor-profile.md`). The GNN's per-ingredient
+   taste/odor probabilities only drive single-ingredient wheels and radars
+   and the parked 3D views; measured per-ingredient accuracy is too weak
+   to rank pairings with (see `.claude/.chemdataset-status.md`).
 
 ### Repository map
 

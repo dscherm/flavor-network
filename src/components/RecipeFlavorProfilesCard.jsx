@@ -4,7 +4,7 @@
  *
  * Page 0 is a Flavor map: a chalkboard radar over the 11 taste+aroma axes that
  * plots each bowl ingredient as a labeled dot positioned by its own flavor
- * (gnnProbs centroid), so a sweet ingredient sits toward the "sweet" axis.
+ * (its own taste and aroma values), so a sweet ingredient sits toward the "sweet" axis.
  * Pages 1..axes.length are one per firing flavor axis (taste + aroma): the
  * recipe's score on that axis, what's driving it, a rule-based insight, and
  * model-ranked Boost/Temper ingredient suggestions (tap to add, quantity-
@@ -354,8 +354,8 @@ function FlavorBarChart({ scores }) {
 }
 
 export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries = null, nodes, edges = null, recipeType = null, onAdd, onFindCocktail, onFindSauce, onFindWine = null, onClose }) {
-  // The whole card reads ONE profile: tastes from the curated labels weighted by amount, aromas from the
-  // model. Prefer BowlEntry[] (entered / inferred amounts); fall back to equal-weighted names.
+  // The whole card reads ONE profile: tastes from the curated labels, aromas from the hand-tuned aroma table, both weighted by amount.
+  // Prefer BowlEntry[] (entered / inferred amounts); fall back to equal-weighted names.
   const overview = useMemo(
     () => recipeAxisProfileWeighted(
       (Array.isArray(bowlEntries) && bowlEntries.length) ? bowlEntries : bowlNames,
@@ -380,10 +380,6 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   const [sauceMatches, setSauceMatches] = useState([]);       // best-pairing sauce names
   const quantityCtxRef = useRef(null);
   const swipeStartRef = useRef(null); // touch-swipe between carousel pages
-
-  // computeRecipeAroma / rankByAromaSimilarity want a plain {name: node} lookup
-  // (node.gnnProbs), but `nodes` is a Map — convert once per nodes change.
-  const nodesObj = useMemo(() => (nodes ? Object.fromEntries(nodes) : null), [nodes]);
 
   // Rule-based, on-device chef description of the weighted profile (no LLM/API).
   // The top match (cocktail, else sauce) feeds the optional pairing line.
@@ -425,10 +421,10 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
     // (recipePairingMatch.js); the molecular aroma cosine is only the
     // fallback for callers that don't pass edges.
     const pairingIndex = Array.isArray(edges) && edges.length > 0 ? buildPairingIndex(edges, nodes.keys()) : null;
-    const recipeVec = !pairingIndex && nodesObj ? computeRecipeAroma(bowlNames, nodesObj) : null;
+    const recipeVec = !pairingIndex ? computeRecipeAroma(bowlNames) : null;
     const rank = (items) => (pairingIndex
       ? rankByPairing(bowlNames, items, pairingIndex, 4)
-      : rankByAromaSimilarity(recipeVec, items, nodesObj, 4));
+      : rankByAromaSimilarity(recipeVec, items, 4));
     if (pairingIndex || recipeVec) {
       loadCocktailItems().then((items) => {
         if (cancelled || !items) return;
@@ -443,7 +439,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
       setSauceMatches([]);
     }
     return () => { cancelled = true; };
-  }, [bowlNames, nodes, nodesObj, edges]);
+  }, [bowlNames, nodes, edges]);
 
   const [page, setPage] = useState(0);
   // Pages: 0 Overview · 1 Flavor map · 2..axes.length+1 per-axis · Enhance · Pairings.
@@ -561,6 +557,9 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
               {overview.weighted ? 'Flavor balance, weighted by amount' : 'Flavor balance — add amounts to weight it'}
             </p>
             <FlavorBarChart scores={overview.scores} />
+            <p className="text-xs mt-1" data-testid="profiles-note" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+              Built from taste labels and aroma notes for each ingredient, weighted by amount. A guide, not a taste test.
+            </p>
             <p
               className="text-base mt-3"
               data-testid="profiles-description"

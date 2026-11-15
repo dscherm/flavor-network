@@ -57,10 +57,18 @@ describe('RecipeFlavorProfilesCard', () => {
       { ingredient: 'cranberry', amount: { raw: '2 cups', qty: 2, unit: 'cup', inferred: false } },
     ];
     render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry']} bowlEntries={entries} nodes={nodes} />);
-    expect(screen.getByText(/weighted by amount/i)).toBeInTheDocument();
+    expect(screen.getByText('Flavor balance, weighted by amount')).toBeInTheDocument();
     const bars = screen.getAllByTestId('overview-bar');
     // First (top) bar is the dominant axis → sour, since lemon vastly outweighs honey.
     expect(bars[0].getAttribute('data-axis')).toBe('sour');
+  });
+
+  it('says in plain words what the chart is built from (FLAVOR-6)', () => {
+    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'cranberry', 'coconut cream']} nodes={nodes} />);
+    const note = screen.getByTestId('profiles-note').textContent;
+    expect(note).toMatch(/taste labels and aroma notes for each ingredient, weighted by amount/);
+    expect(note).toMatch(/guide, not a taste test/);
+    expect(note).not.toMatch(/compound|molecul/i);
   });
 
   it('renders a rule-based flavor description on the Overview page', () => {
@@ -205,8 +213,11 @@ describe('RecipeFlavorProfilesCard', () => {
   });
 
   it('falls back to Find cocktails/sauces buttons when no aroma matches', async () => {
-    // beforeEach fetch returns ok:false → no cocktail/sauce data → fallback.
-    render(<RecipeFlavorProfilesCard bowlNames={['strawberry', 'coconut cream']} nodes={nodes} recipeType="main" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
+    // beforeEach fetch returns ok:false → no cocktail/sauce data → fallback. A fresh module, so an earlier
+    // test's cached cocktail and sauce lists cannot give this bowl matches (the aroma table now has strawberry).
+    vi.resetModules();
+    const { default: FreshCard } = await import('../RecipeFlavorProfilesCard.jsx');
+    render(<FreshCard bowlNames={['strawberry', 'coconut cream']} nodes={nodes} recipeType="main" onFindCocktail={vi.fn()} onFindSauce={vi.fn()} />);
     for (let i = 0; i < 11; i++) fireEvent.click(screen.getByLabelText('Next'));
     await waitFor(() => expect(screen.getByText('🍸 Find cocktails')).toBeInTheDocument());
     expect(screen.getByText('🥣 Find sauces')).toBeInTheDocument();

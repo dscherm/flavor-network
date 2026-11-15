@@ -15,7 +15,7 @@ const VULGAR = { '¼': 0.25, '½': 0.5, '¾': 0.75, '⅓': 1 / 3, '⅔': 2 / 3, 
 const UNIT_WORD = {
   oz: 'oz', ounce: 'oz', cl: 'cl', ml: 'ml', dash: 'dash', drop: 'drop', splash: 'splash', shot: 'shot',
   jigger: 'jigger', part: 'part', barspoon: 'barspoon', 'bar spoon': 'barspoon', tsp: 'tsp', teaspoon: 'tsp',
-  tbsp: 'tbsp', tablespoon: 'tbsp', cup: 'cup', g: 'g', gram: 'g', lb: 'lb', pound: 'lb', l: 'l', liter: 'l', litre: 'l',
+  tbsp: 'tbsp', tablespoon: 'tbsp', cup: 'cup', g: 'g', gram: 'g', kg: 'kg', kilogram: 'kg', kilo: 'kg', lb: 'lb', pound: 'lb', l: 'l', liter: 'l', litre: 'l',
   pinch: 'pinch', sprig: 'sprig', clove: 'clove', handful: 'handful', can: 'can', bunch: 'bunch', top: 'top', fill: 'fill',
   slice: 'slice', wedge: 'wedge', leaf: 'leaf', leaves: 'leaf', leave: 'leaf', stalk: 'stalk', each: 'each', medium: 'medium', small: 'small', large: 'large',
 };

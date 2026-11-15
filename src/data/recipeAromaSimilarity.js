@@ -1,27 +1,17 @@
-import { hasRealAroma } from './flavorPlaceholders.js';
-// Six GNN aroma axes calibrated above F1=0.50. Source-of-record:
-// .claude/.chemdataset-status.md — odor_fruity (0.722), odor_fatty (0.617),
-// odor_green (0.606), odor_woody (0.541), odor_floral (0.515), odor_spicy
-// (0.329 — included even though below F1=0.50 because it's a recognizable
-// axis for users; weight is implicit via the cosine math).
+import { aromaProfile } from './flavorAroma.js';
+// The six aroma axes the recipe chart draws, in a fixed order (FLAVOR-5: the hand-tuned aroma table,
+// src/data/flavorAromas.js, not the model's per-ingredient values).
 export const AROMA_KEYS = ['odor_fruity', 'odor_floral', 'odor_green',
                             'odor_woody', 'odor_spicy', 'odor_fatty'];
 
-// Returns 6-dim aroma vector (mean of GNN probabilities across ingredients
-// that have REAL aroma data: the model's constant placeholder vector is skipped, see
-// flavorPlaceholders.js). Returns null when zero ingredients have aroma data.
-export function computeRecipeAroma(ingredientNames, ingredientsData) {
-  const vectors = (ingredientNames || [])
-    .map(name => ingredientsData?.[name]?.gnnProbs)
-    .filter(p => p && hasRealAroma(p));
-  if (vectors.length === 0) return null;
-  const sum = new Array(AROMA_KEYS.length).fill(0);
-  for (const v of vectors) {
-    for (let i = 0; i < AROMA_KEYS.length; i++) {
-      sum[i] += (typeof v[AROMA_KEYS[i]] === 'number') ? v[AROMA_KEYS[i]] : 0;
-    }
-  }
-  return sum.map(x => x / vectors.length);
+// Returns the 6-dim aroma vector of a list of ingredient names: the same aroma profile the recipe chart
+// draws (equal weights, no amounts). Returns null when no ingredient has an aroma of its own.
+// Switched from the model's mean per-ingredient values in FLAVOR-6: those gave the same two cocktails for
+// every recipe and ties at 100% for most sauces.
+export function computeRecipeAroma(ingredientNames) {
+  const p = aromaProfile((ingredientNames || []).filter((n) => typeof n === 'string' && n).map((key) => ({ key })));
+  if (!p.counted.length || !p.charted) return null;
+  return AROMA_KEYS.map((k) => p.scores[k] || 0);
 }
 
 // Cosine similarity over two equal-length non-negative vectors. Returns
@@ -53,14 +43,13 @@ export function topAromaOverlap(recipeVec, itemVec, k = 2) {
 }
 
 // Ranker. `items` is an array of objects with `.ingredients` arrays (the
-// cocktail_augment.json / sauce_augment.json schema). `ingredientsData` is
-// the same lookup used by computeRecipeAroma. Returns an array of
+// cocktail_augment.json / sauce_augment.json schema). Returns an array of
 // AromaMatchResult sorted by similarity descending, top-N=8.
-export function rankByAromaSimilarity(recipeVector, items, ingredientsData, topN = 8) {
+export function rankByAromaSimilarity(recipeVector, items, topN = 8) {
   if (!recipeVector) return [];
   return (items || [])
     .map(item => {
-      const itemVec = computeRecipeAroma(item?.ingredients || [], ingredientsData);
+      const itemVec = computeRecipeAroma(item?.ingredients || []);
       if (!itemVec) return null;
       return {
         item,

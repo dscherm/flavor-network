@@ -21,7 +21,7 @@ export default function InventFlavorProfile({ profile, title = 'Flavor profile',
   const L = {
     empty: 'Add ingredients with flavor data to see a profile.',
     uncounted: 'Not counted (no flavor data)',
-    note: 'A rough guide drawn from flavor-compound data, not how it will taste.',
+    note: 'Built from taste labels and aroma notes for each ingredient, weighted by amount. A guide, not a taste test.',
     ...labels,
   };
   const p = testidPrefix;

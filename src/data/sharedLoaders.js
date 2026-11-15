@@ -1,6 +1,7 @@
 /**
  * sharedLoaders.js — the default data loaders for a built-in recipe page and the share-card images:
- * the recipe's own source file and the per-ingredient flavor data (curated taste labels, model aroma values). Nothing here loads the pairing data.
+ * the recipe's own source file and the curated taste labels (one small file). Nothing here loads the pairing data
+ * or the model's per-ingredient values.
  */
 
 export async function defaultLoadData(kind) {
@@ -28,7 +29,7 @@ export async function defaultLoadData(kind) {
 
 const LABELS_URL = '/proDataset/taste_labels.json';
 
-/** The curated taste labels (name -> label), about 20 KB gzipped. A failure gives {} and the taste half draws nothing. */
+/** The curated taste labels (name -> label), about 20 KB gzipped. A failure gives {}. */
 async function fetchLabels(init) {
   try {
     const res = await fetch(LABELS_URL, init);
@@ -38,33 +39,24 @@ async function fetchLabels(init) {
   }
 }
 
-/** Map name -> { taste, gnnProbs? }: TASTE from the label file, AROMA from the model's values. */
-function mergeNodes(labels, raw) {
+/** Map name -> { taste } from the label file. The aroma half is a table in the code and needs no download. */
+function toNodes(labels) {
   const nodes = new Map();
   for (const [name, taste] of Object.entries(labels || {})) nodes.set(name, { taste });
-  for (const [name, info] of Object.entries(raw || {})) {
-    if (name.startsWith('_') || !info?.probs) continue;
-    nodes.set(name, { ...(nodes.get(name) || {}), gnnProbs: info.probs });
-  }
   return nodes;
 }
 
 export async function defaultLoadNodes() {
-  const [res, labels] = await Promise.all([fetch('/proDataset/gnn_entropy.json'), fetchLabels()]);
-  if (!res.ok) throw new Error(`flavor data ${res.status}`);
-  return mergeNodes(labels, await res.json());
+  const labels = await fetchLabels();
+  if (!Object.keys(labels).length) throw new Error('flavor labels unavailable');
+  return toNodes(labels);
 }
 
-/**
- * The flavor values only if the browser already has the files (the app loads them for every lab), never
- * a new download: the share card is then drawn without a chart rather than fetching 1.4 MB for a picture.
- */
-export async function loadCachedNodes() {
+/** The label nodes for a share card: the same 20 KB file, null on any failure (the card is then drawn without a chart). */
+export async function loadLabelNodes() {
   try {
-    const cached = { cache: 'only-if-cached', mode: 'same-origin' };
-    const [res, labels] = await Promise.all([fetch('/proDataset/gnn_entropy.json', cached), fetchLabels(cached)]);
-    if (!res.ok) return null;
-    return mergeNodes(labels, await res.json());
+    const labels = await fetchLabels();
+    return Object.keys(labels).length ? toNodes(labels) : null;
   } catch {
     return null;
   }

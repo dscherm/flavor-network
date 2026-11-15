@@ -74,7 +74,7 @@ Every card prints the link. On a phone that supports it the button is "Share ima
 
 ## Before you deploy
 
-**Known gap: the flavor chart on cards is being rebuilt.** Many ingredients carry the same placeholder flavor numbers, so the chart on a share card can be misleading (tasks FLAVOR-1 to FLAVOR-6 in `plan.md`). **Nothing should be deployed before FLAVOR-2.** The chart is labelled "a visual guide", but a wrong picture on a card is still a wrong picture.
+**The flavor chart on cards was rebuilt (FLAVOR-2 to FLAVOR-6), but check it before you deploy.** The chart is now built from a taste label and aroma notes for each ingredient, weighted by amount, and is labelled "a visual guide". It leads with the right taste on 36 of 41 test recipes and 19 of 20 held-back ones (`docs/flavor-profile.md`, "Where the charts stand"), which means it is still wrong on some. The nine cards looked at in FLAVOR-6 are described there; Margarita, Mojito, Thai green curry and Teriyaki are the ones a cook might wince at. The switch to hide it again is `SHARE_CHARTS_ENABLED`.
 
 **Deploy together.** The hosting site, the two functions and `firestore.rules` depend on each other:
 
@@ -111,10 +111,12 @@ Do not deploy hosting alone. Check afterwards: open a built-in link and a link y
 - Options: (a) caching only (default); (b) also a daily cap per link, after which the link shows the plain generic preview (bounded cost; a popular link looks plain); (c) a budget alert in Google Cloud (does not stop spending, tells you).
 - Collides with: the earlier "No paid key" ruling for the photo scan is about the AI key, not Firebase, but the intent (no surprise bill) is the same.
 
-## Charts are hidden on shared pages and cards (2026-11-15, SHARE-8)
+## Charts on shared pages and cards: hidden 2026-11-15, back 2026-11-16 (SHARE-8, FLAVOR-6)
 
-The flavor chart is off on every public share surface: the `/r/` page (no "Flavor profile" section and no "Not enough flavor data" line), the picture cards you save or send (single and set of three), the link-preview cards, and the bars stored when someone shares their own recipe (always an empty list for now). The page also no longer downloads the flavor data file (`gnn_entropy.json`, about 1.37 MB; about 80 KB compressed), so it loads lighter.
+On 2026-11-15 (SHARE-8) the flavor chart was switched off on every public share surface because it still led with a wrong taste on most test recipes. On 2026-11-16 (FLAVOR-6) it was switched back on, after the charts were rebuilt and re-measured. The code is in the working tree; nothing was deployed by that task.
 
-Why: the charts still lead with a wrong taste on most of the test recipes (see `docs/flavor-profile.md`), and a wrong chart on a public link is worse than none.
+What is back: the "Flavor profile (visual guide)" section on the `/r/` page, the chart on the picture cards you save or send (single and set of three), on the link-preview cards, and the bars stored when someone shares their own recipe.
 
-What turns it back on: one switch, `SHARE_CHARTS_ENABLED` in `src/data/shareTargets.js`. FLAVOR-6 (the rebuilt charts, re-measured on the test set) sets it to `true`; then run `node scripts/buildShareIndex.mjs` and commit the regenerated `functions/src/share/share-cards.json` and `cardLayout.generated.ts`, and redeploy functions. Charts inside the app (Recipe Notebook, the invent panels) are not affected.
+What the page now downloads for the chart: only `taste_labels.json` (about 100 KB, about 20 KB compressed). The aroma and strength tables are in the page's code. It no longer downloads the model file (`gnn_entropy.json`, about 1.37 MB). The share-image button loads the same small label file, and draws the card without a chart if it cannot.
+
+The switch is still there: `SHARE_CHARTS_ENABLED` in `src/data/shareTargets.js`. Set it to `false`, run `node scripts/buildShareIndex.mjs`, commit the regenerated `functions/src/share/share-cards.json` and `cardLayout.generated.ts`, and redeploy functions to hide the chart on every public surface again. Charts inside the app (Recipe Notebook, the invent panels) are not affected by it.

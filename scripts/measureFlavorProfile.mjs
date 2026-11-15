@@ -2,8 +2,7 @@
  * measureFlavorProfile.mjs — how good are the flavor charts?
  *
  * Draws the chart for each item in data/flavor-truth.json the way the app does today
- * (the app's own buildFlavorProfile, over public/proDataset/gnn_entropy.json, with ingredient
- * names resolved as in scripts/buildShareIndex.mjs and src/data/shareCardData.js), then
+ * (the app's own buildFlavorProfile through shareCardData.profileForRecipe, over the curated taste labels), then
  * scores it with src/data/flavorScore.js. Reads repo files only; no network.
  *
  * Usage:
@@ -30,7 +29,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolveBuiltIn } from '../src/data/sharedRecipe.js';
 import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../src/data/seedRecipeDetails.js';
-import { buildFlavorProfile } from '../src/data/inventProfile.js';
+import { profileForRecipe } from '../src/data/shareCardData.js';
 import { resolveIngredientName } from '../src/data/recipePairingMatch.js';
 import { scoreItem, summarize, TASTES, scoreAroma, summarizeAroma } from '../src/data/flavorScore.js';
 import { aromaProfile } from '../src/data/flavorAroma.js';
@@ -39,7 +38,6 @@ import { loadFlavorNodes } from './lib/flavorNodes.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const KINDS = ['cocktail', 'sauce', 'dish'];
-const NOUN = { cocktail: 'drink', sauce: 'sauce', dish: 'dish' };
 const AXES_OK = new Set([...TASTES, 'heat']);
 const AROMA_OK = new Set(['fruity', 'floral', 'green', 'woody', 'spicy', 'fatty']);
 
@@ -58,15 +56,7 @@ function loadData() {
  * the aroma half is the hand-tuned aroma table (flavorAroma.js). Returns { bars: [{ axis, label, score }], counted: [key], uncounted: [key] }.
  */
 export function profileFor(recipe, ctx) {
-  const names = new Set(ctx.nodes.keys());
-  const keys = [];
-  const amounts = {};
-  for (const l of recipe.lines) {
-    const key = resolveIngredientName(l.label || l.key, names) || l.key;
-    keys.push(key);
-    if (l.amount && amounts[key] === undefined) amounts[key] = l.amount;
-  }
-  const p = buildFlavorProfile(keys, ctx.nodes, { noun: NOUN[recipe.kind], amounts, garnish: recipe.garnish || '' });
+  const p = profileForRecipe(recipe, ctx.nodes);
   return { bars: p.bars, counted: p.counted, uncounted: p.uncounted };
 }
 

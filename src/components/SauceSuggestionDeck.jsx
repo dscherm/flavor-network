@@ -160,7 +160,7 @@ export default function SauceSuggestionDeck({
   onSelectSauce, onBackToRecipe, onClose,
 }) {
   // Precompute each sauce's single-series profile from its ingredient names.
-  // recipeAxisProfile already skips names without gnnProbs.
+  // recipeAxisProfile skips names with no taste label and no aroma line.
   const cards = useMemo(() => {
     return (Array.isArray(items) ? items : []).map(({ item, similarity, matchedAromas, pairedVia }) => ({
       name: item?.name,

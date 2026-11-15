@@ -15,7 +15,7 @@
  *  3. The cook names it and saves it through `onSave`.
  *
  * Props: kitchen, assumeBasics, sauces, families, meta, catMap, names, pairingIndex,
- * sauceIndex, categoryOf, seed, wineStyles, nodes (Map name → { gnnProbs } | null),
+ * sauceIndex, categoryOf, seed, wineStyles, nodes (Map name → { taste } | null),
  * onSave(input) → Promise<{ status: 'saved'|'signin'|'error', message? }>,
  * editItem { id, name, baseline: { category, protein? }, lines }, onClose,
  * onSelectSauce, onOpenRecipeLab.

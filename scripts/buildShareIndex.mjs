@@ -9,8 +9,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolveBuiltIn, slugFor, uniqueBySlug } from '../src/data/sharedRecipe.js';
 import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../src/data/seedRecipeDetails.js';
-import { buildFlavorProfile } from '../src/data/inventProfile.js';
-import { resolveIngredientName } from '../src/data/recipePairingMatch.js';
+import { profileForRecipe } from '../src/data/shareCardData.js';
 import { SHARE_CHARTS_ENABLED } from '../src/data/shareTargets.js';
 import { loadFlavorNodes } from './lib/flavorNodes.mjs';
 
@@ -81,18 +80,9 @@ export function buildShareIndex() {
 export function buildShareCards() {
   const data = loadData();
   const nodes = SHARE_CHARTS_ENABLED ? loadFlavorNodes() : new Map();
-  const names = new Set(nodes.keys());
-  const noun = { cocktail: 'drink', sauce: 'sauce', dish: 'dish' };
   const out = {};
   eachBuiltIn(data, (kind, slug, r) => {
-    const keys = [];
-    const amounts = {};
-    for (const l of r.lines) {
-      const key = resolveIngredientName(l.label || l.key, names) || l.key;
-      keys.push(key);
-      if (l.amount && amounts[key] === undefined) amounts[key] = l.amount;
-    }
-    const bars = !SHARE_CHARTS_ENABLED ? [] : buildFlavorProfile(keys, nodes, { noun: noun[kind], amounts, garnish: r.garnish || '' }).bars
+    const bars = !SHARE_CHARTS_ENABLED ? [] : profileForRecipe(r, nodes).bars
       .map((b) => ({ label: b.label, color: b.color, score: Math.round(b.score * 100) / 100 }));
     const lines = r.lines.slice(0, CARD_LINES).map((l) => {
       const o = { label: l.label || l.key, amount: l.amount || '' };

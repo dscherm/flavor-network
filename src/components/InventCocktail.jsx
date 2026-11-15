@@ -15,7 +15,7 @@
  *      chosen or accepted. The cook names it and adds it to their cocktails.
  *
  * Props: bar (stock: bottles + kitchen), kitchen (optional extra stock),
- * cocktails, families, roles, pool, pairingIndex, nodes (Map with gnnProbs, may
+ * cocktails, families, roles, pool, pairingIndex, nodes (Map name -> { taste }, may
  * be null), seed ({ familyId?, fromName?, base?, pinned }), editItem
  * ({ id, name, baseline: { category }, lines: [{ key, amount, role }] }),
  * onSave(input) → Promise<{ status: 'saved'|'signin'|'error', message? }>,

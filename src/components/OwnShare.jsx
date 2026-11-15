@@ -21,7 +21,7 @@ import { SHARE_OWN_ENABLED } from '../data/shareTargets.js';
 import { SHARE_LIMITS, firstName, fromSharedDoc, newShareId, shareFingerprint, toSharedDoc } from '../data/sharePublish.js';
 import { publishShare } from '../data/shareStore.js';
 import { barsFor } from '../data/shareCardData.js';
-import { loadCachedNodes } from '../data/sharedLoaders.js';
+import { loadLabelNodes } from '../data/sharedLoaders.js';
 import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading, inputStyle } from './inventUi.jsx';
 
 export const ShareOwnContext = createContext(null);
@@ -37,7 +37,7 @@ async function defaultGetDb() {
 
 async function barsForItem(item, kind, nodes) {
   try {
-    const map = nodes instanceof Map && nodes.size ? nodes : await loadCachedNodes();
+    const map = nodes instanceof Map && nodes.size ? nodes : await loadLabelNodes();
     const doc = toSharedDoc(item, { kind, uid: 'x', bars: [] });
     if (!doc || !map) return [];
     return barsFor({ kind: PAGE_KIND[kind], lines: doc.lines.map((l) => ({ key: l.key })) }, map);

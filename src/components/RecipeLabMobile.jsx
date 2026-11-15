@@ -213,10 +213,9 @@ export default function RecipeLabMobile({ fullData, initialIngredient, initialIn
   }, [handoffToast]);
 
   const aromaDisabled = useMemo(() => {
-    if (!fullData?.graph?.nodes || recipeNames.length === 0) return true;
-    const nodesObj = Object.fromEntries(fullData.graph.nodes);
-    return computeRecipeAroma(recipeNames, nodesObj) === null;
-  }, [recipeNames, fullData?.graph?.nodes]);
+    if (recipeNames.length === 0) return true;
+    return computeRecipeAroma(recipeNames) === null;
+  }, [recipeNames]);
 
   // Scope sets (cocktail / sauce) — lazy-loaded once, cached across mode switches.
   const [cocktailScope, setCocktailScope] = useState(null);

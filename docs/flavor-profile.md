@@ -1,5 +1,7 @@
 # Flavor profiles: what the chart is, what is wrong with it, and how we measure it
 
+**The charts were rebuilt in FLAVOR-2 to FLAVOR-6. For where they stand now, read "Where the charts stand" at the end of this page.** The sections between are the record of each step, with the numbers printed at the time; the baseline sections describe the OLD chart.
+
 This page is for the site owner. It records what the flavor chart is, a problem found on 2026-11-15, the test we built to measure it, and the score today's charts get. The score below is the baseline: every later fix is judged by whether it beats these numbers.
 
 ## What the chart is
@@ -103,7 +105,7 @@ By name: the Negroni (expected bitter and sweet, sour must not lead) charts swee
 
 ## After FLAVOR-2 (2026-11-15, placeholder values no longer drawn)
 
-What changed: an ingredient whose taste numbers are one of the repeated placeholder rows no longer counts toward the taste half of a chart, and one whose aroma numbers are the repeated placeholder row no longer counts toward the aroma half. Taste and aroma are judged separately. A half is drawn only when at least two of the recipe's ingredients, and at least half of them, have real values for it. When neither half draws, the chart is replaced by the line "Not enough flavor data for a chart yet." Which rows count as placeholders is worked out by value from the data file when the site is built (`src/data/flavorPlaceholders.json`): any exact taste row or aroma row shared by more than 150 ingredients. That is the three taste rows (1,526, 261 and 249 ingredients) and the one aroma row (2,062 ingredients).
+What changed: an ingredient whose taste numbers are one of the repeated placeholder rows no longer counts toward the taste half of a chart, and one whose aroma numbers are the repeated placeholder row no longer counts toward the aroma half. Taste and aroma are judged separately. A half is drawn only when at least two of the recipe's ingredients, and at least half of them, have real values for it. When neither half draws, the chart is replaced by the line "Not enough flavor data for a chart yet." Which rows count as placeholders is worked out by value from the data file when the site is built (`src/data/flavorPlaceholders.json`, removed in FLAVOR-6 when nothing read the model's values for a recipe chart any more): any exact taste row or aroma row shared by more than 150 ingredients. That is the three taste rows (1,526, 261 and 249 ingredients) and the one aroma row (2,062 ingredients).
 
 Exactly as printed by `npm run measure:flavor`:
 
@@ -537,7 +539,7 @@ Aroma charts as printed for the four main-key items: Mojito fruity 0.51, green 0
 - **The six axes are a coarse view of smell.** Fish, shellfish, garlic's sulphur, fermented and sour smells have no axis; those ingredients are written as aroma-less or at a low value on the nearest axis.
 - **Cooking changes aroma** (browning, caramelising, reducing). The chart reads raw ingredients.
 - **Manhattan** leads fruity (0.41) with woody second (0.38): the cherry and the orange twist outweigh the bourbon. It passes its check (woody in the top two) but a bartender would put woody first.
-- **Kilograms.** `amountGrams` does not read "kg", which hurts any recipe that lists a big ingredient that way.
+- **Kilograms.** `amountGrams` did not read "kg" (fixed in FLAVOR-6: it does now, and the Apple Pie hold-out item moved from wrong to right).
 
 ### How to correct a line
 
@@ -553,11 +555,11 @@ Edit its numbers in `src/data/flavorAromas.js` (keep the name as spelled), then 
 - FLAVOR-3 (done, see above) draws the tastes from the curated taste word each ingredient already has (salt is salty, sugar is sweet, coffee is bitter), weighted by how much of it the recipe uses, and adds heat as a sixth taste.
 - FLAVOR-4 (done, see above) hand-tunes strengths for the ingredients that matter most, so a dash of bitters and two ounces of gin no longer weigh the same.
 - FLAVOR-5 (done, see above) found the published aroma descriptors unusable (see "Aroma data assessment") and draws aromas from a hand-tuned table instead of the model.
-- FLAVOR-6 makes every surface use the same profile, makes the wording honest, and re-measures on this same test set; the aim is to beat the numbers above.
+- FLAVOR-6 (done, see "Where the charts stand") makes every surface use the same profile, makes the wording honest, turns the public charts back on and re-measures on this same test set.
 
-## Shared pages and cards show no chart (2026-11-15, SHARE-8)
+## Shared pages and cards: hidden, then back (SHARE-8, FLAVOR-6)
 
-After FLAVOR-2, 186 of 599 built-in recipes still drew a chart and most of those led with a wrong taste (`npm run measure:flavor`). So the public share surfaces (the `/r/` page, the share pictures, the link-preview cards, and the bars stored with a user's shared recipe) draw no chart until the charts are rebuilt. The switch is `SHARE_CHARTS_ENABLED` in `src/data/shareTargets.js`; FLAVOR-6 turns it back on. In-app charts are unchanged.
+After FLAVOR-2, 186 of 599 built-in recipes still drew a chart and most of those led with a wrong taste (`npm run measure:flavor`). So from 2026-11-15 the public share surfaces (the `/r/` page, the share pictures, the link-preview cards, and the bars stored with a user's shared recipe) drew no chart. FLAVOR-6 turned them back on (2026-11-16, in the working tree; the task did not deploy). The switch is still `SHARE_CHARTS_ENABLED` in `src/data/shareTargets.js`: set it to `false` and run `node scripts/buildShareIndex.mjs` to hide the chart on every public surface again.
 
 ## How neutral and rich are treated (2026-11-15, DATA-5)
 
@@ -585,3 +587,77 @@ Items 41. Top taste expected: 32/41 (78%). Top two both expected: 21/34 items wi
 ```
 
 The gain is real but small (one more top taste, two more top pairs). Labels alone reach the FLAVOR-3 target of 70% at the top taste; the hand-tuned table in FLAVOR-4 is what takes it to 85%. Visible limits of labels alone: no amounts (a dash of bitters weighs as much as two ounces of gin), nuts labelled `rich sweet` put some sweet into pesto, tomato leads sweet in tomato sauces, and heat is not scored here because the scorer has five taste axes.
+
+## Where the charts stand (2026-11-16, FLAVOR-6)
+
+### What the chart is now, in plain words
+
+Every chart in the app and on the public pages comes from one function. Each ingredient has a taste label written by hand (sweet, sour, bitter, salty, umami, heat; ten label words in all, see DATA-5) and a hand-tuned strength for the ingredients that matter most, plus a list of aroma notes (fruity, floral, green, woody, spice, creamy). The chart adds these up over the recipe, each ingredient counting in proportion to how much of it the recipe uses, and draws the strongest bars. A salt rim, a twist or a sprig in a cocktail's garnish text counts as a small fixed amount. The model's per-ingredient numbers are not read by any recipe chart.
+
+### The numbers at each stage, as `npm run measure:flavor` printed them
+
+Main set (41 items, `data/flavor-truth.json`):
+
+| Stage | Top taste right | Top two right | Wrong taste leads (forbidden) | Recipes with no chart | Aroma checks |
+|---|---|---|---|---|---|
+| Baseline (the old chart, 2026-11-15) | 20/41 (48.8%) | 7/34 (20.6%) | 12 | 0 | 0/4 |
+| After FLAVOR-2 (placeholders no longer drawn) | 4/41 (9.8%) | 3/34 (8.8%) | 6 | 27 | 0/4 |
+| After FLAVOR-3 (labels weighted by amount) | 30/41 (73.2%) | 19/34 (55.9%) | 8 | 0 | 0/4 |
+| After FLAVOR-4 (hand-tuned strengths) | 36/41 (87.8%) | 31/34 (91.2%) | 0 | 0 | 0/4 |
+| Final (FLAVOR-5 aromas, FLAVOR-6 units and garnish) | 36/41 (87.8%) | 31/34 (91.2%) | 0 | 0 | 4/4 |
+
+Taste hold-out (20 recipes written before the strength table was tuned, `data/flavor-holdout.json`; first measured on the FLAVOR-3 function, so there is no baseline or FLAVOR-2 figure):
+
+| Stage | Top taste right | Top two right | Wrong taste leads |
+|---|---|---|---|
+| After FLAVOR-3 | 15/20 (75%) | 9/16 (56.3%) | 3 |
+| After FLAVOR-4 | 19/20 (95%) | 14/16 (87.5%) | 1 |
+| Final | 19/20 (95%) | 14/16 (87.5%) | 1 |
+
+Aroma sets (`data/aroma-truth.json`: 30 tuning items and 10 hold-out items, `npm run measure:flavor -- --aroma`; an item is right when every expected aroma is in the top two aroma bars):
+
+| Stage | Tuning set | Hold-out | Wrong aroma leads |
+|---|---|---|---|
+| Before FLAVOR-5 (the model's aroma values) | 4/30 (13.3%) | 0/10 (0%) | 4 (tuning) |
+| After FLAVOR-5 (hand-tuned table) | 30/30 (100%) | 8/10 (80%) | 0 |
+| Final (kilograms now weighed) | 30/30 (100%) | 9/10 (90%) | 0 |
+
+How to read them: the tuning-set aroma figure and the main taste set were both in view when the tables were written, so they flatter the tables. The two hold-outs were written first and are the honest figures. With 10 and 20 items, one item is 10 and 5 points.
+
+### What is still wrong, by item
+
+- **Bloody Mary** charts sour first (0.45) and umami second; a cook would say savory first.
+- **Tequila Sunrise** charts sour 0.50 over sweet 0.42 (the codex recipe has lime juice).
+- **Nuoc cham** charts umami and salty over sour; fish sauce outweighs the lime.
+- **Thai green curry (dish)** charts creamy and umami first; heat and Spice (a separate bar) are third and fourth. The curry paste is 45 g beside 500 g of chicken and 400 ml of coconut milk.
+- **Tom yum** charts umami first; sour is not on the chart.
+- **Margarita** charts fruity (lime) and sweet over sour. The codex has three-quarters of an ounce each of orange liqueur, lime and syrup, so it is a sweet drink on paper. The salt rim shows as a very small bar.
+- **Mojito** charts fruity (lime) first and green (mint) third. The codex line for the mint is "2-4 Mint" and reads as about a dash; a cook would put mint first.
+- **Beef Bolognese** charts umami first, as it should, but green second (tomato, onion, carrot and celery all carry some green).
+- **Teriyaki** charts salty, umami, woody, then sweet; mirin and brown sugar are in the recipe and sweet is low.
+- **Manhattan** charts fruity before woody (cherry and orange outweigh the bourbon).
+- **Mole poblano** (aroma hold-out) charts woody first; chocolate outweighs the cinnamon stick.
+- **Beef Pho** (taste hold-out) charts sweet first: one amount reads "1.5 kg bones + 300 g sirloin" and cannot be parsed, star anise has no line, and there is no stock line.
+- **Pad Thai Sauce**: sour leads, but umami beats salty for second.
+- **Not charted at all:** garlic's and onion's sulphur, fish and fermented smells have no aroma axis (they are written as aroma-less or at a low value on the nearest axis); cooking (browning, reducing) is not modelled; amounts are read from the recipe text, so a line with no amount gets a typical portion or the mean of the others.
+- **Spice and Heat sit side by side** on a chart that has both (curries). They are different things (aromatic spice versus chili burn) but look alike on a card.
+
+### How to correct a line (one procedure for labels, strengths and aromas)
+
+1. Find the ingredient, spelled exactly as the app spells it (a name the app does not know fails the tests on purpose).
+2. Taste label: `src/data/curation/tasteOverrides.json` (one ingredient, a label made of the ten words in `docs/data-quality.md`). Taste strength: one line in `src/data/flavorStrengths.js` (the six tastes, 0 to 3, and `potency`; the scale is at the top of the file). Aroma: one line in `src/data/flavorAromas.js` (the six aromas, 0 to 3, and `potency`). To say what one of the ingredient weighs when a recipe gives no amount, add it to `DEFAULT_GRAMS` in the strengths file.
+3. Ask whether a bartender or cook would agree with the line on its own. Do not change a number only because one recipe came out wrong.
+4. Run `npm run measure:flavor`, `node scripts/measureFlavorProfile.mjs --truth data/flavor-holdout.json` and `npm run measure:flavor -- --aroma`; check the recipes you care about. Run `npm test -- flavorStrengths flavorAroma` for the table checks.
+5. To make the public cards and pages pick it up, run `node scripts/buildShareIndex.mjs` (it also runs in `npm run build`), commit the regenerated `functions/src/share/share-cards.json`, and deploy (see `docs/sharing.md`).
+
+### What the charts are NOT
+
+- **Not measured chemistry.** No instrument or published compound data sits behind the bars. The molecular model's per-ingredient values are not used by any recipe chart (FLAVOR-5 found the published aroma data unusable; see "Aroma data assessment").
+- **Not a taste test.** They say which tastes and smells the ingredients lean toward, weighted by amount; they do not say how the dish will taste once cooked.
+- **Hand-written judgement.** The taste labels, the strengths and the aroma lines were written by an AI assistant from common culinary knowledge. A professional has not checked them. The hold-out figures above are the evidence they behave sensibly, not proof they are right.
+
+### What was removed, and what still reads the model (FLAVOR-6)
+
+The placeholder detection from FLAVOR-2 (`flavorPlaceholders.js`, its generated JSON, `scripts/buildFlavorPlaceholders.mjs` and the `prebuild` and predeploy steps) is gone: nothing reads the model's per-ingredient values for a recipe chart any more, so there is nothing to detect. Still reading the model's per-ingredient values, and kept on purpose: the single-ingredient wheels and radars (Ingredient panel, affinity and pairing cards, the distilled profile, suggestion drawers, the aroma filter in the suggestion popout, the odor badge) and the parked 3D Network views. None of these draws a recipe's flavor chart. The app still downloads the model file once for those surfaces; the public shared page and the share images do not.
+
+`recipeAromaSimilarity.computeRecipeAroma` (the fallback that matches a recipe to cocktails and sauces by aroma when no pairing data is loaded, and decides whether the Find buttons are enabled) now uses the new aroma profile. On ten Cookbook recipes the old values returned the same two cocktails (Bloody Mary and Pisco Punch) for every recipe and ties at 100% for most sauces; the new ones vary by recipe.
