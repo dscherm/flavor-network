@@ -2263,7 +2263,7 @@ then FLAVOR-3, FLAVOR-4, FLAVOR-5 in that order; FLAVOR-6 last.
   "id": "FLAVOR-5",
   "title": "Aromas from published descriptors instead of the model",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Confirm what gnn_compounds.json holds (how many ingredients, how many descriptor tags, the shape) and write that into docs/flavor-profile.md. A reviewed map from descriptor tags to the six aroma axes (fruity, floral, green, woody, spicy, fatty) in src/data/aromaDescriptorMap.js; tags with no home are listed and dropped. A build step writes a small per-ingredient aroma file (six numbers each, normalised) so pages do not load the full compound file. aromaProfile(lines, lookup) mirrors tasteProfile (amount weighting, counted and uncounted). Ingredients with no descriptors are not counted for aroma. The model's odor values are no longer used for any chart.",
   "acceptance": [
     "The tag map is one reviewable table; a test fails if a tag present in the data is neither mapped nor on the explicit dropped list",
