@@ -6,6 +6,7 @@
  * taste+aroma axes. From that we derive: per-axis drivers, an insight line, the
  * profile shift a candidate ingredient would cause, and boost/temper rankings.
  */
+import { isSuggestable } from './curation/suggestable.js';
 import { AROMA_LABELS, AROMA_COLORS } from './recipeScoring.js';
 import { UNIT_DENSITY } from './portionParser.js';
 import { hasRealTaste, hasRealAroma } from './flavorPlaceholders.js';
@@ -364,6 +365,7 @@ export function rankByAxisImpact(candidateNames, axis, scores, n, nodes, { mode 
   const target = mode === 'temper' ? (BALANCING[axis] || axis) : axis;
   const out = [];
   for (const name of candidateNames || []) {
+    if (!isSuggestable(name, nodes)) continue;
     const d = profileDelta(name, scores, n, nodes, { drawn });
     if (!d) continue;
     if (d[target] <= 0) continue;

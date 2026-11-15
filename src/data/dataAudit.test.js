@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   findDuplicates, findNonFood, findPackaged, findCategoryInconsistencies, categorySplits,
   findTasteNeutralSweet, findTasteVocabulary, findTasteOutliers, tasteDistribution,
-  cocktailChecks, isCreamOrEggDrink, sauceChecks, dishChecks, normalizeName,
+  cocktailChecks, isCreamOrEggDrink, sauceChecks, dishChecks, normalizeName, partitionReviewed,
 } from './dataAudit.js';
 
 const ing = (spec) => Object.fromEntries(Object.entries(spec).map(([n, v]) => [n, typeof v === 'string' ? { category: v, taste: 'sweet' } : v]));
@@ -240,5 +240,33 @@ describe('dishChecks', () => {
   it('finds Cookbook types with no Invent equivalent, and not the covered ones', () => {
     const names = r.findings.filter((f) => f.rule === 'dish-no-invent-equivalent').map((f) => f.item);
     expect(names).toEqual(['Pizza (pizza)', 'Dip (dip)']);
+  });
+});
+
+describe('partitionReviewed', () => {
+  const f = (rule, item) => ({ rule, item });
+  const decided = { aliased: new Set(['tomatoe']), hidden: new Set(['fryer']), packaged: new Set(['cool whip']), kept: new Set(['new potato']) };
+  it('a candidate already aliased, hidden, flagged packaged or kept is reviewed; the rest is not', () => {
+    const { unreviewed, handledItems } = partitionReviewed([
+      f('duplicate-misspelling', 'tomatoe'), f('non-food', 'fryer'), f('packaged-brand', 'cool whip'), f('duplicate-prefix', 'new potato'),
+      f('duplicate-prefix', 'lean beef'), f('packaged-mix', 'cake mix'),
+    ], decided);
+    expect(unreviewed.map((x) => x.item)).toEqual(['lean beef', 'cake mix']);
+    expect([...handledItems.aliased]).toEqual(['tomatoe']);
+    expect([...handledItems.hidden]).toEqual(['fryer']);
+    expect([...handledItems.packaged]).toEqual(['cool whip']);
+    expect([...handledItems.kept]).toEqual(['new potato']);
+  });
+  it('a name flagged by two rules is counted once per group', () => {
+    const { handledItems, unreviewed } = partitionReviewed([f('duplicate-prefix', 'cool whip'), f('packaged-brand', 'cool whip')], decided);
+    expect(unreviewed).toEqual([]);
+    expect(handledItems.packaged.size).toBe(1);
+  });
+  it('never treats a category or taste finding as reviewed, even for a decided name', () => {
+    const { unreviewed } = partitionReviewed([f('category-cheese', 'cool whip'), f('taste-outlier', 'fryer')], decided);
+    expect(unreviewed).toHaveLength(2);
+  });
+  it('a near miss: a name that merely contains a decided name is still unreviewed', () => {
+    expect(partitionReviewed([f('duplicate-prefix', 'freshly tomatoe')], decided).unreviewed).toHaveLength(1);
   });
 });

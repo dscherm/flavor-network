@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { decodePairingsBinary } from '../pairingsBinary.js';
-import { applyCuration } from '../curation/applyCuration.js';
+import { applyCuration, binaryIndexObject } from '../curation/applyCuration.js';
 import { CURATION_TABLES } from '../curation/tables.js';
 
 const DIR = path.resolve(process.cwd(), 'public/proDataset');
@@ -51,11 +51,12 @@ describe('decodePairingsBinary', () => {
   });
 
   it('the shipped pairings.bin carries the same observed flags as pairings.json (after the curation merge)', () => {
-    const bin = decodePairingsBinary(toArrayBuffer(fs.readFileSync(path.join(DIR, 'pairings.bin'))), ingredients);
+    const indexed = binaryIndexObject(ingredients, CURATION_TABLES.additions);
+    const bin = decodePairingsBinary(toArrayBuffer(fs.readFileSync(path.join(DIR, 'pairings.bin'))), indexed);
     // The binary is built from the CURATED pairings (scripts/buildPairingsBinary.cjs), in the same order.
     const rawJson = JSON.parse(fs.readFileSync(path.join(DIR, 'pairings.json'), 'utf8'));
     const json = applyCuration(ingredients, rawJson, CURATION_TABLES).pairings
-      .filter((p) => p.ingredientA in ingredients && p.ingredientB in ingredients);
+      .filter((p) => p.ingredientA in indexed && p.ingredientB in indexed);
     expect(bin).toHaveLength(json.length);
     expect(bin.filter((p) => p.known).length).toBe(json.filter((p) => p.known === true).length);
     // Spot-check record alignment.

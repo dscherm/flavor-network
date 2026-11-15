@@ -13,6 +13,7 @@
  *   riff is closest to by shared ingredients (Jaccard), so a riff that has
  *   turned into a Boulevardier says so.
  */
+import { isSuggestable } from './curation/suggestable.js';
 import { resolveIngredientName, isTrivialIngredient } from './recipePairingMatch.js';
 import { guessSlot } from './cocktailFacets.js';
 import { splitAmount, SLOT_DEFAULT_AMOUNT } from './cocktailAmounts.js';
@@ -95,7 +96,7 @@ export function swapCandidates(rows, index, pool, pairingIndex, k = 6) {
   const maxCommon = Math.max(1, ...pool.get(row.role).values());
   const out = [];
   for (const [cand, common] of pool.get(row.role)) {
-    if (inDrink.has(cand)) continue;
+    if (inDrink.has(cand) || !isSuggestable(cand)) continue;
     let best = 0; let bestWith = null; let sum = 0;
     for (const r of rest) {
       const s = pairingIndex?.strength?.get(`${cand}|${r}`) || 0;

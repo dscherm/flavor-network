@@ -7,15 +7,15 @@
     "dishes": 83
   },
   "metrics": {
-    "duplicate-misspelling": 94,
-    "duplicate-plural": 3,
-    "duplicate-prefix": 122,
-    "non-food": 14,
-    "fragment": 32,
-    "packaged-brand": 38,
-    "packaged-mix": 63,
-    "packaged-soup": 14,
-    "packaged-flavored": 20,
+    "duplicate-misspelling": 0,
+    "duplicate-plural": 0,
+    "duplicate-prefix": 0,
+    "non-food": 0,
+    "fragment": 0,
+    "packaged-brand": 0,
+    "packaged-mix": 0,
+    "packaged-soup": 0,
+    "packaged-flavored": 0,
     "category-cheese": 7,
     "category-juice": 27,
     "category-flour": 17,
@@ -47,5 +47,49 @@
     "Cocktails with no amounts: the critique said 105 of 441. This audit counts 148: a drink is counted when no line has either a millilitre amount or a measure containing a digit. I cannot tell how the 105 was counted.",
     "Duplicate cocktail names: 4 here (Corpse Reviver 2 and Pina Colada, as in the critique, plus Old Fashioned spelt with and without a hyphen, and Southside spelt with and without a space), against 2 in the critique.",
     "Categories: juice has 82 members here (24 citrus, 55 liquid, 3 other) against 62 (16 and 46) in the critique, because the audit matches the word juice anywhere in the name. Flour is 30 grain and 16 thickener here against 30 and 17."
+  ],
+  "history": [
+    {
+      "label": "DATA-1",
+      "date": "2026-11-15",
+      "totals": {
+        "ingredients": 3891,
+        "cocktails": 441,
+        "sauces": 77,
+        "dishes": 83
+      },
+      "metrics": {
+        "duplicate-misspelling": 94,
+        "duplicate-plural": 3,
+        "duplicate-prefix": 122,
+        "non-food": 14,
+        "fragment": 32,
+        "packaged-brand": 38,
+        "packaged-mix": 63,
+        "packaged-soup": 14,
+        "packaged-flavored": 20,
+        "category-cheese": 7,
+        "category-juice": 27,
+        "category-flour": 17,
+        "category-wine": 17,
+        "category-beer": 0,
+        "category-spirit": 0,
+        "category-umami": 47,
+        "taste-neutral-sweet": 228,
+        "taste-vocab": 0,
+        "taste-missing": 0,
+        "taste-outlier": 68,
+        "cocktail-cream-egg": 45,
+        "cocktail-citrus-stirred": 11,
+        "cocktail-no-amounts": 148,
+        "cocktail-duplicate": 4,
+        "cocktail-subgroup-unnamed": 15,
+        "cocktail-missing-classic": 3,
+        "sauce-independent": 27,
+        "dish-singleton": 6,
+        "dish-no-invent-equivalent": 15,
+        "sauce-independent-share-percent": 35
+      }
+    }
   ]
 }

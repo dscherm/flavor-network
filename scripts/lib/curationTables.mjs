@@ -3,7 +3,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { applyCuration } from '../../src/data/curation/applyCuration.js';
+import { applyCuration, binaryIndexObject } from '../../src/data/curation/applyCuration.js';
 import { validateCuration, vocabulariesOf, TABLE_NAMES } from '../../src/data/curation/validateCuration.js';
 
 const DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../src/data/curation');
@@ -23,4 +23,4 @@ export function validateAgainst(tables, rawIngredients) {
   return validateCuration(tables, { ingredientNames: names, ...vocabulariesOf(rawIngredients) });
 }
 
-export { applyCuration };
+export { applyCuration, binaryIndexObject };

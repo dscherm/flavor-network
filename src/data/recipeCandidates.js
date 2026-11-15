@@ -10,6 +10,7 @@
  *    keeps Western pastas out of Asian-noodle swaps.
  *  - ADD:     open-ended — no curated list (the picker browses the full universe).
  */
+import { isSuggestable } from './curation/suggestable.js';
 import { deriveBowlCuisine } from './deriveBowlCuisine.js';
 
 const ALPHA = 0.3; // popularity-discount strength (mild — high α promotes junk)
@@ -63,7 +64,7 @@ export async function loadSuggestCandidates(bowlNames, nodes, { k = 60 } = {}) {
   const cuisine = deriveBowlCuisine(bowlNames, nodes, rt.model.meta.cuisine_vocab);
   const sugg = await rt.suggestIngredients(bowlNames, { cuisine, alpha: ALPHA, k }, rt.model);
   const bowlSet = new Set(bowlNames);
-  return sugg.map((s) => s.name).filter((nm) => !bowlSet.has(nm) && nodes.get(nm));
+  return sugg.map((s) => s.name).filter((nm) => !bowlSet.has(nm) && nodes.get(nm) && isSuggestable(nm, nodes));
 }
 
 /**
@@ -107,5 +108,5 @@ export async function loadReplaceCandidates(ingredient, bowlNames, nodes, { k = 
     })
     .sort((a, b) => (b.aff - a.aff) || (a.idx - b.idx))
     .map((x) => x.s.name)
-    .filter((nm) => !bowlSet.has(nm) && nm !== ingredient && nodes.get(nm));
+    .filter((nm) => !bowlSet.has(nm) && nm !== ingredient && nodes.get(nm) && isSuggestable(nm, nodes));
 }

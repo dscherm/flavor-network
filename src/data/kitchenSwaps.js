@@ -22,6 +22,7 @@
  * Checked against the blended everyday-pairs index (scripts/
  * measureKitchenMakeable.mjs): the two sides of each swap share partners.
  */
+import { isSuggestable } from './curation/suggestable.js';
 
 const S = (forName, use, role, kind, extra = {}) => ({ for: forName, use, role, kind, plus: [], ...extra });
 /** A two-way swap: a for b and b for a. */
@@ -122,7 +123,7 @@ export function findSwap(name, has, { main = false, inRecipe = new Set(), sauce 
   for (const s of swapsFor(name)) {
     if (main && s.supportingOnly) continue;
     if (sauce && s.sauce === false) continue;
-    if (inRecipe.has(norm(s.use))) continue;
+    if (inRecipe.has(norm(s.use)) || !isSuggestable(s.use)) continue;
     if (!has(s.use) || !s.plus.every(has)) continue;
     return { for: name, use: s.use, plus: [...s.plus], role: s.role, kind: s.kind };
   }

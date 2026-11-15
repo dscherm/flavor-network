@@ -29,6 +29,7 @@ import {
   pairingMatchesAxis,
 } from '../data/guidedRadarAxes.js';
 import { getNeighborsEnriched } from '../data/graph.js';
+import { isSuggestable } from '../data/curation/suggestable.js';
 import PairingModeCard from './PairingModeCard.jsx';
 import { hydrateNode, buildAnalysis, sharedCompoundsFor } from '../data/pairingCardData.js';
 
@@ -82,7 +83,7 @@ export default function PairingMode({
             analysis: buildAnalysis(focalNode, node, strength, sharedCompounds),
           };
         })
-        .filter((p) => p.node && p.node.name);
+        .filter((p) => p.node && p.node.name && isSuggestable(p.name, ctx?.graph?.nodes));
 
       // Append Flavor Bible pairings the recipe corpus never recorded
       // (~82% of FB pairs have no co-occurrence edge). They carry
@@ -95,7 +96,7 @@ export default function PairingMode({
         const seen = new Set(corpus.map((p) => p.name));
         const fbOnly = [];
         for (const name of [...fbNeighbors].sort()) {
-          if (!name || name === focalName || seen.has(name)) continue;
+          if (!name || name === focalName || seen.has(name) || !isSuggestable(name, ctx?.graph?.nodes)) continue;
           seen.add(name);
           const node = hydrateNode(name, ctx);
           if (!node || !node.name) continue;

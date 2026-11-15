@@ -13,6 +13,7 @@
  */
 
 import { planVocabAliases } from '../data/curation/vocabAliases.js';
+import { isSuggestable } from '../data/curation/suggestable.js';
 
 const NUM_HEADS = 11;
 
@@ -66,6 +67,20 @@ export function buildRecipeInputs(observedNames, opts, meta, vocabIndex) {
   };
 }
 
+const UNSUGGESTABLE_BY_VOCAB = new WeakMap();
+// Ids of packaged products (brand names, boxed mixes, canned condensed soups): the model knows them from
+// recipes, but the app never offers them as a suggestion. A variant id is judged by the canonical name it
+// displays as (the vocab may hold only the misspelt spelling of an ingredient). Cached per vocab array.
+function unsuggestableIds(vocab, display) {
+  let ids = UNSUGGESTABLE_BY_VOCAB.get(vocab);
+  if (!ids) {
+    ids = [];
+    for (let i = 0; i < vocab.length; i++) if (!isSuggestable(display.get(i) ?? vocab[i])) ids.push(i);
+    UNSUGGESTABLE_BY_VOCAB.set(vocab, ids);
+  }
+  return ids;
+}
+
 /**
  * Rank logits into suggestions, excluding the observed ingredients.
  * @param {Float32Array|number[]} logits length V
@@ -80,6 +95,7 @@ export function rankLogits(logits, vocab, observedIds, k = 10, candidateIds = nu
   const { retired, display } = planVocabAliases(vocab);
   const excluded = new Set(observedIds);
   for (const id of retired) excluded.add(id);
+  for (const id of unsuggestableIds(vocab, display)) excluded.add(id);
   const idx = [];
   if (candidateIds) {
     for (const i of candidateIds) if (!excluded.has(i) && i >= 0 && i < vocab.length) idx.push(i);

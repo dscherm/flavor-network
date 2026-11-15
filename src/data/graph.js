@@ -2,6 +2,7 @@
  * Graph builder — constructs node/edge graph from parsed data.
  * Nodes = ingredients, Edges = pairings with strength values.
  */
+import { isSuggestable } from './curation/suggestable.js';
 
 /**
  * Build the full ingredient graph from loaded data.
@@ -74,15 +75,17 @@ export function buildGraph(data) {
 }
 
 /**
- * Get all neighbors of an ingredient with their edge strengths.
+ * Get all neighbors of an ingredient with their edge strengths. Packaged products (brands, boxed
+ * mixes, canned condensed soups) are never offered as a neighbour: this and getNeighborsEnriched are
+ * the choke point for every "goes with" list (see src/data/curation/suggestable.js).
  */
 export function getNeighbors(ingredient, edges) {
   const neighbors = [];
   for (const edge of edges) {
     if (edge.source === ingredient) {
-      neighbors.push({ name: edge.target, strength: edge.strength });
+      if (isSuggestable(edge.target)) neighbors.push({ name: edge.target, strength: edge.strength });
     } else if (edge.target === ingredient) {
-      neighbors.push({ name: edge.source, strength: edge.strength });
+      if (isSuggestable(edge.source)) neighbors.push({ name: edge.source, strength: edge.strength });
     }
   }
   return neighbors.sort((a, b) => b.strength - a.strength);
@@ -121,6 +124,7 @@ export function getNeighborsEnriched(ingredient, edges, cuisineNeighborIndex) {
     seen.set(n.name, n);
   }
   for (const cn of cuisineNeighborIndex.get(ingredient)) {
+    if (!isSuggestable(cn.name)) continue;
     const existing = seen.get(cn.name);
     if (existing) {
       existing.cuisineAnchor = cn.cuisineAnchor;

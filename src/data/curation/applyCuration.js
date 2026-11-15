@@ -42,6 +42,17 @@ function mergePair(x, y) {
   return out;
 }
 
+/**
+ * The ingredient order pairings.bin indexes into: the raw ingredients.json keys, then the names the
+ * additions table adds (in table order). Builder and loader both go through here so they cannot drift.
+ * Returns an object whose key order is that order (the decoder only reads the keys).
+ */
+export function binaryIndexObject(rawIngredients, additions = {}) {
+  const out = { ...rawIngredients };
+  for (const name of Object.keys(additions || {})) if (!(name in out)) out[name] = null;
+  return out;
+}
+
 export function applyCuration(ingredients, pairings, tables = {}) {
   const t = {
     aliases: tables.aliases || {}, hidden: tables.hidden || {}, packaged: tables.packaged || {},

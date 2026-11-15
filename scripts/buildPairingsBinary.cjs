@@ -32,8 +32,8 @@
  *
  * Curation (src/data/curation): the pairing merge for aliased ingredients runs HERE, at build time,
  * so the app pays nothing at load. Merged variants and hidden entries have no records in the binary.
- * Indices are still the RAW ingredients.json order (the decoder indexes into the raw object), so a
- * variant's slot is simply unused. Run via `npm run build:pairings` (part of `prebuild`); the
+ * Indices are the RAW ingredients.json order followed by the names the additions table adds (a renamed
+ * ingredient needs a slot to carry its pairings); a merged variant's slot is simply unused. Run via `npm run build:pairings` (part of `prebuild`); the
  * committed binary is checked against the tables by src/data/__tests__/curation.integration.test.js.
  *
  * Any pairing whose ingredient is missing from ingredients.json is
@@ -56,10 +56,24 @@ async function main() {
   const ingredientsRaw = fs.readFileSync(INGREDIENTS_PATH, 'utf-8');
   const ingredients = JSON.parse(ingredientsRaw);
 
-  // Build name -> index map using insertion order, skipping meta keys.
+  console.log('[build-bin] reading', PAIRINGS_JSON);
+  const pairingsRaw = fs.readFileSync(PAIRINGS_JSON, 'utf-8');
+  const rawPairings = JSON.parse(pairingsRaw);
+  console.log(`[build-bin] ${rawPairings.length} pairings in source JSON`);
+
+  const { loadCurationTables, validateAgainst, applyCuration, binaryIndexObject } = await import(
+    pathToFileURL(path.join(__dirname, 'lib', 'curationTables.mjs')).href
+  );
+  const tables = loadCurationTables();
+  const problems = validateAgainst(tables, ingredients);
+  if (problems.length) throw new Error('curation tables are invalid: ' + problems.join('; '));
+
+  // name -> index: ingredients.json insertion order (meta keys skipped), then the names the curation
+  // additions table adds, so a renamed ingredient's pairings can be written. The loader decodes with the
+  // same order (binaryIndexObject).
   const nameToIdx = new Map();
   let idx = 0;
-  for (const key of Object.keys(ingredients)) {
+  for (const key of Object.keys(binaryIndexObject(ingredients, tables.additions))) {
     if (key.startsWith('_')) continue;
     nameToIdx.set(key, idx++);
   }
@@ -70,18 +84,6 @@ async function main() {
     );
   }
   console.log(`[build-bin] indexed ${nameToIdx.size} ingredients`);
-
-  console.log('[build-bin] reading', PAIRINGS_JSON);
-  const pairingsRaw = fs.readFileSync(PAIRINGS_JSON, 'utf-8');
-  const rawPairings = JSON.parse(pairingsRaw);
-  console.log(`[build-bin] ${rawPairings.length} pairings in source JSON`);
-
-  const { loadCurationTables, validateAgainst, applyCuration } = await import(
-    pathToFileURL(path.join(__dirname, 'lib', 'curationTables.mjs')).href
-  );
-  const tables = loadCurationTables();
-  const problems = validateAgainst(tables, ingredients);
-  if (problems.length) throw new Error('curation tables are invalid: ' + problems.join('; '));
   const { pairings, report } = applyCuration(ingredients, rawPairings, tables);
   console.log(`[build-bin] curation: ${report.aliasesApplied.length} aliases, ${report.hiddenApplied.length} hidden -> ` +
     `${report.pairingsMerged} pairings merged, ${report.pairingsDropped} dropped, ${pairings.length} kept`);

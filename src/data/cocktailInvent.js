@@ -33,6 +33,7 @@
  * for ingredients common in cocktails, so an empty-bar draw prefers bottles
  * people own.
  */
+import { isSuggestable } from './curation/suggestable.js';
 import { SLOT_DEFAULT_AMOUNT } from './cocktailAmounts.js';
 import { roleOf, familyKey, ROLE_LABEL } from './cocktailRiff.js';
 import { GENERIC_BOTTLE_KEYS } from './myBar.js';
@@ -320,7 +321,7 @@ export function rankCocktailSlot({ slot, currentKeys = [], bar = [], pool = null
   const skip = new Set(currentKeys);
   const candidatesOf = (cands) => (slot ? slotCandidates(slot, cands, roles) : [...cands.values()].flatMap((m) => [...m].map(([key, common]) => ({ key, common }))));
   const scored = (cands, have) => candidatesOf(cands)
-    .filter((c) => !skip.has(c.key) && (slot || !isSuggestionNoise(c.key, currentKeys, roles)))
+    .filter((c) => !skip.has(c.key) && isSuggestable(c.key) && (slot || !isSuggestionNoise(c.key, currentKeys, roles)))
     .map((c) => {
       const mean = currentKeys.length ? currentKeys.reduce((s, k) => s + pair(c.key, k), 0) / currentKeys.length : 0;
       return { key: c.key, have, score: mean + 0.15 * commonness(c.common) };

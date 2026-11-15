@@ -23,7 +23,7 @@ reviewed first), a plain description, and a suggested action.
   "peanut butter" is not a plain fat. A person decides every line.
 * **Reviewed non-merges are remembered.** `data/review/keep.json` holds names a person has
   decided are different ingredients, with a reason. The audit skips those and reports how many it
-  skipped, so the skipping stays visible. (In the latest run: 3 candidates suppressed by 6 keep-list entries.)
+  skipped, so the skipping stays visible. (In the latest run: 31 candidates kept as they are, by 34 keep-list entries; 210 merged, 26 hidden and 123 flagged packaged through the curation tables.)
 * **The cocktail "cream or egg" rule** counts a drink if any line is cream, milk, half and half,
   ice cream, eggnog, Irish cream, or a whole egg or yolk. Egg white alone does not count, because
   it is the foam of a sour. Coconut cream and milk are not counted either.
@@ -36,21 +36,21 @@ reviewed first), a plain description, and a suggested action.
 
 ## Baseline, 2026-11-15
 
-These are the numbers exactly as the first run printed them (stored in
-`data/review/baseline.json`). The audit run with `--check` fails if any count goes above its baseline,
+These are the numbers of the last accepted run, as printed (stored in
+`data/review/baseline.json`, which also keeps the first audit's numbers under `history`). The audit run with `--check` fails if any count goes above its baseline,
 so later clean-up tasks can show the numbers going down and nothing can quietly go up.
 
 | Check | Rule id | Baseline total | Now (this run) |
 | --- | --- | --- | --- |
-| Ingredient: misspelt name of another ingredient | `duplicate-misspelling` | 94 | 94 |
-| Ingredient: plural of another ingredient | `duplicate-plural` | 3 | 3 |
-| Ingredient: another ingredient plus a preparation word | `duplicate-prefix` | 122 | 122 |
-| Ingredient: kitchen equipment or supply | `non-food` | 14 | 14 |
-| Ingredient: a fragment, not a food | `fragment` | 32 | 32 |
-| Ingredient: brand name | `packaged-brand` | 38 | 38 |
-| Ingredient: boxed mix | `packaged-mix` | 63 | 63 |
-| Ingredient: canned condensed soup | `packaged-soup` | 14 | 14 |
-| Ingredient: 'flavored' product | `packaged-flavored` | 20 | 20 |
+| Ingredient: misspelt name of another ingredient | `duplicate-misspelling` | 0 | 0 |
+| Ingredient: plural of another ingredient | `duplicate-plural` | 0 | 0 |
+| Ingredient: another ingredient plus a preparation word | `duplicate-prefix` | 0 | 0 |
+| Ingredient: kitchen equipment or supply | `non-food` | 0 | 0 |
+| Ingredient: a fragment, not a food | `fragment` | 0 | 0 |
+| Ingredient: brand name | `packaged-brand` | 0 | 0 |
+| Ingredient: boxed mix | `packaged-mix` | 0 | 0 |
+| Ingredient: canned condensed soup | `packaged-soup` | 0 | 0 |
+| Ingredient: 'flavored' product | `packaged-flavored` | 0 | 0 |
 | Category: a cheese outside the usual cheese category | `category-cheese` | 7 | 7 |
 | Category: a juice outside the usual juice category | `category-juice` | 27 | 27 |
 | Category: a flour outside the usual flour category | `category-flour` | 17 | 17 |
@@ -72,7 +72,7 @@ so later clean-up tasks can show the numbers going down and nothing can quietly 
 | Dish: Cookbook type with a single dish | `dish-singleton` | 6 | 6 |
 | Dish: Cookbook type with no Invent equivalent | `dish-no-invent-equivalent` | 15 | 15 |
 
-### Where these differ from the first, by-hand critique
+### Where the first audit differed from the by-hand critique
 
 * Duplicate ingredients: the by-hand critique said at least 151 duplicates plus 74 misnamed (about 225). This audit finds 219 candidates (199 HIGH, 20 LOW) in three rules (misspellings, plurals, preparation words). The two are close; the audit counts each name once and keeps LOW candidates (such as ripe olive and mashed banana) separate, so the numbers are not expected to match exactly.
 * Boxed mixes: the critique counted 24 cake and pudding mixes. This audit counts 63 because it also counts soup, dressing, gravy, biscuit, pancake, stuffing and other mixes, and instant puddings.
@@ -85,6 +85,56 @@ so later clean-up tasks can show the numbers going down and nothing can quietly 
 
 Data sizes at baseline: 3891 ingredients, 441 cocktails,
 77 sauces, 83 Cookbook dishes.
+
+## After DATA-3: ingredient merges, removals and packaged flags
+
+Every candidate on the three ingredient review lists (duplicates, non-food and fragments, packaged)
+was read and decided. A decision is one of: **aliased** (merged into the ingredient a cook means,
+`src/data/curation/aliases.json`), **hidden** (not food, `hidden.json`), **flagged packaged**
+(kept, searchable, never suggested, `packaged.json`), or **kept as it is** with a reason
+(`data/review/keep.json`). The audit now counts only the candidates nobody has decided; a decided one
+is reported as reviewed. The target is zero unreviewed.
+
+| Check | Rule id | Candidates at the first audit (2026-11-15) | Unreviewed now |
+| --- | --- | --- | --- |
+| Ingredient: misspelt name of another ingredient | `duplicate-misspelling` | 94 | 0 |
+| Ingredient: plural of another ingredient | `duplicate-plural` | 3 | 0 |
+| Ingredient: another ingredient plus a preparation word | `duplicate-prefix` | 122 | 0 |
+| Ingredient: kitchen equipment or supply | `non-food` | 14 | 0 |
+| Ingredient: a fragment, not a food | `fragment` | 32 | 0 |
+| Ingredient: brand name | `packaged-brand` | 38 | 0 |
+| Ingredient: boxed mix | `packaged-mix` | 63 | 0 |
+| Ingredient: canned condensed soup | `packaged-soup` | 14 | 0 |
+| Ingredient: 'flavored' product | `packaged-flavored` | 20 | 0 |
+| **All of the above** |  | **400** | **0** |
+
+Decided, counted by name: 210 aliased, 26 hidden, 123 flagged packaged, 31 kept as they are
+(the keep list has 34 entries; a few are protections for names that are not in the data today).
+
+### Counts, as the audit prints them
+
+| What | Before (raw generated data) | After (curated, what the app loads) |
+| --- | --- | --- |
+| Ingredients | 3891 | 3667 (210 merged away, 26 hidden, 12 corrected spellings added) |
+| Pairings | 95992 | 92504 |
+| Ingredients flagged packaged | 0 | 123 |
+
+Merging a variant moves its pairings onto the ingredient it was merged into (the stronger score is kept,
+a pairing between the two is dropped), so the pairing count falls by the pairings that collapsed together
+and the pairings of the hidden names.
+
+### Packaged and hidden entries are never offered
+
+Packaged ingredients stay findable by typing and stay valid in saved recipes. The app never puts one in
+front of a cook as a suggestion, a stand-in, a checklist pick or a "goes with" partner. One predicate,
+`isSuggestable(name, dataset)` in `src/data/curation/suggestable.js`, is applied at these places:
+
+* every "goes with" list (Pairing Lab, the suggestion drawer, the Make-a-recipe suggestions): `getNeighbors` and `getNeighborsEnriched` in `src/data/graph.js`, plus the Flavor Bible partner list in `PairingMode.jsx`;
+* the invent panels' shortlists, checklist picks and suggestions: `rankCocktailSlot`, `rankSauceSlot`, `rankDishSlot`, and the shared `shortlist`, `suggestNext` and `fillRequired` in `inventBuild.js`;
+* stand-ins and replacements: `swapCandidates` (`cocktailRiff.js`), `sauceReplacements` (`inventSauce.js`), `findSwap` (`kitchenSwaps.js`);
+* Recipe Notebook suggestions, boost and temper: `rankLogits` in `recipeRuntime.js` (every set-completion suggestion), `loadSuggestCandidates` and `loadReplaceCandidates` (`recipeCandidates.js`), `rankByAxisImpact` (`recipeProfileAnalysis.js`), and the browse list of the ingredient picker when nothing has been typed.
+
+Hidden names and merged variants are already gone from the curated dataset (DATA-2), so the predicate is a second guard for them.
 
 ## Detail from the latest run
 

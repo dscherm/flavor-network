@@ -14,7 +14,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   findDuplicates, findNonFood, findPackaged, findCategoryInconsistencies, categorySplits,
-  findTasteNeutralSweet, findTasteVocabulary, findTasteOutliers, tasteDistribution,
+  findTasteNeutralSweet, findTasteVocabulary, findTasteOutliers, tasteDistribution, partitionReviewed,
   cocktailChecks, sauceChecks, dishChecks, TASTE_VOCAB,
 } from '../src/data/dataAudit.js';
 import { SEED_RECIPES } from '../src/data/seedRecipes.js';
@@ -95,8 +95,8 @@ export function runAudit() {
   };
 
   const dupsAll = findDuplicates(ingredients, { keep: new Set() });
-  const dups = findDuplicates(ingredients, { keep });
-  const suppressed = dupsAll.length - dups.length;
+  const dups = dupsAll;
+  const suppressed = 0;
 
   const dishTypes = Object.fromEntries(SEED_RECIPES.map((r) => [r.name, dishTypeOf(r)]));
   const inventTypes = DISH_SKELETON_ORDER.map((id) => ({ id, label: DISH_SKELETONS[id].label, dishType: DISH_SKELETONS[id].dishType }));
@@ -114,6 +114,16 @@ export function runAudit() {
     f.useCount = isIngredientRule(f.rule) ? (ingredients[f.item]?.totalCount ?? 0) : '';
   }
 
+  // A candidate already decided (aliased, hidden, flagged packaged, or on the keep list) is REVIEWED.
+  // Only the ingredient-hygiene rules are decided this way; category and taste rules are fixed by overrides later.
+  const decided = {
+    aliased: new Set(Object.keys(tables.aliases || {})), hidden: new Set(Object.keys(tables.hidden || {})),
+    packaged: new Set(Object.keys(tables.packaged || {})), kept: keep,
+  };
+  const { unreviewed, handledItems } = partitionReviewed(findings, decided);
+  findings.splice(0, findings.length, ...unreviewed);
+  const handled = Object.fromEntries(Object.entries(handledItems).map(([k, v]) => [k, v.size]));
+
   const rules = {};
   for (const id of Object.keys(RULES)) rules[id] = { total: 0, HIGH: 0, LOW: 0 };
   for (const f of findings) {
@@ -127,7 +137,7 @@ export function runAudit() {
 
   return {
     totals: { ingredients: Object.keys(ingredients).length, cocktails: codex.cocktails.length, sauces: sauces.length, dishes: SEED_RECIPES.length },
-    findings, rules, metrics, suppressedByKeepList: suppressed, keepListSize: keep.size, curated,
+    findings, rules, metrics, handled, suppressedByKeepList: suppressed, keepListSize: keep.size, curated,
     details: {
       categorySplits: categorySplits(ingredients),
       tasteDistribution: tasteDistribution(ingredients),
@@ -169,6 +179,58 @@ function mdTable(rows) {
 
 function topWords(dist) {
   return Object.entries(dist).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([w, n]) => `${w} ${n}`).join(', ');
+}
+
+// "After DATA-3": before/after numbers for the ingredient clean-up, generated so the section cannot go stale.
+const HYGIENE_RULES = ['duplicate-misspelling', 'duplicate-plural', 'duplicate-prefix', 'non-food', 'fragment', 'packaged-brand', 'packaged-mix', 'packaged-soup', 'packaged-flavored'];
+
+function afterData3(result, baseline) {
+  const first = (baseline.history || []).find((h) => h.label === 'DATA-1') || baseline;
+  const c = result.curated;
+  const sum = (m) => HYGIENE_RULES.reduce((n, r) => n + (m[r] ?? 0), 0);
+  const rows = [['Check', 'Rule id', `Candidates at the first audit (${first.date})`, 'Unreviewed now']];
+  for (const r of HYGIENE_RULES) rows.push([RULES[r][1], `\`${r}\``, String(first.metrics[r] ?? 'n/a'), String(result.rules[r].total)]);
+  rows.push(['**All of the above**', '', `**${sum(first.metrics)}**`, `**${sum(result.metrics)}**`]);
+  const h = result.handled;
+  return `## After DATA-3: ingredient merges, removals and packaged flags
+
+Every candidate on the three ingredient review lists (duplicates, non-food and fragments, packaged)
+was read and decided. A decision is one of: **aliased** (merged into the ingredient a cook means,
+\`src/data/curation/aliases.json\`), **hidden** (not food, \`hidden.json\`), **flagged packaged**
+(kept, searchable, never suggested, \`packaged.json\`), or **kept as it is** with a reason
+(\`data/review/keep.json\`). The audit now counts only the candidates nobody has decided; a decided one
+is reported as reviewed. The target is zero unreviewed.
+
+${mdTable(rows)}
+
+Decided, counted by name: ${h.aliased} aliased, ${h.hidden} hidden, ${h.packaged} flagged packaged, ${h.kept} kept as they are
+(the keep list has ${result.keepListSize} entries; a few are protections for names that are not in the data today).
+
+### Counts, as the audit prints them
+
+| What | Before (raw generated data) | After (curated, what the app loads) |
+| --- | --- | --- |
+| Ingredients | ${c.ingredients.raw} | ${c.ingredients.curated} (${c.merged} merged away, ${c.hidden} hidden, ${c.additions} corrected spellings added) |
+| Pairings | ${c.pairings ? c.pairings.raw : 'n/a (run without --check)'} | ${c.pairings ? c.pairings.curated : 'n/a'} |
+| Ingredients flagged packaged | 0 | ${c.packaged} |
+
+Merging a variant moves its pairings onto the ingredient it was merged into (the stronger score is kept,
+a pairing between the two is dropped), so the pairing count falls by the pairings that collapsed together
+and the pairings of the hidden names.
+
+### Packaged and hidden entries are never offered
+
+Packaged ingredients stay findable by typing and stay valid in saved recipes. The app never puts one in
+front of a cook as a suggestion, a stand-in, a checklist pick or a "goes with" partner. One predicate,
+\`isSuggestable(name, dataset)\` in \`src/data/curation/suggestable.js\`, is applied at these places:
+
+* every "goes with" list (Pairing Lab, the suggestion drawer, the Make-a-recipe suggestions): \`getNeighbors\` and \`getNeighborsEnriched\` in \`src/data/graph.js\`, plus the Flavor Bible partner list in \`PairingMode.jsx\`;
+* the invent panels' shortlists, checklist picks and suggestions: \`rankCocktailSlot\`, \`rankSauceSlot\`, \`rankDishSlot\`, and the shared \`shortlist\`, \`suggestNext\` and \`fillRequired\` in \`inventBuild.js\`;
+* stand-ins and replacements: \`swapCandidates\` (\`cocktailRiff.js\`), \`sauceReplacements\` (\`inventSauce.js\`), \`findSwap\` (\`kitchenSwaps.js\`);
+* Recipe Notebook suggestions, boost and temper: \`rankLogits\` in \`recipeRuntime.js\` (every set-completion suggestion), \`loadSuggestCandidates\` and \`loadReplaceCandidates\` (\`recipeCandidates.js\`), \`rankByAxisImpact\` (\`recipeProfileAnalysis.js\`), and the browse list of the ingredient picker when nothing has been typed.
+
+Hidden names and merged variants are already gone from the curated dataset (DATA-2), so the predicate is a second guard for them.
+`;
 }
 
 function writeDoc(result, baseline) {
@@ -220,7 +282,7 @@ reviewed first), a plain description, and a suggested action.
   "peanut butter" is not a plain fat. A person decides every line.
 * **Reviewed non-merges are remembered.** \`data/review/keep.json\` holds names a person has
   decided are different ingredients, with a reason. The audit skips those and reports how many it
-  skipped, so the skipping stays visible. (In the latest run: ${result.suppressedByKeepList} candidates suppressed by ${result.keepListSize} keep-list entries.)
+  skipped, so the skipping stays visible. (In the latest run: ${result.handled.kept} candidates kept as they are, by ${result.keepListSize} keep-list entries; ${result.handled.aliased} merged, ${result.handled.hidden} hidden and ${result.handled.packaged} flagged packaged through the curation tables.)
 * **The cocktail "cream or egg" rule** counts a drink if any line is cream, milk, half and half,
   ice cream, eggnog, Irish cream, or a whole egg or yolk. Egg white alone does not count, because
   it is the foam of a sour. Coconut cream and milk are not counted either.
@@ -233,16 +295,17 @@ reviewed first), a plain description, and a suggested action.
 
 ## Baseline, ${b.date}
 
-These are the numbers exactly as the first run printed them (stored in
-\`data/review/baseline.json\`). The audit run with \`--check\` fails if any count goes above its baseline,
+These are the numbers of the last accepted run, as printed (stored in
+\`data/review/baseline.json\`, which also keeps the first audit's numbers under \`history\`). The audit run with \`--check\` fails if any count goes above its baseline,
 so later clean-up tasks can show the numbers going down and nothing can quietly go up.
 
 ${mdTable(ruleRows)}
 
-${(b.notes || []).length ? '### Where these differ from the first, by-hand critique\n\n' + b.notes.map((n) => `* ${n}`).join('\n') + '\n' : ''}
+${(b.notes || []).length ? '### Where the first audit differed from the by-hand critique\n\n' + b.notes.map((n) => `* ${n}`).join('\n') + '\n' : ''}
 Data sizes at baseline: ${b.totals.ingredients} ingredients, ${b.totals.cocktails} cocktails,
 ${b.totals.sauces} sauces, ${b.totals.dishes} Cookbook dishes.
 
+${afterData3(result, b)}
 ## Detail from the latest run
 
 Sizes now: ${result.totals.ingredients} ingredients, ${result.totals.cocktails} cocktails, ${result.totals.sauces} sauces, ${result.totals.dishes} dishes.
@@ -290,7 +353,9 @@ function main() {
     process.exit(1);
   }
   console.log(summaryTable(result));
-  console.log(`\nsuppressed by keep list: ${result.suppressedByKeepList} (keep list has ${result.keepListSize} entries)`);
+  const h = result.handled;
+  console.log(`
+reviewed, so not counted above: ${h.aliased} aliased, ${h.hidden} hidden, ${h.packaged} flagged packaged, ${h.kept} kept as they are (keep list has ${result.keepListSize} entries)`);
   console.log(`
 curation tables: valid. ingredients raw ${c.ingredients.raw} -> curated ${c.ingredients.curated} (${c.merged} merged, ${c.hidden} hidden, ${c.additions} added; ${c.packaged} flagged packaged; ${c.categoryOverrides} category and ${c.tasteOverrides} taste overrides)` +
     (c.pairings ? `; pairings raw ${c.pairings.raw} -> curated ${c.pairings.curated}` : ''));
@@ -311,11 +376,15 @@ curation tables: valid. ingredients raw ${c.ingredients.raw} -> curated ${c.ingr
 
   let baseline = loadBaseline();
   if (!baseline || args.has('--update-baseline')) {
+    const history = baseline
+      ? [...(baseline.history || [{ label: 'DATA-1', date: baseline.date, totals: baseline.totals, metrics: baseline.metrics }])]
+      : [];
     baseline = {
       date: new Date().toISOString().slice(0, 10),
       totals: result.totals,
       metrics: result.metrics,
       notes: baseline?.notes || [],
+      history,
     };
     mkdirSync(REVIEW_DIR, { recursive: true });
     writeFileSync(BASELINE_PATH, JSON.stringify(baseline, null, 2) + '\n');

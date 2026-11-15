@@ -28,7 +28,7 @@
  * drink can't outscore a five-ingredient one on a single lucky pair.
  */
 import { normalizeIngredient } from './normalizeIngredient.js';
-import { aliasTarget } from './curation/resolveIngredient.js';
+import { aliasTarget, variantsOf } from './curation/resolveIngredient.js';
 
 // Too generic to say anything about fit — dropped before and after
 // resolution so they count neither as matches nor as unresolved.
@@ -136,11 +136,16 @@ function stripAccents(raw) {
 }
 
 // A merged variant ("peache") lands on its canonical entry first, even in a name set that still has
-// the variant (the raw gnn_entropy keys); then the name itself; then the local alias table.
+// the variant (the raw gnn_entropy keys); then the name itself; then a variant the canonical replaced
+// (when the data has no row under the canonical); then the local alias table.
 function known(cand, names) {
   const canon = aliasTarget(cand);
   if (canon && names.has(canon)) return canon;
   if (names.has(cand)) return cand;
+  // The reverse case: a corrected canonical ("grape tomato") that the name-keyed data still files under
+  // the misspelt variant it replaced ("grape tomatoe"). Use the variant's row rather than lose the data.
+  const old = variantsOf(canon || cand).find((v) => names.has(v));
+  if (old) return old;
   const via = ALIASES[cand];
   return via && names.has(via) ? via : null;
 }

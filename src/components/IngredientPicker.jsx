@@ -32,6 +32,7 @@
 import React, { useMemo, useState } from 'react';
 import { CATEGORICAL_AXES, bucketOf } from '../data/categoricalAxes.js';
 import { getNeighborsEnriched } from '../data/graph.js';
+import { isSuggestable } from '../data/curation/suggestable.js';
 import HelpBubble from './HelpBubble.jsx';
 
 const FONT_HAND = 'Caveat, cursive';
@@ -339,6 +340,8 @@ export default function IngredientPicker({
     const out = [];
     for (const node of nodes.values()) {
       if (mode === 'notebook' && !dishTypeAllows(node, dishType)) continue;
+      // Packaged products stay findable by typing, but the browse lists do not offer them.
+      if (!q && !isSuggestable(node.name, nodes)) continue;
       if (primaryPairSet) {
         if (!primaryPairSet.has(node.name)) continue;
       } else {

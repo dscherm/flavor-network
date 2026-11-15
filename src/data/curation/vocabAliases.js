@@ -29,16 +29,28 @@ export function planVocabAliases(vocab) {
   const retired = new Set();
   const display = new Map();
   const hiddenIds = new Set();
+  const orphans = new Map(); // canonical name the vocab lacks -> the ids of its variants
   for (const [variant, canon] of aliasEntries()) {
     const vid = index.get(variant);
     if (vid == null) continue;
     const cid = index.get(canon);
     display.set(vid, canon);
-    if (cid == null) { extra.set(canon, vid); continue; }
+    if (cid == null) { orphans.set(canon, [...(orphans.get(canon) || []), vid]); continue; }
     extra.set(variant, cid);
     retired.add(vid);
     if (!variantIds.has(cid)) variantIds.set(cid, []);
     variantIds.get(cid).push(vid);
+  }
+  // A canonical with no id of its own is carried by its first variant's id; the other variants' ids are
+  // folded in (fed together with it, never suggested), so a many-to-one merge keeps all of its signal.
+  for (const [canon, vids] of orphans) {
+    const [primary, ...rest] = vids.sort((x, y) => x - y);
+    extra.set(canon, primary);
+    for (const vid of rest) {
+      extra.set(String(vocab[vid]).toLowerCase(), primary);
+      retired.add(vid);
+    }
+    if (rest.length) variantIds.set(primary, rest);
   }
   for (const name of Object.keys(hidden)) {
     const id = index.get(curationKey(name));

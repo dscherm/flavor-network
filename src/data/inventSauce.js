@@ -33,6 +33,7 @@
  * from the current lines, and a "why" line. The UI says the amounts are an
  * idea from what pairs, not a tested recipe.
  */
+import { isSuggestable } from './curation/suggestable.js';
 import { SAUCE_TEMPLATES } from './sauceScoring.js';
 import { sauceRoleOf, sauceKind, pairStrength, sameRoleAndKind } from './saucePantry.js';
 import { swapsFor } from './kitchenSwaps.js';
@@ -450,10 +451,10 @@ export function rankSauceSlot({
   if (assumeBasics) for (const b of BASIC_LINES) pantry.add(b);
   const cands = new Map();
   const own = new Set(); // exactly in the pantry (or an assumed basic), ahead of an equivalent or an outside pick
-  for (const k of pantry) if (!skip.has(k) && fits(k)) { cands.set(k, true); own.add(k); }
+  for (const k of pantry) if (!skip.has(k) && isSuggestable(k) && fits(k)) { cands.set(k, true); own.add(k); }
   if (!pantryOnly) {
     for (const k of p.keys()) {
-      if (cands.has(k) || skip.has(k) || COMPOUND.test(k) || !fits(k)) continue;
+      if (cands.has(k) || skip.has(k) || COMPOUND.test(k) || !isSuggestable(k) || !fits(k)) continue;
       cands.set(k, haveSauceKey(k, { kitchen, assumeBasics, names }));
     }
   }
@@ -577,12 +578,12 @@ export function sauceReplacements(key, { slot = null, buildKeys = [], kitchen = 
   const seen = new Set();
   const push = (k, note) => { if (!seen.has(k) && k !== k0 && !inBuild.has(k)) { seen.add(k); out.push(note ? { key: k, note } : { key: k }); } };
   for (const k of pantry) {
-    if (!k || COMPOUND.test(k)) continue;
+    if (!k || COMPOUND.test(k) || !isSuggestable(k)) continue;
     if (slot ? fitsSlot(k, slot, cats) : sameRoleAndKind(k0, k, cats)) push(k);
   }
   const has = (x) => haveSauceKey(x, { kitchen, assumeBasics, names });
   for (const sw of swapsFor(k0)) {
-    if (sw.sauce === false || !has(sw.use) || !sw.plus.every(has)) continue;
+    if (sw.sauce === false || !isSuggestable(sw.use) || !has(sw.use) || !sw.plus.every(has)) continue;
     push(norm(sw.use), sw.plus.length ? `with ${sw.plus.join(', ')}` : 'swap');
   }
   return out.slice(0, limit);

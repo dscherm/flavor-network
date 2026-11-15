@@ -34,6 +34,7 @@
  * refused for clashing with the very pick it replaces). oneOf() builds the
  * "only one X" rule from an injected predicate.
  */
+import { isSuggestable } from './curation/suggestable.js';
 
 /**
  * "Same kind of thing": the same name, or both end in the same word ("black pepper",
@@ -152,7 +153,7 @@ export function fillRequired(build, rankFn) {
   for (const slot of build.slots) {
     if (!slot.required || slot.line) continue;
     const pick = asCandidates(rankFn(slot, buildKeys(out))).find(
-      (c) => slot.accepts(c.key) && !refusal(out, c.key, slot.id),
+      (c) => isSuggestable(c.key) && slot.accepts(c.key) && !refusal(out, c.key, slot.id),
     );
     if (!pick) continue;
     out = { ...out, slots: out.slots.map((s) => (s.id === slot.id ? { ...s, line: { ...pick, source: 'auto' } } : s)) };
@@ -172,7 +173,7 @@ export function shortlist(build, slotId, rankFn, n = 8) {
   const rest = without(build, slotId);
   const inBuild = new Set(buildKeys(build));
   return asCandidates(rankFn(slot, buildKeys(rest)))
-    .filter((c) => !inBuild.has(c.key) && slot.accepts(c.key) && !refusal(build, c.key, slotId))
+    .filter((c) => !inBuild.has(c.key) && isSuggestable(c.key) && slot.accepts(c.key) && !refusal(build, c.key, slotId))
     .slice(0, n);
 }
 
@@ -354,7 +355,7 @@ export function suggestNext(build, rankFn, n = 8) {
   const currentKeys = buildKeys(build);
   const inBuild = new Set(currentKeys);
   const group = (slot) => asCandidates(rankFn({ slot, currentKeys, build }))
-    .filter((c) => !inBuild.has(c.key) && (!slot || slot.accepts(c.key)) && !refusal(build, c.key, null))
+    .filter((c) => !inBuild.has(c.key) && isSuggestable(c.key) && (!slot || slot.accepts(c.key)) && !refusal(build, c.key, null))
     .map((c) => (slot ? { ...c, slotId: slot.id } : c))
     .map((c, i) => ({ c, i }))
     .sort((a, b) => ((b.c.have === true) - (a.c.have === true)) || (a.i - b.i))

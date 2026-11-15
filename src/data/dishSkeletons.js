@@ -36,6 +36,7 @@
  * score when the caller has one. A cuisine only adds a small bonus to
  * ingredients of that cuisine: it re-orders, it never filters.
  */
+import { isSuggestable } from './curation/suggestable.js';
 import { recipeRoles, isBasicLike, pairStrength } from './inventRecipe.js';
 import { isBasic, haveIngredient } from './myKitchen.js';
 import { oneOf, rankCategories, sameKind } from './inventBuild.js';
@@ -349,7 +350,7 @@ export function rankDishSlot({
   const out = [];
   for (const key of nodes.keys()) {
     const n = lower(key);
-    if (taken.has(n) || ((isBasicLike(n) || isBasic(n)) && !slot?.keepBasics?.includes(n))) continue;
+    if (taken.has(n) || !isSuggestable(n, nodes) || ((isBasicLike(n) || isBasic(n)) && !slot?.keepBasics?.includes(n))) continue;
     if (slot && !slotAccepts(slot, n, nodes)) continue;
     if (!slot && [...taken].some((t) => sameKind(n, t))) continue;
     const node = nodes.get(key);

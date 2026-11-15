@@ -431,3 +431,28 @@ export function dishChecks({ dishTypes, cookbookTypes, inventTypes }) {
   }
   return { findings, count, cookbookTypes, inventTypes };
 }
+
+// ----------------------------------------------------------------- reviewed or not
+
+const HYGIENE_RULE = /^(duplicate|non-food|fragment|packaged)/;
+
+/**
+ * Split findings into the ones nobody has decided and the ones already decided. Only the ingredient
+ * hygiene rules (duplicates, non-food and fragments, packaged) are decided by name: an item is reviewed when
+ * it is in a curation table (aliased, hidden, packaged) or on the keep list. Category and taste findings are
+ * never treated as reviewed here.
+ * @param {Array<{rule: string, item: string}>} findings
+ * @param {{ aliased?: Set<string>, hidden?: Set<string>, packaged?: Set<string>, kept?: Set<string> }} decided
+ * @returns {{ unreviewed: Array, handledItems: Record<string, Set<string>> }}
+ */
+export function partitionReviewed(findings, decided = {}) {
+  const kinds = ['aliased', 'hidden', 'packaged', 'kept'];
+  const handledItems = Object.fromEntries(kinds.map((k) => [k, new Set()]));
+  const unreviewed = [];
+  for (const f of findings) {
+    const by = HYGIENE_RULE.test(f.rule) ? kinds.find((k) => decided[k] && decided[k].has(f.item)) : null;
+    if (by) handledItems[by].add(f.item);
+    else unreviewed.push(f);
+  }
+  return { unreviewed, handledItems };
+}

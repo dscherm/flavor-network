@@ -1,1 +1,14 @@
-{}
+{
+  "beef patty": {"category":"protein","taste":"umami salty","reason":"a beef patty; the only entry was misspelt (\"pattie\")"},
+  "cherry tomato": {"category":"vegetable","taste":"sour umami","reason":"the cherry tomato a cook buys; every entry for it was misspelt (\"tomatoe\"), so no correct name existed"},
+  "chicken breast": {"category":"protein","taste":"umami","reason":"chicken breast, the cut itself; only halve/tender/fillet forms existed beside the \"boneless skinless\" form"},
+  "chicken patty": {"category":"protein","taste":"salty umami","reason":"a chicken patty; the only entry was misspelt (\"pattie\")"},
+  "fingerling potato": {"category":"vegetable","taste":"sweet","reason":"the fingerling potato; the only entry was misspelt (\"potatoe\")"},
+  "grape tomato": {"category":"vegetable","taste":"sour umami","reason":"the grape tomato a cook buys; the only entry was misspelt (\"tomatoe\")"},
+  "hash brown potato": {"category":"vegetable","taste":"sweet","reason":"shredded hash brown potatoes (a frozen product, not raw potato); the only entry was misspelt"},
+  "heirloom tomato": {"category":"vegetable","taste":"sour umami","reason":"the heirloom tomato; the only entry was misspelt (\"tomatoe\")"},
+  "purple potato": {"category":"vegetable","taste":"sweet umami","reason":"the purple potato; the only entry was misspelt (\"potatoe\")"},
+  "roma tomato": {"category":"fruit","taste":"sweet sour umami","reason":"the roma (plum) tomato; the only entries were misspelt (\"tomatoe\")"},
+  "sausage patty": {"category":"protein","taste":"salty umami","reason":"a sausage patty; the only entry was misspelt (\"pattie\")"},
+  "stewed tomato": {"category":"vegetable","taste":"sour umami","reason":"canned stewed tomatoes; the only entries were misspelt (\"tomatoe\") and tied to an Italian-style label"}
+}

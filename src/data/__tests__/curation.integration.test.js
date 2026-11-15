@@ -23,6 +23,7 @@ const readJson = (p) => JSON.parse(read(p).toString('utf8'));
 const ALIASES = Object.entries(CURATION_TABLES.aliases).map(([variant, { to }]) => [variant, to]);
 const HIDDEN = Object.keys(CURATION_TABLES.hidden);
 const PACKAGED = Object.keys(CURATION_TABLES.packaged);
+const ADDITIONS = Object.keys(CURATION_TABLES.additions);
 
 const fetchFromDisk = async (url) => {
   const file = url.replace(/^\//, '');
@@ -49,9 +50,33 @@ describe('the tables against the real data', () => {
     const names = new Set(Object.keys(raw).filter((k) => !k.startsWith('_')));
     expect(validateCuration(CURATION_TABLES, { ingredientNames: names, ...vocabulariesOf(raw) })).toEqual([]);
   });
-  it('seed ten entries that all name something in the raw data', () => {
-    expect(ALIASES.length + HIDDEN.length + PACKAGED.length).toBe(10);
-    for (const name of [...ALIASES.flat(), ...HIDDEN, ...PACKAGED]) expect(raw[name], name).toBeDefined();
+  it('every variant, hidden and packaged name exists in the raw data; every alias target is real or an addition', () => {
+    for (const name of [...ALIASES.map(([v]) => v), ...HIDDEN, ...PACKAGED]) expect(raw[name], name).toBeDefined();
+    for (const [variant, to] of ALIASES) expect(raw[to] || CURATION_TABLES.additions[to], `${variant} -> ${to}`).toBeDefined();
+  });
+  it('no alias points at another alias, a hidden name, a packaged name or itself', () => {
+    const variants = new Set(ALIASES.map(([v]) => v));
+    for (const [variant, to] of ALIASES) {
+      expect(variants.has(to), `${variant} -> ${to} is a chain`).toBe(false);
+      expect(HIDDEN.includes(to) || PACKAGED.includes(to), `${variant} -> ${to}`).toBe(false);
+      expect(to).not.toBe(variant);
+    }
+  });
+  it('no name sits in two tables, and every entry carries a specific reason', () => {
+    const all = [...ALIASES.map(([v]) => v), ...HIDDEN, ...PACKAGED];
+    expect(new Set(all).size).toBe(all.length);
+    const entries = [...Object.entries(CURATION_TABLES.aliases), ...Object.entries(CURATION_TABLES.hidden), ...Object.entries(CURATION_TABLES.packaged), ...Object.entries(CURATION_TABLES.additions)];
+    for (const [name, e] of entries) {
+      expect(typeof e.reason, name).toBe('string');
+      expect(e.reason.length, name).toBeGreaterThan(15);
+      expect(/^(duplicate|merge|alias|hidden|packaged)\.?$/i.test(e.reason.trim()), `${name}: generic reason`).toBe(false);
+    }
+  });
+  it('every addition is used (an alias points at it) and does not already exist', () => {
+    for (const a of ADDITIONS) {
+      expect(raw[a], a).toBeUndefined();
+      expect(ALIASES.some(([, to]) => to === a), a).toBe(true);
+    }
   });
 });
 
@@ -60,14 +85,15 @@ describe('the curated dataset', () => {
     expect(loaded.usedFormat).toBe('bin');
     for (const [variant] of ALIASES) expect(loaded.ingredientsData[variant], variant).toBeUndefined();
     for (const name of HIDDEN) expect(loaded.ingredientsData[name], name).toBeUndefined();
-    expect(Object.keys(loaded.ingredientsData).length).toBe(Object.keys(raw).length - ALIASES.length - HIDDEN.length);
+    expect(Object.keys(loaded.ingredientsData).length).toBe(Object.keys(raw).length - ALIASES.length - HIDDEN.length + ADDITIONS.length);
   });
   it('keeps packaged entries, flagged', () => {
     for (const name of PACKAGED) expect(loaded.ingredientsData[name].packaged).toBe(true);
   });
   it('folds a variant\'s counts into the canonical entry', () => {
     for (const [variant, to] of ALIASES) {
-      expect(loaded.ingredientsData[to].totalCount).toBe(raw[to].totalCount + raw[variant].totalCount);
+      const siblings = ALIASES.filter(([, t]) => t === to).reduce((n, [v]) => n + raw[v].totalCount, 0);
+      expect(loaded.ingredientsData[to].totalCount, `${variant} -> ${to}`).toBe((raw[to]?.totalCount ?? 0) + siblings);
     }
   });
   it('has no pairing that touches a merged or hidden name, nor a self-pair', () => {
@@ -80,21 +106,24 @@ describe('the curated dataset', () => {
   it('puts every merged variant\'s pairings on the canonical entry', () => {
     const edges = new Set(loaded.pairingsData.map((p) => `${p.ingredientA}|${p.ingredientB}`));
     const has = (a, b) => edges.has(`${a}|${b}`) || edges.has(`${b}|${a}`);
-    for (const [variant, to] of ALIASES) {
-      let checked = 0;
-      for (const p of rawPairings) {
-        const other = p.ingredientA === variant ? p.ingredientB : p.ingredientB === variant ? p.ingredientA : null;
-        if (!other || other === to || HIDDEN.includes(other) || !raw[other]) continue;
-        if (ALIASES.some(([v]) => v === other)) continue;
-        expect(has(to, other), `${variant} -> ${to}: ${other}`).toBe(true);
-        checked += 1;
-      }
-      expect(checked, variant).toBeGreaterThan(20);
+    const variantSet = new Set(ALIASES.map(([v]) => v));
+    const hiddenSet = new Set(HIDDEN);
+    const target = new Map(ALIASES);
+    let checked = 0;
+    for (const p of rawPairings) {
+      const a = target.get(p.ingredientA) ?? p.ingredientA;
+      const b = target.get(p.ingredientB) ?? p.ingredientB;
+      if (a === b || hiddenSet.has(p.ingredientA) || hiddenSet.has(p.ingredientB) || !raw[p.ingredientA] || !raw[p.ingredientB]) continue;
+      if (!(variantSet.has(p.ingredientA) || variantSet.has(p.ingredientB))) continue;
+      expect(has(a, b), `${p.ingredientA} + ${p.ingredientB} -> ${a} + ${b}`).toBe(true);
+      checked += 1;
     }
+    expect(checked).toBeGreaterThan(5000);
   });
   it('is exactly what a build-time merge of pairings.json gives (the committed binary is in sync with the tables)', () => {
     const { pairings } = applyCuration(raw, rawPairings, CURATION_TABLES);
-    const inIndex = pairings.filter((p) => raw[p.ingredientA] && raw[p.ingredientB]);
+    const known = (n) => raw[n] || CURATION_TABLES.additions[n];
+    const inIndex = pairings.filter((p) => known(p.ingredientA) && known(p.ingredientB));
     expect(loaded.pairingsData.length).toBe(inIndex.length);
     const key = (p) => (p.ingredientA < p.ingredientB ? `${p.ingredientA}|${p.ingredientB}` : `${p.ingredientB}|${p.ingredientA}`);
     const binByKey = new Map(loaded.pairingsData.map((p) => [key(p), p]));
@@ -128,8 +157,13 @@ describe('typed names, search, typeaheads and keys land on the canonical entry',
   it('resolveIngredientName reads a variant as its canonical, on a curated and on a raw name set', () => {
     for (const [variant, to] of ALIASES) {
       expect(resolveIngredientName(variant, names()), variant).toBe(to);
-      expect(resolveIngredientName(variant, new Set(Object.keys(raw))), `${variant} (raw names)`).toBe(to);
+      // The raw names still hold the variant. A canonical with its own row wins; a corrected canonical the
+      // data has no row for ("grape tomato") falls back to the variant's row rather than losing the data.
+      const got = resolveIngredientName(variant, new Set(Object.keys(raw)));
+      if (raw[to]) expect(got, `${variant} (raw names)`).toBe(to);
+      else expect(ALIASES.filter(([, t]) => t === to).map(([v]) => v), `${variant} (raw names)`).toContain(got);
     }
+    expect(resolveIngredientName('grape tomato', new Set(Object.keys(raw)))).toBe('grape tomatoe');
     expect(resolveIngredientName('2 peaches', names())).toBe('peach');
   });
   it('search terms and the autocomplete vocabulary use the canonical name', () => {
@@ -164,13 +198,18 @@ describe('saved items keep their original text', () => {
 
 describe('the models stay on their own vocabulary', () => {
   const idOf = (index, name) => index.get(name);
+  // Aliases whose canonical name has its own id in the model vocabulary, and those where only the variant has one.
+  const BOTH = () => ALIASES.filter(([v, t]) => vocab.includes(v) && vocab.includes(t));
+  const VARIANT_ONLY = () => ALIASES.filter(([v, t]) => vocab.includes(v) && !vocab.includes(t));
   it('real vocab still holds the old names (the premise of the mapping)', () => {
-    for (const [variant, to] of ALIASES) { expect(vocab).toContain(variant); expect(vocab).toContain(to); }
+    for (const [variant] of ALIASES) expect(vocab, variant).toContain(variant);
+    expect(BOTH().length).toBeGreaterThan(50);
+    expect(VARIANT_ONLY().length).toBeGreaterThan(10);
   });
   it('set completion: canonical and variant names both get ids, and the canonical is fed together with its variant id', () => {
     const idx = buildVocabIndex(vocab);
     const meta = { maxlen: 24, pad_id: 0, cuisine_vocab: [], cuisine_null: 0, season_vocab: [], season_null: 0 };
-    for (const [variant, to] of ALIASES) {
+    for (const [variant, to] of BOTH()) {
       expect(idOf(idx, to), to).toBe(vocab.indexOf(to));
       expect(idOf(idx, variant), variant).toBe(vocab.indexOf(to));
       const ids = buildRecipeInputs([to], {}, meta, idx).observedIds;
@@ -178,20 +217,29 @@ describe('the models stay on their own vocabulary', () => {
       expect(ids).toContain(vocab.indexOf(variant));
       for (const id of ids) expect(typeof vocab[id]).toBe('string');
     }
+    // A corrected canonical the vocabulary lacks ("grape tomato") is fed as its variant's id, never unknown.
+    for (const [variant, to] of VARIANT_ONLY()) {
+      const ids = ALIASES.filter(([v, t]) => t === to && vocab.includes(v)).map(([v]) => vocab.indexOf(v));
+      expect(idOf(idx, to), to).toBe(Math.min(...ids));
+      // Every variant's id is fed with the canonical (many-to-one merges keep all of their signal).
+      expect(buildRecipeInputs([to], {}, meta, idx).observedIds, to).toEqual(expect.arrayContaining(ids));
+    }
   });
   it('set completion never suggests a merged variant or a hidden name', () => {
     const logits = vocab.map(() => 0);
     for (const [variant] of ALIASES) logits[vocab.indexOf(variant)] = 100;
-    for (const name of HIDDEN) logits[vocab.indexOf(name)] = 99;
+    for (const name of HIDDEN) if (vocab.includes(name)) logits[vocab.indexOf(name)] = 99;
     const top = rankLogits(logits, vocab, [], vocab.length).map((r) => r.name);
     for (const [variant] of ALIASES) expect(top).not.toContain(variant);
     for (const name of HIDDEN) expect(top).not.toContain(name);
-    expect(top.length).toBe(vocab.length - ALIASES.length - HIDDEN.length);
+    for (const name of PACKAGED) expect(top).not.toContain(name);
+    // A variant whose canonical has no id of its own is shown under the canonical name, not dropped.
+    for (const [, to] of VARIANT_ONLY()) expect(top, to).toContain(to);
   });
   it('quantity: a canonical name answers from the best-sampled of its own and its variant\'s statistics', () => {
     const artifact = readJson('models/quantity_model.json');
     const idx = quantityVocabIndex(vocab);
-    for (const [variant, to] of ALIASES) {
+    for (const [variant, to] of BOTH()) {
       const own = artifact.model?.[vocab.indexOf(to)];
       const alt = artifact.model?.[vocab.indexOf(variant)];
       const best = (alt?.n ?? 0) > (own?.n ?? 0) ? alt : own;
@@ -203,7 +251,8 @@ describe('the models stay on their own vocabulary', () => {
   });
   it('directions: canonical names resolve to the vocab ids and recipes written with the variant spelling are found', () => {
     const { nameToId, idToName } = buildVocabMaps(vocab);
-    expect(resolveNamesToIds(['peach'], nameToId).sort()).toEqual([vocab.indexOf('peach'), vocab.indexOf('peache')].sort());
+    const peachIds = [vocab.indexOf('peach'), ...ALIASES.filter(([, t]) => t === 'peach').map(([v]) => vocab.indexOf(v)).filter((i) => i >= 0)];
+    expect(resolveNamesToIds(['peach'], nameToId).sort()).toEqual(peachIds.sort());
     expect(idToName.get(vocab.indexOf('peache'))).toBe('peach');
     const index = {
       recipes: [{ t: 'Peach crumble', d: ['bake'], v: [vocab.indexOf('peache'), vocab.indexOf('flour'), vocab.indexOf('fryer')] }],

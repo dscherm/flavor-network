@@ -8,9 +8,9 @@
  * Pairing merge placement: pairings.bin is built by scripts/buildPairingsBinary.cjs with the same
  * applyCuration, so for the binary path the pairings arrive already merged and only the (small)
  * ingredients object is curated here. The slower JSON fallback merges at load. The binary keeps the
- * raw ingredients.json index order, so it is decoded against the RAW ingredients first.
+ * raw ingredients.json index order plus the additions table's names (binaryIndexObject).
  */
-import { applyCuration } from './applyCuration.js';
+import { applyCuration, binaryIndexObject } from './applyCuration.js';
 import { CURATION_TABLES } from './tables.js';
 import { decodePairingsBinary } from '../pairingsBinary.js';
 
@@ -42,7 +42,7 @@ export async function loadCuratedDataset(fetchFn, onProgress = () => {}) {
     if (binRes.ok) {
       const buf = await binRes.arrayBuffer();
       onProgress('decoding-pairings-bin');
-      pairings = decodePairingsBinary(buf, rawIngredients);
+      pairings = decodePairingsBinary(buf, binaryIndexObject(rawIngredients, CURATION_TABLES.additions));
       usedFormat = 'bin';
     }
   } catch {
