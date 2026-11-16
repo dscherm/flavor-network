@@ -3014,3 +3014,45 @@ CookbookLab.pickerMode, curation.integration, suggestable, WineLab.glasses, flav
   ]
 }
 ```
+
+## 2026-11-16 — Shopping list in US amounts; deletions that stay deleted
+
+Owner, 2026-11-16, answering the open decisions listed after v1.20.0: "3. add us amounts by default." (SHOP-OPEN-1,
+metric and US amounts on one line) and "4. es." (yes: fix PROFILE-RESURRECT, things deleted on one device coming back
+at sign-in). Order: SHOP-6, then PROFILE-2, one at a time.
+
+```json
+{
+  "id": "SHOP-6",
+  "title": "Shopping list: metric and US amounts add up, shown in US amounts by default",
+  "category": "feature",
+  "passes": false,
+  "description": "Closes SHOP-OPEN-1 by the owner's ruling. Today 200 g + 8 oz stays two parts on one line because only exact ladders are summed (src/data/shoppingList.js, merge-rule header). New rule: a weight adds to a weight and a volume adds to a volume across metric and US (1 oz = 28.3495 g, 1 lb = 16 oz; US cup 236.588 ml, tbsp 14.787 ml, tsp 4.929 ml, fl oz 29.574 ml; cl and l as today). Weight is still never turned into volume or the reverse, count words (cloves, sprigs, dashes) are untouched, and unlike kinds still show as two parts. What is STORED must stay exactly what was entered (no rounding written back, so Undo, sync and the other display stay exact); the total is worked out for display. Display system: US by default (oz and lb; tsp, tbsp, cups; fl oz for drinks, written the way a US cook reads them, with the fractions 1/4 1/3 1/2 2/3 3/4 and no false precision such as 7.05 oz), with one switch on the list, 'US | Metric', remembered on the device (say where it is kept and whether it syncs; default: device only). Metric display rounds to sensible steps (5 g, 5 ml, or 1 for small amounts). The word 'about' is shown only when the number on screen is not exact (a conversion between systems happened, or rounding changed it); a line entered and shown in the same system reads exactly as before. Copy list and the add summary ('garlic: now 5 cloves') use the same display. Do not change how recipe cards elsewhere in the app print their own amounts; name that as out of scope in the report. Update docs/shopping-list.md (the merge table and a short 'US and metric' section with the factors and rounding steps) and move SHOP-OPEN-1 in BACKLOG.md to decided, with the owner's words.",
+  "acceptance": [
+    "Table-driven tests: 200 g + 8 oz is one part (about 15 oz in US, about 425 g in metric); 250 ml + 1 cup is one part (about 2 cups; about 485 ml); 30 ml alone shows as 1 fl oz in US and 30 ml in metric with no 'about' in metric; 1 cup + 2 tbsp entered in US shows exactly as before with no 'about'; 2 cloves + 1 tbsp still two parts; 200 g + 1 cup still two parts",
+    "Stored parts are byte-for-byte what was entered after any number of merges and after switching the display back and forth (test); replaceItem Undo still restores exactly",
+    "US rounding never prints more than one fraction or a decimal a cook cannot measure (property-style test over a range of gram and ml values); no value rounds to 0",
+    "The switch changes every row, the copy text and the add summary; it survives a reload (component tests)",
+    "Looked at in a browser at 375px with a list holding metric-only, US-only and mixed lines in both settings; described honestly; no horizontal overflow",
+    "docs/shopping-list.md and BACKLOG.md match the code; npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "PROFILE-2",
+  "title": "Deleted means deleted: a recipe, drink, sauce, cuisine, ingredient or favourite pairing removed on one device does not come back at sign-in",
+  "category": "bug",
+  "passes": false,
+  "description": "PROFILE-RESURRECT in BACKLOG.md: mergeProfiles (src/hooks/useUserProfile.js) joins the local and cloud lists as a union with no record of removals, so anything deleted on one device returns from the other at the next sign-in. Only the shopping list has removal markers (src/data/shoppingStore.js, mergeShopping, 30 days). Diagnose first and write down, per list (recipes, cocktails, sauces, favourite pairings, cuisines, ingredients, and any other list the merge unions; shares is the owner's record of public links and needs its own look), how items are identified and whether they carry a time. Then give each list removal markers on the same pattern as the shopping list: a removal is recorded with its time, kept 30 days, synced with the profile, and the merge drops an item whose marker is newer than the item's own last change (where the item has no time, the marker wins). Adding the same thing again clears its marker. A device that has been offline longer than 30 days can still bring an item back; say so in the docs rather than hide it. Deleting must work signed out (marker kept on the device and applied at the next sign-in). Put the merge in a pure, tested function if it is not one already. The profile rules must allow the new field within a size cap; rules tests on the emulator only, with a demo- project id of its own. Do not change what deleting a recipe does to a link already shared from it; report what happens today. Remove PROFILE-RESURRECT from BACKLOG.md and add a CLOSEOUT.md UNRELEASED note naming the deploy targets (rules if they changed, hosting).",
+  "acceptance": [
+    "A written per-list table in the report: identity, whether items carry a time, how removal is recorded",
+    "Unit tests of the merge for every list: deleted on A and still on B stays deleted; deleted on A then added again on A stays; deleted on A, edited later on B (where items carry a time) keeps B's edit; markers older than 30 days are dropped; a profile with no markers merges exactly as before",
+    "Signed-out delete followed by sign-in keeps the item deleted (test)",
+    "The existing merge tests, including the favourite-pairings sign-in fix, still pass unchanged",
+    "Rules tests if firestore.rules changes: own profile with markers allowed, oversize denied, another user's denied",
+    "npm run gate (and npm run test:rules if rules changed) green; nothing deployed"
+  ]
+}
+```
