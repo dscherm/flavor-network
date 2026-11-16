@@ -189,6 +189,20 @@ describe('SauceLab — Edit and Delete', () => {
     expect(within(card).getByTestId('lab-node-card-prep')).toHaveTextContent('Melt and whisk.');
   });
 
+  it('PROFILE-1: the cook-made card and a codex card both have a Flavor profile button that opens', async () => {
+    const view = render(<SauceLab userProfile={withSaved([item()])} auth={SIGNED_IN} />);
+    fireEvent.click(within(await screen.findByTestId('sauce-yours-group')).getByText('Miso Butter'));
+    let card = await screen.findByTestId('lab-node-card');
+    fireEvent.click(within(card).getByTestId('flavor-profile-button'));
+    expect(within(card).getByTestId('flavor-profile-section')).toBeInTheDocument();
+    view.unmount();
+    render(<SauceLab userProfile={withSaved([item()])} auth={SIGNED_IN} />);
+    fireEvent.click((await screen.findAllByText('Marinara'))[0]);
+    card = await screen.findByTestId('lab-node-card');
+    fireEvent.click(within(card).getByTestId('flavor-profile-button'));
+    expect(within(card).getByTestId('flavor-profile-section')).toBeInTheDocument();
+  });
+
   it('codex sauces never show Edit or Delete', async () => {
     render(<SauceLab userProfile={withSaved([item()])} auth={SIGNED_IN} />);
     fireEvent.click((await screen.findAllByText('Marinara'))[0]);

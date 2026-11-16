@@ -191,3 +191,32 @@ export function resolveBuiltIn(kind, slug, data) {
   const d = findBySlug(kind, want, data?.dishes);
   return d ? resolveDish(d, data) : null;
 }
+
+/**
+ * One built-in item the app already holds (a codex cocktail, a sauce node, a Cookbook dish) in the normalised shape,
+ * through the SAME resolvers /r/<kind>/<slug> uses, so a card's flavor profile and the shared page's are computed
+ * from identical lines, amounts and garnish. A sauce node's `ingredientsDetailed` (the original lines) wins over
+ * its `ingredients`. null for an unknown kind or an empty item.
+ */
+export function normaliseBuiltIn(kind, item, data) {
+  if (!item || typeof item !== 'object') return null;
+  if (kind === 'cocktail') return resolveCocktail(item, data);
+  if (kind === 'sauce') return resolveSauce(item.ingredientsDetailed?.length ? { ...item, ingredients: item.ingredientsDetailed } : item);
+  if (kind === 'dish') return resolveDish(item, data);
+  return null;
+}
+
+const OWN_PAGE_KIND = { cocktail: 'cocktail', sauce: 'sauce', recipe: 'dish' };
+
+/**
+ * An item the cook saved or invented ({ name, lines: [{ key, amount }], method?, glass? }, kind 'cocktail' | 'sauce' |
+ * 'recipe') in the same shape a published copy has on the shared page (sharePublish.fromSharedDoc). null when
+ * there is no name or no line.
+ */
+export function fromOwnItem(kind, item) {
+  const pageKind = OWN_PAGE_KIND[kind];
+  const lines = (Array.isArray(item?.lines) ? item.lines : []).filter((l) => l && typeof l.key === 'string' && l.key)
+    .map((l) => ({ key: l.key, amount: l.amount || '' }));
+  if (!pageKind || !item?.name || !lines.length) return null;
+  return { kind: pageKind, slug: '', name: item.name, lines, method: item.method || '', glass: item.glass || null, category: null, categoryId: item.category ?? null };
+}

@@ -22,6 +22,7 @@ import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, chalkSurfaceStyle } from '../d
 import { ShareButton } from './ShareSheet.jsx';
 import { OwnShareButton } from './OwnShare.jsx';
 import { SHARE_OWN_ENABLED } from '../data/shareTargets.js';
+import { FlavorProfileButton, FlavorProfileSection, useFlavorToggle } from './RecipeFlavorProfile.jsx';
 
 const CHALK_BORDER_OUTER = '#4a4a4a';
 const CHALK_BORDER_INNER = '#6a6a6a';
@@ -111,11 +112,15 @@ export default function LabNodeCard({
   actions = [],          // [{ label, onClick, testid }] — buttons under the family chip
   share = null,          // { link, recipe } for a built-in recipe: adds a Share button to the actions row
   ownShare = null,       // { kind, item } for a recipe the cook made: a Share button that publishes it first (SHARE_OWN_ENABLED)
+  flavor = null,         // { recipe, nodes, builtIn, onProfileOpen } PROFILE-1: a "Flavor profile" button beside the actions, opening the profile in place
   children = null,       // optional extra sections, rendered after the details row
   headerArt = null,      // optional decorative drawing above the name (e.g. the wine's glass)
   onSelect,
   onClose,
 }) {
+  const flavorToggle = useFlavorToggle(() => flavor?.onProfileOpen?.(flavor.recipe?.kind, !!flavor.builtIn));
+  // A different card (a cousin chip) starts with the profile closed.
+  useEffect(() => { if (flavorToggle.open) flavorToggle.close(); }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); onClose?.(); } };
     window.addEventListener('keydown', onKey);
@@ -170,15 +175,24 @@ export default function LabNodeCard({
         )}
 
         {/* Card actions (e.g. "Riff on this") */}
-        {(actions.length > 0 || share?.link || (SHARE_OWN_ENABLED && ownShare?.item)) && (
+        {(actions.length > 0 || flavor?.recipe || share?.link || (SHARE_OWN_ENABLED && ownShare?.item)) && (
           <div className="flex justify-center flex-wrap gap-2 mt-1.5 mb-0.5 flex-shrink-0">
-            {actions.map((a) => (
-              <button key={a.label} type="button" onClick={a.onClick} data-testid={a.testid}
-                className="px-4 py-1.5 rounded-full border min-h-[40px]"
-                style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }}>
-                {a.label}
-              </button>
-            ))}
+            {(() => {
+              const flavorAt = actions.findIndex((a) => /riff/i.test(a.label)) + 1; // right after "Riff on this"; first when there is none
+              const flavorBtn = flavor?.recipe ? (
+                <FlavorProfileButton key="flavor-profile" toggle={flavorToggle} className="px-4 py-1.5 rounded-full border"
+                  style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
+              ) : null;
+              const btns = actions.map((a) => (
+                <button key={a.label} type="button" onClick={a.onClick} data-testid={a.testid}
+                  className="px-4 py-1.5 rounded-full border min-h-[40px]"
+                  style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }}>
+                  {a.label}
+                </button>
+              ));
+              if (flavorBtn) btns.splice(flavorAt, 0, flavorBtn);
+              return btns;
+            })()}
             {share?.link && (
               <ShareButton recipe={share.recipe} link={share.link} testid="card-share" className="!rounded-full !px-4 !py-1.5"
                 style={{ color: CHALK_CREAM, borderColor: `${clusterColor}aa`, background: `${clusterColor}26`, fontFamily: FONT, fontSize: FS_CHIP, ...TEXT_OUTLINE }} />
@@ -189,6 +203,8 @@ export default function LabNodeCard({
             )}
           </div>
         )}
+
+        {flavor?.recipe && <FlavorProfileSection toggle={flavorToggle} recipe={flavor.recipe} nodes={flavor.nodes} className="mt-2 flex-shrink-0" />}
 
         {/* Prep details */}
         {cleanDetails.length > 0 && (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import LabNodeCard from './LabNodeCard.jsx';
-import { shareLinkFor } from '../data/sharedRecipe.js';
+import { shareLinkFor, normaliseBuiltIn, fromOwnItem } from '../data/sharedRecipe.js';
 import SauceBrowse from './SauceBrowse.jsx';
 import {
   loadSauceCodex,
@@ -64,6 +64,8 @@ export default function SauceLab({
   // An Invent seed handed in once (a shared recipe's "Make it your own"): opens the Invent panel on it.
   initialInventSeed = null,
   onInventSeedConsumed = null,
+  // PROFILE-1: called with (kind, builtIn) when a card's Flavor profile is opened (for the later usage-data task; nothing is sent now).
+  onProfileOpen = null,
 }) {
   const [codexRaw, setCodexData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -120,6 +122,12 @@ export default function SauceLab({
   // Share: codex sauces link straight to /r/<kind>/<slug>; the cook's own (mine) go through the publish step.
   const shareFor = (sauce) => (sauce && !sauce.mine ? { link: shareLinkFor('sauce', sauce), recipe: { kind: 'sauce', name: sauce.name } } : null);
   const ownShareFor = (sauce) => (sauce?.mine ? { kind: 'sauce', item: savedSauces.find((x) => x.id === sauce.savedId) || null } : null);
+  // PROFILE-1: the card's "Flavor profile" — the same normalised recipe the shared page gets (built-in) or the cook's own lines.
+  const flavorFor = (sauce) => {
+    if (!sauce) return null;
+    const recipe = sauce.mine ? fromOwnItem('sauce', savedSauces.find((x) => x.id === sauce.savedId)) : normaliseBuiltIn('sauce', sauce);
+    return recipe ? { recipe, nodes: fullData?.graph?.nodes, builtIn: !sauce.mine, onProfileOpen } : null;
+  };
   // "What do I need?" on a sauce card, against the same kitchen list.
   const sauceNeeds = (sauce) => (
     <WhatDoINeed
@@ -287,6 +295,7 @@ export default function SauceLab({
             clusterTag={detailSauce?.mine ? 'YOURS' : (detailSauce?.isRoot ? 'MOTHER' : (detailSauce?.cuisine || null))}
             actions={savedActions(detailSauce)}
             share={shareFor(detailSauce)}
+            flavor={flavorFor(detailSauce)}
             ownShare={ownShareFor(detailSauce)}
             details={detailSauce ? [{ label: 'Cuisine', value: detailSauce.cuisine }] : []}
             ingredients={detailSauce?.ingredientsDetailed?.length ? detailSauce.ingredientsDetailed : (detailSauce?.ingredients || [])}
@@ -418,6 +427,7 @@ export default function SauceLab({
             clusterTag={s?.mine ? 'YOURS' : (s?.isRoot ? 'MOTHER' : (s?.cuisine || null))}
             actions={savedActions(s)}
             share={shareFor(s)}
+            flavor={flavorFor(s)}
             ownShare={ownShareFor(s)}
             details={s ? [{ label: 'Cuisine', value: s.cuisine }] : []}
             ingredients={s?.ingredientsDetailed?.length ? s.ingredientsDetailed : (s?.ingredients || [])}

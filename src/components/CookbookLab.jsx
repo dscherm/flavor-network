@@ -28,7 +28,9 @@ import ProfileAxisRadar from './ProfileAxisRadar.jsx';
 import { DishArt, IngredientGlyph, LabArt } from './chalkArt.jsx';
 import { SEED_RECIPES, CUISINE_COLOR, userRecipeToSeed } from '../data/seedRecipes.js';
 import { getRecipeDetails } from '../data/seedRecipeDetails.js';
-import { shareLinkFor } from '../data/sharedRecipe.js';
+import { shareLinkFor, normaliseBuiltIn, fromOwnItem } from '../data/sharedRecipe.js';
+import { FlavorProfileButton, FlavorProfileSection, useFlavorToggle } from './RecipeFlavorProfile.jsx';
+import { btn, ACCENT } from './inventUi.jsx';
 import { ShareButton } from './ShareSheet.jsx';
 import { OwnShareButton } from './OwnShare.jsx';
 import { itemFromRecipe } from '../data/sharePublish.js';
@@ -149,7 +151,7 @@ const RADAR_AXES = ['taste', 'aroma', 'season', 'cuisine', 'method'];
 // DESIGN-3: the popup leads with pictures — dish drawing, meta as
 // icon+number, the profile radar — then ingredient chips, the method
 // behind a fold, and "Goes well with" as drawn mini-cards.
-export function RecipeDetail({ recipe, userRecipe = null, ctx, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce, onFindWine }) {
+export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = null, onClose, onOpenInNetwork, onOpenRecipeLab, onFindCocktail, onFindSauce, onFindWine }) {
   const color = CUISINE_COLOR[recipe.cuisine] || '#94a3b8';
   const kind = dishTypeOf(recipe);
   const nodes = ctx?.graph?.nodes;
@@ -158,6 +160,13 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onClose, onOpenIn
   const shareLink = BUILT_IN_DISH_IDS.has(recipe.id) ? shareLinkFor('dish', recipe) : '';
   // The cook's own saved recipe: shared through the publish step (OwnShare), hidden while SHARE_OWN_ENABLED is false.
   const ownItem = useMemo(() => (userRecipe ? itemFromRecipe(userRecipe) : null), [userRecipe]);
+  // PROFILE-1: the same normalised recipe the shared page gets for this dish (built-in: lines + amounts from the recipe
+  // details) or the cook's own lines and amounts.
+  const flavorRecipe = useMemo(() => {
+    if (ownItem) return fromOwnItem('recipe', ownItem);
+    return normaliseBuiltIn('dish', recipe, { dishDetails: { [recipe.id]: details } });
+  }, [ownItem, recipe, details]);
+  const flavorToggle = useFlavorToggle(() => onProfileOpen?.('dish', !ownItem && !recipe._userSaved));
   // "What do I need?" against the shared kitchen (Recipe / Sauce Labs).
   const [kitchen, setKitchen] = useState(() => loadKitchen());
   // WEAK-3: only missing mains are "you need"; flavourings are "even better
@@ -254,16 +263,23 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onClose, onOpenIn
         </div>
 
         <div className="p-4 pt-3 space-y-4">
-          {shareLink && (
-            <div className="flex justify-end !mt-0" data-testid="recipe-share">
-              <ShareButton recipe={{ kind: 'dish', name: recipe.name }} link={shareLink} />
-            </div>
-          )}
-          {ownItem && SHARE_OWN_ENABLED && (
-            <div className="flex justify-end !mt-0" data-testid="recipe-own-share">
-              <OwnShareButton kind="recipe" item={ownItem} testid="recipe-own-share-button" />
-            </div>
-          )}
+          <div className="flex flex-wrap justify-end items-center gap-2 !mt-0" data-testid="recipe-actions">
+            {flavorRecipe && (
+              <FlavorProfileButton toggle={flavorToggle} className="inline-flex items-center justify-center rounded-lg px-4"
+                style={{ ...btn({ background: `${ACCENT}22` }), minHeight: 44 }} />
+            )}
+            {shareLink && (
+              <div data-testid="recipe-share">
+                <ShareButton recipe={{ kind: 'dish', name: recipe.name }} link={shareLink} />
+              </div>
+            )}
+            {ownItem && SHARE_OWN_ENABLED && (
+              <div data-testid="recipe-own-share">
+                <OwnShareButton kind="recipe" item={ownItem} testid="recipe-own-share-button" />
+              </div>
+            )}
+          </div>
+          {flavorRecipe && <FlavorProfileSection toggle={flavorToggle} recipe={flavorRecipe} nodes={nodes} className="!mt-2" />}
           {recipe.description && (
             <p className="leading-snug" style={{ fontFamily: FONT, fontSize: '19px', color: CHALK_DIM }}>{recipe.description}</p>
           )}
@@ -405,6 +421,8 @@ const DEFAULT_CLUSTER_FILTER = 'savory';
 
 export default function CookbookLab({
   externalFilter = null,
+  // PROFILE-1: (kind, builtIn) when a recipe's Flavor profile is opened (for the later usage-data task; nothing is sent now).
+  onProfileOpen = null,
   onOpenInNetwork,
   onOpenRecipeLab,
   onFindCocktail,
@@ -667,6 +685,7 @@ export default function CookbookLab({
       {selected && (
         <RecipeDetail
           recipe={selected}
+          onProfileOpen={onProfileOpen}
           userRecipe={selected._userSaved ? (Array.isArray(userRecipes) ? userRecipes.find((r) => String(r?.name || '').trim() === selected.name) || null : null) : null}
           ctx={ctx}
           onClose={() => setSelected(null)}

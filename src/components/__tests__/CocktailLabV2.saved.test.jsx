@@ -234,6 +234,22 @@ describe('CocktailLabV2 — Edit and Delete', () => {
     expect(within(card).getByTestId('lab-node-card-prep')).toHaveTextContent('Stir with ice.');
   });
 
+  it('PROFILE-1: the cook-made card and a codex card both have a Flavor profile button beside Riff', async () => {
+    const view = render(<CocktailLabV2 fullData={fullData} userProfile={withSaved([item()])} auth={SIGNED_IN} />);
+    fireEvent.click(within(await screen.findByTestId('cocktail-yours-group')).getByText('Gin Vermouth Thing'));
+    let card = await screen.findByTestId('lab-node-card');
+    expect(within(card).getByTestId('flavor-profile-button').previousElementSibling).toBe(within(card).getByTestId('cocktail-riff-open'));
+    fireEvent.click(within(card).getByTestId('flavor-profile-button'));
+    expect(within(card).getByTestId('flavor-profile-section')).toBeInTheDocument();
+    view.unmount();
+    render(<CocktailLabV2 fullData={fullData} userProfile={withSaved([item()])} auth={SIGNED_IN} />);
+    fireEvent.click((await screen.findAllByText('Daiquiri'))[0]);
+    card = await screen.findByTestId('lab-node-card');
+    expect(within(card).getByTestId('flavor-profile-button').previousElementSibling).toBe(within(card).getByTestId('cocktail-riff-open'));
+    fireEvent.click(within(card).getByTestId('flavor-profile-button'));
+    expect(within(card).getByTestId('flavor-profile-section')).toBeInTheDocument();
+  });
+
   it('codex cocktails never show Edit or Delete', async () => {
     render(<CocktailLabV2 fullData={fullData} userProfile={withSaved([item()])} auth={SIGNED_IN} />);
     fireEvent.click((await screen.findAllByText('Daiquiri'))[0]);

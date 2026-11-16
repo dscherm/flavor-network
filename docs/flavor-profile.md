@@ -935,3 +935,17 @@ The redesign (CHART-1) is still to come: it will show candidate graphs with real
 ### Not verified
 
 No cook has reviewed any line. The 375 px check was made on the DOM in the Browser pane (no horizontal overflow, bar counts within the rule, headings present), not by looking at a painted screen. Cards were rendered with the Cloud Function's own renderer to PNG and looked at; nothing was deployed.
+
+## Where the chart appears, after PROFILE-1
+
+Every built-in recipe and everything the cook saves now has a **Flavor profile** button, and it opens the same chart as everywhere else:
+
+- **Cocktail Lab and Sauce Lab cards** (`LabNodeCard`): the button sits in the actions row right after "Riff on this" (first in the row on a sauce card, which has no Riff), for built-in drinks and sauces and for the cook's own "Yours" items. It opens an expanding section inside the card, under the actions row, so the ingredients and method stay on the same scroll. It closes on a second tap, on "Close", or on Escape (focus returns to the button; Escape inside the section does not close the card).
+- **Cookbook recipe view** (`RecipeDetail`): the button sits in an actions row with Share, above the profile radar. Built-in dishes and the cook's own recipes. Opens the same expanding section.
+- **Unchanged**: the Recipe Notebook, the invent panels, the shared recipe page and the share cards (all in the list above).
+
+What the section shows: the Taste and Aroma groups under their headings, strongest first, at most 4 + 4 with "+N fainter notes" and "show all" (the `compact` rule); "Driven by" (the ingredients behind the strongest taste and the strongest aroma); "Not counted" for ingredients with no data; the line "Built from taste labels and aroma notes for each ingredient, weighted by amount. A guide, not a taste test."; and, with too little data, only "Not enough flavor data for a chart yet." with no bars.
+
+How it stays the same chart: the card turns the item it already holds into the shared page's recipe shape with `normaliseBuiltIn` (the same resolvers as `/r/<kind>/<slug>`) or `fromOwnItem` (the shape of a published copy), then calls `profileForRecipe`. A test (`recipeProfileCoverage.test.js`) checks, for every built-in drink, sauce and dish, that the card's recipe and profile equal the shared page's, and for Negroni, Hollandaise and Beef Bolognese that the card's two leading tastes and aromas equal the shared page's and the server share card's. Nothing is fetched when a card is opened: the curated taste labels are already on the ingredient nodes in memory and the aroma table is code. Opening a card calls an optional `onProfileOpen(kind, builtIn)` prop (a no-op by default) so a later usage-data task can count opens.
+
+This uses the interim chart style; CHART-1 will restyle it with the other charts.

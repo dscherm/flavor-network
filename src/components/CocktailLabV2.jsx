@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import LabNodeCard from './LabNodeCard.jsx';
 import DishStory from './DishStory.jsx';
-import { shareLinkFor } from '../data/sharedRecipe.js';
+import { shareLinkFor, normaliseBuiltIn, fromOwnItem } from '../data/sharedRecipe.js';
 import CocktailBrowse from './CocktailBrowse.jsx';
 import {
   loadCodexV2,
@@ -68,6 +68,8 @@ export default function CocktailLabV2({
   // An Invent seed handed in once (a shared recipe's "Make it your own"): opens the Invent panel on it.
   initialInventSeed = null,
   onInventSeedConsumed = null,
+  // PROFILE-1: called with (kind, builtIn) when a card's Flavor profile is opened. The later usage-data task counts these; nothing is sent now.
+  onProfileOpen = null,
 }) {
   const [graph, setGraph] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -298,6 +300,15 @@ export default function CocktailLabV2({
   const ownShareProp = selectedNode?.mine
     ? { kind: 'cocktail', item: savedCocktails.find((x) => x.id === selectedNode.savedId) || null }
     : null;
+  // PROFILE-1: the card's "Flavor profile" — the same normalised recipe the shared page gets (built-in) or the cook's own lines.
+  const cardNodes = fullData?.graph?.nodes;
+  const flavorProp = useMemo(() => {
+    if (!selectedNode) return null;
+    const recipe = selectedNode.mine
+      ? fromOwnItem('cocktail', savedCocktails.find((x) => x.id === selectedNode.savedId))
+      : normaliseBuiltIn('cocktail', selectedNode, { families: graph?.families });
+    return recipe ? { recipe, nodes: cardNodes, builtIn: !selectedNode.mine, onProfileOpen } : null;
+  }, [selectedNode, savedCocktails, graph, cardNodes, onProfileOpen]);
   const riffTarget = riffDrink || (riffOpen ? selectedNode : null);
   const riffPanel = riffTarget && graph ? (
     <CocktailRiff
@@ -554,6 +565,7 @@ export default function CocktailLabV2({
             details={cardDetails}
             actions={cardActions}
             share={shareProp}
+            flavor={flavorProp}
             ownShare={ownShareProp}
             ingredients={cardIngredients.items}
             prep={selectedNode?.recipe_text || ''}
@@ -616,6 +628,7 @@ export default function CocktailLabV2({
           details={cardDetails}
           actions={cardActions}
             share={shareProp}
+            flavor={flavorProp}
             ownShare={ownShareProp}
           ingredients={cardIngredients.items}
           prep={selectedNode?.recipe_text || ''}
