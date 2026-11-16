@@ -59,6 +59,23 @@ describe('profilePair', () => {
   });
 });
 
+describe('labels on the With grid', () => {
+  it('labels every note that is on and fits, plus the movers; absent notes stay unlabelled', () => {
+    const pair = profilePair({ ...z(), sweet: 0.5, odor_woody: 0.3 }, { ...z(), odor_fatty: 0.4 });
+    expect([...pair.labelledAfter].sort()).toEqual(['odor_fatty', 'odor_woody', 'sweet']);
+    expect([...pair.labelled]).toEqual(['odor_fatty']);
+    const absent = pair.after.cells.filter((c) => !c.on).map((c) => c.axis);
+    for (const a of absent) expect(pair.labelledAfter.has(a)).toBe(false);
+  });
+  it('every label in the vocabulary fits its cell, so none can touch a neighbour', async () => {
+    const { AXES } = await import('../flavorDisplay.js');
+    const { axisLabel } = await import('../recipeProfileAnalysis.js');
+    const { labelFits } = await import('../profileGridPair.js');
+    for (const a of AXES) expect(labelFits(axisLabel(a))).toBe(true);
+    expect(labelFits('Extraordinarily')).toBe(false);
+  });
+});
+
 describe('changeText', () => {
   it('words ups, downs, both ups, both downs', () => {
     expect(changeText([{ axis: 'sweet', diff: 1 }, { axis: 'sour', diff: 1 }])).toBe('More sweet and sour');

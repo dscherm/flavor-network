@@ -15,7 +15,9 @@ const CREAM = '#f5efde';
 const DIM = '#8a8478';
 const FAINT = '#6a6a6a';
 
-const dotRadius = (c) => (c.on ? 2.5 + 8.5 * c.radius : 2.5);
+/** A present note is clearly a dot (never smaller than DOT_MIN), a strong one fills most of the cell; an absent one is a 2.5 ring. */
+const DOT_MIN = 4.5;
+const dotRadius = (c) => (c.on ? DOT_MIN + 7.5 * c.radius : 2.5);
 
 function markOf(marks, axis) {
   if (!marks) return null;
@@ -39,8 +41,8 @@ function Cell({ c, mark, label }) {
           ? <circle cx="14" cy="14" r={dotRadius(c)} fill={c.color || '#a09070'} />
           : <circle cx="14" cy="14" r="2.5" fill="none" stroke={FAINT} strokeWidth="1" />}
         {mark && <circle cx="14" cy="14" r="13" fill="none" stroke={CREAM} strokeWidth="1.2" strokeDasharray={mark === 'down' ? '2.5 2' : undefined} />}
-        {mark === 'up' && <polygon points="22,1 27,8 17,8" fill={CREAM} />}
-        {mark === 'down' && <polygon points="22,8 27,1 17,1" fill={CREAM} />}
+        {mark === 'up' && <polygon points="21.5,0 28,10 15,10" fill={CREAM} />}
+        {mark === 'down' && <polygon points="21.5,10 28,0 15,0" fill={CREAM} />}
       </svg>
       <span
         className="leading-none text-center whitespace-nowrap"

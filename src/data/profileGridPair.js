@@ -12,6 +12,16 @@ export const MARK_THRESHOLD = 0.02;
 /** At most this many marked notes carry a text label under their dot (the ones the text line names). */
 export const LABELLED_MOVERS = 2;
 
+/**
+ * Label rule for the "With ..." grid: every note that is on gets its label when the label fits inside its own
+ * cell, so it cannot touch a neighbour's label. A label is about LABEL_CHAR_PX per character at the grid's 11 px
+ * hand font; a cell is at least MIN_CELL_PX wide down to a 320 px phone (6 columns, two grids side by side).
+ * Labels of absent notes stay hidden. The movers are always labelled.
+ */
+export const LABEL_CHAR_PX = 5.4;
+export const MIN_CELL_PX = 38;
+export const labelFits = (label) => String(label || '').length * LABEL_CHAR_PX <= MIN_CELL_PX;
+
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
 const barsOf = (profile) => AXES.map((axis) => ({ axis, score: profile[axis] || 0 }));
@@ -30,7 +40,7 @@ export function changeText(movers) {
 /**
  * @param before  {axis: score} the recipe's profile now
  * @param delta   {axis: change} per-axis shift the candidate causes
- * @returns {{ scale, before, after, marks: {axis: 'up'|'down'}, movers: [{axis, diff}], labelled: Set, text }}
+ * @returns {{ scale, before, after, marks, movers, labelled: Set (the two biggest movers; the Now grid), labelledAfter: Set (movers plus every note that is on and fits; the With grid), text }}
  */
 export function profilePair(before = {}, delta = {}) {
   const b = {};
@@ -50,14 +60,18 @@ export function profilePair(before = {}, delta = {}) {
   const marks = {};
   for (const d of diffs) marks[d.axis] = d.diff > 0 ? 'up' : 'down';
   const top = diffs.slice(0, LABELLED_MOVERS);
+  const after = flavorGrid(bars.after, { scale, colors });
+  const labelledAfter = new Set(top.map((d) => d.axis));
+  for (const c of after.cells) if (c.on && labelFits(c.label)) labelledAfter.add(c.axis);
 
   return {
     scale,
     before: flavorGrid(bars.before, { scale, colors }),
-    after: flavorGrid(bars.after, { scale, colors }),
+    after,
     marks,
     movers: diffs,
     labelled: new Set(top.map((d) => d.axis)),
+    labelledAfter,
     text: changeText(top),
   };
 }

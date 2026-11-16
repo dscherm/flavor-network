@@ -9,7 +9,6 @@
  *   title         string, default "Flavor profile"
  *   labels        { empty, uncounted, note }
  *   testidPrefix  default 'profile'
- *   surface       flavorDisplay surface (kept for callers; the chart no longer caps notes, so it has no effect)
  * When profile.drawn is false (and the list is not empty) only the plain line (profile.summary) shows, in {p}-empty.
  * The one-line summary shows only where no tasting-note sentence is drawn (it would repeat it).
  * CHART-3 replaced the capped bar groups and the "show all" toggle: every note above the floor is in the sentence/strips,
@@ -20,7 +19,7 @@ import FlavorSwipe from './FlavorSwipe.jsx';
 import { groupBars } from '../data/flavorDisplay.js';
 import { heading, small, SANS, CHALK_CREAM, CHALK_SUB } from './inventUi.jsx';
 
-export default function InventFlavorProfile({ profile, title = 'Flavor profile', labels = {}, testidPrefix = 'profile', surface = 'compact' }) {
+export default function InventFlavorProfile({ profile, title = 'Flavor profile', labels = {}, testidPrefix = 'profile' }) {
   const L = {
     empty: 'Add ingredients with flavor data to see a profile.',
     uncounted: 'Not counted (no flavor data)',
@@ -28,7 +27,7 @@ export default function InventFlavorProfile({ profile, title = 'Flavor profile',
     ...labels,
   };
   const p = testidPrefix;
-  const bars = groupBars(profile?.bars || [], surface, { all: true }).bars;
+  const bars = groupBars(profile?.bars || [], 'compact', { all: true }).bars;
   const uncounted = profile?.uncounted || [];
   // The draw rule said no chart (too few ingredients with real flavor values): one plain line, no bars.
   const noChart = profile?.drawn === false && (profile.counted?.length || 0) + uncounted.length > 0;

@@ -16,6 +16,7 @@ import SharedRecipePage from '../components/SharedRecipePage.jsx';
 import RecipeFlavorProfilesCard from '../components/RecipeFlavorProfilesCard.jsx';
 import InventCocktail from '../components/InventCocktail.jsx';
 import { groupBars } from '../data/flavorDisplay.js';
+import { flavorNote, flavorWheel, flavorStrips } from '../data/flavorCharts.js';
 import { SHARE_CHARTS_ENABLED } from '../data/shareTargets.js';
 import { SEED_RECIPES } from '../data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../data/seedRecipeDetails.js';
@@ -80,6 +81,38 @@ for (const [name, [kind, slug]] of Object.entries(RECIPES)) {
       expect(bars.map((b) => b.label.toLowerCase()).slice(0, LEAD)).toEqual(truth.bars.slice(0, LEAD).map((b) => b.label.toLowerCase()));
       expect(bars[0].score).toBeCloseTo(truth.bars[0].score, 2);
     });
+
+    // CHART-7: the new charts. One recipe leads with the same notes in the tasting note on the shared page, the
+    // server card's stored notes, the wheel's labelled wedges and the strips' labelled segments.
+    const leadWords = (n) => [...n.lead];
+    const truthNote = flavorNote(truth.bars);
+
+    it('the shared page tasting note is the same sentence, and its wheel draws the same notes', async () => {
+      render(<SharedRecipePage route={{ kind, slug }} loadData={loadData} loadNodes={async () => nodes} />);
+      const el = await screen.findByTestId('shared-profile-sentence');
+      expect(el.getAttribute('data-note')).toBe(truthNote.text);
+      const wedges = [...document.querySelectorAll('[data-testid^="shared-profile-wedge-"]')];
+      expect(wedges.map((w) => axisOf(w, 'shared-profile-wedge-')).sort()).toEqual(truth.bars.map((b) => b.axis).sort());
+    });
+
+    it('the server card tasting note, built from the stored notes, leads with the same notes', () => {
+      const stored = serverCards[`${kind}/${slug}`].bars;
+      const note = flavorNote(stored);
+      expect(leadWords(note)).toEqual(leadWords(truthNote));
+      expect(note.text).toBe(truthNote.text);
+    });
+
+    it('the wheel and the strips put the same strongest notes first', () => {
+      const wheel = flavorWheel(truth.bars, 'card');
+      const labelled = wheel.wedges.filter((w) => w.labelled).map((w) => w.axis).sort();
+      const strongest = [...truth.bars].sort((a, b) => b.score - a.score).slice(0, 4).map((b) => b.axis).sort();
+      expect(labelled).toEqual(strongest);
+      const lead = truthNote.lead[0];
+      const top = wheel.wedges.filter((w) => w.on).sort((a, b) => b.length - a.length)[0];
+      expect(top.axis).toBe(lead);
+      const seg = [...flavorStrips(truth.bars).taste.segments, ...flavorStrips(truth.bars).aroma.segments].sort((a, b) => b.score - a.score)[0];
+      expect(seg.axis).toBe(lead);
+    });
   });
 }
 
@@ -103,5 +136,9 @@ describe('negroni: the Cocktail Lab invent panel leads with the same tastes and 
     const recipe = resolveBuiltIn('cocktail', 'negroni', data);
     const truthTastes = profileForRecipe(recipe, nodes).bars.map((b) => b.axis).filter((a) => !a.startsWith('odor_')).slice(0, 2);
     expect(bars.filter((a) => !a.startsWith('odor_')).slice(0, 2).sort()).toEqual([...truthTastes].sort());
+    // CHART-7: and its tasting note names the same notes in its lead (the recipe's own amounts may reorder the "behind" notes).
+    const truthLeadLabels = flavorNote(profileForRecipe(recipe, nodes).bars).words.filter((w) => w.role === 'lead').map((w) => w.label.toLowerCase());
+    const inventNote = screen.getByTestId('invent-profile-sentence').getAttribute('data-note').toLowerCase();
+    for (const l of truthLeadLabels) expect(inventNote).toContain(l);
   });
 });

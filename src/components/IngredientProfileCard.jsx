@@ -255,11 +255,11 @@ export default function IngredientProfileCard({
       </h3>
 
       {/* HERO before/after: two fixed grids on ONE scale, so an unchanged note is the same size in both and a dot
-          that grows really is stronger. Cells that change by more than MARK_THRESHOLD carry a ring and a caret. */}
+          that grows really is stronger. Only the "With" grid carries marks: cells that change by more than MARK_THRESHOLD get a ring and a caret. */}
       <figure className="w-full m-0" aria-labelledby="ingredient-card-caption" data-testid="ingredient-card-pair">
         <div className="w-full flex items-start gap-x-3">
-          <PairGrid title="Now" grid={pair.before} marks={pair.marks} labelled={pair.labelled} testId="ingredient-card-grid-before" />
-          <PairGrid title={afterTitle} grid={pair.after} marks={pair.marks} labelled={pair.labelled} testId="ingredient-card-grid-after" />
+          <PairGrid title="Now" grid={pair.before} marks={null} labelled={pair.labelled} testId="ingredient-card-grid-before" />
+          <PairGrid title={afterTitle} grid={pair.after} marks={pair.marks} labelled={pair.labelledAfter} testId="ingredient-card-grid-after" />
         </div>
         <figcaption
           id="ingredient-card-caption"

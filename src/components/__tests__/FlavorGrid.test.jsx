@@ -53,4 +53,20 @@ describe('FlavorGrid', () => {
     const { container } = render(<FlavorGrid grid={flavorGrid([{ axis: 'sweet', score: 0.6 }])} showLabels={new Set(['sweet'])} />);
     expect(container.querySelectorAll('[data-testid="flavor-grid-label"]')).toHaveLength(1);
   });
+
+  it('a faint present note is still a clear dot: bigger than an empty ring, smaller than a strong dot', () => {
+    const grid = flavorGrid([{ axis: 'sweet', score: 1 }, { axis: 'sour', score: 0.06 }], { scale: 1 });
+    const { container } = render(<FlavorGrid grid={grid} />);
+    const r = (axis) => Number(container.querySelector(`[data-axis="${axis}"] circle`).getAttribute('r'));
+    expect(r('sour')).toBeGreaterThanOrEqual(4.5);
+    expect(r('sour')).toBeGreaterThan(r('bitter'));
+    expect(r('sour')).toBeLessThan(r('sweet'));
+  });
+
+  it('the caret is large enough to read without the ring (at least 10 units tall in the 28-unit cell)', () => {
+    const { container } = render(<FlavorGrid grid={flavorGrid([{ axis: 'sweet', score: 0.6 }])} marks={{ sweet: 'up' }} />);
+    const pts = container.querySelector('[data-axis="sweet"] polygon').getAttribute('points').split(' ').map((p) => p.split(',').map(Number));
+    const ys = pts.map((p) => p[1]);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThanOrEqual(10);
+  });
 });

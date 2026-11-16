@@ -3,23 +3,28 @@
 // From src/data/shareTargets.js (SHARE-8): whether a card draws the flavor chart.
 export const SHARE_CHARTS_ENABLED = true;
 /**
- * flavorDisplay.js — AROMA-4. THE display rule for flavor charts, written once. Pure, no imports (the share card
- * layout module is copied into the Cloud Functions package, and scripts/buildShareIndex.mjs inlines this file
- * into that copy, so keep it self-contained).
+ * flavorDisplay.js — the seventeen flavor axes, their one ordering and the floor, written once. Pure, no imports
+ * (the share card layout module is copied into the Cloud Functions package, and scripts/buildShareIndex.mjs
+ * inlines this file into that copy, so keep it self-contained).
  *
- * With six tastes and eleven aromas a full chart has seventeen bars, so the ranked bars show only the strongest.
- * The owner has chosen this as the design for the Recipe Notebook overview (CHART-5); the wheel is the other chart.
+ * What this file is for now (CHART-7): the shared vocabulary every chart is built from.
+ *   - AXES / TASTE_AXES / AROMA_AXES, axis and bar helpers (axisOfBar, barGroup), FLOOR (0.05) and the one
+ *     ordering (compareBars: strongest first at 3 decimals, ties by canonical axis order).
+ *   - The ranked bars (groupBars, SURFACES, hiddenLine): drawn only by the Recipe Notebook overview ('full', six
+ *     and six with "show all") and used as the plain ranked list by InventFlavorProfile ('compact', everything shown).
+ *   - radarAxes / radarKeys: which spokes a radar plots (the Sauce suggestion card's aroma radar; the Cookbook card
+ *     radar's chef vocabulary).
+ * The tasting note, strips, wheel and grid are in flavorCharts.js, built on the same ordering.
  *
- * The rule, in plain words
+ * Rules
  *   1. Tastes and aromas are two groups ("Taste", "Aroma"), each ordered strongest first.
- *   2. A bar is shown only when its score is at least FLOOR (0.05, the floor the invent panels, the shared page
- *      and the cards already used).
- *   3. Each group has a maximum that depends on the surface's room (SURFACES below). When bars are hidden a short
- *      line says so ("+3 fainter notes"); surfaces with room (compact, full) also offer "show all".
+ *   2. A bar is shown only when its score is at least FLOOR.
+ *   3. Each group has a maximum that depends on the surface (SURFACES). When bars are hidden a short line says so
+ *      ("+3 fainter notes"); surfaces with room offer "show all".
  *   4. Ties are broken one way everywhere: scores are compared at 3 decimal places, and a tie goes to the axis
- *      that comes first in AXES (the canonical order: sweet, sour, bitter, salty, umami, heat, then fruity,
- *      floral, green, woody, spice, creamy, toasty, nutty, earthy, smoky, savory).
- *   5. A radar plots only the axes the rule selects for it (so a recipe's radar has 3 to 8 spokes, never 17).
+ *      that comes first in AXES (sweet, sour, bitter, salty, umami, heat, then fruity, floral, green, woody,
+ *      spice, creamy, toasty, nutty, earthy, smoky, savory).
+ *   5. A radar plots only the axes the rule selects for it (3 to 8 spokes, never 17).
  */
 
 export const TASTE_AXES = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'heat'];
@@ -37,21 +42,15 @@ const LABEL_TO_AXIS = {
 export const FLOOR = 0.05;
 
 /**
- * How many bars of each group a surface shows.
- *   card     the share cards (preview, portrait, tall): 3 + 3 (the headings and the caption take room)
- *   cover    the first card of a set of three: 4 + 4
- *   compact  invent panels, shared page: 4 + 4, with "show all"
+ * How many bars of each group a surface shows. Every entry has a caller (flavorDisplay.test.js checks it).
+ *   compact  InventFlavorProfile's ranked list (asks for all, so it shows everything above the floor)
  *   full     the Recipe Notebook overview: 6 + 6, with "show all"
- *   radar    a radar plots at most 4 + 4 spokes (never fewer than MIN_SPOKES)
- *   mini     the 132 px radar on a suggestion card: 3 + 3
+ *   radar    the Sauce suggestion card's aroma radar plots at most 4 spokes
  */
 export const SURFACES = {
-  card: { taste: 3, aroma: 3, showAll: false },
-  cover: { taste: 4, aroma: 4, showAll: false },
   compact: { taste: 4, aroma: 4, showAll: true },
   full: { taste: 6, aroma: 6, showAll: true },
   radar: { taste: 4, aroma: 4, showAll: false },
-  mini: { taste: 3, aroma: 3, showAll: false },
 };
 export const MIN_SPOKES = 3;
 export const GROUP_TITLE = { taste: 'Taste', aroma: 'Aroma' };

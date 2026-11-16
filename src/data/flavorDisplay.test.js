@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import {
   AXES, TASTE_AXES, AROMA_AXES, FLOOR, SURFACES, MIN_SPOKES, hiddenLine,
   compareBars, rankAxes, groupBars, selectAxes, radarAxes, radarKeys, barGroup, axisOfBar,
@@ -56,16 +56,15 @@ describe('flavorDisplay: surfaces and their maxima', () => {
       expect(every.bars.length).toBe(cfg.showAll ? 17 : cfg.taste + cfg.aroma);
     });
   }
-  it('card is 3 + 3, cover and compact 4 + 4, full 6 + 6', () => {
-    expect([SURFACES.card.taste, SURFACES.card.aroma]).toEqual([3, 3]);
-    expect([SURFACES.cover.taste, SURFACES.cover.aroma]).toEqual([4, 4]);
+  it('compact is 4 + 4, full 6 + 6, radar 4 + 4, and there are no other surfaces', () => {
+    expect(Object.keys(SURFACES).sort()).toEqual(['compact', 'full', 'radar']);
     expect([SURFACES.compact.taste, SURFACES.compact.aroma]).toEqual([4, 4]);
     expect([SURFACES.full.taste, SURFACES.full.aroma]).toEqual([6, 6]);
   });
   it('lists taste first, then aroma, each strongest first, and works from labels alone', () => {
     const g = groupBars([
       { label: 'Savory', score: 0.9 }, { label: 'Sweet', score: 0.2 }, { label: 'Umami', score: 0.6 }, { label: 'Woody', score: 0.3 },
-    ], 'card');
+    ], 'compact');
     expect(g.bars.map((b) => b.label)).toEqual(['Umami', 'Sweet', 'Savory', 'Woody']);
     expect(barGroup({ label: 'Heat' })).toBe('taste');
     expect(barGroup({ label: 'Spice' })).toBe('aroma');
@@ -84,6 +83,23 @@ describe('flavorDisplay: surfaces and their maxima', () => {
   });
 });
 
+describe('flavorDisplay: every SURFACES entry has a caller', () => {
+  const sources = [];
+  const walk = (d) => {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      const f = `${d}/${e.name}`;
+      if (e.isDirectory()) { if (e.name !== '__tests__') walk(f); } else if (/\.(jsx?|mjs)$/.test(e.name) && !/\.test\./.test(e.name) && e.name !== 'flavorDisplay.js') sources.push([f, readFileSync(f, 'utf8')]);
+    }
+  };
+  walk('src');
+  for (const key of Object.keys(SURFACES)) {
+    it(`'${key}' is passed by a component or data module outside flavorDisplay.js`, () => {
+      const callers = sources.filter(([, text]) => new RegExp(`(groupBars|selectAxes|radarAxes)[(][^)]*['"]${key}['"]`).test(text));
+      expect(callers.map(([f]) => f)).not.toEqual([]);
+    });
+  }
+});
+
 describe('flavorDisplay: radars never plot seventeen spokes', () => {
   it('radarAxes gives 3 to 8 spokes in canonical order, padded when the recipe is faint', () => {
     expect(radarAxes(all17(() => 0.5)).length).toBe(8);
@@ -99,7 +115,7 @@ describe('flavorDisplay: radars never plot seventeen spokes', () => {
     expect(radarAxes({}, 'radar', { pool: AROMA_AXES }).length).toBe(MIN_SPOKES);
   });
   it('extra axes (the ones a candidate moves) are always plotted', () => {
-    expect(radarAxes(all17(() => 0.5), 'mini', { extra: ['odor_savory'] })).toContain('odor_savory');
+    expect(radarAxes(all17(() => 0.5), 'radar', { extra: ['odor_savory'] })).toContain('odor_savory');
   });
   it('radarKeys picks keys with a signal, padded to three, in vocabulary order', () => {
     const keys = ['a', 'b', 'c', 'd', 'e'];
@@ -148,7 +164,6 @@ describe('flavorDisplay: every surface uses the rule (source check)', () => {
     'src/components/InventFlavorProfile.jsx',
     'src/components/RecipeFlavorProfilesCard.jsx',
     'src/components/ProfileAxisRadar.jsx',
-    'src/components/ProfileDeltaRadar.jsx',
     'src/data/profileGridPair.js',
     'src/components/SauceSuggestionDeck.jsx',
     'src/data/shareCardLayout.js',

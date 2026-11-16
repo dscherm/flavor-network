@@ -33,6 +33,24 @@ describe('IngredientProfileCard', () => {
     expect(container.querySelector('polygon[data-testid]')).toBeNull();
   });
 
+  it('draws the change marks on the With grid only; the Now grid is plain', () => {
+    const { container } = render(
+      <IngredientProfileCard name="cinnamon" before={before} delta={delta} movers={movers} mode="add" onCommit={vi.fn()} />,
+    );
+    expect(container.querySelectorAll('[data-testid="ingredient-card-grid-before"] [data-mark="up"], [data-testid="ingredient-card-grid-before"] [data-mark="down"]')).toHaveLength(0);
+    expect(container.querySelectorAll('[data-testid="ingredient-card-grid-after"] [data-mark="up"]')).toHaveLength(1);
+    expect(container.querySelectorAll('[data-testid="ingredient-card-grid-after"] [data-mark="down"]')).toHaveLength(1);
+  });
+
+  it('the With grid labels every note that is on; absent ones stay unlabelled; Now labels only the movers', () => {
+    const { container } = render(
+      <IngredientProfileCard name="cinnamon" before={before} delta={delta} movers={movers} mode="add" onCommit={vi.fn()} />,
+    );
+    const lab = (id) => container.querySelectorAll(`[data-testid="${id}"] [data-testid="flavor-grid-label"]`).length;
+    expect(lab('ingredient-card-grid-after')).toBe(3);
+    expect(lab('ingredient-card-grid-before')).toBe(2);
+  });
+
   it('swap mode titles the after grid "With <new> for <old>"', () => {
     render(<IngredientProfileCard name="cinnamon" replacing="ginger" before={before} delta={delta} movers={movers} mode="replace" onCommit={vi.fn()} />);
     expect(screen.getByText('With cinnamon for ginger')).toBeInTheDocument();
