@@ -432,8 +432,10 @@ export function sauceChecks(sauces) {
 /**
  * @param {{dishTypes: Record<string,string>, cookbookTypes: Record<string,string>, inventTypes: {id:string,label:string,dishType:string}[]}} d
  *   dishTypes: dish name -> Cookbook type id; cookbookTypes: id -> label; inventTypes: Invent skeletons.
+ *   typeList (optional, dishTypes.js): { id, skeleton, why } per type. A type with its own skeleton, a nearest one, or a
+ *   written reason for having none counts as having an Invent equivalent (DATA-7).
  */
-export function dishChecks({ dishTypes, cookbookTypes, inventTypes }) {
+export function dishChecks({ dishTypes, cookbookTypes, inventTypes, typeList = [] }) {
   const count = {};
   for (const t of Object.values(dishTypes)) count[t] = (count[t] || 0) + 1;
   const findings = [];
@@ -444,6 +446,7 @@ export function dishChecks({ dishTypes, cookbookTypes, inventTypes }) {
     }
   }
   const covered = new Set(inventTypes.map((i) => i.dishType));
+  for (const t of typeList) if (t.skeleton || t.why) covered.add(t.id);
   for (const [id, label] of Object.entries(cookbookTypes)) {
     if (!covered.has(id)) findings.push(finding(`${label} (${id})`, 'dish-no-invent-equivalent', 'LOW', 'no Invent a recipe dish type maps to this Cookbook type', 'add an Invent type or merge the Cookbook type'));
   }

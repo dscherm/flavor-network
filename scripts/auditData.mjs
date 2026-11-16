@@ -21,10 +21,12 @@ import { CATEGORY_SCHEME } from '../src/data/categoryScheme.js';
 import { TASTE_WORDS, TASTE_RULES, TASTE_EXAMPLES } from '../src/data/tasteScheme.js';
 import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { dishTypeOf, DISH_TYPES } from '../src/data/dishType.js';
+import { DISH_TYPE_LIST } from '../src/data/dishTypes.js';
 import { DISH_SKELETONS, DISH_SKELETON_ORDER } from '../src/data/dishSkeletons.js';
 import { loadCurationTables, validateAgainst, applyCuration } from './lib/curationTables.mjs';
 import { readCuratedCodex, readRawCodex } from './lib/curatedCodex.mjs';
 import { validateCocktailCuration } from '../src/data/curation/applyCocktailCuration.js';
+import { curateSauceAugment, validateSauceCuration } from '../src/data/curation/applySauceCuration.js';
 import COCKTAIL_OVERRIDES from '../src/data/curation/cocktailOverrides.json' with { type: 'json' };
 import { runAgreement } from './checkAromaAgreement.mjs';
 
@@ -84,13 +86,14 @@ function readJson(path, what) {
 export function runAudit() {
   const ingredients = readJson(resolve(ROOT, 'public/proDataset/ingredients.json'), 'ingredients.json');
   const codex = readCuratedCodex();
-  const sauces = readJson(resolve(ROOT, 'public/data/sauce_augment.json'), 'sauce_augment.json').sauces;
+  const rawSauceFile = readJson(resolve(ROOT, 'public/data/sauce_augment.json'), 'sauce_augment.json');
+  const sauces = curateSauceAugment(rawSauceFile).sauces;
   if (!sauces || !Array.isArray(codex.cocktails) || !ingredients || typeof ingredients !== 'object') fail('malformed input: unexpected shape');
   const keepFile = existsSync(KEEP_PATH) ? readJson(KEEP_PATH, 'keep.json') : { keep: [] };
   const keep = new Set((keepFile.keep || []).map((k) => k.name));
 
   const tables = loadCurationTables();
-  const tableProblems = [...validateAgainst(tables, ingredients), ...validateCocktailCuration(readRawCodex(), COCKTAIL_OVERRIDES).map((p) => `cocktailOverrides: ${p}`)];
+  const tableProblems = [...validateAgainst(tables, ingredients), ...validateCocktailCuration(readRawCodex(), COCKTAIL_OVERRIDES).map((p) => `cocktailOverrides: ${p}`), ...validateSauceCuration(rawSauceFile).map((p) => `sauceGroups: ${p}`)];
   const rawPairings = args.has('--json') || args.has('--check') ? null : readJson(resolve(ROOT, 'public/proDataset/pairings.json'), 'pairings.json');
   const cur = applyCuration(ingredients, rawPairings, tables);
   const curated = {
@@ -110,7 +113,7 @@ export function runAudit() {
   const creamKeep = new Set((keepFile.cocktailCreamKeep || []).map((k) => k.name));
   const cocktail = cocktailChecks(codex, { creamKeep });
   const sauce = sauceChecks(sauces);
-  const dish = dishChecks({ dishTypes, cookbookTypes: DISH_TYPES, inventTypes });
+  const dish = dishChecks({ dishTypes, cookbookTypes: DISH_TYPES, inventTypes, typeList: DISH_TYPE_LIST });
 
   const findings = [
     ...dups, ...findNonFood(ingredients), ...findPackaged(ingredients), ...findCategoryInconsistencies(cur.ingredients),
@@ -285,7 +288,10 @@ function writeDoc(result, baseline) {
   for (const [c, dist] of Object.entries(d.tasteDistribution).sort()) tasteRows.push([c, topWords(dist)]);
   const dishRows = [['Cookbook type (what a recipe is called in the Cookbook)', 'Dishes of that type', 'Invent a recipe type that makes it']];
   for (const [id, label] of Object.entries(d.dishes.cookbookTypes)) {
-    const inv = d.dishes.inventTypes.filter((i) => i.dishType === id).map((i) => i.label).join(', ') || 'none';
+    const own = d.dishes.inventTypes.filter((i) => i.dishType === id).map((i) => i.label).join(', ');
+    const t = DISH_TYPE_LIST.find((x) => x.id === id);
+    const near = t?.skeleton && !own ? `nearest: ${d.dishes.inventTypes.find((i) => i.id === t.skeleton)?.label || t.skeleton}` : '';
+    const inv = own || near || (t?.why ? `none (${t.why})` : 'none');
     dishRows.push([`${label} (\`${id}\`)`, String(d.dishes.count[id] ?? 0), inv]);
   }
 
@@ -386,8 +392,8 @@ ${mdTable(famRows)}
 
 ### Sauces
 
-${d.sauces.independent} of ${d.sauces.total} sauces are under the catch-all mother sauce "Independent".
-Mother sauces: ${mother}. Most common cuisines: ${cuisines}.
+${d.sauces.independent} of ${d.sauces.total} sauces are under the catch-all mother sauce "Independent" (after the groups in \`src/data/curation/sauceGroups.json\`).
+Mother sauces and groups: ${mother}. Most common cuisines: ${cuisines}.
 
 ### Dish types: the Cookbook's list beside Invent a recipe's list
 

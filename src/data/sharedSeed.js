@@ -13,14 +13,12 @@
  */
 import { FAMILY_SKELETONS } from './cocktailInvent.js';
 import { INVENT_STYLE_BY_ID } from './inventSauce.js';
-import { DISH_SKELETONS, dishTypeForIngredients, isMainKey } from './dishSkeletons.js';
+import { DISH_SKELETONS, inventSkeletonFor, isMainKey } from './dishSkeletons.js';
 import { barKey } from './myBar.js';
 import { kitchenKey } from './myKitchen.js';
 
 const pins = (keys) => keys.map((key) => ({ key, source: 'search' }));
 const uniq = (list) => [...new Set(list.filter(Boolean))];
-const NEAREST_SKELETON = { curry: 'braise-stew', noodles: 'stir-fry', fish: 'roast', wrap: 'tacos' };
-const SKELETON_BY_DISH_TYPE = new Map(Object.values(DISH_SKELETONS).map((d) => [d.dishType, d.id]));
 
 export function inventSeedForShared(recipe) {
   if (!recipe || !Array.isArray(recipe.lines) || !recipe.lines.length) return null;
@@ -37,7 +35,7 @@ export function inventSeedForShared(recipe) {
   }
   if (recipe.kind === 'dish') {
     const keys = uniq(recipe.lines.map((l) => kitchenKey(l.key)));
-    const type = SKELETON_BY_DISH_TYPE.get(recipe.categoryId) || NEAREST_SKELETON[recipe.categoryId] || dishTypeForIngredients(keys);
+    const type = inventSkeletonFor(recipe.categoryId, keys);
     const main = keys.find((k) => isMainKey(k)) || null;
     return {
       lab: 'make',

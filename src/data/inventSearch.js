@@ -38,7 +38,7 @@ import { barKey } from './myBar.js';
 import { isTrivialIngredient, resolveIngredientName } from './recipePairingMatch.js';
 import { INVENT_STYLES, sauceSkeleton, proteinVocabulary } from './inventSauce.js';
 import { kitchenKey } from './myKitchen.js';
-import { DISH_SKELETONS, dishTypeForIngredients, isMainKey } from './dishSkeletons.js';
+import { dishTypeForIngredients, inventSkeletonFor, isMainKey } from './dishSkeletons.js';
 import { dishTypeOf } from './dishType.js';
 import { splitRecipe, categoryLookup } from './recipeMains.js';
 
@@ -265,14 +265,12 @@ export function sauceSeedFromSearch(query, { sauces = [], catMap = null, names =
 }
 
 // ------------------------------------------------------------------ recipe
-// DishArt type → skeleton id straight from each skeleton; the rest by nearest kin, else by what the ingredients fit.
-const SKELETON_BY_DISH_TYPE = new Map(Object.values(DISH_SKELETONS).map((d) => [d.dishType, d.id]));
-const NEAREST_SKELETON = { curry: 'braise-stew', noodles: 'stir-fry', fish: 'roast', wrap: 'tacos' };
+// Dish type → skeleton id from the one type list (dishTypes.js: own skeleton or nearest kin), else by what the ingredients fit.
 const RECIPE_TRIVIAL = /^(salt|water|ice|black pepper|white pepper|pepper|(\w+ )?oil)$/;
 
 function skeletonForRecipe(recipe, keys, nodes) {
   const dt = dishTypeOf(recipe);
-  return SKELETON_BY_DISH_TYPE.get(dt) || NEAREST_SKELETON[dt] || dishTypeForIngredients(keys, { nodes });
+  return inventSkeletonFor(dt, keys, { nodes });
 }
 
 /**

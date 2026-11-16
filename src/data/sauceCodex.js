@@ -1,5 +1,6 @@
 import { sauceShapeKey } from './sauceShapes.js';
 import { sauceKeywordSet, jaccard } from './sauceSimilarity.js';
+import { curateSauceAugment, sauceGroupFamilies } from './curation/applySauceCuration.js';
 
 /**
  * sauceCodex.js — Sauce Lab data layer that mirrors the Cocktail Codex
@@ -8,8 +9,9 @@ import { sauceKeywordSet, jaccard } from './sauceSimilarity.js';
  *
  * Source: `public/data/sauce_augment.json` — 77 curated sauces with
  * structured `ingredients: [{name, measure}]` fields. The 27 sauces
- * tagged `motherSauce: "Independent"` get reassigned to the closest
- * family at load time (see REASSIGN below).
+ * tagged `motherSauce: "Independent"` are regrouped at load time by
+ * src/data/curation/sauceGroups.json (DATA-7): two sauces joined an existing
+ * mother family, 23 went into five new named groups, two stay Independent.
  *
  * Output shape mirrors `cocktailCodex.js` so NodeMesh / EdgeMesh /
  * NetworkScene + SauceDetailPanel can consume it without changes:
@@ -26,7 +28,7 @@ import { sauceKeywordSet, jaccard } from './sauceSimilarity.js';
 
 // 10 mother-sauce families with display colors. Order matches the
 // circular layout — French roux/emulsion sauces first, then global.
-const FAMILIES = [
+const MOTHER_FAMILIES = [
   { id: 0, name: 'Béchamel',     color: '#f5f0d6' },  // cream
   { id: 1, name: 'Velouté',      color: '#e8c989' },  // pale gold
   { id: 2, name: 'Espagnole',    color: '#a05a2c' },  // dark amber
@@ -39,48 +41,9 @@ const FAMILIES = [
   { id: 9, name: 'Nut Sauce',    color: '#c8a165' },  // tan
 ];
 
-// Best-guess reassignment for the 27 "Independent" sauces. Tweak as
-// taxonomy preferences shift — kept in code (not the JSON) so reverts
-// are trivial.
-const REASSIGN = {
-  // Asian soy/sesame condiments → Stir-fry
-  'Ponzu': 'Stir-fry',
-  'Gochujang Sauce': 'Stir-fry',
-  'Tonkatsu Sauce': 'Stir-fry',
-  'Tare': 'Stir-fry',
-  // Raw herb/chili/acid blends → Salsa
-  'Mango Chutney': 'Salsa',
-  'Mint Chutney': 'Salsa',
-  'Chimichurri': 'Salsa',
-  'Ají Amarillo Sauce': 'Salsa',
-  'Zhug': 'Salsa',
-  'Chermoula': 'Salsa',
-  'Peri Peri': 'Salsa',
-  'Nuoc Cham': 'Salsa',
-  // Tomato-based simmered → Tomato
-  'Sofrito': 'Tomato',
-  'BBQ Sauce': 'Tomato',
-  // Chili paste with spices → Mole
-  'Adobo Sauce': 'Mole',
-  'Harissa': 'Mole',
-  // Emulsions → Hollandaise
-  'Toum': 'Hollandaise',
-  'Buffalo Sauce': 'Hollandaise',
-  'Remoulade': 'Hollandaise',
-  'Beurre Noisette': 'Hollandaise',
-  // Spice-driven simmered → Curry
-  'Shito': 'Curry',
-  'Berbere Sauce': 'Curry',
-  // Yogurt / tahini blends → Nut Sauce
-  'Raita': 'Nut Sauce',
-  'Tahini Sauce': 'Nut Sauce',
-  // Roux + dairy → Béchamel
-  'Gravy (Southern)': 'Béchamel',
-  // French reduction → Espagnole
-  'Gastrique': 'Espagnole',
-  // Stock-base → Velouté
-  'Dashi': 'Velouté',
-};
+// DATA-7: the named groups the 27 former 'Independent' sauces were split into (ids 10+), then the catch-all that remains.
+// They come from src/data/curation/sauceGroups.json, so the list below and the table cannot drift.
+const FAMILIES = [...MOTHER_FAMILIES, ...sauceGroupFamilies(undefined, MOTHER_FAMILIES.length)];
 
 // Ingredient keyword sets + Jaccard live in sauceSimilarity.js (shared with
 // the pantry and Invent panels).
@@ -102,7 +65,7 @@ export const SAUCE_SCATTER_K_COEFF = 1.25;
 export async function loadSauceCodex(basePath = '/data') {
   const res = await fetch(`${basePath}/sauce_augment.json`);
   if (!res.ok) throw new Error(`Failed to load sauce_augment.json: ${res.status}`);
-  const augment = await res.json();
+  const augment = curateSauceAugment(await res.json());
 
   const familyByName = new Map(FAMILIES.map(f => [f.name, f]));
 
@@ -110,10 +73,9 @@ export async function loadSauceCodex(basePath = '/data') {
   const nodes = new Map();
   let id = 0;
   for (const sauce of augment.sauces || []) {
-    // Resolve family: explicit motherSauce → reassignment table → drop
-    let famName = sauce.motherSauce;
-    if (famName === 'Independent') famName = REASSIGN[sauce.name] || null;
-    if (!famName || !familyByName.has(famName)) continue; // drop the unclassifiable
+    // Resolve family: the (curated) motherSauce; a sauce whose group is unknown is dropped
+    const famName = sauce.motherSauce;
+    if (!famName || !familyByName.has(famName)) continue;
 
     const fam = familyByName.get(famName);
 
@@ -245,7 +207,8 @@ export function computeSauceCodexPositions(nodes, clusters) {
   // R=26, nearest-neighbor distance ≈ 23; family extent (cuisine ring
   // + scatter) ≈ 10.5, so the ~12-unit gap keeps families distinct
   // without empty space between them.
-  const FAMILY_RADIUS = 26;
+  // 17 families now (DATA-7): the sphere grows with the square root of the family count, so the 10-family layout is unchanged.
+  const FAMILY_RADIUS = 26 * Math.sqrt(Math.max(clusters.length, 10) / 10);
   const SUBCLUSTER_RADIUS = 7;  // distance from family centroid to cuisine sub-centroid
   const BASE_SCATTER = SAUCE_BASE_SCATTER;
   const SCATTER_K_COEFF = SAUCE_SCATTER_K_COEFF;

@@ -69,9 +69,9 @@ so later clean-up tasks can show the numbers going down and nothing can quietly 
 | Cocktail: same name twice | `cocktail-duplicate` | 0 | 0 |
 | Cocktail: sub-group with no name | `cocktail-subgroup-unnamed` | 0 | 0 |
 | Cocktail: classic that is missing | `cocktail-missing-classic` | 0 | 0 |
-| Sauce: filed under the catch-all 'Independent' | `sauce-independent` | 27 | 27 |
-| Dish: Cookbook type with a single dish | `dish-singleton` | 6 | 6 |
-| Dish: Cookbook type with no Invent equivalent | `dish-no-invent-equivalent` | 15 | 15 |
+| Sauce: filed under the catch-all 'Independent' | `sauce-independent` | 2 | 2 |
+| Dish: Cookbook type with a single dish | `dish-singleton` | 0 | 0 |
+| Dish: Cookbook type with no Invent equivalent | `dish-no-invent-equivalent` | 0 | 0 |
 
 ### Where the first audit differed from the by-hand critique
 
@@ -231,36 +231,31 @@ Sizes now: 3891 ingredients, 439 cocktails, 77 sauces, 83 dishes.
 
 ### Sauces
 
-27 of 77 sauces are under the catch-all mother sauce "Independent".
-Mother sauces: Independent 27, Stir-fry 8, Curry 7, Espagnole 6, Béchamel 5, Tomato 5, Hollandaise 5, Salsa 5, Velouté 4, Nut Sauce 3, Mole 2. Most common cuisines: French 21, Mexican 9, Indian 8, Italian 5, American 5, Japanese 5, Chinese 4, Thai 4.
+2 of 77 sauces are under the catch-all mother sauce "Independent" (after the groups in `src/data/curation/sauceGroups.json`).
+Mother sauces and groups: Stir-fry 8, Curry 7, Chili & Hot Sauces 7, Béchamel 6, Espagnole 6, Tomato 6, Hollandaise 5, Herb Sauces 5, Salsa 5, Velouté 4, Sweet & Tangy 4, Cold & Creamy 4, Dipping Sauces 3, Nut Sauce 3, Mole 2, Independent 2. Most common cuisines: French 21, Mexican 9, Indian 8, Italian 5, American 5, Japanese 5, Chinese 4, Thai 4.
 
 ### Dish types: the Cookbook's list beside Invent a recipe's list
 
 | Cookbook type (what a recipe is called in the Cookbook) | Dishes of that type | Invent a recipe type that makes it |
 | --- | --- | --- |
 | Soup (`soup`) | 8 | Soup |
-| Noodles (`noodles`) | 4 | none |
+| Noodles (`noodles`) | 4 | nearest: Stir-fry |
 | Pasta (`pasta`) | 6 | Pasta |
 | Rice (`rice`) | 6 | Grain bowl |
-| Curry (`curry`) | 7 | none |
-| Stew & braise (`stew`) | 5 | Braise / stew |
+| Curry (`curry`) | 7 | nearest: Braise / stew |
+| Stew & braise (`stew`) | 6 | Braise / stew |
 | Grill & skewers (`grill`) | 6 | Roast |
-| Fish & shellfish (`fish`) | 3 | none |
+| Fish & shellfish (`fish`) | 3 | nearest: Roast |
 | Salad (`salad`) | 6 | Salad |
 | Stir-fry (`wok`) | 3 | Stir-fry |
-| Taco (`taco`) | 1 | Tacos |
-| Wrap (`wrap`) | 3 | none |
-| Baguette sandwich (`baguette`) | 1 | none |
-| Sandwich & burger (`sandwich`) | 1 | none |
-| Dumplings (`dumpling`) | 2 | none |
-| Dip (`dip`) | 2 | none |
-| Small plates (`tapas`) | 1 | none |
-| Skillet (`skillet`) | 1 | none |
-| Pizza (`pizza`) | 1 | none |
-| Bread & bakes (`bake`) | 5 | none |
-| Dessert (`dessert`) | 9 | none |
-| Vegetables (`veg`) | 2 | none |
-| Dish (`plate`) | 0 | none |
+| Tacos & wraps (`taco`) | 4 | Tacos |
+| Sandwiches & burgers (`sandwich`) | 2 | none (no skeleton has a bread slot; the type is read from the ingredients) |
+| Dumplings (`dumpling`) | 2 | none (a filled dough: no skeleton has a dough or a filling slot) |
+| Dip (`dip`) | 2 | none (a dip is a sauce more than a dish; no skeleton fits) |
+| Bread, pizza & bakes (`bake`) | 6 | none (baked dough and pastry: no skeleton has a dough slot) |
+| Dessert (`dessert`) | 9 | none (every skeleton is savoury) |
+| Vegetables & small plates (`veg`) | 3 | none (a vegetable-led dish has no main to build around; the type is read from the ingredients) |
+| Dish (`plate`) | 0 | none (the fallback for a recipe that matches nothing; the type is read from the ingredients) |
 
 ### How taste labels are assigned
 

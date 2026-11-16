@@ -8,6 +8,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolveBuiltIn, slugFor, uniqueBySlug, SLUG_ALIASES } from '../src/data/sharedRecipe.js';
 import { readCuratedCodex } from './lib/curatedCodex.mjs';
+import { curateSauceAugment } from '../src/data/curation/applySauceCuration.js';
 import { SEED_RECIPES } from '../src/data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../src/data/seedRecipeDetails.js';
 import { profileForRecipe } from '../src/data/shareCardData.js';
@@ -48,7 +49,7 @@ export function describe(kind, lines) {
 
 function loadData() {
   const codex = readCuratedCodex();
-  const sauces = readJson('public/data/sauce_augment.json').sauces || [];
+  const sauces = curateSauceAugment(readJson('public/data/sauce_augment.json')).sauces || [];
   return {
     cocktails: codex.cocktails || [], families: codex.families || [],
     sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS,

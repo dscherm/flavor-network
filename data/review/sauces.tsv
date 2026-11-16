@@ -1,28 +1,3 @@
 item	rule	confidence	use_count	detail	suggested_action
-Adobo Sauce	sauce-independent	LOW		mother sauce 'Independent' (cuisine Mexican)	assign a technique group
-Ají Amarillo Sauce	sauce-independent	LOW		mother sauce 'Independent' (cuisine Mexican)	assign a technique group
-BBQ Sauce	sauce-independent	LOW		mother sauce 'Independent' (cuisine American)	assign a technique group
-Berbere Sauce	sauce-independent	LOW		mother sauce 'Independent' (cuisine African)	assign a technique group
 Beurre Noisette	sauce-independent	LOW		mother sauce 'Independent' (cuisine French)	assign a technique group
-Buffalo Sauce	sauce-independent	LOW		mother sauce 'Independent' (cuisine American)	assign a technique group
-Chermoula	sauce-independent	LOW		mother sauce 'Independent' (cuisine Mediterranean)	assign a technique group
-Chimichurri	sauce-independent	LOW		mother sauce 'Independent' (cuisine Mexican)	assign a technique group
 Dashi	sauce-independent	LOW		mother sauce 'Independent' (cuisine Japanese)	assign a technique group
-Gastrique	sauce-independent	LOW		mother sauce 'Independent' (cuisine French)	assign a technique group
-Gochujang Sauce	sauce-independent	LOW		mother sauce 'Independent' (cuisine Korean)	assign a technique group
-Gravy (Southern)	sauce-independent	LOW		mother sauce 'Independent' (cuisine American)	assign a technique group
-Harissa	sauce-independent	LOW		mother sauce 'Independent' (cuisine Middle Eastern)	assign a technique group
-Mango Chutney	sauce-independent	LOW		mother sauce 'Independent' (cuisine Indian)	assign a technique group
-Mint Chutney	sauce-independent	LOW		mother sauce 'Independent' (cuisine Indian)	assign a technique group
-Nuoc Cham	sauce-independent	LOW		mother sauce 'Independent' (cuisine Vietnamese)	assign a technique group
-Peri Peri	sauce-independent	LOW		mother sauce 'Independent' (cuisine African)	assign a technique group
-Ponzu	sauce-independent	LOW		mother sauce 'Independent' (cuisine Japanese)	assign a technique group
-Raita	sauce-independent	LOW		mother sauce 'Independent' (cuisine Indian)	assign a technique group
-Remoulade	sauce-independent	LOW		mother sauce 'Independent' (cuisine American)	assign a technique group
-Shito	sauce-independent	LOW		mother sauce 'Independent' (cuisine African)	assign a technique group
-Sofrito	sauce-independent	LOW		mother sauce 'Independent' (cuisine Mexican)	assign a technique group
-Tahini Sauce	sauce-independent	LOW		mother sauce 'Independent' (cuisine Middle Eastern)	assign a technique group
-Tare	sauce-independent	LOW		mother sauce 'Independent' (cuisine Japanese)	assign a technique group
-Tonkatsu Sauce	sauce-independent	LOW		mother sauce 'Independent' (cuisine Japanese)	assign a technique group
-Toum	sauce-independent	LOW		mother sauce 'Independent' (cuisine Middle Eastern)	assign a technique group
-Zhug	sauce-independent	LOW		mother sauce 'Independent' (cuisine Middle Eastern)	assign a technique group

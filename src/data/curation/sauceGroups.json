@@ -1,0 +1,145 @@
+{
+ "_note": "DATA-7. public/data/sauce_augment.json is the hand-curated source of the sauces (no script writes it; proDataset/scripts/10-derive-sauce-clusters.js only reads it), but it is not edited here: the 27 sauces it tags motherSauce 'Independent' are regrouped by this table, applied by applySauceCuration (src/data/curation/applySauceCuration.js) wherever the sauces are loaded. One entry per sauce with the reason. 'groups' are the new Sauce Lab groups (each needs at least three sauces; 'Independent' is the catch-all that remains). DATA-8 does not mirror this: nothing in proDataset/ reads the groups.",
+ "groups": [
+  {
+   "name": "Dipping Sauces",
+   "color": "#9fb4d9",
+   "blurb": "thin soy, citrus and vinegar sauces for dipping and finishing"
+  },
+  {
+   "name": "Chili & Hot Sauces",
+   "color": "#c0392b",
+   "blurb": "chili-led pastes, hot sauces and spice pastes"
+  },
+  {
+   "name": "Herb Sauces",
+   "color": "#5fb59a",
+   "blurb": "raw, loose sauces built on fresh herbs, oil and acid"
+  },
+  {
+   "name": "Cold & Creamy",
+   "color": "#d6e3ea",
+   "blurb": "cold sauces held by mayonnaise, yogurt or tahini"
+  },
+  {
+   "name": "Sweet & Tangy",
+   "color": "#e0a83c",
+   "blurb": "sugar and vinegar table sauces, chutneys and reductions"
+  },
+  {
+   "name": "Independent",
+   "color": "#9a9a9a",
+   "blurb": "sauces that fit no group above"
+  }
+ ],
+ "assign": {
+  "Ponzu": {
+   "group": "Dipping Sauces",
+   "reason": "soy, citrus and dashi, thin and served as a dip; the old lab filed it under Stir-fry"
+  },
+  "Tare": {
+   "group": "Dipping Sauces",
+   "reason": "soy, mirin and sake reduced to a seasoning sauce; not a stir-fry sauce itself"
+  },
+  "Nuoc Cham": {
+   "group": "Dipping Sauces",
+   "reason": "fish sauce, lime and sugar, thin and served as a dip"
+  },
+  "Gochujang Sauce": {
+   "group": "Chili & Hot Sauces",
+   "reason": "built on gochujang, a fermented chili paste"
+  },
+  "Harissa": {
+   "group": "Chili & Hot Sauces",
+   "reason": "a dried-chili paste; the old lab filed it under Mole"
+  },
+  "Adobo Sauce": {
+   "group": "Chili & Hot Sauces",
+   "reason": "a dried-chili paste; the old lab filed it under Mole"
+  },
+  "Shito": {
+   "group": "Chili & Hot Sauces",
+   "reason": "a chili and dried-shrimp oil paste, not a curry"
+  },
+  "Berbere Sauce": {
+   "group": "Chili & Hot Sauces",
+   "reason": "a berbere chili-spice paste; kept with the chili pastes rather than the curries"
+  },
+  "Buffalo Sauce": {
+   "group": "Chili & Hot Sauces",
+   "reason": "cayenne hot sauce with butter; the butter makes it look like a hollandaise but it is a hot sauce"
+  },
+  "Peri Peri": {
+   "group": "Chili & Hot Sauces",
+   "reason": "scotch bonnet chili sauce"
+  },
+  "Chimichurri": {
+   "group": "Herb Sauces",
+   "reason": "parsley, oregano, oil and vinegar, raw"
+  },
+  "Zhug": {
+   "group": "Herb Sauces",
+   "reason": "cilantro and green chili ground raw with oil"
+  },
+  "Chermoula": {
+   "group": "Herb Sauces",
+   "reason": "cilantro, parsley and spice blended raw with oil and lemon"
+  },
+  "Mint Chutney": {
+   "group": "Herb Sauces",
+   "reason": "mint and cilantro ground raw with lime"
+  },
+  "Ají Amarillo Sauce": {
+   "group": "Herb Sauces",
+   "reason": "cilantro and lime with aji amarillo, blended raw"
+  },
+  "Toum": {
+   "group": "Cold & Creamy",
+   "reason": "a cold garlic and oil emulsion"
+  },
+  "Remoulade": {
+   "group": "Cold & Creamy",
+   "reason": "mayonnaise with capers and herbs, served cold"
+  },
+  "Raita": {
+   "group": "Cold & Creamy",
+   "reason": "cold yogurt sauce"
+  },
+  "Tahini Sauce": {
+   "group": "Cold & Creamy",
+   "reason": "sesame paste loosened with lemon and water, served cold"
+  },
+  "Mango Chutney": {
+   "group": "Sweet & Tangy",
+   "reason": "sugar and vinegar preserve"
+  },
+  "Gastrique": {
+   "group": "Sweet & Tangy",
+   "reason": "caramelised sugar and vinegar reduction"
+  },
+  "BBQ Sauce": {
+   "group": "Sweet & Tangy",
+   "reason": "ketchup, sugar and vinegar table sauce"
+  },
+  "Tonkatsu Sauce": {
+   "group": "Sweet & Tangy",
+   "reason": "ketchup, worcestershire and sugar table sauce"
+  },
+  "Sofrito": {
+   "group": "Tomato",
+   "reason": "a tomato and onion base simmered down; kept in Tomato where the old lab already had it"
+  },
+  "Gravy (Southern)": {
+   "group": "Béchamel",
+   "reason": "butter, flour and milk: a milk gravy is a béchamel; kept where the old lab already had it"
+  },
+  "Beurre Noisette": {
+   "group": "Independent",
+   "reason": "browned butter with lemon and capers: a butter sauce, but not an egg emulsion, so not a hollandaise (the old lab put it there)"
+  },
+  "Dashi": {
+   "group": "Independent",
+   "reason": "a stock of kombu and bonito, not a roux-thickened velouté (the old lab put it there)"
+  }
+ }
+}

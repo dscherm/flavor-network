@@ -30,7 +30,8 @@ import SavedDeleteConfirm from './SavedDeleteConfirm.jsx';
  * SauceLab — Codex view (post-redesign). Each NODE is a sauce,
  * grouped into the 10 mother-sauce families:
  *   Béchamel, Velouté, Espagnole, Hollandaise, Tomato (French),
- *   Curry, Stir-fry, Mole, Salsa, Nut Sauce (global).
+ *   Curry, Stir-fry, Mole, Salsa, Nut Sauce (global),
+ *   plus five named groups and an Independent remainder (DATA-7, sauceGroups.json).
  *
  * Click a sauce → detail panel with two tabs (Ingredients with
  * technique, Similar sauces by Jaccard) plus an "Open in Recipe Lab"

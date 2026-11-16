@@ -5,6 +5,7 @@
  */
 
 import { curateCodexRaw } from './cocktailCodexV2.js';
+import { curateSauceAugment } from './curation/applySauceCuration.js';
 
 export async function defaultLoadData(kind) {
   if (kind === 'cocktail') {
@@ -16,7 +17,7 @@ export async function defaultLoadData(kind) {
   if (kind === 'sauce') {
     const res = await fetch('/data/sauce_augment.json');
     if (!res.ok) throw new Error(`sauce data ${res.status}`);
-    const raw = await res.json();
+    const raw = curateSauceAugment(await res.json());
     return { sauces: raw.sauces || [] };
   }
   if (kind === 'dish') {

@@ -23,6 +23,12 @@ export function popColor(hex) {
 // Each mother family gets a DISTINCT signature vessel by name keyword (order
 // matters; first hit wins). Generic gravy boat is the fallback.
 const VESSEL_BY_FAMILY = [
+  // DATA-7 groups come first: "Dipping Sauces" would otherwise hit the stir-fry word "soy".
+  { rx: /dipping/i,                               vessel: 'cruet' },    // soy cruet
+  { rx: /chili & hot/i,               vessel: 'mortar' },   // chili paste, ground
+  { rx: /^herb/i,                                 vessel: 'jug' },      // loose green sauce, poured
+  { rx: /cold & creamy/i,                         vessel: 'bowl' },     // mixing bowl
+  { rx: /sweet & tangy/i,                         vessel: 'bottle' },   // table-sauce bottle
   { rx: /b[ée]chamel/i,                          vessel: 'saucepan' }, // creamy → pot
   { rx: /velout|veloute/i,                        vessel: 'ladle' },    // stock → ladle
   { rx: /espagnole|demi|brown/i,                  vessel: 'boat' },     // brown → gravy boat

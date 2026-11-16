@@ -10,9 +10,10 @@ import { UNCATEGORISED } from '../data/savedInventions.js';
  * SauceBrowse — 2D selection surface for the Sauce Lab, drawn as a bistro
  * "specials board" in the shared kitchen-world chalk DNA (sibling of
  * CocktailBrowse). Mother-sauce families are the menu sections.
- *   • 77 sauces across 11 mother families (Béchamel, Velouté, Espagnole,
- *     Tomato, Hollandaise, Stir-fry, Curry, Nut Sauce, Mole, Salsa,
- *     Independent).
+ *   • 77 sauces across 16 families: the 10 mother sauces (Béchamel, Velouté,
+ *     Espagnole, Hollandaise, Tomato, Curry, Stir-fry, Mole, Salsa, Nut Sauce),
+ *     five named groups (Dipping Sauces, Chili & Hot Sauces, Herb Sauces,
+ *     Cold & Creamy, Sweet & Tangy; DATA-7) and the Independent remainder.
  *   • Filter axis is cuisine (15 distinct cuisines in the corpus).
  *   • No subclusters in the sauce data — each family is a flat list.
  */
@@ -240,7 +241,7 @@ export default function SauceBrowse({
 
       {/* ───── Family board — colored chalk bubbles ───── */}
       <div className="px-4 pt-1 pb-2 max-w-4xl mx-auto">
-        <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Mother families</div>
+        <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>Sauce families</div>
         {(() => {
           const { positions, rowCount } = computeLayout(families.length);
           const boardH = ROW_Y0 + (rowCount - 1) * ROW_H + 100;

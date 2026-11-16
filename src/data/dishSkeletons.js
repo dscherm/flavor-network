@@ -40,6 +40,7 @@ import { isSuggestable } from './curation/suggestable.js';
 import { recipeRoles, isBasicLike, pairStrength } from './inventRecipe.js';
 import { isBasic, haveIngredient } from './myKitchen.js';
 import { oneOf, rankCategories, sameKind } from './inventBuild.js';
+import { skeletonForDishType } from './dishTypes.js';
 
 export const DISH_MIN_DEGREE = 50;     // graph degree an ordinary candidate needs
 export const MODEL_WEIGHT = 0.5;       // weight of the set-completion score next to pair strength
@@ -377,4 +378,13 @@ export function dishTypeForIngredients(names, { nodes = null } = {}) {
   const keys = [...new Set((names || []).map(lower).filter(Boolean))];
   const skeletons = DISH_SKELETON_ORDER.map((id) => ({ id, skeleton: dishSkeleton(id, { nodes }) }));
   return rankCategories(keys, skeletons, { order: DISH_SKELETON_ORDER })[0].id;
+}
+
+/**
+ * The skeleton a dish opens Invent a recipe on, the ONE rule every surface uses (DATA-7): its Cookbook dish type decides
+ * (own or nearest skeleton, dishTypes.js); only a type with no skeleton leaves it to what the ingredients fit.
+ * `typeId` is a dish type id, old or new, or undefined for a recipe with none.
+ */
+export function inventSkeletonFor(typeId, names, { nodes = null } = {}) {
+  return skeletonForDishType(typeId) || dishTypeForIngredients(names, { nodes });
 }
