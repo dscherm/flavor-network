@@ -2548,7 +2548,7 @@ it shows); PICTURE-5 last.
   "id": "PICTURE-1",
   "title": "The chalk filter as a tested module",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Port the prototype's filter into src/data/chalkFilter.js as pure functions over pixel arrays: chalkify({ data, width, height }, settings) returning the same shape, CHALK_DEFAULTS (weight 5, detail 13, shading 110, colour 200, grain 5), CHALK_RANGES (weight 0.6-10, detail 0-16, shading 0-200, colour 0-300, grain 0-100), and prepare(image) that scales to 1080 px on the long side and stretches contrast. Fixed-seed noise so the same photo and settings always give the same picture. A runner that keeps the page responsive (a Web Worker, or sliced work with yields) and reports progress. encodeChalk(canvas) produces WebP (JPEG fallback) at 600 px on the long side, stepping quality down until under 150 KB, and returns { blob, mime, w, h, bytes }. Copy the prototype page into docs/prototypes/chalk-filter-bench.html for reference.",
   "acceptance": [
     "chalkify is deterministic and pure: unit tests on small synthetic images (a white square on black gives bright outlines on slate; a flat image gives no lines; colour 0 gives cream chalk only; grain 0 leaves strokes untouched; each setting clamps to its range)",
