@@ -18,7 +18,14 @@ const isPrivacy = /^\/privacy\/?$/.test(window.location.pathname);
 initUsage();
 
 const root = createRoot(document.getElementById('root'));
-root.render(isPrivacy
+// Dev-only harness for the picture chooser (PICTURE-2): `npm run dev`, then /?picture-dev.
+// import.meta.env.DEV is false in a production build, so the page and this branch are dropped.
+const PictureDevPage = import.meta.env.DEV && window.location.search.includes('picture-dev')
+  ? lazyWithRetry(() => import('./dev/PictureDevPage.jsx'))
+  : null;
+root.render(PictureDevPage
+  ? <Suspense fallback={null}><PictureDevPage /></Suspense>
+  : isPrivacy
   ? <><Suspense fallback={null}><PrivacyPage /></Suspense></>
   : shareRoute
     ? <><Suspense fallback={null}><SharedRecipePage route={shareRoute} /></Suspense><ConsentBanner /></>

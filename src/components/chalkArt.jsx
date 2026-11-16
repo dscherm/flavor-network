@@ -15,7 +15,7 @@ import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, chalkSurfaceStyle } from '../d
 import { flagSpec, flagShapes, FLAG_W, FLAG_H } from '../data/countryFlags.js';
 
 // ── chalk line helper: a faint dust halo under a crisp line ────────────
-function Chalk({ d, c, w = 2.6, fill = 'none', fillOpacity = 1 }) {
+export function Chalk({ d, c, w = 2.6, fill = 'none', fillOpacity = 1 }) {
   return (
     <>
       <path d={d} fill="none" stroke={c} strokeOpacity={0.25} strokeWidth={w * 2.2} strokeLinecap="round" strokeLinejoin="round" />
