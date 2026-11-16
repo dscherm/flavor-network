@@ -17,7 +17,7 @@ const LAB_CARDS = [
   { id: 'pairing',  label: 'Pairing Lab',     desc: 'Explore how ingredients pair',    accent: '#22d3ee' },
 ];
 
-export default function LabsPanel({ onPick }) {
+export default function LabsPanel({ onPick, shoppingCount = 0 }) {
   return (
     <div
       data-testid="labs-panel"
@@ -44,6 +44,27 @@ export default function LabsPanel({ onPick }) {
             <div style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 12, lineHeight: 1.3, color: CHALK_SUB }}>{desc}</div>
           </button>
         ))}
+      </div>
+      <div className="w-full max-w-md px-4 pb-3">
+      <button
+        type="button"
+        data-testid="labs-card-shopping"
+        onClick={() => onPick?.('shopping')}
+        className="w-full flex items-center justify-between gap-3 rounded-xl px-4 min-h-[56px] text-left"
+        style={{ background: 'rgba(10,10,10,0.55)', border: '2px double #a3e635', boxShadow: 'inset 0 0 0 1px #6a6a6a33, 0 0 18px #a3e63533' }}
+        aria-label={shoppingCount > 0 ? `Shopping list, ${shoppingCount} to buy` : 'Shopping list'}
+      >
+        <span>
+          <span style={{ fontFamily: FONT, fontSize: 24, lineHeight: 1, color: '#a3e635', display: 'block' }}>Shopping list</span>
+          <span style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 12, color: CHALK_SUB }}>Tick things off as you shop</span>
+        </span>
+        {shoppingCount > 0 && (
+          <span data-testid="labs-shopping-count" aria-hidden="true" className="inline-flex items-center justify-center rounded-full px-2 min-w-[28px] h-7"
+            style={{ background: '#a3e635', color: '#0a0a0a', fontFamily: 'system-ui, sans-serif', fontSize: 14, fontWeight: 700 }}>
+            {shoppingCount}
+          </span>
+        )}
+      </button>
       </div>
       <div className="mb-24 flex items-center gap-2">
         <FeedbackButton screen="labs" className="px-3" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB }} />

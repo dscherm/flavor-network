@@ -4,6 +4,7 @@ import { db } from '../firebase.js';
 import { saveInvention as saveInventionInto, deleteInvention as deleteInventionFrom, PROFILE_FIELD } from '../data/savedInventions.js';
 import { newItemId } from '../data/inventSaved.js';
 import { cleanPictureField, sharedPictureField, prepareItemPicture, dropPicture } from '../data/pictureStore.js';
+import { emptyShopping, cleanShopping, mergeShopping, commitList, loadShopping, saveShopping, sameShopping } from '../data/shoppingStore.js';
 
 const STORAGE_KEY = 'flavor-user-profile-v2';
 
@@ -16,6 +17,7 @@ const DEFAULT_PROFILE = {
   shares: [], // { id, kind, sourceId, fingerprint, name, createdAt, picture? } of the cook's live public links
   pairings: [], // { a, b } where a < b alphabetically (canonical key)
   quizAnswers: null,
+  shopping: emptyShopping(), // SHOP-2: { list, removed } (src/data/shoppingStore.js); its device copy has its own key
 };
 
 /**
@@ -106,7 +108,8 @@ function dedupeRecipes(recipes) {
 function loadLocalProfile() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_PROFILE;
+    // The shopping list has its own device key (one versioned key, kept apart from this blob), so it loads either way.
+    if (!raw) return { ...DEFAULT_PROFILE, shopping: loadShopping() };
     const parsed = JSON.parse(raw);
     return {
       cuisines: Array.isArray(parsed.cuisines) ? parsed.cuisines : [],
@@ -121,14 +124,18 @@ function loadLocalProfile() {
         ? parsed.pairings.map((p) => canonicalPairing(p?.a, p?.b)).filter(Boolean)
         : [],
       quizAnswers: parsed.quizAnswers || null,
+      shopping: loadShopping(),
     };
   } catch {
-    return DEFAULT_PROFILE;
+    return { ...DEFAULT_PROFILE, shopping: loadShopping() };
   }
 }
 
 function saveLocalProfile(profile) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  const { shopping, ...rest } = profile;
+  // The shopping list goes to its own key; a refusal there (a private window) leaves the list in memory for the session.
+  if (shopping) saveShopping(shopping);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
 }
 
 function mergeProfiles(local, cloud) {
@@ -178,6 +185,7 @@ function mergeProfiles(local, cloud) {
     sauces: mergeSauces(local.sauces || [], cloud.sauces || []),
     shares: mergeShares(local.shares || [], cloud.shares || []),
     quizAnswers: cloud.quizAnswers || local.quizAnswers || null,
+    shopping: mergeShopping(local.shopping, cloud.shopping),
   };
 }
 
@@ -185,8 +193,17 @@ export default function useUserProfile(user) {
   const [profile, setProfile] = useState(loadLocalProfile);
   const [cloudLoaded, setCloudLoaded] = useState(false);
   const skipNextSync = useRef(false);
+  const syncedShopping = useRef(null);
   const profileRef = useRef(profile);
   profileRef.current = profile;
+
+  const update = useCallback((updater) => {
+    setProfile((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      saveLocalProfile(next);
+      return next;
+    });
+  }, []);
 
   // Load from Firestore on login, merge with local
   useEffect(() => {
@@ -210,6 +227,7 @@ export default function useUserProfile(user) {
             sauces: Array.isArray(cloudData.sauces) ? cloudData.sauces : [],
             shares: cleanShares(cloudData.shares),
             quizAnswers: cloudData.quizAnswers || null,
+            shopping: cleanShopping(cloudData.shopping),
           };
           const local = loadLocalProfile();
           const merged = mergeProfiles(local, cloud);
@@ -218,7 +236,8 @@ export default function useUserProfile(user) {
           const localOnly = merged.recipes.length > cloud.recipes.length
             || merged.cocktails.length > cloud.cocktails.length
             || merged.sauces.length > cloud.sauces.length
-            || merged.shares.length > cloud.shares.length;
+            || merged.shares.length > cloud.shares.length
+            || !sameShopping(merged.shopping, cloud.shopping);
           skipNextSync.current = !localOnly;
           setProfile(merged);
           saveLocalProfile(merged);
@@ -239,16 +258,33 @@ export default function useUserProfile(user) {
       return;
     }
     const ref = doc(db, 'profiles', user.uid);
-    setDoc(ref, profile).catch((err) => console.error('Failed to save cloud profile:', err));
-  }, [profile, user, cloudLoaded]);
-
-  const update = useCallback((updater) => {
-    setProfile((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      saveLocalProfile(next);
-      return next;
-    });
-  }, []);
+    const write = () => setDoc(ref, profile).catch((err) => console.error('Failed to save cloud profile:', err));
+    // SHOP-2: a changed shopping list is merged with what the account holds right now, per item, before it is
+    // written, so a tick made on another device since this one loaded is not overwritten by the whole-document save.
+    const shoppingChanged = syncedShopping.current !== profile.shopping;
+    syncedShopping.current = profile.shopping;
+    if (!shoppingChanged) { write(); return undefined; }
+    let live = true;
+    (async () => {
+      try {
+        const snap = await getDoc(ref);
+        if (!live) return;
+        if (snap.exists()) {
+          const remote = cleanShopping(snap.data().shopping);
+          const merged = mergeShopping(profile.shopping, remote);
+          if (!sameShopping(merged, profile.shopping)) {
+            // Fold the other device's changes in; this effect runs again for the result and writes it.
+            update((prev) => ({ ...prev, shopping: mergeShopping(prev.shopping, remote) }));
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('Failed to read cloud shopping list:', err);
+      }
+      if (live) write();
+    })();
+    return () => { live = false; };
+  }, [profile, user, cloudLoaded, update]);
 
   // --- Cuisines ---
   const addCuisine = useCallback((cuisine) => {
@@ -455,6 +491,18 @@ export default function useUserProfile(user) {
     update((prev) => ({ ...prev, shares: cleanShares(prev.shares).filter((s) => s.id !== id) }));
   }, [update]);
 
+  // --- Shopping list (SHOP-2) ---
+  // `change` takes the current list and returns the next one (the pure functions in shoppingList.js); the
+  // tombstones for whatever left the list are made here, from the difference. `opts.now` is for tests.
+  const updateShopping = useCallback((change, opts = {}) => {
+    update((prev) => {
+      const cur = prev.shopping || emptyShopping();
+      const nextList = change(cur.list);
+      if (nextList === cur.list) return prev;
+      return { ...prev, shopping: commitList(cur, nextList, opts) };
+    });
+  }, [update]);
+
   // --- Favorite Pairings ---
   const addPairing = useCallback((a, b) => {
     const p = canonicalPairing(a, b);
@@ -501,7 +549,8 @@ export default function useUserProfile(user) {
   // --- Bulk ---
   const clearProfile = useCallback(() => {
     // Live public links stay listed: clearing the profile does not take them down, so the cook must still see them.
-    update((prev) => ({ ...DEFAULT_PROFILE, shares: cleanShares(prev.shares) }));
+    // The shopping list is not part of the profile's saved taste data and is kept too.
+    update((prev) => ({ ...DEFAULT_PROFILE, shares: cleanShares(prev.shares), shopping: prev.shopping || emptyShopping() }));
   }, [update]);
 
   const exportProfile = useCallback(() => {
@@ -533,7 +582,7 @@ export default function useUserProfile(user) {
           : [],
         quizAnswers: parsed.quizAnswers || null,
       };
-      update(validated);
+      update((prev) => ({ ...validated, shopping: prev.shopping || emptyShopping() }));
       return true;
     } catch {
       return false;
@@ -592,6 +641,7 @@ export default function useUserProfile(user) {
     deleteInvention,
     addShare,
     removeShare,
+    updateShopping,
     addPairing,
     removePairing,
     togglePairing,

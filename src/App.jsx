@@ -60,6 +60,8 @@ import LabsFab from './components/LabsFab.jsx';
 import CookbookLab from './components/CookbookLab.jsx';
 import MakeRecipeStart from './components/MakeRecipeStart.jsx';
 import LabsPanel from './components/LabsPanel.jsx';
+import ShoppingList from './components/ShoppingList.jsx';
+import { uncheckedCount as shoppingUncheckedCount } from './data/shoppingList.js';
 import GuidedTour from './components/GuidedTour.jsx';
 import LabTour from './components/LabTour.jsx';
 import IngredientPicker from './components/IngredientPicker.jsx';
@@ -114,6 +116,7 @@ const TAB_TO_PATH = {
   pairing: 'pairing',
   make: 'make',
   labs: 'labs',
+  shopping: 'shopping',
   profile: 'profile',
 };
 const PATH_TO_TAB = Object.fromEntries(
@@ -129,6 +132,7 @@ const PATH_TO_TAB = Object.fromEntries(
     build: 'make',        // MAKE-BUILD-DEPRECATE: legacy ?path=build → make
     make: 'make',
     labs: 'labs',
+    shopping: 'shopping',
     profile: 'profile',
   }),
 );
@@ -2245,7 +2249,16 @@ export default function App() {
           Stage 2: MakeRecipeView chalkboard cards-grid. Back button +
                    swipe-down returns to Stage 1. */}
       {activeTab === 'labs' && (
-        <LabsPanel onPick={handleLabPick} />
+        <LabsPanel onPick={handleLabPick} shoppingCount={shoppingUncheckedCount(userProfile.profile.shopping?.list)} />
+      )}
+
+      {/* SHOP-2: the shopping list. Its names and aisles are fetched when it opens (ingredients.json only). */}
+      {activeTab === 'shopping' && (
+        <ShoppingList
+          shopping={userProfile.profile.shopping}
+          onChange={userProfile.updateShopping}
+          onClose={() => setActiveTab('labs')}
+        />
       )}
 
       {/* Wine Lab — lazy, gated on the tab (no 3D, so no mount latch). */}

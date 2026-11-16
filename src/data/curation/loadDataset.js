@@ -23,6 +23,17 @@ export function curatePairings(rawIngredients, pairings) {
 }
 
 /**
+ * Only the curated ingredient table (about 0.6 MB), without the pairings (tens of MB). For screens that need
+ * names and categories and nothing else (the shopping list).
+ * @param {(url: string) => Promise<Response>} fetchFn
+ */
+export async function loadCuratedIngredients(fetchFn) {
+  const res = await fetchFn('/proDataset/ingredients.json');
+  if (!res.ok) throw new Error('Failed to load proDataset/ingredients.json');
+  return curateIngredients(await res.json()).ingredients;
+}
+
+/**
  * @param {(url: string) => Promise<Response>} fetchFn
  * @param {(stage: string) => void} [onProgress]
  * @returns {Promise<{ ingredientsData: object, pairingsData: object[], usedFormat: 'bin'|'json', report: object }>}

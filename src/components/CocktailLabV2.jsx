@@ -99,8 +99,8 @@ export default function CocktailLabV2({
   const updateKitchen = (next) => { setKitchen(next); saveKitchen(next); };
   const stock = useMemo(() => stockFor(bar, kitchen), [bar, kitchen]);
   const [barPanel, setBarPanelRaw] = useState(null); // null | 'bar' | 'invent'
-  // Re-read the kitchen when a panel opens: the other labs may have changed it.
-  const setBarPanel = (p) => { if (p) setKitchen(loadKitchen()); setBarPanelRaw(p); };
+  // Re-read the kitchen and bar when a panel opens: the other labs and the shopping list may have changed them.
+  const setBarPanel = (p) => { if (p) { setKitchen(loadKitchen()); setBar(loadBar()); } setBarPanelRaw(p); }; // the shopping list can add to either
   // "✨ Invent this" seed (from the search box); any other way into Invent starts fresh.
   const [inventSeed, setInventSeed] = useState(null);
   const openInvent = () => { setInventSeed(null); setEditItem(null); setBarPanel('invent'); };
