@@ -2429,7 +2429,7 @@ independent of those; DATA-8 last. DATA-5 must land before FLAVOR-3.
   "id": "DATA-8",
   "title": "Mirror into the pipeline inputs; final audit and docs",
   "category": "chore",
-  "passes": false,
+  "passes": true,
   "description": "Write the curation tables into the pipeline's inputs so a future rebuild agrees: aliases into proDataset/data/synonyms.json (without disturbing its 525 existing entries), hidden entries into a stop list the parse and blend steps honour, category and taste rules into the tables 05-blend.js reads. A test fails when the app's tables and the pipeline inputs drift. Do NOT re-run the full pipeline. Re-run the audit and record before and after in docs/data-quality.md; regenerate share-index.json and share-cards.json; update README.md and CLOSEOUT.md (unreleased entry) with the new counts (ingredients, pairings, cocktail families) wherever the old ones are quoted, and BACKLOG.md with what was deliberately left (the full rebuild, low-count ingredients).",
   "acceptance": [
     "The drift test exists and passes; the pipeline scripts still parse (node --check) and their unit tests, if any, pass",
