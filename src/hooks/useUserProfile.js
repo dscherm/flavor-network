@@ -173,6 +173,19 @@ function mergeProfiles(local, cloud) {
     }
     return merged;
   };
+  // Favourite pairings: the union, each pair in its canonical form (a < b), this device's first. A pair removed
+  // on one side comes back from the other, as for ingredients and cuisines (no removal markers exist for lists).
+  const mergePairings = (a, b) => {
+    const seen = new Set();
+    const out = [];
+    for (const p of [...a, ...b]) {
+      const c = canonicalPairing(p?.a, p?.b);
+      if (!c || seen.has(pairingKey(c))) continue;
+      seen.add(pairingKey(c));
+      out.push(c);
+    }
+    return out;
+  };
   const mergeShares = (a, b) => {
     const seen = new Set(a.map((x) => x.id));
     return [...a, ...b.filter((x) => !seen.has(x.id))];
@@ -184,6 +197,7 @@ function mergeProfiles(local, cloud) {
     cocktails: mergeCocktails(local.cocktails || [], cloud.cocktails || []),
     sauces: mergeSauces(local.sauces || [], cloud.sauces || []),
     shares: mergeShares(local.shares || [], cloud.shares || []),
+    pairings: mergePairings(local.pairings || [], cloud.pairings || []),
     quizAnswers: cloud.quizAnswers || local.quizAnswers || null,
     shopping: mergeShopping(local.shopping, cloud.shopping),
   };
@@ -226,6 +240,9 @@ export default function useUserProfile(user) {
             cocktails: Array.isArray(cloudData.cocktails) ? cloudData.cocktails : [],
             sauces: Array.isArray(cloudData.sauces) ? cloudData.sauces : [],
             shares: cleanShares(cloudData.shares),
+            pairings: Array.isArray(cloudData.pairings)
+              ? cloudData.pairings.map((p) => canonicalPairing(p?.a, p?.b)).filter(Boolean)
+              : [],
             quizAnswers: cloudData.quizAnswers || null,
             shopping: cleanShopping(cloudData.shopping),
           };
@@ -237,6 +254,7 @@ export default function useUserProfile(user) {
             || merged.cocktails.length > cloud.cocktails.length
             || merged.sauces.length > cloud.sauces.length
             || merged.shares.length > cloud.shares.length
+            || merged.pairings.length > cloud.pairings.length
             || !sameShopping(merged.shopping, cloud.shopping);
           skipNextSync.current = !localOnly;
           setProfile(merged);
