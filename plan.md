@@ -2470,7 +2470,7 @@ Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independ
   "id": "USAGE-2",
   "title": "The events: labs, invent, sharing, searches that find nothing, photo scan, sign-in",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "docs/usage-data.md holds the one table of events (name, when it fires, fields) and src/data/usageEvents.js the matching helpers, so nothing calls track() with a free-form name. Events: lab_opened (lab); invent_started (lab), invent_style_chosen, invent_named, invent_saved; share_sheet_opened (kind, built-in or own), share_link_created, shared_page_opened (kind, built-in or own), shared_saved, shared_signup; search_no_result (lab, term trimmed to 60 characters, lowercased); ingredient_unrecognised (lab, text trimmed to 60); scan_started, scan_succeeded (count), scan_kept (count); signin_started (provider), signin_completed. Never sent: recipe contents, the name a user gave their own recipe, nicknames, anything from a shared recipe a user wrote.",
   "acceptance": [
     "A test fails if track() is called anywhere outside usageEvents.js, and if an event in the code is missing from docs/usage-data.md or the reverse",
