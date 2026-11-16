@@ -3,7 +3,7 @@
 // docs/prototypes/chalk-filter-bench.html (the "Coloured chalk" look); the arithmetic is
 // kept identical so output matches the prototype the owner approved.
 
-export const CHALK_DEFAULTS = Object.freeze({ weight: 5, detail: 13, shading: 110, colour: 200, grain: 5 });
+export const CHALK_DEFAULTS = Object.freeze({ weight: 5, detail: 13, shading: 110, colour: 200, grain: 5, focus: 0 });
 
 export const CHALK_RANGES = Object.freeze({
   weight: Object.freeze({ min: 0.6, max: 10, step: 0.1 }),
@@ -11,6 +11,7 @@ export const CHALK_RANGES = Object.freeze({
   shading: Object.freeze({ min: 0, max: 200, step: 1 }),
   colour: Object.freeze({ min: 0, max: 300, step: 1 }),
   grain: Object.freeze({ min: 0, max: 100, step: 1 }),
+  focus: Object.freeze({ min: 0, max: 100, step: 1 }),
 });
 
 export const MAX_WORK = 1080; // working size, long side
@@ -97,6 +98,26 @@ function sobel(g, w, h) {
   return m;
 }
 
+/**
+ * Focus fade: how much chalk survives at normalised elliptical distance d from the centre
+ * (d = 0 at the centre, 1 at the middle of each edge, sqrt(2) at the corners; the ellipse
+ * follows the picture's aspect). With t = focus / 100:
+ *   inner = 1.5 - 1.15 t   (everything inside is kept at full strength)
+ *   outer = inner + 0.6    (everything outside is bare slate)
+ *   mask  = 1 - smoothstep(inner, outer, d)
+ * Fully-kept oval as a fraction of the picture's width and height: 1.21 at focus 25, 0.93 at 50,
+ * 0.64 at 75, 0.35 at 100; the fade ends at 1.81, 1.53, 1.24, 0.95. focus 0 is no mask.
+ */
+export function focusMask(d, focus) {
+  if (!(focus > 0)) return 1;
+  const t = Math.min(100, focus) / 100;
+  const inner = 1.5 - 1.15 * t;
+  const u = (d - inner) / 0.6;
+  if (u <= 0) return 1;
+  if (u >= 1) return 0;
+  return 1 - u * u * (3 - 2 * u);
+}
+
 /** Fixed-seed grain, so the same size always gives the same noise. */
 export function makeNoise(w, h) {
   const n = w * h;
@@ -116,7 +137,7 @@ export function makeNoise(w, h) {
  * Coloured chalk drawing of an RGBA image.
  * @param {{data: Uint8ClampedArray, width: number, height: number}} image  RGBA, already
  *   scaled to the working size (see fitSize). Not modified.
- * @param {object} settings  weight, detail, shading, colour, grain (clamped to CHALK_RANGES).
+ * @param {object} settings  weight, detail, shading, colour, grain, focus (clamped to CHALK_RANGES).
  * @param {{onProgress?: (fraction: number) => void, isCancelled?: () => boolean}} [opts]
  * @returns {{data: Uint8ClampedArray, width: number, height: number}}
  */
@@ -133,6 +154,7 @@ export function chalkify(image, settings, opts = {}) {
   const shade = s.shading / 100;
   const grain = s.grain / 100;
   const colour = s.colour / 100;
+  const focus = s.focus;
 
   step(0);
   const lum = stretchContrast(luminance(rgba, w, h));
@@ -197,6 +219,10 @@ export function chalkify(image, settings, opts = {}) {
       const dist = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) / far;
       const board = 26 - 15 * dist + (noise.coarse[i] - 0.5) * 7;
       let a = intensity[i];
+      if (focus > 0) {
+        const fx = (x + 0.5 - cx) / cx, fy = (y + 0.5 - cy) / cy;
+        a *= focusMask(Math.sqrt(fx * fx + fy * fy), focus);
+      }
       const dust = 1 - grain * 0.55 * noise.fine[i];
       const gap = noise.fine[i] < grain * 0.22 ? 0.35 : 1;
       a *= dust * gap * (1 - grain * 0.3 * (1 - noise.coarse[i]));

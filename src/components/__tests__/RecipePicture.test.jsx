@@ -162,16 +162,18 @@ describe('RecipePicture', () => {
     expect(f.runs[0].image.height).toBe(6);
   });
 
-  it('Adjust reveals five labelled sliders; a change re-runs and cancels the previous run; Reset restores defaults', async () => {
+  it('Adjust reveals six labelled sliders; a change re-runs and cancels the previous run; Reset restores defaults', async () => {
     const f = makeFilter();
     await choosePhoto(f);
     f.runs[0].resolve();
     await waitFor(() => expect(screen.queryByTestId('picture-drawing')).toBeNull());
     expect(screen.queryByTestId('picture-sliders')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Adjust' }));
-    for (const name of ['Line weight', 'Fine detail', 'Shading', 'Colour', 'Chalk grain']) {
+    for (const name of ['Line weight', 'Fine detail', 'Shading', 'Colour', 'Chalk grain', 'Focus']) {
       expect(screen.getByLabelText(name)).toHaveAttribute('type', 'range');
     }
+    expect(screen.getByLabelText('Focus')).toHaveValue('0');
+    expect(screen.getByText('Fade the background')).toBeInTheDocument();
     expect(screen.getByLabelText('Shading')).toHaveValue('110');
     expect(screen.getByTestId('picture-slider-shading-value')).toHaveTextContent('110');
 
@@ -191,6 +193,26 @@ describe('RecipePicture', () => {
     await waitFor(() => expect(f.runs.length).toBe(4));
     expect(f.runs[3].settings).toEqual(CHALK_DEFAULTS);
     expect(screen.getByLabelText('Shading')).toHaveValue('110');
+  });
+
+  it('Focus re-runs with focus in the settings, cancels the previous run, and Reset returns it to 0', async () => {
+    const f = makeFilter();
+    await choosePhoto(f);
+    expect(f.runs[0].settings.focus).toBe(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Adjust' }));
+    fireEvent.change(screen.getByLabelText('Focus'), { target: { value: '50' } });
+    await waitFor(() => expect(f.runs.length).toBe(2));
+    expect(f.runs[1].settings.focus).toBe(50);
+    expect(f.runs[1].settings).toMatchObject({ weight: 5, grain: 5 });
+    fireEvent.change(screen.getByLabelText('Focus'), { target: { value: '80' } });
+    await waitFor(() => expect(f.runs.length).toBe(3));
+    expect(f.runs[1].cancel).toHaveBeenCalled();
+    expect(f.runs[2].settings.focus).toBe(80);
+    expect(screen.getByTestId('picture-slider-focus-value')).toHaveTextContent('80');
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+    await waitFor(() => expect(f.runs.length).toBe(4));
+    expect(f.runs[3].settings.focus).toBe(0);
+    expect(screen.getByLabelText('Focus')).toHaveValue('0');
   });
 
   it('the crop choice re-runs on a centre crop', async () => {

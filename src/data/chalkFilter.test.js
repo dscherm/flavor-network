@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { resolve } from 'node:path';
 import {
   chalkify, CHALK_DEFAULTS, CHALK_RANGES, clampSettings, fitSize, encodeWithBudget,
-  inspectMetadata, ChalkCancelled, STORE_BYTES,
+  inspectMetadata, ChalkCancelled, STORE_BYTES, focusMask, makeNoise,
 } from './chalkFilter.js';
 
 const make = (w, h, fn) => {
@@ -110,6 +110,79 @@ describe('chalkify', () => {
     for (let i = 1; i < seen.length; i++) expect(seen[i]).toBeGreaterThanOrEqual(seen[i - 1]);
     let calls = 0;
     expect(() => chalkify(whiteSquare(), CHALK_DEFAULTS, { isCancelled: () => ++calls > 2 })).toThrow(ChalkCancelled);
+  });
+});
+
+describe('focus fade', () => {
+  const { focus: _f, ...OLD_DEFAULTS } = CHALK_DEFAULTS;
+  const noGrain = { ...CHALK_DEFAULTS, grain: 0 };
+  const busy = make(64, 48, (x, y) => [(x * 7) & 255, (y * 11) & 255, ((x * y) & 255)]);
+  const marked = () => make(80, 80, (x, y) => {
+    const centre = x >= 36 && x < 44 && y >= 36 && y < 44;
+    const corner = (x < 8 || x >= 72) && (y < 8 || y >= 72);
+    return centre || corner ? [255, 255, 255] : [0, 0, 0];
+  });
+  const slate = (img, x, y) => {
+    const { coarse } = makeNoise(img.width, img.height);
+    const cx = img.width / 2, cy = img.height / 2;
+    const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2) / Math.sqrt(cx * cx + cy * cy);
+    return Uint8ClampedArray.of(26 - 15 * dist + (coarse[y * img.width + x] - 0.5) * 7)[0];
+  };
+
+  it('focus 0 is byte-identical to the filter before focus existed', () => {
+    expect(CHALK_DEFAULTS.focus).toBe(0);
+    const a = chalkify(busy, { ...CHALK_DEFAULTS });
+    const b = chalkify(busy, OLD_DEFAULTS);
+    expect(Buffer.from(a.data).equals(Buffer.from(b.data))).toBe(true);
+  });
+
+  it('clamps focus to 0-100', () => {
+    expect(CHALK_RANGES.focus.min).toBe(0);
+    expect(CHALK_RANGES.focus.max).toBe(100);
+    expect(clampSettings({ focus: -5 }).focus).toBe(0);
+    expect(clampSettings({ focus: 400 }).focus).toBe(100);
+    const hi = chalkify(busy, { ...CHALK_DEFAULTS, focus: 100 });
+    const over = chalkify(busy, { ...CHALK_DEFAULTS, focus: 9999 });
+    expect(Buffer.from(hi.data).equals(Buffer.from(over.data))).toBe(true);
+  });
+
+  it('at focus 100 keeps the centre marks and leaves corners and edges as bare slate', () => {
+    const img = marked();
+    const plain = chalkify(img, { ...noGrain, focus: 0 });
+    const out = chalkify(img, { ...noGrain, focus: 100 });
+    expect(px(out, 40, 40)[0]).toBe(px(plain, 40, 40)[0]);
+    expect(px(out, 40, 40)[0]).toBeGreaterThan(200);
+    expect(px(plain, 3, 3)[0]).toBeGreaterThan(100);
+    for (const [x, y] of [[0, 0], [3, 3], [79, 0], [76, 3], [0, 79], [3, 76], [79, 79], [76, 76], [40, 0], [0, 40], [79, 40], [40, 79]]) {
+      expect(px(out, x, y)[0], `${x},${y}`).toBe(slate(img, x, y));
+    }
+  });
+
+  it('the kept strength never increases from the centre to a corner', () => {
+    let last = 2;
+    for (let d = 0; d <= 1.5; d += 0.01) {
+      const m = focusMask(d, 100);
+      expect(m).toBeLessThanOrEqual(last);
+      last = m;
+    }
+    for (const f of [1, 25, 50, 75, 100]) {
+      let prev = 1;
+      for (let d = 0; d <= 1.5; d += 0.01) { const m = focusMask(d, f); expect(m).toBeLessThanOrEqual(prev + 1e-12); prev = m; }
+      expect(focusMask(0, f)).toBe(1);
+    }
+    expect(focusMask(1, 100)).toBe(0);
+    expect(focusMask(Math.SQRT2, 100)).toBe(0);
+    expect(focusMask(0.4, 50)).toBeGreaterThanOrEqual(focusMask(0.4, 75));
+  });
+
+  it('the oval follows the picture aspect, and the result is deterministic', () => {
+    const wide = make(120, 40, (x, y) => ((x >= 56 && x < 64 && y >= 16 && y < 24) || (x >= 96 && x < 104 && y >= 16 && y < 24) ? [255, 255, 255] : [0, 0, 0]));
+    const a = chalkify(wide, { ...noGrain, focus: 100 });
+    const b = chalkify(wide, { ...noGrain, focus: 100 });
+    expect(Buffer.from(a.data).equals(Buffer.from(b.data))).toBe(true);
+    const plain = chalkify(wide, { ...noGrain, focus: 0 });
+    expect(px(a, 60, 20)[0]).toBe(px(plain, 60, 20)[0]);
+    expect(px(a, 100, 20)[0]).toBeLessThan(px(plain, 100, 20)[0]);
   });
 });
 

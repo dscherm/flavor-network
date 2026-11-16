@@ -30,6 +30,7 @@ const SLIDERS = [
   { key: 'shading', label: 'Shading' },
   { key: 'colour', label: 'Colour' },
   { key: 'grain', label: 'Chalk grain' },
+  { key: 'focus', label: 'Focus', hint: 'Fade the background' },
 ];
 const CROP_LABEL = { square: 'Square', landscape: 'Landscape' };
 const UNREADABLE = "That file can't be opened as a picture here. Try a JPEG or PNG photo.";
@@ -362,7 +363,7 @@ export default function RecipePicture({
 
               {adjust && (
                 <div data-testid="picture-sliders" style={{ marginTop: 10 }}>
-                  {SLIDERS.map(({ key, label }) => {
+                  {SLIDERS.map(({ key, label, hint }) => {
                     const r = CHALK_RANGES[key];
                     const id = `picture-slider-${key}`;
                     return (
@@ -371,8 +372,10 @@ export default function RecipePicture({
                           <label htmlFor={id}>{label}</label>
                           <output htmlFor={id} data-testid={`${id}-value`} style={{ color: CHALK_DIM }}>{settings[key]}</output>
                         </div>
+                        {hint && <div id={`${id}-hint`} style={{ fontSize: 12, color: CHALK_SUB }}>{hint}</div>}
                         <input
                           id={id}
+                          aria-describedby={hint ? `${id}-hint` : undefined}
                           type="range"
                           min={r.min}
                           max={r.max}
