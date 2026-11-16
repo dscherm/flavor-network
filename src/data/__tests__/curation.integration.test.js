@@ -1,5 +1,5 @@
 // DATA-2: the curation layer over the REAL data files and the REAL model vocabulary.
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadCuratedDataset } from '../curation/loadDataset.js';
@@ -15,6 +15,10 @@ import { toSavedItem } from '../inventSaved.js';
 import { buildVocabIndex, buildRecipeInputs, rankLogits } from '../../ml/recipeRuntime.js';
 import { buildVocabIndex as quantityVocabIndex, predictQuantity } from '../../ml/quantityModel.js';
 import { buildVocabMaps, resolveNamesToIds, retrieveDirections } from '../../ml/directionsRuntime.js';
+
+// GATE-1: Two tests merge the full pairings.json (about 2.2 s each alone, 3.0 s in the full run).
+// 5 s default leaves under 2x headroom when the machine is busy; 20 s still fails a real hang.
+vi.setConfig({ testTimeout: 20000 });
 
 const PUB = resolve(__dirname, '../../../public');
 const read = (p) => readFileSync(resolve(PUB, p));

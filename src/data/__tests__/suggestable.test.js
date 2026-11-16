@@ -1,6 +1,6 @@
 // DATA-3: packaged and hidden entries are never OFFERED (suggestions, stand-ins, checklist picks, partner
 // lists), on the real data, at each choke point. They stay findable by typing and valid in saved recipes.
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { isSuggestable, suggestableOnly } from '../curation/suggestable.js';
@@ -22,6 +22,10 @@ import { findSwap, SWAPS } from '../kitchenSwaps.js';
 import { rankByAxisImpact, buildAxisEnhancements } from '../recipeProfileAnalysis.js';
 import { rankLogits } from '../../ml/recipeRuntime.js';
 import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
+
+// GATE-1: Walks every dish type and slot over the real curated dataset (1.2 s alone, 1.6 s in the full run).
+// 5 s default leaves under 2x headroom when the machine is busy; 20 s still fails a real hang.
+vi.setConfig({ testTimeout: 20000 });
 
 const PUB = path.resolve(__dirname, '../../../public');
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(PUB, p), 'utf8'));

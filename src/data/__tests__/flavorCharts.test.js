@@ -1,5 +1,5 @@
 // CHART-2: the pure pieces of the four flavor charts, checked on real profiles computed through profileForRecipe.
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { flavorNote, flavorStrips, flavorWheel, flavorGrid, AXIS_LABEL, STRIP_LABEL_MIN, WEDGE_MIN_LENGTH, GRID_ROWS } from '../flavorCharts.js';
@@ -11,6 +11,10 @@ import { SEED_RECIPES } from '../seedRecipes.js';
 import { RECIPE_DETAILS } from '../seedRecipeDetails.js';
 import { loadFlavorNodes } from '../../../scripts/lib/flavorNodes.mjs';
 import { readCuratedCodex } from '../../../scripts/lib/curatedCodex.mjs';
+
+// GATE-1: One test charts every built-in recipe (1.7 s in the full run).
+// 5 s default leaves under 2x headroom when the machine is busy; 20 s still fails a real hang.
+vi.setConfig({ testTimeout: 20000 });
 
 const nodes = loadFlavorNodes();
 const codex = readCuratedCodex();

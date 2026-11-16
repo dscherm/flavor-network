@@ -54,6 +54,14 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    // GATE-1: vitest's default is one fork per logical core minus one (23 here),
+    // which oversubscribes this machine (24 logical cores, shared with other
+    // processes). Measured 2026-11-16: with 23 workers the slowest tests took
+    // 3.8-4.4 s (curation.integration, CookbookLab.design3) against 1.3-2.3 s
+    // alone, i.e. one stray slowdown from the 5 s default timeout; with 10
+    // workers the slowest was 2.7 s (suite 112 s vs 92 s). 12 keeps most of the
+    // speed and about 2x the timeout headroom.
+    maxWorkers: 12,
     setupFiles: ['./src/test/setup.js'],
     include: ['src/**/*.test.{js,jsx}', 'chemDataset/validation/**/*.test.{js,jsx}'],
     exclude: ['src/data/tests/**', 'node_modules/**'],
