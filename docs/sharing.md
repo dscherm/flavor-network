@@ -12,7 +12,7 @@ A shared link is a web address that opens one recipe for anyone, with no account
 1. **A built-in link** looks like `https://neuralflavor.web.app/r/cocktail/negroni` (or `/r/sauce/...`, `/r/dish/...`). It points at a recipe that ships with the app. Nothing a user wrote is involved, so there is nothing to report or remove.
 2. **A user's copy** looks like `https://neuralflavor.web.app/r/k7m2q9x4tz` (ten letters and numbers). It exists only when a signed-in person taps "Create link" on a cocktail, sauce or recipe they made. The app makes a frozen public copy of it; the person's own recipe is not touched, and later edits to it do not change the link. If they edit and share again they get a new link.
 
-Both kinds show the recipe, a flavor chart (labelled a visual guide), and buttons to save it, copy it ("Make it your own") and share it. A visitor who is signed out is invited to create a free account. Pasting a link into a chat or social post shows a preview card with the recipe's name, its first ingredients and a picture. That preview is made by two small server programs (Cloud Functions), `sharePreview` and `shareCard`.
+Both kinds show the recipe, a flavor chart (labelled a visual guide), and buttons to save it, copy it ("Make it your own") and share it. A visitor who is signed out is invited to create a free account. The chart shows the strongest few bars in two groups headed Taste and Aroma (a link-preview or feed card: 3 tastes and 3 aromas; the cover of a set of three: 4 and 4; the page: 4 and 4 with "show all"), and says "+N fainter notes" when it left some out (`src/data/flavorDisplay.js`; see `docs/flavor-profile.md`, "Aromas, second pass"). Pasting a link into a chat or social post shows a preview card with the recipe's name, its first ingredients and a picture. That preview is made by two small server programs (Cloud Functions), `sharePreview` and `shareCard`.
 
 ## What becomes public, and what never does
 
@@ -59,7 +59,7 @@ A report records only the link's id, the reason, the note and the time. It does 
 ## Limits
 
 - 50 live shared links per account. The 51st is refused with a plain message asking the person to unshare one in Profile. This is enforced by the app only; the database rules cannot count.
-- Name 80 characters, shown-name 30, ingredient lines 40, each amount 30, method 2,000, glass or category 60, flavor chart 11 bars.
+- Name 80 characters, shown-name 30, ingredient lines 40, each amount 30, method 2,000, glass or category 60, flavor chart 11 bars (the app saves at most 8: the 4 strongest tastes and 4 strongest aromas, because up to 17 axes can fire).
 - Report note 300 characters.
 - Anything not covered by those limits is escaped and shown as plain text on the page, in the preview tags and on the card. The database rules cannot look inside the ingredient list, so that part relies on the app and the server programs treating it as text, which they do and which is tested.
 

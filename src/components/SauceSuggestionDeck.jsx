@@ -19,6 +19,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { recipeAxisProfile, TASTE_AXES, AROMA_AXES } from '../data/recipeProfileAnalysis.js';
 import { BeforeAfterRadar } from './IngredientProfileCard.jsx';
+import { radarAxes } from '../data/flavorDisplay.js';
 import { formatPairedVia, formatMatchBadge } from '../data/recipePairingMatch.js';
 
 const FONT_HAND = 'Caveat, cursive';
@@ -103,7 +104,7 @@ function SauceCard({ name, profile, recipeName, similarity, matchedAromas, paire
       {/* Single-series flavor radars — taste + aroma shown separately. */}
       <div className="w-full flex flex-wrap justify-center items-start gap-x-3 gap-y-2">
         <LabeledRadar label="Taste" profile={profile} axes={TASTE_AXES} testId="sauce-card-radar-taste" />
-        <LabeledRadar label="Aroma" profile={profile} axes={AROMA_AXES} testId="sauce-card-radar-aroma" />
+        <LabeledRadar label="Aroma" profile={profile} axes={radarAxes(profile || {}, 'radar', { pool: AROMA_AXES })} testId="sauce-card-radar-aroma" />
       </div>
 
       {pairedVia.length > 0 && (

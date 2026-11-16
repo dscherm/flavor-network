@@ -8,7 +8,7 @@
  * ingredients (and at least two) have data for it (recipeProfileAnalysis.drawRule); when neither draws there are no bars and the
  * surface shows NO_CHART_LINE.
  *
- * buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null, garnish = '' }) →
+ * buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = FLOOR, amounts = null, garnish = '' }) →
  *   `amounts` is { key: "2 oz" | { qty, unit } | grams }: both halves are weighted by it (equal weights without).
  *   `garnish` is the recipe's garnish text: a salt, sugar or chili rim in it adds a thin fixed dusting of that taste;
  *   a citrus twist, a mint sprig and the like add a small fixed amount of that ingredient to the AROMA half only.
@@ -16,7 +16,7 @@
  *     scores:   { axis: number }   all 12 axes (sweet, sour, bitter, salty, umami, heat,
  *                                  odor_fruity ... odor_fatty), 0..1; all 0 when nothing counted
  *     axes:     [axis]             the FIRING axes (score >= minScore), strongest first
- *     bars:     [{ axis, label, color, score }]   same order as `axes`, ready to draw
+ *     bars:     [{ axis, label, color, score, group }]   same order as `axes`, ready to draw
  *     drivers:  { axis: [key] }    up to 3 ingredients behind each axis
  *     counted:  [key]              keys with real flavor data for taste or aroma (list order)
  *     uncounted:[key]              keys with none (list order)
@@ -28,7 +28,8 @@
  * `nodes` is a Map name → { taste } or null (taste labels only; aroma needs no node).
  * Never throws: bad input gives the empty profile.
  */
-import { AXES, axisLabel, axisColor, nodeProbs, recipeAxisProfileWeighted, NO_CHART_LINE } from './recipeProfileAnalysis.js';
+import { axisLabel, axisColor, nodeProbs, recipeAxisProfileWeighted, NO_CHART_LINE } from './recipeProfileAnalysis.js';
+import { rankAxes, axisGroup, FLOOR } from './flavorDisplay.js';
 import { garnishTasteLines } from './flavorStrengths.js';
 import { garnishAromaLines } from './flavorAromas.js';
 
@@ -49,19 +50,20 @@ export function summarize({ axes, counted, noun = 'recipe', drawn = true }) {
 
 const capitalized = (w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w);
 
-export function buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = 0.05, amounts = null, garnish = '' } = {}) {
+export function buildFlavorProfile(keys, nodes, { noun = 'recipe', minScore = FLOOR, amounts = null, garnish = '' } = {}) {
   const list = [...new Set((Array.isArray(keys) ? keys : []).filter((k) => typeof k === 'string' && k))];
   const counted = list.filter((k) => nodeProbs(k, nodes));
   const uncounted = list.filter((k) => !nodeProbs(k, nodes));
   // A salt, sugar or chili rim sits in the garnish text, not in a line: it adds a thin, fixed dusting (flavorStrengths.js).
   const rim = garnishTasteLines(garnish).map((r) => ({ ingredient: r.key, amount: r.amount }));
   const prof = recipeAxisProfileWeighted([...list.map((k) => ({ ingredient: k, amount: amounts?.[k] ?? null })), ...rim], nodes, { aromaExtras: garnishAromaLines(garnish) });
-  const axes = AXES.filter((a) => prof.scores[a] >= minScore).sort((a, b) => prof.scores[b] - prof.scores[a]);
+  // The one ordering (flavorDisplay.js): strongest first, ties by canonical axis order.
+  const axes = rankAxes(prof.scores, { floor: minScore });
   const summary = list.length ? summarize({ axes, counted, noun, drawn: prof.drawn }) : '';
   return {
     scores: prof.scores,
     axes,
-    bars: axes.map((axis) => ({ axis, label: capitalized(axisLabel(axis)), color: axisColor(axis), score: prof.scores[axis] })),
+    bars: axes.map((axis) => ({ axis, label: capitalized(axisLabel(axis)), color: axisColor(axis), score: prof.scores[axis], group: axisGroup(axis) })),
     drivers: prof.drivers,
     counted,
     uncounted,

@@ -1,14 +1,16 @@
 /**
- * ProfileDeltaRadar — small SVG radar over the 11 flavor axes showing the
+ * ProfileDeltaRadar — small SVG radar over the strongest flavor axes (AROMA-4 'mini' display rule: at most 3 tastes + 3 aromas, plus
+ * the axes that moved; 17 unlabeled spokes at 132 px were unreadable) showing the
  * recipe's profile BEFORE (faint fill) and AFTER adding/swapping a candidate
  * (accent outline). Used on the suggestion cards to visualize how an
  * ingredient augments the recipe's flavor profile.
  */
-import { AXES, axisLabel, axisColor } from '../data/recipeProfileAnalysis.js';
+import { axisLabel, axisColor } from '../data/recipeProfileAnalysis.js';
+import { radarAxes, AXES as ALL_AXES } from '../data/flavorDisplay.js';
 
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
-function polygon(values, cx, cy, R) {
+function polygon(AXES, values, cx, cy, R) {
   const pts = AXES.map((a, i) => {
     const ang = (Math.PI * 2 * i) / AXES.length - Math.PI / 2;
     const r = clamp01(values[a] || 0) * R;
@@ -22,7 +24,9 @@ export default function ProfileDeltaRadar({ before, delta, size = 132, movers = 
   const cy = size / 2;
   const R = size / 2 - 14;
   const after = {};
-  for (const a of AXES) after[a] = clamp01((before[a] || 0) + (delta?.[a] || 0));
+  for (const a of ALL_AXES) after[a] = clamp01((before[a] || 0) + (delta?.[a] || 0));
+  const peak = Object.fromEntries(ALL_AXES.map((a) => [a, Math.max(before[a] || 0, after[a])]));
+  const AXES = radarAxes(peak, 'mini', { extra: movers.map((m) => m.axis) });
 
   const moverSet = new Set(movers.map((m) => m.axis));
 
@@ -37,9 +41,9 @@ export default function ProfileDeltaRadar({ before, delta, size = 132, movers = 
         return <line key={a} x1={cx} y1={cy} x2={x} y2={y} stroke="#e8dcc0" strokeWidth="0.5" />;
       })}
       {/* before (faint fill) */}
-      <polygon points={polygon(before, cx, cy, R)} fill="#a09070" fillOpacity="0.18" stroke="#a09070" strokeWidth="1" />
+      <polygon points={polygon(AXES, before, cx, cy, R)} fill="#a09070" fillOpacity="0.18" stroke="#a09070" strokeWidth="1" />
       {/* after (accent outline) */}
-      <polygon points={polygon(after, cx, cy, R)} fill="none" stroke="#3a8a5a" strokeWidth="1.75" />
+      <polygon points={polygon(AXES, after, cx, cy, R)} fill="none" stroke="#3a8a5a" strokeWidth="1.75" />
       {/* dots on the axes that moved most */}
       {AXES.map((a, i) => {
         if (!moverSet.has(a)) return null;

@@ -2,7 +2,7 @@
  * RecipeFlavorProfilesCard — dark chalkboard, swipeable per-axis flavor analysis
  * for a recipe.
  *
- * Page 0 is a Flavor map: a chalkboard radar over the 17 taste+aroma axes that
+ * Page 0 is a Flavor map: a chalkboard radar over the axes flavorDisplay.radarAxes picks (3 to 8 of the 17) that
  * plots each bowl ingredient as a labeled dot positioned by its own flavor
  * (its own taste and aroma values), so a sweet ingredient sits toward the "sweet" axis.
  * Pages 1..axes.length are one per firing flavor axis (taste + aroma): the
@@ -30,6 +30,7 @@ import { computeRecipeAroma, rankByAromaSimilarity } from '../data/recipeAromaSi
 import { buildPairingIndex, rankByPairing } from '../data/recipePairingMatch.js';
 import { recipeTakesSauce } from '../data/sauceRecommendation.js';
 import HelpBubble from './HelpBubble.jsx';
+import { groupBars, selectAxes, radarAxes, hiddenLine } from '../data/flavorDisplay.js';
 // CK-14: fold the duplicated chalkboard palette onto the shared theme.
 import { FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL as CHALK_BORDER_OUTER } from '../data/chalkTheme.js';
 
@@ -93,7 +94,7 @@ function axisAngle(i, n) {
 }
 
 /**
- * IngredientFlavorMap — a chalkboard radar over the 17 axes (grid rings, spokes,
+ * IngredientFlavorMap — a chalkboard radar over the chosen axes (default all 17; grid rings, spokes,
  * colored axis labels) that plots each bowl ingredient as a labeled dot placed
  * by its own flavor centroid. Strongly single-flavored ingredients sit near
  * their dominant axis edge; balanced ones cluster center.
@@ -102,9 +103,11 @@ function axisAngle(i, n) {
  *   vx = Σ p[axis_i]·cos(angle_i), vy = Σ p[axis_i]·sin(angle_i), mag = hypot(vx,vy)
  *   place at r = (mag/maxMag)·0.82·R in direction (vx,vy); center if mag≈0.
  */
-function IngredientFlavorMap({ bowlNames = [], nodes, size = 320, testId = 'flavor-map-radar' }) {
+function IngredientFlavorMap({ bowlNames = [], nodes, axes: plotted = AXES, size = 320, testId = 'flavor-map-radar' }) {
   const cx = size / 2;
   const cy = size / 2;
+  // AROMA-4 (interim display rule): only the axes flavorDisplay.radarAxes picks for this recipe are plotted (3 to 8 spokes).
+  const AXES = plotted;
   const N = AXES.length;
   // AROMA-3: seventeen spokes. A slightly smaller disc and label size keep the outermost labels (umami, salty) inside the box.
   const radius = size * (N > 12 ? 0.27 : 0.30);
@@ -163,7 +166,7 @@ function IngredientFlavorMap({ bowlNames = [], nodes, size = 320, testId = 'flav
 
   const trunc = (s) => (s.length > 12 ? `${s.slice(0, 11)}…` : s);
   const fontSize = N > 12 ? 11 : N > 8 ? 12 : 14;
-  const sidePad = N > 12 ? 24 : 0;
+  const sidePad = 24;
 
   return (
     <svg
@@ -314,43 +317,57 @@ function EnhanceCard({ name, node, onTap }) {
  * scaled to the strongest axis so the chart fills the width. Axes that don't
  * fire are hidden to avoid a wall of empty bars.
  */
-function FlavorBarChart({ scores }) {
-  const rows = useMemo(() => {
-    const vals = AXES.map((a) => ({ axis: a, v: Math.max(0, scores[a] || 0) }));
-    const total = vals.reduce((s, r) => s + r.v, 0);
-    const shown = vals.filter((r) => r.v > 0.01).sort((x, y) => y.v - x.v);
-    const maxV = shown.length ? shown[0].v : 1;
-    return shown.map((r) => ({
-      ...r,
-      share: total > 0 ? r.v / total : 0,
-      width: maxV > 0 ? (r.v / maxV) * 100 : 0,
-    }));
-  }, [scores]);
+function FlavorBarChart({ scores, all = false, onToggleAll }) {
+  const { shown, hidden, canShowAll, groups } = useMemo(() => {
+    const vals = AXES.map((a) => ({ axis: a, score: Math.max(0, scores[a] || 0) }));
+    const total = vals.reduce((s, r) => s + r.score, 0);
+    const g = groupBars(vals, 'full', { all });
+    const maxV = g.bars.reduce((m, r) => Math.max(m, r.score), 0) || 1;
+    const withShare = (r) => ({ ...r, share: total > 0 ? r.score / total : 0, width: (r.score / maxV) * 100 });
+    return { shown: g.bars, hidden: g.hidden, canShowAll: g.canShowAll, groups: g.groups.map((x) => ({ ...x, bars: x.bars.map(withShare) })) };
+  }, [scores, all]);
 
-  if (rows.length === 0) {
+  if (shown.length === 0) {
     return <p className="text-sm py-2" style={{ fontFamily: FONT, color: CHALK_SUB }}>No flavor signal yet.</p>;
   }
   return (
     <div className="flex flex-col gap-2" data-testid="profiles-overview-bars">
-      {rows.map((r) => (
-        <div key={r.axis} className="flex items-center gap-2" data-testid="overview-bar" data-axis={r.axis}>
-          <span
-            className="text-base capitalize flex-shrink-0 text-right"
-            style={{ fontFamily: FONT, color: axisColor(r.axis), width: 84, textShadow: CHALK_TEXT_SHADOW }}
-          >
-            {axisLabel(r.axis)}
-          </span>
-          <div className="h-3 rounded-full flex-1" style={{ background: '#222' }}>
-            <div
-              className="h-3 rounded-full transition-all"
-              style={{ width: `${Math.max(2, r.width)}%`, background: axisColor(r.axis) }}
-            />
+      {groups.map((g) => (
+        <div key={g.id} data-testid={`overview-group-${g.id}`}>
+          <p className="text-[12px] uppercase tracking-wider mb-1" style={{ fontFamily: FONT, color: CHALK_SUB }}>{g.title}</p>
+          <div className="flex flex-col gap-2">
+            {g.bars.map((r) => (
+              <div key={r.axis} className="flex items-center gap-2" data-testid="overview-bar" data-axis={r.axis}>
+                <span
+                  className="text-base capitalize flex-shrink-0 text-right"
+                  style={{ fontFamily: FONT, color: axisColor(r.axis), width: 84, textShadow: CHALK_TEXT_SHADOW }}
+                >
+                  {axisLabel(r.axis)}
+                </span>
+                <div className="h-3 rounded-full flex-1" style={{ background: '#222' }}>
+                  <div
+                    className="h-3 rounded-full transition-all"
+                    style={{ width: `${Math.max(2, r.width)}%`, background: axisColor(r.axis) }}
+                  />
+                </div>
+                <span className="text-sm flex-shrink-0 tabular-nums" style={{ fontFamily: FONT, color: CHALK_DIM, width: 36 }}>
+                  {Math.round(r.share * 100)}%
+                </span>
+              </div>
+            ))}
           </div>
-          <span className="text-sm flex-shrink-0 tabular-nums" style={{ fontFamily: FONT, color: CHALK_DIM, width: 36 }}>
-            {Math.round(r.share * 100)}%
-          </span>
         </div>
       ))}
+      {(hidden > 0 || all) && (
+        <p className="text-sm flex items-center gap-3" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+          {hidden > 0 && <span data-testid="overview-hidden">{hiddenLine(hidden)}</span>}
+          {(canShowAll || all) && (
+            <button type="button" onClick={onToggleAll} data-testid="overview-showall" aria-pressed={all} className="underline min-h-[36px]" style={{ color: CHALK_CREAM }}>
+              {all ? 'show fewer' : 'show all'}
+            </button>
+          )}
+        </p>
+      )}
     </div>
   );
 }
@@ -370,10 +387,11 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
   const drawnHalves = useMemo(() => ({ taste: tasteDrawn, aroma: aromaDrawn }), [tasteDrawn, aromaDrawn]);
 
   // Firing axes (score above a small floor), strongest first.
-  const axes = useMemo(
-    () => AXES.filter((a) => scores[a] > 0.08).sort((x, y) => scores[y] - scores[x]),
-    [scores],
-  );
+  // AROMA-4 (interim display rule, flavorDisplay.js): the axis pages follow the same rule as the overview bars
+  // (up to 6 tastes + 6 aromas, or every axis above the floor after "show all"), strongest first, ties in canonical order.
+  const [showAll, setShowAll] = useState(false);
+  const axes = useMemo(() => selectAxes(scores, 'full', { all: showAll }).axes, [scores, showAll]);
+  const mapAxes = useMemo(() => radarAxes(scores, 'radar'), [scores]);
 
   const [candidates, setCandidates] = useState([]); // model pool that fits the recipe
   const [dishes, setDishes] = useState([]);
@@ -558,7 +576,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             <p className="text-sm mb-2" style={{ fontFamily: FONT, color: CHALK_DIM }}>
               {overview.weighted ? 'Flavor balance, weighted by amount' : 'Flavor balance — add amounts to weight it'}
             </p>
-            <FlavorBarChart scores={overview.scores} />
+            <FlavorBarChart scores={overview.scores} all={showAll} onToggleAll={() => setShowAll((v) => !v)} />
             <p className="text-xs mt-1" data-testid="profiles-note" style={{ fontFamily: FONT, color: CHALK_DIM }}>
               Built from taste labels and aroma notes for each ingredient, weighted by amount. A guide, not a taste test.
             </p>
@@ -576,7 +594,7 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           <div className="flex flex-col items-center">
             <h3 className="text-2xl self-start mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Flavor map</h3>
             <div style={{ width: 'min(100%, 60vh)' }}>
-              <IngredientFlavorMap bowlNames={bowlNames} nodes={nodes} />
+              <IngredientFlavorMap bowlNames={bowlNames} nodes={nodes} axes={mapAxes} />
             </div>
             <p className="text-sm mt-1 text-center" style={{ fontFamily: FONT, color: CHALK_DIM }}>Each ingredient placed by its flavor</p>
           </div>

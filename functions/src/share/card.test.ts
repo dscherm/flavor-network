@@ -110,9 +110,15 @@ describe('shareCard PNG', () => {
 
 describe('layout sharing', () => {
   it('the layout the function uses is the browser module, copied (generated file matches the source)', () => {
-    const src = readFileSync(join(__dirname, '..', '..', '..', 'src', 'data', 'shareCardLayout.js'), 'utf8');
-    const gen = readFileSync(join(__dirname, 'cardLayout.generated.ts'), 'utf8');
-    expect(gen.endsWith(src)).toBe(true);
+    // AROMA-4: the layout imports the chart display rule; the generated copy inlines src/data/flavorDisplay.js ahead of it
+    // and drops the import line. Line endings are normalised so the check does not depend on how git checked the files out.
+    const lf = (t: string) => t.replace(/\r\n/g, '\n');
+    const root = join(__dirname, '..', '..', '..', 'src', 'data');
+    const layout = lf(readFileSync(join(root, 'shareCardLayout.js'), 'utf8')).split('\n').filter((l) => !l.includes("from './flavorDisplay.js'")).join('\n');
+    const rule = lf(readFileSync(join(root, 'flavorDisplay.js'), 'utf8'));
+    const gen = lf(readFileSync(join(__dirname, 'cardLayout.generated.ts'), 'utf8'));
+    expect(gen.endsWith(layout)).toBe(true);
+    expect(gen).toContain(rule);
     expect(gen.startsWith('// @ts-nocheck\n// GENERATED')).toBe(true);
   });
   it('lays out a built-in preview card with the printed link, the site name and the flavor chart', () => {
@@ -132,13 +138,16 @@ describe('layout sharing', () => {
     const text = layoutFor(cards['cocktail/boulevardier'], 'x').primitives.filter((p: any) => p.type === 'text').map((p: any) => p.text).join(' ');
     expect(text).toContain('flavor chart');
   });
-  it('the preview chart keeps to six bars and stays inside the card, even for the busiest recipes', () => {
+  it('the preview chart keeps to three tastes and three aromas and stays inside the card, even for the busiest recipes', () => {
     const busiest = Object.entries(cards).sort((x, y) => y[1].bars.length - x[1].bars.length).slice(0, 5).map(([k]) => k);
     for (const key of ['cocktail/negroni', 'cocktail/daiquiri', 'dish/beef-bolognese', ...busiest]) {
       const card = layoutFor(cards[key], 'x') as any;
-      const labels = new Set(cards[key].bars.slice(0, 6).map((b) => b.label.charAt(0).toUpperCase() + b.label.slice(1)));
+      // AROMA-4: the chart is the display rule's 'card' selection, at most 3 tastes + 3 aromas.
+      const shown = (generated as any).groupBars(cards[key].bars, 'card').bars;
+      const labels = new Set(shown.map((b: any) => b.label.charAt(0).toUpperCase() + b.label.slice(1)));
       const drawn = card.primitives.filter((p: any) => p.type === 'text' && [...labels].includes(p.text));
-      expect(drawn.length).toBe(Math.min(6, cards[key].bars.length));
+      expect(drawn.length).toBe(shown.length);
+      expect(shown.length).toBeLessThanOrEqual(6);
       for (const p of card.primitives.filter((q: any) => q.type !== 'line')) expect(p.y + (p.h || 0)).toBeLessThanOrEqual(card.height);
     }
   });

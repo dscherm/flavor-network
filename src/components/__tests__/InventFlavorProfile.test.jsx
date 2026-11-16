@@ -43,6 +43,6 @@ describe('InventFlavorProfile', () => {
   });
   it('imports nothing lab-specific', () => {
     const src = readFileSync('src/components/InventFlavorProfile.jsx', 'utf8');
-    expect(src.split('\n').filter((l) => /^import /.test(l)).join('\n').replace('./inventUi.jsx', '')).not.toMatch(/cocktail|sauce|recipe|invent[A-Z]|data\/(?!chalkTheme)/i);
+    expect(src.split('\n').filter((l) => /^import /.test(l)).join('\n').replace('./inventUi.jsx', '')).not.toMatch(/cocktail|sauce|recipe|invent[A-Z]|data\/(?!chalkTheme|flavorDisplay)/i);
   });
 });

@@ -1,10 +1,14 @@
 /**
  * shareCardLayout.js — SHARE-5. Pure, renderer-agnostic description of the recipe
- * cards people post. No DOM, no canvas, no fetch, no imports: the browser canvas
+ * cards people post. No DOM, no canvas, no fetch, and one import (flavorDisplay.js, the chart display rule; scripts/buildShareIndex.mjs
+ * inlines it into the generated copy): the browser canvas
  * renderer and the Cloud Function (satori) both draw exactly what this returns.
  * scripts/buildShareIndex.mjs copies this file into functions/src/share/ as a
  * generated file, so keep it self-contained.
  *
+
+ * The chart shows what flavorDisplay.groupBars picks for 'card' (3 tastes + 3 aromas) or, on a set's cover, 'cover' (4 + 4),
+ * under Taste and Aroma headings; the caption adds "+N fainter notes" when bars were left out.
  * layoutCard({ format, recipe, bars, link, page })  ->  Card
  *   format  'preview' (1200x630) | 'portrait' (1080x1350) | 'tall' (1080x1920)
  *   recipe  { kind, name, lines: [{ amount, label?, key, suggested? }], method, glass?, garnish?,
@@ -25,6 +29,8 @@
  *     one line of text per primitive; (x, y, w, h) is its box, h = the line height. Layout has
  *     already wrapped, shrunk and truncated: renderers never measure or wrap.
  */
+
+import { groupBars, hiddenLine } from './flavorDisplay.js';
 
 export const SITE_NAME = 'Neural Flavor';
 export const CHART_CAPTION = 'flavor chart: a visual guide';
@@ -197,27 +203,41 @@ function footer(fr, link, page) {
   return y - 14;
 }
 
-/** Heights used by the chart so callers can reserve room. */
-const chartHeight = (n, { row, caption }) => (n ? n * row + caption + 12 : 0);
+/** Heights used by the chart so callers can reserve room: the bars, one small heading per group, the caption. */
+const headH = (row) => Math.round(row * 0.6);
+const chartHeight = (shown, { row, caption }) => (shown.bars.length ? shown.bars.length * row + shown.groups.length * headH(row) + caption + (shown.hidden > 0 ? Math.round(caption * 0.8) : 0) + 12 : 0);
 
-/** The flavor chart: labelled horizontal bars. Omitted entirely when there are no bars. */
-function chart(fr, y, bars, { x, w, row, size }) {
-  if (!bars.length) return y;
+/**
+ * The flavor chart: Taste and Aroma groups under small headings, labelled horizontal bars. Omitted entirely when
+ * there are no bars. `shown` is flavorDisplay.groupBars output (the one display rule).
+ */
+function chart(fr, y, shown, { x, w, row, size }) {
+  if (!shown.bars.length) return y;
   const labelW = Math.round(w * 0.3);
   const trackX = x + labelW + 16;
   const trackW = w - labelW - 16;
   const barH = Math.round(row * 0.46);
-  bars.forEach((b, i) => {
-    const ry = y + i * row;
+  let ry = y;
+  const drawBar = (b) => {
     text(fr.prims, { x, y: ry + (row - lineH(size, 1.2)) / 2, w: labelW, text: ellipsize(b.label.charAt(0).toUpperCase() + b.label.slice(1), size, {}, labelW), size, color: PALETTE.dim, align: 'right', lh: 1.2 });
     const by = ry + Math.round((row - barH) / 2);
     fr.prims.push({ type: 'rect', x: trackX, y: by, w: trackW, h: barH, fill: 'rgba(255,255,255,0.07)', radius: 6 });
     const frac = Math.max(0.04, Math.min(1, Number(b.score) || 0));
     fr.prims.push({ type: 'rect', x: trackX, y: by, w: Math.round(trackW * frac), h: barH, fill: b.color || PALETTE.accent, radius: 6 });
+    ry += row;
+  };
+  const headSize = Math.max(18, size - 6);
+  shown.groups.forEach((g) => {
+    text(fr.prims, { x, y: ry + (headH(row) - lineH(headSize, 1.2)) / 2 + 2, w, text: g.title.toUpperCase(), size: headSize, weight: 600, color: PALETTE.sub, align: 'left', lh: 1.2 });
+    ry += headH(row);
+    g.bars.forEach(drawBar);
   });
-  const cy = y + bars.length * row + 4;
-  text(fr.prims, { x, y: cy, w, text: CHART_CAPTION, size: Math.max(18, size - 4), color: PALETTE.sub, align: 'left' });
-  return cy + lineH(Math.max(18, size - 4), 1.25);
+  const cy = ry + 4;
+  const capSize = Math.max(18, size - 4);
+  let end = cy + text(fr.prims, { x, y: cy, w, text: CHART_CAPTION, size: capSize, color: PALETTE.sub, align: 'left' });
+  // Bars left out: say so on a second line (the caption alone fills the narrow preview column).
+  if (shown.hidden > 0) end += text(fr.prims, { x, y: end, w, text: hiddenLine(shown.hidden), size: capSize, color: PALETTE.sub, align: 'left' });
+  return end;
 }
 
 /** Moves the primitives from index `from` on down by dy. */
@@ -228,7 +248,8 @@ function shift(prims, from, dy) {
   }
 }
 
-const cleanBars = (bars, n) => (Array.isArray(bars) ? bars : []).filter((b) => b && b.label && Number.isFinite(Number(b.score))).slice(0, n);
+/** The bars a card shows for `surface` ('card' | 'cover'): flavorDisplay.groupBars over the stored bars (label + score). */
+const shownBars = (bars, surface) => groupBars((Array.isArray(bars) ? bars : []).filter((b) => b && b.label), surface);
 
 /** Ingredient rows (amount column + name) into [y, yMax]. Ends with "+N more at the link" when it cannot fit all. */
 function ingredientRows(fr, y, yMax, recipe, { x, w, size, row, amountW }) {
@@ -340,7 +361,7 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
   const sub = subline(r);
 
   if (format === 'preview') {
-    const hasChart = cleanBars(bars, 6).length > 0;
+    const hasChart = shownBars(bars, 'card').bars.length > 0;
     if (!hasChart) return finish(`${format}`, previewNoChart(fr, r, sub, footerTop));
     const colW = Math.round(w * 0.56);
     const left = { ...fr, x1: fr.x0 + colW };
@@ -350,8 +371,8 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
     ingredientRows(fr, y, footerTop - 8, r, { x: fr.x0, w: colW, size: 28, row: 38, amountW: 215 });
     const cx = fr.x0 + colW + 56;
     const cw = fr.x1 - cx;
-    const b = cleanBars(bars, 6);
-    const total = chartHeight(b.length, { row: 44, caption: 30 });
+    const b = shownBars(bars, 'card');
+    const total = chartHeight(b, { row: 44, caption: 30 });
     const cy = Math.max(fr.top + 40, Math.round((fr.top + footerTop - total) / 2));
     chart(fr, cy, b, { x: cx, w: cw, row: 44, size: 24 });
     return finish(`${format}`, fr);
@@ -362,13 +383,13 @@ export function layoutCard({ format = 'portrait', recipe, bars, link = '', page 
   let y = header(fr, r, { nameSize: tall ? 128 : 118 });
   if (sub) y += text(fr.prims, { x: fr.x0, y: y + 4, w, text: ellipsize(sub, 30, {}, w), size: 30, color: PALETTE.dim }) + 10;
   y += 14;
-  const barList = cleanBars(bars, tall ? 6 : 5);
+  const barList = shownBars(bars, 'card');
   const row = tall ? 52 : 46;
-  const chartH = chartHeight(barList.length, { row: tall ? 50 : 44, caption: 34 });
-  const gap = barList.length ? 28 : 0;
+  const chartH = chartHeight(barList, { row: tall ? 50 : 44, caption: 34 });
+  const gap = barList.bars.length ? 28 : 0;
   const from = fr.prims.length;
   let end = ingredientRows(fr, y, footerTop - chartH - gap - 8, r, { x: fr.x0, w, size: tall ? 36 : 34, row, amountW: 260 });
-  if (barList.length) end = chart(fr, end + gap, barList, { x: fr.x0, w, row: tall ? 50 : 44, size: 28 });
+  if (barList.bars.length) end = chart(fr, end + gap, barList, { x: fr.x0, w, row: tall ? 50 : 44, size: 28 });
   // A short recipe leaves a gap: centre the ingredients and chart in the free space instead of hugging the top.
   const free = footerTop - 8 - end;
   if (free > 60) shift(fr.prims, from, Math.round(free * 0.4));
@@ -385,19 +406,19 @@ export function layoutSet({ format = 'portrait', recipe, bars, link = '' }) {
   const a = frame(format);
   const w = a.x1 - a.x0;
   const aFoot = footer(a, link, '1/3');
-  const barList = cleanBars(bars, 8);
+  const barList = shownBars(bars, 'cover');
   const names = fitName(r.name, { size: tall ? 150 : 136, maxW: w });
   const labelSize = 32;
   const nameBlock = names.lines.length * lineH(names.size, 1.05);
   const n = totalLines(r);
   const info = [n ? `${n} ingredient${n === 1 ? '' : 's'}` : '', subline(r)].filter(Boolean).join(' · ');
-  const chartH = chartHeight(barList.length, { row: 58, caption: 36 });
-  const blockH = labelSize * 1.3 + 8 + nameBlock + (info ? 52 : 0) + (barList.length ? 56 + chartH : 0);
+  const chartH = chartHeight(barList, { row: 58, caption: 36 });
+  const blockH = labelSize * 1.3 + 8 + nameBlock + (info ? 52 : 0) + (barList.bars.length ? 56 + chartH : 0);
   let y = Math.max(a.top + 20, Math.round((a.top + aFoot - blockH) / 2));
   y += text(a.prims, { x: a.x0, y, w, text: ellipsize(kindLabel(r).toUpperCase(), labelSize, {}, w), size: labelSize, weight: 600, color: PALETTE.sub, align: 'center', lh: 1.3 }) + 8;
   names.lines.forEach((ln) => { y += text(a.prims, { x: a.x0, y, w, text: ln, size: names.size, weight: 700, font: 'hand', color: PALETTE.cream, align: 'center', lh: 1.05 }); });
   if (info) y += text(a.prims, { x: a.x0, y: y + 10, w, text: ellipsize(info, 30, {}, w), size: 30, color: PALETTE.dim, align: 'center' }) + 42;
-  if (barList.length) chart(a, y + 14, barList, { x: a.x0, w, row: 58, size: 30 });
+  if (barList.bars.length) chart(a, y + 14, barList, { x: a.x0, w, row: 58, size: 30 });
 
   // 2: ingredients
   const b = frame(format);

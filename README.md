@@ -93,7 +93,12 @@ Three things worth understanding about this shape:
    The recipe flavor charts (Recipe Notebook, Invent panels, shared pages
    and cards) are built from a hand-written taste label and aroma notes
    for each ingredient, weighted by amount, and are a guide rather than a
-   taste test (`docs/flavor-profile.md`). The GNN's per-ingredient
+   taste test (`docs/flavor-profile.md`). A chart has up to seventeen axes:
+   six tastes (sweet, sour, bitter, salty, umami, heat) and eleven aromas
+   (fruity, floral, green, woody, spice, creamy, toasty, nutty, earthy,
+   smoky, savory); every surface shows only the strongest few under
+   Taste and Aroma headings (`src/data/flavorDisplay.js`, an interim
+   rule until the charts are redesigned). The GNN's per-ingredient
    taste/odor probabilities only drive single-ingredient wheels and radars
    and the parked 3D views; measured per-ingredient accuracy is too weak
    to rank pairings with (see `.claude/.chemdataset-status.md`).

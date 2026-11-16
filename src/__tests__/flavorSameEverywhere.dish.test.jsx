@@ -18,6 +18,7 @@ import InventRecipe from '../components/InventRecipe.jsx';
 import { SEED_RECIPES } from '../data/seedRecipes.js';
 import { RECIPE_DETAILS } from '../data/seedRecipeDetails.js';
 import { resolveBuiltIn } from '../data/sharedRecipe.js';
+import { groupBars } from '../data/flavorDisplay.js';
 import { profileForRecipe } from '../data/shareCardData.js';
 import { parseAmountText } from '../data/amountGrams.js';
 import { loadFlavorNodes } from '../../scripts/lib/flavorNodes.mjs';
@@ -27,7 +28,7 @@ const recipe = resolveBuiltIn('dish', 'beef-bolognese', { dishes: SEED_RECIPES, 
 for (const l of recipe.lines) { const a = parseAmountText(l.amount); if (a) AMOUNTS[l.key] = { raw: l.amount, ...a, inferred: true }; }
 
 describe('Beef Bolognese in the Recipe Lab invent panel', () => {
-  it('leads with the same two tastes as the recipe', async () => {
+  it('leads with the same two tastes and two aromas as the recipe', async () => {
     const keys = new Set(recipe.lines.map((l) => l.key));
     const kitchenNodes = new Map([...nodes].filter(([k]) => keys.has(k)).map(([k, v]) => [k, { ...v, category: 'protein', cuisines: [] }]));
     render(<InventRecipe kitchen={[...kitchenNodes.keys()]} nodes={kitchenNodes} edges={null} onClose={vi.fn()} onWrite={vi.fn()} onEditKitchen={vi.fn()} />);
@@ -42,7 +43,10 @@ describe('Beef Bolognese in the Recipe Lab invent panel', () => {
     const axes = screen.getAllByTestId(/^invent-recipe-profile-bar-/).map((b) => b.getAttribute('data-testid').replace('invent-recipe-profile-bar-', ''));
     const truth = profileForRecipe(recipe, nodes).bars.map((b) => b.axis);
     const tastes = (a) => a.filter((x) => !x.startsWith('odor_')).slice(0, 2);
+    const aromas = (a) => a.filter((x) => x.startsWith('odor_')).slice(0, 2);
+    const ruled = groupBars(profileForRecipe(recipe, nodes).bars, 'full').bars.map((b) => b.axis);
     expect(tastes(axes).length).toBe(2);
-    expect(tastes(axes)).toEqual(tastes(truth));
+    expect(tastes(axes)).toEqual(tastes(ruled));
+    expect(aromas(axes)).toEqual(aromas(ruled));
   });
 });

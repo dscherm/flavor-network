@@ -20,6 +20,7 @@
  *   onCommit () => void                  add/swap action
  */
 import { AXES, TASTE_AXES, AROMA_AXES, axisLabel, axisColor } from '../data/recipeProfileAnalysis.js';
+import { radarAxes } from '../data/flavorDisplay.js';
 
 const FONT_HAND = 'Caveat, cursive';
 
@@ -259,6 +260,12 @@ export default function IngredientProfileCard({
     );
   }
 
+  // AROMA-4 (interim display rule): the aroma wheel plots only the strongest aromas (and the ones this candidate
+  // moves), not all eleven; the taste wheel keeps its six.
+  const peak = {};
+  for (const a of AROMA_AXES) peak[a] = Math.max(before[a] || 0, (before[a] || 0) + (delta?.[a] || 0));
+  const aromaAxes = radarAxes(peak, 'radar', { extra: (movers || []).map((m) => m.axis), pool: AROMA_AXES });
+
   return (
     <div
       className="w-[min(40rem,94vw)] rounded-2xl overflow-hidden flex flex-col items-center"
@@ -306,7 +313,7 @@ export default function IngredientProfileCard({
           before={before}
           delta={delta}
           movers={movers}
-          axes={AROMA_AXES}
+          axes={aromaAxes}
           testId="ingredient-card-radar-aroma"
         />
       </div>

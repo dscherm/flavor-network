@@ -16,17 +16,22 @@ beforeEach(() => {
 });
 
 describe('Flavor Profiles card with eleven aromas', () => {
-  it('draws the overview bars and the 17-spoke flavor map without throwing, each aroma label present', () => {
+  it('draws the overview under the display rule (6 + 6 at most, "show all" for the rest) and a map of 3 to 8 spokes', () => {
     render(<RecipeFlavorProfilesCard bowlNames={MANY} nodes={nodes} />);
     const bars = screen.getAllByTestId('overview-bar');
     expect(bars.length).toBeGreaterThan(5);
-    expect(bars.length).toBeLessThanOrEqual(AXES.length);
-    expect(bars.some((b) => AROMA_AXES.slice(6).includes(b.getAttribute('data-axis')))).toBe(true);
+    expect(bars.length).toBeLessThanOrEqual(12);
+    fireEvent.click(screen.getByTestId('overview-showall'));
+    const all = screen.getAllByTestId('overview-bar');
+    expect(all.length).toBeGreaterThan(bars.length);
+    expect(all.some((b) => AROMA_AXES.slice(6).includes(b.getAttribute('data-axis')))).toBe(true);
     fireEvent.click(screen.getByLabelText('Next'));
     const map = screen.getByTestId('flavor-map-radar');
-    for (const a of AROMA_AXES) expect(map.textContent).toContain(axisLabel(a).toLowerCase());
+    const labels = AXES.filter((a) => map.textContent.includes(axisLabel(a).toLowerCase()) && !MANY.includes(axisLabel(a).toLowerCase()));
+    expect(labels.length).toBeGreaterThanOrEqual(3);
+    expect(labels.length).toBeLessThanOrEqual(8);
   });
-  it('walks every page of the carousel, one per firing axis, without throwing', () => {
+  it('walks every page of the carousel, one per shown axis, without throwing', () => {
     render(<RecipeFlavorProfilesCard bowlNames={MANY} nodes={nodes} />);
     let pages = 1;
     for (let i = 0; i < 40; i += 1) {
@@ -35,18 +40,22 @@ describe('Flavor Profiles card with eleven aromas', () => {
       fireEvent.click(next);
       pages += 1;
     }
-    // overview, flavor map, one page per firing axis, enhance and pairings
+    // overview, flavor map, one page per shown axis, enhance and pairings
     expect(pages).toBeGreaterThan(8);
   });
 });
 
 describe('an invent panel profile with eleven aromas', () => {
-  it('lists a bar per firing axis (at most 17), each label truncating inside its row', () => {
+  it('lists at most 4 + 4 bars under Taste and Aroma headings, then every axis after "show all"', () => {
     const profile = buildFlavorProfile(MANY, nodes, { noun: 'recipe' });
     render(<InventFlavorProfile profile={profile} testidPrefix="p" />);
     const rows = screen.getAllByRole('listitem');
-    expect(rows.length).toBe(profile.bars.length);
-    expect(rows.length).toBeLessThanOrEqual(17);
+    expect(rows.length).toBeLessThanOrEqual(8);
+    expect(screen.getByTestId('p-group-taste')).toHaveTextContent('Taste');
+    expect(screen.getByTestId('p-group-aroma')).toHaveTextContent('Aroma');
     for (const r of rows) expect(r.className).toContain('min-w-0');
+    fireEvent.click(screen.getByTestId('p-showall'));
+    expect(screen.getAllByRole('listitem')).toHaveLength(profile.bars.length);
+    expect(profile.bars.length).toBeLessThanOrEqual(17);
   });
 });

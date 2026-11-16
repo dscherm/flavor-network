@@ -877,3 +877,61 @@ The agreement rise is partly by construction: lines were re-read with the second
 ### Surfaces touched
 
 The Recipe Notebook flavor map (17 spokes) and the ingredient before/after aroma radar (11 spokes) got a slightly smaller disc, a smaller label font and a side margin so the longest labels fit (checked on rendered images with a fallback font, not in a real browser). Cards keep their existing limit of the strongest few bars. The model-era ingredient panel and suggestion drawer still draw the six model aromas. AROMA-4 sets the display rule; CHART-1 is the redesign.
+
+## Aromas, second pass (2026-11-16, AROMA-4)
+
+This section closes the aroma work (AROMA-1 to AROMA-4): where the scores stand stage by stage, what the second source is, what is still wrong, and the interim rule that keeps the charts readable until they are redesigned. Nothing in AROMA-4 changed a table value, a label or a truth file; every measure below was re-run at the end and none moved.
+
+### The scores, stage by stage (as the scripts printed them)
+
+"Strongest aroma expected" means the highest aroma bar is one of the expected aromas. The FLAVOR-5 and AROMA-2 charts had six aromas, so the blind and chef keys could only score the items six axes can express; AROMA-3 and now score everything on eleven.
+
+| Measure | FLAVOR-5 (six axes) | AROMA-2 (six axes, 16 lines corrected) | AROMA-3 (eleven axes) | Now (AROMA-4, unchanged) |
+| --- | --- | --- | --- | --- |
+| Blind key, all items | 67/76 (88.2%), 38 of 114 not expressible | 71/76 (93.4%) | 106/114 (93%), top two 107/114 | 106/114 (93%), top two 107/114 |
+| Blind key, tuning set | 43/51 (84.3%) | 47/51 (92.2%) | 72/76 (94.7%) | 72/76 (94.7%) |
+| Blind key, held back third | 24/25 (96%) | 24/25 (96%) | 34/38 (89.5%) | 34/38 (89.5%) |
+| Chef key (304 chef-reviewed ingredients) | 113/260 (43.5%), no data 153 | 123/260 (47.3%), no data 150 | 161/304 (53%), top two 170/304, no data 122 | 161/304 (53%), top two 170/304, no data 122 |
+| Agreement with the second source | 225/254 (88.6%), 29 disagreements | 244/257 (94.9%), 13 recorded | 355/364 (97.5%), 9 recorded | 355/364 (97.5%), 9 recorded; unreviewed 0 |
+| First answer key (`--aroma`), tuning / hold-out | 30/30, 9/10 | 30/30, 9/10 | 28/30, 8/10 | 28/30, 8/10 |
+| Taste, main set / hold-out (unchanged throughout) | 36/41, 19/20 | 36/41, 19/20 | 36/41, 19/20 | 36/41 (0 forbidden), 19/20 (1 forbidden) |
+
+The two held-back figures (96% then 89.5%) are not the same set: six axes could score 25 of the 38 held-back items; eleven axes score all 38. On the original 25 the result is unchanged. The first answer key was written for six axes and expects coffee drinks to read "woody"; both now lead toasty, which is right, so those two misses are the key's, not the chart's.
+
+### What the second source is, and is not
+
+`public/proDataset/flavor_profiles_distilled.json` holds aroma words for 3,927 ingredients. **304 entries were reviewed by a chef; the other 3,623 were written by an earlier AI labelling pass** with a consistency check. It is a second opinion on the aroma table, not ground truth: where the table and the second source disagree, either can be wrong, and the high agreement figure is partly by construction (lines were re-read with the second source's words in view, and where both readings were defensible a tie was chosen that agrees).
+
+**The aroma table itself (`src/data/flavorAromas.js`) is an AI assistant's judgement. No cook or professional has checked it.** It was compared with a second, mostly AI-written source and scored against two keys written by the same assistant (one written before the table was read, one drawn from the chef-reviewed entries). Treat every chart as a guide, not a taste test.
+
+### What is still wrong, by item
+
+From AROMA-3 and FLAVOR-6; none was changed in AROMA-4 (table values were out of scope).
+
+- **BBQ sauce** shows no smoky bar: one teaspoon of smoked paprika against a cup of ketchup.
+- **Thai peanut sauce** ranks nutty third (creamy 0.46 and fruity 0.23 beat nutty 0.17): coconut milk is bulky.
+- **Pho and baklava** show little spice: whole spices perfume a dish far beyond their weight, and the chart weighs by amount.
+- **Margarita, Mojito and Thai green curry** (FLAVOR-6): the leading taste or aroma is not what a cook would say first.
+- **Brandy Alexander**: toasty 0.29 beats creamy 0.21. **Beurre noisette**: browning is a cooking-method aroma the chart does not model. **Mole poblano**: savory (stock) still leads toasty.
+- **Umami (taste) and Savory (aroma) repeat each other** on soy, miso and fish-sauce recipes (Miso Soup: umami 0.67, savory 0.59), and heat (taste) sits beside spice (aroma). The group headings keep them apart; the redesign should decide whether they are one idea.
+- Potato, rice, tofu and flour are left "no aroma of their own"; the second source calls them earthy or nutty.
+- 122 of the 304 chef-key ingredients still have no table line (see BACKLOG.md).
+
+### The interim display rule (AROMA-4)
+
+With six tastes and eleven aromas a full chart has seventeen bars. Until the owner chooses a redesign (task CHART-1) every surface follows one rule, written once in `src/data/flavorDisplay.js` and tested in `src/data/flavorDisplay.test.js`:
+
+1. Tastes and aromas are two groups, headed **Taste** and **Aroma**, each ordered strongest first. (So Umami under Taste and Savory under Aroma, or Heat and Spice, read as different things.)
+2. A bar is drawn only at or above a floor of 0.05.
+3. Each group has a maximum that depends on the room: **share cards 3 tastes + 3 aromas; the cover of a set of three 4 + 4; invent panels and the shared page ("compact") 4 + 4 with "show all"; the Recipe Notebook overview ("full") 6 + 6 with "show all".**
+4. When bars are hidden one short line says so ("+3 fainter notes"); compact and full surfaces add "show all" (and "show fewer").
+5. Ties are broken one way everywhere: scores are compared to three decimals, and a tie goes to the axis that comes first in the canonical order (sweet, sour, bitter, salty, umami, heat, fruity, floral, green, woody, spice, creamy, toasty, nutty, earthy, smoky, savory). The server's stored card bars keep three decimals so they order the same way. A test checks that the Recipe Notebook, an invent panel, the shared page and a server card lead with the same two tastes and the same two aromas for Negroni and Beef Bolognese, with no tolerance for ties.
+6. Radars plot only the axes the rule picks, never seventeen: the Recipe Notebook flavor map 4 tastes + 4 aromas at most (3 to 8 spokes); the aroma wheel on the suggestion cards at most 4 aromas plus the ones the candidate moves (the taste wheel keeps its six); the Cookbook card radar (chef vocabulary, with its own axis switcher) the keys the recipe has a signal on, up to 6 for taste and 8 for aroma, never fewer than 3, in the vocabulary's own order. Season, cuisine and method radars are unchanged.
+7. The per-axis pages and the Enhance page follow the same selection (6 + 6, or every axis above the floor after "show all"). Every one of the seventeen axes has a page, an insight, a balancing axis and boost and temper candidates (a test covers all seventeen).
+8. A user's published copy stores only the compact set (4 + 4 bars), because the database rules allow at most 11 bars and seventeen can fire.
+
+The redesign (CHART-1) is still to come: it will show candidate graphs with real data for the owner to choose from. This rule only keeps today's charts readable.
+
+### Not verified
+
+No cook has reviewed any line. The 375 px check was made on the DOM in the Browser pane (no horizontal overflow, bar counts within the rule, headings present), not by looking at a painted screen. Cards were rendered with the Cloud Function's own renderer to PNG and looked at; nothing was deployed.

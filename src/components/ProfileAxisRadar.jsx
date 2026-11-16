@@ -26,6 +26,7 @@
 
 import { ingredientAroma, AROMA_STRENGTH_MAX } from '../data/flavorAroma.js';
 import { useMemo } from 'react';
+import { radarKeys } from '../data/flavorDisplay.js';
 import { TASTE_COLORS } from '../utils/color.js';
 import { axisOrder, bucketColor, AROMA_LABEL_TO_GNN_KEY } from '../data/briscionePalette.js';
 
@@ -177,19 +178,27 @@ export default function ProfileAxisRadar({
   const isDark = theme === 'dark';
 
   // Derive keyset (cuisine is dynamic; rest are static).
-  const keyList = useMemo(() => {
+  const allKeys = useMemo(() => {
     if (axis === 'cuisine') return deriveCuisineKeys(ingredients, nodes);
     return AXIS_CONFIG[axis]?.keys || [];
   }, [axis, ingredients, nodes]);
 
   const recipeSignal = useMemo(
-    () => aggregate(ingredients, nodes, axis, keyList),
-    [ingredients, nodes, axis, keyList],
+    () => aggregate(ingredients, nodes, axis, allKeys),
+    [ingredients, nodes, axis, allKeys],
   );
   const focalSignal = useMemo(() => {
     if (!focalName) return null;
-    return aggregate([focalName], nodes, axis, keyList);
-  }, [focalName, nodes, axis, keyList]);
+    return aggregate([focalName], nodes, axis, allKeys);
+  }, [focalName, nodes, axis, allKeys]);
+
+  // AROMA-4 (interim display rule, flavorDisplay.js): the taste and aroma radars plot only the keys the recipe has a
+  // signal on (taste up to 6, aroma up to 8, never fewer than 3), in the vocabulary's own order; the 13 chef aroma
+  // spokes were mostly empty. Season, cuisine and method keep their own keysets.
+  const keyList = useMemo(() => {
+    if (axis !== 'taste' && axis !== 'aroma') return allKeys;
+    return radarKeys(recipeSignal, allKeys, axis === 'aroma' ? 8 : 6);
+  }, [axis, allKeys, recipeSignal]);
 
   const cx = width / 2;
   const cy = width / 2;

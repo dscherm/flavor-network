@@ -23,7 +23,7 @@
  *
  * --aroma-blind (AROMA-1): scores data/aroma-truth-blind.json (written before the aroma table was read): single
  * ingredients through the app's aromaProfile with one line, recipes through the app's chart. Reports all items and the
- * held-back third separately, against expect6 while the charts have six axes (--axes eleven reads expect instead).
+ * held-back third separately, on the eleven aroma axes the app now has (AROMA-4: eleven is the default; --axes six reads expect6 instead).
  * --no-holdout-detail (AROMA-2): with --list / --aroma, per-item lines are printed for tuning items only, so a held-back item
  * is never looked at while lines are being decided (the summaries still count them).
  * --aroma-chef (AROMA-1): scores the chef-sourced entries of flavor_profiles_distilled.json (unordered sets) the same way.
@@ -239,7 +239,7 @@ function summaryLines(title, rows, set) {
 }
 
 function mainAromaKey(kind, args, json) {
-  const set = args.includes('--axes') && args[args.indexOf('--axes') + 1] === 'eleven' ? AROMA_SET_ELEVEN : AROMA_SET_SIX;
+  const set = args.includes('--axes') && args[args.indexOf('--axes') + 1] === 'six' ? AROMA_SET_SIX : AROMA_SET_ELEVEN;
   const data = loadData();
   const nodes = loadFlavorNodes();
   let items;
