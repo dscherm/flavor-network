@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import { alternativesFor, swappedAmount, restoreRow, sameIngredient, MAX_ALTERNATIVES } from '../shoppingAlternatives.js';
-import { SWAPS, swapsFor, swapUseText } from '../kitchenSwaps.js';
+import { SWAPS, swapsFor, standInsFor, swapUseText } from '../kitchenSwaps.js';
 import { buildRolePool, swapCandidates, familyKey } from '../cocktailRiff.js';
 import { addLine } from '../shoppingList.js';
 
@@ -129,8 +129,8 @@ describe('bar alternatives come from cocktailRiff.swapCandidates, same family on
 });
 
 describe('nothing known', () => {
-  it('saffron, basil, a free-text item, an empty key', () => {
-    for (const k of ['saffron', 'basil', 'chili crisp (hot)', 'something odd', '']) {
+  it('quince, sorrel, a free-text item, an empty key', () => {
+    for (const k of ['quince', 'sorrel', 'chili crisp (hot)', 'something odd', '']) {
       expect(alts(k)).toEqual({ alternatives: [], known: false });
     }
   });
@@ -145,7 +145,8 @@ describe('no suggestion ever comes from an unsanctioned source', () => {
       for (const a of alternatives) {
         checked += 1;
         if (a.source === 'kitchenSwaps') {
-          expect(swapsFor(key).some((s) => s.use === a.key && swapUseText(s) === a.useText.replace(/^Use (.*) instead\.$/, '$1')), `${key} -> ${a.key}`).toBe(true);
+          // STANDIN-2: every kind of food answer (swap, form, make) traces to the table, not only swaps.
+          expect(standInsFor(key).some((s) => s.use === a.key && (a.kind === 'make' ? a.useText === `Make it from ${swapUseText(s)}.` : swapUseText(s) === a.useText.replace(/^Use (.*) instead\..*$/, '$1'))), `${key} -> ${a.key}`).toBe(true);
         } else {
           expect(a.source).toBe('cocktailRiff');
           const cands = swapCandidates([{ key, role: 'spirit', swappable: true }], 0, pool, { names: new Set(), strength: new Map() }, 60).map((c) => c.name);
@@ -156,8 +157,8 @@ describe('no suggestion ever comes from an unsanctioned source', () => {
     expect(checked).toBeGreaterThan(50);
   });
   it('a free-text neighbour is never invented: basil does not get mint, cumin does not get coriander', () => {
-    expect(keysOf('basil')).toEqual([]);
-    expect(keysOf('cumin')).toEqual([]);
+    expect(keysOf('basil')).not.toContain('mint');
+    expect(keysOf('cumin')).not.toContain('coriander');
   });
 });
 

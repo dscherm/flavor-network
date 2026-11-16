@@ -94,8 +94,8 @@ describe('the four labels on the sheet', () => {
     expect(within(screen.getByTestId('store-alt-sheet')).getAllByRole('button').map((b) => b.textContent)).toEqual(['Close']);
   });
   it('an ingredient with no entry at all still says No stand-in I would trust', () => {
-    render1({ item: { id: 'i', key: 'saffron', label: 'saffron', parts: [], from: [] }, swaps: undefined });
-    expect(screen.getByTestId('store-alt-none').textContent).toBe("No stand-in I'd trust for saffron.");
+    render1({ item: { id: 'i', key: 'quince', label: 'quince', parts: [], from: [] }, swaps: undefined });
+    expect(screen.getByTestId('store-alt-none').textContent).toBe("No stand-in I'd trust for quince.");
     expect(screen.queryByTestId('store-alt-nothing')).toBeNull();
   });
 });

@@ -96,9 +96,9 @@ describe('the sheet', () => {
   });
 
   it('nothing known: says so plainly and does not suggest leaving it out', async () => {
-    render(<Harness initial={stateWith([{ key: 'saffron', label: 'saffron' }, { key: 'chili crisp', label: 'chili crisp' }])} />);
-    let sheet = await open('saffron');
-    expect(within(sheet).getByTestId('store-alt-none').textContent).toBe("No stand-in I'd trust for saffron.");
+    render(<Harness initial={stateWith([{ key: 'quince', label: 'quince' }, { key: 'chili crisp', label: 'chili crisp' }])} />);
+    let sheet = await open('quince');
+    expect(within(sheet).getByTestId('store-alt-none').textContent).toBe("No stand-in I'd trust for quince.");
     expect(sheet.textContent).not.toMatch(/leave it out|skip it|omit/i);
     expect(within(sheet).queryAllByRole('button').map((b) => b.textContent)).toEqual(['Close']);
     fireEvent.click(within(sheet).getByTestId('store-alt-close'));
