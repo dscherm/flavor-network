@@ -6,6 +6,7 @@
  */
 import { FONT, CHALK_CREAM, CHALK_SUB, chalkSurfaceStyle } from '../data/chalkTheme.js';
 import { LabArt } from './chalkArt.jsx';
+import FeedbackButton from './FeedbackButton.jsx';
 
 const LAB_CARDS = [
   { id: 'make',     label: 'Recipe Lab',      desc: 'Cook from your kitchen, or invent', accent: '#34d399' },
@@ -44,10 +45,13 @@ export default function LabsPanel({ onPick }) {
           </button>
         ))}
       </div>
-      <a href="/privacy" data-testid="labs-privacy-link" className="mb-24 inline-flex items-center min-h-[44px] px-3 underline"
-        style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB }}>
-        Privacy
-      </a>
+      <div className="mb-24 flex items-center gap-2">
+        <FeedbackButton screen="labs" className="px-3" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB }} />
+        <a href="/privacy" data-testid="labs-privacy-link" className="inline-flex items-center min-h-[44px] px-3 underline"
+          style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB }}>
+          Privacy
+        </a>
+      </div>
     </div>
   );
 }

@@ -35,3 +35,9 @@ export async function unshare(db, id) {
 export async function sendReport(db, report) {
   await addDoc(collection(db, 'shareReports'), report);
 }
+
+/** USAGE-4: one anonymous feedback note. `at` becomes the server's clock; nothing else is added. Create only. */
+export async function sendFeedback(db, fb) {
+  const { serverTimestamp } = await import('firebase/firestore');
+  await addDoc(collection(db, 'feedback'), { note: fb.note, goal: fb.goal, lab: fb.lab, at: serverTimestamp() });
+}

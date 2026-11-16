@@ -25,6 +25,7 @@ import InventSaveOverlay from './InventSaveOverlay.jsx';
 import { ShareButton } from './ShareSheet.jsx';
 import ShareImages from './ShareImages.jsx';
 import ShareReport from './ShareReport.jsx';
+import FeedbackButton from './FeedbackButton.jsx';
 import useAuth from '../hooks/useAuth.js';
 import useUserProfile from '../hooks/useUserProfile.js';
 import useSaveInvention from '../hooks/useSaveInvention.js';
@@ -330,6 +331,7 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
         <a href="/privacy" data-testid="shared-privacy-link" className="inline-flex items-center min-h-[44px] underline" style={{ fontFamily: SANS, fontSize: 13, color: CHALK_SUB }}>
           Privacy
         </a>
+        <FeedbackButton screen="shared" className="ml-4" style={{ fontFamily: SANS, fontSize: 13, color: CHALK_SUB }} />
       </footer>
     </div>
   );

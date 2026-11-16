@@ -65,6 +65,14 @@ export default function PrivacyPage() {
         </ul>
         <p>No ads are shown and nothing is sold.</p>
 
+        <h2 style={h2}>Feedback notes (separate from usage data)</h2>
+        <p data-testid="privacy-feedback">
+          &ldquo;Send feedback&rdquo; sends only what you type in its two boxes (a note of up to 500 characters and an
+          optional &ldquo;what were you trying to do&rdquo; of up to 200), the screen you were on, and the time. It stores
+          no name, email, account id or device details, and Google&rsquo;s usage counting is not involved. It works whatever you
+          answered above, because you press Send yourself. Please do not put personal details in a note.
+        </p>
+
         <h2 style={h2}>If you say No, or do not answer</h2>
         <p>Nothing is sent and no Google analytics script is loaded. The app works the same.</p>
       </div>

@@ -60,6 +60,36 @@ every text value is at most 100 characters (the two typed-text params at most 60
 - `share_sheet_opened` fires once per opening of the sheet, including when an own recipe's sheet turns into the link sheet after Create link.
 - Typed-text events fire on submit, not on each keystroke.
 
+## Feedback notes (separate from usage data)
+
+"Send feedback" (in the Labs menu, and in the footer of a shared recipe page) is not analytics. It does not depend on
+the Yes/No answer, loads no Google script, and is not in the event catalogue above (no `feedback_sent` event exists, by
+choice, so the catalogue, this page and the privacy page stay in step). The person types a note and presses Send.
+
+Each note is one document in Firestore `feedback/{auto id}`:
+
+| Field | Meaning | Limit |
+|---|---|---|
+| `note` | The short note. Required. | 1 to 500 characters |
+| `goal` | "What were you trying to do?" Optional, empty string when left blank. | 0 to 200 characters |
+| `lab` | The screen the button was on: `labs`, `shared`, or another from a fixed list (`cocktail`, `sauce`, `recipe`, `make`, `cookbook`, `pairing`, `wine`, `network`, `profile`, `other`). Never a URL or an id. | fixed list |
+| `at` | The server's time when the note was written. | server time only |
+
+No uid, email, name, share id or device detail is stored, even when the person is signed in. The app has no build id
+available at run time, so none is stored; use `at` against the deploy dates in CLOSEOUT.md.
+
+Rules (`firestore.rules`, collection `feedback`): anyone, signed in or not, may create a document with exactly those four
+fields and those limits; nobody may get, list, update or delete through the app. Courtesy limit: 3 notes per browser per
+day (kept in the browser's local storage; clearing site data gets round it). A fourth is refused with a plain sentence.
+A failed send keeps the typed text.
+
+**Where to read them:** Firebase console, project `neuralflavor`, Build, Firestore Database, Data, collection `feedback`
+(sort by `at`). The console does not go through the rules. Delete a note there when you are done with it.
+
+**For the button to work the rules must be deployed.** Until `firestore.rules` is deployed, the button shows "The note
+could not be sent". Deploy targets: `firebase deploy --only firestore:rules,hosting` (the page and the rules together;
+no function changes). Nothing here has been deployed. The rules tests ran only on the local emulator (`npm run test:rules`).
+
 ## Owner steps in Google Analytics (nothing here is done by the app)
 
 Do these in the Google Analytics property that Firebase created for `neuralflavor`.

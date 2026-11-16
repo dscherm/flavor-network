@@ -76,5 +76,21 @@ service cloud.firestore {
         && request.resource.data.at < request.time.toMillis() + 86400000;
       allow read, update, delete: if false;
     }
+
+    // USAGE-4. Anonymous feedback notes. Anyone may create one (signed in or not), in exactly this shape;
+    // nobody can read, list, change or delete them through the app. The site owner reads them in the
+    // Firebase console, which does not go through these rules. No uid, email or name is stored.
+    match /feedback/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['note', 'goal', 'lab', 'at'])
+        && request.resource.data.keys().hasAll(['note', 'goal', 'lab', 'at'])
+        && request.resource.data.note is string
+        && request.resource.data.note.size() >= 1
+        && request.resource.data.note.size() <= 500
+        && request.resource.data.goal is string
+        && request.resource.data.goal.size() <= 200
+        && request.resource.data.lab in ['labs', 'shared', 'cocktail', 'sauce', 'recipe', 'make', 'cookbook', 'pairing', 'wine', 'network', 'profile', 'other']
+        && request.resource.data.at == request.time;
+      allow read, update, delete: if false;
+    }
   }
 }
