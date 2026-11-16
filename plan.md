@@ -2600,7 +2600,7 @@ it shows); PICTURE-5 last.
   "id": "PICTURE-4",
   "title": "Showing the picture: saved items, the shared page, the share cards",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Wire RecipePicture into: the name-and-save step of the three invent panels, Edit on a saved item, and the share sheet's publish step (the preview of what becomes public shows the picture). Show the picture on 'Yours' cards in the Cocktail Lab and Sauce Lab and on user recipes in the Cookbook, on the shared recipe page for user copies, and on the share cards: browser cards (single and set of three) and the server card, which reads sharedPictures/{id} and embeds it (and draws the chosen icon for icon pictures). A recipe with a picture uses the space that short recipes leave empty on the card. The Report sheet gains the reason 'The picture'. Removing or unsharing a recipe stops its picture being served within the existing cache window.",
   "acceptance": [
     "A saved item with an icon and one with a chalk picture each show it on their lab card, their shared page and their browser and server cards (component, layout and functions tests)",
