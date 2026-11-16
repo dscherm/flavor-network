@@ -3294,3 +3294,30 @@ Order: WHEEL-1 then WHEEL-2, before the STANDIN tasks.
   ]
 }
 ```
+
+## 2026-11-16 — The automatic cut-out moves from the trial page into the picture chooser
+
+Owner, asked three times which of the three options they meant for the cut-out trial (add the automatic cut-out to
+the app / Focus only / mark it yourself): "cut out trial.", then "continue with cutout tiral". The assistant reads
+this as: carry the automatic cut-out forward into the app. It is built as a button the cook chooses to tap, so
+nothing changes for anyone who does not, and it is not deployed without the owner's go-ahead. PICTURE-7 (the trial)
+stays as the record of the trial page. Runs after STANDIN-1, before STANDIN-2.
+
+```json
+{
+  "id": "PICTURE-8",
+  "title": "Recipe pictures: 'Remove background', an automatic cut-out on the device",
+  "category": "feature",
+  "passes": false,
+  "description": "In the picture chooser's 'A photo as chalk' step (RecipePicture.jsx, chalkFilterBrowser.js, chalkWorker.js, the pure filter in src/data/chalkFilter.js), add a 'Remove background' button beside Adjust. Tapping it loads a small on-device model once, finds the main subject, and the chalk is drawn only there, the rest left as bare slate with a soft edge. Port the pipeline from the trial page docs/prototypes/chalk-cutout-bench.html (do NOT edit that file or chalk-filter-bench.html; PICTURE-1's parity test runs the latter): model U2-Net small (u2netp, Apache-2.0), run with onnxruntime-web, which the app already ships for its other models (see how src/ loads public/models/*.onnx and where scripts/copy_wasm.cjs puts the wasm files; reuse that, do not add a second copy of the runtime or load anything from a CDN). The model file: decode the base64 text the trial used into public/models/u2netp.onnx (source text: C:\\Users\\scher\\AppData\\Local\\Temp\\claude\\D--Projects-flavor-network\\7e4ae764-bfa2-46b3-b75c-0637549eb886\\scratchpad\\cutout\\u2netp.b64.txt; the owner approved downloading this model on 2026-11-16; do not download anything else), check its size is about 4.6 MB, commit it, and add its licence notice where the repo keeps third-party notices (create a short NOTICE entry if there is none). RULES: the model is fetched from the app's own hosting only when the button is tapped, never before, and is cached by the browser; the original photo and the mask never leave the device (no network request carries pixels: test it); only the finished chalk JPEG is stored, as today, so nothing about the cut-out is stored or migrated. The mask is an input to the filter: add an optional mask argument to the pure filter (alpha per pixel, feathered) so the filter stays pure and testable; with no mask its output is byte-identical to today (existing parity tests pass unchanged). Running the model must not freeze the page: off the main thread where the runtime allows, with a visible 'finding the subject…' state and a way to cancel. Failure (model fails to load, no WebAssembly, out of memory, nothing found, or the mask covers almost nothing or almost everything) falls back to the picture without a cut-out and a plain sentence; it never blocks saving. Focus stays and works with or without the cut-out; 'Remove background' can be turned off again. Honest limits go in the UI as one short line and in docs/pictures.md: clear glassware and busy backgrounds may cut badly; the first use downloads about 5 MB. State the measured time for one picture on this machine.",
+  "acceptance": [
+    "With a synthetic test image (a coloured subject on a plain ground) and a stubbed model that returns a known mask, chalk is drawn only inside the mask and the outside is bare slate with a feathered edge (pure filter tests); with no mask the filter output is identical to before (existing parity tests untouched)",
+    "The model is not requested until the button is tapped; after that it is requested from the app's own origin under /models/ and nowhere else; no request carries image data (component test with fetch and worker doubles)",
+    "Each failure mode falls back with its sentence and saving still works (tests); cancel works",
+    "The stored picture is still a JPEG within 150 KB with no cut-out setting stored (test)",
+    "Really run in a browser on this machine with the real model on at least two images (one plain background, one busy): described honestly with the time taken; if it could not be run for real, say so and do not claim it",
+    "public/models/u2netp.onnx is committed with its size stated, the licence notice is in the repo, docs/pictures.md and BACKLOG.md (PICTURE-CUTOUT decided, with the owner's words and the assistant's reading of them) match the code, CLOSEOUT.md UNRELEASED names the deploy target (hosting only; state the added download size of a deploy)",
+    "npm run gate green; nothing deployed"
+  ]
+}
+```
