@@ -2412,7 +2412,7 @@ independent of those; DATA-8 last. DATA-5 must land before FLAVOR-3.
   "id": "DATA-7",
   "title": "Sauces: split the catch-all; one dish-type vocabulary",
   "category": "data",
-  "passes": false,
+  "passes": true,
   "description": "Review the 27 sauces under mother sauce 'Independent' and regroup them into named groups wherever at least three share one (candidates: vinaigrettes, cold emulsions, herb sauces, fermented and chili condiments, dairy sauces); the rest stay 'Independent'. Update the Sauce Lab's family list, colours, Invent a sauce techniques where a new group maps to one, and the share index. Separately, define one dish-type list used by both the Cookbook (dishTypeOf, 22 types today, six with one dish) and Invent a recipe (dishSkeletons.js, 8 types): every Cookbook dish maps to a type that Invent also knows, or to an explicit 'other' with a reason.",
   "acceptance": [
     "'Independent' holds fewer than 12 sauces and each new group has at least three; every sauce still has exactly one group",
