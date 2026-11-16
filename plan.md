@@ -2769,7 +2769,7 @@ and the swipe, in-app surfaces), then CHART-4 (cards), CHART-5 (Recipe Notebook)
   "id": "CHART-3",
   "title": "The note-and-strips chart with a swipe to the wheel, on the shared page, invent panels and Flavor profile button",
   "category": "ui",
-  "passes": false,
+  "passes": true,
   "description": "FlavorNote.jsx (sentence with each note underlined in its colour, Taste and Aroma strips), FlavorWheel.jsx (design C as SVG with a one-line key saying which part is taste), FlavorSwipe.jsx (two pages: note first, wheel second; touch swipe, two dots that are buttons, left and right arrow keys; height does not jump between pages; no slide animation under prefers-reduced-motion). A visually hidden ranked list gives screen readers the same content. Replace the bar chart with FlavorSwipe on: the shared recipe page, the three invent panels, and the sheet opened by the Flavor profile button on recipe cards. Keep the 'a guide, not a taste test' label, the 'not counted' line and the not-enough-data state exactly as they are.",
   "acceptance": [
     "Each of the three surfaces opens on the sentence with strips and reaches the wheel by swipe, by the dots and by keyboard (component tests)",
