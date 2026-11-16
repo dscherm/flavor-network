@@ -3160,3 +3160,87 @@ other labs like the sauce lab and cocktail lab for inventing recipes.  and use t
   ]
 }
 ```
+
+## 2026-11-16 — Shopping list: two rulings; stand-ins for most of what recipes ask for
+
+Owner, 2026-11-16: "DO stand ins.  cut out trial.  Adds optional items.  flavourings start unticked." This closes
+SHOP-OPEN-2 (the panel's "Add to shopping list" also adds the optional items), SHOP-OPEN-3 (in "Add from a recipe" a
+dish's flavourings start unticked) and SHOP-OPEN-4 (extend the stand-in tables; the owner was shown six ideas and a
+measurement on 2026-11-16 and the recommendation "1, 2 and 3 together, then 4"). Measured that day over the 602
+built-in recipes, by the names printed on recipe cards: a stand-in exists for 21% of cocktail lines, 25% of dish
+lines and 22% of sauce lines; the most used ingredients with nothing are garlic, tomato, butter, olive oil, egg,
+flour, ginger, cumin, soy sauce, gin, vodka, simple syrup, lemon and lime juice, both vermouths, bitters, grenadine
+and triple sec. Order: SHOP-7, STANDIN-1, STANDIN-2, STANDIN-3, one at a time. ("cut out trial" is not filed: the
+owner's choice among the three options was not clear and has been asked.)
+
+```json
+{
+  "id": "SHOP-7",
+  "title": "Shopping list: the panel button adds the optional items too; a dish's flavourings start unticked",
+  "category": "feature",
+  "passes": false,
+  "description": "Two owner rulings on BACKLOG.md SHOP-OPEN-2 and SHOP-OPEN-3. (1) On a What do I need? panel, 'Add to shopping list' (src/components/AddToShoppingList.jsx) now adds what 'Copy shopping list' copies: the missing 'You need' lines AND the optional ones ('Even better with', 'Nice to have'), by the same merge rule, so the two buttons on one panel agree. The summary says how many were optional. Items the cook already has are still skipped, and basics follow the existing rule. (2) In the list's 'Add from a recipe' preview (ShoppingRecipeAdd.jsx, classifyLines in src/data/shoppingRecipes.js), a dish's flavourings (the Cookbook's split of mains and flavourings) start UNTICKED under their own short heading, so a tap adds them; mains the cook lacks stay ticked. Cocktails and sauces have no such split and are unchanged. State plainly in the report whether the two doors now add the same rows by default for the same dish, and if not, exactly how they differ (the panel adds optional items by ruling 1; the preview leaves flavourings unticked by ruling 2) so the owner can see it. Update docs/shopping-list.md and move both entries in BACKLOG.md to decided with the owner's words.",
+  "acceptance": [
+    "On each of the three What do I need? panels, the rows added equal the lines Copy shopping list copies (tests on a real cocktail, sauce and dish with a kitchen fixture); the summary counts the optional ones",
+    "In Add from a recipe, a real dish with flavourings shows them unticked under their own heading; adding with defaults leaves them off; ticking one adds it (tests); a cocktail and a sauce preview are unchanged (tests)",
+    "The report states how the two doors compare for the same dish, with the row lists",
+    "docs/shopping-list.md and BACKLOG.md match the code",
+    "npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "STANDIN-1",
+  "title": "Stand-ins: four kinds of answer, amounts, the recipe the row came from, and a coverage measure",
+  "category": "feature",
+  "passes": false,
+  "description": "Groundwork before any new entries. (1) MEASURE: scripts/measureStandIns.mjs (npm run measure:standins) counts, over the built-in cocktails, sauces and dishes, every ingredient line by the app's own canonical name (the resolver the shopping list uses, not the printed label), and reports per kind: distinct ingredients, lines, share of lines with an answer, the most used ingredients with none, and how many more are needed for 80%. --json. Record the baseline in docs/stand-ins.md. (2) KINDS: an entry in src/data/kitchenSwaps.js may be one of four kinds: 'swap' (another ingredient: shallot for onion; today's entries), 'form' (the same thing in another form: dried thyme for fresh, bottled lemon juice for fresh, garlic powder for a clove), 'make' (make it from things: simple syrup from sugar and water; buttermilk from milk and lemon; today's `plus` entries are this), and 'none' (nothing replaces it, with a one-line reason: eggs in a custard). Each may carry `ratio` (a number the code already supports) or `amountNote` for a conversion that is not a single factor ('1 tsp dried for 1 tbsp fresh', '1/8 tsp powder per clove'), and a short `note`. Existing entries keep working unchanged. (3) WHO MAY USE WHICH: the shopping sheet (shoppingAlternatives.js, StoreAlternatives.jsx) shows all four, labelled in plain words ('Use instead', 'Another form', 'Make it', and for none: 'Nothing really replaces X' with the reason, instead of today's 'No stand-in I'd trust'). Recipe-side users (findSwap in whatDoINeed.js and myKitchen.js, the invent panels' replacements, inventSauce.js) keep their present behaviour and must not silently start counting a recipe as makeable through a 'form' or 'make' entry unless you show that is correct for that caller; say per caller what you decided and test it. The Sauce Lab strictness test (a swap never contradicts saucePantry.sameRoleAndKind) must still hold for 'swap' entries. (4) THE ROW'S RECIPE: a shopping row records the recipes it came from (item.from). Use that so swaps flagged supportingOnly (butter and olive oil for the pan) are offered when the ingredient is NOT a main of any recipe the row came from, and withheld when it is a main of one or when the row has no recipe; show the reason in the sheet ('fine for frying; not if butter is the point of the dish'). State how main is decided (reuse the existing mainOf logic) and what data the sheet loads to know it. (5) 'make' on the list: picking it replaces the row with its parts by the merge rule (as the buttermilk case already does), with Undo. Add NO new stand-in entries in this task beyond the minimum needed to test each kind.",
+  "acceptance": [
+    "npm run measure:standins prints the per-kind table and --json; the baseline is in docs/stand-ins.md with the date and the statement that names are the app's canonical ones",
+    "Unit tests for each kind through alternativesFor: label, usage text with a ratio and with an amountNote, a 'none' entry returns the reason and no alternatives, 'make' replaces the row with its parts and Undo restores it",
+    "supportingOnly: offered for a row from a recipe where the ingredient is not a main, withheld where it is a main and where the row has no recipe (tests on real recipes)",
+    "Every recipe-side caller is listed in the report with its behaviour before and after and a test that it did not change unless stated",
+    "Existing swap, shopping-alternative and Sauce Lab strictness tests pass unchanged",
+    "The sheet at 375px shows the four labels (component tests; browser look described honestly, saving and restoring any localStorage touched)",
+    "npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "STANDIN-2",
+  "title": "Stand-ins for food: answers for the ingredients dishes and sauces use most",
+  "category": "data",
+  "passes": false,
+  "description": "Write entries in order of use until at least 80% of dish lines and 80% of sauce lines have an answer on npm run measure:standins (an honest 'none' with its reason counts as an answer and is reported separately from real stand-ins). Work down the measure's most-used list; expect roughly 100 entries. Each entry is ONE reviewable line with role and kind as today, written from common cooking knowledge and marked as the assistant's judgement, never inferred from category alone ('no basil? use mint' is the mistake to avoid). Expected content includes: garlic (jarred or powder as forms, with amounts; shallot is not a stand-in for garlic), ginger (ground, with amount; galangal only where honest), fresh and dried herbs both ways with amounts, tomato forms (canned, paste plus water, fresh), tomato paste, stocks and bouillon, soy sauce (tamari; coconut aminos), fish sauce, vinegars, mustards, chilies and chili powders and flakes, cayenne and paprika, cumin and coriander (ground and whole), cinnamon, nutmeg and mace, garam masala and curry powder as 'make' from spices, cornstarch and flour as thickeners with amounts, baking powder as 'make' from baking soda and cream of tartar, eggs as 'none' with the reason, flour as 'none' unless a specific honest swap exists, rice and noodles and pasta shapes, proteins of one kind (chicken thigh and breast, pork cuts, white fish), milk and cream and coconut milk, cheeses of one kind, nuts and seeds, sesame oil (none: it is a flavouring, not a fat) and other oils, wine in cooking, sugar kinds. A SECOND CHECK, not a source: scripts/checkStandIns.mjs lists, for every 'swap' entry, how many pairing partners the two sides share (the everyday-pairs index measureKitchenMakeable.mjs already uses) and flags the weakest tenth for a second look; each flagged line is either changed or kept with a reason in docs/stand-ins.md. Entries that only hold for a supporting role are flagged supportingOnly; entries that do not hold in a sauce are flagged sauce:false and the strictness test must pass. docs/stand-ins.md gains the full table grouped by kind of ingredient, so the owner can read and correct every line.",
+  "acceptance": [
+    "measure:standins after: at least 80% of dish lines and 80% of sauce lines answered, with real stand-ins and 'none' answers counted separately; before and after in docs/stand-ins.md",
+    "No entry offers a packaged, branded or hidden ingredient (isSuggestable); no entry stands one role or kind in for another (the existing same-role-and-kind test extended to the new entries)",
+    "The second-check script runs, its flagged lines are each resolved in writing",
+    "Spot tests on named cases: garlic offers forms with amounts and not shallot; eggs say nothing replaces them and why; fresh thyme offers dried with the amount; baking powder offers the make-it; butter for frying appears only for a supporting use",
+    "Recipe-side makeability numbers (scripts/measureKitchenMakeable.mjs) are reported before and after; any change is explained",
+    "npm run gate green; nothing deployed"
+  ]
+}
+```
+
+```json
+{
+  "id": "STANDIN-3",
+  "title": "Stand-ins for the bar, docs and the final pass",
+  "category": "data",
+  "passes": false,
+  "description": "Bar answers for the shopping sheet and the cocktail builder's 'Don't have it?'. Today only base spirits of one family have alternatives (shoppingAlternatives.js via cocktailRiff.swapCandidates with a family filter). Add reviewed GROUPS, each a named list whose members stand in for each other, with a note where the swap changes the drink: orange liqueurs (triple sec, Cointreau, curacao, Grand Marnier, orange liqueur); dry and blanc vermouths; sweet vermouths; bitter red aperitifs (Campari, Aperol and the like, with 'sweeter, less bitter' notes); aromatic bitters and orange bitters; fizzy waters, which are the same thing (soda water, club soda, seltzer, carbonated water) and tonic, which is not; ginger beer and ginger ale with a note; syrups as 'make' (simple syrup, rich or demerara syrup, honey syrup, grenadine from pomegranate juice and sugar) and as swaps with notes; citrus juice forms (fresh and bottled) and lemon for lime with a note; sparkling wines; cream liqueurs; coffee liqueurs; herbal liqueurs only where honest (Chartreuse: none, with the reason); maraschino liqueur (none; it is not cherry brandy); absinthe and pastis; egg white (aquafaba, with amount); cream kinds; gin and vodka (other bottles of the same spirit are the same ingredient to the app; say what the sheet should tell the cook for 'the store has no gin': an honest none, or vodka with a strong note, and justify). Decide where these live so the cocktail builder and the shopping sheet read ONE table (extend kitchenSwaps with bar entries, or a sibling table read through the same alternativesFor), and keep the existing rule that a base spirit never crosses families. Target: at least 70% of cocktail lines answered on measure:standins, real stand-ins and 'none' counted separately; if 70% is not reachable honestly, stop at what is and say why. Then: docs/stand-ins.md complete (bar table, final numbers), docs/shopping-list.md, README line, BACKLOG (SHOP-OPEN-4 closed; what was left out), CLOSEOUT.md UNRELEASED with deploy targets. Final pass at 375px on the local site: a shopping row for garlic, eggs, butter from a recipe where it is supporting, simple syrup, triple sec and gin; the cocktail builder's replacement for an orange liqueur. Save and restore any localStorage touched; never clear a list you did not create.",
+  "acceptance": [
+    "measure:standins after: cocktail lines answered at 70% or the honest figure with the reason; all three kinds' before and after in docs/stand-ins.md",
+    "One table feeds both the shopping sheet and the cocktail builder's replacements (test: an orange liqueur gets the same alternatives in both)",
+    "A base spirit still never crosses families; fizzy waters fold into one ingredient rather than listing each other as stand-ins (tests)",
+    "Named cases tested: simple syrup offers make-it with amounts; triple sec offers the orange liqueurs; Campari offers Aperol with its note; Chartreuse and maraschino say nothing replaces them and why; egg white offers aquafaba with the amount",
+    "The final pass is described row by row with what was and was not seen",
+    "Docs and BACKLOG match the code; npm run gate green; nothing deployed"
+  ]
+}
+```
