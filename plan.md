@@ -2504,7 +2504,7 @@ Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independ
   "id": "USAGE-4",
   "title": "A feedback button",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "'Send feedback' in the Labs menu and on the shared recipe page: a short note (500 characters) and an optional 'what were you trying to do' (200), written to feedback/{auto} as { note, goal, lab, at } with no identity. Rules: create by anyone within the limits, no read, update or delete; the owner reads it in the Firebase console (docs/usage-data.md says where). Three per browser per day as a courtesy limit.",
   "acceptance": [
     "Rules tests on the emulator: create allowed within limits, oversize and extra keys denied, read denied to everyone",
