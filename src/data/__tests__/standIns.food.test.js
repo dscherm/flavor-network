@@ -75,13 +75,15 @@ describe('every entry in the table', () => {
     for (const s of STAND_INS) {
       const kind = standInKind(s);
       if (!UNSTORED.has(s.for)) {
-        expect(names.has(s.for), `for ${s.for}`).toBe(true);
+        // A bar entry may use a name only cocktail lines use (sweet sour, seltzer's canonical soda water): barStandIns's own
+        // name check (standIns.bar.test.js and `npm run check:standins`) holds those to the cocktail line keys.
+        if (!s.bar) expect(names.has(s.for), `for ${s.for}`).toBe(true);
         expect(canonicalKey(s.for, names), `for ${s.for}`).toBe(s.for);
       }
       if (kind === 'none') continue;
       for (const p of [s.use, ...(s.plus || [])]) {
         expect(isSuggestable(p), `${p} for ${s.for}`).toBe(true);
-        if (UNSTORED.has(p)) continue;
+        if (UNSTORED.has(p) || s.bar) continue;
         // A form may be the row's own ingredient under another name (dried thyme -> thyme); anything else is a stored name.
         if (kind === 'form' && p === s.use) expect(names.has(p) || canonicalKey(p, names) === s.for, `${p} for ${s.for}`).toBe(true);
         else expect(names.has(p), `${p} for ${s.for}`).toBe(true);
@@ -92,7 +94,8 @@ describe('every entry in the table', () => {
     for (const s of STAND_INS) {
       const kind = standInKind(s);
       if (kind === 'none') { expect(s.use, s.for).toBeNull(); expect(String(s.reason).length, s.for).toBeGreaterThan(20); }
-      if (kind === 'make') { expect(s.use && s.plus.length > 0, s.for).toBeTruthy(); expect(s.amountNote, s.for).toBeTruthy(); }
+      // A make starts from a first part and says how much: most have more parts (simple syrup: sugar and water); a squeeze has one (lemon juice from a lemon).
+      if (kind === 'make') { expect(s.use, s.for).toBeTruthy(); expect(s.amountNote, s.for).toBeTruthy(); }
       if (kind === 'form') expect(s.amountNote || s.note, s.for).toBeTruthy();
     }
   });

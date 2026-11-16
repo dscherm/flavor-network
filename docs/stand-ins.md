@@ -2,7 +2,8 @@
 
 What the shopping sheet ("Store doesn't have it?") offers when the store lacks something, how the table is shaped, who may read
 which kind of entry, and how much of what recipes ask for has an answer. The table is `src/data/kitchenSwaps.js`; the sheet is
-`src/components/StoreAlternatives.jsx` with its logic in `src/data/shoppingAlternatives.js`. Nothing here is deployed yet.
+`src/components/StoreAlternatives.jsx` with its logic in `src/data/shoppingAlternatives.js`. The bar's half of the table is
+`src/data/barStandIns.js` (STANDIN-3), spread into the same table; the cocktail builder's "Don't have it?" reads it too. Nothing here is deployed yet.
 Entries are the assistant's judgement from common cooking knowledge, not tested recipes; the owner reads and corrects them.
 
 ## Four kinds of answer
@@ -128,13 +129,272 @@ cayenne pepper, tomato; for dishes garlic, tomato, flour, chicken, ginger, cumin
 
 Before this task (after STANDIN-1): sauces 19.9% real, 0% none; dishes 29.0% real, 2.1% none. The 80% target is met for dishes and
 sauces counting both answers; the real stand-ins alone are 74.9% and 72.4%, and the rest of the answered lines are honest nones (mostly
-flour, egg yolk, saffron, yeast, sesame oil, fish sauce, bay leaf). Cocktails are STANDIN-3's.
+flour, egg yolk, saffron, yeast, sesame oil, fish sauce, bay leaf). Cocktails were STANDIN-3's (below).
 
 What is still unanswered, most used first: sauces butter (20 lines), olive oil (14), cream (9), water (7), vegetable (4), caper, clove, meat, scotch bonnet;
 dishes butter (7), mushroom, potato, mayonnaise, mozzarella, pita bread, tofu, anchovy, clam. On purpose: butter and olive oil have only the pan swaps, which are
 withheld for a main and for a sauce, and the existing Sauce Lab and sheet tests pin those entries (butter forms such as salted and unsalted, and ghee for butter, were
 tried and dropped because they would have changed those pinned cases); cream has only milk (not in a sauce) for the same reason, and `half and half` cannot be an
 entry (see below). Generic words ("vegetable", "meat", "fruit") are not one ingredient and get no answer.
+
+### After STANDIN-3 (bar entries, 2026-11-16)
+
+126 entries added in `src/data/barStandIns.js` (90 swaps, 14 makes, 4 forms, 18 nones), 340 in the table now (food 214, bar 126). STANDIN-3 also edited four
+existing food lines (lemon and lime, now with a note each). `npm run measure:standins`:
+
+| | cocktail | sauce | dish |
+|---|---|---|---|
+| lines | 1809 | 598 | 624 |
+| lines with a real stand-in (swap, form or make) | 1253 | 449 | 453 |
+| lines with "nothing really replaces it" | 323 | 51 | 70 |
+| share with a real stand-in | 69.3% | 75.1% | 72.6% |
+| share with an honest none | 17.9% | 8.5% | 11.2% |
+| **share answered (either)** | **87.1%** | 83.6% | 83.8% |
+| ingredients with no answer | 114 | 34 | 67 |
+| ingredients with a real stand-in / with a none | 107 / 20 | 73 / 13 | 105 / 18 |
+
+Before this task (after STANDIN-2): cocktails 31.2% real, 0.8% none, 32.0% answered, 200 ingredients with no answer. Baseline before any of it (STANDIN-1):
+28.3% real, 28.8% answered. The 70% target is met counting both answers (87.1%); real stand-ins alone are 69.3%, a hair under 70.
+
+What the 69.3% contains, so it is not read too kindly: about 30 lines (soda water 13, seltzer 10, club soda 7) are the fizzy waters, which count as answered
+because they are one ingredient (see below), not because a stand-in exists; without them real stand-ins are about 67.6%. And 323 lines (17.9%) are honest nones, of which
+gin (112) and vodka (64) are 176 on their own, then "liqueur" (24), maraschino liqueur (21), amaretto (16), Benedictine (11), the two Chartreuses (10) and tonic water (9).
+The sauce and dish columns each moved by one line (sauces 448 to 449, dishes 452 to 453) because soda water, a bar item, also appears in those recipes.
+
+What is still unanswered, most used first (cocktails): ice (18), orange as a garnish or juice (18), cherry (11), maraschino cherry (10), salt solution (10), water (10), beer (6),
+peach schnapps (6), grape juice (4), pineapple (4), almond milk (3), apple juice (3), olive (3), peach (3), pepper (3). Ice, water and a salt solution are not
+shopping rows a stand-in helps with; the garnishes and the rest were left for want of a swap I could stand behind.
+
+**Where the bar table lives and how both surfaces read it.** `src/data/barStandIns.js` is spread into `kitchenSwaps.STAND_INS`, so `standInsFor`, the one lookup,
+returns food and bar entries together. The shopping sheet reads them through `alternativesFor` (as before). The cocktail builder's "Don't have it?"
+(`InventCocktail.replacementsFor`) now calls the same `alternativesFor` for the line and shows its swaps first (the ones the cook owns first, marked "have";
+the rest marked "not in your bar"), then the same-role bottles the bar already holds, as before. A test checks that an orange liqueur gets the same three
+alternatives in both, in the same order. The builder shows only swaps: a make (grenadine from pomegranate juice and sugar), a form and a none are the sheet's answers,
+because a line here swaps one bottle for another. For a base spirit the builder keeps its own bar-pool path (so gin with only bourbon and rye in the bar still offers them,
+which an existing test pins); the sheet keeps the spirit-family path. Those two differ on spirits on purpose and agree everywhere else.
+
+**Bar entries are not recipe-side swaps.** Each carries `bar: true`; `SWAPS` (the recipe side's table, and what the Sauce Lab strictness test reads) leaves them out,
+so a Cointreau for a triple sec can never make a dish or sauce look makeable. My bar's "what can I make" never reads this table (`myBar.coverLine` has its own
+equivalence table, unchanged; a test pins that a Cointreau still does not cover a triple sec line). Checked: `node scripts/measureKitchenMakeable.mjs` prints identical numbers
+with and without this task (K30 make 6, K40 make 14, swaps n=136, mean overlap 0.22). There is no script that counts how many drinks a bar can make; that check is the unit test
+and reading `myBar.js`, which does not import the table.
+
+**Fizzy waters.** `soda water`, `club soda`, `seltzer`, `seltzer water`, `sparkling water`, `carbonated water` and `sparkling mineral water` are one ingredient on the shopping list
+(`shoppingList.LIST_SYNONYMS`), so a list never holds two of them and none is offered as a stand-in for another. The soda water row says "Soda water, club soda, seltzer and sparkling water
+are the same thing." (a `none` carrying a `same` sentence; the sheet shows it instead of "Nothing really replaces", and the measure counts it as an answer, not a none). Tonic water is not one of them:
+it is a `none` (quinine, sweet and bitter). My bar is unchanged (its trivial-ingredient rule already ignores these).
+
+**Gin and vodka.** What the sheet tells a cook who finds the store has no gin: an honest none ("juniper is what a gin drink is; vodka keeps the shape and drops the botanicals, so a Negroni
+or a Collins turns into a different drink"). Vodka is the same in reverse. Why not "vodka, with a strong note": the app's rule is that a base spirit never crosses families
+(the spirit-family path and the same-role-and-kind rule), these two are 176 of 1809 cocktail lines, and a stand-in the sheet offers on a tap is read as advice that works; for a Negroni, a Collins
+or a Martini it does not. This is the owner's to overturn: a vodka line with a strong note is one line in `barStandIns.js` and one test.
+
+**Honest nones** (reason shown): gin, vodka, "liqueur" (a category, not a bottle), maraschino liqueur (not cherry brandy), amaretto, green and yellow Chartreuse, Benedictine, amaro Montenegro,
+Fernet-Branca, Galliano, Drambuie, pear brandy, apricot brandy, tonic water, elderflower cordial, falernum.
+
+**Half and half (the bug found in STANDIN-2).** `isTrivialIngredient("half and half")` was true, because the name is made only of stop words and normalises to nothing,
+so an empty name counted as trivial; `haveIngredient` therefore treated it as an assumed basic and `has('half and half')` was true for every kitchen. Fixed in
+`recipePairingMatch.isTrivialIngredient` (a stop-word-only name stays an ingredient when it is exactly "half and half"). The name now resolves to the half and half ingredient and no kitchen
+has it by default (tests). A scan of every stored ingredient name found no other that normalises to nothing. In cocktails the two drinks that use it (White Russian, Vodka Fizz) spell it
+"half-and-half", which was never trivial, so My bar's counts do not change. Half and half as a **cream stand-in** was NOT restored: the existing test "a swap flagged sauce:false
+is dropped for a row from a sauce" pins cream's answers to milk only, and the Sauce Lab strictness test says a same-role-and-kind pair must not be `sauce:false`, so
+the entry could not satisfy both. Half and half is a "Make it" (milk and cream) for the half-and-half row; the cream row is unchanged. See BACKLOG "Butter, olive oil and cream in sauces" for the open decision.
+
+**Second check, bar.** The pairing index is built from everyday cooking, where Campari, Cointreau and Peychaud's have few or no partners, so a bar swap scores weak or unscored whatever its merit:
+scoring them would flag about thirty lines for no reason. `scripts/checkStandIns.mjs` therefore scores food swaps only (137 swaps, 134 scored; the flagged list is the one above, nothing new) and holds bar entries to the name check
+against the names a cocktail line resolves to. The bar's review is the note on each line and the table below. Name problems: none.
+
+**Tests changed in STANDIN-3 (and why).**
+- `shoppingAlternatives.test.js`, "lime juice: lemon juice": lime juice now also offers the fresh fruit and the bottled form beside the swap (the task asks for them); it asserts the order lemon juice, lime, bottled lime juice and the note.
+- Same file, "never more than three, and the wording is advice": a `make` reads "Make it from ...", so the pattern accepts it.
+- Same file, "a flavoured or fruit bottle gets nothing; a liqueur or vermouth gets nothing (no safe rule)": that "no safe rule" is exactly what the reviewed groups replace. It now asserts only apricot brandy and raspberry vodka get nothing from the spirit-family path; triple sec, sweet vermouth, campari, angostura bitters and soda water are covered by `standIns.bar.test.js`; cherry brandy now answers (cherry liqueur).
+- `standIns.test.js`, "the table is the swaps plus the other kinds": bar swaps are in STAND_INS and not in SWAPS, so the count adds them; a new line asserts no bar entry is in SWAPS.
+- `standIns.food.test.js`, "names are the ones the app stores": a bar entry may use a name only cocktail lines use (sweet sour); it must still resolve to itself. "a make has parts": a squeeze (lemon juice from a lemon) is a make with one part and an amount.
+- `StoreAlternatives.kinds.test.jsx`: the simple syrup make is in the real table now, so the test no longer injects its own and reads the real amounts (1/2 cup sugar and 1/2 cup hot water).
+- `InventList.jsx` (code, not a test): a replacement chip reads `have` from the option instead of always showing "have"; sauce and recipe options set none, so they still show it.
+- `inventUi.jsx` (code): a chip's name no longer shrinks to an ellipsis beside a long note; seen at 375 px, the builder's replacements read "ora..." and "coi..." once the bar notes were long.
+- New: `standIns.bar.test.js`, `InventCocktail.standins.test.jsx`, `StoreAlternatives.bar.test.jsx`.
+
+### The bar table, every line
+
+Everything below is the assistant's judgement from common bartending knowledge, not a tested recipe. Read it and correct any line; each is one line in
+`src/data/barStandIns.js`. Within a group the first offer listed is the closest; the sheet shows three.
+
+#### Orange liqueurs
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| triple sec | swap | cointreau | note: drier and stronger than most triple sec: use a touch less |
+| triple sec | swap | orange curacao | note: a little richer, with more bitter orange peel |
+| triple sec | swap | orange liqueur | note: any orange liqueur works; taste the drink and adjust the sweetness |
+| triple sec | swap | grand marnier | note: cognac-based, so richer, rounder and sweeter: use a touch less |
+| triple sec | swap | blue curacao | note: the same orange flavor, but it will turn the drink blue |
+| cointreau | swap | triple sec | note: usually lighter and a little sweeter than Cointreau; the same style of liqueur |
+| cointreau | swap | orange curacao | note: a little richer, with more bitter orange peel |
+| cointreau | swap | orange liqueur | note: any orange liqueur works; taste the drink and adjust the sweetness |
+| cointreau | swap | grand marnier | note: cognac-based, so richer, rounder and sweeter: use a touch less |
+| cointreau | swap | blue curacao | note: the same orange flavor, but it will turn the drink blue |
+| orange curacao | swap | triple sec | note: usually lighter and a little sweeter than Cointreau; the same style of liqueur |
+| orange curacao | swap | cointreau | note: drier and stronger than most triple sec: use a touch less |
+| orange curacao | swap | orange liqueur | note: any orange liqueur works; taste the drink and adjust the sweetness |
+| orange curacao | swap | grand marnier | note: cognac-based, so richer, rounder and sweeter: use a touch less |
+| orange curacao | swap | blue curacao | note: the same orange flavor, but it will turn the drink blue |
+| orange liqueur | swap | triple sec | note: usually lighter and a little sweeter than Cointreau; the same style of liqueur |
+| orange liqueur | swap | cointreau | note: drier and stronger than most triple sec: use a touch less |
+| orange liqueur | swap | orange curacao | note: a little richer, with more bitter orange peel |
+| orange liqueur | swap | grand marnier | note: cognac-based, so richer, rounder and sweeter: use a touch less |
+| orange liqueur | swap | blue curacao | note: the same orange flavor, but it will turn the drink blue |
+| grand marnier | swap | triple sec | note: usually lighter and a little sweeter than Cointreau; the same style of liqueur |
+| grand marnier | swap | cointreau | note: drier and stronger than most triple sec: use a touch less |
+| grand marnier | swap | orange curacao | note: a little richer, with more bitter orange peel |
+| grand marnier | swap | orange liqueur | note: any orange liqueur works; taste the drink and adjust the sweetness |
+| blue curacao | swap | orange curacao | note: the same orange flavor, but the drink will not be blue |
+| blue curacao | swap | triple sec | note: the same orange flavor, but the drink will not be blue |
+| blue curacao | swap | orange liqueur | note: the same orange flavor, but the drink will not be blue |
+
+#### Vermouths, aperitif wines and bitter aperitifs
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| dry vermouth | swap | lillet blanc | note: fruitier and sweeter, with orange and honey: use a little less |
+| lillet blanc | swap | dry vermouth | note: drier and more herbal |
+| vermouth | swap | dry vermouth | note: the usual one when a recipe only says vermouth; use sweet (red) vermouth instead if the drink is dark, as a Manhattan is |
+| vermouth | swap | sweet vermouth | note: for a dark, rich drink such as a Manhattan; the drink says which |
+| sweet vermouth | swap | dubonnet rouge | note: sweeter, with a quinine bite: cut any added sugar |
+| dubonnet rouge | swap | sweet vermouth | note: less bitter and more herbal |
+| campari | swap | aperol | note: sweeter, lighter and much less bitter, with more orange: the drink will be milder, so add a dash of bitters if it needs bite |
+| aperol | swap | campari | note: more bitter and stronger: use a little less, or add a touch of sugar |
+
+#### Bitters
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| angostura bitters | swap | peychaud's bitters | note: lighter, with anise and cherry in place of warm spice |
+| angostura bitters | swap | bitters | note: whichever aromatic bitters you have |
+| angostura bitters | swap | orange bitters | note: bright citrus in place of the warm spice: a different drink |
+| bitters | swap | angostura bitters | note: the usual one |
+| bitters | swap | peychaud's bitters | note: lighter, with anise and cherry |
+| bitters | swap | orange bitters | note: citrus in place of spice |
+| orange bitters | swap | angostura bitters | note: warm spice in place of orange: add a strip of orange peel if you have one |
+| peychaud's bitters | swap | angostura bitters | note: rounder, with more spice and no anise |
+
+#### Mixers
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| soda water | none | same thing: club soda, seltzer, sparkling water and carbonated water are all this one thing, so any of them will do |  |
+| tonic water | none | nothing replaces it: tonic is sweet and bitter with quinine; soda water gives only bubbles, so it makes a different drink |  |
+| ginger beer | swap | ginger ale | note: milder and sweeter, with less ginger bite: add a squeeze of lime and, if you have it, a little fresh ginger |
+| ginger ale | swap | ginger beer | note: spicier and less sweet: use a little less |
+| coca-cola | swap | cola | note: any cola; the brand is a matter of taste |
+| cola | swap | coca-cola | note: any cola; the brand is a matter of taste |
+| lemon-lime soda | swap | lemonade | note: sweeter and flat: it will not add bubbles |
+
+#### Syrups and sugar
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| simple syrup | make | sugar + water | amount: about 1/2 cup sugar stirred into 1/2 cup hot water until clear, then cooled; it makes about 3/4 cup |
+| simple syrup | swap | honey syrup | note: adds honey flavor, and is a touch sweeter: use a little less |
+| syrup | make | sugar + water | amount: about 1/2 cup sugar stirred into 1/2 cup hot water until clear, then cooled; it makes about 3/4 cup |
+| honey syrup | make | honey + water | amount: equal parts honey and warm water, stirred until smooth: 1/4 cup of each makes about 1/2 cup |
+| honey syrup | swap | simple syrup | note: sweet in the same way, without the honey flavor |
+| grenadine | make | pomegranate juice + sugar | amount: equal parts pomegranate juice and sugar, warmed until the sugar dissolves: 1/2 cup of each makes about 3/4 cup; note: real grenadine is pomegranate; most bottled ones are mostly sugar and dye |
+| ginger syrup | make | ginger + sugar + water | amount: simmer 1/2 cup sliced fresh ginger with 1/2 cup sugar and 1/2 cup water for 10 minutes, then strain |
+| cinnamon syrup | make | cinnamon + sugar + water | amount: simmer 2 cinnamon sticks with 1/2 cup sugar and 1/2 cup water for 10 minutes, then strain |
+| sweet sour | make | lemon juice + simple syrup | amount: equal parts fresh lemon juice and simple syrup |
+| agave syrup | swap | simple syrup | note: agave is sweeter: use about a third more simple syrup |
+| agave syrup | swap | honey syrup | note: a little honey flavor, and a little less sweet |
+| powdered sugar | swap | sugar | amount: about 2/3 as much granulated sugar by volume as powdered; note: it dissolves more slowly, so stir or shake it longer |
+| powdered sugar | swap | simple syrup | amount: about 1/4 oz simple syrup for each 1 tsp powdered sugar; note: adds a little liquid |
+| cane sugar | swap | sugar | note: plain white sugar works, with a touch less molasses flavor |
+| elderflower cordial | none | nothing replaces it: a non-alcoholic floral syrup: an elderflower liqueur adds alcohol and is not the same drink |  |
+| falernum | none | nothing replaces it: a spiced almond, lime and clove syrup: no single bottle copies it |  |
+
+#### Citrus and fruit juices
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| lemon juice | make | lemon | amount: squeeze it fresh: one lemon gives about 1 oz (2 tbsp) |
+| lemon juice | form | bottled lemon juice | amount: the same amount; note: flatter and a little bitter: fine in a punch or a long drink, poor in a sour |
+| lime juice | make | lime | amount: squeeze it fresh: one lime gives about 1 oz (2 tbsp) |
+| lime juice | form | bottled lime juice | amount: the same amount; note: flatter and a little bitter: fine in a punch or a long drink, poor in a Daiquiri |
+| orange juice | make | orange | amount: squeeze it fresh: one medium orange gives about 2 oz (1/4 cup) |
+| orange juice | form | bottled orange juice | amount: the same amount; note: sweeter and less bright: fine in a Screwdriver or a Mimosa |
+| grapefruit juice | make | grapefruit | amount: squeeze it fresh: one medium grapefruit gives about 4 oz (1/2 cup) |
+| grapefruit juice | form | bottled grapefruit juice | amount: the same amount; note: sweeter and less sharp than fresh |
+| pineapple juice | make | pineapple | amount: blend 1 cup of chunks with 1/4 cup water and strain: it makes about 1/2 cup |
+| cranberry juice | swap | pomegranate juice | note: sweeter and deeper, with less tartness: add a squeeze of lime |
+
+#### Wines and fortified wines
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| champagne | swap | sparkling wine | note: any dry sparkling wine; a brut cava is the closest |
+| champagne | swap | prosecco | note: fruitier and softer, with less toast: fine in any cocktail |
+| prosecco | swap | sparkling wine | note: any dry sparkling wine; a little drier than prosecco |
+| prosecco | swap | champagne | note: drier and more toasty |
+| sparkling wine | swap | champagne | note: the classic; drier and more toasty |
+| sparkling wine | swap | prosecco | note: fruitier and softer |
+| sherry | swap | madeira wine | note: a little sweeter and nuttier: fine where a nutty fortified wine is wanted |
+| madeira wine | swap | sherry | note: drier and less caramel |
+| cream sherry | swap | port | note: fruitier; a tawny port is the closest |
+| port | swap | cream sherry | note: less fruity and more nutty |
+
+#### Cream, coffee, chocolate and fruit liqueurs, creams
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| baileys irish cream | swap | irish cream | note: the same style; Baileys is the brand |
+| irish cream | swap | baileys irish cream | note: the best-known one |
+| coffee liqueur | swap | kahlua | note: rum-based and sweet, the usual coffee liqueur |
+| coffee liqueur | swap | tia maria | note: a little drier and lighter, with more coffee |
+| kahlua | swap | coffee liqueur | note: any coffee liqueur; taste the drink and adjust the sweetness |
+| kahlua | swap | tia maria | note: a little drier and lighter, with more coffee |
+| tia maria | swap | coffee liqueur | note: any coffee liqueur; taste the drink and adjust the sweetness |
+| tia maria | swap | kahlua | note: rum-based and sweet, the usual coffee liqueur |
+| coffee | swap | espresso | note: stronger: use about half as much, topped up with hot water |
+| espresso | swap | coffee | note: brew it very strong; instant espresso powder in hot water also works |
+| creme de cacao | swap | chocolate liqueur | note: sweeter, with less vanilla |
+| chocolate liqueur | swap | creme de cacao | note: drier and more vanilla |
+| creme de cassis | swap | raspberry liqueur | note: sweeter and less tart, with raspberry in place of blackcurrant |
+| raspberry liqueur | swap | creme de cassis | note: tarter and deeper, with blackcurrant in place of raspberry |
+| creme de banane | swap | banana liqueur | note: the same thing under another name |
+| banana liqueur | swap | creme de banane | note: the same thing under another name |
+| cherry brandy | swap | cherry liqueur | note: cherry liqueurs vary in sweetness: taste the drink and adjust |
+| cherry liqueur | swap | cherry brandy | note: cherry liqueurs vary in sweetness: taste the drink and adjust |
+| whipped cream | swap | cream | note: whip it first, with a little sugar if the drink wants it sweet |
+| half and half | make | milk + cream | amount: equal parts whole milk and cream |
+
+#### Anise spirits, egg white, brandies
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| absinthe | swap | pernod | note: lighter and sweeter, with licorice and little wormwood: fine for a rinse |
+| pernod | swap | absinthe | note: stronger and drier, with more wormwood: use a little less |
+| egg white | make | chickpea | amount: 2 tbsp (1 oz) aquafaba, the liquid from a can of chickpeas, for each egg white; shake it hard; note: no egg taste or smell; the foam is a little looser |
+| apple brandy | swap | applejack | note: blended with neutral spirit, so lighter and less apple |
+| applejack | swap | apple brandy | note: richer and more apple |
+| cachaca | swap | rum | note: an unaged white rum works; it is made from molasses, so less grassy |
+
+#### Honest nones
+
+| For | Kind | Offer | Amount and note |
+|---|---|---|---|
+| gin | none | nothing replaces it: juniper is what a gin drink is; vodka keeps the shape and drops the botanicals, so a Negroni or a Collins turns into a different drink |  |
+| vodka | none | nothing replaces it: vodka is the plain one; any other spirit brings its own flavor and changes the drink rather than standing in |  |
+| liqueur | none | nothing replaces it: a recipe that only says liqueur means one sweet, flavored bottle: choose the flavor the drink wants (orange, coffee, herbal), there is no single stand-in |  |
+| maraschino liqueur | none | nothing replaces it: a bitter-nutty cherry-pit liqueur; it is not cherry brandy, and kirsch is dry and cherry brandy is sweet, so neither stands in |  |
+| amaretto | none | nothing replaces it: an almond and apricot-kernel liqueur; orgeat has no alcohol and Frangelico is hazelnut, so each changes the drink |  |
+| green chartreuse | none | nothing replaces it: about 130 herbs in one bottle, with no copy; yellow Chartreuse is sweeter and milder, so it makes a different drink |  |
+| yellow chartreuse | none | nothing replaces it: a honeyed, saffron-and-herb liqueur with no copy; green Chartreuse is stronger and sharper, so it makes a different drink |  |
+| benedictine | none | nothing replaces it: a honeyed herbal liqueur of 27 botanicals; nothing common copies it |  |
+| amaro montenegro | none | nothing replaces it: light, floral and orange-peel bitter; Averna and Nonino are the nearest amari but are darker or sweeter, so they change the drink |  |
+| fernet branca | none | nothing replaces it: a menthol, saffron and myrrh bitter that no other amaro matches |  |
+| galliano | none | nothing replaces it: a vanilla-and-anise herb liqueur with no copy |  |
+| drambuie | none | nothing replaces it: a whisky and honey-spice liqueur with no copy |  |
+| pear brandy | none | nothing replaces it: a clear, unsweetened pear distillate: grape brandy is aged and sweeter, so it changes the drink |  |
+| apricot brandy | none | nothing replaces it: a sweet apricot liqueur; peach schnapps is a different fruit and grape brandy has none of it |  |
 
 ### The second check: `npm run check:standins`
 
@@ -164,8 +424,8 @@ The recipe side reads swap-kind entries only, so the 71 new swaps are the only o
 before, 136 at 0.22 now.
 
 An earlier draft added `half and half` as a stand-in for cream and as a part of a milk make. It made butter chicken "makeable" in a six-item kitchen with no
-cream at all, because `recipePairingMatch.resolveIngredientName` drops "half and half" as nothing but stop words and so `has('half and half')` is true for any
-kitchen. That is an existing quirk (not touched here); the entries were removed rather than ship a false answer. Evaporated milk is the only milk make.
+cream at all, because `isTrivialIngredient` read "half and half" as nothing but stop words, so `has('half and half')` was true for any kitchen. Fixed in
+STANDIN-3 (see "After STANDIN-3" below); the entries stayed out of STANDIN-2's table.
 
 ### Cream and buttermilk
 
@@ -328,10 +588,10 @@ Everything below is the assistant's judgement from common cooking knowledge, not
 
 | For | Kind | Offer | Amount and note |
 |---|---|---|---|
-| lime | swap | lemon |  |
-| lemon | swap | lime |  |
-| lime juice | swap | lemon juice |  |
-| lemon juice | swap | lime juice |  |
+| lime | swap | lemon | note: brighter and a little sweeter, without the lime bitterness: it makes a different drink |
+| lemon | swap | lime | note: more bitter and more aromatic: you may need a touch more sugar |
+| lime juice | swap | lemon juice | note: brighter and a little sweeter, without the lime bitterness: it makes a different drink |
+| lemon juice | swap | lime juice | note: more bitter and more aromatic: you may need a touch more sugar |
 
 #### Rice, noodles and flour
 
@@ -500,5 +760,5 @@ Everything below is the assistant's judgement from common cooking knowledge, not
 ## Notes for later entries
 
 - A form's `use` must be a name `canonicalKey` keeps in the list's vocabulary, or resolve to the row's own key (handled by `reformItem`).
-- A swap's `use` must not be only stop words ("half and half"): the recipe side's `has` is true for it in any kitchen.
+- A swap's `use` may now be "half and half" (the stop-word bug is fixed), but see the cream note in "After STANDIN-3": existing tests pin cream's answers to milk.
 - Forms and makes are not offered to recipe-side callers; a new `swap` is, so each must hold in "you can make this with what you have".

@@ -132,7 +132,7 @@ export function needsRoles(key) {
  *   sameKey: boolean (a form the list stores under the row's own key), have: boolean }>,
  *   known: boolean, none?: { reason: string }, withheld?: Array<{ key: string, reason: string }> }}
  *   (none and withheld are present only when there is something to say)
- *   none — an honest "nothing replaces it" (no alternatives are then listed); withheld — supporting-only swaps
+ *   none — an honest "nothing replaces it" (or, when `same` is set, "it is all one thing under several names") (no alternatives are then listed); withheld — supporting-only swaps
  *   left out, each with the reason, so the sheet can say why.
  */
 export function alternativesFor(item, { has = () => false, roles = null, names = null, sauce = false, main = null, swaps = realStandInsFor, max = MAX_ALTERNATIVES } = {}) {
@@ -143,14 +143,15 @@ export function alternativesFor(item, { has = () => false, roles = null, names =
   const entries = swaps(key);
 
   const nothing = entries.find((s) => standInKind(s) === 'none');
-  if (nothing) return { alternatives: [], known: false, none: { reason: String(nothing.reason || '') } };
+  if (nothing) return { alternatives: [], known: false, none: { reason: String(nothing.reason || ''), ...(nothing.same ? { same: String(nothing.same) } : {}) } };
 
   for (const s of entries) {
     if (sauce && s.sauce === false) continue;
     const form = standInKind(s) === 'form';
-    // A form of the row's own ingredient ("dried thyme" for "thyme") resolves to the same list key on purpose; any
-    // other kind of stand-in that is the same ingredient as the row is no stand-in at all.
-    if (seen.has(s.use) || (form ? s.use === key : sameIngredient(key, s.use, names)) || !isSuggestable(s.use)) continue;
+    // A form of the row's own ingredient ("dried thyme" for "thyme") resolves to the same list key on purpose, and a
+    // 'make' may start from the fruit ("squeeze a lemon" for lemon juice, which the bar's table calls the same ingredient);
+    // any other swap that is the same ingredient as the row is no stand-in at all.
+    if (seen.has(s.use) || (standInKind(s) === 'swap' ? sameIngredient(key, s.use, names) : s.use === key) || !isSuggestable(s.use)) continue;
     let note = s.note ? String(s.note) : null;
     if (s.supportingOnly) {
       if (main !== false) {

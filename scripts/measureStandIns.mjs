@@ -63,7 +63,8 @@ function answerFor(key, kind, main, sauce) {
   const id = `${key}|${kind === 'cocktail' ? 'c' : 'x'}|${main}|${sauce}`;
   if (cache.has(id)) return cache.get(id);
   const r = alternativesFor({ key }, { roles: kind === 'cocktail' ? roles : null, names, sauce, main, ...(flag('--swaps-only') ? { swaps: swapsFor } : {}) });
-  const a = r.known ? 'standin' : r.none ? 'none' : 'no';
+  // A none that says "it is all one thing under several names" (soda water, club soda, seltzer) is an answer, not a gap.
+  const a = r.known || r.none?.same ? 'standin' : r.none ? 'none' : 'no';
   cache.set(id, a);
   return a;
 }

@@ -147,8 +147,8 @@ dish list when Add from a recipe is first opened; never the pairing data or a mo
 Every unticked row has the button (`src/components/StoreAlternatives.jsx`, logic in `src/data/shoppingAlternatives.js`).
 Up to three alternatives, from two sources only, and only on a tap:
 
-1. The hand-written food table (`standInsFor` in `src/data/kitchenSwaps.js`), four kinds of answer: use instead, another form,
-   make it, and an honest "nothing really replaces it" (see `docs/stand-ins.md`). A swap that holds only for a supporting item
+1. The hand-written table (`standInsFor` in `src/data/kitchenSwaps.js`; its bar half is `src/data/barStandIns.js`), four kinds of answer: use instead, another form,
+   make it, and an honest "nothing really replaces it" (see `docs/stand-ins.md`). The same table feeds the cocktail builder's "Don't have it?", through the same function. A swap that holds only for a supporting item
    (butter -> oil for the pan) is offered when the row came from a dish in which it is not a main, and withheld, with the reason,
    when it is a main or the row has no recipe.
 2. For base spirits only: another plain bottle of the same family from `swapCandidates` in `src/data/cocktailRiff.js`
@@ -162,11 +162,13 @@ ratio in the table scales a single-number row; an entry that converts by a note 
 and carries the note; otherwise the original quantity is kept and the usage sentence becomes the row's note. Coverage and the
 kinds are in `docs/stand-ins.md`.
 
-Coverage, counted on 2026-11-16 over the curated names plus the additions: 58 ingredients get at least one alternative (45
-from the food table, 13 spirits). Common items with none: garlic, ginger, eggs, flour, baking powder and soda, chicken breast
-and thigh, basil, mint, thyme, cumin, saffron, tomatoes, rice, potatoes, soy sauce, fish sauce, mustard, most spices, butter,
-olive oil, red wine, heavy cream (for sauces); gin, plain vodka, every liqueur, vermouth, bitters, soda water, syrups. A row
-with no safe stand-in says "No stand-in I'd trust for X."
+Coverage, measured on 2026-11-16 over the 602 built-in recipes by `npm run measure:standins` (an ingredient line is answered when the sheet
+would offer a stand-in or say honestly that nothing replaces it): cocktails 87.1% (69.3% a real stand-in, 17.9% an honest none), sauces 83.6%
+(75.1% / 8.5%), dishes 83.8% (72.6% / 11.2%). Garlic and ginger offer forms with amounts, eggs and flour say nothing replaces them and why, simple
+syrup, grenadine and half and half say how to make them, a triple sec offers the other orange liqueurs, Campari offers Aperol with what changes,
+Chartreuse and maraschino liqueur say nothing replaces them, gin and vodka say nothing replaces them (a base spirit never crosses families). Soda water, club soda,
+seltzer and sparkling water are one ingredient on the list (`LIST_SYNONYMS`), so none is offered for another; tonic is not. Butter, olive oil and cream in a
+sauce still have almost no answer (BACKLOG, STANDIN-SAUCE-FATS). A row with no entry at all says "No stand-in I'd trust for X."
 
 ## Limits, stated
 

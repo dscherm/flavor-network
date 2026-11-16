@@ -29,12 +29,16 @@ describe('food alternatives come from kitchenSwaps, with the usage in plain word
     expect(keysOf('parsley')).toEqual(['cilantro']);
     expect(alts('parsley').alternatives[0].useText).toBe('Use cilantro instead.');
   });
-  it('lime juice: lemon juice', () => expect(keysOf('lime juice')).toEqual(['lemon juice']));
+  // STANDIN-3 added the fresh and bottled forms of lime juice beside the swap: the swap is still first.
+  it('lime juice: lemon juice first, then the fruit and the bottled form', () => {
+    expect(keysOf('lime juice')).toEqual(['lemon juice', 'lime', 'bottled lime juice']);
+    expect(alts('lime juice').alternatives[0].note).toMatch(/different drink/);
+  });
   it('never more than three, and the wording is advice, not a promise', () => {
     for (const k of new Set(SWAPS.map((s) => s.for))) {
       const { alternatives } = alts(k);
       expect(alternatives.length).toBeLessThanOrEqual(MAX_ALTERNATIVES);
-      for (const a of alternatives) expect(a.useText).toMatch(/^(Use .* instead\.|Another .* could stand in)/);
+      for (const a of alternatives) expect(a.useText).toMatch(/^(Use .* instead\.|Another .* could stand in|Make it from )/);
     }
   });
   it('white wine has four table entries; three are shown', () => {
@@ -111,10 +115,11 @@ describe('bar alternatives come from cocktailRiff.swapCandidates, same family on
     expect(keysOf('vodka')).toEqual([]);
     expect(keysOf('gin')).toEqual([]);
   });
-  it('a flavoured or fruit bottle gets nothing; a liqueur or vermouth gets nothing (no safe rule)', () => {
-    for (const k of ['apricot brandy', 'cherry brandy', 'raspberry vodka', 'triple sec', 'sweet vermouth', 'campari', 'angostura bitters', 'soda water']) {
-      expect(keysOf(k), k).toEqual([]);
-    }
+  // STANDIN-3 wrote reviewed bar groups (orange liqueurs, vermouths, aperitivos, bitters), so a liqueur, a vermouth, campari and
+  // angostura now answer through the table (see standIns.bar.test.js). What still gets nothing from the family path: a flavoured
+  // or fruit bottle, and an honest none (apricot brandy: a sweet apricot liqueur, no stand-in).
+  it('a flavoured or fruit bottle gets nothing from the spirit-family path', () => {
+    for (const k of ['apricot brandy', 'raspberry vodka']) expect(keysOf(k), k).toEqual([]);
   });
   it('words that merely contain a spirit (rye bread, vodka sauce, scotch bonnet) get nothing', () => {
     for (const k of ['rye bread', 'rye flour', 'vodka sauce', 'whiskey sauce', 'scotch bonnet']) expect(keysOf(k), k).toEqual([]);

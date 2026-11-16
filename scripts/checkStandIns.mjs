@@ -10,6 +10,12 @@
  * It also checks that every name in the table is one the app stores: `for` resolves to itself, a swap or make `use`
  * (and each `plus`) is a curated, suggestable name, and a form's `use` resolves to the row's own key or to a stored name.
  *
+ * BAR entries (barStandIns.js, `bar: true`, STANDIN-3) are NOT scored by partner overlap: the pairing index is built from
+ * everyday cooking, where a Campari or a Cointreau has few or no partners, so every bar swap would read as weak or
+ * unscored and the number would mean nothing. They get the name check only, against the names a cocktail line resolves
+ * to (the same names measureStandIns.mjs counts) as well as the stored names; their review is the note on each line
+ * and the table in docs/stand-ins.md.
+ *
  * Usage: node scripts/checkStandIns.mjs [--json]      npm run check:standins
  * Reads repo files only; no network.
  */
@@ -20,6 +26,8 @@ import { blendIndex, parseEverydayPairs } from '../src/data/everydayPairs.js';
 import { canonicalKey } from '../src/data/shoppingList.js';
 import { isSuggestable } from '../src/data/curation/suggestable.js';
 import { loadCurationTables, applyCuration } from './lib/curationTables.mjs';
+import { readCuratedCodex } from './lib/curatedCodex.mjs';
+import { resolveBuiltIn, slugFor, uniqueBySlug } from '../src/data/sharedRecipe.js';
 
 const json = process.argv.includes('--json');
 const raw = JSON.parse(fs.readFileSync('public/proDataset/ingredients.json', 'utf8'));
@@ -47,7 +55,16 @@ const jac = (a, b) => {
   return inter / new Set([...A, ...B]).size;
 };
 
-const swaps = STAND_INS.filter((s) => standInKind(s) === 'swap').map((s) => ({ for: s.for, use: s.use, plus: s.plus || [], score: jac(s.for, s.use) }));
+// Names a built-in cocktail line resolves to (the bar entries may use any of them).
+const codex = readCuratedCodex();
+const cocktailData = { cocktails: codex.cocktails || [], families: codex.families || [], sauces: [], dishes: [], dishDetails: {} };
+const cocktailKeys = new Set();
+for (const item of uniqueBySlug('cocktail', cocktailData.cocktails)) {
+  const r = resolveBuiltIn('cocktail', slugFor('cocktail', item), cocktailData);
+  for (const line of r?.lines || []) { const k = canonicalKey(line.key, names); if (k) cocktailKeys.add(k); }
+}
+
+const swaps = STAND_INS.filter((s) => standInKind(s) === 'swap' && !s.bar).map((s) => ({ for: s.for, use: s.use, plus: s.plus || [], score: jac(s.for, s.use) }));
 const scored = swaps.filter((s) => s.score != null).sort((a, b) => a.score - b.score);
 const tenth = Math.max(1, Math.ceil(scored.length / 10));
 const weakest = scored.slice(0, tenth);
@@ -58,7 +75,8 @@ const UNSTORED = new Set(['baking powder', 'baking soda', 'vegetable oil', 'spag
 const problems = [];
 for (const s of STAND_INS) {
   const kind = standInKind(s);
-  if (!UNSTORED.has(s.for) && (!names.has(s.for) || canonicalKey(s.for, names) !== s.for)) {
+  const known = (n) => names.has(n) || (s.bar && cocktailKeys.has(n));
+  if (!UNSTORED.has(s.for) && (!known(s.for) || canonicalKey(s.for, names) !== s.for)) {
     problems.push(`for "${s.for}" is not a stored name (resolves to "${canonicalKey(s.for, names)}")`);
   }
   if (kind === 'none') continue;
@@ -67,8 +85,8 @@ for (const s of STAND_INS) {
     if (UNSTORED.has(p)) continue;
     if (kind === 'form' && p === s.use) {
       // A form resolves to the row's own key (dried thyme -> thyme) or is itself a stored name (tomato paste).
-      if (canonicalKey(p, names) !== s.for && !names.has(p)) problems.push(`form "${p}" for ${s.for} resolves to "${canonicalKey(p, names)}", neither the row's key nor a stored name`);
-    } else if (!names.has(p)) {
+      if (canonicalKey(p, names) !== s.for && !known(p)) problems.push(`form "${p}" for ${s.for} resolves to "${canonicalKey(p, names)}", neither the row's key nor a stored name`);
+    } else if (!known(p)) {
       problems.push(`"${p}" (${kind} for ${s.for}) is not a stored name`);
     }
   }

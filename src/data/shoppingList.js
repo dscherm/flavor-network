@@ -58,6 +58,10 @@ export const LIST_SYNONYMS = Object.freeze({
   'spring onion': 'scallion', 'spring onions': 'scallion',
   eggs: 'egg', lemons: 'lemon', limes: 'lime', onions: 'onion', tomatoes: 'tomato', potatoes: 'potato',
   carrots: 'carrot', 'garlic cloves': 'garlic', 'clove garlic': 'garlic', 'cloves garlic': 'garlic',
+  // STANDIN-3: fizzy waters are one ingredient. A row for seltzer is a row for soda water, so no list holds two of them
+  // and none offers another as a stand-in. Tonic water is not one of them (it is sweet and bitter).
+  'club soda': 'soda water', seltzer: 'soda water', 'seltzer water': 'soda water', 'sparkling water': 'soda water',
+  'carbonated water': 'soda water', 'sparkling mineral water': 'soda water',
 });
 
 /**

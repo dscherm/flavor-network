@@ -128,7 +128,7 @@ export default function StoreAlternatives({ item, sauce = false, main = null, sw
 
         {!loading && !known && none && (
           <div data-testid="store-alt-nothing" style={{ marginTop: 12 }}>
-            <p style={{ fontFamily: SANS, fontSize: 15 }}>Nothing really replaces {item.label}.</p>
+            <p data-testid={none.same ? 'store-alt-same' : undefined} style={{ fontFamily: SANS, fontSize: 15 }}>{none.same || `Nothing really replaces ${item.label}.`}</p>
             {none.reason && <p style={{ fontFamily: SANS, fontSize: 14, color: CHALK_DIM }}>{none.reason.charAt(0).toUpperCase() + none.reason.slice(1)}.</p>}
           </div>
         )}

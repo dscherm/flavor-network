@@ -11,12 +11,12 @@ import { commitList } from '../../data/shoppingStore.js';
 import { addLine } from '../../data/shoppingList.js';
 import { resetShoppingIngredients } from '../../data/shoppingIngredients.js';
 
-// The real table has no form or make entry yet (STANDIN-2/3 write them); give the list two for these tests.
+// The real table now holds the simple syrup make (STANDIN-3) and a dried thyme form (STANDIN-2): this test reads them as they are.
+// It still gives the list one form of its own (a different kind label) to pin the sheet's wording.
 vi.mock('../../data/kitchenSwaps.js', async (importOriginal) => {
   const real = await importOriginal();
   const extra = [
     real.FORM('thyme', 'dried thyme', 'herb', 'dried or fresh herb', { amountNote: '1 tsp dried for 1 tbsp fresh' }),
-    real.MAKE('simple syrup', ['sugar', 'water'], 'sweetener', 'syrup', { amountNote: 'equal parts by volume: 1 cup sugar and 1 cup water, heated until clear' }),
   ];
   return { ...real, standInsFor: (name) => [...real.standInsFor(name), ...extra.filter((e) => e.for === name)] };
 });
@@ -111,7 +111,7 @@ describe('make on the list', () => {
     expect(unchecked().sort()).toEqual(['sugar', 'water']);
     expect(latest.list.items.find((i) => i.key === 'sugar').parts).toEqual([]); // the 250 ml of syrup is not 250 ml of sugar
     expect(screen.getByTestId('shopping-swap-sugar').textContent).toMatch(/instead of simple syrup/);
-    expect(screen.getByTestId('shopping-swap-sugar').textContent).toMatch(/1 cup sugar and 1 cup water/);
+    expect(screen.getByTestId('shopping-swap-sugar').textContent).toMatch(/1\/2 cup sugar stirred into 1\/2 cup hot water/);
     expect(screen.getByTestId('shopping-note').textContent).toMatch(/Simple syrup is made from sugar and water, so sugar and water are on the list instead\. You can undo it on the row\./);
     fireEvent.click(screen.getByTestId('shopping-undo-swap-sugar'));
     await screen.findByTestId('shopping-row-simple syrup');

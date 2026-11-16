@@ -37,16 +37,10 @@
  * measureKitchenMakeable.mjs): the two sides of each swap share partners.
  */
 import { isSuggestable } from './curation/suggestable.js';
+import { S, both, FORM, MAKE, NONE } from './standInEntries.js';
+import { BAR_STAND_INS } from './barStandIns.js';
 
-const S = (forName, use, role, kind, extra = {}) => ({ for: forName, use, role, kind, plus: [], ...extra });
-/** A two-way swap: a for b and b for a. */
-const both = (a, b, role, kind, extra = {}) => [S(a, b, role, kind, extra), S(b, a, role, kind, extra)];
-/** The same thing in another form: dried thyme for fresh thyme. */
-export const FORM = (forName, use, role, kind, extra = {}) => S(forName, use, role, kind, { type: 'form', ...extra });
-/** Made from parts: parts[0] is `use`, the rest are `plus`. */
-export const MAKE = (forName, parts, role, kind, extra = {}) => S(forName, parts[0], role, kind, { type: 'make', plus: parts.slice(1), ...extra });
-/** Nothing replaces it; `reason` is one line saying why. */
-export const NONE = (forName, reason, role = null, kind = null, extra = {}) => ({ for: forName, use: null, role, kind, plus: [], type: 'none', reason, ...extra });
+export { FORM, MAKE, NONE };
 
 const TABLE = [
   // Alliums. Never garlic: it is not an onion.
@@ -60,8 +54,10 @@ const TABLE = [
   // Soft herbs.
   ...both('parsley', 'cilantro', 'herb', 'soft herb'),
   // Citrus.
-  ...both('lime', 'lemon', 'citrus', 'citrus'),
-  ...both('lime juice', 'lemon juice', 'citrus', 'citrus'),
+  S('lime', 'lemon', 'citrus', 'citrus', { note: 'brighter and a little sweeter, without the lime bitterness: it makes a different drink' }),
+  S('lemon', 'lime', 'citrus', 'citrus', { note: 'more bitter and more aromatic: you may need a touch more sugar' }),
+  S('lime juice', 'lemon juice', 'citrus', 'citrus', { note: 'brighter and a little sweeter, without the lime bitterness: it makes a different drink' }),
+  S('lemon juice', 'lime juice', 'citrus', 'citrus', { note: 'more bitter and more aromatic: you may need a touch more sugar' }),
   // Cooking liquid. Wine → stock in a pan or braise; not in a sauce (the
   // Sauce Lab treats wine and stock as different kinds).
   S('white wine', 'chicken stock', 'liquid', 'cooking liquid', { sauce: false }),
@@ -281,9 +277,15 @@ const TABLE = [
 ];
 
 const kindOf = (s) => s.type || 'swap';
-/** Every entry of every kind (the shopping sheet reads this). */
-export const STAND_INS = TABLE;
-/** The swap-kind entries only: the recipe side's table, and what the strictness tests check. */
+/**
+ * Every entry of every kind, food and bar (the shopping sheet and the cocktail builder read this). The bar entries
+ * (barStandIns.js, each marked `bar: true`) are appended here so one table, one lookup and one function serve both.
+ */
+export const STAND_INS = [...TABLE, ...BAR_STAND_INS];
+/**
+ * The swap-kind FOOD entries only: the recipe side's table, and what the strictness tests check. Bar entries are
+ * left out on purpose: a triple sec for a Cointreau never makes a recipe makeable, and bar swaps are not food swaps.
+ */
 export const SWAPS = TABLE.filter((s) => kindOf(s) === 'swap');
 
 const norm = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();

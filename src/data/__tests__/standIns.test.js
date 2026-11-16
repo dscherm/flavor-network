@@ -107,7 +107,9 @@ describe('the builders and the real table', () => {
     expect(r.none.reason).toMatch(/sets and binds/);
   });
   it('the table is the swaps plus the other kinds, and swaps keep their old shape', () => {
-    expect(STAND_INS.length).toBe(SWAPS.length + STAND_INS.filter((s) => standInKind(s) !== 'swap').length);
+    // STANDIN-3: the bar entries (marked bar: true) are in STAND_INS and never in SWAPS, the recipe side's table.
+    expect(STAND_INS.length).toBe(SWAPS.length + STAND_INS.filter((s) => standInKind(s) !== 'swap').length + STAND_INS.filter((s) => s.bar && standInKind(s) === 'swap').length);
+    expect(STAND_INS.filter((s) => s.bar).every((s) => !SWAPS.includes(s))).toBe(true);
     expect(SWAPS.every((s) => standInKind(s) === 'swap')).toBe(true);
     expect(SWAPS.find((s) => s.for === 'cream' && s.use === 'milk').plus).toEqual(['butter']);
   });

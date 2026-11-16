@@ -34,6 +34,8 @@ import {
 } from '../data/inventBuild.js';
 import { buildFlavorProfile } from '../data/inventProfile.js';
 import { nearestCocktails, swapCandidates, roleOf } from '../data/cocktailRiff.js';
+import { alternativesFor } from '../data/shoppingAlternatives.js';
+import { canonicalKey } from '../data/shoppingList.js';
 import { SLOT_DEFAULT_AMOUNT } from '../data/cocktailAmounts.js';
 import { barKey, barRolePool, coverLine, stockFor } from '../data/myBar.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle } from '../data/chalkTheme.js';
@@ -196,12 +198,23 @@ export default function InventCocktail({
   const lines = [...build.slots.filter((s) => s.line).map((s) => s.line), ...build.extras]
     .map((l) => ({ key: l.key, source: l.source, amount: amountFor(l.key), have: owned(l.key) }));
 
+  // STANDIN-3: "Don't have it?" reads the one stand-in table the shopping sheet reads (alternativesFor), so an orange
+  // liqueur gets the same alternatives in both. The table's swaps come first (what the cook owns first, as the sheet
+  // orders them, the rest marked "not in your bar"), then the same-role bottles the bar holds, as before. A 'make' (grenadine
+  // from pomegranate juice and sugar), a form and a none are the sheet's answers: a line here swaps one bottle for another.
   const replacementsFor = (key) => {
     const rows = lines.map((l) => ({ key: l.key, role: roleOf(l.key, roles), swappable: true }));
     const idx = rows.findIndex((r) => r.key === key);
-    if (idx < 0) return [];
-    const mine = barRolePool(stock, roles, rows[idx]);
-    return swapCandidates(rows, idx, mine, pairingIndex, 6).map((c) => ({ key: c.name, note: c.reason }));
+    const inDrink = new Set(rows.map((r) => r.key));
+    const ownedKey = (k) => stockSet.size > 0 && owned(k) === true;
+    const table = alternativesFor({ key: canonicalKey(key, names) }, { has: ownedKey, names, main: true })
+      .alternatives.filter((a) => a.kind === 'swap' && a.source === 'kitchenSwaps' && !inDrink.has(a.key))
+      .map((a) => ({ key: a.key, have: a.have, note: a.have ? a.note || undefined : [a.note, stockSet.size ? 'not in your bar' : ''].filter(Boolean).join(' · ') || undefined }));
+    const mine = idx < 0 ? [] : swapCandidates(rows, idx, barRolePool(stock, roles, rows[idx]), pairingIndex, 6)
+      .map((c) => ({ key: c.name, have: true, note: c.reason }));
+    const out = [];
+    for (const o of [...table.filter((t) => t.have), ...mine, ...table.filter((t) => !t.have)]) if (!out.some((x) => x.key === o.key)) out.push(o);
+    return out.slice(0, 8);
   };
 
   const optionsFor = (slotId) => shortlist(build, slotId, (slot, currentKeys) => rank({ slot, currentKeys }), 8)

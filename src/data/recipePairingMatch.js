@@ -179,10 +179,15 @@ export function resolveIngredientName(raw, names) {
   return null;
 }
 
+// A stored ingredient whose name is nothing but stop words ("half and half") normalizes to '' and was read as
+// "nothing", so an empty name counted as trivial and every kitchen "had" it. It is a real ingredient.
+const STOP_WORD_NAMES = /^half and half$/i;
+
 /** True for ice, soda, water and the like — ignored on both sides. */
 export function isTrivialIngredient(raw) {
   const n = normalizeIngredient(stripAccents(raw));
-  return !n || TRIVIAL.has(n);
+  if (!n) return !STOP_WORD_NAMES.test(String(raw ?? '').trim().replace(/^[0-9¼½¾⅓⅔⅛⅜⅝⅞.\s/]*(?:oz|ounces?|cups?|tbsp|tsp)?\s*/i, ''));
+  return TRIVIAL.has(n);
 }
 
 /**

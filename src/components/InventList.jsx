@@ -92,7 +92,7 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
               <div className="flex flex-wrap gap-1.5">
                 {options.map((o) => (
                   <span key={o.key} className="inline-flex items-center max-w-full">
-                    <Chip fit item={{ ...o, have: true }} testid={`${p}-replace-option`} haveLabel={L.have}
+                    <Chip fit item={{ ...o, have: o.have !== false }} testid={`${p}-replace-option`} haveLabel={L.have}
                       onClick={() => { onReplace(line.key, o.key); setOpen(false); }} />
                     <IngredientInfoButton name={o.key} testid={`${p}-replace-info`} swapFor={line.key} onSwap={(k) => { onReplace(line.key, k); setOpen(false); }} />
                   </span>
