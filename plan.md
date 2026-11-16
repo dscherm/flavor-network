@@ -2394,7 +2394,7 @@ independent of those; DATA-8 last. DATA-5 must land before FLAVOR-3.
   "id": "DATA-6",
   "title": "Cocktails: a family for flips and cream drinks, misfiled drinks, names, duplicates, missing classics",
   "category": "data",
-  "passes": false,
+  "passes": true,
   "description": "Per Decision 4 (the owner may override before this starts): add a seventh family, 'Flips & Cream Drinks', with a root drink and a one-line blurb, and move the cream and egg drinks into it after reading each one (about 59 candidates). Move the clear mistakes (Mojito, Bramble) and review the drinks with citrus in 'Boozy Sippers' and 'Aromatic Stirred'. Name the 15 sub-groups. Remove the two duplicates. Add Espresso Martini, Long Island Iced Tea and Sex on the Beach with published specs. Add amounts where a standard published spec exists (IBA for the official ones); otherwise leave the existing '~ suggested' amounts. All of it in the codex's source and proDataset/scripts/11-parse-cocktail-codex.js, regenerating cocktail_codex_v2.json; the generated file is not edited by hand. Update everything that assumes six: the family list and order, the Invent style picker, blurbs and checklist skeleton for the new family, the parked 3D layout, share slugs (existing links must keep working), tests and copy that says 'six'.",
   "acceptance": [
     "Regenerating the codex from source reproduces the committed file exactly",
