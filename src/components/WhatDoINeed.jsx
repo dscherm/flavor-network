@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB } from '../data/chalkTheme.js';
 import { shoppingListText } from '../data/whatDoINeed.js';
 import AddToShoppingList from './AddToShoppingList.jsx';
+import { IngredientName } from './IngredientCardProvider.jsx';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
@@ -62,7 +63,7 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
           {missing.map((m) => (
             <li key={m.name} className="flex items-center gap-2 min-h-[40px]">
               <span className="flex-1 min-w-0">
-                <span style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM }}>{m.name}</span>
+                <IngredientName name={m.name} loose tall testid={`what-do-i-need-name-${m.name}`} style={{ fontFamily: FONT, fontSize: 19, color: CHALK_CREAM }}>{m.name}</IngredientName>
                 {m.amount && <span className="ml-1.5 text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>{m.amount}</span>}
                 {m.hint && <span className="block text-[12px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>{m.hint}</span>}
               </span>

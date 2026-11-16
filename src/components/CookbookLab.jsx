@@ -40,6 +40,7 @@ import { itemFromRecipe } from '../data/sharePublish.js';
 import { SHARE_OWN_ENABLED } from '../data/shareTargets.js';
 import { dishTypeOf, dishTypeLabel } from '../data/dishType.js';
 import { parseQuery, matchItem } from '../data/ingredientSearch.js';
+import { IngredientName } from './IngredientCardProvider.jsx';
 import { recipeSeedFromSearch } from '../data/inventSearch.js';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
@@ -327,7 +328,9 @@ export function RecipeDetail({ recipe, userRecipe = null, ctx, onProfileOpen = n
                   {details?.amounts?.[n] && (
                     <span className="text-[12px]" style={{ color: CHALK_DIM }}>{details.amounts[n]}</span>
                   )}
-                  <span style={{ fontFamily: FONT, fontSize: '18px', lineHeight: 1.1, color: ok ? CHALK_CREAM : CHALK_SUB }}>{n}</span>
+                  <span style={{ fontFamily: FONT, fontSize: '18px', lineHeight: 1.1, color: ok ? CHALK_CREAM : CHALK_SUB }}>
+                    <IngredientName name={n} loose testid="cookbook-ingredient-link" style={{ padding: '10px 0' }}>{n}</IngredientName>
+                  </span>
                 </li>
               ))}
             </ul>

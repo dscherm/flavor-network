@@ -23,6 +23,7 @@ import {
   replaceItem, undoReplace, remove, makeHas,
 } from '../data/shoppingList.js';
 import { swappedAmount, restoreRow } from '../data/shoppingAlternatives.js';
+import { IngredientName } from './IngredientCardProvider.jsx';
 import { kitchenSuggestions } from '../data/kitchenRecipes.js';
 import { loadKitchen, saveKitchen, addToKitchen } from '../data/myKitchen.js';
 import { loadBar, saveBar, addToBar, isBooze } from '../data/myBar.js';
@@ -339,24 +340,32 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
                     const forNames = item.from.map((id) => recipeName.get(id)).filter(Boolean);
                     return (
                       <li key={item.id} data-testid={`shopping-row-${item.key}`} style={{ borderBottom: `1px solid ${CHALK_RAIL}55` }}>
-                        <label className="flex items-center gap-3 w-full min-h-[56px] py-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={item.checked}
-                            onChange={() => onChange((cur) => toggle(cur, item.id))}
-                            className={`flex-shrink-0 ${FOCUS}`}
-                            style={{ width: 28, height: 28, accentColor: CHALK_CREAM, outlineColor: CHALK_CREAM }}
-                          />
+                        <div className="flex items-center gap-3 w-full min-h-[56px] py-2">
+                          {/* The checkbox keeps its own 44 px label-less target; the NAME is a separate button (BUILDER-4) so a tap on it opens the ingredient card and never ticks the row. */}
+                          <label className="flex items-center justify-center flex-shrink-0 cursor-pointer min-h-[56px] min-w-[44px]">
+                            <input
+                              type="checkbox"
+                              id={`shopping-check-${item.id}`}
+                              checked={item.checked}
+                              aria-label={item.label}
+                              onChange={() => onChange((cur) => toggle(cur, item.id))}
+                              className={`flex-shrink-0 ${FOCUS}`}
+                              style={{ width: 28, height: 28, accentColor: CHALK_CREAM, outlineColor: CHALK_CREAM }}
+                            />
+                          </label>
                           <span className="flex-1 min-w-0" style={{ fontFamily: SANS, opacity: item.checked ? 0.6 : 1 }}>
                             <span className="block break-words" style={{ fontSize: 17, textDecoration: item.checked ? 'line-through' : 'none' }}>
-                              {item.label}
-                              {qty && <span style={{ color: CHALK_DIM, fontSize: 15 }}>{' · '}{qty}</span>}
+                              <IngredientName name={item.key} loose tall testid={`shopping-name-${item.key}`} ariaName={item.label}
+                                style={item.checked ? { textDecoration: 'none' } : undefined}>
+                                <span style={{ textDecoration: item.checked ? 'line-through' : 'none' }}>{item.label}</span>
+                              </IngredientName>
+                              {qty && <label htmlFor={`shopping-check-${item.id}`} style={{ color: CHALK_DIM, fontSize: 15, cursor: 'pointer' }}>{' · '}{qty}</label>}
                             </span>
                             {forNames.length > 0 && (
-                              <span className="block break-words" style={{ fontSize: 13, color: CHALK_DIM }}>for {forNames.join(', ')}</span>
+                              <label htmlFor={`shopping-check-${item.id}`} className="block break-words" style={{ fontSize: 13, color: CHALK_DIM, cursor: 'pointer' }}>for {forNames.join(', ')}</label>
                             )}
                           </span>
-                        </label>
+                        </div>
                                         {(item.swappedFrom || item.note) && (
                           <div className="pl-10 pb-1" data-testid={`shopping-swap-${item.key}`} style={{ fontFamily: SANS, fontSize: 13, color: CHALK_DIM }}>
                             {item.swappedFrom && <span>instead of {item.swappedFrom}</span>}

@@ -22,6 +22,7 @@ import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, chalkSurfaceStyle } from '../d
 import { ShareButton } from './ShareSheet.jsx';
 import { OwnShareButton } from './OwnShare.jsx';
 import { SHARE_OWN_ENABLED } from '../data/shareTargets.js';
+import { IngredientName } from './IngredientCardProvider.jsx';
 import { FlavorProfileButton, FlavorProfileSection, useFlavorToggle } from './RecipeFlavorProfile.jsx';
 
 const CHALK_BORDER_OUTER = '#4a4a4a';
@@ -65,7 +66,7 @@ function SectionLabel({ children, color = CHALK_DIM }) {
 }
 
 // A row of clickable cousin chips (like-this / bridges / pairs-with).
-function ChipRow({ items, onSelect, showFamily = false, testid }) {
+function ChipRow({ items, onSelect, showFamily = false, testid, ingredients = false }) {
   if (!Array.isArray(items) || items.length === 0) return null;
   return (
     <div className="flex flex-wrap gap-2" data-testid={testid}>
@@ -73,6 +74,20 @@ function ChipRow({ items, onSelect, showFamily = false, testid }) {
         const name = typeof it === 'string' ? it : it.name;
         const color = (typeof it === 'object' && it.color) || '#9a8f7a';
         const fam = showFamily && typeof it === 'object' ? it.family_name : null;
+        const chipStyle = {
+          color: CHALK_CREAM, background: `${color}1f`, borderColor: `${color}77`,
+          fontFamily: FONT, fontSize: FS_CHIP, cursor: onSelect || ingredients ? 'pointer' : 'default',
+          ...TEXT_OUTLINE,
+        };
+        if (ingredients) {
+          return (
+            <IngredientName key={`${name}-${i}`} name={name} loose variant="raw" testid={`labcard-chip-${String(name).toLowerCase().replace(/\s+/g, '-')}`}
+              className="px-3 py-1 rounded-full border transition-all inline-flex items-center gap-2 min-h-[44px]" style={chipStyle}>
+              <span className="inline-block rounded-full" style={{ width: 9, height: 9, background: color }} />
+              {name}
+            </IngredientName>
+          );
+        }
         return (
           <button
             key={`${name}-${i}`}
@@ -230,7 +245,9 @@ export default function LabNodeCard({
                 <li key={`${ing.name}-${i}`} className="flex items-baseline gap-2"
                   style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_CREAM }}>
                   <span className="flex-shrink-0" style={{ color: clusterColor }}>→</span>
-                  <span className="flex-shrink-0">{ing.name}</span>
+                  <span className="flex-shrink-0 max-w-full">
+                    <IngredientName name={ing.name} loose testid="labcard-ingredient-link" style={{ padding: '6px 0' }}>{ing.name}</IngredientName>
+                  </span>
                   {ing.measure ? (
                     <>
                       <span className="flex-1 self-center mx-1" aria-hidden="true"
@@ -287,7 +304,7 @@ export default function LabNodeCard({
         {Array.isArray(pairsWith) && pairsWith.length > 0 && (
           <div className="flex-shrink-0">
             <SectionLabel>Pairs with</SectionLabel>
-            <ChipRow items={pairsWith} onSelect={null} testid="lab-node-card-pairs-with" />
+            <ChipRow items={pairsWith} onSelect={null} ingredients testid="lab-node-card-pairs-with" />
           </div>
         )}
       </div>

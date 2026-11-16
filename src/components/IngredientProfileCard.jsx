@@ -22,6 +22,7 @@
  */
 import { profilePair } from '../data/profileGridPair.js';
 import FlavorGrid from './FlavorGrid.jsx';
+import { IngredientName } from './IngredientCardProvider.jsx';
 
 const FONT_HAND = 'Caveat, cursive';
 
@@ -97,7 +98,10 @@ export default function IngredientProfileCard({
         }}
         data-testid="ingredient-card-name"
       >
-        {name}
+        <IngredientName name={name} testid="deck-card-name-link" style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}
+          {...(mode === 'replace' ? { onSwap: onCommit, swapFor: replacing || undefined } : { onAdd: onCommit })}>
+          {name}
+        </IngredientName>
       </h3>
 
       {/* HERO before/after: two fixed grids on ONE scale, so an unchanged note is the same size in both and a dot

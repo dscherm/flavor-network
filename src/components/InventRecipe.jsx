@@ -66,6 +66,7 @@ import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chal
 import { DishArt, ChalkLoader } from './chalkArt.jsx';
 import InventStart from './InventStart.jsx';
 import InventList from './InventList.jsx';
+import { IngredientBuilderScope } from './IngredientCardProvider.jsx';
 import InventChecklist from './InventChecklist.jsx';
 import InventSuggestions from './InventSuggestions.jsx';
 import InventDeck from './InventDeck.jsx';
@@ -407,6 +408,7 @@ export default function InventRecipe({
   const rule = { color: CHALK_SUB };
 
   return (
+    <IngredientBuilderScope onAdd={(k) => { add(k); }} has={(k) => keys.includes(k)} addLabel="Add to this recipe">
     <div className="fixed inset-x-0 top-0 safe-top-pad z-[83] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="invent-recipe" role="dialog" aria-label="Invent a recipe">
@@ -627,5 +629,6 @@ export default function InventRecipe({
           onAdd={(k) => add(k)} onSwap={replace} onClose={() => setDeck(null)} />
       )}
     </div>
+    </IngredientBuilderScope>
   );
 }

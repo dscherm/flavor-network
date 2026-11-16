@@ -60,6 +60,7 @@ import { SauceVessel } from './sauceVessels.jsx';
 import { WineGlass } from './wineGlasses.jsx';
 import InventStart from './InventStart.jsx';
 import InventList from './InventList.jsx';
+import { IngredientBuilderScope } from './IngredientCardProvider.jsx';
 import InventChecklist from './InventChecklist.jsx';
 import InventSuggestions from './InventSuggestions.jsx';
 import InventDeck from './InventDeck.jsx';
@@ -281,6 +282,7 @@ export default function InventSauce({
   const sub = (txt) => <p className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>{txt}</p>;
 
   return (
+    <IngredientBuilderScope onAdd={(k) => { add(k); }} has={(k) => lineViews.some((l) => l.key === k)} addLabel="Add to this sauce">
     <div className="fixed inset-x-0 top-0 safe-top-pad z-[82] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid={P} role="dialog" aria-label="Invent a sauce">
@@ -446,5 +448,6 @@ export default function InventSauce({
           onAdd={add} onSwap={replace} onClose={() => setDeck(null)} />
       )}
     </div>
+    </IngredientBuilderScope>
   );
 }

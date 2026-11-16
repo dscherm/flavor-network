@@ -11,8 +11,9 @@
  *   onDeck     () → opens the suggestion deck over the panel (BUILDER-1); the button shows only when there are items
  *   labels     { have, deck }
  *   testidPrefix default 'suggest'
- * Test ids: {p} root, {p}-item (each chip, data-key), {p}-deck (the deck button), {p}-empty.
+ * Test ids: {p} root, {p}-item (each chip, data-key), {p}-info (the small i beside it: opens the ingredient card), {p}-deck (the deck button), {p}-empty.
  */
+import { IngredientInfoButton } from './IngredientCardProvider.jsx';
 import { Chip, btn, heading, SANS, CHALK_SUB } from './inventUi.jsx';
 
 export default function InventSuggestions({ title, items = [], onAdd, onDeck, emptyText, labels = {}, testidPrefix = 'suggest' }) {
@@ -25,7 +26,12 @@ export default function InventSuggestions({ title, items = [], onAdd, onDeck, em
         ? <p className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid={`${p}-empty`}>{emptyText}</p>
         : (
           <div className="flex flex-wrap gap-1.5">
-            {items.map((it) => <Chip key={it.key} item={it} testid={`${p}-item`} haveLabel={labels.have || 'have'} onClick={() => onAdd(it.key)} />)}
+            {items.map((it) => (
+              <span key={it.key} className="inline-flex items-center max-w-full">
+                <Chip fit item={it} testid={`${p}-item`} haveLabel={labels.have || 'have'} onClick={() => onAdd(it.key)} />
+                <IngredientInfoButton name={it.key} testid={`${p}-info`} />
+              </span>
+            ))}
           </div>
         )}
       {onDeck && items.length > 0 && (

@@ -20,8 +20,10 @@
  * Test ids: {p} root, {p}-line (row, data-key), {p}-amount-{key}, {p}-remove-{key},
  * {p}-need-{key} (the Don't-have-it button), {p}-replacements-{key}, {p}-replace-option, {p}-replace-deck-{key},
  * {p}-no-replacements-{key}, {p}-add-input, {p}-add, {p}-notice, {p}-empty.
+ * Ingredient card (BUILDER-4): {p}-name-{key} opens it; {p}-replace-info beside each replacement opens it with "Swap it in".
  */
 import { useState } from 'react';
+import { IngredientName, IngredientInfoButton } from './IngredientCardProvider.jsx';
 import { TextAdd, Chip, btn, inputStyle, heading, small, SANS, FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT } from './inventUi.jsx';
 
 export const DEFAULTS = {
@@ -39,6 +41,9 @@ export const DEFAULTS = {
   fromSearch: 'from your search',
   deck: 'See how each changes the flavor',
 };
+
+// The name is a 44 px target; it still truncates inside the row.
+const NAME_BLOCK = { display: 'block', width: '100%', minHeight: 44, lineHeight: '44px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
 
 function AmountBox({ line, p, L, onAmount }) {
   const [draft, setDraft] = useState(null);
@@ -60,8 +65,10 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
       style={{ border: `1px solid ${CHALK_RAIL}` }}>
       <div className="flex items-center gap-2 min-w-0">
         <span className="flex-1 min-w-0">
-          <span className="block text-[20px] truncate" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{line.key}</span>
-          <span className="block text-[11px]" style={{ fontFamily: SANS, color: CHALK_SUB }}>
+          <span className="block text-[20px]" style={{ fontFamily: FONT, color: CHALK_CREAM }}>
+            <IngredientName name={line.key} testid={`${p}-name-${line.key}`} style={NAME_BLOCK}>{line.key}</IngredientName>
+          </span>
+          <span className="block text-[11px] -mt-1.5" style={{ fontFamily: SANS, color: CHALK_SUB }}>
             {line.have ? L.have : ''}
             {line.source === 'search' ? `${line.have ? ' · ' : ''}🔒 ${L.fromSearch}` : ''}
             {line.note ? `${line.have || line.source === 'search' ? ' · ' : ''}${line.note}` : ''}
@@ -84,8 +91,11 @@ function Line({ line, p, L, onRemove, onAmount, replacementsFor, onReplace, onRe
             : (
               <div className="flex flex-wrap gap-1.5">
                 {options.map((o) => (
-                  <Chip key={o.key} item={{ ...o, have: true }} testid={`${p}-replace-option`} haveLabel={L.have}
-                    onClick={() => { onReplace(line.key, o.key); setOpen(false); }} />
+                  <span key={o.key} className="inline-flex items-center max-w-full">
+                    <Chip fit item={{ ...o, have: true }} testid={`${p}-replace-option`} haveLabel={L.have}
+                      onClick={() => { onReplace(line.key, o.key); setOpen(false); }} />
+                    <IngredientInfoButton name={o.key} testid={`${p}-replace-info`} swapFor={line.key} onSwap={(k) => { onReplace(line.key, k); setOpen(false); }} />
+                  </span>
                 ))}
               </div>
             )}

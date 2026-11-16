@@ -42,6 +42,19 @@ describe('PairingLab', () => {
     });
   });
 
+  it('starts on the ingredient it was opened for (Open in Pairing Lab on the ingredient card) and reports it taken', () => {
+    const onInitialConsumed = vi.fn();
+    render(<PairingLab ctx={DATA} initialCenter="lemon" onInitialConsumed={onInitialConsumed} />);
+    // lemon has two partners (garlic, thyme); the default centre garlic has five
+    expect(screen.getByTestId('lens-insight').textContent).toMatch(/2 partners, led by/);
+    expect(onInitialConsumed).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores a starting ingredient the graph does not have', () => {
+    render(<PairingLab ctx={DATA} initialCenter="saffron" />);
+    expect(screen.getByTestId('lens-insight').textContent).toMatch(/5 partners, led by/);
+  });
+
   it('shows an affinity insight for the default (well-connected) center', () => {
     render(<PairingLab ctx={DATA} />);
     // garlic default → 5 partners

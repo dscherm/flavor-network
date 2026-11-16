@@ -61,6 +61,7 @@ import CookbookLab from './components/CookbookLab.jsx';
 import MakeRecipeStart from './components/MakeRecipeStart.jsx';
 import LabsPanel from './components/LabsPanel.jsx';
 import ShoppingList from './components/ShoppingList.jsx';
+import { IngredientCardProvider } from './components/IngredientCardProvider.jsx';
 import { uncheckedCount as shoppingUncheckedCount } from './data/shoppingList.js';
 import GuidedTour from './components/GuidedTour.jsx';
 import LabTour from './components/LabTour.jsx';
@@ -1354,6 +1355,16 @@ export default function App() {
     setShowFilteredList(false);
   }, []);
 
+  // BUILDER-4: "Open in Pairing Lab" on the ingredient card. The Pairing Lab mounts fresh on its tab, so the
+  // chosen ingredient is handed over as its starting centre and cleared once it has been taken.
+  const [pairingCenter, setPairingCenter] = useState(null);
+  const openPairingLabFor = useCallback((name) => {
+    if (name) setPairingCenter(name);
+    setPairingModeFocal(null);
+    setHomeOpen(false);
+    setActiveTab('pairing');
+  }, []);
+
   if (error) {
     return <ErrorCard onRetry={retry} onStartOver={handleStartOver} />;
   }
@@ -1481,6 +1492,7 @@ export default function App() {
 
   return (
     <ShareOwnContext.Provider value={shareOwnValue}>
+    <IngredientCardProvider data={data} onOpenPairingLab={openPairingLabFor}>
       {/* Screen-reader-only live region: announces the currently-selected
           ingredient and its top pairings so keyboard/screen-reader users
           know what's happening in the 3D canvas they can't see. */}
@@ -2381,6 +2393,8 @@ export default function App() {
         <Suspense fallback={<ChalkLoader label="Laying out the pairings…" color="#22d3ee" />}>
           <PairingLab
             ctx={data}
+            initialCenter={pairingCenter}
+            onInitialConsumed={() => setPairingCenter(null)}
             onFindCocktail={handleFindCocktail}
             onFindSauce={handleFindSauce}
             onOpenInNetwork={(name) => {
@@ -2773,6 +2787,7 @@ export default function App() {
         </div>
       )}
 
+    </IngredientCardProvider>
     </ShareOwnContext.Provider>
   );
 }

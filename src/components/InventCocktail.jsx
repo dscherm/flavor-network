@@ -41,6 +41,7 @@ import { CocktailFamilyGlass, DrinkGlass } from './cocktailGlasses.jsx';
 import { drinkColor } from '../data/drinkColor.js';
 import InventStart from './InventStart.jsx';
 import InventList from './InventList.jsx';
+import { IngredientBuilderScope } from './IngredientCardProvider.jsx';
 import InventChecklist from './InventChecklist.jsx';
 import InventSuggestions from './InventSuggestions.jsx';
 import InventDeck from './InventDeck.jsx';
@@ -258,6 +259,7 @@ export default function InventCocktail({
   const vocab = useMemo(() => [...names].slice(0, 4000), [names]);
 
   return (
+    <IngredientBuilderScope onAdd={(k) => { add(k); }} has={(k) => lines.some((l) => l.key === k)} addLabel="Add to this drink">
     <div className="fixed inset-x-0 top-0 safe-top-pad z-[82] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
       data-testid="invent-cocktail" role="dialog" aria-label="Invent a cocktail">
@@ -375,5 +377,6 @@ export default function InventCocktail({
           onAdd={(k) => add(k)} onSwap={replace} onClose={() => setDeck(null)} />
       )}
     </div>
+    </IngredientBuilderScope>
   );
 }

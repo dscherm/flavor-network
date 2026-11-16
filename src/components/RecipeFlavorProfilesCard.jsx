@@ -32,6 +32,7 @@ import HelpBubble from './HelpBubble.jsx';
 import { curateCodexRaw } from '../data/cocktailCodexV2.js';
 import { groupBars, selectAxes, hiddenLine } from '../data/flavorDisplay.js';
 import FlavorWheel from './FlavorWheel.jsx';
+import { IngredientName } from './IngredientCardProvider.jsx';
 // CK-14: fold the duplicated chalkboard palette onto the shared theme.
 import { FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL as CHALK_BORDER_OUTER } from '../data/chalkTheme.js';
 
@@ -453,7 +454,12 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
             </div>
             {drivers[axis]?.length > 0 && (
               <p className="text-sm mb-1" style={{ fontFamily: FONT, color: CHALK_DIM }}>
-                Driven by: <span style={{ color: CHALK_CREAM }}>{drivers[axis].join(', ')}</span>
+                Driven by:{' '}
+                <span style={{ color: CHALK_CREAM }} data-testid="axis-drivers">
+                  {drivers[axis].map((d, i) => (
+                    <span key={d}>{i > 0 ? ', ' : ''}<IngredientName name={d} style={{ padding: '10px 0' }}>{d}</IngredientName></span>
+                  ))}
+                </span>
               </p>
             )}
             <p className="text-base mb-2" style={{ fontFamily: FONT, color: CHALK_CREAM }}>{axisInsight(axis, scores[axis])}</p>

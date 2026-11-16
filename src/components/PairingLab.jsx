@@ -53,7 +53,7 @@ const chip = (border = CHALK_RAIL) => ({
   border: `1px solid ${border}`, background: '#0a0a0a', color: CHALK_CREAM, cursor: 'pointer',
 });
 
-export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onSendToRecipe, onOpenInNetwork }) {
+export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onSendToRecipe, onOpenInNetwork, initialCenter = null, onInitialConsumed }) {
   const nodes = data?.graph?.nodes;
   const ingredientNames = useMemo(() => {
     const list = data?.graph?.ingredientList;
@@ -66,7 +66,8 @@ export default function PairingLab({ ctx: data, onFindCocktail, onFindSauce, onS
     gnnEntropy: data?.gnnEntropy, cuisineMap: data?.cuisineMap, seasonMap: data?.seasonMap,
   }), [data]);
 
-  const [center, setCenter] = useState(() => pickDefaultCenter(ingredientNames));
+  const [center, setCenter] = useState(() => (initialCenter && (nodes?.has?.(initialCenter) || ingredientNames.includes(initialCenter)) ? initialCenter : pickDefaultCenter(ingredientNames)));
+  useEffect(() => { if (initialCenter) onInitialConsumed?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [lens, setLens] = useState('affinity');
   const [peek, setPeek] = useState(null);
   const [compareWith, setCompareWith] = useState(null); // P3c two-ingredient
