@@ -2694,7 +2694,7 @@ AROMA-1, AROMA-2, AROMA-3, AROMA-4. Taste numbers must not move.
   "id": "AROMA-4",
   "title": "Charts kept readable with eleven aromas (interim rule; the redesign is CHART-1); docs; final measurement",
   "category": "chore",
-  "passes": false,
+  "passes": true,
   "description": "With six tastes and eleven aromas a full chart has seventeen bars. One rule, the same on every surface (Recipe Notebook overview and flavor map, invent panels, Cookbook radar, shared page, browser and server share cards): show the strongest bars above a stated floor, tastes and aromas in their own groups, with a stated maximum per group (for example four and four on a card, more on the full Recipe Notebook page), and 'show all' where there is room. Per-axis pages and boost / temper work for every axis. Server and browser cards re-rendered and looked at for a drink, a sauce and a dish. docs/flavor-profile.md gains 'Aromas, second pass' with all scores stage by stage, what the second source is and is not (mostly AI-written; a second opinion, not ground truth), and what is still wrong by item. BACKLOG.md records the two deferred pieces with enough detail to pick up: using the second source for ingredients outside the table, and aromas created by cooking method. CLOSEOUT.md unreleased entry and README updated. share-cards.json regenerated.",
   "acceptance": [
     "The bar rule is written once in code and in docs/flavor-profile.md, and a test asserts each surface uses it",
