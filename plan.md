@@ -2565,7 +2565,7 @@ it shows); PICTURE-5 last.
   "id": "PICTURE-2",
   "title": "New glass and sauce drawings, and the picture chooser",
   "category": "ui",
-  "passes": false,
+  "passes": true,
   "description": "Add chalk drawings in the style of chalkArt.jsx: six glasses (coupe, rocks, highball, flute, martini, mug) that take the drink colour as ChalkGlass does, and four for sauces (pan, jar, bowl, bottle). One registry of pickable drawings by kind (dish: the 23 existing DISH_ART_KINDS; cocktail: the glasses; sauce: the four) with stable ids such as 'dish:pasta' and 'glass:coupe'. RecipePicture.jsx: three choices (a drawing, a photo turned into chalk, no picture). The photo path takes a picture from the camera or library, shows the chalk result at the defaults with a 'drawing…' state, an 'Adjust' button that reveals the five sliders with live preview and Reset, and 'Use this picture'. Landscape or square crop choice only. No storage yet: the component returns { kind: 'icon', icon } or { kind: 'chalk', blob, mime, w, h } to its parent.",
   "acceptance": [
     "The ten new drawings render at 24, 64 and 120 px without clipping and match the stroke weight and palette of the existing ones (looked at in a browser and described honestly)",
@@ -2987,6 +2987,30 @@ shopping list". Order: SHOP-1, SHOP-2, SHOP-3, SHOP-4, SHOP-5, one at a time.
     "docs/shopping-list.md matches what the code does, including the merge table",
     "The end-to-end pass was done at 375px and is described step by step, with what was and was not exercised stated",
     "npm run gate, functions and rules tests green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
+
+## 2026-11-16 — The test run fails on timeouts when the whole suite runs
+
+Seen across the last eight tasks: `npm run gate` fails on tests hitting vitest's 5 s limit when
+the full suite runs under load, and the same files pass alone. PICTURE-2 needed five full runs
+(about four minutes each). Files seen so far: CookbookLab.design3, CookbookLab.whatDoINeed,
+CookbookLab.pickerMode, curation.integration, suggestable, WineLab.glasses, flavorCharts.
+
+```json
+{
+  "id": "GATE-1",
+  "title": "Make the full test run pass first time: find why these tests time out under load and fix the cause",
+  "category": "tooling",
+  "passes": false,
+  "description": "Diagnose before changing anything: run the full suite with vitest's reporter timings and find what the timing-out files have in common (loading the large ingredient and pairing files per test file, heavy component trees, the worker pool oversubscribing a machine with little free memory and a nearly full disk). Then fix the cause, in this order of preference: (1) load big fixtures once and share them (a cached loader or a globalSetup) instead of per test; (2) cap the worker pool in vitest config so the machine is not oversubscribed, if measurements show that is the cause; (3) only then, a longer timeout for the specific files that legitimately do heavy work, set per file with a comment saying why, never a blanket increase that would hide a real hang. No test is skipped, deleted or weakened. Report timings before and after.",
+  "acceptance": [
+    "A short written diagnosis with numbers: the slowest test files and tests, and what they spend the time on",
+    "The full gate passes three times in a row with no timeout failure (all three runs reported with their durations)",
+    "Total gate time is not worse than before by more than a stated small margin, and is reported",
+    "No test skipped, deleted or weakened; any per-file timeout carries a comment with the measured reason",
+    "npm run gate green"
   ]
 }
 ```
