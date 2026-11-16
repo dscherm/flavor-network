@@ -2926,7 +2926,7 @@ shopping list". Order: SHOP-1, SHOP-2, SHOP-3, SHOP-4, SHOP-5, one at a time.
   "id": "SHOP-2",
   "title": "The shopping list screen: check off as you shop, kept on the device and with the account",
   "category": "ui",
-  "passes": false,
+  "passes": true,
   "description": "ShoppingList.jsx, opened from a new 'Shopping list' entry in the Labs menu that shows the unchecked count. Rows grouped by aisle; each row a large checkbox, the name, the quantity, and which recipes it is for; checking strikes it and drops it to the bottom of its group; rows of at least 44 px, usable one-handed at 375 px. 'Add an item' (typeahead over curated ingredients, free text allowed, optional amount). 'Copy list', 'Clear checked', 'Put checked items in my kitchen' (a button, never automatic; bar items go to My bar), 'Clear all' (asks first), an empty state that explains the two ways to fill it. Storage: localStorage first under one versioned key so it works signed out and offline; when signed in, a `shopping` field on the profile document, merged by item id with last-change-wins per item (each item carries an updatedAt), through the existing useUserProfile sync. State how the known issue recorded in BACKLOG (useUserProfile cloud sync dropping a field) is avoided for this field. The profile rules must allow the new field within a size cap; rules tests on the emulator only.",
   "acceptance": [
     "Component tests: check and uncheck, order after checking, add by typeahead and free text, clear checked, clear all asks first, put checked in my kitchen updates the kitchen and (for spirits) the bar, the count in the Labs menu",
