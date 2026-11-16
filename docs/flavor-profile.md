@@ -968,6 +968,7 @@ The owner's choice, verbatim: "Do d. But then also allow users to swipe to see c
 | Suggestion cards (add and swap) | F, two fixed grids, "Now" and "With ...", on one scale | Owner: F on the suggestion grid |
 | Sauce suggestion card (matched sauces) | One fixed grid of the sauce's own profile (BUILDER-1; was two radars) | It shows one profile, not before and after, so it has no Now and With pair or marks |
 | Invent panels' suggestion deck | The add and swap cards (two fixed grids) over every suggestion or stand-in | BUILDER-1: "See how each changes the flavor" under "Goes well with what you have" and under "Don't have it? Try...". The Now grid is `recipeAxisProfileWeighted` over the build's lines with their amounts, the calculation `buildFlavorProfile` uses, so it leads with the panel's notes. A suggestion with no flavor data still gets a card with an unchanged grid. Add and Swap close the deck |
+| Ingredient card (Pairing Lab and the tap-a-name overlay) | C, the fixed wheel, drawn from that one ingredient's notes (WHEEL-1; was a polygon radar) | Owner, 2026-11-16: every card's wheel takes the look of the combined wheel, starting here |
 | Cookbook card radar, ingredient panel | Unchanged, on their own word lists | Out of scope; see BACKLOG.md |
 
 ### The tasting note (D)
@@ -1011,3 +1012,9 @@ The Flavor Profiles card's **Flavor map** page draws the fixed seventeen-wedge w
 
 The mark's colour is its strongest note's colour. Labels are cut to nine characters and thinned greedily, strongest first, so no two labels overlap; every mark is still drawn. Under the wheel a plain list names every mark with its three strongest notes (`flavor-map-marks-list`), which is what a screen reader gets. Code: `src/data/flavorMarks.js` (`ingredientMarks`, `thinLabels`), `FlavorWheel.jsx` (`marks` prop). No score, table or axis changed.
 
+
+### The ingredient card's wheel (WHEEL-1)
+
+`PairingModeCard` draws `FlavorWheel` for the ingredient the card is about (the partner, when the card shows a partner). The seventeen notes come from `ingredientNoteBars(node)` in `src/data/pairingCardData.js`, a thin shaping layer over `nodeProbs` (the curated taste label and strength table, and the hand-tuned aroma table, the same values `flavorMarks.js` reads) and the one ordering and floor; there is no second profile calculation. `profileForRecipe` does not draw a one-ingredient recipe (the draw rule needs two), so the card's wheel is compared with `nodeProbs` directly in the tests. An ingredient with no note shows the plain line "Not enough flavor data for a chart yet."; a screen-reader list gives the ranked notes.
+
+The Pairing Lab's chosen spoke marks its wedge: an outline round the wedge with its label always shown, plus the "Leaning ..." line. The old radar's spokes map to wedges as follows. Taste: sweet, sour, bitter, salty and umami map to themselves; spicy and pungent map to heat; astringent has no wedge. Aroma: citrus and fruity to fruity; floral to floral; herbal and green to green; creamy to creamy; woody to woody; earthy to earthy; roasted and caramel to toasty; fermented and marine to savory; pungent to spice. Season and cuisine spokes have no wedge, so only the "Leaning ..." line shows. The old radar also drew every cone for categories the ingredient belongs to (season, cuisine, family); the wheel shows flavor notes only.

@@ -53,7 +53,7 @@ function buildCtx() {
 }
 
 describe('PairingModeCard', () => {
-  it('renders ingredient name + tier chips + radar', () => {
+  it('renders ingredient name + tier chips + wheel', () => {
     const node = {
       name: 'basil',
       taste: 'sweet',
@@ -68,12 +68,13 @@ describe('PairingModeCard', () => {
     expect(screen.getByTestId('pairing-card-aroma').textContent).toContain('green');
     expect(screen.getByTestId('pairing-card-taste').textContent).toContain('sweet');
     expect(screen.getByTestId('pairing-card-mouthfeel').textContent).toContain('fresh');
-    const radar = screen.getByTestId('pairing-card-radar');
-    expect(radar.getAttribute('data-filter-type')).toBe('taste');
-    expect(radar.getAttribute('data-chosen-axis')).toBe('sweet');
-    // Polygon renders for every node; sweet wedge gets a cone too.
-    expect(screen.getByTestId('pairing-card-radar-polygon')).toBeInTheDocument();
-    expect(screen.queryByTestId('pairing-card-cone-sweet')).toBeInTheDocument();
+    const chart = screen.getByTestId('pairing-card-chart');
+    expect(chart.getAttribute('data-filter-type')).toBe('taste');
+    expect(chart.getAttribute('data-chosen-axis')).toBe('sweet');
+    // WHEEL-1: the chart is the combined flavor wheel; the chosen spoke marks its wedge.
+    expect(screen.getByTestId('pairing-card-wheel')).toBeInTheDocument();
+    expect(screen.queryByTestId('pairing-card-radar-polygon')).toBeNull();
+    expect(screen.getByTestId('pairing-card-wedge-chosen').getAttribute('data-axis')).toBe('sweet');
   });
 
   it('renders empty placeholder when node is missing', () => {

@@ -23,14 +23,13 @@
  *   5. Stylized "chalkboard menu" table — Pairings / Cuisines / Season
  *   6. Tier chip rows — Aroma / Taste / Mouthfeel / Leaves
  *   7. Shared aroma compound chips — hidden if empty
- *   8. Polygon profile radar with colored axis labels
+ *   8. Flavor wheel (FlavorWheel: seventeen fixed wedges for this one ingredient's notes)
  */
 
 import React from 'react';
-import {
-  getAxesFor,
-  getColorMapFor,
-} from '../data/guidedRadarAxes.js';
+import FlavorWheel from './FlavorWheel.jsx';
+import { ingredientNoteBars, wheelAxisFor } from '../data/pairingCardData.js';
+import { NO_CHART_LINE, axisColor } from '../data/recipeProfileAnalysis.js';
 
 const FONT_HAND = "Caveat, cursive";
 
@@ -215,232 +214,42 @@ function AnalysisBlock({ analysis }) {
   );
 }
 
-// ── Polygon radar ──────────────────────────────────────────────────
+// ── Flavor wheel ───────────────────────────────────────────────────
 
-function axisAngle(i, n) {
-  return (Math.PI * 2 * i) / n - Math.PI / 2;
-}
-
-function valueForAxis(node, filterType, axisKey) {
-  if (!node || axisKey == null) return 0;
-  const key = String(axisKey).toLowerCase();
-  if (filterType === 'taste') {
-    const tokens = (node.taste || '').toLowerCase().split(/[\s,/]+/).filter(Boolean);
-    return tokens.includes(key) ? 1 : 0;
-  }
-  if (filterType === 'season') {
-    const tokens = (node.season || '').toLowerCase().split(/[\s,/-]+/).filter(Boolean);
-    return tokens.includes(key) ? 1 : 0;
-  }
-  if (filterType === 'aroma') {
-    const tier1 = node?.flavorGraph?.tier1;
-    if (Array.isArray(tier1) && tier1.some((t) => String(t).toLowerCase() === key)) return 1;
-    const gnnMap = {
-      fruity: 'odor_fruity',
-      floral: 'odor_floral',
-      green: 'odor_green',
-      woody: 'odor_woody',
-      creamy: 'odor_fatty',
-    };
-    const col = gnnMap[key];
-    if (col && node?.gnnProbs?.[col] != null) {
-      return Math.max(0, Math.min(1, node.gnnProbs[col]));
-    }
-    return 0;
-  }
-  if (filterType === 'cuisine') {
-    const list = Array.isArray(node?.cuisines) ? node.cuisines : [];
-    return list.some((c) => String(c).toLowerCase() === key) ? 1 : 0;
-  }
-  if (filterType === 'family') {
-    const cat = String(node?.category || '').toLowerCase();
-    return cat === key ? 1 : 0;
-  }
-  return 0;
-}
-
-function MiniRadar({ node, filterType, chosenAxis, size = 200 }) {
-  const axes = getAxesFor(filterType) || [];
-  const colorMap = getColorMapFor(filterType) || {};
-  const N = axes.length;
-  if (N === 0) return null;
-
-  // Internal viewBox stays at the nominal `size`; SVG is rendered at
-  // 100% width so the parent container drives the actual pixels. Card
-  // gets a dynamically-sized radar based on how much vertical room is
-  // left after the chip rows + analysis + compounds.
-  // B-version (2026-06-03): label cutoff fix — radius shrunk + label
-  // offset bumped so long aroma/cuisine names ('Fermented', 'Middle
-  // Eastern', 'East Asian') no longer clip the edge. Dynamic
-  // textAnchor (below) puts the anchor at the inner edge so the rest
-  // of the word grows outward, never past the SVG bounds.
-  const cx = size / 2;
-  const cy = size / 2;
-  const radius = size * 0.28;
-  const labelOffset = size * 0.075;
-  const chosenIdx = chosenAxis != null ? axes.indexOf(chosenAxis) : -1;
-  const gridLevels = [0.33, 0.66, 1.0];
-
-  const values = axes.map((ax, i) => {
-    let v = valueForAxis(node, filterType, ax);
-    if (i === chosenIdx) v = Math.max(v, 0.85);
-    return v;
-  });
-
-  const polygonPoints = values.map((v, i) => {
-    const a = axisAngle(i, N);
-    const r = v * radius;
-    return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
-  }).join(' ');
-
-  const gridPoints = (level) => axes.map((_, i) => {
-    const a = axisAngle(i, N);
-    const r = level * radius;
-    return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
-  }).join(' ');
-
-  const dotMarkers = values
-    .map((v, i) => ({ v, i }))
-    .filter((d) => d.v >= 0.5);
-
-  // Label font sizes bumped per user 2026-06-03 (+2-3px).
-  const fontSize = N > 8 ? 11 : 13;
-
+function NotesWheel({ node, filterType, chosenAxis }) {
+  const bars = ingredientNoteBars(node);
+  const wedge = wheelAxisFor(filterType, chosenAxis);
+  const leaning = chosenAxis ? String(chosenAxis).toLowerCase() : null;
   return (
-    <div className="flex flex-col items-center gap-0.5 w-full" style={{ maxWidth: size + 40 }}>
-      <svg
-        width="100%"
-        viewBox={`0 0 ${size} ${size}`}
-        preserveAspectRatio="xMidYMid meet"
-        style={{ display: 'block', height: 'auto' }}
-        role="img"
-        aria-label={`${filterType} radar for ${node.name}`}
-        data-testid="pairing-card-radar"
-        data-filter-type={filterType}
-        data-chosen-axis={chosenAxis || ''}
-      >
-        {gridLevels.map((level) => (
-          <polygon
-            key={level}
-            points={gridPoints(level)}
-            fill="none"
-            stroke={CHALK_BORDER_INNER + '88'}
-            strokeWidth={level === 1.0 ? 1 : 0.5}
-          />
-        ))}
-        {axes.map((_, i) => {
-          const a = axisAngle(i, N);
-          return (
-            <line
-              key={i}
-              x1={cx}
-              y1={cy}
-              x2={cx + radius * Math.cos(a)}
-              y2={cy + radius * Math.sin(a)}
-              stroke={CHALK_BORDER_INNER + '66'}
-              strokeWidth={0.5}
-            />
-          );
-        })}
-        {/* Per-axis cones: every axis where the node's value >= 0.5
-            gets a faint wedge in that axis's color. Cones make the
-            ingredient's category memberships legible at a glance.
-            The chosen axis gets a stronger wedge on top. */}
-        {values.map((v, i) => {
-          if (v < 0.5) return null;
-          const half = Math.PI / N;
-          const a = axisAngle(i, N);
-          const x0 = cx + radius * Math.cos(a - half);
-          const y0 = cy + radius * Math.sin(a - half);
-          const x1 = cx + radius * Math.cos(a + half);
-          const y1 = cy + radius * Math.sin(a + half);
-          const d = `M ${cx} ${cy} L ${x0} ${y0} A ${radius} ${radius} 0 0 1 ${x1} ${y1} Z`;
-          return (
-            <path
-              key={`cone-${i}`}
-              d={d}
-              fill={colorMap[axes[i]] || '#22d3ee'}
-              fillOpacity={0.18}
-              data-testid={`pairing-card-cone-${axes[i]}`}
-            />
-          );
-        })}
-        {chosenIdx >= 0 && (
-          <path
-            d={(() => {
-              const half = Math.PI / N;
-              const a = axisAngle(chosenIdx, N);
-              const x0 = cx + radius * Math.cos(a - half);
-              const y0 = cy + radius * Math.sin(a - half);
-              const x1 = cx + radius * Math.cos(a + half);
-              const y1 = cy + radius * Math.sin(a + half);
-              return `M ${cx} ${cy} L ${x0} ${y0} A ${radius} ${radius} 0 0 1 ${x1} ${y1} Z`;
-            })()}
-            fill={colorMap[chosenAxis] || '#22d3ee'}
-            fillOpacity={0.30}
-            stroke={colorMap[chosenAxis] || '#22d3ee'}
-            strokeWidth={1}
-          />
-        )}
-        <polygon
-          points={polygonPoints}
-          fill="rgba(34,211,238,0.28)"
-          stroke="#86e7f5"
-          strokeWidth={1.5}
-          data-testid="pairing-card-radar-polygon"
-        />
-        {dotMarkers.map(({ v, i }) => {
-          const a = axisAngle(i, N);
-          const r = v * radius;
-          return (
-            <circle
-              key={`dot-${i}`}
-              cx={cx + r * Math.cos(a)}
-              cy={cy + r * Math.sin(a)}
-              r={3}
-              fill={colorMap[axes[i]] || '#fb923c'}
-              stroke="#0a0a0f"
-              strokeWidth={1}
-            />
-          );
-        })}
-        {axes.map((label, i) => {
-          const a = axisAngle(i, N);
-          const cosA = Math.cos(a);
-          const sinA = Math.sin(a);
-          const tx = cx + (radius + labelOffset) * cosA;
-          const ty = cy + (radius + labelOffset) * sinA;
-          const isChosen = i === chosenIdx;
-          // Dynamic textAnchor: labels grow outward away from the
-          // center so long words never clip the SVG bounds. Left
-          // half (cos < -0.15) anchors 'end', right half (cos > 0.15)
-          // anchors 'start', vertical-axis labels (top/bottom) stay
-          // 'middle'.
-          const textAnchor = cosA > 0.15 ? 'start' : cosA < -0.15 ? 'end' : 'middle';
-          const dominantBaseline = sinA > 0.55 ? 'hanging' : sinA < -0.55 ? 'auto' : 'middle';
-          return (
-            <text
-              key={label}
-              x={tx}
-              y={ty}
-              textAnchor={textAnchor}
-              dominantBaseline={dominantBaseline}
-              fontSize={fontSize}
-              fontWeight={isChosen ? 700 : 600}
-              fill={colorMap[label] || CHALK_DIM}
-              style={{ fontFamily: FONT_HAND, letterSpacing: '0.04em' }}
-            >
-              {label}
-            </text>
-          );
-        })}
-      </svg>
-      {chosenAxis && (
+    <div
+      className="flex flex-col items-center gap-0.5 w-full"
+      data-testid="pairing-card-chart"
+      data-filter-type={filterType}
+      data-chosen-axis={chosenAxis || ''}
+      data-chosen-wedge={wedge || ''}
+    >
+      {bars.length === 0 ? (
+        <p
+          className="text-center text-[16px]"
+          style={{ color: CHALK_SUB, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
+          data-testid="pairing-card-no-chart"
+        >
+          {NO_CHART_LINE}
+        </p>
+      ) : (
+        <>
+          <FlavorWheel bars={bars} testidPrefix="pairing-card" highlight={wedge} maxWidth={250} />
+          <ol className="sr-only" data-testid="pairing-card-notes">
+            {bars.map((b) => <li key={b.axis}>{b.label}</li>)}
+          </ol>
+        </>
+      )}
+      {leaning && (
         <div
           className="text-[16px] italic"
           style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW }}
         >
-          Leaning <span style={{ color: colorMap[chosenAxis] || '#86e7f5' }}>{String(chosenAxis).toLowerCase()}</span>
+          Leaning <span style={{ color: wedge ? axisColor(wedge) : '#86e7f5' }}>{leaning}</span>
         </div>
       )}
     </div>
@@ -547,7 +356,7 @@ export default function PairingModeCard({
       </div>
       <CompoundList compounds={sharedCompounds} />
       <div className="mt-auto">
-        <MiniRadar
+        <NotesWheel
           node={node}
           filterType={filterType}
           chosenAxis={chosenAxis}

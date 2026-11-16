@@ -24,7 +24,7 @@ function sector(r0, r1, a0, a1) {
   return `M${pt(r1, a0)}A${r1} ${r1} 0 0 1 ${pt(r1, a1)}L${pt(r0, a1)}A${r0} ${r0} 0 0 0 ${pt(r0, a0)}Z`;
 }
 
-export default function FlavorWheel({ bars, testidPrefix = 'profile', marks = null }) {
+export default function FlavorWheel({ bars, testidPrefix = 'profile', marks = null, highlight = null, maxWidth = 320 }) {
   const p = testidPrefix;
   const wheel = flavorWheel(bars, 'card', { colors: COLORS });
   const placed = (marks || []).map((m, i) => {
@@ -34,12 +34,15 @@ export default function FlavorWheel({ bars, testidPrefix = 'profile', marks = nu
   const labelled = thinLabels(placed, { fontSize: FS - 1 });
   return (
     <div className="min-w-0">
-      <svg viewBox={`0 0 ${W} ${H}`} className="block mx-auto w-full" style={{ maxWidth: 320 }} role="img" aria-label="Flavor wheel" data-testid={`${p}-wheel`}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="block mx-auto w-full" style={{ maxWidth }} role="img" aria-label="Flavor wheel" data-testid={`${p}-wheel`}>
         {wheel.wedges.map((w) => <path key={`t-${w.axis}`} d={sector(R0, R, w.start, w.end)} fill="rgba(255,255,255,0.08)" />)}
         {wheel.wedges.filter((w) => w.on).map((w) => (
           <path key={w.axis} data-testid={`${p}-wedge-${w.axis}`} d={sector(R0, R0 + (R - R0) * w.drawn, w.start, w.end)} fill={w.color || CHALK_SUB} />
         ))}
-        {wheel.wedges.filter((w) => w.labelled).map((w) => {
+        {wheel.wedges.filter((w) => w.axis === highlight).map((w) => (
+          <path key="hl" data-testid={`${p}-wedge-chosen`} data-axis={w.axis} d={sector(R0 - 2, R + 2, w.start, w.end)} fill="none" stroke={CHALK_CREAM} strokeWidth={1.6} />
+        ))}
+        {wheel.wedges.filter((w) => w.labelled || w.axis === highlight).map((w) => {
           const mid = (w.mid * Math.PI) / 180, c = Math.cos(mid), sn = Math.sin(mid);
           const rr = R + 7 + (Math.abs(c) < 0.5 && w.index % 2 ? 11 : 0);
           const x = CX + c * rr;

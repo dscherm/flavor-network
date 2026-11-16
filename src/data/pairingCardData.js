@@ -6,6 +6,9 @@
  * compound-lookup + analysis logic.
  */
 
+import { nodeProbs, AXES, axisLabel, axisColor } from './recipeProfileAnalysis.js';
+import { rankAxes, axisGroup, FLOOR } from './flavorDisplay.js';
+
 export function hydrateNode(name, ctx) {
   const node = ctx?.graph?.nodes?.get?.(name);
   if (!node) return { name };
@@ -123,6 +126,42 @@ export function buildAnalysis(focal, pairingNode, strength, sharedCompounds) {
     s2 = `Pairing accentuates ${accents.join(' + ')} notes.`;
   }
   return s2 ? `${s1} ${s2}` : s1;
+}
+
+/**
+ * One ingredient's notes for the card's flavor wheel: the bars (strongest first, the display rule's order) from
+ * recipeProfileAnalysis.nodeProbs, the same per-ingredient values flavorMarks.js reads. [] when the ingredient has no
+ * flavor data (or every note is under the floor), which the card shows as NO_CHART_LINE.
+ */
+export function ingredientNoteBars(node) {
+  if (!node?.name) return [];
+  const p = nodeProbs(node.name, new Map([[node.name, node]]));
+  if (!p) return [];
+  const scores = Object.fromEntries(AXES.map((a) => [a, Number(p[a]) || 0]));
+  return rankAxes(scores, { floor: FLOOR }).map((axis) => ({
+    axis, label: axisLabel(axis), color: axisColor(axis), score: scores[axis], group: axisGroup(axis),
+  }));
+}
+
+/**
+ * Which wheel wedge a Pairing Lab (filterType, chosenAxis) spoke marks. The old radar's spokes were chef words;
+ * the wheel has seventeen notes, so a spoke maps to the nearest one. null when no wedge stands for it
+ * (season, cuisine, astringent): the card then keeps only its "Leaning ..." line.
+ */
+const SPOKE_TO_WHEEL = {
+  taste: {
+    sweet: 'sweet', sour: 'sour', bitter: 'bitter', salty: 'salty', umami: 'umami',
+    spicy: 'heat', pungent: 'heat',
+  },
+  aroma: {
+    citrus: 'odor_fruity', fruity: 'odor_fruity', floral: 'odor_floral', herbal: 'odor_green', green: 'odor_green',
+    creamy: 'odor_fatty', woody: 'odor_woody', earthy: 'odor_earthy', roasted: 'odor_toasty', caramel: 'odor_toasty',
+    fermented: 'odor_savory', marine: 'odor_savory', pungent: 'odor_spicy',
+  },
+};
+export function wheelAxisFor(filterType, chosenAxis) {
+  if (!chosenAxis) return null;
+  return SPOKE_TO_WHEEL[filterType]?.[String(chosenAxis).toLowerCase()] || null;
 }
 
 // Pairing-lab lens → PairingModeCard radar filterType.
