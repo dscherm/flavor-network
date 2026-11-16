@@ -1,7 +1,9 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase.js';
-import { saveInvention as saveInventionInto, deleteInvention as deleteInventionFrom } from '../data/savedInventions.js';
+import { saveInvention as saveInventionInto, deleteInvention as deleteInventionFrom, PROFILE_FIELD } from '../data/savedInventions.js';
+import { newItemId } from '../data/inventSaved.js';
+import { cleanPictureField, prepareItemPicture, dropPicture } from '../data/pictureStore.js';
 
 const STORAGE_KEY = 'flavor-user-profile-v2';
 
@@ -64,6 +66,8 @@ function normalizeRecipe(recipe) {
     ...(typeof recipe.cuisine === 'string' && recipe.cuisine ? { cuisine: recipe.cuisine } : {}),
     ...(recipe.source === 'invent' ? { source: 'invent' } : {}),
     ...(typeof recipe.sharedFrom === 'string' && recipe.sharedFrom ? { sharedFrom: recipe.sharedFrom } : {}),
+    // PICTURE-3: the picture field must survive every load, local and cloud (a normaliser once dropped `shares`).
+    ...(cleanPictureField(recipe.picture) ? { picture: cleanPictureField(recipe.picture) } : {}),
   };
 }
 
@@ -402,7 +406,26 @@ export default function useUserProfile(user) {
     return res;
   }, []);
 
+  // With a picture (PICTURE-3): the chooser value rides in input.picture (undefined = leave it, null = none,
+  // { kind:'icon', icon } or { kind:'chalk', blob, mime, w, h }). The chalk document is written FIRST; if that
+  // fails the item is still saved, without the picture, and `pictureReason` is one plain line to show.
+  // A picture document with no item (the item write failed after it) is an orphan only its owner can read; it is removed here.
+  const uid = user?.uid || '';
+  const saveInventionWithPicture = useCallback(async (input) => {
+    const kind = input?.kind;
+    const id = input?.id || newItemId();
+    const list = Array.isArray(profileRef.current?.[PROFILE_FIELD[kind]]) ? profileRef.current[PROFILE_FIELD[kind]] : [];
+    const prev = cleanPictureField(list.find((x) => x?.id === id)?.picture);
+    const prep = await prepareItemPicture({ db, uid, itemId: id, value: input?.picture, prev });
+    const res = saveInvention({ ...input, id, picture: prep.field });
+    if (!res.ok && input?.picture?.kind === 'chalk' && !prep.reason && prev?.kind !== 'chalk') await dropPicture({ db, uid, itemId: id });
+    if (res.ok && prep.obsolete) await dropPicture({ db, uid, itemId: id });
+    return prep.reason ? { ...res, pictureReason: prep.reason } : res;
+  }, [uid, saveInvention]);
+
   const deleteInvention = useCallback((kind, id) => {
+    const list = profileRef.current?.[PROFILE_FIELD[kind]];
+    const had = (Array.isArray(list) ? list : []).find((x) => x?.id === id);
     const next = deleteInventionFrom(profileRef.current, kind, id);
     try {
       saveLocalProfile(next);
@@ -411,8 +434,9 @@ export default function useUserProfile(user) {
     }
     profileRef.current = next;
     setProfile(next);
+    if (had?.picture?.kind === 'chalk' && uid) dropPicture({ db, uid, itemId: id });
     return true;
-  }, []);
+  }, [uid]);
 
   // --- Shared links (SHARE-6): the cook's live public copies, kept so they can be listed and taken down ---
   const addShare = useCallback((entry) => {
@@ -562,6 +586,7 @@ export default function useUserProfile(user) {
     removeSauce,
     updateSauce,
     saveInvention,
+    saveInventionWithPicture,
     deleteInvention,
     addShare,
     removeShare,

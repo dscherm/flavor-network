@@ -72,6 +72,28 @@ A link pasted into a chat shows a preview card, 1200 by 630 pixels, made by the 
 
 Every card prints the link. On a phone that supports it the button is "Share images" (opens the phone's share sheet); otherwise it is "Download images".
 
+## Pictures: what is stored and where (PICTURE-3, storage only; nothing is deployed)
+
+A recipe can carry a picture: either one of the app's chalk drawings, or a photo the person turned into a chalk drawing in their browser. **The original photo never leaves the device.** Only the finished chalk drawing is stored, as a small WebP (or JPEG) image, at most about 150 KB.
+
+Where each part lives:
+
+- **On the saved item** (inside the person's own profile record): `picture`, which is only a label. A drawing is stored as its name (for example `glass:coupe`). A chalk photo is stored as `{ kind: chalk, v }`, where `v` is a number that changes whenever the picture changes. The image itself is NOT in the profile record, because a profile record must stay far below Firestore's 1 MB limit.
+- **Their own chalk picture**: its own document, `profiles/{their account id}/pictures/{item id}`, holding the image as text (base64), its type, width, height and time. Only that person can read or write it.
+- **The picture of a shared copy**: its own document, `sharedPictures/{link id}`, holding the same, plus the owner's account id. The shared recipe record `shared/{link id}` carries only `picture: { kind: chalk }` or `picture: { kind: icon, icon: name }`, never image data.
+
+Caps, enforced by `firestore.rules` and again by the app before it writes: the image text must be shorter than 210,000 characters (about 150 KB of image); type `image/webp` or `image/jpeg`; width and height whole numbers from 16 to 2,000; no other fields. Older shared copies have no `picture` and stay valid.
+
+Who can read a shared picture: anyone who has the link id, only while the share is live. Nobody can list pictures. Once a share is removed (the owner unshares, or you set `removed` to `true` in the console) everyone except the owner is refused. Unsharing also deletes the picture document; if that clean-up fails, the leftover can be read only by its owner.
+
+Write order and half-finished states: the rules read the share record as it will be AFTER the write, so the app saves the share and its picture in one batch, and both land or neither does. A share that says it has a chalk picture can therefore not exist without one. If that batch fails (offline, too large), the app publishes the link without the picture and tells the person in one line. For a saved item the picture document is written first and the item second; if the item cannot be saved afterwards the app deletes the picture, and if even that fails the leftover is a document only its owner can read.
+
+Failure never blocks the main action: a picture that cannot be stored means the item is still saved and the link is still made, without it.
+
+**Deploy targets for this part:** `firestore:rules` (new `profiles/{uid}/pictures` and `sharedPictures` rules, and the optional `picture` key on `shared`) and `hosting` (the app code). Not the functions: they do not read pictures yet (the server card is PICTURE-4). Deploy the rules before the hosting that writes pictures, or the writes are refused and every picture is left out with the one-line notice. Test the rules locally with `npm run test:rules` (emulator, `demo-` project).
+
+To see or remove a picture by hand: Firebase console, Firestore Database, Data, collection `sharedPictures` (document name = link id) or `profiles`, a person's document, subcollection `pictures`. Deleting a `sharedPictures` document removes it from every link and card within the caching window above.
+
 ## Before you deploy
 
 **The flavor chart on cards was rebuilt (FLAVOR-2 to FLAVOR-6), but check it before you deploy.** The chart is now built from a taste label and aroma notes for each ingredient, weighted by amount, and is labelled "a visual guide". It leads with the right taste on 36 of 41 test recipes and 19 of 20 held-back ones (`docs/flavor-profile.md`, "Where the charts stand"), which means it is still wrong on some. The nine cards looked at in FLAVOR-6 are described there; Margarita, Mojito, Thai green curry and Teriyaki are the ones a cook might wince at. The switch to hide it again is `SHARE_CHARTS_ENABLED`.

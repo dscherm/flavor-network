@@ -14,9 +14,10 @@
  * (the uid) is stored for the rules, unshare and takedown and is never shown.
  *
  * Document: { kind: 'cocktail'|'sauce'|'recipe', name, lines: [{ key, amount, role? }], method?, glass?,
- *   category?, protein?, bars: [{ label, color, score }], by: string|null, owner, createdAt: number, removed: false }
+ *   category?, protein?, picture?: { kind:'icon', icon } | { kind:'chalk' }, bars: [{ label, color, score }], by: string|null, owner, createdAt: number, removed: false }
  */
 import { SHARE_CHARTS_ENABLED } from './shareTargets.js';
+import { sharedPictureField } from './pictureField.js';
 
 export const SHARE_LIMITS = Object.freeze({
   name: 80, by: 30, lines: 40, key: 60, amount: 30, role: 30, method: 2000,
@@ -80,15 +81,17 @@ function cleanContent(x) {
 
 /**
  * @param {object} item  saved-item shape { name, lines:[{key,amount,role}], method?, glass?, category?, protein? }
- * @param {{ kind: 'cocktail'|'sauce'|'recipe', uid: string, by?: string|null, bars?: object[], now?: number }} ctx
+ * @param {{ kind: 'cocktail'|'sauce'|'recipe', uid: string, by?: string|null, bars?: object[], now?: number, picture?: object|null }} ctx
+ *   picture: defaults to the item's own `picture` field; only its kind (and icon id) is copied, never `v` or any image data
  * @returns {object|null}
  */
-export function toSharedDoc(item, { kind, uid, by = null, bars = [], now = Date.now() } = {}) {
+export function toSharedDoc(item, { kind, uid, by = null, bars = [], now = Date.now(), picture } = {}) {
   if (!item || typeof item !== 'object' || !SHARE_DOC_KINDS.includes(kind)) return null;
   if (typeof uid !== 'string' || !uid) return null;
   const c = cleanContent(item);
   if (!c.name || !c.lines.length) return null;
   const who = oneLine(by, SHARE_LIMITS.by);
+  const pic = sharedPictureField(picture === undefined ? item.picture : picture);
   return {
     kind,
     name: c.name,
@@ -98,6 +101,7 @@ export function toSharedDoc(item, { kind, uid, by = null, bars = [], now = Date.
     ...(c.category ? { category: c.category } : {}),
     ...(c.protein ? { protein: c.protein } : {}),
     bars: SHARE_CHARTS_ENABLED ? cleanBars(bars) : [],
+    ...(pic ? { picture: pic } : {}),
     by: who || null,
     owner: uid,
     createdAt: typeof now === 'number' && Number.isFinite(now) ? now : Date.now(),
@@ -130,6 +134,7 @@ export function fromSharedDoc(doc, id) {
     category: docKind === 'cocktail' ? null : (c.category || null),
     categoryId: c.category || null,
     by: by || null,
+    ...(sharedPictureField(doc.picture) ? { picture: sharedPictureField(doc.picture) } : {}),
   };
 }
 

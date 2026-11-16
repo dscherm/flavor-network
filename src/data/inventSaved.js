@@ -9,11 +9,17 @@
  *   lines: [{ key, amount, role }],        amount '' when none; role null when none
  *   method?, glass?, protein?,             only present when given
  *   sharedFrom?,                           '<kind>/<slug>' of the shared recipe it was saved from
+ *   picture?: { kind:'icon', icon, v } | { kind:'chalk', v }   see pictureField.js; a chalk picture's image is in profiles/{uid}/pictures/{id}
  *   source: 'invent',
  * }
  */
+import { cleanPictureField } from './pictureField.js';
+
 export const SAVED_LIMITS = Object.freeze({ perKind: 200, name: 80 });
 export const SAVED_KINDS = Object.freeze(['cocktail', 'sauce', 'recipe']);
+
+/** A fresh item id: letters, digits and hyphens only (it is also the picture document's name). */
+export const newItemId = (now = Date.now()) => `inv-${now.toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
 const text = (v) => (typeof v === 'string' ? v.trim() : '');
 
@@ -44,7 +50,7 @@ export function toSavedItem(input, { now = Date.now(), makeId } = {}) {
   if (name.length > SAVED_LIMITS.name) return fail(`Keep the name to ${SAVED_LIMITS.name} characters.`);
   const lines = cleanLines(x.lines);
   if (lines.length < 2) return fail('Add at least two ingredients first.');
-  const gen = makeId || (() => `inv-${now.toString(36)}-${Math.random().toString(36).slice(2, 8)}`);
+  const gen = makeId || (() => newItemId(now));
   const item = {
     id: x.id || gen(),
     name,
@@ -56,6 +62,7 @@ export function toSavedItem(input, { now = Date.now(), makeId } = {}) {
     ...(text(x.glass) ? { glass: text(x.glass) } : {}),
     ...(text(x.protein) ? { protein: text(x.protein) } : {}),
     ...(text(x.sharedFrom) ? { sharedFrom: text(x.sharedFrom) } : {}),
+    ...(cleanPictureField(x.picture) ? { picture: cleanPictureField(x.picture) } : {}),
     source: 'invent',
   };
   return { ok: true, item };
@@ -91,7 +98,9 @@ export function cleanSavedList(maybeArray) {
   for (const it of maybeArray) {
     if (!isValid(it) || seen.has(it.id)) continue;
     seen.add(it.id);
-    out.push({ ...it, name: text(it.name).slice(0, SAVED_LIMITS.name), lines: cleanLines(it.lines) });
+    const { picture, ...rest } = it;
+    const pic = cleanPictureField(picture);
+    out.push({ ...rest, name: text(it.name).slice(0, SAVED_LIMITS.name), lines: cleanLines(it.lines), ...(pic ? { picture: pic } : {}) });
     if (out.length >= SAVED_LIMITS.perKind) break;
   }
   return out;

@@ -16,6 +16,7 @@
 import {
   SAVED_LIMITS, toSavedItem, cleanSavedList, upsertSaved, removeSaved,
 } from './inventSaved.js';
+import { cleanPictureField } from './pictureField.js';
 import { recommendCategory } from './inventBuild.js';
 import { cocktailSkeleton } from './cocktailInvent.js';
 import { INVENT_STYLES, INVENT_STYLE_BY_ID, sauceSkeleton } from './inventSauce.js';
@@ -46,6 +47,7 @@ export function recipeFromItem(item) {
     ...(item.method ? { instructions: item.method } : {}),
     ...(item.cuisine ? { cuisine: item.cuisine } : {}),
     ...(item.sharedFrom ? { sharedFrom: item.sharedFrom } : {}),
+    ...(cleanPictureField(item.picture) ? { picture: cleanPictureField(item.picture) } : {}),
     source: 'invent',
   };
 }
@@ -55,7 +57,8 @@ const sameName = (a, b) => text(a?.name).toLowerCase() === text(b?.name).toLower
 /**
  * Save an invention into a profile (returns a NEW profile; nothing else in it changes).
  * @param {object} profile
- * @param {{ kind, id?, name, category?, lines, method?, glass?, protein?, cuisine? }} input
+ * @param {{ kind, id?, name, category?, lines, method?, glass?, protein?, cuisine?, picture? }} input
+ *   picture: the stored field { kind, icon?, v } (pictureField.js); undefined keeps the item's current one, null clears it
  * @param {{ now?: number, makeId?: () => string }} [ctx]
  * @returns {{ ok: boolean, profile: object, item: object|null, reason?: string }}
  */
@@ -65,6 +68,12 @@ export function saveInvention(profile, input, ctx = {}) {
   if (!made.ok) return { ok: false, profile: base, item: null, reason: made.reason };
   const { item } = made;
   const field = PROFILE_FIELD[item.kind];
+  // An edit that does not mention the picture keeps the one the item already has (null removes it).
+  if (input?.picture === undefined && item.id) {
+    const was = asList(base[field]).find((x) => x?.id === item.id);
+    const kept = cleanPictureField(was?.picture);
+    if (kept) item.picture = kept;
+  }
 
   if (item.kind === 'recipe') {
     const recipe = recipeFromItem({ ...item, cuisine: text(input?.cuisine) });

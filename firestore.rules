@@ -3,6 +3,28 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /profiles/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // PICTURE-3. A chalk picture for one saved item, in its OWN document so the profile document
+      // never carries image data (Firestore's 1 MB limit). Readable and writable by that user only,
+      // in exactly this shape. data is base64 of a WebP/JPEG re-encoded in the browser: under 210,000
+      // characters (about 150 KB of image). The original photo is never stored.
+      match /pictures/{itemId} {
+        function validPicture() {
+          let d = request.resource.data;
+          return d.keys().hasOnly(['data', 'mime', 'w', 'h', 'updatedAt'])
+            && d.keys().hasAll(['data', 'mime', 'w', 'h', 'updatedAt'])
+            && itemId.size() <= 80
+            && itemId.matches('[A-Za-z0-9_-]+')
+            && d.data is string && d.data.size() > 0 && d.data.size() < 210000
+            && d.mime in ['image/webp', 'image/jpeg']
+            && d.w is int && d.w >= 16 && d.w <= 2000
+            && d.h is int && d.h >= 16 && d.h <= 2000
+            && d.updatedAt is number;
+        }
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow create, update: if request.auth != null && request.auth.uid == userId && validPicture();
+        allow delete: if request.auth != null && request.auth.uid == userId;
+      }
     }
 
     // Bar-photo scan codes and their daily counters: only the scanBar Cloud
@@ -31,7 +53,7 @@ service cloud.firestore {
       }
       function validNew() {
         let d = request.resource.data;
-        return d.keys().hasOnly(['kind', 'name', 'lines', 'method', 'glass', 'category', 'protein', 'bars', 'by', 'owner', 'createdAt', 'removed'])
+        return d.keys().hasOnly(['kind', 'name', 'lines', 'method', 'glass', 'category', 'protein', 'bars', 'by', 'owner', 'createdAt', 'removed', 'picture'])
           && d.keys().hasAll(['kind', 'name', 'lines', 'bars', 'by', 'owner', 'createdAt', 'removed'])
           && id.size() == 10
           && id.matches('[a-z0-9]+')
@@ -47,7 +69,17 @@ service cloud.firestore {
           && optStr(d, 'method', 2000)
           && optStr(d, 'glass', 60)
           && optStr(d, 'category', 60)
-          && optStr(d, 'protein', 60);
+          && optStr(d, 'protein', 60)
+          && validPictureField(d);
+      }
+      // PICTURE-3. Optional. { kind: 'icon', icon } (a drawing's id) or { kind: 'chalk' } (the picture is
+      // in sharedPictures/{id}). Absent on older documents, which stay valid.
+      function validPictureField(d) {
+        return !('picture' in d)
+          || (d.picture is map
+            && ((d.picture.kind == 'icon' && d.picture.keys().hasOnly(['kind', 'icon']) && d.picture.keys().hasAll(['kind', 'icon'])
+                && str(d.picture.icon, 40) && d.picture.icon.size() > 0)
+              || (d.picture.kind == 'chalk' && d.picture.keys().hasOnly(['kind']))));
       }
 
       // A removed share is not readable by id any more, except by its owner.
@@ -58,6 +90,44 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['removed'])
         && request.resource.data.removed == true;
       allow delete: if ownerOnly();
+    }
+
+    // PICTURE-3. The chalk picture of a shared copy; the document id is the share's id. Anyone with the
+    // id may get it while the share is live; nobody may list. Created only by the signed-in owner of that
+    // share (the rules read shared/{id} AFTER the write, so the share and its picture can go in one batch
+    // and a half-written state cannot exist), in exactly this shape, within the size cap. Never updated.
+    // Once the share is removed only its owner can still read the picture; the owner may delete it.
+    match /sharedPictures/{id} {
+      function sharePath() {
+        return /databases/$(database)/documents/shared/$(id);
+      }
+      function sharePicture() {
+        let d = request.resource.data;
+        let s = getAfter(sharePath()).data;
+        return d.keys().hasOnly(['data', 'mime', 'w', 'h', 'owner', 'createdAt'])
+          && d.keys().hasAll(['data', 'mime', 'w', 'h', 'owner', 'createdAt'])
+          && id.size() == 10
+          && id.matches('[a-z0-9]+')
+          && d.owner == request.auth.uid
+          && existsAfter(sharePath())
+          && s.owner == request.auth.uid
+          && s.removed == false
+          && s.get('picture', null) != null
+          && s.picture.kind == 'chalk'
+          && d.data is string && d.data.size() > 0 && d.data.size() < 210000
+          && d.mime in ['image/webp', 'image/jpeg']
+          && d.w is int && d.w >= 16 && d.w <= 2000
+          && d.h is int && d.h >= 16 && d.h <= 2000
+          && d.createdAt is number
+          && d.createdAt < request.time.toMillis() + 86400000;
+      }
+      allow get: if exists(sharePath())
+        && (get(sharePath()).data.removed != true
+          || (request.auth != null && get(sharePath()).data.owner == request.auth.uid));
+      allow list: if false;
+      allow create: if request.auth != null && sharePicture();
+      allow update: if false;
+      allow delete: if request.auth != null && (resource == null || resource.data.owner == request.auth.uid);
     }
 
     // SHARE-7. Reports about a shared recipe. Anyone may create one (signed in or not), in exactly this
