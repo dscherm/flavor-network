@@ -2711,7 +2711,7 @@ AROMA-1, AROMA-2, AROMA-3, AROMA-4. Taste numbers must not move.
   "id": "CHART-1",
   "title": "Explore, with the owner, how the flavor graphs should change for six tastes and eleven aromas",
   "category": "design",
-  "passes": false,
+  "passes": true,
   "description": "Owner, 2026-11-16: 'explore and brainstorm how we should change the graphs for the widening number of aromas. You can wait to do this once we have the data right.' Starts only after AROMA-3 (eleven aroma axes with real values). An exploration, not a build: survey every place a flavor graph appears (Recipe Notebook overview bars, flavor-map radar, per-axis pages, boost and temper, invent panels, Cookbook radar, ingredient panel, shared page, share cards in three sizes) and what each is for; then show the owner several candidate designs drawn with REAL data for the same five recipes (a spirit-forward drink, a sour, a rich sauce, a spiced dish, a dessert), for example: grouped bars with only the strongest shown; two small wheels (taste and aroma); one wheel with aroma families as sectors; a short written 'tasting note' line with a small chart; a ranked chip list. Each shown at phone width and on a share card, with what it makes easy and what it hides. The owner picks; the choice becomes a spec and build tasks. AROMA-4's bar rule is an interim so charts stay readable until then, not the final design.",
   "acceptance": [
     "Every existing graph surface is listed with its purpose and what breaks at seventeen axes",
@@ -2735,6 +2735,114 @@ AROMA-1, AROMA-2, AROMA-3, AROMA-4. Taste numbers must not move.
     "Opening and closing works by tap and keyboard; 375px with no horizontal overflow; 44px targets; no extra large download when a card is opened (state what is fetched)",
     "User-made and invented items show a profile from their own lines and amounts",
     "npm run gate green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
+
+## 2026-11-15 — Flavor graphs: tasting note with strips, swipe to the wheel; bars in the Notebook; fixed grid on suggestions
+
+Spec: `.schermness/spec.md` → "Flavor graphs for six tastes and eleven aromas". Owner's choice
+after CHART-1's options page, verbatim: "Do d. But then also allow users to swipe to see c. A
+on recipe note book.  F on suggestion grid". Order: CHART-2 (pure pieces), CHART-3 (components
+and the swipe, in-app surfaces), then CHART-4 (cards), CHART-5 (Recipe Notebook), CHART-6
+(suggestion cards) one at a time, CHART-7 last. No score changes anywhere.
+
+```json
+{
+  "id": "CHART-2",
+  "title": "The pure pieces: tasting-note sentence, strips, the fixed wheel and the fixed grid",
+  "category": "feature",
+  "passes": false,
+  "description": "Add to the display-rule family (src/data/, pure, no imports beyond flavorDisplay.js, so the share card layout can be copied into the Cloud Functions package): flavorNote(bars) -> { lead, behind, text } (the two strongest notes, or one 'above all' when the strongest is at least twice the second; up to three more 'behind'; a plain fallback under two notes; names notes only, never an ingredient); flavorStrips(bars) -> taste and aroma rows of segments on ONE shared scale (segment length = score over the larger group total), with a stated width threshold for labelling a segment; flavorWheel(bars, size) -> seventeen wedges in fixed positions (aromas clockwise from the top, tastes on the upper left, two gaps), length scaled to the recipe's strongest note, and which wedges get a label at each size; flavorGrid(bars) -> seventeen fixed cells (six tastes; eleven aromas as six and five) with a dot radius or absent. Ordering, floor, labels and colours come from flavorDisplay.js and recipeScoring.js and are not redefined. Reference drawing code: docs/prototypes/flavor-graph-options.html.",
+  "acceptance": [
+    "Unit tests on real profiles for Old Fashioned ('Woody and sweet, with bitter, spice and toasty behind.'), Hollandaise ('Creamy above all, with sour, salty and nutty behind.'), Margarita, Thai Green Curry and Tiramisu, computed through profileForRecipe, not typed in",
+    "Edge cases tested: no bars, one bar, ties (broken by compareBars), a profile with tastes only and aromas only",
+    "Strips: the weaker group's row is shorter than the stronger group's; segment lengths sum to the group total over the shared scale",
+    "Wheel and grid: every axis has the same position for every recipe (test over all built-in recipes); a test fails if an axis outside the seventeen appears",
+    "npm run measure:flavor and its --truth, --aroma, --aroma-blind, --aroma-chef modes print the same numbers as before (stated); npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "CHART-3",
+  "title": "The note-and-strips chart with a swipe to the wheel, on the shared page, invent panels and Flavor profile button",
+  "category": "ui",
+  "passes": false,
+  "description": "FlavorNote.jsx (sentence with each note underlined in its colour, Taste and Aroma strips), FlavorWheel.jsx (design C as SVG with a one-line key saying which part is taste), FlavorSwipe.jsx (two pages: note first, wheel second; touch swipe, two dots that are buttons, left and right arrow keys; height does not jump between pages; no slide animation under prefers-reduced-motion). A visually hidden ranked list gives screen readers the same content. Replace the bar chart with FlavorSwipe on: the shared recipe page, the three invent panels, and the sheet opened by the Flavor profile button on recipe cards. Keep the 'a guide, not a taste test' label, the 'not counted' line and the not-enough-data state exactly as they are.",
+  "acceptance": [
+    "Each of the three surfaces opens on the sentence with strips and reaches the wheel by swipe, by the dots and by keyboard (component tests)",
+    "The sentence on the shared page, in an invent panel and behind the Flavor profile button is identical for two named recipes (test)",
+    "Not-enough-data and no-data states still draw no chart and say why",
+    "Looked at in a browser at 375px for a drink, a sauce and a dish, both pages; described honestly, including whether wheel labels collide; no horizontal overflow; 44px targets",
+    "npm run gate green; nothing deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "CHART-4",
+  "title": "Share cards show the tasting note with strips",
+  "category": "feature",
+  "passes": false,
+  "description": "shareCardLayout.js draws design D in place of the capped bars on the link-preview (1200x630), portrait (1080x1350) and tall (1080x1920) cards, in the browser canvas and on the server card (regenerate cardLayout.generated.ts through scripts/buildShareIndex.mjs; never hand-edit generated files). The first card of the set of three shows D and the wheel together. Stored bars on a user's published copy stay within the rules' limit (at most 11 bars): state whether the sentence and strips can be drawn from the stored bars alone, and if not, what is stored instead and the rules change needed (rules tests on the emulator only). share-cards.json regenerated.",
+  "acceptance": [
+    "Server and browser cards for a drink, a sauce and a dish were rendered to PNG and looked at; each is described honestly, including sentence wrapping beside a long recipe name and whether segment labels are readable",
+    "The sentence on the server card equals the shared page's for the same recipe (functions test)",
+    "A user's published copy draws the same sentence as the owner saw in the share sheet (test); any rules change has emulator tests",
+    "Cards for recipes with no chart look exactly as before (layout test)",
+    "Functions tests, rules tests and npm run gate green; functions and rules not deployed without the owner's go-ahead"
+  ]
+}
+```
+
+```json
+{
+  "id": "CHART-5",
+  "title": "Recipe Notebook: bars stay on the overview; the flavor map becomes the fixed wheel",
+  "category": "ui",
+  "passes": false,
+  "description": "The overview page keeps ranked bars (design A: six tastes and six aromas, 'show all'), now as the chosen design and no longer an interim: update the comments in flavorDisplay.js and the docs to say so. The flavor-map page draws FlavorWheel (seventeen fixed wedges) in place of the radar whose spokes change by recipe. Per-note pages and 'more of' / 'less of' are untouched. The owner did not rule on the flavor-map page; this is the assistant's default (spec Decision 7) and is reported as such.",
+  "acceptance": [
+    "The overview shows the same bars as before for two named recipes (test unchanged or equivalent)",
+    "The flavor map shows the fixed wheel; wedge positions are identical for two different recipes (test)",
+    "Looked at in a browser at 375px with a recipe of three ingredients and one of ten; described honestly",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "CHART-6",
+  "title": "Suggestion cards: before and after as two fixed grids",
+  "category": "ui",
+  "passes": false,
+  "description": "On the add and swap suggestion cards the small before-and-after radar (three and three spokes) is replaced by FlavorGrid.jsx drawn twice, before and after, with the notes that move most marked (a ring or arrow on the cells whose score changes by more than a stated amount). Both grids use ONE scale (the larger of the two profiles' strongest notes) so a dot that grows really is stronger. Labels only where there is room; a text line names the two notes that move most.",
+  "acceptance": [
+    "For a named recipe and a named added ingredient, the cells that change match the profile difference computed by the existing delta code (test)",
+    "Both grids share one scale (test: an unchanged note has the same dot size in both)",
+    "Looked at in a browser at 375px on an add card and a swap card; described honestly, including legibility of the smallest dots",
+    "npm run gate green"
+  ]
+}
+```
+
+```json
+{
+  "id": "CHART-7",
+  "title": "Flavor graphs: docs, cleanup and the final pass",
+  "category": "chore",
+  "passes": false,
+  "description": "docs/flavor-profile.md gains a 'Graphs' section: which design is on which surface and why, the sentence rule, the shared strip scale, the wheel and grid layouts, and that nothing about the scores changed. Remove chart code no surface uses any more (old radar axis selection, unused SURFACES entries) with a test that each remaining entry has a caller. CLOSEOUT.md unreleased entry, README and BACKLOG.md updated (left out on purpose: Cookbook card wheel and ingredient panel on the seventeen notes; tappable wedges). Final pass at 375px across the shared page, an invent panel, the Flavor profile button, the Recipe Notebook and a suggestion card. All flavor measures re-run and recorded as unchanged.",
+  "acceptance": [
+    "docs/flavor-profile.md describes exactly what the code draws on each surface",
+    "A test asserts one recipe leads with the same notes on the shared page, an invent panel, a server card, the Recipe Notebook overview and the wheel",
+    "All measures printed and unchanged from before CHART-2 (taste 36/41 and 19/20; aroma modes as recorded)",
+    "What was and was not looked at for real is stated (a phone, live cards, signed-in flows)",
+    "npm run gate, functions and rules tests green; nothing deployed without the owner's go-ahead"
   ]
 }
 ```

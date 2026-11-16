@@ -1,0 +1,370 @@
+<title>Flavor Graph Options</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column; a sticky recipe switcher; each design is a section with a phone mock and a card mock side by side. */
+:root {
+  --bg: #f2f3ef; --surface: #ffffff; --fg: #1c211f; --muted: #5a625d; --line: #d3d7d0; --accent: #2b6b5a; --accent-fg: #ffffff;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --app: "Inter", "Segoe UI", system-ui, sans-serif;
+  /* the app's own chalkboard colours, the same in both themes because the mock-ups depict the app */
+  --slate: #1c1c1c; --chalk: #efe7d6; --chalk-dim: #a49d8f; --slate-line: #3a3a37; --slate-track: #2a2a28;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #111312; --surface: #191c1a; --fg: #e8ebe5; --muted: #9aa29c; --line: #2c312e; --accent: #7fc8ae; --accent-fg: #0f1412; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #111312; --surface: #191c1a; --fg: #e8ebe5; --muted: #9aa29c; --line: #2c312e; --accent: #7fc8ae; --accent-fg: #0f1412; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; display: flex; flex-direction: column; gap: 28px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.9rem, 5vw, 2.7rem); line-height: 1.05; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 1.45rem; line-height: 1.15; margin: 0; text-wrap: balance; }
+h3 { font-family: var(--body); font-weight: 600; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+p { margin: 0; max-width: 65ch; }
+.lede { color: var(--muted); font-size: 1.05rem; }
+header.top { display: flex; flex-direction: column; gap: 10px; }
+
+.switch { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); margin-inline: -4px; padding: 10px 4px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.switch span { font-size: .8rem; color: var(--muted); margin-right: 4px; }
+.switch button { font: 500 .9rem var(--body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 7px 13px; cursor: pointer; }
+.switch button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.switch button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+section.design { display: flex; flex-direction: column; gap: 16px; padding-top: 24px; border-top: 1px solid var(--line); }
+.d-head { display: flex; flex-direction: column; gap: 6px; }
+.d-head .tag { font: 600 .78rem var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.mocks { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+.mock-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.mock-col.phone-col { flex: 0 1 343px; }
+.mock-col.card-col { flex: 1 1 380px; max-width: 520px; }
+.trade { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 28px; }
+.trade div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.trade p { font-size: .95rem; }
+
+/* ---------- the mock-ups (app look) ---------- */
+.phone { background: var(--slate); color: var(--chalk); font-family: var(--app); font-size: 13px; border: 1px solid var(--slate-line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.phone .p-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.phone .p-title b { font-size: 1.15em; font-weight: 600; }
+.phone .p-title span { color: var(--chalk-dim); font-size: .85em; }
+.card-wrap { container-type: inline-size; width: 100%; }
+.card { aspect-ratio: 1200 / 630; max-width: 100%; background: var(--slate); color: var(--chalk); font-family: var(--app); font-size: calc(100cqw / 52); border: 1px solid var(--slate-line); border-radius: .8em; padding: 2em 2.2em; display: grid; grid-template-columns: 42% 1fr; gap: 2em; overflow: hidden; }
+.card .c-left { display: flex; flex-direction: column; gap: .5em; min-width: 0; }
+.card .c-name { font-size: 2em; font-weight: 700; line-height: 1.1; }
+.card .c-kind { color: var(--chalk-dim); font-size: .95em; letter-spacing: .06em; text-transform: uppercase; }
+.card .c-lines { list-style: none; margin: .6em 0 0; padding: 0; display: flex; flex-direction: column; gap: .3em; font-size: 1.05em; color: var(--chalk); }
+.card .c-lines li.more { color: var(--chalk-dim); }
+.card .c-chart { min-width: 0; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: .7em; }
+.card .c-brand { margin-top: auto; color: var(--chalk-dim); font-size: .9em; }
+
+.m-h { font-size: .78em; letter-spacing: .1em; text-transform: uppercase; color: var(--chalk-dim); }
+.m-dim { color: var(--chalk-dim); font-size: .88em; }
+.m-group { display: flex; flex-direction: column; gap: .45em; }
+.m-stack { display: flex; flex-direction: column; gap: .9em; }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: var(--app); }
+
+.bar { display: grid; grid-template-columns: 4.6em 1fr; align-items: center; gap: .6em; }
+.bar-t { height: .72em; background: var(--slate-track); border-radius: 99px; overflow: hidden; }
+.bar-t i { display: block; height: 100%; border-radius: 99px; }
+
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: .4em; align-items: start; }
+.two > div { display: flex; flex-direction: column; gap: .3em; text-align: center; }
+
+.note { font-size: 1.45em; line-height: 1.3; font-weight: 500; }
+.note span { border-bottom: .14em solid; padding-bottom: .02em; }
+.strip-row { display: grid; grid-template-columns: 3.4em 1fr; gap: .6em; align-items: start; }
+.strip { display: flex; gap: 2px; }
+.seg { display: flex; flex-direction: column; gap: .25em; min-width: 0; }
+.seg i { display: block; height: .7em; border-radius: 2px; }
+.seg small { font-size: .78em; color: var(--chalk-dim); white-space: nowrap; overflow: visible; }
+
+.chips { display: flex; flex-wrap: wrap; gap: .5em; }
+.chip { display: inline-flex; align-items: center; gap: .45em; border: 1px solid; border-radius: 99px; padding: .32em .7em; font-size: .95em; }
+.pips { display: inline-flex; gap: .18em; }
+.pips i { width: .42em; height: .42em; border-radius: 50%; border: 1px solid currentColor; }
+.pips i.on { background: currentColor; }
+
+.fp { display: grid; grid-template-columns: repeat(6, 1fr); gap: .5em .2em; }
+.fp > div { display: flex; flex-direction: column; align-items: center; gap: .15em; min-width: 0; }
+.fp svg { width: 2.6em; }
+.fp small { font-size: .74em; color: var(--chalk-dim); }
+.fp small.on { color: var(--chalk); }
+
+/* ---------- tables ---------- */
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: .92rem; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+td.y { color: var(--accent); font-weight: 600; }
+td.n { color: var(--muted); }
+.pick { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+.block { display: flex; flex-direction: column; gap: 12px; padding-top: 24px; border-top: 1px solid var(--line); }
+ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; max-width: 65ch; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Six ways to draw a flavor profile</h1>
+    <p class="lede">A recipe now has six tastes and eleven aromas, seventeen notes in all. Each design below is drawn from the numbers the app works out today for the same five recipes, once as it would sit in the app at phone width and once on the link-preview share card, the tightest card there is.</p>
+    <p class="lede">Every chart is scaled to the recipe's own strongest note. Notes scoring under 0.05 count as not present.</p>
+  </header>
+
+  <div class="switch" role="group" aria-label="Recipe">
+    <span>Recipe</span>
+    <span id="switch-buttons" style="display:contents"></span>
+  </div>
+
+  <div id="designs" style="display:flex;flex-direction:column;gap:28px"></div>
+
+  <div class="block">
+    <h2>Side by side</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Design</th><th>Fits the small card</th><th>Shows every note</th><th>Same layout for every recipe</th><th>Works at thumbnail size</th><th>Each note can be tapped</th></tr></thead>
+        <tbody>
+          <tr><td>A. Ranked bars</td><td class="n">Tight</td><td class="n">No, capped</td><td class="n">No</td><td class="n">No</td><td class="y">Yes</td></tr>
+          <tr><td>B. Two wheels</td><td class="n">Tight</td><td class="y">Yes</td><td class="y">Yes</td><td class="n">Shape only</td><td class="n">Awkward</td></tr>
+          <tr><td>C. One wheel</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td><td class="n">Awkward</td></tr>
+          <tr><td>D. Tasting note</td><td class="y">Yes</td><td class="n">Top five in words</td><td class="n">No</td><td class="n">Words only</td><td class="n">Words could be</td></tr>
+          <tr><td>E. Chips</td><td class="y">Yes</td><td class="n">Capped on cards</td><td class="n">No</td><td class="n">No</td><td class="y">Yes, best</td></tr>
+          <tr><td>F. Fixed grid</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>Where a flavor graph appears today</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Place</th><th>What it is for</th><th>What goes wrong with seventeen notes</th></tr></thead>
+        <tbody>
+          <tr><td>Recipe Notebook, overview bars</td><td>The full read of the recipe you are writing</td><td>Seventeen rows, most of them near zero. Today it shows six tastes and six aromas with "show all".</td></tr>
+          <tr><td>Recipe Notebook, flavor map wheel</td><td>The recipe's shape at a glance</td><td>Seventeen spokes cannot be labelled. Today it draws only the strongest, so the spokes change from recipe to recipe.</td></tr>
+          <tr><td>Recipe Notebook, one page per note, with "more of" and "less of" suggestions</td><td>Steering one note up or down</td><td>Seventeen pages to swipe through.</td></tr>
+          <tr><td>Invent panels (cocktail, sauce, recipe)</td><td>Live feedback while you build</td><td>Room for about eight bars. Today four and four.</td></tr>
+          <tr><td>Suggestion cards, small before and after wheel</td><td>What adding or swapping one ingredient does</td><td>About 130 pixels wide. Today three and three spokes.</td></tr>
+          <tr><td>Flavor profile button on a recipe card</td><td>A quick look at a built-in recipe</td><td>Same room as the invent panels.</td></tr>
+          <tr><td>Shared recipe page</td><td>A visitor's first look</td><td>Visitors will not study a chart. Today four and four bars.</td></tr>
+          <tr><td>Share cards (link preview, portrait, tall, set of three)</td><td>A picture that travels</td><td>The chart shares the card with the recipe. Today three and three bars.</td></tr>
+          <tr><td>Cookbook card wheel and the ingredient panel</td><td>A recipe's or an ingredient's character</td><td>Both use their own older word lists, not the seventeen notes. Out of scope unless you want them brought in.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>What I would choose</h2>
+    <div class="pick">
+      <p><strong>D on everything a visitor sees, A where you are working, F for before and after.</strong></p>
+      <ul class="plain">
+        <li>Share cards and the shared page get the tasting note with strips. It needs the least room and nobody has to learn a chart.</li>
+        <li>The Recipe Notebook, the invent panels and the Flavor profile button keep ranked bars, because order and strength matter most while you are adjusting a recipe.</li>
+        <li>Suggestion cards get the fixed grid, since two grids side by side show exactly which notes an ingredient moves.</li>
+        <li>The flavor map wheel either goes, or becomes design C.</li>
+      </ul>
+      <p>If nothing is chosen, design A stays as it is now on every surface. Any single design can also be used everywhere. Mixing three costs more to build and keep consistent than using one.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const AX = [
+  ['sweet','Sweet','#ff5fa2','taste'],['sour','Sour','#2bd4d4','taste'],['bitter','Bitter','#a855f7','taste'],['salty','Salty','#5b8def','taste'],['umami','Umami','#e0a93b','taste'],['heat','Heat','#ff4444','taste'],
+  ['fruity','Fruity','#fd875a','aroma'],['floral','Floral','#e0a9d6','aroma'],['green','Green','#7ccc7b','aroma'],['woody','Woody','#967a51','aroma'],['spice','Spice','#c25726','aroma'],['creamy','Creamy','#efe096','aroma'],['toasty','Toasty','#cd7e2d','aroma'],['nutty','Nutty','#ceb89b','aroma'],['earthy','Earthy','#9aa373','aroma'],['smoky','Smoky','#a9aac1','aroma'],['savory','Savory','#ba4b65','aroma'],
+].map(([id, label, color, g]) => ({ id, label, color, g }));
+
+/* Scores as the app computes them today (profileForRecipe), 2026-11-15. */
+const RECIPES = [
+  { id: 'old-fashioned', name: 'Old Fashioned', kind: 'Cocktail', lines: ['4.5 cl bourbon', '2 dashes Angostura bitters', '1 cube sugar', '1 dash water'],
+    s: { woody: .65, sweet: .349, bitter: .298, spice: .296, toasty: .282, fruity: .194, earthy: .072 } },
+  { id: 'margarita', name: 'Margarita', kind: 'Cocktail', lines: ['50 ml blanco tequila', '20 ml orange liqueur', '15 ml fresh lime juice', 'Salt rim'],
+    s: { fruity: .568, sour: .341, sweet: .227, green: .195, salty: .114, bitter: .105, spice: .062, earthy: .062 } },
+  { id: 'hollandaise', name: 'Hollandaise', kind: 'Sauce', lines: ['3 egg yolks', '1 cup clarified butter', '1 tbsp lemon juice', 'Pinch of cayenne', '¼ tsp salt', '1 tbsp water'],
+    s: { creamy: .83, sour: .193, salty: .161, nutty: .132 } },
+  { id: 'green-curry', name: 'Thai Green Curry', kind: 'Dish', lines: ['500 g chicken thigh', '400 ml coconut milk', '3 tbsp green curry paste', '2 Thai eggplants', '1 handful Thai basil', '1½ tbsp fish sauce', '1 lime', '1 tbsp palm sugar'],
+    s: { creamy: .353, umami: .216, heat: .148, spice: .143, fruity: .14, salty: .138, green: .127, sweet: .114, savory: .112, earthy: .059 } },
+  { id: 'tiramisu', name: 'Tiramisu', kind: 'Dessert', lines: ['200 g ladyfingers', '250 g mascarpone', '300 ml espresso', '3 eggs', '75 g sugar', '2 tbsp cocoa'],
+    s: { toasty: .8, sweet: .481, bitter: .295, earthy: .207, smoky: .142, woody: .095, creamy: .089 } },
+];
+
+const FLOOR = 0.05;
+const CHALK = '#efe7d6', DIM = '#a49d8f', FAINT = '#6b675f', GRID = '#3a3a37', TRACK = '#2a2a28';
+const val = (r, id) => r.s[id] || 0;
+const peak = (r) => Math.max(...Object.values(r.s));
+const ranked = (r, g) => AX.filter((a) => (!g || a.g === g) && val(r, a.id) >= FLOOR)
+  .map((a) => ({ ...a, v: val(r, a.id) }))
+  .sort((x, y) => (y.v - x.v) || (AX.findIndex((a) => a.id === x.id) - AX.findIndex((a) => a.id === y.id)));
+const f = (n) => Number(n).toFixed(1);
+const TITLE = { taste: 'Taste', aroma: 'Aroma' };
+
+/* A. ranked bars: the rule that is live today */
+function dBars(r, size) {
+  const cap = size === 'card' ? 3 : 4, m = peak(r);
+  let hidden = 0, html = '';
+  for (const g of ['taste', 'aroma']) {
+    const all = ranked(r, g), show = all.slice(0, cap);
+    hidden += all.length - show.length;
+    if (!show.length) continue;
+    html += `<div class="m-group"><div class="m-h">${TITLE[g]}</div>` + show.map((b) =>
+      `<div class="bar"><span>${b.label}</span><span class="bar-t"><i style="width:${f(b.v / m * 100)}%;background:${b.color}"></i></span></div>`).join('') + '</div>';
+  }
+  if (hidden) html += `<div class="m-dim">+${hidden} fainter note${hidden === 1 ? '' : 's'}</div>`;
+  return `<div class="m-stack">${html}</div>`;
+}
+
+/* B. two wheels with fixed spokes */
+function radar(r, g, size) {
+  const axes = AX.filter((a) => a.g === g), n = axes.length, m = peak(r);
+  const R = 50, padX = 42, padY = 17, fs = size === 'card' ? 13 : 11;
+  const W = 2 * (R + padX), H = 2 * (R + padY), cx = W / 2, cy = H / 2;
+  const pt = (i, k) => { const a = (-90 + i * 360 / n) * Math.PI / 180; return [cx + Math.cos(a) * R * k, cy + Math.sin(a) * R * k]; };
+  const poly = (k) => axes.map((_, i) => pt(i, k).map(f).join(',')).join(' ');
+  const topIds = new Set(ranked(r, g).slice(0, size === 'card' ? 2 : 99).map((b) => b.id));
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${TITLE[g]} wheel">`;
+  s += `<polygon points="${poly(1)}" fill="none" stroke="${GRID}"/><polygon points="${poly(.5)}" fill="none" stroke="${GRID}"/>`;
+  axes.forEach((_, i) => { const [x, y] = pt(i, 1); s += `<line x1="${cx}" y1="${cy}" x2="${f(x)}" y2="${f(y)}" stroke="${GRID}"/>`; });
+  const shape = axes.map((a, i) => pt(i, Math.max(val(r, a.id) / m, .03)).map(f).join(',')).join(' ');
+  s += `<polygon points="${shape}" fill="${CHALK}" fill-opacity=".16" stroke="${CHALK}" stroke-width="1.4" stroke-linejoin="round"/>`;
+  axes.forEach((a, i) => {
+    const v = val(r, a.id), on = v >= FLOOR;
+    if (on) { const [x, y] = pt(i, v / m); s += `<circle cx="${f(x)}" cy="${f(y)}" r="3.2" fill="${a.color}"/>`; }
+    if (size === 'card' && !topIds.has(a.id)) return;
+    const ang = (-90 + i * 360 / n) * Math.PI / 180, c = Math.cos(ang), sn = Math.sin(ang);
+    const x = cx + c * (R + 7), y = cy + sn * (R + 7) + (sn > .3 ? fs * .8 : sn < -.3 ? -2 : fs * .35);
+    const anchor = c > .2 ? 'start' : c < -.2 ? 'end' : 'middle';
+    s += `<text x="${f(x)}" y="${f(y)}" font-size="${fs}" text-anchor="${anchor}" fill="${on ? CHALK : FAINT}">${a.label}</text>`;
+  });
+  return s + '</svg>';
+}
+function dWheels(r, size) {
+  return `<div class="two"><div><div class="m-h">Taste</div>${radar(r, 'taste', size)}</div><div><div class="m-h">Aroma</div>${radar(r, 'aroma', size)}</div></div>`;
+}
+
+/* C. one wheel: seventeen fixed wedges, aromas clockwise from the top, tastes on the upper left */
+function sector(cx, cy, r0, r1, a0, a1) {
+  const p = (rad, a) => { const t = a * Math.PI / 180; return `${f(cx + Math.cos(t) * rad)} ${f(cy + Math.sin(t) * rad)}`; };
+  return `M${p(r1, a0)}A${r1} ${r1} 0 0 1 ${p(r1, a1)}L${p(r0, a1)}A${r0} ${r0} 0 0 0 ${p(r0, a0)}Z`;
+}
+function dWheel(r, size) {
+  const m = peak(r), R = 76, r0 = 15, padX = 50, padY = 30, fs = size === 'card' ? 12.5 : 11;
+  const W = 2 * (R + padX), H = 2 * (R + padY), cx = W / 2, cy = H / 2;
+  const gap = 16, w = (360 - 2 * gap) / 17;
+  const order = [...AX.filter((a) => a.g === 'aroma'), ...AX.filter((a) => a.g === 'taste')];
+  const topIds = new Set(ranked(r).slice(0, size === 'card' ? 4 : 99).map((b) => b.id));
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Flavor wheel">`, labels = '';
+  order.forEach((a, i) => {
+    const a0 = -90 + gap / 2 + i * w + (i >= 11 ? gap : 0), a1 = a0 + w - 1.2, v = val(r, a.id), on = v >= FLOOR;
+    s += `<path d="${sector(cx, cy, r0, R, a0, a1)}" fill="${TRACK}"/>`;
+    if (on) s += `<path d="${sector(cx, cy, r0, r0 + (R - r0) * Math.max(v / m, .08), a0, a1)}" fill="${a.color}"/>`;
+    if (!on || !topIds.has(a.id)) return;
+    const mid = (a0 + a1) / 2 * Math.PI / 180, c = Math.cos(mid), sn = Math.sin(mid);
+    const rr = R + 7 + (Math.abs(c) < .5 && i % 2 ? 11 : 0);
+    const x = cx + c * rr, y = cy + sn * rr + (sn > .3 ? fs * .8 : sn < -.3 ? -2 : fs * .35);
+    labels += `<text x="${f(x)}" y="${f(y)}" font-size="${fs}" text-anchor="${c > .25 ? 'start' : c < -.25 ? 'end' : 'middle'}" fill="${CHALK}">${a.label}</text>`;
+  });
+  return `<div class="m-group">${s + labels}</svg><div class="m-dim" style="text-align:center">Upper left: tastes. The rest: aromas.</div></div>`;
+}
+
+/* D. a tasting note in words, with two strips on one shared scale */
+function noteWords(r) {
+  const all = ranked(r), w = (b) => `<span style="border-color:${b.color}">${b.label.toLowerCase()}</span>`;
+  if (!all.length) return 'Not enough to go on yet.';
+  const solo = all.length < 2 || all[0].v >= 2 * all[1].v;
+  const lead = solo ? `${w(all[0])} above all` : `${w(all[0])} and ${w(all[1])}`;
+  const rest = all.slice(solo ? 1 : 2, solo ? 4 : 5).map(w);
+  const tail = rest.length ? `, with ${rest.length > 1 ? rest.slice(0, -1).join(', ') + ' and ' + rest[rest.length - 1] : rest[0]} behind` : '';
+  const out = lead + tail + '.';
+  return out.replace(/^(<span[^>]*>)(.)/, (_, tag, ch) => tag + ch.toUpperCase());
+}
+function dNote(r, size) {
+  const sum = (g) => ranked(r, g).reduce((t, b) => t + b.v, 0), full = Math.max(sum('taste'), sum('aroma')) || 1;
+  const strip = (g) => {
+    const all = ranked(r, g);
+    if (!all.length) return '';
+    return `<div class="strip-row"><span class="m-h" style="padding-top:.1em">${TITLE[g]}</span><div class="strip">` + all.map((b) =>
+      `<div class="seg" style="width:${f(b.v / full * 100)}%"><i style="background:${b.color}"></i>${b.v / full >= .17 ? `<small>${b.label}</small>` : ''}</div>`).join('') + '</div></div>';
+  };
+  return `<div class="m-stack"><div class="note">${noteWords(r)}</div>${strip('taste')}${strip('aroma')}</div>`;
+}
+
+/* E. ranked chips, three strength levels */
+function dChips(r, size) {
+  const cap = size === 'card' ? 3 : 99, m = peak(r);
+  let html = '', hidden = 0;
+  for (const g of ['taste', 'aroma']) {
+    const all = ranked(r, g), show = all.slice(0, cap);
+    hidden += all.length - show.length;
+    if (!show.length) continue;
+    html += `<div class="m-group"><div class="m-h">${TITLE[g]}</div><div class="chips">` + show.map((b) => {
+      const lvl = b.v / m >= .66 ? 3 : b.v / m >= .33 ? 2 : 1;
+      return `<span class="chip" style="border-color:${b.color}"><span>${b.label}</span><span class="pips" style="color:${b.color}">${[1, 2, 3].map((k) => `<i class="${k <= lvl ? 'on' : ''}"></i>`).join('')}</span></span>`;
+    }).join('') + '</div></div>';
+  }
+  if (hidden) html += `<div class="m-dim">+${hidden} fainter note${hidden === 1 ? '' : 's'}</div>`;
+  return `<div class="m-stack">${html}</div>`;
+}
+
+/* F. fixed grid: every note always in the same place */
+function dGrid(r, size) {
+  const m = peak(r);
+  const cell = (a) => {
+    const v = val(r, a.id), on = v >= FLOOR, rad = on ? 3 + 10 * Math.sqrt(v / m) : 2.5;
+    const dot = on ? `<circle cx="14" cy="14" r="${f(rad)}" fill="${a.color}"/>` : `<circle cx="14" cy="14" r="2.5" fill="none" stroke="${FAINT}"/>`;
+    const lab = size === 'card' && !on ? '<small>&nbsp;</small>' : `<small class="${on ? 'on' : ''}">${a.label}</small>`;
+    return `<div><svg viewBox="0 0 28 28" aria-hidden="true">${dot}</svg>${lab}</div>`;
+  };
+  const row = (g) => `<div class="m-group"><div class="m-h">${TITLE[g]}</div><div class="fp">${AX.filter((a) => a.g === g).map(cell).join('')}</div></div>`;
+  return `<div class="m-stack">${row('taste')}${row('aroma')}</div>`;
+}
+
+const DESIGNS = [
+  { key: 'A', name: 'Ranked bars', fn: dBars, what: 'What is live today. Tastes and aromas in two groups, strongest first, four of each in the app and three of each on a card.',
+    easy: 'Order and strength are exact and need no explaining. Each row is a natural thing to tap for more.',
+    hides: 'Everything past the cap. Rows change from recipe to recipe, so two recipes cannot be compared at a glance. It takes the most height on a card.' },
+  { key: 'B', name: 'Two wheels', fn: dWheels, what: 'A six-spoke wheel for taste and an eleven-spoke wheel for aroma. The spokes never move.',
+    easy: 'Each recipe gets a shape you learn to recognise, and two recipes can be compared. Taste and aroma are never mixed up.',
+    hides: 'Exact order. The eleven aroma labels are small at phone width and mostly dropped on a card. A recipe with one strong note is just a spike.' },
+  { key: 'C', name: 'One wheel', fn: dWheel, what: 'Seventeen wedges in fixed places, each as long as its note is strong, in the note\'s own colour.',
+    easy: 'The whole profile in one picture that works at any size, including as an emblem on a card. Missing notes are visible as empty wedges.',
+    hides: 'Weak notes are slivers. Labels crowd when neighbours both fire. People need telling once which part is taste.' },
+  { key: 'D', name: 'Tasting note with strips', fn: dNote, what: 'One sentence naming the strongest notes, over two strips whose segments are as long as each note is strong. Both strips share one scale, so weak tastes make a short strip.',
+    easy: 'Reads without learning a chart, in the least room. The strips show at once whether a recipe is led by taste or by aroma.',
+    hides: 'Exact values, and anything past five notes in the sentence. A sentence reads as a claim about the food, and the numbers behind it are judgement no cook has checked.' },
+  { key: 'E', name: 'Ranked chips', fn: dChips, what: 'Each note is a chip with one, two or three dots for strength, strongest first.',
+    easy: 'Quick to scan and wraps to any width. Every chip is an obvious button to that note\'s page.',
+    hides: 'Only three levels of strength and no shape. A busy recipe makes a wall of chips (the curry has ten).' },
+  { key: 'F', name: 'Fixed grid', fn: dGrid, what: 'All seventeen notes always in the same place. A dot grows with the note; an empty ring means it is absent.',
+    easy: 'Comparing: two recipes, or one recipe before and after a swap. Shows what is missing as clearly as what is there. Still works very small.',
+    hides: 'Ranking takes a moment, since dot sizes are harder to judge than bar lengths. Labels are small.' },
+];
+
+function cardHtml(r, chart) {
+  const lines = r.lines.slice(0, 6).map((l) => `<li>${l}</li>`).join('') + (r.lines.length > 6 ? `<li class="more">+${r.lines.length - 6} more</li>` : '');
+  return `<div class="card-wrap"><div class="card"><div class="c-left"><div class="c-kind">${r.kind}</div><div class="c-name">${r.name}</div><ul class="c-lines">${lines}</ul><div class="c-brand">neuflavor</div></div><div class="c-chart">${chart}</div></div></div>`;
+}
+function sectionHtml(d, r) {
+  return `<section class="design" id="design-${d.key.toLowerCase()}">
+    <div class="d-head"><span class="tag">Design ${d.key}</span><h2>${d.name}</h2><p>${d.what}</p></div>
+    <div class="mocks">
+      <div class="mock-col phone-col"><h3>In the app, phone width</h3><div class="phone"><div class="p-title"><b>${r.name}</b><span>Flavor profile</span></div>${d.fn(r, 'phone')}</div></div>
+      <div class="mock-col card-col"><h3>On the link-preview card</h3>${cardHtml(r, d.fn(r, 'card'))}</div>
+    </div>
+    <div class="trade"><div><h3>Makes easy</h3><p>${d.easy}</p></div><div><h3>Hides</h3><p>${d.hides}</p></div></div>
+  </section>`;
+}
+
+if (typeof document !== 'undefined') {
+  let current = RECIPES[0].id;
+  const host = document.getElementById('designs'), sw = document.getElementById('switch-buttons');
+  const draw = () => {
+    const r = RECIPES.find((x) => x.id === current);
+    host.innerHTML = DESIGNS.map((d) => sectionHtml(d, r)).join('');
+    sw.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === current)));
+  };
+  sw.innerHTML = RECIPES.map((r) => `<button type="button" id="recipe-${r.id}" data-id="${r.id}">${r.name}</button>`).join('');
+  sw.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { current = b.dataset.id; draw(); } });
+  draw();
+}
+if (typeof module !== 'undefined') module.exports = { RECIPES, DESIGNS, noteWords };
+</script>
