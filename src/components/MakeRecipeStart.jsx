@@ -146,6 +146,10 @@ export default function MakeRecipeStart({
   // The profile hook (saveInvention writes the recipe into profile.recipes, where the Cookbook lists it).
   // Absent = the invent panel shows no save row.
   userProfile = null,
+  // Aroma-match handlers from App (BUILDER-2): a missing one hides its button in the builder.
+  onFindCocktail = null,
+  onFindSauce = null,
+  onFindWine = null,
 }) {
   const fileInputRef = useRef(null);
   const firstCardRef = useRef(null);
@@ -1039,6 +1043,9 @@ export default function MakeRecipeStart({
               nodes={nodes}
               edges={edges}
               onWrite={sendToNotebook}
+              onFindCocktail={onFindCocktail}
+              onFindSauce={onFindSauce}
+              onFindWine={onFindWine}
               onEditKitchen={() => setPanel('kitchen')}
               onSave={save.onSave}
               onClose={() => { save.cancelPending(); setPanel(null); }}

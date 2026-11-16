@@ -2285,6 +2285,9 @@ export default function App() {
           <MakeRecipeStart
             userProfile={userProfile}
             setRecipeHandoff={setRecipeHandoff}
+            onFindCocktail={(ings, name) => handleFindCocktail(ings, name, 'make')}
+            onFindSauce={(ings, name) => handleFindSauce(ings, name, 'make')}
+            onFindWine={(ings, name) => handleFindWine(ings, name, 'make')}
             setRecipeMounted={setRecipeMounted}
             setActiveTab={setActiveTab}
             setCookbookPickerMode={setCookbookPickerMode}

@@ -8,6 +8,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { loadDirectionsIndex, retrieveCookingMethods } from '../ml/directionsRuntime.js';
+import { FONT, CHALK_CREAM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
 const FONT_FAMILY = 'Caveat, cursive';
 const MIN_BOWL = 3;
@@ -30,7 +31,7 @@ const METHOD_EMOJI = {
   marinate: '🧂', whisk: '🥄', blend: '🌀', chill: '❄️',
 };
 
-export default function RecipeCookingMethod({ bowlNames = [] }) {
+export default function RecipeCookingMethod({ bowlNames = [], chalk = false, selected = null, onToggle = null }) {
   const [index, setIndex] = useState(null);
   const [vocab, setVocab] = useState(null);
 
@@ -53,6 +54,40 @@ export default function RecipeCookingMethod({ bowlNames = [] }) {
   }, [index, vocab, bowlNames, enough]);
 
   if (!enough || methods.length === 0) return null;
+
+  if (chalk) {
+    return (
+      <div data-testid="cooking-method-chips">
+        <div className="text-[12px] uppercase tracking-wider mb-1" style={{ color: CHALK_SUB }}>
+          🍳 Likely cooking method{methods.length === 1 ? '' : 's'}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {methods.map((m) => {
+            const on = Array.isArray(selected) && selected.includes(m.method);
+            return (
+              <button
+                key={m.method}
+                type="button"
+                aria-pressed={on}
+                data-testid="cooking-method-chip"
+                data-method={m.method}
+                onClick={() => onToggle?.(m.method)}
+                title={`${Math.round(m.frac * 100)}% of similar recipes`}
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full border min-h-[44px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                style={{
+                  fontFamily: FONT, fontSize: 17, textTransform: 'capitalize', borderColor: CHALK_RAIL, outlineColor: CHALK_CREAM,
+                  color: on ? '#0a0a0a' : CHALK_CREAM, background: on ? CHALK_CREAM : 'transparent',
+                }}
+              >
+                <span aria-hidden="true">{METHOD_EMOJI[m.method] || '🍳'}</span>
+                {m.method}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 pt-2 pb-3" style={{ paddingLeft: 48 }}>

@@ -31,13 +31,16 @@
  *              argument for toSavedItem: { kind: 'recipe', id?, name, category: dishTypeId|null,
  *              lines: [{ key, amount, role }], method?, cuisine? }. No onSave → no save row.
  *   onWrite, onEditKitchen, onClose
+ *   onFindCocktail, onFindSauce, onFindWine   (names, title) → the App's aroma-match handlers; each missing one hides its button.
+ *   seed also carries a handoff's { steps, stepsFrom, image (File | url) } (shown as a collapsed Method and a photo with remove)
+ *   and pinned[].amount (a typed amount for that line).
  *
  * Test ids: invent-recipe, -close, -kitchen, -source, -no-model, -cuisines, -dishline, -method,
  * -closest, -note, -write, -restart, plus the shared components' prefixes
  * invent-recipe-start, -category, -list, -hint, -checklist, -suggest, -profile, -namesave
  * (see each Invent* component for the ids it adds).
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { kitchenCuisines, cuisineOptions, inventionHandoff, isBasicLike, INVENT_ALPHA } from '../data/inventRecipe.js';
 import { isBasic, haveIngredient, kitchenKey } from '../data/myKitchen.js';
 import { buildPairingIndex } from '../data/recipePairingMatch.js';
@@ -68,8 +71,12 @@ import InventCategoryHint from './InventCategoryHint.jsx';
 import InventCategoryPicker from './InventCategoryPicker.jsx';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
 import InventNameSave from './InventNameSave.jsx';
+import RecipeCookingMethod from './RecipeCookingMethod.jsx';
+import { isSuggestable } from '../data/curation/suggestable.js';
 import { useInventUsage } from '../hooks/useUsage.js';
 import { noteTypedIngredient } from '../data/usageIngredient.js';
+
+const RecipeFlavorProfilesCard = lazy(() => import('./RecipeFlavorProfilesCard.jsx'));
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
@@ -77,6 +84,7 @@ const ACCENT = '#a3e635';
 const NO_PINS = [];
 const NO_KITCHEN = [];
 const MODEL_K = 300;
+const MODEL_EXTRA = 4;
 const COMMON_MAINS = ['chicken', 'beef', 'pork', 'salmon', 'shrimp', 'eggs', 'tofu', 'mushrooms'];
 const lower = (s) => String(s || '').toLowerCase().trim();
 
@@ -84,6 +92,7 @@ const fresh = () => ({ started: false, build: openBuild({ lab: 'recipe' }), type
 
 export default function InventRecipe({
   kitchen = NO_KITCHEN, nodes = null, edges = null, seed = null, editItem = null, onSave = null, onClose, onWrite, onEditKitchen,
+  onFindCocktail = null, onFindSauce = null, onFindWine = null,
 }) {
   const names = useMemo(() => {
     if (!nodes) return new Set();
@@ -109,6 +118,14 @@ export default function InventRecipe({
   const [hintOff, setHintOff] = useState(null); // the list signature "Not now" was pressed on
   const [deck, setDeck] = useState(null); // BUILDER-1: null | { mode: 'add' | 'replace', ingredient?, candidates }
   const [saveState, setSaveState] = useState({ status: 'idle', message: '' });
+  const [profilesOpen, setProfilesOpen] = useState(false);
+  const [swapPool, setSwapPool] = useState(new Map()); // missing line key → the model's same-category stand-ins
+  const [chosenMethods, setChosenMethods] = useState([]); // BUILDER-2: cooking-method chips the cook picked
+  // BUILDER-2: the method steps and the photo a handoff carried.
+  const [handoffMethod, setHandoffMethod] = useState(() => (Array.isArray(seed?.steps) && seed.steps.length
+    ? { steps: seed.steps.map(String), from: seed.stepsFrom || '' } : null));
+  const [methodOpen, setMethodOpen] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState(null);
   // PICTURE-4: undefined = untouched (an edited dish keeps its own); null = none; else the chooser's value.
   const [picture, setPicture] = useState(undefined);
 
@@ -127,7 +144,8 @@ export default function InventRecipe({
     const typeId = seed?.fromName && DISH_SKELETONS[seed.type] ? seed.type : null;
     let build = openBuild({ lab: 'recipe', lines: keys.map((key) => ({ key, source: 'search' })) });
     if (typeId) build = applyCategory(build, dishSkeleton(typeId, { nodes: nodeMap }));
-    return { ...fresh(), started: keys.length > 0, build, typeId, cuisine: seed?.cuisine || null };
+    const seededAmounts = new Map((seed?.pinned || NO_PINS).filter((p) => p?.key && p.amount).map((p) => [lower(p.key), String(p.amount)]));
+    return { ...fresh(), started: keys.length > 0, build, typeId, cuisine: seed?.cuisine || null, edits: seededAmounts };
   });
   const { started, build, typeId, cuisine, name, edits, editId } = state;
   const skeleton = typeId ? DISH_SKELETONS[typeId] : null;
@@ -142,6 +160,17 @@ export default function InventRecipe({
     loadRealRecipes().then((data) => { if (live) setReal(data); }).catch(() => {});
     return () => { live = false; };
   }, []);
+
+  useEffect(() => {
+    const img = seed?.image;
+    if (typeof img === 'string' && img) { setPhotoUrl(img); return undefined; }
+    if (typeof File !== 'undefined' && img instanceof File && img.type?.startsWith('image/') && typeof URL.createObjectURL === 'function') {
+      const url = URL.createObjectURL(img);
+      setPhotoUrl(url);
+      return () => { if (typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(url); };
+    }
+    return undefined;
+  }, [seed?.image]);
 
   const suggest = model.data?.suggest;
   const keys = buildKeys(build);
@@ -202,11 +231,24 @@ export default function InventRecipe({
     return [...own, ...common];
   }, [pantry, nodeMap, names, kitchenSet]);
 
-  const suggestions = useMemo(
-    () => (keys.length ? suggestNext(build, rank, 8).map((s) => ({ key: s.key, have: !!s.have, note: s.have ? undefined : "you'd need" })) : []),
+  // The pairing-ranked list, plus the set-completion model's own top picks the ranking left out; kitchen first, no duplicates.
+  // With no model (scores null) this is the pairing list alone.
+  const suggestions = useMemo(() => {
+    if (!keys.length) return [];
+    const base = suggestNext(build, rank, 8).map((s) => ({ key: s.key, have: !!s.have, note: s.have ? undefined : "you'd need" }));
+    if (!scores || !nodeMap) return base;
+    const seen = new Set(base.map((b) => b.key));
+    const extra = [];
+    for (const [n] of [...scores.entries()].sort((a, b) => b[1] - a[1])) {
+      if (extra.length >= MODEL_EXTRA) break;
+      if (seen.has(n) || !nodeMap.has(n) || !isSuggestable(n, nodeMap) || isBasic(n) || isBasicLike(n) || keys.includes(n)) continue;
+      if (!addLine(build, n, { source: 'user' }).ok) continue;
+      const have = owns(n);
+      extra.push({ key: n, have, note: have ? undefined : "you'd need" });
+    }
+    return [...base, ...extra].map((x, i) => ({ x, i })).sort((a, b) => ((b.x.have === true) - (a.x.have === true)) || (a.i - b.i)).map((o) => o.x);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [build, scores, cuisine, kitchen, nodeMap, pairingIndex],
-  );
+  }, [build, scores, cuisine, kitchen, nodeMap, pairingIndex]);
   const slotLines = build.slots.filter((s) => s.line).map((s) => ({ ...s.line, role: s.id }));
   const allLines = [...slotLines, ...build.extras.map((l) => ({ ...l, role: null }))];
   const amountOf = (k) => edits.get(k) ?? amounts.get(k)?.raw ?? '';
@@ -217,6 +259,30 @@ export default function InventRecipe({
     key: l.key, source: l.source, amount: amountOf(l.key) || undefined, have: kitchen.length ? owns(l.key) : undefined,
   }));
 
+  // Smart swaps: for each line the cook lacks, the model's same-category stand-ins (asked with that line left out).
+  const missingSig = lines.filter((l) => l.have === false).map((l) => l.key).join('|');
+  useEffect(() => {
+    if (!suggest || !missingSig || !nodeMap) { setSwapPool((p) => (p.size ? new Map() : p)); return undefined; }
+    let live = true;
+    Promise.all(missingSig.split('|').map(async (k) => {
+      const cat = nodeMap.get(k)?.category;
+      const candidateNames = cat ? [...nodeMap.keys()].filter((n) => n !== k && nodeMap.get(n)?.category === cat) : undefined;
+      try {
+        const rows = await suggest(keysSig.split('|').filter((x) => x !== k), { cuisine, alpha: INVENT_ALPHA, k: MODEL_K, candidateNames });
+        return [k, (rows || []).map((r) => lower(r.name))];
+      } catch { return [k, []]; }
+    })).then((entries) => { if (live) setSwapPool(new Map(entries)); });
+    return () => { live = false; };
+  }, [suggest, missingSig, keysSig, cuisine, nodeMap]);
+
+  // The build as BowlEntry[] for the Flavor Profiles card: the same names and amounts the panel's own profile reads.
+  const entryAmount = (k) => {
+    const typed = edits.get(k);
+    if (typed != null && typed.trim()) return { raw: typed, qty: null, unit: null, inferred: false, ...(parseAmount(typed) || {}) };
+    return amounts.get(k) || null;
+  };
+  const bowlEntries = keys.map((k) => ({ ingredient: k, amount: entryAmount(k) }));
+
   // ---- actions
   const reset = (extra = {}) => { setNotice(null); setOpenPart(null); setPickerOpen(false); setHintOff(null); setSaveState({ status: 'idle', message: '' }); patch(extra); };
   const add = (key, extra = {}) => {
@@ -225,6 +291,12 @@ export default function InventRecipe({
     setNotice(null);
     patch({ build: r.build });
     return true;
+  };
+  const addFromCard = (name, amount) => {
+    const k = lower(name);
+    if (!add(k)) return;
+    if (amount && typeof amount === 'object') setAmounts((prev) => new Map(prev).set(k, amount));
+    else if (typeof amount === 'string' && amount.trim()) setState((st) => ({ ...st, edits: new Map(st.edits).set(k, amount) }));
   };
   const addTyped = (text) => { const k = keyFor(text); if (k) noteTypedIngredient('recipe', text, names); return k ? add(k) : false; };
   const start = (text) => {
@@ -250,6 +322,14 @@ export default function InventRecipe({
       if (s.supportingOnly && isMainKey(k, nodeMap)) continue;
       if (!owns(s.use) || !s.plus.every(owns)) continue;
       out.push({ key: use, note: s.plus.length ? `with ${s.plus.join(', ')}` : undefined });
+    }
+    const cat = nodeMap?.get(k)?.category;
+    for (const n of swapPool.get(k) || []) {
+      if (out.length >= 8) break;
+      if (taken.has(n) || out.some((o) => o.key === n) || !nodeMap?.has(n) || !isSuggestable(n, nodeMap) || isBasic(n) || isBasicLike(n)) continue;
+      if (cat && nodeMap.get(n)?.category !== cat) continue;
+      if (!owns(n)) continue;
+      out.push({ key: n, note: 'model pick' });
     }
     return out;
   };
@@ -401,6 +481,70 @@ export default function InventRecipe({
               <InventFlavorProfile testidPrefix="invent-recipe-profile" title="Flavor profile" profile={profile} />
             )}
 
+            {keys.length >= 3 && nodeMap && (
+              <button type="button" onClick={() => setProfilesOpen(true)} data-testid="invent-recipe-profiles"
+                className={`w-full px-3 py-2 rounded-lg border min-h-[44px] text-left ${FOCUS}`} style={btn}>
+                ◆ Flavor Profiles — each note, what to boost or temper
+              </button>
+            )}
+
+            {keys.length >= 3 && (
+              <div data-testid="invent-recipe-cooking">
+                <RecipeCookingMethod bowlNames={keys} chalk selected={chosenMethods}
+                  onToggle={(m) => setChosenMethods((cur) => (cur.includes(m) ? cur.filter((x) => x !== m) : [...cur, m]))} />
+              </div>
+            )}
+
+            {keys.length > 0 && (onFindCocktail || onFindSauce || onFindWine) && (
+              <div data-testid="invent-recipe-serve">
+                <p className="text-[12px] uppercase tracking-wider mb-1" style={rule}>Serve it with</p>
+                <div className="flex flex-wrap gap-2">
+                  {onFindCocktail && (
+                    <button type="button" onClick={() => onFindCocktail(keys, name.trim())} data-testid="invent-recipe-find-cocktail"
+                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>🍸 Find a cocktail</button>
+                  )}
+                  {onFindSauce && (
+                    <button type="button" onClick={() => onFindSauce(keys, name.trim())} data-testid="invent-recipe-find-sauce"
+                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>🥣 Need a sauce</button>
+                  )}
+                  {onFindWine && (
+                    <button type="button" onClick={() => onFindWine(keys, name.trim())} data-testid="invent-recipe-find-wine"
+                      className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={{ ...btn, fontSize: 17 }}>🍷 Find wines</button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {photoUrl && (
+              <div className="flex items-start gap-2" data-testid="invent-recipe-photo">
+                <img src={photoUrl} alt="Recipe photo" data-testid="invent-recipe-photo-img" className="rounded-lg object-cover min-w-0"
+                  style={{ height: 96, maxWidth: '60%', border: `1px solid ${CHALK_RAIL}` }} />
+                <button type="button" onClick={() => setPhotoUrl(null)} aria-label="Remove recipe photo" data-testid="invent-recipe-photo-remove"
+                  className={`min-h-[44px] min-w-[44px] rounded-full border ${FOCUS}`} style={btn}>×</button>
+              </div>
+            )}
+
+            {handoffMethod && (
+              <div data-testid="invent-recipe-handoff-method">
+                <button type="button" onClick={() => setMethodOpen((o) => !o)} aria-expanded={methodOpen}
+                  className={`w-full min-h-[44px] flex items-center justify-between gap-2 rounded-lg px-3 text-left ${FOCUS}`}
+                  style={{ fontFamily: FONT, color: CHALK_CREAM, border: `1px dashed ${CHALK_RAIL}`, outlineColor: CHALK_CREAM }}>
+                  <span className="text-[19px] leading-tight min-w-0">
+                    Method ({handoffMethod.steps.length} steps)
+                    {handoffMethod.from && handoffMethod.from !== name && (
+                      <span className="block text-[14px]" style={{ color: CHALK_SUB }}>from “{handoffMethod.from}”</span>
+                    )}
+                  </span>
+                  <span aria-hidden="true">{methodOpen ? '▾' : '▸'}</span>
+                </button>
+                {methodOpen && (
+                  <ol className="mt-2 space-y-1.5 list-decimal pl-6 text-[14px] leading-snug" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid="invent-recipe-handoff-steps">
+                    {handoffMethod.steps.map((st, i) => <li key={i}>{st}</li>)}
+                  </ol>
+                )}
+              </div>
+            )}
+
             {skeleton && (
               <div className="min-w-0">
                 <p className="text-[12px]" style={{ fontFamily: SANS, color: CHALK_DIM }} data-testid="invent-recipe-dishline">{dishLine}</p>
@@ -437,7 +581,7 @@ export default function InventRecipe({
             )}
 
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => { setState(fresh()); setPicture(undefined); reset(); }} data-testid="invent-recipe-restart"
+              <button type="button" onClick={() => { setState(fresh()); setPicture(undefined); setHandoffMethod(null); setPhotoUrl(null); setChosenMethods([]); setProfilesOpen(false); reset(); }} data-testid="invent-recipe-restart"
                 className={`px-3 py-2 rounded-lg border min-h-[44px] ${FOCUS}`} style={btn}>
                 Start over
               </button>
@@ -452,6 +596,24 @@ export default function InventRecipe({
           </>
         )}
       </div>
+      {profilesOpen && nodeMap && (
+        <div className="fixed inset-0 z-[95]" data-testid="invent-recipe-profiles-overlay">
+          <Suspense fallback={<ChalkLoader compact label="Opening the flavor profiles…" color={ACCENT} />}>
+            <RecipeFlavorProfilesCard
+              bowlNames={keys}
+              bowlEntries={bowlEntries}
+              nodes={nodeMap}
+              edges={edges}
+              recipeType={null}
+              onAdd={addFromCard}
+              onFindCocktail={onFindCocktail ? () => onFindCocktail(keys, name.trim()) : null}
+              onFindSauce={onFindSauce ? () => onFindSauce(keys, name.trim()) : null}
+              onFindWine={onFindWine ? () => onFindWine(keys, name.trim()) : null}
+              onClose={() => setProfilesOpen(false)}
+            />
+          </Suspense>
+        </div>
+      )}
       {deck && (
         <InventDeck mode={deck.mode} ingredient={deck.ingredient} keys={keys} amounts={profileAmounts} nodes={nodeMap} candidates={deck.candidates}
           onAdd={(k) => add(k)} onSwap={replace} onClose={() => setDeck(null)} />
