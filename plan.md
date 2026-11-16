@@ -2487,7 +2487,7 @@ Firebase console. Order: USAGE-1, then USAGE-2; USAGE-3 and USAGE-4 are independ
   "id": "USAGE-3",
   "title": "Totals from account records, printed by a script the owner runs",
   "category": "tooling",
-  "passes": false,
+  "passes": true,
   "description": "scripts/accountStats.mjs, run by the owner with their own Google login (application default credentials), reads the profiles, shared and shareReports collections with firebase-admin and prints totals only: accounts, accounts with at least one saved item, saved cocktails, sauces and recipes, items saved from a shared link, live and removed shared links, reports waiting. It prints no recipe content, names, emails or ids, and writes nothing. docs/usage-data.md says how to run it. The counting functions are pure and tested on made-up records.",
   "acceptance": [
     "The counting functions are pure and unit-tested; the script has a --dry-run that uses a fixture and no network",
