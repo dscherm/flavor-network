@@ -2835,7 +2835,7 @@ and the swipe, in-app surfaces), then CHART-4 (cards), CHART-5 (Recipe Notebook)
   "id": "CHART-7",
   "title": "Flavor graphs: docs, cleanup and the final pass",
   "category": "chore",
-  "passes": false,
+  "passes": true,
   "description": "docs/flavor-profile.md gains a 'Graphs' section: which design is on which surface and why, the sentence rule, the shared strip scale, the wheel and grid layouts, and that nothing about the scores changed. Remove chart code no surface uses any more (old radar axis selection, unused SURFACES entries) with a test that each remaining entry has a caller. CLOSEOUT.md unreleased entry, README and BACKLOG.md updated (left out on purpose: Cookbook card wheel and ingredient panel on the seventeen notes; tappable wedges). Final pass at 375px across the shared page, an invent panel, the Flavor profile button, the Recipe Notebook and a suggestion card. All flavor measures re-run and recorded as unchanged.",
   "acceptance": [
     "docs/flavor-profile.md describes exactly what the code draws on each surface",
