@@ -2803,7 +2803,7 @@ and the swipe, in-app surfaces), then CHART-4 (cards), CHART-5 (Recipe Notebook)
   "id": "CHART-5",
   "title": "Recipe Notebook: bars stay on the overview; the flavor map becomes the fixed wheel",
   "category": "ui",
-  "passes": false,
+  "passes": true,
   "description": "The overview page keeps ranked bars (design A: six tastes and six aromas, 'show all'), now as the chosen design and no longer an interim: update the comments in flavorDisplay.js and the docs to say so. The flavor-map page draws FlavorWheel (seventeen fixed wedges) in place of the radar whose spokes change by recipe. Per-note pages and 'more of' / 'less of' are untouched. The owner did not rule on the flavor-map page; this is the assistant's default (spec Decision 7) and is reported as such.",
   "acceptance": [
     "The overview shows the same bars as before for two named recipes (test unchanged or equivalent)",
