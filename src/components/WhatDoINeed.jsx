@@ -25,7 +25,7 @@ const SHADOW = '0 0 1px rgba(245,239,222,0.55), 0 0 3px rgba(245,239,222,0.22)';
  *   stockLabel?: string,        // "kitchen" | "bar and kitchen"
  *   onHave?: (name: string) => void,
  *   color?: string,
- *   shopping?: { recipe, list, onChange, onOpen }, // SHOP-3: shows "Add to shopping list" (adds exactly `needs.missing`)
+ *   shopping?: { recipe, list, onChange, onOpen }, // SHOP-3: shows "Add to shopping list" (adds what Copy copies: missing + better + optional)
  * }} props
  */
 export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLabel = 'kitchen', onHave = null, color = '#a3e635', shopping = null }) {
@@ -110,8 +110,8 @@ export default function WhatDoINeed({ title, needs, stockEmpty = false, stockLab
             {copied ? 'Copied ✓' : '🛒 Copy shopping list'}
           </button>
         )}
-        {shopping && missing.length > 0 && (
-          <AddToShoppingList recipe={shopping.recipe} missing={missing} list={shopping.list}
+        {shopping && missing.length + better.length + optional.length > 0 && (
+          <AddToShoppingList recipe={shopping.recipe} missing={missing} better={better} optional={optional} list={shopping.list}
             onChange={shopping.onChange} onOpen={shopping.onOpen} color={color} />
         )}
         {have.length > 0 && (

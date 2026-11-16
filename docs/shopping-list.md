@@ -125,14 +125,16 @@ before (no "about"); a line that had to be converted is "about" unless the round
 No value rounds to 0, and US text never has more than one fraction or a decimal. Recipe cards elsewhere in the app print
 their own amounts and are not changed by this.
 
-## Adding a recipe: two doors that differ on purpose today
+## Adding a recipe: two doors, and how they differ (SHOP-7)
 
 | | "Add from a recipe" on the list | "Add to shopping list" on a What do I need? panel |
 |---|---|---|
 | Code | `src/components/ShoppingRecipeAdd.jsx`, `src/data/shoppingRecipes.js` | `src/components/AddToShoppingList.jsx` |
 | Finds the recipe by | name (built-in cocktails, sauces, dishes and the cook's own saved ones) | it is the recipe already open |
-| What it offers | every line the cook lacks, in a tick list: "You need" (ticked), "Basics" (salt, oil, water...; shown after Include basics), "You have" (greyed, unticked). A dish's flavourings are in "You need" and ticked. | exactly the panel's "You need" lines (`needs.missing`). "Even better with" and "Nice to have" are not added, though Copy shopping list copies them. |
+| What it offers | every line the cook lacks, in a tick list: "You need" (ticked), for a dish "Flavourings, tap to add" (UNTICKED: the lines the Cookbook split calls flavourings, `recipeMains.mainsOf`), "Basics" (salt, oil, water...; shown after Include basics), "You have" (greyed, unticked). Cocktails and sauces have no flavourings group. | exactly the lines Copy shopping list copies: the missing "You need" lines AND "Even better with" and "Nice to have" (`needs.missing`, `needs.better`, `needs.optional`). The summary says how many were optional ("1 of those is optional."). |
 | Already on the list? | asks first: "Add it again?" Cancel adds nothing; adding again adds to the quantities | same |
+
+So for the same dish the two doors do not add the same rows by default, by the owner's two rulings of 2026-11-16 ("Adds optional items. flavourings start unticked."): the panel adds the dish's flavourings, the list's door lists them and leaves them for a tap. One more difference: the panel counts a kitchen swap (onion for scallion) as had, the list's door does not know swaps and lists the line. The flavourings split needs the ingredient table; if it has not loaded there is no split and every missing line is ticked.
 
 Both go through `addTicked` -> `addRecipe` with the same merge rule, and both record the recipe in `list.recipes`, so a row
 shows "for Beef Bolognese, Negroni". A recipe counts as already on the list while any unticked row still lists it.

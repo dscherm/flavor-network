@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // SHOP-3: "Add to shopping list" on a sauce card's What do I need? panel adds exactly what the panel lists as missing.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 
 const { node } = vi.hoisted(() => {
@@ -53,6 +53,20 @@ function Lab({ onOpen }) {
   return <SauceLab userProfile={up} auth={{ user: null }} onOpenShopping={onOpen} />;
 }
 
+
+// SHOP-7: the rows "Add to shopping list" adds are the lines "Copy shopping list" copies.
+async function copiedLines(section) {
+  let text = '';
+  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (t) => { text = t; } } });
+  fireEvent.click(within(section).getByTestId('what-do-i-need-copy'));
+  await waitFor(() => expect(text).not.toBe(''));
+  return text.split(/\r?\n/).filter((l) => l.startsWith('- ')).map((l) => l.slice(2));
+}
+const sameAsCopy = (copied, keys) => {
+  expect(keys).toHaveLength(copied.length);
+  for (const k of keys) expect(copied.filter((l) => l.toLowerCase().endsWith(k))).toHaveLength(1);
+};
+
 beforeEach(() => { localStorage.clear(); });
 
 const openSauce = async () => {
@@ -77,6 +91,15 @@ describe('Sauce card — Add to shopping list', () => {
     expect(within(section).getByTestId('what-do-i-need-add-summary').textContent).toMatch(/^Added \d for Beurre Blanc: /);
     fireEvent.click(within(section).getByTestId('what-do-i-need-open-list'));
     expect(onOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it('the rows added equal the lines Copy shopping list copies', async () => {
+    localStorage.setItem(MY_KITCHEN_KEY, JSON.stringify(['shallot']));
+    render(<Lab />);
+    const section = await openSauce();
+    const copied = await copiedLines(section);
+    fireEvent.click(within(section).getByTestId('what-do-i-need-add-shopping'));
+    sameAsCopy(copied, shopping.list.items.map((i) => i.key));
   });
 
   it('asks first when the sauce is already on the list', async () => {

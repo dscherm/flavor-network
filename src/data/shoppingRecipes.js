@@ -103,13 +103,15 @@ export function makeLocator({ kitchen = [], pantry = [], bar = [], names = null,
 /**
  * The recipe's lines in three groups, one entry per ingredient (merged by canonical name):
  *   need    not owned, not a basic          (ticked by default)
+ *   flavourings  (only when `mainOf` is given: a dish) not owned, not a basic, not a main of the dish; the same
+ *           split the Cookbook panel makes, so they start UNTICKED and a tap adds them (SHOP-7)
  *   basics  not owned, a basic (salt, water, pepper, oil…)   (ticked only with "Include basics")
  *   have    owned, with where it was found  (not ticked)
  *   all     every entry in the recipe's own order (what a tick list is read against)
  * Each entry: { id, key, label, amount, where? } — `key` is the canonical name addRecipe will use.
  */
-export function classifyLines(recipe, locate, names = null) {
-  const out = { need: [], basics: [], have: [], all: [] };
+export function classifyLines(recipe, locate, names = null, { mainOf = null } = {}) {
+  const out = { need: [], flavourings: [], basics: [], have: [], all: [] };
   const seen = new Set();
   for (const line of recipe?.lines || []) {
     const key = canonicalKey(line?.key, names);
@@ -120,6 +122,7 @@ export function classifyLines(recipe, locate, names = null) {
     out.all.push(where ? { ...entry, where } : entry);
     if (where) out.have.push({ ...entry, where });
     else if (isBasic(key)) out.basics.push(entry);
+    else if (mainOf && !mainOf(key)) out.flavourings.push(entry);
     else out.need.push(entry);
   }
   return out;
@@ -162,7 +165,7 @@ const amountOf = (line, system) => (line.parts ? formatAmount(line.parts, system
  * One or two plain sentences about what an add did. `left` = how many lines were left off because the cook has them.
  * ("Added 2: onion, carrot. Merged into lines already there: garlic: now 5 cloves.")
  */
-export function summaryText(name, summary, { left = 0, system } = {}) {
+export function summaryText(name, summary, { left = 0, system, optional = 0 } = {}) {
   const parts = [];
   const { addedLines = [], mergedLines = [] } = summary || {};
   if (addedLines.length) parts.push(`Added ${addedLines.length} for ${name}: ${joinList(addedLines.map((l) => l.label))}.`);
@@ -170,9 +173,16 @@ export function summaryText(name, summary, { left = 0, system } = {}) {
     parts.push(`Merged into lines already on your list: ${joinList(mergedLines.map((l) => (amountOf(l, system) ? `${l.label}: now ${amountOf(l, system)}` : `${l.label}: already on the list`)))}.`);
   }
   if (!addedLines.length && !mergedLines.length) parts.push(`Nothing was added for ${name}.`);
+  if (optional > 0) parts.push(`${optional === 1 ? '1 of those is' : `${optional} of those are`} optional.`);
   if (left > 0) parts.push(`Left off ${left} you already have.`);
   if (summary?.message) parts.push(summary.message);
   return parts.join(' ');
+}
+
+/** How many of the lines an add touched (added or merged) are in `optionalKeys` (canonical keys). */
+export function countOptional(summary, optionalKeys) {
+  const set = optionalKeys instanceof Set ? optionalKeys : new Set(optionalKeys || []);
+  return [...(summary?.addedLines || []), ...(summary?.mergedLines || [])].filter((l) => set.has(l.key)).length;
 }
 
 export const askAgainText = (name) => `${name} is already on your list. Add it again? It will add to the quantities.`;

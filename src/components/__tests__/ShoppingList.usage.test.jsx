@@ -22,7 +22,7 @@ const roles = JSON.parse(fs.readFileSync(`${root}/public/data/cocktail_roles.jso
 const codex = readCuratedCodex();
 const sauces = JSON.parse(fs.readFileSync(resolve(root, 'public/data/sauce_augment.json'), 'utf8')).sauces;
 const DATA = { cocktails: codex.cocktails, families: codex.families, sauces, dishes: SEED_RECIPES, dishDetails: RECIPE_DETAILS };
-const CATS = new Map([['buttermilk', 'dairy'], ['milk', 'dairy'], ['yogurt', 'dairy'], ['lemon', 'citrus'], ['bourbon', 'spirit'], ['rye', 'spirit'], ['scotch', 'spirit']]);
+const CATS = new Map([['buttermilk', 'dairy'], ['milk', 'dairy'], ['yogurt', 'dairy'], ['lemon', 'citrus'], ['bourbon', 'spirit'], ['rye', 'spirit'], ['scotch', 'spirit'], ['lentil', 'protein'], ['garlic', 'aromatic'], ['beef', 'protein'], ['tomato', 'vegetable'], ['carrot', 'vegetable'], ['celery', 'vegetable'], ['pasta', 'grain'], ['red wine', 'liquid']]);
 const INGREDIENTS = { names: new Set(CATS.keys()), vocab: [...CATS.keys()].sort(), categories: CATS };
 
 // An ingredient and a recipe name that must never show up in an event.
@@ -158,7 +158,7 @@ describe('shop_recipe_added from the list', () => {
     await addFrom('secret', 'own:recipe:r1');
     await waitFor(() => expect(events().some(([n]) => n === 'shop_recipe_added')).toBe(true));
     const [, params] = events().find(([n]) => n === 'shop_recipe_added');
-    expect(params).toEqual({ kind: 'dish', origin: 'own', where: 'list', added: 2, merged: 0 });
+    expect(params).toEqual({ kind: 'dish', origin: 'own', where: 'list', added: 1, merged: 0 });
     expect(JSON.stringify(events())).not.toMatch(/Secret|Grandma|lentils|garlic|r1/);
   });
 

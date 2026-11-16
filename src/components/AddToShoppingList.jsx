@@ -1,33 +1,37 @@
 /**
  * AddToShoppingList (SHOP-3) — the "Add to shopping list" button on a What do I need? panel.
  *
- * Adds exactly the lines the panel lists as missing, through the same addRecipe as the shopping list's own
+ * Adds what "Copy shopping list" copies (SHOP-7): the missing "You need" lines AND the optional ones ("Even better
+ * with", "Nice to have"), through the same addRecipe as the shopping list's own
  * "Add from a recipe" (same merge rule, same ask-first when the recipe is already on the list), then says what
  * happened and offers "Open list".
  *
  *   recipe    { kind, slug | id, name } — the identity of this recipe (shoppingRecipes.recipeRefFor)
  *   missing   the panel's missing lines: [{ name, amount }]
+ *   better, optional   the panel's "Even better with" and "Nice to have" lines, same shape (added too; counted in the summary)
  *   list      the shopping list now (profile.shopping.list)
  *   onChange  (change, opts?) => void — useUserProfile.updateShopping
  *   onOpen    opens the shopping list screen
  */
 import { useRef, useState } from 'react';
-import { emptyList } from '../data/shoppingList.js';
+import { canonicalKey, emptyList } from '../data/shoppingList.js';
 import { usage } from '../data/usageEvents.js';
 import { loadUnitSystem } from '../data/shoppingUnits.js';
-import { addTicked, askAgainText, shopRecipeUsage, summaryText } from '../data/shoppingRecipes.js';
+import { addTicked, askAgainText, countOptional, shopRecipeUsage, summaryText } from '../data/shoppingRecipes.js';
 import { FONT, CHALK_CREAM, CHALK_DIM } from '../data/chalkTheme.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 
-export default function AddToShoppingList({ recipe, missing, list, onChange, onOpen = null, color = '#a3e635' }) {
+export default function AddToShoppingList({ recipe, missing, better = [], optional = [], list, onChange, onOpen = null, color = '#a3e635' }) {
   const [ask, setAsk] = useState(false);
   const [done, setDone] = useState('');
   const cancelRef = useRef(null);
   const buttonRef = useRef(null);
   const current = list || emptyList();
-  const lines = (missing || []).map((m) => ({ key: m.name, amount: m.amount || '' }));
+  const extra = [...(better || []), ...(optional || [])];
+  const lines = [...(missing || []), ...extra].map((m) => ({ key: m.name, amount: m.amount || '' }));
+  const optionalKeys = new Set(extra.map((m) => canonicalKey(m.name)));
   if (!lines.length || typeof onChange !== 'function') return null;
 
   const commit = (force) => {
@@ -36,7 +40,7 @@ export default function AddToShoppingList({ recipe, missing, list, onChange, onO
     setAsk(false);
     const ev = shopRecipeUsage(recipe, 'panel', res.summary);
     if (ev) usage.shopRecipeAdded(ev);
-    setDone(summaryText(recipe.name, res.summary, { system: loadUnitSystem() }));
+    setDone(summaryText(recipe.name, res.summary, { system: loadUnitSystem(), optional: countOptional(res.summary, optionalKeys) }));
   };
 
   const click = () => {

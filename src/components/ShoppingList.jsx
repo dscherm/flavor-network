@@ -311,6 +311,7 @@ export default function ShoppingList({ shopping, onChange, onClose, loadIngredie
           onChange={onChange}
           own={own}
           names={ing.names.size ? ing.names : null}
+          categories={ing.categories}
           {...(loadRecipes ? { loadSources: loadRecipes } : {})}
           {...(recipeStock ? { stock: recipeStock } : {})}
         />

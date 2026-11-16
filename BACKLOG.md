@@ -122,11 +122,11 @@ Left out on purpose:
 OPEN OWNER DECISIONS (each one defined; the builder did not decide any of them):
 
 - SHOP-OPEN-1 DECIDED 2026-11-16 (SHOP-6): metric and US amounts are summed for display, shown in US by default, with a US | Metric switch kept on the device. Owner: "add us amounts by default". What is stored stays exactly as entered; "about" shows only when the number on screen is not exact. Weight to volume stays out. See `docs/shopping-list.md`, "US and metric".
-- SHOP-OPEN-2 Should the panel's "Add to shopping list" also add "Even better with" and "Nice to have"?
+- SHOP-OPEN-2 DECIDED 2026-11-16 (SHOP-7): option (b). Owner: "Adds optional items." The panel's "Add to shopping list" adds what Copy shopping list copies ("You need", "Even better with", "Nice to have") and the summary counts the optional ones. Original question:
   - What it is: on a What do I need? panel, "Copy shopping list" copies the missing items and the optional ones, but "Add to shopping list" adds only the "You need" lines (`needs.missing`, `src/components/AddToShoppingList.jsx`), as the task said.
   - If nothing is decided: the two buttons on one panel give different lists.
   - Options: (a) keep the difference (the shopping list holds only what the recipe needs); (b) add the optional items too, as Copy does (the two agree, the list gets longer and the cook may buy extras); (c) add them unticked-by-default in a preview, which needs the panel to show a preview step it does not have today.
-- SHOP-OPEN-3 Should "Add from a recipe" leave a dish's flavourings unticked so it agrees with the panel?
+- SHOP-OPEN-3 DECIDED 2026-11-16 (SHOP-7): option (b). Owner: "flavourings start unticked." In Add from a recipe a dish's flavourings sit under "Flavourings, tap to add", unticked. Original question:
   - What it is: inside the list, the preview treats every line the cook lacks as needed, including a dish's "flavourings" (the Cookbook splits mains from flavourings); the panel adds only the mains' missing lines. So adding the same dish through the two doors gives different rows.
   - If nothing is decided: the list's door adds flavourings ticked; the panel's does not.
   - Options: (a) keep (more complete shopping, a longer list); (b) untick flavourings by default in the preview, so a tap adds them and the two doors agree on the default; (c) hide them behind "Include flavourings", like basics.

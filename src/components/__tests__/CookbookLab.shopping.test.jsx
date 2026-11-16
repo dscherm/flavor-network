@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
-// SHOP-3: "Add to shopping list" on a Cookbook recipe's What do I need? panel adds exactly what the panel lists as missing.
+// SHOP-3 / SHOP-7: "Add to shopping list" on a Cookbook recipe's What do I need? panel adds what "Copy shopping list" copies:
+// the missing "You need" lines and the optional ones ("Even better with", "Nice to have").
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import CookbookLab from '../CookbookLab.jsx';
 import { SEED_RECIPES } from '../../data/seedRecipes.js';
@@ -31,8 +32,26 @@ const openBolognese = () => {
   fireEvent.click(screen.getByRole('button', { name: /Beef Bolognese/i }));
   return within(screen.getByRole('dialog')).getByTestId('what-do-i-need');
 };
+const optionalNames = (section) => {
+  const t = (id) => within(section).queryByTestId(id)?.textContent.replace(/^[^:]*:\s*/, '') || '';
+  return [t('what-do-i-need-better'), t('what-do-i-need-optional')].join(',').split(',').map((x) => x.replace(/\s*\(.*\)\s*$/, '').trim().toLowerCase()).filter(Boolean);
+};
 const names = (section) => [...within(within(section).getByTestId('what-do-i-need-missing')).getAllByRole('listitem')]
   .map((li) => li.querySelector('span span').textContent.toLowerCase());
+
+
+// SHOP-7: the rows "Add to shopping list" adds are the lines "Copy shopping list" copies.
+async function copiedLines(section) {
+  let text = '';
+  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (t) => { text = t; } } });
+  fireEvent.click(within(section).getByTestId('what-do-i-need-copy'));
+  await waitFor(() => expect(text).not.toBe(''));
+  return text.split(/\r?\n/).filter((l) => l.startsWith('- ')).map((l) => l.slice(2));
+}
+const sameAsCopy = (copied, keys) => {
+  expect(keys).toHaveLength(copied.length);
+  for (const k of keys) expect(copied.filter((l) => l.toLowerCase().endsWith(k))).toHaveLength(1);
+};
 
 beforeEach(() => {
   localStorage.clear();
@@ -40,19 +59,29 @@ beforeEach(() => {
 });
 
 describe('Cookbook recipe — Add to shopping list', () => {
-  it('adds exactly the "You need" items the panel lists (not the "even better with" ones), then Open list', () => {
+  it('adds the "You need" items and the "Even better with" ones, the same lines Copy copies, then Open list', () => {
     localStorage.setItem(MY_KITCHEN_KEY, JSON.stringify(['beef', 'tomato', 'shallot', 'carrot', 'pasta', 'garlic']));
     const onOpen = vi.fn();
     render(<Lab onOpen={onOpen} />);
     const section = openBolognese();
     const missing = names(section);
     expect(missing).toEqual(['celery']);
+    expect(optionalNames(section)).toEqual(['red wine']);
     fireEvent.click(within(section).getByTestId('what-do-i-need-add-shopping'));
-    expect(shopping.list.items.map((i) => i.key)).toEqual(missing);
+    expect(shopping.list.items.map((i) => i.key)).toEqual([...missing, ...optionalNames(section)]);
     expect(shopping.list.items[0].from).toEqual(['dish:beef-bolognese']);
-    expect(within(section).getByTestId('what-do-i-need-add-summary').textContent).toMatch(/^Added 1 for Beef Bolognese: celery/);
+    expect(within(section).getByTestId('what-do-i-need-add-summary').textContent).toMatch(/^Added 2 for Beef Bolognese: celery, red wine\. 1 of those is optional\./);
     fireEvent.click(within(section).getByTestId('what-do-i-need-open-list'));
     expect(onOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it('the rows added equal the lines Copy shopping list copies', async () => {
+    localStorage.setItem(MY_KITCHEN_KEY, JSON.stringify(['beef', 'tomato', 'shallot', 'carrot', 'pasta', 'garlic']));
+    render(<Lab />);
+    const section = openBolognese();
+    const copied = await copiedLines(section);
+    fireEvent.click(within(section).getByTestId('what-do-i-need-add-shopping'));
+    sameAsCopy(copied, shopping.list.items.map((i) => i.key));
   });
 
   it('with an empty kitchen it adds everything listed, and asks first the second time', () => {
@@ -60,14 +89,17 @@ describe('Cookbook recipe — Add to shopping list', () => {
     const section = openBolognese();
     const missing = names(section);
     expect(missing.length).toBeGreaterThan(3);
+    const optional = optionalNames(section);
+    expect(optional.length).toBeGreaterThan(0);
     fireEvent.click(within(section).getByTestId('what-do-i-need-add-shopping'));
-    expect(shopping.list.items.map((i) => i.key).sort()).toEqual([...missing].sort());
+    expect(shopping.list.items.map((i) => i.key).sort()).toEqual([...missing, ...optional].sort());
+    expect(within(section).getByTestId('what-do-i-need-add-summary').textContent).toMatch(new RegExp(`${optional.length === 1 ? '1 of those is' : `${optional.length} of those are`} optional`));
     fireEvent.click(within(section).getByTestId('what-do-i-need-add-shopping'));
     expect(within(section).getByTestId('what-do-i-need-add-ask')).toHaveTextContent('Beef Bolognese is already on your list. Add it again? It will add to the quantities.');
   });
 
   it('shows no button on a panel with nothing missing', () => {
-    localStorage.setItem(MY_KITCHEN_KEY, JSON.stringify(['beef', 'tomato', 'onion', 'carrot', 'celery', 'pasta']));
+    localStorage.setItem(MY_KITCHEN_KEY, JSON.stringify(['beef', 'tomato', 'onion', 'carrot', 'celery', 'pasta', 'garlic', 'red wine']));
     render(<Lab />);
     const section = openBolognese();
     expect(within(section).queryByTestId('what-do-i-need-add-shopping')).toBeNull();

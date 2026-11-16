@@ -11,6 +11,7 @@
  *   list, onChange   the shopping list and useUserProfile.updateShopping (change = list => nextList)
  *   own              { cocktails, sauces, recipes } from the profile
  *   names            the curated ingredient names (Set) once the list screen has them, or null
+ *   categories       Map name -> category from the same table (for the dish mains / flavourings split), or null
  *   loadSources      () => Promise<{ cocktails, families, sauces, dishes, dishDetails }>; default: the lazy loader
  *   stock            () => { kitchen, pantry, bar, spiceRack }; default: the device's saved lists
  */
@@ -23,6 +24,8 @@ import {
 } from '../data/shoppingRecipes.js';
 import { loadKitchen, loadSpiceRack } from '../data/myKitchen.js';
 import { loadBar } from '../data/myBar.js';
+import { mainsOf } from '../data/recipeMains.js';
+import { resolveIngredientName } from '../data/recipePairingMatch.js';
 import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL } from '../data/chalkTheme.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -50,7 +53,7 @@ function LineRow({ line, checked, onToggle, muted = false, where = null }) {
   );
 }
 
-export default function ShoppingRecipeAdd({ list, onChange, own = null, names = null, loadSources = loadRecipeSources, stock = defaultStock }) {
+export default function ShoppingRecipeAdd({ list, onChange, own = null, names = null, categories = null, loadSources = loadRecipeSources, stock = defaultStock }) {
   const [open, setOpen] = useState(false);
   const [sources, setSources] = useState({ status: 'idle', data: null });
   const [query, setQuery] = useState('');
@@ -83,7 +86,14 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
     const recipe = resolveEntry(entry, sources.data);
     if (!recipe) { setSummary(`Could not open ${entry.name}.`); return; }
     const locate = makeLocator({ ...stock(), names });
-    const groups = classifyLines(recipe, locate, names);
+    // A dish's mains and flavourings are split the way the Cookbook panel splits them (recipeMains); cocktails and sauces are not. With no ingredient table loaded there is no split.
+    const mainOf = entry.kind === 'dish' && categories && categories.size
+      ? mainsOf({ ...recipe, id: entry.slug || recipe.id }, {
+        categoryOf: (n) => categories?.get(String(n || '').toLowerCase().trim()) || null,
+        resolve: names ? (n) => resolveIngredientName(n, names) : null,
+      })
+      : null;
+    const groups = classifyLines(recipe, locate, names, { mainOf });
     setSummary('');
     setAsk(false);
     setPick({ entry, recipe, groups, ticks: new Set(groups.need.map((l) => l.id)), basics: false });
@@ -134,7 +144,7 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
     commit(lines, false);
   };
 
-  const everything = pick && pick.groups.need.length === 0;
+  const everything = pick && pick.groups.need.length === 0 && pick.groups.flavourings.length === 0;
 
   return (
     <div className="mt-3" data-testid="shopping-recipe-add">
@@ -210,10 +220,24 @@ export default function ShoppingRecipeAdd({ list, onChange, own = null, names = 
                 <p data-testid="shopping-preview-everything" style={{ fontFamily: SANS, fontSize: 15, marginTop: 4 }}>You have everything for this.</p>
               ) : (
                 <>
-                  <h3 style={{ fontFamily: FONT, fontSize: 20, color: CHALK_DIM, marginTop: 8 }}>You need</h3>
-                  <ul data-testid="shopping-preview-need" aria-label="You need">
-                    {pick.groups.need.map((l) => <LineRow key={l.id} line={l} checked={pick.ticks.has(l.id)} onToggle={() => toggleLine(l.id)} />)}
-                  </ul>
+                  {pick.groups.need.length > 0 ? (
+                    <>
+                      <h3 style={{ fontFamily: FONT, fontSize: 20, color: CHALK_DIM, marginTop: 8 }}>You need</h3>
+                      <ul data-testid="shopping-preview-need" aria-label="You need">
+                        {pick.groups.need.map((l) => <LineRow key={l.id} line={l} checked={pick.ticks.has(l.id)} onToggle={() => toggleLine(l.id)} />)}
+                      </ul>
+                    </>
+                  ) : (
+                    <p data-testid="shopping-preview-mains-have" style={{ fontFamily: SANS, fontSize: 15, marginTop: 4 }}>You have the main ingredients.</p>
+                  )}
+                  {pick.groups.flavourings.length > 0 && (
+                    <>
+                      <h3 style={{ fontFamily: FONT, fontSize: 20, color: CHALK_DIM, marginTop: 8 }}>Flavourings, tap to add</h3>
+                      <ul data-testid="shopping-preview-flavourings" aria-label="Flavourings">
+                        {pick.groups.flavourings.map((l) => <LineRow key={l.id} line={l} checked={pick.ticks.has(l.id)} onToggle={() => toggleLine(l.id)} />)}
+                      </ul>
+                    </>
+                  )}
                 </>
               )}
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  buildEntries, searchEntries, classifyLines, makeLocator, summaryText, recipeRefFor, ownRecipeId, withLines, addTicked, askAgainText,
+  buildEntries, searchEntries, classifyLines, makeLocator, summaryText, recipeRefFor, ownRecipeId, withLines, addTicked, askAgainText, countOptional,
 } from '../shoppingRecipes.js';
 import { emptyList } from '../shoppingList.js';
 
@@ -39,6 +39,43 @@ describe('entries and search', () => {
 
   it('is limited', () => {
     expect(searchEntries('negroni', entries, 2)).toHaveLength(2);
+  });
+});
+
+describe('classifyLines with a mainOf (a dish)', () => {
+  const recipe = { kind: 'dish', slug: 'x', name: 'X', lines: [{ key: 'beef', amount: '500 g' }, { key: 'oregano', amount: '1 tsp' }, { key: 'garlic', amount: '2 cloves' }, { key: 'salt', amount: '' }] };
+  const none = () => null;
+  const mainOf = (k) => k === 'beef';
+
+  it('puts the not-owned, not-basic, not-main lines in flavourings, leaving need to the mains', () => {
+    const g = classifyLines(recipe, none, null, { mainOf });
+    expect(g.need.map((l) => l.key)).toEqual(['beef']);
+    expect(g.flavourings.map((l) => l.key)).toEqual(['oregano', 'garlic']);
+    expect(g.basics.map((l) => l.key)).toEqual(['salt']);
+    expect(g.all).toHaveLength(4);
+  });
+
+  it('owned lines stay in have whether or not they are mains', () => {
+    const g = classifyLines(recipe, (k) => (k === 'garlic' ? 'My kitchen' : null), null, { mainOf });
+    expect(g.have.map((l) => l.key)).toEqual(['garlic']);
+    expect(g.flavourings.map((l) => l.key)).toEqual(['oregano']);
+  });
+
+  it('without a mainOf there are no flavourings (cocktails, sauces)', () => {
+    const g = classifyLines(recipe, none);
+    expect(g.flavourings).toEqual([]);
+    expect(g.need.map((l) => l.key)).toEqual(['beef', 'oregano', 'garlic']);
+  });
+});
+
+describe('countOptional and the optional sentence', () => {
+  it('counts added and merged lines whose key is optional, and the summary says how many', () => {
+    const summary = { added: 1, merged: 1, addedLines: [{ key: 'celery', label: 'celery' }], mergedLines: [{ key: 'red wine', label: 'red wine', now: '1 cup' }] };
+    expect(countOptional(summary, new Set(['red wine']))).toBe(1);
+    expect(countOptional(summary, ['red wine', 'celery'])).toBe(2);
+    expect(summaryText('X', summary, { optional: 1 })).toMatch(/1 of those is optional\./);
+    expect(summaryText('X', summary, { optional: 2 })).toMatch(/2 of those are optional\./);
+    expect(summaryText('X', summary, { optional: 0 })).not.toMatch(/optional/);
   });
 });
 
