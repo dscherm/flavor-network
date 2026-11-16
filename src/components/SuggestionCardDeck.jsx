@@ -3,9 +3,9 @@
  * (replace) for a recipe, shown as a swipeable Tinder-style card deck.
  *
  * One candidate per card, rendered as a dark chalkboard IngredientProfileCard
- * (PairingModeCard aesthetic): the candidate name, a hero before→after flavor
- * radar (the recipe's profile with this ingredient added/swapped), a one-line
- * delta caption, and an Add/Swap action. Swipe left / ◀ ▶ arrows browse the
+ * (PairingModeCard aesthetic): the candidate name, a hero before→after pair of
+ * fixed flavor grids (the recipe's profile now and with this ingredient added/swapped), a one-line
+ * change caption, and an Add/Swap action. Swipe left / ◀ ▶ arrows browse the
  * deck; the swipe mechanics mirror PairingMode.jsx (unified touch + mouse drag).
  *
  * Smartness (FM-P2 set-completion model):
@@ -329,6 +329,7 @@ export default function SuggestionCardDeck({
                 delta={card.delta}
                 movers={card.movers}
                 mode={mode}
+                replacing={mode === 'replace' ? ingredient : null}
                 onCommit={() => commit(card.name)}
               />
             </div>

@@ -38,7 +38,7 @@ const nodes = nodesFrom({
 });
 
 describe('SuggestionCardDeck — add mode', () => {
-  it('renders a single suggestion card with a ProfileDeltaRadar and Add commits onAdd', async () => {
+  it('renders a single suggestion card with a before/after grid pair and Add commits onAdd', async () => {
     suggestIngredients.mockResolvedValue([{ name: 'cinnamon' }, { name: 'ginger' }]);
     const onAdd = vi.fn();
     const { container } = render(
@@ -51,11 +51,11 @@ describe('SuggestionCardDeck — add mode', () => {
     const card = screen.getByTestId('suggestion-card');
     expect(card).toHaveAttribute('data-ingredient', 'cinnamon');
 
-    // The hero card renders separate taste + aroma radars, each with before + after polygons.
-    expect(container.querySelector('[data-testid="ingredient-card-radar-taste-before"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="ingredient-card-radar-taste-after"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="ingredient-card-radar-aroma-before"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="ingredient-card-radar-aroma-after"]')).toBeInTheDocument();
+    // The hero card renders a Now grid and a "With cinnamon" grid, plus the change line.
+    expect(container.querySelector('[data-testid="ingredient-card-grid-before"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-testid="ingredient-card-grid-after"]')).toBeInTheDocument();
+    expect(screen.getByText('With cinnamon')).toBeInTheDocument();
+    expect(screen.getByTestId('ingredient-card-caption').textContent).toMatch(/More/);
 
     fireEvent.click(screen.getByTestId('deck-commit'));
     expect(onAdd).toHaveBeenCalled();
@@ -75,14 +75,14 @@ describe('SuggestionCardDeck — add mode', () => {
     expect(screen.getByTestId('deck-page-title')).toHaveTextContent('2 / 2');
   });
 
-  it('renders the after polygon reflecting a non-null delta (mover dots present)', async () => {
+  it('marks the cells the candidate moves (spice goes up for cinnamon)', async () => {
     suggestIngredients.mockResolvedValue([{ name: 'cinnamon' }]);
     const { container } = render(
       <SuggestionCardDeck mode="add" bowlNames={['honey', 'lemon']} nodes={nodes} onAdd={vi.fn()} />,
     );
     await waitFor(() => expect(screen.getByTestId('suggestion-card')).toBeInTheDocument());
-    // grid ring circle + at least one mover dot → > 1 circle when delta moves an axis.
-    expect(container.querySelectorAll('circle').length).toBeGreaterThan(1);
+    const spice = container.querySelector('[data-testid="ingredient-card-grid-after"] [data-axis="odor_spicy"]');
+    expect(spice).toHaveAttribute('data-mark', 'up');
   });
 });
 
@@ -101,6 +101,7 @@ describe('SuggestionCardDeck — replace mode', () => {
     );
     await waitFor(() => expect(screen.getByTestId('suggestion-card')).toBeInTheDocument());
     expect(screen.getByText('Swap')).toBeInTheDocument();
+    expect(screen.getByText('With cinnamon for ginger')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('deck-commit'));
     expect(onSwap).toHaveBeenCalledWith('ginger', 'cinnamon');
   });

@@ -4,10 +4,11 @@
  *
  * Aesthetic matches PairingModeCard: near-black slate chalkboard wash, double
  * chalk-rail border, cream-chalk Caveat text. The HERO element is a large
- * BEFORE→AFTER flavor radar over the 11 taste+aroma axes: the recipe's current
- * profile (faint cream fill) vs. the profile WITH this candidate added/swapped
- * (bright accent outline). A one-line delta caption ("adds sweet ▲ · tempers
- * green ▼") and a chalk-green Add/Swap pill complete the card.
+ * pair of fixed flavor grids (CHART-6): the recipe now, and with this candidate
+ * added/swapped, on one shared scale, with the notes that change marked and one
+ * line naming the two that move most ("More creamy, less sour"). A chalk-green
+ * Add/Swap pill completes the card. BeforeAfterRadar is still exported for
+ * SauceSuggestionDeck.
  *
  * Pure/presentational — all data/ranking lives in SuggestionCardDeck.
  *
@@ -15,12 +16,14 @@
  *   name    string                       candidate ingredient name
  *   before  Record<axis, number>         recipe's current 12-axis profile
  *   delta   Record<axis, number>         per-axis shift this candidate causes
- *   movers  [{ axis, delta }]            the axes that move most (for caption + dots)
+ *   movers  [{ axis, delta }]            (used by BeforeAfterRadar only)
  *   mode    'add' | 'replace'
+ *   replacing string | null              swap mode: the ingredient being replaced
  *   onCommit () => void                  add/swap action
  */
-import { AXES, TASTE_AXES, AROMA_AXES, axisLabel, axisColor } from '../data/recipeProfileAnalysis.js';
-import { radarAxes } from '../data/flavorDisplay.js';
+import { AXES, axisColor, axisLabel } from '../data/recipeProfileAnalysis.js';
+import { profilePair } from '../data/profileGridPair.js';
+import FlavorGrid from './FlavorGrid.jsx';
 
 const FONT_HAND = 'Caveat, cursive';
 
@@ -187,53 +190,11 @@ function BeforeAfterRadar({
   );
 }
 
-/**
- * A captioned radar (small chalk-caps label above the wheel). The radar is
- * sized responsively — capped by BOTH the card width (47%) AND viewport height
- * (30vh) so two wheels always sit side-by-side and fit the screen without
- * scrolling. The SVG scales with its box (viewBox), so labels scale too.
- */
-function LabeledRadar({ label, before, delta, movers, axes, testId }) {
+/** One grid of the before/after pair, with a heading ("Now" / "With cinnamon"). */
+function PairGrid({ title, grid, marks, labelled, testId }) {
   return (
-    <div
-      className="flex flex-col items-center gap-0.5"
-      style={{ width: 'min(46%, 44vh)', minWidth: 130 }}
-    >
-      <span
-        className="uppercase tracking-[0.18em]"
-        style={{ color: CHALK_DIM, fontFamily: FONT_HAND, textShadow: CHALK_TEXT_SHADOW, fontSize: 'clamp(9px, 2.6vw, 11px)' }}
-      >
-        {label}
-      </span>
-      <BeforeAfterRadar before={before} delta={delta} movers={movers} axes={axes} size={186} testId={testId} />
-    </div>
-  );
-}
-
-/** One-line delta caption: "adds sweet ▲ · tempers green ▼" from movers. */
-function DeltaCaption({ movers = [] }) {
-  if (!Array.isArray(movers) || movers.length === 0) return null;
-  return (
-    <div
-      className="flex flex-wrap gap-x-2 gap-y-0.5 justify-center text-center"
-      data-testid="ingredient-card-caption"
-    >
-      {movers.map((m, i) => {
-        const up = m.delta >= 0;
-        return (
-          <span
-            key={m.axis}
-            className="inline-flex items-center gap-1"
-            style={{ fontFamily: FONT_HAND, fontSize: 'clamp(15px, 3vw, 22px)', textShadow: CHALK_TEXT_SHADOW }}
-          >
-            <span style={{ color: CHALK_DIM }}>{up ? 'adds' : 'tempers'}</span>
-            <span style={{ color: axisColor(m.axis) }}>
-              {axisLabel(m.axis).toLowerCase()} {up ? '▲' : '▼'}
-            </span>
-            {i < movers.length - 1 && <span style={{ color: CHALK_SUB }}>·</span>}
-          </span>
-        );
-      })}
+    <div className="flex-1 min-w-0">
+      <FlavorGrid title={title} grid={grid} marks={marks} showLabels={labelled} testId={testId} />
     </div>
   );
 }
@@ -244,6 +205,7 @@ export default function IngredientProfileCard({
   delta = {},
   movers = [],
   mode = 'add',
+  replacing = null,
   onCommit,
 }) {
   if (!name) {
@@ -260,11 +222,8 @@ export default function IngredientProfileCard({
     );
   }
 
-  // AROMA-4 (interim display rule): the aroma wheel plots only the strongest aromas (and the ones this candidate
-  // moves), not all eleven; the taste wheel keeps its six.
-  const peak = {};
-  for (const a of AROMA_AXES) peak[a] = Math.max(before[a] || 0, (before[a] || 0) + (delta?.[a] || 0));
-  const aromaAxes = radarAxes(peak, 'radar', { extra: (movers || []).map((m) => m.axis), pool: AROMA_AXES });
+  const pair = profilePair(before, delta);
+  const afterTitle = mode === 'replace' && replacing ? `With ${name} for ${replacing}` : `With ${name}`;
 
   return (
     <div
@@ -295,28 +254,22 @@ export default function IngredientProfileCard({
         {name}
       </h3>
 
-      <DeltaCaption movers={movers} />
-
-      {/* HERO before→after radars — taste + aroma shown separately so each
-          is readable (6 tastes from the curated labels / 6 aroma heads). */}
-      <div className="w-full flex flex-wrap justify-center items-start gap-x-3 gap-y-2">
-        <LabeledRadar
-          label="Taste"
-          before={before}
-          delta={delta}
-          movers={movers}
-          axes={TASTE_AXES}
-          testId="ingredient-card-radar-taste"
-        />
-        <LabeledRadar
-          label="Aroma"
-          before={before}
-          delta={delta}
-          movers={movers}
-          axes={aromaAxes}
-          testId="ingredient-card-radar-aroma"
-        />
-      </div>
+      {/* HERO before/after: two fixed grids on ONE scale, so an unchanged note is the same size in both and a dot
+          that grows really is stronger. Cells that change by more than MARK_THRESHOLD carry a ring and a caret. */}
+      <figure className="w-full m-0" aria-labelledby="ingredient-card-caption" data-testid="ingredient-card-pair">
+        <div className="w-full flex items-start gap-x-3">
+          <PairGrid title="Now" grid={pair.before} marks={pair.marks} labelled={pair.labelled} testId="ingredient-card-grid-before" />
+          <PairGrid title={afterTitle} grid={pair.after} marks={pair.marks} labelled={pair.labelled} testId="ingredient-card-grid-after" />
+        </div>
+        <figcaption
+          id="ingredient-card-caption"
+          data-testid="ingredient-card-caption"
+          className="text-center mt-2"
+          style={{ fontFamily: FONT_HAND, fontSize: 'clamp(17px, 3.4vw, 24px)', color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}
+        >
+          {pair.text}
+        </figcaption>
+      </figure>
 
       <button
         onClick={onCommit}

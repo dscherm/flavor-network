@@ -19,18 +19,23 @@ describe('IngredientProfileCard', () => {
     expect(screen.getByTestId('ingredient-card-name')).toHaveTextContent('cinnamon');
   });
 
-  it('renders separate taste + aroma radars, each with before + after polygons', () => {
+  it('renders a before and an after fixed grid of seventeen cells each, in the same order', () => {
     const { container } = render(
       <IngredientProfileCard name="cinnamon" before={before} delta={delta} movers={movers} mode="add" onCommit={vi.fn()} />,
     );
-    // taste radar
-    expect(container.querySelector('[data-testid="ingredient-card-radar-taste"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="ingredient-card-radar-taste-before"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="ingredient-card-radar-taste-after"]')).toBeInTheDocument();
-    // aroma radar
-    expect(container.querySelector('[data-testid="ingredient-card-radar-aroma"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="ingredient-card-radar-aroma-before"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid="ingredient-card-radar-aroma-after"]')).toBeInTheDocument();
+    const cellsOf = (id) => [...container.querySelectorAll(`[data-testid="${id}"] [data-testid="flavor-grid-cell"]`)];
+    const b = cellsOf('ingredient-card-grid-before');
+    const a = cellsOf('ingredient-card-grid-after');
+    expect(b).toHaveLength(17);
+    expect(a.map((c) => c.dataset.axis)).toEqual(b.map((c) => c.dataset.axis));
+    expect(screen.getByText('Now')).toBeInTheDocument();
+    expect(screen.getByText('With cinnamon')).toBeInTheDocument();
+    expect(container.querySelector('polygon[data-testid]')).toBeNull();
+  });
+
+  it('swap mode titles the after grid "With <new> for <old>"', () => {
+    render(<IngredientProfileCard name="cinnamon" replacing="ginger" before={before} delta={delta} movers={movers} mode="replace" onCommit={vi.fn()} />);
+    expect(screen.getByText('With cinnamon for ginger')).toBeInTheDocument();
   });
 
   it('shows "+ Add" in add mode', () => {
@@ -50,11 +55,10 @@ describe('IngredientProfileCard', () => {
     expect(onCommit).toHaveBeenCalled();
   });
 
-  it('renders a delta caption from movers', () => {
+  it('names the two notes that move most in the caption, which labels the pair', () => {
     render(<IngredientProfileCard name="cinnamon" before={before} delta={delta} movers={movers} mode="add" onCommit={vi.fn()} />);
-    const caption = screen.getByTestId('ingredient-card-caption');
-    expect(caption).toHaveTextContent('adds');
-    expect(caption).toHaveTextContent('tempers');
+    expect(screen.getByTestId('ingredient-card-caption')).toHaveTextContent('More spice, less sweet');
+    expect(screen.getByTestId('ingredient-card-pair')).toHaveAttribute('aria-labelledby', 'ingredient-card-caption');
   });
 
   it('renders an empty placeholder when name is missing', () => {

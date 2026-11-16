@@ -149,7 +149,7 @@ describe('flavorDisplay: every surface uses the rule (source check)', () => {
     'src/components/RecipeFlavorProfilesCard.jsx',
     'src/components/ProfileAxisRadar.jsx',
     'src/components/ProfileDeltaRadar.jsx',
-    'src/components/IngredientProfileCard.jsx',
+    'src/data/profileGridPair.js',
     'src/components/SauceSuggestionDeck.jsx',
     'src/data/shareCardLayout.js',
     'src/data/inventProfile.js',
