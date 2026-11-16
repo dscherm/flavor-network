@@ -2943,7 +2943,7 @@ shopping list". Order: SHOP-1, SHOP-2, SHOP-3, SHOP-4, SHOP-5, one at a time.
   "id": "SHOP-3",
   "title": "Add from a recipe: search inside the list, add only what the cook lacks; 'Add to shopping list' on What do I need",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "In the shopping list, 'Add from a recipe' opens one search box over the built-in cocktails, sauces and dishes and the cook's own saved cocktails, sauces and recipes (by name; reuse the labs' existing search helpers). Picking a recipe shows its lines split into 'You need' (ticked) and 'You have' (unticked, greyed; from My kitchen, the sauce pantry and My bar), with an 'include basics' tick, and 'Add N to the list'. After adding, a short summary says what was added and what merged into lines already there ('garlic: now 5 cloves'). Adding a recipe that is already on the list asks first. The three 'What do I need?' panels (Cocktail Lab, Sauce Lab, Cookbook) gain 'Add to shopping list' beside 'Copy shopping list', using the same addRecipe, with 'Open list' afterwards. The recipe search must not load the large pairing dataset if the list is opened first (state what is fetched).",
   "acceptance": [
     "Searching finds a built-in drink, sauce and dish and one of the cook's own saved items (component tests)",
