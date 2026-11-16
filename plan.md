@@ -2962,7 +2962,7 @@ shopping list". Order: SHOP-1, SHOP-2, SHOP-3, SHOP-4, SHOP-5, one at a time.
   "id": "SHOP-4",
   "title": "'Store doesn't have it?': an alternative for any item on the list",
   "category": "feature",
-  "passes": false,
+  "passes": true,
   "description": "Each unchecked row has 'Store doesn't have it?'. It opens up to three alternatives for that ingredient, each with how to use it (swapUseText, e.g. 'use three quarters as much'), ones the cook already has marked 'you have this'. Sources, in order: kitchenSwaps.js (swapsFor / findSwap) for food, cocktailRiff.swapCandidates for bar items, then same-category neighbours from the curated ingredients ONLY where a stated rule makes that safe (say what the rule is; if none is safe, do not use this source). An alternative that is already on the list merges by the SHOP-1 rule instead of creating a second line. Picking one replaces the row, keeps 'instead of <original>' on it, and offers Undo; if the cook already has the alternative, offer 'Use what I have' which simply removes the row. Where nothing is known the sheet says so plainly and suggests leaving it out only when the recipe marks the line optional. Wording is advice ('could stand in'), never a guarantee.",
   "acceptance": [
     "For named ingredients with known swaps (e.g. buttermilk, shallot, a base spirit) the sheet lists the alternatives with usage text; for one with none it says so (tests)",
