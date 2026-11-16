@@ -65,7 +65,7 @@ describe('LabNodeCard: Flavor profile', () => {
     card({ flavor: { recipe: { kind: 'cocktail', name: 'x', lines: [{ key: 'unobtainium', amount: '' }, { key: 'zzz', amount: '' }] }, nodes, builtIn: false } });
     fireEvent.click(screen.getByTestId('flavor-profile-button'));
     expect(screen.getByTestId('recipe-profile-empty')).toHaveTextContent('Not enough flavor data for a chart yet.');
-    expect(screen.queryByTestId('recipe-profile-group-taste')).toBeNull();
+    expect(screen.queryByTestId('recipe-profile-sentence')).toBeNull();
   });
 
   it('shows the plain line when no flavor labels are loaded', () => {
@@ -79,13 +79,13 @@ describe('LabNodeCard: Flavor profile', () => {
     const onProfileOpen = vi.fn();
     const { unmount } = card({ name: 'Mine', actions: [riff, { label: 'Edit', testid: 'saved-edit', onClick() {} }], flavor: { recipe: own, nodes, builtIn: false, onProfileOpen } });
     fireEvent.click(screen.getByTestId('flavor-profile-button'));
-    expect(screen.getByTestId('recipe-profile-group-taste')).toBeInTheDocument();
+    expect(screen.getByTestId('recipe-profile-sentence')).toBeInTheDocument();
     expect(onProfileOpen).toHaveBeenCalledWith('cocktail', false);
     unmount();
     const sauce = fromOwnItem('sauce', { name: 'S', lines: [{ key: 'butter', amount: '2 tbsp' }, { key: 'lemon juice', amount: '1 tbsp' }, { key: 'salt', amount: '1 tsp' }] });
     render(<LabNodeCard kind="sauce" name="S" actions={[{ label: 'Edit', testid: 'saved-edit', onClick() {} }]} flavor={{ recipe: sauce, nodes, builtIn: false }} onClose={() => {}} />);
     fireEvent.click(screen.getByTestId('flavor-profile-button'));
-    expect(screen.getByTestId('recipe-profile-group-taste')).toBeInTheDocument();
+    expect(screen.getByTestId('recipe-profile-sentence')).toBeInTheDocument();
   });
 });
 

@@ -46,16 +46,13 @@ describe('Flavor Profiles card with eleven aromas', () => {
 });
 
 describe('an invent panel profile with eleven aromas', () => {
-  it('lists at most 4 + 4 bars under Taste and Aroma headings, then every axis after "show all"', () => {
+  it('names the strongest notes in a sentence, keeps every note in the hidden ranked list and draws the wheel on the second page', () => {
     const profile = buildFlavorProfile(MANY, nodes, { noun: 'recipe' });
     render(<InventFlavorProfile profile={profile} testidPrefix="p" />);
-    const rows = screen.getAllByRole('listitem');
-    expect(rows.length).toBeLessThanOrEqual(8);
-    expect(screen.getByTestId('p-group-taste')).toHaveTextContent('Taste');
-    expect(screen.getByTestId('p-group-aroma')).toHaveTextContent('Aroma');
-    for (const r of rows) expect(r.className).toContain('min-w-0');
-    fireEvent.click(screen.getByTestId('p-showall'));
-    expect(screen.getAllByRole('listitem')).toHaveLength(profile.bars.length);
+    expect(screen.getByTestId('p-sentence')).toHaveTextContent(/\.$/);
+    expect(screen.getAllByRole('listitem', { hidden: true })).toHaveLength(profile.bars.length);
     expect(profile.bars.length).toBeLessThanOrEqual(17);
+    fireEvent.click(screen.getByTestId('p-dot-wheel'));
+    expect(screen.getByTestId('p-page-wheel').getAttribute('data-active')).toBe('true');
   });
 });
