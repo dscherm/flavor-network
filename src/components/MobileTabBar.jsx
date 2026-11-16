@@ -12,7 +12,7 @@ const LABS = [
   { id: 'wine',     label: 'Wine Lab',         desc: 'Pair a wine' },
   { id: 'pairing',  label: 'Pairing Lab',      desc: 'Explore flavor pairings' },
   { id: 'shopping', label: 'Shopping list',    desc: 'Tick things off as you shop' },
-  { id: 'recipe',   label: 'Recipe Notebook',  desc: 'Handwritten notebook' },
+  { id: 'recipe',   label: 'Recipe Notebook',  desc: 'Build a recipe on the chalkboard' },
   { id: 'profile',  label: 'Profile',          desc: 'Saved recipes & insights' },
 ];
 

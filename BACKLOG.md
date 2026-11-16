@@ -92,9 +92,9 @@ The Cloud Function `scrapeRecipe` exists and works for schema.org recipes. Open:
 ## Flavor graphs, left out on purpose (2026-11-15, CHART-7; on master, not deployed)
 - CHART-COOKBOOK-WHEEL The Cookbook card radar (chef vocabulary, own axis switcher) and the ingredient panel were not moved onto the seventeen notes; they keep their own word lists and radars
 - CHART-TAPPABLE-WEDGES Wedges on the wheel cannot be tapped for a note's detail; a screen reader gets the ranked list instead
-- CHART-NOTEBOOK-DOTS The Recipe Notebook flavor map no longer plots each ingredient as a dot at its own flavor position (spec Decision 7, assistant's default; the owner has not ruled). Restoring it means a per-ingredient overlay on the fixed wheel, or putting the old radar back beside it
+- CHART-NOTEBOOK-DOTS CLOSED by BUILDER-5: the flavor map shows one mark per ingredient on the fixed wheel (`docs/flavor-profile.md` "Ingredient marks on the flavor map")
 - CHART-INVENT-SENTENCE The cocktail Invent panel weighs the amounts it suggests itself, not a built-in recipe's own, so its tasting note can differ from the shared page's in notes beyond the lead. CHART-3 reported this as a risk without a measurement; the CHART-7 test shows Negroni's panel naming the same lead notes as the recipe, and the Beef Bolognese panel is identical when given the recipe's own amounts. Nothing here proves other recipes match
-- CHART-SAUCE-CARD The Sauce suggestion card still draws two radars for one profile (not a before/after), unlike the add and swap cards
+- CHART-SAUCE-CARD CLOSED by BUILDER-1: the Sauce suggestion card draws the same fixed grid as the add and swap cards
 - CHART-PHONE The graphs were looked at in a desktop browser pane at 375 px and as rendered card images, never on a phone or through a live link preview
 
 ## Recipe pictures, left out on purpose (2026-11-16, PICTURE-5; on master, not deployed)
@@ -140,3 +140,16 @@ Known gaps, not decisions:
 - SHOP-SYNC-REAL Signed-in sync was tested with a mocked Firestore and the emulator rules, never on a real account.
 - SHOP-PHONE Looked at in a desktop browser pane at 375 px only; no phone, no iOS clipboard, and the consent banner overlapping the list was not seen.
 - SHOP-REMOVAL-RESURRECT Removing an item from a list on one device and not syncing for more than 30 days lets it come back (removal notes are dropped after 30 days).
+
+## One recipe builder (2026-11-16, BUILDER-1 to 5; on master, not deployed)
+Retired with the paper Recipe Notebook (spec decision 4, assistant's default; any of them can be asked for back):
+- BUILDER-RETIRED-SWIPE-DELETE Swipe-left to delete an ingredient row (the remove button stays).
+- BUILDER-RETIRED-MATCH Per-row "match %" on the notebook's ingredient rows.
+- BUILDER-RETIRED-FOCAL The "focal" flag on an ingredient and the Recenter button, with focal-weighted suggestion ranking.
+- BUILDER-RETIRED-STARTER The starter-ingredients empty state (the builder's first question replaces it).
+- BUILDER-RETIRED-SELECTION The Recipe Notebook no longer picks up the 3D Network's selected ingredients on its own; it opens empty or on whatever door handed it a recipe (the Network panel's "build recipe" still hands them over explicitly).
+Left in place on purpose:
+- BUILDER-ONWRITE `InventRecipe`'s optional `onWrite` prop ("Write it in the Recipe Notebook") has no caller since the builder IS the notebook; it stays because six test files exercise it and one asserts the tab host does not pass it. Remove it with those tests when someone wants the cleanup.
+- BUILDER-SAVE-TWICE-COCKTAIL Saving the same cocktail or sauce twice with no picture and no id still adds a second copy (recipes already replace by name); the with-picture path now reuses the saved item with that name.
+- BUILDER-ORPHANS Files only the deleted components used may now be unreferenced (for example some helpers in `src/data/` named in their comments); not audited.
+

@@ -246,7 +246,7 @@ export default function LabNodeCard({
                   style={{ fontFamily: FONT, fontSize: FS_BODY, color: CHALK_CREAM }}>
                   <span className="flex-shrink-0" style={{ color: clusterColor }}>→</span>
                   <span className="flex-shrink-0 max-w-full">
-                    <IngredientName name={ing.name} loose testid="labcard-ingredient-link" style={{ padding: '6px 0' }}>{ing.name}</IngredientName>
+                    <IngredientName name={ing.name} loose tall testid="labcard-ingredient-link">{ing.name}</IngredientName>
                   </span>
                   {ing.measure ? (
                     <>

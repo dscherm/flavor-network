@@ -926,7 +926,7 @@ With six tastes and eleven aromas a full chart has seventeen bars. The owner has
 3. Each group has a maximum that depends on the room. **Superseded by the graph redesign (CHART-3 to CHART-7): only the Recipe Notebook overview ("full") still caps, 6 tastes + 6 aromas with "show all"; the Sauce suggestion card's aroma radar ("radar") plots at most 4 aromas; InventFlavorProfile keeps a ranked list for screen readers ("compact", everything above the floor). The share cards (were 3 + 3 and 4 + 4), the invent panels, the shared page and the Flavor profile button no longer cap anything: see "Graphs" below.**
 4. On the Recipe Notebook overview, when bars are hidden one short line says so ("+3 fainter notes") and "show all" (and "show fewer") is offered. The swipe chart has neither any more.
 5. Ties are broken one way everywhere: scores are compared to three decimals, and a tie goes to the axis that comes first in the canonical order (sweet, sour, bitter, salty, umami, heat, fruity, floral, green, woody, spice, creamy, toasty, nutty, earthy, smoky, savory). The server's stored card bars keep three decimals so they order the same way. A test checks that the Recipe Notebook, an invent panel, the shared page and a server card lead with the same two tastes and the same two aromas for Negroni and Beef Bolognese, with no tolerance for ties.
-6. Radars plot only the axes the rule picks, never seventeen: (CHART-5: the Recipe Notebook flavor map is no longer a radar; it draws the fixed seventeen-wedge wheel, and its old per-ingredient dots were dropped); (the Sauce suggestion card is a fixed grid since BUILDER-1, no longer a radar; the add and swap cards are fixed grids, CHART-6); the Cookbook card radar (chef vocabulary, with its own axis switcher) the keys the recipe has a signal on, up to 6 for taste and 8 for aroma, never fewer than 3, in the vocabulary's own order. Season, cuisine and method radars are unchanged.
+6. Radars plot only the axes the rule picks, never seventeen: (CHART-5: the Recipe Notebook flavor map is no longer a radar; it draws the fixed seventeen-wedge wheel, and BUILDER-5 put one mark per ingredient back on it); (the Sauce suggestion card is a fixed grid since BUILDER-1, no longer a radar; the add and swap cards are fixed grids, CHART-6); the Cookbook card radar (chef vocabulary, with its own axis switcher) the keys the recipe has a signal on, up to 6 for taste and 8 for aroma, never fewer than 3, in the vocabulary's own order. Season, cuisine and method radars are unchanged.
 7. The per-axis pages and the Enhance page follow the same selection (6 + 6, or every axis above the floor after "show all"). Every one of the seventeen axes has a page, an insight, a balancing axis and boost and temper candidates (a test covers all seventeen).
 8. A user's published copy stores every note above the floor (up to 17 bars; CHART-4 raised the rules limit from 11, which a 4 + 4 cut had been fitting under). Superseded: it used to store only the compact set (4 + 4 bars). Older copies with 8 bars still read and draw.
 
@@ -988,14 +988,26 @@ A copy a cook publishes now stores every note at or above the floor, up to seven
 
 ### What the redesign dropped
 
-- **The Recipe Notebook flavor map no longer plots each ingredient as a dot at its own flavor position.** It is the fixed wheel, fed the same scores as the overview bars. The per-axis pages still list "Driven by". Replacing the page was the assistant's default (spec Decision 7); the owner has been told and has not ruled on it.
+- **The flavor map dropped its per-ingredient dots in CHART-5 and BUILDER-5 brought them back** (see "Ingredient marks on the flavor map" below). The per-axis pages still list "Driven by".
 - **The "show all" toggle and the "+N fainter notes" line are gone from the swipe chart** (shared page, invent panels, Flavor profile button): nothing is capped there, so there is nothing to reveal. They remain on the Recipe Notebook overview, where the owner kept the bars.
 - The share cards' capped bar groups and their "+N fainter notes" line.
 
 ### Code removed in CHART-7
 
-`ProfileDeltaRadar.jsx` (and its test), the unused `card`, `cover` and `mini` entries of `SURFACES`, and the dead `surface` prop of `InventFlavorProfile`. `radarAxes` and `radarKeys` stay, as does `hiddenLine` (Notebook overview). BUILDER-1 later deleted `BeforeAfterRadar` and the Sauce suggestion card's radars (the card draws the fixed grid), which left the `radar` entry of `SURFACES` with no component caller: it stays with `radarAxes`, and the caller test skips it by name.
+`ProfileDeltaRadar.jsx` (and its test), the unused `card`, `cover` and `mini` entries of `SURFACES`, and the dead `surface` prop of `InventFlavorProfile`. `radarKeys` stays, as does `hiddenLine` (Notebook overview). BUILDER-1 later deleted `BeforeAfterRadar` and the Sauce suggestion card's radars (the card draws the fixed grid); BUILDER-5 then removed the `radar` entry of `SURFACES` and `radarAxes`, which nothing called (`functions/src/share/cardLayout.generated.ts` was regenerated by `scripts/buildShareIndex.mjs`, not edited).
 
 ### Not verified
 
 No cook has reviewed the tables. The charts were looked at in a desktop browser pane at 375 px and as rendered card images, not on a phone; link previews and the share sheet were not tried live; nothing in the redesign has been deployed.
+
+### Ingredient marks on the flavor map (BUILDER-5)
+
+The Flavor Profiles card's **Flavor map** page draws the fixed seventeen-wedge wheel (the same wedges for every recipe) and, on top of it, **one mark per ingredient**. A mark is placed from that ingredient's own notes, read from the same tables as the chart (`nodeProbs`: the curated taste label with the strength table, and the aroma table; the molecular model is not read):
+
+- every note the ingredient has pulls toward that note's wedge (the wedge's middle angle); the mark sits in the direction of the pull;
+- its distance from the centre is the pull's length, scaled so the most single-flavoured ingredient in the recipe sits near the rim (85 percent of it) and a balanced one near the middle;
+- only a half the chart draws counts (the same draw rule as the wheel): with no drawn aroma half a mark never points at an aroma wedge;
+- an ingredient with no note on a drawn half has no mark and is not listed.
+
+The mark's colour is its strongest note's colour. Labels are cut to nine characters and thinned greedily, strongest first, so no two labels overlap; every mark is still drawn. Under the wheel a plain list names every mark with its three strongest notes (`flavor-map-marks-list`), which is what a screen reader gets. Code: `src/data/flavorMarks.js` (`ingredientMarks`, `thinLabels`), `FlavorWheel.jsx` (`marks` prop). No score, table or axis changed.
+

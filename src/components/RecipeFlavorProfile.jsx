@@ -15,6 +15,7 @@ import { useMemo, useRef, useState } from 'react';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
 import { profileForRecipe } from '../data/shareCardData.js';
 import { NO_CHART_LINE } from '../data/recipeProfileAnalysis.js';
+import { IngredientName } from './IngredientCardProvider.jsx';
 import { heading, small, SANS, CHALK_CREAM, CHALK_SUB } from './inventUi.jsx';
 
 export function useFlavorToggle(onOpen) {
@@ -45,7 +46,7 @@ function drivenBy(profile) {
   return ['taste', 'aroma'].map((g) => {
     const bar = firstOf(g);
     const keys = bar ? (profile.drivers?.[bar.axis] || []) : [];
-    return bar && keys.length ? `${g === 'taste' ? 'Taste' : 'Aroma'} (${bar.label.toLowerCase()}): ${keys.join(', ')}` : null;
+    return bar && keys.length ? { head: `${g === 'taste' ? 'Taste' : 'Aroma'} (${bar.label.toLowerCase()}): `, keys } : null;
   }).filter(Boolean);
 }
 
@@ -68,7 +69,13 @@ export function RecipeFlavorProfile({ recipe, nodes, testidPrefix = 'recipe-prof
       <InventFlavorProfile profile={profile} testidPrefix={testidPrefix} />
       {driven.length > 0 && (
         <p className="mt-1 text-[13px]" style={{ fontFamily: SANS, color: CHALK_CREAM }} data-testid="flavor-profile-driven">
-          <span style={small}>Driven by </span>{driven.join(' · ')}
+          <span style={small}>Driven by </span>
+          {driven.map((d, i) => (
+            <span key={d.head}>
+              {i > 0 ? ' · ' : ''}{d.head}
+              {d.keys.map((k, j) => <span key={k}>{j > 0 ? ', ' : ''}<IngredientName name={k} loose tall>{k}</IngredientName></span>)}
+            </span>
+          ))}
         </p>
       )}
     </div>

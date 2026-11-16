@@ -35,6 +35,18 @@ export function readSaved(profile, kind) {
   return cleanSavedList(profile?.[PROFILE_FIELD[kind]]).filter((it) => it.kind === kind);
 }
 
+/**
+ * The id of the invention of this kind the cook already saved under this name (case-blind), or null. A save that
+ * carries no id of its own (a build saved twice in one session) reuses it so the second save updates the first.
+ */
+export function savedIdByName(profile, kind, name) {
+  const field = PROFILE_FIELD[kind];
+  const n = text(name).toLowerCase();
+  if (!field || !n) return null;
+  const hit = asList(profile?.[field]).find((x) => x && x.source === 'invent' && x.id && text(x.name).toLowerCase() === n);
+  return hit ? hit.id : null;
+}
+
 /** "2 oz" + "gin" → "2 oz gin"; no amount → "gin". */
 export const lineText = (l) => [text(l?.amount), text(l?.key)].filter(Boolean).join(' ');
 

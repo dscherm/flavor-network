@@ -8,7 +8,8 @@ generated files hold 3,891 and 95,992 before the correction tables merge spellin
 variants and hide non-food; of those raw pairings, 68,417 were observed across 2.2
 million real recipes and the rest predicted by a molecular model) behind four working
 surfaces: a cocktail lab, a sauce lab, a pairing explorer, and a
-"make a recipe" flow with a handwritten-notebook cookbook.
+"make a recipe" flow that opens one chalkboard recipe builder (also the
+Recipe Notebook tab), with a cookbook of saved recipes.
 
 > **Status:** finished, not abandoned. The live site is the only
 > distribution channel and is not receiving features. `CLOSEOUT.md` has
@@ -21,7 +22,7 @@ The landing page offers two doors:
 
 | Door | What it opens |
 |---|---|
-| **The Labs** | **Cocktail Lab** — 439 cocktails in 7 families (Sour, Aromatic Stirred, Highballs & Fizzes, Aperitivos, Tropical Sours, Boozy Sippers, Flips & Cream Drinks) and 17 named sub-groups, as a 3D graph; build a drink, get "suggested next" ingredients. **Sauce Lab** — 77 curated sauces in the 10 mother families (Escoffier's five + Curry, Stir-fry, Mole, Salsa, Nut Sauce). **Pairing Lab** — pick an ingredient, see its strongest pairings and the compounds that explain them. **Recipe Notebook** — a 2D canvas notebook for assembling a bowl of ingredients with phase-aware suggestions. |
+| **The Labs** | **Cocktail Lab** — 439 cocktails in 7 families (Sour, Aromatic Stirred, Highballs & Fizzes, Aperitivos, Tropical Sours, Boozy Sippers, Flips & Cream Drinks) and 17 named sub-groups, as a 3D graph; build a drink, get "suggested next" ingredients. **Sauce Lab** — 77 curated sauces in the 10 mother families (Escoffier's five + Curry, Stir-fry, Mole, Salsa, Nut Sauce). **Pairing Lab** — pick an ingredient, see its strongest pairings and the compounds that explain them. **Recipe Notebook** (and **Make a recipe**) — one chalkboard recipe builder: pick a main ingredient and, if you like, a dish type, add ingredients with suggestions and stand-ins shown as a swipeable before/after deck, read the flavor profile, save with amounts and a picture, share. Tap any ingredient name to open its card (`docs/recipe-builder.md`). |
 | **Make a recipe** | Start from ingredients, a cuisine, or a recipe URL (parsed server-side by a Cloud Function); an on-device set-completion model (ONNX, runs in the browser) proposes what to add next. Save to the **Cookbook**. |
 
 **Invent, in every lab.** Cocktail Lab, Sauce Lab and the Recipe Lab each have an *Invent* panel that starts empty: one question first (which liquor, what the sauce is built on, the main ingredient), then you add every ingredient yourself, by typing or from suggestions. A style, technique or kind of dish is optional; with a few ingredients in, one is recommended from your list and applied only if you accept it, and a checklist shows what it usually has. Ingredients you do not have offer stand-ins, a flavor profile (built from taste labels and aroma notes for each ingredient, weighted by amount; a guide, not a taste test) is drawn from the list, and you name it and save it to your account; your own cocktails and sauces then appear in the lab's list with Edit and Delete, and invented recipes in the Cookbook. "✨ Invent this" on the Cocktail, Sauce and Cookbook search boxes starts the list from what you typed. Amounts are suggestions, an idea from what pairs rather than a tested recipe.
@@ -69,7 +70,7 @@ Every cocktail, sauce and dish has a Share button. It gives a link (`/r/<kind>/<
   └──────────────────────────────┬───────────────────────────────────┘
                                  ▼
   ┌──────────────────────────────────────────────────────────────────┐
-  │  src/  React 18 + Vite · Three.js (3D labs) · Canvas 2D (notebook)│
+  │  src/  React 18 + Vite · Three.js (3D labs) · chalkboard UI   │
   │  onnxruntime-web (set-completion, in-browser) · RDKit wasm        │
   └──────────────────────────────┬───────────────────────────────────┘
                                  ▼
@@ -103,7 +104,7 @@ Three things worth understanding about this shape:
    smoky, savory). The charts draw all seventeen: a tasting note with
    Taste and Aroma strips that swipes to a fixed wheel (shared page,
    Invent panels, Flavor profile button, share cards), ranked bars and
-   the wheel on the Recipe Notebook, and before/after grids on the
+   the wheel (with a dot per ingredient) in the recipe builder's Flavor Profiles card, and before/after grids on the
    add and swap suggestion cards (`src/data/flavorCharts.js`,
    `docs/flavor-profile.md` "Graphs"). The GNN's per-ingredient
    taste/odor probabilities only drive single-ingredient wheels and radars
@@ -114,7 +115,7 @@ Three things worth understanding about this shape:
 
 ```
 src/                 React app. App.jsx routes tabs; components/ holds the
-                     labs, notebook, make flow, cookbook; three/ the 3D
+                     labs, the recipe builder, make flow, cookbook; three/ the 3D
                      scene; data/ the graph/scoring math; hooks/useProData
                      loads everything under public/.
 public/proDataset/   Ingredient + pairing dataset, cluster labels, layouts,

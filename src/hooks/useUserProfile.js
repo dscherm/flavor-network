@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase.js';
-import { saveInvention as saveInventionInto, deleteInvention as deleteInventionFrom, PROFILE_FIELD } from '../data/savedInventions.js';
+import { saveInvention as saveInventionInto, deleteInvention as deleteInventionFrom, savedIdByName, PROFILE_FIELD } from '../data/savedInventions.js';
 import { newItemId } from '../data/inventSaved.js';
 import { cleanPictureField, sharedPictureField, prepareItemPicture, dropPicture } from '../data/pictureStore.js';
 import { emptyShopping, cleanShopping, commitList, loadShopping, saveShopping, sameShopping } from '../data/shoppingStore.js';
@@ -417,7 +417,9 @@ export default function useUserProfile(user) {
   const uid = user?.uid || '';
   const saveInventionWithPicture = useCallback(async (input) => {
     const kind = input?.kind;
-    const id = input?.id || newItemId();
+    // A save with no id of its own is a build saved a second time when the cook already has one under that name:
+    // it updates that one instead of adding a copy (the same rule saveInvention applies to recipes without a picture).
+    const id = input?.id || savedIdByName(profileRef.current, kind, input?.name) || newItemId();
     const list = Array.isArray(profileRef.current?.[PROFILE_FIELD[kind]]) ? profileRef.current[PROFILE_FIELD[kind]] : [];
     const prev = cleanPictureField(list.find((x) => x?.id === id)?.picture);
     const prep = await prepareItemPicture({ db, uid, itemId: id, value: input?.picture, prev });

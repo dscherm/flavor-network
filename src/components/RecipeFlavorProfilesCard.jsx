@@ -32,6 +32,7 @@ import HelpBubble from './HelpBubble.jsx';
 import { curateCodexRaw } from '../data/cocktailCodexV2.js';
 import { groupBars, selectAxes, hiddenLine } from '../data/flavorDisplay.js';
 import FlavorWheel from './FlavorWheel.jsx';
+import { ingredientMarks } from '../data/flavorMarks.js';
 import { IngredientName } from './IngredientCardProvider.jsx';
 // CK-14: fold the duplicated chalkboard palette onto the shared theme.
 import { FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL as CHALK_BORDER_OUTER } from '../data/chalkTheme.js';
@@ -235,6 +236,16 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
     [scores],
   );
 
+  // One mark per ingredient on the Flavor map, from its own notes (the half the chart does not draw is ignored).
+  const marks = useMemo(
+    () => ingredientMarks(
+      (Array.isArray(bowlEntries) && bowlEntries.length) ? bowlEntries.map((e) => e?.ingredient) : bowlNames,
+      nodes,
+      { taste: tasteDrawn, aroma: aromaDrawn },
+    ),
+    [bowlEntries, bowlNames, nodes, tasteDrawn, aromaDrawn],
+  );
+
   const [candidates, setCandidates] = useState([]); // model pool that fits the recipe
   const [dishes, setDishes] = useState([]);
   const [cookingMethod, setCookingMethod] = useState(null); // dominant likely method (FP-OV-5)
@@ -436,9 +447,9 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
           <div className="flex flex-col items-center">
             <h3 className="text-2xl self-start mb-1" style={{ fontFamily: FONT, color: CHALK_CREAM, textShadow: CHALK_TEXT_SHADOW }}>Flavor map</h3>
             <div style={{ width: 'min(100%, 60vh)' }}>
-              <FlavorWheel bars={wheelBars} testidPrefix="flavor-map" />
+              <FlavorWheel bars={wheelBars} testidPrefix="flavor-map" marks={marks} />
             </div>
-            <p className="text-sm mt-1 text-center" style={{ fontFamily: FONT, color: CHALK_DIM }}>The recipe's flavor on a fixed wheel</p>
+            <p className="text-sm mt-1 text-center" style={{ fontFamily: FONT, color: CHALK_DIM }}>The recipe's flavor on a fixed wheel; each dot is one ingredient, near the notes it has most of</p>
           </div>
         )}
 
@@ -453,11 +464,11 @@ export default function RecipeFlavorProfilesCard({ bowlNames = [], bowlEntries =
               <div className="h-2 rounded-full" style={{ width: `${Math.min(100, scores[axis] * 100)}%`, background: axisColor(axis) }} />
             </div>
             {drivers[axis]?.length > 0 && (
-              <p className="text-sm mb-1" style={{ fontFamily: FONT, color: CHALK_DIM }}>
-                Driven by:{' '}
-                <span style={{ color: CHALK_CREAM }} data-testid="axis-drivers">
+              <p className="text-sm mb-1 flex flex-wrap items-center gap-x-1" style={{ fontFamily: FONT, color: CHALK_DIM }}>
+                Driven by:
+                <span className="inline-flex flex-wrap items-center" style={{ color: CHALK_CREAM }} data-testid="axis-drivers">
                   {drivers[axis].map((d, i) => (
-                    <span key={d}>{i > 0 ? ', ' : ''}<IngredientName name={d} style={{ padding: '10px 0' }}>{d}</IngredientName></span>
+                    <span key={d}>{i > 0 ? ', ' : ''}<IngredientName name={d} tall>{d}</IngredientName></span>
                   ))}
                 </span>
               </p>

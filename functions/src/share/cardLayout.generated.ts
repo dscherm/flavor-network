@@ -12,8 +12,7 @@ export const SHARE_CHARTS_ENABLED = true;
  *     ordering (compareBars: strongest first at 3 decimals, ties by canonical axis order).
  *   - The ranked bars (groupBars, SURFACES, hiddenLine): drawn only by the Recipe Notebook overview ('full', six
  *     and six with "show all") and used as the plain ranked list by InventFlavorProfile ('compact', everything shown).
- *   - radarAxes / radarKeys: which spokes a radar plots (the Sauce suggestion card's aroma radar; the Cookbook card
- *     radar's chef vocabulary).
+ *   - radarKeys: which spokes the Cookbook card radar plots (its chef vocabulary).
  * The tasting note, strips, wheel and grid are in flavorCharts.js, built on the same ordering.
  *
  * Rules
@@ -24,7 +23,7 @@ export const SHARE_CHARTS_ENABLED = true;
  *   4. Ties are broken one way everywhere: scores are compared at 3 decimal places, and a tie goes to the axis
  *      that comes first in AXES (sweet, sour, bitter, salty, umami, heat, then fruity, floral, green, woody,
  *      spice, creamy, toasty, nutty, earthy, smoky, savory).
- *   5. A radar plots only the axes the rule selects for it (3 to 8 spokes, never 17).
+ *   5. A radar (radarKeys) plots at most 8 spokes, never 17.
  */
 
 export const TASTE_AXES = ['sweet', 'sour', 'bitter', 'salty', 'umami', 'heat'];
@@ -45,12 +44,10 @@ export const FLOOR = 0.05;
  * How many bars of each group a surface shows. Every entry has a caller (flavorDisplay.test.js checks it).
  *   compact  InventFlavorProfile's ranked list (asks for all, so it shows everything above the floor)
  *   full     the Recipe Notebook overview: 6 + 6, with "show all"
- *   radar    the Sauce suggestion card's aroma radar plots at most 4 spokes
  */
 export const SURFACES = {
   compact: { taste: 4, aroma: 4, showAll: true },
   full: { taste: 6, aroma: 6, showAll: true },
-  radar: { taste: 4, aroma: 4, showAll: false },
 };
 export const MIN_SPOKES = 3;
 export const GROUP_TITLE = { taste: 'Taste', aroma: 'Aroma' };
@@ -134,21 +131,7 @@ export function selectAxes(scores, surface = 'full', { all = false, floor = FLOO
 }
 
 /**
- * The axes a radar plots, in canonical order (so the shape does not jump around): the selected axes for the
- * surface (restricted to `pool` when given, e.g. only the aromas), padded with the next-strongest (then canonical-first) axes up to MIN_SPOKES so a polygon can be drawn.
- */
-export function radarAxes(scores, surface = 'radar', { extra = [], floor = FLOOR, pool = AXES } = {}) {
-  const inPool = (a) => pool.includes(a);
-  const picked = new Set([...selectAxes(scores, surface, { floor }).axes.filter(inPool), ...extra.filter((a) => AXES.includes(a) && inPool(a))]);
-  if (picked.size < MIN_SPOKES) {
-    const rest = pool.map((a) => ({ axis: a, score: Number(scores?.[a]) || 0 })).sort(compareBars);
-    for (const r of rest) { if (picked.size >= MIN_SPOKES) break; picked.add(r.axis); }
-  }
-  return pool.filter((a) => picked.has(a));
-}
-
-/**
- * Generic version for a radar whose keys are not the seventeen axes (the Cookbook card radar's chef vocabulary):
+ * The keys a radar plots, for a radar whose keys are not the seventeen axes (the Cookbook card radar's chef vocabulary):
  * `signal` is Map or object key -> 0..1; returns up to `max` keys with a signal, in `canonical` order, padded to
  * MIN_SPOKES from the start of `canonical`.
  */

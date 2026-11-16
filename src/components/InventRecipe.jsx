@@ -1,5 +1,5 @@
 /**
- * InventRecipe — "Invent a recipe" for the Recipe Lab. Starts EMPTY: the panel
+ * InventRecipe — the one chalkboard recipe builder (the Recipe Notebook tab and Make a recipe both open it). Starts EMPTY: the panel
  * never puts an ingredient or a name in front of the cook on its own.
  *
  * 1 · "What is the main ingredient?"  kitchen items the main slot would take first,
@@ -411,7 +411,7 @@ export default function InventRecipe({
     <IngredientBuilderScope onAdd={(k) => { add(k); }} has={(k) => keys.includes(k)} addLabel="Add to this recipe">
     <div className="fixed inset-x-0 top-0 safe-top-pad z-[83] flex flex-col items-center px-4 py-3 overflow-y-auto overflow-x-hidden"
       style={{ ...chalkSurfaceStyle(), bottom: 'var(--tab-bar-h)', color: CHALK_CREAM }}
-      data-testid="invent-recipe" role="dialog" aria-label="Invent a recipe">
+      data-testid="invent-recipe" role="dialog" aria-label="Build a recipe">
       <div className="w-full max-w-[560px] flex items-center justify-between mb-2 gap-2">
         <button type="button" onClick={onClose} data-testid="invent-recipe-close"
           className={`px-3 py-2 rounded-lg min-h-[44px] border ${FOCUS}`} style={btn}>
@@ -427,7 +427,7 @@ export default function InventRecipe({
 
       <div className="w-full max-w-[560px] rounded-2xl px-4 py-4 flex flex-col gap-4" style={{ border: `2px double ${CHALK_RAIL}`, background: 'rgba(255,255,255,0.025)' }}>
         <div>
-          <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>{editId ? 'Edit your recipe' : 'Invent a recipe'}</h2>
+          <h2 className="text-center text-[34px] leading-tight" style={{ fontFamily: FONT, textShadow: CHALK_SHADOW }}>{editId ? 'Edit your recipe' : 'Build a recipe'}</h2>
           <p className="text-center text-[13px]" style={{ fontFamily: SANS, color: CHALK_SUB }} data-testid="invent-recipe-source">
             {pantry.length
               ? `Your kitchen (${pantry.length} item${pantry.length === 1 ? '' : 's'}) comes first; anything else is marked “you'd need”.`
@@ -607,7 +607,7 @@ export default function InventRecipe({
         )}
       </div>
       {profilesOpen && nodeMap && (
-        <div className="fixed inset-0 z-[95]" data-testid="invent-recipe-profiles-overlay">
+        <div className="fixed inset-x-0 top-0 z-[95]" style={{ bottom: 'var(--tab-bar-h)' }} data-testid="invent-recipe-profiles-overlay">
           <Suspense fallback={<ChalkLoader compact label="Opening the flavor profiles…" color={ACCENT} />}>
             <RecipeFlavorProfilesCard
               bowlNames={keys}

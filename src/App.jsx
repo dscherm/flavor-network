@@ -352,7 +352,6 @@ export default function App() {
   useEffect(() => {
     if (startPageComplete && activeTab !== 'labs' && activeTab !== 'profile') usage.labOpened(activeTab);
   }, [activeTab, startPageComplete]);
-  const [recipeInitialMode, setRecipeInitialMode] = useState(null);
   const [cookbookPickerMode, setCookbookPickerMode] = useState(null);
   // One-shot handoff payload to the Recipe Lab. ONLY explicit user
   // actions ("Build Recipe" from the IngredientPanel, "Open in Recipe
@@ -2141,7 +2140,6 @@ export default function App() {
               // Amounts and the id of a recipe the cook invented come along; one the old Notebook saved
               // (names only) reopens by name and is replaced, not duplicated, when saved again.
               setRecipeHandoff(handoffFromProfileRecipe(recipe));
-              setRecipeInitialMode(null);
               setRecipeMounted(true);
               setActiveTab('recipe');
             }}
@@ -2190,7 +2188,6 @@ export default function App() {
                 mode: 'cocktail',
                 ts: Date.now(),
               });
-              setRecipeInitialMode('cocktail');
               setRecipeMounted(true);
               setActiveTab('recipe');
             }}
@@ -2228,7 +2225,6 @@ export default function App() {
                 mode: 'sauce',
                 ts: Date.now(),
               });
-              setRecipeInitialMode('sauce');
               setRecipeMounted(true);
               setActiveTab('recipe');
             }}
@@ -2377,7 +2373,6 @@ export default function App() {
                 ts: Date.now(),
                 ...extras,
               });
-              setRecipeInitialMode('recipe');
               setRecipeMounted(true);
               setCookbookPickerMode(null);
               setActiveTab('recipe');
@@ -2413,7 +2408,6 @@ export default function App() {
                 ts: Date.now(),
                 title: typeof title === 'string' ? title : '',
               });
-              setRecipeInitialMode('recipe');
               setRecipeMounted(true);
               setActiveTab('recipe');
             }}

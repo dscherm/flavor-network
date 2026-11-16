@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import {
   AXES, TASTE_AXES, AROMA_AXES, FLOOR, SURFACES, MIN_SPOKES, hiddenLine,
-  compareBars, rankAxes, groupBars, selectAxes, radarAxes, radarKeys, barGroup, axisOfBar,
+  compareBars, rankAxes, groupBars, selectAxes, radarKeys, barGroup, axisOfBar,
 } from './flavorDisplay.js';
 import * as pa from './recipeProfileAnalysis.js';
 import { buildFlavorProfile } from './inventProfile.js';
@@ -56,8 +56,8 @@ describe('flavorDisplay: surfaces and their maxima', () => {
       expect(every.bars.length).toBe(cfg.showAll ? 17 : cfg.taste + cfg.aroma);
     });
   }
-  it('compact is 4 + 4, full 6 + 6, radar 4 + 4, and there are no other surfaces', () => {
-    expect(Object.keys(SURFACES).sort()).toEqual(['compact', 'full', 'radar']);
+  it('compact is 4 + 4, full 6 + 6, and there are no other surfaces', () => {
+    expect(Object.keys(SURFACES).sort()).toEqual(['compact', 'full']);
     expect([SURFACES.compact.taste, SURFACES.compact.aroma]).toEqual([4, 4]);
     expect([SURFACES.full.taste, SURFACES.full.aroma]).toEqual([6, 6]);
   });
@@ -92,32 +92,15 @@ describe('flavorDisplay: every SURFACES entry has a caller', () => {
     }
   };
   walk('src');
-  // BUILDER-1: the Sauce deck's radars were the only caller of 'radar'; it now draws the fixed grid, so the surface is kept (radarAxes still exists and is tested below) with no component caller.
-  for (const key of Object.keys(SURFACES).filter((k) => k !== 'radar')) {
+  for (const key of Object.keys(SURFACES)) {
     it(`'${key}' is passed by a component or data module outside flavorDisplay.js`, () => {
-      const callers = sources.filter(([, text]) => new RegExp(`(groupBars|selectAxes|radarAxes)[(][^)]*['"]${key}['"]`).test(text));
+      const callers = sources.filter(([, text]) => new RegExp(`(groupBars|selectAxes)[(][^)]*['"]${key}['"]`).test(text));
       expect(callers.map(([f]) => f)).not.toEqual([]);
     });
   }
 });
 
-describe('flavorDisplay: radars never plot seventeen spokes', () => {
-  it('radarAxes gives 3 to 8 spokes in canonical order, padded when the recipe is faint', () => {
-    expect(radarAxes(all17(() => 0.5)).length).toBe(8);
-    const faint = radarAxes({ sweet: 0.3 });
-    expect(faint.length).toBe(MIN_SPOKES);
-    expect(faint).toEqual(AXES.filter((a) => faint.includes(a)));
-    expect(faint).toContain('sweet');
-  });
-  it('a pool restricts it (the aroma wheel on a suggestion card)', () => {
-    const r = radarAxes(all17(() => 0.5), 'radar', { pool: AROMA_AXES });
-    expect(r.every((a) => AROMA_AXES.includes(a))).toBe(true);
-    expect(r.length).toBe(4);
-    expect(radarAxes({}, 'radar', { pool: AROMA_AXES }).length).toBe(MIN_SPOKES);
-  });
-  it('extra axes (the ones a candidate moves) are always plotted', () => {
-    expect(radarAxes(all17(() => 0.5), 'radar', { extra: ['odor_savory'] })).toContain('odor_savory');
-  });
+describe('flavorDisplay: radarKeys never plots seventeen spokes', () => {
   it('radarKeys picks keys with a signal, padded to three, in vocabulary order', () => {
     const keys = ['a', 'b', 'c', 'd', 'e'];
     expect(radarKeys({ d: 1, b: 0.5 }, keys, 8)).toEqual(['a', 'b', 'd']);

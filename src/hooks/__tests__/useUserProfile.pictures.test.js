@@ -195,3 +195,24 @@ describe('useSaveInvention', () => {
     expect(r.pictureReason).toBeUndefined();
   });
 });
+
+describe('saving the same build twice with a picture', () => {
+  it('the second save updates the first instead of adding a copy (cocktail and recipe)', async () => {
+    const { result } = await signedIn();
+    for (const kind of ['cocktail', 'recipe']) {
+      const field = kind === 'cocktail' ? 'cocktails' : 'recipes';
+      await act(async () => { await result.current.saveInventionWithPicture(input({ kind, name: 'Twice', picture: { kind: 'icon', icon: 'glass:coupe' } })); });
+      const id = result.current.profile[field].find((x) => x.name === 'Twice').id;
+      await act(async () => { await result.current.saveInventionWithPicture(input({ kind, name: 'twice', picture: { kind: 'icon', icon: 'glass:coupe' } })); });
+      const same = result.current.profile[field].filter((x) => x.name.toLowerCase() === 'twice');
+      expect(same).toHaveLength(1);
+      expect(same[0].id).toBe(id);
+    }
+  });
+  it('a different name is a different item', async () => {
+    const { result } = await signedIn();
+    await act(async () => { await result.current.saveInventionWithPicture(input({ name: 'One', picture: { kind: 'icon', icon: 'glass:coupe' } })); });
+    await act(async () => { await result.current.saveInventionWithPicture(input({ name: 'Two', picture: { kind: 'icon', icon: 'glass:coupe' } })); });
+    expect(result.current.profile.cocktails).toHaveLength(2);
+  });
+});

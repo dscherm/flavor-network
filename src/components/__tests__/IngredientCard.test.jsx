@@ -11,6 +11,7 @@ import IngredientProfileCard from '../IngredientProfileCard.jsx';
 import LabNodeCard from '../LabNodeCard.jsx';
 import WhatDoINeed from '../WhatDoINeed.jsx';
 import RecipeFlavorProfilesCard from '../RecipeFlavorProfilesCard.jsx';
+import { RecipeFlavorProfile } from '../RecipeFlavorProfile.jsx';
 import CookbookLab from '../CookbookLab.jsx';
 import ShoppingList from '../ShoppingList.jsx';
 import { commitList, emptyShopping } from '../../data/shoppingStore.js';
@@ -347,6 +348,21 @@ describe('IngredientCard: the other surfaces', () => {
     fireEvent.click(screen.getByLabelText('Next'));
     fireEvent.click(screen.getByLabelText('Next'));
     const links = within(screen.getByTestId('axis-drivers')).getAllByRole('button');
+    expect(links.length).toBeGreaterThan(0);
+    const label = links[0].getAttribute('aria-label').replace('About ', '');
+    fireEvent.click(links[0]);
+    expect(dialogFor(label)).toBeTruthy();
+  });
+
+  it('the "Driven by" line inside a cocktail or sauce card (RecipeFlavorProfile) opens the card too', () => {
+    const nodes = new Map([['strawberry', { taste: 'sweet' }], ['cranberry', { taste: 'sour' }], ['coconut cream', { taste: 'sweet' }]]);
+    render(
+      <IngredientCardProvider data={{ graph: { nodes, edges: [] } }}>
+        <RecipeFlavorProfile recipe={{ kind: 'sauce', name: 'Berry', lines: [{ key: 'strawberry' }, { key: 'cranberry' }, { key: 'coconut cream' }] }} nodes={nodes} />
+      </IngredientCardProvider>,
+    );
+    const driven = screen.getByTestId('flavor-profile-driven');
+    const links = within(driven).getAllByRole('button');
     expect(links.length).toBeGreaterThan(0);
     const label = links[0].getAttribute('aria-label').replace('About ', '');
     fireEvent.click(links[0]);

@@ -1,5 +1,7 @@
 # Canonical Recipe Lab Spec
 
+> **RETIRED (2026-11-16, BUILDER-5).** The paper Recipe Notebook this spec describes (`RecipeLab`, `RecipeLabMobile`, `RecipeNotebook`, `NotebookCanvas`, `RecipePanel`, the suggestion drawer and popout) no longer exists. The Recipe Notebook tab opens the one chalkboard recipe builder; see `docs/recipe-builder.md`. Kept as history of how scoring, layout and suggestions were once specified; where it disagrees with the code, the code wins.
+
 > **Status**: Authoritative. Supersedes all prior specs, ralplans, and
 > plan-document fragments listed in [§21 Source spec lineage](#21-source-spec-lineage).
 > When this file disagrees with any other file in the repo, **this file wins**.
