@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   onAuthStateChanged,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
+  getAdditionalUserInfo,
   signOut,
 } from 'firebase/auth';
 import { auth, googleProvider, appleProvider } from '../firebase.js';
+import { usage } from '../data/usageEvents.js';
 
 /**
  * WEBLINK-10: errors used to be swallowed into console.error. On a phone that
@@ -44,6 +46,8 @@ const USER_CANCELLED_CODES = new Set([
   'auth/user-cancelled',
 ]);
 
+const REDIRECT_PROVIDER = { 'google.com': 'google', 'apple.com': 'apple' };
+
 function isUserCancellation(err) {
   return USER_CANCELLED_CODES.has(String(err?.code ?? ''));
 }
@@ -69,6 +73,8 @@ export default function useAuth() {
   // WEBLINK-18: a breadcrumb of the last sign-in failure, rendered in
   // ProfilePanel under the buttons. Reset per attempt.
   const [authDebug, setAuthDebug] = useState(null);
+  // Whether the last pop-up sign-in created a new account (read by a shared page for shared_signup).
+  const lastWasNew = useRef(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -81,7 +87,10 @@ export default function useAuth() {
   // WEBLINK-10: collect the result of a redirect sign-in. Without this the
   // user returns from the provider and the app silently drops the result.
   useEffect(() => {
-    getRedirectResult(auth).catch((err) => {
+    getRedirectResult(auth).then((result) => {
+      const provider = REDIRECT_PROVIDER[result?.providerId];
+      if (provider) usage.signinCompleted(provider);
+    }).catch((err) => {
       setAuthError(friendlyAuthError(err));
     });
   }, []);
@@ -94,18 +103,25 @@ export default function useAuth() {
    */
   const signInWeb = useCallback(async (provider) => {
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      try { lastWasNew.current = !!getAdditionalUserInfo(result)?.isNewUser; } catch { lastWasNew.current = false; }
+      return 'popup';
     } catch (err) {
       if (!POPUP_UNAVAILABLE.has(err?.code)) throw err;
       await signInWithRedirect(auth, provider);
+      return 'redirect';
     }
   }, []);
 
   const signIn = useCallback(async (providerId) => {
     setAuthError(null);
     setAuthDebug(null);
+    lastWasNew.current = false;
+    usage.signinStarted(providerId);
     try {
-      await signInWeb(providerId === 'google' ? googleProvider : appleProvider);
+      const how = await signInWeb(providerId === 'google' ? googleProvider : appleProvider);
+      // A redirect finishes after the page comes back (reported from getRedirectResult).
+      if (how === 'popup') usage.signinCompleted(providerId);
       return true;
     } catch (err) {
       const code = String(err?.code ?? '');
@@ -126,6 +142,8 @@ export default function useAuth() {
   // Google sign-in is also offered.
   const loginWithApple = useCallback(() => signIn('apple'), [signIn]);
 
+  const lastSignInWasNew = useCallback(() => lastWasNew.current, []);
+
   const logout = useCallback(async () => {
     setAuthError(null);
     try {
@@ -137,5 +155,5 @@ export default function useAuth() {
     }
   }, []);
 
-  return { user, loading, authError, authDebug, loginWithGoogle, loginWithApple, logout };
+  return { user, loading, authError, authDebug, loginWithGoogle, loginWithApple, lastSignInWasNew, logout };
 }

@@ -66,6 +66,8 @@ import InventCategoryHint from './InventCategoryHint.jsx';
 import InventCategoryPicker from './InventCategoryPicker.jsx';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
 import InventNameSave from './InventNameSave.jsx';
+import { useInventUsage } from '../hooks/useUsage.js';
+import { noteTypedIngredient } from '../data/usageIngredient.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
@@ -150,6 +152,7 @@ export default function InventSauce({
   const keysId = keys.join('|');
   const answered = keys.length > 0;
   const style = styleId ? INVENT_STYLE_BY_ID.get(styleId) : null;
+  const invent = useInventUsage('sauce', { started: answered, categoryId: styleId, editing: !!editItem });
 
   useEffect(() => { setSave((s) => (s.status === 'saved' || s.status === 'error' ? { status: 'idle', message: '' } : s)); }, [keysId, name, styleId]);
 
@@ -197,6 +200,7 @@ export default function InventSauce({
   const add = (text) => {
     const k = toKey(text);
     if (!k) return false;
+    noteTypedIngredient('sauce', text, names);
     const r = addLine(build, k, {});
     if (!r.ok) { setNotice(r.reason); return false; }
     changed(r.build);
@@ -205,6 +209,7 @@ export default function InventSauce({
   const answerStart = (text) => {
     const k = toKey(text);
     if (!k) return;
+    noteTypedIngredient('sauce', text, names);
     setBuild(openBuild({ lab: 'sauce', lines: [{ key: k, source: 'user' }] }));
     setStyleId(null);
     setNotice(null);
@@ -405,7 +410,7 @@ export default function InventSauce({
             )}
 
             {onSave && (
-              <InventNameSave testidPrefix={`${P}-namesave`} name={name} onName={setName} placeholder="Name your sauce"
+              <InventNameSave testidPrefix={`${P}-namesave`} name={name} onName={setName} onNameCommit={invent.named} placeholder="Name your sauce"
                 canSave={savePreview.ok} disabledReason={savePreview.ok ? '' : savePreview.reason}
                 saveLabel="Add to my sauces" status={save.status} message={save.message} onSave={doSave}
                 shareItem={lastSaved ? { kind: 'sauce', item: lastSaved } : null} />

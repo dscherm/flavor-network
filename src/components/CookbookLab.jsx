@@ -18,6 +18,7 @@
  * pre-selects filters on mount.
  */
 import { useEffect, useMemo, useState } from 'react';
+import { useNoResultSearch } from '../hooks/useUsage.js';
 import WhatDoINeed from './WhatDoINeed.jsx';
 import DishStory from './DishStory.jsx';
 import { needsFromKitchen } from '../data/whatDoINeed.js';
@@ -501,6 +502,7 @@ export default function CookbookLab({
       }),
     [allRecipes, cuisineFilter, clusterFilter, externalFilter, isMakePicker, searchTerms],
   );
+  useNoResultSearch('cookbook', searchTerm, searchTerms.length > 0 && filtered.length === 0);
 
   const inventSeed = useMemo(
     () => (onInventThis && searchTerms.length

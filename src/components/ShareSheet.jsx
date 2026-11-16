@@ -12,6 +12,7 @@
  *   ownSlot     own item only: replaces the "Make a public link" block with the publish step (OwnShare.jsx)
  *   imagesSlot  node rendered in data-testid="share-images-slot"; when omitted, a built-in recipe gets
  *               <ShareImages> (the card pictures, SHARE-5)
+ *   own         true when the recipe is one the person made (usage only: origin own / built_in); default = ownItem
  *   origin      override for tests; defaults to window.location.origin
  * ShareButton props: the same, minus open/onClose, plus label, className, style, testid.
  *   Renders nothing for an own item while SHARE_OWN_ENABLED is false, and nothing
@@ -21,6 +22,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { absoluteShareUrl, shareTargetUrls, shareTextFor, SHARE_OWN_ENABLED } from '../data/shareTargets.js';
 import ShareImages from './ShareImages.jsx';
+import { usage } from '../data/usageEvents.js';
 import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading } from './inventUi.jsx';
 
 const NETWORKS = [
@@ -32,7 +34,13 @@ const NETWORKS = [
 
 const tap = { minHeight: 44 };
 
-export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, onPublish, ownSlot, imagesSlot, origin }) {
+// '/r/<kind>/<slug>' is a built-in recipe; '/r/<id>' (one segment) is a person's own and gives no slug.
+export function builtInSlug(link) {
+  const m = /^\/r\/(?:cocktail|sauce|dish)\/([^/?#]+)\/?$/.exec(String(link || ''));
+  return m ? m[1] : '';
+}
+
+export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, own = ownItem, onPublish, ownSlot, imagesSlot, origin }) {
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
   const closeRef = useRef(null);
@@ -45,6 +53,12 @@ export function ShareSheet({ open, onClose, recipe, link = '', ownItem = false, 
     closeRef.current?.focus?.();
     return () => window.removeEventListener('keydown', onKey, true);
   }, [open, onClose]);
+
+  // Usage: once per opening.
+  useEffect(() => {
+    if (open) usage.shareSheetOpened({ kind: recipe?.kind, origin: own ? 'own' : 'built_in', slug: own ? '' : builtInSlug(link) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   useEffect(() => {
     if (!copied) return undefined;

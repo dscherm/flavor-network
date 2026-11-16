@@ -38,6 +38,7 @@ import { defaultLoadData, defaultLoadNodes } from '../data/sharedLoaders.js';
 import { profileForRecipe } from '../data/shareCardData.js';
 import { SHARE_CHARTS_ENABLED } from '../data/shareTargets.js';
 import { chalkSurfaceStyle } from '../data/chalkTheme.js';
+import { usage } from '../data/usageEvents.js';
 import { FONT, SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading, small } from './inventUi.jsx';
 
 const KIND_WORD = { cocktail: 'Cocktail', sauce: 'Sauce', dish: 'Dish' };
@@ -57,7 +58,11 @@ const tap = { minHeight: 44 };
 function RecipeActions({ recipe, nodes, navigate }) {
   const auth = useAuth();
   const userProfile = useUserProfile(auth.user);
-  const save = useSaveInvention({ kind: savedKindFor(recipe.kind), userProfile, auth });
+  const usageSource = recipe.shareId ? 'own' : 'built_in';
+  const save = useSaveInvention({
+    kind: savedKindFor(recipe.kind), userProfile, auth,
+    onSaved: () => usage.sharedSaved({ kind: recipe.kind, origin: usageSource }),
+  });
   const sharedFrom = sharedFromFor(recipe);
   const shareLink = recipe.shareId ? `/r/${recipe.shareId}` : `/r/${recipe.kind}/${recipe.slug}`;
   const noun = savedNoun(recipe.kind);
@@ -117,6 +122,7 @@ function RecipeActions({ recipe, nodes, navigate }) {
     if (save.pending) setPendingSave({ kind: recipe.kind, slug: recipe.slug });
     const ok = await login?.();
     if (ok === false) clearPendingSave();
+    else if (ok && auth.lastSignInWasNew?.()) usage.sharedSignup({ kind: recipe.kind, origin: usageSource });
   };
   const overlayAuth = { ...auth, loginWithGoogle: startSignIn(auth.loginWithGoogle), loginWithApple: startSignIn(auth.loginWithApple) };
   const cancel = () => { save.cancelPending(); clearPendingSave(); setInviteOpen(false); };
@@ -224,6 +230,13 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
   }, [kind, slug, shareId, loadData, loadShared]);
 
   const ready = state.status === 'ready';
+  // Usage: once per recipe shown. A user's own recipe is reported by kind only, never by id or name.
+  useEffect(() => {
+    if (!ready || !state.recipe) return;
+    const own = !!state.recipe.shareId;
+    usage.sharedPageOpened({ kind: state.recipe.kind, origin: own ? 'own' : 'built_in', slug: own ? '' : state.recipe.slug });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
   useEffect(() => {
     if (!ready || !SHARE_CHARTS_ENABLED) return undefined;
     let live = true;
@@ -313,6 +326,11 @@ export default function SharedRecipePage({ route, loadData = defaultLoadData, lo
           </article>
         )}
       </main>
+      <footer className="px-4 mx-auto w-full" style={{ maxWidth: 560, paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))' }}>
+        <a href="/privacy" data-testid="shared-privacy-link" className="inline-flex items-center min-h-[44px] underline" style={{ fontFamily: SANS, fontSize: 13, color: CHALK_SUB }}>
+          Privacy
+        </a>
+      </footer>
     </div>
   );
 }

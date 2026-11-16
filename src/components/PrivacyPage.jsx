@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getConsent, setConsent, subscribeConsent } from '../data/usage.js';
+import { EVENTS, TEXT_MAX } from '../data/usageEvents.js';
 
 const box = { maxWidth: 640, margin: '0 auto', padding: '24px 16px 48px', boxSizing: 'border-box' };
 const h2 = { fontSize: 17, fontWeight: 600, margin: '22px 0 6px' };
@@ -42,16 +43,24 @@ export default function PrivacyPage() {
 
         <h2 style={h2}>What is collected (only after Yes)</h2>
         <ul style={{ paddingLeft: 20 }}>
-          <li>Which pages and labs are opened, and which buttons are used (for example: invent started, link shared).</li>
-          <li>Whether a recipe was saved or a share link was opened, as counts.</li>
           <li>Your rough device type, browser and country, which Google works out from the connection.</li>
-          <li>Typed text in two cases only, shortened to 60 characters: a search that found nothing, and an ingredient name the app did not recognise.</li>
+          <li>
+            Typed text in two cases only, lowercased and shortened to {TEXT_MAX} characters: a search that found nothing
+            (<code>search_no_result</code>), and an ingredient name the app did not recognise (<code>ingredient_unrecognised</code>).
+            Text that contains an @ or a web address is not sent.
+          </li>
+          <li>Only these events, each with the labels given and nothing else:</li>
+        </ul>
+        <ul data-testid="privacy-events" style={{ paddingLeft: 36, fontSize: 14 }}>
+          {Object.entries(EVENTS).map(([name, def]) => (
+            <li key={name} data-testid="privacy-event" data-event={name}><code>{name}</code>: {def.plain}</li>
+          ))}
         </ul>
 
         <h2 style={h2}>What is never sent</h2>
         <ul style={{ paddingLeft: 20 }}>
           <li>Your name, email or account id.</li>
-          <li>The names or contents of recipes, drinks or sauces you wrote or saved.</li>
+          <li>The names or contents of recipes, drinks or sauces you wrote or saved, any nickname you chose for a shared recipe, or the id of a link you made.</li>
           <li>Your photos.</li>
         </ul>
         <p>No ads are shown and nothing is sold.</p>

@@ -22,6 +22,7 @@ import { SHARE_LIMITS, firstName, fromSharedDoc, newShareId, shareFingerprint, t
 import { publishShare } from '../data/shareStore.js';
 import { barsFor } from '../data/shareCardData.js';
 import { loadLabelNodes } from '../data/sharedLoaders.js';
+import { usage } from '../data/usageEvents.js';
 import { SANS, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, ACCENT, btn, heading, inputStyle } from './inventUi.jsx';
 
 export const ShareOwnContext = createContext(null);
@@ -136,6 +137,7 @@ function PublishStep({ kind, item, ctx, onPublished, getDb }) {
       userProfile?.addShare?.({
         id, kind, sourceId: String(item.id || ''), fingerprint: shareFingerprint({ ...item, kind }), name: finalDoc.name, createdAt: finalDoc.createdAt,
       });
+      usage.shareLinkCreated(PAGE_KIND[kind]);
       onPublished({ id, doc: finalDoc });
     } catch {
       setError('Could not create the link. Nothing was shared; try again.');
@@ -209,7 +211,7 @@ export function OwnShareButton({ kind, item, label = 'Share', className = '', st
         {label}
       </button>
       {link && recipe ? (
-        <ShareSheet open={open} onClose={() => setOpen(false)} recipe={{ kind: recipe.kind, name: recipe.name }} link={link}
+        <ShareSheet open={open} onClose={() => setOpen(false)} recipe={{ kind: recipe.kind, name: recipe.name }} link={link} own
           imagesSlot={(
             <>
               <p data-testid="own-live" className="text-[14px]" style={{ fontFamily: SANS, color: CHALK_DIM }}>

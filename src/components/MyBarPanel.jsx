@@ -20,6 +20,8 @@ import { FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chal
 import { DrinkGlass } from './cocktailGlasses.jsx';
 import BarScanSetup from './BarScanSetup.jsx';
 import BarScanReview from './BarScanReview.jsx';
+import { usage } from '../data/usageEvents.js';
+import { noteTypedIngredient } from '../data/usageIngredient.js';
 import { scanMode, loadScanKey, loadScanCode, barVocab, runBarScan, toReviewRows, mergeReviewRows, ScanError } from '../data/barScan.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -80,11 +82,14 @@ export default function MyBarPanel({
     e.target.value = '';
     if (!file) return;
     setScanBusy(true); setScanError(null); setScanNote('');
+    const route = scanMode();
+    usage.scanStarted(route);
     try {
       const vocabForScan = barVocab(cocktails, roles, names);
       const result = await scan({ file, vocab: vocabForScan, key: loadScanKey(), code: loadScanCode() });
       const next = toReviewRows(result, bar, { names, roles });
       const prev = scanView === 'review' ? review : { rows: [], other: [] };
+      if (next.rows.length + next.other.length > 0) usage.scanSucceeded(route, next.rows.length);
       if (next.rows.length === 0 && next.other.length === 0 && prev.rows.length === 0) {
         setScanNote("I couldn't read any labels — try closer, with more light.");
         setScanView(null);
@@ -103,6 +108,7 @@ export default function MyBarPanel({
     }
   };
   const commitScan = (rows, others) => {
+    usage.scanKept(scanMode(), rows.length);
     let nextBar = bar;
     for (const r of rows) nextBar = addToBar(nextBar, r.barKey, names);
     if (nextBar !== bar) onChange?.(nextBar);
@@ -133,6 +139,7 @@ export default function MyBarPanel({
   const submit = (e) => {
     e.preventDefault();
     if (!text.trim()) return;
+    noteTypedIngredient('bar', text, names);
     add(text);
     setText('');
   };

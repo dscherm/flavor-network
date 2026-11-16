@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNoResultSearch } from '../hooks/useUsage.js';
 import { cocktailBaseSpirit, COCKTAIL_SPIRIT_LEGEND, COCKTAIL_SPIRIT_COLORS } from '../data/cocktailBaseSpirit.js';
 import {
   FONT, CHALK_BG, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
@@ -323,6 +324,7 @@ export default function CocktailBrowse({
     }
     return hits;
   }, [annotated, searchTerm]);
+  useNoResultSearch('cocktail', searchTerm, !!searchHits && searchHits.size === 0);
 
   // Ingredient vocabulary for the search box's autocomplete.
   const ingredientVocab = useMemo(

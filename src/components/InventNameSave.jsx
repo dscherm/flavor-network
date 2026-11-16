@@ -14,6 +14,7 @@
  *   message         string                         shown for saved / error / signin (signin default: "Sign in to save, then it saves.")
  *   maxLength       default 80
  *   testidPrefix    default 'namesave'
+ *   onNameCommit    (text)  called when the name box loses focus with something in it (usage: invent_named; the text itself is not sent)
  *   shareItem       { kind, item } the saved invention; once status is 'saved' a Share button publishes it (OwnShare, behind SHARE_OWN_ENABLED)
  * Test ids: {p} root, {p}-name, {p}-save, {p}-reason, {p}-status.
  */
@@ -22,7 +23,7 @@ import { OwnShareButton } from './OwnShare.jsx';
 
 export default function InventNameSave({
   name = '', onName, placeholder = 'Name it', canSave = false, disabledReason = 'Add a name and at least two ingredients.',
-  saveLabel = 'Save', onSave, status = 'idle', message = '', maxLength = 80, testidPrefix = 'namesave', shareItem = null,
+  saveLabel = 'Save', onSave, status = 'idle', message = '', maxLength = 80, testidPrefix = 'namesave', shareItem = null, onNameCommit,
 }) {
   const p = testidPrefix;
   const saving = status === 'saving';
@@ -30,7 +31,7 @@ export default function InventNameSave({
   const shown = message || (status === 'signin' ? 'Sign in to save, then it saves.' : status === 'saved' ? 'Saved.' : '');
   return (
     <div data-testid={p} className="min-w-0 flex flex-col gap-1.5">
-      <input type="text" value={name} onChange={(e) => onName(e.target.value)} placeholder={placeholder} aria-label={placeholder}
+      <input type="text" value={name} onChange={(e) => onName(e.target.value)} onBlur={(e) => onNameCommit?.(e.target.value)} placeholder={placeholder} aria-label={placeholder}
         maxLength={maxLength} data-testid={`${p}-name`} autoComplete="off" className="w-full min-w-0 px-3 rounded-lg min-h-[44px]" style={inputStyle} />
       <button type="button" onClick={onSave} disabled={disabled} data-testid={`${p}-save`} className="w-full px-4 rounded-lg min-h-[44px]"
         style={btn({ background: disabled ? 'transparent' : `${ACCENT}33`, opacity: disabled ? 0.55 : 1, color: CHALK_CREAM })}>

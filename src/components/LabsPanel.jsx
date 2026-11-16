@@ -27,7 +27,7 @@ export default function LabsPanel({ onPick }) {
       <div style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB, marginTop: 4, marginBottom: 16, padding: '0 24px', textAlign: 'center' }}>
         Pick a kitchen to work in.
       </div>
-      <div className="w-full max-w-md grid grid-cols-2 gap-3 px-4 pb-24">
+      <div className="w-full max-w-md grid grid-cols-2 gap-3 px-4 pb-3">
         {LAB_CARDS.map(({ id, label, desc, accent }) => (
           <button
             key={id}
@@ -44,6 +44,10 @@ export default function LabsPanel({ onPick }) {
           </button>
         ))}
       </div>
+      <a href="/privacy" data-testid="labs-privacy-link" className="mb-24 inline-flex items-center min-h-[44px] px-3 underline"
+        style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif', fontSize: 13, color: CHALK_SUB }}>
+        Privacy
+      </a>
     </div>
   );
 }

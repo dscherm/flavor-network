@@ -67,6 +67,8 @@ import InventCategoryHint from './InventCategoryHint.jsx';
 import InventCategoryPicker from './InventCategoryPicker.jsx';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
 import InventNameSave from './InventNameSave.jsx';
+import { useInventUsage } from '../hooks/useUsage.js';
+import { noteTypedIngredient } from '../data/usageIngredient.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const FOCUS = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
@@ -125,6 +127,7 @@ export default function InventRecipe({
   });
   const { started, build, typeId, cuisine, name, edits, editId } = state;
   const skeleton = typeId ? DISH_SKELETONS[typeId] : null;
+  const invent = useInventUsage('recipe', { started, categoryId: typeId, editing: !!editItem });
   const patch = (p) => setState((st) => ({ ...st, ...p }));
 
   useEffect(() => {
@@ -219,10 +222,11 @@ export default function InventRecipe({
     patch({ build: r.build });
     return true;
   };
-  const addTyped = (text) => { const k = keyFor(text); return k ? add(k) : false; };
+  const addTyped = (text) => { const k = keyFor(text); if (k) noteTypedIngredient('recipe', text, names); return k ? add(k) : false; };
   const start = (text) => {
     const k = keyFor(text);
     if (!k) return;
+    noteTypedIngredient('recipe', text, names);
     const r = addLine(openBuild({ lab: 'recipe' }), k, { source: 'user' });
     if (r.ok) reset({ started: true, build: r.build });
   };
@@ -421,7 +425,7 @@ export default function InventRecipe({
                 canSave={check.ok} disabledReason={check.ok ? undefined : check.reason}
                 status={saveState.status} message={saveState.message}
                 shareItem={lastSaved ? { kind: 'recipe', item: lastSaved } : null}
-                onName={(t) => { setSaveState({ status: 'idle', message: '' }); patch({ name: t }); }} onSave={save} />
+                onNameCommit={invent.named} onName={(t) => { setSaveState({ status: 'idle', message: '' }); patch({ name: t }); }} onSave={save} />
             )}
 
             <div className="flex flex-wrap gap-2">

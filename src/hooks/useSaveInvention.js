@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { usage, labForKind } from '../data/usageEvents.js';
 
 const NOUN = { cocktail: 'cocktails', sauce: 'sauces', recipe: 'recipes' };
 
@@ -17,8 +18,9 @@ const NOUN = { cocktail: 'cocktails', sauce: 'sauces', recipe: 'recipes' };
  *    The queue is dropped by cancelPending(), by "Not now", and on unmount;
  *  - a failed write resolves 'error' with a plain message and nothing is lost.
  * Without a profile writer onSave is null (the panel hides its save row).
+ * onSaved (optional): called after every successful write instead of reporting the usage event invent_saved.
  */
-export default function useSaveInvention({ kind, userProfile, auth }) {
+export default function useSaveInvention({ kind, userProfile, auth, onSaved }) {
   const user = auth?.user || null;
   const writer = userProfile?.saveInvention || null;
   const writerRef = useRef(writer);
@@ -27,6 +29,8 @@ export default function useSaveInvention({ kind, userProfile, auth }) {
   kindRef.current = kind;
   const userRef = useRef(user);
   userRef.current = user;
+  const onSavedRef = useRef(onSaved);
+  onSavedRef.current = onSaved;
   const pendingRef = useRef(null);
   const [pending, setPending] = useState(null);
   const [toast, setToast] = useState(null);
@@ -35,7 +39,12 @@ export default function useSaveInvention({ kind, userProfile, auth }) {
     const noun = NOUN[kindRef.current] || 'list';
     try {
       const res = writerRef.current({ ...input, kind: kindRef.current });
-      if (res && res.ok) return { status: 'saved', message: `Saved to your ${noun}` };
+      if (res && res.ok) {
+        // Usage: a callback replaces the default invent_saved (a shared page reports shared_saved instead).
+        if (onSavedRef.current) { try { onSavedRef.current(); } catch { /* never breaks a save */ } }
+        else usage.inventSaved(labForKind(kindRef.current));
+        return { status: 'saved', message: `Saved to your ${noun}` };
+      }
       return { status: 'error', message: res?.reason || 'Could not save this. Nothing was lost; try again.' };
     } catch {
       return { status: 'error', message: 'Could not save this. Nothing was lost; try again.' };

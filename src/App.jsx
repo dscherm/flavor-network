@@ -97,6 +97,7 @@ import useUserProfile from './hooks/useUserProfile.js';
 import useAuth from './hooks/useAuth.js';
 import { readImportParam, stripImportParam } from './utils/importParam.js';
 import { takeInventSeed } from './data/sharedHandoff.js';
+import { usage } from './data/usageEvents.js';
 
 // Spec §1.H — URL deep-link routing. `?path=<slug>` ↔ activeTab.
 // 2026-05-29 DOCS-RL-COOKBOOK-RENAME: 'cookbook' tab key renamed to
@@ -341,6 +342,10 @@ export default function App() {
     if (activeTab === 'sauce') setSauceMounted(true);
     if (activeTab === 'recipe') setRecipeMounted(true);
   }, [activeTab]);
+  // Usage: which lab is opened, once per opening (not per re-render).
+  useEffect(() => {
+    if (startPageComplete && activeTab !== 'labs' && activeTab !== 'profile') usage.labOpened(activeTab);
+  }, [activeTab, startPageComplete]);
   const [recipeInitialMode, setRecipeInitialMode] = useState(null);
   const [cookbookPickerMode, setCookbookPickerMode] = useState(null);
   // One-shot handoff payload to the Recipe Lab. ONLY explicit user

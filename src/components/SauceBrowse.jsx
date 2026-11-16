@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNoResultSearch } from '../hooks/useUsage.js';
 import {
   FONT, CHALK_CREAM, CHALK_DIM, CHALK_SUB, CHALK_RAIL, CHALK_SHADOW, chalkSurfaceStyle,
 } from '../data/chalkTheme.js';
@@ -114,6 +115,7 @@ export default function SauceBrowse({
     }
     return hits;
   }, [codexData, searchTerm]);
+  useNoResultSearch('sauce', searchTerm, !!searchHits && searchHits.size === 0);
 
   const ingredientVocab = useMemo(() => {
     if (!codexData?.graph?.nodes) return [];

@@ -47,6 +47,8 @@ import InventCategoryHint from './InventCategoryHint.jsx';
 import InventCategoryPicker from './InventCategoryPicker.jsx';
 import InventFlavorProfile from './InventFlavorProfile.jsx';
 import InventNameSave from './InventNameSave.jsx';
+import { useInventUsage } from '../hooks/useUsage.js';
+import { noteTypedIngredient } from '../data/usageIngredient.js';
 
 const SANS = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 const NEUTRAL = '#9a8f7a';
@@ -114,6 +116,7 @@ export default function InventCocktail({
   const [hintOff, setHintOff] = useState(null);
   const [saveState, setSaveState] = useState({ status: 'idle', message: '' });
   const { started, categoryId, build, edited, name } = st;
+  const invent = useInventUsage('cocktail', { started, categoryId, editing: !!editItem });
   const patch = (p) => setSt((s) => ({ ...s, ...p }));
 
   const keys = buildKeys(build);
@@ -143,6 +146,7 @@ export default function InventCocktail({
   const startWith = (text) => {
     const key = keyFor(text);
     if (!key) return;
+    noteTypedIngredient('cocktail', text, names);
     const res = addLine(build, key, { source: 'user' });
     patch({ started: true, ...(res.ok ? { build: res.build } : {}) });
   };
@@ -270,7 +274,7 @@ export default function InventCocktail({
                 : 'Your bar is empty, so suggestions draw on every bottle in the cocktail list.'}
             </p>
 
-            <InventList lines={lines} vocab={vocab} notice={notice} onAdd={(t) => add(t)} onRemove={remove}
+            <InventList lines={lines} vocab={vocab} notice={notice} onAdd={(t) => { noteTypedIngredient('cocktail', t, names); return add(t); }} onRemove={remove}
               onAmount={(k, t) => patch({ edited: { ...edited, [k]: t } })}
               replacementsFor={replacementsFor} onReplace={replace} testidPrefix="invent-list" />
 
@@ -337,7 +341,7 @@ export default function InventCocktail({
 
             {onSave && (
               <InventNameSave name={name} onName={(t) => { patch({ name: t }); setSaveState({ status: 'idle', message: '' }); }}
-                placeholder="Name your drink" canSave={canSave} disabledReason={disabledReason} saveLabel="Add to my cocktails"
+                placeholder="Name your drink" onNameCommit={invent.named} canSave={canSave} disabledReason={disabledReason} saveLabel="Add to my cocktails"
                 status={saveState.status} message={saveState.message} onSave={save} testidPrefix="invent-namesave"
                 shareItem={lastSaved ? { kind: 'cocktail', item: lastSaved } : null} />
             )}
